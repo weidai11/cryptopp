@@ -32,6 +32,12 @@
     <ClCompile Include="aria.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="aria-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ariatab.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="asn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -51,6 +57,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="blake2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake2-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="blowfish.cpp">
@@ -87,6 +96,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="crc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="crc-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cryptlib.cpp">
@@ -150,6 +162,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gcm.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gcm-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gf256.cpp">
@@ -290,6 +305,9 @@
     <ClCompile Include="rijndael.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rijndael-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ripemd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -320,10 +338,16 @@
     <ClCompile Include="sha.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sha-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="sha3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shacal2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shacal2-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shark.cpp">

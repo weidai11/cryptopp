@@ -10,7 +10,9 @@ algparam.cpp
 algparam.h
 arc4.cpp
 arc4.h
+ariatab.cpp
 aria.cpp
+aria-simd.cpp
 aria.h
 argnames.h
 asn.cpp
@@ -29,6 +31,7 @@ bench1.cpp
 bench2.cpp
 bfinit.cpp
 blake2.cpp
+blake2-simd.cpp
 blake2.h
 blowfish.cpp
 blowfish.h
@@ -53,6 +56,7 @@ config.h
 cpu.cpp
 cpu.h
 crc.cpp
+crc-simd.cpp
 crc.h
 cryptdll.vcxproj
 cryptdll.vcxproj.filters
@@ -177,6 +181,7 @@ mqv.cpp
 mqv.h
 nbtheory.cpp
 nbtheory.h
+neon.cpp
 network.cpp
 network.h
 nr.h
@@ -225,6 +230,7 @@ regtest2.cpp
 regtest3.cpp
 resource.h
 rijndael.cpp
+rijndael-simd.cpp
 rijndael.h
 ripemd.cpp
 ripemd.h
@@ -248,10 +254,12 @@ serpent.cpp
 serpent.h
 serpentp.h
 sha.cpp
+sha-simd.cpp
 sha.h
 sha3.cpp
 sha3.h
 shacal2.cpp
+shacal2-simd.cpp
 shacal2.h
 shark.cpp
 shark.h

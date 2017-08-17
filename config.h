@@ -80,8 +80,15 @@
 // #endif
 
 // File system code to write to GZIP archive.
+//   http://www.gzip.org/format.txt
 #if !defined(GZIP_OS_CODE)
-# define GZIP_OS_CODE 0
+# if defined(__macintosh__)
+#  define GZIP_OS_CODE 7
+# elif defined(__unix__) || defined(__linux__)
+#  define GZIP_OS_CODE 3
+# else
+#  define GZIP_OS_CODE 0
+# endif
 #endif
 
 // Try this if your CPU has 256K internal cache or a slow multiply instruction
@@ -386,155 +393,7 @@ NAMESPACE_END
 #define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
 #endif
 
-// Apple's Clang prior to 5.0 cannot handle SSE2 (and Apple does not use LLVM Clang numbering...)
-#if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
-# define CRYPTOPP_DISABLE_ASM
-#endif
-
-// Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
-// We can enable SSE2 for Sun Studio in the makefile with -D__SSE2__, but users may not compile with it.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(__SSE2__) && defined(__x86_64__) && (__SUNPRO_CC >= 0x5100)
-# define __SSE2__ 1
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
-	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
-	#define CRYPTOPP_X86_ASM_AVAILABLE
-
-	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
-		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
-	#else
-		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-	#endif
-
-	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || (defined(__SSE3__) && defined(__SSSE3__)))
-		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
-	#else
-		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
-	#endif
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(_MSC_VER) && defined(_M_X64)
-	#define CRYPTOPP_X64_MASM_AVAILABLE
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
-	#define CRYPTOPP_X64_ASM_AVAILABLE
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__)) && !defined(_M_ARM)
-	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE 0
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3) && !defined(_M_ARM) && (_MSC_VER >= 1500 || (defined(__SSSE3__) && defined(__SSSE3__)))
-	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE 0
-#endif
-
-// Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
-//   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
-//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE4) && !defined(_M_ARM) && ((_MSC_VER >= 1500) || (defined(__SSE4_1__) && defined(__SSE4_2__)))
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE 0
-#endif
-
-// Don't disgorge AES-NI from CLMUL. There will be two to four subtle breaks
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && !defined(_M_ARM) && (_MSC_FULL_VER >= 150030729 || __INTEL_COMPILER >= 1110 || (defined(__AES__) && defined(__PCLMUL__)))
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE 0
-#endif
-
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && !defined(_M_ARM) && ((_MSC_VER >= 1900) || defined(__SHA__))
-	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 1
-#else
-	#define CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE 0
-#endif
-
-// Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
-#if !defined(CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON__) || defined(__ARM_NEON) || defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM)
-#  define CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE 1
-# endif
-#endif
-
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRC32)
-#  define CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE 1
-# endif
-#endif
-
-// Requires ARMv8, ACLE 2.0 and Aarch64. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang does not support it at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) && !defined(__apple_build_version__)
-#  if defined(__arm64__) || defined(__aarch64__)
-#   define CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE 1
-#  endif
-# endif
-#endif
-
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910)
-#  define CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE 1
-# endif
-#endif
-
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
-	#define CRYPTOPP_BOOL_ALIGN16 1
-#else
-	#define CRYPTOPP_BOOL_ALIGN16 0
-#endif
-
-// how to allocate 16-byte aligned memory (for SSE2)
-#if defined(_MSC_VER)
-	#define CRYPTOPP_MM_MALLOC_AVAILABLE
-#elif defined(__APPLE__)
-	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
-	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
-#elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
-	#define CRYPTOPP_MEMALIGN_AVAILABLE
-#else
-	#define CRYPTOPP_NO_ALIGNED_ALLOC
-#endif
-
-// Apple always provides 16-byte aligned, and tells us to use calloc
-// http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
-
-// how to disable inlining
-#if defined(_MSC_VER)
-#	define CRYPTOPP_NOINLINE_DOTDOTDOT
-#	define CRYPTOPP_NOINLINE __declspec(noinline)
-#elif defined(__GNUC__)
-#	define CRYPTOPP_NOINLINE_DOTDOTDOT
-#	define CRYPTOPP_NOINLINE __attribute__((noinline))
-#else
-#	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
-#	define CRYPTOPP_NOINLINE
-#endif
-
-// How to declare class constants
-#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
-# define CRYPTOPP_CONSTANT(x) static const int x;
-#else
-# define CRYPTOPP_CONSTANT(x) enum {x};
-#endif
+// ***************** Platform and CPU features ********************
 
 // Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
 // Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
@@ -577,6 +436,190 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_ARM64 1
 #else
 	#define CRYPTOPP_BOOL_ARM64 0
+#endif
+
+#if defined(_MSC_VER) || defined(__BORLANDC__)
+# define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY 1
+#else
+# define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY 1
+#endif
+
+// ***************** IA32 CPU features ********************
+
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+
+// Apple Clang prior to 5.0 cannot handle SSE2
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
+# define CRYPTOPP_DISABLE_ASM
+#endif
+
+// Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
+// We can enable SSE2 for Sun Studio in the makefile with -D__SSE2__, but users may not compile with it.
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(__SSE2__) && defined(__x86_64__) && (__SUNPRO_CC >= 0x5100)
+# define __SSE2__ 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
+	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
+	#define CRYPTOPP_X86_ASM_AVAILABLE
+
+	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
+		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
+	#endif
+
+	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || defined(__SSSE3__))
+		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
+	#endif
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(_MSC_VER) && defined(_M_X64)
+	#define CRYPTOPP_X64_MASM_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
+	#define CRYPTOPP_X64_ASM_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__))
+	#define CRYPTOPP_SSE2_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3)
+# if defined(__SSSE3__) || (_MSC_VER >= 1500) || (CRYPTOPP_GCC_VERSION >= 40300)
+	#define CRYPTOPP_SSSE3_AVAILABLE 1
+# endif
+#endif
+
+// Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
+//   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
+//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
+#if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
+	(defined(__SSE4_1__) || (CRYPTOPP_MSC_VERSION >= 1500) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000))
+	#define CRYPTOPP_SSE41_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
+	(defined(__SSE4_2__) || (CRYPTOPP_MSC_VERSION >= 1500) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000))
+	#define CRYPTOPP_SSE42_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_CLMUL) && \
+	(defined(__PCLMUL__) || (_MSC_FULL_VER >= 150030729) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
+	#define CRYPTOPP_CLMUL_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
+	(defined(__AES__) || (_MSC_FULL_VER >= 150030729) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
+	#define CRYPTOPP_AESNI_AVAILABLE 1
+#endif
+
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && \
+	(defined(__SHA__) || (CRYPTOPP_MSC_VERSION >= 1900) || \
+	(CRYPTOPP_GCC_VERSION >= 40900) || (__INTEL_COMPILER >= 1300) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50100))
+	#define CRYPTOPP_SHANI_AVAILABLE 1
+#endif
+
+#endif  // X86, X32, X64
+
+// ***************** ARM CPU features ********************
+
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+
+// Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
+#if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__ARM_NEON__) || defined(__ARM_FEATURE_NEON) || (CRYPTOPP_MSC_VERSION >= 1700) || \
+	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
+#  define CRYPTOPP_ARM_NEON_AVAILABLE 1
+# endif
+#endif
+
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+# if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
+	defined(__aarch32__) || defined(__aarch64__)
+#  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
+# endif
+#endif
+
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
+	defined(__aarch32__) || defined(__aarch64__)
+#  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
+# endif
+#endif
+
+// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
+// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add MSC_VER and ARM-64 platform define when available
+#if !defined(CRYPTOPP_ARM_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
+	defined(__aarch32__) || defined(__aarch64__)
+#  define CRYPTOPP_ARM_AES_AVAILABLE 1
+#  define CRYPTOPP_ARM_SHA_AVAILABLE 1
+#  define CRYPTOPP_ARM_CRYPTO_AVAILABLE 1
+# endif
+#endif
+
+#endif  // ARM32, ARM64
+
+// ***************** Miscellaneous ********************
+
+#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+	#define CRYPTOPP_BOOL_ALIGN16 1
+#else
+	#define CRYPTOPP_BOOL_ALIGN16 0
+#endif
+
+// how to allocate 16-byte aligned memory (for SSE2)
+#if defined(_MSC_VER)
+	#define CRYPTOPP_MM_MALLOC_AVAILABLE
+#elif defined(__APPLE__)
+	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
+	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
+#elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
+	#define CRYPTOPP_MEMALIGN_AVAILABLE
+#else
+	#define CRYPTOPP_NO_ALIGNED_ALLOC
+#endif
+
+// Apple always provides 16-byte aligned, and tells us to use calloc
+// http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
+
+// how to disable inlining
+#if defined(_MSC_VER)
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT
+#	define CRYPTOPP_NOINLINE __declspec(noinline)
+#elif defined(__GNUC__)
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT
+#	define CRYPTOPP_NOINLINE __attribute__((noinline))
+#else
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
+#	define CRYPTOPP_NOINLINE
+#endif
+
+// How to declare class constants
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+# define CRYPTOPP_CONSTANT(x) static const int x;
+#else
+# define CRYPTOPP_CONSTANT(x) enum {x};
 #endif
 
 // ***************** Initialization and Constructor priorities ********************

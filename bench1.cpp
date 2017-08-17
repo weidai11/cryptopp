@@ -506,11 +506,11 @@ void Benchmark2(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 		if (HasCLMUL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
 		else
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARM_PMULL_AVAILABLE
 		if (HasPMULL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, MessageAuthenticationCode>("AES/GCM", 0, "GMAC(AES)");
 		else
@@ -595,11 +595,11 @@ void Benchmark2(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 		if (HasCLMUL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 		else
-#elif CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE
+#elif CRYPTOPP_ARM_PMULL_AVAILABLE
 		if (HasPMULL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 		else

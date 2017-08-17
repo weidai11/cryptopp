@@ -17,70 +17,6 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
-// ARM32 and ARM64 Headers
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-# if defined(__GNUC__)
-#  include <stdint.h>
-# endif
-# if defined(__ARM_NEON) || defined(__aarch32__) || defined(__aarch64__) || defined(_MSC_VER)
-#  include <arm_neon.h>
-# endif
-# if defined(__GNUC__) && !defined(__apple_build_version__)
-#  if defined(__ARM_ACLE) || defined(__ARM_FEATURE_CRC32) || defined(__ARM_FEATURE_CRYPTO)
-# 	include <arm_acle.h>
-#  endif
-# endif
-#endif  // ARM32 and ARM64 Headers
-
-// Used when supplying ASM due to missing intrinsics
-#if defined(__clang__)
-#  define GCC_INLINE inline
-#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__))
-#elif (CRYPTOPP_GCC_VERSION >= 30300) || defined(__INTEL_COMPILER)
-#  define GCC_INLINE __inline
-#  define GCC_INLINE_ATTRIB __attribute__((__gnu_inline__, __always_inline__, __artificial__))
-#else
-#  define GCC_INLINE inline
-#  define GCC_INLINE_ATTRIB
-# endif
-
-// X86/X64/X32 Headers
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
-
-// GCC X86 super-include
-#if (CRYPTOPP_GCC_VERSION >= 40800)
-#  include <x86intrin.h>
-#endif
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-#  include <intrin.h>
-#endif
-
-// Baseline include
-#if CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
-#  include <emmintrin.h>    // __m64, __m128i, _mm_set_epi64x
-#endif
-#if CRYPTOPP_BOOL_SSSE3_INTRINSICS_AVAILABLE
-#  include <tmmintrin.h>    // _mm_shuffle_pi8, _mm_shuffle_epi8
-#endif // tmmintrin.h
-#if CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE
-#  include <smmintrin.h>    // _mm_blend_epi16
-#  include <nmmintrin.h>    // _mm_crc32_u{8|16|32}
-#endif // smmintrin.h
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#  include <wmmintrin.h>    // aesenc, aesdec, etc
-#endif // wmmintrin.h
-#if CRYPTOPP_BOOL_SSE_SHA_INTRINSICS_AVAILABLE
-#  include <immintrin.h>    // RDRAND, RDSEED, AVX, SHA
-#endif // immintrin.h
-#endif  // X86/X64/X32 Headers
-
-// Applies to both X86/X32/X64 and ARM32/ARM64. And we've got MIPS devices on the way.
-#if defined(_MSC_VER) || defined(__BORLANDC__)
-# define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-#else
-# define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-#endif
-
 // Applies to both X86/X32/X64 and ARM32/ARM64
 #if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 	#define NEW_LINE "\n"
@@ -121,11 +57,10 @@ NAMESPACE_BEGIN(CryptoPP)
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 // These should not be used directly
 extern CRYPTOPP_DLL bool g_x86DetectionDone;
-extern CRYPTOPP_DLL bool g_hasMMX;
-extern CRYPTOPP_DLL bool g_hasISSE;
 extern CRYPTOPP_DLL bool g_hasSSE2;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
-extern CRYPTOPP_DLL bool g_hasSSE4;
+extern CRYPTOPP_DLL bool g_hasSSE41;
+extern CRYPTOPP_DLL bool g_hasSSE42;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_hasSHA;
@@ -140,38 +75,8 @@ extern CRYPTOPP_DLL bool g_hasPadlockPMM;
 extern CRYPTOPP_DLL word32 g_cacheLineSize;
 
 CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
-CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 input, word32 output[4]);
+CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[4]);
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
-
-//! \brief Determines MMX availability
-//! \returns true if MMX is determined to be available, false otherwise
-//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
-//!   the function always returns true for the platform.
-inline bool HasMMX()
-{
-#if CRYPTOPP_BOOL_X64
-	return true;
-#else
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasMMX;
-#endif
-}
-
-//! \brief Determines SSE availability
-//! \returns true if SSE is determined to be available, false otherwise
-//! \details MMX, SSE and SSE2 are core processor features for x86_64, and
-//!   the function always returns true for the platform.
-inline bool HasISSE()
-{
-#if CRYPTOPP_BOOL_X64
-	return true;
-#else
-	if (!g_x86DetectionDone)
-		DetectX86Features();
-	return g_hasISSE;
-#endif
-}
 
 //! \brief Determines SSE2 availability
 //! \returns true if SSE2 is determined to be available, false otherwise
@@ -199,14 +104,24 @@ inline bool HasSSSE3()
 	return g_hasSSSE3;
 }
 
-//! \brief Determines SSE4 availability
-//! \returns true if SSE4.1 and SSE4.2 are determined to be available, false otherwise
-//! \details HasSSE4() is a runtime check performed using CPUID which requires both SSE4.1 and SSE4.2
-inline bool HasSSE4()
+//! \brief Determines SSE4.1 availability
+//! \returns true if SSE4.1 is determined to be available, false otherwise
+//! \details HasSSE41() is a runtime check performed using CPUID
+inline bool HasSSE41()
 {
 	if (!g_x86DetectionDone)
 		DetectX86Features();
-	return g_hasSSE4;
+	return g_hasSSE41;
+}
+
+//! \brief Determines SSE4.2 availability
+//! \returns true if SSE4.2 is determined to be available, false otherwise
+//! \details HasSSE42() is a runtime check performed using CPUID
+inline bool HasSSE42()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasSSE42;
 }
 
 //! \brief Determines AES-NI availability
@@ -341,20 +256,25 @@ void CRYPTOPP_API DetectArmFeatures();
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
 //! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
-//! \details Advanced SIMD instructions are available under Aarch64 (ARM-64) and Aarch32 (ARM-32).
+//! \details Advanced SIMD instructions are available under most ARMv7, Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
 //!   (64-bit). Also see ARM's <tt>__ARM_NEON</tt> preprocessor macro.
 inline bool HasNEON()
 {
+	// ASIMD is a core feature on Aarch32 and Aarch64 like SSE2 is a core feature on x86_64
+#if defined(__aarch32__) || defined(__aarch64__)
+	return true;
+#else
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasNEON;
+#endif
 }
 
-//! \brief Determine if an ARM processor provides Polynomial Multiplication (long)
+//! \brief Determine if an ARM processor provides Polynomial Multiplication
 //! \returns true if the hardware is capable of polynomial multiplications at runtime, false otherwise.
-//! \details The multiplication instructions are available under Aarch64 (ARM-64) and Aarch32 (ARM-32).
+//! \details The multiplication instructions are available under Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
@@ -367,62 +287,74 @@ inline bool HasPMULL()
 
 //! \brief Determine if an ARM processor has CRC32 available
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
-//! \details CRC32 instructions provide access to the processor's CRC32 and CRC32-C instructions.
-//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch64
-//!   (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an AArch32 execution environment).
+//! \details CRC32 instructions provide access to the processor's CRC-32 and CRC-32C instructions.
+//!   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch32 and Aarch64.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crc</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt> preprocessor macro.
 inline bool HasCRC32()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasCRC32;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has AES available
 //! \returns true if the hardware is capable of AES at runtime, false otherwise.
-//! \details AES is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
-//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
-//!   AArch32 execution environment).
+//! \details AES is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+//!   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasAES()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasAES;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has SHA1 available
 //! \returns true if the hardware is capable of SHA1 at runtime, false otherwise.
-//! \details SHA1 is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
-//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
-//!   AArch32 execution environment).
+//! \details SHA1 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+//!   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasSHA1()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA1;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has SHA2 available
 //! \returns true if the hardware is capable of SHA2 at runtime, false otherwise.
-//! \details SHA2 is part of the Crypto extensions from ARM C Language Extensions 2.0 (ACLE 2.0)
-//!   and available under Aarch64 (ARM-64) and Aarch32 (ARM-32) running on Aarch64 (i.e., an
-//!   AArch32 execution environment).
+//! \details SHA2 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+//!   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 //!   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 inline bool HasSHA2()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA2;
+#else
+	return false;
+#endif
 }
 
 //! \brief Provides the cache line size at runtime
@@ -457,7 +389,6 @@ inline int GetCacheLineSize()
 	#define ASC(x, y) x label##y*newline*
 	#define AS_HEX(y) 0##y##h
 #elif defined(_MSC_VER) || defined(__BORLANDC__)
-	#define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 	#define AS1(x) __asm {x}
 	#define AS2(x, y) __asm {x, y}
 	#define AS3(x, y, z) __asm {x, y, z}
@@ -468,8 +399,6 @@ inline int GetCacheLineSize()
 	#define CRYPTOPP_NAKED __declspec(naked)
 	#define AS_HEX(y) 0x##y
 #else
-	#define CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-
 	// define these in two steps to allow arguments to be expanded
 	#define GNU_AS1(x) #x ";" NEW_LINE
 	#define GNU_AS2(x, y) #x ", " #y ";" NEW_LINE

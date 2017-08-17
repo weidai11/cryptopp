@@ -13,13 +13,9 @@
 #include "misc.h"
 #include "stdcpp.h"
 
-#if CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
-# include <arm_neon.h>
-#endif
-
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-#include <signal.h>
-#include <setjmp.h>
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
+# include <signal.h>
+# include <setjmp.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -30,13 +26,26 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
+// ***************** IA-32 CPUs ********************
+
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
-#if _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
+#if _MSC_VER >= 1500
 
-bool CpuId(word32 input, word32 output[4])
+inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-	__cpuid((int *)output, input);
+	__cpuidex((int *)output, func, subfunc);
+	return true;
+}
+
+#elif _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
+
+inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
+{
+	if (subfunc != 0)
+		return false;
+
+	__cpuid((int *)output, func);
 	return true;
 }
 
@@ -59,15 +68,15 @@ extern "C"
 }
 #endif
 
-bool CpuId(word32 input, word32 output[4])
+inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 #if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
 	{
 		__asm
 		{
-			mov eax, input
-			mov ecx, 0
+			mov eax, func
+			mov ecx, subfunc
 			cpuid
 			mov edi, output
 			mov [edi], eax
@@ -116,7 +125,7 @@ bool CpuId(word32 input, word32 output[4])
 			"push %%ebx; cpuid; mov %%ebx, %%edi; pop %%ebx"
 # endif
 			: "=a" (output[0]), "=D" (output[1]), "=c" (output[2]), "=d" (output[3])
-			: "a" (input), "c" (0)
+			: "a" (func), "c" (subfunc)
 			: "cc"
 		);
 	}
@@ -132,7 +141,7 @@ bool CpuId(word32 input, word32 output[4])
 
 #endif
 
-static bool TrySSE2()
+static bool CPU_ProbeSSE2()
 {
 #if CRYPTOPP_BOOL_X64
 	return true;
@@ -141,7 +150,7 @@ static bool TrySSE2()
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 		AS2(por xmm0, xmm0)        // executing SSE2 instruction
-#elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_SSE2_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -173,7 +182,7 @@ static bool TrySSE2()
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 		__asm __volatile ("por %xmm0, %xmm0");
-#elif CRYPTOPP_BOOL_SSE2_INTRINSICS_AVAILABLE
+#elif CRYPTOPP_SSE2_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		result = _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -189,8 +198,9 @@ static bool TrySSE2()
 }
 
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
-bool CRYPTOPP_SECTION_INIT g_hasMMX = false, CRYPTOPP_SECTION_INIT g_hasISSE = false, CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE4 = false, CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
+bool CRYPTOPP_SECTION_INIT CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false, CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
 bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false, CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
@@ -224,30 +234,18 @@ void DetectX86Features()
 {
 	// Coverity finding CID 171239...
 	word32 cpuid0[4]={0}, cpuid1[4]={0}, cpuid2[4]={0};
-	if (!CpuId(0, cpuid0))
+	if (!CpuId(0, 0, cpuid0))
 		return;
-	if (!CpuId(1, cpuid1))
+	if (!CpuId(1, 0, cpuid1))
 		return;
 
-	g_hasMMX = (cpuid1[3] & (1 << 23)) != 0;
 	if ((cpuid1[3] & (1 << 26)) != 0)
-		g_hasSSE2 = TrySSE2();
+		g_hasSSE2 = CPU_ProbeSSE2();
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
-	g_hasSSE4 = g_hasSSE2 && ((cpuid1[2] & (1<<19)) && (cpuid1[2] & (1<<20)));
+	g_hasSSE41 = g_hasSSE2 && (cpuid1[2] & (1<<19));
+	g_hasSSE42 = g_hasSSE2 && (cpuid1[2] & (1<<20));
 	g_hasAESNI = g_hasSSE2 && (cpuid1[2] & (1<<25));
 	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
-
-	if ((cpuid1[3] & (1 << 25)) != 0)
-		g_hasISSE = true;
-	else
-	{
-		CpuId(0x080000000, cpuid2);
-		if (cpuid2[0] >= 0x080000001)
-		{
-			CpuId(0x080000001, cpuid2);
-			g_hasISSE = (cpuid2[3] & (1 << 22)) != 0;
-		}
-	}
 
 	if (IsIntel(cpuid0))
 	{
@@ -259,9 +257,9 @@ void DetectX86Features()
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid0[0] /*EAX*/ >= 7)
+		if (cpuid1[0] /*EAX*/ >= 7)
 		{
-			if (CpuId(7, cpuid2))
+			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
 				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
@@ -274,13 +272,13 @@ void DetectX86Features()
 		enum { RDSEED_FLAG = (1 << 18) };
 		enum {    SHA_FLAG = (1 << 29) };
 
-		CpuId(0x80000005, cpuid2);
+		CpuId(0x80000005, 0, cpuid2);
 		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid0[0] /*EAX*/ >= 7)
+		if (cpuid1[0] /*EAX*/ >= 7)
 		{
-			if (CpuId(7, cpuid2))
+			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
 				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
@@ -295,16 +293,16 @@ void DetectX86Features()
 		enum {  PHE_FLAGS = (0x3 << 10) };
 		enum {  PMM_FLAGS = (0x3 << 12) };
 
-		CpuId(0xC0000000, cpuid0);
-		if (cpuid0[0] >= 0xC0000001)
+		CpuId(0xC0000000, 0, cpuid2);
+		if (cpuid2[0] >= 0xC0000001)
 		{
 			// Extended features available
-			CpuId(0xC0000001, cpuid0);
-			g_hasPadlockRNG  = !!(cpuid0[3] /*EDX*/ & RNG_FLAGS);
-			g_hasPadlockACE  = !!(cpuid0[3] /*EDX*/ & ACE_FLAGS);
-			g_hasPadlockACE2 = !!(cpuid0[3] /*EDX*/ & ACE2_FLAGS);
-			g_hasPadlockPHE  = !!(cpuid0[3] /*EDX*/ & PHE_FLAGS);
-			g_hasPadlockPMM  = !!(cpuid0[3] /*EDX*/ & PMM_FLAGS);
+			CpuId(0xC0000001, 0, cpuid2);
+			g_hasPadlockRNG  = !!(cpuid2[3] /*EDX*/ & RNG_FLAGS);
+			g_hasPadlockACE  = !!(cpuid2[3] /*EDX*/ & ACE_FLAGS);
+			g_hasPadlockACE2 = !!(cpuid2[3] /*EDX*/ & ACE2_FLAGS);
+			g_hasPadlockPHE  = !!(cpuid2[3] /*EDX*/ & PHE_FLAGS);
+			g_hasPadlockPMM  = !!(cpuid2[3] /*EDX*/ & PMM_FLAGS);
 		}
 	}
 
@@ -314,436 +312,196 @@ void DetectX86Features()
 	g_x86DetectionDone = true;
 }
 
+// ***************** ARM-32, Aarch32 and Aarch64 CPUs ********************
+
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
-// The ARM equivalent of CPUID probing is reading a MSR. The code requires Exception Level 1 (EL1) and above, but user space runs at EL0.
-//   Attempting to run the code results in a SIGILL and termination.
-//
-//     #if defined(__arm64__) || defined(__aarch64__)
-//	     word64 caps = 0;  // Read ID_AA64ISAR0_EL1
-//	     __asm __volatile("mrs %0, " "id_aa64isar0_el1" : "=r" (caps));
-//     #elif defined(__arm__) || defined(__aarch32__)
-//	     word32 caps = 0;  // Read ID_ISAR5_EL1
-//	     __asm __volatile("mrs %0, " "id_isar5_el1" : "=r" (caps));
-//     #endif
-//
-// The following does not work well either. Its appears to be missing constants, and it does not detect Aarch32 execution environments on Aarch64
-// http://community.arm.com/groups/android-community/blog/2014/10/10/runtime-detection-of-cpu-features-on-an-armv8-a-cpu
-//
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_ASIMD
+# define HWCAP_ASIMD (1 << 1)
+# endif
+# ifndef HWCAP_ARM_NEON
+# define HWCAP_ARM_NEON 4096
+# endif
+# ifndef HWCAP_CRC32
+# define HWCAP_CRC32 (1 << 7)
+# endif
+# ifndef HWCAP2_CRC32
+# define HWCAP2_CRC32 (1 << 4)
+# endif
+# ifndef HWCAP_PMULL
+# define HWCAP_PMULL (1 << 4)
+# endif
+# ifndef HWCAP2_PMULL
+# define HWCAP2_PMULL (1 << 1)
+# endif
+# ifndef HWCAP_AES
+# define HWCAP_AES (1 << 3)
+# endif
+# ifndef HWCAP2_AES
+# define HWCAP2_AES (1 << 0)
+# endif
+# ifndef HWCAP_SHA1
+# define HWCAP_SHA1 (1 << 5)
+# endif
+# ifndef HWCAP_SHA2
+# define HWCAP_SHA2 (1 << 6)
+# endif
+# ifndef HWCAP2_SHA1
+# define HWCAP2_SHA1 (1 << 2)
+# endif
+# ifndef HWCAP2_SHA2
+# define HWCAP2_SHA2 (1 << 3)
+# endif
+#endif
+
+#if defined(__APPLE__) && defined(__aarch64__)
+# include <sys/utsname.h>
+#endif
+
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasNEON = false, CRYPTOPP_SECTION_INIT g_hasPMULL = false, CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-extern "C"
+// ARM does not have an unprivliged equivalent to CPUID on IA-32. We have to jump through some
+//   hoops to detect features on a wide array of platforms. Our strategy is two part. First,
+//   attempt to *Query* the OS for a feature, like using getauxval on Linux. If that fails,
+//   then *Probe* the cpu executing an instruction and an observe a SIGILL if unsupported.
+// The probes are in source files where compilation options like -march=armv8-a+crc make
+//   intrinsics available. They are expensive when compared to a standard OS feature query.
+//   Always perform the feature quesry first. For Linux see
+//   http://sourceware.org/ml/libc-help/2017-08/msg00012.html
+// Avoid probes on Apple platforms because Apple's signal handling for SIGILLs appears broken.
+//   We are trying to figure out a way to feature test without probes. Also see
+//   http://stackoverflow.com/a/11197770/608639 and
+//   http://gist.github.com/erkanyildiz/390a480f27e86f8cd6ba
+
+extern bool CPU_ProbeNEON();
+extern bool CPU_ProbeCRC32();
+extern bool CPU_ProbeAES();
+extern bool CPU_ProbeSHA1();
+extern bool CPU_ProbeSHA2();
+extern bool CPU_ProbePMULL();
+
+inline bool CPU_QueryNEON()
 {
-	static jmp_buf s_jmpNoNEON;
-	static void SigIllHandlerNEON(int)
-	{
-		longjmp(s_jmpNoNEON, 1);
-	}
-
-	static jmp_buf s_jmpNoPMULL;
-	static void SigIllHandlerPMULL(int)
-	{
-		longjmp(s_jmpNoPMULL, 1);
-	}
-
-	static jmp_buf s_jmpNoCRC32;
-	static void SigIllHandlerCRC32(int)
-	{
-		longjmp(s_jmpNoCRC32, 1);
-	}
-
-	static jmp_buf s_jmpNoAES;
-	static void SigIllHandlerAES(int)
-	{
-		longjmp(s_jmpNoAES, 1);
-	}
-
-	static jmp_buf s_jmpNoSHA1;
-	static void SigIllHandlerSHA1(int)
-	{
-		longjmp(s_jmpNoSHA1, 1);
-	}
-
-	static jmp_buf s_jmpNoSHA2;
-	static void SigIllHandlerSHA2(int)
-	{
-		longjmp(s_jmpNoSHA2, 1);
-	}
-};
-#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-
-static bool TryNEON()
-{
-#if (CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		uint32_t v1[4] = {1,1,1,1};
-		uint32x4_t x1 = vld1q_u32(v1);
-		uint64_t v2[2] = {1,1};
-		uint64x2_t x2 = vld1q_u64(v2);
-
-		uint32x4_t x3 = vdupq_n_u32(2);
-		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
-		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
-		uint64x2_t x4 = vdupq_n_u64(2);
-		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
-		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
-
-		result = !!(vgetq_lane_u32(x3,0) | vgetq_lane_u64(x4,1));
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerNEON);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoNEON))
-		result = false;
-	else
-	{
-		uint32_t v1[4] = {1,1,1,1};
-		uint32x4_t x1 = vld1q_u32(v1);
-		uint64_t v2[2] = {1,1};
-		uint64x2_t x2 = vld1q_u64(v2);
-
-		uint32x4_t x3 = {0,0,0,0};
-		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,0),x3,0);
-		x3 = vsetq_lane_u32(vgetq_lane_u32(x1,3),x3,3);
-		uint64x2_t x4 = {0,0};
-		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,0),x4,0);
-		x4 = vsetq_lane_u64(vgetq_lane_u64(x2,1),x4,1);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u32(x3,0) | vgetq_lane_u64(x4,1));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
+#if defined(__ANDROID__) && (defined(__aarch32__) || defined(__aarch64__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD)
+		return true;
+#elif defined(__ANDROID__) && defined(__arm__)
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_ASIMD)
+		return true;
+#elif defined(__linux__) && defined(__arm__)
+	if (getauxval(AT_HWCAP) & HWCAP_ARM_NEON)
+		return true;
+#endif
 	return false;
-#endif  // CRYPTOPP_BOOL_NEON_INTRINSICS_AVAILABLE
 }
 
-static bool TryPMULL()
+inline bool CPU_QueryCRC32()
 {
-#if (CRYPTOPP_BOOL_ARM_PMULL_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
-		const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-		                 b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
-
-		const poly128_t r1 = vmull_p64(a1, b1);
-		const poly128_t r2 = vmull_high_p64((poly64x2_t)(a2), (poly64x2_t)(b2));
-
-		// Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
-		const uint64x2_t& t1 = (uint64x2_t)(r1);  // {bignum,bignum}
-		const uint64x2_t& t2 = (uint64x2_t)(r2);  // {bignum,bignum}
-
-		result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 && vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
-		            vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerPMULL);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoPMULL))
-		result = false;
-	else
-	{
-		const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
-		const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-		                 b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
-
-		const poly128_t r1 = vmull_p64(a1, b1);
-		const poly128_t r2 = vmull_high_p64((poly64x2_t)(a2), (poly64x2_t)(b2));
-
-		// Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
-		const uint64x2_t& t1 = (uint64x2_t)(r1);  // {bignum,bignum}
-		const uint64x2_t& t2 = (uint64x2_t)(r2);  // {bignum,bignum}
-
-		result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 && vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
-		            vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_CRC32)
+		return true;
+#endif
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 }
 
-static bool TryCRC32()
+inline bool CPU_QueryPMULL()
 {
-#if (CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		word32 w=0, x=1; word16 y=2; byte z=3;
-		w = __crc32cw(w,x);
-		w = __crc32ch(w,y);
-		w = __crc32cb(w,z);
-
-		result = !!w;
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCRC32);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoCRC32))
-		result = false;
-	else
-	{
-		word32 w=0, x=1; word16 y=2; byte z=3;
-		w = __crc32cw(w,x);
-		w = __crc32ch(w,y);
-		w = __crc32cb(w,z);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!w;
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_PMULL)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_PMULL)
+		return true;
+#endif
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRC32_INTRINSICS_AVAILABLE
 }
 
-static bool TryAES()
+inline bool CPU_QueryAES()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_AES)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
+		return true;
+#elif defined(__APPLE__)
+	struct utsname systemInfo;
+	systemInfo.machine[0] = '\0';
+	uname(&systemInfo);
+
+	std::string machine(systemInfo.machine);
+	if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
+		machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
+		machine.substr(0, 5) == "iPad4" || machine.substr(0, 5) == "iPad5" ||
+		machine.substr(0, 5) == "iPad6" || machine.substr(0, 5) == "iPad7")
 	{
-		// AES encrypt and decrypt
-		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
-		uint8x16_t r1 = vaeseq_u8(data, key);
-		uint8x16_t r2 = vaesdq_u8(data, key);
-
-		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
+		return true;
 	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerAES);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoAES))
-		result = false;
-	else
-	{
-		uint8x16_t data = vdupq_n_u8(0), key = vdupq_n_u8(0);
-		uint8x16_t r1 = vaeseq_u8(data, key);
-		uint8x16_t r2 = vaesdq_u8(data, key);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u8(r1,0) | vgetq_lane_u8(r2,7));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
+#endif
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 }
 
-static bool TrySHA1()
+inline bool CPU_QuerySHA1()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
-		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
-		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
-		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
-		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
-
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA1);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoSHA1))
-		result = false;
-	else
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha1cq_u32 (data1, 0, data2);
-		uint32x4_t r2 = vsha1mq_u32 (data1, 0, data2);
-		uint32x4_t r3 = vsha1pq_u32 (data1, 0, data2);
-		uint32x4_t r4 = vsha1su0q_u32 (data1, data2, data3);
-		uint32x4_t r5 = vsha1su1q_u32 (data1, data2);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3) | vgetq_lane_u32(r5,0));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_SHA1)
+		return true;
+#endif
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 }
 
-static bool TrySHA2()
+inline bool CPU_QuerySHA2()
 {
-#if (CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-	volatile bool result = true;
-	__try
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
-		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
-		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
-		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
-
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
-	}
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return result;
-# else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSHA2);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-
-	if (setjmp(s_jmpNoSHA2))
-		result = false;
-	else
-	{
-		uint32x4_t data1 = {1,2,3,4}, data2 = {5,6,7,8}, data3 = {9,10,11,12};
-
-		uint32x4_t r1 = vsha256hq_u32 (data1, data2, data3);
-		uint32x4_t r2 = vsha256h2q_u32 (data1, data2, data3);
-		uint32x4_t r3 = vsha256su0q_u32 (data1, data2);
-		uint32x4_t r4 = vsha256su1q_u32 (data1, data2, data3);
-
-		// Hack... GCC optimizes away the code and returns true
-		result = !!(vgetq_lane_u32(r1,0) | vgetq_lane_u32(r2,1) | vgetq_lane_u32(r3,2) | vgetq_lane_u32(r4,3));
-	}
-
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-	signal(SIGILL, oldHandler);
-	return result;
-# endif
-#else
+#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
+	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2)
+		return true;
+#elif defined(__linux__) && defined(__aarch64__)
+	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
+		return true;
+#elif defined(__linux__) && defined(__aarch32__)
+	if (getauxval(AT_HWCAP2) & HWCAP2_SHA2)
+		return true;
+#endif
 	return false;
-#endif  // CRYPTOPP_BOOL_ARM_CRYPTO_INTRINSICS_AVAILABLE
 }
 
 void DetectArmFeatures()
 {
-	g_hasNEON = TryNEON();
-	g_hasPMULL = TryPMULL();
-	g_hasCRC32 = TryCRC32();
-	g_hasAES = TryAES();
-	g_hasSHA1 = TrySHA1();
-	g_hasSHA2 = TrySHA2();
+	g_hasNEON  = CPU_QueryNEON() || CPU_ProbeNEON();
+	g_hasCRC32 = CPU_QueryCRC32() || CPU_ProbeCRC32();
+	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
+	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
+	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
+	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
 
 	g_ArmDetectionDone = true;
 }
