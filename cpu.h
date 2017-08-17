@@ -396,6 +396,8 @@ inline int GetCacheLineSize()
 
 #endif  // CRYPTOPP_GENERATE_X64_MASM
 
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
+
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 #ifdef CRYPTOPP_GENERATE_X64_MASM
@@ -569,6 +571,8 @@ inline int GetCacheLineSize()
 	AS2(	add		outputPtr, increment*16)
 
 #endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+
+#endif  // Not CRYPTOPP_DOXYGEN_PROCESSING
 
 NAMESPACE_END
 
