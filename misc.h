@@ -109,7 +109,9 @@
 #  define SIZE_MAX __SIZE_MAX__
 # elif defined(SIZE_T_MAX) && (SIZE_T_MAX > 0)
 #  define SIZE_MAX SIZE_T_MAX
-# else
+# elif defined(__SIZE_TYPE__)
+#  define SIZE_MAX (~(__SIZE_TYPE__)0)
+#else
 #  define SIZE_MAX ((std::numeric_limits<size_t>::max)())
 # endif
 #endif

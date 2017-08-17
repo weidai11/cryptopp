@@ -515,7 +515,7 @@ public:
 #if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	enum : size_type { ELEMS_MAX = A::ELEMS_MAX };
 #else
-	static const size_type ELEMS_MAX = A::ELEMS_MAX;
+	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
 #endif
 
 	//! \brief Construct a SecBlock with space for size elements.
