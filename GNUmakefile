@@ -2,6 +2,8 @@
 #####        System Attributes and Programs           #####
 ###########################################################
 
+# Must use Bash
+SHELL = bash
 # If needed
 TMPDIR ?= /tmp
 # Used for ARMv7 and NEON.
@@ -75,8 +77,8 @@ endif
 
 # Fixup SunOS
 ifeq ($(IS_SUN),1)
-IS_X86 := $(shell isainfo -k 2>/dev/null | grep -i -c "i386")
-IS_X64 := $(shell isainfo -k 2>/dev/null | grep -i -c "amd64")
+IS_X86 := $(shell isainfo -k 2>/dev/null | $(EGREP) -i -c "i386")
+IS_X64 := $(shell isainfo -k 2>/dev/null | $(EGREP) -i -c "amd64")
 endif
 
 # Newlib needs _XOPEN_SOURCE=700 for signals
@@ -199,20 +201,35 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
-SSSE3_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | grep -i -c -q __SSSE3__ && echo "-mssse3")
-ARIA_FLAG = $(SSSE3_FLAG)
+ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
+  HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSSE3__)
+  ifeq ($(HAVE_SSSE3),1)
+    SSSE3_FLAG = -mssse3
+  endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
-SSE42_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | grep -i -c -q __SSE4_2__ && echo "-msse4.2")
+  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSE4_2__)
+  ifeq ($(HAVE_SSE4),1)
+    BLAKE2_FLAG = -msse4.2
+    CRC_FLAG = -msse4.2
+  endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
-GCM_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | grep -i -c -q __PCLMUL__ && echo "-mssse3 -mpclmul")
-AES_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | grep -i -c -q __AES__ && echo "-msse4.1 -maes")
+  HAVE_CLMUL = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | $(EGREP) -i -c __PCLMUL__ )
+  ifeq ($(HAVE_CLMUL),1)
+    GCM_FLAG = -mssse3 -mpclmul
+  endif
+  HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(EGREP) -i -c __AES__)
+  ifeq ($(HAVE_AES),1)
+    AES_FLAG = -msse4.1 -maes
+  endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
-SHA_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | grep -i -c -q __SHA__ && echo "-msse4.2 -msha")
-BLAKE2_FLAG = $(SSE42_FLAG)
-CRC_FLAG = $(SSE42_FLAG)
-endif
-endif
-endif
+  HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(EGREP) -i -c __SHA__)
+  ifeq ($(HAVE_SHA),1)
+    SHA_FLAG = -msse4.2 -msha
+  endif
+endif  # -DCRYPTOPP_DISABLE_SHA
+endif  # -DCRYPTOPP_DISABLE_AESNI
+endif  # -DCRYPTOPP_DISABLE_SSE4
+endif  # -DCRYPTOPP_DISABLE_SSSE3
 
 # BEGIN_NATIVE_ARCH
 # Guard use of -march=native (or -m{32|64} on some platforms)
@@ -304,23 +321,32 @@ endif
 endif
 
 ifeq ($(IS_NEON),1)
-	NEON_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | grep -i -c -q __ARM_NEON && echo "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-	GCM_FLAG = $(NEON_FLAG)
-	ARIA_FLAG = $(NEON_FLAG)
-	BLAKE2_FLAG = $(NEON_FLAG)
+  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  ifeq ($(HAVE_NEON),1)
+    NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+	GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+	ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+	BLAKE2_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+  endif
 endif
 
 ifeq ($(IS_ARMV8),1)
-	ARMV8A_NEON_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | grep -i -c -q __ARM_NEON && echo "-march=armv8-a")
-	ARMV8A_CRC_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | grep -i -c -q __ARM_FEATURE_CRC32 && echo "-march=armv8-a+crc")
-	ARMV8A_CRYPTO_FLAG = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | grep -i -c -q __ARM_FEATURE_CRYPTO && echo "-march=armv8-a+crypto")
-	CRC_FLAG = $(ARMV8A_CRC_FLAG)
-	AES_FLAG = $(ARMV8A_CRYPTO_FLAG)
-	GCM_FLAG = $(ARMV8A_CRYPTO_FLAG)
-	SHA_FLAG = $(ARMV8A_CRYPTO_FLAG)
-	ARIA_FLAG = $(ARMV8A_NEON_FLAG)
-	BLAKE2_FLAG = $(ARMV8A_NEON_FLAG)
-	NEON_FLAG = $(ARMV8A_NEON_FLAG)
+  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  ifeq ($(HAVE_NEON),1)
+    ARIA_FLAG = -march=armv8-a
+    BLAKE2_FLAG = -march=armv8-a
+    NEON_FLAG = -march=armv8-a
+  endif
+  HAVE_CRC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRC32)
+  ifeq ($(HAVE_NEON),1)
+    CRC_FLAG = -march=armv8-a+crc
+  endif
+  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
+  ifeq ($(HAVE_NEON),1)
+    AES_FLAG = -march=armv8-a+crypto
+    GCM_FLAG = -march=armv8-a+crypto
+    SHA_FLAG = -march=armv8-a+crypto
+  endif
 endif
 
 endif	# IS_X86
@@ -362,19 +388,14 @@ endif # OpenMP
 endif # IS_LINUX
 
 ifneq ($(IS_DARWIN),0)
-AR = libtool
-ARFLAGS = -static -o
-CXX ?= c++
-ifeq ($(IS_GCC_29),1)
-CXXFLAGS += -fno-coalesce-templates -fno-coalesce-static-vtables
-LDLIBS += -lstdc++
-LDFLAGS += -flat_namespace -undefined suppress -m
-endif
+  AR = libtool
+  ARFLAGS = -static -o
+  CXX ?= c++
 endif
 
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
-IS_64 := $(shell isainfo -b 2>/dev/null | grep -i -c "64")
+IS_64 := $(shell isainfo -b 2>/dev/null | $(EGREP) -i -c "64")
 ifeq ($(IS_64),1)
 CXXFLAGS += -m64
 else ifeq ($(IS_64),0)
@@ -651,7 +672,7 @@ sources: adhoc.cpp
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
 # Directory Doxygen uses (specified in Doygen config file)
 ifeq ($(wildcard Doxyfile),Doxyfile)
-DOXYGEN_DIRECTORY := $(strip $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | grep -v "\#" | cut -d "=" -f 2))
+DOXYGEN_DIRECTORY := $(strip $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | $(EGREP) -v "\#" | cut -d "=" -f 2))
 endif
 # Default directory (in case its missing in the config file)
 ifeq ($(strip $(DOXYGEN_DIRECTORY)),)
