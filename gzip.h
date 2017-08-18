@@ -27,14 +27,14 @@ public:
 	//!   if a file has both compressible and uncompressible parts, it may fail to compress
 	//!   some of the compressible parts.
 	Gzip(BufferedTransformation *attachment=NULLPTR, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
-		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible), m_totalLen(0) { }
+		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible), m_totalLen(0), m_filetime(0) { }
 
 	//! \brief Construct a Gzip compressor
 	//! \param parameters a set of NameValuePairs to initialize this object
 	//! \param attachment an attached transformation
 	//! \details Possible parameter names: Log2WindowSize, DeflateLevel, DetectUncompressible
 	Gzip(const NameValuePairs &parameters, BufferedTransformation *attachment=NULLPTR)
-		: Deflator(parameters, attachment), m_totalLen(0)
+		: Deflator(parameters, attachment), m_totalLen(0), m_filetime(0)
 	{
 		IsolatedInitialize(parameters);
 	}
