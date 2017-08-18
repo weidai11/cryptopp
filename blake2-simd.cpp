@@ -37,7 +37,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x, Win64 supplies it except for VS2008.
 // Also see http://stackoverflow.com/a/38547909/608639
-#if CRYPTOPP_SSE2_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
 inline __m128i MM_SET_EPI64X(const word64 a, const word64 b)
 {
     const word64 t[2] = {b,a}; __m128i r;

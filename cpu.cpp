@@ -150,7 +150,7 @@ static bool CPU_ProbeSSE2()
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 		AS2(por xmm0, xmm0)        // executing SSE2 instruction
-#elif CRYPTOPP_SSE2_AVAILABLE
+#elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
 #endif
@@ -182,7 +182,7 @@ static bool CPU_ProbeSSE2()
 	{
 #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 		__asm __volatile ("por %xmm0, %xmm0");
-#elif CRYPTOPP_SSE2_AVAILABLE
+#elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		result = _mm_cvtsi128_si32(x) == 0;
 #endif

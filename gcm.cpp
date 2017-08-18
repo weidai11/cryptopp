@@ -32,7 +32,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if (CRYPTOPP_SSE2_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include "emmintrin.h"
 #endif
 
@@ -76,14 +76,14 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
     ((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
 
-#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
 inline static void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 {
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
 //   Also see http://github.com/weidai11/cryptopp/issues/226 and http://github.com/weidai11/cryptopp/issues/284
 # if __SUNPRO_CC
     *M128_CAST(a) = _mm_xor_si128(*M128_CAST(b), *M128_CAST(c));
-# elif CRYPTOPP_SSE2_AVAILABLE
+# elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
     CRYPTOPP_ASSERT(IsAlignedOn(a,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(b,GetAlignmentOf<__m128i>()));
     CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<__m128i>()));
@@ -197,7 +197,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         for (i=0; i<16; i++)
         {
             memset(mulTable+i*256*16, 0, 16);
-#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
@@ -249,7 +249,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         {
             memset(mulTable+i*256, 0, 16);
             memset(mulTable+1024+i*256, 0, 16);
-#if CRYPTOPP_SSE2_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)

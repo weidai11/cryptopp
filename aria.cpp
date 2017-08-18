@@ -7,7 +7,7 @@
 #include "misc.h"
 #include "cpu.h"
 
-#if CRYPTOPP_SSE2_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
 # define CRYPTOPP_ENABLE_ARIA_SSE2_INTRINSICS 1
 #endif
 
