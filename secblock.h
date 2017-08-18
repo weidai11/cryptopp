@@ -99,11 +99,15 @@ protected:
 	//!   because the latter is not a constexpr. Some compilers, like Clang, do not
 	//!   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
 	//!   to optimize it well in either form.
+	//! \details The <tt>sizeof(T) != 1</tt> in the condition attempts to help the
+	//!   compiler optimize the check for byte types. Coverity findings for
+	//!   CONSTANT_EXPRESSION_RESULT were generated without it. For byte types,
+	//!   size never exceeded ELEMS_MAX but the code was not removed.
 	//! \note size is the count of elements, and not the number of bytes
 	static void CheckSize(size_t size)
 	{
 		// C++ throws std::bad_alloc (C++03) or std::bad_array_new_length (C++11) here.
-		if (size > ELEMS_MAX)
+		if (sizeof(T) != 1 && size > ELEMS_MAX)
 			throw InvalidArgument("AllocatorBase: requested size would cause integer overflow");
 	}
 };
