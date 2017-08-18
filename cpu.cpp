@@ -26,7 +26,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-// ***************** IA-32 CPUs ********************
+// *************************** IA-32 CPUs ***************************
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 
@@ -312,7 +312,7 @@ void DetectX86Features()
 	g_x86DetectionDone = true;
 }
 
-// ***************** ARM-32, Aarch32 and Aarch64 CPUs ********************
+// *************************** ARM-32, Aarch32 and Aarch64 CPUs ***************************
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
@@ -402,6 +402,9 @@ inline bool CPU_QueryNEON()
 #elif defined(__linux__) && defined(__arm__)
 	if (getauxval(AT_HWCAP) & HWCAP_ARM_NEON)
 		return true;
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// Core feature set for Aarch32 and Aarch64.
+	return true;
 #endif
 	return false;
 }
@@ -417,6 +420,9 @@ inline bool CPU_QueryCRC32()
 #elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP2) & HWCAP2_CRC32)
 		return true;
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// No compiler support. CRC intrinsics result in a failed compiled.
+	return false;
 #endif
 	return false;
 }
@@ -432,6 +438,9 @@ inline bool CPU_QueryPMULL()
 #elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP2) & HWCAP2_PMULL)
 		return true;
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// No compiler support. PMULL intrinsics result in a failed compiled.
+	return false;
 #endif
 	return false;
 }
@@ -448,10 +457,12 @@ inline bool CPU_QueryAES()
 	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
+	// https://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 	struct utsname systemInfo;
 	systemInfo.machine[0] = '\0';
 	uname(&systemInfo);
 
+	// The machine strings below are known ARM8 devices
 	std::string machine(systemInfo.machine);
 	if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
 		machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
@@ -475,6 +486,21 @@ inline bool CPU_QuerySHA1()
 #elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP2) & HWCAP2_SHA1)
 		return true;
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// https://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+	struct utsname systemInfo;
+	systemInfo.machine[0] = '\0';
+	uname(&systemInfo);
+
+	// The machine strings below are known ARM8 devices
+	std::string machine(systemInfo.machine);
+	if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
+		machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
+		machine.substr(0, 5) == "iPad4" || machine.substr(0, 5) == "iPad5" ||
+		machine.substr(0, 5) == "iPad6" || machine.substr(0, 5) == "iPad7")
+	{
+		return true;
+	}
 #endif
 	return false;
 }
@@ -490,12 +516,29 @@ inline bool CPU_QuerySHA2()
 #elif defined(__linux__) && defined(__aarch32__)
 	if (getauxval(AT_HWCAP2) & HWCAP2_SHA2)
 		return true;
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// https://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+	struct utsname systemInfo;
+	systemInfo.machine[0] = '\0';
+	uname(&systemInfo);
+
+	// The machine strings below are known ARM8 devices
+	std::string machine(systemInfo.machine);
+	if (machine.substr(0, 7) == "iPhone6" || machine.substr(0, 7) == "iPhone7" ||
+		machine.substr(0, 7) == "iPhone8" || machine.substr(0, 7) == "iPhone9" ||
+		machine.substr(0, 5) == "iPad4" || machine.substr(0, 5) == "iPad5" ||
+		machine.substr(0, 5) == "iPad6" || machine.substr(0, 5) == "iPad7")
+	{
+		return true;
+	}
 #endif
 	return false;
 }
 
 void DetectArmFeatures()
 {
+	// The CPU_ProbeXXX's return false for OSes which
+	//   can't tolerate SIGILL-based probes
 	g_hasNEON  = CPU_QueryNEON() || CPU_ProbeNEON();
 	g_hasCRC32 = CPU_QueryCRC32() || CPU_ProbeCRC32();
 	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
@@ -509,7 +552,7 @@ void DetectArmFeatures()
 #endif
 NAMESPACE_END
 
-// ***************** C++ Static Initialization ********************
+// *************************** C++ Static Initialization ***************************
 
 ANONYMOUS_NAMESPACE_BEGIN
 struct InitializeCpu
