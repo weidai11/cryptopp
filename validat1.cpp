@@ -1786,9 +1786,9 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 
 	while (valdata.MaxRetrievable() && tuples--)
 	{
-		valdata.Get(key, cg.KeyLength());
-		valdata.Get(plain, cg.BlockSize());
-		valdata.Get(cipher, cg.BlockSize());
+		(void)valdata.Get(key, cg.KeyLength());
+		(void)valdata.Get(plain, cg.BlockSize());
+		(void)valdata.Get(cipher, cg.BlockSize());
 
 		member_ptr<BlockTransformation> transE(cg.NewEncryption(key));
 		transE->ProcessBlock(plain, out);
@@ -2253,11 +2253,11 @@ bool ValidateRC2()
 	{
 		byte keyLen, effectiveLen;
 
-		valdata.Get(keyLen);
-		valdata.Get(effectiveLen);
-		valdata.Get(key, keyLen);
-		valdata.Get(plain, RC2Encryption::BLOCKSIZE);
-		valdata.Get(cipher, RC2Encryption::BLOCKSIZE);
+		(void)valdata.Get(keyLen);
+		(void)valdata.Get(effectiveLen);
+		(void)valdata.Get(key, keyLen);
+		(void)valdata.Get(plain, RC2Encryption::BLOCKSIZE);
+		(void)valdata.Get(cipher, RC2Encryption::BLOCKSIZE);
 
 		member_ptr<BlockTransformation> transE(new RC2Encryption(key, keyLen, effectiveLen));
 		transE->ProcessBlock(plain, out);
