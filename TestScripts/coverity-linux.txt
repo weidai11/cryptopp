@@ -14,16 +14,14 @@ make distclean &>/dev/null
 
 # Usually we test with these flags
 # CXXFLAGS="-DNDEBUG -g3 -O2"
-
-# Testing for Issue 302 (http://github.com/weidai11/cryptopp/issues/302)
-CXXFLAGS="-DNDEBUG -g2 -O3 -march=i686 -msse -msse2 -msse3 -mssse3 -mno-aes" cov-build --dir cov-int make -j 2
+cov-build --dir cov-int make -j 2
 
 tar czvf cryptopp.tgz cov-int
 
 CRYPTOPP_COVERITY_TOKEN=XXXXXXXXXXXXXXXX
 COVERITY_SCAN_NAME="Rijndael-AliasedTable-SSE2-Linux-i686"
 
-curl
+curl \
   --form token="$CRYPTOPP_COVERITY_TOKEN" \
   --form email=webmaster@cryptopp.com \
   --form file=@cryptopp.tgz \
