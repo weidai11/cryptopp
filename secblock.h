@@ -106,6 +106,8 @@ protected:
 	//! \note size is the count of elements, and not the number of bytes
 	static void CheckSize(size_t size)
 	{
+		// Squash MSC C4100 warning for size. Also see commit 42b7c4ea5673.
+		CRYPTOPP_UNUSED(size);
 		// C++ throws std::bad_alloc (C++03) or std::bad_array_new_length (C++11) here.
 		if (sizeof(T) != 1 && size > ELEMS_MAX)
 			throw InvalidArgument("AllocatorBase: requested size would cause integer overflow");
