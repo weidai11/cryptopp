@@ -80,6 +80,11 @@ being unloaded from L1 cache, until that round is finished.
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Clang 3.3 integrated assembler crash on Linux
+#if CRYPTOPP_BOOL_X32 || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400))
+# define CRYPTOPP_DISABLE_RIJNDAEL_ASM
+#endif
+
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
 #if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
@@ -224,7 +229,7 @@ void Rijndael::Base::FillDecTable()
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
-extern void Rijndael_UncheckedSetKeyRev_SSE4_AESNI(word32 *key, unsigned int rounds);
+extern void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds);
 
 extern size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
@@ -256,7 +261,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 		//  Atoms have SSE2-SSSE3 and AES-NI, but not SSE4.1 or SSE4.2.
 		Rijndael_UncheckedSetKey_SSE4_AESNI(userKey, keyLen, rk);
 		if (!IsForwardTransformation())
-			Rijndael_UncheckedSetKeyRev_SSE4_AESNI(m_key, m_rounds);
+			Rijndael_UncheckedSetKeyRev_AESNI(m_key, m_rounds);
 
 		return;
 	}

@@ -47,6 +47,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// ***************** SIGILL probes ********************
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 extern "C" {
     typedef void (*SigHandler)(int);
@@ -189,6 +191,9 @@ bool CPU_ProbeSHA2()
 }
 #endif  // ARM32 or ARM64
 
+// ***************** Intel x86 SHA ********************
+
+// provided by sha.cpp
 extern const word32 SHA256_K[64];
 
 ///////////////////////////////////
@@ -602,6 +607,8 @@ void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, size_t l
 /////////////////////////////////
 // end of Walton/Gulley's code //
 /////////////////////////////////
+
+// ***************** ARMV8 SHA ********************
 
 /////////////////////////////////////////////////////////
 // start of Walton/Schneiders/O'Rourke/Hovsmith's code //

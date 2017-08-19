@@ -56,7 +56,7 @@
 # define MAYBE_CONST const
 #endif
 
-// Clang __m128i casts
+// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
@@ -684,7 +684,7 @@ void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, wor
 	}
 }
 
-void Rijndael_UncheckedSetKeyRev_SSE4_AESNI(word32 *key, unsigned int rounds)
+void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
 {
 	unsigned int i, j;
 	__m128i temp;
