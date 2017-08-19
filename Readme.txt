@@ -51,7 +51,7 @@ algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
 Other features include:
 
   * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool,
-    RDRAND, RDSEED, NIST Hash and HMAC DRBGs
+    VIA Padlock, RDRAND, RDSEED, NIST Hash and HMAC DRBGs
   * password based key derivation functions: PBKDF1 and PBKDF2 from PKCS #5,
     PBKDF from PKCS #12 appendix B, HKDF from RFC 5869
   * Shamir's secret sharing scheme and Rabin's information dispersal algorithm
@@ -70,7 +70,6 @@ Other features include:
       + Windows named pipes
       + /dev/random, /dev/urandom, /dev/srandom
       + Microsoft's CryptGenRandom on Windows
-      + VIA Padlock, RDRAND and RDSEED
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
@@ -110,28 +109,24 @@ synchronization when multiple threads access a common Crypto++ object.
 
 *** MSVC-Specific Information ***
 
-On Windows, Crypto++ can be compiled into 3 forms: a static library
-including all algorithms, a DLL with only FIPS Approved algorithms, and
-a static library with only algorithms not in the DLL.
-(FIPS Approved means Approved according to the FIPS 140-2 standard.)
-The DLL may be used by itself, or it may be used together with the second
-form of the static library. MSVC project files are included to build
-all three forms, and sample applications using each of the three forms
-are also included.
+To compile Crypto++ with MSVC, open "cryptest.sln" (for MSVC 2003 - 2015)
+and build one or more of the following projects:
 
-To compile Crypto++ with MSVC, open  "cryptest.sln" (for MSVC 2005 - 2015)
-or "cryptest.dsw" (for MSVC 6 - MSVC .NET 2003) workspace file and build
-one or more of the following projects:
-
-cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
-  as a FIPS validated module, you must use a pre-built DLL that has undergone
-  the FIPS validation process instead of building your own.
-dlltest - This builds a sample application that only uses the DLL.
 cryptest Non-DLL-Import Configuration - This builds the full static library
   along with a full test driver.
 cryptest DLL-Import Configuration - This builds a static library containing
   only algorithms not in the DLL, along with a full test driver that uses
   both the DLL and the static library.
+cryptdll - This builds the DLL. Please note that if you wish to use Crypto++
+  as a FIPS validated module, you must use a pre-built DLL that has undergone
+  the FIPS validation process instead of building your own.
+dlltest - This builds a sample application that only uses the DLL.
+
+The DLL used to provide FIPS validated cryptography. The library was moved
+to the CMVP's <A HREF=
+"http://csrc.nist.gov/groups/STM/cmvp/documents/140-1/140val-historical.htm">
+Historical Validation List</A>. The library and the DLL are no longer considered
+validated. You should no longer use the DLL.
 
 To use the Crypto++ DLL in your application, #include "dll.h" before including
 any other Crypto++ header files, and place the DLL in the same directory as
