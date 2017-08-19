@@ -52,7 +52,9 @@ void SHACAL2::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, co
 	word32 *rk = m_key;
 	unsigned int i;
 
-	GetUserKey(BIG_ENDIAN_ORDER, rk, m_key.size(), userKey, keylen);
+	// 32-bit GCC 5.4 hack... m_key.size() returns 0. Note: this surfaced after changing
+	// m_key to FixedSizeAlignedSecBlock at commit 1ab1e08ac5b5a0d63374de0c.
+	GetUserKey(BIG_ENDIAN_ORDER, rk, 64, userKey, keylen);
 	for (i = 0; i < 48; i++, rk++)
 	{
 		rk[16] = rk[0] + s0(rk[1]) + rk[9] + s1(rk[14]);
