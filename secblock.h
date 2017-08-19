@@ -44,7 +44,9 @@ public:
 
 	//! \brief Returns the maximum number of elements the allocator can provide
 	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
-	//!   <tt>Allocator</tt> can provide.
+	//!   <tt>Allocator</tt> can provide. The value of <tt>ELEMS_MAX</tt> is
+	//!   <tt>SIZE_MAX/sizeof(T)</tt>. <tt>std::numeric_limits</tt> was avoided
+	//!   due to lack of <tt>constexpr</tt>-ness in C++03 and below.
 	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
 	//!   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
 	//!   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
@@ -52,7 +54,9 @@ public:
 	//!   limitations of class methods like <tt>max_size</tt>.
 	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
 	//! \since Crypto++ 6.0
-#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	static const size_type ELEMS_MAX = ...;
+#elif defined(CRYPTOPP_CXX11)
 	enum : size_type {ELEMS_MAX = SIZE_MAX/sizeof(T)};
 #else
 	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
@@ -510,7 +514,9 @@ public:
 
 	//! \brief Returns the maximum number of elements the block can hold
 	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
-	//!   <tt>SecBlock</tt> can hold.
+	//!   <tt>SecBlock</tt> can hold. The value of <tt>ELEMS_MAX</tt> is
+	//!   <tt>SIZE_MAX/sizeof(T)</tt>. <tt>std::numeric_limits</tt> was avoided
+	//!   due to lack of <tt>constexpr</tt>-ness in C++03 and below.
 	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
 	//!   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
 	//!   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
@@ -518,8 +524,10 @@ public:
 	//!   limitations of class methods like <tt>max_size</tt>.
 	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
 	//! \since Crypto++ 6.0
-#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
-	enum : size_type { ELEMS_MAX = A::ELEMS_MAX };
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	static const size_type ELEMS_MAX = ...;
+#elif defined(CRYPTOPP_CXX11)
+	enum : size_type {ELEMS_MAX = A::ELEMS_MAX};
 #else
 	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
 #endif
