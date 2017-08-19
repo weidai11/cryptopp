@@ -191,6 +191,8 @@ oids.h
 osrng.cpp
 osrng.h
 ossig.h
+padlkrng.cpp
+padlkrng.h
 panama.cpp
 panama.h
 pch.cpp

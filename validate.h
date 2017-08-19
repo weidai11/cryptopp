@@ -28,6 +28,7 @@ bool TestAutoSeededX917();
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 bool TestRDRAND();
 bool TestRDSEED();
+bool TestPadlockRNG();
 #endif
 bool ValidateBaseCode();
 bool ValidateCRC32();

@@ -15,6 +15,8 @@
 #include "smartptr.h"
 #include "cpu.h"
 #include "drbg.h"
+#include "rdrand.h"
+#include "padlkrng.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)
@@ -439,6 +441,10 @@ void Benchmark1(double t, double hertz)
 		BenchMarkByNameKeyLess<RandomNumberGenerator>("AutoSeededX917RNG(AES)");
 #endif
 		BenchMarkByNameKeyLess<RandomNumberGenerator>("MT19937");
+#if (CRYPTOPP_BOOL_X86)
+		if (HasPadlockRNG())
+			BenchMarkByNameKeyLess<RandomNumberGenerator>("PadlockRNG");
+#endif
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 		if (HasRDRAND())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDRAND");

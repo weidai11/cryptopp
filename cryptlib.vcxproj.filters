@@ -257,6 +257,9 @@
     <ClCompile Include="osrng.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="padlkrng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="panama.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -697,6 +700,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="osrng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="padlkrng.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="panama.h">

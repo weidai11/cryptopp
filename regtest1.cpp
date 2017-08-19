@@ -25,6 +25,7 @@
 #include "drbg.h"
 #include "mersenne.h"
 #include "rdrand.h"
+#include "padlkrng.h"
 
 #include "modes.h"
 #include "aes.h"
@@ -109,6 +110,10 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<RandomNumberGenerator, AutoSeededX917RNG<AES> >();
 #endif
 	RegisterDefaultFactoryFor<RandomNumberGenerator, MT19937>();
+#if (CRYPTOPP_BOOL_X86)
+	if (HasPadlockRNG())
+		RegisterDefaultFactoryFor<RandomNumberGenerator, PadlockRNG>();
+#endif
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	if (HasRDRAND())
 		RegisterDefaultFactoryFor<RandomNumberGenerator, RDRAND>();

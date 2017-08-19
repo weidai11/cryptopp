@@ -252,6 +252,7 @@
     <ClCompile Include="network.cpp" />
     <ClCompile Include="oaep.cpp" />
     <ClCompile Include="osrng.cpp" />
+    <ClCompile Include="padlkrng.cpp" />
     <ClCompile Include="panama.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -434,6 +435,7 @@
     <ClInclude Include="oaep.h" />
     <ClInclude Include="oids.h" />
     <ClInclude Include="osrng.h" />
+    <ClInclude Include="padlkrng.h" />
     <ClInclude Include="panama.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="pkcspad.h" />
