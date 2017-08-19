@@ -62,7 +62,7 @@ Other features include:
   * useful non-cryptographic algorithms
       + DEFLATE (RFC 1951) compression/decompression with gzip (RFC 1952) and
         zlib (RFC 1950) format support
-      + hex, base-32, and base-64 coding/decoding
+      + Hex, base-32, base-64, URL safe base-64 encoding and decoding
       + 32-bit CRC, CRC-C and Adler32 checksum
   * class wrappers for these platform and operating system features (optional):
       + high resolution timers on Windows, Unix, and Mac OS
@@ -74,9 +74,12 @@ Other features include:
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
-  * x86, x86_64, MMX, SSE2, SSE4 assembly code for the most commonly used
-    algorithms, with run-time CPU feature detection and code selection.
-    Limited ARM NEON and ARMv8 ASIMD, CRC and Crypto extension support
+  * x86, x64 (x86-64), x32 (ILP32), ARM-32, Aarch32 and Aarch64 code for the commonly
+    used algorithms
+      + run-time CPU feature detection and code selection</li>
+      + supports GCC-style and MSVC-style inline assembly, and MASM for x64
+      + x86, x64 (x86-64), x32 provides MMX, SSE2, and SSE4 implementations
+      + ARM-32, Aarch32 and Aarch64 provides NEON, ASIMD and ARMv8 implementations
 
 The Crypto++ library was orginally written by Wei Dai. The library is now
 maintained by several team members and the community. You are welcome to use it
