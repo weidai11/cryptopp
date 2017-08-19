@@ -142,6 +142,8 @@ bool CPU_ProbeAES()
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
 {
+	CRYPTOPP_ASSERT(subkeys);
+	CRYPTOPP_ASSERT(rounds >= 9);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	// Unroll the loop, profit 0.3 to 0.5 cpb.
@@ -182,6 +184,7 @@ inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned i
 inline void ARMV8_Enc_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
             uint8x16_t &block3, const word32 *subkeys, unsigned int rounds)
 {
+	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	unsigned int i=0;
@@ -220,6 +223,8 @@ inline void ARMV8_Enc_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_
 
 inline void ARMV8_Dec_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
 {
+	CRYPTOPP_ASSERT(subkeys);
+	CRYPTOPP_ASSERT(rounds >= 9);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	// Unroll the loop, profit 0.3 to 0.5 cpb.
@@ -260,6 +265,7 @@ inline void ARMV8_Dec_Block(uint8x16_t &block, const word32 *subkeys, unsigned i
 inline void ARMV8_Dec_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
             uint8x16_t &block3, const word32 *subkeys, unsigned int rounds)
 {
+	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	unsigned int i=0;
@@ -299,10 +305,15 @@ inline void ARMV8_Dec_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_
 const word32 s_one[] = {0, 0, 0, 1<<24};
 
 template <typename F1, typename F4>
-size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *subkeys, unsigned int rounds,
+size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-	size_t blockSize = 16;
+	CRYPTOPP_ASSERT(subKeys);
+	CRYPTOPP_ASSERT(inBlocks);
+	CRYPTOPP_ASSERT(outBlocks);
+	CRYPTOPP_ASSERT(length >= 16);
+
+	const size_t blockSize = 16;
 	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 	size_t xorIncrement = xorBlocks ? blockSize : 0;
 	size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
@@ -356,7 +367,7 @@ size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *su
 				xorBlocks += xorIncrement;
 			}
 
-			func4(block0, block1, block2, block3, subkeys, rounds);
+			func4(block0, block1, block2, block3, subKeys, rounds);
 
 			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			{
@@ -393,7 +404,7 @@ size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *su
 		if (flags & BlockTransformation::BT_InBlockIsCounter)
 			const_cast<byte *>(inBlocks)[15]++;
 
-		func1(block, subkeys, rounds);
+		func1(block, subKeys, rounds);
 
 		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			block = veorq_u8(block, vld1q_u8(xorBlocks));
@@ -409,18 +420,18 @@ size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *su
 	return length;
 }
 
-size_t Rijndael_Enc_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, size_t rounds,
+size_t Rijndael_Enc_AdvancedProcessBlocks_ARMV8(const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	return Rijndael_AdvancedProcessBlocks_ARMV8(ARMV8_Enc_Block, ARMV8_Enc_4_Blocks,
-            subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+            subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, size_t rounds,
+size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	return Rijndael_AdvancedProcessBlocks_ARMV8(ARMV8_Dec_Block, ARMV8_Dec_4_Blocks,
-            subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+            subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
@@ -504,7 +515,12 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
         MAYBE_CONST word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-	size_t blockSize = 16;
+	CRYPTOPP_ASSERT(subKeys);
+	CRYPTOPP_ASSERT(inBlocks);
+	CRYPTOPP_ASSERT(outBlocks);
+	CRYPTOPP_ASSERT(length >= 16);
+
+	const size_t blockSize = 16;
 	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 	size_t xorIncrement = xorBlocks ? blockSize : 0;
 	size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
@@ -611,18 +627,18 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 	return length;
 }
 
-size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
+size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subKeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
-                subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subkeys, size_t rounds,
+size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subKeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
-                subkeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
@@ -640,7 +656,7 @@ void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, wor
 	__m128i temp = _mm_loadu_si128(M128_CAST(userKey+keyLen-16));
 	std::memcpy(rk, userKey, keyLen);
 
-	// keySize: m_key allocates 4*(rounds+1 word32's.
+	// keySize: m_key allocates 4*(rounds+1) word32's.
 	const size_t keySize = 4*(rounds+1);
 	const word32* end = rk + keySize;
 	while (true)
