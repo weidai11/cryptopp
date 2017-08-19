@@ -1,4 +1,4 @@
-Crypto++: a C++ Class Library of Cryptographic Schemes
+Crypto++: free C++ Class Library of Cryptographic Schemes
 Version 5.6.5 - OCT/11/2016
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
@@ -6,7 +6,7 @@ Currently the library contains the following algorithms:
 
                    algorithm type  name
 
- authenticated encryption schemes  GCM, CCM, EAX
+ authenticated encryption schemes  GCM, CCM, EAX, OCB
 
         high speed stream ciphers  ChaCha (ChaCha8/12/20), Panama, Sosemanuk,
                                    Salsa20, XSalsa20
@@ -15,7 +15,7 @@ Currently the library contains the following algorithms:
                                    CAST-256
 
                                    ARIA, IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
-              other block ciphers  Camellia, SEED, Kalyna RC5, Blowfish, TEA, XTEA,
+              other block ciphers  Camellia, SEED, Kalyna, RC5, Blowfish, TEA, XTEA,
                                    Threefish, Skipjack, SHACAL-2
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
@@ -26,7 +26,7 @@ Currently the library contains the following algorithms:
 
                                    BLAKE2s, BLAKE2b, Keccack (F1600) SHA-1, SHA-2 
                    hash functions  (SHA-224, SHA-256, SHA-384, and SHA-512), SHA-3,
-                                   Tiger,WHIRLPOOL, RIPEMD-128, RIPEMD-256,
+                                   Tiger, WHIRLPOOL, RIPEMD-128, RIPEMD-256,
                                    RIPEMD-160, RIPEMD-320
 
                                    RSA, DSA, Determinsitic DSA, ElGamal, 
@@ -51,7 +51,7 @@ algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
 Other features include:
 
   * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool,
-    RDRAND, RDSEED, NIST Hash DRBG, NIST HMAC DRBG
+    RDRAND, RDSEED, NIST Hash and HMAC DRBGs
   * password based key derivation functions: PBKDF1 and PBKDF2 from PKCS #5,
     PBKDF from PKCS #12 appendix B, HKDF from RFC 5869
   * Shamir's secret sharing scheme and Rabin's information dispersal algorithm
@@ -70,24 +70,25 @@ Other features include:
       + Windows named pipes
       + /dev/random, /dev/urandom, /dev/srandom
       + Microsoft's CryptGenRandom on Windows
-      + VIA Padlock, Amd64 RDRAND and RDSEED
+      + VIA Padlock, RDRAND and RDSEED
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
   * x86, x86_64, MMX, SSE2, SSE4 assembly code for the most commonly used
     algorithms, with run-time CPU feature detection and code selection.
     Limited ARM NEON and ARMv8 ASIMD, CRC and Crypto extension support
-  * some versions are available in FIPS 140-2 validated form
 
-You are welcome to use it for any purpose without paying me, but see
-License.txt for the fine print.
+The Crypto++ library was orginally written by Wei Dai. The library is now
+maintained by several team members and the community. You are welcome to use it
+for any purpose without paying anyone, but see License.txt for the fine print.
 
 The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
-  * MSVC 6.0 - 2015
-  * GCC 3.3 - 7.0
-  * Clang 2.9 - 4.0
+  * Visual Studio 2003 - 2015
+  * GCC 3.3 - 7.1
+  * Apple Clang 4.3 - 8.3
+  * LLVM Clang 2.9 - 4.0
   * C++Builder 2010
   * Intel C++ Compiler 9 - 16.0
   * Sun Studio 12u1 - 12.5
@@ -211,9 +212,7 @@ and code examples.
 
 If you run into any problems, please try the Crypto++ mailing list.
 The subscription information and the list archive are available on
-http://www.cryptopp.com. You can also email me directly by visiting
-http://www.weidai.com, but you will probably get a faster response through
-the mailing list.
+http://www.cryptopp.com.
 
 *** Source Code and Contributing ***
 
