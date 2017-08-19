@@ -556,7 +556,6 @@ bool Inflator::DecodeBody()
 						break;
 					}
 		case DISTANCE_BITS:
-					// TODO: this surfaced during fuzzing. What do we do???
 					CRYPTOPP_ASSERT(m_distance < COUNTOF(distanceExtraBits));
 					if (m_distance >= COUNTOF(distanceExtraBits))
 						throw BadDistanceErr();
@@ -566,7 +565,6 @@ bool Inflator::DecodeBody()
 						m_nextDecode = DISTANCE_BITS;
 						break;
 					}
-					// TODO: this surfaced during fuzzing. What do we do???
 					CRYPTOPP_ASSERT(m_distance < COUNTOF(distanceStarts));
 					if (m_distance >= COUNTOF(distanceStarts))
 						throw BadDistanceErr();
