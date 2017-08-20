@@ -41,11 +41,17 @@
 #include "misc.h"
 #include "cpu.h"
 
+// Clang 3.3 integrated assembler crash on Linux
+//  http://github.com/weidai11/cryptopp/issues/264
+#if defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)
+# define CRYPTOPP_DISABLE_SHA_ASM
+#endif
+
 #if defined(CRYPTOPP_DISABLE_SHA_ASM)
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
 // C++ makes const internal linkage
@@ -455,7 +461,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
     AS2(    mov        DATA_END, WORD_REG(ax))
     AS2(    mov        K_END, WORD_REG(si))
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
     AS2(    test    edi, 1)
     ASJ(    jnz,    2, f)
@@ -466,7 +472,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
 #endif
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     ASJ(    jmp,    0, f)
 #endif
     ASL(2)    // non-SSE2
@@ -480,7 +486,7 @@ INTEL_NOPREFIX
     ASJ(    jmp,    3, f)
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     ASL(0)
     AS2(    movdqu    E(0), xmm1)
     AS2(    movdqu    A(0), xmm0)
@@ -545,7 +551,7 @@ INTEL_NOPREFIX
     AS2(    mov        AS_REG_7, STATE_SAVE)
     AS2(    mov        DATA_SAVE, WORD_REG(dx))
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
     AS2(    test    DWORD PTR K_END, 1)
     ASJ(    jz,        4, f)
@@ -563,7 +569,7 @@ INTEL_NOPREFIX
 #endif
 
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     ASJ(    jmp,    5, f)
     ASL(4)    // non-SSE2
 #endif
@@ -584,7 +590,7 @@ INTEL_NOPREFIX
     AS2(    mov        ecx, AS_REG_7d)
     AS2(    cmp        WORD_REG(dx), DATA_END)
     ASJ(    jb,        2, b)
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     ASL(5)
 #endif
 #endif
@@ -667,7 +673,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     if (HasSSE2())
     {
         const size_t res = length & (SHA256::BLOCKSIZE - 1);
@@ -716,7 +722,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     if (HasSSE2())
     {
         const size_t res = length & (SHA256::BLOCKSIZE - 1);
@@ -819,7 +825,7 @@ const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
     W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -1019,7 +1025,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
 
 ANONYMOUS_NAMESPACE_END
 
-#endif    // CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#endif    // CRYPTOPP_SSE2_ASM_AVAILABLE
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -1066,7 +1072,7 @@ void SHA512::Transform(word64 *state, const word64 *data)
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
     if (HasSSE2())
     {
         SHA512_HashBlock_SSE2(state, data);

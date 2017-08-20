@@ -77,10 +77,8 @@
 // "Inline assembly operands don't work with .intel_syntax",
 //   http://llvm.org/bugs/show_bug.cgi?id=24232
 #if defined(CRYPTOPP_DISABLE_INTEL_ASM)
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_SSSE3_ASM_AVAILABLE
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -128,7 +126,7 @@ void Whirlpool::TruncatedFinal(byte *hash, size_t size)
  * employed).
  */
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 CRYPTOPP_ALIGN_DATA(16) static const word64 Whirlpool_C[4*256+R] CRYPTOPP_SECTION_ALIGN16 = {
 #else
 static const word64 Whirlpool_C[4*256+R] = {
@@ -408,7 +406,7 @@ static const word64 Whirlpool_C[4*256+R] = {
 // Whirlpool basic transformation. Transforms state based on block.
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 	{
 		// MMX version has the same structure as C version below

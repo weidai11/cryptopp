@@ -11,10 +11,10 @@
 #include "config.h"
 #include "iterhash.h"
 
-// Clang 3.3 integrated assembler crash on Linux
-//  http://github.com/weidai11/cryptopp/issues/264
-#if defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)
-# define CRYPTOPP_DISABLE_SHA_ASM
+#if (CRYPTOPP_BOOL_X86)
+#  define SHA_X86_ALIGN16  true
+#else
+#  define SHA_X86_ALIGN16  false
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -131,7 +131,7 @@ protected:
 //! \brief SHA-512 message digest
 //! \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-512">SHA-512</a>
 //! \since Crypto++ 4.0
-class CRYPTOPP_DLL SHA512 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA512, 64, (CRYPTOPP_BOOL_X86|CRYPTOPP_BOOL_X32)>
+class CRYPTOPP_DLL SHA512 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA512, 64, SHA_X86_ALIGN16>
 {
 public:
 	//! \brief Initialize state array
@@ -164,7 +164,7 @@ public:
 //! \brief SHA-384 message digest
 //! \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-384">SHA-384</a>
 //! \since Crypto++ 4.0
-class CRYPTOPP_DLL SHA384 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA384, 48, (CRYPTOPP_BOOL_X86|CRYPTOPP_BOOL_X32)>
+class CRYPTOPP_DLL SHA384 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA384, 48, SHA_X86_ALIGN16>
 {
 public:
 	//! \brief Initialize state array

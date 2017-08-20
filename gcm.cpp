@@ -18,7 +18,7 @@
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
 // SunCC 5.13 and below crash with AES-NI/CLMUL and C++{03|11}. Disable one or the other.
@@ -76,7 +76,7 @@ inline static void Xor16(byte *a, const byte *b, const byte *c)
     ((word64 *)(void *)a)[1] = ((word64 *)(void *)b)[1] ^ ((word64 *)(void *)c)[1];
 }
 
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 inline static void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 {
 // SunCC 5.14 crash (bewildering since asserts are not in effect in release builds)
@@ -197,7 +197,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         for (i=0; i<16; i++)
         {
             memset(mulTable+i*256*16, 0, 16);
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
@@ -249,7 +249,7 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         {
             memset(mulTable+i*256, 0, 16);
             memset(mulTable+1024+i*256, 0, 16);
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
             if (HasSSE2())
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)
@@ -341,7 +341,7 @@ void GCM_Base::Resync(const byte *iv, size_t len)
 unsigned int GCM_Base::OptimalDataAlignment() const
 {
     return
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
         HasSSE2() ? 16 :
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
         HasNEON() ? 4 :
@@ -383,7 +383,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
     CRYPTOPP_ASSERT(IsAlignedOn(hashBuffer,GetAlignmentOf<word64>()));
 
     switch (2*(m_buffer.size()>=64*1024)
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
         + HasSSE2()
 //#elif CRYPTOPP_ARM_NEON_AVAILABLE
 //      + HasNEON()
@@ -531,7 +531,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
         return len % 16;
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
     case 1:        // SSE2 and 2K tables
         {
         #ifdef __GNUC__

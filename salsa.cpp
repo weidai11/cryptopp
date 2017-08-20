@@ -24,10 +24,8 @@
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_SSSE3_ASM_AVAILABLE
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -79,7 +77,7 @@ void Salsa20_Policy::SeekToIteration(lword iterationCount)
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SALSA_ASM)
 unsigned int Salsa20_Policy::GetAlignment() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 		return 16;
 	else
@@ -89,7 +87,7 @@ unsigned int Salsa20_Policy::GetAlignment() const
 
 unsigned int Salsa20_Policy::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 		return 4*BYTES_PER_ITERATION;
 	else
@@ -117,7 +115,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	return;
 #endif
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 #ifdef CRYPTOPP_GENERATE_X64_MASM
 		ALIGN   8
 	Salsa20_OperateKeystream	PROC FRAME
