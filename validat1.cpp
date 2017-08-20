@@ -1058,6 +1058,62 @@ bool TestMersenne()
 	{
 		PadlockRNG& padlock = dynamic_cast<PadlockRNG&>(*rng.get());
 		static const unsigned int SIZE = 10000;
+		SecByteBlock zero(16), one(16), t(16);
+		std::memset(zero, 0x00, 16);
+		std::memset( one, 0xff, 16);
+
+		// Cryptography Research, Inc tests
+		word32 oldDivisor = padlock.SetDivisor(0);
+		padlock.GenerateBlock(t, t.size());
+		word32 msr = padlock.GetMSR();
+		padlock.SetDivisor(oldDivisor);
+
+		// Bit 6 should be set
+		fail = !(msr & (1 << 6U));
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  VIA RNG is activated\n";
+
+		// Bit 13 should be unset
+		fail = (msr & (1 << 13U));
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  von Neumann corrector is activated\n";
+
+		// Bit 14 should be unset
+		fail = (msr & (1 << 14U));
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  String filter is deactivated\n";
+
+		// Bit 12:10 should be unset
+		fail = (msr & (0x7 << 10U));
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  Bias voltage is unmodified\n";
+
+		fail = false;
+		if (t == zero || t == one)
+			fail = true;
+
+		pass &= !fail;
+		if (fail)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  All 0's or all 1's test\n";
 
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		Deflator deflator(new Redirector(meter));
@@ -1072,6 +1128,7 @@ bool TestMersenne()
 
 		CRYPTOPP_ASSERT(0 == maurer.BytesNeeded());
 		const double mv = maurer.GetTestValue();
+		fail = false;
 		if (mv < 0.98f)
 			fail = true;
 
