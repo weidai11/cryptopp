@@ -33,7 +33,7 @@ void PadlockRNG::GenerateBlock(byte *output, size_t size)
 		__asm__ __volatile__
 		(
 			"movl %1, %%edi          ;\n"
-			"movl $2, %%edx          ;\n"
+			"movl %2, %%edx          ;\n"
 			".byte 0x0f, 0xa7, 0xc0  ;\n"
 			"movl %%eax, %0          ;\n"
 
