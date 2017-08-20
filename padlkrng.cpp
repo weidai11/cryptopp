@@ -7,80 +7,81 @@
 #include "padlkrng.h"
 #include "cpu.h"
 
+// The Padlock Security Engine RNG has a few items to be aware of. You can
+// find copies  of the Programmer's manual, Cryptography Research Inc audit
+// report, and other goodies at http://www.cryptopp.com/wiki/VIA_Padlock.
+
 NAMESPACE_BEGIN(CryptoPP)
 
-PadlockRNG::PadlockRNG()
+PadlockRNG::PadlockRNG(word32 divisor)
+	: m_divisor(DivisorHelper(divisor))
 {
-#if CRYPTOPP_BOOL_X86
-    if (!HasPadlockRNG())
-		throw PadlockRNG_Err("HasPadlockRNG");
+#if CRYPTOPP_X86_ASM_AVAILABLE
+	if (!HasPadlockRNG())
+		throw PadlockRNG_Err("PadlockRNG", "PadlockRNG generator not available");
 #else
-	throw PadlockRNG_Err("HasPadlockRNG");
+	throw PadlockRNG_Err("PadlockRNG", "PadlockRNG generator not available");
 #endif
 }
 
 void PadlockRNG::GenerateBlock(byte *output, size_t size)
 {
 	CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
-#if CRYPTOPP_BOOL_X86
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__GNUC__)
 	while (size)
 	{
-# if defined(__GNUC__)
-
-		word32 result;
 		__asm__ __volatile__
 		(
 			"movl %1, %%edi          ;\n"
-			"movl $1, %%edx          ;\n"
+			"movl $2, %%edx          ;\n"
 			".byte 0x0f, 0xa7, 0xc0  ;\n"
-			"andl $31, %%eax         ;\n"
 			"movl %%eax, %0          ;\n"
 
-			: "=g" (result) : "g" (m_buffer.begin()) : "eax", "edx", "edi", "cc"
+			: "=g" (m_msr) : "g" (m_buffer.data()), "g" (m_divisor)
+			: "eax", "edx", "edi", "cc"
 		);
 
-		const size_t rem = STDMIN(result, STDMIN(size, m_buffer.SizeInBytes()));
+		const size_t ret = m_msr & 0x1f;
+		const size_t rem = STDMIN(ret, STDMIN(size, 16U));
 		std::memcpy(output, m_buffer, rem);
 		size -= rem; output += rem;
-
-# elif defined(_MSC_VER)
-
-		word32 result;
-		byte* buffer = reinterpret_cast<byte*>(m_buffer.begin());
-
+	}
+#elif defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(_MSC_VER)
+	while (size)
+	{
+		word32 result, divisor = m_divisor;
+		byte *buffer = reinterpret_cast<byte*>(m_buffer.data());
 		__asm {
 			mov edi, buffer
-			mov edx, 0x01
+			mov edx, divisor
 			_emit 0x0f
 			_emit 0xa7
 			_emit 0xc0
-			and eax, 31
 			mov result, eax
 		}
 
-		const size_t rem = STDMIN(result, STDMIN(size, m_buffer.SizeInBytes()));
-		std::memcpy(output, m_buffer, rem);
+		const size_t ret = (m_msr = result) & 0x1f;
+		const size_t rem = STDMIN(ret, STDMIN(size, 16U));
+		std::memcpy(output, buffer, rem);
 		size -= rem; output += rem;
-
-# else
-		throw NotImplemented("PadlockRNG::GenerateBlock");
-# endif
 	}
-#endif  // CRYPTOPP_BOOL_X86
+#else
+	throw PadlockRNG_Err("GenerateBlock", "PadlockRNG generator not available");
+#endif  // CRYPTOPP_X86_ASM_AVAILABLE
 }
 
 void PadlockRNG::DiscardBytes(size_t n)
 {
-    FixedSizeSecBlock<word32, 4> discard;
-    n = RoundUpToMultipleOf(n, sizeof(word32));
+	FixedSizeSecBlock<word32, 4> discard;
+	n = RoundUpToMultipleOf(n, sizeof(word32));
 
-    size_t count = STDMIN(n, discard.SizeInBytes());
-    while (count)
-    {
-        GenerateBlock(discard.BytePtr(), count);
-        n -= count;
-        count = STDMIN(n, discard.SizeInBytes());
-    }
+	size_t count = STDMIN(n, discard.SizeInBytes());
+	while (count)
+	{
+		GenerateBlock(discard.BytePtr(), count);
+		n -= count;
+		count = STDMIN(n, discard.SizeInBytes());
+	}
 }
 
 NAMESPACE_END

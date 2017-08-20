@@ -461,7 +461,7 @@ NAMESPACE_END
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
 	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
-	#define CRYPTOPP_X86_ASM_AVAILABLE
+	#define CRYPTOPP_X86_ASM_AVAILABLE 1
 
 	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
 		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
