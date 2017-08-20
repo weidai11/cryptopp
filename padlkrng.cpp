@@ -32,13 +32,23 @@ void PadlockRNG::GenerateBlock(byte *output, size_t size)
 	{
 		__asm__ __volatile__
 		(
-			"movl %1, %%edi          ;\n"
+#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+			"mov  %1, %%rdi          ;\n"
 			"movl %2, %%edx          ;\n"
+#else
+			"mov  %1, %%edi          ;\n"
+			"movl %2, %%edx          ;\n"
+#endif
+
 			".byte 0x0f, 0xa7, 0xc0  ;\n"
 			"movl %%eax, %0          ;\n"
 
 			: "=g" (m_msr) : "g" (m_buffer.data()), "g" (m_divisor)
+#if (CRYPTOPP_BOOL_X3 || CRYPTOPP_BOOL_X64)
+			: "eax", "edx", "rdi", "cc"
+#else
 			: "eax", "edx", "edi", "cc"
+#endif
 		);
 
 		const size_t ret = m_msr & 0x1f;
@@ -46,7 +56,7 @@ void PadlockRNG::GenerateBlock(byte *output, size_t size)
 		std::memcpy(output, m_buffer, rem);
 		size -= rem; output += rem;
 	}
-#elif defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(_MSC_VER)
+#elif defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(_MSC_VER) && defined(_M_IX86)
 	while (size)
 	{
 		word32 result, divisor = m_divisor;
