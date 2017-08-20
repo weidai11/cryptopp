@@ -28,8 +28,9 @@ public:
 
 //! \brief Hardware generated random numbers using VIA XSTORE
 //! \details Some VIA processors provide a Security Engine called Padlock. The Padlock
-//!   Security Engine provides AES, SHA and a RNG. PadlockRNG provides access to the RNG.
-//! \details The PadlockRNG uses an 8 byte FIFO buffer for random numbers. The
+//!   Security Engine provides AES, SHA and a RNG. The PadlockRNG class provides access
+//!   to the RNG.
+//! \details The VIA generator uses an 8 byte FIFO buffer for random numbers. The
 //!   generator can be configured to discard bits from the buffer to resist analysis.
 //!   The <tt>divisor</tt> controls the number of bytes discarded. The formula for
 //!   the discard amount is <tt>2**divisor - 1</tt>. When <tt>divisor=0</tt> no bits
@@ -40,8 +41,8 @@ public:
 //!   non-secure applications. Additionally, the Programmers Guide and SDK provided a
 //!   different configuration in the sample code.
 //! \details You can operate the generator according to CRI recommendations by setting
-//!   <tt>divisor</tt>, reading one word (or partial word) at a time, and then inspecting
-//!   the MSR after each read.
+//!   <tt>divisor</tt>, reading one word (or partial word) at a time from the FIFO, and
+//!   then inspecting the MSR after each read.
 //! \details The audit report with recommendations is available on the Crypto++ wiki
 //!   at <A HREF="http://www.cryptopp.com/wiki/VIA_Padlock">VIA Padlock</A>.
 //! \sa MaurerRandomnessTest() for random bit generators
@@ -56,8 +57,9 @@ public:
 	//! \brief Construct a PadlockRNG generator
 	//! \param divisor the XSTORE divisor
 	//! \details Some VIA processors provide a Security Engine called Padlock. The Padlock
-	//!   Security Engine provides AES, SHA and a RNG. PadlockRNG provides access to the RNG.
-	//! \details The PadlockRNG uses an 8 byte FIFO buffer for random numbers. The
+	//!   Security Engine provides AES, SHA and a RNG. The PadlockRNG class provides access
+	//!   to the RNG.
+	//! \details The VIA generator uses an 8 byte FIFO buffer for random numbers. The
 	//!   generator can be configured to discard bits from the buffer to resist analysis.
 	//!   The <tt>divisor</tt> controls the number of bytes discarded. The formula for
 	//!   the discard amount is <tt>2**divisor - 1</tt>. When <tt>divisor=0</tt> no bits
