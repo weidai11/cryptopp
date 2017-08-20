@@ -26,7 +26,9 @@ public:
 		: Exception(OTHER_ERROR, component + ": " + message) {}
 };
 
-//! \brief Hardware generated random numbers using PadlockRNG instruction
+//! \brief Hardware generated random numbers using VIA XSTORE
+//! \details Some VIA processors provide a Security Engine called Padlock. The Padlock
+//!   Security Engine provides AES, SHA and a RNG. PadlockRNG provides access to the RNG.
 //! \details The PadlockRNG uses an 8 byte FIFO buffer for random numbers. The
 //!   generator can be configured to discard bits from the buffer to resist analysis.
 //!   The <tt>divisor</tt> controls the number of bytes discarded. The formula for
@@ -53,6 +55,8 @@ public:
 
 	//! \brief Construct a PadlockRNG generator
 	//! \param divisor the XSTORE divisor
+	//! \details Some VIA processors provide a Security Engine called Padlock. The Padlock
+	//!   Security Engine provides AES, SHA and a RNG. PadlockRNG provides access to the RNG.
 	//! \details The PadlockRNG uses an 8 byte FIFO buffer for random numbers. The
 	//!   generator can be configured to discard bits from the buffer to resist analysis.
 	//!   The <tt>divisor</tt> controls the number of bytes discarded. The formula for

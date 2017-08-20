@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 PadlockRNG::PadlockRNG(word32 divisor)
 	: m_divisor(DivisorHelper(divisor))
 {
-#if CRYPTOPP_X86_ASM_AVAILABLE
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE)
 	if (!HasPadlockRNG())
 		throw PadlockRNG_Err("PadlockRNG", "PadlockRNG generator not available");
 #else
