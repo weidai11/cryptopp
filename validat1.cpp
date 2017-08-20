@@ -1078,7 +1078,7 @@ bool TestMersenne()
 		std::cout << "  VIA RNG is activated\n";
 
 		// Bit 13 should be unset
-		fail = (msr & (1 << 13U));
+		fail = !!(msr & (1 << 13U));
 		pass &= !fail;
 		if (fail)
 			std::cout << "FAILED:";
@@ -1087,7 +1087,7 @@ bool TestMersenne()
 		std::cout << "  von Neumann corrector is activated\n";
 
 		// Bit 14 should be unset
-		fail = (msr & (1 << 14U));
+		fail = !!(msr & (1 << 14U));
 		pass &= !fail;
 		if (fail)
 			std::cout << "FAILED:";
@@ -1096,7 +1096,7 @@ bool TestMersenne()
 		std::cout << "  String filter is deactivated\n";
 
 		// Bit 12:10 should be unset
-		fail = (msr & (0x7 << 10U));
+		fail = !!(msr & (0x7 << 10U));
 		pass &= !fail;
 		if (fail)
 			std::cout << "FAILED:";
