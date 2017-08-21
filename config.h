@@ -400,21 +400,15 @@ NAMESPACE_END
 // the System V ABI specs calls out, like on some Solaris installations and just about any 32-bit system with Clang.
 #if (defined(__ILP32__) || defined(_ILP32)) && defined(__x86_64__)
 	#define CRYPTOPP_BOOL_X32 1
-#else
-	#define CRYPTOPP_BOOL_X32 0
 #endif
 
 // see http://predef.sourceforge.net/prearch.html
 #if (defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_X86_) || defined(__I86__) || defined(__INTEL__)) && !CRYPTOPP_BOOL_X32
 	#define CRYPTOPP_BOOL_X86 1
-#else
-	#define CRYPTOPP_BOOL_X86 0
 #endif
 
 #if (defined(_M_X64) || defined(__x86_64__)) && !CRYPTOPP_BOOL_X32
 	#define CRYPTOPP_BOOL_X64 1
-#else
-	#define CRYPTOPP_BOOL_X64 0
 #endif
 
 // Undo the ASM and Intrinsic related defines due to X32.
@@ -426,16 +420,12 @@ NAMESPACE_END
 
 #if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
 	#define CRYPTOPP_BOOL_ARM32 1
-#else
-	#define CRYPTOPP_BOOL_ARM32 0
 #endif
 
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
 	#define CRYPTOPP_BOOL_ARM64 1
-#else
-	#define CRYPTOPP_BOOL_ARM64 0
 #endif
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
@@ -464,11 +454,11 @@ NAMESPACE_END
 	#define CRYPTOPP_X86_ASM_AVAILABLE 1
 
 	#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
-		#define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 1
+		#define CRYPTOPP_SSE2_ASM_AVAILABLE 1
 	#endif
 
 	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || defined(__SSSE3__))
-		#define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 1
+		#define CRYPTOPP_SSSE3_ASM_AVAILABLE 1
 	#endif
 #endif
 
@@ -581,7 +571,7 @@ NAMESPACE_END
 
 // ***************** Miscellaneous ********************
 
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)
 	#define CRYPTOPP_BOOL_ALIGN16 1
 #else
 	#define CRYPTOPP_BOOL_ALIGN16 0
@@ -599,9 +589,6 @@ NAMESPACE_END
 #else
 	#define CRYPTOPP_NO_ALIGNED_ALLOC
 #endif
-
-// Apple always provides 16-byte aligned, and tells us to use calloc
-// http://developer.apple.com/library/mac/documentation/Performance/Conceptual/ManagingMemory/Articles/MemoryAlloc.html
 
 // how to disable inlining
 #if defined(_MSC_VER)

@@ -72,7 +72,7 @@ void ChaCha_Policy<R>::SeekToIteration(lword iterationCount)
 template<unsigned int R>
 unsigned int ChaCha_Policy<R>::GetAlignment() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && 0
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
 	if (HasSSE2())
 		return 16;
 	else
@@ -83,7 +83,7 @@ unsigned int ChaCha_Policy<R>::GetAlignment() const
 template<unsigned int R>
 unsigned int ChaCha_Policy<R>::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && 0
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
 	if (HasSSE2())
 		return 4*BYTES_PER_ITERATION;
 	else
