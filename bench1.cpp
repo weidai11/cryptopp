@@ -375,7 +375,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 
 	g_testBegin = std::time(NULLPTR);
 
-	if (static_cast<int>(suites) > 256 || static_cast<int>(suites) == 0)
+	if (static_cast<int>(suites) == 0 || static_cast<int>(suites) > TestLast)
 		suites = Test::All;
 
 	// Unkeyed algorithms
