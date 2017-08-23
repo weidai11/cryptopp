@@ -23,6 +23,7 @@ env:
 
   matrix:
     - BUILD_MODE="all"
+    - BUILD_MODE="native"
     - BUILD_MODE="no-asm"
     - BUILD_MODE="debug"
     - BUILD_MODE="asan"
@@ -31,6 +32,7 @@ env:
     - BUILD_MODE="ios-arm64"
     - BUILD_MODE="ios-watch"
     - BUILD_MODE="ios-tv"
+    - BUILD_MODE="cmake"
 
 matrix:
 
@@ -80,6 +82,14 @@ script:
         make -f GNUmakefile-cross
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make
+        ./cryptest.exe v
+        ./cryptest.exe tv all
+    elif [[ "$BUILD_MODE" == "cmake" ]]; then
+        CRYPTOPP_DIR=$(pwd)
+        mkdir cryptopp-build
+        cd cryptopp-build
+        cmake $CRYPTOPP_DIR
+        make -j 4 VERBOSE=1
         ./cryptest.exe v
         ./cryptest.exe tv all
     else

@@ -53,13 +53,6 @@ SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* 
 SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
 SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
-# Set this to 1 to avoid -march=native
-DISABLE_NATIVE_ARCH ?= 0
-# Check CXXFLAGS for -DDISABLE_NATIVE_ARCH
-ifneq ($(findstring -DDISABLE_NATIVE_ARCH,$(CXXFLAGS)),)
-DISABLE_NATIVE_ARCH := 1
-endif
-
 # Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
 
@@ -130,7 +123,7 @@ endif
 
 ifneq ($(HAS_NEWLIB),0)
  ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
-   CXXFLAGS += -D_XOPEN_SOURCE=700
+   CXXFLAGS += -D_XOPEN_SOURCE=600
  endif
 endif
 
@@ -231,32 +224,6 @@ endif  # -DCRYPTOPP_DISABLE_SHA
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
-
-# BEGIN_NATIVE_ARCH
-# Guard use of -march=native (or -m{32|64} on some platforms)
-# Don't add anything if -march=XXX or -mtune=XXX is specified
-ifeq ($(DISABLE_NATIVE_ARCH),0)
-ifeq ($(findstring -march,$(CXXFLAGS)),)
-ifeq ($(findstring -mtune,$(CXXFLAGS)),)
-   ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
-      CXXFLAGS += -march=native
-   else ifneq ($(CLANG_COMPILER)$(INTEL_COMPILER),00)
-      CXXFLAGS += -march=native
-   else
-     # GCC 3.3 and "unknown option -march="
-     # Ubuntu GCC 4.1 compiler crash with -march=native
-     # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
-     # Sun compiler is handled below
-     ifeq ($(SUN_COMPILER)$(IS_X64),01)
-       CXXFLAGS += -m64
-     else ifeq ($(SUN_COMPILER)$(IS_X86),01)
-       CXXFLAGS += -m32
-     endif # X86/X32/X64
-   endif
-endif  # -mtune
-endif  # -march
-endif  # DISABLE_NATIVE_ARCH
-# END_NATIVE_ARCH
 
 ifneq ($(INTEL_COMPILER),0)
 CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180
@@ -436,6 +403,13 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif # CXXFLAGS
 endif # No ASM
 
+# Native build testing. Issue 'make native'.
+ifeq ($(findstring native,$(MAKECMDGOALS)),native)
+ifeq ($(findstring -march=native,$(CXXFLAGS)),)
+CXXFLAGS += -march=native
+endif # CXXFLAGS
+endif # Native
+
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
 CXXFLAGS := $(CXXFLAGS:-g%=-g3)
@@ -597,7 +571,7 @@ TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
-DLLSRCS :=  cryptlib.cpp cpu.cpp integer.cpp 3way.cpp adler32.cpp algebra.cpp algparam.cpp arc4.cpp aria-simd.cpp aria.cpp ariatab.cpp asn.cpp authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp blake2-simd.cpp blake2.cpp blowfish.cpp blumshub.cpp camellia.cpp cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp channels.cpp cmac.cpp crc-simd.cpp crc.cpp default.cpp des.cpp dessp.cpp dh.cpp dh2.cpp dll.cpp dsa.cpp eax.cpp ec2n.cpp eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp esign.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gcm-simd.cpp gcm.cpp gf256.cpp gf2_32.cpp gf2n.cpp gfpcrypt.cpp gost.cpp gzip.cpp hex.cpp hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp kalynatab.cpp keccak.cpp luc.cpp mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp mqueue.cpp mqv.cpp nbtheory.cpp neon.cpp network.cpp oaep.cpp ospstore.cpp osrng.cpp panama.cpp pkcspad.cpp poly1305.cpp polynomi.cpp pssr.cpp pubkey.cpp queue.cpp rabin.cpp randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp rdtables.cpp rijndael.cpp ripemd.cpp rng.cpp rsa.cpp rw.cpp safer.cpp salsa.cpp seal.cpp seed.cpp serpent.cpp sha-simd.cpp sha.cpp sha3.cpp shacal2-simd.cpp shacal2.cpp shark.cpp sharkbox.cpp skipjack.cpp socketft.cpp sosemanuk.cpp square.cpp squaretb.cpp strciphr.cpp tea.cpp tftables.cpp threefish.cpp tiger.cpp tigertab.cpp trdlocal.cpp ttmac.cpp twofish.cpp vmac.cpp wait.cpp wake.cpp whrlpool.cpp xtr.cpp xtrcrypt.cpp zdeflate.cpp zinflate.cpp zlib.cpp
+DLLSRCS :=  cryptlib.cpp cpu.cpp integer.cpp 3way.cpp adler32.cpp algebra.cpp algparam.cpp arc4.cpp aria-simd.cpp aria.cpp ariatab.cpp asn.cpp authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp blake2-simd.cpp blake2.cpp blowfish.cpp blumshub.cpp camellia.cpp cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp channels.cpp cmac.cpp crc-simd.cpp crc.cpp default.cpp des.cpp dessp.cpp dh.cpp dh2.cpp dll.cpp dsa.cpp eax.cpp ec2n.cpp eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp esign.cpp files.cpp filters.cpp fips140.cpp fipstest.cpp gcm-simd.cpp gcm.cpp gf256.cpp gf2_32.cpp gf2n.cpp gfpcrypt.cpp gost.cpp gzip.cpp hex.cpp hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp kalyna.cpp kalynatab.cpp keccak.cpp luc.cpp mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp mqueue.cpp mqv.cpp nbtheory.cpp neon-simd.cpp network.cpp oaep.cpp ospstore.cpp osrng.cpp panama.cpp pkcspad.cpp poly1305.cpp polynomi.cpp pssr.cpp pubkey.cpp queue.cpp rabin.cpp randpool.cpp rc2.cpp rc5.cpp rc6.cpp rdrand.cpp rdtables.cpp rijndael.cpp ripemd.cpp rng.cpp rsa.cpp rw.cpp safer.cpp salsa.cpp seal.cpp seed.cpp serpent.cpp sha-simd.cpp sha.cpp sha3.cpp shacal2-simd.cpp shacal2.cpp shark.cpp sharkbox.cpp skipjack.cpp socketft.cpp sosemanuk.cpp square.cpp squaretb.cpp strciphr.cpp tea.cpp tftables.cpp threefish.cpp tiger.cpp tigertab.cpp trdlocal.cpp ttmac.cpp twofish.cpp vmac.cpp wait.cpp wake.cpp whrlpool.cpp xtr.cpp xtrcrypt.cpp zdeflate.cpp zinflate.cpp zlib.cpp
 
 DLLOBJS := $(DLLSRCS:.cpp=.export.o)
 
@@ -626,8 +600,8 @@ dep deps depend GNUmakefile.deps:
 	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
-.PHONY: asan ubsan no-asm
-no-asm asan ubsan: libcryptopp.a cryptest.exe
+.PHONY: native no-asm asan ubsan
+native no-asm asan ubsan: libcryptopp.a cryptest.exe
 
 # CXXFLAGS are tuned earlier. Applications must use linker flags
 #  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)
@@ -894,7 +868,7 @@ aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
 # SSE4.2 or NEON available
-neon.o : neon.cpp
+neon-simd.o : neon-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available

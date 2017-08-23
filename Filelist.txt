@@ -181,7 +181,7 @@ mqv.cpp
 mqv.h
 nbtheory.cpp
 nbtheory.h
-neon.cpp
+neon-simd.cpp
 network.cpp
 network.h
 nr.h
