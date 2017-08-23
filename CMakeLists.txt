@@ -306,30 +306,30 @@ endif()
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 #  These are hard coded for X86 at the moment. We need to fix them.
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
-	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -mssse3)
-	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2)
-	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2)
-	set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS -mssse3 -mpclmul)
-	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.1 -maes)
-	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2 -msha)
-	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2 -msha)
+	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+	set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
+	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
+	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
 
 	# ARMv8
-	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a)
-	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a)
-	# set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crc)
-	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
-	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a)
-	# set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
-	# set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
-	# set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
+	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+	# set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
+	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+	# set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	# set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	# set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
 
 	# ARMv7
-	# Need to set floating point ABI to something, like "hard". Most Linux use hard floats.
-	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon)
-	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon)
-	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon)
-	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS -mfloat-abi=$(FP_ABI) -mfpu=neon)
+	# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
+	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=$(FP_ABI) -mfpu=neon")
 endif()
 
 #============================================================================
