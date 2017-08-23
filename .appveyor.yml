@@ -52,7 +52,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        robocopy $env:configuration\cryptest.exe .
+        robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\cryptest.exe $env:APPVEYOR_BUILD_FOLDER\
 
         .\cryptest.exe v
 
@@ -74,7 +74,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        robocopy $env:configuration\cryptest.exe .
+        robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\cryptest.exe $env:APPVEYOR_BUILD_FOLDER\
 
         .\cryptest.exe v
 
@@ -96,7 +96,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        robocopy $env:configuration\cryptest.exe .
+        robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\cryptest.exe $env:APPVEYOR_BUILD_FOLDER\
 
         .\cryptest.exe v
 
