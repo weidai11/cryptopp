@@ -50,9 +50,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
-
-        dir *.exe
+        robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
         .\cryptest.exe v
 
@@ -72,9 +70,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
-
-        dir *.exe
+        robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
         .\cryptest.exe v
 
@@ -94,9 +90,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
-
-        dir *.exe
+        robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
         .\cryptest.exe v
 
@@ -111,8 +105,6 @@ test_script:
         msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptest.vcxproj
 
         msbuild /t:CopyCryptestToRoot cryptest.vcxproj
-
-        dir *.exe
 
         .\cryptest.exe v
 
