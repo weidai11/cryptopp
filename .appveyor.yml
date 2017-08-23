@@ -28,7 +28,7 @@ build: off
 # Build through commands in script below
 test_script:
 
-- cmd: >-
+- powershell: >-
 
     if($env:BUILD_MODE -eq "CMake") {
 
