@@ -352,7 +352,6 @@ endif()
 #============================================================================
 
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
-#  These are hard coded for X86 at the moment. We need to fix them.
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
 
 	if (("${CRYPTOPP_X86_64}" STREQUAL "1") OR ("${CRYPTOPP_I386}" STREQUAL "1") OR ("${CRYPTOPP_X32}" STREQUAL "1"))
