@@ -109,13 +109,8 @@ execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "i386"
+	COMMAND ${GREP_CMD} "i.86"
 	OUTPUT_VARIABLE CRYPTOPP_I386
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "i686"
-	OUTPUT_VARIABLE CRYPTOPP_I686
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
@@ -360,31 +355,72 @@ endif()
 #  These are hard coded for X86 at the moment. We need to fix them.
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
 
-if (("${CRYPTOPP_X86_64}" STREQUAL "1") OR ("${CRYPTOPP_I386}" STREQUAL "1") OR ("${CRYPTOPP_I686}" STREQUAL "1") OR ("${CRYPTOPP_X32}" STREQUAL "1"))
-	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-	set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
-	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
-	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-elseif (("${CRYPTOPP_AARCH32}" STREQUAL "1") OR ("${CRYPTOPP_AARCH64}" STREQUAL "1") OR ("${CRYPTOPP_ARMV8}" STREQUAL "1"))
-	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
-	set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-	set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-elseif (("${CRYPTOPP_ARM}" STREQUAL "1") OR ("${CRYPTOPP_ARMHF}" STREQUAL "1"))
-	# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
-    set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-    set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-    set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-    set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=$(FP_ABI) -mfpu=neon")
-endif()
+	if (("${CRYPTOPP_X86_64}" STREQUAL "1") OR ("${CRYPTOPP_I386}" STREQUAL "1") OR ("${CRYPTOPP_X32}" STREQUAL "1"))
 
+		CHECK_CXX_COMPILER_FLAG("-mssse3" CRYPTOPP_IA32_SSSE3)
+		CHECK_CXX_COMPILER_FLAG("-msse4" CRYPTOPP_IA32_SSE4)
+		CHECK_CXX_COMPILER_FLAG("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
+		CHECK_CXX_COMPILER_FLAG("-msse4.1 -maes" CRYPTOPP_IA32_AES)
+		CHECK_CXX_COMPILER_FLAG("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
+
+		if ("${CRYPTOPP_IA32_SSSE3}" STREQUAL "1")
+			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+		endif()
+		if ("${CRYPTOPP_IA32_SSE4}" STREQUAL "1")
+			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+			set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+		endif()
+		if ("${CRYPTOPP_IA32_CLMUL}" STREQUAL "1")
+			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
+		endif()
+		if ("${CRYPTOPP_IA32_AES}" STREQUAL "1")
+			set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
+		endif()
+		if ("${CRYPTOPP_IA32_SHA}" STREQUAL "1")
+			set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+			set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+		endif()
+		
+	elseif (("${CRYPTOPP_AARCH32}" STREQUAL "1") OR ("${CRYPTOPP_AARCH64}" STREQUAL "1") OR ("${CRYPTOPP_ARMV8}" STREQUAL "1"))
+
+		CHECK_CXX_COMPILER_FLAG("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
+		CHECK_CXX_COMPILER_FLAG("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
+		CHECK_CXX_COMPILER_FLAG("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
+
+		if ("${CRYPTOPP_ARMV8A_ASIMD}" STREQUAL "1")
+			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+			set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+		endif()
+		if ("${CRYPTOPP_ARMV8A_CRC}" STREQUAL "1")
+			set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
+		endif()
+		if ("${CRYPTOPP_ARMV8A_CRYPTO}" STREQUAL "1")
+			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+			set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+			set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+			set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+		endif()
+
+	elseif (("${CRYPTOPP_ARM}" STREQUAL "1") OR ("${CRYPTOPP_ARMHF}" STREQUAL "1"))
+
+		CHECK_CXX_COMPILER_FLAG("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
+		CHECK_CXX_COMPILER_FLAG("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
+
+		if ("${CRYPTOPP_ARMV7A_HARD}" STREQUAL "1")
+			# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
+			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
+			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
+			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=hard -mfpu=neon")
+			set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=hard -mfpu=neon")
+		elseif ("${CRYPTOPP_ARMV7A_SOFTFP}" STREQUAL "1")
+			# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
+			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+			set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=softfp -mfpu=neon")
+		endif()
+	endif()
 endif()
 
 #============================================================================
