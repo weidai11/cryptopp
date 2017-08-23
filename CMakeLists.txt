@@ -305,7 +305,7 @@ endif()
 
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 #  These are hard coded for X86 at the moment. We need to fix them.
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" Or "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
 	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -mssse3)
 	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2)
 	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2)
