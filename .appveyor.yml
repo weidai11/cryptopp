@@ -47,13 +47,13 @@ test_script:
         if($env:configuration -eq "Debug")
         {
 
-            cmake -G "$env:image" -DCMAKE_BUILD_TYPE=Debug ../
+            cmake -G '"'$env:image'"' -DCMAKE_BUILD_TYPE=Debug ../
 
         }
         else
         {
 
-            cmake -G "$env:image" -DCMAKE_BUILD_TYPE=Release ../
+            cmake -G '"'$env:image'"' -DCMAKE_BUILD_TYPE=Release ../
 
         }
 
