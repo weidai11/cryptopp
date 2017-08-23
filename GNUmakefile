@@ -27,8 +27,8 @@ UNAME := $(shell uname)
 IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86")
 IS_X64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
 IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
-IS_ARM32 := $(shell uname -m | $(EGREP) -v "arm64" | $(EGREP) -i -c "arm")
-IS_ARM64 := $(shell uname -m | $(EGREP) -i -c "aarch64")
+IS_ARM32 := $(shell uname -m | $(EGREP) -i -c '\<arm\>')
+IS_ARM64 := $(shell uname -m | $(EGREP) -i -c 'aarch64')
 IS_ARMV8 ?= $(shell uname -m | $(EGREP) -i -c 'aarch32|aarch64')
 IS_NEON ?= $(shell uname -m | $(EGREP) -i -c 'armv7|armv8|aarch32|aarch64')
 IS_SPARC := $(shell uname -m | $(EGREP) -i -c "sparc")
@@ -289,7 +289,7 @@ endif
 endif
 
 ifeq ($(IS_NEON),1)
-  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(EGREP) -i -c '\<__ARM_NEON\>')
   ifeq ($(HAVE_NEON),1)
     NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon

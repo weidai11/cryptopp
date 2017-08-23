@@ -131,13 +131,26 @@ execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 # http://stackoverflow.com/q/12515462/608639
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	COMMAND ${GREP_CMD} "\\<ARM\\>"
-	OUTPUT_VARIABLE CRYPTOPP_ARMHF
+	OUTPUT_VARIABLE CRYPTOPP_ARM
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	COMMAND ${GREP_CMD} "ARMHF"
 	OUTPUT_VARIABLE CRYPTOPP_ARMHF
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "ARM7L"
+	OUTPUT_VARIABLE CRYPTOPP_ARM7L
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# arm7l is another 32-bit hard float machine. RPI-3 is arm7l on 64-bit hardware
+if ("${CRYPTOPP_ARM}" STREQUAL "1")
+	set(CRYPTOPP_ARMHF "1")
+endif()
+if ("${CRYPTOPP_ARM7L}" STREQUAL "1")
+	set(CRYPTOPP_ARMHF "1")
+endif()
 
 # End JW hack
 
@@ -485,6 +498,9 @@ if (BUILD_SHARED)
 	add_custom_target(dynamic)
 	add_dependencies(dynamic cryptopp-shared)
 endif()
+
+add_custom_target(distclean)
+add_dependencies(distclean clean)
 
 #============================================================================
 # Third-party libraries
