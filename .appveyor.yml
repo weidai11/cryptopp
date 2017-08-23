@@ -37,11 +37,7 @@ test_script:
 
 - ps: >-
 
-    echo "Image 1: $image"
-
-    echo "Image 2: $env:image"
-
-    if($image -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
+    if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
     {
 
         echo "Visual Studio 2017, CMake"
@@ -61,7 +57,7 @@ test_script:
         .\cryptest.exe tv all
 
     }
-    elseif($image -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
+    elseif($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
     {
 
         echo "Visual Studio 2015, CMake"
@@ -81,7 +77,7 @@ test_script:
         .\cryptest.exe tv all
 
     }
-    elseif($image -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
+    elseif($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
     {
 
         echo "Visual Studio 2013, CMake"
