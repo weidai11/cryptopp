@@ -40,9 +40,9 @@ test_script:
 
     } else {
 
-        msbuild /t:Build /p:platform="$platform" /p:configuration="$configuration" cryptlib.vcxproj
+        msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptlib.vcxproj
 
-        msbuild /t:Build /p:platform="$platform" /p:configuration="$configuration" cryptest.vcxproj
+        msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptest.vcxproj
 
         msbuild /t:CopyCryptestToRoot cryptest.vcxproj
 
