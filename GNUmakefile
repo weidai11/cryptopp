@@ -868,7 +868,7 @@ aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
 # SSE4.2 or NEON available
-neon.o : neon-simd.cpp
+neon-simd.o : neon-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
