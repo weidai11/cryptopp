@@ -37,7 +37,7 @@ test_script:
 
 - ps: >-
 
-    if($env:image -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
+    if($image -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
     {
 
         echo "Visual Studio 2017, CMake"
@@ -46,18 +46,7 @@ test_script:
 
         cd cmake-build
 
-        if($env:configuration -eq "Debug")
-        {
-
-            cmake -G "Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=Debug ../
-
-        }
-        else
-        {
-
-            cmake -G "Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=Release ../
-
-        }
+        cmake -G "Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=$env:$env:configuration ../
 
         msbuild /t:Build cryptopp-static.vcxproj
 
@@ -68,7 +57,7 @@ test_script:
         .\cryptest.exe tv all
 
     }
-    elseif($env:image -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
+    elseif($image -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
     {
 
         echo "Visual Studio 2015, CMake"
@@ -77,18 +66,7 @@ test_script:
 
         cd cmake-build
 
-        if($env:configuration -eq "Debug")
-        {
-
-            cmake -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Debug ../
-
-        }
-        else
-        {
-
-            cmake -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=Release ../
-
-        }
+        cmake -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=$env:$env:configuration ../
 
         msbuild /t:Build cryptopp-static.vcxproj
 
@@ -99,7 +77,7 @@ test_script:
         .\cryptest.exe tv all
 
     }
-    elseif($env:image -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
+    elseif($image -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
     {
 
         echo "Visual Studio 2013, CMake"
@@ -108,18 +86,7 @@ test_script:
 
         cd cmake-build
 
-        if($env:configuration -eq "Debug")
-        {
-
-            cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=Debug ../
-
-        }
-        else
-        {
-
-            cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=Release ../
-
-        }
+        cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=$env:$env:configuration ../
 
         msbuild /t:Build cryptopp-static.vcxproj
 
