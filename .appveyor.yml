@@ -52,6 +52,8 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
+        copy /Y $env:configuration\cryptest.exe .
+
         .\cryptest.exe v
 
         .\cryptest.exe tv all
@@ -72,6 +74,8 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
+        copy /Y $env:configuration\cryptest.exe .
+
         .\cryptest.exe v
 
         .\cryptest.exe tv all
@@ -91,6 +95,8 @@ test_script:
         msbuild /t:Build cryptopp-static.vcxproj
 
         msbuild /t:Build cryptest.vcxproj
+
+        copy /Y $env:configuration\cryptest.exe .
 
         .\cryptest.exe v
 
