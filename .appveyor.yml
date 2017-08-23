@@ -46,9 +46,9 @@ test_script:
 
         msbuild /t:CopyCryptestToRoot cryptest.vcxproj
 
-        cryptest.exe v
+        .\cryptest.exe v
 
-        cryptest.exe tv all
+        .\cryptest.exe tv all
 
     }
 
