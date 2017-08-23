@@ -53,13 +53,6 @@ SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* 
 SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
 SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
-# Set this to 1 to avoid -march=native
-DISABLE_NATIVE_ARCH ?= 0
-# Check CXXFLAGS for -DDISABLE_NATIVE_ARCH
-ifneq ($(findstring -DDISABLE_NATIVE_ARCH,$(CXXFLAGS)),)
-DISABLE_NATIVE_ARCH := 1
-endif
-
 # Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
 
@@ -231,32 +224,6 @@ endif  # -DCRYPTOPP_DISABLE_SHA
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
-
-# BEGIN_NATIVE_ARCH
-# Guard use of -march=native (or -m{32|64} on some platforms)
-# Don't add anything if -march=XXX or -mtune=XXX is specified
-ifeq ($(DISABLE_NATIVE_ARCH),0)
-ifeq ($(findstring -march,$(CXXFLAGS)),)
-ifeq ($(findstring -mtune,$(CXXFLAGS)),)
-   ifeq ($(GCC42_OR_LATER)$(IS_NETBSD),10)
-      CXXFLAGS += -march=native
-   else ifneq ($(CLANG_COMPILER)$(INTEL_COMPILER),00)
-      CXXFLAGS += -march=native
-   else
-     # GCC 3.3 and "unknown option -march="
-     # Ubuntu GCC 4.1 compiler crash with -march=native
-     # NetBSD GCC 4.8 compiler and "bad value (native) for -march= switch"
-     # Sun compiler is handled below
-     ifeq ($(SUN_COMPILER)$(IS_X64),01)
-       CXXFLAGS += -m64
-     else ifeq ($(SUN_COMPILER)$(IS_X86),01)
-       CXXFLAGS += -m32
-     endif # X86/X32/X64
-   endif
-endif  # -mtune
-endif  # -march
-endif  # DISABLE_NATIVE_ARCH
-# END_NATIVE_ARCH
 
 ifneq ($(INTEL_COMPILER),0)
 CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180
