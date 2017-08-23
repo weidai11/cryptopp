@@ -44,13 +44,15 @@ test_script:
 
         cd cmake-build
 
-        cmake -G "Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=$env:configuration ../
+        cmake -G "Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=$env:configuration ..\
 
         msbuild /t:Build cryptopp-static.vcxproj
 
         msbuild /t:Build cryptest.vcxproj
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
+
+        cd $env:APPVEYOR_BUILD_FOLDER\
 
         .\cryptest.exe v
 
@@ -64,13 +66,15 @@ test_script:
 
         cd cmake-build
 
-        cmake -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=$env:configuration ../
+        cmake -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=$env:configuration ..\
 
         msbuild /t:Build cryptopp-static.vcxproj
 
         msbuild /t:Build cryptest.vcxproj
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
+
+        cd $env:APPVEYOR_BUILD_FOLDER\
 
         .\cryptest.exe v
 
@@ -84,13 +88,15 @@ test_script:
 
         cd cmake-build
 
-        cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=$env:configuration ../
+        cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=$env:configuration ..\
 
         msbuild /t:Build cryptopp-static.vcxproj
 
         msbuild /t:Build cryptest.vcxproj
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
+
+        cd $env:APPVEYOR_BUILD_FOLDER\
 
         .\cryptest.exe v
 
