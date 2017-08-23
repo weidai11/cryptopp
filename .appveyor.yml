@@ -37,7 +37,7 @@ test_script:
 
 - ps: >-
 
-    if($env:image -eq "Visual Studio 2017" && $env:BUILD_MODE -eq "CMake")
+    if($env:image -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
     {
 
         mkdir cmake-build
@@ -66,7 +66,7 @@ test_script:
         .\cryptest.exe tv all
 
     }
-    elseif($env:image -eq "Visual Studio 2015" && $env:BUILD_MODE -eq "CMake")
+    elseif($env:image -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
     {
 
         mkdir cmake-build
@@ -95,7 +95,7 @@ test_script:
         .\cryptest.exe tv all
 
     }
-    elseif($env:image -eq "Visual Studio 2013" && $env:BUILD_MODE -eq "CMake")
+    elseif($env:image -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
     {
 
         mkdir cmake-build
