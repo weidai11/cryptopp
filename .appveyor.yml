@@ -24,8 +24,8 @@ image:
 
 environment:
 
-  BUILD_MODE = CMake
-  BUILD_MODE = MSBuild
+- BUILD_MODE = CMake
+- BUILD_MODE = MSBuild
 
 # Disable build through solution file
 build: off
@@ -44,18 +44,18 @@ test_script:
 
         if($env:configuration -eq "Debug")
         {
-
+        
             cmake -DCMAKE_BUILD_TYPE=Debug ../
-
+            
         }
         else
         {
-
+        
             cmake -DCMAKE_BUILD_TYPE=Release ../
 
         }
 
-        make -j 2
+        make -j 2 VERBOSE=1
 
         .\cryptest.exe v
 
