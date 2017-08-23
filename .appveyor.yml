@@ -40,11 +40,11 @@ test_script:
 
     } else {
 
-        msbuild /t:Build /p:platform=$platform;configuration=$configuration cryptlib.vcxproj
+        msbuild /t:"Build" /p:"platform=$platform;configuration=$configuration" cryptlib.vcxproj
 
-        msbuild /t:Build /p:platform=$platform;configuration=$configuration cryptest.vcxproj
+        msbuild /t:"Build" /p:"platform=$platform;configuration=$configuration" cryptest.vcxproj
 
-        msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+        msbuild /t:"CopyCryptestToRoot" cryptest.vcxproj
 
         cryptest.exe v
 
