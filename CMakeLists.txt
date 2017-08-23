@@ -1,5 +1,4 @@
 # Please ensure your changes or patch meets minimum requirements.
-# Please ensure your changes or patch meets minimum requirements.
 #   The minimum requirements are 2.8.5. They roughly equate to Ubuntu 12.04 LTS
 #   Please do not check in something for 2.8.12 or 3.5.0. To test your changes,
 #   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
@@ -48,7 +47,6 @@ option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_SSE4 "Disable SSE4" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
 option(DISABLE_SHA "Disable SHA" OFF)
-option(DISABLE_NATIVE_ARCH "Disable the addition of -march=native" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -57,14 +55,6 @@ set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 # Stop hiding the damn output...
 # set(CMAKE_VERBOSE_MAKEFILE on)
-
-# Previous variable name. Deprecated because (1) it controls the addition of
-#  -march=native (2) its not related to optimizations, like -O3 or -Os, and
-#  (3) DISABLE_NATIVE_ARCH is documented on the wiki.
-if (DISABLE_CXXFLAGS_OPTIMIZATIONS)
-	set(DISABLE_NATIVE_ARCH 1)
-	unset(DISABLE_CXXFLAGS_OPTIMIZATIONS)
-endif()
 
 # Always 1 ahead in Master. Also see http://groups.google.com/forum/#!topic/cryptopp-users/SFhqLDTQPG4
 set(LIB_VER ${cryptopp_VERSION_MAJOR}${cryptopp_VERSION_MINOR}${cryptopp_VERSION_PATCH})
@@ -97,15 +87,15 @@ if(DISABLE_ASM)
 endif()
 if(DISABLE_SSSE3)
 	add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
-	set(DISABLE_NATIVE_ARCH 1)
+endif()
+if(DISABLE_SSE4)
+	add_definitions(-DCRYPTOPP_DISABLE_SSE4)
 endif()
 if(DISABLE_AESNI)
 	add_definitions(-DCRYPTOPP_DISABLE_AESNI)
-	set(DISABLE_NATIVE_ARCH 1)
 endif()
 if(DISABLE_SHA)
 	add_definitions(-DCRYPTOPP_DISABLE_SHA)
-	set(DISABLE_NATIVE_ARCH 1)
 endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
@@ -132,8 +122,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 		if (GAS_OUTPUT)
 			#.intel_syntax wasn't supported until GNU assembler 2.10
-			# No DISABLE_NATIVE_ARCH with CRYPTOPP_DISABLE_ASM for now
-			# See http://github.com/weidai11/cryptopp/issues/395
 
 			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
 			execute_process(COMMAND echo ${GAS_STRING}
@@ -148,7 +136,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
-				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
@@ -157,7 +144,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
-				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
@@ -165,7 +151,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
-				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
@@ -174,7 +159,6 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
-				set(DISABLE_NATIVE_ARCH 1)
 			endif()
 		endif()
 	endif()
@@ -218,37 +202,28 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_P
 	endif()
 endif()
 
-# -march=native for GCC, Clang and ICC in any version that does support it.
-if ((NOT DISABLE_NATIVE_ARCH) AND (NOT CRYPTOPP_CROSS_COMPILE) AND (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU|Intel"))
-	CHECK_CXX_COMPILER_FLAG("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
-	if (COMPILER_OPT_ARCH_NATIVE_SUPPORTED AND NOT CMAKE_CXX_FLAGS MATCHES "-march=")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-	endif()
-endif()
-
 # Solaris specific 
 if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
-	if (NOT DISABLE_NATIVE_ARCH)
-		# SunCC needs -native
-		if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
-		endif()
 
-		# Determine 32-bit vs 64-bit
-		set (ISA_CMD "isainfo")
-		set (ISA_ARG "-b")
-		execute_process(COMMAND ${ISA_CMD} ${ISA_ARG}
-			WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-			RESULT_VARIABLE ISA_RESULT
-			OUTPUT_VARIABLE ISA_INFO)
-		string(REGEX REPLACE "\n$" "" ISA_INFO "${ISA_INFO}")
+	# SunCC needs -native
+	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
+	endif()
 
-		# Set 64-bit or 32-bit
-		if ("${ISA_INFO}" STREQUAL "64")
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
-		else()
-			SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
-		endif()
+	# Determine 32-bit vs 64-bit
+	set (ISA_CMD "isainfo")
+	set (ISA_ARG "-b")
+	execute_process(COMMAND ${ISA_CMD} ${ISA_ARG}
+		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+		RESULT_VARIABLE ISA_RESULT
+		OUTPUT_VARIABLE ISA_INFO)
+	string(REGEX REPLACE "\n$" "" ISA_INFO "${ISA_INFO}")
+
+	# Set 64-bit or 32-bit
+	if ("${ISA_INFO}" STREQUAL "64")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+	else()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 	endif()
 
 	# GCC needs to enable use of '/'
@@ -256,7 +231,7 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,--divide")
 	endif()
 
-	# SunCC needs -native
+	# SunCC needs -template=no%extdef
 	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
 	endif()
