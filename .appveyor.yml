@@ -52,6 +52,8 @@ test_script:
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
+        dir *.exe
+
         .\cryptest.exe v
 
         .\cryptest.exe tv all
