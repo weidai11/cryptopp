@@ -52,9 +52,9 @@ test_script:
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe v
+        .\cryptest.exe v
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe tv all
+        .\cryptest.exe tv all
 
     }
     elseif($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
@@ -72,9 +72,9 @@ test_script:
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe v
+        .\cryptest.exe v
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe tv all
+        .\cryptest.exe tv all
 
     }
     elseif($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
@@ -92,9 +92,9 @@ test_script:
 
         robocopy $env:APPVEYOR_BUILD_FOLDER\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe v
+        .\cryptest.exe v
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe tv all
+        .\cryptest.exe tv all
 
     }
     else
@@ -106,9 +106,9 @@ test_script:
 
         msbuild /t:CopyCryptestToRoot cryptest.vcxproj
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe v
+        .\cryptest.exe v
 
-        $env:APPVEYOR_BUILD_FOLDER\cryptest.exe tv all
+        .\cryptest.exe tv all
 
     }
 
