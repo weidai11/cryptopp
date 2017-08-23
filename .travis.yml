@@ -89,7 +89,7 @@ script:
         mkdir cryptopp-build
         cd cryptopp-build
         cmake $CRYPTOPP_DIR
-		make -j 4
+        make -j 4
         ./cryptest.exe v
         ./cryptest.exe tv all
     else
