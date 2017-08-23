@@ -50,7 +50,7 @@ test_script:
 
         msbuild /t:Build cryptopp-static.vcxproj
 
-        msbuild /t:Build cryptopp.vcxproj
+        msbuild /t:Build cryptest.vcxproj
 
         .\cryptest.exe v
 
@@ -70,7 +70,7 @@ test_script:
 
         msbuild /t:Build cryptopp-static.vcxproj
 
-        msbuild /t:Build cryptopp.vcxproj
+        msbuild /t:Build cryptest.vcxproj
 
         .\cryptest.exe v
 
@@ -90,7 +90,7 @@ test_script:
 
         msbuild /t:Build cryptopp-static.vcxproj
 
-        msbuild /t:Build cryptopp.vcxproj
+        msbuild /t:Build cryptest.vcxproj
 
         .\cryptest.exe v
 
