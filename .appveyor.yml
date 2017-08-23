@@ -22,6 +22,11 @@ image:
 - Visual Studio 2015
 - Visual Studio 2013
 
+environment:
+
+  BUILD_MODE = CMake
+  BUILD_MODE = MSBuild
+
 # Disable build through solution file
 build: off
 
@@ -30,15 +35,35 @@ test_script:
 
 - ps: >-
 
-    if($env:BUILD_MODE -eq "CMake") {
+    if($env:BUILD_MODE -eq "CMake")
+    {
 
         mkdir cmake-build
 
         cd cmake-build
 
-        cmake ../
+        if($env:configuration -eq "Debug")
+        {
 
-    } else {
+            cmake -DCMAKE_BUILD_TYPE=Debug ../
+
+        }
+        else
+        {
+
+            cmake -DCMAKE_BUILD_TYPE=Release ../
+
+        }
+
+        make -j 2
+
+        .\cryptest.exe v
+
+        .\cryptest.exe tv all
+
+    }
+    else
+    {
 
         msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptlib.vcxproj
 
