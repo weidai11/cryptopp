@@ -123,7 +123,7 @@ endif
 
 ifneq ($(HAS_NEWLIB),0)
  ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
-   CXXFLAGS += -D_XOPEN_SOURCE=700
+   CXXFLAGS += -D_XOPEN_SOURCE=600
  endif
 endif
 
@@ -403,6 +403,13 @@ CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
 endif # CXXFLAGS
 endif # No ASM
 
+# Native build testing. Issue 'make native'.
+ifeq ($(findstring native,$(MAKECMDGOALS)),native)
+ifeq ($(findstring -march=native,$(CXXFLAGS)),)
+CXXFLAGS += -march=native
+endif # CXXFLAGS
+endif # Native
+
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
 CXXFLAGS := $(CXXFLAGS:-g%=-g3)
@@ -593,8 +600,8 @@ dep deps depend GNUmakefile.deps:
 	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
-.PHONY: asan ubsan no-asm
-no-asm asan ubsan: libcryptopp.a cryptest.exe
+.PHONY: native no-asm asan ubsan
+native no-asm asan ubsan: libcryptopp.a cryptest.exe
 
 # CXXFLAGS are tuned earlier. Applications must use linker flags
 #  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)

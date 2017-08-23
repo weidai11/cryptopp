@@ -23,6 +23,7 @@ env:
 
   matrix:
     - BUILD_MODE="all"
+    - BUILD_MODE="native"
     - BUILD_MODE="no-asm"
     - BUILD_MODE="debug"
     - BUILD_MODE="asan"
@@ -55,6 +56,9 @@ matrix:
       env: BUILD_MODE="ios-watch"
     - os: linux
       env: BUILD_MODE="ios-tv"
+    # No Native builds on iOS
+    - os: osx
+      env: BUILD_MODE="native"
 
   allow_failures:
     - os: osx
