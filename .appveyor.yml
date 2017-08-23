@@ -40,6 +40,8 @@ test_script:
     if($env:image -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
     {
 
+        echo "Visual Studio 2017, CMake"
+
         mkdir cmake-build
 
         cd cmake-build
@@ -68,6 +70,8 @@ test_script:
     }
     elseif($env:image -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
     {
+
+        echo "Visual Studio 2015, CMake"
 
         mkdir cmake-build
 
@@ -98,6 +102,8 @@ test_script:
     elseif($env:image -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
     {
 
+        echo "Visual Studio 2013, CMake"
+
         mkdir cmake-build
 
         cd cmake-build
@@ -126,6 +132,8 @@ test_script:
     }
     else
     {
+
+        echo "Visual Studio, MSBuild"
 
         msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptlib.vcxproj
 
