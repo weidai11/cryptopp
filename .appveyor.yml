@@ -25,6 +25,7 @@ image:
 environment:
 
   matrix:
+
   - BUILD_MODE: CMake
   - BUILD_MODE: MSBuild
 
@@ -46,17 +47,17 @@ test_script:
         if($env:configuration -eq "Debug")
         {
         
-            cmake -DCMAKE_BUILD_TYPE=Debug ../
+            cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug ../
             
         }
         else
         {
         
-            cmake -DCMAKE_BUILD_TYPE=Release ../
+            cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ../
 
         }
 
-        make -j 2 VERBOSE=1
+        nmake VERBOSE=1
 
         .\cryptest.exe v
 
