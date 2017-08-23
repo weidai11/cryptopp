@@ -30,15 +30,27 @@ test_script:
 
 - cmd: >-
 
-    msbuild /t:Build /p:platform=%platform%;configuration=%configuration% cryptlib.vcxproj
+    IF "%BUILD_MODE%"=="CMake" (
 
-    msbuild /t:Build /p:platform=%platform%;configuration=%configuration% cryptest.vcxproj
+        mkdir cmake-build
 
-    msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+        cd cmake-build
 
-    cryptest.exe v
+        cmake ../
 
-    cryptest.exe tv all
+    ) else (
+
+        msbuild /t:Build /p:platform=%platform%;configuration=%configuration% cryptlib.vcxproj
+
+        msbuild /t:Build /p:platform=%platform%;configuration=%configuration% cryptest.vcxproj
+
+        msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+
+        cryptest.exe v
+
+        cryptest.exe tv all
+
+    )
 
 notifications:
   - provider: Email

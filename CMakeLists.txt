@@ -75,12 +75,6 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
 	add_definitions(-wd68 -wd186 -wd279 -wd327 -wd161 -wd3180)
 endif()
 
-# Endianness
-TEST_BIG_ENDIAN(IS_BIG_ENDIAN)
-if(IS_BIG_ENDIAN)
-	add_definitions(-DIS_BIG_ENDIAN)
-endif()
-
 # Also see http://github.com/weidai11/cryptopp/issues/395
 if(DISABLE_ASM)
 	add_definitions(-DCRYPTOPP_DISABLE_ASM)
@@ -303,6 +297,39 @@ if(MSVC AND NOT DISABLE_ASM)
 		list(APPEND cryptopp_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/rdrand.asm)
 		enable_language(ASM_MASM)
 	endif()
+endif()
+
+#============================================================================
+# Architecture flags
+#============================================================================
+
+# New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
+#  These are hard coded for X86 at the moment. We need to fix them.
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" Or "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -mssse3)
+	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2)
+	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2)
+	set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS -mssse3 -mpclmul)
+	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.1 -maes)
+	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2 -msha)
+	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS -msse4.2 -msha)
+
+	# ARMv8
+	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a)
+	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a)
+	# set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crc)
+	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
+	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a)
+	# set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
+	# set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
+	# set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv8-a+crypto)
+
+	# ARMv7
+	# Need to set floating point ABI to something, like "hard". Most Linux use hard floats.
+	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon)
+	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon)
+	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon)
+	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS -mfloat-abi=$(FP_ABI) -mfpu=neon)
 endif()
 
 #============================================================================
