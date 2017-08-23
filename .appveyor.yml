@@ -38,6 +38,7 @@ test_script:
 - ps: >-
 
     echo "Image 1: $image"
+
     echo "Image 2: $env:image"
 
     if($image -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
