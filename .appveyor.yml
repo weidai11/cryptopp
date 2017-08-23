@@ -47,17 +47,19 @@ test_script:
         if($env:configuration -eq "Debug")
         {
 
-            cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Debug ../
+            cmake -G "Visual Studio" -DCMAKE_BUILD_TYPE=Debug ../
 
         }
         else
         {
 
-            cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release ../
+            cmake -G "Visual Studio" -DCMAKE_BUILD_TYPE=Release ../
 
         }
 
-        nmake VERBOSE=1
+        msbuild /t:Build cryptopp-static.vcxproj
+
+        msbuild /t:Build cryptopp.vcxproj
 
         .\cryptest.exe v
 
