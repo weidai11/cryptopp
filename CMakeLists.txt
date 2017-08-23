@@ -24,7 +24,6 @@ set(cryptopp_VERSION_MINOR 0)
 set(cryptopp_VERSION_PATCH 0)
 
 include(GNUInstallDirs)
-include(TestBigEndian)
 include(CheckCXXCompilerFlag)
 
 #============================================================================
@@ -94,6 +93,60 @@ endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
+
+###############################################################################
+
+# Begin JW hack
+
+# Attempt to determine the machine the compiler is targeting.
+
+set(SHELL_CMD sh -c)
+set(GREP_CMD egrep -i -c)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "x86_64"
+	OUTPUT_VARIABLE CRYPTOPP_X86_64
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "i386"
+	OUTPUT_VARIABLE CRYPTOPP_I386
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "i686"
+	OUTPUT_VARIABLE CRYPTOPP_I686
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "x32"
+	OUTPUT_VARIABLE CRYPTOPP_X32
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "Aarch32"
+	OUTPUT_VARIABLE CRYPTOPP_AARCH32
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "Aarch64"
+	OUTPUT_VARIABLE CRYPTOPP_AARCH64
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# http://stackoverflow.com/q/12515462/608639
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "\\<ARM\\>"
+	OUTPUT_VARIABLE CRYPTOPP_ARMHF
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "ARMHF"
+	OUTPUT_VARIABLE CRYPTOPP_ARMHF
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# End JW hack
+
+###############################################################################
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	# TODO(unassigned): should we avoid these (for cross-platform compatability)?
@@ -306,6 +359,8 @@ endif()
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 #  These are hard coded for X86 at the moment. We need to fix them.
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+
+if (("${CRYPTOPP_X86_64}" STREQUAL "1") OR ("${CRYPTOPP_I386}" STREQUAL "1") OR ("${CRYPTOPP_I686}" STREQUAL "1") OR ("${CRYPTOPP_X32}" STREQUAL "1"))
 	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
 	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
 	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
@@ -313,23 +368,23 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
 	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
 	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-
-	# ARMv8
-	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-	# set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
-	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
-	# set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-	# set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-	# set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
-
-	# ARMv7
+elseif (("${CRYPTOPP_AARCH32}" STREQUAL "1") OR ("${CRYPTOPP_AARCH64}" STREQUAL "1") OR ("${CRYPTOPP_ARMV8}" STREQUAL "1"))
+	set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+	set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+	set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
+	set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
+	set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+	set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
+elseif (("${CRYPTOPP_ARM}" STREQUAL "1") OR ("${CRYPTOPP_ARMHF}" STREQUAL "1"))
 	# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
-	# set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-	# set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-	# set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
-	# set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=$(FP_ABI) -mfpu=neon")
+    set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+    set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+    set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon")
+    set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=$(FP_ABI) -mfpu=neon")
+endif()
+
 endif()
 
 #============================================================================
