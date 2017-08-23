@@ -52,7 +52,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        copy /Y $env:configuration\cryptest.exe .
+        robocopy $env:configuration\cryptest.exe .
 
         .\cryptest.exe v
 
@@ -74,7 +74,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        copy /Y $env:configuration\cryptest.exe .
+        robocopy $env:configuration\cryptest.exe .
 
         .\cryptest.exe v
 
@@ -96,7 +96,7 @@ test_script:
 
         msbuild /t:Build cryptest.vcxproj
 
-        copy /Y $env:configuration\cryptest.exe .
+        robocopy $env:configuration\cryptest.exe .
 
         .\cryptest.exe v
 
