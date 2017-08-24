@@ -24,12 +24,12 @@ Currently the library contains the following algorithms:
      message authentication codes  VMAC, HMAC, GMAC, CMAC, CBC-MAC, DMAC,
                                    Two-Track-MAC, BLAKE2s, BLAKE2b
 
-                                   BLAKE2s, BLAKE2b, Keccack (F1600) SHA-1, SHA-2 
+                                   BLAKE2s, BLAKE2b, Keccack (F1600) SHA-1, SHA-2
                    hash functions  (SHA-224, SHA-256, SHA-384, and SHA-512), SHA-3,
                                    Tiger, WHIRLPOOL, RIPEMD-128, RIPEMD-256,
                                    RIPEMD-160, RIPEMD-320
 
-                                   RSA, DSA, Determinsitic DSA, ElGamal, 
+                                   RSA, DSA, Determinsitic DSA, ElGamal,
           public-key cryptography  Nyberg-Rueppel (NR), Rabin-Williams (RW), LUC,
                                    LUCELG, EC-based German Digital Signature (ECGDSA),
                                    DLIES (variants of DHAES), ESIGN
@@ -223,7 +223,7 @@ The source code and its planned changes are available at the following locations
     source code via Apache's subversion until about July 2015. At that time,
 	SourceForge had infrastructure problems and a cutover to GutHub was performed.
   * The Roadmap on the wiki provides the general direction the library is heading.
-    It includes planned features and releases, and even some wishlist items. 
+    It includes planned features and releases, and even some wishlist items.
 
 Contributions of all types are welcomed. Contributions include the following.
 
@@ -231,7 +231,7 @@ Contributions of all types are welcomed. Contributions include the following.
   * Features and enhancements
   * Test scripts and test cases
   * Branch and release testing
-  * Documentation and updates 
+  * Documentation and updates
 
 If you think you have found a bug in the library, then you should discuss it on the
 Users mailing list. Discussing it will help bring the issue to the attention of folks
@@ -615,18 +615,18 @@ documentation is one of the highest returns on investment.
 
 5.6.5 - maintenance release, recompile of programs recommended
       - expanded community input and support
-          * 25 unique contributors as of this release 
+          * 25 unique contributors as of this release
       - fixed CVE-2016-7420 (Issue 277, document NDEBUG for production/release)
       - fixed CVE-2016-7544 (Issue 302, avoid _malloca and _freea)
       - shipped library in recommended state
-          * backwards compatibility achieved with <config.compat> 
+          * backwards compatibility achieved with <config.compat>
       - Visual Studio project file cleanup
           * improved X86 and X64 MSBuild support
-          * added ARM-based MSBuild awareness 
+          * added ARM-based MSBuild awareness
       - improved Testing and QA
           * expanded platforms and compilers
           * expanded Coverity into OS X and Windows platforms
-          * added Windows test scripts using Strawberry Perl 
-      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00 
+          * added Windows test scripts using Strawberry Perl
+      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 Written by Wei Dai and the Crypto++ Project
