@@ -121,13 +121,15 @@ execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	OUTPUT_VARIABLE CRYPTOPP_I386
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# http://github.com/weidai11/cryptopp/issues/466
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "\\<mingw32\\>"
+	COMMAND ${GREP_CMD} "mingw32"
 	OUTPUT_VARIABLE CRYPTOPP_MINGW32
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
+# http://github.com/weidai11/cryptopp/issues/466
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "mingw64|w64-mingw32"
+	COMMAND ${GREP_CMD} "w64-mingw32"
 	OUTPUT_VARIABLE CRYPTOPP_MINGW64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -161,6 +163,11 @@ execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	COMMAND ${GREP_CMD} "ARM7L"
 	OUTPUT_VARIABLE CRYPTOPP_ARM7L
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# Fixup?
+if ("${CRYPTOPP_MINGW64}" STREQUAL "1")
+	unset(CRYPTOPP_MINGW32)
+endif()
 
 # MinGW32
 if ("${CRYPTOPP_MINGW32}" STREQUAL "1")
@@ -214,6 +221,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+				set(DISABLE_SSSE3 1)
 			endif()
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
@@ -222,6 +230,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
+				set(DISABLE_SSE4 1)
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
@@ -229,6 +238,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+				set(DISABLE_AESNI 1)
 			endif()
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
@@ -237,6 +247,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
+				set(DISABLE_SHA 1)
 			endif()
 		endif()
 	endif()
@@ -406,22 +417,22 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif()
 
-		if ("${CRYPTOPP_IA32_SSSE3}" STREQUAL "1")
+		if ("${CRYPTOPP_IA32_SSSE3}" STREQUAL "1" AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-		endif()
-		if ("${CRYPTOPP_IA32_SSE4}" STREQUAL "1")
-			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-			set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-		endif()
-		if ("${CRYPTOPP_IA32_CLMUL}" STREQUAL "1")
-			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
-		endif()
-		if ("${CRYPTOPP_IA32_AES}" STREQUAL "1")
-			set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
-		endif()
-		if ("${CRYPTOPP_IA32_SHA}" STREQUAL "1")
-			set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-			set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+			if ("${CRYPTOPP_IA32_SSE4}" STREQUAL "1" AND NOT DISABLE_SSE4)
+				set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+				set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+				if ("${CRYPTOPP_IA32_CLMUL}" STREQUAL "1" AND NOT DISABLE_AES)
+					set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
+				endif()
+				if ("${CRYPTOPP_IA32_AES}" STREQUAL "1" AND NOT DISABLE_AES)
+					set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
+				endif()
+				if ("${CRYPTOPP_IA32_SHA}" STREQUAL "1" AND NOT DISABLE_SHA)
+					set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+					set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+				endif()
+			endif()
 		endif()
 
 	elseif (("${CRYPTOPP_AARCH32}" STREQUAL "1") OR ("${CRYPTOPP_AARCH64}" STREQUAL "1") OR ("${CRYPTOPP_ARMV8}" STREQUAL "1"))
