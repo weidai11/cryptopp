@@ -413,7 +413,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 		# Deferred native arch; added to all CXXFLAGS
 		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_IA32_NATIVE}" STREQUAL "1")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-		else()
+		elseif(CRYPTOPP_NATIVE_ARCH)
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif()
 
@@ -445,7 +445,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 		# Deferred native arch; added to all CXXFLAGS
 		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV8A_NATIVE}" STREQUAL "1")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a")
-		else()
+		elseif(CRYPTOPP_NATIVE_ARCH)
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif()
 
@@ -474,7 +474,7 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=hard -mfpu=neon")
 		elseif (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV7A_SOFTFP}" STREQUAL "1")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp -mfpu=neon")
-		else()
+		elseif(CRYPTOPP_NATIVE_ARCH)
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif()
 
