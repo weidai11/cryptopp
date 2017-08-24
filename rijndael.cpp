@@ -90,13 +90,6 @@ NAMESPACE_BEGIN(CryptoPP)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 #endif
 
-// Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
-#if (__SUNPRO_CC >= 0x5130)
-# define MAYBE_CONST
-#else
-# define MAYBE_CONST const
-#endif
-
 // Clang __m128i casts
 #define M128I_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))

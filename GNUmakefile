@@ -165,28 +165,22 @@ ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
 endif
 
 # .intel_syntax wasn't supported until GNU assembler 2.10
-# No DISABLE_NATIVE_ARCH with CRYPTOPP_DISABLE_ASM for now
-#  See http://github.com/weidai11/cryptopp/issues/395
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 ifeq ($(HAVE_GAS)$(GAS210_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-DISABLE_NATIVE_ARCH := 1
 else
 ifeq ($(HAVE_GAS)$(GAS217_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
-DISABLE_NATIVE_ARCH := 1
 else
 ifeq ($(HAVE_GAS)$(GAS218_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-DISABLE_NATIVE_ARCH := 1
 else
 ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-DISABLE_NATIVE_ARCH := 1
 else
 ifeq ($(HAVE_GAS)$(GAS223_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SHA
-DISABLE_NATIVE_ARCH := 1
+
 endif  # -DCRYPTOPP_DISABLE_SHA
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
@@ -225,33 +219,57 @@ endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
 
-ifneq ($(INTEL_COMPILER),0)
-CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180
-ifeq ($(ICC111_OR_LATER),0)
-# "internal error: backend signals" occurs on some x86 inline assembly with ICC 9 and some x64 inline assembly with ICC 11.0
-# if you want to use Crypto++'s assembly code with ICC, try enabling it on individual files
-CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+# Begin SunCC
+ifeq ($(SUN_COMPILER),1)
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=ssse3 -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  ifeq ($(COUNT),0)
+    SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
+  endif
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  ifeq ($(COUNT),0)
+    BLAKE2_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
+    CRC_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
+  endif
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=aes -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  ifeq ($(COUNT),0)
+    GCM_FLAG = -xarch=aes -D__PCLMUL__=1
+    AES_FLAG = -xarch=aes -D__AES__=1
+  endif
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sha -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  ifeq ($(COUNT),0)
+    SHA_FLAG = -xarch=sha -D__SHA__=1
+  endif
 endif
+# End SunCC
+
+ifneq ($(INTEL_COMPILER),0)
+  CXXFLAGS += -wd68 -wd186 -wd279 -wd327 -wd161 -wd3180
+  ifeq ($(ICC111_OR_LATER),0)
+    # "internal error: backend signals" occurs on some x86 inline assembly with ICC 9 and some x64 inline assembly with ICC 11.0
+    # if you want to use Crypto++'s assembly code with ICC, try enabling it on individual files
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+  endif
 endif
 
 # Tell MacPorts GCC to use Clang integrated assembler
 #   http://github.com/weidai11/cryptopp/issues/190
 ifeq ($(GCC_COMPILER)$(MACPORTS_COMPILER),11)
-ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
-CXXFLAGS += -Wa,-q
-endif
-ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
-CLANG_INTEGRATED_ASSEMBLER := 1
-CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
-endif
+  ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
+    CXXFLAGS += -Wa,-q
+  endif
+  ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
+    CLANG_INTEGRATED_ASSEMBLER := 1
+    CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
+  endif
 endif
 
 # GCC on Solaris needs -m64. Otherwise, i386 is default
 #   http://github.com/weidai11/cryptopp/issues/230
 ifeq ($(IS_SUN)$(GCC_COMPILER)$(IS_X64),111)
-ifeq ($(findstring -m32,$(CXXFLAGS)),)
-CXXFLAGS += -m64
-endif
+  ifeq ($(findstring -m32,$(CXXFLAGS)),)
+    CXXFLAGS += -m64
+  endif
 endif
 
 # Allow use of "/" operator for GNU Assembler.
@@ -369,9 +387,6 @@ CXXFLAGS += -m64
 else ifeq ($(IS_64),0)
 CXXFLAGS += -m32
 endif
-ifneq ($(SUNCC_513_OR_LATER),0)
-CXXFLAGS += -native
-endif
 # Add for non-i386
 ifneq ($(IS_X86),1)
 CXXFLAGS += -KPIC
@@ -405,117 +420,121 @@ endif # No ASM
 
 # Native build testing. Issue 'make native'.
 ifeq ($(findstring native,$(MAKECMDGOALS)),native)
-ifeq ($(findstring -march=native,$(CXXFLAGS)),)
-CXXFLAGS += -march=native
-endif # CXXFLAGS
+  ifeq ($(findstring -march=native,$(CXXFLAGS)),)
+    ifeq ($(IS_SUN)$(SUN_COMPILER),11)
+      CXXFLAGS += -native
+    else
+      CXXFLAGS += -march=native
+    endif # CXXFLAGS
+  endif # Sun
 endif # Native
 
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
 ifeq ($(findstring ubsan,$(MAKECMDGOALS)),ubsan)
-CXXFLAGS := $(CXXFLAGS:-g%=-g3)
-CXXFLAGS := $(CXXFLAGS:-O%=-O1)
-CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
-CXXFLAGS += -fsanitize=undefined
-endif # CXXFLAGS
-ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_COVERAGE
-endif # CXXFLAGS
+  CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+  CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+  CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+  ifeq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
+    CXXFLAGS += -fsanitize=undefined
+  endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CXXFLAGS
 endif # UBsan
 
 # Address Sanitizer (Asan) testing. Issue 'make asan'.
 ifeq ($(findstring asan,$(MAKECMDGOALS)),asan)
-CXXFLAGS := $(CXXFLAGS:-g%=-g3)
-CXXFLAGS := $(CXXFLAGS:-O%=-O1)
-CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
-CXXFLAGS += -fsanitize=address
-endif # CXXFLAGS
-ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_COVERAGE
-endif # CXXFLAGS
-ifeq ($(findstring -fno-omit-frame-pointer,$(CXXFLAGS)),)
-CXXFLAGS += -fno-omit-frame-pointer
-endif # CXXFLAGS
+  CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+  CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+  CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+  ifeq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
+    CXXFLAGS += -fsanitize=address
+  endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CXXFLAGS
+  ifeq ($(findstring -fno-omit-frame-pointer,$(CXXFLAGS)),)
+    CXXFLAGS += -fno-omit-frame-pointer
+  endif # CXXFLAGS
 endif # Asan
 
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
-ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
-ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
-ifneq ($(ELF_FORMAT),0)
-LDFLAGS += -fuse-ld=gold
-endif # ELF/ELF64
-endif # CXXFLAGS
+  ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
+    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
+    ifneq ($(ELF_FORMAT),0)
+      LDFLAGS += -fuse-ld=gold
+    endif # ELF/ELF64
+  endif # CXXFLAGS
 endif # Gold
 
 # lcov code coverage. Issue 'make coverage'.
 ifneq ($(filter lcov coverage,$(MAKECMDGOALS)),)
-CXXFLAGS := $(CXXFLAGS:-g%=-g3)
-CXXFLAGS := $(CXXFLAGS:-O%=-O1)
-CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_COVERAGE
-endif # CRYPTOPP_COVERAGE
-ifeq ($(findstring -coverage,$(CXXFLAGS)),)
-CXXFLAGS += -coverage
-endif # -coverage
+  CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+  CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+  CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CRYPTOPP_COVERAGE
+  ifeq ($(findstring -coverage,$(CXXFLAGS)),)
+    CXXFLAGS += -coverage
+  endif # -coverage
 endif # GCC code coverage
 
 # gcov code coverage for Travis. Issue 'make codecov'.
 ifneq ($(filter gcov codecov,$(MAKECMDGOALS)),)
-CXXFLAGS := $(CXXFLAGS:-g%=-g3)
-CXXFLAGS := $(CXXFLAGS:-O%=-O1)
-CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_COVERAGE
-endif # CRYPTOPP_COVERAGE
-ifeq ($(findstring -coverage,$(CXXFLAGS)),)
-CXXFLAGS += -coverage
-endif # -coverage
+  CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+  CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+  CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # CRYPTOPP_COVERAGE
+  ifeq ($(findstring -coverage,$(CXXFLAGS)),)
+    CXXFLAGS += -coverage
+  endif # -coverage
 endif # GCC code coverage
 
 # Valgrind testing. Issue 'make valgrind'.
 ifneq ($(filter valgrind,$(MAKECMDGOALS)),)
-# Tune flags; see http://valgrind.org/docs/manual/quick-start.html
-CXXFLAGS := $(CXXFLAGS:-g%=-g3)
-CXXFLAGS := $(CXXFLAGS:-O%=-O1)
-CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-ifeq ($(findstring -DCRYPTOPP_VALGRIND,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_VALGRIND
-endif # -DCRYPTOPP_VALGRIND
+  # Tune flags; see http://valgrind.org/docs/manual/quick-start.html
+  CXXFLAGS := $(CXXFLAGS:-g%=-g3)
+  CXXFLAGS := $(CXXFLAGS:-O%=-O1)
+  CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
+  ifeq ($(findstring -DCRYPTOPP_VALGRIND,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_VALGRIND
+  endif # -DCRYPTOPP_VALGRIND
 endif # Valgrind
 
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
-ifneq ($(USING_GLIBCXX),0)
-ifeq ($(HAS_NEWLIB),0)
-ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
-CXXFLAGS += -D_GLIBCXX_DEBUG
-endif # CXXFLAGS
-endif # HAS_NEWLIB
-endif # USING_GLIBCXX
+  USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
+  ifneq ($(USING_GLIBCXX),0)
+    ifeq ($(HAS_NEWLIB),0)
+      ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
+        CXXFLAGS += -D_GLIBCXX_DEBUG
+      endif # CXXFLAGS
+    endif # HAS_NEWLIB
+  endif # USING_GLIBCXX
 endif # GNU Debug build
 
 # Dead code stripping. Issue 'make lean'.
 ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
-ifeq ($(findstring -ffunction-sections,$(CXXFLAGS)),)
-CXXFLAGS += -ffunction-sections
-endif # CXXFLAGS
-ifeq ($(findstring -fdata-sections,$(CXXFLAGS)),)
-CXXFLAGS += -fdata-sections
-endif # CXXFLAGS
-ifneq ($(IS_DARWIN),0)
-ifeq ($(findstring -Wl,-dead_strip,$(LDFLAGS)),)
-LDFLAGS += -Wl,-dead_strip
-endif # CXXFLAGS
-else # BSD, Linux and Unix
-ifeq ($(findstring -Wl,--gc-sections,$(LDFLAGS)),)
-LDFLAGS += -Wl,--gc-sections
-endif # LDFLAGS
-endif # MAKECMDGOALS
+  ifeq ($(findstring -ffunction-sections,$(CXXFLAGS)),)
+    CXXFLAGS += -ffunction-sections
+  endif # CXXFLAGS
+  ifeq ($(findstring -fdata-sections,$(CXXFLAGS)),)
+    CXXFLAGS += -fdata-sections
+  endif # CXXFLAGS
+  ifneq ($(IS_DARWIN),0)
+    ifeq ($(findstring -Wl,-dead_strip,$(LDFLAGS)),)
+      LDFLAGS += -Wl,-dead_strip
+    endif # CXXFLAGS
+  else # BSD, Linux and Unix
+    ifeq ($(findstring -Wl,--gc-sections,$(LDFLAGS)),)
+      LDFLAGS += -Wl,--gc-sections
+    endif # LDFLAGS
+  endif # MAKECMDGOALS
 endif # Dead code stripping
 
 # For Shared Objects, Diff, Dist/Zip rules
@@ -525,7 +544,7 @@ LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
 
 ifeq ($(strip $(LIB_PATCH)),)
-LIB_PATCH := 0
+  LIB_PATCH := 0
 endif
 
 ifeq ($(HAS_SOLIB_VERSION),1)

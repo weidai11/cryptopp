@@ -21,11 +21,11 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
-// SunCC 5.13 and below crash with AES-NI/CLMUL and C++{03|11}. Disable one or the other.
-//   Also see http://github.com/weidai11/cryptopp/issues/226
-// #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x513)
-// # undef CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-// #endif
+// SunCC 12.3 and 12.4 crash in GCM_Reduce_CLMUL
+//   http://github.com/weidai11/cryptopp/issues/226
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5130)
+# undef CRYPTOPP_CLMUL_AVAILABLE
+#endif
 
 #include "gcm.h"
 #include "cpu.h"

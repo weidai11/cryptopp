@@ -52,8 +52,10 @@
 // Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
 #if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
+# define MAYBE_UNCONST_CAST(T, x) const_cast<MAYBE_CONST T>(x)
 #else
 # define MAYBE_CONST const
+# define MAYBE_UNCONST_CAST(T, x) (x)
 #endif
 
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
@@ -627,18 +629,27 @@ inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
 	return length;
 }
 
-size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subKeys, size_t rounds,
+size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
+	// SunCC workaround
+	MAYBE_CONST word32* sk = MAYBE_UNCONST_CAST(word32*, subKeys);
+	MAYBE_CONST byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
+	MAYBE_CONST byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
+
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
-                subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                sk, rounds, ib, xb, outBlocks, length, flags);
 }
 
-size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(MAYBE_CONST word32 *subKeys, size_t rounds,
+size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
+	MAYBE_CONST word32* sk = MAYBE_UNCONST_CAST(word32*, subKeys);
+	MAYBE_CONST byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
+	MAYBE_CONST byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
+
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
-                subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+                sk, rounds, ib, xb, outBlocks, length, flags);
 }
 
 void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
