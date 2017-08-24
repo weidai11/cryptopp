@@ -9,9 +9,9 @@ cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(cryptopp)
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
-#   If not in multi-configuration environments, no explicit build type or CXX 
+#   If not in multi-configuration environments, no explicit build type or CXX
 #   flags are set by the user and if we are the root CMakeLists.txt file.
-if (NOT CMAKE_CONFIGURATION_TYPES AND 
+if (NOT CMAKE_CONFIGURATION_TYPES AND
     NOT CMAKE_NO_BUILD_TYPE AND
     NOT CMAKE_BUILD_TYPE AND
     NOT CMAKE_CXX_FLAGS AND
@@ -46,6 +46,7 @@ option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_SSE4 "Disable SSE4" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
 option(DISABLE_SHA "Disable SHA" OFF)
+option(CRYPTOPP_NATIVE_ARCH "Enable native architecture" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -94,6 +95,8 @@ if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
 
+# CRYPTOPP_NATIVE_ARCH is set below once we know what it means to be "native"
+
 ###############################################################################
 
 # Begin JW hack
@@ -104,6 +107,11 @@ set(SHELL_CMD sh -c)
 set(GREP_CMD egrep -i -c)
 
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "amd64"
+	OUTPUT_VARIABLE CRYPTOPP_AMD64
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	COMMAND ${GREP_CMD} "x86_64"
 	OUTPUT_VARIABLE CRYPTOPP_X86_64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -111,6 +119,18 @@ execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	COMMAND ${GREP_CMD} "i.86"
 	OUTPUT_VARIABLE CRYPTOPP_I386
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# http://github.com/weidai11/cryptopp/issues/466
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "mingw32"
+	OUTPUT_VARIABLE CRYPTOPP_MINGW32
+	OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+# http://github.com/weidai11/cryptopp/issues/466
+execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} "w64-mingw32"
+	OUTPUT_VARIABLE CRYPTOPP_MINGW64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
@@ -144,11 +164,21 @@ execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
 	OUTPUT_VARIABLE CRYPTOPP_ARM7L
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-# arm7l is another 32-bit hard float machine. RPI-3 is arm7l on 64-bit hardware
-if ("${CRYPTOPP_ARM}" STREQUAL "1")
-	set(CRYPTOPP_ARMHF "1")
+# Fixup?
+if ("${CRYPTOPP_MINGW64}" STREQUAL "1")
+	unset(CRYPTOPP_MINGW32)
 endif()
-if ("${CRYPTOPP_ARM7L}" STREQUAL "1")
+
+# MinGW32
+if ("${CRYPTOPP_MINGW32}" STREQUAL "1")
+	set(CRYPTOPP_I386 "1")
+endif()
+# OpenBSD and MinGW64
+if ("${CRYPTOPP_X86_64}" STREQUAL "1" OR "${CRYPTOPP_MINGW64}" STREQUAL "1")
+	set(CRYPTOPP_AMD64 "1")
+endif()
+# arm7l is another 32-bit hard float machine. RPI-3 is arm7l on 64-bit hardware
+if ("${CRYPTOPP_ARM}" STREQUAL "1" OR "${CRYPTOPP_ARM7L}" STREQUAL "1")
 	set(CRYPTOPP_ARMHF "1")
 endif()
 
@@ -191,6 +221,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
+				set(DISABLE_SSSE3 1)
 			endif()
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
@@ -199,6 +230,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
+				set(DISABLE_SSE4 1)
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
@@ -206,6 +238,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
+				set(DISABLE_AESNI 1)
 			endif()
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
@@ -214,6 +247,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
+				set(DISABLE_SHA 1)
 			endif()
 		endif()
 	endif()
@@ -257,7 +291,7 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_P
 	endif()
 endif()
 
-# Solaris specific 
+# Solaris specific
 if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 
 	# SunCC needs -native
@@ -367,37 +401,53 @@ endif()
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
 
-	if (("${CRYPTOPP_X86_64}" STREQUAL "1") OR ("${CRYPTOPP_I386}" STREQUAL "1") OR ("${CRYPTOPP_X32}" STREQUAL "1"))
+	if (("${CRYPTOPP_AMD64}" STREQUAL "1") OR ("${CRYPTOPP_I386}" STREQUAL "1") OR ("${CRYPTOPP_X32}" STREQUAL "1"))
 
 		CHECK_CXX_COMPILER_FLAG("-mssse3" CRYPTOPP_IA32_SSSE3)
 		CHECK_CXX_COMPILER_FLAG("-msse4.2" CRYPTOPP_IA32_SSE4)
 		CHECK_CXX_COMPILER_FLAG("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
 		CHECK_CXX_COMPILER_FLAG("-msse4.1 -maes" CRYPTOPP_IA32_AES)
 		CHECK_CXX_COMPILER_FLAG("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
+		CHECK_CXX_COMPILER_FLAG("-march=native" CRYPTOPP_IA32_NATIVE)
 
-		if ("${CRYPTOPP_IA32_SSSE3}" STREQUAL "1")
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_IA32_NATIVE}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+		elseif(CRYPTOPP_NATIVE_ARCH)
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
+
+		if ("${CRYPTOPP_IA32_SSSE3}" STREQUAL "1" AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
+			if ("${CRYPTOPP_IA32_SSE4}" STREQUAL "1" AND NOT DISABLE_SSE4)
+				set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+				set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
+				if ("${CRYPTOPP_IA32_CLMUL}" STREQUAL "1" AND NOT DISABLE_AES)
+					set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
+				endif()
+				if ("${CRYPTOPP_IA32_AES}" STREQUAL "1" AND NOT DISABLE_AES)
+					set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
+				endif()
+				if ("${CRYPTOPP_IA32_SHA}" STREQUAL "1" AND NOT DISABLE_SHA)
+					set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+					set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
+				endif()
+			endif()
 		endif()
-		if ("${CRYPTOPP_IA32_SSE4}" STREQUAL "1")
-			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-			set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-		endif()
-		if ("${CRYPTOPP_IA32_CLMUL}" STREQUAL "1")
-			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
-		endif()
-		if ("${CRYPTOPP_IA32_AES}" STREQUAL "1")
-			set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
-		endif()
-		if ("${CRYPTOPP_IA32_SHA}" STREQUAL "1")
-			set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-			set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
-		endif()
-		
+
 	elseif (("${CRYPTOPP_AARCH32}" STREQUAL "1") OR ("${CRYPTOPP_AARCH64}" STREQUAL "1") OR ("${CRYPTOPP_ARMV8}" STREQUAL "1"))
 
 		CHECK_CXX_COMPILER_FLAG("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
 		CHECK_CXX_COMPILER_FLAG("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
 		CHECK_CXX_COMPILER_FLAG("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
+		CHECK_CXX_COMPILER_FLAG("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV8A_NATIVE}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a")
+		elseif(CRYPTOPP_NATIVE_ARCH)
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
 
 		if ("${CRYPTOPP_ARMV8A_ASIMD}" STREQUAL "1")
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
@@ -418,6 +468,15 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 
 		CHECK_CXX_COMPILER_FLAG("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
 		CHECK_CXX_COMPILER_FLAG("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV7A_HARD}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=hard -mfpu=neon")
+		elseif (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV7A_SOFTFP}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+		elseif(CRYPTOPP_NATIVE_ARCH)
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
 
 		if ("${CRYPTOPP_ARMV7A_HARD}" STREQUAL "1")
 			# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
@@ -498,9 +557,6 @@ if (BUILD_SHARED)
 	add_custom_target(dynamic)
 	add_dependencies(dynamic cryptopp-shared)
 endif()
-
-add_custom_target(distclean)
-add_dependencies(distclean clean)
 
 #============================================================================
 # Third-party libraries
