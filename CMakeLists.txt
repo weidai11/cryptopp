@@ -9,9 +9,9 @@ cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 project(cryptopp)
 
 # Make RelWithDebInfo the default (it does e.g. add '-O2 -g -DNDEBUG' for GNU)
-#   If not in multi-configuration environments, no explicit build type or CXX 
+#   If not in multi-configuration environments, no explicit build type or CXX
 #   flags are set by the user and if we are the root CMakeLists.txt file.
-if (NOT CMAKE_CONFIGURATION_TYPES AND 
+if (NOT CMAKE_CONFIGURATION_TYPES AND
     NOT CMAKE_NO_BUILD_TYPE AND
     NOT CMAKE_BUILD_TYPE AND
     NOT CMAKE_CXX_FLAGS AND
@@ -46,6 +46,7 @@ option(DISABLE_SSSE3 "Disable SSSE3" OFF)
 option(DISABLE_SSE4 "Disable SSE4" OFF)
 option(DISABLE_AESNI "Disable AES-NI" OFF)
 option(DISABLE_SHA "Disable SHA" OFF)
+option(CRYPTOPP_NATIVE_ARCH "Enable native architecture" OFF)
 set(CRYPTOPP_DATA_DIR "" CACHE PATH "Crypto++ test data directory")
 
 #============================================================================
@@ -93,6 +94,8 @@ endif()
 if(NOT CRYPTOPP_DATA_DIR STREQUAL "")
 	add_definitions(-DCRYPTOPP_DATA_DIR="${CRYPTOPP_DATA_DIR}")
 endif()
+
+# CRYPTOPP_NATIVE_ARCH is set below once we know what it means to be "native"
 
 ###############################################################################
 
@@ -277,7 +280,7 @@ if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_P
 	endif()
 endif()
 
-# Solaris specific 
+# Solaris specific
 if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
 
 	# SunCC needs -native
@@ -394,6 +397,14 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 		CHECK_CXX_COMPILER_FLAG("-mssse3 -mpclmul" CRYPTOPP_IA32_CLMUL)
 		CHECK_CXX_COMPILER_FLAG("-msse4.1 -maes" CRYPTOPP_IA32_AES)
 		CHECK_CXX_COMPILER_FLAG("-msse4.2 -msha" CRYPTOPP_IA32_SHA)
+		CHECK_CXX_COMPILER_FLAG("-march=native" CRYPTOPP_IA32_NATIVE)
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_IA32_NATIVE}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+		else()
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
 
 		if ("${CRYPTOPP_IA32_SSSE3}" STREQUAL "1")
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
@@ -412,12 +423,20 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 			set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
 			set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
 		endif()
-		
+
 	elseif (("${CRYPTOPP_AARCH32}" STREQUAL "1") OR ("${CRYPTOPP_AARCH64}" STREQUAL "1") OR ("${CRYPTOPP_ARMV8}" STREQUAL "1"))
 
 		CHECK_CXX_COMPILER_FLAG("-march=armv8-a" CRYPTOPP_ARMV8A_ASIMD)
 		CHECK_CXX_COMPILER_FLAG("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
 		CHECK_CXX_COMPILER_FLAG("-march=armv8-a+crypto" CRYPTOPP_ARMV8A_CRYPTO)
+		CHECK_CXX_COMPILER_FLAG("-march=armv8-a" CRYPTOPP_ARMV8A_NATIVE)
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV8A_NATIVE}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv8-a")
+		else()
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
 
 		if ("${CRYPTOPP_ARMV8A_ASIMD}" STREQUAL "1")
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
@@ -438,6 +457,15 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 
 		CHECK_CXX_COMPILER_FLAG("-march=armv7-a -mfloat-abi=hard -mfpu=neon" CRYPTOPP_ARMV7A_HARD)
 		CHECK_CXX_COMPILER_FLAG("-march=armv7-a -mfloat-abi=softfp -mfpu=neon" CRYPTOPP_ARMV7A_SOFTFP)
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV7A_HARD}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=hard -mfpu=neon")
+		elseif (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_ARMV7A_SOFTFP}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -mfloat-abi=softfp -mfpu=neon")
+		else()
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
 
 		if ("${CRYPTOPP_ARMV7A_HARD}" STREQUAL "1")
 			# Need to set floating point ABI to something, like "hard" of "softfp". Most Linux use hard floats ("hard").
