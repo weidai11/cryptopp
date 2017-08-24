@@ -508,9 +508,6 @@ if (BUILD_SHARED)
 	add_dependencies(dynamic cryptopp-shared)
 endif()
 
-add_custom_target(distclean)
-add_dependencies(distclean clean)
-
 #============================================================================
 # Third-party libraries
 #============================================================================
