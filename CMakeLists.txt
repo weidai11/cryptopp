@@ -103,64 +103,66 @@ endif()
 
 # Attempt to determine the machine the compiler is targeting.
 
-set(SHELL_CMD sh -c)
-set(GREP_CMD egrep -i -c)
+set(SHELL_CMD sh)
+set(SHELL_ARGS -c)
+set(GREP_CMD egrep)
+set(GREP_ARGS -i -c)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "amd64"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "amd64"
 	OUTPUT_VARIABLE CRYPTOPP_AMD64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "x86_64"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "x86_64"
 	OUTPUT_VARIABLE CRYPTOPP_X86_64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "i.86"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "i.86"
 	OUTPUT_VARIABLE CRYPTOPP_I386
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # http://github.com/weidai11/cryptopp/issues/466
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "mingw32"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "mingw32"
 	OUTPUT_VARIABLE CRYPTOPP_MINGW32
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # http://github.com/weidai11/cryptopp/issues/466
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "w64-mingw32"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "w64-mingw32"
 	OUTPUT_VARIABLE CRYPTOPP_MINGW64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "x32"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "x32"
 	OUTPUT_VARIABLE CRYPTOPP_X32
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "Aarch32"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "Aarch32"
 	OUTPUT_VARIABLE CRYPTOPP_AARCH32
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "Aarch64"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "Aarch64"
 	OUTPUT_VARIABLE CRYPTOPP_AARCH64
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 # http://stackoverflow.com/q/12515462/608639
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "\\<ARM\\>"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "\\<ARM\\>"
 	OUTPUT_VARIABLE CRYPTOPP_ARM
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "ARMHF"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "ARMHF"
 	OUTPUT_VARIABLE CRYPTOPP_ARMHF
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} "ARM7L"
+execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+	COMMAND ${GREP_CMD} ${GREP_ARGS} "ARM7L"
 	OUTPUT_VARIABLE CRYPTOPP_ARM7L
 	OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -188,17 +190,19 @@ endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	# TODO(unassigned): should we avoid these (for cross-platform compatability)?
-	set(SHELL_CMD sh -c)
-	set(GREP_CMD egrep -c)
+	set(SHELL_CMD sh)
+	set(SHELL_ARGS -c)
+	set(GREP_CMD egrep)
+	set(GREP_ARGS -i)
 
-	execute_process(COMMAND ${SHELL_CMD} "${CMAKE_CXX_COMPILER} --version 2>&1"
-		COMMAND ${GREP_CMD} -i macports
+	execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} --version 2>&1"
+		COMMAND ${GREP_CMD} ${GREP_ARGS} "macports"
 		OUTPUT_VARIABLE MACPORTS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	if (MACPORTS EQUAL 0)
 		# Get GAS version, add defs + set as appropriate
-		set(GAS_CMD ${SHELL_CMD} "${CMAKE_CXX_COMPILER} -xc -c /dev/null -Wa,-v -o/dev/null 2>&1")
+		set(GAS_CMD ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -xc -c /dev/null -Wa,-v -o/dev/null 2>&1")
 
 		execute_process(COMMAND ${GAS_CMD}
 			OUTPUT_VARIABLE GAS_STRING
@@ -210,14 +214,14 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
 				OUTPUT_VARIABLE GAS210_OR_LATER)
 			if (GAS210_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_ASM)
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
@@ -226,7 +230,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
@@ -234,7 +238,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
@@ -243,7 +247,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
