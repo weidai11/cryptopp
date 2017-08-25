@@ -81,8 +81,8 @@ public:
 
 	//! \brief Generate and discard n bytes
 	//! \param n the number of bytes to generate and discard
-	//! \details the RDSEED generator discards words, not bytes. If n is
-	//!   not a multiple of a machine word, then it is rounded up to
+	//! \details the Padlock generator discards words, not bytes. If n is
+	//!   not a multiple of a 32-bit word, then it is rounded up to
 	//!   that size.
 	virtual void DiscardBytes(size_t n);
 

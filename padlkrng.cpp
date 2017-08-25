@@ -52,7 +52,7 @@ void PadlockRNG::GenerateBlock(byte *output, size_t size)
 		);
 
 		const size_t ret = m_msr & 0x1f;
-		const size_t rem = STDMIN<size_t>(ret, STDMIN<size_t>(size, 16U));
+		const size_t rem = STDMIN<size_t>(ret, STDMIN<size_t>(size, 16U /*buffer size*/));
 		std::memcpy(output, m_buffer, rem);
 		size -= rem; output += rem;
 	}
@@ -71,7 +71,7 @@ void PadlockRNG::GenerateBlock(byte *output, size_t size)
 		}
 
 		const size_t ret = (m_msr = result) & 0x1f;
-		const size_t rem = STDMIN<size_t>(ret, STDMIN<size_t>(size, 16U));
+		const size_t rem = STDMIN<size_t>(ret, STDMIN<size_t>(size, 16U /*buffer size*/));
 		std::memcpy(output, buffer, rem);
 		size -= rem; output += rem;
 	}
