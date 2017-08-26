@@ -99,72 +99,34 @@ endif()
 
 ###############################################################################
 
-# Begin JW hack
+# Begin JW + anonimal hack
 
 # Attempt to determine the machine the compiler is targeting.
 
+# TODO(unassigned): should we avoid these (for cross-platform compatability)?
 set(SHELL_CMD sh)
 set(SHELL_ARGS -c)
-set(GREP_CMD egrep)
-set(GREP_ARGS -i -c)
 
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "amd64"
-	OUTPUT_VARIABLE CRYPTOPP_AMD64
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
+function(DumpMachine output pattern)
+  execute_process(
+      COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+      COMMAND grep -i -c "${pattern}"  # grep cmd intentionally not set/expanded, see http://github.com/weidai11/cryptopp/issues/466
+      OUTPUT_VARIABLE ${output}
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+  set(${output} "${${output}}" PARENT_SCOPE)
+endfunction(DumpMachine)
 
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "x86_64"
-	OUTPUT_VARIABLE CRYPTOPP_X86_64
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "i.86"
-	OUTPUT_VARIABLE CRYPTOPP_I386
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-# http://github.com/weidai11/cryptopp/issues/466
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "mingw32"
-	OUTPUT_VARIABLE CRYPTOPP_MINGW32
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-# http://github.com/weidai11/cryptopp/issues/466
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "w64-mingw32"
-	OUTPUT_VARIABLE CRYPTOPP_MINGW64
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "x32"
-	OUTPUT_VARIABLE CRYPTOPP_X32
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "Aarch32"
-	OUTPUT_VARIABLE CRYPTOPP_AARCH32
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "Aarch64"
-	OUTPUT_VARIABLE CRYPTOPP_AARCH64
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-# http://stackoverflow.com/q/12515462/608639
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "\\<ARM\\>"
-	OUTPUT_VARIABLE CRYPTOPP_ARM
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "ARMHF"
-	OUTPUT_VARIABLE CRYPTOPP_ARMHF
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
-
-execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-	COMMAND ${GREP_CMD} ${GREP_ARGS} "ARM7L"
-	OUTPUT_VARIABLE CRYPTOPP_ARM7L
-	OUTPUT_STRIP_TRAILING_WHITESPACE)
+DumpMachine(CRYPTOPP_AMD64 "amd64")
+DumpMachine(CRYPTOPP_X86_64 "x86_64")
+DumpMachine(CRYPTOPP_I386 "i.86")
+DumpMachine(CRYPTOPP_MINGW32 "mingw32")  # http://github.com/weidai11/cryptopp/issues/466
+DumpMachine(CRYPTOPP_MINGW64 "w64-mingw32")  # http://github.com/weidai11/cryptopp/issues/466
+DumpMachine(CRYPTOPP_X32 "x32")
+DumpMachine(CRYPTOPP_AARCH32 "Aarch32")
+DumpMachine(CRYPTOPP_AARCH64 "Aarch64")
+DumpMachine(CRYPTOPP_ARM "\\<ARM\\>")  # http://stackoverflow.com/q/12515462/608639
+DumpMachine(CRYPTOPP_ARMHF "ARMHF")
+DumpMachine(CRYPTOPP_ARM7L "ARM7L")
 
 # Fixup?
 if ("${CRYPTOPP_MINGW64}" STREQUAL "1")
