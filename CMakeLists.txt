@@ -99,54 +99,23 @@ endif()
 
 ###############################################################################
 
-# Begin JW + anonimal hack
-
-# Attempt to determine the machine the compiler is targeting.
-
-# TODO(unassigned): should we avoid these (for cross-platform compatability)?
-set(SHELL_CMD sh)
-set(SHELL_ARGS -c)
-
 function(DumpMachine output pattern)
   execute_process(
-      COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-      COMMAND grep -i -c "${pattern}"  # grep cmd intentionally not set/expanded, see http://github.com/weidai11/cryptopp/issues/466
+      COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+      COMMAND egrep -i -c "${pattern}"  # grep cmd intentionally not set/expanded, see http://github.com/weidai11/cryptopp/issues/466
       OUTPUT_VARIABLE ${output}
       OUTPUT_STRIP_TRAILING_WHITESPACE)
   set(${output} "${${output}}" PARENT_SCOPE)
 endfunction(DumpMachine)
 
-DumpMachine(CRYPTOPP_AMD64 "amd64")
-DumpMachine(CRYPTOPP_X86_64 "x86_64")
+DumpMachine(CRYPTOPP_AMD64 "amd64|x86_64")
 DumpMachine(CRYPTOPP_I386 "i.86")
-DumpMachine(CRYPTOPP_MINGW32 "mingw32")  # http://github.com/weidai11/cryptopp/issues/466
-DumpMachine(CRYPTOPP_MINGW64 "w64-mingw32")  # http://github.com/weidai11/cryptopp/issues/466
+DumpMachine(CRYPTOPP_MINGW32 "\\<mingw32\\>")  # http://github.com/weidai11/cryptopp/issues/466
+DumpMachine(CRYPTOPP_MINGW64 "w64-mingw32|mingw64")  # http://github.com/weidai11/cryptopp/issues/466
 DumpMachine(CRYPTOPP_X32 "x32")
 DumpMachine(CRYPTOPP_AARCH32 "Aarch32")
 DumpMachine(CRYPTOPP_AARCH64 "Aarch64")
-DumpMachine(CRYPTOPP_ARM "\\<ARM\\>")  # http://stackoverflow.com/q/12515462/608639
-DumpMachine(CRYPTOPP_ARMHF "ARMHF")
-DumpMachine(CRYPTOPP_ARM7L "ARM7L")
-
-# Fixup?
-if ("${CRYPTOPP_MINGW64}" STREQUAL "1")
-	unset(CRYPTOPP_MINGW32)
-endif()
-
-# MinGW32
-if ("${CRYPTOPP_MINGW32}" STREQUAL "1")
-	set(CRYPTOPP_I386 "1")
-endif()
-# OpenBSD and MinGW64
-if ("${CRYPTOPP_X86_64}" STREQUAL "1" OR "${CRYPTOPP_MINGW64}" STREQUAL "1")
-	set(CRYPTOPP_AMD64 "1")
-endif()
-# arm7l is another 32-bit hard float machine. RPI-3 is arm7l on 64-bit hardware
-if ("${CRYPTOPP_ARM}" STREQUAL "1" OR "${CRYPTOPP_ARM7L}" STREQUAL "1")
-	set(CRYPTOPP_ARMHF "1")
-endif()
-
-# End JW hack
+DumpMachine(CRYPTOPP_ARM "\\<arm\\>|armhf|arm7l")  # http://stackoverflow.com/q/12515462/608639
 
 ###############################################################################
 
