@@ -119,21 +119,86 @@ DumpMachine(CRYPTOPP_ARM "\\<arm\\>|armhf|arm7l")  # http://stackoverflow.com/q/
 
 ###############################################################################
 
-if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-	# TODO(unassigned): should we avoid these (for cross-platform compatability)?
-	set(SHELL_CMD sh)
-	set(SHELL_ARGS -c)
-	set(GREP_CMD egrep)
-	set(GREP_ARGS -i)
+# Tests for Solaris and SunCC
+set(CRYPTOPP_SOLARIS 0)
 
-	execute_process(COMMAND ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} --version 2>&1"
-		COMMAND ${GREP_CMD} ${GREP_ARGS} "macports"
+# Test SunCC for a string like 'CC: Sun C++ 5.13 SunOS_i386'
+if (CRYPTOPP_SOLARIS MATCHES "0")
+	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
+		COMMAND egrep -i -c "SunOS"
+		OUTPUT_VARIABLE CRYPTOPP_SOLARIS
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+# Test GCC for a string like 'i386-pc-solaris2.11'
+if (CRYPTOPP_SOLARIS MATCHES "0")
+	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+		COMMAND egrep -i -c "Solaris"
+		OUTPUT_VARIABLE CRYPTOPP_SOLARIS
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+endif()
+
+# DumpMachine SunCC style
+if (CMAKE_CXX_COMPILER_ID MATCHES "SunPro")
+
+	# SunCC is 32-bit, but it builds both 32 and 64 bit. Use
+	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
+		COMMAND egrep -i -c "Sparc"
+		OUTPUT_VARIABLE CRYPTOPP_SPARC
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
+		COMMAND egrep -i -c "i386|i86"
+		OUTPUT_VARIABLE CRYPTOPP_I386
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	execute_process(COMMAND isainfo -k
+		COMMAND egrep -i -c "i386"
+		OUTPUT_VARIABLE KERNEL_I386
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	execute_process(COMMAND isainfo -k
+		COMMAND egrep -i -c "amd64"
+		OUTPUT_VARIABLE KERNEL_AMD64
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	execute_process(COMMAND isainfo -k
+		COMMAND grep -i "Sparc"
+		OUTPUT_VARIABLE KERNEL_SPARC
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	execute_process(COMMAND isainfo -k
+		COMMAND egrep -i -c "UltraSarc|Sparc64|SparcV9"
+		OUTPUT_VARIABLE KERNEL_SPARC64
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+	if(CRYPTOPP_NATIVE_ARCH MATCHES "1" AND KERNEL_I386)
+		unset(CRYPTOPP_AMD64)
+		set(CRYPTOPP_I386 1)
+	elseif(CRYPTOPP_NATIVE_ARCH MATCHES "1" AND KERNEL_AMD64)
+		unset(CRYPTOPP_I386)
+		set(CRYPTOPP_AMD64 1)
+	elseif(CRYPTOPP_NATIVE_ARCH MATCHES "1" AND KERNEL_SPARC)
+		unset(KERNEL_SPARC64)
+		set(KERNEL_SPARC 1)
+	elseif(CRYPTOPP_NATIVE_ARCH MATCHES "1" AND KERNEL_SPARC64)
+		unset(KERNEL_SPARC)
+		set(KERNEL_SPARC64 1)
+	endif()
+endif()
+
+###############################################################################
+
+if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} --version 2>&1"
+		COMMAND egrep -i -c "macports"
 		OUTPUT_VARIABLE MACPORTS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	if (MACPORTS EQUAL 0)
 		# Get GAS version, add defs + set as appropriate
-		set(GAS_CMD ${SHELL_CMD} ${SHELL_ARGS} "${CMAKE_CXX_COMPILER} -xc -c /dev/null -Wa,-v -o/dev/null 2>&1")
+		set(GAS_CMD sh -c "${CMAKE_CXX_COMPILER} -xc -c /dev/null -Wa,-v -o/dev/null 2>&1")
 
 		execute_process(COMMAND ${GAS_CMD}
 			OUTPUT_VARIABLE GAS_STRING
@@ -145,14 +210,15 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				COMMAND egrep -i -c "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
 				OUTPUT_VARIABLE GAS210_OR_LATER)
 			if (GAS210_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_ASM)
+				set(DISABLE_ASM 1)
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				COMMAND egrep -i -c "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
@@ -161,7 +227,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				COMMAND egrep -i -c "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
@@ -169,7 +235,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 			endif()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				COMMAND egrep -i -c "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
@@ -178,7 +244,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND ${GREP_CMD} ${GREP_ARGS} "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				COMMAND egrep -i -c "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
@@ -188,84 +254,45 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU")
 	endif()
 endif()
 
-# We need the output 'uname -s' for Unix and Linux system detection
-if (NOT CRYPTOPP_CROSS_COMPILE)
-	set (UNAME_CMD "uname")
-	set (UNAME_ARG "-s")
-	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		RESULT_VARIABLE UNAME_RESULT
-		OUTPUT_VARIABLE UNAME_SYSTEM)
-		string(REGEX REPLACE "\n$" "" UNAME_SYSTEM "${UNAME_SYSTEM}")
-endif()
-
-# We need the output 'uname -m' for Unix and Linux platform detection
-if (NOT CRYPTOPP_CROSS_COMPILE)
-	set (UNAME_CMD "uname")
-	set (UNAME_ARG "-m")
-	execute_process(COMMAND ${UNAME_CMD} ${UNAME_ARG}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		RESULT_VARIABLE UNAME_RESULT
-		OUTPUT_VARIABLE UNAME_MACHINE)
-	string(REGEX REPLACE "\n$" "" UNAME_MACHINE "${UNAME_MACHINE}")
-endif()
-
-if(WINDOWS_STORE OR WINDOWS_PHONE)
+# TODO: what about ICC and LLVM on Windows?
+if(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	if("${CMAKE_SYSTEM_VERSION}" MATCHES "10\\.0.*")
-		SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /D\"_WIN32_WINNT=0x0A00\"" )
+		SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /D\"_WIN32_WINNT=0x0A00\"" )
 	endif()
-	SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
+	SET( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /FI\"winapifamily.h\"" )
 endif()
 
-# Enable PIC for all targets except Windows and 32-bit x86.
+# Enable PIC for all targets except 32-bit x86.
 #   Avoid on 32-bit x86 due to register pressures.
-if ((NOT CRYPTOPP_CROSS_COMPILE) AND (NOT (WINDOWS OR WINDOWS_STORE OR WINDOWS_PHONE)))
-	# Use Regex; match i386, i486, i586 and i686
-	if (NOT (${UNAME_MACHINE} MATCHES "i.86"))
-		SET(CMAKE_POSITION_INDEPENDENT_CODE 1)
-	endif()
+if (NOT CRYPTOPP_I386)
+	SET(CMAKE_POSITION_INDEPENDENT_CODE 1)
 endif()
 
 # Solaris specific
-if ((NOT CRYPTOPP_CROSS_COMPILE) AND "${UNAME_SYSTEM}" STREQUAL "SunOS")
-
-	# SunCC needs -native
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
-	endif()
+if(CRYPTOPP_SOLARIS MATCHES "1" AND CMAKE_CXX_COMPILER_ID MATCHES "SunPro")
 
 	# Determine 32-bit vs 64-bit
-	set (ISA_CMD "isainfo")
-	set (ISA_ARG "-b")
-	execute_process(COMMAND ${ISA_CMD} ${ISA_ARG}
-		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-		RESULT_VARIABLE ISA_RESULT
-		OUTPUT_VARIABLE ISA_INFO)
-	string(REGEX REPLACE "\n$" "" ISA_INFO "${ISA_INFO}")
+	if (CRYPTOPP_AMD64 MATCHES "1" OR CRYPTOPP_SPARC64 MATCHES "1")
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
+	else()
+		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
+	endif()
 
-	# Set 64-bit or 32-bit
-	if ("${ISA_INFO}" STREQUAL "64")
+	# SunCC needs -template=no%extdef
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
+
+elseif(CRYPTOPP_SOLARIS MATCHES "1" AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+
+	# Determine 32-bit vs 64-bit
+	if (CRYPTOPP_AMD64 MATCHES "1" OR CRYPTOPP_SPARC64 MATCHES "1")
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
 	else()
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
 	endif()
 
 	# GCC needs to enable use of '/'
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,--divide")
-	endif()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wa,--divide")
 
-	# SunCC needs -template=no%extdef
-	if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "SunPro")
-		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -template=no%extdef")
-	endif()
-
-	execute_process(COMMAND "uname" "-p" OUTPUT_VARIABLE PLATFORM_SUNOS_ARCH OUTPUT_STRIP_TRAILING_WHITESPACE)
-	string(TOUPPER "${PLATFORM_SUNOS_ARCH}" PLATFORM_SUNOS_ARCH)
-	message(STATUS "SunOS platform arch: ${PLATFORM_SUNOS_ARCH}")
-	if (${PLATFORM_SUNOS_ARCH} MATCHES SPARC)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
-	endif ()
 endif()
 
 # Link is driven through the compiler, but CXXFLAGS are not used. Also see
@@ -426,6 +453,62 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv7-a -mfloat-abi=softfp -mfpu=neon")
 			set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-mfloat-abi=softfp -mfpu=neon")
 		endif()
+	endif()
+endif()
+
+# New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
+if (CMAKE_CXX_COMPILER_ID MATCHES "SunPro")
+
+	if ((CRYPTOPP_AMD64 MATCHES "1") OR (CRYPTOPP_I386 MATCHES "1") OR (CRYPTOPP_X32 MATCHES "1"))
+
+		CHECK_CXX_COMPILER_FLAG("-xarch=ssse3" CRYPTOPP_IA32_SSSE3)
+		CHECK_CXX_COMPILER_FLAG("-xarch=sse4_2" CRYPTOPP_IA32_SSE4)
+		CHECK_CXX_COMPILER_FLAG("-xarch=aes" CRYPTOPP_IA32_CLMUL)
+		CHECK_CXX_COMPILER_FLAG("-xarch=aes" CRYPTOPP_IA32_AES)
+		CHECK_CXX_COMPILER_FLAG("-xarch=sha" CRYPTOPP_IA32_SHA)
+		CHECK_CXX_COMPILER_FLAG("-native" CRYPTOPP_IA32_NATIVE)
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND CRYPTOPP_IA32_NATIVE MATCHES "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
+		elseif(CRYPTOPP_NATIVE_ARCH)
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
+
+		if (CRYPTOPP_IA32_SSSE3 STREQUAL "1" AND NOT DISABLE_SSSE3)
+			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
+			if (CRYPTOPP_IA32_SSE4 MATCHES "1" AND NOT DISABLE_SSE4)
+				set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
+				set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
+				if (CRYPTOPP_IA32_CLMUL MATCHES "1" AND NOT DISABLE_AES)
+					set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+				endif()
+				if (CRYPTOPP_IA32_AES MATCHES "1" AND NOT DISABLE_AES)
+					set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
+				endif()
+				if (CRYPTOPP_IA32_SHA MATCHES "1" AND NOT DISABLE_SHA)
+					set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
+					set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
+				endif()
+			endif()
+		endif()
+
+	elseif (CRYPTOPP_SPARC MATCHES "1" OR CRYPTOPP_SPARC64 MATCHES "1")
+
+		# Sparc's need -xmemalign=4i
+		CHECK_CXX_COMPILER_FLAG("-xmemalign=4i" CRYPTOPP_SPARC_MEMALIGN)
+
+		if (CRYPTOPP_SPARC_MEMALIGN MATCHES "1"
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -xmemalign=4i")
+		endif()
+
+		# Deferred native arch; added to all CXXFLAGS
+		if (CRYPTOPP_NATIVE_ARCH AND "${CRYPTOPP_SPARC_NATIVE}" STREQUAL "1")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -native")
+		elseif(CRYPTOPP_NATIVE_ARCH)
+			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
+		endif()
+
 	endif()
 endif()
 
