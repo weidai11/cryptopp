@@ -642,7 +642,7 @@ if (BUILD_TESTING)
 	target_link_libraries(cryptest cryptopp-static)
 
 	# Setting "cryptest" binary name to "cryptest.exe"
-	if (NOT WIN32)
+	if (NOT (WIN32 OR CYGWIN))
 		set_target_properties(cryptest PROPERTIES OUTPUT_NAME cryptest.exe)
 	endif ()
 	if (NOT TARGET cryptest.exe)
