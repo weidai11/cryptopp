@@ -199,7 +199,7 @@ public:
 
 #if CRYPTOPP_BOOL_ALIGN16
 		// TODO: should this need the test 'size*sizeof(T) >= 16'?
-		if (T_Align16 && size*sizeof(T) >= 16)
+		if (T_Align16 && size)
 			return (pointer)AlignedAllocate(size*sizeof(T));
 #endif
 
