@@ -65,6 +65,7 @@ cryptest.sln
 cryptest.vcxproj
 cryptest.vcxproj.user
 cryptest.vcxproj.filters
+cryptest.mapfile
 cryptest.nmake
 cryptlib.cpp
 cryptlib.h

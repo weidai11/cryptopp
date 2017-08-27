@@ -347,11 +347,7 @@ endif	# IS_X86
 ifeq ($(IS_SUN)$(SUN_COMPILER),11)
 ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-ifeq ($(wildcard cryptopp.mapfile),)
-$(shell echo "hwcap_1 = SSE SSE2 OVERRIDE;" > cryptopp.mapfile)
-$(shell echo "" >> cryptopp.mapfile)
-endif  # Write mapfile
-LDFLAGS += -M cryptopp.mapfile
+LDFLAGS += -M cryptest.mapfile
 endif  # No CRYPTOPP_DISABLE_ASM
 endif  # X86/X32/X64
 endif  # SunOS
