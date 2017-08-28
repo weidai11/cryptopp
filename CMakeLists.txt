@@ -126,7 +126,7 @@ endfunction(CheckCompilerOption)
 function(DumpMachine output pattern)
   execute_process(
       COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-      COMMAND egrep -i -c "${pattern}"
+      COMMAND grep -i -c -E "${pattern}"
       OUTPUT_VARIABLE ${output}
       OUTPUT_STRIP_TRAILING_WHITESPACE)
   set(${output} "${${output}}" PARENT_SCOPE)
