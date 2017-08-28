@@ -99,13 +99,13 @@ function(CheckCompilerOption option variable)
 		message(STATUS "Performing Test ${variable}")
 		execute_process(
 			COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${option} -E -xdumpmacros /dev/null 2>&1"
-			COMMAND egrep -i -c "illegal value ignored"
+			COMMAND grep -i -c -E "illegal value ignored"
 			RESULT_VARIABLE COMMAND_RESULT
 			OUTPUT_VARIABLE COMMAND_OUTPUT
 			OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 		# No dereference below. Thanks for the warning, CMake (not!).
-		if (COMMAND_RESULT STREQUAL "1" AND COMMAND_OUTPUT STREQUAL "0")
+		if (COMMAND_RESULT AND NOT COMMAND_OUTPUT)
 			set(${variable} 1 PARENT_SCOPE)
 			message(STATUS "Performing Test ${variable} - Success")
 		else ()
@@ -148,7 +148,7 @@ DumpMachine(CRYPTOPP_ARM "\\<arm\\>")
 # Test SunCC for a string like 'CC: Sun C++ 5.13 SunOS_i386'
 if (NOT CRYPTOPP_SOLARIS)
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
-		COMMAND egrep -i -c "SunOS"
+		COMMAND grep -i -c "SunOS"
 		OUTPUT_VARIABLE CRYPTOPP_SOLARIS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif ()
@@ -156,7 +156,7 @@ endif ()
 # Test GCC for a string like 'i386-pc-solaris2.11'
 if (NOT CRYPTOPP_SOLARIS)
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-		COMMAND egrep -i -c "Solaris"
+		COMMAND grep -i -c "Solaris"
 		OUTPUT_VARIABLE CRYPTOPP_SOLARIS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif ()
@@ -166,32 +166,32 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
 	# SunCC is 32-bit, but it builds both 32 and 64 bit. Use
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
-		COMMAND egrep -i -c "Sparc"
+		COMMAND grep -i -c "Sparc"
 		OUTPUT_VARIABLE CRYPTOPP_SPARC
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
-		COMMAND egrep -i -c "i386|i86"
+		COMMAND grep -i -c -E "i386|i86"
 		OUTPUT_VARIABLE CRYPTOPP_I386
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND egrep -i -c "i386"
+		COMMAND grep -i -c "i386"
 		OUTPUT_VARIABLE KERNEL_I386
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND egrep -i -c "amd64"
+		COMMAND grep -i -c "amd64"
 		OUTPUT_VARIABLE KERNEL_AMD64
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND grep -i "Sparc"
+		COMMAND grep -i -c "Sparc"
 		OUTPUT_VARIABLE KERNEL_SPARC
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND egrep -i -c "UltraSarc|Sparc64|SparcV9"
+		COMMAND grep -i -c -E "UltraSarc|Sparc64|SparcV9"
 		OUTPUT_VARIABLE KERNEL_SPARC64
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -217,7 +217,7 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} --version 2>&1"
-		COMMAND egrep -i -c "macports"
+		COMMAND grep -i -c "macports"
 		OUTPUT_VARIABLE MACPORTS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -235,7 +235,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND egrep -i -c "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				COMMAND grep -i -c -E "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
 				OUTPUT_VARIABLE GAS210_OR_LATER)
 			if (GAS210_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_ASM)
@@ -243,7 +243,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			endif ()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND egrep -i -c "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				COMMAND grep -i -c -E "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
@@ -252,7 +252,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND egrep -i -c "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				COMMAND grep -i -c -E "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
@@ -260,7 +260,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			endif ()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND egrep -i -c "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				COMMAND grep -i -c -E "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
@@ -269,7 +269,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND egrep -i -c "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				COMMAND grep -i -c -E "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
@@ -293,10 +293,10 @@ if (NOT CRYPTOPP_I386)
 endif ()
 
 # Solaris specific
-if (CRYPTOPP_SOLARIS EQUAL 1)
+if (CRYPTOPP_SOLARIS)
 
 	# Determine 32-bit vs 64-bit
-	if (CRYPTOPP_AMD64 EQUAL 1 OR CRYPTOPP_SPARC64 EQUAL 1)
+	if (CRYPTOPP_AMD64 OR CRYPTOPP_SPARC64)
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m64")
 	else ()
 		SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32")
@@ -387,7 +387,7 @@ endif ()
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
-	if (CRYPTOPP_AMD64 EQUAL 1 OR CRYPTOPP_I386 EQUAL 1 OR CRYPTOPP_X32 EQUAL 1)
+	if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
 		CheckCompilerOption("-mssse3" CRYPTOPP_IA32_SSSE3)
 		CheckCompilerOption("-msse4.2" CRYPTOPP_IA32_SSE4)
@@ -403,25 +403,25 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif ()
 
-		if (CRYPTOPP_IA32_SSSE3 EQUAL 1 AND NOT DISABLE_SSSE3)
+		if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3")
-			if (CRYPTOPP_IA32_SSE4 EQUAL 1 AND NOT DISABLE_SSE4)
+			if (CRYPTOPP_IA32_SSE4 AND NOT DISABLE_SSE4)
 				set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
 				set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2")
-				if (CRYPTOPP_IA32_CLMUL STREQUAL "1" AND NOT DISABLE_AES)
+				if (CRYPTOPP_IA32_CLMUL AND NOT DISABLE_AES)
 					set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-mssse3 -mpclmul")
 				endif ()
-				if (CRYPTOPP_IA32_AES STREQUAL "1" AND NOT DISABLE_AES)
+				if (CRYPTOPP_IA32_AES AND NOT DISABLE_AES)
 					set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.1 -maes")
 				endif ()
-				if (CRYPTOPP_IA32_SHA STREQUAL "1" AND NOT DISABLE_SHA)
+				if (CRYPTOPP_IA32_SHA AND NOT DISABLE_SHA)
 					set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
 					set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-msse4.2 -msha")
 				endif ()
 			endif ()
 		endif ()
 
-	elseif (CRYPTOPP_AARCH32 EQUAL 1 OR CRYPTOPP_AARCH64 EQUAL 1)
+	elseif (CRYPTOPP_AARCH32 OR CRYPTOPP_AARCH64)
 
 		CheckCompilerOption("-march=armv8-a" CRYPTOPP_ARMV8A_BASE)
 		CheckCompilerOption("-march=armv8-a+crc" CRYPTOPP_ARMV8A_CRC)
@@ -435,22 +435,22 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "GN
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif ()
 
-		if (CRYPTOPP_ARMV8A_BASE EQUAL 1)
+		if (CRYPTOPP_ARMV8A_BASE)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
 			set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
 			set_source_files_properties(neon-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a")
 		endif ()
-		if (CRYPTOPP_ARMV8A_CRC EQUAL 1)
+		if (CRYPTOPP_ARMV8A_CRC)
 			set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crc")
 		endif ()
-		if (CRYPTOPP_ARMV8A_CRYPTO EQUAL 1)
+		if (CRYPTOPP_ARMV8A_CRYPTO)
 			set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
 			set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
 			set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
 			set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-march=armv8-a+crypto")
 		endif ()
 
-	elseif (CRYPTOPP_ARM EQUAL 1 OR CRYPTOPP_ARMHF EQUAL 1)
+	elseif (CRYPTOPP_ARM OR CRYPTOPP_ARMHF)
 
 		CheckCompilerOption("-march=armv7-a -mfpu=neon" CRYPTOPP_ARMV7A_NEON)
 		CheckCompilerOption("-march=armv7-a -mfloat-abi=hard" CRYPTOPP_ARMV7A_HARD)
@@ -484,7 +484,7 @@ endif ()
 # New as of Pull Request 461, http://github.com/weidai11/cryptopp/pull/461.
 if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
-	if (CRYPTOPP_AMD64 EQUAL 1 OR CRYPTOPP_I386 EQUAL 1 OR CRYPTOPP_X32 EQUAL 1)
+	if (CRYPTOPP_AMD64 OR CRYPTOPP_I386 OR CRYPTOPP_X32)
 
 		CheckCompilerOption("-xarch=ssse3" CRYPTOPP_IA32_SSSE3)
 		CheckCompilerOption("-xarch=sse4_2" CRYPTOPP_IA32_SSE4)
@@ -500,25 +500,25 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 			message(WARNING "CRYPTOPP_NATIVE_ARCH enabled, but failed to detect native architecture")
 		endif ()
 
-		if (CRYPTOPP_IA32_SSSE3 STREQUAL "1" AND NOT DISABLE_SSSE3)
+		if (CRYPTOPP_IA32_SSSE3 AND NOT DISABLE_SSSE3)
 			set_source_files_properties(aria-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=ssse3")
-			if (CRYPTOPP_IA32_SSE4 STREQUAL "1" AND NOT DISABLE_SSE4)
+			if (CRYPTOPP_IA32_SSE4 AND NOT DISABLE_SSE4)
 				set_source_files_properties(blake2-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
 				set_source_files_properties(crc-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sse4_2")
-				if (CRYPTOPP_IA32_CLMUL STREQUAL "1" AND NOT DISABLE_AES)
+				if (CRYPTOPP_IA32_CLMUL AND NOT DISABLE_AES)
 					set_source_files_properties(gcm-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
 				endif ()
-				if (CRYPTOPP_IA32_AES STREQUAL "1" AND NOT DISABLE_AES)
+				if (CRYPTOPP_IA32_AES AND NOT DISABLE_AES)
 					set_source_files_properties(rijndael-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=aes")
 				endif ()
-				if (CRYPTOPP_IA32_SHA STREQUAL "1" AND NOT DISABLE_SHA)
+				if (CRYPTOPP_IA32_SHA AND NOT DISABLE_SHA)
 					set_source_files_properties(sha-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
 					set_source_files_properties(shacal2-simd.cpp PROPERTIES COMPILE_FLAGS "-xarch=sha")
 				endif ()
 			endif ()
 		endif ()
 
-	elseif (CRYPTOPP_SPARC EQUAL 1 OR CRYPTOPP_SPARC64 EQUAL 1)
+	elseif (CRYPTOPP_SPARC OR CRYPTOPP_SPARC64)
 
 		# Sparc's need -xmemalign=4i
 		CheckCompilerOption("-xmemalign=4i" CRYPTOPP_SUN_MEMALIGN)
@@ -648,10 +648,6 @@ if (BUILD_TESTING)
 	if (NOT TARGET cryptest.exe)
 		add_custom_target(cryptest.exe)
 		add_dependencies(cryptest.exe cryptest)
-	endif ()
-	if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-		set_target_properties(cryptest PROPERTIES LINK_FLAGS "-M cryptest.mapfile")
-		file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/cryptest.mapfile DESTINATION ${PROJECT_BINARY_DIR})
 	endif ()
 
 	file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/TestData DESTINATION ${PROJECT_BINARY_DIR})
