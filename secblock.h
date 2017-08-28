@@ -199,7 +199,7 @@ public:
 
 #if CRYPTOPP_BOOL_ALIGN16
 		// TODO: should this need the test 'size*sizeof(T) >= 16'?
-		if (T_Align16 && size*sizeof(T) >= 16)
+		if (T_Align16 && size)
 			return (pointer)AlignedAllocate(size*sizeof(T));
 #endif
 
@@ -220,7 +220,7 @@ public:
 		SecureWipeArray((pointer)ptr, size);
 
 #if CRYPTOPP_BOOL_ALIGN16
-		if (T_Align16 && size*sizeof(T) >= 16)
+		if (T_Align16 && size)
 			return AlignedDeallocate(ptr);
 #endif
 
@@ -242,7 +242,7 @@ public:
 		SecureWipeArray((pointer)ptr, STDMIN(size, mark));
 
 #if CRYPTOPP_BOOL_ALIGN16
-		if (T_Align16 && size*sizeof(T) >= 16)
+		if (T_Align16 && size)
 			return AlignedDeallocate(ptr);
 #endif
 
