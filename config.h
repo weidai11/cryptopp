@@ -959,6 +959,20 @@ NAMESPACE_END
 #  define CRYPTOPP_CXX11_CONSTEXPR 1
 #endif // constexpr compilers
 
+// strong typed enums: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.3; Intel 14.0; SunCC 5.12.
+//   Mircorosft and Intel had partial support earlier, but we require full support.
+#if (CRYPTOPP_MSC_VERSION >= 1700)
+#  define CRYPTOPP_CXX11_ENUM 1
+#elif __has_feature(cxx_strong_enums)
+#  define CRYPTOPP_CXX11_ENUM 1
+#elif (__INTEL_COMPILER >= 1400)
+#  define CRYPTOPP_CXX11_ENUM 1
+#elif (CRYPTOPP_GCC_VERSION >= 40400)
+#  define CRYPTOPP_CXX11_ENUM 1
+#elif (__SUNPRO_CC >= 0x5120)
+#  define CRYPTOPP_CXX11_ENUM 1
+#endif // constexpr compilers
+
 // nullptr_t: MS at VS2010 (16.00); GCC at 4.6; Clang at 3.3; Intel 10.0; SunCC 5.13.
 #if (CRYPTOPP_MSC_VERSION >= 1600)
 #  define CRYPTOPP_CXX11_NULLPTR 1
@@ -1002,7 +1016,17 @@ NAMESPACE_END
 
 // Hack... CRYPTOPP_CONSTANT is defined earlier, before C++11 constexpr availability is determined
 // http://stackoverflow.com/q/35213098/608639
-#if defined(CRYPTOPP_CXX11_CONSTEXPR)
+// #if defined(CRYPTOPP_CXX11_CONSTEXPR)
+// # undef CRYPTOPP_CONSTANT
+// # define CRYPTOPP_CONSTANT(x) constexpr static int x;
+// #endif
+
+// Hack... CRYPTOPP_CONSTANT is defined earlier, before C++11 constexpr availability is determined
+// http://stackoverflow.com/q/35213098/608639
+#if defined(CRYPTOPP_CXX11_ENUM)
+# undef CRYPTOPP_CONSTANT
+# define CRYPTOPP_CONSTANT(x) enum : int { x };
+#elif defined(CRYPTOPP_CXX11_CONSTEXPR)
 # undef CRYPTOPP_CONSTANT
 # define CRYPTOPP_CONSTANT(x) constexpr static int x;
 #endif
