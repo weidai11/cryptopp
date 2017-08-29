@@ -145,11 +145,6 @@
 #	error namespace support is now required
 #endif
 
-// Define this to workaround a Microsoft CryptoAPI bug where
-// each call to CryptAcquireContext causes a 100 KB memory leak.
-// Defining this will cause Crypto++ to make only one call to CryptAcquireContext.
-#define WORKAROUND_MS_BUG_Q258000
-
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 // Document the namespce exists. Put it here before CryptoPP is undefined below.
 //! \namespace CryptoPP
