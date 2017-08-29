@@ -92,6 +92,19 @@ endif ()
 
 ###############################################################################
 
+# Try to find a Posix compatible grep and sed. Solaris, Digital Unix,
+#   Tru64, HP-UX and a few others need tweaking
+
+if (${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
+	set(GREP_CMD /usr/xpg4/bin/grep)
+	set(SED_CMD /usr/xpg4/bin/sed)
+else()
+	set(GREP_CMD grep)
+	set(SED_CMD sed)
+endif ()
+
+###############################################################################
+
 function(CheckCompilerOption option variable)
 
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
@@ -99,7 +112,7 @@ function(CheckCompilerOption option variable)
 		message(STATUS "Performing Test ${variable}")
 		execute_process(
 			COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${option} -E -xdumpmacros /dev/null 2>&1"
-			COMMAND grep -i -c -E "illegal value ignored"
+			COMMAND ${GREP_CMD} -i -c -E "illegal value ignored"
 			RESULT_VARIABLE COMMAND_RESULT
 			OUTPUT_VARIABLE COMMAND_OUTPUT
 			OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -124,12 +137,12 @@ endfunction(CheckCompilerOption)
 ###############################################################################
 
 function(DumpMachine output pattern)
-  execute_process(
-      COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-      COMMAND grep -i -c -E "${pattern}"
-      OUTPUT_VARIABLE ${output}
-      OUTPUT_STRIP_TRAILING_WHITESPACE)
-  set(${output} "${${output}}" PARENT_SCOPE)
+	execute_process(
+		COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+		COMMAND ${GREP_CMD} -i -c -E "${pattern}"
+		OUTPUT_VARIABLE ${output}
+		OUTPUT_STRIP_TRAILING_WHITESPACE)
+	set(${output} "${${output}}" PARENT_SCOPE)
 endfunction(DumpMachine)
 
 # Thansk to Anonimal for MinGW; see http://github.com/weidai11/cryptopp/issues/466
@@ -148,7 +161,7 @@ DumpMachine(CRYPTOPP_ARM "\\<arm\\>")
 # Test SunCC for a string like 'CC: Sun C++ 5.13 SunOS_i386'
 if (NOT CRYPTOPP_SOLARIS)
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
-		COMMAND grep -i -c "SunOS"
+		COMMAND ${GREP_CMD} -i -c "SunOS"
 		OUTPUT_VARIABLE CRYPTOPP_SOLARIS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif ()
@@ -156,7 +169,7 @@ endif ()
 # Test GCC for a string like 'i386-pc-solaris2.11'
 if (NOT CRYPTOPP_SOLARIS)
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-		COMMAND grep -i -c "Solaris"
+		COMMAND ${GREP_CMD} -i -c "Solaris"
 		OUTPUT_VARIABLE CRYPTOPP_SOLARIS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 endif ()
@@ -166,32 +179,32 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
 
 	# SunCC is 32-bit, but it builds both 32 and 64 bit. Use
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
-		COMMAND grep -i -c "Sparc"
+		COMMAND ${GREP_CMD} -i -c "Sparc"
 		OUTPUT_VARIABLE CRYPTOPP_SPARC
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} -V 2>&1"
-		COMMAND grep -i -c -E "i386|i86"
+		COMMAND ${GREP_CMD} -i -c -E "i386|i86"
 		OUTPUT_VARIABLE CRYPTOPP_I386
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND grep -i -c "i386"
+		COMMAND ${GREP_CMD} -i -c "i386"
 		OUTPUT_VARIABLE KERNEL_I386
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND grep -i -c "amd64"
+		COMMAND ${GREP_CMD} -i -c "amd64"
 		OUTPUT_VARIABLE KERNEL_AMD64
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND grep -i -c "Sparc"
+		COMMAND ${GREP_CMD} -i -c "Sparc"
 		OUTPUT_VARIABLE KERNEL_SPARC
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 	execute_process(COMMAND isainfo -k
-		COMMAND grep -i -c -E "UltraSarc|Sparc64|SparcV9"
+		COMMAND ${GREP_CMD} -i -c -E "UltraSarc|Sparc64|SparcV9"
 		OUTPUT_VARIABLE KERNEL_SPARC64
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -217,7 +230,7 @@ endif ()
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 	execute_process(COMMAND sh -c "${CMAKE_CXX_COMPILER} --version 2>&1"
-		COMMAND grep -i -c "macports"
+		COMMAND ${GREP_CMD} -i -c "macports"
 		OUTPUT_VARIABLE MACPORTS
 		OUTPUT_STRIP_TRAILING_WHITESPACE)
 
@@ -235,7 +248,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# TODO(unassigned): string() REGEX was not cooperating at time of writing. Re-implement as needed.
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND grep -i -c -E "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.[1-9][0-9]|[3-9])"
 				OUTPUT_VARIABLE GAS210_OR_LATER)
 			if (GAS210_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_ASM)
@@ -243,7 +256,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			endif ()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND grep -i -c -E "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.1[7-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS217_OR_LATER)
 			if (GAS217_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSSE3)
@@ -252,7 +265,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# OpenBSD and CentOS 5 needed this one due to ARIA and BLAKE2
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND grep -i -c -E "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.1[8-9]|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS218_OR_LATER)
 			if (GAS218_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SSE4)
@@ -260,7 +273,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 			endif ()
 
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND grep -i -c -E "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.19|2\\.[2-9]|[3-9])"
 				OUTPUT_VARIABLE GAS219_OR_LATER)
 			if (GAS219_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_AESNI)
@@ -269,7 +282,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 
 			# Ubuntu 10 and Ubuntu 12 needed this one
 			execute_process(COMMAND echo ${GAS_STRING}
-				COMMAND grep -i -c -E "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
+				COMMAND ${GREP_CMD} -i -c -E "GNU assembler version (2\\.2[3-9]|2\\.[3-9]|[3-9])"
 				OUTPUT_VARIABLE GAS223_OR_LATER)
 			if (GAS223_OR_LATER EQUAL 0)
 				add_definitions(-DCRYPTOPP_DISABLE_SHA)
