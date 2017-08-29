@@ -17,41 +17,47 @@ RANLIB ?= ranlib
 CP ?= cp
 MV ?= mv
 RM ?= rm -f
-EGREP ?= egrep
 CHMOD ?= chmod
 MKDIR ?= mkdir
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
 UNAME := $(shell uname)
 
-IS_X86 := $(shell uname -m | $(EGREP) -v "x86_64" | $(EGREP) -i -c "i.86|x86|i86")
-IS_X64 := $(shell uname -m | $(EGREP) -i -c "(_64|d64)")
-IS_PPC := $(shell uname -m | $(EGREP) -i -c "ppc|power")
-IS_ARM32 := $(shell uname -m | $(EGREP) -i -c '\<arm\>')
-IS_ARM64 := $(shell uname -m | $(EGREP) -i -c 'aarch64')
-IS_ARMV8 ?= $(shell uname -m | $(EGREP) -i -c 'aarch32|aarch64')
-IS_NEON ?= $(shell uname -m | $(EGREP) -i -c 'armv7|armv8|aarch32|aarch64')
-IS_SPARC := $(shell uname -m | $(EGREP) -i -c "sparc")
-IS_SPARC64 := $(shell uname -m | $(EGREP) -i -c "sparc64")
+# Solaris provides a non-Posix shell at /usr/bin
+ifneq ($(wildcard /usr/xpg4/bin),)
+  GREP ?= /usr/xpg4/bin/grep
+else
+  GREP ?= grep
+endif
 
-IS_SUN := $(shell uname | $(EGREP) -i -c "SunOS")
-IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Linux")
-IS_MINGW := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "MinGW")
-IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Cygwin")
-IS_DARWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "Darwin")
-IS_NETBSD := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c "NetBSD")
+IS_X86 := $(shell uname -m | $(GREP) -v "x86_64" | $(GREP) -i -c -E "i.86|x86|i86")
+IS_X64 := $(shell uname -m | $(GREP) -i -c -E "(_64|d64)")
+IS_PPC := $(shell uname -m | $(GREP) -i -c "ppc|power")
+IS_ARM32 := $(shell uname -m | $(GREP) -i -c '\<arm\>')
+IS_ARM64 := $(shell uname -m | $(GREP) -i -c 'aarch64')
+IS_ARMV8 ?= $(shell uname -m | $(GREP) -i -c 'aarch32|aarch64')
+IS_NEON ?= $(shell uname -m | $(GREP) -i -c -E 'armv7|armv8|aarch32|aarch64')
+IS_SPARC := $(shell uname -m | $(GREP) -i -c "sparc")
+IS_SPARC64 := $(shell uname -m | $(GREP) -i -c "sparc64")
 
-SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(EGREP) -i -c "CC: (Sun|Studio)")
-GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -v "clang" | $(EGREP) -i -c "(gcc|g\+\+)")
-CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
-INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "\(icc\)")
-MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "macports")
+IS_SUN := $(shell uname | $(GREP) -i -c "SunOS")
+IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "Linux")
+IS_MINGW := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "MinGW")
+IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "Cygwin")
+IS_DARWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "Darwin")
+IS_NETBSD := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "NetBSD")
+
+SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio)")
+GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -v "clang" | $(GREP) -i -c -E "(gcc|g\+\+)")
+CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "clang")
+INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "\(icc\)")
+MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "macports")
 
 # Sun Studio 12.0 provides SunCC 0x0510; and Sun Studio 12.3 provides SunCC 0x0512
-SUNCC_510_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|6\.)")
-SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|6\.)")
-SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
-SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
+SUNCC_510_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|6\.)")
+SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|6\.)")
+SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
+SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
 # Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
@@ -70,12 +76,12 @@ endif
 
 # Fixup SunOS
 ifeq ($(IS_SUN),1)
-IS_X86 := $(shell isainfo -k 2>/dev/null | $(EGREP) -i -c "i386")
-IS_X64 := $(shell isainfo -k 2>/dev/null | $(EGREP) -i -c "amd64")
+IS_X86 := $(shell isainfo -k 2>/dev/null | $(GREP) -i -c "i386")
+IS_X64 := $(shell isainfo -k 2>/dev/null | $(GREP) -i -c "amd64")
 endif
 
 # Newlib needs _XOPEN_SOURCE=700 for signals
-HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__NEWLIB__")
+HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(GREP) -i -c "__NEWLIB__")
 
 ###########################################################
 #####                General Variables                #####
@@ -138,24 +144,24 @@ ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
 
 # Fixup. Clang reports an error rather than "LLVM assembler" or similar.
 ifneq ($(MACPORTS_COMPILER),1)
-  HAVE_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler")
+  HAVE_GAS := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c "GNU assembler")
 endif
 
 ifneq ($(GCC_COMPILER),0)
-  IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c gcc-9[0-9][0-9])
-  GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[2-9]|[5-9]\.)")
-  GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(EGREP) -i -c "gcc version (4\.[6-9]|[5-9]\.)")
+  IS_GCC_29 := $(shell $(CXX) -v 2>&1 | $(GREP) -i -c -E gcc-9[0-9][0-9])
+  GCC42_OR_LATER := $(shell $(CXX) -v 2>&1 | $(GREP) -i -c -E "gcc version (4\.[2-9]|[5-9]\.)")
+  GCC46_OR_LATER := $(shell $(CXX) -v 2>&1 | $(GREP) -i -c -E "gcc version (4\.[6-9]|[5-9]\.)")
 endif
 
 ifneq ($(HAVE_GAS),0)
-  GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.[1-9][0-9]|[3-9])")
-  GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
-  GAS218_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.1[8-9]|2\.[2-9]|[3-9])")
-  GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
-  GAS223_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(EGREP) -c "GNU assembler version (2\.2[3-9]|2\.[3-9]|[3-9])")
+  GAS210_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.[1-9][0-9]|[3-9])")
+  GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
+  GAS218_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.1[8-9]|2\.[2-9]|[3-9])")
+  GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+  GAS223_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.2[3-9]|2\.[3-9]|[3-9])")
 endif
 
-ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(EGREP) -c "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
+ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(GREP) -c -E "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 
 # Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
 ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
@@ -189,28 +195,28 @@ endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
-  HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSSE3__)
+  HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(GREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
-  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSE4_2__)
+  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(GREP) -i -c __SSE4_2__)
   ifeq ($(HAVE_SSE4),1)
     BLAKE2_FLAG = -msse4.2
     CRC_FLAG = -msse4.2
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
-  HAVE_CLMUL = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | $(EGREP) -i -c __PCLMUL__ )
+  HAVE_CLMUL = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | $(GREP) -i -c __PCLMUL__ )
   ifeq ($(HAVE_CLMUL),1)
     GCM_FLAG = -mssse3 -mpclmul
   endif
-  HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(EGREP) -i -c __AES__)
+  HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(GREP) -i -c __AES__)
   ifeq ($(HAVE_AES),1)
     AES_FLAG = -msse4.1 -maes
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
-  HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(EGREP) -i -c __SHA__)
+  HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(GREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
     SHA_FLAG = -msse4.2 -msha
   endif
@@ -221,25 +227,25 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 
 # Begin SunCC
 ifeq ($(SUN_COMPILER),1)
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=ssse3 -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=ssse3 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal value ignored")
   ifeq ($(COUNT),0)
     SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal value ignored")
   ifeq ($(COUNT),0)
     BLAKE2_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
     CRC_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
     LDFLAGS += -xarch=sse4_2
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=aes -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=aes -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal value ignored")
   ifeq ($(COUNT),0)
     GCM_FLAG = -xarch=aes -D__PCLMUL__=1
     AES_FLAG = -xarch=aes -D__AES__=1
     LDFLAGS += -xarch=aes
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sha -xdumpmacros /dev/null 2>&1 | $(EGREP) -i -c "illegal value ignored")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sha -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal value ignored")
   ifeq ($(COUNT),0)
     SHA_FLAG = -xarch=sha -D__SHA__=1
     LDFLAGS += -xarch=sha
@@ -311,7 +317,7 @@ endif
 endif
 
 ifeq ($(IS_NEON),1)
-  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(EGREP) -i -c '\<__ARM_NEON\>')
+  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(GREP) -i -c -E '\<__ARM_NEON\>')
   ifeq ($(HAVE_NEON),1)
     NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -321,17 +327,17 @@ ifeq ($(IS_NEON),1)
 endif
 
 ifeq ($(IS_ARMV8),1)
-  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_NEON)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
   endif
-  HAVE_CRC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRC32)
+  HAVE_CRC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRC32)
   ifeq ($(HAVE_NEON),1)
     CRC_FLAG = -march=armv8-a+crc
   endif
-  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_NEON),1)
     AES_FLAG = -march=armv8-a+crypto
     GCM_FLAG = -march=armv8-a+crypto
@@ -381,7 +387,7 @@ endif
 
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
-IS_64 := $(shell isainfo -b 2>/dev/null | $(EGREP) -i -c "64")
+IS_64 := $(shell isainfo -b 2>/dev/null | $(GREP) -i -c "64")
 ifeq ($(IS_64),1)
 CXXFLAGS += -m64
 else ifeq ($(IS_64),0)
@@ -397,7 +403,7 @@ CXXFLAGS += -template=no%extdef
 ifneq ($(IS_SPARC)$(IS_SPARC64),00)
 CXXFLAGS += -xmemalign=4i
 endif
-SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(EGREP) -c "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
+SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(GREP) -c -E "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
 # -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21 and was fixed in May 2010
 # remove it if you get "already had a body defined" errors in vector.cc
@@ -458,7 +464,7 @@ endif # Asan
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
   ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
-    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
+    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(GREP) -i -c "elf")
     ifneq ($(ELF_FORMAT),0)
       LDFLAGS += -fuse-ld=gold
     endif # ELF/ELF64
@@ -505,7 +511,7 @@ endif # Valgrind
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-  USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
@@ -535,7 +541,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
 endif # Dead code stripping
 
 # For Shared Objects, Diff, Dist/Zip rules
-LIB_VER := $(shell $(EGREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
+LIB_VER := $(shell $(GREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
 LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)
@@ -663,7 +669,7 @@ sources: adhoc.cpp
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
 # Directory Doxygen uses (specified in Doygen config file)
 ifeq ($(wildcard Doxyfile),Doxyfile)
-DOXYGEN_DIRECTORY := $(strip $(shell $(EGREP) "OUTPUT_DIRECTORY" Doxyfile | $(EGREP) -v "\#" | cut -d "=" -f 2))
+DOXYGEN_DIRECTORY := $(strip $(shell $(GREP) "OUTPUT_DIRECTORY" Doxyfile | $(GREP) -v "\#" | cut -d "=" -f 2))
 endif
 # Default directory (in case its missing in the config file)
 ifeq ($(strip $(DOXYGEN_DIRECTORY)),)

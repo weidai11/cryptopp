@@ -69,13 +69,29 @@ unset MallocScribble MallocPreScribble MallocGuardEdges
 # Setup tools and platforms
 
 GREP=grep
-EGREP=egrep
 SED=sed
 AWK=awk
+MAKE=make
 
-# Code generation tests
 DISASS=objdump
 DISASSARGS=("--disassemble")
+
+# Fixup, Solaris and friends
+if [[ (-d /usr/xpg4/bin) ]]; then
+	SED=/usr/xpg4/bin/sed
+	AWK=/usr/xpg4/bin/awk
+	GREP=/usr/xpg4/bin/grep
+elif [[ (-d /usr/bin/posix) ]]; then
+	SED=/usr/bin/posix/sed
+	AWK=/usr/bin/posix/awk
+	GREP=/usr/bin/posix/grep
+fi
+
+# Fixup, Solaris and BSDs
+GMAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
+if [[ ! -z "$GMAKE" ]]; then
+	MAKE=$GMAKE
+fi
 
 THIS_SYSTEM=$(uname -s 2>&1)
 IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
@@ -93,37 +109,16 @@ IS_FEDORA=$(lsb_release -a 2>&1 | "$GREP" -i -c fedora)
 IS_UBUNTU=$(lsb_release -a 2>&1 | "$GREP" -i -c ubuntu)
 
 THIS_MACHINE=$(uname -m 2>&1)
-IS_X86=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(i386|i486|i686|i686)")
-IS_X64=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(amd64|x86_64)")
-IS_PPC=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(Power|PPC)")
-IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$EGREP" -i -c "(arm|aarch32)")
-IS_ARM64=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "(arm64|aarch64)")
-IS_S390=$(echo -n "$THIS_MACHINE" | "$EGREP" -i -c "s390")
+IS_X86=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(i386|i486|i686|i686)")
+IS_X64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(amd64|x86_64)")
+IS_PPC=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(Power|PPC)")
+IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$GREP" -i -c -E "(arm|aarch32)")
+IS_ARM64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E  "(arm64|aarch64)")
+IS_S390=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c "s390")
 IS_X32=0
 
 # Fixup
 if [[ "$IS_SOLARIS" -ne "0" ]]; then
-	IS_X64=$(isainfo 2>/dev/null | "$GREP" -i -c "amd64")
-	if [[ "$IS_X64" -ne "0" ]]; then
-		IS_X86=0
-	fi
-
-	# Need something more powerful than the Posix versions
-	if [[ (-e "/usr/gnu/bin/grep") ]]; then
-		GREP=/usr/gnu/bin/grep;
-	fi
-	if [[ (-e "/usr/gnu/bin/egrep") ]]; then
-		EGREP=/usr/gnu/bin/egrep;
-	fi
-	if [[ (-e "/usr/gnu/bin/sed") ]]; then
-		SED=/usr/gnu/bin/sed;
-	fi
-	if [[ (-e "/usr/gnu/bin/awk") ]]; then
-		AWK=/usr/gnu/bin/awk;
-	else
-		AWK=nawk;
-	fi
-
 	DISASS=dis
 	DISASSARGS=()
 fi
@@ -132,18 +127,6 @@ fi
 if [[ "$IS_DARWIN" -ne 0 ]]; then
 	DISASS=otool
 	DISASSARGS=("-tV")
-fi
-
-# Fixup
-if [[ ("$IS_FREEBSD" -ne "0" || "$IS_OPENBSD" -ne "0" || "$IS_NETBSD" -ne "0" || "$IS_DRAGONFLY" -ne "0") ]]; then
-	MAKE=gmake
-elif [[ ("$IS_SOLARIS" -ne "0") ]]; then
-	MAKE=$(which gmake 2>/dev/null | "$GREP" -v "no gmake" | head -1)
-	if [[ (-z "$MAKE") && (-e "/usr/sfw/bin/gmake") ]]; then
-		MAKE=/usr/sfw/bin/gmake
-	fi
-else
-	MAKE=make
 fi
 
 # CPU features and flags
@@ -170,13 +153,13 @@ fi
 for ARG in "$@"
 do
 	# Recognize "fast" and "quick", which does not perform tests that take more time to execute
-    if [[ ($("$EGREP" -ix "fast" <<< "$ARG") || $("$EGREP" -ix "quick" <<< "$ARG")) ]]; then
+    if [[ ($("$GREP" -ix "fast" <<< "$ARG") || $("$GREP" -ix "quick" <<< "$ARG")) ]]; then
 		HAVE_VALGRIND=0
 		WANT_BENCHMARKS=0
 	# Recognize "farm" and "nice", which uses 1/2 the CPU cores in accordance with GCC Compile Farm policy
-	elif [[ ($("$EGREP" -ix "farm" <<< "$ARG") || $("$EGREP" -ix "nice" <<< "$ARG")) ]]; then
+	elif [[ ($("$GREP" -ix "farm" <<< "$ARG") || $("$GREP" -ix "nice" <<< "$ARG")) ]]; then
 		WANT_NICE=1
-	elif [[ ($("$EGREP" -ix "orig" <<< "$ARG") || $("$EGREP" -ix "original" <<< "$ARG") || $("$EGREP" -ix "config.h" <<< "$ARG")) ]]; then
+	elif [[ ($("$GREP" -ix "orig" <<< "$ARG") || $("$GREP" -ix "original" <<< "$ARG") || $("$GREP" -ix "config.h" <<< "$ARG")) ]]; then
 		git checkout config.h > /dev/null 2>&1
 	else
 		echo "Unknown option $ARG"
@@ -217,32 +200,32 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
 	fi
 fi
 
-SUN_COMPILER=$("$CXX" -V 2>&1 | "$EGREP" -i -c "CC: (Sun|Studio)")
-GCC_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -v "clang" | "$EGREP" -i -c "(gcc|g\+\+)")
-INTEL_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "\(icc\)")
-MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "MacPorts")
-CLANG_COMPILER=$("$CXX" --version 2>&1 | "$EGREP" -i -c "clang")
+SUN_COMPILER=$("$CXX" -V 2>&1 | "$GREP" -i -c -E "CC: (Sun|Studio)")
+GCC_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -v "clang" | "$GREP" -i -c -E "(gcc|g\+\+)")
+INTEL_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "\(icc\)")
+MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "MacPorts")
+CLANG_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "clang")
 
 if [[ ("$SUN_COMPILER" -eq "0") ]]; then
-	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c "(__x64_64__|__amd64__)")
-	ILP32=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$EGREP" -c "(__ILP32__|__ILP32)")
+	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$GREP" -i -c -E "(__x64_64__|__amd64__)")
+	ILP32=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$GREP" -i -c -E "(__ILP32__|__ILP32)")
 	if [[ ("$AMD64" -ne "0") && ("$ILP32" -ne "0") ]]; then
 		IS_X32=1
 	fi
 fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
-CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'clang version (3\.[7-9]|[4-9]\.[0-9])')
-GCC_70_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (7\.[0-9]|[8-9])')
-GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (6\.[0-9]|[7-9])')
-GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (5\.[1-9]|[6-9])')
-GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.8')
-GCC_49_COMPILER=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version 4\.9')
-GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$EGREP" -i -c 'gcc version (4\.9|[5-9]\.[0-9])')
-SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
-SUNCC_511_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)")
-SUNCC_512_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|[6-9]\.)")
-SUNCC_513_OR_ABOVE=$("$CXX" -V 2>&1 | "$EGREP" -c "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|[6-9]\.)")
+CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'clang version (3\.[7-9]|[4-9]\.[0-9])')
+GCC_70_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (7\.[0-9]|[8-9])')
+GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (6\.[0-9]|[7-9])')
+GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (5\.[1-9]|[6-9])')
+GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.8')
+GCC_49_COMPILER=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.9')
+GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (4\.9|[5-9]\.[0-9])')
+SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
+SUNCC_511_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)")
+SUNCC_512_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|[6-9]\.)")
+SUNCC_513_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|[6-9]\.)")
 
 # Fixup, bad code generation
 if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
@@ -480,7 +463,7 @@ OPT_PIC=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PIC") ]]; then
 	HAVE_PIC=0
-	PIC_PROBLEMS=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMPDIR/adhoc.exe" 2>&1 | "$EGREP" -ic '(warning|error)')
+	PIC_PROBLEMS=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMPDIR/adhoc.exe" 2>&1 | "$GREP" -i -c -E  '(warning|error)')
 	if [[ "$PIC_PROBLEMS" -eq "0" ]]; then
 		HAVE_PIC=1
 		OPT_PIC=-fPIC
@@ -605,7 +588,7 @@ if [[ (-z "$HAVE_LDGOLD") ]]; then
 	LD_GOLD=$(which ld.gold 2>&1 | "$GREP" -v "no ld.gold" | head -1)
 	ELF_FILE=$(which file 2>&1 | "$GREP" -v "no file" | head -1)
 	if [[ (! -z "$LD_GOLD") && (! -z "$ELF_FILE") ]]; then
-		LD_GOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$EGREP" -i -c "elf")
+		LD_GOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$GREP" -i -c "elf")
 		if [[ ("$LD_GOLD" -ne "0") ]]; then
 			"$CXX" -DCRYPTOPP_ADHOC_MAIN -fuse-ld=gold adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 			if [[ "$?" -eq "0" ]]; then
@@ -624,7 +607,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	fi
 
 	if [[ (-z "$HAVE_ARMV8A" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]]; then
-		HAVE_ARMV8A=$(echo -n "$ARM_CPU_FLAGS" | "$EGREP" -i -c '(asimd|crc|crypto)')
+		HAVE_ARMV8A=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(asimd|crc|crypto)')
 		if [[ ("$HAVE_ARMV8A" -gt "0") ]]; then HAVE_ARMV8A=1; fi
 	fi
 
@@ -658,7 +641,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	fi
 
 	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
-		HAVE_ARM_CRYPTO=$(echo -n "$ARM_CPU_FLAGS" | "$EGREP" -i -c '(aes|pmull|sha1|sha2)')
+		HAVE_ARM_CRYPTO=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(aes|pmull|sha1|sha2)')
 		if [[ ("$HAVE_ARM_CRYPTO" -gt "0") ]]; then HAVE_ARM_CRYPTO=1; fi
 	fi
 
@@ -827,7 +810,7 @@ CPU_COUNT=1
 MEM_SIZE=512
 
 if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
-	CPU_COUNT=$(cat /proc/cpuinfo 2>&1 | "$GREP" -c '^processor')
+	CPU_COUNT=$(cat /proc/cpuinfo 2>&1 | "$GREP" -c -E '^processor')
 	MEM_SIZE=$(cat /proc/meminfo 2>&1 | "$GREP" "MemTotal" | "$AWK" '{print $2}')
 	MEM_SIZE=$(($MEM_SIZE/1024))
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
@@ -1038,7 +1021,7 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	# Soft/Hard floats only apply to 32-bit ARM
 	# http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.faqs/ka16242.html
 	if [[ ("$IS_ARM32" -ne "0") ]]; then
-		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$EGREP" -i -c '(armhf|gnueabihf)')
+		ARM_HARD_FLOAT=$("$CXX" -v 2>&1 | "$GREP" 'Target' | "$GREP" -i -c -E '(armhf|gnueabihf)')
 		if [[ ("$ARM_HARD_FLOAT" -ne "0") ]]; then
 			PLATFORM_CXXFLAGS+=("-mfloat-abi=hard")
 		else
@@ -1100,14 +1083,14 @@ if true; then
 	FAILED=0
 
 	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c '(assert.h|cassert)')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E '(assert.h|cassert)')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found Posix assert headers" | tee -a "$TEST_RESULTS"
 	fi
 
 	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$EGREP" -c 'assert[[:space:]]*\(')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E 'assert[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found use of Posix assert" | tee -a "$TEST_RESULTS"
@@ -1138,14 +1121,14 @@ if true; then
 	FAILED=0
 
 	# If this fires, then use the library's STDMIN(a,b) or (std::min)(a, b);
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$EGREP" -c 'std::min[[:space:]]*\(')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E 'std::min[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found std::min" | tee -a "$TEST_RESULTS"
 	fi
 
 	# If this fires, then use the library's STDMAX(a,b) or (std::max)(a, b);
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$EGREP" -c 'std::max[[:space:]]*\(')
+	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E 'std::max[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found std::max" | tee -a "$TEST_RESULTS"
@@ -1176,15 +1159,15 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		X86_SSE2=$(echo -n "$X86_CPU_FLAGS" | "$GREP" -i -c sse2)
-		X86_SHA256_HASH_BLOCKS=$(echo -n "$DISASS_TEXT" | "$EGREP" -c 'SHA256_HashMultipleBlocks_SSE2')
+		X86_SHA256_HASH_BLOCKS=$(echo -n "$DISASS_TEXT" | "$GREP" -c 'SHA256_HashMultipleBlocks_SSE2')
 		if [[ ("$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
-			COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(rol.*0x|ror.*0x)')
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E '(rol.*0x|ror.*0x)')
 			if [[ ("$COUNT" -le "250") ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rotate immediate instruction (SHA256_HashMultipleBlocks_SSE2)" | tee -a "$TEST_RESULTS"
 			fi
 		else
-			COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(rol.*0x|ror.*0x)')
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E '(rol.*0x|ror.*0x)')
 			if [[ ("$COUNT" -le "500") ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rotate immediate instruction" | tee -a "$TEST_RESULTS"
@@ -1323,13 +1306,13 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmulqdq|pclmullqhq|vpclmulqdq)')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E '(pclmulqdq|pclmullqhq|vpclmulqdq)')
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pclmullqhq instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c '(pclmulqdq|pclmullqlq|vpclmulqdq)')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E '(pclmulqdq|pclmullqlq|vpclmulqdq)')
 		if [[ ("$COUNT" -eq "0") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pclmullqlq instruction" | tee -a "$TEST_RESULTS"
@@ -1462,7 +1445,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 	############################################
 	# ARM NEON code generation
 
-	ARM_NEON=$(echo -n "$ARM_CPU_FLAGS" | "$EGREP" -i -c '(neon|asimd)')
+	ARM_NEON=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(neon|asimd)')
 	if [[ ("$ARM_NEON" -ne "0" || "$HAVE_ARM_NEON" -ne "0") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
@@ -1477,35 +1460,35 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		# ARIA::UncheckedKeySet: 8 vld1q.32
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'vld')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vld')
 		if [[ ("$COUNT" -lt "8") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# ARIA::UncheckedKeySet: 24 vstr1q.32
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'vst')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vst')
 		if [[ ("$COUNT" -lt "24") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# ARIA::UncheckedKeySet: 17 vshl.32
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'vshl')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vshl')
 		if [[ ("$COUNT" -lt "17") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector shift left instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# ARIA::UncheckedKeySet: 17 vshr.32
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'vshl')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vshl')
 		if [[ ("$COUNT" -lt "17") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector shift right instructions" | tee -a "$TEST_RESULTS"
 		fi
 
 		# ARIA::UncheckedKeySet: 34 veor
-		COUNT=$(echo -n "$DISASS_TEXT" | "$EGREP" -i -c 'eor.*v|veor')
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'eor.*v|veor')
 		if [[ ("$COUNT" -lt "34") ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate expected vector xor instructions" | tee -a "$TEST_RESULTS"
@@ -5776,13 +5759,13 @@ echo | tee -a "$TEST_RESULTS"
 # "Error" is from the GNU assembler
 # "error" is from the sanitizers
 # "Illegal", "Conditional", "0 errors" and "suppressed errors" are from Valgrind.
-ECOUNT=$("$EGREP" '(Error|ERROR|error|FAILED|Illegal|Conditional|CryptoPP::Exception)' $TEST_RESULTS | "$EGREP" -v '( 0 errors|suppressed errors|error detector|format-security)' | wc -l | "$AWK" '{print $1}')
+ECOUNT=$("$GREP" -E '(Error|ERROR|error|FAILED|Illegal|Conditional|CryptoPP::Exception)' $TEST_RESULTS | "$GREP" -v -E '( 0 errors|suppressed errors|error detector|format-security)' | wc -l | "$AWK" '{print $1}')
 if (( "$ECOUNT" == "0" )); then
 	echo "No failures detected" | tee -a "$TEST_RESULTS"
 else
 	echo "$ECOUNT errors detected. See $TEST_RESULTS for details" | tee -a "$TEST_RESULTS"
 	if (( "$ECOUNT" < 16 )); then
-		"$EGREP" -n '(Error|ERROR|error|FAILED|Illegal|Conditional|CryptoPP::Exception)' "$TEST_RESULTS" | "$EGREP" -v '( 0 errors|suppressed errors|error detector|Assertion|format-security)'
+		"$GREP" -n -E '(Error|ERROR|error|FAILED|Illegal|Conditional|CryptoPP::Exception)' "$TEST_RESULTS" | "$GREP" -v -E '( 0 errors|suppressed errors|error detector|Assertion|format-security)'
 	fi
 fi
 
@@ -5793,12 +5776,12 @@ echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
-WCOUNT=$("$EGREP" '(warning:)' $WARN_RESULTS | wc -l | "$AWK" '{print $1}')
+WCOUNT=$("$GREP" -E '(warning:)' $WARN_RESULTS | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
 	echo "No warnings detected" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 else
 	echo "$WCOUNT warnings detected. See $WARN_RESULTS for details" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
-	# "$EGREP" -n '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
+	# "$GREP" -n -E '(warning:)' $WARN_RESULTS | "$GREP" -v 'deprecated-declarations'
 fi
 
 ############################################
