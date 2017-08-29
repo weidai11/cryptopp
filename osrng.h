@@ -35,7 +35,7 @@ public:
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 //! \class MicrosoftCryptoProvider
 //! \brief Wrapper for Microsoft crypto service provider
-//! \sa \def USE_MS_CRYPTOAPI, \def USE_MS_CNGAPI, \def WORKAROUND_MS_BUG_Q258000
+//! \sa \def USE_MS_CRYPTOAPI, \def USE_MS_CNGAPI
 class CRYPTOPP_DLL MicrosoftCryptoProvider
 {
 public:
