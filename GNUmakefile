@@ -33,7 +33,7 @@ endif
 IS_X86 := $(shell uname -m | $(GREP) -v "x86_64" | $(GREP) -i -c -E "i.86|x86|i86")
 IS_X64 := $(shell uname -m | $(GREP) -i -c -E "(_64|d64)")
 IS_PPC := $(shell uname -m | $(GREP) -i -c "ppc|power")
-IS_ARM32 := $(shell uname -m | $(GREP) -i -c '\<arm\>')
+IS_ARM32 := $(shell uname -m | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
 IS_ARM64 := $(shell uname -m | $(GREP) -i -c 'aarch64')
 IS_ARMV8 ?= $(shell uname -m | $(GREP) -i -c -E 'aarch32|aarch64')
 IS_NEON ?= $(shell uname -m | $(GREP) -i -c -E 'armv7|armv8|aarch32|aarch64')
@@ -564,11 +564,6 @@ endif # HAS_SOLIB_VERSION
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
-
-# Need CPU for X86/X64/X32 and ARM
-ifeq ($(IS_X86)$(IS_X32)$(IS_X64)$(IS_ARM32)$(IS_ARM64),00000)
-  SRCS := $(filter-out cpu.cpp, $(SRCS))
-endif
 
 ifneq ($(IS_MINGW),0)
 SRCS += winpipes.cpp
