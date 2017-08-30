@@ -526,7 +526,7 @@ public:
 	//! \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
-#elif defined(CRYPTOPP_CXX11)
+#elif defined(CRYPTOPP_CXX11_ENUM)
 	enum : size_type {ELEMS_MAX = A::ELEMS_MAX};
 #else
 	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
