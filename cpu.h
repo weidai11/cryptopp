@@ -300,9 +300,13 @@ inline bool HasNEON()
 //! \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasPMULL()
 {
+#if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasPMULL;
+#else
+	return false;
+#endif
 }
 
 //! \brief Determine if an ARM processor has CRC32 available
