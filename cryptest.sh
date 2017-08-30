@@ -1305,18 +1305,36 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		# ARIA::UncheckedKeySet: 8 vld1q.32
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vld')
-		if [[ ("$COUNT" -lt "8") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_ARMV8A") ]]; then
+			# ARIA::UncheckedKeySet: 8 vld1q.32
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vld')
+			if [[ ("$COUNT" -lt "8") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate expected NEON load instructions" | tee -a "$TEST_RESULTS"
+			fi
+		else  # ARMv7
+			# ARIA::UncheckedKeySet: 8 vld1.32 {d1,d2}
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vld1.32[[:space:]]*{')
+			if [[ ("$COUNT" -lt "6") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate expected vector load instructions" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 
-		# ARIA::UncheckedKeySet: 24 vstr1q.32
-		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vst')
-		if [[ ("$COUNT" -lt "24") ]]; then
-			FAILED=1
-			echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
+		if [[ ("$HAVE_ARMV8A") ]]; then
+			# ARIA::UncheckedKeySet: 24 vstr1q.32
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vst')
+			if [[ ("$COUNT" -lt "20") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
+			fi
+		else
+			# ARIA::UncheckedKeySet: 24 vstr1.32 {d1,d2}
+			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vst1.32[[:space:]]*{')
+			if [[ ("$COUNT" -lt "16") ]]; then
+				FAILED=1
+				echo "ERROR: failed to generate expected vector store instructions" | tee -a "$TEST_RESULTS"
+			fi
 		fi
 
 		# ARIA::UncheckedKeySet: 17 vshl.32
