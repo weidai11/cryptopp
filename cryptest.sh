@@ -369,21 +369,17 @@ else
 	fi
 fi
 
-if [[ (-z "$HAVE_O3") ]]; then
-	HAVE_O3=0
-	OPT_O3=
+# Use a fallback strategy so OPT_O3 can be used with RELEASE_CXXFLAGS
+OPT_O3=
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	OPT_O3=-O3
+else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
-		HAVE_O3=1
-		OPT_O3=-O3
-	else
-		rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
-			HAVE_O3=1
-			OPT_O3=-xO3
-		fi
+		OPT_O3=-xO3
 	fi
 fi
 
@@ -894,7 +890,7 @@ echo "Pathname: $CXX_PATH" | tee -a "$TEST_RESULTS"
 
 # Calculate these once. They handle Clang, GCC, ICC, etc
 DEBUG_CXXFLAGS="-DDEBUG $OPT_G3 $OPT_O0"
-RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O2"
+RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O3"
 VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"
 WARNING_CXXFLAGS=()
 
@@ -2712,7 +2708,7 @@ if [[ "$HAVE_O3" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_O3 $USER_CXXFLAGS"
+	CXXFLAGS="-DDEBUG $OPT_O0 $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3994,7 +3990,7 @@ if [[ "$IS_SOLARIS" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2"
+		CXXFLAGS="-DNDEBUG -g2 -O3"
 		CXX="/bin/g++" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5035,7 +5031,7 @@ if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2"
+		CXXFLAGS="-DNDEBUG -g2 -O3"
 		CXX="$CLANG_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5070,7 +5066,7 @@ if [[ ("$GCC_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2"
+		CXXFLAGS="-DNDEBUG -g2 -O3"
 		CXX="$GCC_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5108,7 +5104,7 @@ if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2"
+		CXXFLAGS="-DNDEBUG -g2 -O3"
 		CXX="$INTEL_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 			echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5145,7 +5141,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5178,7 +5174,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5211,7 +5207,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5244,7 +5240,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			rm -f adhoc.cpp > /dev/null 2>&1
 
 			# We want to use -stdlib=libstdc++ below, but it causes a compile error. Maybe MacPorts hardwired libc++.
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5276,7 +5272,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5308,7 +5304,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5340,7 +5336,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5372,7 +5368,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 			"$MAKE" clean > /dev/null 2>&1
 			rm -f adhoc.cpp > /dev/null 2>&1
 
-			CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -stdlib=libc++"
+			CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11 -stdlib=libc++"
 			CXX="$MACPORTS_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -5407,7 +5403,7 @@ if [[ "$IS_DARWIN" -ne "0" ]]; then
 		"$MAKE" clean > /dev/null 2>&1
 		rm -f adhoc.cpp > /dev/null 2>&1
 
-		CXXFLAGS="-DNDEBUG -g2 -O2"
+		CXXFLAGS="-DNDEBUG -g2 -O3"
 		CXX="$XCODE_CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
