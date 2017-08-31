@@ -809,7 +809,7 @@ NAMESPACE_END
 
 // ************** Instrumentation ***************
 
-// GCC does not support; see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=78204
+// GCC does not support; see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=78204
 #if (CRYPTOPP_LLVM_CLANG_VERSION >= 30700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
 # define CRYPTOPP_NO_SANITIZE(x) __attribute__((no_sanitize(x)))
 #else
@@ -982,9 +982,19 @@ NAMESPACE_END
 #endif // nullptr_t compilers
 
 // TODO: Emplacement, R-values and Move semantics
-// Needed because we are catching warnings with GCC and MSC
 
 #endif // CRYPTOPP_CXX11
+
+// Hack ahead. New GCC compilers like GCC 6 on AIX 7.0 or earlier don't have the
+//   synchronization gear. However, Wakely's test used for Apple does not work
+//   on the GCC/AIX combination. Another twist is we need other stuff from C++11,
+//   like no-except destructors. Dumping preprocessors shows the following may
+//   apply: http://stackoverflow.com/q/14191566/608639.
+#if defined(_AIX) && defined(__GNUC__)
+#  if !defined(_GLIBCXX_HAS_GTHREADS)
+#    undef CRYPTOPP_CXX11_SYNCHRONIZATION
+#  endif
+#endif
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
