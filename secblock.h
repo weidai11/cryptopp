@@ -227,28 +227,6 @@ public:
 		UnalignedDeallocate(ptr);
 	}
 
-	//! \brief Deallocates a block of memory
-	//! \param ptr the pointer for the allocation
-	//! \param size the size of the allocation, in elements
-	//! \param mark the count elements to zeroize
-	//! \details Internally, SecureWipeArray() is called before deallocating the memory.
-	//!   Once the memory block is wiped or zeroized, AlignedDeallocate() or
-	//!   UnalignedDeallocate() is called.
-	//! \details AlignedDeallocate() is used if T_Align16 is true.
-	//!   UnalignedDeallocate() used if T_Align16 is false.
-	void deallocate(void *ptr, size_type size, size_type mark)
-	{
-		CRYPTOPP_ASSERT((ptr && size) || !(ptr || size));
-		SecureWipeArray((pointer)ptr, STDMIN(size, mark));
-
-#if CRYPTOPP_BOOL_ALIGN16
-		if (T_Align16 && size)
-			return AlignedDeallocate(ptr);
-#endif
-
-		UnalignedDeallocate(ptr);
-	}
-
 	//! \brief Reallocates a block of memory
 	//! \param oldPtr the previous allocation
 	//! \param oldSize the size of the previous allocation
@@ -424,28 +402,6 @@ public:
 			m_fallbackAllocator.deallocate(ptr, size);
 	}
 
-	//! \brief Deallocates a block of memory
-	//! \param ptr a pointer to the memory block to deallocate
-	//! \param size the count elements in the memory block
-	//! \param mark the count elements to zeroize
-	//! \details The memory block is wiped or zeroized before deallocation.
-	//!   If the statically allocated memory block is active, then no
-	//!   additional actions are taken after the wipe.
-	//! \details If a dynamic memory block is active, then the pointer and
-	//!   size are passed to the allocator for deallocation.
-	void deallocate(void *ptr, size_type size, size_type mark)
-	{
-		if (ptr == GetAlignedArray())
-		{
-			CRYPTOPP_ASSERT(size <= S);
-			CRYPTOPP_ASSERT(m_allocated);
-			m_allocated = false;
-			SecureWipeArray((pointer)ptr, STDMIN(size, mark));
-		}
-		else
-			m_fallbackAllocator.deallocate(ptr, size, mark);
-	}
-
 	//! \brief Reallocates a block of memory
 	//! \param oldPtr the previous allocation
 	//! \param oldSize the size of the previous allocation
@@ -567,7 +523,7 @@ public:
 		}
 
 	~SecBlock()
-		{m_alloc.deallocate(m_ptr, m_size, m_mark);}
+		{m_alloc.deallocate(m_ptr, STDMIN(m_size, m_mark));}
 
 #ifdef __BORLANDC__
 	operator T *() const
