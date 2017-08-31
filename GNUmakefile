@@ -40,17 +40,19 @@ IS_NEON ?= $(shell uname -m | $(GREP) -i -c -E 'armv7|armv8|aarch32|aarch64')
 IS_SPARC := $(shell uname -m | $(GREP) -i -c "sparc")
 IS_SPARC64 := $(shell uname -m | $(GREP) -i -c "sparc64")
 
-IS_SUN := $(shell uname | $(GREP) -i -c "SunOS")
+IS_AIX := $(shell uname -s | $(GREP) -i -c 'aix')
+IS_SUN := $(shell uname -s | $(GREP) -i -c "SunOS")
+
 IS_LINUX := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "Linux")
 IS_MINGW := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "MinGW")
 IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "Cygwin")
 IS_DARWIN := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "Darwin")
 IS_NETBSD := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "NetBSD")
 
-SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio)")
-GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -v "clang" | $(GREP) -i -c -E "(gcc|g\+\+)")
-CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "clang")
-INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "\(icc\)")
+SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E 'CC: (Sun|Studio)')
+GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -v -E '(llvm|clang)' | $(GREP) -i -c -E '(gcc|g\+\+)')
+CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c -E '(llvm|clang)')
+INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c '\(icc\)')
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "macports")
 
 # Sun Studio 12.0 provides SunCC 0x0510; and Sun Studio 12.3 provides SunCC 0x0512
@@ -276,10 +278,9 @@ endif
 
 # GCC on Solaris needs -m64. Otherwise, i386 is default
 #   http://github.com/weidai11/cryptopp/issues/230
-ifeq ($(IS_SUN)$(GCC_COMPILER)$(IS_X64),111)
-  ifeq ($(findstring -m32,$(CXXFLAGS)),)
-    CXXFLAGS += -m64
-  endif
+HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-m32|\-m64')
+ifeq ($(IS_SUN)$(GCC_COMPILER)$(IS_X64)$(HAVE_BITS),1110)
+  CXXFLAGS += -m64
 endif
 
 # Allow use of "/" operator for GNU Assembler.
@@ -287,14 +288,6 @@ endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 ifeq ($(IS_SUN)$(GCC_COMPILER),11)
 CXXFLAGS += -Wa,--divide
-endif
-endif
-
-ifeq ($(UNAME),)	# for DJGPP, where uname doesn't exist
-CXXFLAGS += -mbnu210
-else ifneq ($(findstring -save-temps,$(CXXFLAGS)),-save-temps)
-ifeq ($(SUN_COMPILER),0)
-CXXFLAGS += -pipe
 endif
 endif
 
@@ -307,13 +300,6 @@ else
 # Add PIC
 ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
   CXXFLAGS += -fPIC
-endif
-
-# Add -pipe for everything except ARM (allow ARM-64 because they seems to have > 1 GB of memory)
-ifeq ($(IS_ARM32),0)
-ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
-CXXFLAGS += -pipe
-endif
 endif
 
 ifeq ($(IS_NEON),1)
@@ -351,32 +337,44 @@ endif	# IS_X86
 #####                      Common                     #####
 ###########################################################
 
+# Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
+#   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
+ifneq ($(IS_LINUX)$(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),0000)
+  CXXFLAGS += -pthread
+endif # CXXFLAGS
+
+# Add -pipe for everything except ARM (allow ARM-64 because they seems to have > 1 GB of memory)
+ifeq ($(IS_ARM32),0)
+  ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
+    CXXFLAGS += -pipe
+  endif
+endif
+
 # For SunOS, create a Mapfile that allows our object files
 # to contain additional bits (like SSE4 and AES on old Xeon)
 # http://www.oracle.com/technetwork/server-storage/solaris/hwcap-modification-139536.html
 ifeq ($(IS_SUN)$(SUN_COMPILER),11)
-ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-LDFLAGS += -M cryptest.mapfile
-endif  # No CRYPTOPP_DISABLE_ASM
-endif  # X86/X32/X64
+  ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
+    ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+      LDFLAGS += -M cryptest.mapfile
+    endif  # No CRYPTOPP_DISABLE_ASM
+  endif  # X86/X32/X64
 endif  # SunOS
 
 ifneq ($(IS_MINGW),0)
-LDLIBS += -lws2_32
+  LDLIBS += -lws2_32
 endif
 
 ifneq ($(IS_SUN),0)
-LDLIBS += -lnsl -lsocket
+  LDLIBS += -lnsl -lsocket
 endif
 
 ifeq ($(IS_LINUX),1)
-LDFLAGS += -pthread
-ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
-ifeq ($(findstring -lgomp,$(LDLIBS)),)
-LDLIBS += -lgomp
-endif # LDLIBS
-endif # OpenMP
+  ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
+    ifeq ($(findstring -lgomp,$(LDLIBS)),)
+      LDLIBS += -lgomp
+    endif # LDLIBS
+  endif # OpenMP
 endif # IS_LINUX
 
 ifneq ($(IS_DARWIN),0)
@@ -388,9 +386,10 @@ endif
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 IS_64 := $(shell isainfo -b 2>/dev/null | $(GREP) -i -c "64")
-ifeq ($(IS_64),1)
+HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-m32|\-m64')
+ifeq ($(IS_64)$(HAVE_BITS),10)
 CXXFLAGS += -m64
-else ifeq ($(IS_64),0)
+else ifeq ($(IS_64)$(HAVE_BITS),00)
 CXXFLAGS += -m32
 endif
 # Add for non-i386
@@ -913,7 +912,7 @@ shacal2-simd.o : shacal2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.
-#   Also see https://stackoverflow.com/q/12983137/608639.
+#   Also see http://stackoverflow.com/q/12983137/608639.
 ifeq ($(findstring true,$(CI)),true)
 threefish.o : threefish.cpp
 	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS)) -c) $<
