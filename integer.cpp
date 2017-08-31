@@ -2712,7 +2712,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		Q[1] = SubatomicDivide(T+1, B[0], B[1]);
 		Q[0] = SubatomicDivide(T, B[0], B[1]);
 
-#if defined(CRYPTOPP_DEBUG)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_NO_TESTS)
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
 		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
@@ -2731,7 +2731,7 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 	Q[0] = q.GetLowHalf();
 	Q[1] = q.GetHighHalf();
 
-#if defined(CRYPTOPP_DEBUG)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_NO_TESTS)
 	if (B[0] || B[1])
 	{
 		// multiply quotient and divisor and add remainder, make sure it equals dividend

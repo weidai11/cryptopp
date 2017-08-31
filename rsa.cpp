@@ -11,7 +11,7 @@
 #include "fips140.h"
 #include "pkcspad.h"
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING) && !defined(CRYPTOPP_IS_DLL)
+#if defined(CRYPTOPP_TEST_INSTANTIATIONS)
 #include "pssr.h"
 NAMESPACE_BEGIN(CryptoPP)
 void RSA_TestInstantiations()
