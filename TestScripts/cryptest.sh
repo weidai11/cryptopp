@@ -94,6 +94,7 @@ if [[ ! -z "$GMAKE" ]]; then
 fi
 
 THIS_SYSTEM=$(uname -s 2>&1)
+IS_AIX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c aix)
 IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
 IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
 IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
@@ -707,6 +708,8 @@ elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	echo "IS_SOLARIS: $IS_SOLARIS" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	echo "IS_DARWIN: $IS_DARWIN" | tee -a "$TEST_RESULTS"
+elif [[ "$IS_AIX" -ne "0" ]]; then
+	echo "IS_AIX: $IS_AIX" | tee -a "$TEST_RESULTS"
 fi
 
 if [[ "$IS_PPC" -ne "0" ]]; then
@@ -816,6 +819,9 @@ elif [[ "$IS_DARWIN" -ne "0" ]]; then
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | "$AWK" '{print $1}')
 	MEM_SIZE=$(prtconf 2>/dev/null | "$GREP" Memory | "$AWK" '{print $3}')
+elif [[ "$IS_AIX" -ne "0" ]]; then
+	CPU_COUNT=$(bindprocessor -q 2>/dev/null | cut -f 2 -d ':' | wc -w | "$AWK" '{print $1}')
+	MEM_SIZE=$(prtconf -m 2>/dev/null | "$GREP" 'MB' | "$AWK" '{print $3; exit;}')
 fi
 
 # Benchmarks expect frequency in GiHz.
@@ -832,6 +838,9 @@ elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024/1024}")
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $6; exit;}')
+	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
+elif [[ "$IS_AIX" -ne "0" ]]; then
+	CPU_FREQ=$(prtconf -s 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $4; exit;}')
 	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
 fi
 

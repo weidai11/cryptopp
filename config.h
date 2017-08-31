@@ -516,7 +516,7 @@ NAMESPACE_END
 	#define CRYPTOPP_AESNI_AVAILABLE 1
 #endif
 
-// Guessing at SHA for SunCC. Its not in Sun Studio 12.6. Also see 
+// Guessing at SHA for SunCC. Its not in Sun Studio 12.6. Also see
 //   http://stackoverflow.com/questions/45872180/which-xarch-for-sha-extensions-on-solaris
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHA) && \
 	(defined(__SHA__) || (CRYPTOPP_MSC_VERSION >= 1900) || (__SUNPRO_CC >= 0x5160) || \
