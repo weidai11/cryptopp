@@ -38,19 +38,36 @@ extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-CRYPTOPP_ALIGN_DATA(16)
-const word32 BLAKE2S_IV[8] = {
-    0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
-    0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
+template <class W, bool T_64bit>
+struct BLAKE2_IV
+{
+    CRYPTOPP_ALIGN_DATA(16)    W iv[8];
 };
 
-CRYPTOPP_ALIGN_DATA(16)
-const word64 BLAKE2B_IV[8] = {
-    W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
-    W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
-    W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
-    W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)
+template<>
+struct BLAKE2_IV<word32, false>
+{
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 iv[8] = {
+        0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
+        0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
+    };
 };
+
+template<>
+struct BLAKE2_IV<word64, true>
+{
+    CRYPTOPP_ALIGN_DATA(16)
+    const word64 iv[8] = {
+        W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
+        W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
+        W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
+        W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)
+    };
+};
+
+template class BLAKE2_IV<word64, true>;
+template class BLAKE2_IV<word32, false>;
 
 CRYPTOPP_ALIGN_DATA(16)
 const byte BLAKE2S_SIGMA[10][16] = {
@@ -318,9 +335,10 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
         state.t[1] = counter[1];
     }
 
-	const W* IV = T_64bit ? reinterpret_cast<const W*>(BLAKE2B_IV) : reinterpret_cast<const W*>(BLAKE2S_IV);
+    // const W* IV = BLAKE2_IV<W, T_64bit>.iv;
+    BLAKE2_IV<W, T_64bit> IV;
     PutBlock<W, LittleEndian, true> put(m_block.data(), &state.h[0]);
-    put(IV[0])(IV[1])(IV[2])(IV[3])(IV[4])(IV[5])(IV[6])(IV[7]);
+    put(IV.iv[0])(IV.iv[1])(IV.iv[2])(IV.iv[3])(IV.iv[4])(IV.iv[5])(IV.iv[6])(IV.iv[7]);
 
     // When BLAKE2 is keyed, the input stream is simply {key||message}. Key it
     // during Restart to avoid FirstPut and friends. Key size == 0 means no key.
@@ -448,14 +466,15 @@ void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state)
     GetBlock<word64, LittleEndian, true> get2(&state.h[0]);
     get2(v[0])(v[1])(v[2])(v[3])(v[4])(v[5])(v[6])(v[7]);
 
-    v[ 8] = BLAKE2B_IV[0];
-    v[ 9] = BLAKE2B_IV[1];
-    v[10] = BLAKE2B_IV[2];
-    v[11] = BLAKE2B_IV[3];
-    v[12] = state.t[0] ^ BLAKE2B_IV[4];
-    v[13] = state.t[1] ^ BLAKE2B_IV[5];
-    v[14] = state.f[0] ^ BLAKE2B_IV[6];
-    v[15] = state.f[1] ^ BLAKE2B_IV[7];
+    BLAKE2_IV<word64, true> IV;
+    v[ 8] = IV.iv[0];
+    v[ 9] = IV.iv[1];
+    v[10] = IV.iv[2];
+    v[11] = IV.iv[3];
+    v[12] = state.t[0] ^ IV.iv[4];
+    v[13] = state.t[1] ^ IV.iv[5];
+    v[14] = state.f[0] ^ IV.iv[6];
+    v[15] = state.f[1] ^ IV.iv[7];
 
     BLAKE2_ROUND(0);
     BLAKE2_ROUND(1);
@@ -511,14 +530,15 @@ void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state
     GetBlock<word32, LittleEndian, true> get2(&state.h[0]);
     get2(v[0])(v[1])(v[2])(v[3])(v[4])(v[5])(v[6])(v[7]);
 
-    v[ 8] = BLAKE2S_IV[0];
-    v[ 9] = BLAKE2S_IV[1];
-    v[10] = BLAKE2S_IV[2];
-    v[11] = BLAKE2S_IV[3];
-    v[12] = state.t[0] ^ BLAKE2S_IV[4];
-    v[13] = state.t[1] ^ BLAKE2S_IV[5];
-    v[14] = state.f[0] ^ BLAKE2S_IV[6];
-    v[15] = state.f[1] ^ BLAKE2S_IV[7];
+    BLAKE2_IV<word32, false> IV;
+    v[ 8] = IV.iv[0];
+    v[ 9] = IV.iv[1];
+    v[10] = IV.iv[2];
+    v[11] = IV.iv[3];
+    v[12] = state.t[0] ^ IV.iv[4];
+    v[13] = state.t[1] ^ IV.iv[5];
+    v[14] = state.f[0] ^ IV.iv[6];
+    v[15] = state.f[1] ^ IV.iv[7];
 
     BLAKE2_ROUND(0);
     BLAKE2_ROUND(1);
