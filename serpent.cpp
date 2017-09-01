@@ -90,7 +90,7 @@ void Serpent::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 void Serpent::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word32 a, b, c, d, e;
+	word32 a, b, c, d, e=0;
 
 	Block::Get(inBlock)(a)(b)(c)(d);
 
