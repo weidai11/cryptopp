@@ -301,12 +301,6 @@ public:
 		CRYPTOPP_ASSERT(false);
 	}
 
-	void deallocate(void *p, size_type n, size_type m)
-	{
-		CRYPTOPP_UNUSED(p); CRYPTOPP_UNUSED(n), CRYPTOPP_UNUSED(m);
-		CRYPTOPP_ASSERT(false);
-	}
-
 	CRYPTOPP_CONSTEXPR size_type max_size() const {return 0;}
 	//LCOV_EXCL_STOP
 };
