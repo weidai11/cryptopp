@@ -129,8 +129,6 @@ bool TestRounding();
 bool TestHuffmanCodes();
 // http://github.com/weidai11/cryptopp/issues/346
 bool TestASN1Parse();
-// TODO: bug report it
-bool TestSHAStaticTransform();
 // Additional tests due to no coverage
 bool TestCompressors();
 bool TestEncryptors();
