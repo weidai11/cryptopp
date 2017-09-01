@@ -602,7 +602,7 @@ NAMESPACE_END
 #if defined(_MSC_VER)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __declspec(noinline)
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__xlC__)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __attribute__((noinline))
 #else
