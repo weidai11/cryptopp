@@ -100,7 +100,7 @@ void CAST128::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 
 	reduced = (keylength <= 10);
 
-	word32 X[4], Z[4];
+	word32 X[4], Z[4]={0};
 	GetUserKey(BIG_ENDIAN_ORDER, X, 4, userKey, keylength);
 
 #define x(i) GETBYTE(X[i/4], 3-i%4)

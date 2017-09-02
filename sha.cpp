@@ -261,7 +261,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 void SHA256_HashBlock_CXX(word32 *state, const word32 *data)
 {
-    word32 W[16], T[8];
+    word32 W[16]={0}, T[8];
     /* Copy context->state[] to working vars */
     memcpy(T, state, sizeof(T));
     /* 64 operations, partially loop unrolled */
@@ -1043,8 +1043,7 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
 
-    word64 W[16];
-    word64 T[8];
+    word64 W[16]={0}, T[8];
     /* Copy context->state[] to working vars */
     memcpy(T, state, sizeof(T));
     /* 80 operations, partially loop unrolled */

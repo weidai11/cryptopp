@@ -377,6 +377,7 @@ void Inflator::DecodeHeader()
 		throw UnexpectedEndErr();
 	m_eof = m_reader.GetBits(1) != 0;
 	m_blockType = (byte)m_reader.GetBits(2);
+
 	switch (m_blockType)
 	{
 	case 0:	// stored
@@ -400,13 +401,13 @@ void Inflator::DecodeHeader()
 		unsigned int hlit = m_reader.GetBits(5);
 		unsigned int hdist = m_reader.GetBits(5);
 		unsigned int hclen = m_reader.GetBits(4);
+		unsigned int i = 0;
 
 		FixedSizeSecBlock<unsigned int, 286+32> codeLengths;
-		unsigned int i;
 		static const unsigned int border[] = {    // Order of the bit length code lengths
 			16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 		std::fill(codeLengths.begin(), codeLengths+19, 0);
-		for (i=0; i<hclen+4; i++)
+		for (i=0; i<hclen+4; ++i)
 		{
 			CRYPTOPP_ASSERT(border[i] < codeLengths.size());
 			codeLengths[border[i]] = m_reader.GetBits(3);
@@ -414,11 +415,13 @@ void Inflator::DecodeHeader()
 
 		try
 		{
+			bool result = false;
+			unsigned int k=0, count=0, repeater=0;
 			HuffmanDecoder codeLengthDecoder(codeLengths, 19);
-			for (i = 0; i < hlit+257+hdist+1; )
+			for (i=0; i < hlit+257+hdist+1; )
 			{
-				unsigned int k = 0, count = 0, repeater = 0;
-				bool result = codeLengthDecoder.Decode(m_reader, k);
+				k = 0, count = 0, repeater = 0;
+				result = codeLengthDecoder.Decode(m_reader, k);
 				if (!result)
 					throw UnexpectedEndErr();
 				if (k <= 15)

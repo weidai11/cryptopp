@@ -76,7 +76,7 @@ bool BERLengthDecode(BufferedTransformation &bt, lword &length, bool &definiteLe
 bool BERLengthDecode(BufferedTransformation &bt, size_t &length)
 {
 	lword lw = 0;
-	bool definiteLength;
+	bool definiteLength = false;
 	if (!BERLengthDecode(bt, lw, definiteLength))
 		BERDecodeError();
 	if (!SafeConvert(lw, length))
@@ -343,7 +343,7 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 				break;
 			}
 			ByteQueue::Walker walker(m_queue);
-			bool definiteLength;
+			bool definiteLength = false;
 			if (!BERLengthDecode(walker, m_lengthRemaining, definiteLength))
 				return;
 			m_queue.TransferTo(CurrentTarget(), walker.GetCurrentPosition());
