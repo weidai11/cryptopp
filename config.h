@@ -413,14 +413,19 @@ NAMESPACE_END
 # undef CRYPTOPP_X64_MASM_AVAILABLE
 #endif
 
-#if defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
+// Microsoft plans to support ARM-64, but its not clear how to detect it.
+//   TODO: Add MSC_VER and ARM-64 platform define when available
+#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
+	#define CRYPTOPP_BOOL_ARM64 1
+#elif defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
 	#define CRYPTOPP_BOOL_ARM32 1
 #endif
 
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
-	#define CRYPTOPP_BOOL_ARM64 1
+// AltiVec and Power8 crypto
+#if defined(__powerpc64__)
+	#define CRYPTOPP_BOOL_PPC64 1
+#elif defined(__powerpc__)
+	#define CRYPTOPP_BOOL_PPC32 1
 #endif
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
@@ -575,6 +580,20 @@ NAMESPACE_END
 #endif
 
 #endif  // ARM32, ARM64
+
+// ***************** AltiVec and Power8 ********************
+
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+
+#if !defined(CRYPTOPP_ALTIVEC_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__CRYPTO__) || defined(__ALTIVEC__) || defined(__POWER8_VECTOR__)
+#  define CRYPTOPP_ALTIVEC_AES_AVAILABLE 1
+#  define CRYPTOPP_ALTIVEC_SHA_AVAILABLE 1
+#  define CRYPTOPP_ALTIVEC_CRC_AVAILABLE 1
+# endif
+#endif
+
+#endif  // PPC, PPC64
 
 // ***************** Miscellaneous ********************
 
