@@ -198,7 +198,7 @@ public:
 			return NULLPTR;
 
 #if CRYPTOPP_BOOL_ALIGN16
-		// TODO: should this need the test 'size*sizeof(T) >= 16'?
+		// TODO: Does this need the test 'size*sizeof(T) >= 16'?
 		if (T_Align16 && size)
 			return (pointer)AlignedAllocate(size*sizeof(T));
 #endif
@@ -216,7 +216,9 @@ public:
 	//!   UnalignedDeallocate() used if T_Align16 is false.
 	void deallocate(void *ptr, size_type size)
 	{
-		CRYPTOPP_ASSERT((ptr && size) || !(ptr || size));
+		// This will fire if SetMark(0) was called in the SecBlock
+		//  Our self tests exercise it, disable it now.
+		// CRYPTOPP_ASSERT((ptr && size) || !(ptr || size));
 		SecureWipeArray((pointer)ptr, size);
 
 #if CRYPTOPP_BOOL_ALIGN16
