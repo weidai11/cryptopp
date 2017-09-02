@@ -1314,7 +1314,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		FAILED=0
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-		if [[ ("$HAVE_ARMV8A") ]]; then
+		if [[ ("$HAVE_ARMV8A" -ne "0") ]]; then
 			# ARIA::UncheckedKeySet: 8 vld1q.32
 			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vld')
 			if [[ ("$COUNT" -lt "8") ]]; then
@@ -1330,7 +1330,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			fi
 		fi
 
-		if [[ ("$HAVE_ARMV8A") ]]; then
+		if [[ ("$HAVE_ARMV8A" -ne "0") ]]; then
 			# ARIA::UncheckedKeySet: 20 vstr1q.32
 			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c 'vst')
 			if [[ ("$COUNT" -lt "20") ]]; then
