@@ -34,7 +34,7 @@ protected:
 	virtual BlockCipher & AccessCipher() =0;
 
 	void ProcessBuf();
-	SecByteBlock m_reg;
+	AlignedSecByteBlock m_reg;
 	unsigned int m_counter;
 };
 
