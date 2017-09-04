@@ -34,7 +34,9 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 	if (params.GetValue(Name::IV(), t) && t.begin() && t.size())
 	{
 		// Nonce key is a class member to avoid the zeroizer on a temporary
-		m_cipher.ProcessBlock(t.begin(), m_nk.begin());
+		CRYPTOPP_ASSERT(t.size() == m_nk.size());
+		std::memcpy(m_nk.begin(), t.begin(), t.size());
+		m_cipher.ProcessBlock(m_nk.begin(), m_nk.begin());
 
 		m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  0);
 		m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  4);
