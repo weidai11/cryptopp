@@ -210,7 +210,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, bufferSize);}
 
 	//! \brief Temporay working space
-	SecByteBlock m_tempSpace;
+	AlignedSecByteBlock m_tempSpace;
 };
 
 //! \class MeterFilter
@@ -414,7 +414,7 @@ protected:
 		size_t MaxSize() const {return m_buffer.size();}
 
 	private:
-		SecByteBlock m_buffer;
+		AlignedSecByteBlock m_buffer;
 		size_t m_blockSize, m_maxBlocks, m_size;
 		byte *m_begin;
 	};
