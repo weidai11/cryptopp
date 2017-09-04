@@ -17,7 +17,7 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 	if (key && length)
 	{
 		// key is {k,r} pair, r is 16 bytes
-		length = SaturatingSubtract(length, (unsigned)BLOCKSIZE);
+		length = SaturatingSubtract(length, static_cast<unsigned int>(BLOCKSIZE));
 		m_cipher.SetKey(key, length);
 		key += length;
 
