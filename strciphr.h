@@ -187,13 +187,12 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	typedef WT WordType;
 	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W)
 
-#if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
 	//! \brief Provides data alignment requirements
 	//! \returns data alignment requirements, in bytes
 	//! \details Internally, the default implementation returns 1. If the stream cipher is implemented
-	//!   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
+	//!   using an SSE2 ASM or intrinsics, then the value returned is usually 16. If the cipher is
+	//!   AES on AltiVec or Power 8 then 16 is returned.
 	unsigned int GetAlignment() const {return GetAlignmentOf<WordType>();}
-#endif
 
 	//! \brief Provides number of bytes operated upon during an iteration
 	//! \returns bytes operated upon during an iteration, in bytes
@@ -340,7 +339,7 @@ protected:
 	inline byte * KeystreamBufferBegin() {return this->m_buffer.data();}
 	inline byte * KeystreamBufferEnd() {return (this->m_buffer.data() + this->m_buffer.size());}
 
-	SecByteBlock m_buffer;
+	AlignedSecByteBlock m_buffer;
 	size_t m_leftOver;
 };
 
