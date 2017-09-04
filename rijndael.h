@@ -39,6 +39,9 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Rijndael_Info>
 	{
 	public:
+		// Intel and ARM SIMD units can handle unaligned loads, but AltiVec and Power8 cannot.
+		unsigned int OptimalDataAlignment() const;
+
 		void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
 	protected:

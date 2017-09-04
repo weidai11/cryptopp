@@ -10,6 +10,9 @@
 //    Skip Hovsmith and Barry O'Rourke for the mbedTLS project. Stepping
 //    mbedTLS under a debugger was helped for us to determine problems
 //    with our subkey generation and scheduling.
+//
+//    AltiVec and Power8 code based on "POWER8 in-core cryptography."
+//    http://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/index.html
 
 #include "pch.h"
 #include "config.h"
@@ -24,7 +27,7 @@
 // Hack... We are supposed to use <nmmintrin.h>. GCC 4.8, LLVM Clang 3.5
 //   and Apple Clang 6.0 conflates SSE4.1 and SSE4.2. If we use <nmmintrin.h>
 //   then compile fails with "SSE4.2 instruction set not enabled". Also see
-//   https://gcc.gnu.org/ml/gcc-help/2017-08/msg00015.html.
+//   http://gcc.gnu.org/ml/gcc-help/2017-08/msg00015.html.
 # include "smmintrin.h"
 # include "wmmintrin.h"
 #endif

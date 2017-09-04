@@ -220,6 +220,15 @@ void Rijndael::Base::FillDecTable()
 	s_TdFilled = true;
 }
 
+unsigned int Rijndael::Base::OptimalDataAlignment() const
+{
+#if CRYPTOPP_BOOL_ALIGN16
+	return 16;
+#else
+	return GetAlignmentOf<word32>();
+#endif
+}
+
 #if (CRYPTOPP_AESNI_AVAILABLE)
 extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
 extern void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds);
