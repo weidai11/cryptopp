@@ -32,8 +32,8 @@ static void Mash(const byte *in, size_t inLen, byte *out, size_t outLen, int ite
 
 	size_t bufSize = RoundUpToMultipleOf(outLen, (size_t)H::DIGESTSIZE);
 	byte b[2];
-	SecByteBlock buf(bufSize);
-	SecByteBlock outBuf(bufSize);
+	AlignedSecByteBlock buf(bufSize);
+	AlignedSecByteBlock outBuf(bufSize);
 	H hash;
 
 	unsigned int i;
@@ -66,14 +66,14 @@ template <class BC, class H, class Info>
 static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const byte *salt, size_t saltLength, unsigned int iterations, byte *key, byte *IV)
 {
 	// UBsan. User supplied params, may be NULL
-	SecByteBlock temp(passphraseLength+saltLength);
+	AlignedSecByteBlock temp(passphraseLength+saltLength);
 	if (passphrase != NULLPTR)
 		memcpy(temp, passphrase, passphraseLength);
 	if (salt != NULLPTR)
 		memcpy(temp+passphraseLength, salt, saltLength);
 
 	// OK. Derived params, cannot be NULL
-	SecByteBlock keyIV(Info::KEYLENGTH+Info::BLOCKSIZE);
+	AlignedSecByteBlock keyIV(Info::KEYLENGTH+Info::BLOCKSIZE);
 	Mash<H>(temp, passphraseLength + saltLength, keyIV, Info::KEYLENGTH+Info::BLOCKSIZE, iterations);
 	memcpy(key, keyIV, Info::KEYLENGTH);
 	memcpy(IV, keyIV+Info::KEYLENGTH, Info::BLOCKSIZE);
@@ -100,7 +100,7 @@ DataEncryptor<BC,H,Info>::DataEncryptor(const byte *passphrase, size_t passphras
 template <class BC, class H, class Info>
 void DataEncryptor<BC,H,Info>::FirstPut(const byte *)
 {
-	SecByteBlock salt(DIGESTSIZE), keyCheck(DIGESTSIZE);
+	AlignedSecByteBlock salt(DIGESTSIZE), keyCheck(DIGESTSIZE);
 	H hash;
 
 	// use hash(passphrase | time | clock) as salt
@@ -119,8 +119,8 @@ void DataEncryptor<BC,H,Info>::FirstPut(const byte *)
 	AttachedTransformation()->Put(salt, SALTLENGTH);
 
 	// mash passphrase and salt together into key and IV
-	SecByteBlock key(KEYLENGTH);
-	SecByteBlock IV(BLOCKSIZE);
+	AlignedSecByteBlock key(KEYLENGTH);
+	AlignedSecByteBlock IV(BLOCKSIZE);
 	GenerateKeyIV<BC,H,Info>(m_passphrase, m_passphrase.size(), salt, SALTLENGTH, ITERATIONS, key, IV);
 
 	m_cipher.SetKeyWithIV(key, key.size(), IV);
@@ -186,15 +186,15 @@ void DataDecryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
 template <class BC, class H, class Info>
 void DataDecryptor<BC,H,Info>::CheckKey(const byte *salt, const byte *keyCheck)
 {
-	SecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DIGESTSIZE));
+	AlignedSecByteBlock check(STDMAX((unsigned int)2*BLOCKSIZE, (unsigned int)DIGESTSIZE));
 
 	H hash;
 	hash.Update(m_passphrase, m_passphrase.size());
 	hash.Update(salt, SALTLENGTH);
 	hash.Final(check);
 
-	SecByteBlock key(KEYLENGTH);
-	SecByteBlock IV(BLOCKSIZE);
+	AlignedSecByteBlock key(KEYLENGTH);
+	AlignedSecByteBlock IV(BLOCKSIZE);
 	GenerateKeyIV<BC,H,Info>(m_passphrase, m_passphrase.size(), salt, SALTLENGTH, ITERATIONS, key, IV);
 
 	m_cipher.SetKeyWithIV(key, key.size(), IV);
@@ -222,7 +222,7 @@ template <class H, class MAC>
 static MAC* NewDataEncryptorMAC(const byte *passphrase, size_t passphraseLength)
 {
 	size_t macKeyLength = MAC::StaticGetValidKeyLength(16);
-	SecByteBlock macKey(macKeyLength);
+	AlignedSecByteBlock macKey(macKeyLength);
 	// since the MAC is encrypted there is no reason to mash the passphrase for many iterations
 	Mash<H>(passphrase, passphraseLength, macKey, macKeyLength, 1);
 	return new MAC(macKey, macKeyLength);
