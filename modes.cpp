@@ -34,7 +34,8 @@ void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, siz
 {
 	CRYPTOPP_ASSERT(input);
 	CRYPTOPP_ASSERT(output);
-	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());
 	CRYPTOPP_ASSERT(m_feedbackSize == BlockSize());
 
 	const unsigned int s = BlockSize();
@@ -57,7 +58,9 @@ void CFB_ModePolicy::Iterate(byte *output, const byte *input, CipherDir dir, siz
 
 void CFB_ModePolicy::TransformRegister()
 {
-	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	// CFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());
+
 	m_cipher->ProcessBlock(m_register, m_temp);
 	unsigned int updateSize = BlockSize()-m_feedbackSize;
 	memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
@@ -86,7 +89,11 @@ void CFB_ModePolicy::ResizeBuffers()
 
 void OFB_ModePolicy::WriteKeystream(byte *keystreamBuffer, size_t iterationCount)
 {
-	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());	// OFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(keystreamBuffer);
+	CRYPTOPP_ASSERT(iterationCount);
+	// OFB mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
+	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());
+
 	const unsigned int s = BlockSize();
 	m_cipher->ProcessBlock(m_register, keystreamBuffer);
 	if (iterationCount > 1)
@@ -121,30 +128,43 @@ void CTR_ModePolicy::IncrementCounterBy256()
 
 void CTR_ModePolicy::OperateKeystream(KeystreamOperation /*operation*/, byte *output, const byte *input, size_t iterationCount)
 {
+	CRYPTOPP_ASSERT(output);
+	CRYPTOPP_ASSERT(iterationCount);
 	// CTR mode needs the "encrypt" direction of the underlying block cipher, even to decrypt
 	CRYPTOPP_ASSERT(m_cipher->IsForwardTransformation());
+
 	const unsigned int s = BlockSize();
 	const unsigned int inputIncrement = input ? s : 0;
 	const unsigned int alignment = m_cipher->OptimalDataAlignment();
+	const byte* is = input; byte* os = output;
 
+	AlignedSecByteBlock i, o;
 	while (iterationCount)
 	{
 		byte lsb = m_counterArray[s-1];
 		const size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
-		const bool align = !IsAlignedOn(input, alignment) || !IsAlignedOn(output, alignment);
 
-		if (align)
+		is = input; os = output;
+		if(!IsAlignedOn(input, alignment))
 		{
-			AlignedSecByteBlock i(input, blocks*s), o(blocks*s);
-			m_cipher->AdvancedProcessBlocks(m_counterArray, i, o, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
-			std::memcpy(output, o, blocks*s);
+			i.Assign(input, blocks*inputIncrement);
+			is = i.begin();
 		}
-		else
+		if(!IsAlignedOn(output, alignment))
 		{
-			m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
+			o.Assign(output, blocks*s);
+			os = o.begin();
 		}
+
+		m_cipher->AdvancedProcessBlocks(m_counterArray, is, os, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
+
 		if ((m_counterArray[s-1] = lsb + (byte)blocks) == 0)
 			IncrementCounterBy256();
+
+		if(!IsAlignedOn(output, alignment))
+		{
+			std::memcpy(output, os, blocks*s);
+		}
 
 		output += blocks*s;
 		input += blocks*inputIncrement;
@@ -163,6 +183,9 @@ void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, 
 
 void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
+	CRYPTOPP_ASSERT(key);
+	CRYPTOPP_ASSERT(length);
+
 	m_cipher->SetKey(key, length, params);
 	ResizeBuffers();
 	if (IsResynchronizable())
@@ -181,34 +204,40 @@ void BlockOrientedCipherModeBase::ResizeBuffers()
 
 void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	// If this fires you should align your buffers. There's a non-trival penalty for some processors
-	CRYPTOPP_ASSERT(IsAlignedOn(inString, m_cipher->OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outString, m_cipher->OptimalDataAlignment()));
+	CRYPTOPP_ASSERT(outString);
+	CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length);
 	CRYPTOPP_ASSERT(length%BlockSize()==0);
 
 	const unsigned int blockSize = BlockSize();
 	const unsigned int alignment = m_cipher->OptimalDataAlignment();
-	bool align = !IsAlignedOn(inString, alignment) || !IsAlignedOn(outString, alignment);
+	const byte* is = inString; byte* os = outString;
 
-	if (align)
+	AlignedSecByteBlock i, o;
+	if(!IsAlignedOn(inString, alignment))
 	{
-		AlignedSecByteBlock i(length), o(length);
-		std::memcpy(i, inString, length);
-		std::memcpy(o, outString+length-blockSize, blockSize);  // copy tail
-		m_cipher->AdvancedProcessBlocks(i, NULLPTR, o, length, BlockTransformation::BT_AllowParallel);
-		std::memcpy(outString, o, length);
+		i.Assign(inString, length);
+		is = i.begin();
 	}
-	else
+	if(!IsAlignedOn(outString, alignment))
 	{
-		m_cipher->AdvancedProcessBlocks(inString, NULLPTR, outString, length, BlockTransformation::BT_AllowParallel);
+		o.New(length);
+		os = o.begin();
+	}
+
+	m_cipher->AdvancedProcessBlocks(is, NULLPTR, os, length, BlockTransformation::BT_AllowParallel);
+
+	if(!IsAlignedOn(outString, alignment))
+	{
+		std::memcpy(outString, os, length);
 	}
 }
 
 void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	// If this fires you should align your buffers. There's a non-trival penalty for some processors
-	// CRYPTOPP_ASSERT(IsAlignedOn(inString, m_cipher->OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outString, m_cipher->OptimalDataAlignment()));
+	CRYPTOPP_ASSERT(outString);
+	CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length);
 	CRYPTOPP_ASSERT(length%BlockSize()==0);
 
 	if (!length)
@@ -216,34 +245,36 @@ void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t l
 
 	const unsigned int blockSize = BlockSize();
 	const unsigned int alignment = m_cipher->OptimalDataAlignment();
-	bool align = !IsAlignedOn(inString, alignment) || !IsAlignedOn(outString, alignment);
+	const byte* is = inString; byte* os = outString;
 
-	if (align)
+	AlignedSecByteBlock i, o;
+	if(!IsAlignedOn(inString, alignment))
 	{
-		AlignedSecByteBlock i(length), o(length);
-		std::memcpy(i, inString, length);
-		std::memcpy(o, outString+length-blockSize, blockSize);  // copy tail
-
-		m_cipher->AdvancedProcessBlocks(i, m_register, o, blockSize, BlockTransformation::BT_XorInput);
-		if (length > blockSize)
-			m_cipher->AdvancedProcessBlocks(i+blockSize, o, o+blockSize, length-blockSize, BlockTransformation::BT_XorInput);
-		std::memcpy(m_register, o + length - blockSize, blockSize);
-		std::memcpy(outString, o, length);
+		i.Assign(inString, length);
+		is = i.begin();
 	}
-	else
+	if(!IsAlignedOn(outString, alignment))
 	{
-		m_cipher->AdvancedProcessBlocks(inString, m_register, outString, blockSize, BlockTransformation::BT_XorInput);
-		if (length > blockSize)
-			m_cipher->AdvancedProcessBlocks(inString+blockSize, outString, outString+blockSize, length-blockSize, BlockTransformation::BT_XorInput);
-		std::memcpy(m_register, outString + length - blockSize, blockSize);
+		o.New(length);
+		os = o.begin();
+	}
+
+	m_cipher->AdvancedProcessBlocks(inString, m_register, outString, blockSize, BlockTransformation::BT_XorInput);
+	if (length > blockSize)
+		m_cipher->AdvancedProcessBlocks(inString+blockSize, outString, outString+blockSize, length-blockSize, BlockTransformation::BT_XorInput);
+	std::memcpy(m_register, outString + length - blockSize, blockSize);
+
+	if(!IsAlignedOn(outString, alignment))
+	{
+		std::memcpy(outString, os, length);
 	}
 }
 
 void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
-	// If this fires you should align your buffers. There's a non-trival penalty for some processors
-	CRYPTOPP_ASSERT(IsAlignedOn(inString, m_cipher->OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outString, m_cipher->OptimalDataAlignment()));
+	CRYPTOPP_ASSERT(outString);
+	CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length);
 
 	if (length <= BlockSize())
 	{
@@ -278,10 +309,9 @@ void CBC_Decryption::ResizeBuffers()
 
 void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	// If this fires you should align your buffers. There's a non-trival penalty for some processors
-	CRYPTOPP_ASSERT(IsAlignedOn(inString, m_cipher->OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outString, m_cipher->OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(length%BlockSize()==0);
+	CRYPTOPP_ASSERT(outString);
+	CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length && length%BlockSize()==0);
 
 	if (!length)
 		return;
@@ -290,7 +320,7 @@ void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t l
 	const unsigned int alignment = m_cipher->OptimalDataAlignment();
 	bool align = !IsAlignedOn(inString, alignment) || !IsAlignedOn(outString, alignment);
 
-	if (align)
+	if (align && false)
 	{
 		AlignedSecByteBlock i(length), o(length);
 		std::memcpy(i, inString, length);
@@ -315,9 +345,9 @@ void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t l
 
 void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
-	// If this fires you should align your buffers. There's a non-trival penalty for some processors
-	CRYPTOPP_ASSERT(IsAlignedOn(inString, m_cipher->OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outString, m_cipher->OptimalDataAlignment()));
+	CRYPTOPP_ASSERT(outString);
+	CRYPTOPP_ASSERT(inString);
+	CRYPTOPP_ASSERT(length);
 
 	const byte *pn, *pn1;
 	bool stealIV = length <= BlockSize();
