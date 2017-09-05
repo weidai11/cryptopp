@@ -474,7 +474,8 @@ public:
 	//! Provides the block size of the algorithm
 	//! \returns the block size, in bytes
 	unsigned int BlockSize() const {
-		return m_blocksize ? m_blocksize : this->DEFAULT_BLOCKSIZE;
+		return m_blocksize ? m_blocksize :
+			static_cast<unsigned int>(this->DEFAULT_BLOCKSIZE);
 	}
 
 	//! Provides the initialization vector length of the algorithm
@@ -482,7 +483,8 @@ public:
 	unsigned int IVSize() const {
 		if (!this->IsResynchronizable())
 			throw NotImplemented(this->GetAlgorithm().AlgorithmName() + ": this object doesn't support resynchronization");
-		return m_ivlength ? m_ivlength : this->IV_LENGTH;
+		return m_ivlength ? m_ivlength :
+			static_cast<unsigned int>(this->IV_LENGTH);
 	}
 
 protected:
