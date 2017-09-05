@@ -1909,7 +1909,9 @@ public:
 template <class E, class D> class FixedRoundsCipherFactory : public CipherFactory
 {
 public:
-	FixedRoundsCipherFactory(unsigned int keylen=0) : m_keylen(keylen?keylen:E::DEFAULT_KEYLENGTH) {}
+	FixedRoundsCipherFactory(unsigned int keylen=0) :
+		m_keylen(keylen ? keylen : static_cast<unsigned int>(E::DEFAULT_KEYLENGTH)) {}
+
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
@@ -1924,9 +1926,11 @@ public:
 template <class E, class D> class VariableRoundsCipherFactory : public CipherFactory
 {
 public:
-	VariableRoundsCipherFactory(unsigned int keylen=0, unsigned int rounds=0)
-		: m_keylen(keylen ? keylen : E::DEFAULT_KEYLENGTH), m_rounds(rounds ? rounds : E::DEFAULT_ROUNDS) {}
-	unsigned int BlockSize() const {return E::BLOCKSIZE;}
+	VariableRoundsCipherFactory(unsigned int keylen=0, unsigned int rounds=0) :
+		m_keylen(keylen ? keylen : static_cast<unsigned int>(E::DEFAULT_KEYLENGTH)),
+		m_rounds(rounds ? rounds : static_cast<unsigned int>(E::DEFAULT_ROUNDS)) {}
+
+	unsigned int BlockSize() const {return static_cast<unsigned int>(E::BLOCKSIZE);}
 	unsigned int KeyLength() const {return m_keylen;}
 
 	BlockTransformation* NewEncryption(const byte *keyStr) const
@@ -2345,34 +2349,6 @@ bool ValidateCipherModes()
 		fail = !TestFilter(dmacFilter, plain_3, sizeof(plain_3), mac2, sizeof(mac2));
 		pass = pass && !fail;
 		std::cout << (fail ? "FAILED   " : "passed   ") << "DMAC" << std::endl;
-	}
-	{
-		CTR_Mode<AES>::Encryption modeE(plain, 16, plain);
-		CTR_Mode<AES>::Decryption modeD(plain, 16, plain);
-		fail = !TestModeIV(modeE, modeD);
-		pass = pass && !fail;
-		std::cout << (fail ? "FAILED   " : "passed   ") << "AES CTR Mode" << std::endl;
-	}
-	{
-		OFB_Mode<AES>::Encryption modeE(plain, 16, plain);
-		OFB_Mode<AES>::Decryption modeD(plain, 16, plain);
-		fail = !TestModeIV(modeE, modeD);
-		pass = pass && !fail;
-		std::cout << (fail ? "FAILED   " : "passed   ") << "AES OFB Mode" << std::endl;
-	}
-	{
-		CFB_Mode<AES>::Encryption modeE(plain, 16, plain);
-		CFB_Mode<AES>::Decryption modeD(plain, 16, plain);
-		fail = !TestModeIV(modeE, modeD);
-		pass = pass && !fail;
-		std::cout << (fail ? "FAILED   " : "passed   ") << "AES CFB Mode" << std::endl;
-	}
-	{
-		CBC_Mode<AES>::Encryption modeE(plain, 16, plain);
-		CBC_Mode<AES>::Decryption modeD(plain, 16, plain);
-		fail = !TestModeIV(modeE, modeD);
-		pass = pass && !fail;
-		std::cout << (fail ? "FAILED   " : "passed   ") << "AES CBC Mode" << std::endl;
 	}
 
 	return pass;
