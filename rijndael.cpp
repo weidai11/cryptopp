@@ -220,15 +220,6 @@ void Rijndael::Base::FillDecTable()
 	s_TdFilled = true;
 }
 
-unsigned int Rijndael::Base::OptimalDataAlignment() const
-{
-#if CRYPTOPP_BOOL_ALIGN16
-	return 16;
-#else
-	return GetAlignmentOf<word32>();
-#endif
-}
-
 #if (CRYPTOPP_AESNI_AVAILABLE)
 extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
 extern void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds);
@@ -351,11 +342,6 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(   m_key, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn( inBlock, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(xorBlock, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outBlock, OptimalDataAlignment()));
-
 #if CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_AESNI_AVAILABLE
 # if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
@@ -446,11 +432,6 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(   m_key, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn( inBlock, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(xorBlock, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outBlock, OptimalDataAlignment()));
-
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 	{
@@ -1098,11 +1079,6 @@ Rijndael::Enc::Enc() { }
 #if CRYPTOPP_ENABLE_ADVANCED_PROCESS_BLOCKS
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(    m_key, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn( inBlocks, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(xorBlocks, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outBlocks, OptimalDataAlignment()));
-
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 		return Rijndael_Enc_AdvancedProcessBlocks_AESNI(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
@@ -1166,11 +1142,6 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(    m_key, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn( inBlocks, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(xorBlocks, OptimalDataAlignment()));
-	CRYPTOPP_ASSERT(IsAlignedOn(outBlocks, OptimalDataAlignment()));
-
 #if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 		return Rijndael_Dec_AdvancedProcessBlocks_AESNI(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);

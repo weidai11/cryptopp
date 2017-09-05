@@ -30,24 +30,10 @@
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
-
-typedef std::basic_string<char, std::char_traits<char>, AllocatorWithCleanup<char, true> > aligned_string;
-typedef StringSinkTemplate<aligned_string> AlignedStringSink;
-
 NAMESPACE_BEGIN(Test)
 
 typedef std::map<std::string, std::string> TestData;
 static bool s_thorough = false;
-
-bool operator ==(const std::string& a, const aligned_string& b)
-{
-	return a.length() == b.length() && 0 == std::memcmp(a.data(), b.data(), a.size());
-}
-
-bool operator !=(const std::string& a, const aligned_string& b)
-{
-	return !(a == b);
-}
 
 class TestFailure : public Exception
 {
@@ -101,7 +87,7 @@ void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &
 {
 	while (source.MaxRetrievable() > (finish ? 0 : 4096))
 	{
-		CRYPTOPP_ALIGN_DATA(16) byte buf[4096+64];
+		byte buf[4096+64];
 		size_t start = Test::GlobalRNG().GenerateWord32(0, 63);
 		size_t len = Test::GlobalRNG().GenerateWord32(1, UnsignedMin(4096U, 3*source.MaxRetrievable()/2));
 		len = source.Get(buf+start, len);
@@ -195,26 +181,11 @@ std::string GetDecodedDatum(const TestData &data, const char *name)
 	return s;
 }
 
-aligned_string GetAlignedDecodedDatum(const TestData &data, const char *name)
-{
-	aligned_string s;
-	PutDecodedDatumInto(data, name, AlignedStringSink(s).Ref());
-	return s;
-}
-
 std::string GetOptionalDecodedDatum(const TestData &data, const char *name)
 {
 	std::string s;
 	if (DataExists(data, name))
 		PutDecodedDatumInto(data, name, StringSink(s).Ref());
-	return s;
-}
-
-aligned_string GetOptionalAlignedDecodedDatum(const TestData &data, const char *name)
-{
-	aligned_string s;
-	if (DataExists(data, name))
-		PutDecodedDatumInto(data, name, AlignedStringSink(s).Ref());
 	return s;
 }
 
@@ -413,11 +384,11 @@ void TestAsymmetricCipher(TestData &v)
 
 void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 {
-	const std::string name = GetRequiredDatum(v, "Name");
-	const std::string test = GetRequiredDatum(v, "Test");
+	std::string name = GetRequiredDatum(v, "Name");
+	std::string test = GetRequiredDatum(v, "Test");
 
-	const aligned_string key = GetAlignedDecodedDatum(v, "Key");
-	const aligned_string plaintext = GetAlignedDecodedDatum(v, "Plaintext");
+	std::string key = GetDecodedDatum(v, "Key");
+	std::string plaintext = GetDecodedDatum(v, "Plaintext");
 
 	TestDataNameValuePairs testDataPairs(v);
 	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);
@@ -475,17 +446,16 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		// If overrideParameters are specified, the caller is responsible for managing the parameter.
 		v.erase("Tweak"); v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 
-		// std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
-		aligned_string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
+		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
 		if (test == "EncryptionMCT" || test == "DecryptionMCT")
 		{
 			SymmetricCipher *cipher = encryptor.get();
-			AlignedSecByteBlock buf((byte *)plaintext.data(), plaintext.size()), keybuf((byte *)key.data(), key.size());
+			SecByteBlock buf((byte *)plaintext.data(), plaintext.size()), keybuf((byte *)key.data(), key.size());
 
 			if (test == "DecryptionMCT")
 			{
 				cipher = decryptor.get();
-				ciphertext = GetAlignedDecodedDatum(v, "Ciphertext");
+				ciphertext = GetDecodedDatum(v, "Ciphertext");
 				buf.Assign((byte *)ciphertext.data(), ciphertext.size());
 			}
 
@@ -503,11 +473,11 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 				cipher->SetKey(keybuf, keybuf.size());
 			}
 			encrypted.assign((char *)buf.begin(), buf.size());
-			ciphertext = GetAlignedDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
+			ciphertext = GetDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
 			if (encrypted != ciphertext)
 			{
 				std::cout << "\nincorrectly encrypted: ";
-				StringSource xx(reinterpret_cast<const byte*>(encrypted.data()), encrypted.size(), false, new HexEncoder(new FileSink(std::cout)));
+				StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 				xx.Pump(256); xx.Flush(false);
 				std::cout << "\n";
 				SignalTestFailure();
@@ -515,7 +485,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			return;
 		}
 
-		StreamTransformationFilter encFilter(*encryptor, new AlignedStringSink(encrypted),
+		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 		RandomizedTransfer(StringStore(plaintext).Ref(), encFilter, true);
 		encFilter.MessageEnd();
@@ -530,10 +500,10 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 				CRYPTOPP_ASSERT(encrypted[i] == z[i]);
 		}*/
 		if (test != "EncryptXorDigest")
-			ciphertext = GetAlignedDecodedDatum(v, "Ciphertext");
+			ciphertext = GetDecodedDatum(v, "Ciphertext");
 		else
 		{
-			ciphertextXorDigest = GetAlignedDecodedDatum(v, "CiphertextXorDigest");
+			ciphertextXorDigest = GetDecodedDatum(v, "CiphertextXorDigest");
 			xorDigest.append(encrypted, 0, 64);
 			for (size_t i=64; i<encrypted.size(); i++)
 				xorDigest[i%64] ^= encrypted[i];
@@ -541,20 +511,20 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		if (test != "EncryptXorDigest" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
 		{
 			std::cout << "\nincorrectly encrypted: ";
-			StringSource xx(reinterpret_cast<const byte*>(encrypted.data()), encrypted.size(), false, new HexEncoder(new FileSink(std::cout)));
+			StringSource xx(encrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(2048); xx.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
 		}
-		aligned_string decrypted;
-		StreamTransformationFilter decFilter(*decryptor, new AlignedStringSink(decrypted),
+		std::string decrypted;
+		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 		RandomizedTransfer(StringStore(encrypted).Ref(), decFilter, true);
 		decFilter.MessageEnd();
 		if (decrypted != plaintext)
 		{
 			std::cout << "\nincorrectly decrypted: ";
-			StringSource xx(reinterpret_cast<const byte*>(decrypted.data()), decrypted.size(), false, new HexEncoder(new FileSink(std::cout)));
+			StringSource xx(decrypted, false, new HexEncoder(new FileSink(std::cout)));
 			xx.Pump(256); xx.Flush(false);
 			std::cout << "\n";
 			SignalTestFailure();
@@ -572,13 +542,13 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 	std::string type = GetRequiredDatum(v, "AlgorithmType");
 	std::string name = GetRequiredDatum(v, "Name");
 	std::string test = GetRequiredDatum(v, "Test");
-	aligned_string key = GetAlignedDecodedDatum(v, "Key");
+	std::string key = GetDecodedDatum(v, "Key");
 
-	aligned_string plaintext = GetOptionalAlignedDecodedDatum(v, "Plaintext");
-	aligned_string ciphertext = GetOptionalAlignedDecodedDatum(v, "Ciphertext");
-	aligned_string header = GetOptionalAlignedDecodedDatum(v, "Header");
-	aligned_string footer = GetOptionalAlignedDecodedDatum(v, "Footer");
-	aligned_string mac = GetOptionalAlignedDecodedDatum(v, "MAC");
+	std::string plaintext = GetOptionalDecodedDatum(v, "Plaintext");
+	std::string ciphertext = GetOptionalDecodedDatum(v, "Ciphertext");
+	std::string header = GetOptionalDecodedDatum(v, "Header");
+	std::string footer = GetOptionalDecodedDatum(v, "Footer");
+	std::string mac = GetOptionalDecodedDatum(v, "MAC");
 
 	TestDataNameValuePairs testDataPairs(v);
 	CombinedNameValuePairs pairs(overrideParameters, testDataPairs);

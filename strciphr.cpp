@@ -39,27 +39,15 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 		if (!length)
 			return;
 	}
+	CRYPTOPP_ASSERT(m_leftOver == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	const unsigned int bytesPerIteration = policy.GetBytesPerIteration();
-	const unsigned int alignment = policy.GetAlignment();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (length >= bytesPerIteration)
 	{
-		const size_t iterations = length / bytesPerIteration;
-
-		// Intel and ARM SIMD units can handle unaligned loads of
-		//   byte buffers, but AltiVec and Power8 cannot.
-		if (!IsAlignedOn(outString, alignment))
-		{
-			AlignedSecByteBlock temp(iterations * bytesPerIteration);
-			policy.WriteKeystream(temp, iterations);
-			memcpy(outString, temp, iterations * bytesPerIteration);
-		}
-		else
-		{
-			policy.WriteKeystream(outString, iterations);
-		}
+		size_t iterations = length / bytesPerIteration;
+		policy.WriteKeystream(outString, iterations);
 		outString += iterations * bytesPerIteration;
 		length -= iterations * bytesPerIteration;
 	}
@@ -90,14 +78,15 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		if (!length)
 			return;
 	}
+	CRYPTOPP_ASSERT(m_leftOver == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	const unsigned int bytesPerIteration = policy.GetBytesPerIteration();
-	const unsigned int alignment = policy.GetAlignment();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (policy.CanOperateKeystream() && length >= bytesPerIteration)
 	{
-		const size_t iterations = length / bytesPerIteration;
+		size_t iterations = length / bytesPerIteration;
+		unsigned int alignment = policy.GetAlignment();
 		KeystreamOperation operation = KeystreamOperation((IsAlignedOn(inString, alignment) * 2) | (int)IsAlignedOn(outString, alignment));
 
 		policy.OperateKeystream(operation, outString, inString, iterations);
@@ -190,8 +179,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	const unsigned int bytesPerIteration = policy.GetBytesPerIteration();
-	const unsigned int alignment = policy.GetAlignment();
+	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+	unsigned int alignment = policy.GetAlignment();
 	byte *reg = policy.GetRegisterBegin();
 
 	if (m_leftOver)
@@ -206,6 +195,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 
 	if (!length)
 		return;
+
+	CRYPTOPP_ASSERT(m_leftOver == 0);
 
 	if (policy.CanIterate() && length >= bytesPerIteration && IsAlignedOn(outString, alignment))
 	{

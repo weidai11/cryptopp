@@ -1909,10 +1909,8 @@ public:
 template <class E, class D> class FixedRoundsCipherFactory : public CipherFactory
 {
 public:
-	FixedRoundsCipherFactory(unsigned int keylen=0) :
-		m_keylen(keylen ? keylen : static_cast<unsigned int>(E::DEFAULT_KEYLENGTH)) {}
-
-	unsigned int BlockSize() const {return static_cast<unsigned int>(E::BLOCKSIZE);}
+	FixedRoundsCipherFactory(unsigned int keylen=0) : m_keylen(keylen?keylen:E::DEFAULT_KEYLENGTH) {}
+	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
 	BlockTransformation* NewEncryption(const byte *keyStr) const
@@ -1926,11 +1924,9 @@ public:
 template <class E, class D> class VariableRoundsCipherFactory : public CipherFactory
 {
 public:
-	VariableRoundsCipherFactory(unsigned int keylen=0, unsigned int rounds=0) :
-		m_keylen(keylen ? keylen : static_cast<unsigned int>(E::DEFAULT_KEYLENGTH)),
-		m_rounds(rounds ? rounds : static_cast<unsigned int>(E::DEFAULT_ROUNDS)) {}
-
-	unsigned int BlockSize() const {return static_cast<unsigned int>(E::BLOCKSIZE);}
+	VariableRoundsCipherFactory(unsigned int keylen=0, unsigned int rounds=0)
+		: m_keylen(keylen ? keylen : E::DEFAULT_KEYLENGTH), m_rounds(rounds ? rounds : E::DEFAULT_ROUNDS) {}
+	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
 	BlockTransformation* NewEncryption(const byte *keyStr) const

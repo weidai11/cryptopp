@@ -2467,16 +2467,16 @@ bool TestHuffmanCodes()
     {
         try
         {
-            SecByteBlock data1(0xfff);
-            SecBlock<word32> data2(0xff);
+            byte data1[0xfff];  // Place on stack, avoid new
+            unsigned int data2[0xff];
 
             unsigned int len1 = GlobalRNG().GenerateWord32(4, 0xfff);
-            GlobalRNG().GenerateBlock(data1.BytePtr(), data1.SizeInBytes());
+            GlobalRNG().GenerateBlock(data1, len1);
             unsigned int len2 = GlobalRNG().GenerateWord32(4, 0xff);
-            GlobalRNG().GenerateBlock(data2.BytePtr(), data2.SizeInBytes());
+            GlobalRNG().GenerateBlock((byte*)data2, len2*sizeof(unsigned int));
 
-            ArraySource source(data1.BytePtr(), data1.SizeInBytes(), false);
-            HuffmanDecoder decoder(data2.begin(), data2.size());
+            ArraySource source(data1, len1, false);
+            HuffmanDecoder decoder(data2, len2);
 
             LowFirstBitReader reader(source);
             unsigned int val;

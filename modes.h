@@ -81,7 +81,7 @@ public:
 	}
 
 protected:
-	CipherModeBase() : m_cipher(NULLPTR), m_register(0) {}
+	CipherModeBase() : m_cipher(NULLPTR) {}
 	inline unsigned int BlockSize() const {CRYPTOPP_ASSERT(m_register.size() > 0); return (unsigned int)m_register.size();}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
@@ -134,7 +134,7 @@ protected:
 	void SetFeedbackSize(unsigned int feedbackSize);
 	void ResizeBuffers();
 
-	AlignedSecByteBlock m_temp;
+	SecByteBlock m_temp;
 	unsigned int m_feedbackSize;
 };
 
@@ -209,7 +209,7 @@ protected:
 	bool RequireAlignedInput() const {return true;}
 	virtual void ResizeBuffers();
 
-	AlignedSecByteBlock m_buffer;
+	SecByteBlock m_buffer;
 };
 
 //! \class ECB_OneWay
@@ -436,8 +436,7 @@ struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef Encryption Decryption;
 };
 
-//! \class CBC_Mode
-//! \brief CBC block cipher mode of operation.
+//! CBC mode
 template <class CIPHER>
 struct CBC_Mode : public CipherModeDocumentation
 {
@@ -448,16 +447,14 @@ struct CBC_Mode : public CipherModeDocumentation
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Encryption>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Decryption>;
 
-//! \class CBC_Mode_ExternalCipher
-//! \brief CBC mode, external cipher.
+//! CBC mode, external cipher
 struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Encryption> Encryption;
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Decryption> Decryption;
 };
 
-//! \class CBC_CTS_Mode
-//! \brief CTS block cipher mode of operation.
+//! CBC mode with ciphertext stealing
 template <class CIPHER>
 struct CBC_CTS_Mode : public CipherModeDocumentation
 {
@@ -475,6 +472,13 @@ struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption> Encryption;
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decryption> Decryption;
 };
+
+//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
+//typedef CFB_Mode_ExternalCipher::Encryption CFBEncryption;
+//typedef CFB_Mode_ExternalCipher::Decryption CFBDecryption;
+//typedef OFB_Mode_ExternalCipher::Encryption OFB;
+//typedef CTR_Mode_ExternalCipher::Encryption CounterMode;
+//#endif
 
 NAMESPACE_END
 

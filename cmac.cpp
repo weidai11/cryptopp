@@ -77,8 +77,7 @@ void CMAC_Base::Update(const byte *input, size_t length)
 		return;
 
 	BlockCipher &cipher = AccessCipher();
-	const unsigned int blockSize = cipher.BlockSize();
-	const unsigned int alignment = cipher.OptimalDataAlignment();
+	unsigned int blockSize = cipher.BlockSize();
 
 	if (m_counter > 0)
 	{
@@ -101,20 +100,7 @@ void CMAC_Base::Update(const byte *input, size_t length)
 	if (length > blockSize)
 	{
 		CRYPTOPP_ASSERT(m_counter == 0);
-		const byte* is = input;  // m_reg is always aligned
-
-		AlignedSecByteBlock i;
-		if (!IsAlignedOn(input, alignment))
-		{
-			i.Assign(input, length);
-			is = i.begin();
-		}
-
-		// size_t leftOver = 1 + cipher.AdvancedProcessBlocks(m_reg, input, m_reg, length-1,
-		//   BlockTransformation::BT_DontIncrementInOutPointers|BlockTransformation::BT_XorInput);
-		const int flags = BlockTransformation::BT_DontIncrementInOutPointers|BlockTransformation::BT_XorInput;
-		size_t leftOver = 1 + cipher.AdvancedProcessBlocks(m_reg, is, m_reg, length-1, flags);
-
+		size_t leftOver = 1 + cipher.AdvancedProcessBlocks(m_reg, input, m_reg, length-1, BlockTransformation::BT_DontIncrementInOutPointers|BlockTransformation::BT_XorInput);
 		input += (length - leftOver);
 		length = leftOver;
 	}

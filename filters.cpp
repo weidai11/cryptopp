@@ -23,12 +23,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if CRYPTOPP_BOOL_ALIGN16
-const unsigned int s_alignment = 16;
-#else
-const unsigned int s_alignment = GetAlignmentOf<word32>();
-#endif
-
 Filter::Filter(BufferedTransformation *attachment)
 	: m_attachment(attachment), m_inputPosition(0), m_continueAt(0)
 {
@@ -292,29 +286,29 @@ byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(size_t &numberOfBy
 
 size_t FilterWithBufferedInput::BlockQueue::GetAll(byte *outString)
 {
-	// Avoid passing NULL pointer to std::memcpy
+	// Avoid passing NULL pointer to memcpy
 	if (!outString) return 0;
 
 	size_t size = m_size;
 	size_t numberOfBytes = m_maxBlocks*m_blockSize;
 	const byte *ptr = GetContigousBlocks(numberOfBytes);
-	std::memcpy(outString, ptr, numberOfBytes);
-	std::memcpy(outString+numberOfBytes, m_begin, m_size);
+	memcpy(outString, ptr, numberOfBytes);
+	memcpy(outString+numberOfBytes, m_begin, m_size);
 	m_size = 0;
 	return size;
 }
 
 void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, size_t length)
 {
-	// Avoid passing NULL pointer to std::memcpy
+	// Avoid passing NULL pointer to memcpy
 	if (!inString || !length) return;
 
 	CRYPTOPP_ASSERT(m_size + length <= m_buffer.size());
 	byte *end = (m_size < size_t(m_buffer.end()-m_begin)) ? m_begin + m_size : m_begin + m_size - m_buffer.size();
-	const size_t len = STDMIN(length, size_t(m_buffer.end()-end));
-	std::memcpy(end, inString, len);
+	size_t len = STDMIN(length, size_t(m_buffer.end()-end));
+	memcpy(end, inString, len);
 	if (len < length)
-		std::memcpy(m_buffer, inString+len, length-len);
+		memcpy(m_buffer, inString+len, length-len);
 	m_size += length;
 }
 
@@ -389,16 +383,8 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 
 				if (newLength > m_lastSize)
 				{
-					const size_t len = newLength - m_lastSize;
-					if (IsAlignedOn(inString, s_alignment))
-					{
-						NextPutMaybeModifiable(inString, len, modifiable);
-					}
-					else
-					{
-						AlignedSecByteBlock block(inString, len);
-						NextPutMaybeModifiable(block, block.size(), modifiable);
-					}
+					size_t len = newLength - m_lastSize;
+					NextPutMaybeModifiable(inString, len, modifiable);
 					inString += len;
 					newLength -= len;
 				}
@@ -414,7 +400,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 				if (newLength >= m_blockSize + m_lastSize && m_queue.CurrentSize() > 0)
 				{
 					CRYPTOPP_ASSERT(m_queue.CurrentSize() < m_blockSize);
-					const size_t len = m_blockSize - m_queue.CurrentSize();
+					size_t len = m_blockSize - m_queue.CurrentSize();
 					m_queue.Put(inString, len);
 					inString += len;
 					NextPutModifiable(m_queue.GetBlock(), m_blockSize);
@@ -423,16 +409,8 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 
 				if (newLength >= m_blockSize + m_lastSize)
 				{
-					const size_t len = RoundDownToMultipleOf(newLength - m_lastSize, m_blockSize);
-					if (IsAlignedOn(inString, s_alignment))
-					{
-						NextPutMaybeModifiable(inString, len, modifiable);
-					}
-					else
-					{
-						AlignedSecByteBlock block(inString, len);
-						NextPutMaybeModifiable(block, block.size(), modifiable);
-					}
+					size_t len = RoundDownToMultipleOf(newLength - m_lastSize, m_blockSize);
+					NextPutMaybeModifiable(inString, len, modifiable);
 					inString += len;
 					newLength -= len;
 				}
@@ -472,7 +450,7 @@ void FilterWithBufferedInput::ForceNextPut()
 	}
 	else
 	{
-		size_t len = 0;
+		size_t len;
 		while ((len = m_queue.CurrentSize()) > 0)
 			NextPutModifiable(m_queue.GetContigousBlocks(len), len);
 	}
@@ -557,7 +535,7 @@ size_t ArraySink::Put2(const byte *begin, size_t length, int messageEnd, bool bl
 {
 	CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
 
-	// Avoid passing NULL pointer to std::memcpy. Using memmove due to
+	// Avoid passing NULL pointer to memcpy. Using memmove due to
 	//  Valgrind finding on overlapping buffers.
 	size_t copied = 0;
 	if (m_buf && begin)
@@ -706,7 +684,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 				// do padding
 				size_t blockSize = STDMAX(minLastBlockSize, (size_t)m_cipher.MandatoryBlockSize());
 				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize);
-				if (inString) {std::memcpy(space, inString, length);}
+				if (inString) {memcpy(space, inString, length);}
 				memset(space + length, 0, blockSize - length);
 				m_cipher.ProcessLastBlock(space, space, blockSize);
 				AttachedTransformation()->Put(space, blockSize);
@@ -738,7 +716,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 		if (m_cipher.IsForwardTransformation())
 		{
 			CRYPTOPP_ASSERT(length < s);
-			if (inString) {std::memcpy(space, inString, length);}
+			if (inString) {memcpy(space, inString, length);}
 			if (m_padding == PKCS_PADDING)
 			{
 				CRYPTOPP_ASSERT(s < 256);
@@ -855,7 +833,7 @@ void HashVerificationFilter::FirstPut(const byte *inString)
 	if (m_flags & HASH_AT_BEGIN)
 	{
 		m_expectedHash.New(m_digestSize);
-		if (inString) {std::memcpy(m_expectedHash, inString, m_expectedHash.size());}
+		if (inString) {memcpy(m_expectedHash, inString, m_expectedHash.size());}
 		if (m_flags & PUT_HASH)
 			AttachedTransformation()->Put(inString, m_expectedHash.size());
 	}
@@ -1050,7 +1028,7 @@ void SignatureVerificationFilter::FirstPut(const byte *inString)
 		else
 		{
 			m_signature.New(m_verifier.SignatureLength());
-			if (inString) {std::memcpy(m_signature, inString, m_signature.size());}
+			if (inString) {memcpy(m_signature, inString, m_signature.size());}
 		}
 
 		if (m_flags & PUT_SIGNATURE)
@@ -1150,7 +1128,7 @@ size_t StringStore::TransferTo2(BufferedTransformation &target, lword &transferB
 size_t StringStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end, const std::string &channel, bool blocking) const
 {
 	size_t i = UnsignedMin(m_length, m_count+begin);
-	const size_t len = UnsignedMin(m_length-i, end-begin);
+	size_t len = UnsignedMin(m_length-i, end-begin);
 	size_t blockedBytes = target.ChannelPut2(channel, m_store+i, len, 0, blocking);
 	if (!blockedBytes)
 		begin += len;
@@ -1182,7 +1160,7 @@ size_t NullStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lwo
 	static const byte nullBytes[128] = {0};
 	while (begin < end)
 	{
-		const size_t len = (size_t)STDMIN(end-begin, lword(128));
+		size_t len = (size_t)STDMIN(end-begin, lword(128));
 		size_t blockedBytes = target.ChannelPut2(channel, nullBytes, len, 0, blocking);
 		if (blockedBytes)
 			return blockedBytes;
