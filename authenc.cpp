@@ -36,7 +36,20 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 	// now process the input data in blocks of blockSize bytes and save the leftovers to m_data
 	if (len >= blockSize)
 	{
-		size_t leftOver = AuthenticateBlocks(input, len);
+		// size_t leftOver = AuthenticateBlocks(input, len);
+		size_t leftOver = 0;
+		const unsigned int alignment = GetSymmetricCipher().OptimalDataAlignment();
+
+		if (IsAlignedOn(input, alignment))
+		{
+			leftOver = AuthenticateBlocks(input, len);
+		}
+		else
+		{
+			AlignedSecByteBlock block(input, len);
+			leftOver = AuthenticateBlocks(block, len);
+		}
+
 		input += (len - leftOver);
 		len = leftOver;
 	}
