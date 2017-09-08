@@ -18,6 +18,10 @@
 # include <setjmp.h>
 #endif
 
+#if defined(__ANDROID__)
+# include <cpu-features.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
