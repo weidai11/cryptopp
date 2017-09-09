@@ -287,6 +287,12 @@ else
 	THE_STL=$(tr [A-Z] [a-z] <<< "$2")
 fi
 
+# LLVM include directory may be different depending on NDK version. Default to new location (latest NDK checked: r16beta1).
+LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/include"
+if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+	LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+fi
+
 case "$THE_STL" in
   stlport-static)
 	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/stlport/"
@@ -307,11 +313,19 @@ case "$THE_STL" in
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/libgnustl_shared.so"
 	;;
   llvm-static)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+  	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+		echo "ERROR: Unable to locate include LLVM directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
+		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	fi
+	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_static.a"
 	;;
   llvm|llvm-shared)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+  	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+		echo "ERROR: Unable to locate LLVM include directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
+		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	fi
+	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_shared.so"
 	;;
   *)
