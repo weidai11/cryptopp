@@ -51,6 +51,7 @@ IS_NETBSD := $(shell $(CXX) -dumpmachine 2>&1 | $(GREP) -i -c "NetBSD")
 
 SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E 'CC: (Sun|Studio)')
 GCC_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -v -E '(llvm|clang)' | $(GREP) -i -c -E '(gcc|g\+\+)')
+XLC_COMPILER := $(shell $(CXX) $(CXX) -qversion 2>&1 |$(GREP) -i -c "IBM XL")
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c -E '(llvm|clang)')
 INTEL_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c '\(icc\)')
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>&1 | $(GREP) -i -c "macports")
@@ -343,8 +344,9 @@ ifneq ($(IS_LINUX)$(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),0000)
   CXXFLAGS += -pthread
 endif # CXXFLAGS
 
-# Add -pipe for everything except ARM (allow ARM-64 because they seems to have > 1 GB of memory)
-ifeq ($(IS_ARM32),0)
+# Add -pipe for everything except IBM XL C/C++ and ARM.
+# Allow ARM-64 because they seems to have >1 GB of memory
+ifeq ($(XLC_COMPILER)$(IS_ARM32),00)
   ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
     CXXFLAGS += -pipe
   endif
