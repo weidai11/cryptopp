@@ -699,6 +699,23 @@ if [[ (-z "$WANT_BENCHMARKS") ]]; then
 	WANT_BENCHMARKS=1
 fi
 
+# IBM XL C/C++ compiler fixups. Not sure why it fails to return non-0 on failure...
+if [[ "$XLC_COMPILER" -ne "0" ]]; then
+	HAVE_CXX03=0
+	HAVE_GNU03=0
+	HAVE_CXX11=0
+	HAVE_GNU11=0
+	HAVE_CXX14=0
+	HAVE_GNU14=0
+	HAVE_CXX17=0
+	HAVE_GNU17=0
+	HAVE_OMP=0
+	HAVE_ASAN=0
+	HAVE_BSAN=0
+	HAVE_UBSAN=0
+	HAVE_LDGOLD=0
+fi
+
 ############################################
 # System information
 
