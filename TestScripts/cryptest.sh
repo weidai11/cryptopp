@@ -112,7 +112,8 @@ IS_UBUNTU=$(lsb_release -a 2>&1 | "$GREP" -i -c ubuntu)
 THIS_MACHINE=$(uname -m 2>&1)
 IS_X86=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(i386|i486|i686|i686)")
 IS_X64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(amd64|x86_64)")
-IS_PPC=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(Power|PPC)")
+IS_PPC32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$GREP" -i -c -E "(Power|PPC)")
+IS_PPC64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(Power64|PPC64)")
 IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$GREP" -i -c -E "(arm|aarch32)")
 IS_ARM64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E  "(arm64|aarch64)")
 IS_S390=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c "s390")
@@ -203,6 +204,7 @@ fi
 
 SUN_COMPILER=$("$CXX" -V 2>&1 | "$GREP" -i -c -E "CC: (Sun|Studio)")
 GCC_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -v "clang" | "$GREP" -i -c -E "(gcc|g\+\+)")
+XLC_COMPILER=$("$CXX" -qversion 2>&1 | "$GREP" -i -c "IBM XL")
 INTEL_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "clang")
@@ -550,7 +552,7 @@ fi
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PPC_MULTIARCH") ]]; then
 	HAVE_PPC_MULTIARCH=0
-	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC" -ne "0") ]]; then
+	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ "$?" -eq "0" ]]; then
 			HAVE_PPC_MULTIARCH=1
@@ -712,8 +714,10 @@ elif [[ "$IS_AIX" -ne "0" ]]; then
 	echo "IS_AIX: $IS_AIX" | tee -a "$TEST_RESULTS"
 fi
 
-if [[ "$IS_PPC" -ne "0" ]]; then
-	echo "IS_PPC: $IS_PPC" | tee -a "$TEST_RESULTS"
+if [[ "$IS_PPC64" -ne "0" ]]; then
+	echo "IS_PPC64: $IS_PPC64" | tee -a "$TEST_RESULTS"
+elif [[ "$IS_PPC32" -ne "0" ]]; then
+	echo "IS_PPC32: $IS_PPC32" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$IS_ARM64" -ne "0" ]]; then
 	echo "IS_ARM64: $IS_ARM64" | tee -a "$TEST_RESULTS"
@@ -1486,8 +1490,9 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "Verified pmull and pmull2 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
+
 	############################################
-	# ARM SHA code generation
+	# ARM AES code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ "$?" -eq "0" ]]; then
@@ -1619,6 +1624,72 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		if [[ ("$FAILED" -eq "0") ]]; then
 			echo "Verified sha1c, sha1m, sha1p, sha1su0, sha1su1, sha256h, sha256h2, sha256su0, sha256su1 machine instructions" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Power8 code generation tests
+if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]]; then
+
+	############################################
+	# Power8 AES
+
+	PPC_AES=0
+	if [[ ("$PPC_AES" -eq "0") ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mcpu=power8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			PPC_AES=1
+			PPC_AES_FLAGS="-mcpu=power8"
+		fi
+	fi
+	if [[ ("$PPC_AES" -eq "0") ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -qarch=pwr8 -qaltivec adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			PPC_AES=1
+			PPC_AES_FLAGS="-qarch=pwr8 -qaltivec"
+		fi
+	fi
+
+	if [[ ("$PPC_AES" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Power8 AES generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		OBJFILE=rijndael-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_AES_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -v vcipherlast | "$GREP" -i -c vcipher)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate vcipher instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vcipherlast)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate vcipherlast instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -v vncipherlast | "$GREP" -i -c vncipher)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate vncipher instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vncipherlast)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate vncipherlast instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]]; then
+			echo "Verified vcipher, vcipherlast,vncipher, vncipherlast machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
 fi
