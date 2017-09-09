@@ -332,6 +332,22 @@ ifeq ($(IS_ARMV8),1)
   endif
 endif
 
+# PowerPC and PowerPC-64
+ifeq ($(XLC_COMPILER),1)
+  # http://www-01.ibm.com/support/docview.wss?uid=swg21007500
+  ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
+    CXXFLAGS += -qrtti
+  endif
+  # -fPIC causes link errors dues to unknown option
+  ifneq ($(findstring -fPIC,$(CXXFLAGS)),)
+      CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
+  endif
+  # Warnings and intermittent failures on early IBM XL C/C++
+  ifneq ($(findstring -O3,$(CXXFLAGS)),)
+      CXXFLAGS := $(CXXFLAGS:-O3=-O2)
+  endif
+endif
+
 endif	# IS_X86
 
 ###########################################################
@@ -349,17 +365,6 @@ endif # CXXFLAGS
 ifeq ($(XLC_COMPILER)$(IS_ARM32),00)
   ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
     CXXFLAGS += -pipe
-  endif
-endif
-
-ifeq ($(XLC_COMPILER),1)
-  # http://www-01.ibm.com/support/docview.wss?uid=swg21007500
-  ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
-    CXXFLAGS += -qrtti
-  endif
-  # -fPIC causes link errors dues to unknown option
-  ifneq ($(findstring -fPIC,$(CXXFLAGS)),)
-      CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
   endif
 endif
 
