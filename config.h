@@ -724,6 +724,7 @@ NAMESPACE_END
 #	define WINDOWS_PIPES_AVAILABLE
 #endif
 
+
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define BLOCKING_RNG_AVAILABLE
@@ -732,7 +733,13 @@ NAMESPACE_END
 #	define THREADS_AVAILABLE
 #endif
 
-// Cygwin/Newlib requires _XOPEN_SOURCE=700
+// Early IBM XL C on AIX fails to link due to missing pthread gear
+#if defined(_AIX) && defined(__xlC__)
+#	undef HAS_PTHREADS
+#	undef THREADS_AVAILABLE
+#endif
+
+// Cygwin/Newlib requires _XOPEN_SOURCE=600
 #if defined(CRYPTOPP_UNIX_AVAILABLE)
 # define UNIX_SIGNALS_AVAILABLE 1
 #endif
