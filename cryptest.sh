@@ -466,6 +466,9 @@ if [[ (-z "$HAVE_PIC") ]]; then
 	if [[ "$PIC_PROBLEMS" -eq "0" ]]; then
 		HAVE_PIC=1
 		OPT_PIC=-fPIC
+		if [[ ("$XLC_COMPILER" -eq "1") ]]; then
+			OPT_PIC=-qpic
+		fi
 	fi
 fi
 
@@ -890,6 +893,8 @@ fi
 
 if [[ ("$SUN_COMPILER" -ne "0") ]]; then
 	echo $("$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g' | head -1) | tee -a "$TEST_RESULTS"
+elif [[ ("$XLC_COMPILER" -ne "0") ]]; then
+	echo "Compiler:" $("$CXX" -qversion | head -1) | tee -a "$TEST_RESULTS"
 else
 	echo "Compiler:" $("$CXX" --version | head -1) | tee -a "$TEST_RESULTS"
 fi
