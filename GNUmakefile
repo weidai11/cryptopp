@@ -352,6 +352,17 @@ ifeq ($(XLC_COMPILER)$(IS_ARM32),00)
   endif
 endif
 
+ifeq ($(XLC_COMPILER),1)
+  # http://www-01.ibm.com/support/docview.wss?uid=swg21007500
+  ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
+    CXXFLAGS += -qrtti
+  endif
+  # -fPIC causes link errors dues to unknown option
+  ifneq ($(findstring -fPIC,$(CXXFLAGS)),)
+      CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
+  endif
+endif
+
 # For SunOS, create a Mapfile that allows our object files
 # to contain additional bits (like SSE4 and AES on old Xeon)
 # http://www.oracle.com/technetwork/server-storage/solaris/hwcap-modification-139536.html
@@ -769,7 +780,11 @@ libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX) | so_warning
 endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
+ifeq ($(XLC_COMPILER),1)
+	$(CXX) -qmkshrobj $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
+else
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(PIC_FLAG) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
+endif
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
