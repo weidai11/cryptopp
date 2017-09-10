@@ -30,10 +30,11 @@ else
   GREP ?= grep
 endif
 
-IS_X86 := $(shell uname -m | $(GREP) -v "x86_64" | $(GREP) -i -c -E "i.86|x86|i86")
+IS_X86 := $(shell uname -m | $(GREP) -v "64" | $(GREP) -i -c -E "i.86|x86|i86")
 IS_X64 := $(shell uname -m | $(GREP) -i -c -E "(_64|d64)")
-IS_PPC := $(shell uname -m | $(GREP) -i -c "ppc|power")
-IS_ARM32 := $(shell uname -m | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
+IS_PPC32 := $(shell uname -m | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
+IS_PPC64 := $(shell uname -m | $(GREP) -i -c -E "ppc64|power64")
+IS_ARM32 := $(shell uname -m | $(GREP) -i -v "64" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
 IS_ARM64 := $(shell uname -m | $(GREP) -i -c 'aarch64')
 IS_ARMV8 ?= $(shell uname -m | $(GREP) -i -c -E 'aarch32|aarch64')
 IS_NEON ?= $(shell uname -m | $(GREP) -i -c -E 'armv7|armv8|aarch32|aarch64')
@@ -321,11 +322,11 @@ ifeq ($(IS_ARMV8),1)
     NEON_FLAG = -march=armv8-a
   endif
   HAVE_CRC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRC32)
-  ifeq ($(HAVE_NEON),1)
+  ifeq ($(HAVE_CRC),1)
     CRC_FLAG = -march=armv8-a+crc
   endif
   HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
-  ifeq ($(HAVE_NEON),1)
+  ifeq ($(HAVE_CRYPTO),1)
     AES_FLAG = -march=armv8-a+crypto
     GCM_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
@@ -333,6 +334,24 @@ ifeq ($(IS_ARMV8),1)
 endif
 
 # PowerPC and PowerPC-64
+ifneq ($(IS_PPC32)$(IS_PPC64),00)
+  # GCC and some compatibles
+  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -dM -E - 2>/dev/null | $(GREP) -i -c __CRYPTO)
+  ifeq ($(HAVE_CRYPTO),1)
+    AES_FLAG = -mcpu=power8
+    GCM_FLAG = -mcpu=power8
+    SHA_FLAG = -mcpu=power8
+  endif
+  # IBM XL C/C++
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec rijndael.cpp -dM -E 2>/dev/null | $(GREP) -i -c __CRYPTO)
+  ifeq ($(HAVE_CRYPTO),1)
+    AES_FLAG = -qarch=pwr8 -qaltivec
+    GCM_FLAG = -qarch=pwr8 -qaltivec
+    SHA_FLAG = -qarch=pwr8 -qaltivec
+  endif
+endif
+
+# IBM XL C/C++ compiler
 ifeq ($(XLC_COMPILER),1)
   # http://www-01.ibm.com/support/docview.wss?uid=swg21007500
   ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
