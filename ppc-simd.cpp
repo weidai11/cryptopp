@@ -36,7 +36,7 @@
  typedef vector unsigned long long uint64x2_p8;
 #elif defined(CRYPTOPP_GCC_VERSION)
  typedef vector unsigned char uint8x16_p8;
- typedef vector unsigned long uint64x2_p8;
+ typedef vector unsigned long long uint64x2_p8;
  #endif
 #endif
 
@@ -179,7 +179,7 @@ int CPU_ProbePower8()
 	else
 	{
 		CRYPTOPP_ALIGN_DATA(16) // Non-const due to XL C/C++
-		byte b1[19] = {-1, -1, -1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
+		byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 		CRYPTOPP_ALIGN_DATA(16) byte b2[16];
 #if defined(CRYPTOPP_XLC_VERSION)
 		const uint8x16_p8 v1 = vec_xl(0, reinterpret_cast<byte*>(b1)+3);
@@ -225,7 +225,7 @@ int CPU_ProbeAES()
 		byte key[16] = {0xA0, 0xFA, 0xFE, 0x17, 0x88, 0x54, 0x2c, 0xb1, 0x23, 0xa3, 0x39, 0x39, 0x2a, 0x6c, 0x76, 0x05};
 		CRYPTOPP_ALIGN_DATA(16) // Non-const due to XL C/C++
 		byte state[16] = {0x19, 0x3d, 0xe3, 0xb3, 0xa0, 0xf4, 0xe2, 0x2b, 0x9a, 0xc6, 0x8d, 0x2a, 0xe9, 0xf8, 0x48, 0x08};
-		CRYPTOPP_ALIGN_DATA(16) byte r[16] = {-1}, z[16] = {};
+		CRYPTOPP_ALIGN_DATA(16) byte r[16] = {255}, z[16] = {};
 #if defined(CRYPTOPP_XLC_VERSION)
 		uint8x16_p8 k = vec_xl(0, reinterpret_cast<byte*>(key));
 		uint8x16_p8 s = vec_xl(0, reinterpret_cast<byte*>(state));
