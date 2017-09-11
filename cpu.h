@@ -49,6 +49,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// ***************************** IA-32 ***************************** //
+
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64 || CRYPTOPP_DOXYGEN_PROCESSING
 
 #define CRYPTOPP_CPUID_AVAILABLE 1
@@ -263,6 +265,8 @@ inline int GetCacheLineSize()
 }
 #endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
+// ***************************** ARM-32, Aarch32 and Aarch64 ***************************** //
+
 #if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64 || CRYPTOPP_DOXYGEN_PROCESSING
 
 // Hide from Doxygen
@@ -386,8 +390,108 @@ inline bool HasSHA2()
 }
 #endif  // CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
 
+// ***************************** PowerPC ***************************** //
+
+#if CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64 || CRYPTOPP_DOXYGEN_PROCESSING
+
+// Hide from Doxygen
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
+extern bool g_PowerpcDetectionDone;
+extern bool g_hasAltivec, g_hasPower7, g_hasPower8, g_hasAES, g_hasSHA1, g_hasSHA2;
+extern word32 g_cacheLineSize;
+void CRYPTOPP_API DetectPowerpcFeatures();
+#endif  // CRYPTOPP_DOXYGEN_PROCESSING
+
+//! \brief Determine if a PowerPC processor has Altivec available
+//! \returns true if the hardware is capable of Altivec at runtime, false otherwise.
+//! \details Altivec instructions are available under most modern PowerPCs.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+//! \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasAltivec()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasAltivec;
+}
+
+//! \brief Determine if a PowerPC processor has Power7 available
+//! \returns true if the hardware is capable of Power7 at runtime, false otherwise.
+//! \details Altivec instructions are available under most modern PowerPCs.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mcpu=power7</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr7 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+//! \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasPower8()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasPower8;
+}
+
+//! \brief Determine if a PowerPC processor has AES available
+//! \returns true if the hardware is capable of AES at runtime, false otherwise.
+//! \details AES is part of the in-crypto extensions on Power8 and Power9.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>__CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasAES()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasAES;
+}
+
+//! \brief Determine if a PowerPC processor has AES available
+//! \returns true if the hardware is capable of AES at runtime, false otherwise.
+//! \details AES is part of the in-crypto extensions on Power8 and Power9.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>__CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasSHA1()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasSHA1;
+}
+
+//! \brief Determine if a PowerPC processor has AES available
+//! \returns true if the hardware is capable of AES at runtime, false otherwise.
+//! \details AES is part of the in-crypto extensions on Power8 and Power9.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>__CRYPTO</tt> preprocessor macro.
+//! \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasSHA2()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasSHA2;
+}
+
+//! \brief Provides the cache line size
+//! \returns lower bound on the size of a cache line in bytes, if available
+//! \details GetCacheLineSize() returns the lower bound on the size of a cache line, if it
+//!   is available. If the value is not available at runtime, then 32 is returned for a 32-bit
+//!   processor and 64 is returned for a 64-bit processor.
+//! \details x86/x32/x64 uses CPUID to determine the value and its usually accurate. The ARM
+//!   processor equivalent is a privileged instruction, so a compile time value is returned.
+inline int GetCacheLineSize()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_cacheLineSize;
+}
+
+#endif  // CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
+
+// ***************************** L1 cache line ***************************** //
+
 // Non-Intel systems
-#if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 //! \brief Provides the cache line size at runtime
 //! \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
 //! \details GetCacheLineSize() provides is an estimate using CRYPTOPP_L1_CACHE_LINE_SIZE.
@@ -399,6 +503,8 @@ inline int GetCacheLineSize()
 #endif  // Non-Intel systems
 
 #endif  // CRYPTOPP_GENERATE_X64_MASM
+
+// ***************************** Inline ASM Helper ***************************** //
 
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 

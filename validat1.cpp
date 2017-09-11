@@ -342,14 +342,7 @@ bool TestSettings()
 #endif
 	std::cout << std::endl;
 
-#ifdef CRYPTOPP_CPUID_AVAILABLE
-	bool hasSSE2 = HasSSE2();
-	bool hasSSSE3 = HasSSSE3();
-	bool hasSSE41 = HasSSE41();
-	bool hasSSE42 = HasSSE42();
-	bool isP4 = IsP4();
-	int cacheLineSize = GetCacheLineSize();
-
+	const int cacheLineSize = GetCacheLineSize();
 	if (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize))
 	{
 		std::cout << "FAILED:  ";
@@ -357,10 +350,18 @@ bool TestSettings()
 	}
 	else
 		std::cout << "passed:  ";
+	std::cout << "cacheLineSize == " << cacheLineSize << std::endl;
+
+#ifdef CRYPTOPP_CPUID_AVAILABLE
+	bool hasSSE2 = HasSSE2();
+	bool hasSSSE3 = HasSSSE3();
+	bool hasSSE41 = HasSSE41();
+	bool hasSSE42 = HasSSE42();
+	bool isP4 = IsP4();
 
 	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41 << ", hasSSE4.2 == " << hasSSE42;
 	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
-	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << ", cacheLineSize == " << cacheLineSize << std::endl;
+	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4;
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 	bool hasNEON = HasNEON();
@@ -373,6 +374,18 @@ bool TestSettings()
 	std::cout << "passed:  ";
 	std::cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << ", hasPMULL == " << hasPMULL;
 	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << std::endl;
+
+#elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+	bool hasAltivec = HasAltivec();
+	bool hasPower8 = HasPower8();
+	bool hasAES = HasAES();
+	bool hasSHA1 = HasSHA1();
+	bool hasSHA2 = HasSHA2();
+
+	std::cout << "passed:  ";
+	std::cout << "hasAltivec == " << hasAltivec << ", hasPower8 == " << hasPower8;
+	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << std::endl;
+
 #endif
 
 	if (!pass)

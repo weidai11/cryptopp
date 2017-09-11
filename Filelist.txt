@@ -120,6 +120,7 @@ fips140.h
 fipsalgt.cpp
 fipstest.cpp
 fltrimpl.h
+gcm-simd.cpp
 gcm.cpp
 gcm.h
 gf256.cpp
@@ -204,6 +205,7 @@ poly1305.cpp
 poly1305.h
 polynomi.cpp
 polynomi.h
+ppc-simd.cpp
 pssr.cpp
 pssr.h
 pubkey.cpp

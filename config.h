@@ -10,22 +10,22 @@
 
 // define this if running on a big-endian CPU
 #if !defined(IS_LITTLE_ENDIAN) && !defined(IS_BIG_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
-#	define IS_BIG_ENDIAN
+#	define IS_BIG_ENDIAN 1
 #endif
 
 // define this if running on a little-endian CPU
 // big endian will be assumed if IS_LITTLE_ENDIAN is not defined
 #if !defined(IS_BIG_ENDIAN) && !defined(IS_LITTLE_ENDIAN)
-#	define IS_LITTLE_ENDIAN
+#	define IS_LITTLE_ENDIAN 1
 #endif
 
-// Sanity checks. Some processors have more than big-, little- and bi-endian modes. PDP mode, where order results in "4312", should
-//   raise red flags immediately. Additionally, mis-classified machines, like (previosuly) S/390, should raise red flags immediately.
+// Sanity checks. Some processors have more than big, little and bi-endian modes. PDP mode, where order results in "4312", should
+// raise red flags immediately. Additionally, mis-classified machines, like (previosuly) S/390, should raise red flags immediately.
 #if defined(IS_BIG_ENDIAN) && defined(__GNUC__) && defined(__BYTE_ORDER__) && (__BYTE_ORDER__ != __ORDER_BIG_ENDIAN__)
-# error "IS_BIG_ENDIAN is set, but __BYTE_ORDER__  does not equal __ORDER_BIG_ENDIAN__"
+# error "IS_BIG_ENDIAN is set, but __BYTE_ORDER__ is not __ORDER_BIG_ENDIAN__"
 #endif
 #if defined(IS_LITTLE_ENDIAN) && defined(__GNUC__) && defined(__BYTE_ORDER__) && (__BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__)
-# error "IS_LITTLE_ENDIAN is set, but __BYTE_ORDER__  does not equal __ORDER_LITTLE_ENDIAN__"
+# error "IS_LITTLE_ENDIAN is set, but __BYTE_ORDER__ is not __ORDER_LITTLE_ENDIAN__"
 #endif
 
 // Define this if you want to disable all OS-dependent features,
@@ -232,6 +232,10 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 	#define CRYPTOPP_GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
 
+#if defined(__xlc__) || defined(__xlC__)
+	#define CRYPTOPP_XLC_VERSION ((__xlC__ / 256) * 10000 + (__xlC__ % 256) * 100)
+#endif
+
 // Apple and LLVM's Clang. Apple Clang version 7.0 roughly equals LLVM Clang version 3.7
 #if defined(__clang__ ) && defined(__apple_build_version__)
 	#define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
@@ -299,7 +303,7 @@ NAMESPACE_END
 #ifndef CRYPTOPP_L1_CACHE_LINE_SIZE
 	// This should be a lower bound on the L1 cache line size. It's used for defense against timing attacks.
 	// Also see http://stackoverflow.com/questions/794632/programmatically-get-the-cache-line-size.
-	#if defined(_M_X64) || defined(__x86_64__) || (__arm64__) || (__aarch64__)
+	#if defined(_M_X64) || defined(__x86_64__) || defined(__arm64__) || defined(__aarch64__) || defined(__powerpc64__) || defined(_ARCH_PPC64)
 		#define CRYPTOPP_L1_CACHE_LINE_SIZE 64
 	#else
 		// L1 cache line size is 32 on Pentium III and earlier
@@ -422,9 +426,9 @@ NAMESPACE_END
 #endif
 
 // AltiVec and Power8 crypto
-#if defined(__powerpc64__)
+#if defined(__powerpc64__) || defined(_ARCH_PPC64)
 	#define CRYPTOPP_BOOL_PPC64 1
-#elif defined(__powerpc__)
+#elif defined(__powerpc__) || defined(_ARCH_PPC)
 	#define CRYPTOPP_BOOL_PPC32 1
 #endif
 
@@ -585,9 +589,22 @@ NAMESPACE_END
 
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 
+// An old Apple G5 with GCC 4.01 has AltiVec.
+#if !defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__ALTIVEC__) || (CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40000)
+#  define CRYPTOPP_ALTIVEC_AVAILABLE 1
+# endif
+#endif
+
+#if !defined(CRYPTOPP_POWER8_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || (CRYPTOPP_GCC_VERSION >= 40800)
+#  define CRYPTOPP_POWER8_AVAILABLE 1
+# endif
+#endif
+
 #if !defined(CRYPTOPP_POWER8_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__CRYPTO__) || defined(__ALTIVEC__) || defined(__POWER8_VECTOR__)
-//#  define CRYPTOPP_POWER8_AES_AVAILABLE 1
+# if defined(__CRYPTO__) || defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || (CRYPTOPP_GCC_VERSION >= 40800)
+#  define CRYPTOPP_POWER8_AES_AVAILABLE 1
 //#  define CRYPTOPP_POWER8_SHA_AVAILABLE 1
 //#  define CRYPTOPP_POWER8_CRC_AVAILABLE 1
 # endif

@@ -334,20 +334,32 @@ ifeq ($(IS_ARMV8),1)
 endif
 
 # PowerPC and PowerPC-64
-ifneq ($(IS_PPC32)$(IS_PPC64),00)
+ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
   # GCC and some compatibles
-  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -dM -E - 2>/dev/null | $(GREP) -i -c __CRYPTO)
-  ifeq ($(HAVE_CRYPTO),1)
-    AES_FLAG = -mcpu=power8
-    GCM_FLAG = -mcpu=power8
-    SHA_FLAG = -mcpu=power8
+  HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  ifneq ($(HAVE_ALTIVEC),0)
+    ALTIVEC_FLAG = -maltivec
+  endif
+  # GCC and some compatibles
+  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -mvsx -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  ifneq ($(HAVE_CRYPTO),0)
+    AES_FLAG = -mcpu=power8 -maltivec -mvsx
+    GCM_FLAG = -mcpu=power8 -maltivec -mvsx
+    SHA_FLAG = -mcpu=power8 -maltivec -mvsx
+    ALTIVEC_FLAG = -mcpu=power8 -maltivec -mvsx
   endif
   # IBM XL C/C++
-  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec rijndael.cpp -dM -E 2>/dev/null | $(GREP) -i -c __CRYPTO)
-  ifeq ($(HAVE_CRYPTO),1)
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  ifneq ($(HAVE_ALTIVEC),0)
+    ALTIVEC_FLAG = -qaltivec
+  endif
+  # IBM XL C/C++
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  ifneq ($(HAVE_CRYPTO),0)
     AES_FLAG = -qarch=pwr8 -qaltivec
     GCM_FLAG = -qarch=pwr8 -qaltivec
     SHA_FLAG = -qarch=pwr8 -qaltivec
+    ALTIVEC_FLAG = -qarch=pwr8 -qaltivec
   endif
 endif
 
@@ -924,10 +936,6 @@ endif
 aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
-# SSE4.2 or NEON available
-neon-simd.o : neon-simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
-
 # SSE4.2 or ARMv8a available
 blake2-simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
@@ -939,6 +947,14 @@ crc-simd.o : crc-simd.cpp
 # PCLMUL or ARMv7a/ARMv8a available
 gcm-simd.o : gcm-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+
+# NEON available
+neon-simd.o : neon-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
+
+# AltiVec, Power7, Power8 available
+ppc-simd.o : ppc-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(ALTIVEC_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
 rijndael-simd.o : rijndael-simd.cpp

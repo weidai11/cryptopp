@@ -13,6 +13,10 @@
 #include "misc.h"
 #include "stdcpp.h"
 
+#ifdef _AIX
+# include <sys/systemcfg.h>
+#endif
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
@@ -316,7 +320,7 @@ void DetectX86Features()
 	g_x86DetectionDone = true;
 }
 
-// *************************** ARM-32, Aarch32 and Aarch64 CPUs ***************************
+// *************************** ARM-32, Aarch32 and Aarch64 ***************************
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
@@ -553,6 +557,115 @@ void DetectArmFeatures()
 	g_ArmDetectionDone = true;
 }
 
+// *************************** PowerPC and PowerPC64 ***************************
+
+#elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef PPC_FEATURE_HAS_ALTIVEC
+# define PPC_FEATURE_HAS_ALTIVEC  0x10000000
+# endif
+# ifndef PPC_FEATURE_ARCH_2_06
+# define PPC_FEATURE_ARCH_2_06    0x00000100
+# endif
+# ifndef PPC_FEATURE2_ARCH_2_07
+# define PPC_FEATURE2_ARCH_2_07   0x80000000
+# endif
+#endif
+
+bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
+bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPower8 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
+word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+
+// Can't use bool return type because early Apple systems,
+//  like G5's, perform '#define bool __bool' in <altivec.h>.
+extern int CPU_ProbeAltivec();
+extern int CPU_ProbePower8();
+extern int CPU_ProbeAES();
+extern int CPU_ProbeSHA1();
+extern int CPU_ProbeSHA2();
+
+inline bool CPU_QueryAltivec()
+{
+#if defined(__linux__)
+	if (getauxval(AT_HWCAP) & PPC_FEATURE_HAS_ALTIVEC)
+		return true;
+#endif
+	return false;
+}
+
+#if 0
+inline bool CPU_QueryPower7()
+{
+	// Power7 and ISA 2.06
+#if defined(__linux__)
+	if (getauxval(AT_HWCAP) & PPC_FEATURE_ARCH_2_06)
+		return true;
+#endif
+	return false;
+}
+#endif
+
+inline bool CPU_QueryPower8()
+{
+	// Power8 and ISA 2.07 provide in-core crypto
+#if defined(__linux__)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QueryAES()
+{
+	// Power8 and ISA 2.07 provide in-core crypto
+#if defined(__linux__)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QuerySHA1()
+{
+	// Power8 and ISA 2.07 provide in-core crypto
+#if defined(__linux__)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+		return true;
+#endif
+	return false;
+}
+inline bool CPU_QuerySHA2()
+{
+	// Power8 and ISA 2.07 provide in-core crypto
+#if defined(__linux__)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+		return true;
+#endif
+	return false;
+}
+
+void DetectPowerpcFeatures()
+{
+	// The CPU_ProbeXXX's return false for OSes which
+	//   can't tolerate SIGILL-based probes, like Apple
+	g_hasAltivec  = CPU_QueryAltivec() || CPU_ProbeAltivec();
+	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();
+	//g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
+	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
+	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
+	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
+
+#ifdef _AIX
+	// /usr/include/sys/systemcfg.h
+	g_cacheLineSize = getsystemcfg(SC_L1C_DLS);
+#endif
+
+	g_PowerpcDetectionDone = true;
+}
+
 #endif
 NAMESPACE_END
 
@@ -567,6 +680,8 @@ struct InitializeCpu
 		CryptoPP::DetectX86Features();
 #elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
 		CryptoPP::DetectArmFeatures();
+#elif CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
+		CryptoPP::DetectPowerpcFeatures();
 #endif
 	}
 };
