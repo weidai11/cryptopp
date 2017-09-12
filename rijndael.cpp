@@ -253,10 +253,10 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 extern void ByteReverseArrayLE(byte src[16]);
 
-extern void Rijndael_Enc_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds,
-        const byte *inBlock, const byte *xorBlock, byte *outBlock);
-extern void Rijndael_Dec_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds,
-        const byte *inBlock, const byte *xorBlock, byte *outBlock);
+extern size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+extern size_t Rijndael_Dec_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
 void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
@@ -408,7 +408,7 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
 	{
-		(void)Rijndael_Enc_ProcessAndXorBlock_POWER8(m_key, m_rounds, inBlock, xorBlock, outBlock);
+		(void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
 		return;
 	}
 #endif
@@ -502,7 +502,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
 	{
-		(void)Rijndael_Dec_ProcessAndXorBlock_POWER8(m_key, m_rounds, inBlock, xorBlock, outBlock);
+		(void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
 		return;
 	}
 #endif
@@ -1130,7 +1130,7 @@ Rijndael::Enc::Enc() : m_aliasBlock(s_sizeToAllocate) { }
 
 #endif  // CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 
-#if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
+#if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64 || CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 // Do nothing
 Rijndael::Enc::Enc() { }
 #endif
@@ -1145,6 +1145,10 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #if CRYPTOPP_ARM_AES_AVAILABLE
 	if (HasAES())
 		return Rijndael_Enc_AdvancedProcessBlocks_ARMV8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (HasAES())
+		return Rijndael_Enc_AdvancedProcessBlocks_POWER8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 #if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
@@ -1205,10 +1209,13 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 	if (HasAESNI())
 		return Rijndael_Dec_AdvancedProcessBlocks_AESNI(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-
 #if CRYPTOPP_ARM_AES_AVAILABLE
 	if (HasAES())
 		return Rijndael_Dec_AdvancedProcessBlocks_ARMV8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (HasAES())
+		return Rijndael_Dec_AdvancedProcessBlocks_POWER8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
