@@ -356,16 +356,15 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	{
 		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
 
+#if defined(IS_LITTLE_ENDIAN)
 		// VSX registers are big-endian. The entire subkey table must be byte
-		//   reversed on little-endian systems to ensure it loads properly.
-		//   I believe we should do this when msr.le=1, but I can't find an
-		//   intrinsic to access the machine status register. In the meantime
-		//   we will do it anytime IS_LITTLE_ENDIAN is true.
+		// reversed on little-endian systems to ensure it loads properly.
 		byte * ptr = reinterpret_cast<byte*>(rk);
 		for (unsigned int i=0; i<=m_rounds; i++)
 			ByteReverseArrayLE(ptr+i*16);
+#endif  // IS_LITTLE_ENDIAN
 	}
-#endif
+#endif  // CRYPTOPP_POWER8_AES_AVAILABLE
 }
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
