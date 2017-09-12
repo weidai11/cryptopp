@@ -766,14 +766,8 @@ void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
 
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 
-#if defined(CRYPTOPP_XLC_VERSION)
- // #include <builtins.h>
- typedef __vector unsigned char uint8x16_p8;
- typedef __vector unsigned long long uint64x2_p8;
-#elif defined(CRYPTOPP_GCC_VERSION)
- typedef __vector unsigned char uint8x16_p8;
- typedef __vector unsigned long long uint64x2_p8;
-#endif
+typedef __vector unsigned char      uint8x16_p8;
+typedef __vector unsigned long long uint64x2_p8;
 
 /* Reverses a 16-byte array as needed */
 void ByteReverseArrayLE(byte dest[16], const byte src[16])
@@ -976,9 +970,9 @@ template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T2)__vcipher(state, key);
+	return (T2)__vcipher(state, (T1)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return __builtin_crypto_vcipher(state, (T1)key);
+	return (T1)__builtin_crypto_vcipher(state, (T1)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -988,9 +982,9 @@ template <class T1, class T2>
 inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vcipherlast(state, key);
+	return (T1)__vcipherlast(state, (T1)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return __builtin_crypto_vcipherlast(state, (T1)key);
+	return (T1)__builtin_crypto_vcipherlast(state, (T1)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -1000,9 +994,9 @@ template <class T1, class T2>
 inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vncipher(state, key);
+	return (T1)__vncipher(state, (T1)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return __builtin_crypto_vncipher(state, (T1)key);
+	return (T1)__builtin_crypto_vncipher(state, (T1)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -1012,15 +1006,15 @@ template <class T1, class T2>
 inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vncipherlast(state, key);
+	return (T1)__vncipherlast(state, (T1)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return __builtin_crypto_vncipherlast(state, (T1)key);
+	return (T1)__builtin_crypto_vncipherlast(state, (T1)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
 }
 
-////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
 inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
 {
@@ -1151,7 +1145,7 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 #if defined(IS_LITTLE_ENDIAN)
 				const VectorType one = {1};
 #else
-				const VectorType one = (VectorType)(uint64x2_p8){0,1};
+				const VectorType one = (VectorType)((uint64x2_p8){0,1});
 #endif
 				block1 = VectorAdd(block0, one);
 				block2 = VectorAdd(block1, one);
