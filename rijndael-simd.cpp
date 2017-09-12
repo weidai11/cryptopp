@@ -10,34 +10,51 @@
 //    Skip Hovsmith and Barry O'Rourke for the mbedTLS project. Stepping
 //    mbedTLS under a debugger was helped for us to determine problems
 //    with our subkey generation and scheduling.
+//
+//    AltiVec and Power8 code based on http://github.com/noloader/AES-Power8
+//
 
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
 
-// Clang and GCC hoops...
+// We set CRYPTOPP_ARM_AES_AVAILABLE based on compiler version.
+// If the crypto is not available, then we have to disable it here.
 #if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_AES_AVAILABLE
+#endif
+
+// We set CRYPTOPP_POWER8_CRYPTO_AVAILABLE based on compiler version.
+// If the crypto is not available, then we have to disable it here.
+#if !(defined(__CRYPTO) || defined(_ARCH_PWR8) || defined(_ARCH_PWR9))
+# undef CRYPTOPP_POWER8_CRYPTO_AVAILABLE
 #endif
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 // Hack... We are supposed to use <nmmintrin.h>. GCC 4.8, LLVM Clang 3.5
 //   and Apple Clang 6.0 conflates SSE4.1 and SSE4.2. If we use <nmmintrin.h>
 //   then compile fails with "SSE4.2 instruction set not enabled". Also see
-//   https://gcc.gnu.org/ml/gcc-help/2017-08/msg00015.html.
-# include "smmintrin.h"
-# include "wmmintrin.h"
+//   http://gcc.gnu.org/ml/gcc-help/2017-08/msg00015.html.
+# include <smmintrin.h>
+# include <wmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
-# include "arm_neon.h"
+# include <arm_neon.h>
 #endif
 
 // Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
 //  intrinsics without <arm_acle.h> included.
 #if (CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
-# include "arm_acle.h"
+# include <arm_acle.h>
+#endif
+
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+# include <altivec.h>
+# undef vector
+# undef pixel
+# undef bool
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
@@ -140,6 +157,8 @@ bool CPU_ProbeAES()
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
 }
 #endif  // ARM32 or ARM64
+
+// ***************************** ARMv8 ***************************** //
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
@@ -306,6 +325,13 @@ inline void ARMV8_Dec_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_
 
 const word32 s_one[] = {0, 0, 0, 1<<24};
 
+/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+const word32 rcon[] = {
+	0x01, 0x02, 0x04, 0x08,
+	0x10, 0x20, 0x40, 0x80,
+	0x1B, 0x36
+};
+
 template <typename F1, typename F4>
 size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
@@ -437,6 +463,8 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subKeys, size_t ro
 }
 
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
+
+// ***************************** AES-NI ***************************** //
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
@@ -634,8 +662,8 @@ size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
 {
 	// SunCC workaround
 	MAYBE_CONST word32* sk = MAYBE_UNCONST_CAST(word32*, subKeys);
-	MAYBE_CONST byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
-	MAYBE_CONST byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
+	MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
+	MAYBE_CONST   byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
 
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
                 sk, rounds, ib, xb, outBlocks, length, flags);
@@ -645,8 +673,8 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST word32* sk = MAYBE_UNCONST_CAST(word32*, subKeys);
-	MAYBE_CONST byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
-	MAYBE_CONST byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
+	MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
+	MAYBE_CONST   byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
 
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
                 sk, rounds, ib, xb, outBlocks, length, flags);
@@ -734,4 +762,271 @@ void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
 }
 #endif  // CRYPTOPP_AESNI_AVAILABLE
 
+// ***************************** Power 8 ***************************** //
+
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+
+#if defined(CRYPTOPP_XLC_VERSION)
+ // #include <builtins.h>
+ typedef __vector unsigned char uint8x16_p8;
+ typedef __vector unsigned long long uint64x2_p8;
+#elif defined(CRYPTOPP_GCC_VERSION)
+ typedef __vector unsigned char uint8x16_p8;
+ typedef __vector unsigned long long uint64x2_p8;
+#endif
+
+/* Reverses a 16-byte array as needed */
+void ByteReverseArrayLE(byte dest[16], const byte src[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
+	vec_st(vec_reve(vec_ld(0, src)), 0, dest);
+#elif defined(IS_LITTLE_ENDIAN)
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	vec_vsx_st(vec_perm(vec_vsx_ld(0, src), zero, mask), 0, dest);
+#else
+	if (src != dest)
+		std::memcpy(dest, src, 16);
+#endif
+}
+
+void ByteReverseArrayLE(byte src[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
+	vec_st(vec_reve(vec_ld(0, src)), 0, src);
+#elif defined(IS_LITTLE_ENDIAN)
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	vec_vsx_st(vec_perm(vec_vsx_ld(0, src), zero, mask), 0, src);
+#endif
+}
+
+uint8x16_p8 Load8x16(const uint8_t src[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	/* http://stackoverflow.com/q/46124383/608639 */
+	uint8_t* s = (uint8_t*)src;
+# if defined(IS_LITTLE_ENDIAN)
+	return vec_xl_be(0, s);
+# else
+	return vec_xl(0, s);
+# endif
+#else
+	/* GCC, Clang, etc */
+	return (uint8x16_p8)vec_vsx_ld(0, src);
+#endif
+}
+
+void Store8x16(const uint8x16_p8 src, uint8_t dest[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	/* IBM XL C/C++ compiler */
+# if defined(IS_LITTLE_ENDIAN)
+	vec_xst_be(src, 0, dest);
+# else
+	vec_xst(src, 0, dest);
+# endif
+#else
+	/* GCC, Clang, etc */
+	vec_vsx_st(src, 0, dest);
+#endif
+}
+
+uint64x2_p8 Load64x2(const uint8_t src[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	/* http://stackoverflow.com/q/46124383/608639 */
+	uint8_t* s = (uint8_t*)src;
+# if defined(IS_LITTLE_ENDIAN)
+	return (uint64x2_p8)vec_xl_be(0, s);
+# else
+	return (uint64x2_p8)vec_xl(0, s);
+# endif
+#else
+	/* GCC, Clang, etc */
+# if defined(IS_LITTLE_ENDIAN)
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	return (uint64x2_p8)vec_perm(vec_vsx_ld(0, src), zero, mask);
+# else
+	return (uint64x2_p8)vec_vsx_ld(0, src);
+# endif
+#endif
+}
+
+void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	/* IBM XL C/C++ compiler */
+# if defined(IS_LITTLE_ENDIAN)
+	vec_xst_be((uint8x16_p8)src, 0, dest);
+# else
+	vec_xst((uint8x16_p8)src, 0, dest);
+# endif
+#else
+	/* GCC, Clang, etc */
+# if defined(IS_LITTLE_ENDIAN)
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	vec_vsx_st(vec_perm((uint8x16_p8)src, zero, mask), 0, dest);
+# else
+	vec_vsx_st((uint8x16_p8)src, 0, dest);
+# endif
+#endif
+}
+
+//////////////////////////////////////////////////////////////////
+
+#if defined(CRYPTOPP_XLC_VERSION)
+	typedef uint8x16_p8 VectorType;
+#elif defined(CRYPTOPP_GCC_VERSION)
+	typedef uint64x2_p8 VectorType;
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+
+inline VectorType VectorLoad(const byte src[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return Load8x16(src);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return Load64x2(src);
+#endif
+}
+
+inline VectorType VectorLoadAligned(const byte vec[16])
+{
+	return (VectorType)vec_ld(0, vec);
+}
+
+inline VectorType VectorLoadAligned(int off, const byte vec[16])
+{
+	return (VectorType)vec_ld(off, vec);
+}
+
+inline void VectorStore(const VectorType& src, byte dest[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return Store8x16(src, dest);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return Store64x2(src, dest);
+#endif
+}
+
+template <class T1, class T2>
+inline T1 VectorXor(const T1& vec1, const T2& vec2)
+{
+	return (T1)vec_xor(vec1, (T1)vec2);
+}
+
+template <class T1, class T2>
+inline T1 VectorAdd(const T1& vec1, const T2& vec2)
+{
+	return (T1)vec_add(vec1, (T1)vec2);
+}
+
+template <class T1, class T2>
+inline T1 VectorEncrypt(const T1& state, const T2& key)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (T2)__vcipher(state, key);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return __builtin_crypto_vcipher(state, (T1)key);
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+}
+
+template <class T1, class T2>
+inline T1 VectorEncryptLast(const T1& state, const T2& key)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (T1)__vcipherlast(state, key);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return __builtin_crypto_vcipherlast(state, (T1)key);
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+}
+
+template <class T1, class T2>
+inline T1 VectorDecrypt(const T1& state, const T2& key)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (T1)__vncipher(state, key);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return __builtin_crypto_vncipher(state, (T1)key);
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+}
+
+template <class T1, class T2>
+inline T1 VectorDecryptLast(const T1& state, const T2& key)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (T1)__vncipherlast(state, key);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return __builtin_crypto_vncipherlast(state, (T1)key);
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+}
+
+//////////////////////////////////////////////////////////////////
+
+void Rijndael_Enc_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds,
+        const byte *inBlock, const byte *xorBlock, byte *outBlock)
+{
+	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
+	const byte *keys = reinterpret_cast<const byte*>(subkeys);
+
+	VectorType s = VectorLoad(inBlock);
+	VectorType k = VectorLoadAligned(keys);
+
+	s = VectorXor(s, k);
+	for (size_t i=1; i<rounds-1; i+=2)
+	{
+		s = VectorEncrypt(s, VectorLoadAligned(  i*16,   keys));
+		s = VectorEncrypt(s, VectorLoadAligned((i+1)*16, keys));
+	}
+
+	s = VectorEncrypt(s, VectorLoadAligned((rounds-1)*16, keys));
+	s = VectorEncryptLast(s, VectorLoadAligned(rounds*16, keys));
+
+	// According to benchmarks this is a tad bit slower
+	// if (xorBlock)
+	//	s = VectorXor(s, VectorLoad(xorBlock));
+
+	VectorType x = xorBlock ? VectorLoad(xorBlock) : (VectorType) {0};
+	s = VectorXor(s, x);
+
+	VectorStore(s, outBlock);
+}
+
+void Rijndael_Dec_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds,
+        const byte *inBlock, const byte *xorBlock, byte *outBlock)
+{
+	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
+	const byte *keys = reinterpret_cast<const byte*>(subkeys);
+
+	VectorType s = VectorLoad(inBlock);
+	VectorType k = VectorLoadAligned(keys);
+
+	s = VectorXor(s, k);
+	for (size_t i=1; i<rounds-1; i+=2)
+	{
+		s = VectorDecrypt(s, VectorLoadAligned(  i*16,   keys));
+		s = VectorDecrypt(s, VectorLoadAligned((i+1)*16, keys));
+	}
+
+	s = VectorDecrypt(s, VectorLoadAligned((rounds-1)*16, keys));
+	s = VectorDecryptLast(s, VectorLoadAligned(rounds*16, keys));
+
+	VectorType x = xorBlock ? VectorLoad(xorBlock) : (VectorType) {0};
+	s = VectorXor(s, x);
+
+	VectorStore(s, outBlock);
+}
+#endif  // CRYPTOPP_POWER8_AES_AVAILABLE
 NAMESPACE_END

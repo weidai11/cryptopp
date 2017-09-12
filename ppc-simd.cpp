@@ -24,7 +24,7 @@
 #endif
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
-# include "altivec.h"
+# include <altivec.h>
 # undef vector
 # undef pixel
 # undef bool
@@ -33,11 +33,11 @@
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_XLC_VERSION)
  // #include <builtins.h>
- typedef vector unsigned char uint8x16_p8;
- typedef vector unsigned long long uint64x2_p8;
+ typedef __vector unsigned char uint8x16_p8;
+ typedef __vector unsigned long long uint64x2_p8;
 #elif defined(CRYPTOPP_GCC_VERSION)
- typedef vector unsigned char uint8x16_p8;
- typedef vector unsigned long long uint64x2_p8;
+ typedef __vector unsigned char uint8x16_p8;
+ typedef __vector unsigned long long uint64x2_p8;
  #endif
 #endif
 

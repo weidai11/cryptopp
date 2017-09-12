@@ -237,6 +237,17 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+extern void ByteReverseArrayLE(byte src[16]);
+
+extern void Rijndael_UncheckedSetKey_POWER8(const byte *userKey, size_t keyLen, word32 *rk, CipherDir dir);
+
+extern void Rijndael_Enc_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds,
+        const byte *inBlock, const byte *xorBlock, byte *outBlock);
+extern void Rijndael_Dec_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds,
+        const byte *inBlock, const byte *xorBlock, byte *outBlock);
+#endif
+
 void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keyLen);
@@ -267,7 +278,8 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	while (true)
 	{
 		temp  = rk[keyLen/4-1];
-		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^ (word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
+		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
+					(word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
 		rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
 		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
 		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
@@ -307,10 +319,11 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 		if (!s_TdFilled)
 			FillDecTable();
 
+		#define InverseMixColumn(x) \
+			TL_M(Td, 0, Se[GETBYTE(x, 3)]) ^ TL_M(Td, 1, Se[GETBYTE(x, 2)]) ^ \
+			TL_M(Td, 2, Se[GETBYTE(x, 1)]) ^ TL_M(Td, 3, Se[GETBYTE(x, 0)])
+
 		unsigned int i, j;
-
-#define InverseMixColumn(x)		TL_M(Td, 0, Se[GETBYTE(x, 3)]) ^ TL_M(Td, 1, Se[GETBYTE(x, 2)]) ^ TL_M(Td, 2, Se[GETBYTE(x, 1)]) ^ TL_M(Td, 3, Se[GETBYTE(x, 0)])
-
 		for (i = 4, j = 4*m_rounds-4; i < j; i += 4, j -= 4)
 		{
 			temp = InverseMixColumn(rk[i    ]); rk[i    ] = InverseMixColumn(rk[j    ]); rk[j    ] = temp;
@@ -338,6 +351,21 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	if (HasAES())
 		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
 #endif
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (IsForwardTransformation() && HasAES())
+	{
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
+
+		// VSX registers are big-endian. The entire subkey table must be byte
+		//   reversed on little-endian systems to ensure it loads properly.
+		//   I believe we should do this when msr.le=1, but I can't find an
+		//   intrinsic to access the machine status register. In the meantime
+		//   we will do it anytime IS_LITTLE_ENDIAN is true.
+		byte * ptr = reinterpret_cast<byte*>(rk);
+		for (unsigned int i=0; i<=m_rounds; i++)
+			ByteReverseArrayLE(ptr+i*16);
+	}
+#endif
 }
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -358,6 +386,14 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	if (HasAES())
 	{
 		(void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+	if (HasAES())
+	{
+		(void)Rijndael_Enc_ProcessAndXorBlock_POWER8(m_key, m_rounds, inBlock, xorBlock, outBlock);
 		return;
 	}
 #endif
@@ -444,6 +480,14 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	if (HasAES())
 	{
 		(void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOPP_POWER8_AES_AVAILABLE) && 0
+	if (HasAES())
+	{
+		(void)Rijndael_Dec_ProcessAndXorBlock_POWER8(m_key, m_rounds, inBlock, xorBlock, outBlock);
 		return;
 	}
 #endif
