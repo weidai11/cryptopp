@@ -23,10 +23,11 @@
 # undef CRYPTOPP_POWER8_CRYPTO_AVAILABLE
 #endif
 
-// We can't use bool return type because early Apple systems,
-//  like G5's, perform '#define bool __bool' in <altivec.h>.
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "altivec.h"
+# undef vector
+# undef pixel
+# undef bool
 #endif
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
@@ -63,7 +64,7 @@ extern "C" {
 };
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
-int CPU_ProbeAltivec()
+bool CPU_ProbeAltivec()
 {
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
@@ -113,7 +114,7 @@ int CPU_ProbeAltivec()
 }
 
 #if 0
-int CPU_ProbePower7()
+bool CPU_ProbePower7()
 {
 #if (CRYPTOPP_POWER7_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
@@ -157,7 +158,7 @@ int CPU_ProbePower7()
 }
 #endif
 
-int CPU_ProbePower8()
+bool CPU_ProbePower8()
 {
 #if (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
@@ -200,7 +201,7 @@ int CPU_ProbePower8()
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 }
 
-int CPU_ProbeAES()
+bool CPU_ProbeAES()
 {
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
@@ -251,7 +252,7 @@ int CPU_ProbeAES()
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 }
 
-int CPU_ProbeSHA1()
+bool CPU_ProbeSHA1()
 {
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
@@ -284,7 +285,7 @@ int CPU_ProbeSHA1()
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 }
 
-int CPU_ProbeSHA2()
+bool CPU_ProbeSHA2()
 {
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)

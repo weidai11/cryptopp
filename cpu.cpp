@@ -572,6 +572,9 @@ void DetectArmFeatures()
 # ifndef PPC_FEATURE2_ARCH_2_07
 # define PPC_FEATURE2_ARCH_2_07   0x80000000
 # endif
+# ifndef PPC_FEATURE2_VEC_CRYPTO
+# define PPC_FEATURE2_VEC_CRYPTO  0x02000000
+# endif
 #endif
 
 bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
@@ -579,13 +582,11 @@ bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPowe
 bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-// Can't use bool return type because early Apple systems,
-//  like G5's, perform '#define bool __bool' in <altivec.h>.
-extern int CPU_ProbeAltivec();
-extern int CPU_ProbePower8();
-extern int CPU_ProbeAES();
-extern int CPU_ProbeSHA1();
-extern int CPU_ProbeSHA2();
+extern bool CPU_ProbeAltivec();
+extern bool CPU_ProbePower8();
+extern bool CPU_ProbeAES();
+extern bool CPU_ProbeSHA1();
+extern bool CPU_ProbeSHA2();
 
 inline bool CPU_QueryAltivec()
 {
@@ -610,7 +611,7 @@ inline bool CPU_QueryPower7()
 
 inline bool CPU_QueryPower8()
 {
-	// Power8 and ISA 2.07 provide in-core crypto
+	// Power8 and ISA 2.07 provide in-core crypto.
 #if defined(__linux__)
 	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
 		return true;
@@ -620,29 +621,38 @@ inline bool CPU_QueryPower8()
 
 inline bool CPU_QueryAES()
 {
-	// Power8 and ISA 2.07 provide in-core crypto
+	// Power8 and ISA 2.07 provide in-core crypto. Glibc
+	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
 		return true;
+	//if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	//	return true;
 #endif
 	return false;
 }
 
 inline bool CPU_QuerySHA1()
 {
-	// Power8 and ISA 2.07 provide in-core crypto
+	// Power8 and ISA 2.07 provide in-core crypto. Glibc
+	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
 		return true;
+	//if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	//	return true;
 #endif
 	return false;
 }
 inline bool CPU_QuerySHA2()
 {
-	// Power8 and ISA 2.07 provide in-core crypto
+	// Power8 and ISA 2.07 provide in-core crypto. Glibc
+	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
 		return true;
+	//if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	//	return true;
 #endif
 	return false;
 }
