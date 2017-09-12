@@ -11,7 +11,7 @@
 #include "stdcpp.h"
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# include "arm_neon.h"
+# include <arm_neon.h>
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

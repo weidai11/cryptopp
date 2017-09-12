@@ -23,19 +23,20 @@
 #endif
 
 #if (CRYPTOPP_SHANI_AVAILABLE)
-# include "nmmintrin.h"
-# include "immintrin.h"
+# include <nmmintrin.h>
+# include <immintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_SHA_AVAILABLE)
-# include "arm_neon.h"
+# include <arm_neon.h>
 #endif
 
 // Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
-//  intrinsics without <arm_acle.h> included.
-#if (CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
-# include "arm_acle.h"
+//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8.
+#if (CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
+	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900))
+# include <arm_acle.h>
 #endif
 
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670

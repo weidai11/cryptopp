@@ -10,20 +10,26 @@
 #include "config.h"
 #include "misc.h"
 
-// Clang and GCC hoops...
+// We set CRYPTOPP_ARM_CRC32_AVAILABLE based on compiler version.
+// If the crypto is not available, then we have to disable it here.
 #if !(defined(__ARM_FEATURE_CRC32) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 #endif
 
-#if (CRYPTOPP_SSE42_AVAILABLE)
-# include "nmmintrin.h"
+#if (CRYPTOPP_CLMUL_AVAILABLE)
+# include <nmmintrin.h>
+#endif
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# include <arm_neon.h>
 #endif
 
 // Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
-//  intrinsics without <arm_acle.h> included.
-#if (CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
-# include "arm_acle.h"
+//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8.
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
+	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900))
+# include <arm_acle.h>
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

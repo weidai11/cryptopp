@@ -31,19 +31,20 @@
 #endif
 
 #if (CRYPTOPP_CLMUL_AVAILABLE)
-# include "tmmintrin.h"
-# include "wmmintrin.h"
+# include <tmmintrin.h>
+# include <wmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# include "arm_neon.h"
+# include <arm_neon.h>
 #endif
 
 // Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
-//  intrinsics without <arm_acle.h> included.
-#if (CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
-# include "arm_acle.h"
+//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8.
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
+	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900))
+# include <arm_acle.h>
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
