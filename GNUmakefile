@@ -341,12 +341,12 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -maltivec
   endif
   # GCC and some compatibles
-  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -mvsx -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_CRYPTO),0)
-    AES_FLAG = -mcpu=power8 -maltivec -mvsx
-    GCM_FLAG = -mcpu=power8 -maltivec -mvsx
-    SHA_FLAG = -mcpu=power8 -maltivec -mvsx
-    ALTIVEC_FLAG = -mcpu=power8 -maltivec -mvsx
+    AES_FLAG = -mcpu=power8 -maltivec
+    GCM_FLAG = -mcpu=power8 -maltivec
+    SHA_FLAG = -mcpu=power8 -maltivec
+    ALTIVEC_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
