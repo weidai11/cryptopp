@@ -45,8 +45,9 @@
 
 // Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
-//  intrinsics without <arm_acle.h> included.
-#if (CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION)
+//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8.
+#if (CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
+	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900))
 # include <arm_acle.h>
 #endif
 
@@ -157,6 +158,24 @@ bool CPU_ProbeAES()
 #endif  // CRYPTOPP_ARM_AES_AVAILABLE
 }
 #endif  // ARM32 or ARM64
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_one[] = {0, 0, 0, 1<<24};
+
+/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_rconLE[] = {
+	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
+};
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_rconBE[] = {
+	0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
+	0x20000000, 0x40000000, 0x80000000,	0x1B000000, 0x36000000
+};
+
+ANONYMOUS_NAMESPACE_END
 
 // ***************************** ARMv8 ***************************** //
 
@@ -322,15 +341,6 @@ inline void ARMV8_Dec_4_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_
 	block2 = veorq_u8(block2, vld1q_u8(keys+(i+1)*16));
 	block3 = veorq_u8(block3, vld1q_u8(keys+(i+1)*16));
 }
-
-const word32 s_one[] = {0, 0, 0, 1<<24};
-
-/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-const word32 rcon[] = {
-	0x01, 0x02, 0x04, 0x08,
-	0x10, 0x20, 0x40, 0x80,
-	0x1B, 0x36
-};
 
 template <typename F1, typename F4>
 size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F4 func4, const word32 *subKeys, size_t rounds,
@@ -537,9 +547,6 @@ inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2
 	block3 = _mm_aesdeclast_si128(block3, rk);
 }
 
-CRYPTOPP_ALIGN_DATA(16)
-static const word32 s_one[] = {0, 0, 0, 1<<24};
-
 template <typename F1, typename F4>
 inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
         MAYBE_CONST word32 *subKeys, size_t rounds, const byte *inBlocks,
@@ -680,16 +687,9 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
                 sk, rounds, ib, xb, outBlocks, length, flags);
 }
 
-void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
+void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk, unsigned int rounds)
 {
-	const unsigned rounds = static_cast<unsigned int>(keyLen/4 + 6);
-	static const word32 rcLE[] = {
-		0x01, 0x02, 0x04, 0x08,
-		0x10, 0x20, 0x40, 0x80,
-		0x1B, 0x36, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-	};
-
-	const word32 *ro = rcLE, *rc = rcLE;
+	const word32 *ro = s_rconLE, *rc = s_rconLE;
 	CRYPTOPP_UNUSED(ro);
 
 	__m128i temp = _mm_loadu_si128(M128_CAST(userKey+keyLen-16));
@@ -700,7 +700,7 @@ void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, wor
 	const word32* end = rk + keySize;
 	while (true)
 	{
-		CRYPTOPP_ASSERT(rc < ro + COUNTOF(rcLE));
+		CRYPTOPP_ASSERT(rc < ro + COUNTOF(s_rconLE));
 		rk[keyLen/4] = rk[0] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 3) ^ *(rc++);
 		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
 		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
@@ -1011,17 +1011,21 @@ void Rijndael_Dec_ProcessAndXorBlock_POWER8(const word32 *subkeys, size_t rounds
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	VectorType s = VectorLoad(inBlock);
-	VectorType k = VectorLoadAligned(keys);
+	VectorType k = VectorLoadAligned(rounds*16, keys);
 
 	s = VectorXor(s, k);
-	for (size_t i=1; i<rounds-1; i+=2)
+	for (size_t i=rounds-1; i>1; i-=2)
 	{
 		s = VectorDecrypt(s, VectorLoadAligned(  i*16,   keys));
-		s = VectorDecrypt(s, VectorLoadAligned((i+1)*16, keys));
+		s = VectorDecrypt(s, VectorLoadAligned((i-1)*16, keys));
 	}
 
-	s = VectorDecrypt(s, VectorLoadAligned((rounds-1)*16, keys));
-	s = VectorDecryptLast(s, VectorLoadAligned(rounds*16, keys));
+	s = VectorDecrypt(s, VectorLoadAligned(16, keys));
+	s = VectorDecryptLast(s, VectorLoadAligned(0, keys));
+
+	// According to benchmarks this is a tad bit slower
+	// if (xorBlock)
+	//	s = VectorXor(s, VectorLoad(xorBlock));
 
 	VectorType x = xorBlock ? VectorLoad(xorBlock) : (VectorType) {0};
 	s = VectorXor(s, x);
