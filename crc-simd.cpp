@@ -16,7 +16,7 @@
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 #endif
 
-#if (CRYPTOPP_CLMUL_AVAILABLE)
+#if (CRYPTOPP_SSE42_AVAILABLE)
 # include <nmmintrin.h>
 #endif
 

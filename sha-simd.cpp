@@ -17,7 +17,7 @@
 # undef CRYPTOPP_ARM_SHA_AVAILABLE
 #endif
 
-#if (CRYPTOPP_CLMUL_AVAILABLE)
+#if (CRYPTOPP_SHANI_AVAILABLE)
 # include <nmmintrin.h>
 # include <immintrin.h>
 #endif
