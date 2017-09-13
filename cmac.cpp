@@ -32,9 +32,9 @@ static void MulU(byte *k, unsigned int length)
 			break;
 		case 32:
 			// https://crypto.stackexchange.com/q/9815/10496
-			// Polynomial x^256 + x^10 + x^5 + x + 1
+			// Polynomial x^256 + x^10 + x^5 + x^2 + 1
 			k[30] ^= 4;
-			k[31] ^= 0x23;
+			k[31] ^= 0x25;
 			break;
 		case 64:
 			// https://crypto.stackexchange.com/q/9815/10496
