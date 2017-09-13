@@ -548,13 +548,23 @@ NAMESPACE_END
 # endif
 #endif
 
+// Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
+//  fail to compile with <arm_acle.h> included. Later Apple compilers compile
+//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8,
+//  and avoid it on Android, too.
+#if defined(__ARM_ACLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
+	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900)) && \
+	!defined(__ANDROID__)
+#  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
+#endif
+
 // Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
-# if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
-	defined(__aarch32__) || defined(__aarch64__)
+# if (defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
+	defined(__aarch32__) || defined(__aarch64__)) && !defined(__ANDROID__)
 #  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 # endif
 #endif

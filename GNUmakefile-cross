@@ -11,7 +11,9 @@ MKDIR ?= mkdir
 EGREP ?= egrep
 LN ?= ln -sf
 
-CLANG_COMPILER = $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
+$(info "EGREP: $(EGREP)")
+IS_ARMV8 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'aarch32|aarch64')
+CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
 IS_IOS ?= 0
 IS_ANDROID ?= 0
@@ -176,6 +178,26 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   endif # MAKECMDGOALS
 endif # Dead code stripping
 
+# ARMv8-a
+ifeq ($(IS_ARMV8),1)
+  HAVE_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  ifeq ($(HAVE_NEON),1)
+    ARIA_FLAG = -march=armv8-a
+    BLAKE2_FLAG = -march=armv8-a
+    NEON_FLAG = -march=armv8-a
+  endif
+  HAVE_CRC := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRC32)
+  ifeq ($(HAVE_CRC),1)
+    CRC_FLAG = -march=armv8-a+crc
+  endif
+  HAVE_CRYPTO := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
+  ifeq ($(HAVE_CRYPTO),1)
+    AES_FLAG = -march=armv8-a+crypto
+    GCM_FLAG = -march=armv8-a+crypto
+    SHA_FLAG = -march=armv8-a+crypto
+  endif
+endif
+
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
 
@@ -329,10 +351,46 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CXX) $(strip $(CXXFLAGS) -fpermissive) -c cpu-features.c
+	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+
+# SSE4.2 or NEON available
+aria-simd.o : aria-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
+
+# SSE4.2 or ARMv8a available
+blake2-simd.o : blake2-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+
+# SSE2 on i586
+cpu.o : cpu.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CPU_FLAG) -c) $<
+
+# SSE4.2 or ARMv8a available
+crc-simd.o : crc-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
+
+# PCLMUL or ARMv7a/ARMv8a available
+gcm-simd.o : gcm-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+
+# NEON available
+neon-simd.o : neon-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
+
+# AESNI or ARMv7a/ARMv8a available
+rijndael-simd.o : rijndael-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
+
+# SSE4.2/SHA-NI or ARMv8a available
+sha-simd.o : sha-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+
+# SSE4.2/SHA-NI or ARMv8a available
+shacal2-simd.o : shacal2-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 %.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS)) -c $<
+	$(CXX) $(strip $(CXXFLAGS) -c) $<
 
 GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
+	$(CXX) $(strip $(CXXFLAGS) -MM) *.cpp > GNUmakefile.deps

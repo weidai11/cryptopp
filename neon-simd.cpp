@@ -14,6 +14,10 @@
 # include <arm_neon.h>
 #endif
 
+#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include <arm_acle.h>
+#endif
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>

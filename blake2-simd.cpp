@@ -12,12 +12,12 @@
 #include "blake2.h"
 
 #if (CRYPTOPP_SSE42_AVAILABLE)
-# include "emmintrin.h"
-# include "nmmintrin.h"
+# include <emmintrin.h>
+# include <nmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# include "arm_neon.h"
+# include <arm_neon.h>
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
