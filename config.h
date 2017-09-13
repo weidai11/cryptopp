@@ -552,7 +552,7 @@ NAMESPACE_END
 //  fail to compile with <arm_acle.h> included. Later Apple compilers compile
 //  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8,
 //  and avoid it on Android, too.
-#if defined(__ARM_ACLE) && !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
+#if !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
 	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900)) && \
 	!defined(__ANDROID__)
 #  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
