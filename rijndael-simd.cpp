@@ -917,6 +917,7 @@ void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
 	CRYPTOPP_ASSERT(0);
 #endif
 
+// Loads a mis-aligned byte array, performs an endian conversion.
 inline VectorType VectorLoad(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -926,6 +927,7 @@ inline VectorType VectorLoad(const byte src[16])
 #endif
 }
 
+// Loads a mis-aligned byte array, performs an endian conversion.
 inline VectorType VectorLoad(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -935,16 +937,21 @@ inline VectorType VectorLoad(int off, const byte src[16])
 #endif
 }
 
-inline VectorType VectorLoadAligned(const byte vec[16])
+// Loads an aligned byte array, does not perform an endian conversion.
+//  This function presumes the subkey table is correct endianess.
+inline VectorType VectorLoadKey(const byte vec[16])
 {
 	return (VectorType)vec_ld(0, vec);
 }
 
-inline VectorType VectorLoadAligned(int off, const byte vec[16])
+// Loads an aligned byte array, does not perform an endian conversion.
+//  This function presumes the subkey table is correct endianess.
+inline VectorType VectorLoadKey(int off, const byte vec[16])
 {
 	return (VectorType)vec_ld(off, vec);
 }
 
+// Stores to a mis-aligned byte array, performs an endian conversion.
 inline void VectorStore(const VectorType& src, byte dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -970,7 +977,7 @@ template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T2)__vcipher(state, (T1)key);
+	return (T1)__vcipher(state, (T1)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
 	return (T1)__builtin_crypto_vcipher(state, (T1)key);
 #else
@@ -1021,17 +1028,17 @@ inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned 
 	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-	VectorType k = VectorLoadAligned(keys);
+	VectorType k = VectorLoadKey(keys);
 	block = VectorXor(block, k);
 
 	for (size_t i=1; i<rounds-1; i+=2)
 	{
-		block = VectorEncrypt(block, VectorLoadAligned(  i*16,   keys));
-		block = VectorEncrypt(block, VectorLoadAligned((i+1)*16, keys));
+		block = VectorEncrypt(block, VectorLoadKey(  i*16,   keys));
+		block = VectorEncrypt(block, VectorLoadKey((i+1)*16, keys));
 	}
 
-	block = VectorEncrypt(block, VectorLoadAligned((rounds-1)*16, keys));
-	block = VectorEncryptLast(block, VectorLoadAligned(rounds*16, keys));
+	block = VectorEncrypt(block, VectorLoadKey((rounds-1)*16, keys));
+	block = VectorEncryptLast(block, VectorLoadKey(rounds*16, keys));
 }
 
 inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorType &block2,
@@ -1040,7 +1047,7 @@ inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-	VectorType k = VectorLoadAligned(keys);
+	VectorType k = VectorLoadKey(keys);
 	block0 = VectorXor(block0, k);
 	block1 = VectorXor(block1, k);
 	block2 = VectorXor(block2, k);
@@ -1048,14 +1055,14 @@ inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 
 	for (size_t i=1; i<rounds; ++i)
 	{
-		k = VectorLoadAligned(i*16, keys);
+		k = VectorLoadKey(i*16, keys);
 		block0 = VectorEncrypt(block0, k);
 		block1 = VectorEncrypt(block1, k);
 		block2 = VectorEncrypt(block2, k);
 		block3 = VectorEncrypt(block3, k);
 	}
 
-	k = VectorLoadAligned(rounds*16, keys);
+	k = VectorLoadKey(rounds*16, keys);
 	block0 = VectorEncryptLast(block0, k);
 	block1 = VectorEncryptLast(block1, k);
 	block2 = VectorEncryptLast(block2, k);
@@ -1068,17 +1075,17 @@ inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned 
 	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-	VectorType k = VectorLoadAligned(rounds*16, keys);
+	VectorType k = VectorLoadKey(rounds*16, keys);
 	block = VectorXor(block, k);
 
 	for (size_t i=rounds-1; i>1; i-=2)
 	{
-		block = VectorDecrypt(block, VectorLoadAligned(  i*16,   keys));
-		block = VectorDecrypt(block, VectorLoadAligned((i-1)*16, keys));
+		block = VectorDecrypt(block, VectorLoadKey(  i*16,   keys));
+		block = VectorDecrypt(block, VectorLoadKey((i-1)*16, keys));
 	}
 
-	block = VectorDecrypt(block, VectorLoadAligned(16, keys));
-	block = VectorDecryptLast(block, VectorLoadAligned(0, keys));
+	block = VectorDecrypt(block, VectorLoadKey(16, keys));
+	block = VectorDecryptLast(block, VectorLoadKey(0, keys));
 }
 
 inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorType &block2,
@@ -1087,7 +1094,7 @@ inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-	VectorType k = VectorLoadAligned(rounds*16, keys);
+	VectorType k = VectorLoadKey(rounds*16, keys);
 	block0 = VectorXor(block0, k);
 	block1 = VectorXor(block1, k);
 	block2 = VectorXor(block2, k);
@@ -1095,14 +1102,14 @@ inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 
 	for (size_t i=rounds-1; i>0; --i)
 	{
-		k = VectorLoadAligned(i*16, keys);
+		k = VectorLoadKey(i*16, keys);
 		block0 = VectorDecrypt(block0, k);
 		block1 = VectorDecrypt(block1, k);
 		block2 = VectorDecrypt(block2, k);
 		block3 = VectorDecrypt(block3, k);
 	}
 
-	k = VectorLoadAligned(0, keys);
+	k = VectorLoadKey(0, keys);
 	block0 = VectorDecryptLast(block0, k);
 	block1 = VectorDecryptLast(block1, k);
 	block2 = VectorDecryptLast(block2, k);
