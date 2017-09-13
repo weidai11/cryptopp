@@ -356,6 +356,22 @@ if [ ! -z "$AOSP_BITS_INC" ]; then
 	export AOSP_BITS_INC
 fi
 
+# Now that we are using cpu-features from Android rather than CPU probing, we
+# need to copy cpu-features.h and cpu-features.c from the NDK into our source
+# directory and then build it.
+
+if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; then
+	echo "ERROR: Unable to locate cpu-features.h"
+	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+fi
+cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
+
+if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
+	echo "ERROR: Unable to locate cpu-features.c"
+	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+fi
+cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
+
 #####################################################################
 
 VERBOSE=1
@@ -370,6 +386,10 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   echo "AOSP_STL_LIB: $AOSP_STL_LIB"
   if [ ! -z "$AOSP_BITS_INC" ]; then
     echo "AOSP_BITS_INC: $AOSP_BITS_INC"
+  fi
+
+  if [ -e "cpu-features.h" ] && [ -e "cpu-features.c" ]; then
+    echo "CPU FEATURES: cpu-features.h and cpu-features.c are present"
   fi
 fi
 

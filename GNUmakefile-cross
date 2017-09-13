@@ -77,7 +77,12 @@ ifeq ($(IS_ANDROID),1)
     CXXFLAGS += -I$(AOSP_BITS_INC)
   endif
 
+  # STL headers
   LDLIBS += $(AOSP_STL_LIB)
+
+  # Source files copied into PWD for Android cpu-features
+  # setenv-android.sh does the copying. Its a dirty compile.
+  AOSP_CPU_OBJ = cpu-features.o
 endif
 
 # ARM embedded cross-compile configuration.
@@ -221,7 +226,7 @@ lean: static dynamic cryptest.exe
 
 .PHONY: clean
 clean:
-	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) cpu-features.o $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct rdrand-???.o
@@ -282,8 +287,8 @@ remove uninstall:
 	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 
-libcryptopp.a: $(LIBOBJS)
-	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
+libcryptopp.a: $(LIBOBJS) $(AOSP_CPU_OBJ)
+	$(AR) $(ARFLAGS) $@ $(LIBOBJS) $(AOSP_CPU_OBJ)
 	$(RANLIB) $@
 
 ifeq ($(HAS_SOLIB_VERSION),1)
@@ -322,6 +327,9 @@ endif
 ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 -include GNUmakefile.deps
 endif # Dependencies
+
+cpu-features.o: cpu-features.h cpu-features.c
+	$(CXX) $(strip $(CXXFLAGS) -fpermissive) -c cpu-features.c
 
 %.o : %.cpp
 	$(CXX) $(strip $(CXXFLAGS)) -c $<

@@ -17,13 +17,60 @@
 # include <sys/systemcfg.h>
 #endif
 
+#if defined(__linux__)
+# include <sys/auxv.h>
+# ifndef HWCAP_ASIMD
+# define HWCAP_ASIMD (1 << 1)
+# endif
+# ifndef HWCAP_ARM_NEON
+# define HWCAP_ARM_NEON 4096
+# endif
+# ifndef HWCAP_CRC32
+# define HWCAP_CRC32 (1 << 7)
+# endif
+# ifndef HWCAP2_CRC32
+# define HWCAP2_CRC32 (1 << 4)
+# endif
+# ifndef HWCAP_PMULL
+# define HWCAP_PMULL (1 << 4)
+# endif
+# ifndef HWCAP2_PMULL
+# define HWCAP2_PMULL (1 << 1)
+# endif
+# ifndef HWCAP_AES
+# define HWCAP_AES (1 << 3)
+# endif
+# ifndef HWCAP2_AES
+# define HWCAP2_AES (1 << 0)
+# endif
+# ifndef HWCAP_SHA1
+# define HWCAP_SHA1 (1 << 5)
+# endif
+# ifndef HWCAP_SHA2
+# define HWCAP_SHA2 (1 << 6)
+# endif
+# ifndef HWCAP2_SHA1
+# define HWCAP2_SHA1 (1 << 2)
+# endif
+# ifndef HWCAP2_SHA2
+# define HWCAP2_SHA2 (1 << 3)
+# endif
+#endif
+
+#if defined(__APPLE__) && defined(__aarch64__)
+# include <sys/utsname.h>
+#endif
+
+// http://android.googlesource.com/platform/ndk/+/master/sources/android/cpufeatures/cpu-features.h
+// The cpu-features header and source file are located in ANDROID_NDK_ROOT/sources/android
+// setenv-android.sh will copy the header and source file into PWD and the makefile will build it in place.
+#if defined(__ANDROID__)
+# include "cpu-features.h"
+#endif
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
-#endif
-
-#if defined(__ANDROID__)
-# include <machine/cpu-features.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -324,50 +371,6 @@ void DetectX86Features()
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
-#if defined(__linux__)
-# include <sys/auxv.h>
-# ifndef HWCAP_ASIMD
-# define HWCAP_ASIMD (1 << 1)
-# endif
-# ifndef HWCAP_ARM_NEON
-# define HWCAP_ARM_NEON 4096
-# endif
-# ifndef HWCAP_CRC32
-# define HWCAP_CRC32 (1 << 7)
-# endif
-# ifndef HWCAP2_CRC32
-# define HWCAP2_CRC32 (1 << 4)
-# endif
-# ifndef HWCAP_PMULL
-# define HWCAP_PMULL (1 << 4)
-# endif
-# ifndef HWCAP2_PMULL
-# define HWCAP2_PMULL (1 << 1)
-# endif
-# ifndef HWCAP_AES
-# define HWCAP_AES (1 << 3)
-# endif
-# ifndef HWCAP2_AES
-# define HWCAP2_AES (1 << 0)
-# endif
-# ifndef HWCAP_SHA1
-# define HWCAP_SHA1 (1 << 5)
-# endif
-# ifndef HWCAP_SHA2
-# define HWCAP_SHA2 (1 << 6)
-# endif
-# ifndef HWCAP2_SHA1
-# define HWCAP2_SHA1 (1 << 2)
-# endif
-# ifndef HWCAP2_SHA2
-# define HWCAP2_SHA2 (1 << 3)
-# endif
-#endif
-
-#if defined(__APPLE__) && defined(__aarch64__)
-# include <sys/utsname.h>
-#endif
-
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasNEON = false, CRYPTOPP_SECTION_INIT g_hasPMULL = false, CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
@@ -395,11 +398,13 @@ extern bool CPU_ProbePMULL();
 
 inline bool CPU_QueryNEON()
 {
-#if defined(__ANDROID__) && (defined(__aarch32__) || defined(__aarch64__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD)
+#if defined(__ANDROID__) && defined(__aarch64__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD))
 		return true;
 #elif defined(__ANDROID__) && defined(__arm__)
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_ASIMD)
@@ -419,8 +424,13 @@ inline bool CPU_QueryNEON()
 
 inline bool CPU_QueryCRC32()
 {
-#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32)
+#if defined(__ANDROID__) && defined(__aarch64__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32))
+		return true;
+#elif defined(__ANDROID__) && defined(__aarch32__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_CRC32))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_CRC32)
@@ -437,8 +447,13 @@ inline bool CPU_QueryCRC32()
 
 inline bool CPU_QueryPMULL()
 {
-#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL)
+#if defined(__ANDROID__) && defined(__aarch64__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL))
+		return true;
+#elif defined(__ANDROID__) && defined(__aarch32__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_PMULL))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_PMULL)
@@ -455,8 +470,13 @@ inline bool CPU_QueryPMULL()
 
 inline bool CPU_QueryAES()
 {
-#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
+#if defined(__ANDROID__) && defined(__aarch64__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
+		return true;
+#elif defined(__ANDROID__) && defined(__aarch32__)
+	if (android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_AES)
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_AES)
@@ -485,8 +505,13 @@ inline bool CPU_QueryAES()
 
 inline bool CPU_QuerySHA1()
 {
-#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1)
+#if defined(__ANDROID__) && defined(__aarch64__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA1))
+		return true;
+#elif defined(__ANDROID__) && defined(__aarch32__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_SHA1))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_SHA1)
@@ -515,8 +540,13 @@ inline bool CPU_QuerySHA1()
 
 inline bool CPU_QuerySHA2()
 {
-#if defined(__ANDROID__) && (defined(__aarch64__) || defined(__aarch32__))
-	if (android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2)
+#if defined(__ANDROID__) && defined(__aarch64__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2))
+		return true;
+#elif defined(__ANDROID__) && defined(__aarch32__)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_SHA2))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_SHA2)
