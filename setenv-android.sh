@@ -93,7 +93,7 @@ fi
 #####################################################################
 
 if [ "$#" -lt 1 ]; then
-	THE_ARCH=armv7
+	THE_ARCH=armv7a-neon
 else
 	THE_ARCH=$(tr [A-Z] [a-z] <<< "$1")
 fi
@@ -107,7 +107,7 @@ case "$THE_ARCH" in
 	AOSP_ARCH="arch-arm"
 	AOSP_FLAGS="-march=armv5te -mtune=xscale -mthumb -msoft-float -funwind-tables -fexceptions -frtti"
 	;;
-  armv7a|armeabi-v7a)
+  armv7a|armv7-a|armeabi-v7a)
 	TOOLCHAIN_ARCH="arm-linux-androideabi"
 	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
