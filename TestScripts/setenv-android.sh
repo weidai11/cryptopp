@@ -26,10 +26,6 @@ unset AOSP_STL_INC
 unset AOSP_STL_LIB
 unset AOSP_BITS_INC
 
-# Former variables
-unset ANDROID_FLAGS ANDROID_SYSROOT
-unset ANDROID_STL_INC ANDROID_STL_LIB
-
 # Tools set by this script
 unset CPP CC CXX LD AS AR RANLIB STRIP
 
@@ -175,9 +171,6 @@ esac
 export IS_ANDROID=1
 export AOSP_FLAGS
 
-# TODO: for the previous GNUmakefile-cross. These can go away eventually.
-export ANDROID_FLAGS=$AOSP_FLAGS
-
 export CPP="$TOOLCHAIN_NAME-cpp"
 export CC="$TOOLCHAIN_NAME-gcc"
 export CXX="$TOOLCHAIN_NAME-g++"
@@ -274,9 +267,6 @@ fi
 #   http://android.googlesource.com/platform/ndk/+/ics-mr0/docs/STANDALONE-TOOLCHAIN.html
 export AOSP_SYSROOT="$ANDROID_NDK_ROOT/platforms/$AOSP_API/$AOSP_ARCH"
 
-# TODO: export for the previous GNUmakefile-cross. These can go away eventually.
-export ANDROID_SYSROOT=$AOSP_SYSROOT
-
 #####################################################################
 
 # Android STL. We support GNU, LLVM and STLport out of the box.
@@ -347,10 +337,6 @@ fi
 
 export AOSP_STL_INC
 export AOSP_STL_LIB
-
-# TODO: for the previous GNUmakefile-cross. These can go away eventually.
-export ANDROID_STL_INC=$AOSP_STL_INC
-export ANDROID_STL_LIB=$AOSP_STL_LIB
 
 if [ ! -z "$AOSP_BITS_INC" ]; then
 	export AOSP_BITS_INC
