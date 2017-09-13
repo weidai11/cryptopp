@@ -198,6 +198,11 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+  ifeq ($(IS_X86),1)
+    CPU_FLAG = -msse2
+  endif
+endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
   HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(GREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
@@ -939,6 +944,10 @@ aria-simd.o : aria-simd.cpp
 # SSE4.2 or ARMv8a available
 blake2-simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+
+# SSE2 on i586
+cpu.o : cpu.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CPU_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
 crc-simd.o : crc-simd.cpp
