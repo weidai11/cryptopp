@@ -23,7 +23,7 @@
 #endif
 
 #if defined(__ANDROID__)
-# include <cpu-features.h>
+# include <machine/cpu-features.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
