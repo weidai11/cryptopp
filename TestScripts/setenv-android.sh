@@ -11,7 +11,7 @@
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
-set -eu
+# set -eu
 
 unset IS_CROSS_COMPILE
 
@@ -287,6 +287,12 @@ else
 	THE_STL=$(tr [A-Z] [a-z] <<< "$2")
 fi
 
+# LLVM include directory may be different depending on NDK version. Default to new location (latest NDK checked: r16beta1).
+LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/include"
+if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+	LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+fi
+
 case "$THE_STL" in
   stlport-static)
 	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/stlport/"
@@ -307,11 +313,19 @@ case "$THE_STL" in
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/libgnustl_shared.so"
 	;;
   llvm-static)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+  	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+		echo "ERROR: Unable to locate include LLVM directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
+		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	fi
+	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_static.a"
 	;;
   llvm|llvm-shared)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+  	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+		echo "ERROR: Unable to locate LLVM include directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
+		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	fi
+	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_shared.so"
 	;;
   *)
@@ -361,7 +375,7 @@ fi
 
 #####################################################################
 
-COUNT=$(echo -n "$AOSP_STL_LIB" | grep -i -c 'libstdc++')
+COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libstdc\+\+')
 if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"
@@ -382,7 +396,7 @@ if [[ ("$COUNT" -ne "0") ]]; then
 	echo "*******************************************************************************"
 fi
 
-COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc++)')
+COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc\+\+')
 if [[ ("$COUNT" -ne "0") ]]; then
 	echo
 	echo "*******************************************************************************"
@@ -394,8 +408,9 @@ fi
 
 echo
 echo "*******************************************************************************"
-echo "It looks the the environment is set correctly. Your next step is"
-echo "build the library with 'make -f GNUmakefile-cross'"
+echo "It looks the the environment is set correctly. Your next step is build"
+echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
+echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo
 
