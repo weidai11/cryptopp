@@ -71,13 +71,13 @@ fi
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
 if [ -z "${ANDROID_NDK_ROOT-}" ]; then
-	ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk-r10* 2>/dev/null | tail -1)
+	ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
 
 	if [ -z "$ANDROID_NDK_ROOT" ]; then
-		ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk-r10* 2>/dev/null | tail -1)
+		ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
 	fi
 	if [ -z "$ANDROID_NDK_ROOT" ]; then
-		ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk-r10* 2>/dev/null | tail -1)
+		ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
 	fi
 	if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
 		ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
@@ -154,7 +154,7 @@ case "$THE_ARCH" in
 	TOOLCHAIN_NAME="i686-linux-android"
 	AOSP_ABI="x86"
 	AOSP_ARCH="arch-x86"
-	AOSP_FLAGS="-march=i686 -mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
 	;;
   x86_64|x64)
 	TOOLCHAIN_ARCH="x86_64"
