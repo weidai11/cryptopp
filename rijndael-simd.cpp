@@ -939,16 +939,18 @@ inline VectorType VectorLoad(int off, const byte src[16])
 
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
-inline VectorType VectorLoadKey(const byte vec[16])
+inline VectorType VectorLoadKey(const byte src[16])
 {
-	return (VectorType)vec_ld(0, vec);
+	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
+	return (VectorType)vec_ld(0, src);
 }
 
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
-inline VectorType VectorLoadKey(int off, const byte vec[16])
+inline VectorType VectorLoadKey(int off, const byte src[16])
 {
-	return (VectorType)vec_ld(off, vec);
+	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
+	return (VectorType)vec_ld(off, src);
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
@@ -1150,7 +1152,7 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 			if (flags & BlockTransformation::BT_InBlockIsCounter)
 			{
 #if defined(IS_LITTLE_ENDIAN)
-				const VectorType one = {1};
+				const VectorType one = (VectorType)((uint64x2_p8){1,0});
 #else
 				const VectorType one = (VectorType)((uint64x2_p8){0,1});
 #endif
@@ -1162,45 +1164,35 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 			}
 			else
 			{
-				//inBlocks += inIncrement;
-				block1 = VectorLoad(1*inIncrement, inBlocks);
-				//inBlocks += inIncrement;
-				block2 = VectorLoad(2*inIncrement, inBlocks);
-				//inBlocks += inIncrement;
-				block3 = VectorLoad(3*inIncrement, inBlocks);
-				//inBlocks += inIncrement;
+				const int inc = static_cast<int>(inIncrement);
+				block1 = VectorLoad(1*inc, inBlocks);
+				block2 = VectorLoad(2*inc, inBlocks);
+				block3 = VectorLoad(3*inc, inBlocks);
 				inBlocks += 4*inIncrement;
 			}
 
 			if (flags & BlockTransformation::BT_XorInput)
 			{
-				block0 = VectorXor(block0, VectorLoad(0*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				block1 = VectorXor(block1, VectorLoad(1*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				block2 = VectorXor(block2, VectorLoad(2*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				block3 = VectorXor(block3, VectorLoad(3*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				xorBlocks += 4*xorIncrement;
+				const int inc = static_cast<int>(xorIncrement);
+				block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
+				block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
+				block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
+				block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
+				xorBlocks += 4*inc;
 			}
 
 			func4(block0, block1, block2, block3, subKeys, rounds);
 
 			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			{
-				block0 = VectorXor(block0, VectorLoad(0*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				block1 = VectorXor(block1, VectorLoad(1*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				block2 = VectorXor(block2, VectorLoad(2*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				block3 = VectorXor(block3, VectorLoad(3*xorIncrement, xorBlocks));
-				//xorBlocks += xorIncrement;
-				xorBlocks += 4*xorIncrement;
+				const int inc = static_cast<int>(xorIncrement);
+				block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
+				block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
+				block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
+				block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
+				xorBlocks += 4*inc;
 			}
 
-			// I can't get Store to run faster using indexed offsets
 			VectorStore(block0, outBlocks);
 			outBlocks += outIncrement;
 			VectorStore(block1, outBlocks);
