@@ -472,11 +472,11 @@ inline bool CPU_QueryAES()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
 	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) &&
-		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES)
+		(android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
-	if (android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)) &&
-		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_AES)
+	if ((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) &&
+		(android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_AES))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
 	if (getauxval(AT_HWCAP) & HWCAP_AES)
