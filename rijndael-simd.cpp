@@ -796,7 +796,6 @@ uint8x16_p8 Load8x16(const uint8_t src[16])
 	/* http://stackoverflow.com/q/46124383/608639 */
 	return vec_xl_be(0, (uint8_t*)src);
 #else
-	/* GCC, Clang, etc */
 	return (uint8x16_p8)vec_vsx_ld(0, src);
 #endif
 }
@@ -807,7 +806,6 @@ uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 	/* http://stackoverflow.com/q/46124383/608639 */
 	return vec_xl_be(off, (uint8_t*)src);
 #else
-	/* GCC, Clang, etc */
 	return (uint8x16_p8)vec_vsx_ld(off, src);
 #endif
 }
@@ -815,10 +813,9 @@ uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 void Store8x16(const uint8x16_p8 src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* IBM XL C/C++ compiler */
-	vec_xst_be(src, 0, dest);
+	/* http://stackoverflow.com/q/46124383/608639 */
+	vec_xst_be(src, 0, (uint8_t*)dest);
 #else
-	/* GCC, Clang, etc */
 	vec_vsx_st(src, 0, dest);
 #endif
 }
@@ -829,7 +826,6 @@ uint64x2_p8 Load64x2(const uint8_t src[16])
 	/* http://stackoverflow.com/q/46124383/608639 */
 	return (uint64x2_p8)vec_xl_be(0, (uint8_t*)src);
 #else
-	/* GCC, Clang, etc */
 # if defined(IS_LITTLE_ENDIAN)
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
@@ -846,7 +842,6 @@ uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 	/* http://stackoverflow.com/q/46124383/608639 */
 	return (uint64x2_p8)vec_xl_be(off, (uint8_t*)src);
 #else
-	/* GCC, Clang, etc */
 # if defined(IS_LITTLE_ENDIAN)
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
@@ -860,9 +855,9 @@ uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
+	/* http://stackoverflow.com/q/46124383/608639 */
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
-	/* GCC, Clang, etc */
 # if defined(IS_LITTLE_ENDIAN)
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
@@ -1158,15 +1153,13 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 				xorBlocks += 4*inc;
 			}
 
-			VectorStore(block0, outBlocks);
-			outBlocks += outIncrement;
-			VectorStore(block1, outBlocks);
-			outBlocks += outIncrement;
-			VectorStore(block2, outBlocks);
-			outBlocks += outIncrement;
-			VectorStore(block3, outBlocks);
-			outBlocks += outIncrement;
+			const int inc = static_cast<int>(outIncrement);
+			VectorStore(block0, outBlocks+0*inc);
+			VectorStore(block1, outBlocks+1*inc);
+			VectorStore(block2, outBlocks+2*inc);
+			VectorStore(block3, outBlocks+3*inc);
 
+			outBlocks += 4*inc;
 			length -= 4*blockSize;
 		}
 	}
