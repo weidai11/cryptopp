@@ -794,12 +794,7 @@ uint8x16_p8 Load8x16(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	/* http://stackoverflow.com/q/46124383/608639 */
-	uint8_t* s = (uint8_t*)src;
-# if defined(IS_LITTLE_ENDIAN)
-	return vec_xl_be(0, s);
-# else
-	return vec_xl(0, s);
-# endif
+	return vec_xl_be(0, (uint8_t*)src);
 #else
 	/* GCC, Clang, etc */
 	return (uint8x16_p8)vec_vsx_ld(0, src);
@@ -810,12 +805,7 @@ uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	/* http://stackoverflow.com/q/46124383/608639 */
-	uint8_t* s = (uint8_t*)src;
-# if defined(IS_LITTLE_ENDIAN)
-	return vec_xl_be(off, s);
-# else
-	return vec_xl(off, s);
-# endif
+	return vec_xl_be(off, (uint8_t*)src);
 #else
 	/* GCC, Clang, etc */
 	return (uint8x16_p8)vec_vsx_ld(off, src);
@@ -826,11 +816,7 @@ void Store8x16(const uint8x16_p8 src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	/* IBM XL C/C++ compiler */
-# if defined(IS_LITTLE_ENDIAN)
 	vec_xst_be(src, 0, dest);
-# else
-	vec_xst(src, 0, dest);
-# endif
 #else
 	/* GCC, Clang, etc */
 	vec_vsx_st(src, 0, dest);
@@ -841,12 +827,7 @@ uint64x2_p8 Load64x2(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	/* http://stackoverflow.com/q/46124383/608639 */
-	uint8_t* s = (uint8_t*)src;
-# if defined(IS_LITTLE_ENDIAN)
-	return (uint64x2_p8)vec_xl_be(0, s);
-# else
-	return (uint64x2_p8)vec_xl(0, s);
-# endif
+	return (uint64x2_p8)vec_xl_be(0, (uint8_t*)src);
 #else
 	/* GCC, Clang, etc */
 # if defined(IS_LITTLE_ENDIAN)
@@ -863,12 +844,7 @@ uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	/* http://stackoverflow.com/q/46124383/608639 */
-	uint8_t* s = (uint8_t*)src;
-# if defined(IS_LITTLE_ENDIAN)
-	return (uint64x2_p8)vec_xl_be(off, s);
-# else
-	return (uint64x2_p8)vec_xl(off, s);
-# endif
+	return (uint64x2_p8)vec_xl_be(off, (uint8_t*)src);
 #else
 	/* GCC, Clang, etc */
 # if defined(IS_LITTLE_ENDIAN)
@@ -884,12 +860,7 @@ uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* IBM XL C/C++ compiler */
-# if defined(IS_LITTLE_ENDIAN)
-	vec_xst_be((uint8x16_p8)src, 0, dest);
-# else
-	vec_xst((uint8x16_p8)src, 0, dest);
-# endif
+	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
 	/* GCC, Clang, etc */
 # if defined(IS_LITTLE_ENDIAN)
