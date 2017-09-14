@@ -1004,8 +1004,9 @@ inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned 
 	block = VectorEncryptLast(block, VectorLoadKey(rounds*16, keys));
 }
 
-inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorType &block2,
-            VectorType &block3, const word32 *subkeys, unsigned int rounds)
+inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
+            VectorType &block2, VectorType &block3, VectorType &block4,
+            VectorType &block5, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
@@ -1015,6 +1016,8 @@ inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	block1 = VectorXor(block1, k);
 	block2 = VectorXor(block2, k);
 	block3 = VectorXor(block3, k);
+	block4 = VectorXor(block4, k);
+	block5 = VectorXor(block5, k);
 
 	for (size_t i=1; i<rounds; ++i)
 	{
@@ -1023,6 +1026,8 @@ inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 		block1 = VectorEncrypt(block1, k);
 		block2 = VectorEncrypt(block2, k);
 		block3 = VectorEncrypt(block3, k);
+		block4 = VectorEncrypt(block4, k);
+		block5 = VectorEncrypt(block5, k);
 	}
 
 	k = VectorLoadKey(rounds*16, keys);
@@ -1030,6 +1035,8 @@ inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	block1 = VectorEncryptLast(block1, k);
 	block2 = VectorEncryptLast(block2, k);
 	block3 = VectorEncryptLast(block3, k);
+	block4 = VectorEncryptLast(block4, k);
+	block5 = VectorEncryptLast(block5, k);
 }
 
 inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
@@ -1050,8 +1057,9 @@ inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned 
 	block = VectorDecryptLast(block, VectorLoadKey(0, keys));
 }
 
-inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorType &block2,
-            VectorType &block3, const word32 *subkeys, unsigned int rounds)
+inline void POWER8_Dec_6_Blocks(VectorType &block0, VectorType &block1,
+            VectorType &block2, VectorType &block3, VectorType &block4,
+            VectorType &block5, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
@@ -1061,6 +1069,8 @@ inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	block1 = VectorXor(block1, k);
 	block2 = VectorXor(block2, k);
 	block3 = VectorXor(block3, k);
+	block4 = VectorXor(block4, k);
+	block5 = VectorXor(block5, k);
 
 	for (size_t i=rounds-1; i>0; --i)
 	{
@@ -1069,6 +1079,8 @@ inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 		block1 = VectorDecrypt(block1, k);
 		block2 = VectorDecrypt(block2, k);
 		block3 = VectorDecrypt(block3, k);
+		block4 = VectorDecrypt(block4, k);
+		block5 = VectorDecrypt(block5, k);
 	}
 
 	k = VectorLoadKey(0, keys);
@@ -1076,10 +1088,12 @@ inline void POWER8_Dec_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	block1 = VectorDecryptLast(block1, k);
 	block2 = VectorDecryptLast(block2, k);
 	block3 = VectorDecryptLast(block3, k);
+	block4 = VectorDecryptLast(block4, k);
+	block5 = VectorDecryptLast(block5, k);
 }
 
-template <typename F1, typename F4>
-size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *subKeys, size_t rounds,
+template <typename F1, typename F6>
+size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F6 func6, const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	CRYPTOPP_ASSERT(subKeys);
@@ -1104,22 +1118,25 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 
 	if (flags & BlockTransformation::BT_AllowParallel)
 	{
-		while (length >= 4*blockSize)
+		while (length >= 6*blockSize)
 		{
-			VectorType block0, block1, block2, block3, temp;
+#if defined(IS_LITTLE_ENDIAN)
+			const VectorType one = (VectorType)((uint64x2_p8){1,0});
+#else
+			const VectorType one = (VectorType)((uint64x2_p8){0,1});
+#endif
+
+			VectorType block0, block1, block2, block3, block4, block5, temp;
 			block0 = VectorLoad(inBlocks);
 
 			if (flags & BlockTransformation::BT_InBlockIsCounter)
 			{
-#if defined(IS_LITTLE_ENDIAN)
-				const VectorType one = (VectorType)((uint64x2_p8){1,0});
-#else
-				const VectorType one = (VectorType)((uint64x2_p8){0,1});
-#endif
 				block1 = VectorAdd(block0, one);
 				block2 = VectorAdd(block1, one);
 				block3 = VectorAdd(block2, one);
-				temp   = VectorAdd(block3, one);
+				block4 = VectorAdd(block3, one);
+				block5 = VectorAdd(block4, one);
+				temp   = VectorAdd(block5, one);
 				VectorStore(temp, const_cast<byte*>(inBlocks));
 			}
 			else
@@ -1128,7 +1145,9 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 				block1 = VectorLoad(1*inc, inBlocks);
 				block2 = VectorLoad(2*inc, inBlocks);
 				block3 = VectorLoad(3*inc, inBlocks);
-				inBlocks += 4*inIncrement;
+				block4 = VectorLoad(4*inc, inBlocks);
+				block5 = VectorLoad(5*inc, inBlocks);
+				inBlocks += 6*inIncrement;
 			}
 
 			if (flags & BlockTransformation::BT_XorInput)
@@ -1138,10 +1157,12 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 				block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
 				block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
 				block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
-				xorBlocks += 4*inc;
+				block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
+				block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
+				xorBlocks += 6*inc;
 			}
 
-			func4(block0, block1, block2, block3, subKeys, rounds);
+			func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
 
 			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			{
@@ -1150,7 +1171,9 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 				block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
 				block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
 				block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
-				xorBlocks += 4*inc;
+				block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
+				block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
+				xorBlocks += 6*inc;
 			}
 
 			const int inc = static_cast<int>(outIncrement);
@@ -1158,9 +1181,11 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 			VectorStore(block1, outBlocks+1*inc);
 			VectorStore(block2, outBlocks+2*inc);
 			VectorStore(block3, outBlocks+3*inc);
+			VectorStore(block4, outBlocks+4*inc);
+			VectorStore(block5, outBlocks+5*inc);
 
-			outBlocks += 4*inc;
-			length -= 4*blockSize;
+			outBlocks += 6*inc;
+			length -= 6*blockSize;
 		}
 	}
 
@@ -1191,17 +1216,17 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F4 func4, const word32 *s
 }
 
 size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subKeys, size_t rounds,
-            const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+			const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-	return Rijndael_AdvancedProcessBlocks_POWER8(POWER8_Enc_Block, POWER8_Enc_4_Blocks,
-            subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+	return Rijndael_AdvancedProcessBlocks_POWER8(POWER8_Enc_Block, POWER8_Enc_6_Blocks,
+		subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t Rijndael_Dec_AdvancedProcessBlocks_POWER8(const word32 *subKeys, size_t rounds,
-            const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+			const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-	return Rijndael_AdvancedProcessBlocks_POWER8(POWER8_Dec_Block, POWER8_Dec_4_Blocks,
-            subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+	return Rijndael_AdvancedProcessBlocks_POWER8(POWER8_Dec_Block, POWER8_Dec_6_Blocks,
+		subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 #endif  // CRYPTOPP_POWER8_AES_AVAILABLE
