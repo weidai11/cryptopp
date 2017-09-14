@@ -158,6 +158,13 @@ bool CPU_ProbeAES()
 // ***************************** ARMv8 ***************************** //
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
+
+#if defined(IS_LITTLE_ENDIAN)
+const word32 s_one[] = {0, 0, 0, 1<<24};
+#else
+const word32 s_one[] = {1, 0, 0, 0};
+#endif
+
 inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(subkeys);
