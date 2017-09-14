@@ -155,24 +155,6 @@ bool CPU_ProbeAES()
 }
 #endif  // ARM32 or ARM64
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one[] = {0, 0, 0, 1<<24};
-
-/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_rconLE[] = {
-	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
-};
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_rconBE[] = {
-	0x01000000, 0x02000000, 0x04000000, 0x08000000, 0x10000000,
-	0x20000000, 0x40000000, 0x80000000,	0x1B000000, 0x36000000
-};
-
-ANONYMOUS_NAMESPACE_END
-
 // ***************************** ARMv8 ***************************** //
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
@@ -473,6 +455,16 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subKeys, size_t ro
 // ***************************** AES-NI ***************************** //
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
+
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_one[] = {0, 0, 0, 1<<24};
+
+/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_rconLE[] = {
+	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
+};
+
 inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
@@ -665,7 +657,7 @@ size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
 {
 	// SunCC workaround
 	MAYBE_CONST word32* sk = MAYBE_UNCONST_CAST(word32*, subKeys);
-	MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
+	MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*,  inBlocks);
 	MAYBE_CONST   byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
 
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
@@ -676,7 +668,7 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
 	MAYBE_CONST word32* sk = MAYBE_UNCONST_CAST(word32*, subKeys);
-	MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*, inBlocks);
+	MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*,  inBlocks);
 	MAYBE_CONST   byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
 
 	return Rijndael_AdvancedProcessBlocks_AESNI(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
@@ -1065,7 +1057,6 @@ inline void POWER8_Enc_4_Blocks(VectorType &block0, VectorType &block1, VectorTy
 	block1 = VectorEncryptLast(block1, k);
 	block2 = VectorEncryptLast(block2, k);
 	block3 = VectorEncryptLast(block3, k);
-
 }
 
 inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
