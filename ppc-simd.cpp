@@ -92,15 +92,15 @@ bool CPU_ProbeAltivec()
 		const byte b2[16] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 		CRYPTOPP_ALIGN_DATA(16) byte b3[16];
 #if defined(CRYPTOPP_XLC_VERSION)
-		const uint8x16_p8 v1 = vec_ld(0, b1);
-		const uint8x16_p8 v2 = vec_ld(0, b2);
+		const uint8x16_p8 v1 = vec_ld(0, (const byte*)b1);
+		const uint8x16_p8 v2 = vec_ld(0, (const byte*)b2);
 		const uint8x16_p8 v3 = vec_xor(v1, v2);
-		vec_st(v3, 0, b3);
+		vec_st(v3, 0, (byte*)b3);
 #elif defined(CRYPTOPP_GCC_VERSION)
-		const uint64x2_p8 v1 = (uint64x2_p8)vec_ld(0, b1);
-		const uint64x2_p8 v2 = (uint64x2_p8)vec_ld(0, b2);
+		const uint64x2_p8 v1 = (uint64x2_p8)vec_ld(0, (const byte*)b1);
+		const uint64x2_p8 v2 = (uint64x2_p8)vec_ld(0, (const byte*)b2);
 		const uint64x2_p8 v3 = (uint64x2_p8)vec_xor(v1, v2);
-		vec_st((uint8x16_p8)v3, 0, b3);
+		vec_st((uint8x16_p8)v3, 0, (byte*)b3);
 #endif
 		result = (0 == std::memcmp(b2, b3, 16));
 	}
@@ -140,8 +140,8 @@ bool CPU_ProbePower7()
 		byte b1[19] = {-1, -1, -1, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 		CRYPTOPP_ALIGN_DATA(16) byte b2[16];
 #if defined(CRYPTOPP_XLC_VERSION)
-		const uint8x16_p8 v1 = vec_xl(0, reinterpret_cast<byte*>(b1)+3);
-		vec_xst(v1, 0, reinterpret_cast<byte*>(b2));
+		const uint8x16_p8 v1 = vec_xl(0, (const byte*)b1+3);
+		vec_xst(v1, 0, (byte*)b2);
 #elif defined(CRYPTOPP_GCC_VERSION)
 		const uint8x16_p8 v1 = vec_vsx_ld(0, b1+3);
 		vec_vsx_st(v1, 0, (byte*)b2);
