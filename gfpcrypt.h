@@ -516,7 +516,7 @@ template <class GP>
 class DL_PrivateKey_GFP : public DL_PrivateKeyImpl<GP>
 {
 public:
-    virtual ~DL_PrivateKey_GFP() {}
+    virtual ~DL_PrivateKey_GFP();
 
     //! \brief Create a private key
     //! \param rng a RandomNumberGenerator derived class
@@ -569,6 +569,10 @@ public:
     void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &x)
         {this->AccessGroupParameters().Initialize(p, q, g); this->SetPrivateExponent(x);}
 };
+
+// Out-of-line dtor due to AIX and GCC, http://github.com/weidai11/cryptopp/issues/499
+template <class GP>
+DL_PrivateKey_GFP<GP>::~DL_PrivateKey_GFP() {}
 
 //! \class DL_SignatureKeys_GFP
 //! \brief Discrete Log (DL) signing/verification keys in GF(p) groups
