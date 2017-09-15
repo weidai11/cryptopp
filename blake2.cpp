@@ -46,12 +46,14 @@ struct BLAKE2_IV
 };
 
 template<>
+CRYPTOPP_ALIGN_DATA(16)
 const word32 BLAKE2_IV<word32, false>::iv[8] = {
     0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
     0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
 };
 
 template<>
+CRYPTOPP_ALIGN_DATA(16)
 const word64 BLAKE2_IV<word64, true>::iv[8] = {
     W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
     W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
