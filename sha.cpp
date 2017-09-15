@@ -132,6 +132,17 @@ void SHA1_HashBlock_CXX(word32 *state, const word32 *data)
     state[4] += e;
 }
 
+#undef blk0
+#undef blk1
+#undef f1
+#undef f2
+#undef f3
+#undef f4
+#undef R1
+#undef R2
+#undef R3
+#undef R4
+
 ANONYMOUS_NAMESPACE_END
 
 //////////////////////////////
@@ -236,11 +247,6 @@ const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-#define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
-
-#define Ch(x,y,z) (z^(x&(y^z)))
-#define Maj(x,y,z) (y^((x^y)&(y^z)))
-
 #define a(i) T[(0-i)&7]
 #define b(i) T[(1-i)&7]
 #define c(i) T[(2-i)&7]
@@ -250,14 +256,20 @@ ANONYMOUS_NAMESPACE_BEGIN
 #define g(i) T[(6-i)&7]
 #define h(i) T[(7-i)&7]
 
+#define blk0(i) (W[i] = data[i])
+#define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
+
+#define Ch(x,y,z) (z^(x&(y^z)))
+#define Maj(x,y,z) (y^((x^y)&(y^z)))
+
 #define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA256_K[i+j]+(j?blk2(i):blk0(i));\
     d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
 
 // for SHA256
-#define S0(x) (rotrFixed(x,2)^rotrFixed(x,13)^rotrFixed(x,22))
-#define S1(x) (rotrFixed(x,6)^rotrFixed(x,11)^rotrFixed(x,25))
 #define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
 #define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
+#define S0(x) (rotrFixed(x,2)^rotrFixed(x,13)^rotrFixed(x,22))
+#define S1(x) (rotrFixed(x,6)^rotrFixed(x,11)^rotrFixed(x,25))
 
 void SHA256_HashBlock_CXX(word32 *state, const word32 *data)
 {
@@ -283,11 +295,25 @@ void SHA256_HashBlock_CXX(word32 *state, const word32 *data)
     state[7] += h(0);
 }
 
-#undef S0
-#undef S1
+#undef Ch
+#undef Maj
 #undef s0
 #undef s1
+#undef S0
+#undef S1
+#undef blk0
+#undef blk1
+#undef blk2
 #undef R
+
+#undef a
+#undef b
+#undef c
+#undef d
+#undef e
+#undef f
+#undef g
+#undef h
 
 ANONYMOUS_NAMESPACE_END
 
@@ -782,8 +808,10 @@ void SHA512::InitState(HashWordType *state)
     memcpy(state, s, sizeof(s));
 }
 
+// We add extern to export table to sha-simd.cpp, but it
+//  cleared http://github.com/weidai11/cryptopp/issues/502
 CRYPTOPP_ALIGN_DATA(16)
-const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
+extern const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
     W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
     W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
     W64LIT(0x3956c25bf348b538), W64LIT(0x59f111f1b605d019),
@@ -1030,13 +1058,28 @@ ANONYMOUS_NAMESPACE_END
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-#define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
-#define S1(x) (rotrFixed(x,14)^rotrFixed(x,18)^rotrFixed(x,41))
+#define a(i) T[(0-i)&7]
+#define b(i) T[(1-i)&7]
+#define c(i) T[(2-i)&7]
+#define d(i) T[(3-i)&7]
+#define e(i) T[(4-i)&7]
+#define f(i) T[(5-i)&7]
+#define g(i) T[(6-i)&7]
+#define h(i) T[(7-i)&7]
+
+#define blk0(i) (W[i]=data[i])
+#define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
+
+#define Ch(x,y,z) (z^(x&(y^z)))
+#define Maj(x,y,z) (y^((x^y)&(y^z)))
+
 #define s0(x) (rotrFixed(x,1)^rotrFixed(x,8)^(x>>7))
 #define s1(x) (rotrFixed(x,19)^rotrFixed(x,61)^(x>>6))
+#define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
+#define S1(x) (rotrFixed(x,14)^rotrFixed(x,18)^rotrFixed(x,41))
 
 #define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA512_K[i+j]+\
-    (j?blk2(i):blk0(i));d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
+    (j?blk2(i):blk0(i));d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i));
 
 void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
 {
@@ -1064,6 +1107,29 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
     state[6] += g(0);
     state[7] += h(0);
 }
+
+#undef Ch
+#undef Maj
+
+#undef s0
+#undef s1
+#undef S0
+#undef S1
+
+#undef blk0
+#undef blk1
+#undef blk2
+
+#undef R
+
+#undef a
+#undef b
+#undef c
+#undef d
+#undef e
+#undef f
+#undef g
+#undef h
 
 ANONYMOUS_NAMESPACE_END
 
