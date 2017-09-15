@@ -123,7 +123,9 @@ extern "C"
 }
 #endif
 
-inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
+// Embarcadero  and Issue 498
+// cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
+bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
 #if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
