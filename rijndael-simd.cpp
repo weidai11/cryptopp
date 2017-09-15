@@ -367,76 +367,60 @@ size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F6 func6, const word32 *su
 			if (flags & BlockTransformation::BT_InBlockIsCounter)
 			{
 				uint32x4_t be = vld1q_u32(s_one);
-				block1 = vaddq_u8(block0, vreinterpretq_u8_u32(be));
-				block2 = vaddq_u8(block1, vreinterpretq_u8_u32(be));
-				block3 = vaddq_u8(block2, vreinterpretq_u8_u32(be));
-				block4 = vaddq_u8(block3, vreinterpretq_u8_u32(be));
-				block5 = vaddq_u8(block4, vreinterpretq_u8_u32(be));
-				temp   = vaddq_u8(block5, vreinterpretq_u8_u32(be));
+				block1 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block0), be);
+				block2 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block1), be);
+				block3 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block2), be);
+				block4 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block3), be);
+				block5 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block4), be);
+				temp   = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block5), be);
 				vst1q_u8(const_cast<byte*>(inBlocks), temp);
 			}
 			else
 			{
-				inBlocks += inIncrement;
-				block1 = vld1q_u8(inBlocks);
-				inBlocks += inIncrement;
-				block2 = vld1q_u8(inBlocks);
-				inBlocks += inIncrement;
-				block3 = vld1q_u8(inBlocks);
-				inBlocks += inIncrement;
-				block4 = vld1q_u8(inBlocks);
-				inBlocks += inIncrement;
-				block5 = vld1q_u8(inBlocks);
-				inBlocks += inIncrement;
+				const int inc = static_cast<int>(inIncrement);
+				block1 = vld1q_u8(inBlocks+1*inc);
+				block2 = vld1q_u8(inBlocks+2*inc);
+				block3 = vld1q_u8(inBlocks+3*inc);
+				block4 = vld1q_u8(inBlocks+4*inc);
+				block5 = vld1q_u8(inBlocks+5*inc);
+				inBlocks += 6*inc;
 			}
 
 			if (flags & BlockTransformation::BT_XorInput)
 			{
-				block0 = veorq_u8(block0, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block1 = veorq_u8(block1, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block2 = veorq_u8(block2, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block3 = veorq_u8(block3, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block4 = veorq_u8(block4, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block5 = veorq_u8(block5, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
+				const int inc = static_cast<int>(xorIncrement);
+				block0 = veorq_u8(block0, vld1q_u8(xorBlocks+0*inc));
+				block1 = veorq_u8(block1, vld1q_u8(xorBlocks+1*inc));
+				block2 = veorq_u8(block2, vld1q_u8(xorBlocks+2*inc));
+				block3 = veorq_u8(block3, vld1q_u8(xorBlocks+3*inc));
+				block4 = veorq_u8(block4, vld1q_u8(xorBlocks+4*inc));
+				block5 = veorq_u8(block5, vld1q_u8(xorBlocks+5*inc));
+				xorBlocks += 6*inc;
 			}
 
 			func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
 
 			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
 			{
-				block0 = veorq_u8(block0, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block1 = veorq_u8(block1, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block2 = veorq_u8(block2, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block3 = veorq_u8(block3, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block4 = veorq_u8(block4, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
-				block5 = veorq_u8(block5, vld1q_u8(xorBlocks));
-				xorBlocks += xorIncrement;
+				const int inc = static_cast<int>(xorIncrement);
+				block0 = veorq_u8(block0, vld1q_u8(xorBlocks+0*inc));
+				block1 = veorq_u8(block1, vld1q_u8(xorBlocks+1*inc));
+				block2 = veorq_u8(block2, vld1q_u8(xorBlocks+2*inc));
+				block3 = veorq_u8(block3, vld1q_u8(xorBlocks+3*inc));
+				block4 = veorq_u8(block4, vld1q_u8(xorBlocks+4*inc));
+				block5 = veorq_u8(block5, vld1q_u8(xorBlocks+5*inc));
+				xorBlocks += 6*inc;
 			}
 
-			vst1q_u8(outBlocks, block0);
-			outBlocks += outIncrement;
-			vst1q_u8(outBlocks, block1);
-			outBlocks += outIncrement;
-			vst1q_u8(outBlocks, block2);
-			outBlocks += outIncrement;
-			vst1q_u8(outBlocks, block3);
-			outBlocks += outIncrement;
-			vst1q_u8(outBlocks, block4);
-			outBlocks += outIncrement;
-			vst1q_u8(outBlocks, block5);
-			outBlocks += outIncrement;
+			const int inc = static_cast<int>(outIncrement);
+			vst1q_u8(outBlocks+0*inc, block0);
+			vst1q_u8(outBlocks+1*inc, block1);
+			vst1q_u8(outBlocks+2*inc, block2);
+			vst1q_u8(outBlocks+3*inc, block3);
+			vst1q_u8(outBlocks+4*inc, block4);
+			vst1q_u8(outBlocks+5*inc, block5);
 
+			outBlocks += 6*inc;
 			length -= 6*blockSize;
 		}
 	}
@@ -1171,7 +1155,7 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F6 func6, const word32 *s
 				block3 = VectorLoad(3*inc, inBlocks);
 				block4 = VectorLoad(4*inc, inBlocks);
 				block5 = VectorLoad(5*inc, inBlocks);
-				inBlocks += 6*inIncrement;
+				inBlocks += 6*inc;
 			}
 
 			if (flags & BlockTransformation::BT_XorInput)
