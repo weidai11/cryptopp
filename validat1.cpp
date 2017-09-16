@@ -285,7 +285,7 @@ bool TestSettings()
 		std::cout << "FAILED:  ";
 		pass = false;
 	}
-	std::cout << "sizeof(byte) == " << sizeof(byte) << std::endl;
+	std::cout << "sizeof(byte) == " << sizeof(byte) << "\n";
 
 	if (sizeof(word16) == 2)
 		std::cout << "passed:  ";
@@ -294,7 +294,7 @@ bool TestSettings()
 		std::cout << "FAILED:  ";
 		pass = false;
 	}
-	std::cout << "sizeof(word16) == " << sizeof(word16) << std::endl;
+	std::cout << "sizeof(word16) == " << sizeof(word16) << "\n";
 
 	if (sizeof(word32) == 4)
 		std::cout << "passed:  ";
@@ -303,7 +303,7 @@ bool TestSettings()
 		std::cout << "FAILED:  ";
 		pass = false;
 	}
-	std::cout << "sizeof(word32) == " << sizeof(word32) << std::endl;
+	std::cout << "sizeof(word32) == " << sizeof(word32) << "\n";
 
 	if (sizeof(word64) == 8)
 		std::cout << "passed:  ";
@@ -312,7 +312,7 @@ bool TestSettings()
 		std::cout << "FAILED:  ";
 		pass = false;
 	}
-	std::cout << "sizeof(word64) == " << sizeof(word64) << std::endl;
+	std::cout << "sizeof(word64) == " << sizeof(word64) << "\n";
 
 #ifdef CRYPTOPP_WORD128_AVAILABLE
 	if (sizeof(word128) == 16)
@@ -322,7 +322,7 @@ bool TestSettings()
 		std::cout << "FAILED:  ";
 		pass = false;
 	}
-	std::cout << "sizeof(word128) == " << sizeof(word128) << std::endl;
+	std::cout << "sizeof(word128) == " << sizeof(word128) << "\n";
 #endif
 
 	if (sizeof(word) == 2*sizeof(hword)
@@ -340,7 +340,7 @@ bool TestSettings()
 #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	std::cout << ", sizeof(dword) == " << sizeof(dword);
 #endif
-	std::cout << std::endl;
+	std::cout << "\n";
 
 	const int cacheLineSize = GetCacheLineSize();
 	if (cacheLineSize < 16 || cacheLineSize > 256 || !IsPowerOf2(cacheLineSize))
@@ -350,7 +350,7 @@ bool TestSettings()
 	}
 	else
 		std::cout << "passed:  ";
-	std::cout << "cacheLineSize == " << cacheLineSize << std::endl;
+	std::cout << "cacheLineSize == " << cacheLineSize << "\n";
 
 #ifdef CRYPTOPP_CPUID_AVAILABLE
 	bool hasSSE2 = HasSSE2();
@@ -361,7 +361,7 @@ bool TestSettings()
 
 	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41 << ", hasSSE4.2 == " << hasSSE42;
 	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
-	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4;
+	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << "\n";
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 	bool hasNEON = HasNEON();
@@ -373,7 +373,7 @@ bool TestSettings()
 
 	std::cout << "passed:  ";
 	std::cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << ", hasPMULL == " << hasPMULL;
-	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << std::endl;
+	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << "\n";
 
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 	bool hasAltivec = HasAltivec();
@@ -384,14 +384,14 @@ bool TestSettings()
 
 	std::cout << "passed:  ";
 	std::cout << "hasAltivec == " << hasAltivec << ", hasPower8 == " << hasPower8;
-	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << std::endl;
+	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << "\n";
 
 #endif
 
 	if (!pass)
 	{
-		std::cout << "Some critical setting in config.h is in error.  Please fix it and recompile." << std::endl;
-		abort();
+		std::cerr << "Some critical setting in config.h is in error.  Please fix it and recompile.\n";
+		std::abort();
 	}
 	return pass;
 }
@@ -757,7 +757,7 @@ bool TestRandomPool()
 		old.IncorporateEntropy(seed, seed.size());
 
 		old.GenerateBlock(actual, sizeof(actual));
-		fail = (0 != ::memcmp(actual, expected, sizeof(expected)));
+		fail = (0 != std::memcmp(actual, expected, sizeof(expected)));
 
 		pass &= !fail;
 		if (fail)
@@ -961,7 +961,7 @@ bool TestMersenne()
 
 	MT19937ar prng;
 	prng.GenerateBlock(reinterpret_cast<byte*>(result), sizeof(result));
-	fail = (0 != ::memcmp(result, expected, sizeof(expected)));
+	fail = (0 != std::memcmp(result, expected, sizeof(expected)));
 
 	pass &= !fail;
 	if (fail)
