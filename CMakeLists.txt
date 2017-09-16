@@ -4,6 +4,17 @@
 #   please set up a Ubuntu 12.04 LTS system. Then, manually install Cmake 2.8.5
 #   from http://cmake.org/Wiki/CMake_Released_Versions.
 
+MESSAGE( STATUS
+"*************************************************************************\n\
+CMake support is being sunsetted. It is a redundant build system because\n\
+the Makefile is used on Unix & Linux; and Visual Studio & MSBuild are used\n\
+on Windows. Lack of Native CMake support for AIX, Android, iOS, PowerPC,\n\
+Solaris, Windows Phone, Windows Store, SSE, ARMv7, ARMv8 and Power8 placed\n\
+too much of a burden on the library maintainers. You can find the latest\n\
+community maintained CmakeList.txt at http://www.cryptopp.com/wiki/CMake.\n\
+-- *************************************************************************"
+)
+
 cmake_minimum_required(VERSION 2.8.5 FATAL_ERROR)
 
 project(cryptopp)
@@ -105,13 +116,19 @@ endif ()
 
 ###############################################################################
 
-function(CheckCompilerOption option variable)
+function(CheckCompilerOption opt var)
 
-	if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 
-		message(STATUS "Performing Test ${variable}")
+		# CMake does not provide a generic shell/terminal mechanism
+		#  and Microsoft environments don't know what 'sh' is.
+		set(${var} 0 PARENT_SCOPE)
+
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+
+		message(STATUS "Performing Test ${var}")
 		execute_process(
-			COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${option} -E -xdumpmacros /dev/null 2>&1"
+			COMMAND sh -c "${CMAKE_CXX_COMPILER} ${CMAKE_CXX_FLAGS} ${opt} -E -xdumpmacros /dev/null 2>&1"
 			COMMAND ${GREP_CMD} -i -c -E "illegal value ignored"
 			RESULT_VARIABLE COMMAND_RESULT
 			OUTPUT_VARIABLE COMMAND_OUTPUT
@@ -119,16 +136,16 @@ function(CheckCompilerOption option variable)
 
 		# No dereference below. Thanks for the warning, CMake (not!).
 		if (COMMAND_RESULT AND NOT COMMAND_OUTPUT)
-			set(${variable} 1 PARENT_SCOPE)
-			message(STATUS "Performing Test ${variable} - Success")
+			set(${var} 1 PARENT_SCOPE)
+			message(STATUS "Performing Test ${var} - Success")
 		else ()
-			set(${variable} 0 PARENT_SCOPE)
-			message(STATUS "Performing Test ${variable} - Failed")
+			set(${var} 0 PARENT_SCOPE)
+			message(STATUS "Performing Test ${var} - Failed")
 		endif ()
 
 	else ()
 
-		CHECK_CXX_COMPILER_FLAG(${option} ${variable})
+		CHECK_CXX_COMPILER_FLAG(${opt} ${var})
 
 	endif ()
 
@@ -137,12 +154,24 @@ endfunction(CheckCompilerOption)
 ###############################################################################
 
 function(DumpMachine output pattern)
-	execute_process(
-		COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
-		COMMAND ${GREP_CMD} -i -c -E "${pattern}"
-		OUTPUT_VARIABLE ${output}
-		OUTPUT_STRIP_TRAILING_WHITESPACE)
-	set(${output} "${${output}}" PARENT_SCOPE)
+
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+
+		# CMake does not provide a generic shell/terminal mechanism
+		#  and Microsoft environments don't know what 'sh' is.
+		set(${output} 0 PARENT_SCOPE)
+
+	else ()
+
+		execute_process(
+			COMMAND sh -c "${CMAKE_CXX_COMPILER} -dumpmachine 2>&1"
+			COMMAND ${GREP_CMD} -i -c -E "${pattern}"
+			OUTPUT_VARIABLE ${output}
+			OUTPUT_STRIP_TRAILING_WHITESPACE)
+		set(${output} "${${output}}" PARENT_SCOPE)
+
+	endif()
+
 endfunction(DumpMachine)
 
 # Thansk to Anonimal for MinGW; see http://github.com/weidai11/cryptopp/issues/466
@@ -745,7 +774,7 @@ if (NOT CMAKE_VERSION VERSION_LESS 3.0.2)
 	if (CRYPTOPP_I386)
 		message(STATUS "Platform: i386/i686")
 	elseif (CRYPTOPP_AMD64)
-		message(STATUS "Platform: amd64")
+		message(STATUS "Platform: x86_64")
 	elseif (CRYPTOPP_X32)
 		message(STATUS "Platform: x86_64-x32")
 	elseif (CRYPTOPP_ARMHF)
@@ -760,6 +789,10 @@ if (NOT CMAKE_VERSION VERSION_LESS 3.0.2)
 		message(STATUS "Platform: Sparc")
 	elseif (CRYPTOPP_SPARC64)
 		message(STATUS "Platform: Sparc64")
+	elseif (CRYPTOPP_POWERPC)
+		message(STATUS "Platform: PowerPC")
+	elseif (CRYPTOPP_POWERPC64)
+		message(STATUS "Platform: PowerPC64")
 	elseif (CRYPTOPP_MINGW32)
 		message(STATUS "Platform: MinGW-32")
 	elseif (CRYPTOPP_MINGW32)
