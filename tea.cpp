@@ -19,11 +19,11 @@ void TEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const 
 
 void TEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word32 y, z;
+	word32 y, z, sum = 0;
 	Block::Get(inBlock)(y)(z);
 
-	word32 sum = 0;
-	while (sum != m_limit)
+	// http://github.com/weidai11/cryptopp/issues/503
+	while (*const_cast<volatile word32*>(&sum) != m_limit)
 	{
 		sum += DELTA;
 		y += ((z << 4) + m_k[0]) ^ (z + sum) ^ ((z >> 5) + m_k[1]);
@@ -35,11 +35,11 @@ void TEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 
 void TEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word32 y, z;
+	word32 y, z, sum = m_limit;
 	Block::Get(inBlock)(y)(z);
 
-	word32 sum = m_limit;
-	while (sum != 0)
+	// http://github.com/weidai11/cryptopp/issues/503
+	while (*const_cast<volatile word32*>(&sum) != 0)
 	{
 		z -= ((y << 4) + m_k[2]) ^ (y + sum) ^ ((y >> 5) + m_k[3]);
 		y -= ((z << 4) + m_k[0]) ^ (z + sum) ^ ((z >> 5) + m_k[1]);
@@ -59,17 +59,11 @@ void XTEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length,  cons
 
 void XTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word32 y, z;
+	word32 y, z, sum = 0;
 	Block::Get(inBlock)(y)(z);
 
-#ifdef __SUNPRO_CC
-	// workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
-	size_t sum = 0;
-	while ((sum&0xffffffff) != m_limit)
-#else
-	word32 sum = 0;
-	while (sum != m_limit)
-#endif
+	// http://github.com/weidai11/cryptopp/issues/503
+	while (*const_cast<volatile word32*>(&sum) != m_limit)
 	{
 		y += ((z<<4 ^ z>>5) + z) ^ (sum + m_k[sum&3]);
 		sum += DELTA;
@@ -81,17 +75,11 @@ void XTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 
 void XTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	word32 y, z;
+	word32 y, z, sum = m_limit;
 	Block::Get(inBlock)(y)(z);
 
-#ifdef __SUNPRO_CC
-	// workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
-	size_t sum = m_limit;
-	while ((sum&0xffffffff) != 0)
-#else
-	word32 sum = m_limit;
-	while (sum != 0)
-#endif
+	// http://github.com/weidai11/cryptopp/issues/503
+	while (*const_cast<volatile word32*>(&sum) != 0)
 	{
 		z -= ((y<<4 ^ y>>5) + y) ^ (sum + m_k[sum>>11 & 3]);
 		sum -= DELTA;
