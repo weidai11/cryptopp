@@ -379,9 +379,9 @@ ifeq ($(XLC_COMPILER),1)
       CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
   endif
   # Warnings and intermittent failures on early IBM XL C/C++
-  ifneq ($(findstring -O3,$(CXXFLAGS)),)
-      CXXFLAGS := $(CXXFLAGS:-O3=-O2)
-  endif
+  #ifneq ($(findstring -O3,$(CXXFLAGS)),)
+  #    CXXFLAGS := $(CXXFLAGS:-O3=-O2)
+  #endif
 endif
 
 endif	# IS_X86
