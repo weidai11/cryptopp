@@ -149,7 +149,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	}
 
 	// function 0 returns the highest basic function understood in EAX
-	if(input == 0)
+	if(func == 0)
 		return !!output[0];
 
 	return true;

@@ -790,7 +790,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 
 void SHA384::InitState(HashWordType *state)
 {
-    static const word64 s[8] = {
+    const word64 s[8] = {
         W64LIT(0xcbbb9d5dc1059ed8), W64LIT(0x629a292a367cd507),
         W64LIT(0x9159015a3070dd17), W64LIT(0x152fecd8f70e5939),
         W64LIT(0x67332667ffc00b31), W64LIT(0x8eb44a8768581511),
@@ -800,7 +800,7 @@ void SHA384::InitState(HashWordType *state)
 
 void SHA512::InitState(HashWordType *state)
 {
-    static const word64 s[8] = {
+    const word64 s[8] = {
         W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
         W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
         W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
