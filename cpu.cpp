@@ -123,24 +123,31 @@ extern "C"
 }
 #endif
 
-// Embarcadero  and Issue 498
+// Borland/Embarcadero and Issue 498
 // cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
 bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-#if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+#if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY) || defined(__BORLANDC__)
     __try
 	{
+		// Borland/Embarcadero and Issue 500
+		// Local variables for cpuid output
+		word32 a, b, c, d;
 		__asm
 		{
 			mov eax, func
 			mov ecx, subfunc
 			cpuid
 			mov edi, output
-			mov [edi], eax
-			mov [edi+4], ebx
-			mov [edi+8], ecx
-			mov [edi+12], edx
+			mov [a], eax
+			mov [b], ebx
+			mov [c], ecx
+			mov [d], edx
 		}
+		output[0] = a;
+		output[1] = b;
+		output[2] = c;
+		output[3] = d;
 	}
 	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
 	__except (EXCEPTION_EXECUTE_HANDLER)
