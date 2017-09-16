@@ -306,9 +306,9 @@ void DetectX86Features()
 
 	if (IsIntel(cpuid0))
 	{
-		enum { RDRAND_FLAG = (1 << 30) };
-		enum { RDSEED_FLAG = (1 << 18) };
-		enum {    SHA_FLAG = (1 << 29) };
+		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
+		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
+		CRYPTOPP_CONSTANT(   SHA_FLAG = (1 << 29))
 
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
@@ -325,9 +325,9 @@ void DetectX86Features()
 	}
 	else if (IsAMD(cpuid0))
 	{
-		enum { RDRAND_FLAG = (1 << 30) };
-		enum { RDSEED_FLAG = (1 << 18) };
-		enum {    SHA_FLAG = (1 << 29) };
+		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
+		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
+		CRYPTOPP_CONSTANT(   SHA_FLAG = (1 << 29))
 
 		CpuId(0x80000005, 0, cpuid2);
 		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
@@ -344,11 +344,11 @@ void DetectX86Features()
 	}
 	else if (IsVIA(cpuid0))
 	{
-		enum {  RNG_FLAGS = (0x3 << 2) };
-		enum {  ACE_FLAGS = (0x3 << 6) };
-		enum { ACE2_FLAGS = (0x3 << 8) };
-		enum {  PHE_FLAGS = (0x3 << 10) };
-		enum {  PMM_FLAGS = (0x3 << 12) };
+		CRYPTOPP_CONSTANT( RNG_FLAGS = (0x3 << 2))
+		CRYPTOPP_CONSTANT( ACE_FLAGS = (0x3 << 6))
+		CRYPTOPP_CONSTANT(ACE2_FLAGS = (0x3 << 8))
+		CRYPTOPP_CONSTANT( PHE_FLAGS = (0x3 << 10))
+		CRYPTOPP_CONSTANT( PMM_FLAGS = (0x3 << 12))
 
 		CpuId(0xC0000000, 0, cpuid2);
 		if (cpuid2[0] >= 0xC0000001)
