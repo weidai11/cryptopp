@@ -24,7 +24,7 @@ Currently the library contains the following algorithms:
      message authentication codes  VMAC, HMAC, GMAC, CMAC, CBC-MAC, DMAC,
                                    Two-Track-MAC, BLAKE2s, BLAKE2b
 
-                                   BLAKE2s, BLAKE2b, Keccack (F1600) SHA-1, SHA-2
+                                   BLAKE2s, BLAKE2b, Keccack (F1600), SHA-1, SHA-2
                    hash functions  (SHA-224, SHA-256, SHA-384, and SHA-512), SHA-3,
                                    Tiger, WHIRLPOOL, RIPEMD-128, RIPEMD-256,
                                    RIPEMD-160, RIPEMD-320
@@ -69,16 +69,17 @@ Other features include:
       + Berkeley and Windows style sockets
       + Windows named pipes
       + /dev/random, /dev/urandom, /dev/srandom
-      + Microsoft's CryptGenRandom on Windows
+      + Microsoft's CryptGenRandom or BCryptGenRandom on Windows
   * A high level interface for most of the above, using a filter/pipeline
     metaphor
   * benchmarks and validation testing
-  * x86, x64 (x86-64), x32 (ILP32), ARM-32, Aarch32 and Aarch64 code for the commonly
-    used algorithms
+  * x86, x64 (x86-64), x32 (ILP32), ARM-32, Aarch32, Aarch64 and Power8 in-core code
+    for the commonly used algorithms
       + run-time CPU feature detection and code selection</li>
       + supports GCC-style and MSVC-style inline assembly, and MASM for x64
       + x86, x64 (x86-64), x32 provides MMX, SSE2, and SSE4 implementations
       + ARM-32, Aarch32 and Aarch64 provides NEON, ASIMD and ARMv8 implementations
+      + Power8 provides in-core AES using NX Crypto Acceleration
 
 The Crypto++ library was orginally written by Wei Dai. The library is now
 maintained by several team members and the community. You are welcome to use it
@@ -87,13 +88,14 @@ for any purpose without paying anyone, but see License.txt for the fine print.
 The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
-  * Visual Studio 2003 - 2015
+  * Visual Studio 2003 - 2017
   * GCC 3.3 - 7.1
   * Apple Clang 4.3 - 8.3
   * LLVM Clang 2.9 - 4.0
   * C++Builder 2010
   * Intel C++ Compiler 9 - 16.0
   * Sun Studio 12u1 - 12.5
+  * IBM XL C/C++ 10.0 - 13.1
 
 *** Important Usage Notes ***
 
