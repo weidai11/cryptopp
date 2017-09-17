@@ -17,6 +17,10 @@
 # include <sys/systemcfg.h>
 #endif
 
+#ifdef __linux__
+# include <unistd.h>
+#endif
+
 // Capability queries, requires Glibc 2.16, https://lwn.net/Articles/519085/
 // CRYPTOPP_GLIBC_VERSION not used because config.h is missing <feature.h>
 #if (((__GLIBC__ * 100) + __GLIBC_MINOR__) >= 216)
@@ -33,8 +37,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <sys/utsname.h>
 #endif
 
-// http://android.googlesource.com/platform/ndk/+/master/sources/android/cpufeatures/cpu-features.h
-// The cpu-features header and source file are located in ANDROID_NDK_ROOT/sources/android
+// The cpu-features header and source file are located in $ANDROID_NDK_ROOT/sources/android/cpufeatures
 // setenv-android.sh will copy the header and source file into PWD and the makefile will build it in place.
 #if defined(__ANDROID__)
 # include "cpu-features.h"
@@ -602,6 +605,13 @@ void DetectArmFeatures()
 	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
 	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
 
+#if defined(__linux__)
+	g_cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+#endif
+
+	if (!g_cacheLineSize)
+		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
+
 	g_ArmDetectionDone = true;
 }
 
@@ -713,10 +723,16 @@ void DetectPowerpcFeatures()
 	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
 	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
 
-#ifdef _AIX
+#if defined(_AIX)
 	// /usr/include/sys/systemcfg.h
 	g_cacheLineSize = getsystemcfg(SC_L1C_DLS);
+#elif defined(__linux__)
+	// GCC112 CentOS 7 returns 0?
+	g_cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 #endif
+
+	if (!g_cacheLineSize)
+		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 	g_PowerpcDetectionDone = true;
 }
