@@ -605,7 +605,7 @@ void DetectArmFeatures()
 	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
 	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
 
-#if defined(__linux__)
+#if defined(__linux__) && defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	g_cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 #endif
 
@@ -726,7 +726,7 @@ void DetectPowerpcFeatures()
 #if defined(_AIX)
 	// /usr/include/sys/systemcfg.h
 	g_cacheLineSize = getsystemcfg(SC_L1C_DLS);
-#elif defined(__linux__)
+#elif defined(__linux__) && defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// GCC112 CentOS 7 returns 0?
 	g_cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 #endif
