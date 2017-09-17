@@ -17,44 +17,16 @@
 # include <sys/systemcfg.h>
 #endif
 
-#if defined(__linux__)
+// Capability queries, requires Glibc 2.16, https://lwn.net/Articles/519085/
+// CRYPTOPP_GLIBC_VERSION not used because config.h is missing <feature.h>
+#if (((__GLIBC__ * 100) + __GLIBC_MINOR__) >= 216)
+# define CRYPTOPP_GETAUXV_AVAILABLE 1
+#endif
+
+#if CRYPTOPP_GETAUXV_AVAILABLE
 # include <sys/auxv.h>
-# ifndef HWCAP_ASIMD
-# define HWCAP_ASIMD (1 << 1)
-# endif
-# ifndef HWCAP_ARM_NEON
-# define HWCAP_ARM_NEON 4096
-# endif
-# ifndef HWCAP_CRC32
-# define HWCAP_CRC32 (1 << 7)
-# endif
-# ifndef HWCAP2_CRC32
-# define HWCAP2_CRC32 (1 << 4)
-# endif
-# ifndef HWCAP_PMULL
-# define HWCAP_PMULL (1 << 4)
-# endif
-# ifndef HWCAP2_PMULL
-# define HWCAP2_PMULL (1 << 1)
-# endif
-# ifndef HWCAP_AES
-# define HWCAP_AES (1 << 3)
-# endif
-# ifndef HWCAP2_AES
-# define HWCAP2_AES (1 << 0)
-# endif
-# ifndef HWCAP_SHA1
-# define HWCAP_SHA1 (1 << 5)
-# endif
-# ifndef HWCAP_SHA2
-# define HWCAP_SHA2 (1 << 6)
-# endif
-# ifndef HWCAP2_SHA1
-# define HWCAP2_SHA1 (1 << 2)
-# endif
-# ifndef HWCAP2_SHA2
-# define HWCAP2_SHA2 (1 << 3)
-# endif
+#else
+unsigned long int getauxval(unsigned long int) { return 0; }
 #endif
 
 #if defined(__APPLE__) && defined(__aarch64__)
@@ -405,6 +377,43 @@ extern bool CPU_ProbeSHA1();
 extern bool CPU_ProbeSHA2();
 extern bool CPU_ProbePMULL();
 
+#ifndef HWCAP_ASIMD
+# define HWCAP_ASIMD (1 << 1)
+#endif
+#ifndef HWCAP_ARM_NEON
+# define HWCAP_ARM_NEON 4096
+#endif
+#ifndef HWCAP_CRC32
+# define HWCAP_CRC32 (1 << 7)
+#endif
+#ifndef HWCAP2_CRC32
+# define HWCAP2_CRC32 (1 << 4)
+#endif
+#ifndef HWCAP_PMULL
+# define HWCAP_PMULL (1 << 4)
+#endif
+#ifndef HWCAP2_PMULL
+# define HWCAP2_PMULL (1 << 1)
+#endif
+#ifndef HWCAP_AES
+# define HWCAP_AES (1 << 3)
+#endif
+#ifndef HWCAP2_AES
+# define HWCAP2_AES (1 << 0)
+#endif
+#ifndef HWCAP_SHA1
+# define HWCAP_SHA1 (1 << 5)
+#endif
+#ifndef HWCAP_SHA2
+# define HWCAP_SHA2 (1 << 6)
+#endif
+#ifndef HWCAP2_SHA1
+# define HWCAP2_SHA1 (1 << 2)
+#endif
+#ifndef HWCAP2_SHA2
+# define HWCAP2_SHA2 (1 << 3)
+#endif
+
 inline bool CPU_QueryNEON()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
@@ -600,22 +609,6 @@ void DetectArmFeatures()
 
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 
-#if defined(__linux__)
-# include <sys/auxv.h>
-# ifndef PPC_FEATURE_HAS_ALTIVEC
-# define PPC_FEATURE_HAS_ALTIVEC  0x10000000
-# endif
-# ifndef PPC_FEATURE_ARCH_2_06
-# define PPC_FEATURE_ARCH_2_06    0x00000100
-# endif
-# ifndef PPC_FEATURE2_ARCH_2_07
-# define PPC_FEATURE2_ARCH_2_07   0x80000000
-# endif
-# ifndef PPC_FEATURE2_VEC_CRYPTO
-# define PPC_FEATURE2_VEC_CRYPTO  0x02000000
-# endif
-#endif
-
 bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPower8 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
@@ -626,6 +619,19 @@ extern bool CPU_ProbePower8();
 extern bool CPU_ProbeAES();
 extern bool CPU_ProbeSHA1();
 extern bool CPU_ProbeSHA2();
+
+#ifndef PPC_FEATURE_HAS_ALTIVEC
+# define PPC_FEATURE_HAS_ALTIVEC  0x10000000
+#endif
+#ifndef PPC_FEATURE_ARCH_2_06
+# define PPC_FEATURE_ARCH_2_06    0x00000100
+#endif
+#ifndef PPC_FEATURE2_ARCH_2_07
+# define PPC_FEATURE2_ARCH_2_07   0x80000000
+#endif
+#ifndef PPC_FEATURE2_VEC_CRYPTO
+# define PPC_FEATURE2_VEC_CRYPTO  0x02000000
+#endif
 
 inline bool CPU_QueryAltivec()
 {
