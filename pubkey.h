@@ -996,7 +996,7 @@ class CRYPTOPP_NO_VTABLE DL_PublicKey : public DL_Key<T>
 public:
 	typedef T Element;
 
-	virtual ~DL_PublicKey() {}
+	virtual ~DL_PublicKey();
 
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
@@ -1024,6 +1024,10 @@ public:
 	virtual DL_FixedBasePrecomputation<T> & AccessPublicPrecomputation() =0;
 };
 
+// Out-of-line dtor due to AIX and GCC, http://github.com/weidai11/cryptopp/issues/499
+template<class T>
+DL_PublicKey<T>::~DL_PublicKey() {}
+
 //! \brief Interface for Discrete Log (DL) private keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
@@ -1033,7 +1037,7 @@ class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
 public:
 	typedef T Element;
 
-	virtual ~DL_PrivateKey() {}
+	virtual ~DL_PrivateKey();
 
 	void MakePublicKey(DL_PublicKey<T> &pub) const
 	{
@@ -1058,6 +1062,10 @@ public:
 	virtual void SetPrivateExponent(const Integer &x) =0;
 };
 
+// Out-of-line dtor due to AIX and GCC, http://github.com/weidai11/cryptopp/issues/499
+template<class T>
+DL_PrivateKey<T>::~DL_PrivateKey() {}
+
 template <class T>
 void DL_PublicKey<T>::AssignFrom(const NameValuePairs &source)
 {
@@ -1074,7 +1082,7 @@ void DL_PublicKey<T>::AssignFrom(const NameValuePairs &source)
 
 class OID;
 
-//! _
+//! \brief Discrete Log (DL) key base implementation
 template <class PK, class GP, class O = OID>
 class DL_KeyImpl : public PK
 {
@@ -1099,7 +1107,7 @@ private:
 class X509PublicKey;
 class PKCS8PrivateKey;
 
-//! _
+//! \brief Discrete Log (DL) private key base implementation
 template <class GP>
 class DL_PrivateKeyImpl : public DL_PrivateKey<typename GP::Element>, public DL_KeyImpl<PKCS8PrivateKey, GP>
 {
@@ -1189,14 +1197,14 @@ public:
 	}
 };
 
-//! _
+//! \brief Discrete Log (DL) public key base implementation
 template <class GP>
 class DL_PublicKeyImpl : public DL_PublicKey<typename GP::Element>, public DL_KeyImpl<X509PublicKey, GP>
 {
 public:
 	typedef typename GP::Element Element;
 
-	virtual ~DL_PublicKeyImpl() {}
+	virtual ~DL_PublicKeyImpl();
 
 	// CryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
@@ -1251,6 +1259,10 @@ public:
 private:
 	typename GP::BasePrecomputation m_ypc;
 };
+
+// Out-of-line dtor due to AIX and GCC, http://github.com/weidai11/cryptopp/issues/499
+template<class GP>
+DL_PublicKeyImpl<GP>::~DL_PublicKeyImpl() {}
 
 //! \brief Interface for Elgamal-like signature algorithms
 template <class T>

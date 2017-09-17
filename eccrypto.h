@@ -215,7 +215,7 @@ class DL_PrivateKey_EC : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 public:
 	typedef typename EC::Point Element;
 
-	virtual ~DL_PrivateKey_EC() {}
+	virtual ~DL_PrivateKey_EC();
 
 	//! \brief Initialize an EC Private Key using {GP,x}
 	//! \param params group parameters
@@ -257,6 +257,10 @@ public:
 	void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
 	void DEREncodePrivateKey(BufferedTransformation &bt) const;
 };
+
+// Out-of-line dtor due to AIX and GCC, http://github.com/weidai11/cryptopp/issues/499
+template<class EC>
+DL_PrivateKey_EC<EC>::~DL_PrivateKey_EC() {}
 
 //! \class ECDH
 //! \brief Elliptic Curve Diffie-Hellman
