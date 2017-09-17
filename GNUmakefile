@@ -396,9 +396,9 @@ ifneq ($(IS_LINUX)$(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),0000)
   CXXFLAGS += -pthread
 endif # CXXFLAGS
 
-# Add -pipe for everything except IBM XL C/C++ and ARM.
+# Add -pipe for everything except IBM XL C/C++, SunCC and ARM.
 # Allow ARM-64 because they seems to have >1 GB of memory
-ifeq ($(XLC_COMPILER)$(IS_ARM32),00)
+ifeq ($(XLC_COMPILER)$(SUN_COMPILER)$(IS_ARM32),000)
   ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
     CXXFLAGS += -pipe
   endif
