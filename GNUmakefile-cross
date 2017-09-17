@@ -261,9 +261,7 @@ clean:
 .PHONY: distclean
 distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
-	@-$(RM) CMakeCache.txt Makefile CTestTestfile.cmake cmake_install.cmake cryptopp-config-version.cmake
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
-	@-$(RM) -r CMakeFiles/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
