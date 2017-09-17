@@ -32,7 +32,6 @@ env:
     - BUILD_MODE="ios-arm64"
     - BUILD_MODE="ios-watch"
     - BUILD_MODE="ios-tv"
-    - BUILD_MODE="cmake"
 
 matrix:
 
@@ -67,33 +66,25 @@ script:
     if [[ "$BUILD_MODE" == "ios-arm" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh arm
-        make -f GNUmakefile-cross
+        make -f GNUmakefile-cross -j "$BUILD_JOBS"
     elif [[ "$BUILD_MODE" == "ios-arm64" ]]; then
         cp ./TestScripts/setenv-ios.sh .
-        . ./setenv-ios.sh arm64
+        . ./setenv-ios.sh arm64 -j "$BUILD_JOBS"
         make -f GNUmakefile-cross
     elif [[ "$BUILD_MODE" == "ios-watch" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh watch
-        make -f GNUmakefile-cross
+        make -f GNUmakefile-cross -j "$BUILD_JOBS"
     elif [[ "$BUILD_MODE" == "ios-tv" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh tv
-        make -f GNUmakefile-cross
+        make -f GNUmakefile-cross -j  "$BUILD_JOBS"
     elif [[ "$BUILD_MODE" == "debug" ]]; then
-        CXXFLAGS="-DDEBUG -g2 -O1" make
-        ./cryptest.exe v
-        ./cryptest.exe tv all
-    elif [[ "$BUILD_MODE" == "cmake" ]]; then
-        CRYPTOPP_DIR=$(pwd)
-        mkdir cryptopp-build
-        cd cryptopp-build
-        cmake $CRYPTOPP_DIR
-        make -j 4 VERBOSE=1
+        CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
         ./cryptest.exe v
         ./cryptest.exe tv all
     else
-        make "$BUILD_MODE"
+        make "$BUILD_MODE" -j "$BUILD_JOBS"
         ./cryptest.exe v
         ./cryptest.exe tv all
     fi

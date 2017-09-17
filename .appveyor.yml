@@ -26,7 +26,6 @@ environment:
 
   matrix:
 
-  - BUILD_MODE: CMake
   - BUILD_MODE: MSBuild
 
 # Disable build through solution file
@@ -37,86 +36,15 @@ test_script:
 
 - ps: >-
 
-    if($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2017" -and $env:BUILD_MODE -eq "CMake")
-    {
+    msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptlib.vcxproj
 
-        mkdir cmake-build
+    msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptest.vcxproj
 
-        cd cmake-build
+    msbuild /t:CopyCryptestToRoot cryptest.vcxproj
 
-        cmake -G "Visual Studio 15 2017" -DCMAKE_BUILD_TYPE=$env:configuration ..\
+    .\cryptest.exe v
 
-        msbuild /t:Build cryptopp-static.vcxproj
-
-        msbuild /t:Build cryptest.vcxproj
-
-        robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
-
-        cd $env:APPVEYOR_BUILD_FOLDER\
-
-        .\cryptest.exe v
-
-        .\cryptest.exe tv all
-
-    }
-    elseif($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2015" -and $env:BUILD_MODE -eq "CMake")
-    {
-
-        mkdir cmake-build
-
-        cd cmake-build
-
-        cmake -G "Visual Studio 14 2015" -DCMAKE_BUILD_TYPE=$env:configuration ..\
-
-        msbuild /t:Build cryptopp-static.vcxproj
-
-        msbuild /t:Build cryptest.vcxproj
-
-        robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
-
-        cd $env:APPVEYOR_BUILD_FOLDER\
-
-        .\cryptest.exe v
-
-        .\cryptest.exe tv all
-
-    }
-    elseif($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2013" -and $env:BUILD_MODE -eq "CMake")
-    {
-
-        mkdir cmake-build
-
-        cd cmake-build
-
-        cmake -G "Visual Studio 12 2013" -DCMAKE_BUILD_TYPE=$env:configuration ..\
-
-        msbuild /t:Build cryptopp-static.vcxproj
-
-        msbuild /t:Build cryptest.vcxproj
-
-        robocopy $env:APPVEYOR_BUILD_FOLDER\cmake-build\$env:configuration\ $env:APPVEYOR_BUILD_FOLDER\ cryptest.exe
-
-        cd $env:APPVEYOR_BUILD_FOLDER\
-
-        .\cryptest.exe v
-
-        .\cryptest.exe tv all
-
-    }
-    else
-    {
-
-        msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptlib.vcxproj
-
-        msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptest.vcxproj
-
-        msbuild /t:CopyCryptestToRoot cryptest.vcxproj
-
-        .\cryptest.exe v
-
-        .\cryptest.exe tv all
-
-    }
+    .\cryptest.exe tv all
 
 notifications:
   - provider: Email
