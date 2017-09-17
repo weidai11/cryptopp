@@ -11,7 +11,9 @@ MKDIR ?= mkdir
 EGREP ?= egrep
 LN ?= ln -sf
 
-IS_ARMV8 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'aarch32|aarch64')
+IS_i686 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'i.86')
+IS_x86_64 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'x86_64|amd64')
+IS_ARMv8 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'aarch32|aarch64')
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
 IS_IOS ?= 0
@@ -178,7 +180,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
 endif # Dead code stripping
 
 # ARMv8-a
-ifeq ($(IS_ARMV8),1)
+ifeq ($(IS_ARMv8),1)
   HAVE_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
@@ -194,6 +196,32 @@ ifeq ($(IS_ARMV8),1)
     AES_FLAG = -march=armv8-a+crypto
     GCM_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
+  endif
+endif
+
+# i686 and x86_64
+ifneq ($(IS_i686)$(IS_x86_64),00)
+  HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSSE3__)
+  ifeq ($(HAVE_SSSE3),1)
+    ARIA_FLAG = -mssse3
+    SSSE3_FLAG = -mssse3
+  endif
+  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSE4_2__)
+  ifeq ($(HAVE_SSE4),1)
+    BLAKE2_FLAG = -msse4.2
+    CRC_FLAG = -msse4.2
+  endif
+  HAVE_CLMUL = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | $(EGREP) -i -c __PCLMUL__ )
+  ifeq ($(HAVE_CLMUL),1)
+    GCM_FLAG = -mssse3 -mpclmul
+  endif
+  HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(EGREP) -i -c __AES__)
+  ifeq ($(HAVE_AES),1)
+    AES_FLAG = -msse4.1 -maes
+  endif
+  HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(EGREP) -i -c __SHA__)
+  ifeq ($(HAVE_SHA),1)
+    SHA_FLAG = -msse4.2 -msha
   endif
 endif
 
