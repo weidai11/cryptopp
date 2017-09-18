@@ -11,7 +11,7 @@
 # ====================================================================
 
 PLATFORMS=(armeabi armeabi-v7a armeabi-v7a-hard armv7a-neon aarch64 mipsel x86 x86_64)
-RUNTIMES=(stlport-static stlport-shared gabi++-static gabi++-shared)
+RUNTIMES=(gnu-static gnu-shared llvm-static llvm-shared stlport-static stlport-shared)
 for platform in ${PLATFORMS[@]}
 do
 	for runtime in ${RUNTIMES[@]}
@@ -20,7 +20,7 @@ do
 
 		MESSAGE="Testing for Android support of $platform using $runtime"
 		LEN=${#MESSAGE}
-		HEADER=$(seq  -f "*" -s '' $LEN)
+		HEADER=$(seq -f "*" -s '' $LEN)
 
 		echo
 		echo "$HEADER"
