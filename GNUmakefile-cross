@@ -13,12 +13,19 @@ LN ?= ln -sf
 
 IS_i686 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'i.86')
 IS_x86_64 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'x86_64|amd64')
+IS_ARM := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'arm')
 IS_ARMv8 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'aarch32|aarch64')
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
 IS_IOS ?= 0
 IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
+IS_NEON ?= 0
+
+# Fixup ARM
+ifeq ($(IS_ARMv8),1)
+  IS_ARM := 0
+endif
 
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
 #   Android and embedded users typically don't run this configuration.
@@ -179,10 +186,48 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
   endif # MAKECMDGOALS
 endif # Dead code stripping
 
+# Pickup ARMv7 and NEON. Do it after Android, iOS and Embedded flags have been set.
+ifeq ($(IS_ARM),1)
+  IS_ARMv7 := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -dM -E - 2>/dev/null | $(EGREP) -i -c '__ARM_ARCH 7')
+  ifeq ($(IS_ARMv7),1)
+    IS_NEON := 1
+  else
+    IS_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -dM -E - 2>/dev/null | $(EGREP) -i -c -E '\<__ARM_NEON\>')
+  endif
+endif
+
+# ARMv7-a
+ifeq ($(IS_ARMv7),1)
+  ifeq ($(findstring -march=armv7-a,$(CXXFLAGS)),)
+    NEON_FLAG = -march=armv7-a
+    GCM_FLAG = -march=armv7-a
+    ARIA_FLAG = -march=armv7-a
+    BLAKE2_FLAG = -march=armv7-a
+  endif
+endif
+
+# NEON
+ifeq ($(IS_NEON),1)
+  ifeq ($(findstring -mfpu=neon,$(CXXFLAGS)),)
+    NEON_FLAG += -mfpu=neon
+    GCM_FLAG += -mfpu=neon
+    ARIA_FLAG += -mfpu=neon
+    BLAKE2_FLAG += -mfpu=neon
+    ifeq ($(IS_ANDROID),1)
+      ifeq ($(findstring -mfloat-abi=softfp,$(CXXFLAGS)),)
+        NEON_FLAG += -mfloat-abi=softfp
+        GCM_FLAG += -mfloat-abi=softfp
+        ARIA_FLAG += -mfloat-abi=softfp
+        BLAKE2_FLAG += -mfloat-abi=softfp
+      endif
+    endif
+  endif
+endif
+
 # ARMv8-a
-ifeq ($(IS_ARMv8),1)
-  HAVE_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
-  ifeq ($(HAVE_NEON),1)
+ifneq ($(IS_ARMv8),0)
+  IS_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  ifeq ($(IS_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a

@@ -8,6 +8,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// We set CRYPTOPP_ARM_CRC32_AVAILABLE based on compiler version.
+// Android does not provide -march=armv8-a+crc or -march=armv8.1-a+crc, so
+// it looks like we will have to disable CRC acceleration of their devices.
+#if defined(__ANDROID__)
+# undef CRYPTOPP_ARM_CRC32_AVAILABLE
+#endif
+
 // crc-simd.cpp
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 extern void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c);

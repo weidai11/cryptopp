@@ -41,10 +41,9 @@
 
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 # include <arm_neon.h>
-#endif
-
-#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include <arm_acle.h>
+# if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+#  include <arm_acle.h>
+# endif
 #endif
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)

@@ -35,7 +35,7 @@
 # include <wmmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_ARM_PMULL_AVAILABLE)
 # include <arm_neon.h>
 #endif
 

@@ -22,12 +22,11 @@
 # include <immintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include <arm_neon.h>
-#endif
-
-#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include <arm_acle.h>
+# if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+#  include <arm_acle.h>
+# endif
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

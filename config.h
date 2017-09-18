@@ -541,9 +541,10 @@ NAMESPACE_END
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
+// Android still uses ARMv5 and ARMv6 so we have to be conservative when enabling NEON.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON__) || defined(__ARM_FEATURE_NEON) || (CRYPTOPP_MSC_VERSION >= 1700) || \
-	(CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30500)
+# if defined(__ARM_NEON__) || defined(__ARM_FEATURE_NEON) || \
+	(__ARM_ARCH >= 7) || (CRYPTOPP_MSC_VERSION >= 1700)
 #  define CRYPTOPP_ARM_NEON_AVAILABLE 1
 # endif
 #endif
@@ -564,7 +565,7 @@ NAMESPACE_END
 // TODO: Add MSC_VER and ARM-64 platform define when available
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
 # if (defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
-	defined(__aarch32__) || defined(__aarch64__)) && !defined(__ANDROID__)
+	defined(__aarch32__) || defined(__aarch64__))
 #  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 # endif
 #endif

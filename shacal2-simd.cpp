@@ -29,10 +29,9 @@
 
 #if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include <arm_neon.h>
-#endif
-
-#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include <arm_acle.h>
+# if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+#  include <arm_acle.h>
+# endif
 #endif
 
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
