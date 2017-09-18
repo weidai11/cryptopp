@@ -771,7 +771,7 @@ void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
 typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned long long uint64x2_p8;
 
-void ByteReverseArray(byte src[16])
+void ReverseByteArrayLE(byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
 	vec_st(vec_reve(vec_ld(0, src)), 0, src);
@@ -854,7 +854,7 @@ static inline uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 	return (uint64x2_p8)vec_xl_be(off, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse64x2((uint64x2_p8)vec_vsx_ld(off, src));
+	return (uint64x2_p8)Reverse8x16(vec_vsx_ld(off, src));
 # else
 	return (uint64x2_p8)vec_vsx_ld(off, src);
 # endif
