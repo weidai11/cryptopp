@@ -208,6 +208,7 @@ XLC_COMPILER=$("$CXX" -qversion 2>&1 | "$GREP" -i -c "IBM XL")
 INTEL_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "\(icc\)")
 MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "clang")
+GNU_LINKER=$(ld --version 2>&1 | "$GREP" -i -c "GNU ld")
 
 if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$GREP" -i -c -E "(__x64_64__|__amd64__)")
@@ -3071,7 +3072,7 @@ fi
 
 ############################################
 # Dead code stripping
-if [[ ("$SUN_COMPILER" -eq "0") ]]; then
+if [[ ("$GNU_LINKER" -eq "1") ]]; then
 
 	############################################
 	# Debug build
