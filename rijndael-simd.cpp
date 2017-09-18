@@ -771,22 +771,7 @@ void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
 typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned long long uint64x2_p8;
 
-/* Reverses a 16-byte array as needed */
-void ByteReverseArrayLE(byte dest[16], const byte src[16])
-{
-#if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
-	vec_st(vec_reve(vec_ld(0, src)), 0, dest);
-#elif defined(IS_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
-	vec_vsx_st(vec_perm(vec_vsx_ld(0, src), zero, mask), 0, dest);
-#else
-	if (src != dest)
-		std::memcpy(dest, src, 16);
-#endif
-}
-
-void ByteReverseArrayLE(byte src[16])
+void ByteReverseArray(byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
 	vec_st(vec_reve(vec_ld(0, src)), 0, src);
@@ -797,78 +782,92 @@ void ByteReverseArrayLE(byte src[16])
 #endif
 }
 
-uint8x16_p8 Load8x16(const uint8_t src[16])
+static inline uint8x16_p8 Reverse8x16(const uint8x16_p8& src)
+{
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	return vec_perm(src, zero, mask);
+}
+
+static inline uint64x2_p8 Reverse64x2(const uint64x2_p8& src)
+{
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	return (uint64x2_p8)vec_perm((uint8x16_p8)src, zero, mask);
+}
+
+static inline uint8x16_p8 Load8x16(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* http://stackoverflow.com/q/46124383/608639 */
 	return vec_xl_be(0, (uint8_t*)src);
 #else
-	return (uint8x16_p8)vec_vsx_ld(0, src);
+# if defined(IS_LITTLE_ENDIAN)
+	return Reverse8x16(vec_vsx_ld(0, src));
+# else
+	return vec_vsx_ld(0, src);
+# endif
 #endif
 }
 
-uint8x16_p8 Load8x16(int off, const uint8_t src[16])
+static inline uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* http://stackoverflow.com/q/46124383/608639 */
 	return vec_xl_be(off, (uint8_t*)src);
 #else
-	return (uint8x16_p8)vec_vsx_ld(off, src);
+# if defined(IS_LITTLE_ENDIAN)
+	return Reverse8x16(vec_vsx_ld(off, src));
+# else
+	return vec_vsx_ld(off, src);
+# endif
 #endif
 }
 
-void Store8x16(const uint8x16_p8 src, uint8_t dest[16])
+static inline void Store8x16(const uint8x16_p8 src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* http://stackoverflow.com/q/46124383/608639 */
 	vec_xst_be(src, 0, (uint8_t*)dest);
 #else
+# if defined(IS_LITTLE_ENDIAN)
+	vec_vsx_st(Reverse8x16(src), 0, dest);
+# else
 	vec_vsx_st(src, 0, dest);
+# endif
 #endif
 }
 
-uint64x2_p8 Load64x2(const uint8_t src[16])
+static inline uint64x2_p8 Load64x2(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* http://stackoverflow.com/q/46124383/608639 */
 	return (uint64x2_p8)vec_xl_be(0, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
-	return (uint64x2_p8)vec_perm(vec_vsx_ld(0, src), zero, mask);
+	return Reverse64x2((uint64x2_p8)vec_vsx_ld(0, src));
 # else
 	return (uint64x2_p8)vec_vsx_ld(0, src);
 # endif
 #endif
 }
 
-uint64x2_p8 Load64x2(int off, const uint8_t src[16])
+static inline uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* http://stackoverflow.com/q/46124383/608639 */
 	return (uint64x2_p8)vec_xl_be(off, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
-	return (uint64x2_p8)vec_perm(vec_vsx_ld(off, src), zero, mask);
+	return Reverse64x2((uint64x2_p8)vec_vsx_ld(off, src));
 # else
 	return (uint64x2_p8)vec_vsx_ld(off, src);
 # endif
 #endif
 }
 
-void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
+static inline void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	/* http://stackoverflow.com/q/46124383/608639 */
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
-	vec_vsx_st(vec_perm((uint8x16_p8)src, zero, mask), 0, dest);
+	vec_vsx_st((uint8x16_p8)Reverse64x2(src), 0, dest);
 # else
 	vec_vsx_st((uint8x16_p8)src, 0, dest);
 # endif

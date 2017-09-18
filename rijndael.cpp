@@ -251,7 +251,7 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #endif
 
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
-extern void ByteReverseArrayLE(byte src[16]);
+extern void ByteReverseArray(byte src[16]);
 
 extern size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
@@ -329,7 +329,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 		// reversed on little-endian systems to ensure it loads properly.
 		byte * ptr = reinterpret_cast<byte*>(rk);
 		for (unsigned int i=0; i<=m_rounds; i++)
-			ByteReverseArrayLE(ptr+i*16);
+			ByteReverseArray(ptr+i*16);
 #endif  // IS_LITTLE_ENDIAN
 
 		return;
