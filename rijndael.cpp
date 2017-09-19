@@ -253,6 +253,9 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 extern void ReverseByteArrayLE(byte src[16]);
 
+extern void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen,
+        const word32* rc, const byte* Se, unsigned int rounds);
+
 extern size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 extern size_t Rijndael_Dec_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
@@ -265,7 +268,6 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 
 	m_rounds = keyLen/4 + 6;
 	m_key.New(4*(m_rounds+1));
-
 	word32 *rk = m_key;
 
 #if (CRYPTOPP_AESNI_AVAILABLE && CRYPTOPP_SSE41_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
@@ -285,6 +287,14 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
 	const word32 *rc = rcon;
 	word32 temp;
+
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (HasAES())
+	{
+		Rijndael_UncheckedSetKey_POWER8(rk, keyLen, rc, Se, m_rounds);
+		return;
+	}
+#endif
 
 	while (true)
 	{
@@ -316,25 +326,6 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	}
 
 	rk = m_key;
-
-#if CRYPTOPP_POWER8_AES_AVAILABLE
-	if (HasAES())
-	{
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, 16);
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk + m_rounds*4, rk + m_rounds*4, 16);
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
-
-#if defined(IS_LITTLE_ENDIAN)
-		// VSX registers are big-endian. The entire subkey table must be byte
-		// reversed on little-endian systems to ensure it loads properly.
-		byte * ptr = reinterpret_cast<byte*>(rk);
-		for (unsigned int i=0; i<=m_rounds; i++)
-			ReverseByteArrayLE(ptr+i*16);
-#endif  // IS_LITTLE_ENDIAN
-
-		return;
-	}
-#endif  // CRYPTOPP_POWER8_AES_AVAILABLE
 
 	if (IsForwardTransformation())
 	{

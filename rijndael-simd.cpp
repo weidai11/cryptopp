@@ -700,6 +700,7 @@ void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, wor
 	// keySize: m_key allocates 4*(rounds+1) word32's.
 	const size_t keySize = 4*(rounds+1);
 	const word32* end = rk + keySize;
+
 	while (true)
 	{
 		CRYPTOPP_ASSERT(rc < ro + COUNTOF(s_rconLE));
@@ -822,7 +823,7 @@ static inline uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 #endif
 }
 
-static inline void Store8x16(const uint8x16_p8 src, uint8_t dest[16])
+static inline void Store8x16(const uint8x16_p8& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be(src, 0, (uint8_t*)dest);
@@ -861,7 +862,7 @@ static inline uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 #endif
 }
 
-static inline void Store64x2(const uint64x2_p8 src, uint8_t dest[16])
+static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
@@ -991,6 +992,58 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 }
 
 //////////////////////////////////////////////////////////////////
+
+void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc,
+                                     const byte* Se, unsigned int rounds)
+{
+	word32 *rk_saved = rk, temp;
+
+	// keySize: m_key allocates 4*(rounds+1) word32's.
+	const size_t keySize = 4*(rounds+1);
+	const word32* end = rk + keySize;
+
+	while (true)
+	{
+		temp  = rk[keyLen/4-1];
+		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
+					(word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
+		rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
+		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
+		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
+		rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
+
+		if (rk + keyLen/4 + 4 == end)
+			break;
+
+		if (keyLen == 24)
+		{
+			rk[10] = rk[ 4] ^ rk[ 9];
+			rk[11] = rk[ 5] ^ rk[10];
+		}
+		else if (keyLen == 32)
+		{
+    		temp = rk[11];
+    		rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
+    		rk[13] = rk[ 5] ^ rk[12];
+    		rk[14] = rk[ 6] ^ rk[13];
+    		rk[15] = rk[ 7] ^ rk[14];
+		}
+		rk += keyLen/4;
+	}
+
+	rk = rk_saved;
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, 16);
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, rk + rounds*4, rk + rounds*4, 16);
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (rounds-1)*16);
+
+#if defined(IS_LITTLE_ENDIAN)
+	// VSX registers are big-endian. The entire subkey table must be byte
+	// reversed on little-endian systems to ensure it loads properly.
+	byte * ptr = reinterpret_cast<byte*>(rk);
+	for (unsigned int i=0; i<=rounds; i++)
+		ReverseByteArrayLE(ptr+i*16);
+#endif  // IS_LITTLE_ENDIAN
+}
 
 inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
 {
