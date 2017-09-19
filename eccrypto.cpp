@@ -47,7 +47,7 @@ static void ECDSA_TestInstantiations()
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
-Integer ConvertToInteger(const PolynomialMod2 &x)
+inline Integer ConvertToInteger(const PolynomialMod2 &x)
 {
 	unsigned int l = x.ByteCount();
 	SecByteBlock temp(l);
@@ -60,7 +60,7 @@ inline Integer ConvertToInteger(const Integer &x)
 	return x;
 }
 
-bool CheckMOVCondition(const Integer &q, const Integer &r)
+inline bool CheckMOVCondition(const Integer &q, const Integer &r)
 {
 	// see "Updated standards for validating elliptic curves", http://eprint.iacr.org/2007/343
 	Integer t = 1;
