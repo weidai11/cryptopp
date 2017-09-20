@@ -11,8 +11,8 @@
 //    mbedTLS under a debugger was helped for us to determine problems
 //    with our subkey generation and scheduling.
 //
-//    AltiVec and Power8 code based on http://github.com/noloader/AES-Power8
-//
+//    AltiVec and Power8 code based on http://github.com/noloader/AES-Intrinsics and
+//    http://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/
 
 #include "pch.h"
 #include "config.h"
@@ -161,7 +161,7 @@ const word32 s_one[] = {0, 0, 0, 1<<24};  // uint32x4_t
 const word32 s_one[] = {0, 0, 0, 1};      // uint32x4_t
 #endif
 
-inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
+static inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
@@ -189,7 +189,7 @@ inline void ARMV8_Enc_Block(uint8x16_t &block, const word32 *subkeys, unsigned i
 	block = veorq_u8(block, vld1q_u8(keys+rounds*16));
 }
 
-inline void ARMV8_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
+static inline void ARMV8_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
             uint8x16_t &block3, uint8x16_t &block4, uint8x16_t &block5,
             const word32 *subkeys, unsigned int rounds)
 {
@@ -245,7 +245,7 @@ inline void ARMV8_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_
 	block5 = veorq_u8(block5, key);
 }
 
-inline void ARMV8_Dec_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
+static inline void ARMV8_Dec_Block(uint8x16_t &block, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(subkeys);
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
@@ -273,7 +273,7 @@ inline void ARMV8_Dec_Block(uint8x16_t &block, const word32 *subkeys, unsigned i
 	block = veorq_u8(block, vld1q_u8(keys+rounds*16));
 }
 
-inline void ARMV8_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
+static inline void ARMV8_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1, uint8x16_t &block2,
             uint8x16_t &block3, uint8x16_t &block4, uint8x16_t &block5,
             const word32 *subkeys, unsigned int rounds)
 {
@@ -476,7 +476,7 @@ const word32 s_rconLE[] = {
 	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
 };
 
-inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+static inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
 	for (unsigned int i=1; i<rounds-1; i+=2)
@@ -488,7 +488,7 @@ inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsign
 	block = _mm_aesenclast_si128(block, subkeys[rounds]);
 }
 
-inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
+static inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
                                MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
@@ -511,7 +511,7 @@ inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2
 	block3 = _mm_aesenclast_si128(block3, rk);
 }
 
-inline void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
+static inline void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	block = _mm_xor_si128(block, subkeys[0]);
 	for (unsigned int i=1; i<rounds-1; i+=2)
@@ -523,7 +523,7 @@ inline void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsign
 	block = _mm_aesdeclast_si128(block, subkeys[rounds]);
 }
 
-inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
+static inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3,
                         MAYBE_CONST __m128i *subkeys, unsigned int rounds)
 {
 	__m128i rk = subkeys[0];
@@ -547,7 +547,7 @@ inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2
 }
 
 template <typename F1, typename F4>
-inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
+static inline size_t Rijndael_AdvancedProcessBlocks_AESNI(F1 func1, F4 func4,
         MAYBE_CONST word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -788,6 +788,13 @@ static inline uint8x16_p8 Reverse8x16(const uint8x16_p8& src)
 	return vec_perm(src, zero, mask);
 }
 
+static inline uint32x4_p8 Reverse8x16(const uint32x4_p8& src)
+{
+	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p8 zero = {0};
+	return (uint32x4_p8)vec_perm((uint8x16_p8)src, zero, mask);
+}
+
 static inline uint64x2_p8 Reverse64x2(const uint64x2_p8& src)
 {
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
@@ -817,6 +824,19 @@ static inline uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 	return Reverse8x16(vec_vsx_ld(off, src));
 # else
 	return vec_vsx_ld(off, src);
+# endif
+#endif
+}
+
+static inline uint32x4_p8 Load32x4(const uint32_t src[4])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return vec_xl_be(0, (uint32_t*)src);
+#else
+# if defined(IS_LITTLE_ENDIAN)
+	return Reverse8x16(vec_vsx_ld(0, src));
+# else
+	return vec_vsx_ld(0, src);
 # endif
 #endif
 }
@@ -884,7 +904,7 @@ static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 #endif
 
 // Loads a mis-aligned byte array, performs an endian conversion.
-inline VectorType VectorLoad(const byte src[16])
+static inline VectorType VectorLoad(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return Load8x16(src);
@@ -894,7 +914,7 @@ inline VectorType VectorLoad(const byte src[16])
 }
 
 // Loads a mis-aligned byte array, performs an endian conversion.
-inline VectorType VectorLoad(int off, const byte src[16])
+static inline VectorType VectorLoad(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return Load8x16(off, src);
@@ -903,13 +923,28 @@ inline VectorType VectorLoad(int off, const byte src[16])
 #endif
 }
 
+// Loads a mis-aligned byte array, performs an endian conversion.
+static inline VectorType VectorLoad(const word32 src[4])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (VectorType)Load32x4((uint32_t*)src);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return (VectorType)Load32x4((uint32_t*)src);
+#endif
+}
+
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
-inline VectorType VectorLoadKey(const byte src[16])
+static inline VectorType VectorLoadKey(const byte src[16])
 {
-	if (IsAlignedOn(src, 16))
-		return (VectorType)vec_ld(0, (uint8_t*)src);
+	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
+	return (VectorType)vec_ld(0, (uint8_t*)src);
+}
 
+// Loads a byte array, does not perform an endian conversion.
+//  This function presumes the subkey table is correct endianess.
+static inline VectorType VectorLoadKeyUnaligned(const byte src[16])
+{
 	const uint8x16_p8 perm = vec_lvsl(0, src);
 	const uint8x16_p8 low = vec_ld(0, src);
 	const uint8x16_p8 high = vec_ld(15, src);
@@ -918,11 +953,16 @@ inline VectorType VectorLoadKey(const byte src[16])
 
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
-inline VectorType VectorLoadKey(const word32 src[4])
+static inline VectorType VectorLoadKey(const word32 src[4])
 {
-	if (IsAlignedOn(src, 16))
-		return (VectorType)vec_ld(0, (uint8_t*)src);
+	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
+	return (VectorType)vec_ld(0, (uint8_t*)src);
+}
 
+// Loads a byte array, does not perform an endian conversion.
+//  This function presumes the subkey table is correct endianess.
+static inline VectorType VectorLoadKeyUnaligned(const word32 src[4])
+{
 	const uint8x16_p8 perm = vec_lvsl(0, (uint8_t*)src);
 	const uint8x16_p8 low = vec_ld(0, (uint8_t*)src);
 	const uint8x16_p8 high = vec_ld(15, (uint8_t*)src);
@@ -931,11 +971,16 @@ inline VectorType VectorLoadKey(const word32 src[4])
 
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
-inline VectorType VectorLoadKey(int off, const byte src[16])
+static inline VectorType VectorLoadKey(int off, const byte src[16])
 {
-	if (IsAlignedOn(src, 16))
-		return (VectorType)vec_ld(off, (uint8_t*)src);
+	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
+	return (VectorType)vec_ld(off, (uint8_t*)src);
+}
 
+// Loads a byte array, does not perform an endian conversion.
+//  This function presumes the subkey table is correct endianess.
+static inline VectorType VectorLoadKeyUnaligned(int off, const byte src[16])
+{
 	const uint8x16_p8 perm = vec_lvsl(off, src);
 	const uint8x16_p8 low = vec_ld(off, src);
 	const uint8x16_p8 high = vec_ld(off+15, src);
@@ -943,7 +988,7 @@ inline VectorType VectorLoadKey(int off, const byte src[16])
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
-inline void VectorStore(const VectorType& src, byte dest[16])
+static inline void VectorStore(const VectorType& src, byte dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return Store8x16(src, dest);
@@ -953,19 +998,19 @@ inline void VectorStore(const VectorType& src, byte dest[16])
 }
 
 template <class T1, class T2>
-inline T1 VectorXor(const T1& vec1, const T2& vec2)
+static inline T1 VectorXor(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_xor(vec1, (T1)vec2);
 }
 
 template <class T1, class T2>
-inline T1 VectorAdd(const T1& vec1, const T2& vec2)
+static inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_add(vec1, (T1)vec2);
 }
 
 template <class T1, class T2>
-inline T1 VectorEncrypt(const T1& state, const T2& key)
+static inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vcipher((VectorType)state, (VectorType)key);
@@ -977,7 +1022,7 @@ inline T1 VectorEncrypt(const T1& state, const T2& key)
 }
 
 template <class T1, class T2>
-inline T1 VectorEncryptLast(const T1& state, const T2& key)
+static inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vcipherlast((VectorType)state, (VectorType)key);
@@ -989,7 +1034,7 @@ inline T1 VectorEncryptLast(const T1& state, const T2& key)
 }
 
 template <class T1, class T2>
-inline T1 VectorDecrypt(const T1& state, const T2& key)
+static inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vncipher((VectorType)state, (VectorType)key);
@@ -1001,7 +1046,7 @@ inline T1 VectorDecrypt(const T1& state, const T2& key)
 }
 
 template <class T1, class T2>
-inline T1 VectorDecryptLast(const T1& state, const T2& key)
+static inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vncipherlast((VectorType)state, (VectorType)key);
@@ -1015,18 +1060,22 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 //////////////////////////////////////////////////////////////////
 
 /* Round constants */
-CRYPTOPP_ALIGN_DATA(16)
-const uint32_t s_rcon[3][4] = {
-	0x01<<24,0x01<<24,0x01<<24,0x01<<24,  /*  1 */
-	0x1b<<24,0x1b<<24,0x1b<<24,0x1b<<24,  /*  9 */
-	0x36<<24,0x36<<24,0x36<<24,0x36<<24   /* 10 */
+static const uint32_t s_rcon[3][4] = {
+	{0x01<<24,0x01<<24,0x01<<24,0x01<<24},  /*  1 */
+	{0x1b<<24,0x1b<<24,0x1b<<24,0x1b<<24},  /*  9 */
+	{0x36<<24,0x36<<24,0x36<<24,0x36<<24}   /* 10 */
+};
+
+static const uint32_t s_mask[4] = {
+	0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c
 };
 
 static inline uint8x16_p8
-Rijndael_Subkey_POWER8(uint8x16_p8 r1, uint8x16_p8 r4)
+Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4)
 {
-	const uint8x16_p8 r5 = (uint8x16_p8)((uint32x4_p8){0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c});
+	const uint8x16_p8 r5 = (uint8x16_p8)VectorLoad(s_mask);
 	const uint8x16_p8 r0 = {0};
+
 	uint8x16_p8 r3, r6;
 
 	r3 = vec_perm(r1, r1, r5);       /* line  1 */
@@ -1051,12 +1100,12 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
                                      const byte* Se, unsigned int rounds)
 {
 #if defined(IS_BIG_ENDIAN)
-	// Testing shows this is about 150 to 300 cycles faster.
+	// Testing shows this is about 125 to 275 cycles faster.
 	if (keyLen == 16)
 	{
 		uint8_t* skptr = (uint8_t*)rk;
 		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((uint8_t*)skptr);
-		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
+		uint8x16_p8 r4 = (uint8x16_p8)VectorLoad(s_rcon[0]);
 
 		for (unsigned int i=0; i<rounds-2; ++i)
 		{
@@ -1139,7 +1188,7 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
 	}
 }
 
-inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
+static inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
@@ -1157,7 +1206,7 @@ inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned 
 	block = VectorEncryptLast(block, VectorLoadKey(rounds*16, keys));
 }
 
-inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
+static inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
             VectorType &block2, VectorType &block3, VectorType &block4,
             VectorType &block5, const word32 *subkeys, unsigned int rounds)
 {
@@ -1192,7 +1241,7 @@ inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
 	block5 = VectorEncryptLast(block5, k);
 }
 
-inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
+static inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
 {
 	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
@@ -1210,7 +1259,7 @@ inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned 
 	block = VectorDecryptLast(block, VectorLoadKey(0, keys));
 }
 
-inline void POWER8_Dec_6_Blocks(VectorType &block0, VectorType &block1,
+static inline void POWER8_Dec_6_Blocks(VectorType &block0, VectorType &block1,
             VectorType &block2, VectorType &block3, VectorType &block4,
             VectorType &block5, const word32 *subkeys, unsigned int rounds)
 {
