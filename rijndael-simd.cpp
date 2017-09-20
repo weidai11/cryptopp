@@ -767,6 +767,7 @@ void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 
 typedef __vector unsigned char      uint8x16_p8;
+typedef __vector unsigned int       uint32x4_p8;
 typedef __vector unsigned long long uint64x2_p8;
 
 void ReverseByteArrayLE(byte src[16])
@@ -906,16 +907,39 @@ inline VectorType VectorLoad(int off, const byte src[16])
 //  This function presumes the subkey table is correct endianess.
 inline VectorType VectorLoadKey(const byte src[16])
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
-	return (VectorType)vec_ld(0, src);
+	if (IsAlignedOn(src, 16))
+		return (VectorType)vec_ld(0, (uint8_t*)src);
+
+	const uint8x16_p8 perm = vec_lvsl(0, src);
+	const uint8x16_p8 low = vec_ld(0, src);
+	const uint8x16_p8 high = vec_ld(15, src);
+	return (VectorType)vec_perm(low, high, perm);
+}
+
+// Loads an aligned byte array, does not perform an endian conversion.
+//  This function presumes the subkey table is correct endianess.
+inline VectorType VectorLoadKey(const word32 src[4])
+{
+	if (IsAlignedOn(src, 16))
+		return (VectorType)vec_ld(0, (uint8_t*)src);
+
+	const uint8x16_p8 perm = vec_lvsl(0, (uint8_t*)src);
+	const uint8x16_p8 low = vec_ld(0, (uint8_t*)src);
+	const uint8x16_p8 high = vec_ld(15, (uint8_t*)src);
+	return (VectorType)vec_perm(low, high, perm);
 }
 
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
 inline VectorType VectorLoadKey(int off, const byte src[16])
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
-	return (VectorType)vec_ld(off, src);
+	if (IsAlignedOn(src, 16))
+		return (VectorType)vec_ld(off, (uint8_t*)src);
+
+	const uint8x16_p8 perm = vec_lvsl(off, src);
+	const uint8x16_p8 low = vec_ld(off, src);
+	const uint8x16_p8 high = vec_ld(off+15, src);
+	return (VectorType)vec_perm(low, high, perm);
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
@@ -944,9 +968,9 @@ template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vcipher(state, (T1)key);
+	return (T1)__vcipher((VectorType)state, (VectorType)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return (T1)__builtin_crypto_vcipher(state, (T1)key);
+	return (T1)__builtin_crypto_vcipher((VectorType)state, (VectorType)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -956,9 +980,9 @@ template <class T1, class T2>
 inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vcipherlast(state, (T1)key);
+	return (T1)__vcipherlast((VectorType)state, (VectorType)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return (T1)__builtin_crypto_vcipherlast(state, (T1)key);
+	return (T1)__builtin_crypto_vcipherlast((VectorType)state, (VectorType)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -968,9 +992,9 @@ template <class T1, class T2>
 inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vncipher(state, (T1)key);
+	return (T1)__vncipher((VectorType)state, (VectorType)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return (T1)__builtin_crypto_vncipher(state, (T1)key);
+	return (T1)__builtin_crypto_vncipher((VectorType)state, (VectorType)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -980,9 +1004,9 @@ template <class T1, class T2>
 inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T1)__vncipherlast(state, (T1)key);
+	return (T1)__vncipherlast((VectorType)state, (VectorType)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return (T1)__builtin_crypto_vncipherlast(state, (T1)key);
+	return (T1)__builtin_crypto_vncipherlast((VectorType)state, (VectorType)key);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -990,56 +1014,124 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 
 //////////////////////////////////////////////////////////////////
 
+/* Round constants */
+CRYPTOPP_ALIGN_DATA(16)
+const uint32_t s_rcon[3][4] = {
+	0x01<<24,0x01<<24,0x01<<24,0x01<<24,  /*  1 */
+	0x1b<<24,0x1b<<24,0x1b<<24,0x1b<<24,  /*  9 */
+	0x36<<24,0x36<<24,0x36<<24,0x36<<24   /* 10 */
+};
+
+static inline uint8x16_p8
+Rijndael_Subkey_POWER8(uint8x16_p8 r1, uint8x16_p8 r4, uint8_t subkey[16])
+{
+	const uint8x16_p8 r5 = (uint8x16_p8)((uint32x4_p8){0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c});
+	const uint8x16_p8 r0 = {0};
+	uint8x16_p8 r3, r6;
+
+	r3 = vec_perm(r1, r1, r5);       /* line  1 */
+	r6 = vec_sld(r0, r1, 12);        /* line  2 */
+	r3 = VectorEncryptLast(r3, r4);  /* line  3 */
+
+	r1 = vec_xor(r1, r6);            /* line  4 */
+	r6 = vec_sld(r0, r6, 12);        /* line  5 */
+	r1 = vec_xor(r1, r6);            /* line  6 */
+	r6 = vec_sld(r0, r6, 12);        /* line  7 */
+	r1 = vec_xor(r1, r6);            /* line  8 */
+
+	// Caller handles r4 addition
+	// r4 = vec_add(r4, r4);         /* line  9 */
+
+	r1 = vec_xor(r1, r3);            /* line 10 */
+
+	const VectorType t = (VectorType)r1;
+	VectorStore(t, subkey);
+
+	// r1 is ready for next round
+	return r1;
+}
+
 void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc,
                                      const byte* Se, unsigned int rounds)
 {
-	word32 *rk_saved = rk, temp;
-
-	// keySize: m_key allocates 4*(rounds+1) word32's.
-	const size_t keySize = 4*(rounds+1);
-	const word32* end = rk + keySize;
-
-	while (true)
+#if defined(IS_BIG_ENDIAN)
+	// Testing shows this is about 150 to 300 cycles faster.
+	if (keyLen == 16)
 	{
-		temp  = rk[keyLen/4-1];
-		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
-					(word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
-		rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
-		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
-		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
-		rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
+		uint8_t* skptr = (uint8_t*)rk;
+		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((uint8_t*)skptr);
+		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
 
-		if (rk + keyLen/4 + 4 == end)
-			break;
+		for (unsigned int i=0; i<rounds-2; ++i)
+		{
+			skptr += 16;
+			r1 = Rijndael_Subkey_POWER8(r1, r4, skptr);
+			r4 = vec_add(r4, r4);
+		}
 
-		if (keyLen == 24)
-		{
-			rk[10] = rk[ 4] ^ rk[ 9];
-			rk[11] = rk[ 5] ^ rk[10];
-		}
-		else if (keyLen == 32)
-		{
-    		temp = rk[11];
-    		rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
-    		rk[13] = rk[ 5] ^ rk[12];
-    		rk[14] = rk[ 6] ^ rk[13];
-    		rk[15] = rk[ 7] ^ rk[14];
-		}
-		rk += keyLen/4;
+		/* Round 9 using rcon=0x1b */
+		skptr += 16;
+		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
+		r1 = Rijndael_Subkey_POWER8(r1, r4, skptr);
+
+		/* Round 10 using rcon=0x36 */
+		skptr += 16;
+		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
+		r1 = Rijndael_Subkey_POWER8(r1, r4, skptr);
+
+		return;
 	}
+	else
+#endif
+	{
+		word32 *rk_saved = rk, temp;
 
-	rk = rk_saved;
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, 16);
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, rk + rounds*4, rk + rounds*4, 16);
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (rounds-1)*16);
+		// keySize: m_key allocates 4*(rounds+1) word32's.
+		const size_t keySize = 4*(rounds+1);
+		const word32* end = rk + keySize;
+
+		while (true)
+		{
+			temp  = rk[keyLen/4-1];
+			word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
+						(word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
+			rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
+			rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
+			rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
+			rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
+
+			if (rk + keyLen/4 + 4 == end)
+				break;
+
+			if (keyLen == 24)
+			{
+				rk[10] = rk[ 4] ^ rk[ 9];
+				rk[11] = rk[ 5] ^ rk[10];
+			}
+			else if (keyLen == 32)
+			{
+				temp = rk[11];
+				rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
+				rk[13] = rk[ 5] ^ rk[12];
+				rk[14] = rk[ 6] ^ rk[13];
+				rk[15] = rk[ 7] ^ rk[14];
+			}
+			rk += keyLen/4;
+		}
+
+		rk = rk_saved;
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, 16);
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk + rounds*4, rk + rounds*4, 16);
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (rounds-1)*16);
 
 #if defined(IS_LITTLE_ENDIAN)
-	// VSX registers are big-endian. The entire subkey table must be byte
-	// reversed on little-endian systems to ensure it loads properly.
-	byte * ptr = reinterpret_cast<byte*>(rk);
-	for (unsigned int i=0; i<=rounds; i++)
-		ReverseByteArrayLE(ptr+i*16);
+		// VSX registers are big-endian. The entire subkey table must be byte
+		// reversed on little-endian systems to ensure it loads properly.
+		byte * ptr = reinterpret_cast<byte*>(rk);
+		for (unsigned int i=0; i<=rounds; i++)
+			ReverseByteArrayLE(ptr+i*16);
 #endif  // IS_LITTLE_ENDIAN
+	}
 }
 
 inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
