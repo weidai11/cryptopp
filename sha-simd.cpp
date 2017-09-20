@@ -61,7 +61,9 @@ extern "C" {
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 bool CPU_ProbeSHA1()
 {
-#if (CRYPTOPP_ARM_SHA_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ARM_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -82,11 +84,6 @@ bool CPU_ProbeSHA1()
     }
     return result;
 # else
-
-# if defined(__APPLE__)
-    // No SIGILL probes on Apple platforms.
-    return false;
-# endif
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
@@ -126,7 +123,9 @@ bool CPU_ProbeSHA1()
 
 bool CPU_ProbeSHA2()
 {
-#if (CRYPTOPP_ARM_SHA_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ARM_SHA_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -146,11 +145,6 @@ bool CPU_ProbeSHA2()
     }
     return result;
 #else
-
-# if defined(__APPLE__)
-    // No SIGILL probes on Apple platforms.
-    return false;
-# endif
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854

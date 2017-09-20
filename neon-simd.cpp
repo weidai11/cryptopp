@@ -47,7 +47,9 @@ extern "C" {
 
 bool CPU_ProbeNEON()
 {
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ARM_NEON_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try

@@ -664,6 +664,18 @@ NAMESPACE_END
 # define CRYPTOPP_CONSTANT(x) enum {x};
 #endif
 
+// How to disable CPU feature probing. We determine machine
+//  capabilities by performing an os/platform *query* first,
+//  like getauxv(). If the *query* fails, we move onto a
+//  cpu *probe*. The cpu *probe* tries to exeute an instruction
+//  and then catches a SIGILL on Linux or the exception
+//  EXCEPTION_ILLEGAL_INSTRUCTION on Windows. Some OSes
+//  fail to hangle a SIGILL gracefully, like Apple OSes. Apple
+//  machines corrupt memory and variables around the probe.
+#if defined(__APPLE__)
+#  define CRYPTOPP_NO_CPU_FEATURE_PROBES 1
+#endif
+
 // ***************** Initialization and Constructor priorities ********************
 
 // CRYPTOPP_INIT_PRIORITY attempts to manage initialization of C++ static objects.

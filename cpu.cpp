@@ -102,7 +102,9 @@ extern "C"
 // cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
 bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-#if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY) || defined(__BORLANDC__)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY) || defined(__BORLANDC__)
     __try
 	{
 		// Borland/Embarcadero and Issue 500
@@ -182,7 +184,9 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 
 static bool CPU_ProbeSSE2()
 {
-#if CRYPTOPP_BOOL_X64
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif CRYPTOPP_BOOL_X64
 	return true;
 #elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try

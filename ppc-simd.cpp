@@ -67,7 +67,9 @@ extern "C" {
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 bool CPU_ProbeAltivec()
 {
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.
@@ -117,7 +119,9 @@ bool CPU_ProbeAltivec()
 #if 0
 bool CPU_ProbePower7()
 {
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_POWER7_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.
@@ -161,7 +165,9 @@ bool CPU_ProbePower7()
 
 bool CPU_ProbePower8()
 {
-#if (CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.
@@ -204,7 +210,9 @@ bool CPU_ProbePower8()
 
 bool CPU_ProbeAES()
 {
-#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_POWER8_AES_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.
@@ -255,7 +263,9 @@ bool CPU_ProbeAES()
 
 bool CPU_ProbeSHA1()
 {
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.
@@ -288,7 +298,9 @@ bool CPU_ProbeSHA1()
 
 bool CPU_ProbeSHA2()
 {
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.

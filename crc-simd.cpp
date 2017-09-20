@@ -56,7 +56,9 @@ extern "C" {
 
 bool CPU_ProbeCRC32()
 {
-#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -77,11 +79,6 @@ bool CPU_ProbeCRC32()
     }
     return result;
 #else
-
-# if defined(__APPLE__)
-    // No SIGILL probes on Apple platforms.
-    return false;
-# endif
 
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
