@@ -1023,7 +1023,7 @@ const uint32_t s_rcon[3][4] = {
 };
 
 static inline uint8x16_p8
-Rijndael_Subkey_POWER8(uint8x16_p8 r1, uint8x16_p8 r4, uint8_t subkey[16])
+Rijndael_Subkey_POWER8(uint8x16_p8 r1, uint8x16_p8 r4)
 {
 	const uint8x16_p8 r5 = (uint8x16_p8)((uint32x4_p8){0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c});
 	const uint8x16_p8 r0 = {0};
@@ -1039,15 +1039,11 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, uint8x16_p8 r4, uint8_t subkey[16])
 	r6 = vec_sld(r0, r6, 12);        /* line  7 */
 	r1 = vec_xor(r1, r6);            /* line  8 */
 
-	// Caller handles r4 addition
+	// Caller handles r4 (rcon) addition
 	// r4 = vec_add(r4, r4);         /* line  9 */
 
-	r1 = vec_xor(r1, r3);            /* line 10 */
-
-	const VectorType t = (VectorType)r1;
-	VectorStore(t, subkey);
-
 	// r1 is ready for next round
+	r1 = vec_xor(r1, r3);            /* line 10 */
 	return r1;
 }
 
@@ -1064,20 +1060,29 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
 
 		for (unsigned int i=0; i<rounds-2; ++i)
 		{
-			skptr += 16;
-			r1 = Rijndael_Subkey_POWER8(r1, r4, skptr);
+			r1 = Rijndael_Subkey_POWER8(r1, r4);
 			r4 = vec_add(r4, r4);
+
+			skptr += 16;
+			const VectorType t = (VectorType)r1;
+			VectorStore(t, skptr);
 		}
 
 		/* Round 9 using rcon=0x1b */
-		skptr += 16;
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
-		r1 = Rijndael_Subkey_POWER8(r1, r4, skptr);
+		r1 = Rijndael_Subkey_POWER8(r1, r4);
+
+		skptr += 16;
+		const VectorType t1 = (VectorType)r1;
+		VectorStore(t1, skptr);
 
 		/* Round 10 using rcon=0x36 */
-		skptr += 16;
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
-		r1 = Rijndael_Subkey_POWER8(r1, r4, skptr);
+		r1 = Rijndael_Subkey_POWER8(r1, r4);
+
+		skptr += 16;
+		const VectorType t2 = (VectorType)r1;
+		VectorStore(t2, skptr);
 
 		return;
 	}
