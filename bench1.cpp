@@ -61,7 +61,7 @@ void OutputResultBytes(const char *name, double length, double timeTaken)
 	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
 	if (g_hertz > 1.0f)
 		std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / length;
-	g_logTotal += std::log(mbs);
+	g_logTotal += ::log(mbs);
 	g_logCount++;
 }
 
@@ -97,7 +97,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 	if (g_hertz > 1.0f)
 		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
 
-	g_logTotal += std::log(iterations/timeTaken);
+	g_logTotal += ::log(iterations/timeTaken);
 	g_logCount++;
 }
 
@@ -373,7 +373,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 
 	AddHtmlHeader();
 
-	g_testBegin = std::time(NULLPTR);
+	g_testBegin = ::time(NULLPTR);
 
 	if (static_cast<int>(suites) == 0 || static_cast<int>(suites) > TestLast)
 		suites = Test::All;
@@ -399,7 +399,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 		Benchmark3(t, hertz);
 	}
 
-	g_testEnd = std::time(NULLPTR);
+	g_testEnd = ::time(NULLPTR);
 
 	{
 		StreamState state(std::cout);

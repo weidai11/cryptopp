@@ -855,12 +855,12 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	// Some editors have problems with the '\0' character when redirecting output.
 	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
-	std::string seed = (seedInput ? seedInput : IntToString(std::time(NULLPTR)));
+	std::string seed = (seedInput ? seedInput : IntToString(::time(NULLPTR)));
 	seed.resize(16, ' ');
 	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
-	g_testBegin = std::time(NULLPTR);
+	g_testBegin = ::time(NULLPTR);
 	PrintSeedAndThreads(seed);
 
 	switch (alg)
@@ -964,7 +964,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	default: return false;
 	}
 
-	g_testEnd = std::time(NULLPTR);
+	g_testEnd = ::time(NULLPTR);
 
 	std::cout << "\nSeed used was " << seed << std::endl;
 	std::cout << "Test started at " << TimeToString(g_testBegin) << std::endl;
