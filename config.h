@@ -658,7 +658,7 @@ NAMESPACE_END
 #endif
 
 // How to declare class constants
-#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING) || defined(__BORLANDC__)
 # define CRYPTOPP_CONSTANT(x) static const int x;
 #else
 # define CRYPTOPP_CONSTANT(x) enum {x};
