@@ -5,8 +5,8 @@
 #include "rng.h"
 #include "fips140.h"
 
-#include <ctime>
-#include <cmath>
+#include <time.h>
+#include <math.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

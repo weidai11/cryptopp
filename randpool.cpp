@@ -18,7 +18,7 @@
 #include "mdc.h"
 #include "modes.h"
 
-#include <ctime>
+#include <time.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

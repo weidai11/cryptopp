@@ -788,7 +788,7 @@ static inline uint8x16_p8 Reverse8x16(const uint8x16_p8& src)
 	return vec_perm(src, zero, mask);
 }
 
-static inline uint32x4_p8 Reverse8x16(const uint32x4_p8& src)
+static inline uint32x4_p8 Reverse32x4(const uint32x4_p8& src)
 {
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
@@ -834,7 +834,7 @@ static inline uint32x4_p8 Load32x4(const uint32_t src[4])
 	return vec_xl_be(0, (uint32_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse8x16(vec_vsx_ld(0, src));
+	return Reverse32x4(vec_vsx_ld(0, src));
 # else
 	return vec_vsx_ld(0, src);
 # endif
