@@ -14,7 +14,12 @@
 //    AltiVec and Power8 code based on http://github.com/noloader/AES-Intrinsics and
 //    http://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/
 //    The IBM documentation absolutely sucks. Thanks to Andy Polyakov, Paul R and
-//    Trudeaun for answering questions and filing the gaps in the IBM documentation.
+//    Trudeaun for answering questions and filling the gaps in the IBM documentation.
+//
+//    For Power8 do not remove the casts. It causes a 0.3 to 0.6 cpb drop in performance.
+//      uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((const uint8_t*)skptr);
+//      uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[0]);
+//      uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_mask);
 
 #include "pch.h"
 #include "config.h"
