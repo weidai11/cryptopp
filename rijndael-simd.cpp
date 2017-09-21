@@ -1070,7 +1070,13 @@ static const uint32_t s_rcon[3][4] = {
 /* Permute mask */
 CRYPTOPP_ALIGN_DATA(16)
 static const uint32_t s_mask[4] = {
+#if defined(IS_LITTLE_ENDIAN)
+	// 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c
+	// 0x01020300, 0x01020300, 0x01020300, 0x01020300
+	0x02010003, 0x02010003, 0x02010003, 0x02010003
+#else
 	0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c
+#endif
 };
 
 static inline uint8x16_p8
@@ -1097,15 +1103,23 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r
 	return r1;
 }
 
-void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc,
+void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk, const word32* rc,
                                      const byte* Se, unsigned int rounds)
 {
 #if defined(IS_BIG_ENDIAN)
-	// Testing shows this is about 125 to 275 cycles faster.
+	// Testing shows this is about 150 to 350 cycles faster.
 	if (keyLen == 16)
 	{
+#if defined(IS_BIG_ENDIAN)
 		uint8_t* skptr = (uint8_t*)rk;
-		uint8x16_p8 r1 = (uint8x16_p8)VectorLoad((uint8_t*)skptr);
+		std::memcpy(rk, userKey, keyLen);
+#else
+		uint8_t* skptr = (uint8_t*)rk;
+		std::memcpy(rk, userKey, keyLen);
+		ReverseByteArrayLE(skptr);
+#endif
+
+		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey(skptr);
 		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
 		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey(s_mask);
 
@@ -1140,6 +1154,7 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
 	else
 #endif
 	{
+		GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
 		word32 *rk_saved = rk, temp;
 
 		// keySize: m_key allocates 4*(rounds+1) word32's.

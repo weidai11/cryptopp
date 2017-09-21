@@ -253,7 +253,7 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 extern void ReverseByteArrayLE(byte src[16]);
 
-extern void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen,
+extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk,
         const word32* rc, const byte* Se, unsigned int rounds);
 
 extern size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
@@ -284,17 +284,18 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	}
 #endif
 
-	GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
-	const word32 *rc = rcon;
-	word32 temp;
-
 #if CRYPTOPP_POWER8_AES_AVAILABLE
 	if (HasAES())
 	{
-		Rijndael_UncheckedSetKey_POWER8(rk, keyLen, rc, Se, m_rounds);
+		// We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256
+		Rijndael_UncheckedSetKey_POWER8(userKey, keyLen, rk, rcon, Se, m_rounds);
 		return;
 	}
 #endif
+
+	GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
+	const word32 *rc = rcon;
+	word32 temp;
 
 	while (true)
 	{
