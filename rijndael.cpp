@@ -253,8 +253,8 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 extern void ReverseByteArrayLE(byte src[16]);
 
-extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk,
-        const word32* rc, const byte* Se, unsigned int rounds);
+extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen,
+        word32* rk, const word32* rc, const byte* Se);
 
 extern size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
@@ -287,8 +287,9 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 #if CRYPTOPP_POWER8_AES_AVAILABLE
 	if (HasAES())
 	{
-		// We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256
-		Rijndael_UncheckedSetKey_POWER8(userKey, keyLen, rk, rcon, Se, m_rounds);
+		// We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256.
+		// The IBM docs on AES sucks. Intel's docs on AESNI puts IBM to shame.
+		Rijndael_UncheckedSetKey_POWER8(userKey, keyLen, rk, rcon, Se);
 		return;
 	}
 #endif

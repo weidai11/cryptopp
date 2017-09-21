@@ -13,6 +13,8 @@
 //
 //    AltiVec and Power8 code based on http://github.com/noloader/AES-Intrinsics and
 //    http://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/
+//    The IBM documentation absolutely sucks. Thanks to Andy Polyakov, Paul R and
+//    Trudeaun for answering questions and filing the gaps in the IBM documentation.
 
 #include "pch.h"
 #include "config.h"
@@ -788,13 +790,6 @@ static inline uint8x16_p8 Reverse8x16(const uint8x16_p8& src)
 	return vec_perm(src, zero, mask);
 }
 
-static inline uint32x4_p8 Reverse32x4(const uint32x4_p8& src)
-{
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
-	return (uint32x4_p8)vec_perm((uint8x16_p8)src, zero, mask);
-}
-
 static inline uint64x2_p8 Reverse64x2(const uint64x2_p8& src)
 {
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
@@ -824,19 +819,6 @@ static inline uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 	return Reverse8x16(vec_vsx_ld(off, src));
 # else
 	return vec_vsx_ld(off, src);
-# endif
-#endif
-}
-
-static inline uint32x4_p8 Load32x4(const uint32_t src[4])
-{
-#if defined(CRYPTOPP_XLC_VERSION)
-	return vec_xl_be(0, (uint32_t*)src);
-#else
-# if defined(IS_LITTLE_ENDIAN)
-	return Reverse32x4(vec_vsx_ld(0, src));
-# else
-	return vec_vsx_ld(0, src);
 # endif
 #endif
 }
@@ -899,38 +881,18 @@ static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 	typedef uint8x16_p8 VectorType;
 #elif defined(CRYPTOPP_GCC_VERSION)
 	typedef uint64x2_p8 VectorType;
-#else
-	CRYPTOPP_ASSERT(0);
 #endif
 
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(const byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
-	return Load8x16(src);
-#elif defined(CRYPTOPP_GCC_VERSION)
-	return Load64x2(src);
-#endif
+	return (VectorType)Load8x16(src);
 }
 
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(int off, const byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
-	return Load8x16(off, src);
-#elif defined(CRYPTOPP_GCC_VERSION)
-	return Load64x2(off, src);
-#endif
-}
-
-// Loads a mis-aligned byte array, performs an endian conversion.
-static inline VectorType VectorLoad(const word32 src[4])
-{
-#if defined(CRYPTOPP_XLC_VERSION)
-	return (VectorType)Load32x4((uint32_t*)src);
-#elif defined(CRYPTOPP_GCC_VERSION)
-	return (VectorType)Load32x4((uint32_t*)src);
-#endif
+	return (VectorType)Load8x16(off, src);
 }
 
 // Loads an aligned byte array, does not perform an endian conversion.
@@ -959,16 +921,6 @@ static inline VectorType VectorLoadKey(const word32 src[4])
 	return (VectorType)vec_ld(0, (uint8_t*)src);
 }
 
-// Loads a byte array, does not perform an endian conversion.
-//  This function presumes the subkey table is correct endianess.
-static inline VectorType VectorLoadKeyUnaligned(const word32 src[4])
-{
-	const uint8x16_p8 perm = vec_lvsl(0, (uint8_t*)src);
-	const uint8x16_p8 low = vec_ld(0, (uint8_t*)src);
-	const uint8x16_p8 high = vec_ld(15, (uint8_t*)src);
-	return (VectorType)vec_perm(low, high, perm);
-}
-
 // Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
 static inline VectorType VectorLoadKey(int off, const byte src[16])
@@ -988,13 +940,15 @@ static inline VectorType VectorLoadKeyUnaligned(int off, const byte src[16])
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
-static inline void VectorStore(const VectorType& src, byte dest[16])
+static inline void VectorStore(const uint8x16_p8& src, byte dest[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
 	return Store8x16(src, dest);
-#elif defined(CRYPTOPP_GCC_VERSION)
+}
+
+// Stores to a mis-aligned byte array, performs an endian conversion.
+static inline void VectorStore(const uint64x2_p8& src, byte dest[16])
+{
 	return Store64x2(src, dest);
-#endif
 }
 
 template <class T1, class T2>
@@ -1062,29 +1016,47 @@ static inline T1 VectorDecryptLast(const T1& state, const T2& key)
 /* Round constants */
 CRYPTOPP_ALIGN_DATA(16)
 static const uint32_t s_rcon[3][4] = {
-	{0x01<<24,0x01<<24,0x01<<24,0x01<<24},  /*  1 */
-	{0x1b<<24,0x1b<<24,0x1b<<24,0x1b<<24},  /*  9 */
-	{0x36<<24,0x36<<24,0x36<<24,0x36<<24}   /* 10 */
+#if defined(IS_LITTLE_ENDIAN)
+	{0x01,0x01,0x01,0x01},   /*  1 */
+	{0x1b,0x1b,0x1b,0x1b},   /*  9 */
+	{0x36,0x36,0x36,0x36}    /* 10 */
+#else
+	{0x01000000,0x01000000,0x01000000,0x01000000},  /*  1 */
+	{0x1b000000,0x1b000000,0x1b000000,0x1b000000},  /*  9 */
+	{0x36000000,0x36000000,0x36000000,0x36000000}   /* 10 */
+#endif
 };
 
 /* Permute mask */
 CRYPTOPP_ALIGN_DATA(16)
 static const uint32_t s_mask[4] = {
 #if defined(IS_LITTLE_ENDIAN)
-	// 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c
-	// 0x01020300, 0x01020300, 0x01020300, 0x01020300
-	0x02010003, 0x02010003, 0x02010003, 0x02010003
+	0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d
 #else
-	0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c
+	0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c
 #endif
 };
 
 static inline uint8x16_p8
 Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r5)
 {
+	// Big endian: vec_sld(a, b, c)
+	// Little endian: vec_sld(b, a, 16-c)
+
 	const uint8x16_p8 r0 = {0};
 	uint8x16_p8 r3, r6;
 
+#if defined(IS_LITTLE_ENDIAN)
+	r3 = vec_perm(r1, r1, r5);       /* line  1 */
+	r6 = vec_sld(r1, r0, 4);         /* line  2 */
+	r3 = VectorEncryptLast(r3, r4);  /* line  3 */
+
+	r1 = vec_xor(r1, r6);            /* line  4 */
+	r6 = vec_sld(r6, r0, 4);         /* line  5 */
+	r1 = vec_xor(r1, r6);            /* line  6 */
+	r6 = vec_sld(r6, r0, 4);         /* line  7 */
+	r1 = vec_xor(r1, r6);            /* line  8 */
+#else
 	r3 = vec_perm(r1, r1, r5);       /* line  1 */
 	r6 = vec_sld(r0, r1, 12);        /* line  2 */
 	r3 = VectorEncryptLast(r3, r4);  /* line  3 */
@@ -1094,6 +1066,7 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r
 	r1 = vec_xor(r1, r6);            /* line  6 */
 	r6 = vec_sld(r0, r6, 12);        /* line  7 */
 	r1 = vec_xor(r1, r6);            /* line  8 */
+#endif
 
 	// Caller handles r4 (rcon) addition
 	// r4 = vec_add(r4, r4);         /* line  9 */
@@ -1103,56 +1076,47 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r
 	return r1;
 }
 
-void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk, const word32* rc,
-                                     const byte* Se, unsigned int rounds)
+// We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256.
+// The IBM docs on AES sucks. Intel's docs on AESNI puts IBM to shame.
+void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk,
+                                     const word32* rc, const byte* Se)
 {
-#if defined(IS_BIG_ENDIAN)
-	// Testing shows this is about 150 to 350 cycles faster.
+	const size_t rounds = keyLen / 4 + 6;
 	if (keyLen == 16)
 	{
-#if defined(IS_BIG_ENDIAN)
-		uint8_t* skptr = (uint8_t*)rk;
 		std::memcpy(rk, userKey, keyLen);
-#else
 		uint8_t* skptr = (uint8_t*)rk;
-		std::memcpy(rk, userKey, keyLen);
+
+		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((const uint8_t*)skptr);
+		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[0]);
+		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_mask);
+
+#if defined(IS_LITTLE_ENDIAN)
+		// Only the user key requires byte reversing.
+		// The subkeys are stored in proper endianess.
 		ReverseByteArrayLE(skptr);
 #endif
-
-		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey(skptr);
-		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
-		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey(s_mask);
 
 		for (unsigned int i=0; i<rounds-2; ++i)
 		{
 			r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 			r4 = vec_add(r4, r4);
-
-			skptr += 16;
-			const VectorType t = (VectorType)r1;
-			VectorStore(t, skptr);
+			skptr += 16; VectorStore(r1, skptr);
 		}
 
 		/* Round 9 using rcon=0x1b */
-		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
+		r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[1]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
-
-		skptr += 16;
-		const VectorType t1 = (VectorType)r1;
-		VectorStore(t1, skptr);
+		skptr += 16; VectorStore(r1, skptr);
 
 		/* Round 10 using rcon=0x36 */
-		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
+		r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[2]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
-
-		skptr += 16;
-		const VectorType t2 = (VectorType)r1;
-		VectorStore(t2, skptr);
+		skptr += 16; VectorStore(r1, skptr);
 
 		return;
 	}
 	else
-#endif
 	{
 		GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
 		word32 *rk_saved = rk, temp;
