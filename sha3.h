@@ -67,8 +67,10 @@ public:
 	static std::string StaticAlgorithmName() { return "SHA3-" + IntToString(DIGESTSIZE * 8); }
 	unsigned int BlockSize() const { return BLOCKSIZE; }
 private:
+#if !defined(__BORLANDC__)
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
 	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
+#endif
 };
 
 //! \brief SHA3-224 message digest
