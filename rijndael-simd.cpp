@@ -1160,9 +1160,7 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		}
 
 		rk = rk_saved;
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, 16);
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk + rounds*4, rk + rounds*4, 16);
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (rounds-1)*16);
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, (rounds+1)*16);
 
 #if defined(IS_LITTLE_ENDIAN)
 		// VSX registers are big-endian. The entire subkey table must be byte
