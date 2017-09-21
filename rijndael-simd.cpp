@@ -1060,22 +1060,23 @@ static inline T1 VectorDecryptLast(const T1& state, const T2& key)
 //////////////////////////////////////////////////////////////////
 
 /* Round constants */
+CRYPTOPP_ALIGN_DATA(16)
 static const uint32_t s_rcon[3][4] = {
 	{0x01<<24,0x01<<24,0x01<<24,0x01<<24},  /*  1 */
 	{0x1b<<24,0x1b<<24,0x1b<<24,0x1b<<24},  /*  9 */
 	{0x36<<24,0x36<<24,0x36<<24,0x36<<24}   /* 10 */
 };
 
+/* Permute mask */
+CRYPTOPP_ALIGN_DATA(16)
 static const uint32_t s_mask[4] = {
 	0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c, 0x0d0e0f0c
 };
 
 static inline uint8x16_p8
-Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4)
+Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r5)
 {
-	const uint8x16_p8 r5 = (uint8x16_p8)VectorLoad(s_mask);
 	const uint8x16_p8 r0 = {0};
-
 	uint8x16_p8 r3, r6;
 
 	r3 = vec_perm(r1, r1, r5);       /* line  1 */
@@ -1104,12 +1105,13 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
 	if (keyLen == 16)
 	{
 		uint8_t* skptr = (uint8_t*)rk;
-		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((uint8_t*)skptr);
-		uint8x16_p8 r4 = (uint8x16_p8)VectorLoad(s_rcon[0]);
+		uint8x16_p8 r1 = (uint8x16_p8)VectorLoad((uint8_t*)skptr);
+		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
+		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey(s_mask);
 
 		for (unsigned int i=0; i<rounds-2; ++i)
 		{
-			r1 = Rijndael_Subkey_POWER8(r1, r4);
+			r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 			r4 = vec_add(r4, r4);
 
 			skptr += 16;
@@ -1119,7 +1121,7 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
 
 		/* Round 9 using rcon=0x1b */
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
-		r1 = Rijndael_Subkey_POWER8(r1, r4);
+		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 
 		skptr += 16;
 		const VectorType t1 = (VectorType)r1;
@@ -1127,7 +1129,7 @@ void Rijndael_UncheckedSetKey_POWER8(word32* rk, size_t keyLen, const word32* rc
 
 		/* Round 10 using rcon=0x36 */
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
-		r1 = Rijndael_Subkey_POWER8(r1, r4);
+		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 
 		skptr += 16;
 		const VectorType t2 = (VectorType)r1;
