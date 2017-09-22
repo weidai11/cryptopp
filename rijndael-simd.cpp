@@ -899,48 +899,25 @@ static inline VectorType VectorLoad(int off, const byte src[16])
 	return (VectorType)Load8x16(off, (uint8_t*)src);
 }
 
-// Loads an aligned byte array, does not perform an endian conversion.
+// Loads a byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
 static inline VectorType VectorLoadKey(const byte src[16])
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
-	return (VectorType)vec_ld(0, (uint8_t*)src);
+	return (VectorType)vec_vsx_ld(0, (uint8_t*)src);
 }
 
 // Loads a byte array, does not perform an endian conversion.
-//  This function presumes the subkey table is correct endianess.
-static inline VectorType VectorLoadKeyUnaligned(const byte src[16])
-{
-	const uint8x16_p8 perm = vec_lvsl(0, src);
-	const uint8x16_p8 low = vec_ld(0, src);
-	const uint8x16_p8 high = vec_ld(15, src);
-	return (VectorType)vec_perm(low, high, perm);
-}
-
-// Loads an aligned byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
 static inline VectorType VectorLoadKey(const word32 src[4])
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
-	return (VectorType)vec_ld(0, (uint8_t*)src);
-}
-
-// Loads an aligned byte array, does not perform an endian conversion.
-//  This function presumes the subkey table is correct endianess.
-static inline VectorType VectorLoadKey(int off, const byte src[16])
-{
-	CRYPTOPP_ASSERT(IsAlignedOn(src, 16));
-	return (VectorType)vec_ld(off, (uint8_t*)src);
+	return (VectorType)vec_vsx_ld(0, (uint8_t*)src);
 }
 
 // Loads a byte array, does not perform an endian conversion.
 //  This function presumes the subkey table is correct endianess.
-static inline VectorType VectorLoadKeyUnaligned(int off, const byte src[16])
+static inline VectorType VectorLoadKey(int off, const byte src[16])
 {
-	const uint8x16_p8 perm = vec_lvsl(off, src);
-	const uint8x16_p8 low = vec_ld(off, src);
-	const uint8x16_p8 high = vec_ld(off+15, src);
-	return (VectorType)vec_perm(low, high, perm);
+	return (VectorType)vec_vsx_ld(off, (uint8_t*)src);
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
@@ -1117,8 +1094,6 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 		skptr += 16; VectorStore(r1, skptr);
-
-		return;
 	}
 	else
 	{
@@ -1162,7 +1137,19 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		rk = rk_saved;
 		const uint8x16_p8 mask = ((uint8x16_p8){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
 		const uint8x16_p8 zero = {0};
-		for (unsigned int i=0; i<=rounds; ++i, rk+=4)
+
+		unsigned int i=0;
+		for (i=0; i<rounds; i+=2, rk+=8)
+		{
+			uint8x16_p8 d1 = vec_vsx_ld( 0, (uint8_t*)rk);
+			uint8x16_p8 d2 = vec_vsx_ld(16, (uint8_t*)rk);
+			d1 = vec_perm(d1, zero, mask);
+			d2 = vec_perm(d2, zero, mask);
+			vec_vsx_st(d1,  0, (uint8_t*)rk);
+			vec_vsx_st(d2, 16, (uint8_t*)rk);
+		}
+
+		for ( ; i<rounds+1; i++, rk+=4)
 			vec_vsx_st(vec_perm(vec_vsx_ld(0, (uint8_t*)rk), zero, mask), 0, (uint8_t*)rk);
 #endif
 	}
