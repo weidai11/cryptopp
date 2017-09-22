@@ -86,7 +86,7 @@ inline VectorType VectorLoadBE(const uint8_t src[16])
 
 //! \brief Loads a vector from a byte array
 //! \param src the byte array
-//! \param off offset into the byte array
+//! \param off offset into the src byte array
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoadBE will swap endianess on little endian systems.
 //! \note VectorLoadBE does not require an aligned array.
@@ -101,29 +101,6 @@ inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 	return (VectorType)Reverse(vec_vsx_ld(off, (uint8_t*)src));
 # else
 	return (VectorType)vec_vsx_ld(off, (uint8_t*)src);
-# endif
-#endif
-}
-
-//! \brief Stores a vector to a byte array
-//! \tparam T a vector type
-//! \param src the vector
-//! \param dest the byte array
-//! \details Stores a vector in big endian format to a byte array.
-//!   VectorStoreBE will swap endianess on little endian systems.
-//! \note VectorStoreBE does not require an aligned array.
-//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
-//! \since Crypto++ 6.0
-template <class T>
-inline void VectorStoreBE(const T& src, uint8_t dest[16])
-{
-#if defined(CRYPTOPP_XLC_VERSION)
-	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
-#else
-# if defined(IS_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
-# else
-	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -144,7 +121,7 @@ inline VectorType VectorLoad(const byte src[16])
 
 //! \brief Loads a vector from a byte array
 //! \param src the byte array
-//! \param off offset into the byte array
+//! \param off offset into the src byte array
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoad will swap endianess on little endian systems.
 //! \note VectorLoad does not require an aligned array.
@@ -189,7 +166,7 @@ inline VectorType VectorLoadKey(const word32 src[4])
 
 //! \brief Loads a vector from a byte array
 //! \param src the byte array
-//! \param off offset into the byte array
+//! \param off offset into the src byte array
 //! \details Loads a vector from a byte array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
@@ -209,13 +186,74 @@ inline VectorType VectorLoadKey(int off, const byte src[16])
 //! \param src the vector
 //! \param dest the byte array
 //! \details Stores a vector in big endian format to a byte array.
-//!   VectorStore will swap endianess on little endian systems.
+//!   VectorStoreBE will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
+template <class T>
+inline void VectorStoreBE(const T& src, uint8_t dest[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
+#else
+# if defined(IS_LITTLE_ENDIAN)
+	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
+# else
+	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
+# endif
+#endif
+}
+//! \brief Stores a vector to a byte array
+//! \tparam T a vector type
+//! \param src the vector
+//! \param off offset into the dest byte array
+//! \param dest the byte array
+//! \details Stores a vector in big endian format to a byte array.
+//!   VectorStoreBE will swap endianess on little endian systems.
+//! \note VectorStoreBE does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
+template <class T>
+inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	vec_xst_be((uint8x16_p8)src, off, (uint8_t*)dest);
+#else
+# if defined(IS_LITTLE_ENDIAN)
+	vec_vsx_st(Reverse((uint8x16_p8)src), off, (uint8_t*)dest);
+# else
+	vec_vsx_st((uint8x16_p8)src, off, (uint8_t*)dest);
+# endif
+#endif
+}
+
+//! \brief Stores a vector to a byte array
+//! \tparam T a vector type
+//! \param src the vector
+//! \param dest the byte array
+//! \details Stores a vector in big endian format to a byte array.
+//!   VectorStore will swap endianess on little endian systems.
+//! \note VectorStore does not require an aligned array.
 //! \since Crypto++ 6.0
 template<class T>
 inline void VectorStore(const T& src, byte dest[16])
 {
-	return VectorStoreBE(src, (uint8_t*)dest);
+	VectorStoreBE((uint8x16_p8)src, (uint8_t*)dest);
+}
+
+//! \brief Stores a vector to a byte array
+//! \tparam T a vector type
+//! \param src the vector
+//! \param off offset into the dest byte array
+//! \param dest the byte array
+//! \details Stores a vector in big endian format to a byte array.
+//!   VectorStore will swap endianess on little endian systems.
+//! \note VectorStore does not require an aligned array.
+//! \since Crypto++ 6.0
+template<class T>
+inline void VectorStore(const T& src, int off, byte dest[16])
+{
+	VectorStoreBE((uint8x16_p8)src, off, (uint8_t*)dest);
 }
 
 //! \brief Permutes two vectors
