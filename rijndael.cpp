@@ -251,8 +251,6 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #endif
 
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
-extern void ReverseByteArrayLE(byte src[16]);
-
 extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen,
         word32* rk, const word32* rc, const byte* Se);
 
