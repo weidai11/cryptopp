@@ -1,10 +1,11 @@
 // rijndael-simd.cpp - written and placed in the public domain by
 //                     Jeffrey Walton, Uri Blumenthal and Marcel Raad.
+//                     AES-NI code originally written by Wei Dai.
 //
-//    This source file uses intrinsics to gain access to AES-NI and
-//    ARMv8a AES instructions. A separate source file is needed
-//    because additional CXXFLAGS are required to enable the
-//    appropriate instructions sets in some build configurations.
+//    This source file uses intrinsics and built-ins to gain access to
+//    AES-NI, ARMv8a AES and Power8 AES instructions. A separate source
+//    file is needed because additional CXXFLAGS are required to enable
+//    the appropriate instructions sets in some build configurations.
 //
 //    ARMv8a AES code based on CriticalBlue code from Johannes Schneiders,
 //    Skip Hovsmith and Barry O'Rourke for the mbedTLS project. Stepping
@@ -13,13 +14,11 @@
 //
 //    AltiVec and Power8 code based on http://github.com/noloader/AES-Intrinsics and
 //    http://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/
-//    The IBM documentation absolutely sucks. Thanks to Andy Polyakov, Paul R and
-//    Trudeaun for answering questions and filling the gaps in the IBM documentation.
+//    For Power8 do not remove the casts, even when const-ness is cast away. It causes
+//    a 0.3 to 0.6 cpb drop in performance. The IBM documentation absolutely sucks.
+//    Thanks to Andy Polyakov, Paul R and Trudeaun for answering questions and filling
+//    the gaps in the IBM documentation.
 //
-//    For Power8 do not remove the casts. It causes a 0.3 to 0.6 cpb drop in performance.
-//      uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((const uint8_t*)skptr);
-//      uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[0]);
-//      uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_mask);
 
 #include "pch.h"
 #include "config.h"
@@ -891,7 +890,7 @@ static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(const byte src[16])
 {
-	return (VectorType)Load8x16((uint8_t*)src);
+	return (VectorType)Load8x16(0, (uint8_t*)src);
 }
 
 // Loads a mis-aligned byte array, performs an endian conversion.
@@ -1092,9 +1091,9 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		std::memcpy(rk, userKey, keyLen);
 		uint8_t* skptr = (uint8_t*)rk;
 
-		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey((const uint8_t*)skptr);
-		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[0]);
-		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_mask);
+		uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey(skptr);
+		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
+		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey(s_mask);
 
 #if defined(IS_LITTLE_ENDIAN)
 		// Only the user key requires byte reversing.
@@ -1110,12 +1109,12 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		}
 
 		/* Round 9 using rcon=0x1b */
-		r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[1]);
+		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 		skptr += 16; VectorStore(r1, skptr);
 
 		/* Round 10 using rcon=0x36 */
-		r4 = (uint8x16_p8)VectorLoadKey((const uint8_t*)s_rcon[2]);
+		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 		skptr += 16; VectorStore(r1, skptr);
 
