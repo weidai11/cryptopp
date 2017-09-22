@@ -75,22 +75,15 @@ bool CPU_ProbeAltivec()
 		result = false;
 	else
 	{
-		CRYPTOPP_ALIGN_DATA(16)
 		const byte b1[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-		CRYPTOPP_ALIGN_DATA(16)
 		const byte b2[16] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-		CRYPTOPP_ALIGN_DATA(16) byte b3[16];
-#if defined(CRYPTOPP_XLC_VERSION)
-		const uint8x16_p8 v1 = VectorLoad(0, b1);
-		const uint8x16_p8 v2 = VectorLoad(0, b2);
-		const uint8x16_p8 v3 = VectorXor(v1, v2);
-		vec_st(v3, 0, (byte*)b3);
-#elif defined(CRYPTOPP_GCC_VERSION)
-		const uint64x2_p8 v1 = (uint64x2_p8)VectorLoad(0, b1);
-		const uint64x2_p8 v2 = (uint64x2_p8)VectorLoad(0, b2);
-		const uint64x2_p8 v3 = (uint64x2_p8)VectorXor(v1, v2);
-		vec_st((uint8x16_p8)v3, 0, (byte*)b3);
-#endif
+		byte b3[16];
+
+		const uint8x16_p8 v1 = (uint8x16_p8)VectorLoad(0, b1);
+		const uint8x16_p8 v2 = (uint8x16_p8)VectorLoad(0, b2);
+		const uint8x16_p8 v3 = (uint8x16_p8)VectorXor(v1, v2);
+		VectorStore(v3, b3);
+
 		result = (0 == std::memcmp(b2, b3, 16));
 	}
 
@@ -210,6 +203,8 @@ bool CPU_ProbeAES()
 		uint8x16_p8 s = (uint8x16_p8)VectorLoad(0, state);
 		s = VectorEncrypt(s, k);
 		s = VectorEncryptLast(s, k);
+		s = VectorDecrypt(s, k);
+		s = VectorDecryptLast(s, k);
 		VectorStore(s, r);
 
 		result = (0 != std::memcmp(r, z, 16));
@@ -247,7 +242,16 @@ bool CPU_ProbeSHA256()
 		result = false;
 	else
 	{
+		byte r[16], z[16] = {0};
+		uint8x16_p8 x = ((uint8x16_p8){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
 
+		x = VectorSHA256<0,0>(x);
+		x = VectorSHA256<0,1>(x);
+		x = VectorSHA256<1,0>(x);
+		x = VectorSHA256<1,1>(x);
+		VectorStore(x, r);
+
+		result = (0 != std::memcmp(r, z, 16));
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -282,7 +286,16 @@ bool CPU_ProbeSHA512()
 		result = false;
 	else
 	{
+		byte r[16], z[16] = {0};
+		uint8x16_p8 x = ((uint8x16_p8){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
 
+		x = VectorSHA512<0,0>(x);
+		x = VectorSHA512<0,1>(x);
+		x = VectorSHA512<1,0>(x);
+		x = VectorSHA512<1,1>(x);
+		VectorStore(x, r);
+
+		result = (0 != std::memcmp(r, z, 16));
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);

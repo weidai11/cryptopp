@@ -991,7 +991,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
     CRYPTOPP_ASSERT(length >= SHA512::BLOCKSIZE);
-	
+
 	CRYPTOPP_ASSERT(0);
 }
 

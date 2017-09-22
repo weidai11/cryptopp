@@ -783,6 +783,13 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+    if (HasSHA256())
+    {
+        SHA256_HashMultipleBlocks_POWER8(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA256::BLOCKSIZE - 1);
+    }
+#endif
 
     const bool noReverse = NativeByteOrderIs(this->GetByteOrder());
     word32 *dataBuf = this->DataBuf();
@@ -1161,6 +1168,13 @@ void SHA512::Transform(word64 *state, const word64 *data)
     if (HasSSE2())
     {
         SHA512_HashBlock_SSE2(state, data);
+        return;
+    }
+#endif
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+    if (HasSHA512())
+    {
+        SHA512_HashMultipleBlocks_POWER8(state, data, SHA512::BLOCKSIZE, BIG_ENDIAN_ORDER);
         return;
     }
 #endif
