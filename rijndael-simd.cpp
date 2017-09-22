@@ -776,6 +776,12 @@ typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned int       uint32x4_p8;
 typedef __vector unsigned long long uint64x2_p8;
 
+#if defined(CRYPTOPP_XLC_VERSION)
+typedef uint8x16_p8 VectorType;
+#elif defined(CRYPTOPP_GCC_VERSION)
+typedef uint64x2_p8 VectorType;
+#endif
+
 void ReverseByteArrayLE(byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
@@ -787,92 +793,48 @@ void ReverseByteArrayLE(byte src[16])
 #endif
 }
 
-static inline uint8x16_p8 Reverse8x16(const uint8x16_p8& src)
+template <class T1>
+static inline T1 Reverse(const T1& src)
 {
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
 	return vec_perm(src, zero, mask);
 }
 
-static inline uint64x2_p8 Reverse64x2(const uint64x2_p8& src)
-{
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
-	return (uint64x2_p8)vec_perm((uint8x16_p8)src, zero, mask);
-}
-
-static inline uint8x16_p8 Load8x16(const uint8_t src[16])
+static inline VectorType VectorLoadBE(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return vec_xl_be(0, (uint8_t*)src);
+	return (VectorType)vec_xl_be(0, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse8x16(vec_vsx_ld(0, (uint8_t*)src));
+	return (VectorType)Reverse(vec_vsx_ld(0, (uint8_t*)src));
 # else
-	return vec_vsx_ld(0, (uint8_t*)src);
+	return (VectorType)vec_vsx_ld(0, (uint8_t*)src);
 # endif
 #endif
 }
 
-static inline uint8x16_p8 Load8x16(int off, const uint8_t src[16])
+static inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return vec_xl_be(off, (uint8_t*)src);
+	return (VectorType)vec_xl_be(off, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse8x16(vec_vsx_ld(off, (uint8_t*)src));
+	return (VectorType)Reverse(vec_vsx_ld(off, (uint8_t*)src));
 # else
-	return vec_vsx_ld(off, (uint8_t*)src);
+	return (VectorType)vec_vsx_ld(off, (uint8_t*)src);
 # endif
 #endif
 }
 
-static inline void Store8x16(const uint8x16_p8& src, uint8_t dest[16])
-{
-#if defined(CRYPTOPP_XLC_VERSION)
-	vec_xst_be(src, 0, (uint8_t*)dest);
-#else
-# if defined(IS_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse8x16(src), 0, (uint8_t*)dest);
-# else
-	vec_vsx_st(src, 0, (uint8_t*)dest);
-# endif
-#endif
-}
-
-static inline uint64x2_p8 Load64x2(const uint8_t src[16])
-{
-#if defined(CRYPTOPP_XLC_VERSION)
-	return (uint64x2_p8)vec_xl_be(0, (uint8_t*)src);
-#else
-# if defined(IS_LITTLE_ENDIAN)
-	return Reverse64x2((uint64x2_p8)vec_vsx_ld(0, (uint8_t*)src));
-# else
-	return (uint64x2_p8)vec_vsx_ld(0, (uint8_t*)src);
-# endif
-#endif
-}
-
-static inline uint64x2_p8 Load64x2(int off, const uint8_t src[16])
-{
-#if defined(CRYPTOPP_XLC_VERSION)
-	return (uint64x2_p8)vec_xl_be(off, (uint8_t*)src);
-#else
-# if defined(IS_LITTLE_ENDIAN)
-	return (uint64x2_p8)Reverse8x16(vec_vsx_ld(off, (uint8_t*)src));
-# else
-	return (uint64x2_p8)vec_vsx_ld(off, (uint8_t*)src);
-# endif
-#endif
-}
-
-static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
+template <class T1>
+static inline void VectorStoreBE(const T1& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	vec_vsx_st((uint8x16_p8)Reverse64x2(src), 0, (uint8_t*)dest);
+	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
 # else
 	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
 # endif
@@ -881,22 +843,16 @@ static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 
 //////////////////////////////////////////////////////////////////
 
-#if defined(CRYPTOPP_XLC_VERSION)
-	typedef uint8x16_p8 VectorType;
-#elif defined(CRYPTOPP_GCC_VERSION)
-	typedef uint64x2_p8 VectorType;
-#endif
-
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(const byte src[16])
 {
-	return (VectorType)Load8x16(0, (uint8_t*)src);
+	return (VectorType)VectorLoadBE((uint8_t*)src);
 }
 
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(int off, const byte src[16])
 {
-	return (VectorType)Load8x16(off, (uint8_t*)src);
+	return (VectorType)VectorLoadBE(off, (uint8_t*)src);
 }
 
 // Loads a byte array, does not perform an endian conversion.
@@ -921,15 +877,16 @@ static inline VectorType VectorLoadKey(int off, const byte src[16])
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
-static inline void VectorStore(const uint8x16_p8& src, byte dest[16])
+template<class T1>
+static inline void VectorStore(const T1& src, byte dest[16])
 {
-	return Store8x16(src, (uint8_t*)dest);
+	return VectorStoreBE(src, (uint8_t*)dest);
 }
 
-// Stores to a mis-aligned byte array, performs an endian conversion.
-static inline void VectorStore(const uint64x2_p8& src, byte dest[16])
+template <class T1, class T2>
+static inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
-	return Store64x2(src, (uint8_t*)dest);
+	return (T1)vec_perm(vec1, vec2, (uint8x16_p8)mask);
 }
 
 template <class T1, class T2>
@@ -942,6 +899,16 @@ template <class T1, class T2>
 static inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_add(vec1, (T1)vec2);
+}
+
+template <int C, class T1, class T2>
+static inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
+{
+#if defined(IS_LITTLE_ENDIAN)
+	return (T1)vec_sld((uint8x16_p8)vec2, (uint8x16_p8)vec1, 16-C);
+#else
+	return (T1)vec_sld((uint8x16_p8)vec1, (uint8x16_p8)vec2, C);
+#endif
 }
 
 template <class T1, class T2>
@@ -1027,33 +994,21 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r
 	const uint8x16_p8 r0 = {0};
 	uint8x16_p8 r3, r6;
 
-#if defined(IS_LITTLE_ENDIAN)
-	r3 = vec_perm(r1, r1, r5);       /* line  1 */
-	r6 = vec_sld(r1, r0, 4);         /* line  2 */
-	r3 = VectorEncryptLast(r3, r4);  /* line  3 */
+	r3 = VectorPermute(r1, r1, r5);     /* line  1 */
+	r6 = VectorShiftLeft<12>(r0, r1);   /* line  2 */
+	r3 = VectorEncryptLast(r3, r4);     /* line  3 */
 
-	r1 = vec_xor(r1, r6);            /* line  4 */
-	r6 = vec_sld(r6, r0, 4);         /* line  5 */
-	r1 = vec_xor(r1, r6);            /* line  6 */
-	r6 = vec_sld(r6, r0, 4);         /* line  7 */
-	r1 = vec_xor(r1, r6);            /* line  8 */
-#else
-	r3 = vec_perm(r1, r1, r5);       /* line  1 */
-	r6 = vec_sld(r0, r1, 12);        /* line  2 */
-	r3 = VectorEncryptLast(r3, r4);  /* line  3 */
-
-	r1 = vec_xor(r1, r6);            /* line  4 */
-	r6 = vec_sld(r0, r6, 12);        /* line  5 */
-	r1 = vec_xor(r1, r6);            /* line  6 */
-	r6 = vec_sld(r0, r6, 12);        /* line  7 */
-	r1 = vec_xor(r1, r6);            /* line  8 */
-#endif
+	r1 = VectorXor(r1, r6);             /* line  4 */
+	r6 = VectorShiftLeft<12>(r0, r1);   /* line  5 */
+	r1 = VectorXor(r1, r6);             /* line  6 */
+	r6 = VectorShiftLeft<12>(r0, r1);   /* line  7 */
+	r1 = VectorXor(r1, r6);             /* line  8 */
 
 	// Caller handles r4 (rcon) addition
-	// r4 = vec_add(r4, r4);         /* line  9 */
+	// r4 = VectorAdd(r4, r4);          /* line  9 */
 
 	// r1 is ready for next round
-	r1 = vec_xor(r1, r3);            /* line 10 */
+	r1 = VectorXor(r1, r3);             /* line 10 */
 	return r1;
 }
 
