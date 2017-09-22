@@ -808,9 +808,9 @@ static inline uint8x16_p8 Load8x16(const uint8_t src[16])
 	return vec_xl_be(0, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse8x16(vec_vsx_ld(0, src));
+	return Reverse8x16(vec_vsx_ld(0, (uint8_t*)src));
 # else
-	return vec_vsx_ld(0, src);
+	return vec_vsx_ld(0, (uint8_t*)src);
 # endif
 #endif
 }
@@ -821,9 +821,9 @@ static inline uint8x16_p8 Load8x16(int off, const uint8_t src[16])
 	return vec_xl_be(off, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse8x16(vec_vsx_ld(off, src));
+	return Reverse8x16(vec_vsx_ld(off, (uint8_t*)src));
 # else
-	return vec_vsx_ld(off, src);
+	return vec_vsx_ld(off, (uint8_t*)src);
 # endif
 #endif
 }
@@ -834,9 +834,9 @@ static inline void Store8x16(const uint8x16_p8& src, uint8_t dest[16])
 	vec_xst_be(src, 0, (uint8_t*)dest);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse8x16(src), 0, dest);
+	vec_vsx_st(Reverse8x16(src), 0, (uint8_t*)dest);
 # else
-	vec_vsx_st(src, 0, dest);
+	vec_vsx_st(src, 0, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -847,9 +847,9 @@ static inline uint64x2_p8 Load64x2(const uint8_t src[16])
 	return (uint64x2_p8)vec_xl_be(0, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return Reverse64x2((uint64x2_p8)vec_vsx_ld(0, src));
+	return Reverse64x2((uint64x2_p8)vec_vsx_ld(0, (uint8_t*)src));
 # else
-	return (uint64x2_p8)vec_vsx_ld(0, src);
+	return (uint64x2_p8)vec_vsx_ld(0, (uint8_t*)src);
 # endif
 #endif
 }
@@ -860,9 +860,9 @@ static inline uint64x2_p8 Load64x2(int off, const uint8_t src[16])
 	return (uint64x2_p8)vec_xl_be(off, (uint8_t*)src);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	return (uint64x2_p8)Reverse8x16(vec_vsx_ld(off, src));
+	return (uint64x2_p8)Reverse8x16(vec_vsx_ld(off, (uint8_t*)src));
 # else
-	return (uint64x2_p8)vec_vsx_ld(off, src);
+	return (uint64x2_p8)vec_vsx_ld(off, (uint8_t*)src);
 # endif
 #endif
 }
@@ -873,9 +873,9 @@ static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
 # if defined(IS_LITTLE_ENDIAN)
-	vec_vsx_st((uint8x16_p8)Reverse64x2(src), 0, dest);
+	vec_vsx_st((uint8x16_p8)Reverse64x2(src), 0, (uint8_t*)dest);
 # else
-	vec_vsx_st((uint8x16_p8)src, 0, dest);
+	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -891,13 +891,13 @@ static inline void Store64x2(const uint64x2_p8& src, uint8_t dest[16])
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(const byte src[16])
 {
-	return (VectorType)Load8x16(src);
+	return (VectorType)Load8x16((uint8_t*)src);
 }
 
 // Loads a mis-aligned byte array, performs an endian conversion.
 static inline VectorType VectorLoad(int off, const byte src[16])
 {
-	return (VectorType)Load8x16(off, src);
+	return (VectorType)Load8x16(off, (uint8_t*)src);
 }
 
 // Loads an aligned byte array, does not perform an endian conversion.
@@ -947,13 +947,13 @@ static inline VectorType VectorLoadKeyUnaligned(int off, const byte src[16])
 // Stores to a mis-aligned byte array, performs an endian conversion.
 static inline void VectorStore(const uint8x16_p8& src, byte dest[16])
 {
-	return Store8x16(src, dest);
+	return Store8x16(src, (uint8_t*)dest);
 }
 
 // Stores to a mis-aligned byte array, performs an endian conversion.
 static inline void VectorStore(const uint64x2_p8& src, byte dest[16])
 {
-	return Store64x2(src, dest);
+	return Store64x2(src, (uint8_t*)dest);
 }
 
 template <class T1, class T2>
@@ -1191,7 +1191,7 @@ static inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
             VectorType &block2, VectorType &block3, VectorType &block4,
             VectorType &block5, const word32 *subkeys, unsigned int rounds)
 {
-	CRYPTOPP_ASSERT(subkeys);
+	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	VectorType k = VectorLoadKey(keys);
@@ -1244,7 +1244,7 @@ static inline void POWER8_Dec_6_Blocks(VectorType &block0, VectorType &block1,
             VectorType &block2, VectorType &block3, VectorType &block4,
             VectorType &block5, const word32 *subkeys, unsigned int rounds)
 {
-	CRYPTOPP_ASSERT(subkeys);
+	CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
 	const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
 	VectorType k = VectorLoadKey(rounds*16, keys);
