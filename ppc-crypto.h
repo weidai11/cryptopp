@@ -1,6 +1,6 @@
-// vec-p8.h - written and placed in public domain by Jeffrey Walton
+// ppc-crypto.h - written and placed in public domain by Jeffrey Walton
 
-//! \file vec-p8.h
+//! \file ppc-crypto.h
 //! \brief Support functions for PowerPC and Power8 vector operations
 //! \details This header provides an agnostic interface into GCC and
 //!   IBM XL C/C++ compilers modulo their different built-in functions
@@ -12,7 +12,7 @@
 
 #include "config.h"
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 # include <altivec.h>
 # undef vector
 # undef pixel
@@ -21,7 +21,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned int       uint32x4_p8;
@@ -33,6 +33,10 @@ typedef uint8x16_p8 VectorType;
 typedef uint64x2_p8 VectorType;
 #endif
 
+//! \brief Reverse a 16-byte array
+//! \param src the byte array
+//! \details ReverseByteArrayLE reverses a 16-byte array on a little endian
+//!   system. It does nothing on a big endian system.
 void ReverseByteArrayLE(byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
@@ -44,14 +48,23 @@ void ReverseByteArrayLE(byte src[16])
 #endif
 }
 
-template <class T1>
-static inline T1 Reverse(const T1& src)
+//! \brief Reverse a vector
+//! \tparam T a vector type
+//! \param src the vector
+//! \details Reverse endian swaps the bytes in a vector
+template <class T>
+static inline T Reverse(const T& src)
 {
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
 	return vec_perm(src, zero, mask);
 }
 
+//! \brief Loads a vector from a byte array
+//! \param src the byte array
+//! \details Loads a vector in big endian format from a byte array.
+//!   VectorLoadBE will swap endianess on little endian systems.
+//! \note VectorLoadBE does not require an aligned array.
 static inline VectorType VectorLoadBE(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -65,6 +78,12 @@ static inline VectorType VectorLoadBE(const uint8_t src[16])
 #endif
 }
 
+//! \brief Loads a vector from a byte array
+//! \param src the byte array
+//! \param off offset into the byte array
+//! \details Loads a vector in big endian format from a byte array.
+//!   VectorLoadBE will swap endianess on little endian systems.
+//! \note VectorLoadBE does not require an aligned array.
 static inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -78,8 +97,14 @@ static inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 #endif
 }
 
-template <class T1>
-static inline void VectorStoreBE(const T1& src, uint8_t dest[16])
+//! \brief Stores a vector to a byte array
+//! \tparam T a vector type
+//! \param src the vector
+//! \details Sotres a vector in big endian format to a byte array.
+//!   VectorStoreBE will swap endianess on little endian systems.
+//! \note VectorStoreBE does not require an aligned array.
+template <class T>
+static inline void VectorStoreBE(const T& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
@@ -94,42 +119,79 @@ static inline void VectorStoreBE(const T1& src, uint8_t dest[16])
 
 //////////////////////////////////////////////////////////////////
 
-// Loads a mis-aligned byte array, performs an endian conversion.
+//! \brief Loads a vector from a byte array
+//! \param src the byte array
+//! \details Loads a vector in big endian format from a byte array.
+//!   VectorLoad will swap endianess on little endian systems.
+//! \note VectorLoad does not require an aligned array.
 static inline VectorType VectorLoad(const byte src[16])
 {
 	return (VectorType)VectorLoadBE((uint8_t*)src);
 }
 
-// Loads a mis-aligned byte array, performs an endian conversion.
+//! \brief Loads a vector from a byte array
+//! \param src the byte array
+//! \param off offset into the byte array
+//! \details Loads a vector in big endian format from a byte array.
+//!   VectorLoad will swap endianess on little endian systems.
+//! \note VectorLoad does not require an aligned array.
 static inline VectorType VectorLoad(int off, const byte src[16])
 {
 	return (VectorType)VectorLoadBE(off, (uint8_t*)src);
 }
 
-// Loads a byte array, does not perform an endian conversion.
-//  This function presumes the subkey table is correct endianess.
+//! \brief Loads a vector from a byte array
+//! \param src the byte array
+//! \details Loads a vector from a byte array.
+//!   VectorLoadKey does not swap endianess on little endian systems.
+//! \note VectorLoadKey does not require an aligned array.
 static inline VectorType VectorLoadKey(const byte src[16])
 {
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (VectorType)vec_xl(0, (uint8_t*)src);
+#else
 	return (VectorType)vec_vsx_ld(0, (uint8_t*)src);
+#endif
 }
 
-// Loads a byte array, does not perform an endian conversion.
-//  This function presumes the subkey table is correct endianess.
+//! \brief Loads a vector from a 32-bit word array
+//! \param src the 32-bit word array
+//! \param off offset into the byte array
+//! \details Loads a vector from a 32-bit word array.
+//!   VectorLoadKey does not swap endianess on little endian systems.
+//! \note VectorLoadKey does not require an aligned array.
 static inline VectorType VectorLoadKey(const word32 src[4])
 {
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (VectorType)vec_xl(0, (uint8_t*)src);
+#else
 	return (VectorType)vec_vsx_ld(0, (uint8_t*)src);
+#endif
 }
 
-// Loads a byte array, does not perform an endian conversion.
-//  This function presumes the subkey table is correct endianess.
+//! \brief Loads a vector from a byte array
+//! \param src the byte array
+//! \param off offset into the byte array
+//! \details Loads a vector from a byte array.
+//!   VectorLoadKey does not swap endianess on little endian systems.
+//! \note VectorLoadKey does not require an aligned array.
 static inline VectorType VectorLoadKey(int off, const byte src[16])
 {
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (VectorType)vec_xl(off, (uint8_t*)src);
+#else
 	return (VectorType)vec_vsx_ld(off, (uint8_t*)src);
+#endif
 }
 
-// Stores to a mis-aligned byte array, performs an endian conversion.
-template<class T1>
-static inline void VectorStore(const T1& src, byte dest[16])
+//! \brief Stores a vector to a byte array
+//! \tparam T a vector type
+//! \param src the vector
+//! \details Sotres a vector in big endian format to a byte array.
+//!   VectorStore will swap endianess on little endian systems.
+//! \note VectorStoreBE does not require an aligned array.
+template<class T>
+static inline void VectorStore(const T& src, byte dest[16])
 {
 	return VectorStoreBE(src, (uint8_t*)dest);
 }
