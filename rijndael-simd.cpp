@@ -1159,16 +1159,13 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 			rk += keyLen/4;
 		}
 
-		rk = rk_saved;
-		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk, rk, (rounds+1)*16);
-
 #if defined(IS_LITTLE_ENDIAN)
-		// VSX registers are big-endian. The entire subkey table must be byte
-		// reversed on little-endian systems to ensure it loads properly.
-		byte * ptr = reinterpret_cast<byte*>(rk);
-		for (unsigned int i=0; i<=rounds; i++)
-			ReverseByteArrayLE(ptr+i*16);
-#endif  // IS_LITTLE_ENDIAN
+		rk = rk_saved;
+		const uint8x16_p8 mask = ((uint8x16_p8){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
+		const uint8x16_p8 zero = {0};
+		for (unsigned int i=0; i<=rounds; ++i, rk+=4)
+			vec_vsx_st(vec_perm(vec_vsx_ld(0, (uint8_t*)rk), zero, mask), 0, (uint8_t*)rk);
+#endif
 	}
 }
 
