@@ -101,6 +101,7 @@ inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 //! \brief Stores a vector to a byte array
 //! \tparam T a vector type
 //! \param src the vector
+//! \param dest the byte array
 //! \details Stores a vector in big endian format to a byte array.
 //!   VectorStoreBE will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
@@ -157,7 +158,6 @@ inline VectorType VectorLoadKey(const byte src[16])
 
 //! \brief Loads a vector from a 32-bit word array
 //! \param src the 32-bit word array
-//! \param off offset into the byte array
 //! \details Loads a vector from a 32-bit word array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
@@ -188,6 +188,7 @@ inline VectorType VectorLoadKey(int off, const byte src[16])
 //! \brief Stores a vector to a byte array
 //! \tparam T a vector type
 //! \param src the vector
+//! \param dest the byte array
 //! \details Stores a vector in big endian format to a byte array.
 //!   VectorStore will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
@@ -263,8 +264,8 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 //! \brief One round of AES encryption
 //! \tparam T1 a vector type
 //! \tparam T2 a vector type
-//! \param vec1 the state vector
-//! \param vec2 the subkey vector
+//! \param state the state vector
+//! \param key the subkey vector
 //! \details VectorEncrypt performs one round of AES encryption of state
 //!   using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
@@ -282,8 +283,8 @@ inline T1 VectorEncrypt(const T1& state, const T2& key)
 //! \brief Final round of AES encryption
 //! \tparam T1 a vector type
 //! \tparam T2 a vector type
-//! \param vec1 the state vector
-//! \param vec2 the subkey vector
+//! \param state the state vector
+//! \param key the subkey vector
 //! \details VectorEncryptLast performs the final round of AES encryption
 //!   of state using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
@@ -301,8 +302,8 @@ inline T1 VectorEncryptLast(const T1& state, const T2& key)
 //! \brief One round of AES decryption
 //! \tparam T1 a vector type
 //! \tparam T2 a vector type
-//! \param vec1 the state vector
-//! \param vec2 the subkey vector
+//! \param state the state vector
+//! \param key the subkey vector
 //! \details VectorDecrypt performs one round of AES decryption of state
 //!   using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
@@ -320,8 +321,8 @@ inline T1 VectorDecrypt(const T1& state, const T2& key)
 //! \brief Final round of AES decryption
 //! \tparam T1 a vector type
 //! \tparam T2 a vector type
-//! \param vec1 the state vector
-//! \param vec2 the subkey vector
+//! \param state the state vector
+//! \param key the subkey vector
 //! \details VectorDecryptLast performs the final round of AES decryption
 //!   of state using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
