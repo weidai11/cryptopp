@@ -38,6 +38,7 @@ typedef uint64x2_p8 VectorType;
 //! \param src the byte array
 //! \details ReverseByteArrayLE reverses a 16-byte array on a little endian
 //!   system. It does nothing on a big endian system.
+//! \since Crypto++ 6.0
 inline void ReverseByteArrayLE(byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
@@ -52,7 +53,9 @@ inline void ReverseByteArrayLE(byte src[16])
 //! \brief Reverse a vector
 //! \tparam T a vector type
 //! \param src the vector
-//! \details Reverse endian swaps the bytes in a vector
+//! \details Reverse() endian swaps the bytes in a vector
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 template <class T>
 inline T Reverse(const T& src)
 {
@@ -65,7 +68,9 @@ inline T Reverse(const T& src)
 //! \param src the byte array
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoadBE will swap endianess on little endian systems.
-//! \note VectorLoadBE does not require an aligned array.
+//! \note VectorLoadBE() does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoadBE(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -85,6 +90,8 @@ inline VectorType VectorLoadBE(const uint8_t src[16])
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoadBE will swap endianess on little endian systems.
 //! \note VectorLoadBE does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -105,6 +112,8 @@ inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 //! \details Stores a vector in big endian format to a byte array.
 //!   VectorStoreBE will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 template <class T>
 inline void VectorStoreBE(const T& src, uint8_t dest[16])
 {
@@ -126,6 +135,8 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoad will swap endianess on little endian systems.
 //! \note VectorLoad does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoad(const byte src[16])
 {
 	return (VectorType)VectorLoadBE((uint8_t*)src);
@@ -137,6 +148,8 @@ inline VectorType VectorLoad(const byte src[16])
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoad will swap endianess on little endian systems.
 //! \note VectorLoad does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoad(int off, const byte src[16])
 {
 	return (VectorType)VectorLoadBE(off, (uint8_t*)src);
@@ -147,6 +160,8 @@ inline VectorType VectorLoad(int off, const byte src[16])
 //! \details Loads a vector from a byte array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoadKey(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -161,6 +176,8 @@ inline VectorType VectorLoadKey(const byte src[16])
 //! \details Loads a vector from a 32-bit word array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoadKey(const word32 src[4])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -176,6 +193,8 @@ inline VectorType VectorLoadKey(const word32 src[4])
 //! \details Loads a vector from a byte array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
+//! \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+//! \since Crypto++ 6.0
 inline VectorType VectorLoadKey(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -192,6 +211,7 @@ inline VectorType VectorLoadKey(int off, const byte src[16])
 //! \details Stores a vector in big endian format to a byte array.
 //!   VectorStore will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
+//! \since Crypto++ 6.0
 template<class T>
 inline void VectorStore(const T& src, byte dest[16])
 {
@@ -207,6 +227,7 @@ inline void VectorStore(const T& src, byte dest[16])
 //! \details VectorPermute returns a new vector from vec1 and vec2
 //!   based on mask. mask is an uint8x16_p8 type vector. The return
 //!   vector is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
@@ -220,6 +241,7 @@ inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 //! \param vec2 the second vector
 //! \details VectorXor returns a new vector from vec1 and vec2. The return
 //!   vector is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorXor(const T1& vec1, const T2& vec2)
 {
@@ -234,6 +256,7 @@ inline T1 VectorXor(const T1& vec1, const T2& vec2)
 //! \details VectorAdd returns a new vector from vec1 and vec2.
 //!   vec2 is cast to the same type as vec1. The return vector
 //!   is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 {
@@ -251,6 +274,7 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 //! \note VectorShiftLeft handles the difference between big endian
 //!   and little endian internally. Call the function as if on a big
 //!   endian machine.
+//! \since Crypto++ 6.0
 template <int C, class T1, class T2>
 inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
@@ -268,6 +292,7 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 //! \param key the subkey vector
 //! \details VectorEncrypt performs one round of AES encryption of state
 //!   using subkey key. The return vector is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
@@ -287,6 +312,7 @@ inline T1 VectorEncrypt(const T1& state, const T2& key)
 //! \param key the subkey vector
 //! \details VectorEncryptLast performs the final round of AES encryption
 //!   of state using subkey key. The return vector is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
@@ -306,6 +332,7 @@ inline T1 VectorEncryptLast(const T1& state, const T2& key)
 //! \param key the subkey vector
 //! \details VectorDecrypt performs one round of AES decryption of state
 //!   using subkey key. The return vector is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
@@ -325,6 +352,7 @@ inline T1 VectorDecrypt(const T1& state, const T2& key)
 //! \param key the subkey vector
 //! \details VectorDecryptLast performs the final round of AES decryption
 //!   of state using subkey key. The return vector is the same type as vec1.
+//! \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
@@ -344,6 +372,7 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 //! \param vec the block to transform
 //! \details VectorSHA512 selects sigma0, sigma1, Sigma0, Sigma1 based on
 //!   func and subfunc. The return vector is the same type as vec.
+//! \since Crypto++ 6.0
 template <int func, int subfunc, class T>
 inline T VectorSHA512(const T& vec)
 {
@@ -363,6 +392,7 @@ inline T VectorSHA512(const T& vec)
 //! \param vec the block to transform
 //! \details VectorSHA256 selects sigma0, sigma1, Sigma0, Sigma1 based on
 //!   func and subfunc. The return vector is the same type as vec.
+//! \since Crypto++ 6.0
 template <int func, int subfunc, class T>
 inline T VectorSHA256(const T& vec)
 {
