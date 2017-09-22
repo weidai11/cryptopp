@@ -625,14 +625,14 @@ void DetectArmFeatures()
 
 bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPower8 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA256 = false, CRYPTOPP_SECTION_INIT g_hasSHA512 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 extern bool CPU_ProbeAltivec();
 extern bool CPU_ProbePower8();
 extern bool CPU_ProbeAES();
-extern bool CPU_ProbeSHA1();
-extern bool CPU_ProbeSHA2();
+extern bool CPU_ProbeSHA256();
+extern bool CPU_ProbeSHA512();
 
 #ifndef PPC_FEATURE_HAS_ALTIVEC
 # define PPC_FEATURE_HAS_ALTIVEC  0x10000000
@@ -691,7 +691,7 @@ inline bool CPU_QueryAES()
 	return false;
 }
 
-inline bool CPU_QuerySHA1()
+inline bool CPU_QuerySHA256()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
@@ -703,7 +703,7 @@ inline bool CPU_QuerySHA1()
 #endif
 	return false;
 }
-inline bool CPU_QuerySHA2()
+inline bool CPU_QuerySHA512()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
@@ -724,8 +724,8 @@ void DetectPowerpcFeatures()
 	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();
 	//g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
-	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
-	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
+	g_hasSHA256 = CPU_QuerySHA256() || CPU_ProbeSHA256();
+	g_hasSHA512 = CPU_QuerySHA512() || CPU_ProbeSHA512();
 
 #if defined(_AIX)
 	// /usr/include/sys/systemcfg.h

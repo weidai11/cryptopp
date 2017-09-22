@@ -70,6 +70,11 @@ extern void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, siz
 extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+extern void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t length, ByteOrder order);
+extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t length, ByteOrder order);
+#endif
+
 ////////////////////////////////
 // start of Steve Reid's code //
 ////////////////////////////////
@@ -684,6 +689,13 @@ void SHA256::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+    if (HasSHA256())
+    {
+        SHA256_HashMultipleBlocks_POWER8(state, data, SHA256::BLOCKSIZE, LITTLE_ENDIAN_ORDER);
+        return;
+    }
+#endif
 
     SHA256_HashBlock_CXX(state, data);
 }
@@ -712,6 +724,13 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
     if (HasSHA2())
     {
         SHA256_HashMultipleBlocks_ARMV8(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA256::BLOCKSIZE - 1);
+    }
+#endif
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+    if (HasSHA256())
+    {
+        SHA256_HashMultipleBlocks_POWER8(m_state, input, length, BIG_ENDIAN_ORDER);
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif

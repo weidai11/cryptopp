@@ -29,6 +29,10 @@
 # endif
 #endif
 
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+# include "ppc-crypto.h"
+#endif
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
@@ -960,10 +964,41 @@ void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t l
     vst1q_u32(&state[0], STATE0);
     vst1q_u32(&state[4], STATE1);
 }
-#endif
+#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
 
 ///////////////////////////////////////////////////////
 // end of Walton/Schneiders/O'Rourke/Hovsmith's code //
 ///////////////////////////////////////////////////////
+
+// ***************** Power8 SHA ********************
+
+////////////////////////////////////////////////
+// Begin Gustavo Serra Scalet and Walton code //
+////////////////////////////////////////////////
+
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
+void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t length, ByteOrder order)
+{
+    CRYPTOPP_ASSERT(state);
+    CRYPTOPP_ASSERT(data);
+    CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
+
+	CRYPTOPP_ASSERT(0);
+}
+
+void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t length, ByteOrder order)
+{
+    CRYPTOPP_ASSERT(state);
+    CRYPTOPP_ASSERT(data);
+    CRYPTOPP_ASSERT(length >= SHA512::BLOCKSIZE);
+	
+	CRYPTOPP_ASSERT(0);
+}
+
+#endif  // CRYPTOPP_POWER8_SHA_AVAILABLE
+
+//////////////////////////////////////////////
+// End Gustavo Serra Scalet and Walton code //
+//////////////////////////////////////////////
 
 NAMESPACE_END
