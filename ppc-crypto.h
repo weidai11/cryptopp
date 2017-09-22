@@ -7,8 +7,8 @@
 //!   for accessing vector intructions.
 //! \since Crypto++ 6.0
 
-#ifndef CRYPTOPP_P8_VECTOR_H
-#define CRYPTOPP_P8_VECTOR_H
+#ifndef CRYPTOPP_PPC_CRYPTO_H
+#define CRYPTOPP_PPC_CRYPTO_H
 
 #include "config.h"
 
@@ -27,7 +27,8 @@ typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned int       uint32x4_p8;
 typedef __vector unsigned long long uint64x2_p8;
 
-#if defined(CRYPTOPP_XLC_VERSION)
+// Use 8x16 for documentation because it is used frequently
+#if defined(CRYPTOPP_XLC_VERSION) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 typedef uint8x16_p8 VectorType;
 #elif defined(CRYPTOPP_GCC_VERSION)
 typedef uint64x2_p8 VectorType;
@@ -53,7 +54,7 @@ void ReverseByteArrayLE(byte src[16])
 //! \param src the vector
 //! \details Reverse endian swaps the bytes in a vector
 template <class T>
-static inline T Reverse(const T& src)
+inline T Reverse(const T& src)
 {
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
@@ -65,7 +66,7 @@ static inline T Reverse(const T& src)
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoadBE will swap endianess on little endian systems.
 //! \note VectorLoadBE does not require an aligned array.
-static inline VectorType VectorLoadBE(const uint8_t src[16])
+inline VectorType VectorLoadBE(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl_be(0, (uint8_t*)src);
@@ -84,7 +85,7 @@ static inline VectorType VectorLoadBE(const uint8_t src[16])
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoadBE will swap endianess on little endian systems.
 //! \note VectorLoadBE does not require an aligned array.
-static inline VectorType VectorLoadBE(int off, const uint8_t src[16])
+inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl_be(off, (uint8_t*)src);
@@ -104,7 +105,7 @@ static inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 //!   VectorStoreBE will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
 template <class T>
-static inline void VectorStoreBE(const T& src, uint8_t dest[16])
+inline void VectorStoreBE(const T& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
@@ -124,7 +125,7 @@ static inline void VectorStoreBE(const T& src, uint8_t dest[16])
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoad will swap endianess on little endian systems.
 //! \note VectorLoad does not require an aligned array.
-static inline VectorType VectorLoad(const byte src[16])
+inline VectorType VectorLoad(const byte src[16])
 {
 	return (VectorType)VectorLoadBE((uint8_t*)src);
 }
@@ -135,7 +136,7 @@ static inline VectorType VectorLoad(const byte src[16])
 //! \details Loads a vector in big endian format from a byte array.
 //!   VectorLoad will swap endianess on little endian systems.
 //! \note VectorLoad does not require an aligned array.
-static inline VectorType VectorLoad(int off, const byte src[16])
+inline VectorType VectorLoad(int off, const byte src[16])
 {
 	return (VectorType)VectorLoadBE(off, (uint8_t*)src);
 }
@@ -145,7 +146,7 @@ static inline VectorType VectorLoad(int off, const byte src[16])
 //! \details Loads a vector from a byte array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
-static inline VectorType VectorLoadKey(const byte src[16])
+inline VectorType VectorLoadKey(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl(0, (uint8_t*)src);
@@ -160,7 +161,7 @@ static inline VectorType VectorLoadKey(const byte src[16])
 //! \details Loads a vector from a 32-bit word array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
-static inline VectorType VectorLoadKey(const word32 src[4])
+inline VectorType VectorLoadKey(const word32 src[4])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl(0, (uint8_t*)src);
@@ -175,7 +176,7 @@ static inline VectorType VectorLoadKey(const word32 src[4])
 //! \details Loads a vector from a byte array.
 //!   VectorLoadKey does not swap endianess on little endian systems.
 //! \note VectorLoadKey does not require an aligned array.
-static inline VectorType VectorLoadKey(int off, const byte src[16])
+inline VectorType VectorLoadKey(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl(off, (uint8_t*)src);
@@ -191,31 +192,31 @@ static inline VectorType VectorLoadKey(int off, const byte src[16])
 //!   VectorStore will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
 template<class T>
-static inline void VectorStore(const T& src, byte dest[16])
+inline void VectorStore(const T& src, byte dest[16])
 {
 	return VectorStoreBE(src, (uint8_t*)dest);
 }
 
 template <class T1, class T2>
-static inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
+inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
 	return (T1)vec_perm(vec1, vec2, (uint8x16_p8)mask);
 }
 
 template <class T1, class T2>
-static inline T1 VectorXor(const T1& vec1, const T2& vec2)
+inline T1 VectorXor(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_xor(vec1, (T1)vec2);
 }
 
 template <class T1, class T2>
-static inline T1 VectorAdd(const T1& vec1, const T2& vec2)
+inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_add(vec1, (T1)vec2);
 }
 
 template <int C, class T1, class T2>
-static inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
+inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
 #if defined(IS_LITTLE_ENDIAN)
 	return (T1)vec_sld((uint8x16_p8)vec2, (uint8x16_p8)vec1, 16-C);
@@ -225,7 +226,7 @@ static inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 }
 
 template <class T1, class T2>
-static inline T1 VectorEncrypt(const T1& state, const T2& key)
+inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vcipher((VectorType)state, (VectorType)key);
@@ -237,7 +238,7 @@ static inline T1 VectorEncrypt(const T1& state, const T2& key)
 }
 
 template <class T1, class T2>
-static inline T1 VectorEncryptLast(const T1& state, const T2& key)
+inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vcipherlast((VectorType)state, (VectorType)key);
@@ -249,7 +250,7 @@ static inline T1 VectorEncryptLast(const T1& state, const T2& key)
 }
 
 template <class T1, class T2>
-static inline T1 VectorDecrypt(const T1& state, const T2& key)
+inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vncipher((VectorType)state, (VectorType)key);
@@ -261,7 +262,7 @@ static inline T1 VectorDecrypt(const T1& state, const T2& key)
 }
 
 template <class T1, class T2>
-static inline T1 VectorDecryptLast(const T1& state, const T2& key)
+inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (T1)__vncipherlast((VectorType)state, (VectorType)key);
@@ -276,4 +277,4 @@ static inline T1 VectorDecryptLast(const T1& state, const T2& key)
 
 NAMESPACE_END
 
-#endif  // CRYPTOPP_P8_VECTOR_H
+#endif  // CRYPTOPP_PPC_CRYPTO_H
