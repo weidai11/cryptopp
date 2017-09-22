@@ -38,7 +38,7 @@ typedef uint64x2_p8 VectorType;
 //! \param src the byte array
 //! \details ReverseByteArrayLE reverses a 16-byte array on a little endian
 //!   system. It does nothing on a big endian system.
-void ReverseByteArrayLE(byte src[16])
+inline void ReverseByteArrayLE(byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
 	vec_st(vec_reve(vec_ld(0, src)), 0, src);
@@ -101,7 +101,7 @@ inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 //! \brief Stores a vector to a byte array
 //! \tparam T a vector type
 //! \param src the vector
-//! \details Sotres a vector in big endian format to a byte array.
+//! \details Stores a vector in big endian format to a byte array.
 //!   VectorStoreBE will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
 template <class T>
@@ -188,7 +188,7 @@ inline VectorType VectorLoadKey(int off, const byte src[16])
 //! \brief Stores a vector to a byte array
 //! \tparam T a vector type
 //! \param src the vector
-//! \details Sotres a vector in big endian format to a byte array.
+//! \details Stores a vector in big endian format to a byte array.
 //!   VectorStore will swap endianess on little endian systems.
 //! \note VectorStoreBE does not require an aligned array.
 template<class T>
@@ -197,24 +197,59 @@ inline void VectorStore(const T& src, byte dest[16])
 	return VectorStoreBE(src, (uint8_t*)dest);
 }
 
+//! \brief Permutes two vectors
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the first vector
+//! \param vec2 the second vector
+//! \param mask vector mask
+//! \details VectorPermute returns a new vector from vec1 and vec2
+//!   based on mask. mask is an uint8x16_p8 type vector. The return
+//!   vector is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
 	return (T1)vec_perm(vec1, vec2, (uint8x16_p8)mask);
 }
 
+//! \brief XOR two vectors
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the first vector
+//! \param vec2 the second vector
+//! \details VectorXor returns a new vector from vec1 and vec2. The return
+//!   vector is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorXor(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_xor(vec1, (T1)vec2);
 }
 
+//! \brief Add two vector
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the first vector
+//! \param vec2 the second vector
+//! \details VectorAdd returns a new vector from vec1 and vec2.
+//!   vec2 is cast to the same type as vec1. The return vector
+//!   is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 {
 	return (T1)vec_add(vec1, (T1)vec2);
 }
 
+//! \brief Shift two vectors left
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the first vector
+//! \param vec2 the second vector
+//! \details VectorShiftLeft returns a new vector from vec1 and vec2.
+//!   Both vec1 and vec2 are cast to uint8x16_p8. The return vector
+//!   is the same type as vec1.
+//! \note VectorShiftLeft handles the difference between big endian
+//!   and little endian internally. Call the function as if on a big
+//!   endian machine.
 template <int C, class T1, class T2>
 inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
@@ -225,6 +260,13 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 #endif
 }
 
+//! \brief One round of AES encryption
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the state vector
+//! \param vec2 the subkey vector
+//! \details VectorEncrypt performs one round of AES encryption of state
+//!   using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
@@ -237,6 +279,13 @@ inline T1 VectorEncrypt(const T1& state, const T2& key)
 #endif
 }
 
+//! \brief Final round of AES encryption
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the state vector
+//! \param vec2 the subkey vector
+//! \details VectorEncryptLast performs the final round of AES encryption
+//!   of state using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
@@ -249,6 +298,13 @@ inline T1 VectorEncryptLast(const T1& state, const T2& key)
 #endif
 }
 
+//! \brief One round of AES decryption
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the state vector
+//! \param vec2 the subkey vector
+//! \details VectorDecrypt performs one round of AES decryption of state
+//!   using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
@@ -261,6 +317,13 @@ inline T1 VectorDecrypt(const T1& state, const T2& key)
 #endif
 }
 
+//! \brief Final round of AES decryption
+//! \tparam T1 a vector type
+//! \tparam T2 a vector type
+//! \param vec1 the state vector
+//! \param vec2 the subkey vector
+//! \details VectorDecryptLast performs the final round of AES decryption
+//!   of state using subkey key. The return vector is the same type as vec1.
 template <class T1, class T2>
 inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
@@ -268,6 +331,44 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 	return (T1)__vncipherlast((VectorType)state, (VectorType)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
 	return (T1)__builtin_crypto_vncipherlast((VectorType)state, (VectorType)key);
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+}
+
+//! \brief SHA512 Sigma functions
+//! \tparam func the function
+//! \tparam subfunc the sub-function
+//! \tparam T a vector type
+//! \param vec the block to transform
+//! \details VectorSHA512 selects sigma0, sigma1, Sigma0, Sigma1 based on
+//!   func and subfunc. The return vector is the same type as vec.
+template <int func, int subfunc, class T>
+inline T VectorSHA512(const T& vec)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (T)__vshasigmad((uint64x2_p8)vec, func, subfunc);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return (T)__builtin_crypto_vshasigmad((uint64x2_p8)vec, func, subfunc);
+#else
+	CRYPTOPP_ASSERT(0);
+#endif
+}
+
+//! \brief SHA256 Sigma functions
+//! \tparam func the function
+//! \tparam subfunc the sub-function
+//! \tparam T a vector type
+//! \param vec the block to transform
+//! \details VectorSHA256 selects sigma0, sigma1, Sigma0, Sigma1 based on
+//!   func and subfunc. The return vector is the same type as vec.
+template <int func, int subfunc, class T>
+inline T VectorSHA256(const T& vec)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+	return (T)__vshasigmaw((uint32x4_p8)vec, func, subfunc);
+#elif defined(CRYPTOPP_GCC_VERSION)
+	return (T)__builtin_crypto_vshasigmaw((uint32x4_p8)vec, func, subfunc);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
