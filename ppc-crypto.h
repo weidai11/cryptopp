@@ -238,7 +238,16 @@ inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
 template<class T>
 inline void VectorStore(const T& src, byte dest[16])
 {
-	VectorStoreBE((uint8x16_p8)src, (uint8_t*)dest);
+	// Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
+#if defined(CRYPTOPP_XLC_VERSION)
+	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
+#else
+# if defined(IS_LITTLE_ENDIAN)
+	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
+# else
+	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
+# endif
+#endif
 }
 
 //! \brief Stores a vector to a byte array
@@ -253,7 +262,16 @@ inline void VectorStore(const T& src, byte dest[16])
 template<class T>
 inline void VectorStore(const T& src, int off, byte dest[16])
 {
-	VectorStoreBE((uint8x16_p8)src, off, (uint8_t*)dest);
+	// Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
+#if defined(CRYPTOPP_XLC_VERSION)
+	vec_xst_be((uint8x16_p8)src, off, (uint8_t*)dest);
+#else
+# if defined(IS_LITTLE_ENDIAN)
+	vec_vsx_st(Reverse((uint8x16_p8)src), off, (uint8_t*)dest);
+# else
+	vec_vsx_st((uint8x16_p8)src, off, (uint8_t*)dest);
+# endif
+#endif
 }
 
 //! \brief Permutes two vectors
@@ -302,18 +320,22 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 }
 
 //! \brief Shift two vectors left
+//! \tparam C shift byte count
 //! \tparam T1 a vector type
 //! \tparam T2 a vector type
 //! \param vec1 the first vector
 //! \param vec2 the second vector
-//! \details VectorShiftLeft returns a new vector from vec1 and vec2.
-//!   Both vec1 and vec2 are cast to uint8x16_p8. The return vector
-//!   is the same type as vec1.
-//! \note VectorShiftLeft handles the difference between big endian
+//! \details VectorShiftLeft() concatenates vec1 and vec2 and returns a
+//!   new vector after shifting the concatenation by the specified number
+//!   of bytes. Both vec1 and vec2 are cast to uint8x16_p8. The return
+//!   vector is the same type as vec1.
+//! \note VectorShiftLeft() handles the difference between big endian
 //!   and little endian internally. Call the function as if on a big
 //!   endian machine.
+//! \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+//!   endian sensitive?</A> on Stack Overflow
 //! \since Crypto++ 6.0
-template <int C, class T1, class T2>
+template <unsigned int C, class T1, class T2>
 inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
 #if defined(IS_LITTLE_ENDIAN)
