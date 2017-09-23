@@ -821,6 +821,13 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r
 	return r1;
 }
 
+static inline uint8_t*
+IncrementPointerAndStore(const uint8x16_p8& r, uint8_t* p)
+{
+	VectorStore(r, (p += 16));
+	return p;
+}
+
 // We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256.
 // The IBM docs on AES sucks. Intel's docs on AESNI puts IBM to shame.
 void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk,
@@ -846,18 +853,18 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		{
 			r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
 			r4 = vec_add(r4, r4);
-			skptr += 16; VectorStore(r1, skptr);
+			skptr = IncrementPointerAndStore(r1, skptr);
 		}
 
 		/* Round 9 using rcon=0x1b */
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
-		skptr += 16; VectorStore(r1, skptr);
+		skptr = IncrementPointerAndStore(r1, skptr);
 
 		/* Round 10 using rcon=0x36 */
 		r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
 		r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
-		skptr += 16; VectorStore(r1, skptr);
+		skptr = IncrementPointerAndStore(r1, skptr);
 	}
 	else
 	{
