@@ -42,7 +42,7 @@ typedef uint64x2_p8 VectorType;
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 //! \brief Default vector typedef
-//! \details IBM XL C/C++ provides equally good support for all vector types, 
+//! \details IBM XL C/C++ provides equally good support for all vector types,
 //!   including <tt>uint8x16_p8</tt>. GCC provides good support for
 //!   <tt>uint64x2_p8</tt>. <tt>VectorType</tt> is typedef'd accordingly to
 //!   minimize casting to and from buit-in function calls.
@@ -345,7 +345,7 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 //!   of bytes. Both vec1 and vec2 are cast to uint8x16_p8. The return
 //!   vector is the same type as vec1.
 //! \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, b,
-//!   c)</tt>. On little endian machines VectorShiftLeft() is translated to 
+//!   c)</tt>. On little endian machines VectorShiftLeft() is translated to
 //!   <tt>vec_sld(b, a, 16-c)</tt>. You should always call the function as
 //!   if on a big endian machine as shown below.
 //! <pre>
