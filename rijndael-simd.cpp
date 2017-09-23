@@ -335,8 +335,6 @@ static inline void ARMV8_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1, ui
 	block5 = veorq_u8(block5, key);
 }
 
-ANONYMOUS_NAMESPACE_END
-
 template <typename F1, typename F6>
 size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F6 func6, const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
@@ -454,6 +452,8 @@ size_t Rijndael_AdvancedProcessBlocks_ARMV8(F1 func1, F6 func6, const word32 *su
 
 	return length;
 }
+
+ANONYMOUS_NAMESPACE_END
 
 size_t Rijndael_Enc_AdvancedProcessBlocks_ARMV8(const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
