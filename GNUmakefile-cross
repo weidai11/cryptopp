@@ -333,9 +333,9 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
-	@-$(RM) cryptopp.tgz *.o *.bc *.ii *.s *~
-	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
+	-$(RM) adhoc.cpp adhoc.cpp.copied cryptopp.mapfile GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
+	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
+	@-$(RM) -r $(SRCS:.cpp=.obj) *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
 	@-$(RM) CryptoPPRef.zip
