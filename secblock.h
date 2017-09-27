@@ -615,6 +615,20 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
+	//! \brief Set contents from a value
+	//! \param count the number of values to copy
+	//! \param value the value, repeated count times
+	//! \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
+	//!   Assign() resets the element count after the previous block is zeroized.
+	void Assign(size_type count, T value)
+	{
+		New(count);
+		for (size_t i=0; i<count; ++i)
+			m_ptr[i] = value;
+
+		m_mark = ELEMS_MAX;
+	}
+
 	//! \brief Copy contents from another SecBlock
 	//! \param t the other SecBlock
 	//! \details Assign checks for self assignment.
