@@ -1125,10 +1125,23 @@ protected:
 	const Algorithm & GetAlgorithm() const {return *this;}
 };
 
-//! \brief Interface for one direction (encryption or decryption) of a stream cipher or block cipher mode with authentication
-//! \details The StreamTransformation part of this interface is used to encrypt/decrypt the data, and the
-//!   MessageAuthenticationCode part of this interface is used to input additional authenticated data (AAD,
-//!   which is MAC'ed but not encrypted), and to generate/verify the MAC.
+//! \class AuthenticatedSymmetricCipher
+//! \brief Interface for authenticated encryption modes of operation
+//! \details AuthenticatedSymmetricCipher() provides the interface for one direction
+//!   (encryption or decryption) of a stream cipher or block cipher mode with authentication. The
+//!   StreamTransformation() part of this interface is used to encrypt or decrypt the data. The
+//!   MessageAuthenticationCode() part of the interface is used to input additional authenticated
+//!   data (AAD), which is MAC'ed but not encrypted. The MessageAuthenticationCode() part is also
+//!   used to generate and verify the MAC.
+//! \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
+//!   and OCB mode. All modes implement AuthenticatedSymmetricCipher() and the motivation for
+//!   the API, like calling AAD a &quot;header&quot;, can be found in Bellare, Rogaway and
+//!   Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX Mode of
+//!   Operation</A>. The EAX paper suggested a basic API to help standardize AEAD schemes in
+//!   software and promote adoption of the modes.
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
+//!   Encryption</A> on the Crypto++ wiki.
+//! \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipher : public MessageAuthenticationCode, public StreamTransformation
 {
 public:
