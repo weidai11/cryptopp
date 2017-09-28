@@ -56,13 +56,16 @@ struct Threefish_Info : public VariableBlockSize<32, 32, 128>
     }
 };
 
-//! \class Threefish1024
-//! \brief Threefish-1024 block cipher
+//! \class Threefish
+//! \brief Threefish block cipher
 //! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Threefish">Threefish</a>
 //! \since Crypto++ 6.0
 class Threefish : public Threefish_Info, public BlockCipherDocumentation
 {
 public:
+    //! \brief Threefish block cipher data processing functions
+    //! \details Provides implementation common to encryption and decryption
+    //! \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Base : public VariableBlockCipherImpl<Threefish_Info>
     {
     public:
@@ -84,6 +87,10 @@ public:
         AlignedSecBlock64         m_tweak;
     };
 
+    //! \brief Provides implementation for encryption transformation
+    //! \details Enc provides implementation for encryption transformation. All key and block
+    //!   sizes are supported.
+    //! \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     protected:
@@ -94,6 +101,10 @@ public:
         void ProcessAndXorBlock_1024(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
+    //! \brief Provides implementation for decryption transformation
+    //! \details Dec provides implementation for encryption transformation. All key and block
+    //!   sizes are supported.
+    //! \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     protected:
