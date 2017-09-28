@@ -21,7 +21,7 @@ struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32
 
 //! \class RC6
 //! \brief RC6 block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC6">RC6</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/RC6">RC6</a>
 class RC6 : public RC6_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC6_Info>

@@ -20,7 +20,7 @@ struct Square_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, Fixed
 
 //! \class Square
 //! \brief Square block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Square">Square</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/Square">Square</a>
 class Square : public Square_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Square_Info>

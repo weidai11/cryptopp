@@ -21,7 +21,7 @@ struct Camellia_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 
 //! \class Camellia
 //! \brief Camellia block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Camellia">Camellia</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/Camellia">Camellia</a>
 class Camellia : public Camellia_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Camellia_Info>

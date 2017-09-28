@@ -20,7 +20,7 @@ struct Twofish_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16
 
 //! \class Twofish
 //! \brief Twofish block cipher
-//~ \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Twofish">Twofish</a>
+//~ \sa <a href="http://www.cryptopp.com/wiki/Twofish">Twofish</a>
 class Twofish : public Twofish_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Twofish_Info>

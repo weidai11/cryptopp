@@ -21,7 +21,7 @@ struct TEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public Va
 
 //! \class TEA
 //! \brief TEA block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">TEA</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/TEA">TEA</a>
 class TEA : public TEA_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -69,7 +69,7 @@ struct XTEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public V
 
 //! \class XTEA
 //! \brief XTEA block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">XTEA</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/TEA">XTEA</a>
 class XTEA : public XTEA_Info, public BlockCipherDocumentation
 {
 	//! \class Base
@@ -115,7 +115,7 @@ struct BTEA_Info : public FixedKeyLength<16>
 //! \class BTEA
 //! \brief BTEA block cipher
 //! \details Corrected Block TEA as described in "xxtea". This class hasn't been tested yet.
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#TEA">Corrected Block TEA</a>.
+//! \sa <a href="http://www.cryptopp.com/wiki/TEA">Corrected Block TEA</a>.
 class BTEA : public BTEA_Info, public BlockCipherDocumentation
 {
 	//! \class Base

@@ -22,7 +22,7 @@ struct RC5_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 0, 255>
 
 //! \class RC5
 //! \brief RC5 block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC5">RC5</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/RC5">RC5</a>
 //! \since Crypto++ 1.0
 class RC5 : public RC5_Info, public BlockCipherDocumentation
 {

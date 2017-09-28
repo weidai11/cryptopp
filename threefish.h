@@ -58,7 +58,7 @@ struct Threefish_Info : public VariableBlockSize<32, 32, 128>
 
 //! \class Threefish
 //! \brief Threefish block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Threefish">Threefish</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 //! \since Crypto++ 6.0
 class Threefish : public Threefish_Info, public BlockCipherDocumentation
 {

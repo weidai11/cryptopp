@@ -22,7 +22,7 @@ struct SHACAL2_Info : public FixedBlockSize<32>, public VariableKeyLength<16, 16
 //! \class SHACAL2
 //! \brief SHACAL2 block cipher
 //! \since Crypto++ 5.2, Intel SHA since Crypto++ 6.0
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SHACAL-2">SHACAL-2</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/SHACAL-2">SHACAL-2</a>
 class SHACAL2 : public SHACAL2_Info, public BlockCipherDocumentation
 {
 	//! \brief SHACAL2 block cipher data processing functions

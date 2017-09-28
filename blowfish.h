@@ -18,7 +18,7 @@ struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 4,
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Blowfish";}
 };
 
-// <a href="http://www.weidai.com/scan-mirror/cs.html#Blowfish">Blowfish</a>
+// <a href="http://www.cryptopp.com/wiki/Blowfish">Blowfish</a>
 
 //! \class Blowfish
 //! \brief Blowfish block cipher

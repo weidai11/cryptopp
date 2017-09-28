@@ -666,7 +666,6 @@ private:
 //! \class TF_DecryptorImpl
 //! \brief Trapdoor Function (TF) decryptor options
 //! \tparam SCHEME_OPTIONS scheme options class
-template <class BASE, class SCHEME_OPTIONS, class KEY_CLASS>
 template <class SCHEME_OPTIONS>
 class TF_DecryptorImpl : public TF_ObjectImpl<TF_DecryptorBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {

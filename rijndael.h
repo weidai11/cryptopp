@@ -32,7 +32,7 @@ struct Rijndael_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 //! \details All key sizes are supported. The library only provides Rijndael with 128-bit blocks,
 //!   and not 192-bit or 256-bit blocks
 //! \since Rijndael since Crypto++ 3.2, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Rijndael">Rijndael</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/Rijndael">Rijndael</a>
 class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentation
 {
 	//! \brief Rijndael block cipher data processing functions

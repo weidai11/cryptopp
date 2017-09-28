@@ -21,7 +21,7 @@ struct IDEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public F
 
 //! \class IDEA
 //! \brief IDEA block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#IDEA">IDEA</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/IDEA">IDEA</a>
 //! \since Crypto++ 1.0
 class IDEA : public IDEA_Info, public BlockCipherDocumentation
 {

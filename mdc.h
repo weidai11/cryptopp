@@ -24,7 +24,7 @@ struct MDC_Info : public FixedBlockSize<B::DIGESTSIZE>, public FixedKeyLength<B:
 //! \brief MDC cipher
 //! \tparam T HashTransformation derived class
 //! \details MDC() is a construction by Peter Gutmann to turn an iterated hash function into a PRF
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#MDC">MDC</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/MDC">MDC</a>
 template <class H>
 class MDC : public MDC_Info<H>
 {

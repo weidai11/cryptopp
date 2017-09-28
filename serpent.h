@@ -20,7 +20,7 @@ struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16
 
 //! \class Serpent
 //! \brief Serpent block cipher
-/// \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Serpent">Serpent</a>
+/// \sa <a href="http://www.cryptopp.com/wiki/Serpent">Serpent</a>
 class Serpent : public Serpent_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Serpent_Info>

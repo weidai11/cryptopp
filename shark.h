@@ -21,7 +21,7 @@ struct SHARK_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public 
 
 //! \class SHARK
 //! \brief SHARK block cipher
-/// <a href="http://www.weidai.com/scan-mirror/cs.html#SHARK-E">SHARK-E</a>
+/// <a href="http://www.cryptopp.com/wiki/SHARK-E">SHARK-E</a>
 class SHARK : public SHARK_Info, public BlockCipherDocumentation
 {
 	//! \class Base

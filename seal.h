@@ -45,7 +45,7 @@ private:
 //! \class SEAL
 //! \brief SEAL stream cipher
 //! \tparam B Endianness of the stream cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SEAL-3.0-BE">SEAL</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/SEAL-3.0-BE">SEAL</a>
 template <class B = BigEndian>
 struct SEAL : public SEAL_Info<B>, public SymmetricCipherDocumentation
 {

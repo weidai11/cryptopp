@@ -36,7 +36,7 @@ struct ARIA_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 3
 //! \sa <A HREF="http://tools.ietf.org/html/rfc5794">RFC 5794, A Description of the ARIA Encryption Algorithm</A>,
 //!   <A HREF="http://seed.kisa.or.kr/iwt/ko/bbs/EgovReferenceList.do?bbsId=BBSMSTR_000000000002">Korea
 //!   Internet & Security Agency homepage</A>
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#ARIA">ARIA</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/ARIA">ARIA</a>
 //! \since Crypto++ 6.0
 class ARIA : public ARIA_Info, public BlockCipherDocumentation
 {

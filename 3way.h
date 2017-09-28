@@ -21,7 +21,7 @@ struct ThreeWay_Info : public FixedBlockSize<12>, public FixedKeyLength<12>, pub
 
 //! \class ThreeWay
 //! \brief ThreeWay block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#3-Way">3-Way</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/3-Way">3-Way</a>
 class ThreeWay : public ThreeWay_Info, public BlockCipherDocumentation
 {
 	//! \class Base

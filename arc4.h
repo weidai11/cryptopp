@@ -48,7 +48,7 @@ protected:
 
 //! \class ARC4
 //! \brief Alleged RC4
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC4">Alleged RC4</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
 //! \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4)
 
@@ -70,7 +70,7 @@ protected:
 
 //! \class MARC4
 //! \brief Modified Alleged RC4
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC4">Alleged RC4</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
 //! \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
 

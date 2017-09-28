@@ -71,7 +71,7 @@ struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 
 
 //! \class SAFER_K
 //! \brief SAFER-K block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-K">SAFER-K</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/SAFER-K">SAFER-K</a>
 class SAFER_K : public SAFER_K_Info, public SAFER, public BlockCipherDocumentation
 {
 public:
@@ -88,7 +88,7 @@ struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8,
 
 //! \class SAFER_SK
 //! \brief SAFER-SK block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#SAFER-SK">SAFER-SK</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/SAFER-SK">SAFER-SK</a>
 class SAFER_SK : public SAFER_SK_Info, public SAFER, public BlockCipherDocumentation
 {
 public:

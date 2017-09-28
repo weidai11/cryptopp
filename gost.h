@@ -20,7 +20,7 @@ struct GOST_Info : public FixedBlockSize<8>, public FixedKeyLength<32>
 
 //! \class GOST
 //! \brief GOST block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#GOST">GOST</a>
+//! \sa <a href="http://www.cryptopp.com/wiki/GOST">GOST</a>
 class GOST : public GOST_Info, public BlockCipherDocumentation
 {
 	//! \class Base

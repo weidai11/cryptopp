@@ -23,7 +23,7 @@ struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 
 //! \class RC2
 //! \brief RC2 block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC2">RC2</a> on the Crypto Lounge.
+//! \sa <a href="http://www.cryptopp.com/wiki/RC2">RC2</a> on the Crypto Lounge.
 class RC2 : public RC2_Info, public BlockCipherDocumentation
 {
 	//! \class Base
