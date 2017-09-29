@@ -579,13 +579,30 @@ size_t ArrayXorSink::Put2(const byte *begin, size_t length, int messageEnd, bool
 
 // *************************************************************
 
-StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool allowAuthenticatedSymmetricCipher)
+StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding)
 	: FilterWithBufferedInput(attachment)
-	, m_cipher(c), m_padding(DEFAULT_PADDING), m_optimalBufferSize(0)
+	, m_cipher(c), m_padding(DEFAULT_PADDING), m_optimalBufferSize(0), m_authenticated(false)
 {
 	CRYPTOPP_ASSERT(c.MinLastBlockSize() == 0 || c.MinLastBlockSize() > c.MandatoryBlockSize());
 
-	if (!allowAuthenticatedSymmetricCipher && dynamic_cast<AuthenticatedSymmetricCipher *>(&c) != NULLPTR)
+	const bool authenticatedFilter = dynamic_cast<AuthenticatedSymmetricCipher *>(&c) != NULLPTR;
+	if (authenticatedFilter && !m_authenticated)
+		throw InvalidArgument("StreamTransformationFilter: please use AuthenticatedEncryptionFilter and AuthenticatedDecryptionFilter for AuthenticatedSymmetricCipher");
+
+	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
+}
+
+StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool authenticated)
+	: FilterWithBufferedInput(attachment)
+	, m_cipher(c), m_padding(DEFAULT_PADDING), m_optimalBufferSize(0), m_authenticated(authenticated)
+{
+	const bool authenticatedFilter = dynamic_cast<AuthenticatedSymmetricCipher *>(&c) != NULLPTR;
+	if (!authenticatedFilter)
+	{
+		CRYPTOPP_ASSERT(c.MinLastBlockSize() == 0 || c.MinLastBlockSize() > c.MandatoryBlockSize());
+	}
+
+	if (authenticatedFilter && !m_authenticated)
 		throw InvalidArgument("StreamTransformationFilter: please use AuthenticatedEncryptionFilter and AuthenticatedDecryptionFilter for AuthenticatedSymmetricCipher");
 
 	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));

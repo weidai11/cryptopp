@@ -336,6 +336,7 @@ public:
 	{
 		return PutMaybeModifiable(const_cast<byte *>(inString), length, messageEnd, blocking, false);
 	}
+
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		return PutMaybeModifiable(inString, length, messageEnd, blocking, true);
@@ -499,7 +500,10 @@ struct BlockPaddingSchemeDef
 
 //! \class StreamTransformationFilter
 //! \brief Filter wrapper for StreamTransformation
-//! \details StreamTransformationFilter is a filter wrapper for StreamTransformation. The filter will optionally handle padding/unpadding when needed
+//! \details StreamTransformationFilter() is a filter wrapper for StreamTransformation(). It is used when
+//!   pipelining data for stream ciphers and confidentiality-only block ciphers. The filter will optionally
+//!   handle padding and unpadding when needed. If you are using an authenticated encryption mode of operation,
+//!   then use AuthenticatedEncryptionFilter() and AuthenticatedDecryptionFilter()
 //! \since Crypto++ 5.0
 class CRYPTOPP_DLL StreamTransformationFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef, private FilterPutSpaceHelper
 {
@@ -510,12 +514,29 @@ public:
 	//! \param c reference to a StreamTransformation
 	//! \param attachment an optional attached transformation
 	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
-	//! \param allowAuthenticatedSymmetricCipher flag indicating whether the filter should allow authenticated encryption schemes
-	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULLPTR, BlockPaddingScheme padding = DEFAULT_PADDING, bool allowAuthenticatedSymmetricCipher = false);
+	//! \details This contructor creates a StreamTransformationFilter() for stream ciphers and
+	//!   confidentiality-only block cipher modes of operation. If you are using an authenticated
+	//!   encryption mode of operation, then use either AuthenticatedEncryptionFilter() or
+	//!   AuthenticatedDecryptionFilter().
+	//! \sa AuthenticatedEncryptionFilter() and AuthenticatedDecryptionFilter()
+	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment = NULLPTR, BlockPaddingScheme padding = DEFAULT_PADDING);
 
 	std::string AlgorithmName() const {return m_cipher.AlgorithmName();}
 
 protected:
+
+	friend class AuthenticatedEncryptionFilter;
+	friend class AuthenticatedDecryptionFilter;
+
+	//! \brief Construct a StreamTransformationFilter
+	//! \param c reference to a StreamTransformation
+	//! \param attachment an optional attached transformation
+	//! \param padding the \ref BlockPaddingSchemeDef "padding scheme"
+	//! \param authenticated flag indicating whether the filter should allow authenticated encryption schemes
+	//! \details This constructor is used for authenticated encryption mode of operation and by
+	//!   AuthenticatedEncryptionFilter() and AuthenticatedDecryptionFilter().
+	StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool authenticated);
+
 	void InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize);
 	void FirstPut(const byte *inString);
 	void NextPutMultiple(const byte *inString, size_t length);
@@ -527,6 +548,8 @@ protected:
 	StreamTransformation &m_cipher;
 	BlockPaddingScheme m_padding;
 	unsigned int m_optimalBufferSize;
+	// TODO: do we need this?
+	bool m_authenticated;
 };
 
 //! \class HashFilter
