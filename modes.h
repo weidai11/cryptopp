@@ -436,7 +436,8 @@ struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef Encryption Decryption;
 };
 
-//! CBC mode
+//! \class CBC_Mode
+//! \brief CBC mode
 template <class CIPHER>
 struct CBC_Mode : public CipherModeDocumentation
 {
@@ -447,14 +448,16 @@ struct CBC_Mode : public CipherModeDocumentation
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Encryption>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Decryption>;
 
-//! CBC mode, external cipher
+//! \class CBC_Mode_ExternalCipher
+//! \brief CBC mode, external cipher
 struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Encryption> Encryption;
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Decryption> Decryption;
 };
 
-//! CBC mode with ciphertext stealing
+//! \class CBC_CTS_Mode
+//! \brief CBC mode with ciphertext stealing
 template <class CIPHER>
 struct CBC_CTS_Mode : public CipherModeDocumentation
 {
