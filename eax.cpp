@@ -36,7 +36,7 @@ void EAX_Base::AuthenticateLastHeaderBlock()
 {
 	CRYPTOPP_ASSERT(m_bufferedDataLength == 0);
 	MessageAuthenticationCode &mac = AccessMAC();
-	unsigned int blockSize = mac.TagSize();
+	const unsigned int blockSize = mac.TagSize();
 
 	mac.Final(m_buffer);
 	xorbuf(m_buffer+blockSize, m_buffer, blockSize);

@@ -690,7 +690,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 	if (m_cipher.IsLastBlockSpecial())
 	{
 		size_t reserve = 2*m_cipher.MandatoryBlockSize();
-		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, length+reserve);
+		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length+reserve);
 		length = m_cipher.ProcessLastBlock(space, length+reserve, inString, length);
 		AttachedTransformation()->Put(space, length);
 		return;

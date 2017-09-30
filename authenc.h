@@ -78,11 +78,14 @@ protected:
 	virtual void AuthenticateLastConfidentialBlock() {}
 	virtual void AuthenticateLastFooterBlock(byte *mac, size_t macSize) =0;
 
+	// State_AuthUntransformed: authentication is applied to plain text (Authenticate-then-Encrypt)
+	// State_AuthTransformed: authentication is applied to cipher text (Encrypt-then-Authenticate)
 	enum State {State_Start, State_KeySet, State_IVSet, State_AuthUntransformed, State_AuthTransformed, State_AuthFooter};
-	State m_state;
-	unsigned int m_bufferedDataLength;
-	lword m_totalHeaderLength, m_totalMessageLength, m_totalFooterLength;
+
 	AlignedSecByteBlock m_buffer;
+	lword m_totalHeaderLength, m_totalMessageLength, m_totalFooterLength;
+	unsigned int m_bufferedDataLength;
+	State m_state;
 };
 
 NAMESPACE_END

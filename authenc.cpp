@@ -74,8 +74,7 @@ void AuthenticatedSymmetricCipherBase::Resynchronize(const byte *iv, int length)
 
 void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 {
-	if (length == 0)
-		return;
+	if (length == 0) {return;}
 
 	switch (m_state)
 	{
