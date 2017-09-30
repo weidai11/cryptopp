@@ -687,6 +687,15 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
 	byte *space = NULLPTR;
 
+	if (m_cipher.IsLastBlockSpecial())
+	{
+		size_t reserve = 2*m_cipher.MandatoryBlockSize();
+		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, length+reserve);
+		length = m_cipher.ProcessLastBlock(space, length+reserve, inString, length);
+		AttachedTransformation()->Put(space, length);
+		return;
+	}
+
 	switch (m_padding)
 	{
 	case NO_PADDING:
@@ -694,17 +703,18 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 		if (length > 0)
 		{
 			size_t minLastBlockSize = m_cipher.MinLastBlockSize();
+			size_t reserve = 2*m_cipher.MandatoryBlockSize();
 			bool isForwardTransformation = m_cipher.IsForwardTransformation();
 
 			if (isForwardTransformation && m_padding == ZEROS_PADDING && (minLastBlockSize == 0 || length < minLastBlockSize))
 			{
 				// do padding
 				size_t blockSize = STDMAX(minLastBlockSize, (size_t)m_cipher.MandatoryBlockSize());
-				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize);
+				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize+reserve);
 				if (inString) {memcpy(space, inString, length);}
 				memset(space + length, 0, blockSize - length);
-				m_cipher.ProcessLastBlock(space, space, blockSize);
-				AttachedTransformation()->Put(space, blockSize);
+				size_t used = m_cipher.ProcessLastBlock(space, blockSize+reserve, space, blockSize);
+				AttachedTransformation()->Put(space, used);
 			}
 			else
 			{
@@ -716,9 +726,9 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 						throw InvalidCiphertext("StreamTransformationFilter: ciphertext length is not a multiple of block size");
 				}
 
-				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, m_optimalBufferSize);
-				m_cipher.ProcessLastBlock(space, inString, length);
-				AttachedTransformation()->Put(space, length);
+				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, m_optimalBufferSize+reserve);
+				size_t used = m_cipher.ProcessLastBlock(space, length+reserve, inString, length);
+				AttachedTransformation()->Put(space, used);
 			}
 		}
 		break;

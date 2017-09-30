@@ -255,7 +255,7 @@ public:
 
 	void SetStolenIV(byte *iv) {m_stolenIV = iv;}
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}
-	void ProcessLastBlock(byte *outString, const byte *inString, size_t length);
+	size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 
 protected:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
@@ -287,7 +287,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
 {
 public:
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}
-	void ProcessLastBlock(byte *outString, const byte *inString, size_t length);
+	size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 };
 
 //! \class CipherModeFinalTemplate_CipherHolder
@@ -475,13 +475,6 @@ struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption> Encryption;
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decryption> Decryption;
 };
-
-//#ifdef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY
-//typedef CFB_Mode_ExternalCipher::Encryption CFBEncryption;
-//typedef CFB_Mode_ExternalCipher::Decryption CFBDecryption;
-//typedef OFB_Mode_ExternalCipher::Encryption OFB;
-//typedef CTR_Mode_ExternalCipher::Encryption CounterMode;
-//#endif
 
 NAMESPACE_END
 

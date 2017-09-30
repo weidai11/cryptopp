@@ -213,6 +213,7 @@ unsigned int HashTransformation::OptimalDataAlignment() const
 	return GetAlignmentOf<word32>();
 }
 
+#if 0
 void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
 {
 	CRYPTOPP_ASSERT(MinLastBlockSize() == 0);	// this function should be overridden otherwise
@@ -221,6 +222,22 @@ void StreamTransformation::ProcessLastBlock(byte *outString, const byte *inStrin
 		ProcessData(outString, inString, length);
 	else if (length != 0)
 		throw NotImplemented(AlgorithmName() + ": this object doesn't support a special last block");
+}
+#endif
+
+size_t StreamTransformation::ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
+{
+	// this function should be overridden otherwise
+	CRYPTOPP_ASSERT(MinLastBlockSize() == 0);
+
+	if (inLength == MandatoryBlockSize())
+	{
+		ProcessData(outString, inString, inLength);
+		return inLength;
+	}
+	else if (inLength != 0)
+		throw NotImplemented(AlgorithmName() + ": this object doesn't support a special last block");
+	return 0;
 }
 
 void AuthenticatedSymmetricCipher::SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength)

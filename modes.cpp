@@ -174,8 +174,7 @@ void ECB_OneWay::ProcessData(byte *outString, const byte *inString, size_t lengt
 
 void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	if (!length)
-		return;
+	if (!length) return;
 	CRYPTOPP_ASSERT(length%BlockSize()==0);
 
 	unsigned int blockSize = BlockSize();
@@ -185,15 +184,17 @@ void CBC_Encryption::ProcessData(byte *outString, const byte *inString, size_t l
 	memcpy(m_register, outString + length - blockSize, blockSize);
 }
 
-void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
+size_t CBC_CTS_Encryption::ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
 {
-	if (length <= BlockSize())
+	CRYPTOPP_UNUSED(outLength);
+	size_t used = inLength;
+	if (inLength <= BlockSize())
 	{
 		if (!m_stolenIV)
 			throw InvalidArgument("CBC_Encryption: message is too short for ciphertext stealing");
 
 		// steal from IV
-		memcpy(outString, m_register, length);
+		memcpy(outString, m_register, inLength);
 		outString = m_stolenIV;
 	}
 	else
@@ -202,14 +203,16 @@ void CBC_CTS_Encryption::ProcessLastBlock(byte *outString, const byte *inString,
 		xorbuf(m_register, inString, BlockSize());
 		m_cipher->ProcessBlock(m_register);
 		inString += BlockSize();
-		length -= BlockSize();
-		memcpy(outString+BlockSize(), m_register, length);
+		inLength -= BlockSize();
+		memcpy(outString+BlockSize(), m_register, inLength);
 	}
 
 	// output last full ciphertext block
-	xorbuf(m_register, inString, length);
+	xorbuf(m_register, inString, inLength);
 	m_cipher->ProcessBlock(m_register);
 	memcpy(outString, m_register, BlockSize());
+
+	return used;
 }
 
 void CBC_Decryption::ResizeBuffers()
@@ -232,38 +235,44 @@ void CBC_Decryption::ProcessData(byte *outString, const byte *inString, size_t l
 	m_register.swap(m_temp);
 }
 
-void CBC_CTS_Decryption::ProcessLastBlock(byte *outString, const byte *inString, size_t length)
+size_t CBC_CTS_Decryption::ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
 {
-	const byte *pn, *pn1;
-	bool stealIV = length <= BlockSize();
+	CRYPTOPP_UNUSED(outLength);
+	const byte *pn1, *pn2;
+	bool stealIV = inLength <= BlockSize();
+	size_t used = inLength;
 
 	if (stealIV)
 	{
-		pn = inString;
-		pn1 = m_register;
+		pn1 = inString;
+		pn2 = m_register;
 	}
 	else
 	{
-		pn = inString + BlockSize();
-		pn1 = inString;
-		length -= BlockSize();
+		pn1 = inString + BlockSize();
+		pn2 = inString;
+		inLength -= BlockSize();
 	}
 
 	// decrypt last partial plaintext block
-	memcpy(m_temp, pn1, BlockSize());
+	memcpy(m_temp, pn2, BlockSize());
 	m_cipher->ProcessBlock(m_temp);
-	xorbuf(m_temp, pn, length);
+	xorbuf(m_temp, pn1, inLength);
 
 	if (stealIV)
-		memcpy(outString, m_temp, length);
+	{
+		memcpy(outString, m_temp, inLength);
+	}
 	else
 	{
-		memcpy(outString+BlockSize(), m_temp, length);
+		memcpy(outString+BlockSize(), m_temp, inLength);
 		// decrypt next to last plaintext block
-		memcpy(m_temp, pn, length);
+		memcpy(m_temp, pn1, inLength);
 		m_cipher->ProcessBlock(m_temp);
 		xorbuf(outString, m_temp, m_register, BlockSize());
 	}
+
+	return used;
 }
 
 NAMESPACE_END
