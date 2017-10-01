@@ -687,12 +687,48 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
 	byte *space = NULLPTR;
 
-	if (m_cipher.IsLastBlockSpecial())
+	// This block is new to StreamTransformationFilter. It somewhat of a hack and was added
+	//  for OCB mode; see GitHub Issue 515. The rub with OCB is, its a block cipher and the
+	//  last block size can be 0. However, its not the 0 predacted in the original code. In
+	//  the orginal code 0 means "nothing special" so DEFAULT_PADDING is applied. OCB's 0
+	//  literally means a final block size can be 0 or non-0; and no padding is needed in
+	//  either case because OCB has its own scheme (see handling of P_* and A_*).
+	// Stream ciphers have policy objects to convey how to operate the cipher. The Crypto++
+	//  framework operates well when MinLastBlockSize() is 1. However, it did not appear to
+	//  cover the OCB case either because we can't stream OCB. It needs full block sizes.
+	// The behavior supplied when IsLastBlockSpecial() will likely have to evolve to capture
+	//  more complex beahviors of different authenc modes. I suspect it will have to change
+	//  from a simple bool to something that conveys more information, like "last block
+	//  no padding" or "custom padding applied by cipher".
+	// In some respect we have already hit the need for more information. For example, OCB
+	//  calculates the checksum on the cipher text at the same time, so we don't need the
+	//  disjoint behavior of calling "EncryptBlock" followed by a separate "AuthenticateBlock".
+	//  Additional information may allow us to avoid the two spearate calls.
+	if (m_cipher.IsLastBlockSpecial() && m_cipher.MandatoryBlockSize() > 1)
 	{
-		size_t reserve = 2*m_cipher.MandatoryBlockSize();
-		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length+reserve);
-		length = m_cipher.ProcessLastBlock(space, length+reserve, inString, length);
-		AttachedTransformation()->Put(space, length);
+		const size_t blocks = length / m_cipher.MandatoryBlockSize();
+		if (blocks != 0)
+		{
+			size_t blength = blocks * m_cipher.MandatoryBlockSize();
+			space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blength, m_cipher.OptimalBlockSize());
+			m_cipher.ProcessData(space, inString, blength);
+			AttachedTransformation()->Put(space, blength);
+		}
+
+		const size_t leftover = length % m_cipher.MandatoryBlockSize();
+		const size_t reserve = 2*m_cipher.MandatoryBlockSize();
+		space = space ? space: HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, leftover+reserve);
+		if (leftover)
+		{
+			length = m_cipher.ProcessLastBlock(space, leftover+reserve, inString, leftover);
+			AttachedTransformation()->Put(space, length);
+		}
+		else
+		{
+			length = m_cipher.ProcessLastBlock(space, leftover+reserve, NULLPTR, 0);
+			AttachedTransformation()->Put(space, length);
+		}
+
 		return;
 	}
 
