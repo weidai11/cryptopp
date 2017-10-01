@@ -845,9 +845,17 @@ public:
 
 	//! \brief Provides the mandatory block size of the cipher
 	//! \return The block size of the cipher if input must be processed in blocks, 1 otherwise
+	//! \details Stream ciphers and some block ciphers modes of operation return 1. Modes that
+	//!   return 1 must be able to process a single byte at a time, like counter mode. If a
+	//!   mode of operation or block cipher cannot stream then it must not return 1.
+	//! \details When filters operate the mode or cipher, ProcessData will be called with a
+	//!   string of bytes that is determined by MandatoryBlockSize and OptimalBlockSize. When a
+	//!   policy is set, like 16-byte strings for a 16-byte block cipher, the filter will buffer
+	//!   bytes until the specified number of bytes is available to the object.
+	//! \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual unsigned int MandatoryBlockSize() const {return 1;}
 
-	//! \brief Provides the input block size most efficient for this cipher.
+	//! \brief Provides the input block size most efficient for this cipher
 	//! \return The input block size that is most efficient for the cipher
 	//! \details The base class implementation returns MandatoryBlockSize().
 	//! \note Optimal input length is
@@ -858,7 +866,7 @@ public:
 	//! \return the number of bytes used in the current block when processing at the optimal block size
 	virtual unsigned int GetOptimalBlockSizeUsed() const {return 0;}
 
-	//! \brief Provides input and output data alignment for optimal performance.
+	//! \brief Provides input and output data alignment for optimal performance
 	//! \return the input data alignment that provides optimal performance
 	virtual unsigned int OptimalDataAlignment() const;
 
@@ -866,7 +874,9 @@ public:
 	//! \param outString the output byte buffer
 	//! \param inString the input byte buffer
 	//! \param length the size of the input and output byte buffers, in bytes
-	//! \details Either <tt>inString == outString</tt>, or they must not overlap.
+	//! \details ProcessData is called with a string of bytes whose size depends on MandatoryBlockSize.
+	//!   Either <tt>inString == outString</tt>, or they must not overlap.
+	//! \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual void ProcessData(byte *outString, const byte *inString, size_t length) =0;
 
 	//! \brief Encrypt or decrypt the last block of data
@@ -877,22 +887,33 @@ public:
 	//! \returns the number of bytes used in outString
 	//! \details ProcessLastBlock is used when the last block of data is special and requires handling
 	//!   by the cipher. The current implementation provides an output buffer with a size
-	//!   <tt>inLength+2*MandatoryBlockSize()</tt>. The return value allows the cipher to expand cipher text
-	//!   during encryption or shrink plain text during decryption.
+	//!   <tt>inLength+2*MandatoryBlockSize()</tt>. The return value allows the cipher to expand cipher
+	//!   text during encryption or shrink plain text during decryption.
 	//! \details This member function is used by CBC-CTS and OCB modes.
-	//! \sa IsLastBlockSpecial
+	//! \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 
 	//! \brief Provides the size of the last block
 	//! \returns the minimum size of the last block
 	//! \details MinLastBlockSize() returns the minimum size of the last block. 0 indicates the last
 	//!   block is not special.
+	//! \details MandatoryBlockSize() enlists one of two behaviors. First, if MandatoryBlockSize()
+	//!   returns 1, then the cipher can be streamed and ProcessData() is called with the tail bytes.
+	//!   Second, if MandatoryBlockSize() returns non-0, then the string of bytes is padded to
+	//!   MandatoryBlockSize() according to the padding mode. Then, ProcessData() is called with the
+	//!   padded string of bytes.
+	//! \details Some authenticated encryption modes are not expressed well with MandatoryBlockSize()
+	//!   and MinLastBlockSize(). For example, AES/OCB uses 16-byte blocks (MandatoryBlockSize = 16)
+	//!   and the last block requires special processing (MinLastBlockSize = 0). However, 0 is a valid
+	//!   last block size for OCB and the special processing is custom padding, and not standard PKCS
+	//!   padding. In response an unambiguous IsLastBlockSpecial() was added.
+	//! \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual unsigned int MinLastBlockSize() const {return 0;}
 
 	//! \brief Determines if the last block receives special processing
 	//! \returns true if the last block reveives special processing, false otherwise.
-	//! \details Some authenticated encryption modes have needs that are not expressed well
-	//!   with MandatoryBlockSize() and MinLastBlockSize(). For example, AES/OCB uses
+	//! \details Some authenticated encryption modes are not expressed well with
+	//!   MandatoryBlockSize() and MinLastBlockSize(). For example, AES/OCB uses
 	//!   16-byte blocks (MandatoryBlockSize = 16) and the last block requires special processing
 	//!   (MinLastBlockSize = 0). However, 0 is a valid last block size for OCB and the special
 	//!   processing is custom padding, and not standard PKCS padding. In response an
@@ -906,8 +927,8 @@ public:
 	//!   Fourth, the cipher is responsible for finalization like custom padding. The cipher will tell
 	//!   the library how many bytes were processed or used by returning the appropriate value from
 	//!   ProcessLastBlock().
-	//! \details The return value of ProcessLastBlock() indicates how many bytes were written
-	//!   to outString. A filter pipelining data will send <tt>outString</tt> and up to <tt>outLength</tt>
+	//! \details The return value of ProcessLastBlock() indicates how many bytes were written to
+	//!   <tt>outString</tt>. A filter pipelining data will send <tt>outString</tt> and up to <tt>outLength</tt>
 	//!   to an <tt>AttachedTransformation()</tt> for additional processing. Below is an example of the code
 	//!   used in <tt>StreamTransformationFilter::LastPut</tt>.
 	//! <pre>  if (m_cipher.IsLastBlockSpecial())
@@ -918,7 +939,7 @@ public:
 	//!     AttachedTransformation()->Put(space, length);
 	//!     return;
 	//!   }</pre>
-	//! \sa ProcessLastBlock
+	//! \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	//! \since Crypto++ 6.0
 	virtual bool IsLastBlockSpecial() const {return false;}
 

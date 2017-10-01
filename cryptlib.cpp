@@ -232,8 +232,9 @@ size_t StreamTransformation::ProcessLastBlock(byte *outString, size_t outLength,
 
 	if (inLength == MandatoryBlockSize())
 	{
+		outLength = inLength; // squash unused warning
 		ProcessData(outString, inString, inLength);
-		return inLength;
+		return outLength;
 	}
 	else if (inLength != 0)
 		throw NotImplemented(AlgorithmName() + ": this object doesn't support a special last block");
