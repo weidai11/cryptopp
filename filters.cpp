@@ -687,15 +687,18 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
 	byte *space = NULLPTR;
 
+#if 1
 	// This block is new to StreamTransformationFilter. It somewhat of a hack and was added
 	//  for OCB mode; see GitHub Issue 515. The rub with OCB is, its a block cipher and the
-	//  last block size can be 0. However, its not the 0 predacted in the original code. In
-	//  the orginal code 0 means "nothing special" so DEFAULT_PADDING is applied. OCB's 0
-	//  literally means a final block size can be 0 or non-0; and no padding is needed in
-	//  either case because OCB has its own scheme (see handling of P_* and A_*).
+	//  last block size can be 0. However, "last block = 0" is not the 0 predacted in the
+	//  original code. In the orginal code 0 means "nothing special" so DEFAULT_PADDING is
+	//  applied. OCB's 0 literally means a final block size can be 0 or non-0; and no padding
+	//  is needed in either case because OCB has its own scheme (see handling of P_* and A_*).
 	// Stream ciphers have policy objects to convey how to operate the cipher. The Crypto++
 	//  framework operates well when MinLastBlockSize() is 1. However, it did not appear to
-	//  cover the OCB case either because we can't stream OCB. It needs full block sizes.
+	//  cover the OCB case either because we can't stream OCB. It needs full block sizes. In
+	//  response we hacked a IsLastBlockSpecial(). When true StreamTransformationFilter
+	//  defers to the mode for processing of the last block.
 	// The behavior supplied when IsLastBlockSpecial() will likely have to evolve to capture
 	//  more complex beahviors of different authenc modes. I suspect it will have to change
 	//  from a simple bool to something that conveys more information, like "last block
@@ -704,33 +707,44 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 	//  calculates the checksum on the cipher text at the same time, so we don't need the
 	//  disjoint behavior of calling "EncryptBlock" followed by a separate "AuthenticateBlock".
 	//  Additional information may allow us to avoid the two spearate calls.
-	if (m_cipher.IsLastBlockSpecial() && m_cipher.MandatoryBlockSize() > 1)
+	// Finally, GCC optimizes things best when isSpecial uses the two predicates. If the
+	//  'm_cipher.MandatoryBlockSize() > 0' is removed, then some block ciphers and modes
+	//  lose up to 0.2 cpb. Apparently GCC can optimize away the second predicate easier
+	//  than the first predicate.
+	const bool isSpecial = m_cipher.IsLastBlockSpecial() && m_cipher.MandatoryBlockSize() != 0;
+	if (isSpecial)
 	{
-		const size_t blocks = length / m_cipher.MandatoryBlockSize();
-		if (blocks != 0)
+		const size_t mandatoryBlockSize = m_cipher.MandatoryBlockSize();
+		const size_t optimalBlockSize = m_cipher.OptimalBlockSize();
+		const size_t leftOver = length % mandatoryBlockSize;
+		const size_t minReserve = STDMAX(2*mandatoryBlockSize, optimalBlockSize) + leftOver;
+		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, mandatoryBlockSize, minReserve);
+
+		length -= leftOver;
+		if (length)
 		{
-			size_t blength = blocks * m_cipher.MandatoryBlockSize();
-			space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blength, m_cipher.OptimalBlockSize());
-			m_cipher.ProcessData(space, inString, blength);
-			AttachedTransformation()->Put(space, blength);
+			// Process full blocks
+			m_cipher.ProcessData(space, inString, length);
+			AttachedTransformation()->Put(space, length);
+			inString += length;
 		}
 
-		const size_t leftover = length % m_cipher.MandatoryBlockSize();
-		const size_t reserve = 2*m_cipher.MandatoryBlockSize();
-		space = space ? space: HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, leftover+reserve);
-		if (leftover)
+		if (leftOver)
 		{
-			length = m_cipher.ProcessLastBlock(space, leftover+reserve, inString, leftover);
+			// Process final partial block
+			length = m_cipher.ProcessLastBlock(space, minReserve, inString, leftOver);
 			AttachedTransformation()->Put(space, length);
 		}
 		else
 		{
-			length = m_cipher.ProcessLastBlock(space, leftover+reserve, NULLPTR, 0);
+			// Process final empty block
+			length = m_cipher.ProcessLastBlock(space, minReserve, NULLPTR, 0);
 			AttachedTransformation()->Put(space, length);
 		}
 
 		return;
 	}
+#endif
 
 	switch (m_padding)
 	{
