@@ -547,9 +547,10 @@ protected:
 
 	StreamTransformation &m_cipher;
 	BlockPaddingScheme m_padding;
+	unsigned int m_mandatoryBlockSize;
 	unsigned int m_optimalBufferSize;
-	// TODO: do we need this?
-	bool m_authenticated;
+	unsigned int m_reservedBufferSize;
+	bool m_isSpecial;
 };
 
 //! \class HashFilter
