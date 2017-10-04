@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_TEST_INSTANTIATIONS)
 void LUC_TestInstantiations()
 {
 	LUC_HMP<SHA1>::Signer t1;

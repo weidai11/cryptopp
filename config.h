@@ -137,6 +137,12 @@
 # define CRYPTOPP_DEBUG 1
 #endif
 
+// CRYPTOPP_TEST_INSTANTIATIONS enables the class instantiation tests
+//   in each encryption source. For example, RSA_TestInstantiations().
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING) && !defined(CRYPTOPP_NO_TESTS)
+# define CRYPTOPP_TEST_INSTANTIATIONS 1
+#endif
+
 // ***************** Important Settings Again ********************
 // But the defaults should be ok.
 

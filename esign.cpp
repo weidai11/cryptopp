@@ -18,7 +18,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_TEST_INSTANTIATIONS)
 void ESIGN_TestInstantiations()
 {
 	ESIGN<SHA1>::Verifier x1(1, 1);
