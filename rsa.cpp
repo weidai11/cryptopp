@@ -12,6 +12,7 @@
 #include "pkcspad.h"
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING) && !defined(CRYPTOPP_IS_DLL)
+#include "sha3.h"
 #include "pssr.h"
 NAMESPACE_BEGIN(CryptoPP)
 void RSA_TestInstantiations()
@@ -31,8 +32,12 @@ void RSA_TestInstantiations()
 	RSAES<PKCS1v15>::Encryptor x8(x3);
 #endif
 	RSAES<OAEP<SHA1> >::Encryptor x9(x2);
-
 	x4 = x2.GetKey();
+
+	RSASS<PKCS1v15, SHA3_256>::Verifier x10(1, 1);
+	RSASS<PKCS1v15, SHA3_256>::Signer x11(NullRNG(), 1);
+	RSASS<PKCS1v15, SHA3_256>::Verifier x12(x11);
+	RSASS<PKCS1v15, SHA3_256>::Verifier x13(x11.GetKey());
 }
 NAMESPACE_END
 #endif

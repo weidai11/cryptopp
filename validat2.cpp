@@ -37,6 +37,7 @@
 #include "esign.h"
 #include "osrng.h"
 #include "sha.h"
+#include "sha3.h"
 #include "ripemd.h"
 #include "smartptr.h"
 #include "pkcspad.h"
@@ -284,11 +285,12 @@ bool ValidateRSA()
 {
 	std::cout << "\nRSA validation suite running...\n\n";
 
-	byte out[100], outPlain[100];
+	// Must be large enough for RSA-3072 to test SHA3_256
+	byte out[256], outPlain[128];
 	bool pass = true, fail;
 
 	{
-		const char *plain = "Everyone gets Friday off.";
+		const char plain[] = "Everyone gets Friday off.";
 		static const byte signature[] =
 			"\x05\xfa\x6a\x81\x2f\xc7\xdf\x8b\xf4\xf2\x54\x25\x09\xe0\x3e\x84"
 			"\x6e\x11\xb9\xc6\x20\xbe\x20\x09\xef\xb4\x40\xef\xbc\xc6\x69\x21"
@@ -300,7 +302,8 @@ bool ValidateRSA()
 		Weak::RSASSA_PKCS1v15_MD2_Verifier rsaPub(rsaPriv);
 
 		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
-		fail = memcmp(signature, out, 64) != 0;
+		CRYPTOPP_ASSERT(signatureLength <= sizeof(out));
+		fail = memcmp(signature, out, signatureLength) != 0;
 		pass = pass && !fail;
 
 		std::cout << (fail ? "FAILED    " : "passed    ");
@@ -319,6 +322,50 @@ bool ValidateRSA()
 		std::cout << (fail ? "FAILED    " : "passed    ");
 		std::cout << "invalid signature verification\n";
 	}
+	/////
+	{
+		const char plain[] = "Everyone gets Friday off.";
+		static const byte signature[] =
+			"\x2e\x87\xda\x1f\xe4\xda\x1d\x7a\xb7\xf2\x42\x36\xe9\xc0\x4e\xab\x3f\x03\x71\xe1"
+			"\x2b\xc5\x3c\xbf\x21\x21\xa8\xd6\x28\xb0\x08\xfd\x9c\xf6\x94\xbd\x37\x32\xda\xfc"
+			"\x42\x1c\x8e\xdb\x8a\x81\x90\x46\x45\xb4\xde\x9e\xce\x90\xfe\xa1\xfd\xbc\x5a\xce"
+			"\xca\x59\x89\x93\xc0\x0f\x2f\xf1\x13\xb0\xf5\x3d\xa3\x9a\x85\xb7\x40\xd9\x34\x88"
+			"\x29\xb2\x4a\x0f\x9b\xbe\x22\x3a\x5b\x54\x51\xb7\xf0\x10\x72\x50\xc4\x2a\xe9\xe4"
+			"\xc3\x82\xeb\x32\x33\x14\xb6\xf2\x7b\x30\x7a\xbf\xc2\xf3\x0f\x4d\x72\xa0\x8d\xa1"
+			"\xc6\xce\xd0\xa3\x3c\xf7\x23\x4b\xb7\x2c\x5e\xca\x83\x01\xc7\x5c\xd5\xd0\xd1\x94"
+			"\x43\xf0\xad\xa2\xe6\x72\x2b\x13\x39\xb2\x4b\x25\x91\x3a\x4f\x53\x05\x00\x8c\xc7"
+			"\xcf\x4f\x11\x64\xe6\xf4\x1a\x4d\x90\x7e\xf1\xfe\xed\xec\x8d\xbb\x00\x31\x2e\x03"
+			"\xbe\x87\x84\x60\xfb\x5e\xef\x9d\x18\x2c\x28\x3d\xaa\x67\x80\xa3\x62\x07\x06\x5e"
+			"\xce\xee\x3b\xd0\x78\xb5\x98\x38\x1e\xe8\x62\x19\x9c\xc3\xd4\xf7\xc2\xc5\x00\xf0"
+			"\xeb\x89\x65\x53\x35\xe7\x13\x7e\xbb\x26\xb0\x76\x9c\xf2\x80\xaa\xe1\xb1\x0a\xa6"
+			"\x47\xfc\x5f\xe0\x7f\x82\xd7\x83\x41\xc3\x50\xa1\xe0\x0e\x1a\xe4";
+
+		FileSource keys(CRYPTOPP_DATA_DIR "TestData/rsa2048a.dat", true, new HexDecoder);
+		RSASS<PKCS1v15, SHA3_256>::Signer rsaPriv(keys);
+		RSASS<PKCS1v15, SHA3_256>::Verifier rsaPub(rsaPriv);
+
+		size_t signatureLength = rsaPriv.SignMessage(GlobalRNG(), (byte *)plain, strlen(plain), out);
+		CRYPTOPP_ASSERT(signatureLength <= sizeof(out));
+		fail = memcmp(signature, out, signatureLength) != 0;
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "signature check against test vector\n";
+
+		fail = !rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "verification check against test vector\n";
+
+		out[10]++;
+		fail = rsaPub.VerifyMessage((byte *)plain, strlen(plain), out, signatureLength);
+		pass = pass && !fail;
+
+		std::cout << (fail ? "FAILED    " : "passed    ");
+		std::cout << "invalid signature verification\n";
+	}
+	/////
 	{
 		FileSource keys(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", true, new HexDecoder);
 		RSAES_PKCS1v15_Decryptor rsaPriv(keys);

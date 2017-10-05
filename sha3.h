@@ -52,9 +52,9 @@ protected:
 };
 
 //! \class SHA3_224
-//! \tparam T_DigestSize controls the digest size as a template parameter instead of a per-class constant
-//! \brief SHA3-X message digest, template for more fine-grained typedefs
-//! \since Crypto++ 6.0.0
+//! \brief SHA3 message digest template
+//! \tparam T_DigestSize the size of the digest, in bytes
+//! \since Crypto++ 5.6.2
 template<unsigned int T_DigestSize>
 class SHA3_Final : public SHA3
 {
@@ -75,19 +75,31 @@ private:
 
 //! \brief SHA3-224 message digest
 //! \since Crypto++ 5.6.2
-typedef SHA3_Final<28> SHA3_224;
+// typedef SHA3_Final<28> SHA3_224;
+class SHA3_224 : public SHA3_Final<28>
+{
+};
 
 //! \brief SHA3-256 message digest
 //! \since Crypto++ 5.6.2
-typedef SHA3_Final<32> SHA3_256;
+// typedef SHA3_Final<32> SHA3_256;
+class SHA3_256 : public SHA3_Final<32>
+{
+};
 
 //! \brief SHA3-384 message digest
 //! \since Crypto++ 5.6.2
-typedef SHA3_Final<48> SHA3_384;
+// typedef SHA3_Final<48> SHA3_384;
+class SHA3_384 : public SHA3_Final<48>
+{
+};
 
 //! \brief SHA3-512 message digest
 //! \since Crypto++ 5.6.2
-typedef SHA3_Final<64> SHA3_512;
+// typedef SHA3_Final<64> SHA3_512;
+class SHA3_512 : public SHA3_Final<64>
+{
+};
 
 NAMESPACE_END
 

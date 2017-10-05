@@ -47,10 +47,16 @@ class SHA384;
 class SHA512;
 class Tiger;
 class RIPEMD160;
+
 namespace Weak1 {
-class MD2;
-class MD5;
+  class MD2;
+  class MD5;
 }
+
+// http://github.com/weidai11/cryptopp/issues/517
+class SHA3_256;
+class SHA3_384;
+class SHA3_512;
 // end of list
 
 #if defined(CRYPTOPP_IS_DLL)
@@ -59,6 +65,10 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA224>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
+// http://github.com/weidai11/cryptopp/issues/517
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_256>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_384>;
+CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_512>;
 #elif defined(__clang__)
 // Provide a default definition to avoid Clang warnings. CRTP will provide a
 // real definition later. The single element is due to MSVC compile failures
@@ -96,12 +106,9 @@ public:
 	};
 };
 
-//! PKCS #1 version 1.5, for use with RSAES and RSASS
-/*! Only the following hash functions are supported by this signature standard:
-	\dontinclude pkcspad.h
-	\skip can be instantiated
-	\until end of list
-*/
+//! \brief PKCS #1 version 1.5, for use with RSAES and RSASS
+//! \dontinclude pkcspad.h
+
 struct PKCS1v15 : public SignatureStandard, public EncryptionStandard
 {
 	typedef PKCS_EncryptionPaddingScheme EncryptionMessageEncodingMethod;
