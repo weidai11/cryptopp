@@ -124,6 +124,56 @@ const word32 s_rconLE[] = {
 	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
 };
 
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+
+// Determine whether the range between begin and end overlaps
+//   with the same 4k block offsets as the Te table. Logically,
+//   the code is trying to create the condition:
+//
+// Two sepearate memory pages:
+//
+//  +-----+   +-----+
+//  |XXXXX|   |YYYYY|
+//  |XXXXX|   |YYYYY|
+//  |     |   |     |
+//  |     |   |     |
+//  +-----+   +-----+
+//  Te Table   Locals
+//
+// Have a logical cache view of (X and Y may be inverted):
+//
+// +-----+
+// |XXXXX|
+// |XXXXX|
+// |YYYYY|
+// |YYYYY|
+// +-----+
+//
+static inline bool AliasedWithTable(const byte *begin, const byte *end)
+{
+	ptrdiff_t s0 = uintptr_t(begin)%4096, s1 = uintptr_t(end)%4096;
+	ptrdiff_t t0 = uintptr_t(Te)%4096, t1 = (uintptr_t(Te)+sizeof(Te))%4096;
+	if (t1 > t0)
+		return (s0 >= t0 && s0 < t1) || (s1 > t0 && s1 <= t1);
+	else
+		return (s0 < t1 || s1 <= t1) || (s0 >= t0 || s1 > t0);
+}
+
+struct Locals
+{
+	word32 subkeys[4*12], workspace[8];
+	const byte *inBlocks, *inXorBlocks, *outXorBlocks;
+	byte *outBlocks;
+	size_t inIncrement, inXorIncrement, outXorIncrement, outIncrement;
+	size_t regSpill, lengthAndCounterFlag, keysBegin;
+};
+
+const size_t s_aliasPageSize = 4096;
+const size_t s_aliasBlockSize = 256;
+const size_t s_sizeToAllocate = s_aliasPageSize + s_aliasBlockSize + sizeof(Locals);
+
+#endif  // CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+
 ANONYMOUS_NAMESPACE_END
 
 // ************************* Portable Code ************************************
@@ -263,6 +313,10 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_POWER8(const word32 *subkeys, s
 void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keyLen);
+
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+	m_aliasBlock.New(s_sizeToAllocate);
+#endif
 
 	m_rounds = keyLen/4 + 6;
 	m_key.New(4*(m_rounds+1));
@@ -1067,63 +1121,6 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 extern "C" {
 void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
 }
-#endif
-
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
-
-// Determine whether the range between begin and end overlaps
-//   with the same 4k block offsets as the Te table. Logically,
-//   the code is trying to create the condition:
-//
-// Two sepearate memory pages:
-//
-//  +-----+   +-----+
-//  |XXXXX|   |YYYYY|
-//  |XXXXX|   |YYYYY|
-//  |     |   |     |
-//  |     |   |     |
-//  +-----+   +-----+
-//  Te Table   Locals
-//
-// Have a logical cache view of (X and Y may be inverted):
-//
-// +-----+
-// |XXXXX|
-// |XXXXX|
-// |YYYYY|
-// |YYYYY|
-// +-----+
-//
-static inline bool AliasedWithTable(const byte *begin, const byte *end)
-{
-	ptrdiff_t s0 = uintptr_t(begin)%4096, s1 = uintptr_t(end)%4096;
-	ptrdiff_t t0 = uintptr_t(Te)%4096, t1 = (uintptr_t(Te)+sizeof(Te))%4096;
-	if (t1 > t0)
-		return (s0 >= t0 && s0 < t1) || (s1 > t0 && s1 <= t1);
-	else
-		return (s0 < t1 || s1 <= t1) || (s0 >= t0 || s1 > t0);
-}
-
-struct Locals
-{
-	word32 subkeys[4*12], workspace[8];
-	const byte *inBlocks, *inXorBlocks, *outXorBlocks;
-	byte *outBlocks;
-	size_t inIncrement, inXorIncrement, outXorIncrement, outIncrement;
-	size_t regSpill, lengthAndCounterFlag, keysBegin;
-};
-
-const size_t s_aliasPageSize = 4096;
-const size_t s_aliasBlockSize = 256;
-const size_t s_sizeToAllocate = s_aliasPageSize + s_aliasBlockSize + sizeof(Locals);
-
-Rijndael::Enc::Enc() : m_aliasBlock(s_sizeToAllocate) { }
-
-#endif  // CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
-
-#if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64 || CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
-// Do nothing
-Rijndael::Enc::Enc() { }
 #endif
 
 #if CRYPTOPP_ENABLE_ADVANCED_PROCESS_BLOCKS

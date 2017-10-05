@@ -57,6 +57,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 
 		unsigned int m_rounds;
 		FixedSizeAlignedSecBlock<word32, 4*15> m_key;
+		SecByteBlock m_aliasBlock;
 	};
 
 	//! \brief Provides implementation for encryption transformation
@@ -69,10 +70,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 #if CRYPTOPP_ENABLE_ADVANCED_PROCESS_BLOCKS
-		Enc();
 		size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
-	private:
-		SecByteBlock m_aliasBlock;
 #endif
 	};
 

@@ -391,6 +391,7 @@ TestData/rsa2048.dat
 TestData/rsa400pb.dat
 TestData/rsa400pv.dat
 TestData/rsa512a.dat
+TestData/rsa2048a.dat
 TestData/rw1024.dat
 TestData/rw2048.dat
 TestData/saferval.dat
