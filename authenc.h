@@ -48,14 +48,6 @@ public:
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}
 
-	//! \brief Sets the key for this object without performing parameter validation
-	//! \param key a byte buffer used to key the cipher
-	//! \param length the length of the byte buffer
-	//! \param params additional parameters passed as  NameValuePairs
-	//! \details key must be at least DEFAULT_KEYLENGTH in length.
-	void UncheckedSetKey(const byte * key, unsigned int length,const CryptoPP::NameValuePairs &params)
-		{CRYPTOPP_UNUSED(key), CRYPTOPP_UNUSED(length), CRYPTOPP_UNUSED(params); CRYPTOPP_ASSERT(false);}
-
 	void SetKey(const byte *userKey, size_t keylength, const NameValuePairs &params);
 	void Restart() {if (m_state > State_KeySet) m_state = State_KeySet;}
 	void Resynchronize(const byte *iv, int length=-1);
@@ -64,6 +56,9 @@ public:
 	void TruncatedFinal(byte *mac, size_t macSize);
 
 protected:
+	void UncheckedSetKey(const byte * key, unsigned int length,const CryptoPP::NameValuePairs &params)
+		{CRYPTOPP_UNUSED(key), CRYPTOPP_UNUSED(length), CRYPTOPP_UNUSED(params); CRYPTOPP_ASSERT(false);}
+
 	void AuthenticateData(const byte *data, size_t len);
 	const SymmetricCipher & GetSymmetricCipher() const
 		{return const_cast<AuthenticatedSymmetricCipherBase *>(this)->AccessSymmetricCipher();};
