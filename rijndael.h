@@ -57,7 +57,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 
 		unsigned int m_rounds;
 		FixedSizeAlignedSecBlock<word32, 4*15> m_key;
-		SecByteBlock m_aliasBlock;
+		mutable SecByteBlock m_aliasBlock;
 	};
 
 	//! \brief Provides implementation for encryption transformation

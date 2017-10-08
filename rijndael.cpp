@@ -316,6 +316,9 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 	m_aliasBlock.New(s_sizeToAllocate);
+	// The alias block is only used on IA-32 when unaligned data access is in effect.
+	// Setting the low water mark to 0 avoids zeroization when m_aliasBlock is unused.
+	m_aliasBlock.SetMark(0);
 #endif
 
 	m_rounds = keyLen/4 + 6;
@@ -1146,6 +1149,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 			return length;
 
 		static const byte *zeros = (const byte*)(Te+256);
+		m_aliasBlock.SetMark(m_aliasBlock.size());
 		byte *space = NULLPTR, *originalSpace = const_cast<byte*>(m_aliasBlock.data());
 
 		// round up to nearest 256 byte boundary
