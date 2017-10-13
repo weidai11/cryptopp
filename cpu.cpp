@@ -21,7 +21,7 @@
 # include <unistd.h>
 #endif
 
-// Capability queries, requires Glibc 2.16, https://lwn.net/Articles/519085/
+// Capability queries, requires Glibc 2.16, http://lwn.net/Articles/519085/
 // CRYPTOPP_GLIBC_VERSION not used because config.h is missing <feature.h>
 #if (((__GLIBC__ * 100) + __GLIBC_MINOR__) >= 216)
 # define CRYPTOPP_GETAUXV_AVAILABLE 1
@@ -102,9 +102,7 @@ extern "C"
 // cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
 bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
-	return false;
-#elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY) || defined(__BORLANDC__)
+#if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY) || defined(__BORLANDC__)
     __try
 	{
 		// Borland/Embarcadero and Issue 500
@@ -184,19 +182,19 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 
 static bool CPU_ProbeSSE2()
 {
-#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
-	return false;
-#elif CRYPTOPP_BOOL_X64
+#if CRYPTOPP_BOOL_X64
 	return true;
+#elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
 #elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     __try
 	{
-#if CRYPTOPP_SSE2_ASM_AVAILABLE
+# if CRYPTOPP_SSE2_ASM_AVAILABLE
 		AS2(por xmm0, xmm0)        // executing SSE2 instruction
-#elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
+# elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		return _mm_cvtsi128_si32(x) == 0;
-#endif
+# endif
 	}
 	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
 	__except (EXCEPTION_EXECUTE_HANDLER)
@@ -223,12 +221,12 @@ static bool CPU_ProbeSSE2()
 		result = false;
 	else
 	{
-#if CRYPTOPP_SSE2_ASM_AVAILABLE
+# if CRYPTOPP_SSE2_ASM_AVAILABLE
 		__asm __volatile ("por %xmm0, %xmm0");
-#elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
+# elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
 		__m128i x = _mm_setzero_si128();
 		result = _mm_cvtsi128_si32(x) == 0;
-#endif
+# endif
 	}
 
 # ifndef __MINGW32__
@@ -282,8 +280,11 @@ void DetectX86Features()
 	if (!CpuId(1, 0, cpuid1))
 		return;
 
+	// cpuid1[2] & (1 << 27) is XSAVE/XRESTORE and signals OS support for SSE; use it to avoid probes.
+	// See http://github.com/weidai11/cryptopp/issues/511 and http://stackoverflow.com/a/22521619/608639
 	if ((cpuid1[3] & (1 << 26)) != 0)
-		g_hasSSE2 = CPU_ProbeSSE2();
+		g_hasSSE2 = (cpuid1[2] & (1 << 27)) || CPU_ProbeSSE2();
+
 	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
 	g_hasSSE41 = g_hasSSE2 && (cpuid1[2] & (1<<19));
 	g_hasSSE42 = g_hasSSE2 && (cpuid1[2] & (1<<20));
@@ -510,7 +511,7 @@ inline bool CPU_QueryAES()
 	if (getauxval(AT_HWCAP2) & HWCAP2_AES)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// https://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+	// http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 	struct utsname systemInfo;
 	systemInfo.machine[0] = '\0';
 	uname(&systemInfo);
@@ -545,7 +546,7 @@ inline bool CPU_QuerySHA1()
 	if (getauxval(AT_HWCAP2) & HWCAP2_SHA1)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// https://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+	// http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 	struct utsname systemInfo;
 	systemInfo.machine[0] = '\0';
 	uname(&systemInfo);
@@ -580,7 +581,7 @@ inline bool CPU_QuerySHA2()
 	if (getauxval(AT_HWCAP2) & HWCAP2_SHA2)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	// https://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+	// http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 	struct utsname systemInfo;
 	systemInfo.machine[0] = '\0';
 	uname(&systemInfo);
