@@ -10,9 +10,7 @@
 #include "algparam.h"
 #include "smartptr.h"
 #include "misc.h"
-
-#include <vector>
-#include <cmath>
+#include "stdcpp.h"
 
 #ifdef _OPENMP
 # include <omp.h>

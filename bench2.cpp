@@ -30,6 +30,7 @@
 #include "pssr.h"
 #include "oids.h"
 #include "randpool.h"
+#include "stdcpp.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4505 4355)

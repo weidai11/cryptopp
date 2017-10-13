@@ -17,6 +17,7 @@
 #include "drbg.h"
 #include "rdrand.h"
 #include "padlkrng.h"
+#include "stdcpp.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)
