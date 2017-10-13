@@ -637,7 +637,7 @@ NAMESPACE_END
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #elif defined(__APPLE__)
 	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
+#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__) || defined(_AIX)
 	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
 #elif defined(__linux__) || defined(__sun__) || defined(__CYGWIN__)
 	#define CRYPTOPP_MEMALIGN_AVAILABLE
@@ -649,7 +649,10 @@ NAMESPACE_END
 #if defined(_MSC_VER)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __declspec(noinline)
-#elif defined(__GNUC__) || defined(__xlC__)
+#elif defined(__xlc__) || defined(__xlC__)
+#	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
+#	define CRYPTOPP_NOINLINE __attribute__((noinline))
+#elif defined(__GNUC__)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __attribute__((noinline))
 #else

@@ -282,7 +282,7 @@ void * AlignedAllocate(size_t size)
 {
 	byte *p;
 #if defined(CRYPTOPP_APPLE_ALLOC_AVAILABLE)
-	while ((p = (byte *)calloc(1, size)) == NULLPTR)
+	while ((p = (byte *)malloc(size)) == NULLPTR)
 #elif defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
 	while ((p = (byte *)_mm_malloc(size, 16)) == NULLPTR)
 #elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
