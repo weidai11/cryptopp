@@ -41,8 +41,8 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipherBase : public AuthenticatedSymmetricCipher
 {
 public:
-	AuthenticatedSymmetricCipherBase() : m_state(State_Start), m_bufferedDataLength(0),
-		m_totalHeaderLength(0), m_totalMessageLength(0), m_totalFooterLength(0) {}
+	AuthenticatedSymmetricCipherBase() : m_totalHeaderLength(0), m_totalMessageLength(0),
+		m_totalFooterLength(0), m_bufferedDataLength(0), m_state(State_Start) {}
 
 	// StreamTransformation interface
 	bool IsRandomAccess() const {return false;}
