@@ -16,6 +16,7 @@
 #if !defined(__ALTIVEC__)
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
+
 #if !(defined(__CRYPTO__) || defined(_ARCH_PWR8) || defined(_ARCH_PWR9))
 # undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_POWER8_AES_AVAILABLE
@@ -24,7 +25,7 @@
 #endif
 
 // TODO.. Change to CRYPTOPP_POWER8_CRYPTO_AVAILABLE
-#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_POWER8_AES_AVAILABLE)
 # include "ppc-crypto.h"
 #endif
 
