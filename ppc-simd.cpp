@@ -97,12 +97,11 @@ bool CPU_ProbeAltivec()
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 }
 
-#if 0
 bool CPU_ProbePower7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
 	return false;
-#elif (CRYPTOPP_POWER7_AVAILABLE) && 0
+#elif (CRYPTOPP_POWER7_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
 	// longjmp and clobber warnings. Volatile is required.
@@ -121,7 +120,11 @@ bool CPU_ProbePower7()
 		result = false;
 	else
 	{
-		// TODO
+		byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
+		const uint8x16_p8 v1 = (uint8x16_p8)VectorLoad(0, b1+3);
+		VectorStore(v1, b2+1);
+
+		result = (0 == std::memcmp(b1+3, b2+1, 16));
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -132,7 +135,6 @@ bool CPU_ProbePower7()
 	return false;
 #endif  // CRYPTOPP_POWER7_AVAILABLE
 }
-#endif
 
 bool CPU_ProbePower8()
 {

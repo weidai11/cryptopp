@@ -376,14 +376,15 @@ bool TestSettings()
 	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << "\n";
 
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
-	bool hasAltivec = HasAltivec();
-	bool hasPower8 = HasPower8();
-	bool hasAES = HasAES();
-	bool hasSHA256 = HasSHA256();
-	bool hasSHA512 = HasSHA512();
+	const bool hasAltivec = HasAltivec();
+	const bool hasPower7 = HasPower7();
+	const bool hasPower8 = HasPower8();
+	const bool hasAES = HasAES();
+	const bool hasSHA256 = HasSHA256();
+	const bool hasSHA512 = HasSHA512();
 
 	std::cout << "passed:  ";
-	std::cout << "hasAltivec == " << hasAltivec << ", hasPower8 == " << hasPower8;
+	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7 << ", hasPower8 == " << hasPower8;
 	std::cout << ", hasAES == " << hasAES << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512 << "\n";
 
 #endif

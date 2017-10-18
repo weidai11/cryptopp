@@ -625,11 +625,12 @@ void DetectArmFeatures()
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 
 bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
-bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPower8 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPower7 = false, CRYPTOPP_SECTION_INIT g_hasPower8 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA256 = false, CRYPTOPP_SECTION_INIT g_hasSHA512 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 extern bool CPU_ProbeAltivec();
+extern bool CPU_ProbePower7();
 extern bool CPU_ProbePower8();
 extern bool CPU_ProbeAES();
 extern bool CPU_ProbeSHA256();
@@ -657,17 +658,15 @@ inline bool CPU_QueryAltivec()
 	return false;
 }
 
-#if 0
 inline bool CPU_QueryPower7()
 {
 	// Power7 and ISA 2.06
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP) & PPC_FEATURE_ARCH_2_06)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE_ARCH_2_06)
 		return true;
 #endif
 	return false;
 }
-#endif
 
 inline bool CPU_QueryPower8()
 {
@@ -722,6 +721,7 @@ void DetectPowerpcFeatures()
 	// The CPU_ProbeXXX's return false for OSes which
 	//   can't tolerate SIGILL-based probes, like Apple
 	g_hasAltivec  = CPU_QueryAltivec() || CPU_ProbeAltivec();
+	g_hasPower7 = CPU_QueryPower7() || CPU_ProbePower7();
 	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();
 	//g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
@@ -736,7 +736,7 @@ void DetectPowerpcFeatures()
 	g_cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 #endif
 
-	if (!g_cacheLineSize)
+	if (g_cacheLineSize <= 0)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 	g_PowerpcDetectionDone = true;

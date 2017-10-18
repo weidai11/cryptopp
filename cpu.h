@@ -407,8 +407,11 @@ void CRYPTOPP_API DetectPowerpcFeatures();
 //! \returns true if the hardware is capable of Altivec at runtime, false otherwise.
 //! \details Altivec instructions are available under most modern PowerPCs.
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
-//!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
-//!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+//!   need to compile with <tt>-mcpu=power7</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr7 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+//! \details Atilvec was first available on Power4 platforms. However Crypto++ releies on unaligned
+//!   loads and stores which is a Power7 feature. If the platform lacks Power7 extensions, then the
+//!   GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_ALTIVEC</tt>.
 //! \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasAltivec()
 {
@@ -423,6 +426,26 @@ inline bool HasAltivec()
 //! \details Runtime support requires compile time support. When compiling with GCC, you may
 //!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
 //!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+//! \details Atilvec was first available on Power4 platforms. However Crypto++ releies on unaligned
+//!   loads and stores which is a Power7 feature. If the platform lacks Power7 extensions, then the
+//!   GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_ALTIVEC</tt>.
+//! \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasPower7()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasPower7;
+}
+
+//! \brief Determine if a PowerPC processor has Power8 available
+//! \returns true if the hardware is capable of Power8 at runtime, false otherwise.
+//! \details Altivec instructions are available under most modern PowerPCs.
+//! \details Runtime support requires compile time support. When compiling with GCC, you may
+//!   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
+//!   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+//! \details Atilvec was first available on Power4 platforms. However Crypto++ releies on unaligned
+//!   loads and stores which is a Power7 feature. If the platform lacks Power7 extensions, then the
+//!   GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_ALTIVEC</tt>.
 //! \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPower8()
 {
