@@ -339,11 +339,12 @@ ifeq ($(IS_ARMV8),1)
 endif
 
 # PowerPC and PowerPC-64
+# Altivec is available with Power4, but the library is tied to Power7 and unaligned loads/stores.
 ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
   # GCC and some compatibles
-  HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power7 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
-    ALTIVEC_FLAG = -maltivec
+    ALTIVEC_FLAG = -mcpu=power7 -maltivec
   endif
   # GCC and some compatibles
   HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -354,9 +355,9 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
-  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
-    ALTIVEC_FLAG = -qaltivec
+    ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
   endif
   # IBM XL C/C++
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -365,6 +366,10 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     GCM_FLAG = -qarch=pwr8 -qaltivec
     SHA_FLAG = -qarch=pwr8 -qaltivec
     ALTIVEC_FLAG = -qarch=pwr8 -qaltivec
+  endif
+  # Fail safe to disable intrinsics on down level machines, like PowerMac G5
+  ifeq ($(ALTIVEC_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
   endif
 endif
 
@@ -378,10 +383,6 @@ ifeq ($(XLC_COMPILER),1)
   ifneq ($(findstring -fPIC,$(CXXFLAGS)),)
       CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
   endif
-  # Warnings and intermittent failures on early IBM XL C/C++
-  #ifneq ($(findstring -O3,$(CXXFLAGS)),)
-  #    CXXFLAGS := $(CXXFLAGS:-O3=-O2)
-  #endif
 endif
 
 endif	# IS_X86
