@@ -397,20 +397,20 @@ ifeq ($(XLC_COMPILER),1)
       CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
   endif
   HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-q32|\-q64')
-  ifeq ($(IS_PPC64)$(HAVE_BITS),10)
+  ifeq ($(IS_PPC64)$(XLC_COMPILER)$(HAVE_BITS),110)
     CXXFLAGS += -q64
   else
-  ifeq ($(IS_PPC32)$(HAVE_BITS),10)
+  ifeq ($(IS_PPC32)$(XLC_COMPILER)$(HAVE_BITS),110)
     CXXFLAGS += -q32
   endif
   endif
   ifeq ($(findstring -q64,$(CXXFLAGS)),-q64)
-    ifeq ($(findstring -X64,$(CXXFLAGS)),-X64)
+    ifeq ($(findstring -X64,$(ARFLAGS)),)
       ARFLAGS := -r -X64
     endif
   else
   ifeq ($(findstring -q32,$(CXXFLAGS)),-q32)
-    ifeq ($(findstring -X32,$(CXXFLAGS)),-X32)
+    ifeq ($(findstring -X32,$(ARFLAGS)),)
       ARFLAGS := -r -X32
     endif
   endif
