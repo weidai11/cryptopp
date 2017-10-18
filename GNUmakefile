@@ -84,6 +84,19 @@ IS_X86 := $(shell isainfo -k 2>/dev/null | $(GREP) -i -c "i386")
 IS_X64 := $(shell isainfo -k 2>/dev/null | $(GREP) -i -c "amd64")
 endif
 
+# Fixup AIX
+ifeq ($(IS_AIX),1)
+  # https://www-01.ibm.com/support/docview.wss?uid=swg21256116
+  IS_64BIT := $(shell getconf KERNEL_BITMODE | $(GREP) -i -c "64")
+  ifeq ($(IS_64BIT),1)
+    IS_PPC32 := 0
+    IS_PPC64 := 1
+  else
+    IS_PPC32 := 1
+    IS_PPC64 := 0
+  endif
+endif
+
 # Newlib needs _XOPEN_SOURCE=700 for signals
 HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(GREP) -i -c "__NEWLIB__")
 
@@ -383,9 +396,28 @@ ifeq ($(XLC_COMPILER),1)
   ifneq ($(findstring -fPIC,$(CXXFLAGS)),)
       CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
   endif
+  HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-q32|\-q64')
+  ifeq ($(IS_PPC64)$(HAVE_BITS),10)
+    CXXFLAGS += -q64
+  else
+  ifeq ($(IS_PPC32)$(HAVE_BITS),10)
+    CXXFLAGS += -q32
+  endif
+  endif
+  ifeq ($(findstring -q64,$(CXXFLAGS)),-q64)
+    ifeq ($(findstring -X64,$(CXXFLAGS)),-X64)
+      ARFLAGS := -r -X64
+    endif
+  else
+  ifeq ($(findstring -q32,$(CXXFLAGS)),-q32)
+    ifeq ($(findstring -X32,$(CXXFLAGS)),-X32)
+      ARFLAGS := -r -X32
+    endif
+  endif
+  endif
 endif
 
-endif	# IS_X86
+endif  # X86, X64, ARM32, ARM64, PPC32, PPC64, etc
 
 ###########################################################
 #####                      Common                     #####
