@@ -6,7 +6,7 @@ Currently the library contains the following algorithms:
 
                    algorithm type  name
 
- authenticated encryption schemes  GCM, CCM, EAX, OCB
+ authenticated encryption schemes  GCM, CCM, EAX
 
         high speed stream ciphers  ChaCha (ChaCha8/12/20), Panama, Sosemanuk,
                                    Salsa20, XSalsa20
