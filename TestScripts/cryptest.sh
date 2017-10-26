@@ -143,13 +143,13 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
 	elif [[ ("$IS_DRAGONFLY" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(dmesg | grep Features)
 	else
-		X86_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' | cut -f 2 -d ':')
+		X86_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
 	fi
 elif [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 	if [[ ("$IS_DARWIN" -ne "0") ]]; then
-		ARM_CPU_FLAGS=$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')
+		ARM_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
 	else
-		ARM_CPU_FLAGS=$(cat /proc/cpuinfo 2>&1 | "$AWK" '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' | cut -f 2 -d ':')
+		ARM_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
 	fi
 fi
 
@@ -220,17 +220,10 @@ if [[ ("$SUN_COMPILER" -eq "0") ]]; then
 fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
-CLANG_37_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'clang version (3\.[7-9]|[4-9]\.[0-9])')
-GCC_70_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (7\.[0-9]|[8-9])')
-GCC_60_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (6\.[0-9]|[7-9])')
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (5\.[1-9]|[6-9])')
 GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.8')
-GCC_49_COMPILER=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.9')
-GCC_49_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (4\.9|[5-9]\.[0-9])')
 SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
 SUNCC_511_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)")
-SUNCC_512_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|[6-9]\.)")
-SUNCC_513_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|[6-9]\.)")
 
 # Fixup, bad code generation
 if [[ ("$SUNCC_510_OR_ABOVE" -ne "0") ]]; then
@@ -351,26 +344,14 @@ OPT_O1=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O1 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
+	HAVE_O1=1
 	OPT_O1=-O1
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO1 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
+		HAVE_O1=1
 		OPT_O1=-xO1
-	fi
-fi
-
-# Use a fallback strategy so OPT_O2 can be used with RELEASE_CXXFLAGS
-OPT_O2=
-rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-"$CXX" -DCRYPTOPP_ADHOC_MAIN -O2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
-	OPT_O2=-O2
-else
-	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
-		OPT_O2=-xO2
 	fi
 fi
 
@@ -379,11 +360,13 @@ OPT_O3=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ ("$?" -eq "0") ]]; then
+	HAVE_O3=1
 	OPT_O3=-O3
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq "0") ]]; then
+		HAVE_O3=1
 		OPT_O3=-xO3
 	fi
 fi
@@ -640,10 +623,6 @@ if [[ ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0") ]]; then
 		if [[ ("$HAVE_ARM_NEON" -gt "0") ]]; then HAVE_ARM_NEON=1; fi
 	fi
 
-	if [[ (-z "$HAVE_ARMV8A") ]]; then
-		HAVE_ARMV8="$IS_ARM64"
-	fi
-
 	if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
 		HAVE_ARM_CRYPTO=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(aes|pmull|sha1|sha2)')
 		if [[ ("$HAVE_ARM_CRYPTO" -gt "0") ]]; then HAVE_ARM_CRYPTO=1; fi
@@ -678,7 +657,8 @@ if [[ (-z "$HAVE_SYMBOLIZE") && (! -z "$ASAN_SYMBOLIZER_PATH") ]]; then
 			LLVM_SYMBOLIZER_FOUND=1;
 		fi
 		if [[ ("$LLVM_SYMBOLIZER_FOUND" -ne "0") ]]; then
-			export ASAN_SYMBOLIZER_PATH=$(command -v llvm-symbolizer)
+			ASAN_SYMBOLIZER_PATH=$(command -v llvm-symbolizer)
+			export ASAN_SYMBOLIZER_PATH
 		fi
 	fi
 fi
@@ -841,39 +821,37 @@ CPU_COUNT=1
 MEM_SIZE=512
 
 if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
-	CPU_COUNT=$(cat /proc/cpuinfo 2>&1 | "$GREP" -c -E '^processor')
-	MEM_SIZE=$(cat /proc/meminfo 2>&1 | "$GREP" "MemTotal" | "$AWK" '{print $2}')
-	MEM_SIZE=$(($MEM_SIZE/1024))
+	CPU_COUNT="$($GREP -c -E "^processor" < /proc/cpuinfo)"
+	MEM_SIZE="$($GREP "MemTotal" < /proc/meminfo | $AWK '{print int($2/1024)}')"
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
-	CPU_COUNT=$(sysctl -a 2>&1 | "$GREP" 'hw.availcpu' | "$AWK" '{print $3; exit}')
-	MEM_SIZE=$(sysctl -a 2>&1 | "$GREP" 'hw.memsize' | "$AWK" '{print $3; exit;}')
-	MEM_SIZE=$(($MEM_SIZE/1024/1024))
+	CPU_COUNT="$(sysctl -a 2>&1 | $GREP "hw.availcpu" | $AWK '{print $3; exit}')"
+	MEM_SIZE="$(sysctl -a 2>&1 | $GREP "hw.memsize" | $AWK '{print int($3/1024/1024); exit;}')"
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-	CPU_COUNT=$(psrinfo 2>/dev/null | wc -l | "$AWK" '{print $1}')
-	MEM_SIZE=$(prtconf 2>/dev/null | "$GREP" Memory | "$AWK" '{print $3}')
+	CPU_COUNT="$(psrinfo 2>/dev/null | wc -l | $AWK '{print $1}')"
+	MEM_SIZE="$(prtconf 2>/dev/null | $GREP "Memory" | $AWK '{print int($3)}')"
 elif [[ "$IS_AIX" -ne "0" ]]; then
-	CPU_COUNT=$(bindprocessor -q 2>/dev/null | cut -f 2 -d ':' | wc -w | "$AWK" '{print $1}')
-	MEM_SIZE=$(prtconf -m 2>/dev/null | "$GREP" 'MB' | "$AWK" '{print $3; exit;}')
+	CPU_COUNT="$(bindprocessor -q 2>/dev/null | cut -f 2 -d ":" | wc -w | $AWK '{print $1}')"
+	MEM_SIZE="$(prtconf -m 2>/dev/null | $GREP "MB" | $AWK '{print int($3); exit;}')"
 fi
 
 # Benchmarks expect frequency in GiHz.
 CPU_FREQ=0.5
 if [[ (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
-	CPU_FREQ=$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)
-	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024}")
+	CPU_FREQ="$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
 elif [[ (-e "/proc/cpuinfo") ]]; then
-	CPU_FREQ=$(cat /proc/cpuinfo 2>&1 | "$GREP" 'MHz' | "$AWK" '{print $4; exit}')
+	CPU_FREQ="$($GREP 'MHz' < /proc/cpuinfo | $AWK '{print $4; exit}')"
 	if [[ -z "$CPU_FREQ" ]]; then CPU_FREQ=512; fi
-	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
-	CPU_FREQ=$(sysctl -a 2>&1 | "$GREP" 'hw.cpufrequency' | "$AWK" '{print $3; exit;}')
-	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024/1024/1024}")
+	CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print ($3); exit;}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024/1024/1024}')"
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
-	CPU_FREQ=$(psrinfo -v 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $6; exit;}')
-	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
+	CPU_FREQ="$(psrinfo -v 2>/dev/null | $GREP "MHz" | $AWK '{print $6; exit;}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
 elif [[ "$IS_AIX" -ne "0" ]]; then
-	CPU_FREQ=$(prtconf -s 2>/dev/null | "$GREP" 'MHz' | "$AWK" '{print $4; exit;}')
-	CPU_FREQ=$("$AWK" "BEGIN {print $CPU_FREQ/1024}")
+	CPU_FREQ="$(prtconf -s 2>/dev/null | $GREP "MHz" | $AWK '{print $4; exit;}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
 fi
 
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
@@ -881,7 +859,7 @@ fi
 HAVE_SWAP=1
 if [[ "$IS_LINUX" -ne "0" ]]; then
 	if [[ (-e "/proc/meminfo") ]]; then
-		SWAP_SIZE=$(cat /proc/meminfo 2>&1 | "$GREP" "SwapTotal" | "$AWK" '{print $2}')
+		SWAP_SIZE="$($GREP 'SwapTotal' < /proc/meminfo | "$AWK" '{print $2}')"
 		if [[ "$SWAP_SIZE" -eq "0" ]]; then
 			HAVE_SWAP=0
 		fi
@@ -917,11 +895,11 @@ if [[ ! -z "$GIT_BRANCH" ]]; then
 fi
 
 if [[ ("$SUN_COMPILER" -ne "0") ]]; then
-	echo $("$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g' | head -1) | tee -a "$TEST_RESULTS"
+	"$CXX" -V 2>&1 | "$SED" 's|CC:|Compiler:|g' | head -1 | tee -a "$TEST_RESULTS"
 elif [[ ("$XLC_COMPILER" -ne "0") ]]; then
-	echo "Compiler:" $("$CXX" -qversion | head -1) | tee -a "$TEST_RESULTS"
+	echo "Compiler: $($CXX -qversion | head -1)" | tee -a "$TEST_RESULTS"
 else
-	echo "Compiler:" $("$CXX" --version | head -1) | tee -a "$TEST_RESULTS"
+	echo "Compiler: $($CXX --version | head -1)" | tee -a "$TEST_RESULTS"
 fi
 
 CXX_PATH=$(command -v "$CXX" 2>/dev/null)
@@ -972,21 +950,21 @@ if true; then
 	FAILED=0
 
 	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E '(assert.h|cassert)')
+	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c -E '(assert.h|cassert)')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found Posix assert headers" | tee -a "$TEST_RESULTS"
 	fi
 
 	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E 'assert[[:space:]]*\(')
+	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c -E 'assert[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found use of Posix assert" | tee -a "$TEST_RESULTS"
 	fi
 
 	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c 'NDEBUG')
+	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c 'NDEBUG')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found use of Posix NDEBUG" | tee -a "$TEST_RESULTS"
@@ -1010,14 +988,14 @@ if true; then
 	FAILED=0
 
 	# If this fires, then use the library's STDMIN(a,b) or (std::min)(a, b);
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E 'std::min[[:space:]]*\(')
+	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c -E 'std::min[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found std::min" | tee -a "$TEST_RESULTS"
 	fi
 
 	# If this fires, then use the library's STDMAX(a,b) or (std::max)(a, b);
-	COUNT=$(cat *.h *.cpp | "$GREP" -v '//' | "$GREP" -c -E 'std::max[[:space:]]*\(')
+	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c -E 'std::max[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found std::max" | tee -a "$TEST_RESULTS"
@@ -3202,7 +3180,7 @@ if [[ ("$HAVE_OMP" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG ${OMP_FLAGS[@]} $USER_CXXFLAGS"
+	CXXFLAGS="-DDEBUG ${OMP_FLAGS[*]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -3226,7 +3204,7 @@ if [[ ("$HAVE_OMP" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DNDEBUG ${OMP_FLAGS[@]} $USER_CXXFLAGS"
+	CXXFLAGS="-DNDEBUG ${OMP_FLAGS[*]} $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5018,7 +4996,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5056,7 +5034,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5073,7 +5051,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5094,7 +5072,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5111,7 +5089,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5132,7 +5110,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5149,7 +5127,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[@]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[*]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ "$?" -ne "0" ]]; then
@@ -5232,7 +5210,7 @@ fi
 # Perform a quick check with Intel ICPC, if available.
 if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
 
-	ICPC_CXX=$(command -v icpc++ 2>/dev/null)
+	INTEL_CXX=$(command -v icpc 2>/dev/null)
 	if [[ (-z "$INTEL_CXX") ]]; then
 		INTEL_CXX=$(find /opt/intel -name icpc 2>/dev/null | "$GREP" -iv composer | head -1)
 	fi
@@ -5539,7 +5517,7 @@ if [[ "$IS_DARWIN" -ne "0" ]]; then
 		XCODE_CXX=$(find /Developer/Applications/Xcode.app -name clang++ 2>/dev/null | head -1)
 	fi
 
-	if [[ !(-z "$XCODE_CXX") ]]; then
+	if [[ ! (-z "$XCODE_CXX") ]]; then
 		echo
 		echo "************************************" | tee -a "$TEST_RESULTS"
 		echo "Testing: Xcode Clang compiler" | tee -a "$TEST_RESULTS"
