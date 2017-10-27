@@ -50,7 +50,7 @@ IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Cygwin")
 IS_DARWIN := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Darwin")
 IS_NETBSD := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "NetBSD")
 
-SUN_COMPILER := $(shell $(CXX) -V 2>/dev/null | $(GREP) -i -c -E 'CC: (Sun|Studio)')
+SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E 'CC: (Sun|Studio)')
 GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -v -E '(llvm|clang)' | $(GREP) -i -c -E '(gcc|g\+\+)')
 XLC_COMPILER := $(shell $(CXX) $(CXX) -qversion 2>/dev/null |$(GREP) -i -c "IBM XL")
 CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c -E '(llvm|clang)')
