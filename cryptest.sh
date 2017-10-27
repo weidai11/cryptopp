@@ -838,20 +838,20 @@ fi
 CPU_FREQ=0.5
 if [[ (-e "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq") ]]; then
 	CPU_FREQ="$(cat /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq)"
-	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024; exit}')"
 elif [[ (-e "/proc/cpuinfo") ]]; then
 	CPU_FREQ="$($GREP 'MHz' < /proc/cpuinfo | $AWK '{print $4; exit}')"
 	if [[ -z "$CPU_FREQ" ]]; then CPU_FREQ=512; fi
-	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024}')"
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
 	CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print ($3); exit;}')"
-	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024/1024/1024}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
 elif [[ "$IS_SOLARIS" -ne "0" ]]; then
 	CPU_FREQ="$(psrinfo -v 2>/dev/null | $GREP "MHz" | $AWK '{print $6; exit;}')"
-	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024}')"
 elif [[ "$IS_AIX" -ne "0" ]]; then
 	CPU_FREQ="$(prtconf -s 2>/dev/null | $GREP "MHz" | $AWK '{print $4; exit;}')"
-	CPU_FREQ="$(echo $CPU_FREQ | $AWK 'BEGIN {print $0/1024}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024}')"
 fi
 
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
@@ -4436,7 +4436,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX03" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4475,7 +4475,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX11" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4514,7 +4514,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX14" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4553,7 +4553,7 @@ if [[ "$IS_DARWIN" -ne "0" && "$HAVE_INTEL_MULTIARCH" -ne "0" && "$HAVE_CXX17" -
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4592,7 +4592,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$HAVE_PPC_MULTIARCH" -ne "0") ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
