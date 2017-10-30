@@ -5170,7 +5170,7 @@ fi
 
 ############################################
 # C++03 with elevated warnings
-if [[ ("$HAVE_CXX03" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
+if [[ ("$HAVE_CXX03" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0")) ]]; then
 
 	############################################
 	# Debug build
@@ -5208,7 +5208,7 @@ fi
 
 ############################################
 # C++11 with elevated warnings
-if [[ ("$HAVE_CXX11" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
+if [[ ("$HAVE_CXX11" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0")) ]]; then
 
 	############################################
 	# Debug build
@@ -5246,7 +5246,7 @@ fi
 
 ############################################
 # C++14 with elevated warnings
-if [[ ("$HAVE_CXX14" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
+if [[ ("$HAVE_CXX14" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0")) ]]; then
 
 	############################################
 	# Debug build
@@ -5284,7 +5284,7 @@ fi
 
 ############################################
 # C++17 with elevated warnings
-if [[ ("$HAVE_CXX17" -ne "0" && ("$HAVE_GCC" -ne "0" || "$HAVE_CLANG" -ne "0")) ]]; then
+if [[ ("$HAVE_CXX17" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0")) ]]; then
 
 	############################################
 	# Debug build
