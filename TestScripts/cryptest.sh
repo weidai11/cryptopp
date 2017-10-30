@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 # cryptest.sh - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-#               Copyright assigned to Crypto++ project.
 
 # This is a test script that can be used on some Linux/Unix/Apple machines to automate building the
 # library and running the self test with various combinations of flags, options, and conditions.
@@ -29,6 +28,9 @@
 # You can reduce CPU load with the following. It will use half the number of CPU cores
 # rather than all of them. Its useful at places like the GCC Compile Farm, where being nice is policy.
 #     ./cryptest.sh nice
+
+# Keep the noise down
+# shellcheck disable=SC2181
 
 ############################################
 # Set to suite your taste
@@ -496,6 +498,19 @@ if [[ (-z "$HAVE_BSAN") ]]; then
 	fi
 fi
 
+# GCC 8.0; maybe Clang?
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_CET") ]]; then
+	HAVE_CET=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fcf-protection=full -mcet adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		if [[ ("$?" -eq "0") ]]; then
+			HAVE_CET=1
+		fi
+	fi
+fi
+
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_OMP") ]]; then
 	HAVE_OMP=0
@@ -698,6 +713,7 @@ if [[ "$XLC_COMPILER" -ne "0" ]]; then
 	HAVE_CXX17=0
 	HAVE_GNU17=0
 	HAVE_OMP=0
+	HAVE_CET=0
 	HAVE_ASAN=0
 	HAVE_BSAN=0
 	HAVE_UBSAN=0
@@ -803,6 +819,7 @@ echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 if [[ ("$HAVE_ASAN" -ne "0") && (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_BSAN: $HAVE_BSAN" | tee -a "$TEST_RESULTS"
+echo "HAVE_CET: $HAVE_CET" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 
 if [[ "$HAVE_INTEL_MULTIARCH" -ne "0" ]]; then
@@ -3437,6 +3454,62 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 		fi
 	fi
 fi
+############################################
+# CET, c++03
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
+
+	############################################
+	# Debug build, CET, c++03
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, c++03, CET" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build, CET, c++03
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++03, CET" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
 
 ############################################
 # UBSan, c++11
@@ -3656,6 +3729,63 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 fi
 
 ############################################
+# CET, c++11
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
+
+	############################################
+	# Debug build, CET, c++11
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, c++11, CET" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build, CET, c++11
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++11, CET" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Release build, UBSan, c++14
 if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
@@ -3751,6 +3881,34 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 fi
 
 ############################################
+# Release build, Control-flow Enforcement Technology (CET), c++14
+if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++14, CET" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Release build, UBSan, c++17
 if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
@@ -3829,6 +3987,34 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -fsanitize=bounds-strict $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Release build, Control-flow Enforcement Technology (CET), c++17
+if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++17, CET" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -fcf-protection=full -mcet $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5679,9 +5865,9 @@ if (( "$COUNT" == "0" )); then
 else
 	echo "$COUNT configurations tested" | tee -a "$TEST_RESULTS"
 	ESCAPED=$("$GREP" 'Testing: ' "$TEST_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
-	echo " "$ESCAPED | tr $ '\n' | tee -a "$TEST_RESULTS"
+	echo " $ESCAPED" | tr $ '\n' | tee -a "$TEST_RESULTS"
 	ESCAPED=$("$GREP" 'Testing: ' "$WARN_RESULTS" | "$AWK" -F ": " '{print " - " $2 "$"}')
-	echo " "$ESCAPED | tr '$' '\n' | tee -a "$TEST_RESULTS"
+	echo " $ESCAPED" | tr '$' '\n' | tee -a "$TEST_RESULTS"
 fi
 echo | tee -a "$TEST_RESULTS"
 
