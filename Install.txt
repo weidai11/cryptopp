@@ -33,7 +33,9 @@ In general, all you should have to do is open a terminal, and then:
     make test
     sudo make install
 
-The command above builds the static library and cryptest.exe program. If you want to build the shared object, then issue:
+The command above builds the static library and cryptest.exe program. It also uses a sane set of default flags, which are usually "-DNDEBUG -g2 -O3 -fPIC".
+
+If you want to build the shared object, then issue:
 
     make static dynamic cryptest.exe
 
@@ -47,19 +49,31 @@ If you would like to use a different compiler, the set CXX:
     export CXX=/opt/intel/bin/icpc
     make
 
+Or:
+
+    CXX=/opt/solarisstudio12.4/bin/CC make
+
 If you want to build using C++11, then:
 
-    make CXXFLAGS="-std=c++11"
+    export CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11"
+    make
 
 Or:
 
-    CXXFLAGS="-std=c++11"
-    make
+    CXXFLAGS="-DNDEBUG -g2 -O3 -std=c++11" make
 
 LLVM's libc++ is also supported, so you can:
 
-    CXXFLAGS="-std=c++11 -stdlib=libc++"
+    export CXXFLAGS="-std=c++11 -stdlib=libc++"
     make
+
+If you target 32-bit IA-32 machines (i386, i586 or i686), then the makefile forgoes -fPIC due to register pressures. You should add -fPIC yourself in this case:
+
+    CXXFLAGS="-DNDEBUG -g2 -O3 -fPIC" make
+
+You can also override a variable so that only your flags are present. That is, the makefile will not add additional flags. For example, the following build with only -std=c++11:
+
+    make CXXFLAGS="-std=c++11"
 
 
 ALTERNATE BUILD SYSTEMS
