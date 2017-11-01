@@ -10,18 +10,21 @@ CONTENTS OF THIS FILE
 * Acceptance Testing
 * Reporting problems
 
+
 INTRODUCTION
 ------------
 
-Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. It was written and placed in public domain by Wei Dai. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at http://github.com/weidai11/cryptopp. For licensing and copyright information, please see License.txt.
+Crypto++ Library is a free C++ class library of cryptographic algorithms and schemes. The library was originally written and placed in public domain by Wei Dai, but it is now maintained by the community. The library homepage is at http://www.cryptopp.com/. The latest library source code can be found at http://github.com/weidai11/cryptopp. For licensing and copyright information, please see License.txt.
 
-These are general instructions for the BSDs, Linux, OS X, Solaris and Unix. The library uses a GNU makefile, which combines configuration and a non-anemic make. On BSD and Solaris you will likely have to use `gmake` to build the library. On Linux, OS X and Unix, the system's make should be OK. On Windows, Crypto++ provides Borland and Visual Studio solutions.
+These are general instructions for the AIX, BSDs, Linux, OS X, Solaris and Unix. The library uses a GNU makefile, which combines configuration and a non-anemic make. On AIX, BSD and Solaris you will likely have to use `gmake` to build the library. On Linux, OS X and Unix, the system's make should be OK. On Windows, Crypto++ provides Visual Studio solutions.
 
-You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. If you need compatibility with Crypto++ 5.6.2, then you can use `config.compat` in place of `config.h`. You are discouraged from using `config.compat` because it re-introduces undefined behavior that was cleared at Crypto++ 5.6.3.
+You should look through the GNUmakefile and config.h to ensure settings look reasonable before building. There are two wiki pages that help explain them at http://www.cryptopp.com/wiki/GNUmakefile and http://www.cryptopp.com/wiki/Config.h.
 
-Wiki pages are available for some platforms with specific build instructions. The wiki can be found at http://cryptopp.com/wiki/. The pages include Android, ARM, iOS and Solaris. Solaris users should visit the wiki for important information on compiling the library with different versions of SunCC and options, and information on improving library performance and features.
+Wiki pages are available for some platforms with specific build instructions. The pages include Android, ARM, iOS, MSBuild and Solaris. Solaris users should visit the wiki for important information on compiling the library with different versions of SunCC and options, and information on improving library performance and features.
 
 Crypto++ does not depend upon other tools or libraries. It does not use Autotools, does not use CMake, and does not use Boost. If you use an alternate build system, like Autotools or CMake, then see the warning below about CXXFLAGS and lack of -DNDEBUG. CMake is available in Master as a matter of convenience, but its not officially supported.
+
+There is a partially complete CmakeList.txt available on the wiki at http://www.cryptopp.com/wiki/CMake. It is not recommended for use because it is not in a good state. If you have CMake expertise and can work some problems, then please see the wiki page for tasks related to CMake.
 
 
 BUILDING THE LIBRARY
@@ -71,7 +74,7 @@ If you target 32-bit IA-32 machines (i386, i586 or i686), then the makefile forg
 
     CXXFLAGS="-DNDEBUG -g2 -O3 -fPIC" make
 
-You can also override a variable so that only your flags are present. That is, the makefile will not add additional flags. For example, the following build with only -std=c++11:
+You can also override a variable so that only your flags are present. That is, the makefile will not add additional flags. For example, the following builds with only -std=c++11:
 
     make CXXFLAGS="-std=c++11"
 
@@ -81,13 +84,14 @@ ALTERNATE BUILD SYSTEMS
 
 The Crypto++ library is Make based and uses GNU Make by default. The makefile uses '-DNDEBUG -g2 -O2' CXXFLAGS by default. If you use an alternate build system, like Autotools or CMake, then ensure the build system includes '-DNDEBUG' for production or release builds. The Crypto++ library uses asserts for debugging and diagnostics during development; it does not rely on them to crash a program at runtime.
 
-If an assert triggers in production software, then unprotected sensitive information could be egressed from the program to the filesystem or the platform's error reporting program, like Apport on Ubuntu or CrashReporter on Apple.
+If an assert triggers in production software, then unprotected sensitive information could be written to the filesystem and could be egressed to the platform's error reporting program, like Apport on Ubuntu, CrashReporter on Apple and Windows Error Reporting on Microsoft OSes.
 
 The makefile orders object files to help remediate problems associated with C++ static initialization order. The library does not use custom linker scripts. If you use an alternate build system, like Autotools or CMake, and collect source files into a list, then ensure these three are at the head of the list: 'cryptlib.cpp cpu.cpp integer.cpp <other sources>'. They should be linked in the same order: 'cryptlib.o cpu.o integer.o <other objects>'.
 
 If your linker supports initialization attributes, like init_priority, then you can define CRYPTOPP_INIT_PRIORITY to control object initialization order. Set it to a value like 250. User programs can use CRYPTOPP_USER_PRIORITY to avoid conflicts with library values. Initialization attributes are more reliable than object file ordering, but its not ubiquitously supported by linkers.
 
-The makefile links to the static version of the Crypto++ library to avoid binary planting and other LD_PRELOAD tricks. You should use the static version of the library in your programs to help avoid unwanted redirections.
+The makefile links to the static version of the Crypto++ library to avoid missing dynamic libraries, incorrect dynamic libraries, binary planting and other LD_PRELOAD tricks. You should use the static version of the library in your programs to help avoid unwanted redirections.
+
 
 INSTALLING THE LIBRARY
 ----------------------
@@ -134,7 +138,7 @@ The following are some of the targets provided by the GNU makefile.
 DYNAMIC ANALYSIS
 ----------------
 
-The Crypto++ embraces tools like Undefined Behavior sanitizer (UBsan), Address sanitizer (Asan) and Valgrind. Both Clang 3.2 and above and GCC 4.8 and above provide sanitizers. Please check with your distribution on how to install the compiler with its sanitizer libraries (they are sometimes a separate install item).
+The Crypto++ embraces tools like Undefined Behavior sanitizer (UBsan), Address sanitizer (Asan), Bounds sanitizer (Bsan), Coverity Scan and Valgrind. Both Clang 3.2 and above and GCC 4.8 and above provide sanitizers. Please check with your distribution on how to install the compiler with its sanitizer libraries (they are sometimes a separate install item).
 
 UBsan and Asan are mutually exclusive options, so you can perform only one of these at a time:
 
@@ -164,13 +168,15 @@ ACCEPTANCE TESTING
 
 Crypto++ uses five security gates in its engineering process. The library must maintain the quality provided by the review system and integrity of the test suites. You can use the information to decide if the Crypto++ library suits your needs and provides a compatible security posture.
 
-The first gate is code review and discussion of proposed patches. Git commits often cross reference a User Group discussions.
+The first gate is code review and discussion of proposed chnages. Git commits often cross reference a User Group discussions.
 
 Second is the compiler warning system. The code must clean compile under the equivalent of GCC's -Wall -Wextra (modulo -Wno-type-limits -Wno-unknown-pragmas). This is a moving target as compiler analysis improves.
 
-Third, the code must pass cleanly though GCC and Clang's Undefined Behavior sanitizer (UBsan) and Address sanitizer (Asan) with CRYPTOPP_NO_UNALIGNED_DATA_ACCESS defined in config.h. See DYNAMIC ANALYSIS above on how to execute them.
+Third, the code must pass cleanly though GCC and Clang's Undefined Behavior sanitizer (UBsan), Address sanitizer (Asan) and Bounds sanitizer (Bsan). See DYNAMIC ANALYSIS above on how to execute them.
 
-Fourth, the test harness provides a "validation" option which performs basic system checks (like endianness and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite as shown below. The tail of the output should indicate 0 failed tests.
+Fourth, the code must pass cleanly though Coverity Scan and Valgrind. Valgrind testing is performed at -O1 in accordance with Valgrind recommendations.
+
+Fifth, the test harness provides a "validation" option which performs basic system checks (like endianness and word sizes) and exercises algorithms (like AES and SHA). You run the validation suite as shown below. The tail of the output should indicate 0 failed tests.
 
     ./cryptest.exe v
     ...
@@ -179,7 +185,7 @@ Fourth, the test harness provides a "validation" option which performs basic sys
     Test ended at Sun Jul 26 02:10:57 2015
     Seed used was: 1437891055
 
-Fifth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors as shown below. The tail of the output should indicate 0 failed tests.
+Sixth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors as shown below. The tail of the output should indicate 0 failed tests.
 
     ./cryptest.exe tv all
     ...
@@ -196,4 +202,4 @@ REPORTING PROBLEMS
 
 Dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at http://groups.google.com/forum/#!forum/cryptopp-users.
 
-Also see http://www.cryptopp.com/wiki/Bug_Report.
+The library uses Wei Dai's GitHub to track issues. The tracker is located at http://github.com/weidai11/cryptopp/issues. Please do not ask questions in the bug tracker; ask questions on the mailing list instead. Also see http://www.cryptopp.com/wiki/Bug_Report.
