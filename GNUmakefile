@@ -790,7 +790,7 @@ clean:
 
 .PHONY: distclean
 distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied cryptopp.mapfile GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
