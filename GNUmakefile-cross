@@ -273,11 +273,15 @@ endif
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
 
+# For Makefile.am; resource.h is Windows
+INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
+
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 
 # List test.cpp first to tame C++ static initialization problems.
 TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp
+TESTINCL := bench.h factory.h validate.h
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -336,7 +340,8 @@ distclean: clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied cryptopp.mapfile GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
-	@-$(RM) -f configure.ac Makefile.* *.m4 local.* lt*.sh depcomp install-sh configure compile libtool stamp-h1
+	@-$(RM) -f configure.ac configure Makefile.am Makefile *.m4 local.* lt*.sh missing libtool
+	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile stamp-h1
 	@-$(RM) -rf m4/ auto*.cache/ .deps/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
@@ -408,7 +413,11 @@ cryptest.exe: libcryptopp.a $(TESTOBJS)
 sources:
 	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
 	$(info )
+	$(info Library headers: $(filter-out $(TESTINCL),$(INCL)))
+	$(info )
 	$(info Test sources: $(TESTSRCS))
+	$(info )
+	$(info Test headers: $(TESTINCL))
 
 adhoc.cpp: adhoc.cpp.proto
 ifeq ($(wildcard adhoc.cpp),)

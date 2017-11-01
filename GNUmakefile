@@ -650,9 +650,12 @@ endif # HAS_SOLIB_VERSION
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
+# For Makefile.am; resource.h is Windows
+INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 
 ifneq ($(IS_MINGW),0)
 SRCS += winpipes.cpp
+INCL += resource.h
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -670,6 +673,8 @@ endif # Nasm
 
 # List test.cpp first to tame C++ static initialization problems.
 TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp dlltest.cpp fipsalgt.cpp
+TESTINCL := bench.h factory.h validate.h
+# Test objects
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -744,7 +749,11 @@ test check: cryptest.exe
 sources: adhoc.cpp
 	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
 	$(info )
+	$(info Library headers: $(filter-out $(TESTINCL),$(INCL)))
+	$(info )
 	$(info Test sources: $(TESTSRCS))
+	$(info )
+	$(info Test headers: $(TESTINCL))
 
 # Directory we want (can't specify on Doygen command line)
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
@@ -785,7 +794,8 @@ distclean: clean
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
-	@-$(RM) -f configure.ac Makefile.* *.m4 local.* lt*.sh depcomp install-sh configure compile libtool stamp-h1
+	@-$(RM) -f configure.ac configure Makefile.am Makefile *.m4 local.* lt*.sh missing libtool
+	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile stamp-h1
 	@-$(RM) -rf m4/ auto*.cache/ .deps/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
