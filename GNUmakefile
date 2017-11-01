@@ -785,7 +785,8 @@ distclean: clean
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
-	@-$(RM) -rf Makefile.am configure.ac aclocal.m4 depcomp missing install-sh configure Makefile auto*.cache/
+	@-$(RM) -f configure.ac Makefile.* *.m4 local.* lt*.sh depcomp install-sh configure compile libtool stamp-h1
+	@-$(RM) -rf m4/ auto*.cache/ .deps/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
 	@-$(RM) CryptoPPRef.zip
