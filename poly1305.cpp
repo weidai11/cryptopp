@@ -262,6 +262,7 @@ void Poly1305_Base<T>::Restart()
 	m_idx = 0;
 }
 
+template class Poly1305_Base<AES>;
 template class Poly1305<AES>;
 
 NAMESPACE_END
