@@ -903,7 +903,7 @@ dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
+TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.cmd
 EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/ TestScripts/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
@@ -926,8 +926,8 @@ endif
 convert:
 	@-$(CHMOD) 0700 TestVectors/ TestData/ TestScripts/
 	@-$(CHMOD) 0600 $(TEXT_FILES) .*.yml *.asm *.s *.zip TestVectors/*.txt TestData/*.dat TestScripts/*.*
-	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.pl TestScripts/*.cmd
-	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh TestScripts/*.pl
+	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.cmd
+	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh
 	-unix2dos --keepdate --quiet $(TEXT_FILES) .*.yml *.asm *.cmd TestScripts/*.*
 	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.s *.sh *.mapfile TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
