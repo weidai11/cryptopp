@@ -262,6 +262,6 @@ void Poly1305_Base<T>::Restart()
 	m_idx = 0;
 }
 
-template class Poly1305<AES>;
+CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS Poly1305<AES>;
 
 NAMESPACE_END

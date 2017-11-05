@@ -781,7 +781,7 @@ clean:
 	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct et
-	@-$(RM) *.gcov *.gcno *.gcda *.stackdump core core-*
+	@-$(RM) *.la *.gcov *.gcno *.gcda *.stackdump core core-*
 	@-$(RM) /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
 	@-$(RM) -r *.exe.dSYM/
@@ -794,8 +794,9 @@ distclean: clean
 	@-$(RM) cryptopp.tgz *.o *.bc *.ii *~
 	@-$(RM) -r $(SRCS:.cpp=.obj) cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
-	@-$(RM) -f configure.ac configure Makefile.am Makefile *.m4 local.* lt*.sh missing libtool
-	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile stamp-h1
+	@-$(RM) -f configure.ac configure configure.in Makefile.am Makefile.in Makefile
+	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile
+	@-$(RM) -f stamp-h1 ar-lib *.m4 local.* lt*.sh missing libtool
 	@-$(RM) -rf m4/ auto*.cache/ .deps/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
@@ -980,7 +981,7 @@ rdrand-%.o:
 	./rdrand-nasm.sh
 endif
 
-# SSE4.2 or NEON available
+# SSSE3 or NEON available
 aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
