@@ -2218,6 +2218,63 @@ if true; then
 fi
 
 ############################################
+# Debug build, CRYPTOPP_NO_CXX11
+if [[ "$HAVE_CXX11" -ne "0" ]] || [[ "$HAVE_GNU11" -ne "0" ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, CRYPTOPP_NO_CXX11" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_CRYPTOPP_NO_CXX11=1"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, CRYPTOPP_NO_CXX11" | tee -a "$TEST_RESULTS"
+	echo
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_CRYPTOPP_NO_CXX11=1"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # c++03 debug and release build
 if [[ "$HAVE_CXX03" -ne "0" ]]; then
 
