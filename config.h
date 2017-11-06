@@ -942,7 +942,15 @@ NAMESPACE_END
 #if (CRYPTOPP_MSC_VERSION >= 1700) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || \
 	(CRYPTOPP_APPLE_CLANG_VERSION >= 50000) || (__INTEL_COMPILER >= 1200) || \
 	(CRYPTOPP_GCC_VERSION >= 40400) || (__SUNPRO_CC >= 0x5130)
-# define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+// Hack ahead. New GCC compilers like GCC 6 on AIX 7.0 or earlier as well as original MinGW
+// don't have the synchronization gear. However, Wakely's test used for Apple does not work
+// on the GCC/AIX combination. Another twist is we need other stuff from C++11,
+// like no-except destructors. Dumping preprocessors shows the following may
+// apply: http://stackoverflow.com/q/14191566/608639.
+# include <cstddef>
+# if !defined(__GLIBCXX__) || defined(_GLIBCXX_HAS_GTHREADS)
+#  define CRYPTOPP_CXX11_SYNCHRONIZATION 1
+# endif
 #endif // synchronization
 
 // Dynamic Initialization and Destruction with Concurrency ("Magic Statics")
@@ -1002,17 +1010,6 @@ NAMESPACE_END
 // TODO: Emplacement, R-values and Move semantics
 
 #endif // CRYPTOPP_CXX11
-
-// Hack ahead. New GCC compilers like GCC 6 on AIX 7.0 or earlier don't have the
-//   synchronization gear. However, Wakely's test used for Apple does not work
-//   on the GCC/AIX combination. Another twist is we need other stuff from C++11,
-//   like no-except destructors. Dumping preprocessors shows the following may
-//   apply: http://stackoverflow.com/q/14191566/608639.
-#if defined(_AIX) && defined(__GNUC__)
-#  if !defined(_GLIBCXX_HAS_GTHREADS)
-#    undef CRYPTOPP_CXX11_SYNCHRONIZATION
-#  endif
-#endif
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
