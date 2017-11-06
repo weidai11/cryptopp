@@ -30,6 +30,14 @@
 # include <sanitizer/msan_interface.h>
 #endif
 
+// From http://groups.google.com/d/msg/cryptopp-users/MzvocLrbIpE/TMCa6LFhCgAJ,
+// <wspiapi.h> is a compatibility header and it needs _WIN32_WINNT >= 0x501.
+// The work-around should be OK since it won't cross-pollinate into header files.
+#if defined(__MINGW32__) && (_WIN32_WINNT < 0x501)
+# undef _WIN32_WINNT
+# define _WIN32_WINNT 0x501
+#endif
+
 #ifdef USE_WINDOWS_STYLE_SOCKETS
 # pragma comment(lib, "ws2_32.lib")
 # if defined(_WIN32_WINNT) && (_WIN32_WINNT < 0x501)
