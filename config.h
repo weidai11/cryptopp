@@ -54,9 +54,19 @@
 # endif
 #endif
 
+// Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
+// end of this file. Some compilers and standard C++ headers advertise C++11
+// but they are really just C++03 with some additional C++11 headers and
+// non-conforming classes. You might also consider `-std=c++03` or
+// `-std=gnu++03`, but they are required options when building the library
+// and all programs. CRYPTOPP_NO_CXX11 is probably easier to manage but it may
+// cause -Wterminate warnings under GCC. MSVC++ has a similar warning.
+// Also see https://github.com/weidai11/cryptopp/issues/529
+// #define CRYPTOPP_NO_CXX11 1
+
 // Define this to allow unaligned data access. If you experience a break with
 // GCC at -O3, you should immediately suspect unaligned data accesses.
-// #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+// #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS 1
 
 // ***************** Less Important Settings ***************
 
@@ -895,8 +905,11 @@ NAMESPACE_END
 // Intel and C++11 language features, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
 // GCC and C++11 language features, http://gcc.gnu.org/projects/cxx0x.html
 // Clang and C++11 language features, http://clang.llvm.org/cxx_status.html
-#if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
-# define CRYPTOPP_CXX11 1
+
+#if !defined(CRYPTOPP_NO_CXX11)
+#  if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
+#    define CRYPTOPP_CXX11 1
+#  endif
 #endif
 
 // Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
