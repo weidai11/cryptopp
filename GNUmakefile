@@ -46,6 +46,7 @@ IS_SUN := $(shell uname -s | $(GREP) -i -c "SunOS")
 
 IS_LINUX := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Linux")
 IS_MINGW := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "MinGW")
+IS_MINGW32 := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -x -c "mingw32")
 IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Cygwin")
 IS_DARWIN := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Darwin")
 IS_NETBSD := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "NetBSD")
@@ -152,6 +153,20 @@ endif
 
 # Clang integrated assembler will be used with -Wa,-q
 CLANG_INTEGRATED_ASSEMBLER ?= 0
+
+# original MinGW targets Win2k by default, but lacks proper Win2k support
+# if target Windows version is not specified, use Windows XP instead
+ifeq ($(IS_MINGW32),1)
+ifeq ($(findstring -D_WIN32_WINNT,$(CXXFLAGS)),)
+ifeq ($(findstring -D_WIN32_WINDOWS,$(CXXFLAGS)),)
+ifeq ($(findstring -DWINVER,$(CXXFLAGS)),)
+ifeq ($(findstring -DNTDDI_VERSION,$(CXXFLAGS)),)
+  CXXFLAGS += -D_WIN32_WINNT=0x0501
+endif # NTDDI_VERSION
+endif # WINVER
+endif # _WIN32_WINDOWS
+endif # _WIN32_WINNT
+endif # IS_MINGW32
 
 ###########################################################
 #####               X86/X32/X64 Options               #####
