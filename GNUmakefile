@@ -796,7 +796,7 @@ distclean: clean
 	@-$(RM) -r $(DOCUMENT_DIRECTORY)/
 	@-$(RM) -f configure.ac configure configure.in Makefile.am Makefile.in Makefile
 	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile
-	@-$(RM) -f stamp-h1 ar-lib *.m4 local.* lt*.sh missing libtool
+	@-$(RM) -f stamp-h1 ar-lib *.m4 local.* lt*.sh missing libtool* libcryptopp.pc*
 	@-$(RM) -rf m4/ auto*.cache/ .deps/ .libs/
 	@-$(RM) -r TestCoverage/
 	@-$(RM) cryptopp$(LIB_VER)\.*
