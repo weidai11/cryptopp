@@ -69,12 +69,12 @@
 #    define GCC_RDSEED_ASM_AVAILABLE 1
 #  endif
 # elif defined(CRYPTOPP_GCC_VERSION)
-#  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 40600) && !defined(__OPTIMIZE__)
+#  if defined(__RDRND__) && (CRYPTOPP_GCC_VERSION >= 40700) && !defined(__OPTIMIZE__)
 #    define ALL_RDRAND_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
-#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40600) && !defined(__OPTIMIZE__)
+#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40700) && !defined(__OPTIMIZE__)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
