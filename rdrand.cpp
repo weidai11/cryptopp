@@ -87,7 +87,7 @@
 
 #if (ALL_RDRAND_INTRIN_AVAILABLE || ALL_RDSEED_INTRIN_AVAILABLE)
 # include <immintrin.h> // rdrand, MSC, ICC, GCC, and SunCC
-# if defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 40600)
+# if defined(__GNUC__) && (CRYPTOPP_GCC_VERSION >= 40700)
 #  include <x86intrin.h> // rdseed for some compilers, like GCC
 # endif
 # if defined(__has_include)
@@ -134,7 +134,7 @@ inline void RDRAND32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
+#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40700)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -176,7 +176,7 @@ inline void RDRAND64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
+#elif defined(GCC_RDRAND_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40700)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -291,7 +291,7 @@ inline void RDSEED32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40700)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -333,7 +333,7 @@ inline void RDSEED64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40600)
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40700)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
