@@ -161,7 +161,7 @@ bool CPU_ProbeAES()
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 const word32 s_one[] = {0, 0, 0, 1<<24};  // uint32x4_t
 #else
 const word32 s_one[] = {0, 0, 0, 1};      // uint32x4_t
@@ -775,7 +775,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 /* Round constants */
 static const uint32_t s_rcon[3][4] = {
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 	{0x01,0x01,0x01,0x01},   /*  1 */
 	{0x1b,0x1b,0x1b,0x1b},   /*  9 */
 	{0x36,0x36,0x36,0x36}    /* 10 */
@@ -788,7 +788,7 @@ static const uint32_t s_rcon[3][4] = {
 
 /* Permute mask */
 static const uint32_t s_mask[4] = {
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 	0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d
 #else
 	0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c
@@ -963,7 +963,7 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F6 func6, const word32 *s
 	{
 		while (length >= 6*blockSize)
 		{
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 			const VectorType one = (VectorType)((uint64x2_p8){1,0});
 #else
 			const VectorType one = (VectorType)((uint64x2_p8){0,1});
@@ -1075,7 +1075,7 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 		uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
 		uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey(s_mask);
 
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 		// Only the user key requires byte reversing.
 		// The subkeys are stored in proper endianess.
 		ReverseByteArrayLE(skptr);
@@ -1136,7 +1136,7 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 			rk += keyLen/4;
 		}
 
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 		rk = rk_saved;
 		const uint8x16_p8 mask = ((uint8x16_p8){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
 		const uint8x16_p8 zero = {0};

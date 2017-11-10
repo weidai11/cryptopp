@@ -1034,9 +1034,9 @@ inline bool IsAligned(const void *ptr)
 	return IsAlignedOn(ptr, GetAlignmentOf<T>());
 }
 
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 	typedef LittleEndian NativeByteOrder;
-#elif defined(IS_BIG_ENDIAN)
+#elif defined(CRYPTOPP_BIG_ENDIAN)
 	typedef BigEndian NativeByteOrder;
 #else
 # error "Unable to determine endian-ness"
@@ -1045,9 +1045,9 @@ inline bool IsAligned(const void *ptr)
 //! \brief Returns NativeByteOrder as an enumerated ByteOrder value
 //! \returns LittleEndian if the native byte order is little-endian, and BigEndian if the
 //!   native byte order is big-endian
-//! \details NativeByteOrder is a typedef depending on the platform. If IS_LITTLE_ENDIAN is
+//! \details NativeByteOrder is a typedef depending on the platform. If CRYPTOPP_LITTLE_ENDIAN is
 //!   set in config.h, then GetNativeByteOrder returns LittleEndian. If
-//!   IS_BIG_ENDIAN is set, then GetNativeByteOrder returns BigEndian.
+//!   CRYPTOPP_BIG_ENDIAN is set, then GetNativeByteOrder returns BigEndian.
 //! \note There are other byte orders besides little- and big-endian, and they include bi-endian
 //!   and PDP-endian. If a system is neither little-endian nor big-endian, then a compile time
 //!   error occurs.

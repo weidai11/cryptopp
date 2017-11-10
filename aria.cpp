@@ -269,7 +269,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16; ARIA_FE;
 	ARIA_KXL; rk+= 16; ARIA_FO; ARIA_KXL; rk+= 16;
 
-#ifdef IS_LITTLE_ENDIAN
+#ifdef CRYPTOPP_LITTLE_ENDIAN
 # if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
 	{

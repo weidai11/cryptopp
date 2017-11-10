@@ -56,9 +56,9 @@ typedef uint64x2_p8 VectorType;
 //! \since Crypto++ 6.0
 inline void ReverseByteArrayLE(byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION) && defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_XLC_VERSION) && defined(CRYPTOPP_LITTLE_ENDIAN)
 	vec_st(vec_reve(vec_ld(0, src)), 0, src);
-#elif defined(IS_LITTLE_ENDIAN)
+#elif defined(CRYPTOPP_LITTLE_ENDIAN)
 	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
 	const uint8x16_p8 zero = {0};
 	vec_vsx_st(vec_perm(vec_vsx_ld(0, src), zero, mask), 0, src);
@@ -91,7 +91,7 @@ inline VectorType VectorLoadBE(const uint8_t src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl_be(0, (uint8_t*)src);
 #else
-# if defined(IS_LITTLE_ENDIAN)
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
 	return (VectorType)Reverse(vec_vsx_ld(0, (uint8_t*)src));
 # else
 	return (VectorType)vec_vsx_ld(0, (uint8_t*)src);
@@ -112,7 +112,7 @@ inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
 	return (VectorType)vec_xl_be(off, (uint8_t*)src);
 #else
-# if defined(IS_LITTLE_ENDIAN)
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
 	return (VectorType)Reverse(vec_vsx_ld(off, (uint8_t*)src));
 # else
 	return (VectorType)vec_vsx_ld(off, (uint8_t*)src);
@@ -211,7 +211,7 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
-# if defined(IS_LITTLE_ENDIAN)
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
 	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
 # else
 	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
@@ -234,7 +234,7 @@ inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, off, (uint8_t*)dest);
 #else
-# if defined(IS_LITTLE_ENDIAN)
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
 	vec_vsx_st(Reverse((uint8x16_p8)src), off, (uint8_t*)dest);
 # else
 	vec_vsx_st((uint8x16_p8)src, off, (uint8_t*)dest);
@@ -257,7 +257,7 @@ inline void VectorStore(const T& src, byte dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
 #else
-# if defined(IS_LITTLE_ENDIAN)
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
 	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
 # else
 	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
@@ -281,7 +281,7 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
 	vec_xst_be((uint8x16_p8)src, off, (uint8_t*)dest);
 #else
-# if defined(IS_LITTLE_ENDIAN)
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
 	vec_vsx_st(Reverse((uint8x16_p8)src), off, (uint8_t*)dest);
 # else
 	vec_vsx_st((uint8x16_p8)src, off, (uint8_t*)dest);
@@ -359,7 +359,7 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 template <unsigned int C, class T1, class T2>
 inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
-#if defined(IS_LITTLE_ENDIAN)
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
 	return (T1)vec_sld((uint8x16_p8)vec2, (uint8x16_p8)vec1, 16-C);
 #else
 	return (T1)vec_sld((uint8x16_p8)vec1, (uint8x16_p8)vec2, C);

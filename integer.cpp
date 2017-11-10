@@ -318,7 +318,7 @@ public:
 #endif
 	{
 #if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-#  if defined(IS_LITTLE_ENDIAN)
+#  if defined(CRYPTOPP_LITTLE_ENDIAN)
 		const word t[2] = {low,high};
 		memcpy(&m_whole, &t, sizeof(m_whole));
 #  else
@@ -423,7 +423,7 @@ private:
 	//   Thanks to Martin Bonner at http://stackoverflow.com/a/39507183
     struct half_words
     {
-    #ifdef IS_LITTLE_ENDIAN
+    #ifdef CRYPTOPP_LITTLE_ENDIAN
         word low;
         word high;
     #else
