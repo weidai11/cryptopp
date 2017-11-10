@@ -275,7 +275,7 @@ fi
 FOUND_ALL=1
 
 # Apple's embedded g++ cannot compile integer.cpp
-TOOLS=(clang clang++ ar ranlib libtool ld)
+TOOLS=(clang clang++ libtool ld)
 for tool in ${TOOLS[@]}
 do
 	if [ ! -e "$IOS_TOOLCHAIN/$tool" ] && [ ! -e "$XCODE_TOOLCHAIN/$tool" ]; then
@@ -287,6 +287,17 @@ done
 if [ "$FOUND_ALL" -eq "0" ]; then
 	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
+
+# Exports added for Autotools. GNUmakefile-cross does not use them.
+# What to do for AR=libtool and ARFLAGS?
+export CPP="$IOS_TOOLCHAIN/cpp"
+export CC="$IOS_TOOLCHAIN/clang"
+export CXX="$IOS_TOOLCHAIN/clang++"
+export LD="$IOS_TOOLCHAIN/ld"
+export AS="$IOS_TOOLCHAIN/as"
+export AR="$IOS_TOOLCHAIN/ar"
+export RANLIB="$IOS_TOOLCHAIN/ranlib"
+export STRIP="$IOS_TOOLCHAIN/strip"
 
 echo
 echo "*******************************************************************************"
