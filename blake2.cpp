@@ -12,7 +12,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Uncomment for benchmarking C++ against SSE2 or NEON
+// Uncomment for benchmarking C++ against SSE2 or NEON.
+// Do so in both blake2.cpp and blake2-simd.cpp.
 // #undef CRYPTOPP_SSE42_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 

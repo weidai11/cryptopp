@@ -80,6 +80,9 @@ CRYPTOPP_DLL void CRYPTOPP_API DetectX86Features();
 CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[4]);
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
+//! \name IA-32 CPU FEATURES
+//@{
+
 //! \brief Determines SSE2 availability
 //! \returns true if SSE2 is determined to be available, false otherwise
 //! \details MMX, SSE and SSE2 are core processor features for x86_64, and
@@ -264,6 +267,8 @@ inline int GetCacheLineSize()
 		DetectX86Features();
 	return g_cacheLineSize;
 }
+//@}
+
 #endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
 // ***************************** ARM-32, Aarch32 and Aarch64 ***************************** //
@@ -276,6 +281,9 @@ extern bool g_ArmDetectionDone;
 extern bool g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
 void CRYPTOPP_API DetectArmFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
+
+//! \name ARM A-32, Aarch32 and AArch64 CPU FEATURES
+//@{
 
 //! \brief Determine if an ARM processor has Advanced SIMD available
 //! \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
@@ -389,6 +397,9 @@ inline bool HasSHA2()
 	return false;
 #endif
 }
+
+//@}
+
 #endif  // CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
 
 // ***************************** PowerPC ***************************** //
@@ -402,6 +413,9 @@ extern bool g_hasAltivec, g_hasPower7, g_hasPower8, g_hasAES, g_hasSHA256, g_has
 extern word32 g_cacheLineSize;
 void CRYPTOPP_API DetectPowerpcFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
+
+//! \name POWERPC CPU FEATURES
+//@{
 
 //! \brief Determine if a PowerPC processor has Altivec available
 //! \returns true if the hardware is capable of Altivec at runtime, false otherwise.
@@ -510,6 +524,8 @@ inline int GetCacheLineSize()
 		DetectPowerpcFeatures();
 	return g_cacheLineSize;
 }
+
+//@}
 
 #endif  // CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 

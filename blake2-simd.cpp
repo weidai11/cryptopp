@@ -11,6 +11,11 @@
 #include "misc.h"
 #include "blake2.h"
 
+// Uncomment for benchmarking C++ against SSE2 or NEON.
+// Do so in both blake2.cpp and blake2-simd.cpp.
+// #undef CRYPTOPP_SSE42_AVAILABLE
+// #undef CRYPTOPP_ARM_NEON_AVAILABLE
+
 #if !(defined(__ARM_NEON) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_NEON_AVAILABLE
 #endif
