@@ -471,25 +471,31 @@ ANONYMOUS_NAMESPACE_BEGIN
 const NullNameValuePairs s_nullNameValuePairs;
 ANONYMOUS_NAMESPACE_END
 
+#if CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief Default channel for BufferedTransformation
 //! \details DEFAULT_CHANNEL is equal to an empty string
 //! \details Crypto++ 6.0 placed DEFAULT_CHANNEL in the header, rather than declaring it as extern and
 //!   placing the definition in the source file. As an external definition the string DEFAULT_CHANNEL
 //!   was subject to static initialization order fiasco problems.
-static const std::string DEFAULT_CHANNEL;
+const std::string DEFAULT_CHANNEL;
 
 //! \brief Channel for additional authenticated data
 //! \details AAD_CHANNEL is equal to "AAD"
 //! \details Crypto++ 6.0 placed AAD_CHANNEL in the header, rather than declaring it as extern and
 //!   placing the definition in the source file. As an external definition the string AAD_CHANNEL
 //!   was subject to static initialization order fiasco problems.
-static const std::string AAD_CHANNEL("AAD");
+const std::string AAD_CHANNEL = "AAD";
 
 //! \brief An empty set of name-value pairs
 //! \details Crypto++ 6.0 placed g_nullNameValuePairs in the header, rather than declaring it as extern
 //!   and placing the definition in the source file. As an external definition the g_nullNameValuePairs
 //!   was subject to static initialization order fiasco problems.
-static const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
+const NameValuePairs g_nullNameValuePairs;
+#else
+static const std::string DEFAULT_CHANNEL;
+static const std::string AAD_CHANNEL("AAD");
+static const NameValuePairs& g_nullNameValuePairs(s_nullNameValuePairs);
+#endif
 
 // Document additional name spaces which show up elsewhere in the sources.
 #if CRYPTOPP_DOXYGEN_PROCESSING
@@ -1429,16 +1435,6 @@ public:
 	//!   Wait() on the container.
 	bool Wait(unsigned long milliseconds, CallStack const& callStack);
 };
-
-#if 0
-//! \brief Default channel for BufferedTransformation
-//! \details DEFAULT_CHANNEL is equal to an empty string
-extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
-
-//! \brief Channel for additional authenticated data
-//! \details AAD_CHANNEL is equal to "AAD"
-extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
-#endif
 
 //! \brief Interface for buffered transformations
 //! \details BufferedTransformation is a generalization of BlockTransformation,
