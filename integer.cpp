@@ -4,33 +4,25 @@
 // Notes by JW: The Integer class needs to do two things. First, it needs to set function
 //  pointers on some platforms, like X86 and X64. The function pointers select a fast multiply
 //  and addition based on the cpu. Second, it wants to create Integer::Zero(), Integer::One()
-//  and Integer::Two(). The function pointers are initialized in the class InitializeInteger.
-// Wei's original code was much simpler. It uses the Singleton pattern, but it always produced
-//  memory findings. The Singleton generates memory findings because it used for a Create on
-//  First Use pattern. Resource destruction effectivley requires running resource acquisition
-//  with dependencies in reverse. For resources provided through the Singletons, there is no way
-//  to express the dependency order to safely destroy resources.
-// The difference in the changes below is we use platform and language specific remediations
-//  if they are available. If not available, then we fall back to Wei's original code. If
-//  NO_OS_DEPENDENCE is defined, then the library uses Wei's original code.
-// Under all versions of C++ on Linux and Microsoft platforms, we can use GCC's init_priority
-//  or MSVC's init_seg(lib) to initialize the function pointers and create the Integers 0, 1 and 2
-//  after CRT startup. This avoids the Singletons and clears over half the reports of memory
-//  leaks. However, it does not apply to Apple or Sun platforms.
-// C++11 allows us to use call_once to set the function pointers, and Integer does so when
-//  init_priority and init_seg(lib) are not available. The class also uses the Singleton pattern
-//  to ensure integers 0, 1 and 2 are available. The Singleton will produce memory findings, but
-//  we don't have anything else to use in this case.
-// C++03 on platforms like Apple and Sun, we use a boolean flag to track when the function pointers
-//  have been set based on the cpu. Its just a Nifty Counter in disguise, and its similar to using
-//  the g_pAssignToInteger to track initialization. It has concurrency issues, but a race is not a
-//  problem. It does not matter if two threads both set the same pointers. The Singleton pattern
-//  is also used to ensure integers 0, 1 and 2 are available. The Singleton will produce memory
-//  findings, but we don't have anything else to use in this case.
-// While not readily apparent, Integer does not need to inherit from InitializeInteger when
-//  init_priority and init_seg(lib) are available. They just create an InitializePointers object
-//  at the right time after CRT initialization. The additional class avoids the small runtime
-//  overhead associated with checking the flags, and hides the detail from the interface.
+//  and Integer::Two().
+// The function pointers are initialized in the InitializeInteger class by calling
+//  SetFunctionPointers(). The call to SetFunctionPointers() is guarded to run once. If C++11
+//  dynamic initialization is available, then a standard run_once is used. Otherwise, and simple
+//  flag is used. The flag suffers a race, but the worse case is the same function pointers
+//  get written twice without leaking memory.
+// For Integer::Zero(), Integer::One() and Integer::Two(), we use one of two strategies. First,
+//  if C++11 dynamic initialization is available, then we use a static variable. Second, if
+//  C++11 dynamic initialization is not available, then we fall back to Wei's original code of
+//  a Singleton.
+// Wei's original code was much simpler. It simply used the Singleton pattern, but it always
+//  produced memory findings on some platforms. The Singleton generates memory findings because
+//  it uses a Create On First Use pattern (a dumb Nifty Counter) and the compiler had to be smart
+//  enough to fold them to return the same object. Unix and Linux compilers do a good job of folding
+//  objects, but Microsoft compilers do a rather poor job for some versions of the compilers.
+// Another problem with the Singleton is resource destruction requires running resource acquisition
+//  in reverse. For resources provided through the Singletons, there is no way to express the
+//  dependency order to safely destroy resources. (That's one of the problems C++11 dynamic
+//  intitialization with concurrent execution is supposed to solve).
 
 #include "pch.h"
 #include "config.h"
@@ -105,31 +97,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 static void SetFunctionPointers();
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
-// Add InitializePointers to perform the work of setting pointers once.
-struct InitializePointers
-{
-	InitializePointers()
-	{
-		SetFunctionPointers();
-	}
-};
-// Leave InitializeInteger empty so no work is done.
 InitializeInteger::InitializeInteger()
 {
-}
-#elif defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-std::once_flag s_flag;
-InitializeInteger::InitializeInteger()
-{
+#if !(HAVE_GCC_INIT_PRIORITY || HAVE_MSC_INIT_PRIORITY)
+#if defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static std::once_flag s_flag;
 	std::call_once(s_flag, []() {
 		SetFunctionPointers();
 	});
-}
 #else
-static bool s_flag;
-InitializeInteger::InitializeInteger()
-{
+	static bool s_flag;
 	MEMORY_BARRIER();
 	if (s_flag == false)
 	{
@@ -137,8 +114,9 @@ InitializeInteger::InitializeInteger()
 		s_flag = true;
 		MEMORY_BARRIER();
 	}
+#endif  // C++11 or C++03 flag
+#endif  // not GCC and MSC init priorities
 }
-#endif
 template <long i>
 struct NewInteger
 {
@@ -147,28 +125,9 @@ struct NewInteger
 		return new Integer(i);
 	}
 };
-NAMESPACE_END
-
-ANONYMOUS_NAMESPACE_BEGIN
-#if defined(HAVE_GCC_INIT_PRIORITY)
-const CryptoPP::InitializePointers s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 30))) = CryptoPP::InitializePointers();
-const CryptoPP::Integer s_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 31))) = CryptoPP::Integer(0L);
-const CryptoPP::Integer  s_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 32))) = CryptoPP::Integer(1L);
-const CryptoPP::Integer  s_two __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 33))) = CryptoPP::Integer(2L);
-#elif defined(HAVE_MSC_INIT_PRIORITY)
-#pragma warning(disable: 4075)
-#pragma init_seg(".CRT$XCU-030")
-const CryptoPP::InitializePointers s_init;
-const CryptoPP::Integer s_zero(0L);
-const CryptoPP::Integer  s_one(1L);
-const CryptoPP::Integer  s_two(2L);
-#pragma warning(default: 4075)
-#endif
-ANONYMOUS_NAMESPACE_END
 
 // ***************** Library code ********************
 
-NAMESPACE_BEGIN(CryptoPP)
 inline static int Compare(const word *A, const word *B, size_t N)
 {
 	while (N--)
@@ -3086,7 +3045,8 @@ Integer Integer::Power2(size_t e)
 
 const Integer &Integer::Zero()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_zero(0L);
 	return s_zero;
 #else
 	return Singleton<Integer, NewInteger<0L> >().Ref();
@@ -3095,7 +3055,8 @@ const Integer &Integer::Zero()
 
 const Integer &Integer::One()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_one(1L);
 	return s_one;
 #else
 	return Singleton<Integer, NewInteger<1L> >().Ref();
@@ -3104,7 +3065,8 @@ const Integer &Integer::One()
 
 const Integer &Integer::Two()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_two(2L);
 	return s_two;
 #else
 	return Singleton<Integer, NewInteger<2L> >().Ref();
@@ -4812,8 +4774,38 @@ bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const v
 	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
 	return true;
 }
+#endif  // CRYPTOPP_NO_ASSIGN_TO_INTEGER
+
+// *************************** C++ Static Initialization ***************************
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+class InitInteger
+{
+public:
+	InitInteger()
+	{
+		SetFunctionPointers();
+	}
+};
+
+// This is not really needed because each Integer can dynamically initialize itself,
+// but we take a peephole optimization and initialize the class once if init priorities are
+// available. Dynamic initialization will be used if init priorities are not available.
+
+#if HAVE_GCC_INIT_PRIORITY
+	const InitInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 10))) = InitInteger();
+#elif HAVE_MSC_INIT_PRIORITY
+	#pragma warning(disable: 4075)
+	#pragma init_seg(".CRT$XCU")
+	const InitInteger s_init;
+	#pragma warning(default: 4075)
+#else
+	const InitInteger s_init;
 #endif
+
+ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_END
 
-#endif
+#endif  // CRYPTOPP_IMPORTS

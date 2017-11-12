@@ -282,7 +282,9 @@ struct CRYPTOPP_DLL DecodingResult
 //!   then look at the Name namespace documentation to see what the type of each value is, or
 //!   alternatively, call GetIntValue() with the value name, and if the type is not int, a
 //!   ValueTypeMismatch exception will be thrown and you can get the actual type from the exception object.
-class CRYPTOPP_NO_VTABLE NameValuePairs
+//! \sa NullNameValuePairs, g_nullNameValuePairs,
+//!   <A HREF="http://www.cryptopp.com/wiki/NameValuePairs">NameValuePairs</A> on the Crypto++ wiki
+class NameValuePairs
 {
 public:
 	virtual ~NameValuePairs() {}
@@ -445,8 +447,52 @@ public:
 	CRYPTOPP_DLL virtual bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 };
 
-#if CRYPTOPP_DOXYGEN_PROCESSING
+//! \class NullNameValuePairs
+//! \brief Interface for retrieving values given their names
+//! \details This class is used when no names or values are present. Typically a program uses
+//!   g_nullNameValuePairs rather than creating its own NullNameValuePairs object.
+//! \details NullNameValuePairs always existed in cryptlib.cpp. Crypto++ 6.0 moved NullNameValuePairs
+//!   into the header. This allowed the library to define g_nullNameValuePairs in the header rather
+//!   than declaring it as extern and placing the definition in the source file. As an external definition
+//!   the string g_nullNameValuePairs was subject to static initialization order fiasco problems.
+//! \sa NameValuePairs, g_nullNameValuePairs,
+//!   <A HREF="http://www.cryptopp.com/wiki/NameValuePairs">NameValuePairs</A> on the Crypto++ wiki
+class NullNameValuePairs : public NameValuePairs
+{
+public:
+	NullNameValuePairs() {}    //  Clang complains a default ctor must be avilable
+	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+		{CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue); return false;}
+};
 
+// More static initialization order fiasco workarounds. These definitions cannot be extern and
+// cannot be static class members because they require a single definition in a source file.
+ANONYMOUS_NAMESPACE_BEGIN
+const NullNameValuePairs s_nullNameValuePairs;
+ANONYMOUS_NAMESPACE_END
+
+//! \brief Default channel for BufferedTransformation
+//! \details DEFAULT_CHANNEL is equal to an empty string
+//! \details Crypto++ 6.0 placed DEFAULT_CHANNEL in the header, rather than declaring it as extern and
+//!   placing the definition in the source file. As an external definition the string DEFAULT_CHANNEL
+//!   was subject to static initialization order fiasco problems.
+static const std::string DEFAULT_CHANNEL;
+
+//! \brief Channel for additional authenticated data
+//! \details AAD_CHANNEL is equal to "AAD"
+//! \details Crypto++ 6.0 placed AAD_CHANNEL in the header, rather than declaring it as extern and
+//!   placing the definition in the source file. As an external definition the string AAD_CHANNEL
+//!   was subject to static initialization order fiasco problems.
+static const std::string AAD_CHANNEL("AAD");
+
+//! \brief An empty set of name-value pairs
+//! \details Crypto++ 6.0 placed g_nullNameValuePairs in the header, rather than declaring it as extern
+//!   and placing the definition in the source file. As an external definition the g_nullNameValuePairs
+//!   was subject to static initialization order fiasco problems.
+static const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
+
+// Document additional name spaces which show up elsewhere in the sources.
+#if CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief Namespace containing value name definitions.
 //! \details Name is part of the CryptoPP namespace.
 //! \details The semantics of value names, types are:
@@ -470,7 +516,6 @@ DOCUMENTED_NAMESPACE_END
 //!     ...
 //!     CryptoPP::Weak::MD5 md5;
 //!   </pre>
-
 DOCUMENTED_NAMESPACE_BEGIN(Weak)
 // weak and wounded algorithms
 DOCUMENTED_NAMESPACE_END
@@ -482,9 +527,6 @@ DOCUMENTED_NAMESPACE_END
 DOCUMENTED_NAMESPACE_BEGIN(Test)
 // testing and benchmark classes
 DOCUMENTED_NAMESPACE_END
-
-//! \brief An empty set of name-value pairs
-extern CRYPTOPP_DLL const NameValuePairs &g_nullNameValuePairs;
 
 // ********************************************************
 
@@ -1388,6 +1430,7 @@ public:
 	bool Wait(unsigned long milliseconds, CallStack const& callStack);
 };
 
+#if 0
 //! \brief Default channel for BufferedTransformation
 //! \details DEFAULT_CHANNEL is equal to an empty string
 extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
@@ -1395,6 +1438,7 @@ extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
 //! \brief Channel for additional authenticated data
 //! \details AAD_CHANNEL is equal to "AAD"
 extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
+#endif
 
 //! \brief Interface for buffered transformations
 //! \details BufferedTransformation is a generalization of BlockTransformation,
