@@ -1799,7 +1799,7 @@ if [[ "$HAVE_LD_LIBRARY_PATH" -ne "0" ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	# Create a new makefile based on the old one
-	"$SED" -e 's|\./libcryptopp.a|\./libcryptopp.so|g' -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.so $(TESTOBJS)|g' GNUmakefile > GNUmakefile.shared
+	"$SED" -e 's|\./libcryptopp.a|\./libcryptopp.so|g' -e 's|cryptest.exe: libcryptopp.a|cryptest.exe: libcryptopp.so|g' GNUmakefile > GNUmakefile.shared
 
 	CXXFLAGS="$DEBUG_CXXFLAGS"
 	DYN_MAKEARGS=("-f" "GNUmakefile.shared" "HAS_SOLIB_VERSION=0" "${MAKEARGS[@]}")
@@ -1863,7 +1863,7 @@ if [[ "$HAVE_DYLD_LIBRARY_PATH" -ne "0" ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	# Create a new makefile based on the old one
-	"$SED" -e 's|\./libcryptopp.a|\./libcryptopp.dylib|g' -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.dylib $(TESTOBJS)|g' GNUmakefile > GNUmakefile.shared
+	"$SED" -e 's|\./libcryptopp.a|\./libcryptopp.dylib|g' -e 's|cryptest.exe: libcryptopp.a|cryptest.exe: libcryptopp.dylib|g' GNUmakefile > GNUmakefile.shared
 
 	CXXFLAGS="$DEBUG_CXXFLAGS"
 	DYN_MAKEARGS=("-f" "GNUmakefile.shared" "HAS_SOLIB_VERSION=0" "${MAKEARGS[@]}")
