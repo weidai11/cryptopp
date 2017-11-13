@@ -50,7 +50,7 @@ NAMESPACE_BEGIN(CryptoPP)
 inline __m128i MM_SET_EPI64X(const word64 a, const word64 b)
 {
     const word64 t[2] = {b,a}; __m128i r;
-    ::memcpy(&r, &t, sizeof(t));
+    ::memcpy(&r, t, sizeof(t));
     return r;
 }
 #else
