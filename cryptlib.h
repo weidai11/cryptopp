@@ -496,9 +496,12 @@ const NameValuePairs g_nullNameValuePairs;
 // Sun Studio 12.3 and earlier can't handle NameValuePairs initialization
 #elif defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
 static const std::string DEFAULT_CHANNEL;
-static const std::string AAD_CHANNEL("AAD");
+static const std::string AAD_CHANNEL = "AAD";
 static const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
 
+// We don't really want static here since it detracts from public symbol visibility, but the Windows
+// DLL fails to compile when the symbols are only const. Apparently Microsoft compilers don't treat
+// const the same as static in a translation unit for visibility under C++.
 #else
 static const std::string DEFAULT_CHANNEL;
 static const std::string AAD_CHANNEL("AAD");
