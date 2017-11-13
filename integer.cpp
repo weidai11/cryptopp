@@ -256,16 +256,17 @@ class DWord
 {
 public:
 #if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-	DWord() : m_whole() { }
+	DWord() {std::memset(&m_whole, 0x00, sizeof(m_whole));}
 #else
-	DWord() : m_halfs() { }
+	DWord() {std::memset(&m_halfs, 0x00, sizeof(m_halfs));}
 #endif
 
 #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
 	explicit DWord(word low) : m_whole(low) { }
 #else
-	explicit DWord(word low) : m_halfs()
+	explicit DWord(word low)
 	{
+		m_halfs.high = 0;
 		m_halfs.low = low;
 	}
 #endif
@@ -279,10 +280,10 @@ public:
 #if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
 #  if defined(CRYPTOPP_LITTLE_ENDIAN)
 		const word t[2] = {low,high};
-		memcpy(&m_whole, &t, sizeof(m_whole));
+		memcpy(&m_whole, t, sizeof(m_whole));
 #  else
 		const word t[2] = {high,low};
-		memcpy(&m_whole, &t, sizeof(m_whole));
+		memcpy(&m_whole, t, sizeof(m_whole));
 #  endif
 #else
 		m_halfs.low = low;

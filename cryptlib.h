@@ -471,6 +471,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 const NullNameValuePairs s_nullNameValuePairs;
 ANONYMOUS_NAMESPACE_END
 
+// Doxygen cannot handle initialization
 #if CRYPTOPP_DOXYGEN_PROCESSING
 //! \brief Default channel for BufferedTransformation
 //! \details DEFAULT_CHANNEL is equal to an empty string
@@ -484,13 +485,20 @@ const std::string DEFAULT_CHANNEL;
 //! \details Crypto++ 6.0 placed AAD_CHANNEL in the header, rather than declaring it as extern and
 //!   placing the definition in the source file. As an external definition the string AAD_CHANNEL
 //!   was subject to static initialization order fiasco problems.
-const std::string AAD_CHANNEL = "AAD";
+const std::string AAD_CHANNEL;
 
 //! \brief An empty set of name-value pairs
 //! \details Crypto++ 6.0 placed g_nullNameValuePairs in the header, rather than declaring it as extern
 //!   and placing the definition in the source file. As an external definition the g_nullNameValuePairs
 //!   was subject to static initialization order fiasco problems.
 const NameValuePairs g_nullNameValuePairs;
+
+// Sun Studio 12.3 and earlier can't handle NameValuePairs initialization
+#elif defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
+static const std::string DEFAULT_CHANNEL;
+static const std::string AAD_CHANNEL("AAD");
+static const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
+
 #else
 static const std::string DEFAULT_CHANNEL;
 static const std::string AAD_CHANNEL("AAD");
