@@ -6370,9 +6370,10 @@ COUNT="${#TEST_LIST[@]}"
 if (( "$COUNT" == "0" )); then
 	echo "No configurations tested" | tee -a "$TEST_RESULTS"
 else
+	echo "$COUNT configurations tested" | tee -a "$TEST_RESULTS"
 	for TEST in "${TEST_LIST[@]}"
 	do
-	  echo "  - $TEST"
+	  echo "  - $TEST" | tee -a "$TEST_RESULTS"
 	done
 fi
 echo | tee -a "$TEST_RESULTS"
