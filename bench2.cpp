@@ -244,11 +244,17 @@ void Benchmark3(double t, double hertz)
 	g_allocatedTime = t;
 	g_hertz = hertz;
 
+	const char *mco;
+	if (g_hertz > 1.0f)
+		mco = "<TH>Megacycles/Operation";
+	else
+		mco = "";
+
 	std::cout << "\n<TABLE>";
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\">";
-	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Operation<TH>Milliseconds/Operation";
-	std::cout << (g_hertz > 1.0f ? "<TH>Megacycles/Operation" : "") << std::endl;
+	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
+	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{

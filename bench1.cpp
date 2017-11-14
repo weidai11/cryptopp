@@ -57,7 +57,7 @@ void OutputResultBytes(const char *name, double length, double timeTaken)
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
 	double mbs = length / timeTaken / (1024*1024);
-	std::cout << "\n<TR><TH>" << name;
+	std::cout << "\n<TR><TD>" << name;
 	std::cout << std::setiosflags(std::ios::fixed);
 	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
 	if (g_hertz > 1.0f)
@@ -91,7 +91,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 	if (!iterations) iterations++;
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
-	std::cout << "\n<TR><TH>" << name << " " << operation << (pc ? " with precomputation" : "");
+	std::cout << "\n<TR><TD>" << name << " " << operation << (pc ? " with precomputation" : "");
 	std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
 
 	// Coverity finding
@@ -430,7 +430,8 @@ void Benchmark1(double t, double hertz)
 
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\">";
 	std::cout << "<COL style=\"text-align: right;\">";
-	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Algorithm<TH>MiB/Second" << cpb;
+	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
+	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
@@ -508,7 +509,8 @@ void Benchmark2(double t, double hertz)
 	std::cout << "\n<TABLE>";
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\"><COL style=\"text-align: right;\">";
-	std::cout << "\n<THEAD style=\"background: #F0F0F0\"><TR><TH>Algorithm<TH>MiB/Second" << cpb;
+	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
+	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 	std::cout << "<TH>Microseconds to<BR>Setup Key and IV" << cpk;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
