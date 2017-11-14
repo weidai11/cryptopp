@@ -655,7 +655,7 @@ fi
 
 # Valgrind testing of C++03, C++11, C++14 and C++17 binaries. Valgrind tests take a long time...
 if [[ (-z "$HAVE_VALGRIND") ]]; then
-	if [[ $(command -v CC 2>/dev/null) ]]; then
+	if [[ $(command -v valgrind 2>/dev/null) ]]; then
 		HAVE_VALGRIND=1
 	fi
 fi
