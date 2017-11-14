@@ -2767,7 +2767,7 @@ if [[ "$HAVE_CXX14" -ne "0" ]]; then
 	echo "Testing: Release, c++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Debug, c++14")
+	TEST_LIST+=("Release, c++14")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -2828,7 +2828,7 @@ if [[ "$HAVE_GNU14" -ne "0" ]]; then
 	echo "Testing: Release, gnu++14" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Debug, gnu++14")
+	TEST_LIST+=("Release, gnu++14")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1

@@ -48,6 +48,11 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <setjmp.h>
 #endif
 
+// Needed by SunCC and MSVC
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+# include <emmintrin.h>
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
