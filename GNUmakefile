@@ -419,17 +419,6 @@ ifeq ($(XLC_COMPILER),1)
     CXXFLAGS += -q32
   endif
   endif
-  ifeq ($(findstring -q64,$(CXXFLAGS)),-q64)
-    ifeq ($(findstring -X64,$(ARFLAGS)),)
-      ARFLAGS := -r -X64
-    endif
-  else
-  ifeq ($(findstring -q32,$(CXXFLAGS)),-q32)
-    ifeq ($(findstring -X32,$(ARFLAGS)),)
-      ARFLAGS := -r -X32
-    endif
-  endif
-  endif
 endif
 
 endif  # X86, X64, ARM32, ARM64, PPC32, PPC64, etc
