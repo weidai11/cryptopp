@@ -294,6 +294,7 @@
     <ClCompile Include="sosemanuk.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="squaretb.cpp" />
+    <ClCompile Include="sse-simd.cpp" />
     <ClCompile Include="strciphr.cpp" />
     <ClCompile Include="tea.cpp" />
     <ClCompile Include="tftables.cpp" />

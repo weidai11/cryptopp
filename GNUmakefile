@@ -226,9 +226,10 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 endif  # -DCRYPTOPP_DISABLE_ASM
 endif  # CXXFLAGS
 
+# SSE2 is a core feature of x86_64
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   ifeq ($(IS_X86),1)
-    CPU_FLAG = -msse2
+    SSE_FLAG = -msse2
   endif
 endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
@@ -996,13 +997,13 @@ endif
 aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
-# SSE4.2 or ARMv8a available
+# SSE4.1 or ARMv8a available
 blake2-simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
 
 # SSE2 on i586
-cpu.o : cpu.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(CPU_FLAG) -c) $<
+sse-simd.o : sse-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SSE_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
 crc-simd.o : crc-simd.cpp

@@ -48,11 +48,6 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <setjmp.h>
 #endif
 
-// Needed by SunCC and MSVC
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-# include <emmintrin.h>
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
@@ -63,7 +58,9 @@ extern "C" {
 
 // *************************** IA-32 CPUs ***************************
 
-#ifdef CRYPTOPP_CPUID_AVAILABLE
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+
+extern bool CPU_ProbeSSE2();
 
 #if _MSC_VER >= 1500
 
@@ -93,12 +90,6 @@ extern "C"
 	static void SigIllHandlerCPUID(int)
 	{
 		longjmp(s_jmpNoCPUID, 1);
-	}
-
-	static jmp_buf s_jmpNoSSE2;
-	static void SigIllHandlerSSE2(int)
-	{
-		longjmp(s_jmpNoSSE2, 1);
 	}
 }
 #endif
@@ -185,64 +176,6 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 }
 
 #endif
-
-static bool CPU_ProbeSSE2()
-{
-#if CRYPTOPP_BOOL_X64
-	return true;
-#elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
-	return false;
-#elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
-    __try
-	{
-# if CRYPTOPP_SSE2_ASM_AVAILABLE
-		AS2(por xmm0, xmm0)        // executing SSE2 instruction
-# elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
-		__m128i x = _mm_setzero_si128();
-		return _mm_cvtsi128_si32(x) == 0;
-# endif
-	}
-	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
-	__except (EXCEPTION_EXECUTE_HANDLER)
-	{
-		return false;
-	}
-	return true;
-#else
-	// longjmp and clobber warnings. Volatile is required.
-	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
-	volatile bool result = true;
-
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerSSE2);
-	if (oldHandler == SIG_ERR)
-		return false;
-
-# ifndef __MINGW32__
-	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
-		return false;
-# endif
-
-	if (setjmp(s_jmpNoSSE2))
-		result = false;
-	else
-	{
-# if CRYPTOPP_SSE2_ASM_AVAILABLE
-		__asm __volatile ("por %xmm0, %xmm0");
-# elif CRYPTOPP_SSE2_INTRIN_AVAILABLE
-		__m128i x = _mm_setzero_si128();
-		result = _mm_cvtsi128_si32(x) == 0;
-# endif
-	}
-
-# ifndef __MINGW32__
-	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
-# endif
-
-	signal(SIGILL, oldHandler);
-	return result;
-#endif
-}
 
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
 bool CRYPTOPP_SECTION_INIT CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;

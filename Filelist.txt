@@ -283,6 +283,7 @@ sosemanuk.h
 square.cpp
 square.h
 squaretb.cpp
+sse-simd.cpp
 stdcpp.h
 strciphr.cpp
 strciphr.h
