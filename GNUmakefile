@@ -273,9 +273,13 @@ ifeq ($(SUN_COMPILER),1)
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
   endif
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_1 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  ifeq ($(COUNT),0)
+    BLAKE2_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    LDFLAGS += -xarch=sse4_1
+  endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
-    BLAKE2_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
     CRC_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
     LDFLAGS += -xarch=sse4_2
   endif

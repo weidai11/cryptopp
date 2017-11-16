@@ -247,7 +247,8 @@ static bool CPU_ProbeSSE2()
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
 bool CRYPTOPP_SECTION_INIT CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false, CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
+bool CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
+bool CRYPTOPP_SECTION_INIT g_hasADX = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
 bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false, CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
@@ -301,6 +302,7 @@ void DetectX86Features()
 	{
 		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
 		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
+		CRYPTOPP_CONSTANT(   ADX_FLAG = (1 << 19))
 		CRYPTOPP_CONSTANT(   SHA_FLAG = (1 << 29))
 
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
@@ -312,6 +314,7 @@ void DetectX86Features()
 			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
+				g_hasADX = !!(cpuid2[1] /*EBX*/ & ADX_FLAG);
 				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
 			}
 		}
@@ -320,6 +323,7 @@ void DetectX86Features()
 	{
 		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
 		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
+		CRYPTOPP_CONSTANT(   ADX_FLAG = (1 << 19))
 		CRYPTOPP_CONSTANT(   SHA_FLAG = (1 << 29))
 
 		CpuId(0x80000005, 0, cpuid2);
@@ -331,6 +335,7 @@ void DetectX86Features()
 			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
+				g_hasADX = !!(cpuid2[1] /*EBX*/ & ADX_FLAG);
 				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
 			}
 		}

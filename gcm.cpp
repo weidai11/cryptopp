@@ -27,14 +27,14 @@
 # undef CRYPTOPP_CLMUL_AVAILABLE
 #endif
 
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+# include <emmintrin.h>
+#endif
+
 #include "gcm.h"
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-# include "emmintrin.h"
-#endif
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 // Different assemblers accept different mnemonics: 'movd eax, xmm0' vs
@@ -77,20 +77,24 @@ static inline void Xor16(byte *a, const byte *b, const byte *c)
 }
 
 #if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
+// SunCC 5.10-5.11 compiler crash. Move GCM_Xor16_SSE2 out-of-line, and place in
+// a source file with a SSE architecture switch. Also see GH #226 and GH #284.
+# if defined (__SUNPRO_CC)
+extern void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c);
+# else
 static inline void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 {
-// SunCC 5.14 crash. Also see http://github.com/weidai11/cryptopp/issues/226
-//  and http://github.com/weidai11/cryptopp/issues/284
-# if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(__SUNPRO_CC)
+#  if CRYPTOPP_SSE2_ASM_AVAILABLE
     asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;"
-         : "=m" (a[0]) : "m"(b[0]), "m"(c[0]));
-# else  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
+         : "=m" (a[0]) : "rm"(b[0]), "rm"(c[0]));
+#  else  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
     _mm_store_si128(M128_CAST(a), _mm_xor_si128(
         _mm_load_si128(CONST_M128_CAST(b)),
         _mm_load_si128(CONST_M128_CAST(c))));
-# endif
+#  endif
 }
-#endif
+# endif  // SunCC
+#endif   // SSE2
 
 #if CRYPTOPP_CLMUL_AVAILABLE
 extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);

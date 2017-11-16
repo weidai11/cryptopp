@@ -66,6 +66,7 @@ extern CRYPTOPP_DLL bool g_hasSSE42;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_hasSHA;
+extern CRYPTOPP_DLL bool g_hasADX;
 extern CRYPTOPP_DLL bool g_isP4;
 extern CRYPTOPP_DLL bool g_hasRDRAND;
 extern CRYPTOPP_DLL bool g_hasRDSEED;
@@ -163,6 +164,17 @@ inline bool HasSHA()
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasSHA;
+}
+
+//! \brief Determines ADX availability
+//! \returns true if ADX is determined to be available, false otherwise
+//! \details HasADX() is a runtime check performed using CPUID
+//! \note This function is only available on Intel IA-32 platforms
+inline bool HasADX()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasADX;
 }
 
 //! \brief Determines if the CPU is an Intel P4
