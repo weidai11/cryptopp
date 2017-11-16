@@ -14,19 +14,13 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // Uncomment for benchmarking C++ against SSE2 or NEON.
 // Do so in both blake2.cpp and blake2-simd.cpp.
-// #undef CRYPTOPP_SSE42_AVAILABLE
+// #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
-
-// Apple Clang 6.0/Clang 3.5 does not have SSSE3 intrinsics
-//   http://llvm.org/bugs/show_bug.cgi?id=20213
-#if (defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 60000)) || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION <= 30500))
-# undef CRYPTOPP_SSE42_AVAILABLE
-#endif
 
 void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state);
 void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
 
-#if CRYPTOPP_SSE42_AVAILABLE
+#if CRYPTOPP_SSE41_AVAILABLE
 extern void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& state);
 extern void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
@@ -95,8 +89,8 @@ typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
 
 pfnCompress64 InitializeCompress64Fn()
 {
-#if CRYPTOPP_SSE42_AVAILABLE
-    if (HasSSE42())
+#if CRYPTOPP_SSE41_AVAILABLE
+    if (HasSSE41())
         return &BLAKE2_Compress64_SSE4;
     else
 #endif
@@ -110,8 +104,8 @@ pfnCompress64 InitializeCompress64Fn()
 
 pfnCompress32 InitializeCompress32Fn()
 {
-#if CRYPTOPP_SSE42_AVAILABLE
-    if (HasSSE42())
+#if CRYPTOPP_SSE41_AVAILABLE
+    if (HasSSE41())
         return &BLAKE2_Compress32_SSE4;
     else
 #endif
