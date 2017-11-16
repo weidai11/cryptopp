@@ -89,32 +89,26 @@ typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
 
 pfnCompress64 InitializeCompress64Fn()
 {
+	return
 #if CRYPTOPP_SSE41_AVAILABLE
-    if (HasSSE41())
-        return &BLAKE2_Compress64_SSE4;
-    else
+		HasSSE41() ? &BLAKE2_Compress64_SSE4 :
 #endif
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
-    if (HasNEON())
-        return &BLAKE2_Compress64_NEON;
-    else
+		HasNEON() ? &BLAKE2_Compress64_NEON :
 #endif
-    return &BLAKE2_Compress64_CXX;
+		&BLAKE2_Compress64_CXX;
 }
 
 pfnCompress32 InitializeCompress32Fn()
 {
+	return
 #if CRYPTOPP_SSE41_AVAILABLE
-    if (HasSSE41())
-        return &BLAKE2_Compress32_SSE4;
-    else
+		HasSSE41() ? &BLAKE2_Compress32_SSE4 :
 #endif
 #if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
-    if (HasNEON())
-        return &BLAKE2_Compress32_NEON;
-    else
+		HasNEON() ? &BLAKE2_Compress32_NEON :
 #endif
-    return &BLAKE2_Compress32_CXX;
+		&BLAKE2_Compress32_CXX;
 }
 
 ANONYMOUS_NAMESPACE_END

@@ -30,24 +30,16 @@
 # include <arm_neon.h>
 #endif
 
-#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
-# include <signal.h>
-# include <setjmp.h>
-#endif
-
-#ifndef EXCEPTION_EXECUTE_HANDLER
-# define EXCEPTION_EXECUTE_HANDLER 1
-#endif
-
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x, Win64 supplies it except for VS2008.
-// Also see http://stackoverflow.com/a/38547909/608639
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || (defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
+// Sun Studio 12.3 and earlier lack SSE2's _mm_set_epi64x. Win32 lacks _mm_set_epi64x,
+// Win64 supplies it except for VS2008. See http://stackoverflow.com/a/38547909/608639
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE && ((__SUNPRO_CC >= 0x5100 && __SUNPRO_CC < 0x5130) || \
+	(defined(_MSC_VER) && _MSC_VER < 1600) || (defined(_M_IX86) && _MSC_VER >= 1600))
 inline __m128i MM_SET_EPI64X(const word64 a, const word64 b)
 {
     const word64 t[2] = {b,a}; __m128i r;
