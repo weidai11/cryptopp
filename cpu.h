@@ -6,7 +6,7 @@
 //! \brief Functions for CPU features and intrinsics
 //! \details The CPU functions are used in IA-32, ARM and PowerPC code paths. The
 //!   functions provide cpu specific feature testing on IA-32, ARM and PowerPC machines.
-//! \details Feature detections uses CPUID on IA-32, like Intel and AMD. On other platforms
+//! \details Feature detection uses CPUID on IA-32, like Intel and AMD. On other platforms
 //!   a two-part strategy is used. First, the library attempts to *Query* the OS for a feature,
 //!   like using Linux getauxval() or android_getCpuFeatures(). If that fails, then *Probe*
 //!   the cpu executing an instruction and an observe a SIGILL if unsupported. The general
@@ -19,7 +19,7 @@
 //! \details Generally speaking, CPU_Query() is in the source file <tt>cpu.cpp</tt> because it
 //!   does not require special architectural flags. CPU_Probe() is in a source file that recieves
 //!   architectural flags, like <tt>sse-simd.cpp</tt>, <tt>neon-simd.cpp</tt> and
-//!   <tt>ppc-simd.cpp</tt>. For example, compiling <tt>neon-simd.cpp</tt> an an ARM64 system will
+//!   <tt>ppc-simd.cpp</tt>. For example, compiling <tt>neon-simd.cpp</tt> on an ARM64 machine will
 //!   have <tt>-march=armv8-a</tt> applied during a compile to make the instruction set architecture
 //!   (ISA) available.
 //! \details The cpu probes are expensive when compared to a standard OS feature query. The library

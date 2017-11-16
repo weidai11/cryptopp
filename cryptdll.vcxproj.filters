@@ -179,6 +179,9 @@
     <ClCompile Include="skipjack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sse-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="strciphr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
