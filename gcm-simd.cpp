@@ -83,7 +83,7 @@ inline poly128_t VMULL_HIGH_P64(poly64x2_t a, poly64x2_t b)
 # endif
 #endif
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64) && CRYPTOPP_ARM_PMULL_AVAILABLE
+#if CRYPTOPP_ARM_PMULL_AVAILABLE
 #if defined(__GNUC__)
 // Schneiders, Hovsmith and O'Rourke used this trick.
 // It results in much better code generation in production code
