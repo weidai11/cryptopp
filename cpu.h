@@ -1,9 +1,31 @@
 // cpu.h - originally written and placed in the public domain by Wei Dai
-//         updated for ARM by Jeffrey Walton
+//         updated for ARM and PowerPC by Jeffrey Walton.
+//         updated to split CPU_Query() and CPU_Probe() by Jeffrey Walton.
 
 //! \file cpu.h
 //! \brief Functions for CPU features and intrinsics
-//! \details The functions are used in X86/X32/X64 and ARM code paths
+//! \details The CPU functions are used in IA-32, ARM and PowerPC code paths. The
+//!   functions provide cpu specific feature testing on IA-32, ARM and PowerPC machines.
+//! \details Feature detections uses CPUID on IA-32, like Intel and AMD. On other platforms
+//!   a two-part strategy is used. First, the library attempts to *Query* the OS for a feature,
+//!   like using Linux getauxval() or android_getCpuFeatures(). If that fails, then *Probe*
+//!   the cpu executing an instruction and an observe a SIGILL if unsupported. The general
+//!   pattern used by the library is:
+//! <pre>
+//!     g_hasCRC32 = CPU_QueryCRC32() || CPU_ProbeCRC32();
+//!     g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
+//!     g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
+//! </pre>
+//! \details Generally speaking, CPU_Query() is in the source file <tt>cpu.cpp</tt> because it
+//!   does not require special architectural flags. CPU_Probe() is in a source file that recieves
+//!   architectural flags, like <tt>sse-simd.cpp</tt>, <tt>neon-simd.cpp</tt> and
+//!   <tt>ppc-simd.cpp</tt>. For example, compiling <tt>neon-simd.cpp</tt> an an ARM64 system will
+//!   have <tt>-march=armv8-a</tt> applied during a compile to make the instruction set architecture
+//!   (ISA) available.
+//! \details The cpu probes are expensive when compared to a standard OS feature query. The library
+//!   also avoids probes on Apple platforms because Apple's signal handling for SIGILLs appears to
+//!   corrupt memory. CPU_Probe() will unconditionally return false for Apple platforms. OpenSSL
+//!   experienced the same problem and moved away from SIGILL probes on Apple.
 
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
