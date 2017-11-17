@@ -7,7 +7,7 @@
 # Andy Polyakov, http://www.openssl.org/~appro/cryptogams/.
 
 if [ "x$1" = "x" ]; then
-    echo "usage: $0 on[demand]|pe[rformance]|?"
+    echo "usage: $0 on[demand]|pe[rformance]|po[wersave]|us[erspace]?"
     [[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
 fi
 
