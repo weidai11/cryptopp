@@ -42,7 +42,9 @@ extern "C"
 
 bool CPU_ProbeSSE2()
 {
-#if CRYPTOPP_BOOL_X64
+	// Apple switched to Intel desktops in 2005/2006 using
+	//   Core2 Duo's, which provides SSE2 and above.
+#if CRYPTOPP_BOOL_X64 || defined(__APPLE__)
 	return true;
 #elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
 	return false;

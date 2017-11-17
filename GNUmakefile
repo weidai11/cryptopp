@@ -30,16 +30,16 @@ else
   GREP ?= grep
 endif
 
-IS_X86 := $(shell uname -m | $(GREP) -v "64" | $(GREP) -i -c -E "i.86|x86|i86")
-IS_X64 := $(shell uname -m | $(GREP) -i -c -E "(_64|d64)")
-IS_PPC32 := $(shell uname -m | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
-IS_PPC64 := $(shell uname -m | $(GREP) -i -c -E "ppc64|power64")
-IS_ARM32 := $(shell uname -m | $(GREP) -i -v "64" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
-IS_ARM64 := $(shell uname -m | $(GREP) -i -c 'aarch64')
-IS_ARMV8 ?= $(shell uname -m | $(GREP) -i -c -E 'aarch32|aarch64')
-IS_NEON ?= $(shell uname -m | $(GREP) -i -c -E 'armv7|armv8|aarch32|aarch64')
-IS_SPARC := $(shell uname -m | $(GREP) -i -c "sparc")
-IS_SPARC64 := $(shell uname -m | $(GREP) -i -c "sparc64")
+IS_X86 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -v "64" | $(GREP) -i -c -E "i.86|x86|i86")
+IS_X64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E "(_64|d64)")
+IS_PPC32 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
+IS_PPC64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E "ppc64|power64")
+IS_ARM32 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -v "64" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
+IS_ARM64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c 'aarch64')
+IS_ARMV8 ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'aarch32|aarch64')
+IS_NEON ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armv8|aarch32|aarch64')
+IS_SPARC := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c "sparc")
+IS_SPARC64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c "sparc64")
 
 IS_AIX := $(shell uname -s | $(GREP) -i -c 'aix')
 IS_SUN := $(shell uname -s | $(GREP) -i -c "SunOS")

@@ -54,6 +54,15 @@ NAMESPACE_BEGIN(CryptoPP)
 extern "C" {
     typedef void (*SigHandler)(int);
 };
+
+extern "C"
+{
+	static jmp_buf s_jmpNoCPUID;
+	static void SigIllHandlerCPUID(int)
+	{
+		longjmp(s_jmpNoCPUID, 1);
+	}
+}
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 // *************************** IA-32 CPUs ***************************
@@ -82,17 +91,6 @@ inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 }
 
 #else
-
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-extern "C"
-{
-	static jmp_buf s_jmpNoCPUID;
-	static void SigIllHandlerCPUID(int)
-	{
-		longjmp(s_jmpNoCPUID, 1);
-	}
-}
-#endif
 
 // Borland/Embarcadero and Issue 498
 // cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
@@ -297,7 +295,7 @@ void DetectX86Features()
 	if (!g_cacheLineSize)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-	g_x86DetectionDone = true;
+	*const_cast<volatile bool*>(&g_x86DetectionDone) = true;
 }
 
 // *************************** ARM-32, Aarch32 and Aarch64 ***************************
@@ -561,7 +559,7 @@ void DetectArmFeatures()
 	if (!g_cacheLineSize)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-	g_ArmDetectionDone = true;
+	*const_cast<volatile bool*>(&g_ArmDetectionDone) = true;
 }
 
 // *************************** PowerPC and PowerPC64 ***************************
@@ -683,7 +681,7 @@ void DetectPowerpcFeatures()
 	if (g_cacheLineSize <= 0)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-	g_PowerpcDetectionDone = true;
+	*const_cast<volatile bool*>(&g_PowerpcDetectionDone) = true;
 }
 
 #endif
