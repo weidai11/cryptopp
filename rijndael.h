@@ -38,7 +38,7 @@ struct Rijndael_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 //! \sa <a href="http://www.cryptopp.com/wiki/Rijndael">Rijndael</a>
 class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentation
 {
-	//! \brief Rijndael block cipher data processing functions
+	//! \brief Rijndael block cipher transformation functions
 	//! \details Provides implementation common to encryption and decryption
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Rijndael_Info>
 	{

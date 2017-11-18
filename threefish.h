@@ -74,7 +74,7 @@ struct CRYPTOPP_NO_VTABLE Threefish_Base : public Threefish_Info<BS>
 class CRYPTOPP_NO_VTABLE Threefish256 : public Threefish_Base<32>, public BlockCipherDocumentation
 {
 public:
-    //! \brief Threefish block cipher data processing functions
+    //! \brief Threefish block cipher transformation functions
     //! \details Provides implementation common to encryption and decryption
     //! \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Threefish_Base<32> >
@@ -119,7 +119,7 @@ typedef Threefish256::Decryption Threefish256Decryption;
 class CRYPTOPP_NO_VTABLE Threefish512 : public Threefish_Base<64>, public BlockCipherDocumentation
 {
 public:
-    //! \brief Threefish block cipher data processing functions
+    //! \brief Threefish block cipher transformation functions
     //! \details Provides implementation common to encryption and decryption
     //! \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Threefish_Base<64> >
@@ -164,7 +164,7 @@ typedef Threefish512::Decryption Threefish512Decryption;
 class CRYPTOPP_NO_VTABLE Threefish1024 : public Threefish_Base<128>, public BlockCipherDocumentation
 {
 public:
-    //! \brief Threefish block cipher data processing functions
+    //! \brief Threefish block cipher transformation functions
     //! \details Provides implementation common to encryption and decryption
     //! \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Threefish_Base<128> >
