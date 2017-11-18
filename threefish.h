@@ -28,7 +28,7 @@ struct Threefish_Info : public FixedBlockSize<BS>, FixedKeyLength<BS>
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize(Keylength)
-        return "Threefish-" + IntToString(BS) + "(" + IntToString(BS) + ")";
+        return "Threefish-" + IntToString(BS*8) + "(" + IntToString(BS*8) + ")";
     }
 };
 
