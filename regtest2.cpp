@@ -142,9 +142,17 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Kalyna> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna> >();  // Benchmarks
-	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish> >();  // Benchmarks
+
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish256> >("Threefish-256(256)/ECB");  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish256> >("Threefish-256(256)/CBC");  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish512> >("Threefish-512(512)/ECB");  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish512> >("Threefish-512(512)/CBC");  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish1024> >("Threefish-1024(1024)/ECB");  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish1024> >("Threefish-1024(1024)/CBC");  // Test Vectors
+
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish256> >("Threefish-256(256)/CTR");  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish512> >("Threefish-512(512)/CTR");  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish1024> >("Threefish-1024(1024)/CTR");  // Benchmarks
 
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();

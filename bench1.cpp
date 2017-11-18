@@ -6,6 +6,8 @@
 #include "validate.h"
 
 #include "aes.h"
+#include "kalyna.h"
+#include "threefish.h"
 #include "blumshub.h"
 #include "files.h"
 #include "filters.h"
@@ -575,9 +577,9 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 16);
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 32);
 		BenchMarkByName<SymmetricCipher>("Twofish/CTR");
-		BenchMarkByName<SymmetricCipher>("Threefish/CTR", 32, "Threefish/CTR (256-bit key)", MakeParameters(Name::BlockSize(), 32));
-		BenchMarkByName<SymmetricCipher>("Threefish/CTR", 64, "Threefish/CTR (512-bit key)", MakeParameters(Name::BlockSize(), 64));
-		BenchMarkByName<SymmetricCipher>("Threefish/CTR", 128, "Threefish/CTR (1024-bit key)", MakeParameters(Name::BlockSize(), 128));
+		BenchMarkByName<SymmetricCipher>("Threefish-256(256)/CTR", 32);
+		BenchMarkByName<SymmetricCipher>("Threefish-512(512)/CTR", 64);
+		BenchMarkByName<SymmetricCipher>("Threefish-1024(1024)/CTR", 128);
 		BenchMarkByName<SymmetricCipher>("Serpent/CTR");
 		BenchMarkByName<SymmetricCipher>("CAST-256/CTR");
 		BenchMarkByName<SymmetricCipher>("RC6/CTR");
