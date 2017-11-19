@@ -95,7 +95,9 @@ private:
 //! \tparam T_BlockCipher block cipher
 //! \details \p EAX provides the \p Encryption and \p Decryption typedef. See EAX_Base
 //!   and EAX_Final for the AuthenticatedSymmetricCipher implementation.
-//! \sa <a href="http://www.cryptolounge.org/wiki/EAX">EAX</a> at the Crypto Lounge
+//! \sa <a href="http://www.cryptopp.com/wiki/EAX_Mode">EAX Mode</a> and
+//!   <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 //! \since Crypto++ 5.6.0
 template <class T_BlockCipher>
 struct EAX : public AuthenticatedSymmetricCipherDocumentation

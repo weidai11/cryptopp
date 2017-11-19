@@ -108,7 +108,9 @@ private:
 //! \tparam T_DefaultDigestSize default digest size, in bytes
 //! \details \p CCM provides the \p Encryption and \p Decryption typedef. See GCM_Base
 //!   and GCM_Final for the AuthenticatedSymmetricCipher implementation.
-//! \sa <a href="http://www.cryptolounge.org/wiki/CCM">CCM</a> at the Crypto Lounge
+//! \sa <a href="http://www.cryptopp.com/wiki/CCM_Mode">CCM Mode</a> and
+//!   <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 //! \since Crypto++ 5.6.0
 template <class T_BlockCipher, int T_DefaultDigestSize = 16>
 struct CCM : public AuthenticatedSymmetricCipherDocumentation

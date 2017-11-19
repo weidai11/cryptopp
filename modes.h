@@ -1,7 +1,7 @@
 // modes.h - originally written and placed in the public domain by Wei Dai
 
 //! \file modes.h
-//! \brief Class file for modes of operation.
+//! \brief Classes for block cipher modes of operation
 
 #ifndef CRYPTOPP_MODES_H
 #define CRYPTOPP_MODES_H
@@ -343,7 +343,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_Ciph
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
 
 //! \class CFB_Mode
-//! \brief CFB block cipher mode of operation.
+//! \brief CFB block cipher mode of operation
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct CFB_Mode : public CipherModeDocumentation
 {
@@ -353,6 +355,8 @@ struct CFB_Mode : public CipherModeDocumentation
 
 //! \class CFB_Mode_ExternalCipher
 //! \brief CFB mode, external cipher.
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct CFB_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Encryption;
@@ -362,6 +366,8 @@ struct CFB_Mode_ExternalCipher : public CipherModeDocumentation
 //! \class CFB_FIPS_Mode
 //! \brief CFB block cipher mode of operation providing FIPS validated cryptography.
 //! \details Requires full block plaintext according to FIPS 800-38A
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct CFB_FIPS_Mode : public CipherModeDocumentation
 {
@@ -372,6 +378,8 @@ struct CFB_FIPS_Mode : public CipherModeDocumentation
 //! \class CFB_FIPS_Mode_ExternalCipher
 //! \brief CFB mode, external cipher, providing FIPS validated cryptography.
 //! \details Requires full block plaintext according to FIPS 800-38A
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct CFB_FIPS_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Encryption;
@@ -381,7 +389,9 @@ struct CFB_FIPS_Mode_ExternalCipher : public CipherModeDocumentation
 CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> >;
 
 //! \class OFB_Mode
-//! \brief OFB block cipher mode of operation.
+//! \brief OFB block cipher mode of operation
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct OFB_Mode : public CipherModeDocumentation
 {
@@ -391,6 +401,8 @@ struct OFB_Mode : public CipherModeDocumentation
 
 //! \class OFB_Mode_ExternalCipher
 //! \brief OFB mode, external cipher.
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct OFB_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> > > > Encryption;
@@ -401,7 +413,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<Additive
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> > > >;
 
 //! \class CTR_Mode
-//! \brief CTR block cipher mode of operation.
+//! \brief CTR block cipher mode of operation
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct CTR_Mode : public CipherModeDocumentation
 {
@@ -411,6 +425,8 @@ struct CTR_Mode : public CipherModeDocumentation
 
 //! \class CTR_Mode_ExternalCipher
 //! \brief CTR mode, external cipher.
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct CTR_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> > > > Encryption;
@@ -418,7 +434,9 @@ struct CTR_Mode_ExternalCipher : public CipherModeDocumentation
 };
 
 //! \class ECB_Mode
-//! \brief ECB block cipher mode of operation.
+//! \brief ECB block cipher mode of operation
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct ECB_Mode : public CipherModeDocumentation
 {
@@ -430,6 +448,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ECB_OneWay>;
 
 //! \class ECB_Mode_ExternalCipher
 //! \brief ECB mode, external cipher.
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ECB_OneWay> Encryption;
@@ -437,7 +457,9 @@ struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 };
 
 //! \class CBC_Mode
-//! \brief CBC mode
+//! \brief CBC block cipher mode of operation
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct CBC_Mode : public CipherModeDocumentation
 {
@@ -450,6 +472,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Decryptio
 
 //! \class CBC_Mode_ExternalCipher
 //! \brief CBC mode, external cipher
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Encryption> Encryption;
@@ -457,7 +481,9 @@ struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 };
 
 //! \class CBC_CTS_Mode
-//! \brief CBC mode with ciphertext stealing
+//! \brief CBC-CTS block cipher mode of operation
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 template <class CIPHER>
 struct CBC_CTS_Mode : public CipherModeDocumentation
 {
@@ -470,6 +496,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decry
 
 //! \class CBC_CTS_Mode_ExternalCipher
 //! \brief CBC mode with ciphertext stealing, external cipher
+//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+//!   on the Crypto++ wiki.
 struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption> Encryption;
