@@ -44,6 +44,12 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
+// Define this to statically initialize Integer Zero(), One()
+//   and Two() using Microsoft init_seg(). This is useful for
+//   testing Integer code for leaks when the MSC compiler
+//   does not fold use of the Singletons.
+// #define USE_MSC_INIT_PRIORITY 1
+
 #ifndef CRYPTOPP_IMPORTS
 
 #include "integer.h"
@@ -117,6 +123,7 @@ InitializeInteger::InitializeInteger()
 #endif  // C++11 or C++03 flag
 #endif  // not GCC and MSC init priorities
 }
+
 template <long i>
 struct NewInteger
 {
@@ -3044,36 +3051,6 @@ Integer Integer::Power2(size_t e)
 	return r;
 }
 
-const Integer &Integer::Zero()
-{
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static Integer s_zero(0L);
-	return s_zero;
-#else
-	return Singleton<Integer, NewInteger<0L> >().Ref();
-#endif
-}
-
-const Integer &Integer::One()
-{
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static Integer s_one(1L);
-	return s_one;
-#else
-	return Singleton<Integer, NewInteger<1L> >().Ref();
-#endif
-}
-
-const Integer &Integer::Two()
-{
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static Integer s_two(2L);
-	return s_two;
-#else
-	return Singleton<Integer, NewInteger<2L> >().Ref();
-#endif
-}
-
 bool Integer::operator!() const
 {
 	return IsNegative() ? false : (reg[0]==0 && WordCount()==0);
@@ -4779,8 +4756,6 @@ bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const v
 
 // *************************** C++ Static Initialization ***************************
 
-ANONYMOUS_NAMESPACE_BEGIN
-
 class InitInteger
 {
 public:
@@ -4796,16 +4771,57 @@ public:
 
 #if HAVE_GCC_INIT_PRIORITY
 	const InitInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 10))) = InitInteger();
-#elif HAVE_MSC_INIT_PRIORITY
+#elif defined(HAVE_MSC_INIT_PRIORITY)
 	#pragma warning(disable: 4075)
 	#pragma init_seg(".CRT$XCU")
 	const InitInteger s_init;
+#   if defined(USE_MSC_INIT_PRIORITY)
+	const Integer g_zero(0L);
+	const Integer g_one(1L);
+	const Integer g_two(2L);
+#   endif
 	#pragma warning(default: 4075)
 #else
 	const InitInteger s_init;
 #endif
 
-ANONYMOUS_NAMESPACE_END
+// ***************** Library code ********************
+
+const Integer &Integer::Zero()
+{
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_zero(0L);
+	return s_zero;
+#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
+	return g_zero;
+#else
+	return Singleton<Integer, NewInteger<0L> >().Ref();
+#endif
+}
+
+const Integer &Integer::One()
+{
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_one(1L);
+	return s_one;
+#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
+	return g_one;
+#else
+	return Singleton<Integer, NewInteger<1L> >().Ref();
+#endif
+}
+
+const Integer &Integer::Two()
+{
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_two(2L);
+	return s_two;
+#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
+	return g_two;
+#else
+	return Singleton<Integer, NewInteger<2L> >().Ref();
+#endif
+}
 
 NAMESPACE_END
 

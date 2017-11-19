@@ -41,6 +41,7 @@ struct Threefish_Info : public FixedBlockSize<BS>, FixedKeyLength<BS>
 template <unsigned int BS>
 struct CRYPTOPP_NO_VTABLE Threefish_Base
 {
+	virtual ~Threefish_Base() {}
 
     void SetTweak(const NameValuePairs &params)
     {
