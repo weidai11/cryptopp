@@ -39,7 +39,7 @@ struct Threefish_Info : public FixedBlockSize<BS>, FixedKeyLength<BS>
 //! \sa Threefish256, Threefish512, Threefish1024, <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 //! \since Crypto++ 6.0
 template <unsigned int BS>
-struct CRYPTOPP_NO_VTABLE Threefish_Base : public Threefish_Info<BS>
+struct CRYPTOPP_NO_VTABLE Threefish_Base
 {
 
     void SetTweak(const NameValuePairs &params)
@@ -71,13 +71,13 @@ struct CRYPTOPP_NO_VTABLE Threefish_Base : public Threefish_Info<BS>
 //! \note Crypto++ provides a byte oriented implementation
 //! \sa Threefish256, Threefish512, Threefish1024, <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 //! \since Crypto++ 6.0
-class CRYPTOPP_NO_VTABLE Threefish256 : public Threefish_Base<32>, public BlockCipherDocumentation
+class CRYPTOPP_NO_VTABLE Threefish256 : public Threefish_Info<32>, public BlockCipherDocumentation
 {
 public:
     //! \brief Threefish block cipher transformation functions
     //! \details Provides implementation common to encryption and decryption
     //! \since Crypto++ 6.0
-    class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Threefish_Base<32> >
+    class CRYPTOPP_NO_VTABLE Base : public Threefish_Base<32>, public BlockCipherImpl<Threefish_Info<32> >
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
@@ -116,13 +116,13 @@ typedef Threefish256::Decryption Threefish256Decryption;
 //! \note Crypto++ provides a byte oriented implementation
 //! \sa Threefish256, Threefish512, Threefish1024, <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 //! \since Crypto++ 6.0
-class CRYPTOPP_NO_VTABLE Threefish512 : public Threefish_Base<64>, public BlockCipherDocumentation
+class CRYPTOPP_NO_VTABLE Threefish512 : public Threefish_Base<32>, public BlockCipherDocumentation
 {
 public:
     //! \brief Threefish block cipher transformation functions
     //! \details Provides implementation common to encryption and decryption
     //! \since Crypto++ 6.0
-    class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Threefish_Base<64> >
+    class CRYPTOPP_NO_VTABLE Base : public Threefish_Base<64>, public BlockCipherImpl<Threefish_Info<64> >
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
@@ -161,13 +161,13 @@ typedef Threefish512::Decryption Threefish512Decryption;
 //! \note Crypto++ provides a byte oriented implementation
 //! \sa Threefish256, Threefish512, Threefish1024, <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 //! \since Crypto++ 6.0
-class CRYPTOPP_NO_VTABLE Threefish1024 : public Threefish_Base<128>, public BlockCipherDocumentation
+class CRYPTOPP_NO_VTABLE Threefish1024 : public Threefish_Base<32>, public BlockCipherDocumentation
 {
 public:
     //! \brief Threefish block cipher transformation functions
     //! \details Provides implementation common to encryption and decryption
     //! \since Crypto++ 6.0
-    class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Threefish_Base<128> >
+    class CRYPTOPP_NO_VTABLE Base : public Threefish_Base<128>, public BlockCipherImpl<Threefish_Info<128> >
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
