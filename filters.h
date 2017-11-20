@@ -1119,7 +1119,7 @@ private:
 //! \details StringSink is a typedef for StringSinkTemplate<std::string>.
 //! \sa ArraySink, ArrayXorSink
 //! \since Crypto++ 4.0
-DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
+DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink)
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
 //! \class RandomNumberSink
@@ -1444,7 +1444,7 @@ public:
 //! \details ArraySource is a typedef for StringSource. Use the third constructor for an array source.
 //!   The third constructor takes a pointer and length.
 //! \since Crypto++ 5.6.0
-DOCUMENTED_TYPEDEF(StringSource, ArraySource);
+DOCUMENTED_TYPEDEF(StringSource, ArraySource)
 
 //! \brief RNG-based implementation of Source interface
 //! \since Crypto++ 4.0
