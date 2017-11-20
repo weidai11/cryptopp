@@ -129,6 +129,9 @@
     <None Include="TestVectors\sosemanuk.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\speck.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\tea.txt">
       <Filter>TestVectors</Filter>
     </None>
