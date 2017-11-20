@@ -14,9 +14,9 @@ Currently the library contains the following algorithms:
            AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
                                    CAST-256
 
-                                   ARIA, IDEA, Triple-DES (DES-EDE2 and DES-EDE3),
-              other block ciphers  Camellia, SEED, Kalyna, RC5, Blowfish, TEA, XTEA,
-                                   Threefish, Skipjack, SHACAL-2
+                                   ARIA, IDEA, Blowfish, Triple-DES (DES-EDE2 and
+              other block ciphers  DES-EDE3), Camellia, SEED, Kalyna, RC5, SPECK-64,
+                                   SPECK-128, Threefish, Skipjack, SHACAL-2, TEA, XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
