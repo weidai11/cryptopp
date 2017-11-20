@@ -32,6 +32,7 @@
 #include "mars.h"
 #include "kalyna.h"
 #include "threefish.h"
+#include "speck.h"
 #include "des.h"
 #include "idea.h"
 #include "rc5.h"
@@ -153,6 +154,14 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish256> >();  // Benchmarks
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish512> >();  // Benchmarks
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish1024> >();  // Benchmarks
+
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SPECK64> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK64> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SPECK128> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK128> >();  // Test Vectors
+
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK64> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK128> >();  // Benchmarks
 
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();

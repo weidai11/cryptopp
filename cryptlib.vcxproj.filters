@@ -371,6 +371,9 @@
     <ClCompile Include="sosemanuk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="speck.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="square.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -817,6 +820,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sosemanuk.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="speck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="square.h">

@@ -280,6 +280,8 @@ socketft.cpp
 socketft.h
 sosemanuk.cpp
 sosemanuk.h
+speck.cpp
+speck.h
 square.cpp
 square.h
 squaretb.cpp
