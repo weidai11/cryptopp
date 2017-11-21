@@ -87,7 +87,7 @@ inline void SPECK_Decrypt(W p[2], const W c[2], const W k[R])
 //! \param key empty subkey array
 //! \param k user key array
 template <class W, unsigned int R>
-inline void SPECK_RoundKeys_2W(W key[R], const W k[2])
+inline void SPECK_ExpandKey_2W(W key[R], const W k[2])
 {
     CRYPTOPP_ASSERT(R==32);
     W i=0, B=k[1], A=k[0];
@@ -107,7 +107,7 @@ inline void SPECK_RoundKeys_2W(W key[R], const W k[2])
 //! \param key empty subkey array
 //! \param k user key array
 template <class W, unsigned int R>
-inline void SPECK_RoundKeys_3W(W key[R], const W k[3])
+inline void SPECK_ExpandKey_3W(W key[R], const W k[3])
 {
     CRYPTOPP_ASSERT(R==33 || R==26);
     W i=0, C=k[2], B=k[1], A=k[0];
@@ -134,7 +134,7 @@ inline void SPECK_RoundKeys_3W(W key[R], const W k[3])
 //! \param key empty subkey array
 //! \param k user key array
 template <class W, unsigned int R>
-inline void SPECK_RoundKeys_4W(W key[R], const W k[4])
+inline void SPECK_ExpandKey_4W(W key[R], const W k[4])
 {
     CRYPTOPP_ASSERT(R==34 || R==27);
     W i=0, D=k[3], C=k[2], B=k[1], A=k[0];
@@ -185,12 +185,12 @@ void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     case 3:
         m_rkey.New(26);
         iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
-        SPECK_RoundKeys_3W<word32, 26>(m_rkey, m_wspace);
+        SPECK_ExpandKey_3W<word32, 26>(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(27);
         iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
-        SPECK_RoundKeys_4W<word32, 27>(m_rkey, m_wspace);
+        SPECK_ExpandKey_4W<word32, 27>(m_rkey, m_wspace);
         break;
     default:
         CRYPTOPP_ASSERT(0);;
@@ -264,17 +264,17 @@ void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     case 2:
         m_rkey.New(32);
         iblk(m_wspace[1])(m_wspace[0]);
-        SPECK_RoundKeys_2W<word64, 32>(m_rkey, m_wspace);
+        SPECK_ExpandKey_2W<word64, 32>(m_rkey, m_wspace);
         break;
     case 3:
         m_rkey.New(33);
         iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
-        SPECK_RoundKeys_3W<word64, 33>(m_rkey, m_wspace);
+        SPECK_ExpandKey_3W<word64, 33>(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(34);
         iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
-        SPECK_RoundKeys_4W<word64, 34>(m_rkey, m_wspace);
+        SPECK_ExpandKey_4W<word64, 34>(m_rkey, m_wspace);
         break;
     default:
         CRYPTOPP_ASSERT(0);;
