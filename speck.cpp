@@ -57,7 +57,7 @@ inline void SPECK_Encrypt(W c[2], const W p[2], const W k[R])
     c[0]=p[0]; c[1]=p[1];
 
     // Don't unroll this loop. Things slow down.
-    for(W i=0; static_cast<int>(i)<R; ++i)
+    for (size_t i=0; static_cast<int>(i)<R; ++i)
         TF83(c[0], c[1], k[i]);
 }
 
@@ -73,7 +73,7 @@ inline void SPECK_Decrypt(W p[2], const W c[2], const W k[R])
     p[0]=c[0]; p[1]=c[1];
 
     // Don't unroll this loop. Things slow down.
-    for(W i=R-1; static_cast<int>(i)>=0; --i)
+    for (size_t i=R-1; static_cast<int>(i)>=0; --i)
         TR83(p[0], p[1], k[i]);
 }
 
