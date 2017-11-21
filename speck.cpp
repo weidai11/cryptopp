@@ -15,11 +15,14 @@ using CryptoPP::word32;
 using CryptoPP::word64;
 using CryptoPP::rotlFixed;
 using CryptoPP::rotrFixed;
-using CryptoPP::rotlVariable;
-using CryptoPP::rotrVariable;
 
 //! \brief Forward round transformation
 //! \tparam W word type
+//! \details TF83() is the forward round transformation using a=8 and b=3 rotations.
+//!   The initial test implementation provided template parameters, but they were
+//!   removed because SPECK32 using a=7 and b=2 was not on the road map. The
+//!   additional template parameters also made calling SPECK_Encrypt and SPECK_Decrypt
+//!   kind of messy.
 template <class W>
 inline void TF83(W& x, W& y, const W& k)
 {
@@ -31,6 +34,11 @@ inline void TF83(W& x, W& y, const W& k)
 
 //! \brief Reverse round transformation
 //! \tparam W word type
+//! \details TR83() is the reverse round transformation using a=8 and b=3 rotations.
+//!   The initial test implementation provided template parameters, but they were
+//!   removed because SPECK32 using a=7 and b=2 was not on the road map. The
+//!   additional template parameters also made calling SPECK_Encrypt and SPECK_Decrypt
+//!   kind of messy.
 template <class W>
 inline void TR83(W& x, W& y, const W& k)
 {
@@ -153,6 +161,8 @@ inline void SPECK_RoundKeys_4W(W key[R], const W k[4])
 }
 
 ANONYMOUS_NAMESPACE_END
+
+///////////////////////////////////////////////////////////
 
 NAMESPACE_BEGIN(CryptoPP)
 
