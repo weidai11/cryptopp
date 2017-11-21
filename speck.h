@@ -45,6 +45,7 @@ template <class W>
 struct SPECK_Base
 {
     virtual ~SPECK_Base() {}
+    SPECK_Base() : m_kwords(0) {}
 
     typedef SecBlock<W, AllocatorWithCleanup<W, true> > AlignedSecBlock;
     mutable AlignedSecBlock m_wspace;  // workspace
@@ -68,7 +69,8 @@ public:
     {
     public:
         std::string AlgorithmName() const {
-            return StaticAlgorithmName() + "(" + IntToString(m_kwords*sizeof(word32)*8) + ")";
+            return StaticAlgorithmName() + (m_kwords == 0 ? "" :
+                "(" + IntToString(m_kwords*sizeof(word32)*8) + ")");
         }
 
     protected:
@@ -115,7 +117,8 @@ public:
     {
     public:
         std::string AlgorithmName() const {
-            return StaticAlgorithmName() + "(" + IntToString(m_kwords*sizeof(word64)*8) + ")";
+            return StaticAlgorithmName() + (m_kwords == 0 ? "" :
+                "(" + IntToString(m_kwords*sizeof(word64)*8) + ")");
         }
 
     protected:
