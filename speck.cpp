@@ -169,6 +169,7 @@ NAMESPACE_BEGIN(CryptoPP)
 void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(keyLength == 12 || keyLength == 16);
+    CRYPTOPP_UNUSED(params);
 
     // Building the key schedule table requires {3,4} words workspace.
     // Encrypting and decrypting requires 4 words workspace.
@@ -248,6 +249,7 @@ void SPECK64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(keyLength == 16 || keyLength == 24 || keyLength == 32);
+    CRYPTOPP_UNUSED(params);
 
     // Building the key schedule table requires {2,3,4} words workspace.
     // Encrypting and decrypting requires 4 words workspace.
