@@ -362,6 +362,9 @@
     <ClCompile Include="simple.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="skipjack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -805,6 +808,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simple.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="siphash.h">

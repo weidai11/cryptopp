@@ -288,6 +288,7 @@
     <ClCompile Include="shacal2-simd.cpp" />
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
+    <ClCompile Include="simon.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="socketft.cpp" />
@@ -470,6 +471,7 @@
     <ClInclude Include="shacal2.h" />
     <ClInclude Include="shark.h" />
     <ClInclude Include="simple.h" />
+    <ClInclude Include="simon.h" />
     <ClInclude Include="siphash.h" />
     <ClInclude Include="skipjack.h" />
     <ClInclude Include="smartptr.h" />

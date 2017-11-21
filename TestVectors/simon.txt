@@ -1,0 +1,41 @@
+AlgorithmType: SymmetricCipher
+Name: SIMON-64/ECB
+#
+Source: Simon and Speck paper, Appendix B
+Comment: Simon64/96
+Key: 13121110 0b0a0908 03020100
+Plaintext: 6f722067 6e696c63
+Ciphertext: 5ca2e27f 111a8fc8
+Test: Encrypt
+#
+Source: Simon and Speck paper, Appendix B
+Comment: Simon64/128
+Key: 1b1a1918 13121110 0b0a0908 03020100
+Plaintext: 656b696c 20646e75
+Ciphertext: 44c8fc20 b9dfa07a
+Test: Encrypt
+
+
+AlgorithmType: SymmetricCipher
+Name: SIMON-128/ECB
+#
+Source: Simon and Speck paper, Appendix B
+Comment: Simon128/128
+Key: 0f0e0d0c0b0a0908 0706050403020100
+Plaintext: 6373656420737265 6c6c657661727420
+Ciphertext: 49681b1e1e54fe3f 65aa832af84e0bbc
+Test: Encrypt
+#
+Source: Simon and Speck paper, Appendix B
+Comment: Simon128/192
+Key: 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+Plaintext: 206572656874206e 6568772065626972
+Ciphertext: c4ac61effcdc0d4f 6c9c8d6e2597b85b
+Test: Encrypt
+#
+Source: Simon and Speck paper, Appendix B
+Comment: Simon128/256
+Key: 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+Plaintext: 74206e69206d6f6f 6d69732061207369
+Ciphertext: 8d2b5579afc8a3a0 3bf72a87efe7b868
+Test: Encrypt

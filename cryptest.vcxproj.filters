@@ -126,6 +126,9 @@
     <None Include="TestVectors\siphash.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\simon.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\sosemanuk.txt">
       <Filter>TestVectors</Filter>
     </None>

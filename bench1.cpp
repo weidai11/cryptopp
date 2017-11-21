@@ -604,6 +604,12 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 64, "Kalyna-256(512) (512-bit key)", MakeParameters(Name::BlockSize(), 32));
 		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 64, "Kalyna-512(512) (512-bit key)", MakeParameters(Name::BlockSize(), 64));
 
+		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 12, "SIMON-64(96) (96-bit key)");
+		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 16, "SIMON-64(128) (128-bit key)");
+		BenchMarkByName<SymmetricCipher>("SIMON-128/CTR", 16, "SIMON-128(128) (128-bit key)");
+		BenchMarkByName<SymmetricCipher>("SIMON-128/CTR", 24, "SIMON-128(192) (192-bit key)");
+		BenchMarkByName<SymmetricCipher>("SIMON-128/CTR", 32, "SIMON-128(256) (256-bit key)");
+
 		BenchMarkByName<SymmetricCipher>("SPECK-64/CTR", 12, "SPECK-64(96) (96-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-64/CTR", 16, "SPECK-64(128) (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 16, "SPECK-128(128) (128-bit key)");

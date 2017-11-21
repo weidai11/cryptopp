@@ -275,6 +275,8 @@ simple.h
 siphash.h
 skipjack.cpp
 skipjack.h
+simon.cpp
+simon.h
 smartptr.h
 socketft.cpp
 socketft.h
@@ -456,6 +458,7 @@ TestVectors/sha3_256_fips_202.txt
 TestVectors/sha3_384_fips_202.txt
 TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
+TestVectors/simon.txt
 TestVectors/siphash.txt
 TestVectors/sosemanuk.txt
 TestVectors/speck.txt
