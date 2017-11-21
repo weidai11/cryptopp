@@ -6,9 +6,6 @@
 #include "speck.h"
 #include "misc.h"
 
-// TODO
-#include <iostream>
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;

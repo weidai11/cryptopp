@@ -1,8 +1,8 @@
 AlgorithmType: SymmetricCipher
 Name: SPECK-64/ECB
-Source: Simon and Speck paper, Appendix C
 #
 Key: 13121110 0b0a0908 03020100
+Source: Simon and Speck paper, Appendix C
 Comment: Speck64/96
 Plaintext: 74614620 736e6165
 Ciphertext: 9f7952ec 4175946c
@@ -37,6 +37,7 @@ Ciphertext: d17e471a c5d62705
 Test: Encrypt
 #
 Key: 1b1a1918 13121110 0b0a0908 03020100
+Source: Simon and Speck paper, Appendix C
 Comment: Speck64/128
 Plaintext: 3b726574 7475432d
 Ciphertext: 8c6fa548 454e028b
@@ -72,9 +73,9 @@ Test: Encrypt
 
 AlgorithmType: SymmetricCipher
 Name: SPECK-128/ECB
-Source: Simon and Speck paper, Appendix C
 #
 Key: 0f0e0d0c0b0a0908 0706050403020100
+Source: Simon and Speck paper, Appendix C
 Comment: Speck128/128
 Plaintext: 6c61766975716520 7469206564616d20
 Ciphertext: a65d985179783265 7860fedf5c570d18
@@ -109,6 +110,7 @@ Ciphertext: e0f82c7541bc7c48 e7a6b5c1407f6a1c
 Test: Encrypt
 #
 Key: 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+Source: Simon and Speck paper, Appendix C
 Comment: Speck128/192
 Plaintext: 7261482066656968 43206f7420746e65
 Ciphertext: 1be4cf3a13135566 f9bc185de03c1886
@@ -143,6 +145,7 @@ Ciphertext: 35d04e14af2e323d dc2ed1c342158cf2
 Test: Encrypt
 #
 Key: 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+Source: Simon and Speck paper, Appendix C
 Comment: Speck128/256
 Plaintext: 65736f6874206e49 202e72656e6f6f70
 Ciphertext: 4109010405c0f53e 4eeeb48d9c188f43
