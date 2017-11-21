@@ -55,8 +55,7 @@ struct SIMON_Base
 
 //! \class SIMON64
 //! \brief SIMON 64-bit block cipher
-//! \details SIMON64 provides 64-bit block size. The valid key sizes are 98-bit and 128-bit.
-//! \note Crypto++ provides a byte oriented implementation
+//! \details SIMON64 provides 64-bit block size. The valid key sizes are 96-bit and 128-bit.
 //! \sa SIMON64, SIMON128, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the Crypto++ wiki
 //! \since Crypto++ 6.0
 class CRYPTOPP_NO_VTABLE SIMON64 : public SIMON_Info<8, 12, 12, 16>, public BlockCipherDocumentation
@@ -104,7 +103,6 @@ public:
 //! \class SIMON128
 //! \brief SIMON 128-bit block cipher
 //! \details SIMON128 provides 128-bit block size. The valid key sizes are 128-bit, 192-bit and 256-bit.
-//! \note Crypto++ provides a byte oriented implementation
 //! \sa SIMON64, SIMON128, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the Crypto++ wiki
 //! \since Crypto++ 6.0
 class CRYPTOPP_NO_VTABLE SIMON128 : public SIMON_Info<16, 16, 16, 32>, public BlockCipherDocumentation
