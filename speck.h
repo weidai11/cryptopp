@@ -115,7 +115,7 @@ public:
     {
     public:
         std::string AlgorithmName() const {
-            return StaticAlgorithmName() + "(" + IntToString(sizeof(word64)*8) + ")";
+            return StaticAlgorithmName() + "(" + IntToString(m_kwords*sizeof(word64)*8) + ")";
         }
 
     protected:
