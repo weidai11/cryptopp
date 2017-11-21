@@ -15,8 +15,9 @@ Currently the library contains the following algorithms:
                                    CAST-256
 
                                    ARIA, IDEA, Blowfish, Triple-DES (DES-EDE2 and
-              other block ciphers  DES-EDE3), Camellia, SEED, Kalyna, RC5, SPECK-64,
-                                   SPECK-128, Threefish, Skipjack, SHACAL-2, TEA, XTEA
+              other block ciphers  DES-EDE3), Camellia, SEED, Kalyna, RC5, SIMON-64,
+                                   SIMON-128, SPECK-64, SPECK-128, Threefish, Skipjack,
+                                   SHACAL-2, TEA, XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
@@ -89,7 +90,7 @@ The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
   * Visual Studio 2003 - 2017
-  * GCC 3.3 - 7.1
+  * GCC 3.3 - 7.2
   * Apple Clang 4.3 - 8.3
   * LLVM Clang 2.9 - 4.0
   * C++Builder 2010

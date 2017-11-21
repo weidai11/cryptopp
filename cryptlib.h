@@ -12,11 +12,12 @@
 <dt>Block Ciphers<dd>
 	\ref Rijndael "AES", ARIA, Weak::ARC4, Blowfish, BTEA, Camellia, CAST128, CAST256, DES,
 	\ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",	\ref DES_XEX3 "DESX",
-	GOST, IDEA, \ref LR "Luby-Rackoff", MARS, RC2, RC5, RC6, \ref SAFER_K "SAFER-K",
-	\ref SAFER_SK "SAFER-SK", SEED, Serpent, \ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
-Square, TEA, \ref ThreeWay "3-Way", Threefish, Twofish, XTEA
+	GOST, IDEA, \ref LR "Luby-Rackoff", Kalyna (128/256/512), MARS, RC2, RC5, RC6, \ref SAFER_K
+	"SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent, \ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
+	\ref SIMON128 "SIMON-64 and SIMON-128", \ref SPECK128 "SPECK-64 and SPECK-128", Square, TEA,
+	\ref ThreeWay "3-Way", \ref Threefish256 "Threefish (Threefish-256/512/1024)", Twofish, XTEA
 <dt>Stream Ciphers<dd>
-	ChaCha8, ChaCha12, ChaCha20, \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20,
+	ChaCha (ChaCha-8/12/20), \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20,
 	\ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
 	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
@@ -58,6 +59,9 @@ Square, TEA, \ref ThreeWay "3-Way", Threefish, Twofish, XTEA
 	Base32Decoder
 <dt>Wrappers for OS features<dd>
 	Timer, Socket, WindowsHandle, ThreadLocalStorage, ThreadUserTimer
+
+<!--
+
 <dt>FIPS 140 validated cryptography<dd>
 	fips140.h
 </dl>
@@ -84,7 +88,9 @@ In the DLL version of Crypto++, only the following implementation class are avai
 	RSAES\<OAEP\<SHA1\> \>
 </dl>
 
-<p>This reference manual is a work in progress. Some classes are lack detailed descriptions.
+-->
+
+<p>This reference manual is a work in progress. Some classes lack detailed descriptions.
 <p>Click <a href="CryptoPPRef.zip">here</a> to download a zip archive containing this manual.
 <p>Thanks to Ryan Phillips for providing the Doxygen configuration file
 and getting us started on the manual.
