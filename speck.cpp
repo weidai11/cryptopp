@@ -87,7 +87,7 @@ template <class W, unsigned int R>
 inline void SPECK_ExpandKey_2W(W key[R], const W k[2])
 {
     CRYPTOPP_ASSERT(R==32);
-    W i=0, B=k[1], A=k[0];
+    W i=0, B=k[0], A=k[1];
 
     while(i<R-1)
     {
@@ -107,7 +107,7 @@ template <class W, unsigned int R>
 inline void SPECK_ExpandKey_3W(W key[R], const W k[3])
 {
     CRYPTOPP_ASSERT(R==33 || R==26);
-    W i=0, C=k[2], B=k[1], A=k[0];
+    W i=0, C=k[0], B=k[1], A=k[2];
 
     unsigned int blocks = R/2;
     while(blocks--)
@@ -134,7 +134,7 @@ template <class W, unsigned int R>
 inline void SPECK_ExpandKey_4W(W key[R], const W k[4])
 {
     CRYPTOPP_ASSERT(R==34 || R==27);
-    W i=0, D=k[3], C=k[2], B=k[1], A=k[0];
+    W i=0, D=k[0], C=k[1], B=k[2], A=k[3];
 
     unsigned int blocks = R/3;
     while(blocks--)
@@ -172,22 +172,16 @@ void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     // Encrypting and decrypting requires 4 words workspace.
     m_kwords = keyLength/sizeof(word32);
     m_wspace.New(STDMAX(m_kwords,4U));
-
-    // Avoid GetUserKey. SPECK does unusual things with key string and word ordering
-    // {A,B} -> {B,A}, {A,B,C} -> {C,B,A}, etc.
-    typedef GetBlock<word32, BigEndian, false> InBlock;
-    InBlock iblk(userKey);
+    GetUserKey(BIG_ENDIAN_ORDER, m_wspace.begin(), m_kwords, userKey, keyLength);
 
     switch (m_kwords)
     {
     case 3:
         m_rkey.New(26);
-        iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SPECK_ExpandKey_3W<word32, 26>(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(27);
-        iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SPECK_ExpandKey_4W<word32, 27>(m_rkey, m_wspace);
         break;
     default:
@@ -252,27 +246,20 @@ void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     // Encrypting and decrypting requires 4 words workspace.
     m_kwords = keyLength/sizeof(word64);
     m_wspace.New(STDMAX(m_kwords,4U));
-
-    // Avoid GetUserKey. SPECK does unusual things with key string and word ordering
-    // {A,B} -> {B,A}, {A,B,C} -> {C,B,A}, etc.
-    typedef GetBlock<word64, BigEndian, false> InBlock;
-    InBlock iblk(userKey);
+    GetUserKey(BIG_ENDIAN_ORDER, m_wspace.begin(), m_kwords, userKey, keyLength);
 
     switch (m_kwords)
     {
     case 2:
         m_rkey.New(32);
-        iblk(m_wspace[1])(m_wspace[0]);
         SPECK_ExpandKey_2W<word64, 32>(m_rkey, m_wspace);
         break;
     case 3:
         m_rkey.New(33);
-        iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SPECK_ExpandKey_3W<word64, 33>(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(34);
-        iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SPECK_ExpandKey_4W<word64, 34>(m_rkey, m_wspace);
         break;
     default:
