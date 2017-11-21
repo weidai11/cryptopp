@@ -5,7 +5,7 @@
 //! \details Simon is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
 //!   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
 //! \sa <A HREF="http://eprint.iacr.org/2013/404">The SIMON and SPECK Families of
-//!   Lightweight Block Ciphers</A> and <A HREF="http://iadgov.github.io/simon-simon/">
+//!   Lightweight Block Ciphers</A> and <A HREF="http://iadgov.github.io/simon-speck/">
 //!   The Simon and Speck GitHub</A>
 //! \since Crypto++ 6.0
 
