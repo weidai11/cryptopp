@@ -46,12 +46,18 @@ inline void SIMON_Encrypt(W c[2], const W p[2], const W k[R])
 {
     c[0]=p[0]; c[1]=p[1];
 
-    for (size_t i = 0; static_cast<int>(i) < R-1; i += 2)
-        R2(c[0], c[1], k[i], k[i + 1]);
-
     // The constexpr residue should allow the optimizer to remove unneeded statements
-    if (R%2 == 1)
+    if (R%2 == 0)
     {
+        for (size_t i = 0; static_cast<int>(i) < R-1; i += 2)
+            R2(c[0], c[1], k[i], k[i + 1]);
+    }
+    else
+    {
+        for (size_t i = 0; static_cast<int>(i) < R-1; i += 2)
+            R2(c[0], c[1], k[i], k[i + 1]);
+
+
         c[1] ^= f(c[0]); c[1] ^= k[R-1];
         W t = c[0]; c[0] = c[1]; c[1] = t;
     }
@@ -86,43 +92,43 @@ inline void SIMON_Decrypt(W p[2], const W c[2], const W k[R])
 
 //! \brief Subkey generation function
 //! \details Used for SIMON-64 with 96-bit key and 42 rounds. A template was
-//!   not worthwile because all instantiations would need specialization.
+//!   not worthwhile because all instantiations would need specialization.
 //! \param key empty subkey array
 //! \param k user key array
 inline void SPECK64_ExpandKey_42R3K(word32 key[42], const word32 k[3])
 {
-	const word32 c = 0xfffffffc;
-	word64 z = 0x7369f885192c0ef5LL;
+    const word32 c = 0xfffffffc;
+    word64 z = W64LIT(0x7369f885192c0ef5);
 
-	key[0] = k[0]; key[1] = k[1]; key[2] = k[2];
-	for (size_t i = 3; i<42; ++i)
-	{
-		key[i] = c ^ (z & 1) ^ key[i-3] ^ rotrFixed(key[i-1], 3) ^ rotrFixed(key[i-1], 4);
-		z >>= 1;
-	}
+    key[0] = k[0]; key[1] = k[1]; key[2] = k[2];
+    for (size_t i = 3; i<42; ++i)
+    {
+        key[i] = c ^ (z & 1) ^ key[i-3] ^ rotrFixed(key[i-1], 3) ^ rotrFixed(key[i-1], 4);
+        z >>= 1;
+    }
 }
 
 //! \brief Subkey generation function
 //! \details Used for SIMON-64 with 128-bit key and 44 rounds. A template was
-//!   not worthwile because all instantiations would need specialization.
+//!   not worthwhile because all instantiations would need specialization.
 //! \param key empty subkey array
 //! \param k user key array
 inline void SPECK64_ExpandKey_44R4K(word32 key[44], const word32 k[4])
 {
-	const word32 c = 0xfffffffc;
-	word64 z = W64LIT(0xfc2ce51207a635db);
+    const word32 c = 0xfffffffc;
+    word64 z = W64LIT(0xfc2ce51207a635db);
 
-	key[0] = k[0]; key[1] = k[1]; key[2] = k[2]; key[3] = k[3];
-	for (size_t i = 4; i<44; ++i)
-	{
-		key[i] = c ^ (z & 1) ^ key[i-4] ^ rotrFixed(key[i-1], 3) ^ key[i-3] ^ rotrFixed(key[i-1], 4) ^ rotrFixed(key[i-3], 1);
-		z >>= 1;
-	}
+    key[0] = k[0]; key[1] = k[1]; key[2] = k[2]; key[3] = k[3];
+    for (size_t i = 4; i<44; ++i)
+    {
+        key[i] = c ^ (z & 1) ^ key[i-4] ^ rotrFixed(key[i-1], 3) ^ key[i-3] ^ rotrFixed(key[i-1], 4) ^ rotrFixed(key[i-3], 1);
+        z >>= 1;
+    }
 }
 
 //! \brief Subkey generation function
 //! \details Used for SIMON-128 with 128-bit key and 68 rounds. A template was
-//!   not worthwile because all instantiations would need specialization.
+//!   not worthwhile because all instantiations would need specialization.
 //! \param key empty subkey array
 //! \param k user key array
 inline void SIMON128_ExpandKey_68R2K(word64 key[68], const word64 k[2])
@@ -143,7 +149,7 @@ inline void SIMON128_ExpandKey_68R2K(word64 key[68], const word64 k[2])
 
 //! \brief Subkey generation function
 //! \details Used for SIMON-128 with 192-bit key and 69 rounds. A template was
-//!   not worthwile because all instantiations would need specialization.
+//!   not worthwhile because all instantiations would need specialization.
 //! \param key empty subkey array
 //! \param k user key array
 inline void SIMON128_ExpandKey_69R3K(word64 key[69], const word64 k[3])
@@ -164,7 +170,7 @@ inline void SIMON128_ExpandKey_69R3K(word64 key[69], const word64 k[3])
 
 //! \brief Subkey generation function
 //! \details Used for SIMON-128 with 256-bit key and 72 rounds. A template was
-//!   not worthwile because all instantiations would need specialization.
+//!   not worthwhile because all instantiations would need specialization.
 //! \param key empty subkey array
 //! \param k user key array
 inline void SIMON128_ExpandKey_72R4K(word64 key[72], const word64 k[4])
@@ -191,7 +197,6 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if 1
 void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(keyLength == 12 || keyLength == 16);
@@ -212,12 +217,12 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     case 3:
         m_rkey.New(42);
         iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
-		SPECK64_ExpandKey_42R3K(m_rkey, m_wspace);
+        SPECK64_ExpandKey_42R3K(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(44);
         iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
-		SPECK64_ExpandKey_44R4K(m_rkey, m_wspace);
+        SPECK64_ExpandKey_44R4K(m_rkey, m_wspace);
         break;
     default:
         CRYPTOPP_ASSERT(0);;
@@ -269,7 +274,6 @@ void SIMON64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     typedef PutBlock<word32, BigEndian, false> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[2])(m_wspace[3]);
 }
-#endif
 
 ///////////////////////////////////////////////////////////
 

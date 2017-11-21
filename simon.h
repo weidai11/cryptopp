@@ -52,8 +52,6 @@ struct SIMON_Base
     unsigned int            m_kwords;  // number of key words
 };
 
-#if 1
-
 //! \class SIMON64
 //! \brief SIMON 64-bit block cipher
 //! \details SIMON64 provides 64-bit block size. The valid key sizes are 98-bit and 128-bit.
@@ -100,7 +98,6 @@ public:
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
     typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
-#endif
 
 //! \class SIMON128
 //! \brief SIMON 128-bit block cipher
