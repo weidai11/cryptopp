@@ -100,7 +100,7 @@ inline void SPECK64_ExpandKey_42R3K(word32 key[42], const word32 k[3])
     const word32 c = 0xfffffffc;
     word64 z = W64LIT(0x7369f885192c0ef5);
 
-    key[0] = k[0]; key[1] = k[1]; key[2] = k[2];
+    key[0] = k[2]; key[1] = k[1]; key[2] = k[0];
     for (size_t i = 3; i<42; ++i)
     {
         key[i] = c ^ (z & 1) ^ key[i-3] ^ rotrFixed(key[i-1], 3) ^ rotrFixed(key[i-1], 4);
@@ -118,7 +118,7 @@ inline void SPECK64_ExpandKey_44R4K(word32 key[44], const word32 k[4])
     const word32 c = 0xfffffffc;
     word64 z = W64LIT(0xfc2ce51207a635db);
 
-    key[0] = k[0]; key[1] = k[1]; key[2] = k[2]; key[3] = k[3];
+    key[0] = k[3]; key[1] = k[2]; key[2] = k[1]; key[3] = k[0];
     for (size_t i = 4; i<44; ++i)
     {
         key[i] = c ^ (z & 1) ^ key[i-4] ^ rotrFixed(key[i-1], 3) ^ key[i-3] ^ rotrFixed(key[i-1], 4) ^ rotrFixed(key[i-3], 1);
@@ -136,7 +136,7 @@ inline void SIMON128_ExpandKey_68R2K(word64 key[68], const word64 k[2])
     const word64 c = W64LIT(0xfffffffffffffffc);
     word64 z = W64LIT(0x7369f885192c0ef5);
 
-    key[0] = k[0]; key[1] = k[1];
+    key[0] = k[1]; key[1] = k[0];
     for (size_t i=2; i<66; ++i)
     {
         key[i] = c^(z&1)^key[i-2]^rotrFixed(key[i-1],3)^rotrFixed(key[i-1],4);
@@ -157,7 +157,7 @@ inline void SIMON128_ExpandKey_69R3K(word64 key[69], const word64 k[3])
     const word64 c = W64LIT(0xfffffffffffffffc);
     word64 z = W64LIT(0xfc2ce51207a635db);
 
-    key[0]=k[0]; key[1]=k[1]; key[2]=k[2];
+    key[0]=k[2]; key[1]=k[1]; key[2]=k[0];
     for (size_t i=3; i<67; ++i)
     {
         key[i] = c^(z&1)^key[i-3]^rotrFixed(key[i-1],3)^rotrFixed(key[i-1],4);
@@ -178,7 +178,7 @@ inline void SIMON128_ExpandKey_72R4K(word64 key[72], const word64 k[4])
     const word64 c = W64LIT(0xfffffffffffffffc);
     word64 z = W64LIT(0xfdc94c3a046d678b);
 
-    key[0]=k[0]; key[1]=k[1]; key[2]=k[2]; key[3]=k[3];
+    key[0]=k[3]; key[1]=k[2]; key[2]=k[1]; key[3]=k[0];
     for (size_t i=4; i<68; ++i)
     {
         key[i] = c^(z&1)^key[i-4]^rotrFixed(key[i-1],3)^key[i-3]^rotrFixed(key[i-1],4)^rotrFixed(key[i-3],1);
@@ -206,22 +206,16 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     // Encrypting and decrypting requires 4 words workspace.
     m_kwords = keyLength/sizeof(word32);
     m_wspace.New(STDMAX(m_kwords,4U));
-
-    // Avoid GetUserKey. SIMON does unusual things with key string and word ordering
-    // {A,B} -> {B,A}, {A,B,C} -> {C,B,A}, etc.
-    typedef GetBlock<word32, BigEndian, false> InBlock;
-    InBlock iblk(userKey);
+    GetUserKey(BIG_ENDIAN_ORDER, m_wspace.begin(), m_kwords, userKey, keyLength);
 
     switch (m_kwords)
     {
     case 3:
         m_rkey.New(42);
-        iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SPECK64_ExpandKey_42R3K(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(44);
-        iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SPECK64_ExpandKey_44R4K(m_rkey, m_wspace);
         break;
     default:
@@ -286,27 +280,20 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     // Encrypting and decrypting requires 4 words workspace.
     m_kwords = keyLength/sizeof(word64);
     m_wspace.New(STDMAX(m_kwords,4U));
-
-    // Avoid GetUserKey. SIMON does unusual things with key string and word ordering
-    // {A,B} -> {B,A}, {A,B,C} -> {C,B,A}, etc.
-    typedef GetBlock<word64, BigEndian, false> InBlock;
-    InBlock iblk(userKey);
+    GetUserKey(BIG_ENDIAN_ORDER, m_wspace.begin(), m_kwords, userKey, keyLength);
 
     switch (m_kwords)
     {
     case 2:
         m_rkey.New(68);
-        iblk(m_wspace[1])(m_wspace[0]);
         SIMON128_ExpandKey_68R2K(m_rkey, m_wspace);
         break;
     case 3:
         m_rkey.New(69);
-        iblk(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SIMON128_ExpandKey_69R3K(m_rkey, m_wspace);
         break;
     case 4:
         m_rkey.New(72);
-        iblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
         SIMON128_ExpandKey_72R4K(m_rkey, m_wspace);
         break;
     default:
