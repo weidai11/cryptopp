@@ -294,6 +294,7 @@
     <ClCompile Include="socketft.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
     <ClCompile Include="speck.cpp" />
+    <ClCompile Include="speck-simd.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="squaretb.cpp" />
     <ClCompile Include="sse-simd.cpp" />

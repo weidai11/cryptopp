@@ -377,6 +377,9 @@
     <ClCompile Include="speck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="speck-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="square.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

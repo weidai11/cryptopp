@@ -283,6 +283,7 @@ socketft.h
 sosemanuk.cpp
 sosemanuk.h
 speck.cpp
+speck-simd.cpp
 speck.h
 square.cpp
 square.h

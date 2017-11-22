@@ -1,8 +1,8 @@
 // speck-simd.cpp - written and placed in the public domain by Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
-//    AES-NI, ARMv8a AES and Power8 AES instructions. A separate source
-//    file is needed because additional CXXFLAGS are required to enable
+//    SSSE3, ARM NEON and ARMv8a, and Power7 Altivec instructions. A separate
+//    source file is needed because additional CXXFLAGS are required to enable
 //    the appropriate instructions sets in some build configurations.
 
 #include "pch.h"
@@ -64,7 +64,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
 {
     // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
     // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_4_Blocks rather than the calling code.
+    // Its also easier to permute them in SPECK128_Enc_Block rather than the calling code.
     // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy.
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
@@ -101,8 +101,8 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy.
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
-    __m128i x2 = _mm_unpacklo_epi64(block2, block3);  // x2
-    __m128i y2 = _mm_unpackhi_epi64(block2, block3);  // y2
+    __m128i x2 = _mm_unpacklo_epi64(block2, block3);
+    __m128i y2 = _mm_unpackhi_epi64(block2, block3);
 
     const __m128i mask = _mm_set_epi8(8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -141,7 +141,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
 {
     // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
     // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_4_Blocks rather than the calling code.
+    // Its also easier to permute them in SPECK128_Dec_Block rather than the calling code.
     // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy.
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
@@ -155,15 +155,10 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
     {
         const __m128i k1 = _mm_castpd_si128(_mm_loaddup_pd((const double*)(subkeys+i)));
 
-        // y ^= x;
         y1 = _mm_xor_si128(y1, x1);
-        // y = rotrFixed(y,3);
         y1 = RotateRight64<3>(y1);
-        // x ^= k;
         x1 = _mm_xor_si128(x1, k1);
-        // x -= y;
         x1 = _mm_sub_epi64(x1, y1);
-        // x = rotlFixed(x,8);
         x1 = RotateLeft64<8>(x1);
     }
 
@@ -179,12 +174,12 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
 {
     // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
     // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_4_Blocks rather than the calling code.
+    // Its also easier to permute them in SPECK128_Dec_4_Blocks rather than the calling code.
     // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy.
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
-    __m128i x2 = _mm_unpacklo_epi64(block2, block3);  // x2
-    __m128i y2 = _mm_unpackhi_epi64(block2, block3);  // y2
+    __m128i x2 = _mm_unpacklo_epi64(block2, block3);
+    __m128i y2 = _mm_unpackhi_epi64(block2, block3);
 
     const __m128i mask = _mm_set_epi8(8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -196,19 +191,14 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     {
         const __m128i k1 = _mm_castpd_si128(_mm_loaddup_pd((const double*)(subkeys+i)));
 
-        // y ^= x;
         y1 = _mm_xor_si128(y1, x1);
         y2 = _mm_xor_si128(y2, x2);
-        // y = rotrFixed(y,3);
         y1 = RotateRight64<3>(y1);
         y2 = RotateRight64<3>(y2);
-        // x ^= k;
         x1 = _mm_xor_si128(x1, k1);
         x2 = _mm_xor_si128(x2, k1);
-        // x -= y;
         x1 = _mm_sub_epi64(x1, y1);
         x2 = _mm_sub_epi64(x2, y2);
-        // x = rotlFixed(x,8);
         x1 = RotateLeft64<8>(x1);
         x2 = RotateLeft64<8>(x2);
     }
