@@ -45,12 +45,13 @@ template <class W>
 struct SPECK_Base
 {
     virtual ~SPECK_Base() {}
-    SPECK_Base() : m_kwords(0) {}
+    SPECK_Base() : m_kwords(0), m_rounds(0) {}
 
     typedef SecBlock<W, AllocatorWithCleanup<W, true> > AlignedSecBlock;
     mutable AlignedSecBlock m_wspace;  // workspace
-    AlignedSecBlock         m_rkey;    // round keys
+    AlignedSecBlock         m_rkeys;   // round keys
     unsigned int            m_kwords;  // number of key words
+    unsigned int            m_rounds;  // number of rounds
 };
 
 //! \class SPECK64
@@ -141,6 +142,9 @@ public:
     {
     protected:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     //! \brief Provides implementation for encryption transformation
@@ -151,6 +155,9 @@ public:
     {
     protected:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
