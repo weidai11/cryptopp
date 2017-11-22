@@ -1,180 +1,242 @@
 AlgorithmType: SymmetricCipher
 Name: SPECK-64/ECB
 #
-Key: 13121110 0b0a0908 03020100
 Source: Simon and Speck paper, Appendix C
 Comment: Speck64/96
+Key: 13121110 0b0a0908 03020100
 Plaintext: 74614620 736e6165
 Ciphertext: 9f7952ec 4175946c
 Test: Encrypt
 #
-Key: c40f8507 5934046a 8ceded44
 Source: modified speck6496 reference implementation
 Comment: Speck64/96
+Key: c40f8507 5934046a 8ceded44
 Plaintext: 2203b9de 8bf9ca31
 Ciphertext: d3af2346 682922a8
 Test: Encrypt
 #
-Key: 6c65a9ba 5a0712a5 e04a04bf
 Source: modified speck6496 reference implementation
 Comment: Speck64/96
+Key: 6c65a9ba 5a0712a5 e04a04bf
 Plaintext: e05349aa 204c1230
 Ciphertext: 3317e849 b8bfa9f9
 Test: Encrypt
 #
-Key: 19677d80 03d0c4d7 74b97dbb
 Source: modified speck6496 reference implementation
 Comment: Speck64/96
+Key: 19677d80 03d0c4d7 74b97dbb
 Plaintext: 108597f1 5b756713
 Ciphertext: 4d74883f 0207db30
 Test: Encrypt
 #
-Key: cc8d5345 45d15977 a460923b
 Source: modified speck6496 reference implementation
 Comment: Speck64/96
+Key: cc8d5345 45d15977 a460923b
 Plaintext: 2753e7f2 d2636081
 Ciphertext: d17e471a c5d62705
 Test: Encrypt
 #
-Key: 1b1a1918 13121110 0b0a0908 03020100
 Source: Simon and Speck paper, Appendix C
 Comment: Speck64/128
+Key: 1b1a1918 13121110 0b0a0908 03020100
 Plaintext: 3b726574 7475432d
 Ciphertext: 8c6fa548 454e028b
 Test: Encrypt
 #
-Key: 10391892 0ae2144b bc09f540 a51490cb
 Source: modified speck64128 reference implementation
 Comment: Speck64/128
+Key: 10391892 0ae2144b bc09f540 a51490cb
 Plaintext: 7394225f 75c5209f
 Ciphertext: 28c7efd1 a6d4c651
 Test: Encrypt
 #
-Key: 5858ebac 10095f36 f2ad734f 30b16f25
 Source: modified speck64128 reference implementation
 Comment: Speck64/128
+Key: 5858ebac 10095f36 f2ad734f 30b16f25
 Plaintext: 63d7a40a 30587bf1
 Ciphertext: 5ebb96a6 151a3250
 Test: Encrypt
 #
-Key: 0aeff1fc d8b6a72c 6c4db6f2 4a41e8f0
 Source: modified speck64128 reference implementation
 Comment: Speck64/128
+Key: 0aeff1fc d8b6a72c 6c4db6f2 4a41e8f0
 Plaintext: 59700d77 9596725d
 Ciphertext: 035319e7 9614f714
 Test: Encrypt
 #
-Key: acde017d b9640593 98e7b248 19bf6e30
 Source: modified speck64128 reference implementation
 Comment: Speck64/128
+Key: acde017d b9640593 98e7b248 19bf6e30
 Plaintext: 06f8d302 73fbf7ee
 Ciphertext: 88979af0 1d21a12a
 Test: Encrypt
 
 AlgorithmType: SymmetricCipher
+Name: SPECK-64/CBC
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck64/96, large block
+Key: 13121110 0b0a0908 03020100
+IV: 2b2a2928 23222120
+Plaintext:  74614620 736e6165 74614620 736e6165 74614620 736e6165 \
+            74614620 736e6165 74614620 736e6165 74614620 736e6165
+Ciphertext: F6E89A18 C3D86773 EDCDC20E 75373B74 C5675E97 AC656A1C \
+            875E6571 500D5BE1 C8F3C462 48F411AD 2FD29D4C 4CEEF139
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck64/126, large block
+Key: 1b1a1918 13121110 0b0a0908 03020100
+IV: 2b2a2928 23222120
+Plaintext:  74614620 736e6165 74614620 736e6165 74614620 736e6165 \
+            74614620 736e6165 74614620 736e6165 74614620 736e6165
+Ciphertext: 6E1CA864 6D5F7BFF BB5ACC0D 58D1FDEA 90046600 1DF7145A \
+            76EA33F6 8BAA55E0 853AE5D8 6E3952EE B16FDFA2 83746490
+Test: Encrypt
+
+AlgorithmType: SymmetricCipher
 Name: SPECK-128/ECB
 #
-Key: 0f0e0d0c0b0a0908 0706050403020100
 Source: Simon and Speck paper, Appendix C
 Comment: Speck128/128
+Key: 0f0e0d0c0b0a0908 0706050403020100
 Plaintext: 6c61766975716520 7469206564616d20
 Ciphertext: a65d985179783265 7860fedf5c570d18
 Test: Encrypt
 #
-Key: dcc7317a143f0809 8cf934ffa0fa0166
 Source: modified speck128128 reference implementation
 Comment: Speck128/128
+Key: dcc7317a143f0809 8cf934ffa0fa0166
 Plaintext: e95bb3a86bff9904 3ac90a0dff04508d
 Ciphertext: 46c9f2cde92e495c b4b043184a79358c
 Test: Encrypt
 #
-Key: d8971bdb1ac43023 b1f0bababfd49fa2
 Source: modified speck128128 reference implementation
 Comment: Speck128/128
+Key: d8971bdb1ac43023 b1f0bababfd49fa2
 Plaintext: 4d24d7db47ce1d7f 2171288c8d56b7d1
 Ciphertext: 6ac918924cbb2982 5a5b9b2c55241b74
 Test: Encrypt
 #
-Key: 227ae0a52a953bc8 0d9941492af92b16
 Source: modified speck128128 reference implementation
 Comment: Speck128/128
+Key: 227ae0a52a953bc8 0d9941492af92b16
 Plaintext: 9dd7705e6735b82c 20b15d7e09d18ece
 Ciphertext: 305c4dce6a2a6d6a 4ce40ceabab19e66
 Test: Encrypt
 #
-Key: 2711e1202873f5a9 7d7595d07d0d46d5
 Source: modified speck128128 reference implementation
 Comment: Speck128/128
+Key: 2711e1202873f5a9 7d7595d07d0d46d5
 Plaintext: 21fbbe7ee7ea5c36 c57deaefa43d02cf
 Ciphertext: e0f82c7541bc7c48 e7a6b5c1407f6a1c
 Test: Encrypt
 #
-Key: 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 Source: Simon and Speck paper, Appendix C
 Comment: Speck128/192
+Key: 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 Plaintext: 7261482066656968 43206f7420746e65
 Ciphertext: 1be4cf3a13135566 f9bc185de03c1886
 Test: Encrypt
 #
-Key: 325505cd609fb51f 9b9d45f94fc4b1bf ae97dcd50230c96d
 Source: modified speck128192 reference implementation
 Comment: Speck128/192
+Key: 325505cd609fb51f 9b9d45f94fc4b1bf ae97dcd50230c96d
 Plaintext: 5305aebab8ec1199 2b8a179d18f5f4cf
 Ciphertext: 70b726dff52b7cd6 feee6a1dbd281b6b
 Test: Encrypt
 #
-Key: b70e94221848d8c9 b5b6f8321c7ae332 08b23336e6bfc606
 Source: modified speck128192 reference implementation
 Comment: Speck128/192
+Key: b70e94221848d8c9 b5b6f8321c7ae332 08b23336e6bfc606
 Plaintext: e599ffcf3d9a3604 d28c41bced252e0e
 Ciphertext: 3e183b8e42aaf312 5534867c8362f45e
 Test: Encrypt
 #
-Key: f6065032e84c44e7 eeb8cb9784de9165 17d70b3effe14dd2
 Source: modified speck128192 reference implementation
 Comment: Speck128/192
+Key: f6065032e84c44e7 eeb8cb9784de9165 17d70b3effe14dd2
 Plaintext: 73d1d920a04d5424 2c1e8e165f5400f7
 Ciphertext: 8cddc774cd54de94 640508f5bf28b4ed
 Test: Encrypt
 #
-Key: d668611ccb157f86 af2d16f2a180704a e47ebbbce0fc518c
 Source: modified speck128192 reference implementation
 Comment: Speck128/192
+Key: d668611ccb157f86 af2d16f2a180704a e47ebbbce0fc518c
 Plaintext: f7e882b59610cabf 387c11cd327306a5
 Ciphertext: 35d04e14af2e323d dc2ed1c342158cf2
 Test: Encrypt
 #
-Key: 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 Source: Simon and Speck paper, Appendix C
 Comment: Speck128/256
+Key: 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 Plaintext: 65736f6874206e49 202e72656e6f6f70
 Ciphertext: 4109010405c0f53e 4eeeb48d9c188f43
 Test: Encrypt
 #
-Key: 009de74aff060640 4f8a3a01b82c2709 89f4f20e50cf78d5 6b30510fbde1ad1f
 Source: modified speck128256 reference implementation
 Comment: Speck128/256
+Key: 009de74aff060640 4f8a3a01b82c2709 89f4f20e50cf78d5 6b30510fbde1ad1f
 Plaintext: 36b0e93a0c985b1d 95157bb5eace3396
 Ciphertext: 7fabf615c7f6f27d 59638cdfc00b94f5
 Test: Encrypt
 #
-Key: 56e98e97e4c8395a 5837ff90f4af0262 8443eb9ac42894f0 0323e1b753aa9eea
 Source: modified speck128256 reference implementation
 Comment: Speck128/256
+Key: 56e98e97e4c8395a 5837ff90f4af0262 8443eb9ac42894f0 0323e1b753aa9eea
 Plaintext: 01949b6adb670104 09cdaf021832b51a
 Ciphertext: 4ca628164586adea 4328cf80a1c46ea9
 Test: Encrypt
 #
-Key: 52182ebb79e4c18f af0a488c2fbc6d29 887909a5acb91a45 958ecffea2d9cf3e
 Source: modified speck128256 reference implementation
 Comment: Speck128/256
+Key: 52182ebb79e4c18f af0a488c2fbc6d29 887909a5acb91a45 958ecffea2d9cf3e
 Plaintext: eeb40213bf670ff2 150c5e2ef8adc425
 Ciphertext: bda5a149daca2515 64e0e37e27747ca5
 Test: Encrypt
 #
-Key: 50dffe5dea70cdc3 2b61f347dc6b90ea 0d722fa9c533f6cc 60b386852a63b0b4
 Source: modified speck128256 reference implementation
 Comment: Speck128/256
+Key: 50dffe5dea70cdc3 2b61f347dc6b90ea 0d722fa9c533f6cc 60b386852a63b0b4
 Plaintext: b024db26b66484aa 974ae6a8cea034b6
 Ciphertext: 04c43c06d14d75d8 905c3e0487f2be30
+Test: Encrypt
+
+AlgorithmType: SymmetricCipher
+Name: SPECK-128/CBC
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/128, large block
+Key: 0f0e0d0c0b0a0908 0706050403020100
+IV: 1f1e1d1c1b1a1918 1716151413121110
+Plaintext:  6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20 \
+            6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20 \
+            6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20
+Ciphertext: C5A2FD31AC3E6503 637F10A940ABB06E 7B9F2F82298E112F 5CB2CCA6CE515281 \
+            6DA76987AD55E001 8D9688474643B9F8 1FA074A01E49DA70 B5E60E17B133F1A4 \
+            6A523B35EAAEA8D4 E62F529FF7762802 2ED85AAD0593A762 9FE414308A2D4073
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/192, large block
+Key: 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+IV: 1f1e1d1c1b1a1918 1716151413121110
+Plaintext:  6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20 \
+            6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20 \
+            6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20
+Ciphertext: F68676ABC19DB568 9491BF84472D6E56 A3FA518DE28333FD C89800B89444EF4E \
+            574D601B4895B0F1 031E32FB0C2E52B0 86992049789C2BCB 15783CD487C27CC4 \
+            EAE30A4A344823CA 2AA8500A0BB19A44 E8667B5B225869C3 94E893D7DD0EDC9E
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/192, large block
+Key: 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
+IV: 1f1e1d1c1b1a1918 1716151413121110
+Plaintext:  6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20 \
+            6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20 \
+            6c61766975716520 7469206564616d20 6c61766975716520 7469206564616d20
+Ciphertext: 4DE90B93CE9A3ED3 482C3F03C0E1A020 DB6E66073231E19F DA9F831411CCF97D \
+            4B1AC081024BBE96 0CC0D279D8A47F24 8F91492DF4AB6035 228E551DE6A7811B \
+            CCDFD166983B3555 120B98B22646A5EE 3B8ED54D34CACCAB 28BC79222CF04749
 Test: Encrypt
