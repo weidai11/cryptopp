@@ -15,7 +15,7 @@
 
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_ARM32 || \
 	CRYPTOPP_BOOL_ARM64 || CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
-# define CRYPTOPP_ENABLE_ADVANCED_PROCESS_BLOCKS 1
+# define CRYPTOPP_RIJNDAEL_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -69,7 +69,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-#if CRYPTOPP_ENABLE_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_RIJNDAEL_ADVANCED_PROCESS_BLOCKS
 		size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
 	};
@@ -83,7 +83,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	{
 	public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-#if CRYPTOPP_ENABLE_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_RIJNDAEL_ADVANCED_PROCESS_BLOCKS
 		size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
 	};
