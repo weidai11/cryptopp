@@ -615,6 +615,8 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 16, "SPECK-128(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 24, "SPECK-128(192)/CTR (192-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 32, "SPECK-128(256)/CTR (256-bit key)");
+
+		BenchMarkByName<SymmetricCipher>("SM4/CTR");
 	}
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";

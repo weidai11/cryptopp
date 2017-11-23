@@ -258,6 +258,7 @@
     <None Include="TestVectors\shacal2.txt" />
     <None Include="TestVectors\simon.txt" />
     <None Include="TestVectors\siphash.txt" />
+    <None Include="TestVectors\sm4.txt" />
     <None Include="TestVectors\sosemanuk.txt" />
     <None Include="TestVectors\speck.txt" />
     <None Include="TestVectors\tea.txt" />

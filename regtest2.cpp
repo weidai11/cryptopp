@@ -34,6 +34,7 @@
 #include "threefish.h"
 #include "simon.h"
 #include "speck.h"
+#include "sm4.h"
 #include "des.h"
 #include "idea.h"
 #include "rc5.h"
@@ -169,6 +170,10 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK128> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK64> >();  // Benchmarks
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK128> >();  // Benchmarks
+
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SM4> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SM4> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SM4> >();  // Benchmarks
 
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
 	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();

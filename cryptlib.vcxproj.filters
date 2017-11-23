@@ -368,6 +368,9 @@
     <ClCompile Include="skipjack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sm4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="socketft.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -820,6 +823,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="skipjack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sm4.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="smartptr.h">

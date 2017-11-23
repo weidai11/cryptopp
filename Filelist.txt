@@ -273,10 +273,12 @@ sharkbox.cpp
 simple.cpp
 simple.h
 siphash.h
-skipjack.cpp
-skipjack.h
 simon.cpp
 simon.h
+skipjack.cpp
+skipjack.h
+sm4.cpp
+sm4.h
 smartptr.h
 socketft.cpp
 socketft.h
