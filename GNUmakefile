@@ -35,7 +35,6 @@ IS_X64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E
 IS_PPC32 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
 IS_PPC64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E "ppc64|power64")
 IS_ARM32 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -v "64" | $(GREP) -i "arm" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
-IS_ARM64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c 'aarch64')
 IS_ARMV8 ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'aarch32|aarch64')
 IS_NEON ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 IS_SPARC := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c "sparc")
