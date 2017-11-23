@@ -17,6 +17,12 @@ NAMESPACE_BEGIN(CryptoPP)
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
+// Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
+// 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
+#if (defined(__aarch32__) || defined(__aarch64__)) && defined(CRYPTOPP_SLOW_ARMV8_SHIFT)
+# undef CRYPTOPP_ARM_NEON_AVAILABLE
+#endif
+
 void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state);
 void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
 
@@ -25,8 +31,7 @@ extern void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false
 extern void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
-// Disable NEON for Cortex-A53 and A57. Also see http://github.com/weidai11/cryptopp/issues/367
-#if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
+#if CRYPTOPP_ARM_NEON_AVAILABLE
 extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
@@ -93,7 +98,7 @@ pfnCompress64 InitializeCompress64Fn()
 #if CRYPTOPP_SSE41_AVAILABLE
 		HasSSE41() ? &BLAKE2_Compress64_SSE4 :
 #endif
-#if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
+#if CRYPTOPP_ARM_NEON_AVAILABLE
 		HasNEON() ? &BLAKE2_Compress64_NEON :
 #endif
 		&BLAKE2_Compress64_CXX;
@@ -105,7 +110,7 @@ pfnCompress32 InitializeCompress32Fn()
 #if CRYPTOPP_SSE41_AVAILABLE
 		HasSSE41() ? &BLAKE2_Compress32_SSE4 :
 #endif
-#if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
+#if CRYPTOPP_ARM_NEON_AVAILABLE
 		HasNEON() ? &BLAKE2_Compress32_NEON :
 #endif
 		&BLAKE2_Compress32_CXX;

@@ -118,6 +118,12 @@
 // of 'b', 'o', 'h' or '.' (the last for decimal).
 // #define CRYPTOPP_USE_STD_SHOWBASE
 
+// Define this if ARMv8 shifts are slow. ARM Cortex-A53 and Cortex-A57 shift
+// operation perform poorly, so NEON and ASIMD code that relies on shifts
+// or rotates often performs worse than regular C/C++ code. Also see
+// http://github.com/weidai11/cryptopp/issues/367.
+#define CRYPTOPP_SLOW_ARMV8_SHIFT 1
+
 // Define this if you want to decouple AlgorithmParameters and Integer
 // The decoupling should make it easier for the linker to remove Integer
 // related code for those who do not need Integer, and avoid a potential

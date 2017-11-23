@@ -16,6 +16,12 @@
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
+// Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
+// 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
+#if (defined(__aarch32__) || defined(__aarch64__)) && defined(CRYPTOPP_SLOW_ARMV8_SHIFT)
+# undef CRYPTOPP_ARM_NEON_AVAILABLE
+#endif
+
 #if !(defined(__ARM_NEON) || defined(_MSC_VER))
 # undef CRYPTOPP_ARM_NEON_AVAILABLE
 #endif
@@ -43,7 +49,7 @@ NAMESPACE_BEGIN(CryptoPP)
 inline __m128i MM_SET_EPI64X(const word64 a, const word64 b)
 {
     const word64 t[2] = {b,a}; __m128i r;
-    ::memcpy(&r, t, sizeof(t));
+    std::memcpy(&r, t, sizeof(t));
     return r;
 }
 #else
@@ -1600,8 +1606,7 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
 }
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
-// Disable NEON for Cortex-A53 and A57. Also see http://github.com/weidai11/cryptopp/issues/367
-#if CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
+#if CRYPTOPP_ARM_NEON_AVAILABLE
 void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state)
 {
     #define BLAKE2S_LOAD_MSG_0_1(buf) \
@@ -2179,6 +2184,6 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state
     vst1q_u64(&state.h[4], veorq_u64(h2, veorq_u64(row2l, row4l)));
     vst1q_u64(&state.h[6], veorq_u64(h3, veorq_u64(row2h, row4h)));
 }
-#endif  // CRYPTOPP_BOOL_ARM32 && CRYPTOPP_ARM_NEON_AVAILABLE
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 NAMESPACE_END
