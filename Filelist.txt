@@ -463,6 +463,7 @@ TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
 TestVectors/simon.txt
 TestVectors/siphash.txt
+TestVectors/sm4.txt
 TestVectors/sosemanuk.txt
 TestVectors/speck.txt
 TestVectors/tea.txt
