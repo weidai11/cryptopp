@@ -65,16 +65,16 @@ const word32 s_one[] = {0, 0, 0, 1};      // uint32x4_t
 template <class W, class T>
 inline W UnpackHigh64(const T& a, const T& b)
 {
-    const uint64_t x = vget_high_u64((uint64x2_t)a);
-    const uint64_t y = vget_high_u64((uint64x2_t)b);
+    const uint64x1_t x = vget_high_u64((uint64x2_t)a);
+    const uint64x1_t y = vget_high_u64((uint64x2_t)b);
     return (W)vcombine_u64(x, y);
 }
 
 template <class W, class T>
 inline W UnpackLow64(const T& a, const T& b)
 {
-    const uint64_t x = vget_low_u64((uint64x2_t)a);
-    const uint64_t y = vget_low_u64((uint64x2_t)b);
+    const uint64x1_t x = vget_low_u64((uint64x2_t)a);
+    const uint64x1_t y = vget_low_u64((uint64x2_t)b);
     return (W)vcombine_u64(x, y);
 }
 
