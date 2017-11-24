@@ -48,8 +48,6 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
-using CryptoPP::rotlFixed;
-using CryptoPP::rotrFixed;
 using CryptoPP::BlockTransformation;
 
 // *************************** ARM NEON ************************** //
@@ -104,11 +102,9 @@ inline uint64x2_t Shuffle64(const uint64x2_t& val)
 
 inline void SPECK128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_NEON loads each SPECK-128 block into a
-    // uint64x2_t. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_Block rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_NEON is rather messy. The zero block below is a
-    // "don't care". It is present so we can vectorize SPECK128_Enc_Block.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // The zero block below is a "don't care". It is present so we can vectorize.
     uint8x16_t block1 = {0};
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
@@ -138,10 +134,8 @@ inline void SPECK128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
             uint8x16_t &block2, uint8x16_t &block3, uint8x16_t &block4,
             uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_NEON loads each SPECK-128 block into a
-    // uint64x2_t. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_6_Blocks rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_NEON is rather messy.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
@@ -194,11 +188,9 @@ inline void SPECK128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
 
 inline void SPECK128_Dec_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_NEON loads each SPECK-128 block into a
-    // uint64x2_t. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Dec_Block rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_NEON is rather messy. The zero block below is a
-    // "don't care". It is present so we can vectorize SPECK128_Dec_Block.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // The zero block below is a "don't care". It is present so we can vectorize.
     uint8x16_t block1 = {0};
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
@@ -228,10 +220,8 @@ inline void SPECK128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
             uint8x16_t &block2, uint8x16_t &block3, uint8x16_t &block4,
             uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_NEON loads each SPECK-128 block into a
-    // uint64x2_t. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Dec_6_Blocks rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_NEON is rather messy.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
@@ -430,11 +420,9 @@ inline __m128i RotateRight64(const __m128i& val)
 
 inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
-    // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_Block rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy. The zero block below is a
-    // "don't care". It is present so we can vectorize SPECK128_Enc_Block.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // The zero block below is a "don't care". It is present so we can vectorize.
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -465,10 +453,8 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
 inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
-    // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Enc_4_Blocks rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
@@ -510,11 +496,9 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
 
 inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
-    // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Dec_Block rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy. The zero block below is a
-    // "don't care". It is present so we can vectorize SPECK128_Dec_Block.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // The zero block below is a "don't care". It is present so we can vectorize.
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -545,10 +529,8 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
 inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... SPECK128_AdvancedProcessBlocks_SSSE3 loads each SPECK-128 block into a
-    // __m128i. We can't SSE over them, so we rearrange the data to allow packed operations.
-    // Its also easier to permute them in SPECK128_Dec_4_Blocks rather than the calling code.
-    // SPECK128_AdvancedProcessBlocks_SSSE3 is rather messy.
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);

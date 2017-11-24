@@ -22,8 +22,8 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
 using CryptoPP::word64;
-using CryptoPP::rotlFixed;
-using CryptoPP::rotrFixed;
+using CryptoPP::rotlConstant;
+using CryptoPP::rotrConstant;
 
 //! \brief Forward round transformation
 //! \tparam W word type
@@ -35,9 +35,9 @@ using CryptoPP::rotrFixed;
 template <class W>
 inline void TF83(W& x, W& y, const W k)
 {
-    x = rotrFixed(x, 8);
+    x = rotrConstant<8>(x);
     x += y; x ^= k;
-    y = rotlFixed(y, 3);
+    y = rotlConstant<3>(y);
     y ^= x;
 }
 
@@ -52,9 +52,9 @@ template <class W>
 inline void TR83(W& x, W& y, const W k)
 {
     y ^= x;
-    y = rotrFixed(y,3);
+    y = rotrConstant<3>(y);
     x ^= k; x -= y;
-    x = rotlFixed(x,8);
+    x = rotlConstant<8>(x);
 }
 
 //! \brief Forward transformation
