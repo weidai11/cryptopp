@@ -29,23 +29,21 @@ public:
     //! \param state the state of the hash
     //! \details InitState sets a state array to SHA256 initial values
     //! \details Hashes which derive from IteratedHashWithStaticTransform provide static
-    //!   member functions InitState and Transform. External classes, like SEAL and MDC,
+    //!   member functions InitState() and Transform(). External classes, like SEAL and MDC,
     //!   can initialize state with a user provided key and operate the hash on the data
     //!   with the user supplied state.
-    //! \note On Intel platforms the state array must be 16-byte aligned for SSE2.
     static void InitState(HashWordType *state);
 
     //! \brief Operate the hash
     //! \param digest the state of the hash
     //! \param data the data to be digested
-    //! \details Transform operates the hash on <tt>data</tt>. When the call is invoked
-    //!   <tt>digest</tt> holds initial state. Upon return <tt>digest</tt> holds the hash
-    //!   or updated state.
+    //! \details Transform() operates the hash on <tt>data</tt>. When the call is invoked
+    //!   <tt>digest</tt> holds initial or current state. Upon return <tt>digest</tt> holds
+    //!   the hash or updated state.
     //! \details Hashes which derive from IteratedHashWithStaticTransform provide static
-    //!   member functions InitState and Transform. External classes, like SEAL and MDC,
+    //!   member functions InitState() and Transform(). External classes, like SEAL and MDC,
     //!   can initialize state with a user provided key and operate the hash on the data
     //!   with the user supplied state.
-    //! \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
     static void Transform(HashWordType *digest, const HashWordType *data);
 
     //! \brief The algorithm name

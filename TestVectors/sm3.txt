@@ -10,7 +10,7 @@ Digest: 00000000 62eeedd9 d1f2d46b dc10e4e2 4167c487 5cf2f7a2 297da02b 8f4ba8e0
 Test: NotVerify
 #
 Source: SM3 Hash function, https://tools.ietf.org/html/draft-shen-sm3-hash
-Comment: Appendix B, test vector 1
+Comment: Appendix B, test vector 2
 Message: 61626364 61626364 61626364 61626364 61626364 61626364 61626364 61626364 \
          61626364 61626364 61626364 61626364 61626364 61626364 61626364 61626364
 Digest: debe9ff9 2275b8a1 38604889 c18e5a4d 6fdb70e5 387e5765 293dcba3 9c0c5732

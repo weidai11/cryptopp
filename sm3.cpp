@@ -73,19 +73,18 @@ inline word32 SM3_E(word32 W0, word32 W7, word32 W13, word32 W3, word32 W10)
     return P1(W0 ^ W7 ^ rotlFixed(W13, 15)) ^ rotlFixed(W3, 7) ^ W10;
 }
 
-static size_t SM3_HashMultipleBlocks_CXX(word32 *state, const word32 *input, size_t length)
+static size_t SM3_HashMultipleBlocks_CXX(word32 *state, const word32 *data, size_t length)
 {
-    CRYPTOPP_ASSERT(input);
+    CRYPTOPP_ASSERT(data);
 
     word32 A = state[0], B = state[1], C = state[2], D = state[3];
     word32 E = state[4], F = state[5], G = state[6], H = state[7];
 
-    size_t blocks = length / SM3::BLOCKSIZE;
-    for(size_t i = 0; i < blocks; ++i)
+    while (length >= SM3::BLOCKSIZE)
     {
         // Reverse bytes on LittleEndian; align pointer on BigEndian
         typedef GetBlock<word32, BigEndian, false> InBlock;
-        InBlock iblk(input);
+        InBlock iblk(data);
 
         word32 W00, W01, W02, W03, W04, W05, W06, W07, W08, W09, W10, W11, W12, W13, W14, W15;
         iblk(W00)(W01)(W02)(W03)(W04)(W05)(W06)(W07)(W08)(W09)(W10)(W11)(W12)(W13)(W14)(W15);
@@ -216,10 +215,11 @@ static size_t SM3_HashMultipleBlocks_CXX(word32 *state, const word32 *input, siz
         G = (state[6] ^= G);
         H = (state[7] ^= H);
 
-        input += SM3::BLOCKSIZE/sizeof(word32);
+        data += SM3::BLOCKSIZE/sizeof(word32);
+        length -= SM3::BLOCKSIZE;
     }
 
-    return length & (SM3::BLOCKSIZE-1);
+    return length;
 }
 
 ANONYMOUS_NAMESPACE_END
