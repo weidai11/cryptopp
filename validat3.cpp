@@ -1939,5 +1939,10 @@ bool ValidateBLAKE2b()
 	return pass;
 }
 
+bool ValidateSM3()
+{
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sm3.txt");
+}
+
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP

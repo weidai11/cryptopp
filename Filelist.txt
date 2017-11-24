@@ -277,6 +277,8 @@ simon.cpp
 simon.h
 skipjack.cpp
 skipjack.h
+sm3.cpp
+sm3.h
 sm4.cpp
 sm4.h
 smartptr.h
@@ -463,6 +465,7 @@ TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
 TestVectors/simon.txt
 TestVectors/siphash.txt
+TestVectors/sm3.txt
 TestVectors/sm4.txt
 TestVectors/sosemanuk.txt
 TestVectors/speck.txt

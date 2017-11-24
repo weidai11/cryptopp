@@ -291,6 +291,7 @@
     <ClCompile Include="simon.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
+    <ClCompile Include="sm3.cpp" />
     <ClCompile Include="sm4.cpp" />
     <ClCompile Include="socketft.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
@@ -476,6 +477,7 @@
     <ClInclude Include="simon.h" />
     <ClInclude Include="siphash.h" />
     <ClInclude Include="skipjack.h" />
+    <ClInclude Include="sm3.h" />
     <ClInclude Include="sm4.h" />
     <ClInclude Include="smartptr.h" />
     <ClInclude Include="socketft.h" />

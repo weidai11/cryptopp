@@ -16,6 +16,8 @@
 #include "sha3.h"
 #include "blake2.h"
 #include "sha.h"
+#include "sha3.h"
+#include "sm3.h"
 #include "tiger.h"
 #include "ripemd.h"
 #include "panama.h"
@@ -96,6 +98,7 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_256>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_384>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_512>();
+	RegisterDefaultFactoryFor<HashTransformation, SM3>();
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
 

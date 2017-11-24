@@ -471,20 +471,21 @@ void Benchmark1(double t, double hertz)
 		BenchMarkByNameKeyLess<HashTransformation>("SHA-1");
 		BenchMarkByNameKeyLess<HashTransformation>("SHA-256");
 		BenchMarkByNameKeyLess<HashTransformation>("SHA-512");
-		BenchMarkByNameKeyLess<HashTransformation>("Keccak-224");
-		BenchMarkByNameKeyLess<HashTransformation>("Keccak-256");
-		BenchMarkByNameKeyLess<HashTransformation>("Keccak-384");
-		BenchMarkByNameKeyLess<HashTransformation>("Keccak-512");
 		BenchMarkByNameKeyLess<HashTransformation>("SHA3-224");
 		BenchMarkByNameKeyLess<HashTransformation>("SHA3-256");
 		BenchMarkByNameKeyLess<HashTransformation>("SHA3-384");
 		BenchMarkByNameKeyLess<HashTransformation>("SHA3-512");
+		BenchMarkByNameKeyLess<HashTransformation>("Keccak-224");
+		BenchMarkByNameKeyLess<HashTransformation>("Keccak-256");
+		BenchMarkByNameKeyLess<HashTransformation>("Keccak-384");
+		BenchMarkByNameKeyLess<HashTransformation>("Keccak-512");
 		BenchMarkByNameKeyLess<HashTransformation>("Tiger");
 		BenchMarkByNameKeyLess<HashTransformation>("Whirlpool");
 		BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-160");
 		BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-320");
 		BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-128");
 		BenchMarkByNameKeyLess<HashTransformation>("RIPEMD-256");
+		BenchMarkByNameKeyLess<HashTransformation>("SM3");
 		BenchMarkByNameKeyLess<HashTransformation>("BLAKE2s");
 		BenchMarkByNameKeyLess<HashTransformation>("BLAKE2b");
 	}

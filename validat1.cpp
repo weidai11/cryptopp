@@ -132,6 +132,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidatePanama() && pass;
 	pass=ValidateWhirlpool() && pass;
 
+	pass=ValidateSM3() && pass;
 	pass=ValidateBLAKE2s() && pass;
 	pass=ValidateBLAKE2b() && pass;
 	pass=ValidatePoly1305() && pass;
@@ -173,6 +174,7 @@ bool ValidateAll(bool thorough)
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/kalyna.txt") && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/simon.txt") && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/speck.txt") && pass;
+	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sm4.txt") && pass;
 	pass=ValidateVMAC() && pass;
 	pass=ValidateCCM() && pass;
 	pass=ValidateGCM() && pass;

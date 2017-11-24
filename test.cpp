@@ -939,12 +939,13 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 71: result = ValidateGCM(); break;
 	case 72: result = ValidateCMAC(); break;
 	case 73: result = ValidateHKDF(); break;
-	case 74: result = ValidateBLAKE2s(); break;
-	case 75: result = ValidateBLAKE2b(); break;
-	case 76: result = ValidatePoly1305(); break;
-	case 77: result = ValidateSipHash(); break;
-	case 78: result = ValidateHashDRBG(); break;
-	case 79: result = ValidateHmacDRBG(); break;
+	case 74: result = ValidateSM3(); break;
+	case 75: result = ValidateBLAKE2s(); break;
+	case 76: result = ValidateBLAKE2b(); break;
+	case 77: result = ValidatePoly1305(); break;
+	case 78: result = ValidateSipHash(); break;
+	case 79: result = ValidateHashDRBG(); break;
+	case 80: result = ValidateHmacDRBG(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92

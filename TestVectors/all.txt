@@ -24,6 +24,7 @@ Test: TestVectors/sha1_fips_180.txt
 Test: TestVectors/sha2_fips_180.txt
 Test: TestVectors/sha3_fips_202.txt
 Test: TestVectors/panama.txt
+Test: TestVectors/sm3.txt
 Test: TestVectors/aes.txt
 Test: TestVectors/aria.txt
 Test: TestVectors/kalyna.txt
