@@ -25,12 +25,22 @@ inline word32 P0(word32 X)
     return X ^ rotlFixed(X, 9) ^ rotlFixed(X, 17);
 }
 
-inline word32 FF1(word32 X, word32 Y, word32 Z)
+inline word32 P1(word32 X)
+{
+    return X ^ rotlFixed(X, 15) ^ rotlFixed(X, 23);
+}
+
+inline word32 EE(word32 W0, word32 W7, word32 W13, word32 W3, word32 W10)
+{
+    return P1(W0 ^ W7 ^ rotlFixed(W13, 15)) ^ rotlFixed(W3, 7) ^ W10;
+}
+
+inline word32 FF(word32 X, word32 Y, word32 Z)
 {
     return (X & Y) | ((X | Y) & Z);
 }
 
-inline word32 GG1(word32 X, word32 Y, word32 Z)
+inline word32 GG(word32 X, word32 Y, word32 Z)
 {
     return ((Z ^ (X & (Y ^ Z))));
 }
@@ -43,10 +53,8 @@ inline void R1(word32 A, word32& B, word32 C, word32& D, word32 E, word32& F,
     const word32 TT1 = (A ^ B ^ C) + D + (SS1 ^ A12) + Wj;
     const word32 TT2 = (E ^ F ^ G) + H + SS1 + Wi;
 
-    B = rotlFixed(B, 9);
-    D = TT1;
-    F= rotlFixed(F, 19);
-    H = P0(TT2);
+    B = rotlFixed(B, 9); D = TT1;
+    F= rotlFixed(F, 19); H = P0(TT2);
 }
 
 inline void R2(word32 A, word32& B, word32 C, word32& D, word32 E, word32& F,
@@ -54,26 +62,15 @@ inline void R2(word32 A, word32& B, word32 C, word32& D, word32 E, word32& F,
 {
     const word32 A12 = rotlFixed(A, 12);
     const word32 SS1 = rotlFixed(A12 + E + TJ, 7);
-    const word32 TT1 = FF1(A, B, C) + D + (SS1 ^ A12) + Wj;
-    const word32 TT2 = GG1(E, F, G) + H + SS1 + Wi;
+    const word32 TT1 = FF(A, B, C) + D + (SS1 ^ A12) + Wj;
+    const word32 TT2 = GG(E, F, G) + H + SS1 + Wi;
 
-    B = rotlFixed(B, 9);
-    D = TT1;
-    F = rotlFixed(F, 19);
-    H = P0(TT2);
+    B = rotlFixed(B, 9); D = TT1;
+    F = rotlFixed(F, 19); H = P0(TT2);
 }
 
-inline word32 P1(word32 X)
-{
-    return X ^ rotlFixed(X, 15) ^ rotlFixed(X, 23);
-}
-
-inline word32 SM3_E(word32 W0, word32 W7, word32 W13, word32 W3, word32 W10)
-{
-    return P1(W0 ^ W7 ^ rotlFixed(W13, 15)) ^ rotlFixed(W3, 7) ^ W10;
-}
-
-static size_t SM3_HashMultipleBlocks_CXX(word32 *state, const word32 *data, size_t length)
+// Krzysztof Kwiatkowski did a very nice job with this function.
+size_t SM3_HashMultipleBlocks_CXX(word32 *state, const word32 *data, size_t length)
 {
     CRYPTOPP_ASSERT(data);
 
@@ -90,109 +87,109 @@ static size_t SM3_HashMultipleBlocks_CXX(word32 *state, const word32 *data, size
         iblk(W00)(W01)(W02)(W03)(W04)(W05)(W06)(W07)(W08)(W09)(W10)(W11)(W12)(W13)(W14)(W15);
 
         R1(A, B, C, D, E, F, G, H, 0x79CC4519, W00, W00 ^ W04);
-        W00 = SM3_E(W00, W07, W13, W03, W10);
+        W00 = EE(W00, W07, W13, W03, W10);
         R1(D, A, B, C, H, E, F, G, 0xF3988A32, W01, W01 ^ W05);
-        W01 = SM3_E(W01, W08, W14, W04, W11);
+        W01 = EE(W01, W08, W14, W04, W11);
         R1(C, D, A, B, G, H, E, F, 0xE7311465, W02, W02 ^ W06);
-        W02 = SM3_E(W02, W09, W15, W05, W12);
+        W02 = EE(W02, W09, W15, W05, W12);
         R1(B, C, D, A, F, G, H, E, 0xCE6228CB, W03, W03 ^ W07);
-        W03 = SM3_E(W03, W10, W00, W06, W13);
+        W03 = EE(W03, W10, W00, W06, W13);
         R1(A, B, C, D, E, F, G, H, 0x9CC45197, W04, W04 ^ W08);
-        W04 = SM3_E(W04, W11, W01, W07, W14);
+        W04 = EE(W04, W11, W01, W07, W14);
         R1(D, A, B, C, H, E, F, G, 0x3988A32F, W05, W05 ^ W09);
-        W05 = SM3_E(W05, W12, W02, W08, W15);
+        W05 = EE(W05, W12, W02, W08, W15);
         R1(C, D, A, B, G, H, E, F, 0x7311465E, W06, W06 ^ W10);
-        W06 = SM3_E(W06, W13, W03, W09, W00);
+        W06 = EE(W06, W13, W03, W09, W00);
         R1(B, C, D, A, F, G, H, E, 0xE6228CBC, W07, W07 ^ W11);
-        W07 = SM3_E(W07, W14, W04, W10, W01);
+        W07 = EE(W07, W14, W04, W10, W01);
         R1(A, B, C, D, E, F, G, H, 0xCC451979, W08, W08 ^ W12);
-        W08 = SM3_E(W08, W15, W05, W11, W02);
+        W08 = EE(W08, W15, W05, W11, W02);
         R1(D, A, B, C, H, E, F, G, 0x988A32F3, W09, W09 ^ W13);
-        W09 = SM3_E(W09, W00, W06, W12, W03);
+        W09 = EE(W09, W00, W06, W12, W03);
         R1(C, D, A, B, G, H, E, F, 0x311465E7, W10, W10 ^ W14);
-        W10 = SM3_E(W10, W01, W07, W13, W04);
+        W10 = EE(W10, W01, W07, W13, W04);
         R1(B, C, D, A, F, G, H, E, 0x6228CBCE, W11, W11 ^ W15);
-        W11 = SM3_E(W11, W02, W08, W14, W05);
+        W11 = EE(W11, W02, W08, W14, W05);
         R1(A, B, C, D, E, F, G, H, 0xC451979C, W12, W12 ^ W00);
-        W12 = SM3_E(W12, W03, W09, W15, W06);
+        W12 = EE(W12, W03, W09, W15, W06);
         R1(D, A, B, C, H, E, F, G, 0x88A32F39, W13, W13 ^ W01);
-        W13 = SM3_E(W13, W04, W10, W00, W07);
+        W13 = EE(W13, W04, W10, W00, W07);
         R1(C, D, A, B, G, H, E, F, 0x11465E73, W14, W14 ^ W02);
-        W14 = SM3_E(W14, W05, W11, W01, W08);
+        W14 = EE(W14, W05, W11, W01, W08);
         R1(B, C, D, A, F, G, H, E, 0x228CBCE6, W15, W15 ^ W03);
-        W15 = SM3_E(W15, W06, W12, W02, W09);
+        W15 = EE(W15, W06, W12, W02, W09);
         R2(A, B, C, D, E, F, G, H, 0x9D8A7A87, W00, W00 ^ W04);
-        W00 = SM3_E(W00, W07, W13, W03, W10);
+        W00 = EE(W00, W07, W13, W03, W10);
         R2(D, A, B, C, H, E, F, G, 0x3B14F50F, W01, W01 ^ W05);
-        W01 = SM3_E(W01, W08, W14, W04, W11);
+        W01 = EE(W01, W08, W14, W04, W11);
         R2(C, D, A, B, G, H, E, F, 0x7629EA1E, W02, W02 ^ W06);
-        W02 = SM3_E(W02, W09, W15, W05, W12);
+        W02 = EE(W02, W09, W15, W05, W12);
         R2(B, C, D, A, F, G, H, E, 0xEC53D43C, W03, W03 ^ W07);
-        W03 = SM3_E(W03, W10, W00, W06, W13);
+        W03 = EE(W03, W10, W00, W06, W13);
         R2(A, B, C, D, E, F, G, H, 0xD8A7A879, W04, W04 ^ W08);
-        W04 = SM3_E(W04, W11, W01, W07, W14);
+        W04 = EE(W04, W11, W01, W07, W14);
         R2(D, A, B, C, H, E, F, G, 0xB14F50F3, W05, W05 ^ W09);
-        W05 = SM3_E(W05, W12, W02, W08, W15);
+        W05 = EE(W05, W12, W02, W08, W15);
         R2(C, D, A, B, G, H, E, F, 0x629EA1E7, W06, W06 ^ W10);
-        W06 = SM3_E(W06, W13, W03, W09, W00);
+        W06 = EE(W06, W13, W03, W09, W00);
         R2(B, C, D, A, F, G, H, E, 0xC53D43CE, W07, W07 ^ W11);
-        W07 = SM3_E(W07, W14, W04, W10, W01);
+        W07 = EE(W07, W14, W04, W10, W01);
         R2(A, B, C, D, E, F, G, H, 0x8A7A879D, W08, W08 ^ W12);
-        W08 = SM3_E(W08, W15, W05, W11, W02);
+        W08 = EE(W08, W15, W05, W11, W02);
         R2(D, A, B, C, H, E, F, G, 0x14F50F3B, W09, W09 ^ W13);
-        W09 = SM3_E(W09, W00, W06, W12, W03);
+        W09 = EE(W09, W00, W06, W12, W03);
         R2(C, D, A, B, G, H, E, F, 0x29EA1E76, W10, W10 ^ W14);
-        W10 = SM3_E(W10, W01, W07, W13, W04);
+        W10 = EE(W10, W01, W07, W13, W04);
         R2(B, C, D, A, F, G, H, E, 0x53D43CEC, W11, W11 ^ W15);
-        W11 = SM3_E(W11, W02, W08, W14, W05);
+        W11 = EE(W11, W02, W08, W14, W05);
         R2(A, B, C, D, E, F, G, H, 0xA7A879D8, W12, W12 ^ W00);
-        W12 = SM3_E(W12, W03, W09, W15, W06);
+        W12 = EE(W12, W03, W09, W15, W06);
         R2(D, A, B, C, H, E, F, G, 0x4F50F3B1, W13, W13 ^ W01);
-        W13 = SM3_E(W13, W04, W10, W00, W07);
+        W13 = EE(W13, W04, W10, W00, W07);
         R2(C, D, A, B, G, H, E, F, 0x9EA1E762, W14, W14 ^ W02);
-        W14 = SM3_E(W14, W05, W11, W01, W08);
+        W14 = EE(W14, W05, W11, W01, W08);
         R2(B, C, D, A, F, G, H, E, 0x3D43CEC5, W15, W15 ^ W03);
-        W15 = SM3_E(W15, W06, W12, W02, W09);
+        W15 = EE(W15, W06, W12, W02, W09);
         R2(A, B, C, D, E, F, G, H, 0x7A879D8A, W00, W00 ^ W04);
-        W00 = SM3_E(W00, W07, W13, W03, W10);
+        W00 = EE(W00, W07, W13, W03, W10);
         R2(D, A, B, C, H, E, F, G, 0xF50F3B14, W01, W01 ^ W05);
-        W01 = SM3_E(W01, W08, W14, W04, W11);
+        W01 = EE(W01, W08, W14, W04, W11);
         R2(C, D, A, B, G, H, E, F, 0xEA1E7629, W02, W02 ^ W06);
-        W02 = SM3_E(W02, W09, W15, W05, W12);
+        W02 = EE(W02, W09, W15, W05, W12);
         R2(B, C, D, A, F, G, H, E, 0xD43CEC53, W03, W03 ^ W07);
-        W03 = SM3_E(W03, W10, W00, W06, W13);
+        W03 = EE(W03, W10, W00, W06, W13);
         R2(A, B, C, D, E, F, G, H, 0xA879D8A7, W04, W04 ^ W08);
-        W04 = SM3_E(W04, W11, W01, W07, W14);
+        W04 = EE(W04, W11, W01, W07, W14);
         R2(D, A, B, C, H, E, F, G, 0x50F3B14F, W05, W05 ^ W09);
-        W05 = SM3_E(W05, W12, W02, W08, W15);
+        W05 = EE(W05, W12, W02, W08, W15);
         R2(C, D, A, B, G, H, E, F, 0xA1E7629E, W06, W06 ^ W10);
-        W06 = SM3_E(W06, W13, W03, W09, W00);
+        W06 = EE(W06, W13, W03, W09, W00);
         R2(B, C, D, A, F, G, H, E, 0x43CEC53D, W07, W07 ^ W11);
-        W07 = SM3_E(W07, W14, W04, W10, W01);
+        W07 = EE(W07, W14, W04, W10, W01);
         R2(A, B, C, D, E, F, G, H, 0x879D8A7A, W08, W08 ^ W12);
-        W08 = SM3_E(W08, W15, W05, W11, W02);
+        W08 = EE(W08, W15, W05, W11, W02);
         R2(D, A, B, C, H, E, F, G, 0x0F3B14F5, W09, W09 ^ W13);
-        W09 = SM3_E(W09, W00, W06, W12, W03);
+        W09 = EE(W09, W00, W06, W12, W03);
         R2(C, D, A, B, G, H, E, F, 0x1E7629EA, W10, W10 ^ W14);
-        W10 = SM3_E(W10, W01, W07, W13, W04);
+        W10 = EE(W10, W01, W07, W13, W04);
         R2(B, C, D, A, F, G, H, E, 0x3CEC53D4, W11, W11 ^ W15);
-        W11 = SM3_E(W11, W02, W08, W14, W05);
+        W11 = EE(W11, W02, W08, W14, W05);
         R2(A, B, C, D, E, F, G, H, 0x79D8A7A8, W12, W12 ^ W00);
-        W12 = SM3_E(W12, W03, W09, W15, W06);
+        W12 = EE(W12, W03, W09, W15, W06);
         R2(D, A, B, C, H, E, F, G, 0xF3B14F50, W13, W13 ^ W01);
-        W13 = SM3_E(W13, W04, W10, W00, W07);
+        W13 = EE(W13, W04, W10, W00, W07);
         R2(C, D, A, B, G, H, E, F, 0xE7629EA1, W14, W14 ^ W02);
-        W14 = SM3_E(W14, W05, W11, W01, W08);
+        W14 = EE(W14, W05, W11, W01, W08);
         R2(B, C, D, A, F, G, H, E, 0xCEC53D43, W15, W15 ^ W03);
-        W15 = SM3_E(W15, W06, W12, W02, W09);
+        W15 = EE(W15, W06, W12, W02, W09);
         R2(A, B, C, D, E, F, G, H, 0x9D8A7A87, W00, W00 ^ W04);
-        W00 = SM3_E(W00, W07, W13, W03, W10);
+        W00 = EE(W00, W07, W13, W03, W10);
         R2(D, A, B, C, H, E, F, G, 0x3B14F50F, W01, W01 ^ W05);
-        W01 = SM3_E(W01, W08, W14, W04, W11);
+        W01 = EE(W01, W08, W14, W04, W11);
         R2(C, D, A, B, G, H, E, F, 0x7629EA1E, W02, W02 ^ W06);
-        W02 = SM3_E(W02, W09, W15, W05, W12);
+        W02 = EE(W02, W09, W15, W05, W12);
         R2(B, C, D, A, F, G, H, E, 0xEC53D43C, W03, W03 ^ W07);
-        W03 = SM3_E(W03, W10, W00, W06, W13);
+        W03 = EE(W03, W10, W00, W06, W13);
         R2(A, B, C, D, E, F, G, H, 0xD8A7A879, W04, W04 ^ W08);
         R2(D, A, B, C, H, E, F, G, 0xB14F50F3, W05, W05 ^ W09);
         R2(C, D, A, B, G, H, E, F, 0x629EA1E7, W06, W06 ^ W10);
@@ -229,8 +226,8 @@ NAMESPACE_BEGIN(CryptoPP)
 void SM3::InitState(HashWordType *state)
 {
     const word32 s[] = {
-        0x7380166fU, 0x4914b2b9U, 0x172442d7U, 0xda8a0600U,
-        0xa96f30bcU, 0x163138aaU, 0xe38dee4dU, 0xb0fb0e4eU
+        0x7380166f, 0x4914b2b9, 0x172442d7, 0xda8a0600,
+        0xa96f30bc, 0x163138aa, 0xe38dee4d, 0xb0fb0e4e
     };
 
     std::memcpy(state, s, sizeof(s));
