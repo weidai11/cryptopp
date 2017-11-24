@@ -2,6 +2,10 @@
 //           Based on the specification provided by Sean Shen and Xiaodong Lee.
 //           Based on code by Krzysztof Kwiatkowski and Jack Lloyd.
 //           Also see https://tools.ietf.org/html/draft-shen-sm3-hash.
+//
+//    We understand future ARMv8 enhancements are supposed
+//    to include SM3 and SM4 related instructions so the function
+//    is stubbed for an eventual SM3_HashMultipleBlocks_ARMV8.
 
 #include "pch.h"
 #include "config.h"
@@ -14,7 +18,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
 using CryptoPP::word32;
-using CryptoPP::rotlFixed;
+using CryptoPP::rotlConstant;
 
 using CryptoPP::SM3;
 using CryptoPP::GetBlock;
@@ -22,17 +26,17 @@ using CryptoPP::BigEndian;
 
 inline word32 P0(word32 X)
 {
-    return X ^ rotlFixed(X, 9) ^ rotlFixed(X, 17);
+    return X ^ rotlConstant<9>(X) ^ rotlConstant<17>(X);
 }
 
 inline word32 P1(word32 X)
 {
-    return X ^ rotlFixed(X, 15) ^ rotlFixed(X, 23);
+    return X ^ rotlConstant<15>(X) ^ rotlConstant<23>(X);
 }
 
 inline word32 EE(word32 W0, word32 W7, word32 W13, word32 W3, word32 W10)
 {
-    return P1(W0 ^ W7 ^ rotlFixed(W13, 15)) ^ rotlFixed(W3, 7) ^ W10;
+    return P1(W0 ^ W7 ^ rotlConstant<15>(W13)) ^ rotlConstant<7>(W3) ^ W10;
 }
 
 inline word32 FF(word32 X, word32 Y, word32 Z)
@@ -48,25 +52,25 @@ inline word32 GG(word32 X, word32 Y, word32 Z)
 inline void R1(word32 A, word32& B, word32 C, word32& D, word32 E, word32& F,
         word32 G, word32& H, word32 TJ, word32 Wi, word32 Wj)
 {
-    const word32 A12 = rotlFixed(A, 12);
-    const word32 SS1 = rotlFixed(A12 + E + TJ, 7);
-    const word32 TT1 = (A ^ B ^ C) + D + (SS1 ^ A12) + Wj;
-    const word32 TT2 = (E ^ F ^ G) + H + SS1 + Wi;
+    const word32 A12 = rotlConstant<12>(A);
+    const word32 TT0 = rotlConstant<7>(A12 + E + TJ);
+    const word32 TT1 = (A ^ B ^ C) + D + (TT0 ^ A12) + Wj;
+    const word32 TT2 = (E ^ F ^ G) + H + TT0 + Wi;
 
-    B = rotlFixed(B, 9); D = TT1;
-    F= rotlFixed(F, 19); H = P0(TT2);
+    B = rotlConstant<9>(B); D = TT1;
+    F = rotlConstant<19>(F); H = P0(TT2);
 }
 
 inline void R2(word32 A, word32& B, word32 C, word32& D, word32 E, word32& F,
         word32 G, word32& H, word32 TJ, word32 Wi, word32 Wj)
 {
-    const word32 A12 = rotlFixed(A, 12);
-    const word32 SS1 = rotlFixed(A12 + E + TJ, 7);
-    const word32 TT1 = FF(A, B, C) + D + (SS1 ^ A12) + Wj;
-    const word32 TT2 = GG(E, F, G) + H + SS1 + Wi;
+    const word32 A12 = rotlConstant<12>(A);
+    const word32 TT0 = rotlConstant<7>(A12 + E + TJ);
+    const word32 TT1 = FF(A, B, C) + D + (TT0 ^ A12) + Wj;
+    const word32 TT2 = GG(E, F, G) + H + TT0 + Wi;
 
-    B = rotlFixed(B, 9); D = TT1;
-    F = rotlFixed(F, 19); H = P0(TT2);
+    B = rotlConstant<9>(B); D = TT1;
+    F = rotlConstant<19>(F); H = P0(TT2);
 }
 
 // Krzysztof Kwiatkowski did a very nice job with this function.

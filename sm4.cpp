@@ -1,4 +1,8 @@
 // sm4.cpp - written and placed in the public domain by Jeffrey Walton and Han Lulu
+//
+//    We understand future ARMv8 enhancements are supposed
+//    to include SM3 and SM4 related instructions so the function
+//    is stubbed for an eventual SM4_Round_ARMV8.
 
 #include "pch.h"
 #include "config.h"
@@ -11,8 +15,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
 using CryptoPP::word32;
-using CryptoPP::rotlFixed;
-using CryptoPP::rotrFixed;
+using CryptoPP::rotlConstant;
 
 const byte S[256] =
 {
@@ -54,13 +57,13 @@ inline word32 SM4_H(word32 x)
 inline word32 SM4_G(word32 x)
 {
     const word32 t = SM4_H(x);
-    return t ^ rotlFixed(t, 13) ^ rotlFixed(t, 23);
+    return t ^ rotlConstant<13>(t) ^ rotlConstant<23>(t);
 }
 
 inline word32 SM4_F(word32 x)
 {
     const word32 t = SM4_H(x);
-    return t ^ rotlFixed(t, 2) ^ rotlFixed(t, 10) ^ rotlFixed(t, 18) ^ rotlFixed(t, 24);
+    return t ^ rotlConstant<2>(t) ^ rotlConstant<10>(t) ^ rotlConstant<18>(t) ^ rotlConstant<24>(t);
 }
 
 template <unsigned int R, bool FWD>
