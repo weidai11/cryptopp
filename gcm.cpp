@@ -79,22 +79,8 @@ static inline void Xor16(byte *a, const byte *b, const byte *c)
 #if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 // SunCC 5.10-5.11 compiler crash. Move GCM_Xor16_SSE2 out-of-line, and place in
 // a source file with a SSE architecture switch. Also see GH #226 and GH #284.
-# if defined (__SUNPRO_CC)
 extern void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c);
-# else
-static inline void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
-{
-#  if CRYPTOPP_SSE2_ASM_AVAILABLE && defined(__GNUC__)
-    asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;"
-         : "=xm" (a[0]) : "xm"(b[0]), "xm"(c[0]));
-#  else  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
-    _mm_store_si128(M128_CAST(a), _mm_xor_si128(
-        _mm_load_si128(CONST_M128_CAST(b)),
-        _mm_load_si128(CONST_M128_CAST(c))));
-#  endif
-}
-# endif  // SunCC
-#endif   // SSE2
+#endif  // SSE2
 
 #if CRYPTOPP_CLMUL_AVAILABLE
 extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
