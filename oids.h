@@ -2,6 +2,12 @@
 
 //! \file oids.h
 //! \brief ASN.1 object identifiers for algorthms and schemes
+//! \details Most OIDs can be found at http://www.oid-info.com/. The Chinese OIDs
+//!   are assigned in GM/T 0006-2012, Cryptographic Application Identifier Criterion
+//!   Specification. A reproduction can be found at http://gmssl.org/docs/oid.html.
+//!   There seems to be some confusion between the text of GmSSL's oid.html web page
+//!   and the actual OID used in the code. We used the same OIDs that were detailed in
+//!   http://github.com/guanzhi/GmSSL/blob/master/crypto/objects/objects.txt.
 
 #ifndef CRYPTOPP_OIDS_H
 #define CRYPTOPP_OIDS_H
@@ -16,6 +22,14 @@ NAMESPACE_BEGIN(ASN1)
 
 DEFINE_OID(1, iso)
 	DEFINE_OID(iso()+2, member_body)
+		DEFINE_OID(member_body()+156, iso_cn)
+			DEFINE_OID(iso_cn()+10197, oscca)
+				DEFINE_OID(oscca()+1, sm_scheme)
+					DEFINE_OID(sm_scheme()+104, sms4)
+					DEFINE_OID(sm_scheme()+301, sm2p256v1)
+						DEFINE_OID(sm2p256v1()+1, sm2sign)
+						DEFINE_OID(sm2p256v1()+2, sm2exchange)
+						DEFINE_OID(sm2p256v1()+3, sm2encrypt)
 		DEFINE_OID(member_body()+840, iso_us)
 			DEFINE_OID(iso_us()+10040, ansi_x9_57)
 				DEFINE_OID(ansi_x9_57()+4+1, id_dsa)
