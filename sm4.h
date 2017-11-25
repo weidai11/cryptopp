@@ -3,7 +3,8 @@
 //! \file sm4.h
 //! \brief Classes for the SM4 block cipher
 //! \details SM4 is a Chinese national block cipher. The cipher was formally known as SMS4.
-//! \sa <A HREF="http://eprint.iacr.org/2008/329.pdf">SMS4 Encryption Algorithm for Wireless Networks</A>
+//! \sa <A HREF="http://eprint.iacr.org/2008/329.pdf">SMS4 Encryption Algorithm for Wireless Networks</A> and
+//!   <A HREF="http://github.com/guanzhi/GmSSL">Reference implementation using OpenSSL</A>.
 //! \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SM4_H

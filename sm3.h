@@ -6,7 +6,8 @@
 //! \file sm3.h
 //! \brief Classes for the SM3 hash function
 //! \details SM3 is a Chinese national hash function designed by Xiaoyun Wang, et al.
-//! \sa <A HREF="https://tools.ietf.org/html/draft-shen-sm3-hash">SM3 Hash Function</A>
+//! \sa <A HREF="https://tools.ietf.org/html/draft-shen-sm3-hash">SM3 Hash Function</A> and
+//!   <A HREF="http://github.com/guanzhi/GmSSL">Reference implementation using OpenSSL</A>.
 //! \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SM3_H
