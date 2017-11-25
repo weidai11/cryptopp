@@ -996,15 +996,16 @@ bool ValidateECDSA()
 }
 
 // from http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf
-bool ValidateECGDSA()
+bool ValidateECGDSA(bool thorough)
 {
 	std::cout << "\nECGDSA validation suite running...\n\n";
 
 	bool fail, pass=true;
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 10)
+	if (thorough)
 	{
-		OID oid = ASN1::brainpoolP192r1();
+		const OID oid = ASN1::brainpoolP192r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 80F2425E 89B4F585 F27F3536 ED834D68 E3E492DE 08FE84B9");
 		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
@@ -1040,8 +1041,9 @@ bool ValidateECGDSA()
 	}
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 13)
+	if (thorough)
 	{
-		OID oid = ASN1::brainpoolP256r1();
+		const OID oid = ASN1::brainpoolP256r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 47B3A278 62DEF037 49ACF0D6 00E69F9B 851D01ED AEFA531F 4D168E78 7307F4D8");
 		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
@@ -1077,8 +1079,9 @@ bool ValidateECGDSA()
 	}
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function RIPEMD-160 (p. 16)
+	if (thorough)
 	{
-		OID oid = ASN1::brainpoolP320r1();
+		const OID oid = ASN1::brainpoolP320r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
 		ECGDSA<ECP, RIPEMD160>::Signer signer(params, x);
@@ -1115,7 +1118,7 @@ bool ValidateECGDSA()
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-1 (p. 19)
 	{
-		OID oid = ASN1::brainpoolP192r1();
+		const OID oid = ASN1::brainpoolP192r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 80F2425E 89B4F585 F27F3536 ED834D68 E3E492DE 08FE84B9");
 		ECGDSA<ECP, SHA1>::Signer signer(params, x);
@@ -1150,46 +1153,9 @@ bool ValidateECGDSA()
 		pass = pass && !fail;
 	}
 
-	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-224 (p. 21)
-	{
-		OID oid = ASN1::brainpoolP256r1();
-		DL_GroupParameters_EC<ECP> params(oid);
-		Integer x("0x 47B3A278 62DEF037 49ACF0D6 00E69F9B 851D01ED AEFA531F 4D168E78 7307F4D8");
-		ECGDSA<ECP, SHA224>::Signer signer(params, x);
-		ECGDSA<ECP, SHA224>::Verifier verifier(signer);
-
-		Integer e("0x 00000000 92AE8A0E 8D08EADE E9426378 714FF3E0 1957587D 2876FA70 D40E3144");
-		Integer k("0x 908E3099 776261A4 558FF7A9 FA6DFFE0 CA6BB3F9 CB35C2E4 E1DC73FD 5E8C08A3");
-
-		Integer r, s;
-		signer.RawSign(k, e, r, s);
-
-		Integer rExp("0x 62CCD1D2 91E62F6A 4FFBD966 C66C85AA BA990BB6 AB0C087D BD54A456 CCC84E4C");
-		Integer sExp("0x 6F029D92 1CBD2552 6EDCCF1C 45E3CBF7 B7A5D8D4 E005F0C4 1C49B052 DECB04EA");
-
-		fail = (r != rExp) || (s != sExp);
-		pass = pass && !fail;
-
-		const byte msg[] = "Example of ECGDSA with the hash function SHA-224";
-		const size_t len = strlen((char*)msg);
-
-		byte signature[64];
-		r.Encode(signature+0, 32);
-		s.Encode(signature+32, 32);
-
-		fail = !verifier.VerifyMessage(msg, len, signature, sizeof(signature));
-		pass = pass && !fail;
-
-		std::cout << (fail ? "FAILED    " : "passed    ");
-		std::cout << "brainpoolP256r1 using SHA-224\n";
-
-		fail = !SignatureValidate(signer, verifier);
-		pass = pass && !fail;
-	}
-
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-224 (p. 23)
 	{
-		OID oid = ASN1::brainpoolP320r1();
+		const OID oid = ASN1::brainpoolP320r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
 		ECGDSA<ECP, SHA224>::Signer signer(params, x);
@@ -1224,9 +1190,9 @@ bool ValidateECGDSA()
 		pass = pass && !fail;
 	}
 
-	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-224 (p. 27)
+	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-256 (p. 27)
 	{
-		OID oid = ASN1::brainpoolP320r1();
+		const OID oid = ASN1::brainpoolP320r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 48683594 5A3A284F FC52629A D48D8F37 F4B2E993 9C52BC72 362A9961 40192AEF 7D2AAFF0 C73A51C5");
 		ECGDSA<ECP, SHA256>::Signer signer(params, x);
@@ -1263,7 +1229,7 @@ bool ValidateECGDSA()
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-384 (p. 34)
 	{
-		OID oid = ASN1::brainpoolP512r1();
+		const OID oid = ASN1::brainpoolP512r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 92006A98 8AF96D91 57AADCF8 62716962 7CE2ECC4 C58ECE5C 1A0A8642 11AB764C 04236FA0 160857A7 8E71CCAE 4D79D52E 5A69A457 8AF50658 1F598FA9 B4F7DA68");
 		ECGDSA<ECP, SHA384>::Signer signer(params, x);
@@ -1300,7 +1266,7 @@ bool ValidateECGDSA()
 
 	// 2.4.1 Examples of ECGDSA over GF(p) with the hash function SHA-512 (p. 38)
 	{
-		OID oid = ASN1::brainpoolP512r1();
+		const OID oid = ASN1::brainpoolP512r1();
 		DL_GroupParameters_EC<ECP> params(oid);
 		Integer x("0x 92006A98 8AF96D91 57AADCF8 62716962 7CE2ECC4 C58ECE5C 1A0A8642 11AB764C 04236FA0 160857A7 8E71CCAE 4D79D52E 5A69A457 8AF50658 1F598FA9 B4F7DA68");
 		ECGDSA<ECP, SHA512>::Signer signer(params, x);

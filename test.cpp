@@ -916,7 +916,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 48: result = ValidateCRC32(); break;
 	case 49: result = ValidateCRC32C(); break;
 	case 50: result = ValidateECDSA(); break;
-	case 51: result = ValidateECGDSA(); break;
+	case 51: result = ValidateECGDSA(thorough); break;
 	case 52: result = ValidateXTR_DH(); break;
 	case 53: result = ValidateSKIPJACK(); break;
 	case 54: result = ValidateSHA2(); break;
