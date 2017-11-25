@@ -253,7 +253,7 @@ void Rijndael::Base::FillEncTable()
 		for (int j=0; j<4; j++)
 		{
 			Te[i+j*256] = y;
-			y = rotrFixed(y, 8);
+			y = rotrConstant<8>(y);
 		}
 #endif
 	}
@@ -276,7 +276,7 @@ void Rijndael::Base::FillDecTable()
 		for (int j=0; j<4; j++)
 		{
 			Td[i+j*256] = y;
-			y = rotrFixed(y, 8);
+			y = rotrConstant<8>(y);
 		}
 #endif
 	}

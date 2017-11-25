@@ -99,8 +99,8 @@ void TTMAC_Base::Transform(word32 *digest, const word32 *X, bool last)
 {
 #define Subround(f, a, b, c, d, e, x, s, k)		\
 	a += f(b, c, d) + x + k;\
-	a = rotlFixed((word32)a, s) + e;\
-	c = rotlFixed((word32)c, 10U)
+	a = rotlVariable((word32)a, s) + e;\
+	c = rotlVariable((word32)c, 10U)
 
 	word32 a1, b1, c1, d1, e1, a2, b2, c2, d2, e2;
 	word32 *trackA, *trackB;

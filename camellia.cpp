@@ -29,20 +29,20 @@ NAMESPACE_BEGIN(CryptoPP)
 #define SLOW_ROUND(lh, ll, rh, rl, kh, kl)	{							\
 	word32 zr = ll ^ kl;												\
 	word32 zl = lh ^ kh;												\
-	zr=	rotlFixed(s1[GETBYTE(zr, 3)], 1) |								\
-		(rotrFixed(s1[GETBYTE(zr, 2)], 1) << 24) |						\
-		(s1[rotlFixed(CRYPTOPP_GET_BYTE_AS_BYTE(zr, 1),1)] << 16) |		\
+	zr=	rotlConstant<1>(s1[GETBYTE(zr, 3)]) |							\
+		(rotrConstant<1>(s1[GETBYTE(zr, 2)]) << 24) |					\
+		(s1[rotlConstant<1>(CRYPTOPP_GET_BYTE_AS_BYTE(zr, 1))] << 16) |	\
 		(s1[GETBYTE(zr, 0)] << 8);										\
 	zl=	(s1[GETBYTE(zl, 3)] << 24) |									\
-		(rotlFixed(s1[GETBYTE(zl, 2)], 1) << 16) |						\
-		(rotrFixed(s1[GETBYTE(zl, 1)], 1) << 8) |						\
-		s1[rotlFixed(CRYPTOPP_GET_BYTE_AS_BYTE(zl, 0), 1)];				\
+		(rotlConstant<1>(s1[GETBYTE(zl, 2)]) << 16) |					\
+		(rotrConstant<1>(s1[GETBYTE(zl, 1)]) << 8) |					\
+		s1[rotlConstant<1>(CRYPTOPP_GET_BYTE_AS_BYTE(zl, 0))];			\
 	zl ^= zr;															\
-	zr = zl ^ rotlFixed(zr, 8);											\
-	zl = zr ^ rotrFixed(zl, 8);											\
-	rh ^= rotlFixed(zr, 16);											\
+	zr = zl ^ rotlConstant<8>(zr);										\
+	zl = zr ^ rotrConstant<8>(zl);										\
+	rh ^= rotlConstant<16>(zr);											\
 	rh ^= zl;															\
-	rl ^= rotlFixed(zl, 8);												\
+	rl ^= rotlConstant<8>(zl);											\
 	}
 
 // normal round - same output as above but using larger tables for faster speed
@@ -54,7 +54,7 @@ NAMESPACE_BEGIN(CryptoPP)
 	d ^= u;									\
 	rh ^= d;								\
 	rl ^= d;								\
-	rl ^= rotrFixed(u, 8);}
+	rl ^= rotrConstant<8>(u);}
 
 #define DOUBLE_ROUND(lh, ll, rh, rl, k0, k1, k2, k3)	\
 	ROUND(lh, ll, rh, rl, k0, k1)						\
@@ -202,10 +202,10 @@ void Camellia::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 #define KS(i, j) ks[i*4 + EFI(j/2)*2 + EFI(j%2)]
 
 #define FL(klh, kll, krh, krl)		\
-	ll ^= rotlFixed(lh & klh, 1);	\
+	ll ^= rotlConstant<1>(lh & klh);\
 	lh ^= (ll | kll);				\
 	rh ^= (rl | krl);				\
-	rl ^= rotlFixed(rh & krh, 1);
+	rl ^= rotlConstant<1>(rh & krh);
 
 	word32 lh, ll, rh, rl;
 	typedef BlockGetAndPut<word32, BigEndian> Block;

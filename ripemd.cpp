@@ -31,8 +31,8 @@ NAMESPACE_BEGIN(CryptoPP)
 // for 160 and 320
 #define Subround(f, a, b, c, d, e, x, s, k)        \
 	a += f(b, c, d) + x + k;\
-	a = rotlFixed((word32)a, s) + e;\
-	c = rotlFixed((word32)c, 10U)
+	a = rotlVariable((word32)a, s) + e;\
+	c = rotlConstant<10>((word32)c)
 
 void RIPEMD160::InitState(HashWordType *state)
 {
@@ -459,7 +459,7 @@ void RIPEMD320::Transform (word32 *digest, const word32 *X)
 // for 128 and 256
 #define Subround(f, a, b, c, d, x, s, k)        \
 	a += f(b, c, d) + x + k;\
-	a = rotlFixed((word32)a, s);
+	a = rotlVariable((word32)a, s);
 
 void RIPEMD128::InitState(HashWordType *state)
 {

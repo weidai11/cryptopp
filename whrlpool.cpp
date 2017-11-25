@@ -621,16 +621,16 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 
 #define KSH(op, i, a, b, c, d)	\
 	t = (word32)(k[(i+4)%8]>>32);\
-	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32));\
+	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : rotrConstant<32>(w##a));\
 	if (op==2) k[a] = w##a;\
 	t >>= 8;\
-	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : rotrFixed(w##b, 32));\
+	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : rotrConstant<32>(w##b));\
 	if (op==2) k[b] = w##b;\
 	t >>= 8;\
-	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : rotrFixed(w##c, 32));\
+	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : rotrConstant<32>(w##c));\
 	if (op==2) k[c] = w##c;\
 	t >>= 8;\
-	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : rotrFixed(w##d, 32));\
+	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : rotrConstant<32>(w##d));\
 	if (op==2) k[d] = w##d;\
 
 #define TSL(op, i, a, b, c, d)	\
@@ -644,7 +644,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : 0);
 
 #define TSH_OP(op, a, b)	\
-	w##a = Whirlpool_C[b*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32) ^ k[a]);\
+	w##a = Whirlpool_C[b*256 + (byte)t] ^ (op ? w##a : rotrConstant<32>(w##a) ^ k[a]);\
 	if (op==2) s[a] = w##a;\
 	if (op==3) digest[a] ^= w##a;\
 

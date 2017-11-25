@@ -12,10 +12,10 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
-    a += b; d ^= a; d = rotlFixed<word32>(d,16); \
-    c += d; b ^= c; b = rotlFixed<word32>(b,12); \
-    a += b; d ^= a; d = rotlFixed<word32>(d, 8); \
-    c += d; b ^= c; b = rotlFixed<word32>(b, 7);
+    a += b; d ^= a; d = rotlConstant<16,word32>(d); \
+    c += d; b ^= c; b = rotlConstant<12,word32>(b); \
+    a += b; d ^= a; d = rotlConstant<8,word32>(d); \
+    c += d; b ^= c; b = rotlConstant<7,word32>(b);
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ChaCha_TestInstantiations()

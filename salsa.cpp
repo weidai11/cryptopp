@@ -525,10 +525,10 @@ Salsa20_OperateKeystream ENDP
 			for (int i=m_rounds; i>0; i-=2)
 			{
 				#define QUARTER_ROUND(a, b, c, d)	\
-					b = b ^ rotlFixed(a + d, 7);	\
-					c = c ^ rotlFixed(b + a, 9);	\
-					d = d ^ rotlFixed(c + b, 13);	\
-					a = a ^ rotlFixed(d + c, 18);
+					b = b ^ rotlConstant<7>(a + d);	\
+					c = c ^ rotlConstant<9>(b + a);	\
+					d = d ^ rotlConstant<13>(c + b);	\
+					a = a ^ rotlConstant<18>(d + c);
 
 				QUARTER_ROUND(x0, x4, x8, x12)
 				QUARTER_ROUND(x1, x5, x9, x13)

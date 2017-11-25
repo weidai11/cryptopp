@@ -22,10 +22,10 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // SHACAL-2 function and round definitions
 
-#define S0(x) (rotrFixed(x,2)^rotrFixed(x,13)^rotrFixed(x,22))
-#define S1(x) (rotrFixed(x,6)^rotrFixed(x,11)^rotrFixed(x,25))
-#define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
-#define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
+#define S0(x) (rotrConstant<2>(x)^rotrConstant<13>(x)^rotrConstant<22>(x))
+#define S1(x) (rotrConstant<6>(x)^rotrConstant<11>(x)^rotrConstant<25>(x))
+#define s0(x) (rotrConstant<7>(x)^rotrConstant<18>(x)^(x>>3))
+#define s1(x) (rotrConstant<17>(x)^rotrConstant<19>(x)^(x>>10))
 
 #define Ch(x,y,z) (z^(x&(y^z)))
 #define Maj(x,y,z) ((x&y)|(z&(x|y)))

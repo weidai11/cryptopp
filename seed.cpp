@@ -75,9 +75,9 @@ void SEED::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 		k[1] = G(t1);
 		k+=kInc;
 		if (i&1)
-			key23 = rotlFixed<word64>(key23, 8);
+			key23 = rotlConstant<8,word64>(key23);
 		else
-			key01 = rotrFixed<word64>(key01, 8);
+			key01 = rotrConstant<8,word64>(key01);
 	}
 }
 

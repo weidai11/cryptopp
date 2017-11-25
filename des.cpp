@@ -77,21 +77,21 @@ static inline void IPERM(word32 &left, word32 &right)
 {
 	word32 work;
 
-	right = rotlFixed(right, 4U);
+	right = rotlConstant<4>(right);
 	work = (left ^ right) & 0xf0f0f0f0;
 	left ^= work;
-	right = rotrFixed(right^work, 20U);
+	right = rotrConstant<20>(right^work);
 	work = (left ^ right) & 0xffff0000;
 	left ^= work;
-	right = rotrFixed(right^work, 18U);
+	right = rotrConstant<18>(right^work);
 	work = (left ^ right) & 0x33333333;
 	left ^= work;
-	right = rotrFixed(right^work, 6U);
+	right = rotrConstant<6>(right^work);
 	work = (left ^ right) & 0x00ff00ff;
 	left ^= work;
-	right = rotlFixed(right^work, 9U);
+	right = rotlConstant<9>(right^work);
 	work = (left ^ right) & 0xaaaaaaaa;
-	left = rotlFixed(left^work, 1U);
+	left = rotlConstant<1>(left^work);
 	right ^= work;
 }
 
@@ -99,22 +99,22 @@ static inline void FPERM(word32 &left, word32 &right)
 {
 	word32 work;
 
-	right = rotrFixed(right, 1U);
+	right = rotrConstant<1>(right);
 	work = (left ^ right) & 0xaaaaaaaa;
 	right ^= work;
-	left = rotrFixed(left^work, 9U);
+	left = rotrConstant<9>(left^work);
 	work = (left ^ right) & 0x00ff00ff;
 	right ^= work;
-	left = rotlFixed(left^work, 6U);
+	left = rotlConstant<6>(left^work);
 	work = (left ^ right) & 0x33333333;
 	right ^= work;
-	left = rotlFixed(left^work, 18U);
+	left = rotlConstant<18>(left^work);
 	work = (left ^ right) & 0xffff0000;
 	right ^= work;
-	left = rotlFixed(left^work, 20U);
+	left = rotlConstant<20>(left^work);
 	work = (left ^ right) & 0xf0f0f0f0;
 	right ^= work;
-	left = rotrFixed(left^work, 4U);
+	left = rotrConstant<4>(left^work);
 }
 
 void DES::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &)
@@ -340,7 +340,7 @@ void RawDES::RawProcessBlock(word32 &l_, word32 &r_) const
 
 	for (unsigned i=0; i<8; i++)
 	{
-		word32 work = rotrFixed(r, 4U) ^ kptr[4*i+0];
+		word32 work = rotrConstant<4>(r) ^ kptr[4 * i + 0];
 		l ^= Spbox[6][(work) & 0x3f]
 		  ^  Spbox[4][(work >> 8) & 0x3f]
 		  ^  Spbox[2][(work >> 16) & 0x3f]
@@ -351,7 +351,7 @@ void RawDES::RawProcessBlock(word32 &l_, word32 &r_) const
 		  ^  Spbox[3][(work >> 16) & 0x3f]
 		  ^  Spbox[1][(work >> 24) & 0x3f];
 
-		work = rotrFixed(l, 4U) ^ kptr[4*i+2];
+		work = rotrConstant<4>(l) ^ kptr[4 * i + 2];
 		r ^= Spbox[6][(work) & 0x3f]
 		  ^  Spbox[4][(work >> 8) & 0x3f]
 		  ^  Spbox[2][(work >> 16) & 0x3f]

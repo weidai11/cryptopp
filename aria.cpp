@@ -65,7 +65,7 @@ inline byte ARIA_BRF(const word32 x, const int y) {
 
 #define ARIA_P(T0,T1,T2,T3) {                                  \
     (T1) = (((T1)<< 8)&0xff00ff00) ^ (((T1)>> 8)&0x00ff00ff);  \
-    (T2) = rotrFixed((T2),16);                                 \
+    (T2) = rotrConstant<16>(T2);                               \
     (T3) = ByteReverse((T3));                                  \
   }
 

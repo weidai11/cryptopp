@@ -20,9 +20,9 @@ void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, si
 	word32 t = k0[7];
 	unsigned int i;
 	for (i = 0; i < 8; ++i)
-		k[i] = k0[i] = t = rotlFixed(k0[i] ^ k0[(i+3)%8] ^ k0[(i+5)%8] ^ t ^ 0x9e3779b9 ^ i, 11);
+		k[i] = k0[i] = t = rotlConstant<11>(k0[i] ^ k0[(i + 3) % 8] ^ k0[(i + 5) % 8] ^ t ^ 0x9e3779b9 ^ i);
 	for (i = 8; i < 4*(rounds+1); ++i)
-		k[i] = t = rotlFixed(k[i-8] ^ k[i-5] ^ k[i-3] ^ t ^ 0x9e3779b9 ^ i, 11);
+		k[i] = t = rotlConstant<11>(k[i-8] ^ k[i-5] ^ k[i-3] ^ t ^ 0x9e3779b9 ^ i);
 	k -= 20;
 
 	word32 a,b,c,d,e;

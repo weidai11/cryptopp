@@ -82,7 +82,7 @@ extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, 
 ANONYMOUS_NAMESPACE_BEGIN
 
 #define blk0(i) (W[i] = data[i])
-#define blk1(i) (W[i&15] = rotlFixed(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15],1))
+#define blk1(i) (W[i&15] = rotlConstant<1>(W[(i+13)&15]^W[(i+8)&15]^W[(i+2)&15]^W[i&15]))
 
 #define f1(x,y,z) (z^(x&(y^z)))
 #define f2(x,y,z) (x^y^z)
@@ -90,11 +90,11 @@ ANONYMOUS_NAMESPACE_BEGIN
 #define f4(x,y,z) (x^y^z)
 
 /* (R0+R1), R2, R3, R4 are the different operations used in SHA1 */
-#define R0(v,w,x,y,z,i) z+=f1(w,x,y)+blk0(i)+0x5A827999+rotlFixed(v,5);w=rotlFixed(w,30);
-#define R1(v,w,x,y,z,i) z+=f1(w,x,y)+blk1(i)+0x5A827999+rotlFixed(v,5);w=rotlFixed(w,30);
-#define R2(v,w,x,y,z,i) z+=f2(w,x,y)+blk1(i)+0x6ED9EBA1+rotlFixed(v,5);w=rotlFixed(w,30);
-#define R3(v,w,x,y,z,i) z+=f3(w,x,y)+blk1(i)+0x8F1BBCDC+rotlFixed(v,5);w=rotlFixed(w,30);
-#define R4(v,w,x,y,z,i) z+=f4(w,x,y)+blk1(i)+0xCA62C1D6+rotlFixed(v,5);w=rotlFixed(w,30);
+#define R0(v,w,x,y,z,i) z+=f1(w,x,y)+blk0(i)+0x5A827999+rotlConstant<5>(v);w=rotlConstant<30>(w);
+#define R1(v,w,x,y,z,i) z+=f1(w,x,y)+blk1(i)+0x5A827999+rotlConstant<5>(v);w=rotlConstant<30>(w);
+#define R2(v,w,x,y,z,i) z+=f2(w,x,y)+blk1(i)+0x6ED9EBA1+rotlConstant<5>(v);w=rotlConstant<30>(w);
+#define R3(v,w,x,y,z,i) z+=f3(w,x,y)+blk1(i)+0x8F1BBCDC+rotlConstant<5>(v);w=rotlConstant<30>(w);
+#define R4(v,w,x,y,z,i) z+=f4(w,x,y)+blk1(i)+0xCA62C1D6+rotlConstant<5>(v);w=rotlConstant<30>(w);
 
 void SHA1_HashBlock_CXX(word32 *state, const word32 *data)
 {
@@ -271,10 +271,10 @@ ANONYMOUS_NAMESPACE_BEGIN
     d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i))
 
 // for SHA256
-#define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
-#define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
-#define S0(x) (rotrFixed(x,2)^rotrFixed(x,13)^rotrFixed(x,22))
-#define S1(x) (rotrFixed(x,6)^rotrFixed(x,11)^rotrFixed(x,25))
+#define s0(x) (rotrConstant<7>(x)^rotrConstant<18>(x)^(x>>3))
+#define s1(x) (rotrConstant<17>(x)^rotrConstant<19>(x)^(x>>10))
+#define S0(x) (rotrConstant<2>(x)^rotrConstant<13>(x)^rotrConstant<22>(x))
+#define S1(x) (rotrConstant<6>(x)^rotrConstant<11>(x)^rotrConstant<25>(x))
 
 void SHA256_HashBlock_CXX(word32 *state, const word32 *data)
 {
@@ -1099,10 +1099,10 @@ ANONYMOUS_NAMESPACE_BEGIN
 #define Ch(x,y,z) (z^(x&(y^z)))
 #define Maj(x,y,z) (y^((x^y)&(y^z)))
 
-#define s0(x) (rotrFixed(x,1)^rotrFixed(x,8)^(x>>7))
-#define s1(x) (rotrFixed(x,19)^rotrFixed(x,61)^(x>>6))
-#define S0(x) (rotrFixed(x,28)^rotrFixed(x,34)^rotrFixed(x,39))
-#define S1(x) (rotrFixed(x,14)^rotrFixed(x,18)^rotrFixed(x,41))
+#define s0(x) (rotrConstant<1>(x)^rotrConstant<8>(x)^(x>>7))
+#define s1(x) (rotrConstant<19>(x)^rotrConstant<61>(x)^(x>>6))
+#define S0(x) (rotrConstant<28>(x)^rotrConstant<34>(x)^rotrConstant<39>(x))
+#define S1(x) (rotrConstant<14>(x)^rotrConstant<18>(x)^rotrConstant<41>(x))
 
 #define R(i) h(i)+=S1(e(i))+Ch(e(i),f(i),g(i))+SHA512_K[i+j]+\
     (j?blk2(i):blk0(i));d(i)+=h(i);h(i)+=S0(a(i))+Maj(a(i),b(i),c(i));

@@ -12,24 +12,16 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-#if defined(__clang__)
-# define rotatel64(x,y) rotlVariable(x,y)
-# define rotater64(x,y) rotrVariable(x,y)
-#else
-# define rotatel64(x,y) rotlFixed(x,y)
-# define rotater64(x,y) rotrFixed(x,y)
-#endif
-
 #define G256(G0, G1, G2, G3, C0, C1) \
     G0 += G1; \
-    G1 = rotatel64(G1, C0) ^ G0; \
+    G1 = rotlVariable(G1, C0) ^ G0; \
     G2 += G3; \
-    G3 = rotatel64(G3, C1) ^ G2;
+    G3 = rotlVariable(G3, C1) ^ G2;
 
 #define IG256(G0, G1, G2, G3, C0, C1) \
-    G3 = rotater64(G3 ^ G2, C1); \
+    G3 = rotrVariable(G3 ^ G2, C1); \
     G2 -= G3; \
-    G1 = rotater64(G1 ^ G0, C0); \
+    G1 = rotrVariable(G1 ^ G0, C0); \
     G0 -= G1; \
 
 #define KS256(r) \
@@ -69,24 +61,24 @@ ANONYMOUS_NAMESPACE_BEGIN
     IKS256(r - 1);
 
 #define IG512(G0, G1, G2, G3, G4, G5, G6, G7, C0, C1, C2, C3) \
-    G7 = rotater64(G7 ^ G6, C3); \
+    G7 = rotrVariable(G7 ^ G6, C3); \
     G6 -= G7; \
-    G5 = rotater64(G5 ^ G4, C2); \
+    G5 = rotrVariable(G5 ^ G4, C2); \
     G4 -= G5; \
-    G3 = rotater64(G3 ^ G2, C1); \
+    G3 = rotrVariable(G3 ^ G2, C1); \
     G2 -= G3; \
-    G1 = rotater64(G1 ^ G0, C0); \
+    G1 = rotrVariable(G1 ^ G0, C0); \
     G0 -= G1;
 
 #define G512(G0, G1, G2, G3, G4, G5, G6, G7, C0, C1, C2, C3) \
     G0 += G1; \
-    G1 = rotatel64(G1, C0) ^ G0; \
+    G1 = rotlVariable(G1, C0) ^ G0; \
     G2 += G3; \
-    G3 = rotatel64(G3, C1) ^ G2; \
+    G3 = rotlVariable(G3, C1) ^ G2; \
     G4 += G5; \
-    G5 = rotatel64(G5, C2) ^ G4; \
+    G5 = rotlVariable(G5, C2) ^ G4; \
     G6 += G7; \
-    G7 = rotatel64(G7, C3) ^ G6;
+    G7 = rotlVariable(G7, C3) ^ G6;
 
 #define IKS512(r) \
     G0 -= m_rkey[(r + 1) % 9]; \
@@ -133,40 +125,40 @@ ANONYMOUS_NAMESPACE_BEGIN
     KS512(r + 1)
 
 #define IG1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, C1, C2, C3, C4, C5, C6, C7, C8) \
-    G15 = rotater64(G15 ^ G14, C8); \
+    G15 = rotrVariable(G15 ^ G14, C8); \
     G14 -= G15; \
-    G13 = rotater64(G13 ^ G12, C7); \
+    G13 = rotrVariable(G13 ^ G12, C7); \
     G12 -= G13; \
-    G11 = rotater64(G11 ^ G10, C6); \
+    G11 = rotrVariable(G11 ^ G10, C6); \
     G10 -= G11; \
-    G9 = rotater64(G9 ^ G8, C5); \
+    G9 = rotrVariable(G9 ^ G8, C5); \
     G8 -= G9; \
-    G7 = rotater64(G7 ^ G6, C4); \
+    G7 = rotrVariable(G7 ^ G6, C4); \
     G6 -= G7; \
-    G5 = rotater64(G5 ^ G4, C3); \
+    G5 = rotrVariable(G5 ^ G4, C3); \
     G4 -= G5; \
-    G3 = rotater64(G3 ^ G2, C2); \
+    G3 = rotrVariable(G3 ^ G2, C2); \
     G2 -= G3; \
-    G1 = rotater64(G1 ^ G0, C1); \
+    G1 = rotrVariable(G1 ^ G0, C1); \
     G0 -= G1;
 
 #define G1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, C1, C2, C3, C4, C5, C6, C7, C8) \
     G0 += G1; \
-    G1 = rotatel64(G1, C1) ^ G0; \
+    G1 = rotlVariable(G1, C1) ^ G0; \
     G2 += G3; \
-    G3 = rotatel64(G3, C2) ^ G2; \
+    G3 = rotlVariable(G3, C2) ^ G2; \
     G4 += G5; \
-    G5 = rotatel64(G5, C3) ^ G4; \
+    G5 = rotlVariable(G5, C3) ^ G4; \
     G6 += G7; \
-    G7 = rotatel64(G7, C4) ^ G6; \
+    G7 = rotlVariable(G7, C4) ^ G6; \
     G8 += G9; \
-    G9 = rotatel64(G9, C5) ^ G8; \
+    G9 = rotlVariable(G9, C5) ^ G8; \
     G10 += G11; \
-    G11 = rotatel64(G11, C6) ^ G10; \
+    G11 = rotlVariable(G11, C6) ^ G10; \
     G12 += G13; \
-    G13 = rotatel64(G13, C7) ^ G12; \
+    G13 = rotlVariable(G13, C7) ^ G12; \
     G14 += G15; \
-    G15 = rotatel64(G15, C8) ^ G14;
+    G15 = rotlVariable(G15, C8) ^ G14;
 
 #define IKS1024(r) \
     G0 -= m_rkey[(r + 1) % 17]; \

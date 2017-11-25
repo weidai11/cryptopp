@@ -101,84 +101,84 @@ void SEAL_Policy<B>::OperateKeystream(KeystreamOperation operation, byte *output
 		#define Ttab(x) *(word32 *)(void*)((byte *)m_T.begin()+x)
 
 		a = m_outsideCounter ^ m_R[4*m_insideCounter];
-		b = rotrFixed(m_outsideCounter, 8U) ^ m_R[4*m_insideCounter+1];
-		c = rotrFixed(m_outsideCounter, 16U) ^ m_R[4*m_insideCounter+2];
-		d = rotrFixed(m_outsideCounter, 24U) ^ m_R[4*m_insideCounter+3];
+		b = rotrConstant<8>(m_outsideCounter) ^ m_R[4*m_insideCounter+1];
+		c = rotrConstant<16>(m_outsideCounter) ^ m_R[4 * m_insideCounter + 2];
+		d = rotrConstant<24>(m_outsideCounter) ^ m_R[4 * m_insideCounter + 3];
 
 		for (unsigned int j=0; j<2; j++)
 		{
 			p = a & 0x7fc;
 			b += Ttab(p);
-			a = rotrFixed(a, 9U);
+			a = rotrConstant<9>(a);
 
 			p = b & 0x7fc;
 			c += Ttab(p);
-			b = rotrFixed(b, 9U);
+			b = rotrConstant<9>(b);
 
 			p = c & 0x7fc;
 			d += Ttab(p);
-			c = rotrFixed(c, 9U);
+			c = rotrConstant<9>(c);
 
 			p = d & 0x7fc;
 			a += Ttab(p);
-			d = rotrFixed(d, 9U);
+			d = rotrConstant<9>(d);
 		}
 
 		n1 = d, n2 = b, n3 = a, n4 = c;
 
 		p = a & 0x7fc;
 		b += Ttab(p);
-		a = rotrFixed(a, 9U);
+		a = rotrConstant<9>(a);
 
 		p = b & 0x7fc;
 		c += Ttab(p);
-		b = rotrFixed(b, 9U);
+		b = rotrConstant<9>(b);
 
 		p = c & 0x7fc;
 		d += Ttab(p);
-		c = rotrFixed(c, 9U);
+		c = rotrConstant<9>(c);
 
 		p = d & 0x7fc;
 		a += Ttab(p);
-		d = rotrFixed(d, 9U);
+		d = rotrConstant<9>(d);
 
 		// generate 8192 bits
 		for (unsigned int i=0; i<64; i++)
 		{
 			p = a & 0x7fc;
-			a = rotrFixed(a, 9U);
+			a = rotrConstant<9>(a);
 			b += Ttab(p);
 			b ^= a;
 
 			q = b & 0x7fc;
-			b = rotrFixed(b, 9U);
+			b = rotrConstant<9>(b);
 			c ^= Ttab(q);
 			c += b;
 
 			p = (p+c) & 0x7fc;
-			c = rotrFixed(c, 9U);
+			c = rotrConstant<9>(c);
 			d += Ttab(p);
 			d ^= c;
 
 			q = (q+d) & 0x7fc;
-			d = rotrFixed(d, 9U);
+			d = rotrConstant<9>(d);
 			a ^= Ttab(q);
 			a += d;
 
 			p = (p+a) & 0x7fc;
 			b ^= Ttab(p);
-			a = rotrFixed(a, 9U);
+			a = rotrConstant<9>(a);
 
 			q = (q+b) & 0x7fc;
 			c += Ttab(q);
-			b = rotrFixed(b, 9U);
+			b = rotrConstant<9>(b);
 
 			p = (p+c) & 0x7fc;
 			d ^= Ttab(p);
-			c = rotrFixed(c, 9U);
+			c = rotrConstant<9>(c);
 
 			q = (q+d) & 0x7fc;
-			d = rotrFixed(d, 9U);
+			d = rotrConstant<9>(d);
 			a += Ttab(q);
 
 #define SEAL_OUTPUT(x)	\

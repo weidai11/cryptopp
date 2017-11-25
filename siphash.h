@@ -90,19 +90,19 @@ protected:
 	inline void SIPROUND()
 	{
 		m_v[0] += m_v[1];
-		m_v[1] = rotlFixed(m_v[1], 13U);
+		m_v[1] = rotlConstant<13>(m_v[1]);
 		m_v[1] ^= m_v[0];
-		m_v[0] = rotlFixed(m_v[0], 32U);
+		m_v[0] = rotlConstant<32>(m_v[0]);
 		m_v[2] += m_v[3];
-		m_v[3] = rotlFixed(m_v[3], 16U);
+		m_v[3] = rotlConstant<16>(m_v[3]);
 		m_v[3] ^= m_v[2];
 		m_v[0] += m_v[3];
-		m_v[3] = rotlFixed(m_v[3], 21U);
+		m_v[3] = rotlConstant<21>(m_v[3]);
 		m_v[3] ^= m_v[0];
 		m_v[2] += m_v[1];
-		m_v[1] = rotlFixed(m_v[1], 17U);
+		m_v[1] = rotlConstant<17>(m_v[1]);
 		m_v[1] ^= m_v[2];
-		m_v[2] = rotlFixed(m_v[2], 32U);
+		m_v[2] = rotlConstant<32>(m_v[2]);
 	}
 
 private:

@@ -64,9 +64,9 @@ void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 	for (i=0; i<40; i+=2)
 	{
 		word32 a = h(i, key, len);
-		word32 b = rotlFixed(h(i+1, key+1, len), 8);
+		word32 b = rotlConstant<8>(h(i + 1, key + 1, len));
 		m_k[i] = a+b;
-		m_k[i+1] = rotlFixed(a+2*b, 9);
+		m_k[i + 1] = rotlConstant<9>(a + 2 * b);
 	}
 
 	SecBlock<word32> svec(2*len);
@@ -89,8 +89,8 @@ void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 	x = G1 (a); y = G2 (b); \
 	x += y; y += x + k[2 * (n) + 1]; \
 	(c) ^= x + k[2 * (n)]; \
-	(c) = rotrFixed(c, 1); \
-	(d) = rotlFixed(d, 1) ^ y
+	(c) = rotrConstant<1>(c); \
+	(d) = rotlConstant<1>(d) ^ y
 
 #define ENCCYCLE(n) \
 	ENCROUND (2 * (n), a, b, c, d); \
@@ -100,8 +100,8 @@ void Twofish::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 	x = G1 (a); y = G2 (b); \
 	x += y; y += x; \
 	(d) ^= y + k[2 * (n) + 1]; \
-	(d) = rotrFixed(d, 1); \
-	(c) = rotlFixed(c, 1); \
+	(d) = rotrConstant<1>(d); \
+	(c) = rotlConstant<1>(c); \
 	(c) ^= (x + k[2 * (n)])
 
 #define DECCYCLE(n) \

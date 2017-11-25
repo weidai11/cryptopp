@@ -10,8 +10,8 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
 using CryptoPP::word64;
-using CryptoPP::rotlFixed;
-using CryptoPP::rotrFixed;
+using CryptoPP::rotlConstant;
+using CryptoPP::rotrConstant;
 
 //! \brief Round transformation helper
 //! \tparam W word type
@@ -19,7 +19,7 @@ using CryptoPP::rotrFixed;
 template <class W>
 inline W f(const W v)
 {
-    return (rotlFixed(v, 1) & rotlFixed(v, 8)) ^ rotlFixed(v, 2);
+    return (rotlConstant<1>(v) & rotlConstant<8>(v)) ^ rotlConstant<2>(v);
 }
 
 //! \brief Round transformation
@@ -103,7 +103,7 @@ inline void SPECK64_ExpandKey_42R3K(word32 key[42], const word32 k[3])
     key[0] = k[2]; key[1] = k[1]; key[2] = k[0];
     for (size_t i = 3; i<42; ++i)
     {
-        key[i] = c ^ (z & 1) ^ key[i-3] ^ rotrFixed(key[i-1], 3) ^ rotrFixed(key[i-1], 4);
+        key[i] = c ^ (z & 1) ^ key[i - 3] ^ rotrConstant<3>(key[i - 1]) ^ rotrConstant<4>(key[i - 1]);
         z >>= 1;
     }
 }
@@ -121,7 +121,7 @@ inline void SPECK64_ExpandKey_44R4K(word32 key[44], const word32 k[4])
     key[0] = k[3]; key[1] = k[2]; key[2] = k[1]; key[3] = k[0];
     for (size_t i = 4; i<44; ++i)
     {
-        key[i] = c ^ (z & 1) ^ key[i-4] ^ rotrFixed(key[i-1], 3) ^ key[i-3] ^ rotrFixed(key[i-1], 4) ^ rotrFixed(key[i-3], 1);
+        key[i] = c ^ (z & 1) ^ key[i - 4] ^ rotrConstant<3>(key[i - 1]) ^ key[i - 3] ^ rotrConstant<4>(key[i - 1]) ^ rotrConstant<1>(key[i - 3]);
         z >>= 1;
     }
 }
@@ -139,12 +139,12 @@ inline void SIMON128_ExpandKey_68R2K(word64 key[68], const word64 k[2])
     key[0] = k[1]; key[1] = k[0];
     for (size_t i=2; i<66; ++i)
     {
-        key[i] = c^(z&1)^key[i-2]^rotrFixed(key[i-1],3)^rotrFixed(key[i-1],4);
+        key[i] = c ^ (z & 1) ^ key[i - 2] ^ rotrConstant<3>(key[i - 1]) ^ rotrConstant<4>(key[i - 1]);
         z>>=1;
     }
 
-    key[66] = c^1^key[64]^rotrFixed(key[65],3)^rotrFixed(key[65],4);
-    key[67] = c^key[65]^rotrFixed(key[66],3)^rotrFixed(key[66],4);
+    key[66] = c ^ 1 ^ key[64] ^ rotrConstant<3>(key[65]) ^ rotrConstant<4>(key[65]);
+    key[67] = c^key[65] ^ rotrConstant<3>(key[66]) ^ rotrConstant<4>(key[66]);
 }
 
 //! \brief Subkey generation function
@@ -160,12 +160,12 @@ inline void SIMON128_ExpandKey_69R3K(word64 key[69], const word64 k[3])
     key[0]=k[2]; key[1]=k[1]; key[2]=k[0];
     for (size_t i=3; i<67; ++i)
     {
-        key[i] = c^(z&1)^key[i-3]^rotrFixed(key[i-1],3)^rotrFixed(key[i-1],4);
+        key[i] = c ^ (z & 1) ^ key[i - 3] ^ rotrConstant<3>(key[i - 1]) ^ rotrConstant<4>(key[i - 1]);
         z>>=1;
     }
 
-    key[67] = c^key[64]^rotrFixed(key[66],3)^rotrFixed(key[66],4);
-    key[68] = c^1^key[65]^rotrFixed(key[67],3)^rotrFixed(key[67],4);
+    key[67] = c^key[64] ^ rotrConstant<3>(key[66]) ^ rotrConstant<4>(key[66]);
+    key[68] = c ^ 1 ^ key[65] ^ rotrConstant<3>(key[67]) ^ rotrConstant<4>(key[67]);
 }
 
 //! \brief Subkey generation function
@@ -181,14 +181,14 @@ inline void SIMON128_ExpandKey_72R4K(word64 key[72], const word64 k[4])
     key[0]=k[3]; key[1]=k[2]; key[2]=k[1]; key[3]=k[0];
     for (size_t i=4; i<68; ++i)
     {
-        key[i] = c^(z&1)^key[i-4]^rotrFixed(key[i-1],3)^key[i-3]^rotrFixed(key[i-1],4)^rotrFixed(key[i-3],1);
+        key[i] = c ^ (z & 1) ^ key[i - 4] ^ rotrConstant<3>(key[i - 1]) ^ key[i - 3] ^ rotrConstant<4>(key[i - 1]) ^ rotrConstant<1>(key[i - 3]);
         z>>=1;
     }
 
-    key[68] = c^key[64]^rotrFixed(key[67],3)^key[65]^rotrFixed(key[67],4)^rotrFixed(key[65],1);
-    key[69] = c^1^key[65]^rotrFixed(key[68],3)^key[66]^rotrFixed(key[68],4)^rotrFixed(key[66],1);
-    key[70] = c^key[66]^rotrFixed(key[69],3)^key[67]^rotrFixed(key[69],4)^rotrFixed(key[67],1);
-    key[71] = c^key[67]^rotrFixed(key[70],3)^key[68]^rotrFixed(key[70],4)^rotrFixed(key[68],1);
+    key[68] = c^key[64] ^ rotrConstant<3>(key[67]) ^ key[65] ^ rotrConstant<4>(key[67]) ^ rotrConstant<1>(key[65]);
+    key[69] = c ^ 1 ^ key[65] ^ rotrConstant<3>(key[68]) ^ key[66] ^ rotrConstant<4>(key[68]) ^ rotrConstant<1>(key[66]);
+    key[70] = c^key[66] ^ rotrConstant<3>(key[69]) ^ key[67] ^ rotrConstant<4>(key[69]) ^ rotrConstant<1>(key[67]);
+    key[71] = c^key[67] ^ rotrConstant<3>(key[70]) ^ key[68] ^ rotrConstant<4>(key[70]) ^ rotrConstant<1>(key[68]);
 }
 
 ANONYMOUS_NAMESPACE_END

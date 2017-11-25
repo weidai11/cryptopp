@@ -22,12 +22,12 @@ void MARS::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const
 		unsigned int i;
 		// Do linear transformation
 		for (i=0; i<15; i++)
-			T[i] = T[i] ^ rotlFixed(T[(i+8)%15] ^ T[(i+13)%15], 3) ^ (4*i+j);
+			T[i] = T[i] ^ rotlConstant<3>(T[(i + 8) % 15] ^ T[(i + 13) % 15]) ^ (4 * i + j);
 
 		// Do four rounds of stirring
 		for (unsigned int k=0; k<4; k++)
 			for (i=0; i<15; i++)
-			   T[i] = rotlFixed(T[i] + Sbox[T[(i+14)%15]%512], 9);
+				T[i] = rotlConstant<9>(T[i] + Sbox[T[(i + 14) % 15] % 512]);
 
 		// Store next 10 key words into K[]
 		for (i=0; i<10; i++)
@@ -67,7 +67,7 @@ void MARS::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	{
 		b = (b ^ S0(a)) + S1(a>>8);
 		c += S0(a>>16);
-		a = rotrFixed(a, 24);
+		a = rotrConstant<24>(a);
 		d ^= S1(a);
 		a += (i%4==0) ? d : 0;
 		a += (i%4==1) ? b : 0;
@@ -76,11 +76,11 @@ void MARS::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 
 	for (i=0; i<16; i++)
 	{
-		t = rotlFixed(a, 13);
-		r = rotlFixed(t * k[2*i+5], 10);
+		t = rotlConstant<13>(a);
+		r = rotlConstant<10>(t * k[2 * i + 5]);
 		m = a + k[2*i+4];
-		l = rotlMod((S(m) ^ rotrFixed(r, 5) ^ r), r);
-		c += rotlMod(m, rotrFixed(r, 5));
+		l = rotlMod((S(m) ^ rotrConstant<5>(r) ^ r), r);
+		c += rotlMod(m, rotrConstant<5>(r));
 		(i<8 ? b : d) += l;
 		(i<8 ? d : b) ^= r;
 		a = b;	b = c;	c = d;	d = t;
@@ -92,7 +92,7 @@ void MARS::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 		a -= (i%4==3) ? b : 0;
 		b ^= S1(a);
 		c -= S0(a>>24);
-		t = rotlFixed(a, 24);
+		t = rotlConstant<24>(a);
 		d = (d - S1(a>>16)) ^ S0(t);
 		a = b;	b = c;	c = d;	d = t;
 	}
@@ -116,7 +116,7 @@ void MARS::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	{
 		b = (b ^ S0(a)) + S1(a>>8);
 		c += S0(a>>16);
-		a = rotrFixed(a, 24);
+		a = rotrConstant<24>(a);
 		d ^= S1(a);
 		a += (i%4==0) ? d : 0;
 		a += (i%4==1) ? b : 0;
@@ -125,11 +125,11 @@ void MARS::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 
 	for (i=0; i<16; i++)
 	{
-		t = rotrFixed(a, 13);
-		r = rotlFixed(a * k[35-2*i], 10);
+		t = rotrConstant<13>(a);
+		r = rotlConstant<10>(a * k[35 - 2 * i]);
 		m = t + k[34-2*i];
-		l = rotlMod((S(m) ^ rotrFixed(r, 5) ^ r), r);
-		c -= rotlMod(m, rotrFixed(r, 5));
+		l = rotlMod((S(m) ^ rotrConstant<5>(r) ^ r), r);
+		c -= rotlMod(m, rotrConstant<5>(r));
 		(i<8 ? b : d) -= l;
 		(i<8 ? d : b) ^= r;
 		a = b;	b = c;	c = d;	d = t;
@@ -141,7 +141,7 @@ void MARS::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 		a -= (i%4==3) ? b : 0;
 		b ^= S1(a);
 		c -= S0(a>>24);
-		t = rotlFixed(a, 24);
+		t = rotlConstant<24>(a);
 		d = (d - S1(a>>16)) ^ S0(t);
 		a = b;	b = c;	c = d;	d = t;
 	}

@@ -74,7 +74,7 @@ void SAFER::Base::UncheckedSetKey(const byte *userkey_1, unsigned int length, co
 	kb[BLOCKSIZE] = 0;
 	for (j = 0; j < BLOCKSIZE; j++)
 	{
-		ka[BLOCKSIZE] ^= ka[j] = rotlFixed(userkey_1[j], 5U);
+		ka[BLOCKSIZE] ^= ka[j] = rotlConstant<5>(userkey_1[j]);
 		kb[BLOCKSIZE] ^= kb[j] = *key++ = userkey_2[j];
 	}
 
@@ -82,8 +82,8 @@ void SAFER::Base::UncheckedSetKey(const byte *userkey_1, unsigned int length, co
 	{
 		for (j = 0; j < BLOCKSIZE + 1; j++)
 		{
-			ka[j] = rotlFixed(ka[j], 6U);
-			kb[j] = rotlFixed(kb[j], 6U);
+			ka[j] = rotlConstant<6>(ka[j]);
+			kb[j] = rotlConstant<6>(kb[j]);
 		}
 		for (j = 0; j < BLOCKSIZE; j++)
 			if (strengthened)
