@@ -253,11 +253,11 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #endif
 
 // Apple and LLVM's Clang. Apple Clang version 7.0 roughly equals LLVM Clang version 3.7
-#if defined(__clang__ ) && defined(__apple_build_version__)
+#if defined(__clang__) && defined(__apple_build_version__)
 	#define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
-#elif defined(__clang__ )
-	#define CRYPTOPP_LLVM_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
+#elif defined(__clang__)
+	#define CRYPTOPP_LLVM_CLANG_VERSION  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
 #endif
 
@@ -272,7 +272,9 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 // Clang due to "Inline assembly operands don't work with .intel_syntax", http://llvm.org/bugs/show_bug.cgi?id=24232
 //   TODO: supply the upper version when LLVM fixes it. We set it to 20.0 for compilation purposes.
-#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && CRYPTOPP_LLVM_CLANG_VERSION <= 200000) || (defined(CRYPTOPP_APPLE_CLANG_VERSION) && CRYPTOPP_APPLE_CLANG_VERSION <= 200000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION <= 200000)) || \
+	(defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION <= 200000)) || \
+	defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
 	#define CRYPTOPP_DISABLE_INTEL_ASM 1
 #endif
 
@@ -496,8 +498,9 @@ NAMESPACE_END
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3)
-# if defined(__SSSE3__) || (_MSC_VER >= 1500) || (CRYPTOPP_GCC_VERSION >= 40300) || \
-    (__SUNPRO_CC >= 0x5110)
+# if defined(__SSSE3__) || (_MSC_VER >= 1500) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || (__SUNPRO_CC >= 0x5110) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000)
 	#define CRYPTOPP_SSSE3_AVAILABLE 1
 # endif
 #endif
