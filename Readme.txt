@@ -15,20 +15,21 @@ Currently the library contains the following algorithms:
                                    CAST-256
 
                                    ARIA, IDEA, Blowfish, Triple-DES (DES-EDE2 and
-              other block ciphers  DES-EDE3), Camellia, SEED, Kalyna, RC5, SIMON-64,
-                                   SIMON-128, SPECK-64, SPECK-128, Threefish, Skipjack,
-                                   SHACAL-2, TEA, XTEA
+                                   DES-EDE3), Camellia, SEED, Kalyna(128/256/512),
+              other block ciphers  RC5, SIMON-64, SIMON-128, SPECK-64, SPECK-128,
+                                   Skipjack, SHACAL-2, SM4, Threefish(256/512/1024),
+                                   TEA, XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
 
-     message authentication codes  VMAC, HMAC, GMAC, CMAC, CBC-MAC, DMAC,
-                                   Two-Track-MAC, BLAKE2s, BLAKE2b
+     message authentication codes  BLAKE2s, BLAKE2b, CMAC, CBC-MAC, DMAC, GMAC, HMAC,
+                                   Poly1305, SipHash, Two-Track-MAC, VMAC,
 
-                                   BLAKE2s, BLAKE2b, Keccack (F1600), SHA-1, SHA-2
-                   hash functions  (SHA-224, SHA-256, SHA-384, and SHA-512), SHA-3,
-                                   Tiger, WHIRLPOOL, RIPEMD-128, RIPEMD-256,
-                                   RIPEMD-160, RIPEMD-320
+                                   BLAKE2s, BLAKE2b, Keccack (F1600), SHA-1,
+                   hash functions  SHA-2(224/256/384/512), SHA-3(224/256/384/512),
+                                   SipHash, SM3, Tiger, RIPEMD-128, RIPEMD-160,
+                                   RIPEMD-256, RIPEMD-320, WHIRLPOOL
 
                                    RSA, DSA, Determinsitic DSA, ElGamal,
           public-key cryptography  Nyberg-Rueppel (NR), Rabin-Williams (RW), LUC,

@@ -14,19 +14,19 @@
 	\ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",	\ref DES_XEX3 "DESX",
 	GOST, IDEA, \ref LR "Luby-Rackoff", Kalyna (128/256/512), MARS, RC2, RC5, RC6, \ref SAFER_K
 	"SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent, \ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
-	\ref SIMON128 "SIMON-64 and SIMON-128", \ref SPECK128 "SPECK-64 and SPECK-128", Square, TEA,
-	\ref ThreeWay "3-Way", \ref Threefish256 "Threefish (Threefish-256/512/1024)", Twofish, XTEA
+	\ref SIMON128 "SIMON-64 and SIMON-128", \ref SPECK128 "SPECK-64 and SPECK-128", SM4, Square,
+	TEA, \ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
 <dt>Stream Ciphers<dd>
 	ChaCha (ChaCha-8/12/20), \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20,
 	\ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
 	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
-	\ref SHA3 "SHA-3", Tiger, Whirlpool, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SipHash,
+	\ref SHA3 "SHA-3", SM3, Tiger, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SipHash, Whirlpool,
 	Weak::MD2, Weak::MD4, Weak::MD5
 <dt>Non-Cryptographic Checksums<dd>
 	CRC32, Adler32
 <dt>Message Authentication Codes<dd>
-	VMAC, HMAC, CBC_MAC, CMAC, DMAC, TTMAC, \ref GCM "GCM (GMAC)", BLAKE2 (BLAKE2b and BLAKE2s), Poly1305
+	BLAKE2b, BLAKE2s, CBC_MAC, CMAC, DMAC, \ref GCM "GCM (GMAC)", HMAC, Poly1305, TTMAC, VMAC
 <dt>Random Number Generators<dd>
 	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
 	NIST Hash_DRBG and HMAC_DRBG, \ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
