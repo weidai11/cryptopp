@@ -91,6 +91,7 @@ CRYPTOPP_DEFINE_NAME_STRING(TreeMode)			//!< byte
 CRYPTOPP_DEFINE_NAME_STRING(FileName)			//!< const char *
 CRYPTOPP_DEFINE_NAME_STRING(FileTime)			//!< int
 CRYPTOPP_DEFINE_NAME_STRING(Comment)			//!< const char *
+CRYPTOPP_DEFINE_NAME_STRING(Identity)			//!< ConstByteArrayParameter
 DOCUMENTED_NAMESPACE_END
 
 NAMESPACE_END
