@@ -5,7 +5,8 @@
 
 //! \file sm3.h
 //! \brief Classes for the SM3 hash function
-//! \details SM3 is a Chinese national hash function designed by Xiaoyun Wang, et al.
+//! \details SM3 is a hash function designed by Xiaoyun Wang, et al. The hash is part of the
+//!   Chinese State Cryptography Administration portfolio.
 //! \sa <A HREF="https://tools.ietf.org/html/draft-shen-sm3-hash">SM3 Hash Function</A> and
 //!   <A HREF="http://github.com/guanzhi/GmSSL">Reference implementation using OpenSSL</A>.
 //! \since Crypto++ 6.0
@@ -20,7 +21,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SM3
 //! \brief SM3 hash function
-//! \details SM3 is a Chinese national hash function designed by Xiaoyun Wang, et al.
+//! \details SM3 is a hash function designed by Xiaoyun Wang, et al. The hash is part of the
+//!   Chinese State Cryptography Administration portfolio.
 //! \sa <A HREF="https://tools.ietf.org/html/draft-shen-sm3-hash">SM3 Hash Function</A>
 //! \since Crypto++ 6.0
 class SM3 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SM3, 32, true>
