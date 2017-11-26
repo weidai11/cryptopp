@@ -1046,13 +1046,6 @@ shacal2-simd.o : shacal2-simd.cpp
 speck-simd.o : speck-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK_FLAG) -c) $<
 
-# Don't build Threefish with UBsan on Travis CI. Timeouts cause the build to fail.
-#   Also see http://stackoverflow.com/q/12983137/608639.
-ifeq ($(findstring true,$(CI)),true)
-threefish.o : threefish.cpp
-	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS)) -c) $<
-endif
-
 # Don't build Rijndael with UBsan. Too much noise due to unaligned data accesses.
 ifneq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)
 rijndael.o : rijndael.cpp

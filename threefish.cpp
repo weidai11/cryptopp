@@ -12,17 +12,30 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-#define G256(G0, G1, G2, G3, C0, C1) \
-    G0 += G1; \
-    G1 = rotlVariable(G1, C0) ^ G0; \
-    G2 += G3; \
-    G3 = rotlVariable(G3, C1) ^ G2;
+using CryptoPP::word32;
+using CryptoPP::word64;
+using CryptoPP::rotlConstant;
+using CryptoPP::rotrConstant;
+using CryptoPP::rotlVariable;
+using CryptoPP::rotrVariable;
 
-#define IG256(G0, G1, G2, G3, C0, C1) \
-    G3 = rotrVariable(G3 ^ G2, C1); \
-    G2 -= G3; \
-    G1 = rotrVariable(G1 ^ G0, C0); \
-    G0 -= G1; \
+template <unsigned int C0, unsigned int C1>
+inline void G256(word64& G0, word64& G1, word64& G2, word64& G3)
+{
+    G0 += G1;
+    G1 = rotlConstant<C0>(G1) ^ G0;
+    G2 += G3;
+    G3 = rotlConstant<C1>(G3) ^ G2;
+}
+
+template <unsigned int C0, unsigned int C1>
+inline void IG256(word64& G0, word64& G1, word64& G2, word64& G3)
+{
+    G3 = rotrConstant<C1>(G3 ^ G2);
+    G2 -= G3;
+    G1 = rotrConstant<C0>(G1 ^ G0);
+    G0 -= G1;
+}
 
 #define KS256(r) \
     G0 += m_rkey[(r + 1) % 5]; \
@@ -37,58 +50,56 @@ ANONYMOUS_NAMESPACE_BEGIN
     G3 -= (m_rkey[(r + 4) % 5] + r + 1);
 
 #define G256x8(r) \
-    G256(G0, G1, G2, G3, 14, 16); \
-    G256(G0, G3, G2, G1, 52, 57); \
-    G256(G0, G1, G2, G3, 23, 40); \
-    G256(G0, G3, G2, G1, 5, 37); \
+    G256<14, 16>(G0, G1, G2, G3); \
+    G256<52, 57>(G0, G3, G2, G1); \
+    G256<23, 40>(G0, G1, G2, G3); \
+    G256< 5, 37>(G0, G3, G2, G1); \
     KS256(r); \
-    G256(G0, G1, G2, G3, 25, 33); \
-    G256(G0, G3, G2, G1, 46, 12); \
-    G256(G0, G1, G2, G3, 58, 22); \
-    G256(G0, G3, G2, G1, 32, 32); \
+    G256<25, 33>(G0, G1, G2, G3); \
+    G256<46, 12>(G0, G3, G2, G1); \
+    G256<58, 22>(G0, G1, G2, G3); \
+    G256<32, 32>(G0, G3, G2, G1); \
     KS256(r + 1);
 
 #define IG256x8(r) \
-    IG256(G0, G3, G2, G1, 32, 32); \
-    IG256(G0, G1, G2, G3, 58, 22); \
-    IG256(G0, G3, G2, G1, 46, 12); \
-    IG256(G0, G1, G2, G3, 25, 33); \
+    IG256<32, 32>(G0, G3, G2, G1); \
+    IG256<58, 22>(G0, G1, G2, G3); \
+    IG256<46, 12>(G0, G3, G2, G1); \
+    IG256<25, 33>(G0, G1, G2, G3); \
     IKS256(r); \
-    IG256(G0, G3, G2, G1, 5, 37); \
-    IG256(G0, G1, G2, G3, 23, 40); \
-    IG256(G0, G3, G2, G1, 52, 57); \
-    IG256(G0, G1, G2, G3, 14, 16); \
+    IG256< 5, 37>(G0, G3, G2, G1); \
+    IG256<23, 40>(G0, G1, G2, G3); \
+    IG256<52, 57>(G0, G3, G2, G1); \
+    IG256<14, 16>(G0, G1, G2, G3); \
     IKS256(r - 1);
 
-#define IG512(G0, G1, G2, G3, G4, G5, G6, G7, C0, C1, C2, C3) \
-    G7 = rotrVariable(G7 ^ G6, C3); \
-    G6 -= G7; \
-    G5 = rotrVariable(G5 ^ G4, C2); \
-    G4 -= G5; \
-    G3 = rotrVariable(G3 ^ G2, C1); \
-    G2 -= G3; \
-    G1 = rotrVariable(G1 ^ G0, C0); \
+///////////////////
+
+template <unsigned int C0, unsigned int C1, unsigned int C2, unsigned int C3>
+inline void G512(word64& G0, word64& G1, word64& G2, word64& G3, word64& G4, word64& G5, word64& G6, word64& G7)
+{
+    G0 += G1;
+    G1 = rotlConstant<C0>(G1) ^ G0;
+    G2 += G3;
+    G3 = rotlConstant<C1>(G3) ^ G2;
+    G4 += G5;
+    G5 = rotlConstant<C2>(G5) ^ G4;
+    G6 += G7;
+    G7 = rotlConstant<C3>(G7) ^ G6;
+}
+
+template <unsigned int C0, unsigned int C1, unsigned int C2, unsigned int C3>
+inline void IG512(word64& G0, word64& G1, word64& G2, word64& G3, word64& G4, word64& G5, word64& G6, word64& G7)
+{
+    G7 = rotrConstant<C3>(G7 ^ G6);
+    G6 -= G7;
+    G5 = rotrConstant<C2>(G5 ^ G4);
+    G4 -= G5;
+    G3 = rotrConstant<C1>(G3 ^ G2);
+    G2 -= G3;
+    G1 = rotrConstant<C0>(G1 ^ G0);
     G0 -= G1;
-
-#define G512(G0, G1, G2, G3, G4, G5, G6, G7, C0, C1, C2, C3) \
-    G0 += G1; \
-    G1 = rotlVariable(G1, C0) ^ G0; \
-    G2 += G3; \
-    G3 = rotlVariable(G3, C1) ^ G2; \
-    G4 += G5; \
-    G5 = rotlVariable(G5, C2) ^ G4; \
-    G6 += G7; \
-    G7 = rotlVariable(G7, C3) ^ G6;
-
-#define IKS512(r) \
-    G0 -= m_rkey[(r + 1) % 9]; \
-    G1 -= m_rkey[(r + 2) % 9]; \
-    G2 -= m_rkey[(r + 3) % 9]; \
-    G3 -= m_rkey[(r + 4) % 9]; \
-    G4 -= m_rkey[(r + 5) % 9]; \
-    G5 -= (m_rkey[(r + 6) % 9] + m_tweak[(r + 1) % 3]); \
-    G6 -= (m_rkey[(r + 7) % 9] + m_tweak[(r + 2) % 3]); \
-    G7 -= (m_rkey[(r + 8) % 9] + r + 1);
+}
 
 #define KS512(r) \
     G0 += m_rkey[(r + 1) % 9]; \
@@ -100,83 +111,119 @@ ANONYMOUS_NAMESPACE_BEGIN
     G6 += m_rkey[(r + 7) % 9] + m_tweak[(r + 2) % 3]; \
     G7 += m_rkey[(r + 8) % 9] + r + 1;
 
+#define IKS512(r) \
+    G0 -= m_rkey[(r + 1) % 9]; \
+    G1 -= m_rkey[(r + 2) % 9]; \
+    G2 -= m_rkey[(r + 3) % 9]; \
+    G3 -= m_rkey[(r + 4) % 9]; \
+    G4 -= m_rkey[(r + 5) % 9]; \
+    G5 -= (m_rkey[(r + 6) % 9] + m_tweak[(r + 1) % 3]); \
+    G6 -= (m_rkey[(r + 7) % 9] + m_tweak[(r + 2) % 3]); \
+    G7 -= (m_rkey[(r + 8) % 9] + r + 1);
+
 #define IG512x8(r) \
-    IG512(G6, G1, G0, G7, G2, G5, G4, G3, 8, 35, 56, 22); \
-    IG512(G4, G1, G6, G3, G0, G5, G2, G7, 25, 29, 39, 43); \
-    IG512(G2, G1, G4, G7, G6, G5, G0, G3, 13, 50, 10, 17); \
-    IG512(G0, G1, G2, G3, G4, G5, G6, G7, 39, 30, 34, 24); \
+    IG512< 8, 35, 56, 22>(G6, G1, G0, G7, G2, G5, G4, G3); \
+    IG512<25, 29, 39, 43>(G4, G1, G6, G3, G0, G5, G2, G7); \
+    IG512<13, 50, 10, 17>(G2, G1, G4, G7, G6, G5, G0, G3); \
+    IG512<39, 30, 34, 24>(G0, G1, G2, G3, G4, G5, G6, G7); \
     IKS512(r) \
-    IG512(G6, G1, G0, G7, G2, G5, G4, G3, 44, 9, 54, 56); \
-    IG512(G4, G1, G6, G3, G0, G5, G2, G7, 17, 49, 36, 39); \
-    IG512(G2, G1, G4, G7, G6, G5, G0, G3, 33, 27, 14, 42); \
-    IG512(G0, G1, G2, G3, G4, G5, G6, G7, 46, 36, 19, 37); \
+    IG512<44,  9, 54, 56>(G6, G1, G0, G7, G2, G5, G4, G3); \
+    IG512<17, 49, 36, 39>(G4, G1, G6, G3, G0, G5, G2, G7); \
+    IG512<33, 27, 14, 42>(G2, G1, G4, G7, G6, G5, G0, G3); \
+    IG512<46, 36, 19, 37>(G0, G1, G2, G3, G4, G5, G6, G7); \
     IKS512(r - 1)
 
 #define G512x8(r) \
-    G512(G0, G1, G2, G3, G4, G5, G6, G7, 46, 36, 19, 37); \
-    G512(G2, G1, G4, G7, G6, G5, G0, G3, 33, 27, 14, 42); \
-    G512(G4, G1, G6, G3, G0, G5, G2, G7, 17, 49, 36, 39); \
-    G512(G6, G1, G0, G7, G2, G5, G4, G3, 44, 9, 54, 56); \
+    G512<46, 36, 19, 37>(G0, G1, G2, G3, G4, G5, G6, G7); \
+    G512<33, 27, 14, 42>(G2, G1, G4, G7, G6, G5, G0, G3); \
+    G512<17, 49, 36, 39>(G4, G1, G6, G3, G0, G5, G2, G7); \
+    G512<44,  9, 54, 56>(G6, G1, G0, G7, G2, G5, G4, G3); \
     KS512(r) \
-    G512(G0, G1, G2, G3, G4, G5, G6, G7, 39, 30, 34, 24); \
-    G512(G2, G1, G4, G7, G6, G5, G0, G3, 13, 50, 10, 17); \
-    G512(G4, G1, G6, G3, G0, G5, G2, G7, 25, 29, 39, 43); \
-    G512(G6, G1, G0, G7, G2, G5, G4, G3, 8, 35, 56, 22); \
+    G512<39, 30, 34, 24>(G0, G1, G2, G3, G4, G5, G6, G7); \
+    G512<13, 50, 10, 17>(G2, G1, G4, G7, G6, G5, G0, G3); \
+    G512<25, 29, 39, 43>(G4, G1, G6, G3, G0, G5, G2, G7); \
+    G512< 8, 35, 56, 22>(G6, G1, G0, G7, G2, G5, G4, G3); \
     KS512(r + 1)
 
-#define IG1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, C1, C2, C3, C4, C5, C6, C7, C8) \
-    G15 = rotrVariable(G15 ^ G14, C8); \
-    G14 -= G15; \
-    G13 = rotrVariable(G13 ^ G12, C7); \
-    G12 -= G13; \
-    G11 = rotrVariable(G11 ^ G10, C6); \
-    G10 -= G11; \
-    G9 = rotrVariable(G9 ^ G8, C5); \
-    G8 -= G9; \
-    G7 = rotrVariable(G7 ^ G6, C4); \
-    G6 -= G7; \
-    G5 = rotrVariable(G5 ^ G4, C3); \
-    G4 -= G5; \
-    G3 = rotrVariable(G3 ^ G2, C2); \
-    G2 -= G3; \
-    G1 = rotrVariable(G1 ^ G0, C1); \
+///////////////////
+
+template <unsigned int C0, unsigned int C1, unsigned int C2, unsigned int C3>
+inline void G1024A(word64& G0, word64& G1, word64& G2, word64& G3,
+        word64& G4, word64& G5, word64& G6, word64& G7)
+{
+    G0 += G1;
+    G1 = rotlConstant<C0>(G1) ^ G0;
+    G2 += G3;
+    G3 = rotlConstant<C1>(G3) ^ G2;
+    G4 += G5;
+    G5 = rotlConstant<C2>(G5) ^ G4;
+    G6 += G7;
+    G7 = rotlConstant<C3>(G7) ^ G6;
+}
+
+template <unsigned int C4, unsigned int C5, unsigned int C6, unsigned int C7>
+inline void G1024B(word64& G8, word64& G9, word64& G10, word64& G11,
+        word64& G12, word64& G13, word64& G14, word64& G15)
+{
+    G8 += G9;
+    G9 = rotlConstant<C4>(G9) ^ G8;
+    G10 += G11;
+    G11 = rotlConstant<C5>(G11) ^ G10;
+    G12 += G13;
+    G13 = rotlConstant<C6>(G13) ^ G12;
+    G14 += G15;
+    G15 = rotlConstant<C7>(G15) ^ G14;
+}
+
+template <unsigned int C0, unsigned int C1, unsigned int C2, unsigned int C3,
+    unsigned int C4, unsigned int C5, unsigned int C6, unsigned int C7>
+inline void G1024(word64& G0, word64& G1, word64& G2, word64& G3, word64& G4, word64& G5,
+    word64& G6, word64& G7, word64& G8, word64& G9, word64& G10, word64& G11, word64& G12,
+    word64& G13, word64& G14, word64& G15)
+{
+	// The extra gyrations promote inlining. Without it Threefish1024 looses 10 cpb.
+	G1024A<C0, C1, C2, C3>(G0, G1,  G2,  G3,  G4,  G5,  G6,  G7);
+	G1024B<C4, C5, C6, C7>(G8, G9, G10, G11, G12, G13, G14, G15);
+}
+
+template <unsigned int C4, unsigned int C5, unsigned int C6, unsigned int C7>
+inline void IG1024A(word64& G8, word64& G9, word64& G10, word64& G11,
+        word64& G12, word64& G13, word64& G14, word64& G15)
+{
+    G15 = rotrConstant<C7>(G15 ^ G14);
+    G14 -= G15;
+    G13 = rotrConstant<C6>(G13 ^ G12);
+    G12 -= G13;
+    G11 = rotrConstant<C5>(G11 ^ G10);
+    G10 -= G11;
+    G9 = rotrConstant<C4>(G9 ^ G8);
+    G8 -= G9;
+}
+
+template <unsigned int C0, unsigned int C1, unsigned int C2, unsigned int C3>
+inline void IG1024B(word64& G0, word64& G1, word64& G2, word64& G3,
+        word64& G4, word64& G5, word64& G6, word64& G7)
+{
+    G7 = rotrConstant<C3>(G7 ^ G6);
+    G6 -= G7;
+    G5 = rotrConstant<C2>(G5 ^ G4);
+    G4 -= G5;
+    G3 = rotrConstant<C1>(G3 ^ G2);
+    G2 -= G3;
+    G1 = rotrConstant<C0>(G1 ^ G0);
     G0 -= G1;
+}
 
-#define G1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, C1, C2, C3, C4, C5, C6, C7, C8) \
-    G0 += G1; \
-    G1 = rotlVariable(G1, C1) ^ G0; \
-    G2 += G3; \
-    G3 = rotlVariable(G3, C2) ^ G2; \
-    G4 += G5; \
-    G5 = rotlVariable(G5, C3) ^ G4; \
-    G6 += G7; \
-    G7 = rotlVariable(G7, C4) ^ G6; \
-    G8 += G9; \
-    G9 = rotlVariable(G9, C5) ^ G8; \
-    G10 += G11; \
-    G11 = rotlVariable(G11, C6) ^ G10; \
-    G12 += G13; \
-    G13 = rotlVariable(G13, C7) ^ G12; \
-    G14 += G15; \
-    G15 = rotlVariable(G15, C8) ^ G14;
-
-#define IKS1024(r) \
-    G0 -= m_rkey[(r + 1) % 17]; \
-    G1 -= m_rkey[(r + 2) % 17]; \
-    G2 -= m_rkey[(r + 3) % 17]; \
-    G3 -= m_rkey[(r + 4) % 17]; \
-    G4 -= m_rkey[(r + 5) % 17]; \
-    G5 -= m_rkey[(r + 6) % 17]; \
-    G6 -= m_rkey[(r + 7) % 17]; \
-    G7 -= m_rkey[(r + 8) % 17]; \
-    G8 -= m_rkey[(r + 9) % 17]; \
-    G9 -= m_rkey[(r + 10) % 17]; \
-    G10 -= m_rkey[(r + 11) % 17]; \
-    G11 -= m_rkey[(r + 12) % 17]; \
-    G12 -= m_rkey[(r + 13) % 17]; \
-    G13 -= (m_rkey[(r + 14) % 17] + m_tweak[(r + 1) % 3]); \
-    G14 -= (m_rkey[(r + 15) % 17] + m_tweak[(r + 2) % 3]); \
-    G15 -= (m_rkey[(r + 16) % 17] + r + 1);
+template <unsigned int C0, unsigned int C1, unsigned int C2, unsigned int C3,
+    unsigned int C4, unsigned int C5, unsigned int C6, unsigned int C7>
+inline void IG1024(word64& G0, word64& G1, word64& G2, word64& G3, word64& G4, word64& G5,
+    word64& G6, word64& G7, word64& G8, word64& G9, word64& G10, word64& G11, word64& G12,
+    word64& G13, word64& G14, word64& G15)
+{
+	// The extra gyrations promote inlining. Without it Threefish1024 looses 10 cpb.
+	IG1024A<C4, C5, C6, C7>(G8, G9, G10, G11, G12, G13, G14, G15);
+	IG1024B<C0, C1, C2, C3>(G0, G1,  G2,  G3,  G4,  G5,  G6,  G7);
+}
 
 #define KS1024(r) \
     G0 += m_rkey[(r + 1) % 17]; \
@@ -196,29 +243,63 @@ ANONYMOUS_NAMESPACE_BEGIN
     G14 += m_rkey[(r + 15) % 17] + m_tweak[(r + 2) % 3]; \
     G15 += m_rkey[(r + 16) % 17] + r + 1;
 
-#define IG1024x8(r) \
-    IG1024(G0, G15, G2, G11, G6, G13, G4, G9, G14, G1, G8, G5, G10, G3, G12, G7, 9, 48, 35, 52, 23, 31, 37, 20); \
-    IG1024(G0, G7, G2, G5, G4, G3, G6, G1, G12, G15, G14, G13, G8, G11, G10, G9, 31, 44, 47, 46, 19, 42, 44, 25); \
-    IG1024(G0, G9, G2, G13, G6, G11, G4, G15, G10, G7, G12, G3, G14, G5, G8, G1, 16, 34, 56, 51, 4, 53, 42, 41); \
-    IG1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, 41, 9, 37, 31, 12, 47, 44, 30); \
-    IKS1024(r); \
-    IG1024(G0, G15, G2, G11, G6, G13, G4, G9, G14, G1, G8, G5, G10, G3, G12, G7, 5, 20, 48, 41, 47, 28, 16, 25); \
-    IG1024(G0, G7, G2, G5, G4, G3, G6, G1, G12, G15, G14, G13, G8, G11, G10, G9, 33, 4, 51, 13, 34, 41, 59, 17); \
-    IG1024(G0, G9, G2, G13, G6, G11, G4, G15, G10, G7, G12, G3, G14, G5, G8, G1, 38, 19, 10, 55, 49, 18, 23, 52); \
-    IG1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, 24, 13, 8, 47, 8, 17, 22, 37); \
-    IKS1024(r - 1);
+#define IKS1024(r) \
+    G0 -= m_rkey[(r + 1) % 17]; \
+    G1 -= m_rkey[(r + 2) % 17]; \
+    G2 -= m_rkey[(r + 3) % 17]; \
+    G3 -= m_rkey[(r + 4) % 17]; \
+    G4 -= m_rkey[(r + 5) % 17]; \
+    G5 -= m_rkey[(r + 6) % 17]; \
+    G6 -= m_rkey[(r + 7) % 17]; \
+    G7 -= m_rkey[(r + 8) % 17]; \
+    G8 -= m_rkey[(r + 9) % 17]; \
+    G9 -= m_rkey[(r + 10) % 17]; \
+    G10 -= m_rkey[(r + 11) % 17]; \
+    G11 -= m_rkey[(r + 12) % 17]; \
+    G12 -= m_rkey[(r + 13) % 17]; \
+    G13 -= (m_rkey[(r + 14) % 17] + m_tweak[(r + 1) % 3]); \
+    G14 -= (m_rkey[(r + 15) % 17] + m_tweak[(r + 2) % 3]); \
+    G15 -= (m_rkey[(r + 16) % 17] + r + 1);
 
 #define G1024x8(r) \
-    G1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, 24, 13, 8, 47, 8, 17, 22, 37); \
-    G1024(G0, G9, G2, G13, G6, G11, G4, G15, G10, G7, G12, G3, G14, G5, G8, G1, 38, 19, 10, 55, 49, 18, 23, 52); \
-    G1024(G0, G7, G2, G5, G4, G3, G6, G1, G12, G15, G14, G13, G8, G11, G10, G9, 33, 4, 51, 13, 34, 41, 59, 17); \
-    G1024(G0, G15, G2, G11, G6, G13, G4, G9, G14, G1, G8, G5, G10, G3, G12, G7, 5, 20, 48, 41, 47, 28, 16, 25); \
+    G1024A<24, 13,  8, 47>(G0, G1, G2, G3, G4, G5, G6, G7); \
+    G1024B< 8, 17, 22, 37>(G8, G9, G10, G11, G12, G13, G14, G15); \
+    G1024A<38, 19, 10, 55>(G0, G9, G2, G13, G6, G11, G4, G15); \
+    G1024B<49, 18, 23, 52>(G10, G7, G12, G3, G14, G5, G8, G1); \
+    G1024A<33,  4, 51, 13>(G0, G7, G2, G5, G4, G3, G6, G1); \
+    G1024B<34, 41, 59, 17>(G12, G15, G14, G13, G8, G11, G10, G9); \
+    G1024A< 5, 20, 48, 41>(G0, G15, G2, G11, G6, G13, G4, G9); \
+    G1024B<47, 28, 16, 25>(G14, G1, G8, G5, G10, G3, G12, G7); \
     KS1024(r); \
-    G1024(G0, G1, G2, G3, G4, G5, G6, G7, G8, G9, G10, G11, G12, G13, G14, G15, 41, 9, 37, 31, 12, 47, 44, 30); \
-    G1024(G0, G9, G2, G13, G6, G11, G4, G15, G10, G7, G12, G3, G14, G5, G8, G1, 16, 34, 56, 51, 4, 53, 42, 41); \
-    G1024(G0, G7, G2, G5, G4, G3, G6, G1, G12, G15, G14, G13, G8, G11, G10, G9, 31, 44, 47, 46, 19, 42, 44, 25); \
-    G1024(G0, G15, G2, G11, G6, G13, G4, G9, G14, G1, G8, G5, G10, G3, G12, G7, 9, 48, 35, 52, 23, 31, 37, 20); \
+    G1024A<41,  9, 37, 31>(G0, G1, G2, G3, G4, G5, G6, G7); \
+    G1024B<12, 47, 44, 30>(G8, G9, G10, G11, G12, G13, G14, G15); \
+    G1024A<16, 34, 56, 51>(G0, G9, G2, G13, G6, G11, G4, G15); \
+    G1024B< 4, 53, 42, 41>(G10, G7, G12, G3, G14, G5, G8, G1); \
+    G1024A<31, 44, 47, 46>(G0, G7, G2, G5, G4, G3, G6, G1); \
+    G1024B<19, 42, 44, 25>(G12, G15, G14, G13, G8, G11, G10, G9); \
+    G1024A< 9, 48, 35, 52>(G0, G15, G2, G11, G6, G13, G4, G9); \
+    G1024B<23, 31, 37, 20>(G14, G1, G8, G5, G10, G3, G12, G7); \
     KS1024(r + 1);
+
+#define IG1024x8(r) \
+    IG1024A< 9, 48, 35, 52>(G0, G15, G2, G11, G6, G13, G4, G9); \
+    IG1024B<23, 31, 37, 20>(G14, G1, G8, G5, G10, G3, G12, G7); \
+    IG1024A<31, 44, 47, 46>(G0, G7, G2, G5, G4, G3, G6, G1); \
+    IG1024B<19, 42, 44, 25>(G12, G15, G14, G13, G8, G11, G10, G9); \
+    IG1024A<16, 34, 56, 51>(G0, G9, G2, G13, G6, G11, G4, G15); \
+    IG1024B< 4, 53, 42, 41>(G10, G7, G12, G3, G14, G5, G8, G1); \
+    IG1024A<41,  9, 37, 31>(G0, G1, G2, G3, G4, G5, G6, G7); \
+    IG1024B<12, 47, 44, 30>(G8, G9, G10, G11, G12, G13, G14, G15); \
+    IKS1024(r); \
+    IG1024A< 5, 20, 48, 41>(G0, G15, G2, G11, G6, G13, G4, G9); \
+    IG1024B<47, 28, 16, 25>(G14, G1, G8, G5, G10, G3, G12, G7); \
+    IG1024A<33,  4, 51, 13>(G0, G7, G2, G5, G4, G3, G6, G1); \
+    IG1024B<34, 41, 59, 17>(G12, G15, G14, G13, G8, G11, G10, G9); \
+    IG1024A<38, 19, 10, 55>(G0, G9, G2, G13, G6, G11, G4, G15); \
+    IG1024B<49, 18, 23, 52>(G10, G7, G12, G3, G14, G5, G8, G1); \
+    IG1024A<24, 13,  8, 47>(G0, G1, G2, G3, G4, G5, G6, G7); \
+    IG1024B< 8, 17, 22, 37>(G8, G9, G10, G11, G12, G13, G14, G15); \
+    IKS1024(r - 1);
 
 ANONYMOUS_NAMESPACE_END
 
@@ -294,8 +375,8 @@ void Threefish512::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLe
     m_wspace.New(8);
 
     GetUserKey(LITTLE_ENDIAN_ORDER, m_rkey.begin(), 8, userKey, keyLength);
-    m_rkey[8] = W64LIT(0x1BD11BDAA9FC1A22) ^ m_rkey[0] ^ m_rkey[1] ^ m_rkey[2] ^ m_rkey[3] ^ m_rkey[4] ^
-        m_rkey[5] ^ m_rkey[6] ^ m_rkey[7];
+    m_rkey[8] = W64LIT(0x1BD11BDAA9FC1A22) ^ m_rkey[0] ^ m_rkey[1] ^ m_rkey[2] ^ m_rkey[3] ^
+        m_rkey[4] ^ m_rkey[5] ^ m_rkey[6] ^ m_rkey[7];
 
     SetTweak(params);
 }
