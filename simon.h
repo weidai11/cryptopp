@@ -37,7 +37,7 @@ struct SIMON_Info : public FixedBlockSize<BS>, VariableKeyLength<D, N, M>
 
 //! \class SIMON_Base
 //! \brief SIMON block cipher base class
-//! \tparam BS block size of the cipher, in bytes
+//! \tparam W the word type
 //! \details User code should use SIMON64 or SIMON128
 //! \sa SIMON64, SIMON128, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the Crypto++ wiki
 //! \since Crypto++ 6.0

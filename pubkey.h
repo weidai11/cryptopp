@@ -637,7 +637,7 @@ protected:
 //! \brief Trapdoor Function (TF) signature with external reference
 //! \tparam BASE base class
 //! \tparam SCHEME_OPTIONS scheme options class
-//! \tparam KEY_CLASS key class
+//! \tparam KEY key class
 //! \details TF_ObjectImplExtRef() holds a pointer to an external key structure
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class TF_ObjectImplExtRef : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>

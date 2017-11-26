@@ -41,7 +41,7 @@ struct SPECK_Info : public FixedBlockSize<BS>, VariableKeyLength<D, N, M>
 
 //! \class SPECK_Base
 //! \brief SPECK block cipher base class
-//! \tparam BS block size of the cipher, in bytes
+//! \tparam W the word type
 //! \details User code should use SPECK64 or SPECK128
 //! \sa SPECK64, SPECK128, <a href="http://www.cryptopp.com/wiki/SPECK">SPECK</a>
 //! \since Crypto++ 6.0
