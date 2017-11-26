@@ -585,8 +585,9 @@ public:
 //! \brief Elliptic Curve German Digital Signature Algorithm signature scheme
 //! \tparam EC elliptic curve field
 //! \tparam H HashTransformation derived class
-//! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The
-//!   Digital Signature Scheme ECGDSA (October 24, 2006)</A>
+//! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A
+//!   HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The Digital Signature Scheme
+//!   ECGDSA (October 24, 2006)</A>
 //! \since Crypto++ 6.0
 template <class EC, class H>
 struct ECGDSA : public DL_SS<

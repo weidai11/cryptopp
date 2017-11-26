@@ -1,6 +1,6 @@
 // gfpcrypt.h - originally written and placed in the public domain by Wei Dai
-//              RFC6979 deterministic signatures (DL_Algorithm_DSA_RFC6979) added by by Douglas Roark
-//              ECGDSA (DL_Algorithm_GDSA_ISO15946) added by Jeffrey Walton
+//              RFC6979 deterministic signatures added by Douglas Roark
+//              ECGDSA added by Jeffrey Walton
 
 //! \file gfpcrypt.h
 //! \brief Classes and functions for schemes based on Discrete Logs (DL) over GF(p)
@@ -368,13 +368,13 @@ protected:
         if (block.size() > rlen)
         {
             size_t offset = block.size() - rlen;
-            memcpy(t, block + offset, rlen);
+            std::memcpy(t, block + offset, rlen);
         }
         else // block.size() < rlen
         {
             size_t offset = rlen - block.size();
             memset(t, '\x00', offset);
-            memcpy(t + offset, block, rlen - offset);
+            std::memcpy(t + offset, block, rlen - offset);
         }
 
         return t;

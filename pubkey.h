@@ -447,6 +447,19 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
+//! \class DL_SignatureMessageEncodingMethod_SM2
+//! \brief Interface for message encoding method for public key signature schemes.
+//! \details \p DL_SignatureMessageEncodingMethod_SM2 provides interfaces
+//!   for message encoding method for SM2.
+class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_SM2 : public PK_DeterministicSignatureMessageEncodingMethod
+{
+public:
+	void ComputeMessageRepresentative(RandomNumberGenerator &rng,
+		const byte *recoverableMessage, size_t recoverableMessageLength,
+		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
+		byte *representative, size_t representativeBitLength) const;
+};
+
 //! \class PK_MessageAccumulatorBase
 //! \brief Interface for message encoding method for public key signature schemes.
 //! \details \p PK_MessageAccumulatorBase provides interfaces
@@ -828,7 +841,7 @@ public:
 	//! \details The subgroup generator is retrieved from the base precomputation
 	virtual const Element & GetSubgroupGenerator() const {return GetBasePrecomputation().GetBase(GetGroupPrecomputation());}
 
-	//! \brief Set the subgroup generator
+	//! \brief Sets the subgroup generator
 	//! \param base the new subgroup generator
 	//! \details The subgroup generator is set in the base precomputation
 	virtual void SetSubgroupGenerator(const Element &base) {AccessBasePrecomputation().SetBase(GetGroupPrecomputation(), base);}
@@ -1034,29 +1047,65 @@ public:
 
 	virtual ~DL_PublicKey();
 
+	//! \brief Get a named value
+	//! \param name the name of the object or value to retrieve
+	//! \param valueType reference to a variable that receives the value
+	//! \param pValue void pointer to a variable that receives the value
+	//! \returns true if the value was retrieved, false otherwise
+	//! \details GetVoidValue() retrieves the value of name if it exists.
+	//! \note GetVoidValue() is an internal function and should be implemented
+	//!   by derived classes. Users should use one of the other functions instead.
+	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
+	//!   GetRequiredParameter() and GetRequiredIntParameter()
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		return GetValueHelper(this, name, valueType, pValue, &this->GetAbstractGroupParameters())
 				CRYPTOPP_GET_FUNCTION_ENTRY(PublicElement);
 	}
 
+	//! \brief Initialize or reinitialize this this key
+	//! \param source NameValuePairs to assign
 	void AssignFrom(const NameValuePairs &source);
 
-	// non-inherited
+	//! \brief Retrieves the public element
+	//! \returns the public element
 	virtual const Element & GetPublicElement() const {return GetPublicPrecomputation().GetBase(this->GetAbstractGroupParameters().GetGroupPrecomputation());}
+
+	//! \brief Sets the public element
+	//! \param y the public element
 	virtual void SetPublicElement(const Element &y) {AccessPublicPrecomputation().SetBase(this->GetAbstractGroupParameters().GetGroupPrecomputation(), y);}
+
+	//! \brief Exponentiates this element
+	//! \param exponent the exponent to raise the base
+	//! \returns the public element raised to the exponent
 	virtual Element ExponentiatePublicElement(const Integer &exponent) const
 	{
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 		return GetPublicPrecomputation().Exponentiate(params.GetGroupPrecomputation(), exponent);
 	}
+
+	//! \brief Exponentiates an element
+	//! \param baseExp the first exponent
+	//! \param publicExp the second exponent
+	//! \returns the public element raised to the exponent
+	//! \details CascadeExponentiateBaseAndPublicElement raises the public element to
+	//!   the base element and precomputation.
 	virtual Element CascadeExponentiateBaseAndPublicElement(const Integer &baseExp, const Integer &publicExp) const
 	{
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 		return params.GetBasePrecomputation().CascadeExponentiate(params.GetGroupPrecomputation(), baseExp, GetPublicPrecomputation(), publicExp);
 	}
 
+	//! \brief Accesses the public precomputation
+	//! \details GetPublicPrecomputation returns a const reference, while
+	//!   AccessPublicPrecomputation returns a non-const reference. Must be
+	//!   overridden in derived classes.
 	virtual const DL_FixedBasePrecomputation<T> & GetPublicPrecomputation() const =0;
+
+	//! \brief Accesses the public precomputation
+	//! \details GetPublicPrecomputation returns a const reference, while
+	//!   AccessPublicPrecomputation returns a non-const reference. Must be
+	//!   overridden in derived classes.
 	virtual DL_FixedBasePrecomputation<T> & AccessPublicPrecomputation() =0;
 };
 
@@ -1075,18 +1124,32 @@ public:
 
 	virtual ~DL_PrivateKey();
 
+	//! \brief Initializes a public key from this key
+	//! \param pub reference to a public key
 	void MakePublicKey(DL_PublicKey<T> &pub) const
 	{
 		pub.AccessAbstractGroupParameters().AssignFrom(this->GetAbstractGroupParameters());
 		pub.SetPublicElement(this->GetAbstractGroupParameters().ExponentiateBase(GetPrivateExponent()));
 	}
 
+	//! \brief Get a named value
+	//! \param name the name of the object or value to retrieve
+	//! \param valueType reference to a variable that receives the value
+	//! \param pValue void pointer to a variable that receives the value
+	//! \returns true if the value was retrieved, false otherwise
+	//! \details GetVoidValue() retrieves the value of name if it exists.
+	//! \note GetVoidValue() is an internal function and should be implemented
+	//!   by derived classes. Users should use one of the other functions instead.
+	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
+	//!   GetRequiredParameter() and GetRequiredIntParameter()
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		return GetValueHelper(this, name, valueType, pValue, &this->GetAbstractGroupParameters())
 				CRYPTOPP_GET_FUNCTION_ENTRY(PrivateExponent);
 	}
 
+	//! \brief Initialize or reinitialize this this key
+	//! \param source NameValuePairs to assign
 	void AssignFrom(const NameValuePairs &source)
 	{
 		this->AccessAbstractGroupParameters().AssignFrom(source);
@@ -1094,7 +1157,13 @@ public:
 			CRYPTOPP_SET_FUNCTION_ENTRY(PrivateExponent);
 	}
 
+	//! \brief Retrieves the private exponent
+	//! \returns the private exponent
+	//! \details Must be overridden in derived classes.
 	virtual const Integer & GetPrivateExponent() const =0;
+	//! \brief Sets the private exponent
+	//! \param x the private exponent
+	//! \details Must be overridden in derived classes.
 	virtual void SetPrivateExponent(const Integer &x) =0;
 };
 
