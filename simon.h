@@ -16,22 +16,26 @@
 #include "seckey.h"
 #include "secblock.h"
 
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
+# define CRYPTOPP_SIMON_ADVANCED_PROCESS_BLOCKS 1
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SIMON_Info
 //! \brief SIMON block cipher information
-//! \tparam BS block size of the cipher, in bytes
+//! \tparam L block size of the cipher, in bytes
 //! \tparam D default key length, in bytes
 //! \tparam N minimum key length, in bytes
 //! \tparam M maximum key length, in bytes
 //! \since Crypto++ 6.0
-template <unsigned int BS, unsigned int D, unsigned int N, unsigned int M>
-struct SIMON_Info : public FixedBlockSize<BS>, VariableKeyLength<D, N, M>
+template <unsigned int L, unsigned int D, unsigned int N, unsigned int M>
+struct SIMON_Info : public FixedBlockSize<L>, VariableKeyLength<D, N, M>
 {
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize(Keylength)
-        return "SIMON-" + IntToString(BS*8);
+        return "SIMON-" + IntToString(L*8);
     }
 };
 
@@ -49,8 +53,9 @@ struct SIMON_Base
 
     typedef SecBlock<W, AllocatorWithCleanup<W, true> > AlignedSecBlock;
     mutable AlignedSecBlock m_wspace;  // workspace
-    AlignedSecBlock         m_rkey;    // round keys
+    AlignedSecBlock         m_rkeys;   // round keys
     unsigned int            m_kwords;  // number of key words
+    unsigned int            m_rounds;  // number of rounds
 };
 
 //! \class SIMON64
@@ -141,6 +146,9 @@ public:
     {
     protected:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+#if CRYPTOPP_SIMON_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     //! \brief Provides implementation for encryption transformation
@@ -151,6 +159,9 @@ public:
     {
     protected:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+#if CRYPTOPP_SIMON_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
