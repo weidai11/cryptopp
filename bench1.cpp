@@ -63,7 +63,13 @@ void OutputResultBytes(const char *name, double length, double timeTaken)
 	std::cout << std::setiosflags(std::ios::fixed);
 	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
 	if (g_hertz > 1.0f)
-		std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / length;
+	{
+		const double cpb = timeTaken * g_hertz / length;
+		if (cpb < 24.0f)
+			std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << cpb;
+		else
+			std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << cpb;
+	}
 	g_logTotal += ::log(mbs);
 	g_logCount++;
 }
@@ -98,7 +104,10 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 
 	// Coverity finding
 	if (g_hertz > 1.0f)
-		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations / 1000000;
+	{
+		const double t = timeTaken * g_hertz / iterations / 1000000;
+		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << t;
+	}
 
 	g_logTotal += ::log(iterations/timeTaken);
 	g_logCount++;
