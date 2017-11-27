@@ -24,18 +24,18 @@ NAMESPACE_BEGIN(CryptoPP)
 
 //! \class SPECK_Info
 //! \brief SPECK block cipher information
-//! \tparam BS block size of the cipher, in bytes
+//! \tparam L block size of the cipher, in bytes
 //! \tparam D default key length, in bytes
 //! \tparam N minimum key length, in bytes
 //! \tparam M maximum key length, in bytes
 //! \since Crypto++ 6.0
-template <unsigned int BS, unsigned int D, unsigned int N, unsigned int M>
-struct SPECK_Info : public FixedBlockSize<BS>, VariableKeyLength<D, N, M>
+template <unsigned int L, unsigned int D, unsigned int N, unsigned int M>
+struct SPECK_Info : public FixedBlockSize<L>, VariableKeyLength<D, N, M>
 {
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize(Keylength)
-        return "SPECK-" + IntToString(BS*8);
+        return "SPECK-" + IntToString(L*8);
     }
 };
 
