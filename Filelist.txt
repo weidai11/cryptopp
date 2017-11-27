@@ -274,6 +274,7 @@ simple.cpp
 simple.h
 siphash.h
 simon.cpp
+simon-simd.cpp
 simon.h
 skipjack.cpp
 skipjack.h

@@ -103,7 +103,7 @@ inline uint64x2_t Shuffle64(const uint64x2_t& val)
 inline void SPECK128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
     // The zero block below is a "don't care". It is present so we can vectorize.
     uint8x16_t block1 = {0};
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
@@ -135,7 +135,7 @@ inline void SPECK128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
             uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
@@ -189,7 +189,7 @@ inline void SPECK128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
 inline void SPECK128_Dec_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
     // The zero block below is a "don't care". It is present so we can vectorize.
     uint8x16_t block1 = {0};
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
@@ -221,7 +221,7 @@ inline void SPECK128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
             uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
