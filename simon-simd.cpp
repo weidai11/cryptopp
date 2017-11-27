@@ -595,7 +595,6 @@ inline void SIMON128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
     if (rounds & 1)
     {
         const __m128i t = x1; x1 = y1; y1 = t;
-
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys + rounds - 1)));
 
@@ -643,7 +642,6 @@ inline void SIMON128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     if (rounds & 1)
     {
         const __m128i t = x1; x1 = y1; y1 = t;
-
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys + rounds - 1)));
 
