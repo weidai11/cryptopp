@@ -8,13 +8,138 @@ Plaintext: 6f722067 6e696c63
 Ciphertext: 5ca2e27f 111a8fc8
 Test: Encrypt
 #
+Key: 90513b78 3b7ba1cb dea9437c
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: d1a412f4 b60a4829
+Ciphertext: 53af42aa b72a839a
+Test: Encrypt
+#
+Key: 082125ec 0be12c1e 767cd5d0
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 1da0a37f cc5518c2
+Ciphertext: f5fd38d4 a5d219be
+Test: Encrypt
+#
+Key: 10d4bc3b b6af23d6 bf8487c5
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 2ff6f40a 5ca648db
+Ciphertext: 95a8cc1d f3bd8d81
+Test: Encrypt
+#
+Key: 1876dd58 cb8931d6 f55197e8
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 49c501a9 8b487592
+Ciphertext: a954dad2 41e3ef9b
+Test: Encrypt
+#
+Key: 9a579b05 4ececac6 04e977fa
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 8055fda2 6dea789a
+Ciphertext: cf0cf7d2 b93ca3cd
+Test: Encrypt
+#
+Key: 67e0569f ee58c1ff 94ddb4c0
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 3d51ddb6 00a43b66
+Ciphertext: 0a1d4917 33cb1243
+Test: Encrypt
+#
+Key: def6039e 384d4692 a6918a2b
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: b6b703f8 8f75fce9
+Ciphertext: 9fe84833 828b34ae
+Test: Encrypt
+#
+Key: aff47180 6812f080 9ae3da26
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 3c1e1fcf 77a97b9f
+Ciphertext: 1a643883 889bf476
+Test: Encrypt
+#
+Key: cf65cc64 1db4b705 4daff4dc
+Source: modified simon6496 reference implementation
+Comment: Simon-64/96
+Plaintext: 50d1dcd5 650d7d0b
+Ciphertext: 819c04c6 8dc9c233
+Test: Encrypt
+#
 Source: Simon and Speck paper, Appendix B
 Comment: Simon64/128
 Key: 1b1a1918 13121110 0b0a0908 03020100
 Plaintext: 656b696c 20646e75
 Ciphertext: 44c8fc20 b9dfa07a
 Test: Encrypt
-
+#
+Key: 02a425ec 5a6f4914 5b26185d f7bbeb55
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: 3c479af9 2303d687
+Ciphertext: fc64ce56 024df169
+Test: Encrypt
+#
+Key: 0e1b0903 0b4521d7 e8b93449 f799c50d
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: 5ec951de 9abf674d
+Ciphertext: 7d9278d4 4d68c819
+Test: Encrypt
+#
+Key: 351cea05 ed5b233f 10246760 8c875579
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: fa16ab43 16964f84
+Ciphertext: aba8dc98 cbd69287
+Test: Encrypt
+#
+Key: 94dad669 1b9cc3c1 82c6753d 88ea3c84
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: 5d02136b 008cd49b
+Ciphertext: 5607fd18 278d8530
+Test: Encrypt
+#
+Key: c932e799 ecd82264 da2ece5f 99363049
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: aafb6300 6cdfdf40
+Ciphertext: dfe3ba1a e0f533a2
+Test: Encrypt
+#
+Key: a426cca3 2c32cd4d 674aa682 94414069
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: e12a1d79 b5b1f005
+Ciphertext: 8e30d819 3f0bbddd
+Test: Encrypt
+#
+Key: 5a398e91 3bf92d14 62ff83cb 2f1c543f
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: dbc2ecd5 ecf3f38f
+Ciphertext: b449fa76 83a62e49
+Test: Encrypt
+#
+Key: 2ff5a053 27a2c09f 41ce44b0 d8a16ccc
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: 5bccce0f 810d1bd3
+Ciphertext: aca4007d d8c45af8
+Test: Encrypt
+#
+Key: 3e67ae45 855d1db0 bf82fa0a 6857ac2a
+Source: modified simon96128 reference implementation
+Comment: Simon-64/128
+Plaintext: 3ad0c436 c861ab47
+Ciphertext: 970ee248 5aee1c5b
+Test: Encrypt
 
 AlgorithmType: SymmetricCipher
 Name: SIMON-128/ECB
