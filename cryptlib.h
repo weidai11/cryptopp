@@ -60,11 +60,12 @@
 <dt>Wrappers for OS features<dd>
 	Timer, Socket, WindowsHandle, ThreadLocalStorage, ThreadUserTimer
 
+</dl>
+
 <!--
 
 <dt>FIPS 140 validated cryptography<dd>
 	fips140.h
-</dl>
 
 In the DLL version of Crypto++, only the following implementation class are available.
 <dl>
