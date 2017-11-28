@@ -626,7 +626,7 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 	{
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
-#define MUL_A(x)    (x = (rotlConstant<7>(x)), x ^ s_sosemanukMulTables[byte(x)])
+#define MUL_A(x)    (x = (rotlConstant<8>(x)), x ^ s_sosemanukMulTables[byte(x)])
 #else
 #define MUL_A(x)    (((x) << 8) ^ s_sosemanukMulTables[(x) >> 24])
 #endif
