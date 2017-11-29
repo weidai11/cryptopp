@@ -1,0 +1,5 @@
+{
+  __memcmp_sse4_1
+  Memcheck:Cond
+  fun:__memcmp_sse4_1
+}

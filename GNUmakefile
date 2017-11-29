@@ -763,7 +763,7 @@ gcov codecov: libcryptopp.a cryptest.exe
 # Should use CXXFLAGS="-g3 -O1"
 .PHONY: valgrind
 valgrind: libcryptopp.a cryptest.exe
-	valgrind --track-origins=yes ./cryptest.exe v
+	valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v
 
 .PHONY: test check
 test check: cryptest.exe
@@ -938,11 +938,11 @@ endif
 .PHONY: trim
 trim:
 ifneq ($(IS_DARWIN),0)
-	sed -i '' -e's/[[:space:]]*$$//' *.txt *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	sed -i '' -e's/[[:space:]]*$$//' *.supp *.txt *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
 	sed -i '' -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.*
 	make convert
 else
-	sed -i -e's/[[:space:]]*$$//' *.txt *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
+	sed -i -e's/[[:space:]]*$$//' *.supp *.txt *.sh .*.yml *.h *.cpp *.asm *.s *.sln *.vcxproj *.filters GNUmakefile GNUmakefile-cross
 	sed -i -e's/[[:space:]]*$$//' TestData/*.dat TestVectors/*.txt TestScripts/*.*
 	make convert
 endif
@@ -950,11 +950,11 @@ endif
 .PHONY: convert
 convert:
 	@-$(CHMOD) 0700 TestVectors/ TestData/ TestScripts/
-	@-$(CHMOD) 0600 $(TEXT_FILES) .*.yml *.asm *.s *.zip TestVectors/*.txt TestData/*.dat TestScripts/*.*
+	@-$(CHMOD) 0600 $(TEXT_FILES) *.supp .*.yml *.asm *.s *.zip TestVectors/*.txt TestData/*.dat TestScripts/*.*
 	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.cmd
 	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh
 	-unix2dos --keepdate --quiet $(TEXT_FILES) .*.yml *.asm *.cmd TestScripts/*.*
-	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.s *.sh *.mapfile TestScripts/*.sh
+	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.supp *.s *.sh *.mapfile TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
 	@-xattr -c *
 endif
