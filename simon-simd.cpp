@@ -30,15 +30,6 @@
 # include <tmmintrin.h>
 #endif
 
-// Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
-#if (__SUNPRO_CC >= 0x5130)
-# define MAYBE_CONST
-# define MAYBE_UNCONST_CAST(T, x) const_cast<MAYBE_CONST T>(x)
-#else
-# define MAYBE_CONST const
-# define MAYBE_UNCONST_CAST(T, x) (x)
-#endif
-
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
