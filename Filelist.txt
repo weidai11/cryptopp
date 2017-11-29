@@ -350,6 +350,7 @@ License.txt
 Readme.txt
 Install.txt
 Filelist.txt
+cryptopp.supp
 TestData/3desval.dat
 TestData/3wayval.dat
 TestData/aria.dat
