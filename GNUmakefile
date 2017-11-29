@@ -763,7 +763,7 @@ gcov codecov: libcryptopp.a cryptest.exe
 # Should use CXXFLAGS="-g3 -O1"
 .PHONY: valgrind
 valgrind: libcryptopp.a cryptest.exe
-	valgrind ./cryptest.exe v
+	valgrind --track-origins=yes ./cryptest.exe v
 
 .PHONY: test check
 test check: cryptest.exe
