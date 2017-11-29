@@ -461,8 +461,8 @@ template <unsigned int R>
 inline __m128i RotateLeft64(const __m128i& val)
 {
     CRYPTOPP_ASSERT(R < 64);
-    const __m128i a(_mm_slli_epi64(val, R));
-    const __m128i b(_mm_srli_epi64(val, 64-R));
+    const __m128i a = _mm_slli_epi64(val, R);
+    const __m128i b = _mm_srli_epi64(val, 64-R);
     return _mm_or_si128(a, b);
 }
 
@@ -470,8 +470,8 @@ template <unsigned int R>
 inline __m128i RotateRight64(const __m128i& val)
 {
     CRYPTOPP_ASSERT(R < 64);
-    const __m128i a(_mm_slli_epi64(val, 64-R));
-    const __m128i b(_mm_srli_epi64(val, R));
+    const __m128i a = _mm_slli_epi64(val, 64-R);
+    const __m128i b = _mm_srli_epi64(val, R);
     return _mm_or_si128(a, b);
 }
 
