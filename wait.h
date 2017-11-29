@@ -48,7 +48,7 @@ public:
 	virtual ~Tracer() {}
 
 protected:
-	//! Override this in your most-derived tracer to do the actual tracing.
+	/// Override this in your most-derived tracer to do the actual tracing.
 	virtual void Trace(unsigned int n, std::string const& s) = 0;
 
 	/*! By default, tracers will decide which trace messages to trace according to a trace level
@@ -165,11 +165,11 @@ CRYPTOPP_END_TRACER_CLASS
 
 struct WaitingThreadData;
 
-//! container of wait objects
+/// container of wait objects
 class WaitObjectContainer : public NotCopyable
 {
 public:
-	//! exception thrown by WaitObjectContainer
+	/// exception thrown by WaitObjectContainer
 	class Err : public Exception
 	{
 	public:

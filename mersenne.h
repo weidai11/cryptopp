@@ -1,10 +1,10 @@
 // mersenne.h - written and placed in public domain by Jeffrey Walton.
 
-//! \file mersenne.h
-//! \brief Class file for Mersenne Twister
-//! \warning MersenneTwister is suitable for Monte-Carlo simulations, where uniformaly distrubuted
-//!   numbers are required quickly. It should not be used for cryptographic purposes.
-//! \since Crypto++ 5.6.3
+/// \file mersenne.h
+/// \brief Class file for Mersenne Twister
+/// \warning MersenneTwister is suitable for Monte-Carlo simulations, where uniformaly distrubuted
+///   numbers are required quickly. It should not be used for cryptographic purposes.
+/// \since Crypto++ 5.6.3
 #ifndef CRYPTOPP_MERSENNE_TWISTER_H
 #define CRYPTOPP_MERSENNE_TWISTER_H
 
@@ -14,18 +14,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class MersenneTwister
-//! \brief Mersenne Twister class for Monte-Carlo simulations
-//! \tparam K Magic constant
-//! \tparam M Period parameter
-//! \tparam N Size of the state vector
-//! \tparam F Multiplier constant
-//! \tparam S Initial seed
-//! \details Provides the MersenneTwister implementation. The class is a header-only implementation.
-//! \warning MersenneTwister is suitable for simulations, where uniformaly distrubuted numbers are
-//!   required quickly. It should not be used for cryptographic purposes.
-//! \sa MT19937, MT19937ar
-//! \since Crypto++ 5.6.3
+/// \class MersenneTwister
+/// \brief Mersenne Twister class for Monte-Carlo simulations
+/// \tparam K Magic constant
+/// \tparam M Period parameter
+/// \tparam N Size of the state vector
+/// \tparam F Multiplier constant
+/// \tparam S Initial seed
+/// \details Provides the MersenneTwister implementation. The class is a header-only implementation.
+/// \warning MersenneTwister is suitable for simulations, where uniformaly distrubuted numbers are
+///   required quickly. It should not be used for cryptographic purposes.
+/// \sa MT19937, MT19937ar
+/// \since Crypto++ 5.6.3
 template <unsigned int K, unsigned int M, unsigned int N, unsigned int F, word32 S>
 class MersenneTwister : public RandomNumberGenerator
 {
@@ -34,10 +34,10 @@ public:
 
 	~MersenneTwister() {}
 
-	//! \brief Construct a Mersenne Twister
-	//! \param seed 32-bit seed
-	//! \details Defaults to template parameter S due to changing algorithm
-	//!   parameters over time
+	/// \brief Construct a Mersenne Twister
+	/// \param seed 32-bit seed
+	/// \details Defaults to template parameter S due to changing algorithm
+	///   parameters over time
 	MersenneTwister(word32 seed = S) : m_seed(seed), m_idx(N)
 	{
 		Reset(seed);
@@ -45,11 +45,11 @@ public:
 
 	bool CanIncorporateEntropy() const {return true;}
 
-	//! \brief Update RNG state with additional unpredictable values
-	//! \param input the entropy to add to the generator
-	//! \param length the size of the input buffer
-	//! \details MersenneTwister uses the first 32-bits of <tt>input</tt> to reseed the
-    //!   generator. If fewer bytes are provided, then the seed is padded with 0's.
+	/// \brief Update RNG state with additional unpredictable values
+	/// \param input the entropy to add to the generator
+	/// \param length the size of the input buffer
+	/// \details MersenneTwister uses the first 32-bits of <tt>input</tt> to reseed the
+    ///   generator. If fewer bytes are provided, then the seed is padded with 0's.
 	void IncorporateEntropy(const byte *input, size_t length)
 	{
 		word32 temp = 0;
@@ -60,13 +60,13 @@ public:
 		SecureWipeArray(&temp, 1);
 	}
 
-	//! \brief Generate random array of bytes
-	//! \param output byte buffer
-	//! \param size length of the buffer, in bytes
-	//! \details Bytes are written to output in big endian order. If output length
-	//!   is not a multiple of word32, then unused bytes are not accumulated for subsequent
-	//!   calls to GenerateBlock. Rather, the unused tail bytes are discarded, and the
-	//!   stream is continued at the next word32 boundary from the state array.
+	/// \brief Generate random array of bytes
+	/// \param output byte buffer
+	/// \param size length of the buffer, in bytes
+	/// \details Bytes are written to output in big endian order. If output length
+	///   is not a multiple of word32, then unused bytes are not accumulated for subsequent
+	///   calls to GenerateBlock. Rather, the unused tail bytes are discarded, and the
+	///   stream is continued at the next word32 boundary from the state array.
 	void GenerateBlock(byte *output, size_t size)
 	{
 		// Handle word32 size blocks
@@ -100,10 +100,10 @@ public:
 		SecureWipeArray(&temp, 1);
 	}
 
-	//! \brief Generate a random 32-bit word in the range min to max, inclusive
-	//! \returns random 32-bit word in the range min to max, inclusive
-	//! \details If the 32-bit candidate is not within the range, then it is discarded
-	//!   and a new candidate is used.
+	/// \brief Generate a random 32-bit word in the range min to max, inclusive
+	/// \returns random 32-bit word in the range min to max, inclusive
+	/// \details If the 32-bit candidate is not within the range, then it is discarded
+	///   and a new candidate is used.
 	word32 GenerateWord32(word32 min=0, word32 max=0xffffffffL)
 	{
 		const word32 range = max-min;
@@ -120,12 +120,12 @@ public:
 		return value+min;
 	}
 
-	//! \brief Generate and discard n bytes
-	//! \param n the number of bytes to discard, rounded up to a <tt>word32</tt> size
-	//! \details If n is not a multiple of <tt>word32</tt>, then unused bytes are
-	//!   not accumulated for subsequent calls to GenerateBlock. Rather, the unused
-	//!   tail bytes are discarded, and the stream is continued at the next
-	//!   <tt>word32</tt> boundary from the state array.
+	/// \brief Generate and discard n bytes
+	/// \param n the number of bytes to discard, rounded up to a <tt>word32</tt> size
+	/// \details If n is not a multiple of <tt>word32</tt>, then unused bytes are
+	///   not accumulated for subsequent calls to GenerateBlock. Rather, the unused
+	///   tail bytes are discarded, and the stream is continued at the next
+	///   <tt>word32</tt> boundary from the state array.
 	void DiscardBytes(size_t n)
 	{
 		for(size_t i=0; i < RoundUpToMultipleOf(n, 4U); i++)
@@ -144,10 +144,10 @@ protected:
 			m_state[i] = word32(F * (m_state[i-1] ^ (m_state[i-1] >> 30)) + i);
 	}
 
-	//! \brief Returns the next 32-bit word from the state array
-	//! \returns the next 32-bit word from the state array
-	//! \details fetches the next word frm the state array, performs bit operations on
-	//!   it, and then returns the value to the caller.
+	/// \brief Returns the next 32-bit word from the state array
+	/// \returns the next 32-bit word from the state array
+	/// \details fetches the next word frm the state array, performs bit operations on
+	///   it, and then returns the value to the caller.
 	word32 NextMersenneWord()
 	{
 		if (m_idx >= N) { Twist(); }
@@ -161,7 +161,7 @@ protected:
 		return temp ^ (temp >> 18);
 	}
 
-	//! \brief Performs the twist operaton on the state array
+	/// \brief Performs the twist operaton on the state array
 	void Twist()
 	{
 		static const word32 magic[2]={0x0UL, K};
@@ -192,33 +192,33 @@ protected:
 
 private:
 
-	//! \brief 32-bit word state array of size N
+	/// \brief 32-bit word state array of size N
 	FixedSizeSecBlock<word32, N+1> m_state;
-	//! \brief the value used to seed the generator
+	/// \brief the value used to seed the generator
 	word32 m_seed;
-	//! \brief the current index into the state array
+	/// \brief the current index into the state array
 	word32 m_idx;
 };
 
-//! \class MT19937
-//! \brief Original MT19937 generator provided in the ACM paper.
-//! \details MT19937 uses 4537 as default initial seed.
-//! \sa MT19937ar, <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf">Mersenne twister:
-//!   a 623-dimensionally equidistributed uniform pseudo-random number generator</A>
-//! \since Crypto++ 5.6.3
+/// \class MT19937
+/// \brief Original MT19937 generator provided in the ACM paper.
+/// \details MT19937 uses 4537 as default initial seed.
+/// \sa MT19937ar, <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf">Mersenne twister:
+///   a 623-dimensionally equidistributed uniform pseudo-random number generator</A>
+/// \since Crypto++ 5.6.3
 #if CRYPTOPP_DOXYGEN_PROCESSING
 class MT19937 : public MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10DCD /*69069*/, 4537> {};
 #else
 typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10DCD /*69069*/, 4537> MT19937;
 #endif
 
-//! \class MT19937ar
-//! \brief Updated MT19937 generator adapted to provide an array for initialization.
-//! \details MT19937 uses 5489 as default initial seed. Use this generator when interoperating with C++11's
-//!   mt19937 class.
-//! \sa MT19937, <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html">Mersenne Twister
-//!   with improved initialization</A>
-//! \since Crypto++ 5.6.3
+/// \class MT19937ar
+/// \brief Updated MT19937 generator adapted to provide an array for initialization.
+/// \details MT19937 uses 5489 as default initial seed. Use this generator when interoperating with C++11's
+///   mt19937 class.
+/// \sa MT19937, <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/MT2002/emt19937ar.html">Mersenne Twister
+///   with improved initialization</A>
+/// \since Crypto++ 5.6.3
 #if CRYPTOPP_DOXYGEN_PROCESSING
 class MT19937ar : public MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x6C078965 /*1812433253*/, 5489> {};
 #else

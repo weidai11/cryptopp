@@ -1,7 +1,7 @@
 // ecp.h - originally written and placed in the public domain by Wei Dai
 
-//! \file ecp.h
-//! \brief Classes for Elliptic Curves over prime fields
+/// \file ecp.h
+/// \brief Classes for Elliptic Curves over prime fields
 
 #ifndef CRYPTOPP_ECP_H
 #define CRYPTOPP_ECP_H
@@ -22,8 +22,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class ECP
-//! \brief Elliptic Curve over GF(p), where p is prime
+/// \class ECP
+/// \brief Elliptic Curve over GF(p), where p is prime
 class CRYPTOPP_DLL ECP : public AbstractGroup<ECPPoint>, public EncodedPoint<ECPPoint>
 {
 public:
@@ -33,29 +33,29 @@ public:
 
 	virtual ~ECP() {}
 
-	//! \brief Construct an ECP
+	/// \brief Construct an ECP
 	ECP() {}
 
-	//! \brief Copy construct an ECP
-	//! \param ecp the other ECP object
-	//! \param convertToMontgomeryRepresentation flag indicating if the curve should be converted to a MontgomeryRepresentation
-	//! \sa ModularArithmetic, MontgomeryRepresentation
+	/// \brief Copy construct an ECP
+	/// \param ecp the other ECP object
+	/// \param convertToMontgomeryRepresentation flag indicating if the curve should be converted to a MontgomeryRepresentation
+	/// \sa ModularArithmetic, MontgomeryRepresentation
 	ECP(const ECP &ecp, bool convertToMontgomeryRepresentation = false);
 
-	//! \brief Construct an ECP
-	//! \param modulus the prime modulus
-	//! \param a Field::Element
-	//! \param b Field::Element
+	/// \brief Construct an ECP
+	/// \param modulus the prime modulus
+	/// \param a Field::Element
+	/// \param b Field::Element
 	ECP(const Integer &modulus, const FieldElement &a, const FieldElement &b)
 		: m_fieldPtr(new Field(modulus)), m_a(a.IsNegative() ? modulus+a : a), m_b(b) {}
 
-	//! \brief Construct an ECP from BER encoded parameters
-	//! \param bt BufferedTransformation derived object
-	//! \details This constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
+	/// \brief Construct an ECP from BER encoded parameters
+	/// \param bt BufferedTransformation derived object
+	/// \details This constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
 	ECP(BufferedTransformation &bt);
 
-	//! \brief Encode the fields fieldID and curve of the sequence ECParameters
-	//! \param bt BufferedTransformation derived object
+	/// \brief Encode the fields fieldID and curve of the sequence ECParameters
+	/// \param bt BufferedTransformation derived object
 	void DEREncode(BufferedTransformation &bt) const;
 
 	bool Equal(const Point &P, const Point &Q) const;
@@ -104,16 +104,16 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<ECP::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<ECP::Point>;
 
-//! \class EcPrecomputation
-//! \brief Elliptic Curve precomputation
-//! \tparam EC elliptic curve field
+/// \class EcPrecomputation
+/// \brief Elliptic Curve precomputation
+/// \tparam EC elliptic curve field
 template <class EC> class EcPrecomputation;
 
-//! \class EcPrecomputation<ECP>
-//! \brief ECP precomputation specialization
-//! \details Implementation of <tt>DL_GroupPrecomputation<ECP::Point></tt> with input and output
-//!   conversions for Montgomery modular multiplication.
-//! \sa DL_GroupPrecomputation, ModularArithmetic, MontgomeryRepresentation
+/// \class EcPrecomputation<ECP>
+/// \brief ECP precomputation specialization
+/// \details Implementation of <tt>DL_GroupPrecomputation<ECP::Point></tt> with input and output
+///   conversions for Montgomery modular multiplication.
+/// \sa DL_GroupPrecomputation, ModularArithmetic, MontgomeryRepresentation
 template<> class EcPrecomputation<ECP> : public DL_GroupPrecomputation<ECP::Point>
 {
 public:

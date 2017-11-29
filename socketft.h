@@ -41,11 +41,11 @@ const int SOCKET_ERROR = -1;
 typedef TYPE_OF_SOCKLEN_T socklen_t;	// see config.h
 #endif
 
-//! wrapper for Windows or Berkeley Sockets
+/// wrapper for Windows or Berkeley Sockets
 class Socket
 {
 public:
-	//! exception thrown by Socket class
+	/// exception thrown by Socket class
 	class Err : public OS_Error
 	{
 	public:
@@ -100,15 +100,15 @@ public:
 		{if (!result) HandleError(operation);}
 #endif
 
-	//! look up the port number given its name, returns 0 if not found
+	/// look up the port number given its name, returns 0 if not found
 	static unsigned int PortNameToNumber(const char *name, const char *protocol="tcp");
-	//! start Windows Sockets 2
+	/// start Windows Sockets 2
 	static void StartSockets();
-	//! calls WSACleanup for Windows Sockets
+	/// calls WSACleanup for Windows Sockets
 	static void ShutdownSockets();
-	//! returns errno or WSAGetLastError
+	/// returns errno or WSAGetLastError
 	static int GetLastError();
-	//! sets errno or calls WSASetLastError
+	/// sets errno or calls WSASetLastError
 	static void SetLastError(int errorCode);
 
 protected:
@@ -190,7 +190,7 @@ private:
 #endif
 };
 
-//! socket-based implementation of NetworkSource
+/// socket-based implementation of NetworkSource
 class SocketSource : public NetworkSource, public Socket
 {
 public:
@@ -206,7 +206,7 @@ private:
 	SocketReceiver m_receiver;
 };
 
-//! socket-based implementation of NetworkSink
+/// socket-based implementation of NetworkSink
 class SocketSink : public NetworkSink, public Socket
 {
 public:

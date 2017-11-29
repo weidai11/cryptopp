@@ -1,8 +1,8 @@
 // algparam.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile algparam.h
-//! \brief Classes for working with NameValuePairs
+/// \file
+/// \headerfile algparam.h
+/// \brief Classes for working with NameValuePairs
 
 
 #ifndef CRYPTOPP_ALGPARAM_H
@@ -26,40 +26,40 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class ConstByteArrayParameter
-//! \brief Used to pass byte array input as part of a NameValuePairs object
+/// \class ConstByteArrayParameter
+/// \brief Used to pass byte array input as part of a NameValuePairs object
 class ConstByteArrayParameter
 {
 public:
-	//! \brief Construct a ConstByteArrayParameter
-	//! \param data a C-String
-	//! \param deepCopy flag indicating whether the data should be copied
-	//! \details The deepCopy option is used when the NameValuePairs object can't
-	//!   keep a copy of the data available
+	/// \brief Construct a ConstByteArrayParameter
+	/// \param data a C-String
+	/// \param deepCopy flag indicating whether the data should be copied
+	/// \details The deepCopy option is used when the NameValuePairs object can't
+	///   keep a copy of the data available
 	ConstByteArrayParameter(const char *data = NULLPTR, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		Assign((const byte *)data, data ? strlen(data) : 0, deepCopy);
 	}
 
-	//! \brief Construct a ConstByteArrayParameter
-	//! \param data a memory buffer
-	//! \param size the length of the memory buffer
-	//! \param deepCopy flag indicating whether the data should be copied
-	//! \details The deepCopy option is used when the NameValuePairs object can't
-	//!   keep a copy of the data available
+	/// \brief Construct a ConstByteArrayParameter
+	/// \param data a memory buffer
+	/// \param size the length of the memory buffer
+	/// \param deepCopy flag indicating whether the data should be copied
+	/// \details The deepCopy option is used when the NameValuePairs object can't
+	///   keep a copy of the data available
 	ConstByteArrayParameter(const byte *data, size_t size, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		Assign(data, size, deepCopy);
 	}
 
-	//! \brief Construct a ConstByteArrayParameter
-	//! \tparam T a std::basic_string<char> class
-	//! \param string a std::basic_string<char> class
-	//! \param deepCopy flag indicating whether the data should be copied
-	//! \details The deepCopy option is used when the NameValuePairs object can't
-	//!   keep a copy of the data available
+	/// \brief Construct a ConstByteArrayParameter
+	/// \tparam T a std::basic_string<char> class
+	/// \param string a std::basic_string<char> class
+	/// \param deepCopy flag indicating whether the data should be copied
+	/// \details The deepCopy option is used when the NameValuePairs object can't
+	///   keep a copy of the data available
 	template <class T> ConstByteArrayParameter(const T &string, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
@@ -67,12 +67,12 @@ public:
 		Assign((const byte *)string.data(), string.size(), deepCopy);
 	}
 
-	//! \brief Assign contents from a memory buffer
-	//! \param data a memory buffer
-	//! \param size the length of the memory buffer
-	//! \param deepCopy flag indicating whether the data should be copied
-	//! \details The deepCopy option is used when the NameValuePairs object can't
-	//!   keep a copy of the data available
+	/// \brief Assign contents from a memory buffer
+	/// \param data a memory buffer
+	/// \param size the length of the memory buffer
+	/// \param deepCopy flag indicating whether the data should be copied
+	/// \details The deepCopy option is used when the NameValuePairs object can't
+	///   keep a copy of the data available
 	void Assign(const byte *data, size_t size, bool deepCopy)
 	{
 		// This fires, which means: no data with a size, or data with no size.
@@ -87,11 +87,11 @@ public:
 		m_deepCopy = deepCopy;
 	}
 
-	//! \brief Pointer to the first byte in the memory block
+	/// \brief Pointer to the first byte in the memory block
 	const byte *begin() const {return m_deepCopy ? m_block.begin() : m_data;}
-	//! \brief Pointer beyond the last byte in the memory block
+	/// \brief Pointer beyond the last byte in the memory block
 	const byte *end() const {return m_deepCopy ? m_block.end() : m_data + m_size;}
-	//! \brief Length of the memory block
+	/// \brief Length of the memory block
 	size_t size() const {return m_deepCopy ? m_block.size() : m_size;}
 
 private:
@@ -101,27 +101,27 @@ private:
 	SecByteBlock m_block;
 };
 
-//! \class ByteArrayParameter
-//! \brief Used to pass byte array input as part of a NameValuePairs object
+/// \class ByteArrayParameter
+/// \brief Used to pass byte array input as part of a NameValuePairs object
 class ByteArrayParameter
 {
 public:
-	//! \brief Construct a ByteArrayParameter
-	//! \param data a memory buffer
-	//! \param size the length of the memory buffer
+	/// \brief Construct a ByteArrayParameter
+	/// \param data a memory buffer
+	/// \param size the length of the memory buffer
 	ByteArrayParameter(byte *data = NULLPTR, unsigned int size = 0)
 		: m_data(data), m_size(size) {}
 
-	//! \brief Construct a ByteArrayParameter
-	//! \param block a SecByteBlock
+	/// \brief Construct a ByteArrayParameter
+	/// \param block a SecByteBlock
 	ByteArrayParameter(SecByteBlock &block)
 		: m_data(block.begin()), m_size(block.size()) {}
 
-	//! \brief Pointer to the first byte in the memory block
+	/// \brief Pointer to the first byte in the memory block
 	byte *begin() const {return m_data;}
-	//! \brief Pointer beyond the last byte in the memory block
+	/// \brief Pointer beyond the last byte in the memory block
 	byte *end() const {return m_data + m_size;}
-	//! \brief Length of the memory block
+	/// \brief Length of the memory block
 	size_t size() const {return m_size;}
 
 private:
@@ -129,17 +129,17 @@ private:
 	size_t m_size;
 };
 
-//! \class CombinedNameValuePairs
-//! \brief Combines two sets of NameValuePairs
-//! \details CombinedNameValuePairs allows you to provide two sets of of NameValuePairs.
-//!   If a name is not found in the first set, then the second set is searched for the
-//!   name and value pair. The second set of NameValuePairs often provides default values.
+/// \class CombinedNameValuePairs
+/// \brief Combines two sets of NameValuePairs
+/// \details CombinedNameValuePairs allows you to provide two sets of of NameValuePairs.
+///   If a name is not found in the first set, then the second set is searched for the
+///   name and value pair. The second set of NameValuePairs often provides default values.
 class CRYPTOPP_DLL CombinedNameValuePairs : public NameValuePairs
 {
 public:
-	//! \brief Construct a CombinedNameValuePairs
-	//! \param pairs1 reference to the first set of NameValuePairs
-	//! \param pairs2 reference to the second set of NameValuePairs
+	/// \brief Construct a CombinedNameValuePairs
+	/// \param pairs1 reference to the first set of NameValuePairs
+	/// \param pairs2 reference to the second set of NameValuePairs
 	CombinedNameValuePairs(const NameValuePairs &pairs1, const NameValuePairs &pairs2)
 		: m_pairs1(pairs1), m_pairs2(pairs2) {}
 
@@ -308,13 +308,13 @@ CRYPTOPP_DLL bool AssignIntToInteger(const std::type_info &valueType, void *pInt
 
 CRYPTOPP_DLL const std::type_info & CRYPTOPP_API IntegerTypeId();
 
-//! \class AlgorithmParametersBase
-//! \brief Base class for AlgorithmParameters
+/// \class AlgorithmParametersBase
+/// \brief Base class for AlgorithmParameters
 class CRYPTOPP_DLL AlgorithmParametersBase
 {
 public:
-	//! \class ParameterNotUsed
-	//! \brief Exception thrown when an AlgorithmParameter is unused
+	/// \class ParameterNotUsed
+	/// \brief Exception thrown when an AlgorithmParameter is unused
 	class ParameterNotUsed : public Exception
 	{
 	public:
@@ -347,11 +347,11 @@ public:
 		x.m_used = true;
 	}
 
-	//! \brief Construct a AlgorithmParametersBase
-	//! \param name the parameter name
-	//! \param throwIfNotUsed flags indicating whether an exception should be thrown
-	//! \details If throwIfNotUsed is true, then a ParameterNotUsed exception
-	//!   will be thrown in the destructor if the parameter is not not retrieved.
+	/// \brief Construct a AlgorithmParametersBase
+	/// \param name the parameter name
+	/// \param throwIfNotUsed flags indicating whether an exception should be thrown
+	/// \details If throwIfNotUsed is true, then a ParameterNotUsed exception
+	///   will be thrown in the destructor if the parameter is not not retrieved.
 	AlgorithmParametersBase(const char *name, bool throwIfNotUsed)
 		: m_name(name), m_throwIfNotUsed(throwIfNotUsed), m_used(false) {}
 
@@ -370,19 +370,19 @@ protected:
 	member_ptr<AlgorithmParametersBase> m_next;
 };
 
-//! \class AlgorithmParametersTemplate
-//! \brief Template base class for AlgorithmParameters
-//! \tparam T the class or type
+/// \class AlgorithmParametersTemplate
+/// \brief Template base class for AlgorithmParameters
+/// \tparam T the class or type
 template <class T>
 class AlgorithmParametersTemplate : public AlgorithmParametersBase
 {
 public:
-	//! \brief Construct an AlgorithmParametersTemplate
-	//! \param name the name of the value
-	//! \param value a reference to the value
-	//! \param throwIfNotUsed flags indicating whether an exception should be thrown
-	//! \details If throwIfNotUsed is true, then a ParameterNotUsed exception
-	//!   will be thrown in the destructor if the parameter is not not retrieved.
+	/// \brief Construct an AlgorithmParametersTemplate
+	/// \param name the name of the value
+	/// \param value a reference to the value
+	/// \param throwIfNotUsed flags indicating whether an exception should be thrown
+	/// \details If throwIfNotUsed is true, then a ParameterNotUsed exception
+	///   will be thrown in the destructor if the parameter is not not retrieved.
 	AlgorithmParametersTemplate(const char *name, const T &value, bool throwIfNotUsed)
 		: AlgorithmParametersBase(name, throwIfNotUsed), m_value(value)
 	{
@@ -423,37 +423,37 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<bool>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<int>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<ConstByteArrayParameter>;
 
-//! \class AlgorithmParameters
-//! \brief An object that implements NameValuePairs
-//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
-//!   repeatedly using operator() on the object returned by MakeParameters, for example:
-//!   <pre>
-//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
-//!   </pre>
+/// \class AlgorithmParameters
+/// \brief An object that implements NameValuePairs
+/// \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+///   repeatedly using operator() on the object returned by MakeParameters, for example:
+///   <pre>
+///     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+///   </pre>
 class CRYPTOPP_DLL AlgorithmParameters : public NameValuePairs
 {
 public:
-	//! \brief Construct a AlgorithmParameters
-	//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
-	//!   repeatedly using operator() on the object returned by MakeParameters, for example:
-	//!   <pre>
-	//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
-	//!   </pre>
+	/// \brief Construct a AlgorithmParameters
+	/// \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+	///   repeatedly using operator() on the object returned by MakeParameters, for example:
+	///   <pre>
+	///     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+	///   </pre>
 	AlgorithmParameters();
 
 #ifdef __BORLANDC__
-	//! \brief Construct a AlgorithmParameters
-	//! \tparam T the class or type
-	//! \param name the name of the object or value to retrieve
-	//! \param value reference to a variable that receives the value
-	//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
-	//! \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
-	//!   such as MSVC 7.0 and earlier.
-	//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
-	//!   repeatedly using operator() on the object returned by MakeParameters, for example:
-	//!   <pre>
-	//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
-	//!   </pre>
+	/// \brief Construct a AlgorithmParameters
+	/// \tparam T the class or type
+	/// \param name the name of the object or value to retrieve
+	/// \param value reference to a variable that receives the value
+	/// \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
+	/// \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
+	///   such as MSVC 7.0 and earlier.
+	/// \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+	///   repeatedly using operator() on the object returned by MakeParameters, for example:
+	///   <pre>
+	///     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+	///   </pre>
 	template <class T>
 	AlgorithmParameters(const char *name, const T &value, bool throwIfNotUsed=true)
 		: m_next(new AlgorithmParametersTemplate<T>(name, value, throwIfNotUsed))
@@ -466,10 +466,10 @@ public:
 
 	AlgorithmParameters & operator=(const AlgorithmParameters &x);
 
-	//! \tparam T the class or type
-	//! \param name the name of the object or value to retrieve
-	//! \param value reference to a variable that receives the value
-	//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
+	/// \tparam T the class or type
+	/// \param name the name of the object or value to retrieve
+	/// \param value reference to a variable that receives the value
+	/// \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
 	template <class T>
 	AlgorithmParameters & operator()(const char *name, const T &value, bool throwIfNotUsed)
 	{
@@ -480,10 +480,10 @@ public:
 		return *this;
 	}
 
-	//! \brief Appends a NameValuePair to a collection of NameValuePairs
-	//! \tparam T the class or type
-	//! \param name the name of the object or value to retrieve
-	//! \param value reference to a variable that receives the value
+	/// \brief Appends a NameValuePair to a collection of NameValuePairs
+	/// \tparam T the class or type
+	/// \param name the name of the object or value to retrieve
+	/// \param value reference to a variable that receives the value
 	template <class T>
 	AlgorithmParameters & operator()(const char *name, const T &value)
 	{
@@ -497,18 +497,18 @@ protected:
 	bool m_defaultThrowIfNotUsed;
 };
 
-//! \brief Create an object that implements NameValuePairs
-//! \tparam T the class or type
-//! \param name the name of the object or value to retrieve
-//! \param value reference to a variable that receives the value
-//! \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
-//! \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
-//!   such as MSVC 7.0 and earlier.
-//! \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
-//!   repeatedly using \p operator() on the object returned by \p MakeParameters, for example:
-//!   <pre>
-//!     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
-//!   </pre>
+/// \brief Create an object that implements NameValuePairs
+/// \tparam T the class or type
+/// \param name the name of the object or value to retrieve
+/// \param value reference to a variable that receives the value
+/// \param throwIfNotUsed if true, the object will throw an exception if the value is not accessed
+/// \note throwIfNotUsed is ignored if using a compiler that does not support std::uncaught_exception(),
+///   such as MSVC 7.0 and earlier.
+/// \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
+///   repeatedly using \p operator() on the object returned by \p MakeParameters, for example:
+///   <pre>
+///     AlgorithmParameters parameters = MakeParameters(name1, value1)(name2, value2)(name3, value3);
+///   </pre>
 #ifdef __BORLANDC__
 typedef AlgorithmParameters MakeParameters;
 #else

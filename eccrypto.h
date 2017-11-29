@@ -1,8 +1,8 @@
 // eccrypto.h - originally written and placed in the public domain by Wei Dai
 //              deterministic signatures added by by Douglas Roark
 
-//! \file eccrypto.h
-//! \brief Classes and functions for Elliptic Curves over prime and binary fields
+/// \file eccrypto.h
+/// \brief Classes and functions for Elliptic Curves over prime and binary fields
 
 #ifndef CRYPTOPP_ECCRYPTO_H
 #define CRYPTOPP_ECCRYPTO_H
@@ -29,10 +29,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief Elliptic Curve Parameters
-//! \tparam EC elliptic curve field
-//! \details This class corresponds to the ASN.1 sequence of the same name
-//!   in ANSI X9.62 and SEC 1. EC is currently defined for ECP and EC2N.
+/// \brief Elliptic Curve Parameters
+/// \tparam EC elliptic curve field
+/// \details This class corresponds to the ASN.1 sequence of the same name
+///   in ANSI X9.62 and SEC 1. EC is currently defined for ECP and EC2N.
 template <class EC>
 class DL_GroupParameters_EC : public DL_GroupParametersImpl<EcPrecomputation<EC> >
 {
@@ -46,33 +46,33 @@ public:
 
 	virtual ~DL_GroupParameters_EC() {}
 
-	//! \brief Construct an EC GroupParameters
+	/// \brief Construct an EC GroupParameters
 	DL_GroupParameters_EC() : m_compress(false), m_encodeAsOID(true) {}
 
-	//! \brief Construct an EC GroupParameters
-	//! \param oid the OID of a curve
+	/// \brief Construct an EC GroupParameters
+	/// \param oid the OID of a curve
 	DL_GroupParameters_EC(const OID &oid)
 		: m_compress(false), m_encodeAsOID(true) {Initialize(oid);}
 
-	//! \brief Construct an EC GroupParameters
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \param k the cofactor
+	/// \brief Construct an EC GroupParameters
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \param k the cofactor
 	DL_GroupParameters_EC(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
 		: m_compress(false), m_encodeAsOID(true) {Initialize(ec, G, n, k);}
 
-	//! \brief Construct an EC GroupParameters
-	//! \param bt BufferedTransformation with group parameters
+	/// \brief Construct an EC GroupParameters
+	/// \param bt BufferedTransformation with group parameters
 	DL_GroupParameters_EC(BufferedTransformation &bt)
 		: m_compress(false), m_encodeAsOID(true) {BERDecode(bt);}
 
-	//! \brief Initialize an EC GroupParameters using {EC,G,n,k}
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \param k the cofactor
-	//! \details This Initialize() function overload initializes group parameters from existing parameters.
+	/// \brief Initialize an EC GroupParameters using {EC,G,n,k}
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \param k the cofactor
+	/// \details This Initialize() function overload initializes group parameters from existing parameters.
 	void Initialize(const EllipticCurve &ec, const Point &G, const Integer &n, const Integer &k = Integer::Zero())
 	{
 		this->m_groupPrecomputation.SetCurve(ec);
@@ -81,9 +81,9 @@ public:
 		m_k = k;
 	}
 
-	//! \brief Initialize a DL_GroupParameters_EC {EC,G,n,k}
-	//! \param oid the OID of a curve
-	//! \details This Initialize() function overload initializes group parameters from existing parameters.
+	/// \brief Initialize a DL_GroupParameters_EC {EC,G,n,k}
+	/// \param oid the OID of a curve
+	/// \details This Initialize() function overload initializes group parameters from existing parameters.
 	void Initialize(const OID &oid);
 
 	// NameValuePairs
@@ -91,7 +91,7 @@ public:
 	void AssignFrom(const NameValuePairs &source);
 
 	// GeneratibleCryptoMaterial interface
-	//! this implementation doesn't actually generate a curve, it just initializes the parameters with existing values
+	/// this implementation doesn't actually generate a curve, it just initializes the parameters with existing values
 	/*! parameters: (Curve, SubgroupGenerator, SubgroupOrder, Cofactor (optional)), or (GroupOID) */
 	void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 
@@ -174,9 +174,9 @@ protected:
 	mutable bool m_compress, m_encodeAsOID;		// presentation details
 };
 
-//! \class DL_PublicKey_EC
-//! \brief Elliptic Curve Discrete Log (DL) public key
-//! \tparam EC elliptic curve field
+/// \class DL_PublicKey_EC
+/// \brief Elliptic Curve Discrete Log (DL) public key
+/// \tparam EC elliptic curve field
 template <class EC>
 class DL_PublicKey_EC : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -185,19 +185,19 @@ public:
 
 	virtual ~DL_PublicKey_EC() {}
 
-	//! \brief Initialize an EC Public Key using {GP,Q}
-	//! \param params group parameters
-	//! \param Q the public point
-	//! \details This Initialize() function overload initializes a public key from existing parameters.
+	/// \brief Initialize an EC Public Key using {GP,Q}
+	/// \param params group parameters
+	/// \param Q the public point
+	/// \details This Initialize() function overload initializes a public key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
 		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
 
-	//! \brief Initialize an EC Public Key using {EC,G,n,Q}
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \param Q the public point
-	//! \details This Initialize() function overload initializes a public key from existing parameters.
+	/// \brief Initialize an EC Public Key using {EC,G,n,Q}
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \param Q the public point
+	/// \details This Initialize() function overload initializes a public key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
 		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPublicElement(Q);}
 
@@ -206,9 +206,9 @@ public:
 	void DEREncodePublicKey(BufferedTransformation &bt) const;
 };
 
-//! \class DL_PrivateKey_EC
-//! \brief Elliptic Curve Discrete Log (DL) private key
-//! \tparam EC elliptic curve field
+/// \class DL_PrivateKey_EC
+/// \brief Elliptic Curve Discrete Log (DL) private key
+/// \tparam EC elliptic curve field
 template <class EC>
 class DL_PrivateKey_EC : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -217,39 +217,39 @@ public:
 
 	virtual ~DL_PrivateKey_EC();
 
-	//! \brief Initialize an EC Private Key using {GP,x}
-	//! \param params group parameters
-	//! \param x the private exponent
-	//! \details This Initialize() function overload initializes a private key from existing parameters.
+	/// \brief Initialize an EC Private Key using {GP,x}
+	/// \param params group parameters
+	/// \param x the private exponent
+	/// \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
 		{this->AccessGroupParameters() = params; this->SetPrivateExponent(x);}
 
-	//! \brief Initialize an EC Private Key using {EC,G,n,x}
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \param x the private exponent
-	//! \details This Initialize() function overload initializes a private key from existing parameters.
+	/// \brief Initialize an EC Private Key using {EC,G,n,x}
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \param x the private exponent
+	/// \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
 		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPrivateExponent(x);}
 
-	//! \brief Create an EC private key
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param params the EC group parameters
-	//! \details This function overload of Initialize() creates a new private key because it
-	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	//!   then use one of the other Initialize() overloads.
+	/// \brief Create an EC private key
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param params the EC group parameters
+	/// \details This function overload of Initialize() creates a new private key because it
+	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{this->GenerateRandom(rng, params);}
 
-	//! \brief Create an EC private key
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \details This function overload of Initialize() creates a new private key because it
-	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	//!   then use one of the other Initialize() overloads.
+	/// \brief Create an EC private key
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \details This function overload of Initialize() creates a new private key because it
+	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
 		{this->GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
@@ -262,21 +262,21 @@ public:
 template<class EC>
 DL_PrivateKey_EC<EC>::~DL_PrivateKey_EC() {}
 
-//! \class ECDH
-//! \brief Elliptic Curve Diffie-Hellman
-//! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION cofactor multiplication option
-//! \sa CofactorMultiplicationOption, <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">Elliptic Curve Diffie-Hellman, AKA ECDH</a>
+/// \class ECDH
+/// \brief Elliptic Curve Diffie-Hellman
+/// \tparam EC elliptic curve field
+/// \tparam COFACTOR_OPTION cofactor multiplication option
+/// \sa CofactorMultiplicationOption, <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">Elliptic Curve Diffie-Hellman, AKA ECDH</a>
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECDH
 {
 	typedef DH_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
 };
 
-//! \class ECMQV
-//! \brief Elliptic Curve Menezes-Qu-Vanstone
-//! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION cofactor multiplication option
+/// \class ECMQV
+/// \brief Elliptic Curve Menezes-Qu-Vanstone
+/// \tparam EC elliptic curve field
+/// \tparam COFACTOR_OPTION cofactor multiplication option
 /// \sa CofactorMultiplicationOption, <a href="http://www.weidai.com/scan-mirror/ka.html#ECMQV">Elliptic Curve Menezes-Qu-Vanstone, AKA ECMQV</a>
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECMQV
@@ -284,13 +284,13 @@ struct ECMQV
 	typedef MQV_Domain<DL_GroupParameters_EC<EC>, COFACTOR_OPTION> Domain;
 };
 
-//! \class ECHMQV
-//! \brief Hashed Elliptic Curve Menezes-Qu-Vanstone
-//! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION cofactor multiplication option
-//! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
-//!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
-//! \sa CofactorMultiplicationOption
+/// \class ECHMQV
+/// \brief Hashed Elliptic Curve Menezes-Qu-Vanstone
+/// \tparam EC elliptic curve field
+/// \tparam COFACTOR_OPTION cofactor multiplication option
+/// \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
+///   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+/// \sa CofactorMultiplicationOption
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256>
 struct ECHMQV
 {
@@ -302,14 +302,14 @@ typedef ECHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA256
 typedef ECHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA384 >::Domain ECHMQV384;
 typedef ECHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA512 >::Domain ECHMQV512;
 
-//! \class ECFHMQV
-//! \brief Fully Hashed Elliptic Curve Menezes-Qu-Vanstone
-//! \tparam EC elliptic curve field
-//! \tparam COFACTOR_OPTION cofactor multiplication option
-//! \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
-//!   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
-//!   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
-//! \sa CofactorMultiplicationOption
+/// \class ECFHMQV
+/// \brief Fully Hashed Elliptic Curve Menezes-Qu-Vanstone
+/// \tparam EC elliptic curve field
+/// \tparam COFACTOR_OPTION cofactor multiplication option
+/// \details This implementation follows Augustin P. Sarr and Philippe Elbaz–Vincent, and Jean–Claude Bajard's
+///   <a href="http://eprint.iacr.org/2009/408">A Secure and Efficient Authenticated Diffie-Hellman Protocol</a>.
+///   Note: this is FHMQV, Protocol 5, from page 11; and not FHMQV-C.
+/// \sa CofactorMultiplicationOption
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption, class HASH = SHA256>
 struct ECFHMQV
 {
@@ -321,9 +321,9 @@ typedef ECFHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA25
 typedef ECFHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA384 >::Domain ECFHMQV384;
 typedef ECFHMQV< ECP, DL_GroupParameters_EC< ECP >::DefaultCofactorOption, SHA512 >::Domain ECFHMQV512;
 
-//! \class DL_Keys_EC
-//! \brief Elliptic Curve Discrete Log (DL) keys
-//! \tparam EC elliptic curve field
+/// \class DL_Keys_EC
+/// \brief Elliptic Curve Discrete Log (DL) keys
+/// \tparam EC elliptic curve field
 template <class EC>
 struct DL_Keys_EC
 {
@@ -335,9 +335,9 @@ struct DL_Keys_EC
 template <class EC, class H>
 struct ECDSA;
 
-//! \class DL_Keys_ECDSA
-//! \brief Elliptic Curve DSA keys
-//! \tparam EC elliptic curve field
+/// \class DL_Keys_ECDSA
+/// \brief Elliptic Curve DSA keys
+/// \tparam EC elliptic curve field
 template <class EC>
 struct DL_Keys_ECDSA
 {
@@ -345,9 +345,9 @@ struct DL_Keys_ECDSA
 	typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_EC<EC>, ECDSA<EC, SHA256> > PrivateKey;
 };
 
-//! \class DL_Algorithm_ECDSA
-//! \brief Elliptic Curve DSA (ECDSA) signature algorithm
-//! \tparam EC elliptic curve field
+/// \class DL_Algorithm_ECDSA
+/// \brief Elliptic Curve DSA (ECDSA) signature algorithm
+/// \tparam EC elliptic curve field
 template <class EC>
 class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
@@ -355,12 +355,12 @@ public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECDSA";}
 };
 
-//! \class DL_Algorithm_ECDSA_RFC6979
-//! \brief Elliptic Curve DSA (ECDSA) signature algorithm based on RFC 6979
-//! \tparam EC elliptic curve field
-//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
-//!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
-//! \since Crypto++ 6.0
+/// \class DL_Algorithm_ECDSA_RFC6979
+/// \brief Elliptic Curve DSA (ECDSA) signature algorithm based on RFC 6979
+/// \tparam EC elliptic curve field
+/// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
+///   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+/// \since Crypto++ 6.0
 template <class EC, class H>
 class DL_Algorithm_ECDSA_RFC6979 : public DL_Algorithm_DSA_RFC6979<typename EC::Point, H>
 {
@@ -368,9 +368,9 @@ public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECDSA-RFC6979";}
 };
 
-//! \class DL_Algorithm_ECNR
-//! \brief Elliptic Curve NR (ECNR) signature algorithm
-//! \tparam EC elliptic curve field
+/// \class DL_Algorithm_ECNR
+/// \brief Elliptic Curve NR (ECNR) signature algorithm
+/// \tparam EC elliptic curve field
 template <class EC>
 class DL_Algorithm_ECNR : public DL_Algorithm_NR<typename EC::Point>
 {
@@ -378,22 +378,22 @@ public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECNR";}
 };
 
-//! \class ECDSA
-//! \brief Elliptic Curve DSA (ECDSA) signature scheme
-//! \tparam EC elliptic curve field
-//! \tparam H HashTransformation derived class
-//! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
+/// \class ECDSA
+/// \brief Elliptic Curve DSA (ECDSA) signature scheme
+/// \tparam EC elliptic curve field
+/// \tparam H HashTransformation derived class
+/// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
 template <class EC, class H>
 struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
 };
 
-//! \class ECDSA_RFC6979
-//! \brief Elliptic Curve DSA (ECDSA) deterministic signature scheme
-//! \tparam EC elliptic curve field
-//! \tparam H HashTransformation derived class
-//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
-//!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+/// \class ECDSA_RFC6979
+/// \brief Elliptic Curve DSA (ECDSA) deterministic signature scheme
+/// \tparam EC elliptic curve field
+/// \tparam H HashTransformation derived class
+/// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
+///   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
 template <class EC, class H>
 struct ECDSA_RFC6979 : public DL_SS<
 	DL_Keys_ECDSA<EC>,
@@ -405,10 +405,10 @@ struct ECDSA_RFC6979 : public DL_SS<
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string("ECDSA-RFC6979/") + H::StaticAlgorithmName();}
 };
 
-//! \class ECNR
-//! \brief Elliptic Curve NR (ECNR) signature scheme
-//! \tparam EC elliptic curve field
-//! \tparam H HashTransformation derived class
+/// \class ECNR
+/// \brief Elliptic Curve NR (ECNR) signature scheme
+/// \tparam EC elliptic curve field
+/// \tparam H HashTransformation derived class
 template <class EC, class H = SHA1>
 struct ECNR : public DL_SS<DL_Keys_EC<EC>, DL_Algorithm_ECNR<EC>, DL_SignatureMessageEncodingMethod_NR, H>
 {
@@ -421,11 +421,11 @@ class DL_PublicKey_ECGDSA_ISO15946;
 template <class EC>
 class DL_PrivateKey_ECGDSA_ISO15946;
 
-//! \class DL_PrivateKey_ECGDSA_ISO15946
-//! \brief Elliptic Curve German DSA key for ISO/IEC 15946
-//! \tparam EC elliptic curve field
-//! \sa ECGDSA_ISO15946
-//! \since Crypto++ 6.0
+/// \class DL_PrivateKey_ECGDSA_ISO15946
+/// \brief Elliptic Curve German DSA key for ISO/IEC 15946
+/// \tparam EC elliptic curve field
+/// \sa ECGDSA_ISO15946
+/// \since Crypto++ 6.0
 template <class EC>
 class DL_PrivateKey_ECGDSA_ISO15946 : public DL_PrivateKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -434,10 +434,10 @@ public:
 
 	virtual ~DL_PrivateKey_ECGDSA_ISO15946() {}
 
-	//! \brief Initialize an EC Private Key using {GP,x}
-	//! \param params group parameters
-	//! \param x the private exponent
-	//! \details This Initialize() function overload initializes a private key from existing parameters.
+	/// \brief Initialize an EC Private Key using {GP,x}
+	/// \param params group parameters
+	/// \param x the private exponent
+	/// \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Integer &x)
 	{
 		this->AccessGroupParameters() = params;
@@ -445,12 +445,12 @@ public:
 		CRYPTOPP_ASSERT(x>=1 && x<=params.GetSubgroupOrder()-1);
 	}
 
-	//! \brief Initialize an EC Private Key using {EC,G,n,x}
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \param x the private exponent
-	//! \details This Initialize() function overload initializes a private key from existing parameters.
+	/// \brief Initialize an EC Private Key using {EC,G,n,x}
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \param x the private exponent
+	/// \details This Initialize() function overload initializes a private key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Integer &x)
 	{
 		this->AccessGroupParameters().Initialize(ec, G, n);
@@ -458,23 +458,23 @@ public:
 		CRYPTOPP_ASSERT(x>=1 && x<=this->AccessGroupParameters().GetSubgroupOrder()-1);
 	}
 
-	//! \brief Create an EC private key
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param params the EC group parameters
-	//! \details This function overload of Initialize() creates a new private key because it
-	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	//!   then use one of the other Initialize() overloads.
+	/// \brief Create an EC private key
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param params the EC group parameters
+	/// \details This function overload of Initialize() creates a new private key because it
+	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const DL_GroupParameters_EC<EC> &params)
 		{this->GenerateRandom(rng, params);}
 
-	//! \brief Create an EC private key
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \details This function overload of Initialize() creates a new private key because it
-	//!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-	//!   then use one of the other Initialize() overloads.
+	/// \brief Create an EC private key
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \details This function overload of Initialize() creates a new private key because it
+	///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+	///   then use one of the other Initialize() overloads.
 	void Initialize(RandomNumberGenerator &rng, const EC &ec, const Element &G, const Integer &n)
 		{this->GenerateRandom(rng, DL_GroupParameters_EC<EC>(ec, G, n));}
 
@@ -504,11 +504,11 @@ public:
 	void DEREncodePrivateKey(BufferedTransformation &bt) const;
 };
 
-//! \class DL_PublicKey_ECGDSA_ISO15946
-//! \brief Elliptic Curve German DSA key for ISO/IEC 15946
-//! \tparam EC elliptic curve field
-//! \sa ECGDSA_ISO15946
-//! \since Crypto++ 6.0
+/// \class DL_PublicKey_ECGDSA_ISO15946
+/// \brief Elliptic Curve German DSA key for ISO/IEC 15946
+/// \tparam EC elliptic curve field
+/// \sa ECGDSA_ISO15946
+/// \since Crypto++ 6.0
 template <class EC>
 class DL_PublicKey_ECGDSA_ISO15946 : public DL_PublicKeyImpl<DL_GroupParameters_EC<EC> >
 {
@@ -519,19 +519,19 @@ public:
 
 	virtual ~DL_PublicKey_ECGDSA_ISO15946() {}
 
-	//! \brief Initialize an EC Public Key using {GP,Q}
-	//! \param params group parameters
-	//! \param Q the public point
-	//! \details This Initialize() function overload initializes a public key from existing parameters.
+	/// \brief Initialize an EC Public Key using {GP,Q}
+	/// \param params group parameters
+	/// \param Q the public point
+	/// \details This Initialize() function overload initializes a public key from existing parameters.
 	void Initialize(const DL_GroupParameters_EC<EC> &params, const Element &Q)
 		{this->AccessGroupParameters() = params; this->SetPublicElement(Q);}
 
-	//! \brief Initialize an EC Public Key using {EC,G,n,Q}
-	//! \param ec the elliptic curve
-	//! \param G the base point
-	//! \param n the order of the base point
-	//! \param Q the public point
-	//! \details This Initialize() function overload initializes a public key from existing parameters.
+	/// \brief Initialize an EC Public Key using {EC,G,n,Q}
+	/// \param ec the elliptic curve
+	/// \param G the base point
+	/// \param n the order of the base point
+	/// \param Q the public point
+	/// \details This Initialize() function overload initializes a public key from existing parameters.
 	void Initialize(const EC &ec, const Element &G, const Integer &n, const Element &Q)
 		{this->AccessGroupParameters().Initialize(ec, G, n); this->SetPublicElement(Q);}
 
@@ -557,11 +557,11 @@ public:
 	void DEREncodePublicKey(BufferedTransformation &bt) const;
 };
 
-//! \class DL_Keys_ECGDSA_ISO15946
-//! \brief Elliptic Curve German DSA keys for ISO/IEC 15946
-//! \tparam EC elliptic curve field
-//! \sa ECGDSA_ISO15946
-//! \since Crypto++ 6.0
+/// \class DL_Keys_ECGDSA_ISO15946
+/// \brief Elliptic Curve German DSA keys for ISO/IEC 15946
+/// \tparam EC elliptic curve field
+/// \sa ECGDSA_ISO15946
+/// \since Crypto++ 6.0
 template <class EC>
 struct DL_Keys_ECGDSA_ISO15946
 {
@@ -569,11 +569,11 @@ struct DL_Keys_ECGDSA_ISO15946
 	typedef DL_PrivateKey_ECGDSA_ISO15946<EC> PrivateKey;
 };
 
-//! \class DL_Algorithm_ECGDSA_ISO15946
-//! \brief Elliptic Curve German DSA signature algorithm
-//! \tparam EC elliptic curve field
-//! \sa ECGDSA_ISO15946
-//! \since Crypto++ 6.0
+/// \class DL_Algorithm_ECGDSA_ISO15946
+/// \brief Elliptic Curve German DSA signature algorithm
+/// \tparam EC elliptic curve field
+/// \sa ECGDSA_ISO15946
+/// \since Crypto++ 6.0
 template <class EC>
 class DL_Algorithm_ECGDSA_ISO15946 : public DL_Algorithm_GDSA_ISO15946<typename EC::Point>
 {
@@ -581,14 +581,14 @@ public:
   CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECGDSA";}
 };
 
-//! \class ECGDSA
-//! \brief Elliptic Curve German Digital Signature Algorithm signature scheme
-//! \tparam EC elliptic curve field
-//! \tparam H HashTransformation derived class
-//! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A
-//!   HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The Digital Signature Scheme
-//!   ECGDSA (October 24, 2006)</A>
-//! \since Crypto++ 6.0
+/// \class ECGDSA
+/// \brief Elliptic Curve German Digital Signature Algorithm signature scheme
+/// \tparam EC elliptic curve field
+/// \tparam H HashTransformation derived class
+/// \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A
+///   HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">The Digital Signature Scheme
+///   ECGDSA (October 24, 2006)</A>
+/// \since Crypto++ 6.0
 template <class EC, class H>
 struct ECGDSA : public DL_SS<
 	DL_Keys_ECGDSA_ISO15946<EC>,
@@ -601,40 +601,40 @@ struct ECGDSA : public DL_SS<
 
 // ******************************************
 
-//! \class ECIES
-//! \brief Elliptic Curve Integrated Encryption Scheme
-//! \tparam COFACTOR_OPTION cofactor multiplication option
-//! \tparam HASH HashTransformation derived class used for key drivation and MAC computation
-//! \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
-//! \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
-//! \details ECIES is an Elliptic Curve based Integrated Encryption Scheme (IES). The scheme combines a Key Encapsulation
-//!   Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
-//!   <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
-//!   You should prefer an Integrated Encryption Scheme over homegrown schemes.
-//! \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
-//!   SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
-//!   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES template class with
-//!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
-//!   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
-//! \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
-//!   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
-//!   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
-//!   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
-//! \details Below is an example of constructing a Crypto++ 4.2 compatible ECIES encryptor and decryptor.
-//! <pre>
-//!     AutoSeededRandomPool prng;
-//!     DL_PrivateKey_EC<ECP> key;
-//!     key.Initialize(prng, ASN1::secp160r1());
-//!
-//!     ECIES<ECP,SHA1,NoCofactorMultiplication,true,true>::Decryptor decryptor(key);
-//!     ECIES<ECP,SHA1,NoCofactorMultiplication,true,true>::Encryptor encryptor(decryptor);
-//! </pre>
-//! \sa DLIES, <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">Elliptic Curve Integrated Encryption Scheme (ECIES)</a>,
-//!   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
-//!   Curve Integrated Encryption Schemes</A>
-//! \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
+/// \class ECIES
+/// \brief Elliptic Curve Integrated Encryption Scheme
+/// \tparam COFACTOR_OPTION cofactor multiplication option
+/// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
+/// \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
+/// \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
+/// \details ECIES is an Elliptic Curve based Integrated Encryption Scheme (IES). The scheme combines a Key Encapsulation
+///   Method (KEM) with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
+///   <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
+///   You should prefer an Integrated Encryption Scheme over homegrown schemes.
+/// \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
+///   SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
+///   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the ECIES template class with
+///   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES
+///   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
+/// \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
+///   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
+///   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
+///   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
+/// \details Below is an example of constructing a Crypto++ 4.2 compatible ECIES encryptor and decryptor.
+/// <pre>
+///     AutoSeededRandomPool prng;
+///     DL_PrivateKey_EC<ECP> key;
+///     key.Initialize(prng, ASN1::secp160r1());
+///
+///     ECIES<ECP,SHA1,NoCofactorMultiplication,true,true>::Decryptor decryptor(key);
+///     ECIES<ECP,SHA1,NoCofactorMultiplication,true,true>::Encryptor encryptor(decryptor);
+/// </pre>
+/// \sa DLIES, <a href="http://www.weidai.com/scan-mirror/ca.html#ECIES">Elliptic Curve Integrated Encryption Scheme (ECIES)</a>,
+///   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
+///   Curve Integrated Encryption Schemes</A>
+/// \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
 template <class EC, class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS = false>
 struct ECIES
 	: public DL_ES<

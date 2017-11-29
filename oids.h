@@ -1,13 +1,13 @@
 // oids.h - originally written and placed in the public domain by Wei Dai
 
-//! \file oids.h
-//! \brief ASN.1 object identifiers for algorthms and schemes
-//! \details Most OIDs can be found at http://www.oid-info.com/. The Chinese OIDs
-//!   are assigned in GM/T 0006-2012, Cryptographic Application Identifier Criterion
-//!   Specification. A reproduction can be found at http://gmssl.org/docs/oid.html.
-//!   There seems to be some confusion between the text of GmSSL's oid.html web page
-//!   and the actual OID used in the code. We used the same OIDs that were detailed in
-//!   http://github.com/guanzhi/GmSSL/blob/master/crypto/objects/objects.txt.
+/// \file oids.h
+/// \brief ASN.1 object identifiers for algorthms and schemes
+/// \details Most OIDs can be found at http://www.oid-info.com/. The Chinese OIDs
+///   are assigned in GM/T 0006-2012, Cryptographic Application Identifier Criterion
+///   Specification. A reproduction can be found at http://gmssl.org/docs/oid.html.
+///   There seems to be some confusion between the text of GmSSL's oid.html web page
+///   and the actual OID used in the code. We used the same OIDs that were detailed in
+///   http://github.com/guanzhi/GmSSL/blob/master/crypto/objects/objects.txt.
 
 #ifndef CRYPTOPP_OIDS_H
 #define CRYPTOPP_OIDS_H

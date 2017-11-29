@@ -1,7 +1,7 @@
 // blowfish.h - originally written and placed in the public domain by Wei Dai
 
-//! \file blowfish.h
-//! \brief Classes for the Blowfish block cipher
+/// \file blowfish.h
+/// \brief Classes for the Blowfish block cipher
 
 #ifndef CRYPTOPP_BLOWFISH_H
 #define CRYPTOPP_BLOWFISH_H
@@ -11,8 +11,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class Blowfish_Info
-//! \brief Blowfish block cipher information
+/// \class Blowfish_Info
+/// \brief Blowfish block cipher information
 struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 4, 56>, public FixedRounds<16>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Blowfish";}
@@ -20,14 +20,14 @@ struct Blowfish_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 4,
 
 // <a href="http://www.cryptopp.com/wiki/Blowfish">Blowfish</a>
 
-//! \class Blowfish
-//! \brief Blowfish block cipher
-//! \since Crypto++ 1.0
+/// \class Blowfish
+/// \brief Blowfish block cipher
+/// \since Crypto++ 1.0
 class Blowfish : public Blowfish_Info, public BlockCipherDocumentation
 {
-	//! \class Base
-	//! \brief Class specific implementation and overrides used to operate the cipher.
-	//! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
+	/// \class Base
+	/// \brief Class specific implementation and overrides used to operate the cipher.
+	/// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Blowfish_Info>
 	{
 	public:

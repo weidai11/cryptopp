@@ -1,8 +1,8 @@
 // hkdf.h - written and placed in public domain by Jeffrey Walton.
 
-//! \file hkdf.h
-//! \brief Classes for HKDF from RFC 5869
-//! \since Crypto++ 5.6.3
+/// \file hkdf.h
+/// \brief Classes for HKDF from RFC 5869
+/// \since Crypto++ 5.6.3
 
 #ifndef CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
 #define CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
@@ -14,24 +14,24 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! abstract base class for key derivation function
+/// abstract base class for key derivation function
 class KeyDerivationFunction
 {
 public:
-	//! maximum number of bytes which can be produced under a secuirty context
+	/// maximum number of bytes which can be produced under a secuirty context
 	virtual size_t MaxDerivedKeyLength() const =0;
 	virtual bool Usesinfo() const =0;
-	//! derive a key from secret
+	/// derive a key from secret
 	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info=NULLPTR, size_t infoLen=0) const =0;
 
 	virtual ~KeyDerivationFunction() {}
 };
 
-//! \brief Extract-and-Expand Key Derivation Function (HKDF)
-//! \tparam T HashTransformation class
-//! \sa <A HREF="http://eprint.iacr.org/2010/264">Cryptographic Extraction and Key Derivation: The HKDF Scheme</A>
-//!   and <A HREF="http://tools.ietf.org/html/rfc5869">HMAC-based Extract-and-Expand Key Derivation Function (HKDF)</A>
-//! \since Crypto++ 5.6.3
+/// \brief Extract-and-Expand Key Derivation Function (HKDF)
+/// \tparam T HashTransformation class
+/// \sa <A HREF="http://eprint.iacr.org/2010/264">Cryptographic Extraction and Key Derivation: The HKDF Scheme</A>
+///   and <A HREF="http://tools.ietf.org/html/rfc5869">HMAC-based Extract-and-Expand Key Derivation Function (HKDF)</A>
+/// \since Crypto++ 5.6.3
 template <class T>
 class HKDF : public KeyDerivationFunction
 {

@@ -1,7 +1,7 @@
 // eprecomp.h - originally written and placed in the public domain by Wei Dai
 
-//! \file eprecomp.h
-//! \brief Classes for precomputation in a group
+/// \file eprecomp.h
+/// \brief Classes for precomputation in a group
 
 #ifndef CRYPTOPP_EPRECOMP_H
 #define CRYPTOPP_EPRECOMP_H

@@ -1,7 +1,7 @@
 // panama.h - originally written and placed in the public domain by Wei Dai
 
-//! \file panama.h
-//! \brief Classes for Panama hash and stream cipher
+/// \file panama.h
+/// \brief Classes for Panama hash and stream cipher
 
 #ifndef CRYPTOPP_PANAMA_H
 #define CRYPTOPP_PANAMA_H
@@ -33,9 +33,9 @@ protected:
 };
 
 namespace Weak {
-//! \class PanamaHash
-//! \brief Panama hash
-//! \sa <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
+/// \class PanamaHash
+/// \brief Panama hash
+/// \sa <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
 template <class B = LittleEndian>
 class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32, NativeByteOrder, 32>, PanamaHash<B> >
 {
@@ -54,8 +54,8 @@ protected:
 };
 }
 
-//! \class HermeticHashFunctionMAC
-//! \brief MAC construction using a hermetic hash function
+/// \class HermeticHashFunctionMAC
+/// \brief MAC construction using a hermetic hash function
 template <class T_Hash, class T_Info = T_Hash>
 class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, INT_MAX> > >, T_Info>
 {
@@ -111,8 +111,8 @@ protected:
 };
 
 namespace Weak {
-//! \class PanamaMAC
-//! \brief Panama message authentication code
+/// \class PanamaMAC
+/// \brief Panama message authentication code
 template <class B = LittleEndian>
 class PanamaMAC : public HermeticHashFunctionMAC<PanamaHash<B> >
 {
@@ -123,16 +123,16 @@ public:
 };
 }
 
-//! \class PanamaCipherInfo
-//! \brief Panama stream cipher information
+/// \class PanamaCipherInfo
+/// \brief Panama stream cipher information
 template <class B>
 struct PanamaCipherInfo : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 32>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 };
 
-//! \class PanamaCipherPolicy
-//! \brief Panama stream cipher operation
+/// \class PanamaCipherPolicy
+/// \brief Panama stream cipher operation
 template <class B>
 class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
 							public PanamaCipherInfo<B>,
@@ -148,9 +148,9 @@ protected:
 	FixedSizeSecBlock<word32, 8> m_key;
 };
 
-//! \class PanamaCipher
-//! \brief Panama stream cipher
-//! \sa <a href="http://www.cryptolounge.org/wiki/PANAMA">Panama Stream Cipher</a>
+/// \class PanamaCipher
+/// \brief Panama stream cipher
+/// \sa <a href="http://www.cryptolounge.org/wiki/PANAMA">Panama Stream Cipher</a>
 template <class B = LittleEndian>
 struct PanamaCipher : public PanamaCipherInfo<B>, public SymmetricCipherDocumentation
 {

@@ -1,8 +1,8 @@
 // gcm.h - originally written and placed in the public domain by Wei Dai
 
-//! \file gcm.h
-//! \brief GCM block cipher mode of operation
-//! \since Crypto++ 5.6.0
+/// \file gcm.h
+/// \brief GCM block cipher mode of operation
+/// \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_GCM_H
 #define CRYPTOPP_GCM_H
@@ -12,18 +12,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \enum GCM_TablesOption
-//! \brief GCM table size options
+/// \enum GCM_TablesOption
+/// \brief GCM table size options
 enum GCM_TablesOption {
-	//! \brief Use a table with 2K entries
+	/// \brief Use a table with 2K entries
 	GCM_2K_Tables,
-	//! \brief Use a table with 64K entries
+	/// \brief Use a table with 64K entries
 	GCM_64K_Tables};
 
-//! \class GCM_Base
-//! \brief GCM block cipher base implementation
-//! \details Base implementation of the AuthenticatedSymmetricCipher interface
-//! \since Crypto++ 5.6.0
+/// \class GCM_Base
+/// \brief GCM block cipher base implementation
+/// \details Base implementation of the AuthenticatedSymmetricCipher interface
+/// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GCM_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
@@ -91,12 +91,12 @@ protected:
 	enum {REQUIRED_BLOCKSIZE = 16, HASH_BLOCKSIZE = 16};
 };
 
-//! \class GCM_Final
-//! \brief GCM block cipher final implementation
-//! \tparam T_BlockCipher block cipher
-//! \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
-//! \tparam T_IsEncryption direction in which to operate the cipher
-//! \since Crypto++ 5.6.0
+/// \class GCM_Final
+/// \brief GCM block cipher final implementation
+/// \tparam T_BlockCipher block cipher
+/// \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
+/// \tparam T_IsEncryption direction in which to operate the cipher
+/// \since Crypto++ 5.6.0
 template <class T_BlockCipher, GCM_TablesOption T_TablesOption, bool T_IsEncryption>
 class GCM_Final : public GCM_Base
 {
@@ -112,16 +112,16 @@ private:
 	typename T_BlockCipher::Encryption m_cipher;
 };
 
-//! \class GCM
-//! \brief GCM block cipher mode of operation
-//! \tparam T_BlockCipher block cipher
-//! \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
-//! \details \p GCM provides the \p Encryption and \p Decryption typedef. See GCM_Base
-//!   and GCM_Final for the AuthenticatedSymmetricCipher implementation.
-//! \sa <a href="http://www.cryptopp.com/wiki/GCM_Mode">GCM Mode</a> and
-//!   <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
-//! \since Crypto++ 5.6.0
+/// \class GCM
+/// \brief GCM block cipher mode of operation
+/// \tparam T_BlockCipher block cipher
+/// \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
+/// \details \p GCM provides the \p Encryption and \p Decryption typedef. See GCM_Base
+///   and GCM_Final for the AuthenticatedSymmetricCipher implementation.
+/// \sa <a href="http://www.cryptopp.com/wiki/GCM_Mode">GCM Mode</a> and
+///   <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
+/// \since Crypto++ 5.6.0
 template <class T_BlockCipher, GCM_TablesOption T_TablesOption=GCM_2K_Tables>
 struct GCM : public AuthenticatedSymmetricCipherDocumentation
 {

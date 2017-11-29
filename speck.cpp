@@ -25,13 +25,13 @@ using CryptoPP::word64;
 using CryptoPP::rotlConstant;
 using CryptoPP::rotrConstant;
 
-//! \brief Forward round transformation
-//! \tparam W word type
-//! \details TF83() is the forward round transformation using a=8 and b=3 rotations.
-//!   The initial test implementation provided template parameters, but they were
-//!   removed because SPECK32 using a=7 and b=2 was not on the road map. The
-//!   additional template parameters also made calling SPECK_Encrypt and SPECK_Decrypt
-//!   kind of messy.
+/// \brief Forward round transformation
+/// \tparam W word type
+/// \details TF83() is the forward round transformation using a=8 and b=3 rotations.
+///   The initial test implementation provided template parameters, but they were
+///   removed because SPECK32 using a=7 and b=2 was not on the road map. The
+///   additional template parameters also made calling SPECK_Encrypt and SPECK_Decrypt
+///   kind of messy.
 template <class W>
 inline void TF83(W& x, W& y, const W k)
 {
@@ -41,13 +41,13 @@ inline void TF83(W& x, W& y, const W k)
     y ^= x;
 }
 
-//! \brief Reverse round transformation
-//! \tparam W word type
-//! \details TR83() is the reverse round transformation using a=8 and b=3 rotations.
-//!   The initial test implementation provided template parameters, but they were
-//!   removed because SPECK32 using a=7 and b=2 was not on the road map. The
-//!   additional template parameters also made calling SPECK_Encrypt and SPECK_Decrypt
-//!   kind of messy.
+/// \brief Reverse round transformation
+/// \tparam W word type
+/// \details TR83() is the reverse round transformation using a=8 and b=3 rotations.
+///   The initial test implementation provided template parameters, but they were
+///   removed because SPECK32 using a=7 and b=2 was not on the road map. The
+///   additional template parameters also made calling SPECK_Encrypt and SPECK_Decrypt
+///   kind of messy.
 template <class W>
 inline void TR83(W& x, W& y, const W k)
 {
@@ -57,12 +57,12 @@ inline void TR83(W& x, W& y, const W k)
     x = rotlConstant<8>(x);
 }
 
-//! \brief Forward transformation
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param c output array
-//! \param p input array
-//! \param k subkey array
+/// \brief Forward transformation
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param c output array
+/// \param p input array
+/// \param k subkey array
 template <class W, unsigned int R>
 inline void SPECK_Encrypt(W c[2], const W p[2], const W k[R])
 {
@@ -73,12 +73,12 @@ inline void SPECK_Encrypt(W c[2], const W p[2], const W k[R])
         TF83(c[0], c[1], k[i]);
 }
 
-//! \brief Reverse transformation
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param p output array
-//! \param c input array
-//! \param k subkey array
+/// \brief Reverse transformation
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param p output array
+/// \param c input array
+/// \param k subkey array
 template <class W, unsigned int R>
 inline void SPECK_Decrypt(W p[2], const W c[2], const W k[R])
 {
@@ -89,12 +89,12 @@ inline void SPECK_Decrypt(W p[2], const W c[2], const W k[R])
         TR83(p[0], p[1], k[i]);
 }
 
-//! \brief Subkey generation function
-//! \details Used when the user key consists of 2 words
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used when the user key consists of 2 words
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param key empty subkey array
+/// \param k user key array
 template <class W, unsigned int R>
 inline void SPECK_ExpandKey_2W(W key[R], const W k[2])
 {
@@ -109,12 +109,12 @@ inline void SPECK_ExpandKey_2W(W key[R], const W k[2])
     key[R-1]=A;
 }
 
-//! \brief Subkey generation function
-//! \details Used when the user key consists of 3 words
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used when the user key consists of 3 words
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param key empty subkey array
+/// \param k user key array
 template <class W, unsigned int R>
 inline void SPECK_ExpandKey_3W(W key[R], const W k[3])
 {
@@ -136,12 +136,12 @@ inline void SPECK_ExpandKey_3W(W key[R], const W k[3])
     }
 }
 
-//! \brief Subkey generation function
-//! \details Used when the user key consists of 4 words
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used when the user key consists of 4 words
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param key empty subkey array
+/// \param k user key array
 template <class W, unsigned int R>
 inline void SPECK_ExpandKey_4W(W key[R], const W k[4])
 {

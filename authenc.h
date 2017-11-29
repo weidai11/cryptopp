@@ -1,21 +1,21 @@
 // authenc.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \brief Classes for authenticated encryption modes of operation
-//! \details Authenticated encryption (AE) schemes combine confidentiality and authenticity
-//!   into a single mode of operation They gained traction in the early 2000's because manually
-//!   combining them was error prone for the typical developer. Around that time, the desire to
-//!   authenticate but not ecrypt additional data (AAD) was also identified. When both features
-//!   are available from a scheme, the system is referred to as an AEAD scheme.
-//! \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
-//!   and OCB mode. All modes derive from AuthenticatedSymmetricCipherBase() and the
-//!   motivation for the API, like calling AAD a &quot;header&quot;, can be found in Bellare,
-//!   Rogaway and Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX
-//!   Mode of Operation</A>. The EAX paper suggested a basic API to help standardize AEAD
-//!   schemes in software and promote adoption of the modes.
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
-//!   Encryption</A> on the Crypto++ wiki.
-//! \since Crypto++ 5.6.0
+/// \file
+/// \brief Classes for authenticated encryption modes of operation
+/// \details Authenticated encryption (AE) schemes combine confidentiality and authenticity
+///   into a single mode of operation They gained traction in the early 2000's because manually
+///   combining them was error prone for the typical developer. Around that time, the desire to
+///   authenticate but not ecrypt additional data (AAD) was also identified. When both features
+///   are available from a scheme, the system is referred to as an AEAD scheme.
+/// \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
+///   and OCB mode. All modes derive from AuthenticatedSymmetricCipherBase() and the
+///   motivation for the API, like calling AAD a &quot;header&quot;, can be found in Bellare,
+///   Rogaway and Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX
+///   Mode of Operation</A>. The EAX paper suggested a basic API to help standardize AEAD
+///   schemes in software and promote adoption of the modes.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
+///   Encryption</A> on the Crypto++ wiki.
+/// \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_AUTHENC_H
 #define CRYPTOPP_AUTHENC_H
@@ -25,19 +25,19 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class AuthenticatedSymmetricCipherBase
-//! \brief Base class for authenticated encryption modes of operation
-//! \details AuthenticatedSymmetricCipherBase() serves as a base implementation for one direction
-//!   (encryption or decryption) of a stream cipher or block cipher mode with authentication.
-//! \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
-//!   and OCB mode. All modes derive from AuthenticatedSymmetricCipherBase() and the
-//!   motivation for the API, like calling AAD a &quot;header&quot;, can be found in Bellare,
-//!   Rogaway and Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX
-//!   Mode of Operation</A>. The EAX paper suggested a basic API to help standardize AEAD
-//!   schemes in software and promote adoption of the modes.
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
-//!   Encryption</A> on the Crypto++ wiki.
-//! \since Crypto++ 5.6.0
+/// \class AuthenticatedSymmetricCipherBase
+/// \brief Base class for authenticated encryption modes of operation
+/// \details AuthenticatedSymmetricCipherBase() serves as a base implementation for one direction
+///   (encryption or decryption) of a stream cipher or block cipher mode with authentication.
+/// \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
+///   and OCB mode. All modes derive from AuthenticatedSymmetricCipherBase() and the
+///   motivation for the API, like calling AAD a &quot;header&quot;, can be found in Bellare,
+///   Rogaway and Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX
+///   Mode of Operation</A>. The EAX paper suggested a basic API to help standardize AEAD
+///   schemes in software and promote adoption of the modes.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
+///   Encryption</A> on the Crypto++ wiki.
+/// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipherBase : public AuthenticatedSymmetricCipher
 {
 public:

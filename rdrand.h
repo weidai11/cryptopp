@@ -1,8 +1,8 @@
 // rdrand.h - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 
-//! \file rdrand.h
-//! \brief Classes for RDRAND and RDSEED
-//! \since Crypto++ 5.6.3
+/// \file rdrand.h
+/// \brief Classes for RDRAND and RDSEED
+/// \since Crypto++ 5.6.3
 
 #ifndef CRYPTOPP_RDRAND_H
 #define CRYPTOPP_RDRAND_H
@@ -32,9 +32,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief Exception thrown when a RDRAND generator encounters
-//!    a generator related error.
-//! \since Crypto++ 5.6.3
+/// \brief Exception thrown when a RDRAND generator encounters
+///    a generator related error.
+/// \since Crypto++ 5.6.3
 class RDRAND_Err : public Exception
 {
 public:
@@ -42,9 +42,9 @@ public:
         : Exception(OTHER_ERROR, "RDRAND: " + operation + " operation failed") {}
 };
 
-//! \brief Hardware generated random numbers using RDRAND instruction
-//! \sa MaurerRandomnessTest() for random bit generators
-//! \since Crypto++ 5.6.3
+/// \brief Hardware generated random numbers using RDRAND instruction
+/// \sa MaurerRandomnessTest() for random bit generators
+/// \since Crypto++ 5.6.3
 class RDRAND : public RandomNumberGenerator
 {
 public:
@@ -52,29 +52,29 @@ public:
 
     virtual ~RDRAND() {}
 
-    //! \brief Construct a RDRAND generator
-    //! \details According to DJ of Intel, the Intel RDRAND circuit does not underflow.
-    //!   If it did hypothetically underflow, then it would return 0 for the random value.
-    //!   AMD's RDRAND implementation appears to provide the same behavior.
-     //! \throws RDRAND_Err if the random number generator is not available
+    /// \brief Construct a RDRAND generator
+    /// \details According to DJ of Intel, the Intel RDRAND circuit does not underflow.
+    ///   If it did hypothetically underflow, then it would return 0 for the random value.
+    ///   AMD's RDRAND implementation appears to provide the same behavior.
+     /// \throws RDRAND_Err if the random number generator is not available
     RDRAND();
 
-    //! \brief Generate random array of bytes
-    //! \param output the byte buffer
-    //! \param size the length of the buffer, in bytes
+    /// \brief Generate random array of bytes
+    /// \param output the byte buffer
+    /// \param size the length of the buffer, in bytes
     virtual void GenerateBlock(byte *output, size_t size);
 
-    //! \brief Generate and discard n bytes
-    //! \param n the number of bytes to generate and discard
-    //! \details the RDSEED generator discards words, not bytes. If n is
-    //!   not a multiple of a machine word, then it is rounded up to
-    //!   that size.
+    /// \brief Generate and discard n bytes
+    /// \param n the number of bytes to generate and discard
+    /// \details the RDSEED generator discards words, not bytes. If n is
+    ///   not a multiple of a machine word, then it is rounded up to
+    ///   that size.
     virtual void DiscardBytes(size_t n);
 
-    //! \brief Update RNG state with additional unpredictable values
-    //! \param input unused
-    //! \param length unused
-    //! \details The operation is a nop for this generator.
+    /// \brief Update RNG state with additional unpredictable values
+    /// \param input unused
+    /// \param length unused
+    /// \details The operation is a nop for this generator.
     virtual void IncorporateEntropy(const byte *input, size_t length)
     {
         // Override to avoid the base class' throw.
@@ -82,9 +82,9 @@ public:
     }
 };
 
-//! \brief Exception thrown when a RDSEED generator encounters
-//!    a generator related error.
-//! \since Crypto++ 5.6.3
+/// \brief Exception thrown when a RDSEED generator encounters
+///    a generator related error.
+/// \since Crypto++ 5.6.3
 class RDSEED_Err : public Exception
 {
 public:
@@ -92,9 +92,9 @@ public:
         : Exception(OTHER_ERROR, "RDSEED: " + operation + " operation failed") {}
 };
 
-//! \brief Hardware generated random numbers using RDSEED instruction
-//! \sa MaurerRandomnessTest() for random bit generators
-//! \since Crypto++ 5.6.3
+/// \brief Hardware generated random numbers using RDSEED instruction
+/// \sa MaurerRandomnessTest() for random bit generators
+/// \since Crypto++ 5.6.3
 class RDSEED : public RandomNumberGenerator
 {
 public:
@@ -102,29 +102,29 @@ public:
 
     virtual ~RDSEED() {}
 
-    //! \brief Construct a RDSEED generator
-    //! \details Empirical testing under a 6th generaton i7 (6200U) shows RDSEED fails
-    //!   to fulfill requests at about once every for every 256 bytes requested.
-    //!   The generator runs about 4 times slower than RDRAND.
-     //! \throws RDSEED_Err if the random number generator is not available
+    /// \brief Construct a RDSEED generator
+    /// \details Empirical testing under a 6th generaton i7 (6200U) shows RDSEED fails
+    ///   to fulfill requests at about once every for every 256 bytes requested.
+    ///   The generator runs about 4 times slower than RDRAND.
+     /// \throws RDSEED_Err if the random number generator is not available
     RDSEED();
 
-    //! \brief Generate random array of bytes
-    //! \param output the byte buffer
-    //! \param size the length of the buffer, in bytes
+    /// \brief Generate random array of bytes
+    /// \param output the byte buffer
+    /// \param size the length of the buffer, in bytes
     virtual void GenerateBlock(byte *output, size_t size);
 
-    //! \brief Generate and discard n bytes
-    //! \param n the number of bytes to generate and discard
-    //! \details the RDSEED generator discards words, not bytes. If n is
-    //!   not a multiple of a machine word, then it is rounded up to
-    //!   that size.
+    /// \brief Generate and discard n bytes
+    /// \param n the number of bytes to generate and discard
+    /// \details the RDSEED generator discards words, not bytes. If n is
+    ///   not a multiple of a machine word, then it is rounded up to
+    ///   that size.
     virtual void DiscardBytes(size_t n);
 
-    //! \brief Update RNG state with additional unpredictable values
-    //! \param input unused
-    //! \param length unused
-    //! \details The operation is a nop for this generator.
+    /// \brief Update RNG state with additional unpredictable values
+    /// \param input unused
+    /// \param length unused
+    /// \details The operation is a nop for this generator.
     virtual void IncorporateEntropy(const byte *input, size_t length)
     {
         // Override to avoid the base class' throw.

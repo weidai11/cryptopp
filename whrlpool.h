@@ -6,7 +6,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! <a href="http://www.cryptolounge.org/wiki/Whirlpool">Whirlpool</a>
+/// <a href="http://www.cryptolounge.org/wiki/Whirlpool">Whirlpool</a>
 class Whirlpool : public IteratedHashWithStaticTransform<word64, BigEndian, 64, 64, Whirlpool>
 {
 public:

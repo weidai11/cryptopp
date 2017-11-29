@@ -1,8 +1,8 @@
 // channels.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile channels.h
-//! \brief Classes for multiple named channels
+/// \file
+/// \headerfile channels.h
+/// \brief Classes for multiple named channels
 
 #ifndef CRYPTOPP_CHANNELS_H
 #define CRYPTOPP_CHANNELS_H
@@ -20,7 +20,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
-//! Route input on default channel to different and/or multiple channels based on message sequence number
+/// Route input on default channel to different and/or multiple channels based on message sequence number
 class MessageSwitch : public Sink
 {
 public:
@@ -93,7 +93,7 @@ protected:
 	ChannelRouteIterator();
 };
 
-//! Route input to different and/or multiple channels based on channel ID
+/// Route input to different and/or multiple channels based on channel ID
 class CRYPTOPP_DLL ChannelSwitch : public Multichannel<Sink>, public ChannelSwitchTypedefs
 {
 public:

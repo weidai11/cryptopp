@@ -7,7 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief OAEP padding base class
+/// \brief OAEP padding base class
 class CRYPTOPP_DLL OAEP_Base : public PK_EncryptionMessageEncodingMethod
 {
 public:
@@ -22,8 +22,8 @@ protected:
 	virtual MaskGeneratingFunction * NewMGF() const =0;
 };
 
-//! \brief OAEP padding
-//! \sa <a href="http://www.weidai.com/scan-mirror/ca.html#cem_OAEP-MGF1">EME-OAEP</a>, for use with classes derived from TF_ES
+/// \brief OAEP padding
+/// \sa <a href="http://www.weidai.com/scan-mirror/ca.html#cem_OAEP-MGF1">EME-OAEP</a>, for use with classes derived from TF_ES
 template <class H, class MGF=P1363_MGF1>
 class OAEP : public OAEP_Base, public EncryptionStandard
 {

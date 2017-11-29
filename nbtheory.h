@@ -1,7 +1,7 @@
 // nbtheory.h - originally written and placed in the public domain by Wei Dai
 
-//! \file nbtheory.h
-//! \brief Classes and functions  for number theoretic operations
+/// \file nbtheory.h
+/// \brief Classes and functions  for number theoretic operations
 
 #ifndef CRYPTOPP_NBTHEORY_H
 #define CRYPTOPP_NBTHEORY_H
@@ -17,31 +17,31 @@ CRYPTOPP_DLL const word16 * CRYPTOPP_API GetPrimeTable(unsigned int &size);
 
 // ************ primality testing ****************
 
-//! \brief Generates a provable prime
-//! \param rng a RandomNumberGenerator to produce keying material
-//! \param bits the number of bits in the prime number
-//! \returns Integer() meeting Maurer's tests for primality
+/// \brief Generates a provable prime
+/// \param rng a RandomNumberGenerator to produce keying material
+/// \param bits the number of bits in the prime number
+/// \returns Integer() meeting Maurer's tests for primality
 CRYPTOPP_DLL Integer CRYPTOPP_API MaurerProvablePrime(RandomNumberGenerator &rng, unsigned int bits);
 
-//! \brief Generates a provable prime
-//! \param rng a RandomNumberGenerator to produce keying material
-//! \param bits the number of bits in the prime number
-//! \returns Integer() meeting Mihailescu's tests for primality
-//! \details Mihailescu's methods performs a search using algorithmic progressions.
+/// \brief Generates a provable prime
+/// \param rng a RandomNumberGenerator to produce keying material
+/// \param bits the number of bits in the prime number
+/// \returns Integer() meeting Mihailescu's tests for primality
+/// \details Mihailescu's methods performs a search using algorithmic progressions.
 CRYPTOPP_DLL Integer CRYPTOPP_API MihailescuProvablePrime(RandomNumberGenerator &rng, unsigned int bits);
 
-//! \brief Tests whether a number is a small prime
-//! \param p a candidate prime to test
-//! \returns true if p is a small prime, false otherwise
-//! \details Internally, the library maintains a table fo the first 32719 prime numbers
-//!   in sorted order. IsSmallPrime() searches the table and returns true if p is
-//!   in the table.
+/// \brief Tests whether a number is a small prime
+/// \param p a candidate prime to test
+/// \returns true if p is a small prime, false otherwise
+/// \details Internally, the library maintains a table fo the first 32719 prime numbers
+///   in sorted order. IsSmallPrime() searches the table and returns true if p is
+///   in the table.
 CRYPTOPP_DLL bool CRYPTOPP_API IsSmallPrime(const Integer &p);
 
-//!
-//! \returns true if p is divisible by some prime less than bound.
-//! \details TrialDivision() true if p is divisible by some prime less than bound. bound not be
-//!   greater than the largest entry in the prime table, which is 32719.
+///
+/// \returns true if p is divisible by some prime less than bound.
+/// \details TrialDivision() true if p is divisible by some prime less than bound. bound not be
+///   greater than the largest entry in the prime table, which is 32719.
 CRYPTOPP_DLL bool CRYPTOPP_API TrialDivision(const Integer &p, unsigned bound);
 
 // returns true if p is NOT divisible by small primes
@@ -58,25 +58,25 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsStrongLucasProbablePrime(const Integer &n);
 // for several rounds with random bases
 CRYPTOPP_DLL bool CRYPTOPP_API RabinMillerTest(RandomNumberGenerator &rng, const Integer &w, unsigned int rounds);
 
-//! \brief Verifies a prime number
-//! \param p a candidate prime to test
-//! \returns true if p is a probable prime, false otherwise
-//! \details IsPrime() is suitable for testing candidate primes when creating them. Internally,
-//!   IsPrime() utilizes SmallDivisorsTest(), IsStrongProbablePrime() and IsStrongLucasProbablePrime().
+/// \brief Verifies a prime number
+/// \param p a candidate prime to test
+/// \returns true if p is a probable prime, false otherwise
+/// \details IsPrime() is suitable for testing candidate primes when creating them. Internally,
+///   IsPrime() utilizes SmallDivisorsTest(), IsStrongProbablePrime() and IsStrongLucasProbablePrime().
 CRYPTOPP_DLL bool CRYPTOPP_API IsPrime(const Integer &p);
 
-//! \brief Verifies a prime number
-//! \param rng a RandomNumberGenerator for randomized testing
-//! \param p a candidate prime to test
-//! \param level the level of thoroughness of testing
-//! \returns true if p is a strong probable prime, false otherwise
-//! \details VerifyPrime() is suitable for testing candidate primes created by others. Internally,
-//!   VerifyPrime() utilizes IsPrime() and one-round RabinMillerTest(). If the candiate passes and
-//!   level is greater than 1, then 10 round RabinMillerTest() primality testing is performed.
+/// \brief Verifies a prime number
+/// \param rng a RandomNumberGenerator for randomized testing
+/// \param p a candidate prime to test
+/// \param level the level of thoroughness of testing
+/// \returns true if p is a strong probable prime, false otherwise
+/// \details VerifyPrime() is suitable for testing candidate primes created by others. Internally,
+///   VerifyPrime() utilizes IsPrime() and one-round RabinMillerTest(). If the candiate passes and
+///   level is greater than 1, then 10 round RabinMillerTest() primality testing is performed.
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyPrime(RandomNumberGenerator &rng, const Integer &p, unsigned int level = 1);
 
-//! \class PrimeSelector
-//! \brief Application callback to signal suitability of a cabdidate prime
+/// \class PrimeSelector
+/// \brief Application callback to signal suitability of a cabdidate prime
 class CRYPTOPP_DLL PrimeSelector
 {
 public:
@@ -84,16 +84,16 @@ public:
 	virtual bool IsAcceptable(const Integer &candidate) const =0;
 };
 
-//! \brief Finds a random prime of special form
-//! \param p an Integer reference to receive the prime
-//! \param max the maximum value
-//! \param equiv the equivalence class based on the parameter mod
-//! \param mod the modulus used to reduce the equivalence class
-//! \param pSelector pointer to a PrimeSelector function for the application to signal suitability
-//! \returns true if and only if FirstPrime() finds a prime and returns the prime through p. If FirstPrime()
-//!   returns false, then no such prime exists and the value of p is undefined
-//! \details FirstPrime() uses a fast sieve to find the first probable prime
-//!   in <tt>{x | p<=x<=max and x%mod==equiv}</tt>
+/// \brief Finds a random prime of special form
+/// \param p an Integer reference to receive the prime
+/// \param max the maximum value
+/// \param equiv the equivalence class based on the parameter mod
+/// \param mod the modulus used to reduce the equivalence class
+/// \param pSelector pointer to a PrimeSelector function for the application to signal suitability
+/// \returns true if and only if FirstPrime() finds a prime and returns the prime through p. If FirstPrime()
+///   returns false, then no such prime exists and the value of p is undefined
+/// \details FirstPrime() uses a fast sieve to find the first probable prime
+///   in <tt>{x | p<=x<=max and x%mod==equiv}</tt>
 CRYPTOPP_DLL bool CRYPTOPP_API FirstPrime(Integer &p, const Integer &max, const Integer &equiv, const Integer &mod, const PrimeSelector *pSelector);
 
 CRYPTOPP_DLL unsigned int CRYPTOPP_API PrimeSearchInterval(const Integer &max);
@@ -143,54 +143,54 @@ CRYPTOPP_DLL unsigned int CRYPTOPP_API FactoringWorkFactor(unsigned int bitlengt
 
 // ********************************************************
 
-//! \class PrimeAndGenerator
-//! \brief Generator of prime numbers of special forms
+/// \class PrimeAndGenerator
+/// \brief Generator of prime numbers of special forms
 class CRYPTOPP_DLL PrimeAndGenerator
 {
 public:
-	//! \brief Construct a PrimeAndGenerator
+	/// \brief Construct a PrimeAndGenerator
 	PrimeAndGenerator() {}
 
-	//! \brief Construct a PrimeAndGenerator
-	//! \param delta +1 or -1
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param pbits the number of bits in the prime p
-	//! \details PrimeAndGenerator() generates a random prime p of the form <tt>2*q+delta</tt>, where delta is 1 or -1 and q is
-	//!   also prime. Internally the constructor calls <tt>Generate(delta, rng, pbits, pbits-1)</tt>.
-	//! \pre <tt>pbits > 5</tt>
-	//! \warning This PrimeAndGenerator() is slow because primes of this form are harder to find.
+	/// \brief Construct a PrimeAndGenerator
+	/// \param delta +1 or -1
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param pbits the number of bits in the prime p
+	/// \details PrimeAndGenerator() generates a random prime p of the form <tt>2*q+delta</tt>, where delta is 1 or -1 and q is
+	///   also prime. Internally the constructor calls <tt>Generate(delta, rng, pbits, pbits-1)</tt>.
+	/// \pre <tt>pbits > 5</tt>
+	/// \warning This PrimeAndGenerator() is slow because primes of this form are harder to find.
 	PrimeAndGenerator(signed int delta, RandomNumberGenerator &rng, unsigned int pbits)
 		{Generate(delta, rng, pbits, pbits-1);}
 
-	//! \brief Construct a PrimeAndGenerator
-	//! \param delta +1 or -1
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param pbits the number of bits in the prime p
-	//! \param qbits the number of bits in the prime q
-	//! \details PrimeAndGenerator() generates a random prime p of the form <tt>2*r*q+delta</tt>, where q is also prime.
-	//!    Internally the constructor calls <tt>Generate(delta, rng, pbits, qbits)</tt>.
-	//! \pre <tt>qbits > 4 && pbits > qbits</tt>
+	/// \brief Construct a PrimeAndGenerator
+	/// \param delta +1 or -1
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param pbits the number of bits in the prime p
+	/// \param qbits the number of bits in the prime q
+	/// \details PrimeAndGenerator() generates a random prime p of the form <tt>2*r*q+delta</tt>, where q is also prime.
+	///    Internally the constructor calls <tt>Generate(delta, rng, pbits, qbits)</tt>.
+	/// \pre <tt>qbits > 4 && pbits > qbits</tt>
 	PrimeAndGenerator(signed int delta, RandomNumberGenerator &rng, unsigned int pbits, unsigned qbits)
 		{Generate(delta, rng, pbits, qbits);}
 
-	//! \brief Generate a Prime and Generator
-	//! \param delta +1 or -1
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param pbits the number of bits in the prime p
-	//! \param qbits the number of bits in the prime q
-	//! \details Generate() generates a random prime p of the form <tt>2*r*q+delta</tt>, where q is also prime.
+	/// \brief Generate a Prime and Generator
+	/// \param delta +1 or -1
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param pbits the number of bits in the prime p
+	/// \param qbits the number of bits in the prime q
+	/// \details Generate() generates a random prime p of the form <tt>2*r*q+delta</tt>, where q is also prime.
 	void Generate(signed int delta, RandomNumberGenerator &rng, unsigned int pbits, unsigned qbits);
 
-	//! \brief Retrieve first prime
-	//! \returns Prime() returns the prime p.
+	/// \brief Retrieve first prime
+	/// \returns Prime() returns the prime p.
 	const Integer& Prime() const {return p;}
 
-	//! \brief Retrieve second prime
-	//! \returns SubPrime() returns the prime q.
+	/// \brief Retrieve second prime
+	/// \returns SubPrime() returns the prime q.
 	const Integer& SubPrime() const {return q;}
 
-	//! \brief Retrieve the generator
-	//! \returns Generator() returns the the generator g.
+	/// \brief Retrieve the generator
+	/// \returns Generator() returns the the generator g.
 	const Integer& Generator() const {return g;}
 
 private:

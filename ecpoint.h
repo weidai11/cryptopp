@@ -1,9 +1,9 @@
 // ecpoint.h - written and placed in the public domain by Jeffrey Walton
 //             Data structures moved from ecp.h and ec2n.h. Added EncodedPoint interface
 
-//! \file ecpoint.h
-//! \brief Classes for Elliptic Curve points
-//! \since Crypto++ 6.0
+/// \file ecpoint.h
+/// \brief Classes for Elliptic Curve points
+/// \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_ECPOINT_H
 #define CRYPTOPP_ECPOINT_H
@@ -15,31 +15,31 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class ECPPoint
-//! \brief Elliptical Curve Point over GF(p), where p is prime
-//! \since Crypto++ 2.0
+/// \class ECPPoint
+/// \brief Elliptical Curve Point over GF(p), where p is prime
+/// \since Crypto++ 2.0
 struct CRYPTOPP_DLL ECPPoint
 {
 	virtual ~ECPPoint() {}
 
-	//! \brief Construct an ECPPoint
-	//! \details identity is set to <tt>true</tt>
+	/// \brief Construct an ECPPoint
+	/// \details identity is set to <tt>true</tt>
 	ECPPoint() : identity(true) {}
 
-	//! \brief Construct an ECPPoint from coordinates
-	//! \details identity is set to <tt>false</tt>
+	/// \brief Construct an ECPPoint from coordinates
+	/// \details identity is set to <tt>false</tt>
 	ECPPoint(const Integer &x, const Integer &y)
 		: x(x), y(y), identity(false) {}
 
-	//! \brief Tests points for equality
-	//! \param t the other point
-	//! \returns true if the points are equal, false otherwise
+	/// \brief Tests points for equality
+	/// \param t the other point
+	/// \returns true if the points are equal, false otherwise
 	bool operator==(const ECPPoint &t) const
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 
-	//! \brief Tests points for ordering
-	//! \param t the other point
-	//! \returns true if this point is less than other, false otherwise
+	/// \brief Tests points for ordering
+	/// \param t the other point
+	/// \returns true if this point is less than other, false otherwise
 	bool operator< (const ECPPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
 
@@ -49,31 +49,31 @@ struct CRYPTOPP_DLL ECPPoint
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<ECPPoint>;
 
-//! \class EC2NPoint
-//! \brief Elliptical Curve Point over GF(2^n)
-//! \since Crypto++ 2.0
+/// \class EC2NPoint
+/// \brief Elliptical Curve Point over GF(2^n)
+/// \since Crypto++ 2.0
 struct CRYPTOPP_DLL EC2NPoint
 {
 	virtual ~EC2NPoint() {}
 
-	//! \brief Construct an EC2NPoint
-	//! \details identity is set to <tt>true</tt>
+	/// \brief Construct an EC2NPoint
+	/// \details identity is set to <tt>true</tt>
 	EC2NPoint() : identity(true) {}
 
-	//! \brief Construct an EC2NPoint from coordinates
-	//! \details identity is set to <tt>false</tt>
+	/// \brief Construct an EC2NPoint from coordinates
+	/// \details identity is set to <tt>false</tt>
 	EC2NPoint(const PolynomialMod2 &x, const PolynomialMod2 &y)
 		: x(x), y(y), identity(false) {}
 
-	//! \brief Tests points for equality
-	//! \param t the other point
-	//! \returns true if the points are equal, false otherwise
+	/// \brief Tests points for equality
+	/// \param t the other point
+	/// \returns true if the points are equal, false otherwise
 	bool operator==(const EC2NPoint &t) const
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 
-	//! \brief Tests points for ordering
-	//! \param t the other point
-	//! \returns true if this point is less than other, false otherwise
+	/// \brief Tests points for ordering
+	/// \param t the other point
+	/// \returns true if this point is less than other, false otherwise
 	bool operator< (const EC2NPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
 
@@ -83,64 +83,64 @@ struct CRYPTOPP_DLL EC2NPoint
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<EC2NPoint>;
 
-//! \class EncodedPoint
-//! \brief Abstract class for encoding and decoding ellicptic curve points
-//! \tparam Point ellicptic curve point
-//! \details EncodedPoint is an interface for encoding and decoding elliptic curve points.
-//!   The template parameter <tt>Point</tt> should be a class like ECP or EC2N.
-//! \since Crypto++ 6.0
+/// \class EncodedPoint
+/// \brief Abstract class for encoding and decoding ellicptic curve points
+/// \tparam Point ellicptic curve point
+/// \details EncodedPoint is an interface for encoding and decoding elliptic curve points.
+///   The template parameter <tt>Point</tt> should be a class like ECP or EC2N.
+/// \since Crypto++ 6.0
 template <class Point>
 class EncodedPoint
 {
 public:
 	virtual ~EncodedPoint() {}
 
-	//! \brief Decodes an elliptic curve point
-	//! \param P point which is decoded
-	//! \param bt source BufferedTransformation
-	//! \param len number of bytes to read from the BufferedTransformation
-	//! \returns true if a point was decoded, false otherwise
+	/// \brief Decodes an elliptic curve point
+	/// \param P point which is decoded
+	/// \param bt source BufferedTransformation
+	/// \param len number of bytes to read from the BufferedTransformation
+	/// \returns true if a point was decoded, false otherwise
 	virtual bool DecodePoint(Point &P, BufferedTransformation &bt, size_t len) const =0;
 
-	//! \brief Decodes an elliptic curve point
-	//! \param P point which is decoded
-	//! \param encodedPoint byte array with the encoded point
-	//! \param len the size of the array
-	//! \returns true if a point was decoded, false otherwise
+	/// \brief Decodes an elliptic curve point
+	/// \param P point which is decoded
+	/// \param encodedPoint byte array with the encoded point
+	/// \param len the size of the array
+	/// \returns true if a point was decoded, false otherwise
 	virtual bool DecodePoint(Point &P, const byte *encodedPoint, size_t len) const =0;
 
-	//! \brief Verifies points on elliptic curve
-	//! \param P point to verify
-	//! \returns true if the point is valid, false otherwise
+	/// \brief Verifies points on elliptic curve
+	/// \param P point to verify
+	/// \returns true if the point is valid, false otherwise
 	virtual bool VerifyPoint(const Point &P) const =0;
 
-	//! \brief Determines encoded point size
-	//! \param compressed flag indicating if the point is compressed
-	//! \returns the minimum number of bytes required to encode the point
+	/// \brief Determines encoded point size
+	/// \param compressed flag indicating if the point is compressed
+	/// \returns the minimum number of bytes required to encode the point
 	virtual unsigned int EncodedPointSize(bool compressed = false) const =0;
 
-	//! \brief Encodes an elliptic curve point
-	//! \param P point which is decoded
-	//! \param encodedPoint byte array for the encoded point
-	//! \param compressed flag indicating if the point is compressed
-	//! \details <tt>encodedPoint</tt> must be at least EncodedPointSize() in length
+	/// \brief Encodes an elliptic curve point
+	/// \param P point which is decoded
+	/// \param encodedPoint byte array for the encoded point
+	/// \param compressed flag indicating if the point is compressed
+	/// \details <tt>encodedPoint</tt> must be at least EncodedPointSize() in length
 	virtual void EncodePoint(byte *encodedPoint, const Point &P, bool compressed) const =0;
 
-	//! \brief Encodes an elliptic curve point
-	//! \param bt target BufferedTransformation
-	//! \param P point which is encoded
-	//! \param compressed flag indicating if the point is compressed
+	/// \brief Encodes an elliptic curve point
+	/// \param bt target BufferedTransformation
+	/// \param P point which is encoded
+	/// \param compressed flag indicating if the point is compressed
 	virtual void EncodePoint(BufferedTransformation &bt, const Point &P, bool compressed) const =0;
 
-	//! \brief BER Decodes an elliptic curve point
-	//! \param bt source BufferedTransformation
-	//! \returns the decoded elliptic curve point
+	/// \brief BER Decodes an elliptic curve point
+	/// \param bt source BufferedTransformation
+	/// \returns the decoded elliptic curve point
 	virtual Point BERDecodePoint(BufferedTransformation &bt) const =0;
 
-	//! \brief DER Encodes an elliptic curve point
-	//! \param bt target BufferedTransformation
-	//! \param P point which is encoded
-	//! \param compressed flag indicating if the point is compressed
+	/// \brief DER Encodes an elliptic curve point
+	/// \param bt target BufferedTransformation
+	/// \param P point which is encoded
+	/// \param compressed flag indicating if the point is compressed
 	virtual void DEREncodePoint(BufferedTransformation &bt, const Point &P, bool compressed) const =0;
 };
 

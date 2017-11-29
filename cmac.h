@@ -1,8 +1,8 @@
 // cmac.h - originally written and placed in the public domain by Wei Dai
 
-//! \file cmac.h
-//! \brief Classes for CMAC message authentication code
-//! \since Crypto++ 5.6.0
+/// \file cmac.h
+/// \brief Classes for CMAC message authentication code
+/// \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_CMAC_H
 #define CRYPTOPP_CMAC_H
@@ -12,9 +12,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class CMAC_Base
-//! \brief CMAC base implementation
-//! \since Crypto++ 5.6.0
+/// \class CMAC_Base
+/// \brief CMAC base implementation
+/// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CMAC_Base : public MessageAuthenticationCode
 {
 public:
@@ -38,20 +38,20 @@ protected:
 	unsigned int m_counter;
 };
 
-//! \brief CMAC message authentication code
-//! \tparam T block cipher
-//! \details Template parameter T should be a class derived from BlockCipherDocumentation, for example AES, with a block size of 8, 16, or 32.
-//! \sa <a href="http://www.cryptolounge.org/wiki/CMAC">CMAC</a>
-//! \since Crypto++ 5.6.0
+/// \brief CMAC message authentication code
+/// \tparam T block cipher
+/// \details Template parameter T should be a class derived from BlockCipherDocumentation, for example AES, with a block size of 8, 16, or 32.
+/// \sa <a href="http://www.cryptolounge.org/wiki/CMAC">CMAC</a>
+/// \since Crypto++ 5.6.0
 template <class T>
 class CMAC : public MessageAuthenticationCodeImpl<CMAC_Base, CMAC<T> >, public SameKeyLengthAs<T>
 {
 public:
-	//! \brief Construct a CMAC
+	/// \brief Construct a CMAC
 	CMAC() {}
-	//! \brief Construct a CMAC
-	//! \param key the MAC key
-	//! \param length the key size, in bytes
+	/// \brief Construct a CMAC
+	/// \param key the MAC key
+	/// \param length the key size, in bytes
 	CMAC(const byte *key, size_t length=SameKeyLengthAs<T>::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 

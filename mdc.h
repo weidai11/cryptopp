@@ -3,8 +3,8 @@
 #ifndef CRYPTOPP_MDC_H
 #define CRYPTOPP_MDC_H
 
-//! \file mdc.h
-//! \brief Classes for the MDC message digest
+/// \file mdc.h
+/// \brief Classes for the MDC message digest
 
 #include "seckey.h"
 #include "secblock.h"
@@ -12,24 +12,24 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class MDC_Info
-//! \tparam B BlockCipher derived class
-//! \brief MDC_Info cipher information
+/// \class MDC_Info
+/// \tparam B BlockCipher derived class
+/// \brief MDC_Info cipher information
 template <class B>
 struct MDC_Info : public FixedBlockSize<B::DIGESTSIZE>, public FixedKeyLength<B::BLOCKSIZE>
 {
 	static std::string StaticAlgorithmName() {return std::string("MDC/")+B::StaticAlgorithmName();}
 };
 
-//! \brief MDC cipher
-//! \tparam H HashTransformation derived class
-//! \details MDC() is a construction by Peter Gutmann to turn an iterated hash function into a PRF
-//! \sa <a href="http://www.cryptopp.com/wiki/MDC">MDC</a>
+/// \brief MDC cipher
+/// \tparam H HashTransformation derived class
+/// \details MDC() is a construction by Peter Gutmann to turn an iterated hash function into a PRF
+/// \sa <a href="http://www.cryptopp.com/wiki/MDC">MDC</a>
 template <class H>
 class MDC : public MDC_Info<H>
 {
-	//! \class Enc
-	//! \brief MDC cipher encryption operation
+	/// \class Enc
+	/// \brief MDC cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherImpl<MDC_Info<H> >
 	{
 		typedef typename H::HashWordType HashWordType;

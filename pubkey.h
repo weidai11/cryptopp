@@ -1,35 +1,35 @@
 // pubkey.h - originally written and placed in the public domain by Wei Dai
 
-//! \file pubkey.h
-//! \brief This file contains helper classes/functions for implementing public key algorithms.
-//! \details The class hierachies in this header file tend to look like this:
-//!
-//! <pre>
-//!                   x1
-//!                  +--+
-//!                  |  |
-//!                 y1  z1
-//!                  |  |
-//!             x2<y1>  x2<z1>
-//!                  |  |
-//!                 y2  z2
-//!                  |  |
-//!             x3<y2>  x3<z2>
-//!                  |  |
-//!                 y3  z3
-//! </pre>
-//!
-//! <ul>
-//!   <li>x1, y1, z1 are abstract interface classes defined in cryptlib.h
-//!   <li>x2, y2, z2 are implementations of the interfaces using "abstract policies", which
-//! 	  are pure virtual functions that should return interfaces to interchangeable algorithms.
-//! 	  These classes have Base suffixes.
-//!   <li>x3, y3, z3 hold actual algorithms and implement those virtual functions.
-//! 	  These classes have Impl suffixes.
-//! </ul>
-//!
-//! \details The TF_ prefix means an implementation using trapdoor functions on integers.
-//! \details The DL_ prefix means an implementation using group operations in groups where discrete log is hard.
+/// \file pubkey.h
+/// \brief This file contains helper classes/functions for implementing public key algorithms.
+/// \details The class hierachies in this header file tend to look like this:
+///
+/// <pre>
+///                   x1
+///                  +--+
+///                  |  |
+///                 y1  z1
+///                  |  |
+///             x2<y1>  x2<z1>
+///                  |  |
+///                 y2  z2
+///                  |  |
+///             x3<y2>  x3<z2>
+///                  |  |
+///                 y3  z3
+/// </pre>
+///
+/// <ul>
+///   <li>x1, y1, z1 are abstract interface classes defined in cryptlib.h
+///   <li>x2, y2, z2 are implementations of the interfaces using "abstract policies", which
+/// 	  are pure virtual functions that should return interfaces to interchangeable algorithms.
+/// 	  These classes have Base suffixes.
+///   <li>x3, y3, z3 hold actual algorithms and implement those virtual functions.
+/// 	  These classes have Impl suffixes.
+/// </ul>
+///
+/// \details The TF_ prefix means an implementation using trapdoor functions on integers.
+/// \details The DL_ prefix means an implementation using group operations in groups where discrete log is hard.
 
 #ifndef CRYPTOPP_PUBKEY_H
 #define CRYPTOPP_PUBKEY_H
@@ -60,157 +60,157 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class TrapdoorFunctionBounds
-//! \brief Provides range for plaintext and ciphertext lengths
-//! \details A trapdoor function is a function that is easy to compute in one direction,
-//!   but difficult to compute in the opposite direction without special knowledge.
-//!   The special knowledge is usually the private key.
-//! \details Trapdoor functions only handle messages of a limited length or size.
-//!   MaxPreimage is the plaintext's maximum length, and MaxImage is the
-//!   ciphertext's maximum length.
-//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
-//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
+/// \class TrapdoorFunctionBounds
+/// \brief Provides range for plaintext and ciphertext lengths
+/// \details A trapdoor function is a function that is easy to compute in one direction,
+///   but difficult to compute in the opposite direction without special knowledge.
+///   The special knowledge is usually the private key.
+/// \details Trapdoor functions only handle messages of a limited length or size.
+///   MaxPreimage is the plaintext's maximum length, and MaxImage is the
+///   ciphertext's maximum length.
+/// \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+///   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunctionBounds
 {
 public:
 	virtual ~TrapdoorFunctionBounds() {}
 
-	//! \brief Returns the maximum size of a message before the trapdoor function is applied
-	//! \returns the maximum size of a message before the trapdoor function is applied
-	//! \details Derived classes must implement PreimageBound().
+	/// \brief Returns the maximum size of a message before the trapdoor function is applied
+	/// \returns the maximum size of a message before the trapdoor function is applied
+	/// \details Derived classes must implement PreimageBound().
 	virtual Integer PreimageBound() const =0;
-	//! \brief Returns the maximum size of a message after the trapdoor function is applied
-	//! \returns the maximum size of a message after the trapdoor function is applied
-	//! \details Derived classes must implement ImageBound().
+	/// \brief Returns the maximum size of a message after the trapdoor function is applied
+	/// \returns the maximum size of a message after the trapdoor function is applied
+	/// \details Derived classes must implement ImageBound().
 	virtual Integer ImageBound() const =0;
-	//! \brief Returns the maximum size of a message before the trapdoor function is applied bound to a public key
-	//! \returns the maximum size of a message before the trapdoor function is applied bound to a public key
-	//! \details The default implementation returns <tt>PreimageBound() - 1</tt>.
+	/// \brief Returns the maximum size of a message before the trapdoor function is applied bound to a public key
+	/// \returns the maximum size of a message before the trapdoor function is applied bound to a public key
+	/// \details The default implementation returns <tt>PreimageBound() - 1</tt>.
 	virtual Integer MaxPreimage() const {return --PreimageBound();}
-	//! \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
-	//! \returns the the maximum size of a message after the trapdoor function is applied bound to a public key
-	//! \details The default implementation returns <tt>ImageBound() - 1</tt>.
+	/// \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
+	/// \returns the the maximum size of a message after the trapdoor function is applied bound to a public key
+	/// \details The default implementation returns <tt>ImageBound() - 1</tt>.
 	virtual Integer MaxImage() const {return --ImageBound();}
 };
 
-//! \class RandomizedTrapdoorFunction
-//! \brief Applies the trapdoor function, using random data if required
-//! \details ApplyFunction() is the foundation for encrypting a message under a public key.
-//!   Derived classes will override it at some point.
-//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
-//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
+/// \class RandomizedTrapdoorFunction
+/// \brief Applies the trapdoor function, using random data if required
+/// \details ApplyFunction() is the foundation for encrypting a message under a public key.
+///   Derived classes will override it at some point.
+/// \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+///   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunction : public TrapdoorFunctionBounds
 {
 public:
 	virtual ~RandomizedTrapdoorFunction() {}
 
-	//! \brief Applies the trapdoor function, using random data if required
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param x the message on which the encryption function is applied
-	//! \returns the message x encrypted under the public key
-	//! \details ApplyRandomizedFunction is a generalization of encryption under a public key
-	//!    cryptosystem. The RandomNumberGenerator may (or may not) be required.
-	//!    Derived classes must implement it.
+	/// \brief Applies the trapdoor function, using random data if required
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param x the message on which the encryption function is applied
+	/// \returns the message x encrypted under the public key
+	/// \details ApplyRandomizedFunction is a generalization of encryption under a public key
+	///    cryptosystem. The RandomNumberGenerator may (or may not) be required.
+	///    Derived classes must implement it.
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
 
-	//! \brief Determines if the encryption algorithm is randomized
-	//! \returns true if the encryption algorithm is randomized, false otherwise
-	//! \details If IsRandomized() returns false, then NullRNG() can be used.
+	/// \brief Determines if the encryption algorithm is randomized
+	/// \returns true if the encryption algorithm is randomized, false otherwise
+	/// \details If IsRandomized() returns false, then NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 };
 
-//! \class TrapdoorFunction
-//! \brief Applies the trapdoor function
-//! \details ApplyFunction() is the foundation for encrypting a message under a public key.
-//!    Derived classes will override it at some point.
-//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
-//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
+/// \class TrapdoorFunction
+/// \brief Applies the trapdoor function
+/// \details ApplyFunction() is the foundation for encrypting a message under a public key.
+///    Derived classes will override it at some point.
+/// \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+///   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunction : public RandomizedTrapdoorFunction
 {
 public:
 	virtual ~TrapdoorFunction() {}
 
-	//! \brief Applies the trapdoor function
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param x the message on which the encryption function is applied
-	//! \details ApplyRandomizedFunction is a generalization of encryption under a public key
-	//!    cryptosystem. The RandomNumberGenerator may (or may not) be required.
-	//! \details Internally, ApplyRandomizedFunction() calls ApplyFunction() \a
-	//!   without the RandomNumberGenerator.
+	/// \brief Applies the trapdoor function
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param x the message on which the encryption function is applied
+	/// \details ApplyRandomizedFunction is a generalization of encryption under a public key
+	///    cryptosystem. The RandomNumberGenerator may (or may not) be required.
+	/// \details Internally, ApplyRandomizedFunction() calls ApplyFunction() \a
+	///   without the RandomNumberGenerator.
 	Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const
 		{CRYPTOPP_UNUSED(rng); return ApplyFunction(x);}
 	bool IsRandomized() const {return false;}
 
-	//! \brief Applies the trapdoor
-	//! \param x the message on which the encryption function is applied
-	//! \returns the message x encrypted under the public key
-	//! \details ApplyFunction is a generalization of encryption under a public key
-	//!    cryptosystem. Derived classes must implement it.
+	/// \brief Applies the trapdoor
+	/// \param x the message on which the encryption function is applied
+	/// \returns the message x encrypted under the public key
+	/// \details ApplyFunction is a generalization of encryption under a public key
+	///    cryptosystem. Derived classes must implement it.
 	virtual Integer ApplyFunction(const Integer &x) const =0;
 };
 
-//! \class RandomizedTrapdoorFunctionInverse
-//! \brief Applies the inverse of the trapdoor function, using random data if required
-//! \details CalculateInverse() is the foundation for decrypting a message under a private key
-//!   in a public key cryptosystem. Derived classes will override it at some point.
-//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
-//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
+/// \class RandomizedTrapdoorFunctionInverse
+/// \brief Applies the inverse of the trapdoor function, using random data if required
+/// \details CalculateInverse() is the foundation for decrypting a message under a private key
+///   in a public key cryptosystem. Derived classes will override it at some point.
+/// \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+///   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~RandomizedTrapdoorFunctionInverse() {}
 
-	//! \brief Applies the inverse of the trapdoor function, using random data if required
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param x the message on which the decryption function is applied
-	//! \returns the message x decrypted under the private key
-	//! \details CalculateRandomizedInverse is a generalization of decryption using the private key
-	//!    The RandomNumberGenerator may (or may not) be required. Derived classes must implement it.
+	/// \brief Applies the inverse of the trapdoor function, using random data if required
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param x the message on which the decryption function is applied
+	/// \returns the message x decrypted under the private key
+	/// \details CalculateRandomizedInverse is a generalization of decryption using the private key
+	///    The RandomNumberGenerator may (or may not) be required. Derived classes must implement it.
 	virtual Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 
-	//! \brief Determines if the decryption algorithm is randomized
-	//! \returns true if the decryption algorithm is randomized, false otherwise
-	//! \details If IsRandomized() returns false, then NullRNG() can be used.
+	/// \brief Determines if the decryption algorithm is randomized
+	/// \returns true if the decryption algorithm is randomized, false otherwise
+	/// \details If IsRandomized() returns false, then NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 };
 
-//! \class TrapdoorFunctionInverse
-//! \brief Applies the inverse of the trapdoor function
-//! \details CalculateInverse() is the foundation for decrypting a message under a private key
-//!   in a public key cryptosystem. Derived classes will override it at some point.
-//! \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
-//!   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
+/// \class TrapdoorFunctionInverse
+/// \brief Applies the inverse of the trapdoor function
+/// \details CalculateInverse() is the foundation for decrypting a message under a private key
+///   in a public key cryptosystem. Derived classes will override it at some point.
+/// \sa TrapdoorFunctionBounds(), RandomizedTrapdoorFunction(), TrapdoorFunction(),
+///   RandomizedTrapdoorFunctionInverse() and TrapdoorFunctionInverse()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TrapdoorFunctionInverse : public RandomizedTrapdoorFunctionInverse
 {
 public:
 	virtual ~TrapdoorFunctionInverse() {}
 
-	//! \brief Applies the inverse of the trapdoor function
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param x the message on which the decryption function is applied
-	//! \returns the message x decrypted under the private key
-	//! \details CalculateRandomizedInverse is a generalization of decryption using the private key
-	//! \details Internally, CalculateRandomizedInverse() calls CalculateInverse() \a
-	//!   without the RandomNumberGenerator.
+	/// \brief Applies the inverse of the trapdoor function
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param x the message on which the decryption function is applied
+	/// \returns the message x decrypted under the private key
+	/// \details CalculateRandomizedInverse is a generalization of decryption using the private key
+	/// \details Internally, CalculateRandomizedInverse() calls CalculateInverse() \a
+	///   without the RandomNumberGenerator.
 	Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const
 		{return CalculateInverse(rng, x);}
 
-	//! \brief Determines if the decryption algorithm is randomized
-	//! \returns true if the decryption algorithm is randomized, false otherwise
-	//! \details If IsRandomized() returns false, then NullRNG() can be used.
+	/// \brief Determines if the decryption algorithm is randomized
+	/// \returns true if the decryption algorithm is randomized, false otherwise
+	/// \details If IsRandomized() returns false, then NullRNG() can be used.
 	bool IsRandomized() const {return false;}
 
-	//! \brief Calculates the inverse of an element
-	//! \param rng a RandomNumberGenerator derived class
-	//! \param x the element
-	//! \returns the inverse of the element in the group
+	/// \brief Calculates the inverse of an element
+	/// \param rng a RandomNumberGenerator derived class
+	/// \param x the element
+	/// \returns the inverse of the element in the group
 	virtual Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 };
 
 // ********************************************************
 
-//! \class PK_EncryptionMessageEncodingMethod
-//! \brief Message encoding method for public key encryption
+/// \class PK_EncryptionMessageEncodingMethod
+/// \brief Message encoding method for public key encryption
 class CRYPTOPP_NO_VTABLE PK_EncryptionMessageEncodingMethod
 {
 public:
@@ -219,7 +219,7 @@ public:
 	virtual bool ParameterSupported(const char *name) const
 		{CRYPTOPP_UNUSED(name); return false;}
 
-	//! max size of unpadded message in bytes, given max size of padded message in bits (1 less than size of modulus)
+	/// max size of unpadded message in bytes, given max size of padded message in bits (1 less than size of modulus)
 	virtual size_t MaxUnpaddedLength(size_t paddedLength) const =0;
 
 	virtual void Pad(RandomNumberGenerator &rng, const byte *raw, size_t inputLength, byte *padded, size_t paddedBitLength, const NameValuePairs &parameters) const =0;
@@ -229,10 +229,10 @@ public:
 
 // ********************************************************
 
-//! \class TF_Base
-//! \brief The base for trapdoor based cryptosystems
-//! \tparam TFI trapdoor function interface derived class
-//! \tparam MEI message encoding interface derived class
+/// \class TF_Base
+/// \brief The base for trapdoor based cryptosystems
+/// \tparam TFI trapdoor function interface derived class
+/// \tparam MEI message encoding interface derived class
 template <class TFI, class MEI>
 class CRYPTOPP_NO_VTABLE TF_Base
 {
@@ -250,9 +250,9 @@ protected:
 
 // ********************************************************
 
-//! \class PK_FixedLengthCryptoSystemImpl
-//! \brief Public key trapdoor function default implementation
-//! \tparam BASE public key cryptosystem with a fixed length
+/// \class PK_FixedLengthCryptoSystemImpl
+/// \brief Public key trapdoor function default implementation
+/// \tparam BASE public key cryptosystem with a fixed length
 template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FixedLengthCryptoSystemImpl : public BASE
 {
@@ -268,10 +268,10 @@ public:
 	virtual size_t FixedCiphertextLength() const =0;
 };
 
-//! \class TF_CryptoSystemBase
-//! \brief Trapdoor function cryptosystem base class
-//! \tparam INTFACE public key cryptosystem base interface
-//! \tparam BASE public key cryptosystem implementation base
+/// \class TF_CryptoSystemBase
+/// \brief Trapdoor function cryptosystem base class
+/// \tparam INTFACE public key cryptosystem base interface
+/// \tparam BASE public key cryptosystem implementation base
 template <class INTFACE, class BASE>
 class CRYPTOPP_NO_VTABLE TF_CryptoSystemBase : public PK_FixedLengthCryptoSystemImpl<INTFACE>, protected BASE
 {
@@ -288,8 +288,8 @@ protected:
 	size_t PaddedBlockBitLength() const {return SaturatingSubtract(this->GetTrapdoorFunctionBounds().PreimageBound().BitCount(),1U);}
 };
 
-//! \class TF_DecryptorBase
-//! \brief Trapdoor function cryptosystems decryption base class
+/// \class TF_DecryptorBase
+/// \brief Trapdoor function cryptosystems decryption base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_DecryptorBase : public TF_CryptoSystemBase<PK_Decryptor, TF_Base<TrapdoorFunctionInverse, PK_EncryptionMessageEncodingMethod> >
 {
 public:
@@ -298,8 +298,8 @@ public:
 	DecodingResult Decrypt(RandomNumberGenerator &rng, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
-//! \class TF_EncryptorBase
-//! \brief Trapdoor function cryptosystems encryption base class
+/// \class TF_EncryptorBase
+/// \brief Trapdoor function cryptosystems encryption base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_EncryptorBase : public TF_CryptoSystemBase<PK_Encryptor, TF_Base<RandomizedTrapdoorFunction, PK_EncryptionMessageEncodingMethod> >
 {
 public:
@@ -313,12 +313,12 @@ public:
 // Typedef change due to Clang, http://github.com/weidai11/cryptopp/issues/300
 typedef std::pair<const byte *, unsigned int> HashIdentifier;
 
-//! \class PK_SignatureMessageEncodingMethod
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details PK_SignatureMessageEncodingMethod provides interfaces for message
-//!   encoding method for public key signature schemes. The methods support both
-//!   trapdoor functions (<tt>TF_*</tt>) and discrete logarithm (<tt>DL_*</tt>)
-//!   based schemes.
+/// \class PK_SignatureMessageEncodingMethod
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details PK_SignatureMessageEncodingMethod provides interfaces for message
+///   encoding method for public key signature schemes. The methods support both
+///   trapdoor functions (<tt>TF_*</tt>) and discrete logarithm (<tt>DL_*</tt>)
+///   based schemes.
 class CRYPTOPP_NO_VTABLE PK_SignatureMessageEncodingMethod
 {
 public:
@@ -329,12 +329,12 @@ public:
 	virtual size_t MaxRecoverableLength(size_t representativeBitLength, size_t hashIdentifierLength, size_t digestLength) const
 		{CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(representativeBitLength); CRYPTOPP_UNUSED(hashIdentifierLength); CRYPTOPP_UNUSED(digestLength); return 0;}
 
-	//! \brief Determines whether an encoding method requires a random number generator
-	//! \return true if the encoding method requires a RandomNumberGenerator()
-	//! \details if IsProbabilistic() returns false, then NullRNG() can be passed to functions that take
-	//!   RandomNumberGenerator().
-	//! \sa Bellare and Rogaway<a href="http://grouper.ieee.org/groups/1363/P1363a/contributions/pss-submission.pdf">PSS:
-	//!   Provably Secure Encoding Method for Digital Signatures</a>
+	/// \brief Determines whether an encoding method requires a random number generator
+	/// \return true if the encoding method requires a RandomNumberGenerator()
+	/// \details if IsProbabilistic() returns false, then NullRNG() can be passed to functions that take
+	///   RandomNumberGenerator().
+	/// \sa Bellare and Rogaway<a href="http://grouper.ieee.org/groups/1363/P1363a/contributions/pss-submission.pdf">PSS:
+	///   Provably Secure Encoding Method for Digital Signatures</a>
 	bool IsProbabilistic() const
 		{return true;}
 	bool AllowNonrecoverablePart() const
@@ -397,10 +397,10 @@ public:
 	};
 };
 
-//! \class PK_DeterministicSignatureMessageEncodingMethod
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details PK_DeterministicSignatureMessageEncodingMethod provides interfaces
-//!   for message encoding method for public key signature schemes.
+/// \class PK_DeterministicSignatureMessageEncodingMethod
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details PK_DeterministicSignatureMessageEncodingMethod provides interfaces
+///   for message encoding method for public key signature schemes.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_DeterministicSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
@@ -409,10 +409,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-//! \class PK_RecoverableSignatureMessageEncodingMethod
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details PK_RecoverableSignatureMessageEncodingMethod provides interfaces
-//!   for message encoding method for public key signature schemes.
+/// \class PK_RecoverableSignatureMessageEncodingMethod
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details PK_RecoverableSignatureMessageEncodingMethod provides interfaces
+///   for message encoding method for public key signature schemes.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_RecoverableSignatureMessageEncodingMethod : public PK_SignatureMessageEncodingMethod
 {
 public:
@@ -421,10 +421,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-//! \class DL_SignatureMessageEncodingMethod_DSA
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details DL_SignatureMessageEncodingMethod_DSA provides interfaces
-//!   for message encoding method for DSA.
+/// \class DL_SignatureMessageEncodingMethod_DSA
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details DL_SignatureMessageEncodingMethod_DSA provides interfaces
+///   for message encoding method for DSA.
 class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_DSA : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
@@ -434,10 +434,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-//! \class DL_SignatureMessageEncodingMethod_NR
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details DL_SignatureMessageEncodingMethod_NR provides interfaces
-//!   for message encoding method for Nyberg-Rueppel.
+/// \class DL_SignatureMessageEncodingMethod_NR
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details DL_SignatureMessageEncodingMethod_NR provides interfaces
+///   for message encoding method for Nyberg-Rueppel.
 class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_NR : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
@@ -447,10 +447,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-//! \class DL_SignatureMessageEncodingMethod_SM2
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details DL_SignatureMessageEncodingMethod_SM2 provides interfaces
-//!   for message encoding method for SM2.
+/// \class DL_SignatureMessageEncodingMethod_SM2
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details DL_SignatureMessageEncodingMethod_SM2 provides interfaces
+///   for message encoding method for SM2.
 class CRYPTOPP_DLL DL_SignatureMessageEncodingMethod_SM2 : public PK_DeterministicSignatureMessageEncodingMethod
 {
 public:
@@ -460,10 +460,10 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-//! \class PK_MessageAccumulatorBase
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details PK_MessageAccumulatorBase provides interfaces
-//!   for message encoding method.
+/// \class PK_MessageAccumulatorBase
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details PK_MessageAccumulatorBase provides interfaces
+///   for message encoding method.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_MessageAccumulatorBase : public PK_MessageAccumulator
 {
 public:
@@ -482,10 +482,10 @@ public:
 	bool m_empty;
 };
 
-//! \class PK_MessageAccumulatorImpl
-//! \brief Interface for message encoding method for public key signature schemes.
-//! \details PK_MessageAccumulatorBase provides interfaces
-//!   for message encoding method.
+/// \class PK_MessageAccumulatorImpl
+/// \brief Interface for message encoding method for public key signature schemes.
+/// \details PK_MessageAccumulatorBase provides interfaces
+///   for message encoding method.
 template <class HASH_ALGORITHM>
 class PK_MessageAccumulatorImpl : public PK_MessageAccumulatorBase, protected ObjectHolder<HASH_ALGORITHM>
 {
@@ -493,10 +493,10 @@ public:
 	HashTransformation & AccessHash() {return this->m_object;}
 };
 
-//! \class TF_SignatureSchemeBase
-//! \brief Trapdoor Function (TF) Signature Scheme base class
-//! \tparam INTFACE interface
-//! \tparam BASE base class
+/// \class TF_SignatureSchemeBase
+/// \brief Trapdoor Function (TF) Signature Scheme base class
+/// \tparam INTFACE interface
+/// \tparam BASE base class
 template <class INTFACE, class BASE>
 class CRYPTOPP_NO_VTABLE TF_SignatureSchemeBase : public INTFACE, protected BASE
 {
@@ -525,8 +525,8 @@ protected:
 	virtual size_t GetDigestSize() const =0;
 };
 
-//! \class TF_SignerBase
-//! \brief Trapdoor Function (TF) Signer base class
+/// \class TF_SignerBase
+/// \brief Trapdoor Function (TF) Signer base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_SignerBase : public TF_SignatureSchemeBase<PK_Signer, TF_Base<RandomizedTrapdoorFunctionInverse, PK_SignatureMessageEncodingMethod> >
 {
 public:
@@ -536,8 +536,8 @@ public:
 	size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart=true) const;
 };
 
-//! \class TF_VerifierBase
-//! \brief Trapdoor Function (TF) Verifier base class
+/// \class TF_VerifierBase
+/// \brief Trapdoor Function (TF) Verifier base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TF_VerifierBase : public TF_SignatureSchemeBase<PK_Verifier, TF_Base<TrapdoorFunction, PK_SignatureMessageEncodingMethod> >
 {
 public:
@@ -550,11 +550,11 @@ public:
 
 // ********************************************************
 
-//! \class TF_CryptoSchemeOptions
-//! \brief Trapdoor Function (TF) scheme options
-//! \tparam T1 algorithm info class
-//! \tparam T2 keys class with public and private key
-//! \tparam T3 message encoding class
+/// \class TF_CryptoSchemeOptions
+/// \brief Trapdoor Function (TF) scheme options
+/// \tparam T1 algorithm info class
+/// \tparam T2 keys class with public and private key
+/// \tparam T3 message encoding class
 template <class T1, class T2, class T3>
 struct TF_CryptoSchemeOptions
 {
@@ -565,23 +565,23 @@ struct TF_CryptoSchemeOptions
 	typedef T3 MessageEncodingMethod;
 };
 
-//! \class TF_SignatureSchemeOptions
-//! \brief Trapdoor Function (TF) signature scheme options
-//! \tparam T1 algorithm info class
-//! \tparam T2 keys class with public and private key
-//! \tparam T3 message encoding class
-//! \tparam T4 HashTransformation class
+/// \class TF_SignatureSchemeOptions
+/// \brief Trapdoor Function (TF) signature scheme options
+/// \tparam T1 algorithm info class
+/// \tparam T2 keys class with public and private key
+/// \tparam T3 message encoding class
+/// \tparam T4 HashTransformation class
 template <class T1, class T2, class T3, class T4>
 struct TF_SignatureSchemeOptions : public TF_CryptoSchemeOptions<T1, T2, T3>
 {
 	typedef T4 HashFunction;
 };
 
-//! \class TF_ObjectImplBase
-//! \brief Trapdoor Function (TF) base implementation
-//! \tparam BASE base class
-//! \tparam SCHEME_OPTIONS scheme options class
-//! \tparam KEY_CLASS key class
+/// \class TF_ObjectImplBase
+/// \brief Trapdoor Function (TF) base implementation
+/// \tparam BASE base class
+/// \tparam SCHEME_OPTIONS scheme options class
+/// \tparam KEY_CLASS key class
 template <class BASE, class SCHEME_OPTIONS, class KEY_CLASS>
 class CRYPTOPP_NO_VTABLE TF_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
 {
@@ -633,12 +633,12 @@ protected:
 	}
 };
 
-//! \class TF_ObjectImplExtRef
-//! \brief Trapdoor Function (TF) signature with external reference
-//! \tparam BASE base class
-//! \tparam SCHEME_OPTIONS scheme options class
-//! \tparam KEY key class
-//! \details TF_ObjectImplExtRef() holds a pointer to an external key structure
+/// \class TF_ObjectImplExtRef
+/// \brief Trapdoor Function (TF) signature with external reference
+/// \tparam BASE base class
+/// \tparam SCHEME_OPTIONS scheme options class
+/// \tparam KEY key class
+/// \details TF_ObjectImplExtRef() holds a pointer to an external key structure
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class TF_ObjectImplExtRef : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
 {
@@ -655,12 +655,12 @@ private:
 	const KEY * m_pKey;
 };
 
-//! \class TF_ObjectImpl
-//! \brief Trapdoor Function (TF) signature scheme options
-//! \tparam BASE base class
-//! \tparam SCHEME_OPTIONS scheme options class
-//! \tparam KEY_CLASS key class
-//! \details TF_ObjectImpl() holds a reference to a trapdoor function
+/// \class TF_ObjectImpl
+/// \brief Trapdoor Function (TF) signature scheme options
+/// \tparam BASE base class
+/// \tparam SCHEME_OPTIONS scheme options class
+/// \tparam KEY_CLASS key class
+/// \details TF_ObjectImpl() holds a reference to a trapdoor function
 template <class BASE, class SCHEME_OPTIONS, class KEY_CLASS>
 class CRYPTOPP_NO_VTABLE TF_ObjectImpl : public TF_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY_CLASS>
 {
@@ -676,33 +676,33 @@ private:
 	KeyClass m_trapdoorFunction;
 };
 
-//! \class TF_DecryptorImpl
-//! \brief Trapdoor Function (TF) decryptor options
-//! \tparam SCHEME_OPTIONS scheme options class
+/// \class TF_DecryptorImpl
+/// \brief Trapdoor Function (TF) decryptor options
+/// \tparam SCHEME_OPTIONS scheme options class
 template <class SCHEME_OPTIONS>
 class TF_DecryptorImpl : public TF_ObjectImpl<TF_DecryptorBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
 };
 
-//! \class TF_EncryptorImpl
-//! \brief Trapdoor Function (TF) encryptor options
-//! \tparam SCHEME_OPTIONS scheme options class
+/// \class TF_EncryptorImpl
+/// \brief Trapdoor Function (TF) encryptor options
+/// \tparam SCHEME_OPTIONS scheme options class
 template <class SCHEME_OPTIONS>
 class TF_EncryptorImpl : public TF_ObjectImpl<TF_EncryptorBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 };
 
-//! \class TF_SignerImpl
-//! \brief Trapdoor Function (TF) encryptor options
-//! \tparam SCHEME_OPTIONS scheme options class
+/// \class TF_SignerImpl
+/// \brief Trapdoor Function (TF) encryptor options
+/// \tparam SCHEME_OPTIONS scheme options class
 template <class SCHEME_OPTIONS>
 class TF_SignerImpl : public TF_ObjectImpl<TF_SignerBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
 };
 
-//! \class TF_VerifierImpl
-//! \brief Trapdoor Function (TF) encryptor options
-//! \tparam SCHEME_OPTIONS scheme options class
+/// \class TF_VerifierImpl
+/// \brief Trapdoor Function (TF) encryptor options
+/// \tparam SCHEME_OPTIONS scheme options class
 template <class SCHEME_OPTIONS>
 class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
@@ -710,38 +710,38 @@ class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, ty
 
 // ********************************************************
 
-//! \class MaskGeneratingFunction
-//! \brief Mask generation function interface
+/// \class MaskGeneratingFunction
+/// \brief Mask generation function interface
 class CRYPTOPP_NO_VTABLE MaskGeneratingFunction
 {
 public:
 	virtual ~MaskGeneratingFunction() {}
 
-	//! \brief Generate and apply mask
-	//! \param hash HashTransformation derived class
-	//! \param output the destination byte array
-	//! \param outputLength the size fo the the destination byte array
-	//! \param input the message to hash
-	//! \param inputLength the size of the message
-	//! \param mask flag indicating whether to apply the mask
+	/// \brief Generate and apply mask
+	/// \param hash HashTransformation derived class
+	/// \param output the destination byte array
+	/// \param outputLength the size fo the the destination byte array
+	/// \param input the message to hash
+	/// \param inputLength the size of the message
+	/// \param mask flag indicating whether to apply the mask
 	virtual void GenerateAndMask(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, bool mask = true) const =0;
 };
 
-//! \fn P1363_MGF1KDF2_Common
-//! \brief P1363 mask generation function
-//! \param hash HashTransformation derived class
-//! \param output the destination byte array
-//! \param outputLength the size fo the the destination byte array
-//! \param input the message to hash
-//! \param inputLength the size of the message
-//! \param derivationParams additional derivation parameters
-//! \param derivationParamsLength the size of the additional derivation parameters
-//! \param mask flag indicating whether to apply the mask
-//! \param counterStart starting counter value used in generation function
+/// \fn P1363_MGF1KDF2_Common
+/// \brief P1363 mask generation function
+/// \param hash HashTransformation derived class
+/// \param output the destination byte array
+/// \param outputLength the size fo the the destination byte array
+/// \param input the message to hash
+/// \param inputLength the size of the message
+/// \param derivationParams additional derivation parameters
+/// \param derivationParamsLength the size of the additional derivation parameters
+/// \param mask flag indicating whether to apply the mask
+/// \param counterStart starting counter value used in generation function
 CRYPTOPP_DLL void CRYPTOPP_API P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, const byte *derivationParams, size_t derivationParamsLength, bool mask, unsigned int counterStart);
 
-//! \class P1363_MGF1
-//! \brief P1363 mask generation function
+/// \class P1363_MGF1
+/// \brief P1363 mask generation function
 class P1363_MGF1 : public MaskGeneratingFunction
 {
 public:
@@ -754,9 +754,9 @@ public:
 
 // ********************************************************
 
-//! \class MaskGeneratingFunction
-//! \brief P1363 key derivation function
-//! \tparam H hash function used in the derivation
+/// \class MaskGeneratingFunction
+/// \brief P1363 key derivation function
+/// \tparam H hash function used in the derivation
 template <class H>
 class P1363_KDF2
 {
@@ -770,17 +770,17 @@ public:
 
 // ********************************************************
 
-//! \brief Exception thrown when an invalid group element is encountered
-//! \details Thrown by DecodeElement and AgreeWithStaticPrivateKey
+/// \brief Exception thrown when an invalid group element is encountered
+/// \details Thrown by DecodeElement and AgreeWithStaticPrivateKey
 class DL_BadElement : public InvalidDataFormat
 {
 public:
 	DL_BadElement() : InvalidDataFormat("CryptoPP: invalid group element") {}
 };
 
-//! \brief Interface for Discrete Log (DL) group parameters
-//! \tparam T element in the group
-//! \details The element is usually an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
+/// \brief Interface for Discrete Log (DL) group parameters
+/// \tparam T element in the group
+/// \details The element is usually an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_GroupParameters : public CryptoParameters
 {
@@ -836,29 +836,29 @@ public:
 		GetBasePrecomputation().Save(GetGroupPrecomputation(), storedPrecomputation);
 	}
 
-	//! \brief Retrieves the subgroup generator
-	//! \return the subgroup generator
-	//! \details The subgroup generator is retrieved from the base precomputation
+	/// \brief Retrieves the subgroup generator
+	/// \return the subgroup generator
+	/// \details The subgroup generator is retrieved from the base precomputation
 	virtual const Element & GetSubgroupGenerator() const {return GetBasePrecomputation().GetBase(GetGroupPrecomputation());}
 
-	//! \brief Sets the subgroup generator
-	//! \param base the new subgroup generator
-	//! \details The subgroup generator is set in the base precomputation
+	/// \brief Sets the subgroup generator
+	/// \param base the new subgroup generator
+	/// \details The subgroup generator is set in the base precomputation
 	virtual void SetSubgroupGenerator(const Element &base) {AccessBasePrecomputation().SetBase(GetGroupPrecomputation(), base);}
 
-	//! \brief Retrieves the subgroup generator
-	//! \return the subgroup generator
-	//! \details The subgroup generator is retrieved from the base precomputation.
+	/// \brief Retrieves the subgroup generator
+	/// \return the subgroup generator
+	/// \details The subgroup generator is retrieved from the base precomputation.
 	virtual Element ExponentiateBase(const Integer &exponent) const
 	{
 		return GetBasePrecomputation().Exponentiate(GetGroupPrecomputation(), exponent);
 	}
 
-	//! \brief Exponentiates an element
-	//! \param base the base elemenet
-	//! \param exponent the exponent to raise the base
-	//! \return the result of the exponentiation
-	//! \details Internally, ExponentiateElement() calls SimultaneousExponentiate().
+	/// \brief Exponentiates an element
+	/// \param base the base elemenet
+	/// \param exponent the exponent to raise the base
+	/// \return the result of the exponentiation
+	/// \details Internally, ExponentiateElement() calls SimultaneousExponentiate().
 	virtual Element ExponentiateElement(const Element &base, const Integer &exponent) const
 	{
 		Element result;
@@ -866,119 +866,119 @@ public:
 		return result;
 	}
 
-	//! \brief Retrieves the group precomputation
-	//! \return a const reference to the group precomputation
+	/// \brief Retrieves the group precomputation
+	/// \return a const reference to the group precomputation
 	virtual const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const =0;
 
-	//! \brief Retrieves the group precomputation
-	//! \return a const reference to the group precomputation using a fixed base
+	/// \brief Retrieves the group precomputation
+	/// \return a const reference to the group precomputation using a fixed base
 	virtual const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const =0;
 
-	//! \brief Retrieves the group precomputation
-	//! \return a non-const reference to the group precomputation using a fixed base
+	/// \brief Retrieves the group precomputation
+	/// \return a non-const reference to the group precomputation using a fixed base
 	virtual DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() =0;
 
-	//! \brief Retrieves the subgroup order
-	//! \return the order of subgroup generated by the base element
+	/// \brief Retrieves the subgroup order
+	/// \return the order of subgroup generated by the base element
 	virtual const Integer & GetSubgroupOrder() const =0;
 
-	//! \brief Retrieves the maximum exponent for the group
-	//! \return the maximum exponent for the group
+	/// \brief Retrieves the maximum exponent for the group
+	/// \return the maximum exponent for the group
 	virtual Integer GetMaxExponent() const =0;
 
-	//! \brief Retrieves the order of the group
-	//! \return the order of the group
-	//! \details Either GetGroupOrder() or GetCofactor() must be overridden in a derived class.
+	/// \brief Retrieves the order of the group
+	/// \return the order of the group
+	/// \details Either GetGroupOrder() or GetCofactor() must be overridden in a derived class.
 	virtual Integer GetGroupOrder() const {return GetSubgroupOrder()*GetCofactor();}
 
-	//! \brief Retrieves the cofactor
-	//! \return the cofactor
-	//! \details Either GetGroupOrder() or GetCofactor() must be overridden in a derived class.
+	/// \brief Retrieves the cofactor
+	/// \return the cofactor
+	/// \details Either GetGroupOrder() or GetCofactor() must be overridden in a derived class.
 	virtual Integer GetCofactor() const {return GetGroupOrder()/GetSubgroupOrder();}
 
-	//! \brief Retrieves the encoded element's size
-	//! \param reversible flag indicating the encoding format
-	//! \return encoded element's size, in bytes
-	//! \details The format of the encoded element varies by the underlyinhg type of the element and the
-	//!   reversible flag. GetEncodedElementSize() must be implemented in a derived class.
-	//! \sa GetEncodedElementSize(), EncodeElement(), DecodeElement()
+	/// \brief Retrieves the encoded element's size
+	/// \param reversible flag indicating the encoding format
+	/// \return encoded element's size, in bytes
+	/// \details The format of the encoded element varies by the underlyinhg type of the element and the
+	///   reversible flag. GetEncodedElementSize() must be implemented in a derived class.
+	/// \sa GetEncodedElementSize(), EncodeElement(), DecodeElement()
 	virtual unsigned int GetEncodedElementSize(bool reversible) const =0;
 
-	//! \brief Encodes the element
-	//! \param reversible flag indicating the encoding format
-	//! \param element reference to the element to encode
-	//! \param encoded destination byte array for the encoded element
-	//! \details EncodeElement() must be implemented in a derived class.
-	//! \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
+	/// \brief Encodes the element
+	/// \param reversible flag indicating the encoding format
+	/// \param element reference to the element to encode
+	/// \param encoded destination byte array for the encoded element
+	/// \details EncodeElement() must be implemented in a derived class.
+	/// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
 	virtual void EncodeElement(bool reversible, const Element &element, byte *encoded) const =0;
 
-	//! \brief Decodes the element
-	//! \param encoded byte array with the encoded element
-	//! \param checkForGroupMembership flag indicating if the element should be validated
-	//! \return Element after decoding
-	//! \details DecodeElement() must be implemented in a derived class.
-	//! \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
+	/// \brief Decodes the element
+	/// \param encoded byte array with the encoded element
+	/// \param checkForGroupMembership flag indicating if the element should be validated
+	/// \return Element after decoding
+	/// \details DecodeElement() must be implemented in a derived class.
+	/// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
 	virtual Element DecodeElement(const byte *encoded, bool checkForGroupMembership) const =0;
 
-	//! \brief Converts an element to an Integer
-	//! \param element the element to convert to an Integer
-	//! \return Element after converting to an Integer
-	//! \details ConvertElementToInteger() must be implemented in a derived class.
+	/// \brief Converts an element to an Integer
+	/// \param element the element to convert to an Integer
+	/// \return Element after converting to an Integer
+	/// \details ConvertElementToInteger() must be implemented in a derived class.
 	virtual Integer ConvertElementToInteger(const Element &element) const =0;
 
-	//! \brief Check the group for errors
-	//! \param rng RandomNumberGenerator for objects which use randomized testing
-	//! \param level level of thoroughness
-	//! \return true if the tests succeed, false otherwise
-	//! \details There are four levels of thoroughness:
-	//!   <ul>
-	//!   <li>0 - using this object won't cause a crash or exception
-	//!   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
-	//!   <li>2 - ensure this object will function correctly, and perform reasonable security checks
-	//!   <li>3 - perform reasonable security checks, and do checks that may take a long time
-	//!   </ul>
-	//! \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can be used for level 0.
-	//!   Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
-	//! \details ValidateGroup() must be implemented in a derived class.
+	/// \brief Check the group for errors
+	/// \param rng RandomNumberGenerator for objects which use randomized testing
+	/// \param level level of thoroughness
+	/// \return true if the tests succeed, false otherwise
+	/// \details There are four levels of thoroughness:
+	///   <ul>
+	///   <li>0 - using this object won't cause a crash or exception
+	///   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
+	///   <li>2 - ensure this object will function correctly, and perform reasonable security checks
+	///   <li>3 - perform reasonable security checks, and do checks that may take a long time
+	///   </ul>
+	/// \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can be used for level 0.
+	///   Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
+	/// \details ValidateGroup() must be implemented in a derived class.
 	virtual bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const =0;
 
-	//! \brief Check the element for errors
-	//! \param level level of thoroughness
-	//! \param element element to check
-	//! \param precomp optional pointer to DL_FixedBasePrecomputation
-	//! \return true if the tests succeed, false otherwise
-	//! \details There are four levels of thoroughness:
-	//!   <ul>
-	//!   <li>0 - using this object won't cause a crash or exception
-	//!   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
-	//!   <li>2 - ensure this object will function correctly, and perform reasonable security checks
-	//!   <li>3 - perform reasonable security checks, and do checks that may take a long time
-	//!   </ul>
-	//! \details Level 0 performs group membership checks. Level 1 may not check for weak keys and such.
-	//!   Levels 2 and 3 are recommended.
-	//! \details ValidateElement() must be implemented in a derived class.
+	/// \brief Check the element for errors
+	/// \param level level of thoroughness
+	/// \param element element to check
+	/// \param precomp optional pointer to DL_FixedBasePrecomputation
+	/// \return true if the tests succeed, false otherwise
+	/// \details There are four levels of thoroughness:
+	///   <ul>
+	///   <li>0 - using this object won't cause a crash or exception
+	///   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
+	///   <li>2 - ensure this object will function correctly, and perform reasonable security checks
+	///   <li>3 - perform reasonable security checks, and do checks that may take a long time
+	///   </ul>
+	/// \details Level 0 performs group membership checks. Level 1 may not check for weak keys and such.
+	///   Levels 2 and 3 are recommended.
+	/// \details ValidateElement() must be implemented in a derived class.
 	virtual bool ValidateElement(unsigned int level, const Element &element, const DL_FixedBasePrecomputation<Element> *precomp) const =0;
 
 	virtual bool FastSubgroupCheckAvailable() const =0;
 
-	//! \brief Determines if an element is an identity
-	//! \param element element to check
-	//! \return true if the element is an identity, false otherwise
-	//! \details The identity element or or neutral element is a special element in a group that leaves
-	//!   other elements unchanged when combined with it.
-	//! \details IsIdentity() must be implemented in a derived class.
+	/// \brief Determines if an element is an identity
+	/// \param element element to check
+	/// \return true if the element is an identity, false otherwise
+	/// \details The identity element or or neutral element is a special element in a group that leaves
+	///   other elements unchanged when combined with it.
+	/// \details IsIdentity() must be implemented in a derived class.
 	virtual bool IsIdentity(const Element &element) const =0;
 
-	//! \brief Exponentiates a base to multiple exponents
-	//! \param results an array of Elements
-	//! \param base the base to raise to the exponents
-	//! \param exponents an array of exponents
-	//! \param exponentsCount the number of exponents in the array
-	//! \details SimultaneousExponentiate() raises the base to each exponent in the exponents array and stores the
-	//!   result at the respective position in the results array.
-	//! \details SimultaneousExponentiate() must be implemented in a derived class.
-	//! \pre <tt>COUNTOF(results) == exponentsCount</tt>
-	//! \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
+	/// \brief Exponentiates a base to multiple exponents
+	/// \param results an array of Elements
+	/// \param base the base to raise to the exponents
+	/// \param exponents an array of exponents
+	/// \param exponentsCount the number of exponents in the array
+	/// \details SimultaneousExponentiate() raises the base to each exponent in the exponents array and stores the
+	///   result at the respective position in the results array.
+	/// \details SimultaneousExponentiate() must be implemented in a derived class.
+	/// \pre <tt>COUNTOF(results) == exponentsCount</tt>
+	/// \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
 	virtual void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const =0;
 
 protected:
@@ -988,10 +988,10 @@ private:
 	mutable unsigned int m_validationLevel;
 };
 
-//! \brief Base implementation of Discrete Log (DL) group parameters
-//! \tparam GROUP_PRECOMP group precomputation class
-//! \tparam BASE_PRECOMP fixed base precomputation class
-//! \tparam BASE class or type of an element
+/// \brief Base implementation of Discrete Log (DL) group parameters
+/// \tparam GROUP_PRECOMP group precomputation class
+/// \tparam BASE_PRECOMP fixed base precomputation class
+/// \tparam BASE class or type of an element
 template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<typename GROUP_PRECOMP::Element>, class BASE = DL_GroupParameters<typename GROUP_PRECOMP::Element> >
 class DL_GroupParametersImpl : public BASE
 {
@@ -1002,16 +1002,16 @@ public:
 
 	virtual ~DL_GroupParametersImpl() {}
 
-	//! \brief Retrieves the group precomputation
-	//! \return a const reference to the group precomputation
+	/// \brief Retrieves the group precomputation
+	/// \return a const reference to the group precomputation
 	const DL_GroupPrecomputation<Element> & GetGroupPrecomputation() const {return m_groupPrecomputation;}
 
-	//! \brief Retrieves the group precomputation
-	//! \return a const reference to the group precomputation using a fixed base
+	/// \brief Retrieves the group precomputation
+	/// \return a const reference to the group precomputation using a fixed base
 	const DL_FixedBasePrecomputation<Element> & GetBasePrecomputation() const {return m_gpc;}
 
-	//! \brief Retrieves the group precomputation
-	//! \return a non-const reference to the group precomputation using a fixed base
+	/// \brief Retrieves the group precomputation
+	/// \return a non-const reference to the group precomputation using a fixed base
 	DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return m_gpc;}
 
 protected:
@@ -1019,24 +1019,24 @@ protected:
 	BASE_PRECOMP m_gpc;
 };
 
-//! \brief Base class for a Discrete Log (DL) key
-//! \tparam T class or type of an element
-//! \details The element is usually an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
+/// \brief Base class for a Discrete Log (DL) key
+/// \tparam T class or type of an element
+/// \details The element is usually an Integer, \ref ECP "ECP::Point" or \ref EC2N "EC2N::Point"
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_Key
 {
 public:
 	virtual ~DL_Key() {}
 
-	//! \brief Retrieves abstract group parameters
-	//! \return a const reference to the group parameters
+	/// \brief Retrieves abstract group parameters
+	/// \return a const reference to the group parameters
 	virtual const DL_GroupParameters<T> & GetAbstractGroupParameters() const =0;
-	//! \brief Retrieves abstract group parameters
-	//! \return a non-const reference to the group parameters
+	/// \brief Retrieves abstract group parameters
+	/// \return a non-const reference to the group parameters
 	virtual DL_GroupParameters<T> & AccessAbstractGroupParameters() =0;
 };
 
-//! \brief Interface for Discrete Log (DL) public keys
+/// \brief Interface for Discrete Log (DL) public keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PublicKey : public DL_Key<T>
 {
@@ -1047,65 +1047,65 @@ public:
 
 	virtual ~DL_PublicKey();
 
-	//! \brief Get a named value
-	//! \param name the name of the object or value to retrieve
-	//! \param valueType reference to a variable that receives the value
-	//! \param pValue void pointer to a variable that receives the value
-	//! \returns true if the value was retrieved, false otherwise
-	//! \details GetVoidValue() retrieves the value of name if it exists.
-	//! \note GetVoidValue() is an internal function and should be implemented
-	//!   by derived classes. Users should use one of the other functions instead.
-	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	//!   GetRequiredParameter() and GetRequiredIntParameter()
+	/// \brief Get a named value
+	/// \param name the name of the object or value to retrieve
+	/// \param valueType reference to a variable that receives the value
+	/// \param pValue void pointer to a variable that receives the value
+	/// \returns true if the value was retrieved, false otherwise
+	/// \details GetVoidValue() retrieves the value of name if it exists.
+	/// \note GetVoidValue() is an internal function and should be implemented
+	///   by derived classes. Users should use one of the other functions instead.
+	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
+	///   GetRequiredParameter() and GetRequiredIntParameter()
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		return GetValueHelper(this, name, valueType, pValue, &this->GetAbstractGroupParameters())
 				CRYPTOPP_GET_FUNCTION_ENTRY(PublicElement);
 	}
 
-	//! \brief Initialize or reinitialize this this key
-	//! \param source NameValuePairs to assign
+	/// \brief Initialize or reinitialize this this key
+	/// \param source NameValuePairs to assign
 	void AssignFrom(const NameValuePairs &source);
 
-	//! \brief Retrieves the public element
-	//! \returns the public element
+	/// \brief Retrieves the public element
+	/// \returns the public element
 	virtual const Element & GetPublicElement() const {return GetPublicPrecomputation().GetBase(this->GetAbstractGroupParameters().GetGroupPrecomputation());}
 
-	//! \brief Sets the public element
-	//! \param y the public element
+	/// \brief Sets the public element
+	/// \param y the public element
 	virtual void SetPublicElement(const Element &y) {AccessPublicPrecomputation().SetBase(this->GetAbstractGroupParameters().GetGroupPrecomputation(), y);}
 
-	//! \brief Exponentiates this element
-	//! \param exponent the exponent to raise the base
-	//! \returns the public element raised to the exponent
+	/// \brief Exponentiates this element
+	/// \param exponent the exponent to raise the base
+	/// \returns the public element raised to the exponent
 	virtual Element ExponentiatePublicElement(const Integer &exponent) const
 	{
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 		return GetPublicPrecomputation().Exponentiate(params.GetGroupPrecomputation(), exponent);
 	}
 
-	//! \brief Exponentiates an element
-	//! \param baseExp the first exponent
-	//! \param publicExp the second exponent
-	//! \returns the public element raised to the exponent
-	//! \details CascadeExponentiateBaseAndPublicElement raises the public element to
-	//!   the base element and precomputation.
+	/// \brief Exponentiates an element
+	/// \param baseExp the first exponent
+	/// \param publicExp the second exponent
+	/// \returns the public element raised to the exponent
+	/// \details CascadeExponentiateBaseAndPublicElement raises the public element to
+	///   the base element and precomputation.
 	virtual Element CascadeExponentiateBaseAndPublicElement(const Integer &baseExp, const Integer &publicExp) const
 	{
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 		return params.GetBasePrecomputation().CascadeExponentiate(params.GetGroupPrecomputation(), baseExp, GetPublicPrecomputation(), publicExp);
 	}
 
-	//! \brief Accesses the public precomputation
-	//! \details GetPublicPrecomputation returns a const reference, while
-	//!   AccessPublicPrecomputation returns a non-const reference. Must be
-	//!   overridden in derived classes.
+	/// \brief Accesses the public precomputation
+	/// \details GetPublicPrecomputation returns a const reference, while
+	///   AccessPublicPrecomputation returns a non-const reference. Must be
+	///   overridden in derived classes.
 	virtual const DL_FixedBasePrecomputation<T> & GetPublicPrecomputation() const =0;
 
-	//! \brief Accesses the public precomputation
-	//! \details GetPublicPrecomputation returns a const reference, while
-	//!   AccessPublicPrecomputation returns a non-const reference. Must be
-	//!   overridden in derived classes.
+	/// \brief Accesses the public precomputation
+	/// \details GetPublicPrecomputation returns a const reference, while
+	///   AccessPublicPrecomputation returns a non-const reference. Must be
+	///   overridden in derived classes.
 	virtual DL_FixedBasePrecomputation<T> & AccessPublicPrecomputation() =0;
 };
 
@@ -1113,7 +1113,7 @@ public:
 template<class T>
 DL_PublicKey<T>::~DL_PublicKey() {}
 
-//! \brief Interface for Discrete Log (DL) private keys
+/// \brief Interface for Discrete Log (DL) private keys
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_PrivateKey : public DL_Key<T>
 {
@@ -1124,32 +1124,32 @@ public:
 
 	virtual ~DL_PrivateKey();
 
-	//! \brief Initializes a public key from this key
-	//! \param pub reference to a public key
+	/// \brief Initializes a public key from this key
+	/// \param pub reference to a public key
 	void MakePublicKey(DL_PublicKey<T> &pub) const
 	{
 		pub.AccessAbstractGroupParameters().AssignFrom(this->GetAbstractGroupParameters());
 		pub.SetPublicElement(this->GetAbstractGroupParameters().ExponentiateBase(GetPrivateExponent()));
 	}
 
-	//! \brief Get a named value
-	//! \param name the name of the object or value to retrieve
-	//! \param valueType reference to a variable that receives the value
-	//! \param pValue void pointer to a variable that receives the value
-	//! \returns true if the value was retrieved, false otherwise
-	//! \details GetVoidValue() retrieves the value of name if it exists.
-	//! \note GetVoidValue() is an internal function and should be implemented
-	//!   by derived classes. Users should use one of the other functions instead.
-	//! \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	//!   GetRequiredParameter() and GetRequiredIntParameter()
+	/// \brief Get a named value
+	/// \param name the name of the object or value to retrieve
+	/// \param valueType reference to a variable that receives the value
+	/// \param pValue void pointer to a variable that receives the value
+	/// \returns true if the value was retrieved, false otherwise
+	/// \details GetVoidValue() retrieves the value of name if it exists.
+	/// \note GetVoidValue() is an internal function and should be implemented
+	///   by derived classes. Users should use one of the other functions instead.
+	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
+	///   GetRequiredParameter() and GetRequiredIntParameter()
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 	{
 		return GetValueHelper(this, name, valueType, pValue, &this->GetAbstractGroupParameters())
 				CRYPTOPP_GET_FUNCTION_ENTRY(PrivateExponent);
 	}
 
-	//! \brief Initialize or reinitialize this this key
-	//! \param source NameValuePairs to assign
+	/// \brief Initialize or reinitialize this this key
+	/// \param source NameValuePairs to assign
 	void AssignFrom(const NameValuePairs &source)
 	{
 		this->AccessAbstractGroupParameters().AssignFrom(source);
@@ -1157,13 +1157,13 @@ public:
 			CRYPTOPP_SET_FUNCTION_ENTRY(PrivateExponent);
 	}
 
-	//! \brief Retrieves the private exponent
-	//! \returns the private exponent
-	//! \details Must be overridden in derived classes.
+	/// \brief Retrieves the private exponent
+	/// \returns the private exponent
+	/// \details Must be overridden in derived classes.
 	virtual const Integer & GetPrivateExponent() const =0;
-	//! \brief Sets the private exponent
-	//! \param x the private exponent
-	//! \details Must be overridden in derived classes.
+	/// \brief Sets the private exponent
+	/// \param x the private exponent
+	/// \details Must be overridden in derived classes.
 	virtual void SetPrivateExponent(const Integer &x) =0;
 };
 
@@ -1187,7 +1187,7 @@ void DL_PublicKey<T>::AssignFrom(const NameValuePairs &source)
 
 class OID;
 
-//! \brief Discrete Log (DL) key base implementation
+/// \brief Discrete Log (DL) key base implementation
 template <class PK, class GP, class O = OID>
 class DL_KeyImpl : public PK
 {
@@ -1212,7 +1212,7 @@ private:
 class X509PublicKey;
 class PKCS8PrivateKey;
 
-//! \brief Discrete Log (DL) private key base implementation
+/// \brief Discrete Log (DL) private key base implementation
 template <class GP>
 class DL_PrivateKeyImpl : public DL_PrivateKey<typename GP::Element>, public DL_KeyImpl<PKCS8PrivateKey, GP>
 {
@@ -1282,7 +1282,7 @@ private:
 	Integer m_x;
 };
 
-//! _
+/// _
 template <class BASE, class SIGNATURE_SCHEME>
 class DL_PrivateKey_WithSignaturePairwiseConsistencyTest : public BASE
 {
@@ -1302,7 +1302,7 @@ public:
 	}
 };
 
-//! \brief Discrete Log (DL) public key base implementation
+/// \brief Discrete Log (DL) public key base implementation
 template <class GP>
 class DL_PublicKeyImpl : public DL_PublicKey<typename GP::Element>, public DL_KeyImpl<X509PublicKey, GP>
 {
@@ -1369,7 +1369,7 @@ private:
 template<class GP>
 DL_PublicKeyImpl<GP>::~DL_PublicKeyImpl() {}
 
-//! \brief Interface for Elgamal-like signature algorithms
+/// \brief Interface for Elgamal-like signature algorithms
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
@@ -1393,8 +1393,8 @@ public:
 		{return false;}
 };
 
-//! \brief Interface for deterministic signers
-//! \details RFC 6979 signers which generate k based on the encoded message and private key
+/// \brief Interface for deterministic signers
+/// \details RFC 6979 signers which generate k based on the encoded message and private key
 class CRYPTOPP_NO_VTABLE DeterministicSignatureAlgorithm
 {
 public:
@@ -1403,7 +1403,7 @@ public:
 	virtual Integer GenerateRandom(const Integer &x, const Integer &q, const Integer &e) const =0;
 };
 
-//! \brief Interface for DL key agreement algorithms
+/// \brief Interface for DL key agreement algorithms
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyAgreementAlgorithm
 {
@@ -1416,7 +1416,7 @@ public:
 	virtual Element AgreeWithStaticPrivateKey(const DL_GroupParameters<Element> &params, const Element &publicElement, bool validateOtherPublicKey, const Integer &privateExponent) const =0;
 };
 
-//! \brief Interface for key derivation algorithms used in DL cryptosystems
+/// \brief Interface for key derivation algorithms used in DL cryptosystems
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
@@ -1428,7 +1428,7 @@ public:
 	virtual void Derive(const DL_GroupParameters<T> &groupParams, byte *derivedKey, size_t derivedLength, const T &agreedElement, const T &ephemeralPublicKey, const NameValuePairs &derivationParams) const =0;
 };
 
-//! \brief Interface for symmetric encryption algorithms used in DL cryptosystems
+/// \brief Interface for symmetric encryption algorithms used in DL cryptosystems
 class CRYPTOPP_NO_VTABLE DL_SymmetricEncryptionAlgorithm
 {
 public:
@@ -1443,8 +1443,8 @@ public:
 	virtual DecodingResult SymmetricDecrypt(const byte *key, const byte *ciphertext, size_t ciphertextLength, byte *plaintext, const NameValuePairs &parameters) const =0;
 };
 
-//! \brief Discrete Log (DL) base interface
-//! \tparam KI public or private key interface
+/// \brief Discrete Log (DL) base interface
+/// \tparam KI public or private key interface
 template <class KI>
 class CRYPTOPP_NO_VTABLE DL_Base
 {
@@ -1461,50 +1461,50 @@ protected:
 	virtual const KeyInterface & GetKeyInterface() const =0;
 };
 
-//! \brief Discrete Log (DL) signature scheme base implementation
-//! \tparam INTFACE PK_Signer or PK_Verifier derived class
-//! \tparam KEY_INTFACE DL_Base key base used in the scheme
-//! \details DL_SignatureSchemeBase provides common functions for signers and verifiers.
-//!   DL_Base<DL_PrivateKey> is used for signers, and DL_Base<DL_PublicKey> is used for verifiers.
+/// \brief Discrete Log (DL) signature scheme base implementation
+/// \tparam INTFACE PK_Signer or PK_Verifier derived class
+/// \tparam KEY_INTFACE DL_Base key base used in the scheme
+/// \details DL_SignatureSchemeBase provides common functions for signers and verifiers.
+///   DL_Base<DL_PrivateKey> is used for signers, and DL_Base<DL_PublicKey> is used for verifiers.
 template <class INTFACE, class KEY_INTFACE>
 class CRYPTOPP_NO_VTABLE DL_SignatureSchemeBase : public INTFACE, public DL_Base<KEY_INTFACE>
 {
 public:
 	virtual ~DL_SignatureSchemeBase() {}
 
-	//! \brief Provides the signature length
-	//! \returns signature length, in bytes
-	//! \details SignatureLength returns the size required for <tt>r+s</tt>.
+	/// \brief Provides the signature length
+	/// \returns signature length, in bytes
+	/// \details SignatureLength returns the size required for <tt>r+s</tt>.
 	size_t SignatureLength() const
 	{
 		return GetSignatureAlgorithm().RLen(this->GetAbstractGroupParameters())
 			+ GetSignatureAlgorithm().SLen(this->GetAbstractGroupParameters());
 	}
 
-	//! \brief Provides the maximum recoverable length
-	//! \returns maximum recoverable length, in bytes
+	/// \brief Provides the maximum recoverable length
+	/// \returns maximum recoverable length, in bytes
 	size_t MaxRecoverableLength() const
 		{return GetMessageEncodingInterface().MaxRecoverableLength(0, GetHashIdentifier().second, GetDigestSize());}
 
-	//! \brief Provides the maximum recoverable length
-	//! \param signatureLength the size fo the signature
-	//! \returns maximum recoverable length based on signature length, in bytes
-	//! \details this function is not implemented and always returns 0.
+	/// \brief Provides the maximum recoverable length
+	/// \param signatureLength the size fo the signature
+	/// \returns maximum recoverable length based on signature length, in bytes
+	/// \details this function is not implemented and always returns 0.
 	size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const
 		{CRYPTOPP_UNUSED(signatureLength); CRYPTOPP_ASSERT(false); return 0;}	// TODO
 
-	//! \brief Determines if the scheme is probabilistic
-	//! \returns true if the scheme is probabilistic, false otherwise
+	/// \brief Determines if the scheme is probabilistic
+	/// \returns true if the scheme is probabilistic, false otherwise
 	bool IsProbabilistic() const
 		{return true;}
 
-	//! \brief Determines if the scheme has non-recoverable part
-	//! \returns true if the message encoding has a non-recoverable part, false otherwise.
+	/// \brief Determines if the scheme has non-recoverable part
+	/// \returns true if the message encoding has a non-recoverable part, false otherwise.
 	bool AllowNonrecoverablePart() const
 		{return GetMessageEncodingInterface().AllowNonrecoverablePart();}
 
-	//! \brief Determines if the scheme allows recoverable part first
-	//! \returns true if the message encoding allows the recoverable part, false otherwise.
+	/// \brief Determines if the scheme allows recoverable part first
+	/// \returns true if the message encoding allows the recoverable part, false otherwise.
 	bool RecoverablePartFirst() const
 		{return GetMessageEncodingInterface().RecoverablePartFirst();}
 
@@ -1521,19 +1521,19 @@ protected:
 	virtual size_t GetDigestSize() const =0;
 };
 
-//! \brief Discrete Log (DL) signature scheme signer base implementation
-//! \tparam T class or type
+/// \brief Discrete Log (DL) signature scheme signer base implementation
+/// \tparam T class or type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {
 public:
 	virtual ~DL_SignerBase() {}
 
-	//! \brief Testing interface
-	//! \param k Integer
-	//! \param e Integer
-	//! \param r Integer
-	//! \param s Integer
+	/// \brief Testing interface
+	/// \param k Integer
+	/// \param e Integer
+	/// \param r Integer
+	/// \param s Integer
 	void RawSign(const Integer &k, const Integer &e, Integer &r, Integer &s) const
 	{
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = this->GetSignatureAlgorithm();
@@ -1631,7 +1631,7 @@ protected:
 	}
 };
 
-//! _
+/// _
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {
@@ -1702,9 +1702,9 @@ public:
 	}
 };
 
-//! \brief Discrete Log (DL) cryptosystem base implementation
-//! \tparam PK field element type
-//! \tparam KI public or private key interface
+/// \brief Discrete Log (DL) cryptosystem base implementation
+/// \tparam PK field element type
+/// \tparam KI public or private key interface
 template <class PK, class KI>
 class CRYPTOPP_NO_VTABLE DL_CryptoSystemBase : public PK, public DL_Base<KI>
 {
@@ -1734,8 +1734,8 @@ protected:
 	virtual const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const =0;
 };
 
-//! \brief Discrete Log (DL) decryptor base implementation
-//! \tparam T field element type
+/// \brief Discrete Log (DL) decryptor base implementation
+/// \tparam T field element type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK_Decryptor, DL_PrivateKey<T> >
 {
@@ -1774,8 +1774,8 @@ public:
 	}
 };
 
-//! \brief Discrete Log (DL) encryptor base implementation
-//! \tparam T field element type
+/// \brief Discrete Log (DL) encryptor base implementation
+/// \tparam T field element type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK_Encryptor, DL_PublicKey<T> >
 {
@@ -1807,9 +1807,9 @@ public:
 	}
 };
 
-//! \brief Discrete Log (DL) scheme options
-//! \tparam T1 algorithm information
-//! \tparam T2 group parameters for the scheme
+/// \brief Discrete Log (DL) scheme options
+/// \tparam T1 algorithm information
+/// \tparam T2 group parameters for the scheme
 template <class T1, class T2>
 struct DL_SchemeOptionsBase
 {
@@ -1818,9 +1818,9 @@ struct DL_SchemeOptionsBase
 	typedef typename GroupParameters::Element Element;
 };
 
-//! \brief Discrete Log (DL) key options
-//! \tparam T1 algorithm information
-//! \tparam T2 keys used in the scheme
+/// \brief Discrete Log (DL) key options
+/// \tparam T1 algorithm information
+/// \tparam T2 keys used in the scheme
 template <class T1, class T2>
 struct DL_KeyedSchemeOptions : public DL_SchemeOptionsBase<T1, typename T2::PublicKey::GroupParameters>
 {
@@ -1829,12 +1829,12 @@ struct DL_KeyedSchemeOptions : public DL_SchemeOptionsBase<T1, typename T2::Publ
 	typedef typename Keys::PublicKey PublicKey;
 };
 
-//! \brief Discrete Log (DL) signature scheme options
-//! \tparam T1 algorithm information
-//! \tparam T2 keys used in the scheme
-//! \tparam T3 signature algorithm
-//! \tparam T4 message encoding method
-//! \tparam T5 hash function
+/// \brief Discrete Log (DL) signature scheme options
+/// \tparam T1 algorithm information
+/// \tparam T2 keys used in the scheme
+/// \tparam T3 signature algorithm
+/// \tparam T4 message encoding method
+/// \tparam T5 hash function
 template <class T1, class T2, class T3, class T4, class T5>
 struct DL_SignatureSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 {
@@ -1843,12 +1843,12 @@ struct DL_SignatureSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 	typedef T5 HashFunction;
 };
 
-//! \brief Discrete Log (DL) crypto scheme options
-//! \tparam T1 algorithm information
-//! \tparam T2 keys used in the scheme
-//! \tparam T3 key agreement algorithm
-//! \tparam T4 key derivation algorithm
-//! \tparam T5 symmetric encryption algorithm
+/// \brief Discrete Log (DL) crypto scheme options
+/// \tparam T1 algorithm information
+/// \tparam T2 keys used in the scheme
+/// \tparam T3 key agreement algorithm
+/// \tparam T4 key derivation algorithm
+/// \tparam T5 symmetric encryption algorithm
 template <class T1, class T2, class T3, class T4, class T5>
 struct DL_CryptoSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 {
@@ -1857,10 +1857,10 @@ struct DL_CryptoSchemeOptions : public DL_KeyedSchemeOptions<T1, T2>
 	typedef T5 SymmetricEncryptionAlgorithm;
 };
 
-//! \brief Discrete Log (DL) base object implementation
-//! \tparam BASE TODO
-//! \tparam SCHEME_OPTIONS options for the scheme
-//! \tparam KEY key used in the scheme
+/// \brief Discrete Log (DL) base object implementation
+/// \tparam BASE TODO
+/// \tparam SCHEME_OPTIONS options for the scheme
+/// \tparam KEY key used in the scheme
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class CRYPTOPP_NO_VTABLE DL_ObjectImplBase : public AlgorithmImpl<BASE, typename SCHEME_OPTIONS::AlgorithmInfo>
 {
@@ -1897,10 +1897,10 @@ private:
 	KEY m_key;
 };
 
-//! \brief Discrete Log (DL) object implementation
-//! \tparam BASE TODO
-//! \tparam SCHEME_OPTIONS options for the scheme
-//! \tparam KEY key used in the scheme
+/// \brief Discrete Log (DL) object implementation
+/// \tparam BASE TODO
+/// \tparam SCHEME_OPTIONS options for the scheme
+/// \tparam KEY key used in the scheme
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class CRYPTOPP_NO_VTABLE DL_ObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>
 {
@@ -1924,8 +1924,8 @@ protected:
 		{return Singleton<typename SCHEME_OPTIONS::MessageEncodingMethod>().Ref();}
 };
 
-//! \brief Discrete Log (DL) signer implementation
-//! \tparam SCHEME_OPTIONS options for the scheme
+/// \brief Discrete Log (DL) signer implementation
+/// \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_SignerImpl : public DL_ObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
@@ -1938,8 +1938,8 @@ public:
 	}
 };
 
-//! \brief Discrete Log (DL) verifier implementation
-//! \tparam SCHEME_OPTIONS options for the scheme
+/// \brief Discrete Log (DL) verifier implementation
+/// \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_VerifierImpl : public DL_ObjectImpl<DL_VerifierBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
@@ -1950,15 +1950,15 @@ public:
 	}
 };
 
-//! \brief Discrete Log (DL) encryptor implementation
-//! \tparam SCHEME_OPTIONS options for the scheme
+/// \brief Discrete Log (DL) encryptor implementation
+/// \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_EncryptorImpl : public DL_ObjectImpl<DL_EncryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PublicKey>
 {
 };
 
-//! \brief Discrete Log (DL) decryptor implementation
-//! \tparam SCHEME_OPTIONS options for the scheme
+/// \brief Discrete Log (DL) decryptor implementation
+/// \tparam SCHEME_OPTIONS options for the scheme
 template <class SCHEME_OPTIONS>
 class DL_DecryptorImpl : public DL_ObjectImpl<DL_DecryptorBase<typename SCHEME_OPTIONS::Element>, SCHEME_OPTIONS, typename SCHEME_OPTIONS::PrivateKey>
 {
@@ -1966,8 +1966,8 @@ class DL_DecryptorImpl : public DL_ObjectImpl<DL_DecryptorBase<typename SCHEME_O
 
 // ********************************************************
 
-//! \brief Discrete Log (DL) simple key agreement base implementation
-//! \tparam T class or type
+/// \brief Discrete Log (DL) simple key agreement base implementation
+/// \tparam T class or type
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SimpleKeyAgreementDomainBase : public SimpleKeyAgreementDomain
 {
@@ -2015,8 +2015,8 @@ public:
 		return true;
 	}
 
-	//! \brief Retrieves a reference to the group generator
-	//! \returns const reference to the group generator
+	/// \brief Retrieves a reference to the group generator
+	/// \returns const reference to the group generator
 	const Element &GetGenerator() const {return GetAbstractGroupParameters().GetSubgroupGenerator();}
 
 protected:
@@ -2025,27 +2025,27 @@ protected:
 	const DL_GroupParameters<Element> & GetAbstractGroupParameters() const {return const_cast<DL_SimpleKeyAgreementDomainBase<Element> *>(this)->AccessAbstractGroupParameters();}
 };
 
-//! \brief Methods for avoiding "Small-Subgroup" attacks on Diffie-Hellman Key Agreement
-//! \details Additional methods exist and include public key validation and choice of prime p.
-//! \sa <A HREF="http://tools.ietf.org/html/rfc2785">Methods for Avoiding the "Small-Subgroup" Attacks on the
-//!   Diffie-Hellman Key Agreement Method for S/MIME</A>
+/// \brief Methods for avoiding "Small-Subgroup" attacks on Diffie-Hellman Key Agreement
+/// \details Additional methods exist and include public key validation and choice of prime p.
+/// \sa <A HREF="http://tools.ietf.org/html/rfc2785">Methods for Avoiding the "Small-Subgroup" Attacks on the
+///   Diffie-Hellman Key Agreement Method for S/MIME</A>
 enum CofactorMultiplicationOption {
-	//! \brief No cofactor multiplication applied
+	/// \brief No cofactor multiplication applied
 	NO_COFACTOR_MULTIPLICTION,
-	//! \brief Cofactor multiplication compatible with ordinary Diffie-Hellman
-	//! \details Modifies the computation of ZZ by including j (the cofactor) in the computations and is
-	//!   compatible with ordinary Diffie-Hellman.
+	/// \brief Cofactor multiplication compatible with ordinary Diffie-Hellman
+	/// \details Modifies the computation of ZZ by including j (the cofactor) in the computations and is
+	///   compatible with ordinary Diffie-Hellman.
 	COMPATIBLE_COFACTOR_MULTIPLICTION,
-	//! \brief Cofactor multiplication incompatible with ordinary Diffie-Hellman
-	//! \details Modifies the computation of ZZ by including j (the cofactor) in the computations but is
-	//!   not compatible with ordinary Diffie-Hellman.
+	/// \brief Cofactor multiplication incompatible with ordinary Diffie-Hellman
+	/// \details Modifies the computation of ZZ by including j (the cofactor) in the computations but is
+	///   not compatible with ordinary Diffie-Hellman.
 	INCOMPATIBLE_COFACTOR_MULTIPLICTION};
 
 typedef EnumToType<CofactorMultiplicationOption, NO_COFACTOR_MULTIPLICTION> NoCofactorMultiplication;
 typedef EnumToType<CofactorMultiplicationOption, COMPATIBLE_COFACTOR_MULTIPLICTION> CompatibleCofactorMultiplication;
 typedef EnumToType<CofactorMultiplicationOption, INCOMPATIBLE_COFACTOR_MULTIPLICTION> IncompatibleCofactorMultiplication;
 
-//! \brief Diffie-Hellman key agreement algorithm
+/// \brief Diffie-Hellman key agreement algorithm
 template <class ELEMENT, class COFACTOR_OPTION>
 class DL_KeyAgreementAlgorithm_DH : public DL_KeyAgreementAlgorithm<ELEMENT>
 {
@@ -2101,7 +2101,7 @@ public:
 
 // ********************************************************
 
-//! \brief Template implementing constructors for public key algorithm classes
+/// \brief Template implementing constructors for public key algorithm classes
 template <class BASE>
 class CRYPTOPP_NO_VTABLE PK_FinalTemplate : public BASE
 {
@@ -2177,20 +2177,20 @@ public:
 		{this->AccessKey().Initialize(v1, v2, v3, v4, v5, v6, v7, v8);}
 };
 
-//! \brief Base class for public key encryption standard classes.
-//! \details These classes are used to select from variants of algorithms.
-//!   Not all standards apply to all algorithms.
+/// \brief Base class for public key encryption standard classes.
+/// \details These classes are used to select from variants of algorithms.
+///   Not all standards apply to all algorithms.
 struct EncryptionStandard {};
 
-//! \brief Base class for public key signature standard classes.
-//! \details These classes are used to select from variants of algorithms.
-//!   Not all standards apply to all algorithms.
+/// \brief Base class for public key signature standard classes.
+/// \details These classes are used to select from variants of algorithms.
+///   Not all standards apply to all algorithms.
 struct SignatureStandard {};
 
-//! \brief Trapdoor Function (TF) encryption scheme
-//! \tparam STANDARD standard
-//! \tparam KEYS keys used in the encryption scheme
-//! \tparam ALG_INFO algorithm information
+/// \brief Trapdoor Function (TF) encryption scheme
+/// \tparam STANDARD standard
+/// \tparam KEYS keys used in the encryption scheme
+/// \tparam ALG_INFO algorithm information
 template <class KEYS, class STANDARD, class ALG_INFO>
 class TF_ES;
 
@@ -2200,24 +2200,24 @@ class TF_ES : public KEYS
 	typedef typename STANDARD::EncryptionMessageEncodingMethod MessageEncodingMethod;
 
 public:
-	//! see EncryptionStandard for a list of standards
+	/// see EncryptionStandard for a list of standards
 	typedef STANDARD Standard;
 	typedef TF_CryptoSchemeOptions<ALG_INFO, KEYS, MessageEncodingMethod> SchemeOptions;
 
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string(KEYS::StaticAlgorithmName()) + "/" + MessageEncodingMethod::StaticAlgorithmName();}
 
-	//! implements PK_Decryptor interface
+	/// implements PK_Decryptor interface
 	typedef PK_FinalTemplate<TF_DecryptorImpl<SchemeOptions> > Decryptor;
-	//! implements PK_Encryptor interface
+	/// implements PK_Encryptor interface
 	typedef PK_FinalTemplate<TF_EncryptorImpl<SchemeOptions> > Encryptor;
 };
 
-//! \class TF_SS
-//! \brief Trapdoor Function (TF) Signature Scheme
-//! \tparam STANDARD standard
-//! \tparam H hash function
-//! \tparam KEYS keys used in the signature scheme
-//! \tparam ALG_INFO algorithm information
+/// \class TF_SS
+/// \brief Trapdoor Function (TF) Signature Scheme
+/// \tparam STANDARD standard
+/// \tparam H hash function
+/// \tparam KEYS keys used in the signature scheme
+/// \tparam ALG_INFO algorithm information
 template <class KEYS, class STANDARD, class H, class ALG_INFO>
 class TF_SS;
 
@@ -2225,26 +2225,26 @@ template <class KEYS, class STANDARD, class H, class ALG_INFO = TF_SS<KEYS, STAN
 class TF_SS : public KEYS
 {
 public:
-	//! see SignatureStandard for a list of standards
+	/// see SignatureStandard for a list of standards
 	typedef STANDARD Standard;
 	typedef typename Standard::SignatureMessageEncodingMethod MessageEncodingMethod;
 	typedef TF_SignatureSchemeOptions<ALG_INFO, KEYS, MessageEncodingMethod, H> SchemeOptions;
 
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string(KEYS::StaticAlgorithmName()) + "/" + MessageEncodingMethod::StaticAlgorithmName() + "(" + H::StaticAlgorithmName() + ")";}
 
-	//! implements PK_Signer interface
+	/// implements PK_Signer interface
 	typedef PK_FinalTemplate<TF_SignerImpl<SchemeOptions> > Signer;
-	//! implements PK_Verifier interface
+	/// implements PK_Verifier interface
 	typedef PK_FinalTemplate<TF_VerifierImpl<SchemeOptions> > Verifier;
 };
 
-//! \class DL_SS
-//! \brief Discrete Log (DL) signature scheme
-//! \tparam KEYS keys used in the signature scheme
-//! \tparam SA signature algorithm
-//! \tparam MEM message encoding method
-//! \tparam H hash function
-//! \tparam ALG_INFO algorithm information
+/// \class DL_SS
+/// \brief Discrete Log (DL) signature scheme
+/// \tparam KEYS keys used in the signature scheme
+/// \tparam SA signature algorithm
+/// \tparam MEM message encoding method
+/// \tparam H hash function
+/// \tparam ALG_INFO algorithm information
 template <class KEYS, class SA, class MEM, class H, class ALG_INFO>
 class DL_SS;
 
@@ -2256,27 +2256,27 @@ class DL_SS : public KEYS
 public:
 	static std::string StaticAlgorithmName() {return SA::StaticAlgorithmName() + std::string("/EMSA1(") + H::StaticAlgorithmName() + ")";}
 
-	//! implements PK_Signer interface
+	/// implements PK_Signer interface
 	typedef PK_FinalTemplate<DL_SignerImpl<SchemeOptions> > Signer;
-	//! implements PK_Verifier interface
+	/// implements PK_Verifier interface
 	typedef PK_FinalTemplate<DL_VerifierImpl<SchemeOptions> > Verifier;
 };
 
-//! \brief Discrete Log (DL) encryption scheme
-//! \tparam KEYS keys used in the encryption scheme
-//! \tparam AA key agreement algorithm
-//! \tparam DA key derivation algorithm
-//! \tparam EA encryption algorithm
-//! \tparam ALG_INFO algorithm information
+/// \brief Discrete Log (DL) encryption scheme
+/// \tparam KEYS keys used in the encryption scheme
+/// \tparam AA key agreement algorithm
+/// \tparam DA key derivation algorithm
+/// \tparam EA encryption algorithm
+/// \tparam ALG_INFO algorithm information
 template <class KEYS, class AA, class DA, class EA, class ALG_INFO>
 class DL_ES : public KEYS
 {
 	typedef DL_CryptoSchemeOptions<ALG_INFO, KEYS, AA, DA, EA> SchemeOptions;
 
 public:
-	//! implements PK_Decryptor interface
+	/// implements PK_Decryptor interface
 	typedef PK_FinalTemplate<DL_DecryptorImpl<SchemeOptions> > Decryptor;
-	//! implements PK_Encryptor interface
+	/// implements PK_Encryptor interface
 	typedef PK_FinalTemplate<DL_EncryptorImpl<SchemeOptions> > Encryptor;
 };
 

@@ -1,7 +1,7 @@
 // modes.h - originally written and placed in the public domain by Wei Dai
 
-//! \file modes.h
-//! \brief Classes for block cipher modes of operation
+/// \file modes.h
+/// \brief Classes for block cipher modes of operation
 
 #ifndef CRYPTOPP_MODES_H
 #define CRYPTOPP_MODES_H
@@ -30,24 +30,24 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class CipherModeDocumentation
-//! \brief Block cipher mode of operation information
-//! \details Each class derived from this one defines two types, Encryption and Decryption,
-//!   both of which implement the SymmetricCipher interface.
-//!   For each mode there are two classes, one of which is a template class,
-//!   and the other one has a name that ends in "_ExternalCipher".
-//!   The "external cipher" mode objects hold a reference to the underlying block cipher,
-//!   instead of holding an instance of it. The reference must be passed in to the constructor.
-//!   For the "cipher holder" classes, the CIPHER template parameter should be a class
-//!   derived from BlockCipherDocumentation, for example DES or AES.
-//! \details See NIST SP 800-38A for definitions of these modes. See
-//!   AuthenticatedSymmetricCipherDocumentation for authenticated encryption modes.
+/// \class CipherModeDocumentation
+/// \brief Block cipher mode of operation information
+/// \details Each class derived from this one defines two types, Encryption and Decryption,
+///   both of which implement the SymmetricCipher interface.
+///   For each mode there are two classes, one of which is a template class,
+///   and the other one has a name that ends in "_ExternalCipher".
+///   The "external cipher" mode objects hold a reference to the underlying block cipher,
+///   instead of holding an instance of it. The reference must be passed in to the constructor.
+///   For the "cipher holder" classes, the CIPHER template parameter should be a class
+///   derived from BlockCipherDocumentation, for example DES or AES.
+/// \details See NIST SP 800-38A for definitions of these modes. See
+///   AuthenticatedSymmetricCipherDocumentation for authenticated encryption modes.
 struct CipherModeDocumentation : public SymmetricCipherDocumentation
 {
 };
 
-//! \class CipherModeBase
-//! \brief Block cipher mode of operation information
+/// \class CipherModeBase
+/// \brief Block cipher mode of operation information
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CipherModeBase : public SymmetricCipher
 {
 public:
@@ -95,9 +95,9 @@ protected:
 	AlignedSecByteBlock m_register;
 };
 
-//! \class ModePolicyCommonTemplate
-//! \brief Block cipher mode of operation common operations
-//! \tparam POLICY_INTERFACE common operations
+/// \class ModePolicyCommonTemplate
+/// \brief Block cipher mode of operation common operations
+/// \tparam POLICY_INTERFACE common operations
 template <class POLICY_INTERFACE>
 class CRYPTOPP_NO_VTABLE ModePolicyCommonTemplate : public CipherModeBase, public POLICY_INTERFACE
 {
@@ -114,8 +114,8 @@ void ModePolicyCommonTemplate<POLICY_INTERFACE>::CipherSetKey(const NameValuePai
 	SetFeedbackSize(feedbackSize);
 }
 
-//! \class CFB_ModePolicy
-//! \brief CFB block cipher mode of operation
+/// \class CFB_ModePolicy
+/// \brief CFB block cipher mode of operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTemplate<CFB_CipherAbstractPolicy>
 {
 public:
@@ -149,8 +149,8 @@ inline void CopyOrZero(void *dest, size_t d, const void *src, size_t s)
 		memset(dest, 0, d);
 }
 
-//! \class OFB_ModePolicy
-//! \brief OFB block cipher mode of operation
+/// \class OFB_ModePolicy
+/// \brief OFB block cipher mode of operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 public:
@@ -166,8 +166,8 @@ private:
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
 };
 
-//! \class CTR_ModePolicy
-//! \brief CTR block cipher mode of operation
+/// \class CTR_ModePolicy
+/// \brief CTR block cipher mode of operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTemplate<AdditiveCipherAbstractPolicy>
 {
 public:
@@ -192,8 +192,8 @@ protected:
 	AlignedSecByteBlock m_counterArray;
 };
 
-//! \class BlockOrientedCipherModeBase
-//! \brief Block cipher mode of operation default implementation
+/// \class BlockOrientedCipherModeBase
+/// \brief Block cipher mode of operation default implementation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockOrientedCipherModeBase : public CipherModeBase
 {
 public:
@@ -212,8 +212,8 @@ protected:
 	SecByteBlock m_buffer;
 };
 
-//! \class ECB_OneWay
-//! \brief ECB block cipher mode of operation default implementation
+/// \class ECB_OneWay
+/// \brief ECB block cipher mode of operation default implementation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ECB_OneWay : public BlockOrientedCipherModeBase
 {
 public:
@@ -226,8 +226,8 @@ public:
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 };
 
-//! \class CBC_ModeBase
-//! \brief CBC block cipher mode of operation default implementation
+/// \class CBC_ModeBase
+/// \brief CBC block cipher mode of operation default implementation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
@@ -238,16 +238,16 @@ public:
 	unsigned int MinLastBlockSize() const {return 0;}
 };
 
-//! \class CBC_Encryption
-//! \brief CBC block cipher mode of operation encryption operation
+/// \class CBC_Encryption
+/// \brief CBC block cipher mode of operation encryption operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Encryption : public CBC_ModeBase
 {
 public:
 	void ProcessData(byte *outString, const byte *inString, size_t length);
 };
 
-//! \class CBC_CTS_Encryption
-//! \brief CBC-CTS block cipher mode of operation encryption operation
+/// \class CBC_CTS_Encryption
+/// \brief CBC-CTS block cipher mode of operation encryption operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
 {
 public:
@@ -267,8 +267,8 @@ protected:
 	byte *m_stolenIV;
 };
 
-//! \class CBC_Decryption
-//! \brief CBC block cipher mode of operation decryption operation
+/// \class CBC_Decryption
+/// \brief CBC block cipher mode of operation decryption operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_Decryption : public CBC_ModeBase
 {
 public:
@@ -281,8 +281,8 @@ protected:
 	AlignedSecByteBlock m_temp;
 };
 
-//! \class CBC_CTS_Decryption
-//! \brief CBC-CTS block cipher mode of operation decryption operation
+/// \class CBC_CTS_Decryption
+/// \brief CBC-CTS block cipher mode of operation decryption operation
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
 {
 public:
@@ -290,8 +290,8 @@ public:
 	size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 };
 
-//! \class CipherModeFinalTemplate_CipherHolder
-//! \brief Block cipher mode of operation aggregate
+/// \class CipherModeFinalTemplate_CipherHolder
+/// \brief Block cipher mode of operation aggregate
 template <class CIPHER, class BASE>
 class CipherModeFinalTemplate_CipherHolder : protected ObjectHolder<CIPHER>, public AlgorithmImpl<BASE, CipherModeFinalTemplate_CipherHolder<CIPHER, BASE> >
 {
@@ -321,9 +321,9 @@ public:
 	}
 };
 
-//! \class CipherModeFinalTemplate_ExternalCipher
-//! \tparam BASE CipherModeFinalTemplate_CipherHolder base class
-//! \details Base class for external mode cipher combinations
+/// \class CipherModeFinalTemplate_ExternalCipher
+/// \tparam BASE CipherModeFinalTemplate_CipherHolder base class
+/// \details Base class for external mode cipher combinations
 template <class BASE>
 class CipherModeFinalTemplate_ExternalCipher : public BASE
 {
@@ -342,10 +342,10 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAb
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;
 
-//! \class CFB_Mode
-//! \brief CFB block cipher mode of operation
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CFB_Mode
+/// \brief CFB block cipher mode of operation
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct CFB_Mode : public CipherModeDocumentation
 {
@@ -353,21 +353,21 @@ struct CFB_Mode : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Decryption;
 };
 
-//! \class CFB_Mode_ExternalCipher
-//! \brief CFB mode, external cipher.
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CFB_Mode_ExternalCipher
+/// \brief CFB mode, external cipher.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct CFB_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Encryption;
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > Decryption;
 };
 
-//! \class CFB_FIPS_Mode
-//! \brief CFB block cipher mode of operation providing FIPS validated cryptography.
-//! \details Requires full block plaintext according to FIPS 800-38A
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CFB_FIPS_Mode
+/// \brief CFB block cipher mode of operation providing FIPS validated cryptography.
+/// \details Requires full block plaintext according to FIPS 800-38A
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct CFB_FIPS_Mode : public CipherModeDocumentation
 {
@@ -375,11 +375,11 @@ struct CFB_FIPS_Mode : public CipherModeDocumentation
 	typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_DecryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Decryption;
 };
 
-//! \class CFB_FIPS_Mode_ExternalCipher
-//! \brief CFB mode, external cipher, providing FIPS validated cryptography.
-//! \details Requires full block plaintext according to FIPS 800-38A
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CFB_FIPS_Mode_ExternalCipher
+/// \brief CFB mode, external cipher, providing FIPS validated cryptography.
+/// \details Requires full block plaintext according to FIPS 800-38A
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct CFB_FIPS_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, CFB_RequireFullDataBlocks<CFB_EncryptionTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> > > > > Encryption;
@@ -388,10 +388,10 @@ struct CFB_FIPS_Mode_ExternalCipher : public CipherModeDocumentation
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> >;
 
-//! \class OFB_Mode
-//! \brief OFB block cipher mode of operation
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class OFB_Mode
+/// \brief OFB block cipher mode of operation
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct OFB_Mode : public CipherModeDocumentation
 {
@@ -399,10 +399,10 @@ struct OFB_Mode : public CipherModeDocumentation
 	typedef Encryption Decryption;
 };
 
-//! \class OFB_Mode_ExternalCipher
-//! \brief OFB mode, external cipher.
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class OFB_Mode_ExternalCipher
+/// \brief OFB mode, external cipher.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct OFB_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, OFB_ModePolicy> > > > Encryption;
@@ -412,10 +412,10 @@ struct OFB_Mode_ExternalCipher : public CipherModeDocumentation
 CRYPTOPP_DLL_TEMPLATE_CLASS AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> >;
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> > > >;
 
-//! \class CTR_Mode
-//! \brief CTR block cipher mode of operation
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CTR_Mode
+/// \brief CTR block cipher mode of operation
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct CTR_Mode : public CipherModeDocumentation
 {
@@ -423,20 +423,20 @@ struct CTR_Mode : public CipherModeDocumentation
 	typedef Encryption Decryption;
 };
 
-//! \class CTR_Mode_ExternalCipher
-//! \brief CTR mode, external cipher.
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CTR_Mode_ExternalCipher
+/// \brief CTR mode, external cipher.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct CTR_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ConcretePolicyHolder<Empty, AdditiveCipherTemplate<AbstractPolicyHolder<AdditiveCipherAbstractPolicy, CTR_ModePolicy> > > > Encryption;
 	typedef Encryption Decryption;
 };
 
-//! \class ECB_Mode
-//! \brief ECB block cipher mode of operation
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class ECB_Mode
+/// \brief ECB block cipher mode of operation
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct ECB_Mode : public CipherModeDocumentation
 {
@@ -446,20 +446,20 @@ struct ECB_Mode : public CipherModeDocumentation
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<ECB_OneWay>;
 
-//! \class ECB_Mode_ExternalCipher
-//! \brief ECB mode, external cipher.
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class ECB_Mode_ExternalCipher
+/// \brief ECB mode, external cipher.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct ECB_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<ECB_OneWay> Encryption;
 	typedef Encryption Decryption;
 };
 
-//! \class CBC_Mode
-//! \brief CBC block cipher mode of operation
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CBC_Mode
+/// \brief CBC block cipher mode of operation
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct CBC_Mode : public CipherModeDocumentation
 {
@@ -470,20 +470,20 @@ struct CBC_Mode : public CipherModeDocumentation
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Encryption>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_Decryption>;
 
-//! \class CBC_Mode_ExternalCipher
-//! \brief CBC mode, external cipher
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CBC_Mode_ExternalCipher
+/// \brief CBC mode, external cipher
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Encryption> Encryption;
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_Decryption> Decryption;
 };
 
-//! \class CBC_CTS_Mode
-//! \brief CBC-CTS block cipher mode of operation
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CBC_CTS_Mode
+/// \brief CBC-CTS block cipher mode of operation
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 template <class CIPHER>
 struct CBC_CTS_Mode : public CipherModeDocumentation
 {
@@ -494,10 +494,10 @@ struct CBC_CTS_Mode : public CipherModeDocumentation
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption>;
 CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decryption>;
 
-//! \class CBC_CTS_Mode_ExternalCipher
-//! \brief CBC mode with ciphertext stealing, external cipher
-//! \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-//!   on the Crypto++ wiki.
+/// \class CBC_CTS_Mode_ExternalCipher
+/// \brief CBC mode with ciphertext stealing, external cipher
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
+///   on the Crypto++ wiki.
 struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption> Encryption;

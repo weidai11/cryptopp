@@ -1,8 +1,8 @@
 // dll.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile dll.h
-//! \brief Functions and definitions required for building the FIPS-140 DLL on Windows
+/// \file
+/// \headerfile dll.h
+/// \brief Functions and definitions required for building the FIPS-140 DLL on Windows
 
 #ifndef CRYPTOPP_DLL_H
 #define CRYPTOPP_DLL_H

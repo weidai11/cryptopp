@@ -1,7 +1,7 @@
 // square.h - originally written and placed in the public domain by Wei Dai
 
-//! \file square.h
-//! \brief Classes for the Square block cipher
+/// \file square.h
+/// \brief Classes for the Square block cipher
 
 #ifndef CRYPTOPP_SQUARE_H
 #define CRYPTOPP_SQUARE_H
@@ -11,16 +11,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class Square_Info
-//! \brief Square block cipher information
+/// \class Square_Info
+/// \brief Square block cipher information
 struct Square_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, FixedRounds<8>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Square";}
 };
 
-//! \class Square
-//! \brief Square block cipher
-//! \sa <a href="http://www.cryptopp.com/wiki/Square">Square</a>
+/// \class Square
+/// \brief Square block cipher
+/// \sa <a href="http://www.cryptopp.com/wiki/Square">Square</a>
 class Square : public Square_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Square_Info>

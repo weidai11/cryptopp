@@ -1,7 +1,7 @@
 // config.h - originally written and placed in the public domain by Wei Dai
 
-//! \file config.h
-//! \brief Library configuration file
+/// \file config.h
+/// \brief Library configuration file
 
 #ifndef CRYPTOPP_CONFIG_H
 #define CRYPTOPP_CONFIG_H
@@ -163,15 +163,15 @@
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 // Document the namespce exists. Put it here before CryptoPP is undefined below.
-//! \namespace CryptoPP
-//! \brief Crypto++ library namespace
-//! \details Nearly all classes are located in the CryptoPP namespace. Within
-//!   the namespace, there are two additional namespaces.
-//!   <ul>
-//!     <li>Name - namespace for names used with \p NameValuePairs and documented in argnames.h
-//!     <li>Test - namespace for testing and benchmarks classes
-//!     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
-//!   </ul>
+/// \namespace CryptoPP
+/// \brief Crypto++ library namespace
+/// \details Nearly all classes are located in the CryptoPP namespace. Within
+///   the namespace, there are two additional namespaces.
+///   <ul>
+///     <li>Name - namespace for names used with \p NameValuePairs and documented in argnames.h
+///     <li>Test - namespace for testing and benchmarks classes
+///     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
+///   </ul>
 namespace CryptoPP { }
 // Bring in the symbols fund in the weak namespace; and fold Weak1 into Weak
 #		define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1

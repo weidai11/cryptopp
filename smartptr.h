@@ -1,8 +1,8 @@
 // smartptr.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile smartptr.h
-//! \brief Classes for automatic resource management
+/// \file
+/// \headerfile smartptr.h
+/// \brief Classes for automatic resource management
 
 #ifndef CRYPTOPP_SMARTPTR_H
 #define CRYPTOPP_SMARTPTR_H
@@ -12,11 +12,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class simple_ptr
-//! \brief Manages resources for a single object
-//! \tparam T class or type
-//! \details \p simple_ptr is used frequently in the library to manage resources and
-//!   ensure cleanup under the RAII pattern (Resource Acquisition Is Initialization).
+/// \class simple_ptr
+/// \brief Manages resources for a single object
+/// \tparam T class or type
+/// \details \p simple_ptr is used frequently in the library to manage resources and
+///   ensure cleanup under the RAII pattern (Resource Acquisition Is Initialization).
 template <class T> class simple_ptr
 {
 public:
@@ -30,12 +30,12 @@ public:
 	T *m_p;
 };
 
-//! \class member_ptr
-//! \brief Pointer that overloads operator ->
-//! \tparam T class or type
-//! \details member_ptr is used frequently in the library to avoid the issues related to
-//!   std::auto_ptr in C++11 (deprecated) and std::unique_ptr in C++03 (non-existent).
-//! \bug <a href="http://github.com/weidai11/cryptopp/issues/48">Issue 48: "Use of auto_ptr causes dirty compile under C++11"</a>
+/// \class member_ptr
+/// \brief Pointer that overloads operator ->
+/// \tparam T class or type
+/// \details member_ptr is used frequently in the library to avoid the issues related to
+///   std::auto_ptr in C++11 (deprecated) and std::unique_ptr in C++03 (non-existent).
+/// \bug <a href="http://github.com/weidai11/cryptopp/issues/48">Issue 48: "Use of auto_ptr causes dirty compile under C++11"</a>
 template <class T> class member_ptr
 {
 public:
@@ -73,9 +73,9 @@ template <class T> void member_ptr<T>::reset(T *p) {delete m_p; m_p = p;}
 
 // ********************************************************
 
-//! \class value_ptr
-//! \brief Value pointer
-//! \tparam T class or type
+/// \class value_ptr
+/// \brief Value pointer
+/// \tparam T class or type
 template<class T> class value_ptr : public member_ptr<T>
 {
 public:
@@ -101,10 +101,10 @@ template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs
 
 // ********************************************************
 
-//! \class clonable_ptr
-//! \brief A pointer which can be copied and cloned
-//! \tparam T class or type
-//! \details \p T should adhere to the \p Clonable interface
+/// \class clonable_ptr
+/// \brief A pointer which can be copied and cloned
+/// \tparam T class or type
+/// \details \p T should adhere to the \p Clonable interface
 template<class T> class clonable_ptr : public member_ptr<T>
 {
 public:
@@ -126,11 +126,11 @@ template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_pt
 
 // ********************************************************
 
-//! \class counted_ptr
-//! \brief Reference counted pointer
-//! \tparam T class or type
-//! \details users should declare \p m_referenceCount as <tt>std::atomic<unsigned></tt>
-//!   (or similar) under C++ 11
+/// \class counted_ptr
+/// \brief Reference counted pointer
+/// \tparam T class or type
+/// \details users should declare \p m_referenceCount as <tt>std::atomic<unsigned></tt>
+///   (or similar) under C++ 11
 template<class T> class counted_ptr
 {
 public:
@@ -220,18 +220,18 @@ template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<
 
 // ********************************************************
 
-//! \class vector_ptr
-//! \brief Manages resources for an array of objects
-//! \tparam T class or type
-//! \details \p vector_ptr is used frequently in the library to avoid large stack allocations,
-//!   and manage resources and ensure cleanup under the RAII pattern (Resource Acquisition
-//!   Is Initialization).
+/// \class vector_ptr
+/// \brief Manages resources for an array of objects
+/// \tparam T class or type
+/// \details \p vector_ptr is used frequently in the library to avoid large stack allocations,
+///   and manage resources and ensure cleanup under the RAII pattern (Resource Acquisition
+///   Is Initialization).
 template <class T> class vector_ptr
 {
 public:
-	//! Construct an arry of \p T
-	//! \param size the size of the array, in elements
-	//! \details If \p T is a Plain Old Dataype (POD), then the array is uninitialized.
+	/// Construct an arry of \p T
+	/// \param size the size of the array, in elements
+	/// \details If \p T is a Plain Old Dataype (POD), then the array is uninitialized.
 	vector_ptr(size_t size=0)
 		: m_size(size), m_ptr(new T[m_size]) {}
 	~vector_ptr()
@@ -278,15 +278,15 @@ private:
 
 // ********************************************************
 
-//! \class vector_member_ptrs
-//! \brief Manages resources for an array of objects
-//! \tparam T class or type
+/// \class vector_member_ptrs
+/// \brief Manages resources for an array of objects
+/// \tparam T class or type
 template <class T> class vector_member_ptrs
 {
 public:
-	//! Construct an arry of \p T
-	//! \param size the size of the array, in elements
-	//! \details If \p T is a Plain Old Dataype (POD), then the array is uninitialized.
+	/// Construct an arry of \p T
+	/// \param size the size of the array, in elements
+	/// \details If \p T is a Plain Old Dataype (POD), then the array is uninitialized.
 	vector_member_ptrs(size_t size=0)
 		: m_size(size), m_ptr(new member_ptr<T>[size]) {}
 	~vector_member_ptrs()

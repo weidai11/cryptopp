@@ -330,28 +330,28 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	}
 }
 
-//! \class ClassNullRNG
-//! \brief Random Number Generator that does not produce random numbers
-//! \details ClassNullRNG can be used for functions that require a RandomNumberGenerator
-//!   but don't actually use it. The class throws NotImplemented when a generation function is called.
-//! \sa NullRNG()
+/// \class ClassNullRNG
+/// \brief Random Number Generator that does not produce random numbers
+/// \details ClassNullRNG can be used for functions that require a RandomNumberGenerator
+///   but don't actually use it. The class throws NotImplemented when a generation function is called.
+/// \sa NullRNG()
 class ClassNullRNG : public RandomNumberGenerator
 {
 public:
-	//! \brief The name of the generator
-	//! \returns the string \a NullRNGs
+	/// \brief The name of the generator
+	/// \returns the string \a NullRNGs
 	std::string AlgorithmName() const {return "NullRNG";}
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
-	//! \brief An implementation that throws NotImplemented
+	/// \brief An implementation that throws NotImplemented
 	byte GenerateByte () {}
-	//! \brief An implementation that throws NotImplemented
+	/// \brief An implementation that throws NotImplemented
 	unsigned int GenerateBit () {}
-	//! \brief An implementation that throws NotImplemented
+	/// \brief An implementation that throws NotImplemented
 	word32 GenerateWord32 (word32 min, word32 max) {}
 #endif
 
-	//! \brief An implementation that throws NotImplemented
+	/// \brief An implementation that throws NotImplemented
 	void GenerateBlock(byte *output, size_t size)
 	{
 		CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
@@ -359,15 +359,15 @@ public:
 	}
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
-	//! \brief An implementation that throws NotImplemented
+	/// \brief An implementation that throws NotImplemented
 	void GenerateIntoBufferedTransformation (BufferedTransformation &target, const std::string &channel, lword length) {}
-	//! \brief An implementation that throws NotImplemented
+	/// \brief An implementation that throws NotImplemented
 	void IncorporateEntropy (const byte *input, size_t length) {}
-	//! \brief An implementation that returns \p false
+	/// \brief An implementation that returns \p false
 	bool CanIncorporateEntropy () const {}
-	//! \brief An implementation that does nothing
+	/// \brief An implementation that does nothing
 	void DiscardBytes (size_t n) {}
-	//! \brief An implementation that does nothing
+	/// \brief An implementation that does nothing
 	void Shuffle (IT begin, IT end) {}
 
 private:

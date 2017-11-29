@@ -1,7 +1,7 @@
 // queue.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \brief Classes for an unlimited queue to store bytes
+/// \file
+/// \brief Classes for an unlimited queue to store bytes
 
 #ifndef CRYPTOPP_QUEUE_H
 #define CRYPTOPP_QUEUE_H
@@ -13,21 +13,21 @@ NAMESPACE_BEGIN(CryptoPP)
 
 class ByteQueueNode;
 
-//! \class ByteQueue
-//! \brief Data structure used to store byte strings
-//! \details The queue is implemented as a linked list of byte arrays
+/// \class ByteQueue
+/// \brief Data structure used to store byte strings
+/// \details The queue is implemented as a linked list of byte arrays
 class CRYPTOPP_DLL ByteQueue : public Bufferless<BufferedTransformation>
 {
 public:
-	//! \brief Construct a ByteQueue
-	//! \param nodeSize the initial node size
-	//! \details Internally, ByteQueue uses a ByteQueueNode to store bytes, and \p nodeSize determines the
-	//!   size of the ByteQueueNode. A value of 0 indicates the ByteQueueNode should be automatically sized,
-	//!   which means a value of 256 is used.
+	/// \brief Construct a ByteQueue
+	/// \param nodeSize the initial node size
+	/// \details Internally, ByteQueue uses a ByteQueueNode to store bytes, and \p nodeSize determines the
+	///   size of the ByteQueueNode. A value of 0 indicates the ByteQueueNode should be automatically sized,
+	///   which means a value of 256 is used.
 	ByteQueue(size_t nodeSize=0);
 
-	//! \brief Copy construct a ByteQueue
-	//! \param copy the other ByteQueue
+	/// \brief Copy construct a ByteQueue
+	/// \param copy the other ByteQueue
 	ByteQueue(const ByteQueue &copy);
 	~ByteQueue();
 
@@ -73,13 +73,13 @@ public:
 	byte operator[](lword i) const;
 	void swap(ByteQueue &rhs);
 
-	//! \class Walker
-	//! \brief A ByteQueue iterator
+	/// \class Walker
+	/// \brief A ByteQueue iterator
 	class Walker : public InputRejecting<BufferedTransformation>
 	{
 	public:
-		//! \brief Construct a ByteQueue Walker
-		//! \param queue a ByteQueue
+		/// \brief Construct a ByteQueue Walker
+		/// \param queue a ByteQueue
 		Walker(const ByteQueue &queue)
 			: m_queue(queue), m_node(NULLPTR), m_position(0), m_offset(0), m_lazyString(NULLPTR), m_lazyLength(0)
 				{Initialize();}
@@ -124,7 +124,7 @@ private:
 	bool m_lazyStringModifiable;
 };
 
-//! use this to make sure LazyPut is finalized in event of exception
+/// use this to make sure LazyPut is finalized in event of exception
 class CRYPTOPP_DLL LazyPutter
 {
 public:
@@ -138,7 +138,7 @@ private:
 	ByteQueue &m_bq;
 };
 
-//! like LazyPutter, but does a LazyPutModifiable instead
+/// like LazyPutter, but does a LazyPutModifiable instead
 class LazyPutterModifiable : public LazyPutter
 {
 public:

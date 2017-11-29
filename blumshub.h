@@ -1,8 +1,8 @@
 // blumshub.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile blumshub.h
-//! \brief Classes for Blum Blum Shub generator
+/// \file
+/// \headerfile blumshub.h
+/// \brief Classes for Blum Blum Shub generator
 
 #ifndef CRYPTOPP_BLUMSHUB_H
 #define CRYPTOPP_BLUMSHUB_H
@@ -13,7 +13,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! BlumBlumShub without factorization of the modulus
+/// BlumBlumShub without factorization of the modulus
 class PublicBlumBlumShub : public RandomNumberGenerator,
 						   public StreamTransformation
 {
@@ -36,7 +36,7 @@ protected:
 	word maxBits, bitsLeft;
 };
 
-//! BlumBlumShub with factorization of the modulus
+/// BlumBlumShub with factorization of the modulus
 class BlumBlumShub : public PublicBlumBlumShub
 {
 public:

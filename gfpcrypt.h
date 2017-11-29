@@ -2,8 +2,8 @@
 //              RFC6979 deterministic signatures added by Douglas Roark
 //              ECGDSA added by Jeffrey Walton
 
-//! \file gfpcrypt.h
-//! \brief Classes and functions for schemes based on Discrete Logs (DL) over GF(p)
+/// \file gfpcrypt.h
+/// \brief Classes and functions for schemes based on Discrete Logs (DL) over GF(p)
 
 #ifndef CRYPTOPP_GFPCRYPT_H
 #define CRYPTOPP_GFPCRYPT_H
@@ -30,8 +30,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters<Integer>;
 
-//! \class DL_GroupParameters_IntegerBased
-//! \brief Integer-based GroupParameters specialization
+/// \class DL_GroupParameters_IntegerBased
+/// \brief Integer-based GroupParameters specialization
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public ASN1CryptoMaterial<DL_GroupParameters<Integer> >
 {
     typedef DL_GroupParameters_IntegerBased ThisClass;
@@ -39,30 +39,30 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBased : public A
 public:
     virtual ~DL_GroupParameters_IntegerBased() {}
 
-    //! \brief Initialize a group parameters over integers
-    //! \param params the group parameters
+    /// \brief Initialize a group parameters over integers
+    /// \param params the group parameters
     void Initialize(const DL_GroupParameters_IntegerBased &params)
         {Initialize(params.GetModulus(), params.GetSubgroupOrder(), params.GetSubgroupGenerator());}
 
-    //! \brief Create a group parameters over integers
-    //! \param rng a RandomNumberGenerator derived class
-    //! \param pbits the size of p, in bits
-    //! \details This function overload of Initialize() creates a new private key because it
-    //!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-    //!   then use one of the other Initialize() overloads.
+    /// \brief Create a group parameters over integers
+    /// \param rng a RandomNumberGenerator derived class
+    /// \param pbits the size of p, in bits
+    /// \details This function overload of Initialize() creates a new private key because it
+    ///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+    ///   then use one of the other Initialize() overloads.
     void Initialize(RandomNumberGenerator &rng, unsigned int pbits)
         {GenerateRandom(rng, MakeParameters("ModulusSize", (int)pbits));}
 
-    //! \brief Initialize a group parameters over integers
-    //! \param p the modulus
-    //! \param g the generator
+    /// \brief Initialize a group parameters over integers
+    /// \param p the modulus
+    /// \param g the generator
     void Initialize(const Integer &p, const Integer &g)
         {SetModulusAndSubgroupGenerator(p, g); SetSubgroupOrder(ComputeGroupOrder(p)/2);}
 
-    //! \brief Initialize a group parameters over integers
-    //! \param p the modulus
-    //! \param q the subgroup order
-    //! \param g the generator
+    /// \brief Initialize a group parameters over integers
+    /// \param p the modulus
+    /// \param q the subgroup order
+    /// \param g the generator
     void Initialize(const Integer &p, const Integer &q, const Integer &g)
         {SetModulusAndSubgroupGenerator(p, g); SetSubgroupOrder(q);}
 
@@ -113,10 +113,10 @@ private:
     Integer m_q;
 };
 
-//! \class DL_GroupParameters_IntegerBasedImpl
-//! \brief Integer-based GroupParameters default implementation
-//! \tparam GROUP_PRECOMP group parameters precomputation specialization
-//! \tparam BASE_PRECOMP base class precomputation specialization
+/// \class DL_GroupParameters_IntegerBasedImpl
+/// \brief Integer-based GroupParameters default implementation
+/// \tparam GROUP_PRECOMP group parameters precomputation specialization
+/// \tparam BASE_PRECOMP base class precomputation specialization
 template <class GROUP_PRECOMP, class BASE_PRECOMP = DL_FixedBasePrecomputationImpl<typename GROUP_PRECOMP::Element> >
 class CRYPTOPP_NO_VTABLE DL_GroupParameters_IntegerBasedImpl : public DL_GroupParametersImpl<GROUP_PRECOMP, BASE_PRECOMP, DL_GroupParameters_IntegerBased>
 {
@@ -154,8 +154,8 @@ public:
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>;
 
-//! \class DL_GroupParameters_GFP
-//! \brief GF(p) group parameters
+/// \class DL_GroupParameters_GFP
+/// \brief GF(p) group parameters
 class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBasedImpl<ModExpPrecomputation>
 {
 public:
@@ -179,8 +179,8 @@ protected:
     int GetFieldType() const {return 1;}
 };
 
-//! \class DL_GroupParameters_GFP
-//! \brief GF(p) group parameters that default to safe primes
+/// \class DL_GroupParameters_GFP
+/// \brief GF(p) group parameters that default to safe primes
 class CRYPTOPP_DLL DL_GroupParameters_GFP_DefaultSafePrime : public DL_GroupParameters_GFP
 {
 public:
@@ -192,9 +192,9 @@ protected:
     unsigned int GetDefaultSubgroupOrderSize(unsigned int modulusSize) const {return modulusSize-1;}
 };
 
-//! \class DL_Algorithm_GDSA
-//! \brief GDSA algorithm
-//! \tparam T FieldElement type or class
+/// \class DL_Algorithm_GDSA
+/// \brief GDSA algorithm
+/// \tparam T FieldElement type or class
 template <class T>
 class DL_Algorithm_GDSA : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -226,13 +226,13 @@ public:
     }
 };
 
-//! \class DL_Algorithm_DSA_RFC6979
-//! \brief DSA signature algorithm based on RFC 6979
-//! \tparam T FieldElement type or class
-//! \tparam H HashTransformation derived class
-//! \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
-//!   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
-//! \since Crypto++ 6.0
+/// \class DL_Algorithm_DSA_RFC6979
+/// \brief DSA signature algorithm based on RFC 6979
+/// \tparam T FieldElement type or class
+/// \tparam H HashTransformation derived class
+/// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">RFC 6979, Deterministic Usage of the
+///   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+/// \since Crypto++ 6.0
 template <class T, class H>
 class DL_Algorithm_DSA_RFC6979 : public DL_Algorithm_GDSA<T>, public DeterministicSignatureAlgorithm
 {
@@ -394,14 +394,14 @@ private:
     mutable HMAC<H> m_hmac;
 };
 
-//! \class DL_Algorithm_GDSA_ISO15946
-//! \brief German Digital Signature Algorithm
-//! \tparam T FieldElement type or class
-//! \details The Digital Signature Scheme ECGDSA does not define the algorithm over integers. Rather, the
-//!   signature algorithm is only defined over elliptic curves. However, The library design is such that the
-//!   generic algorithm reside in <tt>gfpcrypt.h</tt>.
-//! \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">
-//!   The Digital Signature Scheme ECGDSA (October 24, 2006)</A>
+/// \class DL_Algorithm_GDSA_ISO15946
+/// \brief German Digital Signature Algorithm
+/// \tparam T FieldElement type or class
+/// \details The Digital Signature Scheme ECGDSA does not define the algorithm over integers. Rather, the
+///   signature algorithm is only defined over elliptic curves. However, The library design is such that the
+///   generic algorithm reside in <tt>gfpcrypt.h</tt>.
+/// \sa Erwin Hess, Marcus Schafheutle, and Pascale Serf <A HREF="http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf">
+///   The Digital Signature Scheme ECGDSA (October 24, 2006)</A>
 template <class T>
 class DL_Algorithm_GDSA_ISO15946 : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -441,9 +441,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_Algorithm_DSA_RFC6979<Integer, SHA512>;
 
-//! \class DL_Algorithm_NR
-//! \brief NR algorithm
-//! \tparam T FieldElement type or class
+/// \class DL_Algorithm_NR
+/// \brief NR algorithm
+/// \tparam T FieldElement type or class
 template <class T>
 class DL_Algorithm_NR : public DL_ElgamalLikeSignatureAlgorithm<T>
 {
@@ -471,34 +471,34 @@ public:
     }
 };
 
-//! \class DL_PublicKey_GFP
-//! \brief Discrete Log (DL) public key in GF(p) groups
-//! \tparam GP GroupParameters derived class
-//! \details DSA public key format is defined in 7.3.3 of RFC 2459. The    private key format is defined in 12.9 of PKCS #11 v2.10.
+/// \class DL_PublicKey_GFP
+/// \brief Discrete Log (DL) public key in GF(p) groups
+/// \tparam GP GroupParameters derived class
+/// \details DSA public key format is defined in 7.3.3 of RFC 2459. The    private key format is defined in 12.9 of PKCS #11 v2.10.
 template <class GP>
 class DL_PublicKey_GFP : public DL_PublicKeyImpl<GP>
 {
 public:
     virtual ~DL_PublicKey_GFP() {}
 
-    //! \brief Initialize a public key over GF(p)
-    //! \param params the group parameters
-    //! \param y the public element
+    /// \brief Initialize a public key over GF(p)
+    /// \param params the group parameters
+    /// \param y the public element
     void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &y)
         {this->AccessGroupParameters().Initialize(params); this->SetPublicElement(y);}
 
-    //! \brief Initialize a public key over GF(p)
-    //! \param p the modulus
-    //! \param g the generator
-    //! \param y the public element
+    /// \brief Initialize a public key over GF(p)
+    /// \param p the modulus
+    /// \param g the generator
+    /// \param y the public element
     void Initialize(const Integer &p, const Integer &g, const Integer &y)
         {this->AccessGroupParameters().Initialize(p, g); this->SetPublicElement(y);}
 
-    //! \brief Initialize a public key over GF(p)
-    //! \param p the modulus
-    //! \param q the subgroup order
-    //! \param g the generator
-    //! \param y the public element
+    /// \brief Initialize a public key over GF(p)
+    /// \param p the modulus
+    /// \param q the subgroup order
+    /// \param g the generator
+    /// \param y the public element
     void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &y)
         {this->AccessGroupParameters().Initialize(p, q, g); this->SetPublicElement(y);}
 
@@ -509,63 +509,63 @@ public:
         {this->GetPublicElement().DEREncode(bt);}
 };
 
-//! \class DL_PrivateKey_GFP
-//! \brief Discrete Log (DL) private key in GF(p) groups
-//! \tparam GP GroupParameters derived class
+/// \class DL_PrivateKey_GFP
+/// \brief Discrete Log (DL) private key in GF(p) groups
+/// \tparam GP GroupParameters derived class
 template <class GP>
 class DL_PrivateKey_GFP : public DL_PrivateKeyImpl<GP>
 {
 public:
     virtual ~DL_PrivateKey_GFP();
 
-    //! \brief Create a private key
-    //! \param rng a RandomNumberGenerator derived class
-    //! \param modulusBits the size of the modulus, in bits
-    //! \details This function overload of Initialize() creates a new private key because it
-    //!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-    //!   then use one of the other Initialize() overloads.
+    /// \brief Create a private key
+    /// \param rng a RandomNumberGenerator derived class
+    /// \param modulusBits the size of the modulus, in bits
+    /// \details This function overload of Initialize() creates a new private key because it
+    ///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+    ///   then use one of the other Initialize() overloads.
     void Initialize(RandomNumberGenerator &rng, unsigned int modulusBits)
         {this->GenerateRandomWithKeySize(rng, modulusBits);}
 
-    //! \brief Create a private key
-    //! \param rng a RandomNumberGenerator derived class
-    //! \param p the modulus
-    //! \param g the generator
-    //! \details This function overload of Initialize() creates a new private key because it
-    //!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-    //!   then use one of the other Initialize() overloads.
+    /// \brief Create a private key
+    /// \param rng a RandomNumberGenerator derived class
+    /// \param p the modulus
+    /// \param g the generator
+    /// \details This function overload of Initialize() creates a new private key because it
+    ///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+    ///   then use one of the other Initialize() overloads.
     void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &g)
         {this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupGenerator", g));}
 
-    //! \brief Create a private key
-    //! \param rng a RandomNumberGenerator derived class
-    //! \param p the modulus
-    //! \param q the subgroup order
-    //! \param g the generator
-    //! \details This function overload of Initialize() creates a new private key because it
-    //!   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
-    //!   then use one of the other Initialize() overloads.
+    /// \brief Create a private key
+    /// \param rng a RandomNumberGenerator derived class
+    /// \param p the modulus
+    /// \param q the subgroup order
+    /// \param g the generator
+    /// \details This function overload of Initialize() creates a new private key because it
+    ///   takes a RandomNumberGenerator() as a parameter. If you have an existing keypair,
+    ///   then use one of the other Initialize() overloads.
     void Initialize(RandomNumberGenerator &rng, const Integer &p, const Integer &q, const Integer &g)
         {this->GenerateRandom(rng, MakeParameters("Modulus", p)("SubgroupOrder", q)("SubgroupGenerator", g));}
 
-    //! \brief Initialize a private key over GF(p)
-    //! \param params the group parameters
-    //! \param x the private exponent
+    /// \brief Initialize a private key over GF(p)
+    /// \param params the group parameters
+    /// \param x the private exponent
     void Initialize(const DL_GroupParameters_IntegerBased &params, const Integer &x)
         {this->AccessGroupParameters().Initialize(params); this->SetPrivateExponent(x);}
 
-    //! \brief Initialize a private key over GF(p)
-    //! \param p the modulus
-    //! \param g the generator
-    //! \param x the private exponent
+    /// \brief Initialize a private key over GF(p)
+    /// \param p the modulus
+    /// \param g the generator
+    /// \param x the private exponent
     void Initialize(const Integer &p, const Integer &g, const Integer &x)
         {this->AccessGroupParameters().Initialize(p, g); this->SetPrivateExponent(x);}
 
-    //! \brief Initialize a private key over GF(p)
-    //! \param p the modulus
-    //! \param q the subgroup order
-    //! \param g the generator
-    //! \param x the private exponent
+    /// \brief Initialize a private key over GF(p)
+    /// \param p the modulus
+    /// \param q the subgroup order
+    /// \param g the generator
+    /// \param x the private exponent
     void Initialize(const Integer &p, const Integer &q, const Integer &g, const Integer &x)
         {this->AccessGroupParameters().Initialize(p, q, g); this->SetPrivateExponent(x);}
 };
@@ -574,8 +574,8 @@ public:
 template <class GP>
 DL_PrivateKey_GFP<GP>::~DL_PrivateKey_GFP() {}
 
-//! \class DL_SignatureKeys_GFP
-//! \brief Discrete Log (DL) signing/verification keys in GF(p) groups
+/// \class DL_SignatureKeys_GFP
+/// \brief Discrete Log (DL) signing/verification keys in GF(p) groups
 struct DL_SignatureKeys_GFP
 {
     typedef DL_GroupParameters_GFP GroupParameters;
@@ -583,8 +583,8 @@ struct DL_SignatureKeys_GFP
     typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
 
-//! \class DL_CryptoKeys_GFP
-//! \brief Discrete Log (DL) encryption/decryption keys in GF(p) groups
+/// \class DL_CryptoKeys_GFP
+/// \brief Discrete Log (DL) encryption/decryption keys in GF(p) groups
 struct DL_CryptoKeys_GFP
 {
     typedef DL_GroupParameters_GFP_DefaultSafePrime GroupParameters;
@@ -592,11 +592,11 @@ struct DL_CryptoKeys_GFP
     typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
 
-//! \class DL_PublicKey_GFP_OldFormat
-//! \brief Discrete Log (DL) public key in GF(p) groups
-//! \tparam BASE GroupParameters derived class
-//! \deprecated This implementation uses a non-standard Crypto++ key format. New implementations
-//!   should use DL_PublicKey_GFP and DL_PrivateKey_GFP
+/// \class DL_PublicKey_GFP_OldFormat
+/// \brief Discrete Log (DL) public key in GF(p) groups
+/// \tparam BASE GroupParameters derived class
+/// \deprecated This implementation uses a non-standard Crypto++ key format. New implementations
+///   should use DL_PublicKey_GFP and DL_PrivateKey_GFP
 template <class BASE>
 class DL_PublicKey_GFP_OldFormat : public BASE
 {
@@ -637,11 +637,11 @@ public:
     }
 };
 
-//! \class DL_PrivateKey_GFP_OldFormat
-//! \brief Discrete Log (DL) private key in GF(p) groups
-//! \tparam BASE GroupParameters derived class
-//! \deprecated This implementation uses a non-standard Crypto++ key format. New implementations
-//!   should use DL_PublicKey_GFP and DL_PrivateKey_GFP
+/// \class DL_PrivateKey_GFP_OldFormat
+/// \brief Discrete Log (DL) private key in GF(p) groups
+/// \tparam BASE GroupParameters derived class
+/// \deprecated This implementation uses a non-standard Crypto++ key format. New implementations
+///   should use DL_PublicKey_GFP and DL_PrivateKey_GFP
 template <class BASE>
 class DL_PrivateKey_GFP_OldFormat : public BASE
 {
@@ -684,11 +684,11 @@ public:
     }
 };
 
-//! \class GDSA
-//! \brief DSA signature scheme
-//! \tparam H HashTransformation derived class
-//! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
-//! \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
+/// \class GDSA
+/// \brief DSA signature scheme
+/// \tparam H HashTransformation derived class
+/// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
+/// \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
 template <class H>
 struct GDSA : public DL_SS<
     DL_SignatureKeys_GFP,
@@ -698,10 +698,10 @@ struct GDSA : public DL_SS<
 {
 };
 
-//! \class NR
-//! \brief NR signature scheme
-//! \tparam H HashTransformation derived class
-//! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#NR">NR</a>
+/// \class NR
+/// \brief NR signature scheme
+/// \tparam H HashTransformation derived class
+/// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#NR">NR</a>
 template <class H>
 struct NR : public DL_SS<
     DL_SignatureKeys_GFP,
@@ -711,10 +711,10 @@ struct NR : public DL_SS<
 {
 };
 
-//! \class DL_GroupParameters_DSA
-//! \brief DSA group parameters
-//! \details These are GF(p) group parameters that are allowed by the DSA standard
-//! \sa DL_Keys_DSA
+/// \class DL_GroupParameters_DSA
+/// \brief DSA group parameters
+/// \details These are GF(p) group parameters that are allowed by the DSA standard
+/// \sa DL_Keys_DSA
 class CRYPTOPP_DLL DL_GroupParameters_DSA : public DL_GroupParameters_GFP
 {
 public:
@@ -735,21 +735,21 @@ public:
 template <class H>
 class DSA2;
 
-//! \class DL_Keys_DSA
-//! \brief DSA keys
-//! \sa DL_GroupParameters_DSA
+/// \class DL_Keys_DSA
+/// \brief DSA keys
+/// \sa DL_GroupParameters_DSA
 struct DL_Keys_DSA
 {
     typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
     typedef DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA1> > PrivateKey;
 };
 
-//! \class DSA2
-//! \brief DSA signature scheme
-//! \tparam H HashTransformation derived class
-//! \details The class is named DSA2 instead of DSA for backwards compatibility because DSA was a non-template class.
-//! \sa <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
-//! \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
+/// \class DSA2
+/// \brief DSA signature scheme
+/// \tparam H HashTransformation derived class
+/// \details The class is named DSA2 instead of DSA for backwards compatibility because DSA was a non-template class.
+/// \sa <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
+/// \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
 template <class H>
 class DSA2 : public DL_SS<
     DL_Keys_DSA,
@@ -762,11 +762,11 @@ public:
     static std::string CRYPTOPP_API StaticAlgorithmName() {return "DSA/" + (std::string)H::StaticAlgorithmName();}
 };
 
-//! \class DSA_RFC6979
-//! \brief DSA deterministic signature scheme
-//! \tparam H HashTransformation derived class
-//! \sa <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
-//! \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
+/// \class DSA_RFC6979
+/// \brief DSA deterministic signature scheme
+/// \tparam H HashTransformation derived class
+/// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#DSA-1363">DSA-1363</a>
+/// \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
 template <class H>
 struct DSA_RFC6979 : public DL_SS<
     DL_SignatureKeys_GFP,
@@ -778,27 +778,27 @@ struct DSA_RFC6979 : public DL_SS<
     static std::string CRYPTOPP_API StaticAlgorithmName() {return std::string("DSA-RFC6979/") + H::StaticAlgorithmName();}
 };
 
-//! DSA with SHA-1, typedef'd for backwards compatibility
+/// DSA with SHA-1, typedef'd for backwards compatibility
 typedef DSA2<SHA1> DSA;
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PublicKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_GFP<DL_GroupParameters_DSA>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_PrivateKey_WithSignaturePairwiseConsistencyTest<DL_PrivateKey_GFP<DL_GroupParameters_DSA>, DSA2<SHA1> >;
 
-//! \class DL_EncryptionAlgorithm_Xor
-//! \brief P1363 based XOR Encryption Method
-//! \tparam MAC MessageAuthenticationCode derived class used for MAC computation
-//! \tparam DHAES_MODE flag indicating DHAES mode
-//! \tparam LABEL_OCTETS flag indicating the label is octet count
-//! \details DL_EncryptionAlgorithm_Xor is based on an early P1363 draft, which itself appears to be based on an
-//!   early Certicom SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used it in its Integrated
-//!   Ecryption Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you need this method for Crypto++ 4.2 compatibility, then use the ECIES template class with
-//!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you need this method for Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES template class with
-//!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=ture</tt> and <tt>LABEL_OCTETS=false</tt>.
-//! \details Bouncy Castle 1.54 and Botan 1.11 compatibility are the default template parameters.
-//! \since Crypto++ 4.0
+/// \class DL_EncryptionAlgorithm_Xor
+/// \brief P1363 based XOR Encryption Method
+/// \tparam MAC MessageAuthenticationCode derived class used for MAC computation
+/// \tparam DHAES_MODE flag indicating DHAES mode
+/// \tparam LABEL_OCTETS flag indicating the label is octet count
+/// \details DL_EncryptionAlgorithm_Xor is based on an early P1363 draft, which itself appears to be based on an
+///   early Certicom SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used it in its Integrated
+///   Ecryption Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you need this method for Crypto++ 4.2 compatibility, then use the ECIES template class with
+///   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you need this method for Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the ECIES template class with
+///   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=ture</tt> and <tt>LABEL_OCTETS=false</tt>.
+/// \details Bouncy Castle 1.54 and Botan 1.11 compatibility are the default template parameters.
+/// \since Crypto++ 4.0
 template <class MAC, bool DHAES_MODE, bool LABEL_OCTETS=false>
 class DL_EncryptionAlgorithm_Xor : public DL_SymmetricEncryptionAlgorithm
 {
@@ -881,7 +881,7 @@ public:
     }
 };
 
-//! _
+/// _
 template <class T, bool DHAES_MODE, class KDF>
 class DL_KeyDerivationAlgorithm_P1363 : public DL_KeyDerivationAlgorithm<T>
 {
@@ -910,40 +910,40 @@ public:
     }
 };
 
-//! \class DLIES
-//! \brief Discrete Log Integrated Encryption Scheme
-//! \tparam COFACTOR_OPTION cofactor multiplication option
-//! \tparam HASH HashTransformation derived class used for key drivation and MAC computation
-//! \tparam DHAES_MODE flag indicating if the MAC includes addition context parameters such as the label
-//! \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
-//! \details DLIES is an Integer based Integrated Encryption Scheme (IES). The scheme combines a Key Encapsulation Method (KEM)
-//!   with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
-//!   <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
-//!   You should prefer an Integrated Encryption Scheme over homegrown schemes.
-//! \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
-//!   SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
-//!   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the DLIES template class with
-//!   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
-//! \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the DLIES
-//!   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
-//! \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
-//!   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
-//!   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
-//!   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
-//! \details Below is an example of constructing a Crypto++ 4.2 compatible DLIES encryptor and decryptor.
-//! <pre>
-//!     AutoSeededRandomPool prng;
-//!     DL_PrivateKey_GFP<DL_GroupParameters_GFP> key;
-//!     key.Initialize(prng, 2048);
-//!
-//!     DLIES<SHA1,NoCofactorMultiplication,true,true>::Decryptor decryptor(key);
-//!     DLIES<SHA1,NoCofactorMultiplication,true,true>::Encryptor encryptor(decryptor);
-//! </pre>
-//! \sa ECIES, <a href="http://www.weidai.com/scan-mirror/ca.html#DLIES">Discrete Log Integrated Encryption Scheme (DLIES)</a>,
-//!   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
-//!   Curve Integrated Encryption Schemes</A>
-//! \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
+/// \class DLIES
+/// \brief Discrete Log Integrated Encryption Scheme
+/// \tparam COFACTOR_OPTION cofactor multiplication option
+/// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
+/// \tparam DHAES_MODE flag indicating if the MAC includes addition context parameters such as the label
+/// \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
+/// \details DLIES is an Integer based Integrated Encryption Scheme (IES). The scheme combines a Key Encapsulation Method (KEM)
+///   with a Data Encapsulation Method (DEM) and a MAC tag. The scheme is
+///   <A HREF="http://en.wikipedia.org/wiki/ciphertext_indistinguishability">IND-CCA2</A>, which is a strong notion of security.
+///   You should prefer an Integrated Encryption Scheme over homegrown schemes.
+/// \details The library's original implementation is based on an early P1363 draft, which itself appears to be based on an early Certicom
+///   SEC-1 draft (or an early SEC-1 draft was based on a P1363 draft). Crypto++ 4.2 used the early draft in its Integrated Ecryption
+///   Schemes with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you desire an Integrated Encryption Scheme with Crypto++ 4.2 compatibility, then use the DLIES template class with
+///   <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=false</tt> and <tt>LABEL_OCTETS=true</tt>.
+/// \details If you desire an Integrated Encryption Scheme with Bouncy Castle 1.54 and Botan 1.11 compatibility, then use the DLIES
+///   template class with <tt>NoCofactorMultiplication</tt>, <tt>DHAES_MODE=true</tt> and <tt>LABEL_OCTETS=false</tt>.
+/// \details The default template parameters ensure compatibility with Bouncy Castle 1.54 and Botan 1.11. The combination of
+///   <tt>IncompatibleCofactorMultiplication</tt> and <tt>DHAES_MODE=true</tt> is recommended for best efficiency and security.
+///   SHA1 is used for compatibility reasons, but it can be changed if desired. SHA-256 or another hash will likely improve the
+///   security provided by the MAC. The hash is also used in the key derivation function as a PRF.
+/// \details Below is an example of constructing a Crypto++ 4.2 compatible DLIES encryptor and decryptor.
+/// <pre>
+///     AutoSeededRandomPool prng;
+///     DL_PrivateKey_GFP<DL_GroupParameters_GFP> key;
+///     key.Initialize(prng, 2048);
+///
+///     DLIES<SHA1,NoCofactorMultiplication,true,true>::Decryptor decryptor(key);
+///     DLIES<SHA1,NoCofactorMultiplication,true,true>::Encryptor encryptor(decryptor);
+/// </pre>
+/// \sa ECIES, <a href="http://www.weidai.com/scan-mirror/ca.html#DLIES">Discrete Log Integrated Encryption Scheme (DLIES)</a>,
+///   Martínez, Encinas, and Ávila's <A HREF="http://digital.csic.es/bitstream/10261/32671/1/V2-I2-P7-13.pdf">A Survey of the Elliptic
+///   Curve Integrated Encryption Schemes</A>
+/// \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
 template <class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS=false>
 struct DLIES
     : public DL_ES<

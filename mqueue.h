@@ -10,7 +10,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! Message Queue
+/// Message Queue
 class CRYPTOPP_DLL MessageQueue : public AutoSignaling<BufferedTransformation>
 {
 public:
@@ -67,7 +67,7 @@ private:
 };
 
 
-//! A filter that checks messages on two channels for equality
+/// A filter that checks messages on two channels for equality
 class CRYPTOPP_DLL EqualityComparisonFilter : public Unflushable<Multichannel<Filter> >
 {
 public:

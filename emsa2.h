@@ -1,7 +1,7 @@
 // emsa2.h - originally written and placed in the public domain by Wei Dai
 
-//! \file emsa2.h
-//! \brief Classes and functions for various padding schemes used in public key algorithms
+/// \file emsa2.h
+/// \brief Classes and functions for various padding schemes used in public key algorithms
 
 #ifndef CRYPTOPP_EMSA2_H
 #define CRYPTOPP_EMSA2_H
@@ -57,7 +57,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA512>;
 #endif
 
-//! _
+/// _
 class CRYPTOPP_DLL EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
 {
 public:
@@ -72,7 +72,7 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-//! EMSA2, for use with RWSS and RSA_ISO
+/// EMSA2, for use with RWSS and RSA_ISO
 /*! Only the following hash functions are supported by this signature standard:
 	\dontinclude emsa2.h
 	\skip EMSA2HashId can be instantiated

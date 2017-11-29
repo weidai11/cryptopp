@@ -1,7 +1,7 @@
 // arc4.h - originally written and placed in the public domain by Wei Dai
 
-//! \file arc4.h
-//! \brief Classes for ARC4 cipher
+/// \file arc4.h
+/// \brief Classes for ARC4 cipher
 
 #ifndef CRYPTOPP_ARC4_H
 #define CRYPTOPP_ARC4_H
@@ -15,10 +15,10 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-//! \class ARC4_Base
-//! \brief ARC4 base class
-//! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
-//! \since Crypto++ 1.0
+/// \class ARC4_Base
+/// \brief ARC4 base class
+/// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
+/// \since Crypto++ 1.0
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
 {
 public:
@@ -46,16 +46,16 @@ protected:
     byte m_x, m_y;
 };
 
-//! \class ARC4
-//! \brief Alleged RC4
-//! \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
-//! \since Crypto++ 1.0
+/// \class ARC4
+/// \brief Alleged RC4
+/// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
+/// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4)
 
-//! \class MARC4_Base
-//! \brief MARC4 base class
-//! \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
-//! \details MARC4 discards the first 256 bytes of keystream, which may be weaker than the rest
+/// \class MARC4_Base
+/// \brief MARC4 base class
+/// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
+/// \details MARC4 discards the first 256 bytes of keystream, which may be weaker than the rest
 class CRYPTOPP_NO_VTABLE MARC4_Base : public ARC4_Base
 {
 public:
@@ -68,10 +68,10 @@ protected:
 	unsigned int GetDefaultDiscardBytes() const {return 256;}
 };
 
-//! \class MARC4
-//! \brief Modified Alleged RC4
-//! \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
-//! \since Crypto++ 1.0
+/// \class MARC4
+/// \brief Modified Alleged RC4
+/// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
+/// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
 
 }

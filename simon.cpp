@@ -25,21 +25,21 @@ using CryptoPP::word64;
 using CryptoPP::rotlConstant;
 using CryptoPP::rotrConstant;
 
-//! \brief Round transformation helper
-//! \tparam W word type
-//! \param v value
+/// \brief Round transformation helper
+/// \tparam W word type
+/// \param v value
 template <class W>
 inline W f(const W v)
 {
     return (rotlConstant<1>(v) & rotlConstant<8>(v)) ^ rotlConstant<2>(v);
 }
 
-//! \brief Round transformation
-//! \tparam W word type
-//! \param x value
-//! \param y value
-//! \param k value
-//! \param l value
+/// \brief Round transformation
+/// \tparam W word type
+/// \param x value
+/// \param y value
+/// \param k value
+/// \param l value
 template <class W>
 inline void R2(W& x, W& y, const W k, const W l)
 {
@@ -47,12 +47,12 @@ inline void R2(W& x, W& y, const W k, const W l)
     x ^= f(y); x ^= l;
 }
 
-//! \brief Forward transformation
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param c output array
-//! \param p input array
-//! \param k subkey array
+/// \brief Forward transformation
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param c output array
+/// \param p input array
+/// \param k subkey array
 template <class W, unsigned int R>
 inline void SIMON_Encrypt(W c[2], const W p[2], const W k[R])
 {
@@ -68,12 +68,12 @@ inline void SIMON_Encrypt(W c[2], const W p[2], const W k[R])
     }
 }
 
-//! \brief Reverse transformation
-//! \tparam W word type
-//! \tparam R number of rounds
-//! \param p output array
-//! \param c input array
-//! \param k subkey array
+/// \brief Reverse transformation
+/// \tparam W word type
+/// \tparam R number of rounds
+/// \param p output array
+/// \param c input array
+/// \param k subkey array
 template <class W, unsigned int R>
 inline void SIMON_Decrypt(W p[2], const W c[2], const W k[R])
 {
@@ -91,11 +91,11 @@ inline void SIMON_Decrypt(W p[2], const W c[2], const W k[R])
         R2(p[1], p[0], k[i + 1], k[i]);
 }
 
-//! \brief Subkey generation function
-//! \details Used for SIMON-64 with 96-bit key and 42 rounds. A template was
-//!   not worthwhile because all instantiations would need specialization.
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used for SIMON-64 with 96-bit key and 42 rounds. A template was
+///   not worthwhile because all instantiations would need specialization.
+/// \param key empty subkey array
+/// \param k user key array
 inline void SIMON64_ExpandKey_42R3K(word32 key[42], const word32 k[3])
 {
     const word32 c = 0xfffffffc;
@@ -109,11 +109,11 @@ inline void SIMON64_ExpandKey_42R3K(word32 key[42], const word32 k[3])
     }
 }
 
-//! \brief Subkey generation function
-//! \details Used for SIMON-64 with 128-bit key and 44 rounds. A template was
-//!   not worthwhile because all instantiations would need specialization.
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used for SIMON-64 with 128-bit key and 44 rounds. A template was
+///   not worthwhile because all instantiations would need specialization.
+/// \param key empty subkey array
+/// \param k user key array
 inline void SIMON64_ExpandKey_44R4K(word32 key[44], const word32 k[4])
 {
     const word32 c = 0xfffffffc;
@@ -127,11 +127,11 @@ inline void SIMON64_ExpandKey_44R4K(word32 key[44], const word32 k[4])
     }
 }
 
-//! \brief Subkey generation function
-//! \details Used for SIMON-128 with 128-bit key and 68 rounds. A template was
-//!   not worthwhile because all instantiations would need specialization.
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used for SIMON-128 with 128-bit key and 68 rounds. A template was
+///   not worthwhile because all instantiations would need specialization.
+/// \param key empty subkey array
+/// \param k user key array
 inline void SIMON128_ExpandKey_68R2K(word64 key[68], const word64 k[2])
 {
     const word64 c = W64LIT(0xfffffffffffffffc);
@@ -148,11 +148,11 @@ inline void SIMON128_ExpandKey_68R2K(word64 key[68], const word64 k[2])
     key[67] = c^key[65] ^ rotrConstant<3>(key[66]) ^ rotrConstant<4>(key[66]);
 }
 
-//! \brief Subkey generation function
-//! \details Used for SIMON-128 with 192-bit key and 69 rounds. A template was
-//!   not worthwhile because all instantiations would need specialization.
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used for SIMON-128 with 192-bit key and 69 rounds. A template was
+///   not worthwhile because all instantiations would need specialization.
+/// \param key empty subkey array
+/// \param k user key array
 inline void SIMON128_ExpandKey_69R3K(word64 key[69], const word64 k[3])
 {
     const word64 c = W64LIT(0xfffffffffffffffc);
@@ -169,11 +169,11 @@ inline void SIMON128_ExpandKey_69R3K(word64 key[69], const word64 k[3])
     key[68] = c ^ 1 ^ key[65] ^ rotrConstant<3>(key[67]) ^ rotrConstant<4>(key[67]);
 }
 
-//! \brief Subkey generation function
-//! \details Used for SIMON-128 with 256-bit key and 72 rounds. A template was
-//!   not worthwhile because all instantiations would need specialization.
-//! \param key empty subkey array
-//! \param k user key array
+/// \brief Subkey generation function
+/// \details Used for SIMON-128 with 256-bit key and 72 rounds. A template was
+///   not worthwhile because all instantiations would need specialization.
+/// \param key empty subkey array
+/// \param k user key array
 inline void SIMON128_ExpandKey_72R4K(word64 key[72], const word64 k[4])
 {
     const word64 c = W64LIT(0xfffffffffffffffc);

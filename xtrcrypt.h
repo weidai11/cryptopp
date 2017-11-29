@@ -11,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! XTR-DH with key validation
+/// XTR-DH with key validation
 
 class XTR_DH : public SimpleKeyAgreementDomain, public CryptoParameters
 {

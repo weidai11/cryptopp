@@ -1,8 +1,8 @@
 // crc.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile crc.h
-//! \brief Classes for CRC-32 and CRC-32C checksum algorithm
+/// \file
+/// \headerfile crc.h
+/// \brief Classes for CRC-32 and CRC-32C checksum algorithm
 
 #ifndef CRYPTOPP_CRC32_H
 #define CRYPTOPP_CRC32_H
@@ -21,8 +21,8 @@ const word32 CRC32_NEGL = 0xffffffffL;
 #define CRC32_SHIFTED(c) (c << 8)
 #endif
 
-//! \brief CRC-32 Checksum Calculation
-//! \details Uses CRC polynomial 0xEDB88320
+/// \brief CRC-32 Checksum Calculation
+/// \details Uses CRC polynomial 0xEDB88320
 class CRC32 : public HashTransformation
 {
 public:
@@ -45,9 +45,9 @@ private:
 	word32 m_crc;
 };
 
-//! \brief CRC-32C Checksum Calculation
-//! \details Uses CRC polynomial 0x82F63B78
-//! \since Crypto++ 5.6.4
+/// \brief CRC-32C Checksum Calculation
+/// \details Uses CRC polynomial 0x82F63B78
+/// \since Crypto++ 5.6.4
 class CRC32C : public HashTransformation
 {
 public:

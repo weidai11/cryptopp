@@ -1,7 +1,7 @@
 // elgamal.h - originally written and placed in the public domain by Wei Dai
 
-//! \file elgamal.h
-//! \brief Classes and functions for ElGamal key agreement and encryption schemes
+/// \file elgamal.h
+/// \brief Classes and functions for ElGamal key agreement and encryption schemes
 
 #ifndef CRYPTOPP_ELGAMAL_H
 #define CRYPTOPP_ELGAMAL_H
@@ -16,9 +16,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class ElGamalBase
-//! \brief ElGamal key agreement and encryption schemes base class
-//! \since Crypto++ 1.0
+/// \class ElGamalBase
+/// \brief ElGamal key agreement and encryption schemes base class
+/// \since Crypto++ 1.0
 class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>,
 					public DL_KeyDerivationAlgorithm<Integer>,
 					public DL_SymmetricEncryptionAlgorithm
@@ -93,9 +93,9 @@ public:
 	virtual const DL_GroupParameters_GFP & GetGroupParameters() const =0;
 };
 
-//! \class ElGamalObjectImpl
-//! \brief ElGamal key agreement and encryption schemes default implementation
-//! \since Crypto++ 1.0
+/// \class ElGamalObjectImpl
+/// \brief ElGamal key agreement and encryption schemes default implementation
+/// \since Crypto++ 1.0
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
@@ -116,8 +116,8 @@ protected:
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const {return *this;}
 };
 
-//! \class ElGamalKeys
-//! \brief ElGamal key agreement and encryption schemes keys
+/// \class ElGamalKeys
+/// \brief ElGamal key agreement and encryption schemes keys
 struct ElGamalKeys
 {
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
@@ -125,9 +125,9 @@ struct ElGamalKeys
 	typedef DL_PublicKey_GFP_OldFormat<DL_CryptoKeys_GFP::PublicKey> PublicKey;
 };
 
-//! \class ElGamal
-//! \brief ElGamal encryption scheme with non-standard padding
-//! \since Crypto++ 1.0
+/// \class ElGamal
+/// \brief ElGamal encryption scheme with non-standard padding
+/// \since Crypto++ 1.0
 struct ElGamal
 {
 	typedef DL_CryptoSchemeOptions<ElGamal, ElGamalKeys, int, int, int> SchemeOptions;
@@ -135,9 +135,9 @@ struct ElGamal
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
 	typedef SchemeOptions::GroupParameters GroupParameters;
-	//! implements PK_Encryptor interface
+	/// implements PK_Encryptor interface
 	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_EncryptorBase<Integer>, SchemeOptions, SchemeOptions::PublicKey> > Encryptor;
-	//! implements PK_Decryptor interface
+	/// implements PK_Decryptor interface
 	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_DecryptorBase<Integer>, SchemeOptions, SchemeOptions::PrivateKey> > Decryptor;
 };
 

@@ -1,7 +1,7 @@
 // serpent.h - originally written and placed in the public domain by Wei Dai
 
-//! \file serpent.h
-//! \brief Classes for the Serpent block cipher
+/// \file serpent.h
+/// \brief Classes for the Serpent block cipher
 
 #ifndef CRYPTOPP_SERPENT_H
 #define CRYPTOPP_SERPENT_H
@@ -11,15 +11,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class Serpent_Info
-//! \brief Serpent block cipher information
+/// \class Serpent_Info
+/// \brief Serpent block cipher information
 struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, public FixedRounds<32>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Serpent";}
 };
 
-//! \class Serpent
-//! \brief Serpent block cipher
+/// \class Serpent
+/// \brief Serpent block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/Serpent">Serpent</a>
 class Serpent : public Serpent_Info, public BlockCipherDocumentation
 {

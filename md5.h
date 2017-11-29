@@ -7,10 +7,10 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-//! \class MD5
-//! \brief MD5 message digest
-//! \sa <a href="http://www.cryptolounge.org/wiki/MD5">MD5</a>
-//! \since Crypto++ 1.0
+/// \class MD5
+/// \brief MD5 message digest
+/// \sa <a href="http://www.cryptolounge.org/wiki/MD5">MD5</a>
+/// \since Crypto++ 1.0
 class MD5 : public IteratedHashWithStaticTransform<word32, LittleEndian, 64, 16, MD5>
 {
 public:

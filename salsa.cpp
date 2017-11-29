@@ -16,8 +16,6 @@
 # pragma warning(disable: 4702 4740)
 #endif
 
-// TODO: work around GCC 4.8+ issue with SSE2 ASM until the exact details are known
-//   and fix is released. Duplicate with "valgrind ./cryptest.exe tv salsa"
 // Clang due to "Inline assembly operands don't work with .intel_syntax"
 //   https://llvm.org/bugs/show_bug.cgi?id=24232
 #if defined(CRYPTOPP_DISABLE_SALSA_ASM)

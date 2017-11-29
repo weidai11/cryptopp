@@ -4,9 +4,9 @@
 #ifndef CRYPTOPP_HMQV_H
 #define CRYPTOPP_HMQV_H
 
-//! \file hmqv.h
-//! \brief Classes for Hashed Menezes-Qu-Vanstone key agreement in GF(p)
-//! \since Crypto++ 5.6.4
+/// \file hmqv.h
+/// \brief Classes for Hashed Menezes-Qu-Vanstone key agreement in GF(p)
+/// \since Crypto++ 5.6.4
 
 #include "gfpcrypt.h"
 #include "algebra.h"
@@ -14,11 +14,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief Hashed Menezes-Qu-Vanstone in GF(p)
-//! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
-//!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
-//! \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
-//! \since Crypto++ 5.6.4
+/// \brief Hashed Menezes-Qu-Vanstone in GF(p)
+/// \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
+///   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+/// \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
+/// \since Crypto++ 5.6.4
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption, class HASH = SHA512>
 class HMQV_Domain: public AuthenticatedKeyAgreementDomain
 {
@@ -65,14 +65,14 @@ public:
 
   CryptoParameters & AccessCryptoParameters(){return AccessAbstractGroupParameters();}
 
-  //! return length of agreed value produced
+  /// return length of agreed value produced
   unsigned int AgreedValueLength() const {return GetAbstractGroupParameters().GetEncodedElementSize(false);}
-  //! return length of static private keys in this domain
+  /// return length of static private keys in this domain
   unsigned int StaticPrivateKeyLength() const {return GetAbstractGroupParameters().GetSubgroupOrder().ByteCount();}
-  //! return length of static public keys in this domain
+  /// return length of static public keys in this domain
   unsigned int StaticPublicKeyLength() const{return GetAbstractGroupParameters().GetEncodedElementSize(true);}
 
-  //! generate static private key
+  /// generate static private key
   /*! \pre size of privateKey == PrivateStaticKeyLength() */
   void GenerateStaticPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
   {
@@ -80,7 +80,7 @@ public:
     x.Encode(privateKey, StaticPrivateKeyLength());
   }
 
-  //! generate static public key
+  /// generate static public key
   /*! \pre size of publicKey == PublicStaticKeyLength() */
   void GenerateStaticPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
   {
@@ -94,7 +94,7 @@ public:
   unsigned int EphemeralPrivateKeyLength() const {return StaticPrivateKeyLength() + StaticPublicKeyLength();}
   unsigned int EphemeralPublicKeyLength() const{return StaticPublicKeyLength();}
 
-  //! return length of ephemeral private keys in this domain
+  /// return length of ephemeral private keys in this domain
   void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
   {
     const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
@@ -104,14 +104,14 @@ public:
     params.EncodeElement(true, y, privateKey+StaticPrivateKeyLength());
   }
 
-  //! return length of ephemeral public keys in this domain
+  /// return length of ephemeral public keys in this domain
   void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
   {
     CRYPTOPP_UNUSED(rng);
     memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
   }
 
-  //! derive agreed value from your private keys and couterparty's public keys, return false in case of failure
+  /// derive agreed value from your private keys and couterparty's public keys, return false in case of failure
   /*! \note The ephemeral public key will always be validated.
   If you have previously validated the static public key, use validateStaticOtherPublicKey=false to save time.
   \pre size of agreedValue == AgreedValueLength()
@@ -298,11 +298,11 @@ private:
   KeyAgreementRole m_role;
 };
 
-//! \brief Hashed Menezes-Qu-Vanstone in GF(p)
-//! \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
-//!   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
-//! \sa HMQV, MQV_Domain, FHMQV_Domain, AuthenticatedKeyAgreementDomain
-//! \since Crypto++ 5.6.4
+/// \brief Hashed Menezes-Qu-Vanstone in GF(p)
+/// \details This implementation follows Hugo Krawczyk's <a href="http://eprint.iacr.org/2005/176">HMQV: A High-Performance
+///   Secure Diffie-Hellman Protocol</a>. Note: this implements HMQV only. HMQV-C with Key Confirmation is not provided.
+/// \sa HMQV, MQV_Domain, FHMQV_Domain, AuthenticatedKeyAgreementDomain
+/// \since Crypto++ 5.6.4
 typedef HMQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> HMQV;
 
 NAMESPACE_END

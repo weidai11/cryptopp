@@ -1,7 +1,7 @@
 // secblock.h - originally written and placed in the public domain by Wei Dai
 
-//! \file secblock.h
-//! \brief Classes and functions for secure memory allocations.
+/// \file secblock.h
+/// \brief Classes and functions for secure memory allocations.
 
 #ifndef CRYPTOPP_SECBLOCK_H
 #define CRYPTOPP_SECBLOCK_H
@@ -22,9 +22,9 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // ************** secure memory allocation ***************
 
-//! \class AllocatorBase
-//! \brief Base class for all allocators used by SecBlock
-//! \tparam T the class or type
+/// \class AllocatorBase
+/// \brief Base class for all allocators used by SecBlock
+/// \tparam T the class or type
 template<class T>
 class AllocatorBase
 {
@@ -42,18 +42,18 @@ public:
 	void construct(pointer p, const T& val) {new (p) T(val);}
 	void destroy(pointer p) {CRYPTOPP_UNUSED(p); p->~T();}
 
-	//! \brief Returns the maximum number of elements the allocator can provide
-	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
-	//!   <tt>Allocator</tt> can provide. The value of <tt>ELEMS_MAX</tt> is
-	//!   <tt>SIZE_MAX/sizeof(T)</tt>. <tt>std::numeric_limits</tt> was avoided
-	//!   due to lack of <tt>constexpr</tt>-ness in C++03 and below.
-	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
-	//!   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
-	//!   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
-	//!   used before objects are fully constructed, and it does not suffer the
-	//!   limitations of class methods like <tt>max_size</tt>.
-	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
-	//! \since Crypto++ 6.0
+	/// \brief Returns the maximum number of elements the allocator can provide
+	/// \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
+	///   <tt>Allocator</tt> can provide. The value of <tt>ELEMS_MAX</tt> is
+	///   <tt>SIZE_MAX/sizeof(T)</tt>. <tt>std::numeric_limits</tt> was avoided
+	///   due to lack of <tt>constexpr</tt>-ness in C++03 and below.
+	/// \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
+	///   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
+	///   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
+	///   used before objects are fully constructed, and it does not suffer the
+	///   limitations of class methods like <tt>max_size</tt>.
+	/// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
+	/// \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
 #elif defined(CRYPTOPP_CXX11_ENUM)
@@ -62,30 +62,30 @@ public:
 	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
 #endif
 
-	//! \brief Returns the maximum number of elements the allocator can provide
-	//! \returns the maximum number of elements the allocator can provide
-	//! \details Internally, preprocessor macros are used rather than std::numeric_limits
-	//!   because the latter is not a constexpr. Some compilers, like Clang, do not
-	//!   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
-	//!   to optimize it well in either form.
+	/// \brief Returns the maximum number of elements the allocator can provide
+	/// \returns the maximum number of elements the allocator can provide
+	/// \details Internally, preprocessor macros are used rather than std::numeric_limits
+	///   because the latter is not a constexpr. Some compilers, like Clang, do not
+	///   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
+	///   to optimize it well in either form.
 	CRYPTOPP_CONSTEXPR size_type max_size() const {return ELEMS_MAX;}
 
 #if defined(CRYPTOPP_CXX11_VARIADIC_TEMPLATES) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-	//! \brief Constructs a new U using variadic arguments
-	//! \tparam U the type to be forwarded
-	//! \tparam Args the arguments to be forwarded
-	//! \param ptr pointer to type U
-	//! \param args variadic arguments
-	//! \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
-	//!   is defined. The define is controlled by compiler versions detected in config.h.
+	/// \brief Constructs a new U using variadic arguments
+	/// \tparam U the type to be forwarded
+	/// \tparam Args the arguments to be forwarded
+	/// \param ptr pointer to type U
+	/// \param args variadic arguments
+	/// \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
+	///   is defined. The define is controlled by compiler versions detected in config.h.
     template<typename U, typename... Args>
     void construct(U* ptr, Args&&... args) {::new ((void*)ptr) U(std::forward<Args>(args)...);}
 
-	//! \brief Destroys an U constructed with variadic arguments
-	//! \tparam U the type to be forwarded
-	//! \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
-	//!   is defined. The define is controlled by compiler versions detected in config.h.
+	/// \brief Destroys an U constructed with variadic arguments
+	/// \tparam U the type to be forwarded
+	/// \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
+	///   is defined. The define is controlled by compiler versions detected in config.h.
     template<typename U>
     void destroy(U* ptr) {if (ptr) ptr->~U();}
 
@@ -93,21 +93,21 @@ public:
 
 protected:
 
-	//! \brief Verifies the allocator can satisfy a request based on size
-	//! \param size the size of the allocation, in elements
-	//! \throws InvalidArgument
-	//! \details CheckSize verifies the number of elements requested is valid.
-	//! \details If size is greater than max_size(), then InvalidArgument is thrown.
-	//!   The library throws InvalidArgument if the size is too large to satisfy.
-	//! \details Internally, preprocessor macros are used rather than std::numeric_limits
-	//!   because the latter is not a constexpr. Some compilers, like Clang, do not
-	//!   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
-	//!   to optimize it well in either form.
-	//! \details The <tt>sizeof(T) != 1</tt> in the condition attempts to help the
-	//!   compiler optimize the check for byte types. Coverity findings for
-	//!   CONSTANT_EXPRESSION_RESULT were generated without it. For byte types,
-	//!   size never exceeded ELEMS_MAX but the code was not removed.
-	//! \note size is the count of elements, and not the number of bytes
+	/// \brief Verifies the allocator can satisfy a request based on size
+	/// \param size the size of the allocation, in elements
+	/// \throws InvalidArgument
+	/// \details CheckSize verifies the number of elements requested is valid.
+	/// \details If size is greater than max_size(), then InvalidArgument is thrown.
+	///   The library throws InvalidArgument if the size is too large to satisfy.
+	/// \details Internally, preprocessor macros are used rather than std::numeric_limits
+	///   because the latter is not a constexpr. Some compilers, like Clang, do not
+	///   optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
+	///   to optimize it well in either form.
+	/// \details The <tt>sizeof(T) != 1</tt> in the condition attempts to help the
+	///   compiler optimize the check for byte types. Coverity findings for
+	///   CONSTANT_EXPRESSION_RESULT were generated without it. For byte types,
+	///   size never exceeded ELEMS_MAX but the code was not removed.
+	/// \note size is the count of elements, and not the number of bytes
 	static void CheckSize(size_t size)
 	{
 		// Squash MSC C4100 warning for size. Also see commit 42b7c4ea5673.
@@ -127,16 +127,16 @@ typedef typename AllocatorBase<T>::const_pointer const_pointer;\
 typedef typename AllocatorBase<T>::reference reference;\
 typedef typename AllocatorBase<T>::const_reference const_reference;
 
-//! \brief Reallocation function
-//! \tparam T the class or type
-//! \tparam A the class or type's allocator
-//! \param alloc the allocator
-//! \param oldPtr the previous allocation
-//! \param oldSize the size of the previous allocation
-//! \param newSize the new, requested size
-//! \param preserve flag that indicates if the old allocation should be preserved
-//! \note oldSize and newSize are the count of elements, and not the
-//!   number of bytes.
+/// \brief Reallocation function
+/// \tparam T the class or type
+/// \tparam A the class or type's allocator
+/// \param alloc the allocator
+/// \param oldPtr the previous allocation
+/// \param oldSize the size of the previous allocation
+/// \param newSize the new, requested size
+/// \param preserve flag that indicates if the old allocation should be preserved
+/// \note oldSize and newSize are the count of elements, and not the
+///   number of bytes.
 template <class T, class A>
 typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_type oldSize, typename A::size_type newSize, bool preserve)
 {
@@ -160,36 +160,36 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 	}
 }
 
-//! \class AllocatorWithCleanup
-//! \brief Allocates a block of memory with cleanup
-//! \tparam T class or type
-//! \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
-//! \details If T_Align16 is true, then AllocatorWithCleanup calls AlignedAllocate()
-//!    for memory allocations. If T_Align16 is false, then AllocatorWithCleanup() calls
-//!    UnalignedAllocate() for memory allocations.
-//! \details Template parameter T_Align16 is effectively controlled by cryptlib.h and mirrors
-//!    CRYPTOPP_BOOL_ALIGN16. CRYPTOPP_BOOL_ALIGN16 is often used as the template parameter.
+/// \class AllocatorWithCleanup
+/// \brief Allocates a block of memory with cleanup
+/// \tparam T class or type
+/// \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
+/// \details If T_Align16 is true, then AllocatorWithCleanup calls AlignedAllocate()
+///    for memory allocations. If T_Align16 is false, then AllocatorWithCleanup() calls
+///    UnalignedAllocate() for memory allocations.
+/// \details Template parameter T_Align16 is effectively controlled by cryptlib.h and mirrors
+///    CRYPTOPP_BOOL_ALIGN16. CRYPTOPP_BOOL_ALIGN16 is often used as the template parameter.
 template <class T, bool T_Align16 = false>
 class AllocatorWithCleanup : public AllocatorBase<T>
 {
 public:
 	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
 
-	//! \brief Allocates a block of memory
-	//! \param ptr the size of the allocation
-	//! \param size the size of the allocation, in elements
-	//! \returns a memory block
-	//! \throws InvalidArgument
-	//! \details allocate() first checks the size of the request. If it is non-0
-	//!   and less than max_size(), then an attempt is made to fulfill the request using either
-	//!   AlignedAllocate() or UnalignedAllocate().
-	//! \details AlignedAllocate() is used if T_Align16 is true.
-	//!   UnalignedAllocate() used if T_Align16 is false.
-	//! \details This is the C++ *Placement New* operator. ptr is not used, and the function
-	//!   CRYPTOPP_ASSERTs in Debug builds if ptr is non-NULL.
-	//! \sa CallNewHandler() for the methods used to recover from a failed
-	//!   allocation attempt.
-	//! \note size is the count of elements, and not the number of bytes
+	/// \brief Allocates a block of memory
+	/// \param ptr the size of the allocation
+	/// \param size the size of the allocation, in elements
+	/// \returns a memory block
+	/// \throws InvalidArgument
+	/// \details allocate() first checks the size of the request. If it is non-0
+	///   and less than max_size(), then an attempt is made to fulfill the request using either
+	///   AlignedAllocate() or UnalignedAllocate().
+	/// \details AlignedAllocate() is used if T_Align16 is true.
+	///   UnalignedAllocate() used if T_Align16 is false.
+	/// \details This is the C++ *Placement New* operator. ptr is not used, and the function
+	///   CRYPTOPP_ASSERTs in Debug builds if ptr is non-NULL.
+	/// \sa CallNewHandler() for the methods used to recover from a failed
+	///   allocation attempt.
+	/// \note size is the count of elements, and not the number of bytes
 	pointer allocate(size_type size, const void *ptr = NULLPTR)
 	{
 		CRYPTOPP_UNUSED(ptr); CRYPTOPP_ASSERT(ptr == NULLPTR);
@@ -206,14 +206,14 @@ public:
 		return (pointer)UnalignedAllocate(size*sizeof(T));
 	}
 
-	//! \brief Deallocates a block of memory
-	//! \param ptr the pointer for the allocation
-	//! \param size the size of the allocation, in elements
-	//! \details Internally, SecureWipeArray() is called before deallocating the memory.
-	//!   Once the memory block is wiped or zeroized, AlignedDeallocate() or
-	//!   UnalignedDeallocate() is called.
-	//! \details AlignedDeallocate() is used if T_Align16 is true.
-	//!   UnalignedDeallocate() used if T_Align16 is false.
+	/// \brief Deallocates a block of memory
+	/// \param ptr the pointer for the allocation
+	/// \param size the size of the allocation, in elements
+	/// \details Internally, SecureWipeArray() is called before deallocating the memory.
+	///   Once the memory block is wiped or zeroized, AlignedDeallocate() or
+	///   UnalignedDeallocate() is called.
+	/// \details AlignedDeallocate() is used if T_Align16 is true.
+	///   UnalignedDeallocate() used if T_Align16 is false.
 	void deallocate(void *ptr, size_type size)
 	{
 		// This will fire if SetMark(0) was called in the SecBlock
@@ -229,32 +229,32 @@ public:
 		UnalignedDeallocate(ptr);
 	}
 
-	//! \brief Reallocates a block of memory
-	//! \param oldPtr the previous allocation
-	//! \param oldSize the size of the previous allocation
-	//! \param newSize the new, requested size
-	//! \param preserve flag that indicates if the old allocation should be preserved
-	//! \returns pointer to the new memory block
-	//! \details Internally, reallocate() calls StandardReallocate().
-	//! \details If preserve is true, then index 0 is used to begin copying the
-	//!   old memory block to the new one. If the block grows, then the old array
-	//!   is copied in its entirety. If the block shrinks, then only newSize
-	//!   elements are copied from the old block to the new one.
-	//! \note oldSize and newSize are the count of elements, and not the
-	//!   number of bytes.
+	/// \brief Reallocates a block of memory
+	/// \param oldPtr the previous allocation
+	/// \param oldSize the size of the previous allocation
+	/// \param newSize the new, requested size
+	/// \param preserve flag that indicates if the old allocation should be preserved
+	/// \returns pointer to the new memory block
+	/// \details Internally, reallocate() calls StandardReallocate().
+	/// \details If preserve is true, then index 0 is used to begin copying the
+	///   old memory block to the new one. If the block grows, then the old array
+	///   is copied in its entirety. If the block shrinks, then only newSize
+	///   elements are copied from the old block to the new one.
+	/// \note oldSize and newSize are the count of elements, and not the
+	///   number of bytes.
 	pointer reallocate(T *oldPtr, size_type oldSize, size_type newSize, bool preserve)
 	{
 		CRYPTOPP_ASSERT((oldPtr && oldSize) || !(oldPtr || oldSize));
 		return StandardReallocate(*this, oldPtr, oldSize, newSize, preserve);
 	}
 
-	//! \brief Template class memeber Rebind
-	//! \tparam U bound class or type
-	//! \details Rebind allows a container class to allocate a different type of object
-	//!   to store elements. For example, a std::list will allocate std::list_node to
-	//!   store elements in the list.
-	//! \details VS.NET STL enforces the policy of "All STL-compliant allocators
-	//!   have to provide a template class member called rebind".
+	/// \brief Template class memeber Rebind
+	/// \tparam U bound class or type
+	/// \details Rebind allows a container class to allocate a different type of object
+	///   to store elements. For example, a std::list will allocate std::list_node to
+	///   store elements in the list.
+	/// \details VS.NET STL enforces the policy of "All STL-compliant allocators
+	///   have to provide a template class member called rebind".
     template <class U> struct rebind { typedef AllocatorWithCleanup<U, T_Align16> other; };
 #if _MSC_VER >= 1500
 	AllocatorWithCleanup() {}
@@ -273,14 +273,14 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word128, true>; // for Integer
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word, true>;	 // for Integer
 #endif
 
-//! \class NullAllocator
-//! \brief NULL allocator
-//! \tparam T class or type
-//! \details A NullAllocator is useful for fixed-size, stack based allocations
-//!   (i.e., static arrays used by FixedSizeAllocatorWithCleanup).
-//! \details A NullAllocator always returns 0 for max_size(), and always returns
-//!   NULL for allocation requests. Though the allocator does not allocate at
-//!   runtime, it does perform a secure wipe or zeroization during cleanup.
+/// \class NullAllocator
+/// \brief NULL allocator
+/// \tparam T class or type
+/// \details A NullAllocator is useful for fixed-size, stack based allocations
+///   (i.e., static arrays used by FixedSizeAllocatorWithCleanup).
+/// \details A NullAllocator always returns 0 for max_size(), and always returns
+///   NULL for allocation requests. Though the allocator does not allocate at
+///   runtime, it does perform a secure wipe or zeroization during cleanup.
 template <class T>
 class NullAllocator : public AllocatorBase<T>
 {
@@ -307,39 +307,39 @@ public:
 	//LCOV_EXCL_STOP
 };
 
-//! \class FixedSizeAllocatorWithCleanup
-//! \brief Static secure memory block with cleanup
-//! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block, in elements
-//! \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
-//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
-//!    based allocation at compile time. The class can grow its memory
-//!    block at runtime if a suitable allocator is available. If size
-//!    grows beyond S and a suitable allocator is available, then the
-//!    statically allocated array is obsoleted.
-//! \note This allocator can't be used with standard collections because
-//!   they require that all objects of the same allocator type are equivalent.
+/// \class FixedSizeAllocatorWithCleanup
+/// \brief Static secure memory block with cleanup
+/// \tparam T class or type
+/// \tparam S fixed-size of the stack-based memory block, in elements
+/// \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
+/// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
+///    based allocation at compile time. The class can grow its memory
+///    block at runtime if a suitable allocator is available. If size
+///    grows beyond S and a suitable allocator is available, then the
+///    statically allocated array is obsoleted.
+/// \note This allocator can't be used with standard collections because
+///   they require that all objects of the same allocator type are equivalent.
 template <class T, size_t S, class A = NullAllocator<T>, bool T_Align16 = false>
 class FixedSizeAllocatorWithCleanup : public AllocatorBase<T>
 {
 public:
 	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
 
-	//! \brief Constructs a FixedSizeAllocatorWithCleanup
+	/// \brief Constructs a FixedSizeAllocatorWithCleanup
 	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
 
-	//! \brief Allocates a block of memory
-	//! \param size the count elements in the memory block
-	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-based
-	//!   allocation at compile time. If size is less than or equal to
-	//!   <tt>S</tt>, then a pointer to the static array is returned.
-	//! \details The class can grow its memory block at runtime if a suitable
-	//!   allocator is available. If size grows beyond S and a suitable
-	//!   allocator is available, then the statically allocated array is
-	//!   obsoleted. If a suitable allocator is not available, as with a
-	//!   NullAllocator, then the function returns NULL and a runtime error
-	//!   eventually occurs.
-	//! \sa reallocate(), SecBlockWithHint
+	/// \brief Allocates a block of memory
+	/// \param size the count elements in the memory block
+	/// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-based
+	///   allocation at compile time. If size is less than or equal to
+	///   <tt>S</tt>, then a pointer to the static array is returned.
+	/// \details The class can grow its memory block at runtime if a suitable
+	///   allocator is available. If size grows beyond S and a suitable
+	///   allocator is available, then the statically allocated array is
+	///   obsoleted. If a suitable allocator is not available, as with a
+	///   NullAllocator, then the function returns NULL and a runtime error
+	///   eventually occurs.
+	/// \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size)
 	{
 		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 8));
@@ -353,19 +353,19 @@ public:
 			return m_fallbackAllocator.allocate(size);
 	}
 
-	//! \brief Allocates a block of memory
-	//! \param size the count elements in the memory block
-	//! \param hint an unused hint
-	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
-	//!   based allocation at compile time. If size is less than or equal to
-	//!   S, then a pointer to the static array is returned.
-	//! \details The class can grow its memory block at runtime if a suitable
-	//!   allocator is available. If size grows beyond S and a suitable
-	//!   allocator is available, then the statically allocated array is
-	//!   obsoleted. If a suitable allocator is not available, as with a
-	//!   NullAllocator, then the function returns NULL and a runtime error
-	//!   eventually occurs.
-	//! \sa reallocate(), SecBlockWithHint
+	/// \brief Allocates a block of memory
+	/// \param size the count elements in the memory block
+	/// \param hint an unused hint
+	/// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
+	///   based allocation at compile time. If size is less than or equal to
+	///   S, then a pointer to the static array is returned.
+	/// \details The class can grow its memory block at runtime if a suitable
+	///   allocator is available. If size grows beyond S and a suitable
+	///   allocator is available, then the statically allocated array is
+	///   obsoleted. If a suitable allocator is not available, as with a
+	///   NullAllocator, then the function returns NULL and a runtime error
+	///   eventually occurs.
+	/// \sa reallocate(), SecBlockWithHint
 	pointer allocate(size_type size, const void *hint)
 	{
 		if (size <= S && !m_allocated)
@@ -377,14 +377,14 @@ public:
 			return m_fallbackAllocator.allocate(size, hint);
 	}
 
-	//! \brief Deallocates a block of memory
-	//! \param ptr a pointer to the memory block to deallocate
-	//! \param size the count elements in the memory block
-	//! \details The memory block is wiped or zeroized before deallocation.
-	//!   If the statically allocated memory block is active, then no
-	//!   additional actions are taken after the wipe.
-	//! \details If a dynamic memory block is active, then the pointer and
-	//!   size are passed to the allocator for deallocation.
+	/// \brief Deallocates a block of memory
+	/// \param ptr a pointer to the memory block to deallocate
+	/// \param size the count elements in the memory block
+	/// \details The memory block is wiped or zeroized before deallocation.
+	///   If the statically allocated memory block is active, then no
+	///   additional actions are taken after the wipe.
+	/// \details If a dynamic memory block is active, then the pointer and
+	///   size are passed to the allocator for deallocation.
 	void deallocate(void *ptr, size_type size)
 	{
 		if (ptr == GetAlignedArray())
@@ -398,23 +398,23 @@ public:
 			m_fallbackAllocator.deallocate(ptr, size);
 	}
 
-	//! \brief Reallocates a block of memory
-	//! \param oldPtr the previous allocation
-	//! \param oldSize the size of the previous allocation
-	//! \param newSize the new, requested size
-	//! \param preserve flag that indicates if the old allocation should be preserved
-	//! \returns pointer to the new memory block
-	//! \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
-	//!   based allocation at compile time. If size is less than or equal to
-	//!   S, then a pointer to the static array is returned.
-	//! \details The class can grow its memory block at runtime if a suitable
-	//!   allocator is available. If size grows beyond S and a suitable
-	//!   allocator is available, then the statically allocated array is
-	//!   obsoleted. If a suitable allocator is not available, as with a
-	//!   NullAllocator, then the function returns NULL and a runtime error
-	//!   eventually occurs.
-	//! \note size is the count of elements, and not the number of bytes.
-	//! \sa reallocate(), SecBlockWithHint
+	/// \brief Reallocates a block of memory
+	/// \param oldPtr the previous allocation
+	/// \param oldSize the size of the previous allocation
+	/// \param newSize the new, requested size
+	/// \param preserve flag that indicates if the old allocation should be preserved
+	/// \returns pointer to the new memory block
+	/// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
+	///   based allocation at compile time. If size is less than or equal to
+	///   S, then a pointer to the static array is returned.
+	/// \details The class can grow its memory block at runtime if a suitable
+	///   allocator is available. If size grows beyond S and a suitable
+	///   allocator is available, then the statically allocated array is
+	///   obsoleted. If a suitable allocator is not available, as with a
+	///   NullAllocator, then the function returns NULL and a runtime error
+	///   eventually occurs.
+	/// \note size is the count of elements, and not the number of bytes.
+	/// \sa reallocate(), SecBlockWithHint
 	pointer reallocate(pointer oldPtr, size_type oldSize, size_type newSize, bool preserve)
 	{
 		if (oldPtr == GetAlignedArray() && newSize <= S)
@@ -451,10 +451,10 @@ private:
 	bool m_allocated;
 };
 
-//! \class SecBlock
-//! \brief Secure memory block with allocator and cleanup
-//! \tparam T a class or type
-//! \tparam A AllocatorWithCleanup derived class for allocation and cleanup
+/// \class SecBlock
+/// \brief Secure memory block with allocator and cleanup
+/// \tparam T a class or type
+/// \tparam A AllocatorWithCleanup derived class for allocation and cleanup
 template <class T, class A = AllocatorWithCleanup<T> >
 class SecBlock
 {
@@ -464,18 +464,18 @@ public:
 	typedef typename A::const_pointer const_iterator;
 	typedef typename A::size_type size_type;
 
-	//! \brief Returns the maximum number of elements the block can hold
-	//! \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
-	//!   <tt>SecBlock</tt> can hold. The value of <tt>ELEMS_MAX</tt> is
-	//!   <tt>SIZE_MAX/sizeof(T)</tt>. <tt>std::numeric_limits</tt> was avoided
-	//!   due to lack of <tt>constexpr</tt>-ness in C++03 and below.
-	//! \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
-	//!   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
-	//!   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
-	//!   used before objects are fully constructed, and it does not suffer the
-	//!   limitations of class methods like <tt>max_size</tt>.
-	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
-	//! \since Crypto++ 6.0
+	/// \brief Returns the maximum number of elements the block can hold
+	/// \details <tt>ELEMS_MAX</tt> is the maximum number of elements the
+	///   <tt>SecBlock</tt> can hold. The value of <tt>ELEMS_MAX</tt> is
+	///   <tt>SIZE_MAX/sizeof(T)</tt>. <tt>std::numeric_limits</tt> was avoided
+	///   due to lack of <tt>constexpr</tt>-ness in C++03 and below.
+	/// \note In C++03 and below <tt>ELEMS_MAX</tt> is a static data member of type
+	///   <tt>size_type</tt>. In C++11 and above <tt>ELEMS_MAX</tt> is an <tt>enum</tt>
+	///   inheriting from <tt>size_type</tt>. In both cases <tt>ELEMS_MAX</tt> can be
+	///   used before objects are fully constructed, and it does not suffer the
+	///   limitations of class methods like <tt>max_size</tt>.
+	/// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
+	/// \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
 #elif defined(CRYPTOPP_CXX11_ENUM)
@@ -484,31 +484,31 @@ public:
 	static const size_type ELEMS_MAX = SIZE_MAX/sizeof(T);
 #endif
 
-	//! \brief Construct a SecBlock with space for size elements.
-	//! \param size the size of the allocation, in elements
-	//! \throws std::bad_alloc
-	//! \details The elements are not initialized.
-	//! \note size is the count of elements, and not the number of bytes
+	/// \brief Construct a SecBlock with space for size elements.
+	/// \param size the size of the allocation, in elements
+	/// \throws std::bad_alloc
+	/// \details The elements are not initialized.
+	/// \note size is the count of elements, and not the number of bytes
 	explicit SecBlock(size_type size=0)
 		: m_mark(ELEMS_MAX), m_size(size), m_ptr(m_alloc.allocate(size, NULLPTR)) { }
 
-	//! \brief Copy construct a SecBlock from another SecBlock
-	//! \param t the other SecBlock
-	//! \throws std::bad_alloc
+	/// \brief Copy construct a SecBlock from another SecBlock
+	/// \param t the other SecBlock
+	/// \throws std::bad_alloc
 	SecBlock(const SecBlock<T, A> &t)
 		: m_mark(t.m_mark), m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULLPTR)) {
 			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
 			if (t.m_ptr) {memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
 		}
 
-	//! \brief Construct a SecBlock from an array of elements.
-	//! \param ptr a pointer to an array of T
-	//! \param len the number of elements in the memory block
-	//! \throws std::bad_alloc
-	//! \details If <tt>ptr!=NULL</tt> and <tt>len!=0</tt>, then the block is initialized from the pointer
-	//!    <tt>ptr</tt>. If <tt>ptr==NULL</tt> and <tt>len!=0</tt>, then the block is initialized to 0.
-	//!    Otherwise, the block is empty and not initialized.
-	//! \note size is the count of elements, and not the number of bytes
+	/// \brief Construct a SecBlock from an array of elements.
+	/// \param ptr a pointer to an array of T
+	/// \param len the number of elements in the memory block
+	/// \throws std::bad_alloc
+	/// \details If <tt>ptr!=NULL</tt> and <tt>len!=0</tt>, then the block is initialized from the pointer
+	///    <tt>ptr</tt>. If <tt>ptr==NULL</tt> and <tt>len!=0</tt>, then the block is initialized to 0.
+	///    Otherwise, the block is empty and not initialized.
+	/// \note size is the count of elements, and not the number of bytes
 	SecBlock(const T *ptr, size_type len)
 		: m_mark(ELEMS_MAX), m_size(len), m_ptr(m_alloc.allocate(len, NULLPTR)) {
 			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
@@ -536,77 +536,77 @@ public:
 		{return m_ptr;}
 #endif
 
-	//! \brief Provides an iterator pointing to the first element in the memory block
-	//! \returns iterator pointing to the first element in the memory block
+	/// \brief Provides an iterator pointing to the first element in the memory block
+	/// \returns iterator pointing to the first element in the memory block
 	iterator begin()
 		{return m_ptr;}
-	//! \brief Provides a constant iterator pointing to the first element in the memory block
-	//! \returns constant iterator pointing to the first element in the memory block
+	/// \brief Provides a constant iterator pointing to the first element in the memory block
+	/// \returns constant iterator pointing to the first element in the memory block
 	const_iterator begin() const
 		{return m_ptr;}
-	//! \brief Provides an iterator pointing beyond the last element in the memory block
-	//! \returns iterator pointing beyond the last element in the memory block
+	/// \brief Provides an iterator pointing beyond the last element in the memory block
+	/// \returns iterator pointing beyond the last element in the memory block
 	iterator end()
 		{return m_ptr+m_size;}
-	//! \brief Provides a constant iterator pointing beyond the last element in the memory block
-	//! \returns constant iterator pointing beyond the last element in the memory block
+	/// \brief Provides a constant iterator pointing beyond the last element in the memory block
+	/// \returns constant iterator pointing beyond the last element in the memory block
 	const_iterator end() const
 		{return m_ptr+m_size;}
 
-	//! \brief Provides a pointer to the first element in the memory block
-	//! \returns pointer to the first element in the memory block
+	/// \brief Provides a pointer to the first element in the memory block
+	/// \returns pointer to the first element in the memory block
 	typename A::pointer data() {return m_ptr;}
-	//! \brief Provides a pointer to the first element in the memory block
-	//! \returns constant pointer to the first element in the memory block
+	/// \brief Provides a pointer to the first element in the memory block
+	/// \returns constant pointer to the first element in the memory block
 	typename A::const_pointer data() const {return m_ptr;}
 
-	//! \brief Provides the count of elements in the SecBlock
-	//! \returns number of elements in the memory block
-	//! \note the return value is the count of elements, and not the number of bytes
+	/// \brief Provides the count of elements in the SecBlock
+	/// \returns number of elements in the memory block
+	/// \note the return value is the count of elements, and not the number of bytes
 	size_type size() const {return m_size;}
-	//! \brief Determines if the SecBlock is empty
-	//! \returns true if number of elements in the memory block is 0, false otherwise
+	/// \brief Determines if the SecBlock is empty
+	/// \returns true if number of elements in the memory block is 0, false otherwise
 	bool empty() const {return m_size == 0;}
 
-	//! \brief Provides a byte pointer to the first element in the memory block
-	//! \returns byte pointer to the first element in the memory block
+	/// \brief Provides a byte pointer to the first element in the memory block
+	/// \returns byte pointer to the first element in the memory block
 	byte * BytePtr() {return (byte *)m_ptr;}
-	//! \brief Return a byte pointer to the first element in the memory block
-	//! \returns constant byte pointer to the first element in the memory block
+	/// \brief Return a byte pointer to the first element in the memory block
+	/// \returns constant byte pointer to the first element in the memory block
 	const byte * BytePtr() const {return (const byte *)m_ptr;}
-	//! \brief Provides the number of bytes in the SecBlock
-	//! \return the number of bytes in the memory block
-	//! \note the return value is the number of bytes, and not count of elements.
+	/// \brief Provides the number of bytes in the SecBlock
+	/// \return the number of bytes in the memory block
+	/// \note the return value is the number of bytes, and not count of elements.
 	size_type SizeInBytes() const {return m_size*sizeof(T);}
 
-	//! \brief Sets the number of elements to zeroize
-	//! \param count the number of elements
-	//! \details SetMark is a remediation for Issue 346/CVE-2016-9939 while
-	//!    preserving the streaming interface. The <tt>count</tt> controls the number of
-	//!    elements zeroized, which can be less than <tt>size</tt> or 0.
-	//! \details An internal variable, <tt>m_mark</tt>, is initialized to the maximum number
-	//!    of elements. The maximum number of elements is <tt>ELEMS_MAX</tt>. Deallocation
-	//!    triggers a zeroization, and the number of elements zeroized is
-	//!    <tt>STDMIN(m_size, m_mark)</tt>. After zeroization, the memory is returned to the
-	//!    system.
-	//! \details The ASN.1 decoder uses SetMark() to set the element count to 0
-	//!    before throwing an exception. In this case, the attacker provides a large
-	//!    BER encoded length (say 64MB) but only a small number of content octets
-	//!    (say 16). If the allocator zeroized all 64MB, then a transient DoS could
-	//!    occur as CPU cycles are spent zeroizing unintialized memory.
-	//! \details Generally speaking, any operation which changes the size of the SecBlock
-	//!    results in the mark being reset to <tt>ELEMS_MAX</tt>. In particular, if Assign(),
-	//!    New(), Grow(), CleanNew(), CleanGrow() are called, then the count is reset to
-	//!    <tt>ELEMS_MAX</tt>. The list is not exhaustive.
-	//! \since Crypto++ 6.0
-	//! \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
+	/// \brief Sets the number of elements to zeroize
+	/// \param count the number of elements
+	/// \details SetMark is a remediation for Issue 346/CVE-2016-9939 while
+	///    preserving the streaming interface. The <tt>count</tt> controls the number of
+	///    elements zeroized, which can be less than <tt>size</tt> or 0.
+	/// \details An internal variable, <tt>m_mark</tt>, is initialized to the maximum number
+	///    of elements. The maximum number of elements is <tt>ELEMS_MAX</tt>. Deallocation
+	///    triggers a zeroization, and the number of elements zeroized is
+	///    <tt>STDMIN(m_size, m_mark)</tt>. After zeroization, the memory is returned to the
+	///    system.
+	/// \details The ASN.1 decoder uses SetMark() to set the element count to 0
+	///    before throwing an exception. In this case, the attacker provides a large
+	///    BER encoded length (say 64MB) but only a small number of content octets
+	///    (say 16). If the allocator zeroized all 64MB, then a transient DoS could
+	///    occur as CPU cycles are spent zeroizing unintialized memory.
+	/// \details Generally speaking, any operation which changes the size of the SecBlock
+	///    results in the mark being reset to <tt>ELEMS_MAX</tt>. In particular, if Assign(),
+	///    New(), Grow(), CleanNew(), CleanGrow() are called, then the count is reset to
+	///    <tt>ELEMS_MAX</tt>. The list is not exhaustive.
+	/// \since Crypto++ 6.0
+	/// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/346">Issue 346/CVE-2016-9939</A>
 	void SetMark(size_t count) {m_mark = count;}
 
-	//! \brief Set contents and size from an array
-	//! \param ptr a pointer to an array of T
-	//! \param len the number of elements in the memory block
-	//! \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	//!   Assign() resets the element count after the previous block is zeroized.
+	/// \brief Set contents and size from an array
+	/// \param ptr a pointer to an array of T
+	/// \param len the number of elements in the memory block
+	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
+	///   Assign() resets the element count after the previous block is zeroized.
 	void Assign(const T *ptr, size_type len)
 	{
 		New(len);
@@ -615,11 +615,11 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Set contents from a value
-	//! \param count the number of values to copy
-	//! \param value the value, repeated count times
-	//! \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	//!   Assign() resets the element count after the previous block is zeroized.
+	/// \brief Set contents from a value
+	/// \param count the number of values to copy
+	/// \param value the value, repeated count times
+	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
+	///   Assign() resets the element count after the previous block is zeroized.
 	void Assign(size_type count, T value)
 	{
 		New(count);
@@ -629,12 +629,12 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Copy contents from another SecBlock
-	//! \param t the other SecBlock
-	//! \details Assign checks for self assignment.
-	//! \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	//!   If an assignment occurs, then Assign() resets the element count after the previous block
-	//!   is zeroized.
+	/// \brief Copy contents from another SecBlock
+	/// \param t the other SecBlock
+	/// \details Assign checks for self assignment.
+	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
+	///   If an assignment occurs, then Assign() resets the element count after the previous block
+	///   is zeroized.
 	void Assign(const SecBlock<T, A> &t)
 	{
 		if (this != &t)
@@ -646,12 +646,12 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Assign contents from another SecBlock
-	//! \param t the other SecBlock
-	//! \details Internally, operator=() calls Assign().
-	//! \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
-	//!   If an assignment occurs, then Assign() resets the element count after the previous block
-	//!   is zeroized.
+	/// \brief Assign contents from another SecBlock
+	/// \param t the other SecBlock
+	/// \details Internally, operator=() calls Assign().
+	/// \details If the memory block is reduced in size, then the reclaimed memory is set to 0.
+	///   If an assignment occurs, then Assign() resets the element count after the previous block
+	///   is zeroized.
 	SecBlock<T, A>& operator=(const SecBlock<T, A> &t)
 	{
 		// Assign guards for self-assignment
@@ -659,9 +659,9 @@ public:
 		return *this;
 	}
 
-	//! \brief Append contents from another SecBlock
-	//! \param t the other SecBlock
-	//! \details Internally, this SecBlock calls Grow and then appends t.
+	/// \brief Append contents from another SecBlock
+	/// \param t the other SecBlock
+	/// \details Internally, this SecBlock calls Grow and then appends t.
 	SecBlock<T, A>& operator+=(const SecBlock<T, A> &t)
 	{
 		CRYPTOPP_ASSERT((!t.m_ptr && !t.m_size) || (t.m_ptr && t.m_size));
@@ -683,10 +683,10 @@ public:
 		return *this;
 	}
 
-	//! \brief Construct a SecBlock from this and another SecBlock
-	//! \param t the other SecBlock
-	//! \returns a newly constructed SecBlock that is a conacentation of this and t
-	//! \details Internally, a new SecBlock is created from this and a concatenation of t.
+	/// \brief Construct a SecBlock from this and another SecBlock
+	/// \param t the other SecBlock
+	/// \returns a newly constructed SecBlock that is a conacentation of this and t
+	/// \details Internally, a new SecBlock is created from this and a concatenation of t.
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
 		CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
@@ -699,38 +699,38 @@ public:
 		return result;
 	}
 
-	//! \brief Bitwise compare two SecBlocks
-	//! \param t the other SecBlock
-	//! \returns true if the size and bits are equal, false otherwise
-	//! \details Uses a constant time compare if the arrays are equal size. The constant time
-	//!    compare is VerifyBufsEqual() found in misc.h.
-	//! \sa operator!=()
+	/// \brief Bitwise compare two SecBlocks
+	/// \param t the other SecBlock
+	/// \returns true if the size and bits are equal, false otherwise
+	/// \details Uses a constant time compare if the arrays are equal size. The constant time
+	///    compare is VerifyBufsEqual() found in misc.h.
+	/// \sa operator!=()
 	bool operator==(const SecBlock<T, A> &t) const
 	{
 		return m_size == t.m_size &&
 			VerifyBufsEqual(reinterpret_cast<const byte*>(m_ptr), reinterpret_cast<const byte*>(t.m_ptr), m_size*sizeof(T));
 	}
 
-	//! \brief Bitwise compare two SecBlocks
-	//! \param t the other SecBlock
-	//! \returns true if the size and bits are equal, false otherwise
-	//! \details Uses a constant time compare if the arrays are equal size. The constant time
-	//!    compare is VerifyBufsEqual() found in misc.h.
-	//! \details Internally, operator!=() returns the inverse of operator==().
-	//! \sa operator==()
+	/// \brief Bitwise compare two SecBlocks
+	/// \param t the other SecBlock
+	/// \returns true if the size and bits are equal, false otherwise
+	/// \details Uses a constant time compare if the arrays are equal size. The constant time
+	///    compare is VerifyBufsEqual() found in misc.h.
+	/// \details Internally, operator!=() returns the inverse of operator==().
+	/// \sa operator==()
 	bool operator!=(const SecBlock<T, A> &t) const
 	{
 		return !operator==(t);
 	}
 
-	//! \brief Change size without preserving contents
-	//! \param newSize the new size of the memory block
-	//! \details Old content is not preserved. If the memory block is reduced in size,
-	//!    then the reclaimed memory is set to 0. If the memory block grows in size, then
-	//!    the new memory is not initialized. New() resets the element count after the
-	//!    previous block is zeroized.
-	//! \details Internally, this SecBlock calls reallocate().
-	//! \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \brief Change size without preserving contents
+	/// \param newSize the new size of the memory block
+	/// \details Old content is not preserved. If the memory block is reduced in size,
+	///    then the reclaimed memory is set to 0. If the memory block grows in size, then
+	///    the new memory is not initialized. New() resets the element count after the
+	///    previous block is zeroized.
+	/// \details Internally, this SecBlock calls reallocate().
+	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	void New(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, false);
@@ -738,14 +738,14 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Change size without preserving contents
-	//! \param newSize the new size of the memory block
-	//! \details Old content is not preserved. If the memory block is reduced in size,
-	//!    then the reclaimed content is set to 0. If the memory block grows in size, then
-	//!    the new memory is initialized to 0. CleanNew() resets the element count after the
-	//!    previous block is zeroized.
-	//! \details Internally, this SecBlock calls New().
-	//! \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \brief Change size without preserving contents
+	/// \param newSize the new size of the memory block
+	/// \details Old content is not preserved. If the memory block is reduced in size,
+	///    then the reclaimed content is set to 0. If the memory block grows in size, then
+	///    the new memory is initialized to 0. CleanNew() resets the element count after the
+	///    previous block is zeroized.
+	/// \details Internally, this SecBlock calls New().
+	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	void CleanNew(size_type newSize)
 	{
 		New(newSize);
@@ -753,14 +753,14 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Change size and preserve contents
-	//! \param newSize the new size of the memory block
-	//! \details Old content is preserved. New content is not initialized.
-	//! \details Internally, this SecBlock calls reallocate() when size must increase. If the
-	//!    size does not increase, then Grow() does not take action. If the size must
-	//!    change, then use resize(). Grow() resets the element count after the
-	//!    previous block is zeroized.
-	//! \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \brief Change size and preserve contents
+	/// \param newSize the new size of the memory block
+	/// \details Old content is preserved. New content is not initialized.
+	/// \details Internally, this SecBlock calls reallocate() when size must increase. If the
+	///    size does not increase, then Grow() does not take action. If the size must
+	///    change, then use resize(). Grow() resets the element count after the
+	///    previous block is zeroized.
+	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	void Grow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -771,14 +771,14 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Change size and preserve contents
-	//! \param newSize the new size of the memory block
-	//! \details Old content is preserved. New content is initialized to 0.
-	//! \details Internally, this SecBlock calls reallocate() when size must increase. If the
-	//!    size does not increase, then CleanGrow() does not take action. If the size must
-	//!    change, then use resize(). CleanGrow() resets the element count after the
-	//!    previous block is zeroized.
-	//! \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \brief Change size and preserve contents
+	/// \param newSize the new size of the memory block
+	/// \details Old content is preserved. New content is initialized to 0.
+	/// \details Internally, this SecBlock calls reallocate() when size must increase. If the
+	///    size does not increase, then CleanGrow() does not take action. If the size must
+	///    change, then use resize(). CleanGrow() resets the element count after the
+	///    previous block is zeroized.
+	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	void CleanGrow(size_type newSize)
 	{
 		if (newSize > m_size)
@@ -790,13 +790,13 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Change size and preserve contents
-	//! \param newSize the new size of the memory block
-	//! \details Old content is preserved. If the memory block grows in size, then
-	//!    new memory is not initialized. resize() resets the element count after
-	//!    the previous block is zeroized.
-	//! \details Internally, this SecBlock calls reallocate().
-	//! \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
+	/// \brief Change size and preserve contents
+	/// \param newSize the new size of the memory block
+	/// \details Old content is preserved. If the memory block grows in size, then
+	///    new memory is not initialized. resize() resets the element count after
+	///    the previous block is zeroized.
+	/// \details Internally, this SecBlock calls reallocate().
+	/// \sa New(), CleanNew(), Grow(), CleanGrow(), resize()
 	void resize(size_type newSize)
 	{
 		m_ptr = m_alloc.reallocate(m_ptr, m_size, newSize, true);
@@ -804,9 +804,9 @@ public:
 		m_mark = ELEMS_MAX;
 	}
 
-	//! \brief Swap contents with another SecBlock
-	//! \param b the other SecBlock
-	//! \details Internally, std::swap() is called on m_alloc, m_size and m_ptr.
+	/// \brief Swap contents with another SecBlock
+	/// \param b the other SecBlock
+	/// \details Internally, std::swap() is called on m_alloc, m_size and m_ptr.
 	void swap(SecBlock<T, A> &b)
 	{
 		// Swap must occur on the allocator in case its FixedSize that spilled into the heap.
@@ -823,14 +823,14 @@ protected:
 };
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
-//! \class SecByteBlock
-//! \brief \ref SecBlock "SecBlock<byte>" typedef.
+/// \class SecByteBlock
+/// \brief \ref SecBlock "SecBlock<byte>" typedef.
 class SecByteBlock : public SecBlock<byte> {};
-//! \class SecWordBlock
-//! \brief \ref SecBlock "SecBlock<word>" typedef.
+/// \class SecWordBlock
+/// \brief \ref SecBlock "SecBlock<word>" typedef.
 class SecWordBlock : public SecBlock<word> {};
-//! \class AlignedSecByteBlock
-//! \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup<byte, true>" typedef
+/// \class AlignedSecByteBlock
+/// \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup<byte, true>" typedef
 class AlignedSecByteBlock : public SecBlock<byte, AllocatorWithCleanup<byte, true> > {};
 #else
 typedef SecBlock<byte> SecByteBlock;
@@ -841,39 +841,39 @@ typedef SecBlock<byte, AllocatorWithCleanup<byte, true> > AlignedSecByteBlock;
 // No need for move semantics on derived class *if* the class does not add any
 //   data members; see http://stackoverflow.com/q/31755703, and Rule of {0|3|5}.
 
-//! \class FixedSizeSecBlock
-//! \brief Fixed size stack-based SecBlock
-//! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block, in elements
-//! \tparam A AllocatorBase derived class for allocation and cleanup
+/// \class FixedSizeSecBlock
+/// \brief Fixed size stack-based SecBlock
+/// \tparam T class or type
+/// \tparam S fixed-size of the stack-based memory block, in elements
+/// \tparam A AllocatorBase derived class for allocation and cleanup
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S> >
 class FixedSizeSecBlock : public SecBlock<T, A>
 {
 public:
-	//! \brief Construct a FixedSizeSecBlock
+	/// \brief Construct a FixedSizeSecBlock
 	explicit FixedSizeSecBlock() : SecBlock<T, A>(S) {}
 };
 
-//! \class FixedSizeAlignedSecBlock
-//! \brief Fixed size stack-based SecBlock with 16-byte alignment
-//! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block, in elements
-//! \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
+/// \class FixedSizeAlignedSecBlock
+/// \brief Fixed size stack-based SecBlock with 16-byte alignment
+/// \tparam T class or type
+/// \tparam S fixed-size of the stack-based memory block, in elements
+/// \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
 template <class T, unsigned int S, bool T_Align16 = true>
 class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocatorWithCleanup<T, S, NullAllocator<T>, T_Align16> >
 {
 };
 
-//! \class SecBlockWithHint
-//! \brief Stack-based SecBlock that grows into the heap
-//! \tparam T class or type
-//! \tparam S fixed-size of the stack-based memory block, in elements
-//! \tparam A AllocatorBase derived class for allocation and cleanup
+/// \class SecBlockWithHint
+/// \brief Stack-based SecBlock that grows into the heap
+/// \tparam T class or type
+/// \tparam S fixed-size of the stack-based memory block, in elements
+/// \tparam A AllocatorBase derived class for allocation and cleanup
 template <class T, unsigned int S, class A = FixedSizeAllocatorWithCleanup<T, S, AllocatorWithCleanup<T> > >
 class SecBlockWithHint : public SecBlock<T, A>
 {
 public:
-	//! construct a SecBlockWithHint with a count of elements
+	/// construct a SecBlockWithHint with a count of elements
 	explicit SecBlockWithHint(size_t size) : SecBlock<T, A>(size) {}
 };
 
