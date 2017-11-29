@@ -418,6 +418,24 @@ inline __m128i RotateRight64(const __m128i& val)
     return _mm_or_si128(a, b);
 }
 
+// Faster than two Shifts and an Or
+template <>
+inline __m128i RotateLeft64<8>(const __m128i& val)
+{
+    CRYPTOPP_ASSERT(R < 64);
+	const __m128i mask = _mm_set_epi8(14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7);
+    return _mm_shuffle_epi8(val, mask);
+}
+
+// Faster than two Shifts and an Or
+template <>
+inline __m128i RotateRight64<8>(const __m128i& val)
+{
+    CRYPTOPP_ASSERT(R < 64);
+	const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
+    return _mm_shuffle_epi8(val, mask);
+}
+
 inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
