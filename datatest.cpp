@@ -116,12 +116,8 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 			s1 = s1.substr(s1.find(' ')+1);
 		}
 
-		// Convert endian order. Use it with 64-bit words like this:
-		//   Key: word64 BC2560EFC6BBA2B1 E3361F162238EB40 FB8631EE0ABBD175 7B9479D4C5479ED1
-		//   BC2560EFC6BBA2B1 will be processed into B1A2BBC6EF6025BC.
-		// or:
-		//   Key: word32 BC2560EF E3361F16 FB8631EE 7B9479D4
-		//   BC2560EF will be processed into EF6025BC.
+		// Convert word32 or word64 to little endian order. Some algorithm test vectors are
+		// presented in the format. We probably should have named them word32le and word64le.
 		if (s1.length() >= 6 && (s1.substr(0,6) == "word32" || s1.substr(0,6) == "word64"))
 		{
 			std::istringstream iss(s1.substr(6));
@@ -489,16 +485,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 		RandomizedTransfer(StringStore(plaintext).Ref(), encFilter, true);
 		encFilter.MessageEnd();
-		/*{
-			std::string z;
-			encryptor->Seek(seek);
-			StringSource ss(plaintext, false, new StreamTransformationFilter(*encryptor, new StringSink(z),
-					static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme)));
-			while (ss.Pump(64)) {}
-			ss.PumpAll();
-			for (int i=0; i<z.length(); i++)
-				CRYPTOPP_ASSERT(encrypted[i] == z[i]);
-		}*/
+
 		if (test != "EncryptXorDigest")
 			ciphertext = GetDecodedDatum(v, "Ciphertext");
 		else

@@ -74,7 +74,7 @@ void Salsa20_Policy::SeekToIteration(lword iterationCount)
 	m_state[5] = (word32)SafeRightShift<32>(iterationCount);
 }
 
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SALSA_ASM)
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 unsigned int Salsa20_Policy::GetAlignment() const
 {
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
