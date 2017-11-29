@@ -94,6 +94,28 @@ inline uint64x2_t RotateRight64(const uint64x2_t& val)
     return vorrq_u64(a, b);
 }
 
+#if defined(__aarch32__) || defined(__aarch64__)
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
+template <>
+inline uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
+{
+    const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+    return vreinterpretq_u64_u8(
+        vqtbl1q_u8(vreinterpretq_u8_u64(val), mask));
+}
+
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
+template <>
+inline uint64x2_t RotateRight64<8>(const uint64x2_t& val)
+{
+    const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+    return vreinterpretq_u64_u8(
+        vqtbl1q_u8(vreinterpretq_u8_u64(val), mask));
+}
+#endif
+
 inline uint64x2_t Shuffle64(const uint64x2_t& val)
 {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
@@ -422,7 +444,7 @@ inline __m128i RotateRight64(const __m128i& val)
     return _mm_or_si128(a, b);
 }
 
-// Faster than two Shifts and an Or
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline __m128i RotateLeft64<8>(const __m128i& val)
 {
@@ -431,7 +453,7 @@ inline __m128i RotateLeft64<8>(const __m128i& val)
     return _mm_shuffle_epi8(val, mask);
 }
 
-// Faster than two Shifts and an Or
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline __m128i RotateRight64<8>(const __m128i& val)
 {
