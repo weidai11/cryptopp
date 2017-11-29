@@ -288,10 +288,10 @@ word32 s_sosemanukMulTables[512] = {
 };
 }
 
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 unsigned int SosemanukPolicy::GetAlignment() const
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 #ifdef __INTEL_COMPILER
 	if (HasSSE2() && !IsP4())	// Intel compiler produces faster code for this algorithm on the P4
 #else
@@ -305,7 +305,7 @@ unsigned int SosemanukPolicy::GetAlignment() const
 
 unsigned int SosemanukPolicy::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SOSEMANUK_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 #ifdef __INTEL_COMPILER
 	if (HasSSE2() && !IsP4())	// Intel compiler produces faster code for this algorithm on the P4
 #else
