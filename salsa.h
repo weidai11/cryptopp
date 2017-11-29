@@ -9,8 +9,6 @@
 #include "strciphr.h"
 #include "secblock.h"
 
-// TODO: work around GCC 4.8+ issue with SSE2 ASM until the exact details are known
-//   and fix is released. Duplicate with "valgrind ./cryptest.exe tv salsa"
 // "Inline assembly operands don't work with .intel_syntax", http://llvm.org/bugs/show_bug.cgi?id=24232
 #if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_INTEL_ASM)
 # define CRYPTOPP_DISABLE_SALSA_ASM

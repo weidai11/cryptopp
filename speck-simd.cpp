@@ -63,16 +63,16 @@ const word32 s_one[] = {0, 0, 0, 1};      // uint32x4_t
 template <class W, class T>
 inline W UnpackHigh64(const T& a, const T& b)
 {
-    const uint64x1_t x = vget_high_u64((uint64x2_t)a);
-    const uint64x1_t y = vget_high_u64((uint64x2_t)b);
+    const uint64x1_t x(vget_high_u64((uint64x2_t)a));
+    const uint64x1_t y(vget_high_u64((uint64x2_t)b));
     return (W)vcombine_u64(x, y);
 }
 
 template <class W, class T>
 inline W UnpackLow64(const T& a, const T& b)
 {
-    const uint64x1_t x = vget_low_u64((uint64x2_t)a);
-    const uint64x1_t y = vget_low_u64((uint64x2_t)b);
+    const uint64x1_t x(vget_low_u64((uint64x2_t)a));
+    const uint64x1_t y(vget_low_u64((uint64x2_t)b));
     return (W)vcombine_u64(x, y);
 }
 
@@ -96,8 +96,12 @@ inline uint64x2_t RotateRight64(const uint64x2_t& val)
 
 inline uint64x2_t Shuffle64(const uint64x2_t& val)
 {
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
     return vreinterpretq_u64_u8(
         vrev64q_u8(vreinterpretq_u8_u64(val)));
+#else
+    return val;
+#endif
 }
 
 inline void SPECK128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
@@ -423,7 +427,7 @@ template <>
 inline __m128i RotateLeft64<8>(const __m128i& val)
 {
     CRYPTOPP_ASSERT(R < 64);
-	const __m128i mask = _mm_set_epi8(14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7);
+    const __m128i mask = _mm_set_epi8(14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7);
     return _mm_shuffle_epi8(val, mask);
 }
 
@@ -432,7 +436,7 @@ template <>
 inline __m128i RotateRight64<8>(const __m128i& val)
 {
     CRYPTOPP_ASSERT(R < 64);
-	const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
+    const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
     return _mm_shuffle_epi8(val, mask);
 }
 

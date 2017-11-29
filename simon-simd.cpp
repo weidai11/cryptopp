@@ -98,14 +98,18 @@ inline uint64x2_t RotateRight64(const uint64x2_t& val)
 
 inline uint64x2_t Shuffle64(const uint64x2_t& val)
 {
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
     return vreinterpretq_u64_u8(
         vrev64q_u8(vreinterpretq_u8_u64(val)));
+#else
+    return val;
+#endif
 }
 
-inline uint64x2_t SIMON128_f(const uint64x2_t& v)
+inline uint64x2_t SIMON128_f(const uint64x2_t& val)
 {
-    return veorq_u64(RotateLeft64<2>(v),
-        vandq_u64(RotateLeft64<1>(v), RotateLeft64<8>(v)));
+    return veorq_u64(RotateLeft64<2>(val),
+        vandq_u64(RotateLeft64<1>(val), RotateLeft64<8>(val)));
 }
 
 inline void SIMON128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
@@ -476,7 +480,7 @@ template <>
 inline __m128i RotateLeft64<8>(const __m128i& val)
 {
     CRYPTOPP_ASSERT(R < 64);
-	const __m128i mask = _mm_set_epi8(14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7);
+    const __m128i mask = _mm_set_epi8(14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7);
     return _mm_shuffle_epi8(val, mask);
 }
 
@@ -485,7 +489,7 @@ template <>
 inline __m128i RotateRight64<8>(const __m128i& val)
 {
     CRYPTOPP_ASSERT(R < 64);
-	const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
+    const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
     return _mm_shuffle_epi8(val, mask);
 }
 
