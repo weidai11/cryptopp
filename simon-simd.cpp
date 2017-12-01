@@ -128,7 +128,7 @@ inline uint64x2_t SIMON128_f(const uint64x2_t& val)
 inline void SIMON128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
+    // the data in SIMON128_Enc_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
     // The zero block below is a "don't care". It is present so we can vectorize.
     uint8x16_t block1 = {0};
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
@@ -170,7 +170,7 @@ inline void SIMON128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
             uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
+    // the data in SIMON128_Enc_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
@@ -238,7 +238,7 @@ inline void SIMON128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
 inline void SIMON128_Dec_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
+    // the data in SIMON128_Dec_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
     // The zero block below is a "don't care". It is present so we can vectorize.
     uint8x16_t block1 = {0};
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
@@ -280,7 +280,7 @@ inline void SIMON128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
             uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
+    // the data in SIMON128_Dec_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
     uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
     uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
@@ -513,7 +513,7 @@ inline __m128i SIMON128_f(const __m128i& v)
 inline void SIMON128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SIMON128_Enc_Blocks then SIMON128_AdvancedProcessBlocks_SSSE3.
     // The zero block below is a "don't care". It is present so we can vectorize.
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
@@ -558,7 +558,7 @@ inline void SIMON128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SIMON128_Enc_Blocks then SIMON128_AdvancedProcessBlocks_SSSE3.
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
@@ -615,7 +615,7 @@ inline void SIMON128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
 inline void SIMON128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SIMON128_Dec_Blocks then SIMON128_AdvancedProcessBlocks_SSSE3.
     // The zero block below is a "don't care". It is present so we can vectorize.
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
@@ -660,7 +660,7 @@ inline void SIMON128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // the data in SIMON128_Dec_Blocks then SIMON128_AdvancedProcessBlocks_SSSE3.
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
