@@ -85,7 +85,7 @@ Ciphertext: F6E89A18 C3D86773 EDCDC20E 75373B74 C5675E97 AC656A1C \
 Test: Encrypt
 #
 Source: Crypto++ 5.6.5 generated
-Comment: Speck64/126, large block
+Comment: Speck64/128, large block
 Key: 1b1a1918 13121110 0b0a0908 03020100
 IV: 2b2a2928 23222120
 Plaintext:  74614620 736e6165 74614620 736e6165 74614620 736e6165 \
