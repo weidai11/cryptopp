@@ -30,6 +30,11 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__AVX512F__) && defined(__AVX512VL__)
+# define CRYPTOPP_AVX512_ROTATE 1
+# include <immintrin.h>
+#endif
+
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
@@ -436,6 +441,19 @@ inline void Swap128(__m128i& a,__m128i& b)
 #endif
 }
 
+#if defined(CRYPTOPP_AVX512_ROTATE)
+template <unsigned int R>
+inline __m128i RotateLeft64(const __m128i& val)
+{
+    return _mm_rol_epi64(val, R);
+}
+
+template <unsigned int R>
+inline __m128i RotateRight64(const __m128i& val)
+{
+    return _mm_ror_epi64(val, R);
+}
+#else
 template <unsigned int R>
 inline __m128i RotateLeft64(const __m128i& val)
 {
@@ -465,6 +483,7 @@ inline __m128i RotateRight64<8>(const __m128i& val)
     const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
     return _mm_shuffle_epi8(val, mask);
 }
+#endif  // CRYPTOPP_AVX512_ROTATE
 
 inline __m128i SIMON128_f(const __m128i& v)
 {

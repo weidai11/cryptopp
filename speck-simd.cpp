@@ -30,6 +30,11 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__AVX512F__) && defined(__AVX512VL__)
+# define CRYPTOPP_AVX512_ROTATE 1
+# include <immintrin.h>
+#endif
+
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
@@ -417,22 +422,31 @@ size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
 CRYPTOPP_ALIGN_DATA(16)
 const word32 s_one[] = {0, 0, 0, 1<<24};
 
+#if defined(CRYPTOPP_AVX512_ROTATE)
 template <unsigned int R>
 inline __m128i RotateLeft64(const __m128i& val)
 {
-    CRYPTOPP_ASSERT(R < 64);
-    const __m128i a = _mm_slli_epi64(val, R);
-    const __m128i b = _mm_srli_epi64(val, 64-R);
-    return _mm_or_si128(a, b);
+    return _mm_rol_epi64(val, R);
 }
 
 template <unsigned int R>
 inline __m128i RotateRight64(const __m128i& val)
 {
-    CRYPTOPP_ASSERT(R < 64);
-    const __m128i a = _mm_slli_epi64(val, 64-R);
-    const __m128i b = _mm_srli_epi64(val, R);
-    return _mm_or_si128(a, b);
+    return _mm_ror_epi64(val, R);
+}
+#else
+template <unsigned int R>
+inline __m128i RotateLeft64(const __m128i& val)
+{
+    return _mm_or_si128(
+        _mm_slli_epi64(val, R), _mm_srli_epi64(val, 64-R));
+}
+
+template <unsigned int R>
+inline __m128i RotateRight64(const __m128i& val)
+{
+    return _mm_or_si128(
+        _mm_slli_epi64(val, 64-R), _mm_srli_epi64(val, R));
 }
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
@@ -450,6 +464,7 @@ inline __m128i RotateRight64<8>(const __m128i& val)
     const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
     return _mm_shuffle_epi8(val, mask);
 }
+#endif  // CRYPTOPP_AVX512_ROTATE
 
 inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
