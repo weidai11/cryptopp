@@ -234,8 +234,9 @@ inline void SIMON128_Dec_Block(uint8x16_t &block0, const word64 *subkeys, unsign
 
     if (rounds & 1)
     {
-        const uint64x2_t rk = vld1q_dup_u64(subkeys + rounds - 1);
         std::swap(x1, y1);
+        const uint64x2_t rk = vld1q_dup_u64(subkeys + rounds - 1);
+
         y1 = veorq_u64(veorq_u64(y1, rk), SIMON128_f(x1));
         rounds--;
     }
@@ -266,7 +267,7 @@ inline void SIMON128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
     uint64x2_t y2 = UnpackHigh64<uint64x2_t>(block2, block3);
     uint64x2_t x3 = UnpackLow64<uint64x2_t>(block4, block5);
-    uint64x2_t y3 = UnpackHigh64<uint64x2_t>(block5, block5);
+    uint64x2_t y3 = UnpackHigh64<uint64x2_t>(block4, block5);
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
@@ -279,6 +280,7 @@ inline void SIMON128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
 
         y1 = veorq_u64(veorq_u64(y1, rk), SIMON128_f(x1));
         y2 = veorq_u64(veorq_u64(y2, rk), SIMON128_f(x2));
+        y3 = veorq_u64(veorq_u64(y3, rk), SIMON128_f(x3));
         rounds--;
     }
 

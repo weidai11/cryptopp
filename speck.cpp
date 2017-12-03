@@ -364,7 +364,7 @@ void SPECK128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[2])(m_wspace[3]);
 }
 
-#if defined(CRYPTOPP_SPECK_ADVANCED_PROCESS_BLOCKS)
+#if defined(CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS)
 size_t SPECK64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
@@ -386,7 +386,9 @@ size_t SPECK64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
 #endif
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
+#endif  // CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
 
+#if defined(CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS)
 size_t SPECK128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
@@ -418,6 +420,6 @@ size_t SPECK128::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #endif
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-#endif
+#endif  // CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END

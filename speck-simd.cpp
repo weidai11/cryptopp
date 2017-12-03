@@ -254,7 +254,7 @@ inline void SPECK128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
     uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
     uint64x2_t y2 = UnpackHigh64<uint64x2_t>(block2, block3);
     uint64x2_t x3 = UnpackLow64<uint64x2_t>(block4, block5);
-    uint64x2_t y3 = UnpackHigh64<uint64x2_t>(block5, block5);
+    uint64x2_t y3 = UnpackHigh64<uint64x2_t>(block4, block5);
 
     x1 = Shuffle64(x1);
     y1 = Shuffle64(y1);
@@ -995,10 +995,6 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
             length -= 4*blockSize;
         }
     }
-
-    //inBlocks += inIncrement;
-    //xorBlocks += xorIncrement;
-    //outBlocks += outIncrement;
 
     while (length >= blockSize)
     {
