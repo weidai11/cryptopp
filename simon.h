@@ -94,6 +94,9 @@ public:
     {
     protected:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+#if CRYPTOPP_SIMON_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -104,6 +107,9 @@ public:
     {
     protected:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+#if CRYPTOPP_SIMON_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
