@@ -56,9 +56,332 @@ using CryptoPP::BlockTransformation;
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_one[] = {0, 0, 0, 1<<24};  // uint32x4_t
+const word32 s_one64[] = {0, 1<<24, 0, 1<<24};
 #else
-const word32 s_one[] = {0, 0, 0, 1};      // uint32x4_t
+const word32 s_one64[] = {0, 1, 0, 1};
+#endif
+
+template <unsigned int R>
+inline uint32x4_t RotateLeft32(const uint32x4_t& val)
+{
+    CRYPTOPP_ASSERT(R < 32);
+    const uint32x4_t a(vshlq_n_u32(val, R));
+    const uint32x4_t b(vshrq_n_u32(val, 32 - R));
+    return vorrq_u32(a, b);
+}
+
+template <unsigned int R>
+inline uint32x4_t RotateRight32(const uint32x4_t& val)
+{
+    CRYPTOPP_ASSERT(R < 32);
+    const uint32x4_t a(vshlq_n_u32(val, 32 - R));
+    const uint32x4_t b(vshrq_n_u32(val, R));
+    return vorrq_u32(a, b);
+}
+
+#if defined(__aarch32__) || defined(__aarch64__)
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
+template <>
+inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
+{
+    const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+    return vreinterpretq_u32_u8(
+        vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
+}
+
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
+template <>
+inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
+{
+    const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+    return vreinterpretq_u32_u8(
+        vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
+}
+#endif
+
+inline uint32x4_t Shuffle32(const uint32x4_t& val)
+{
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    return vreinterpretq_u32_u8(
+        vrev32q_u8(vreinterpretq_u8_u32(val)));
+#else
+    return val;
+#endif
+}
+
+template <typename T>
+inline word32* Ptr32(T* ptr)
+{
+    return reinterpret_cast<word32*>(ptr);
+}
+
+template <typename T>
+inline const word32* Ptr32(const T* ptr)
+{
+    return reinterpret_cast<const word32*>(ptr);
+}
+
+template <typename T>
+inline word64* Ptr64(T* ptr)
+{
+    return reinterpret_cast<word64*>(ptr);
+}
+
+template <typename T>
+inline const word64* Ptr64(const T* ptr)
+{
+    return reinterpret_cast<const word64*>(ptr);
+}
+
+inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    const uint32x4_t zero = {0, 0, 0, 0};
+    const uint32x4x2_t t1 = vuzpq_u32(block0, zero);
+    uint32x4_t x1 = t1.val[0];
+    uint32x4_t y1 = t1.val[1];
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    {
+        const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
+
+        x1 = RotateRight32<8>(x1);
+        x1 = vaddq_u32(x1, y1);
+        x1 = veorq_u32(x1, rk);
+        y1 = RotateLeft32<3>(y1);
+        y1 = veorq_u32(y1, x1);
+    }
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
+    block0 = t2.val[0];
+    // block1 = t2.val[1];
+}
+
+inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    const uint32x4_t zero = {0, 0, 0, 0};
+    const uint32x4x2_t t1 = vuzpq_u32(block0, zero);
+    uint32x4_t x1 = t1.val[0];
+    uint32x4_t y1 = t1.val[1];
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    {
+        const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
+
+        y1 = veorq_u32(y1, x1);
+        y1 = RotateRight32<3>(y1);
+        x1 = veorq_u32(x1, rk);
+        x1 = vsubq_u32(x1, y1);
+        x1 = RotateLeft32<8>(x1);
+    }
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
+    block0 = t2.val[0];
+    // block1 = t2.val[1];
+}
+
+inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    const uint32x4x2_t t1 = vuzpq_u32(block0, block1);
+    uint32x4_t x1 = t1.val[0];
+    uint32x4_t y1 = t1.val[1];
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    {
+        const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
+
+        x1 = RotateRight32<8>(x1);
+        x1 = vaddq_u32(x1, y1);
+        x1 = veorq_u32(x1, rk);
+        y1 = RotateLeft32<3>(y1);
+        y1 = veorq_u32(y1, x1);
+    }
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
+    block0 = t2.val[0];
+    block1 = t2.val[1];
+}
+
+inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    const uint32x4x2_t t1 = vuzpq_u32(block0, block1);
+    uint32x4_t x1 = t1.val[0];
+    uint32x4_t y1 = t1.val[1];
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    {
+        const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
+
+        y1 = veorq_u32(y1, x1);
+        y1 = RotateRight32<3>(y1);
+        x1 = veorq_u32(x1, rk);
+        x1 = vsubq_u32(x1, y1);
+        x1 = RotateLeft32<8>(x1);
+    }
+
+    x1 = Shuffle32(x1);
+    y1 = Shuffle32(y1);
+
+    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
+    block0 = t2.val[0];
+    block1 = t2.val[1];
+}
+
+template <typename F1, typename F4>
+inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
+        const word32 *subKeys, size_t rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 8);
+
+    const size_t blockSize = 8;
+    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = xorBlocks ? blockSize : 0;
+    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+    if (flags & BlockTransformation::BT_ReverseDirection)
+    {
+        inBlocks += length - blockSize;
+        xorBlocks += length - blockSize;
+        outBlocks += length - blockSize;
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+
+        // Hack... Disable parallel for decryption. It is buggy.
+        flags &= ~BlockTransformation::BT_AllowParallel;
+    }
+
+    if (flags & BlockTransformation::BT_AllowParallel)
+    {
+        while (length >= 4*blockSize)
+        {
+            uint32x4_t block0 = vld1q_u32(reinterpret_cast<const word32*>(inBlocks)), block1;
+            if (flags & BlockTransformation::BT_InBlockIsCounter)
+            {
+                const uint32x4_t be1 = vld1q_u32(s_one64);
+                block1 = vaddq_u32(block0, be1);
+                vst1q_u8(const_cast<byte *>(inBlocks),
+                    vreinterpretq_u8_u32(vaddq_u32(block1, be1)));
+            }
+            else
+            {
+                inBlocks += 2*inIncrement;
+                block1 = vld1q_u32(Ptr32(inBlocks));
+                inBlocks += 2*inIncrement;
+            }
+
+            if (flags & BlockTransformation::BT_XorInput)
+            {
+                // Coverity finding, appears to be false positive. Assert the condition.
+                CRYPTOPP_ASSERT(xorBlocks);
+                block0 = veorq_u32(block0, vld1q_u32(Ptr32(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+                block1 = veorq_u32(block1, vld1q_u32(Ptr32(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+            }
+
+            func4(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+            {
+                block0 = veorq_u32(block0, vld1q_u32(Ptr32(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+                block1 = veorq_u32(block1, vld1q_u32(Ptr32(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+            }
+
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block0));
+            outBlocks += 2*outIncrement;
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block1));
+            outBlocks += 2*outIncrement;
+
+            length -= 4*blockSize;
+        }
+    }
+
+    while (length >= blockSize)
+    {
+        uint32x4_t block;
+        block = vsetq_lane_u32(Ptr32(inBlocks)[0], block, 0);
+        block = vsetq_lane_u32(Ptr32(inBlocks)[1], block, 1);
+
+        if (flags & BlockTransformation::BT_XorInput)
+        {
+            uint32x4_t x;
+            x = vsetq_lane_u32(Ptr32(xorBlocks)[0], x, 0);
+            x = vsetq_lane_u32(Ptr32(xorBlocks)[1], x, 1);
+            block = veorq_u32(block, x);
+        }
+
+        if (flags & BlockTransformation::BT_InBlockIsCounter)
+            const_cast<byte *>(inBlocks)[7]++;
+
+        func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+        {
+            uint32x4_t x;
+            x = vsetq_lane_u32(Ptr32(xorBlocks)[0], x, 0);
+            x = vsetq_lane_u32(Ptr32(xorBlocks)[1], x, 1);
+            block = veorq_u32(block, x);
+        }
+
+        const word32 t0 = vgetq_lane_u32(block, 0);
+        std::memcpy(Ptr32(outBlocks)+0, &t0, 4);
+        const word32 t1 = vgetq_lane_u32(block, 1);
+        std::memcpy(Ptr32(outBlocks)+1, &t1, 4);
+
+        inBlocks += inIncrement;
+        outBlocks += outIncrement;
+        xorBlocks += xorIncrement;
+        length -= blockSize;
+    }
+
+    return length;
+}
+
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+
+#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+const word32 s_one128[] = {0, 0, 0, 1<<24};  // uint32x4_t
+#else
+const word32 s_one128[] = {0, 0, 0, 1};      // uint32x4_t
 #endif
 
 template <class W, class T>
@@ -333,7 +656,7 @@ size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
 
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
-                uint32x4_t be = vld1q_u32(s_one);
+                uint32x4_t be = vld1q_u32(s_one128);
                 block1 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block0), be);
                 block2 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block1), be);
                 block3 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block2), be);
@@ -1043,6 +1366,22 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 // *************************** ARM NEON **************************** //
+
+#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+size_t SPECK64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Enc_Block, SPECK64_Enc_4_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Dec_Block, SPECK64_Dec_4_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 size_t SPECK128_Enc_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
