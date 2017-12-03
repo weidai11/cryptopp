@@ -103,6 +103,42 @@ Ciphertext: 3E17D0CB E94D04B9 A0BBC9B5 80D4DCEA 9F8C92F0 F1FF5113 \
 Test: Encrypt
 #
 Source: Crypto++ 5.6.5 generated
+Comment: Speck64/96, large block
+Key: fd897804 791bbcad 27d3cc23
+IV: 2e6f8e62 497d6894
+Plaintext: 5736c8ae 98f248bd dfd0616e b729d4ec ee64e9da 72c2545b \
+           d3cd6db8 4a1de8ac 20ac79e6 b3829998 233e3f14 78984598 \
+           0d00e01b c15b44ac a58095a5 8abd1868 c893bf8d c8c541a2 \
+           41ec3cf9 67c4330d 7fe6e4bc 95d007c3 30ce55b4 d07f32eb \
+           dce43e5f e15e6653 52d674a1 af13dc74 4da5714d 5adc8fd3 \
+           4a5c0ea7 1c297e8a
+Ciphertext: f8fcaa28 d5e1348d 49ca3223 2bc50e27 1f924778 4a234f24 \
+            6dc8b0f0 93f39ce6 8fc09efc 9adba077 145a179b 11e70655 \
+            ca09214f 15f3aca5 979b507b 351a1ae4 151f7d27 7cd336b2 \
+            79b94bd3 7852909a 73a14c6f 60361be2 5b33b8aa 18797b7b \
+            63e7cb64 797905cf cab285dd 8e54de45 95585ccc f18ccba2 \
+            1b1bc333 cc0e42cc
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck64/96, large block
+Key: 7a5d83ec 3b01a66a c7df3f0a
+IV: 3612f5e1 bb8078ba
+Plaintext: e2c92de9 d7a8246d 07068dff d20d75e2 75185316 fcb73f11 \
+           8876a878 8a777535 6207b78f 153b3cab 7e09cfcc 6f359874 \
+           07ce2d0d 38d386b8 df8f12f8 ba2e3bcd a4a04366 c26de05a \
+           25a3d976 658b39ba 43700e20 b3cf8e08 5bb0c885 8d4c01e9 \
+           4d418dfa 795676b5 f38654d9 a14fbec5 df731bdb 67138f13 \
+           ff34c5d2 0beb130a
+Ciphertext: 2e568bba 9aaed9d9 0871f89d 3a859c1c 89b7f071 8810b4a3 \
+            4ecef490 c085de09 fafebe94 901a64ea aa9b8872 e3e34621 \
+            f834e88e 9f1441dd 8e902dd4 8a17b181 27d32ddf a63144e2 \
+            d8b102eb 1c07efe0 d1e25e64 01328fc8 d7604d32 1d04ed40 \
+            9b7bb0df e6917b82 05f4b9ca a84b4df2 e7002d8a c014a682 \
+            4a527f87 84c63208
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
 Comment: Speck64/128, large block
 Key: 1b1a1918 13121110 0b0a0908 03020100
 IV: 2b2a2928 23222120
@@ -128,6 +164,42 @@ Ciphertext: E8F71A10 591B516E B725F046 DA3E228D 8A849DE0 E4AEF499 \
             0FCE4E4D D6F67E11 E884B794 4238F124 A12D9C61 17E6AFE4 \
             32097CA1 7A854927 C11E5763 DC3942DB 4E9F911C 20A89B53 \
             929C6A46 03F38DAE
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck64/128, large block
+Key: 97dd3868 4209085a 7605a048 0bf89c4d
+IV: 9763f9b9 74ee65a3
+Plaintext: 8294c446 ac74fa32 c1ec0f8e f536625a 6a7ba0b3 551d6527 \
+           3ce763e2 8146fd81 6b7fa5f1 4a9b4e2d c9ad86da eab61e7e \
+           6682f61e 69764c66 8724712f 3b3252ed 1cefd25b b9587102 \
+           7e0043f1 65f37ab9 6d831be9 e496ed2d 7303c632 daab19e7 \
+           b57020d6 ca46da54 498e8826 87ec1429 e4480eb1 de612108 \
+           0642f023 59e1447e
+Ciphertext: d59cfe00 ffecd29e 143e1991 0bebdd8c f0f89fc9 a9c442f5 \
+            4d7f22b7 4802b84f e17797c8 ec48acb5 ec96fb5e 0402a895 \
+            51e81b1b 20d01841 b8de802e c7780497 7f4f3dee 35d65602 \
+            2d728fb6 ceebf231 43768184 5b33d8ee f20fd5cd ff4d3442 \
+            c9d83592 6279d4db a5aa12a9 8dbeaeb6 0a036855 8a9049b5 \
+            b8836f22 1ede81b7
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck64/128, large block
+Key: e8b67fe9 5fdee2ba fa26551f e2bd9ed4
+IV: f93b7f5d bd25a41d
+Plaintext: 5a1dbb9f 0f7091cf 9cb69d78 d3370a5b 9e5d776b c5325bc5 \
+           af3cc38c adb851e8 3f9387bc 8b26cadf 7da8cb26 7cc4a056 \
+           10e56b42 dcfebc60 9f7fa773 165cb653 9eed8bd4 1e68bcd5 \
+           d6f17fe7 5a9e4963 c79218d9 892c0c33 2965c774 23c56e87 \
+           93e06950 4f56a689 98f43fdc 61f36722 398a9a13 1386b761 \
+           cb77c4e9 dd8e27b6
+Ciphertext: 6488fe92 2f575648 f99a1fad 3fcb1419 65178da6 79c58f4a \
+            a987812b 60b2c02a 340a81f7 d1a077f7 967f3c82 386d563b \
+            865798d9 f63fb1ec 88d1892d d3c6f85a dee8fa9e 9ed1e7eb \
+            ec7780c9 386237f6 3000447b f57c5928 77faaf6a ecf57747 \
+            10a2bd70 ec126e15 c3d0df43 5682772b 9c515f50 be7328c1 \
+            d195732f 4dd297eb
 Test: Encrypt
 
 AlgorithmType: SymmetricCipher
@@ -276,6 +348,50 @@ Ciphertext: 326CAB63D41F6AF8 6C690C17E291E889 8BC9926083CC09A3 8287EC3866163A9D 
 Test: Encrypt
 #
 Source: Crypto++ 5.6.5 generated
+Comment: Speck128/128, large block
+Key: c68d29664b2766a2 bdfe20230619b8ce
+IV: a0de35c7b9fd10cd 051528b16a09a6d4
+Plaintext: 3823348a2b6185cd c6672a829cf0db60 076edc8c0f7efb3c 733735ca75768f6e \
+           fa168311dc335bef 811749d9f0fda742 0106bcac21e32d75 f3e3e410db98321d \
+		   c363579419d696f7 502a2d655ef39f63 5959c25bbe8608aa f36f65915177ddeb \
+		   21af1d863ab1e9e2 473d2b4fd4c677c8 07646825e8690650 f5d3ac8851625814 \
+		   a80b84b2d98da474 db006f922e20d4f4 1ede2c22d6d28ef0 eea8b37d49c53b97 \
+		   cd1ac8e450698767 e47a5fd775c61e0f 733bccf42fc6a8f8 068b9cb640875128 \
+		   579da221416ab150 38151cbf49452934 e7553040448d1646 7f49aa7f7c48c005 \
+		   7bb674e8c6aca324 9ab41ca5246f2dd2 c3e366d3401372d5 e1716889d11a4bff
+Ciphertext: 620efc4fc69f13ca 59825dafcb789392 6fa35bb85756607f f45e4eee64ce16d0 \
+            8050baf34977712f 71d25952286a25c4 d5e33d658cc7132a 23d569775a69aa4e \
+			bd331a966e935e8d e133f3e299528dc1 e8b88a4e23414a83 a3407aa7e5111bb7 \
+			d83fc447dcb49c55 548434cfb054798a 6b1942bbf8455a55 8ad014f560c9d6d3 \
+			85c52722d5053b7f c3f096c4e453947a 28b7989b11126299 feaba0c036d139b8 \
+			f60e607354532cfc a9ffa8216418bb85 3654f0487061d68f cbc481564448e9fa \
+			2ba5da8e54c222ff 458a4015ebd9a230 596e29d71bd7e998 5e75132ca3347c4c \
+			6a5429c56866e0c1 18d175de90d33979 ffc6c5296916ad9f 0776a70f8908bd32
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/128, large block
+Key: 9039e8b1530076b4 6b3cf7287ec85e70
+IV: 65a9b1991f814387 bb059eba320db1a8
+Plaintext: b477749b15778e93 31bf8752abf913b6 181ceaa94903e6cc 66d962d0f7bd8a2f \
+           96b8ff71cef39487 657e67831ea69fdb 8ff0a5df910f3418 0992010b8d23d554 \
+		   7f4972d9c2a1efcd 02e6b8950059faba 17fbab1b7f0ebe2a 1da06d43e7767541 \
+		   80e9cda53b0e2fdf 269318d62c095015 10640f3aca1dd4cb 378aa5d8cd923aac \
+		   25be5a0e55fcd161 f877c4b078caf27d d410d7eced28cf77 3d0258a25b6c2014 \
+		   e3ff18addcdb1173 5498cf13defc90f9 85264d9da179d372 3097221bb978db9d \
+		   8b95c76ac888aa4e 8b7bc907ca2f6b4e 5a23fb36d1954a39 982cfd8c28aadc18 \
+		   2431167ebd648d05 cd44f76bd965c9a1 05b96640c59bb8b0 52672ffb3b639a27
+Ciphertext: 4feebefeb9310741 a1384dc25ab69501 e2e8f77cd971c91d a9f0b023eef42aa1 \
+            7059924961bd32f0 0f4398a57193355a dc3436ec130ba116 bf186f86e476887b \
+			2332f0fe17a8b908 94819b252d7c8065 17efae225743f88c 5239a4309b0ebd2e \
+			18df51ad08b0cf70 6f2aca28f222057c 5d76a888db649f6e 74f393e04ebc64ff \
+			9210da6676269cc4 d06d61c82f4d86aa 234aabc6856571ec c02540caef21188b \
+			1127b2ccb89e5b85 e7fbf93ac3f83c42 e0a558c01de04fd5 398f09b2da9a8677 \
+			8fdde8d7595febef 7d22f233db29cbda c17853f90ea2e985 59f399bab7ef74d1 \
+			cb4867773db210f0 dd28e18d24623cb2 ef6cc49f650e4223 252bac29113041dd
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
 Comment: Speck128/192, large block
 Key: 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 IV: 1f1e1d1c1b1a1918 1716151413121110
@@ -310,6 +426,50 @@ Ciphertext: 7F27FD5047066D9A 1B75FC13ECCE25F5 524E35B87055CCE8 80D1EDF503CCF5E0 
 Test: Encrypt
 #
 Source: Crypto++ 5.6.5 generated
+Comment: Speck128/192, large block
+Key: a0f764c6654c2016 1d993b738cb6c482 1220a547a0244512
+IV: 60a0c78d6b45e9de dceb2690f6420711
+Plaintext: b9eaf424ffb1c2f1 8892206fae5eac4b 614ef86491a242b3 d81b14b78775ac53 \
+           336dba9409fa5a88 cd99cb4a993a163a f4332235a48672be eb87255c216bd238 \
+           2d47d2114a6210d1 b2d472aaf26e221c 9db4667a45d38e3c 46a8f2d1a3069388 \
+           f920452237d96be7 b4f2497dbd754913 1024eee878709466 ea2a1f16e967a8c0 \
+           b2ca9a95fe866156 b7175a5f18802e45 2f7a3ef80cf663b5 9c2641dbe56502da \
+           9baa9f95cf1885bb 7d1330cefc78cedf 78f874fbe78f198b c95a97b469cea3dc \
+           793521b9727174b6 3623f3fd9e7eda75 a2f969e97295250b 27bdf35b0a9884c4 \
+           bba5f3da0c48baac 57434d66e3d87dd4 8c380ebb063d4d60 3717764ca679a923
+Ciphertext: e68016c68dc908ef adff4f143b45a066 1f14cfbe7411cf2c 1e5be465e05748e2 \
+            19d6a139f61e828c 2ebe248abd14ad9b 283d39b3dd579919 619a930c6bf6d22f \
+            e73d6ee83710bc58 e87d45b98d736673 1cc2c6c6aafec5a6 b1838b29fcc09a69 \
+            f663419455354df9 fb7e147fb6efa7f8 a31610d181646d8c e163a111825acfc5 \
+            bb8cbc67f17ecbac 67ecd1e8c24d490f 0d07b563362b471a e3b61bb72c98a9d9 \
+            0c9a208035792642 52435f4b4251f442 a10f0cd2a7a60453 5b5b75e067399e4b \
+            1ae5d6cb0b8e99f3 c4cdf2ee19483b4c 821f70e37edb6e0e 8db1c7e076b32eca \
+            6ae910100c5cc245 4009771172309fde fbdac55236e39f67 4e4dc07ba200a577
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/192, large block
+Key: e5cc0ece213aeccb fa51ecb1ff08d83f fb7b25d1968b01c3
+IV: 39a1a296dfa6680b 3434b5dbdd67ad25
+Plaintext: a25d7ee67db1ba92 b7cdf71b8f4570fe 653ed014e6dc6d72 edf4beb4c8a54c77 \
+           22ab00d1752a99ad 2461eba1e4e9076f 29756a8639f14597 4fb4a68738fa5a2b \
+           ccede25ffff9def2 1640668bfddf9d8f c473ad020dafd547 f30d9af47b3a57e8 \
+           c883e1d690772227 f7a3dfaec3e224f2 8d652df0a6b20b63 3f12c67cd199280d \
+           00973a3381d4ccab b16d579b3abb5c2a be3dd1d8c954b4ac 5cafe99746861296 \
+           44a79e14dd648745 73f3c23e578db592 acb25b19145a0cf3 35b33f1fb224c766 \
+           a78e3194509bf86e 317cb1b77f519e5f fa155fac07ddf854 41fa67c8f4fa45e9 \
+           5f6cd447abe4d712 31ffbd14bb4e7735 d37c8df6d3caff03 dcebe51170a12a26
+Ciphertext: 244c80c64a83002c 2b5ac8c556326fc1 c3093b9e45168cb6 5d88fdc80255ea06 \
+            9add97e8e61593d8 9bcde835afae1cbb ede24f17af963c91 a28ebdb35889280a \
+            d62f80eb7f283c55 a45ed2ef617a2b48 170c7ce0613fad9c 2f5e5b4cd1f9b283 \
+            4f8ac3e92930f591 6c467e8aabb69a46 07b0f4fb2eefc2fb 58c9e823a55d43e3 \
+            d44fad428d9d2e46 d9dd847c0fb29134 94b87d332101008a f18ed7d5ac5321a9 \
+            6b9d04fa194957b5 6076f96cdc702cce aacf218623e1ccd6 f61993d674a43897 \
+            7572d8dfdcaf40b1 297b84cd5845e8a6 35d32eb666244278 5edb1a27f127b71f \
+            c45b1b2d069f3f25 c82f1f157649f254 f7b8f2b7875b7078 dd2db73cab744053
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
 Comment: Speck128/256, large block
 Key: 1f1e1d1c1b1a1918 1716151413121110 0f0e0d0c0b0a0908 0706050403020100
 IV: 1f1e1d1c1b1a1918 1716151413121110
@@ -341,4 +501,48 @@ Ciphertext: B17D08C5D2F46C09 246509E786C2273E C88FC41243F9C75A A27CFCD11240AF92 
             FF38F7EEB72E3597 4849185FEAD04C35 6374B958F7D6705D 2AC74DFD729EADB2 \
             16FC22F637531027 F4A9DFDBFE189E5C 4DAC2CE9A5E31E93 ABA0B09384652F61 \
             0F82D8CAB45FBD36 50EEB60523D4AA57 9D2DA9F6F3A70400 8C311EFB1718A48C
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/256, large block
+Key: a46f8d24f853e092 efa6b9f3794bd306 875ddc329696b265 6cdf8ea4c37ea72e
+IV: 06f588f36c6b277a b1e5e63b1d4a11b5
+Plaintext: 7811a75fc0366a64 da0a1f65b1a02482 435610691a0f46cc 56188cf05d6f681d \
+           732f23f8b29b871b 297280cfdf722b4d bdd9fdbbbc404ff8 8fd4789a560188b7 \
+           de8330c107445cfc 1d2af1d804cfe1d8 da12bbdb71c9d21e 4ed966724b96d604 \
+           8437648813ab601f 1cb2ee111f516462 f55ec55b9ed10e57 163720ad62b629d6 \
+           a3331ab726426f10 b30460e5f63db742 72e77e2dacb5564f 634678df907803d4 \
+           4ce73346dd2dd16e 77d03d175fe4f877 3c2fe1988f94d626 1845de1c078127f7 \
+           46641b983c0de061 05b4cff210ac59ee b486b3cbcd554607 14d30c8090e3cc7b \
+           de268f71032c805c 96af7a8cdd73c47c 776441f11a33a1e9 09dbef3ac1f17f2c
+Ciphertext: 1b06c9002db58e65 7007df575c830cfc e691cb94a5f0abf5 75f4cd2bafa8d2a6 \
+            728ee446add2f836 6a7ef404082c0993 6900a84329400b67 a0319f4d968843bd \
+            f3e6f4ae320e68e0 ada60073cc91fc23 f11ee5f8bf90601d 76c5b30ae3f70ade \
+            69623b402b3c5a63 afe41cd19960d0b2 8032b8511eb1c3c0 8171abb2d8f3abe9 \
+            d689b8aa3f230399 04d5537311a784c4 9cfd243f5d0f687d 38909dbec1add2ad \
+            713189f49375c1f7 2193792745268047 16cd917c78d32b67 2af93ab54cb2e3ae \
+            f9c589a841506bb4 7303a13bc3e227f8 d84b9be5d5717a13 f9df78466cfbfa7a \
+            f37da8941740c350 6fcb199102e9f6d5 ef17673527f8b7cf 998f80a8904b2d68
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Speck128/256, large block
+Key: c1fe73fbaddd6ad8 292c5984c7cf35a2 057102d7e185bcdc 339fe92b2d28a4d7
+IV: 07d2ffa50d44c485 0c594cdf5f0c1466
+Plaintext: 07e22c9c8dcd5383 fd1267177933622f 8d7cc3895af9d678 4d47d068d075f70d \
+           f21d7b47990c0dff 848ff77d5f4a96dd aa31d71fc380f73a adc2c1a5cdd03ceb \
+           afb70bcb2d3ad743 8e57a1406c8ed951 6e8075137685a085 ce899e6552dfad1c \
+           840de5218051a151 96dadc59cac768de 70a9eed1ed45b20c 7e2847ea963425ad \
+           d39f088471655a56 da660f559e65b10d f84244a178e3f3d1 7bdd46b36ab32484 \
+           aabc64f6a8cb442e 7a4596a0b123f785 8bb670dcf9e7491f f8d0442befa14840 \
+           e52d979c0bb3be00 2555aec34c8640e8 4e3c23c80287e570 28f143328753c4ba \
+           841b238acec7aecf cd7136369f2cd9f7 a56d22c0b87736f0 b7eea024a9b05502
+Ciphertext: eb73d06ebc67a3d5 4fada0fb8f6c8739 c38224ea6d08d9c8 d4aaa4624d4453c4 \
+            ee3d5e2bad7da8cd 8cc29627ab8233aa 5c1ee0fbd14e3bdb ab1ed79be1b7b6b3 \
+            538b3d1b62463b8d cda650acfca85324 f00a1bf7cca1578a e9fdc5027372c82f \
+            dbd1e0a38f56b074 fcd7392f9c1a96ea 993658d95c0448c9 110993f8cd222a79 \
+            6d01d0a41b02dfde baf57cb1e1222a0f eedfff11e2e89e52 bcaf42f0daec225f \
+            d60ed9645feddf1d 98cbe39963ab7cb0 b84fe78c3c29c197 2106648df7d6d7d4 \
+            0de719d367093e85 a4d3587ab3044c54 8c8428e7346da3e7 7f71abbbf964ff3f \
+            ca2d81334a83438c 801eb8957c660e30 048f7ebc83c08d57 c55501ca9ce98cb4
 Test: Encrypt
