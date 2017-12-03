@@ -14,6 +14,7 @@
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both speck.cpp and speck-simd.cpp.
 // #undef CRYPTOPP_SSSE3_AVAILABLE
+// #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
 // Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is 3 cpb
@@ -28,6 +29,10 @@
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <tmmintrin.h>
+#endif
+
+#if (CRYPTOPP_SSE41_AVAILABLE)
+# include <smmintrin.h>
 #endif
 
 #if defined(__AVX512F__) && defined(__AVX512VL__)
@@ -420,7 +425,10 @@ size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
 #if defined(CRYPTOPP_SSSE3_AVAILABLE)
 
 CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one[] = {0, 0, 0, 1<<24};
+const word32 s_one64[] = {0, 1<<24, 0, 1<<24};
+
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_one128[] = {0, 0, 0, 1<<24};
 
 #if defined(CRYPTOPP_AVX512_ROTATE)
 template <unsigned int R>
@@ -464,6 +472,7 @@ inline __m128i RotateRight64<8>(const __m128i& val)
     const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
     return _mm_shuffle_epi8(val, mask);
 }
+
 #endif  // CRYPTOPP_AVX512_ROTATE
 
 inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
@@ -650,7 +659,7 @@ inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F1 func1, F4 func4,
             __m128i block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks)), block1, block2, block3;
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
-                const __m128i be1 = *CONST_M128_CAST(s_one);
+                const __m128i be1 = *CONST_M128_CAST(s_one128);
                 block1 = _mm_add_epi32(block0, be1);
                 block2 = _mm_add_epi32(block1, be1);
                 block3 = _mm_add_epi32(block2, be1);
@@ -736,6 +745,301 @@ inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F1 func1, F4 func4,
 
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
 
+#if defined(CRYPTOPP_SSE41_AVAILABLE)
+
+template <unsigned int R>
+inline __m128i RotateLeft32(const __m128i& val)
+{
+    return _mm_or_si128(
+        _mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
+}
+
+template <unsigned int R>
+inline __m128i RotateRight32(const __m128i& val)
+{
+    return _mm_or_si128(
+        _mm_slli_epi32(val, 32-R), _mm_srli_epi32(val, R));
+}
+
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
+template <>
+inline __m128i RotateLeft32<8>(const __m128i& val)
+{
+    const __m128i mask = _mm_set_epi8(14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3);
+    return _mm_shuffle_epi8(val, mask);
+}
+
+// Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
+template <>
+inline __m128i RotateRight32<8>(const __m128i& val)
+{
+    const __m128i mask = _mm_set_epi8(12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1);
+    return _mm_shuffle_epi8(val, mask);
+}
+
+inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    // The zero block below is a "don't care". It is present so we can vectorize.
+    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
+    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+
+    const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    {
+        const __m128i rk = _mm_set1_epi32(subkeys[i]);
+
+        x1 = RotateRight32<8>(x1);
+        x1 = _mm_add_epi32(x1, y1);
+        x1 = _mm_xor_si128(x1, rk);
+        y1 = RotateLeft32<3>(y1);
+        y1 = _mm_xor_si128(y1, x1);
+    }
+
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    block0 =_mm_setzero_si128();
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
+}
+
+inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    // The zero block below is a "don't care". It is present so we can vectorize.
+    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
+    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+
+    const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    {
+        const __m128i rk = _mm_set1_epi32(subkeys[i]);
+
+        y1 = _mm_xor_si128(y1, x1);
+        y1 = RotateRight32<3>(y1);
+        x1 = _mm_xor_si128(x1, rk);
+        x1 = _mm_sub_epi32(x1, y1);
+        x1 = RotateLeft32<8>(x1);
+    }
+
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    block0 =_mm_setzero_si128();
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
+}
+
+inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
+    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
+    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block0, 3), 1);
+    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 0), 2);
+    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 1), 2);
+    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 2), 3);
+    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 3), 3);
+
+    const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    {
+        const __m128i rk = _mm_set1_epi32(subkeys[i]);
+
+        x1 = RotateRight32<8>(x1);
+        x1 = _mm_add_epi32(x1, y1);
+        x1 = _mm_xor_si128(x1, rk);
+        y1 = RotateLeft32<3>(y1);
+        y1 = _mm_xor_si128(y1, x1);
+    }
+
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 1), 2);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 1), 3);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 2), 0);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 2), 1);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 3), 2);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 3), 3);
+}
+
+inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 *subkeys, unsigned int rounds)
+{
+    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
+    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
+    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
+    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block0, 3), 1);
+    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 0), 2);
+    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 1), 2);
+    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 2), 3);
+    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 3), 3);
+
+    const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    {
+        const __m128i rk = _mm_set1_epi32(subkeys[i]);
+
+        y1 = _mm_xor_si128(y1, x1);
+        y1 = RotateRight32<3>(y1);
+        x1 = _mm_xor_si128(x1, rk);
+        x1 = _mm_sub_epi32(x1, y1);
+        x1 = RotateLeft32<8>(x1);
+    }
+
+    x1 = _mm_shuffle_epi8(x1, mask);
+    y1 = _mm_shuffle_epi8(y1, mask);
+
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 1), 2);
+    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 1), 3);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 2), 0);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 2), 1);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 3), 2);
+    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 3), 3);
+}
+
+template <typename F1, typename F4>
+inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
+        const word32 *subKeys, size_t rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 8);
+
+    const size_t blockSize = 8;
+    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = xorBlocks ? blockSize : 0;
+    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+    if (flags & BlockTransformation::BT_ReverseDirection)
+    {
+        inBlocks += length - blockSize;
+        xorBlocks += length - blockSize;
+        outBlocks += length - blockSize;
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+
+        // Hack... Disable parallel for decryption. It is buggy.
+        flags &= ~BlockTransformation::BT_AllowParallel;
+    }
+
+    if (flags & BlockTransformation::BT_AllowParallel)
+    {
+        while (length >= 4*blockSize)
+        {
+            __m128i block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks)), block1;
+            if (flags & BlockTransformation::BT_InBlockIsCounter)
+            {
+                const __m128i be1 = *CONST_M128_CAST(s_one64);
+                block1 = _mm_add_epi32(block0, be1);
+                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block1, be1));
+            }
+            else
+            {
+                inBlocks += 2*inIncrement;
+                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += 2*inIncrement;
+            }
+
+            if (flags & BlockTransformation::BT_XorInput)
+            {
+                // Coverity finding, appears to be false positive. Assert the condition.
+                CRYPTOPP_ASSERT(xorBlocks);
+                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+            }
+
+            func4(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+            {
+                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += 2*xorIncrement;
+            }
+
+            _mm_storeu_si128(M128_CAST(outBlocks), block0);
+            outBlocks += 2*outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block1);
+            outBlocks += 2*outIncrement;
+
+            length -= 4*blockSize;
+        }
+    }
+
+    //inBlocks += inIncrement;
+    //xorBlocks += xorIncrement;
+    //outBlocks += outIncrement;
+
+    while (length >= blockSize)
+    {
+        const word32* inPtr = reinterpret_cast<const word32*>(inBlocks);
+        __m128i block = _mm_insert_epi32(_mm_setzero_si128(), inPtr[0], 0);
+        block = _mm_insert_epi32(block, inPtr[1], 1);
+
+        if (flags & BlockTransformation::BT_XorInput)
+        {
+            const word32* xorPtr = reinterpret_cast<const word32*>(xorBlocks);
+            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), xorPtr[0], 0);
+            block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
+        }
+
+        if (flags & BlockTransformation::BT_InBlockIsCounter)
+            const_cast<byte *>(inBlocks)[7]++;
+
+        func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+        {
+            const word32* xorPtr = reinterpret_cast<const word32*>(xorBlocks);
+            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), xorPtr[0], 0);
+            block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
+        }
+
+        word32* outPtr = reinterpret_cast<word32*>(outBlocks);
+        outPtr[0] = _mm_extract_epi32(block, 0);
+        outPtr[1] = _mm_extract_epi32(block, 1);
+
+        inBlocks += inIncrement;
+        outBlocks += outIncrement;
+        xorBlocks += xorIncrement;
+        length -= blockSize;
+    }
+
+    return length;
+}
+
+#endif  // CRYPTOPP_SSE41_AVAILABLE
+
 ANONYMOUS_NAMESPACE_END
 
 ///////////////////////////////////////////////////////////////////////
@@ -761,6 +1065,22 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rou
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 // ***************************** IA-32 ***************************** //
+
+#if defined(CRYPTOPP_SSE41_AVAILABLE)
+size_t SPECK64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return SPECK64_AdvancedProcessBlocks_SSE41(SPECK64_Enc_Block, SPECK64_Enc_4_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SPECK64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return SPECK64_AdvancedProcessBlocks_SSE41(SPECK64_Dec_Block, SPECK64_Dec_4_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif
 
 #if defined(CRYPTOPP_SSSE3_AVAILABLE)
 size_t SPECK128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
