@@ -383,9 +383,9 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_one128[] = {0, 0, 0, 1<<24};  // uint32x4_t
+const word32 s_one128[] = {0, 0, 0, 1<<24};
 #else
-const word32 s_one128[] = {0, 0, 0, 1};      // uint32x4_t
+const word32 s_one128[] = {0, 0, 0, 1};
 #endif
 
 template <class T>
@@ -1109,7 +1109,7 @@ inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned i
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
     // The zero block below is a "don't care". It is present so we can vectorize.
-    // We really want an SSE equivalent to NEON's vunzp, but SSE does not have one.
+    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
     __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
     __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
 
@@ -1131,7 +1131,7 @@ inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned i
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    // The is the SSE equivalent to ARM vzp32
+    // The is roughly the SSE equivalent to ARM vzp32
     block0 = _mm_unpacklo_epi32(x1, y1);
 }
 
@@ -1140,7 +1140,7 @@ inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned i
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
     // The zero block below is a "don't care". It is present so we can vectorize.
-    // We really want an SSE equivalent to NEON's vunzp, but SSE does not have one.
+    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
     __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
     __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
 
@@ -1162,7 +1162,7 @@ inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned i
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    // The is the SSE equivalent to ARM vzp32
+    // The is roughly the SSE equivalent to ARM vzp32
     block0 = _mm_unpacklo_epi32(x1, y1);
 }
 
@@ -1170,7 +1170,7 @@ inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, const word32 
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
-    // We really want an SSE equivalent to NEON's vunzp, but SSE does not have one.
+    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
     __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
     __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
     x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
@@ -1198,7 +1198,7 @@ inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, const word32 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    // The is the SSE equivalent to ARM vzp32
+    // The is roughly the SSE equivalent to ARM vzp32
     block0 = _mm_unpacklo_epi32(x1, y1);
     block1 = _mm_unpackhi_epi32(x1, y1);
 }
@@ -1207,7 +1207,7 @@ inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
-    // We really want an SSE equivalent to NEON's vunzp, but SSE does not have one.
+    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
     __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
     __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
     x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
@@ -1235,7 +1235,7 @@ inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    // The is the SSE equivalent to ARM vzp32
+    // The is roughly the SSE equivalent to ARM vzp32
     block0 = _mm_unpacklo_epi32(x1, y1);
     block1 = _mm_unpackhi_epi32(x1, y1);
 }

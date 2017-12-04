@@ -58,25 +58,25 @@ using CryptoPP::BlockTransformation;
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_one[] = {0, 0, 0, 1<<24};  // uint32x4_t
+const word32 s_one128[] = {0, 0, 0, 1<<24};
 #else
-const word32 s_one[] = {0, 0, 0, 1};      // uint32x4_t
+const word32 s_one128[] = {0, 0, 0, 1};
 #endif
 
-template <class W, class T>
-inline W UnpackHigh64(const T& a, const T& b)
+template <class T>
+inline T UnpackHigh64(const T& a, const T& b)
 {
-    const uint64x1_t x = vget_high_u64((uint64x2_t)a);
-    const uint64x1_t y = vget_high_u64((uint64x2_t)b);
-    return (W)vcombine_u64(x, y);
+    const uint64x1_t x(vget_high_u64((uint64x2_t)a));
+    const uint64x1_t y(vget_high_u64((uint64x2_t)b));
+    return (T)vcombine_u64(x, y);
 }
 
-template <class W, class T>
-inline W UnpackLow64(const T& a, const T& b)
+template <class T>
+inline T UnpackLow64(const T& a, const T& b)
 {
-    const uint64x1_t x = vget_low_u64((uint64x2_t)a);
-    const uint64x1_t y = vget_low_u64((uint64x2_t)b);
-    return (W)vcombine_u64(x, y);
+    const uint64x1_t x(vget_low_u64((uint64x2_t)a));
+    const uint64x1_t y(vget_low_u64((uint64x2_t)b));
+    return (T)vcombine_u64(x, y);
 }
 
 template <unsigned int R>
@@ -135,14 +135,14 @@ inline uint64x2_t SIMON128_f(const uint64x2_t& val)
         vandq_u64(RotateLeft64<1>(val), RotateLeft64<8>(val)));
 }
 
-inline void SIMON128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
+inline void SIMON128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SIMON128_Enc_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
     // The zero block below is a "don't care". It is present so we can vectorize.
-    uint8x16_t block1 = {0};
-    uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
-    uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
+    uint64x2_t block1 = {0};
+    uint64x2_t x1 = UnpackLow64(block0, block1);
+    uint64x2_t y1 = UnpackHigh64(block0, block1);
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
@@ -165,22 +165,22 @@ inline void SIMON128_Enc_Block(uint8x16_t &block0, const word64 *subkeys, unsign
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
-    block0 = UnpackLow64<uint8x16_t>(x1, y1);
-    // block1 = UnpackHigh64<uint8x16_t>(x1, y1);
+    block0 = UnpackLow64(x1, y1);
+    // block1 = UnpackHigh64(x1, y1);
 }
 
-inline void SIMON128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
-            uint8x16_t &block2, uint8x16_t &block3, uint8x16_t &block4,
-            uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
+inline void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
+            uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4,
+            uint64x2_t &block5, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SIMON128_Enc_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
-    uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
-    uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
-    uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
-    uint64x2_t y2 = UnpackHigh64<uint64x2_t>(block2, block3);
-    uint64x2_t x3 = UnpackLow64<uint64x2_t>(block4, block5);
-    uint64x2_t y3 = UnpackHigh64<uint64x2_t>(block4, block5);
+    uint64x2_t x1 = UnpackLow64(block0, block1);
+    uint64x2_t y1 = UnpackHigh64(block0, block1);
+    uint64x2_t x2 = UnpackLow64(block2, block3);
+    uint64x2_t y2 = UnpackHigh64(block2, block3);
+    uint64x2_t x3 = UnpackLow64(block4, block5);
+    uint64x2_t y3 = UnpackHigh64(block4, block5);
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
@@ -213,22 +213,22 @@ inline void SIMON128_Enc_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
     x3 = Shuffle64(x3); y3 = Shuffle64(y3);
 
-    block0 = UnpackLow64<uint8x16_t>(x1, y1);
-    block1 = UnpackHigh64<uint8x16_t>(x1, y1);
-    block2 = UnpackLow64<uint8x16_t>(x2, y2);
-    block3 = UnpackHigh64<uint8x16_t>(x2, y2);
-    block4 = UnpackLow64<uint8x16_t>(x3, y3);
-    block5 = UnpackHigh64<uint8x16_t>(x3, y3);
+    block0 = UnpackLow64(x1, y1);
+    block1 = UnpackHigh64(x1, y1);
+    block2 = UnpackLow64(x2, y2);
+    block3 = UnpackHigh64(x2, y2);
+    block4 = UnpackLow64(x3, y3);
+    block5 = UnpackHigh64(x3, y3);
 }
 
-inline void SIMON128_Dec_Block(uint8x16_t &block0, const word64 *subkeys, unsigned int rounds)
+inline void SIMON128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SIMON128_Dec_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
     // The zero block below is a "don't care". It is present so we can vectorize.
-    uint8x16_t block1 = {0};
-    uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
-    uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
+    uint64x2_t block1 = {0};
+    uint64x2_t x1 = UnpackLow64(block0, block1);
+    uint64x2_t y1 = UnpackHigh64(block0, block1);
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
@@ -252,22 +252,22 @@ inline void SIMON128_Dec_Block(uint8x16_t &block0, const word64 *subkeys, unsign
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
-    block0 = UnpackLow64<uint8x16_t>(x1, y1);
-    // block1 = UnpackHigh64<uint8x16_t>(x1, y1);
+    block0 = UnpackLow64(x1, y1);
+    // block1 = UnpackHigh64(x1, y1);
 }
 
-inline void SIMON128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
-            uint8x16_t &block2, uint8x16_t &block3, uint8x16_t &block4,
-            uint8x16_t &block5, const word64 *subkeys, unsigned int rounds)
+inline void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
+            uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4,
+            uint64x2_t &block5, const word64 *subkeys, unsigned int rounds)
 {
     // Hack ahead... Rearrange the data for vectorization. It is easier to permute
     // the data in SIMON128_Dec_Blocks then SIMON128_AdvancedProcessBlocks_NEON.
-    uint64x2_t x1 = UnpackLow64<uint64x2_t>(block0, block1);
-    uint64x2_t y1 = UnpackHigh64<uint64x2_t>(block0, block1);
-    uint64x2_t x2 = UnpackLow64<uint64x2_t>(block2, block3);
-    uint64x2_t y2 = UnpackHigh64<uint64x2_t>(block2, block3);
-    uint64x2_t x3 = UnpackLow64<uint64x2_t>(block4, block5);
-    uint64x2_t y3 = UnpackHigh64<uint64x2_t>(block4, block5);
+    uint64x2_t x1 = UnpackLow64(block0, block1);
+    uint64x2_t y1 = UnpackHigh64(block0, block1);
+    uint64x2_t x2 = UnpackLow64(block2, block3);
+    uint64x2_t y2 = UnpackHigh64(block2, block3);
+    uint64x2_t x3 = UnpackLow64(block4, block5);
+    uint64x2_t y3 = UnpackHigh64(block4, block5);
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
@@ -301,12 +301,12 @@ inline void SIMON128_Dec_6_Blocks(uint8x16_t &block0, uint8x16_t &block1,
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
     x3 = Shuffle64(x3); y3 = Shuffle64(y3);
 
-    block0 = UnpackLow64<uint8x16_t>(x1, y1);
-    block1 = UnpackHigh64<uint8x16_t>(x1, y1);
-    block2 = UnpackLow64<uint8x16_t>(x2, y2);
-    block3 = UnpackHigh64<uint8x16_t>(x2, y2);
-    block4 = UnpackLow64<uint8x16_t>(x3, y3);
-    block5 = UnpackHigh64<uint8x16_t>(x3, y3);
+    block0 = UnpackLow64(x1, y1);
+    block1 = UnpackHigh64(x1, y1);
+    block2 = UnpackLow64(x2, y2);
+    block3 = UnpackHigh64(x2, y2);
+    block4 = UnpackLow64(x3, y3);
+    block5 = UnpackHigh64(x3, y3);
 }
 
 template <typename F1, typename F6>
@@ -338,40 +338,40 @@ size_t SIMON128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
     {
         while (length >= 6*blockSize)
         {
-            uint8x16_t block0, block1, block2, block3, block4, block5, temp;
-            block0 = vld1q_u8(inBlocks);
+            uint64x2_t block0, block1, block2, block3, block4, block5;
+            block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
 
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
-                uint32x4_t be = vld1q_u32(s_one);
-                block1 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block0), be);
-                block2 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block1), be);
-                block3 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block2), be);
-                block4 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block3), be);
-                block5 = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block4), be);
-                temp   = (uint8x16_t)vaddq_u32(vreinterpretq_u32_u8(block5), be);
-                vst1q_u8(const_cast<byte*>(inBlocks), temp);
+                uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one128));
+                block1 = vaddq_u64(block0, be);
+                block2 = vaddq_u64(block1, be);
+                block3 = vaddq_u64(block2, be);
+                block4 = vaddq_u64(block3, be);
+                block5 = vaddq_u64(block4, be);
+                vst1q_u8(const_cast<byte*>(inBlocks),
+                    vreinterpretq_u8_u64(vaddq_u64(block5, be)));
             }
             else
             {
                 const int inc = static_cast<int>(inIncrement);
-                block1 = vld1q_u8(inBlocks+1*inc);
-                block2 = vld1q_u8(inBlocks+2*inc);
-                block3 = vld1q_u8(inBlocks+3*inc);
-                block4 = vld1q_u8(inBlocks+4*inc);
-                block5 = vld1q_u8(inBlocks+5*inc);
+                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+1*inc));
+                block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+2*inc));
+                block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+3*inc));
+                block4 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+4*inc));
+                block5 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+5*inc));
                 inBlocks += 6*inc;
             }
 
             if (flags & BlockTransformation::BT_XorInput)
             {
                 const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u8(block0, vld1q_u8(xorBlocks+0*inc));
-                block1 = veorq_u8(block1, vld1q_u8(xorBlocks+1*inc));
-                block2 = veorq_u8(block2, vld1q_u8(xorBlocks+2*inc));
-                block3 = veorq_u8(block3, vld1q_u8(xorBlocks+3*inc));
-                block4 = veorq_u8(block4, vld1q_u8(xorBlocks+4*inc));
-                block5 = veorq_u8(block5, vld1q_u8(xorBlocks+5*inc));
+                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
+                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+2*inc)));
+                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+3*inc)));
+                block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+4*inc)));
+                block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+5*inc)));
                 xorBlocks += 6*inc;
             }
 
@@ -380,22 +380,22 @@ size_t SIMON128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
                 const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u8(block0, vld1q_u8(xorBlocks+0*inc));
-                block1 = veorq_u8(block1, vld1q_u8(xorBlocks+1*inc));
-                block2 = veorq_u8(block2, vld1q_u8(xorBlocks+2*inc));
-                block3 = veorq_u8(block3, vld1q_u8(xorBlocks+3*inc));
-                block4 = veorq_u8(block4, vld1q_u8(xorBlocks+4*inc));
-                block5 = veorq_u8(block5, vld1q_u8(xorBlocks+5*inc));
+                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
+                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+2*inc)));
+                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+3*inc)));
+                block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+4*inc)));
+                block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+5*inc)));
                 xorBlocks += 6*inc;
             }
 
             const int inc = static_cast<int>(outIncrement);
-            vst1q_u8(outBlocks+0*inc, block0);
-            vst1q_u8(outBlocks+1*inc, block1);
-            vst1q_u8(outBlocks+2*inc, block2);
-            vst1q_u8(outBlocks+3*inc, block3);
-            vst1q_u8(outBlocks+4*inc, block4);
-            vst1q_u8(outBlocks+5*inc, block5);
+            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u64(block0));
+            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u64(block1));
+            vst1q_u8(outBlocks+2*inc, vreinterpretq_u8_u64(block2));
+            vst1q_u8(outBlocks+3*inc, vreinterpretq_u8_u64(block3));
+            vst1q_u8(outBlocks+4*inc, vreinterpretq_u8_u64(block4));
+            vst1q_u8(outBlocks+5*inc, vreinterpretq_u8_u64(block5));
 
             outBlocks += 6*inc;
             length -= 6*blockSize;
@@ -404,10 +404,10 @@ size_t SIMON128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
 
     while (length >= blockSize)
     {
-        uint8x16_t block = vld1q_u8(inBlocks);
+        uint64x2_t block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
 
         if (flags & BlockTransformation::BT_XorInput)
-            block = veorq_u8(block, vld1q_u8(xorBlocks));
+            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
 
         if (flags & BlockTransformation::BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
@@ -415,9 +415,9 @@ size_t SIMON128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
         func1(block, subKeys, rounds);
 
         if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            block = veorq_u8(block, vld1q_u8(xorBlocks));
+            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
 
-        vst1q_u8(outBlocks, block);
+        vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
 
         inBlocks += inIncrement;
         outBlocks += outIncrement;
