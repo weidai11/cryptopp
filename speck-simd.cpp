@@ -137,8 +137,11 @@ inline const word64* Ptr64(const T* ptr)
 
 inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const uint32x4_t zero = {0, 0, 0, 0};
     const uint32x4x2_t t1 = vuzpq_u32(block0, zero);
     uint32x4_t x1 = t1.val[0];
@@ -161,6 +164,7 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
     x1 = Shuffle32(x1);
     y1 = Shuffle32(y1);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t2 = vzipq_u32(x1, y1);
     block0 = t2.val[0];
     // block1 = t2.val[1];
@@ -168,8 +172,11 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
 
 inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const uint32x4_t zero = {0, 0, 0, 0};
     const uint32x4x2_t t1 = vuzpq_u32(block0, zero);
     uint32x4_t x1 = t1.val[0];
@@ -192,6 +199,7 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
     x1 = Shuffle32(x1);
     y1 = Shuffle32(y1);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t2 = vzipq_u32(x1, y1);
     block0 = t2.val[0];
     // block1 = t2.val[1];
@@ -199,8 +207,11 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
 
 inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const uint32x4x2_t t1 = vuzpq_u32(block0, block1);
     uint32x4_t x1 = t1.val[0];
     uint32x4_t y1 = t1.val[1];
@@ -222,6 +233,7 @@ inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const w
     x1 = Shuffle32(x1);
     y1 = Shuffle32(y1);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t2 = vzipq_u32(x1, y1);
     block0 = t2.val[0];
     block1 = t2.val[1];
@@ -229,8 +241,11 @@ inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const w
 
 inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const uint32x4x2_t t1 = vuzpq_u32(block0, block1);
     uint32x4_t x1 = t1.val[0];
     uint32x4_t y1 = t1.val[1];
@@ -252,6 +267,7 @@ inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const w
     x1 = Shuffle32(x1);
     y1 = Shuffle32(y1);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t2 = vzipq_u32(x1, y1);
     block0 = t2.val[0];
     block1 = t2.val[1];
@@ -456,9 +472,11 @@ inline uint64x2_t Shuffle64(const uint64x2_t& val)
 
 inline void SPECK128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
-    // The zero block below is a "don't care". It is present so we can vectorize.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint64x2_t block1 = {0};
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
@@ -480,6 +498,7 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsign
     x1 = Shuffle64(x1);
     y1 = Shuffle64(y1);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = UnpackLow64(x1, y1);
     // block1 = UnpackHigh64(x1, y1);
 }
@@ -488,8 +507,11 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
             uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4,
             uint64x2_t &block5, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
     uint64x2_t x2 = UnpackLow64(block2, block3);
@@ -532,6 +554,7 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x3 = Shuffle64(x3);
     y3 = Shuffle64(y3);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = UnpackLow64(x1, y1);
     block1 = UnpackHigh64(x1, y1);
     block2 = UnpackLow64(x2, y2);
@@ -542,9 +565,11 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 
 inline void SPECK128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
-    // The zero block below is a "don't care". It is present so we can vectorize.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint64x2_t block1 = {0};
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
@@ -566,6 +591,7 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsign
     x1 = Shuffle64(x1);
     y1 = Shuffle64(y1);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = UnpackLow64(x1, y1);
     // block1 = UnpackHigh64(x1, y1);
 }
@@ -574,8 +600,11 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
             uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4,
             uint64x2_t &block5, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_NEON.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
     uint64x2_t x2 = UnpackLow64(block2, block3);
@@ -618,6 +647,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x3 = Shuffle64(x3);
     y3 = Shuffle64(y3);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = UnpackLow64(x1, y1);
     block1 = UnpackHigh64(x1, y1);
     block2 = UnpackLow64(x2, y2);
@@ -804,9 +834,11 @@ inline __m128i RotateRight64<8>(const __m128i& val)
 
 inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
-    // The zero block below is a "don't care". It is present so we can vectorize.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -830,6 +862,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi64(x1, y1);
     // block1 = _mm_unpackhi_epi64(x1, y1);
 }
@@ -837,8 +870,11 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
 inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Enc_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
@@ -872,6 +908,7 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     x2 = _mm_shuffle_epi8(x2, mask);
     y2 = _mm_shuffle_epi8(y2, mask);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi64(x1, y1);
     block1 = _mm_unpackhi_epi64(x1, y1);
     block2 = _mm_unpacklo_epi64(x2, y2);
@@ -880,9 +917,11 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
 
 inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
-    // The zero block below is a "don't care". It is present so we can vectorize.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -906,6 +945,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi64(x1, y1);
     // block1 = _mm_unpackhi_epi64(x1, y1);
 }
@@ -913,8 +953,11 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
 inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word64 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK128_Dec_Blocks then SPECK128_AdvancedProcessBlocks_SSSE3.
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
@@ -948,6 +991,7 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     x2 = _mm_shuffle_epi8(x2, mask);
     y2 = _mm_shuffle_epi8(y2, mask);
 
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi64(x1, y1);
     block1 = _mm_unpackhi_epi64(x1, y1);
     block2 = _mm_unpacklo_epi64(x2, y2);
@@ -1106,12 +1150,17 @@ inline __m128i RotateRight32<8>(const __m128i& val)
 
 inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
-    // The zero block below is a "don't care". It is present so we can vectorize.
-    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128i zero = _mm_setzero_si128();
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(zero);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -1132,17 +1181,24 @@ inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned i
     y1 = _mm_shuffle_epi8(y1, mask);
 
     // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(x1, y1);
+    // block1 = _mm_unpackhigh_epi32(x1, y1);
 }
 
 inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
-    // The zero block below is a "don't care". It is present so we can vectorize.
-    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128i zero = _mm_setzero_si128();
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(zero);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -1163,22 +1219,23 @@ inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned i
     y1 = _mm_shuffle_epi8(y1, mask);
 
     // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(x1, y1);
+    // block1 = _mm_unpackhigh_epi32(x1, y1);
 }
 
 inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Enc_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
-    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block0, 3), 1);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 0), 2);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 1), 2);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 2), 3);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 3), 3);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(block1);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -1199,23 +1256,23 @@ inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, const word32 
     y1 = _mm_shuffle_epi8(y1, mask);
 
     // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(x1, y1);
     block1 = _mm_unpackhi_epi32(x1, y1);
 }
 
 inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SPECK64_Dec_Blocks then SPECK64_AdvancedProcessBlocks_SSSE3.
-    // We really want an SSE equivalent to NEON's vuzp, but SSE does not have one.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block0, 3), 1);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 0), 2);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 1), 2);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 2), 3);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 3), 3);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(block1);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -1236,6 +1293,7 @@ inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 
     y1 = _mm_shuffle_epi8(y1, mask);
 
     // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(x1, y1);
     block1 = _mm_unpackhi_epi32(x1, y1);
 }
