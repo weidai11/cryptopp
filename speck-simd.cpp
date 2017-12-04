@@ -380,10 +380,10 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
             block = veorq_u32(block, x);
         }
 
-        const word32 t0 = vgetq_lane_u32(block, 0);
-        std::memcpy(Ptr32(outBlocks)+0, &t0, 4);
-        const word32 t1 = vgetq_lane_u32(block, 1);
-        std::memcpy(Ptr32(outBlocks)+1, &t1, 4);
+        word32 t[2];
+        t[0] = vgetq_lane_u32(block, 0);
+        t[1] = vgetq_lane_u32(block, 1);
+        std::memcpy(outBlocks, t, sizeof(t));
 
         inBlocks += inIncrement;
         outBlocks += outIncrement;
@@ -476,7 +476,7 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsign
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t block1 = {0};
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
@@ -498,7 +498,7 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsign
     x1 = Shuffle64(x1);
     y1 = Shuffle64(y1);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = UnpackLow64(x1, y1);
     // block1 = UnpackHigh64(x1, y1);
 }
@@ -511,7 +511,7 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
     uint64x2_t x2 = UnpackLow64(block2, block3);
@@ -554,7 +554,7 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x3 = Shuffle64(x3);
     y3 = Shuffle64(y3);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = UnpackLow64(x1, y1);
     block1 = UnpackHigh64(x1, y1);
     block2 = UnpackLow64(x2, y2);
@@ -569,7 +569,7 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsign
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t block1 = {0};
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
@@ -591,7 +591,7 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsign
     x1 = Shuffle64(x1);
     y1 = Shuffle64(y1);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = UnpackLow64(x1, y1);
     // block1 = UnpackHigh64(x1, y1);
 }
@@ -604,7 +604,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
     uint64x2_t x2 = UnpackLow64(block2, block3);
@@ -647,7 +647,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x3 = Shuffle64(x3);
     y3 = Shuffle64(y3);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = UnpackLow64(x1, y1);
     block1 = UnpackHigh64(x1, y1);
     block2 = UnpackLow64(x2, y2);
@@ -838,7 +838,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -862,7 +862,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = _mm_unpacklo_epi64(x1, y1);
     // block1 = _mm_unpackhi_epi64(x1, y1);
 }
@@ -874,7 +874,7 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
@@ -908,7 +908,7 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     x2 = _mm_shuffle_epi8(x2, mask);
     y2 = _mm_shuffle_epi8(y2, mask);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = _mm_unpacklo_epi64(x1, y1);
     block1 = _mm_unpackhi_epi64(x1, y1);
     block2 = _mm_unpacklo_epi64(x2, y2);
@@ -921,7 +921,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -945,7 +945,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = _mm_unpacklo_epi64(x1, y1);
     // block1 = _mm_unpackhi_epi64(x1, y1);
 }
@@ -957,7 +957,7 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
-    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
     __m128i x2 = _mm_unpacklo_epi64(block2, block3);
@@ -991,7 +991,7 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     x2 = _mm_shuffle_epi8(x2, mask);
     y2 = _mm_shuffle_epi8(y2, mask);
 
-    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = _mm_unpacklo_epi64(x1, y1);
     block1 = _mm_unpackhi_epi64(x1, y1);
     block2 = _mm_unpacklo_epi64(x2, y2);
@@ -1402,9 +1402,10 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
             block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
         }
 
-        word32* outPtr = reinterpret_cast<word32*>(outBlocks);
-        outPtr[0] = _mm_extract_epi32(block, 0);
-        outPtr[1] = _mm_extract_epi32(block, 1);
+        word32 t[2];
+        t[0] = _mm_extract_epi32(block, 0);
+        t[1] = _mm_extract_epi32(block, 1);
+        std::memcpy(outBlocks, t, sizeof(t));
 
         inBlocks += inIncrement;
         outBlocks += outIncrement;
