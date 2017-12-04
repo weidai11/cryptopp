@@ -1312,6 +1312,7 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
     size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = xorBlocks ? blockSize : 0;
     size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    word32 temp[2];
 
     if (flags & BlockTransformation::BT_ReverseDirection)
     {
@@ -1379,15 +1380,15 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
 
     while (length >= blockSize)
     {
-        const word32* inPtr = reinterpret_cast<const word32*>(inBlocks);
-        __m128i block = _mm_insert_epi32(_mm_setzero_si128(), inPtr[0], 0);
-        block = _mm_insert_epi32(block, inPtr[1], 1);
+        std::memcpy(&temp, inBlocks, sizeof(temp));
+        __m128i block = _mm_insert_epi32(_mm_setzero_si128(), temp[0], 0);
+        block = _mm_insert_epi32(block, temp[1], 1);
 
         if (flags & BlockTransformation::BT_XorInput)
         {
-            const word32* xorPtr = reinterpret_cast<const word32*>(xorBlocks);
-            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), xorPtr[0], 0);
-            block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
+            std::memcpy(&temp, xorBlocks, sizeof(temp));
+            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), temp[0], 0);
+            block = _mm_xor_si128(block, _mm_insert_epi32(x, temp[1], 1));
         }
 
         if (flags & BlockTransformation::BT_InBlockIsCounter)
@@ -1397,15 +1398,14 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
 
         if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
         {
-            const word32* xorPtr = reinterpret_cast<const word32*>(xorBlocks);
-            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), xorPtr[0], 0);
-            block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
+            std::memcpy(&temp, xorBlocks, sizeof(temp));
+            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), temp[0], 0);
+            block = _mm_xor_si128(block, _mm_insert_epi32(x, temp[1], 1));
         }
 
-        word32 t[2];
-        t[0] = _mm_extract_epi32(block, 0);
-        t[1] = _mm_extract_epi32(block, 1);
-        std::memcpy(outBlocks, t, sizeof(t));
+        temp[0] = _mm_extract_epi32(block, 0);
+        temp[1] = _mm_extract_epi32(block, 1);
+        std::memcpy(outBlocks, temp, sizeof(temp));
 
         inBlocks += inIncrement;
         outBlocks += outIncrement;
