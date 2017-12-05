@@ -840,11 +840,17 @@ inline __m128i SIMON64_f(const __m128i& v)
 
 inline void SIMON64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SIMON64_Enc_Blocks then SIMON64_AdvancedProcessBlocks_SSSE3.
-    // The zero block below is a "don't care". It is present so we can vectorize.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128i zero = _mm_setzero_si128();
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(zero);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -869,18 +875,25 @@ inline void SIMON64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned i
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    block0 =_mm_setzero_si128();
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
+    // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    block0 = _mm_unpacklo_epi32(x1, y1);
+    // block1 = _mm_unpackhigh_epi32(x1, y1);
 }
 
 inline void SIMON64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SIMON64_Dec_Blocks then SIMON64_AdvancedProcessBlocks_SSSE3.
-    // The zero block below is a "don't care". It is present so we can vectorize.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128i zero = _mm_setzero_si128();
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(zero);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
@@ -906,79 +919,100 @@ inline void SIMON64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned i
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    block0 =_mm_setzero_si128();
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
+    // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    block0 = _mm_unpacklo_epi32(x1, y1);
+    // block1 = _mm_unpackhigh_epi32(x1, y1);
 }
 
-inline void SIMON64_Enc_4_Blocks(__m128i &block0, __m128i &block1, const word32 *subkeys, unsigned int rounds)
+inline void SIMON64_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2,
+                __m128i &block3, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SIMON64_Enc_Blocks then SIMON64_AdvancedProcessBlocks_SSSE3.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block0, 3), 1);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 0), 2);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 1), 2);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 2), 3);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 3), 3);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(block1);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
+
+    const __m128 t2 = _mm_castsi128_ps(block2);
+    const __m128 t3 = _mm_castsi128_ps(block3);
+    __m128i x2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
+    x2 = _mm_shuffle_epi8(x2, mask);
+    y2 = _mm_shuffle_epi8(y2, mask);
 
     for (size_t i = 0; static_cast<int>(i) < (rounds & ~1)-1; i += 2)
     {
         const __m128i rk1 = _mm_set1_epi32(subkeys[i]);
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON64_f(x1)), rk1);
+        y2 = _mm_xor_si128(_mm_xor_si128(y2, SIMON64_f(x2)), rk1);
 
         const __m128i rk2 = _mm_set1_epi32(subkeys[i+1]);
         x1 = _mm_xor_si128(_mm_xor_si128(x1, SIMON64_f(y1)), rk2);
+        x2 = _mm_xor_si128(_mm_xor_si128(x2, SIMON64_f(y2)), rk2);
     }
 
     if (rounds & 1)
     {
         const __m128i rk = _mm_set1_epi32(subkeys[rounds-1]);
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON64_f(x1)), rk);
-        Swap128(x1, y1);
+        y2 = _mm_xor_si128(_mm_xor_si128(y2, SIMON64_f(x2)), rk);
+        Swap128(x1, y1); Swap128(x2, y2);
     }
 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
+    x2 = _mm_shuffle_epi8(x2, mask);
+    y2 = _mm_shuffle_epi8(y2, mask);
 
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 1), 2);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 1), 3);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 2), 0);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 2), 1);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 3), 2);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 3), 3);
+    // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    block0 = _mm_unpacklo_epi32(x1, y1);
+    block1 = _mm_unpackhi_epi32(x1, y1);
+    block2 = _mm_unpacklo_epi32(x2, y2);
+    block3 = _mm_unpackhi_epi32(x2, y2);
 }
 
-inline void SIMON64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 *subkeys, unsigned int rounds)
+inline void SIMON64_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2,
+                __m128i &block3, const word32 *subkeys, unsigned int rounds)
 {
-    // Hack ahead... Rearrange the data for vectorization. It is easier to permute
-    // the data in SIMON64_Dec_Blocks then SIMON64_AdvancedProcessBlocks_SSSE3.
-    __m128i x1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 0), 0);
-    __m128i y1 = _mm_insert_epi32(_mm_setzero_si128(), _mm_extract_epi32(block0, 1), 0);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block0, 2), 1);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block0, 3), 1);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 0), 2);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 1), 2);
-    x1 = _mm_insert_epi32(x1, _mm_extract_epi32(block1, 2), 3);
-    y1 = _mm_insert_epi32(y1, _mm_extract_epi32(block1, 3), 3);
+    // Rearrange the data for vectorization. The incoming data was read from
+    // a big-endian byte array. Depending on the number of blocks it needs to
+    // be permuted to the following. If only a single block is available then
+    // a Zero block is provided to promote vectorizations. Thanks to Peter
+    // Cordes for help with the SSE permutes below.
+    // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
+    const __m128 t0 = _mm_castsi128_ps(block0);
+    const __m128 t1 = _mm_castsi128_ps(block1);
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
+
+    const __m128 t2 = _mm_castsi128_ps(block2);
+    const __m128 t3 = _mm_castsi128_ps(block3);
+    __m128i x2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(2,0,2,0)));
+    __m128i y2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(3,1,3,1)));
 
     const __m128i mask = _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3);
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
+    x2 = _mm_shuffle_epi8(x2, mask);
+    y2 = _mm_shuffle_epi8(y2, mask);
 
     if (rounds & 1)
     {
-        Swap128(x1, y1);
+        Swap128(x1, y1); Swap128(x2, y2);
         const __m128i rk = _mm_set1_epi32(subkeys[rounds-1]);
         y1 = _mm_xor_si128(_mm_xor_si128(y1, rk), SIMON64_f(x1));
+        y2 = _mm_xor_si128(_mm_xor_si128(y2, rk), SIMON64_f(x2));
         rounds--;
     }
 
@@ -986,23 +1020,26 @@ inline void SIMON64_Dec_4_Blocks(__m128i &block0, __m128i &block1, const word32 
     {
         const __m128i rk1 = _mm_set1_epi32(subkeys[i+1]);
         x1 = _mm_xor_si128(_mm_xor_si128(x1, SIMON64_f(y1)), rk1);
+        x2 = _mm_xor_si128(_mm_xor_si128(x2, SIMON64_f(y2)), rk1);
 
         const __m128i rk2 = _mm_set1_epi32(subkeys[i]);
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON64_f(x1)), rk2);
+        y2 = _mm_xor_si128(_mm_xor_si128(y2, SIMON64_f(x2)), rk2);
     }
 
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
+    x2 = _mm_shuffle_epi8(x2, mask);
+    y2 = _mm_shuffle_epi8(y2, mask);
 
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 0), 0);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 0), 1);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(x1, 1), 2);
-    block0 = _mm_insert_epi32(block0, _mm_extract_epi32(y1, 1), 3);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 2), 0);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 2), 1);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(x1, 3), 2);
-    block1 = _mm_insert_epi32(block1, _mm_extract_epi32(y1, 3), 3);
+    // The is roughly the SSE equivalent to ARM vzp32
+    // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
+    block0 = _mm_unpacklo_epi32(x1, y1);
+    block1 = _mm_unpackhi_epi32(x1, y1);
+    block2 = _mm_unpacklo_epi32(x2, y2);
+    block3 = _mm_unpackhi_epi32(x2, y2);
 }
+
 
 template <typename F1, typename F4>
 inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
@@ -1014,40 +1051,45 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    const size_t blockSize = 8;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    // Fake block size to match XMM word
+    const size_t xmmBlockSize = 16;
+    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    size_t xorIncrement = xorBlocks ? xmmBlockSize : 0;
+    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+    CRYPTOPP_ALIGN_DATA(16) word32 temp[4];
 
     if (flags & BlockTransformation::BT_ReverseDirection)
     {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
+        inBlocks += length - xmmBlockSize;
+        xorBlocks += length - xmmBlockSize;
+        outBlocks += length - xmmBlockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
-
-        // Hack... Disable parallel for decryption. It is buggy.
-        flags &= ~BlockTransformation::BT_AllowParallel;
     }
 
     if (flags & BlockTransformation::BT_AllowParallel)
     {
-        while (length >= 4*blockSize)
+        while (length >= 4*xmmBlockSize)
         {
-            __m128i block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks)), block1;
+            __m128i block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks)), block1, block2, block3;
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
                 const __m128i be1 = *CONST_M128_CAST(s_one64);
                 block1 = _mm_add_epi32(block0, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block1, be1));
+                block2 = _mm_add_epi32(block1, be1);
+                block3 = _mm_add_epi32(block2, be1);
+                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block3, be1));
             }
             else
             {
-                inBlocks += 2*inIncrement;
+                inBlocks += inIncrement;
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += 2*inIncrement;
+                inBlocks += inIncrement;
+                block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+                block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
             }
 
             if (flags & BlockTransformation::BT_XorInput)
@@ -1055,63 +1097,93 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
                 // Coverity finding, appears to be false positive. Assert the condition.
                 CRYPTOPP_ASSERT(xorBlocks);
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
+                xorBlocks += xorIncrement;
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
+                xorBlocks += xorIncrement;
+                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
             }
 
-            func4(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+            func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
+                xorBlocks += xorIncrement;
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
+                xorBlocks += xorIncrement;
+                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += 2*outIncrement;
+            outBlocks += outIncrement;
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += 2*outIncrement;
+            outBlocks += outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block2);
+            outBlocks += outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block3);
+            outBlocks += outIncrement;
 
-            length -= 4*blockSize;
+            length -= 4*xmmBlockSize;
         }
     }
 
-    while (length >= blockSize)
+    if (length)
     {
-        const word32* inPtr = reinterpret_cast<const word32*>(inBlocks);
-        __m128i block = _mm_insert_epi32(_mm_setzero_si128(), inPtr[0], 0);
-        block = _mm_insert_epi32(block, inPtr[1], 1);
-
-        if (flags & BlockTransformation::BT_XorInput)
+        // Adjust to real block size
+        const size_t blockSize = xmmBlockSize / 2;
+        if (flags & BlockTransformation::BT_ReverseDirection)
         {
-            const word32* xorPtr = reinterpret_cast<const word32*>(xorBlocks);
-            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), xorPtr[0], 0);
-            block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
+            inIncrement += inIncrement ? blockSize : 0;
+            xorIncrement += xorIncrement ? blockSize : 0;
+            outIncrement += outIncrement ? blockSize : 0;
+            inBlocks -= inIncrement;
+            xorBlocks -= xorIncrement;
+            outBlocks -= outIncrement;
+        }
+        else
+        {
+            inIncrement -= inIncrement ? blockSize : 0;
+            xorIncrement -= xorIncrement ? blockSize : 0;
+            outIncrement -= outIncrement ? blockSize : 0;
         }
 
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-            const_cast<byte *>(inBlocks)[7]++;
-
-        func1(block, subKeys, static_cast<unsigned int>(rounds));
-
-        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+        while (length >= blockSize)
         {
-            const word32* xorPtr = reinterpret_cast<const word32*>(xorBlocks);
-            __m128i x = _mm_insert_epi32(_mm_setzero_si128(), xorPtr[0], 0);
-            block = _mm_xor_si128(block, _mm_insert_epi32(x, xorPtr[1], 1));
+            // temp[] is an aligned array
+            std::memcpy(temp, inBlocks, 8);
+            __m128i block = _mm_load_si128(CONST_M128_CAST(temp));
+
+            if (flags & BlockTransformation::BT_XorInput)
+            {
+                std::memcpy(temp, xorBlocks, 8);
+                block = _mm_xor_si128(block, _mm_load_si128(CONST_M128_CAST(temp)));
+            }
+
+            if (flags & BlockTransformation::BT_InBlockIsCounter)
+                const_cast<byte *>(inBlocks)[7]++;
+
+            func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+            {
+                std::memcpy(temp, xorBlocks, 8);
+                block = _mm_xor_si128(block, _mm_load_si128(CONST_M128_CAST(temp)));
+            }
+
+            _mm_store_si128(M128_CAST(temp), block);
+            std::memcpy(outBlocks, temp, 8);
+
+            inBlocks += inIncrement;
+            outBlocks += outIncrement;
+            xorBlocks += xorIncrement;
+            length -= blockSize;
         }
-
-        word32* outPtr = reinterpret_cast<word32*>(outBlocks);
-        outPtr[0] = _mm_extract_epi32(block, 0);
-        outPtr[1] = _mm_extract_epi32(block, 1);
-
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
-        length -= blockSize;
     }
 
     return length;
