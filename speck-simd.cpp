@@ -143,12 +143,11 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const uint32x4_t zero = {0, 0, 0, 0};
-    const uint32x4x2_t t1 = vuzpq_u32(block0, zero);
-    uint32x4_t x1 = t1.val[0];
-    uint32x4_t y1 = t1.val[1];
+    const uint32x4x2_t t0 = vuzpq_u32(block0, zero);
+    uint32x4_t x1 = t0.val[0];
+    uint32x4_t y1 = t0.val[1];
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     for (size_t i=0; static_cast<int>(i)<rounds; ++i)
     {
@@ -161,13 +160,12 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
         y1 = veorq_u32(y1, x1);
     }
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
-    block0 = t2.val[0];
-    // block1 = t2.val[1];
+    const uint32x4x2_t t1 = vzipq_u32(x1, y1);
+    block0 = t1.val[0];
+    // block1 = t1.val[1];
 }
 
 inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
@@ -178,12 +176,11 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const uint32x4_t zero = {0, 0, 0, 0};
-    const uint32x4x2_t t1 = vuzpq_u32(block0, zero);
-    uint32x4_t x1 = t1.val[0];
-    uint32x4_t y1 = t1.val[1];
+    const uint32x4x2_t t0 = vuzpq_u32(block0, zero);
+    uint32x4_t x1 = t0.val[0];
+    uint32x4_t y1 = t0.val[1];
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
     {
@@ -196,81 +193,104 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
         x1 = RotateLeft32<8>(x1);
     }
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
-    block0 = t2.val[0];
-    // block1 = t2.val[1];
+    const uint32x4x2_t t1 = vzipq_u32(x1, y1);
+    block0 = t1.val[0];
+    // block1 = t1.val[1];
 }
 
-inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
+    uint32x4_t &block2, uint32x4_t &block3, const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t1 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t1.val[0];
-    uint32x4_t y1 = t1.val[1];
+    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
+    uint32x4_t x1 = t0.val[0];
+    uint32x4_t y1 = t0.val[1];
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    const uint32x4x2_t t1 = vuzpq_u32(block2, block3);
+    uint32x4_t x2 = t1.val[0];
+    uint32x4_t y2 = t1.val[1];
+
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
+    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
 
     for (size_t i=0; static_cast<int>(i)<rounds; ++i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
         x1 = RotateRight32<8>(x1);
+        x2 = RotateRight32<8>(x2);
         x1 = vaddq_u32(x1, y1);
+        x2 = vaddq_u32(x2, y2);
         x1 = veorq_u32(x1, rk);
+        x2 = veorq_u32(x2, rk);
         y1 = RotateLeft32<3>(y1);
+        y2 = RotateLeft32<3>(y2);
         y1 = veorq_u32(y1, x1);
+        y2 = veorq_u32(y2, x2);
     }
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
+    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
-    block0 = t2.val[0];
-    block1 = t2.val[1];
+    const uint32x4x2_t t3 = vzipq_u32(x1, y1);
+    block0 = t3.val[0];
+    block1 = t3.val[1];
 }
 
-inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
+    uint32x4_t &block2, uint32x4_t &block3, const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t1 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t1.val[0];
-    uint32x4_t y1 = t1.val[1];
+    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
+    uint32x4_t x1 = t0.val[0];
+    uint32x4_t y1 = t0.val[1];
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    const uint32x4x2_t t1 = vuzpq_u32(block2, block3);
+    uint32x4_t x2 = t1.val[0];
+    uint32x4_t y2 = t1.val[1];
+
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
+    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
 
     for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
         y1 = veorq_u32(y1, x1);
+        y2 = veorq_u32(y2, x2);
         y1 = RotateRight32<3>(y1);
+        y2 = RotateRight32<3>(y2);
         x1 = veorq_u32(x1, rk);
+        x2 = veorq_u32(x2, rk);
         x1 = vsubq_u32(x1, y1);
+        x2 = vsubq_u32(x2, y2);
         x1 = RotateLeft32<8>(x1);
+        x2 = RotateLeft32<8>(x2);
     }
 
-    x1 = Shuffle32(x1);
-    y1 = Shuffle32(y1);
+    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
+    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t2 = vzipq_u32(x1, y1);
-    block0 = t2.val[0];
-    block1 = t2.val[1];
+    const uint32x4x2_t t3 = vzipq_u32(x1, y1);
+    block0 = t3.val[0];
+    block1 = t3.val[1];
+
+    const uint32x4x2_t t4 = vzipq_u32(x2, y2);
+    block2 = t4.val[0];
+    block3 = t4.val[1];
 }
 
 template <typename F1, typename F4>
@@ -283,112 +303,136 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    const size_t blockSize = 8;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    const size_t neonBlockSize = 16;
+    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
+    size_t xorIncrement = xorBlocks ? neonBlockSize : 0;
+    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : neonBlockSize;
 
     if (flags & BlockTransformation::BT_ReverseDirection)
     {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
+        inBlocks += length - neonBlockSize;
+        xorBlocks += length - neonBlockSize;
+        outBlocks += length - neonBlockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
-
-        // Hack... Disable parallel for decryption. It is buggy.
-        // What needs to happen is, move pointer one more block size to get
-        // a full 128-bit word, then swap N-bit words, and then swap the
-        // Xor block if it is being used. Its a real kludge and it is
-        // being side stepped at the moment.
-        flags &= ~BlockTransformation::BT_AllowParallel;
     }
 
     if (flags & BlockTransformation::BT_AllowParallel)
     {
-        while (length >= 4*blockSize)
+        while (length >= 4*neonBlockSize)
         {
-            uint32x4_t block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks)), block1;
+            uint32x4_t block0, block1, block2, block3;
+            block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
+
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
                 const uint32x4_t be1 = vld1q_u32(s_one64);
                 block1 = vaddq_u32(block0, be1);
-                vst1q_u8(const_cast<byte *>(inBlocks),
-                    vreinterpretq_u8_u32(vaddq_u32(block1, be1)));
+                block2 = vaddq_u32(block1, be1);
+                block3 = vaddq_u32(block2, be1);
+                vst1q_u8(const_cast<byte*>(inBlocks),
+                    vreinterpretq_u8_u32(vaddq_u32(block3, be1)));
             }
             else
             {
-                inBlocks += 2*inIncrement;
-                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += 2*inIncrement;
+                const int inc = static_cast<int>(inIncrement);
+                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+1*inc));
+                block2 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+2*inc));
+                block3 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+3*inc));
+                inBlocks += 4*inc;
             }
 
             if (flags & BlockTransformation::BT_XorInput)
             {
-                // Coverity finding, appears to be false positive. Assert the condition.
-                CRYPTOPP_ASSERT(xorBlocks);
-                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
-                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
+                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+2*inc)));
+                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+3*inc)));
+                xorBlocks += 4*inc;
             }
 
-            func4(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+            func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
-                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
-                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += 2*xorIncrement;
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
+                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+2*inc)));
+                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+3*inc)));
+                xorBlocks += 4*inc;
             }
 
-            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block0));
-            outBlocks += 2*outIncrement;
-            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block1));
-            outBlocks += 2*outIncrement;
+            const int inc = static_cast<int>(outIncrement);
+            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u32(block0));
+            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u32(block1));
+            vst1q_u8(outBlocks+2*inc, vreinterpretq_u8_u32(block2));
+            vst1q_u8(outBlocks+3*inc, vreinterpretq_u8_u32(block3));
 
-            length -= 4*blockSize;
+            outBlocks += 4*inc;
+            length -= 4*neonBlockSize;
         }
     }
 
-    while (length >= blockSize)
+    if (length)
     {
-        uint32x4_t block;
-        block = vsetq_lane_u32(Ptr32(inBlocks)[0], block, 0);
-        block = vsetq_lane_u32(Ptr32(inBlocks)[1], block, 1);
-
-        if (flags & BlockTransformation::BT_XorInput)
+        // Adjust to real block size
+        const size_t blockSize = 8;
+        if (flags & BlockTransformation::BT_ReverseDirection)
         {
-            uint32x4_t x;
-            x = vsetq_lane_u32(Ptr32(xorBlocks)[0], x, 0);
-            x = vsetq_lane_u32(Ptr32(xorBlocks)[1], x, 1);
-            block = veorq_u32(block, x);
+            inIncrement += inIncrement ? blockSize : 0;
+            xorIncrement += xorIncrement ? blockSize : 0;
+            outIncrement += outIncrement ? blockSize : 0;
+            inBlocks -= inIncrement;
+            xorBlocks -= xorIncrement;
+            outBlocks -= outIncrement;
+        }
+        else
+        {
+            inIncrement -= inIncrement ? blockSize : 0;
+            xorIncrement -= xorIncrement ? blockSize : 0;
+            outIncrement -= outIncrement ? blockSize : 0;
         }
 
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-            const_cast<byte *>(inBlocks)[7]++;
-
-        func1(block, subKeys, static_cast<unsigned int>(rounds));
-
-        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+        while (length >= blockSize)
         {
-            uint32x4_t x;
-            x = vsetq_lane_u32(Ptr32(xorBlocks)[0], x, 0);
-            x = vsetq_lane_u32(Ptr32(xorBlocks)[1], x, 1);
-            block = veorq_u32(block, x);
+            uint32x4_t block;
+            block = vsetq_lane_u32(Ptr32(inBlocks)[0], block, 0);
+            block = vsetq_lane_u32(Ptr32(inBlocks)[1], block, 1);
+
+            if (flags & BlockTransformation::BT_XorInput)
+            {
+                uint32x4_t x;
+                x = vsetq_lane_u32(Ptr32(xorBlocks)[0], x, 0);
+                x = vsetq_lane_u32(Ptr32(xorBlocks)[1], x, 1);
+                block = veorq_u32(block, x);
+            }
+
+            if (flags & BlockTransformation::BT_InBlockIsCounter)
+                const_cast<byte *>(inBlocks)[7]++;
+
+            func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+            {
+                uint32x4_t x;
+                x = vsetq_lane_u32(Ptr32(xorBlocks)[0], x, 0);
+                x = vsetq_lane_u32(Ptr32(xorBlocks)[1], x, 1);
+                block = veorq_u32(block, x);
+            }
+
+            word32 t[2];
+            t[0] = vgetq_lane_u32(block, 0);
+            t[1] = vgetq_lane_u32(block, 1);
+            std::memcpy(outBlocks, t, sizeof(t));
+
+            inBlocks += inIncrement;
+            outBlocks += outIncrement;
+            xorBlocks += xorIncrement;
+            length -= blockSize;
         }
-
-        word32 t[2];
-        t[0] = vgetq_lane_u32(block, 0);
-        t[1] = vgetq_lane_u32(block, 1);
-        std::memcpy(outBlocks, t, sizeof(t));
-
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
-        length -= blockSize;
     }
 
     return length;
@@ -1411,7 +1455,7 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
     if (length)
     {
         // Adjust to real block size
-        const size_t blockSize = xmmBlockSize / 2;
+        const size_t blockSize = 8;
         if (flags & BlockTransformation::BT_ReverseDirection)
         {
             inIncrement += inIncrement ? blockSize : 0;
