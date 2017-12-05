@@ -141,15 +141,14 @@ inline const word64* Ptr64(const T* ptr)
     return reinterpret_cast<const word64*>(ptr);
 }
 
-inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
+    const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4_t zero = {0, 0, 0, 0};
-    const uint32x4x2_t t0 = vuzpq_u32(block0, zero);
+    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
     uint32x4_t x1 = t0.val[0];
     uint32x4_t y1 = t0.val[1];
 
@@ -171,18 +170,17 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t1 = vzipq_u32(x1, y1);
     block0 = t1.val[0];
-    // block1 = t1.val[1];
+    block1 = t1.val[1];
 }
 
-inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
+    const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4_t zero = {0, 0, 0, 0};
-    const uint32x4x2_t t0 = vuzpq_u32(block0, zero);
+    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
     uint32x4_t x1 = t0.val[0];
     uint32x4_t y1 = t0.val[1];
 
@@ -204,11 +202,12 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, const word32 *subkeys, unsigne
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t1 = vzipq_u32(x1, y1);
     block0 = t1.val[0];
-    // block1 = t1.val[1];
+    block1 = t1.val[1];
 }
 
-inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
-    uint32x4_t &block2, uint32x4_t &block3, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
+    uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
+    const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
@@ -223,8 +222,13 @@ inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t x2 = t1.val[0];
     uint32x4_t y2 = t1.val[1];
 
+    const uint32x4x2_t t2 = vuzpq_u32(block4, block5);
+    uint32x4_t x3 = t2.val[0];
+    uint32x4_t y3 = t2.val[1];
+
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
+    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     for (size_t i=0; static_cast<int>(i)<rounds; ++i)
     {
@@ -232,18 +236,24 @@ inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
         x1 = RotateRight32<8>(x1);
         x2 = RotateRight32<8>(x2);
+        x3 = RotateRight32<8>(x3);
         x1 = vaddq_u32(x1, y1);
         x2 = vaddq_u32(x2, y2);
+        x3 = vaddq_u32(x3, y3);
         x1 = veorq_u32(x1, rk);
         x2 = veorq_u32(x2, rk);
+        x3 = veorq_u32(x3, rk);
         y1 = RotateLeft32<3>(y1);
         y2 = RotateLeft32<3>(y2);
+        y3 = RotateLeft32<3>(y3);
         y1 = veorq_u32(y1, x1);
         y2 = veorq_u32(y2, x2);
+        y3 = veorq_u32(y3, x3);
     }
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
+    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t3 = vzipq_u32(x1, y1);
@@ -253,10 +263,15 @@ inline void SPECK64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     const uint32x4x2_t t4 = vzipq_u32(x2, y2);
     block2 = t4.val[0];
     block3 = t4.val[1];
+
+    const uint32x4x2_t t5 = vzipq_u32(x3, y3);
+    block4 = t5.val[0];
+    block5 = t5.val[1];
 }
 
-inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
-    uint32x4_t &block2, uint32x4_t &block3, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
+    uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
+    const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
@@ -271,8 +286,13 @@ inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t x2 = t1.val[0];
     uint32x4_t y2 = t1.val[1];
 
+    const uint32x4x2_t t2 = vuzpq_u32(block4, block5);
+    uint32x4_t x3 = t2.val[0];
+    uint32x4_t y3 = t2.val[1];
+
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
+    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
     {
@@ -280,18 +300,24 @@ inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
         y1 = veorq_u32(y1, x1);
         y2 = veorq_u32(y2, x2);
+        y3 = veorq_u32(y3, x3);
         y1 = RotateRight32<3>(y1);
         y2 = RotateRight32<3>(y2);
+        y3 = RotateRight32<3>(y3);
         x1 = veorq_u32(x1, rk);
         x2 = veorq_u32(x2, rk);
+        x3 = veorq_u32(x3, rk);
         x1 = vsubq_u32(x1, y1);
         x2 = vsubq_u32(x2, y2);
+        x3 = vsubq_u32(x3, y3);
         x1 = RotateLeft32<8>(x1);
         x2 = RotateLeft32<8>(x2);
+        x3 = RotateLeft32<8>(x3);
     }
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
+    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     const uint32x4x2_t t3 = vzipq_u32(x1, y1);
@@ -301,10 +327,14 @@ inline void SPECK64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     const uint32x4x2_t t4 = vzipq_u32(x2, y2);
     block2 = t4.val[0];
     block3 = t4.val[1];
+
+    const uint32x4x2_t t5 = vzipq_u32(x3, y3);
+    block4 = t5.val[0];
+    block5 = t5.val[1];
 }
 
-template <typename F1, typename F4>
-inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
+template <typename F2, typename F6>
+inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
         const word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -330,9 +360,9 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
 
     if (flags & BlockTransformation::BT_AllowParallel)
     {
-        while (length >= 4*neonBlockSize)
+        while (length >= 6*neonBlockSize)
         {
-            uint32x4_t block0, block1, block2, block3;
+            uint32x4_t block0, block1, block2, block3, block4, block5;
             block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
 
             if (flags & BlockTransformation::BT_InBlockIsCounter)
@@ -341,8 +371,10 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
                 block1 = vaddq_u32(block0, be1);
                 block2 = vaddq_u32(block1, be1);
                 block3 = vaddq_u32(block2, be1);
+                block4 = vaddq_u32(block3, be1);
+                block5 = vaddq_u32(block4, be1);
                 vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u32(vaddq_u32(block3, be1)));
+                    vreinterpretq_u8_u32(vaddq_u32(block5, be1)));
             }
             else
             {
@@ -350,7 +382,9 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
                 block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+1*inc));
                 block2 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+2*inc));
                 block3 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+3*inc));
-                inBlocks += 4*inc;
+                block4 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+4*inc));
+                block5 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+5*inc));
+                inBlocks += 6*inc;
             }
 
             if (flags & BlockTransformation::BT_XorInput)
@@ -360,10 +394,12 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
                 block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
                 block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+2*inc)));
                 block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+3*inc)));
-                xorBlocks += 4*inc;
+                block4 = veorq_u32(block4, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+4*inc)));
+                block5 = veorq_u32(block5, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+5*inc)));
+                xorBlocks += 6*inc;
             }
 
-            func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
+            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
@@ -372,7 +408,9 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
                 block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
                 block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+2*inc)));
                 block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+3*inc)));
-                xorBlocks += 4*inc;
+                block4 = veorq_u32(block4, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+4*inc)));
+                block5 = veorq_u32(block5, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+5*inc)));
+                xorBlocks += 6*inc;
             }
 
             const int inc = static_cast<int>(outIncrement);
@@ -380,9 +418,56 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
             vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u32(block1));
             vst1q_u8(outBlocks+2*inc, vreinterpretq_u8_u32(block2));
             vst1q_u8(outBlocks+3*inc, vreinterpretq_u8_u32(block3));
+            vst1q_u8(outBlocks+4*inc, vreinterpretq_u8_u32(block4));
+            vst1q_u8(outBlocks+5*inc, vreinterpretq_u8_u32(block5));
 
-            outBlocks += 4*inc;
-            length -= 4*neonBlockSize;
+            outBlocks += 6*inc;
+            length -= 6*neonBlockSize;
+        }
+
+        while (length >= 2*neonBlockSize)
+        {
+            uint32x4_t block0, block1;
+            block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
+
+            if (flags & BlockTransformation::BT_InBlockIsCounter)
+            {
+                const uint32x4_t be1 = vld1q_u32(s_one64);
+                block1 = vaddq_u32(block0, be1);
+                vst1q_u8(const_cast<byte*>(inBlocks),
+                    vreinterpretq_u8_u32(vaddq_u32(block1, be1)));
+            }
+            else
+            {
+                const int inc = static_cast<int>(inIncrement);
+                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+1*inc));
+                inBlocks += 2*inc;
+            }
+
+            if (flags & BlockTransformation::BT_XorInput)
+            {
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
+                xorBlocks += 2*inc;
+            }
+
+            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+            {
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
+                xorBlocks += 2*inc;
+            }
+
+            const int inc = static_cast<int>(outIncrement);
+            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u32(block0));
+            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u32(block1));
+
+            outBlocks += 2*inc;
+            length -= 2*neonBlockSize;
         }
     }
 
@@ -408,7 +493,7 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
 
         while (length >= blockSize)
         {
-            uint32x4_t block;
+            uint32x4_t block, zero = {0,0,0,0};
             block = vsetq_lane_u32(Ptr32(inBlocks)[0], block, 0);
             block = vsetq_lane_u32(Ptr32(inBlocks)[1], block, 1);
 
@@ -423,7 +508,7 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F1 func1, F4 func4,
             if (flags & BlockTransformation::BT_InBlockIsCounter)
                 const_cast<byte *>(inBlocks)[7]++;
 
-            func1(block, subKeys, static_cast<unsigned int>(rounds));
+            func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
@@ -536,14 +621,13 @@ inline uint64x2_t Shuffle64(const uint64x2_t& val)
 #endif
 }
 
-inline void SPECK128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsigned int rounds)
+inline void SPECK128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
+    const word64 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_t block1 = {0};
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
 
@@ -564,17 +648,16 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, const word64 *subkeys, unsign
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = UnpackLow64(x1, y1);
-    // block1 = UnpackHigh64(x1, y1);
+    block1 = UnpackHigh64(x1, y1);
 }
 
 inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
-            uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4,
-            uint64x2_t &block5, const word64 *subkeys, unsigned int rounds)
+    uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
+    const word64 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
@@ -621,14 +704,13 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     block5 = UnpackHigh64(x3, y3);
 }
 
-inline void SPECK128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsigned int rounds)
+inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
+    const word64 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_t block1 = {0};
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
 
@@ -649,17 +731,16 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, const word64 *subkeys, unsign
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = UnpackLow64(x1, y1);
-    // block1 = UnpackHigh64(x1, y1);
+    block1 = UnpackHigh64(x1, y1);
 }
 
 inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
-            uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4,
-            uint64x2_t &block5, const word64 *subkeys, unsigned int rounds)
+    uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
+    const word64 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackLow64(block0, block1);
     uint64x2_t y1 = UnpackHigh64(block0, block1);
@@ -706,8 +787,8 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     block5 = UnpackHigh64(x3, y3);
 }
 
-template <typename F1, typename F6>
-size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
+template <typename F2, typename F6>
+size_t SPECK128_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
             const word64 *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -772,7 +853,7 @@ size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
                 xorBlocks += 6*inc;
             }
 
-            func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
+            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
@@ -797,11 +878,57 @@ size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
             outBlocks += 6*inc;
             length -= 6*blockSize;
         }
+
+        while (length >= 2*blockSize)
+        {
+            uint64x2_t block0, block1;
+            block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+
+            if (flags & BlockTransformation::BT_InBlockIsCounter)
+            {
+                uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one128));
+                block1 = vaddq_u64(block0, be);
+                vst1q_u8(const_cast<byte*>(inBlocks),
+                    vreinterpretq_u8_u64(vaddq_u64(block1, be)));
+            }
+            else
+            {
+                const int inc = static_cast<int>(inIncrement);
+                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+1*inc));
+                inBlocks += 2*inc;
+            }
+
+            if (flags & BlockTransformation::BT_XorInput)
+            {
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
+                xorBlocks += 2*inc;
+            }
+
+            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
+            {
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
+                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
+                xorBlocks += 2*inc;
+            }
+
+            const int inc = static_cast<int>(outIncrement);
+            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u64(block0));
+            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u64(block1));
+
+            outBlocks += 2*inc;
+            length -= 2*blockSize;
+        }
     }
 
     while (length >= blockSize)
     {
-        uint64x2_t block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+        uint64x2_t block, zero = {0,0};
+        block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
 
         if (flags & BlockTransformation::BT_XorInput)
             block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
@@ -809,7 +936,7 @@ size_t SPECK128_AdvancedProcessBlocks_NEON(F1 func1, F6 func6,
         if (flags & BlockTransformation::BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
 
-        func1(block, subKeys, rounds);
+        func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
 
         if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
@@ -882,14 +1009,13 @@ inline __m128i RotateRight64<8>(const __m128i& val)
 
 #endif  // CRYPTOPP_AVX512_ROTATE
 
-inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
+inline void SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
+    const word64 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
 
@@ -914,7 +1040,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, const word64 *subkeys, unsigned 
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = _mm_unpacklo_epi64(x1, y1);
-    // block1 = _mm_unpackhi_epi64(x1, y1);
+    block1 = _mm_unpackhi_epi64(x1, y1);
 }
 
 inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
@@ -922,8 +1048,7 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -965,14 +1090,13 @@ inline void SPECK128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     block3 = _mm_unpackhi_epi64(x2, y2);
 }
 
-inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned int rounds)
+inline void SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
+    const word64 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    __m128i block1 = _mm_setzero_si128();
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
 
@@ -997,7 +1121,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, const word64 *subkeys, unsigned 
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
     block0 = _mm_unpacklo_epi64(x1, y1);
-    // block1 = _mm_unpackhi_epi64(x1, y1);
+    block1 = _mm_unpackhi_epi64(x1, y1);
 }
 
 inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
@@ -1005,8 +1129,7 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
+    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpacklo_epi64(block0, block1);
     __m128i y1 = _mm_unpackhi_epi64(block0, block1);
@@ -1048,8 +1171,8 @@ inline void SPECK128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     block3 = _mm_unpackhi_epi64(x2, y2);
 }
 
-template <typename F1, typename F4>
-inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F1 func1, F4 func4,
+template <typename F2, typename F4>
+inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F2 func2, F4 func4,
         const word64 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1140,7 +1263,8 @@ inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F1 func1, F4 func4,
 
     while (length >= blockSize)
     {
-        __m128i block = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+        __m128i block, zero = _mm_setzero_si128();
+        block = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
 
         if (flags & BlockTransformation::BT_XorInput)
             block = _mm_xor_si128(block, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
@@ -1148,7 +1272,7 @@ inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F1 func1, F4 func4,
         if (flags & BlockTransformation::BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
 
-        func1(block, subKeys, static_cast<unsigned int>(rounds));
+        func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
 
         if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             block = _mm_xor_si128(block, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
@@ -1198,17 +1322,16 @@ inline __m128i RotateRight32<8>(const __m128i& val)
     return _mm_shuffle_epi8(val, mask);
 }
 
-inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
+    const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations. Thanks to Peter
-    // Cordes for help with the SSE permutes below.
+    // be permuted to the following. Thanks to Peter Cordes for help with the
+	// SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const __m128i zero = _mm_setzero_si128();
     const __m128 t0 = _mm_castsi128_ps(block0);
-    const __m128 t1 = _mm_castsi128_ps(zero);
+    const __m128 t1 = _mm_castsi128_ps(block1);
     __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
     __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
@@ -1233,20 +1356,19 @@ inline void SPECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned i
     // The is roughly the SSE equivalent to ARM vzp32
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(x1, y1);
-    // block1 = _mm_unpackhigh_epi32(x1, y1);
+    block1 = _mm_unpackhi_epi32(x1, y1);
 }
 
-inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned int rounds)
+inline void SPECK64_Dec_Block(__m128i &block0, __m128i &block1,
+    const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations. Thanks to Peter
-    // Cordes for help with the SSE permutes below.
+    // be permuted to the following. Thanks to Peter Cordes for help with the
+	// SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const __m128i zero = _mm_setzero_si128();
     const __m128 t0 = _mm_castsi128_ps(block0);
-    const __m128 t1 = _mm_castsi128_ps(zero);
+    const __m128 t1 = _mm_castsi128_ps(block1);
     __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
     __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
 
@@ -1271,7 +1393,7 @@ inline void SPECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned i
     // The is roughly the SSE equivalent to ARM vzp32
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(x1, y1);
-    // block1 = _mm_unpackhigh_epi32(x1, y1);
+    block1 = _mm_unpackhi_epi32(x1, y1);
 }
 
 inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2,
@@ -1279,9 +1401,8 @@ inline void SPECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &bloc
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations. Thanks to Peter
-    // Cordes for help with the SSE permutes below.
+    // be permuted to the following. Thanks to Peter Cordes for help with the
+	// SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -1333,9 +1454,8 @@ inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &bloc
 {
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations. Thanks to Peter
-    // Cordes for help with the SSE permutes below.
+    // be permuted to the following. Thanks to Peter Cordes for help with the
+	// SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -1382,8 +1502,8 @@ inline void SPECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &bloc
     block3 = _mm_unpackhi_epi32(x2, y2);
 }
 
-template <typename F1, typename F4>
-inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
+template <typename F2, typename F4>
+inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F2 func2, F4 func4,
         const word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1498,7 +1618,8 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
         {
             // temp[] is an aligned array
             std::memcpy(temp, inBlocks, 8);
-            __m128i block = _mm_load_si128(CONST_M128_CAST(temp));
+            __m128i block, zero = _mm_setzero_si128();
+            block = _mm_load_si128(CONST_M128_CAST(temp));
 
             if (flags & BlockTransformation::BT_XorInput)
             {
@@ -1509,7 +1630,7 @@ inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
             if (flags & BlockTransformation::BT_InBlockIsCounter)
                 const_cast<byte *>(inBlocks)[7]++;
 
-            func1(block, subKeys, static_cast<unsigned int>(rounds));
+            func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
@@ -1544,14 +1665,14 @@ NAMESPACE_BEGIN(CryptoPP)
 size_t SPECK64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Enc_Block, SPECK64_Enc_4_Blocks,
+    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Dec_Block, SPECK64_Dec_4_Blocks,
+    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif
