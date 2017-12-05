@@ -13,12 +13,6 @@
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
-// Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
-// 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
-#if (defined(__aarch32__) || defined(__aarch64__)) && defined(CRYPTOPP_SLOW_ARMV8_SHIFT)
-# undef CRYPTOPP_ARM_NEON_AVAILABLE
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
