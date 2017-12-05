@@ -268,6 +268,10 @@ inline void SIMON64_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     const uint32x4x2_t t3 = vzipq_u32(x1, y1);
     block0 = t3.val[0];
     block1 = t3.val[1];
+
+    const uint32x4x2_t t4 = vzipq_u32(x2, y2);
+    block2 = t4.val[0];
+    block3 = t4.val[1];
 }
 
 inline void SIMON64_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
