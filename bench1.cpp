@@ -607,6 +607,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
 		BenchMarkByName<SymmetricCipher>("SKIPJACK/CTR");
 		BenchMarkByName<SymmetricCipher>("SEED/CTR", 0, "SEED/CTR (1/2 K table)");
+		BenchMarkByName<SymmetricCipher>("SM4/CTR");
 
 		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 16, "Kalyna-128(128)/CTR (128-bit key)", MakeParameters(Name::BlockSize(), 16));
 		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 32, "Kalyna-128(256)/CTR (256-bit key)", MakeParameters(Name::BlockSize(), 16));
@@ -625,8 +626,6 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 16, "SPECK-128(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 24, "SPECK-128(192)/CTR (192-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 32, "SPECK-128(256)/CTR (256-bit key)");
-
-		BenchMarkByName<SymmetricCipher>("SM4/CTR");
 	}
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
