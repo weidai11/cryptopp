@@ -86,7 +86,7 @@ inline uint32x4_t RotateRight32(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
 {
-    const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
+    const uint8_t maskb[16] = { 14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3 };
     const uint8x16_t mask = vld1q_u8(maskb);
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
@@ -96,7 +96,7 @@ inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
 {
-    const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
+    const uint8_t maskb[16] = { 12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1 };
     const uint8x16_t mask = vld1q_u8(maskb);
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
@@ -1459,7 +1459,6 @@ inline void SIMON64_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &bloc
     block3 = _mm_unpackhi_epi32(x2, y2);
 }
 
-
 template <typename F1, typename F4>
 inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
         const word32 *subKeys, size_t rounds, const byte *inBlocks,
@@ -1555,7 +1554,7 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F1 func1, F4 func4,
     if (length)
     {
         // Adjust to real block size
-        const size_t blockSize = xmmBlockSize / 2;
+        const size_t blockSize = 8;
         if (flags & BlockTransformation::BT_ReverseDirection)
         {
             inIncrement += inIncrement ? blockSize : 0;

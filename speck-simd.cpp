@@ -84,7 +84,7 @@ inline uint32x4_t RotateRight32(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
 {
-    const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
+    const uint8_t maskb[16] = { 14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3 };
     const uint8x16_t mask = vld1q_u8(maskb);
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
@@ -94,7 +94,7 @@ inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
 {
-    const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
+    const uint8_t maskb[16] = { 12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1 };
     const uint8x16_t mask = vld1q_u8(maskb);
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
