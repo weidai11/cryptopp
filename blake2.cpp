@@ -79,56 +79,56 @@ const byte BLAKE2B_SIGMA[12][16] = {
     { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-template <unsigned int rnd, unsigned int idx>
-inline void BLAKE2B_G(word64 m[], word64& a, word64& b, word64& c, word64& d)
+template <unsigned int R, unsigned int N>
+inline void BLAKE2B_G(const word64 m[16], word64& a, word64& b, word64& c, word64& d)
 {
-    a = a + b + m[BLAKE2B_SIGMA[rnd][2*idx+0]];
+    a = a + b + m[BLAKE2B_SIGMA[R][2*N+0]];
     d = rotrConstant<32>(d ^ a);
     c = c + d;
     b = rotrConstant<24>(b ^ c);
-    a = a + b + m[BLAKE2B_SIGMA[rnd][2*idx+1]];
+    a = a + b + m[BLAKE2B_SIGMA[R][2*N+1]];
     d = rotrConstant<16>(d ^ a);
     c = c + d;
     b = rotrConstant<63>(b ^ c);
 }
 
-template <unsigned int rnd>
-inline void BLAKE2B_ROUND(word64 m[], word64 v[])
+template <unsigned int R>
+inline void BLAKE2B_ROUND(const word64 m[16], word64 v[16])
 {
-    BLAKE2B_G<rnd,0>(m,v[ 0],v[ 4],v[ 8],v[12]);
-    BLAKE2B_G<rnd,1>(m,v[ 1],v[ 5],v[ 9],v[13]);
-    BLAKE2B_G<rnd,2>(m,v[ 2],v[ 6],v[10],v[14]);
-    BLAKE2B_G<rnd,3>(m,v[ 3],v[ 7],v[11],v[15]);
-    BLAKE2B_G<rnd,4>(m,v[ 0],v[ 5],v[10],v[15]);
-    BLAKE2B_G<rnd,5>(m,v[ 1],v[ 6],v[11],v[12]);
-    BLAKE2B_G<rnd,6>(m,v[ 2],v[ 7],v[ 8],v[13]);
-    BLAKE2B_G<rnd,7>(m,v[ 3],v[ 4],v[ 9],v[14]);
+    BLAKE2B_G<R,0>(m,v[ 0],v[ 4],v[ 8],v[12]);
+    BLAKE2B_G<R,1>(m,v[ 1],v[ 5],v[ 9],v[13]);
+    BLAKE2B_G<R,2>(m,v[ 2],v[ 6],v[10],v[14]);
+    BLAKE2B_G<R,3>(m,v[ 3],v[ 7],v[11],v[15]);
+    BLAKE2B_G<R,4>(m,v[ 0],v[ 5],v[10],v[15]);
+    BLAKE2B_G<R,5>(m,v[ 1],v[ 6],v[11],v[12]);
+    BLAKE2B_G<R,6>(m,v[ 2],v[ 7],v[ 8],v[13]);
+    BLAKE2B_G<R,7>(m,v[ 3],v[ 4],v[ 9],v[14]);
 }
 
-template <unsigned int rnd, unsigned int idx>
-inline void BLAKE2S_G(word32 m[], word32& a, word32& b, word32& c, word32& d)
+template <unsigned int R, unsigned int N>
+inline void BLAKE2S_G(const word32 m[16], word32& a, word32& b, word32& c, word32& d)
 {
-    a = a + b + m[BLAKE2S_SIGMA[rnd][2*idx+0]];
+    a = a + b + m[BLAKE2S_SIGMA[R][2*N+0]];
     d = rotrConstant<16>(d ^ a);
     c = c + d;
     b = rotrConstant<12>(b ^ c);
-    a = a + b + m[BLAKE2S_SIGMA[rnd][2*idx+1]];
+    a = a + b + m[BLAKE2S_SIGMA[R][2*N+1]];
     d = rotrConstant<8>(d ^ a);
     c = c + d;
     b = rotrConstant<7>(b ^ c);
 }
 
-template <unsigned int rnd>
-inline void BLAKE2S_ROUND(word32 m[], word32 v[])
+template <unsigned int R>
+inline void BLAKE2S_ROUND(const word32 m[16], word32 v[])
 {
-    BLAKE2S_G<rnd,0>(m,v[ 0],v[ 4],v[ 8],v[12]);
-    BLAKE2S_G<rnd,1>(m,v[ 1],v[ 5],v[ 9],v[13]);
-    BLAKE2S_G<rnd,2>(m,v[ 2],v[ 6],v[10],v[14]);
-    BLAKE2S_G<rnd,3>(m,v[ 3],v[ 7],v[11],v[15]);
-    BLAKE2S_G<rnd,4>(m,v[ 0],v[ 5],v[10],v[15]);
-    BLAKE2S_G<rnd,5>(m,v[ 1],v[ 6],v[11],v[12]);
-    BLAKE2S_G<rnd,6>(m,v[ 2],v[ 7],v[ 8],v[13]);
-    BLAKE2S_G<rnd,7>(m,v[ 3],v[ 4],v[ 9],v[14]);
+    BLAKE2S_G<R,0>(m,v[ 0],v[ 4],v[ 8],v[12]);
+    BLAKE2S_G<R,1>(m,v[ 1],v[ 5],v[ 9],v[13]);
+    BLAKE2S_G<R,2>(m,v[ 2],v[ 6],v[10],v[14]);
+    BLAKE2S_G<R,3>(m,v[ 3],v[ 7],v[11],v[15]);
+    BLAKE2S_G<R,4>(m,v[ 0],v[ 5],v[10],v[15]);
+    BLAKE2S_G<R,5>(m,v[ 1],v[ 6],v[11],v[12]);
+    BLAKE2S_G<R,6>(m,v[ 2],v[ 7],v[ 8],v[13]);
+    BLAKE2S_G<R,7>(m,v[ 3],v[ 4],v[ 9],v[14]);
 }
 
 ANONYMOUS_NAMESPACE_END
