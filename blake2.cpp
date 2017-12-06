@@ -10,8 +10,6 @@
 #include "blake2.h"
 #include "cpu.h"
 
-NAMESPACE_BEGIN(CryptoPP)
-
 // Uncomment for benchmarking C++ against SSE2 or NEON.
 // Do so in both blake2.cpp and blake2-simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
@@ -23,20 +21,12 @@ NAMESPACE_BEGIN(CryptoPP)
 # undef CRYPTOPP_ARM_NEON_AVAILABLE
 #endif
 
-void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state);
-void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
-
-#if CRYPTOPP_SSE41_AVAILABLE
-extern void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& state);
-extern void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state);
-#endif
-
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state);
-extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state);
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
+
+using CryptoPP::byte;
+using CryptoPP::word32;
+using CryptoPP::word64;
+using CryptoPP::rotrConstant;
 
 template <class W, bool T_64bit>
 struct BLAKE2_IV
@@ -89,34 +79,74 @@ const byte BLAKE2B_SIGMA[12][16] = {
     { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 }
 };
 
-typedef void (*pfnCompress32)(const byte*, BLAKE2_State<word32, false>&);
-typedef void (*pfnCompress64)(const byte*, BLAKE2_State<word64, true>&);
-
-pfnCompress64 InitializeCompress64Fn()
+template <unsigned int rnd, unsigned int idx>
+inline void BLAKE2B_G(word64 m[], word64& a, word64& b, word64& c, word64& d)
 {
-	return
-#if CRYPTOPP_SSE41_AVAILABLE
-		HasSSE41() ? &BLAKE2_Compress64_SSE4 :
-#endif
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-		HasNEON() ? &BLAKE2_Compress64_NEON :
-#endif
-		&BLAKE2_Compress64_CXX;
+    a = a + b + m[BLAKE2B_SIGMA[rnd][2*idx+0]];
+    d = rotrConstant<32>(d ^ a);
+    c = c + d;
+    b = rotrConstant<24>(b ^ c);
+    a = a + b + m[BLAKE2B_SIGMA[rnd][2*idx+1]];
+    d = rotrConstant<16>(d ^ a);
+    c = c + d;
+    b = rotrConstant<63>(b ^ c);
 }
 
-pfnCompress32 InitializeCompress32Fn()
+template <unsigned int rnd>
+inline void BLAKE2B_ROUND(word64 m[], word64 v[])
 {
-	return
-#if CRYPTOPP_SSE41_AVAILABLE
-		HasSSE41() ? &BLAKE2_Compress32_SSE4 :
-#endif
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-		HasNEON() ? &BLAKE2_Compress32_NEON :
-#endif
-		&BLAKE2_Compress32_CXX;
+    BLAKE2B_G<rnd,0>(m,v[ 0],v[ 4],v[ 8],v[12]);
+    BLAKE2B_G<rnd,1>(m,v[ 1],v[ 5],v[ 9],v[13]);
+    BLAKE2B_G<rnd,2>(m,v[ 2],v[ 6],v[10],v[14]);
+    BLAKE2B_G<rnd,3>(m,v[ 3],v[ 7],v[11],v[15]);
+    BLAKE2B_G<rnd,4>(m,v[ 0],v[ 5],v[10],v[15]);
+    BLAKE2B_G<rnd,5>(m,v[ 1],v[ 6],v[11],v[12]);
+    BLAKE2B_G<rnd,6>(m,v[ 2],v[ 7],v[ 8],v[13]);
+    BLAKE2B_G<rnd,7>(m,v[ 3],v[ 4],v[ 9],v[14]);
+}
+
+template <unsigned int rnd, unsigned int idx>
+inline void BLAKE2S_G(word32 m[], word32& a, word32& b, word32& c, word32& d)
+{
+    a = a + b + m[BLAKE2S_SIGMA[rnd][2*idx+0]];
+    d = rotrConstant<16>(d ^ a);
+    c = c + d;
+    b = rotrConstant<12>(b ^ c);
+    a = a + b + m[BLAKE2S_SIGMA[rnd][2*idx+1]];
+    d = rotrConstant<8>(d ^ a);
+    c = c + d;
+    b = rotrConstant<7>(b ^ c);
+}
+
+template <unsigned int rnd>
+inline void BLAKE2S_ROUND(word32 m[], word32 v[])
+{
+    BLAKE2S_G<rnd,0>(m,v[ 0],v[ 4],v[ 8],v[12]);
+    BLAKE2S_G<rnd,1>(m,v[ 1],v[ 5],v[ 9],v[13]);
+    BLAKE2S_G<rnd,2>(m,v[ 2],v[ 6],v[10],v[14]);
+    BLAKE2S_G<rnd,3>(m,v[ 3],v[ 7],v[11],v[15]);
+    BLAKE2S_G<rnd,4>(m,v[ 0],v[ 5],v[10],v[15]);
+    BLAKE2S_G<rnd,5>(m,v[ 1],v[ 6],v[11],v[12]);
+    BLAKE2S_G<rnd,6>(m,v[ 2],v[ 7],v[ 8],v[13]);
+    BLAKE2S_G<rnd,7>(m,v[ 3],v[ 4],v[ 9],v[14]);
 }
 
 ANONYMOUS_NAMESPACE_END
+
+NAMESPACE_BEGIN(CryptoPP)
+
+void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state);
+void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state);
+
+#if CRYPTOPP_SSE41_AVAILABLE
+extern void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& state);
+extern void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state);
+#endif
+
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state);
+extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state);
+#endif
 
 BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyLen,
         const byte* saltStr, size_t saltLen,
@@ -399,48 +429,41 @@ void BLAKE2_Base<W, T_64bit>::IncrementCounter(size_t count)
 template <>
 void BLAKE2_Base<word64, true>::Compress(const byte *input)
 {
-    // Selects the most advanced implementation at runtime
-    static const pfnCompress64 s_pfn = InitializeCompress64Fn();
-    s_pfn(input, *m_state.data());
+#if CRYPTOPP_SSE41_AVAILABLE
+    if(HasSSE41())
+    {
+        return BLAKE2_Compress64_SSE4(input, *m_state.data());
+    }
+#endif
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+    if(HasNEON())
+    {
+        return BLAKE2_Compress64_NEON(input, *m_state.data());
+    }
+#endif
+    return BLAKE2_Compress64_CXX(input, *m_state.data());
 }
 
 template <>
 void BLAKE2_Base<word32, false>::Compress(const byte *input)
 {
-    // Selects the most advanced implementation at runtime
-    static const pfnCompress32 s_pfn = InitializeCompress32Fn();
-    s_pfn(input, *m_state.data());
+#if CRYPTOPP_SSE41_AVAILABLE
+    if(HasSSE41())
+    {
+        return BLAKE2_Compress32_SSE4(input, *m_state.data());
+    }
+#endif
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+    if(HasNEON())
+    {
+        return BLAKE2_Compress32_NEON(input, *m_state.data());
+    }
+#endif
+    return BLAKE2_Compress32_CXX(input, *m_state.data());
 }
 
 void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state)
 {
-    #undef BLAKE2_G
-    #undef BLAKE2_ROUND
-
-    #define BLAKE2_G(r,i,a,b,c,d) \
-      do { \
-        a = a + b + m[BLAKE2B_SIGMA[r][2*i+0]]; \
-        d = rotrVariable<word64>(d ^ a, 32); \
-        c = c + d; \
-        b = rotrVariable<word64>(b ^ c, 24); \
-        a = a + b + m[BLAKE2B_SIGMA[r][2*i+1]]; \
-        d = rotrVariable<word64>(d ^ a, 16); \
-        c = c + d; \
-        b = rotrVariable<word64>(b ^ c, 63); \
-      } while(0)
-
-    #define BLAKE2_ROUND(r)  \
-      do { \
-        BLAKE2_G(r,0,v[ 0],v[ 4],v[ 8],v[12]); \
-        BLAKE2_G(r,1,v[ 1],v[ 5],v[ 9],v[13]); \
-        BLAKE2_G(r,2,v[ 2],v[ 6],v[10],v[14]); \
-        BLAKE2_G(r,3,v[ 3],v[ 7],v[11],v[15]); \
-        BLAKE2_G(r,4,v[ 0],v[ 5],v[10],v[15]); \
-        BLAKE2_G(r,5,v[ 1],v[ 6],v[11],v[12]); \
-        BLAKE2_G(r,6,v[ 2],v[ 7],v[ 8],v[13]); \
-        BLAKE2_G(r,7,v[ 3],v[ 4],v[ 9],v[14]); \
-      } while(0)
-
     word64 m[16], v[16];
 
     GetBlock<word64, LittleEndian, true> get1(input);
@@ -459,18 +482,18 @@ void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state)
     v[14] = state.f[0] ^ iv[6];
     v[15] = state.f[1] ^ iv[7];
 
-    BLAKE2_ROUND(0);
-    BLAKE2_ROUND(1);
-    BLAKE2_ROUND(2);
-    BLAKE2_ROUND(3);
-    BLAKE2_ROUND(4);
-    BLAKE2_ROUND(5);
-    BLAKE2_ROUND(6);
-    BLAKE2_ROUND(7);
-    BLAKE2_ROUND(8);
-    BLAKE2_ROUND(9);
-    BLAKE2_ROUND(10);
-    BLAKE2_ROUND(11);
+    BLAKE2B_ROUND<0>(m, v);
+    BLAKE2B_ROUND<1>(m, v);
+    BLAKE2B_ROUND<2>(m, v);
+    BLAKE2B_ROUND<3>(m, v);
+    BLAKE2B_ROUND<4>(m, v);
+    BLAKE2B_ROUND<5>(m, v);
+    BLAKE2B_ROUND<6>(m, v);
+    BLAKE2B_ROUND<7>(m, v);
+    BLAKE2B_ROUND<8>(m, v);
+    BLAKE2B_ROUND<9>(m, v);
+    BLAKE2B_ROUND<10>(m, v);
+    BLAKE2B_ROUND<11>(m, v);
 
     for(unsigned int i = 0; i < 8; ++i)
         state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
@@ -478,33 +501,6 @@ void BLAKE2_Compress64_CXX(const byte* input, BLAKE2_State<word64, true>& state)
 
 void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state)
 {
-    #undef BLAKE2_G
-    #undef BLAKE2_ROUND
-
-    #define BLAKE2_G(r,i,a,b,c,d) \
-      do { \
-        a = a + b + m[BLAKE2S_SIGMA[r][2*i+0]]; \
-        d = rotrVariable<word32>(d ^ a, 16); \
-        c = c + d; \
-        b = rotrVariable<word32>(b ^ c, 12); \
-        a = a + b + m[BLAKE2S_SIGMA[r][2*i+1]]; \
-        d = rotrVariable<word32>(d ^ a, 8); \
-        c = c + d; \
-        b = rotrVariable<word32>(b ^ c, 7); \
-      } while(0)
-
-    #define BLAKE2_ROUND(r)  \
-      do { \
-        BLAKE2_G(r,0,v[ 0],v[ 4],v[ 8],v[12]); \
-        BLAKE2_G(r,1,v[ 1],v[ 5],v[ 9],v[13]); \
-        BLAKE2_G(r,2,v[ 2],v[ 6],v[10],v[14]); \
-        BLAKE2_G(r,3,v[ 3],v[ 7],v[11],v[15]); \
-        BLAKE2_G(r,4,v[ 0],v[ 5],v[10],v[15]); \
-        BLAKE2_G(r,5,v[ 1],v[ 6],v[11],v[12]); \
-        BLAKE2_G(r,6,v[ 2],v[ 7],v[ 8],v[13]); \
-        BLAKE2_G(r,7,v[ 3],v[ 4],v[ 9],v[14]); \
-      } while(0)
-
     word32 m[16], v[16];
 
     GetBlock<word32, LittleEndian, true> get1(input);
@@ -523,16 +519,16 @@ void BLAKE2_Compress32_CXX(const byte* input, BLAKE2_State<word32, false>& state
     v[14] = state.f[0] ^ iv[6];
     v[15] = state.f[1] ^ iv[7];
 
-    BLAKE2_ROUND(0);
-    BLAKE2_ROUND(1);
-    BLAKE2_ROUND(2);
-    BLAKE2_ROUND(3);
-    BLAKE2_ROUND(4);
-    BLAKE2_ROUND(5);
-    BLAKE2_ROUND(6);
-    BLAKE2_ROUND(7);
-    BLAKE2_ROUND(8);
-    BLAKE2_ROUND(9);
+    BLAKE2S_ROUND<0>(m, v);
+    BLAKE2S_ROUND<1>(m, v);
+    BLAKE2S_ROUND<2>(m, v);
+    BLAKE2S_ROUND<3>(m, v);
+    BLAKE2S_ROUND<4>(m, v);
+    BLAKE2S_ROUND<5>(m, v);
+    BLAKE2S_ROUND<6>(m, v);
+    BLAKE2S_ROUND<7>(m, v);
+    BLAKE2S_ROUND<8>(m, v);
+    BLAKE2S_ROUND<9>(m, v);
 
     for(unsigned int i = 0; i < 8; ++i)
         state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
