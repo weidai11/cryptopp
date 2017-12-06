@@ -1422,7 +1422,7 @@ inline void SIMON64_Enc_Block(__m128i &block0, __m128i &block1,
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
-	// SSE permutes below.
+    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -1464,7 +1464,7 @@ inline void SIMON64_Dec_Block(__m128i &block0, __m128i &block1,
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
-	// SSE permutes below.
+    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -1507,7 +1507,7 @@ inline void SIMON64_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &bloc
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
-	// SSE permutes below.
+    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -1563,7 +1563,7 @@ inline void SIMON64_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &bloc
     // Rearrange the data for vectorization. The incoming data was read from
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
-	// SSE permutes below.
+    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -1629,7 +1629,6 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F2 func2, F4 func4,
     size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
     size_t xorIncrement = xorBlocks ? xmmBlockSize : 0;
     size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
-    CRYPTOPP_ALIGN_DATA(16) word32 temp[4];
 
     if (flags & BlockTransformation::BT_ReverseDirection)
     {
@@ -1728,15 +1727,14 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F2 func2, F4 func4,
 
         while (length >= blockSize)
         {
-            // temp[] is an aligned array
-            std::memcpy(temp, inBlocks, 8);
             __m128i block, zero = _mm_setzero_si128();
-            block = _mm_load_si128(CONST_M128_CAST(temp));
+            block = _mm_xor_si128(block, _mm_castpd_si128(
+                _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
 
             if (flags & BlockTransformation::BT_XorInput)
             {
-                std::memcpy(temp, xorBlocks, 8);
-                block = _mm_xor_si128(block, _mm_load_si128(CONST_M128_CAST(temp)));
+                block = _mm_xor_si128(block, _mm_castpd_si128(
+                    _mm_loaddup_pd(reinterpret_cast<const double*>(xorBlocks))));
             }
 
             if (flags & BlockTransformation::BT_InBlockIsCounter)
@@ -1746,12 +1744,12 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F2 func2, F4 func4,
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
-                std::memcpy(temp, xorBlocks, 8);
-                block = _mm_xor_si128(block, _mm_load_si128(CONST_M128_CAST(temp)));
+                block = _mm_xor_si128(block, _mm_castpd_si128(
+                    _mm_loaddup_pd(reinterpret_cast<const double*>(xorBlocks))));
             }
 
-            _mm_store_si128(M128_CAST(temp), block);
-            std::memcpy(outBlocks, temp, 8);
+            const word64 temp = _mm_cvtsi128_si64x(block);
+            std::memcpy(outBlocks, &temp, 8);
 
             inBlocks += inIncrement;
             outBlocks += outIncrement;
