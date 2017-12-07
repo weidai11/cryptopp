@@ -151,25 +151,25 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish256> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish512> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish512> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish1024> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish1024> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish1024> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish1024> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish256> >();  // Benchmarks
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish512> >();  // Benchmarks
-	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish1024> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Threefish1024> >(); // Benchmarks
 
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMON64> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SIMON64> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMON128> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SIMON128> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMON128> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SIMON128> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMON64> >();  // Benchmarks
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMON128> >();  // Benchmarks
 
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SPECK64> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK64> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SPECK128> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK128> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SPECK128> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK128> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK64> >();  // Benchmarks
-	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK128> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK128> >(); // Benchmarks
 
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SM4> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SM4> >();  // Test Vectors

@@ -1007,7 +1007,9 @@ size_t SIMON128_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
 #if defined(CRYPTOPP_SSSE3_AVAILABLE)
 
 CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one64[] = {0, 1<<24, 0, 1<<24};
+const word32 s_one64_1b[] = {0, 0, 0, 1<<24};      // Only second 8-byte block is incremented after loading
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_one64_2b[] = {0, 2<<24, 0, 2<<24};  // Routine step. Both 8-byte block are incremented
 
 CRYPTOPP_ALIGN_DATA(16)
 const word32 s_one128[] = {0, 0, 0, 1<<24};
@@ -1760,22 +1762,40 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F2 func2, F6 func6,
 
     if (flags & BlockTransformation::BT_AllowParallel)
     {
+        // Load these magic value once. Analysis claims be1 and be2
+        // may be uninitialized, but they are when the block is a ctr.
+        __m128i be1, be2;
+        if (flags & BlockTransformation::BT_InBlockIsCounter)
+        {
+            be1 = *CONST_M128_CAST(s_one64_1b);
+            be2 = *CONST_M128_CAST(s_one64_2b);
+        }
+
         while (length >= 6*xmmBlockSize)
         {
             __m128i block0, block1, block2, block3, block4, block5;
-            block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
-                const __m128i be1 = *CONST_M128_CAST(s_one64);
-                block1 = _mm_add_epi32(block0, be1);
-                block2 = _mm_add_epi32(block1, be1);
-                block3 = _mm_add_epi32(block2, be1);
-                block4 = _mm_add_epi32(block3, be1);
-                block5 = _mm_add_epi32(block4, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block5, be1));
+                // For 64-bit block ciphers we need to load the initial single CTR block.
+                // After the dup load we have two counters in the XMM word. Then we need
+                // to increment the low ctr by 0 and the high ctr by 1.
+                block0 = _mm_add_epi32(be1, _mm_castpd_si128(
+                    _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
+
+                // After initial increment both counters increment by 1.
+                block1 = _mm_add_epi32(be2, block0);
+                block2 = _mm_add_epi32(be2, block1);
+                block3 = _mm_add_epi32(be2, block2);
+                block4 = _mm_add_epi32(be2, block3);
+                block5 = _mm_add_epi32(be2, block4);
+
+                // Store the next counter.
+                _mm_store_sd(reinterpret_cast<double*>(const_cast<byte*>(inBlocks)),
+                    _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
             }
             else
             {
+                block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
                 inBlocks += inIncrement;
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
                 inBlocks += inIncrement;
@@ -1843,15 +1863,25 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F2 func2, F6 func6,
 
         while (length >= 2*xmmBlockSize)
         {
-            __m128i block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks)), block1;
+            __m128i block0, block1;
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
-                const __m128i be1 = *CONST_M128_CAST(s_one64);
-                block1 = _mm_add_epi32(block0, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block1, be1));
+                // For 64-bit block ciphers we need to load the initial single CTR block.
+                // After the dup load we have two counters in the XMM word. Then we need
+                // to increment the low ctr by 0 and the high ctr by 1.
+                block0 = _mm_add_epi32(be1, _mm_castpd_si128(
+                    _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
+
+                // After initial increment both counters increment by 1.
+                block1 = _mm_add_epi32(be2, block0);
+
+                // Store the next counter.
+                _mm_store_sd(reinterpret_cast<double*>(const_cast<byte*>(inBlocks)),
+                    _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
             }
             else
             {
+                block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
                 inBlocks += inIncrement;
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
                 inBlocks += inIncrement;
@@ -1929,7 +1959,7 @@ inline size_t SIMON64_AdvancedProcessBlocks_SSE41(F2 func2, F6 func6,
                     _mm_load_sd(reinterpret_cast<const double*>(xorBlocks))));
             }
 
-			_mm_store_sd(reinterpret_cast<double*>(outBlocks), _mm_castsi128_pd(block));
+            _mm_store_sd(reinterpret_cast<double*>(outBlocks), _mm_castsi128_pd(block));
 
             inBlocks += inIncrement;
             outBlocks += outIncrement;

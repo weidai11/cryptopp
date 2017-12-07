@@ -229,6 +229,233 @@ Ciphertext: 3dc606b9 14a34c06 d9f25320 92d06278 fa6f4a70 13065734 15d9143f be0ef
 Test: Encrypt
 
 AlgorithmType: SymmetricCipher
+Name: SIMON-64/CTR
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 066053e8 76ece34e 9126f0c7
+IV: 1ac29087 424ae16e
+Plaintext: 836f08de d972ce87 14047c34 47f942c7 613a3fb6 ce2bed34 66c56254 6043dd17 \
+           62ac0f67 05558b01 b06bfefb ef1a6c9c 0ad1fa80 ed858c92 5af47c95 08e0c5f2 \
+           86ecc321 fcd3d2dd d1925b3c c9319772 005114d6 c0c625c2 e101d7fc 3a6f27fe \
+           a643f5d0 b751a1d3 1d6b5347 d1b5f8e5 fffe7477 d50d31e2 6aa83ee7 6e55b69b
+Ciphertext: 89b64cb8 4760d216 77ff5f63 c9fb1244 96da7989 79480b69 efb9eaa2 80fbed07 \
+            306d9945 51e6dd75 c9e1d294 ce99bbe6 0181fd49 aaf50168 c74ca188 c9b90ed0 \
+            82003084 9442a282 ca2c0269 54015cb0 71f8f510 1c195120 4e7ede94 b54f5d3b \
+            d0681548 73339cec 5368e3f6 1d3bcedf 38495bde cfcdb35f 1326fc04 89275180
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: bb980229 ebd3ba64 44215cae
+IV: af8bbc11 54b28bcd
+Plaintext: 6467ab0d b7623968 dac5e270 7c87e009 5676773f 07671013 2abdeaed 28acd5f2 \
+           00a49802 bdc516e5 ebd0b880 76253f8c 82a474c1 26da4fc2 54d3c176 702bb711 \
+           7c4a5d89 bbf7aa12 854e42c6 3585a1da d6f019b1 d46bfaee d457a4f0 63ba71b5 \
+           c165f1e8 046d1dda 1786d6b0 1a24d33a 5e590a1c 3a5b70f9 cd666607 80ded5ff
+Ciphertext: 97b4db28 944579f2 e8899698 dd60fcc0 86dd327b 91a13bee 5a5789ea 7b6ea3ce \
+            16b43ac5 f9608c22 b61cefd0 cc7ce18d bc8cc34c f93990c5 357a4c1c f168d637 \
+            aa0df39c ced8f87a 7a33661b 10431fa6 29cf947e b808bf26 8170f1a2 a9dc5f3a \
+            159c0481 f4e911a0 68063f72 377438b8 ebc06c68 52c8743d 7444c622 95f24426
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: a1398395 3d759cd0 4dec3172
+IV: c221c6c6 51d3d677
+Plaintext: 64f51624 3d85dda1 0fad6dd7 7b2cb092 99670609 bb994060 41e72571 cd5fd412 \
+           18558e1b 6b19064f 2ea6ecd0 0d9efda5 be06f844 d191e1d0 6178be85 8cfda8c0 \
+           35620ed0 8c3023a1 bd775278 e735c94a 73043354 d38f3652 a69db1cd 3697d649 \
+           16788962 c68f3b31 effe0542 51d12c66 4a1dd81b 2ae23513 45ba247b eecedca7
+Ciphertext: b64ca306 8074ba6d 12233afa a0d8b398 7a5c77ae ab14ef33 65057733 788a8d9b \
+            ae799565 8ba948ba 8d0b4a44 9f81b022 b9a07d9c 2f0d31b6 3a8cc339 0aa58299 \
+            82ce8cdc 6f5f07be 601fe84e 79fab70a fa82483c a9678094 fe38fe60 d22d74c3 \
+            83cef44c d8c95eaf 9d391ca5 eb8f3752 6b2048c8 9b88eaa2 4ef8d0a5 60b7f8a2
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 5210201b 6e1e95ed fe77dc45
+IV: 6c135049 5e4ce9d4
+Plaintext: 3b15ac81 91147797 495ae33d 3e25c0a3 27c20cf4 2dbe3443 f7e2035e 08118103 \
+           42c8fe01 e149bd0b 62d9f1a1 577175bd 529af04e 59dc353d cbf5b2e3 bc7d2401 \
+           727ff707 bb58ac74 f31c50ec b101b9b6 fb0d5a32 53fab5cd a1694a1a 3c0684d4 \
+           9a825c1b 6d7c0ece 6d9600ed 03eeebf7 3c907717 8ee0fea7 66da8ab1 f607f39e
+Ciphertext: e181dd0e 91c4e950 2afd3c6c 3107bac2 e3962dc3 435009cc 574f3d7c f8928e4e \
+            575c5df2 bcf16bf5 21bf7e06 8714cba0 6967b061 8ba0aafe fb6d3f5d cab617fd \
+            8d5f7a20 4125cd88 119f9255 f7907546 f3f82282 2dc46719 5956c238 8075fb7b \
+            98ac525d 078d5168 ecb8638b 35003fe7 3d33ddbf 79b3e781 547f6c30 f644661b
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 9ac69443 6639b7fb 4b465ab6
+IV: 50aa2f90 b8201b8a
+Plaintext: 5d7e580b 84b8b085 a73ae4ed a6191cea 367a80c3 22f0c968 3e32dbb5 686d9c83 \
+           0fd1f42a a2c78682 5ad71041 30127766 47b8691f 8e48a7f7 fadd7ae4 dd3596e3 \
+           b5adbd47 4a2a0efd defef79f a1cc1c45 b41eb822 30aa5522 714190c9 8c2c20da \
+           b072d557 13b0eb82 ce48ce95 f948fb18 c34a9d54 7c04b874 89105230 1ba3675b
+Ciphertext: b0463ba2 8e4a2f88 99fbe7d2 8af60ddd 3ad4b9c5 fa0a6273 abf37c36 ec1de5a7 \
+            31937793 aa85679d c47724b2 5953006e ffbe7fd2 77012eec 8618b4a7 b590178d \
+            b9304902 88688d0b d9d1b816 aec6a091 022dc7d6 3409e0f6 b47fa888 5d3eb85f \
+            b58d8005 3537b60b 9ba4035e df4c0f98 a531ae11 a8d9a458 309cbdc3 d71eb25c
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 479fae05 f039e1f5 1a44be21
+IV: 7c695d29 867c571f
+Plaintext: b631e16f dfeecb7e bda6d104 45d26d9f b57f0050 c9fa2703 913297e5 eb0d99b7 \
+           ea0ec44d 6b4173be 1d9a6be1 5214d3b9 5bc2b06d 559d3ab7 79dea3fc 6a04a63c \
+           fa161ad6 82b3d0f5 51edd5c4 cfe4bf0b 05d7fb25 0662fb06 98e6cbaf fb76c45b \
+           f9d39424 4a712447 98d1766c 4cacdda6 67b962a4 91af5881 a2e623d6 c608ad0d
+Ciphertext: fb3c288e 18670e61 9d3a8c19 ac6ba944 001d0844 431133aa 1404e8e8 532e2419 \
+            100e3c21 308d59e5 15d02d56 03fd0eed 0a92d46f 257bf8e2 da960b3c 8243c164 \
+            4ee3b130 a7865ab1 2c5cefc0 7e6dd216 c46e3b95 d9125193 41776f37 1b44a407 \
+            45912230 89b3cc5b 3a1346f8 6f4c2c7e 7ad77936 05372501 f65174c2 a408f87d
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 8eee7a0c f9bd1bae 030dc61a
+IV: 0c08b22b f50ff2cb
+Plaintext: 6fb9feb5 61de0669 a891c47e 7bb433cf 898f5f31 b038eed4 aee59faf 268d6951 \
+           e21d1819 029bef0a b892e07a 3ad3c7e2 3066ad96 8cd5d55b c6ad4811 44d0a911 \
+           91213e55 bf03b865 d14bc9e0 851bd2c2 f349b701 2aa09237 c6bf3ab7 2179cd64 \
+           a508bf48 1b1a2fa2 7ffbb4e8 7defd6e2 376d6ba3 7dfaf9b3 adac2a0f 1319a89c
+Ciphertext: 96d35f2c 013de612 62d6f90f 6419db39 c8519f08 2d0e45b4 c4d4f2ff b17e5ae5 \
+            4b65c08a 28cb13bc 1a03345d c4fa1642 ce3f6561 5bc0625c 28e0428b e5bb27e4 \
+            aa74d1f1 d15f1697 5af6f8c3 31c2e43f 1ce29408 9c634dbb 536724fd b1a0502c \
+            e45903a1 12f9a091 2e2b9587 f8b3d2d9 8c1d12b7 c4cb2a7e f0f49570 4b41ea11
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 199d5a5f ae4a47ac c7f38e7c
+IV: 71a3b3f8 d14c9ad5
+Plaintext: 6aaa81df a3d70ca6 72e389ad c7963160 715a80ed 2a217701 14dfa2a6 a76c4abb \
+           f151e82d 179f3672 b8359eb5 c36fddd0 e83fbd41 c64d04ae 1283c29c ccb8d986 \
+           67663e9e 726f2dc1 1916c527 5225cd91 0659a728 24928c4a e0d89509 dd4429c5 \
+           b94e493e e0f7cb67 6e04abb8 2414e72b f0c6eae2 d88c5cb1 44164db1 90fb0553
+Ciphertext: a2bca3c5 5890fb69 b4f3c5c7 9d130b83 e247627a 1b016413 744f1dac 634cc873 \
+            72546884 d64d89f5 79755713 20ceee41 0d08d17d 0f7f18e8 7797e0a0 e8dcc06f \
+            de713a42 082ece33 75368e42 f4c334e3 513fbe19 b61705c4 e8d308d8 4c79916a \
+            d2329ead 392f440f eeaee3aa 381efbce db388b50 a422f143 06df4f7e d294697a
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: eb66ab66 1d030578 0e7b8401
+IV: e139b60f bd709b20
+Plaintext: e6a6a6b0 9964cd3b 5c24e926 caec475a 08afb665 1aa32939 f646287f 23b2696c \
+           150836ef 89028fb7 f82547be 129b1e57 d7b71af3 2a515565 1f4d4fc2 b0fe41c1 \
+           ba8c88d9 14417b21 28497724 c85aa7ed fae8895e 95997d33 30b65ff1 c303b85f \
+           642da96e 695c369a 9aed3b97 a6ce31f7 4bd81b92 b9c62733 75c162de ab7cc1ac
+Ciphertext: c39c76cf 12e76748 ff5b2326 e0355f7c 6e97efa9 89716fa4 a1b58f55 4e620d5c \
+            d0eba98f 7fba3eae 39316df0 296db0fd 10902b82 aa5c2de8 30bfa82f 815a1944 \
+            f9011c1b 9568d452 fe9d0b90 dbf8ca8b dc41c864 3e9452f4 255facf2 78921a6a \
+            45cc31dc 3d4cc1e9 c5132945 c72550c9 c79b0555 9e15231f 1271107f 60758b4a
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 0d8cabd5 4d64fa95 33cd3f2d
+IV: 076dd257 c5cac3d7
+Plaintext: fa27b35a a6bd2400 19463ef0 620049fe 6a7abe7d 9eefcbb9 2aec0249 71d564f8 \
+           454b8f2d 0bfd4f49 089989b7 a78ba949 1c9f56e6 abbab89f 202207ec 1db32d2a \
+           24c5d092 6bd0e94c 7a18927d 537f0448 6e4d0359 d7790914 5c047eda cc51caed \
+           9d5d03ed 03f25528 68a64c68 f7de41b9 270a01eb 42315df3 4273c183 6c73286c
+Ciphertext: 250469e6 2fc5ace2 70d79eea eb92d153 6c542486 bfd995b5 81cd7f42 9248477e \
+            7b563d32 58b230e0 bae72c5f ec87a795 f7da89eb fc323746 35998d8f 0f959c0c \
+            94320a3b 33d88efe f0dcfaae dfd15d3c 883aaa7d f1c3a1c5 bae29fac 8ce22111 \
+            b6150408 26591464 8c184bc6 c7fa7aed f160b898 8d6e9ebe aaaa7048 c16e72f6
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 0d793258 a9f8b9ba 6e85c2b8
+IV: d5b53735 8c3d4457
+Plaintext: 89ab20e5 3d84be39 6b6c05be 00f018d1 0729af4d e5b7721e d77b3b57 7b6e09cc \
+           cfee4678 ab6c7d06 9837104c 88fa304d fe58a11a 3e2f28af 9948456f dc11255b \
+           020ade7d a191079e 49619975 29176830 0905204f 78322dad 3d9243a6 25fbda9a \
+           1208b3ee 209f29cf 27d89855 dc714ba2 1b5809de 7befcbb0 7fa20e5e 079ada39
+Ciphertext: e1cd0451 182bb03f 1e07b888 32d5c952 96a77ab3 36e7543d c87c16f0 a83516ef \
+            ae09dac9 1cfd5124 82eb553b 1192bf1e dba38450 1c5b9700 1ce69a37 1b3e7c37 \
+            cc29a9aa ce892a0d 0bbabb58 4670a77b 4b93d600 ae2a9700 89aa783d 582d1a9a \
+            c4f03c24 de2a8857 46f2ba12 28860f93 e7d652da 8363a505 091668a4 8749f5f3
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 648e534c 14243d1c 822d3cb1
+IV: d36912fd ffc68939
+Plaintext: f3ab2562 8902613e 684f0328 e1fdbcea 5f2596e8 8c740ac5 9c6a9841 16dc2cbb \
+           44766fe6 4d7bf929 46ec3842 d8d99585 a79c5061 c6c20d95 142a5d1a c77aa589 \
+           b2a6ffd9 b302b6df 37f21298 d79dbd84 c651f7ff 90d7124b 19282242 99878986 \
+           9212612c de78fcd6 a1a1f2a3 0327cb3d 4dc1af8b 61111810 ad763365 d9a7e6ee
+Ciphertext: c561f35f a8106045 6f20664f b7771bb9 2c4d84a0 9c0a982c 1b7c73b6 7a783933 \
+            7bb4819a 642fe356 813643a4 01d3e305 f177eb20 e4d06729 c7cd34bc 0f7956cb \
+            133d61c6 96e0d2a0 a5049f72 8dc50617 9f5b6564 331e7856 5166a916 d5ab59ca \
+            be702058 debfa8db 90efc752 4b39fa74 ca7cede8 9abdfdf1 596c8d25 fe473e52
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 35c0c64f dff6e5ae 126f2a25
+IV: 40979dbf 6a9fbd27
+Plaintext: 88225afc 2be9d843 1fded79a 243435d5 a2344037 2149fda2 8c5e8155 06afdc40 \
+           c3714a19 dd06b9d9 a89a3ca4 57f38fdb e793f9e8 bfeed811 e14da329 07fec042 \
+           d9982dc9 5bca6475 fc6d7c3f f1c9144b 6fa1146c 11fb1519 070de89e a062bbc4 \
+           47eaae9a c9adeaff e97fe964 9f632215 e9affc75 8b6cd2be 2a9177c1 010f45ce
+Ciphertext: aae08fd2 a96f0efe 2b6a4bc4 516b19de 38ae394a 60ba12f3 2ca9b6aa f237969d \
+            12741a44 2acbef2d 12bb04d3 a221f02e 7eb1135a 9df4ee15 fb815c9a d2ca4a97 \
+            fa862ccc ce20d794 7d1de839 b46c2c95 c4b26658 fee99057 03b002f9 f39f088c \
+            d555a3e9 5afcd689 b1df45af 904a8fac d9766625 52b7cc1b 6f83cbed f2972ef7
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: ef266791 7fd55f40 a6fcbc3b
+IV: 7a772d34 e84fc898
+Plaintext: d88371f3 a7fd407b 3d01b5d7 2c3322d0 e23caef1 8375f0b5 c9054a18 b3d29c7a \
+           ed455c2d 8c199f10 928a3870 2f6a7b4b 6e5d8446 ad570186 112bbc5b d593bf1f \
+           f068a1f4 88b7f109 406cae24 bb38fafb ec6fe60c 1a503d4a d95584df e91a9ae1 \
+           c0b827eb e175ddd4 d5b5002f 4a0e3a22 ab223b6a 817e4ce3 fcde1b59 85d525c4
+Ciphertext: 4ff2ff28 22d27364 7c9e8dae 47b55985 ca4d1e67 3e8a589c 76c1fa1e 053766e7 \
+            739cf3cd 4b0df05f 3c00d175 f18369d3 1ecabb92 36f907ad 029abf1f 6f34a1ca \
+            e6a5b75e a6a5b69c c347280a 763e0476 c6daa02c e3fe9c60 c326157f 134f92b3 \
+            ed12d1f6 1db1d511 dc43992c 8e05b2b3 a7656f9d 1b48e2fa d38b9585 caf818ba
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 6c92ee88 9a13613d ffe4dda8
+IV: 5e0284a4 14a601a7
+Plaintext: be02203d 9f13be03 19d071e6 f8700bb7 94636267 26c06bab d267826f b232f062 \
+           692bad33 6423f21a 7413b38b eaedfb07 ad8f1ec1 09da01ed 6222ed7a e480795a \
+           351ce397 5da27286 7b5bfcae 1e24c4d2 9a695051 c7435a53 e7399d66 ed163177 \
+           6507ee6a f26579de be1c0513 61c9ddb3 ea6848d3 a2735040 47178fa8 3842204f
+Ciphertext: c45996b2 829ae403 8a4ed800 3307f879 cc56e1ba 4ef906fc 4668c863 893e7e42 \
+            4c6b7d36 9bc72de0 6b3ad2a9 84ef7fbf 354c1591 de060bd7 c6c7eec3 b0814424 \
+            0a7ec6a3 3f8e4035 3c7263c2 bc89cfc2 3a8170da 43720248 a7eee249 7ff2e491 \
+            095e3ee1 32a2346b 6c305e1b 795ca874 5ff8a3e1 0d2c63d2 fc3c5ee8 9b30c0ad
+Test: Encrypt
+#
+Source: Crypto++ 5.6.5 generated
+Comment: Simon64/96, large block
+Key: 125b5184 fa11bdc2 ba1c4afb
+IV: de2443df df5ab452
+Plaintext: 3495ff2f d5316b50 c73d25ba f574c955 9b657e3a 3afd48aa dd27a691 ab59bf55 \
+           6b0683d5 a574f5e4 588e7223 4f694549 72acf0c6 f059c19c 86a50b0e 80f02465 \
+           ab1da7d1 e49c0b21 3ffe6101 8cef9fc3 1076d0bd 5d52c703 5bb79726 867ac725 \
+           c2cf7f8f 54142fe3 0a8ecf4f 27591023 0079f5f0 926b5899 95f6f5b0 41c439b4
+Ciphertext: 8f478528 ca718589 e0e0e2fc 2481a6e6 a99a4bd0 556f9d24 b39fa9ca 67faf9a8 \
+            4bb90edc 4b7fe771 faeb5b6a 8aa65b37 87459d31 9af7b200 e09523d0 9a0db5dc \
+            126a2d8b a2668f51 b8e99a58 6dc27a8d 8fdc0f42 be341c5d 844dfa08 e28ad7d5 \
+            d3a991b7 167598a1 c252cfb2 1e0b6b20 76c0e6e6 22adb00c 4c160f45 8ed860c4
+Test: Encrypt
+
+AlgorithmType: SymmetricCipher
 Name: SIMON-128/ECB
 #
 Source: Simon and Speck paper, Appendix B
