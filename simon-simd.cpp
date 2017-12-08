@@ -383,10 +383,10 @@ inline size_t SIMON64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
                 // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the XMM word. Then we need
+                // After the dup load we have two counters in the NEON word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = vaddq_u32(be1, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(inBlocks))));
+                const uint8x8_t c = vld1_u8(inBlocks);
+                block0 = vaddq_u32(be1, vreinterpretq_u32_u8(vcombine_u8(c,c)));
 
                 // After initial increment of {0,1} remaining counters increment by {1,1}.
                 block1 = vaddq_u32(be2, block0);
@@ -454,10 +454,10 @@ inline size_t SIMON64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
                 // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the XMM word. Then we need
+                // After the dup load we have two counters in the NEON word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = vaddq_u32(be1, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(inBlocks))));
+                const uint8x8_t c = vld1_u8(inBlocks);
+                block0 = vaddq_u32(be1, vreinterpretq_u32_u8(vcombine_u8(c,c)));
 
                 // After initial increment of {0,1} remaining counters increment by {1,1}.
                 block1 = vaddq_u32(be2, block0);
@@ -522,14 +522,15 @@ inline size_t SIMON64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
 
         while (length >= blockSize)
         {
-            uint32x4_t zero = vld1q_u32(s_zero);
-            uint32x4_t block = vreinterpretq_u32_u64(vld1q_dup_u64(
-                reinterpret_cast<const word64*>(inBlocks)));
+            uint32x4_t block, zero = vld1q_u32(s_zero);
+
+            const uint8x8_t v = vld1_u8(inBlocks);
+            block = vreinterpretq_u32_u8(vcombine_u8(v,v));
 
             if (flags & BlockTransformation::BT_XorInput)
             {
-                block = veorq_u32(block, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(xorBlocks))));
+                const uint8x8_t x = vld1_u8(xorBlocks);
+                block = veorq_u32(block, vreinterpretq_u32_u8(vcombine_u8(x,x)));
             }
 
             if (flags & BlockTransformation::BT_InBlockIsCounter)
@@ -539,8 +540,8 @@ inline size_t SIMON64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
-                block = veorq_u32(block, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(xorBlocks))));
+                const uint8x8_t x = vld1_u8(xorBlocks);
+                block = veorq_u32(block, vreinterpretq_u32_u8(vcombine_u8(x,x)));
             }
 
             vst1_u8(const_cast<byte*>(outBlocks),

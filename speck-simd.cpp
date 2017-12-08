@@ -34,6 +34,15 @@
 # include <immintrin.h>
 #endif
 
+// Weird GCC 7.0 issue on GCC118 which is Aarch64. The 2x blocks produce
+// a bad result. The same code works fine with Speck (it was copied/pasted).
+// It may affect more versions, but we can only test GCC 7.2, 4.8 and 4.9.
+#if defined(__aarch32__) || defined(__aarch64__)
+# if defined(__GNUC__) && (__GNUC__ >= 7)
+#  define WORKAROUND_GCC_7_ISSUE 1
+# endif
+#endif
+
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
@@ -338,6 +347,10 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
         outIncrement = 0-outIncrement;
     }
 
+#if defined(WORKAROUND_GCC_7_ISSUE)
+    flags &= ~BlockTransformation::BT_AllowParallel;
+#endif
+
     if (flags & BlockTransformation::BT_AllowParallel)
     {
         // Load these magic values once. Analysis claims be1 and be2
@@ -355,10 +368,10 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
                 // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the XMM word. Then we need
+                // After the dup load we have two counters in the NEON word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = vaddq_u32(be1, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(inBlocks))));
+                const uint8x8_t c = vld1_u8(inBlocks);
+                block0 = vaddq_u32(be1, vreinterpretq_u32_u8(vcombine_u8(c,c)));
 
                 // After initial increment of {0,1} remaining counters increment by {1,1}.
                 block1 = vaddq_u32(be2, block0);
@@ -426,10 +439,10 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
             if (flags & BlockTransformation::BT_InBlockIsCounter)
             {
                 // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the XMM word. Then we need
+                // After the dup load we have two counters in the NEON word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = vaddq_u32(be1, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(inBlocks))));
+                const uint8x8_t c = vld1_u8(inBlocks);
+                block0 = vaddq_u32(be1, vreinterpretq_u32_u8(vcombine_u8(c,c)));
 
                 // After initial increment of {0,1} remaining counters increment by {1,1}.
                 block1 = vaddq_u32(be2, block0);
@@ -494,14 +507,15 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
 
         while (length >= blockSize)
         {
-            uint32x4_t zero = vld1q_u32(s_zero);
-            uint32x4_t block = vreinterpretq_u32_u64(vld1q_dup_u64(
-                reinterpret_cast<const word64*>(inBlocks)));
+            uint32x4_t block, zero = vld1q_u32(s_zero);
+
+            const uint8x8_t v = vld1_u8(inBlocks);
+            block = vreinterpretq_u32_u8(vcombine_u8(v,v));
 
             if (flags & BlockTransformation::BT_XorInput)
             {
-                block = veorq_u32(block, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(xorBlocks))));
+                const uint8x8_t x = vld1_u8(xorBlocks);
+                block = veorq_u32(block, vreinterpretq_u32_u8(vcombine_u8(x,x)));
             }
 
             if (flags & BlockTransformation::BT_InBlockIsCounter)
@@ -511,8 +525,8 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
 
             if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
             {
-                block = veorq_u32(block, vreinterpretq_u32_u64(
-                    vld1q_dup_u64(reinterpret_cast<const word64*>(xorBlocks))));
+                const uint8x8_t x = vld1_u8(xorBlocks);
+                block = veorq_u32(block, vreinterpretq_u32_u8(vcombine_u8(x,x)));
             }
 
             vst1_u8(const_cast<byte*>(outBlocks),
