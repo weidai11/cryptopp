@@ -22,6 +22,7 @@
 #endif
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
+# include <pmmintrin.h>
 # include <tmmintrin.h>
 #endif
 

@@ -22,6 +22,7 @@
 #endif
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
+# include <pmmintrin.h>
 # include <tmmintrin.h>
 #endif
 
@@ -34,18 +35,19 @@
 # include <immintrin.h>
 #endif
 
-// Weird GCC 7.0 issue on GCC118 which is Aarch64. The 2x blocks produce
-// a bad result. The same code works fine with Speck (it was copied/pasted).
-// It may affect more versions, but we can only test GCC 7.2, 4.8 and 4.9.
-#if defined(__aarch32__) || defined(__aarch64__)
-# if defined(__GNUC__) && (__GNUC__ >= 7)
-#  define WORKAROUND_GCC_7_ISSUE 1
-# endif
-#endif
-
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+
+// GCC118 (AMD Opteron Aarch64) and GCC 7 issue. The 6x and 2x blocks produce
+// a bad result. The same code works fine with Speck (it was copied/pasted).
+// The same code is also fine on other Aarch64 test devices and A-32 NEON.
+// It may affect more versions, but we can only test GCC 7.2, 4.8 and 4.9.
+#if defined(__aarch32__) || defined(__aarch64__)
+# if defined(__GNUC__) && (__GNUC__ >= 7)
+#  define WORKAROUND_GCC_OPTERON_ISSUE 1
+# endif
+#endif
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -347,7 +349,7 @@ inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
         outIncrement = 0-outIncrement;
     }
 
-#if defined(WORKAROUND_GCC_7_ISSUE)
+#if defined(WORKAROUND_GCC_OPTERON_ISSUE)
     flags &= ~BlockTransformation::BT_AllowParallel;
 #endif
 
