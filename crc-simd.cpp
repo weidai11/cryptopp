@@ -10,23 +10,17 @@
 #include "config.h"
 #include "misc.h"
 
-// We set CRYPTOPP_ARM_CRC32_AVAILABLE based on compiler version.
-// If the crc is not available, then we have to disable it here.
-// Android does not provide -march=armv8-a+crc or -march=armv8.1-a+crc, so
-// it looks like we will have to disable CRC acceleration of their devices.
-#if !(defined(__ARM_FEATURE_CRC32) || defined(_MSC_VER)) || defined(__ANDROID__)
-# undef CRYPTOPP_ARM_CRC32_AVAILABLE
-#endif
-
 #if (CRYPTOPP_SSE42_AVAILABLE)
 # include <nmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # include <arm_neon.h>
-# if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
-#  include <arm_acle.h>
-# endif
+#endif
+
+#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include <stdint.h>
+# include <arm_acle.h>
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
