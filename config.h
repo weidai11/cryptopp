@@ -562,20 +562,10 @@ NAMESPACE_END
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 // Android still uses ARMv5 and ARMv6 so we have to be conservative when enabling NEON.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON__) || defined(__ARM_FEATURE_NEON) || \
+# if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
 	(__ARM_ARCH >= 7) || (CRYPTOPP_MSC_VERSION >= 1700)
 #  define CRYPTOPP_ARM_NEON_AVAILABLE 1
 # endif
-#endif
-
-// Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
-//  fail to compile with <arm_acle.h> included. Later Apple compilers compile
-//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8,
-//  and avoid it on Android, too.
-#if !defined(CRYPTOPP_APPLE_CLANG_VERSION) && \
-	(!defined(CRYPTOPP_GCC_VERSION) || (CRYPTOPP_GCC_VERSION >= 40900)) && \
-	!defined(__ANDROID__)
-#  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
 #endif
 
 // Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
@@ -611,6 +601,16 @@ NAMESPACE_END
 #  define CRYPTOPP_ARM_SHA_AVAILABLE 1
 #  define CRYPTOPP_ARM_CRYPTO_AVAILABLE 1
 # endif
+#endif
+
+// Don't include <arm_acle.h> when using Apple Clang. Early Apple compilers
+//  fail to compile with <arm_acle.h> included. Later Apple compilers compile
+//  intrinsics without <arm_acle.h> included. Also avoid it with GCC 4.8,
+//  and avoid it on Android, too.
+#if defined(CRYPTOPP_ARM_NEON_AVAILABLE) || defined(CRYPTOPP_ARM_CRC32_AVAILABLE) || \
+	defined(CRYPTOPP_ARM_AES_AVAILABLE) || defined(CRYPTOPP_ARM_PMULL_AVAILABLE) || \
+	defined(CRYPTOPP_ARM_SHA_AVAILABLE)
+#  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
 #endif
 
 #endif  // ARM32, ARM64
