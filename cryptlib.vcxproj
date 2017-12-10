@@ -359,6 +359,7 @@
   <ItemGroup>
     <ClInclude Include="3way.h" />
     <ClInclude Include="adler32.h" />
+    <ClInclude Include="adv-simd.h" />
     <ClInclude Include="aes.h" />
     <ClInclude Include="algebra.h" />
     <ClInclude Include="algparam.h" />

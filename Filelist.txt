@@ -1,6 +1,7 @@
 3way.cpp
 3way.h
 adhoc.cpp.proto
+adv-simd.h
 adler32.cpp
 adler32.h
 aes.h

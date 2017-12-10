@@ -477,6 +477,9 @@
     <ClInclude Include="adler32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="adv-simd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="aes.h">
       <Filter>Header Files</Filter>
     </ClInclude>

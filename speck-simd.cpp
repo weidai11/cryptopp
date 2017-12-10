@@ -10,12 +10,18 @@
 
 #include "speck.h"
 #include "misc.h"
+#include "adv-simd.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both speck.cpp and speck-simd.cpp.
 // #undef CRYPTOPP_SSSE3_AVAILABLE
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
+
+// GCC generates bad code when using the table-based rotates
+#if defined(__aarch32__) || defined(__aarch64__)
+# define WORKAROUND_GCC_AARCH64_BUG 1
+#endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>
@@ -35,40 +41,15 @@
 # include <immintrin.h>
 #endif
 
-// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#define M128_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
-
-// GCC118 (AMD Opteron Aarch64) and GCC 7 issue. The 6x and 2x blocks produce
-// a bad result. The same code works fine with Speck (it was copied/pasted).
-// The same code is also fine on other Aarch64 test devices and A-32 NEON.
-// It may affect more versions, but we can only test GCC 7.2, 4.8 and 4.9.
-#if defined(__aarch32__) || defined(__aarch64__)
-# if defined(__GNUC__) && (__GNUC__ >= 7)
-#  define WORKAROUND_GCC_OPTERON_ISSUE 1
-# endif
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
-using CryptoPP::BlockTransformation;
 
 // *************************** ARM NEON ************************** //
 
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
-
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_zero[]     = {0, 0, 0, 0};
-const word32 s_one64_1b[] = {0, 0, 0, 1<<24};      // Only second 8-byte block is incremented after loading
-const word32 s_one64_2b[] = {0, 2<<24, 0, 2<<24};  // Routine step. Both 8-byte block are incremented
-#else
-const word32 s_zero[]     = {0, 0, 0, 0};
-const word32 s_one64_1b[] = {0, 0, 0, 1};
-const word32 s_one64_2b[] = {0, 2, 0, 2};
-#endif
 
 template <unsigned int R>
 inline uint32x4_t RotateLeft32(const uint32x4_t& val)
@@ -88,7 +69,7 @@ inline uint32x4_t RotateRight32(const uint32x4_t& val)
     return vorrq_u32(a, b);
 }
 
-#if defined(__aarch32__) || defined(__aarch64__)
+#if (defined(__aarch32__) || defined(__aarch64__)) && !defined(WORKAROUND_GCC_AARCH64_BUG)
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
@@ -205,17 +186,14 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
 
-    const uint32x4x2_t t1 = vuzpq_u32(block2, block3);
-    uint32x4_t x2 = t1.val[0];
-    uint32x4_t y2 = t1.val[1];
+    uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
+    uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
 
-    const uint32x4x2_t t2 = vuzpq_u32(block4, block5);
-    uint32x4_t x3 = t2.val[0];
-    uint32x4_t y3 = t2.val[1];
+    uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
+    uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
@@ -247,17 +225,14 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t3 = vzipq_u32(x1, y1);
-    block0 = t3.val[0];
-    block1 = t3.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
 
-    const uint32x4x2_t t4 = vzipq_u32(x2, y2);
-    block2 = t4.val[0];
-    block3 = t4.val[1];
+    block2 = vzipq_u32(x2, y2).val[0];
+    block3 = vzipq_u32(x2, y2).val[1];
 
-    const uint32x4x2_t t5 = vzipq_u32(x3, y3);
-    block4 = t5.val[0];
-    block5 = t5.val[1];
+    block4 = vzipq_u32(x3, y3).val[0];
+    block5 = vzipq_u32(x3, y3).val[1];
 }
 
 inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
@@ -269,17 +244,14 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
 
-    const uint32x4x2_t t1 = vuzpq_u32(block2, block3);
-    uint32x4_t x2 = t1.val[0];
-    uint32x4_t y2 = t1.val[1];
+    uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
+    uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
 
-    const uint32x4x2_t t2 = vuzpq_u32(block4, block5);
-    uint32x4_t x3 = t2.val[0];
-    uint32x4_t y3 = t2.val[1];
+    uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
+    uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
@@ -311,248 +283,19 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t3 = vzipq_u32(x1, y1);
-    block0 = t3.val[0];
-    block1 = t3.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
 
-    const uint32x4x2_t t4 = vzipq_u32(x2, y2);
-    block2 = t4.val[0];
-    block3 = t4.val[1];
+    block2 = vzipq_u32(x2, y2).val[0];
+    block3 = vzipq_u32(x2, y2).val[1];
 
-    const uint32x4x2_t t5 = vzipq_u32(x3, y3);
-    block4 = t5.val[0];
-    block5 = t5.val[1];
-}
-
-template <typename F2, typename F6>
-inline size_t SPECK64_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
-        const word32 *subKeys, size_t rounds, const byte *inBlocks,
-        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    CRYPTOPP_ASSERT(subKeys);
-    CRYPTOPP_ASSERT(inBlocks);
-    CRYPTOPP_ASSERT(outBlocks);
-    CRYPTOPP_ASSERT(length >= 8);
-
-    const size_t neonBlockSize = 16;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
-    size_t xorIncrement = xorBlocks ? neonBlockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : neonBlockSize;
-
-    if (flags & BlockTransformation::BT_ReverseDirection)
-    {
-        inBlocks += length - neonBlockSize;
-        xorBlocks += length - neonBlockSize;
-        outBlocks += length - neonBlockSize;
-        inIncrement = 0-inIncrement;
-        xorIncrement = 0-xorIncrement;
-        outIncrement = 0-outIncrement;
-    }
-
-#if defined(WORKAROUND_GCC_OPTERON_ISSUE)
-    flags &= ~BlockTransformation::BT_AllowParallel;
-#endif
-
-    if (flags & BlockTransformation::BT_AllowParallel)
-    {
-        // Load these magic values once. Analysis claims be1 and be2
-        // may be uninitialized, but they are when the block is a ctr.
-        uint32x4_t be1, be2;
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-        {
-            be1 = vld1q_u32(s_one64_1b);
-            be2 = vld1q_u32(s_one64_2b);
-        }
-
-        while (length >= 6*neonBlockSize)
-        {
-            uint32x4_t block0, block1, block2, block3, block4, block5;
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the NEON word. Then we need
-                // to increment the low ctr by 0 and the high ctr by 1.
-                const uint8x8_t c = vld1_u8(inBlocks);
-                block0 = vaddq_u32(be1, vreinterpretq_u32_u8(vcombine_u8(c,c)));
-
-                // After initial increment of {0,1} remaining counters increment by {1,1}.
-                block1 = vaddq_u32(be2, block0);
-                block2 = vaddq_u32(be2, block1);
-                block3 = vaddq_u32(be2, block2);
-                block4 = vaddq_u32(be2, block3);
-                block5 = vaddq_u32(be2, block4);
-
-                vst1_u8(const_cast<byte*>(inBlocks), vget_low_u8(
-                    vreinterpretq_u8_u32(vaddq_u32(be2, block5))));
-            }
-            else
-            {
-                const int inc = static_cast<int>(inIncrement);
-                block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+0*inc));
-                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+1*inc));
-                block2 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+2*inc));
-                block3 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+3*inc));
-                block4 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+4*inc));
-                block5 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+5*inc));
-                inBlocks += 6*inc;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
-                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+2*inc)));
-                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+3*inc)));
-                block4 = veorq_u32(block4, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+4*inc)));
-                block5 = veorq_u32(block5, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+5*inc)));
-                xorBlocks += 6*inc;
-            }
-
-            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
-                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+2*inc)));
-                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+3*inc)));
-                block4 = veorq_u32(block4, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+4*inc)));
-                block5 = veorq_u32(block5, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+5*inc)));
-                xorBlocks += 6*inc;
-            }
-
-            const int inc = static_cast<int>(outIncrement);
-            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u32(block0));
-            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u32(block1));
-            vst1q_u8(outBlocks+2*inc, vreinterpretq_u8_u32(block2));
-            vst1q_u8(outBlocks+3*inc, vreinterpretq_u8_u32(block3));
-            vst1q_u8(outBlocks+4*inc, vreinterpretq_u8_u32(block4));
-            vst1q_u8(outBlocks+5*inc, vreinterpretq_u8_u32(block5));
-
-            outBlocks += 6*inc;
-            length -= 6*neonBlockSize;
-        }
-
-        while (length >= 2*neonBlockSize)
-        {
-            uint32x4_t block0, block1;
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the NEON word. Then we need
-                // to increment the low ctr by 0 and the high ctr by 1.
-                const uint8x8_t c = vld1_u8(inBlocks);
-                block0 = vaddq_u32(be1, vreinterpretq_u32_u8(vcombine_u8(c,c)));
-
-                // After initial increment of {0,1} remaining counters increment by {1,1}.
-                block1 = vaddq_u32(be2, block0);
-
-                vst1_u8(const_cast<byte*>(inBlocks), vget_low_u8(
-                    vreinterpretq_u8_u32(vaddq_u32(be2, block1))));
-            }
-            else
-            {
-                const int inc = static_cast<int>(inIncrement);
-                block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+0*inc));
-                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks+1*inc));
-                inBlocks += 2*inc;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
-                xorBlocks += 2*inc;
-            }
-
-            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks+1*inc)));
-                xorBlocks += 2*inc;
-            }
-
-            const int inc = static_cast<int>(outIncrement);
-            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u32(block0));
-            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u32(block1));
-
-            outBlocks += 2*inc;
-            length -= 2*neonBlockSize;
-        }
-    }
-
-    if (length)
-    {
-        // Adjust to real block size
-        const size_t blockSize = 8;
-        if (flags & BlockTransformation::BT_ReverseDirection)
-        {
-            inIncrement += inIncrement ? blockSize : 0;
-            xorIncrement += xorIncrement ? blockSize : 0;
-            outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
-        }
-        else
-        {
-            inIncrement -= inIncrement ? blockSize : 0;
-            xorIncrement -= xorIncrement ? blockSize : 0;
-            outIncrement -= outIncrement ? blockSize : 0;
-        }
-
-        while (length >= blockSize)
-        {
-            uint32x4_t block, zero = vld1q_u32(s_zero);
-
-            const uint8x8_t v = vld1_u8(inBlocks);
-            block = vreinterpretq_u32_u8(vcombine_u8(v,v));
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                const uint8x8_t x = vld1_u8(xorBlocks);
-                block = veorq_u32(block, vreinterpretq_u32_u8(vcombine_u8(x,x)));
-            }
-
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-                const_cast<byte *>(inBlocks)[7]++;
-
-            func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                const uint8x8_t x = vld1_u8(xorBlocks);
-                block = veorq_u32(block, vreinterpretq_u32_u8(vcombine_u8(x,x)));
-            }
-
-            vst1_u8(const_cast<byte*>(outBlocks),
-                vget_low_u8(vreinterpretq_u8_u32(block)));
-
-            inBlocks += inIncrement;
-            outBlocks += outIncrement;
-            xorBlocks += xorIncrement;
-            length -= blockSize;
-        }
-    }
-
-    return length;
+    block4 = vzipq_u32(x3, y3).val[0];
+    block5 = vzipq_u32(x3, y3).val[1];
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
-
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_one128[] = {0, 0, 0, 1<<24};
-#else
-const word32 s_one128[] = {0, 0, 0, 1};
-#endif
 
 template <class T>
 inline T UnpackHigh64(const T& a, const T& b)
@@ -798,184 +541,19 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     block5 = UnpackHigh64(x3, y3);
 }
 
-template <typename F2, typename F6>
-size_t SPECK128_AdvancedProcessBlocks_NEON(F2 func2, F6 func6,
-            const word64 *subKeys, size_t rounds, const byte *inBlocks,
-            const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    CRYPTOPP_ASSERT(subKeys);
-    CRYPTOPP_ASSERT(inBlocks);
-    CRYPTOPP_ASSERT(outBlocks);
-    CRYPTOPP_ASSERT(length >= 16);
-
-    const size_t blockSize = 16;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
-
-    if (flags & BlockTransformation::BT_ReverseDirection)
-    {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
-        inIncrement = 0-inIncrement;
-        xorIncrement = 0-xorIncrement;
-        outIncrement = 0-outIncrement;
-    }
-
-    if (flags & BlockTransformation::BT_AllowParallel)
-    {
-        while (length >= 6*blockSize)
-        {
-            uint64x2_t block0, block1, block2, block3, block4, block5;
-            block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one128));
-                block1 = vaddq_u64(block0, be);
-                block2 = vaddq_u64(block1, be);
-                block3 = vaddq_u64(block2, be);
-                block4 = vaddq_u64(block3, be);
-                block5 = vaddq_u64(block4, be);
-                vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block5, be)));
-            }
-            else
-            {
-                const int inc = static_cast<int>(inIncrement);
-                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+1*inc));
-                block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+2*inc));
-                block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+3*inc));
-                block4 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+4*inc));
-                block5 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+5*inc));
-                inBlocks += 6*inc;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
-                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+2*inc)));
-                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+3*inc)));
-                block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+4*inc)));
-                block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+5*inc)));
-                xorBlocks += 6*inc;
-            }
-
-            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
-                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+2*inc)));
-                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+3*inc)));
-                block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+4*inc)));
-                block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+5*inc)));
-                xorBlocks += 6*inc;
-            }
-
-            const int inc = static_cast<int>(outIncrement);
-            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u64(block0));
-            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u64(block1));
-            vst1q_u8(outBlocks+2*inc, vreinterpretq_u8_u64(block2));
-            vst1q_u8(outBlocks+3*inc, vreinterpretq_u8_u64(block3));
-            vst1q_u8(outBlocks+4*inc, vreinterpretq_u8_u64(block4));
-            vst1q_u8(outBlocks+5*inc, vreinterpretq_u8_u64(block5));
-
-            outBlocks += 6*inc;
-            length -= 6*blockSize;
-        }
-
-        while (length >= 2*blockSize)
-        {
-            uint64x2_t block0, block1;
-            block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one128));
-                block1 = vaddq_u64(block0, be);
-                vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block1, be)));
-            }
-            else
-            {
-                const int inc = static_cast<int>(inIncrement);
-                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks+1*inc));
-                inBlocks += 2*inc;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
-                xorBlocks += 2*inc;
-            }
-
-            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+0*inc)));
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks+1*inc)));
-                xorBlocks += 2*inc;
-            }
-
-            const int inc = static_cast<int>(outIncrement);
-            vst1q_u8(outBlocks+0*inc, vreinterpretq_u8_u64(block0));
-            vst1q_u8(outBlocks+1*inc, vreinterpretq_u8_u64(block1));
-
-            outBlocks += 2*inc;
-            length -= 2*blockSize;
-        }
-    }
-
-    while (length >= blockSize)
-    {
-        uint64x2_t block, zero = {0,0};
-        block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-
-        if (flags & BlockTransformation::BT_XorInput)
-            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-            const_cast<byte *>(inBlocks)[15]++;
-
-        func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
-
-        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-
-        vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
-
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
-        length -= blockSize;
-    }
-
-    return length;
-}
-
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 // ***************************** IA-32 ***************************** //
 
 #if defined(CRYPTOPP_SSSE3_AVAILABLE)
 
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one64_1b[] = {0, 0, 0, 1<<24};      // Only second 8-byte block is incremented after loading
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one64_2b[] = {0, 2<<24, 0, 2<<24};  // Routine step. Both 8-byte block are incremented
-
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one128[] = {0, 0, 0, 1<<24};
+// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#ifndef M128_CAST
+# define M128_CAST(x) ((__m128i *)(void *)(x))
+#endif
+#ifndef CONST_M128_CAST
+# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+#endif
 
 #if defined(CRYPTOPP_AVX512_ROTATE)
 template <unsigned int R>
@@ -1210,187 +788,6 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     block3 = _mm_unpackhi_epi64(x2, y2);
     block4 = _mm_unpacklo_epi64(x3, y3);
     block5 = _mm_unpackhi_epi64(x3, y3);
-}
-
-template <typename F2, typename F6>
-inline size_t SPECK128_AdvancedProcessBlocks_SSSE3(F2 func2, F6 func6,
-        const word64 *subKeys, size_t rounds, const byte *inBlocks,
-        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    CRYPTOPP_ASSERT(subKeys);
-    CRYPTOPP_ASSERT(inBlocks);
-    CRYPTOPP_ASSERT(outBlocks);
-    CRYPTOPP_ASSERT(length >= 16);
-
-    const size_t blockSize = 16;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
-
-    if (flags & BlockTransformation::BT_ReverseDirection)
-    {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
-        inIncrement = 0-inIncrement;
-        xorIncrement = 0-xorIncrement;
-        outIncrement = 0-outIncrement;
-    }
-
-    if (flags & BlockTransformation::BT_AllowParallel)
-    {
-        while (length >= 6*blockSize)
-        {
-            __m128i block0, block1, block2, block3, block4, block5;
-            block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                const __m128i be1 = *CONST_M128_CAST(s_one128);
-                block1 = _mm_add_epi32(block0, be1);
-                block2 = _mm_add_epi32(block1, be1);
-                block3 = _mm_add_epi32(block2, be1);
-                block4 = _mm_add_epi32(block3, be1);
-                block5 = _mm_add_epi32(block4, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block5, be1));
-            }
-            else
-            {
-                inBlocks += inIncrement;
-                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block4 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block5 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                // Coverity finding, appears to be false positive. Assert the condition.
-                CRYPTOPP_ASSERT(xorBlocks);
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block2);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block3);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block4);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block5);
-            outBlocks += outIncrement;
-
-            length -= 6*blockSize;
-        }
-
-        while (length >= 2*blockSize)
-        {
-            __m128i block0, block1;
-            block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                const __m128i be1 = *CONST_M128_CAST(s_one128);
-                block1 = _mm_add_epi32(block0, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block1, be1));
-            }
-            else
-            {
-                inBlocks += inIncrement;
-                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                // Coverity finding, appears to be false positive. Assert the condition.
-                CRYPTOPP_ASSERT(xorBlocks);
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
-
-            length -= 2*blockSize;
-        }
-    }
-
-    while (length >= blockSize)
-    {
-        __m128i block, zero = _mm_setzero_si128();
-        block = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-
-        if (flags & BlockTransformation::BT_XorInput)
-            block = _mm_xor_si128(block, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-            const_cast<byte *>(inBlocks)[15]++;
-
-        func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
-
-        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            block = _mm_xor_si128(block, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-
-        _mm_storeu_si128(M128_CAST(outBlocks), block);
-
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
-        length -= blockSize;
-    }
-
-    return length;
 }
 
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
@@ -1641,243 +1038,6 @@ inline void SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     block5 = _mm_unpackhi_epi32(x3, y3);
 }
 
-template <typename F2, typename F6>
-inline size_t SPECK64_AdvancedProcessBlocks_SSE41(F2 func2, F6 func6,
-        const word32 *subKeys, size_t rounds, const byte *inBlocks,
-        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    CRYPTOPP_ASSERT(subKeys);
-    CRYPTOPP_ASSERT(inBlocks);
-    CRYPTOPP_ASSERT(outBlocks);
-    CRYPTOPP_ASSERT(length >= 8);
-
-    // Fake block size to match XMM word
-    const size_t xmmBlockSize = 16;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
-    size_t xorIncrement = xorBlocks ? xmmBlockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
-
-    if (flags & BlockTransformation::BT_ReverseDirection)
-    {
-        inBlocks += length - xmmBlockSize;
-        xorBlocks += length - xmmBlockSize;
-        outBlocks += length - xmmBlockSize;
-        inIncrement = 0-inIncrement;
-        xorIncrement = 0-xorIncrement;
-        outIncrement = 0-outIncrement;
-    }
-
-    if (flags & BlockTransformation::BT_AllowParallel)
-    {
-        // Load these magic values once. Analysis claims be1 and be2
-        // may be uninitialized, but they are when the block is a ctr.
-        __m128i be1, be2;
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-        {
-            be1 = *CONST_M128_CAST(s_one64_1b);
-            be2 = *CONST_M128_CAST(s_one64_2b);
-        }
-
-        while (length >= 6*xmmBlockSize)
-        {
-            __m128i block0, block1, block2, block3, block4, block5;
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the XMM word. Then we need
-                // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = _mm_add_epi32(be1, _mm_castpd_si128(
-                    _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
-
-                // After initial increment of {0,1} remaining counters increment by {1,1}.
-                block1 = _mm_add_epi32(be2, block0);
-                block2 = _mm_add_epi32(be2, block1);
-                block3 = _mm_add_epi32(be2, block2);
-                block4 = _mm_add_epi32(be2, block3);
-                block5 = _mm_add_epi32(be2, block4);
-
-                // Store the next counter.
-                _mm_store_sd(reinterpret_cast<double*>(const_cast<byte*>(inBlocks)),
-                    _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
-            }
-            else
-            {
-                block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block4 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block5 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                // Coverity finding, appears to be false positive. Assert the condition.
-                CRYPTOPP_ASSERT(xorBlocks);
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block2);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block3);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block4);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block5);
-            outBlocks += outIncrement;
-
-            length -= 6*xmmBlockSize;
-        }
-
-        while (length >= 2*xmmBlockSize)
-        {
-            __m128i block0, block1;
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                // For 64-bit block ciphers we need to load the initial single CTR block.
-                // After the dup load we have two counters in the XMM word. Then we need
-                // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = _mm_add_epi32(be1, _mm_castpd_si128(
-                    _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
-
-                // After initial increment of {0,1} remaining counters increment by {1,1}.
-                block1 = _mm_add_epi32(be2, block0);
-
-                // Store the next counter.
-                _mm_store_sd(reinterpret_cast<double*>(const_cast<byte*>(inBlocks)),
-                    _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
-            }
-            else
-            {
-                block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                // Coverity finding, appears to be false positive. Assert the condition.
-                CRYPTOPP_ASSERT(xorBlocks);
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
-            }
-
-            _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
-            _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
-
-            length -= 2*xmmBlockSize;
-        }
-    }
-
-    if (length)
-    {
-        // Adjust to real block size
-        const size_t blockSize = 8;
-        if (flags & BlockTransformation::BT_ReverseDirection)
-        {
-            inIncrement += inIncrement ? blockSize : 0;
-            xorIncrement += xorIncrement ? blockSize : 0;
-            outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
-        }
-        else
-        {
-            inIncrement -= inIncrement ? blockSize : 0;
-            xorIncrement -= xorIncrement ? blockSize : 0;
-            outIncrement -= outIncrement ? blockSize : 0;
-        }
-
-        while (length >= blockSize)
-        {
-            __m128i block, zero = _mm_setzero_si128();
-            block = _mm_castpd_si128(
-                _mm_load_sd(reinterpret_cast<const double*>(inBlocks)));
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                block = _mm_xor_si128(block, _mm_castpd_si128(
-                    _mm_load_sd(reinterpret_cast<const double*>(xorBlocks))));
-            }
-
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-                const_cast<byte *>(inBlocks)[7]++;
-
-            func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                block = _mm_xor_si128(block, _mm_castpd_si128(
-                    _mm_load_sd(reinterpret_cast<const double*>(xorBlocks))));
-            }
-
-            _mm_store_sd(reinterpret_cast<double*>(outBlocks), _mm_castsi128_pd(block));
-
-            inBlocks += inIncrement;
-            outBlocks += outIncrement;
-            xorBlocks += xorIncrement;
-            length -= blockSize;
-        }
-    }
-
-    return length;
-}
-
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
@@ -1892,14 +1052,14 @@ NAMESPACE_BEGIN(CryptoPP)
 size_t SPECK64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
+    return AdvancedProcessBlocks64_NEON2x6(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK64_AdvancedProcessBlocks_NEON(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
+    return AdvancedProcessBlocks64_NEON2x6(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif
@@ -1908,14 +1068,14 @@ size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t roun
 size_t SPECK128_Enc_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK128_AdvancedProcessBlocks_NEON(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_NEON2x6(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK128_AdvancedProcessBlocks_NEON(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_NEON2x6(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -1926,14 +1086,14 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rou
 size_t SPECK64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK64_AdvancedProcessBlocks_SSE41(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
+    return AdvancedProcessBlocks64_SSE2x6(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK64_AdvancedProcessBlocks_SSE41(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
+    return AdvancedProcessBlocks64_SSE2x6(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif
@@ -1942,14 +1102,14 @@ size_t SPECK64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 size_t SPECK128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK128_AdvancedProcessBlocks_SSSE3(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_SSE2x6(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return SPECK128_AdvancedProcessBlocks_SSSE3(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_SSE2x6(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
