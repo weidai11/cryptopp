@@ -469,8 +469,15 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 template <class T>
 inline void vec_swap(T& a, T& b)
 {
+	// __m128i is an unsigned long long[2], and support for swapping it was
+	// not added until C++11. SunCC 12.1 - 12.3 fail to consume the swap; while
+	// SunCC 12.4 consumes it without -std=c++11.
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
 	T t;
 	t=a, a=b, b=t;
+#else
+	std::swap(a, b);
+#endif
 }
 
 /// \brief Memory block initializer and eraser that attempts to survive optimizations
