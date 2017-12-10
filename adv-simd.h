@@ -703,7 +703,6 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
     if (length)
     {
         // Adjust to real block size
-        const size_t blockSize = 8;
         if (flags & BT_ReverseDirection)
         {
             inIncrement += inIncrement ? blockSize : 0;

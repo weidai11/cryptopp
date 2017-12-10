@@ -51,7 +51,6 @@ using CryptoPP::rotrFixed;
 template <unsigned int R>
 inline uint32x4_t RotateLeft32(const uint32x4_t& val)
 {
-    CRYPTOPP_ASSERT(R < 32);
     const uint32x4_t a(vshlq_n_u32(val, R));
     const uint32x4_t b(vshrq_n_u32(val, 32 - R));
     return vorrq_u32(a, b);
@@ -60,7 +59,6 @@ inline uint32x4_t RotateLeft32(const uint32x4_t& val)
 template <unsigned int R>
 inline uint32x4_t RotateRight32(const uint32x4_t& val)
 {
-    CRYPTOPP_ASSERT(R < 32);
     const uint32x4_t a(vshlq_n_u32(val, 32 - R));
     const uint32x4_t b(vshrq_n_u32(val, R));
     return vorrq_u32(a, b);
@@ -124,9 +122,8 @@ inline void SIMON64_Enc_Block(uint32x4_t &block1, uint32x4_t &block0,
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
@@ -150,9 +147,8 @@ inline void SIMON64_Enc_Block(uint32x4_t &block1, uint32x4_t &block0,
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t1 = vzipq_u32(x1, y1);
-    block0 = t1.val[0];
-    block1 = t1.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
 }
 
 inline void SIMON64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
@@ -163,9 +159,8 @@ inline void SIMON64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
@@ -190,9 +185,8 @@ inline void SIMON64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t1 = vzipq_u32(x1, y1);
-    block0 = t1.val[0];
-    block1 = t1.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
 }
 
 inline void SIMON64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
@@ -204,17 +198,12 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
-
-    const uint32x4x2_t t1 = vuzpq_u32(block2, block3);
-    uint32x4_t x2 = t1.val[0];
-    uint32x4_t y2 = t1.val[1];
-
-    const uint32x4x2_t t2 = vuzpq_u32(block4, block5);
-    uint32x4_t x3 = t2.val[0];
-    uint32x4_t y3 = t2.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
+    uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
+    uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
+    uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
+    uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
@@ -248,17 +237,12 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t3 = vzipq_u32(x1, y1);
-    block0 = t3.val[0];
-    block1 = t3.val[1];
-
-    const uint32x4x2_t t4 = vzipq_u32(x2, y2);
-    block2 = t4.val[0];
-    block3 = t4.val[1];
-
-    const uint32x4x2_t t5 = vzipq_u32(x3, y3);
-    block4 = t5.val[0];
-    block5 = t5.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
+    block2 = vzipq_u32(x2, y2).val[0];
+    block3 = vzipq_u32(x2, y2).val[1];
+    block4 = vzipq_u32(x3, y3).val[0];
+    block5 = vzipq_u32(x3, y3).val[1];
 }
 
 inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
@@ -270,17 +254,12 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
-
-    const uint32x4x2_t t1 = vuzpq_u32(block2, block3);
-    uint32x4_t x2 = t1.val[0];
-    uint32x4_t y2 = t1.val[1];
-
-    const uint32x4x2_t t2 = vuzpq_u32(block4, block5);
-    uint32x4_t x3 = t2.val[0];
-    uint32x4_t y3 = t2.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
+    uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
+    uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
+    uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
+    uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
@@ -315,17 +294,12 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t3 = vzipq_u32(x1, y1);
-    block0 = t3.val[0];
-    block1 = t3.val[1];
-
-    const uint32x4x2_t t4 = vzipq_u32(x2, y2);
-    block2 = t4.val[0];
-    block3 = t4.val[1];
-
-    const uint32x4x2_t t5 = vzipq_u32(x3, y3);
-    block4 = t5.val[0];
-    block5 = t5.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
+    block2 = vzipq_u32(x2, y2).val[0];
+    block3 = vzipq_u32(x2, y2).val[1];
+    block4 = vzipq_u32(x3, y3).val[0];
+    block5 = vzipq_u32(x3, y3).val[1];
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -351,7 +325,6 @@ inline T UnpackLow64(const T& a, const T& b)
 template <unsigned int R>
 inline uint64x2_t RotateLeft64(const uint64x2_t& val)
 {
-    CRYPTOPP_ASSERT(R < 64);
     const uint64x2_t a(vshlq_n_u64(val, R));
     const uint64x2_t b(vshrq_n_u64(val, 64 - R));
     return vorrq_u64(a, b);
@@ -360,7 +333,6 @@ inline uint64x2_t RotateLeft64(const uint64x2_t& val)
 template <unsigned int R>
 inline uint64x2_t RotateRight64(const uint64x2_t& val)
 {
-    CRYPTOPP_ASSERT(R < 64);
     const uint64x2_t a(vshlq_n_u64(val, 64 - R));
     const uint64x2_t b(vshrq_n_u64(val, R));
     return vorrq_u64(a, b);

@@ -562,7 +562,7 @@ NAMESPACE_END
 // Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
 // Android still uses ARMv5 and ARMv6 so we have to be conservative when enabling NEON.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
+# if defined(__ARM_NEON) || defined(__ARM_NEON_FP) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
 	(__ARM_ARCH >= 7) || (CRYPTOPP_MSC_VERSION >= 1700)
 #  define CRYPTOPP_ARM_NEON_AVAILABLE 1
 # endif

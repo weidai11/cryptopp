@@ -18,8 +18,12 @@
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
-// GCC generates bad code when using the table-based rotates
-#if defined(__aarch32__) || defined(__aarch64__)
+// GCC generates bad code when using the table-based 32-bit rotates. Or,
+// GAS assembles it incorrectly (this may be the case since both GCC and
+// Clang produce the same failure). SIMON uses the same code but with a
+// different round function, and SIMON is OK. Jake Lee warned about this
+// at http://stackoverflow.com/q/47617331/608639.
+#if (defined(__aarch32__) || defined(__aarch64__)) && defined(__GNUC__)
 # define WORKAROUND_GCC_AARCH64_BUG 1
 #endif
 
@@ -54,7 +58,6 @@ using CryptoPP::word64;
 template <unsigned int R>
 inline uint32x4_t RotateLeft32(const uint32x4_t& val)
 {
-    CRYPTOPP_ASSERT(R < 32);
     const uint32x4_t a(vshlq_n_u32(val, R));
     const uint32x4_t b(vshrq_n_u32(val, 32 - R));
     return vorrq_u32(a, b);
@@ -63,7 +66,6 @@ inline uint32x4_t RotateLeft32(const uint32x4_t& val)
 template <unsigned int R>
 inline uint32x4_t RotateRight32(const uint32x4_t& val)
 {
-    CRYPTOPP_ASSERT(R < 32);
     const uint32x4_t a(vshlq_n_u32(val, 32 - R));
     const uint32x4_t b(vshrq_n_u32(val, R));
     return vorrq_u32(a, b);
@@ -120,9 +122,8 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
@@ -140,9 +141,8 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t1 = vzipq_u32(x1, y1);
-    block0 = t1.val[0];
-    block1 = t1.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
 }
 
 inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
@@ -152,9 +152,8 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     // a big-endian byte array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    const uint32x4x2_t t0 = vuzpq_u32(block0, block1);
-    uint32x4_t x1 = t0.val[0];
-    uint32x4_t y1 = t0.val[1];
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
@@ -172,9 +171,8 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    const uint32x4x2_t t1 = vzipq_u32(x1, y1);
-    block0 = t1.val[0];
-    block1 = t1.val[1];
+    block0 = vzipq_u32(x1, y1).val[0];
+    block1 = vzipq_u32(x1, y1).val[1];
 }
 
 inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
@@ -188,10 +186,8 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
-
     uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
     uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
-
     uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
     uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
 
@@ -227,10 +223,8 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = vzipq_u32(x1, y1).val[0];
     block1 = vzipq_u32(x1, y1).val[1];
-
     block2 = vzipq_u32(x2, y2).val[0];
     block3 = vzipq_u32(x2, y2).val[1];
-
     block4 = vzipq_u32(x3, y3).val[0];
     block5 = vzipq_u32(x3, y3).val[1];
 }
@@ -246,10 +240,8 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
-
     uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
     uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
-
     uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
     uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
 
@@ -285,10 +277,8 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = vzipq_u32(x1, y1).val[0];
     block1 = vzipq_u32(x1, y1).val[1];
-
     block2 = vzipq_u32(x2, y2).val[0];
     block3 = vzipq_u32(x2, y2).val[1];
-
     block4 = vzipq_u32(x3, y3).val[0];
     block5 = vzipq_u32(x3, y3).val[1];
 }
@@ -316,7 +306,6 @@ inline T UnpackLow64(const T& a, const T& b)
 template <unsigned int R>
 inline uint64x2_t RotateLeft64(const uint64x2_t& val)
 {
-    CRYPTOPP_ASSERT(R < 64);
     const uint64x2_t a(vshlq_n_u64(val, R));
     const uint64x2_t b(vshrq_n_u64(val, 64 - R));
     return vorrq_u64(a, b);
@@ -325,7 +314,6 @@ inline uint64x2_t RotateLeft64(const uint64x2_t& val)
 template <unsigned int R>
 inline uint64x2_t RotateRight64(const uint64x2_t& val)
 {
-    CRYPTOPP_ASSERT(R < 64);
     const uint64x2_t a(vshlq_n_u64(val, 64 - R));
     const uint64x2_t b(vshrq_n_u64(val, R));
     return vorrq_u64(a, b);
