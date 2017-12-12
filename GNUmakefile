@@ -393,37 +393,39 @@ ifeq ($(IS_ARMV8),1)
 endif
 
 # PowerPC and PowerPC-64
-# Altivec is available with Power4, but the library is tied to Power7 and unaligned loads/stores.
+# Altivec is available with Power4
 ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
   # GCC and some compatibles
-  HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power7 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power4 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
-    ALTIVEC_FLAG = -mcpu=power7 -maltivec
+    ALTIVEC_FLAG = -mcpu=power4 -maltivec
+    ARIA_FLAG = -mcpu=power4 -maltivec
+    BLAKE2_FLAG = -mcpu=power4 -maltivec
+    SIMON_FLAG = -mcpu=power4 -maltivec
+    SPECK_FLAG = -mcpu=power4 -maltivec
   endif
   # GCC and some compatibles
   HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_CRYPTO),0)
+    ALTIVEC_FLAG = -mcpu=power8 -maltivec
     AES_FLAG = -mcpu=power8 -maltivec
     GCM_FLAG = -mcpu=power8 -maltivec
     SHA_FLAG = -mcpu=power8 -maltivec
-    ALTIVEC_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
+    SIMON_FLAG = -qarch=pwr4 -qaltivec
+    SPECK_FLAG = -qarch=pwr4 -qaltivec
   endif
   # IBM XL C/C++
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_CRYPTO),0)
+    ALTIVEC_FLAG = -qarch=pwr8 -qaltivec
     AES_FLAG = -qarch=pwr8 -qaltivec
     GCM_FLAG = -qarch=pwr8 -qaltivec
     SHA_FLAG = -qarch=pwr8 -qaltivec
-    ALTIVEC_FLAG = -qarch=pwr8 -qaltivec
-  endif
-  # Fail safe to disable intrinsics on down level machines, like PowerMac G5
-  ifeq ($(ALTIVEC_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
   endif
 endif
 

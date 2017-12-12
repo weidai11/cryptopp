@@ -631,7 +631,8 @@ NAMESPACE_END
 // An old Apple G5 with GCC 4.01 has AltiVec, but its only Power4 or so.
 // We need Power7 or above, so the makefile defines CRYPTOPP_DISABLE_ALTIVEC.
 #if !defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
-# if defined(_ARCH_PWR4) || (CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40100)
+# if defined(_ARCH_PWR4) || defined(__ALTIVEC__) || \
+	(CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40001)
 #  define CRYPTOPP_ALTIVEC_AVAILABLE 1
 # endif
 #endif

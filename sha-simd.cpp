@@ -30,7 +30,7 @@
 #endif
 
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
-# include "ppc-crypto.h"
+# include "ppc-simd.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

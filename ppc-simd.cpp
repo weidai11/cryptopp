@@ -26,7 +26,7 @@
 
 // TODO.. Change to CRYPTOPP_POWER8_CRYPTO_AVAILABLE
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_POWER8_AES_AVAILABLE)
-# include "ppc-crypto.h"
+# include "ppc-simd.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

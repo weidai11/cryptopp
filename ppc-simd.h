@@ -1,6 +1,6 @@
-// ppc-crypto.h - written and placed in public domain by Jeffrey Walton
+// ppc-simd.h - written and placed in public domain by Jeffrey Walton
 
-/// \file ppc-crypto.h
+/// \file ppc-simd.h
 /// \brief Support functions for PowerPC and Power8 vector operations
 /// \details This header provides an agnostic interface into GCC and
 ///   IBM XL C/C++ compilers modulo their different built-in functions
@@ -31,7 +31,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned int       uint32x4_p8;
+
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
 typedef __vector unsigned long long uint64x2_p8;
+#else
+typedef __vector unsigned int       uint64x2_p8;
+#endif
 
 // Use 8x16 for documentation because it is used frequently
 #if defined(CRYPTOPP_XLC_VERSION)
@@ -48,6 +53,10 @@ typedef uint64x2_p8 VectorType;
 ///   minimize casting to and from buit-in function calls.
 # define VectorType ...
 #endif
+
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+
+#if defined(CRYPTOPP_POWER7_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Reverse a 16-byte array
 /// \param src the byte array
@@ -119,8 +128,6 @@ inline VectorType VectorLoadBE(int off, const uint8_t src[16])
 # endif
 #endif
 }
-
-//////////////////////////////////////////////////////////////////
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
@@ -366,6 +373,10 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 #endif
 }
 
+#endif  // CRYPTOPP_POWER7_AVAILABLE
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
 /// \tparam T2 vector type
@@ -486,7 +497,7 @@ inline T VectorSHA512(const T& vec)
 #endif
 }
 
-#endif // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER8_AVAILABLE
 
 NAMESPACE_END
 

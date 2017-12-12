@@ -206,7 +206,7 @@ poly1305.cpp
 poly1305.h
 polynomi.cpp
 polynomi.h
-ppc-crypto.h
+ppc-simd.h
 ppc-simd.cpp
 pssr.cpp
 pssr.h
