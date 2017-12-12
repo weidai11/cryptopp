@@ -29,27 +29,25 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-typedef __vector unsigned char      uint8x16_p8;
-typedef __vector unsigned int       uint32x4_p8;
+typedef __vector unsigned char      uint8x16_p;
+typedef __vector unsigned int       uint32x4_p;
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
-typedef __vector unsigned long long uint64x2_p8;
-#else
-typedef __vector unsigned int       uint64x2_p8;
+#if defined(CRYPTOPP_POWER5_AVAILABLE)
+typedef __vector unsigned long long uint64x2_p;
 #endif
 
 // Use 8x16 for documentation because it is used frequently
 #if defined(CRYPTOPP_XLC_VERSION)
-typedef uint8x16_p8 VectorType;
+typedef uint8x16_p VectorType;
 #elif defined(CRYPTOPP_GCC_VERSION)
-typedef uint64x2_p8 VectorType;
+typedef uint64x2_p VectorType;
 #endif
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Default vector typedef
 /// \details IBM XL C/C++ provides equally good support for all vector types,
-///   including <tt>uint8x16_p8</tt>. GCC provides good support for
-///   <tt>uint64x2_p8</tt>. <tt>VectorType</tt> is typedef'd accordingly to
+///   including <tt>uint8x16_p</tt>. GCC provides good support for
+///   <tt>uint64x2_p</tt>. <tt>VectorType</tt> is typedef'd accordingly to
 ///   minimize casting to and from buit-in function calls.
 # define VectorType ...
 #endif
@@ -68,8 +66,8 @@ inline void ReverseByteArrayLE(byte src[16])
 #if defined(CRYPTOPP_XLC_VERSION) && defined(CRYPTOPP_LITTLE_ENDIAN)
 	vec_st(vec_reve(vec_ld(0, src)), 0, src);
 #elif defined(CRYPTOPP_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
+	const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p zero = {0};
 	vec_vsx_st(vec_perm(vec_vsx_ld(0, src), zero, mask), 0, src);
 #endif
 }
@@ -83,8 +81,8 @@ inline void ReverseByteArrayLE(byte src[16])
 template <class T>
 inline T Reverse(const T& src)
 {
-	const uint8x16_p8 mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-	const uint8x16_p8 zero = {0};
+	const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+	const uint8x16_p zero = {0};
 	return vec_perm(src, zero, mask);
 }
 
@@ -216,12 +214,12 @@ template <class T>
 inline void VectorStoreBE(const T& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
+	vec_xst_be((uint8x16_p)src, 0, (uint8_t*)dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
+	vec_vsx_st(Reverse((uint8x16_p)src), 0, (uint8_t*)dest);
 # else
-	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
+	vec_vsx_st((uint8x16_p)src, 0, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -239,12 +237,12 @@ template <class T>
 inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	vec_xst_be((uint8x16_p8)src, off, (uint8_t*)dest);
+	vec_xst_be((uint8x16_p)src, off, (uint8_t*)dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse((uint8x16_p8)src), off, (uint8_t*)dest);
+	vec_vsx_st(Reverse((uint8x16_p)src), off, (uint8_t*)dest);
 # else
-	vec_vsx_st((uint8x16_p8)src, off, (uint8_t*)dest);
+	vec_vsx_st((uint8x16_p)src, off, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -262,12 +260,12 @@ inline void VectorStore(const T& src, byte dest[16])
 {
 	// Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
 #if defined(CRYPTOPP_XLC_VERSION)
-	vec_xst_be((uint8x16_p8)src, 0, (uint8_t*)dest);
+	vec_xst_be((uint8x16_p)src, 0, (uint8_t*)dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse((uint8x16_p8)src), 0, (uint8_t*)dest);
+	vec_vsx_st(Reverse((uint8x16_p)src), 0, (uint8_t*)dest);
 # else
-	vec_vsx_st((uint8x16_p8)src, 0, (uint8_t*)dest);
+	vec_vsx_st((uint8x16_p)src, 0, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -286,12 +284,12 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 {
 	// Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
 #if defined(CRYPTOPP_XLC_VERSION)
-	vec_xst_be((uint8x16_p8)src, off, (uint8_t*)dest);
+	vec_xst_be((uint8x16_p)src, off, (uint8_t*)dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-	vec_vsx_st(Reverse((uint8x16_p8)src), off, (uint8_t*)dest);
+	vec_vsx_st(Reverse((uint8x16_p)src), off, (uint8_t*)dest);
 # else
-	vec_vsx_st((uint8x16_p8)src, off, (uint8_t*)dest);
+	vec_vsx_st((uint8x16_p)src, off, (uint8_t*)dest);
 # endif
 #endif
 }
@@ -303,13 +301,13 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 /// \param vec2 the second vector
 /// \param mask vector mask
 /// \details VectorPermute returns a new vector from vec1 and vec2
-///   based on mask. mask is an uint8x16_p8 type vector. The return
+///   based on mask. mask is an uint8x16_p type vector. The return
 ///   vector is the same type as vec1.
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
-	return (T1)vec_perm(vec1, vec2, (uint8x16_p8)mask);
+	return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
 }
 
 /// \brief XOR two vectors
@@ -349,16 +347,16 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 /// \param vec2 the second vector
 /// \details VectorShiftLeft() concatenates vec1 and vec2 and returns a
 ///   new vector after shifting the concatenation by the specified number
-///   of bytes. Both vec1 and vec2 are cast to uint8x16_p8. The return
+///   of bytes. Both vec1 and vec2 are cast to uint8x16_p. The return
 ///   vector is the same type as vec1.
 /// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, b,
 ///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
 ///   <tt>vec_sld(b, a, 16-c)</tt>. You should always call the function as
 ///   if on a big endian machine as shown below.
 /// <pre>
-///    uint8x16_p8 r0 = {0};
-///    uint8x16_p8 r1 = VectorLoad(ptr);
-///    uint8x16_p8 r5 = VectorShiftLeft<12>(r0, r1);
+///    uint8x16_p r0 = {0};
+///    uint8x16_p r1 = VectorLoad(ptr);
+///    uint8x16_p r5 = VectorShiftLeft<12>(r0, r1);
 /// </pre>
 /// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
 ///   endian sensitive?</A> on Stack Overflow
@@ -367,9 +365,9 @@ template <unsigned int C, class T1, class T2>
 inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-	return (T1)vec_sld((uint8x16_p8)vec2, (uint8x16_p8)vec1, 16-C);
+	return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, 16-C);
 #else
-	return (T1)vec_sld((uint8x16_p8)vec1, (uint8x16_p8)vec2, C);
+	return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, C);
 #endif
 }
 
@@ -469,9 +467,9 @@ template <int func, int subfunc, class T>
 inline T VectorSHA256(const T& vec)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T)__vshasigmaw((uint32x4_p8)vec, func, subfunc);
+	return (T)__vshasigmaw((uint32x4_p)vec, func, subfunc);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return (T)__builtin_crypto_vshasigmaw((uint32x4_p8)vec, func, subfunc);
+	return (T)__builtin_crypto_vshasigmaw((uint32x4_p)vec, func, subfunc);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
@@ -489,9 +487,9 @@ template <int func, int subfunc, class T>
 inline T VectorSHA512(const T& vec)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-	return (T)__vshasigmad((uint64x2_p8)vec, func, subfunc);
+	return (T)__vshasigmad((uint64x2_p)vec, func, subfunc);
 #elif defined(CRYPTOPP_GCC_VERSION)
-	return (T)__builtin_crypto_vshasigmad((uint64x2_p8)vec, func, subfunc);
+	return (T)__builtin_crypto_vshasigmad((uint64x2_p)vec, func, subfunc);
 #else
 	CRYPTOPP_ASSERT(0);
 #endif
