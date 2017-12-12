@@ -372,9 +372,9 @@ template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (T1)__vcipher((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__vcipher((uint64x2_p)state, (uint64x2_p)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-    return (T1)__builtin_crypto_vcipher((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__builtin_crypto_vcipher((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
@@ -392,9 +392,9 @@ template <class T1, class T2>
 inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (T1)__vcipherlast((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__vcipherlast((uint64x2_p)state, (uint64x2_p)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-    return (T1)__builtin_crypto_vcipherlast((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__builtin_crypto_vcipherlast((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
@@ -412,9 +412,9 @@ template <class T1, class T2>
 inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (T1)__vncipher((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__vncipher((uint64x2_p)state, (uint64x2_p)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-    return (T1)__builtin_crypto_vncipher((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__builtin_crypto_vncipher((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
@@ -432,9 +432,9 @@ template <class T1, class T2>
 inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (T1)__vncipherlast((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__vncipherlast((uint64x2_p)state, (uint64x2_p)key);
 #elif defined(CRYPTOPP_GCC_VERSION)
-    return (T1)__builtin_crypto_vncipherlast((uint32x4_p)state, (uint32x4_p)key);
+    return (T1)__builtin_crypto_vncipherlast((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
