@@ -80,9 +80,9 @@ bool CPU_ProbeAltivec()
 		const byte b2[16] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
 		byte b3[16];
 
-		const uint8x16_p8 v1 = (uint8x16_p8)VectorLoad(0, b1);
-		const uint8x16_p8 v2 = (uint8x16_p8)VectorLoad(0, b2);
-		const uint8x16_p8 v3 = (uint8x16_p8)VectorXor(v1, v2);
+		const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1);
+		const uint8x16_p v2 = (uint8x16_p)VectorLoad(0, b2);
+		const uint8x16_p v3 = (uint8x16_p)VectorXor(v1, v2);
 		VectorStore(v3, b3);
 
 		result = (0 == std::memcmp(b2, b3, 16));
@@ -121,7 +121,7 @@ bool CPU_ProbePower7()
 	else
 	{
 		byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
-		const uint8x16_p8 v1 = (uint8x16_p8)VectorLoad(0, b1+3);
+		const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1+3);
 		VectorStore(v1, b2+1);
 
 		result = (0 == std::memcmp(b1+3, b2+1, 16));
@@ -160,7 +160,7 @@ bool CPU_ProbePower8()
 	else
 	{
 		byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
-		const uint8x16_p8 v1 = (uint8x16_p8)VectorLoad(0, b1+3);
+		const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1+3);
 		VectorStore(v1, b2+1);
 
 		result = (0 == std::memcmp(b1+3, b2+1, 16));
@@ -204,8 +204,8 @@ bool CPU_ProbeAES()
 		                  0x9a, 0xc6, 0x8d, 0x2a, 0xe9, 0xf8, 0x48, 0x08};
 		byte r[16] = {255}, z[16] = {};
 
-		uint8x16_p8 k = (uint8x16_p8)VectorLoad(0, key);
-		uint8x16_p8 s = (uint8x16_p8)VectorLoad(0, state);
+		uint8x16_p k = (uint8x16_p)VectorLoad(0, key);
+		uint8x16_p s = (uint8x16_p)VectorLoad(0, state);
 		s = VectorEncrypt(s, k);
 		s = VectorEncryptLast(s, k);
 		s = VectorDecrypt(s, k);
@@ -248,7 +248,7 @@ bool CPU_ProbeSHA256()
 	else
 	{
 		byte r[16], z[16] = {0};
-		uint8x16_p8 x = ((uint8x16_p8){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+		uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
 
 		x = VectorSHA256<0,0>(x);
 		x = VectorSHA256<0,1>(x);
@@ -292,7 +292,7 @@ bool CPU_ProbeSHA512()
 	else
 	{
 		byte r[16], z[16] = {0};
-		uint8x16_p8 x = ((uint8x16_p8){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+		uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
 
 		x = VectorSHA512<0,0>(x);
 		x = VectorSHA512<0,1>(x);
