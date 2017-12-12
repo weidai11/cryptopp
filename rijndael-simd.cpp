@@ -558,14 +558,14 @@ static const uint32_t s_mask[4] = {
 #endif
 };
 
-static inline uint8x16_p8
-Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r5)
+static inline uint8x16_p
+Rijndael_Subkey_POWER8(uint8x16_p r1, const uint8x16_p r4, const uint8x16_p r5)
 {
     // Big endian: vec_sld(a, b, c)
     // Little endian: vec_sld(b, a, 16-c)
 
-    const uint8x16_p8 r0 = {0};
-    uint8x16_p8 r3, r6;
+    const uint8x16_p r0 = {0};
+    uint8x16_p r3, r6;
 
     r3 = VectorPermute(r1, r1, r5);     /* line  1 */
     r6 = VectorShiftLeft<12>(r0, r1);   /* line  2 */
@@ -586,7 +586,7 @@ Rijndael_Subkey_POWER8(uint8x16_p8 r1, const uint8x16_p8 r4, const uint8x16_p8 r
 }
 
 static inline uint8_t*
-IncrementPointerAndStore(const uint8x16_p8& r, uint8_t* p)
+IncrementPointerAndStore(const uint8x16_p& r, uint8_t* p)
 {
     VectorStore(r, (p += 16));
     return p;
@@ -727,9 +727,9 @@ size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F6 func6, const word32 *s
         while (length >= 6*blockSize)
         {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-            const VectorType one = (VectorType)((uint64x2_p8){1,0});
+            const VectorType one = (VectorType)((uint64x2_p){1,0});
 #else
-            const VectorType one = (VectorType)((uint64x2_p8){0,1});
+            const VectorType one = (VectorType)((uint64x2_p){0,1});
 #endif
 
             VectorType block0, block1, block2, block3, block4, block5, temp;
@@ -834,9 +834,9 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
         std::memcpy(rk, userKey, keyLen);
         uint8_t* skptr = (uint8_t*)rk;
 
-        uint8x16_p8 r1 = (uint8x16_p8)VectorLoadKey(skptr);
-        uint8x16_p8 r4 = (uint8x16_p8)VectorLoadKey(s_rcon[0]);
-        uint8x16_p8 r5 = (uint8x16_p8)VectorLoadKey(s_mask);
+        uint8x16_p r1 = (uint8x16_p)VectorLoadKey(skptr);
+        uint8x16_p r4 = (uint8x16_p)VectorLoadKey(s_rcon[0]);
+        uint8x16_p r5 = (uint8x16_p)VectorLoadKey(s_mask);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
         // Only the user key requires byte reversing.
@@ -852,12 +852,12 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
         }
 
         /* Round 9 using rcon=0x1b */
-        r4 = (uint8x16_p8)VectorLoadKey(s_rcon[1]);
+        r4 = (uint8x16_p)VectorLoadKey(s_rcon[1]);
         r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
         skptr = IncrementPointerAndStore(r1, skptr);
 
         /* Round 10 using rcon=0x36 */
-        r4 = (uint8x16_p8)VectorLoadKey(s_rcon[2]);
+        r4 = (uint8x16_p)VectorLoadKey(s_rcon[2]);
         r1 = Rijndael_Subkey_POWER8(r1, r4, r5);
         skptr = IncrementPointerAndStore(r1, skptr);
     }
@@ -901,14 +901,14 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
         rk = rk_saved;
-        const uint8x16_p8 mask = ((uint8x16_p8){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
-        const uint8x16_p8 zero = {0};
+        const uint8x16_p mask = ((uint8x16_p){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
+        const uint8x16_p zero = {0};
 
         unsigned int i=0;
         for (i=0; i<rounds; i+=2, rk+=8)
         {
-            uint8x16_p8 d1 = vec_vsx_ld( 0, (uint8_t*)rk);
-            uint8x16_p8 d2 = vec_vsx_ld(16, (uint8_t*)rk);
+            uint8x16_p d1 = vec_vsx_ld( 0, (uint8_t*)rk);
+            uint8x16_p d2 = vec_vsx_ld(16, (uint8_t*)rk);
             d1 = vec_perm(d1, zero, mask);
             d2 = vec_perm(d2, zero, mask);
             vec_vsx_st(d1,  0, (uint8_t*)rk);
