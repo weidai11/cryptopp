@@ -840,6 +840,10 @@ install:
 	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 0755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 0644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
+	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)/pkgconfig
+	$(CP) libcrypto++.pc $(DESTDIR)$(LIBDIR)/pkgconfig
+	-$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/pkgconfig
+	-$(CHMOD) 0644 $(DESTDIR)$(LIBDIR)/pkgconfig/libcrypto++.pc
 ifneq ($(wildcard libcryptopp.a),)
 	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
 	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
