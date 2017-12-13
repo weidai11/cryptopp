@@ -33,7 +33,7 @@
 unsigned long int getauxval(unsigned long int) { return 0; }
 #endif
 
-#if defined(__APPLE__) && defined(__aarch64__)
+#if defined(__APPLE__) && (defined(__aarch64__) || defined(__POWERPC__))
 # include <sys/utsname.h>
 #endif
 
@@ -596,6 +596,18 @@ inline bool CPU_QueryAltivec()
 #if defined(__linux__)
 	if (getauxval(AT_HWCAP) & PPC_FEATURE_HAS_ALTIVEC)
 		return true;
+#elif defined(__APPLE__) && defined(__POWERPC__)
+	// http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
+	struct utsname systemInfo;
+	systemInfo.machine[0] = '\0';
+	uname(&systemInfo);
+
+	// The machine strings below are known PPC machines
+	std::string machine(systemInfo.machine);
+	if (machine.substr(0, 15) == "Power Macintosh")
+	{
+		return true;
+	}
 #endif
 	return false;
 }
