@@ -613,6 +613,10 @@ NAMESPACE_END
 #  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
 #endif
 
+#if (defined(__ANDROID__) || defined(ANDROID)) && !defined(__ARM_ACLE)
+# undef CRYPTOPP_ARM_ACLE_AVAILABLE
+#endif
+
 #endif  // ARM32, ARM64
 
 // ***************** AltiVec and Power8 ********************
