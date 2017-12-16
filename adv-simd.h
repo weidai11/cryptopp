@@ -88,8 +88,8 @@ inline size_t AdvancedProcessBlocks64_NEON2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    CRYPTOPP_CONSTANT(blockSize = 8)
-    CRYPTOPP_CONSTANT(neonBlockSize = 16)
+    const size_t blockSize = 8;
+    const size_t neonBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
     size_t xorIncrement = xorBlocks ? neonBlockSize : 0;
@@ -316,8 +316,8 @@ size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    CRYPTOPP_CONSTANT(blockSize = 16)
-    // CRYPTOPP_CONSTANT(neonBlockSize = 16)
+    const size_t blockSize = 16;
+    // const size_t neonBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = xorBlocks ? blockSize : 0;
@@ -455,8 +455,8 @@ size_t AdvancedProcessBlocks128_NEON2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    CRYPTOPP_CONSTANT(blockSize = 16)
-    // CRYPTOPP_CONSTANT(neonBlockSize = 16)
+    const size_t blockSize = 16;
+    // const size_t neonBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = xorBlocks ? blockSize : 0;
@@ -682,8 +682,8 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    CRYPTOPP_CONSTANT(blockSize = 8)
-    CRYPTOPP_CONSTANT(xmmBlockSize = 16)
+    const size_t blockSize = 8;
+    const size_t xmmBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
     size_t xorIncrement = xorBlocks ? xmmBlockSize : 0;
@@ -916,8 +916,8 @@ inline size_t AdvancedProcessBlocks128_SSE2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    CRYPTOPP_CONSTANT(blockSize = 16)
-    // CRYPTOPP_CONSTANT(xmmBlockSize = 16)
+    const size_t blockSize = 16;
+    // const size_t xmmBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = xorBlocks ? blockSize : 0;
@@ -1101,8 +1101,8 @@ inline size_t AdvancedProcessBlocks128_SSE1x4(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    CRYPTOPP_CONSTANT(blockSize = 16)
-    // CRYPTOPP_CONSTANT(xmmBlockSize = 16)
+    const size_t blockSize = 16;
+    // const size_t  xmmBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = xorBlocks ? blockSize : 0;
