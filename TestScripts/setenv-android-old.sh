@@ -8,6 +8,13 @@
 # licensed under the Boost Software License 1.0, while the individual files
 # in the compilation are all public domain.
 #
+# This script is the one used from about 2012 until late 2017. Sometime in
+# 2017 AOSP made some NDK changes that were incompatible with the original
+# script. The original setenv-android.sh was renamed to setenv-android-old.sh,
+# and it can be used on older NDKs like r9 or r13. setenv-android.sh was then
+# reworked for newer NDKs, like r16. setenv-android.sh effectively supports
+# the latest NDKs. Also see https://github.com/weidai11/cryptopp/pull/546.
+# 
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
