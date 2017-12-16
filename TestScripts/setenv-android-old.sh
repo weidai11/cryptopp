@@ -14,7 +14,7 @@
 # and it can be used on older NDKs like r9 or r13. setenv-android.sh was then
 # reworked for newer NDKs, like r16. setenv-android.sh effectively supports
 # the latest NDKs. Also see https://github.com/weidai11/cryptopp/pull/546.
-# 
+#
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
