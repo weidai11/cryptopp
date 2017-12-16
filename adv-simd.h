@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "misc.h"
+#include "stdcpp.h"
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>
@@ -88,18 +89,18 @@ inline size_t AdvancedProcessBlocks64_NEON2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    const size_t blockSize = 8;
-    const size_t neonBlockSize = 16;
+    const ptrdiff_t blockSize = 8;
+    const ptrdiff_t neonBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
-    size_t xorIncrement = xorBlocks ? neonBlockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : neonBlockSize;
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? neonBlockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : neonBlockSize;
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += length - neonBlockSize;
-        xorBlocks += length - neonBlockSize;
-        outBlocks += length - neonBlockSize;
+        inBlocks += static_cast<ptrdiff_t>(length) - neonBlockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - neonBlockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - neonBlockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -316,18 +317,18 @@ size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    const size_t blockSize = 16;
-    // const size_t neonBlockSize = 16;
+    const ptrdiff_t blockSize = 16;
+    // const ptrdiff_t neonBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
+        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -455,18 +456,18 @@ size_t AdvancedProcessBlocks128_NEON2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    const size_t blockSize = 16;
-    // const size_t neonBlockSize = 16;
+    const ptrdiff_t blockSize = 16;
+    // const ptrdiff_t neonBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
+        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -682,18 +683,18 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    const size_t blockSize = 8;
-    const size_t xmmBlockSize = 16;
+    const ptrdiff_t blockSize = 8;
+    const ptrdiff_t xmmBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
-    size_t xorIncrement = xorBlocks ? xmmBlockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? xmmBlockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += length - xmmBlockSize;
-        xorBlocks += length - xmmBlockSize;
-        outBlocks += length - xmmBlockSize;
+        inBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -916,18 +917,18 @@ inline size_t AdvancedProcessBlocks128_SSE2x6(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    const size_t blockSize = 16;
-    // const size_t xmmBlockSize = 16;
+    const ptrdiff_t blockSize = 16;
+    // const ptrdiff_t xmmBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
+        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -1101,18 +1102,18 @@ inline size_t AdvancedProcessBlocks128_SSE1x4(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    const size_t blockSize = 16;
-    // const size_t  xmmBlockSize = 16;
+    const ptrdiff_t blockSize = 16;
+    // const ptrdiff_t  xmmBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
+        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;

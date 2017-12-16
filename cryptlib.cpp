@@ -26,6 +26,7 @@
 #include "osrng.h"
 #include "secblock.h"
 #include "smartptr.h"
+#include "stdcpp.h"
 
 // http://www.cygwin.com/faq.html#faq.api.winsock
 #if (defined(__CYGWIN__) || defined(__CYGWIN32__)) && defined(PREFER_WINDOWS_STYLE_SOCKETS)
@@ -147,14 +148,13 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 	CRYPTOPP_ASSERT(outBlocks);
 	CRYPTOPP_ASSERT(length);
 
-	size_t blockSize = BlockSize();
-	size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-	size_t xorIncrement = xorBlocks ? blockSize : 0;
-	size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+	ptrdiff_t blockSize = static_cast<ptrdiff_t>(BlockSize());
+	ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+	ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
+	ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
 	if (flags & BT_ReverseDirection)
 	{
-		CRYPTOPP_ASSERT(length % blockSize == 0);
 		inBlocks += length - blockSize;
 		xorBlocks += length - blockSize;
 		outBlocks += length - blockSize;
@@ -164,7 +164,7 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 	}
 
 	// Coverity finding.
-	bool xorFlag = xorBlocks && (flags & BT_XorInput);
+	const bool xorFlag = xorBlocks && (flags & BT_XorInput);
 	while (length >= blockSize)
 	{
 		if (xorFlag)
@@ -181,6 +181,7 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 
 		if (flags & BT_InBlockIsCounter)
 			const_cast<byte *>(inBlocks)[blockSize-1]++;
+
 		inBlocks += inIncrement;
 		outBlocks += outIncrement;
 		xorBlocks += xorIncrement;
