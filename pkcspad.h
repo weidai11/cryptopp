@@ -2,7 +2,7 @@
 
 /// \file pkcspad.h
 /// \brief Classes for PKCS padding schemes
-/// \details PKCS#1 v1.5, v2.0 and P1363a allow MD2, MD5, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger and RipeMd-160 to be instantiated.
+/// \details PKCS #1 v1.5, v2.0 and P1363a allow MD2, MD5, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger and RipeMd-160 to be instantiated.
 
 #ifndef CRYPTOPP_PKCSPAD_H
 #define CRYPTOPP_PKCSPAD_H
@@ -17,7 +17,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \class PKCS_EncryptionPaddingScheme
-/// \brief PKCS#1 v1.5 Encryption Padding Scheme
+/// \brief PKCS #1 v1.5 Encryption Padding Scheme
 /// \sa <a href="http://www.weidai.com/scan-mirror/ca.html#cem_PKCS1-1.5">EME-PKCS1-v1_5</a>
 class PKCS_EncryptionPaddingScheme : public PK_EncryptionMessageEncodingMethod
 {
@@ -30,7 +30,7 @@ public:
 };
 
 /// \class PKCS_DigestDecoration
-/// \brief PKCS#1 decoration data structure
+/// \brief PKCS #1 decoration data structure
 template <class H> class PKCS_DigestDecoration
 {
 public:
@@ -39,7 +39,7 @@ public:
 };
 
 // PKCS_DigestDecoration can be instantiated with the following
-// classes as specified in PKCS#1 v2.0 and P1363a
+// classes as specified in PKCS #1 v2.0 and P1363a
 class SHA1;
 class SHA224;
 class SHA256;
@@ -79,7 +79,7 @@ const byte PKCS_DigestDecoration<H>::decoration[1] = {0x00};
 #endif
 
 /// \class PKCS1v15_SignatureMessageEncodingMethod
-/// \brief PKCS#1 v1.5 Signature Encoding Scheme
+/// \brief PKCS #1 v1.5 Signature Encoding Scheme
 /// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod
 {

@@ -150,6 +150,9 @@ struct P1363_EMSA5 : public SignatureStandard
 	typedef EMSA5Pad<P1363_MGF1> SignatureMessageEncodingMethod;
 };
 
+/// \class ESIGN_Keys
+/// \brief ESIGN keys
+/// \since Crypto++ 5.0
 struct ESIGN_Keys
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ESIGN";}

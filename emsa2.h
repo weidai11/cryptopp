@@ -16,12 +16,20 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+/// \class EMSA2HashId
+/// \brief EMSA2 hash identifier
+/// \tparam H HashTransformation derived class
+/// \since Crypto++ 5.0
 template <class H> class EMSA2HashId
 {
 public:
 	static const byte id;
 };
 
+/// \class EMSA2Pad
+/// \brief EMSA2 padding method
+/// \tparam BASE Message encoding method
+/// \since Crypto++ 5.0
 template <class BASE>
 class EMSA2HashIdLookup : public BASE
 {
@@ -57,7 +65,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA512>;
 #endif
 
-/// _
+/// \class EMSA2Pad
+/// \brief EMSA2 padding method
+/// \since Crypto++ 5.0
 class CRYPTOPP_DLL EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
 {
 public:
@@ -72,12 +82,16 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
-/// EMSA2, for use with RWSS and RSA_ISO
-/*! Only the following hash functions are supported by this signature standard:
-	\dontinclude emsa2.h
-	\skip EMSA2HashId can be instantiated
-	\until end of list
-*/
+// EMSA2, for use with RWSS and RSA_ISO
+// Only the following hash functions are supported by this signature standard:
+//  \dontinclude emsa2.h
+//  \skip EMSA2HashId can be instantiated
+//  \until end of list
+
+/// \class P1363_EMSA2
+/// \brief EMSA2/P1363 padding method
+/// \details Use with RWSS and RSA_ISO
+/// \since Crypto++ 5.0
 struct P1363_EMSA2 : public SignatureStandard
 {
 	typedef EMSA2Pad SignatureMessageEncodingMethod;

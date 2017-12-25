@@ -1631,7 +1631,9 @@ protected:
 	}
 };
 
-/// _
+/// \class DL_VerifierBase
+/// \brief Discret Log (DL) Verifier base class
+/// \tparam T Element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {

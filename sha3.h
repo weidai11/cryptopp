@@ -51,7 +51,7 @@ protected:
 	unsigned int m_digestSize, m_counter;
 };
 
-/// \class SHA3_224
+/// \class SHA3_Final
 /// \brief SHA3 message digest template
 /// \tparam T_DigestSize the size of the digest, in bytes
 /// \since Crypto++ 5.6.2

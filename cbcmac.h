@@ -1,7 +1,6 @@
 // cbcmac.h - originally written and placed in the public domain by Wei Dai
 
 /// \file
-/// \headerfile cbcmac.h
 /// \brief Classes for CBC MAC
 
 #ifndef CRYPTOPP_CBCMAC_H
@@ -12,7 +11,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// _
+/// \brief CBC-MAC base class
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_MAC_Base : public MessageAuthenticationCode
 {
 public:
@@ -32,10 +31,11 @@ private:
 	unsigned int m_counter;
 };
 
-/// <a href="http://www.weidai.com/scan-mirror/mac.html#CBC-MAC">CBC-MAC</a>
-/*! Compatible with FIPS 113. T should be a class derived from BlockCipherDocumentation.
-	Secure only for fixed length messages. For variable length messages use CMAC or DMAC.
-*/
+/// \brief CBC-MAC
+/// \tparam T BlockCipherDocumentation derived class
+/// \details CBC-MAC is compatible with FIPS 113. The MAC is secure only for fixed
+///   length messages. For variable length messages use CMAC or DMAC.
+/// \sa <a href="http://www.weidai.com/scan-mirror/mac.html#CBC-MAC">CBC-MAC</a>
 template <class T>
 class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >, public SameKeyLengthAs<T>
 {

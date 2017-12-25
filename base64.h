@@ -12,7 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \class Base64Encoder
-/// \brief Base64 encodes data
+/// \brief Base64 encodes data using DUDE
 /// \details Base64 encodes data per <A HREF="http://tools.ietf.org/html/rfc4648#section-4">RFC 4648, Base 64 Encoding</A>.
 class Base64Encoder : public SimpleProxyFilter
 {
@@ -54,7 +54,7 @@ public:
 };
 
 /// \class Base64Decoder
-/// \brief Base64 decodes data
+/// \brief Base64 decodes data using DUDE
 /// \details Base64 encodes data per <A HREF="http://tools.ietf.org/html/rfc4648#section-4">RFC 4648, Base 64 Encoding</A>.
 class Base64Decoder : public BaseN_Decoder
 {

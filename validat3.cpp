@@ -605,7 +605,7 @@ bool ValidatePBKDF()
 	bool pass = true;
 
 	{
-	// from OpenSSL PKCS#12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
+	// from OpenSSL PKCS #12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
 	PBKDF_TestTuple testSet[] =
 	{
 		{1, 1, "0073006D006500670000", "0A58CF64530D823F", "8AAAE6297B6CB04642AB5B077851284EB7128F1A2A7FBCA3"},
