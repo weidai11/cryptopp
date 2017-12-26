@@ -497,7 +497,7 @@ void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds)
     unsigned int i, j;
     __m128i temp;
 
-    vec_swap(*(__m128i *)(key), *(__m128i *)(key+4*rounds));
+    vec_swap(*M128_CAST(key), *M128_CAST(key+4*rounds));
 
     for (i = 4, j = 4*rounds-4; i < j; i += 4, j -= 4)
     {
