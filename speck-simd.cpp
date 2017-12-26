@@ -602,7 +602,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
@@ -645,7 +645,7 @@ inline void SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     x3 = _mm_shuffle_epi8(x3, mask);
     y3 = _mm_shuffle_epi8(y3, mask);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
@@ -697,7 +697,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >=0 ; --i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
@@ -740,7 +740,7 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     x3 = _mm_shuffle_epi8(x3, mask);
     y3 = _mm_shuffle_epi8(y3, mask);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
@@ -829,7 +829,7 @@ inline void SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const __m128i rk = _mm_set1_epi32(subkeys[i]);
 
@@ -866,7 +866,7 @@ inline void SPECK64_Dec_Block(__m128i &block0, __m128i &block1,
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_set1_epi32(subkeys[i]);
 
@@ -918,7 +918,7 @@ inline void SPECK64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     x3 = _mm_shuffle_epi8(x3, mask);
     y3 = _mm_shuffle_epi8(y3, mask);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const __m128i rk = _mm_set1_epi32(subkeys[i]);
 
@@ -988,7 +988,7 @@ inline void SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     x3 = _mm_shuffle_epi8(x3, mask);
     y3 = _mm_shuffle_epi8(y3, mask);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_set1_epi32(subkeys[i]);
 
