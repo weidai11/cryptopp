@@ -157,7 +157,7 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
@@ -249,7 +249,7 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
@@ -458,7 +458,7 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -495,7 +495,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
     x3 = Shuffle64(x3); y3 = Shuffle64(y3);
 
-    for (size_t i=rounds-1; static_cast<int>(i)>=0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -541,6 +541,24 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 #endif
 #ifndef CONST_M128_CAST
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+#endif
+
+// GCC double casts, https://www.spinics.net/lists/gcchelp/msg47735.html
+#ifndef DOUBLE_CAST
+# if (CRYPTOPP_GCC_VERSION >= 40900)
+   typedef double  __attribute__((__aligned__(1))) double_u;
+#  define DOUBLE_CAST(x) ((double_u *)(void *)(x))
+# else
+#  define DOUBLE_CAST(x) ((double *)(void *)(x))
+# endif
+#endif
+#ifndef CONST_DOUBLE_CAST
+# if (CRYPTOPP_GCC_VERSION >= 40900)
+   typedef double  __attribute__((__aligned__(1))) double_cu;
+#  define CONST_DOUBLE_CAST(x) ((const double_cu *)(const void *)(x))
+# else
+#  define CONST_DOUBLE_CAST(x) ((const double *)(const void *)(x))
+# endif
 #endif
 
 #if defined(CRYPTOPP_AVX512_ROTATE)
@@ -605,7 +623,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
+            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
 
         x1 = RotateRight64<8>(x1);
         x1 = _mm_add_epi64(x1, y1);
@@ -648,7 +666,7 @@ inline void SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
+            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
 
         x1 = RotateRight64<8>(x1);
         x2 = RotateRight64<8>(x2);
@@ -697,10 +715,10 @@ inline void SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     x1 = _mm_shuffle_epi8(x1, mask);
     y1 = _mm_shuffle_epi8(y1, mask);
 
-    for (int i = static_cast<int>(rounds-1); i >=0 ; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
+            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
 
         y1 = _mm_xor_si128(y1, x1);
         y1 = RotateRight64<3>(y1);
@@ -743,7 +761,7 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(reinterpret_cast<const double*>(subkeys+i)));
+            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
 
         y1 = _mm_xor_si128(y1, x1);
         y2 = _mm_xor_si128(y2, x2);
