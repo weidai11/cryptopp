@@ -53,12 +53,6 @@ template<> const unsigned int PKCS_DigestDecoration<SHA3_384>::length = (unsigne
 
 template<> const byte PKCS_DigestDecoration<SHA3_512>::decoration[] = {0x30,0x51,0x30,0x0d, 0x06,0x09,0x60,0x86, 0x48,0x01,0x65,0x03, 0x04,0x02,0x0a,0x05, 0x00,0x04,0x40};
 template<> const unsigned int PKCS_DigestDecoration<SHA3_512>::length = (unsigned int)sizeof(PKCS_DigestDecoration<SHA3_512>::decoration);
-
-template<> const byte EMSA2HashId<  SHA1>::id = 0x33;
-template<> const byte EMSA2HashId<SHA224>::id = 0x38;
-template<> const byte EMSA2HashId<SHA256>::id = 0x34;
-template<> const byte EMSA2HashId<SHA384>::id = 0x36;
-template<> const byte EMSA2HashId<SHA512>::id = 0x35;
 #endif
 
 size_t PKCS_EncryptionPaddingScheme::MaxUnpaddedLength(size_t paddedLength) const

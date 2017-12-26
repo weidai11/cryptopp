@@ -56,6 +56,34 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_512>;
 #endif
 
+// https://github.com/weidai11/cryptopp/issues/300 and
+// https://github.com/weidai11/cryptopp/issues/533
+#if defined(__clang__)
+template<> const byte PKCS_DigestDecoration<SHA1>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA1>::length;
+template<> const byte PKCS_DigestDecoration<SHA224>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA224>::length;
+template<> const byte PKCS_DigestDecoration<SHA256>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA256>::length;
+template<> const byte PKCS_DigestDecoration<SHA384>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA384>::length;
+template<> const byte PKCS_DigestDecoration<SHA512>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA512>::length;
+
+// http://github.com/weidai11/cryptopp/issues/517
+template<> const byte PKCS_DigestDecoration<SHA3_256>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA3_256>::length;
+template<> const byte PKCS_DigestDecoration<SHA3_384>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA3_384>::length;
+template<> const byte PKCS_DigestDecoration<SHA3_512>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<SHA3_512>::length;
+
+template<> const byte PKCS_DigestDecoration<Weak1::MD2>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<Weak1::MD2>::length;
+template<> const byte PKCS_DigestDecoration<Weak1::MD5>::decoration[];
+template<> const unsigned int PKCS_DigestDecoration<Weak1::MD5>::length;
+#endif
+
 /// \class PKCS1v15_SignatureMessageEncodingMethod
 /// \brief PKCS #1 v1.5 Signature Encoding Scheme
 /// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>

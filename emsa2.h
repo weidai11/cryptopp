@@ -58,6 +58,16 @@ CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA512>;
 #endif
 
+// https://github.com/weidai11/cryptopp/issues/300 and
+// https://github.com/weidai11/cryptopp/issues/533
+#if defined(__clang__)
+template<> const byte EMSA2HashId<SHA1>::id;
+template<> const byte EMSA2HashId<SHA224>::id;
+template<> const byte EMSA2HashId<SHA256>::id;
+template<> const byte EMSA2HashId<SHA384>::id;
+template<> const byte EMSA2HashId<SHA512>::id;
+#endif
+
 /// \class EMSA2Pad
 /// \brief EMSA2 padding method
 /// \since Crypto++ 5.0
