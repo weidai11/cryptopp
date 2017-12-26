@@ -63,6 +63,10 @@
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
+// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

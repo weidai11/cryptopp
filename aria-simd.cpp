@@ -22,6 +22,10 @@
 # include <tmmintrin.h>
 #endif
 
+// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
 
@@ -128,17 +132,17 @@ void ARIA_ProcessAndXorBlock_Xor_SSSE3(const byte* xorBlock, byte* outBlock, con
 	outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
 
 	// 'outBlock' may be unaligned.
-	_mm_storeu_si128(reinterpret_cast<__m128i*>(outBlock),
-		_mm_xor_si128(_mm_loadu_si128((const __m128i*)(outBlock)),
-			_mm_shuffle_epi8(_mm_load_si128((const __m128i*)(rk)), MASK)));
+	_mm_storeu_si128(M128_CAST(outBlock),
+		_mm_xor_si128(_mm_loadu_si128(CONST_M128_CAST(outBlock)),
+			_mm_shuffle_epi8(_mm_load_si128(CONST_M128_CAST(rk)), MASK)));
 
 	// 'outBlock' and 'xorBlock' may be unaligned.
 	if (xorBlock != NULLPTR)
 	{
-		_mm_storeu_si128((__m128i*)(outBlock),
+		_mm_storeu_si128(M128_CAST(outBlock),
 			_mm_xor_si128(
-				_mm_loadu_si128((const __m128i*)(outBlock)),
-				_mm_loadu_si128((const __m128i*)(xorBlock))));
+				_mm_loadu_si128(CONST_M128_CAST(outBlock)),
+				_mm_loadu_si128(CONST_M128_CAST(xorBlock))));
 	}
 }
 
