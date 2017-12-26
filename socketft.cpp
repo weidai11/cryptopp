@@ -255,8 +255,10 @@ bool Socket::Connect(const char *addr, unsigned int port)
 		}
 		else
 		{
-			// sa.sin_addr.s_addr = ((in_addr *)(void *)lphost->h_addr)->s_addr;
-			sa.sin_addr.s_addr = ((struct sockaddr_in *)(result->ai_addr))->sin_addr.s_addr;
+			// Avoid assignment on due to alignment issues in Apple headers
+			// sa.sin_addr.s_addr = ((struct sockaddr_in *)(result->ai_addr))->sin_addr.s_addr;
+			struct sockaddr_in* sap = (struct sockaddr_in *)result->ai_addr;
+			memcpy(&sa.sin_addr.s_addr, &sap->sin_addr.s_addr, sizeof(sa.sin_addr.s_addr));
 			freeaddrinfo(result);
 		}
 	}
