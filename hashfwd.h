@@ -16,7 +16,6 @@ class SHA256;
 class SHA384;
 class SHA512;
 
-// http://github.com/weidai11/cryptopp/issues/517
 class SHA3_256;
 class SHA3_384;
 class SHA3_512;
@@ -24,6 +23,7 @@ class SHA3_512;
 class Tiger;
 class RIPEMD128;
 class RIPEMD160;
+class Whirlpool;
 
 namespace Weak1 {
   class MD2;

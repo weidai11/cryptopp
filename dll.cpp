@@ -7,6 +7,7 @@
 #include "config.h"
 #include "iterhash.h"
 #include "pkcspad.h"
+#include "emsa2.h"
 
 // Cast from FARPROC to funcptr with args, http://stackoverflow.com/q/4192058/608639
 #pragma warning(disable: 4191)
