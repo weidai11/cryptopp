@@ -8,6 +8,7 @@
 
 #include "cryptlib.h"
 #include "pubkey.h"
+#include "hashfwd.h"
 #include "misc.h"
 
 #ifdef CRYPTOPP_IS_DLL
@@ -47,15 +48,7 @@ public:
 };
 
 // EMSA2HashId can be instantiated with the following classes.
-class SHA1;
-class SHA224;
-class SHA256;
-class SHA384;
-class SHA512;
-class RIPEMD128;
-class RIPEMD160;
-class Whirlpool;
-// end of list
+// SHA1, SHA224, SHA256, SHA384, SHA512, RIPEMD128, RIPEMD160, Whirlpool
 
 #ifdef CRYPTOPP_IS_DLL
 CRYPTOPP_DLL_TEMPLATE_CLASS EMSA2HashId<SHA1>;

@@ -148,7 +148,7 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 	CRYPTOPP_ASSERT(outBlocks);
 	CRYPTOPP_ASSERT(length);
 
-	const ptrdiff_t blockSize = static_cast<ptrdiff_t>(BlockSize());
+	const size_t blockSize = BlockSize();
 	ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 	ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
 	ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;

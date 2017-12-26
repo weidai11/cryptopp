@@ -2,13 +2,15 @@
 
 #include "pch.h"
 #include "pssr.h"
+#include "emsa2.h"
+#include "ripemd.h"
+#include "whrlpool.h"
 #include "misc.h"
 
 #include <functional>
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// more in dll.cpp
 template<> const byte EMSA2HashId<RIPEMD160>::id = 0x31;
 template<> const byte EMSA2HashId<RIPEMD128>::id = 0x32;
 template<> const byte EMSA2HashId<Whirlpool>::id = 0x37;

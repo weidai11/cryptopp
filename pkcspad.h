@@ -2,13 +2,15 @@
 
 /// \file pkcspad.h
 /// \brief Classes for PKCS padding schemes
-/// \details PKCS #1 v1.5, v2.0 and P1363a allow MD2, MD5, SHA1, SHA224, SHA256, SHA384, SHA512, Tiger and RipeMd-160 to be instantiated.
+/// \details PKCS #1 v1.5, v2.0 and P1363a allow MD2, MD5, SHA1, SHA224, SHA256, SHA384,
+///   SHA512, Tiger and RipeMd-160 to be instantiated.
 
 #ifndef CRYPTOPP_PKCSPAD_H
 #define CRYPTOPP_PKCSPAD_H
 
 #include "cryptlib.h"
 #include "pubkey.h"
+#include "hashfwd.h"
 
 #ifdef CRYPTOPP_IS_DLL
 #include "sha.h"
@@ -40,24 +42,7 @@ public:
 
 // PKCS_DigestDecoration can be instantiated with the following
 // classes as specified in PKCS #1 v2.0 and P1363a
-class SHA1;
-class SHA224;
-class SHA256;
-class SHA384;
-class SHA512;
-class Tiger;
-class RIPEMD160;
-
-namespace Weak1 {
-  class MD2;
-  class MD5;
-}
-
-// http://github.com/weidai11/cryptopp/issues/517
-class SHA3_256;
-class SHA3_384;
-class SHA3_512;
-// end of list
+// SHA1, SHA224, SHA256, SHA384, SHA512, Tiger, RIPEMD160, MD2, MD5
 
 #if defined(CRYPTOPP_IS_DLL)
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA1>;
@@ -69,13 +54,6 @@ CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA512>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_256>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_384>;
 CRYPTOPP_DLL_TEMPLATE_CLASS PKCS_DigestDecoration<SHA3_512>;
-#elif defined(__clang__)
-// Provide a default definition to avoid Clang warnings. CRTP will provide a
-// real definition later. The single element is due to MSVC compile failures
-// after adding the default definition. However, GCC produces multiple
-// definitions which result in link failures. I give up...
-template <class H>
-const byte PKCS_DigestDecoration<H>::decoration[1] = {0x00};
 #endif
 
 /// \class PKCS1v15_SignatureMessageEncodingMethod

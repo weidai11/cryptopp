@@ -7,12 +7,13 @@
 
 #include "pkcspad.h"
 #include "emsa2.h"
+#include "hashfwd.h"
 #include "misc.h"
 #include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// More in dll.cpp. Typedef/cast change due to Clang, http://github.com/weidai11/cryptopp/issues/300
+// Typedef/cast change due to Clang, http://github.com/weidai11/cryptopp/issues/300
 template<> const byte PKCS_DigestDecoration<Weak1::MD2>::decoration[] = {0x30,0x20,0x30,0x0c,0x06,0x08,0x2a,0x86,0x48,0x86,0xf7,0x0d,0x02,0x02,0x05,0x00,0x04,0x10};
 template<> const unsigned int PKCS_DigestDecoration<Weak1::MD2>::length = (unsigned int)sizeof(PKCS_DigestDecoration<Weak1::MD2>::decoration);
 

@@ -136,6 +136,7 @@ gost.cpp
 gost.h
 gzip.cpp
 gzip.h
+hashfwd.h
 hex.cpp
 hex.h
 hkdf.h
