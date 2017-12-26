@@ -53,7 +53,7 @@ inline void SIMON_Encrypt(W c[2], const W p[2], const W k[R])
 {
     c[0]=p[0]; c[1]=p[1];
 
-    for (size_t i = 0; static_cast<int>(i) < R-1; i += 2)
+    for (int i = 0; i < static_cast<int>(R-1); i += 2)
         R2(c[0], c[1], k[i], k[i + 1]);
 
     if (R & 1)
@@ -82,7 +82,7 @@ inline void SIMON_Decrypt(W p[2], const W c[2], const W k[R])
         rounds--;
     }
 
-    for (size_t i = rounds - 2; static_cast<int>(i) >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds - 2); i >= 0; i -= 2)
         R2(p[1], p[0], k[i + 1], k[i]);
 }
 
