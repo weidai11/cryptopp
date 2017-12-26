@@ -49,6 +49,8 @@
 // https://www.spinics.net/lists/gcchelp/msg47749.html
 #if (CRYPTOPP_GCC_VERSION >= 40900)
 # define GCC_NO_UBSAN __attribute__ ((no_sanitize_undefined))
+#else
+# define GCC_NO_UBSAN
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
