@@ -75,7 +75,7 @@ inline void SIMON_Decrypt(W p[2], const W c[2], const W k[R])
     p[0]=c[0]; p[1]=c[1];
     unsigned int rounds = R;
 
-    if (rounds & 1)
+    if (R & 1)
     {
         const W t = p[1]; p[1] = p[0]; p[0] = t;
         p[1] ^= k[rounds - 1]; p[1] ^= f(p[0]);
