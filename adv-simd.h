@@ -36,6 +36,14 @@
 # include <tmmintrin.h>
 #endif
 
+// https://www.spinics.net/lists/gcchelp/msg47735.html and
+// https://www.spinics.net/lists/gcchelp/msg47749.html
+#if (CRYPTOPP_GCC_VERSION >= 40900)
+# define GCC_NO_UBSAN __attribute__ ((no_sanitize_undefined))
+#else
+# define GCC_NO_UBSAN
+#endif
+
 // ************************ All block ciphers *********************** //
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -631,7 +639,7 @@ size_t AdvancedProcessBlocks128_NEON2x6(F2 func2, F6 func6,
     return length;
 }
 
-NAMESPACE_END
+NAMESPACE_END  // CryptoPP
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
@@ -656,6 +664,14 @@ NAMESPACE_END
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
+// GCC double casts, https://www.spinics.net/lists/gcchelp/msg47735.html
+#ifndef DOUBLE_CAST
+# define DOUBLE_CAST(x) ((double *)(void *)(x))
+#endif
+#ifndef CONST_DOUBLE_CAST
+# define CONST_DOUBLE_CAST(x) ((const double *)(const void *)(x))
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
@@ -674,7 +690,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F2, typename F6>
-inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
+inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
         const word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -711,7 +727,7 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b), _mm_castpd_si128(
-                    _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
+                    _mm_loaddup_pd(CONST_DOUBLE_CAST(inBlocks))));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
@@ -722,7 +738,7 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
                 block5 = _mm_add_epi32(be2, block4);
 
                 // Store the next counter. UBsan false positive; mem_addr can be unaligned.
-                _mm_store_sd(reinterpret_cast<double*>(const_cast<byte*>(inBlocks)),
+                _mm_store_sd(DOUBLE_CAST(inBlocks),
                     _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
             }
             else
@@ -802,14 +818,14 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b), _mm_castpd_si128(
-                    _mm_loaddup_pd(reinterpret_cast<const double*>(inBlocks))));
+                    _mm_loaddup_pd(CONST_DOUBLE_CAST(inBlocks))));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
                 block1 = _mm_add_epi32(be2, block0);
 
                 // Store the next counter. UBsan false positive; mem_addr can be unaligned.
-                _mm_store_sd(reinterpret_cast<double*>(const_cast<byte*>(inBlocks)),
+                _mm_store_sd(DOUBLE_CAST(inBlocks),
                     _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
             }
             else
@@ -873,13 +889,13 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
             __m128i block, zero = _mm_setzero_si128();
             block = _mm_castpd_si128(
                 // UBsan false positive; mem_addr can be unaligned.
-                _mm_load_sd(reinterpret_cast<const double*>(inBlocks)));
+                _mm_load_sd(CONST_DOUBLE_CAST(inBlocks)));
 
             if (flags & BT_XorInput)
             {
                 block = _mm_xor_si128(block, _mm_castpd_si128(
                     // UBsan false positive; mem_addr can be unaligned.
-                    _mm_load_sd(reinterpret_cast<const double*>(xorBlocks))));
+                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
             }
 
             if (flags & BT_InBlockIsCounter)
@@ -891,11 +907,11 @@ inline size_t AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
             {
                 block = _mm_xor_si128(block, _mm_castpd_si128(
                     // UBsan false positive; mem_addr can be unaligned.
-                    _mm_load_sd(reinterpret_cast<const double*>(xorBlocks))));
+                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
             }
 
             // UBsan false positive; mem_addr can be unaligned.
-            _mm_store_sd(reinterpret_cast<double*>(outBlocks), _mm_castsi128_pd(block));
+            _mm_store_sd(DOUBLE_CAST(outBlocks), _mm_castsi128_pd(block));
 
             inBlocks += inIncrement;
             outBlocks += outIncrement;
@@ -1103,7 +1119,7 @@ inline size_t AdvancedProcessBlocks128_SSE1x4(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(length >= 16);
 
     const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t  xmmBlockSize = 16;
+    // const ptrdiff_t xmmBlockSize = 16;
 
     ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
@@ -1212,7 +1228,7 @@ inline size_t AdvancedProcessBlocks128_SSE1x4(F1 func1, F4 func4,
     return length;
 }
 
-NAMESPACE_END
+NAMESPACE_END  // CryptoPP
 
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
 
