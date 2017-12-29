@@ -195,7 +195,7 @@ ifneq ($(HAVE_GAS),0)
   GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
   GAS218_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.1[8-9]|2\.[2-9]|[3-9])")
   GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
-  GAS223_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.2[3-9]|2\.[3-9]|[3-9])")
+  GAS224_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.2[4-9]|2\.[3-9]|[3-9])")
 endif
 
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(GREP) -c -E "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
@@ -221,7 +221,7 @@ else
 ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 else
-ifeq ($(HAVE_GAS)$(GAS223_OR_LATER),10)
+ifeq ($(HAVE_GAS)$(GAS224_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SHA
 
 endif  # -DCRYPTOPP_DISABLE_SHA
@@ -416,8 +416,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
-    SIMON_FLAG = -qarch=pwr4 -qaltivec
-    SPECK_FLAG = -qarch=pwr4 -qaltivec
+    ARIA_FLAG = -qarch=pwr7 -qaltivec
+    BLAKE2_FLAG = -qarch=pwr7 -qaltivec
   endif
   # IBM XL C/C++
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -426,6 +426,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     AES_FLAG = -qarch=pwr8 -qaltivec
     GCM_FLAG = -qarch=pwr8 -qaltivec
     SHA_FLAG = -qarch=pwr8 -qaltivec
+    ARIA_FLAG = -qarch=pwr8 -qaltivec
+    BLAKE2_FLAG = -qarch=pwr8 -qaltivec
   endif
 endif
 
