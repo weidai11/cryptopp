@@ -10,24 +10,6 @@
 #include "config.h"
 #include "stdcpp.h"
 
-#if 0
-
-// We set CRYPTOPP_ALTIVEC_AVAILABLE and friends based on
-// compiler version and preprocessor macros. If the compiler
-// feature is not available, then we have to disable it here.
-#if !defined(__ALTIVEC__)
-# undef CRYPTOPP_ALTIVEC_AVAILABLE
-#endif
-
-#if !(defined(__CRYPTO__) || defined(_ARCH_PWR8) || defined(_ARCH_PWR9))
-# undef CRYPTOPP_POWER8_AVAILABLE
-# undef CRYPTOPP_POWER8_AES_AVAILABLE
-# undef CRYPTOPP_POWER8_SHA_AVAILABLE
-# undef CRYPTOPP_POWER8_CRYPTO_AVAILABLE
-#endif
-
-#endif  // 0
-
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc-simd.h"
 #endif
