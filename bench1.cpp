@@ -70,7 +70,7 @@ void OutputResultBytes(const char *name, double length, double timeTaken)
 		else
 			std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << cpb;
 	}
-	g_logTotal += ::log(mbs);
+	g_logTotal += log(mbs);
 	g_logCount++;
 }
 
@@ -109,7 +109,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << t;
 	}
 
-	g_logTotal += ::log(iterations/timeTaken);
+	g_logTotal += log(iterations/timeTaken);
 	g_logCount++;
 }
 
