@@ -1021,14 +1021,14 @@ unsigned int FactoringWorkFactor(unsigned int n)
 	// extrapolated from the table in Odlyzko's "The Future of Integer Factorization"
 	// updated to reflect the factoring of RSA-130
 	if (n<5) return 0;
-	else return (unsigned int)(2.4 * std::pow((double)n, 1.0/3.0) * std::pow(::log(double(n)), 2.0/3.0) - 5);
+	else return (unsigned int)(2.4 * std::pow((double)n, 1.0/3.0) * std::pow(log(double(n)), 2.0/3.0) - 5);
 }
 
 unsigned int DiscreteLogWorkFactor(unsigned int n)
 {
 	// assuming discrete log takes about the same time as factoring
 	if (n<5) return 0;
-	else return (unsigned int)(2.4 * std::pow((double)n, 1.0/3.0) * std::pow(::log(double(n)), 2.0/3.0) - 5);
+	else return (unsigned int)(2.4 * std::pow((double)n, 1.0/3.0) * std::pow(log(double(n)), 2.0/3.0) - 5);
 }
 
 // ********************************************************
