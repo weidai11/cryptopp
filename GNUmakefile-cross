@@ -12,10 +12,12 @@ EGREP ?= egrep
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
 
-IS_i686 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'i.86')
-IS_x86_64 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'x86_64|amd64')
-IS_ARM := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'arm')
-IS_ARMv8 := $(shell $(CXX) -dumpmachine 2>&1 | $(EGREP) -i -c 'aarch32|aarch64')
+MACHINE ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
+IS_i686 := $(shell echo "$MACHINE" | $(EGREP) -v 64 | $(EGREP) -i -c 'i.86')
+IS_x86_64 := $(shell echo "$MACHINE" | $(EGREP) -i -c 'x86_64|amd64')
+IS_ARM := $(shell echo "$MACHINE" | $(EGREP) -i -c 'arm')
+IS_ARMv8 := $(shell echo "$MACHINE" | $(EGREP) -i -c 'aarch32|aarch64')
+
 CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
 
 IS_IOS ?= 0

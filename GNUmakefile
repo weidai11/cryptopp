@@ -30,29 +30,31 @@ else
   GREP ?= grep
 endif
 
-IS_X86 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -v "64" | $(GREP) -i -c -E "i.86|x86|i86")
-IS_X64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E "(_64|d64)")
-IS_PPC32 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
-IS_PPC64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E "ppc64|power64")
-IS_ARM32 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -v "64" | $(GREP) -i "arm" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
-IS_ARMV8 ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'aarch32|aarch64')
-IS_NEON ?= $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
-IS_SPARC := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c "sparc")
-IS_SPARC64 := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c "sparc64")
+MACHINE := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
+IS_X86 := $(shell echo "$(MACHINE)" | $(GREP) -v "64" | $(GREP) -i -c -E "i.86|x86|i86")
+IS_X64 := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E "(_64|d64)")
+IS_PPC32 := $(shell echo "$(MACHINE)" | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
+IS_PPC64 := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E "ppc64|power64")
+IS_ARM32 := $(shell echo "$(MACHINE)" | $(GREP) -i -v "64" | $(GREP) -i "arm" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
+IS_ARMV8 := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E 'aarch32|aarch64')
+IS_NEON := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
+IS_SPARC32 := $(shell echo "$(MACHINE)" | $(GREP) -i -v "64" | $(GREP) -i -c "sparc")
+IS_SPARC64 := $(shell echo "$(MACHINE)" | $(GREP) -i -c "sparc64")
 
-IS_AIX := $(shell uname -s | $(GREP) -i -c 'aix')
-IS_SUN := $(shell uname -s | $(GREP) -i -c "SunOS")
+IS_LINUX := $(shell echo "$(MACHINE)" | $(GREP) -i -c "Linux")
+IS_MINGW := $(shell echo "$(MACHINE)" | $(GREP) -i -c "MinGW")
+IS_MINGW32 := $(shell echo "$(MACHINE)" | $(GREP) -x -c "mingw32")
+IS_CYGWIN := $(shell echo "$(MACHINE)" | $(GREP) -i -c "Cygwin")
+IS_DARWIN := $(shell echo "$(MACHINE)" | $(GREP) -i -c "Darwin")
+IS_NETBSD := $(shell echo "$(MACHINE)" | $(GREP) -i -c "NetBSD")
 
-IS_LINUX := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Linux")
-IS_MINGW := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "MinGW")
-IS_MINGW32 := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -x -c "mingw32")
-IS_CYGWIN := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Cygwin")
-IS_DARWIN := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "Darwin")
-IS_NETBSD := $(shell $(CXX) -dumpmachine 2>/dev/null | $(GREP) -i -c "NetBSD")
+UNAME := $(shell uname -s 2>&1)
+IS_AIX := $(shell echo "$(UNAME)" | $(GREP) -i -c 'aix')
+IS_SUN := $(shell echo "$(UNAME)" | $(GREP) -i -c "SunOS")
 
 SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E 'CC: (Sun|Studio)')
 GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -v -E '(llvm|clang)' | $(GREP) -i -c -E '(gcc|g\+\+)')
-XLC_COMPILER := $(shell $(CXX) $(CXX) -qversion 2>/dev/null |$(GREP) -i -c "IBM XL")
+XLC_COMPILER := $(shell $(CXX) -qversion 2>/dev/null |$(GREP) -i -c "IBM XL")
 CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c -E '(llvm|clang)')
 INTEL_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c '\(icc\)')
 
@@ -64,10 +66,11 @@ ifneq ($(MACPORTS_COMPILER)$(HOMEBREW_COMPILER),00)
 endif
 
 # Sun Studio 12.0 provides SunCC 0x0510; and Sun Studio 12.3 provides SunCC 0x0512
-SUNCC_510_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|6\.)")
-SUNCC_511_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|6\.)")
-SUNCC_512_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
-SUNCC_513_OR_LATER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
+SUNCC_VERSION := $(shell $(CXX) -V 2>&1)
+SUNCC_510_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|6\.)")
+SUNCC_511_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|6\.)")
+SUNCC_512_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
+SUNCC_513_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
 # Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
@@ -411,6 +414,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     AES_FLAG = -mcpu=power8 -maltivec
     GCM_FLAG = -mcpu=power8 -maltivec
     SHA_FLAG = -mcpu=power8 -maltivec
+    SIMON_FLAG = -mcpu=power8 -maltivec
+    SPECK_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
@@ -418,6 +423,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = -qarch=pwr7 -qaltivec
     BLAKE2_FLAG = -qarch=pwr7 -qaltivec
+    SIMON_FLAG = -qarch=pwr7 -qaltivec
+    SPECK_FLAG = -qarch=pwr7 -qaltivec
   endif
   # IBM XL C/C++
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -428,6 +435,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SHA_FLAG = -qarch=pwr8 -qaltivec
     ARIA_FLAG = -qarch=pwr8 -qaltivec
     BLAKE2_FLAG = -qarch=pwr8 -qaltivec
+    SIMON_FLAG = -qarch=pwr8 -qaltivec
+    SPECK_FLAG = -qarch=pwr8 -qaltivec
   endif
 endif
 
@@ -520,7 +529,7 @@ endif
 # Add to all Solaris
 CXXFLAGS += -template=no%extdef
 # http://github.com/weidai11/cryptopp/issues/403
-ifneq ($(IS_SPARC)$(IS_SPARC64),00)
+ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
 CXXFLAGS += -xmemalign=4i
 endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(GREP) -c -E "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
