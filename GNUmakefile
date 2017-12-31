@@ -1024,6 +1024,12 @@ rdrand-%.o:
 	./rdrand-nasm.sh
 endif
 
+# IBM XLC -O3 optimization bug
+ifeq ($(XLC_COMPILER),1)
+sm3.o : sm3.cpp
+	$(CXX) $(strip $(subst -O3,-O2,$(CXXFLAGS)) -c) $<
+endif
+
 # SSSE3 or NEON available
 aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
