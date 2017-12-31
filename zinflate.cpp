@@ -182,7 +182,7 @@ void HuffmanDecoder::FillCacheEntry(LookupEntry &entry, code_t normalizedCode) c
 
 inline unsigned int HuffmanDecoder::Decode(code_t code, /* out */ value_t &value) const
 {
-	CRYPTOPP_ASSERT(((int)(code & m_cacheMask)) < m_cache.size());
+	CRYPTOPP_ASSERT(((int)(code & m_cacheMask)) < (int)m_cache.size());
 	LookupEntry &entry = m_cache[code & m_cacheMask];
 
 	code_t normalizedCode = 0;
