@@ -136,7 +136,7 @@ inline void SIMON64_Enc_Block(uint32x4_t &block1, uint32x4_t &block0,
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
-    for (size_t i = 0; static_cast<int>(i) < (rounds & ~1)-1; i += 2)
+    for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
         const uint32x4_t rk1 = vld1q_dup_u32(subkeys+i);
         y1 = veorq_u32(veorq_u32(y1, SIMON64_f(x1)), rk1);
@@ -182,7 +182,7 @@ inline void SIMON64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
         rounds--;
     }
 
-    for (size_t i = rounds-2; static_cast<int>(i) >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint32x4_t rk1 = vld1q_dup_u32(subkeys+i+1);
         x1 = veorq_u32(veorq_u32(x1, SIMON64_f(y1)), rk1);
@@ -218,7 +218,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
-    for (size_t i = 0; static_cast<int>(i) < (rounds & ~1) - 1; i += 2)
+    for (int i = 0; i < static_cast<int>(rounds & ~1) - 1; i += 2)
     {
         const uint32x4_t rk1 = vld1q_dup_u32(subkeys+i);
         y1 = veorq_u32(veorq_u32(y1, SIMON64_f(x1)), rk1);
@@ -285,7 +285,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
         rounds--;
     }
 
-    for (size_t i = rounds - 2; static_cast<int>(i) >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint32x4_t rk1 = vld1q_dup_u32(subkeys + i + 1);
         x1 = veorq_u32(veorq_u32(x1, SIMON64_f(y1)), rk1);
@@ -409,7 +409,7 @@ inline void SIMON128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
-    for (size_t i = 0; static_cast<int>(i) < (rounds & ~1)-1; i += 2)
+    for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
         const uint64x2_t rk1 = vld1q_dup_u64(subkeys+i);
         y1 = veorq_u64(veorq_u64(y1, SIMON128_f(x1)), rk1);
@@ -451,7 +451,7 @@ inline void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
     x3 = Shuffle64(x3); y3 = Shuffle64(y3);
 
-    for (size_t i = 0; static_cast<int>(i) < (rounds & ~1) - 1; i += 2)
+    for (int i = 0; i < static_cast<int>(rounds & ~1) - 1; i += 2)
     {
         const uint64x2_t rk1 = vld1q_dup_u64(subkeys+i);
         y1 = veorq_u64(veorq_u64(y1, SIMON128_f(x1)), rk1);
@@ -507,7 +507,7 @@ inline void SIMON128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
         rounds--;
     }
 
-    for (size_t i = rounds-2; static_cast<int>(i) >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint64x2_t rk1 = vld1q_dup_u64(subkeys+i+1);
         x1 = veorq_u64(veorq_u64(x1, SIMON128_f(y1)), rk1);
@@ -552,7 +552,7 @@ inline void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
         rounds--;
     }
 
-    for (size_t i = rounds - 2; static_cast<int>(i) >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint64x2_t rk1 = vld1q_dup_u64(subkeys + i + 1);
         x1 = veorq_u64(veorq_u64(x1, SIMON128_f(y1)), rk1);

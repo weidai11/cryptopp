@@ -135,7 +135,7 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
 
     x1 = Shuffle32(x1); y1 = Shuffle32(y1);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
@@ -203,7 +203,7 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     x2 = Shuffle32(x2); y2 = Shuffle32(y2);
     x3 = Shuffle32(x3); y3 = Shuffle32(y3);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
@@ -383,7 +383,7 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
 
     x1 = Shuffle64(x1); y1 = Shuffle64(y1);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -420,7 +420,7 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     x2 = Shuffle64(x2); y2 = Shuffle64(y2);
     x3 = Shuffle64(x3); y3 = Shuffle64(y3);
 
-    for (size_t i=0; static_cast<int>(i)<rounds; ++i)
+    for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
