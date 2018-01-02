@@ -86,9 +86,9 @@ template <class T> struct EcRecommendedParameters;
 template<> struct EcRecommendedParameters<EC2N>
 {
 	EcRecommendedParameters(const OID &oid, unsigned int t2, unsigned int t3, unsigned int t4, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), t0(0), t1(0), t2(t2), t3(t3), t4(t4), a(a), b(b), g(g), n(n), h(h) {}
+		: oid(oid), a(a), b(b), g(g), n(n), h(h), t0(0), t1(0), t2(t2), t3(t3), t4(t4) {}
 	EcRecommendedParameters(const OID &oid, unsigned int t0, unsigned int t1, unsigned int t2, unsigned int t3, unsigned int t4, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), t0(t0), t1(t1), t2(t2), t3(t3), t4(t4), a(a), b(b), g(g), n(n), h(h) {}
+		: oid(oid), a(a), b(b), g(g), n(n), h(h), t0(t0), t1(t1), t2(t2), t3(t3), t4(t4) {}
 	EC2N *NewEC() const
 	{
 		StringSource ssA(a, true, new HexDecoder);
