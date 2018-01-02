@@ -2994,17 +2994,18 @@ Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signe
 {
 	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
-	if (o == LITTLE_ENDIAN_ORDER)
+	if (o != LITTLE_ENDIAN_ORDER)
+	{
+		Decode(encodedInteger, byteCount, s);
+	}
+	else
 	{
 		SecByteBlock block(byteCount);
 		encodedInteger.Get(block, block.size());
 		std::reverse(block.begin(), block.begin()+block.size());
 
 		Decode(block.begin(), block.size(), s);
-		return;
 	}
-
-	Decode(encodedInteger, byteCount, s);
 }
 
 Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
@@ -3012,7 +3013,11 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 	CRYPTOPP_ASSERT(encodedInteger && byteCount); // NULL buffer
 	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
-	if (o == LITTLE_ENDIAN_ORDER)
+	if (o != LITTLE_ENDIAN_ORDER)
+	{
+		Decode(encodedInteger, byteCount, s);
+	}
+	else
 	{
 		SecByteBlock block(byteCount);
 #if (_MSC_FULL_VER >= 140050727)
@@ -3024,13 +3029,12 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 		Decode(block.begin(), block.size(), s);
 		return;
 	}
-
-	Decode(encodedInteger, byteCount, s);
 }
 
 Integer::Integer(BufferedTransformation &bt)
 {
-	BERDecode(bt);
+	// Make explicit call to avoid virtual-dispatch findings in ctor
+	Integer::BERDecode(bt);
 }
 
 Integer::Integer(RandomNumberGenerator &rng, size_t bitcount)

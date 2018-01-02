@@ -86,8 +86,10 @@ X917RNG::X917RNG(BlockTransformation *c, const byte *seed, const byte *determini
 
 	// for FIPS 140-2
 	// GenerateBlock(m_lastBlock, m_size);
+
+	// Make explicit call to avoid virtual-dispatch findings in ctor
 	ArraySink target(m_lastBlock, m_size);
-	GenerateIntoBufferedTransformation(target, DEFAULT_CHANNEL, m_size);
+	X917RNG::GenerateIntoBufferedTransformation(target, DEFAULT_CHANNEL, m_size);
 }
 
 void X917RNG::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size)
