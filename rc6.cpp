@@ -87,7 +87,6 @@ void RC6::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 		a = rotrMod(a-sptr[0], u) ^ t;
 	}
 
-	sptr -= 2;
 	d -= sTable[1];
 	b -= sTable[0];
 

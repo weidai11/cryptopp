@@ -100,9 +100,8 @@ template<> struct EcRecommendedParameters<EC2N>
 	};
 
 	OID oid;
-	unsigned int t0, t1, t2, t3, t4;
 	const char *a, *b, *g, *n;
-	unsigned int h;
+	unsigned int h, t0, t1, t2, t3, t4;
 };
 
 template<> struct EcRecommendedParameters<ECP>
@@ -118,8 +117,7 @@ template<> struct EcRecommendedParameters<ECP>
 	};
 
 	OID oid;
-	const char *p;
-	const char *a, *b, *g, *n;
+	const char *p, *a, *b, *g, *n;
 	unsigned int h;
 };
 
