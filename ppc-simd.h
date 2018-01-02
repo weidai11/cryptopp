@@ -29,9 +29,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-typedef __vector unsigned char      uint8x16_p;
-typedef __vector unsigned int       uint32x4_p;
-#if defined(CRYPTOPP_POWER5_AVAILABLE)
+typedef __vector char             int8x16_p;
+typedef __vector unsigned char   uint8x16_p;
+typedef __vector unsigned short  uint16x8_p;
+typedef __vector unsigned int    uint32x4_p;
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
 typedef __vector unsigned long long uint64x2_p;
 #endif
 

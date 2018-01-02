@@ -1155,14 +1155,14 @@ NAMESPACE_BEGIN(CryptoPP)
 size_t SIMON64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_NEON2x6(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_NEON(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SIMON64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_NEON2x6(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_NEON(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -1171,14 +1171,14 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t roun
 size_t SIMON128_Enc_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_NEON2x6(SIMON128_Enc_Block, SIMON128_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_NEON(SIMON128_Enc_Block, SIMON128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SIMON128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_NEON2x6(SIMON128_Dec_Block, SIMON128_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_NEON(SIMON128_Dec_Block, SIMON128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -1189,14 +1189,14 @@ size_t SIMON128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rou
 size_t SIMON64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_SSE2x6(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_SSE(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_SSE2x6(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_SSE(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif
@@ -1205,14 +1205,14 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 size_t SIMON128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_SSE2x6(SIMON128_Enc_Block, SIMON128_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_SSE(SIMON128_Enc_Block, SIMON128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SIMON128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_SSE2x6(SIMON128_Dec_Block, SIMON128_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_SSE(SIMON128_Dec_Block, SIMON128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE

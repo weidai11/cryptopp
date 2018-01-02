@@ -304,9 +304,9 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen,
         word32* rk, const word32* rc, const byte* Se);
 
-extern size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
+extern size_t Rijndael_Enc_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-extern size_t Rijndael_Dec_AdvancedProcessBlocks_POWER8(const word32 *subkeys, size_t rounds,
+extern size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
@@ -1139,7 +1139,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #endif
 #if CRYPTOPP_POWER8_AES_AVAILABLE
 	if (HasAES())
-		return Rijndael_Enc_AdvancedProcessBlocks_POWER8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_Enc_AdvancedProcessBlocks128_6x1_ALTIVEC(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 #if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
@@ -1207,7 +1207,7 @@ size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 #endif
 #if CRYPTOPP_POWER8_AES_AVAILABLE
 	if (HasAES())
-		return Rijndael_Dec_AdvancedProcessBlocks_POWER8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);

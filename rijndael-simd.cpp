@@ -517,7 +517,7 @@ size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
     MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*,  inBlocks);
     MAYBE_CONST   byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
 
-    return AdvancedProcessBlocks128_SSE1x4(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
+    return AdvancedProcessBlocks128_4x1_SSE(AESNI_Enc_Block, AESNI_Enc_4_Blocks,
                 sk, rounds, ib, xb, outBlocks, length, flags);
 }
 
@@ -528,7 +528,7 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
     MAYBE_CONST   byte* ib = MAYBE_UNCONST_CAST(byte*,  inBlocks);
     MAYBE_CONST   byte* xb = MAYBE_UNCONST_CAST(byte*, xorBlocks);
 
-    return AdvancedProcessBlocks128_SSE1x4(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
+    return AdvancedProcessBlocks128_4x1_SSE(AESNI_Dec_Block, AESNI_Dec_4_Blocks,
                 sk, rounds, ib, xb, outBlocks, length, flags);
 }
 
@@ -702,129 +702,6 @@ static inline void POWER8_Dec_6_Blocks(VectorType &block0, VectorType &block1,
     block5 = VectorDecryptLast(block5, k);
 }
 
-template <typename F1, typename F6>
-size_t Rijndael_AdvancedProcessBlocks_POWER8(F1 func1, F6 func6, const word32 *subKeys, size_t rounds,
-            const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    CRYPTOPP_ASSERT(subKeys);
-    CRYPTOPP_ASSERT(inBlocks);
-    CRYPTOPP_ASSERT(outBlocks);
-    CRYPTOPP_ASSERT(length >= 16);
-
-    const size_t blockSize = 16;
-    size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    size_t xorIncrement = xorBlocks ? blockSize : 0;
-    size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
-
-    if (flags & BlockTransformation::BT_ReverseDirection)
-    {
-        inBlocks += length - blockSize;
-        xorBlocks += length - blockSize;
-        outBlocks += length - blockSize;
-        inIncrement = 0-inIncrement;
-        xorIncrement = 0-xorIncrement;
-        outIncrement = 0-outIncrement;
-    }
-
-    if (flags & BlockTransformation::BT_AllowParallel)
-    {
-        while (length >= 6*blockSize)
-        {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-            const VectorType one = (VectorType)((uint64x2_p){1,0});
-#else
-            const VectorType one = (VectorType)((uint64x2_p){0,1});
-#endif
-
-            VectorType block0, block1, block2, block3, block4, block5, temp;
-            block0 = VectorLoad(inBlocks);
-
-            if (flags & BlockTransformation::BT_InBlockIsCounter)
-            {
-                block1 = VectorAdd(block0, one);
-                block2 = VectorAdd(block1, one);
-                block3 = VectorAdd(block2, one);
-                block4 = VectorAdd(block3, one);
-                block5 = VectorAdd(block4, one);
-                temp   = VectorAdd(block5, one);
-                VectorStore(temp, const_cast<byte*>(inBlocks));
-            }
-            else
-            {
-                const int inc = static_cast<int>(inIncrement);
-                block1 = VectorLoad(1*inc, inBlocks);
-                block2 = VectorLoad(2*inc, inBlocks);
-                block3 = VectorLoad(3*inc, inBlocks);
-                block4 = VectorLoad(4*inc, inBlocks);
-                block5 = VectorLoad(5*inc, inBlocks);
-                inBlocks += 6*inc;
-            }
-
-            if (flags & BlockTransformation::BT_XorInput)
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
-                block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
-                block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
-                block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
-                block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
-                block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
-                xorBlocks += 6*inc;
-            }
-
-            func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
-
-            if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
-                block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
-                block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
-                block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
-                block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
-                block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
-                xorBlocks += 6*inc;
-            }
-
-            const int inc = static_cast<int>(outIncrement);
-            VectorStore(block0, outBlocks+0*inc);
-            VectorStore(block1, outBlocks+1*inc);
-            VectorStore(block2, outBlocks+2*inc);
-            VectorStore(block3, outBlocks+3*inc);
-            VectorStore(block4, outBlocks+4*inc);
-            VectorStore(block5, outBlocks+5*inc);
-
-            outBlocks += 6*inc;
-            length -= 6*blockSize;
-        }
-    }
-
-    while (length >= blockSize)
-    {
-        VectorType block = VectorLoad(inBlocks);
-
-        if (flags & BlockTransformation::BT_XorInput)
-            block = VectorXor(block, VectorLoad(xorBlocks));
-
-        if (flags & BlockTransformation::BT_InBlockIsCounter)
-            const_cast<byte *>(inBlocks)[15]++;
-
-        func1(block, subKeys, rounds);
-
-        if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-            block = VectorXor(block, VectorLoad(xorBlocks));
-
-        VectorStore(block, outBlocks);
-
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
-        length -= blockSize;
-    }
-
-    return length;
-}
-
 ANONYMOUS_NAMESPACE_END
 
 // We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256.
@@ -925,17 +802,17 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
     }
 }
 
-size_t Rijndael_Enc_AdvancedProcessBlocks_POWER8(const word32 *subKeys, size_t rounds,
+size_t Rijndael_Enc_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return Rijndael_AdvancedProcessBlocks_POWER8(POWER8_Enc_Block, POWER8_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_6x1_ALTIVEC(POWER8_Enc_Block, POWER8_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t Rijndael_Dec_AdvancedProcessBlocks_POWER8(const word32 *subKeys, size_t rounds,
+size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subKeys, size_t rounds,
             const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return Rijndael_AdvancedProcessBlocks_POWER8(POWER8_Dec_Block, POWER8_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_6x1_ALTIVEC(POWER8_Dec_Block, POWER8_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 

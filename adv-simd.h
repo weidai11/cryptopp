@@ -8,16 +8,18 @@
 //
 //    There are 8 templates provided in this file. The number following the
 //    function name is the block size of the cipher. The name following that
-//    is the acceleration and arrangement. For example SSE1x4 means Intel SSE
-//    using two encrypt (or decrypt) functions: one that operates on 1 block,
-//    and one that operates on 4 blocks.
+//    is the acceleration and arrangement. For example 4x1_SSE means Intel SSE
+//    using two encrypt (or decrypt) functions: one that operates on 4 blocks,
+//    and one that operates on 1 block.
 //
-//      * AdvancedProcessBlocks64_SSE1x4
-//      * AdvancedProcessBlocks128_SSE1x4
-//      * AdvancedProcessBlocks64_SSE2x6
-//      * AdvancedProcessBlocks128_SSE2x6
-//      * AdvancedProcessBlocks64_NEON2x6
-//      * AdvancedProcessBlocks128_NEON2x6
+//      * AdvancedProcessBlocks64_4x1_SSE
+//      * AdvancedProcessBlocks128_4x1_SSE
+//      * AdvancedProcessBlocks64_6x2_SSE
+//      * AdvancedProcessBlocks128_6x2_SSE
+//      * AdvancedProcessBlocks64_6x2_NEON
+//      * AdvancedProcessBlocks128_6x2_NEON
+//      * AdvancedProcessBlocks64_6x2_ALTIVEC
+//      * AdvancedProcessBlocks128_6x2_ALTIVEC
 //
 
 #ifndef CRYPTOPP_ADVANCED_SIMD_TEMPLATES
@@ -34,6 +36,10 @@
 # include <emmintrin.h>
 # include <pmmintrin.h>
 # include <tmmintrin.h>
+#endif
+
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+# include "ppc-simd.h"
 #endif
 
 // https://www.spinics.net/lists/gcchelp/msg47735.html and
@@ -88,7 +94,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F2, typename F6>
-inline size_t AdvancedProcessBlocks64_NEON2x6(F2 func2, F6 func6,
+inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
         const word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -455,7 +461,7 @@ size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
 }
 
 template <typename F2, typename F6>
-size_t AdvancedProcessBlocks128_NEON2x6(F2 func2, F6 func6,
+size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             const word64 *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -690,7 +696,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F2, typename F6>
-inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
+inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
         const word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -924,7 +930,7 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_SSE2x6(F2 func2, F6 func6,
 }
 
 template <typename F2, typename F6>
-inline size_t AdvancedProcessBlocks128_SSE2x6(F2 func2, F6 func6,
+inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
         const word64 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1109,7 +1115,7 @@ inline size_t AdvancedProcessBlocks128_SSE2x6(F2 func2, F6 func6,
 }
 
 template <typename F1, typename F4>
-inline size_t AdvancedProcessBlocks128_SSE1x4(F1 func1, F4 func4,
+inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
         MAYBE_CONST word32 *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1231,5 +1237,145 @@ inline size_t AdvancedProcessBlocks128_SSE1x4(F1 func1, F4 func4,
 NAMESPACE_END  // CryptoPP
 
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
+
+// *********************** Altivec/Power 4 ********************** //
+
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+using CryptoPP::uint32x4_p;
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+const uint32x4_p s_one = {1,0,0,0};
+#else
+const uint32x4_p s_one = {0,0,0,1};
+#endif
+
+ANONYMOUS_NAMESPACE_END
+
+NAMESPACE_BEGIN(CryptoPP)
+
+template <typename F1, typename F6>
+size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6, const word32 *subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 16);
+
+    const ptrdiff_t blockSize = 16;
+
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+    if (flags & BT_ReverseDirection)
+    {
+        inBlocks += length - blockSize;
+        xorBlocks += length - blockSize;
+        outBlocks += length - blockSize;
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+    }
+
+    if (flags & BT_AllowParallel)
+    {
+        while (length >= 6*blockSize)
+        {
+            VectorType block0, block1, block2, block3, block4, block5, temp;
+            block0 = VectorLoad(inBlocks);
+
+            if (flags & BT_InBlockIsCounter)
+            {
+                block1 = VectorAdd(block0, s_one);
+                block2 = VectorAdd(block1, s_one);
+                block3 = VectorAdd(block2, s_one);
+                block4 = VectorAdd(block3, s_one);
+                block5 = VectorAdd(block4, s_one);
+                temp   = VectorAdd(block5, s_one);
+                VectorStore(temp, const_cast<byte*>(inBlocks));
+            }
+            else
+            {
+                const int inc = static_cast<int>(inIncrement);
+                block1 = VectorLoad(1*inc, inBlocks);
+                block2 = VectorLoad(2*inc, inBlocks);
+                block3 = VectorLoad(3*inc, inBlocks);
+                block4 = VectorLoad(4*inc, inBlocks);
+                block5 = VectorLoad(5*inc, inBlocks);
+                inBlocks += 6*inc;
+            }
+
+            if (flags & BT_XorInput)
+            {
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
+                block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
+                block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
+                block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
+                block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
+                block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
+                xorBlocks += 6*inc;
+            }
+
+            func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
+
+            if (xorBlocks && !(flags & BT_XorInput))
+            {
+                const int inc = static_cast<int>(xorIncrement);
+                block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
+                block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
+                block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
+                block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
+                block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
+                block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
+                xorBlocks += 6*inc;
+            }
+
+            const int inc = static_cast<int>(outIncrement);
+            VectorStore(block0, outBlocks+0*inc);
+            VectorStore(block1, outBlocks+1*inc);
+            VectorStore(block2, outBlocks+2*inc);
+            VectorStore(block3, outBlocks+3*inc);
+            VectorStore(block4, outBlocks+4*inc);
+            VectorStore(block5, outBlocks+5*inc);
+
+            outBlocks += 6*inc;
+            length -= 6*blockSize;
+        }
+    }
+
+    while (length >= blockSize)
+    {
+        VectorType block = VectorLoad(inBlocks);
+
+        if (flags & BT_XorInput)
+            block = VectorXor(block, VectorLoad(xorBlocks));
+
+        if (flags & BT_InBlockIsCounter)
+            const_cast<byte *>(inBlocks)[15]++;
+
+        func1(block, subKeys, rounds);
+
+        if (xorBlocks && !(flags & BT_XorInput))
+            block = VectorXor(block, VectorLoad(xorBlocks));
+
+        VectorStore(block, outBlocks);
+
+        inBlocks += inIncrement;
+        outBlocks += outIncrement;
+        xorBlocks += xorIncrement;
+        length -= blockSize;
+    }
+
+    return length;
+}
+
+NAMESPACE_END  // CryptoPP
+
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 #endif  // CRYPTOPP_ADVANCED_SIMD_TEMPLATES

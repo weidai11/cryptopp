@@ -1056,14 +1056,14 @@ NAMESPACE_BEGIN(CryptoPP)
 size_t SPECK64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_NEON2x6(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_NEON(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_NEON2x6(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_NEON(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif
@@ -1072,14 +1072,14 @@ size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t roun
 size_t SPECK128_Enc_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_NEON2x6(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_NEON(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_NEON2x6(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_NEON(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -1090,14 +1090,14 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rou
 size_t SPECK64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_SSE2x6(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_SSE(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks64_SSE2x6(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
+    return AdvancedProcessBlocks64_6x2_SSE(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif
@@ -1106,14 +1106,14 @@ size_t SPECK64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 size_t SPECK128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_SSE2x6(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_SSE(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    return AdvancedProcessBlocks128_SSE2x6(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
+    return AdvancedProcessBlocks128_6x2_SSE(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
