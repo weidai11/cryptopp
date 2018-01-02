@@ -439,7 +439,7 @@ void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
 {
 # if CRYPTOPP_SSE2_ASM_AVAILABLE && defined(__GNUC__)
     asm ("movdqa %1, %%xmm0; pxor %2, %%xmm0; movdqa %%xmm0, %0;"
-         : "=m" (a[0]) : "xm"(b[0]), "xm"(c[0]));
+         : "=xm" (a[0]) : "m"(b[0]), "m"(c[0]));
 # else  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
     _mm_store_si128(M128_CAST(a), _mm_xor_si128(
         _mm_load_si128(CONST_M128_CAST(b)),
