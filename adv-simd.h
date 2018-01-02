@@ -1285,11 +1285,11 @@ size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6, const word32 *su
     {
         while (length >= 6*blockSize)
         {
-            VectorType block0, block1, block2, block3, block4, block5, temp;
-            block0 = VectorLoad(inBlocks);
+            uint32x4_p block0, block1, block2, block3, block4, block5, temp;
 
             if (flags & BT_InBlockIsCounter)
             {
+                block0 = VectorLoad(inBlocks);
                 block1 = VectorAdd(block0, s_one);
                 block2 = VectorAdd(block1, s_one);
                 block3 = VectorAdd(block2, s_one);
@@ -1300,57 +1300,74 @@ size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6, const word32 *su
             }
             else
             {
-                const int inc = static_cast<int>(inIncrement);
-                block1 = VectorLoad(1*inc, inBlocks);
-                block2 = VectorLoad(2*inc, inBlocks);
-                block3 = VectorLoad(3*inc, inBlocks);
-                block4 = VectorLoad(4*inc, inBlocks);
-                block5 = VectorLoad(5*inc, inBlocks);
-                inBlocks += 6*inc;
+                block0 = VectorLoad(inBlocks);
+                inBlocks += inIncrement;
+                block1 = VectorLoad(inBlocks);
+                inBlocks += inIncrement;
+                block2 = VectorLoad(inBlocks);
+                inBlocks += inIncrement;
+                block3 = VectorLoad(inBlocks);
+                inBlocks += inIncrement;
+                block4 = VectorLoad(inBlocks);
+                inBlocks += inIncrement;
+                block5 = VectorLoad(inBlocks);
+                inBlocks += inIncrement;
             }
 
             if (flags & BT_XorInput)
             {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
-                block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
-                block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
-                block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
-                block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
-                block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
-                xorBlocks += 6*inc;
+                block0 = VectorXor(block0, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block1 = VectorXor(block1, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block2 = VectorXor(block2, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block3 = VectorXor(block3, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block4 = VectorXor(block4, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block5 = VectorXor(block5, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
 
             if (xorBlocks && !(flags & BT_XorInput))
             {
-                const int inc = static_cast<int>(xorIncrement);
-                block0 = VectorXor(block0, VectorLoad(0*inc, xorBlocks));
-                block1 = VectorXor(block1, VectorLoad(1*inc, xorBlocks));
-                block2 = VectorXor(block2, VectorLoad(2*inc, xorBlocks));
-                block3 = VectorXor(block3, VectorLoad(3*inc, xorBlocks));
-                block4 = VectorXor(block4, VectorLoad(4*inc, xorBlocks));
-                block5 = VectorXor(block5, VectorLoad(5*inc, xorBlocks));
-                xorBlocks += 6*inc;
+                block0 = VectorXor(block0, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block1 = VectorXor(block1, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block2 = VectorXor(block2, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block3 = VectorXor(block3, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block4 = VectorXor(block4, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
+                block5 = VectorXor(block5, VectorLoad(xorBlocks));
+                xorBlocks += xorIncrement;
             }
 
-            const int inc = static_cast<int>(outIncrement);
-            VectorStore(block0, outBlocks+0*inc);
-            VectorStore(block1, outBlocks+1*inc);
-            VectorStore(block2, outBlocks+2*inc);
-            VectorStore(block3, outBlocks+3*inc);
-            VectorStore(block4, outBlocks+4*inc);
-            VectorStore(block5, outBlocks+5*inc);
+            VectorStore(block0, outBlocks);
+            outBlocks += outIncrement;
+            VectorStore(block1, outBlocks);
+            outBlocks += outIncrement;
+            VectorStore(block2, outBlocks);
+            outBlocks += outIncrement;
+            VectorStore(block3, outBlocks);
+            outBlocks += outIncrement;
+            VectorStore(block4, outBlocks);
+            outBlocks += outIncrement;
+            VectorStore(block5, outBlocks);
+            outBlocks += outIncrement;
 
-            outBlocks += 6*inc;
             length -= 6*blockSize;
         }
     }
 
     while (length >= blockSize)
     {
-        VectorType block = VectorLoad(inBlocks);
+        uint32x4_p block = VectorLoad(inBlocks);
 
         if (flags & BT_XorInput)
             block = VectorXor(block, VectorLoad(xorBlocks));

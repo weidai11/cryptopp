@@ -596,12 +596,12 @@ IncrementPointerAndStore(const uint8x16_p& r, uint8_t* p)
     return p;
 }
 
-static inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
+static inline void POWER8_Enc_Block(uint32x4_p &block, const word32 *subkeys, unsigned int rounds)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    VectorType k = VectorLoadKey(keys);
+    uint32x4_p k = VectorLoadKey(keys);
     block = VectorXor(block, k);
 
     for (size_t i=1; i<rounds-1; i+=2)
@@ -614,14 +614,14 @@ static inline void POWER8_Enc_Block(VectorType &block, const word32 *subkeys, un
     block = VectorEncryptLast(block, VectorLoadKey(rounds*16, keys));
 }
 
-static inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
-            VectorType &block2, VectorType &block3, VectorType &block4,
-            VectorType &block5, const word32 *subkeys, unsigned int rounds)
+static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+            uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
+            uint32x4_p &block5, const word32 *subkeys, unsigned int rounds)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    VectorType k = VectorLoadKey(keys);
+    uint32x4_p k = VectorLoadKey(keys);
     block0 = VectorXor(block0, k);
     block1 = VectorXor(block1, k);
     block2 = VectorXor(block2, k);
@@ -649,12 +649,12 @@ static inline void POWER8_Enc_6_Blocks(VectorType &block0, VectorType &block1,
     block5 = VectorEncryptLast(block5, k);
 }
 
-static inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, unsigned int rounds)
+static inline void POWER8_Dec_Block(uint32x4_p &block, const word32 *subkeys, unsigned int rounds)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    VectorType k = VectorLoadKey(rounds*16, keys);
+    uint32x4_p k = VectorLoadKey(rounds*16, keys);
     block = VectorXor(block, k);
 
     for (size_t i=rounds-1; i>1; i-=2)
@@ -667,14 +667,14 @@ static inline void POWER8_Dec_Block(VectorType &block, const word32 *subkeys, un
     block = VectorDecryptLast(block, VectorLoadKey(0, keys));
 }
 
-static inline void POWER8_Dec_6_Blocks(VectorType &block0, VectorType &block1,
-            VectorType &block2, VectorType &block3, VectorType &block4,
-            VectorType &block5, const word32 *subkeys, unsigned int rounds)
+static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+            uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
+            uint32x4_p &block5, const word32 *subkeys, unsigned int rounds)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    VectorType k = VectorLoadKey(rounds*16, keys);
+    uint32x4_p k = VectorLoadKey(rounds*16, keys);
     block0 = VectorXor(block0, k);
     block1 = VectorXor(block1, k);
     block2 = VectorXor(block2, k);

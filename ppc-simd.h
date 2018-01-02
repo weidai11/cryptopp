@@ -38,10 +38,58 @@ typedef __vector unsigned int    uint32x4_p;
 typedef __vector unsigned long long uint64x2_p;
 #endif
 
-/// \brief Default vector type
-typedef uint32x4_p VectorType;
-
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_POWER7_AVAILABLE)
+
+inline uint32x4_p VectorLoad(const byte src[16])
+{
+    // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
+    const uint8x16_p perm = vec_lvsl(0, (uint8_t*)src);
+    const uint8x16_p low = vec_ld(0, (uint8_t*)src);
+    const uint8x16_p high = vec_ld(15, (uint8_t*)src);
+    const uint8x16_p data = vec_perm(low, high, perm);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    return (uint32x4_p)data;
+#else
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    return (uint32x4_p)vec_perm(data, data, mask);
+#endif
+}
+
+inline void VectorStore(const uint32x4_p data, byte dest[16])
+{
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    const uint8x16_p t1 = (uint8x16_p)vec_perm(data, data, mask);
+#else
+    const uint8x16_p t1 = (uint8x16_p)data;
+#endif
+
+    // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
+    const uint8x16_p t2 = vec_perm(t1, t1, vec_lvsr(0, dest));
+    vec_ste((uint8x16_p) t2,  0, (unsigned char*) dest);
+    vec_ste((uint16x8_p) t2,  1, (unsigned short*)dest);
+    vec_ste((uint32x4_p) t2,  3, (unsigned int*)  dest);
+    vec_ste((uint32x4_p) t2,  4, (unsigned int*)  dest);
+    vec_ste((uint32x4_p) t2,  8, (unsigned int*)  dest);
+    vec_ste((uint32x4_p) t2, 12, (unsigned int*)  dest);
+    vec_ste((uint16x8_p) t2, 14, (unsigned short*)dest);
+    vec_ste((uint8x16_p) t2, 15, (unsigned char*) dest);
+}
+
+inline uint32x4_p VectorXor(const uint32x4_p vec1, const uint32x4_p vec2)
+{
+    return vec_xor(vec1, vec2);
+}
+
+inline uint32x4_p VectorAdd(const uint32x4_p vec1, const uint32x4_p vec2)
+{
+    return vec_add(vec1, vec2);
+}
+
+#endif
 
 #if defined(CRYPTOPP_POWER7_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
