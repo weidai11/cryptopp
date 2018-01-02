@@ -21,7 +21,6 @@ CHMOD ?= chmod
 MKDIR ?= mkdir
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
-UNAME := $(shell uname)
 
 # Solaris provides a non-Posix shell at /usr/bin
 ifneq ($(wildcard /usr/xpg4/bin),)
@@ -593,7 +592,8 @@ endif # Asan
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
   ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
-    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(GREP) -i -c "elf")
+    LD_GOLD = $(shell command -v ld.gold)
+    ELF_FORMAT := $(shell file $(LD_GOLD) 2>&1 | cut -d":" -f 2 | $(GREP) -i -c "elf")
     ifneq ($(ELF_FORMAT),0)
       LDFLAGS += -fuse-ld=gold
     endif # ELF/ELF64
