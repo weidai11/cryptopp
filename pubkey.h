@@ -447,6 +447,7 @@ public:
 		byte *representative, size_t representativeBitLength) const;
 };
 
+#if 0
 /// \class DL_SignatureMessageEncodingMethod_SM2
 /// \brief Interface for message encoding method for public key signature schemes.
 /// \details DL_SignatureMessageEncodingMethod_SM2 provides interfaces
@@ -459,6 +460,7 @@ public:
 		HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 		byte *representative, size_t representativeBitLength) const;
 };
+#endif
 
 /// \class PK_MessageAccumulatorBase
 /// \brief Interface for message encoding method for public key signature schemes.
