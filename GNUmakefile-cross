@@ -357,6 +357,10 @@ install:
 	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(CHMOD) 644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
+	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)/pkgconfig
+	$(CP) libcrypto++.pc $(DESTDIR)$(LIBDIR)/pkgconfig
+	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/pkgconfig
+	-$(CHMOD) 644 $(DESTDIR)$(LIBDIR)/pkgconfig/libcrypto++.pc
 ifneq ($(wildcard cryptest.exe),)
 	@-$(MKDIR) -p $(DESTDIR)$(BINDIR)
 	$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
