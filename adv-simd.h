@@ -1266,6 +1266,7 @@ size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6, const word32 *su
     CRYPTOPP_ASSERT(length >= 16);
 
     const ptrdiff_t blockSize = 16;
+    // const ptrdiff_t vexBlockSize = 16;
 
     ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
