@@ -202,6 +202,14 @@ The makefile links to the static version of the Crypto++ library to avoid binary
 planting and other LD_PRELOAD tricks. You should use the static version of the
 library in your programs to help avoid unwanted redirections.
 
+*** Side Channel Attacks ***
+
+Crypto++ attempts to resist side channel attacks using various remediations. We
+believe the library is hardened but the remdiations may be incomplete. The first
+line of defense uses hardware instructions when possible. The library also uses
+cache-aware algoirthms and access patterns to minimize leakage. If you suspect
+or find an information leak then please report it.
+
 *** Documentation and Support ***
 
 Crypto++ is documented through inline comments in header files, which are
