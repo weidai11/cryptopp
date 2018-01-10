@@ -384,7 +384,7 @@ protected:
     // curve's order.
     SecByteBlock bits2octets(const SecByteBlock& in, const Integer& q) const
     {
-        Integer b2 = bits2int(in, in.size()*8);
+        Integer b2 = bits2int(in, q.BitCount());
         Integer b1 = b2 - q;
         return int2octets(b1.IsNegative() ? b2 : b1, q.ByteCount());
     }

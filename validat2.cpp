@@ -995,6 +995,26 @@ bool ValidateECDSA()
 	return pass;
 }
 
+bool ValidateECDSA_RFC6979() 
+{ 
+	std::cout << "\nRFC6979 deterministic ECDSA validation suite running...\n\n"; 
+	
+	DL_Algorithm_ECDSA_RFC6979<ECP, SHA256> sign; 
+	
+	const Integer x("09A4D6792295A7F730FC3F2B49CBC0F62E862272Fh"); 
+	const Integer e("AF2BDBE1AA9B6EC1E2ADE1D694F41FC71A831D0268E9891562113D8A62ADD1BFh"); 
+	const Integer q("4000000000000000000020108A2E0CC0D99F8A5EFh"); 
+	const Integer k("23AF4074C90A02B3FE61D286D5C87F425E6BDD81Bh"); 
+	const auto k_out = sign.GenerateRandom(x, q, e); 
+	
+	bool pass  = (k_out == k); 
+	
+	std::cout << (!pass ? "FAILED    " : "passed    ");
+	std::cout << "deterministic k generation against test vector\n";
+	
+	return pass;
+}
+
 // from http://www.teletrust.de/fileadmin/files/oid/ecgdsa_final.pdf
 bool ValidateECGDSA(bool thorough)
 {

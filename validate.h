@@ -106,6 +106,7 @@ bool ValidateRW();
 bool ValidateECP();
 bool ValidateEC2N();
 bool ValidateECDSA();
+bool ValidateECDSA_RFC6979();
 bool ValidateECGDSA(bool thorough);
 bool ValidateESIGN();
 
