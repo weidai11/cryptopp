@@ -14,8 +14,9 @@
 
 // TODO: Bob Wilkinson reported we are misdetecting CRYPTOPP_POWER8_AVAILABLE.
 //    The problem is, the updated compiler supports them but the down-level
-//    assembler and linker do not. We will probably need to fix that through
-//    the makefile, similar to the way x86 AES and SHA is handled. Another
+//    assembler and linker do not. We will probably need to fix it through
+//    the makefile, similar to the way x86 AES and SHA are handled. For the time
+//    being CRYPTOPP_DISABLE_POWER8 will have to be applied manually. Another
 //    twist is, we don't have access to a test machine and it must be fixed
 //    for two compilers (IBM XL C/C++ and GCC). Ugh...
 
