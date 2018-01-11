@@ -240,7 +240,7 @@ void DetectX86Features()
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid1[0] /*EAX*/ >= 7)
+		if (cpuid0[0] /*EAX*/ >= 7)
 		{
 			if (CpuId(7, 0, cpuid2))
 			{
@@ -261,7 +261,7 @@ void DetectX86Features()
 		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
 		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
 
-		if (cpuid1[0] /*EAX*/ >= 7)
+		if (cpuid0[0] /*EAX*/ >= 7)
 		{
 			if (CpuId(7, 0, cpuid2))
 			{
