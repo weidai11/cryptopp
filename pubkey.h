@@ -1190,6 +1190,9 @@ void DL_PublicKey<T>::AssignFrom(const NameValuePairs &source)
 class OID;
 
 /// \brief Discrete Log (DL) key base implementation
+/// \tparam PK Key class
+/// \tparam GP GroupParameters class
+/// \tparam O OID class
 template <class PK, class GP, class O = OID>
 class DL_KeyImpl : public PK
 {
@@ -1215,6 +1218,7 @@ class X509PublicKey;
 class PKCS8PrivateKey;
 
 /// \brief Discrete Log (DL) private key base implementation
+/// \tparam GP GroupParameters class
 template <class GP>
 class DL_PrivateKeyImpl : public DL_PrivateKey<typename GP::Element>, public DL_KeyImpl<PKCS8PrivateKey, GP>
 {
@@ -1284,7 +1288,6 @@ private:
 	Integer m_x;
 };
 
-/// _
 template <class BASE, class SIGNATURE_SCHEME>
 class DL_PrivateKey_WithSignaturePairwiseConsistencyTest : public BASE
 {
@@ -1305,6 +1308,7 @@ public:
 };
 
 /// \brief Discrete Log (DL) public key base implementation
+/// \tparam GP GroupParameters class
 template <class GP>
 class DL_PublicKeyImpl : public DL_PublicKey<typename GP::Element>, public DL_KeyImpl<X509PublicKey, GP>
 {
@@ -1372,25 +1376,55 @@ template<class GP>
 DL_PublicKeyImpl<GP>::~DL_PublicKeyImpl() {}
 
 /// \brief Interface for Elgamal-like signature algorithms
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_ElgamalLikeSignatureAlgorithm
 {
 public:
 	virtual ~DL_ElgamalLikeSignatureAlgorithm() {}
 
+	/// \brief Sign a message using a private key
+	/// \param params GroupParameters
+	/// \param privateKey private key
+	/// \param k signing exponent
+	/// \param e encoded message
+	/// \param r r part of signature
+	/// \param s s part of signature
 	virtual void Sign(const DL_GroupParameters<T> &params, const Integer &privateKey, const Integer &k, const Integer &e, Integer &r, Integer &s) const =0;
+
+	/// \brief Verify a message using a public key
+	/// \param params GroupParameters
+	/// \param publicKey public key
+	/// \param e encoded message
+	/// \param r r part of signature
+	/// \param s s part of signature
 	virtual bool Verify(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &e, const Integer &r, const Integer &s) const =0;
+
+	/// \brief Recover a Presignature
+	/// \param params GroupParameters
+	/// \param publicKey public key
+	/// \param r r part of signature
+	/// \param s s part of signature
 	virtual Integer RecoverPresignature(const DL_GroupParameters<T> &params, const DL_PublicKey<T> &publicKey, const Integer &r, const Integer &s) const
 	{
 		CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(publicKey); CRYPTOPP_UNUSED(r); CRYPTOPP_UNUSED(s);
 		throw NotImplemented("DL_ElgamalLikeSignatureAlgorithm: this signature scheme does not support message recovery");
 		MAYBE_RETURN(Integer::Zero());
 	}
+
+	/// \brief Retrieve R length
+	/// \param params GroupParameters
 	virtual size_t RLen(const DL_GroupParameters<T> &params) const
 		{return params.GetSubgroupOrder().ByteCount();}
+
+	/// \brief Retrieve S length
+	/// \param params GroupParameters
 	virtual size_t SLen(const DL_GroupParameters<T> &params) const
 		{return params.GetSubgroupOrder().ByteCount();}
-	// RFC 6979, present in DL signers
+
+	/// \brief Signature scheme flag
+	/// \returns true if the signature scheme is deterministic, false otherwise
+	/// \details IsDeterministic() is provided for DL signers. It is used by RFC 6979 signature schemes.
 	virtual bool IsDeterministic() const
 		{return false;}
 };
@@ -1402,10 +1436,15 @@ class CRYPTOPP_NO_VTABLE DeterministicSignatureAlgorithm
 public:
 	virtual ~DeterministicSignatureAlgorithm() {}
 
+	/// \brief Generate k
+	/// \param x private key
+	/// \param q subgroup generator
+	/// \param e encoded message
 	virtual Integer GenerateRandom(const Integer &x, const Integer &q, const Integer &e) const =0;
 };
 
 /// \brief Interface for DL key agreement algorithms
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyAgreementAlgorithm
 {
@@ -1419,6 +1458,7 @@ public:
 };
 
 /// \brief Interface for key derivation algorithms used in DL cryptosystems
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_KeyDerivationAlgorithm
 {
@@ -1524,7 +1564,7 @@ protected:
 };
 
 /// \brief Discrete Log (DL) signature scheme signer base implementation
-/// \tparam T class or type
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_SignerBase : public DL_SignatureSchemeBase<PK_Signer, DL_PrivateKey<T> >
 {
@@ -1635,7 +1675,7 @@ protected:
 
 /// \class DL_VerifierBase
 /// \brief Discret Log (DL) Verifier base class
-/// \tparam T Element
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_VerifierBase : public DL_SignatureSchemeBase<PK_Verifier, DL_PublicKey<T> >
 {
@@ -1739,7 +1779,7 @@ protected:
 };
 
 /// \brief Discrete Log (DL) decryptor base implementation
-/// \tparam T field element type
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_DecryptorBase : public DL_CryptoSystemBase<PK_Decryptor, DL_PrivateKey<T> >
 {
@@ -1779,7 +1819,7 @@ public:
 };
 
 /// \brief Discrete Log (DL) encryptor base implementation
-/// \tparam T field element type
+/// \tparam T Field element
 template <class T>
 class CRYPTOPP_NO_VTABLE DL_EncryptorBase : public DL_CryptoSystemBase<PK_Encryptor, DL_PublicKey<T> >
 {
