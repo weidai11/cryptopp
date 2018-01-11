@@ -125,7 +125,7 @@ bool CPU_ProbePower8()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_POWER8_AVAILABLE)
+#elif (CRYPTOPP_POWER7_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -157,14 +157,14 @@ bool CPU_ProbePower8()
 # endif
 #else
     return false;
-#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER8_AVAILABLE
 }
 
 bool CPU_ProbeAES()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_POWER8_AES_AVAILABLE)
+#elif (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -213,7 +213,7 @@ bool CPU_ProbeSHA256()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#elif (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -257,7 +257,7 @@ bool CPU_ProbeSHA512()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#elif (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -294,7 +294,7 @@ bool CPU_ProbeSHA512()
 # endif
 #else
     return false;
-#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER8_AVAILABLE
 }
 # endif  // CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 NAMESPACE_END
