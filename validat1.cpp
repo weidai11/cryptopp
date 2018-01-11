@@ -201,6 +201,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateECP() && pass;
 	pass=ValidateEC2N() && pass;
 	pass=ValidateECDSA() && pass;
+	pass=ValidateECDSA_RFC6979() && pass;
 	pass=ValidateECGDSA(thorough) && pass;
 	pass=ValidateESIGN() && pass;
 
