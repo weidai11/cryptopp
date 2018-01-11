@@ -123,6 +123,7 @@ protected:
 	Integer m_p, m_q, m_u;
 };
 
+/// \brief LUC cryptosystem
 struct LUC
 {
 	static std::string StaticAlgorithmName() {return "LUC";}
@@ -130,7 +131,7 @@ struct LUC
 	typedef InvertibleLUCFunction PrivateKey;
 };
 
-/// \brief LUC cryptosystem
+/// \brief LUC encryption scheme
 /// \tparam STANDARD signature standard
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
@@ -292,7 +293,7 @@ struct DL_CryptoKeys_LUC
 	typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
 };
 
-/// \class LUC-IES
+/// \class LUC_IES
 /// \brief LUC Integrated Encryption Scheme
 /// \tparam COFACTOR_OPTION cofactor multiplication option
 /// \tparam HASH HashTransformation derived class used for key drivation and MAC computation
