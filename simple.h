@@ -367,20 +367,6 @@ public:
 };
 
 
-/// \brief Return the first position where a value in the range does not
-/// equal the value passed in.
-template<typename InputIt, typename T>
-inline InputIt find_if_not(InputIt first, InputIt last, const T &value) {
-#ifdef CRYPTOPP_CXX11_LAMBDA
-    return std::find_if_not(first, last, [&value](const T &o) {
-        return value == o;
-    });
-#else
-    return std::find_if(first, last, std::bind2nd(std::not_equal_to<T>(), value));
-#endif
-}
-
-
 NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
