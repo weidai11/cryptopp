@@ -2521,6 +2521,19 @@ inline T SafeLeftShift(T value)
 	return SafeShifter<(bits>=(8*sizeof(T)))>::LeftShift(value, bits);
 }
 
+/// \brief Return the first position where a value in the range does not
+/// equal the value passed in.
+template<typename InputIt, typename T>
+inline InputIt FindIfNot(InputIt first, InputIt last, const T &value) {
+#ifdef CRYPTOPP_CXX11_LAMBDA
+    return std::find_if(first, last, [&value](const T &o) {
+        return value!=o;
+    });
+#else
+    return std::find_if(first, last, std::bind2nd(std::not_equal_to<T>(), value));
+#endif
+}
+
 // ************** use one buffer for multiple data members ***************
 
 #define CRYPTOPP_BLOCK_1(n, t, s) t* m_##n() {return (t *)(void *)(m_aggregate+0);}     size_t SS1() {return       sizeof(t)*(s);} size_t m_##n##Size() {return (s);}

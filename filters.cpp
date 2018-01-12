@@ -821,8 +821,8 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			if (m_padding == PKCS_PADDING)
 			{
 				byte pad = space[s-1];
-				if (pad < 1 || pad > s || std::find_if(space+s-pad, space+s, std::bind2nd(std::not_equal_to<byte>(), pad)) != space+s)
-					throw InvalidCiphertext("StreamTransformationFilter: invalid PKCS #7 block padding found");
+                                if (pad < 1 || pad > s || FindIfNot(space+s-pad, space+s, pad) != space+s)
+                                    throw InvalidCiphertext("StreamTransformationFilter: invalid PKCS #7 block padding found");
 				length = s-pad;
 			}
 			else if (m_padding == W3C_PADDING)

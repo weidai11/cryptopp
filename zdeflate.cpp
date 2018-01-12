@@ -676,11 +676,11 @@ void Deflator::EncodeBlock(bool eof, unsigned int blockType)
 			m_literalCounts[256] = 1;
 			HuffmanEncoder::GenerateCodeLengths(literalCodeLengths, 15, m_literalCounts, 286);
 			m_dynamicLiteralEncoder.Initialize(literalCodeLengths, 286);
-			unsigned int hlit = (unsigned int)(std::find_if(RevIt(literalCodeLengths.end()), RevIt(literalCodeLengths.begin()+257), std::bind2nd(std::not_equal_to<unsigned int>(), 0)).base() - (literalCodeLengths.begin()+257));
+			unsigned int hlit = (unsigned int)(FindIfNot(RevIt(literalCodeLengths.end()), RevIt(literalCodeLengths.begin()+257), 0).base() - (literalCodeLengths.begin()+257));
 
 			HuffmanEncoder::GenerateCodeLengths(distanceCodeLengths, 15, m_distanceCounts, 30);
 			m_dynamicDistanceEncoder.Initialize(distanceCodeLengths, 30);
-			unsigned int hdist = (unsigned int)(std::find_if(RevIt(distanceCodeLengths.end()), RevIt(distanceCodeLengths.begin()+1), std::bind2nd(std::not_equal_to<unsigned int>(), 0)).base() - (distanceCodeLengths.begin()+1));
+			unsigned int hdist = (unsigned int)(FindIfNot(RevIt(distanceCodeLengths.end()), RevIt(distanceCodeLengths.begin()+1), 0).base() - (distanceCodeLengths.begin()+1));
 
 			SecBlockWithHint<unsigned int, 286+30> combinedLengths(hlit+257+hdist+1);
 			memcpy(combinedLengths, literalCodeLengths, (hlit+257)*sizeof(unsigned int));

@@ -82,7 +82,7 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	// DB = pHash' || 00 ... || 01 || M
 	byte *M = std::find(maskedDB+hLen, maskedDB+dbLen, 0x01);
 	invalid = (M == maskedDB+dbLen) || invalid;
-	invalid = (std::find_if(maskedDB+hLen, M, std::bind2nd(std::not_equal_to<byte>(), byte(0))) != M) || invalid;
+	invalid = (FindIfNot(maskedDB+hLen, M, byte(0)) != M) || invalid;
 	invalid = !pHash->VerifyDigest(maskedDB, encodingParameters.begin(), encodingParameters.size()) || invalid;
 
 	if (invalid)
