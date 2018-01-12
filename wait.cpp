@@ -3,8 +3,11 @@
 #include "pch.h"
 #include "config.h"
 
+// http://connect.microsoft.com/VisualStudio/feedback/details/1581706
+//   and http://github.com/weidai11/cryptopp/issues/214
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4189)
+# pragma warning(disable: 4589)
 #endif
 
 #if !defined(NO_OS_DEPENDENCE) && (defined(SOCKETS_AVAILABLE) || defined(WINDOWS_PIPES_AVAILABLE))
