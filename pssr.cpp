@@ -127,7 +127,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
 	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
-	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
+	byte *M = FindIfNot(representative, salt-1, byte(0));
 	recoverableMessageLength = salt-M-1;
 	if (*M == 0x01 &&
 	   (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize) &&

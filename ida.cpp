@@ -389,7 +389,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 
 	if (m_possiblePadding)
 	{
-		size_t len = std::find_if(begin, end, std::bind2nd(std::not_equal_to<byte>(), byte(0))) - begin;
+		size_t len = FindIfNot(begin, end, byte(0)) - begin;
 		m_zeroCount += len;
 		begin += len;
 		if (begin == end)
@@ -402,7 +402,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 		m_possiblePadding = false;
 	}
 
-	const byte *x = std::find_if(RevIt(end), RevIt(begin), std::bind2nd(std::not_equal_to<byte>(), byte(0))).base();
+	const byte *x = FindIfNot(RevIt(end), RevIt(begin), byte(0)).base();
 	if (x != begin && *(x-1) == 1)
 	{
 		AttachedTransformation()->Put(begin, x-begin-1);
