@@ -2405,6 +2405,11 @@ struct BlockGetAndPut
 	typedef PutBlock<T, B, PA> Put;
 };
 
+/// \brief Convert a word to a string
+/// \tparam T class or type
+/// \param value the word to convert
+/// \param order byte order
+/// \returns a string representing the value of the word
 template <class T>
 std::string WordToString(T value, ByteOrder order = BIG_ENDIAN_ORDER)
 {
@@ -2414,6 +2419,11 @@ std::string WordToString(T value, ByteOrder order = BIG_ENDIAN_ORDER)
 	return std::string((char *)&value, sizeof(value));
 }
 
+/// \brief Convert a string to a word
+/// \tparam T class or type
+/// \param str the string to convert
+/// \param order byte order
+/// \returns a word representing the value of the string
 template <class T>
 T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 {
