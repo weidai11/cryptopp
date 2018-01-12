@@ -366,7 +366,6 @@ public:
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); return 0;}
 };
 
-
 NAMESPACE_END
 
 #if CRYPTOPP_MSC_VERSION
