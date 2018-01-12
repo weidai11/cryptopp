@@ -75,13 +75,13 @@
 #if CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief The maximum value of a machine word
 /// \details SIZE_MAX provides the maximum value of a machine word. The value is
-///   \p 0xffffffff on 32-bit machines, and \p 0xffffffffffffffff on 64-bit machines.
+///   0xffffffff on 32-bit machines, and 0xffffffffffffffff on 64-bit machines.
 /// Internally, SIZE_MAX is defined as __SIZE_MAX__ if __SIZE_MAX__ is defined. If not
 ///   defined, then SIZE_T_MAX is tried. If neither __SIZE_MAX__ nor SIZE_T_MAX is
 ///   is defined, the library uses std::numeric_limits<size_t>::max(). The library
 ///   prefers __SIZE_MAX__ because its a constexpr that is optimized well
-///   by all compilers. std::numeric_limits<size_t>::max() is \a not a constexpr,
-///   and it is \a not always optimized well.
+///   by all compilers. std::numeric_limits<size_t>::max() is not a constexpr,
+///   and it is not always optimized well.
 #  define SIZE_MAX ...
 #else
 // Its amazing portability problems still plague this simple concept in 2015.
@@ -377,7 +377,7 @@ template <class T, class F, int instance>
 ///   memcpy_s() is a near-drop in replacement. Its only a near-replacement
 ///   because the library's version throws an InvalidArgument on a bounds violation.
 /// \details memcpy_s() and memmove_s() are guarded by __STDC_WANT_SECURE_LIB__.
-///   If __STDC_WANT_SECURE_LIB__ is \a not defined or defined to 0, then the library
+///   If __STDC_WANT_SECURE_LIB__ is not defined or defined to 0, then the library
 ///   makes memcpy_s() and memmove_s() available. The library will also optionally
 ///   make the symbols available if <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is defined.
 ///   <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is in config.h, but it is disabled by default.
@@ -419,7 +419,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 ///   memmove_s() is a near-drop in replacement. Its only a near-replacement
 ///   because the library's version throws an InvalidArgument on a bounds violation.
 /// \details memcpy_s() and memmove_s() are guarded by __STDC_WANT_SECURE_LIB__.
-///   If __STDC_WANT_SECURE_LIB__ is \a not defined or defined to 0, then the library
+///   If __STDC_WANT_SECURE_LIB__ is not defined or defined to 0, then the library
 ///   makes memcpy_s() and memmove_s() available. The library will also optionally
 ///   make the symbols available if <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is defined.
 ///   <tt>CRYPTOPP_WANT_SECURE_LIB</tt> is in config.h, but it is disabled by default.
@@ -713,7 +713,7 @@ unsigned int BitPrecision(const T &value)
 /// \returns the number of trailing 0-bits in v, starting at the least significant bit position
 /// \details TrailingZeros returns the number of trailing 0-bits in v, starting at the least
 ///   significant bit position. The return value is undefined if there are no 1-bits set in the value v.
-/// \note The function does \a not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
+/// \note The function does not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
 inline unsigned int TrailingZeros(word32 v)
 {
 	// GCC 4.7 and VS2012 provides tzcnt on AVX2/BMI enabled processors
@@ -744,7 +744,7 @@ inline unsigned int TrailingZeros(word32 v)
 /// \returns the number of trailing 0-bits in v, starting at the least significant bit position
 /// \details TrailingZeros returns the number of trailing 0-bits in v, starting at the least
 ///   significant bit position. The return value is undefined if there are no 1-bits set in the value v.
-/// \note The function does \a not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
+/// \note The function does not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
 inline unsigned int TrailingZeros(word64 v)
 {
 	// GCC 4.7 and VS2012 provides tzcnt on AVX2/BMI enabled processors
@@ -844,7 +844,7 @@ CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byt
 /// \details The function effectively performs an XOR of the elements in two equally sized buffers
 ///   and retruns a result based on the XOR operation. The function is near constant-time because
 ///   CPU micro-code timings could affect the "constant-ness". Calling code is responsible for
-///   mitigating timing attacks if the buffers are \a not equally sized.
+///   mitigating timing attacks if the buffers are not equally sized.
 /// \sa ModPowerOf2
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf2, size_t count);
 
@@ -1074,8 +1074,8 @@ inline bool NativeByteOrderIs(ByteOrder order)
 /// \brief Returns the direction the cipher is being operated
 /// \tparam T class or type
 /// \param obj the cipher object being queried
-/// \returns \p ENCRYPTION if the cipher obj is being operated in its forward direction,
-///   \p DECRYPTION otherwise
+/// \returns ENCRYPTION if the cipher obj is being operated in its forward direction,
+///   DECRYPTION otherwise
 /// \details A cipher can be operated in a "forward" direction (encryption) or a "reverse"
 ///   direction (decryption). The operations do not have to be symmetric, meaning a second
 ///   application of the transformation does not necessariy return the original message.
@@ -1116,7 +1116,7 @@ inline void IncrementCounterByOne(byte *inout, unsigned int size)
 /// \param size the size of the block
 /// \details Performs an addition with carry on a block of bytes starting at the least significant
 ///   byte. Once carry is 0, the remaining bytes from input are copied to output using memcpy.
-/// \details The function is \a close to near-constant time because it operates on all the bytes in the blocks.
+/// \details The function is close to near-constant time because it operates on all the bytes in the blocks.
 inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int size)
 {
 	CRYPTOPP_ASSERT(output != NULLPTR); CRYPTOPP_ASSERT(input != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
@@ -1985,7 +1985,7 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 /// \details Internally, ByteReverse visits each element in the in array
 ///   calls ByteReverse on it, and writes the result to out.
 /// \details ByteReverse does not process tail byes, or bytes that are
-///   \a not part of a full element. If T is int (and int is 4 bytes), then
+///   not part of a full element. If T is int (and int is 4 bytes), then
 ///   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
 ///   reversed.
 /// \details The follwoing program should help illustrate the behavior.
@@ -2030,7 +2030,7 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 /// \details Internally, ByteReverse visits each element in the in array
 ///   calls ByteReverse on it depending on the desired endianness, and writes the result to out.
 /// \details ByteReverse does not process tail byes, or bytes that are
-///   \a not part of a full element. If T is int (and int is 4 bytes), then
+///   not part of a full element. If T is int (and int is 4 bytes), then
 ///   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
 ///   reversed.
 /// \sa ByteReverse
@@ -2435,7 +2435,7 @@ template <bool overflow> struct SafeShifter;
 
 /// \class SafeShifter<true>
 /// \brief Shifts a value in the presence of overflow
-/// \details the \p true template parameter indicates overflow would occur.
+/// \details the true template parameter indicates overflow would occur.
 ///   In this case, SafeShifter clamps the value and returns 0.
 template<> struct SafeShifter<true>
 {
@@ -2466,7 +2466,7 @@ template<> struct SafeShifter<true>
 
 /// \class SafeShifter<false>
 /// \brief Shifts a value in the absence of overflow
-/// \details the \p false template parameter indicates overflow would \a not occur.
+/// \details the false template parameter indicates overflow would not occur.
 ///   In this case, SafeShifter returns the shfted value.
 template<> struct SafeShifter<false>
 {
@@ -2521,8 +2521,13 @@ inline T SafeLeftShift(T value)
 	return SafeShifter<(bits>=(8*sizeof(T)))>::LeftShift(value, bits);
 }
 
-/// \brief Return the first position where a value in the range does not
-/// equal the value passed in.
+/// \brief Finds first element not in a range
+/// \tparam InputIt Input iterator type
+/// \tparam T class or type
+/// \param first iterator to first element
+/// \param last iterator to last element
+/// \param value the value used as a predicate
+/// \returns iterator to the first element in the range that is not value
 template<typename InputIt, typename T>
 inline InputIt FindIfNot(InputIt first, InputIt last, const T &value) {
 #ifdef CRYPTOPP_CXX11_LAMBDA
