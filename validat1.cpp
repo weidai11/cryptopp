@@ -106,6 +106,7 @@ bool ValidateAll(bool thorough)
 	pass=TestASN1Parse() && pass;
 	// Additional tests due to no coverage
 	pass=ValidateBaseCode() && pass;
+	pass=ValidateEncoder() && pass;
 	pass=TestCompressors() && pass;
 	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
@@ -3161,6 +3162,114 @@ bool ValidateBaseCode()
 	std::cout << (fail ? "FAILED:" : "passed:");
 	std::cout << "  Base64 URL Decoding\n";
 	pass = pass && !fail;
+
+	return pass;
+}
+
+class MyEncoder : public SimpleProxyFilter
+{
+public:
+	MyEncoder(BufferedTransformation *attachment = NULLPTR);
+	void IsolatedInitialize(const NameValuePairs &params);
+};
+
+MyEncoder::MyEncoder(BufferedTransformation *attachment)
+	: SimpleProxyFilter(new BaseN_Encoder(new Grouper), attachment)
+{
+	IsolatedInitialize(MakeParameters(Name::InsertLineBreaks(), true)(Name::MaxLineLength(), 72));
+}
+
+void MyEncoder::IsolatedInitialize(const NameValuePairs &parameters)
+{
+	bool insertLineBreaks = parameters.GetValueWithDefault(Name::InsertLineBreaks(), true);
+	int maxLineLength = parameters.GetIntValueWithDefault(Name::MaxLineLength(), 72);
+
+	const byte padding = '=';
+	const char *lineBreak = insertLineBreaks ? "\n" : "";
+
+	char alphabet[64];
+	memset(alphabet, '*', 64);
+
+	m_filter->Initialize(CombinedNameValuePairs(
+		parameters,
+		MakeParameters(Name::EncodingLookupArray(), (const byte *)&alphabet[0], false)
+			(Name::PaddingByte(), padding)
+			(Name::GroupSize(), insertLineBreaks ? maxLineLength : 0)
+			(Name::Separator(), ConstByteArrayParameter(lineBreak))
+			(Name::Terminator(), ConstByteArrayParameter(lineBreak))
+			(Name::Log2Base(), 6, true)));
+}
+
+class MyDecoder : public BaseN_Decoder
+{
+public:
+	MyDecoder(BufferedTransformation *attachment = NULLPTR);
+	void IsolatedInitialize(const NameValuePairs &params);
+	static const int * CRYPTOPP_API GetDecodingLookupArray();
+};
+
+MyDecoder::MyDecoder(BufferedTransformation *attachment)
+	: BaseN_Decoder(GetDecodingLookupArray(), 6, attachment)
+{
+}
+
+void MyDecoder::IsolatedInitialize(const NameValuePairs &parameters)
+{
+	BaseN_Decoder::IsolatedInitialize(CombinedNameValuePairs(
+		parameters,
+		MakeParameters(Name::DecodingLookupArray(), GetDecodingLookupArray(), false)(Name::Log2Base(), 6, true)));
+}
+
+const int * MyDecoder::GetDecodingLookupArray()
+{
+	static volatile bool s_initialized = false;
+	static byte s_star[64];
+	static int s_array[256];
+
+	if (!s_initialized)
+	{
+		memset(s_star, '*', 64);
+		InitializeDecodingLookupArray(s_array, s_star, 64, false);
+		s_initialized = true;
+	}
+	return s_array;
+}
+
+bool ValidateEncoder()
+{
+	// The default encoder and decoder alphabet are bogus. They are a
+	// string of '*'. To round trip a string both IsolatedInitialize
+	// must be called and work correctly.
+	std::cout << "\nCustom encoder validation running...\n\n";
+
+	int lookup[255];
+	const char alphabet[64+1] =
+		"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz01234576789*";
+
+	MyEncoder encoder;
+	std::string str1;
+
+	AlgorithmParameters eparams = MakeParameters(Name::EncodingLookupArray(),(const byte*)alphabet);
+	encoder.IsolatedInitialize(eparams);
+
+	encoder.Detach(new StringSink(str1));
+	encoder.Put((const byte*) alphabet, 64);
+	encoder.MessageEnd();
+
+	MyDecoder decoder;
+	std::string str2;
+
+	MyDecoder::InitializeDecodingLookupArray(lookup, (const byte*) alphabet, 64, false);
+	AlgorithmParameters dparams = MakeParameters(Name::DecodingLookupArray(),(const int*)lookup);
+	decoder.IsolatedInitialize(dparams);
+
+	decoder.Detach(new StringSink(str2));
+	decoder.Put((const byte*) str1.data(), str1.size());
+	decoder.MessageEnd();
+
+	bool pass = str2 == std::string(alphabet, 64);
+	std::cout << (pass ? "passed:" : "FAILED:");
+	std::cout << "  Encoder encode and Decoder decode\n";
 
 	return pass;
 }

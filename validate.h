@@ -31,6 +31,7 @@ bool TestRDSEED();
 bool TestPadlockRNG();
 #endif
 bool ValidateBaseCode();
+bool ValidateEncoder();
 bool ValidateCRC32();
 bool ValidateCRC32C();
 bool ValidateAdler32();
