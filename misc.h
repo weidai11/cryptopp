@@ -1350,8 +1350,8 @@ CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *ptr);
 /// \tparam T the word type
 /// \param x the value to rotate
 /// \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
-/// \details y must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-///   Use rotlMod if the rotate amount y is outside the range.
+/// \details R must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
+///   Use rotlMod if the rotate amount R is outside the range.
 /// \details Use rotlConstant when the rotate amount is constant. The template function was added
 ///   because Clang did not propagate the constant when passed as a function parameter. Clang's
 ///   need for a constexpr meant rotlFixed failed to compile on occassion.
@@ -1377,8 +1377,8 @@ template <unsigned int R, class T> inline T rotlConstant(T x)
 /// \tparam T the word type
 /// \param x the value to rotate
 /// \details This is a portable C/C++ implementation. The value x to be rotated can be 8 to 64-bits wide.
-/// \details y must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
-///   Use rotrMod if the rotate amount y is outside the range.
+/// \details R must be in the range <tt>[0, sizeof(T)*8 - 1]</tt> to avoid undefined behavior.
+///   Use rotrMod if the rotate amount R is outside the range.
 /// \details Use rotrConstant when the rotate amount is constant. The template function was added
 ///   because Clang did not propagate the constant when passed as a function parameter. Clang's
 ///   need for a constexpr meant rotrFixed failed to compile on occassion.
@@ -1407,7 +1407,8 @@ template <unsigned int R, class T> inline T rotrConstant(T x)
 ///   Use rotlMod if the rotate amount y is outside the range.
 /// \note rotlFixed attempts to enlist a <tt>rotate IMM</tt> instruction because its often faster
 ///   than a <tt>rotate REG</tt>. Immediate rotates can be up to three times faster than their register
-///   counterparts.
+///   counterparts. New code should use <tt>rotlConstant</tt>, which accepts the rotate amount as a
+///   template parameter.
 /// \sa rotlConstant, rotrConstant, rotlFixed, rotrFixed, rotlVariable, rotrVariable
 /// \since Crypto++ 6.0
 template <class T> inline T rotlFixed(T x, unsigned int y)
@@ -1431,7 +1432,8 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 ///   Use rotrMod if the rotate amount y is outside the range.
 /// \note rotrFixed attempts to enlist a <tt>rotate IMM</tt> instruction because its often faster
 ///   than a <tt>rotate REG</tt>. Immediate rotates can be up to three times faster than their register
-///   counterparts.
+///   counterparts. New code should use <tt>rotrConstant</tt>, which accepts the rotate amount as a
+///   template parameter.
 /// \sa rotlConstant, rotrConstant, rotlFixed, rotrFixed, rotlVariable, rotrVariable
 /// \since Crypto++ 3.0
 template <class T> inline T rotrFixed(T x, unsigned int y)
