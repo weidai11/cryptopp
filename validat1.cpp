@@ -3244,7 +3244,7 @@ bool ValidateEncoder()
 	// must be called and work correctly.
 	std::cout << "\nCustom encoder validation running...\n\n";
 
-	int lookup[255];
+	int lookup[256];
 	const char alphabet[64+1] =
 		"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz01234576789*";
 	const char expected[] =
