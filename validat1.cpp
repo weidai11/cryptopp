@@ -104,9 +104,11 @@ bool ValidateAll(bool thorough)
 	pass=TestHuffmanCodes() && pass;
 	// http://github.com/weidai11/cryptopp/issues/346
 	pass=TestASN1Parse() && pass;
-	// Additional tests due to no coverage
+	// Always part of the self tests; call in Debug
 	pass=ValidateBaseCode() && pass;
+	// https://github.com/weidai11/cryptopp/issues/562
 	pass=ValidateEncoder() && pass;
+	// Additional tests due to no coverage
 	pass=TestCompressors() && pass;
 	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
@@ -3187,12 +3189,12 @@ void MyEncoder::IsolatedInitialize(const NameValuePairs &parameters)
 	const byte padding = '=';
 	const char *lineBreak = insertLineBreaks ? "\n" : "";
 
-	char alphabet[64];
-	memset(alphabet, '*', 64);
+	char stars[64];
+	memset(stars, '*', 64);
 
 	m_filter->Initialize(CombinedNameValuePairs(
 		parameters,
-		MakeParameters(Name::EncodingLookupArray(), (const byte *)&alphabet[0], false)
+		MakeParameters(Name::EncodingLookupArray(), (const byte *)&stars[0], false)
 			(Name::PaddingByte(), padding)
 			(Name::GroupSize(), insertLineBreaks ? maxLineLength : 0)
 			(Name::Separator(), ConstByteArrayParameter(lineBreak))
@@ -3245,11 +3247,14 @@ bool ValidateEncoder()
 	int lookup[255];
 	const char alphabet[64+1] =
 		"AaBbCcDdEeFfGgHhIiJjKkLlMmNnOoPpQqRrSsTtUuVvWwXxYyZz01234576789*";
+	const char expected[] =
+		"ILcBMSgriDicmKmTi2oENCsuJTufN0yWjL1HnS8xKdaiOkeZK3gKock1ktmlo1q4LlsNPrAyGrG0gjO2gzQ5FQ==";
 
 	MyEncoder encoder;
 	std::string str1;
 
-	AlgorithmParameters eparams = MakeParameters(Name::EncodingLookupArray(),(const byte*)alphabet);
+	AlgorithmParameters eparams = MakeParameters(Name::EncodingLookupArray(),(const byte*)alphabet)
+	                                            (Name::InsertLineBreaks(), false);
 	encoder.IsolatedInitialize(eparams);
 
 	encoder.Detach(new StringSink(str1));
@@ -3267,7 +3272,7 @@ bool ValidateEncoder()
 	decoder.Put((const byte*) str1.data(), str1.size());
 	decoder.MessageEnd();
 
-	bool pass = str2 == std::string(alphabet, 64);
+	bool pass = (str1 == std::string(expected)) && (str2 == std::string(alphabet, 64));
 	std::cout << (pass ? "passed:" : "FAILED:");
 	std::cout << "  Encoder encode and Decoder decode\n";
 
