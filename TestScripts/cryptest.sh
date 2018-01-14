@@ -967,9 +967,9 @@ RELEASE_CXXFLAGS="-DNDEBUG $OPT_G2 $OPT_O3"
 VALGRIND_CXXFLAGS="-DNDEBUG $OPT_G3 $OPT_O1"
 WARNING_CXXFLAGS=()
 
-if [[ ("$CLANG_COMPILER" -ne "0") ]]; then
-	WARNING_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-overflow" "-Wcast-align" "-Wwrite-strings"
-                        "-Wformat=2" "-Wformat-security")
+if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0") ]]; then
+	WARNING_CXXFLAGS+=("-Wall" "-Wextra" "-Wno-unknown-pragmas" "-Wstrict-overflow")
+	WARNING_CXXFLAGS+=("-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security")
 fi
 
 echo | tee -a "$TEST_RESULTS"
@@ -5923,7 +5923,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5942,7 +5942,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 $RELEASE_CXXFLAGS_ELEVATED"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -5965,7 +5965,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -5984,7 +5984,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -6007,7 +6007,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -6026,7 +6026,7 @@ if [[ ("$HAVE_CXX14" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 	if [[ "$?" -ne "0" ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
@@ -6049,7 +6049,7 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -6068,7 +6068,50 @@ if [[ ("$HAVE_CXX17" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -n
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[*]}"
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 ${WARNING_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+
+	if [[ "$?" -ne "0" ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+fi
+
+############################################
+# C++20 with elevated warnings
+if [[ ("$HAVE_CXX20" -ne "0" && ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0")) ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: Debug, c++20, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	TEST_LIST+=("Debug, c++20, elevated warnings")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++20 ${WARNING_CXXFLAGS[@]}"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$WARN_RESULTS"
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$WARN_RESULTS"
+	echo "Testing: Release, c++20, elevated warnings" | tee -a "$WARN_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, c++20, elevated warnings")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++20 ${WARNING_CXXFLAGS[@]}"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$WARN_RESULTS"
 
 	if [[ "$?" -ne "0" ]]; then
