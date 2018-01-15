@@ -71,6 +71,9 @@ CRYPTOPP_CONSTANT(crypto_box_NONCEBYTES = 24)
 /// \brief Open box prefix in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</a>
 CRYPTOPP_CONSTANT(crypto_box_ZEROBYTES = 32)
+/// \brief Open box precomputation size in bytes
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</a>
+CRYPTOPP_CONSTANT(crypto_box_BEFORENMBYTES = 32)
 
 /// \brief Private key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</a>
