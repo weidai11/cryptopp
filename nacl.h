@@ -7,8 +7,16 @@
 ///   Peter Schwabe and Sjaak Smetsers. The library is less than 20 KB in size
 ///   and provides 25 of the NaCl library functions.
 /// \details The compact library uses curve25519, XSalsa20, Poly1305 and
-///   SHA-512 as defult primitives, and includes both x25519 key exchange and
-///   ed25519 signatures.
+///   SHA-512 as default primitives, and includes both x25519 key exchange and
+///   ed25519 signatures. The complete list of functions can be found in
+///   <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
+///   A crypto library in 100 tweets</A> (20140917), Table 1, page 5.
+/// \details Crypto++ reatined the function signatures but switched to data types
+///   from &lt;stdint.h&gtl to promote interoperability with Crypto++
+///   and avoid size problems on platforms like Cygwin. For example, <tt>u64</tt>
+///   was typedef'd as an <tt>unsigned long long</tt>, but Cygwin, MinGW and MSYS
+///   are <tt>LP64</tt> systems. In addition, Crypto++ was missing the <tt>i64</tt>
+///   data type, which is an signed 64-bit integer.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917)
 /// \since Crypto++ 6.0
