@@ -946,6 +946,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 78: result = ValidateSipHash(); break;
 	case 79: result = ValidateHashDRBG(); break;
 	case 80: result = ValidateHmacDRBG(); break;
+	case 90: result = ValidateNaCl(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92

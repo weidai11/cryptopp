@@ -208,6 +208,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateECGDSA(thorough) && pass;
 	pass=ValidateESIGN() && pass;
 
+	pass=ValidateNaCl() && pass;
+
 	if (pass)
 		std::cout << "\nAll tests passed!\n";
 	else

@@ -114,6 +114,8 @@ bool ValidateESIGN();
 bool ValidateHashDRBG();
 bool ValidateHmacDRBG();
 
+bool ValidateNaCl();
+
 // If CRYPTOPP_DEBUG or CRYPTOPP_COVERAGE is in effect, then perform additional tests
 #if (defined(CRYPTOPP_DEBUG) || defined(CRYPTOPP_COVERAGE) || defined(CRYPTOPP_VALGRIND)) && !defined(CRYPTOPP_IMPORTS)
 # define CRYPTOPP_EXTENDED_VALIDATION 1
