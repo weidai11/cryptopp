@@ -12,7 +12,7 @@
 ///   <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917), Table 1, page 5.
 /// \details Crypto++ reatined the function signatures but switched to data types
-///   from &lt;stdint.h&gtl to promote interoperability with Crypto++
+///   from &lt;stdint.h&gt; to promote interoperability with Crypto++
 ///   and avoid size problems on platforms like Cygwin. For example, <tt>u64</tt>
 ///   was typedef'd as an <tt>unsigned long long</tt>, but Cygwin, MinGW and MSYS
 ///   are <tt>LP64</tt> systems. In addition, Crypto++ was missing the <tt>i64</tt>
