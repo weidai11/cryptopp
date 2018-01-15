@@ -15,7 +15,6 @@
 #include "oids.h"
 
 USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
 
 class LineBreakParser : public AutoSignaling<Bufferless<Filter> >
 {
