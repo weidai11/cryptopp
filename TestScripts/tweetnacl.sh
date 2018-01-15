@@ -36,44 +36,57 @@ mv tweetnacl.fixed tweetnacl.c
 ########## Add wanted stuff ##########
 
 echo "Adding headnotes"
-sed -e '1i// tweetnacl.cpp - modified tweetnacl.c and placed in public domain by Jeffrey Walton' tweetnacl.c > tweetnacl.fixed
+sed -e '1i // tweetnacl.cpp - modified tweetnacl.c and placed in public domain by Jeffrey Walton' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '2i//                 tweetnacl.c written by Daniel J. Bernstein, Bernard van Gastel,' tweetnacl.c > tweetnacl.fixed
+sed -e '2i //                 tweetnacl.c written by Daniel J. Bernstein, Bernard van Gastel,' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '3i//                 Wesley Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers' tweetnacl.c > tweetnacl.fixed
+sed -e '3i //                 Wesley Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '4i
+sed -e '4i \
 ' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
 
 echo "Adding headers"
-sed -e '5i#include "pch.h"' tweetnacl.c > tweetnacl.fixed
+sed -e '5i #include "pch.h"' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '6i#include "config.h"' tweetnacl.c > tweetnacl.fixed
+sed -e '6i #include "config.h"' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '7i#include "nacl.h"' tweetnacl.c > tweetnacl.fixed
+sed -e '7i #include "nacl.h"' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '8i#include "misc.h"' tweetnacl.c > tweetnacl.fixed
+sed -e '8i #include "misc.h"' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '9i#include "osrng.h"' tweetnacl.c > tweetnacl.fixed
+sed -e '9i #include "osrng.h"' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '10i#include "stdcpp.h"' tweetnacl.c > tweetnacl.fixed
+sed -e '10i #include "stdcpp.h"' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '11i
+sed -e '11i \
 ' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
 
-echo "Adding opening namespace"
-sed -e '13iNAMESPACE_BEGIN(CryptoPP)' tweetnacl.c > tweetnacl.fixed
+echo "Suppressing VS warnings"
+sed -e '13i #if CRYPTOPP_MSC_VERSION' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
-sed -e '14iNAMESPACE_BEGIN(NaCl)' tweetnacl.c > tweetnacl.fixed
+sed -e '14i # pragma warning(disable: 4242 4244 4245)' tweetnacl.c > tweetnacl.fixed
+mv tweetnacl.fixed tweetnacl.c
+sed -e '15i #endif' tweetnacl.c > tweetnacl.fixed
+mv tweetnacl.fixed tweetnacl.c
+
+echo "Adding opening namespace"
+sed -e '17i NAMESPACE_BEGIN(CryptoPP)' tweetnacl.c > tweetnacl.fixed
+mv tweetnacl.fixed tweetnacl.c
+sed -e '18i NAMESPACE_BEGIN(NaCl)' tweetnacl.c > tweetnacl.fixed
+mv tweetnacl.fixed tweetnacl.c
+sed -e '19i \
+' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c
 
 echo "Adding random number generator"
-sed -e '33istatic void randombytes(uint8_t * block, uint64_t size)\
+sed -e '35i // Added by Crypto++ for TweetNaCl\
+static void randombytes(uint8_t * block, uint64_t size)\
 {\
+    CRYPTOPP_ASSERT(size <= SIZE_T_MAX);\
     DefaultAutoSeededRNG prng;\
-    prng.GenerateBlock\(block, size\);\
+    prng.GenerateBlock\(block, (size_t)size\);\
 }\
 ' tweetnacl.c > tweetnacl.fixed
 mv tweetnacl.fixed tweetnacl.c

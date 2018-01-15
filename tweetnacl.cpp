@@ -9,6 +9,10 @@
 #include "osrng.h"
 #include "stdcpp.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4242 4244 4245)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(NaCl)
 
@@ -27,13 +31,15 @@ static const gf
   Y = {0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666},
   I = {0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83};
 
-static uint32_t L32(uint32_t x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
-
+// Added by Crypto++ for TweetNaCl
 static void randombytes(uint8_t * block, uint64_t size)
 {
+    CRYPTOPP_ASSERT(size <= SIZE_T_MAX);
     DefaultAutoSeededRNG prng;
-    prng.GenerateBlock(block, size);
+    prng.GenerateBlock(block, (size_t)size);
 }
+
+static uint32_t L32(uint32_t x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
 
 static uint32_t ld32(const uint8_t *x)
 {
