@@ -4,10 +4,11 @@
 /// \brief Crypto++ interface to TweetNaCl library (20140917)
 /// \details TweetNaCl is a compact reimplementation of the NaCl library by
 ///   Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen, Tanja Lange,
-///   Peter Schwabe and Sjaak Smetsers. The library provides 25 of the NaCl
-///   functions used by applications and fits into 100 tweets. The compact
-///   library includes both x25519 key exchange and ed25519 signatures and
-///   uses SHA-512 as the default hash.
+///   Peter Schwabe and Sjaak Smetsers. The library is less than 20 KB in size
+///   and provides 25 of the NaCl library functions.
+/// \details The compact library uses curve25519, XSalsa20, Poly1305 and
+///   SHA-512 as defult primitives, and includes both x25519 key exchange and
+///   ed25519 signatures.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917)
 /// \since Crypto++ 6.0
