@@ -34,7 +34,7 @@ static const gf
 // Added by Crypto++ for TweetNaCl
 static void randombytes(uint8_t * block, uint64_t size)
 {
-    CRYPTOPP_ASSERT(size <= SIZE_T_MAX);
+    CRYPTOPP_ASSERT(size <= SIZE_MAX);
     DefaultAutoSeededRNG prng;
     prng.GenerateBlock(block, (size_t)size);
 }
