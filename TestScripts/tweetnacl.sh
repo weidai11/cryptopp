@@ -181,7 +181,8 @@ mv tweetnacl.c tweetnacl.cpp
 echo "Compiling tweetnacl.cpp source file"
 g++ -Wall tweetnacl.cpp -c
 
-unix2dos tweetnacl.h tweetnacl.c tweetnacl.cpp
+# Fix line endings
+unix2dos tweetnacl.h tweetnacl.cpp
 
 # echo "Testing symbols"
 # nm tweetnacl.o | grep " T " | c++filt
