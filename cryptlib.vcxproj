@@ -309,8 +309,8 @@
     <ClCompile Include="tigertab.cpp" />
     <ClCompile Include="trdlocal.cpp" />
     <ClCompile Include="ttmac.cpp" />
-    <ClCompile Include="twofish.cpp" />
     <ClCompile Include="tweetnacl.cpp" />
+    <ClCompile Include="twofish.cpp" />
     <ClCompile Include="vmac.cpp" />
     <ClCompile Include="wait.cpp" />
     <ClCompile Include="wake.cpp" />
@@ -438,7 +438,7 @@
     <ClInclude Include="modexppc.h" />
     <ClInclude Include="mqueue.h" />
     <ClInclude Include="mqv.h" />
-    <ClCompile Include="nacl.h" />
+    <ClInclude Include="nacl.h" />
     <ClInclude Include="nbtheory.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="nr.h" />
@@ -497,8 +497,8 @@
     <ClInclude Include="trdlocal.h" />
     <ClInclude Include="trunhash.h" />
     <ClInclude Include="ttmac.h" />
+    <ClInclude Include="tweetnacl.h" />
     <ClInclude Include="twofish.h" />
-    <ClCompile Include="tweetnacl.h" />
     <ClInclude Include="vmac.h" />
     <ClInclude Include="wait.h" />
     <ClInclude Include="wake.h" />

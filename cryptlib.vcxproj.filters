@@ -711,10 +711,10 @@
     <ClInclude Include="mqv.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nacl.h">
+    <ClInclude Include="nbtheory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nbtheory.h">
+    <ClInclude Include="nacl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="network.h">
