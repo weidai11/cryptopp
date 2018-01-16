@@ -1,6 +1,6 @@
-// tweetnacl.cpp - modified tweetnacl.c and placed in public domain by Jeffrey Walton
+// tweetnacl.cpp - modified tweetnacl.c placed in public domain by Jeffrey Walton.
 //                 tweetnacl.c written by Daniel J. Bernstein, Bernard van Gastel,
-//                 Wesley Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers
+//                 Wesley Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers.
 
 #include "pch.h"
 #include "config.h"
@@ -9,6 +9,7 @@
 #include "osrng.h"
 #include "stdcpp.h"
 
+// Don't destroy const time properties when squashing warnings.
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4242 4244 4245)
 #endif
@@ -19,8 +20,9 @@ NAMESPACE_BEGIN(NaCl)
 typedef int64_t gf[16];
 
 static const uint8_t
-  _0[16] = {0},
+  _0[32] = {0},
   _9[32] = {9};
+
 static const gf
   gf0 = {0},
   gf1 = {1},
@@ -34,7 +36,6 @@ static const gf
 // Added by Crypto++ for TweetNaCl
 static void randombytes(uint8_t * block, uint64_t size)
 {
-    CRYPTOPP_ASSERT(size <= SIZE_MAX);
     DefaultAutoSeededRNG prng;
     prng.GenerateBlock(block, (size_t)size);
 }
@@ -473,7 +474,8 @@ int crypto_box_keypair(uint8_t *y,uint8_t *x)
 int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x)
 {
   uint8_t s[32];
-  crypto_scalarmult(s,x,y);
+  if(crypto_scalarmult(s,x,y) != 0) return -1;
+  if(verify_n(k,_0,32)) return -1;
   return crypto_core_hsalsa20(k,_0,s,sigma);
 }
 
@@ -490,14 +492,14 @@ int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t
 int crypto_box(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
 {
   uint8_t k[32];
-  crypto_box_beforenm(k,y,x);
+  if(crypto_box_beforenm(k,y,x) != 0) return -1;
   return crypto_box_afternm(c,m,d,n,k);
 }
 
 int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
 {
   uint8_t k[32];
-  crypto_box_beforenm(k,y,x);
+  if(crypto_box_beforenm(k,y,x) != 0) return -1;
   return crypto_box_open_afternm(m,c,d,n,k);
 }
 
@@ -827,4 +829,3 @@ int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,cons
 
 NAMESPACE_END  // CryptoPP
 NAMESPACE_END  // NaCl
-
