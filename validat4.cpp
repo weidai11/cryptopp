@@ -38,6 +38,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
+#ifndef CRYPTOPP_DISABLE_NACL
+
 USING_NAMESPACE(NaCl)
 
 bool TestCryptoBox()
@@ -227,7 +229,7 @@ bool TestCryptoBoxOpen()
 	return pass;
 }
 
-bool TestCryptoBoxPairwise()
+bool TestCryptoBoxKeys()
 {
 	// https://github.com/jedisct1/libsodium/blob/master/test/default/box7.c
 	const unsigned int MAX_TEST = 64;
@@ -273,10 +275,22 @@ bool TestCryptoBoxPairwise()
 	return pass;
 }
 
+#endif  // CRYPTOPP_DISABLE_NACL
+
+// NaCl requires an integrated random number generator; see randombytes()
+// in tweetnacl.cpp. We use DefaultAutoSeededRNG but it means we need
+// Operating System features to seed the generator. If you use another
+// generator, like RDRAND, then undefine CRYPTOPP_DISABLE_NACL in nacl.h.
 bool ValidateNaCl()
 {
-    std::cout << "\nTesting NaCl library functions...\n\n";
+	std::cout << "\nTesting NaCl library functions...\n\n";
 	bool pass = true, fail = false;
+
+#ifdef CRYPTOPP_DISABLE_NACL
+
+	std::cout << "NaCl not available, skipping test." << std::endl;
+
+#else
 
 	fail = !TestCryptoBox();
 	std::cout << (fail ? "FAILED" : "passed") << "    crypto_box, crypto_box_beforenm, crypto_box_afternm\n";
@@ -286,9 +300,11 @@ bool ValidateNaCl()
 	std::cout << (fail ? "FAILED" : "passed") << "    crypto_box_open, crypto_box_open_afternm\n";
 	pass = !fail && pass;
 
-	fail = !TestCryptoBoxPairwise();
+	fail = !TestCryptoBoxKeys();
 	std::cout << (fail ? "FAILED" : "passed") << "    crypto_box_keypair pairwise consistency\n";
 	pass = !fail && pass;
+
+#endif
 
 	return pass;
 }

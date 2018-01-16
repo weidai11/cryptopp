@@ -15,6 +15,8 @@
 # pragma warning(disable: 4242 4244 4245)
 #endif
 
+#ifndef CRYPTOPP_DISABLE_NACL
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(NaCl)
 
@@ -831,3 +833,5 @@ int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,cons
 
 NAMESPACE_END  // CryptoPP
 NAMESPACE_END  // NaCl
+
+#endif  // NO_OS_DEPENDENCE
