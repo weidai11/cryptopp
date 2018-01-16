@@ -108,6 +108,12 @@ CRYPTOPP_CONSTANT(crypto_scalarmult_BYTES = 32)
 CRYPTOPP_CONSTANT(crypto_scalarmult_SCALARBYTES = 32)
 
 /// \brief Encrypt and authenticate a message
+/// \param c output byte buffer
+/// \param m input byte buffer
+/// \param d size of the input byte buffer
+/// \param n nonce byte buffer
+/// \param y other's public key
+/// \param x private key
 /// \details crypto_box() uses crypto_box_curve25519xsalsa20poly1305
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
@@ -115,6 +121,12 @@ CRYPTOPP_CONSTANT(crypto_scalarmult_SCALARBYTES = 32)
 int crypto_box(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
 
 /// \brief Verify and decrypt a message
+/// \param m output byte buffer
+/// \param c input byte buffer
+/// \param d size of the input byte buffer
+/// \param n nonce byte buffer
+/// \param y other's public key
+/// \param x private key
 /// \details crypto_box_open() uses crypto_box_curve25519xsalsa20poly1305
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
@@ -122,12 +134,17 @@ int crypto_box(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uin
 int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
 
 /// \brief Generate a keypair for encryption
+/// \param y public key byte buffer
+/// \param x private key byte buffer
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
 int crypto_box_keypair(uint8_t *y,uint8_t *x);
 
 /// \brief Encrypt and authenticate a message
+/// \param k shared secret byte buffer
+/// \param y other's public key
+/// \param x private key
 /// \details crypto_box_beforenm() performs message-independent precomputation to derive the key.
 ///   Once the key is derived multiple calls to crypto_box_afternm() can be made to process the message.
 /// \returns 0 on success, non-0 otherwise
@@ -136,6 +153,11 @@ int crypto_box_keypair(uint8_t *y,uint8_t *x);
 int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x);
 
 /// \brief Encrypt and authenticate a message
+/// \param m output byte buffer
+/// \param c input byte buffer
+/// \param d size of the input byte buffer
+/// \param n nonce byte buffer
+/// \param k shared secret byte buffer
 /// \details crypto_box_afternm() performs message-dependent computation using the derived the key.
 ///   Once the key is derived using crypto_box_beforenm() multiple calls to crypto_box_afternm()
 ///   can be made to process the message.
@@ -145,6 +167,11 @@ int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x);
 int crypto_box_afternm(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k);
 
 /// \brief Verify and decrypt a message
+/// \param m output byte buffer
+/// \param c input byte buffer
+/// \param d size of the input byte buffer
+/// \param n nonce byte buffer
+/// \param k shared secret byte buffer
 /// \details crypto_box_afternm() performs message-dependent computation using the derived the key.
 ///   Once the key is derived using crypto_box_beforenm() multiple calls to crypto_box_open_afternm()
 ///   can be made to process the message.
