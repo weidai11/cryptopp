@@ -27,7 +27,8 @@
 ///    <tt>NO_OS_DEPENDENCE</tt> cannot be defined. It is due to TweetNaCl's
 ///    internal function <tt>randombytes</tt>. Crypto++ used
 ///    <tt>DefaultAutoSeededRNG</tt> within <tt>randombytes</tt>, so OS integration
-///    must be enabled.
+///    must be enabled. You can use another generator like <tt>RDRAND</tt> to
+///    avoid the restriction.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917)
 /// \since Crypto++ 6.0
@@ -103,6 +104,11 @@ CRYPTOPP_CONSTANT(crypto_box_BOXZEROBYTES = 16)
 /// \brief Precomputation 0-byte prefix in bytes in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 CRYPTOPP_CONSTANT(crypto_box_BEFORENMBYTES = 32)
+/// \brief MAC size in bytes
+/// \details crypto_box_MACBYTES was missing from tweetnacl.h. Its is defined as
+///   crypto_box_curve25519xsalsa20poly1305_MACBYTES, which is defined as 16U.
+/// \sa <A HREF="https://nacl.cr.yp.to/hash.html">NaCl crypto_box documentation</A>
+CRYPTOPP_CONSTANT(crypto_box_MACBYTES = 16)
 
 /// \brief Private key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
