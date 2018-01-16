@@ -151,9 +151,9 @@ bool TestCryptoBoxOpen()
 	};
 
 	static const unsigned char small_order_p[crypto_box_PUBLICKEYBYTES] = {
-		0xe0, 0xeb, 0x7a, 0x7c, 0x3b, 0x41, 0xb8, 0xae, 0x16, 0x56, 0xe3,
-		0xfa, 0xf1, 0x9f, 0xc4, 0x6a, 0xda, 0x09, 0x8d, 0xeb, 0x9c, 0x32,
-		0xb1, 0xfd, 0x86, 0x62, 0x05, 0x16, 0x5f, 0x49, 0xb8, 0x00
+		0xe0, 0xeb, 0x7a, 0x7c, 0x3b, 0x41, 0xb8, 0xae, 0x16, 0x56, 0xe3, 0xfa, 0xf1, 0x9f,
+		0xc4, 0x6a, 0xda, 0x09, 0x8d, 0xeb, 0x9c, 0x32, 0xb1, 0xfd, 0x86, 0x62, 0x05, 0x16,
+		0x5f, 0x49, 0xb8, 0x00
 	};
 
 	const uint8_t nonce[24] = {
@@ -227,6 +227,56 @@ bool TestCryptoBoxOpen()
 	return pass;
 }
 
+bool TestCryptoBoxPairwise()
+{
+	// https://github.com/jedisct1/libsodium/blob/master/test/default/box7.c
+	const unsigned int MAX_TEST = 64;
+	const unsigned int MAX_MESSAGE = 4096;
+
+	uint8_t alicesk[crypto_box_SECRETKEYBYTES];
+	uint8_t alicepk[crypto_box_PUBLICKEYBYTES];
+	uint8_t bobsk[crypto_box_SECRETKEYBYTES];
+	uint8_t bobpk[crypto_box_PUBLICKEYBYTES];
+	uint8_t n[crypto_box_NONCEBYTES];
+
+	// uint8_t m[MAX_MESSAGE+32];
+	// uint8_t c[MAX_MESSAGE+32];
+	// uint8_t r[MAX_MESSAGE+32];
+
+	SecByteBlock m(MAX_MESSAGE+32);
+	SecByteBlock c(MAX_MESSAGE+32);
+	SecByteBlock r(MAX_MESSAGE+32);
+
+	bool pass = true, fail; int rc;
+	for (unsigned int i=0; i < MAX_TEST; ++i)
+	{
+		fail = (crypto_box_keypair(alicepk, alicesk) != 0);
+		pass = !fail && pass;
+		fail = (crypto_box_keypair(bobpk, bobsk) != 0);
+		pass = !fail && pass;
+
+		const unsigned len = (i == 0 ? 0 : GlobalRNG().GenerateWord32(1, MAX_MESSAGE));
+		GlobalRNG().GenerateBlock(m+crypto_box_ZEROBYTES, len);
+		GlobalRNG().GenerateBlock(n, crypto_box_NONCEBYTES);
+
+		// Set workspace for encryption and decryption
+		std::memset(m, 0x00, crypto_box_ZEROBYTES);
+		std::memset(c, 0x00, crypto_box_BOXZEROBYTES);
+		std::memset(r, 0x00, crypto_box_ZEROBYTES);
+
+		rc = crypto_box(c, m, len + crypto_box_ZEROBYTES, n, bobpk, alicesk);
+		fail = (rc != 0); pass = !fail && pass;
+
+		rc = crypto_box_open(r, c, len + crypto_box_ZEROBYTES, n, alicepk, bobsk);
+		fail = (rc != 0); pass = !fail && pass;
+
+		fail = std::memcmp(m+crypto_box_ZEROBYTES, r+crypto_box_ZEROBYTES, len) != 0;
+		pass = !fail && pass;
+	}
+
+	return pass;
+}
+
 bool ValidateNaCl()
 {
     std::cout << "\nTesting NaCl library functions...\n\n";
@@ -238,6 +288,10 @@ bool ValidateNaCl()
 
 	fail = !TestCryptoBoxOpen();
 	std::cout << (fail ? "FAILED" : "passed") << "    crypto_box_open, crypto_box_open_afternm\n";
+	pass = !fail && pass;
+
+	fail = !TestCryptoBoxPairwise();
+	std::cout << (fail ? "FAILED" : "passed") << "    crypto_box_keypair pairwise consistency\n";
 	pass = !fail && pass;
 
 	return pass;

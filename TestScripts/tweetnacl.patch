@@ -1,6 +1,6 @@
---- tweetnacl.c	2018-01-16 06:18:22.597975600 -0500
-+++ tweetnacl.cpp	2018-01-16 06:17:38.601064500 -0500
-@@ -1,19 +1,30 @@
+--- tweetnacl.c	2018-01-16 11:22:22.648475970 -0500
++++ tweetnacl.cpp	2018-01-16 11:22:22.649475956 -0500
+@@ -1,19 +1,31 @@
 -#include "tweetnacl.h"
 -#define FOR(i,n) for (i = 0;i < n;++i)
 -#define sv static void
@@ -12,8 +12,9 @@
 -typedef i64 gf[16];
 -extern void randombytes(u8 *,u64);
 +// tweetnacl.cpp - modified tweetnacl.c placed in public domain by Jeffrey Walton.
-+//                 tweetnacl.c written by Daniel J. Bernstein, Bernard van Gastel,
-+//                 Wesley Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers.
++//                 The NaCl library and tweetnacl.c is public domain source code
++//                 written by Daniel J. Bernstein, Bernard van Gastel, Wesley
++//                 Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers.
 +
 +#include "pch.h"
 +#include "config.h"
@@ -44,7 +45,7 @@
    gf1 = {1},
    _121665 = {0xDB41,1},
    D = {0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203},
-@@ -22,119 +33,126 @@
+@@ -22,119 +34,126 @@
    Y = {0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666},
    I = {0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83};
  
@@ -210,7 +211,7 @@
        z[i] = u;
        u >>= 8;
      }
-@@ -144,50 +162,50 @@
+@@ -144,50 +163,50 @@
    }
    if (b) {
      crypto_core_salsa20(x,z,k,sigma);
@@ -275,7 +276,7 @@
    r[3]&=15;
    r[4]&=252;
    r[7]&=15;
-@@ -197,25 +215,25 @@
+@@ -197,25 +216,25 @@
    r[15]&=15;
  
    while (n > 0) {
@@ -307,7 +308,7 @@
        u += h[j];
        h[j] = u & 255;
        u >>= 8;
-@@ -223,58 +241,58 @@
+@@ -223,58 +242,58 @@
      u += h[16]; h[16] = u;
    }
  
@@ -382,7 +383,7 @@
      o[i]+=(1LL<<16);
      c=o[i]>>16;
      o[(i+1)*(i<15)]+=c-1+37*(c-1)*(i==15);
-@@ -282,25 +300,25 @@
+@@ -282,25 +301,25 @@
    }
  }
  
@@ -414,7 +415,7 @@
      m[0]=t[0]-0xffed;
      for(i=1;i<15;i++) {
        m[i]=t[i]-0xffff-((m[i-1]>>16)&1);
-@@ -311,7 +329,7 @@
+@@ -311,7 +330,7 @@
      m[14]&=0xffff;
      sel25519(t,m,1-b);
    }
@@ -423,7 +424,7 @@
      o[2*i]=t[i]&0xff;
      o[2*i+1]=t[i]>>8;
    }
-@@ -319,88 +337,88 @@
+@@ -319,88 +338,88 @@
  
  static int neq25519(const gf a, const gf b)
  {
@@ -539,7 +540,7 @@
      b[i]=x[i];
      d[i]=a[i]=c[i]=0;
    }
-@@ -430,7 +448,7 @@
+@@ -430,7 +449,7 @@
      sel25519(a,b,r);
      sel25519(c,d,r);
    }
@@ -548,7 +549,7 @@
      x[i+16]=a[i];
      x[i+32]=c[i];
      x[i+48]=b[i];
-@@ -442,113 +460,115 @@
+@@ -442,113 +461,115 @@
    return 0;
  }
  
@@ -718,7 +719,7 @@
    0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
    0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
    0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
-@@ -559,20 +579,20 @@
+@@ -559,20 +580,20 @@
    0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79
  } ;
  
@@ -745,7 +746,7 @@
    x[n] = 128;
  
    n = 256-128*(n<112);
-@@ -580,12 +600,12 @@
+@@ -580,12 +601,12 @@
    ts64(x+n-8,b<<3);
    crypto_hashblocks(h,x,n);
  
@@ -760,7 +761,7 @@
  {
    gf a,b,c,d,t,e,f,g,h;
  
-@@ -610,14 +630,14 @@
+@@ -610,14 +631,14 @@
    M(p[3], e, h);
  }
  
@@ -778,7 +779,7 @@
  {
    gf tx, ty, zi;
    inv25519(zi, p[2]);
-@@ -627,7 +647,7 @@
+@@ -627,7 +648,7 @@
    r[31] ^= par25519(tx) << 7;
  }
  
@@ -787,7 +788,7 @@
  {
    int i;
    set25519(p[0],gf0);
-@@ -635,7 +655,7 @@
+@@ -635,7 +656,7 @@
    set25519(p[2],gf1);
    set25519(p[3],gf0);
    for (i = 255;i >= 0;--i) {
@@ -796,7 +797,7 @@
      cswap(p,q,b);
      add(q,p);
      add(p,p);
-@@ -643,7 +663,7 @@
+@@ -643,7 +664,7 @@
    }
  }
  
@@ -805,7 +806,7 @@
  {
    gf q[4];
    set25519(q[0],X);
-@@ -653,9 +673,9 @@
+@@ -653,9 +674,9 @@
    scalarmult(p,q,s);
  }
  
@@ -817,7 +818,7 @@
    gf p[4];
    int i;
  
-@@ -668,15 +688,15 @@
+@@ -668,15 +689,15 @@
    scalarbase(p,d);
    pack(pk,p);
  
@@ -837,7 +838,7 @@
    for (i = 63;i >= 32;--i) {
      carry = 0;
      for (j = i - 32;j < i - 12;++j) {
-@@ -688,30 +708,30 @@
+@@ -688,30 +709,30 @@
      x[i] = 0;
    }
    carry = 0;
@@ -878,7 +879,7 @@
    gf p[4];
  
    crypto_hash(d, sk, 32);
-@@ -720,27 +740,27 @@
+@@ -720,27 +741,27 @@
    d[31] |= 64;
  
    *smlen = n+64;
@@ -913,7 +914,7 @@
  {
    gf t, chk, num, den, den2, den4, den6;
    set25519(r[2],gf1);
-@@ -776,10 +796,10 @@
+@@ -776,10 +797,10 @@
    return 0;
  }
  
@@ -926,7 +927,7 @@
    gf p[4],q[4];
  
    *mlen = -1;
-@@ -787,8 +807,8 @@
+@@ -787,8 +808,8 @@
  
    if (unpackneg(q,pk)) return -1;
  
@@ -937,7 +938,7 @@
    crypto_hash(h,m,n);
    reduce(h);
    scalarmult(p,q,h);
-@@ -799,11 +819,14 @@
+@@ -799,11 +820,14 @@
  
    n -= 64;
    if (crypto_verify_32(sm, t)) {
