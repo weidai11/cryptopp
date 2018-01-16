@@ -1,5 +1,5 @@
---- tweetnacl.c	2018-01-16 05:32:39.457991700 -0500
-+++ tweetnacl.cpp	2018-01-16 05:37:12.784893800 -0500
+--- tweetnacl.c	2018-01-16 06:18:22.597975600 -0500
++++ tweetnacl.cpp	2018-01-16 06:17:38.601064500 -0500
 @@ -1,19 +1,30 @@
 -#include "tweetnacl.h"
 -#define FOR(i,n) for (i = 0;i < n;++i)
@@ -55,10 +55,10 @@
 +    DefaultAutoSeededRNG prng;
 +    prng.GenerateBlock(block, (size_t)size);
 +}
++
++static uint32_t L32(uint32_t x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
  
 -static u32 ld32(const u8 *x)
-+static uint32_t L32(uint32_t x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
-+
 +static uint32_t ld32(const uint8_t *x)
  {
 -  u32 u = x[3];
@@ -553,9 +553,8 @@
  }
  
 -int crypto_scalarmult_base(u8 *q,const u8 *n)
--{ 
 +int crypto_scalarmult_base(uint8_t *q,const uint8_t *n)
-+{
+ {
    return crypto_scalarmult(q,n,_9);
  }
  
@@ -618,7 +617,7 @@
 -static u64 sigma0(u64 x) { return R(x, 1) ^ R(x, 8) ^ (x >> 7); }
 -static u64 sigma1(u64 x) { return R(x,19) ^ R(x,61) ^ (x >> 6); }
 -
--static const u64 K[80] = 
+-static const u64 K[80] =
 -{
 -  0x428a2f98d728ae22ULL, 0x7137449123ef65cdULL, 0xb5c0fbcfec4d3b2fULL, 0xe9b5dba58189dbbcULL,
 -  0x3956c25bf348b538ULL, 0x59f111f1b605d019ULL, 0x923f82a4af194f9bULL, 0xab1c5ed5da6d8118ULL,
@@ -746,7 +745,7 @@
    x[n] = 128;
  
    n = 256-128*(n<112);
-@@ -580,15 +600,15 @@
+@@ -580,12 +600,12 @@
    ts64(x+n-8,b<<3);
    crypto_hashblocks(h,x,n);
  
@@ -760,12 +759,8 @@
 +static void add(gf p[4],gf q[4])
  {
    gf a,b,c,d,t,e,f,g,h;
--  
-+
-   Z(a, p[1], p[0]);
-   Z(t, q[1], q[0]);
-   M(a, a, t);
-@@ -610,24 +630,24 @@
+ 
+@@ -610,14 +630,14 @@
    M(p[3], e, h);
  }
  
@@ -782,11 +777,8 @@
 +static void pack(uint8_t *r,gf p[4])
  {
    gf tx, ty, zi;
--  inv25519(zi, p[2]); 
-+  inv25519(zi, p[2]);
-   M(tx, p[0], zi);
-   M(ty, p[1], zi);
-   pack25519(r, ty);
+   inv25519(zi, p[2]);
+@@ -627,7 +647,7 @@
    r[31] ^= par25519(tx) << 7;
  }
  
