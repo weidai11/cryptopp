@@ -17,7 +17,7 @@ sed -e 's/[[:space:]]*$//' tweetnacl.c > tweetnacl.c.fixed
 mv tweetnacl.c.fixed tweetnacl.c
 
 if [[ -e "TestScripts/tweetnacl.patch" ]]; then
-    cp "TestScripts/tweetnacl.patch"
+    cp "TestScripts/tweetnacl.patch" .
 fi
 
 if [[ ! -e "tweetnacl.patch" ]]; then

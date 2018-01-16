@@ -14,12 +14,15 @@
 ///   ed25519 signatures. The complete list of functions can be found in
 ///   <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917), Table 1, page 5.
-/// \details Crypto++ reatined the function signatures but switched to data types
-///   from &lt;stdint.h&gt; to promote interoperability with Crypto++
-///   and avoid size problems on platforms like Cygwin. For example, <tt>u64</tt>
-///   was typedef'd as an <tt>unsigned long long</tt>, but Cygwin, MinGW and MSYS
-///   are <tt>LP64</tt> systems. In addition, Crypto++ was missing the <tt>i64</tt>
-///   data type, which is an signed 64-bit integer.
+/// \details Crypto++ retained the function names and signatures but switched to
+///   data types provided by &lt;stdint.h&gt; to promote interoperability with
+///   Crypto++ and avoid size problems on platforms like Cygwin. For example,
+///   NaCl typdef'd <tt>u64</tt> as an <tt>unsigned long long</tt>, but Cygwin,
+///   MinGW and MSYS are <tt>LP64</tt> systems (not <tt>LLP64</tt> systems). In
+///   addition, Crypto++ was missing the signed 64-bit integer <tt>i64</tt>.
+/// \details TweetNaCl is well written but not well optimzed. It runs 2x to 4x
+///   slower than optimized routines from libsodium. However, the library is still
+///    2x to 4x faster than the algorithms NaCl was designed to replace.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917)
 /// \since Crypto++ 6.0

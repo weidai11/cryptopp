@@ -239,10 +239,6 @@ bool TestCryptoBoxPairwise()
 	uint8_t bobpk[crypto_box_PUBLICKEYBYTES];
 	uint8_t n[crypto_box_NONCEBYTES];
 
-	// uint8_t m[MAX_MESSAGE+32];
-	// uint8_t c[MAX_MESSAGE+32];
-	// uint8_t r[MAX_MESSAGE+32];
-
 	SecByteBlock m(MAX_MESSAGE+32);
 	SecByteBlock c(MAX_MESSAGE+32);
 	SecByteBlock r(MAX_MESSAGE+32);
