@@ -471,11 +471,12 @@ int crypto_box_keypair(uint8_t *y,uint8_t *x)
   return crypto_scalarmult_base(y,x);
 }
 
+// S must not be all 0's
 int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x)
 {
   uint8_t s[32];
   if(crypto_scalarmult(s,x,y) != 0) return -1;
-  if(verify_n(k,_0,32)) return -1;
+  if(verify_n(s,_0,32) != -1) return -1;
   return crypto_core_hsalsa20(k,_0,s,sigma);
 }
 
