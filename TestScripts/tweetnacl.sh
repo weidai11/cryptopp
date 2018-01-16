@@ -7,8 +7,8 @@
 # The script should be run from the Crypto++ root directory on a
 # Unix machine because of the use of Unix tools like wget.
 
-wget --no-check-certificate https://tweetnacl.cr.yp.to/20140427/tweetnacl.h -O tweetnacl.h
-wget --no-check-certificate https://tweetnacl.cr.yp.to/20140427/tweetnacl.c -O tweetnacl.c
+curl https://tweetnacl.cr.yp.to/20140427/tweetnacl.h > tweetnacl.h
+curl https://tweetnacl.cr.yp.to/20140427/tweetnacl.c > tweetnacl.c
 
 # Fix whitespace
 sed -e 's/[[:space:]]*$//' tweetnacl.h > tweetnacl.h.fixed
