@@ -77,10 +77,13 @@ CRYPTOPP_CONSTANT(crypto_box_PUBLICKEYBYTES = 32)
 /// \brief Nonce size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</a>
 CRYPTOPP_CONSTANT(crypto_box_NONCEBYTES = 24)
-/// \brief Open box prefix in bytes
+/// \brief Message 0-byte prefix in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</a>
 CRYPTOPP_CONSTANT(crypto_box_ZEROBYTES = 32)
-/// \brief Open box precomputation size in bytes
+/// \brief Open box 0-byte prefix in bytes
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</a>
+CRYPTOPP_CONSTANT(crypto_box_BOXZEROBYTES = 16)
+/// \brief Precomputation 0-byte prefix in bytes in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</a>
 CRYPTOPP_CONSTANT(crypto_box_BEFORENMBYTES = 32)
 
