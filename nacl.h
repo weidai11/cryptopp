@@ -266,6 +266,11 @@ int crypto_secretbox(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,con
 int crypto_secretbox_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k);
 
 /// \brief Sign a message
+/// \param sm output byte buffer
+/// \param smlen size of the output byte buffer
+/// \param m input byte buffer
+/// \param n size of the input byte buffer
+/// \param sk private key
 /// \details crypto_sign() uses crypto_sign_ed25519.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
@@ -273,12 +278,19 @@ int crypto_secretbox_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *
 int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const uint8_t *sk);
 
 /// \brief Verify a message
+/// \param m output byte buffer
+/// \param mlen size of the output byte buffer
+/// \param sm input byte buffer
+/// \param smlen size of the input byte buffer
+/// \param pk public key
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 6.0
 int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,const uint8_t *pk);
 
 /// \brief Generate a keypair for signing
+/// \param y public key byte buffer
+/// \param x private key byte buffer
 /// \details crypto_sign_keypair() creates an ed25519 keypair.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
