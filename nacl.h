@@ -116,6 +116,9 @@ CRYPTOPP_CONSTANT(crypto_sign_SECRETKEYBYTES = 64)
 /// \brief Public key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 CRYPTOPP_CONSTANT(crypto_sign_PUBLICKEYBYTES = 32)
+/// \brief Seed size in bytes
+/// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
+CRYPTOPP_CONSTANT(crypto_sign_SEEDBYTES = 32)
 /// \brief Signature size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 CRYPTOPP_CONSTANT(crypto_sign_BYTES = 64)
