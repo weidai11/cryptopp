@@ -972,7 +972,7 @@ convert:
 	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.cmd
 	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh
 	-unix2dos --keepdate --quiet $(TEXT_FILES) .*.yml *.asm *.cmd TestScripts/*.*
-	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.supp *.s *.sh *.mapfile TestScripts/*.sh
+	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.supp *.s *.sh *.mapfile TestScripts/*.sh TestScripts/*.patch
 ifneq ($(IS_DARWIN),0)
 	@-xattr -c *
 endif
