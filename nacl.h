@@ -20,7 +20,7 @@
 ///   NaCl typdef'd <tt>u64</tt> as an <tt>unsigned long long</tt>, but Cygwin,
 ///   MinGW and MSYS are <tt>LP64</tt> systems (not <tt>LLP64</tt> systems). In
 ///   addition, Crypto++ was missing NaCl's signed 64-bit integer <tt>i64</tt>.
-/// \details Crypto++ rejects all-0's shared secrets due to small elements. The
+/// \details Crypto++ rejects small order elements using libsodium's blacklist. The
 ///   TweetNaCl library allowed them but the library predated the attack. If you wish
 ///   to allow small elements then use the "unchecked" versions of crypto_box_unchecked,
 ///   crypto_box_open_unchecked and crypto_box_beforenm_unchecked.
