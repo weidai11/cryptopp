@@ -227,7 +227,7 @@ int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t
 ///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
 ///   and Zcash.
 /// \returns 0 on success, non-0 otherwise
-/// \warn This version of crypto_box() does not check for small order elements. It should not
+/// \warning This version of crypto_box() does not check for small order elements. It should not
 ///   be used in new software.
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
@@ -251,7 +251,7 @@ int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n
 ///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
 ///   and Zcash.
 /// \returns 0 on success, non-0 otherwise
-/// \warn This version of crypto_box_open() does not check for small order elements. It should not
+/// \warning This version of crypto_box_open() does not check for small order elements. It should not
 ///   be used in new software.
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
@@ -273,7 +273,7 @@ int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8
 ///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
 ///   and Zcash.
 /// \returns 0 on success, non-0 otherwise
-/// \warn This version of crypto_box_beforenm() does not check for small order elements. It should not
+/// \warning This version of crypto_box_beforenm() does not check for small order elements. It should not
 ///   be used in new software.
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
