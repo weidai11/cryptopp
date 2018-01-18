@@ -383,7 +383,6 @@ bool TestCryptoSign()
 
         rc = crypto_sign(sm, &smlen, m, l, sk);
         fail = (rc != 0); pass = !fail && pass;
-        CRYPTOPP_ASSERT(!fail);
 
         uint64_t s = STDMIN(smlen, (uint64_t)crypto_sign_BYTES);
         pass = (s >= crypto_sign_BYTES) && pass;
@@ -421,7 +420,7 @@ bool TestCryptoSignKeys()
 
         const uint32_t len = (i == 0 ? 0 : GlobalRNG().GenerateWord32(1, MAX_MESSAGE));
         SecByteBlock m(len), sm(len+crypto_sign_BYTES), rm(len+crypto_sign_BYTES);
-        GlobalRNG().GenerateBlock(m, len);
+        if (len) { GlobalRNG().GenerateBlock(m, len); }
 
         uint64_t mlen = len, smlen, rmlen;
         rc = crypto_sign(sm, &smlen, m, mlen, sk);
@@ -430,9 +429,12 @@ bool TestCryptoSignKeys()
         rc = crypto_sign_open(rm, &rmlen, sm, smlen, pk);
         fail = (rc != 0); pass = !fail && pass;
 
-        pass = (mlen == rmlen) && pass;
-        fail = std::memcmp(m, rm, STDMIN(mlen, rmlen)) != 0;
-        pass = !fail && pass;
+        if(mlen && rmlen)
+        {
+            pass = (mlen == rmlen) && pass;
+            fail = std::memcmp(m, rm, STDMIN(mlen, rmlen)) != 0;
+            pass = !fail && pass;
+        }
 
         m.SetMark(16); sm.SetMark(16); rm.SetMark(16);
     }

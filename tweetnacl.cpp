@@ -299,7 +299,7 @@ static void car25519(gf o)
     o[i]+=(1LL<<16);
     c=o[i]>>16;
     o[(i+1)*(i<15)]+=c-1+37*(c-1)*(i==15);
-    o[i]-=c<<16;
+    o[i]-=((uint64_t)c)<<16;
   }
 }
 
@@ -705,7 +705,7 @@ static void modL(uint8_t *r,int64_t x[64])
     for (j = i - 32;j < i - 12;++j) {
       x[j] += carry - 16 * x[i] * L[j - (i - 32)];
       carry = (x[j] + 128) >> 8;
-      x[j] -= carry << 8;
+      x[j] -= ((uint64_t)carry) << 8;
     }
     x[j] += carry;
     x[i] = 0;
