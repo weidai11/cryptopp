@@ -23,14 +23,8 @@
 /// \details Crypto++ rejects all-0's shared secrets due to small elements. The
 ///   TweetNaCl library allowed them but the library predated the attack. If you wish
 ///   to allow small elements then use the "unchecked" versions of crypto_box_unchecked,
-///   crypto_box_open_unchecked and crypto_box_beforenm_unchecked. Also see <A
-///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A
-///   Microarchitectural Side Channel Attack on Several Real-World Applications of
-///   Curve25519</A>, <A
-///   HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium
-///   commit 675149b9b8b66ff4</A> and <A HREF="https://tools.ietf.org/html/rfc7748">RFC
-///   7748, Elliptic Curves for Security</A>, Section 6.
-/// \details TweetNaCl is well written but not well optimzed. It runs 2x to 4x
+///   crypto_box_open_unchecked and crypto_box_beforenm_unchecked.
+/// \details TweetNaCl is well written but not well optimzed. It runs 2x to 3x
 ///   slower than optimized routines from libsodium. However, the library is still
 ///    2x to 4x faster than the algorithms NaCl was designed to replace.
 /// \details The Crypto++ wrapper for TweetNaCl requires OS features. That is,
@@ -40,7 +34,13 @@
 ///    must be enabled. You can use another generator like <tt>RDRAND</tt> to
 ///    avoid the restriction.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
-///   A crypto library in 100 tweets</A> (20140917)
+///   A crypto library in 100 tweets</A> (20140917), <A
+///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A
+///   Microarchitectural Side Channel Attack on Several Real-World Applications of
+///   Curve25519</A>, <A
+///   HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium
+///   commit 675149b9b8b66ff4</A> and <A HREF="https://tools.ietf.org/html/rfc7748">RFC
+///   7748, Elliptic Curves for Security</A>, Section 6.
 /// \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_NACL_H
