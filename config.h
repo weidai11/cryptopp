@@ -572,8 +572,9 @@ NAMESPACE_END
 // Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add Android ARMv8 support for CRC32
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__) && !defined(__ANDROID__)
 # if (defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
 	defined(__aarch32__) || defined(__aarch64__))
 #  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
@@ -583,8 +584,9 @@ NAMESPACE_END
 // Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add Android ARMv8 support for PMULL
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__)
+#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__) && !defined(__ANDROID__)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
 	defined(__aarch32__) || defined(__aarch64__)
 #  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
@@ -594,8 +596,9 @@ NAMESPACE_END
 // Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
 // LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
 // Microsoft plans to support ARM-64, but its not clear how to detect it.
+// TODO: Add Android ARMv8 support for AES and SHA
 // TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_CRYPTO_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__ANDROID__)
 # if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
 	defined(__aarch32__) || defined(__aarch64__)
 #  define CRYPTOPP_ARM_AES_AVAILABLE 1

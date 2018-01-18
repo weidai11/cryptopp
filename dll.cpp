@@ -9,11 +9,13 @@
 #include "pkcspad.h"
 #include "emsa2.h"
 
+#if defined(CRYPTOPP_MSC_VERSION)
 // Cast from FARPROC to funcptr with args, http://stackoverflow.com/q/4192058/608639
-#pragma warning(disable: 4191)
+# pragma warning(disable: 4191)
+#endif
 
 #if defined(CRYPTOPP_EXPORTS) && defined(CRYPTOPP_WIN32_AVAILABLE)
-#include <windows.h>
+# include <windows.h>
 #endif
 
 #ifndef CRYPTOPP_IMPORTS
