@@ -20,6 +20,10 @@
 ///   NaCl typdef'd <tt>u64</tt> as an <tt>unsigned long long</tt>, but Cygwin,
 ///   MinGW and MSYS are <tt>LP64</tt> systems (not <tt>LLP64</tt> systems). In
 ///   addition, Crypto++ was missing NaCl's signed 64-bit integer <tt>i64</tt>.
+/// \details Crypto++ rejects all 0-keys due to small points. The TweetNaCl
+///   library allowed the 0-keys due to small points. Also see <A
+///   HREF="https://tools.ietf.org/html/rfc7748">RFC 7748, Elliptic Curves for
+///   Security</A>, Section 6.
 /// \details TweetNaCl is well written but not well optimzed. It runs 2x to 4x
 ///   slower than optimized routines from libsodium. However, the library is still
 ///    2x to 4x faster than the algorithms NaCl was designed to replace.
