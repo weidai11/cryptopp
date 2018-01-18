@@ -21,18 +21,22 @@
 ///   MinGW and MSYS are <tt>LP64</tt> systems (not <tt>LLP64</tt> systems). In
 ///   addition, Crypto++ was missing NaCl's signed 64-bit integer <tt>i64</tt>.
 /// \details Crypto++ rejects all 0-keys due to small points. The TweetNaCl
-///   library allowed the 0-keys due to small points. Also see <A
+///   library allowed them, so it may cause interop problems. Also see libsodium
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b6">commit
+///   675149b9b8b6</A>, <A HREF="https://eprint.iacr.org/2017/806.pdf">May the
+///   Fourth Be With You: A Microarchitectural Side Channel Attack on Several
+///   Real-World Applications of Curve25519</A> and <A
 ///   HREF="https://tools.ietf.org/html/rfc7748">RFC 7748, Elliptic Curves for
 ///   Security</A>, Section 6.
 /// \details TweetNaCl is well written but not well optimzed. It runs 2x to 4x
 ///   slower than optimized routines from libsodium. However, the library is still
-///    2x to 4x faster than the algorithms NaCl was designed to replace.
-/// \details The Crypto++ wrapper for TweetNaCl requires OS features. That is,
-///    <tt>NO_OS_DEPENDENCE</tt> cannot be defined. It is due to TweetNaCl's
-///    internal function <tt>randombytes</tt>. Crypto++ used
-///    <tt>DefaultAutoSeededRNG</tt> within <tt>randombytes</tt>, so OS integration
-///    must be enabled. You can use another generator like <tt>RDRAND</tt> to
-///    avoid the restriction.
+///   2x to 4x faster than the algorithms NaCl was designed to replace.
+/// \details The Crypto++ wrapper for TweetNaCl requires OS features, and
+///   <tt>NO_OS_DEPENDENCE</tt> cannot be defined. The requirement is due to
+///   TweetNaCl's internal function <tt>randombytes</tt>. Crypto++ implemented
+///   <tt>randombytes</tt> using <tt>DefaultAutoSeededRNG</tt>, so OS integration
+///   must be enabled. You can use another generator like <tt>RDRAND</tt> to
+///   avoid the restriction.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917)
 /// \since Crypto++ 6.0
