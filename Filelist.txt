@@ -183,6 +183,7 @@ mqueue.cpp
 mqueue.h
 mqv.cpp
 mqv.h
+nacl.h
 nbtheory.cpp
 nbtheory.h
 neon-simd.cpp
@@ -314,12 +315,15 @@ trdlocal.h
 trunhash.h
 ttmac.cpp
 ttmac.h
+tweetnacl.cpp
+tweetnacl.h
 twofish.cpp
 twofish.h
 validat0.cpp
 validat1.cpp
 validat2.cpp
 validat3.cpp
+validat4.cpp
 validate.h
 vmac.cpp
 vmac.h

@@ -545,6 +545,12 @@ DOCUMENTED_NAMESPACE_BEGIN(Weak)
 DOCUMENTED_NAMESPACE_END
 #endif
 
+/// \brief Namespace containing NaCl library functions
+/// \details TweetNaCl is a compact and portable reimplementation of the NaCl library.
+DOCUMENTED_NAMESPACE_BEGIN(NaCl)
+// crypto_box, crypto_box_open, crypto_sign, and crypto_sign_open (and friends)
+DOCUMENTED_NAMESPACE_END
+
 /// \brief Namespace containing testing and benchmark classes.
 /// \details Source files for classes in the Test namespaces include
 ///   <tt>test.cpp</tt>, <tt>validat#.cpp</tt> and <tt>bench#.cpp</tt>.

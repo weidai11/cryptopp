@@ -419,6 +419,9 @@
     <ClCompile Include="ttmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tweetnacl.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="twofish.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -711,6 +714,9 @@
     <ClInclude Include="nbtheory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="nacl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="network.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -880,6 +886,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ttmac.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tweetnacl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="twofish.h">

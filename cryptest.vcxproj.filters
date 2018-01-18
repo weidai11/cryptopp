@@ -397,6 +397,9 @@
     <ClCompile Include="validat3.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="validat4.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
     <ClCompile Include="fipsalgt.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
