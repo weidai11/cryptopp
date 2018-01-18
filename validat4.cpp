@@ -117,6 +117,8 @@ bool TestCryptoBox()
 
     bool pass = true; int rc;
 
+    // Reject small order elements
+
     rc = crypto_box(c, m, 163, nonce, bobpk, alicesk);
     pass = (rc == 0) && pass;
     pass = (std::memcmp(c+16, exp1, 163-16) == 0) && pass;
@@ -133,6 +135,25 @@ bool TestCryptoBox()
 
     rc = crypto_box_beforenm(k, small_order_p, alicesk);
     pass = (rc != 0) && pass;
+    
+    // Allow small order elements
+
+    rc = crypto_box_unchecked(c, m, 163, nonce, bobpk, alicesk);
+    pass = (rc == 0) && pass;
+    pass = (std::memcmp(c+16, exp1, 163-16) == 0) && pass;
+
+    rc = crypto_box_unchecked(c, m, 163, nonce, small_order_p, alicesk);
+    pass = (rc == 0) && pass;
+    std::memset(c, 0, sizeof(c));
+
+    rc = crypto_box_beforenm_unchecked(k, bobpk, alicesk);
+    pass = (rc == 0) && pass;
+    rc = crypto_box_afternm(c, m, 163, nonce, k);
+    pass = (rc == 0) && pass;
+    pass = (std::memcmp(c+16, exp2, 163-16) == 0) && pass;
+
+    rc = crypto_box_beforenm_unchecked(k, small_order_p, alicesk);
+    pass = (rc == 0) && pass;
 
     return pass;
 }
@@ -210,6 +231,8 @@ bool TestCryptoBoxOpen()
 
     bool pass = true; int rc;
 
+    // Reject small order elements
+
     rc = crypto_box_open(m, c, 163, nonce, alicepk, bobsk);
     pass = (rc == 0) && pass;
     pass = (std::memcmp(m+32, exp1, 163-32) == 0) && pass;
@@ -226,13 +249,28 @@ bool TestCryptoBoxOpen()
     pass = (rc == 0) && pass;
     pass = (std::memcmp(m+32, exp2, 163-32) == 0) && pass;
 
+    // Allow small order elements
+
+    rc = crypto_box_open_unchecked(m, c, 163, nonce, alicepk, bobsk);
+    pass = (rc == 0) && pass;
+    pass = (std::memcmp(m+32, exp1, 163-32) == 0) && pass;
+
+    rc = crypto_box_beforenm_unchecked(k, small_order_p, bobsk);
+    pass = (rc == 0) && pass;
+    rc = crypto_box_beforenm_unchecked(k, alicepk, bobsk);
+    pass = (rc == 0) && pass;
+
+    rc = crypto_box_open_afternm(m, c, 163, nonce, k);
+    pass = (rc == 0) && pass;
+    pass = (std::memcmp(m+32, exp2, 163-32) == 0) && pass;
+
     return pass;
 }
 
 bool TestCryptoBoxKeys()
 {
     // https://github.com/jedisct1/libsodium/blob/master/test/default/box7.c
-    const unsigned int MAX_TEST = 128;
+    const unsigned int MAX_TEST = 64;
     const unsigned int MAX_MESSAGE = 4096;
 
     uint8_t alicesk[crypto_box_SECRETKEYBYTES];
@@ -405,7 +443,7 @@ bool TestCryptoSign()
 bool TestCryptoSignKeys()
 {
     // https://github.com/jedisct1/libsodium/blob/master/test/default/sign.c
-    const unsigned int MAX_TEST = 128;
+    const unsigned int MAX_TEST = 64;
     const unsigned int MAX_MESSAGE = 4096;
 
     uint8_t pk[crypto_sign_PUBLICKEYBYTES];

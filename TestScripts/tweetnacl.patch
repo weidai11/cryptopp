@@ -1,5 +1,5 @@
---- tweetnacl.c	2018-01-17 21:26:25.086390308 -0500
-+++ tweetnacl.cpp	2018-01-17 21:26:25.088390282 -0500
+--- tweetnacl.c	2018-01-18 12:36:44.497870997 -0500
++++ tweetnacl.cpp	2018-01-18 12:36:44.500871058 -0500
 @@ -1,19 +1,33 @@
 -#include "tweetnacl.h"
 -#define FOR(i,n) for (i = 0;i < n;++i)
@@ -427,7 +427,7 @@
      o[2*i]=t[i]&0xff;
      o[2*i+1]=t[i]>>8;
    }
-@@ -319,88 +340,88 @@
+@@ -319,88 +340,123 @@
 
  static int neq25519(const gf a, const gf b)
  {
@@ -523,6 +523,41 @@
    }
 -  FOR(a,16) o[a]=c[a];
 +  for(a=0; a<16; ++a) o[a]=c[a];
++}
++
++// https://github.com/jedisct1/libsodium/blob/master/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c
++static int has_small_order(const uint8_t s[32])
++{
++  CRYPTOPP_ALIGN_DATA(16)
++  const uint8_t blacklist[][32] = {
++    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
++    { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
++    { 0xe0, 0xeb, 0x7a, 0x7c, 0x3b, 0x41, 0xb8, 0xae, 0x16, 0x56, 0xe3, 0xfa, 0xf1, 0x9f, 0xc4, 0x6a, 0xda, 0x09, 0x8d, 0xeb, 0x9c, 0x32, 0xb1, 0xfd, 0x86, 0x62, 0x05, 0x16, 0x5f, 0x49, 0xb8, 0x00 },
++    { 0x5f, 0x9c, 0x95, 0xbc, 0xa3, 0x50, 0x8c, 0x24, 0xb1, 0xd0, 0xb1, 0x55, 0x9c, 0x83, 0xef, 0x5b, 0x04, 0x44, 0x5c, 0xc4, 0x58, 0x1c, 0x8e, 0x86, 0xd8, 0x22, 0x4e, 0xdd, 0xd0, 0x9f, 0x11, 0x57 },
++    { 0xec, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f },
++    { 0xed, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f },
++    { 0xee, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x7f },
++    { 0xcd, 0xeb, 0x7a, 0x7c, 0x3b, 0x41, 0xb8, 0xae, 0x16, 0x56, 0xe3, 0xfa, 0xf1, 0x9f, 0xc4, 0x6a, 0xda, 0x09, 0x8d, 0xeb, 0x9c, 0x32, 0xb1, 0xfd, 0x86, 0x62, 0x05, 0x16, 0x5f, 0x49, 0xb8, 0x80 },
++    { 0x4c, 0x9c, 0x95, 0xbc, 0xa3, 0x50, 0x8c, 0x24, 0xb1, 0xd0, 0xb1, 0x55, 0x9c, 0x83, 0xef, 0x5b, 0x04, 0x44, 0x5c, 0xc4, 0x58, 0x1c, 0x8e, 0x86, 0xd8, 0x22, 0x4e, 0xdd, 0xd0, 0x9f, 0x11, 0xd7 },
++    { 0xd9, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
++    { 0xda, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
++    { 0xdb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
++  };
++  CRYPTOPP_COMPILE_ASSERT(12 == COUNTOF(blacklist));
++
++  uint8_t c[12] = { 0 };
++  for (size_t j = 0; j < 32; j++) {
++    for (size_t i = 0; i < COUNTOF(blacklist); i++) {
++      c[i] |= s[j] ^ blacklist[i][j];
++    }
++  }
++
++  unsigned int k = 0;
++  for (size_t i = 0; i < COUNTOF(blacklist); i++) {
++    k |= (c[i] - 1);
++  }
++
++  return (int) ((k >> 8) & 1);
  }
 
 -int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
@@ -543,7 +578,7 @@
      b[i]=x[i];
      d[i]=a[i]=c[i]=0;
    }
-@@ -430,7 +451,7 @@
+@@ -430,7 +486,7 @@
      sel25519(a,b,r);
      sel25519(c,d,r);
    }
@@ -552,7 +587,7 @@
      x[i+16]=a[i];
      x[i+32]=c[i];
      x[i+48]=b[i];
-@@ -442,113 +463,115 @@
+@@ -442,113 +498,138 @@
    return 0;
  }
 
@@ -570,14 +605,23 @@
  }
 
 -int crypto_box_beforenm(u8 *k,const u8 *y,const u8 *x)
-+// S must not be all 0's
++// Avoid small order elements. Also see https://eprint.iacr.org/2017/806.pdf
++// and https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4.
 +int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x)
++{
++  uint8_t s[32];
++  if(crypto_scalarmult(s,x,y) != 0) return -1;
++  if(has_small_order(s) != 0) return -1;
++  return crypto_core_hsalsa20(k,_0,s,sigma);
++}
++
++// Allow small order elements. Also see https://eprint.iacr.org/2017/806.pdf
++int crypto_box_beforenm_unchecked(uint8_t *k,const uint8_t *y,const uint8_t *x)
  {
 -  u8 s[32];
 -  crypto_scalarmult(s,x,y);
 +  uint8_t s[32];
 +  if(crypto_scalarmult(s,x,y) != 0) return -1;
-+  if(verify_n(s,_0,32) != -1) return -1;
    return crypto_core_hsalsa20(k,_0,s,sigma);
  }
 
@@ -594,20 +638,28 @@
  }
 
 -int crypto_box(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *y,const u8 *x)
-+int crypto_box(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
++int crypto_box(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
+ {
+-  u8 k[32];
+-  crypto_box_beforenm(k,y,x);
+-  return crypto_box_afternm(c,m,d,n,k);
++  uint8_t k[32];
++  if (crypto_box_beforenm(k, y, x) != 0) return -1;
++  return crypto_box_afternm(c, m, d, n, k);
+ }
+
+-int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
++int crypto_box_unchecked(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
  {
 -  u8 k[32];
 -  crypto_box_beforenm(k,y,x);
 +  uint8_t k[32];
-+  if(crypto_box_beforenm(k,y,x) != 0) return -1;
-   return crypto_box_afternm(c,m,d,n,k);
- }
-
--int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
++  crypto_box_beforenm_unchecked(k, y, x);
++  return crypto_box_afternm(c, m, d, n, k);
++}
++
 +int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
- {
--  u8 k[32];
--  crypto_box_beforenm(k,y,x);
++{
 +  uint8_t k[32];
 +  if(crypto_box_beforenm(k,y,x) != 0) return -1;
    return crypto_box_open_afternm(m,c,d,n,k);
@@ -643,6 +695,13 @@
 -  0x06f067aa72176fbaULL, 0x0a637dc5a2c898a6ULL, 0x113f9804bef90daeULL, 0x1b710b35131c471bULL,
 -  0x28db77f523047d84ULL, 0x32caab7b40c72493ULL, 0x3c9ebe0a15c9bebcULL, 0x431d67c49c100d4cULL,
 -  0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
++int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
++{
++  uint8_t k[32];
++  crypto_box_beforenm_unchecked(k,y,x);
++  return crypto_box_open_afternm(m,c,d,n,k);
++}
++
 +static uint64_t R(uint64_t x,int c) { return (x >> c) | (x << (64 - c)); }
 +static uint64_t Ch(uint64_t x,uint64_t y,uint64_t z) { return (x & y) ^ (~x & z); }
 +static uint64_t Maj(uint64_t x,uint64_t y,uint64_t z) { return (x & y) ^ (x & z) ^ (y & z); }
@@ -700,8 +759,9 @@
 +      for(j=0; j<8; ++j) a[(j+1)%8] = b[j];
        if (i%16 == 15)
 -	FOR(j,16)
-+	for(j=0; j<16; ++j)
- 	  w[j] += w[(j+9)%16] + sigma0(w[(j+1)%16]) + sigma1(w[(j+14)%16]);
+-	  w[j] += w[(j+9)%16] + sigma0(w[(j+1)%16]) + sigma1(w[(j+14)%16]);
++        for(j=0; j<16; ++j)
++          w[j] += w[(j+9)%16] + sigma0(w[(j+1)%16]) + sigma1(w[(j+14)%16]);
      }
 
 -    FOR(i,8) { a[i] += z[i]; z[i] = a[i]; }
@@ -722,7 +782,7 @@
    0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
    0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
    0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
-@@ -559,20 +582,20 @@
+@@ -559,20 +640,20 @@
    0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79
  } ;
 
@@ -749,7 +809,7 @@
    x[n] = 128;
 
    n = 256-128*(n<112);
-@@ -580,12 +603,12 @@
+@@ -580,12 +661,12 @@
    ts64(x+n-8,b<<3);
    crypto_hashblocks(h,x,n);
 
@@ -764,7 +824,7 @@
  {
    gf a,b,c,d,t,e,f,g,h;
 
-@@ -610,14 +633,14 @@
+@@ -610,14 +691,14 @@
    M(p[3], e, h);
  }
 
@@ -782,7 +842,7 @@
  {
    gf tx, ty, zi;
    inv25519(zi, p[2]);
-@@ -627,7 +650,7 @@
+@@ -627,7 +708,7 @@
    r[31] ^= par25519(tx) << 7;
  }
 
@@ -791,7 +851,7 @@
  {
    int i;
    set25519(p[0],gf0);
-@@ -635,7 +658,7 @@
+@@ -635,7 +716,7 @@
    set25519(p[2],gf1);
    set25519(p[3],gf0);
    for (i = 255;i >= 0;--i) {
@@ -800,7 +860,7 @@
      cswap(p,q,b);
      add(q,p);
      add(p,p);
-@@ -643,7 +666,7 @@
+@@ -643,7 +724,7 @@
    }
  }
 
@@ -809,7 +869,7 @@
  {
    gf q[4];
    set25519(q[0],X);
-@@ -653,9 +676,9 @@
+@@ -653,9 +734,9 @@
    scalarmult(p,q,s);
  }
 
@@ -821,7 +881,7 @@
    gf p[4];
    int i;
 
-@@ -668,50 +691,50 @@
+@@ -668,50 +749,50 @@
    scalarbase(p,d);
    pack(pk,p);
 
@@ -887,7 +947,7 @@
    gf p[4];
 
    crypto_hash(d, sk, 32);
-@@ -720,27 +743,27 @@
+@@ -720,27 +801,27 @@
    d[31] |= 64;
 
    *smlen = n+64;
@@ -922,7 +982,7 @@
  {
    gf t, chk, num, den, den2, den4, den6;
    set25519(r[2],gf1);
-@@ -776,10 +799,10 @@
+@@ -776,10 +857,10 @@
    return 0;
  }
 
@@ -935,7 +995,7 @@
    gf p[4],q[4];
 
    *mlen = -1;
-@@ -787,8 +810,8 @@
+@@ -787,8 +868,8 @@
 
    if (unpackneg(q,pk)) return -1;
 
@@ -946,7 +1006,7 @@
    crypto_hash(h,m,n);
    reduce(h);
    scalarmult(p,q,h);
-@@ -799,11 +822,16 @@
+@@ -799,11 +880,17 @@
 
    n -= 64;
    if (crypto_verify_32(sm, t)) {
@@ -965,4 +1025,4 @@
 +NAMESPACE_END  // NaCl
 +
 +#endif  // NO_OS_DEPENDENCE
-\ No newline at end of file
++

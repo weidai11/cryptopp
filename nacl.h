@@ -20,23 +20,25 @@
 ///   NaCl typdef'd <tt>u64</tt> as an <tt>unsigned long long</tt>, but Cygwin,
 ///   MinGW and MSYS are <tt>LP64</tt> systems (not <tt>LLP64</tt> systems). In
 ///   addition, Crypto++ was missing NaCl's signed 64-bit integer <tt>i64</tt>.
-/// \details Crypto++ rejects all 0-keys due to small points. The TweetNaCl
-///   library allowed them, so it may cause interop problems. Also see libsodium
-///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b6">commit
-///   675149b9b8b6</A>, <A HREF="https://eprint.iacr.org/2017/806.pdf">May the
-///   Fourth Be With You: A Microarchitectural Side Channel Attack on Several
-///   Real-World Applications of Curve25519</A> and <A
-///   HREF="https://tools.ietf.org/html/rfc7748">RFC 7748, Elliptic Curves for
-///   Security</A>, Section 6.
+/// \details Crypto++ rejects all-0's shared secrets due to small elements. The
+///   TweetNaCl library allowed them but the library predated the attack. If you wish
+///   to allow small elements then use the "unchecked" versions of crypto_box_unchecked,
+///   crypto_box_open_unchecked and crypto_box_beforenm_unchecked. Also see <A
+///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A
+///   Microarchitectural Side Channel Attack on Several Real-World Applications of
+///   Curve25519</A>, <A
+///   HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium
+///   commit 675149b9b8b66ff4</A> and <A HREF="https://tools.ietf.org/html/rfc7748">RFC
+///   7748, Elliptic Curves for Security</A>, Section 6.
 /// \details TweetNaCl is well written but not well optimzed. It runs 2x to 4x
 ///   slower than optimized routines from libsodium. However, the library is still
-///   2x to 4x faster than the algorithms NaCl was designed to replace.
-/// \details The Crypto++ wrapper for TweetNaCl requires OS features, and
-///   <tt>NO_OS_DEPENDENCE</tt> cannot be defined. The requirement is due to
-///   TweetNaCl's internal function <tt>randombytes</tt>. Crypto++ implemented
-///   <tt>randombytes</tt> using <tt>DefaultAutoSeededRNG</tt>, so OS integration
-///   must be enabled. You can use another generator like <tt>RDRAND</tt> to
-///   avoid the restriction.
+///    2x to 4x faster than the algorithms NaCl was designed to replace.
+/// \details The Crypto++ wrapper for TweetNaCl requires OS features. That is,
+///    <tt>NO_OS_DEPENDENCE</tt> cannot be defined. It is due to TweetNaCl's
+///    internal function <tt>randombytes</tt>. Crypto++ used
+///    <tt>DefaultAutoSeededRNG</tt> within <tt>randombytes</tt>, so OS integration
+///    must be enabled. You can use another generator like <tt>RDRAND</tt> to
+///    avoid the restriction.
 /// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917)
 /// \since Crypto++ 6.0
@@ -210,6 +212,76 @@ int crypto_box_afternm(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,c
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
 int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k);
+
+/// \brief Encrypt and authenticate a message
+/// \param c output byte buffer
+/// \param m input byte buffer
+/// \param d size of the input byte buffer
+/// \param n nonce byte buffer
+/// \param y other's public key
+/// \param x private key
+/// \details crypto_box() uses crypto_box_curve25519xsalsa20poly1305.
+/// \details This version of crypto_box() does not check for small order elements. It is unsafe
+///   but it exists for backwards compatibility with downlevel clients. Without the compatibility
+///   interop with early versions of NaCl, libsodium and other libraries does not exist. The
+///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
+///   and Zcash.
+/// \returns 0 on success, non-0 otherwise
+/// \warn This version of crypto_box() does not check for small order elements. It should not
+///   be used in new software.
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
+///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
+///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
+///   675149b9b8b66ff4</A>.
+/// \since Crypto++ 6.0
+int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
+
+/// \brief Verify and decrypt a message
+/// \param m output byte buffer
+/// \param c input byte buffer
+/// \param d size of the input byte buffer
+/// \param n nonce byte buffer
+/// \param y other's public key
+/// \param x private key
+/// \details crypto_box_open() uses crypto_box_curve25519xsalsa20poly1305.
+/// \details This version of crypto_box_open() does not check for small order elements. It is unsafe
+///   but it exists for backwards compatibility with downlevel clients. Without the compatibility
+///   interop with early versions of NaCl, libsodium and other libraries does not exist. The
+///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
+///   and Zcash.
+/// \returns 0 on success, non-0 otherwise
+/// \warn This version of crypto_box_open() does not check for small order elements. It should not
+///   be used in new software.
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
+///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
+///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
+///   675149b9b8b66ff4</A>.
+/// \since Crypto++ 6.0
+int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
+
+/// \brief Encrypt and authenticate a message
+/// \param k shared secret byte buffer
+/// \param y other's public key
+/// \param x private key
+/// \details crypto_box_beforenm() performs message-independent precomputation to derive the key.
+///   Once the key is derived multiple calls to crypto_box_afternm() can be made to process the message.
+/// \details This version of crypto_box_beforenm() does not check for small order elements. It is unsafe
+///   but it exists for backwards compatibility with downlevel clients. Without the compatibility
+///   interop with early versions of NaCl, libsodium and other libraries does not exist. The
+///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
+///   and Zcash.
+/// \returns 0 on success, non-0 otherwise
+/// \warn This version of crypto_box_beforenm() does not check for small order elements. It should not
+///   be used in new software.
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
+///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
+///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
+///   675149b9b8b66ff4</A>.
+/// \since Crypto++ 6.0
+int crypto_box_beforenm_unchecked(uint8_t *k,const uint8_t *y,const uint8_t *x);
 
 /// \brief TODO
 int crypto_core_salsa20(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *c);
