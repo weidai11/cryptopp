@@ -135,7 +135,7 @@ bool TestCryptoBox()
 
     rc = crypto_box_beforenm(k, small_order_p, alicesk);
     pass = (rc != 0) && pass;
-    
+
     // Allow small order elements
 
     rc = crypto_box_unchecked(c, m, 163, nonce, bobpk, alicesk);

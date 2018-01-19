@@ -229,7 +229,7 @@ int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t
 /// \returns 0 on success, non-0 otherwise
 /// \warning This version of crypto_box() does not check for small order elements. It should not
 ///   be used in new software.
-/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>,
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
 ///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
 ///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
@@ -253,7 +253,7 @@ int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n
 /// \returns 0 on success, non-0 otherwise
 /// \warning This version of crypto_box_open() does not check for small order elements. It should not
 ///   be used in new software.
-/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>,
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
 ///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
 ///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
@@ -275,7 +275,7 @@ int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8
 /// \returns 0 on success, non-0 otherwise
 /// \warning This version of crypto_box_beforenm() does not check for small order elements. It should not
 ///   be used in new software.
-/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>, 
+/// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>,
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
 ///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
 ///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit

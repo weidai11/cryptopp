@@ -416,7 +416,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // *********************** UncheckedSetKey specializations *********************** //
 
-void Kalyna::Base::SetKey_22(const word64 key[2])
+void Kalyna128::Base::SetKey_22(const word64 key[2])
 {
     word64 *ks = m_wspace+0, *ksc = m_wspace+2, *t1 = m_wspace+4;
     word64 *t2 = m_wspace+6, *k = m_wspace+8, *kswapped = m_wspace+10;
@@ -491,7 +491,7 @@ void Kalyna::Base::SetKey_22(const word64 key[2])
     }
 }
 
-void Kalyna::Base::SetKey_24(const word64 key[4])
+void Kalyna128::Base::SetKey_24(const word64 key[4])
 {
     word64 *ks = m_wspace+0, *ksc = m_wspace+2, *t1 = m_wspace+4, *t2 = m_wspace+6;
     word64 *k = m_wspace+8, *ka = m_wspace+12, *ko = m_wspace+14;
@@ -592,7 +592,7 @@ void Kalyna::Base::SetKey_24(const word64 key[4])
     }
 }
 
-void Kalyna::Base::SetKey_44(const word64 key[4])
+void Kalyna256::Base::SetKey_44(const word64 key[4])
 {
     word64 *ks = m_wspace+0, *ksc = m_wspace+4, *t1 = m_wspace+8;
     word64 *t2 = m_wspace+12, *k = m_wspace+16;
@@ -695,7 +695,7 @@ void Kalyna::Base::SetKey_44(const word64 key[4])
     }
 }
 
-void Kalyna::Base::SetKey_48(const word64 key[8])
+void Kalyna256::Base::SetKey_48(const word64 key[8])
 {
     word64 *ks = m_wspace+0, *ksc = m_wspace+4, *t1 = m_wspace+8, *t2 = m_wspace+12;
     word64 *k = m_wspace+16, *ka = m_wspace+24, *ko = m_wspace+28;
@@ -817,7 +817,7 @@ void Kalyna::Base::SetKey_48(const word64 key[8])
     }
 }
 
-void Kalyna::Base::SetKey_88(const word64 key[8])
+void Kalyna512::Base::SetKey_88(const word64 key[8])
 {
     word64 *ks = m_wspace+0, *ksc = m_wspace+8, *t1 = m_wspace+16;
     word64 *t2 = m_wspace+24, *k = m_wspace+32;
@@ -932,7 +932,7 @@ void Kalyna::Base::SetKey_88(const word64 key[8])
 
 // *********************** ProcessAndXorBlock specializations *********************** //
 
-void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const
+void Kalyna128::Base::ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const
 {
     word64 *t1 = m_wspace+0, *t2 = m_wspace+2, *msg = m_wspace+4;
 
@@ -978,7 +978,7 @@ void Kalyna::Base::ProcessBlock_22(const word64 inBlock[2], const word64 xorBloc
     oblk(t1[0])(t1[1]);
 }
 
-void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const
+void Kalyna128::Base::ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const
 {
     word64 *t1 = m_wspace+0, *t2 = m_wspace+2, *msg = m_wspace+4;
 
@@ -1032,7 +1032,7 @@ void Kalyna::Base::ProcessBlock_24(const word64 inBlock[2], const word64 xorBloc
     oblk(t1[0])(t1[1]);
 }
 
-void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const
+void Kalyna256::Base::ProcessBlock_44(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const
 {
     word64 *t1 = m_wspace+0, *t2 = m_wspace+4, *msg = m_wspace+8;
 
@@ -1086,7 +1086,7 @@ void Kalyna::Base::ProcessBlock_44(const word64 inBlock[4], const word64 xorBloc
     oblk(t1[0])(t1[1])(t1[2])(t1[3]);
 }
 
-void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const
+void Kalyna256::Base::ProcessBlock_48(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const
 {
     word64 *t1 = m_wspace+0, *t2 = m_wspace+4, *msg = m_wspace+8;
 
@@ -1148,7 +1148,7 @@ void Kalyna::Base::ProcessBlock_48(const word64 inBlock[4], const word64 xorBloc
     oblk(t1[0])(t1[1])(t1[2])(t1[3]);
 }
 
-void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], const word64 xorBlock[8], word64 outBlock[8]) const
+void Kalyna512::Base::ProcessBlock_88(const word64 inBlock[8], const word64 xorBlock[8], word64 outBlock[8]) const
 {
     word64 *t1 = m_wspace+0, *t2 = m_wspace+8, *msg = m_wspace+16;
 
@@ -1212,32 +1212,16 @@ void Kalyna::Base::ProcessBlock_88(const word64 inBlock[8], const word64 xorBloc
 
 // *********************** Library routines *********************** //
 
-void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
+void Kalyna128::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
 {
+    CRYPTOPP_UNUSED(params);
+    m_nb = static_cast<unsigned int>(16U / sizeof(word64));
+    m_nk = static_cast<unsigned int>(keylen / sizeof(word64));
+
     switch (keylen)
     {
     case 16:  // 128
         m_kl = 16;
-        m_blocksize = params.GetIntValueWithDefault(Name::BlockSize(), 16);
-        break;
-    case 32:  // 256
-        m_kl = 32;
-        m_blocksize = params.GetIntValueWithDefault(Name::BlockSize(), 32);
-        break;
-    case 64:  // 512
-        m_kl = 64;
-        m_blocksize = params.GetIntValueWithDefault(Name::BlockSize(), 64);
-        break;
-    default:
-        CRYPTOPP_ASSERT(0);
-    }
-
-    m_nb = static_cast<unsigned int>(m_blocksize / sizeof(word64));
-    m_nk = static_cast<unsigned int>(keylen / sizeof(word64));
-
-    switch ((m_nb << 8) | m_nk)
-    {
-    case (2 << 8) | 2:  // 128 key, 128 block
         m_mkey.New(2);
         m_rkeys.New(11*2);
         m_wspace.New(2*6);
@@ -1245,7 +1229,8 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 2, key, 16);
         SetKey_22(m_mkey.begin());
         break;
-    case (2 << 8) | 4:  // 256 key, 128 block
+    case 32:  // 256
+        m_kl = 32;
         m_mkey.New(4);
         m_rkeys.New(15*2);
         m_wspace.New(6*2+4);
@@ -1253,36 +1238,12 @@ void Kalyna::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const N
         GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 4, key, 32);
         SetKey_24(m_mkey.begin());
         break;
-    case (4 << 8) | 4:  // 256 key, 256 block
-        m_mkey.New(4);
-        m_rkeys.New(15*4);
-        m_wspace.New(5*4);
-
-        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 4, key, 32);
-        SetKey_44(m_mkey.begin());
-        break;
-    case (4 << 8) | 8:  // 512 key, 256 block
-        m_mkey.New(8);
-        m_rkeys.New(19*4);
-        m_wspace.New(6*4+8);
-
-        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 8, key, 64);
-        SetKey_48(m_mkey.begin());
-        break;
-    case (8 << 8) | 8:  // 512 key, 512 block
-        m_mkey.New(8);
-        m_rkeys.New(19*8);
-        m_wspace.New(5*8);
-
-        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 8, key, 64);
-        SetKey_88(m_mkey.begin());
-        break;
     default:
         CRYPTOPP_ASSERT(0);
     }
 }
 
-void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+void Kalyna128::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // Timing attack countermeasure. see comments in Rijndael for more details
     const int cacheLineSize = GetCacheLineSize();
@@ -1304,6 +1265,56 @@ void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         ProcessBlock_24(reinterpret_cast<const word64*>(inBlock),
             reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
         break;
+    default:
+        CRYPTOPP_ASSERT(0);
+    }
+}
+
+void Kalyna256::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
+{
+    CRYPTOPP_UNUSED(params);
+    m_nb = static_cast<unsigned int>(32U / sizeof(word64));
+    m_nk = static_cast<unsigned int>(keylen / sizeof(word64));
+
+    switch (keylen)
+    {
+    case 32:  // 256
+        m_kl = 32;
+        m_mkey.New(4);
+        m_rkeys.New(15*4);
+        m_wspace.New(5*4);
+
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 4, key, 32);
+        SetKey_44(m_mkey.begin());
+        break;
+    case 64:  // 512
+        m_kl = 64;
+        m_mkey.New(8);
+        m_rkeys.New(19*4);
+        m_wspace.New(6*4+8);
+
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 8, key, 64);
+        SetKey_48(m_mkey.begin());
+        break;
+    default:
+        CRYPTOPP_ASSERT(0);
+    }
+}
+
+void Kalyna256::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+    // Timing attack countermeasure. see comments in Rijndael for more details
+    const int cacheLineSize = GetCacheLineSize();
+    volatile word64 _u = 0;
+    word64 u = _u;
+
+    const byte* p = reinterpret_cast<const byte*>(KalynaTab::S);
+    for (unsigned int i=0; i<256; i+=cacheLineSize)
+        u ^= *reinterpret_cast<const word64*>(p+i);
+    m_wspace[0] = u;
+
+    switch ((m_nb << 8) | m_nk)
+    {
     case (4 << 8) | 4:
         ProcessBlock_44(reinterpret_cast<const word64*>(inBlock),
             reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
@@ -1312,13 +1323,50 @@ void Kalyna::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         ProcessBlock_48(reinterpret_cast<const word64*>(inBlock),
             reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
         break;
-    case (8 << 8) | 8:
-        ProcessBlock_88(reinterpret_cast<const word64*>(inBlock),
-            reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
+    default:
+        CRYPTOPP_ASSERT(0);
+    }
+}
+
+void Kalyna512::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
+{
+    CRYPTOPP_UNUSED(params);
+    m_nb = static_cast<unsigned int>(64U / sizeof(word64));
+    m_nk = static_cast<unsigned int>(keylen / sizeof(word64));
+
+    switch (keylen)
+    {
+    case 64:  // 512
+        m_kl = 64;
+        m_nb = static_cast<unsigned int>(64U / sizeof(word64));
+        m_nk = static_cast<unsigned int>(keylen / sizeof(word64));
+
+        m_mkey.New(8);
+        m_rkeys.New(19*8);
+        m_wspace.New(5*8);
+
+        GetUserKey(LITTLE_ENDIAN_ORDER, m_mkey.begin(), 8, key, 64);
+        SetKey_88(m_mkey.begin());
         break;
     default:
         CRYPTOPP_ASSERT(0);
     }
+}
+
+void Kalyna512::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+{
+    // Timing attack countermeasure. see comments in Rijndael for more details
+    const int cacheLineSize = GetCacheLineSize();
+    volatile word64 _u = 0;
+    word64 u = _u;
+
+    const byte* p = reinterpret_cast<const byte*>(KalynaTab::S);
+    for (unsigned int i=0; i<256; i+=cacheLineSize)
+        u ^= *reinterpret_cast<const word64*>(p+i);
+    m_wspace[0] = u;
+
+    ProcessBlock_88(reinterpret_cast<const word64*>(inBlock),
+        reinterpret_cast<const word64*>(xorBlock), reinterpret_cast<word64*>(outBlock));
 }
 
 NAMESPACE_END

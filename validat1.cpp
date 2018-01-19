@@ -2082,7 +2082,7 @@ bool TestModeIV(SymmetricCipher &e, SymmetricCipher &d)
 	const int BUF_SIZE=20480U;
 	AlignedSecByteBlock plaintext(BUF_SIZE);
 
-	for (unsigned int i=1; i<20480; i*=2)
+	for (unsigned int i=1; i<BUF_SIZE; i*=2)
 	{
 		e.GetNextIV(GlobalRNG(), iv);
 		if (iv == lastIV)

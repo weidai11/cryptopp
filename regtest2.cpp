@@ -143,9 +143,15 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
 
-	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Kalyna> >();  // Test Vectors
-	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna128> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Kalyna128> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna256> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Kalyna256> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Kalyna512> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Kalyna512> >();  // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna128> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna256> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Kalyna512> >();  // Benchmarks
 
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Threefish256> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<Threefish256> >();  // Test Vectors
