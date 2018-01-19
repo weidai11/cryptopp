@@ -332,16 +332,6 @@ public:
 
 protected:
 
-#if 0
-    // Determine bits without converting to an Integer
-    inline unsigned int BitCount(const byte* buffer, size_t size) const
-    {
-        unsigned int idx = 0;
-        while (idx < size && buffer[idx] == 0) { idx++; }
-        return (size-idx)*8 - (8-BitPrecision(buffer[idx]));
-    }
-#endif
-
     Integer bits2int(const SecByteBlock& bits, size_t qlen) const
     {
         Integer ret(bits, bits.size());
@@ -590,98 +580,6 @@ struct DL_CryptoKeys_GFP
     typedef DL_GroupParameters_GFP_DefaultSafePrime GroupParameters;
     typedef DL_PublicKey_GFP<GroupParameters> PublicKey;
     typedef DL_PrivateKey_GFP<GroupParameters> PrivateKey;
-};
-
-/// \class DL_PublicKey_GFP_OldFormat
-/// \brief Discrete Log (DL) public key in GF(p) groups
-/// \tparam BASE GroupParameters derived class
-/// \deprecated This implementation uses a non-standard Crypto++ key format. New implementations
-///   should use DL_PublicKey_GFP and DL_PrivateKey_GFP
-template <class BASE>
-class DL_PublicKey_GFP_OldFormat : public BASE
-{
-public:
-    virtual ~DL_PublicKey_GFP_OldFormat() {}
-
-    void BERDecode(BufferedTransformation &bt)
-    {
-        BERSequenceDecoder seq(bt);
-            Integer v1(seq);
-            Integer v2(seq);
-            Integer v3(seq);
-
-            if (seq.EndReached())
-            {
-                this->AccessGroupParameters().Initialize(v1, v1/2, v2);
-                this->SetPublicElement(v3);
-            }
-            else
-            {
-                Integer v4(seq);
-                this->AccessGroupParameters().Initialize(v1, v2, v3);
-                this->SetPublicElement(v4);
-            }
-
-        seq.MessageEnd();
-    }
-
-    void DEREncode(BufferedTransformation &bt) const
-    {
-        DERSequenceEncoder seq(bt);
-            this->GetGroupParameters().GetModulus().DEREncode(seq);
-            if (this->GetGroupParameters().GetCofactor() != 2)
-                this->GetGroupParameters().GetSubgroupOrder().DEREncode(seq);
-            this->GetGroupParameters().GetGenerator().DEREncode(seq);
-            this->GetPublicElement().DEREncode(seq);
-        seq.MessageEnd();
-    }
-};
-
-/// \class DL_PrivateKey_GFP_OldFormat
-/// \brief Discrete Log (DL) private key in GF(p) groups
-/// \tparam BASE GroupParameters derived class
-/// \deprecated This implementation uses a non-standard Crypto++ key format. New implementations
-///   should use DL_PublicKey_GFP and DL_PrivateKey_GFP
-template <class BASE>
-class DL_PrivateKey_GFP_OldFormat : public BASE
-{
-public:
-    virtual ~DL_PrivateKey_GFP_OldFormat() {}
-
-    void BERDecode(BufferedTransformation &bt)
-    {
-        BERSequenceDecoder seq(bt);
-            Integer v1(seq);
-            Integer v2(seq);
-            Integer v3(seq);
-            Integer v4(seq);
-
-            if (seq.EndReached())
-            {
-                this->AccessGroupParameters().Initialize(v1, v1/2, v2);
-                this->SetPrivateExponent(v4 % (v1/2));    // some old keys may have x >= q
-            }
-            else
-            {
-                Integer v5(seq);
-                this->AccessGroupParameters().Initialize(v1, v2, v3);
-                this->SetPrivateExponent(v5);
-            }
-
-        seq.MessageEnd();
-    }
-
-    void DEREncode(BufferedTransformation &bt) const
-    {
-        DERSequenceEncoder seq(bt);
-            this->GetGroupParameters().GetModulus().DEREncode(seq);
-            if (this->GetGroupParameters().GetCofactor() != 2)
-                this->GetGroupParameters().GetSubgroupOrder().DEREncode(seq);
-            this->GetGroupParameters().GetGenerator().DEREncode(seq);
-            this->GetGroupParameters().ExponentiateBase(this->GetPrivateExponent()).DEREncode(seq);
-            this->GetPrivateExponent().DEREncode(seq);
-        seq.MessageEnd();
-    }
 };
 
 /// \class GDSA

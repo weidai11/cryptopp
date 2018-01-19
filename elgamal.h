@@ -118,11 +118,15 @@ protected:
 
 /// \class ElGamalKeys
 /// \brief ElGamal key agreement and encryption schemes keys
+/// \details The ElGamalKeys class used DL_PrivateKey_GFP_OldFormat and DL_PublicKey_GFP_OldFormat
+///   for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
+///   At Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and X509 encodings.
+/// \sa Commit XXX
 struct ElGamalKeys
 {
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
-	typedef DL_PrivateKey_GFP_OldFormat<DL_CryptoKeys_GFP::PrivateKey> PrivateKey;
-	typedef DL_PublicKey_GFP_OldFormat<DL_CryptoKeys_GFP::PublicKey> PublicKey;
+	typedef DL_CryptoKeys_GFP::PrivateKey PrivateKey;
+	typedef DL_CryptoKeys_GFP::PublicKey PublicKey;
 };
 
 /// \class ElGamal
