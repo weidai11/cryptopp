@@ -609,11 +609,11 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("SEED/CTR", 0, "SEED/CTR (1/2 K table)");
 		BenchMarkByName<SymmetricCipher>("SM4/CTR");
 
-		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 16, "Kalyna-128(128)/CTR (128-bit key)", MakeParameters(Name::BlockSize(), 16));
-		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 32, "Kalyna-128(256)/CTR (256-bit key)", MakeParameters(Name::BlockSize(), 16));
-		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 32, "Kalyna-256(256)/CTR (256-bit key)", MakeParameters(Name::BlockSize(), 32));
-		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 64, "Kalyna-256(512)/CTR (512-bit key)", MakeParameters(Name::BlockSize(), 32));
-		BenchMarkByName<SymmetricCipher>("Kalyna/CTR", 64, "Kalyna-512(512)/CTR (512-bit key)", MakeParameters(Name::BlockSize(), 64));
+		BenchMarkByName<SymmetricCipher>("Kalyna-128/CTR", 16, "Kalyna-128(128)/CTR (128-bit key)");
+		BenchMarkByName<SymmetricCipher>("Kalyna-128/CTR", 32, "Kalyna-128(256)/CTR (256-bit key)");
+		BenchMarkByName<SymmetricCipher>("Kalyna-256/CTR", 32, "Kalyna-256(256)/CTR (256-bit key)");
+		BenchMarkByName<SymmetricCipher>("Kalyna-256/CTR", 64, "Kalyna-256(512)/CTR (512-bit key)");
+		BenchMarkByName<SymmetricCipher>("Kalyna-512/CTR", 64, "Kalyna-512(512)/CTR (512-bit key)");
 
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 12, "SIMON-64(96)/CTR (96-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 16, "SIMON-64(128)/CTR (128-bit key)");

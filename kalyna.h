@@ -23,7 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \class Kalyna128_Info
 /// \brief Kalyna-128 block cipher information
 /// \since Crypto++ 6.0
-struct Kalyna128_Info : public FixedBlockSize<16>, VariableKeyLength<16, 16, 32>
+struct CRYPTOPP_NO_VTABLE Kalyna128_Info : public FixedBlockSize<16>, VariableKeyLength<16, 16, 32>
 {
     static const char* StaticAlgorithmName()
     {
@@ -35,7 +35,7 @@ struct Kalyna128_Info : public FixedBlockSize<16>, VariableKeyLength<16, 16, 32>
 /// \class Kalyna256_Info
 /// \brief Kalyna-256 block cipher information
 /// \since Crypto++ 6.0
-struct Kalyna256_Info : public FixedBlockSize<32>, VariableKeyLength<32, 32, 64>
+struct CRYPTOPP_NO_VTABLE Kalyna256_Info : public FixedBlockSize<32>, VariableKeyLength<32, 32, 64>
 {
     static const char* StaticAlgorithmName()
     {
@@ -47,7 +47,7 @@ struct Kalyna256_Info : public FixedBlockSize<32>, VariableKeyLength<32, 32, 64>
 /// \class Kalyna512_Info
 /// \brief Kalyna-512 block cipher information
 /// \since Crypto++ 6.0
-struct Kalyna512_Info : public FixedBlockSize<64>, FixedKeyLength<64>
+struct CRYPTOPP_NO_VTABLE Kalyna512_Info : public FixedBlockSize<64>, FixedKeyLength<64>
 {
     static const char* StaticAlgorithmName()
     {
@@ -59,14 +59,17 @@ struct Kalyna512_Info : public FixedBlockSize<64>, FixedKeyLength<64>
 /// \class Kalyna
 /// \brief Kalyna block cipher
 /// \since Crypto++ 6.0
-class Kalyna_Base
+class CRYPTOPP_NO_VTABLE Kalyna_Base
 {
+public:
+    virtual ~Kalyna_Base() {}
+
 protected:
     typedef SecBlock<word64, AllocatorWithCleanup<word64, true> > AlignedSecBlock64;
     mutable AlignedSecBlock64 m_wspace;  // work space
     AlignedSecBlock64         m_mkey;    // master key
     AlignedSecBlock64         m_rkeys;   // round keys
-    unsigned int     m_kl, m_nb, m_nk;   // key length, number 64-bit blocks and keys
+    unsigned int     m_kl, m_nb, m_nk;   // number 64-bit blocks and keys
 };
 
 class Kalyna128 : public Kalyna128_Info, public BlockCipherDocumentation
@@ -103,7 +106,7 @@ public:
         void SetKey_24(const word64 key[4]);
         void ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const;
         void ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2] ,word64 outBlock[2]) const;
-    };
+	};
 
     typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
     typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
