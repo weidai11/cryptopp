@@ -10,7 +10,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class DH2
 /// \brief Unified Diffie-Hellman in GF(p)
 /// \details A Diffie-Hellman domain is a set of parameters that must be shared
 ///   by two parties in a key agreement protocol, along with the algorithms

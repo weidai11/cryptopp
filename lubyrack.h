@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class LR_Info
 /// \brief Luby-Rackoff block cipher information
 template <class T>
 struct LR_Info : public VariableKeyLength<16, 0, 2*(INT_MAX/2), 2>, public FixedBlockSize<2*T::DIGESTSIZE>
@@ -19,7 +18,6 @@ struct LR_Info : public VariableKeyLength<16, 0, 2*(INT_MAX/2), 2>, public Fixed
 	static std::string StaticAlgorithmName() {return std::string("LR/")+T::StaticAlgorithmName();}
 };
 
-/// \class LR
 /// \brief Luby-Rackoff block cipher
 template <class T>
 class LR : public LR_Info<T>, public BlockCipherDocumentation

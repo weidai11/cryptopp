@@ -11,12 +11,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SAFER
 /// \brief SAFER block cipher
 class SAFER
 {
 public:
-	/// \class Base
 	/// \brief SAFER block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipher
 	{
@@ -32,7 +30,6 @@ public:
 		static const byte log_tab[256];
 	};
 
-	/// \class Enc
 	/// \brief SAFER block cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
@@ -40,7 +37,6 @@ public:
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	/// \class Dec
 	/// \brief SAFER block cipher decryption operation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{
@@ -49,7 +45,6 @@ public:
 	};
 };
 
-/// \class SAFER_Impl
 /// \brief SAFER block cipher default implementation
 /// \tparam BASE SAFER::Enc or SAFER::Dec derived base class
 /// \tparam INFO SAFER_Info derived class
@@ -62,14 +57,12 @@ protected:
 	bool Strengthened() const {return STR;}
 };
 
-/// \class SAFER_K_Info
 /// \brief SAFER-K block cipher information
 struct SAFER_K_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "SAFER-K";}
 };
 
-/// \class SAFER_K
 /// \brief SAFER-K block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/SAFER-K">SAFER-K</a>
 class SAFER_K : public SAFER_K_Info, public SAFER, public BlockCipherDocumentation
@@ -79,14 +72,12 @@ public:
 	typedef BlockCipherFinal<DECRYPTION, SAFER_Impl<Dec, SAFER_K_Info, false> > Decryption;
 };
 
-/// \class SAFER_SK_Info
 /// \brief SAFER-SK block cipher information
 struct SAFER_SK_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 8, 16, 8>, public VariableRounds<10, 1, 13>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "SAFER-SK";}
 };
 
-/// \class SAFER_SK
 /// \brief SAFER-SK block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/SAFER-SK">SAFER-SK</a>
 class SAFER_SK : public SAFER_SK_Info, public SAFER, public BlockCipherDocumentation

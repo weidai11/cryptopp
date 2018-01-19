@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SEED_Info
 /// \brief SEED block cipher information
 /// \since Crypto++ 5.6.0
 struct SEED_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, public FixedRounds<16>
@@ -20,7 +19,6 @@ struct SEED_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, public 
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "SEED";}
 };
 
-/// \class SEED
 /// \brief SEED block cipher
 /// \sa <a href="http://www.cryptolounge.org/wiki/SEED">SEED</a>
 /// \since Crypto++ 5.6.0

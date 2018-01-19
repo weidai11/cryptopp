@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class RC5_Info
 /// \brief RC5 block cipher information
 /// \since Crypto++ 1.0
 struct RC5_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 0, 255>, public VariableRounds<16>
@@ -20,7 +19,6 @@ struct RC5_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 0, 255>
 	typedef word32 RC5_WORD;
 };
 
-/// \class RC5
 /// \brief RC5 block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/RC5">RC5</a>
 /// \since Crypto++ 1.0

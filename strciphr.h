@@ -42,7 +42,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class AbstractPolicyHolder
 /// \brief Access a stream cipher policy object
 /// \tparam POLICY_INTERFACE class implementing AbstractPolicyHolder
 /// \tparam BASE class or type to use as a base class
@@ -58,7 +57,6 @@ protected:
 	virtual POLICY_INTERFACE & AccessPolicy() =0;
 };
 
-/// \class ConcretePolicyHolder
 /// \brief Stream cipher policy object
 /// \tparam POLICY class implementing AbstractPolicyHolder
 /// \tparam BASE class or type to use as a base class
@@ -101,7 +99,6 @@ enum KeystreamOperation {
 	/// \brief XOR the aligned input buffer and keystream, write to the aligned output buffer
 	XOR_KEYSTREAM_BOTH_ALIGNED	= OUTPUT_ALIGNED | INPUT_ALIGNED};
 
-/// \class AdditiveCipherAbstractPolicy
 /// \brief Policy object for additive stream ciphers
 struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 {
@@ -175,7 +172,6 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 		{CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(!CipherIsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
 };
 
-/// \class AdditiveCipherConcretePolicy
 /// \brief Base class for additive stream ciphers
 /// \tparam WT word type
 /// \tparam W count of words
@@ -259,7 +255,6 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	}											\
 	output += y;
 
-/// \class AdditiveCipherTemplate
 /// \brief Base class for additive stream ciphers with SymmetricCipher interface
 /// \tparam BASE AbstractPolicyHolder base class
 template <class BASE = AbstractPolicyHolder<AdditiveCipherAbstractPolicy, SymmetricCipher> >
@@ -344,7 +339,6 @@ protected:
 	size_t m_leftOver;
 };
 
-/// \class CFB_CipherAbstractPolicy
 /// \brief Policy object for feeback based stream ciphers
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_CipherAbstractPolicy
 {
@@ -396,7 +390,6 @@ public:
 		{CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length); throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 };
 
-/// \class CFB_CipherConcretePolicy
 /// \brief Base class for feedback based stream ciphers
 /// \tparam WT word type
 /// \tparam W count of words
@@ -481,7 +474,6 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	};
 };
 
-/// \class CFB_CipherTemplate
 /// \brief Base class for feedback based stream ciphers with SymmetricCipher interface
 /// \tparam BASE AbstractPolicyHolder base class
 template <class BASE>
@@ -544,7 +536,6 @@ protected:
 	size_t m_leftOver;
 };
 
-/// \class CFB_EncryptionTemplate
 /// \brief Base class for feedback based stream ciphers in the forward direction with SymmetricCipher interface
 /// \tparam BASE AbstractPolicyHolder base class
 template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >
@@ -554,7 +545,6 @@ class CRYPTOPP_NO_VTABLE CFB_EncryptionTemplate : public CFB_CipherTemplate<BASE
 	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length);
 };
 
-/// \class CFB_DecryptionTemplate
 /// \brief Base class for feedback based stream ciphers in the reverse direction with SymmetricCipher interface
 /// \tparam BASE AbstractPolicyHolder base class
 template <class BASE = AbstractPolicyHolder<CFB_CipherAbstractPolicy, SymmetricCipher> >
@@ -564,7 +554,6 @@ class CRYPTOPP_NO_VTABLE CFB_DecryptionTemplate : public CFB_CipherTemplate<BASE
 	void CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length);
 };
 
-/// \class CFB_RequireFullDataBlocks
 /// \brief Base class for feedback based stream ciphers with a mandatory block size
 /// \tparam BASE CFB_EncryptionTemplate or CFB_DecryptionTemplate base class
 template <class BASE>
@@ -574,7 +563,6 @@ public:
 	unsigned int MandatoryBlockSize() const {return this->OptimalBlockSize();}
 };
 
-/// \class SymmetricCipherFinal
 /// \brief SymmetricCipher implementation
 /// \tparam BASE AbstractPolicyHolder derived base class
 /// \tparam INFO AbstractPolicyHolder derived information class

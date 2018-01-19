@@ -18,7 +18,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class ClonableImpl
 /// \brief Base class for identifying alogorithm
 /// \tparam BASE base class from which to derive
 /// \tparam DERIVED class which to clone
@@ -29,7 +28,6 @@ public:
 	Clonable * Clone() const {return new DERIVED(*static_cast<const DERIVED *>(this));}
 };
 
-/// \class AlgorithmImpl
 /// \brief Base class information
 /// \tparam BASE an Algorithm derived class
 /// \tparam ALGORITHM_INFO an Algorithm derived class
@@ -50,7 +48,6 @@ public:
 	std::string AlgorithmName() const {return ALGORITHM_INFO::StaticAlgorithmName();}
 };
 
-/// \class InvalidKeyLength
 /// \brief Exception thrown when an invalid key length is encountered
 class CRYPTOPP_DLL InvalidKeyLength : public InvalidArgument
 {
@@ -58,7 +55,6 @@ public:
 	explicit InvalidKeyLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid key length") {}
 };
 
-/// \class InvalidRounds
 /// \brief Exception thrown when an invalid number of rounds is encountered
 class CRYPTOPP_DLL InvalidRounds : public InvalidArgument
 {
@@ -66,7 +62,6 @@ public:
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
-/// \class InvalidBlockSize
 /// \brief Exception thrown when an invalid block size is encountered
 class CRYPTOPP_DLL InvalidBlockSize : public InvalidArgument
 {
@@ -74,7 +69,6 @@ public:
 	explicit InvalidBlockSize(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid block size") {}
 };
 
-/// \class InvalidPersonalizationLength
 /// \brief Exception thrown when an invalid personalization string length is encountered
 class CRYPTOPP_DLL InvalidPersonalizationLength : public InvalidArgument
 {
@@ -82,7 +76,6 @@ public:
 	explicit InvalidPersonalizationLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid salt length") {}
 };
 
-/// \class InvalidSaltLength
 /// \brief Exception thrown when an invalid salt length is encountered
 class CRYPTOPP_DLL InvalidSaltLength : public InvalidArgument
 {
@@ -92,7 +85,6 @@ public:
 
 // *****************************
 
-/// \class Bufferless
 /// \brief Base class for bufferless filters
 /// \tparam T the class or type
 template <class T>
@@ -103,7 +95,6 @@ public:
 		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); return false;}
 };
 
-/// \class Unflushable
 /// \brief Base class for unflushable filters
 /// \tparam T the class or type
 template <class T>
@@ -129,7 +120,6 @@ protected:
 	virtual bool InputBufferIsEmpty() const {return false;}
 };
 
-/// \class InputRejecting
 /// \brief Base class for input rejecting filters
 /// \tparam T the class or type
 /// \details T should be a BufferedTransformation derived class
@@ -168,7 +158,6 @@ public:
 	//@}
 };
 
-/// \class CustomFlushPropagation
 /// \brief Interface for custom flush signals propagation
 /// \tparam T BufferedTransformation derived class
 template <class T>
@@ -201,7 +190,6 @@ private:
 		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); CRYPTOPP_ASSERT(false); return false;}
 };
 
-/// \class CustomSignalPropagation
 /// \brief Interface for custom flush signals
 /// \tparam T BufferedTransformation derived class
 template <class T>
@@ -223,7 +211,6 @@ private:
 		{CRYPTOPP_UNUSED(parameters); CRYPTOPP_ASSERT(false);}
 };
 
-/// \class Multichannel
 /// \brief Multiple channels support for custom signal processing
 /// \tparam T the class or type
 /// \details T should be a BufferedTransformation derived class
@@ -289,7 +276,6 @@ public:
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;
 };
 
-/// \class AutoSignaling
 /// \brief Provides auto signaling support
 /// \tparam T BufferedTransformation derived class
 template <class T>
@@ -309,7 +295,6 @@ private:
 	int m_autoSignalPropagation;
 };
 
-/// \class Store
 /// \brief Acts as a Source for pre-existing, static data
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Store : public AutoSignaling<InputRejecting<BufferedTransformation> >
 {
@@ -333,7 +318,6 @@ protected:
 	bool m_messageEnd;
 };
 
-/// \class Sink
 /// \brief Implementation of BufferedTransformation's attachment interface
 /// \details Sink is a cornerstone of the Pipeline trinitiy. Data flows from
 ///   Sources, through Filters, and then terminates in Sinks. The difference
@@ -352,7 +336,6 @@ public:
 		{CRYPTOPP_UNUSED(target); CRYPTOPP_UNUSED(begin); CRYPTOPP_UNUSED(end); CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(blocking); return 0;}
 };
 
-/// \class BitBucket
 /// \brief Acts as an input discarding Filter or Sink
 /// \details The BitBucket discards all input and returns 0 to the caller
 ///   to indicate all data was processed.

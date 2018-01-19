@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class GFP2Element
 /// \brief an element of GF(p^2)
 class GFP2Element
 {
@@ -42,7 +41,6 @@ public:
 	Integer c1, c2;
 };
 
-/// \class GFP2_ONB
 /// \brief GF(p^2), optimal normal basis
 template <class F>
 class GFP2_ONB : public AbstractRing<GFP2Element>

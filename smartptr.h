@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class simple_ptr
 /// \brief Manages resources for a single object
 /// \tparam T class or type
 /// \details \p simple_ptr is used frequently in the library to manage resources and
@@ -30,7 +29,6 @@ public:
 	T *m_p;
 };
 
-/// \class member_ptr
 /// \brief Pointer that overloads operator ->
 /// \tparam T class or type
 /// \details member_ptr is used frequently in the library to avoid the issues related to
@@ -73,7 +71,6 @@ template <class T> void member_ptr<T>::reset(T *p) {delete m_p; m_p = p;}
 
 // ********************************************************
 
-/// \class value_ptr
 /// \brief Value pointer
 /// \tparam T class or type
 template<class T> class value_ptr : public member_ptr<T>
@@ -101,7 +98,6 @@ template <class T> value_ptr<T>& value_ptr<T>::operator=(const value_ptr<T>& rhs
 
 // ********************************************************
 
-/// \class clonable_ptr
 /// \brief A pointer which can be copied and cloned
 /// \tparam T class or type
 /// \details \p T should adhere to the \p Clonable interface
@@ -126,7 +122,6 @@ template <class T> clonable_ptr<T>& clonable_ptr<T>::operator=(const clonable_pt
 
 // ********************************************************
 
-/// \class counted_ptr
 /// \brief Reference counted pointer
 /// \tparam T class or type
 /// \details users should declare \p m_referenceCount as <tt>std::atomic<unsigned></tt>
@@ -220,7 +215,6 @@ template <class T> counted_ptr<T> & counted_ptr<T>::operator=(const counted_ptr<
 
 // ********************************************************
 
-/// \class vector_ptr
 /// \brief Manages resources for an array of objects
 /// \tparam T class or type
 /// \details \p vector_ptr is used frequently in the library to avoid large stack allocations,
@@ -278,7 +272,6 @@ private:
 
 // ********************************************************
 
-/// \class vector_member_ptrs
 /// \brief Manages resources for an array of objects
 /// \tparam T class or type
 template <class T> class vector_member_ptrs

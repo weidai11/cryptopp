@@ -25,7 +25,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class AuthenticatedSymmetricCipherBase
 /// \brief Base class for authenticated encryption modes of operation
 /// \details AuthenticatedSymmetricCipherBase() serves as a base implementation for one direction
 ///   (encryption or decryption) of a stream cipher or block cipher mode with authentication.

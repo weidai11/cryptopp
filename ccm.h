@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class CCM_Base
 /// \brief CCM block cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 5.6.0
@@ -81,7 +80,6 @@ protected:
 	CTR_Mode_ExternalCipher::Encryption m_ctr;
 };
 
-/// \class CCM_Final
 /// \brief CCM block cipher final implementation
 /// \tparam T_BlockCipher block cipher
 /// \tparam T_DefaultDigestSize default digest size, in bytes
@@ -102,7 +100,6 @@ private:
 	typename T_BlockCipher::Encryption m_cipher;
 };
 
-/// \class CCM
 /// \brief CCM block cipher mode of operation
 /// \tparam T_BlockCipher block cipher
 /// \tparam T_DefaultDigestSize default digest size, in bytes

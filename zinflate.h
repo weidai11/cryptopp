@@ -8,7 +8,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class LowFirstBitReader
 /// \since Crypto++ 1.0
 class LowFirstBitReader
 {
@@ -30,7 +29,6 @@ private:
 
 struct CodeLessThan;
 
-/// \class HuffmanDecoder
 /// \brief Huffman Decoder
 /// \since Crypto++ 1.0
 class HuffmanDecoder
@@ -86,7 +84,6 @@ private:
 	mutable std::vector<LookupEntry, AllocatorWithCleanup<LookupEntry> > m_cache;
 };
 
-/// \class Inflator
 /// \brief DEFLATE decompressor (RFC 1951)
 /// \since Crypto++ 1.0
 class Inflator : public AutoSignaling<Filter>

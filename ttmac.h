@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class TTMAC_Base
 /// \brief TTMAC message authentication code information
 class CRYPTOPP_NO_VTABLE TTMAC_Base : public FixedKeyLength<20>, public IteratedHash<word32, LittleEndian, 64, MessageAuthenticationCode>
 {
@@ -34,7 +33,6 @@ protected:
 	FixedSizeSecBlock<word32, 5> m_key;
 };
 
-/// \class TTMAC
 /// \brief Two-Track-MAC message authentication code
 /// \tparam T HashTransformation class
 /// \details 160-bit MAC with 160-bit key

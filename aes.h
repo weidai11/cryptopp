@@ -14,7 +14,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class AES
 /// \brief AES block cipher (Rijndael)
 /// \details AES is a typdef for Rijndael classes. All key sizes are supported.
 ///   The library only provides Rijndael with 128-bit blocks, and not 192-bit or 256-bit blocks

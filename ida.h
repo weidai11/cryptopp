@@ -16,7 +16,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class RawIDA
 /// \brief Secret sharing and information dispersal base class
 /// \since Crypto++ 1.0
 class RawIDA : public AutoSignaling<Unflushable<Multichannel<Filter> > >
@@ -63,7 +62,6 @@ protected:
 	SecBlock<word32> m_u, m_w, m_y;
 };
 
-/// \class SecretSharing
 /// \brief Shamir's Secret Sharing Algorithm
 /// \details SecretSharing is a variant of Shamir's secret sharing algorithm
 /// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
@@ -89,7 +87,6 @@ protected:
 	bool m_pad;
 };
 
-/// \class SecretRecovery
 /// \brief Shamir's Secret Sharing Algorithm
 /// \details SecretSharing is a variant of Shamir's secret sharing algorithm
 /// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
@@ -113,7 +110,6 @@ protected:
 
 /// a variant of Rabin's Information Dispersal Algorithm
 
-/// \class InformationDispersal
 /// \brief Rabin's Information Dispersal Algorithm
 /// \details InformationDispersal is a variant of Rabin's information dispersal algorithm
 /// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
@@ -139,7 +135,6 @@ protected:
 	unsigned int m_nextChannel;
 };
 
-/// \class InformationRecovery
 /// \brief Rabin's Information Dispersal Algorithm
 /// \details InformationDispersal is a variant of Rabin's information dispersal algorithm
 /// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery

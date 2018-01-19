@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class EAX_Base
 /// \brief EAX block cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 5.6.0
@@ -67,7 +66,6 @@ protected:
 	CTR_Mode_ExternalCipher::Encryption m_ctr;
 };
 
-/// \class EAX_Final
 /// \brief EAX block cipher final implementation
 /// \tparam T_BlockCipher block cipher
 /// \tparam T_IsEncryption direction in which to operate the cipher
@@ -90,7 +88,6 @@ private:
 #undef EAX
 #endif
 
-/// \class EAX
 /// \brief EAX block cipher mode of operation
 /// \tparam T_BlockCipher block cipher
 /// \details \p EAX provides the \p Encryption and \p Decryption typedef. See EAX_Base

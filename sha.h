@@ -19,7 +19,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SHA1
 /// \brief SHA-1 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-1">SHA-1</a>
 /// \since Crypto++ 1.0, Intel SHA extensions since Crypto++ 6.0
@@ -55,7 +54,6 @@ protected:
 	size_t HashMultipleBlocks(const HashWordType *input, size_t length);
 };
 
-/// \class SHA256
 /// \brief SHA-256 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-256">SHA-256</a>
 /// \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
@@ -91,7 +89,6 @@ protected:
 	size_t HashMultipleBlocks(const HashWordType *input, size_t length);
 };
 
-/// \class SHA224
 /// \brief SHA-224 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-224">SHA-224</a>
 /// \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
@@ -127,7 +124,6 @@ protected:
 	size_t HashMultipleBlocks(const HashWordType *input, size_t length);
 };
 
-/// \class SHA512
 /// \brief SHA-512 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-512">SHA-512</a>
 /// \since Crypto++ 4.0
@@ -160,7 +156,6 @@ public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-512";}
 };
 
-/// \class SHA384
 /// \brief SHA-384 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-384">SHA-384</a>
 /// \since Crypto++ 4.0

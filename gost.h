@@ -11,19 +11,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class GOST_Info
 /// \brief GOST block cipher information
 struct GOST_Info : public FixedBlockSize<8>, public FixedKeyLength<32>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "GOST";}
 };
 
-/// \class GOST
 /// \brief GOST block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/GOST">GOST</a>
 class GOST : public GOST_Info, public BlockCipherDocumentation
 {
-	/// \class Base
 	/// \brief GOST block cipher default operation
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<GOST_Info>
 	{
@@ -40,7 +37,6 @@ class GOST : public GOST_Info, public BlockCipherDocumentation
 		FixedSizeSecBlock<word32, 8> m_key;
 	};
 
-	/// \class Enc
 	/// \brief GOST block cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public Base
 	{
@@ -48,7 +44,6 @@ class GOST : public GOST_Info, public BlockCipherDocumentation
 		void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 	};
 
-	/// \class Dec
 	/// \brief GOST block cipher decryption operation
 	class CRYPTOPP_NO_VTABLE Dec : public Base
 	{

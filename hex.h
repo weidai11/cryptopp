@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class HexEncoder
 /// \brief Converts given data to base 16
 class CRYPTOPP_DLL HexEncoder : public SimpleProxyFilter
 {
@@ -31,7 +30,6 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-/// \class HexDecoder
 /// \brief Decode base 16 data back to bytes
 class CRYPTOPP_DLL HexDecoder : public BaseN_Decoder
 {

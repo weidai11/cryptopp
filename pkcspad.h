@@ -18,7 +18,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class PKCS_EncryptionPaddingScheme
 /// \brief PKCS #1 v1.5 Encryption Padding Scheme
 /// \sa <a href="http://www.weidai.com/scan-mirror/ca.html#cem_PKCS1-1.5">EME-PKCS1-v1_5</a>
 class PKCS_EncryptionPaddingScheme : public PK_EncryptionMessageEncodingMethod
@@ -31,7 +30,6 @@ public:
 	DecodingResult Unpad(const byte *padded, size_t paddedLength, byte *raw, const NameValuePairs &parameters) const;
 };
 
-/// \class PKCS_DigestDecoration
 /// \brief PKCS #1 decoration data structure
 template <class H> class PKCS_DigestDecoration
 {
@@ -84,7 +82,6 @@ template<> const byte PKCS_DigestDecoration<Weak1::MD5>::decoration[];
 template<> const unsigned int PKCS_DigestDecoration<Weak1::MD5>::length;
 #endif
 
-/// \class PKCS1v15_SignatureMessageEncodingMethod
 /// \brief PKCS #1 v1.5 Signature Encoding Scheme
 /// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#sem_PKCS1-1.5">EMSA-PKCS1-v1_5</a>
 class CRYPTOPP_DLL PKCS1v15_SignatureMessageEncodingMethod : public PK_DeterministicSignatureMessageEncodingMethod

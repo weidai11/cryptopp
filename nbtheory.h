@@ -75,7 +75,6 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsPrime(const Integer &p);
 ///   level is greater than 1, then 10 round RabinMillerTest() primality testing is performed.
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyPrime(RandomNumberGenerator &rng, const Integer &p, unsigned int level = 1);
 
-/// \class PrimeSelector
 /// \brief Application callback to signal suitability of a cabdidate prime
 class CRYPTOPP_DLL PrimeSelector
 {
@@ -143,7 +142,6 @@ CRYPTOPP_DLL unsigned int CRYPTOPP_API FactoringWorkFactor(unsigned int bitlengt
 
 // ********************************************************
 
-/// \class PrimeAndGenerator
 /// \brief Generator of prime numbers of special forms
 class CRYPTOPP_DLL PrimeAndGenerator
 {

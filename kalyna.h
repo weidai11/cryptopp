@@ -20,7 +20,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Kalyna128_Info
 /// \brief Kalyna-128 block cipher information
 /// \since Crypto++ 6.0
 struct CRYPTOPP_NO_VTABLE Kalyna128_Info : public FixedBlockSize<16>, VariableKeyLength<16, 16, 32>
@@ -32,7 +31,6 @@ struct CRYPTOPP_NO_VTABLE Kalyna128_Info : public FixedBlockSize<16>, VariableKe
     }
 };
 
-/// \class Kalyna256_Info
 /// \brief Kalyna-256 block cipher information
 /// \since Crypto++ 6.0
 struct CRYPTOPP_NO_VTABLE Kalyna256_Info : public FixedBlockSize<32>, VariableKeyLength<32, 32, 64>
@@ -44,7 +42,6 @@ struct CRYPTOPP_NO_VTABLE Kalyna256_Info : public FixedBlockSize<32>, VariableKe
     }
 };
 
-/// \class Kalyna512_Info
 /// \brief Kalyna-512 block cipher information
 /// \since Crypto++ 6.0
 struct CRYPTOPP_NO_VTABLE Kalyna512_Info : public FixedBlockSize<64>, FixedKeyLength<64>
@@ -56,7 +53,6 @@ struct CRYPTOPP_NO_VTABLE Kalyna512_Info : public FixedBlockSize<64>, FixedKeyLe
     }
 };
 
-/// \class Kalyna
 /// \brief Kalyna block cipher
 /// \since Crypto++ 6.0
 class CRYPTOPP_NO_VTABLE Kalyna_Base

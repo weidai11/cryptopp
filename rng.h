@@ -40,7 +40,6 @@ private:
 	static const word16 r;
 };
 
-/// \class X917RNG
 /// \brief ANSI X9.17 RNG
 /// \details X917RNG is from ANSI X9.17 Appendix C, and it uses a 64-bit block cipher, like TripleDES.
 ///   If you use a 128-bit block cipher, like AES, then you are effectively using an ANSI X9.31 generator.
@@ -75,7 +74,6 @@ private:
 	SecByteBlock m_randseed, m_lastBlock, m_deterministicTimeVector;
 };
 
-/// \class MaurerRandomnessTest
 /// \brief  Maurer's Universal Statistical Test for Random Bit Generators
 /// \details This class implements Maurer's Universal Statistical Test for
 ///   Random Bit Generators. It is intended for measuring the randomness of

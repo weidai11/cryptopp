@@ -17,7 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SM4_Info
 /// \brief SM4 block cipher information
 /// \since Crypto++ 6.0
 struct SM4_Info : public FixedBlockSize<16>, FixedKeyLength<16>
@@ -28,7 +27,6 @@ struct SM4_Info : public FixedBlockSize<16>, FixedKeyLength<16>
     }
 };
 
-/// \class SM4
 /// \brief Classes for the SM4 block cipher
 /// \details SM4 is a block cipher designed by Xiaoyun Wang, et al. The block cipher is part of the
 ///   Chinese State Cryptography Administration portfolio. The cipher was formely known as SMS4.

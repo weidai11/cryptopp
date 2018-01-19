@@ -22,7 +22,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // ************** secure memory allocation ***************
 
-/// \class AllocatorBase
 /// \brief Base class for all allocators used by SecBlock
 /// \tparam T the class or type
 template<class T>
@@ -160,7 +159,6 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 	}
 }
 
-/// \class AllocatorWithCleanup
 /// \brief Allocates a block of memory with cleanup
 /// \tparam T class or type
 /// \tparam T_Align16 boolean that determines whether allocations should be aligned on a 16-byte boundary
@@ -273,7 +271,6 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word128, true>; // for Integer
 CRYPTOPP_DLL_TEMPLATE_CLASS AllocatorWithCleanup<word, true>;	 // for Integer
 #endif
 
-/// \class NullAllocator
 /// \brief NULL allocator
 /// \tparam T class or type
 /// \details A NullAllocator is useful for fixed-size, stack based allocations
@@ -307,7 +304,6 @@ public:
 	//LCOV_EXCL_STOP
 };
 
-/// \class FixedSizeAllocatorWithCleanup
 /// \brief Static secure memory block with cleanup
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements
@@ -451,7 +447,6 @@ private:
 	bool m_allocated;
 };
 
-/// \class SecBlock
 /// \brief Secure memory block with allocator and cleanup
 /// \tparam T a class or type
 /// \tparam A AllocatorWithCleanup derived class for allocation and cleanup
@@ -823,13 +818,10 @@ protected:
 };
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
-/// \class SecByteBlock
 /// \brief \ref SecBlock "SecBlock<byte>" typedef.
 class SecByteBlock : public SecBlock<byte> {};
-/// \class SecWordBlock
 /// \brief \ref SecBlock "SecBlock<word>" typedef.
 class SecWordBlock : public SecBlock<word> {};
-/// \class AlignedSecByteBlock
 /// \brief SecBlock using \ref AllocatorWithCleanup "AllocatorWithCleanup<byte, true>" typedef
 class AlignedSecByteBlock : public SecBlock<byte, AllocatorWithCleanup<byte, true> > {};
 #else
@@ -841,7 +833,6 @@ typedef SecBlock<byte, AllocatorWithCleanup<byte, true> > AlignedSecByteBlock;
 // No need for move semantics on derived class *if* the class does not add any
 //   data members; see http://stackoverflow.com/q/31755703, and Rule of {0|3|5}.
 
-/// \class FixedSizeSecBlock
 /// \brief Fixed size stack-based SecBlock
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements
@@ -854,7 +845,6 @@ public:
 	explicit FixedSizeSecBlock() : SecBlock<T, A>(S) {}
 };
 
-/// \class FixedSizeAlignedSecBlock
 /// \brief Fixed size stack-based SecBlock with 16-byte alignment
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements
@@ -864,7 +854,6 @@ class FixedSizeAlignedSecBlock : public FixedSizeSecBlock<T, S, FixedSizeAllocat
 {
 };
 
-/// \class SecBlockWithHint
 /// \brief Stack-based SecBlock that grows into the heap
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements

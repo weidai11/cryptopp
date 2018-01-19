@@ -13,7 +13,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 class ByteQueueNode;
 
-/// \class ByteQueue
 /// \brief Data structure used to store byte strings
 /// \details The queue is implemented as a linked list of byte arrays
 class CRYPTOPP_DLL ByteQueue : public Bufferless<BufferedTransformation>
@@ -73,7 +72,6 @@ public:
 	byte operator[](lword i) const;
 	void swap(ByteQueue &rhs);
 
-	/// \class Walker
 	/// \brief A ByteQueue iterator
 	class Walker : public InputRejecting<BufferedTransformation>
 	{

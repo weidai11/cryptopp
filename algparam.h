@@ -26,7 +26,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class ConstByteArrayParameter
 /// \brief Used to pass byte array input as part of a NameValuePairs object
 class ConstByteArrayParameter
 {
@@ -101,7 +100,6 @@ private:
 	SecByteBlock m_block;
 };
 
-/// \class ByteArrayParameter
 /// \brief Used to pass byte array input as part of a NameValuePairs object
 class ByteArrayParameter
 {
@@ -129,7 +127,6 @@ private:
 	size_t m_size;
 };
 
-/// \class CombinedNameValuePairs
 /// \brief Combines two sets of NameValuePairs
 /// \details CombinedNameValuePairs allows you to provide two sets of of NameValuePairs.
 ///   If a name is not found in the first set, then the second set is searched for the
@@ -308,12 +305,10 @@ CRYPTOPP_DLL bool AssignIntToInteger(const std::type_info &valueType, void *pInt
 
 CRYPTOPP_DLL const std::type_info & CRYPTOPP_API IntegerTypeId();
 
-/// \class AlgorithmParametersBase
 /// \brief Base class for AlgorithmParameters
 class CRYPTOPP_DLL AlgorithmParametersBase
 {
 public:
-	/// \class ParameterNotUsed
 	/// \brief Exception thrown when an AlgorithmParameter is unused
 	class ParameterNotUsed : public Exception
 	{
@@ -370,7 +365,6 @@ protected:
 	member_ptr<AlgorithmParametersBase> m_next;
 };
 
-/// \class AlgorithmParametersTemplate
 /// \brief Template base class for AlgorithmParameters
 /// \tparam T the class or type
 template <class T>
@@ -423,7 +417,6 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<bool>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<int>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AlgorithmParametersTemplate<ConstByteArrayParameter>;
 
-/// \class AlgorithmParameters
 /// \brief An object that implements NameValuePairs
 /// \note A NameValuePairs object containing an arbitrary number of name value pairs may be constructed by
 ///   repeatedly using operator() on the object returned by MakeParameters, for example:

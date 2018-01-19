@@ -12,14 +12,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Camellia_Info
 /// \brief Camellia block cipher information
 struct Camellia_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Camellia";}
 };
 
-/// \class Camellia
 /// \brief Camellia block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/Camellia">Camellia</a>
 class Camellia : public Camellia_Info, public BlockCipherDocumentation

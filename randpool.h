@@ -26,7 +26,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class RandomPool
 /// \brief Randomness Pool based on AES-256
 /// \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
 ///   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
@@ -56,7 +55,6 @@ private:
 	bool m_keySet;
 };
 
-/// \class OldRandomPool
 /// \brief Randomness Pool based on PGP 2.6.x with MDC
 /// \details If you need the pre-Crypto++ 5.5 generator then use OldRandomPool class. The
 ///   OldRandomPool class is always available so you dont need to define

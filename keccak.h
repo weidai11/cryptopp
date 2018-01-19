@@ -17,7 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Keccak
 /// \brief Keccak message digest base class
 /// \details The Crypto++ Keccak implementation uses F1600 with XOF d=0x01.
 ///   FIPS 202 conformance (XOF d=0x06) is available in SHA3 classes.
@@ -66,7 +65,6 @@ protected:
 	unsigned int m_digestSize, m_counter;
 };
 
-/// \class Keccak_Final
 /// \brief Keccak message digest template
 /// \tparam T_DigestSize the size of the digest, in bytes
 /// \since Crypto++ 6.0

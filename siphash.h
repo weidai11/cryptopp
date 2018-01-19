@@ -32,7 +32,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SipHash_Info
 /// \brief SipHash message authentication code information
 /// \tparam T_128bit flag indicating 128-bit (true) versus 64-bit (false) digest size
 template <bool T_128bit>
@@ -43,7 +42,6 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = (T_128bit ? 16 : 8))
 };
 
-/// \class SipHash_Base
 /// \brief SipHash message authentication code base class
 /// \tparam C the number of compression rounds
 /// \tparam D the number of finalization rounds
@@ -115,7 +113,6 @@ private:
 	size_t m_idx;
 };
 
-/// \class SipHash
 /// \brief SipHash message authentication code
 /// \tparam C the number of compression rounds
 /// \tparam D the number of finalization rounds

@@ -331,7 +331,6 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	}
 }
 
-/// \class ClassNullRNG
 /// \brief Random Number Generator that does not produce random numbers
 /// \details ClassNullRNG can be used for functions that require a RandomNumberGenerator
 ///   but don't actually use it. The class throws NotImplemented when a generation function is called.

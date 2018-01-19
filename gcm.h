@@ -20,7 +20,6 @@ enum GCM_TablesOption {
 	/// \brief Use a table with 64K entries
 	GCM_64K_Tables};
 
-/// \class GCM_Base
 /// \brief GCM block cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 5.6.0
@@ -91,7 +90,6 @@ protected:
 	enum {REQUIRED_BLOCKSIZE = 16, HASH_BLOCKSIZE = 16};
 };
 
-/// \class GCM_Final
 /// \brief GCM block cipher final implementation
 /// \tparam T_BlockCipher block cipher
 /// \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables
@@ -112,7 +110,6 @@ private:
 	typename T_BlockCipher::Encryption m_cipher;
 };
 
-/// \class GCM
 /// \brief GCM block cipher mode of operation
 /// \tparam T_BlockCipher block cipher
 /// \tparam T_TablesOption table size, either \p GCM_2K_Tables or \p GCM_64K_Tables

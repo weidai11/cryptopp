@@ -18,7 +18,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SosemanukInfo
 /// \brief Sosemanuk stream cipher information
 	/// \since Crypto++ 5.5
 struct SosemanukInfo : public VariableKeyLength<16, 1, 32, 1, SimpleKeyingInterface::UNIQUE_IV, 16>
@@ -26,7 +25,6 @@ struct SosemanukInfo : public VariableKeyLength<16, 1, 32, 1, SimpleKeyingInterf
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Sosemanuk";}
 };
 
-/// \class SosemanukPolicy
 /// \brief Sosemanuk stream cipher implementation
 /// \since Crypto++ 5.5
 class SosemanukPolicy : public AdditiveCipherConcretePolicy<word32, 20>, public SosemanukInfo
@@ -45,7 +43,6 @@ protected:
 	FixedSizeAlignedSecBlock<word32, 12> m_state;
 };
 
-/// \class Sosemanuk
 /// \brief Sosemanuk stream cipher
 /// \details is a stream cipher developed by Come Berbain, Olivier Billet, Anne Canteaut, Nicolas Courtois,
 ///   Henri Gilbert, Louis Goubin, Aline Gouget, Louis Granboulan, Cédric Lauradoux, Marine Minier, Thomas

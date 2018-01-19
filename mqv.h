@@ -15,7 +15,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class MQV_Domain
 /// \brief MQV domain for performing authenticated key agreement
 /// \tparam GROUP_PARAMETERS doamin parameters
 /// \tparam COFACTOR_OPTION cofactor option

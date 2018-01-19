@@ -17,7 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class RWFunction
 /// \brief Rabin-Williams trapdoor function using the public key
 /// \since Crypto++ 2.0, Tweaked roots using <em>e</em> and <em>f</em> since Crypto++ 5.6.4
 class CRYPTOPP_DLL RWFunction : public TrapdoorFunction, public PublicKey
@@ -54,7 +53,6 @@ protected:
 	Integer m_n;
 };
 
-/// \class InvertibleRWFunction
 /// \brief Rabin-Williams trapdoor function using the private key
 /// \since Crypto++ 2.0, Tweaked roots using <em>e</em> and <em>f</em> since Crypto++ 5.6.4
 class CRYPTOPP_DLL InvertibleRWFunction : public RWFunction, public TrapdoorFunctionInverse, public PrivateKey

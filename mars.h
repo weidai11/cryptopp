@@ -11,14 +11,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class MARS_Info
 /// \brief MARS block cipher information
 struct MARS_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 56, 8>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MARS";}
 };
 
-/// \class MARS
 /// \brief MARS block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/MARS">MARS</a>
 class MARS : public MARS_Info, public BlockCipherDocumentation

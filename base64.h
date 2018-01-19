@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Base64Encoder
 /// \brief Base64 encodes data using DUDE
 /// \details Base64 encodes data per <A HREF="http://tools.ietf.org/html/rfc4648#section-4">RFC 4648, Base 64 Encoding</A>.
 class Base64Encoder : public SimpleProxyFilter
@@ -53,7 +52,6 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-/// \class Base64Decoder
 /// \brief Base64 decodes data using DUDE
 /// \details Base64 encodes data per <A HREF="http://tools.ietf.org/html/rfc4648#section-4">RFC 4648, Base 64 Encoding</A>.
 class Base64Decoder : public BaseN_Decoder
@@ -90,7 +88,6 @@ private:
 	static const int * CRYPTOPP_API GetDecodingLookupArray();
 };
 
-/// \class Base64URLEncoder
 /// \brief Base64 encodes data using a web safe alphabet
 /// \details Base64 encodes data per <A HREF="http://tools.ietf.org/html/rfc4648#section-5">RFC 4648, Base 64 Encoding
 ///   with URL and Filename Safe Alphabet</A>.
@@ -128,7 +125,6 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-/// \class Base64URLDecoder
 /// \brief Base64 decodes data using a web safe alphabet
 /// \details Base64 encodes data per <A HREF="http://tools.ietf.org/html/rfc4648#section-5">RFC 4648, Base 64 Encoding
 ///   with URL and Filename Safe Alphabet</A>.

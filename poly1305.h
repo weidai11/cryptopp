@@ -52,7 +52,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Poly1305_Base
 /// \brief Poly1305 message authentication code base class
 /// \tparam T class derived from BlockCipherDocumentation with 16-byte key and 16-byte blocksize
 /// \since Crypto++ 6.0
@@ -100,7 +99,6 @@ protected:
 	bool m_used;
 };
 
-/// \class Poly1305
 /// \brief Poly1305 message authentication code
 /// \tparam T class derived from BlockCipherDocumentation with 16-byte key and 16-byte blocksize
 /// \details Poly1305-AES is a state-of-the-art message-authentication code suitable for a wide

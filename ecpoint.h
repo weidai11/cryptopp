@@ -15,7 +15,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class ECPPoint
 /// \brief Elliptical Curve Point over GF(p), where p is prime
 /// \since Crypto++ 2.0
 struct CRYPTOPP_DLL ECPPoint
@@ -49,7 +48,6 @@ struct CRYPTOPP_DLL ECPPoint
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<ECPPoint>;
 
-/// \class EC2NPoint
 /// \brief Elliptical Curve Point over GF(2^n)
 /// \since Crypto++ 2.0
 struct CRYPTOPP_DLL EC2NPoint
@@ -83,7 +81,6 @@ struct CRYPTOPP_DLL EC2NPoint
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<EC2NPoint>;
 
-/// \class EncodedPoint
 /// \brief Abstract class for encoding and decoding ellicptic curve points
 /// \tparam Point ellicptic curve point
 /// \details EncodedPoint is an interface for encoding and decoding elliptic curve points.

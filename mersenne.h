@@ -14,7 +14,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class MersenneTwister
 /// \brief Mersenne Twister class for Monte-Carlo simulations
 /// \tparam K Magic constant
 /// \tparam M Period parameter
@@ -200,7 +199,6 @@ private:
 	word32 m_idx;
 };
 
-/// \class MT19937
 /// \brief Original MT19937 generator provided in the ACM paper.
 /// \details MT19937 uses 4537 as default initial seed.
 /// \sa MT19937ar, <A HREF="http://www.math.sci.hiroshima-u.ac.jp/~m-mat/MT/ARTICLES/mt.pdf">Mersenne twister:
@@ -212,7 +210,6 @@ class MT19937 : public MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10
 typedef MersenneTwister<0x9908B0DF /*2567483615*/, 397, 624, 0x10DCD /*69069*/, 4537> MT19937;
 #endif
 
-/// \class MT19937ar
 /// \brief Updated MT19937 generator adapted to provide an array for initialization.
 /// \details MT19937 uses 5489 as default initial seed. Use this generator when interoperating with C++11's
 ///   mt19937 class.

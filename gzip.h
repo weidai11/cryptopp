@@ -13,7 +13,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Gzip
 /// \brief GZIP Compression (RFC 1952)
 class Gzip : public Deflator
 {
@@ -77,23 +76,18 @@ protected:
 	std::string m_comment;
 };
 
-/// \class Gunzip
 /// \brief GZIP Decompression (RFC 1952)
 class Gunzip : public Inflator
 {
 public:
 	typedef Inflator::Err Err;
 
-	/// \class HeaderErr
 	/// \brief Exception thrown when a header decoding error occurs
 	class HeaderErr : public Err {public: HeaderErr() : Err(INVALID_DATA_FORMAT, "Gunzip: header decoding error") {}};
-	/// \class TailErr
 	/// \brief Exception thrown when the tail is too short
 	class TailErr : public Err {public: TailErr() : Err(INVALID_DATA_FORMAT, "Gunzip: tail too short") {}};
-	/// \class CrcErr
 	/// \brief Exception thrown when a CRC error occurs
 	class CrcErr : public Err {public: CrcErr() : Err(DATA_INTEGRITY_CHECK_FAILED, "Gunzip: CRC check error") {}};
-	/// \class LengthErr
 	/// \brief Exception thrown when a length error occurs
 	class LengthErr : public Err {public: LengthErr() : Err(DATA_INTEGRITY_CHECK_FAILED, "Gunzip: length check error") {}};
 

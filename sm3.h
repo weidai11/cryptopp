@@ -19,7 +19,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SM3
 /// \brief SM3 hash function
 /// \details SM3 is a hash function designed by Xiaoyun Wang, et al. The hash is part of the
 ///   Chinese State Cryptography Administration portfolio.

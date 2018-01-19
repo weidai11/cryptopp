@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class ObjectFactory
 /// \brief Object factory interface for registering objects
 /// \tparam AbstractClass Base class interface of the object
 template <class AbstractClass>
@@ -23,7 +22,6 @@ public:
 	virtual AbstractClass * CreateObject() const =0;
 };
 
-/// \class DefaultObjectFactory
 /// \brief Object factory for registering objects
 /// \tparam AbstractClass Base class interface of the object
 /// \tparam ConcreteClass Class object
@@ -37,7 +35,6 @@ public:
 	}
 };
 
-/// \class ObjectFactoryRegistry
 /// \brief Object factory registry
 /// \tparam AbstractClass Base class interface of the object
 /// \tparam instance unique identifier
@@ -105,7 +102,6 @@ ObjectFactoryRegistry<AbstractClass, instance> & ObjectFactoryRegistry<AbstractC
 	return s_registry;
 }
 
-/// \class RegisterDefaultFactoryFor
 /// \brief Object factory registry helper
 /// \tparam AbstractClass Base class interface of the object
 /// \tparam ConcreteClass Class object

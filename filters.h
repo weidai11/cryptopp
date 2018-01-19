@@ -24,7 +24,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Filter
 /// \brief Implementation of BufferedTransformation's attachment interface
 /// \details Filter is a cornerstone of the Pipeline trinitiy. Data flows from
 ///   Sources, through Filters, and then terminates in Sinks. The difference
@@ -155,7 +154,6 @@ protected:
 	int m_continueAt;
 };
 
-/// \class FilterPutSpaceHelper
 /// \brief Create a working space in a BufferedTransformation
 struct CRYPTOPP_DLL FilterPutSpaceHelper
 {
@@ -213,7 +211,6 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	SecByteBlock m_tempSpace;
 };
 
-/// \class MeterFilter
 /// \brief Measure how many bytes and messages pass through the filter
 /// \details measure how many bytes and messages pass through the filter. The filter also serves as valve by
 ///   maintaining a list of ranges to skip during processing.
@@ -285,7 +282,6 @@ private:
 	size_t m_length;
 };
 
-/// \class TransparentFilter
 /// \brief A transparent MeterFilter
 /// \sa MeterFilter, OpaqueFilter
 class CRYPTOPP_DLL TransparentFilter : public MeterFilter
@@ -296,7 +292,6 @@ public:
 	TransparentFilter(BufferedTransformation *attachment=NULLPTR) : MeterFilter(attachment, true) {}
 };
 
-/// \class OpaqueFilter
 /// \brief A non-transparent MeterFilter
 /// \sa MeterFilter, TransparentFilter
 class CRYPTOPP_DLL OpaqueFilter : public MeterFilter
@@ -307,7 +302,6 @@ public:
 	OpaqueFilter(BufferedTransformation *attachment=NULLPTR) : MeterFilter(attachment, false) {}
 };
 
-/// \class FilterWithBufferedInput
 /// \brief Divides an input stream into discrete blocks
 /// \details FilterWithBufferedInput divides the input stream into a first block, a number of
 ///   middle blocks, and a last block. First and last blocks are optional, and middle blocks may
@@ -425,7 +419,6 @@ protected:
 	BlockQueue m_queue;
 };
 
-/// \class FilterWithInputQueue
 /// \brief A filter that buffers input using a ByteQueue
 /// \details FilterWithInputQueue will buffer input using a ByteQueue. When the filter receives
 ///   a \ref BufferedTransformation::MessageEnd() "MessageEnd()" signal it will pass the data
@@ -498,7 +491,6 @@ struct BlockPaddingSchemeDef
 	};
 };
 
-/// \class StreamTransformationFilter
 /// \brief Filter wrapper for StreamTransformation
 /// \details StreamTransformationFilter() is a filter wrapper for StreamTransformation(). It is used when
 ///   pipelining data for stream ciphers and confidentiality-only block ciphers. The filter will optionally
@@ -553,7 +545,6 @@ protected:
 	bool m_isSpecial;
 };
 
-/// \class HashFilter
 /// \brief Filter wrapper for HashTransformation
 /// \since Crypto++ 1.0
 class CRYPTOPP_DLL HashFilter : public Bufferless<Filter>, private FilterPutSpaceHelper
@@ -583,7 +574,6 @@ private:
 	std::string m_messagePutChannel, m_hashPutChannel;
 };
 
-/// \class HashVerificationFilter
 /// \brief Filter wrapper for HashTransformation
 /// \since Crypto++ 4.0
 class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
@@ -591,7 +581,6 @@ class CRYPTOPP_DLL HashVerificationFilter : public FilterWithBufferedInput
 public:
 	virtual ~HashVerificationFilter() {}
 
-	/// \class HashVerificationFailed
 	/// \brief Exception thrown when a data integrity check failure is encountered
 	class HashVerificationFailed : public Exception
 	{
@@ -647,7 +636,6 @@ private:
 	SecByteBlock m_expectedHash;
 };
 
-/// \class AuthenticatedEncryptionFilter
 /// \brief Filter wrapper for encrypting with AuthenticatedSymmetricCipher
 /// \details AuthenticatedEncryptionFilter() is a wrapper for encrypting with AuthenticatedSymmetricCipher(),
 ///   optionally handling padding/unpadding when needed.
@@ -689,7 +677,6 @@ protected:
 	HashFilter m_hf;
 };
 
-/// \class AuthenticatedDecryptionFilter
 /// \brief Filter wrapper for decrypting with AuthenticatedSymmetricCipher
 /// \details AuthenticatedDecryptionFilter() is a wrapper for decrypting with AuthenticatedSymmetricCipher(),
 ///   optionally handling padding/unpadding when needed.
@@ -751,7 +738,6 @@ protected:
 	StreamTransformationFilter m_streamFilter;
 };
 
-/// \class SignerFilter
 /// \brief Filter wrapper for PK_Signer
 /// \since Crypto++ 4.0
 class CRYPTOPP_DLL SignerFilter : public Unflushable<Filter>
@@ -780,7 +766,6 @@ private:
 	SecByteBlock m_buf;
 };
 
-/// \class SignatureVerificationFilter
 /// \brief Filter wrapper for PK_Verifier
 /// \details This filter was formerly named <tt>VerifierFilter</tt>. The name changed at Crypto++ 5.0.
 /// \since Crypto++ 4.0
@@ -843,7 +828,6 @@ private:
 	bool m_verified;
 };
 
-/// \class Redirector
 /// \brief Redirect input to another BufferedTransformation without owning it
 /// \since Crypto++ 4.0
 class CRYPTOPP_DLL Redirector : public CustomSignalPropagation<Sink>
@@ -938,7 +922,6 @@ private:
 	word32 m_behavior;
 };
 
-/// \class OutputProxy
 /// \brief Filter class that is a proxy for a sink
 /// \details Used By ProxyFilter
 /// \since Crypto++ 4.0
@@ -988,7 +971,6 @@ private:
 	bool m_passSignal;
 };
 
-/// \class ProxyFilter
 /// \brief Base class for Filter classes that are proxies for a chain of other filters
 /// \since Crypto++ 4.0
 class CRYPTOPP_DLL ProxyFilter : public FilterWithBufferedInput
@@ -1015,7 +997,6 @@ protected:
 	member_ptr<BufferedTransformation> m_filter;
 };
 
-/// \class SimpleProxyFilter
 /// \brief Proxy filter that doesn't modify the underlying filter's input or output
 /// \since Crypto++ 5.0
 class CRYPTOPP_DLL SimpleProxyFilter : public ProxyFilter
@@ -1044,7 +1025,6 @@ public:
 		{CRYPTOPP_UNUSED(inString), CRYPTOPP_UNUSED(length); m_filter->MessageEnd();}
 };
 
-/// \class PK_EncryptorFilter
 /// \brief Filter wrapper for PK_Encryptor
 /// \details PK_DecryptorFilter is a proxy for the filter created by PK_Encryptor::CreateEncryptionFilter.
 ///   This class provides symmetry with VerifierFilter.
@@ -1060,7 +1040,6 @@ public:
 		: SimpleProxyFilter(encryptor.CreateEncryptionFilter(rng), attachment) {}
 };
 
-/// \class PK_DecryptorFilter
 /// \brief Filter wrapper for PK_Decryptor
 /// \details PK_DecryptorFilter is a proxy for the filter created by PK_Decryptor::CreateDecryptionFilter.
 ///   This class provides symmetry with SignerFilter.
@@ -1076,7 +1055,6 @@ public:
 		: SimpleProxyFilter(decryptor.CreateDecryptionFilter(rng), attachment) {}
 };
 
-/// \class StringSinkTemplate
 /// \brief Append input to a string object
 /// \tparam T std::basic_string<char> type
 /// \details StringSinkTemplate is a StringSinkTemplate typedef
@@ -1114,7 +1092,6 @@ private:
 	T *m_output;
 };
 
-/// \class StringSink
 /// \brief Append input to a string object
 /// \details StringSink is a typedef for StringSinkTemplate<std::string>.
 /// \sa ArraySink, ArrayXorSink
@@ -1122,7 +1099,6 @@ private:
 DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink)
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
-/// \class RandomNumberSink
 /// \brief Incorporates input into RNG as additional entropy
 /// \since Crypto++ 4.0
 class RandomNumberSink : public Bufferless<Sink>
@@ -1146,7 +1122,6 @@ private:
 	RandomNumberGenerator *m_rng;
 };
 
-/// \class ArraySink
 /// \brief Copy input to a memory buffer
 /// \details ArraySink wraps a fixed size buffer. The buffer is full once Put returns non-0.
 ///   When used in a pipleline, ArraySink silently discards input if the buffer is full.
@@ -1189,7 +1164,6 @@ protected:
 	lword m_total;
 };
 
-/// \class ArrayXorSink
 /// \brief Xor input to a memory buffer
 /// \details ArrayXorSink wraps a fixed size buffer. The buffer is full once Put returns non-0.
 ///   When used in a pipleline, ArrayXorSink silently discards input if the buffer is full.
@@ -1212,7 +1186,6 @@ public:
 	byte * CreatePutSpace(size_t &size) {return BufferedTransformation::CreatePutSpace(size);}
 };
 
-/// \class StringStore
 /// \brief String-based implementation of Store interface
 /// \since Crypto++ 4.0
 class StringStore : public Store
@@ -1245,7 +1218,6 @@ private:
 	size_t m_length, m_count;
 };
 
-/// \class RandomNumberStore
 /// \brief RNG-based implementation of Source interface
 /// \since Crypto++ 4.0
 class CRYPTOPP_DLL RandomNumberStore : public Store
@@ -1292,7 +1264,6 @@ private:
 	lword m_size;
 };
 
-/// \class Source
 /// \brief Implementation of BufferedTransformation's attachment interface
 /// \details Source is a cornerstone of the Pipeline trinitiy. Data flows from
 ///   Sources, through Filters, and then terminates in Sinks. The difference
@@ -1372,7 +1343,6 @@ protected:
 	}
 };
 
-/// \class SourceTemplate
 /// \brief Transform a Store into a Source
 /// \tparam T the class or type
 /// \since Crypto++ 5.0
@@ -1405,7 +1375,6 @@ protected:
 	T m_store;
 };
 
-/// \class SourceTemplate
 /// \brief String-based implementation of the Source interface
 /// \since Crypto++ 4.0
 class CRYPTOPP_DLL StringSource : public SourceTemplate<StringStore>
@@ -1439,7 +1408,6 @@ public:
 		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(string)));}
 };
 
-/// \class ArraySource
 /// \brief Pointer-based implementation of the Source interface
 /// \details ArraySource is a typedef for StringSource. Use the third constructor for an array source.
 ///   The third constructor takes a pointer and length.

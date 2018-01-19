@@ -16,14 +16,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Salsa20_Info
 /// \brief Salsa20 stream cipher information
 struct Salsa20_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
 	static std::string StaticAlgorithmName() {return "Salsa20";}
 };
 
-/// \class Salsa20_Policy
 /// \brief Salsa20 stream cipher operation
 class CRYPTOPP_NO_VTABLE Salsa20_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
@@ -42,7 +40,6 @@ protected:
 	int m_rounds;
 };
 
-/// \class Salsa20
 /// \brief Salsa20 stream cipher
 /// \details Salsa20 provides a variable number of rounds: 8, 12 or 20. The default number of rounds is 20.
 /// \sa <a href="http://www.cryptolounge.org/wiki/XSalsa20">XSalsa20</a>
@@ -52,14 +49,12 @@ struct Salsa20 : public Salsa20_Info, public SymmetricCipherDocumentation
 	typedef Encryption Decryption;
 };
 
-/// \class XSalsa20_Info
 /// \brief XSalsa20 stream cipher information
 struct XSalsa20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
 	static std::string StaticAlgorithmName() {return "XSalsa20";}
 };
 
-/// \class XSalsa20_Policy
 /// \brief XSalsa20 stream cipher operation
 class CRYPTOPP_NO_VTABLE XSalsa20_Policy : public Salsa20_Policy
 {
@@ -71,7 +66,6 @@ protected:
 	FixedSizeSecBlock<word32, 8> m_key;
 };
 
-/// \class XSalsa20
 /// \brief XSalsa20 stream cipher
 /// \details XSalsa20 provides a variable number of rounds: 8, 12 or 20. The default number of rounds is 20.
 /// \sa <a href="http://www.cryptolounge.org/wiki/XSalsa20">XSalsa20</a>

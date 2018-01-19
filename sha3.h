@@ -16,7 +16,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SHA3
 /// \brief SHA3 message digest base class
 /// \details The Crypto++ implementation conforms to FIPS 202 version of SHA3 using F1600 with XOF d=0x06.
 ///   Previous behavior (XOF d=0x01) is available in Keccak classes.
@@ -51,7 +50,6 @@ protected:
 	unsigned int m_digestSize, m_counter;
 };
 
-/// \class SHA3_Final
 /// \brief SHA3 message digest template
 /// \tparam T_DigestSize the size of the digest, in bytes
 /// \since Crypto++ 5.6.2

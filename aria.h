@@ -19,7 +19,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class ARIA_Info
 /// \brief ARIA block cipher information
 /// \since Crypto++ 6.0
 struct ARIA_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
@@ -27,7 +26,6 @@ struct ARIA_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 3
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ARIA";}
 };
 
-/// \class ARIA
 /// \brief ARIA block cipher
 /// \details The Crypto++ ARIA implementation is based on the 32-bit implementation by Aaram Yun
 ///   from the National Security Research Institute, KOREA. Aaram Yun's implementation is based on

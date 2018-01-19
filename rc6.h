@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class RC6_Info
 /// \brief RC6 block cipher information
 struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, public VariableRounds<20>
 {
@@ -19,7 +18,6 @@ struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32
 	typedef word32 RC6_WORD;
 };
 
-/// \class RC6
 /// \brief RC6 block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/RC6">RC6</a>
 class RC6 : public RC6_Info, public BlockCipherDocumentation

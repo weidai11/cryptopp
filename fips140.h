@@ -16,7 +16,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SelfTestFailure
 /// Exception thrown when a crypto algorithm is used after a self test fails
 /// \details The self tests for an algorithm are performed by Algortihm class
 ///   when CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined.

@@ -23,7 +23,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class BLAKE2_Info
 /// \brief BLAKE2 hash information
 /// \tparam T_64bit flag indicating 64-bit
 /// \since Crypto++ 5.6.4
@@ -43,7 +42,6 @@ struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 6
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
 };
 
-/// \class BLAKE2_ParameterBlock
 /// \brief BLAKE2 parameter block
 /// \tparam T_64bit flag indicating 64-bit
 /// \details BLAKE2b uses BLAKE2_ParameterBlock<true>, while BLAKE2s
@@ -124,7 +122,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 	byte personalization[PERSONALIZATIONSIZE];
 };
 
-/// \class BLAKE2_State
 /// \brief BLAKE2 state information
 /// \tparam W word type
 /// \tparam T_64bit flag indicating 64-bit
@@ -150,7 +147,6 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 	size_t length;
 };
 
-/// \class BLAKE2_Base
 /// \brief BLAKE2 hash implementation
 /// \tparam W word type
 /// \tparam T_64bit flag indicating 64-bit

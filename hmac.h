@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class HMAC_Base
 /// \brief HMAC information
 /// \details HMAC_Base derives from VariableKeyLength and MessageAuthenticationCode
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0, INT_MAX>, public MessageAuthenticationCode
@@ -40,7 +39,6 @@ private:
 	bool m_innerHashKeyed;
 };
 
-/// \class HMAC
 /// \brief HMAC
 /// \tparam T HashTransformation derived class
 /// \details HMAC derives from MessageAuthenticationCodeImpl. It calculates the HMAC using

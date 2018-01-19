@@ -16,7 +16,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class NIST_DRBG
 /// \brief Interface for NIST DRBGs from SP 800-90A
 /// \details NIST_DRBG is the base class interface for NIST DRBGs from SP 800-90A Rev 1 (June 2015)
 /// \sa <A HREF="http://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-90Ar1.pdf">Recommendation
@@ -146,7 +145,6 @@ protected:
 
 // *************************************************************
 
-/// \class Hash_DRBG
 /// \tparam HASH NIST approved hash derived from HashTransformation
 /// \tparam STRENGTH security strength, in bytes
 /// \tparam SEEDLENGTH seed length, in bytes
@@ -261,7 +259,6 @@ private:
 
 // *************************************************************
 
-/// \class HMAC_DRBG
 /// \tparam HASH NIST approved hash derived from HashTransformation
 /// \tparam STRENGTH security strength, in bytes
 /// \tparam SEEDLENGTH seed length, in bytes

@@ -17,7 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class FileStore
 /// \brief Implementation of Store interface
 /// \details file-based implementation of Store interface
 class CRYPTOPP_DLL FileStore : public Store, private FilterPutSpaceHelper, public NotCopyable
@@ -78,7 +77,6 @@ private:
 	bool m_waiting;
 };
 
-/// \class FileSource
 /// \brief Implementation of Store interface
 /// \details file-based implementation of Store interface
 class CRYPTOPP_DLL FileSource : public SourceTemplate<FileStore>
@@ -123,7 +121,6 @@ public:
 	std::istream* GetStream() {return m_store.GetStream();}
 };
 
-/// \class FileSink
 /// \brief Implementation of Store interface
 /// \details file-based implementation of Sink interface
 class CRYPTOPP_DLL FileSink : public Sink, public NotCopyable

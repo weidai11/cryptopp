@@ -26,7 +26,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SIMON_Info
 /// \brief SIMON block cipher information
 /// \tparam L block size of the cipher, in bytes
 /// \tparam D default key length, in bytes
@@ -43,7 +42,6 @@ struct SIMON_Info : public FixedBlockSize<L>, VariableKeyLength<D, N, M>
     }
 };
 
-/// \class SIMON_Base
 /// \brief SIMON block cipher base class
 /// \tparam W the word type
 /// \details User code should use SIMON64 or SIMON128
@@ -62,7 +60,6 @@ SIMON_Base() : m_kwords(0), m_rounds(0) {}
     unsigned int            m_rounds;  // number of rounds
 };
 
-/// \class SIMON64
 /// \brief SIMON 64-bit block cipher
 /// \details Simon is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
 ///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
@@ -120,7 +117,6 @@ public:
     typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
-/// \class SIMON128
 /// \brief SIMON 128-bit block cipher
 /// \details Simon is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
 ///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.

@@ -24,7 +24,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class EC2N
 /// \brief Elliptic Curve over GF(2^n)
 class CRYPTOPP_DLL EC2N : public AbstractGroup<EC2NPoint>, public EncodedPoint<EC2NPoint>
 {
@@ -97,12 +96,10 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<EC2N::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<EC2N::Point>;
 
-/// \class EcPrecomputation
 /// \brief Elliptic Curve precomputation
 /// \tparam EC elliptic curve field
 template <class EC> class EcPrecomputation;
 
-/// \class EcPrecomputation<EC2N>
 /// \brief EC2N precomputation specialization
 /// \details Implementation of <tt>DL_GroupPrecomputation<EC2N::Point></tt>
 /// \sa DL_GroupPrecomputation

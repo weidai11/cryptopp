@@ -26,7 +26,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SPECK_Info
 /// \brief SPECK block cipher information
 /// \tparam L block size of the cipher, in bytes
 /// \tparam D default key length, in bytes
@@ -43,7 +42,6 @@ struct SPECK_Info : public FixedBlockSize<L>, VariableKeyLength<D, N, M>
     }
 };
 
-/// \class SPECK_Base
 /// \brief SPECK block cipher base class
 /// \tparam W the word type
 /// \details User code should use SPECK64 or SPECK128
@@ -62,7 +60,6 @@ struct SPECK_Base
     unsigned int            m_rounds;  // number of rounds
 };
 
-/// \class SPECK64
 /// \brief SPECK 64-bit block cipher
 /// \details Speck is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
 ///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
@@ -120,7 +117,6 @@ public:
     typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
-/// \class SPECK128
 /// \brief SPECK 128-bit block cipher
 /// \details Speck is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
 ///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.

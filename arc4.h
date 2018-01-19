@@ -15,7 +15,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-/// \class ARC4_Base
 /// \brief ARC4 base class
 /// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 /// \since Crypto++ 1.0
@@ -46,13 +45,11 @@ protected:
     byte m_x, m_y;
 };
 
-/// \class ARC4
 /// \brief Alleged RC4
 /// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
 /// \since Crypto++ 1.0
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4)
 
-/// \class MARC4_Base
 /// \brief MARC4 base class
 /// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 /// \details MARC4 discards the first 256 bytes of keystream, which may be weaker than the rest
@@ -68,7 +65,6 @@ protected:
 	unsigned int GetDefaultDiscardBytes() const {return 256;}
 };
 
-/// \class MARC4
 /// \brief Modified Alleged RC4
 /// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
 /// \since Crypto++ 1.0

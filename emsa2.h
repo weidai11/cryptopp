@@ -17,7 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class EMSA2HashId
 /// \brief EMSA2 hash identifier
 /// \tparam H HashTransformation derived class
 /// \since Crypto++ 5.0
@@ -27,7 +26,6 @@ public:
 	static const byte id;
 };
 
-/// \class EMSA2Pad
 /// \brief EMSA2 padding method
 /// \tparam BASE Message encoding method
 /// \since Crypto++ 5.0
@@ -68,7 +66,6 @@ template<> const byte EMSA2HashId<SHA384>::id;
 template<> const byte EMSA2HashId<SHA512>::id;
 #endif
 
-/// \class EMSA2Pad
 /// \brief EMSA2 padding method
 /// \since Crypto++ 5.0
 class CRYPTOPP_DLL EMSA2Pad : public EMSA2HashIdLookup<PK_DeterministicSignatureMessageEncodingMethod>
@@ -91,7 +88,6 @@ public:
 //  \skip EMSA2HashId can be instantiated
 //  \until end of list
 
-/// \class P1363_EMSA2
 /// \brief EMSA2/P1363 padding method
 /// \details Use with RWSS and RSA_ISO
 /// \since Crypto++ 5.0

@@ -7,7 +7,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-/// \class MD5
 /// \brief MD5 message digest
 /// \sa <a href="http://www.cryptolounge.org/wiki/MD5">MD5</a>
 /// \since Crypto++ 1.0

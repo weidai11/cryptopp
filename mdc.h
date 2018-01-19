@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class MDC_Info
 /// \tparam B BlockCipher derived class
 /// \brief MDC_Info cipher information
 template <class B>
@@ -28,7 +27,6 @@ struct MDC_Info : public FixedBlockSize<B::DIGESTSIZE>, public FixedKeyLength<B:
 template <class H>
 class MDC : public MDC_Info<H>
 {
-	/// \class Enc
 	/// \brief MDC cipher encryption operation
 	class CRYPTOPP_NO_VTABLE Enc : public BlockCipherImpl<MDC_Info<H> >
 	{

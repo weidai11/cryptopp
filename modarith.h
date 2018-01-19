@@ -25,7 +25,6 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AbstractGroup<Integer>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractRing<Integer>;
 CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<Integer>;
 
-/// \class ModularArithmetic
 /// \brief Ring of congruence classes modulo n
 /// \details This implementation represents each congruence class as the smallest
 ///   non-negative integer in that class.
@@ -263,7 +262,6 @@ protected:
 
 // const ModularArithmetic::RandomizationParameter ModularArithmetic::DefaultRandomizationParameter = 0 ;
 
-/// \class MontgomeryRepresentation
 /// \brief Performs modular arithmetic in Montgomery representation for increased speed
 /// \details The Montgomery representation represents each congruence class <tt>[a]</tt> as
 ///   <tt>a*r\%n</tt>, where <tt>r</tt> is a convenient power of 2.

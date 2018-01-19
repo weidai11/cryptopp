@@ -210,7 +210,6 @@ class CRYPTOPP_NO_VTABLE ThreeBases : public BASE1, public BASE2, public BASE3
 };
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
-/// \class ObjectHolder
 /// \tparam T class or type
 /// \brief Uses encapsulation to hide an object in derived classes
 /// \details The object T is declared as protected.
@@ -221,7 +220,6 @@ protected:
 	T m_object;
 };
 
-/// \class NotCopyable
 /// \brief Ensures an object is not copyable
 /// \details NotCopyable ensures an object is not copyable by making the
 ///   copy constructor and assignment operator private. Deleters are not
@@ -236,7 +234,6 @@ private:
     void operator=(const NotCopyable &);
 };
 
-/// \class NewObject
 /// \brief An object factory function
 /// \tparam T class or type
 /// \details NewObject overloads operator()().
@@ -2303,7 +2300,6 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 #endif
 }
 
-/// \class GetBlock
 /// \brief Access a block of memory
 /// \tparam T class or type
 /// \tparam B enumeration indicating endianness
@@ -2345,7 +2341,6 @@ private:
 	const byte *m_block;
 };
 
-/// \class PutBlock
 /// \brief Access a block of memory
 /// \tparam T class or type
 /// \tparam B enumeration indicating endianness
@@ -2390,7 +2385,6 @@ private:
 	byte *m_block;
 };
 
-/// \class BlockGetAndPut
 /// \brief Access a block of memory
 /// \tparam T class or type
 /// \tparam B enumeration indicating endianness
@@ -2436,7 +2430,6 @@ T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 
 // ************** help remove warning on g++ ***************
 
-/// \class SafeShifter
 /// \brief Safely shift values when undefined behavior could occur
 /// \tparam overflow boolean flag indicating if overflow is present
 /// \details SafeShifter safely shifts values when undefined behavior could occur under C/C++ rules.
@@ -2445,7 +2438,6 @@ T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 /// \sa SafeShifter<true>, SafeShifter<false>
 template <bool overflow> struct SafeShifter;
 
-/// \class SafeShifter<true>
 /// \brief Shifts a value in the presence of overflow
 /// \details the true template parameter indicates overflow would occur.
 ///   In this case, SafeShifter clamps the value and returns 0.
@@ -2476,7 +2468,6 @@ template<> struct SafeShifter<true>
 	}
 };
 
-/// \class SafeShifter<false>
 /// \brief Shifts a value in the absence of overflow
 /// \details the false template parameter indicates overflow would not occur.
 ///   In this case, SafeShifter returns the shfted value.

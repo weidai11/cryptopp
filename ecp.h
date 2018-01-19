@@ -22,7 +22,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class ECP
 /// \brief Elliptic Curve over GF(p), where p is prime
 class CRYPTOPP_DLL ECP : public AbstractGroup<ECPPoint>, public EncodedPoint<ECPPoint>
 {
@@ -104,12 +103,10 @@ private:
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<ECP::Point>;
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_GroupPrecomputation<ECP::Point>;
 
-/// \class EcPrecomputation
 /// \brief Elliptic Curve precomputation
 /// \tparam EC elliptic curve field
 template <class EC> class EcPrecomputation;
 
-/// \class EcPrecomputation<ECP>
 /// \brief ECP precomputation specialization
 /// \details Implementation of <tt>DL_GroupPrecomputation<ECP::Point></tt> with input and output
 ///   conversions for Montgomery modular multiplication.

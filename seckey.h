@@ -33,7 +33,6 @@ inline CipherDir ReverseCipherDir(CipherDir dir)
 	return (dir == ENCRYPTION) ? DECRYPTION : ENCRYPTION;
 }
 
-/// \class FixedBlockSize
 /// \brief Inherited by algorithms with fixed block size
 /// \tparam N the blocksize of the algorithm
 template <unsigned int N>
@@ -69,7 +68,6 @@ public:
 
 // ************** rounds ***************
 
-/// \class FixedRounds
 /// \brief Inherited by algorithms with fixed number of rounds
 /// \tparam R the number of rounds used by the algorithm
 template <unsigned int R>
@@ -80,7 +78,6 @@ public:
 	CRYPTOPP_CONSTANT(ROUNDS = R)
 };
 
-/// \class VariableRounds
 /// \brief Inherited by algorithms with variable number of rounds
 /// \tparam D Default number of rounds
 /// \tparam N Minimum number of rounds
@@ -140,7 +137,6 @@ protected:
 
 // ************** key length ***************
 
-/// \class FixedKeyLength
 /// \brief Inherited by keyed algorithms with fixed key length
 /// \tparam N Default key length, in bytes
 /// \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
@@ -179,7 +175,6 @@ public:
 	}
 };
 
-/// \class VariableKeyLength
 /// \brief Inherited by keyed algorithms with variable key length
 /// \tparam D Default key length, in bytes
 /// \tparam N Minimum key length, in bytes
@@ -235,7 +230,6 @@ public:
 	}
 };
 
-/// \class SameKeyLengthAs
 /// \brief Provides key lengths based on another class's key length
 /// \tparam T another FixedKeyLength or VariableKeyLength class
 /// \tparam IV_REQ the \ref SimpleKeyingInterface::IV_Requirement "IV requirements"
@@ -275,7 +269,6 @@ public:
 
 // ************** implementation helper for SimpleKeyingInterface ***************
 
-/// \class SimpleKeyingInterfaceImpl
 /// \brief Provides a base implementation of SimpleKeyingInterface
 /// \tparam BASE a SimpleKeyingInterface derived class
 /// \tparam INFO a SimpleKeyingInterface derived class
@@ -323,7 +316,6 @@ public:
 		{return INFO::IV_LENGTH;}
 };
 
-/// \class BlockCipherImpl
 /// \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for block ciphers
 /// \tparam INFO a SimpleKeyingInterface derived class
 /// \tparam BASE a SimpleKeyingInterface derived class
@@ -339,7 +331,6 @@ public:
 	unsigned int BlockSize() const {return this->BLOCKSIZE;}
 };
 
-/// \class BlockCipherFinal
 /// \brief Provides class member functions to key a block cipher
 /// \tparam DIR a CipherDir
 /// \tparam BASE a BlockCipherImpl derived class
@@ -381,7 +372,6 @@ public:
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
 };
 
-/// \class MessageAuthenticationCodeImpl
 /// \brief Provides a base implementation of Algorithm and SimpleKeyingInterface for message authentication codes
 /// \tparam INFO a SimpleKeyingInterface derived class
 /// \tparam BASE a SimpleKeyingInterface derived class
@@ -394,7 +384,6 @@ class MessageAuthenticationCodeImpl : public AlgorithmImpl<SimpleKeyingInterface
 {
 };
 
-/// \class MessageAuthenticationCodeFinal
 /// \brief Provides class member functions to key a message authentication code
 /// \tparam BASE a BlockCipherImpl derived class
 /// \details A default implementation for MessageAuthenticationCode
@@ -422,7 +411,6 @@ public:
 
 // ************** documentation ***************
 
-/// \class BlockCipherDocumentation
 /// \brief Provides Encryption and Decryption typedefs used by derived classes to
 ///    implement a block cipher
 /// \details These objects usually should not be used directly. See CipherModeDocumentation
@@ -436,7 +424,6 @@ struct BlockCipherDocumentation
 	typedef BlockCipher Decryption;
 };
 
-/// \class SymmetricCipherDocumentation
 /// \brief Provides Encryption and Decryption typedefs used by derived classes to
 ///    implement a symmetric cipher
 /// \details Each class derived from this one defines two types, Encryption and Decryption,
@@ -452,7 +439,6 @@ struct SymmetricCipherDocumentation
 	typedef SymmetricCipher Decryption;
 };
 
-/// \class AuthenticatedSymmetricCipherDocumentation
 /// \brief Provides Encryption and Decryption typedefs used by derived classes to
 ///    implement an authenticated encryption cipher
 /// \details Each class derived from this one defines two types, Encryption and Decryption,

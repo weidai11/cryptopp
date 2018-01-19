@@ -33,7 +33,6 @@ protected:
 };
 
 namespace Weak {
-/// \class PanamaHash
 /// \brief Panama hash
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#Panama">Panama Hash</a>
 template <class B = LittleEndian>
@@ -54,7 +53,6 @@ protected:
 };
 }
 
-/// \class HermeticHashFunctionMAC
 /// \brief MAC construction using a hermetic hash function
 template <class T_Hash, class T_Info = T_Hash>
 class HermeticHashFunctionMAC : public AlgorithmImpl<SimpleKeyingInterfaceImpl<TwoBases<MessageAuthenticationCode, VariableKeyLength<32, 0, INT_MAX> > >, T_Info>
@@ -111,7 +109,6 @@ protected:
 };
 
 namespace Weak {
-/// \class PanamaMAC
 /// \brief Panama message authentication code
 template <class B = LittleEndian>
 class PanamaMAC : public HermeticHashFunctionMAC<PanamaHash<B> >
@@ -123,7 +120,6 @@ public:
 };
 }
 
-/// \class PanamaCipherInfo
 /// \brief Panama stream cipher information
 template <class B>
 struct PanamaCipherInfo : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 32>
@@ -131,7 +127,6 @@ struct PanamaCipherInfo : public FixedKeyLength<32, SimpleKeyingInterface::UNIQU
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
 };
 
-/// \class PanamaCipherPolicy
 /// \brief Panama stream cipher operation
 template <class B>
 class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
@@ -148,7 +143,6 @@ protected:
 	FixedSizeSecBlock<word32, 8> m_key;
 };
 
-/// \class PanamaCipher
 /// \brief Panama stream cipher
 /// \sa <a href="http://www.cryptolounge.org/wiki/PANAMA">Panama Stream Cipher</a>
 template <class B = LittleEndian>

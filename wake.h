@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class WAKE_OFB_Info
 /// \brief WAKE stream cipher information
 /// \tparam B Endianness of the stream cipher
 /// \since Crypto++ 1.0
@@ -32,7 +31,6 @@ protected:
 	word32 r3, r4, r5, r6;
 };
 
-/// \class WAKE_Policy
 /// \brief WAKE stream cipher operation
 /// \tparam B Endianness of the stream cipher
 /// \since Crypto++ 1.0
@@ -46,7 +44,6 @@ protected:
 	bool CipherIsRandomAccess() const {return false;}
 };
 
-/// \class WAKE_OFB
 /// \brief WAKE stream cipher
 /// \tparam B Endianness of the stream cipher
 /// \since Crypto++ 1.0

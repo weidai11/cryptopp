@@ -13,7 +13,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class RabinFunction
 /// \brief Rabin trapdoor function using the public key
 /// \since Crypto++ 2.0
 class RabinFunction : public TrapdoorFunction, public PublicKey
@@ -52,7 +51,6 @@ protected:
 	Integer m_n, m_r, m_s;
 };
 
-/// \class InvertibleRabinFunction
 /// \brief Rabin trapdoor function using the private key
 /// \since Crypto++ 2.0
 class InvertibleRabinFunction : public RabinFunction, public TrapdoorFunctionInverse, public PrivateKey

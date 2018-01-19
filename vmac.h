@@ -19,7 +19,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class VMAC_Base
 /// \brief VMAC message authentication code base class
 /// \since Crypto++ 5.5
 class VMAC_Base : public IteratedHashBase<word64, MessageAuthenticationCode>
@@ -64,7 +63,6 @@ protected:
 	unsigned int m_L1KeyLength;
 };
 
-/// \class VMAC
 /// \brief VMAC message authentication code
 /// \tparam T_BlockCipher block cipher
 /// \tparam T_DigestBitSize digest size, in bits

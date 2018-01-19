@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class Base32Encoder
 /// \brief Base32 encodes data using DUDE encoding
 /// \details Converts data to base32 using DUDE encoding. The default code is based on <A HREF="http://www.ietf.org/proceedings/51/I-D/draft-ietf-idn-dude-02.txt">Differential Unicode Domain Encoding (DUDE) (draft-ietf-idn-dude-02.txt)</A>.
 /// \sa Base32Encoder, Base32Decoder, Base32HexEncoder and Base32HexDecoder
@@ -57,7 +56,6 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-/// \class Base32Decoder
 /// \brief Base32 decodes data using DUDE encoding
 /// \details Converts data from base32 using DUDE encoding. The default code is based on <A HREF="http://www.ietf.org/proceedings/51/I-D/draft-ietf-idn-dude-02.txt">Differential Unicode Domain Encoding (DUDE) (draft-ietf-idn-dude-02.txt)</A>.
 /// \sa Base32Encoder, Base32Decoder, Base32HexEncoder and Base32HexDecoder
@@ -94,7 +92,6 @@ private:
 	static const int * CRYPTOPP_API GetDefaultDecodingLookupArray();
 };
 
-/// \class Base32HexEncoder
 /// \brief Base32 encodes data using extended hex
 /// \details Converts data to base32 using extended hex alphabet. The alphabet is different than Base32Encoder.
 /// \sa Base32Encoder, Base32Decoder, Base32HexEncoder and Base32HexDecoder, <A HREF="http://tools.ietf.org/html/rfc4648#page-10">RFC 4648, Base 32 Encoding with Extended Hex Alphabet</A>.
@@ -130,7 +127,6 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters);
 };
 
-/// \class Base32HexDecoder
 /// \brief Base32 decodes data using extended hex
 /// \details Converts data from base32 using extended hex alphabet. The alphabet is different than Base32Decoder.
 /// \sa Base32Encoder, Base32Decoder, Base32HexEncoder and Base32HexDecoder, <A HREF="http://tools.ietf.org/html/rfc4648#page-10">RFC 4648, Base 32 Encoding with Extended Hex Alphabet</A>.

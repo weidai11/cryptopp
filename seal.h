@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class SEAL_Info
 /// \brief SEAL stream cipher information
 /// \tparam B Endianness of the stream cipher
 template <class B = BigEndian>
@@ -20,7 +19,6 @@ struct SEAL_Info : public FixedKeyLength<20, SimpleKeyingInterface::INTERNALLY_G
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == LITTLE_ENDIAN_ORDER ? "SEAL-3.0-LE" : "SEAL-3.0-BE";}
 };
 
-/// \class SEAL_Policy
 /// \brief SEAL stream cipher operation
 /// \tparam B Endianness of the stream cipher
 template <class B = BigEndian>
@@ -42,7 +40,6 @@ private:
 	word32 m_outsideCounter, m_insideCounter;
 };
 
-/// \class SEAL
 /// \brief SEAL stream cipher
 /// \tparam B Endianness of the stream cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/SEAL-3.0-BE">SEAL</a>

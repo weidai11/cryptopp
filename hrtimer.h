@@ -15,7 +15,6 @@ NAMESPACE_BEGIN(CryptoPP)
 	typedef clock_t TimerWord;
 #endif
 
-/// \class TimerBase
 /// \brief Base class for timers
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TimerBase
 {
@@ -40,7 +39,6 @@ private:
 	TimerWord m_start, m_last;
 };
 
-/// \class ThreadUserTimer
 /// \brief Measure CPU time spent executing instructions of this thread (if supported by OS)
 /// \note ThreadUserTimer only works correctly on Windows NT or later desktops and servers.
 /// On Unix-based it reports process time. On Windows Phone and Windows Store it reports wall

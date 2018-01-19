@@ -12,7 +12,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class DH_Domain
 /// \brief Diffie-Hellman domain
 /// \tparam GROUP_PARAMETERS group parameters
 /// \tparam COFACTOR_OPTION cofactor multiplication option

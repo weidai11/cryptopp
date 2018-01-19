@@ -11,7 +11,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \class DMAC_Base
 /// \brief DMAC message authentication code base class
 /// \tparam T class derived from BlockCipherDocumentation
 template <class T>
@@ -39,7 +38,6 @@ private:
 	unsigned int m_counter;
 };
 
-/// \class DMAC
 /// \brief DMAC message authentication code
 /// \tparam T class derived from BlockCipherDocumentation
 /// \sa <A HREF="https://eprint.iacr.org/1997/010">CBC MAC for Real-Time Data Sources (08.15.1997)</A>

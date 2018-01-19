@@ -149,7 +149,6 @@ typedef EnumToType<ByteOrder, LITTLE_ENDIAN_ORDER> LittleEndian;
 /// \brief Provides a constant for BigEndian
 typedef EnumToType<ByteOrder, BIG_ENDIAN_ORDER> BigEndian;
 
-/// \class Exception
 /// \brief Base class for all exceptions thrown by the library
 /// \details All library exceptions directly or indirectly inherit from the Exception class.
 ///   The Exception class itself inherits from std::exception. The library does not use
@@ -250,7 +249,6 @@ protected:
 	int m_errorCode;
 };
 
-/// \class DecodingResult
 /// \brief Returns a decoding results
 struct CRYPTOPP_DLL DecodingResult
 {
@@ -278,7 +276,6 @@ struct CRYPTOPP_DLL DecodingResult
 	size_t messageLength;
 };
 
-/// \class NameValuePairs
 /// \brief Interface for retrieving values given their names
 /// \details This class is used to safely pass a variable number of arbitrarily typed arguments to functions
 ///   and to read values from keys and crypto parameters.
@@ -296,7 +293,6 @@ class NameValuePairs
 public:
 	virtual ~NameValuePairs() {}
 
-	/// \class ValueTypeMismatch
 	/// \brief Thrown when an unexpected type is encountered
 	/// \details Exception thrown when trying to retrieve a value using a different type than expected
 	class CRYPTOPP_DLL ValueTypeMismatch : public InvalidArgument
@@ -454,7 +450,6 @@ public:
 	CRYPTOPP_DLL virtual bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 };
 
-/// \class NullNameValuePairs
 /// \brief Interface for retrieving values given their names
 /// \details This class is used when no names or values are present. Typically a program uses
 ///   g_nullNameValuePairs rather than creating its own NullNameValuePairs object.
@@ -560,7 +555,6 @@ DOCUMENTED_NAMESPACE_END
 
 // ********************************************************
 
-/// \class Clonable
 /// \brief Interface for cloning objects
 /// \note this is \a not implemented by most classes
 /// \sa ClonableImpl, NotCopyable
@@ -577,7 +571,6 @@ public:
 	virtual Clonable* Clone() const {throw NotImplemented("Clone() is not implemented yet.");}	// TODO: make this =0
 };
 
-/// \class Algorithm
 /// \brief Interface for all crypto algorithms
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Algorithm : public Clonable
 {
@@ -603,7 +596,6 @@ public:
 	virtual std::string AlgorithmName() const {return "unknown";}
 };
 
-/// \class SimpleKeyingInterface
 /// \brief Interface for algorithms that take byte strings as keys
 /// \sa FixedKeyLength(), VariableKeyLength(), SameKeyLengthAs(), SimpleKeyingInterfaceImpl()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyingInterface
@@ -902,7 +894,6 @@ public:
 	inline CipherDir GetCipherDirection() const {return IsForwardTransformation() ? ENCRYPTION : DECRYPTION;}
 };
 
-/// \class StreamTransformation
 /// \brief Interface for the data processing portion of stream ciphers
 /// \sa StreamTransformationFilter()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE StreamTransformation : public Algorithm
@@ -1064,7 +1055,6 @@ public:
 	virtual bool IsForwardTransformation() const =0;
 };
 
-/// \class HashTransformation
 /// \brief Interface for hash functions and data processing part of MACs
 /// \details HashTransformation objects are stateful. They are created in an initial state,
 ///   change state as Update() is called, and return to the initial
@@ -1257,7 +1247,6 @@ protected:
 	const Algorithm & GetAlgorithm() const {return *this;}
 };
 
-/// \class AuthenticatedSymmetricCipher
 /// \brief Interface for authenticated encryption modes of operation
 /// \details AuthenticatedSymmetricCipher() provides the interface for one direction
 ///   (encryption or decryption) of a stream cipher or block cipher mode with authentication. The
@@ -1332,7 +1321,6 @@ protected:
 		{CRYPTOPP_UNUSED(headerLength); CRYPTOPP_UNUSED(messageLength); CRYPTOPP_UNUSED(footerLength);}
 };
 
-/// \class RandomNumberGenerator
 /// \brief Interface for random number generators
 /// \details The library provides a number of random number generators, from software based to hardware based generators.
 /// \details All generated values are uniformly distributed over the range specified.
@@ -1428,9 +1416,7 @@ public:
 /// \sa ClassNullRNG, PK_SignatureScheme::IsProbabilistic()
 CRYPTOPP_DLL RandomNumberGenerator & CRYPTOPP_API NullRNG();
 
-/// \class WaitObjectContainer
 class WaitObjectContainer;
-/// \class CallStack
 class CallStack;
 
 /// \brief Interface for objects that can be waited on.
@@ -1605,7 +1591,6 @@ public:
 		virtual size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 			{return Put2(inString, length, messageEnd, blocking);}
 
-		/// \class BlockingInputOnly
 		/// \brief Exception thrown by objects that have \a not implemented nonblocking input processing
 		/// \details BlockingInputOnly inherits from NotImplemented
 		struct BlockingInputOnly : public NotImplemented
@@ -2168,7 +2153,6 @@ private:
 /// \return a reference to a BufferedTransformation object that discards all input
 CRYPTOPP_DLL BufferedTransformation & TheBitBucket();
 
-/// \class CryptoMaterial
 /// \brief Interface for crypto material, such as public and private keys, and crypto parameters
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoMaterial : public NameValuePairs
 {
@@ -2281,7 +2265,6 @@ public:
 #endif
 };
 
-/// \class GeneratableCryptoMaterial
 /// \brief Interface for generatable crypto material, such as private keys and crypto parameters
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GeneratableCryptoMaterial : virtual public CryptoMaterial
 {
@@ -2457,7 +2440,6 @@ public:
 	virtual size_t FixedMaxPlaintextLength() const {return 0;}
 };
 
-/// \class PK_Encryptor
 /// \brief Interface for public-key encryptors
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Encryptor : public PK_CryptoSystem, public PublicKeyAlgorithm
 {
@@ -2493,7 +2475,6 @@ public:
 		BufferedTransformation *attachment=NULLPTR, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
 
-/// \class PK_Decryptor
 /// \brief Interface for public-key decryptors
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Decryptor : public PK_CryptoSystem, public PrivateKeyAlgorithm
 {
@@ -2544,14 +2525,12 @@ public:
 		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
 };
 
-/// \class PK_SignatureScheme
 /// \brief Interface for public-key signers and verifiers
 /// \details This class provides an interface common to signers and verifiers for querying scheme properties
 /// \sa DL_SignatureSchemeBase, TF_SignatureSchemeBase, DL_SignerBase, TF_SignerBase
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_SignatureScheme
 {
 public:
-	/// \class InvalidKeyLength
 	/// \brief Exception throw when the private or public key has a length that can't be used
 	/// \details InvalidKeyLength() may be thrown by any function in this class if the private
 	///   or public key has a length that can't be used
@@ -2561,7 +2540,6 @@ public:
 		InvalidKeyLength(const std::string &message) : Exception(OTHER_ERROR, message) {}
 	};
 
-	/// \class KeyTooShort
 	/// \brief Exception throw when the private or public key is too short to sign or verify
 	/// \details KeyTooShort() may be thrown by any function in this class if the private or public
 	///   key is too short to sign or verify anything
@@ -2623,7 +2601,6 @@ public:
 	virtual bool RecoverablePartFirst() const =0;
 };
 
-/// \class PK_MessageAccumulator
 /// \brief Interface for accumulating messages to be signed or verified
 /// \details Only Update() should be called from the PK_MessageAccumulator() class. No other functions
 ///   inherited from HashTransformation, like DigestSize() and TruncatedFinal(), should be called.
@@ -2642,7 +2619,6 @@ public:
 	}
 };
 
-/// \class PK_Signer
 /// \brief Interface for public-key signers
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Signer : public PK_SignatureScheme, public PrivateKeyAlgorithm
 {
@@ -2702,7 +2678,6 @@ public:
 		const byte *nonrecoverableMessage, size_t nonrecoverableMessageLength, byte *signature) const;
 };
 
-/// \class PK_Verifier
 /// \brief Interface for public-key signature verifiers
 /// \details The Recover* functions throw NotImplemented if the signature scheme does not support
 ///   message recovery.
@@ -2776,7 +2751,6 @@ public:
 		const byte *signature, size_t signatureLength) const;
 };
 
-/// \class SimpleKeyAgreementDomain
 /// \brief Interface for domains of simple key agreement protocols
 /// \details A key agreement domain is a set of parameters that must be shared
 ///   by two parties in a key agreement protocol, along with the algorithms
