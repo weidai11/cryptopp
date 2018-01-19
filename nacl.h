@@ -361,7 +361,7 @@ int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const ui
 /// \param m output byte buffer
 /// \param mlen size of the output byte buffer
 /// \param sm input byte buffer
-/// \param n size of the input byte buffer
+/// \param smlen size of the input byte buffer
 /// \param pk public key
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
@@ -369,8 +369,8 @@ int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const ui
 int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,const uint8_t *pk);
 
 /// \brief Generate a keypair for signing
-/// \param pk public key byte buffer
-/// \param sk private key byte buffer
+/// \param y public key byte buffer
+/// \param x private key byte buffer
 /// \details crypto_sign_keypair() creates an ed25519 keypair.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
