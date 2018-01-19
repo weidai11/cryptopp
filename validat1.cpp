@@ -3262,7 +3262,7 @@ bool ValidateEncoder()
 	// string of '*'. To round trip a string both IsolatedInitialize
 	// must be called and work correctly.
 	std::cout << "\nCustom encoder validation running...\n\n";
-	bool pass1 = true, pass2 = false;
+	bool pass = true;
 
 	int lookup[256];
 	const char alphabet[64+1] =
@@ -3292,10 +3292,10 @@ bool ValidateEncoder()
 	decoder.Put((const byte*) str1.data(), str1.size());
 	decoder.MessageEnd();
 
-	pass1 = (str1 == std::string(expected)) && pass1;
-	pass1 = (str2 == std::string(alphabet, 64)) && pass1;
+	pass = (str1 == std::string(expected)) && pass;
+	pass = (str2 == std::string(alphabet, 64)) && pass;
 
-	std::cout << (pass1 ? "passed:" : "FAILED:");
+	std::cout << (pass ? "passed:" : "FAILED:");
 	std::cout << "  Encode and decode\n";
 
 	// Try forcing an empty message. This is the Monero bug
@@ -3315,14 +3315,11 @@ bool ValidateEncoder()
 		volatile lword size = decoder2.MaxRetrievable();
 		lword shadow = size;
 		CRYPTOPP_UNUSED(shadow);
-
-		pass2 = true;
 	}
 
-	std::cout << (pass2 ? "passed:" : "FAILED:");
-	std::cout << "  0-length message\n";
+	std::cout << "passed:  0-length message\n";
 
-	return pass1 && pass2;
+	return pass;
 }
 
 bool ValidateSHACAL2()
