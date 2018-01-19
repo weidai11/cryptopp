@@ -1,5 +1,5 @@
---- tweetnacl.c	2018-01-18 12:36:44.497870997 -0500
-+++ tweetnacl.cpp	2018-01-18 12:36:44.500871058 -0500
+--- tweetnacl.c	2018-01-19 18:25:34.736456382 -0500
++++ tweetnacl.cpp	2018-01-19 18:25:34.738456422 -0500
 @@ -1,19 +1,33 @@
 -#include "tweetnacl.h"
 -#define FOR(i,n) for (i = 0;i < n;++i)
@@ -47,7 +47,7 @@
    gf1 = {1},
    _121665 = {0xDB41,1},
    D = {0x78a3, 0x1359, 0x4dca, 0x75eb, 0xd8ab, 0x4141, 0x0a4d, 0x0070, 0xe898, 0x7779, 0x4079, 0x8cc7, 0xfe73, 0x2b6f, 0x6cee, 0x5203},
-@@ -22,119 +36,126 @@
+@@ -22,119 +36,128 @@
    Y = {0x6658, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666, 0x6666},
    I = {0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83};
 
@@ -97,13 +97,16 @@
  }
 
 -static int vn(const u8 *x,const u8 *y,int n)
++// Extra cast due to Coverity CID 186949
 +static int verify_n(const uint8_t *x,const uint8_t *y,uint32_t n)
  {
 -  u32 i,d = 0;
 -  FOR(i,n) d |= x[i]^y[i];
+-  return (1 & ((d - 1) >> 8)) - 1;
 +  uint32_t i,d = 0;
 +  for(i=0; i<n; ++i) d |= x[i]^y[i];
-   return (1 & ((d - 1) >> 8)) - 1;
++  const int32_t v = (int32_t) d;
++  return (1 & ((uint32_t)(v - 1) >> 8)) - 1;
  }
 
 -int crypto_verify_16(const u8 *x,const u8 *y)
@@ -213,7 +216,7 @@
        z[i] = u;
        u >>= 8;
      }
-@@ -144,50 +165,50 @@
+@@ -144,50 +167,50 @@
    }
    if (b) {
      crypto_core_salsa20(x,z,k,sigma);
@@ -278,7 +281,7 @@
    r[3]&=15;
    r[4]&=252;
    r[7]&=15;
-@@ -197,25 +218,25 @@
+@@ -197,25 +220,25 @@
    r[15]&=15;
 
    while (n > 0) {
@@ -310,7 +313,7 @@
        u += h[j];
        h[j] = u & 255;
        u >>= 8;
-@@ -223,84 +244,84 @@
+@@ -223,84 +246,84 @@
      u += h[16]; h[16] = u;
    }
 
@@ -418,7 +421,7 @@
      m[0]=t[0]-0xffed;
      for(i=1;i<15;i++) {
        m[i]=t[i]-0xffff-((m[i-1]>>16)&1);
-@@ -311,7 +332,7 @@
+@@ -311,7 +334,7 @@
      m[14]&=0xffff;
      sel25519(t,m,1-b);
    }
@@ -427,7 +430,7 @@
      o[2*i]=t[i]&0xff;
      o[2*i+1]=t[i]>>8;
    }
-@@ -319,88 +340,123 @@
+@@ -319,88 +342,123 @@
 
  static int neq25519(const gf a, const gf b)
  {
@@ -578,7 +581,7 @@
      b[i]=x[i];
      d[i]=a[i]=c[i]=0;
    }
-@@ -430,7 +486,7 @@
+@@ -430,7 +488,7 @@
      sel25519(a,b,r);
      sel25519(c,d,r);
    }
@@ -587,7 +590,7 @@
      x[i+16]=a[i];
      x[i+32]=c[i];
      x[i+48]=b[i];
-@@ -442,113 +498,138 @@
+@@ -442,113 +500,138 @@
    return 0;
  }
 
@@ -639,27 +642,27 @@
 
 -int crypto_box(u8 *c,const u8 *m,u64 d,const u8 *n,const u8 *y,const u8 *x)
 +int crypto_box(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
++{
++  uint8_t k[32];
++  if (crypto_box_beforenm(k, y, x) != 0) return -1;
++  return crypto_box_afternm(c, m, d, n, k);
++}
++
++int crypto_box_unchecked(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
  {
 -  u8 k[32];
 -  crypto_box_beforenm(k,y,x);
 -  return crypto_box_afternm(c,m,d,n,k);
 +  uint8_t k[32];
-+  if (crypto_box_beforenm(k, y, x) != 0) return -1;
++  crypto_box_beforenm_unchecked(k, y, x);
 +  return crypto_box_afternm(c, m, d, n, k);
  }
 
 -int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
-+int crypto_box_unchecked(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
++int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
  {
 -  u8 k[32];
 -  crypto_box_beforenm(k,y,x);
-+  uint8_t k[32];
-+  crypto_box_beforenm_unchecked(k, y, x);
-+  return crypto_box_afternm(c, m, d, n, k);
-+}
-+
-+int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
-+{
 +  uint8_t k[32];
 +  if(crypto_box_beforenm(k,y,x) != 0) return -1;
    return crypto_box_open_afternm(m,c,d,n,k);
@@ -782,7 +785,7 @@
    0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
    0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
    0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
-@@ -559,20 +640,20 @@
+@@ -559,20 +642,20 @@
    0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79
  } ;
 
@@ -809,7 +812,7 @@
    x[n] = 128;
 
    n = 256-128*(n<112);
-@@ -580,12 +661,12 @@
+@@ -580,12 +663,12 @@
    ts64(x+n-8,b<<3);
    crypto_hashblocks(h,x,n);
 
@@ -824,7 +827,7 @@
  {
    gf a,b,c,d,t,e,f,g,h;
 
-@@ -610,14 +691,14 @@
+@@ -610,14 +693,14 @@
    M(p[3], e, h);
  }
 
@@ -842,7 +845,7 @@
  {
    gf tx, ty, zi;
    inv25519(zi, p[2]);
-@@ -627,7 +708,7 @@
+@@ -627,7 +710,7 @@
    r[31] ^= par25519(tx) << 7;
  }
 
@@ -851,7 +854,7 @@
  {
    int i;
    set25519(p[0],gf0);
-@@ -635,7 +716,7 @@
+@@ -635,7 +718,7 @@
    set25519(p[2],gf1);
    set25519(p[3],gf0);
    for (i = 255;i >= 0;--i) {
@@ -860,7 +863,7 @@
      cswap(p,q,b);
      add(q,p);
      add(p,p);
-@@ -643,7 +724,7 @@
+@@ -643,7 +726,7 @@
    }
  }
 
@@ -869,7 +872,7 @@
  {
    gf q[4];
    set25519(q[0],X);
-@@ -653,9 +734,9 @@
+@@ -653,9 +736,9 @@
    scalarmult(p,q,s);
  }
 
@@ -881,7 +884,7 @@
    gf p[4];
    int i;
 
-@@ -668,50 +749,50 @@
+@@ -668,50 +751,50 @@
    scalarbase(p,d);
    pack(pk,p);
 
@@ -947,7 +950,7 @@
    gf p[4];
 
    crypto_hash(d, sk, 32);
-@@ -720,27 +801,27 @@
+@@ -720,27 +803,27 @@
    d[31] |= 64;
 
    *smlen = n+64;
@@ -982,7 +985,7 @@
  {
    gf t, chk, num, den, den2, den4, den6;
    set25519(r[2],gf1);
-@@ -776,10 +857,10 @@
+@@ -776,10 +859,10 @@
    return 0;
  }
 
@@ -995,7 +998,7 @@
    gf p[4],q[4];
 
    *mlen = -1;
-@@ -787,8 +868,8 @@
+@@ -787,8 +870,8 @@
 
    if (unpackneg(q,pk)) return -1;
 
@@ -1006,7 +1009,7 @@
    crypto_hash(h,m,n);
    reduce(h);
    scalarmult(p,q,h);
-@@ -799,11 +880,17 @@
+@@ -799,11 +882,16 @@
 
    n -= 64;
    if (crypto_verify_32(sm, t)) {
@@ -1025,4 +1028,3 @@
 +NAMESPACE_END  // NaCl
 +
 +#endif  // NO_OS_DEPENDENCE
-+

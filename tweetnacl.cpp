@@ -72,11 +72,13 @@ static void ts64(uint8_t *x,uint64_t u)
   for (i = 7;i >= 0;--i) { x[i] = u; u >>= 8; }
 }
 
+// Extra cast due to Coverity CID 186949
 static int verify_n(const uint8_t *x,const uint8_t *y,uint32_t n)
 {
   uint32_t i,d = 0;
   for(i=0; i<n; ++i) d |= x[i]^y[i];
-  return (1 & ((d - 1) >> 8)) - 1;
+  const int32_t v = (int32_t) d;
+  return (1 & ((uint32_t)(v - 1) >> 8)) - 1;
 }
 
 int crypto_verify_16(const uint8_t *x,const uint8_t *y)
