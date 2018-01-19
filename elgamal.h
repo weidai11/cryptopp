@@ -121,7 +121,7 @@ protected:
 /// \details The ElGamalKeys class used DL_PrivateKey_GFP_OldFormat and DL_PublicKey_GFP_OldFormat
 ///   for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
 ///   At Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and X509 encodings.
-/// \sa Commit XXX
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/commit/a5a684d92986e8e2">Commit a5a684d92986e8e2</A>
 struct ElGamalKeys
 {
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
