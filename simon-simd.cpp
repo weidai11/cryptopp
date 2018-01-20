@@ -18,10 +18,6 @@
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# include <arm_neon.h>
-#endif
-
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <pmmintrin.h>
 # include <tmmintrin.h>
@@ -34,6 +30,17 @@
 #if defined(__AVX512F__) && defined(__AVX512VL__)
 # define CRYPTOPP_AVX512_ROTATE 1
 # include <immintrin.h>
+#endif
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# include <arm_neon.h>
+#endif
+
+// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
+// compilers don't follow ACLE conventions for the include.
+#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include <stdint.h>
+# include <arm_acle.h>
 #endif
 
 // https://www.spinics.net/lists/gcchelp/msg47735.html and

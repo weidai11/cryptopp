@@ -108,21 +108,21 @@ case "$THE_ARCH" in
 	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi"
 	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-march=armv5te -mtune=xscale -mthumb -msoft-float -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-march=armv5te -mtune=xscale -mthumb -msoft-float -DCRYPTOPP_DISABLE_ASM -funwind-tables -fexceptions -frtti"
 	;;
   armv7a|armv7-a|armeabi-v7a)
 	TOOLCHAIN_ARCH="arm-linux-androideabi"
 	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
 	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -DCRYPTOPP_DISABLE_ASM -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
 	;;
   hard|armv7a-hard|armeabi-v7a-hard)
 	TOOLCHAIN_ARCH="arm-linux-androideabi"
 	TOOLCHAIN_NAME="arm-linux-androideabi"
 	AOSP_ABI="armeabi-v7a"
 	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1 -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti -Wl,--no-warn-mismatch -Wl,-lm_hard"
+	AOSP_FLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1 -march=armv7-a -mfpu=vfpv3-d16 -DCRYPTOPP_DISABLE_ASM -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti -Wl,--no-warn-mismatch -Wl,-lm_hard"
 	;;
   neon|armv7a-neon)
 	TOOLCHAIN_ARCH="arm-linux-androideabi"

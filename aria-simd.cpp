@@ -10,16 +10,19 @@
 #include "config.h"
 #include "misc.h"
 
-#if !(defined(__ARM_NEON) || defined(_MSC_VER))
-# undef CRYPTOPP_ARM_NEON_AVAILABLE
+#if (CRYPTOPP_SSSE3_AVAILABLE)
+# include <tmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>
 #endif
 
-#if (CRYPTOPP_SSSE3_AVAILABLE)
-# include <tmmintrin.h>
+// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
+// compilers don't follow ACLE conventions for the include.
+#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include <stdint.h>
+# include <arm_acle.h>
 #endif
 
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670

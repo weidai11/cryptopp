@@ -11,22 +11,21 @@
 #include "sha.h"
 #include "misc.h"
 
-// We set CRYPTOPP_ARM_SHA_AVAILABLE based on compiler version.
-// If the crypto is not available, then we have to disable it here.
-#if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
-# undef CRYPTOPP_ARM_SHA_AVAILABLE
-#endif
-
 #if (CRYPTOPP_SHANI_AVAILABLE)
 # include <nmmintrin.h>
 # include <immintrin.h>
 #endif
 
+// Use ARMv8 rather than NEON due to compiler inconsistencies
 #if (CRYPTOPP_ARM_SHA_AVAILABLE)
 # include <arm_neon.h>
-# if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
-#  include <arm_acle.h>
-# endif
+#endif
+
+// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
+// compilers don't follow ACLE conventions for the include.
+#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include <stdint.h>
+# include <arm_acle.h>
 #endif
 
 #if CRYPTOPP_POWER8_SHA_AVAILABLE

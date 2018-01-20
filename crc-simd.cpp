@@ -14,10 +14,13 @@
 # include <nmmintrin.h>
 #endif
 
+// Use ARMv8 rather than NEON due to compiler inconsistencies
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 # include <arm_neon.h>
 #endif
 
+// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
+// compilers don't follow ACLE conventions for the include.
 #if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
