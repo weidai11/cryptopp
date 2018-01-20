@@ -861,7 +861,7 @@ static int unpackneg(gf r[4],const uint8_t p[32])
 
 int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,const uint8_t *pk)
 {
-  int i;
+  uint32_t i;
   uint8_t t[32],h[64];
   gf p[4],q[4];
 
@@ -895,5 +895,6 @@ NAMESPACE_END  // CryptoPP
 NAMESPACE_END  // NaCl
 
 #endif  // NO_OS_DEPENDENCE
+
 
 

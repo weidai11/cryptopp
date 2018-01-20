@@ -1,5 +1,5 @@
---- tweetnacl.c	2018-01-19 20:07:33.246037873 -0500
-+++ tweetnacl.cpp	2018-01-19 20:07:33.247037893 -0500
+--- tweetnacl.c	2018-01-20 17:05:17.670515984 -0500
++++ tweetnacl.cpp	2018-01-20 17:05:17.671515970 -0500
 @@ -1,19 +1,33 @@
 -#include "tweetnacl.h"
 -#define FOR(i,n) for (i = 0;i < n;++i)
@@ -526,11 +526,14 @@
    }
 -  FOR(a,16) o[a]=c[a];
 +  for(a=0; a<16; ++a) o[a]=c[a];
-+}
-+
+ }
+
+-int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
 +// https://github.com/jedisct1/libsodium/blob/master/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c
 +static int has_small_order(const uint8_t s[32])
-+{
+ {
+-  u8 z[32];
+-  i64 x[80],r,i;
 +  CRYPTOPP_ALIGN_DATA(16)
 +  const uint8_t blacklist[][32] = {
 +    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
@@ -561,13 +564,10 @@
 +  }
 +
 +  return (int) ((k >> 8) & 1);
- }
-
--int crypto_scalarmult(u8 *q,const u8 *n,const u8 *p)
++}
++
 +int crypto_scalarmult(uint8_t *q,const uint8_t *n,const uint8_t *p)
- {
--  u8 z[32];
--  i64 x[80],r,i;
++{
 +  uint8_t z[32];
 +  int64_t x[80],r,i;
    gf a,b,c,d,e,f;
@@ -649,29 +649,22 @@
 +}
 +
 +int crypto_box_unchecked(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
-+{
-+  uint8_t k[32];
-+  crypto_box_beforenm_unchecked(k, y, x);
-+  return crypto_box_afternm(c, m, d, n, k);
-+}
-+
-+int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
  {
 -  u8 k[32];
 -  crypto_box_beforenm(k,y,x);
 -  return crypto_box_afternm(c,m,d,n,k);
 +  uint8_t k[32];
-+  if(crypto_box_beforenm(k,y,x) != 0) return -1;
-+  return crypto_box_open_afternm(m,c,d,n,k);
++  crypto_box_beforenm_unchecked(k, y, x);
++  return crypto_box_afternm(c, m, d, n, k);
  }
 
 -int crypto_box_open(u8 *m,const u8 *c,u64 d,const u8 *n,const u8 *y,const u8 *x)
-+int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
++int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
  {
 -  u8 k[32];
 -  crypto_box_beforenm(k,y,x);
 +  uint8_t k[32];
-+  crypto_box_beforenm_unchecked(k,y,x);
++  if(crypto_box_beforenm(k,y,x) != 0) return -1;
    return crypto_box_open_afternm(m,c,d,n,k);
  }
 
@@ -705,6 +698,13 @@
 -  0x06f067aa72176fbaULL, 0x0a637dc5a2c898a6ULL, 0x113f9804bef90daeULL, 0x1b710b35131c471bULL,
 -  0x28db77f523047d84ULL, 0x32caab7b40c72493ULL, 0x3c9ebe0a15c9bebcULL, 0x431d67c49c100d4cULL,
 -  0x4cc5d4becb3e42b6ULL, 0x597f299cfc657e2aULL, 0x5fcb6fab3ad6faecULL, 0x6c44198c4a475817ULL
++int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
++{
++  uint8_t k[32];
++  crypto_box_beforenm_unchecked(k,y,x);
++  return crypto_box_open_afternm(m,c,d,n,k);
++}
++
 +static uint64_t R(uint64_t x,int c) { return (x >> c) | (x << (64 - c)); }
 +static uint64_t Ch(uint64_t x,uint64_t y,uint64_t z) { return (x & y) ^ (~x & z); }
 +static uint64_t Maj(uint64_t x,uint64_t y,uint64_t z) { return (x & y) ^ (x & z) ^ (y & z); }
@@ -992,8 +992,9 @@
 -int crypto_sign_open(u8 *m,u64 *mlen,const u8 *sm,u64 n,const u8 *pk)
 +int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,const uint8_t *pk)
  {
-   int i;
+-  int i;
 -  u8 t[32],h[64];
++  uint32_t i;
 +  uint8_t t[32],h[64];
    gf p[4],q[4];
 
@@ -1009,7 +1010,7 @@
    crypto_hash(h,m,n);
    reduce(h);
    scalarmult(p,q,h);
-@@ -799,11 +882,18 @@
+@@ -799,11 +882,19 @@
 
    n -= 64;
    if (crypto_verify_32(sm, t)) {
@@ -1028,5 +1029,6 @@
 +NAMESPACE_END  // NaCl
 +
 +#endif  // NO_OS_DEPENDENCE
++
 +
 +
