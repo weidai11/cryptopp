@@ -12,7 +12,7 @@
 
 // Don't destroy const time properties when squashing warnings.
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4242 4244 4245)
+# pragma warning(disable: 4146 4242 4244 4245)
 #endif
 
 #ifndef CRYPTOPP_DISABLE_NACL
@@ -895,3 +895,5 @@ NAMESPACE_END  // CryptoPP
 NAMESPACE_END  // NaCl
 
 #endif  // NO_OS_DEPENDENCE
+
+
