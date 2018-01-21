@@ -3,6 +3,7 @@
 //           FHMQV provided by Uri Blumenthal.
 
 #include "pch.h"
+#include "config.h"
 #include "mqv.h"
 #include "hmqv.h"
 #include "fhmqv.h"

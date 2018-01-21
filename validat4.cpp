@@ -32,7 +32,7 @@
 #endif
 
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4505 4355)
+# pragma warning(disable: 4610 4510 4505 4355)
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -425,7 +425,7 @@ bool TestCryptoSign()
         uint64_t s = STDMIN(smlen, (uint64_t)crypto_sign_BYTES);
         pass = (s >= crypto_sign_BYTES) && pass;
 
-        fail = std::memcmp(sm, data.sig, s) != 0;
+        fail = std::memcmp(sm, data.sig, (size_t)s) != 0;
         pass = !fail && pass;
 
         uint64_t rmlen;
@@ -433,7 +433,7 @@ bool TestCryptoSign()
         fail = (rc != 0); pass = !fail && pass;
 
         pass = (l == rmlen) && pass;
-        fail = std::memcmp(m, rm, STDMIN(l, rmlen)) != 0;
+        fail = std::memcmp(m, rm, (size_t)STDMIN(l, rmlen)) != 0;
         pass = !fail && pass;
     }
 
@@ -470,7 +470,7 @@ bool TestCryptoSignKeys()
         if(mlen && rmlen)
         {
             pass = (mlen == rmlen) && pass;
-            fail = std::memcmp(m, rm, STDMIN(mlen, rmlen)) != 0;
+            fail = std::memcmp(m, rm, (size_t)STDMIN(mlen, rmlen)) != 0;
             pass = !fail && pass;
         }
 

@@ -11,6 +11,10 @@
 // find copies  of the Programmer's manual, Cryptography Research Inc audit
 // report, and other goodies at http://www.cryptopp.com/wiki/VIA_Padlock.
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4702)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 PadlockRNG::PadlockRNG(word32 divisor)

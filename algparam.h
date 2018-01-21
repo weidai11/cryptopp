@@ -1,7 +1,6 @@
 // algparam.h - originally written and placed in the public domain by Wei Dai
 
-/// \file
-/// \headerfile algparam.h
+/// \file algparam.h
 /// \brief Classes for working with NameValuePairs
 
 
@@ -10,14 +9,6 @@
 
 #include "config.h"
 #include "cryptlib.h"
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(push)
-# pragma warning(disable: 4231 4275)
-# if (CRYPTOPP_MSC_VERSION >= 1400)
-#  pragma warning(disable: 6011 6386 28193)
-# endif
-#endif
 
 #include "smartptr.h"
 #include "secblock.h"
@@ -515,11 +506,6 @@ AlgorithmParameters MakeParameters(const char *name, const T &value, bool throwI
 #define CRYPTOPP_GET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Get##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY(name)		(Name::name(), &ThisClass::Set##name)
 #define CRYPTOPP_SET_FUNCTION_ENTRY2(name1, name2)	(Name::name1(), Name::name2(), &ThisClass::Set##name1##And##name2)
-
-// TODO: fix 6011 when the API/ABI can change
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-# pragma warning(pop)
-#endif
 
 NAMESPACE_END
 
