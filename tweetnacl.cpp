@@ -5,7 +5,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "nacl.h"
+#include "naclite.h"
 #include "misc.h"
 #include "osrng.h"
 #include "stdcpp.h"

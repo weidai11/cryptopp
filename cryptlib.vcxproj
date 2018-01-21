@@ -438,7 +438,7 @@
     <ClInclude Include="modexppc.h" />
     <ClInclude Include="mqueue.h" />
     <ClInclude Include="mqv.h" />
-    <ClInclude Include="nacl.h" />
+    <ClInclude Include="naclite.h" />
     <ClInclude Include="nbtheory.h" />
     <ClInclude Include="network.h" />
     <ClInclude Include="nr.h" />

@@ -1,9 +1,9 @@
-// nacl.h - written and placed in the public domain by Jeffrey Walton
+// naclite.h - written and placed in the public domain by Jeffrey Walton
 //          based on public domain NaCl source code written by
 //          Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen,
 //          Tanja Lange, Peter Schwabe and Sjaak Smetsers.
 
-/// \file nacl.h
+/// \file naclite.h
 /// \brief Crypto++ interface to TweetNaCl library (20140917)
 /// \details TweetNaCl is a compact reimplementation of the NaCl library by
 ///   Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen, Tanja Lange,

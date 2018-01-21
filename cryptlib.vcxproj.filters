@@ -714,7 +714,7 @@
     <ClInclude Include="nbtheory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="nacl.h">
+    <ClInclude Include="naclite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="network.h">
