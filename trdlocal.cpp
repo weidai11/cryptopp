@@ -14,6 +14,10 @@
 #include <windows.h>
 #endif
 
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wc++11-compat"
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 ThreadLocalStorage::Err::Err(const std::string& operation, int error)
