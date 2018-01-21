@@ -83,7 +83,8 @@ endif
 ifeq ($(IS_ANDROID),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-android.sh'
   CXXFLAGS += $(AOSP_FLAGS) -DANDROID --sysroot=$(AOSP_SYSROOT)
-  CXXFLAGS += -Wa,--noexecstack -I$(AOSP_STL_INC)
+  CXXFLAGS += -Wa,--noexecstack -I$(AOSP_STL_INC) -I$(AOSP_SYS_ARCH_INC) -I$(AOSP_SYS_INC)
+  LDFLAGS += --sysroot=$(AOSP_LD_SYSROOT)
 
   # c++config.h shows up in odd places at times.
   ifneq ($(AOSP_BITS_INC),)

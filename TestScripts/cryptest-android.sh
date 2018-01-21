@@ -9,36 +9,54 @@
 #
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
+set +e
 
-PLATFORMS=(armeabi armeabi-v7a armeabi-v7a-hard armv7a-neon aarch64 mipsel x86 x86_64)
-RUNTIMES=(gnu-static gnu-shared llvm-static llvm-shared stlport-static stlport-shared)
+if [ -z "${PLATFORM-}" ]; then
+	PLATFORMS=(armeabi armeabi-v7a armv7a-neon aarch64 mipsel mipsel64 x86 x86_64)
+else
+	PLATFORMS=(${PLATFORM})
+fi
+RUNTIMES=(gnu-static gnu-shared stlport-static stlport-shared) #llvm-static llvm-shared
 for platform in ${PLATFORMS[@]}
 do
 	for runtime in ${RUNTIMES[@]}
 	do
 		make -f GNUmakefile-cross distclean > /dev/null 2>&1
 
-		MESSAGE="Testing for Android support of $platform using $runtime"
-		LEN=${#MESSAGE}
-		HEADER=$(seq -f "*" -s '' $LEN)
-
 		echo
-		echo "$HEADER"
-		echo "$MESSAGE"
+		echo "===================================================================="
+		echo "Testing for Android support of $platform using $runtime"
 
 		# Test if we can set the environment for the platform
-		./setenv-android.sh "$platform" "$runtime" > /dev/null 2>&1
+		./setenv-android.sh "$platform" "$runtime"
 
 		if [ "$?" -eq "0" ]; then
 			echo
 			echo "Building for $platform using $runtime..."
 			echo
 
-			. ./setenv-android.sh "$platform" "$runtime"
-			make -f GNUmakefile-cross static dynamic cryptest.exe
+			# run in subshell to not keep any env vars
+			(
+				. ./setenv-android.sh "$platform" "$runtime" > /dev/null 2>&1
+				make -f GNUmakefile-cross static dynamic cryptest.exe
+				if [ "$?" -eq "0" ]; then
+					echo "$platform:$runtime ==> SUCCESSFUL" >> /tmp/build.log
+				else
+					echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
+					touch /tmp/build.failed
+				fi
+			)
 		else
 			echo
-			echo "$platform not supported by Android"
+			echo "$platform with $runtime not supported by Android"
+			echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
+			touch /tmp/build.failed
 		fi
 	done
 done
+
+cat /tmp/build.log
+# let the script fail if any of the builds failed
+if [ -f /tmp/build.failed ]; then
+	exit 1
+fi
