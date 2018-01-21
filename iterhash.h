@@ -16,6 +16,10 @@
 # endif
 #endif
 
+// GCC cast warning
+#define HashWordPtr(x) ((HashWordType*)(void*)(x))
+#define ConstHashWordPtr(x) ((const HashWordType*)(const void*)(x))
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Exception thrown when trying to hash more data than is allowed by a hash function

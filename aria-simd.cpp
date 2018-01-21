@@ -29,6 +29,10 @@
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
+// GCC cast warning
+#define UINT32_CAST(x) ((uint32_t *)(void *)(x))
+#define CONST_UINT32_CAST(x) ((const uint32_t *)(const void *)(x))
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
 
@@ -58,7 +62,7 @@ inline void ARIA_GSRK_NEON(const uint32x4_t X, const uint32x4_t Y, byte RK[16])
 	static const unsigned int Q2 = (3-(N/32)) % 4;
 	static const unsigned int R = N % 32;
 
-	vst1q_u32(reinterpret_cast<uint32_t*>(RK),
+	vst1q_u32(UINT32_CAST(RK),
 		veorq_u32(X, veorq_u32(
 			vshrq_n_u32(vextq_u32(Y, Y, Q1), R),
 			vshlq_n_u32(vextq_u32(Y, Y, Q2), 32-R))));
@@ -66,10 +70,10 @@ inline void ARIA_GSRK_NEON(const uint32x4_t X, const uint32x4_t Y, byte RK[16])
 
 void ARIA_UncheckedSetKey_Schedule_NEON(byte* rk, word32* ws, unsigned int keylen)
 {
-	const uint32x4_t w0 = vld1q_u32((const uint32_t*)(ws+ 0));
-	const uint32x4_t w1 = vld1q_u32((const uint32_t*)(ws+ 8));
-	const uint32x4_t w2 = vld1q_u32((const uint32_t*)(ws+12));
-	const uint32x4_t w3 = vld1q_u32((const uint32_t*)(ws+16));
+	const uint32x4_t w0 = vld1q_u32(CONST_UINT32_CAST(ws+ 0));
+	const uint32x4_t w1 = vld1q_u32(CONST_UINT32_CAST(ws+ 8));
+	const uint32x4_t w2 = vld1q_u32(CONST_UINT32_CAST(ws+12));
+	const uint32x4_t w3 = vld1q_u32(CONST_UINT32_CAST(ws+16));
 
 	ARIA_GSRK_NEON<19>(w0, w1, rk +   0);
 	ARIA_GSRK_NEON<19>(w1, w2, rk +  16);
@@ -100,9 +104,9 @@ void ARIA_UncheckedSetKey_Schedule_NEON(byte* rk, word32* ws, unsigned int keyle
 
 void ARIA_ProcessAndXorBlock_Xor_NEON(const byte* xorBlock, byte* outBlock)
 {
-	vst1q_u32(reinterpret_cast<uint32_t*>(outBlock), veorq_u32(
-		vld1q_u32(reinterpret_cast<const uint32_t*>(outBlock)),
-		vld1q_u32(reinterpret_cast<const uint32_t*>(xorBlock))));
+	vst1q_u32(UINT32_CAST(outBlock), veorq_u32(
+		vld1q_u32(CONST_UINT32_CAST(outBlock)),
+		vld1q_u32(CONST_UINT32_CAST(xorBlock))));
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE

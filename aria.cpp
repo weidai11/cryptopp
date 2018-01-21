@@ -15,6 +15,10 @@
 # define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
 #endif
 
+// GCC cast warning
+#define UINT32_CAST(x) ((uint32_t *)(void *)(x))
+#define CONST_UINT32_CAST(x) ((const uint32_t *)(const void *)(x))
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
 
@@ -97,10 +101,10 @@ inline void ARIA_GSRK(const word32 X[4], const word32 Y[4], byte RK[16])
 	// MSVC is not generating a "rotate immediate". Constify to help it along.
 	static const unsigned int Q = 4-(N/32);
 	static const unsigned int R = N % 32;
-	reinterpret_cast<word32*>(RK)[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
-	reinterpret_cast<word32*>(RK)[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
-	reinterpret_cast<word32*>(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
-	reinterpret_cast<word32*>(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
+	UINT32_CAST(RK)[0] = (X[0]) ^ ((Y[(Q  )%4])>>R) ^ ((Y[(Q+3)%4])<<(32-R));
+	UINT32_CAST(RK)[1] = (X[1]) ^ ((Y[(Q+1)%4])>>R) ^ ((Y[(Q  )%4])<<(32-R));
+	UINT32_CAST(RK)[2] = (X[2]) ^ ((Y[(Q+2)%4])>>R) ^ ((Y[(Q+1)%4])<<(32-R));
+	UINT32_CAST(RK)[3] = (X[3]) ^ ((Y[(Q+3)%4])>>R) ^ ((Y[(Q+2)%4])<<(32-R));
 }
 
 void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const NameValuePairs &params)
@@ -213,7 +217,7 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		rk = m_rk.data();
 		r = R; q = Q;
 
-		a=reinterpret_cast<word32*>(rk); s=m_w.data()+24; z=a+r*4;
+		a=UINT32_CAST(rk); s=m_w.data()+24; z=a+r*4;
 		::memcpy(t, a, 16); ::memcpy(a, z, 16); ::memcpy(z, t, 16);
 
 		a+=4; z-=4;
@@ -314,7 +318,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 		outBlock[14] = (byte)(S1[ARIA_BRF(t[3],1)]   );
 		outBlock[15] = (byte)(S2[ARIA_BRF(t[3],0)]   );
 
-		t = reinterpret_cast<word32*>(outBlock);
+		t = UINT32_CAST(outBlock);
 		BigEndianBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]);
 #endif
 
