@@ -14,4 +14,4 @@ echo y | $HOME/android/sdk/tools/bin/sdkmanager --update > /dev/null
 for package in "ndk-bundle"; do
 	echo install android $package
 	echo y | $HOME/android/sdk/tools/bin/sdkmanager "$package" > /dev/null
-done 
+done

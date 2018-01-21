@@ -32,10 +32,6 @@ env:
     - BUILD_MODE="debug"
     - BUILD_MODE="asan"
     - BUILD_MODE="ubsan"
-    - BUILD_MODE="ios-arm"
-    - BUILD_MODE="ios-arm64"
-    - BUILD_MODE="ios-watch"
-    - BUILD_MODE="ios-tv"
 
 matrix:
 
@@ -88,18 +84,21 @@ matrix:
       env:
         - BUILD_MODE=android
         - PLATFORM=x86_64
-    - os: osx
-      env:
-        - BUILD_MODE=ios
-        - PLATFORM=iPhoneOS
-    - os: osx
-      env:
-        - BUILD_MODE=ios
-        - PLATFORM=WatchOS
-    - os: osx
-      env:
-        - BUILD_MODE=ios
-        - PLATFORM=AppleTVOS
+
+    # Travis infrastructure problems, Issue 570
+    # Re-enable when OS X and iOS improves
+    #- os: osx
+    #  env:
+    #    - BUILD_MODE=ios
+    #    - PLATFORM=iPhoneOS
+    #- os: osx
+    #  env:
+    #    - BUILD_MODE=ios
+    #    - PLATFORM=WatchOS
+    #- os: osx
+    #  env:
+    #    - BUILD_MODE=ios
+    #    - PLATFORM=AppleTVOS
 
 before_install:
   - |
