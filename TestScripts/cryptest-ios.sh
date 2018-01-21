@@ -10,7 +10,12 @@
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
-PLATFORMS=(iPhoneOS iPhoneSimulator WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
+if [ -z "${PLATFORM-}" ]; then
+	PLATFORMS=(iPhoneOS iPhoneSimulator WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
+else
+	PLATFORMS=(${PLATFORM})
+fi
+
 for platform in ${PLATFORMS[@]}
 do
 	make -f GNUmakefile-cross distclean > /dev/null 2>&1

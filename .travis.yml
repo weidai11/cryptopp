@@ -51,15 +51,9 @@ matrix:
     - os: osx
       compiler: clang
       env: BUILD_MODE="ubsan"
-    # No iOS builds on Linux
-    - os: linux
-      env: BUILD_MODE="ios-arm"
-    - os: linux
-      env: BUILD_MODE="ios-arm64"
-    - os: linux
-      env: BUILD_MODE="ios-watch"
-    - os: linux
-      env: BUILD_MODE="ios-tv"
+    # Travis infrastructure problems, Issue 570
+    # Re-enable when OS X and iOS improves
+    - os: osx
 
   include:
     - os: linux
@@ -94,11 +88,18 @@ matrix:
       env:
         - BUILD_MODE=android
         - PLATFORM=x86_64
-
-  allow_failures:
     - os: osx
-      env: BUILD_MODE="ios-watch"
-
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=WatchOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVOS
 
 before_install:
   - |
@@ -108,22 +109,9 @@ before_install:
 
 script:
   - |
-    if [[ "$BUILD_MODE" == "ios-arm" ]]; then
+    if [[ "$BUILD_MODE" == "ios" ]]; then
         cp ./TestScripts/setenv-ios.sh .
-        . ./setenv-ios.sh arm
-        make -f GNUmakefile-cross -j "$BUILD_JOBS"
-    elif [[ "$BUILD_MODE" == "ios-arm64" ]]; then
-        cp ./TestScripts/setenv-ios.sh .
-        . ./setenv-ios.sh arm64 -j "$BUILD_JOBS"
-        make -f GNUmakefile-cross
-    elif [[ "$BUILD_MODE" == "ios-watch" ]]; then
-        cp ./TestScripts/setenv-ios.sh .
-        . ./setenv-ios.sh watch
-        make -f GNUmakefile-cross -j "$BUILD_JOBS"
-    elif [[ "$BUILD_MODE" == "ios-tv" ]]; then
-        cp ./TestScripts/setenv-ios.sh .
-        . ./setenv-ios.sh tv
-        make -f GNUmakefile-cross -j "$BUILD_JOBS"
+        TestScripts/cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
         cp ./TestScripts/setenv-android.sh .
         TestScripts/cryptest-android.sh
