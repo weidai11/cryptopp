@@ -5,10 +5,10 @@ os:
   - osx
 
 dist: trusty
-sudo: false
+sudo: required
 
 # OS X only supports one image. Use the latest.
-osx_image: xcode8.3
+osx_image: xcode9.1
 
 git:
   depth: 3
@@ -20,6 +20,10 @@ compiler:
 env:
   global:
     - BUILD_JOBS=2
+    - ANDROID_HOME=$HOME/android/sdk
+    - ANDROID_NDK=$HOME/android/sdk/ndk-bundle
+    - ANDROID_SDK_ROOT=$ANDROID_HOME
+    - ANDROID_NDK_ROOT=$ANDROID_NDK
 
   matrix:
     - BUILD_MODE="all"
@@ -57,9 +61,50 @@ matrix:
     - os: linux
       env: BUILD_MODE="ios-tv"
 
+  include:
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armeabi
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armeabi-v7a
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armv7a-neon
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=aarch64
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=mipsel
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=mipsel64
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=x86
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=x86_64
+
   allow_failures:
     - os: osx
       env: BUILD_MODE="ios-watch"
+
+
+before_install:
+  - |
+    if [[ "$BUILD_MODE" == "android" ]]; then
+        TestScripts/install-android.sh
+    fi
 
 script:
   - |
@@ -78,7 +123,10 @@ script:
     elif [[ "$BUILD_MODE" == "ios-tv" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         . ./setenv-ios.sh tv
-        make -f GNUmakefile-cross -j  "$BUILD_JOBS"
+        make -f GNUmakefile-cross -j "$BUILD_JOBS"
+    elif [[ "$BUILD_MODE" == "android" ]]; then
+        cp ./TestScripts/setenv-android.sh .
+        TestScripts/cryptest-android.sh
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
         ./cryptest.exe v
