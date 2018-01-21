@@ -340,15 +340,6 @@ NAMESPACE_END
 	#endif
 #endif
 
-#ifndef CRYPTOPP_SECTION_ALIGN16
-#if defined(__GNUC__) && !defined(__APPLE__)
-		// the alignment attribute doesn't seem to work without this section attribute when -fdata-sections is turned on
-		#define CRYPTOPP_SECTION_ALIGN16 __attribute__((section ("CryptoPP_Align16")))
-	#else
-		#define CRYPTOPP_SECTION_ALIGN16
-	#endif
-#endif
-
 // The section attribute attempts to initialize CPU flags to avoid Valgrind findings above -O1
 #if ((defined(__MACH__) && defined(__APPLE__)) && ((CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70100) || (CRYPTOPP_GCC_VERSION >= 40300)))
 	#define CRYPTOPP_SECTION_INIT __attribute__((section ("__DATA,__data")))
@@ -891,10 +882,14 @@ NAMESPACE_END
 #define CRYPTOPP_DLL
 #endif
 
+// C++ makes const internal linkage
+#define CRYPTOPP_TABLE extern
 #define CRYPTOPP_API __cdecl
 
 #else	// not CRYPTOPP_WIN32_AVAILABLE
 
+// C++ makes const internal linkage
+#define CRYPTOPP_TABLE extern
 #define CRYPTOPP_DLL
 #define CRYPTOPP_API
 

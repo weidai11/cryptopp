@@ -55,9 +55,6 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
-// C++ makes const internal linkage
-#define EXPORT_TABLE extern
-
 NAMESPACE_BEGIN(CryptoPP)
 
 #if CRYPTOPP_SHANI_AVAILABLE
@@ -229,8 +226,9 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 
 // *************************************************************
 
-CRYPTOPP_ALIGN_DATA(16) EXPORT_TABLE
-const word32 SHA256_K[64] CRYPTOPP_SECTION_ALIGN16 = {
+CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_TABLE
+const word32 SHA256_K[64] = {
 
     0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
     0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -665,7 +663,7 @@ ANONYMOUS_NAMESPACE_END
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
-EXPORT_TABLE "C" {
+extern "C" {
 void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word32 *data, size_t len);
 }
 #endif
@@ -837,7 +835,8 @@ void SHA512::InitState(HashWordType *state)
 // We add extern to export table to sha-simd.cpp, but it
 //  cleared http://github.com/weidai11/cryptopp/issues/502
 CRYPTOPP_ALIGN_DATA(16)
-extern const word64 SHA512_K[80] CRYPTOPP_SECTION_ALIGN16 = {
+CRYPTOPP_TABLE
+const word64 SHA512_K[80] = {
     W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
     W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
     W64LIT(0x3956c25bf348b538), W64LIT(0x59f111f1b605d019),

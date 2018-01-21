@@ -127,9 +127,11 @@ void Whirlpool::TruncatedFinal(byte *hash, size_t size)
  */
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-CRYPTOPP_ALIGN_DATA(16) static const word64 Whirlpool_C[4*256+R] CRYPTOPP_SECTION_ALIGN16 = {
+CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_TABLE
+const word64 Whirlpool_C[4*256+R] = {
 #else
-static const word64 Whirlpool_C[4*256+R] = {
+const word64 Whirlpool_C[4*256+R] = {
 #endif
     W64LIT(0x18186018c07830d8), W64LIT(0x23238c2305af4626), W64LIT(0xc6c63fc67ef991b8), W64LIT(0xe8e887e8136fcdfb),
     W64LIT(0x878726874ca113cb), W64LIT(0xb8b8dab8a9626d11), W64LIT(0x0101040108050209), W64LIT(0x4f4f214f426e9e0d),

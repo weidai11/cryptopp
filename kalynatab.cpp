@@ -7,9 +7,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(KalynaTab)
 
-#define EXPORT_TABLE extern
-
-EXPORT_TABLE
+CRYPTOPP_TABLE
 const word64 T[8][256] =
 {
     {
@@ -542,7 +540,7 @@ const word64 T[8][256] =
     }
 };
 
-EXPORT_TABLE
+CRYPTOPP_TABLE
 const word64 IT[8][256] =
 {
     {
@@ -1075,7 +1073,7 @@ const word64 IT[8][256] =
     }
 };
 
-EXPORT_TABLE
+CRYPTOPP_TABLE
 const byte S[4][256] =
 {
     {
@@ -1152,7 +1150,7 @@ const byte S[4][256] =
     }
 };
 
-EXPORT_TABLE
+CRYPTOPP_TABLE
 const byte IS[4][256] =
 {
     {
