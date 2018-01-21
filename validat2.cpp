@@ -898,12 +898,13 @@ bool ValidateEC2N()
 {
 	std::cout << "\nEC2N validation suite running...\n\n";
 
+	// DEREncode() changed to Save() at Issue 569.
 	ECIES<EC2N>::Decryptor cpriv(GlobalRNG(), ASN1::sect193r1());
 	ECIES<EC2N>::Encryptor cpub(cpriv);
 	ByteQueue bq;
-	cpriv.DEREncode(bq);
+	cpriv.AccessMaterial().Save(bq);
 	cpub.AccessKey().AccessGroupParameters().SetEncodeAsOID(true);
-	cpub.DEREncode(bq);
+	cpub.AccessMaterial().Save(bq);
 	ECDSA<EC2N, SHA1>::Signer spriv(bq);
 	ECDSA<EC2N, SHA1>::Verifier spub(bq);
 	ECDH<EC2N>::Domain ecdhc(ASN1::sect193r1());

@@ -2307,6 +2307,10 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCrypt
 };
 
 /// \brief Interface for asymmetric algorithms
+/// \details BERDecode() and DEREncode() were removed under Issue 569
+///   and Commit XXX. Programs should use <tt>AccessMaterial().Load(bt)</tt>
+///   or <tt>AccessMaterial().Save(bt)</tt> instead.
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/569">Issue 569</A>
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AsymmetricAlgorithm : public Algorithm
 {
 public:
@@ -2320,17 +2324,21 @@ public:
 	/// \return a const reference to the crypto material
 	virtual const CryptoMaterial & GetMaterial() const =0;
 
+#if 0
 	/// \brief Loads this object from a BufferedTransformation
 	/// \param bt a BufferedTransformation object
+	/// \details Use of BERDecode() changed to Load() at Issue 569.
 	/// \deprecated for backwards compatibility, calls <tt>AccessMaterial().Load(bt)</tt>
 	void BERDecode(BufferedTransformation &bt)
 		{AccessMaterial().Load(bt);}
 
 	/// \brief Saves this object to a BufferedTransformation
 	/// \param bt a BufferedTransformation object
+	/// \details Use of DEREncode() changed to Save() at Issue 569.
 	/// \deprecated for backwards compatibility, calls GetMaterial().Save(bt)
 	void DEREncode(BufferedTransformation &bt) const
 		{GetMaterial().Save(bt);}
+#endif
 };
 
 /// \brief Interface for asymmetric algorithms using public keys

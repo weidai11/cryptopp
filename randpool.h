@@ -64,7 +64,7 @@ private:
 /// \details You should migrate away from OldRandomPool at the earliest opportunity. Use a
 ///   modern random number generator or key derivation function, like AutoSeededRandomPool or
 ///   HKDF.
-/// \deprecated This class uses an old style PGP 2.6.x with MDC. The generator risks reusing
+/// \warning This class uses an old style PGP 2.6.x with MDC. The generator risks reusing
 ///   random random numbers after state rollback. You should migrate away from OldRandomPool
 ///   at the earliest opportunity.
 /// \sa RandomPool, AutoSeededRandomPool, HKDF, P1363_KDF2, PKCS12_PBKDF, PKCS5_PBKDF2_HMAC

@@ -455,17 +455,18 @@ SecByteBlock HexDecodeString(const char *hex)
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed)
 {
+	// DEREncode() changed to Save() at Issue 569.
 	RandomPool randPool;
 	randPool.IncorporateEntropy((byte *)seed, strlen(seed));
 
 	RSAES_OAEP_SHA_Decryptor priv(randPool, keyLength);
 	HexEncoder privFile(new FileSink(privFilename));
-	priv.DEREncode(privFile);
+	priv.AccessMaterial().Save(privFile);
 	privFile.MessageEnd();
 
 	RSAES_OAEP_SHA_Encryptor pub(priv);
 	HexEncoder pubFile(new FileSink(pubFilename));
-	pub.DEREncode(pubFile);
+	pub.AccessMaterial().Save(pubFile);
 	pubFile.MessageEnd();
 }
 
