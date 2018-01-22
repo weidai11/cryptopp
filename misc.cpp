@@ -22,6 +22,10 @@
 #if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)
 # include <malloc.h>
 #endif
+// for posix_memalign
+#if defined(CRYPTOPP_POSIX_MEMALIGN_AVAILABLE)
+# include <stdlib.h>
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -285,6 +289,8 @@ void * AlignedAllocate(size_t size)
 	while ((p = (byte *)malloc(size)) == NULLPTR)
 #elif defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
 	while ((p = (byte *)_mm_malloc(size, 16)) == NULLPTR)
+#elif defined(CRYPTOPP_POSIX_MEMALIGN_AVAILABLE)
+	while (posix_memalign(reinterpret_cast<void**>(&p), 16, size) != 0)
 #elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
 	while ((p = (byte *)memalign(16, size)) == NULLPTR)
 #elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
