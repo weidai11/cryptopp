@@ -77,7 +77,7 @@ Other features include:
   * benchmarks and validation testing
   * x86, x64 (x86-64), x32 (ILP32), ARM-32, Aarch32, Aarch64 and Power8 in-core code
     for the commonly used algorithms
-      + run-time CPU feature detection and code selection</li>
+      + run-time CPU feature detection and code selection
       + supports GCC-style and MSVC-style inline assembly, and MASM for x64
       + x86, x64 (x86-64), x32 provides MMX, SSE2, and SSE4 implementations
       + ARM-32, Aarch32 and Aarch64 provides NEON, ASIMD and ARMv8 implementations
@@ -640,5 +640,20 @@ documentation is one of the highest returns on investment.
           * expanded Coverity into OS X and Windows platforms
           * added Windows test scripts using Strawberry Perl
       - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
+
+6.0.0 - Major release, recompile of programs required
+      - expanded community input and support
+          * 43 unique contributors as of this release
+      - fixed CVE-2016-9939 (Issue 346, transient DoS)
+      - fixed CVE-2017-9434 (Issue 414, misidentified memory error)
+      - converted to BASE+SIMD implementation
+          * BASE provides an architecture neutral C++ implementation
+          * SIMD provides architecture specific hardware acceleration
+      - improved PowerPC Power4, Power7 and Power8 support
+      - added ARIA, EC German DSA, Deterministic signatures (RFC 6979), Kalyna, NIST Hash and HMAC DRBG, Padlock RNG, Poly1305, SipHash, Simon, Speck, SM3, SM4, Threefish algorithms
+      - added NaCl interface from the compact library
+          * x25519 key exhange and ed25519 signing provided through NaCl interface
+      - improved Testing and QA
+      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
 
 Written by Wei Dai and the Crypto++ Project
