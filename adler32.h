@@ -1,7 +1,6 @@
 // adler32.h - originally written and placed in the public domain by Wei Dai
 
-/// \file
-/// \headerfile adler32.h
+/// \file adler32.h
 /// \brief Class file for ADLER-32 checksum calculations
 
 #ifndef CRYPTOPP_ADLER32_H

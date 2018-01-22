@@ -322,7 +322,7 @@ void AlignedDeallocate(void *p)
 #endif
 }
 
-#endif
+#endif  // CRYPTOPP_BOOL_ALIGN16
 
 void * UnalignedAllocate(size_t size)
 {

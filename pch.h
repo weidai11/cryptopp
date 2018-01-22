@@ -1,7 +1,8 @@
 // pch.h - originally written and placed in the public domain by Wei Dai
 
-/// \headerfile pch.h
+/// \file pch.h
 /// \brief Precompiled header file
+/// \details The precompiled header files are used Windows.
 
 #ifndef CRYPTOPP_PCH_H
 #define CRYPTOPP_PCH_H

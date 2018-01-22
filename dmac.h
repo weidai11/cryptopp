@@ -1,7 +1,6 @@
 // dmac.h - originally written and placed in the public domain by Wei Dai
 
-/// \file
-/// \headerfile dmac.h
+/// \file dmac.h
 /// \brief Classes for DMAC message authentication code
 
 #ifndef CRYPTOPP_DMAC_H
@@ -17,10 +16,10 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
 public:
+	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
 	static std::string StaticAlgorithmName() {return std::string("DMAC(") + T::StaticAlgorithmName() + ")";}
 
-	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
-
+	virtual~DMAC_Base() {}
 	DMAC_Base() : m_subkeylength(0), m_counter(0) {}
 
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);

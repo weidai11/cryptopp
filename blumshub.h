@@ -1,7 +1,6 @@
 // blumshub.h - originally written and placed in the public domain by Wei Dai
 
-/// \file
-/// \headerfile blumshub.h
+/// \file blumshub.h
 /// \brief Classes for Blum Blum Shub generator
 
 #ifndef CRYPTOPP_BLUMSHUB_H

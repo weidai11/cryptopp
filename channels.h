@@ -1,7 +1,6 @@
 // channels.h - originally written and placed in the public domain by Wei Dai
 
-/// \file
-/// \headerfile channels.h
+/// \file channels.h
 /// \brief Classes for multiple named channels
 
 #ifndef CRYPTOPP_CHANNELS_H
