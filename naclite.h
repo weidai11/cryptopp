@@ -221,7 +221,7 @@ int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t
 /// \param y other's public key
 /// \param x private key
 /// \details crypto_box() uses crypto_box_curve25519xsalsa20poly1305.
-/// \details This version of crypto_box() does not check for small order elements. It is unsafe
+/// \details This version of crypto_box() does not check for small order elements. It can be unsafe
 ///   but it exists for backwards compatibility with downlevel clients. Without the compatibility
 ///   interop with early versions of NaCl, libsodium and other libraries does not exist. The
 ///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
@@ -245,7 +245,7 @@ int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n
 /// \param y other's public key
 /// \param x private key
 /// \details crypto_box_open() uses crypto_box_curve25519xsalsa20poly1305.
-/// \details This version of crypto_box_open() does not check for small order elements. It is unsafe
+/// \details This version of crypto_box_open() does not check for small order elements. It can be unsafe
 ///   but it exists for backwards compatibility with downlevel clients. Without the compatibility
 ///   interop with early versions of NaCl, libsodium and other libraries does not exist. The
 ///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
@@ -267,7 +267,7 @@ int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8
 /// \param x private key
 /// \details crypto_box_beforenm() performs message-independent precomputation to derive the key.
 ///   Once the key is derived multiple calls to crypto_box_afternm() can be made to process the message.
-/// \details This version of crypto_box_beforenm() does not check for small order elements. It is unsafe
+/// \details This version of crypto_box_beforenm() does not check for small order elements. It can be unsafe
 ///   but it exists for backwards compatibility with downlevel clients. Without the compatibility
 ///   interop with early versions of NaCl, libsodium and other libraries does not exist. The
 ///   downlevel interop may also be needed of cryptocurrencies like Bitcoin, Ethereum, Monero
