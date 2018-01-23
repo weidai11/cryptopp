@@ -186,6 +186,15 @@ public:
     typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
 };
 
+typedef Kalyna128::Encryption Kalyna128Encryption;
+typedef Kalyna128::Decryption Kalyna128Decryption;
+
+typedef Kalyna256::Encryption Kalyna256Encryption;
+typedef Kalyna256::Decryption Kalyna256Decryption;
+
+typedef Kalyna512::Encryption Kalyna512Encryption;
+typedef Kalyna512::Decryption Kalyna512Decryption;
+
 NAMESPACE_END
 
 #endif  // CRYPTOPP_KALYNA_H
