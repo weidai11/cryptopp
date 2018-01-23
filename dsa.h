@@ -13,7 +13,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief DSA Signature Format
 /// \details The DSA signature format used by Crypto++ is as defined by IEEE P1363.
-///   Java nad .Net use the DER format, and OpenPGP uses the OpenPGP format.
+///   Java and .Net use the DER format, and OpenPGP uses the OpenPGP format.
 enum DSASignatureFormat {
 	/// \brief Crypto++ native signature encoding format
 	DSA_P1363,

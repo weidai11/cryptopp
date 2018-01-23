@@ -628,9 +628,27 @@ struct DL_Keys_DSA
 
 /// \brief DSA signature scheme
 /// \tparam H HashTransformation derived class
-/// \details The class is named DSA2 instead of DSA for backwards compatibility because DSA was a non-template class.
-/// \sa <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3
-/// \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2
+/// \details The class is named DSA2 instead of DSA for backwards compatibility because
+///   DSA was a non-template class.
+/// \details DSA default method GenerateRandom uses a 2048-bit modulus and a 224-bit subgoup by default.
+///   The modulus can be changed using the following code:
+/// <pre>
+///   DSA::PrivateKey privateKey;
+///   privateKey.GenerateRandomWithKeySize(prng, 2048);
+/// </pre>
+/// \details The subgroup order can be changed using the following code:
+/// <pre>
+///   AlgorithmParameters params = MakeParameters
+///     (Name::ModulusSize(), 2048)
+///     (Name::SubgroupOrderSize(), 256);
+///
+///   DSA::PrivateKey privateKey;
+///   privateKey.GenerateRandom(prng, params);
+/// </pre>
+/// \sa <a href="http://en.wikipedia.org/wiki/Digital_Signature_Algorithm">DSA</a>, as specified in FIPS 186-3,
+///   <a href="https://www.cryptopp.com/wiki/Digital_Signature_Algorithm">Digital Signature Algorithm</a> on the wiki, and
+///   <a href="https://www.cryptopp.com/wiki/NameValuePairs">NameValuePairs</a> on the wiki.
+/// \since Crypto++ 1.0 for DSA, Crypto++ 5.6.2 for DSA2, Crypto++ 6.1 for 2048-bit modulus.
 template <class H>
 class DSA2 : public DL_SS<
     DL_Keys_DSA,

@@ -18,7 +18,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// \brief Tiger message digest 
+/// \brief Tiger message digest
 /// \sa <a href="http://www.cryptolounge.org/wiki/Tiger">Tiger</a>
 /// \since Crypto++ 2.1
 class Tiger : public IteratedHashWithStaticTransform<word64, LittleEndian, 64, 24, Tiger>

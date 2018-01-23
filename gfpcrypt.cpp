@@ -45,7 +45,7 @@ void DL_GroupParameters_DSA::GenerateRandom(RandomNumberGenerator &rng, const Na
 	}
 	else
 	{
-		int modulusSize = 1024, defaultSubgroupOrderSize;
+		int modulusSize = 2048, defaultSubgroupOrderSize;
 		alg.GetIntValue("ModulusSize", modulusSize) || alg.GetIntValue("KeySize", modulusSize);
 
 		switch (modulusSize)
