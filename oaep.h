@@ -1,3 +1,9 @@
+// oaep.h - originally written and placed in the public domain by Wei Dai
+
+/// \file oaep.h
+/// \brief Classes for optimal asymmetric encryption padding
+/// \since Crypto++ 2.1
+
 #ifndef CRYPTOPP_OAEP_H
 #define CRYPTOPP_OAEP_H
 
@@ -8,6 +14,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief OAEP padding base class
+/// \since Crypto++ 2.1
 class CRYPTOPP_DLL OAEP_Base : public PK_EncryptionMessageEncodingMethod
 {
 public:
@@ -23,7 +30,10 @@ protected:
 };
 
 /// \brief OAEP padding
+/// \tparam H HashTransformation derived class
+/// \tparam MGF MaskGeneratingFunction derived class
 /// \sa <a href="http://www.weidai.com/scan-mirror/ca.html#cem_OAEP-MGF1">EME-OAEP</a>, for use with classes derived from TF_ES
+/// \since Crypto++ 2.1
 template <class H, class MGF=P1363_MGF1>
 class OAEP : public OAEP_Base, public EncryptionStandard
 {

@@ -5,6 +5,7 @@
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 ///   defined later in this .h file may be of more practical interest.
+/// \since Crypto++ 2.1
 
 #ifndef CRYPTOPP_LUC_H
 #define CRYPTOPP_LUC_H
@@ -33,6 +34,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 ///   defined later in this .h file may be of more practical interest.
+/// \since Crypto++ 2.1
 class LUCFunction : public TrapdoorFunction, public PublicKey
 {
 	typedef LUCFunction ThisClass;
@@ -72,6 +74,7 @@ protected:
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 ///   defined later in this .h file may be of more practical interest.
+/// \since Crypto++ 2.1
 class InvertibleLUCFunction : public LUCFunction, public TrapdoorFunctionInverse, public PrivateKey
 {
 	typedef InvertibleLUCFunction ThisClass;
@@ -124,6 +127,7 @@ protected:
 };
 
 /// \brief LUC cryptosystem
+/// \since Crypto++ 2.1
 struct LUC
 {
 	static std::string StaticAlgorithmName() {return "LUC";}
@@ -136,6 +140,7 @@ struct LUC
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 ///   defined later in this .h file may be of more practical interest.
+/// \since Crypto++ 2.1
 template <class STANDARD>
 struct LUCES : public TF_ES<LUC, STANDARD>
 {
@@ -147,6 +152,7 @@ struct LUCES : public TF_ES<LUC, STANDARD>
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 ///   defined later in this .h file may be of more practical interest.
+/// \since Crypto++ 2.1
 template <class STANDARD, class H>
 struct LUCSS : public TF_SS<LUC, STANDARD, H>
 {
@@ -179,7 +185,8 @@ private:
 	Integer m_p;
 };
 
-/// _
+/// \brief LUC Precomputation
+/// \since Crypto++ 2.1
 class DL_BasePrecomputation_LUC : public DL_FixedBasePrecomputation<Integer>
 {
 public:
@@ -210,6 +217,7 @@ private:
 };
 
 /// \brief LUC GroupParameters specialization
+/// \since Crypto++ 2.1
 class DL_GroupParameters_LUC : public DL_GroupParameters_IntegerBasedImpl<DL_GroupPrecomputation_LUC, DL_BasePrecomputation_LUC>
 {
 public:
@@ -240,6 +248,7 @@ private:
 };
 
 /// \brief GF(p) group parameters that default to safe primes
+/// \since Crypto++ 2.1
 class DL_GroupParameters_LUC_DefaultSafePrime : public DL_GroupParameters_LUC
 {
 public:
@@ -250,6 +259,7 @@ protected:
 };
 
 /// \brief LUC HMP signature algorithm
+/// \since Crypto++ 2.1
 class DL_Algorithm_LUC_HMP : public DL_ElgamalLikeSignatureAlgorithm<Integer>
 {
 public:
@@ -265,6 +275,7 @@ public:
 };
 
 /// \brief LUC signature keys
+/// \since Crypto++ 2.1
 struct DL_SignatureKeys_LUC
 {
 	typedef DL_GroupParameters_LUC GroupParameters;
@@ -277,6 +288,7 @@ struct DL_SignatureKeys_LUC
 /// \details This class is here for historical and pedagogical interest. It has no practical advantages over other
 ///   trapdoor functions and probably shouldn't	be used in production software. The discrete log based LUC schemes
 ///   defined later in this .h file may be of more practical interest.
+/// \since Crypto++ 2.1
 template <class H>
 struct LUC_HMP : public DL_SS<DL_SignatureKeys_LUC, DL_Algorithm_LUC_HMP, DL_SignatureMessageEncodingMethod_DSA, H>
 {
@@ -296,7 +308,7 @@ struct DL_CryptoKeys_LUC
 /// \tparam DHAES_MODE flag indicating if the MAC includes additional context parameters such as <em>u·V</em>, <em>v·U</em> and label
 /// \tparam LABEL_OCTETS flag indicating if the label size is specified in octets or bits
 /// \sa CofactorMultiplicationOption
-/// \since Crypto++ 4.0, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
+/// \since Crypto++ 2.1, Crypto++ 5.7 for Bouncy Castle and Botan compatibility
 template <class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS = false>
 struct LUC_IES
 	: public DL_ES<

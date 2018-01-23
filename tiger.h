@@ -1,3 +1,9 @@
+// tiger.h - originally written and placed in the public domain by Wei Dai
+
+/// \file tiger.h
+/// \brief Classes for the Tiger message digest
+/// \since Crypto++ 2.1
+
 #ifndef CRYPTOPP_TIGER_H
 #define CRYPTOPP_TIGER_H
 
@@ -12,7 +18,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// <a href="http://www.cryptolounge.org/wiki/Tiger">Tiger</a>
+/// \brief Tiger message digest 
+/// \sa <a href="http://www.cryptolounge.org/wiki/Tiger">Tiger</a>
+/// \since Crypto++ 2.1
 class Tiger : public IteratedHashWithStaticTransform<word64, LittleEndian, 64, 24, Tiger>
 {
 public:

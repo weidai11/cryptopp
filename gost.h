@@ -12,6 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief GOST block cipher information
+/// \since Crypto++ 2.1
 struct GOST_Info : public FixedBlockSize<8>, public FixedKeyLength<32>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "GOST";}
@@ -19,6 +20,7 @@ struct GOST_Info : public FixedBlockSize<8>, public FixedKeyLength<32>
 
 /// \brief GOST block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/GOST">GOST</a>
+/// \since Crypto++ 2.1
 class GOST : public GOST_Info, public BlockCipherDocumentation
 {
 	/// \brief GOST block cipher default operation
