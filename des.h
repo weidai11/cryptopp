@@ -12,6 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief DES block cipher base class
+/// \since Crypto++ 1.0
 class CRYPTOPP_DLL RawDES
 {
 public:
@@ -25,6 +26,7 @@ protected:
 };
 
 /// \brief DES block cipher information
+/// \since Crypto++ 1.0
 struct DES_Info : public FixedBlockSize<8>, public FixedKeyLength<8>
 {
 	// disable DES in DLL version by not exporting this function
@@ -58,6 +60,7 @@ public:
 };
 
 /// \brief 2-key TripleDES block cipher information
+/// \since Crypto++ 1.0
 struct DES_EDE2_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 {
 	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return "DES-EDE2";}
@@ -85,6 +88,7 @@ public:
 };
 
 /// \brief 3-key TripleDES block cipher information
+/// \since Crypto++ 1.0
 struct DES_EDE3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
 	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return "DES-EDE3";}
@@ -112,6 +116,7 @@ public:
 };
 
 /// \brief DESX block cipher information
+/// \since Crypto++ 3.2
 struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "DES-XEX3";}
@@ -119,7 +124,7 @@ struct DES_XEX3_Info : public FixedBlockSize<8>, public FixedKeyLength<24>
 
 /// \brief DESX block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/TripleDES">DES-XEX3</a>, AKA DESX
-/// \since Crypto++ 1.0
+/// \since Crypto++ 3.2
 class DES_XEX3 : public DES_XEX3_Info, public BlockCipherDocumentation
 {
 	/// \brief DES_XEX3 block cipher default operation

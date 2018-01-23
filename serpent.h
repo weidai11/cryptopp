@@ -12,6 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Serpent block cipher information
+/// \since Crypto++ 3.1
 struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, public FixedRounds<32>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Serpent";}
@@ -19,6 +20,7 @@ struct Serpent_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16
 
 /// \brief Serpent block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/Serpent">Serpent</a>
+/// \since Crypto++ 3.1
 class Serpent : public Serpent_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Serpent_Info>

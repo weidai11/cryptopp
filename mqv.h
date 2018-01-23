@@ -2,6 +2,7 @@
 
 /// \file mqv.h
 /// \brief Classes for Menezes–Qu–Vanstone (MQV) key agreement
+/// \since Crypto++ 3.0
 
 #ifndef CRYPTOPP_MQV_H
 #define CRYPTOPP_MQV_H
@@ -22,6 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 ///   Binary curves use a polynomial to represent its characteristic, while prime curves
 ///   use a prime number.
 /// \sa MQV, HMQV, FHMQV, and AuthenticatedKeyAgreementDomain
+/// \since Crypto++ 3.0
 template <class GROUP_PARAMETERS, class COFACTOR_OPTION = typename GROUP_PARAMETERS::DefaultCofactorOption>
 class MQV_Domain : public AuthenticatedKeyAgreementDomain
 {
@@ -213,6 +215,7 @@ private:
 
 /// Menezes-Qu-Vanstone in GF(p) with key validation, AKA <a href="http://www.weidai.com/scan-mirror/ka.html#MQV">MQV</a>
 /// \sa MQV, HMQV_Domain, FHMQV_Domain, AuthenticatedKeyAgreementDomain
+/// \since Crypto++ 3.0
 typedef MQV_Domain<DL_GroupParameters_GFP_DefaultSafePrime> MQV;
 
 NAMESPACE_END

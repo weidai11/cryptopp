@@ -258,6 +258,7 @@ DL_PrivateKey_EC<EC>::~DL_PrivateKey_EC() {}
 /// \tparam EC elliptic curve field
 /// \tparam COFACTOR_OPTION cofactor multiplication option
 /// \sa CofactorMultiplicationOption, <a href="http://www.weidai.com/scan-mirror/ka.html#ECDH">Elliptic Curve Diffie-Hellman, AKA ECDH</a>
+/// \since Crypto++ 3.0
 template <class EC, class COFACTOR_OPTION = typename DL_GroupParameters_EC<EC>::DefaultCofactorOption>
 struct ECDH
 {
@@ -324,6 +325,7 @@ struct ECDSA;
 
 /// \brief Elliptic Curve DSA keys
 /// \tparam EC elliptic curve field
+/// \since Crypto++ 3.2
 template <class EC>
 struct DL_Keys_ECDSA
 {
@@ -333,6 +335,7 @@ struct DL_Keys_ECDSA
 
 /// \brief Elliptic Curve DSA (ECDSA) signature algorithm
 /// \tparam EC elliptic curve field
+/// \since Crypto++ 3.2
 template <class EC>
 class DL_Algorithm_ECDSA : public DL_Algorithm_GDSA<typename EC::Point>
 {
@@ -365,6 +368,7 @@ public:
 /// \tparam EC elliptic curve field
 /// \tparam H HashTransformation derived class
 /// \sa <a href="http://www.weidai.com/scan-mirror/sig.html#ECDSA">ECDSA</a>
+/// \since Crypto++ 3.2
 template <class EC, class H>
 struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_SignatureMessageEncodingMethod_DSA, H>
 {
@@ -375,6 +379,7 @@ struct ECDSA : public DL_SS<DL_Keys_ECDSA<EC>, DL_Algorithm_ECDSA<EC>, DL_Signat
 /// \tparam H HashTransformation derived class
 /// \sa <a href="http://tools.ietf.org/rfc/rfc6979.txt">Deterministic Usage of the
 ///   Digital Signature Algorithm (DSA) and Elliptic Curve Digital Signature Algorithm (ECDSA)</a>
+/// \since Crypto++ 6.0
 template <class EC, class H>
 struct ECDSA_RFC6979 : public DL_SS<
 	DL_Keys_ECDSA<EC>,

@@ -12,6 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief DMAC message authentication code base class
 /// \tparam T class derived from BlockCipherDocumentation
+/// \since Crypto++ 3.1
 template <class T>
 class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
@@ -41,6 +42,7 @@ private:
 /// \tparam T class derived from BlockCipherDocumentation
 /// \sa <A HREF="https://eprint.iacr.org/1997/010">CBC MAC for Real-Time Data Sources (08.15.1997)</A>
 ///   by Erez Petrank and Charles Rackoff
+/// \since Crypto++ 3.1
 template <class T>
 class DMAC : public MessageAuthenticationCodeFinal<DMAC_Base<T> >
 {

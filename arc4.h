@@ -2,6 +2,7 @@
 
 /// \file arc4.h
 /// \brief Classes for ARC4 cipher
+/// \since Crypto++ 3.1
 
 #ifndef CRYPTOPP_ARC4_H
 #define CRYPTOPP_ARC4_H
@@ -17,7 +18,7 @@ namespace Weak1 {
 
 /// \brief ARC4 base class
 /// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
-/// \since Crypto++ 1.0
+/// \since Crypto++ 3.1
 class CRYPTOPP_NO_VTABLE ARC4_Base : public VariableKeyLength<16, 1, 256>, public RandomNumberGenerator, public SymmetricCipher, public SymmetricCipherDocumentation
 {
 public:
@@ -47,12 +48,13 @@ protected:
 
 /// \brief Alleged RC4
 /// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
-/// \since Crypto++ 1.0
+/// \since Crypto++ 3.1
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4)
 
 /// \brief MARC4 base class
 /// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
 /// \details MARC4 discards the first 256 bytes of keystream, which may be weaker than the rest
+/// \since Crypto++ 3.1
 class CRYPTOPP_NO_VTABLE MARC4_Base : public ARC4_Base
 {
 public:
@@ -67,7 +69,7 @@ protected:
 
 /// \brief Modified Alleged RC4
 /// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
-/// \since Crypto++ 1.0
+/// \since Crypto++ 3.1
 DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4)
 
 }

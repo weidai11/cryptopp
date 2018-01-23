@@ -2,6 +2,7 @@
 
 /// \file
 /// \brief Classes for CBC MAC
+/// \since Crypto++ 3.1
 
 #ifndef CRYPTOPP_CBCMAC_H
 #define CRYPTOPP_CBCMAC_H
@@ -12,6 +13,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief CBC-MAC base class
+/// \since Crypto++ 3.1
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_MAC_Base : public MessageAuthenticationCode
 {
 public:
@@ -36,6 +38,7 @@ private:
 /// \details CBC-MAC is compatible with FIPS 113. The MAC is secure only for fixed
 ///   length messages. For variable length messages use CMAC or DMAC.
 /// \sa <a href="http://www.weidai.com/scan-mirror/mac.html#CBC-MAC">CBC-MAC</a>
+/// \since Crypto++ 3.1
 template <class T>
 class CBC_MAC : public MessageAuthenticationCodeImpl<CBC_MAC_Base, CBC_MAC<T> >, public SameKeyLengthAs<T>
 {

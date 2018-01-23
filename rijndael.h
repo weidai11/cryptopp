@@ -4,7 +4,7 @@
 /// \brief Classes for Rijndael encryption algorithm
 /// \details All key sizes are supported. The library only provides Rijndael with 128-bit blocks,
 ///   and not 192-bit or 256-bit blocks
-/// \since Rijndael since Crypto++ 3.2, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
+/// \since Rijndael since Crypto++ 3.1, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
 ///   Power8 AES since Crypto++ 6.0
 
 #ifndef CRYPTOPP_RIJNDAEL_H
@@ -23,7 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief Rijndael block cipher information
 /// \details All key sizes are supported. The library only provides Rijndael with 128-bit blocks,
 ///   and not 192-bit or 256-bit blocks
-/// \since Rijndael since Crypto++ 3.2, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
+/// \since Rijndael since Crypto++ 3.1, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
 ///   Power8 AES since Crypto++ 6.0
 struct Rijndael_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
@@ -33,7 +33,7 @@ struct Rijndael_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 1
 /// \brief Rijndael block cipher
 /// \details All key sizes are supported. The library only provides Rijndael with 128-bit blocks,
 ///   and not 192-bit or 256-bit blocks
-/// \since Rijndael since Crypto++ 3.2, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
+/// \since Rijndael since Crypto++ 3.1, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
 ///   Power8 AES since Crypto++ 6.0
 /// \sa <a href="http://www.cryptopp.com/wiki/Rijndael">Rijndael</a>
 class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentation
@@ -63,7 +63,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	/// \brief Provides implementation for encryption transformation
 	/// \details Enc provides implementation for encryption transformation. All key sizes are supported.
 	///   The library only provides Rijndael with 128-bit blocks, and not 192-bit or 256-bit blocks
-	/// \since Rijndael since Crypto++ 3.2, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
+	/// \since Rijndael since Crypto++ 3.1, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
 	///   Power8 AES since Crypto++ 6.0
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Enc : public Base
 	{
@@ -77,7 +77,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	/// \brief Provides implementation for decryption transformation
 	/// \details Dec provides implementation for decryption transformation. All key sizes are supported.
 	///   The library only provides Rijndael with 128-bit blocks, and not 192-bit or 256-bit blocks
-	/// \since Rijndael since Crypto++ 3.2, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
+	/// \since Rijndael since Crypto++ 3.1, Intel AESNI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
 	///   Power8 AES since Crypto++ 6.0
 	class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Dec : public Base
 	{

@@ -2,6 +2,7 @@
 
 /// \file cast.h
 /// \brief Classes for the CAST-128 and CAST-256 block ciphers
+/// \since Crypto++ 2.2
 
 #ifndef CRYPTOPP_CAST_H
 #define CRYPTOPP_CAST_H
@@ -12,6 +13,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief CAST block cipher base
+/// \since Crypto++ 2.2
 class CAST
 {
 protected:
@@ -19,6 +21,7 @@ protected:
 };
 
 /// \brief CAST128 block cipher information
+/// \since Crypto++ 2.2
 struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 16>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "CAST-128";}
@@ -26,6 +29,7 @@ struct CAST128_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 5, 
 
 /// \brief CAST128 block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/CAST-128">CAST-128</a>
+/// \since Crypto++ 2.2
 class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 {
 	/// \brief CAST128 block cipher default operation
@@ -59,6 +63,7 @@ public:
 };
 
 /// \brief CAST256 block cipher information
+/// \since Crypto++ 4.0
 struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 4>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "CAST-256";}
@@ -66,6 +71,7 @@ struct CAST256_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16
 
 /// \brief CAST256 block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/CAST-256">CAST-256</a>
+/// \since Crypto++ 4.0
 class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 {
 	/// \brief CAST256 block cipher default operation

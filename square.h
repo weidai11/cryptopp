@@ -12,6 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Square block cipher information
+/// \since Crypto++ 2.2
 struct Square_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, FixedRounds<8>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Square";}
@@ -19,6 +20,7 @@ struct Square_Info : public FixedBlockSize<16>, public FixedKeyLength<16>, Fixed
 
 /// \brief Square block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/Square">Square</a>
+/// \since Crypto++ 2.2
 class Square : public Square_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Square_Info>

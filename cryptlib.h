@@ -2763,6 +2763,7 @@ public:
 /// \details A key agreement domain is a set of parameters that must be shared
 ///   by two parties in a key agreement protocol, along with the algorithms
 ///   for generating key pairs and deriving agreed values.
+/// \since Crypto++ 3.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
@@ -2821,6 +2822,7 @@ public:
 /// \details In an authenticated key agreement protocol, each party has two
 ///   key pairs. The long-lived key pair is called the static key pair,
 ///   and the short-lived key pair is called the ephemeral key pair.
+/// \since Crypto++ 3.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:
@@ -3000,6 +3002,8 @@ public:
 		const byte *passwordOrVerifier, unsigned int passwordOrVerifierLength);
 };
 
+/// \brief Password based key agreement domain
+/// \since Crypto++ 3.0
 class PasswordAuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
 public:

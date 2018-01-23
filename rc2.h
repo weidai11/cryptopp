@@ -2,6 +2,7 @@
 
 /// \file rc2.h
 /// \brief Classes for the RC2 block cipher
+/// \since Crypto++ 3.0
 
 #ifndef CRYPTOPP_RC2_H
 #define CRYPTOPP_RC2_H
@@ -13,6 +14,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief RC2 block cipher information
+/// \since Crypto++ 3.0
 struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 {
 	CRYPTOPP_CONSTANT(DEFAULT_EFFECTIVE_KEYLENGTH = 1024)
@@ -22,6 +24,7 @@ struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 
 /// \brief RC2 block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/RC2">RC2</a> on the Crypto Lounge.
+/// \since Crypto++ 3.0
 class RC2 : public RC2_Info, public BlockCipherDocumentation
 {
 	/// \brief Class specific methods used to operate the cipher.

@@ -2,6 +2,7 @@
 
 /// \file rc6.h
 /// \brief Classes for the RC6 block cipher
+/// \since Crypto++ 3.0
 
 #ifndef CRYPTOPP_RC6_H
 #define CRYPTOPP_RC6_H
@@ -12,6 +13,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief RC6 block cipher information
+/// \since Crypto++ 3.0
 struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, public VariableRounds<20>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RC6";}
@@ -20,6 +22,7 @@ struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32
 
 /// \brief RC6 block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/RC6">RC6</a>
+/// \since Crypto++ 3.0
 class RC6 : public RC6_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC6_Info>

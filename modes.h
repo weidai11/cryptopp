@@ -237,6 +237,7 @@ public:
 };
 
 /// \brief CBC-CTS block cipher mode of operation encryption operation
+/// \since Crypto++ 3.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
 {
 public:
@@ -270,6 +271,7 @@ protected:
 };
 
 /// \brief CBC-CTS block cipher mode of operation decryption operation
+/// \since Crypto++ 3.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Decryption : public CBC_Decryption
 {
 public:
@@ -456,6 +458,7 @@ struct CBC_Mode_ExternalCipher : public CipherModeDocumentation
 /// \brief CBC-CTS block cipher mode of operation
 /// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
 ///   on the Crypto++ wiki.
+/// \since Crypto++ 3.0
 template <class CIPHER>
 struct CBC_CTS_Mode : public CipherModeDocumentation
 {
@@ -469,6 +472,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Decry
 /// \brief CBC mode with ciphertext stealing, external cipher
 /// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
 ///   on the Crypto++ wiki.
+/// \since Crypto++ 3.0
 struct CBC_CTS_Mode_ExternalCipher : public CipherModeDocumentation
 {
 	typedef CipherModeFinalTemplate_ExternalCipher<CBC_CTS_Encryption> Encryption;

@@ -2,6 +2,7 @@
 
 /// \file mars.h
 /// \brief Classes for the MARS block cipher (IBM AES submission)
+/// \since Crypto++ 3.0
 
 #ifndef CRYPTOPP_MARS_H
 #define CRYPTOPP_MARS_H
@@ -12,6 +13,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief MARS block cipher information
+/// \since Crypto++ 3.0
 struct MARS_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 56, 8>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MARS";}
@@ -19,6 +21,7 @@ struct MARS_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 5
 
 /// \brief MARS block cipher
 /// \sa <a href="http://www.cryptopp.com/wiki/MARS">MARS</a>
+/// \since Crypto++ 3.0
 class MARS : public MARS_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<MARS_Info>
