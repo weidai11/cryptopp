@@ -13,6 +13,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+/// \brief DL_GroupPrecomputation interface
+/// \tparam T Field element
 template <class T>
 class DL_GroupPrecomputation
 {
@@ -21,14 +23,39 @@ public:
 
 	virtual ~DL_GroupPrecomputation() {}
 
+	/// \brief Determines if elements needs conversion
+	/// \returns true if the element needs conversion, false otherwise
+	/// \details NeedConversions determines if an element must convert between representations.
 	virtual bool NeedConversions() const {return false;}
+
+	/// \brief Converts an element between representations
+	/// \param v element to convert
+	/// \returns an element converted to an alternate representation for internal use
+	/// \details ConvertIn is used when an element must convert between representations.
 	virtual Element ConvertIn(const Element &v) const {return v;}
+
+	/// \brief Converts an element between representations
+	/// \param v element to convert
+	/// \returns an element converted from an alternate representation
 	virtual Element ConvertOut(const Element &v) const {return v;}
+
+	/// \brief Retrieves AbstractGroup interface
+	/// \returns GetGroup() returns the AbstractGroup interface
 	virtual const AbstractGroup<Element> & GetGroup() const =0;
+
+	/// \brief Decodes element in DER format
+	/// \param bt BufferedTransformation object
+	/// \param P Element to decode
 	virtual Element BERDecodeElement(BufferedTransformation &bt) const =0;
+
+	/// \brief Encodes element in DER format
+	/// \param bt BufferedTransformation object
+	/// \param P Element to encode
 	virtual void DEREncodeElement(BufferedTransformation &bt, const Element &P) const =0;
 };
 
+/// \brief DL_FixedBasePrecomputation interface
+/// \tparam T Field element
 template <class T>
 class DL_FixedBasePrecomputation
 {
@@ -47,6 +74,8 @@ public:
 	virtual Element CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent, const DL_FixedBasePrecomputation<Element> &pc2, const Integer &exponent2) const =0;
 };
 
+/// \brief DL_FixedBasePrecomputation adapter class
+/// \tparam T Field element
 template <class T>
 class DL_FixedBasePrecomputationImpl : public DL_FixedBasePrecomputation<T>
 {
