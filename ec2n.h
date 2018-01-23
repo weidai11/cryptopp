@@ -114,8 +114,14 @@ public:
 	Element BERDecodeElement(BufferedTransformation &bt) const {return m_ec.BERDecodePoint(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {m_ec.DEREncodePoint(bt, v, false);}
 
-	// non-inherited
+	/// \brief Set the elliptic curve
+	/// \param ec ECP derived class
+	/// \details SetCurve() is not inherited
 	void SetCurve(const EC2N &ec) {m_ec = ec;}
+
+	/// \brief Get the elliptic curve
+	/// \returns EC2N curve
+	/// \details GetCurve() is not inherited
 	const EC2N & GetCurve() const {return m_ec;}
 
 private:

@@ -128,12 +128,18 @@ public:
 	Element BERDecodeElement(BufferedTransformation &bt) const {return m_ec->BERDecodePoint(bt);}
 	void DEREncodeElement(BufferedTransformation &bt, const Element &v) const {m_ec->DEREncodePoint(bt, v, false);}
 
-	// non-inherited
+	/// \brief Set the elliptic curve
+	/// \param ec ECP derived class
+	/// \details SetCurve() is not inherited
 	void SetCurve(const ECP &ec)
 	{
 		m_ec.reset(new ECP(ec, true));
 		m_ecOriginal = ec;
 	}
+
+	/// \brief Get the elliptic curve
+	/// \returns ECP curve
+	/// \details GetCurve() is not inherited
 	const ECP & GetCurve() const {return *m_ecOriginal;}
 
 private:
