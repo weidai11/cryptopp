@@ -354,6 +354,7 @@ GNUmakefile
 GNUmakefile-cross
 License.txt
 Readme.txt
+History.txt
 Install.txt
 Filelist.txt
 cryptopp.supp
