@@ -357,11 +357,11 @@ documentation is one of the highest returns on investment.
       and XTR-DH
     - added a faster variant of Rabin's Information Dispersal Algorithm (IDA)
     - added class wrappers for these operating system features:
-      - high resolution timers on Windows, Unix, and MacOS
-      - Berkeley and Windows style sockets
-      - Windows named pipes
-      - /dev/random and /dev/urandom on Linux and FreeBSD
-      - Microsoft's CryptGenRandom on Windows
+       * high resolution timers on Windows, Unix, and MacOS
+       * Berkeley and Windows style sockets
+       * Windows named pipes
+       * /dev/random and /dev/urandom on Linux and FreeBSD
+       * Microsoft's CryptGenRandom on Windows
     - added support for SEC 1 elliptic curve key format and compressed points
     - added support for X.509 public key format (subjectPublicKeyInfo) for
       RSA, DSA, and elliptic curve schemes
@@ -526,9 +526,9 @@ documentation is one of the highest returns on investment.
 5.6.1 - added support for AES-NI and CLMUL instruction sets in AES and GMAC/GCM
       - removed WAKE-CFB
       - fixed several bugs in the SHA-256 x86/x64 assembly code:
-          * incorrect hash on non-SSE2 x86 machines on non-aligned input
-          * incorrect hash on x86 machines when input crosses 0x80000000
-          * incorrect hash on x64 when compiled with GCC with optimizations enabled
+         * incorrect hash on non-SSE2 x86 machines on non-aligned input
+         * incorrect hash on x86 machines when input crosses 0x80000000
+         * incorrect hash on x64 when compiled with GCC with optimizations enabled
       - fixed bugs in AES x86 and x64 assembly causing crashes in some MSVC build configurations
       - switched to a public domain implementation of MARS
       - ported to MSVC 2010, GCC 4.5.1, Sun Studio 12u1, C++Builder 2010, Intel C++ Compiler 11.1
@@ -544,7 +544,7 @@ documentation is one of the highest returns on investment.
 
 5.6.3 - maintenance release, honored API/ABI/Versioning requirements
       - expanded processes to include community and its input
-          * 12 unique contributors for this release
+         * 12 unique contributors for this release
       - fixed CVE-2015-2141
       - cleared most Undefined Behavior Sanitizer (UBsan) findings
       - cleared all Address Sanitizer (Asan) findings
@@ -558,9 +558,9 @@ documentation is one of the highest returns on investment.
       - added HKDF class from RFC 5868
       - switched to member_ptr due to C++ 11 warnings for auto_ptr
       - initialization of C++ static objects, off by default
-          * GCC and init_priotirty/constructor attributes
-          * MSVC and init_seg(lib)
-          * CRYPTOPP_INIT_PRIORITY disabled by default, but available
+         * GCC and init_priotirty/constructor attributes
+         * MSVC and init_seg(lib)
+         * CRYPTOPP_INIT_PRIORITY disabled by default, but available
       - improved OS X support
       - improved GNUmakefile support for Testing and QA
       - added self tests for additional Testing and QA
@@ -586,74 +586,79 @@ documentation is one of the highest returns on investment.
 
 5.6.4 - maintenance release, honored API/ABI/Versioning requirements
       - expanded community input and support
-          * 22 unique contributors for this release
+         * 22 unique contributors for this release
       - fixed CVE-2016-3995
       - changed SHA3 to FIPS 202 (F1600, XOF d=0x06)
       - added Keccak (F1600, XOF d=0x01)
       - added ChaCha (ChaCha8/12/20)
       - added HMQV and FHMQV
-          * Hashed and Fully Hashed MQV
+         * Hashed and Fully Hashed MQV
       - added BLAKE2 (BLAKE2s and BLAKE2b)
-          * C++, SSE2, SSE4, ARM NEON and ARMv8 ASIMD
+         * C++, SSE2, SSE4, ARM NEON and ARMv8 ASIMD
       - added CRC32-C
-          * C/C++, Amd64 CRC, and ARMv8 CRC
+         * C/C++, Amd64 CRC, and ARMv8 CRC
       - improved Rabin-William signatures
-          * Tweaked roots <em>e</em> and <em>f</em>
+         * Tweaked roots <em>e</em> and <em>f</em>
       - improved C++11 support
-          * atomics, threads and fences
-          * alginof, alignas
-          * constexpr
-          * noexcept
+         * atomics, threads and fences
+         * alginof, alignas
+         * constexpr
+         * noexcept
       - improved GCM mode
-          * ARM NEON and ARMv8 ASIMD
-          * ARMv8 carry-less multiply
+         * ARM NEON and ARMv8 ASIMD
+         * ARMv8 carry-less multiply
       - improved Windows 8 and 10 support
-          * Windows Phone, Universal Windows Platform, Windows Store
+         * Windows Phone, Universal Windows Platform, Windows Store
       - improved MIPS, ARMv7 and ARMv8 support
-          * added scripts setenv-{android|embedded|ios}.sh for GNUmakefile-cross
-          * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
+         * added scripts setenv-{android|embedded|ios}.sh for GNUmakefile-cross
+         * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
       - improved build systems
-          * Visual Studio 2010 default
-          * added CMake support (lacks FindCryptopp.cmake)
-          * archived VC++ 5/0/6.0 project files (vc60.zip)
-          * archived VS2005 project files (vs2005.zip)
-          * archived Borland project files (bds10.zip)
+         * Visual Studio 2010 default
+         * added CMake support (lacks FindCryptopp.cmake)
+         * archived VC++ 5/0/6.0 project files (vc60.zip)
+         * archived VS2005 project files (vs2005.zip)
+         * archived Borland project files (bds10.zip)
       - improved Testing and QA
-          * expanded platforms and compilers
-          * added code generation tests based on CPU features
-          * added C++03, C++11, C++14, C++17 testing
-          * added -O3, -O5, -Ofast and -Os testing
-      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
+         * expanded platforms and compilers
+         * added code generation tests based on CPU features
+         * added C++03, C++11, C++14, C++17 testing
+         * added -O3, -O5, -Ofast and -Os testing
+      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0,
+	    MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 5.6.5 - maintenance release, recompile of programs recommended
       - expanded community input and support
-          * 25 unique contributors as of this release
+         * 25 unique contributors as of this release
       - fixed CVE-2016-7420 (Issue 277, document NDEBUG for production/release)
       - fixed CVE-2016-7544 (Issue 302, avoid _malloca and _freea)
       - shipped library in recommended state
-          * backwards compatibility achieved with <config.compat>
+         * backwards compatibility achieved with <config.compat>
       - Visual Studio project file cleanup
-          * improved X86 and X64 MSBuild support
-          * added ARM-based MSBuild awareness
+         * improved X86 and X64 MSBuild support
+         * added ARM-based MSBuild awareness
       - improved Testing and QA
-          * expanded platforms and compilers
-          * expanded Coverity into OS X and Windows platforms
-          * added Windows test scripts using Strawberry Perl
-      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
+         * expanded platforms and compilers
+         * expanded Coverity into OS X and Windows platforms
+         * added Windows test scripts using Strawberry Perl
+      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0,
+	    MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 6.0.0 - Major release, recompile of programs required
       - expanded community input and support
-          * 43 unique contributors as of this release
+         * 43 unique contributors as of this release
       - fixed CVE-2016-9939 (Issue 346, transient DoS)
       - fixed CVE-2017-9434 (Issue 414, misidentified memory error)
       - converted to BASE+SIMD implementation
-          * BASE provides an architecture neutral C++ implementation
-          * SIMD provides architecture specific hardware acceleration
+         * BASE provides an architecture neutral C++ implementation
+         * SIMD provides architecture specific hardware acceleration
       - improved PowerPC Power4, Power7 and Power8 support
-      - added ARIA, EC German DSA, Deterministic signatures (RFC 6979), Kalyna, NIST Hash and HMAC DRBG, Padlock RNG, Poly1305, SipHash, Simon, Speck, SM3, SM4, Threefish algorithms
+      - added ARIA, EC German DSA, Deterministic signatures (RFC 6979),
+	    Kalyna, NIST Hash and HMAC DRBG, Padlock RNG, Poly1305, SipHash,
+		Simon, Speck, SM3, SM4, Threefish algorithms
       - added NaCl interface from the compact library
-          * x25519 key exhange and ed25519 signing provided through NaCl interface
+         * x25519 key exhange and ed25519 signing provided through NaCl interface
       - improved Testing and QA
-      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.0, MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.0,
+	    MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
 
 Written by Wei Dai and the Crypto++ Project
