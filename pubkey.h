@@ -786,19 +786,38 @@ public:
 			;
 	}
 
+	/// \brief Determines whether the object supports precomputation
+	/// \return true if the object supports precomputation, false otherwise
+	/// \sa Precompute()
 	bool SupportsPrecomputation() const {return true;}
 
+	/// \brief Perform precomputation
+	/// \param precomputationStorage the suggested number of objects for the precompute table
+	/// \throws NotImplemented
+	/// \details The exact semantics of Precompute() varies, but it typically means calculate
+	///   a table of n objects that can be used later to speed up computation.
+	/// \details If a derived class does not override Precompute(), then the base class throws
+	///   NotImplemented.
+	/// \sa SupportsPrecomputation(), LoadPrecomputation(), SavePrecomputation()
 	void Precompute(unsigned int precomputationStorage=16)
 	{
 		AccessBasePrecomputation().Precompute(GetGroupPrecomputation(), GetSubgroupOrder().BitCount(), precomputationStorage);
 	}
 
+	/// \brief Retrieve previously saved precomputation
+	/// \param storedPrecomputation BufferedTransformation with the saved precomputation
+	/// \throws NotImplemented
+	/// \sa SupportsPrecomputation(), Precompute()
 	void LoadPrecomputation(BufferedTransformation &storedPrecomputation)
 	{
 		AccessBasePrecomputation().Load(GetGroupPrecomputation(), storedPrecomputation);
 		m_validationLevel = 0;
 	}
 
+	/// \brief Save precomputation for later use
+	/// \param storedPrecomputation BufferedTransformation to write the precomputation
+	/// \throws NotImplemented
+	/// \sa SupportsPrecomputation(), Precompute()
 	void SavePrecomputation(BufferedTransformation &storedPrecomputation) const
 	{
 		GetBasePrecomputation().Save(GetGroupPrecomputation(), storedPrecomputation);
@@ -814,9 +833,9 @@ public:
 	/// \details The subgroup generator is set in the base precomputation
 	virtual void SetSubgroupGenerator(const Element &base) {AccessBasePrecomputation().SetBase(GetGroupPrecomputation(), base);}
 
-	/// \brief Retrieves the subgroup generator
-	/// \return the subgroup generator
-	/// \details The subgroup generator is retrieved from the base precomputation.
+	/// \brief Exponentiates the base
+	/// \return the element after exponentiation
+	/// \details ExponentiateBase() calls GetBasePrecomputation() and then exponentiates.
 	virtual Element ExponentiateBase(const Integer &exponent) const
 	{
 		return GetBasePrecomputation().Exponentiate(GetGroupPrecomputation(), exponent);

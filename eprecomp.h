@@ -45,7 +45,7 @@ public:
 
 	/// \brief Decodes element in DER format
 	/// \param bt BufferedTransformation object
-	/// \param P Element to decode
+	/// \returns element in the group
 	virtual Element BERDecodeElement(BufferedTransformation &bt) const =0;
 
 	/// \brief Encodes element in DER format
@@ -64,14 +64,60 @@ public:
 
 	virtual ~DL_FixedBasePrecomputation() {}
 
+	/// \brief Determines whether this object is initialized
+	/// \returns true if this object is initialized, false otherwise
 	virtual bool IsInitialized() const =0;
+
+	/// \brief Set the base element
+	/// \param group the group
+	/// \param base element in the group
 	virtual void SetBase(const DL_GroupPrecomputation<Element> &group, const Element &base) =0;
+
+	/// \brief Get the base element
+	/// \param group the group
+	/// \returns base element in the group
 	virtual const Element & GetBase(const DL_GroupPrecomputation<Element> &group) const =0;
+
+	/// \brief Perform precomputation
+	/// \param group the group
+	/// \param maxExpBits used to calculate the exponent base
+	/// \param storage the suggested number of objects for the precompute table
+	/// \details The exact semantics of Precompute() varies, but it typically means calculate
+	///   a table of n objects that can be used later to speed up computation.
+	/// \details If a derived class does not override Precompute(), then the base class throws
+	///   NotImplemented.
+	/// \sa SupportsPrecomputation(), LoadPrecomputation(), SavePrecomputation()
 	virtual void Precompute(const DL_GroupPrecomputation<Element> &group, unsigned int maxExpBits, unsigned int storage) =0;
+
+	/// \brief Retrieve previously saved precomputation
+	/// \param group the the group
+	/// \param storedPrecomputation BufferedTransformation with the saved precomputation
+	/// \throws NotImplemented
+	/// \sa SupportsPrecomputation(), Precompute()
 	virtual void Load(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) =0;
+
+	/// \brief Save precomputation for later use
+	/// \param group the the group
+	/// \param storedPrecomputation BufferedTransformation to write the precomputation
+	/// \throws NotImplemented
+	/// \sa SupportsPrecomputation(), Precompute()
 	virtual void Save(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) const =0;
+
+	/// \brief Exponentiates an element
+	/// \param group the group
+	/// \param exponent the exponent
+	/// \return the result of the exponentiation
 	virtual Element Exponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent) const =0;
-	virtual Element CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent, const DL_FixedBasePrecomputation<Element> &pc2, const Integer &exponent2) const =0;
+
+	/// \brief Exponentiates an element
+	/// \param pc1 the first the group precomputation
+	/// \param exponent1 the first exponent
+	/// \param pc2 the second the group precomputation
+	/// \param exponent2 the first exponent2
+	/// \returns the public element raised to the exponent
+	/// \details CascadeExponentiateBaseAndPublicElement raises the public element to
+	///   the base element and precomputation.
+	virtual Element CascadeExponentiate(const DL_GroupPrecomputation<Element> &pc1, const Integer &exponent1, const DL_FixedBasePrecomputation<Element> &pc2, const Integer &exponent2) const =0;
 };
 
 /// \brief DL_FixedBasePrecomputation adapter class
@@ -96,7 +142,7 @@ public:
 	void Load(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation);
 	void Save(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) const;
 	Element Exponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent) const;
-	Element CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent, const DL_FixedBasePrecomputation<Element> &pc2, const Integer &exponent2) const;
+	Element CascadeExponentiate(const DL_GroupPrecomputation<Element> &pc1, const Integer &exponent1, const DL_FixedBasePrecomputation<Element> &pc2, const Integer &exponent2) const;
 
 private:
 	void PrepareCascade(const DL_GroupPrecomputation<Element> &group, std::vector<BaseAndExponent<Element> > &eb, const Integer &exponent) const;

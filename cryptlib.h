@@ -2248,6 +2248,7 @@ public:
 	/// \sa SupportsPrecomputation(), Precompute()
 	virtual void LoadPrecomputation(BufferedTransformation &storedPrecomputation)
 		{CRYPTOPP_UNUSED(storedPrecomputation); CRYPTOPP_ASSERT(!SupportsPrecomputation()); throw NotImplemented("CryptoMaterial: this object does not support precomputation");}
+
 	/// \brief Save precomputation for later use
 	/// \param storedPrecomputation BufferedTransformation to write the precomputation
 	/// \throws NotImplemented
