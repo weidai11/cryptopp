@@ -38,8 +38,8 @@
 ///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A
 ///   Microarchitectural Side Channel Attack on Several Real-World Applications of
 ///   Curve25519</A>, <A
-///   HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium
-///   commit 675149b9b8b66ff4</A> and <A HREF="https://tools.ietf.org/html/rfc7748">RFC
+///   HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium
+///   commit afabd7e7386e1194</A> and <A HREF="https://tools.ietf.org/html/rfc7748">RFC
 ///   7748, Elliptic Curves for Security</A>, Section 6.
 /// \since Crypto++ 6.0
 
@@ -232,8 +232,8 @@ int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>,
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
 ///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
-///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
-///   675149b9b8b66ff4</A>.
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium commit
+///   afabd7e7386e1194</A>.
 /// \since Crypto++ 6.0
 int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
 
@@ -256,8 +256,8 @@ int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>,
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
 ///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
-///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
-///   675149b9b8b66ff4</A>.
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium commit
+///   afabd7e7386e1194</A>.
 /// \since Crypto++ 6.0
 int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
 
@@ -278,8 +278,8 @@ int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>,
 ///   <A HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A Microarchitectural
 ///   Side Channel Attack on Several Real-World Applications of Curve25519</A>,
-///   <A HREF="https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4">libsodium commit
-///   675149b9b8b66ff4</A>.
+///   <A HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium commit
+///   afabd7e7386e1194</A>.
 /// \since Crypto++ 6.0
 int crypto_box_beforenm_unchecked(uint8_t *k,const uint8_t *y,const uint8_t *x);
 
