@@ -111,6 +111,9 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 {
 	CRYPTOPP_UNUSED(params);
 
+	m_rk.New(16*17);  // round keys
+	m_w.New(4*7);     // w0, w1, w2, w3, t and u
+
 	const byte *mk = key;
 	byte *rk = m_rk.data();
 	int Q, q, R, r;
@@ -236,6 +239,10 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 		ARIA_MM(t[0],t[1],t[2],t[3]); ARIA_P(t[0],t[1],t[2],t[3]); ARIA_MM(t[0],t[1],t[2],t[3]);
 		::memcpy(z, t, 16);
 	}
+
+	// Silence warnings
+	CRYPTOPP_UNUSED(Q); CRYPTOPP_UNUSED(R);
+	CRYPTOPP_UNUSED(q); CRYPTOPP_UNUSED(r);
 }
 
 void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const

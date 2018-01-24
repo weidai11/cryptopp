@@ -31,6 +31,7 @@
 #include "oids.h"
 #include "randpool.h"
 #include "stdcpp.h"
+#include "hrtimer.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4505 4355)
@@ -45,12 +46,18 @@ void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, 
 	SecByteBlock plaintext(len), ciphertext(key.CiphertextLength(len));
 	Test::GlobalRNG().GenerateBlock(plaintext, len);
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
+	{
 		key.Encrypt(Test::GlobalRNG(), plaintext, len, ciphertext);
+		++i; timeTaken = timer.ElapsedTimeAsDouble();
+	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Encryption", pc, i, timeTaken);
 
@@ -69,12 +76,18 @@ void BenchMarkDecryption(const char *name, PK_Decryptor &priv, PK_Encryptor &pub
 	Test::GlobalRNG().GenerateBlock(plaintext, len);
 	pub.Encrypt(Test::GlobalRNG(), plaintext, len, ciphertext);
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
+	{
 		priv.Decrypt(Test::GlobalRNG(), ciphertext, ciphertext.size(), plaintext);
+		++i; timeTaken = timer.ElapsedTimeAsDouble();
+	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Decryption", false, i, timeTaken);
 }
@@ -85,12 +98,18 @@ void BenchMarkSigning(const char *name, PK_Signer &key, double timeTotal, bool p
 	AlignedSecByteBlock message(len), signature(key.SignatureLength());
 	Test::GlobalRNG().GenerateBlock(message, len);
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
+	{
 		(void)key.SignMessage(Test::GlobalRNG(), message, len, signature);
+		++i; timeTaken = timer.ElapsedTimeAsDouble();
+	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Signature", pc, i, timeTaken);
 
@@ -108,12 +127,18 @@ void BenchMarkVerification(const char *name, const PK_Signer &priv, PK_Verifier 
 	Test::GlobalRNG().GenerateBlock(message, len);
 	priv.SignMessage(Test::GlobalRNG(), message, len, signature);
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
+	{
 		(void)pub.VerifyMessage(message, len, signature, signature.size());
+		++i; timeTaken = timer.ElapsedTimeAsDouble();
+	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Verification", pc, i, timeTaken);
 
@@ -128,12 +153,18 @@ void BenchMarkKeyGen(const char *name, SimpleKeyAgreementDomain &d, double timeT
 {
 	SecByteBlock priv(d.PrivateKeyLength()), pub(d.PublicKeyLength());
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
+	{
 		d.GenerateKeyPair(Test::GlobalRNG(), priv, pub);
+		++i; timeTaken = timer.ElapsedTimeAsDouble();
+	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Key-Pair Generation", pc, i, timeTaken);
 
@@ -148,12 +179,18 @@ void BenchMarkKeyGen(const char *name, AuthenticatedKeyAgreementDomain &d, doubl
 {
 	SecByteBlock priv(d.EphemeralPrivateKeyLength()), pub(d.EphemeralPublicKeyLength());
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i++)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
+	{
 		d.GenerateEphemeralKeyPair(Test::GlobalRNG(), priv, pub);
+		++i; timeTaken = timer.ElapsedTimeAsDouble();
+	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Key-Pair Generation", pc, i, timeTaken);
 
@@ -172,15 +209,19 @@ void BenchMarkAgreement(const char *name, SimpleKeyAgreementDomain &d, double ti
 	d.GenerateKeyPair(Test::GlobalRNG(), priv2, pub2);
 	SecByteBlock val(d.AgreedValueLength());
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i+=2)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
 	{
 		d.Agree(val, priv1, pub2);
 		d.Agree(val, priv2, pub1);
+		i+=2; timeTaken = timer.ElapsedTimeAsDouble();
 	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Key Agreement", pc, i, timeTaken);
 }
@@ -197,15 +238,19 @@ void BenchMarkAgreement(const char *name, AuthenticatedKeyAgreementDomain &d, do
 	d.GenerateEphemeralKeyPair(Test::GlobalRNG(), epriv2, epub2);
 	SecByteBlock val(d.AgreedValueLength());
 
-	unsigned int i;
+	unsigned int i = 0;
 	double timeTaken;
 
-	const clock_t start = ::clock();
-	for (timeTaken=(double)0, i=0; timeTaken < timeTotal; timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND, i+=2)
+	ThreadUserTimer timer;
+	timer.StartTimer();
+
+	do
 	{
 		d.Agree(val, spriv1, epriv1, spub2, epub2);
 		d.Agree(val, spriv2, epriv2, spub1, epub1);
+		i+=2; timeTaken = timer.ElapsedTimeAsDouble();
 	}
+	while (timeTaken < timeTotal);
 
 	OutputResultOperations(name, "Key Agreement", pc, i, timeTaken);
 }

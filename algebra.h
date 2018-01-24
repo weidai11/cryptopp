@@ -7,8 +7,8 @@
 #define CRYPTOPP_ALGEBRA_H
 
 #include "config.h"
-#include "misc.h"
 #include "integer.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

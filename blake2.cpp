@@ -248,15 +248,9 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
         m_key.resize(0);
     }
 
-#if defined(__COVERITY__)
     // Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
     ParameterBlock& block = *m_block.data();
     memset(m_block.data(), 0x00, sizeof(ParameterBlock));
-#else
-    // Set Head bytes; Tail bytes are set below
-    ParameterBlock& block = *m_block.data();
-    memset(m_block.data(), 0x00, T_64bit ? 32 : 16);
-#endif
 
     block.keyLength = (byte)length;
     block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
