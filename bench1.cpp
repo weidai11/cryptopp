@@ -591,6 +591,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Threefish-512(512)/CTR", 64);
 		BenchMarkByName<SymmetricCipher>("Threefish-1024(1024)/CTR", 128);
 		BenchMarkByName<SymmetricCipher>("Serpent/CTR");
+		BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
 		BenchMarkByName<SymmetricCipher>("CAST-256/CTR");
 		BenchMarkByName<SymmetricCipher>("RC6/CTR");
 		BenchMarkByName<SymmetricCipher>("MARS/CTR");
@@ -604,7 +605,6 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Blowfish/CTR");
 		BenchMarkByName<SymmetricCipher>("TEA/CTR");
 		BenchMarkByName<SymmetricCipher>("XTEA/CTR");
-		BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
 		BenchMarkByName<SymmetricCipher>("SKIPJACK/CTR");
 		BenchMarkByName<SymmetricCipher>("SEED/CTR", 0, "SEED/CTR (1/2 K table)");
 		BenchMarkByName<SymmetricCipher>("SM4/CTR");
