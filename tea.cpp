@@ -9,6 +9,9 @@ NAMESPACE_BEGIN(CryptoPP)
 static const word32 DELTA = 0x9e3779b9;
 typedef BlockGetAndPut<word32, BigEndian> Block;
 
+#define UINT32_CAST(x) ((word32*)(void*)(x))
+#define CONST_UINT32_CAST(x) ((const word32*)(const void*)(x))
+
 void TEA::Base::UncheckedSetKey(const byte *userKey, unsigned int length, const NameValuePairs &params)
 {
 	AssertValidKeyLength(length);
@@ -98,10 +101,10 @@ void BTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
 
 	unsigned int n = m_blockSize / 4;
-	word32 *v = (word32*)(void *)outBlock;
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)(void *)inBlock, m_blockSize);
+	word32 *v = UINT32_CAST(outBlock);
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, CONST_UINT32_CAST(inBlock), m_blockSize);
 
-	word32 y = v[0], z = v[n-1], e;
+	word32 y, z = v[n-1], e;
 	word32 p, q = 6+52/n;
 	word32 sum = 0;
 
@@ -128,10 +131,10 @@ void BTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	CRYPTOPP_ASSERT(IsAlignedOn(outBlock,GetAlignmentOf<word32>()));
 
 	unsigned int n = m_blockSize / 4;
-	word32 *v = (word32*)(void *)outBlock;
-	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, (const word32*)(void *)inBlock, m_blockSize);
+	word32 *v = UINT32_CAST(outBlock);
+	ConditionalByteReverse(BIG_ENDIAN_ORDER, v, CONST_UINT32_CAST(inBlock), m_blockSize);
 
-	word32 y = v[0], z = v[n-1], e;
+	word32 y = v[0], z, e;
 	word32 p, q = 6+52/n;
 	word32 sum = q * DELTA;
 

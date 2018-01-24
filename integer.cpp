@@ -3645,32 +3645,24 @@ std::istream& operator>>(std::istream& in, Integer &a)
 	return in;
 }
 
+// Ensure base 10 is default
+inline int FlagToBase(long f) {
+	return f == std::ios::hex ? 16 : (f == std::ios::oct ? 8 : 10);
+}
+
+inline char FlagToSuffix(long f) {
+	return f == std::ios::hex ? 'h' : (f == std::ios::oct ? 'o' : '.');
+}
+
+// Ensure base 10 is default
 std::ostream& operator<<(std::ostream& out, const Integer &a)
 {
 	// Get relevant conversion specifications from ostream.
-	const long f = out.flags() & std::ios::basefield; // Get base digits.
-	int base, block;
-	char suffix;
-	switch(f)
-	{
-	case std::ios::oct :
-		base = 8;
-		block = 8;
-		suffix = 'o';
-		break;
-	case std::ios::hex :
-		base = 16;
-		block = 4;
-		suffix = 'h';
-		break;
-	default :
-		base = 10;
-		block = 3;
-		suffix = '.';
-	}
+	const long f = out.flags() & std::ios::basefield;
+	const int base = FlagToBase(f);
+	const char suffix = FlagToSuffix(f);
 
 	Integer temp1=a, temp2;
-
 	if (a.IsNegative())
 	{
 		out << '-';
@@ -3698,8 +3690,6 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 	while (i--)
 	{
 		out << s[i];
-//		if (i && !(i%block))
-//			out << ",";
 	}
 
 #ifdef CRYPTOPP_USE_STD_SHOWBASE
@@ -3873,7 +3863,7 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
 		CopyWords(diff.reg+bSize, a.reg+bSize, aSize-bSize);
 		borrow = Decrement(diff.reg+bSize, aSize-bSize, borrow);
-		CRYPTOPP_ASSERT(!borrow);
+		CRYPTOPP_ASSERT(!borrow); CRYPTOPP_UNUSED(borrow);
 		diff.sign = Integer::POSITIVE;
 	}
 	else if (aSize == bSize)
@@ -3894,7 +3884,7 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 		word borrow = Subtract(diff.reg, b.reg, a.reg, aSize);
 		CopyWords(diff.reg+aSize, b.reg+aSize, bSize-aSize);
 		borrow = Decrement(diff.reg+aSize, bSize-aSize, borrow);
-		CRYPTOPP_ASSERT(!borrow);
+		CRYPTOPP_ASSERT(!borrow); CRYPTOPP_UNUSED(borrow);
 		diff.sign = Integer::NEGATIVE;
 	}
 }
