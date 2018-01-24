@@ -1327,6 +1327,26 @@ protected:
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
+
+	/// \brief The return type for operator()
+	/// \details Alias added to comply with the standard library RNG interface.
+	using result_type = size_t;
+
+	/// \brief Constructs a RandomNumberGenerator
+	RandomNumberGenerator() = default;
+
+	/// \brief Constructs a RandomNumberGenerator, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit RandomNumberGenerator(result_type seedVal) {seed(seedVal);}
+
+	/// \brief Constructs a RandomNumberGenerator, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit RandomNumberGenerator(Sseq& q) {seed(q);}
+
 	virtual ~RandomNumberGenerator() {}
 
 	/// \brief Update RNG state with additional unpredictable values
@@ -1396,6 +1416,13 @@ public:
 	/// \param n the number of bytes to generate and discard
 	virtual void DiscardBytes(size_t n);
 
+	/// \brief Advances the internal state by z notches
+	/// \param z the number of equivalent advances
+	/// \details Advances the internal state by z notches, as if operator() was called z times,
+	///   but without generating any numbers in the process.
+	/// \details Member function added to comply with the standard library RNG interface.
+	void discard(unsigned long long z);
+
 	/// \brief Randomly shuffle the specified array
 	/// \param begin an iterator to the first element in the array
 	/// \param end an iterator beyond the last element in the array
@@ -1405,6 +1432,58 @@ public:
 		// TODO: What happens if there are more than 2^32 elements?
 		for (; begin != end; ++begin)
 			std::iter_swap(begin, begin + GenerateWord32(0, static_cast<word32>(end-begin-1)));
+	}
+
+	/// \brief The minimum return value for operator()
+	/// \details Static member function added to comply with the standard library RNG interface.
+	static constexpr result_type min() {return std::numeric_limits<result_type>::lowest();}
+
+	/// \brief The maximum return value for operator()
+	/// \details Static member function added to comply with the standard library RNG interface.
+	static constexpr result_type max() {return std::numeric_limits<result_type>::max();}
+
+	/// \brief Incorporates an additional seed into the internal state
+	/// \param val a seed value to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Member function added to comply with the standard library RNG interface.
+	void seed(result_type val = 1)
+	{
+		try
+		{
+			IncorporateEntropy((byte*)&val, sizeof(val));
+		}
+		catch(...)
+		{
+			// TODO: seed some other way, if IncorporateEntropy is not implemented.
+		}
+	}
+
+	/// \brief Incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Member function added to comply with the standard library RNG interface.
+	template <class Sseq> void seed(Sseq& q)
+	{
+		FixedSizeAlignedSecBlock<result_type, 4> seqResult;
+		Sseq.generate(seqResult.data(), result.data() + 4);
+
+		try
+		{
+			IncorporateEntropy((byte*)seqResult.data(), 4 * sizeof(result_type));
+		}
+		catch(...)
+		{
+			// TODO: seed some other way, if IncorporateEntropy is not implemented.
+		}
+	}
+
+	/// \brief Returns a new random number
+	/// \details Operator overloaded to comply with the standard library RNG interface.
+	result_type operator()()
+	{
+		result_type r;
+		GenerateBlock((byte*)&r,sizeof(r));
+		return r;
 	}
 };
 

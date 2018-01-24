@@ -5,7 +5,7 @@
 /// \brief Class file for Randomness Pool
 /// \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
 ///   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
-///   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
+///   AES-256 to produce the stream. Entropy is stirred in using SHA-384.
 /// \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
 ///   RandomPool was redesigned to reduce the risk of reusing random numbers after state
 ///   rollback (which may occur when running in a virtual machine like VMware or a hosted
@@ -29,7 +29,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief Randomness Pool based on AES-256
 /// \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
 ///   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
-///   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
+///   AES-256 to produce the stream. Entropy is stirred in using SHA-384.
 /// \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
 ///   RandomPool was redesigned to reduce the risk of reusing random numbers after state
 ///   rollback, which may occur when running in a virtual machine like VMware or a hosted
@@ -44,14 +44,25 @@ public:
 	/// \brief Construct a RandomPool
 	RandomPool();
 
+	/// \brief Constructs a RandomPool, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit RandomPool(result_type seedVal);
+
+	/// \brief Constructs a RandomPool, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit RandomPool(Sseq& q);
+
 	bool CanIncorporateEntropy() const {return true;}
 	void IncorporateEntropy(const byte *input, size_t length);
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 private:
-	FixedSizeAlignedSecBlock<byte, 16, true> m_seed;
-	FixedSizeAlignedSecBlock<byte, 32> m_key;
-	member_ptr<BlockCipher> m_pCipher;
+	FixedSizeAlignedSecBlock<byte, 48> m_seed;
+	AES::Encryption m_cipher;
 	bool m_keySet;
 };
 

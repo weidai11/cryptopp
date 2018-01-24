@@ -155,22 +155,53 @@ CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *outpu
 class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR unsigned int DEFAULT_SEEDSIZE = 48;
+
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "AutoSeededRandomPool"; }
 
 	~AutoSeededRandomPool() {}
 
 	/// \brief Construct an AutoSeededRandomPool
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
+	///   The parameter is ignored if only one of these is available.
+	explicit AutoSeededRandomPool(bool blocking = false)
+		{Reseed(blocking);}
+
+	/// \brief Construct an AutoSeededRandomPool
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param seedSize the size of the seed, in bytes
 	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
 	///   The parameter is ignored if only one of these is available.
-	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 32)
+	AutoSeededRandomPool(bool blocking, unsigned int seedSize)
 		{Reseed(blocking, seedSize);}
+
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit AutoSeededRandomPool(result_type seedVal, bool blocking = false)
+		: RandomPool(seedVal)
+		{Reseed(blocking);}
+
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit AutoSeededRandomPool(Sseq& q, bool blocking = false)
+		: RandomPool(q)
+		{Reseed(blocking);}
+
+	/// \brief Reseed an AutoSeededRandomPool
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	void Reseed(bool blocking = false);
 
 	/// \brief Reseed an AutoSeededRandomPool
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param seedSize the size of the seed, in bytes
-	void Reseed(bool blocking = false, unsigned int seedSize = 32);
+	void Reseed(bool blocking, unsigned int seedSize);
 };
 
 /// \tparam BLOCK_CIPHER a block cipher
@@ -198,11 +229,31 @@ public:
 	explicit AutoSeededX917RNG(bool blocking = false, bool autoSeed = true)
 		{if (autoSeed) Reseed(blocking);}
 
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param autoSeed controls auto seeding of the generator
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit AutoSeededX917RNG(result_type seedVal, bool blocking = false, bool autoSeed = true)
+		: RandomNumberGenerator(seedVal)
+		{if (autoSeed) Reseed(blocking);}
+
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param autoSeed controls auto seeding of the generator
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit AutoSeededX917RNG(Sseq& q, bool blocking = false, bool autoSeed = true)
+		: RandomNumberGenerator(q)
+		{if (autoSeed) Reseed(blocking);}
+
 	/// \brief Reseed an AutoSeededX917RNG
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param additionalEntropy additional entropy to add to the generator
 	/// \param length the size of the additional entropy, in bytes
-	/// \details Internally, the generator uses SHA256 to extract the entropy from
+	/// \details Internally, the generator uses SHA-384 to extract the entropy from
 	///   from the seed and then stretch the material for the block cipher's key
 	///   and initialization vector.
 	void Reseed(bool blocking = false, const byte *additionalEntropy = NULLPTR, size_t length = 0);
@@ -241,7 +292,7 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 		OS_GenerateRandomBlock(blocking, seed, seed.size());
 		if (length > 0)
 		{
-			SHA256 hash;
+			SHA384 hash;
 			hash.Update(seed, seed.size());
 			hash.Update(input, length);
 			hash.TruncatedFinal(seed, UnsignedMin(hash.DigestSize(), seed.size()));
