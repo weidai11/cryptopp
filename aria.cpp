@@ -327,7 +327,7 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 
 		t = UINT32_CAST(outBlock);
 		BigEndianBlock::Put(rk, t)(t[0])(t[1])(t[2])(t[3]);
-#endif
+#endif  // CRYPTOPP_LITTLE_ENDIAN
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 	if (HasNEON())
