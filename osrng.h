@@ -164,13 +164,13 @@ public:
 	/// \param seedSize the size of the seed, in bytes
 	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
 	///   The parameter is ignored if only one of these is available.
-	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 32)
+	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 48)
 		{Reseed(blocking, seedSize);}
 
 	/// \brief Reseed an AutoSeededRandomPool
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param seedSize the size of the seed, in bytes
-	void Reseed(bool blocking = false, unsigned int seedSize = 32);
+	void Reseed(bool blocking = false, unsigned int seedSize = 48);
 };
 
 /// \tparam BLOCK_CIPHER a block cipher
@@ -202,7 +202,7 @@ public:
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param additionalEntropy additional entropy to add to the generator
 	/// \param length the size of the additional entropy, in bytes
-	/// \details Internally, the generator uses SHA256 to extract the entropy from
+	/// \details Internally, the generator uses SHA-384 to extract the entropy from
 	///   from the seed and then stretch the material for the block cipher's key
 	///   and initialization vector.
 	void Reseed(bool blocking = false, const byte *additionalEntropy = NULLPTR, size_t length = 0);
@@ -241,7 +241,7 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 		OS_GenerateRandomBlock(blocking, seed, seed.size());
 		if (length > 0)
 		{
-			SHA256 hash;
+			SHA384 hash;
 			hash.Update(seed, seed.size());
 			hash.Update(input, length);
 			hash.TruncatedFinal(seed, UnsignedMin(hash.DigestSize(), seed.size()));
