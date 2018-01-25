@@ -58,8 +58,9 @@ extern "C" {
 extern "C"
 {
 	static jmp_buf s_jmpNoCPUID;
-	static void SigIllHandlerCPUID(int)
+	static void SigIllHandlerCPUID(int unused)
 	{
+		CRYPTOPP_UNUSED(unused);
 		longjmp(s_jmpNoCPUID, 1);
 	}
 }
@@ -127,7 +128,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	// not return non-0, then it is mostly useless. The code below converts basic
 	// function value to a true/false return value.
 	if(func == 0)
-		return !!output[0];
+		return output[0] != 0;
 
 	return true;
 #else
@@ -141,7 +142,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 
 # ifndef __MINGW32__
 	volatile sigset_t oldMask;
-	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask) != 0)
 		return false;
 # endif
 
@@ -221,13 +222,13 @@ void DetectX86Features()
 	// cpuid1[2] & (1 << 27) is XSAVE/XRESTORE and signals OS support for SSE; use it to avoid probes.
 	// See http://github.com/weidai11/cryptopp/issues/511 and http://stackoverflow.com/a/22521619/608639
 	if ((cpuid1[3] & (1 << 26)) != 0)
-		g_hasSSE2 = (cpuid1[2] & (1 << 27)) || CPU_ProbeSSE2();
+		g_hasSSE2 = ((cpuid1[2] & (1 << 27)) != 0) || CPU_ProbeSSE2();
 
-	g_hasSSSE3 = g_hasSSE2 && (cpuid1[2] & (1<<9));
-	g_hasSSE41 = g_hasSSE2 && (cpuid1[2] & (1<<19));
-	g_hasSSE42 = g_hasSSE2 && (cpuid1[2] & (1<<20));
-	g_hasAESNI = g_hasSSE2 && (cpuid1[2] & (1<<25));
-	g_hasCLMUL = g_hasSSE2 && (cpuid1[2] & (1<<1));
+	g_hasSSSE3 = g_hasSSE2 && ((cpuid1[2] & (1<< 9)) != 0);
+	g_hasSSE41 = g_hasSSE2 && ((cpuid1[2] & (1<<19)) != 0);
+	g_hasSSE42 = g_hasSSE2 && ((cpuid1[2] & (1<<20)) != 0);
+	g_hasAESNI = g_hasSSE2 && ((cpuid1[2] & (1<<25)) != 0);
+	g_hasCLMUL = g_hasSSE2 && ((cpuid1[2] & (1<< 1)) != 0);
 
 	if (IsIntel(cpuid0))
 	{
@@ -238,15 +239,15 @@ void DetectX86Features()
 
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
-		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
+		g_hasRDRAND = (cpuid1[2] /*ECX*/ & RDRAND_FLAG) != 0;
 
 		if (cpuid0[0] /*EAX*/ >= 7)
 		{
 			if (CpuId(7, 0, cpuid2))
 			{
-				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
-				g_hasADX = !!(cpuid2[1] /*EBX*/ & ADX_FLAG);
-				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
+				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
+				g_hasADX = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
+				g_hasSHA = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
 			}
 		}
 	}
@@ -259,15 +260,15 @@ void DetectX86Features()
 
 		CpuId(0x80000005, 0, cpuid2);
 		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
-		g_hasRDRAND = !!(cpuid1[2] /*ECX*/ & RDRAND_FLAG);
+		g_hasRDRAND = (cpuid1[2] /*ECX*/ & RDRAND_FLAG) != 0;
 
 		if (cpuid0[0] /*EAX*/ >= 7)
 		{
 			if (CpuId(7, 0, cpuid2))
 			{
-				g_hasRDSEED = !!(cpuid2[1] /*EBX*/ & RDSEED_FLAG);
-				g_hasADX = !!(cpuid2[1] /*EBX*/ & ADX_FLAG);
-				g_hasSHA = !!(cpuid2[1] /*EBX*/ & SHA_FLAG);
+				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
+				g_hasADX = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
+				g_hasSHA = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
 			}
 		}
 	}
@@ -284,11 +285,11 @@ void DetectX86Features()
 		{
 			// Extended features available
 			CpuId(0xC0000001, 0, cpuid2);
-			g_hasPadlockRNG  = !!(cpuid2[3] /*EDX*/ & RNG_FLAGS);
-			g_hasPadlockACE  = !!(cpuid2[3] /*EDX*/ & ACE_FLAGS);
-			g_hasPadlockACE2 = !!(cpuid2[3] /*EDX*/ & ACE2_FLAGS);
-			g_hasPadlockPHE  = !!(cpuid2[3] /*EDX*/ & PHE_FLAGS);
-			g_hasPadlockPMM  = !!(cpuid2[3] /*EDX*/ & PMM_FLAGS);
+			g_hasPadlockRNG  = (cpuid2[3] /*EDX*/ & RNG_FLAGS) != 0;
+			g_hasPadlockACE  = (cpuid2[3] /*EDX*/ & ACE_FLAGS) != 0;
+			g_hasPadlockACE2 = (cpuid2[3] /*EDX*/ & ACE2_FLAGS) != 0;
+			g_hasPadlockPHE  = (cpuid2[3] /*EDX*/ & PHE_FLAGS) != 0;
+			g_hasPadlockPMM  = (cpuid2[3] /*EDX*/ & PMM_FLAGS) != 0;
 		}
 	}
 

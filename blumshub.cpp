@@ -22,7 +22,7 @@ unsigned int PublicBlumBlumShub::GenerateBit()
 		bitsLeft = maxBits;
 	}
 
-	return current.GetBit(--bitsLeft);
+	return static_cast<unsigned int>(current.GetBit(--bitsLeft));
 }
 
 byte PublicBlumBlumShub::GenerateByte()
