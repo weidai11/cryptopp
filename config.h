@@ -120,7 +120,7 @@
 
 // Define this if ARMv8 shifts are slow. ARM Cortex-A53 and Cortex-A57 shift
 // operation perform poorly, so NEON and ASIMD code that relies on shifts
-// or rotates often performs worse than regular C/C++ code. Also see
+// or rotates often performs worse than C/C++ code. Also see
 // http://github.com/weidai11/cryptopp/issues/367.
 #define CRYPTOPP_SLOW_ARMV8_SHIFT 1
 
@@ -174,7 +174,7 @@
 ///     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
 ///   </ul>
 namespace CryptoPP { }
-// Bring in the symbols fund in the weak namespace; and fold Weak1 into Weak
+// Bring in the symbols found in the weak namespace; and fold Weak1 into Weak
 #		define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 #		define Weak1 Weak
 // Avoid putting "CryptoPP::" in front of everything in Doxygen output
