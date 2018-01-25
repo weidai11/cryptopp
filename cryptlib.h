@@ -850,9 +850,11 @@ public:
 
 	/// \brief Provides input and output data alignment for optimal performance.
 	/// \return the input data alignment that provides optimal performance
+	/// \sa GetAlignment() and OptimalBlockSize()
 	virtual unsigned int OptimalDataAlignment() const;
 
-	/// returns true if this is a permutation (i.e. there is an inverse transformation)
+	/// \brief Determines if the transformation is a permutation
+	/// \returns true if this is a permutation (i.e. there is an inverse transformation)
 	virtual bool IsPermutation() const {return true;}
 
 	/// \brief Determines if the cipher is being operated in its forward direction
@@ -931,6 +933,7 @@ public:
 
 	/// \brief Provides input and output data alignment for optimal performance
 	/// \return the input data alignment that provides optimal performance
+	/// \sa GetAlignment() and OptimalBlockSize()
 	virtual unsigned int OptimalDataAlignment() const;
 
 	/// \brief Encrypt or decrypt an array of bytes
@@ -1124,6 +1127,7 @@ public:
 
 	/// \brief Provides input and output data alignment for optimal performance
 	/// \return the input data alignment that provides optimal performance
+	/// \sa GetAlignment() and OptimalBlockSize()
 	virtual unsigned int OptimalDataAlignment() const;
 
 	/// \brief Updates the hash with additional input and computes the hash of the current message

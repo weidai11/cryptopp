@@ -92,6 +92,9 @@ public:
             return std::string("Kalyna-128") + "(" + IntToString(m_kl*8) + ")";
         }
 
+        /// \brief Provides input and output data alignment for optimal performance.
+        /// \return the input data alignment that provides optimal performance
+        /// \sa GetAlignment() and OptimalBlockSize()
         unsigned int OptimalDataAlignment() const {
             return GetAlignmentOf<word64>();
         }
@@ -105,7 +108,7 @@ public:
         void SetKey_24(const word64 key[4]);
         void ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const;
         void ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2] ,word64 outBlock[2]) const;
-	};
+    };
 
     typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
     typedef BlockCipherFinal<DECRYPTION, Base> Decryption;
@@ -135,6 +138,9 @@ public:
             return std::string("Kalyna-256") + "(" + IntToString(m_kl*8) + ")";
         }
 
+        /// \brief Provides input and output data alignment for optimal performance.
+        /// \return the input data alignment that provides optimal performance
+        /// \sa GetAlignment() and OptimalBlockSize()
         unsigned int OptimalDataAlignment() const {
             return GetAlignmentOf<word64>();
         }
@@ -178,6 +184,9 @@ public:
             return std::string("Kalyna-512") + "(" + IntToString(m_kl*8) + ")";
         }
 
+        /// \brief Provides input and output data alignment for optimal performance.
+        /// \return the input data alignment that provides optimal performance
+        /// \sa GetAlignment() and OptimalBlockSize()
         unsigned int OptimalDataAlignment() const {
             return GetAlignmentOf<word64>();
         }
