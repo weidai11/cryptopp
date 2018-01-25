@@ -36,7 +36,7 @@ void RandomPool::IncorporateEntropy(const byte *input, size_t length)
 	hash.Update(m_seed, 16);
 	hash.Update(input, length);
 
-	SecByteBlock hashResult(48);
+	FixedSizeAlignedSecBlock<byte, 48> hashResult;
 	hash.Final(hashResult);
 	::memcpy(m_key,hashResult,32);
 	::memcpy(m_seed,(byte*)hashResult+32,16);
