@@ -60,8 +60,10 @@ INTEL_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c '\(icc\)'
 # Various Port compilers on OS X
 MACPORTS_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c "macports")
 HOMEBREW_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c "homebrew")
-ifneq ($(MACPORTS_COMPILER)$(HOMEBREW_COMPILER),00)
-  OSXPORT_COMPILER := 1
+ifeq ($(IS_DARWIN),1)
+  ifneq ($(MACPORTS_COMPILER)$(HOMEBREW_COMPILER),00)
+    OSXPORT_COMPILER := 1
+  endif
 endif
 
 # Sun Studio 12.0 provides SunCC 0x0510; and Sun Studio 12.3 provides SunCC 0x0512
