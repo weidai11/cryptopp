@@ -1,3 +1,6 @@
+# https://www.gnu.org/software/make/manual/make.html#Makefile-Conventions
+SHELL = /bin/sh
+
 # Default CXXFLAGS if none were provided
 CXXFLAGS ?= -DNDEBUG -g2 -O3 -fPIC -pipe
 

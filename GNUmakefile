@@ -2,8 +2,9 @@
 #####        System Attributes and Programs           #####
 ###########################################################
 
-# Must use Bash
-SHELL = bash
+# https://www.gnu.org/software/make/manual/make.html#Makefile-Conventions
+SHELL = /bin/sh
+
 # If needed
 TMPDIR ?= /tmp
 # Used for ARMv7 and NEON.
