@@ -323,8 +323,12 @@ SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
+# Default builds program with static library only
+.PHONY: default
+default: cryptest.exe
+
 .PHONY: all
-all: cryptest.exe
+all: static dynamic cryptest.exe
 
 ifneq ($(IS_IOS),0)
 static: libcryptopp.a
@@ -334,7 +338,8 @@ static: libcryptopp.a
 shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
-test: cryptest.exe
+.PHONY: test check
+test check: cryptest.exe
 	./cryptest.exe v
 
 # CXXFLAGS are tuned earlier. Applications must use linker flags

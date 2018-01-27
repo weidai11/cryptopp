@@ -30,27 +30,33 @@ else
   GREP ?= grep
 endif
 
-MACHINE := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
-IS_X86 := $(shell echo "$(MACHINE)" | $(GREP) -v "64" | $(GREP) -i -c -E "i.86|x86|i86")
-IS_X64 := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E "(_64|d64)")
-IS_PPC32 := $(shell echo "$(MACHINE)" | $(GREP) -i -v "64" | $(GREP) -i -c -E "ppc|power")
-IS_PPC64 := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E "ppc64|power64")
-IS_ARM32 := $(shell echo "$(MACHINE)" | $(GREP) -i -v "64" | $(GREP) -i "arm" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
-IS_ARMV8 := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E 'aarch32|aarch64')
-IS_NEON := $(shell echo "$(MACHINE)" | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
-IS_SPARC32 := $(shell echo "$(MACHINE)" | $(GREP) -i -v "64" | $(GREP) -i -c "sparc")
-IS_SPARC64 := $(shell echo "$(MACHINE)" | $(GREP) -i -c "sparc64")
+# Attempt to determine host machine, fallback to "this" machine.
+# The host machine is the one the package runs on.
+HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
+ifeq ($(HOSTX),)
+  HOSTX := $(shell uname -m 2>/dev/null)
+endif
 
-IS_LINUX := $(shell echo "$(MACHINE)" | $(GREP) -i -c "Linux")
-IS_MINGW := $(shell echo "$(MACHINE)" | $(GREP) -i -c "MinGW")
-IS_MINGW32 := $(shell echo "$(MACHINE)" | $(GREP) -x -i -c "mingw32")
-IS_CYGWIN := $(shell echo "$(MACHINE)" | $(GREP) -i -c "Cygwin")
-IS_DARWIN := $(shell echo "$(MACHINE)" | $(GREP) -i -c "Darwin")
-IS_NETBSD := $(shell echo "$(MACHINE)" | $(GREP) -i -c "NetBSD")
+IS_X86 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'i.86|x86|i86')
+IS_X64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E '_64|d64')
+IS_PPC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'ppc|power')
+IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|power64')
+IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
+IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
+IS_NEON := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
+IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c 'sparc')
+IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c 'sparc64')
 
-UNAME := $(shell uname -s 2>&1)
-IS_AIX := $(shell echo "$(UNAME)" | $(GREP) -i -c 'aix')
-IS_SUN := $(shell echo "$(UNAME)" | $(GREP) -i -c "SunOS")
+SYSTEMX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
+IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Linux")
+IS_MINGW := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "MinGW")
+IS_CYGWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Cygwin")
+IS_DARWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Darwin")
+IS_NETBSD := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "NetBSD")
+
+UNAMEX := $(shell uname -s 2>&1)
+IS_AIX := $(shell echo "$(UNAMEX)" | $(GREP) -i -c "aix")
+IS_SUN := $(shell echo "$(UNAMEX)" | $(GREP) -i -c "SunOS")
 
 SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E 'CC: (Sun|Studio)')
 GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -v -E '(llvm|clang)' | $(GREP) -i -c -E '(gcc|g\+\+)')
@@ -76,18 +82,6 @@ SUNCC_513_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (S
 
 # Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
-
-# Set to 1 if you want to use X32 on X64
-IS_X32 ?= 0
-
-# Set to 1 if you used NASM to build rdrand-{x86|x32|x64}
-USE_NASM ?= 0
-
-# Fixup for X32
-ifeq ($(IS_X32),1)
-IS_X86 = 0
-IS_X64 = 0
-endif
 
 # Fixup SunOS
 ifeq ($(IS_SUN),1)
@@ -166,7 +160,7 @@ CLANG_INTEGRATED_ASSEMBLER ?= 0
 
 # original MinGW targets Win2k by default, but lacks proper Win2k support
 # if target Windows version is not specified, use Windows XP instead
-ifeq ($(IS_MINGW32),1)
+ifeq ($(IS_MINGW),1)
 ifeq ($(findstring -D_WIN32_WINNT,$(CXXFLAGS)),)
 ifeq ($(findstring -D_WIN32_WINDOWS,$(CXXFLAGS)),)
 ifeq ($(findstring -DWINVER,$(CXXFLAGS)),)
@@ -176,13 +170,13 @@ endif # NTDDI_VERSION
 endif # WINVER
 endif # _WIN32_WINDOWS
 endif # _WIN32_WINNT
-endif # IS_MINGW32
+endif # IS_MINGW
 
 ###########################################################
 #####               X86/X32/X64 Options               #####
 ###########################################################
 
-ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
+ifneq ($(IS_X86)$(IS_X64),00)
 
 # Fixup. Clang reports an error rather than "LLVM assembler" or similar.
 ifneq ($(OSXPORT_COMPILER),1)
@@ -206,7 +200,7 @@ endif
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(GREP) -c -E "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
 
 # Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
-ifeq ($(IS_X86)$(IS_X32)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),00000)
+ifeq ($(IS_X86)$(IS_CYGWIN)$(IS_MINGW)$(SUN_COMPILER),0000)
  ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
    CXXFLAGS += -fPIC
  endif
@@ -486,7 +480,7 @@ endif
 # to contain additional bits (like SSE4 and AES on old Xeon)
 # http://www.oracle.com/technetwork/server-storage/solaris/hwcap-modification-139536.html
 ifeq ($(IS_SUN)$(SUN_COMPILER),11)
-  ifneq ($(IS_X86)$(IS_X32)$(IS_X64),000)
+  ifneq ($(IS_X86)$(IS_X64),00)
     ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
       LDFLAGS += -M cryptopp.mapfile
     endif  # No CRYPTOPP_DISABLE_ASM
@@ -707,16 +701,6 @@ endif
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 
-ifeq ($(USE_NASM),1)
-ifeq ($(IS_X64),1)
-OBJS += rdrand-x64.o
-else ifeq ($(IS_X32),1)
-OBJS += rdrand-x32.o
-else ifeq ($(IS_X86),1)
-OBJS += rdrand-x86.o
-endif
-endif # Nasm
-
 # List test.cpp first to tame C++ static initialization problems.
 TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp validat4.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp dlltest.cpp fipsalgt.cpp
 TESTINCL := bench.h factory.h validate.h
@@ -738,8 +722,12 @@ DLLTESTOBJS := dlltest.dllonly.o
 #####                Targets and Recipes              #####
 ###########################################################
 
+# Default builds program with static library only
+.PHONY: default
+default: cryptest.exe
+
 .PHONY: all
-all: cryptest.exe
+all: static dynamic cryptest.exe
 
 ifneq ($(IS_DARWIN),0)
 static: libcryptopp.a
@@ -755,7 +743,7 @@ dep deps depend GNUmakefile.deps:
 
 # CXXFLAGS are tuned earlier.
 .PHONY: native no-asm asan ubsan
-native no-asm asan ubsan: libcryptopp.a cryptest.exe
+native no-asm asan ubsan: cryptest.exe
 
 # CXXFLAGS are tuned earlier. Applications must use linker flags
 #  -Wl,--gc-sections (Linux and Unix) or -Wl,-dead_strip (OS X)
@@ -764,7 +752,7 @@ lean: static dynamic cryptest.exe
 
 # May want to export CXXFLAGS="-g3 -O1"
 .PHONY: lcov coverage
-lcov coverage: libcryptopp.a cryptest.exe
+lcov coverage: cryptest.exe
 	@-$(RM) -r ./TestCoverage/
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
@@ -775,7 +763,7 @@ lcov coverage: libcryptopp.a cryptest.exe
 
 # Travis CI and CodeCov rule
 .PHONY: gcov codecov
-gcov codecov: libcryptopp.a cryptest.exe
+gcov codecov: cryptest.exe
 	@-$(RM) -r ./TestCoverage/
 	./cryptest.exe v
 	./cryptest.exe tv all
@@ -783,7 +771,7 @@ gcov codecov: libcryptopp.a cryptest.exe
 
 # Should use CXXFLAGS="-g3 -O1"
 .PHONY: valgrind
-valgrind: libcryptopp.a cryptest.exe
+valgrind: cryptest.exe
 	valgrind --track-origins=yes --suppressions=cryptopp.supp ./cryptest.exe v
 
 .PHONY: test check
@@ -914,7 +902,7 @@ libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
 ifeq ($(XLC_COMPILER),1)
 	$(CXX) -qmkshrobj $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
 else
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(PIC_FLAG) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) $(LDFLAGS) $(LIBOBJS) $(LDLIBS)
 endif
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
