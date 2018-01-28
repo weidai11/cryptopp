@@ -41,11 +41,12 @@ IS_X86 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'i.86|x86
 IS_X64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E '_64|d64')
 IS_PPC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'ppc|power')
 IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|power64')
-IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'armhf|arm7l|eabihf')
+IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
 IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
-IS_NEON := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c 'sparc')
 IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c 'sparc64')
+
+IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 
 SYSTEMX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
 IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Linux")
