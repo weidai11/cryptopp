@@ -155,22 +155,35 @@ CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *outpu
 class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR unsigned int DEFAULT_SEEDSIZE = 48;
+
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "AutoSeededRandomPool"; }
 
 	~AutoSeededRandomPool() {}
 
 	/// \brief Construct an AutoSeededRandomPool
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
+	///   The parameter is ignored if only one of these is available.
+	explicit AutoSeededRandomPool(bool blocking = false)
+		{Reseed(blocking);}
+
+	/// \brief Construct an AutoSeededRandomPool
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param seedSize the size of the seed, in bytes
 	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
 	///   The parameter is ignored if only one of these is available.
-	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 48)
+	AutoSeededRandomPool(bool blocking, unsigned int seedSize)
 		{Reseed(blocking, seedSize);}
 
 	/// \brief Reseed an AutoSeededRandomPool
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	void Reseed(bool blocking = false);
+
+	/// \brief Reseed an AutoSeededRandomPool
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	/// \param seedSize the size of the seed, in bytes
-	void Reseed(bool blocking = false, unsigned int seedSize = 48);
+	void Reseed(bool blocking, unsigned int seedSize);
 };
 
 /// \tparam BLOCK_CIPHER a block cipher

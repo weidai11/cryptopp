@@ -49,9 +49,8 @@ public:
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);
 
 private:
-	FixedSizeAlignedSecBlock<byte, 16, true> m_seed;
-	FixedSizeAlignedSecBlock<byte, 32> m_key;
-	member_ptr<BlockCipher> m_pCipher;
+	FixedSizeAlignedSecBlock<byte, 48> m_seed;
+	AES::Encryption m_cipher;
 	bool m_keySet;
 };
 

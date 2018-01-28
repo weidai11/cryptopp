@@ -316,15 +316,37 @@ void RandomNumberGenerator::GenerateBlock(byte *output, size_t size)
 
 void RandomNumberGenerator::DiscardBytes(size_t n)
 {
-	GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, n);
+	try
+	{
+		IncorporateEntropy((byte*)&n, sizeof(n));
+	}
+	catch(...)
+	{
+		GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, n);
+	}
+}
+
+void RandomNumberGenerator::discard(unsigned long long z)
+{
+	try
+	{
+		IncorporateEntropy((byte*)&z, sizeof(z));
+	}
+	catch(...)
+	{
+		GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, z);
+	}
 }
 
 void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length)
 {
 	FixedSizeSecBlock<byte, 256> buffer;
-	while (length)
+
+	size_t len;
+
+	while(length > 0)
 	{
-		size_t len = UnsignedMin(buffer.size(), length);
+		len = UnsignedMin(buffer.size(), length);
 		GenerateBlock(buffer, len);
 		(void)target.ChannelPut(channel, buffer, len);
 		length -= len;

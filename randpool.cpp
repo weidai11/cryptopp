@@ -23,24 +23,17 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 RandomPool::RandomPool()
-	: m_pCipher(new AES::Encryption), m_keySet(false)
+	: m_keySet(false)
 {
-	::memset(m_key, 0, m_key.SizeInBytes());
 	::memset(m_seed, 0, m_seed.SizeInBytes());
 }
 
 void RandomPool::IncorporateEntropy(const byte *input, size_t length)
 {
 	SHA384 hash;
-	hash.Update(m_key, 32);
-	hash.Update(m_seed, 16);
+	hash.Update(m_seed, 48);
 	hash.Update(input, length);
-
-	FixedSizeAlignedSecBlock<byte, 48> hashResult;
-	hash.Final(hashResult);
-	::memcpy(m_key,hashResult,32);
-	::memcpy(m_seed,(byte*)hashResult+32,16);
-
+	hash.Final(m_seed);
 	m_keySet = false;
 }
 
@@ -49,7 +42,10 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 	if (size > 0)
 	{
 		if (!m_keySet)
-			m_pCipher->SetKey(m_key, 32);
+		{
+			m_cipher.SetKey((byte*)m_seed + 16, 32);
+			m_keySet = true;
+		}
 
 		CRYPTOPP_COMPILE_ASSERT(sizeof(TimerWord) <= 16);
 		CRYPTOPP_COMPILE_ASSERT(sizeof(time_t) <= 8);
@@ -71,10 +67,12 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 		*((volatile word64*)&tt1) = 0;
 		*((volatile word64*)&tt2) = 0;
 
+		size_t len;
+
 		do
 		{
-			m_pCipher->ProcessBlock(m_seed);
-			size_t len = UnsignedMin(16, size);
+			m_cipher.ProcessBlock(m_seed);
+			len = UnsignedMin(16, size);
 			target.ChannelPut(channel, m_seed, len);
 			size -= len;
 		} while (size > 0);
