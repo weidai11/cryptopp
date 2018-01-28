@@ -168,7 +168,7 @@ case "$THE_ARCH" in
 	TOOLCHAIN_NAME="i686-linux-android"
 	AOSP_ABI="x86"
 	AOSP_ARCH="arch-x86"
-	AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -DCRYPTOPP_DISABLE_SSE4 -DCRYPTOPP_DISABLE_CLMUL -DCRYPTOPP_DISABLE_AES -DCRYPTOPP_DISABLE_SHA -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -DCRYPTOPP_DISABLE_SSE4 -funwind-tables -fexceptions -frtti"
 	;;
   x86_64|x64)
 	TOOLCHAIN_ARCH="x86_64"
