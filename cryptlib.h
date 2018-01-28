@@ -1332,17 +1332,20 @@ public:
 	/// \details Alias added to comply with the standard library RNG interface.
 	using result_type = size_t;
 
+	/// \brief Constructs a RandomNumberGenerator
+	RandomNumberGenerator() = default;
+
 	/// \brief Constructs a RandomNumberGenerator, and incorporates an additional seed into the internal state
 	/// \param val a seed value to be incorporated into the internal state
 	/// \details Seeding with the same value twice, will not prodice the same random number sequence.
 	/// \details Constructor added to comply with the standard library RNG interface.
-	//explicit RandomNumberGenerator(result_type seedVal = 1) {seed(seedVal);}
+	explicit RandomNumberGenerator(result_type seedVal) {seed(seedVal);}
 
 	/// \brief Constructs a RandomNumberGenerator, and incorporates an additional seed into the internal state
 	/// \param q a seed sequence to be incorporated into the internal state
 	/// \details Seeding with the same value twice, will not prodice the same random number sequence.
 	/// \details Constructor added to comply with the standard library RNG interface.
-	//template <class Sseq> explicit RandomNumberGenerator(Sseq& q) {seed(q);}
+	template <class Sseq> explicit RandomNumberGenerator(Sseq& q) {seed(q);}
 
 	virtual ~RandomNumberGenerator() {}
 
