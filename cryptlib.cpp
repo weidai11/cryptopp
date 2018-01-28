@@ -316,26 +316,26 @@ void RandomNumberGenerator::GenerateBlock(byte *output, size_t size)
 
 void RandomNumberGenerator::DiscardBytes(size_t n)
 {
-	try
-	{
-		IncorporateEntropy((byte*)&n, sizeof(n));
-	}
-	catch(...)
-	{
+	//try
+	//{
+	//	IncorporateEntropy((byte*)&n, sizeof(n));
+	//}
+	//catch(...)
+	//{
 		GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, n);
-	}
+	//}
 }
 
 void RandomNumberGenerator::discard(unsigned long long z)
 {
-	try
-	{
-		IncorporateEntropy((byte*)&z, sizeof(z));
-	}
-	catch(...)
-	{
-		GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, z);
-	}
+	//try
+	//{
+	//	IncorporateEntropy((byte*)&z, sizeof(z));
+	//}
+	//catch(...)
+	//{
+		GenerateIntoBufferedTransformation(TheBitBucket(), DEFAULT_CHANNEL, z * sizeof(result_type));
+	//}
 }
 
 void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length)
