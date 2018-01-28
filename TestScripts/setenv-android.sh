@@ -29,7 +29,6 @@ unset AOSP_FLAGS
 unset AOSP_SYSROOT
 unset AOSP_LD_SYSROOT
 unset AOSP_SYS_ARCH_INC
-unset AOSP_SYS_INC
 unset AOSP_STL_INC
 unset AOSP_STL_LIB
 unset AOSP_BITS_INC
@@ -168,7 +167,7 @@ case "$THE_ARCH" in
 	TOOLCHAIN_NAME="i686-linux-android"
 	AOSP_ABI="x86"
 	AOSP_ARCH="arch-x86"
-	AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -DCRYPTOPP_DISABLE_SSE4 -DCRYPTOPP_DISABLE_CLMUL -DCRYPTOPP_DISABLE_AES -DCRYPTOPP_DISABLE_SHA -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -DCRYPTOPP_DISABLE_SSE4 -funwind-tables -fexceptions -frtti"
 	;;
   x86_64|x64)
 	TOOLCHAIN_ARCH="x86_64"
@@ -201,7 +200,6 @@ export AR="$TOOLCHAIN_NAME-ar"
 export RANLIB="$TOOLCHAIN_NAME-ranlib"
 export STRIP="$TOOLCHAIN_NAME-strip"
 export AOSP_SYS_ARCH_INC="$ANDROID_NDK_ROOT/sysroot/usr/include/$TOOLCHAIN_NAME"
-export AOSP_SYS_INC="$ANDROID_NDK_ROOT/sysroot/usr/include/"
 
 #####################################################################
 
@@ -396,7 +394,6 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   echo "AOSP_LD_SYSROOT: $AOSP_LD_SYSROOT"
   echo "AOSP_FLAGS: $AOSP_FLAGS"
   echo "AOSP_SYS_ARCH_INC: $AOSP_SYS_ARCH_INC"
-  echo "AOSP_SYS_INC: $AOSP_SYS_INC"
   echo "AOSP_STL_INC: $AOSP_STL_INC"
   echo "AOSP_STL_LIB: $AOSP_STL_LIB"
   if [ ! -z "$AOSP_BITS_INC" ]; then
