@@ -73,11 +73,12 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 		*((volatile word64*)&tt1) = 0;
 		*((volatile word64*)&tt2) = 0;
 
-		for (lword blockCount(size / 16) ; blockCount > 0 ; blockCount--)
-		{
-			m_cipher.ProcessBlock(m_seed);
-			target.ChannelPut(channel, m_seed, 16);
-		}
+		if (size >= 16)
+			for (lword blockCount(size / 16); blockCount > 0; blockCount--)
+			{
+				m_cipher.ProcessBlock(m_seed);
+				target.ChannelPut(channel, m_seed, 16);
+			}
 
 		if (size % 16)
 		{
