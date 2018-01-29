@@ -176,6 +176,24 @@ public:
 	AutoSeededRandomPool(bool blocking, unsigned int seedSize)
 		{Reseed(blocking, seedSize);}
 
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit AutoSeededRandomPool(result_type seedVal, bool blocking = false)
+		: RandomPool(seedVal)
+		{Reseed(blocking);}
+
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit AutoSeededRandomPool(Sseq& q, bool blocking = false)
+		: RandomPool(q)
+		{Reseed(blocking);}
+
 	/// \brief Reseed an AutoSeededRandomPool
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
 	void Reseed(bool blocking = false);
@@ -209,6 +227,26 @@ public:
 	///   The parameter is ignored if only one of these is available.
 	/// \sa X917RNG
 	explicit AutoSeededX917RNG(bool blocking = false, bool autoSeed = true)
+		{if (autoSeed) Reseed(blocking);}
+
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param autoSeed controls auto seeding of the generator
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit AutoSeededX917RNG(result_type seedVal, bool blocking = false, bool autoSeed = true)
+		: RandomNumberGenerator(seedVal)
+		{if (autoSeed) Reseed(blocking);}
+
+	/// \brief Constructs an AutoSeededRandomPool object, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param autoSeed controls auto seeding of the generator
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit AutoSeededX917RNG(Sseq& q, bool blocking = false, bool autoSeed = true)
+		: RandomNumberGenerator(q)
 		{if (autoSeed) Reseed(blocking);}
 
 	/// \brief Reseed an AutoSeededX917RNG

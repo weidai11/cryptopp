@@ -28,6 +28,14 @@ RandomPool::RandomPool()
 	::memset(m_seed, 0, m_seed.SizeInBytes());
 }
 
+RandomPool::RandomPool(result_type seedVal)
+	: RandomNumberGenerator(seedVal), m_keySet(false)
+	{::memset(m_seed, 0, m_seed.SizeInBytes());}
+
+template <class Sseq> RandomPool::RandomPool(Sseq& q)
+	: RandomNumberGenerator(q), m_keySet(false)
+	{::memset(m_seed, 0, m_seed.SizeInBytes());}
+
 void RandomPool::IncorporateEntropy(const byte *input, size_t length)
 {
 	SHA384 hash;

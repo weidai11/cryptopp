@@ -44,6 +44,18 @@ public:
 	/// \brief Construct a RandomPool
 	RandomPool();
 
+	/// \brief Constructs a RandomPool, and incorporates an additional seed into the internal state
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	explicit RandomPool(result_type seedVal);
+
+	/// \brief Constructs a RandomPool, and incorporates an additional seed into the internal state
+	/// \param q a seed sequence to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
+	/// \details Constructor added to comply with the standard library RNG interface.
+	template <class Sseq> explicit RandomPool(Sseq& q);
+
 	bool CanIncorporateEntropy() const {return true;}
 	void IncorporateEntropy(const byte *input, size_t length);
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword size);

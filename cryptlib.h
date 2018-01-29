@@ -1336,14 +1336,14 @@ public:
 	RandomNumberGenerator() = default;
 
 	/// \brief Constructs a RandomNumberGenerator, and incorporates an additional seed into the internal state
-	/// \param val a seed value to be incorporated into the internal state
-	/// \details Seeding with the same value twice, will not prodice the same random number sequence.
+	/// \param seedVal a seed value to be incorporated into the internal state
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
 	/// \details Constructor added to comply with the standard library RNG interface.
 	explicit RandomNumberGenerator(result_type seedVal) {seed(seedVal);}
 
 	/// \brief Constructs a RandomNumberGenerator, and incorporates an additional seed into the internal state
 	/// \param q a seed sequence to be incorporated into the internal state
-	/// \details Seeding with the same value twice, will not prodice the same random number sequence.
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
 	/// \details Constructor added to comply with the standard library RNG interface.
 	template <class Sseq> explicit RandomNumberGenerator(Sseq& q) {seed(q);}
 
@@ -1444,7 +1444,7 @@ public:
 
 	/// \brief Incorporates an additional seed into the internal state
 	/// \param val a seed value to be incorporated into the internal state
-	/// \details Seeding with the same value twice, will not prodice the same random number sequence.
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
 	/// \details Member function added to comply with the standard library RNG interface.
 	void seed(result_type val = 1)
 	{
@@ -1460,7 +1460,7 @@ public:
 
 	/// \brief Incorporates an additional seed into the internal state
 	/// \param q a seed sequence to be incorporated into the internal state
-	/// \details Seeding with the same value twice, will not prodice the same random number sequence.
+	/// \details Seeding with the same value twice, will not produce the same random number sequence.
 	/// \details Member function added to comply with the standard library RNG interface.
 	template <class Sseq> void seed(Sseq& q)
 	{
