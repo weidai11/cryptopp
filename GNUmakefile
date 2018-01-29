@@ -31,7 +31,8 @@ else
 endif
 
 # Attempt to determine host machine, fallback to "this" machine.
-# The host machine is the one the package runs on.
+#   The host machine is the one the package runs on. Most people
+#   call this the "target", but not Autotools.
 HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
 ifeq ($(HOSTX),)
   HOSTX := $(shell uname -m 2>/dev/null)
@@ -46,7 +47,7 @@ IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
 IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c 'sparc')
 IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c 'sparc64')
 
-IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
+IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 
 SYSTEMX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
 IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Linux")
