@@ -78,7 +78,7 @@ local.properties
 
 [Dd]ebug/
 [Rr]elease/
-# Win32/
+Win32/
 x64/
 build/
 [Bb]in/
@@ -108,7 +108,7 @@ build/
 *.tmp
 *.tmp_proj
 *.log
-*.tlog
+# *.tlog
 *.vspscc
 *.vssscc
 .builds
