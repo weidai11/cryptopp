@@ -695,7 +695,7 @@ NAMESPACE_END
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #elif defined(__APPLE__)
 	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
-#elif defined(_AIX)
+#elif defined(_AIX) || defined(__FreeBSD__)
 	#define CRYPTOPP_POSIX_MEMALIGN_AVAILABLE
 #elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
