@@ -24,9 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 RandomPool::RandomPool()
 	: m_keySet(false)
-{
-	::memset(m_seed, 0, m_seed.SizeInBytes());
-}
+	{::memset(m_seed, 0, m_seed.SizeInBytes());}
 
 RandomPool::RandomPool(result_type seedVal)
 	: RandomNumberGenerator(seedVal), m_keySet(false)
@@ -75,15 +73,17 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 		*((volatile word64*)&tt1) = 0;
 		*((volatile word64*)&tt2) = 0;
 
-		size_t len;
-
-		do
+		for (lword blockCount(size / 16) ; blockCount > 0 ; blockCount--)
 		{
 			m_cipher.ProcessBlock(m_seed);
-			len = UnsignedMin(16, size);
-			target.ChannelPut(channel, m_seed, len);
-			size -= len;
-		} while (size > 0);
+			target.ChannelPut(channel, m_seed, 16);
+		}
+
+		if (size % 16)
+		{
+			m_cipher.ProcessBlock(m_seed);
+			target.ChannelPut(channel, m_seed, size % 16);
+		}
 	}
 }
 
