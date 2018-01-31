@@ -690,12 +690,13 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_ALIGN16 0
 #endif
 
-// how to allocate 16-byte aligned memory (for SSE2)
+// How to allocate 16-byte aligned memory (for SSE2)
+// posix_memalign see https://forum.kde.org/viewtopic.php?p=66274
 #if defined(_MSC_VER)
 	#define CRYPTOPP_MM_MALLOC_AVAILABLE
 #elif defined(__APPLE__)
 	#define CRYPTOPP_APPLE_MALLOC_AVAILABLE
-#elif defined(_AIX) || defined(__FreeBSD__)
+#elif defined(_GNU_SOURCE) || ((_XOPEN_SOURCE + 0) >= 600) || defined(_AIX)
 	#define CRYPTOPP_POSIX_MEMALIGN_AVAILABLE
 #elif defined(__NetBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
 	#define CRYPTOPP_MALLOC_ALIGNMENT_IS_16
