@@ -285,16 +285,14 @@ void CallNewHandler()
 void * AlignedAllocate(size_t size)
 {
 	byte *p;
-#if defined(CRYPTOPP_APPLE_ALLOC_AVAILABLE)
-	while ((p = (byte *)malloc(size)) == NULLPTR)
-#elif defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
+#if defined(CRYPTOPP_MM_MALLOC_AVAILABLE)
 	while ((p = (byte *)_mm_malloc(size, 16)) == NULLPTR)
-#elif defined(CRYPTOPP_POSIX_MEMALIGN_AVAILABLE)
-	while (posix_memalign(reinterpret_cast<void**>(&p), 16, size) != 0)
 #elif defined(CRYPTOPP_MEMALIGN_AVAILABLE)
 	while ((p = (byte *)memalign(16, size)) == NULLPTR)
 #elif defined(CRYPTOPP_MALLOC_ALIGNMENT_IS_16)
 	while ((p = (byte *)malloc(size)) == NULLPTR)
+#elif defined(CRYPTOPP_POSIX_MEMALIGN_AVAILABLE)
+	while (posix_memalign(reinterpret_cast<void**>(&p), 16, size) != 0)
 #else
 	while ((p = (byte *)malloc(size + 16)) == NULLPTR)
 #endif
