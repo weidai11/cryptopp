@@ -254,6 +254,13 @@ void OS_GenerateRandomBlock(bool blocking, byte *output, size_t size)
 	}
 }
 
+void AutoSeededRandomPool::Reseed(bool blocking)
+{
+	FixedSizeAlignedSecBlock<byte, DEFAULT_SEEDSIZE> seed;
+	OS_GenerateRandomBlock(blocking, seed, DEFAULT_SEEDSIZE);
+	IncorporateEntropy(seed, DEFAULT_SEEDSIZE);
+}
+
 void AutoSeededRandomPool::Reseed(bool blocking, unsigned int seedSize)
 {
 	SecByteBlock seed(seedSize);
