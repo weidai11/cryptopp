@@ -845,6 +845,8 @@ distclean: clean
 	@-$(RM) cryptopp$(LIB_VER)\.*
 	@-$(RM) CryptoPPRef.zip
 
+# Some users already have a libcryptopp.pc. We install it if the file
+# is present. If you want one, then issue 'make libcryptopp.pc'.
 .PHONY: install
 install:
 	@-$(MKDIR) $(DESTDIR)$(INCLUDEDIR)/cryptopp
@@ -863,12 +865,12 @@ ifneq ($(wildcard cryptest.exe),)
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_DATA) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
 	-install_name_tool -id $(DESTDIR)$(LIBDIR)/libcryptopp.dylib $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_DATA) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
@@ -891,7 +893,7 @@ remove uninstall:
 	@-$(RM) $(DESTDIR)$(LIBDIR)/pkgconfig/libcryptopp.pc
 	@-$(RM) -r $(DESTDIR)$(DATADIR)/cryptopp
 
-libcryptopp.a: $(LIBOBJS) libcryptopp.pc
+libcryptopp.a: $(LIBOBJS)
 	$(AR) $(ARFLAGS) $@ $(LIBOBJS)
 ifeq ($(IS_SUN),0)
 	$(RANLIB) $@
@@ -913,7 +915,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
-libcryptopp.dylib: $(LIBOBJS) libcryptopp.pc
+libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
@@ -940,6 +942,9 @@ cryptest.import.exe: cryptopp.dll libcryptopp.import.a $(TESTIMPORTOBJS)
 dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(DLLTESTOBJS) -L. -lcryptopp.dll $(LDFLAGS) $(LDLIBS)
 
+# Some users already have a libcryptopp.pc. We install it if the file
+# is present. If you want one, then issue 'make libcryptopp.pc'. Be sure
+# to use/verify PREFIX and LIBDIR below after writing the file.
 libcryptopp.pc:
 	@echo '# Crypto++ package configuration file' > libcryptopp.pc
 	@echo '' >> libcryptopp.pc

@@ -405,11 +405,11 @@ ifneq ($(wildcard libcryptopp.a),)
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_DATA) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_DATA) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_PROGRAM) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
