@@ -1,4 +1,6 @@
 # https://www.gnu.org/software/make/manual/make.html#Makefile-Conventions
+# and https://www.gnu.org/prep/standards/standards.html
+
 SHELL = /bin/sh
 
 # Default CXXFLAGS if none were provided
@@ -10,10 +12,15 @@ RANLIB ?= ranlib
 CP ?= cp
 MV ?= mv
 CHMOD ?= chmod
-MKDIR ?= mkdir
+MKDIR ?= mkdir -p
 EGREP ?= egrep
+
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
+
+INSTALL = install
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA = $(INSTALL) -m 644
 
 # Attempt to determine host machine, fallback to "this" machine.
 #   The host machine is the one the package runs on. Most people
@@ -382,29 +389,27 @@ distclean: clean
 
 .PHONY: install
 install:
-	@-$(MKDIR) -p $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	-$(CHMOD) 755 $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	-$(CHMOD) 644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
+	@-$(MKDIR) $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	$(INSTALL_DATA) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
 ifneq ($(wildcard cryptest.exe),)
-	@-$(MKDIR) -p $(DESTDIR)$(BINDIR)
-	$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
-	-$(CHMOD) 755 $(DESTDIR)$(BINDIR)/cryptest.exe
+	@-$(MKDIR) $(DESTDIR)$(BINDIR)
+	$(INSTALL_PROGRAM) cryptest.exe $(DESTDIR)$(BINDIR)
+	@-$(MKDIR) $(DESTDIR)$(DATADIR)/cryptopp/TestData
+	@-$(MKDIR) $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
+	$(INSTALL_DATA) TestData/*.dat $(DESTDIR)$(DATADIR)/cryptopp/TestData
+	$(INSTALL_DATA) TestVectors/*.txt $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
 endif
 ifneq ($(wildcard libcryptopp.a),)
-	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
-	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
-	-$(CHMOD) 644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
+	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_DATA) libcryptopp.a $(DESTDIR)$(LIBDIR)
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
-	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
-	$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
-	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
+	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_DATA) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
-	@-$(MKDIR) -p $(DESTDIR)$(LIBDIR)
-	$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
-	-$(CHMOD) 755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_DATA) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
