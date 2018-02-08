@@ -33,7 +33,9 @@
 ///    <tt>DefaultAutoSeededRNG</tt> within <tt>randombytes</tt>, so OS integration
 ///    must be enabled. You can use another generator like <tt>RDRAND</tt> to
 ///    avoid the restriction.
-/// \sa <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
+/// \sa <A HREF="https://cr.yp.to/highspeed/coolnacl-20120725.pdf">The security impact
+///   of a new cryptographic library</A>, <A
+///   HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917), <A
 ///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A
 ///   Microarchitectural Side Channel Attack on Several Real-World Applications of
