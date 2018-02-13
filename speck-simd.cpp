@@ -18,15 +18,6 @@
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
-// GCC generates bad code when using the table-based 32-bit rotates. Or,
-// GAS assembles it incorrectly (this may be the case since both GCC and
-// Clang produce the same failure). SIMON uses the same code but with a
-// different round function, and SIMON is OK. Jake Lee warned about this
-// at http://stackoverflow.com/q/47617331/608639.
-#if (defined(__aarch32__) || defined(__aarch64__)) && defined(__GNUC__)
-# define WORKAROUND_GCC_AARCH64_BUG 1
-#endif
-
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <pmmintrin.h>
 # include <tmmintrin.h>
@@ -86,7 +77,6 @@ inline uint32x4_t RotateRight32(const uint32x4_t& val)
     return vorrq_u32(a, b);
 }
 
-#if (defined(__aarch32__) || defined(__aarch64__)) && !defined(WORKAROUND_GCC_AARCH64_BUG)
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
@@ -111,14 +101,13 @@ inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
     const uint8_t maskb[16] = { 12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1 };
     const uint8x16_t mask = vld1q_u8(maskb);
 #else
-    const uint8_t maskb[16] = { 1,2,3,0, 5,6,7,4, 9,10,11,8, 13,14,14,12 };
+    const uint8_t maskb[16] = { 1,2,3,0, 5,6,7,4, 9,10,11,8, 13,14,15,12 };
     const uint8x16_t mask = vld1q_u8(maskb);
 #endif
 
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
 }
-#endif
 
 inline uint32x4_t Shuffle32(const uint32x4_t& val)
 {
