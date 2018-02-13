@@ -1,8 +1,7 @@
-// whrlpool.cpp - originally modified by Kevin Springle from
-// Paulo Barreto and Vincent Rijmen's public domain code, whirlpool.c.
-// Updated to Whirlpool version 3.0, optimized and SSE version added by Wei Dai
-// All modifications are placed in the public domain
-
+// whrlpool.cpp - originally modified by Kevin Springle from Paulo Barreto and Vincent Rijmen's
+//                public domain code, whirlpool.c. Updated to Whirlpool version 3.0, optimized
+//                and SSE version added by WD. All modifications are placed in the public domain.
+//
 // This is the original introductory comment:
 
 /**
