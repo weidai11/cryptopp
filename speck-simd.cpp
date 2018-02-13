@@ -77,6 +77,7 @@ inline uint32x4_t RotateRight32(const uint32x4_t& val)
     return vorrq_u32(a, b);
 }
 
+#if defined(__aarch32__) || defined(__aarch64__)
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
@@ -108,6 +109,7 @@ inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
 }
+#endif  // Aarch32 or Aarch64
 
 inline uint32x4_t Shuffle32(const uint32x4_t& val)
 {
