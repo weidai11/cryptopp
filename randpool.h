@@ -51,7 +51,7 @@ public:
 private:
 	FixedSizeAlignedSecBlock<byte, 16, true> m_seed;
 	FixedSizeAlignedSecBlock<byte, 32> m_key;
-	member_ptr<BlockCipher> m_pCipher;
+	AES::Encryption m_cipher;
 	bool m_keySet;
 };
 

@@ -23,7 +23,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 RandomPool::RandomPool()
-	: m_pCipher(new AES::Encryption), m_keySet(false)
+	: m_keySet(false)
 {
 	::memset(m_key, 0, m_key.SizeInBytes());
 	::memset(m_seed, 0, m_seed.SizeInBytes());
@@ -43,7 +43,10 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 	if (size > 0)
 	{
 		if (!m_keySet)
-			m_pCipher->SetKey(m_key, 32);
+		{
+			m_cipher.SetKey(m_key, 32);
+			m_keySet = true;
+		}
 
 		CRYPTOPP_COMPILE_ASSERT(sizeof(TimerWord) <= 16);
 		CRYPTOPP_COMPILE_ASSERT(sizeof(time_t) <= 8);
@@ -67,7 +70,7 @@ void RandomPool::GenerateIntoBufferedTransformation(BufferedTransformation &targ
 
 		do
 		{
-			m_pCipher->ProcessBlock(m_seed);
+			m_cipher.ProcessBlock(m_seed);
 			size_t len = UnsignedMin(16, size);
 			target.ChannelPut(channel, m_seed, len);
 			size -= len;
