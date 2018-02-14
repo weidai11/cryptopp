@@ -14,8 +14,7 @@
 	\ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",	\ref DES_XEX3 "DESX",
 	GOST, IDEA, \ref LR "Luby-Rackoff", Kalyna (128/256/512), MARS, RC2, RC5, RC6, \ref SAFER_K
 	"SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent, \ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK,
-	\ref SIMON128 "SIMON-64 and SIMON-128", \ref SPECK128 "SPECK-64 and SPECK-128", SM4, Square,
-	TEA, \ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
+	SM4, Square, TEA, \ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
 <dt>Stream Ciphers<dd>
 	ChaCha (ChaCha-8/12/20), \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20,
 	\ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20

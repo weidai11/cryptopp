@@ -362,9 +362,6 @@
     <ClCompile Include="simple.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="skipjack.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -378,12 +375,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sosemanuk.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="speck.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="speck-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="square.cpp">
@@ -453,9 +444,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="zlib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simon-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -831,9 +819,6 @@
     <ClInclude Include="simple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="simon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="siphash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -853,9 +838,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="sosemanuk.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="speck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="square.h">
