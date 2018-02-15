@@ -29,8 +29,6 @@ Test: TestVectors/aes.txt
 Test: TestVectors/aria.txt
 Test: TestVectors/kalyna.txt
 Test: TestVectors/threefish.txt
-Test: TestVectors/simon.txt
-Test: TestVectors/speck.txt
 Test: TestVectors/sm4.txt
 Test: TestVectors/salsa.txt
 Test: TestVectors/chacha.txt
