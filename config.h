@@ -54,6 +54,11 @@
 # endif
 #endif
 
+// Define this to disable ASM, intrinsics and built-ins. The code will be
+// compiled using C++ only. The library code will not include SSE2 (and
+// above), NEON, Aarch32, Aarch64, Power4, Power7 or Power8.
+// #define CRYPTOPP_DISABLE_ASM 1
+
 // Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
 // end of this file. Some compilers and standard C++ headers advertise C++11
 // but they are really just C++03 with some additional C++11 headers and
