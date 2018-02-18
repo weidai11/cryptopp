@@ -401,9 +401,6 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			lastName = name;
 		}
 
-		// Most block ciphers don't specify BlockSize. Kalyna and Threefish use it.
-		int blockSize = pairs.GetIntValueWithDefault(Name::BlockSize(), 0);
-
 		// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
 		// 0 is NoPadding, 1 is ZerosPadding, 2 is PkcsPadding, 3 is OneAndZerosPadding, etc
 		// Note: The machinery is wired such that paddingScheme is effectively latched. An
@@ -411,7 +408,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		int paddingScheme = pairs.GetIntValueWithDefault(Name::BlockPaddingScheme(), 0);
 
 		ConstByteArrayParameter iv;
-		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize() && (int)iv.size() != blockSize)
+		if (pairs.GetValue(Name::IV(), iv) && iv.size() != encryptor->IVSize())
 			SignalTestFailure();
 
 		if (test == "Resync")
