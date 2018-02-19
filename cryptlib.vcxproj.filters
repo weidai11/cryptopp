@@ -359,6 +359,12 @@
     <ClCompile Include="sharkbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simon.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simon-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="simple.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -369,6 +375,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sm4.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="speck.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="speck-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="socketft.cpp">
@@ -816,6 +828,9 @@
     <ClInclude Include="shark.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="simon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="simple.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -832,6 +847,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="smartptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="speck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="socketft.h">

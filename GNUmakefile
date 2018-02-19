@@ -250,11 +250,15 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
+    SIMON_FLAG = -mssse3
+    SPECK_FLAG = -mssse3
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
   HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -dM -E - 2>/dev/null | $(GREP) -i -c __SSE4_1__)
   ifeq ($(HAVE_SSE4),1)
     BLAKE2_FLAG = -msse4.1
+    SIMON_FLAG = -msse4.1
+    SPECK_FLAG = -msse4.1
   endif
   HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(GREP) -i -c __SSE4_2__)
   ifeq ($(HAVE_SSE4),1)
@@ -285,11 +289,15 @@ ifeq ($(SUN_COMPILER),1)
   ifeq ($(COUNT),0)
     SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SIMON_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SPECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
   endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_1 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     BLAKE2_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    SIMON_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    SPECK_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     LDFLAGS += -xarch=sse4_1
   endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
@@ -366,6 +374,8 @@ ifeq ($(IS_NEON),1)
     GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     BLAKE2_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SIMON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SPECK_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
   endif
 endif
 
@@ -375,6 +385,8 @@ ifeq ($(IS_ARMV8),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
+    SIMON_FLAG = -march=armv8-a
+    SPECK_FLAG = -march=armv8-a
   endif
   HAVE_CRC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRC32)
   ifeq ($(HAVE_CRC),1)
@@ -397,6 +409,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -mcpu=power4 -maltivec
     ARIA_FLAG = -mcpu=power4 -maltivec
     BLAKE2_FLAG = -mcpu=power4 -maltivec
+    SIMON_FLAG = -mcpu=power4 -maltivec
+    SPECK_FLAG = -mcpu=power4 -maltivec
   endif
   # GCC and some compatibles
   HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -405,6 +419,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     AES_FLAG = -mcpu=power8 -maltivec
     GCM_FLAG = -mcpu=power8 -maltivec
     SHA_FLAG = -mcpu=power8 -maltivec
+    SIMON_FLAG = -mcpu=power8 -maltivec
+    SPECK_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
@@ -412,6 +428,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = -qarch=pwr7 -qaltivec
     BLAKE2_FLAG = -qarch=pwr7 -qaltivec
+    SIMON_FLAG = -qarch=pwr7 -qaltivec
+    SPECK_FLAG = -qarch=pwr7 -qaltivec
   endif
   # IBM XL C/C++
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -422,6 +440,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SHA_FLAG = -qarch=pwr8 -qaltivec
     ARIA_FLAG = -qarch=pwr8 -qaltivec
     BLAKE2_FLAG = -qarch=pwr8 -qaltivec
+    SIMON_FLAG = -qarch=pwr8 -qaltivec
+    SPECK_FLAG = -qarch=pwr8 -qaltivec
   endif
 endif
 
@@ -1056,6 +1076,14 @@ sha-simd.o : sha-simd.cpp
 # SSE4.2/SHA-NI or ARMv8a available
 shacal2-simd.o : shacal2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+
+# SSSE3 or NEON available
+simon-simd.o : simon-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SIMON_FLAG) -c) $<
+
+# SSSE3 or NEON available
+speck-simd.o : speck-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SPECK_FLAG) -c) $<
 
 # Don't build Rijndael with UBsan. Too much noise due to unaligned data accesses.
 ifneq ($(findstring -fsanitize=undefined,$(CXXFLAGS)),)

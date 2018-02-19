@@ -288,12 +288,16 @@
     <ClCompile Include="shacal2-simd.cpp" />
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
+    <ClCompile Include="simon.cpp" />
+    <ClCompile Include="simon-simd.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="sm3.cpp" />
     <ClCompile Include="sm4.cpp" />
     <ClCompile Include="socketft.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
+    <ClCompile Include="speck.cpp" />
+    <ClCompile Include="speck-simd.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="squaretb.cpp" />
     <ClCompile Include="sse-simd.cpp" />
@@ -474,6 +478,7 @@
     <ClInclude Include="shacal2.h" />
     <ClInclude Include="shark.h" />
     <ClInclude Include="simple.h" />
+    <ClInclude Include="simon.h" />
     <ClInclude Include="siphash.h" />
     <ClInclude Include="skipjack.h" />
     <ClInclude Include="sm3.h" />
@@ -481,6 +486,7 @@
     <ClInclude Include="smartptr.h" />
     <ClInclude Include="socketft.h" />
     <ClInclude Include="sosemanuk.h" />
+    <ClInclude Include="speck.h" />
     <ClInclude Include="square.h" />
     <ClInclude Include="stdcpp.h" />
     <ClInclude Include="strciphr.h" />
