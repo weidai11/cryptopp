@@ -860,7 +860,7 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 			}
 			catch (const TestFailure &)
 			{
-				std::cout << "\nTest failed.\n";
+				std::cout << "\nTest FAILED.\n";
 			}
 			catch (const CryptoPP::Exception &e)
 			{
