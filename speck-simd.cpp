@@ -61,6 +61,24 @@ using CryptoPP::word64;
 
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
 
+template <class T>
+inline T UnpackHigh32(const T& a, const T& b)
+{
+    const uint32x2_t x(vget_high_u32((uint32x4_t)a));
+    const uint32x2_t y(vget_high_u32((uint32x4_t)b));
+    const uint32x2x2_t r = vzip_u32(x, y);
+    return (T)vcombine_u32(r.val[0], r.val[1]);
+}
+
+template <class T>
+inline T UnpackLow32(const T& a, const T& b)
+{
+    const uint32x2_t x(vget_low_u32((uint32x4_t)a));
+    const uint32x2_t y(vget_low_u32((uint32x4_t)b));
+    const uint32x2x2_t r = vzip_u32(x, y);
+    return (T)vcombine_u32(r.val[0], r.val[1]);
+}
+
 template <unsigned int R>
 inline uint32x4_t RotateLeft32(const uint32x4_t& val)
 {
@@ -111,27 +129,15 @@ inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
 }
 #endif  // Aarch32 or Aarch64
 
-inline uint32x4_t Shuffle32(const uint32x4_t& val)
-{
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return vreinterpretq_u32_u8(
-        vrev32q_u8(vreinterpretq_u8_u32(val)));
-#else
-    return val;
-#endif
-}
-
 inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
-    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
-
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -144,24 +150,20 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
         y1 = veorq_u32(y1, x1);
     }
 
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
-
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    block0 = vzipq_u32(x1, y1).val[0];
-    block1 = vzipq_u32(x1, y1).val[1];
+    block0 = UnpackLow32(y1, x1);
+    block1 = UnpackHigh32(y1, x1);
 }
 
 inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
-    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
-
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -174,32 +176,26 @@ inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
         x1 = RotateLeft32<8>(x1);
     }
 
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
-
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    block0 = vzipq_u32(x1, y1).val[0];
-    block1 = vzipq_u32(x1, y1).val[1];
+    block0 = UnpackLow32(y1, x1);
+    block1 = UnpackHigh32(y1, x1);
 }
 
 inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
-    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
-    uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
-    uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
-    uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
-    uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
-
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
-    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
-    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t x2 = vuzpq_u32(block2, block3).val[1];
+    uint32x4_t y2 = vuzpq_u32(block2, block3).val[0];
+    uint32x4_t x3 = vuzpq_u32(block4, block5).val[1];
+    uint32x4_t y3 = vuzpq_u32(block4, block5).val[0];
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -222,38 +218,30 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
         y3 = veorq_u32(y3, x3);
     }
 
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
-    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
-    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
-
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    block0 = vzipq_u32(x1, y1).val[0];
-    block1 = vzipq_u32(x1, y1).val[1];
-    block2 = vzipq_u32(x2, y2).val[0];
-    block3 = vzipq_u32(x2, y2).val[1];
-    block4 = vzipq_u32(x3, y3).val[0];
-    block5 = vzipq_u32(x3, y3).val[1];
+    block0 = UnpackLow32(y1, x1);
+    block1 = UnpackHigh32(y1, x1);
+    block2 = UnpackLow32(y2, x2);
+    block3 = UnpackHigh32(y2, x2);
+    block4 = UnpackLow32(y3, x3);
+    block5 = UnpackHigh32(y3, x3);
 }
 
 inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following. If only a single block is available then
     // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    uint32x4_t x1 = vuzpq_u32(block0, block1).val[0];
-    uint32x4_t y1 = vuzpq_u32(block0, block1).val[1];
-    uint32x4_t x2 = vuzpq_u32(block2, block3).val[0];
-    uint32x4_t y2 = vuzpq_u32(block2, block3).val[1];
-    uint32x4_t x3 = vuzpq_u32(block4, block5).val[0];
-    uint32x4_t y3 = vuzpq_u32(block4, block5).val[1];
-
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
-    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
-    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
+    uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
+    uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
+    uint32x4_t x2 = vuzpq_u32(block2, block3).val[1];
+    uint32x4_t y2 = vuzpq_u32(block2, block3).val[0];
+    uint32x4_t x3 = vuzpq_u32(block4, block5).val[1];
+    uint32x4_t y3 = vuzpq_u32(block4, block5).val[0];
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -276,17 +264,13 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
         x3 = RotateLeft32<8>(x3);
     }
 
-    x1 = Shuffle32(x1); y1 = Shuffle32(y1);
-    x2 = Shuffle32(x2); y2 = Shuffle32(y2);
-    x3 = Shuffle32(x3); y3 = Shuffle32(y3);
-
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    block0 = vzipq_u32(x1, y1).val[0];
-    block1 = vzipq_u32(x1, y1).val[1];
-    block2 = vzipq_u32(x2, y2).val[0];
-    block3 = vzipq_u32(x2, y2).val[1];
-    block4 = vzipq_u32(x3, y3).val[0];
-    block5 = vzipq_u32(x3, y3).val[1];
+    block0 = UnpackLow32(y1, x1);
+    block1 = UnpackHigh32(y1, x1);
+    block2 = UnpackLow32(y2, x2);
+    block3 = UnpackHigh32(y2, x2);
+    block4 = UnpackLow32(y3, x3);
+    block5 = UnpackHigh32(y3, x3);
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -359,27 +343,15 @@ inline uint64x2_t RotateRight64<8>(const uint64x2_t& val)
 }
 #endif
 
-inline uint64x2_t Shuffle64(const uint64x2_t& val)
-{
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return vreinterpretq_u64_u8(
-        vrev64q_u8(vreinterpretq_u8_u64(val)));
-#else
-    return val;
-#endif
-}
-
 inline void SPECK128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_t x1 = UnpackLow64(block0, block1);
-    uint64x2_t y1 = UnpackHigh64(block0, block1);
-
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
+    uint64x2_t x1 = UnpackHigh64(block0, block1);
+    uint64x2_t y1 = UnpackLow64(block0, block1);
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -392,31 +364,25 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
         y1 = veorq_u64(y1, x1);
     }
 
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
-
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = UnpackLow64(x1, y1);
-    block1 = UnpackHigh64(x1, y1);
+    block0 = UnpackLow64(y1, x1);
+    block1 = UnpackHigh64(y1, x1);
 }
 
 inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_t x1 = UnpackLow64(block0, block1);
-    uint64x2_t y1 = UnpackHigh64(block0, block1);
-    uint64x2_t x2 = UnpackLow64(block2, block3);
-    uint64x2_t y2 = UnpackHigh64(block2, block3);
-    uint64x2_t x3 = UnpackLow64(block4, block5);
-    uint64x2_t y3 = UnpackHigh64(block4, block5);
-
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
-    x2 = Shuffle64(x2); y2 = Shuffle64(y2);
-    x3 = Shuffle64(x3); y3 = Shuffle64(y3);
+    uint64x2_t x1 = UnpackHigh64(block0, block1);
+    uint64x2_t y1 = UnpackLow64(block0, block1);
+    uint64x2_t x2 = UnpackHigh64(block2, block3);
+    uint64x2_t y2 = UnpackLow64(block2, block3);
+    uint64x2_t x3 = UnpackHigh64(block4, block5);
+    uint64x2_t y3 = UnpackLow64(block4, block5);
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -439,30 +405,24 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
         y3 = veorq_u64(y3, x3);
     }
 
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
-    x2 = Shuffle64(x2); y2 = Shuffle64(y2);
-    x3 = Shuffle64(x3); y3 = Shuffle64(y3);
-
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = UnpackLow64(x1, y1);
-    block1 = UnpackHigh64(x1, y1);
-    block2 = UnpackLow64(x2, y2);
-    block3 = UnpackHigh64(x2, y2);
-    block4 = UnpackLow64(x3, y3);
-    block5 = UnpackHigh64(x3, y3);
+    block0 = UnpackLow64(y1, x1);
+    block1 = UnpackHigh64(y1, x1);
+    block2 = UnpackLow64(y2, x2);
+    block3 = UnpackHigh64(y2, x2);
+    block4 = UnpackLow64(y3, x3);
+    block5 = UnpackHigh64(y3, x3);
 }
 
 inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_t x1 = UnpackLow64(block0, block1);
-    uint64x2_t y1 = UnpackHigh64(block0, block1);
-
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
+    uint64x2_t x1 = UnpackHigh64(block0, block1);
+    uint64x2_t y1 = UnpackLow64(block0, block1);
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -475,31 +435,25 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
         x1 = RotateLeft64<8>(x1);
     }
 
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
-
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = UnpackLow64(x1, y1);
-    block1 = UnpackHigh64(x1, y1);
+    block0 = UnpackLow64(y1, x1);
+    block1 = UnpackHigh64(y1, x1);
 }
 
 inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_t x1 = UnpackLow64(block0, block1);
-    uint64x2_t y1 = UnpackHigh64(block0, block1);
-    uint64x2_t x2 = UnpackLow64(block2, block3);
-    uint64x2_t y2 = UnpackHigh64(block2, block3);
-    uint64x2_t x3 = UnpackLow64(block4, block5);
-    uint64x2_t y3 = UnpackHigh64(block4, block5);
-
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
-    x2 = Shuffle64(x2); y2 = Shuffle64(y2);
-    x3 = Shuffle64(x3); y3 = Shuffle64(y3);
+    uint64x2_t x1 = UnpackHigh64(block0, block1);
+    uint64x2_t y1 = UnpackLow64(block0, block1);
+    uint64x2_t x2 = UnpackHigh64(block2, block3);
+    uint64x2_t y2 = UnpackLow64(block2, block3);
+    uint64x2_t x3 = UnpackHigh64(block4, block5);
+    uint64x2_t y3 = UnpackLow64(block4, block5);
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -522,17 +476,13 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
         x3 = RotateLeft64<8>(x3);
     }
 
-    x1 = Shuffle64(x1); y1 = Shuffle64(y1);
-    x2 = Shuffle64(x2); y2 = Shuffle64(y2);
-    x3 = Shuffle64(x3); y3 = Shuffle64(y3);
-
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = UnpackLow64(x1, y1);
-    block1 = UnpackHigh64(x1, y1);
-    block2 = UnpackLow64(x2, y2);
-    block3 = UnpackHigh64(x2, y2);
-    block4 = UnpackLow64(x3, y3);
-    block5 = UnpackHigh64(x3, y3);
+    block0 = UnpackLow64(y1, x1);
+    block1 = UnpackHigh64(y1, x1);
+    block2 = UnpackLow64(y2, x2);
+    block3 = UnpackHigh64(y2, x2);
+    block4 = UnpackLow64(y3, x3);
+    block5 = UnpackHigh64(y3, x3);
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
@@ -605,8 +555,8 @@ inline __m128i RotateRight64<8>(const __m128i& val)
 inline void GCC_NO_UBSAN SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
@@ -633,8 +583,8 @@ inline void GCC_NO_UBSAN SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
@@ -678,8 +628,8 @@ inline void GCC_NO_UBSAN SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 inline void GCC_NO_UBSAN SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
@@ -706,8 +656,8 @@ inline void GCC_NO_UBSAN SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
@@ -785,8 +735,8 @@ inline __m128i RotateRight32<8>(const __m128i& val)
 inline void GCC_NO_UBSAN SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
     // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
@@ -815,8 +765,8 @@ inline void GCC_NO_UBSAN SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
 inline void GCC_NO_UBSAN SPECK64_Dec_Block(__m128i &block0, __m128i &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
     // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
@@ -846,8 +796,8 @@ inline void GCC_NO_UBSAN SPECK64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
     // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
@@ -901,8 +851,8 @@ inline void GCC_NO_UBSAN SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read from
-    // a big-endian byte array. Depending on the number of blocks it needs to
+    // Rearrange the data for vectorization. The incoming data was read into
+    // a little-endian word array. Depending on the number of blocks it needs to
     // be permuted to the following. Thanks to Peter Cordes for help with the
     // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
