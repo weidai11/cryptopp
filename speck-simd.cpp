@@ -610,7 +610,7 @@ inline void GCC_NO_UBSAN SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
-	__m128i y1 = _mm_unpacklo_epi64(block0, block1);
+    __m128i y1 = _mm_unpacklo_epi64(block0, block1);
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -638,11 +638,11 @@ inline void GCC_NO_UBSAN SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
-	__m128i y1 = _mm_unpacklo_epi64(block0, block1);
+    __m128i y1 = _mm_unpacklo_epi64(block0, block1);
     __m128i x2 = _mm_unpackhi_epi64(block2, block3);
-	__m128i y2 = _mm_unpacklo_epi64(block2, block3);
+    __m128i y2 = _mm_unpacklo_epi64(block2, block3);
     __m128i x3 = _mm_unpackhi_epi64(block4, block5);
-	__m128i y3 = _mm_unpacklo_epi64(block4, block5);
+    __m128i y3 = _mm_unpacklo_epi64(block4, block5);
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -683,7 +683,7 @@ inline void GCC_NO_UBSAN SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
-	__m128i y1 = _mm_unpacklo_epi64(block0, block1);
+    __m128i y1 = _mm_unpacklo_epi64(block0, block1);
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -711,11 +711,11 @@ inline void GCC_NO_UBSAN SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
-	__m128i y1 = _mm_unpacklo_epi64(block0, block1);
+    __m128i y1 = _mm_unpacklo_epi64(block0, block1);
     __m128i x2 = _mm_unpackhi_epi64(block2, block3);
-	__m128i y2 = _mm_unpacklo_epi64(block2, block3);
+    __m128i y2 = _mm_unpacklo_epi64(block2, block3);
     __m128i x3 = _mm_unpackhi_epi64(block4, block5);
-	__m128i y3 = _mm_unpacklo_epi64(block4, block5);
+    __m128i y3 = _mm_unpacklo_epi64(block4, block5);
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -792,8 +792,8 @@ inline void GCC_NO_UBSAN SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
-	__m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -822,8 +822,8 @@ inline void GCC_NO_UBSAN SPECK64_Dec_Block(__m128i &block0, __m128i &block1,
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
-	__m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
@@ -853,18 +853,18 @@ inline void GCC_NO_UBSAN SPECK64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
-	__m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
 
     const __m128 t2 = _mm_castsi128_ps(block2);
     const __m128 t3 = _mm_castsi128_ps(block3);
-	__m128i x2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(2,0,2,0)));
 
     const __m128 t4 = _mm_castsi128_ps(block4);
     const __m128 t5 = _mm_castsi128_ps(block5);
-	__m128i x3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(2,0,2,0)));
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -908,18 +908,18 @@ inline void GCC_NO_UBSAN SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
-	__m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
 
     const __m128 t2 = _mm_castsi128_ps(block2);
     const __m128 t3 = _mm_castsi128_ps(block3);
-	__m128i x2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y2 = _mm_castps_si128(_mm_shuffle_ps(t2, t3, _MM_SHUFFLE(2,0,2,0)));
 
     const __m128 t4 = _mm_castsi128_ps(block4);
     const __m128 t5 = _mm_castsi128_ps(block5);
-	__m128i x3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(3,1,3,1)));
-	__m128i y3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(2,0,2,0)));
+    __m128i x3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(3,1,3,1)));
+    __m128i y3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(2,0,2,0)));
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
