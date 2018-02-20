@@ -662,60 +662,60 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
                                      const word32* rc, const byte* Se)
 {
     const size_t rounds = keyLen / 4 + 6;
-	GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
-	word32 *rk_saved = rk, temp;
+    GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
+    word32 *rk_saved = rk, temp;
 
-	// keySize: m_key allocates 4*(rounds+1) word32's.
-	const size_t keySize = 4*(rounds+1);
-	const word32* end = rk + keySize;
+    // keySize: m_key allocates 4*(rounds+1) word32's.
+    const size_t keySize = 4*(rounds+1);
+    const word32* end = rk + keySize;
 
-	while (true)
-	{
-		temp  = rk[keyLen/4-1];
-		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
-					(word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
-		rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
-		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
-		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
-		rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
+    while (true)
+    {
+        temp  = rk[keyLen/4-1];
+        word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
+                    (word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
+        rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
+        rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
+        rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
+        rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
 
-		if (rk + keyLen/4 + 4 == end)
-			break;
+        if (rk + keyLen/4 + 4 == end)
+            break;
 
-		if (keyLen == 24)
-		{
-			rk[10] = rk[ 4] ^ rk[ 9];
-			rk[11] = rk[ 5] ^ rk[10];
-		}
-		else if (keyLen == 32)
-		{
-			temp = rk[11];
-			rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
-			rk[13] = rk[ 5] ^ rk[12];
-			rk[14] = rk[ 6] ^ rk[13];
-			rk[15] = rk[ 7] ^ rk[14];
-		}
-		rk += keyLen/4;
-	}
+        if (keyLen == 24)
+        {
+            rk[10] = rk[ 4] ^ rk[ 9];
+            rk[11] = rk[ 5] ^ rk[10];
+        }
+        else if (keyLen == 32)
+        {
+            temp = rk[11];
+            rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
+            rk[13] = rk[ 5] ^ rk[12];
+            rk[14] = rk[ 6] ^ rk[13];
+            rk[15] = rk[ 7] ^ rk[14];
+        }
+        rk += keyLen/4;
+    }
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-	rk = rk_saved;
-	const uint8x16_p mask = ((uint8x16_p){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
-	const uint8x16_p zero = {0};
+    rk = rk_saved;
+    const uint8x16_p mask = ((uint8x16_p){12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3});
+    const uint8x16_p zero = {0};
 
-	unsigned int i=0;
-	for (i=0; i<rounds; i+=2, rk+=8)
-	{
-		uint8x16_p d1 = vec_vsx_ld( 0, (uint8_t*)rk);
-		uint8x16_p d2 = vec_vsx_ld(16, (uint8_t*)rk);
-		d1 = vec_perm(d1, zero, mask);
-		d2 = vec_perm(d2, zero, mask);
-		vec_vsx_st(d1,  0, (uint8_t*)rk);
-		vec_vsx_st(d2, 16, (uint8_t*)rk);
-	}
+    unsigned int i=0;
+    for (i=0; i<rounds; i+=2, rk+=8)
+    {
+        uint8x16_p d1 = vec_vsx_ld( 0, (uint8_t*)rk);
+        uint8x16_p d2 = vec_vsx_ld(16, (uint8_t*)rk);
+        d1 = vec_perm(d1, zero, mask);
+        d2 = vec_perm(d2, zero, mask);
+        vec_vsx_st(d1,  0, (uint8_t*)rk);
+        vec_vsx_st(d2, 16, (uint8_t*)rk);
+    }
 
-	for ( ; i<rounds+1; i++, rk+=4)
-		vec_vsx_st(vec_perm(vec_vsx_ld(0, (uint8_t*)rk), zero, mask), 0, (uint8_t*)rk);
+    for ( ; i<rounds+1; i++, rk+=4)
+        vec_vsx_st(vec_perm(vec_vsx_ld(0, (uint8_t*)rk), zero, mask), 0, (uint8_t*)rk);
 #endif
 }
 
