@@ -15,9 +15,9 @@
 //    AltiVec and Power8 code based on http://github.com/noloader/AES-Intrinsics and
 //    http://www.ibm.com/developerworks/library/se-power8-in-core-cryptography/
 //    For Power8 do not remove the casts, even when const-ness is cast away. It causes
-//    a 0.3 to 0.6 cpb drop in performance. The IBM documentation absolutely sucks.
-//    Thanks to Andy Polyakov, Paul R and Trudeaun for answering questions and filling
-//    the gaps in the IBM documentation.
+//    failed compiles and a 0.3 to 0.6 cpb drop in performance. The IBM documentation
+//    absolutely sucks. Thanks to Andy Polyakov, Paul R and Trudeaun for answering
+//    questions and filling the gaps in the IBM documentation.
 //
 
 #include "pch.h"
@@ -662,7 +662,8 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
     const word32 *rc = s_rconBE;
 
     GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
-    word32 *rk_saved = rk, temp;
+    word32 *rk_saved = rk, temp; // unused in big-endian
+    CRYPTOPP_UNUSED(rk_saved);
 
     // keySize: m_key allocates 4*(rounds+1) word32's.
     const size_t keySize = 4*(rounds+1);

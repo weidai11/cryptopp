@@ -719,8 +719,6 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(length >= 8);
 
     CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
@@ -961,10 +959,6 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
 
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
 
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t xmmBlockSize = 16;
@@ -1153,10 +1147,6 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
 
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
 
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t xmmBlockSize = 16;
@@ -1291,10 +1281,8 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_p s_zero = {0,0,0,0};
     const uint32x4_p s_one  = {1,0,0,0};
 #else
-    const uint32x4_p s_zero = {0,0,0,0};
     const uint32x4_p s_one = {0,0,0,1};
 #endif
 
