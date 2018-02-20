@@ -284,7 +284,7 @@ void Rijndael::Base::FillDecTable()
 }
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
-extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk, unsigned int rounds);
+extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
 extern void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds);
 
 extern size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subkeys, size_t rounds,
@@ -331,7 +331,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	{
 		// TODO: Add non-SSE4.1 variant for low-end Atoms. The low-end
 		//  Atoms have SSE2-SSSE3 and AES-NI, but not SSE4.1 or SSE4.2.
-		Rijndael_UncheckedSetKey_SSE4_AESNI(userKey, keyLen, rk, m_rounds);
+		Rijndael_UncheckedSetKey_SSE4_AESNI(userKey, keyLen, rk);
 		if (!IsForwardTransformation())
 			Rijndael_UncheckedSetKeyRev_AESNI(m_key, m_rounds);
 

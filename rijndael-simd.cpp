@@ -446,8 +446,9 @@ static inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i 
 
 ANONYMOUS_NAMESPACE_END
 
-void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk, unsigned int rounds)
+void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32 *rk)
 {
+    const size_t rounds = keyLen / 4 + 6;
     const word32 *rc = s_rconLE;
 
     __m128i temp = _mm_loadu_si128(M128_CAST(userKey+keyLen-16));
