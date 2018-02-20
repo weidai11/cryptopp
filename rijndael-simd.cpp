@@ -547,15 +547,6 @@ static const uint32_t s_rconBE[] = {
     0x1B000000, 0x36000000
 };
 
-/* Permute mask */
-static const uint32_t s_mask[4] = {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d,0x0c0f0e0d
-#else
-    0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c
-#endif
-};
-
 static inline void POWER8_Enc_Block(uint32x4_p &block, const word32 *subkeys, unsigned int rounds)
 {
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
@@ -713,12 +704,10 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
     unsigned int i=0;
     for (i=0; i<rounds; i+=2, rk+=8)
     {
-        uint8x16_p d1 = vec_vsx_ld( 0, (uint8_t*)rk);
-        uint8x16_p d2 = vec_vsx_ld(16, (uint8_t*)rk);
-        d1 = vec_perm(d1, zero, mask);
-        d2 = vec_perm(d2, zero, mask);
-        vec_vsx_st(d1,  0, (uint8_t*)rk);
-        vec_vsx_st(d2, 16, (uint8_t*)rk);
+        const uint8x16_p d1 = vec_vsx_ld( 0, (uint8_t*)rk);
+        const uint8x16_p d2 = vec_vsx_ld(16, (uint8_t*)rk);
+        vec_vsx_st(vec_perm(d1, zero, mask),  0, (uint8_t*)rk);
+        vec_vsx_st(vec_perm(d2, zero, mask), 16, (uint8_t*)rk);
     }
 
     for ( ; i<rounds+1; i++, rk+=4)

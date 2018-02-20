@@ -23,6 +23,7 @@
 //
 
 #ifndef CRYPTOPP_ADVANCED_SIMD_TEMPLATES
+#define CRYPTOPP_ADVANCED_SIMD_TEMPLATES
 
 #include "config.h"
 #include "misc.h"
@@ -70,29 +71,6 @@ ANONYMOUS_NAMESPACE_END
 
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-using CryptoPP::word32;
-using CryptoPP::word64;
-
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_zero32x4[]   = {0, 0, 0, 0};
-const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
-#else
-const word32 s_zero32x4[]   = {0, 0, 0, 0};
-const word32 s_one32x4_1b[] = {0, 0, 0, 1};
-const word32 s_one32x4_2b[] = {0, 2, 0, 2};
-#endif
-
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-#else
-const word32 s_one32x4[] = {0, 0, 0, 1};
-#endif
-
-ANONYMOUS_NAMESPACE_END
-
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F2, typename F6>
@@ -104,6 +82,18 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(inBlocks);
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const word32 s_zero32x4[]   = {0, 0, 0, 0};
+    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+#else
+    const word32 s_zero32x4[]   = {0, 0, 0, 0};
+    const word32 s_one32x4[]    = {0, 0, 0, 1};
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1};
+    const word32 s_one32x4_2b[] = {0, 2, 0, 2};
+#endif
 
     const ptrdiff_t blockSize = 8;
     const ptrdiff_t neonBlockSize = 16;
@@ -328,7 +318,7 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
 }
 
 template <typename F1, typename F6>
-size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
+inline size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
             const word32 *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -336,6 +326,18 @@ size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(inBlocks);
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const word32 s_zero32x4[]   = {0, 0, 0, 0};
+    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+#else
+    const word32 s_zero32x4[]   = {0, 0, 0, 0};
+    const word32 s_one32x4[]    = {0, 0, 0, 1};
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1};
+    const word32 s_one32x4_2b[] = {0, 2, 0, 2};
+#endif
 
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t neonBlockSize = 16;
@@ -471,7 +473,7 @@ size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
 }
 
 template <typename F2, typename F6>
-size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
+inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             const word64 *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -479,6 +481,18 @@ size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(inBlocks);
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const word32 s_zero32x4[]   = {0, 0, 0, 0};
+    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+#else
+    const word32 s_zero32x4[]   = {0, 0, 0, 0};
+    const word32 s_one32x4[]    = {0, 0, 0, 1};
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1};
+    const word32 s_one32x4_2b[] = {0, 2, 0, 2};
+#endif
 
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t neonBlockSize = 16;
@@ -692,21 +706,6 @@ NAMESPACE_END  // CryptoPP
 # define CONST_DOUBLE_CAST(x) ((const double *)(const void *)(x))
 #endif
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-using CryptoPP::word32;
-using CryptoPP::word64;
-
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
-
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-
-ANONYMOUS_NAMESPACE_END
-
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F2, typename F6>
@@ -718,6 +717,13 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(inBlocks);
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
+
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
 
     const ptrdiff_t blockSize = 8;
     const ptrdiff_t xmmBlockSize = 16;
@@ -953,6 +959,13 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t xmmBlockSize = 16;
 
@@ -1138,6 +1151,13 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t xmmBlockSize = 16;
 
@@ -1258,28 +1278,25 @@ NAMESPACE_END  // CryptoPP
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-using CryptoPP::uint32x4_p;
-
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-const uint32x4_p s_one = {1,0,0,0};
-#else
-const uint32x4_p s_one = {0,0,0,1};
-#endif
-
-ANONYMOUS_NAMESPACE_END
-
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F1, typename F6>
-size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6, const word32 *subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
+        const word32 *subKeys, size_t rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
     CRYPTOPP_ASSERT(inBlocks);
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const uint32x4_p s_zero = {0,0,0,0};
+    const uint32x4_p s_one  = {1,0,0,0};
+#else
+    const uint32x4_p s_zero = {0,0,0,0};
+    const uint32x4_p s_one = {0,0,0,1};
+#endif
 
     const ptrdiff_t blockSize = 16;
     // const ptrdiff_t vexBlockSize = 16;
