@@ -1,7 +1,7 @@
 AlgorithmType: SymmetricCipher
 Name: SIMON-64/ECB
 #
-Source: Simon and Simon paper, Appendix B
+Source: Simon and Simon paper, Appendix B (modified)
 Comment: SIMON-64/ECB, 96-bit key
 Key: 00010203 08090A0B 10111213
 Plaintext: 636C696E 6720726F
@@ -60,7 +60,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SIMON-64/ECB
 #
-Source: Simon and Simon paper, Appendix B
+Source: Simon and Simon paper, Appendix B (modified)
 Comment: SIMON-64/ECB, 128-bit key
 Key: 00010203 08090A0B 10111213 18191A1B
 Plaintext: 756E6420 6C696B65
@@ -355,7 +355,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SIMON-128/ECB
 #
-Source: Simon and Simon paper, Appendix B
+Source: Simon and Simon paper, Appendix B (modified)
 Comment: SIMON-128/ECB, 128-bit key
 Key: 0001020304050607 08090A0B0C0D0E0F
 Plaintext: 2074726176656C6C 6572732064657363
@@ -414,7 +414,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SIMON-128/ECB
 #
-Source: Simon and Simon paper, Appendix B
+Source: Simon and Simon paper, Appendix B (modified)
 Comment: SIMON-128/ECB, 192-bit key
 Key: 0001020304050607 08090A0B0C0D0E0F 1011121314151617
 Plaintext: 7269626520776865 6E20746865726520
@@ -473,7 +473,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SIMON-128/ECB
 #
-Source: Simon and Simon paper, Appendix B
+Source: Simon and Simon paper, Appendix B (modified)
 Comment: SIMON-128/ECB, 256-bit key
 Key: 0001020304050607 08090A0B0C0D0E0F 1011121314151617 18191A1B1C1D1E1F
 Plaintext: 697320612073696D 6F6F6D20696E2074

@@ -1,7 +1,7 @@
 AlgorithmType: SymmetricCipher
 Name: SPECK-64/ECB
 #
-Source: Simon and Simon paper, Appendix C
+Source: Simon and Simon paper, Appendix C (modified)
 Comment: SPECK-64/ECB, 96-bit key
 Key: 00010203 08090A0B 10111213
 Plaintext: 65616E73 20466174
@@ -60,7 +60,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SPECK-64/ECB
 #
-Source: Simon and Simon paper, Appendix C
+Source: Simon and Simon paper, Appendix C (modified)
 Comment: SPECK-64/ECB, 128-bit key
 Key: 00010203 08090A0B 10111213 18191A1B
 Plaintext: 2D437574 7465723B
@@ -355,7 +355,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SPECK-128/ECB
 #
-Source: Simon and Simon paper, Appendix C
+Source: Simon and Simon paper, Appendix C (modified)
 Comment: SPECK-128/ECB, 128-bit key
 Key: 0001020304050607 08090A0B0C0D0E0F
 Plaintext: 206D616465206974 206571756976616C
@@ -414,7 +414,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SPECK-128/ECB
 #
-Source: Simon and Simon paper, Appendix C
+Source: Simon and Simon paper, Appendix C (modified)
 Comment: SPECK-128/ECB, 192-bit key
 Key: 0001020304050607 08090A0B0C0D0E0F 1011121314151617
 Plaintext: 656E7420746F2043 6869656620486172
@@ -473,7 +473,7 @@ Test: Encrypt
 AlgorithmType: SymmetricCipher
 Name: SPECK-128/ECB
 #
-Source: Simon and Simon paper, Appendix C
+Source: Simon and Simon paper, Appendix C (modified)
 Comment: SPECK-128/ECB, 256-bit key
 Key: 0001020304050607 08090A0B0C0D0E0F 1011121314151617 18191A1B1C1D1E1F
 Plaintext: 706F6F6E65722E20 496E2074686F7365
