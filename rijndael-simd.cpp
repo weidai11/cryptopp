@@ -539,19 +539,6 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-/* Round constants */
-static const uint32_t s_rcon[3][4] = {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    {0x01,0x01,0x01,0x01},   /*  1 */
-    {0x1b,0x1b,0x1b,0x1b},   /*  9 */
-    {0x36,0x36,0x36,0x36}    /* 10 */
-#else
-    {0x01000000,0x01000000,0x01000000,0x01000000},  /*  1 */
-    {0x1b000000,0x1b000000,0x1b000000,0x1b000000},  /*  9 */
-    {0x36000000,0x36000000,0x36000000,0x36000000}   /* 10 */
-#endif
-};
-
 /* Permute mask */
 static const uint32_t s_mask[4] = {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
@@ -560,40 +547,6 @@ static const uint32_t s_mask[4] = {
     0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c,0x0d0e0f0c
 #endif
 };
-
-static inline uint8x16_p
-Rijndael_Subkey_POWER8(uint8x16_p r1, const uint8x16_p r4, const uint8x16_p r5)
-{
-    // Big endian: vec_sld(a, b, c)
-    // Little endian: vec_sld(b, a, 16-c)
-
-    const uint8x16_p r0 = {0};
-    uint8x16_p r3, r6;
-
-    r3 = VectorPermute(r1, r1, r5);     /* line  1 */
-    r6 = VectorShiftLeft<12>(r0, r1);   /* line  2 */
-    r3 = VectorEncryptLast(r3, r4);     /* line  3 */
-
-    r1 = VectorXor(r1, r6);             /* line  4 */
-    r6 = VectorShiftLeft<12>(r0, r1);   /* line  5 */
-    r1 = VectorXor(r1, r6);             /* line  6 */
-    r6 = VectorShiftLeft<12>(r0, r1);   /* line  7 */
-    r1 = VectorXor(r1, r6);             /* line  8 */
-
-    // Caller handles r4 (rcon) addition
-    // r4 = VectorAdd(r4, r4);          /* line  9 */
-
-    // r1 is ready for next round
-    r1 = VectorXor(r1, r3);             /* line 10 */
-    return r1;
-}
-
-static inline uint8_t*
-IncrementPointerAndStore(const uint8x16_p& r, uint8_t* p)
-{
-    VectorStore(r, (p += 16));
-    return p;
-}
 
 static inline void POWER8_Enc_Block(uint32x4_p &block, const word32 *subkeys, unsigned int rounds)
 {
