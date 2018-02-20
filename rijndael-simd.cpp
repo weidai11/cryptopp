@@ -363,7 +363,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 CRYPTOPP_ALIGN_DATA(16)
 const word32 s_rconLE[] = {
-    0x01, 0x02, 0x04, 0x08,    0x10, 0x20, 0x40, 0x80,    0x1B, 0x36
+    0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36
 };
 
 static inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST word32 *subkeys, unsigned int rounds)
@@ -539,6 +539,14 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+CRYPTOPP_ALIGN_DATA(16)
+static const uint32_t s_rconBE[] = {
+    0x01000000, 0x02000000, 0x04000000, 0x08000000,
+    0x10000000, 0x20000000, 0x40000000, 0x80000000,
+    0x1B000000, 0x36000000
+};
+
 /* Permute mask */
 static const uint32_t s_mask[4] = {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
@@ -656,12 +664,11 @@ static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
 ANONYMOUS_NAMESPACE_END
 
-// We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256.
-// The IBM docs on AES sucks. Intel's docs on AESNI puts IBM to shame.
-void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk,
-                                     const word32* rc, const byte* Se)
+void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32* rk, const byte* Se)
 {
     const size_t rounds = keyLen / 4 + 6;
+    const word32 *rc = s_rconBE;
+
     GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
     word32 *rk_saved = rk, temp;
 
