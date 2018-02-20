@@ -332,8 +332,8 @@ endif
 ifeq ($(HAS_SOLIB_VERSION),1)
 # Full version suffix for shared library
 SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
-# Different patchlevels are compatible, minor versions are not
-SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
+# Different patchlevels and minors are compatible since 6.1
+SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
