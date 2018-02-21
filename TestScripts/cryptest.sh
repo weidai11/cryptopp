@@ -550,6 +550,19 @@ if [[ (-z "$HAVE_CET") ]]; then
 	fi
 fi
 
+# Meltdown and Specter. This is the Reptoline fix
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+if [[ (-z "$HAVE_REPTOLINE") ]]; then
+	HAVE_REPTOLINE=0
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mfunction-return=thunk -mindirect-branch=thunk adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		if [[ ("$?" -eq "0") ]]; then
+			HAVE_REPTOLINE=1
+		fi
+	fi
+fi
+
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_OMP") ]]; then
 	HAVE_OMP=0
@@ -763,6 +776,7 @@ if [[ "$XLC_COMPILER" -ne "0" ]]; then
 	HAVE_GNU20=0
 	HAVE_OMP=0
 	HAVE_CET=0
+	HAVE_REPTOLINE=0
 	HAVE_ASAN=0
 	HAVE_BSAN=0
 	HAVE_UBSAN=0
@@ -872,7 +886,9 @@ if [[ ("$HAVE_ASAN" -ne "0") && (! -z "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYM
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_BSAN: $HAVE_BSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_CET: $HAVE_CET" | tee -a "$TEST_RESULTS"
+echo "HAVE_REPTOLINE: $HAVE_REPTOLINE" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
+# HAVE_REPTOLINE is for Meltdown and Spectre option testing, called Reptoline (play on trampoline)
 
 if [[ "$HAVE_INTEL_MULTIARCH" -ne "0" ]]; then
 	echo "HAVE_INTEL_MULTIARCH: $HAVE_INTEL_MULTIARCH" | tee -a "$TEST_RESULTS"
@@ -4033,6 +4049,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 		fi
 	fi
 fi
+
 ############################################
 # CET, c++03
 if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
@@ -4078,6 +4095,67 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Metldown and Specter, c++03
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
+
+	############################################
+	# Debug build, Metldown and Specter, c++03
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, c++03, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Debug, c++03, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++03 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build, Metldown and Specter, c++03
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++03, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, c++03, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++03 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4385,6 +4463,67 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
+# Metldown and Specter, c++11
+if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
+
+	############################################
+	# Debug build, Metldown and Specter, c++11
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, c++11, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Debug, c++11, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$DEBUG_CXXFLAGS -std=c++11 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build, Metldown and Specter, c++11
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++11, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, c++11, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++11 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Release build, UBSan, c++14
 if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
@@ -4499,6 +4638,36 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Release build, Control-flow Enforcement Technology (Metldown and Specter), c++14
+if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++14, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, c++14, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++14 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
@@ -4647,6 +4816,36 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
+# Release build, Metldown and Specter, c++17
+if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++17, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, c++17, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++17 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Release build, UBSan, c++20
 if [[ ("$HAVE_CXX20" -ne "0" && "$HAVE_UBSAN" -ne "0") ]]; then
 	echo
@@ -4761,6 +4960,36 @@ if [[ ("$HAVE_CXX20" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 	rm -f adhoc.cpp > /dev/null 2>&1
 
 	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++20 -fcf-protection=full -mcet $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
+# Release build, Metldown and Specter, c++20
+if [[ ("$HAVE_CXX20" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++20, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, c++20, Metldown and Specter")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="$RELEASE_CXXFLAGS -std=c++20 -mfunction-return=thunk -mindirect-branch=thunk $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
