@@ -956,10 +956,16 @@ NAMESPACE_END
 
 // ***************** C++11 related ********************
 
-// Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx.
-// Intel and C++11 language features, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
-// GCC and C++11 language features, http://gcc.gnu.org/projects/cxx0x.html
-// Clang and C++11 language features, http://clang.llvm.org/cxx_status.html
+// Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx
+//   and https://docs.microsoft.com/en-us/cpp/visual-cpp-language-conformance .
+// Intel, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
+// GCC, http://gcc.gnu.org/projects/cxx0x.html
+// Clang, http://clang.llvm.org/cxx_status.html
+
+// Compatibility with non-clang compilers.
+#ifndef __has_feature
+# define __has_feature(x) 0
+#endif
 
 #if !defined(CRYPTOPP_NO_CXX11)
 #  if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
@@ -980,11 +986,6 @@ NAMESPACE_END
 
 // C++11 or C++14 is available
 #if defined(CRYPTOPP_CXX11)
-
-// Compatibility with non-clang compilers.
-#ifndef __has_feature
-#  define __has_feature(x) 0
-#endif
 
 // atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; Intel 13.0; SunCC 5.14.
 #if (CRYPTOPP_MSC_VERSION >= 1700) || __has_feature(cxx_atomic) || \
@@ -1068,9 +1069,32 @@ NAMESPACE_END
 # define CRYPTOPP_CXX11_NULLPTR 1
 #endif // nullptr_t compilers
 
-// TODO: Emplacement, R-values and Move semantics
-
 #endif // CRYPTOPP_CXX11
+
+// ***************** C++17 related ********************
+
+#if !defined(CRYPTOPP_NO_CXX17)
+#  if ((_MSC_VER >= 1900) || (__cplusplus >= 201402L)) && !defined(_STLPORT_VERSION)
+#    define CRYPTOPP_CXX17 1
+#  endif
+#endif
+
+// C++17 is available
+#if defined(CRYPTOPP_CXX17)
+
+// C++17 uncaught_exceptions: MS at VS2015 (19.00); GCC at 6.0; Clang at 3.5; Intel 18.0.
+// Clang and __EXCEPTIONS see http://releases.llvm.org/3.6.0/tools/clang/docs/ReleaseNotes.html
+#if defined(__clang__)
+# if __EXCEPTIONS && __has_feature(cxx_exceptions)
+#  define CRYPTOPP_CXX17_EXCEPTIONS 1
+# endif
+#elif (CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1800) || (CRYPTOPP_GCC_VERSION >= 60000)
+# define CRYPTOPP_CXX17_EXCEPTIONS 1
+#endif // uncaught_exceptions compilers
+
+#endif  // CRYPTOPP_CXX17
+
+// ***************** C++ fixups ********************
 
 #if defined(CRYPTOPP_CXX11_NOEXCEPT)
 #  define CRYPTOPP_THROW noexcept(false)
@@ -1125,4 +1149,4 @@ NAMESPACE_END
 # error "std::uncaught_exception is not available. This is likely a configuration error."
 #endif
 
-#endif
+#endif  // CRYPTOPP_CONFIG_H

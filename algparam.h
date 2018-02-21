@@ -3,7 +3,6 @@
 /// \file algparam.h
 /// \brief Classes for working with NameValuePairs
 
-
 #ifndef CRYPTOPP_ALGPARAM_H
 #define CRYPTOPP_ALGPARAM_H
 
@@ -309,8 +308,11 @@ public:
 
 	virtual ~AlgorithmParametersBase() CRYPTOPP_THROW
 	{
-#ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-		if (!std::uncaught_exception())
+
+#if defined(CRYPTOPP_CXX17_EXCEPTIONS)
+		if (std::uncaught_exceptions() == 0)
+#elif defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+		if (std::uncaught_exception() == false)
 #else
 		try
 #endif
@@ -318,7 +320,7 @@ public:
 			if (m_throwIfNotUsed && !m_used)
 				throw ParameterNotUsed(m_name);
 		}
-#ifndef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+#if !defined(CRYPTOPP_CXX17_EXCEPTIONS) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
 		catch(const Exception&)
 		{
 		}

@@ -55,8 +55,6 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-using CryptoPP::byte;
-using CryptoPP::word32;
 using CryptoPP::BlockTransformation;
 
 CRYPTOPP_CONSTANT(BT_XorInput = BlockTransformation::BT_XorInput)

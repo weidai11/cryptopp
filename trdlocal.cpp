@@ -8,6 +8,7 @@
 #if !defined(NO_OS_DEPENDENCE) && defined(THREADS_AVAILABLE)
 
 #include "trdlocal.h"
+#include "stdcpp.h"
 
 #ifdef HAS_WINTHREADS
 #define WIN32_LEAN_AND_MEAN
@@ -45,8 +46,10 @@ ThreadLocalStorage::ThreadLocalStorage()
 
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
-#ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-	if (!std::uncaught_exception())
+#if defined(CRYPTOPP_CXX17_EXCEPTIONS)
+	if (std::uncaught_exceptions() == 0)
+#elif defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+	if (std::uncaught_exception() == false)
 #else
 	try
 #endif
@@ -65,7 +68,7 @@ ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 			throw Err("pthread_key_delete", error);
 	}
 #endif
-#ifndef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+#if !defined(CRYPTOPP_CXX17_EXCEPTIONS) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
 	catch(const Exception&)
 	{
 	}
