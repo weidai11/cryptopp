@@ -4051,7 +4051,7 @@ if [[ ("$HAVE_CXX03" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 fi
 
 ############################################
-# CET, c++03
+# Control-flow Enforcement Technology (CET), c++03
 if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 
 	############################################
@@ -4112,17 +4112,17 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
-# Metldown and Specter, c++03
+# Specter, c++03
 if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 
 	############################################
-	# Debug build, Metldown and Specter, c++03
+	# Debug build, Specter, c++03
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Debug, c++03, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, c++03, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Debug, c++03, Metldown and Specter")
+	TEST_LIST+=("Debug, c++03, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -4144,13 +4144,13 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 	fi
 
 	############################################
-	# Release build, Metldown and Specter, c++03
+	# Release build, Specter, c++03
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, c++03, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++03, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Release, c++03, Metldown and Specter")
+	TEST_LIST+=("Release, c++03, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -4402,7 +4402,7 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_BSAN" -ne "0") ]]; then
 fi
 
 ############################################
-# CET, c++11
+# Control-flow Enforcement Technology (CET), c++11
 if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 
 	############################################
@@ -4463,17 +4463,17 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
-# Metldown and Specter, c++11
+# Specter, c++11
 if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 
 	############################################
-	# Debug build, Metldown and Specter, c++11
+	# Debug build, Specter, c++11
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Debug, c++11, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, c++11, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Debug, c++11, Metldown and Specter")
+	TEST_LIST+=("Debug, c++11, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -4495,13 +4495,13 @@ if [[ ("$HAVE_CXX11" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 	fi
 
 	############################################
-	# Release build, Metldown and Specter, c++11
+	# Release build, Specter, c++11
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, c++11, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++11, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Release, c++11, Metldown and Specter")
+	TEST_LIST+=("Release, c++11, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -4655,14 +4655,14 @@ if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
-# Release build, Control-flow Enforcement Technology (Metldown and Specter), c++14
+# Release build, Specter, c++14
 if [[ ("$HAVE_CXX14" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, c++14, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++14, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Release, c++14, Metldown and Specter")
+	TEST_LIST+=("Release, c++14, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -4816,14 +4816,14 @@ if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
-# Release build, Metldown and Specter, c++17
+# Release build, Specter, c++17
 if [[ ("$HAVE_CXX17" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, c++17, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++17, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Release, c++17, Metldown and Specter")
+	TEST_LIST+=("Release, c++17, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
@@ -4977,14 +4977,14 @@ if [[ ("$HAVE_CXX20" -ne "0" && "$HAVE_CET" -ne "0") ]]; then
 fi
 
 ############################################
-# Release build, Metldown and Specter, c++20
+# Release build, Specter, c++20
 if [[ ("$HAVE_CXX20" -ne "0" && "$HAVE_REPTOLINE" -ne "0") ]]; then
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS"
-	echo "Testing: Release, c++20, Metldown and Specter" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, c++20, Specter" | tee -a "$TEST_RESULTS"
 	echo
 
-	TEST_LIST+=("Release, c++20, Metldown and Specter")
+	TEST_LIST+=("Release, c++20, Specter")
 
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
