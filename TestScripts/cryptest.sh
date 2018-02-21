@@ -380,6 +380,22 @@ else
 	fi
 fi
 
+# https://github.com/weidai11/cryptopp/issues/588
+OPT_O2=
+rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+"$CXX" -DCRYPTOPP_ADHOC_MAIN -O2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+if [[ ("$?" -eq "0") ]]; then
+	HAVE_O2=1
+	OPT_O2=-O2
+else
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ ("$?" -eq "0") ]]; then
+		HAVE_O2=1
+		OPT_O2=-xO2
+	fi
+fi
+
 # Use a fallback strategy so OPT_O3 can be used with RELEASE_CXXFLAGS
 OPT_O3=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
@@ -840,6 +856,7 @@ fi
 
 # -O3, -O5 and -Os
 echo | tee -a "$TEST_RESULTS"
+echo "OPT_O2: $OPT_O2" | tee -a "$TEST_RESULTS"
 echo "OPT_O3: $OPT_O3" | tee -a "$TEST_RESULTS"
 if [[ (! -z "$OPT_O5") || (! -z "$OPT_OS") || (! -z "$OPT_OFAST") ]]; then
 	echo "OPT_O5: $OPT_O5" | tee -a "$TEST_RESULTS"
@@ -3362,6 +3379,67 @@ if [[ "$HAVE_LDGOLD" -ne "0" ]]; then
 fi
 
 ############################################
+# Build at -O2
+if [[ "$HAVE_O2" -ne "0" ]]; then
+
+	############################################
+	# Debug build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Debug, -O2 optimizations" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Debug, -O2 optimizations")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="-DDEBUG $OPT_O2 $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+
+	############################################
+	# Release build
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: Release, -O2 optimizations" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("Release, -O2 optimizations")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXXFLAGS="-DNDEBUG $OPT_O2 $USER_CXXFLAGS"
+	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+		fi
+	fi
+fi
+
+############################################
 # Build at -O3
 if [[ "$HAVE_O3" -ne "0" ]]; then
 
@@ -3377,7 +3455,7 @@ if [[ "$HAVE_O3" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="-DDEBUG $OPT_O0 $USER_CXXFLAGS"
+	CXXFLAGS="-DDEBUG $OPT_O3 $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
