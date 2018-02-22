@@ -27,8 +27,8 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 5,7,0,0
- PRODUCTVERSION 5,7,0,0
+ FILEVERSION 6,2,0,0
+ PRODUCTVERSION 6,2,0,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -46,13 +46,13 @@ BEGIN
             VALUE "Comments", "Free crypto library, more information available at www.cryptopp.com"
             VALUE "CompanyName", "Wei Dai"
             VALUE "FileDescription", "Crypto++® Library DLL"
-            VALUE "FileVersion", "6, 1, 0, 0"
+            VALUE "FileVersion", "6, 2, 0, 0"
             VALUE "InternalName", "cryptopp"
-            VALUE "LegalCopyright", "Copyright© 1995-2016 by Wei Dai"
+            VALUE "LegalCopyright", "Copyright© 1995-2018 by Wei Dai"
             VALUE "LegalTrademarks", "Crypto++®"
             VALUE "OriginalFilename", "cryptopp.dll"
             VALUE "ProductName", "Crypto++® Library"
-            VALUE "ProductVersion", "6, 1, 0, 0"
+            VALUE "ProductVersion", "6, 2, 0, 0"
         END
     END
     BLOCK "VarFileInfo"
