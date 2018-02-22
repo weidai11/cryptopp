@@ -364,9 +364,9 @@ template <class T, class F, int instance>
 
 /// \brief Bounds checking replacement for memcpy()
 /// \param dest pointer to the desination memory block
-/// \param sizeInBytes the size of the desination memory block, in bytes
+/// \param sizeInBytes size of the desination memory block, in bytes
 /// \param src pointer to the source memory block
-/// \param count the size of the source memory block, in bytes
+/// \param count the number of bytes to copy
 /// \throws InvalidArgument
 /// \details ISO/IEC TR-24772 provides bounds checking interfaces for potentially
 ///   unsafe functions like memcpy(), strcpy() and memmove(). However,
@@ -386,8 +386,11 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 
 	// Pointers must be valid; otherwise undefined behavior
 	CRYPTOPP_ASSERT(dest != NULLPTR); CRYPTOPP_ASSERT(src != NULLPTR);
+	// Restricted pointers. We want to check ranges, but it is not clear how to do it.
+	CRYPTOPP_ASSERT(src != dest);
 	// Destination buffer must be large enough to satsify request
 	CRYPTOPP_ASSERT(sizeInBytes >= count);
+
 	if (count > sizeInBytes)
 		throw InvalidArgument("memcpy_s: buffer overflow");
 
@@ -406,9 +409,9 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 
 /// \brief Bounds checking replacement for memmove()
 /// \param dest pointer to the desination memory block
-/// \param sizeInBytes the size of the desination memory block, in bytes
+/// \param sizeInBytes size of the desination memory block, in bytes
 /// \param src pointer to the source memory block
-/// \param count the size of the source memory block, in bytes
+/// \param count the number of bytes to copy
 /// \throws InvalidArgument
 /// \details ISO/IEC TR-24772 provides bounds checking interfaces for potentially
 ///   unsafe functions like memcpy(), strcpy() and memmove(). However,
@@ -430,6 +433,7 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 	CRYPTOPP_ASSERT(dest != NULLPTR); CRYPTOPP_ASSERT(src != NULLPTR);
 	// Destination buffer must be large enough to satsify request
 	CRYPTOPP_ASSERT(sizeInBytes >= count);
+
 	if (count > sizeInBytes)
 		throw InvalidArgument("memmove_s: buffer overflow");
 
