@@ -390,3 +390,20 @@ last several releases.
       - improved Testing and QA
       - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.0,
         MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+
+6.1.0 - minor release, maintenance items
+      - expanded community input and support
+         * 46 unique contributors as of this release
+      - use 2048-bit modulus default for DSA
+      - fix build under Linuxbrew
+      - use /bin/sh in GNUmakefile
+      - fix missing flags for SIMON and SPECK in GNUMakefile-cross
+      - fix ARM and MinGW misdetection
+      - port setenv-android.sh to latest NDK
+      - fix Clang check for C++11 lambdas
+      - Simon and Speck to little-endian implementation
+      - use LIB_MAJOR for ABI compatibility
+      - fix ODR violation in AdvancedProcessBlocks_{ARCH} templates
+      - handle C++17 std::uncaught_exceptions
+      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 8.0.1,
+        MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1

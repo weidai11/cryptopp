@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 6.0 - JAN/22/2018
+Version 6.1 - FEB/22/2018
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -8,16 +8,16 @@ Currently the library contains the following algorithms:
 
  authenticated encryption schemes  GCM, CCM, EAX
 
-        high speed stream ciphers  ChaCha (ChaCha8/12/20), Panama, Sosemanuk,
-                                   Salsa20, XSalsa20
+        high speed stream ciphers  ChaCha (8/12/20), Panama, Sosemanuk, Salsa20,
+                                   XSalsa20
 
            AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
                                    CAST-256
 
                                    ARIA, IDEA, Blowfish, Triple-DES (DES-EDE2 and
-                                   DES-EDE3), Camellia, SEED, Kalyna(128/256/512),
+                                   DES-EDE3), Camellia, SEED, Kalyna (128/256/512),
               other block ciphers  RC5, SIMON-64, SIMON-128, SPECK-64, SPECK-128,
-                                   Skipjack, SHACAL-2, SM4, Threefish(256/512/1024),
+                                   Skipjack, SHACAL-2, SM4, Threefish (256/512/1024),
                                    TEA, XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
@@ -27,7 +27,7 @@ Currently the library contains the following algorithms:
                                    Poly1305, SipHash, Two-Track-MAC, VMAC,
 
                                    BLAKE2s, BLAKE2b, Keccack (F1600), SHA-1,
-                   hash functions  SHA-2(224/256/384/512), SHA-3(224/256/384/512),
+                   hash functions  SHA-2 (224/256/384/512), SHA-3 (224/256/384/512),
                                    SipHash, SM3, Tiger, RIPEMD-128, RIPEMD-160,
                                    RIPEMD-256, RIPEMD-320, WHIRLPOOL
 
@@ -210,6 +210,11 @@ line of defense uses hardware instructions when possible. The library also uses
 cache-aware algoirthms and access patterns to minimize leakage. If you suspect
 or find an information leak then please report it.
 
+Crypto++ does not enagage Specter remediations at this time. The GCC options for
+Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the library
+uses them during testing. If you want the Specter workarounds then add the GCC
+options to your CXXFLAGS when building the library.
+
 *** Documentation and Support ***
 
 Crypto++ is documented through inline comments in header files, which are
@@ -277,7 +282,63 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
-5.6.4 - maintenance release, honored API/ABI/Versioning requirements
+6.1.0 - February 22, 2018
+      - minor release, maintenance items
+      - expanded community input and support
+         * 46 unique contributors as of this release
+      - use 2048-bit modulus default for DSA
+      - fix build under Linuxbrew
+      - use /bin/sh in GNUmakefile
+      - fix missing flags for SIMON and SPECK in GNUMakefile-cross
+      - fix ARM and MinGW misdetection
+      - port setenv-android.sh to latest NDK
+      - fix Clang check for C++11 lambdas
+      - Simon and Speck to little-endian implementation
+      - use LIB_MAJOR for ABI compatibility
+      - fix ODR violation in AdvancedProcessBlocks_{ARCH} templates
+      - handle C++17 std::uncaught_exceptions
+      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 8.0.1,
+        MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+
+6.0.0 - January 22, 2018
+      - major release, recompile of programs required
+      - expanded community input and support
+         * 43 unique contributors as of this release
+      - fixed CVE-2016-9939 (Issue 346, transient DoS)
+      - fixed CVE-2017-9434 (Issue 414, misidentified memory error)
+      - converted to BASE+SIMD implementation
+         * BASE provides an architecture neutral C++ implementation
+         * SIMD provides architecture specific hardware acceleration
+      - improved PowerPC Power4, Power7 and Power8 support
+      - added ARIA, EC German DSA, Deterministic signatures (RFC 6979),
+        Kalyna, NIST Hash and HMAC DRBG, Padlock RNG, Poly1305, SipHash,
+        Simon, Speck, SM3, SM4, Threefish algorithms
+      - added NaCl interface from the compact library
+         * x25519 key exhange and ed25519 signing provided through NaCl interface
+      - improved Testing and QA
+      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.3,
+        MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+
+5.6.5 - October 11, 2016
+      - maintenance release, recompile of programs recommended
+      - expanded community input and support
+         * 25 unique contributors as of this release
+      - fixed CVE-2016-7420 (Issue 277, document NDEBUG for production/release)
+      - fixed CVE-2016-7544 (Issue 302, avoid _malloca and _freea)
+      - shipped library in recommended state
+         * backwards compatibility achieved with <config.compat>
+      - Visual Studio project file cleanup
+         * improved X86 and X64 MSBuild support
+         * added ARM-based MSBuild awareness
+      - improved Testing and QA
+         * expanded platforms and compilers
+         * expanded Coverity into OS X and Windows platforms
+         * added Windows test scripts using Strawberry Perl
+      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0,
+        MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
+
+5.6.4 - September 11, 2016
+      - maintenance release, honored API/ABI/Versioning requirements
       - expanded community input and support
          * 22 unique contributors for this release
       - fixed CVE-2016-3995
@@ -319,39 +380,8 @@ for the record back to Crypto++ 1.0.
       - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0,
         MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
-5.6.5 - maintenance release, recompile of programs recommended
-      - expanded community input and support
-         * 25 unique contributors as of this release
-      - fixed CVE-2016-7420 (Issue 277, document NDEBUG for production/release)
-      - fixed CVE-2016-7544 (Issue 302, avoid _malloca and _freea)
-      - shipped library in recommended state
-         * backwards compatibility achieved with <config.compat>
-      - Visual Studio project file cleanup
-         * improved X86 and X64 MSBuild support
-         * added ARM-based MSBuild awareness
-      - improved Testing and QA
-         * expanded platforms and compilers
-         * expanded Coverity into OS X and Windows platforms
-         * added Windows test scripts using Strawberry Perl
-      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0,
-        MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
-
-6.0.0 - Major release, recompile of programs required
-      - expanded community input and support
-         * 43 unique contributors as of this release
-      - fixed CVE-2016-9939 (Issue 346, transient DoS)
-      - fixed CVE-2017-9434 (Issue 414, misidentified memory error)
-      - converted to BASE+SIMD implementation
-         * BASE provides an architecture neutral C++ implementation
-         * SIMD provides architecture specific hardware acceleration
-      - improved PowerPC Power4, Power7 and Power8 support
-      - added ARIA, EC German DSA, Deterministic signatures (RFC 6979),
-        Kalyna, NIST Hash and HMAC DRBG, Padlock RNG, Poly1305, SipHash,
-        Simon, Speck, SM3, SM4, Threefish algorithms
-      - added NaCl interface from the compact library
-         * x25519 key exhange and ed25519 signing provided through NaCl interface
-      - improved Testing and QA
-      - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.0,
-        MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+June 2015 - Changing of the guard. Wei Dai turned the library over to the
+        community. Wei is no longer involved with the daily operations of
+        the project. Wei still provides guidance when we have questions.
 
 Written by Wei Dai and the Crypto++ Project
