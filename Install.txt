@@ -78,6 +78,10 @@ You can also override a variable so that only your flags are present. That is, t
 
     make CXXFLAGS="-std=c++11"
 
+Crypto++ does not enagage Specter remediations at this time. You can build with Specter resistance with the following flags:
+
+    CXXFLAGS="-DNDEBUG -g2 -O3 -mfunction-return=thunk -mindirect-branch=thunk" make
+
 
 ALTERNATE BUILD SYSTEMS
 -----------------------
