@@ -3,7 +3,7 @@
 /// \file cryptlib.h
 /// \brief Abstract base classes that provide a uniform interface to this library.
 
-/*!	\mainpage Crypto++ Library 6.1 API Reference
+/*!	\mainpage Crypto++ Library 6.2 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
