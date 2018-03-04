@@ -30,6 +30,12 @@
 #if CRYPTOPP_GETAUXV_AVAILABLE
 # include <sys/auxv.h>
 #else
+#ifndef AT_HWCAP
+#define AT_HWCAP 16
+#endif
+#ifndef AT_HWCAP2
+#define AT_HWCAP2 26
+#endif
 unsigned long int getauxval(unsigned long int) { return 0; }
 #endif
 
