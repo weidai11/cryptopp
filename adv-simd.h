@@ -67,7 +67,7 @@ ANONYMOUS_NAMESPACE_END
 
 // *************************** ARM NEON ************************** //
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -193,7 +193,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 extern size_t SIMON64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
@@ -201,7 +201,7 @@ extern size_t SIMON64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 extern size_t SIMON128_Enc_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
@@ -401,7 +401,7 @@ size_t SIMON64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
         return SIMON64_Enc_AdvancedProcessBlocks_SSE41(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return SIMON64_Enc_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
@@ -417,7 +417,7 @@ size_t SIMON64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
         return SIMON64_Dec_AdvancedProcessBlocks_SSE41(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return SIMON64_Dec_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
@@ -435,7 +435,7 @@ size_t SIMON128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
         return SIMON128_Enc_AdvancedProcessBlocks_SSSE3(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return SIMON128_Enc_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
@@ -451,7 +451,7 @@ size_t SIMON128::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
         return SIMON128_Dec_AdvancedProcessBlocks_SSSE3(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return SIMON128_Dec_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
