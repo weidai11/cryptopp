@@ -54,9 +54,11 @@
 # endif
 #endif
 
-// Define this to disable ASM, intrinsics and built-ins. The code will be
+// Define this to disable ASM, intrinsics and built-ins. The library will be
 // compiled using C++ only. The library code will not include SSE2 (and
-// above), NEON, Aarch32, Aarch64, Power4, Power7 or Power8.
+// above), NEON, Aarch32, Aarch64, Power4, Power7 or Power8. Note the compiler
+// may use higher ISAs depending on compiler options, but the library will not
+// explictly use the ISAs.
 // #define CRYPTOPP_DISABLE_ASM 1
 
 // Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
@@ -68,6 +70,10 @@
 // cause -Wterminate warnings under GCC. MSVC++ has a similar warning.
 // Also see https://github.com/weidai11/cryptopp/issues/529
 // #define CRYPTOPP_NO_CXX11 1
+
+// Define CRYPTOPP_NO_CXX17 to avoid C++17 related features shown at the end of
+// this file. At the moment it should only affect std::uncaught_exceptions.
+// #define CRYPTOPP_NO_CXX17 1
 
 // Define this to allow unaligned data access. If you experience a break with
 // GCC at -O3, you should immediately suspect unaligned data accesses.
@@ -1074,7 +1080,7 @@ NAMESPACE_END
 // ***************** C++17 related ********************
 
 // C++17 macro version, https://stackoverflow.com/q/38456127/608639
-#if !defined(CRYPTOPP_NO_CXX17)
+#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX17)
 #  if ((_MSC_VER >= 1900) || (__cplusplus >= 201703L)) && !defined(_STLPORT_VERSION)
 #    define CRYPTOPP_CXX17 1
 #  endif
