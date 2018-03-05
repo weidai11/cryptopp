@@ -59,7 +59,7 @@ using CryptoPP::word64;
 
 // *************************** ARM NEON ************************** //
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <class T>
 inline T UnpackHigh32(const T& a, const T& b)
@@ -275,7 +275,7 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <class T>
 inline T UnpackHigh64(const T& a, const T& b)
@@ -912,7 +912,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // *************************** ARM NEON **************************** //
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 size_t SPECK64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {

@@ -62,7 +62,7 @@ using CryptoPP::vec_swap;  // SunCC
 
 // *************************** ARM NEON ************************** //
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <class T>
 inline T UnpackHigh32(const T& a, const T& b)
@@ -304,7 +304,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <class T>
 inline T UnpackHigh64(const T& a, const T& b)
