@@ -124,6 +124,7 @@ IS_PPC64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(Power64|PPC64)")
 IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$GREP" -i -c -E "(arm|aarch32)")
 IS_ARM64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E  "(arm64|aarch64)")
 IS_S390=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c "s390")
+IS_SPARC=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c "sparc")
 IS_X32=0
 
 # Fixup
@@ -905,7 +906,10 @@ fi
 CPU_COUNT=1
 MEM_SIZE=512
 
-if [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
+if [[ ("$IS_SPARC" -ne "0") && ("$IS_LINUX" -ne "0") ]]; then
+	CPU_COUNT="$($GREP -E 'CPU.*' /proc/cpuinfo | cut -f 1 -d ':' | $SED 's|CPU||g' | sort -n | tail -1)"
+	MEM_SIZE="$($GREP "MemTotal" < /proc/meminfo | $AWK '{print int($2/1024)}')"
+elif [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
 	CPU_COUNT="$($GREP -c -E "^processor" < /proc/cpuinfo)"
 	MEM_SIZE="$($GREP "MemTotal" < /proc/meminfo | $AWK '{print int($2/1024)}')"
 elif [[ "$IS_DARWIN" -ne "0" ]]; then
