@@ -15,9 +15,9 @@
 # define CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS 1
 #endif
 
-// GCC cast warning
+// GCC cast warning. Note: this is used on round key table,
+// which is word32 and naturally aligned.
 #define UINT32_CAST(x) ((uint32_t *)(void *)(x))
-#define CONST_UINT32_CAST(x) ((const uint32_t *)(const void *)(x))
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
