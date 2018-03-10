@@ -74,7 +74,7 @@
 #  else
 #    define GCC_RDRAND_ASM_AVAILABLE 1
 #  endif
-#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40700) && !defined(__OPTIMIZE__)
+#  if defined(__RDSEED__) && (CRYPTOPP_GCC_VERSION >= 40800) && !defined(__OPTIMIZE__)
 #    define ALL_RDSEED_INTRIN_AVAILABLE 1
 #  else
 #    define GCC_RDSEED_ASM_AVAILABLE 1
@@ -291,7 +291,7 @@ inline void RDSEED32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40700)
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40800)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
@@ -333,7 +333,7 @@ inline void RDSEED64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40700)
+#elif defined(GCC_RDSEED_ASM_AVAILABLE) && (CRYPTOPP_GCC_VERSION >= 40800)
     __asm__ __volatile__
     (
         INTEL_NOPREFIX
