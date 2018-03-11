@@ -985,6 +985,19 @@ typedef __vector unsigned char      uint8x16_p8;
 typedef __vector unsigned int       uint32x4_p8;
 typedef __vector unsigned long long uint64x2_p8;
 
+uint32x4_p8 VEC_XL_BE(int offset, const uint8_t* data)
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+    return vec_xl_be(offset, data);
+#else
+    uint32x4_p8 res;
+    __asm(" lxvd2x  %x0, %1, %2    \n\t"
+          : "=wa" (res)
+          : "b" (data), "r" (offset));
+    return res;
+#endif
+}
+
 #endif
 
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
@@ -1007,19 +1020,6 @@ uint32x4_p8 VectorLoad32x4u(const T* data, int offset)
 #endif
 }
 
-// Unaligned load, big-endian
-template <class T> static inline
-uint32x4_p8 VectorLoad32x4ube(const T* data, int offset)
-{
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const uint8x16_p8 mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    const uint32x4_p8 r = VectorLoad32x4u(data, offset);
-    return (uint32x4_p8)vec_perm(r, r, mask);
-#else
-    return VectorLoad32x4u(data, offset);
-#endif
-}
-
 // Aligned store
 template <class T> static inline
 void VectorStore32x4(const uint32x4_p8 val, T* data, int offset)
@@ -1035,6 +1035,20 @@ void VectorStore32x4u(const uint32x4_p8 val, T* data, int offset)
     vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
 #else
     vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
+#endif
+}
+
+// Unaligned load of a user message. The load is big-endian,
+//   and then the message is permuted for 32-bit words.
+template <class T> static inline
+uint32x4_p8 VectorLoadMsg32x4(const T* data, int offset)
+{
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const uint8x16_p8 mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
+    const uint32x4_p8 r = VectorLoad32x4u(data, offset);
+    return (uint32x4_p8)vec_perm(r, r, mask);
+#else
+    return VectorLoad32x4u(data, offset);
 #endif
 }
 
@@ -1165,11 +1179,13 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
 
     uint32x4_p8 abcd = VectorLoad32x4u(state+0, 0);
     uint32x4_p8 efgh = VectorLoad32x4u(state+4, 0);
-
     uint32x4_p8 W[16], S[8], vm, vk;
 
-    while (length >= SHA256::BLOCKSIZE)
+    size_t blocks = length / SHA256::BLOCKSIZE;
+    while (blocks--)
     {
+        unsigned int i, offset=0;
+
         S[A] = abcd; S[E] = efgh;
         S[B] = VectorShiftLeft<4>(S[A]);
         S[F] = VectorShiftLeft<4>(S[E]);
@@ -1178,14 +1194,11 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         S[D] = VectorShiftLeft<4>(S[C]);
         S[H] = VectorShiftLeft<4>(S[G]);
 
-        k = reinterpret_cast<const uint32_t*>(SHA256_K);
-        unsigned int i, offset=0;
-
-        // Unroll the loop to get the constexpr of the round number
-        // for (unsigned int i=0; i<16; ++i, m+=4, offset+=16)
+        // Unroll the loop to provide the round number as a constexpr
+        // for (unsigned int i=0; i<16; ++i)
         {
             vk = VectorLoad32x4(k, offset);
-            vm = VectorLoad32x4ube(m, offset);
+            vm = VectorLoadMsg32x4(m, offset);
             SHA256_ROUND1<0>(W,S, vk,vm);
             offset+=16;
 
@@ -1202,7 +1215,7 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
             SHA256_ROUND1<3>(W,S, vk,vm);
 
             vk = VectorLoad32x4(k, offset);
-            vm = VectorLoad32x4ube(m, offset);
+            vm = VectorLoadMsg32x4(m, offset);
             SHA256_ROUND1<4>(W,S, vk,vm);
             offset+=16;
 
@@ -1219,7 +1232,7 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
             SHA256_ROUND1<7>(W,S, vk,vm);
 
             vk = VectorLoad32x4(k, offset);
-            vm = VectorLoad32x4ube(m, offset);
+            vm = VectorLoadMsg32x4(m, offset);
             SHA256_ROUND1<8>(W,S, vk,vm);
             offset+=16;
 
@@ -1236,7 +1249,7 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
             SHA256_ROUND1<11>(W,S, vk,vm);
 
             vk = VectorLoad32x4(k, offset);
-            vm = VectorLoad32x4ube(m, offset);
+            vm = VectorLoadMsg32x4(m, offset);
             SHA256_ROUND1<12>(W,S, vk,vm);
             offset+=16;
 
@@ -1254,7 +1267,6 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         }
 
         m += 16; // 32-bit words, not bytes
-        length -= SHA256::BLOCKSIZE;
 
         for (i=16; i<64; i+=16)
         {
@@ -1291,8 +1303,8 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         efgh += VectorPack(S[E],S[F],S[G],S[H]);
     }
 
-    VectorStore32x4u(abcd, state,  0);
-    VectorStore32x4u(efgh, state, 16);
+    VectorStore32x4u(abcd, state+0, 0);
+    VectorStore32x4u(efgh, state+4, 0);
 }
 
 static inline
@@ -1319,18 +1331,6 @@ uint64x2_p8 VectorLoad64x2u(const T* data, int offset)
 #endif
 }
 
-// Unaligned load, big-endian
-template <class T> static inline
-uint64x2_p8 VectorLoad64x2ube(const T* data, int offset)
-{
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
-    return VectorPermute64x2(VectorLoad64x2u(data, offset), mask);
-#else
-    return VectorLoad64x2u(data, offset);
-#endif
-}
-
 // Aligned store
 template <class T> static inline
 void VectorStore64x2(const uint64x2_p8 val, T* data, int offset)
@@ -1346,6 +1346,19 @@ void VectorStore64x2u(const uint64x2_p8 val, T* data, int offset)
     vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
 #else
     vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
+#endif
+}
+
+// Unaligned load of a user message. The load is big-endian,
+//   and then the message is permuted for 32-bit words.
+template <class T> static inline
+uint64x2_p8 VectorLoadMsg64x2(const T* data, int offset)
+{
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+	const uint8x16_p8 mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
+    return VectorPermute64x2(VectorLoad64x2u(data, offset), mask);
+#else
+    return VectorLoad64x2u(data, offset);
 #endif
 }
 
@@ -1477,8 +1490,11 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
 
     uint64x2_p8 W[16], S[8], vm, vk;
 
-    while (length >= SHA512::BLOCKSIZE)
+    size_t blocks = length / SHA512::BLOCKSIZE;
+    while (blocks--)
     {
+        unsigned int i, offset=0;
+
         S[A] = ab; S[C] = cd;
         S[E] = ef; S[G] = gh;
         S[B] = VectorShiftLeft<8>(S[A]);
@@ -1486,14 +1502,11 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         S[F] = VectorShiftLeft<8>(S[E]);
         S[H] = VectorShiftLeft<8>(S[G]);
 
-        k = reinterpret_cast<const uint64_t*>(SHA512_K);
-        unsigned int i, offset=0;
-
-        // Unroll the loop to get the constexpr of the round number
-        // for (unsigned int i=0; i<16; ++i, offset+=16)
+        // Unroll the loop to provide the round number as a constexpr
+        // for (unsigned int i=0; i<16; ++i)
         {
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<0>(W,S, vk,vm);
             offset+=16;
 
@@ -1502,7 +1515,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<1>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<2>(W,S, vk,vm);
             offset+=16;
 
@@ -1511,7 +1524,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<3>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<4>(W,S, vk,vm);
             offset+=16;
 
@@ -1520,7 +1533,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<5>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<6>(W,S, vk,vm);
             offset+=16;
 
@@ -1529,7 +1542,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<7>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<8>(W,S, vk,vm);
             offset+=16;
 
@@ -1538,7 +1551,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<9>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<10>(W,S, vk,vm);
             offset+=16;
 
@@ -1547,7 +1560,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<11>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<12>(W,S, vk,vm);
             offset+=16;
 
@@ -1556,7 +1569,7 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
             SHA512_ROUND1<13>(W,S, vk,vm);
 
             vk = VectorLoad64x2(k, offset);
-            vm = VectorLoad64x2ube(m, offset);
+            vm = VectorLoadMsg64x2(m, offset);
             SHA512_ROUND1<14>(W,S, vk,vm);
             offset+=16;
 
@@ -1566,7 +1579,6 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         }
 
         m += 16; // 64-bit words, not bytes
-        length -= SHA512::BLOCKSIZE;
 
         for (i=16 ; i<80; i+=16)
         {
