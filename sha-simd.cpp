@@ -1355,7 +1355,7 @@ template <class T> static inline
 uint64x2_p8 VectorLoadMsg64x2(const T* data, int offset)
 {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-	const uint8x16_p8 mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
+    const uint8x16_p8 mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
     return VectorPermute64x2(VectorLoad64x2u(data, offset), mask);
 #else
     return VectorLoad64x2u(data, offset);
@@ -1487,7 +1487,6 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
     uint64x2_p8 cd = VectorLoad64x2u(state+2, 0);
     uint64x2_p8 ef = VectorLoad64x2u(state+4, 0);
     uint64x2_p8 gh = VectorLoad64x2u(state+6, 0);
-
     uint64x2_p8 W[16], S[8], vm, vk;
 
     size_t blocks = length / SHA512::BLOCKSIZE;
