@@ -998,7 +998,7 @@ uint32x4_p8 VEC_XL_BE(int offset, const uint8_t* data)
 #endif
 }
 
-#endif
+#endif  // CRYPTOPP_POWER8_SHA_AVAILABLE
 
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
 
@@ -1167,9 +1167,9 @@ void SHA256_ROUND2(uint32x4_p8 W[16], uint32x4_p8 S[8], const uint32x4_p8 K)
 
 void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
-    CRYPTOPP_ASSERT(state);
-    CRYPTOPP_ASSERT(data);
+    CRYPTOPP_ASSERT(state); CRYPTOPP_ASSERT(data);
     CRYPTOPP_ASSERT(length >= SHA256::BLOCKSIZE);
+    CRYPTOPP_UNUSED(order);
 
     const uint32_t* k = reinterpret_cast<const uint32_t*>(SHA256_K);
     const uint32_t* m = reinterpret_cast<const uint32_t*>(data);
@@ -1472,9 +1472,9 @@ void SHA512_ROUND2(uint64x2_p8 W[16], uint64x2_p8 S[8], const uint64x2_p8 K)
 
 void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t length, ByteOrder order)
 {
-    CRYPTOPP_ASSERT(state);
-    CRYPTOPP_ASSERT(data);
+    CRYPTOPP_ASSERT(state); CRYPTOPP_ASSERT(data);
     CRYPTOPP_ASSERT(length >= SHA512::BLOCKSIZE);
+    CRYPTOPP_UNUSED(order);
 
     const uint64_t* k = reinterpret_cast<const uint64_t*>(SHA512_K);
     const uint64_t* m = reinterpret_cast<const uint64_t*>(data);
