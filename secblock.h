@@ -71,22 +71,22 @@ public:
 
 #if defined(CRYPTOPP_CXX11_VARIADIC_TEMPLATES) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-	/// \brief Constructs a new U using variadic arguments
-	/// \tparam U the type to be forwarded
+	/// \brief Constructs a new V using variadic arguments
+	/// \tparam V the type to be forwarded
 	/// \tparam Args the arguments to be forwarded
-	/// \param ptr pointer to type U
+	/// \param ptr pointer to type V
 	/// \param args variadic arguments
 	/// \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
 	///   is defined. The define is controlled by compiler versions detected in config.h.
-    template<typename U, typename... Args>
-    void construct(U* ptr, Args&&... args) {::new ((void*)ptr) U(std::forward<Args>(args)...);}
+    template<typename V, typename... Args>
+    void construct(V* ptr, Args&&... args) {::new ((void*)ptr) V(std::forward<Args>(args)...);}
 
-	/// \brief Destroys an U constructed with variadic arguments
-	/// \tparam U the type to be forwarded
+	/// \brief Destroys an V constructed with variadic arguments
+	/// \tparam V the type to be forwarded
 	/// \details This is a C++11 feature. It is available when CRYPTOPP_CXX11_VARIADIC_TEMPLATES
 	///   is defined. The define is controlled by compiler versions detected in config.h.
-    template<typename U>
-    void destroy(U* ptr) {if (ptr) ptr->~U();}
+    template<typename V>
+    void destroy(V* ptr) {if (ptr) ptr->~V();}
 
 #endif
 
@@ -247,16 +247,16 @@ public:
 	}
 
 	/// \brief Template class memeber Rebind
-	/// \tparam U bound class or type
+	/// \tparam V bound class or type
 	/// \details Rebind allows a container class to allocate a different type of object
 	///   to store elements. For example, a std::list will allocate std::list_node to
 	///   store elements in the list.
 	/// \details VS.NET STL enforces the policy of "All STL-compliant allocators
 	///   have to provide a template class member called rebind".
-    template <class U> struct rebind { typedef AllocatorWithCleanup<U, T_Align16> other; };
+    template <class V> struct rebind { typedef AllocatorWithCleanup<V, T_Align16> other; };
 #if _MSC_VER >= 1500
 	AllocatorWithCleanup() {}
-	template <class U, bool A> AllocatorWithCleanup(const AllocatorWithCleanup<U, A> &) {}
+	template <class V, bool A> AllocatorWithCleanup(const AllocatorWithCleanup<V, A> &) {}
 #endif
 };
 
@@ -866,10 +866,10 @@ public:
 	explicit SecBlockWithHint(size_t size) : SecBlock<T, A>(size) {}
 };
 
-template<class T, bool A, class U, bool B>
-inline bool operator==(const CryptoPP::AllocatorWithCleanup<T, A>&, const CryptoPP::AllocatorWithCleanup<U, B>&) {return (true);}
-template<class T, bool A, class U, bool B>
-inline bool operator!=(const CryptoPP::AllocatorWithCleanup<T, A>&, const CryptoPP::AllocatorWithCleanup<U, B>&) {return (false);}
+template<class T, bool A, class V, bool B>
+inline bool operator==(const CryptoPP::AllocatorWithCleanup<T, A>&, const CryptoPP::AllocatorWithCleanup<V, B>&) {return (true);}
+template<class T, bool A, class V, bool B>
+inline bool operator!=(const CryptoPP::AllocatorWithCleanup<T, A>&, const CryptoPP::AllocatorWithCleanup<V, B>&) {return (false);}
 
 NAMESPACE_END
 
