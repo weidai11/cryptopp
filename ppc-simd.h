@@ -47,14 +47,14 @@ inline uint32x4_p VectorLoad(const byte src[16])
     uint8x16_p data;
     if (IsAlignedOn(src, 16))
     {
-        data = vec_ld(0, (uint8_t*)src);
+        data = vec_ld(0, src);
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p perm = vec_lvsl(0, (uint8_t*)src);
-        const uint8x16_p low = vec_ld(0, (uint8_t*)src);
-        const uint8x16_p high = vec_ld(15, (uint8_t*)src);
+        const uint8x16_p perm = vec_lvsl(0, src);
+        const uint8x16_p low = vec_ld(0, src);
+        const uint8x16_p high = vec_ld(15, src);
         data = vec_perm(low, high, perm);
     }
 
@@ -77,7 +77,7 @@ inline void VectorStore(const uint32x4_p data, byte dest[16])
 
     if (IsAlignedOn(dest, 16))
     {
-        vec_st(t1, 0, (uint8_t*) dest);
+        vec_st(t1, 0,  dest);
     }
     else
     {
@@ -147,12 +147,12 @@ inline T Reverse(const T& src)
 inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl_be(0, (uint8_t*)src);
+    return (uint32x4_p)vec_xl_be(0, src);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return (uint32x4_p)Reverse(vec_vsx_ld(0, (uint8_t*)src));
+    return (uint32x4_p)Reverse(vec_vsx_ld(0, src));
 # else
-    return (uint32x4_p)vec_vsx_ld(0, (uint8_t*)src);
+    return (uint32x4_p)vec_vsx_ld(0, src);
 # endif
 #endif
 }
@@ -168,12 +168,12 @@ inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 inline uint32x4_p VectorLoadBE(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl_be(off, (uint8_t*)src);
+    return (uint32x4_p)vec_xl_be(off, src);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return (uint32x4_p)Reverse(vec_vsx_ld(off, (uint8_t*)src));
+    return (uint32x4_p)Reverse(vec_vsx_ld(off, src));
 # else
-    return (uint32x4_p)vec_vsx_ld(off, (uint8_t*)src);
+    return (uint32x4_p)vec_vsx_ld(off, src);
 # endif
 #endif
 }
@@ -187,7 +187,7 @@ inline uint32x4_p VectorLoadBE(int off, const uint8_t src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const byte src[16])
 {
-    return (uint32x4_p)VectorLoadBE((uint8_t*)src);
+    return (uint32x4_p)VectorLoadBE(src);
 }
 
 /// \brief Loads a vector from a byte array
@@ -200,7 +200,7 @@ inline uint32x4_p VectorLoad(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const byte src[16])
 {
-    return (uint32x4_p)VectorLoadBE(off, (uint8_t*)src);
+    return (uint32x4_p)VectorLoadBE(off, src);
 }
 
 /// \brief Loads a vector from a byte array
@@ -213,9 +213,9 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 inline uint32x4_p VectorLoadKey(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl(0, (uint8_t*)src);
+    return (uint32x4_p)vec_xl(0, src);
 #else
-    return (uint32x4_p)vec_vsx_ld(0, (uint8_t*)src);
+    return (uint32x4_p)vec_vsx_ld(0, src);
 #endif
 }
 
@@ -229,9 +229,9 @@ inline uint32x4_p VectorLoadKey(const byte src[16])
 inline uint32x4_p VectorLoadKey(const word32 src[4])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl(0, (uint8_t*)src);
+    return (uint32x4_p)vec_xl(0, src);
 #else
-    return (uint32x4_p)vec_vsx_ld(0, (uint8_t*)src);
+    return (uint32x4_p)vec_vsx_ld(0, src);
 #endif
 }
 
@@ -246,9 +246,9 @@ inline uint32x4_p VectorLoadKey(const word32 src[4])
 inline uint32x4_p VectorLoadKey(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl(off, (uint8_t*)src);
+    return (uint32x4_p)vec_xl(off, src);
 #else
-    return (uint32x4_p)vec_vsx_ld(off, (uint8_t*)src);
+    return (uint32x4_p)vec_vsx_ld(off, src);
 #endif
 }
 
@@ -265,12 +265,12 @@ template <class T>
 inline void VectorStoreBE(const T& src, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst_be((uint8x16_p)src, 0, (uint8_t*)dest);
+    vec_xst_be((uint8x16_p)src, 0, dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-    vec_vsx_st(Reverse((uint8x16_p)src), 0, (uint8_t*)dest);
+    vec_vsx_st(Reverse((uint8x16_p)src), 0, dest);
 # else
-    vec_vsx_st((uint8x16_p)src, 0, (uint8_t*)dest);
+    vec_vsx_st((uint8x16_p)src, 0, dest);
 # endif
 #endif
 }
@@ -288,12 +288,12 @@ template <class T>
 inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst_be((uint8x16_p)src, off, (uint8_t*)dest);
+    vec_xst_be((uint8x16_p)src, off, dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-    vec_vsx_st(Reverse((uint8x16_p)src), off, (uint8_t*)dest);
+    vec_vsx_st(Reverse((uint8x16_p)src), off, dest);
 # else
-    vec_vsx_st((uint8x16_p)src, off, (uint8_t*)dest);
+    vec_vsx_st((uint8x16_p)src, off, dest);
 # endif
 #endif
 }
@@ -311,12 +311,12 @@ inline void VectorStore(const T& src, byte dest[16])
 {
     // Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst_be((uint8x16_p)src, 0, (uint8_t*)dest);
+    vec_xst_be((uint8x16_p)src, 0, dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-    vec_vsx_st(Reverse((uint8x16_p)src), 0, (uint8_t*)dest);
+    vec_vsx_st(Reverse((uint8x16_p)src), 0, dest);
 # else
-    vec_vsx_st((uint8x16_p)src, 0, (uint8_t*)dest);
+    vec_vsx_st((uint8x16_p)src, 0, dest);
 # endif
 #endif
 }
@@ -335,12 +335,12 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 {
     // Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst_be((uint8x16_p)src, off, (uint8_t*)dest);
+    vec_xst_be((uint8x16_p)src, off, dest);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
-    vec_vsx_st(Reverse((uint8x16_p)src), off, (uint8_t*)dest);
+    vec_vsx_st(Reverse((uint8x16_p)src), off, dest);
 # else
-    vec_vsx_st((uint8x16_p)src, off, (uint8_t*)dest);
+    vec_vsx_st((uint8x16_p)src, off, dest);
 # endif
 #endif
 }

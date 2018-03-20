@@ -1006,7 +1006,7 @@ uint32x4_p8 VEC_XL_BE(int offset, const uint8_t* data)
 template <class T> static inline
 uint32x4_p8 VectorLoad32x4(const T* data, int offset)
 {
-    return (uint32x4_p8)vec_ld(offset, (uint8_t*)data);
+    return (uint32x4_p8)vec_ld(offset, data);
 }
 
 // Unaligned load
@@ -1014,9 +1014,9 @@ template <class T> static inline
 uint32x4_p8 VectorLoad32x4u(const T* data, int offset)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p8)vec_xl(offset, (uint8_t*)data);
+    return (uint32x4_p8)vec_xl(offset, data);
 #else
-    return (uint32x4_p8)vec_vsx_ld(offset, (uint8_t*)data);
+    return (uint32x4_p8)vec_vsx_ld(offset, data);
 #endif
 }
 
@@ -1024,7 +1024,7 @@ uint32x4_p8 VectorLoad32x4u(const T* data, int offset)
 template <class T> static inline
 void VectorStore32x4(const uint32x4_p8 val, T* data, int offset)
 {
-    vec_st((uint8x16_p8)val, offset, (uint8_t*)data);
+    vec_st((uint8x16_p8)val, offset, data);
 }
 
 // Unaligned store
@@ -1314,7 +1314,7 @@ uint64x2_p8 VectorPermute64x2(const uint64x2_p8 val, const uint8x16_p8 mask)
 template <class T> static inline
 uint64x2_p8 VectorLoad64x2(const T* data, int offset)
 {
-    return (uint64x2_p8)vec_ld(offset, (uint8_t*)data);
+    return (uint64x2_p8)vec_ld(offset, data);
 }
 
 // Unaligned load
@@ -1322,9 +1322,9 @@ template <class T> static inline
 uint64x2_p8 VectorLoad64x2u(const T* data, int offset)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint64x2_p8)vec_xl(offset, (uint8_t*)data);
+    return (uint64x2_p8)vec_xl(offset, data);
 #else
-    return (uint64x2_p8)vec_vsx_ld(offset, (uint8_t*)data);
+    return (uint64x2_p8)vec_vsx_ld(offset, data);
 #endif
 }
 
@@ -1332,7 +1332,7 @@ uint64x2_p8 VectorLoad64x2u(const T* data, int offset)
 template <class T> static inline
 void VectorStore64x2(const uint64x2_p8 val, T* data, int offset)
 {
-    vec_st((uint8x16_p8)val, offset, (uint8_t*)data);
+    vec_st((uint8x16_p8)val, offset, data);
 }
 
 // Unaligned store
