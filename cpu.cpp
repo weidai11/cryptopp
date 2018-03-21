@@ -603,6 +603,9 @@ inline bool CPU_QueryAltivec()
 #if defined(__linux__)
 	if (getauxval(AT_HWCAP) & PPC_FEATURE_HAS_ALTIVEC)
 		return true;
+#elif defined(_AIX)
+	if (__power_vmx() != 0)
+		return true;
 #elif defined(__APPLE__) && defined(__POWERPC__)
 	// http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 	struct utsname systemInfo;
@@ -623,10 +626,10 @@ inline bool CPU_QueryPower7()
 {
 	// Power7 and ISA 2.06
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE_ARCH_2_06 != 0)
+	if (getauxval(AT_HWCAP) & PPC_FEATURE_ARCH_2_06 != 0)
 		return true;
 #elif defined(_AIX)
-	if (__power_8_andup() != 0)
+	if (__power_7_andup() != 0)
 		return true;
 #endif
 	return false;
@@ -650,7 +653,7 @@ inline bool CPU_QueryAES()
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO != 0)
 		return true;
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
@@ -664,7 +667,7 @@ inline bool CPU_QuerySHA256()
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO != 0)
 		return true;
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
@@ -677,7 +680,7 @@ inline bool CPU_QuerySHA512()
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO != 0)
 		return true;
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
