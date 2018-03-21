@@ -623,7 +623,10 @@ inline bool CPU_QueryPower7()
 {
 	// Power7 and ISA 2.06
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE_ARCH_2_06)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE_ARCH_2_06 != 0)
+		return true;
+#elif defined(_AIX)
+	if (__power_8_andup() != 0)
 		return true;
 #endif
 	return false;
@@ -633,7 +636,10 @@ inline bool CPU_QueryPower8()
 {
 	// Power8 and ISA 2.07 provide in-core crypto.
 #if defined(__linux__)
-	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
+	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07 != 0)
+		return true;
+#elif defined(_AIX)
+	if (__power_8_andup() != 0)
 		return true;
 #endif
 	return false;
@@ -646,8 +652,9 @@ inline bool CPU_QueryAES()
 #if defined(__linux__)
 	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
 		return true;
-	//if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
-	//	return true;
+#elif defined(_AIX)
+	if (__power_8_andup() != 0)
+		return true;
 #endif
 	return false;
 }
@@ -659,8 +666,9 @@ inline bool CPU_QuerySHA256()
 #if defined(__linux__)
 	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
 		return true;
-	//if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
-	//	return true;
+#elif defined(_AIX)
+	if (__power_8_andup() != 0)
+		return true;
 #endif
 	return false;
 }
@@ -671,8 +679,9 @@ inline bool CPU_QuerySHA512()
 #if defined(__linux__)
 	if (getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO)
 		return true;
-	//if (getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07)
-	//	return true;
+#elif defined(_AIX)
+	if (__power_8_andup() != 0)
+		return true;
 #endif
 	return false;
 }
