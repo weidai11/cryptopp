@@ -404,7 +404,7 @@ inline bool CPU_QueryCRC32()
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0)&&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_CRC32) != 0))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
@@ -423,7 +423,7 @@ inline bool CPU_QueryCRC32()
 inline bool CPU_QueryPMULL()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0)&&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
@@ -446,11 +446,11 @@ inline bool CPU_QueryPMULL()
 inline bool CPU_QueryAES()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0)&&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0)&&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_AES) != 0))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
@@ -516,7 +516,7 @@ inline bool CPU_QuerySHA1()
 inline bool CPU_QuerySHA2()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0)&&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
