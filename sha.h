@@ -2,8 +2,8 @@
 
 /// \file sha.h
 /// \brief Classes for SHA-1 and SHA-2 family of message digests
-/// \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0,
-///   ARM SHA since Crypto++ 6.0, Intel SHA since Crypto++ 6.0
+/// \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0, ARMv8 SHA since
+///   Crypto++ 6.0, Intel SHA since Crypto++ 6.0, Power8 SHA since Crypto++ 6.1
 
 #ifndef CRYPTOPP_SHA_H
 #define CRYPTOPP_SHA_H
@@ -21,7 +21,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SHA-1 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-1">SHA-1</a>
-/// \since Crypto++ 1.0, Intel SHA extensions since Crypto++ 6.0
+/// \since SHA1 since Crypto++ 1.0, SHA2 since Crypto++ 4.0, ARMv8 SHA since
+///   Crypto++ 6.0, Intel SHA since Crypto++ 6.0
 class CRYPTOPP_DLL SHA1 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 20, SHA1>
 {
 public:
@@ -56,7 +57,8 @@ protected:
 
 /// \brief SHA-256 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-256">SHA-256</a>
-/// \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
+/// \since SHA2 since Crypto++ 4.0, ARMv8 SHA since Crypto++ 6.0,
+///   Intel SHA since Crypto++ 6.0, Power8 SHA since Crypto++ 6.1
 class CRYPTOPP_DLL SHA256 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA256, 32, true>
 {
 public:
@@ -91,7 +93,8 @@ protected:
 
 /// \brief SHA-224 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-224">SHA-224</a>
-/// \since Crypto++ 4.0, Intel SHA extensions since Crypto++ 6.0
+/// \since SHA2 since Crypto++ 4.0, ARMv8 SHA since Crypto++ 6.0,
+///   Intel SHA since Crypto++ 6.0, Power8 SHA since Crypto++ 6.1
 class CRYPTOPP_DLL SHA224 : public IteratedHashWithStaticTransform<word32, BigEndian, 64, 32, SHA224, 28, true>
 {
 public:
@@ -126,7 +129,7 @@ protected:
 
 /// \brief SHA-512 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-512">SHA-512</a>
-/// \since Crypto++ 4.0
+/// \since SHA2 since Crypto++ 4.0, Power8 SHA since Crypto++ 6.1
 class CRYPTOPP_DLL SHA512 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA512, 64, SHA_X86_ALIGN16>
 {
 public:
@@ -158,7 +161,7 @@ public:
 
 /// \brief SHA-384 message digest
 /// \sa <a href="http://www.weidai.com/scan-mirror/md.html#SHA-384">SHA-384</a>
-/// \since Crypto++ 4.0
+/// \since SHA2 since Crypto++ 4.0, Power8 SHA since Crypto++ 6.1
 class CRYPTOPP_DLL SHA384 : public IteratedHashWithStaticTransform<word64, BigEndian, 128, 64, SHA384, 48, SHA_X86_ALIGN16>
 {
 public:
