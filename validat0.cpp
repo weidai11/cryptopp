@@ -3157,7 +3157,7 @@ bool TestIntegerOps()
     {
         try {
             Integer x = 0;
-            Integer y = 1;
+            Integer y = 0;
             Integer z = a_times_b_mod_c(y, y, x);
             result = false;
         }
@@ -3174,7 +3174,7 @@ bool TestIntegerOps()
     {
         try {
             Integer x = 0;
-            Integer y = 1;
+            Integer y = 0;
             Integer z = (y * y) % x;
             result = false;
         }
@@ -3191,7 +3191,7 @@ bool TestIntegerOps()
     {
         try {
             Integer x = 0;
-            Integer y = 1;
+            Integer y = 0;
             Integer z = a_exp_b_mod_c(y, y, x);
             result = false;
         }
@@ -3208,8 +3208,40 @@ bool TestIntegerOps()
     {
         try {
             Integer x = 0;
-            Integer y = 1;
+            Integer y = 0;
             Integer z = EuclideanDomainOf<Integer>().Exponentiate(y, y) % x;
+            result = false;
+        }
+        catch(const Integer::DivideByZero&) {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
+    }
+
+    // Integer divide by 0
+    {
+        try {
+            Integer r=1, q=1, a=1, d=0;
+            Integer::Divide(r, q, a, d);
+            result = false;
+        }
+        catch(const Integer::DivideByZero&) {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
+    }
+
+    // Another Integer divide by 0
+    {
+        try {
+            Integer q=1, a=1; word r=1, d=0;
+            Integer::Divide(r, q, a, d);
             result = false;
         }
         catch(const Integer::DivideByZero&) {
@@ -3227,7 +3259,7 @@ bool TestIntegerOps()
         std::cout << "FAILED:";
     std::cout << "  Integer DivideByZero\n";
 
-    // ****************************** RandomNumberNotFound ******************************
+    // ************************ RandomNumberNotFound ************************
 
     try {
         // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
@@ -3243,7 +3275,7 @@ bool TestIntegerOps()
         std::cout << "FAILED:";
     std::cout << "  Integer RandomNumberNotFound\n";
 
-    // ****************************** Carmichael pseudo-primes ******************************
+    // ************************ Carmichael pseudo-primes ************************
 
     pass=true;
     if (IsPrime(Integer("561")))
@@ -3468,6 +3500,45 @@ bool TestIntegerOps()
     else
        std::cout << "FAILED:";
     std::cout << "  InverseMod operations\n";
+
+    // ****************************** Integer Divide ******************************
+
+    // Divide (Integer &r, Integer &q, const Integer &a, const Integer &d)
+    for (unsigned int i=0; i<128; ++i)
+    {
+        Integer r, q, a(prng, 1024), d(prng, 1024);
+        Integer::Divide(r, q, a, d);
+
+        Integer xr = a % d;
+        Integer xq = a / d;
+        result = (r == xr) && (q == xq);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Divide operation\n";
+    }
+
+    // Divide (word &r, Integer &q, const Integer &a, word d)
+    for (unsigned int i=0; i<128; ++i)
+    {
+        word r, d = prng.GenerateWord32();
+        Integer q, a(prng, 1024);
+        Integer::Divide(r, q, a, d);
+
+        Integer xr = a % Integer(Integer::POSITIVE, 0, d);
+        Integer xq = a / Integer(Integer::POSITIVE, 0, d);
+        result = (Integer(Integer::POSITIVE, 0, r) == xr) && (q == xq);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Divide operation\n";
+    }
+
+    if (pass)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  Divide operations\n";
 
     // ****************************** Integer Power2 ******************************
 
