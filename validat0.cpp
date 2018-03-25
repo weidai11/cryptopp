@@ -3136,6 +3136,7 @@ bool TestIntegerOps()
 {
     std::cout << "\nTesting Integer operations...\n\n";
     bool pass=true, result;
+    RandomNumberGenerator& prng = GlobalRNG();
 
     // ****************************** DivideByZero ******************************
 
@@ -3202,7 +3203,7 @@ bool TestIntegerOps()
     if (!pass)
         std::cout << "FAILED:  Integer Doubled\n";
 
-    // ****************************** Integer::Double ******************************
+    // ****************************** Integer::Square ******************************
 
     try {
         Integer x = Integer::Two().Squared();
@@ -3230,7 +3231,33 @@ bool TestIntegerOps()
        std::cout << "FAILED:";
     std::cout << "  Squaring operations\n";
 
-    // ****************************** Integer::Modulo and Integer::InverseMod ******************************
+    // ****************************** Integer::GCD ******************************
+
+    {
+        for (unsigned int i=0; i<128; ++i)
+        {
+            Integer x, y;
+            AlgorithmParameters params =
+                MakeParameters("BitLength", 256)("RandomNumberType", Integer::PRIME);
+
+            x.GenerateRandom(prng, params);
+            y.GenerateRandom(prng, params);
+
+            if (x != y)
+            {
+                result = (Integer::Gcd(x,y) == 1);
+                pass = result && pass;
+            }
+        }
+
+        if (pass)
+           std::cout << "passed:";
+        else
+           std::cout << "FAILED:";
+        std::cout << "  GCD operations\n";
+    }
+
+    // ******************** Integer::Modulo and Integer::InverseMod ********************
 
     {
            // http://github.com/weidai11/cryptopp/issues/602
@@ -3243,7 +3270,6 @@ bool TestIntegerOps()
             std::cout << "FAILED:  InverseMod operation\n";
     }
 
-    RandomNumberGenerator& prng = GlobalRNG();
     for (unsigned int i=0; i<128+64; ++i)
     {
         Integer a(prng, 1024), m(prng, 1024);
@@ -3387,15 +3413,96 @@ bool TestIntegerOps()
         pass = result && pass;
         if (!result)
             std::cout << "FAILED:  Power2 (1) operation\n";
-
-        if (pass)
-           std::cout << "passed:";
-        else
-           std::cout << "FAILED:";
-        std::cout << "  Power2 operations\n";
     }
 
-    // ****************************** Integer::Power2 ******************************
+    for (unsigned int i=0; i<128; i+=2)
+    {
+        Integer b = 2, m(prng, 2048);
+
+        Integer x = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+        Integer y = Integer::Power2(i) % m;
+
+        pass = (x == y) && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    if (pass)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  Power2 operations\n";
+
+    // ****************************** Integer Exponentiation ******************************
+
+    // Be careful with EuclideanDomainOf<Integer>().Exponentiate(). It can easily consume
+    // all machine memory because it is an exponentiation without a modular reduction.
+
+    {
+        word32  m = prng.GenerateWord32();
+        Integer z = Integer::Zero();
+        Integer x = a_exp_b_mod_c(z, z, m);
+        Integer y = EuclideanDomainOf<Integer>().Exponentiate(0, 0) % m;
+
+        pass = (x == y) && (x == 1) && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    for (unsigned int i=0; i<128; i+=2)
+    {
+        Integer b = 0, m(prng, 2048);
+
+        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+
+        pass = (x == y) && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    for (unsigned int i=0; i<128; i+=2)
+    {
+        Integer b = 1, m(prng, 2048);
+
+        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+
+        pass = (x == y) && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    for (unsigned int i=0; i<128; i+=2)
+    {
+        Integer b = 2, m(prng, 2048);
+
+        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+
+        pass = (x == y) && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    // Run the exponent 0 to 24
+    for (unsigned int i=0; i<24; ++i)
+    {
+        Integer b(prng, 32), m(prng, 2048);
+
+        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+
+        pass = (x == y) && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    if (pass)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  Exponentiation operations\n";
 
     return pass;
 }
