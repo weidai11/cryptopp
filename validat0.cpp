@@ -3193,6 +3193,128 @@ bool TestIntegerBitops()
 
     return opa && opo && opx;
 }
+
+bool TestIntegerOps()
+{
+    std::cout << "\nTesting Integer operations...\n\n";
+    bool pass=true, result;
+
+    // http://github.com/weidai11/cryptopp/issues/602
+    Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
+    Integer b("0x3D2F050001");
+
+    result = (0x3529E4FEBC == a.InverseMod(b));
+    pass = result && pass;
+    if (!result)
+        std::cout << "FAILED:  InverseMod operation\n";
+
+    RandomNumberGenerator& prng = GlobalRNG();
+    for (unsigned int i=0; i<128; ++i)
+    {
+        Integer a(prng, 1024), m(prng, 1024);
+        a++, m++;  // make non-0
+
+        // Corner cases
+        switch (i)
+        {
+        case 0:
+            a = 0;
+            break;
+        case 1:
+            a = m-1;
+            break;
+        case 2:
+            a = m;
+            break;
+        case 3:
+            a = m+1;
+            break;
+        case 4:
+            a = 2*m-1;
+            break;
+        case 5:
+            a = 2*m;
+            break;
+        case 6:
+            a = 2*m+1;
+            break;
+        case 7:
+            a = (m<<256)-1;
+            break;
+        case 8:
+            a = (m<<256);
+            break;
+        case 9:
+            a = (m<<256)+1;
+        default:
+            ;;
+        }
+
+        Integer x = a.InverseMod(m);
+        Integer y = (a % m).InverseMod(m);
+        Integer z = (a * y).Modulo(m);
+
+        if (GCD(a,m) == 1)  // coprime?
+            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        else
+            result = (x == y);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  InverseMod operation\n";
+    }
+
+    for (unsigned int i=0; i<128; ++i)
+    {
+        Integer m(prng, 32);
+        m++; // make non-0
+
+        for (unsigned int j=0; j<256; j+=4)
+        {
+            Integer a((m << j)-1);
+
+            Integer x = a.InverseMod(m);
+            Integer y = (a % m).InverseMod(m);
+            Integer z = (a * y).Modulo(m);
+
+            if (GCD(a,m) == 1)  // coprime?
+                result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+            else
+                result = (x == y);
+
+            pass = result && pass;
+            if (!result)
+                std::cout << "FAILED:  InverseMod operation\n";
+        }
+    }
+
+    for (unsigned int i=0; i<128; ++i)
+    {
+        Integer a(prng, 4096), m(prng, 32);
+        a++, m++; // make non-0
+
+        Integer x = a.InverseMod(m);
+        Integer y = (a % m).InverseMod(m);
+        Integer z = (a * y).Modulo(m);
+
+        if (GCD(a,m) == 1)  // coprime?
+            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        else
+            result = (x == y);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  InverseMod operation\n";
+    }
+
+    if (pass)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  Integer::InverseMod operations\n";
+
+    return pass;
+}
 #endif
 
 NAMESPACE_END  // Test

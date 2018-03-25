@@ -4380,7 +4380,20 @@ Integer Integer::InverseMod(const Integer &m) const
 	CRYPTOPP_ASSERT(m.NotNegative());
 
 	if (IsNegative())
-		return Modulo(m).InverseMod(m);
+		return Modulo(m).InverseModNext(m);
+
+	// Place *this in the range [0, 2m-1]
+	// http://github.com/weidai11/cryptopp/issues/602
+	if (*this >= (m << 1))
+		return Modulo(m).InverseModNext(m);
+
+	return InverseModNext(m);
+}
+
+Integer Integer::InverseModNext(const Integer &m) const
+{
+	CRYPTOPP_ASSERT(m.NotNegative());
+	CRYPTOPP_ASSERT(*this < 2*m);
 
 	if (m.IsEven())
 	{
@@ -4389,11 +4402,12 @@ Integer Integer::InverseMod(const Integer &m) const
 		if (*this == One())
 			return One();
 
-		Integer u = m.Modulo(*this).InverseMod(*this);
+		Integer u = m.Modulo(*this).InverseModNext(*this);
 		return !u ? Zero() : (m*(*this-u)+1)/(*this);
 	}
 
-	SecBlock<word> T(m.reg.size() * 4);
+	// AlmostInverse requires a 4x workspace
+	IntegerSecBlock T(m.reg.size() * 4);
 	Integer r((word)0, m.reg.size());
 	unsigned k = AlmostInverse(r.reg, T, reg, reg.size(), m.reg, m.reg.size());
 	DivideByPower2Mod(r.reg, r.reg, k, m.reg, m.reg.size());
