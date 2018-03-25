@@ -4361,11 +4361,13 @@ Integer Integer::MultiplicativeInverse() const
 
 Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m)
 {
+	CRYPTOPP_ASSERT(m != 0);
 	return x*y%m;
 }
 
 Integer a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m)
 {
+	CRYPTOPP_ASSERT(m != 0);
 	ModularArithmetic mr(m);
 	return mr.Exponentiate(x, e);
 }
@@ -4378,6 +4380,7 @@ Integer Integer::Gcd(const Integer &a, const Integer &b)
 Integer Integer::InverseMod(const Integer &m) const
 {
 	CRYPTOPP_ASSERT(m.NotNegative());
+	CRYPTOPP_ASSERT(m != 0);
 
 	if (IsNegative())
 		return Modulo(m).InverseModNext(m);
@@ -4392,7 +4395,7 @@ Integer Integer::InverseMod(const Integer &m) const
 Integer Integer::InverseModNext(const Integer &m) const
 {
 	CRYPTOPP_ASSERT(m.NotNegative());
-	CRYPTOPP_ASSERT(*this < 2*m);
+	CRYPTOPP_ASSERT(m != 0);
 
 	if (m.IsEven())
 	{
@@ -4415,6 +4418,8 @@ Integer Integer::InverseModNext(const Integer &m) const
 
 word Integer::InverseMod(word mod) const
 {
+	CRYPTOPP_ASSERT(mod != 0);
+
 	word g0 = mod, g1 = *this % mod;
 	word v0 = 0, v1 = 1;
 	word y;

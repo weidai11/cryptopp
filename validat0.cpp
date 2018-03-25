@@ -3140,11 +3140,85 @@ bool TestIntegerOps()
 
     // ****************************** DivideByZero ******************************
 
-    try {
-        Integer x = Integer::Two().Power2(128) / Integer::Zero();
-        pass=false;
-    } catch (const Exception&) {
-        pass=true;
+    {
+        try {
+            Integer x = Integer(prng, 128) / Integer::Zero();
+            result=false;
+        } catch (const Exception&) {
+            result=true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
+    }
+
+    // The 0*0 % 0 test.
+    {
+        try {
+            Integer x = 0;
+            Integer y = 1;
+            Integer z = a_times_b_mod_c(y, y, x);
+            result = false;
+        }
+        catch(const Integer::DivideByZero&) {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
+    }
+
+    // Another 0*0 % 0 test.
+    {
+        try {
+            Integer x = 0;
+            Integer y = 1;
+            Integer z = (y * y) % x;
+            result = false;
+        }
+        catch(const Integer::DivideByZero&) {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
+    }
+
+    // The 0^0 % 0 test.
+    {
+        try {
+            Integer x = 0;
+            Integer y = 1;
+            Integer z = a_exp_b_mod_c(y, y, x);
+            result = false;
+        }
+        catch(const Integer::DivideByZero&) {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
+    }
+
+    // Another 0^0 % 0 test.
+    {
+        try {
+            Integer x = 0;
+            Integer y = 1;
+            Integer z = EuclideanDomainOf<Integer>().Exponentiate(y, y) % x;
+            result = false;
+        }
+        catch(const Integer::DivideByZero&) {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Integer DivideByZero\n";
     }
 
     if (pass)
@@ -3191,7 +3265,7 @@ bool TestIntegerOps()
         std::cout << "FAILED:";
     std::cout << "  Carmichael pseudo-primes\n";
 
-    // ****************************** Integer::Double ******************************
+    // ****************************** Integer Double ******************************
 
     try {
         Integer x = Integer::One().Doubled();
@@ -3203,7 +3277,7 @@ bool TestIntegerOps()
     if (!pass)
         std::cout << "FAILED:  Integer Doubled\n";
 
-    // ****************************** Integer::Square ******************************
+    // ****************************** Integer Square ******************************
 
     try {
         Integer x = Integer::Two().Squared();
@@ -3231,7 +3305,7 @@ bool TestIntegerOps()
        std::cout << "FAILED:";
     std::cout << "  Squaring operations\n";
 
-    // ****************************** Integer::GCD ******************************
+    // ****************************** Integer GCD ******************************
 
     {
         for (unsigned int i=0; i<128; ++i)
@@ -3257,7 +3331,7 @@ bool TestIntegerOps()
         std::cout << "  GCD operations\n";
     }
 
-    // ******************** Integer::Modulo and Integer::InverseMod ********************
+    // ******************** Integer Modulo and InverseMod ********************
 
     {
            // http://github.com/weidai11/cryptopp/issues/602
@@ -3395,7 +3469,7 @@ bool TestIntegerOps()
        std::cout << "FAILED:";
     std::cout << "  InverseMod operations\n";
 
-    // ****************************** Integer::Power2 ******************************
+    // ****************************** Integer Power2 ******************************
 
     {
         Integer x, y;
@@ -3405,14 +3479,14 @@ bool TestIntegerOps()
 
         pass = result && pass;
         if (!result)
-            std::cout << "FAILED:  Power2 (0) operation\n";
+            std::cout << "FAILED:  Power2 operation\n";
 
         x = Integer::Power2(1);
         result = (x == 2);
 
         pass = result && pass;
         if (!result)
-            std::cout << "FAILED:  Power2 (1) operation\n";
+            std::cout << "FAILED:  Power2 operation\n";
     }
 
     for (unsigned int i=0; i<128; i+=2)
@@ -3421,10 +3495,11 @@ bool TestIntegerOps()
 
         Integer x = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
         Integer y = Integer::Power2(i) % m;
+        result = (x == y);
 
-        pass = (x == y) && pass;
+        pass = result && pass;
         if (!result)
-            std::cout << "FAILED:  Exponentiation operation\n";
+            std::cout << "FAILED:  Power2 operation\n";
     }
 
     if (pass)
@@ -3438,62 +3513,111 @@ bool TestIntegerOps()
     // Be careful with EuclideanDomainOf<Integer>().Exponentiate(). It can easily consume
     // all machine memory because it is an exponentiation without a modular reduction.
 
+    // The 0^0 test. There are mixed opinions about what the
+    // result should be. Some say it is undefined because, others
+    // say it is 0, and yet others say it is 1.
     {
         word32  m = prng.GenerateWord32();
+        if (m == 0) m++;
+
         Integer z = Integer::Zero();
         Integer x = a_exp_b_mod_c(z, z, m);
-        Integer y = EuclideanDomainOf<Integer>().Exponentiate(0, 0) % m;
+        Integer y = EuclideanDomainOf<Integer>().Exponentiate(z, z) % m;
+        result = (x == y) && (x == 1);
 
-        pass = (x == y) && (x == 1) && pass;
+        pass = result && pass;
         if (!result)
             std::cout << "FAILED:  Exponentiation operation\n";
     }
 
+    // The 0^0 % 0 test.
+    {
+        try
+        {
+            Integer x = 0;
+            Integer y = a_exp_b_mod_c(x, x, x);
+            result = false;
+        }
+        catch(const Integer::DivideByZero&)
+        {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    // Another 0^0 % 0 test.
+    {
+        try
+        {
+            Integer x = 0;
+            Integer z = EuclideanDomainOf<Integer>().Exponentiate(0, 0) % x;
+            result = false;
+        }
+        catch(const Integer::DivideByZero&)
+        {
+            result = true;
+        }
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Exponentiation operation\n";
+    }
+
+    // Run the exponent 0 to 128 on base 0
     for (unsigned int i=0; i<128; i+=2)
     {
         Integer b = 0, m(prng, 2048);
 
         Integer x = a_exp_b_mod_c(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+        result = (x == y);
 
-        pass = (x == y) && pass;
+        pass = result && pass;
         if (!result)
             std::cout << "FAILED:  Exponentiation operation\n";
     }
 
+    // Run the exponent 1 to 128 on base 2
     for (unsigned int i=0; i<128; i+=2)
     {
         Integer b = 1, m(prng, 2048);
 
         Integer x = a_exp_b_mod_c(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+        result = (x == y);
 
-        pass = (x == y) && pass;
+        pass = result && pass;
         if (!result)
             std::cout << "FAILED:  Exponentiation operation\n";
     }
 
+    // Run the exponent 0 to 128 on base 2
     for (unsigned int i=0; i<128; i+=2)
     {
         Integer b = 2, m(prng, 2048);
 
         Integer x = a_exp_b_mod_c(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+        result = (x == y);
 
-        pass = (x == y) && pass;
+        pass = result && pass;
         if (!result)
             std::cout << "FAILED:  Exponentiation operation\n";
     }
 
-    // Run the exponent 0 to 24
+    // Run the exponent 0 to 24 on random base
     for (unsigned int i=0; i<24; ++i)
     {
         Integer b(prng, 32), m(prng, 2048);
 
         Integer x = a_exp_b_mod_c(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
+        result = (x == y);
 
-        pass = (x == y) && pass;
+        pass = result && pass;
         if (!result)
             std::cout << "FAILED:  Exponentiation operation\n";
     }
