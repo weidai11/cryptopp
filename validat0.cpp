@@ -3137,7 +3137,8 @@ bool TestIntegerOps()
     std::cout << "\nTesting Integer operations...\n\n";
     bool pass=true, result;
 
-    // Integer is missing a couple of tests...
+    // ****************************** DivideByZero ******************************
+
     try {
         Integer x = Integer::Two().Power2(128) / Integer::Zero();
         pass=false;
@@ -3151,13 +3152,15 @@ bool TestIntegerOps()
         std::cout << "FAILED:";
     std::cout << "  Integer DivideByZero\n";
 
-    // Integer is missing a couple of tests...
-    pass=true;
+    // ****************************** RandomNumberNotFound ******************************
+
     try {
         // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
         Integer x = Integer(GlobalRNG(), 31398, 31468, Integer::PRIME);
         pass=false;
-    } catch (const Exception&) { }
+    } catch (const Exception&) {
+        pass=true;
+    }
 
     if (pass)
         std::cout << "passed:";
@@ -3165,7 +3168,8 @@ bool TestIntegerOps()
         std::cout << "FAILED:";
     std::cout << "  Integer RandomNumberNotFound\n";
 
-    // Carmichael pseudo-primes
+    // ****************************** Carmichael pseudo-primes ******************************
+
     pass=true;
     if (IsPrime(Integer("561")))
         pass = false;
@@ -3186,7 +3190,8 @@ bool TestIntegerOps()
         std::cout << "FAILED:";
     std::cout << "  Carmichael pseudo-primes\n";
 
-    // Integer is missing a couple of tests...
+    // ****************************** Integer::Double ******************************
+
     try {
         Integer x = Integer::One().Doubled();
         pass=(x == Integer::Two());
@@ -3197,17 +3202,49 @@ bool TestIntegerOps()
     if (!pass)
         std::cout << "FAILED:  Integer Doubled\n";
 
-    // http://github.com/weidai11/cryptopp/issues/602
-    Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
-    Integer b("0x3D2F050001");
+    // ****************************** Integer::Double ******************************
 
-    result = (Integer("0x3529E4FEBC") == a.InverseMod(b));
-    pass = result && pass;
-    if (!result)
-        std::cout << "FAILED:  InverseMod operation\n";
+    try {
+        Integer x = Integer::Two().Squared();
+        pass=(x == 4);
+    } catch (const Exception&) {
+        pass=false;
+    }
+
+    if (!pass)
+        std::cout << "FAILED:  Integer Squared\n";
+
+    try {
+        Integer x = Integer::Two().Squared();
+        pass=(x == 4) && x.IsSquare();
+    } catch (const Exception&) {
+        pass=false;
+    }
+
+    if (!pass)
+        std::cout << "FAILED:  Integer IsSquare\n";
+
+    if (pass)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  Squaring operations\n";
+
+    // ****************************** Integer::Modulo and Integer::InverseMod ******************************
+
+    {
+           // http://github.com/weidai11/cryptopp/issues/602
+        Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
+        Integer b("0x3D2F050001");
+
+        result = (Integer("0x3529E4FEBC") == a.InverseMod(b));
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  InverseMod operation\n";
+    }
 
     RandomNumberGenerator& prng = GlobalRNG();
-    for (unsigned int i=0; i<128; ++i)
+    for (unsigned int i=0; i<128+64; ++i)
     {
         Integer a(prng, 1024), m(prng, 1024);
         a++, m++;  // make non-0
@@ -3216,34 +3253,29 @@ bool TestIntegerOps()
         switch (i)
         {
         case 0:
-            a = 0;
-            break;
+            a = -1; break;
         case 1:
-            a = m-1;
-            break;
+            a = 0; break;
         case 2:
-            a = m;
-            break;
+            a = 1; break;
         case 3:
-            a = m+1;
-            break;
+            a = m-1; break;
         case 4:
-            a = 2*m-1;
-            break;
+            a = m; break;
         case 5:
-            a = 2*m;
-            break;
+            a = m+1; break;
         case 6:
-            a = 2*m+1;
-            break;
+            a = 2*m-1; break;
         case 7:
-            a = (m<<256)-1;
-            break;
+            a = 2*m; break;
         case 8:
-            a = (m<<256);
-            break;
+            a = 2*m+1; break;
         case 9:
-            a = (m<<256)+1;
+            a = (m<<256)-1; break;
+        case 10:
+            a = (m<<256); break;
+        case 11:
+            a = (m<<256)+1; break;
         default:
             ;;
         }
@@ -3336,6 +3368,34 @@ bool TestIntegerOps()
     else
        std::cout << "FAILED:";
     std::cout << "  InverseMod operations\n";
+
+    // ****************************** Integer::Power2 ******************************
+
+    {
+        Integer x, y;
+
+        x = Integer::Power2(0);
+        result = (x == 1);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Power2 (0) operation\n";
+
+        x = Integer::Power2(1);
+        result = (x == 2);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  Power2 (1) operation\n";
+
+        if (pass)
+           std::cout << "passed:";
+        else
+           std::cout << "FAILED:";
+        std::cout << "  Power2 operations\n";
+    }
+
+    // ****************************** Integer::Power2 ******************************
 
     return pass;
 }
