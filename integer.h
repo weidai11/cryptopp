@@ -613,32 +613,57 @@ public:
 		/// \brief Determine whether this integer is a perfect square
 		bool IsSquare() const;
 
-		/// is 1 or -1
+		/// \brief Determine if 1 or -1
+		/// \returns true if this integer is 1 or -1, false otherwise
 		bool IsUnit() const;
-		/// return inverse if 1 or -1, otherwise return 0
+		/// \brief Calculate multiplicative inverse
+		/// \returns MultiplicativeInverse inverse if 1 or -1, otherwise return 0.
 		Integer MultiplicativeInverse() const;
 
-		/// \brief calculate r and q such that (a == d*q + r) && (0 <= r < abs(d))
+		/// \brief Extended Division
+		/// \param r a reference for the remainder
+		/// \param q a reference for the quotient
+		/// \param a a reference to the dividend
+		/// \param d a reference to the divisor
+		/// \details Divide calculates r and q such that (a == d*q + r) && (0 <= r < abs(d)).
 		static void CRYPTOPP_API Divide(Integer &r, Integer &q, const Integer &a, const Integer &d);
-		/// \brief use a faster division algorithm when divisor is short
+
+		/// \brief Extended Division
+		/// \param r a reference for the remainder
+		/// \param q a reference for the quotient
+		/// \param a a reference to the dividend
+		/// \param d a reference to the divisor
+		/// \details Divide calculates r and q such that (a == d*q + r) && (0 <= r < abs(d)).
+		///   This overload uses a faster division algorithm because the divisor is short.
 		static void CRYPTOPP_API Divide(word &r, Integer &q, const Integer &a, word d);
 
-		/// \brief returns same result as Divide(r, q, a, Power2(n)), but faster
+		/// \brief Extended Division
+		/// \param r a reference for the remainder
+		/// \param q a reference for the quotient
+		/// \param a a reference to the dividend
+		/// \param n a reference to the divisor
+		/// \details DivideByPowerOf2 calculates r and q such that (a == d*q + r) && (0 <= r < abs(d)).
+		///   It returns same result as Divide(r, q, a, Power2(n)), but faster.
+		///   This overload uses a faster division algorithm because the divisor is a power of 2.
 		static void CRYPTOPP_API DivideByPowerOf2(Integer &r, Integer &q, const Integer &a, unsigned int n);
 
 		/// \brief Calculate greatest common divisor
+		/// \param a a reference to the first number
+		/// \param n a reference to the secind number
+		/// \returns the greatest common divisor <tt>a</tt> and <tt>n</tt>.
 		static Integer CRYPTOPP_API Gcd(const Integer &a, const Integer &n);
+
 		/// \brief Calculate multiplicative inverse
 		/// \param n a reference to the modulus
 		/// \returns an Integer <tt>*this % n</tt>.
-		/// details InverseMod returns the multiplicative inverse of the Integer <tt>*this</tt>
+		/// \details InverseMod returns the multiplicative inverse of the Integer <tt>*this</tt>
 		///  modulo the Integer <tt>n</tt>. If no Integer exists then Integer 0 is returned.
 		/// \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer InverseMod(const Integer &n) const;
 		/// \brief Calculate multiplicative inverse
 		/// \param n the modulus
 		/// \returns a word <tt>*this % n</tt>.
-		/// details InverseMod returns the multiplicative inverse of the Integer <tt>*this</tt>
+		/// \details InverseMod returns the multiplicative inverse of the Integer <tt>*this</tt>
 		///  modulo the word <tt>n</tt>. If no Integer exists then word 0 is returned.
 		/// \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		word InverseMod(word n) const;
