@@ -2496,7 +2496,6 @@ bool TestHuffmanCodes()
 bool TestIntegerBitops()
 {
     std::cout << "\nTesting Integer bit operations...\n\n";
-    bool pass;
 
     struct Bitops_TestTuple
     {
@@ -3202,7 +3201,7 @@ bool TestIntegerOps()
     Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
     Integer b("0x3D2F050001");
 
-    result = (0x3529E4FEBC == a.InverseMod(b));
+    result = (Integer("0x3529E4FEBC") == a.InverseMod(b));
     pass = result && pass;
     if (!result)
         std::cout << "FAILED:  InverseMod operation\n";
@@ -3295,6 +3294,31 @@ bool TestIntegerOps()
         Integer x = a.InverseMod(m);
         Integer y = (a % m).InverseMod(m);
         Integer z = (a * y).Modulo(m);
+
+        if (GCD(a,m) == 1)  // coprime?
+            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        else
+            result = (x == y);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  InverseMod operation\n";
+    }
+
+    for (unsigned int i=0; i<128; ++i)
+    {
+        Integer a(prng, 4096);
+        word32 m = prng.GenerateWord32();
+
+        a++; // make non-0
+        if (m == 0) m++;
+
+        // Avoid the conversion from word to long
+        Integer am = a % Integer(Integer::POSITIVE, m);
+
+        Integer x = Integer(Integer::POSITIVE, a.InverseMod(m));
+        Integer y = Integer(Integer::POSITIVE, am.InverseMod(m));
+        Integer z = Integer(Integer::POSITIVE, (a * y).Modulo(m));
 
         if (GCD(a,m) == 1)  // coprime?
             result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
