@@ -3307,21 +3307,22 @@ bool TestIntegerOps()
 
     for (unsigned int i=0; i<128; ++i)
     {
-        Integer a(prng, 4096);
-        word32 m = prng.GenerateWord32();
+        Integer a(prng, 4096); word m;
+        prng.GenerateBlock((byte*)&m, sizeof(m));
 
         a++; // make non-0
         if (m == 0) m++;
 
         // Avoid the conversion from word to long
-        Integer am = a % Integer(Integer::POSITIVE, m);
+        Integer mi = Integer(Integer::POSITIVE, 0, m);
+        Integer ri = a % Integer(Integer::POSITIVE, 0, m);
 
-        Integer x = Integer(Integer::POSITIVE, a.InverseMod(m));
-        Integer y = Integer(Integer::POSITIVE, am.InverseMod(m));
-        Integer z = Integer(Integer::POSITIVE, (a * y).Modulo(m));
+        Integer x = Integer(Integer::POSITIVE, 0, a.InverseMod(m));
+        Integer y = Integer(Integer::POSITIVE, 0, ri.InverseMod(m));
+        Integer z = Integer(Integer::POSITIVE, 0, (a * y).Modulo(m));
 
-        if (GCD(a,m) == 1)  // coprime?
-            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        if (GCD(a,mi) == 1)  // coprime?
+            result = (x == y) && (z == 1);
         else
             result = (x == y);
 
