@@ -2495,70 +2495,9 @@ bool TestHuffmanCodes()
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestIntegerBitops()
 {
-    std::cout << "\nTesting Integer operations...\n\n";
+    std::cout << "\nTesting Integer bit operations...\n\n";
     bool pass;
 
-    // Integer is missing a couple of tests...
-    try {
-        Integer x = Integer::Two().Power2(128) / Integer::Zero();
-        pass=false;
-    } catch (const Exception&) {
-        pass=true;
-    }
-
-    if (pass)
-        std::cout << "passed:";
-    else
-        std::cout << "FAILED:";
-    std::cout << "  Integer DivideByZero\n";
-
-    // Integer is missing a couple of tests...
-    pass=true;
-    try {
-        // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
-        Integer x = Integer(GlobalRNG(), 31398, 31468, Integer::PRIME);
-        pass=false;
-    } catch (const Exception&) { }
-
-    if (pass)
-        std::cout << "passed:";
-    else
-        std::cout << "FAILED:";
-    std::cout << "  Integer RandomNumberNotFound\n";
-
-    // Carmichael pseudo-primes
-    pass=true;
-    if (IsPrime(Integer("561")))
-        pass = false;
-    if (IsPrime(Integer("41041")))
-        pass = false;
-    if (IsPrime(Integer("321197185")))
-        pass = false;
-    if (IsPrime(Integer("5394826801")))
-        pass = false;
-    if (IsPrime(Integer("232250619601")))
-        pass = false;
-    if (IsPrime(Integer("974637772161")))
-        pass = false;
-
-    if (pass)
-        std::cout << "passed:";
-    else
-        std::cout << "FAILED:";
-    std::cout << "  Carmichael pseudo-primes\n";
-
-    // Integer is missing a couple of tests...
-    try {
-        Integer x = Integer::One().Doubled();
-        pass=(x == Integer::Two());
-    } catch (const Exception&) {
-        pass=false;
-    }
-
-    if (!pass)
-        std::cout << "FAILED:  Integer Doubled\n";
-
-    // Now onto the meat and potatoes...
     struct Bitops_TestTuple
     {
         // m,n are operands; a,o,x are and,or,xor results
@@ -3199,6 +3138,66 @@ bool TestIntegerOps()
     std::cout << "\nTesting Integer operations...\n\n";
     bool pass=true, result;
 
+    // Integer is missing a couple of tests...
+    try {
+        Integer x = Integer::Two().Power2(128) / Integer::Zero();
+        pass=false;
+    } catch (const Exception&) {
+        pass=true;
+    }
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  Integer DivideByZero\n";
+
+    // Integer is missing a couple of tests...
+    pass=true;
+    try {
+        // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
+        Integer x = Integer(GlobalRNG(), 31398, 31468, Integer::PRIME);
+        pass=false;
+    } catch (const Exception&) { }
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  Integer RandomNumberNotFound\n";
+
+    // Carmichael pseudo-primes
+    pass=true;
+    if (IsPrime(Integer("561")))
+        pass = false;
+    if (IsPrime(Integer("41041")))
+        pass = false;
+    if (IsPrime(Integer("321197185")))
+        pass = false;
+    if (IsPrime(Integer("5394826801")))
+        pass = false;
+    if (IsPrime(Integer("232250619601")))
+        pass = false;
+    if (IsPrime(Integer("974637772161")))
+        pass = false;
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  Carmichael pseudo-primes\n";
+
+    // Integer is missing a couple of tests...
+    try {
+        Integer x = Integer::One().Doubled();
+        pass=(x == Integer::Two());
+    } catch (const Exception&) {
+        pass=false;
+    }
+
+    if (!pass)
+        std::cout << "FAILED:  Integer Doubled\n";
+
     // http://github.com/weidai11/cryptopp/issues/602
     Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
     Integer b("0x3D2F050001");
@@ -3311,7 +3310,7 @@ bool TestIntegerOps()
        std::cout << "passed:";
     else
        std::cout << "FAILED:";
-    std::cout << "  Integer::InverseMod operations\n";
+    std::cout << "  InverseMod operations\n";
 
     return pass;
 }

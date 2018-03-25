@@ -94,6 +94,8 @@ bool ValidateAll(bool thorough)
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
 	pass=TestSecBlock() && pass;
+	// http://github.com/weidai11/cryptopp/issues/602
+	pass=TestIntegerOps() && pass;
 	// http://github.com/weidai11/cryptopp/issues/336
 	pass=TestIntegerBitops() && pass;
 	// http://github.com/weidai11/cryptopp/issues/64
