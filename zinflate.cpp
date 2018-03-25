@@ -612,41 +612,51 @@ void Inflator::FlushOutput()
 	}
 }
 
-struct NewFixedLiteralDecoder
+void Inflator::CreateFixedLiteralDecoder()
 {
-	HuffmanDecoder * operator()() const
-	{
-		unsigned int codeLengths[288];
-		std::fill(codeLengths + 0, codeLengths + 144, 8);
-		std::fill(codeLengths + 144, codeLengths + 256, 9);
-		std::fill(codeLengths + 256, codeLengths + 280, 7);
-		std::fill(codeLengths + 280, codeLengths + 288, 8);
-		member_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
-		pDecoder->Initialize(codeLengths, 288);
-		return pDecoder.release();
-	}
+	unsigned int codeLengths[288];
+	std::fill(codeLengths + 0, codeLengths + 144, 8);
+	std::fill(codeLengths + 144, codeLengths + 256, 9);
+	std::fill(codeLengths + 256, codeLengths + 280, 7);
+	std::fill(codeLengths + 280, codeLengths + 288, 8);
+	m_fixedLiteralDecoder.reset(new HuffmanDecoder);
+	m_fixedLiteralDecoder->Initialize(codeLengths, 288);
 };
 
-struct NewFixedDistanceDecoder
+void Inflator::CreateFixedDistanceDecoder()
 {
-	HuffmanDecoder * operator()() const
-	{
-		unsigned int codeLengths[32];
-		std::fill(codeLengths + 0, codeLengths + 32, 5);
-		member_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
-		pDecoder->Initialize(codeLengths, 32);
-		return pDecoder.release();
-	}
+	unsigned int codeLengths[32];
+	std::fill(codeLengths + 0, codeLengths + 32, 5);
+	m_fixedDistanceDecoder.reset(new HuffmanDecoder);
+	m_fixedDistanceDecoder->Initialize(codeLengths, 32);
 };
 
-const HuffmanDecoder& Inflator::GetLiteralDecoder() const
+const HuffmanDecoder& Inflator::GetLiteralDecoder()
 {
-	return m_blockType == 1 ? Singleton<HuffmanDecoder, NewFixedLiteralDecoder>().Ref() : m_dynamicLiteralDecoder;
+	if (m_blockType == 1)
+	{
+		if (m_fixedLiteralDecoder.get() == NULLPTR)
+			CreateFixedLiteralDecoder();
+		return *m_fixedLiteralDecoder;
+	}
+	else
+	{
+		return m_dynamicLiteralDecoder;
+	}
 }
 
-const HuffmanDecoder& Inflator::GetDistanceDecoder() const
+const HuffmanDecoder& Inflator::GetDistanceDecoder()
 {
-	return m_blockType == 1 ? Singleton<HuffmanDecoder, NewFixedDistanceDecoder>().Ref() : m_dynamicDistanceDecoder;
+	if (m_blockType == 1)
+	{
+		if (m_fixedDistanceDecoder.get() == NULLPTR)
+			CreateFixedDistanceDecoder();
+		return *m_fixedDistanceDecoder;
+	}
+	else
+	{
+		return m_dynamicDistanceDecoder;
+	}
 }
 
 NAMESPACE_END
