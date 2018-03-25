@@ -956,12 +956,14 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 9998: result = TestPolynomialMod2(); break;
 	// http://github.com/weidai11/cryptopp/issues/336
 	case 9997: result = TestIntegerBitops(); break;
+	// http://github.com/weidai11/cryptopp/issues/602
+	case 9996: result = TestIntegerOps(); break;
 	// http://github.com/weidai11/cryptopp/issues/360
-	case 9996: result = TestRounding(); break;
+	case 9995: result = TestRounding(); break;
 	// http://github.com/weidai11/cryptopp/issues/242
-	case 9995: result = TestHuffmanCodes(); break;
+	case 9994: result = TestHuffmanCodes(); break;
 	// http://github.com/weidai11/cryptopp/issues/346
-	case 9994: result = TestASN1Parse(); break;
+	case 9993: result = TestASN1Parse(); break;
 #endif
 
 	default: return false;

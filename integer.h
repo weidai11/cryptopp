@@ -630,6 +630,11 @@ public:
 	CRYPTOPP_DLL friend Integer CRYPTOPP_API a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m);
 #endif
 
+protected:
+
+	// https://github.com/weidai11/cryptopp/issues/602
+	Integer InverseModNext(const Integer &n) const;
+
 private:
 
 	Integer(word value, size_t length);
