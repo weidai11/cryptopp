@@ -4382,9 +4382,8 @@ Integer Integer::InverseMod(const Integer &m) const
 	if (IsNegative())
 		return Modulo(m).InverseModNext(m);
 
-	// Place *this in the range [0, 2m-1]
 	// http://github.com/weidai11/cryptopp/issues/602
-	if (*this >= (m << 1))
+	if (*this > m)
 		return Modulo(m).InverseModNext(m);
 
 	return InverseModNext(m);
