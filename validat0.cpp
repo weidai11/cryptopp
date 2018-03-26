@@ -3264,12 +3264,13 @@ bool TestIntegerOps()
     try {
         // A run of 71 composites; see http://en.wikipedia.org/wiki/Prime_gap
         Integer x = Integer(GlobalRNG(), 31398, 31468, Integer::PRIME);
-        pass=false;
+        result=false;
     } catch (const Exception&) {
-        pass=true;
+        result=true;
     }
 
-    if (pass)
+    pass = result && pass;
+    if (result)
         std::cout << "passed:";
     else
         std::cout << "FAILED:";
@@ -3277,21 +3278,22 @@ bool TestIntegerOps()
 
     // ************************ Carmichael pseudo-primes ************************
 
-    pass=true;
+    result=true;
     if (IsPrime(Integer("561")))
-        pass = false;
+        result = false;
     if (IsPrime(Integer("41041")))
-        pass = false;
+        result = false;
     if (IsPrime(Integer("321197185")))
-        pass = false;
+        result = false;
     if (IsPrime(Integer("5394826801")))
-        pass = false;
+        result = false;
     if (IsPrime(Integer("232250619601")))
-        pass = false;
+        result = false;
     if (IsPrime(Integer("974637772161")))
-        pass = false;
+        result = false;
 
-    if (pass)
+    pass = result && pass;
+    if (result)
         std::cout << "passed:";
     else
         std::cout << "FAILED:";
@@ -3301,34 +3303,37 @@ bool TestIntegerOps()
 
     try {
         Integer x = Integer::One().Doubled();
-        pass=(x == Integer::Two());
+        result=(x == Integer::Two());
     } catch (const Exception&) {
-        pass=false;
+        result=false;
     }
 
-    if (!pass)
+    pass = result && pass;
+    if (!result)
         std::cout << "FAILED:  Integer Doubled\n";
 
     // ****************************** Integer Square ******************************
 
     try {
         Integer x = Integer::Two().Squared();
-        pass=(x == 4);
+        result=(x == 4);
     } catch (const Exception&) {
-        pass=false;
+        result=false;
     }
 
-    if (!pass)
+    pass = result && pass;
+    if (!result)
         std::cout << "FAILED:  Integer Squared\n";
 
     try {
         Integer x = Integer::Two().Squared();
-        pass=(x == 4) && x.IsSquare();
+        result=(x == 4) && x.IsSquare();
     } catch (const Exception&) {
-        pass=false;
+        result=false;
     }
 
-    if (!pass)
+    pass = result && pass;
+    if (!result)
         std::cout << "FAILED:  Integer IsSquare\n";
 
     if (pass)
@@ -3353,6 +3358,9 @@ bool TestIntegerOps()
             {
                 result = (Integer::Gcd(x,y) == 1);
                 pass = result && pass;
+
+                if (!result)
+                    std::cout << "FAILED:  Integer GCD\n";
             }
         }
 
@@ -3365,8 +3373,9 @@ bool TestIntegerOps()
 
     // ******************** Integer Modulo and InverseMod ********************
 
+    // http://github.com/weidai11/cryptopp/issues/602
+	//   The bug report that uncovered the InverseMod problems
     {
-           // http://github.com/weidai11/cryptopp/issues/602
         Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
         Integer b("0x3D2F050001");
 
@@ -3376,13 +3385,37 @@ bool TestIntegerOps()
             std::cout << "FAILED:  InverseMod operation\n";
     }
 
+    // Integer Integer::InverseMod(const Integer &m)
+    //   Large 'a' and 'm'
     for (unsigned int i=0; i<128+64; ++i)
     {
         Integer a(prng, 1024), m(prng, 1024);
         a++, m++;  // make non-0
 
+        Integer x = a.InverseMod(m);
+        Integer y = (a % m).InverseMod(m);
+        Integer z = (a * y).Modulo(m);
+
+        if (GCD(a,m) == 1)  // coprime?
+            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        else
+            result = (x == y);
+
+        pass = result && pass;
+        if (!result)
+            std::cout << "FAILED:  InverseMod operation\n";
+    }
+
+    // Integer Integer::InverseMod(const Integer &m)
+    //   Corner cases like 0, 2m-1 and 2m+1
+    for (unsigned int i=0; i<128; ++i)
+    {
+        Integer a(prng, 1024), m(prng, 1024);
+        a++, m++;  // make non-0
+
         // Corner cases
-        switch (i)
+        int j = i % 12;
+        switch (j)
         {
         case 0:
             a = -1; break;
@@ -3426,30 +3459,8 @@ bool TestIntegerOps()
             std::cout << "FAILED:  InverseMod operation\n";
     }
 
-    for (unsigned int i=0; i<128; ++i)
-    {
-        Integer m(prng, 32);
-        m++; // make non-0
-
-        for (unsigned int j=0; j<256; j+=4)
-        {
-            Integer a((m << j)-1);
-
-            Integer x = a.InverseMod(m);
-            Integer y = (a % m).InverseMod(m);
-            Integer z = (a * y).Modulo(m);
-
-            if (GCD(a,m) == 1)  // coprime?
-                result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
-            else
-                result = (x == y);
-
-            pass = result && pass;
-            if (!result)
-                std::cout << "FAILED:  InverseMod operation\n";
-        }
-    }
-
+    // Integer Integer::InverseMod(const Integer &m)
+    //   Large 'a', small 'm'
     for (unsigned int i=0; i<128; ++i)
     {
         Integer a(prng, 4096), m(prng, 32);
@@ -3469,6 +3480,8 @@ bool TestIntegerOps()
             std::cout << "FAILED:  InverseMod operation\n";
     }
 
+    // Integer Integer::InverseMod(word m)
+    //   Small 'm' using word
     for (unsigned int i=0; i<128; ++i)
     {
         Integer a(prng, 4096); word m;
