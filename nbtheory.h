@@ -165,16 +165,38 @@ inline Integer LCM(const Integer &a, const Integer &b)
 inline Integer EuclideanMultiplicativeInverse(const Integer &a, const Integer &b)
 	{return a.InverseMod(b);}
 
-// use Chinese Remainder Theorem to calculate x given x mod p and x mod q, and u = inverse of p mod q
+
+/// \brief Chinese Remainder Theorem
+/// \param xp the first number, mod p
+/// \param p the first prime modulus
+/// \param xq the second number, mod q
+/// \param q the second prime modulus
+/// \param u inverse of p mod q
+/// \returns the CRT value of the parameters
+/// \details CRT uses the Chinese Remainder Theorem to calculate <tt>x</tt> given
+///   <tt>x mod p</tt> and <tt>x mod q</tt>, and <tt>u</tt> the inverse of <tt>p mod q</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q, const Integer &u);
 
-// if b is prime, then Jacobi(a, b) returns 0 if a%b==0, 1 if a is quadratic residue mod b, -1 otherwise
-// check a number theory book for what Jacobi symbol means when b is not prime
+/// \brief Calculate the Jacobi symbol
+/// \param a the first term
+/// \param b the second term
+/// \returns the the Jacobi symbol.
+/// \details Jacobi symbols are calculated using the following rules:
+///  -# if <tt>b</tt> is prime, then <tt>Jacobi(a, b)</tt>, then return 0
+///  -# if <tt>a%b</tt>==0 AND <tt>a</tt> is quadratic residue <tt>mod b</tt>, then return 1
+///  -# return -1 otherwise
+/// \details Refer to a number theory book for what Jacobi symbol means when <tt>b</tt> is not prime.
 CRYPTOPP_DLL int CRYPTOPP_API Jacobi(const Integer &a, const Integer &b);
 
-// calculates the Lucas function V_e(p, 1) mod n
+/// \brief Calculate the Lucas value
+/// \returns the Lucas value
+/// \details Lucas() calculates the Lucas function <tt>V_e(p, 1) mod n</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API Lucas(const Integer &e, const Integer &p, const Integer &n);
-// calculates x such that m==Lucas(e, x, p*q), p q primes, u=inverse of p mod q
+
+/// \brief Calculate the inverse Lucas value
+/// \returns the inverse Lucas value
+/// \details InverseLucas() calculates <tt>x</tt> such that <tt>m==Lucas(e, x, p*q)</tt>,
+///   <tt>p q</tt> primes, <tt>u</tt> is inverse of <tt>p mod q</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u);
 
 /// \brief Modular multiplication
