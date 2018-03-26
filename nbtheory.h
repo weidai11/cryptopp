@@ -12,19 +12,20 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// obtain pointer to small prime table and get its size
+/// \brief The Small Prime table
+/// \details GetPrimeTable obtains pointer to small prime table and provides the size of the table.
 CRYPTOPP_DLL const word16 * CRYPTOPP_API GetPrimeTable(unsigned int &size);
 
 // ************ primality testing ****************
 
 /// \brief Generates a provable prime
-/// \param rng a RandomNumberGenerator to produce keying material
+/// \param rng a RandomNumberGenerator to produce random material
 /// \param bits the number of bits in the prime number
 /// \returns Integer() meeting Maurer's tests for primality
 CRYPTOPP_DLL Integer CRYPTOPP_API MaurerProvablePrime(RandomNumberGenerator &rng, unsigned int bits);
 
 /// \brief Generates a provable prime
-/// \param rng a RandomNumberGenerator to produce keying material
+/// \param rng a RandomNumberGenerator to produce random material
 /// \param bits the number of bits in the prime number
 /// \returns Integer() meeting Mihailescu's tests for primality
 /// \details Mihailescu's methods performs a search using algorithmic progressions.
@@ -33,30 +34,63 @@ CRYPTOPP_DLL Integer CRYPTOPP_API MihailescuProvablePrime(RandomNumberGenerator 
 /// \brief Tests whether a number is a small prime
 /// \param p a candidate prime to test
 /// \returns true if p is a small prime, false otherwise
-/// \details Internally, the library maintains a table fo the first 32719 prime numbers
-///   in sorted order. IsSmallPrime() searches the table and returns true if p is
+/// \details Internally, the library maintains a table of the first 32719 prime numbers
+///   in sorted order. IsSmallPrime searches the table and returns true if p is
 ///   in the table.
 CRYPTOPP_DLL bool CRYPTOPP_API IsSmallPrime(const Integer &p);
 
-///
+/// \brief Tests whether a number is divisible by a small prime
 /// \returns true if p is divisible by some prime less than bound.
-/// \details TrialDivision() true if p is divisible by some prime less than bound. bound not be
-///   greater than the largest entry in the prime table, which is 32719.
+/// \details TrialDivision() returns <tt>true</tt> if <tt>p</tt> is divisible by some prime less
+///   than <tt>bound</tt>. <tt>bound</tt> should not be greater than the largest entry in the
+///   prime table, which is 32719.
 CRYPTOPP_DLL bool CRYPTOPP_API TrialDivision(const Integer &p, unsigned bound);
 
-// returns true if p is NOT divisible by small primes
+/// \brief Tests whether a number is divisible by a small prime
+/// \returns true if p is NOT divisible by small primes.
+/// \details SmallDivisorsTest() returns <tt>true</tt> if <tt>p</tt> is NOT divisible by some
+///   prime less than 32719.
 CRYPTOPP_DLL bool CRYPTOPP_API SmallDivisorsTest(const Integer &p);
 
-// These is no reason to use these two, use the ones below instead
+/// \brief Determine if a number is probably prime
+/// \param n the number to test
+/// \param b the base to exponentiate
+/// \returns true if the number n is probably prime, false otherwise.
+/// \details IsFermatProbablePrime raises <tt>b</tt> to the <tt>n-1</tt> power and checks if
+///   the result is congruent to 1 modulo <tt>n</tt>.
+/// \details These is no reason to use IsFermatProbablePrime, use IsStrongProbablePrime or
+///   IsStrongLucasProbablePrime instead.
+/// \sa IsStrongProbablePrime, IsStrongLucasProbablePrime
 CRYPTOPP_DLL bool CRYPTOPP_API IsFermatProbablePrime(const Integer &n, const Integer &b);
+
+/// \brief Determine if a number is probably prime
+/// \param n the number to test
+/// \returns true if the number n is probably prime, false otherwise.
+/// \details These is no reason to use IsLucasProbablePrime, use IsStrongProbablePrime or
+///   IsStrongLucasProbablePrime instead.
+/// \sa IsStrongProbablePrime, IsStrongLucasProbablePrime
 CRYPTOPP_DLL bool CRYPTOPP_API IsLucasProbablePrime(const Integer &n);
 
+/// \brief Determine if a number is probably prime
+/// \param n the number to test
+/// \param b the base to exponentiate
+/// \returns true if the number n is probably prime, false otherwise.
 CRYPTOPP_DLL bool CRYPTOPP_API IsStrongProbablePrime(const Integer &n, const Integer &b);
+
+/// \brief Determine if a number is probably prime
+/// \param n the number to test
+/// \returns true if the number n is probably prime, false otherwise.
 CRYPTOPP_DLL bool CRYPTOPP_API IsStrongLucasProbablePrime(const Integer &n);
 
-// Rabin-Miller primality test, i.e. repeating the strong probable prime test
-// for several rounds with random bases
-CRYPTOPP_DLL bool CRYPTOPP_API RabinMillerTest(RandomNumberGenerator &rng, const Integer &w, unsigned int rounds);
+/// \brief Determine if a number is probably prime
+/// \param rng a RandomNumberGenerator to produce random material
+/// \param n the number to test
+/// \param rounds the number of tests to perform
+/// \details This is the Rabin-Miller primality test, i.e. repeating the strong probable prime
+///   test for several rounds with random bases
+/// \sa <A HREF="https://crypto.stackexchange.com/q/17707/10496">Trial divisions before
+///   Miller-Rabin checks?</A> on Crypto Stack Exchange
+CRYPTOPP_DLL bool CRYPTOPP_API RabinMillerTest(RandomNumberGenerator &rng, const Integer &n, unsigned int rounds);
 
 /// \brief Verifies a prime number
 /// \param p a candidate prime to test
@@ -122,14 +156,35 @@ CRYPTOPP_DLL Integer CRYPTOPP_API Lucas(const Integer &e, const Integer &p, cons
 // calculates x such that m==Lucas(e, x, p*q), p q primes, u=inverse of p mod q
 CRYPTOPP_DLL Integer CRYPTOPP_API InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u);
 
-inline Integer ModularExponentiation(const Integer &a, const Integer &e, const Integer &m)
-	{return a_exp_b_mod_c(a, e, m);}
-// returns x such that x*x%p == a, p prime
+/// \brief Modular multiplication
+/// \param x the first term
+/// \param y the second term
+/// \param m the modulus
+/// \returns an Integer <tt>(x * y) % m</tt>.
+inline Integer ModularMultiplication(const Integer &x, const Integer &y, const Integer &m)
+	{return a_times_b_mod_c(x, y, m);}
+
+/// \brief Modular exponentiation
+/// \param x the base
+/// \param e the exponent
+/// \param m the modulus
+/// \returns an Integer <tt>(a ^ b) % m</tt>.
+inline Integer ModularExponentiation(const Integer &x, const Integer &e, const Integer &m)
+	{return a_exp_b_mod_c(x, e, m);}
+
+/// \brief Extract a modular square root
+/// \param a the number to extract square root
+/// \param p the prime modulus
+/// \returns the modular square root if it exists
+/// \details ModularSquareRoot returns <tt>x</tt> such that <tt>x*x%p == a</tt>, <tt>p</tt> prime
 CRYPTOPP_DLL Integer CRYPTOPP_API ModularSquareRoot(const Integer &a, const Integer &p);
-// returns x such that a==ModularExponentiation(x, e, p*q), p q primes,
-// and e relatively prime to (p-1)*(q-1)
-// dp=d%(p-1), dq=d%(q-1), (d is inverse of e mod (p-1)*(q-1))
-// and u=inverse of p mod q
+
+/// \brief Extract a modular root
+/// \returns a modular root if it exists
+/// \details ModularRoot returns <tt>x</tt> such that <tt>a==ModularExponentiation(x, e, p*q)</tt>,
+///   <tt>p</tt> <tt>q</tt> primes, and <tt>e</tt> relatively prime to <tt>(p-1)*(q-1)</tt>,
+///   <tt>dp=d%(p-1)</tt>, <tt>dq=d%(q-1)</tt>, (d is inverse of <tt>e mod (p-1)*(q-1)</tt>)
+///   and <tt>u=inverse of p mod q</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API ModularRoot(const Integer &a, const Integer &dp, const Integer &dq, const Integer &p, const Integer &q, const Integer &u);
 
 // find r1 and r2 such that ax^2 + bx + c == 0 (mod p) for x in {r1, r2}, p prime
