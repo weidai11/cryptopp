@@ -92,14 +92,14 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsStrongLucasProbablePrime(const Integer &n);
 ///   Miller-Rabin checks?</A> on Crypto Stack Exchange
 CRYPTOPP_DLL bool CRYPTOPP_API RabinMillerTest(RandomNumberGenerator &rng, const Integer &n, unsigned int rounds);
 
-/// \brief Verifies a prime number
+/// \brief Verifies a number is probably prime
 /// \param p a candidate prime to test
 /// \returns true if p is a probable prime, false otherwise
 /// \details IsPrime() is suitable for testing candidate primes when creating them. Internally,
 ///   IsPrime() utilizes SmallDivisorsTest(), IsStrongProbablePrime() and IsStrongLucasProbablePrime().
 CRYPTOPP_DLL bool CRYPTOPP_API IsPrime(const Integer &p);
 
-/// \brief Verifies a prime number
+/// \brief Verifies a number is probably prime
 /// \param rng a RandomNumberGenerator for randomized testing
 /// \param p a candidate prime to test
 /// \param level the level of thoroughness of testing
@@ -135,12 +135,33 @@ CRYPTOPP_DLL AlgorithmParameters CRYPTOPP_API MakeParametersForTwoPrimesOfEqualS
 
 // ********** other number theoretic functions ************
 
+/// \brief Calculate the greatest common divisor
+/// \param a the first term
+/// \param b the second term
+/// \returns the greatest common divisor if one exists, 0 otherwise.
 inline Integer GCD(const Integer &a, const Integer &b)
 	{return Integer::Gcd(a,b);}
+
+/// \brief Determine relative primality
+/// \param a the first term
+/// \param b the second term
+/// \returns true if <tt>a</tt> and <tt>b</tt> are relatively prime, false otherwise.
 inline bool RelativelyPrime(const Integer &a, const Integer &b)
 	{return Integer::Gcd(a,b) == Integer::One();}
+
+/// \brief Calculate the least common multiple
+/// \param a the first term
+/// \param b the second term
+/// \returns the least common multiple of <tt>a</tt> and <tt>b</tt>.
 inline Integer LCM(const Integer &a, const Integer &b)
 	{return a/Integer::Gcd(a,b)*b;}
+
+/// \brief Calculate multiplicative inverse
+/// \param a the number to test
+/// \param b the modulus
+/// \returns an Integer <tt>(a ^ -1) % n</tt> or 0 if none exists.
+/// \details EuclideanMultiplicativeInverse returns the multiplicative inverse of the Integer
+///   <tt>*a</tt> modulo the Integer <tt>b</tt>. If no Integer exists then Integer 0 is returned.
 inline Integer EuclideanMultiplicativeInverse(const Integer &a, const Integer &b)
 	{return a.InverseMod(b);}
 
@@ -187,12 +208,30 @@ CRYPTOPP_DLL Integer CRYPTOPP_API ModularSquareRoot(const Integer &a, const Inte
 ///   and <tt>u=inverse of p mod q</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API ModularRoot(const Integer &a, const Integer &dp, const Integer &dq, const Integer &p, const Integer &q, const Integer &u);
 
-// find r1 and r2 such that ax^2 + bx + c == 0 (mod p) for x in {r1, r2}, p prime
-// returns true if solutions exist
+/// \brief Solve a Modular Quadratic Equation
+/// \param r1 the first residue
+/// \param r2 the second residue
+/// \param a the first coefficient
+/// \param b the second coefficient
+/// \param c the third constant
+/// \param p the prime modulus
+/// \returns true if solutions exist
+/// \details SolveModularQuadraticEquation() finds <tt>r1</tt> and <tt>r2</tt> such that <tt>ax^2 +
+///   bx + c == 0 (mod p)</tt> for x in <tt>{r1, r2}</tt>, <tt>p</tt> prime.
 CRYPTOPP_DLL bool CRYPTOPP_API SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, const Integer &b, const Integer &c, const Integer &p);
 
-// returns log base 2 of estimated number of operations to calculate discrete log or factor a number
+/// \brief Estimate work factor
+/// \param bitlength the size of the number, in bits
+/// \returns the estimated work factor, in operations
+/// \details DiscreteLogWorkFactor returns log base 2 of estimated number of operations to
+///   calculate discrete log or factor a number.
 CRYPTOPP_DLL unsigned int CRYPTOPP_API DiscreteLogWorkFactor(unsigned int bitlength);
+
+/// \brief Estimate work factor
+/// \param bitlength the size of the number, in bits
+/// \returns the estimated work factor, in operations
+/// \details FactoringWorkFactor returns log base 2 of estimated number of operations to
+///   calculate discrete log or factor a number.
 CRYPTOPP_DLL unsigned int CRYPTOPP_API FactoringWorkFactor(unsigned int bitlength);
 
 // ********************************************************
