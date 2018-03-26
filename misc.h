@@ -109,13 +109,13 @@ T NumericLimitsMin()
 {
 	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
 	return (std::numeric_limits<T>::min)();
-};
+}
 template<class T>
 T NumericLimitsMax()
 {
 	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
 	return (std::numeric_limits<T>::max)();
-};
+}
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 template<>
 CryptoPP::word128 NumericLimitsMin()
