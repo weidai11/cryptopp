@@ -4386,13 +4386,13 @@ Integer Integer::Gcd(const Integer &a, const Integer &b)
 Integer Integer::InverseMod(const Integer &m) const
 {
 	CRYPTOPP_ASSERT(m.NotNegative());
-	CRYPTOPP_ASSERT(m != 0);
+	CRYPTOPP_ASSERT(m.NotZero());
 
 	if (IsNegative())
 		return Modulo(m).InverseModNext(m);
 
 	// http://github.com/weidai11/cryptopp/issues/602
-	if (*this > m)
+	if (*this >= m)
 		return Modulo(m).InverseModNext(m);
 
 	return InverseModNext(m);
@@ -4401,7 +4401,7 @@ Integer Integer::InverseMod(const Integer &m) const
 Integer Integer::InverseModNext(const Integer &m) const
 {
 	CRYPTOPP_ASSERT(m.NotNegative());
-	CRYPTOPP_ASSERT(m != 0);
+	CRYPTOPP_ASSERT(m.NotZero());
 
 	if (m.IsEven())
 	{

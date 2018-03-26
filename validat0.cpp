@@ -3374,7 +3374,7 @@ bool TestIntegerOps()
     // ******************** Integer Modulo and InverseMod ********************
 
     // http://github.com/weidai11/cryptopp/issues/602
-	//   The bug report that uncovered the InverseMod problems
+    //   The bug report that uncovered the InverseMod problems
     {
         Integer a("0x2F0500010000018000000000001C1C000000000000000A000B0000000000000000000000000000FDFFFFFF00000000");
         Integer b("0x3D2F050001");
