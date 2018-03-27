@@ -237,7 +237,6 @@ private:
 
 void TestKeyPairValidAndConsistent(CryptoMaterial &pub, const CryptoMaterial &priv)
 {
-	// "!!" converts between bool <-> integral.
 	if (!pub.Validate(Test::GlobalRNG(), 2U+!!s_thorough))
 		SignalTestFailure();
 	if (!priv.Validate(Test::GlobalRNG(), 2U+!!s_thorough))
@@ -260,6 +259,10 @@ void TestSignatureScheme(TestData &v)
 	member_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
 
 	TestDataNameValuePairs pairs(v);
+
+	// Code coverage
+	(void)signer->AlgorithmName();
+	(void)verifier->AlgorithmName();
 
 	if (test == "GenerateKey")
 	{
@@ -360,6 +363,10 @@ void TestAsymmetricCipher(TestData &v)
 		encryptor->AccessMaterial().AssignFrom(pairs);
 	}
 
+	// Code coverage
+	(void)encryptor->AlgorithmName();
+	(void)decryptor->AlgorithmName();
+
 	if (test == "DecryptMatch")
 	{
 		std::string decrypted, expected = GetDecodedDatum(v, "Plaintext");
@@ -421,6 +428,16 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 			decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		}
+
+		// Code coverage
+		(void)encryptor->AlgorithmName();
+		(void)decryptor->AlgorithmName();
+		(void)encryptor->MinKeyLength();
+		(void)decryptor->MinKeyLength();
+		(void)encryptor->MaxKeyLength();
+		(void)decryptor->MaxKeyLength();
+		(void)encryptor->DefaultKeyLength();
+		(void)decryptor->DefaultKeyLength();
 
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
 		if (seek)
@@ -539,21 +556,24 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 
 	if (test == "Encrypt" || test == "EncryptXorDigest" || test == "NotVerify")
 	{
-		member_ptr<AuthenticatedSymmetricCipher> asc1, asc2;
-		asc1.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
-		asc2.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
-		asc1->SetKey((const byte *)key.data(), key.size(), pairs);
-		asc2->SetKey((const byte *)key.data(), key.size(), pairs);
+		member_ptr<AuthenticatedSymmetricCipher> encryptor, decryptor;
+		encryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
+		decryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
+		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+
+		(void)encryptor->AlgorithmName();
+		(void)decryptor->AlgorithmName();
 
 		std::string encrypted, decrypted;
-		AuthenticatedEncryptionFilter ef(*asc1, new StringSink(encrypted));
+		AuthenticatedEncryptionFilter ef(*encryptor, new StringSink(encrypted));
 		bool macAtBegin = !mac.empty() && !Test::GlobalRNG().GenerateBit();	// test both ways randomly
-		AuthenticatedDecryptionFilter df(*asc2, new StringSink(decrypted), macAtBegin ? AuthenticatedDecryptionFilter::MAC_AT_BEGIN : 0);
+		AuthenticatedDecryptionFilter df(*decryptor, new StringSink(decrypted), macAtBegin ? AuthenticatedDecryptionFilter::MAC_AT_BEGIN : 0);
 
-		if (asc1->NeedsPrespecifiedDataLengths())
+		if (encryptor->NeedsPrespecifiedDataLengths())
 		{
-			asc1->SpecifyDataLengths(header.size(), plaintext.size(), footer.size());
-			asc2->SpecifyDataLengths(header.size(), plaintext.size(), footer.size());
+			encryptor->SpecifyDataLengths(header.size(), plaintext.size(), footer.size());
+			decryptor->SpecifyDataLengths(header.size(), plaintext.size(), footer.size());
 		}
 
 		StringStore sh(header), sp(plaintext), sc(ciphertext), sf(footer), sm(mac);
@@ -589,7 +609,7 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 			SignalTestFailure();
 		}
 
-		if (ciphertext.size()+mac.size()-plaintext.size() != asc1->DigestSize())
+		if (ciphertext.size()+mac.size()-plaintext.size() != encryptor->DigestSize())
 		{
 			std::cout << "\nbad MAC size\n";
 			SignalTestFailure();
@@ -623,6 +643,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	{
 		hash.reset(ObjectFactoryRegistry<HashTransformation>::Registry().CreateObject(name.c_str()));
 		pHash = hash.get();
+		(void)hash->AlgorithmName();
 	}
 	else
 	{
@@ -630,6 +651,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 		pHash = mac.get();
 		std::string key = GetDecodedDatum(v, "Key");
 		mac->SetKey((const byte *)key.c_str(), key.size(), pairs);
+		(void)mac->AlgorithmName();
 	}
 
 	if (test == "Verify" || test == "VerifyTruncated" || test == "NotVerify")
