@@ -3158,7 +3158,7 @@ bool TestIntegerOps()
         try {
             Integer x = 0;
             Integer y = 0;
-            Integer z = a_times_b_mod_c(y, y, x);
+            Integer z = ModularMultiplication(y, y, x);
             result = false;
         }
         catch(const Integer::DivideByZero&) {
@@ -3356,7 +3356,7 @@ bool TestIntegerOps()
 
             if (x != y)
             {
-                result = (Integer::Gcd(x,y) == 1);
+                result = (RelativelyPrime(x, y) == true);
                 pass = result && pass;
 
                 if (!result)
@@ -3396,8 +3396,8 @@ bool TestIntegerOps()
         Integer y = (a % m).InverseMod(m);
         Integer z = (a * y).Modulo(m);
 
-        if (GCD(a,m) == 1)  // coprime?
-            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        if (RelativelyPrime(a, m) == true)
+            result = (x == y) && (z == 1) && (ModularMultiplication(a, x, m) == 1);
         else
             result = (x == y);
 
@@ -3449,8 +3449,8 @@ bool TestIntegerOps()
         Integer y = (a % m).InverseMod(m);
         Integer z = (a * y).Modulo(m);
 
-        if (GCD(a,m) == 1)  // coprime?
-            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        if (RelativelyPrime(a, m) == true)
+            result = (x == y) && (z == 1) && (ModularMultiplication(a, x, m) == 1);
         else
             result = (x == y);
 
@@ -3470,8 +3470,8 @@ bool TestIntegerOps()
         Integer y = (a % m).InverseMod(m);
         Integer z = (a * y).Modulo(m);
 
-        if (GCD(a,m) == 1)  // coprime?
-            result = (x == y) && (z == 1) && (a_times_b_mod_c(a, x, m) == 1);
+        if (RelativelyPrime(a, m) == true)
+            result = (x == y) && (z == 1) && (ModularMultiplication(a, x, m) == 1);
         else
             result = (x == y);
 
@@ -3498,7 +3498,7 @@ bool TestIntegerOps()
         Integer y = Integer(Integer::POSITIVE, 0, ri.InverseMod(m));
         Integer z = Integer(Integer::POSITIVE, 0, (a * y).Modulo(m));
 
-        if (GCD(a,mi) == 1)  // coprime?
+        if (GCD(a,mi) == 1)
             result = (x == y) && (z == 1);
         else
             result = (x == y);
