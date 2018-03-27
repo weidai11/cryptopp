@@ -3138,6 +3138,13 @@ bool TestIntegerOps()
     bool pass=true, result;
     RandomNumberGenerator& prng = GlobalRNG();
 
+    // The tests below include 0^0 and 0^0%0. There are mixed opinions about what the result
+    // should be. Some say it is undefined, others say it is 0, and yet others say it is 1.
+
+    // Be careful with unfettered exponentiation using EuclideanDomainOf<Integer> and
+    // Exponentiate(). It can easily consume all machine memory because it is an exponentiation
+    // without a modular reduction.
+
     // ****************************** DivideByZero ******************************
 
     {
@@ -3192,7 +3199,7 @@ bool TestIntegerOps()
         try {
             Integer x = 0;
             Integer y = 0;
-            Integer z = a_exp_b_mod_c(y, y, x);
+            Integer z = ModularExponentiation(y, y, x);
             result = false;
         }
         catch(const Integer::DivideByZero&) {
@@ -3303,7 +3310,7 @@ bool TestIntegerOps()
 
     try {
         Integer x = Integer::One().Doubled();
-        result=(x == Integer::Two());
+        result = (x == Integer::Two());
     } catch (const Exception&) {
         result=false;
     }
@@ -3316,7 +3323,7 @@ bool TestIntegerOps()
 
     try {
         Integer x = Integer::Two().Squared();
-        result=(x == 4);
+        result = (x == 4);
     } catch (const Exception&) {
         result=false;
     }
@@ -3327,7 +3334,7 @@ bool TestIntegerOps()
 
     try {
         Integer x = Integer::Two().Squared();
-        result=(x == 4) && x.IsSquare();
+        result = (x == 4) && x.IsSquare();
     } catch (const Exception&) {
         result=false;
     }
@@ -3348,11 +3355,22 @@ bool TestIntegerOps()
         for (unsigned int i=0; i<128; ++i)
         {
             Integer x, y;
-            AlgorithmParameters params =
-                MakeParameters("BitLength", 256)("RandomNumberType", Integer::PRIME);
-
-            x.GenerateRandom(prng, params);
-            y.GenerateRandom(prng, params);
+            switch(i%2)
+            {
+                case 0:
+                {
+                    AlgorithmParameters params =
+                        MakeParameters("BitLength", 256)("RandomNumberType", Integer::PRIME);
+                    x.GenerateRandom(prng, params);
+                    y.GenerateRandom(prng, params);
+                    break;
+                }
+                case 1:
+                {
+                    x = MaurerProvablePrime(prng, 256);
+                    y = MihailescuProvablePrime(prng, 256);
+                }
+            }
 
             if (x != y)
             {
@@ -3387,7 +3405,7 @@ bool TestIntegerOps()
 
     // Integer Integer::InverseMod(const Integer &m)
     //   Large 'a' and 'm'
-    for (unsigned int i=0; i<128+64; ++i)
+    for (unsigned int i=0; i<128; ++i)
     {
         Integer a(prng, 1024), m(prng, 1024);
         a++, m++;  // make non-0
@@ -3594,18 +3612,12 @@ bool TestIntegerOps()
 
     // ****************************** Integer Exponentiation ******************************
 
-    // Be careful with EuclideanDomainOf<Integer>().Exponentiate(). It can easily consume
-    // all machine memory because it is an exponentiation without a modular reduction.
-
-    // The 0^0 test. There are mixed opinions about what the
-    // result should be. Some say it is undefined because, others
-    // say it is 0, and yet others say it is 1.
     {
         word32  m = prng.GenerateWord32();
         if (m == 0) m++;
 
         Integer z = Integer::Zero();
-        Integer x = a_exp_b_mod_c(z, z, m);
+        Integer x = ModularExponentiation(z, z, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(z, z) % m;
         result = (x == y) && (x == 1);
 
@@ -3619,7 +3631,7 @@ bool TestIntegerOps()
         try
         {
             Integer x = 0;
-            Integer y = a_exp_b_mod_c(x, x, x);
+            Integer y = ModularExponentiation(x, x, x);
             result = false;
         }
         catch(const Integer::DivideByZero&)
@@ -3655,7 +3667,7 @@ bool TestIntegerOps()
     {
         Integer b = 0, m(prng, 2048);
 
-        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer x = ModularExponentiation(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
         result = (x == y);
 
@@ -3669,7 +3681,7 @@ bool TestIntegerOps()
     {
         Integer b = 1, m(prng, 2048);
 
-        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer x = ModularExponentiation(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
         result = (x == y);
 
@@ -3683,7 +3695,7 @@ bool TestIntegerOps()
     {
         Integer b = 2, m(prng, 2048);
 
-        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer x = ModularExponentiation(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
         result = (x == y);
 
@@ -3697,7 +3709,7 @@ bool TestIntegerOps()
     {
         Integer b(prng, 32), m(prng, 2048);
 
-        Integer x = a_exp_b_mod_c(b, i, m);
+        Integer x = ModularExponentiation(b, i, m);
         Integer y = EuclideanDomainOf<Integer>().Exponentiate(b, i) % m;
         result = (x == y);
 
