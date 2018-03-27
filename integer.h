@@ -660,6 +660,7 @@ public:
 		///  modulo the Integer <tt>n</tt>. If no Integer exists then Integer 0 is returned.
 		/// \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer InverseMod(const Integer &n) const;
+
 		/// \brief Calculate multiplicative inverse
 		/// \param n the modulus
 		/// \returns a word <tt>*this % n</tt>.
