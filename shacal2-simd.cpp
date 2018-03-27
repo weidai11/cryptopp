@@ -9,7 +9,7 @@
 //
 //    This source file uses intrinsics to gain access to SHA-NI and
 //    ARMv8a SHA instructions. A separate source file is needed because
-//    additional CXXFLAGS are required to enable the appropriate instructions
+//    additional CXXFLAGS are required to enable the appropriate instruction
 //    sets in some build configurations.
 
 #include "pch.h"

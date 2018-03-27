@@ -14,7 +14,6 @@
 #include "pch.h"
 #include "config.h"
 #include "shacal2.h"
-#include "cpu.h"
 #include "misc.h"
 #include "cpu.h"
 
