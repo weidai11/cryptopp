@@ -14,12 +14,6 @@
 ///   ed25519 signatures. The complete list of functions can be found in
 ///   <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917), Table 1, page 5.
-/// \details Crypto++ retained the function names and signatures but switched to
-///   data types provided by &lt;stdint.h&gt; to promote interoperability with
-///   Crypto++ and avoid size problems on platforms like Cygwin. For example,
-///   NaCl typdef'd <tt>u64</tt> as an <tt>unsigned long long</tt>, but Cygwin,
-///   MinGW and MSYS are <tt>LP64</tt> systems (not <tt>LLP64</tt> systems). In
-///   addition, Crypto++ was missing NaCl's signed 64-bit integer <tt>i64</tt>.
 /// \details Crypto++ rejects small order elements using libsodium's blacklist. The
 ///   TweetNaCl library allowed them but the library predated the attack. If you wish
 ///   to allow small elements then use the "unchecked" versions of crypto_box_unchecked,
