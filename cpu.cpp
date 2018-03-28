@@ -78,7 +78,7 @@ extern "C"
 
 extern bool CPU_ProbeSSE2();
 
-#if _MSC_VER >= 1500
+#if _MSC_VER >= 1600
 
 inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
