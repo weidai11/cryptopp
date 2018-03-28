@@ -17,7 +17,7 @@
 
 // GCC cast warning. Note: this is used on round key table,
 // which is word32 and naturally aligned.
-#define UINT32_CAST(x) ((uint32_t *)(void *)(x))
+#define UINT32_CAST(x) ((word32 *)(void *)(x))
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)

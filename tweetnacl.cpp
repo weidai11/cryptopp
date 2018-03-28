@@ -20,9 +20,9 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(NaCl)
 
-typedef int64_t gf[16];
+typedef sword64 gf[16];
 
-static const uint8_t
+static const byte
   _0[32] = {0},
   _9[32] = {9};
 
@@ -37,63 +37,63 @@ static const gf
   I = {0xa0b0, 0x4a0e, 0x1b27, 0xc4ee, 0xe478, 0xad2f, 0x1806, 0x2f43, 0xd7a7, 0x3dfb, 0x0099, 0x2b4d, 0xdf0b, 0x4fc1, 0x2480, 0x2b83};
 
 // Added by Crypto++ for TweetNaCl
-static void randombytes(uint8_t * block, uint64_t size)
+static void randombytes(byte * block, word64 size)
 {
     DefaultAutoSeededRNG prng;
     prng.GenerateBlock(block, (size_t)size);
 }
 
-static uint32_t L32(uint32_t x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
+static word32 L32(word32 x,int c) { return (x << c) | ((x&0xffffffff) >> (32 - c)); }
 
-static uint32_t ld32(const uint8_t *x)
+static word32 ld32(const byte *x)
 {
-  uint32_t u = x[3];
+  word32 u = x[3];
   u = (u<<8)|x[2];
   u = (u<<8)|x[1];
   return (u<<8)|x[0];
 }
 
-static uint64_t dl64(const uint8_t *x)
+static word64 dl64(const byte *x)
 {
-  uint64_t i,u=0;
+  word64 i,u=0;
   for(i=0; i<8; ++i) u=(u<<8)|x[i];
   return u;
 }
 
-static void st32(uint8_t *x,uint32_t u)
+static void st32(byte *x,word32 u)
 {
   int i;
   for(i=0; i<4; ++i) { x[i] = u; u >>= 8; }
 }
 
-static void ts64(uint8_t *x,uint64_t u)
+static void ts64(byte *x,word64 u)
 {
   int i;
   for (i = 7;i >= 0;--i) { x[i] = u; u >>= 8; }
 }
 
 // Extra cast due to Coverity CID 186949
-static int verify_n(const uint8_t *x,const uint8_t *y,uint32_t n)
+static int verify_n(const byte *x,const byte *y,word32 n)
 {
-  uint32_t i,d = 0;
+  word32 i,d = 0;
   for(i=0; i<n; ++i) d |= x[i]^y[i];
-  const int32_t v = (int32_t) d;
-  return (1 & ((uint32_t)(v - 1) >> 8)) - 1;
+  const sword32 v = (sword32) d;
+  return (1 & ((word32)(v - 1) >> 8)) - 1;
 }
 
-int crypto_verify_16(const uint8_t *x,const uint8_t *y)
+int crypto_verify_16(const byte *x,const byte *y)
 {
   return verify_n(x,y,16);
 }
 
-int crypto_verify_32(const uint8_t *x,const uint8_t *y)
+int crypto_verify_32(const byte *x,const byte *y)
 {
   return verify_n(x,y,32);
 }
 
-static void core(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *c,int h)
+static void core(byte *out,const byte *in,const byte *k,const byte *c,int h)
 {
-  uint32_t w[16],x[16],y[16],t[4];
+  word32 w[16],x[16],y[16],t[4];
   int i,j,m;
 
   for(i=0; i<4; ++i) {
@@ -131,24 +131,24 @@ static void core(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *
     for(i=0; i<16; ++i) st32(out + 4 * i,x[i] + y[i]);
 }
 
-int crypto_core_salsa20(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *c)
+int crypto_core_salsa20(byte *out,const byte *in,const byte *k,const byte *c)
 {
   core(out,in,k,c,0);
   return 0;
 }
 
-int crypto_core_hsalsa20(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *c)
+int crypto_core_hsalsa20(byte *out,const byte *in,const byte *k,const byte *c)
 {
   core(out,in,k,c,1);
   return 0;
 }
 
-static const uint8_t sigma[16] = {0x65,0x78,0x70,0x61,0x6E,0x64,0x20,0x33,0x32,0x2D,0x62,0x79,0x74,0x65,0x20,0x6B};
+static const byte sigma[16] = {0x65,0x78,0x70,0x61,0x6E,0x64,0x20,0x33,0x32,0x2D,0x62,0x79,0x74,0x65,0x20,0x6B};
 
-int crypto_stream_salsa20_xor(uint8_t *c,const uint8_t *m,uint64_t b,const uint8_t *n,const uint8_t *k)
+int crypto_stream_salsa20_xor(byte *c,const byte *m,word64 b,const byte *n,const byte *k)
 {
-  uint8_t z[16],x[64];
-  uint32_t u,i;
+  byte z[16],x[64];
+  word32 u,i;
   if (!b) return 0;
   for(i=0; i<16; ++i) z[i] = 0;
   for(i=0; i<8; ++i) z[i] = n[i];
@@ -157,7 +157,7 @@ int crypto_stream_salsa20_xor(uint8_t *c,const uint8_t *m,uint64_t b,const uint8
     for(i=0; i<64; ++i) c[i] = (m?m[i]:0) ^ x[i];
     u = 1;
     for (i = 8;i < 16;++i) {
-      u += (uint32_t) z[i];
+      u += (word32) z[i];
       z[i] = u;
       u >>= 8;
     }
@@ -172,28 +172,28 @@ int crypto_stream_salsa20_xor(uint8_t *c,const uint8_t *m,uint64_t b,const uint8
   return 0;
 }
 
-int crypto_stream_salsa20(uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_stream_salsa20(byte *c,word64 d,const byte *n,const byte *k)
 {
   return crypto_stream_salsa20_xor(c,0,d,n,k);
 }
 
-int crypto_stream(uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_stream(byte *c,word64 d,const byte *n,const byte *k)
 {
-  uint8_t s[32];
+  byte s[32];
   crypto_core_hsalsa20(s,n,k,sigma);
   return crypto_stream_salsa20(c,d,n+16,s);
 }
 
-int crypto_stream_xor(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_stream_xor(byte *c,const byte *m,word64 d,const byte *n,const byte *k)
 {
-  uint8_t s[32];
+  byte s[32];
   crypto_core_hsalsa20(s,n,k,sigma);
   return crypto_stream_salsa20_xor(c,m,d,n+16,s);
 }
 
-static void add1305(uint32_t *h,const uint32_t *c)
+static void add1305(word32 *h,const word32 *c)
 {
-  uint32_t j,u = 0;
+  word32 j,u = 0;
   for(j=0; j<17; ++j) {
     u += h[j] + c[j];
     h[j] = u & 255;
@@ -201,13 +201,13 @@ static void add1305(uint32_t *h,const uint32_t *c)
   }
 }
 
-static const uint32_t minusp[17] = {
+static const word32 minusp[17] = {
   5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 252
 } ;
 
-int crypto_onetimeauth(uint8_t *out,const uint8_t *m,uint64_t n,const uint8_t *k)
+int crypto_onetimeauth(byte *out,const byte *m,word64 n,const byte *k)
 {
-  uint32_t s,i,j,u,x[17],r[17],h[17],c[17],g[17];
+  word32 s,i,j,u,x[17],r[17],h[17],c[17],g[17];
 
   for(j=0; j<17; ++j) r[j]=h[j]=0;
   for(j=0; j<16; ++j) r[j]=k[j];
@@ -258,14 +258,14 @@ int crypto_onetimeauth(uint8_t *out,const uint8_t *m,uint64_t n,const uint8_t *k
   return 0;
 }
 
-int crypto_onetimeauth_verify(const uint8_t *h,const uint8_t *m,uint64_t n,const uint8_t *k)
+int crypto_onetimeauth_verify(const byte *h,const byte *m,word64 n,const byte *k)
 {
-  uint8_t x[16];
+  byte x[16];
   crypto_onetimeauth(x,m,n,k);
   return crypto_verify_16(h,x);
 }
 
-int crypto_secretbox(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_secretbox(byte *c,const byte *m,word64 d,const byte *n,const byte *k)
 {
   int i;
   if (d < 32) return -1;
@@ -275,10 +275,10 @@ int crypto_secretbox(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,con
   return 0;
 }
 
-int crypto_secretbox_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_secretbox_open(byte *m,const byte *c,word64 d,const byte *n,const byte *k)
 {
   int i;
-  uint8_t x[32];
+  byte x[32];
   if (d < 32) return -1;
   crypto_stream(x,32,n,k);
   if (crypto_onetimeauth_verify(c + 16,c + 32,d - 32,x) != 0) return -1;
@@ -296,18 +296,18 @@ static void set25519(gf r, const gf a)
 static void car25519(gf o)
 {
   int i;
-  int64_t c;
+  sword64 c;
   for(i=0; i<16; ++i) {
     o[i]+=(1LL<<16);
     c=o[i]>>16;
     o[(i+1)*(i<15)]+=c-1+37*(c-1)*(i==15);
-    o[i]-=((uint64_t)c)<<16;
+    o[i]-=((word64)c)<<16;
   }
 }
 
 static void sel25519(gf p,gf q,int b)
 {
-  int64_t t,i,c=~(b-1);
+  sword64 t,i,c=~(b-1);
   for(i=0; i<16; ++i) {
     t= c&(p[i]^q[i]);
     p[i]^=t;
@@ -315,7 +315,7 @@ static void sel25519(gf p,gf q,int b)
   }
 }
 
-static void pack25519(uint8_t *o,const gf n)
+static void pack25519(byte *o,const gf n)
 {
   int i,j,b;
   gf m,t;
@@ -342,23 +342,23 @@ static void pack25519(uint8_t *o,const gf n)
 
 static int neq25519(const gf a, const gf b)
 {
-  uint8_t c[32],d[32];
+  byte c[32],d[32];
   pack25519(c,a);
   pack25519(d,b);
   return crypto_verify_32(c,d);
 }
 
-static uint8_t par25519(const gf a)
+static byte par25519(const gf a)
 {
-  uint8_t d[32];
+  byte d[32];
   pack25519(d,a);
   return d[0]&1;
 }
 
-static void unpack25519(gf o, const uint8_t *n)
+static void unpack25519(gf o, const byte *n)
 {
   int i;
-  for(i=0; i<16; ++i) o[i]=n[2*i]+((int64_t)n[2*i+1]<<8);
+  for(i=0; i<16; ++i) o[i]=n[2*i]+((sword64)n[2*i+1]<<8);
   o[15]&=0x7fff;
 }
 
@@ -376,7 +376,7 @@ static void Z(gf o,const gf a,const gf b)
 
 static void M(gf o,const gf a,const gf b)
 {
-  int64_t i,j,t[31];
+  sword64 i,j,t[31];
   for(i=0; i<31; ++i) t[i]=0;
   for(i=0; i<16; ++i) for(j=0; j<16; ++j) t[i+j]+=a[i]*b[j];
   for(i=0; i<15; ++i) t[i]+=38*t[i+16];
@@ -415,10 +415,10 @@ static void pow2523(gf o,const gf i)
 }
 
 // https://github.com/jedisct1/libsodium/blob/master/src/libsodium/crypto_scalarmult/curve25519/ref10/x25519_ref10.c
-static int has_small_order(const uint8_t s[32])
+static int has_small_order(const byte s[32])
 {
   CRYPTOPP_ALIGN_DATA(16)
-  const uint8_t blacklist[][32] = {
+  const byte blacklist[][32] = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
     { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
     { 0xe0, 0xeb, 0x7a, 0x7c, 0x3b, 0x41, 0xb8, 0xae, 0x16, 0x56, 0xe3, 0xfa, 0xf1, 0x9f, 0xc4, 0x6a, 0xda, 0x09, 0x8d, 0xeb, 0x9c, 0x32, 0xb1, 0xfd, 0x86, 0x62, 0x05, 0x16, 0x5f, 0x49, 0xb8, 0x00 },
@@ -434,7 +434,7 @@ static int has_small_order(const uint8_t s[32])
   };
   CRYPTOPP_COMPILE_ASSERT(12 == COUNTOF(blacklist));
 
-  uint8_t c[12] = { 0 };
+  byte c[12] = { 0 };
   for (size_t j = 0; j < 32; j++) {
     for (size_t i = 0; i < COUNTOF(blacklist); i++) {
       c[i] |= s[j] ^ blacklist[i][j];
@@ -449,10 +449,10 @@ static int has_small_order(const uint8_t s[32])
   return (int) ((k >> 8) & 1);
 }
 
-int crypto_scalarmult(uint8_t *q,const uint8_t *n,const uint8_t *p)
+int crypto_scalarmult(byte *q,const byte *n,const byte *p)
 {
-  uint8_t z[32];
-  int64_t x[80],r,i;
+  byte z[32];
+  sword64 x[80],r,i;
   gf a,b,c,d,e,f;
   for(i=0; i<31; ++i) z[i]=n[i];
   z[31]=(n[31]&127)|64;
@@ -500,12 +500,12 @@ int crypto_scalarmult(uint8_t *q,const uint8_t *n,const uint8_t *p)
   return 0;
 }
 
-int crypto_scalarmult_base(uint8_t *q,const uint8_t *n)
+int crypto_scalarmult_base(byte *q,const byte *n)
 {
   return crypto_scalarmult(q,n,_9);
 }
 
-int crypto_box_keypair(uint8_t *y,uint8_t *x)
+int crypto_box_keypair(byte *y,byte *x)
 {
   randombytes(x,32);
   return crypto_scalarmult_base(y,x);
@@ -513,69 +513,69 @@ int crypto_box_keypair(uint8_t *y,uint8_t *x)
 
 // Avoid small order elements. Also see https://eprint.iacr.org/2017/806.pdf
 // and https://github.com/jedisct1/libsodium/commit/675149b9b8b66ff4.
-int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x)
+int crypto_box_beforenm(byte *k,const byte *y,const byte *x)
 {
-  uint8_t s[32];
+  byte s[32];
   if(crypto_scalarmult(s,x,y) != 0) return -1;
   if(has_small_order(s) != 0) return -1;
   return crypto_core_hsalsa20(k,_0,s,sigma);
 }
 
 // Allow small order elements. Also see https://eprint.iacr.org/2017/806.pdf
-int crypto_box_beforenm_unchecked(uint8_t *k,const uint8_t *y,const uint8_t *x)
+int crypto_box_beforenm_unchecked(byte *k,const byte *y,const byte *x)
 {
-  uint8_t s[32];
+  byte s[32];
   if(crypto_scalarmult(s,x,y) != 0) return -1;
   return crypto_core_hsalsa20(k,_0,s,sigma);
 }
 
-int crypto_box_afternm(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_box_afternm(byte *c,const byte *m,word64 d,const byte *n,const byte *k)
 {
   return crypto_secretbox(c,m,d,n,k);
 }
 
-int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k)
+int crypto_box_open_afternm(byte *m,const byte *c,word64 d,const byte *n,const byte *k)
 {
   return crypto_secretbox_open(m,c,d,n,k);
 }
 
-int crypto_box(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
+int crypto_box(byte *c, const byte *m, word64 d, const byte *n, const byte *y, const byte *x)
 {
-  uint8_t k[32];
+  byte k[32];
   if (crypto_box_beforenm(k, y, x) != 0) return -1;
   return crypto_box_afternm(c, m, d, n, k);
 }
 
-int crypto_box_unchecked(uint8_t *c, const uint8_t *m, uint64_t d, const uint8_t *n, const uint8_t *y, const uint8_t *x)
+int crypto_box_unchecked(byte *c, const byte *m, word64 d, const byte *n, const byte *y, const byte *x)
 {
-  uint8_t k[32];
+  byte k[32];
   crypto_box_beforenm_unchecked(k, y, x);
   return crypto_box_afternm(c, m, d, n, k);
 }
 
-int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
+int crypto_box_open(byte *m,const byte *c,word64 d,const byte *n,const byte *y,const byte *x)
 {
-  uint8_t k[32];
+  byte k[32];
   if(crypto_box_beforenm(k,y,x) != 0) return -1;
   return crypto_box_open_afternm(m,c,d,n,k);
 }
 
-int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x)
+int crypto_box_open_unchecked(byte *m,const byte *c,word64 d,const byte *n,const byte *y,const byte *x)
 {
-  uint8_t k[32];
+  byte k[32];
   crypto_box_beforenm_unchecked(k,y,x);
   return crypto_box_open_afternm(m,c,d,n,k);
 }
 
-static uint64_t R(uint64_t x,int c) { return (x >> c) | (x << (64 - c)); }
-static uint64_t Ch(uint64_t x,uint64_t y,uint64_t z) { return (x & y) ^ (~x & z); }
-static uint64_t Maj(uint64_t x,uint64_t y,uint64_t z) { return (x & y) ^ (x & z) ^ (y & z); }
-static uint64_t Sigma0(uint64_t x) { return R(x,28) ^ R(x,34) ^ R(x,39); }
-static uint64_t Sigma1(uint64_t x) { return R(x,14) ^ R(x,18) ^ R(x,41); }
-static uint64_t sigma0(uint64_t x) { return R(x, 1) ^ R(x, 8) ^ (x >> 7); }
-static uint64_t sigma1(uint64_t x) { return R(x,19) ^ R(x,61) ^ (x >> 6); }
+static word64 R(word64 x,int c) { return (x >> c) | (x << (64 - c)); }
+static word64 Ch(word64 x,word64 y,word64 z) { return (x & y) ^ (~x & z); }
+static word64 Maj(word64 x,word64 y,word64 z) { return (x & y) ^ (x & z) ^ (y & z); }
+static word64 Sigma0(word64 x) { return R(x,28) ^ R(x,34) ^ R(x,39); }
+static word64 Sigma1(word64 x) { return R(x,14) ^ R(x,18) ^ R(x,41); }
+static word64 sigma0(word64 x) { return R(x, 1) ^ R(x, 8) ^ (x >> 7); }
+static word64 sigma1(word64 x) { return R(x,19) ^ R(x,61) ^ (x >> 6); }
 
-static const uint64_t K[80] =
+static const word64 K[80] =
 {
   W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd), W64LIT(0xb5c0fbcfec4d3b2f), W64LIT(0xe9b5dba58189dbbc),
   W64LIT(0x3956c25bf348b538), W64LIT(0x59f111f1b605d019), W64LIT(0x923f82a4af194f9b), W64LIT(0xab1c5ed5da6d8118),
@@ -599,9 +599,9 @@ static const uint64_t K[80] =
   W64LIT(0x4cc5d4becb3e42b6), W64LIT(0x597f299cfc657e2a), W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-int crypto_hashblocks(uint8_t *x,const uint8_t *m,uint64_t n)
+int crypto_hashblocks(byte *x,const byte *m,word64 n)
 {
-  uint64_t z[8],b[8],a[8],w[16],t;
+  word64 z[8],b[8],a[8],w[16],t;
   int i,j;
 
   for(i=0; i<8; ++i) z[i] = a[i] = dl64(x + 8 * i);
@@ -631,7 +631,7 @@ int crypto_hashblocks(uint8_t *x,const uint8_t *m,uint64_t n)
   return n;
 }
 
-static const uint8_t iv[64] = {
+static const byte iv[64] = {
   0x6a,0x09,0xe6,0x67,0xf3,0xbc,0xc9,0x08,
   0xbb,0x67,0xae,0x85,0x84,0xca,0xa7,0x3b,
   0x3c,0x6e,0xf3,0x72,0xfe,0x94,0xf8,0x2b,
@@ -642,10 +642,10 @@ static const uint8_t iv[64] = {
   0x5b,0xe0,0xcd,0x19,0x13,0x7e,0x21,0x79
 } ;
 
-int crypto_hash(uint8_t *out,const uint8_t *m,uint64_t n)
+int crypto_hash(byte *out,const byte *m,word64 n)
 {
-  uint8_t h[64],x[256];
-  uint64_t i,b = n;
+  byte h[64],x[256];
+  word64 i,b = n;
 
   for(i=0; i<64; ++i) h[i] = iv[i];
 
@@ -693,14 +693,14 @@ static void add(gf p[4],gf q[4])
   M(p[3], e, h);
 }
 
-static void cswap(gf p[4],gf q[4],uint8_t b)
+static void cswap(gf p[4],gf q[4],byte b)
 {
   int i;
   for(i=0; i<4; ++i)
     sel25519(p[i],q[i],b);
 }
 
-static void pack(uint8_t *r,gf p[4])
+static void pack(byte *r,gf p[4])
 {
   gf tx, ty, zi;
   inv25519(zi, p[2]);
@@ -710,7 +710,7 @@ static void pack(uint8_t *r,gf p[4])
   r[31] ^= par25519(tx) << 7;
 }
 
-static void scalarmult(gf p[4],gf q[4],const uint8_t *s)
+static void scalarmult(gf p[4],gf q[4],const byte *s)
 {
   int i;
   set25519(p[0],gf0);
@@ -718,7 +718,7 @@ static void scalarmult(gf p[4],gf q[4],const uint8_t *s)
   set25519(p[2],gf1);
   set25519(p[3],gf0);
   for (i = 255;i >= 0;--i) {
-    uint8_t b = (s[i/8]>>(i&7))&1;
+    byte b = (s[i/8]>>(i&7))&1;
     cswap(p,q,b);
     add(q,p);
     add(p,p);
@@ -726,7 +726,7 @@ static void scalarmult(gf p[4],gf q[4],const uint8_t *s)
   }
 }
 
-static void scalarbase(gf p[4],const uint8_t *s)
+static void scalarbase(gf p[4],const byte *s)
 {
   gf q[4];
   set25519(q[0],X);
@@ -736,9 +736,9 @@ static void scalarbase(gf p[4],const uint8_t *s)
   scalarmult(p,q,s);
 }
 
-int crypto_sign_keypair(uint8_t *pk, uint8_t *sk)
+int crypto_sign_keypair(byte *pk, byte *sk)
 {
-  uint8_t d[64];
+  byte d[64];
   gf p[4];
   int i;
 
@@ -755,17 +755,17 @@ int crypto_sign_keypair(uint8_t *pk, uint8_t *sk)
   return 0;
 }
 
-static const uint64_t L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
+static const word64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
 
-static void modL(uint8_t *r,int64_t x[64])
+static void modL(byte *r,sword64 x[64])
 {
-  int64_t carry,i,j;
+  sword64 carry,i,j;
   for (i = 63;i >= 32;--i) {
     carry = 0;
     for (j = i - 32;j < i - 12;++j) {
       x[j] += carry - 16 * x[i] * L[j - (i - 32)];
       carry = (x[j] + 128) >> 8;
-      x[j] -= ((uint64_t)carry) << 8;
+      x[j] -= ((word64)carry) << 8;
     }
     x[j] += carry;
     x[i] = 0;
@@ -783,18 +783,18 @@ static void modL(uint8_t *r,int64_t x[64])
   }
 }
 
-static void reduce(uint8_t *r)
+static void reduce(byte *r)
 {
-  int64_t x[64],i;
-  for(i=0; i<64; ++i) x[i] = (uint64_t) r[i];
+  sword64 x[64],i;
+  for(i=0; i<64; ++i) x[i] = (word64) r[i];
   for(i=0; i<64; ++i) r[i] = 0;
   modL(r,x);
 }
 
-int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const uint8_t *sk)
+int crypto_sign(byte *sm,word64 *smlen,const byte *m,word64 n,const byte *sk)
 {
-  uint8_t d[64],h[64],r[64];
-  uint64_t i; int64_t j,x[64];
+  byte d[64],h[64],r[64];
+  word64 i; sword64 j,x[64];
   gf p[4];
 
   crypto_hash(d, sk, 32);
@@ -816,14 +816,14 @@ int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const ui
   reduce(h);
 
   for(i=0; i<64; ++i) x[i] = 0;
-  for(i=0; i<32; ++i) x[i] = (uint64_t) r[i];
-  for(i=0; i<32; ++i) for(j=0; j<32; ++j) x[i+j] += h[i] * (uint64_t) d[j];
+  for(i=0; i<32; ++i) x[i] = (word64) r[i];
+  for(i=0; i<32; ++i) for(j=0; j<32; ++j) x[i+j] += h[i] * (word64) d[j];
   modL(sm + 32,x);
 
   return 0;
 }
 
-static int unpackneg(gf r[4],const uint8_t p[32])
+static int unpackneg(gf r[4],const byte p[32])
 {
   gf t, chk, num, den, den2, den4, den6;
   set25519(r[2],gf1);
@@ -859,10 +859,10 @@ static int unpackneg(gf r[4],const uint8_t p[32])
   return 0;
 }
 
-int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,const uint8_t *pk)
+int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk)
 {
-  uint32_t i;
-  uint8_t t[32],h[64];
+  word32 i;
+  byte t[32],h[64];
   gf p[4],q[4];
 
   *mlen = -1;

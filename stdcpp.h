@@ -52,7 +52,6 @@ namespace std {
 #include <cstdlib>
 #include <cstddef>
 #include <cstring>
-#include <cstdint>
 #include <climits>
 #include <cmath>
 

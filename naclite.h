@@ -153,7 +153,7 @@ CRYPTOPP_CONSTANT(crypto_scalarmult_SCALARBYTES = 32)
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
-int crypto_box(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
+int crypto_box(byte *c,const byte *m,word64 d,const byte *n,const byte *y,const byte *x);
 
 /// \brief Verify and decrypt a message
 /// \param m output byte buffer
@@ -166,7 +166,7 @@ int crypto_box(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uin
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
-int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
+int crypto_box_open(byte *m,const byte *c,word64 d,const byte *n,const byte *y,const byte *x);
 
 /// \brief Generate a keypair for encryption
 /// \param y public key byte buffer
@@ -174,7 +174,7 @@ int crypto_box_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,cons
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
-int crypto_box_keypair(uint8_t *y,uint8_t *x);
+int crypto_box_keypair(byte *y,byte *x);
 
 /// \brief Encrypt and authenticate a message
 /// \param k shared secret byte buffer
@@ -185,7 +185,7 @@ int crypto_box_keypair(uint8_t *y,uint8_t *x);
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
-int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x);
+int crypto_box_beforenm(byte *k,const byte *y,const byte *x);
 
 /// \brief Encrypt and authenticate a message
 /// \param m output byte buffer
@@ -199,7 +199,7 @@ int crypto_box_beforenm(uint8_t *k,const uint8_t *y,const uint8_t *x);
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
-int crypto_box_afternm(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_box_afternm(byte *c,const byte *m,word64 d,const byte *n,const byte *k);
 
 /// \brief Verify and decrypt a message
 /// \param m output byte buffer
@@ -213,7 +213,7 @@ int crypto_box_afternm(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,c
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
 /// \since Crypto++ 6.0
-int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_box_open_afternm(byte *m,const byte *c,word64 d,const byte *n,const byte *k);
 
 /// \brief Encrypt and authenticate a message
 /// \param c output byte buffer
@@ -237,7 +237,7 @@ int crypto_box_open_afternm(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t
 ///   <A HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium commit
 ///   afabd7e7386e1194</A>.
 /// \since Crypto++ 6.0
-int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
+int crypto_box_unchecked(byte *c,const byte *m,word64 d,const byte *n,const byte *y,const byte *x);
 
 /// \brief Verify and decrypt a message
 /// \param m output byte buffer
@@ -261,7 +261,7 @@ int crypto_box_unchecked(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n
 ///   <A HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium commit
 ///   afabd7e7386e1194</A>.
 /// \since Crypto++ 6.0
-int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *y,const uint8_t *x);
+int crypto_box_open_unchecked(byte *m,const byte *c,word64 d,const byte *n,const byte *y,const byte *x);
 
 /// \brief Encrypt and authenticate a message
 /// \param k shared secret byte buffer
@@ -283,69 +283,69 @@ int crypto_box_open_unchecked(uint8_t *m,const uint8_t *c,uint64_t d,const uint8
 ///   <A HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium commit
 ///   afabd7e7386e1194</A>.
 /// \since Crypto++ 6.0
-int crypto_box_beforenm_unchecked(uint8_t *k,const uint8_t *y,const uint8_t *x);
+int crypto_box_beforenm_unchecked(byte *k,const byte *y,const byte *x);
 
 /// \brief TODO
-int crypto_core_salsa20(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *c);
+int crypto_core_salsa20(byte *out,const byte *in,const byte *k,const byte *c);
 
 /// \brief TODO
 /// \returns 0 on success, non-0 otherwise
 /// \since Crypto++ 6.0
-int crypto_core_hsalsa20(uint8_t *out,const uint8_t *in,const uint8_t *k,const uint8_t *c);
+int crypto_core_hsalsa20(byte *out,const byte *in,const byte *k,const byte *c);
 
 /// \brief Hash multiple blocks
 /// \details crypto_hashblocks() uses crypto_hashblocks_sha512.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/hash.html">NaCl crypto_hash documentation</A>
 /// \since Crypto++ 6.0
-int crypto_hashblocks(uint8_t *x,const uint8_t *m,uint64_t n);
+int crypto_hashblocks(byte *x,const byte *m,word64 n);
 
 /// \brief Hash a message
 /// \details crypto_hash() uses crypto_hash_sha512.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/hash.html">NaCl crypto_hash documentation</A>
 /// \since Crypto++ 6.0
-int crypto_hash(uint8_t *out,const uint8_t *m,uint64_t n);
+int crypto_hash(byte *out,const byte *m,word64 n);
 
 /// \brief Create an authentication tag for a message
 /// \details crypto_onetimeauth() uses crypto_onetimeauth_poly1305.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/onetimeauth.html">NaCl crypto_onetimeauth documentation</A>
 /// \since Crypto++ 6.0
-int crypto_onetimeauth(uint8_t *out,const uint8_t *m,uint64_t n,const uint8_t *k);
+int crypto_onetimeauth(byte *out,const byte *m,word64 n,const byte *k);
 
 /// \brief Verify an authentication tag on a message
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/onetimeauth.html">NaCl crypto_onetimeauth documentation</A>
 /// \since Crypto++ 6.0
-int crypto_onetimeauth_verify(const uint8_t *h,const uint8_t *m,uint64_t n,const uint8_t *k);
+int crypto_onetimeauth_verify(const byte *h,const byte *m,word64 n,const byte *k);
 
 /// \brief Scalar multiplication of a point
 /// \details crypto_scalarmult() uses crypto_scalarmult_curve25519
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/scalarmult.html">NaCl crypto_scalarmult documentation</A>
 /// \since Crypto++ 6.0
-int crypto_scalarmult(uint8_t *q,const uint8_t *n,const uint8_t *p);
+int crypto_scalarmult(byte *q,const byte *n,const byte *p);
 
 /// \brief Scalar multiplication of base point
 /// \details crypto_scalarmult_base() uses crypto_scalarmult_curve25519
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/scalarmult.html">NaCl crypto_scalarmult documentation</A>
 /// \since Crypto++ 6.0
-int crypto_scalarmult_base(uint8_t *q,const uint8_t *n);
+int crypto_scalarmult_base(byte *q,const byte *n);
 
 /// \brief Encrypt and authenticate a message
 /// \details crypto_secretbox() uses a symmetric key to encrypt and authenticate a message.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/secretbox.html">NaCl crypto_secretbox documentation</A>
 /// \since Crypto++ 6.0
-int crypto_secretbox(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_secretbox(byte *c,const byte *m,word64 d,const byte *n,const byte *k);
 
 /// \brief Verify and decrypt a message
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/secretbox.html">NaCl crypto_secretbox documentation</A>
 /// \since Crypto++ 6.0
-int crypto_secretbox_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_secretbox_open(byte *m,const byte *c,word64 d,const byte *n,const byte *k);
 
 /// \brief Sign a message
 /// \param sm output byte buffer
@@ -357,7 +357,7 @@ int crypto_secretbox_open(uint8_t *m,const uint8_t *c,uint64_t d,const uint8_t *
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 6.0
-int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const uint8_t *sk);
+int crypto_sign(byte *sm,word64 *smlen,const byte *m,word64 n,const byte *sk);
 
 /// \brief Verify a message
 /// \param m output byte buffer
@@ -368,7 +368,7 @@ int crypto_sign(uint8_t *sm,uint64_t *smlen,const uint8_t *m,uint64_t n,const ui
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 6.0
-int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,const uint8_t *pk);
+int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk);
 
 /// \brief Generate a keypair for signing
 /// \param pk public key byte buffer
@@ -377,44 +377,44 @@ int crypto_sign_open(uint8_t *m,uint64_t *mlen,const uint8_t *sm,uint64_t n,cons
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 6.0
-int crypto_sign_keypair(uint8_t *pk, uint8_t *sk);
+int crypto_sign_keypair(byte *pk, byte *sk);
 
 /// \brief Produce a keystream using XSalsa20
 /// \details crypto_stream() uses crypto_stream_xsalsa20
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/stream.html">NaCl crypto_stream documentation</A>
 /// \since Crypto++ 6.0
-int crypto_stream(uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_stream(byte *c,word64 d,const byte *n,const byte *k);
 
 /// \brief Encrypt a message using XSalsa20
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/stream.html">NaCl crypto_stream documentation</A>
 /// \since Crypto++ 6.0
-int crypto_stream_xor(uint8_t *c,const uint8_t *m,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_stream_xor(byte *c,const byte *m,word64 d,const byte *n,const byte *k);
 
 /// \brief Produce a keystream using Salsa20
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/stream.html">NaCl crypto_stream documentation</A>
 /// \since Crypto++ 6.0
-int crypto_stream_salsa20(uint8_t *c,uint64_t d,const uint8_t *n,const uint8_t *k);
+int crypto_stream_salsa20(byte *c,word64 d,const byte *n,const byte *k);
 
 /// \brief Encrypt a message using Salsa20
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/stream.html">NaCl crypto_stream documentation</A>
 /// \since Crypto++ 6.0
-int crypto_stream_salsa20_xor(uint8_t *c,const uint8_t *m,uint64_t b,const uint8_t *n,const uint8_t *k);
+int crypto_stream_salsa20_xor(byte *c,const byte *m,word64 b,const byte *n,const byte *k);
 
 /// \brief Compare 16-byte buffers
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/verify.html">NaCl crypto_verify documentation</A>
 /// \since Crypto++ 6.0
-int crypto_verify_16(const uint8_t *x,const uint8_t *y);
+int crypto_verify_16(const byte *x,const byte *y);
 
 /// \brief Compare 32-byte buffers
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/verify.html">NaCl crypto_verify documentation</A>
 /// \since Crypto++ 6.0
-int crypto_verify_32(const uint8_t *x,const uint8_t *y);
+int crypto_verify_32(const byte *x,const byte *y);
 
 NAMESPACE_END  // CryptoPP
 NAMESPACE_END  // NaCl

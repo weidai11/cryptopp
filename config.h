@@ -231,18 +231,31 @@ namespace CryptoPP { }
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Signed words added at Issue 609 for early versions of and Visual Studio and
+//   the NaCl gear.  Also see https://github.com/weidai11/cryptopp/issues/609.
+
 typedef unsigned char byte;
 typedef unsigned short word16;
 typedef unsigned int word32;
 
+typedef signed char sbyte;
+typedef signed short sword16;
+typedef signed int sword32;
+
 #if defined(_MSC_VER) || defined(__BORLANDC__)
+	typedef signed __int64 sword64;
 	typedef unsigned __int64 word64;
+	#define SW64LIT(x) x##i64
 	#define W64LIT(x) x##ui64
 #elif (_LP64 || __LP64__)
+	typedef signed long sword64;
 	typedef unsigned long word64;
+	#define SW64LIT(x) x##L
 	#define W64LIT(x) x##UL
 #else
+	typedef signed long long sword64;
 	typedef unsigned long long word64;
+	#define SW64LIT(x) x##LL
 	#define W64LIT(x) x##ULL
 #endif
 
