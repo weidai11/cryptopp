@@ -9,7 +9,7 @@
 ############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_5_6_5
+OLD_VERSION_TAG=CRYPTOPP_6_1_0
 NEW_VERSION_TAG=master
 
 ############################################
@@ -208,7 +208,7 @@ fi
 
 "$MAKE" distclean &>/dev/null
 
-rm -f GNUmakefile-symbols bench1.cpp bench.cpp
+rm -f GNUmakefile-symbols
 
 git checkout master -f &>/dev/null
 cp GNUmakefile GNUmakefile-symbols
@@ -232,17 +232,6 @@ if [[ "$IS_DARWIN" -ne "0" ]]; then
 else
 	"$SED" "$SED_OPTS" -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.so $(TESTOBJS)|g' GNUmakefile-symbols
 	"$SED" "$SED_OPTS" -e 's|$(TESTOBJS) ./libcryptopp.a |$(TESTOBJS) ./libcryptopp.so |g' GNUmakefile-symbols
-fi
-
-echo
-echo "****************************************************************"
-echo "Patching bench.cpp as needed"
-echo "****************************************************************"
-echo
-
-if [[ (-e bench.cpp) ]]; then
-	"$SED" "$SED_OPTS" -e 's|bench1.cpp|bench.cpp|g' GNUmakefile-symbols
-	"$SED" "$SED_OPTS" -e 's|bench1.o|bench.o|g' GNUmakefile-symbols
 fi
 
 echo
@@ -304,18 +293,6 @@ git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 if [[ "$?" -ne "0" ]]; then
 	echo "Failed to checkout $OLD_VERSION_TAG"
 	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-fi
-
-
-echo
-echo "****************************************************************"
-echo "Patching bench.cpp as needed"
-echo "****************************************************************"
-echo
-
-if [[ (-e bench1.cpp) ]]; then
-	"$SED" "$SED_OPTS" -e 's|bench.cpp|bench1.cpp|g' GNUmakefile-symbols
-	"$SED" "$SED_OPTS" -e 's|bench.o|bench1.o|g' GNUmakefile-symbols
 fi
 
 echo
