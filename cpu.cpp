@@ -183,13 +183,22 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 #endif
 
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
-bool CRYPTOPP_SECTION_INIT CRYPTOPP_SECTION_INIT g_hasSSE2 = false, CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false, CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAESNI = false, CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
-bool CRYPTOPP_SECTION_INIT g_hasADX = false, CRYPTOPP_SECTION_INIT g_hasSHA = false;
-bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false, CRYPTOPP_SECTION_INIT g_hasRDSEED = false, CRYPTOPP_SECTION_INIT g_isP4 = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE = false, CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false, CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAESNI = false;
+bool CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
+bool CRYPTOPP_SECTION_INIT g_hasADX = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA = false;
+bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false;
+bool CRYPTOPP_SECTION_INIT g_hasRDSEED = false;
+bool CRYPTOPP_SECTION_INIT g_isP4 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockACE = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 static inline bool IsIntel(const word32 output[4])
@@ -310,8 +319,12 @@ void DetectX86Features()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
-bool CRYPTOPP_SECTION_INIT g_hasNEON = false, CRYPTOPP_SECTION_INIT g_hasPMULL = false, CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA1 = false, CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasNEON = false;
+bool CRYPTOPP_SECTION_INIT g_hasPMULL = false;
+bool CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAES = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA1 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA2 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 // ARM does not have an unprivliged equivalent to CPUID on IA-32. We have to jump through some
@@ -575,8 +588,12 @@ void DetectArmFeatures()
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 
 bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
-bool CRYPTOPP_SECTION_INIT g_hasAltivec = false, CRYPTOPP_SECTION_INIT g_hasPower7 = false, CRYPTOPP_SECTION_INIT g_hasPower8 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAES = false, CRYPTOPP_SECTION_INIT g_hasSHA256 = false, CRYPTOPP_SECTION_INIT g_hasSHA512 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAltivec = false;
+bool CRYPTOPP_SECTION_INIT g_hasPower7 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPower8 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAES = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA256 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA512 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 extern bool CPU_ProbeAltivec();
