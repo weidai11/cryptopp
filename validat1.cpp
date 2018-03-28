@@ -58,8 +58,6 @@
 #include <iostream>
 #include <iomanip>
 
-#undef BLOCKING_RNG_AVAILABLE
-
 #include "validate.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
