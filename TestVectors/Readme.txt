@@ -62,6 +62,7 @@ Plaintext - encoded string
 Ciphertext - encoded string
 Header - encoded string
 Footer - encoded string
+Secret - encoded string, used by some key derivation functions
 DerivedKey - encoded string
 DerivedLength - encoded string
 Digest - encoded string
