@@ -122,8 +122,10 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 	hmac.SetKey(key.begin(), key.size());
 	byte block = 0;
 
-	// Expand
 	size_t bytesRemaining = derivedLen;
+	size_t digestSize = static_cast<size_t>(T::DIGESTSIZE);
+
+	// Expand
 	while (bytesRemaining > 0)
 	{
 		if (block++) {hmac.Update(buffer, buffer.size());}
@@ -131,10 +133,10 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 		hmac.CalculateDigest(buffer, &block, 1);
 
 #if CRYPTOPP_MSC_VERSION
-		const size_t segmentLen = UnsignedMin(bytesRemaining, T::DIGESTSIZE);
+		const size_t segmentLen = STDMIN(bytesRemaining, digestSize);
 		memcpy_s(derived, segmentLen, buffer, segmentLen);
 #else
-		const size_t segmentLen = UnsignedMin(bytesRemaining, T::DIGESTSIZE);
+		const size_t segmentLen = STDMIN(bytesRemaining, digestSize);
 		std::memcpy(derived, buffer, segmentLen);
 #endif
 
