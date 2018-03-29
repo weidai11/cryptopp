@@ -333,6 +333,31 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	}
 }
 
+const Algorithm & KeyDerivationFunction::GetAlgorithm() const
+{
+	return *this;
+}
+
+size_t KeyDerivationFunction::MinDerivedLength() const
+{
+	return 0;
+}
+
+size_t KeyDerivationFunction::MaxDerivedLength() const
+{
+	return static_cast<size_t>(-1);
+}
+
+void KeyDerivationFunction::ThrowIfInvalidDerivedLength(size_t length) const
+{
+	if (!IsValidDerivedLength(length))
+		throw InvalidDerivedLength(GetAlgorithm().AlgorithmName(), length);
+}
+
+void KeyDerivationFunction::SetParameters(const NameValuePairs& params) {
+	CRYPTOPP_UNUSED(params);
+}
+
 /// \brief Random Number Generator that does not produce random numbers
 /// \details ClassNullRNG can be used for functions that require a RandomNumberGenerator
 ///   but don't actually use it. The class throws NotImplemented when a generation function is called.

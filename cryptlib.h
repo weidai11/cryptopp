@@ -632,8 +632,7 @@ public:
 	/// \brief Sets or reset the key of this object
 	/// \param key the key to use when keying the object
 	/// \param length the size of the key, in bytes
-	/// \param params additional initialization parameters that cannot be passed
-	///   directly through the constructor
+	/// \param params additional initialization parameters to configure this object
 	virtual void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
 
 	/// \brief Sets or reset the key of this object
@@ -1325,8 +1324,10 @@ protected:
 };
 
 /// \brief Interface for random number generators
-/// \details The library provides a number of random number generators, from software based to hardware based generators.
+/// \details The library provides a number of random number generators, from software based
+///   to hardware based generators.
 /// \details All generated values are uniformly distributed over the range specified.
+/// \since Crypto++ 3.1
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
@@ -1336,10 +1337,10 @@ public:
 	/// \param input the entropy to add to the generator
 	/// \param length the size of the input buffer
 	/// \throws NotImplemented
-	/// \details A generator may or may not accept additional entropy. Call CanIncorporateEntropy() to test for the
-	///   ability to use additional entropy.
-	/// \details If a derived class does not override IncorporateEntropy(), then the base class throws
-	///   NotImplemented.
+	/// \details A generator may or may not accept additional entropy. Call CanIncorporateEntropy()
+	///   to test for the ability to use additional entropy.
+	/// \details If a derived class does not override IncorporateEntropy(), then the base class
+	///   throws NotImplemented.
 	virtual void IncorporateEntropy(const byte *input, size_t length)
 	{
 		CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
@@ -1409,6 +1410,70 @@ public:
 		for (; begin != end; ++begin)
 			std::iter_swap(begin, begin + GenerateWord32(0, static_cast<word32>(end-begin-1)));
 	}
+};
+
+/// \brief Interface for key derivation functions
+/// \since Crypto++ 6.2
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyDerivationFunction : public Algorithm
+{
+public:
+	virtual ~KeyDerivationFunction() {}
+
+	virtual const Algorithm & GetAlgorithm() const =0;
+
+	/// \brief Provides the name of this algorithm
+	/// \return the standard algorithm name
+	virtual std::string AlgorithmName() const =0;
+
+	/// \brief Determine minimum number of bytes
+	/// \returns Minimum number of bytes which can be derived
+	virtual size_t MinDerivedLength() const;
+
+	/// \brief Determine maximum number of bytes
+	/// \returns Maximum number of bytes which can be derived
+	virtual size_t MaxDerivedLength() const;
+
+	/// \brief Returns a valid key length for the derivation function
+	/// \param keylength the size of the derived key, in bytes
+	/// \returns the valid key length, in bytes
+	virtual size_t GetValidDerivedLength(size_t keylength) const =0;
+
+	/// \brief Returns whether keylength is a valid key length
+	/// \param keylength the requested keylength
+	/// \return true if the derived keylength is valid, false otherwise
+	/// \details Internally the function calls GetValidKeyLength()
+	virtual bool IsValidDerivedLength(size_t keylength) const {
+		return keylength == GetValidDerivedLength(keylength);
+	}
+
+	/// \brief Derive a key from a seed
+	/// \param derived the derived output buffer
+	/// \param derivedLen the size of the derived buffer, in bytes
+	/// \param secret the seed input buffer
+	/// \param secretLen the size of the secret buffer, in bytes
+	/// \param params additional initialization parameters to configure this object
+	/// \returns the number of bytes derived
+	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \details DeriveKey() provides a standard interface to derive a key from
+	///   a secret seed and other parameters. Each class that derives from KeyDerivationFunction
+	///   provides an overload that accepts most parameters used by the derivation function.
+	/// \details the number of bytes derived by DeriveKey() may be less than the number
+	///   requested in <tt>derivedLen</tt>. For example, a scheme may be limited to a
+	///   certain amount of time for derivation.
+	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const NameValuePairs& params) const =0;
+
+	/// \brief Set or change parameters
+	/// \param params additional initialization parameters to configure this object
+	/// \details SetParameters() is useful for setting common parameters when an object is
+	///   reused. Some derivation function classes may choose to implement it.
+	virtual void SetParameters(const NameValuePairs& params);
+
+protected:
+
+	/// \brief Validates the derived key length
+	/// \param length the size of the derived key material, in bytes
+	/// \throws InvalidKeyLength if the key length is invalid
+	void ThrowIfInvalidDerivedLength(size_t length) const;
 };
 
 /// \brief Random Number Generator that does not produce random numbers
@@ -2047,7 +2112,7 @@ public:
 		/// \brief Request space which can be written into by the caller
 		/// \param channel the channel to process the data
 		/// \param size the requested size of the buffer
-		/// \return a pointer to a memroy block with length size
+		/// \return a pointer to a memory block with length size
 		/// \details The purpose of this method is to help avoid extra memory allocations.
 		/// \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
 		///   size is the requested size of the buffer. When the call returns, size is the size of
