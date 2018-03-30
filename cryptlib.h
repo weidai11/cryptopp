@@ -1456,7 +1456,7 @@ public:
 	///   a secret seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details the number of iterations performed by DeriveKey() may be 1. For example, a
-	//    scheme like HKDF does not use the iteration count so it returns 1.
+	///   scheme like HKDF does not use the iteration count so it returns 1.
 	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const NameValuePairs& params = g_nullNameValuePairs) const =0;
 
 	/// \brief Set or change parameters
