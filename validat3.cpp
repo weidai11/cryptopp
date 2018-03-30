@@ -583,9 +583,10 @@ bool TestPBKDF(KeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, uns
 		StringSource(tuple.hexSalt, true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
 
+		double timeInSeconds = 0.0f;
 		AlgorithmParameters params = MakeParameters("Purpose", (int)tuple.purpose)
 		    (Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()))
-		    ("Iterations", (int)tuple.iterations);
+		    ("Iterations", (int)tuple.iterations)("TimeInSeconds", timeInSeconds);
 
 		SecByteBlock derived(derivedKey.size());
 		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);

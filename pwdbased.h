@@ -68,8 +68,8 @@ public:
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
-	///   that amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey will
-	///   run for the specified number of iterations.
+	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
+	///   will run for the specified number of iterations.
 	/// \details PKCS #5 says PBKDF1 should only take 8-byte salts. This implementation
 	///   allows salts of any length.
 	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
@@ -93,7 +93,19 @@ template <class T>
 size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen,
     const byte *secret, size_t secretLen, const NameValuePairs& params) const
 {
-	return derivedLen;
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(secret && secretLen);
+
+	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
+	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
+
+	double timeInSeconds = 0.0f;
+	(void)params.GetValue("TimeInSeconds", timeInSeconds);
+
+	ConstByteArrayParameter salt;
+	(void)params.GetValue(Name::Salt(), salt);
+
+	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, timeInSeconds);
 }
 
 template <class T>
@@ -180,8 +192,8 @@ public:
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
-	///   that amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey will
-	///   run for the specified number of iterations.
+	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
+	///   will run for the specified number of iterations.
 	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
 
@@ -210,10 +222,13 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen,
 	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
 	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
 
+	double timeInSeconds = 0.0f;
+	(void)params.GetValue("TimeInSeconds", timeInSeconds);
+
 	ConstByteArrayParameter salt;
 	(void)params.GetValue(Name::Salt(), salt);
 
-	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, 0.0f);
+	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, timeInSeconds);
 }
 
 template <class T>
@@ -329,8 +344,8 @@ public:
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
-	///   that amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey will
-	///   run for the specified number of iterations.
+	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
+	///   will run for the specified number of iterations.
 	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const;
 
@@ -360,11 +375,14 @@ size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
 	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
 
+	double timeInSeconds = 0.0f;
+	(void)params.GetValue("TimeInSeconds", timeInSeconds);
+
 	// NULL or 0 length salt OK
 	ConstByteArrayParameter salt;
 	(void)params.GetValue(Name::Salt(), salt);
 
-	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, 0.0f);
+	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, timeInSeconds);
 }
 
 template <class T>
