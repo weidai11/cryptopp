@@ -15,7 +15,6 @@
 #include "queue.h"
 #include "smartptr.h"
 #include "validate.h"
-#include "hkdf.h"
 #include "stdcpp.h"
 #include <iostream>
 #include <sstream>
@@ -150,13 +149,15 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		}
 		else if (s1.substr(0, 2) == "0x")
 		{
-			StringSource(s1.substr(2, s1.find(' ')), true, new HexDecoder(new StringSink(s2)));
-			s1 = s1.substr(STDMIN(s1.find(' '), s1.length()));
+			std::string::size_type pos = s1.find(' ');
+			StringSource(s1.substr(2, pos), true, new HexDecoder(new StringSink(s2)));
+			s1 = s1.substr(STDMIN(pos, s1.length()));
 		}
 		else
 		{
-			StringSource(s1.substr(0, s1.find(' ')), true, new HexDecoder(new StringSink(s2)));
-			s1 = s1.substr(STDMIN(s1.find(' '), s1.length()));
+			std::string::size_type pos = s1.find(' ');
+			StringSource(s1.substr(0, pos), true, new HexDecoder(new StringSink(s2)));
+			s1 = s1.substr(STDMIN(pos, s1.length()));
 		}
 
 		while (repeat--)
@@ -222,7 +223,7 @@ public:
 		{
 			m_temp.clear();
 			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
-			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign((const byte *)m_temp.data(), m_temp.size(), false);
+			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign((const byte *)&m_temp[0], m_temp.size(), false);
 		}
 		else
 			throw ValueTypeMismatch(name, typeid(std::string), valueType);
@@ -258,11 +259,11 @@ void TestSignatureScheme(TestData &v)
 	member_ptr<PK_Signer> signer(ObjectFactoryRegistry<PK_Signer>::Registry().CreateObject(name.c_str()));
 	member_ptr<PK_Verifier> verifier(ObjectFactoryRegistry<PK_Verifier>::Registry().CreateObject(name.c_str()));
 
-	TestDataNameValuePairs pairs(v);
-
 	// Code coverage
 	(void)signer->AlgorithmName();
 	(void)verifier->AlgorithmName();
+
+	TestDataNameValuePairs pairs(v);
 
 	if (test == "GenerateKey")
 	{
@@ -329,11 +330,6 @@ void TestSignatureScheme(TestData &v)
 
 		return;
 	}
-	else if (test == "RandomSign")
-	{
-		SignalTestError();
-		CRYPTOPP_ASSERT(false);	// TODO: implement
-	}
 	else
 	{
 		SignalTestError();
@@ -349,6 +345,10 @@ void TestAsymmetricCipher(TestData &v)
 	member_ptr<PK_Encryptor> encryptor(ObjectFactoryRegistry<PK_Encryptor>::Registry().CreateObject(name.c_str()));
 	member_ptr<PK_Decryptor> decryptor(ObjectFactoryRegistry<PK_Decryptor>::Registry().CreateObject(name.c_str()));
 
+	// Code coverage
+	(void)encryptor->AlgorithmName();
+	(void)decryptor->AlgorithmName();
+
 	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
 	if (keyFormat == "DER")
@@ -362,10 +362,6 @@ void TestAsymmetricCipher(TestData &v)
 		decryptor->AccessMaterial().AssignFrom(pairs);
 		encryptor->AccessMaterial().AssignFrom(pairs);
 	}
-
-	// Code coverage
-	(void)encryptor->AlgorithmName();
-	(void)decryptor->AlgorithmName();
 
 	if (test == "DecryptMatch")
 	{
@@ -406,6 +402,16 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			encryptor.reset(ObjectFactoryRegistry<SymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
 			decryptor.reset(ObjectFactoryRegistry<SymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
 			lastName = name;
+
+			// Code coverage
+			(void)encryptor->AlgorithmName();
+			(void)decryptor->AlgorithmName();
+			(void)encryptor->MinKeyLength();
+			(void)decryptor->MinKeyLength();
+			(void)encryptor->MaxKeyLength();
+			(void)decryptor->MaxKeyLength();
+			(void)encryptor->DefaultKeyLength();
+			(void)decryptor->DefaultKeyLength();
 		}
 
 		// Most block ciphers don't specify BlockPaddingScheme. Kalyna uses it in test vectors.
@@ -428,16 +434,6 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 			decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
 		}
-
-		// Code coverage
-		(void)encryptor->AlgorithmName();
-		(void)decryptor->AlgorithmName();
-		(void)encryptor->MinKeyLength();
-		(void)decryptor->MinKeyLength();
-		(void)encryptor->MaxKeyLength();
-		(void)decryptor->MaxKeyLength();
-		(void)encryptor->DefaultKeyLength();
-		(void)decryptor->DefaultKeyLength();
 
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
 		if (seek)
@@ -681,26 +677,26 @@ void TestKeyDerivationFunction(TestData &v)
 	if(test == "Skip") return;
 	CRYPTOPP_ASSERT(test == "Verify");
 
-	std::string key = GetDecodedDatum(v, "Key");
-	std::string salt = GetDecodedDatum(v, "Salt");
-	std::string info = GetDecodedDatum(v, "Info");
-	std::string derived = GetDecodedDatum(v, "DerivedKey");
-	std::string t = GetDecodedDatum(v, "DerivedKeyLength");
+	std::string secret = GetDecodedDatum(v, "Secret");
+	std::string expected = GetDecodedDatum(v, "DerivedKey");
 
 	TestDataNameValuePairs pairs(v);
-	unsigned int length = pairs.GetIntValueWithDefault(Name::DerivedKeyLength(), (int)derived.size());
 
 	member_ptr<KeyDerivationFunction> kdf;
 	kdf.reset(ObjectFactoryRegistry<KeyDerivationFunction>::Registry().CreateObject(name.c_str()));
 
-	std::string calc; calc.resize(length);
-	unsigned int ret = kdf->DeriveKey(reinterpret_cast<byte*>(&calc[0]), calc.size(),
-		reinterpret_cast<const byte*>(key.data()), key.size(),
-		reinterpret_cast<const byte*>(salt.data()), salt.size(),
-		reinterpret_cast<const byte*>(info.data()), info.size());
+	std::string calculated; calculated.resize(expected.size());
+	kdf->DeriveKey(reinterpret_cast<byte*>(&calculated[0]), calculated.size(),
+		reinterpret_cast<const byte*>(&secret[0]), secret.size(), pairs);
 
-	if(calc != derived || ret != length)
+	if(calculated != expected)
+	{
+		std::cerr << "Calculated: ";
+		StringSource(calculated, true, new HexEncoder(new FileSink(std::cerr)));
+		std::cerr << std::endl;
+
 		SignalTestFailure();
+	}
 }
 
 // GetField parses the name/value pairs. The tricky part is the insertion operator

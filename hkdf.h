@@ -4,28 +4,14 @@
 /// \brief Classes for HKDF from RFC 5869
 /// \since Crypto++ 5.6.3
 
-#ifndef CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
-#define CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
+#ifndef CRYPTOPP_HKDF_H
+#define CRYPTOPP_HKDF_H
 
 #include "cryptlib.h"
-#include "hrtimer.h"
 #include "secblock.h"
 #include "hmac.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
-/// abstract base class for key derivation function
-class KeyDerivationFunction
-{
-public:
-	/// maximum number of bytes which can be produced under a secuirty context
-	virtual size_t MaxDerivedKeyLength() const =0;
-	virtual bool Usesinfo() const =0;
-	/// derive a key from secret
-	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info=NULLPTR, size_t infoLen=0) const =0;
-
-	virtual ~KeyDerivationFunction() {}
-};
 
 /// \brief Extract-and-Expand Key Derivation Function (HKDF)
 /// \tparam T HashTransformation class
@@ -36,20 +22,57 @@ template <class T>
 class HKDF : public KeyDerivationFunction
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = T::DIGESTSIZE)
-	CRYPTOPP_CONSTANT(SALTSIZE = T::DIGESTSIZE)
-	static const char* StaticAlgorithmName () {
-		static const std::string name(std::string("HKDF(") + std::string(T::StaticAlgorithmName()) + std::string(")"));
-		return name.c_str();
+	virtual ~HKDF() {}
+
+	static std::string StaticAlgorithmName () {
+		const std::string name(std::string("HKDF(") +
+			std::string(T::StaticAlgorithmName()) + std::string(")"));
+		return name;
 	}
-	size_t MaxDerivedKeyLength() const {return static_cast<size_t>(T::DIGESTSIZE) * 255;}
-	bool Usesinfo() const {return true;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
+
+	const Algorithm & GetAlgorithm() const {
+		return *this;
+	}
+
+	std::string AlgorithmName() const {
+		return StaticAlgorithmName();
+	}
+
+	size_t MaxDerivedLength() const {
+		return static_cast<size_t>(T::DIGESTSIZE) * 255;
+	}
+
+	size_t GetValidDerivedLength(size_t keylength) const;
+
+	// Base class override
+	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+	    const NameValuePairs& params) const;
+
+	/// \brief Derive a key from a seed
+	/// \param derived the derived output buffer
+	/// \param derivedLen the size of the derived buffer, in bytes
+	/// \param secret the seed input buffer
+	/// \param secretLen the size of the secret buffer, in bytes
+	/// \param salt the salt input buffer
+	/// \param saltLen the size of the salt buffer, in bytes
+	/// \param info the additional input buffer
+	/// \param infoLen the size of the info buffer, in bytes
+	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \details DeriveKey() provides a standard interface to derive a key from
+	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
+	///   provides an overload that accepts most parameters used by the derivation function.
+	/// \details <tt>salt</tt> and <tt>info</tt> can be <tt>nullptr</tt> with 0 length.
+	///   HDF is unusual in that a non-NULL salt with length 0 is different than a
+	///   NULL <tt>salt</tt>. A NULL <tt>salt</tt> causes HDF to use a string of 0's
+	///   of length <tt>T::DIGESTSIZE</tt> for the <tt>salt</tt>.
+	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+	    const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
 
 protected:
-	// If salt is missing (NULLPTR), then use the NULL vector. Missing is different than EMPTY (0 length). The length
-	// of s_NullVector used depends on the Hash function. SHA-256 will use 32 bytes of s_NullVector.
-	typedef byte NullVectorType[SALTSIZE];
+	// If salt is absent (NULL), then use the NULL vector. Missing is different than
+	// EMPTY (Non-NULL, 0 length). The length of s_NullVector used depends on the Hash
+	// function. SHA-256 will use 32 bytes of s_NullVector.
+	typedef byte NullVectorType[T::DIGESTSIZE];
 	static const NullVectorType& GetNullVector() {
 		static const NullVectorType s_NullVector = {0};
 		return s_NullVector;
@@ -57,53 +80,88 @@ protected:
 };
 
 template <class T>
-unsigned int HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const
+size_t HKDF<T>::GetValidDerivedLength(size_t keylength) const
 {
-	static const size_t DIGEST_SIZE = static_cast<size_t>(T::DIGESTSIZE);
-	const unsigned int req = static_cast<unsigned int>(derivedLen);
+	if (keylength > MaxDerivedLength())
+		return MaxDerivedLength();
+	return keylength;
+}
 
+template <class T>
+size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
+    const byte *secret, size_t secretLen, const NameValuePairs& params) const
+{
 	CRYPTOPP_ASSERT(secret && secretLen);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
-	if (derivedLen > MaxDerivedKeyLength())
-		throw InvalidArgument("HKDF: derivedLen must be less than or equal to MaxDerivedKeyLength");
+	ThrowIfInvalidDerivedLength(derivedLen);
 
+	// Copy-out Salt to a temporary
+	ConstByteArrayParameter p;
+	if (!params.GetValue("Salt", p))
+		p = ConstByteArrayParameter(GetNullVector(), T::DIGESTSIZE);
+	SecByteBlock salt(p.begin(), p.size());
+
+	// Warning: the 'params.GetValue' for Info blows away the data
+	//   from the previous call to 'params.GetValue' for Salt.
+	//   It is the reason we copy-out the data after Salt.
+	if (!params.GetValue("Info", p))
+		p = ConstByteArrayParameter(GetNullVector(), 0);
+	SecByteBlock info(p.begin(), p.size());
+
+	// key is PRK from the RFC, salt is IKM from the RFC
 	HMAC<T> hmac;
-	FixedSizeSecBlock<byte, DIGEST_SIZE> prk, buffer;
+	SecByteBlock key(T::DIGESTSIZE), buffer(T::DIGESTSIZE);
 
 	// Extract
-	const byte* key = (salt ? salt : GetNullVector());
-	const size_t klen = (salt ? saltLen : DIGEST_SIZE);
+	hmac.SetKey(salt.begin(), salt.size());
+	hmac.CalculateDigest(key, secret, secretLen);
 
-	hmac.SetKey(key, klen);
-	hmac.CalculateDigest(prk, secret, secretLen);
-
-	// Expand
-	hmac.SetKey(prk.data(), prk.size());
+	// Key
+	hmac.SetKey(key.begin(), key.size());
 	byte block = 0;
 
-	while (derivedLen > 0)
+	size_t bytesRemaining = derivedLen;
+	size_t digestSize = static_cast<size_t>(T::DIGESTSIZE);
+
+	// Expand
+	while (bytesRemaining > 0)
 	{
 		if (block++) {hmac.Update(buffer, buffer.size());}
-		if (info && infoLen) {hmac.Update(info, infoLen);}
+		if (info.size()) {hmac.Update(info.begin(), info.size());}
 		hmac.CalculateDigest(buffer, &block, 1);
 
 #if CRYPTOPP_MSC_VERSION
-		const size_t segmentLen = STDMIN(derivedLen, DIGEST_SIZE);
+		const size_t segmentLen = STDMIN(bytesRemaining, digestSize);
 		memcpy_s(derived, segmentLen, buffer, segmentLen);
 #else
-		const size_t segmentLen = STDMIN(derivedLen, DIGEST_SIZE);
+		const size_t segmentLen = STDMIN(bytesRemaining, digestSize);
 		std::memcpy(derived, buffer, segmentLen);
 #endif
 
 		derived += segmentLen;
-		derivedLen -= segmentLen;
+		bytesRemaining -= segmentLen;
 	}
 
-	return req;
+	return derivedLen;
+}
+
+template <class T>
+size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+    const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const
+{
+	AlgorithmParameters params;
+
+	if (salt != NULLPTR)  // Non-NULL and 0 length is valid for HKDF salt
+		params.operator()(Name::Salt(), ConstByteArrayParameter(salt, saltLen));
+
+	if (info != NULLPTR)  // Non-NULL and 0 length is valid for HKDF salt
+		params.operator()("Info", ConstByteArrayParameter(info, infoLen));
+
+	return DeriveKey(derived, derivedLen, secret, secretLen, params);
 }
 
 NAMESPACE_END
 
-#endif // CRYPTOPP_HASH_KEY_DERIVATION_FUNCTION_H
+#endif // CRYPTOPP_HKDF_H
