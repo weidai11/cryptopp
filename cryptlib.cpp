@@ -333,11 +333,6 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	}
 }
 
-const Algorithm & KeyDerivationFunction::GetAlgorithm() const
-{
-	return *this;
-}
-
 size_t KeyDerivationFunction::MinDerivedLength() const
 {
 	return 0;
