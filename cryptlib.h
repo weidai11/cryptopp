@@ -1458,7 +1458,7 @@ public:
 	/// \details the number of bytes derived by DeriveKey() may be less than the number
 	///   requested in <tt>derivedLen</tt>. For example, a scheme may be limited to a
 	///   certain amount of time for derivation.
-	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const NameValuePairs& params) const =0;
+	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const NameValuePairs& params = g_nullNameValuePairs) const =0;
 
 	/// \brief Set or change parameters
 	/// \param params additional initialization parameters to configure this object
