@@ -101,18 +101,18 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 
 	ThrowIfInvalidDerivedLength(derivedLen);
 
-	// Copy-out Salt to a temporary
 	ConstByteArrayParameter p;
-	if (!params.GetValue("Salt", p))
-		p = ConstByteArrayParameter(GetNullVector(), T::DIGESTSIZE);
-	SecByteBlock salt(p.begin(), p.size());
+	SecByteBlock salt, info;
 
-	// Warning: the 'params.GetValue' for Info blows away the data
-	//   from the previous call to 'params.GetValue' for Salt.
-	//   It is the reason we copy-out the data after Salt.
-	if (!params.GetValue("Info", p))
-		p = ConstByteArrayParameter(GetNullVector(), 0);
-	SecByteBlock info(p.begin(), p.size());
+	if (params.GetValue("Salt", p))
+		salt.Assign(p.begin(), p.size());
+	else
+		salt.Assign(GetNullVector(), T::DIGESTSIZE);
+
+	if (params.GetValue("Info", p))
+		info.Assign(p.begin(), p.size());
+	else
+		info.Assign(GetNullVector(), 0);
 
 	return DeriveKey(derived, derivedLen, secret, secretLen, salt.begin(), salt.size(), info.begin(), info.size());
 }
