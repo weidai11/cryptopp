@@ -570,7 +570,7 @@ struct PBKDF_TestTuple
 	const char *hexPassword, *hexSalt, *hexDerivedKey;
 };
 
-bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, unsigned int testSetSize)
+bool TestPBKDF(KeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, unsigned int testSetSize)
 {
 	bool pass = true;
 
@@ -583,8 +583,12 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 		StringSource(tuple.hexSalt, true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
 
+		AlgorithmParameters params = MakeParameters("Purpose", (int)tuple.purpose)
+		    (Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()))
+		    ("Iterations", (int)tuple.iterations);
+
 		SecByteBlock derived(derivedKey.size());
-		pbkdf.DeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
+		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);
 		bool fail = !!memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 

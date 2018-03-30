@@ -53,7 +53,7 @@ public:
 	/// \param saltLen the size of the salt buffer, in bytes
 	/// \param info the additional input buffer
 	/// \param infoLen the size of the info buffer, in bytes
-	/// \returns the number of iterations
+	/// \returns the number of iterations performed
 	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
@@ -62,7 +62,8 @@ public:
 	///   HKDF is unusual in that a non-NULL salt with length 0 is different than a
 	///   NULL <tt>salt</tt>. A NULL <tt>salt</tt> causes HKDF to use a string of 0's
 	///   of length <tt>T::DIGESTSIZE</tt> for the <tt>salt</tt>.
-	/// \details HKDF always returns 1 because it only performs 1 iteration.
+	/// \details HKDF always returns 1 because it only performs 1 iteration. Other
+	///   derivation functions, like PBKDF's, will return more interesting values.
 	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
 

@@ -1450,14 +1450,13 @@ public:
 	/// \param secret the seed input buffer
 	/// \param secretLen the size of the secret buffer, in bytes
 	/// \param params additional initialization parameters to configure this object
-	/// \returns the number of bytes derived
+	/// \returns the number of iterations performed
 	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a secret seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
-	/// \details the number of bytes derived by DeriveKey() may be less than the number
-	///   requested in <tt>derivedLen</tt>. For example, a scheme may be limited to a
-	///   certain amount of time for derivation.
+	/// \details the number of iterations performed by DeriveKey() may be 1. For example, a
+	//    scheme like HKDF does not use the iteration count so it returns 1.
 	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const NameValuePairs& params = g_nullNameValuePairs) const =0;
 
 	/// \brief Set or change parameters
