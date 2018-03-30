@@ -1419,8 +1419,6 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyDerivationFunction : public Algorithm
 public:
 	virtual ~KeyDerivationFunction() {}
 
-	virtual const Algorithm & GetAlgorithm() const =0;
-
 	/// \brief Provides the name of this algorithm
 	/// \return the standard algorithm name
 	virtual std::string AlgorithmName() const =0;
@@ -1469,6 +1467,9 @@ public:
 	virtual void SetParameters(const NameValuePairs& params);
 
 protected:
+	/// \brief Returns the base class Algorithm
+	/// \return the base class Algorithm
+	virtual const Algorithm & GetAlgorithm() const =0;
 
 	/// \brief Validates the derived key length
 	/// \param length the size of the derived key material, in bytes
