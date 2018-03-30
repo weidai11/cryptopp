@@ -30,17 +30,20 @@ public:
 		return name;
 	}
 
+	// KeyDerivationFunction interface
 	std::string AlgorithmName() const {
 		return StaticAlgorithmName();
 	}
 
+	// KeyDerivationFunction interface
 	size_t MaxDerivedLength() const {
 		return static_cast<size_t>(T::DIGESTSIZE) * 255;
 	}
 
+	// KeyDerivationFunction interface
 	size_t GetValidDerivedLength(size_t keylength) const;
 
-	// Base class override
+	// KeyDerivationFunction interface
 	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
 	    const NameValuePairs& params) const;
 
@@ -98,8 +101,6 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 	CRYPTOPP_ASSERT(secret && secretLen);
 	CRYPTOPP_ASSERT(derived && derivedLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
-
-	ThrowIfInvalidDerivedLength(derivedLen);
 
 	ConstByteArrayParameter p;
 	SecByteBlock salt, info;
