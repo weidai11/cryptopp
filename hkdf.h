@@ -30,10 +30,6 @@ public:
 		return name;
 	}
 
-	const Algorithm & GetAlgorithm() const {
-		return *this;
-	}
-
 	std::string AlgorithmName() const {
 		return StaticAlgorithmName();
 	}
@@ -57,6 +53,7 @@ public:
 	/// \param saltLen the size of the salt buffer, in bytes
 	/// \param info the additional input buffer
 	/// \param infoLen the size of the info buffer, in bytes
+	/// \returns the number of iterations
 	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
@@ -65,10 +62,16 @@ public:
 	///   HKDF is unusual in that a non-NULL salt with length 0 is different than a
 	///   NULL <tt>salt</tt>. A NULL <tt>salt</tt> causes HKDF to use a string of 0's
 	///   of length <tt>T::DIGESTSIZE</tt> for the <tt>salt</tt>.
+	/// \details HKDF always returns 1 because it only performs 1 iteration.
 	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
 
 protected:
+	// KeyDerivationFunction interface
+	const Algorithm & GetAlgorithm() const {
+		return *this;
+	}
+
 	// If salt is absent (NULL), then use the NULL vector. Missing is different than
 	// EMPTY (Non-NULL, 0 length). The length of s_NullVector used depends on the Hash
 	// function. SHA-256 will use 32 bytes of s_NullVector.
@@ -110,56 +113,53 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 		p = ConstByteArrayParameter(GetNullVector(), 0);
 	SecByteBlock info(p.begin(), p.size());
 
-	// key is PRK from the RFC, salt is IKM from the RFC
-	HMAC<T> hmac;
-	SecByteBlock key(T::DIGESTSIZE), buffer(T::DIGESTSIZE);
-
-	// Extract
-	hmac.SetKey(salt.begin(), salt.size());
-	hmac.CalculateDigest(key, secret, secretLen);
-
-	// Key
-	hmac.SetKey(key.begin(), key.size());
-	byte block = 0;
-
-	size_t bytesRemaining = derivedLen;
-	size_t digestSize = static_cast<size_t>(T::DIGESTSIZE);
-
-	// Expand
-	while (bytesRemaining > 0)
-	{
-		if (block++) {hmac.Update(buffer, buffer.size());}
-		if (info.size()) {hmac.Update(info.begin(), info.size());}
-		hmac.CalculateDigest(buffer, &block, 1);
-
-#if CRYPTOPP_MSC_VERSION
-		const size_t segmentLen = STDMIN(bytesRemaining, digestSize);
-		memcpy_s(derived, segmentLen, buffer, segmentLen);
-#else
-		const size_t segmentLen = STDMIN(bytesRemaining, digestSize);
-		std::memcpy(derived, buffer, segmentLen);
-#endif
-
-		derived += segmentLen;
-		bytesRemaining -= segmentLen;
-	}
-
-	return derivedLen;
+	return DeriveKey(derived, derivedLen, secret, secretLen, salt.begin(), salt.size(), info.begin(), info.size());
 }
 
 template <class T>
 size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
     const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const
 {
-	AlgorithmParameters params;
+	CRYPTOPP_ASSERT(secret && secretLen);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
-	if (salt != NULLPTR)  // Non-NULL and 0 length is valid for HKDF salt
-		params.operator()(Name::Salt(), ConstByteArrayParameter(salt, saltLen));
+	ThrowIfInvalidDerivedLength(derivedLen);
 
-	if (info != NULLPTR)  // Non-NULL and 0 length is valid for HKDF salt
-		params.operator()("Info", ConstByteArrayParameter(info, infoLen));
+	// key is PRK from the RFC, salt is IKM from the RFC
+	HMAC<T> hmac;
+	SecByteBlock key(T::DIGESTSIZE), buffer(T::DIGESTSIZE);
 
-	return DeriveKey(derived, derivedLen, secret, secretLen, params);
+	// Extract
+	hmac.SetKey(salt, saltLen);
+	hmac.CalculateDigest(key, secret, secretLen);
+
+	// Key
+	hmac.SetKey(key.begin(), key.size());
+	byte block = 0;
+
+	// Expand
+	while (derivedLen > 0)
+	{
+		if (block++) {hmac.Update(buffer, buffer.size());}
+		if (infoLen) {hmac.Update(info, infoLen);}
+		hmac.CalculateDigest(buffer, &block, 1);
+
+#if CRYPTOPP_MSC_VERSION
+		const size_t digestSize = static_cast<size_t>(T::DIGESTSIZE);
+		const size_t segmentLen = STDMIN(derivedLen, digestSize);
+		memcpy_s(derived, segmentLen, buffer, segmentLen);
+#else
+		const size_t digestSize = static_cast<size_t>(T::DIGESTSIZE);
+		const size_t segmentLen = STDMIN(derivedLen, digestSize);
+		std::memcpy(derived, buffer, segmentLen);
+#endif
+
+		derived += segmentLen;
+		derivedLen -= segmentLen;
+	}
+
+	return 1;
 }
 
 NAMESPACE_END
