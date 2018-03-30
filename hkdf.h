@@ -62,8 +62,8 @@ public:
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
 	/// \details <tt>salt</tt> and <tt>info</tt> can be <tt>nullptr</tt> with 0 length.
-	///   HDF is unusual in that a non-NULL salt with length 0 is different than a
-	///   NULL <tt>salt</tt>. A NULL <tt>salt</tt> causes HDF to use a string of 0's
+	///   HKDF is unusual in that a non-NULL salt with length 0 is different than a
+	///   NULL <tt>salt</tt>. A NULL <tt>salt</tt> causes HKDF to use a string of 0's
 	///   of length <tt>T::DIGESTSIZE</tt> for the <tt>salt</tt>.
 	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
 	    const byte *salt, size_t saltLen, const byte* info, size_t infoLen) const;
