@@ -196,29 +196,6 @@ static inline void Smix(uint8_t * B, size_t r, uint32_t N, uint8_t * V, uint8_t 
 	// 10: B' <-- X
 	BlockCopy(B, X, 128 * r);
 }
-
-void crypto_scrypt(uint8_t * buf, size_t buflen, const uint8_t * secret, size_t secretLen,
-    const uint8_t * salt, size_t saltlen, uint32_t N, uint32_t R, uint32_t P)
-{
-	size_t r = R, p = P;
-
-	AlignedSecByteBlock B(128 * r * p);
-	AlignedSecByteBlock XY(256 * r);
-	AlignedSecByteBlock V(128 * r * N);
-
-	// 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
-	PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltlen, 1);
-
-	// 2: for i = 0 to p - 1 do
-	for (unsigned int i = 0; i < p; i++)
-	{
-		// 3: B_i <-- MF(B_i, N)
-		Smix(B+i*128*r, r, N, V, XY);
-	}
-
-	// 5: DK <-- PBKDF2(P, B, 1, dkLen)
-	PBKDF2_SHA256(buf, buflen, secret, secretLen, B, p * 128 * r, 1);
-}
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -232,7 +209,7 @@ size_t Scrypt::GetValidDerivedLength(size_t keylength) const
 
 void Scrypt::ValidateParameters(size_t derivedLen, unsigned int cost, unsigned int blockSize, unsigned int parallelization) const
 {
-	// Optimizer should remove
+	// Optimizer should remove this on 64-bit platforms
 	if (std::numeric_limits<size_t>::max() > std::numeric_limits<uint32_t>::max())
 	{
 		const uint64_t maxLen = ((static_cast<uint64_t>(1) << 32) - 1) * 32;
@@ -261,15 +238,17 @@ void Scrypt::ValidateParameters(size_t derivedLen, unsigned int cost, unsigned i
 	// so a one-time check is insignificant in the bigger picture.
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	const word128 maxElems = static_cast<word128>(SIZE_MAX);
-	const word128 bigSize1 = static_cast<word128>(cost) * blockSize * 128U;
-	const word128 bigSize2 = static_cast<word128>(parallelization) * blockSize * 128U;
-	if (bigSize1 > maxElems || bigSize2 > maxElems)
+	const word128 bSize = static_cast<word128>(cost) * blockSize * 128U;
+	const word128 xySize = static_cast<word128>(parallelization) * blockSize * 128U;
+	const word128 vSize = static_cast<word128>(blockSize) * 256U + 64U;
+	if (bSize > maxElems || xySize > maxElems || vSize > maxElems)
 		throw std::bad_alloc();
 #else
 	const Integer maxElems = Integer(Integer::POSITIVE, 0, SIZE_MAX);
-	const Integer bigSize1 = Integer(cost) * blockSize * 128U;
-	const Integer bigSize2 = Integer(parallelization) * blockSize * 128U;
-	if (bigSize1 > maxElems || bigSize2 > maxElems)
+	const Integer bSize = Integer(cost) * blockSize * 128U;
+	const Integer xySize = Integer(parallelization) * blockSize * 128U;
+	const Integer vSize = Integer(blockSize) * 256U + 64U;
+	if (bSize > maxElems || xySize > maxElems || vSize > maxElems)
 		throw std::bad_alloc();
 #endif
 }
@@ -302,7 +281,22 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, s
 	ThrowIfInvalidDerivedLength(derivedLen);
 	ValidateParameters(derivedLen, cost, blockSize, parallel);
 
-	crypto_scrypt(derived, derivedLen, secret, secretLen, salt, saltLen, cost, blockSize, parallel);
+	AlignedSecByteBlock B(128 * blockSize * parallel);
+	AlignedSecByteBlock XY(256 * blockSize);
+	AlignedSecByteBlock V(128 * blockSize * cost);
+
+	// 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
+	PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
+
+	// 2: for i = 0 to p - 1 do
+	for (unsigned int i = 0; i < parallel; i++)
+	{
+		// 3: B_i <-- MF(B_i, N)
+		Smix(B+i*128*blockSize, blockSize, cost, V, XY);
+	}
+
+	// 5: DK <-- PBKDF2(P, B, 1, dkLen)
+	PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, parallel * 128 * blockSize, 1);
 
 	return 1;
 }
