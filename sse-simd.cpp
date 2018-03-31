@@ -32,7 +32,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 extern "C" {
     typedef void (*SigHandler)(int);
-};
+}
 
 extern "C"
 {
