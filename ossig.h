@@ -24,7 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \sa SignalHandler, NullSignalHandler
 extern "C" {
     typedef void (*SignalHandlerFn) (int);
-};
+}
 
 /// \brief Null signal handler function
 /// \param unused the signal number
@@ -34,7 +34,7 @@ extern "C" {
 /// \sa SignalHandler, SignalHandlerFn
 extern "C" {
     inline void NullSignalHandler(int unused) {CRYPTOPP_UNUSED(unused);}
-};
+}
 
 /// Signal handler for Linux and Unix compatibles
 /// \tparam S Signal number
