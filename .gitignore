@@ -78,11 +78,13 @@ local.properties
 
 [Dd]ebug/
 [Rr]elease/
-x64/
-build/
+[Ww]in32/
+[Xx]64/
+[Bb]uild/
 [Bb]in/
 [Oo]bj/
 [Ll]ibs/
+.vs/
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
@@ -106,6 +108,7 @@ build/
 *.tmp
 *.tmp_proj
 *.log
+# *.tlog
 *.vspscc
 *.vssscc
 .builds
