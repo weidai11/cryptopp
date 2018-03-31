@@ -93,8 +93,9 @@ template <class T>
 size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen,
     const byte *secret, size_t secretLen, const NameValuePairs& params) const
 {
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(secret && secretLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
 	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
 	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
@@ -111,9 +112,9 @@ size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen,
 template <class T>
 size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
 {
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(secret && secretLen);
-	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
 
@@ -216,8 +217,9 @@ template <class T>
 size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen,
     const byte *secret, size_t secretLen, const NameValuePairs& params) const
 {
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(secret && secretLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
 	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
 	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
@@ -234,8 +236,8 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen,
 template <class T>
 size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
 {
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(secret && secretLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
@@ -368,8 +370,8 @@ template <class T>
 size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
     const byte *secret, size_t secretLen, const NameValuePairs& params) const
 {
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(secret && secretLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
 	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
@@ -388,7 +390,9 @@ size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 template <class T>
 size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
 {
-	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 
 	ThrowIfInvalidDerivedLength(derivedLen);
