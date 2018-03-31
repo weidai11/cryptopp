@@ -595,7 +595,7 @@ template <class EC>
 Integer DL_GroupParameters_EC<EC>::ConvertElementToInteger(const Element &element) const
 {
 	return ConvertToInteger(element.x);
-};
+}
 
 template <class EC>
 bool DL_GroupParameters_EC<EC>::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const
