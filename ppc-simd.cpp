@@ -48,7 +48,7 @@ extern "C" {
     {
         longjmp(s_jmpSIGILL, 1);
     }
-};
+}
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
