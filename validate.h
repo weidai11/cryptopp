@@ -57,6 +57,7 @@ bool ValidateTTMAC();
 bool ValidateCipherModes();
 bool ValidatePBKDF();
 bool ValidateHKDF();
+bool ValidateScrypt();
 
 bool ValidateDES();
 bool ValidateIDEA();

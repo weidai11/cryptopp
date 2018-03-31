@@ -329,6 +329,9 @@
     <ClCompile Include="salsa.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="scrypt.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="seal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -799,6 +802,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="salsa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="seal.h">

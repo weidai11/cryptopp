@@ -28,6 +28,7 @@
 #include "ttmac.h"
 #include "integer.h"
 #include "pwdbased.h"
+#include "scrypt.h"
 #include "filters.h"
 #include "files.h"
 #include "hex.h"
@@ -671,9 +672,9 @@ bool TestHKDF(KeyDerivationFunction &kdf, const HKDF_TestTuple *testSet, unsigne
 
 		AlgorithmParameters params;
 		if (tuple.hexSalt)
-			params.operator()(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
+			params(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
 		if (tuple.hexSalt)
-			params.operator()("Info", ConstByteArrayParameter((const byte*)&info[0], info.size()));
+			params("Info", ConstByteArrayParameter((const byte*)&info[0], info.size()));
 
 		kdf.DeriveKey((byte*)&derived[0], derived.size(), (const byte*)&secret[0], secret.size(), params);
 
@@ -700,7 +701,7 @@ bool ValidateHKDF()
 
 	{
 	// SHA-1 from RFC 5869, Appendix A, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #4
 		{"0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "085a01ea1b10f36933068b56efa5ad81 a4f14b822f5b091568a9cdd4f155fda2 c22e422478d305f3f896", 42},
@@ -720,7 +721,7 @@ bool ValidateHKDF()
 
 	{
 	// SHA-256 from RFC 5869, Appendix A, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #1
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "3cb25f25faacd57a90434f64d0362f2a 2d2d0a90cf1a5a4c5db02d56ecc4c5bf 34007208d5b887185865", 42},
@@ -738,7 +739,7 @@ bool ValidateHKDF()
 
 	{
 	// SHA-512, Crypto++ generated, based on RFC 5869, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #0
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "832390086CDA71FB47625BB5CEB168E4 C8E26A1A16ED34D9FC7FE92C14815793 38DA362CB8D9F925D7CB", 42},
@@ -758,7 +759,7 @@ bool ValidateHKDF()
 
 	{
 	// Whirlpool, Crypto++ generated, based on RFC 5869, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #0
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "0D29F74CCD8640F44B0DD9638111C1B5 766EFED752AF358109E2E7C9CD4A28EF 2F90B2AD461FBA0744D4", 42},
@@ -775,6 +776,72 @@ bool ValidateHKDF()
 	std::cout << "\nRFC 5869 HKDF(Whirlpool) validation suite running...\n\n";
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
+
+	return pass;
+}
+
+struct Scrypt_TestTuple
+{
+	const char * passwd;
+	const char * salt;
+	uint64_t n;
+	uint32_t r;
+	uint32_t p;
+	const char * expect;
+};
+
+bool TestScrypt(KeyDerivationFunction &pbkdf, const Scrypt_TestTuple *testSet, unsigned int testSetSize)
+{
+	bool pass = true;
+
+	for (unsigned int i=0; i<testSetSize; i++)
+	{
+		const Scrypt_TestTuple &tuple = testSet[i];
+
+		std::string password(tuple.passwd), salt(tuple.salt), expect;
+		StringSource(tuple.expect, true, new HexDecoder(new StringSink(expect)));
+
+		AlgorithmParameters params = MakeParameters("Cost", (int)tuple.n)
+			("BlockSize", (int)tuple.r)("Parallelization", (int)tuple.p)
+			(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
+
+		SecByteBlock derived(expect.size());
+		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);
+		bool fail = !!memcmp(derived, expect.data(), expect.size()) != 0;
+		pass = pass && !fail;
+
+		if (password.empty()) {password="\"\"";}
+		if (salt.empty()) {salt="\"\"";}
+
+		HexEncoder enc(new FileSink(std::cout));
+		std::cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << " " << password << " " << salt << " ";
+		std::cout << " " << tuple.n << " " << tuple.r;
+		std::cout << " " << tuple.p << " ";
+		enc.Put(derived, derived.size());
+		std::cout << std::endl;
+	}
+
+	return pass;
+}
+
+bool ValidateScrypt()
+{
+	bool pass = true;
+
+	// https://tools.ietf.org/html/rfc7914
+	const Scrypt_TestTuple testSet[] =
+	{
+			{ "", "", 16, 1, 1, "77d6576238657b203b19ca42c18a0497f16b4844e3074ae8dfdffa3fede21442fcd0069ded0948f8326a753a0fc81f17e8d3e0fb2e0d3628cf35e20c38d18906"},
+			{ "password", "NaCl", 1024, 8, 16, "fdbabe1c9d3472007856e7190d01e9fe7c6ad7cbc8237830e77376634b3731622eaf30d92e22a3886ff109279d9830dac727afb94a83ee6d8360cbdfa2cc0640"},
+			{ "pleaseletmein", "SodiumChloride", 16384, 8, 1, "7023bdcb3afd7348461c06cd81fd38ebfda8fbba904f8e3ea9b543f6545da1f2d5432955613f0fcf62d49705242a9af9e61e85dc0d651e40dfcf017b45575887"},
+			// { "pleaseletmein", "SodiumChloride", 1048576, 8, 1, "2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"}
+	};
+
+	Scrypt pbkdf;
+
+	std::cout << "\nRFC 7914 Scrypt validation suite running...\n\n";
+	pass = TestScrypt(pbkdf, testSet, COUNTOF(testSet)) && pass;
 
 	return pass;
 }
@@ -797,7 +864,7 @@ bool ValidatePoly1305()
 	}
 
 	// Test data from http://cr.yp.to/mac/poly1305-20050329.pdf
-	static const Poly1305_TestTuples tests[] =
+	const Poly1305_TestTuples tests[] =
 	{
 		// Appendix B, Test 1
 		{
@@ -1094,7 +1161,7 @@ bool ValidateBLAKE2s()
 		pass = pass && !fail;
 	}
 
-	static const BLAKE2_TestTuples tests[] = {
+	const BLAKE2_TestTuples tests[] = {
 	    {
 	        NULLPTR,
 	        NULLPTR,
@@ -1525,7 +1592,7 @@ bool ValidateBLAKE2b()
 		pass = pass && !fail;
 	}
 
-	static const BLAKE2_TestTuples tests[] = {
+	const BLAKE2_TestTuples tests[] = {
 	    {
 	        NULLPTR,
 	        NULLPTR,
