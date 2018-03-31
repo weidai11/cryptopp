@@ -621,7 +621,7 @@ void Inflator::CreateFixedLiteralDecoder()
 	std::fill(codeLengths + 280, codeLengths + 288, 8);
 	m_fixedLiteralDecoder.reset(new HuffmanDecoder);
 	m_fixedLiteralDecoder->Initialize(codeLengths, 288);
-};
+}
 
 void Inflator::CreateFixedDistanceDecoder()
 {
@@ -629,7 +629,7 @@ void Inflator::CreateFixedDistanceDecoder()
 	std::fill(codeLengths + 0, codeLengths + 32, 5);
 	m_fixedDistanceDecoder.reset(new HuffmanDecoder);
 	m_fixedDistanceDecoder->Initialize(codeLengths, 32);
-};
+}
 
 const HuffmanDecoder& Inflator::GetLiteralDecoder()
 {
