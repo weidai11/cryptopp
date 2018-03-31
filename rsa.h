@@ -203,17 +203,17 @@ struct RSASS_ISO : public TF_SS<RSA_ISO, P1363_EMSA2, H>
 
 /// \brief \ref RSAES<STANDARD> "RSAES<PKCS1v15>::Decryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
-DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Decryptor, RSAES_PKCS1v15_Decryptor);
+DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Decryptor, RSAES_PKCS1v15_Decryptor)
 /// \brief \ref RSAES<STANDARD> "RSAES<PKCS1v15>::Encryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
-DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Encryptor, RSAES_PKCS1v15_Encryptor);
+DOCUMENTED_TYPEDEF(RSAES<PKCS1v15>::Encryptor, RSAES_PKCS1v15_Encryptor)
 
 /// \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA1>>::Decryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
-DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Decryptor, RSAES_OAEP_SHA_Decryptor);
+DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Decryptor, RSAES_OAEP_SHA_Decryptor)
 /// \brief \ref RSAES<STANDARD> "RSAES<OAEP<SHA1>>::Encryptor" typedef
 /// \details RSA encryption scheme defined in PKCS #1 v2.0
-DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Encryptor, RSAES_OAEP_SHA_Encryptor);
+DOCUMENTED_TYPEDEF(RSAES<OAEP<SHA1> >::Encryptor, RSAES_OAEP_SHA_Encryptor)
 
 #ifdef CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief \ref RSASS<STANDARD,HASH> "RSASS<PKCS1v15,SHA1>::Signer" typedef
