@@ -1,5 +1,5 @@
 // scrypt.cpp - written and placed in public domain by Jeffrey Walton.
-//              Based on reference source code by Colin Percival and Simon Josefsson.
+//              Based on reference source code by Colin Percival.
 
 #include "pch.h"
 
@@ -13,7 +13,6 @@
 #include "sha.h"
 
 #include <sstream>
-
 #ifdef _OPENMP
 # include <omp.h>
 #endif
@@ -50,21 +49,22 @@ static inline word64 LE64DEC(const byte* in)
     return res;
 }
 
-static inline void BlockCopy(byte * dest, byte * src, size_t len)
+static inline void BlockCopy(byte* dest, byte* src, size_t len)
 {
     for (size_t i = 0; i < len; i++)
         dest[i] = src[i];
 }
 
-static inline void BlockXOR(byte * dest, byte * src, size_t len)
+static inline void BlockXOR(byte* dest, byte* src, size_t len)
 {
+    #pragma omp simd
     for (size_t i = 0; i < len; i++)
         dest[i] ^= src[i];
 }
 
-static inline void PBKDF2_SHA256(byte * buf, size_t dkLen,
-    const byte * passwd, size_t passwdlen,
-    const byte * salt, size_t saltlen, byte count)
+static inline void PBKDF2_SHA256(byte* buf, size_t dkLen,
+    const byte* passwd, size_t passwdlen,
+    const byte* salt, size_t saltlen, byte count)
 {
     using CryptoPP::SHA256;
     using CryptoPP::PKCS5_PBKDF2_HMAC;
@@ -76,15 +76,14 @@ static inline void PBKDF2_SHA256(byte * buf, size_t dkLen,
 static inline void Salsa20_8(byte B[64])
 {
     word32 B32[16], x[16];
-    size_t i = 0;
 
-    for (i = 0; i < 16; i++)
+    for (size_t i = 0; i < 16; i++)
         B32[i] = LE32DEC(&B[i * 4]);
 
-    for (i = 0; i < 16; i++)
+    for (size_t i = 0; i < 16; i++)
         x[i] = B32[i];
 
-    for (i = 0; i < 8; i += 2)
+    for (size_t i = 0; i < 8; i += 2)
     {
         x[ 4] ^= rotlConstant< 7>(x[ 0]+x[12]);
         x[ 8] ^= rotlConstant< 9>(x[ 4]+x[ 0]);
@@ -127,23 +126,23 @@ static inline void Salsa20_8(byte B[64])
         x[15] ^= rotlConstant<18>(x[14]+x[13]);
     }
 
-    for (i = 0; i < 16; i++)
+    #pragma omp simd
+    for (size_t i = 0; i < 16; i++)
         B32[i] += x[i];
 
-    for (i = 0; i < 16; i++)
+    for (size_t i = 0; i < 16; i++)
         LE32ENC(&B[4 * i], B32[i]);
 }
 
-static inline void BlockMix(byte * B, byte * Y, size_t r)
+static inline void BlockMix(byte* B, byte* Y, size_t r)
 {
     byte X[64];
-    size_t i;
 
     // 1: X <-- B_{2r - 1}
     BlockCopy(X, &B[(2 * r - 1) * 64], 64);
 
     // 2: for i = 0 to 2r - 1 do
-    for (i = 0; i < 2 * r; i++)
+    for (size_t i = 0; i < 2 * r; i++)
     {
         // 3: X <-- H(X \xor B_i)
         BlockXOR(X, &B[i * 64], 64);
@@ -154,29 +153,29 @@ static inline void BlockMix(byte * B, byte * Y, size_t r)
     }
 
     // 6: B' <-- (Y_0, Y_2 ... Y_{2r-2}, Y_1, Y_3 ... Y_{2r-1})
-    for (i = 0; i < r; i++)
+    for (size_t i = 0; i < r; i++)
         BlockCopy(&B[i * 64], &Y[(i * 2) * 64], 64);
-    for (i = 0; i < r; i++)
+
+    for (size_t i = 0; i < r; i++)
         BlockCopy(&B[(i + r) * 64], &Y[(i * 2 + 1) * 64], 64);
 }
 
-static inline word64 Integerify(byte * B, size_t r)
+static inline word64 Integerify(byte* B, size_t r)
 {
-    byte * X = &B[(2 * r - 1) * 64];
+    byte* X = &B[(2 * r - 1) * 64];
     return LE64DEC(X);
 }
 
-static inline void Smix(byte * B, size_t r, word64 N, byte * V, byte * XY)
+static inline void Smix(byte* B, size_t r, word64 N, byte* V, byte* XY)
 {
-    byte * X = XY;
-    byte * Y = XY+128*r;
-    word64 i, j;
+    byte* X = XY;
+    byte* Y = XY+128*r;
 
     // 1: X <-- B
     BlockCopy(X, B, 128 * r);
 
     // 2: for i = 0 to N - 1 do
-    for (i = 0; i < N; i++)
+    for (word64 i = 0; i < N; i++)
     {
         // 3: V_i <-- X
         BlockCopy(&V[i * (128 * r)], X, 128 * r);
@@ -186,9 +185,10 @@ static inline void Smix(byte * B, size_t r, word64 N, byte * V, byte * XY)
     }
 
     // 6: for i = 0 to N - 1 do
-    for (i = 0; i < N; i++) {
+    for (word64 i = 0; i < N; i++)
+    {
         // 7: j <-- Integerify(X) mod N
-        j = Integerify(X, r) & (N - 1);
+        word64 j = Integerify(X, r) & (N - 1);
 
         // 8: X <-- H(X \xor V_j)
         BlockXOR(X, &V[j * (128 * r)], 128 * r);
@@ -256,15 +256,14 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
         throw std::bad_alloc();
 }
 
-size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen,
-    const byte *secret, size_t secretLen, const NameValuePairs& params) const
+size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen,
+    const byte*secret, size_t secretLen, const NameValuePairs& params) const
 {
     CRYPTOPP_ASSERT(secret /*&& secretLen*/);
     CRYPTOPP_ASSERT(derived && derivedLen);
     CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
     word64 cost=0, blockSize=0, parallelization=0;
-
     if(params.GetValue("Cost", cost) == false)
         cost = defaultCost;
 
@@ -280,8 +279,8 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen,
     return DeriveKey(derived, derivedLen, secret, secretLen, salt.begin(), salt.size(), cost, blockSize, parallelization);
 }
 
-size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
-    const byte *salt, size_t saltLen, word64 cost, word64 blockSize, word64 parallel) const
+size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, size_t secretLen,
+    const byte*salt, size_t saltLen, word64 cost, word64 blockSize, word64 parallel) const
 {
     CRYPTOPP_ASSERT(secret /*&& secretLen*/);
     CRYPTOPP_ASSERT(derived && derivedLen);
@@ -292,21 +291,38 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, s
     ValidateParameters(derivedLen, cost, blockSize, parallel);
 
     AlignedSecByteBlock  B(static_cast<size_t>(blockSize * parallel * 128U));
-    AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
-    AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
 
     // 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
     PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
 
-    // 2: for i = 0 to p - 1 do
-    for (unsigned int i = 0; i < parallel; i++)
+    if (parallel == 1)
     {
+        AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
+        AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
+
+        // 2: for i = 0 to p - 1 do
         // 3: B_i <-- MF(B_i, N)
-        Smix(B+static_cast<ptrdiff_t>(blockSize*i*128), static_cast<size_t>(blockSize), cost, V, XY);
+        Smix(B, static_cast<size_t>(blockSize), cost, V, XY);
+        XY.SetMark(16); V.SetMark(16);
+    }
+    else
+    {
+        // 2: for i = 0 to p - 1 do
+        #pragma omp parallel for
+        for (unsigned int i = 0; i < parallel; i++)
+        {
+            AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
+            AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
+
+            // 3: B_i <-- MF(B_i, N)
+            const ptrdiff_t offset = static_cast<ptrdiff_t>(blockSize*i*128);
+            Smix(B+offset, static_cast<size_t>(blockSize), cost, V, XY);
+            XY.SetMark(16); V.SetMark(16);
+        }
     }
 
     // 5: DK <-- PBKDF2(P, B, 1, dkLen)
-    PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, static_cast<size_t>(blockSize*parallel*128), 1);
+    PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, B.size(), 1);
 
     return 1;
 }

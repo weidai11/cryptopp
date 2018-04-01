@@ -1,5 +1,5 @@
 // scrypt.h - written and placed in public domain by Jeffrey Walton.
-//            Based on reference source code by Colin Percival and Simon Josefsson.
+//            Based on reference source code by Colin Percival.
 
 /// \file scrypt.h
 /// \brief Classes for Scrypt from RFC 7914
