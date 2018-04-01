@@ -837,7 +837,7 @@ bool ValidateScrypt()
 			{ "pleaseletmein", "SodiumChloride", 16384, 8, 1, "7023bdcb3afd7348461c06cd81fd38ebfda8fbba904f8e3ea9b543f6545da1f2d5432955613f0fcf62d49705242a9af9e61e85dc0d651e40dfcf017b45575887"},
 #ifndef CRYPTOPP_DEBUG
 			// This one takes too long in debug builds
-			{ "pleaseletmein", "SodiumChloride", 1048576, 8, 1, "2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"}
+			// { "pleaseletmein", "SodiumChloride", 1048576, 8, 1, "2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"}
 #endif
 	};
 

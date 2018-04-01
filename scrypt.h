@@ -60,7 +60,6 @@ public:
     /// \param cost the CPU/memory cost factor
     /// \param blockSize the block size
     /// \param parallelization the parallelization factor
-    /// \param infoLen the size of the info buffer, in bytes
     /// \returns the number of iterations performed
     /// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
     /// \details DeriveKey() provides a standard interface to derive a key from

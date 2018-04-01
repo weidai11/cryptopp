@@ -19,6 +19,9 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+using CryptoPP::byte;
+using CryptoPP::word32;
+using CryptoPP::word64;
 using CryptoPP::rotlConstant;
 using CryptoPP::AlignedSecByteBlock;
 using CryptoPP::LITTLE_ENDIAN_ORDER;
