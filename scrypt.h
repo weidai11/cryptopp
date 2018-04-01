@@ -27,68 +27,68 @@ NAMESPACE_BEGIN(CryptoPP)
 class Scrypt : public KeyDerivationFunction
 {
 public:
-	virtual ~Scrypt() {}
+    virtual ~Scrypt() {}
 
-	static std::string StaticAlgorithmName () {
-		return "scrypt";
-	}
+    static std::string StaticAlgorithmName () {
+        return "scrypt";
+    }
 
-	// KeyDerivationFunction interface
-	std::string AlgorithmName() const {
-		return StaticAlgorithmName();
-	}
+    // KeyDerivationFunction interface
+    std::string AlgorithmName() const {
+        return StaticAlgorithmName();
+    }
 
-	// KeyDerivationFunction interface
-	size_t MaxDerivedLength() const {
-		return static_cast<size_t>(-1);
-	}
+    // KeyDerivationFunction interface
+    size_t MaxDerivedLength() const {
+        return static_cast<size_t>(-1);
+    }
 
-	// KeyDerivationFunction interface
-	size_t GetValidDerivedLength(size_t keylength) const;
+    // KeyDerivationFunction interface
+    size_t GetValidDerivedLength(size_t keylength) const;
 
-	// KeyDerivationFunction interface
-	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
-	    const NameValuePairs& params) const;
+    // KeyDerivationFunction interface
+    size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+        const NameValuePairs& params) const;
 
-	/// \brief Derive a key from a seed
-	/// \param derived the derived output buffer
-	/// \param derivedLen the size of the derived buffer, in bytes
-	/// \param secret the seed input buffer
-	/// \param secretLen the size of the secret buffer, in bytes
-	/// \param salt the salt input buffer
-	/// \param saltLen the size of the salt buffer, in bytes
-	/// \param cost the CPU/memory cost factor
-	/// \param blockSize the block size
-	/// \param parallelization the parallelization factor
-	/// \param infoLen the size of the info buffer, in bytes
-	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
-	/// \details DeriveKey() provides a standard interface to derive a key from
-	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
-	///   provides an overload that accepts most parameters used by the derivation function.
-	/// \details The CPU/Memory <tt>cost</tt> parameter ("N" in the documents) must be
-	///   larger than 1, a power of 2, and less than <tt>2^(128 * r / 8)</tt>.
-	/// \details The parameter <tt>blockSize</tt> ("r" in the documents) specifies the block
-	///   size.
-	/// \details The <tt>parallelization</tt> parameter ("p" in the documents) is a positive
-	///   integer less than or equal to <tt>((2^32-1) * 32) / (128 * r)</tt>.
-	/// \details Crypto++ uses <tt>size_t</tt> for its size datatype, and limits are
-	///   based on the 32-bit version of <tt>size_t</tt>. For example, <tt>cost</tt> is
-	///   limited to <tt>0xffffffff</tt> instead of <tt>2^(128 * r / 8)</tt>.
-	/// \details Scrypt always returns 1 because it only performs 1 iteration. Other
-	///   derivation functions, like PBKDF's, will return more interesting values.
-	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
-		const byte *salt, size_t saltLen, word64 cost=2, word64 blockSize=8, word64 parallelization=1) const;
+    /// \brief Derive a key from a seed
+    /// \param derived the derived output buffer
+    /// \param derivedLen the size of the derived buffer, in bytes
+    /// \param secret the seed input buffer
+    /// \param secretLen the size of the secret buffer, in bytes
+    /// \param salt the salt input buffer
+    /// \param saltLen the size of the salt buffer, in bytes
+    /// \param cost the CPU/memory cost factor
+    /// \param blockSize the block size
+    /// \param parallelization the parallelization factor
+    /// \param infoLen the size of the info buffer, in bytes
+    /// \returns the number of iterations performed
+    /// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+    /// \details DeriveKey() provides a standard interface to derive a key from
+    ///   a seed and other parameters. Each class that derives from KeyDerivationFunction
+    ///   provides an overload that accepts most parameters used by the derivation function.
+    /// \details The CPU/Memory <tt>cost</tt> parameter ("N" in the documents) must be
+    ///   larger than 1, a power of 2, and less than <tt>2^(128 * r / 8)</tt>.
+    /// \details The parameter <tt>blockSize</tt> ("r" in the documents) specifies the block
+    ///   size.
+    /// \details The <tt>parallelization</tt> parameter ("p" in the documents) is a positive
+    ///   integer less than or equal to <tt>((2^32-1) * 32) / (128 * r)</tt>.
+    /// \details Crypto++ uses <tt>size_t</tt> for its size datatype, and limits are
+    ///   based on the 32-bit version of <tt>size_t</tt>. For example, <tt>cost</tt> is
+    ///   limited to <tt>0xffffffff</tt> instead of <tt>2^(128 * r / 8)</tt>.
+    /// \details Scrypt always returns 1 because it only performs 1 iteration. Other
+    ///   derivation functions, like PBKDF's, will return more interesting values.
+    size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+        const byte *salt, size_t saltLen, word64 cost=2, word64 blockSize=8, word64 parallelization=1) const;
 
 protected:
-	enum {defaultCost=2, defaultBlockSize=8, defaultParallelization=1};
+    enum {defaultCost=2, defaultBlockSize=8, defaultParallelization=1};
 
-	// KeyDerivationFunction interface
-	const Algorithm & GetAlgorithm() const {
-		return *this;
-	}
+    // KeyDerivationFunction interface
+    const Algorithm & GetAlgorithm() const {
+        return *this;
+    }
 
-	inline void ValidateParameters(size_t derivedlen, word64 cost, word64 blockSize, word64 parallelization) const;
+    inline void ValidateParameters(size_t derivedlen, word64 cost, word64 blockSize, word64 parallelization) const;
 };
 
 NAMESPACE_END
