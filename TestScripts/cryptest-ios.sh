@@ -25,7 +25,7 @@ do
 	echo "Testing for iOS support of $platform"
 
 	# Test if we can set the environment for the platform
-	./setenv-ios.sh "$platform" "$runtime"
+	./setenv-ios.sh "$platform"
 
 	if [ "$?" -eq "0" ]; then
 		echo
