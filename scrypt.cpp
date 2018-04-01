@@ -15,8 +15,6 @@
 # include <omp.h>
 #endif
 
-#include <stdint.h>
-#include <errno.h>
 #include <sstream>
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -26,43 +24,43 @@ using CryptoPP::AlignedSecByteBlock;
 using CryptoPP::LITTLE_ENDIAN_ORDER;
 using CryptoPP::ConditionalByteReverse;
 
-static inline void LE32ENC(uint8_t* out, uint32_t in)
+static inline void LE32ENC(byte* out, word32 in)
 {
-    uint32_t* ptr = reinterpret_cast<uint32_t*>(out);
+    word32* ptr = reinterpret_cast<word32*>(out);
     ConditionalByteReverse(LITTLE_ENDIAN_ORDER, ptr, &in, 4);
 }
 
-static inline uint32_t LE32DEC(const uint8_t* in)
+static inline word32 LE32DEC(const byte* in)
 {
-    uint32_t res;
-    const uint32_t* ptr = reinterpret_cast<const uint32_t*>(in);
+    word32 res;
+    const word32* ptr = reinterpret_cast<const word32*>(in);
     ConditionalByteReverse(LITTLE_ENDIAN_ORDER, &res, ptr, 4);
     return res;
 }
 
-static inline uint64_t LE64DEC(const uint8_t* in)
+static inline word64 LE64DEC(const byte* in)
 {
-    uint64_t res;
-    const uint64_t* ptr = reinterpret_cast<const uint64_t*>(in);
+    word64 res;
+    const word64* ptr = reinterpret_cast<const word64*>(in);
     ConditionalByteReverse(LITTLE_ENDIAN_ORDER, &res, ptr, 8);
     return res;
 }
 
-static inline void BlockCopy(uint8_t * dest, uint8_t * src, size_t len)
+static inline void BlockCopy(byte * dest, byte * src, size_t len)
 {
     for (size_t i = 0; i < len; i++)
         dest[i] = src[i];
 }
 
-static inline void BlockXOR(uint8_t * dest, uint8_t * src, size_t len)
+static inline void BlockXOR(byte * dest, byte * src, size_t len)
 {
     for (size_t i = 0; i < len; i++)
         dest[i] ^= src[i];
 }
 
-static inline void PBKDF2_SHA256(uint8_t * buf, size_t dkLen,
-    const uint8_t * passwd, size_t passwdlen,
-    const uint8_t * salt, size_t saltlen, uint8_t count)
+static inline void PBKDF2_SHA256(byte * buf, size_t dkLen,
+    const byte * passwd, size_t passwdlen,
+    const byte * salt, size_t saltlen, byte count)
 {
     using CryptoPP::SHA256;
     using CryptoPP::PKCS5_PBKDF2_HMAC;
@@ -71,9 +69,9 @@ static inline void PBKDF2_SHA256(uint8_t * buf, size_t dkLen,
     pbkdf.DeriveKey(buf, dkLen, 0, passwd, passwdlen, salt, saltlen, count, 0.0f);
 }
 
-static inline void Salsa20_8(uint8_t B[64])
+static inline void Salsa20_8(byte B[64])
 {
-    uint32_t B32[16], x[16];
+    word32 B32[16], x[16];
     size_t i = 0;
 
     for (i = 0; i < 16; i++)
@@ -132,9 +130,9 @@ static inline void Salsa20_8(uint8_t B[64])
         LE32ENC(&B[4 * i], B32[i]);
 }
 
-static inline void BlockMix(uint8_t * B, uint8_t * Y, size_t r)
+static inline void BlockMix(byte * B, byte * Y, size_t r)
 {
-    uint8_t X[64];
+    byte X[64];
     size_t i;
 
     // 1: X <-- B_{2r - 1}
@@ -158,17 +156,17 @@ static inline void BlockMix(uint8_t * B, uint8_t * Y, size_t r)
         BlockCopy(&B[(i + r) * 64], &Y[(i * 2 + 1) * 64], 64);
 }
 
-static inline uint64_t Integerify(uint8_t * B, size_t r)
+static inline word64 Integerify(byte * B, size_t r)
 {
-    uint8_t * X = &B[(2 * r - 1) * 64];
+    byte * X = &B[(2 * r - 1) * 64];
     return LE64DEC(X);
 }
 
-static inline void Smix(uint8_t * B, size_t r, uint64_t N, uint8_t * V, uint8_t * XY)
+static inline void Smix(byte * B, size_t r, word64 N, byte * V, byte * XY)
 {
-    uint8_t * X = XY;
-    uint8_t * Y = XY+128*r;
-    uint64_t i, j;
+    byte * X = XY;
+    byte * Y = XY+128*r;
+    word64 i, j;
 
     // 1: X <-- B
     BlockCopy(X, B, 128 * r);
@@ -210,9 +208,9 @@ size_t Scrypt::GetValidDerivedLength(size_t keylength) const
 void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize, word64 parallelization) const
 {
     // Optimizer should remove this on 64-bit platforms
-    if (std::numeric_limits<size_t>::max() > std::numeric_limits<uint32_t>::max())
+    if (std::numeric_limits<size_t>::max() > std::numeric_limits<word32>::max())
     {
-        const uint64_t maxLen = ((static_cast<uint64_t>(1) << 32) - 1) * 32;
+        const word64 maxLen = ((static_cast<word64>(1) << 32) - 1) * 32;
         if (derivedLen > maxLen) {
             std::ostringstream oss;
             oss << "derivedLen " << derivedLen << " is larger than " << maxLen;
@@ -223,7 +221,7 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     if (IsPowerOf2(cost) == false)
         throw InvalidArgument("Scrypt: cost must be a power of 2");
 
-    const uint64_t prod = static_cast<uint64_t>(blockSize) * parallelization;
+    const word64 prod = static_cast<word64>(blockSize) * parallelization;
     if (prod >= (1U << 30)) {
         std::ostringstream oss;
         oss << "r*p " << prod << " is larger than " << (1U << 30);
