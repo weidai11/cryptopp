@@ -146,6 +146,7 @@ bool ValidateAll(bool thorough)
 
 	pass=ValidatePBKDF() && pass;
 	pass=ValidateHKDF() && pass;
+	pass=ValidateScrypt() && pass;
 
 	pass=ValidateDES() && pass;
 	pass=ValidateCipherModes() && pass;

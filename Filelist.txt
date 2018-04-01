@@ -253,6 +253,8 @@ safer.cpp
 safer.h
 salsa.cpp
 salsa.h
+scrypt.cpp
+scrypt.h
 seal.cpp
 seal.h
 secblock.h
