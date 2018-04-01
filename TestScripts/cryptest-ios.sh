@@ -27,7 +27,7 @@ do
 	# Test if we can set the environment for the platform
 	./setenv-ios.sh "$platform" "$runtime"
 
-	if [ "$?" -eq "0" ]; thens
+	if [ "$?" -eq "0" ]; then
 		echo
 		echo "Building for $platform using $runtime..."
 		echo
