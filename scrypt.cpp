@@ -164,7 +164,7 @@ static inline uint64_t Integerify(uint8_t * B, size_t r)
 	return LE64DEC(X);
 }
 
-static inline void Smix(uint8_t * B, size_t r, uint32_t N, uint8_t * V, uint8_t * XY)
+static inline void Smix(uint8_t * B, size_t r, uint64_t N, uint8_t * V, uint8_t * XY)
 {
 	uint8_t * X = XY;
 	uint8_t * Y = XY+128*r;
@@ -207,7 +207,7 @@ size_t Scrypt::GetValidDerivedLength(size_t keylength) const
 	return keylength;
 }
 
-void Scrypt::ValidateParameters(size_t derivedLen, unsigned int cost, unsigned int blockSize, unsigned int parallelization) const
+void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize, word64 parallelization) const
 {
 	// Optimizer should remove this on 64-bit platforms
 	if (std::numeric_limits<size_t>::max() > std::numeric_limits<uint32_t>::max())
@@ -233,22 +233,23 @@ void Scrypt::ValidateParameters(size_t derivedLen, unsigned int cost, unsigned i
 	// Scrypt has several tests that effectively verify allocations like
 	// '128 * r * N' and '128 * r * p' do not overflow. They are the tests
 	// that set errno to ENOMEM. We can make the logic a little more clear
-	// using word128 and Integer. At first blush the Integer may seem like
-	// overkill. However, this alogirthm is dominated by slow moving parts,
-	// so a one-time check is insignificant in the bigger picture.
+	// using word128. At first blush the word128 may seem like  overkill.
+	// However, this alogirthm is dominated by slow moving parts, so a
+	// one-time check is insignificant in the bigger picture.
 #if defined(CRYPTOPP_WORD128_AVAILABLE)
 	const word128 maxElems = static_cast<word128>(SIZE_MAX);
-	const word128 bSize = static_cast<word128>(cost) * blockSize * 128U;
-	const word128 xySize = static_cast<word128>(parallelization) * blockSize * 128U;
-	const word128 vSize = static_cast<word128>(blockSize) * 256U + 64U;
-	if (bSize > maxElems || xySize > maxElems || vSize > maxElems)
+	bool  bLimit = (maxElems >= static_cast<word128>(cost) * blockSize * 128U);
+	bool xyLimit = (maxElems >= static_cast<word128>(parallelization) * blockSize * 128U);
+	bool  vLimit = (maxElems >= static_cast<word128>(blockSize) * 256U + 64U);
+	if (!bLimit || !xyLimit || !vLimit)
 		throw std::bad_alloc();
 #else
-	const Integer maxElems = Integer(Integer::POSITIVE, 0, SIZE_MAX);
-	const Integer bSize = Integer(cost) * blockSize * 128U;
-	const Integer xySize = Integer(parallelization) * blockSize * 128U;
-	const Integer vSize = Integer(blockSize) * 256U + 64U;
-	if (bSize > maxElems || xySize > maxElems || vSize > maxElems)
+	const word64 maxElems = static_cast<word64>(SIZE_MAX);
+	bool  bLimit = (blockSize < maxElems / 128U / cost);
+	bool xyLimit = (blockSize < maxElems / 128U / parallelization);
+	bool  vLimit = (blockSize < (maxElems - 64U) / 256U);
+
+	if (!bLimit || !xyLimit || !vLimit)
 		throw std::bad_alloc();
 #endif
 }
@@ -260,9 +261,16 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen,
 	CRYPTOPP_ASSERT(derived && derivedLen);
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
-	unsigned int cost = (unsigned int)params.GetIntValueWithDefault("Cost", 2);
-	unsigned int blockSize = (unsigned int)params.GetIntValueWithDefault("BlockSize", 8);
-	unsigned int parallelization = (unsigned int)params.GetIntValueWithDefault("Parallelization", 1);
+	word64 cost=0, blockSize=0, parallelization=0;
+
+	if(params.GetValue("Cost", cost) == false)
+		cost = defaultCost;
+
+	if(params.GetValue("BlockSize", blockSize) == false)
+		blockSize = defaultBlockSize;
+
+	if(params.GetValue("Parallelization", parallelization) == false)
+		parallelization = defaultParallelization;
 
 	ConstByteArrayParameter salt;
 	(void)params.GetValue("Salt", salt);
@@ -271,7 +279,7 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen,
 }
 
 size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
-    const byte *salt, size_t saltLen, unsigned int cost, unsigned int blockSize, unsigned int parallel) const
+    const byte *salt, size_t saltLen, word64 cost, word64 blockSize, word64 parallel) const
 {
 	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
 	CRYPTOPP_ASSERT(derived && derivedLen);
@@ -281,9 +289,9 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, s
 	ThrowIfInvalidDerivedLength(derivedLen);
 	ValidateParameters(derivedLen, cost, blockSize, parallel);
 
-	AlignedSecByteBlock B(128 * blockSize * parallel);
-	AlignedSecByteBlock XY(256 * blockSize);
-	AlignedSecByteBlock V(128 * blockSize * cost);
+	AlignedSecByteBlock  B(static_cast<size_t>(blockSize * parallel * 128U));
+	AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
+	AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
 
 	// 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
 	PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
@@ -292,11 +300,11 @@ size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, s
 	for (unsigned int i = 0; i < parallel; i++)
 	{
 		// 3: B_i <-- MF(B_i, N)
-		Smix(B+i*128*blockSize, blockSize, cost, V, XY);
+		Smix(B+static_cast<ptrdiff_t>(blockSize*i*128), static_cast<size_t>(blockSize), cost, V, XY);
 	}
 
 	// 5: DK <-- PBKDF2(P, B, 1, dkLen)
-	PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, parallel * 128 * blockSize, 1);
+	PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, static_cast<size_t>(blockSize*parallel*128), 1);
 
 	return 1;
 }

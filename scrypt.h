@@ -78,17 +78,17 @@ public:
 	/// \details Scrypt always returns 1 because it only performs 1 iteration. Other
 	///   derivation functions, like PBKDF's, will return more interesting values.
 	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
-		const byte *salt, size_t saltLen, unsigned int cost=2,
-		unsigned int blockSize=8, unsigned int parallelization=1) const;
+		const byte *salt, size_t saltLen, word64 cost=2, word64 blockSize=8, word64 parallelization=1) const;
 
 protected:
+	enum {defaultCost=2, defaultBlockSize=8, defaultParallelization=1};
+
 	// KeyDerivationFunction interface
 	const Algorithm & GetAlgorithm() const {
 		return *this;
 	}
 
-	inline void ValidateParameters(size_t derivedlen, unsigned int cost,
-		unsigned int blockSize, unsigned int parallelization) const;
+	inline void ValidateParameters(size_t derivedlen, word64 cost, word64 blockSize, word64 parallelization) const;
 };
 
 NAMESPACE_END

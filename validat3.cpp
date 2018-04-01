@@ -801,8 +801,8 @@ bool TestScrypt(KeyDerivationFunction &pbkdf, const Scrypt_TestTuple *testSet, u
 		std::string password(tuple.passwd), salt(tuple.salt), expect;
 		StringSource(tuple.expect, true, new HexDecoder(new StringSink(expect)));
 
-		AlgorithmParameters params = MakeParameters("Cost", (int)tuple.n)
-			("BlockSize", (int)tuple.r)("Parallelization", (int)tuple.p)
+		AlgorithmParameters params = MakeParameters("Cost", (word64)tuple.n)
+			("BlockSize", (word64)tuple.r)("Parallelization", (word64)tuple.p)
 			(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
 
 		SecByteBlock derived(expect.size());
