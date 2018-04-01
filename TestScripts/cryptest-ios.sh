@@ -20,26 +20,33 @@ for platform in ${PLATFORMS[@]}
 do
 	make -f GNUmakefile-cross distclean > /dev/null 2>&1
 
-	MESSAGE="Testing for Xcode support of $platform"
-	LEN=${#MESSAGE}
-	HEADER=$(seq  -f "*" -s '' $LEN)
-
 	echo
-	echo "$HEADER"
-	echo "$MESSAGE"
+	echo "====================================================="
+	echo "Testing for iOS support of $platform"
 
 	# Test if we can set the environment for the platform
-	./setenv-ios.sh "$platform" > /dev/null 2>&1
+	./setenv-ios.sh "$platform" "$runtime"
 
-	if [ "$?" -eq "0" ]; then
+	if [ "$?" -eq "0" ]; thens
 		echo
-		echo "Building for $platform..."
+		echo "Building for $platform using $runtime..."
 		echo
 
-		. ./setenv-ios.sh "$platform"
-		make -f GNUmakefile-cross static dynamic cryptest.exe
+		# run in subshell to not keep any env vars
+		(
+			. ./setenv-ios.sh "$platform" > /dev/null 2>&1
+			make -f GNUmakefile-cross static dynamic cryptest.exe
+			if [ "$?" -eq "0" ]; then
+				echo "$platform ==> SUCCESS" >> /tmp/build.log
+			else
+				echo "$platform ==> FAILURE" >> /tmp/build.log
+				touch /tmp/build.failed
+			fi
+		)
 	else
 		echo
 		echo "$platform not supported by Xcode"
+		echo "$platform ==> FAILURE" >> /tmp/build.log
+		touch /tmp/build.failed
 	fi
 done
