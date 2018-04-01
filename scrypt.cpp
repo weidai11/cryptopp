@@ -223,10 +223,13 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
         }
     }
 
+    CRYPTOPP_ASSERT(IsPowerOf2(cost));
     if (IsPowerOf2(cost) == false)
         throw InvalidArgument("Scrypt: cost must be a power of 2");
 
     const word64 prod = static_cast<word64>(blockSize) * parallelization;
+    CRYPTOPP_ASSERT(prod < (1U << 30));
+
     if (prod >= (1U << 30)) {
         std::ostringstream oss;
         oss << "r*p " << prod << " is larger than " << (1U << 30);
@@ -285,7 +288,6 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     CRYPTOPP_ASSERT(secret /*&& secretLen*/);
     CRYPTOPP_ASSERT(derived && derivedLen);
     CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
-    CRYPTOPP_ASSERT(IsPowerOf2(cost));
 
     ThrowIfInvalidDerivedLength(derivedLen);
     ValidateParameters(derivedLen, cost, blockSize, parallel);
