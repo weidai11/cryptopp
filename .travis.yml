@@ -47,9 +47,6 @@ matrix:
     - os: osx
       compiler: clang
       env: BUILD_MODE="ubsan"
-    # Travis infrastructure problems, Issue 570
-    # Re-enable when OS X and iOS improves
-    - os: osx
 
   include:
     - os: linux
@@ -84,21 +81,22 @@ matrix:
       env:
         - BUILD_MODE=android
         - PLATFORM=x86_64
-
-    # Travis infrastructure problems, Issue 570
-    # Re-enable when OS X and iOS improves
-    #- os: osx
-    #  env:
-    #    - BUILD_MODE=ios
-    #    - PLATFORM=iPhoneOS
-    #- os: osx
-    #  env:
-    #    - BUILD_MODE=ios
-    #    - PLATFORM=WatchOS
-    #- os: osx
-    #  env:
-    #    - BUILD_MODE=ios
-    #    - PLATFORM=AppleTVOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=WatchOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneSimulator
 
 before_install:
   - |
@@ -130,7 +128,7 @@ branches:
     - master
 
 addons:
-  sonarcloud: true
+  sonarcloud: false
 
   coverity_scan:
     project:
