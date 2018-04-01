@@ -15,12 +15,13 @@
 
 #include "cryptlib.h"
 #include "secblock.h"
-#include "algparam.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Scrypt key derivation function
-/// \sa <A HREF="https://www.tarsnap.com/scrypt.html">The scrypt key derivation function</A>
+/// \sa <A HREF="https://www.tarsnap.com/scrypt/scrypt.pdf">Stronger Key Derivation via
+///   Sequential Memory-Hard Functions</a>,
+///   <A HREF="https://www.tarsnap.com/scrypt.html">The scrypt key derivation function</A>
 ///   and <A HREF="https://tools.ietf.org/html/rfc7914">RFC 7914, The scrypt Password-Based
 ///   Key Derivation Function</A>
 /// \since Crypto++ 6.2
@@ -71,9 +72,6 @@ public:
     ///   size.
     /// \details The <tt>parallelization</tt> parameter ("p" in the documents) is a positive
     ///   integer less than or equal to <tt>((2^32-1) * 32) / (128 * r)</tt>.
-    /// \details Crypto++ uses <tt>size_t</tt> for its size datatype, and limits are
-    ///   based on the 32-bit version of <tt>size_t</tt>. For example, <tt>cost</tt> is
-    ///   limited to <tt>0xffffffff</tt> instead of <tt>2^(128 * r / 8)</tt>.
     /// \details Scrypt always returns 1 because it only performs 1 iteration. Other
     ///   derivation functions, like PBKDF's, will return more interesting values.
     size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,

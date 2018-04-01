@@ -4,6 +4,7 @@
 #include "pch.h"
 
 #include "scrypt.h"
+#include "algparam.h"
 #include "argnames.h"
 #include "pwdbased.h"
 #include "stdcpp.h"
@@ -11,11 +12,11 @@
 #include "misc.h"
 #include "sha.h"
 
+#include <sstream>
+
 #ifdef _OPENMP
 # include <omp.h>
 #endif
-
-#include <sstream>
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -197,6 +198,7 @@ static inline void Smix(byte * B, size_t r, word64 N, byte * V, byte * XY)
     // 10: B' <-- X
     BlockCopy(B, X, 128 * r);
 }
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -242,17 +244,16 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     bool  bLimit = (maxElems >= static_cast<word128>(cost) * blockSize * 128U);
     bool xyLimit = (maxElems >= static_cast<word128>(parallelization) * blockSize * 128U);
     bool  vLimit = (maxElems >= static_cast<word128>(blockSize) * 256U + 64U);
-    if (!bLimit || !xyLimit || !vLimit)
-        throw std::bad_alloc();
 #else
     const word64 maxElems = static_cast<word64>(SIZE_MAX);
     bool  bLimit = (blockSize < maxElems / 128U / cost);
     bool xyLimit = (blockSize < maxElems / 128U / parallelization);
     bool  vLimit = (blockSize < (maxElems - 64U) / 256U);
+#endif
 
+    CRYPTOPP_ASSERT(bLimit); CRYPTOPP_ASSERT(xyLimit); CRYPTOPP_ASSERT(vLimit);
     if (!bLimit || !xyLimit || !vLimit)
         throw std::bad_alloc();
-#endif
 }
 
 size_t Scrypt::DeriveKey(byte *derived, size_t derivedLen,
