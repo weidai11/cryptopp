@@ -167,7 +167,9 @@ typedef LUCSS<PKCS1v15, SHA1>::Verifier LUCSSA_PKCS1v15_SHA_Verifier;
 
 // ********************************************************
 
-// no actual precomputation
+/// \brief LUC GroupParameters precomputation
+/// \details No actual precomputation is performed
+/// \since Crypto++ 2.1
 class DL_GroupPrecomputation_LUC : public DL_GroupPrecomputation<Integer>
 {
 public:
@@ -295,6 +297,7 @@ struct LUC_HMP : public DL_SS<DL_SignatureKeys_LUC, DL_Algorithm_LUC_HMP, DL_Sig
 };
 
 /// \brief LUC encryption keys
+/// \since Crypto++ 2.1
 struct DL_CryptoKeys_LUC
 {
 	typedef DL_GroupParameters_LUC_DefaultSafePrime GroupParameters;
@@ -323,7 +326,7 @@ struct LUC_IES
 
 // ********************************************************
 
-/// LUC-DH
+/// \brief LUC-DH
 typedef DH_Domain<DL_GroupParameters_LUC_DefaultSafePrime> LUC_DH;
 
 NAMESPACE_END
