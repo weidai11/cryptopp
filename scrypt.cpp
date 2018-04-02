@@ -77,7 +77,7 @@ static inline void PBKDF2_SHA256(byte* buf, size_t dkLen,
 
 static inline void Salsa20_8(byte B[64])
 {
-    word32 B32[16], x[16];
+    word32 B32[16];
 
     for (size_t i = 0; i < 16; ++i)
         B32[i] = LE32DEC(&B[i * 4]);

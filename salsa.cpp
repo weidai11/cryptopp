@@ -38,7 +38,7 @@ void Salsa20_TestInstantiations()
 
 void Salsa20_Core(word32* data, unsigned int rounds)
 {
-	CRYPTOPP_ASSERT(data != NULLTPR);
+	CRYPTOPP_ASSERT(data != NULLPTR);
 	CRYPTOPP_ASSERT(rounds % 2 == 0);
 
 	CRYPTOPP_ALIGN_DATA(16) word32 x[16];
