@@ -251,33 +251,22 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     // 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
     PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
 
-    if (parallel == 1)
+    // http://stackoverflow.com/q/49604260/608639
+    #pragma omp parallel
     {
         AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
         AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
 
         // 2: for i = 0 to p - 1 do
-        // 3: B_i <-- MF(B_i, N)
-        Smix(B, static_cast<size_t>(blockSize), cost, V, XY);
-        XY.SetMark(256); V.SetMark(128);
-    }
-    else
-    {
-        // 2: for i = 0 to p - 1 do
-        #pragma omp parallel for
+        #pragma omp for
         for (size_t i = 0; i < static_cast<size_t>(parallel); ++i)
         {
-            // Can't figure out how to hoist this out of the for-loop
-            //   https://stackoverflow.com/q/49604260/608639
-            AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
-            AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
-
             // 3: B_i <-- MF(B_i, N)
             const ptrdiff_t offset = static_cast<ptrdiff_t>(blockSize*i*128);
             Smix(B+offset, static_cast<size_t>(blockSize), cost, V, XY);
-            XY.SetMark(256); V.SetMark(128);
         }
     }
+
 
     // 5: DK <-- PBKDF2(P, B, 1, dkLen)
     PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, B.size(), 1);
