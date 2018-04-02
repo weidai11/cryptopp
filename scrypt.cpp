@@ -254,6 +254,7 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     // http://stackoverflow.com/q/49604260/608639
     #pragma omp parallel
     {
+        // Each thread gets its own copy
         AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
         AlignedSecByteBlock  V(static_cast<size_t>(blockSize * cost * 128U));
 
@@ -266,7 +267,6 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
             Smix(B+offset, static_cast<size_t>(blockSize), cost, V, XY);
         }
     }
-
 
     // 5: DK <-- PBKDF2(P, B, 1, dkLen)
     PBKDF2_SHA256(derived, derivedLen, secret, secretLen, B, B.size(), 1);

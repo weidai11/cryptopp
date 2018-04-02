@@ -19,6 +19,11 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Scrypt key derivation function
+/// \details The Crypto++ implementation uses OpenMP to accelerate the derivation when
+///   available.
+/// \details The Crypto++ implementation of Scrypt is limited by C++ datatypes. For
+///   example, the library is limited to a derived key length of <tt>SIZE_MAX</tt>,
+///   and not <tt>(2^32 - 1) * 32</tt>.
 /// \sa <A HREF="https://www.tarsnap.com/scrypt/scrypt.pdf">Stronger Key Derivation via
 ///   Sequential Memory-Hard Functions</a>,
 ///   <A HREF="https://www.tarsnap.com/scrypt.html">The scrypt key derivation function</A>
@@ -74,6 +79,9 @@ public:
     ///   integer less than or equal to <tt>((2^32-1) * 32) / (128 * r)</tt>.
     /// \details Scrypt always returns 1 because it only performs 1 iteration. Other
     ///   derivation functions, like PBKDF's, will return more interesting values.
+    /// \details The Crypto++ implementation of Scrypt is limited by C++ datatypes. For
+    ///   example, the library is limited to a derived key length of <tt>SIZE_MAX</tt>,
+    ///   and not <tt>(2^32 - 1) * 32</tt>.
     size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
         const byte *salt, size_t saltLen, word64 cost=2, word64 blockSize=8, word64 parallelization=1) const;
 
