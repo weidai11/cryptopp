@@ -468,9 +468,8 @@ public:
 
 // More static initialization order fiasco workarounds. These definitions cannot be extern and
 // cannot be static class members because they require a single definition in a source file.
-ANONYMOUS_NAMESPACE_BEGIN
-const NullNameValuePairs s_nullNameValuePairs;
-ANONYMOUS_NAMESPACE_END
+// User programs should use g_nullNameValuePairs rather than s_nullNameValuePairs.
+static const NullNameValuePairs s_nullNameValuePairs;
 
 // Doxygen cannot handle initialization
 #if CRYPTOPP_DOXYGEN_PROCESSING
