@@ -36,6 +36,65 @@ void Salsa20_TestInstantiations()
 }
 #endif
 
+void Salsa20_Core(word32* data, unsigned int rounds)
+{
+	CRYPTOPP_ASSERT(data != NULLPTR);
+	CRYPTOPP_ASSERT(rounds % 2 == 0);
+
+	CRYPTOPP_ALIGN_DATA(16) word32 x[16];
+
+	for (size_t i = 0; i < 16; ++i)
+		x[i] = data[i];
+
+	// Rounds must be even
+	for (size_t i = 0; i < rounds; i += 2)
+	{
+		x[ 4] ^= rotlConstant< 7>(x[ 0]+x[12]);
+		x[ 8] ^= rotlConstant< 9>(x[ 4]+x[ 0]);
+		x[12] ^= rotlConstant<13>(x[ 8]+x[ 4]);
+		x[ 0] ^= rotlConstant<18>(x[12]+x[ 8]);
+
+		x[ 9] ^= rotlConstant< 7>(x[ 5]+x[ 1]);
+		x[13] ^= rotlConstant< 9>(x[ 9]+x[ 5]);
+		x[ 1] ^= rotlConstant<13>(x[13]+x[ 9]);
+		x[ 5] ^= rotlConstant<18>(x[ 1]+x[13]);
+
+		x[14] ^= rotlConstant< 7>(x[10]+x[ 6]);
+		x[ 2] ^= rotlConstant< 9>(x[14]+x[10]);
+		x[ 6] ^= rotlConstant<13>(x[ 2]+x[14]);
+		x[10] ^= rotlConstant<18>(x[ 6]+x[ 2]);
+
+		x[ 3] ^= rotlConstant< 7>(x[15]+x[11]);
+		x[ 7] ^= rotlConstant< 9>(x[ 3]+x[15]);
+		x[11] ^= rotlConstant<13>(x[ 7]+x[ 3]);
+		x[15] ^= rotlConstant<18>(x[11]+x[ 7]);
+
+		x[ 1] ^= rotlConstant< 7>(x[ 0]+x[ 3]);
+		x[ 2] ^= rotlConstant< 9>(x[ 1]+x[ 0]);
+		x[ 3] ^= rotlConstant<13>(x[ 2]+x[ 1]);
+		x[ 0] ^= rotlConstant<18>(x[ 3]+x[ 2]);
+
+		x[ 6] ^= rotlConstant< 7>(x[ 5]+x[ 4]);
+		x[ 7] ^= rotlConstant< 9>(x[ 6]+x[ 5]);
+		x[ 4] ^= rotlConstant<13>(x[ 7]+x[ 6]);
+		x[ 5] ^= rotlConstant<18>(x[ 4]+x[ 7]);
+
+		x[11] ^= rotlConstant< 7>(x[10]+x[ 9]);
+		x[ 8] ^= rotlConstant< 9>(x[11]+x[10]);
+		x[ 9] ^= rotlConstant<13>(x[ 8]+x[11]);
+		x[10] ^= rotlConstant<18>(x[ 9]+x[ 8]);
+
+		x[12] ^= rotlConstant< 7>(x[15]+x[14]);
+		x[13] ^= rotlConstant< 9>(x[12]+x[15]);
+		x[14] ^= rotlConstant<13>(x[13]+x[12]);
+		x[15] ^= rotlConstant<18>(x[14]+x[13]);
+	}
+
+	#pragma omp simd
+	for (size_t i = 0; i < 16; ++i)
+		data[i] += x[i];
+}
+
 void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
