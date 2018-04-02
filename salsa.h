@@ -19,10 +19,10 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief Salsa20 core transform
 /// \param data the data to transform
 /// \param rounds the number of rounds
-/// \details Several algorithms, like CryptoBox and Scrpyt, require access to
-///   the core Salsa20 transform. The current Crypto++ code does not lend itself
-///   to disgorging the Salsa20 cipher from the Salsa20 core transform. In its
-///   stead Salsa20_Core is provided with customary accelerations.
+/// \details Several algorithms, like CryptoBox and Scrypt, require access to
+///   the core Salsa20 transform. The current Crypto++ implementation does not
+///   lend itself to disgorging the Salsa20 cipher from the Salsa20 core transform.
+///   Instead Salsa20_Core is provided with customary accelerations.
 void Salsa20_Core(word32* data, unsigned int rounds);
 
 /// \brief Salsa20 stream cipher information
