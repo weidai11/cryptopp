@@ -23,6 +23,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
+using CryptoPP::Salsa20_Core;
 using CryptoPP::rotlConstant;
 using CryptoPP::AlignedSecByteBlock;
 using CryptoPP::LITTLE_ENDIAN_ORDER;
@@ -81,55 +82,7 @@ static inline void Salsa20_8(byte B[64])
     for (size_t i = 0; i < 16; ++i)
         B32[i] = LE32DEC(&B[i * 4]);
 
-    for (size_t i = 0; i < 16; ++i)
-        x[i] = B32[i];
-
-    for (size_t i = 0; i < 8; i += 2)
-    {
-        x[ 4] ^= rotlConstant< 7>(x[ 0]+x[12]);
-        x[ 8] ^= rotlConstant< 9>(x[ 4]+x[ 0]);
-        x[12] ^= rotlConstant<13>(x[ 8]+x[ 4]);
-        x[ 0] ^= rotlConstant<18>(x[12]+x[ 8]);
-
-        x[ 9] ^= rotlConstant< 7>(x[ 5]+x[ 1]);
-        x[13] ^= rotlConstant< 9>(x[ 9]+x[ 5]);
-        x[ 1] ^= rotlConstant<13>(x[13]+x[ 9]);
-        x[ 5] ^= rotlConstant<18>(x[ 1]+x[13]);
-
-        x[14] ^= rotlConstant< 7>(x[10]+x[ 6]);
-        x[ 2] ^= rotlConstant< 9>(x[14]+x[10]);
-        x[ 6] ^= rotlConstant<13>(x[ 2]+x[14]);
-        x[10] ^= rotlConstant<18>(x[ 6]+x[ 2]);
-
-        x[ 3] ^= rotlConstant< 7>(x[15]+x[11]);
-        x[ 7] ^= rotlConstant< 9>(x[ 3]+x[15]);
-        x[11] ^= rotlConstant<13>(x[ 7]+x[ 3]);
-        x[15] ^= rotlConstant<18>(x[11]+x[ 7]);
-
-        x[ 1] ^= rotlConstant< 7>(x[ 0]+x[ 3]);
-        x[ 2] ^= rotlConstant< 9>(x[ 1]+x[ 0]);
-        x[ 3] ^= rotlConstant<13>(x[ 2]+x[ 1]);
-        x[ 0] ^= rotlConstant<18>(x[ 3]+x[ 2]);
-
-        x[ 6] ^= rotlConstant< 7>(x[ 5]+x[ 4]);
-        x[ 7] ^= rotlConstant< 9>(x[ 6]+x[ 5]);
-        x[ 4] ^= rotlConstant<13>(x[ 7]+x[ 6]);
-        x[ 5] ^= rotlConstant<18>(x[ 4]+x[ 7]);
-
-        x[11] ^= rotlConstant< 7>(x[10]+x[ 9]);
-        x[ 8] ^= rotlConstant< 9>(x[11]+x[10]);
-        x[ 9] ^= rotlConstant<13>(x[ 8]+x[11]);
-        x[10] ^= rotlConstant<18>(x[ 9]+x[ 8]);
-
-        x[12] ^= rotlConstant< 7>(x[15]+x[14]);
-        x[13] ^= rotlConstant< 9>(x[12]+x[15]);
-        x[14] ^= rotlConstant<13>(x[13]+x[12]);
-        x[15] ^= rotlConstant<18>(x[14]+x[13]);
-    }
-
-    #pragma omp simd
-    for (size_t i = 0; i < 16; ++i)
-        B32[i] += x[i];
+    Salsa20_Core(B32, 8);
 
     for (size_t i = 0; i < 16; ++i)
         LE32ENC(&B[4 * i], B32[i]);
