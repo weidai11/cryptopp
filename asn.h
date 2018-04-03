@@ -201,6 +201,15 @@ public:
 	/// </pre>
 	void BERDecodeAndCheck(BufferedTransformation &bt) const;
 
+	const std::vector<word32>& GetValues() const {
+		return m_values;
+	}
+
+protected:
+	friend bool operator==(const OID &lhs, const OID &rhs);
+	friend bool operator!=(const OID &lhs, const OID &rhs);
+	friend bool operator<(const OID &lhs, const OID &rhs);
+
 	std::vector<word32> m_values;
 
 private:
@@ -213,6 +222,7 @@ class EncodedObjectFilter : public Filter
 {
 public:
 	enum Flag {PUT_OBJECTS=1, PUT_MESSANGE_END_AFTER_EACH_OBJECT=2, PUT_MESSANGE_END_AFTER_ALL_OBJECTS=4, PUT_MESSANGE_SERIES_END_AFTER_ALL_OBJECTS=8};
+	enum State {IDENTIFIER, LENGTH, BODY, TAIL, ALL_DONE} m_state;
 
 	virtual ~EncodedObjectFilter() {}
 
@@ -233,13 +243,11 @@ public:
 private:
 	BufferedTransformation & CurrentTarget();
 
-	word32 m_flags;
-	unsigned int m_nObjects, m_nCurrentObject, m_level;
-	std::vector<unsigned int> m_positions;
 	ByteQueue m_queue;
-	enum State {IDENTIFIER, LENGTH, BODY, TAIL, ALL_DONE} m_state;
-	byte m_id;
+	std::vector<unsigned int> m_positions;
 	lword m_lengthRemaining;
+	word32 m_nObjects, m_nCurrentObject, m_level, m_flags;
+	byte m_id;
 };
 
 /// \brief BER General Decoder
@@ -265,8 +273,8 @@ public:
 
 protected:
 	BufferedTransformation &m_inQueue;
-	bool m_finished, m_definiteLength;
 	lword m_length;
+	bool m_finished, m_definiteLength;
 
 private:
 	void Init(byte asnTag);
@@ -294,9 +302,8 @@ public:
 
 private:
 	BufferedTransformation &m_outQueue;
-	bool m_finished;
-
 	byte m_asnTag;
+	bool m_finished;
 };
 
 /// \brief BER Sequence Decoder

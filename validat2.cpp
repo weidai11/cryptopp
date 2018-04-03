@@ -883,7 +883,7 @@ bool ValidateECP()
 
 	std::cout << "Testing SEC 2, NIST, and Brainpool recommended curves..." << std::endl;
 	OID oid;
-	while (!(oid = DL_GroupParameters_EC<ECP>::GetNextRecommendedParametersOID(oid)).m_values.empty())
+	while (!(oid = DL_GroupParameters_EC<ECP>::GetNextRecommendedParametersOID(oid)).GetValues().empty())
 	{
 		DL_GroupParameters_EC<ECP> params(oid);
 		bool fail = !params.Validate(GlobalRNG(), 2);
