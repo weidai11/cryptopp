@@ -747,7 +747,7 @@ void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 // ******************************************************************
 
 template <class EC>
-void DL_PublicKey_ECGDSA_ISO15946<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+void DL_PublicKey_ECGDSA<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
 	CRYPTOPP_UNUSED(parametersPresent);
 
@@ -758,7 +758,7 @@ void DL_PublicKey_ECGDSA_ISO15946<EC>::BERDecodePublicKey(BufferedTransformation
 }
 
 template <class EC>
-void DL_PublicKey_ECGDSA_ISO15946<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
+void DL_PublicKey_ECGDSA<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
 {
 	this->GetGroupParameters().GetCurve().EncodePoint(bt, this->GetPublicElement(), this->GetGroupParameters().GetPointCompression());
 }
@@ -766,7 +766,7 @@ void DL_PublicKey_ECGDSA_ISO15946<EC>::DEREncodePublicKey(BufferedTransformation
 // ******************************************************************
 
 template <class EC>
-void DL_PrivateKey_ECGDSA_ISO15946<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+void DL_PrivateKey_ECGDSA<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
 	CRYPTOPP_UNUSED(size);
 	BERSequenceDecoder seq(bt);
@@ -805,7 +805,7 @@ void DL_PrivateKey_ECGDSA_ISO15946<EC>::BERDecodePrivateKey(BufferedTransformati
 }
 
 template <class EC>
-void DL_PrivateKey_ECGDSA_ISO15946<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
+void DL_PrivateKey_ECGDSA<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version
