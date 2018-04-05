@@ -193,29 +193,34 @@ if [ -z "$XCODE_SDK" ]; then
     [ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
 fi
 
+# https://github.com/weidai11/cryptopp/issues/635
+if [ "$APPLE_SDK" == "iPhoneSimulator" ]; then
+  IOS_FLAGS += -DCRYPTOPP_DISABLE_SSSE3
+fi
+
 # Simulator fixup. LD fails to link dylib.
 if [ "$APPLE_SDK" == "iPhoneSimulator" ] && [ "$IOS_ARCH" == "i386" ]; then
-  IOS_FLAGS=-miphoneos-version-min=5
+  IOS_FLAGS += -miphoneos-version-min=5
 fi
 
 # ARMv7s fixup. Xcode 4/iOS 6
 if [ "$IOS_ARCH" == "armv7s" ]; then
-  IOS_FLAGS=-miphoneos-version-min=6
+  IOS_FLAGS += -miphoneos-version-min=6
 fi
 
 # ARM64 fixup. Xcode 5/iOS 7
 if [ "$IOS_ARCH" == "arm64" ]; then
-  IOS_FLAGS=-miphoneos-version-min=7
+  IOS_FLAGS = -miphoneos-version-min=7
 fi
 
 # Yet another ARM64 fixup.
 if [ "$APPLE_SDK" == "AppleTVOS" ]; then
-  IOS_FLAGS=""
+  IOS_FLAGS = ""
 fi
 
 # ARM64 Simulator fixup. Under Xcode 6/iOS 8, it uses x86_64 and not i386
 if [ "$IOS_ARCH" == "x86_64" ]; then
-  IOS_FLAGS=-miphoneos-version-min=8
+  IOS_FLAGS += -miphoneos-version-min=8
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
