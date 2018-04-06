@@ -502,14 +502,12 @@ lword BERGeneralDecoder::ReduceLength(lword delta)
 }
 
 DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag)
-	: ByteQueue(), m_outQueue(outQueue), m_finished(false), m_asnTag(asnTag)
+	: ByteQueue(), m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
 {
 }
 
-// TODO: GCC (and likely other compilers) identify this as a copy constructor; and not a constructor.
-//   We have to wait until Crypto++ 6.0 to fix it because the signature change breaks versioning.
 DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
-	: ByteQueue(), m_outQueue(outQueue), m_finished(false), m_asnTag(asnTag)
+	: ByteQueue(), m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
 {
 }
 

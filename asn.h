@@ -283,11 +283,6 @@ private:
 	lword ReduceLength(lword delta);
 };
 
-// GCC (and likely other compilers) identify the explicit DERGeneralEncoder as a copy constructor;
-// and not a constructor. We had to remove the default asnTag value to point the compiler in the
-// proper direction. We did not break the library or versioning based on the output of
-// `nm --demangle libcryptopp.a | grep DERGeneralEncoder::DERGeneralEncoder | grep -v " U "`.
-
 /// \brief DER General Encoder
 class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
