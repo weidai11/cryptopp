@@ -784,9 +784,9 @@ struct Scrypt_TestTuple
 {
 	const char * passwd;
 	const char * salt;
-	uint64_t n;
-	uint32_t r;
-	uint32_t p;
+	word64 n;
+	word32 r;
+	word32 p;
 	const char * expect;
 };
 
