@@ -1313,7 +1313,7 @@ public:
 	/// \details The standard algorithm name can be a name like \a AES or \a AES/GCM. Some algorithms
 	///   do not have standard names yet. For example, there is no standard algorithm name for
 	///   Shoup's ECIES.
-	virtual std::string AlgorithmName() const =0;
+	virtual std::string AlgorithmName() const;
 
 protected:
 	const Algorithm & GetAlgorithm() const

@@ -268,6 +268,12 @@ bool AuthenticatedSymmetricCipher::DecryptAndVerify(byte *message, const byte *m
 	return TruncatedVerify(mac, macLength);
 }
 
+std::string AuthenticatedSymmetricCipher::AlgorithmName() const
+{
+	// Squash C4505 on Visual Studio 2008 and friends
+	return "Unknown";
+}
+
 unsigned int RandomNumberGenerator::GenerateBit()
 {
 	return GenerateByte() & 1;
