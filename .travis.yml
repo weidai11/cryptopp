@@ -98,6 +98,12 @@ matrix:
         - BUILD_MODE=ios
         - PLATFORM=iPhoneSimulator
 
+  allow_failures:
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=WatchOS
+
 before_install:
   - |
     if [[ "$BUILD_MODE" == "android" ]]; then
