@@ -1475,6 +1475,12 @@ protected:
 	void ThrowIfInvalidDerivedLength(size_t length) const;
 };
 
+/// \brief Interface for password based key derivation functions
+/// \since Crypto++ 6.2
+struct PasswordBasedKeyDerivationFunction : public KeyDerivationFunction
+{
+};
+
 /// \brief Random Number Generator that does not produce random numbers
 /// \return reference that can be passed to functions that require a RandomNumberGenerator
 /// \details NullRNG() returns a reference that can be passed to functions that require a

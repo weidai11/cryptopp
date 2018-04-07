@@ -16,10 +16,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-struct PasswordBasedKeyDerivationFunction : public KeyDerivationFunction
-{
-};
-
 // ******************** PBKDF1 ********************
 
 /// \brief PBKDF1 from PKCS #5
