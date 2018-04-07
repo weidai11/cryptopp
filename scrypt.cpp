@@ -23,32 +23,26 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
+using CryptoPP::GetWord;
+using CryptoPP::PutWord;
 using CryptoPP::Salsa20_Core;
 using CryptoPP::rotlConstant;
-using CryptoPP::AlignedSecByteBlock;
 using CryptoPP::LITTLE_ENDIAN_ORDER;
-using CryptoPP::ConditionalByteReverse;
+using CryptoPP::AlignedSecByteBlock;
 
 static inline void LE32ENC(byte* out, word32 in)
 {
-    word32* ptr = reinterpret_cast<word32*>(out);
-    ConditionalByteReverse(LITTLE_ENDIAN_ORDER, ptr, &in, 4);
+    PutWord(false, LITTLE_ENDIAN_ORDER, out, in);
 }
 
 static inline word32 LE32DEC(const byte* in)
 {
-    word32 res;
-    const word32* ptr = reinterpret_cast<const word32*>(in);
-    ConditionalByteReverse(LITTLE_ENDIAN_ORDER, &res, ptr, 4);
-    return res;
+    return GetWord<word32>(false, LITTLE_ENDIAN_ORDER, in);
 }
 
 static inline word64 LE64DEC(const byte* in)
 {
-    word64 res;
-    const word64* ptr = reinterpret_cast<const word64*>(in);
-    ConditionalByteReverse(LITTLE_ENDIAN_ORDER, &res, ptr, 8);
-    return res;
+    return GetWord<word64>(false, LITTLE_ENDIAN_ORDER, in);
 }
 
 static inline void BlockCopy(byte* dest, byte* src, size_t len)
