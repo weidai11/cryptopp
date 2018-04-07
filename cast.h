@@ -41,6 +41,7 @@ class CAST128 : public CAST128_Info, public BlockCipherDocumentation
 	protected:
 		bool reduced;
 		FixedSizeSecBlock<word32, 32> K;
+		mutable FixedSizeSecBlock<word32, 3> m_t;
 	};
 
 	/// \brief CAST128 block cipher encryption operation
@@ -88,6 +89,8 @@ class CAST256 : public CAST256_Info, public BlockCipherDocumentation
 		static void Omega(int i, word32 kappa[8]);
 
 		FixedSizeSecBlock<word32, 8*12> K;
+		mutable FixedSizeSecBlock<word32, 8> kappa;
+		mutable FixedSizeSecBlock<word32, 3> m_t;
 	};
 
 public:

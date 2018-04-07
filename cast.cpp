@@ -35,8 +35,7 @@ typedef BlockGetAndPut<word32, BigEndian> Block;
 
 void CAST128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	// TODO: add a SecBlock workspace to the class when the ABI can change
-	word32 t,l,r;
+	word32 &t=m_t[0], &l=m_t[1], &r=m_t[2];
 
 	/* Get inblock into l,r */
 	Block::Get(inBlock)(l)(r);
@@ -66,8 +65,7 @@ void CAST128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 void CAST128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	// TODO: add a SecBlock workspace to the class when the ABI can change
-	word32 t,l,r;
+	word32 &t=m_t[0], &l=m_t[1], &r=m_t[2];
 
 	/* Get inblock into l,r */
 	Block::Get(inBlock)(r)(l);
@@ -256,9 +254,7 @@ void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 {
 	AssertValidKeyLength(keylength);
 
-	// TODO: add a SecBlock workspace to the class when the ABI can change
-	word32 kappa[8];
-	GetUserKey(BIG_ENDIAN_ORDER, kappa, 8, userKey, keylength);
+	GetUserKey(BIG_ENDIAN_ORDER, kappa.begin(), 8, userKey, keylength);
 
 	for(int i=0; i<12; ++i)
 	{
@@ -291,8 +287,6 @@ void CAST256::Base::UncheckedSetKey(const byte *userKey, unsigned int keylength,
 			}
 		}
 	}
-
-	SecureWipeBuffer(kappa, 8);
 }
 
 NAMESPACE_END
