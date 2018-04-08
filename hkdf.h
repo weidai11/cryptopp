@@ -15,8 +15,10 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Extract-and-Expand Key Derivation Function (HKDF)
 /// \tparam T HashTransformation class
-/// \sa <A HREF="http://eprint.iacr.org/2010/264">Cryptographic Extraction and Key Derivation: The HKDF Scheme</A>
-///   and <A HREF="http://tools.ietf.org/html/rfc5869">HMAC-based Extract-and-Expand Key Derivation Function (HKDF)</A>
+/// \sa <A HREF="http://eprint.iacr.org/2010/264">Cryptographic Extraction and Key
+///   Derivation: The HKDF Scheme</A> and
+///   <A HREF="http://tools.ietf.org/html/rfc5869">HMAC-based Extract-and-Expand Key
+///   Derivation Function (HKDF)</A>
 /// \since Crypto++ 5.6.3
 template <class T>
 class HKDF : public KeyDerivationFunction
@@ -127,6 +129,13 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, 
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
 
 	ThrowIfInvalidDerivedLength(derivedLen);
+
+	// HKDF business logic. NULL is different than empty.
+	if (salt == NULLPTR)
+	{
+		salt = GetNullVector();
+		saltLen = T::DIGESTSIZE;
+	}
 
 	// key is PRK from the RFC, salt is IKM from the RFC
 	HMAC<T> hmac;
