@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 6.1 - FEB/22/2018
+Version 7.0 - APR/08/2018
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -55,7 +55,7 @@ Other features include:
   * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool,
     VIA Padlock, RDRAND, RDSEED, NIST Hash and HMAC DRBGs
   * password based key derivation functions: PBKDF1 and PBKDF2 from PKCS #5,
-    PBKDF from PKCS #12 appendix B, HKDF from RFC 5869
+    PBKDF from PKCS #12 appendix B, HKDF from RFC 5869, Scrypt from RFC 7914
   * Shamir's secret sharing scheme and Rabin's information dispersal algorithm
     (IDA)
   * fast multi-precision integer (bignum) and polynomial operations
@@ -91,8 +91,8 @@ The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
   * Visual Studio 2003 - 2017
-  * GCC 3.3 - 7.2
-  * Apple Clang 4.3 - 8.3
+  * GCC 3.3 - 8.0
+  * Apple Clang 4.3 - 9.3
   * LLVM Clang 2.9 - 4.0
   * C++Builder 2010
   * Intel C++ Compiler 9 - 16.0
@@ -282,6 +282,27 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
+7.0.0 - April 8, 2018
+      - major release, recompile of programs required
+      - expanded community input and support
+         * 48 unique contributors as of this release
+      - fix incorrect result when using Integer::ModInverse
+         * may be CVE worthy, but request was not submitted
+      - fix ARIA/CTR bus error on Sparc64
+      - fix incorrect result when using a_exp_b_mod_c
+      - fix undeclared identifier uint32_t on early Visual Studio
+      - fix iPhoneSimulator build on i386
+      - fix incorrect adler32 in ZlibDecompressor
+      - fix Power7 test using PPC_FEATURE_ARCH_2_06
+      - workaround incorrect Glibc sysconf return value on ppc64-le
+      - add KeyDerivationFunction interface
+      - add scrypt key derivation function
+      - add Salsa20_Core transform callable from outside class
+      - add sbyte, sword16, sword32 and sword64
+      - remove s_nullNameValuePairs from unnamed namespace
+      - ported to MSVC 2017, Xcode 9.3, Sun Studio 12.5, GCC 8.0.1,
+        MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+
 6.1.0 - February 22, 2018
       - minor release, maintenance items
       - expanded community input and support
@@ -381,7 +402,8 @@ for the record back to Crypto++ 1.0.
         MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 June 2015 - Changing of the guard. Wei Dai turned the library over to the
-        community. Wei is no longer involved with the daily operations of
-        the project. Wei still provides guidance when we have questions.
+        community. The first community release was Crypto++ 5.6.3. Wei is
+        no longer involved with the daily operations of the project. Wei
+        still provides guidance when we have questions.
 
-Written by Wei Dai and the Crypto++ Project
+Originally written by Wei Dai, maintained by the Crypto++ Project
