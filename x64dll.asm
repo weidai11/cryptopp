@@ -676,7 +676,7 @@ ret
 GCM_AuthenticateBlocks_64K ENDP
 
 ALIGN   8
-X86_SHA256_HashBlocks	PROC FRAME
+SHA256_SSE_HashMultipleBlocks	PROC FRAME
 rex_push_reg rsi
 push_reg rdi
 push_reg rbx
@@ -1962,7 +1962,7 @@ pop		rbx
 pop		rdi
 pop		rsi
 ret
-X86_SHA256_HashBlocks ENDP
+SHA256_SSE_HashMultipleBlocks ENDP
 
 _TEXT ENDS
 END

@@ -1,4 +1,4 @@
-// osrng.cpp - written and placed in the public domain by Wei Dai
+// osrng.cpp - originally written and placed in the public domain by Wei Dai
 
 // Thanks to Leonard Janke for the suggestion for AutoSeededRandomPool.
 
@@ -14,15 +14,12 @@
 # pragma message("WARNING: Compiling for Windows but an OS RNG is not available. This is likely a Windows Phone 8 or Windows Store 8 app.")
 #endif
 
-#if !defined(OS_NO_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
+#if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 
 #include "osrng.h"
 #include "rng.h"
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
-//#ifndef _WIN32_WINNT
-//#define _WIN32_WINNT 0x0400
-//#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #if defined(USE_MS_CRYPTOAPI)
@@ -34,7 +31,6 @@
 # define CRYPT_MACHINE_KEYSET 0x00000020
 #endif
 #elif defined(USE_MS_CNGAPI)
-//#include <ntdef.h>
 #include <bcrypt.h>
 #ifndef BCRYPT_SUCCESS
 # define BCRYPT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
@@ -58,7 +54,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(NONBLOCKING_RNG_AVAILABLE) || defined(BLOCKING_RNG_AVAILABLE)
 OS_RNG_Err::OS_RNG_Err(const std::string &operation)
-	: Exception(OTHER_ERROR, "OS_Rng: " + operation + " operation failed with error " + 
+	: Exception(OTHER_ERROR, "OS_Rng: " + operation + " operation failed with error " +
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 		"0x" + IntToString(GetLastError(), 16)
 #else
@@ -150,7 +146,7 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 {
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// Acquiring a provider is expensive. Do it once and retain the reference.
-	static const MicrosoftCryptoProvider &hProvider = Singleton<MicrosoftCryptoProvider>().Ref();
+	const MicrosoftCryptoProvider &hProvider = Singleton<MicrosoftCryptoProvider>().Ref();
 # if defined(USE_MS_CRYPTOAPI)
 	if (!CryptGenRandom(hProvider.GetProviderHandle(), (DWORD)size, output))
 		throw OS_RNG_Err("CryptGenRandom");

@@ -1,4 +1,4 @@
-// rc5.cpp - written and placed in the public domain by Wei Dai
+// rc5.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "rc5.h"
@@ -32,7 +32,7 @@ void RC5::Base::UncheckedSetKey(const byte *k, unsigned int keylen, const NameVa
 
 	for (unsigned h=0; h < n; h++)
 	{
-		a = sTable[h % sTable.size()] = rotlFixed((sTable[h % sTable.size()] + a + b), 3);
+		a = sTable[h % sTable.size()] = rotlConstant<3>((sTable[h % sTable.size()] + a + b));
 		b = l[h % c] = rotlMod((l[h % c] + a + b), (a+b));
 	}
 }

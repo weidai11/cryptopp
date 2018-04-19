@@ -1,7 +1,7 @@
-// twofish.h - written and placed in the public domain by Wei Dai
+// twofish.h - originally written and placed in the public domain by Wei Dai
 
-//! \file twofish.h
-//! \brief Classes for the Twofish block cipher
+/// \file twofish.h
+/// \brief Classes for the Twofish block cipher
 
 #ifndef CRYPTOPP_TWOFISH_H
 #define CRYPTOPP_TWOFISH_H
@@ -11,16 +11,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class Twofish_Info
-//! \brief Twofish block cipher information
-struct Twofish_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 0, 32>, FixedRounds<16>
+/// \brief Twofish block cipher information
+/// \since Crypto++ 3.1
+struct Twofish_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, FixedRounds<16>
 {
-	static const char *StaticAlgorithmName() {return "Twofish";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "Twofish";}
 };
 
-//! \class Twofish
-//! \brief Twofish block cipher
-//~ \sa <a href="http://www.weidai.com/scan-mirror/cs.html#Twofish">Twofish</a>
+/// \brief Twofish block cipher
+/// \sa <a href="http://www.cryptopp.com/wiki/Twofish">Twofish</a>
+/// \since Crypto++ 3.1
 class Twofish : public Twofish_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<Twofish_Info>

@@ -1,14 +1,16 @@
-// pssr.cpp - written and placed in the public domain by Wei Dai
+// pssr.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "pssr.h"
+#include "emsa2.h"
+#include "ripemd.h"
+#include "whrlpool.h"
 #include "misc.h"
 
 #include <functional>
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// more in dll.cpp
 template<> const byte EMSA2HashId<RIPEMD160>::id = 0x31;
 template<> const byte EMSA2HashId<RIPEMD128>::id = 0x32;
 template<> const byte EMSA2HashId<Whirlpool>::id = 0x37;
@@ -29,7 +31,7 @@ size_t PSSR_MEM_Base::MaxRecoverableLength(size_t representativeBitLength, size_
 	return 0;
 }
 
-bool PSSR_MEM_Base::IsProbabilistic() const 
+bool PSSR_MEM_Base::IsProbabilistic() const
 {
 	return SaltLen(1) > 0;
 }
@@ -44,14 +46,14 @@ bool PSSR_MEM_Base::RecoverablePartFirst() const
 	return false;
 }
 
-void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng, 
+void PSSR_MEM_Base::ComputeMessageRepresentative(RandomNumberGenerator &rng,
 	const byte *recoverableMessage, size_t recoverableMessageLength,
 	HashTransformation &hash, HashIdentifier hashIdentifier, bool messageEmpty,
 	byte *representative, size_t representativeBitLength) const
 {
 	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(recoverableMessageLength);
 	CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
-	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	const size_t u = hashIdentifier.second + 1;
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
@@ -99,7 +101,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 	byte *recoverableMessage) const
 {
 	CRYPTOPP_UNUSED(recoverableMessage), CRYPTOPP_UNUSED(messageEmpty), CRYPTOPP_UNUSED(hashIdentifier);
-	assert(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
+	CRYPTOPP_ASSERT(representativeBitLength >= MinRepresentativeBitLength(hashIdentifier.second, hash.DigestSize()));
 
 	const size_t u = hashIdentifier.second + 1;
 	const size_t representativeByteLength = BitsToBytes(representativeBitLength);
@@ -125,7 +127,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	// extract salt and recoverableMessage from DB = 00 ... || 01 || M || salt
 	byte *salt = representative + representativeByteLength - u - digestSize - saltSize;
-	byte *M = std::find_if(representative, salt-1, std::bind2nd(std::not_equal_to<byte>(), byte(0)));
+	byte *M = FindIfNot(representative, salt-1, byte(0));
 	recoverableMessageLength = salt-M-1;
 	if (*M == 0x01 &&
 	   (size_t)(M - representative - (representativeBitLength % 8 != 0)) >= MinPadLen(digestSize) &&
@@ -152,7 +154,7 @@ DecodingResult PSSR_MEM_Base::RecoverMessageFromRepresentative(
 
 	if (!AllowRecovery() && valid && recoverableMessageLength != 0)
 		{throw NotImplemented("PSSR_MEM: message recovery disabled");}
-	
+
 	return result;
 }
 

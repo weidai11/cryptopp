@@ -1,7 +1,9 @@
-// pwdbased.h - written and placed in the public domain by Wei Dai
+// pwdbased.h - originally written and placed in the public domain by Wei Dai
+//              Cutover to KeyDerivationFunction interface by Uri Blumenthal
+//              Marcel Raad and Jeffrey Walton in March 2018.
 
-//! \file pwdbased.h
-//! \brief Password based key derivation functions
+/// \file pwdbased.h
+/// \brief Password based key derivation functions
 
 #ifndef CRYPTOPP_PWDBASED_H
 #define CRYPTOPP_PWDBASED_H
@@ -9,88 +11,117 @@
 #include "cryptlib.h"
 #include "hrtimer.h"
 #include "integer.h"
+#include "argnames.h"
 #include "hmac.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \brief Abstract base class for password based key derivation function
-class PasswordBasedKeyDerivationFunction
-{
-public:
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~PasswordBasedKeyDerivationFunction() {}
-#endif
+// ******************** PBKDF1 ********************
 
-	//! \brief Provides the maximum derived key length
-	//! \returns maximum derived key length, in bytes
-	virtual size_t MaxDerivedKeyLength() const =0;
-	
-	//! \brief Determines if the derivation function uses the purpose byte
-	//! \returns true if the derivation function uses the purpose byte, false otherwise	
-	virtual bool UsesPurposeByte() const =0;
-
-	//! \brief Derive key from the password
-	//! \param derived the byte buffer to receive the derived password
-	//! \param derivedLen the size of the byte buffer to receive the derived password
-	//! \param purpose an octet indicating the purpose of the derivation
-	//! \param password the byte buffer with the password
-	//! \param passwordLen the size of the password, in bytes
-	//! \param salt the byte buffer with the salt
-	//! \param saltLen the size of the salt, in bytes
-	//! \param iterations the number of iterations to attempt
-	//! \param timeInSeconds the length of time the derivation function should execute
-	//! \returns iteration count achieved
-	//! \details DeriveKey returns the actual iteration count achieved. If <tt>timeInSeconds == 0</tt>, then the complete number
-	//!   of iterations will be obtained. If <tt>timeInSeconds != 0</tt>, then DeriveKey will iterate until time elapsed, as
-	//!   measured by ThreadUserTimer.
-	virtual unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const =0;
-};
-
-//! \brief PBKDF1 from PKCS #5
-//! \tparam T a HashTransformation class
+/// \brief PBKDF1 from PKCS #5
+/// \tparam T a HashTransformation class
 template <class T>
 class PKCS5_PBKDF1 : public PasswordBasedKeyDerivationFunction
 {
 public:
-	size_t MaxDerivedKeyLength() const {return T::DIGESTSIZE;}
-	bool UsesPurposeByte() const {return false;}
-	// PKCS #5 says PBKDF1 should only take 8-byte salts. This implementation allows salts of any length.
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
+	virtual ~PKCS5_PBKDF1() {}
+
+	static std::string StaticAlgorithmName () {
+		const std::string name(std::string("PBKDF1(") +
+			std::string(T::StaticAlgorithmName()) + std::string(")"));
+		return name;
+	}
+
+	// KeyDerivationFunction interface
+	std::string AlgorithmName() const {
+		return StaticAlgorithmName();
+	}
+
+	// KeyDerivationFunction interface
+	size_t MaxDerivedKeyLength() const {
+		return static_cast<size_t>(T::DIGESTSIZE);
+	}
+
+	// KeyDerivationFunction interface
+	size_t GetValidDerivedLength(size_t keylength) const;
+
+	// KeyDerivationFunction interface
+	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+		const NameValuePairs& params = g_nullNameValuePairs) const;
+
+	/// \brief Derive a key from a secret seed
+	/// \param derived the derived output buffer
+	/// \param derivedLen the size of the derived buffer, in bytes
+	/// \param purpose a purpose byte
+	/// \param secret the seed input buffer
+	/// \param secretLen the size of the secret buffer, in bytes
+	/// \param salt the salt input buffer
+	/// \param saltLen the size of the salt buffer, in bytes
+	/// \param iterations the number of iterations
+	/// \param timeInSeconds the in seconds
+	/// \returns the number of iterations performed
+	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \details DeriveKey() provides a standard interface to derive a key from
+	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
+	///   provides an overload that accepts most parameters used by the derivation function.
+	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
+	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
+	///   will run for the specified number of iterations.
+	/// \details PKCS #5 says PBKDF1 should only take 8-byte salts. This implementation
+	///   allows salts of any length.
+	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
+
+protected:
+	// KeyDerivationFunction interface
+	const Algorithm & GetAlgorithm() const {
+		return *this;
+	}
 };
 
-//! \brief PBKDF2 from PKCS #5
-//! \tparam T a HashTransformation class
 template <class T>
-class PKCS5_PBKDF2_HMAC : public PasswordBasedKeyDerivationFunction
+size_t PKCS5_PBKDF1<T>::GetValidDerivedLength(size_t keylength) const
 {
-public:
-	size_t MaxDerivedKeyLength() const {return 0xffffffffU;}	// should multiply by T::DIGESTSIZE, but gets overflow that way
-	bool UsesPurposeByte() const {return false;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
-};
-
-/*
-class PBKDF2Params
-{
-public:
-	SecByteBlock m_salt;
-	unsigned int m_interationCount;
-	ASNOptional<ASNUnsignedWrapper<word32> > m_keyLength;
-};
-*/
+	if (keylength > MaxDerivedLength())
+		return MaxDerivedLength();
+	return keylength;
+}
 
 template <class T>
-unsigned int PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen,
+    const byte *secret, size_t secretLen, const NameValuePairs& params) const
 {
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+
+	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
+	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
+
+	double timeInSeconds = 0.0f;
+	(void)params.GetValue("TimeInSeconds", timeInSeconds);
+
+	ConstByteArrayParameter salt;
+	(void)params.GetValue(Name::Salt(), salt);
+
+	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, timeInSeconds);
+}
+
+template <class T>
+size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+{
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
-	assert(derivedLen <= MaxDerivedKeyLength());
-	assert(iterations > 0 || timeInSeconds > 0);
 
-	if (!iterations)
-		iterations = 1;
+	ThrowIfInvalidDerivedLength(derivedLen);
+
+	// Business logic
+	if (!iterations) { iterations = 1; }
 
 	T hash;
-	hash.Update(password, passwordLen);
+	hash.Update(secret, secretLen);
 	hash.Update(salt, saltLen);
 
 	SecByteBlock buffer(hash.DigestSize());
@@ -109,17 +140,111 @@ unsigned int PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte p
 	return i;
 }
 
+// ******************** PKCS5_PBKDF2_HMAC ********************
+
+/// \brief PBKDF2 from PKCS #5
+/// \tparam T a HashTransformation class
 template <class T>
-unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+class PKCS5_PBKDF2_HMAC : public PasswordBasedKeyDerivationFunction
 {
+public:
+	virtual ~PKCS5_PBKDF2_HMAC() {}
+
+	static std::string StaticAlgorithmName () {
+		const std::string name(std::string("PBKDF2_HMAC(") +
+			std::string(T::StaticAlgorithmName()) + std::string(")"));
+		return name;
+	}
+
+	// KeyDerivationFunction interface
+	std::string AlgorithmName() const {
+		return StaticAlgorithmName();
+	}
+
+	// KeyDerivationFunction interface
+	// should multiply by T::DIGESTSIZE, but gets overflow that way
+	size_t MaxDerivedKeyLength() const {
+		return 0xffffffffU;
+	}
+
+	// KeyDerivationFunction interface
+	size_t GetValidDerivedLength(size_t keylength) const;
+
+	// KeyDerivationFunction interface
+	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+		const NameValuePairs& params = g_nullNameValuePairs) const;
+
+	/// \brief Derive a key from a secret seed
+	/// \param derived the derived output buffer
+	/// \param derivedLen the size of the derived buffer, in bytes
+	/// \param purpose a purpose byte
+	/// \param secret the seed input buffer
+	/// \param secretLen the size of the secret buffer, in bytes
+	/// \param salt the salt input buffer
+	/// \param saltLen the size of the salt buffer, in bytes
+	/// \param iterations the number of iterations
+	/// \param timeInSeconds the in seconds
+	/// \returns the number of iterations performed
+	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \details DeriveKey() provides a standard interface to derive a key from
+	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
+	///   provides an overload that accepts most parameters used by the derivation function.
+	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
+	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
+	///   will run for the specified number of iterations.
+	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen,
+	    const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds=0) const;
+
+protected:
+	// KeyDerivationFunction interface
+	const Algorithm & GetAlgorithm() const {
+		return *this;
+	}
+};
+
+template <class T>
+size_t PKCS5_PBKDF2_HMAC<T>::GetValidDerivedLength(size_t keylength) const
+{
+	if (keylength > MaxDerivedLength())
+		return MaxDerivedLength();
+	return keylength;
+}
+
+template <class T>
+size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen,
+    const byte *secret, size_t secretLen, const NameValuePairs& params) const
+{
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+
+	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
+	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
+
+	double timeInSeconds = 0.0f;
+	(void)params.GetValue("TimeInSeconds", timeInSeconds);
+
+	ConstByteArrayParameter salt;
+	(void)params.GetValue(Name::Salt(), salt);
+
+	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, timeInSeconds);
+}
+
+template <class T>
+size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+{
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
-	assert(derivedLen <= MaxDerivedKeyLength());
-	assert(iterations > 0 || timeInSeconds > 0);
 
-	if (!iterations)
-		iterations = 1;
+	ThrowIfInvalidDerivedLength(derivedLen);
 
-	HMAC<T> hmac(password, passwordLen);
+	// Business logic
+	if (!iterations) { iterations = 1; }
+
+	HMAC<T> hmac(secret, secretLen);
 	SecByteBlock buffer(hmac.DigestSize());
 	ThreadUserTimer timer;
 
@@ -169,29 +294,112 @@ unsigned int PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, b
 	return iterations;
 }
 
-//! \brief PBKDF from PKCS #12, appendix B
-//! \tparam T a HashTransformation class
+// ******************** PKCS12_PBKDF ********************
+
+/// \brief PBKDF from PKCS #12, appendix B
+/// \tparam T a HashTransformation class
 template <class T>
 class PKCS12_PBKDF : public PasswordBasedKeyDerivationFunction
 {
 public:
-	size_t MaxDerivedKeyLength() const {return size_t(0)-1;}
-	bool UsesPurposeByte() const {return true;}
-	unsigned int DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const;
+	virtual ~PKCS12_PBKDF() {}
+
+	static std::string StaticAlgorithmName () {
+		const std::string name(std::string("PBKDF_PKCS12(") +
+			std::string(T::StaticAlgorithmName()) + std::string(")"));
+		return name;
+	}
+
+	// KeyDerivationFunction interface
+	std::string AlgorithmName() const {
+		return StaticAlgorithmName();
+	}
+
+	// TODO - check this
+	size_t MaxDerivedKeyLength() const {
+		return static_cast<size_t>(-1);
+	}
+
+	// KeyDerivationFunction interface
+	size_t GetValidDerivedLength(size_t keylength) const;
+
+	// KeyDerivationFunction interface
+	size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen,
+		const NameValuePairs& params = g_nullNameValuePairs) const;
+
+	/// \brief Derive a key from a secret seed
+	/// \param derived the derived output buffer
+	/// \param derivedLen the size of the derived buffer, in bytes
+	/// \param purpose a purpose byte
+	/// \param secret the seed input buffer
+	/// \param secretLen the size of the secret buffer, in bytes
+	/// \param salt the salt input buffer
+	/// \param saltLen the size of the salt buffer, in bytes
+	/// \param iterations the number of iterations
+	/// \param timeInSeconds the in seconds
+	/// \returns the number of iterations performed
+	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \details DeriveKey() provides a standard interface to derive a key from
+	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
+	///   provides an overload that accepts most parameters used by the derivation function.
+	/// \details If <tt>timeInSeconds</tt> is <tt>&gt; 0.0</tt> then DeriveKey will run for
+	///   the specified amount of time. If <tt>timeInSeconds</tt> is <tt>0.0</tt> then DeriveKey
+	///   will run for the specified number of iterations.
+	size_t DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen,
+	    const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const;
+
+protected:
+	// KeyDerivationFunction interface
+	const Algorithm & GetAlgorithm() const {
+		return *this;
+	}
 };
 
 template <class T>
-unsigned int PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *password, size_t passwordLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+size_t PKCS12_PBKDF<T>::GetValidDerivedLength(size_t keylength) const
 {
-	assert(derivedLen <= MaxDerivedKeyLength());
-	assert(iterations > 0 || timeInSeconds > 0);
+	if (keylength > MaxDerivedLength())
+		return MaxDerivedLength();
+	return keylength;
+}
 
-	if (!iterations)
-		iterations = 1;
+template <class T>
+size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
+    const byte *secret, size_t secretLen, const NameValuePairs& params) const
+{
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+
+	byte purpose = (byte)params.GetIntValueWithDefault("Purpose", 0);
+	unsigned int iterations = (unsigned int)params.GetIntValueWithDefault("Iterations", 1);
+
+	double timeInSeconds = 0.0f;
+	(void)params.GetValue("TimeInSeconds", timeInSeconds);
+
+	// NULL or 0 length salt OK
+	ConstByteArrayParameter salt;
+	(void)params.GetValue(Name::Salt(), salt);
+
+	return DeriveKey(derived, derivedLen, purpose, secret, secretLen, salt.begin(), salt.size(), iterations, timeInSeconds);
+}
+
+template <class T>
+size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose, const byte *secret, size_t secretLen, const byte *salt, size_t saltLen, unsigned int iterations, double timeInSeconds) const
+{
+	CRYPTOPP_ASSERT(secret /*&& secretLen*/);
+	CRYPTOPP_ASSERT(derived && derivedLen);
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
+
+	ThrowIfInvalidDerivedLength(derivedLen);
+
+	// Business logic
+	if (!iterations) { iterations = 1; }
 
 	const size_t v = T::BLOCKSIZE;	// v is in bytes rather than bits as in PKCS #12
 	const size_t DLen = v, SLen = RoundUpToMultipleOf(saltLen, v);
-	const size_t PLen = RoundUpToMultipleOf(passwordLen, v), ILen = SLen + PLen;
+	const size_t PLen = RoundUpToMultipleOf(secretLen, v), ILen = SLen + PLen;
 	SecByteBlock buffer(DLen + SLen + PLen);
 	byte *D = buffer, *S = buffer+DLen, *P = buffer+DLen+SLen, *I = S;
 
@@ -200,8 +408,7 @@ unsigned int PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte p
 	for (i=0; i<SLen; i++)
 		S[i] = salt[i % saltLen];
 	for (i=0; i<PLen; i++)
-		P[i] = password[i % passwordLen];
-
+		P[i] = secret[i % secretLen];
 
 	T hash;
 	SecByteBlock Ai(T::DIGESTSIZE), B(v);

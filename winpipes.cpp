@@ -1,4 +1,4 @@
-// winpipes.cpp - written and placed in the public domain by Wei Dai
+// winpipes.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "config.h"
@@ -34,7 +34,7 @@ WindowsHandle::~WindowsHandle()
 		}
 		catch (const Exception&)
 		{
-			assert(0);
+			CRYPTOPP_ASSERT(0);
 		}
 	}
 }
@@ -89,9 +89,9 @@ WindowsPipe::Err::Err(HANDLE s, const std::string& operation, int error)
 // *************************************************************
 
 WindowsPipeReceiver::WindowsPipeReceiver()
-	: m_resultPending(false), m_eofReceived(false)
+	: m_lastResult(0), m_resultPending(false), m_eofReceived(false)
 {
-	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
+	m_event.AttachHandle(CreateEvent(NULLPTR, true, false, NULLPTR), true);
 	CheckAndHandleError("CreateEvent", m_event.HandleValid());
 	memset(&m_overlapped, 0, sizeof(m_overlapped));
 	m_overlapped.hEvent = m_event;
@@ -99,7 +99,7 @@ WindowsPipeReceiver::WindowsPipeReceiver()
 
 bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 {
-	assert(!m_resultPending && !m_eofReceived);
+	CRYPTOPP_ASSERT(!m_resultPending && !m_eofReceived);
 
 	const HANDLE h = GetHandle();
 	// don't queue too much at once, or we might use up non-paged memory
@@ -114,6 +114,7 @@ bool WindowsPipeReceiver::Receive(byte* buf, size_t bufLen)
 		{
 		default:
 			CheckAndHandleError("ReadFile", false);
+			// Fall through for non-fatal
 		case ERROR_BROKEN_PIPE:
 		case ERROR_HANDLE_EOF:
 			m_lastResult = 0;
@@ -154,6 +155,7 @@ unsigned int WindowsPipeReceiver::GetReceiveResult()
 			{
 			default:
 				CheckAndHandleError("GetOverlappedResult", false);
+				// Fall through for non-fatal
 			case ERROR_BROKEN_PIPE:
 			case ERROR_HANDLE_EOF:
 				m_lastResult = 0;
@@ -168,9 +170,9 @@ unsigned int WindowsPipeReceiver::GetReceiveResult()
 // *************************************************************
 
 WindowsPipeSender::WindowsPipeSender()
-	: m_resultPending(false), m_lastResult(0)
+	: m_lastResult(0), m_resultPending(false)
 {
-	m_event.AttachHandle(CreateEvent(NULL, true, false, NULL), true);
+	m_event.AttachHandle(CreateEvent(NULLPTR, true, false, NULLPTR), true);
 	CheckAndHandleError("CreateEvent", m_event.HandleValid());
 	memset(&m_overlapped, 0, sizeof(m_overlapped));
 	m_overlapped.hEvent = m_event;

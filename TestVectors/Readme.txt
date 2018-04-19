@@ -57,10 +57,12 @@ PublicElement - the public element when KeyFormat=Component
 PrivateExponent - the private exponent when KeyFormat=Component
 Message - encoded string, message to be signed or verified
 Signature - encoded string, signature to be verified or compared with
+BlockSize - encoded string, block size for vaiable block ciphers
 Plaintext - encoded string
 Ciphertext - encoded string
 Header - encoded string
 Footer - encoded string
+Secret - encoded string, used by some key derivation functions
 DerivedKey - encoded string
 DerivedLength - encoded string
 Digest - encoded string
@@ -79,7 +81,7 @@ Verify - signature/digest/MAC verification should pass
 VerifyTruncated - truncated digest/MAC verification should pass
 NotVerify - signature/digest/MAC verification should not pass
 DeterministicSign - sign message using given seed, and the resulting
-    signature should be equal to the given signature
+    signature should equal the given signature
+Encrypt - plaintext encrypts to ciphertext
 DecryptMatch - ciphertext decrypts to plaintext
-
 (more to come here)

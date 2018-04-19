@@ -20,7 +20,7 @@
 #define FILTER_END_NO_MESSAGE_END_NO_RETURN	\
 		break;	\
 	default:	\
-		assert(false);	\
+		CRYPTOPP_ASSERT(false);	\
 	}
 
 #define FILTER_END_NO_MESSAGE_END	\
@@ -30,7 +30,7 @@
 /*
 #define FILTER_END	\
 	case -1:	\
-		if (messageEnd && Output(-1, NULL, 0, messageEnd, blocking))	\
+		if (messageEnd && Output(-1, NULLPTR, 0, messageEnd, blocking))	\
 			return 1;	\
 	FILTER_END_NO_MESSAGE_END
 */
@@ -54,6 +54,7 @@
 
 #define FILTER_OUTPUT2_MODIFIABLE(site, statement, output, length, messageEnd)	\
 	{\
+	/* fall through */ \
 	case site:	\
 	statement;	\
 	if (OutputModifiable(site, output, length, messageEnd, blocking))	\
@@ -65,6 +66,7 @@
 
 #define FILTER_OUTPUT2_MAYBE_MODIFIABLE(site, statement, output, length, messageEnd, modifiable)	\
 	{\
+	/* fall through */ \
 	case site:	\
 	statement;	\
 	if (modifiable ? OutputModifiable(site, output, length, messageEnd, blocking) : Output(site, output, length, messageEnd, blocking))	\

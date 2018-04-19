@@ -1,7 +1,7 @@
-// elgamal.h - written and placed in the public domain by Wei Dai
+// elgamal.h - originally written and placed in the public domain by Wei Dai
 
-//! \file elgamal.h
-//! \brief Classes and functions for ElGamal key agreement and encryption schemes
+/// \file elgamal.h
+/// \brief Classes and functions for ElGamal key agreement and encryption schemes
 
 #ifndef CRYPTOPP_ELGAMAL_H
 #define CRYPTOPP_ELGAMAL_H
@@ -16,11 +16,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>, 
-					public DL_KeyDerivationAlgorithm<Integer>, 
+/// \brief ElGamal key agreement and encryption schemes base class
+/// \since Crypto++ 1.0
+class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>,
+					public DL_KeyDerivationAlgorithm<Integer>,
 					public DL_SymmetricEncryptionAlgorithm
 {
 public:
+	virtual ~ElGamalBase() {}
+
 	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, size_t derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
 	{
 		CRYPTOPP_UNUSED(groupParams), CRYPTOPP_UNUSED(ephemeralPublicKey), CRYPTOPP_UNUSED(derivationParams);
@@ -86,16 +90,16 @@ public:
 	}
 
 	virtual const DL_GroupParameters_GFP & GetGroupParameters() const =0;
-	
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ElGamalBase() {}
-#endif
 };
 
+/// \brief ElGamal key agreement and encryption schemes default implementation
+/// \since Crypto++ 1.0
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
 {
 public:
+	virtual ~ElGamalObjectImpl() {}
+
 	size_t FixedMaxPlaintextLength() const {return this->MaxPlaintextLength(FixedCiphertextLength());}
 	size_t FixedCiphertextLength() const {return this->CiphertextLength(0);}
 
@@ -104,35 +108,36 @@ public:
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *cipherText, byte *plainText) const
 		{return Decrypt(rng, cipherText, FixedCiphertextLength(), plainText);}
 
-#ifndef CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY_562
-	virtual ~ElGamalObjectImpl() {}
-#endif
-
 protected:
 	const DL_KeyAgreementAlgorithm<Integer> & GetKeyAgreementAlgorithm() const {return *this;}
 	const DL_KeyDerivationAlgorithm<Integer> & GetKeyDerivationAlgorithm() const {return *this;}
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const {return *this;}
 };
 
+/// \brief ElGamal key agreement and encryption schemes keys
+/// \details The ElGamalKeys class used DL_PrivateKey_GFP_OldFormat and DL_PublicKey_GFP_OldFormat
+///   for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
+///   At Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and X509 encodings.
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/commit/a5a684d92986e8e2">Commit a5a684d92986e8e2</A>
 struct ElGamalKeys
 {
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
-	typedef DL_PrivateKey_GFP_OldFormat<DL_CryptoKeys_GFP::PrivateKey> PrivateKey;
-	typedef DL_PublicKey_GFP_OldFormat<DL_CryptoKeys_GFP::PublicKey> PublicKey;
+	typedef DL_CryptoKeys_GFP::PrivateKey PrivateKey;
+	typedef DL_CryptoKeys_GFP::PublicKey PublicKey;
 };
 
-//! \class ElGamal
-//! \brief ElGamal encryption scheme with non-standard padding
+/// \brief ElGamal encryption scheme with non-standard padding
+/// \since Crypto++ 1.0
 struct ElGamal
 {
 	typedef DL_CryptoSchemeOptions<ElGamal, ElGamalKeys, int, int, int> SchemeOptions;
 
-	static const char * StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
 	typedef SchemeOptions::GroupParameters GroupParameters;
-	//! implements PK_Encryptor interface
+	/// implements PK_Encryptor interface
 	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_EncryptorBase<Integer>, SchemeOptions, SchemeOptions::PublicKey> > Encryptor;
-	//! implements PK_Decryptor interface
+	/// implements PK_Decryptor interface
 	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_DecryptorBase<Integer>, SchemeOptions, SchemeOptions::PrivateKey> > Decryptor;
 };
 

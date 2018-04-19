@@ -1,22 +1,22 @@
-// trdlocal.cpp - written and placed in the public domain by Wei Dai
+// trdlocal.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "config.h"
-
-// TODO: fix this when more complete C++11 support is cut-in
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4297)
-#endif
 
 #ifndef CRYPTOPP_IMPORTS
 
 #if !defined(NO_OS_DEPENDENCE) && defined(THREADS_AVAILABLE)
 
 #include "trdlocal.h"
+#include "stdcpp.h"
 
 #ifdef HAS_WINTHREADS
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#endif
+
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wc++11-compat"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -26,17 +26,19 @@ ThreadLocalStorage::Err::Err(const std::string& operation, int error)
 {
 }
 
+// Windows: "a process may have up to TLS_MINIMUM_AVAILABLE indexes (guaranteed to be greater than
+// or equal to 64)", https://support.microsoft.com/en-us/help/94804/info-thread-local-storage-overview
 ThreadLocalStorage::ThreadLocalStorage()
 {
 #ifdef HAS_WINTHREADS
 	m_index = TlsAlloc();
-	assert(m_index != TLS_OUT_OF_INDEXES);
+	CRYPTOPP_ASSERT(m_index != TLS_OUT_OF_INDEXES);
 	if (m_index == TLS_OUT_OF_INDEXES)
 		throw Err("TlsAlloc", GetLastError());
 #else
 	m_index = 0;
-	int error = pthread_key_create(&m_index, NULL);
-	assert(!error);
+	int error = pthread_key_create(&m_index, NULLPTR);
+	CRYPTOPP_ASSERT(!error);
 	if (error)
 		throw Err("pthread_key_create", error);
 #endif
@@ -44,27 +46,29 @@ ThreadLocalStorage::ThreadLocalStorage()
 
 ThreadLocalStorage::~ThreadLocalStorage() CRYPTOPP_THROW
 {
-#ifdef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-	if (!std::uncaught_exception())
+#if defined(CRYPTOPP_CXX17_EXCEPTIONS)
+	if (std::uncaught_exceptions() == 0)
+#elif defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+	if (std::uncaught_exception() == false)
 #else
 	try
 #endif
 #ifdef HAS_WINTHREADS
 	{
 		int rc = TlsFree(m_index);
-		assert(rc);
+		CRYPTOPP_ASSERT(rc);
 		if (!rc)
 			throw Err("TlsFree", GetLastError());
 	}
 #else
 	{
 		int error = pthread_key_delete(m_index);
-		assert(!error);
+		CRYPTOPP_ASSERT(!error);
 		if (error)
 			throw Err("pthread_key_delete", error);
 	}
 #endif
-#ifndef CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
+#if !defined(CRYPTOPP_CXX17_EXCEPTIONS) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
 	catch(const Exception&)
 	{
 	}
@@ -89,7 +93,7 @@ void *ThreadLocalStorage::GetValue() const
 	void *result = TlsGetValue(m_index);
 	const DWORD dwRet = GetLastError();
 
-	assert(result || (!result && (dwRet == NO_ERROR)));
+	CRYPTOPP_ASSERT(result || (!result && (dwRet == NO_ERROR)));
 	if (!result && dwRet != NO_ERROR)
 		throw Err("TlsGetValue", dwRet);
 #else

@@ -16,11 +16,11 @@ typedef pthread_key_t ThreadLocalIndexType;
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! thread local storage
+/// thread local storage
 class CRYPTOPP_DLL ThreadLocalStorage : public NotCopyable
 {
 public:
-	//! exception thrown by ThreadLocalStorage class
+	/// exception thrown by ThreadLocalStorage class
 	class Err : public OS_Error
 	{
 	public:

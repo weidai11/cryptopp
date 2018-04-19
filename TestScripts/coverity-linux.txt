@@ -1,0 +1,30 @@
+# coverity-linux.txt - Scan build submission instructions for Unix and Linux.
+#                      Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
+#                      Copyright assigned to Crypto++ project.
+#
+# The following are copy/paste instructions for invoking cov-build, building the library and submitting the artifacts for a scan.
+#
+# For more information see http://cryptopp.com/wiki/Coverity_Scan.
+
+##################################################################
+
+reset
+
+make distclean &>/dev/null
+
+# Usually we test with these flags
+# CXXFLAGS="-DNDEBUG -g3 -O2"
+cov-build --dir cov-int make -j 2
+
+tar czvf cryptopp.tgz cov-int
+
+CRYPTOPP_COVERITY_TOKEN=XXXXXXXXXXXXXXXX
+COVERITY_SCAN_NAME="Rijndael-AliasedTable-SSE2-Linux-i686"
+
+curl \
+  --form token="$CRYPTOPP_COVERITY_TOKEN" \
+  --form email=webmaster@cryptopp.com \
+  --form file=@cryptopp.tgz \
+  --form version="$COVERITY_SCAN_NAME" \
+  --form description="$COVERITY_SCAN_NAME" \
+  https://scan.coverity.com/builds?project=Cryptopp

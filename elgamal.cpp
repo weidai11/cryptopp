@@ -1,4 +1,4 @@
-// elgamal.cpp - written and placed in the public domain by Wei Dai
+// elgamal.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "elgamal.h"
@@ -7,7 +7,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ElGamal_TestInstantiations()
 {
 	ElGamalEncryptor test1(1, 1, 1);

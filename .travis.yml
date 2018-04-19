@@ -1,0 +1,149 @@
+language: cpp
+
+os:
+  - linux
+  - osx
+
+dist: trusty
+sudo: required
+
+# OS X only supports one image. Use the latest.
+osx_image: xcode9.1
+
+git:
+  depth: 3
+
+compiler:
+  - clang
+  - gcc
+
+env:
+  global:
+    - BUILD_JOBS=2
+    - ANDROID_HOME=$HOME/android/sdk
+    - ANDROID_NDK=$HOME/android/sdk/ndk-bundle
+    - ANDROID_SDK_ROOT=$ANDROID_HOME
+    - ANDROID_NDK_ROOT=$ANDROID_NDK
+
+  matrix:
+    - BUILD_MODE="all"
+    - BUILD_MODE="native"
+    - BUILD_MODE="no-asm"
+    - BUILD_MODE="debug"
+    - BUILD_MODE="asan"
+    - BUILD_MODE="ubsan"
+
+matrix:
+
+  exclude:
+    # Skip GCC on OS X entirely
+    - os: osx
+      compiler: gcc
+    # Skip UBsan due to GCC 4.8
+    - os: linux
+      compiler: gcc
+      env: BUILD_MODE="ubsan"
+    # Skip UBsan due to Clang 3.4
+    - os: osx
+      compiler: clang
+      env: BUILD_MODE="ubsan"
+
+  include:
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armeabi
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armeabi-v7a
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armv7a-neon
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=aarch64
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=mipsel
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=mipsel64
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=x86
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=x86_64
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=WatchOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVOS
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneSimulator
+
+  allow_failures:
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=WatchOS
+
+before_install:
+  - |
+    if [[ "$BUILD_MODE" == "android" ]]; then
+        TestScripts/install-android.sh
+    fi
+
+script:
+  - |
+    if [[ "$BUILD_MODE" == "ios" ]]; then
+        cp ./TestScripts/setenv-ios.sh .
+        TestScripts/cryptest-ios.sh
+    elif [[ "$BUILD_MODE" == "android" ]]; then
+        cp ./TestScripts/setenv-android.sh .
+        TestScripts/cryptest-android.sh
+    elif [[ "$BUILD_MODE" == "debug" ]]; then
+        CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
+        ./cryptest.exe v
+        ./cryptest.exe tv all
+    else
+        make "$BUILD_MODE" -j "$BUILD_JOBS"
+        ./cryptest.exe v
+        ./cryptest.exe tv all
+    fi
+
+# whitelist branches to avoid testing feature branches twice
+branches:
+  only:
+    - master
+
+addons:
+  sonarcloud: false
+
+  coverity_scan:
+    project:
+      name: "cryptopp"
+    build_command: "make -j 2"
+
+notifications:
+  email:
+    recipients:
+      - cryptopp-build@googlegroups.com
+    on_success: always # default: change
+    on_failure: always # default: always

@@ -12,9 +12,9 @@ NAMESPACE_BEGIN(CryptoPP)
 class ZlibCompressor : public Deflator
 {
 public:
-	ZlibCompressor(BufferedTransformation *attachment=NULL, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
+	ZlibCompressor(BufferedTransformation *attachment=NULLPTR, unsigned int deflateLevel=DEFAULT_DEFLATE_LEVEL, unsigned int log2WindowSize=DEFAULT_LOG2_WINDOW_SIZE, bool detectUncompressible=true)
 		: Deflator(attachment, deflateLevel, log2WindowSize, detectUncompressible) {}
-	ZlibCompressor(const NameValuePairs &parameters, BufferedTransformation *attachment=NULL)
+	ZlibCompressor(const NameValuePairs &parameters, BufferedTransformation *attachment=NULLPTR)
 		: Deflator(parameters, attachment) {}
 
 	unsigned int GetCompressionLevel() const;
@@ -37,11 +37,11 @@ public:
 	class UnsupportedAlgorithm : public Err {public: UnsupportedAlgorithm() : Err(INVALID_DATA_FORMAT, "ZlibDecompressor: unsupported algorithm") {}};
 	class UnsupportedPresetDictionary : public Err {public: UnsupportedPresetDictionary() : Err(INVALID_DATA_FORMAT, "ZlibDecompressor: unsupported preset dictionary") {}};
 
-	//! \brief Construct a ZlibDecompressor
-	//! \param attachment a \ BufferedTransformation to attach to this object
-	//! \param repeat decompress multiple compressed streams in series
-	//! \param autoSignalPropagation 0 to turn off MessageEnd signal
-	ZlibDecompressor(BufferedTransformation *attachment = NULL, bool repeat = false, int autoSignalPropagation = -1);
+	/// \brief Construct a ZlibDecompressor
+	/// \param attachment a \ BufferedTransformation to attach to this object
+	/// \param repeat decompress multiple compressed streams in series
+	/// \param autoSignalPropagation 0 to turn off MessageEnd signal
+	ZlibDecompressor(BufferedTransformation *attachment = NULLPTR, bool repeat = false, int autoSignalPropagation = -1);
 	unsigned int GetLog2WindowSize() const {return m_log2WindowSize;}
 
 private:

@@ -1,22 +1,30 @@
-// shacal2.cpp - by Kevin Springle, 2003
+// shacal2.cpp - written by Kevin Springle, 2003
 //
 // Portions of this code were derived from
 // Wei Dai's implementation of SHA-2
 //
+// Jack Lloyd and the Botan team allowed Crypto++ to use parts of
+// Botan's implementation under the same license as Crypto++
+// is released. The code for SHACAL2_Enc_ProcessAndXorBlock_SHANI
+// below is Botan's x86_encrypt_blocks with minor tweaks. Many thanks
+// to the Botan team. Also see http://github.com/randombit/botan/.
+//
 // The original code and all modifications are in the public domain.
 
 #include "pch.h"
+#include "config.h"
 #include "shacal2.h"
 #include "misc.h"
+#include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
 // SHACAL-2 function and round definitions
 
-#define S0(x) (rotrFixed(x,2)^rotrFixed(x,13)^rotrFixed(x,22))
-#define S1(x) (rotrFixed(x,6)^rotrFixed(x,11)^rotrFixed(x,25))
-#define s0(x) (rotrFixed(x,7)^rotrFixed(x,18)^(x>>3))
-#define s1(x) (rotrFixed(x,17)^rotrFixed(x,19)^(x>>10))
+#define S0(x) (rotrConstant<2>(x)^rotrConstant<13>(x)^rotrConstant<22>(x))
+#define S1(x) (rotrConstant<6>(x)^rotrConstant<11>(x)^rotrConstant<25>(x))
+#define s0(x) (rotrConstant<7>(x)^rotrConstant<18>(x)^(x>>3))
+#define s1(x) (rotrConstant<17>(x)^rotrConstant<19>(x)^(x>>10))
 
 #define Ch(x,y,z) (z^(x&(y^z)))
 #define Maj(x,y,z) ((x&y)|(z&(x|y)))
@@ -31,6 +39,11 @@ NAMESPACE_BEGIN(CryptoPP)
 #define P(a,b,c,d,e,f,g,h,k) \
 	h-=S0(a)+Maj(a,b,c);d-=h;h-=S1(e)+Ch(e,f,g)+*--k;
 
+#if CRYPTOPP_SHANI_AVAILABLE
+extern void SHACAL2_Enc_ProcessAndXorBlock_SHANI(const word32* subKeys,
+                const byte *inBlock, const byte *xorBlock, byte *outBlock);
+#endif
+
 void SHACAL2::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keylen);
@@ -38,7 +51,9 @@ void SHACAL2::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, co
 	word32 *rk = m_key;
 	unsigned int i;
 
-	GetUserKey(BIG_ENDIAN_ORDER, rk, m_key.size(), userKey, keylen);
+	// 32-bit GCC 5.4 hack... m_key.size() returns 0. Note: this surfaced after changing
+	// m_key to FixedSizeAlignedSecBlock at commit 1ab1e08ac5b5a0d63374de0c.
+	GetUserKey(BIG_ENDIAN_ORDER, rk, 64, userKey, keylen);
 	for (i = 0; i < 48; i++, rk++)
 	{
 		rk[16] = rk[0] + s0(rk[1]) + rk[9] + s1(rk[14]);
@@ -54,6 +69,14 @@ typedef BlockGetAndPut<word32, BigEndian> Block;
 
 void SHACAL2::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+#if CRYPTOPP_SHANI_AVAILABLE
+	if (HasSHA())
+	{
+		SHACAL2_Enc_ProcessAndXorBlock_SHANI(m_key, inBlock, xorBlock, outBlock);
+		return;
+	}
+#endif
+
 	word32 a, b, c, d, e, f, g, h;
 	const word32 *rk = m_key;
 

@@ -1,0 +1,54 @@
+# Appveyor's documentation is at https://www.appveyor.com/docs/build-phase/,
+#  and a sample configuration file is at https://www.appveyor.com/docs/appveyor-yml/.
+#  I have to admit its a bit complex and I don't fully understand it.
+
+version: 1.0.{build}
+clone_depth: 3
+skip_tags: true
+
+configuration:
+
+- Debug
+- Release
+
+platform:
+
+- Win32
+- x64
+
+image:
+
+- Visual Studio 2017
+- Visual Studio 2015
+- Visual Studio 2013
+
+environment:
+
+  matrix:
+
+  - BUILD_MODE: MSBuild
+
+# Disable build through solution file
+build: off
+
+# Build through commands in script below
+test_script:
+
+- ps: >-
+
+    msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptlib.vcxproj
+
+    msbuild /t:Build /p:platform="$env:platform" /p:configuration="$env:configuration" cryptest.vcxproj
+
+    msbuild /t:CopyCryptestToRoot cryptest.vcxproj
+
+    .\cryptest.exe v
+
+    .\cryptest.exe tv all
+
+notifications:
+  - provider: Email
+    to:
+      - cryptopp-build@googlegroups.com
+    on_build_success: true
+    on_build_failure: true

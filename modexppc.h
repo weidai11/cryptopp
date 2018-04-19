@@ -9,6 +9,11 @@
 #include "smartptr.h"
 #include "pubkey.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(push)
+# pragma warning(disable: 4231 4275)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<Integer>;
@@ -16,6 +21,8 @@ CRYPTOPP_DLL_TEMPLATE_CLASS DL_FixedBasePrecomputationImpl<Integer>;
 class ModExpPrecomputation : public DL_GroupPrecomputation<Integer>
 {
 public:
+	virtual ~ModExpPrecomputation() {}
+
 	// DL_GroupPrecomputation
 	bool NeedConversions() const {return true;}
 	Element ConvertIn(const Element &v) const {return m_mr->ConvertIn(v);}
@@ -33,5 +40,9 @@ private:
 };
 
 NAMESPACE_END
+
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(pop)
+#endif
 
 #endif

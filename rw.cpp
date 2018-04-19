@@ -1,4 +1,4 @@
-// rw.cpp - written and placed in the public domain by Wei Dai
+// rw.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 
@@ -75,6 +75,7 @@ bool RWFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
 	CRYPTOPP_UNUSED(rng), CRYPTOPP_UNUSED(level);
 	bool pass = true;
 	pass = pass && m_n > Integer::One() && m_n%8 == 5;
+	CRYPTOPP_ASSERT(pass);
 	return pass;
 }
 
@@ -207,7 +208,7 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 	Integer re = modn.Square(r);
 	re = modn.Multiply(re, x);    // blind
 
-	const Integer &h = re, &p = m_p, &q = m_q, &n = m_n;
+	const Integer &h = re, &p = m_p, &q = m_q;
 	Integer e, f;
 
 	const Integer U = modq.Exponentiate(h, (q+1)/8);
@@ -239,7 +240,7 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 
 	// Signature
 	Integer s = modn.Multiply(modn.Square(Y), rInv);
-	assert((e * f * s.Squared()) % m_n == x);
+	CRYPTOPP_ASSERT((e * f * s.Squared()) % m_n == x);
 
 	// IEEE P1363, Section 8.2.8 IFSP-RW, p.44
 	s = STDMIN(s, m_n - s);
@@ -252,16 +253,25 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 bool InvertibleRWFunction::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = RWFunction::Validate(rng, level);
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_p > Integer::One() && m_p%8 == 3 && m_p < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_q > Integer::One() && m_q%8 == 7 && m_q < m_n;
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_u.IsPositive() && m_u < m_p;
+	CRYPTOPP_ASSERT(pass);
 	if (level >= 1)
 	{
 		pass = pass && m_p * m_q == m_n;
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && m_u * m_q % m_p == 1;
+		CRYPTOPP_ASSERT(pass);
 	}
 	if (level >= 2)
+	{
 		pass = pass && VerifyPrime(rng, m_p, level-2) && VerifyPrime(rng, m_q, level-2);
+		CRYPTOPP_ASSERT(pass);
+	}
 	return pass;
 }
 

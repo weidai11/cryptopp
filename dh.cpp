@@ -1,4 +1,4 @@
-// dh.cpp - written and placed in the public domain by Wei Dai
+// dh.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 
@@ -8,7 +8,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void DH_TestInstantiations()
 {
 	DH dh1;

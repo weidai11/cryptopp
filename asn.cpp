@@ -1,4 +1,5 @@
-// asn.cpp - written and placed in the public domain by Wei Dai
+// asn.cpp - originally written and placed in the public domain by Wei Dai
+//           CryptoPP::Test namespace added by JW in February 2017
 
 #include "pch.h"
 #include "config.h"
@@ -11,7 +12,6 @@
 #include <time.h>
 
 NAMESPACE_BEGIN(CryptoPP)
-USING_NAMESPACE(std)
 
 /// DER Length
 size_t DERLengthEncode(BufferedTransformation &bt, lword length)
@@ -76,7 +76,7 @@ bool BERLengthDecode(BufferedTransformation &bt, lword &length, bool &definiteLe
 bool BERLengthDecode(BufferedTransformation &bt, size_t &length)
 {
 	lword lw = 0;
-	bool definiteLength;
+	bool definiteLength = false;
 	if (!BERLengthDecode(bt, lw, definiteLength))
 		BERDecodeError();
 	if (!SafeConvert(lw, length))
@@ -123,6 +123,8 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
+	if (bc > bt.MaxRetrievable()) // Issue 346
+		BERDecodeError();
 
 	str.New(bc);
 	if (bc != bt.Get(str, bc))
@@ -138,6 +140,8 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &
 
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable()) // Issue 346
 		BERDecodeError();
 
 	bt.TransferTo(str, bc);
@@ -161,11 +165,16 @@ size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte as
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
+	if (bc > bt.MaxRetrievable()) // Issue 346
+		BERDecodeError();
 
 	SecByteBlock temp(bc);
 	if (bc != bt.Get(temp, bc))
 		BERDecodeError();
-	str.assign((char *)temp.begin(), bc);
+	if (bc)
+		str.assign((char *)temp.begin(), bc);
+	else
+		str.clear();
 	return bc;
 }
 
@@ -188,9 +197,14 @@ size_t BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigne
 	size_t bc;
 	if (!BERLengthDecode(bt, bc))
 		BERDecodeError();
+	if (bc == 0)
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable()) // Issue 346
+		BERDecodeError();
 
+	// X.690, 8.6.2.2: "The number [of unused bits] shall be in the range zero to seven"
 	byte unused;
-	if (!bt.Get(unused))
+	if (!bt.Get(unused) || unused > 7)
 		BERDecodeError();
 	unusedBits = unused;
 	str.resize(bc-1);
@@ -244,7 +258,7 @@ size_t OID::DecodeValue(BufferedTransformation &bt, word32 &v)
 
 void OID::DEREncode(BufferedTransformation &bt) const
 {
-	assert(m_values.size() >= 2);
+	CRYPTOPP_ASSERT(m_values.size() >= 2);
 	ByteQueue temp;
 	temp.Put(byte(m_values[0] * 40 + m_values[1]));
 	for (size_t i=2; i<m_values.size(); i++)
@@ -266,7 +280,7 @@ void OID::BERDecode(BufferedTransformation &bt)
 
 	if (!bt.Get(b))
 		BERDecodeError();
-	
+
 	length--;
 	m_values.resize(2);
 	m_values[0] = b / 40;
@@ -292,7 +306,7 @@ void OID::BERDecodeAndCheck(BufferedTransformation &bt) const
 
 inline BufferedTransformation & EncodedObjectFilter::CurrentTarget()
 {
-	if (m_flags & PUT_OBJECTS) 
+	if (m_flags & PUT_OBJECTS)
 		return *AttachedTransformation();
 	else
 		return TheBitBucket();
@@ -316,7 +330,8 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 			if (!m_queue.Get(m_id))
 				return;
 			m_queue.TransferTo(CurrentTarget(), 1);
-			m_state = LENGTH;	// fall through
+			m_state = LENGTH;
+		// fall through
 		case LENGTH:
 		{
 			byte b;
@@ -328,7 +343,7 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 				break;
 			}
 			ByteQueue::Walker walker(m_queue);
-			bool definiteLength;
+			bool definiteLength = false;
 			if (!BERLengthDecode(walker, m_lengthRemaining, definiteLength))
 				return;
 			m_queue.TransferTo(CurrentTarget(), walker.GetCurrentPosition());
@@ -342,17 +357,18 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 				m_state = IDENTIFIER;
 				break;
 			}
-			m_state = BODY;		// fall through
+			m_state = BODY;
 		}
+		// fall through
 		case BODY:
 			m_lengthRemaining -= m_queue.TransferTo(CurrentTarget(), m_lengthRemaining);
 
 			if (m_lengthRemaining == 0)
 				m_state = IDENTIFIER;
-
-		case TAIL:			// silence warnings
+		// fall through
+		case TAIL:
 		case ALL_DONE:
-		default: ;; 
+		default: ;;
 		}
 
 		if (m_state == IDENTIFIER && m_level == 0)
@@ -412,7 +428,7 @@ BERGeneralDecoder::~BERGeneralDecoder()
 	}
 	catch (const Exception&)
 	{
-		// assert(0);
+		// CRYPTOPP_ASSERT(0);
 	}
 }
 
@@ -486,14 +502,12 @@ lword BERGeneralDecoder::ReduceLength(lword delta)
 }
 
 DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag)
-	: ByteQueue(), m_outQueue(outQueue), m_finished(false), m_asnTag(asnTag)
+	: ByteQueue(), m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
 {
 }
 
-// TODO: GCC (and likely other compilers) identify this as a copy constructor; and not a constructor.
-//   We have to wait until Crypto++ 6.0 to fix it becuase the signature change breaks versioning.
 DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
-	: ByteQueue(), m_outQueue(outQueue), m_finished(false), m_asnTag(asnTag)
+	: ByteQueue(), m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
 {
 }
 
@@ -506,7 +520,7 @@ DERGeneralEncoder::~DERGeneralEncoder()
 	}
 	catch (const Exception&)
 	{
-		assert(0);
+		CRYPTOPP_ASSERT(0);
 	}
 }
 

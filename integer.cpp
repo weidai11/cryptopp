@@ -1,5 +1,28 @@
-// integer.cpp - written and placed in the public domain by Wei Dai
+// integer.cpp - originally written and placed in the public domain by Wei Dai
 // contains public domain code contributed by Alister Lee and Leonard Janke
+
+// Notes by JW: The Integer class needs to do two things. First, it needs to set function
+//  pointers on some platforms, like X86 and X64. The function pointers select a fast multiply
+//  and addition based on the cpu. Second, it wants to create Integer::Zero(), Integer::One()
+//  and Integer::Two().
+// The function pointers are initialized in the InitializeInteger class by calling
+//  SetFunctionPointers(). The call to SetFunctionPointers() is guarded to run once. If C++11
+//  dynamic initialization is available, then a standard run_once is used. Otherwise, and simple
+//  flag is used. The flag suffers a race, but the worse case is the same function pointers
+//  get written twice without leaking memory.
+// For Integer::Zero(), Integer::One() and Integer::Two(), we use one of two strategies. First,
+//  if C++11 dynamic initialization is available, then we use a static variable. Second, if
+//  C++11 dynamic initialization is not available, then we fall back to Wei's original code of
+//  a Singleton.
+// Wei's original code was much simpler. It simply used the Singleton pattern, but it always
+//  produced memory findings on some platforms. The Singleton generates memory findings because
+//  it uses a Create On First Use pattern (a dumb Nifty Counter) and the compiler had to be smart
+//  enough to fold them to return the same object. Unix and Linux compilers do a good job of folding
+//  objects, but Microsoft compilers do a rather poor job for some versions of the compilers.
+// Another problem with the Singleton is resource destruction requires running resource acquisition
+//  in reverse. For resources provided through the Singletons, there is no way to express the
+//  dependency order to safely destroy resources. (That's one of the problems C++11 dynamic
+//  intitialization with concurrent execution is supposed to solve).
 
 #include "pch.h"
 #include "config.h"
@@ -10,8 +33,22 @@
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wunused"
+#if !defined(__clang__)
 # pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
+#endif
+
+// Issue 340
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wconversion"
+# pragma GCC diagnostic ignored "-Wsign-conversion"
+#endif
+
+// Define this to statically initialize Integer Zero(), One()
+//   and Two() using Microsoft init_seg(). This is useful for
+//   testing Integer code for leaks when the MSC compiler
+//   does not fold use of the Singletons.
+// #define USE_MSC_INIT_PRIORITY 1
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -22,6 +59,7 @@
 #include "smartptr.h"
 #include "algparam.h"
 #include "filters.h"
+#include "stdcpp.h"
 #include "asn.h"
 #include "oids.h"
 #include "words.h"
@@ -40,17 +78,13 @@
 	#include <c_asm.h>
 #endif
 
-#ifdef CRYPTOPP_MSVC6_NO_PP
-	#pragma message("You do not seem to have the Visual C++ Processor Pack installed, so use of SSE2 instructions will be disabled.")
-#endif
-
 // "Error: The operand ___LKDB cannot be assigned to", http://github.com/weidai11/cryptopp/issues/188
 #if (__SUNPRO_CC >= 0x5130)
 # define MAYBE_CONST
-# define MAYBE_UNCONST_CAST const_cast<word*>
+# define MAYBE_UNCONST_CAST(x) const_cast<word*>(x)
 #else
 # define MAYBE_CONST const
-# define MAYBE_UNCONST_CAST
+# define MAYBE_UNCONST_CAST(x) x
 #endif
 
 // "Inline assembly operands don't work with .intel_syntax",
@@ -59,33 +93,47 @@
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_SSSE3_ASM_AVAILABLE
 #else
-# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86)
+# define CRYPTOPP_INTEGER_SSE2 (CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86))
 #endif
 
-// Debian QEMU/ARMEL issue in MultiplyTop; see http://github.com/weidai11/cryptopp/issues/31.
-#if __ARMEL__ && (CRYPTOPP_GCC_VERSION >= 40900) && (CRYPTOPP_GCC_VERSION < 70000) && __OPTIMIZE__
-# define WORKAROUND_ARMEL_BUG 1
-#endif
-
-#if WORKAROUND_ARMEL_BUG
-# pragma GCC push_options
-# pragma GCC optimize("O1")
-#endif
+// ***************** C++ Static Initialization ********************
 
 NAMESPACE_BEGIN(CryptoPP)
-
-bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
+static void SetFunctionPointers();
+InitializeInteger::InitializeInteger()
 {
-	if (valueType != typeid(Integer))
-		return false;
-	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
-	return true;
+#if !(HAVE_GCC_INIT_PRIORITY || HAVE_MSC_INIT_PRIORITY)
+#if defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static std::once_flag s_flag;
+	std::call_once(s_flag, []() {
+		SetFunctionPointers();
+	});
+#else
+	static bool s_flag;
+	MEMORY_BARRIER();
+	if (s_flag == false)
+	{
+		SetFunctionPointers();
+		s_flag = true;
+		MEMORY_BARRIER();
+	}
+#endif  // C++11 or C++03 flag
+#endif  // not GCC and MSC init priorities
 }
+
+template <long i>
+struct NewInteger
+{
+	Integer * operator()() const
+	{
+		return new Integer(i);
+	}
+};
+
+// ***************** Library code ********************
 
 inline static int Compare(const word *A, const word *B, size_t N)
 {
@@ -100,7 +148,7 @@ inline static int Compare(const word *A, const word *B, size_t N)
 
 inline static int Increment(word *A, size_t N, word B=1)
 {
-	assert(N);
+	CRYPTOPP_ASSERT(N);
 	word t = A[0];
 	A[0] = t+B;
 	if (A[0] >= t)
@@ -113,7 +161,7 @@ inline static int Increment(word *A, size_t N, word B=1)
 
 inline static int Decrement(word *A, size_t N, word B=1)
 {
-	assert(N);
+	CRYPTOPP_ASSERT(N);
 	word t = A[0];
 	A[0] = t-B;
 	if (A[0] <= t)
@@ -133,14 +181,14 @@ static void TwosComplement(word *A, size_t N)
 
 static word AtomicInverseModPower2(word A)
 {
-	assert(A%2==1);
+	CRYPTOPP_ASSERT(A%2==1);
 
 	word R=A%8;
 
 	for (unsigned i=3; i<WORD_BITS; i*=2)
 		R = R*(2-R*A);
 
-	assert(R*A==1);
+	CRYPTOPP_ASSERT(R*A==1);
 	return R;
 }
 
@@ -214,32 +262,40 @@ static word AtomicInverseModPower2(word A)
 class DWord
 {
 public:
-	// Converity finding on default ctor. We've isntrumented the code,
-	//   and cannot uncover a case where it affects a result.
-#if (defined(__COVERITY__) || !defined(NDEBUG)) && defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-	// Repeating pattern of 1010 for debug builds to break things...
-	DWord() : m_whole(0) {memset(&m_whole, 0xa, sizeof(m_whole));}
-#elif (defined(__COVERITY__) || !defined(NDEBUG)) && !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-	// Repeating pattern of 1010 for debug builds to break things...
-	DWord() : m_halfs() {memset(&m_halfs, 0xaa, sizeof(m_halfs));}
+#if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+	DWord() {std::memset(&m_whole, 0x00, sizeof(m_whole));}
 #else
-	DWord() {}
+	DWord() {std::memset(&m_halfs, 0x00, sizeof(m_halfs));}
 #endif
 
 #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
-	explicit DWord(word low) : m_whole(low) {}
+	explicit DWord(word low) : m_whole(low) { }
 #else
 	explicit DWord(word low)
 	{
-		m_halfs.low = low;
 		m_halfs.high = 0;
+		m_halfs.low = low;
 	}
 #endif
 
-	DWord(word low, word high)
+#if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+	DWord(word low, word high) : m_whole()
+#else
+	DWord(word low, word high) : m_halfs()
+#endif
 	{
+#if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
+#  if defined(CRYPTOPP_LITTLE_ENDIAN)
+		const word t[2] = {low,high};
+		memcpy(&m_whole, t, sizeof(m_whole));
+#  else
+		const word t[2] = {high,low};
+		memcpy(&m_whole, t, sizeof(m_whole));
+#  endif
+#else
 		m_halfs.low = low;
 		m_halfs.high = high;
+#endif
 	}
 
 	static DWord Multiply(word a, word b)
@@ -250,7 +306,7 @@ public:
 		#elif defined(MultiplyWordsLoHi)
 			MultiplyWordsLoHi(r.m_halfs.low, r.m_halfs.high, a, b);
 		#else
-			assert(0);
+			CRYPTOPP_ASSERT(0);
 		#endif
 		return r;
 	}
@@ -322,43 +378,39 @@ public:
 	#endif
 	}
 
+	// TODO: When NATIVE_DWORD is in effect, we access high and low, which are inactive
+	//  union members, and that's UB. Also see http://stackoverflow.com/q/11373203.
 	word GetLowHalf() const {return m_halfs.low;}
 	word GetHighHalf() const {return m_halfs.high;}
 	word GetHighHalfAsBorrow() const {return 0-m_halfs.high;}
 
 private:
-	union
-	{
-	#ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
-		dword m_whole;
-	#endif
-		struct
-		{
-		#ifdef IS_LITTLE_ENDIAN
-			word low;
-			word high;
-		#else
-			word high;
-			word low;
-		#endif
-		} m_halfs;
-	};
+	// Issue 274, "Types cannot be declared in anonymous union",
+	//   http://github.com/weidai11/cryptopp/issues/274
+	//   Thanks to Martin Bonner at http://stackoverflow.com/a/39507183
+    struct half_words
+    {
+    #ifdef CRYPTOPP_LITTLE_ENDIAN
+        word low;
+        word high;
+    #else
+        word high;
+        word low;
+    #endif
+   };
+   union
+   {
+   #ifdef CRYPTOPP_NATIVE_DWORD_AVAILABLE
+       dword m_whole;
+   #endif
+       half_words m_halfs;
+   };
 };
 
 class Word
 {
 public:
-	// Converity finding on default ctor. We've isntrumented the code,
-	//   and cannot uncover a case where it affects a result.
-#if defined(__COVERITY__)
 	Word() : m_whole(0) {}
-#elif !defined(NDEBUG)
-	// Repeating pattern of 1010 for debug builds to break things...
-	Word() : m_whole(0) {memset(&m_whole, 0xaa, sizeof(m_whole));}
-#else
-	Word() {}
-#endif
-
 	Word(word value) : m_whole(value) {}
 	Word(hword low, hword high) : m_whole(low | (word(high) << (WORD_BITS/2))) {}
 
@@ -405,19 +457,22 @@ private:
 
 // do a 3 word by 2 word divide, returns quotient and leaves remainder in A
 template <class S, class D>
-S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
+S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULLPTR)
 {
 	CRYPTOPP_UNUSED(dummy);
 
-	// assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
-	assert(A[2] < B1 || (A[2]==B1 && A[1] < B0));
+	// Assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a S
+	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
-	// estimate the quotient: do a 2 S by 1 S divide
-	S Q;
-	if (S(B1+1) == 0)
-		Q = A[2];
-	else if (B1 > 0)
+	// estimate the quotient: do a 2 S by 1 S divide.
+	// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+
+	S Q; bool pre = (S(B1+1) == 0);
+	if (B1 > 0 && !pre)
 		Q = D(A[1], A[2]) / S(B1+1);
+	else if (pre)
+		Q = A[2];
 	else
 		Q = D(A[0], A[1]) / B0;
 
@@ -438,7 +493,7 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 		A[1] = u.GetLowHalf();
 		A[2] += u.GetHighHalf();
 		Q++;
-		assert(Q);	// shouldn't overflow
+		CRYPTOPP_ASSERT(Q);	// shouldn't overflow
 	}
 
 	return Q;
@@ -448,9 +503,10 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULL)
 template <class S, class D>
 inline D DivideFourWordsByTwo(S *T, const D &Al, const D &Ah, const D &B)
 {
-	if (!B) // if divisor is 0, we assume divisor==2**(2*WORD_BITS)
-		return D(Ah.GetLowHalf(), Ah.GetHighHalf());
-	else
+	// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+
+	if (!!B)
 	{
 		S Q[2];
 		T[0] = Al.GetLowHalf();
@@ -460,6 +516,10 @@ inline D DivideFourWordsByTwo(S *T, const D &Al, const D &Ah, const D &B)
 		Q[1] = DivideThreeWordsByTwo<S, D>(T+1, B.GetLowHalf(), B.GetHighHalf());
 		Q[0] = DivideThreeWordsByTwo<S, D>(T, B.GetLowHalf(), B.GetHighHalf());
 		return D(Q[0], Q[1]);
+	}
+	else  // if divisor is 0, we assume divisor==2**(2*WORD_BITS)
+	{
+		return D(Ah.GetLowHalf(), Ah.GetHighHalf());
 	}
 }
 
@@ -550,13 +610,8 @@ inline word DWord::operator%(word a)
 		__asm	pop esi \
 		__asm	pop edi \
 		__asm	ret 8
-#if _MSC_VER < 1300
-	#define SaveEBX		__asm push ebx
-	#define RestoreEBX	__asm pop ebx
-#else
 	#define SaveEBX
 	#define RestoreEBX
-#endif
 	#define SquPrologue					\
 		AS2(	mov		eax, A)			\
 		AS2(	mov		ecx, C)			\
@@ -845,11 +900,11 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 
 	AddEpilogue
 }
-#endif	// #if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-#else
+#endif	// CRYPTOPP_INTEGER_SSE2
+#else   // CRYPTOPP_SSE2_ASM_AVAILABLE
 int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word *B)
 {
-	assert (N%2 == 0);
+	CRYPTOPP_ASSERT (N%2 == 0);
 
 	Declare2Words(u);
 	AssignWord(u, 0);
@@ -865,7 +920,7 @@ int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word *A, const word 
 
 int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
 {
-	assert (N%2 == 0);
+	CRYPTOPP_ASSERT (N%2 == 0);
 
 	Declare2Words(u);
 	AssignWord(u, 0);
@@ -1382,7 +1437,11 @@ void Baseline_MultiplyTop16(word *R, const word *AA, const word *BB, word L)
 
 #if CRYPTOPP_INTEGER_SSE2
 
-CRYPTOPP_ALIGN_DATA(16) static const word32 s_maskLow16[4] CRYPTOPP_SECTION_ALIGN16 = {0xffff,0xffff,0xffff,0xffff};
+CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_TABLE
+const word32 s_maskLow16[4] = {
+	0xffff,0xffff,0xffff,0xffff
+};
 
 #undef Mul_Begin
 #undef Mul_Acc
@@ -2065,13 +2124,13 @@ static PAdd s_pAdd = &Baseline_Add, s_pSub = &Baseline_Sub;
 static size_t s_recursionLimit = 8;
 #else
 static const size_t s_recursionLimit = 16;
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 
 static PMul s_pMul[9], s_pBot[9];
 static PSqu s_pSqu[9];
 static PMulTop s_pTop[9];
 
-static void SetFunctionPointers()
+void SetFunctionPointers()
 {
 	s_pMul[0] = &Baseline_Multiply2;
 	s_pBot[0] = &Baseline_MultiplyBottom2;
@@ -2082,13 +2141,11 @@ static void SetFunctionPointers()
 #if CRYPTOPP_INTEGER_SSE2
 	if (HasSSE2())
 	{
-#if _MSC_VER != 1200 || defined(NDEBUG)
 		if (IsP4())
 		{
 			s_pAdd = &SSE2_Add;
 			s_pSub = &SSE2_Sub;
 		}
-#endif
 
 		s_recursionLimit = 32;
 
@@ -2112,7 +2169,7 @@ static void SetFunctionPointers()
 		s_pTop[8] = &SSE2_MultiplyTop32;
 	}
 	else
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 	{
 		s_pMul[1] = &Baseline_Multiply4;
 		s_pMul[2] = &Baseline_Multiply8;
@@ -2130,7 +2187,7 @@ static void SetFunctionPointers()
 		s_pBot[4] = &Baseline_MultiplyBottom16;
 		s_pSqu[4] = &Baseline_Square16;
 		s_pTop[4] = &Baseline_MultiplyTop16;
-#endif
+#endif  // !CRYPTOPP_INTEGER_SSE2
 	}
 }
 
@@ -2140,7 +2197,7 @@ inline int Add(word *C, const word *A, const word *B, size_t N)
 	return s_pAdd(N, C, A, B);
 #else
 	return Baseline_Add(N, C, A, B);
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 }
 
 inline int Subtract(word *C, const word *A, const word *B, size_t N)
@@ -2149,7 +2206,7 @@ inline int Subtract(word *C, const word *A, const word *B, size_t N)
 	return s_pSub(N, C, A, B);
 #else
 	return Baseline_Sub(N, C, A, B);
-#endif
+#endif  // CRYPTOPP_INTEGER_SSE2
 }
 
 // ********************************************************
@@ -2177,7 +2234,7 @@ inline int Subtract(word *C, const word *A, const word *B, size_t N)
 
 void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 {
-	assert(N>=2 && N%2==0);
+	CRYPTOPP_ASSERT(N>=2 && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pMul[N/4](R, A, B);
@@ -2208,7 +2265,7 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 			c3 += Add(R1, R1, T0, N);
 
 		c3 += Increment(R2, N2, c2);
-		assert (c3 >= 0 && c3 <= 2);
+		CRYPTOPP_ASSERT (c3 >= 0 && c3 <= 2);
 		Increment(R3, N2, c3);
 	}
 }
@@ -2219,7 +2276,7 @@ void RecursiveMultiply(word *R, word *T, const word *A, const word *B, size_t N)
 
 void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 {
-	assert(N && N%2==0);
+	CRYPTOPP_ASSERT(N && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pSqu[N/4](R, A);
@@ -2244,7 +2301,7 @@ void RecursiveSquare(word *R, word *T, const word *A, size_t N)
 
 void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, size_t N)
 {
-	assert(N>=2 && N%2==0);
+	CRYPTOPP_ASSERT(N>=2 && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pBot[N/4](R, A, B);
@@ -2268,7 +2325,7 @@ void RecursiveMultiplyBottom(word *R, word *T, const word *A, const word *B, siz
 
 void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, size_t N)
 {
-	assert(N>=2 && N%2==0);
+	CRYPTOPP_ASSERT(N>=2 && N%2==0);
 
 	if (N <= s_recursionLimit)
 		s_pTop[N/4](R, A, B, L[N-1]);
@@ -2310,7 +2367,7 @@ void MultiplyTop(word *R, word *T, const word *L, const word *A, const word *B, 
 			c3 -= Decrement(T2, N2, -c2);
 		c3 += Add(R0, T2, R1, N2);
 
-		assert (c3 >= 0 && c3 <= 2);
+		CRYPTOPP_ASSERT (c3 >= 0 && c3 <= 2);
 		Increment(R1, N2, c3);
 	}
 }
@@ -2339,10 +2396,12 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 {
 	if (NA == NB)
 	{
-		if (A == B)
-			Square(R, T, A, NA);
-		else
+		// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
+		// The code change occurred at Commit dc99266599a0e72d.
+		if (A != B)
 			Multiply(R, T, A, B, NA);
+		else
+			Square(R, T, A, NA);
 
 		return;
 	}
@@ -2353,22 +2412,24 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 		std::swap(NA, NB);
 	}
 
-	assert(NB % NA == 0);
+	CRYPTOPP_ASSERT(NB % NA == 0);
 
 	if (NA==2 && !A[1])
 	{
+		// Profiling tells us the original Default case was dominant, so it was promoted to the first Case statement.
+		// The code change occurred at Commit dc99266599a0e72d.
 		switch (A[0])
 		{
+		default:
+			R[NB] = LinearMultiply(R, B, A[0], NB);
+			R[NB+1] = 0;
+			return;
 		case 0:
 			SetWords(R, 0, NB+2);
 			return;
 		case 1:
 			CopyWords(R, B, NB);
 			R[NB] = R[NB+1] = 0;
-			return;
-		default:
-			R[NB] = LinearMultiply(R, B, A[0], NB);
-			R[NB+1] = 0;
 			return;
 		}
 	}
@@ -2402,16 +2463,9 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 
 void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 {
-	if (N==2)
-	{
-		T[0] = AtomicInverseModPower2(A[0]);
-		T[1] = 0;
-		s_pBot[0](T+2, T, A);
-		TwosComplement(T+2, 2);
-		Increment(T+2, 2, 2);
-		s_pBot[0](R, T, T+2);
-	}
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (N!=2)
 	{
 		const size_t N2 = N/2;
 		RecursiveInverseModPower2(R0, T0, A0, N2);
@@ -2422,6 +2476,15 @@ void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 		Add(T0, R1, T0, N2);
 		TwosComplement(T0, N2);
 		MultiplyBottom(R1, T1, R0, T0, N2);
+	}
+	else
+	{
+		T[0] = AtomicInverseModPower2(A[0]);
+		T[1] = 0;
+		s_pBot[0](T+2, T, A);
+		TwosComplement(T+2, 2);
+		Increment(T+2, 2, 2);
+		s_pBot[0](R, T, T+2);
 	}
 }
 
@@ -2439,7 +2502,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 	word borrow = Subtract(T, X+N, T, N);
 	// defend against timing attack by doing this Add even when not needed
 	word carry = Add(T+N, T, M, N);
-	assert(carry | !borrow);
+	CRYPTOPP_ASSERT(carry | !borrow);
 	CRYPTOPP_UNUSED(carry), CRYPTOPP_UNUSED(borrow);
 	CopyWords(R, T + ((0-borrow) & N), N);
 #elif 0
@@ -2507,7 +2570,7 @@ void MontgomeryReduce(word *R, word *T, word *X, const word *M, const word *U, s
 
 void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const word *U, const word *V, size_t N)
 {
-	assert(N%2==0 && N>=4);
+	CRYPTOPP_ASSERT(N%2==0 && N>=4);
 
 #define M0		M
 #define M1		(M+N2)
@@ -2536,7 +2599,7 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 	else if (c2<0)
 		c3 -= Decrement(R1, N2, -c2);
 
-	assert(c3>=-1 && c3<=1);
+	CRYPTOPP_ASSERT(c3>=-1 && c3<=1);
 	if (c3>0)
 		Subtract(R, R, M, N);
 	else if (c3<0)
@@ -2572,8 +2635,8 @@ void HalfMontgomeryReduce(word *R, word *T, const word *X, const word *M, const 
 // do a 3 word by 2 word divide, returns quotient and leaves remainder in A
 static word SubatomicDivide(word *A, word B0, word B1)
 {
-	// assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
-	assert(A[2] < B1 || (A[2]==B1 && A[1] < B0));
+	// Assert {A[2],A[1]} < {B1,B0}, so quotient can fit in a word
+	CRYPTOPP_ASSERT(A[2] < B1 || (A[2]==B1 && A[1] < B0));
 
 	// estimate the quotient: do a 2 word by 1 word divide
 	word Q;
@@ -2599,7 +2662,7 @@ static word SubatomicDivide(word *A, word B0, word B1)
 		A[1] = u.GetLowHalf();
 		A[2] += u.GetHighHalf();
 		Q++;
-		assert(Q);	// shouldn't overflow
+		CRYPTOPP_ASSERT(Q);	// shouldn't overflow
 	}
 
 	return Q;
@@ -2620,13 +2683,13 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 		Q[1] = SubatomicDivide(T+1, B[0], B[1]);
 		Q[0] = SubatomicDivide(T, B[0], B[1]);
 
-#ifndef NDEBUG
+#if defined(CRYPTOPP_DEBUG)
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
-		assert(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
+		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
 		LowLevel::Multiply2(P, Q, B);
 		Add(P, P, T, 4);
-		assert(memcmp(P, A, 4*WORD_SIZE)==0);
+		CRYPTOPP_ASSERT(memcmp(P, A, 4*WORD_SIZE)==0);
 #endif
 	}
 }
@@ -2639,15 +2702,15 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 	Q[0] = q.GetLowHalf();
 	Q[1] = q.GetHighHalf();
 
-#ifndef NDEBUG
+#if defined(CRYPTOPP_DEBUG)
 	if (B[0] || B[1])
 	{
 		// multiply quotient and divisor and add remainder, make sure it equals dividend
-		assert(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
+		CRYPTOPP_ASSERT(!T[2] && !T[3] && (T[1] < B[1] || (T[1]==B[1] && T[0]<B[0])));
 		word P[4];
 		s_pMul[0](P, Q, B);
 		Add(P, P, T, 4);
-		assert(memcmp(P, A, 4*WORD_SIZE)==0);
+		CRYPTOPP_ASSERT(memcmp(P, A, 4*WORD_SIZE)==0);
 	}
 #endif
 }
@@ -2655,19 +2718,19 @@ static inline void AtomicDivide(word *Q, const word *A, const word *B)
 // for use by Divide(), corrects the underestimated quotient {Q1,Q0}
 static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, size_t N)
 {
-	assert(N && N%2==0);
+	CRYPTOPP_ASSERT(N && N%2==0);
 
 	AsymmetricMultiply(T, T+N+2, Q, 2, B, N);
 
 	word borrow = Subtract(R, R, T, N+2);
-	assert(!borrow && !R[N+1]);
+	CRYPTOPP_ASSERT(!borrow && !R[N+1]);
 	CRYPTOPP_UNUSED(borrow);
 
 	while (R[N] || Compare(R, B, N) >= 0)
 	{
 		R[N] -= Subtract(R, R, B, N);
 		Q[1] += (++Q[0]==0);
-		assert(Q[0] || Q[1]); // no overflow
+		CRYPTOPP_ASSERT(Q[0] || Q[1]); // no overflow
 	}
 }
 
@@ -2679,9 +2742,9 @@ static void CorrectQuotientEstimate(word *R, word *T, word *Q, const word *B, si
 
 void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, size_t NB)
 {
-	assert(NA && NB && NA%2==0 && NB%2==0);
-	assert(B[NB-1] || B[NB-2]);
-	assert(NB <= NA);
+	CRYPTOPP_ASSERT(NA && NB && NA%2==0 && NB%2==0);
+	CRYPTOPP_ASSERT(B[NB-1] || B[NB-2]);
+	CRYPTOPP_ASSERT(NB <= NA);
 
 	// set up temporary work space
 	word *const TA=T;
@@ -2693,7 +2756,7 @@ void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, 
 	TB[0] = TB[NB-1] = 0;
 	CopyWords(TB+shiftWords, B, NB-shiftWords);
 	unsigned shiftBits = WORD_BITS - BitPrecision(TB[NB-1]);
-	assert(shiftBits < WORD_BITS);
+	CRYPTOPP_ASSERT(shiftBits < WORD_BITS);
 	ShiftWordsLeftByBits(TB, NB, shiftBits);
 
 	// copy A into TA and normalize it
@@ -2713,7 +2776,7 @@ void Divide(word *R, word *Q, word *T, const word *A, size_t NA, const word *B, 
 	else
 	{
 		NA+=2;
-		assert(Compare(TA+NA-NB, TB, NB) < 0);
+		CRYPTOPP_ASSERT(Compare(TA+NA-NB, TB, NB) < 0);
 	}
 
 	word BT[2];
@@ -2747,7 +2810,7 @@ static inline size_t EvenWordCount(const word *X, size_t N)
 
 unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const word *M, size_t N)
 {
-	assert(NA<=N && N && N%2==0);
+	CRYPTOPP_ASSERT(NA<=N && N && N%2==0);
 
 	word *b = T;
 	word *c = T+N;
@@ -2775,7 +2838,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 
 			ShiftWordsRightByWords(f, fgLen, 1);
 			bcLen += 2 * (c[bcLen-1] != 0);
-			assert(bcLen <= N);
+			CRYPTOPP_ASSERT(bcLen <= N);
 			ShiftWordsLeftByWords(c, bcLen, 1);
 			k+=WORD_BITS;
 			t=f[0];
@@ -2799,7 +2862,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 		t = ShiftWordsLeftByBits(c, bcLen, i);
 		c[bcLen] += t;
 		bcLen += 2 * (t!=0);
-		assert(bcLen <= N);
+		CRYPTOPP_ASSERT(bcLen <= N);
 
 		bool swap = Compare(f, g, fgLen)==-1;
 		ConditionalSwapPointers(swap, f, g);
@@ -2812,7 +2875,7 @@ unsigned int AlmostInverse(word *R, word *T, const word *A, size_t NA, const wor
 		t = Add(b, b, c, bcLen);
 		b[bcLen] += t;
 		bcLen += 2*t;
-		assert(bcLen <= N);
+		CRYPTOPP_ASSERT(bcLen <= N);
 	}
 }
 
@@ -2852,15 +2915,6 @@ void MultiplyByPower2Mod(word *R, const word *A, size_t k, const word *M, size_t
 
 // ******************************************************************
 
-InitializeInteger::InitializeInteger()
-{
-	if (!g_pAssignIntToInteger)
-	{
-		SetFunctionPointers();
-		g_pAssignIntToInteger = (CryptoPP::PAssignIntToInteger)AssignIntToInteger;
-	}
-}
-
 static const unsigned int RoundupSizeTable[] = {2, 2, 2, 4, 4, 8, 8, 8, 8};
 
 static inline size_t RoundupSize(size_t n)
@@ -2873,7 +2927,8 @@ static inline size_t RoundupSize(size_t n)
 		return 32;
 	else if (n<=64)
 		return 64;
-	else return size_t(1) << BitPrecision(n-1);
+	else
+		return size_t(1) << BitPrecision(n-1);
 }
 
 Integer::Integer()
@@ -2932,7 +2987,7 @@ bool Integer::IsConvertableToLong() const
 
 signed long Integer::ConvertToLong() const
 {
-	assert(IsConvertableToLong());
+	CRYPTOPP_ASSERT(IsConvertableToLong());
 
 	unsigned long value = (unsigned long)reg[0];
 	value += SafeLeftShift<WORD_BITS, unsigned long>((unsigned long)reg[1]);
@@ -2941,29 +2996,35 @@ signed long Integer::ConvertToLong() const
 
 Integer::Integer(BufferedTransformation &encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
-	assert(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
+	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
-	if(o == LITTLE_ENDIAN_ORDER)
+	if (o != LITTLE_ENDIAN_ORDER)
+	{
+		Decode(encodedInteger, byteCount, s);
+	}
+	else
 	{
 		SecByteBlock block(byteCount);
 		encodedInteger.Get(block, block.size());
 		std::reverse(block.begin(), block.begin()+block.size());
 
 		Decode(block.begin(), block.size(), s);
-		return;
 	}
-
-	Decode(encodedInteger, byteCount, s);
 }
 
 Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, ByteOrder o)
 {
-	assert(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
+	CRYPTOPP_ASSERT(encodedInteger && byteCount); // NULL buffer
+	CRYPTOPP_ASSERT(o == BIG_ENDIAN_ORDER || o == LITTLE_ENDIAN_ORDER);
 
-	if(o == LITTLE_ENDIAN_ORDER)
+	if (o != LITTLE_ENDIAN_ORDER)
+	{
+		Decode(encodedInteger, byteCount, s);
+	}
+	else
 	{
 		SecByteBlock block(byteCount);
-#if (CRYPTOPP_MSC_VERSION >= 1400)
+#if (_MSC_FULL_VER >= 140050727)
 		std::reverse_copy(encodedInteger, encodedInteger+byteCount,
 			stdext::make_checked_array_iterator(block.begin(), block.size()));
 #else
@@ -2972,13 +3033,12 @@ Integer::Integer(const byte *encodedInteger, size_t byteCount, Signedness s, Byt
 		Decode(block.begin(), block.size(), s);
 		return;
 	}
-
-	Decode(encodedInteger, byteCount, s);
 }
 
 Integer::Integer(BufferedTransformation &bt)
 {
-	BERDecode(bt);
+	// Make explicit call to avoid virtual-dispatch findings in ctor
+	Integer::BERDecode(bt);
 }
 
 Integer::Integer(RandomNumberGenerator &rng, size_t bitcount)
@@ -2997,30 +3057,6 @@ Integer Integer::Power2(size_t e)
 	Integer r((word)0, BitsToWords(e+1));
 	r.SetBit(e);
 	return r;
-}
-
-template <long i>
-struct NewInteger
-{
-	Integer * operator()() const
-	{
-		return new Integer(i);
-	}
-};
-
-const Integer &Integer::Zero()
-{
-	return Singleton<Integer>().Ref();
-}
-
-const Integer &Integer::One()
-{
-	return Singleton<Integer, NewInteger<1> >().Ref();
-}
-
-const Integer &Integer::Two()
-{
-	return Singleton<Integer, NewInteger<2> >().Ref();
 }
 
 bool Integer::operator!() const
@@ -3042,10 +3078,12 @@ Integer& Integer::operator=(const Integer& t)
 
 bool Integer::GetBit(size_t n) const
 {
-	if (n/WORD_BITS >= reg.size())
-		return 0;
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (n/WORD_BITS < reg.size())
 		return bool((reg[n/WORD_BITS] >> (n % WORD_BITS)) & 1);
+	else
+		return 0;
 }
 
 void Integer::SetBit(size_t n, bool value)
@@ -3064,10 +3102,12 @@ void Integer::SetBit(size_t n, bool value)
 
 byte Integer::GetByte(size_t n) const
 {
-	if (n/WORD_SIZE >= reg.size())
-		return 0;
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (n/WORD_SIZE < reg.size())
 		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
+	else
+		return 0;
 }
 
 void Integer::SetByte(size_t n, byte value)
@@ -3080,7 +3120,7 @@ void Integer::SetByte(size_t n, byte value)
 lword Integer::GetBits(size_t i, size_t n) const
 {
 	lword v = 0;
-	assert(n <= sizeof(v)*8);
+	CRYPTOPP_ASSERT(n <= sizeof(v)*8);
 	for (unsigned int j=0; j<n; j++)
 		v |= lword(GetBit(i+j)) << j;
 	return v;
@@ -3116,7 +3156,7 @@ Integer::Integer(word value, size_t length)
 template <class T>
 static Integer StringToInteger(const T *str, ByteOrder order)
 {
-	assert( order == BIG_ENDIAN_ORDER || order == LITTLE_ENDIAN_ORDER );
+	CRYPTOPP_ASSERT( order == BIG_ENDIAN_ORDER || order == LITTLE_ENDIAN_ORDER );
 
 	int radix, sign = 1;
 	// GCC workaround
@@ -3160,18 +3200,20 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 		str += 2, length -= 2;
 	}
 
-	if(order == BIG_ENDIAN_ORDER)
+	if (order == BIG_ENDIAN_ORDER)
 	{
 		for (unsigned int i=0; i<length; i++)
 		{
 			int digit, ch = static_cast<int>(str[i]);
 
+			//  Profiling showd the second and third Else needed to be swapped
+			// The code change occurred at Commit dc99266599a0e72d.
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
 			else if (ch >= 'a' && ch <= 'f')
 				digit = ch - 'a' + 10;
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
 			else
 				digit = radix;
 
@@ -3182,7 +3224,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 			}
 		}
 	}
-	else if(radix == 16 && order == LITTLE_ENDIAN_ORDER)
+	else if (radix == 16 && order == LITTLE_ENDIAN_ORDER)
 	{
 		// Nibble high, low and count
 		unsigned int nh = 0, nl = 0, nc = 0;
@@ -3194,21 +3236,21 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
 			else if (ch >= 'a' && ch <= 'f')
 				digit = ch - 'a' + 10;
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
 			else
 				digit = radix;
 
 			if (digit < radix)
 			{
-				if(nc++ == 0)
+				if (nc++ == 0)
 					nh = digit;
 				else
 					nl = digit;
 
-				if(nc == 2)
+				if (nc == 2)
 				{
 					v += position * (nh << 4 | nl);
 					nc = 0, position <<= 8;
@@ -3216,7 +3258,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 			}
 		}
 
-		if(nc == 1)
+		if (nc == 1)
 			v += nh * position;
 	}
 	else // LITTLE_ENDIAN_ORDER && radix != 16
@@ -3227,10 +3269,10 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
-			else if (ch >= 'A' && ch <= 'F')
-				digit = ch - 'A' + 10;
 			else if (ch >= 'a' && ch <= 'f')
 				digit = ch - 'a' + 10;
+			else if (ch >= 'A' && ch <= 'F')
+				digit = ch - 'A' + 10;
 			else
 				digit = radix;
 
@@ -3285,13 +3327,16 @@ unsigned int Integer::BitCount() const
 
 void Integer::Decode(const byte *input, size_t inputLen, Signedness s)
 {
+	CRYPTOPP_ASSERT(input && inputLen); // NULL buffer
 	StringStore store(input, inputLen);
 	Decode(store, inputLen, s);
 }
 
 void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 {
-	assert(bt.MaxRetrievable() >= inputLen);
+	CRYPTOPP_ASSERT(bt.MaxRetrievable() >= inputLen);
+	if (bt.MaxRetrievable() < inputLen)
+		throw InvalidArgument("Integer: input length is too small");
 
 	byte b;
 	bt.Peek(b);
@@ -3304,14 +3349,10 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 		bt.Peek(b);
 	}
 
-	// The call to CleanNew is optimized away above -O0/-Og.
-	const size_t size = RoundupSize(BytesToWords(inputLen));
-	reg.CleanNew(size);
-
-	assert(reg.SizeInBytes() >= inputLen);
+	reg.CleanNew(RoundupSize(BytesToWords(inputLen)));
 	for (size_t i=inputLen; i > 0; i--)
 	{
-		bt.Get(b);
+		(void)bt.Get(b);
 		reg[(i-1)/WORD_SIZE] |= word(b) << ((i-1)%WORD_SIZE)*8;
 	}
 
@@ -3325,19 +3366,23 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 
 size_t Integer::MinEncodedSize(Signedness signedness) const
 {
+	// Profiling tells us the original second If was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
 	unsigned int outputLen = STDMAX(1U, ByteCount());
-	if (signedness == UNSIGNED)
-		return outputLen;
-	if (NotNegative() && (GetByte(outputLen-1) & 0x80))
+	const bool pre = (signedness == UNSIGNED);
+	if (!pre && NotNegative() && (GetByte(outputLen-1) & 0x80))
 		outputLen++;
+	if (pre)
+		return outputLen;
 	if (IsNegative() && *this < -Power2(outputLen*8-1))
 		outputLen++;
 	return outputLen;
 }
 
+// PKCS12_PBKDF and other classes use undersized buffers
 void Integer::Encode(byte *output, size_t outputLen, Signedness signedness) const
 {
-	assert(output && outputLen);
+	CRYPTOPP_ASSERT(output && outputLen);            // NULL buffer
 	ArraySink sink(output, outputLen);
 	Encode(sink, outputLen, signedness);
 }
@@ -3366,6 +3411,7 @@ void Integer::DEREncode(BufferedTransformation &bt) const
 
 void Integer::BERDecode(const byte *input, size_t len)
 {
+	CRYPTOPP_ASSERT(input && len); // NULL buffer
 	StringStore store(input, len);
 	BERDecode(store);
 }
@@ -3395,9 +3441,11 @@ void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, size_t length)
 	dec.MessageEnd();
 }
 
-size_t Integer::OpenPGPEncode(byte *output, size_t len) const
+size_t Integer::OpenPGPEncode(byte *output, size_t bufferSize) const
 {
-	ArraySink sink(output, len);
+	CRYPTOPP_ASSERT(output && bufferSize);            // NULL buffer
+	CRYPTOPP_ASSERT(bufferSize >= MinEncodedSize());  // Undersized buffer
+	ArraySink sink(output, bufferSize);
 	return OpenPGPEncode(sink);
 }
 
@@ -3412,6 +3460,7 @@ size_t Integer::OpenPGPEncode(BufferedTransformation &bt) const
 
 void Integer::OpenPGPDecode(const byte *input, size_t len)
 {
+	CRYPTOPP_ASSERT(input && len);  // NULL buffer
 	StringStore store(input, len);
 	OpenPGPDecode(store);
 }
@@ -3467,9 +3516,10 @@ public:
 
 	void GenerateBlock(byte *output, size_t size)
 	{
+		CRYPTOPP_ASSERT(output && size); // NULL buffer
 		PutWord(false, BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
 		++m_counter;
-		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size(), NULL, 0);
+		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size(), NULLPTR, 0);
 	}
 
 private:
@@ -3538,7 +3588,7 @@ bool Integer::GenerateRandomNoThrow(RandomNumberGenerator &i_rng, const NameValu
 
 		case PRIME:
 		{
-			const PrimeSelector *pSelector = params.GetValueWithDefault(Name::PointerToPrimeSelector(), (const PrimeSelector *)NULL);
+			const PrimeSelector *pSelector = params.GetValueWithDefault(Name::PointerToPrimeSelector(), (const PrimeSelector *)NULLPTR);
 
 			int i;
 			i = 0;
@@ -3595,32 +3645,24 @@ std::istream& operator>>(std::istream& in, Integer &a)
 	return in;
 }
 
+// Ensure base 10 is default
+inline int FlagToBase(long f) {
+	return f == std::ios::hex ? 16 : (f == std::ios::oct ? 8 : 10);
+}
+
+inline char FlagToSuffix(long f) {
+	return f == std::ios::hex ? 'h' : (f == std::ios::oct ? 'o' : '.');
+}
+
+// Ensure base 10 is default
 std::ostream& operator<<(std::ostream& out, const Integer &a)
 {
 	// Get relevant conversion specifications from ostream.
-	const long f = out.flags() & std::ios::basefield; // Get base digits.
-	int base, block;
-	char suffix;
-	switch(f)
-	{
-	case std::ios::oct :
-		base = 8;
-		block = 8;
-		suffix = 'o';
-		break;
-	case std::ios::hex :
-		base = 16;
-		block = 4;
-		suffix = 'h';
-		break;
-	default :
-		base = 10;
-		block = 3;
-		suffix = '.';
-	}
+	const long f = out.flags() & std::ios::basefield;
+	const int base = FlagToBase(f);
+	const char suffix = FlagToSuffix(f);
 
 	Integer temp1=a, temp2;
-
 	if (a.IsNegative())
 	{
 		out << '-';
@@ -3648,12 +3690,10 @@ std::ostream& operator<<(std::ostream& out, const Integer &a)
 	while (i--)
 	{
 		out << s[i];
-//		if (i && !(i%block))
-//			out << ",";
 	}
 
 #ifdef CRYPTOPP_USE_STD_SHOWBASE
-	if(out.flags() & std::ios_base::showbase)
+	if (out.flags() & std::ios_base::showbase)
 		out << suffix;
 
 	return out;
@@ -3675,8 +3715,7 @@ Integer& Integer::operator++()
 	else
 	{
 		word borrow = Decrement(reg, reg.size());
-		assert(!borrow);
-		CRYPTOPP_UNUSED(borrow);
+		CRYPTOPP_ASSERT(!borrow); CRYPTOPP_UNUSED(borrow);
 
 		if (WordCount()==0)
 			*this = Zero();
@@ -3702,16 +3741,98 @@ Integer& Integer::operator--()
 	return *this;
 }
 
+// This is a bit operation. We set sign to POSITIVE, so there's no need to
+//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
+Integer Integer::And(const Integer& t) const
+{
+	if (this == &t)
+	{
+		return AbsoluteValue();
+	}
+	else if (reg.size() >= t.reg.size())
+	{
+		Integer result(t);
+		AndWords(result.reg, reg, t.reg.size());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+	else // reg.size() < t.reg.size()
+	{
+		Integer result(*this);
+		AndWords(result.reg, t.reg, reg.size());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+}
+
+// This is a bit operation. We set sign to POSITIVE, so there's no need to
+//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
+Integer Integer::Or(const Integer& t) const
+{
+	if (this == &t)
+	{
+		return AbsoluteValue();
+	}
+	else if (reg.size() >= t.reg.size())
+	{
+		Integer result(*this);
+		OrWords(result.reg, t.reg, t.reg.size());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+	else // reg.size() < t.reg.size()
+	{
+		Integer result(t);
+		OrWords(result.reg, reg, reg.size());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+}
+
+// This is a bit operation. We set sign to POSITIVE, so there's no need to
+//  worry about negative zero. Also see http://stackoverflow.com/q/11644362.
+Integer Integer::Xor(const Integer& t) const
+{
+	if (this == &t)
+	{
+		return Integer::Zero();
+	}
+	else if (reg.size() >= t.reg.size())
+	{
+		Integer result(*this);
+		XorWords(result.reg, t.reg, t.reg.size());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+	else // reg.size() < t.reg.size()
+	{
+		Integer result(t);
+		XorWords(result.reg, reg, reg.size());
+
+		result.sign = POSITIVE;
+		return result;
+	}
+}
+
 void PositiveAdd(Integer &sum, const Integer &a, const Integer& b)
 {
-	int carry;
-	if (a.reg.size() == b.reg.size())
-		carry = Add(sum.reg, a.reg, b.reg, a.reg.size());
-	else if (a.reg.size() > b.reg.size())
+	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	int carry; const bool pre = (a.reg.size() == b.reg.size());
+	if (!pre && a.reg.size() > b.reg.size())
 	{
 		carry = Add(sum.reg, a.reg, b.reg, b.reg.size());
 		CopyWords(sum.reg+b.reg.size(), a.reg+b.reg.size(), a.reg.size()-b.reg.size());
 		carry = Increment(sum.reg+b.reg.size(), a.reg.size()-b.reg.size(), carry);
+	}
+	else if (pre)
+	{
+		carry = Add(sum.reg, a.reg, b.reg, a.reg.size());
 	}
 	else
 	{
@@ -3735,7 +3856,17 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 	unsigned bSize = b.WordCount();
 	bSize += bSize%2;
 
-	if (aSize == bSize)
+	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if (aSize > bSize)
+	{
+		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
+		CopyWords(diff.reg+bSize, a.reg+bSize, aSize-bSize);
+		borrow = Decrement(diff.reg+bSize, aSize-bSize, borrow);
+		CRYPTOPP_ASSERT(!borrow); CRYPTOPP_UNUSED(borrow);
+		diff.sign = Integer::POSITIVE;
+	}
+	else if (aSize == bSize)
 	{
 		if (Compare(a.reg, b.reg, aSize) >= 0)
 		{
@@ -3748,20 +3879,12 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 			diff.sign = Integer::NEGATIVE;
 		}
 	}
-	else if (aSize > bSize)
-	{
-		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
-		CopyWords(diff.reg+bSize, a.reg+bSize, aSize-bSize);
-		borrow = Decrement(diff.reg+bSize, aSize-bSize, borrow);
-		assert(!borrow);
-		diff.sign = Integer::POSITIVE;
-	}
 	else
 	{
 		word borrow = Subtract(diff.reg, b.reg, a.reg, aSize);
 		CopyWords(diff.reg+aSize, b.reg+aSize, bSize-aSize);
 		borrow = Decrement(diff.reg+aSize, bSize-aSize, borrow);
-		assert(!borrow);
+		CRYPTOPP_ASSERT(!borrow); CRYPTOPP_UNUSED(borrow);
 		diff.sign = Integer::NEGATIVE;
 	}
 }
@@ -3887,6 +4010,64 @@ Integer& Integer::operator>>=(size_t n)
 		ShiftWordsRightByBits(reg, wordCount-shiftWords, shiftBits);
 	if (IsNegative() && WordCount()==0)   // avoid -0
 		*this = Zero();
+	return *this;
+}
+
+Integer& Integer::operator&=(const Integer& t)
+{
+	if (this != &t)
+	{
+		const size_t size = STDMIN(reg.size(), t.reg.size());
+		reg.resize(size);
+		AndWords(reg, t.reg, size);
+	}
+	sign = POSITIVE;
+	return *this;
+}
+
+Integer& Integer::operator|=(const Integer& t)
+{
+	if (this != &t)
+	{
+		if (reg.size() >= t.reg.size())
+		{
+			OrWords(reg, t.reg, t.reg.size());
+		}
+		else  // reg.size() < t.reg.size()
+		{
+			const size_t head = reg.size();
+			const size_t tail = t.reg.size() - reg.size();
+			reg.resize(head+tail);
+			OrWords(reg, t.reg, head);
+			CopyWords(reg+head,t.reg+head,tail);
+		}
+	}
+	sign = POSITIVE;
+	return *this;
+}
+
+Integer& Integer::operator^=(const Integer& t)
+{
+	if (this == &t)
+	{
+		*this = Zero();
+	}
+	else
+	{
+		if (reg.size() >= t.reg.size())
+		{
+			XorWords(reg, t.reg, t.reg.size());
+		}
+		else  // reg.size() < t.reg.size()
+		{
+			const size_t head = reg.size();
+			const size_t tail = t.reg.size() - reg.size();
+			reg.resize(head+tail);
+			XorWords(reg, t.reg, head);
+			CopyWords(reg+head,t.reg+head,tail);
+		}
+	}
+	sign = POSITIVE;
 	return *this;
 }
 
@@ -4033,8 +4214,6 @@ void Integer::Divide(word &remainder, Integer &quotient, const Integer &dividend
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	assert(divisor);
-
 	if ((divisor & (divisor-1)) == 0)	// divisor is a power of 2
 	{
 		quotient = dividend >> (BitPrecision(divisor)-1);
@@ -4077,29 +4256,32 @@ word Integer::Modulo(word divisor) const
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	assert(divisor);
-
 	word remainder;
 
-	if ((divisor & (divisor-1)) == 0)	// divisor is a power of 2
-		remainder = reg[0] & (divisor-1);
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	if ((divisor & (divisor-1)) != 0)	// divisor is not a power of 2
 	{
+		// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+		// The code change occurred at Commit dc99266599a0e72d.
 		unsigned int i = WordCount();
-
-		if (divisor <= 5)
+		if (divisor > 5)
+		{
+			remainder = 0;
+			while (i--)
+				remainder = DWord(reg[i], remainder) % divisor;
+		}
+		else
 		{
 			DWord sum(0, 0);
 			while (i--)
 				sum += reg[i];
 			remainder = sum % divisor;
 		}
-		else
-		{
-			remainder = 0;
-			while (i--)
-				remainder = DWord(reg[i], remainder) % divisor;
-		}
+	}
+	else  // divisor is a power of 2
+	{
+		remainder = reg[0] & (divisor-1);
 	}
 
 	if (IsNegative() && remainder)
@@ -4116,12 +4298,13 @@ void Integer::Negate()
 
 int Integer::PositiveCompare(const Integer& t) const
 {
-	unsigned size = WordCount(), tSize = t.WordCount();
-
-	if (size == tSize)
-		return CryptoPP::Compare(reg, t.reg, size);
-	else
+	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
+	// The code change occurred at Commit dc99266599a0e72d.
+	const unsigned size = WordCount(), tSize = t.WordCount();
+	if (size != tSize)
 		return size > tSize ? 1 : -1;
+	else
+		return CryptoPP::Compare(reg, t.reg, size);
 }
 
 int Integer::Compare(const Integer& t) const
@@ -4149,7 +4332,7 @@ Integer Integer::SquareRoot() const
 
 	// overestimate square root
 	Integer x, y = Power2((BitCount()+1)/2);
-	assert(y*y >= *this);
+	CRYPTOPP_ASSERT(y*y >= *this);
 
 	do
 	{
@@ -4178,11 +4361,19 @@ Integer Integer::MultiplicativeInverse() const
 
 Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m)
 {
+	CRYPTOPP_ASSERT(m != 0);
+	if (m == 0)
+		throw Integer::DivideByZero();
+
 	return x*y%m;
 }
 
 Integer a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m)
 {
+	CRYPTOPP_ASSERT(m != 0);
+	if (m == 0)
+		throw Integer::DivideByZero();
+
 	ModularArithmetic mr(m);
 	return mr.Exponentiate(x, e);
 }
@@ -4194,10 +4385,23 @@ Integer Integer::Gcd(const Integer &a, const Integer &b)
 
 Integer Integer::InverseMod(const Integer &m) const
 {
-	assert(m.NotNegative());
+	CRYPTOPP_ASSERT(m.NotNegative());
+	CRYPTOPP_ASSERT(m.NotZero());
 
 	if (IsNegative())
-		return Modulo(m).InverseMod(m);
+		return Modulo(m).InverseModNext(m);
+
+	// http://github.com/weidai11/cryptopp/issues/602
+	if (*this >= m)
+		return Modulo(m).InverseModNext(m);
+
+	return InverseModNext(m);
+}
+
+Integer Integer::InverseModNext(const Integer &m) const
+{
+	CRYPTOPP_ASSERT(m.NotNegative());
+	CRYPTOPP_ASSERT(m.NotZero());
 
 	if (m.IsEven())
 	{
@@ -4206,11 +4410,12 @@ Integer Integer::InverseMod(const Integer &m) const
 		if (*this == One())
 			return One();
 
-		Integer u = m.Modulo(*this).InverseMod(*this);
+		Integer u = m.Modulo(*this).InverseModNext(*this);
 		return !u ? Zero() : (m*(*this-u)+1)/(*this);
 	}
 
-	SecBlock<word> T(m.reg.size() * 4);
+	// AlmostInverse requires a 4x workspace
+	IntegerSecBlock T(m.reg.size() * 4);
 	Integer r((word)0, m.reg.size());
 	unsigned k = AlmostInverse(r.reg, T, reg, reg.size(), m.reg, m.reg.size());
 	DivideByPower2Mod(r.reg, r.reg, k, m.reg, m.reg.size());
@@ -4219,6 +4424,8 @@ Integer Integer::InverseMod(const Integer &m) const
 
 word Integer::InverseMod(word mod) const
 {
+	CRYPTOPP_ASSERT(mod != 0);
+
 	word g0 = mod, g1 = *this % mod;
 	word v0 = 0, v1 = 1;
 	word y;
@@ -4410,7 +4617,7 @@ const Integer& MontgomeryRepresentation::Multiply(const Integer &a, const Intege
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N && b.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N && b.reg.size()<=N);
 
 	AsymmetricMultiply(T, T+2*N, a.reg, a.reg.size(), b.reg, b.reg.size());
 	SetWords(T+a.reg.size()+b.reg.size(), 0, 2*N-a.reg.size()-b.reg.size());
@@ -4423,7 +4630,7 @@ const Integer& MontgomeryRepresentation::Square(const Integer &a) const
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N);
 
 	CryptoPP::Square(T, T+2*N, a.reg, a.reg.size());
 	SetWords(T+2*a.reg.size(), 0, 2*N-2*a.reg.size());
@@ -4436,7 +4643,7 @@ Integer MontgomeryRepresentation::ConvertOut(const Integer &a) const
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());
@@ -4450,7 +4657,7 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 	word *const T = m_workspace.begin();
 	word *const R = m_result.reg.begin();
 	const size_t N = m_modulus.reg.size();
-	assert(a.reg.size()<=N);
+	CRYPTOPP_ASSERT(a.reg.size()<=N);
 
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());
@@ -4480,7 +4687,7 @@ std::string IntToString<Integer>(Integer value, unsigned int base)
 
 	const char CH = UPPER ? 'A' : 'a';
 	base &= ~(BIT_32|BIT_31);
-	assert(base >= 2 && base <= 32);
+	CRYPTOPP_ASSERT(base >= 2 && base <= 32);
 
 	if (value == 0)
 		return "0";
@@ -4543,7 +4750,7 @@ std::string IntToString<word64>(word64 value, unsigned int base)
 	const char CH = !!(base & HIGH_BIT) ? 'A' : 'a';
 	base &= ~HIGH_BIT;
 
-	assert(base >= 2);
+	CRYPTOPP_ASSERT(base >= 2);
 	if (value == 0)
 		return "0";
 
@@ -4557,10 +4764,87 @@ std::string IntToString<word64>(word64 value, unsigned int base)
 	return result;
 }
 
+#ifndef CRYPTOPP_NO_ASSIGN_TO_INTEGER
+// Allow the linker to discard Integer code if not needed.
+// Also see http://github.com/weidai11/cryptopp/issues/389.
+bool AssignIntToInteger(const std::type_info &valueType, void *pInteger, const void *pInt)
+{
+	if (valueType != typeid(Integer))
+		return false;
+	*reinterpret_cast<Integer *>(pInteger) = *reinterpret_cast<const int *>(pInt);
+	return true;
+}
+#endif  // CRYPTOPP_NO_ASSIGN_TO_INTEGER
+
+// *************************** C++ Static Initialization ***************************
+
+class InitInteger
+{
+public:
+	InitInteger()
+	{
+		SetFunctionPointers();
+	}
+};
+
+// This is not really needed because each Integer can dynamically initialize itself,
+// but we take a peephole optimization and initialize the class once if init priorities are
+// available. Dynamic initialization will be used if init priorities are not available.
+
+#if HAVE_GCC_INIT_PRIORITY
+	const InitInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 10))) = InitInteger();
+#elif defined(HAVE_MSC_INIT_PRIORITY)
+	#pragma warning(disable: 4075)
+	#pragma init_seg(".CRT$XCU")
+	const InitInteger s_init;
+#   if defined(USE_MSC_INIT_PRIORITY)
+	const Integer g_zero(0L);
+	const Integer g_one(1L);
+	const Integer g_two(2L);
+#   endif
+	#pragma warning(default: 4075)
+#else
+	const InitInteger s_init;
+#endif
+
+// ***************** Library code ********************
+
+const Integer &Integer::Zero()
+{
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_zero(0L);
+	return s_zero;
+#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
+	return g_zero;
+#else
+	return Singleton<Integer, NewInteger<0L> >().Ref();
+#endif
+}
+
+const Integer &Integer::One()
+{
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_one(1L);
+	return s_one;
+#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
+	return g_one;
+#else
+	return Singleton<Integer, NewInteger<1L> >().Ref();
+#endif
+}
+
+const Integer &Integer::Two()
+{
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static Integer s_two(2L);
+	return s_two;
+#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
+	return g_two;
+#else
+	return Singleton<Integer, NewInteger<2L> >().Ref();
+#endif
+}
+
 NAMESPACE_END
 
-#if WORKAROUND_ARMEL_BUG
-# pragma GCC pop_options
-#endif
-
-#endif
+#endif  // CRYPTOPP_IMPORTS

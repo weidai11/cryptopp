@@ -1,4 +1,4 @@
-// xtrcrypt.cpp - written and placed in the public domain by Wei Dai
+// xtrcrypt.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 
@@ -45,16 +45,26 @@ bool XTR_DH::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = true;
 	pass = pass && m_p > Integer::One() && m_p.IsOdd();
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && m_q > Integer::One() && m_q.IsOdd();
+	CRYPTOPP_ASSERT(pass);
 	GFP2Element three = GFP2_ONB<ModularArithmetic>(m_p).ConvertIn(3);
+	CRYPTOPP_ASSERT(pass);
 	pass = pass && !(m_g.c1.IsNegative() || m_g.c2.IsNegative() || m_g.c1 >= m_p || m_g.c2 >= m_p || m_g == three);
+	CRYPTOPP_ASSERT(pass);
 	if (level >= 1)
+	{
 		pass = pass && ((m_p.Squared()-m_p+1)%m_q).IsZero();
+		CRYPTOPP_ASSERT(pass);
+	}
 	if (level >= 2)
 	{
 		pass = pass && VerifyPrime(rng, m_p, level-2) && VerifyPrime(rng, m_q, level-2);
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && XTR_Exponentiate(m_g, (m_p.Squared()-m_p+1)/m_q, m_p) != three;
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && XTR_Exponentiate(m_g, m_q, m_p) == three;
+		CRYPTOPP_ASSERT(pass);
 	}
 	return pass;
 }

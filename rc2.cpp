@@ -1,4 +1,4 @@
-// rc2.cpp - written and placed in the public domain by Wei Dai
+// rc2.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "rc2.h"
@@ -61,16 +61,16 @@ void RC2::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 	for (int i = 0; i < 16; i++)
 	{
 		R0 += (R1 & ~R3) + (R2 & R3) + K[4*i+0];
-		R0 = rotlFixed(R0, 1);
+		R0 = rotlConstant<1>(R0);
 
 		R1 += (R2 & ~R0) + (R3 & R0) + K[4*i+1];
-		R1 = rotlFixed(R1, 2);
+		R1 = rotlConstant<2>(R1);
 
 		R2 += (R3 & ~R1) + (R0 & R1) + K[4*i+2];
-		R2 = rotlFixed(R2, 3);
+		R2 = rotlConstant<3>(R2);
 
 		R3 += (R0 & ~R2) + (R1 & R2) + K[4*i+3];
-		R3 = rotlFixed(R3, 5);
+		R3 = rotlConstant<5>(R3);
 
 		if (i == 4 || i == 10)
 		{
@@ -99,16 +99,16 @@ void RC2::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 			R0 = word16(R0 - K[R3 & 63]);
 		}
 
-		R3 = rotrFixed(R3, 5);
+		R3 = rotrConstant<5>(R3);
 		R3 = word16(R3 - ((R0 & ~R2) + (R1 & R2) + K[4*i+3]));
 
-		R2 = rotrFixed(R2, 3);
+		R2 = rotrConstant<3>(R2);
 		R2 = word16(R2 - ((R3 & ~R1) + (R0 & R1) + K[4*i+2]));
 
-		R1 = rotrFixed(R1, 2);
+		R1 = rotrConstant<2>(R1);
 		R1 = word16(R1 - ((R2 & ~R0) + (R3 & R0) + K[4*i+1]));
 
-		R0 = rotrFixed(R0, 1);
+		R0 = rotrConstant<1>(R0);
 		R0 = word16(R0 - ((R1 & ~R3) + (R2 & R3) + K[4*i+0]));
 	}
 

@@ -7,13 +7,15 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-//! <a href="http://www.cryptolounge.org/wiki/MD5">MD5</a>
+/// \brief MD5 message digest
+/// \sa <a href="http://www.cryptolounge.org/wiki/MD5">MD5</a>
+/// \since Crypto++ 1.0
 class MD5 : public IteratedHashWithStaticTransform<word32, LittleEndian, 64, 16, MD5>
 {
 public:
 	static void InitState(HashWordType *state);
 	static void Transform(word32 *digest, const word32 *data);
-	static const char * StaticAlgorithmName() {return "MD5";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MD5";}
 };
 
 }

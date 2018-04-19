@@ -1,4 +1,5 @@
-// channels.cpp - written and placed in the public domain by Wei Dai
+// channels.cpp - originally written and placed in the public domain by Wei Dai
+//                CryptoPP::Test namespace added by JW in February 2017
 
 #include "pch.h"
 
@@ -7,8 +8,11 @@
 #include "cryptlib.h"
 #include "channels.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4355)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
-USING_NAMESPACE(std)
 
 #if 0
 void MessageSwitch::AddDefaultRoute(BufferedTransformation &destination, const std::string &channel)
@@ -37,7 +41,7 @@ public:
 	MessageRouteIterator(MessageSwitch &ms, const std::string &channel)
 		: m_channel(channel)
 	{
-		pair<MapIterator, MapIterator> range = cs.m_routeMap.equal_range(channel);
+		std::pair<MapIterator, MapIterator> range = cs.m_routeMap.equal_range(channel);
 		if (range.first == range.second)
 		{
 			m_useDefault = true;
@@ -97,7 +101,7 @@ void MessageSwitch::MessageSeriesEnd(int propagation=-1);
 void ChannelRouteIterator::Reset(const std::string &channel)
 {
 	m_channel = channel;
-	pair<MapIterator, MapIterator> range = m_cs.m_routeMap.equal_range(channel);
+	std::pair<MapIterator, MapIterator> range = m_cs.m_routeMap.equal_range(channel);
 	if (range.first == range.second)
 	{
 		m_useDefault = true;
@@ -239,7 +243,7 @@ byte * ChannelSwitch::ChannelCreatePutSpace(const std::string &channel, size_t &
 			return target.ChannelCreatePutSpace(ch, size);
 	}
 	size = 0;
-	return NULL;
+	return NULLPTR;
 }
 
 size_t ChannelSwitch::ChannelPutModifiable2(const std::string &channel, byte *inString, size_t length, int messageEnd, bool blocking)
@@ -261,7 +265,7 @@ size_t ChannelSwitch::ChannelPutModifiable2(const std::string &channel, byte *in
 
 void ChannelSwitch::AddDefaultRoute(BufferedTransformation &destination)
 {
-	m_defaultRoutes.push_back(DefaultRoute(&destination, value_ptr<std::string>(NULL)));
+	m_defaultRoutes.push_back(DefaultRoute(&destination, value_ptr<std::string>(NULLPTR)));
 }
 
 void ChannelSwitch::RemoveDefaultRoute(BufferedTransformation &destination)
@@ -297,8 +301,8 @@ void ChannelSwitch::AddRoute(const std::string &inChannel, BufferedTransformatio
 void ChannelSwitch::RemoveRoute(const std::string &inChannel, BufferedTransformation &destination, const std::string &outChannel)
 {
 	typedef ChannelSwitch::RouteMap::iterator MapIterator;
-	pair<MapIterator, MapIterator> range = m_routeMap.equal_range(inChannel);
-	
+	std::pair<MapIterator, MapIterator> range = m_routeMap.equal_range(inChannel);
+
 	for (MapIterator it = range.first; it != range.second; ++it)
 		if (it->second.first == &destination && it->second.second == outChannel)
 		{

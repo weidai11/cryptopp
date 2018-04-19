@@ -1,8 +1,7 @@
-// whrlpool.cpp - originally modified by Kevin Springle from
-// Paulo Barreto and Vincent Rijmen's public domain code, whirlpool.c.
-// Updated to Whirlpool version 3.0, optimized and SSE version added by Wei Dai
-// All modifications are placed in the public domain
-
+// whrlpool.cpp - originally modified by Kevin Springle from Paulo Barreto and Vincent Rijmen's
+//                public domain code, whirlpool.c. Updated to Whirlpool version 3.0, optimized
+//                and SSE version added by WD. All modifications are placed in the public domain.
+//
 // This is the original introductory comment:
 
 /**
@@ -21,7 +20,7 @@
  *      ``The Whirlpool hashing function,''
  *      NESSIE submission, 2000 (tweaked version, 2001),
  *      <https://www.cosic.esat.kuleuven.ac.be/nessie/workshop/submissions/whirlpool.zip>
- * 
+ *
  * @author  Paulo S.L.M. Barreto
  * @author  Vincent Rijmen.
  *
@@ -77,15 +76,13 @@
 // "Inline assembly operands don't work with .intel_syntax",
 //   http://llvm.org/bugs/show_bug.cgi?id=24232
 #if defined(CRYPTOPP_DISABLE_INTEL_ASM)
-# undef CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE
-# define CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE 0
-# define CRYPTOPP_BOOL_SSSE3_ASM_AVAILABLE 0
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+# undef CRYPTOPP_SSSE3_ASM_AVAILABLE
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void Whirlpool_TestInstantiations()
 {
 	Whirlpool x;
@@ -128,10 +125,12 @@ void Whirlpool::TruncatedFinal(byte *hash, size_t size)
  * employed).
  */
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-CRYPTOPP_ALIGN_DATA(16) static const word64 Whirlpool_C[4*256+R] CRYPTOPP_SECTION_ALIGN16 = {
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
+CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_TABLE
+const word64 Whirlpool_C[4*256+R] = {
 #else
-static const word64 Whirlpool_C[4*256+R] = {
+const word64 Whirlpool_C[4*256+R] = {
 #endif
     W64LIT(0x18186018c07830d8), W64LIT(0x23238c2305af4626), W64LIT(0xc6c63fc67ef991b8), W64LIT(0xe8e887e8136fcdfb),
     W64LIT(0x878726874ca113cb), W64LIT(0xb8b8dab8a9626d11), W64LIT(0x0101040108050209), W64LIT(0x4f4f214f426e9e0d),
@@ -408,8 +407,8 @@ static const word64 Whirlpool_C[4*256+R] = {
 // Whirlpool basic transformation. Transforms state based on block.
 void Whirlpool::Transform(word64 *digest, const word64 *block)
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE
-	if (HasISSE())
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
+	if (HasSSE2())
 	{
 		// MMX version has the same structure as C version below
 #ifdef __GNUC__
@@ -422,9 +421,6 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS_PUSH_IF86(	bx)
 		AS2(	mov		AS_REG_6, WORD_REG(ax))
 #else
-	#if _MSC_VER < 1300
-		AS_PUSH_IF86(	bx)
-	#endif
 		AS2(	lea		AS_REG_6, [Whirlpool_C])
 		AS2(	mov		WORD_REG(cx), digest)
 		AS2(	mov		WORD_REG(dx), block)
@@ -586,7 +582,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS_POP_IF86(	sp)
 		AS1(	emms)
 
-#if defined(__GNUC__) || (defined(_MSC_VER) && _MSC_VER < 1300)
+#if defined(__GNUC__)
 		AS_POP_IF86(	bx)
 #endif
 #ifdef __GNUC__
@@ -626,16 +622,16 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 
 #define KSH(op, i, a, b, c, d)	\
 	t = (word32)(k[(i+4)%8]>>32);\
-	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32));\
+	w##a = Whirlpool_C[3*256 + (byte)t] ^ (op ? w##a : rotrConstant<32>(w##a));\
 	if (op==2) k[a] = w##a;\
 	t >>= 8;\
-	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : rotrFixed(w##b, 32));\
+	w##b = Whirlpool_C[2*256 + (byte)t] ^ (op ? w##b : rotrConstant<32>(w##b));\
 	if (op==2) k[b] = w##b;\
 	t >>= 8;\
-	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : rotrFixed(w##c, 32));\
+	w##c = Whirlpool_C[1*256 + (byte)t] ^ (op ? w##c : rotrConstant<32>(w##c));\
 	if (op==2) k[c] = w##c;\
 	t >>= 8;\
-	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : rotrFixed(w##d, 32));\
+	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : rotrConstant<32>(w##d));\
 	if (op==2) k[d] = w##d;\
 
 #define TSL(op, i, a, b, c, d)	\
@@ -649,7 +645,7 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 	w##d = Whirlpool_C[0*256 + t]       ^ (op ? w##d : 0);
 
 #define TSH_OP(op, a, b)	\
-	w##a = Whirlpool_C[b*256 + (byte)t] ^ (op ? w##a : rotrFixed(w##a, 32) ^ k[a]);\
+	w##a = Whirlpool_C[b*256 + (byte)t] ^ (op ? w##a : rotrConstant<32>(w##a) ^ k[a]);\
 	if (op==2) s[a] = w##a;\
 	if (op==3) digest[a] ^= w##a;\
 

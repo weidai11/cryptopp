@@ -6,13 +6,6 @@
 
 #include "rijndael.h"
 
-// VC60 workaround: gives a C4786 warning without this function
-// when runtime lib is set to multithread debug DLL
-// even though warning 4786 is disabled!
-void Rijndael_VC60Workaround()
-{
-}
-
 NAMESPACE_BEGIN(CryptoPP)
 
 /*
@@ -161,10 +154,11 @@ const byte Rijndael::Base::Sd[256] = {
     0x55, 0x21, 0x0c, 0x7d,
 };
 
+/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
 const word32 Rijndael::Base::rcon[] = {
 	0x01000000, 0x02000000, 0x04000000, 0x08000000,
 	0x10000000, 0x20000000, 0x40000000, 0x80000000,
-	0x1B000000, 0x36000000, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+	0x1B000000, 0x36000000
 };
 
 NAMESPACE_END

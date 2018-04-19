@@ -1,7 +1,7 @@
-// ida.h - written and placed in the public domain by Wei Dai
+// ida.h - originally written and placed in the public domain by Wei Dai
 
-//! \file ida.h
-//! \brief Classes for Information Dispersal Algorithm (IDA)
+/// \file ida.h
+/// \brief Classes for Rabin's Information Dispersal and Shamir's Secret Sharing algorithms
 
 #ifndef CRYPTOPP_IDA_H
 #define CRYPTOPP_IDA_H
@@ -16,11 +16,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// base class for secret sharing and information dispersal
+/// \brief Secret sharing and information dispersal base class
+/// \since Crypto++ 1.0
 class RawIDA : public AutoSignaling<Unflushable<Multichannel<Filter> > >
 {
 public:
-	RawIDA(BufferedTransformation *attachment=NULL)
+	RawIDA(BufferedTransformation *attachment=NULLPTR)
 		: m_threshold (0), m_channelsReady(0), m_channelsFinished(0)
 			{Detach(attachment);}
 
@@ -61,11 +62,15 @@ protected:
 	SecBlock<word32> m_u, m_w, m_y;
 };
 
-/// a variant of Shamir's Secret Sharing Algorithm
+/// \brief Shamir's Secret Sharing Algorithm
+/// \details SecretSharing is a variant of Shamir's secret sharing algorithm
+/// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
+/// \since Crypto++ 1.0
 class SecretSharing : public CustomFlushPropagation<Filter>
 {
 public:
-	SecretSharing(RandomNumberGenerator &rng, int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
+	/// \brief Construct a SecretSharing
+	SecretSharing(RandomNumberGenerator &rng, int threshold, int nShares, BufferedTransformation *attachment=NULLPTR, bool addPadding=true)
 		: m_rng(rng), m_ida(new OutputProxy(*this, true))
 	{
 		Detach(attachment);
@@ -82,11 +87,15 @@ protected:
 	bool m_pad;
 };
 
-/// a variant of Shamir's Secret Sharing Algorithm
+/// \brief Shamir's Secret Sharing Algorithm
+/// \details SecretSharing is a variant of Shamir's secret sharing algorithm
+/// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
+/// \since Crypto++ 1.0
 class SecretRecovery : public RawIDA
 {
 public:
-	SecretRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
+	/// \brief Construct a SecretRecovery
+	SecretRecovery(int threshold, BufferedTransformation *attachment=NULLPTR, bool removePadding=true)
 		: RawIDA(attachment)
 		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
@@ -100,10 +109,16 @@ protected:
 };
 
 /// a variant of Rabin's Information Dispersal Algorithm
+
+/// \brief Rabin's Information Dispersal Algorithm
+/// \details InformationDispersal is a variant of Rabin's information dispersal algorithm
+/// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
+/// \since Crypto++ 1.0
 class InformationDispersal : public CustomFlushPropagation<Filter>
 {
 public:
-	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULL, bool addPadding=true)
+	/// \brief Construct a InformationDispersal
+	InformationDispersal(int threshold, int nShares, BufferedTransformation *attachment=NULLPTR, bool addPadding=true)
 		: m_ida(new OutputProxy(*this, true)), m_pad(false), m_nextChannel(0)
 	{
 		Detach(attachment);
@@ -120,11 +135,15 @@ protected:
 	unsigned int m_nextChannel;
 };
 
-/// a variant of Rabin's Information Dispersal Algorithm
+/// \brief Rabin's Information Dispersal Algorithm
+/// \details InformationDispersal is a variant of Rabin's information dispersal algorithm
+/// \sa SecretRecovery, SecretRecovery, InformationDispersal, InformationRecovery
+/// \since Crypto++ 1.0
 class InformationRecovery : public RawIDA
 {
 public:
-	InformationRecovery(int threshold, BufferedTransformation *attachment=NULL, bool removePadding=true)
+	/// \brief Construct a InformationRecovery
+	InformationRecovery(int threshold, BufferedTransformation *attachment=NULLPTR, bool removePadding=true)
 		: RawIDA(attachment), m_pad(false)
 		{IsolatedInitialize(MakeParameters("RecoveryThreshold", threshold)("RemovePadding", removePadding));}
 
@@ -141,7 +160,7 @@ protected:
 class PaddingRemover : public Unflushable<Filter>
 {
 public:
-	PaddingRemover(BufferedTransformation *attachment=NULL)
+	PaddingRemover(BufferedTransformation *attachment=NULLPTR)
 		: m_possiblePadding(false), m_zeroCount(0) {Detach(attachment);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)

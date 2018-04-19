@@ -1,28 +1,36 @@
-// ida.cpp - written and placed in the public domain by Wei Dai
+// ida.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "config.h"
 
 #include "ida.h"
+#include "stdcpp.h"
 #include "algebra.h"
 #include "gf2_32.h"
 #include "polynomi.h"
 #include "polynomi.cpp"
 
-#include <functional>
-
 ANONYMOUS_NAMESPACE_BEGIN
-static const CryptoPP::GF2_32 field;
+const CryptoPP::GF2_32 field;
 NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if (defined(_MSC_VER) && (_MSC_VER < 1400)) && !defined(__MWERKS__)
+	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
+	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
+#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
+	typedef std::reverse_iterator<const byte *, std::random_access_iterator_tag, const byte> RevIt;
+#else
+	typedef std::reverse_iterator<const byte *> RevIt;
+#endif
 
 void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	if (!parameters.GetIntValue("RecoveryThreshold", m_threshold))
 		throw InvalidArgument("RawIDA: missing RecoveryThreshold argument");
 
-	assert(m_threshold > 0);
+	CRYPTOPP_ASSERT(m_threshold > 0);
 	if (m_threshold <= 0)
 		throw InvalidArgument("RawIDA: RecoveryThreshold must be greater than 0");
 
@@ -43,7 +51,7 @@ void RawIDA::IsolatedInitialize(const NameValuePairs &parameters)
 	else
 	{
 		int nShares = parameters.GetIntValueWithDefault("NumberOfShares", m_threshold);
-		assert(nShares > 0);
+		CRYPTOPP_ASSERT(nShares > 0);
 		if (nShares <= 0) {nShares = m_threshold;}
 		for (unsigned int i=0; i< (unsigned int)(nShares); i++)
 			AddOutputChannel(i);
@@ -152,7 +160,7 @@ void RawIDA::AddOutputChannel(word32 channelId)
 
 void RawIDA::PrepareInterpolation()
 {
-	assert(m_inputChannelIds.size() == size_t(m_threshold));
+	CRYPTOPP_ASSERT(m_inputChannelIds.size() == size_t(m_threshold));
 	PrepareBulkPolynomialInterpolation(field, m_w.begin(), &(m_inputChannelIds[0]), (unsigned int)(m_threshold));
 	for (unsigned int i=0; i<m_outputChannelIds.size(); i++)
 		ComputeV(i);
@@ -271,9 +279,9 @@ size_t SecretSharing::Put2(const byte *begin, size_t length, int messageEnd, boo
 			while (m_ida.InputBuffered(0xffffffff) > 0)
 				SecretSharing::Put(0);
 		}
-		m_ida.ChannelData(0xffffffff, NULL, 0, true);
+		m_ida.ChannelData(0xffffffff, NULLPTR, 0, true);
 		for (unsigned int i=0; i<m_ida.GetThreshold()-1; i++)
-			m_ida.ChannelData(i, NULL, 0, true);
+			m_ida.ChannelData(i, NULLPTR, 0, true);
 	}
 
 	return 0;
@@ -318,7 +326,7 @@ size_t InformationDispersal::Put2(const byte *begin, size_t length, int messageE
 {
 	if (!blocking)
 		throw BlockingInputOnly("InformationDispersal");
-	
+
 	while (length--)
 	{
 		m_ida.ChannelData(m_nextChannel, begin, 1, false);
@@ -334,7 +342,7 @@ size_t InformationDispersal::Put2(const byte *begin, size_t length, int messageE
 		if (m_pad)
 			InformationDispersal::Put(1);
 		for (word32 i=0; i<m_ida.GetThreshold(); i++)
-			m_ida.ChannelData(i, NULL, 0, true);
+			m_ida.ChannelData(i, NULLPTR, 0, true);
 	}
 
 	return 0;
@@ -381,7 +389,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 
 	if (m_possiblePadding)
 	{
-		size_t len = std::find_if(begin, end, std::bind2nd(std::not_equal_to<byte>(), byte(0))) - begin;
+		size_t len = FindIfNot(begin, end, byte(0)) - begin;
 		m_zeroCount += len;
 		begin += len;
 		if (begin == end)
@@ -394,15 +402,7 @@ size_t PaddingRemover::Put2(const byte *begin, size_t length, int messageEnd, bo
 		m_possiblePadding = false;
 	}
 
-#if defined(_MSC_VER) && (_MSC_VER <= 1300) && !defined(__MWERKS__)
-	// VC60 and VC7 workaround: built-in reverse_iterator has two template parameters, Dinkumware only has one
-	typedef std::reverse_bidirectional_iterator<const byte *, const byte> RevIt;
-#elif defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
-	typedef std::reverse_iterator<const byte *, std::random_access_iterator_tag, const byte> RevIt;
-#else
-	typedef std::reverse_iterator<const byte *> RevIt;
-#endif
-	const byte *x = std::find_if(RevIt(end), RevIt(begin), std::bind2nd(std::not_equal_to<byte>(), byte(0))).base();
+	const byte *x = FindIfNot(RevIt(end), RevIt(begin), byte(0)).base();
 	if (x != begin && *(x-1) == 1)
 	{
 		AttachedTransformation()->Put(begin, x-begin-1);

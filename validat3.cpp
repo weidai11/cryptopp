@@ -1,4 +1,5 @@
-// validat3.cpp - written and placed in the public domain by Wei Dai
+// validat3.cpp - originally written and placed in the public domain by Wei Dai
+//                CryptoPP::Test namespace added by JW in February 2017
 
 #include "pch.h"
 
@@ -9,7 +10,7 @@
 #include "gfpcrypt.h"
 #include "eccrypto.h"
 
-#include "smartptr.h"
+#include "aes.h"
 #include "crc.h"
 #include "adler32.h"
 #include "md2.h"
@@ -20,11 +21,14 @@
 #include "ripemd.h"
 #include "whrlpool.h"
 #include "hkdf.h"
+#include "poly1305.h"
+#include "siphash.h"
 #include "blake2.h"
 #include "hmac.h"
 #include "ttmac.h"
 #include "integer.h"
 #include "pwdbased.h"
+#include "scrypt.h"
 #include "filters.h"
 #include "files.h"
 #include "hex.h"
@@ -37,21 +41,16 @@
 #include "validate.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
-#if (CRYPTOPP_MSC_VERSION >= 1410)
+#if (_MSC_FULL_VER >= 140050727)
 # pragma strict_gs_check (on)
 #endif
 
-// Quiet deprecated warnings intended to benefit users.
 #if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4996)
+# pragma warning(disable: 4505 4355)
 #endif
 
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#endif
-
-USING_NAMESPACE(CryptoPP)
-USING_NAMESPACE(std)
+NAMESPACE_BEGIN(CryptoPP)
+NAMESPACE_BEGIN(Test)
 
 struct HashTestTuple
 {
@@ -72,7 +71,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 	SecByteBlock digest(md.DigestSize());
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
@@ -80,16 +79,16 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		for (j=0; j<testSet[i].repeatTimes; j++)
 			md.Update(testSet[i].input, testSet[i].inputLen);
 		md.Final(digest);
-		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
+		fail = !!memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
-		cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << (char *)testSet[i].input << '\"';
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+		std::cout << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			cout << " repeated " << dec << testSet[i].repeatTimes << " times";
-		cout  << endl;
+			std::cout << " repeated " << std::dec << testSet[i].repeatTimes << " times";
+		std::cout  << std::endl;
 	}
 
 	return pass;
@@ -111,8 +110,8 @@ bool ValidateCRC32()
 
 	CRC32 crc;
 
-	cout << "\nCRC-32 validation suite running...\n\n";
-	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	std::cout << "\nCRC-32 validation suite running...\n\n";
+	return HashModuleTest(crc, testSet, COUNTOF(testSet));
 }
 
 bool ValidateCRC32C()
@@ -131,8 +130,8 @@ bool ValidateCRC32C()
 
 	CRC32C crc;
 
-	cout << "\nCRC-32C validation suite running...\n\n";
-	return HashModuleTest(crc, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	std::cout << "\nCRC-32C validation suite running...\n\n";
+	return HashModuleTest(crc, testSet, COUNTOF(testSet));
 }
 
 bool ValidateAdler32()
@@ -150,8 +149,8 @@ bool ValidateAdler32()
 
 	Adler32 md;
 
-	cout << "\nAdler-32 validation suite running...\n\n";
-	return HashModuleTest(md, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	std::cout << "\nAdler-32 validation suite running...\n\n";
+	return HashModuleTest(md, testSet, COUNTOF(testSet));
 }
 
 bool ValidateMD2()
@@ -169,8 +168,8 @@ bool ValidateMD2()
 
 	Weak::MD2 md2;
 
-	cout << "\nMD2 validation suite running...\n\n";
-	return HashModuleTest(md2, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	std::cout << "\nMD2 validation suite running...\n\n";
+	return HashModuleTest(md2, testSet, COUNTOF(testSet));
 }
 
 bool ValidateMD4()
@@ -188,8 +187,8 @@ bool ValidateMD4()
 
 	Weak::MD4 md4;
 
-	cout << "\nMD4 validation suite running...\n\n";
-	return HashModuleTest(md4, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	std::cout << "\nMD4 validation suite running...\n\n";
+	return HashModuleTest(md4, testSet, COUNTOF(testSet));
 }
 
 bool ValidateMD5()
@@ -207,25 +206,25 @@ bool ValidateMD5()
 
 	Weak::MD5 md5;
 
-	cout << "\nMD5 validation suite running...\n\n";
-	return HashModuleTest(md5, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	std::cout << "\nMD5 validation suite running...\n\n";
+	return HashModuleTest(md5, testSet, COUNTOF(testSet));
 }
 
 bool ValidateSHA()
 {
-	cout << "\nSHA validation suite running...\n\n";
+	std::cout << "\nSHA validation suite running...\n";
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
 }
 
 bool ValidateSHA2()
 {
-	cout << "\nSHA validation suite running...\n\n";
+	std::cout << "\nSHA validation suite running...\n";
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
 }
 
 bool ValidateTiger()
 {
-	cout << "\nTiger validation suite running...\n\n";
+	std::cout << "\nTiger validation suite running...\n\n";
 
 	HashTestTuple testSet[] =
 	{
@@ -242,7 +241,7 @@ bool ValidateTiger()
 
 	Tiger tiger;
 
-	return HashModuleTest(tiger, testSet, sizeof(testSet)/sizeof(testSet[0]));
+	return HashModuleTest(tiger, testSet, COUNTOF(testSet));
 }
 
 bool ValidateRIPEMD()
@@ -301,21 +300,21 @@ bool ValidateRIPEMD()
 
 	bool pass = true;
 
-	cout << "\nRIPEMD-128 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-128 validation suite running...\n\n";
 	RIPEMD128 md128;
-	pass = HashModuleTest(md128, testSet128, sizeof(testSet128)/sizeof(testSet128[0])) && pass;
+	pass = HashModuleTest(md128, testSet128, COUNTOF(testSet128)) && pass;
 
-	cout << "\nRIPEMD-160 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-160 validation suite running...\n\n";
 	RIPEMD160 md160;
-	pass = HashModuleTest(md160, testSet160, sizeof(testSet160)/sizeof(testSet160[0])) && pass;
+	pass = HashModuleTest(md160, testSet160, COUNTOF(testSet160)) && pass;
 
-	cout << "\nRIPEMD-256 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-256 validation suite running...\n\n";
 	RIPEMD256 md256;
-	pass = HashModuleTest(md256, testSet256, sizeof(testSet256)/sizeof(testSet256[0])) && pass;
+	pass = HashModuleTest(md256, testSet256, COUNTOF(testSet256)) && pass;
 
-	cout << "\nRIPEMD-320 validation suite running...\n\n";
+	std::cout << "\nRIPEMD-320 validation suite running...\n\n";
 	RIPEMD320 md320;
-	pass = HashModuleTest(md320, testSet320, sizeof(testSet320)/sizeof(testSet320[0])) && pass;
+	pass = HashModuleTest(md320, testSet320, COUNTOF(testSet320)) && pass;
 
 	return pass;
 }
@@ -335,7 +334,7 @@ bool ValidateHAVAL()
 
 	bool pass=true;
 
-	cout << "\nHAVAL validation suite running...\n\n";
+	std::cout << "\nHAVAL validation suite running...\n\n";
 	{
 		HAVAL3 md(16);
 		pass = HashModuleTest(md, testSet+0, 1) && pass;
@@ -408,31 +407,31 @@ bool ValidateMD5MAC()
 		{0xf2,0xb9,0x06,0xa5,0xb8,0x4b,0x9b,0x4b,0xbe,0x95,0xed,0x32,0x56,0x4e,0xe7,0xeb}}};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 
 	byte digest[MD5MAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nMD5MAC validation suite running...\n";
+	std::cout << "\nMD5MAC validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		MD5MAC mac(keys[k]);
-		cout << "\nKEY: ";
+		std::cout << "\nKEY: ";
 		for (int j=0;j<MD5MAC::KEYLENGTH;j++)
-			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		cout << endl << endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
+		std::cout << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
+			fail = !!memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			cout << (fail ? "FAILED   " : "passed   ");
+			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<MD5MAC::DIGESTSIZE;j++)
-				cout << setw(2) << setfill('0') << hex << (int)digest[j];
-			cout << "   \"" << TestVals[i] << '\"' << endl;
+				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
@@ -482,31 +481,31 @@ bool ValidateXMACC()
 		{0x76,0x54,0x32,0x17,0xc6,0xfe,0xe6,0x5f,0xb1,0x35,0x8a,0xf5,0x32,0x7a,0x80,0xbd,0xb8,0x72,0xee,0xae}}};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 
 	byte digest[XMACC_MD5::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nXMACC/MD5 validation suite running...\n";
+	std::cout << "\nXMACC/MD5 validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		XMACC_MD5 mac(keys[k], counters[k]);
-		cout << "\nKEY: ";
+		std::cout << "\nKEY: ";
 		for (int j=0;j<XMACC_MD5::KEYLENGTH;j++)
-			cout << setw(2) << setfill('0') << hex << (int)keys[k][j];
-		cout << "    COUNTER: 0x" << hex << counters[k] << endl << endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
+		std::cout << "    COUNTER: 0x" << std::hex << counters[k] << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
+			fail = !!memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			cout << (fail ? "FAILED   " : "passed   ");
+			std::cout << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<XMACC_MD5::DIGESTSIZE;j++)
-				cout << setw(2) << setfill('0') << hex << (int)digest[j];
-			cout << "   \"" << TestVals[i] << '\"' << endl;
+				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
@@ -541,25 +540,25 @@ bool ValidateTTMAC()
 		{0x0c,0xed,0x2c,0x9f,0x8f,0x0d,0x9d,0x03,0x98,0x1a,0xb5,0xc8,0x18,0x4b,0xac,0x43,0xdd,0x54,0xc4,0x84}};
 
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(cout);
+	StreamState ss(std::cout);
 
 	byte digest[TTMAC::DIGESTSIZE];
 	bool pass=true, fail;
 
-	cout << "\nTwo-Track-MAC validation suite running...\n";
+	std::cout << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
-	for (unsigned int k=0; k<sizeof(TestVals)/sizeof(TestVals[0]); k++)
+	for (unsigned int k = 0; k<COUNTOF(TestVals); k++)
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);
-		fail = memcmp(digest, output[k], TTMAC::DIGESTSIZE)
+		fail = !!memcmp(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
-		cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		for (int j=0;j<TTMAC::DIGESTSIZE;j++)
-			cout << setw(2) << setfill('0') << hex << (int)digest[j];
-		cout << "   \"" << TestVals[k] << '\"' << endl;
+			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+		std::cout << "   \"" << TestVals[k] << '\"' << std::endl;
 	}
 
 	return true;
@@ -572,7 +571,7 @@ struct PBKDF_TestTuple
 	const char *hexPassword, *hexSalt, *hexDerivedKey;
 };
 
-bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, unsigned int testSetSize)
+bool TestPBKDF(KeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, unsigned int testSetSize)
 {
 	bool pass = true;
 
@@ -580,23 +579,28 @@ bool TestPBKDF(PasswordBasedKeyDerivationFunction &pbkdf, const PBKDF_TestTuple 
 	{
 		const PBKDF_TestTuple &tuple = testSet[i];
 
-		string password, salt, derivedKey;
+		std::string password, salt, derivedKey;
 		StringSource(tuple.hexPassword, true, new HexDecoder(new StringSink(password)));
 		StringSource(tuple.hexSalt, true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexDerivedKey, true, new HexDecoder(new StringSink(derivedKey)));
 
+		double timeInSeconds = 0.0f;
+		AlgorithmParameters params = MakeParameters("Purpose", (int)tuple.purpose)
+		    (Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()))
+		    ("Iterations", (int)tuple.iterations)("TimeInSeconds", timeInSeconds);
+
 		SecByteBlock derived(derivedKey.size());
-		pbkdf.DeriveKey(derived, derived.size(), tuple.purpose, (byte *)password.data(), password.size(), (byte *)salt.data(), salt.size(), tuple.iterations);
-		bool fail = memcmp(derived, derivedKey.data(), derived.size()) != 0;
+		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);
+		bool fail = !!memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
-		HexEncoder enc(new FileSink(cout));
-		cout << (fail ? "FAILED   " : "passed   ");
+		HexEncoder enc(new FileSink(std::cout));
+		std::cout << (fail ? "FAILED   " : "passed   ");
 		enc.Put(tuple.purpose);
-		cout << " " << tuple.iterations;
-		cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
+		std::cout << " " << tuple.iterations;
+		std::cout << " " << tuple.hexPassword << " " << tuple.hexSalt << " ";
 		enc.Put(derived, derived.size());
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	return pass;
@@ -607,7 +611,7 @@ bool ValidatePBKDF()
 	bool pass = true;
 
 	{
-	// from OpenSSL PKCS#12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
+	// from OpenSSL PKCS #12 Program FAQ v1.77, at http://www.drh-consultancy.demon.co.uk/test.txt
 	PBKDF_TestTuple testSet[] =
 	{
 		{1, 1, "0073006D006500670000", "0A58CF64530D823F", "8AAAE6297B6CB04642AB5B077851284EB7128F1A2A7FBCA3"},
@@ -624,8 +628,8 @@ bool ValidatePBKDF()
 
 	PKCS12_PBKDF<SHA1> pbkdf;
 
-	cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
-	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
+	std::cout << "\nPKCS #12 PBKDF validation suite running...\n\n";
+	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
 	{
@@ -638,8 +642,8 @@ bool ValidatePBKDF()
 
 	PKCS5_PBKDF2_HMAC<SHA1> pbkdf;
 
-	cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
-	pass = TestPBKDF(pbkdf, testSet, sizeof(testSet)/sizeof(testSet[0])) && pass;
+	std::cout << "\nPKCS #5 PBKDF2 validation suite running...\n\n";
+	pass = TestPBKDF(pbkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
 	return pass;
@@ -664,15 +668,18 @@ bool TestHKDF(KeyDerivationFunction &kdf, const HKDF_TestTuple *testSet, unsigne
 		StringSource(tuple.hexSalt ? tuple.hexSalt : "", true, new HexDecoder(new StringSink(salt)));
 		StringSource(tuple.hexInfo ? tuple.hexInfo : "", true, new HexDecoder(new StringSink(info)));
 		StringSource(tuple.hexExpected, true, new HexDecoder(new StringSink(expected)));
-
 		SecByteBlock derived(expected.size());
-		unsigned int ret = kdf.DeriveKey(derived, derived.size(),
-                                         reinterpret_cast<const unsigned char*>(secret.data()), secret.size(),
-                                         (tuple.hexSalt ? reinterpret_cast<const unsigned char*>(salt.data()) : NULL), salt.size(),
-                                         (tuple.hexInfo ? reinterpret_cast<const unsigned char*>(info.data()) : NULL), info.size());
 
-		bool fail = !VerifyBufsEqual(derived, reinterpret_cast<const unsigned char*>(expected.data()), derived.size());
-		pass = pass && (ret == tuple.len) && !fail;
+		AlgorithmParameters params;
+		if (tuple.hexSalt)
+			params(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
+		if (tuple.hexSalt)
+			params("Info", ConstByteArrayParameter((const byte*)&info[0], info.size()));
+
+		kdf.DeriveKey((byte*)&derived[0], derived.size(), (const byte*)&secret[0], secret.size(), params);
+
+		bool fail = !VerifyBufsEqual(derived, (const byte*)&expected[0], derived.size());
+		pass = pass && !fail;
 
 		HexEncoder enc(new FileSink(std::cout));
 		std::cout << (fail ? "FAILED   " : "passed   ");
@@ -694,7 +701,7 @@ bool ValidateHKDF()
 
 	{
 	// SHA-1 from RFC 5869, Appendix A, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #4
 		{"0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "085a01ea1b10f36933068b56efa5ad81 a4f14b822f5b091568a9cdd4f155fda2 c22e422478d305f3f896", 42},
@@ -703,7 +710,7 @@ bool ValidateHKDF()
 		// Test Case #6
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "0ac1af7002b3d761d1e55298da9d0506 b9ae52057220a306e07b6b87e8df21d0 ea00033de03984d34918", 42},
 		// Test Case #7
-		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULL, "", "2c91117204d745f3500d636a62f64f0 ab3bae548aa53d423b0d1f27ebba6f5e5 673a081d70cce7acfc48", 42}
+		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULLPTR, "", "2c91117204d745f3500d636a62f64f0 ab3bae548aa53d423b0d1f27ebba6f5e5 673a081d70cce7acfc48", 42}
 	};
 
 	HKDF<SHA1> hkdf;
@@ -714,7 +721,7 @@ bool ValidateHKDF()
 
 	{
 	// SHA-256 from RFC 5869, Appendix A, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #1
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "3cb25f25faacd57a90434f64d0362f2a 2d2d0a90cf1a5a4c5db02d56ecc4c5bf 34007208d5b887185865", 42},
@@ -732,7 +739,7 @@ bool ValidateHKDF()
 
 	{
 	// SHA-512, Crypto++ generated, based on RFC 5869, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #0
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "832390086CDA71FB47625BB5CEB168E4 C8E26A1A16ED34D9FC7FE92C14815793 38DA362CB8D9F925D7CB", 42},
@@ -741,7 +748,7 @@ bool ValidateHKDF()
 		// Test Case #0
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "F5FA02B18298A72A8C23898A8703472C 6EB179DC204C03425C970E3B164BF90F FF22D04836D0E2343BAC", 42},
 		// Test Case #0
-		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULL, "", "1407D46013D98BC6DECEFCFEE55F0F90 B0C7F63D68EB1A80EAF07E953CFC0A3A 5240A155D6E4DAA965BB", 42}
+		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c", NULLPTR, "", "1407D46013D98BC6DECEFCFEE55F0F90 B0C7F63D68EB1A80EAF07E953CFC0A3A 5240A155D6E4DAA965BB", 42}
 	};
 
 	HKDF<SHA512> hkdf;
@@ -750,11 +757,9 @@ bool ValidateHKDF()
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
-
-
 	{
 	// Whirlpool, Crypto++ generated, based on RFC 5869, https://tools.ietf.org/html/rfc5869
-	static const HKDF_TestTuple testSet[] =
+	const HKDF_TestTuple testSet[] =
 	{
 		// Test Case #0
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "000102030405060708090a0b0c", "f0f1f2f3f4f5f6f7f8f9", "0D29F74CCD8640F44B0DD9638111C1B5 766EFED752AF358109E2E7C9CD4A28EF 2F90B2AD461FBA0744D4", 42},
@@ -763,7 +768,7 @@ bool ValidateHKDF()
 		// Test Case #0
 		{"0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b0b", "", "", "110632D0F7AEFAC31771FC66C22BB346 2614B81E4B04BA7F2B662E0BD694F564 58615F9A9CB56C57ECF2", 42},
 		// Test Case #0
-		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c" /*key*/, NULL /*salt*/, "" /*info*/, "4089286EBFB23DD8A02F0C9DAA35D538 EB09CD0A8CBAB203F39083AA3E0BD313 E6F91E64F21A187510B0", 42}
+		{"0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c" /*key*/, NULLPTR /*salt*/, "" /*info*/, "4089286EBFB23DD8A02F0C9DAA35D538 EB09CD0A8CBAB203F39083AA3E0BD313 E6F91E64F21A187510B0", 42}
 	};
 
 	HKDF<Whirlpool> hkdf;
@@ -772,6 +777,372 @@ bool ValidateHKDF()
 	pass = TestHKDF(hkdf, testSet, COUNTOF(testSet)) && pass;
 	}
 
+	return pass;
+}
+
+struct Scrypt_TestTuple
+{
+	const char * passwd;
+	const char * salt;
+	word64 n;
+	word32 r;
+	word32 p;
+	const char * expect;
+};
+
+bool TestScrypt(KeyDerivationFunction &pbkdf, const Scrypt_TestTuple *testSet, unsigned int testSetSize)
+{
+	bool pass = true;
+
+	for (unsigned int i=0; i<testSetSize; i++)
+	{
+		const Scrypt_TestTuple &tuple = testSet[i];
+
+		std::string password(tuple.passwd), salt(tuple.salt), expect;
+		StringSource(tuple.expect, true, new HexDecoder(new StringSink(expect)));
+
+		AlgorithmParameters params = MakeParameters("Cost", (word64)tuple.n)
+			("BlockSize", (word64)tuple.r)("Parallelization", (word64)tuple.p)
+			(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
+
+		SecByteBlock derived(expect.size());
+		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);
+		bool fail = !!memcmp(derived, expect.data(), expect.size()) != 0;
+		pass = pass && !fail;
+
+		if (password.empty()) {password="\"\"";}
+		if (salt.empty()) {salt="\"\"";}
+
+		HexEncoder enc(new FileSink(std::cout));
+		std::cout << (fail ? "FAILED   " : "passed   ");
+		std::cout << " " << password << " " << salt << " ";
+		std::cout << " " << tuple.n << " " << tuple.r;
+		std::cout << " " << tuple.p << " ";
+		enc.Put(derived, derived.size());
+		std::cout << std::endl;
+	}
+
+	return pass;
+}
+
+bool ValidateScrypt()
+{
+	bool pass = true;
+
+	// https://tools.ietf.org/html/rfc7914
+	const Scrypt_TestTuple testSet[] =
+	{
+			{ "", "", 16, 1, 1, "77d6576238657b203b19ca42c18a0497f16b4844e3074ae8dfdffa3fede21442fcd0069ded0948f8326a753a0fc81f17e8d3e0fb2e0d3628cf35e20c38d18906"},
+			{ "password", "NaCl", 1024, 8, 16, "fdbabe1c9d3472007856e7190d01e9fe7c6ad7cbc8237830e77376634b3731622eaf30d92e22a3886ff109279d9830dac727afb94a83ee6d8360cbdfa2cc0640"},
+			{ "pleaseletmein", "SodiumChloride", 16384, 8, 1, "7023bdcb3afd7348461c06cd81fd38ebfda8fbba904f8e3ea9b543f6545da1f2d5432955613f0fcf62d49705242a9af9e61e85dc0d651e40dfcf017b45575887"},
+#ifndef CRYPTOPP_DEBUG
+			// This one takes too long in debug builds
+			// { "pleaseletmein", "SodiumChloride", 1048576, 8, 1, "2101cb9b6a511aaeaddbbe09cf70f881ec568d574a2ffd4dabe5ee9820adaa478e56fd8f4ba5d09ffa1c6d927c40f4c337304049e8a952fbcbf45c6fa77a41a4"}
+#endif
+	};
+
+	Scrypt pbkdf;
+
+	std::cout << "\nRFC 7914 Scrypt validation suite running...\n\n";
+	pass = TestScrypt(pbkdf, testSet, COUNTOF(testSet)) && pass;
+
+	return pass;
+}
+
+struct Poly1305_TestTuples
+{
+	const char *key, *message, *nonce, *digest;
+	size_t klen, mlen, nlen, dlen;
+};
+
+bool ValidatePoly1305()
+{
+	std::cout << "\nPoly1305 validation suite running...\n\n";
+	bool fail, pass = true;
+
+	{
+		fail = (Poly1305<AES>::StaticAlgorithmName() != "Poly1305(AES)");
+		std::cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
+		pass = pass && !fail;
+	}
+
+	// Test data from http://cr.yp.to/mac/poly1305-20050329.pdf
+	const Poly1305_TestTuples tests[] =
+	{
+		// Appendix B, Test 1
+		{
+			"\xec\x07\x4c\x83\x55\x80\x74\x17\x01\x42\x5b\x62\x32\x35\xad\xd6"   // Key
+			"\x85\x1f\xc4\x0c\x34\x67\xac\x0b\xe0\x5c\xc2\x04\x04\xf3\xf7\x00",
+			"\xf3\xf6",                                                          // Message
+			"\xfb\x44\x73\x50\xc4\xe8\x68\xc5\x2a\xc3\x27\x5c\xf9\xd4\x32\x7e",  // Nonce
+			"\xf4\xc6\x33\xc3\x04\x4f\xc1\x45\xf8\x4f\x33\x5c\xb8\x19\x53\xde",  // Digest
+			32, 2, 16, 16
+		},
+		// Appendix B, Test 2
+		{
+			"\x75\xde\xaa\x25\xc0\x9f\x20\x8e\x1d\xc4\xce\x6b\x5c\xad\x3f\xbf"   // Key
+			"\x61\xee\x09\x21\x8d\x29\xb0\xaa\xed\x7e\x15\x4a\x2c\x55\x09\xcc",
+			"",                                                                  // Message
+			"\x61\xee\x09\x21\x8d\x29\xb0\xaa\xed\x7e\x15\x4a\x2c\x55\x09\xcc",  // Nonce
+			"\xdd\x3f\xab\x22\x51\xf1\x1a\xc7\x59\xf0\x88\x71\x29\xcc\x2e\xe7",  // Digest
+			32, 0, 16, 16
+		},
+		// Appendix B, Test 3
+		{
+			"\x6a\xcb\x5f\x61\xa7\x17\x6d\xd3\x20\xc5\xc1\xeb\x2e\xdc\xdc\x74"   // Key
+			"\x48\x44\x3d\x0b\xb0\xd2\x11\x09\xc8\x9a\x10\x0b\x5c\xe2\xc2\x08",
+			"\x66\x3c\xea\x19\x0f\xfb\x83\xd8\x95\x93\xf3\xf4\x76\xb6\xbc\x24"   // Message
+			"\xd7\xe6\x79\x10\x7e\xa2\x6a\xdb\x8c\xaf\x66\x52\xd0\x65\x61\x36",
+			"\xae\x21\x2a\x55\x39\x97\x29\x59\x5d\xea\x45\x8b\xc6\x21\xff\x0e",  // Nonce
+			"\x0e\xe1\xc1\x6b\xb7\x3f\x0f\x4f\xd1\x98\x81\x75\x3c\x01\xcd\xbe",  // Digest
+			32, 32, 16, 16
+		},
+		// Appendix B, Test 4
+		{
+			"\xe1\xa5\x66\x8a\x4d\x5b\x66\xa5\xf6\x8c\xc5\x42\x4e\xd5\x98\x2d"   // Key
+			"\x12\x97\x6a\x08\xc4\x42\x6d\x0c\xe8\xa8\x24\x07\xc4\xf4\x82\x07",
+			"\xab\x08\x12\x72\x4a\x7f\x1e\x34\x27\x42\xcb\xed\x37\x4d\x94\xd1"   // Message
+			"\x36\xc6\xb8\x79\x5d\x45\xb3\x81\x98\x30\xf2\xc0\x44\x91\xfa\xf0"
+			"\x99\x0c\x62\xe4\x8b\x80\x18\xb2\xc3\xe4\xa0\xfa\x31\x34\xcb\x67"
+			"\xfa\x83\xe1\x58\xc9\x94\xd9\x61\xc4\xcb\x21\x09\x5c\x1b\xf9",
+			"\x9a\xe8\x31\xe7\x43\x97\x8d\x3a\x23\x52\x7c\x71\x28\x14\x9e\x3a",  // Nonce
+			"\x51\x54\xad\x0d\x2c\xb2\x6e\x01\x27\x4f\xc5\x11\x48\x49\x1f\x1b",  // Digest
+			32, 63, 16, 16
+		}
+	};
+
+	unsigned int count = 0;
+	byte digest[Poly1305<AES>::DIGESTSIZE];
+
+	// Positive tests
+	for (unsigned int i=0; i<COUNTOF(tests); ++i)
+	{
+		Poly1305<AES> poly1305((const byte*)tests[i].key, tests[i].klen);
+		poly1305.Resynchronize((const byte*)tests[i].nonce, (int)tests[i].nlen);
+		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
+		poly1305.Final(digest);
+
+		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
+		if (fail)
+		{
+			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
+		}
+
+		count++;
+		pass = pass && !fail;
+	}
+
+	// Positive tests
+	for (unsigned int i=0; i<COUNTOF(tests); ++i)
+	{
+		Poly1305<AES> poly1305((const byte*)tests[i].key, tests[i].klen,(const byte*)tests[i].nonce, (int)tests[i].nlen);
+		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
+		poly1305.Final(digest);
+
+		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
+		if (fail)
+		{
+			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
+		}
+
+		count++;
+		pass = pass && !fail;
+	}
+
+	// Negative tests
+	for (unsigned int i=0; i<COUNTOF(tests); ++i)
+	{
+		Poly1305<AES> poly1305((const byte*)tests[i].key, tests[i].klen);
+		poly1305.Resynchronize((const byte*)tests[i].nonce, (int)tests[i].nlen);
+		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
+		poly1305.Final(digest);
+
+		unsigned int next = (i+1) % COUNTOF(tests);
+		fail = !!memcmp(digest, tests[next].digest, tests[next].dlen) == 0;
+		if (fail)
+		{
+			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
+		}
+
+		count++;
+		pass = pass && !fail;
+	}
+
+	std::cout << (!pass ? "FAILED   " : "passed   ") << count << " message authentication codes" << std::endl;
+
+	return pass;
+}
+
+bool ValidateSipHash()
+{
+	std::cout << "\nSipHash validation suite running...\n\n";
+	bool fail, pass = true, pass1=true, pass2=true, pass3=true, pass4=true;
+
+	{
+		fail = (SipHash<2,4>::StaticAlgorithmName() != "SipHash-2-4");
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 algorithm name\n";
+		pass = pass && !fail;
+
+		fail = (SipHash<2,4, false>::DIGESTSIZE != 8);
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 64-bit digest size\n";
+		pass = pass && !fail;
+
+		fail = (SipHash<2,4, true>::DIGESTSIZE != 16);
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-2-4 128-bit digest size\n";
+		pass = pass && !fail;
+
+		fail = (SipHash<4,8>::StaticAlgorithmName() != "SipHash-4-8");
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 algorithm name\n";
+		pass = pass && !fail;
+
+		fail = (SipHash<4,8, false>::DIGESTSIZE != 8);
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 64-bit digest size\n";
+		pass = pass && !fail;
+
+		fail = (SipHash<4,8, true>::DIGESTSIZE != 16);
+		std::cout << (fail ? "FAILED   " : "passed   ") << "SipHash-4-8 128-bit digest size\n";
+		pass = pass && !fail;
+	}
+
+	// Siphash-2-4, 64-bit MAC
+	{
+		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+		SipHash<2,4, false> hash(key, 16);
+		byte digest[SipHash<2,4, false>::DIGESTSIZE];
+
+		hash.Update((const byte*)"", 0);
+		hash.Final(digest);
+		fail = !!memcmp("\x31\x0E\x0E\xDD\x47\xDB\x6F\x72", digest, COUNTOF(digest));
+		pass1 = !fail && pass1;
+
+		hash.Update((const byte*)"\x00", 1);
+		hash.Final(digest);
+		fail = !!memcmp("\xFD\x67\xDC\x93\xC5\x39\xF8\x74", digest, COUNTOF(digest));
+		pass1 = !fail && pass1;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
+		hash.Final(digest);
+		fail = !!memcmp("\x37\xD1\x01\x8B\xF5\x00\x02\xAB", digest, COUNTOF(digest));
+		pass1 = !fail && pass1;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
+		hash.Final(digest);
+		fail = !!memcmp("\x62\x24\x93\x9A\x79\xF5\xF5\x93", digest, COUNTOF(digest));
+		pass1 = !fail && pass1;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
+		hash.Final(digest);
+		fail = !!memcmp("\xB0\xE4\xA9\x0B\xDF\x82\x00\x9E", digest, COUNTOF(digest));
+		pass1 = !fail && pass1;
+
+		std::cout << (pass1 ? "passed   " : "FAILED   ") << "SipHash-2-4 64-bit MAC\n";
+		pass = pass1 && pass;
+	}
+
+	// Siphash-2-4, 128-bit MAC
+	{
+		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+		SipHash<2,4, true> hash(key, 16);
+		byte digest[SipHash<2,4, true>::DIGESTSIZE];
+
+		hash.Update((const byte*)"", 0);
+		hash.Final(digest);
+		fail = !!memcmp("\xA3\x81\x7F\x04\xBA\x25\xA8\xE6\x6D\xF6\x72\x14\xC7\x55\x02\x93", digest, COUNTOF(digest));
+		pass3 = !fail && pass3;
+
+		hash.Update((const byte*)"\x00", 1);
+		hash.Final(digest);
+		fail = !!memcmp("\xDA\x87\xC1\xD8\x6B\x99\xAF\x44\x34\x76\x59\x11\x9B\x22\xFC\x45", digest, COUNTOF(digest));
+		pass3 = !fail && pass3;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
+		hash.Final(digest);
+		fail = !!memcmp("\xA1\xF1\xEB\xBE\xD8\xDB\xC1\x53\xC0\xB8\x4A\xA6\x1F\xF0\x82\x39", digest, COUNTOF(digest));
+		pass3 = !fail && pass3;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
+		hash.Final(digest);
+		fail = !!memcmp("\x3B\x62\xA9\xBA\x62\x58\xF5\x61\x0F\x83\xE2\x64\xF3\x14\x97\xB4", digest, COUNTOF(digest));
+		pass3 = !fail && pass3;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
+		hash.Final(digest);
+		fail = !!memcmp("\x26\x44\x99\x06\x0A\xD9\xBA\xAB\xC4\x7F\x8B\x02\xBB\x6D\x71\xED", digest, COUNTOF(digest));
+		pass3 = !fail && pass3;
+
+		std::cout << (pass3 ? "passed   " : "FAILED   ") << "SipHash-2-4 128-bit MAC\n";
+		pass = pass3 && pass;
+	}
+
+	// Siphash-4-8, 64-bit MAC
+	{
+		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+		SipHash<4, 8, false> hash(key, 16);
+		byte digest[SipHash<4, 8, false>::DIGESTSIZE];
+
+		hash.Update((const byte*)"", 0);
+		hash.Final(digest);
+		fail = !!memcmp("\x41\xDA\x38\x99\x2B\x05\x79\xC8", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00", 1);
+		hash.Final(digest);
+		fail = !!memcmp("\x51\xB8\x95\x52\xF9\x14\x59\xC8", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
+		hash.Final(digest);
+		fail = !!memcmp("\x47\xD7\x3F\x71\x5A\xBE\xFD\x4E", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
+		hash.Final(digest);
+		fail = !!memcmp("\x20\xB5\x8B\x9C\x07\x2F\xDB\x50", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
+		hash.Final(digest);
+		fail = !!memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
+		pass2 = !fail && pass2;
+
+		std::cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
+		pass = pass2 && pass;
+	}
+
+	// Siphash-4-8, 128-bit MAC
+	{
+		const byte key[] = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F";
+		SipHash<4, 8, true> hash(key, 16);
+		byte digest[SipHash<4, 8, true>::DIGESTSIZE];
+
+		hash.Update((const byte*)"", 0);
+		hash.Final(digest);
+		fail = !!memcmp("\x1F\x64\xCE\x58\x6D\xA9\x04\xE9\xCF\xEC\xE8\x54\x83\xA7\x0A\x6C", digest, COUNTOF(digest));
+		pass4 = !fail && pass4;
+
+		hash.Update((const byte*)"\x00", 1);
+		hash.Final(digest);
+		fail = !!memcmp("\x47\x34\x5D\xA8\xEF\x4C\x79\x47\x6A\xF2\x7C\xA7\x91\xC7\xA2\x80", digest, COUNTOF(digest));
+		pass4 = !fail && pass4;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
+		hash.Final(digest);
+		fail = !!memcmp("\xED\x00\xE1\x3B\x18\x4B\xF1\xC2\x72\x6B\x8B\x54\xFF\xD2\xEE\xE0", digest, COUNTOF(digest));
+		pass4 = !fail && pass4;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
+		hash.Final(digest);
+		fail = !!memcmp("\xA7\xD9\x46\x13\x8F\xF9\xED\xF5\x36\x4A\x5A\x23\xAF\xCA\xE0\x63", digest, COUNTOF(digest));
+		pass4 = !fail && pass4;
+
+		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
+		hash.Final(digest);
+		fail = !!memcmp("\x9E\x73\x14\xB7\x54\x5C\xEC\xA3\x8B\x9A\x55\x49\xE4\xFB\x0B\xE8", digest, COUNTOF(digest));
+		pass4 = !fail && pass4;
+
+		std::cout << (pass4 ? "passed   " : "FAILED   ") << "SipHash-4-8 128-bit MAC\n";
+		pass = pass4 && pass;
+	}
 
 	return pass;
 }
@@ -784,79 +1155,103 @@ struct BLAKE2_TestTuples
 
 bool ValidateBLAKE2s()
 {
-	cout << "\nBLAKE2s validation suite running...\n\n";
+	std::cout << "\nBLAKE2s validation suite running...\n\n";
 	bool fail, pass = true;
 
 	{
 		fail = strcmp(BLAKE2s::StaticAlgorithmName(), "BLAKE2s") != 0;
-		cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
 		pass = pass && !fail;
 	}
 
-	static const BLAKE2_TestTuples tests[] = {
+	const BLAKE2_TestTuples tests[] = {
 	    {
-	        NULL,
-	        NULL,
+	        NULLPTR,
+	        NULLPTR,
+	        "\x8F\x38",
+	        0, 0, 2
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x36\xE9\xD2\x46",
+	        0, 0, 4
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\xEF\x2A\x8B\x78\xDD\x80\xDA\x9C",
+	        0, 0, 8
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x64\x55\x0D\x6F\xFE\x2C\x0A\x01\xA1\x4A\xBA\x1E\xAD\xE0\x20\x0C",
+	        0, 0, 16
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
 	        "\x69\x21\x7A\x30\x79\x90\x80\x94\xE1\x11\x21\xD0\x42\x35\x4A\x7C\x1F\x55\xB6\x48\x2C\xA1\xA5\x1E\x1B\x25\x0D\xFD\x1E\xD0\xEE\xF9",
 	        0, 0, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x25\xEC\xB2\xF6\xA7\x81\x82\x57\x5D\x4B\xD7\x02\x72\x6D\xE1\x82\xBB\x1E\x21\xA8\x5D\x51\x34\xAD\xA2\x25\x8D\x7E\x21\x38\x03\xA7",
 	        0, 15, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xD4\x1C\x69\x87\x29\x7E\xDE\x4F\x08\x9B\x66\x9B\xC7\x0E\x62\xB9\xFA\xFA\x1C\x37\xCC\x31\x29\x22\xE0\xEA\x63\xE2\xE5\x85\xAA\x9F",
 	        0, 16, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xE0\xAD\xF2\xCC\x1F\x1F\x55\x3A\xE6\xC3\xCD\x3D\xF7\x68\xEA\x66\x9C\x32\xBE\x1D\x37\xF9\xA2\x61\xD4\x4F\x45\x26\x69\xD0\xD3\xA4",
 	        0, 17, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x10\x42\x65\x1C\x86\x15\xC4\x87\x69\x41\x19\x1F\xB6\xD5\xC5\x1D\xEB\x4C\xA1\x8C\xAF\xEF\xEB\x79\x69\x62\x87\x0D\x6A\x5D\xEE\x20",
 	        0, 31, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xEA\xB1\xC5\xDD\xDF\xB5\x7C\x48\xC5\xB0\xB3\xF5\xBE\x5B\x47\x6D\xBB\xF5\xA3\x5C\x21\xD3\xDD\x94\x13\xA1\x04\xB8\x14\xF9\x2D\x4B",
 	        0, 32, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x7E\x82\x07\x49\x14\x62\x11\x96\xC5\xE8\xF3\xCB\x0F\x21\x7B\x37\xAE\x9B\x64\x58\xF4\x66\x01\xB9\x21\x23\xAC\x48\x64\x30\x83\x8F",
 	        0, 33, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x90\xB5\xA2\x5E\x8E\xA8\xA0\xC8\x74\x85\xAE\x18\x08\x9D\x92\xEB\x14\x5A\x5D\x4E\x2C\x60\x7B\xCB\x4B\x94\xD1\x0F\xAE\x59\x33\xC1",
 	        0, 63, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x71\x27\x28\x45\x9E\x67\xD7\xED\xB7\xAE\xFA\x88\xFF\x5C\x7E\x7B\x5D\xA9\x94\xA1\xC3\xB1\x7B\x64\xFB\xC1\x4E\x47\xCA\xDA\x45\xDD",
 	        0, 64, 32
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x58\x72\x3B\xB1\xBE\x18\x33\x12\x31\x5E\x6E\xF7\xF2\xB1\x84\x60\x97\x2C\x19\xD3\x01\xAF\x42\x00\xAB\xDB\x04\x26\xFC\xB0\xC1\xF8",
 	        0, 65, 32
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x9A\xD4\x81\xEF\x81\x6C\xAC\xB6\x59\x35\x8E\x6D\x6B\x73\xF1\xE5\xAC\x71\xD6\x6E\x8B\x12\x6B\x73\xD9\xD9\x7D\x2F\xA7\xA4\x61\xB4",
 	        15, 0, 32
 	    },
@@ -916,7 +1311,7 @@ bool ValidateBLAKE2s()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\xFD\x61\x6D\xA6\x8E\xEF\x10\x24\x16\xC7\xBD\x7D\xC8\xCA\xF8\x2B\x3D\x92\x7B\xCB\xDD\x06\x8E\x7C\xCA\xA7\x72\x76\xCE\x6C\x8C\xD4",
 	        16, 0, 32
 	    },
@@ -976,7 +1371,7 @@ bool ValidateBLAKE2s()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\xD0\xCE\x8E\x8D\xA0\xBA\xA4\x26\x0E\xD3\x1F\xD1\x7B\x78\xE6\x18\x15\xC6\xFF\xD8\x5A\xDB\x41\x8A\xE7\x36\xF0\xE7\xB9\x87\x2B\x6A",
 	        17, 0, 32
 	    },
@@ -1036,7 +1431,7 @@ bool ValidateBLAKE2s()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x39\x4A\xB9\x85\xDD\xFF\x59\x59\x84\x5A\xF7\x54\xD6\xFC\x19\xFB\x94\x0E\xAE\xA4\xEA\x70\x54\x3E\x0D\x7E\x9D\xC7\x8A\x22\x77\x3B",
 	        31, 0, 32
 	    },
@@ -1096,7 +1491,7 @@ bool ValidateBLAKE2s()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x18\xE3\xCE\x19\x98\x7B\xA5\x0B\x30\xDD\x14\x4C\x16\xF2\x26\x55\xEB\xA3\x14\x09\xD6\x62\x10\xBC\x38\xBB\xC1\x4B\x5D\xAB\x05\x19",
 	        32, 0, 32
 	    },
@@ -1159,99 +1554,135 @@ bool ValidateBLAKE2s()
 	byte digest[BLAKE2s::DIGESTSIZE];
 	for (unsigned int i=0; i<COUNTOF(tests); ++i)
 	{
-		BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen);
-		blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
-		blake2s.Final(digest);
+		// the condition is written in a way which for non-default digest sizes
+		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
+		// See https://github.com/weidai11/cryptopp/issues/415
+		if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULLPTR)
+		{
+			BLAKE2s blake2s(false, (unsigned int)tests[i].dlen);
+			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2s.Final(digest);
+		}
+		else
+		{
+			BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
+			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2s.Final(digest);
+		}
 
-		fail = memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
+		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "BLAKE2s test set " << i << endl;
+			std::cout << "FAILED   " << "BLAKE2s test set " << i << std::endl;
 		}
 
 		pass = pass && !fail;
 	}
 
-	cout << (fail ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
+	std::cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << std::endl;
 
 	return pass;
 }
 
 bool ValidateBLAKE2b()
 {
-	cout << "\nBLAKE2b validation suite running...\n\n";
+	std::cout << "\nBLAKE2b validation suite running...\n\n";
 	bool fail, pass = true;
 
 	{
 		fail = strcmp(BLAKE2b::StaticAlgorithmName(), "BLAKE2b") != 0;
-		cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
+		std::cout << (fail ? "FAILED   " : "passed   ") << "algorithm name\n";
 		pass = pass && !fail;
 	}
 
-	static const BLAKE2_TestTuples tests[] = {
+	const BLAKE2_TestTuples tests[] = {
 	    {
-	        NULL,
-	        NULL,
+	        NULLPTR,
+	        NULLPTR,
+	        "\x12\x71\xCF\x25",
+	        0, 0, 4
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\xE4\xA6\xA0\x57\x74\x79\xB2\xB4",
+	        0, 0, 8
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\xCA\xE6\x69\x41\xD9\xEF\xBD\x40\x4E\x4D\x88\x75\x8E\xA6\x76\x70",
+	        0, 0, 16
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
+	        "\x0E\x57\x51\xC0\x26\xE5\x43\xB2\xE8\xAB\x2E\xB0\x60\x99\xDA\xA1\xD1\xE5\xDF\x47\x77\x8F\x77\x87\xFA\xAB\x45\xCD\xF1\x2F\xE3\xA8",
+	        0, 0, 32
+	    },
+	    {
+	        NULLPTR,
+	        NULLPTR,
 	        "\x78\x6A\x02\xF7\x42\x01\x59\x03\xC6\xC6\xFD\x85\x25\x52\xD2\x72\x91\x2F\x47\x40\xE1\x58\x47\x61\x8A\x86\xE2\x17\xF7\x1F\x54\x19\xD2\x5E\x10\x31\xAF\xEE\x58\x53\x13\x89\x64\x44\x93\x4E\xB0\x4B\x90\x3A\x68\x5B\x14\x48\xB7\x55\xD5\x6F\x70\x1A\xFE\x9B\xE2\xCE",
 	        0, 0, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x2A\xF7\xA1\x34\x71\x1C\x5A\x03\xCE\xC8\xFC\xA9\x88\xD9\x9C\x8B\x99\x9A\x95\x33\x0D\xC9\x37\xBE\xE3\x3B\xB3\x0B\xAD\x1B\xE3\x7E\x4F\x66\x81\xF1\xE8\x0E\x64\xA1\x9D\xFC\x86\x83\xF1\xFE\x32\x5D\xAA\xDD\xB8\x1B\xA7\xA3\x88\x3F\x71\x1F\x04\x14\x08\x91\x16\x39",
 	        0, 31, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x49\x9A\x63\x97\x86\x14\xB9\x50\xCC\x1D\xA0\xAB\x63\xAF\x3B\xC3\xFF\xBC\x63\xA2\x91\xE5\x2A\xD7\xA8\x11\xD6\xD4\x23\x32\x52\xCF\xA9\xD6\x5A\x19\x51\xBA\x20\xF1\x74\xEF\x7D\x82\x38\xFB\x85\x20\x82\x16\x0B\xC7\x3C\xD0\xD2\x72\x45\x75\x38\x5C\xE4\x17\xB1\xAA",
 	        0, 32, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xA5\x5B\x85\xDD\x70\x10\xE5\x04\xD3\xB5\x10\xEF\x08\xE1\x95\x40\x19\x69\x82\x87\x44\xFD\xBF\x5B\xE8\xE2\xBB\xE3\x57\x8F\x24\x0B\xFB\x92\xD1\x50\x98\xAC\x06\xED\xC2\xBB\x93\x04\x54\x84\x35\x23\x83\xA1\xB0\x47\x91\x99\x0C\x4C\xA6\xFD\x73\x8D\xE5\x78\xA5\x5E",
 	        0, 33, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xB8\xBC\xDA\xB9\x66\xE2\x5A\x76\x72\x38\x55\xD9\x5A\x4E\x8C\x4F\xA9\xEC\x8C\xFF\x0B\x18\x38\x98\x5C\x8C\x90\xBC\x46\x56\x24\xD7\x96\xAB\x26\x2B\x49\x14\xD0\xEE\x91\x69\x9A\x0C\xC3\xE6\xCA\x14\x55\x37\xDA\xF6\x59\x4A\x31\x78\x67\x49\x89\x0E\x84\xDC\xE7\x5D",
 	        0, 63, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xA1\xD7\x6B\x3B\xB7\xCE\x56\x22\xD1\x13\x94\xDF\xF4\xA2\x04\xEF\x75\x85\xAF\x93\x63\x55\xBF\xCE\xAF\x01\x25\xCA\x17\x65\xC3\xD2\x6E\x67\x71\x95\x33\x18\xE7\xE4\xC1\xFA\xE0\xE6\x24\x8A\xE9\x56\xB7\x63\xE2\xBF\x8F\xB3\xA7\xD4\xD7\xFD\x1A\xC1\xAB\x1F\x17\x77",
 	        0, 64, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xF3\x26\x82\x25\x97\xE1\x91\x53\xF8\x57\xC6\xD9\x57\x46\x09\xDF\x1E\x05\x81\xF6\x23\xEE\x8B\xBC\xFA\xA1\x9F\x21\xB6\xF3\x1D\xAD\x9F\x4E\x47\x0B\xE6\x3C\x5E\x28\xE9\x11\x1D\xAA\x52\xF2\x6B\x1A\x61\xCF\x61\x1C\xB0\x7D\xE5\x79\x14\x79\x79\xA6\x08\xDF\x76\x4B",
 	        0, 65, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\x6A\x3F\x90\x50\x84\x5D\x84\xB7\xA2\x43\xF3\xEE\x2C\x7A\x10\x50\xC4\x4C\x5E\x39\xF4\xB8\xCC\x1D\xB3\xF1\x39\x82\x77\x22\x10\x92\x36\x21\xA0\xBA\x13\xCC\x4F\xA3\x1C\x4F\xEC\x1A\x15\x29\x20\x20\x3E\x1A\x06\xEA\xF4\xFF\xCB\x44\x72\x52\x3B\xE5\xE0\x08\x79\x92",
 	        0, 127, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xC2\xB8\x8C\x5F\xBD\x61\x0F\xAB\x04\xD3\x40\xAD\x88\x74\x02\x6B\x27\x33\x5C\x6F\x8C\xE5\x93\xC3\x2F\x1A\xE5\xE8\x42\xA6\x07\xCB\xB7\x73\x88\xF3\xF5\xFF\xDC\xBF\xCC\x87\x8F\x56\x1F\xF2\x30\x37\x02\xBE\xC3\x1D\xA7\x8F\x12\x56\x35\x03\x50\xC6\x1E\xD8\xBD\x84",
 	        0, 128, 64
 	    },
 	    {
-	        NULL,
+	        NULLPTR,
 	        "\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A\x7A",
 	        "\xAD\xE2\x77\xD8\x19\xA7\xBE\xF1\x4E\x47\x92\xDF\x4B\xFD\x1E\x7B\xDE\xC8\x41\x54\x31\xF6\x18\x79\x8B\x7F\x9A\x23\x3C\x6F\xA0\x56\xE6\xB3\x85\xBE\x76\x78\x88\x58\x86\x47\xEB\x48\xC5\x20\x62\xF3\x40\xA5\xB2\xB3\x3F\x33\x18\x3A\x12\xA8\xE9\x9A\x74\x9B\xE8\x8F",
 	        0, 129, 64
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x55\xD9\xFB\xF8\x8E\x42\x80\xBF\xE2\x75\xB8\xA7\xA1\xFA\xAD\x7D\xEA\x4B\x65\xB3\xDF\xA2\x92\xE1\xB0\x43\xB6\x36\x74\xB4\xC7\x87\x5D\x68\x02\x21\x39\x49\x0B\x69\x70\xC8\x80\x14\x82\x26\x77\x3D\x2D\x97\xAD\x01\x67\x55\x7D\x54\x62\xA0\x88\x0C\xB3\xFA\x69\x85",
 	        31, 0, 64
 	    },
@@ -1311,7 +1742,7 @@ bool ValidateBLAKE2b()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x0C\xAB\xE4\x02\x57\xEB\xAC\x85\xBC\xD6\x13\xBD\x40\x56\x58\xEC\x0B\x7F\x32\xB4\xDB\xBE\x6A\x31\x57\x60\x25\xC4\xFA\xBB\x3E\xDB\x55\x63\xE8\xD1\x27\x19\xB9\xEE\x9C\x7B\xE0\x0D\x8F\x09\xA4\x66\x5C\x32\x34\x34\xC8\x7F\x66\x00\xB7\x0B\x7B\x9C\x32\x74\xFC\x40",
 	        32, 0, 64
 	    },
@@ -1371,7 +1802,7 @@ bool ValidateBLAKE2b()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x0D\x19\x8F\xB3\x01\xE3\x83\x7D\xF1\xB9\x98\xEE\x48\x47\xF5\x1D\x91\x01\xEB\x91\x4A\x85\xFA\x6A\x7E\xBA\x7C\xDB\x12\x69\x45\xD7\x15\x6F\xF2\xF5\x05\x81\x27\xA0\x4A\xE4\xE8\xCF\x43\xD8\x76\x8A\x64\xFE\x9D\x97\x61\xE1\x0B\xC1\xBE\x45\xF9\xFA\x1C\xEB\x4B\xB6",
 	        33, 0, 64
 	    },
@@ -1431,7 +1862,7 @@ bool ValidateBLAKE2b()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\x31\xD7\x85\x5E\xBC\xAA\x40\xE2\xEF\xA6\xD4\x35\xC7\x9E\x37\x1E\x80\xBD\x1E\x37\x72\xE6\xEF\xD6\xB1\x41\x1A\xE5\xF8\xB2\x92\x1A\xE0\xAD\x11\xBF\xF0\x57\xD5\x9A\xF8\xC4\x4C\x11\x88\x64\xDA\x88\x45\x3C\xCC\xF7\xCB\x44\x9E\x34\x23\xA3\x9D\x6D\x11\x98\x0B\xAC",
 	        63, 0, 64
 	    },
@@ -1491,7 +1922,7 @@ bool ValidateBLAKE2b()
 	    },
 	    {
 	        "\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61\x61",
-	        NULL,
+	        NULLPTR,
 	        "\xD9\x38\xD6\xD9\x8F\x0B\xD9\x87\x39\xA6\x59\x19\xD2\xB3\xC9\x14\x9A\x4F\xCE\x6C\x98\xB0\x6A\xF4\xF9\x58\x58\x31\x35\x0B\x57\x47\xC2\xF6\xA7\x82\xA3\x39\x61\xA8\x1B\x62\x59\x7A\x2E\xB1\xE9\xC0\xA5\x80\x3D\xA7\xC5\xD3\x93\x4B\xB2\x0A\x6E\x88\xBA\xA4\xAE\x02",
 	        64, 0, 64
 	    },
@@ -1554,20 +1985,40 @@ bool ValidateBLAKE2b()
 	byte digest[BLAKE2b::DIGESTSIZE];
 	for (unsigned int i=0; i<COUNTOF(tests); ++i)
 	{
-		BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen);
-		blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
-		blake2b.Final(digest);
+		// the condition is written in a way which for non-default digest sizes
+		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
+		// See https://github.com/weidai11/cryptopp/issues/415
+		if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULLPTR)
+		{
+			BLAKE2b blake2b(false, (unsigned int)tests[i].dlen);
+			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2b.Final(digest);
+		}
+		else
+		{
+			BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
+			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
+			blake2b.Final(digest);
+		}
 
-		fail = memcmp(digest, tests[i].digest, sizeof(digest)) != 0;
+		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
-			cout << "FAILED   " << "BLAKE2b test set " << i << endl;
+			std::cout << "FAILED   " << "BLAKE2b test set " << i << std::endl;
 		}
 
 		pass = pass && !fail;
 	}
 
-	cout << (fail ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << endl;
+	std::cout << (!pass ? "FAILED   " : "passed   ") << COUNTOF(tests) << " hashes and keyed hashes" << std::endl;
 
 	return pass;
 }
+
+bool ValidateSM3()
+{
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sm3.txt");
+}
+
+NAMESPACE_END  // Test
+NAMESPACE_END  // CryptoPP

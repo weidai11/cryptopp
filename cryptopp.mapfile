@@ -1,0 +1,3 @@
+# Solaris mapfile to override hardware caps to avoid kills
+
+hwcap_1 = SSE SSE2 OVERRIDE;

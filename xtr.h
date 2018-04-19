@@ -1,9 +1,9 @@
 #ifndef CRYPTOPP_XTR_H
 #define CRYPTOPP_XTR_H
 
-//! \file xtr.h
-//! \brief The XTR public key system
-//! \details The XTR public key system by Arjen K. Lenstra and Eric R. Verheul
+/// \file xtr.h
+/// \brief The XTR public key system
+/// \details The XTR public key system by Arjen K. Lenstra and Eric R. Verheul
 
 #include "cryptlib.h"
 #include "modarith.h"
@@ -12,8 +12,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class GFP2Element
-//! \brief an element of GF(p^2)
+/// \brief an element of GF(p^2)
 class GFP2Element
 {
 public:
@@ -42,8 +41,7 @@ public:
 	Integer c1, c2;
 };
 
-//! \class GFP2_ONB
-//! \brief GF(p^2), optimal normal basis
+/// \brief GF(p^2), optimal normal basis
 template <class F>
 class GFP2_ONB : public AbstractRing<GFP2Element>
 {
@@ -183,7 +181,7 @@ public:
 	// a^2 - 2a^p
 	const Element & SpecialOperation1(const Element &a) const
 	{
-		assert(&a != &result);
+		CRYPTOPP_ASSERT(&a != &result);
 		result = Square(a);
 		modp.Reduce(result.c1, a.c2);
 		modp.Reduce(result.c1, a.c2);
@@ -195,7 +193,7 @@ public:
 	// x * z - y * z^p
 	const Element & SpecialOperation2(const Element &x, const Element &y, const Element &z) const
 	{
-		assert(&x != &result && &y != &result && &z != &result);
+		CRYPTOPP_ASSERT(&x != &result && &y != &result && &z != &result);
 		t = modp.Add(x.c2, y.c2);
 		result.c1 = modp.Multiply(z.c1, modp.Subtract(y.c1, t));
 		modp.Accumulate(result.c1, modp.Multiply(z.c2, modp.Subtract(t, x.c1)));
@@ -211,7 +209,7 @@ protected:
 	mutable Integer t;
 };
 
-//! \brief Creates primes p,q and generator g for XTR
+/// \brief Creates primes p,q and generator g for XTR
 void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer &q, GFP2Element &g, unsigned int pbits, unsigned int qbits);
 
 GFP2Element XTR_Exponentiate(const GFP2Element &b, const Integer &e, const Integer &p);

@@ -1,4 +1,4 @@
-// basecode.cpp - written and placed in the public domain by Wei Dai
+// basecode.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "config.h"
@@ -57,7 +57,7 @@ size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 		unsigned int b = begin[m_inputPosition++], bitsLeftInSource = 8;
 		while (true)
 		{
-			assert(m_bitsPerChar-m_bitPos >= 0);
+			CRYPTOPP_ASSERT(m_bitsPerChar-m_bitPos >= 0);
 			unsigned int bitsLeftInTarget = (unsigned int)(m_bitsPerChar-m_bitPos);
 			m_outBuf[m_bytePos] |= b >> (8-bitsLeftInTarget);
 			if (bitsLeftInSource >= bitsLeftInTarget)
@@ -78,17 +78,17 @@ size_t BaseN_Encoder::Put2(const byte *begin, size_t length, int messageEnd, boo
 		}
 		}
 
-		assert(m_bytePos <= m_outputBlockSize);
+		CRYPTOPP_ASSERT(m_bytePos <= m_outputBlockSize);
 		if (m_bytePos == m_outputBlockSize)
 		{
 			int i;
 			for (i=0; i<m_bytePos; i++)
 			{
-				assert(m_outBuf[i] < (1 << m_bitsPerChar));
+				CRYPTOPP_ASSERT(m_outBuf[i] < (1 << m_bitsPerChar));
 				m_outBuf[i] = m_alphabet[m_outBuf[i]];
 			}
 			FILTER_OUTPUT(1, m_outBuf, m_outputBlockSize, 0);
-			
+
 			m_bytePos = m_bitPos = 0;
 		}
 	}
@@ -181,16 +181,16 @@ void BaseN_Decoder::InitializeDecodingLookupArray(int *lookup, const byte *alpha
 
 	for (unsigned int i=0; i<base; i++)
 	{
+		// Debug asserts for 'lookup[alphabet[i]] == -1' removed because the self tests
+		// have unusal tests that try to break the encoders and decoders. Tests include
+		// a string of the same characters. I.,e., a string of stars like '********...'.
 		if (caseInsensitive && isalpha(alphabet[i]))
 		{
-			assert(lookup[toupper(alphabet[i])] == -1);
 			lookup[toupper(alphabet[i])] = i;
-			assert(lookup[tolower(alphabet[i])] == -1);
 			lookup[tolower(alphabet[i])] = i;
 		}
 		else
 		{
-			assert(lookup[alphabet[i]] == -1);
 			lookup[alphabet[i]] = i;
 		}
 	}

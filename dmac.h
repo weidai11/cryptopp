@@ -1,8 +1,7 @@
-// dmac.h - written and placed in the public domain by Wei Dai
+// dmac.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile dmac.h
-//! \brief Classes for DMAC message authentication code
+/// \file dmac.h
+/// \brief Classes for DMAC message authentication code
 
 #ifndef CRYPTOPP_DMAC_H
 #define CRYPTOPP_DMAC_H
@@ -11,15 +10,17 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! _
+/// \brief DMAC message authentication code base class
+/// \tparam T class derived from BlockCipherDocumentation
+/// \since Crypto++ 3.1
 template <class T>
 class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
 public:
+	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
 	static std::string StaticAlgorithmName() {return std::string("DMAC(") + T::StaticAlgorithmName() + ")";}
 
-	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
-
+	virtual~DMAC_Base() {}
 	DMAC_Base() : m_subkeylength(0), m_counter(0) {}
 
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
@@ -37,15 +38,21 @@ private:
 	unsigned int m_counter;
 };
 
-//! DMAC
-/*! Based on "CBC MAC for Real-Time Data Sources" by Erez Petrank
-	and Charles Rackoff. T should be a class derived from BlockCipherDocumentation.
-*/
+/// \brief DMAC message authentication code
+/// \tparam T class derived from BlockCipherDocumentation
+/// \sa <A HREF="https://eprint.iacr.org/1997/010">CBC MAC for Real-Time Data Sources (08.15.1997)</A>
+///   by Erez Petrank and Charles Rackoff
+/// \since Crypto++ 3.1
 template <class T>
 class DMAC : public MessageAuthenticationCodeFinal<DMAC_Base<T> >
 {
 public:
+	/// \brief Construct a DMAC
 	DMAC() {}
+
+	/// \brief Construct a DMAC
+	/// \param key a byte array used to key the cipher
+	/// \param length the size of the byte array, in bytes
 	DMAC(const byte *key, size_t length=DMAC_Base<T>::DEFAULT_KEYLENGTH)
 		{this->SetKey(key, length);}
 };

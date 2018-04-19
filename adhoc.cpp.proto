@@ -1,5 +1,6 @@
 #include "config.h"
 #include <iosfwd>
+#include <string>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4100 4189 4996)

@@ -1,8 +1,21 @@
-// authenc.h - written and placed in the public domain by Wei Dai
+// authenc.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile authenc.h
-//! \brief Base classes for working with authenticated encryption modes of encryption
+/// \file
+/// \brief Classes for authenticated encryption modes of operation
+/// \details Authenticated encryption (AE) schemes combine confidentiality and authenticity
+///   into a single mode of operation They gained traction in the early 2000's because manually
+///   combining them was error prone for the typical developer. Around that time, the desire to
+///   authenticate but not ecrypt additional data (AAD) was also identified. When both features
+///   are available from a scheme, the system is referred to as an AEAD scheme.
+/// \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
+///   and OCB mode. All modes derive from AuthenticatedSymmetricCipherBase() and the
+///   motivation for the API, like calling AAD a &quot;header&quot;, can be found in Bellare,
+///   Rogaway and Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX
+///   Mode of Operation</A>. The EAX paper suggested a basic API to help standardize AEAD
+///   schemes in software and promote adoption of the modes.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
+///   Encryption</A> on the Crypto++ wiki.
+/// \since Crypto++ 5.6.0
 
 #ifndef CRYPTOPP_AUTHENC_H
 #define CRYPTOPP_AUTHENC_H
@@ -12,24 +25,27 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class AuthenticatedSymmetricCipherBase
-//! \brief Base implementation for one direction (encryption or decryption) of a stream cipher or block cipher mode with authentication
+/// \brief Base class for authenticated encryption modes of operation
+/// \details AuthenticatedSymmetricCipherBase() serves as a base implementation for one direction
+///   (encryption or decryption) of a stream cipher or block cipher mode with authentication.
+/// \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
+///   and OCB mode. All modes derive from AuthenticatedSymmetricCipherBase() and the
+///   motivation for the API, like calling AAD a &quot;header&quot;, can be found in Bellare,
+///   Rogaway and Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX
+///   Mode of Operation</A>. The EAX paper suggested a basic API to help standardize AEAD
+///   schemes in software and promote adoption of the modes.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
+///   Encryption</A> on the Crypto++ wiki.
+/// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipherBase : public AuthenticatedSymmetricCipher
 {
 public:
-	AuthenticatedSymmetricCipherBase() : m_state(State_Start), m_bufferedDataLength(0),
-		m_totalHeaderLength(0), m_totalMessageLength(0), m_totalFooterLength(0) {}
+	AuthenticatedSymmetricCipherBase() : m_totalHeaderLength(0), m_totalMessageLength(0),
+		m_totalFooterLength(0), m_bufferedDataLength(0), m_state(State_Start) {}
 
+	// StreamTransformation interface
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return true;}
-
-	//! \brief Sets the key for this object without performing parameter validation
-	//! \param key a byte buffer used to key the cipher
-	//! \param length the length of the byte buffer
-	//! \param params additional parameters passed as  NameValuePairs
-	//! \details key must be at least DEFAULT_KEYLENGTH in length.
-	void UncheckedSetKey(const byte * key, unsigned int length,const CryptoPP::NameValuePairs &params)
-		{CRYPTOPP_UNUSED(key), CRYPTOPP_UNUSED(length), CRYPTOPP_UNUSED(params); assert(false);}
 
 	void SetKey(const byte *userKey, size_t keylength, const NameValuePairs &params);
 	void Restart() {if (m_state > State_KeySet) m_state = State_KeySet;}
@@ -39,8 +55,12 @@ public:
 	void TruncatedFinal(byte *mac, size_t macSize);
 
 protected:
+	void UncheckedSetKey(const byte * key, unsigned int length,const CryptoPP::NameValuePairs &params)
+		{CRYPTOPP_UNUSED(key), CRYPTOPP_UNUSED(length), CRYPTOPP_UNUSED(params); CRYPTOPP_ASSERT(false);}
+
 	void AuthenticateData(const byte *data, size_t len);
-	const SymmetricCipher & GetSymmetricCipher() const {return const_cast<AuthenticatedSymmetricCipherBase *>(this)->AccessSymmetricCipher();};
+	const SymmetricCipher & GetSymmetricCipher() const
+		{return const_cast<AuthenticatedSymmetricCipherBase *>(this)->AccessSymmetricCipher();};
 
 	virtual SymmetricCipher & AccessSymmetricCipher() =0;
 	virtual bool AuthenticationIsOnPlaintext() const =0;
@@ -52,11 +72,14 @@ protected:
 	virtual void AuthenticateLastConfidentialBlock() {}
 	virtual void AuthenticateLastFooterBlock(byte *mac, size_t macSize) =0;
 
+	// State_AuthUntransformed: authentication is applied to plain text (Authenticate-then-Encrypt)
+	// State_AuthTransformed: authentication is applied to cipher text (Encrypt-then-Authenticate)
 	enum State {State_Start, State_KeySet, State_IVSet, State_AuthUntransformed, State_AuthTransformed, State_AuthFooter};
-	State m_state;
-	unsigned int m_bufferedDataLength;
-	lword m_totalHeaderLength, m_totalMessageLength, m_totalFooterLength;
+
 	AlignedSecByteBlock m_buffer;
+	lword m_totalHeaderLength, m_totalMessageLength, m_totalFooterLength;
+	unsigned int m_bufferedDataLength;
+	State m_state;
 };
 
 NAMESPACE_END

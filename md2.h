@@ -1,3 +1,9 @@
+// md2.h - originally written and placed in the public domain by Wei Dai
+
+/// \file md2.h
+/// \brief Classes for the MD2 message digest
+/// \since Crypto++ 3.0
+
 #ifndef CRYPTOPP_MD2_H
 #define CRYPTOPP_MD2_H
 
@@ -8,7 +14,9 @@ NAMESPACE_BEGIN(CryptoPP)
 
 namespace Weak1 {
 
-/// <a href="http://www.cryptolounge.org/wiki/MD2">MD2</a>
+/// \brief MD2 message digest
+/// \sa <a href="http://www.cryptolounge.org/wiki/MD2">MD2</a>
+/// \since Crypto++ 3.0
 class MD2 : public HashTransformation
 {
 public:
@@ -17,7 +25,7 @@ public:
 	void TruncatedFinal(byte *hash, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	unsigned int BlockSize() const {return BLOCKSIZE;}
-	static const char * StaticAlgorithmName() {return "MD2";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MD2";}
 
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 16)
 	CRYPTOPP_CONSTANT(BLOCKSIZE = 16)

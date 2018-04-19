@@ -33,29 +33,29 @@ REM /Zi - Porgram Database information
 @set ASFLAGS64=/nologo /D_M_X64 /W3 /Cx /Zi
 @set LIBFLAGS=/nologo /SUBSYSTEM:CONSOLE
 
-REM Use _M_X86 and _M_X64 becuase cl.exe uses them. It keeps preprocessor defines consistent.
+REM Use _M_X86 and _M_X64 because cl.exe uses them. It keeps preprocessor defines consistent.
 echo ****************************************
 echo Assembling rdrand.asm into rdrand-x86.obj
 call %MASM% %ASFLAGS% /Fo rdrand-x86.obj /c rdrand.asm > nul
-@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to assemble rdrand.asm with X86 && goto SCRIPT_FAILED) 
+@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to assemble rdrand.asm with X86 && goto SCRIPT_FAILED)
 echo Done...
 
 echo ****************************************
 echo Assembling rdrand.asm into rdrand-x64.obj
 call %MASM64% %ASFLAGS64% /Fo rdrand-x64.obj /c rdrand.asm > nul
-@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to assemble rdrand.asm with X64 && goto SCRIPT_FAILED) 
+@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to assemble rdrand.asm with X64 && goto SCRIPT_FAILED)
 echo Done...
 
 echo ****************************************
 echo Creating static library rdrand-x86.lib
 call %LIBTOOL% %LIBFLAGS% /MACHINE:X86 /OUT:rdrand-x86.lib rdrand-x86.obj > nul
-@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to create rdrand-x86.lib && goto SCRIPT_FAILED) 
+@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to create rdrand-x86.lib && goto SCRIPT_FAILED)
 echo Done...
 
 echo ****************************************
 echo Creating static library rdrand-x64.lib
 call %LIBTOOL% %LIBFLAGS% /MACHINE:X64 /OUT:rdrand-x64.lib rdrand-x64.obj > nul
-@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to create rdrand-x64.lib && goto SCRIPT_FAILED) 
+@IF NOT %ERRORLEVEL% EQU 0 (echo   Failed to create rdrand-x64.lib && goto SCRIPT_FAILED)
 echo Done...
 
 goto SKIP_SYMBOL_DUMP_OBJ

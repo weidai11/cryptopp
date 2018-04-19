@@ -4,24 +4,24 @@ NAMESPACE_BEGIN(CryptoPP)
 
 // linear transformation
 #define LT(i,a,b,c,d,e)	{\
-	a = rotlFixed(a, 13);	\
-	c = rotlFixed(c, 3); 	\
-	d = rotlFixed(d ^ c ^ (a << 3), 7); 	\
-	b = rotlFixed(b ^ a ^ c, 1); 	\
-	a = rotlFixed(a ^ b ^ d, 5); 		\
-	c = rotlFixed(c ^ d ^ (b << 7), 22);}
+	a = rotlConstant<13>(a);	\
+	c = rotlConstant<3>(c); 	\
+	d = rotlConstant<7>(d ^ c ^ (a << 3)); 	\
+	b = rotlConstant<1>(b ^ a ^ c); 	\
+	a = rotlConstant<5>(a ^ b ^ d); 		\
+	c = rotlConstant<22>(c ^ d ^ (b << 7));}
 
 // inverse linear transformation
 #define ILT(i,a,b,c,d,e)	{\
-	c = rotrFixed(c, 22);	\
-	a = rotrFixed(a, 5); 	\
+	c = rotrConstant<22>(c);	\
+	a = rotrConstant<5>(a); 	\
 	c ^= d ^ (b << 7);	\
 	a ^= b ^ d; 		\
-	b = rotrFixed(b, 1); 	\
-	d = rotrFixed(d, 7) ^ c ^ (a << 3);	\
+	b = rotrConstant<1>(b); 	\
+	d = rotrConstant<7>(d) ^ c ^ (a << 3);	\
 	b ^= a ^ c; 		\
-	c = rotrFixed(c, 3); 	\
-	a = rotrFixed(a, 13);}
+	c = rotrConstant<3>(c); 	\
+	a = rotrConstant<13>(a);}
 
 // order of output from S-box functions
 #define beforeS0(f) f(0,a,b,c,d,e)
@@ -45,7 +45,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define afterI1(f) f(1,a,b,c,e,d)
 #define afterI0(f) f(0,a,d,b,e,c)
 
-// The instruction sequences for the S-box functions 
+// The instruction sequences for the S-box functions
 // come from Dag Arne Osvik's paper "Speeding up Serpent".
 
 #define S0(i, r0, r1, r2, r3, r4) \

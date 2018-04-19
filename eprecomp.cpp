@@ -1,4 +1,4 @@
-// eprecomp.cpp - written and placed in the public domain by Wei Dai
+// eprecomp.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 
@@ -27,8 +27,8 @@ template <class T> void DL_FixedBasePrecomputationImpl<T>::SetBase(const DL_Grou
 
 template <class T> void DL_FixedBasePrecomputationImpl<T>::Precompute(const DL_GroupPrecomputation<Element> &group, unsigned int maxExpBits, unsigned int storage)
 {
-	assert(m_bases.size() > 0);
-	assert(storage <= maxExpBits);
+	CRYPTOPP_ASSERT(m_bases.size() > 0);
+	CRYPTOPP_ASSERT(storage <= maxExpBits);
 
 	if (storage > 1)
 	{
@@ -97,8 +97,8 @@ template <class T> T DL_FixedBasePrecomputationImpl<T>::Exponentiate(const DL_Gr
 	return group.ConvertOut(GeneralCascadeMultiplication<Element>(group.GetGroup(), eb.begin(), eb.end()));
 }
 
-template <class T> T 
-	DL_FixedBasePrecomputationImpl<T>::CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent, 
+template <class T> T
+	DL_FixedBasePrecomputationImpl<T>::CascadeExponentiate(const DL_GroupPrecomputation<Element> &group, const Integer &exponent,
 		const DL_FixedBasePrecomputation<T> &i_pc2, const Integer &exponent2) const
 {
 	std::vector<BaseAndExponent<Element> > eb;	// array of segments of the exponent and precalculated bases

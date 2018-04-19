@@ -1,4 +1,4 @@
-// algparam.cpp - written and placed in the public domain by Wei Dai
+// algparam.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 
@@ -8,8 +8,6 @@
 #include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
-PAssignIntToInteger g_pAssignIntToInteger = NULL;
 
 bool CombinedNameValuePairs::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
@@ -22,7 +20,7 @@ bool CombinedNameValuePairs::GetVoidValue(const char *name, const std::type_info
 void AlgorithmParametersBase::operator=(const AlgorithmParametersBase &rhs)
 {
 	CRYPTOPP_UNUSED(rhs);
-	assert(false);
+	CRYPTOPP_ASSERT(false);
 }
 
 bool AlgorithmParametersBase::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const

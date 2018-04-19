@@ -1,4 +1,4 @@
-// hrtimer.cpp - written and placed in the public domain by Wei Dai
+// hrtimer.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 #include "hrtimer.h"
@@ -26,11 +26,9 @@
 #include <unistd.h>
 #endif
 
-#include <assert.h>
+#include "trap.h"
 
 NAMESPACE_BEGIN(CryptoPP)
-
-#ifndef CRYPTOPP_IMPORTS
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 static TimerWord InitializePerformanceCounterFrequency()
@@ -48,13 +46,15 @@ inline TimerWord PerformanceCounterFrequency()
 }
 #endif
 
+#ifndef CRYPTOPP_IMPORTS
+
 double TimerBase::ConvertTo(TimerWord t, Unit unit)
 {
 	static unsigned long unitsPerSecondTable[] = {1, 1000, 1000*1000, 1000*1000*1000};
 
 	// When 'unit' is an enum 'Unit', a Clang warning is generated.
-	assert(static_cast<unsigned int>(unit) < COUNTOF(unitsPerSecondTable));
-	return (double)CRYPTOPP_VC6_INT64 t * unitsPerSecondTable[unit] / CRYPTOPP_VC6_INT64 TicksPerSecond();
+	CRYPTOPP_ASSERT(static_cast<unsigned int>(unit) < COUNTOF(unitsPerSecondTable));
+	return static_cast<double>(t) * unitsPerSecondTable[unit] / TicksPerSecond();
 }
 
 void TimerBase::StartTimer()
@@ -83,7 +83,7 @@ double TimerBase::ElapsedTimeAsDouble()
 unsigned long TimerBase::ElapsedTime()
 {
 	double elapsed = ElapsedTimeAsDouble();
-	assert(elapsed <= (double)ULONG_MAX);
+	CRYPTOPP_ASSERT(elapsed <= (double)ULONG_MAX);
 	return (unsigned long)elapsed;
 }
 
@@ -97,7 +97,7 @@ TimerWord Timer::GetCurrentTimerValue()
 	return now.QuadPart;
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)
 	timeval now;
-	gettimeofday(&now, NULL);
+	gettimeofday(&now, NULLPTR);
 	return (TimerWord)now.tv_sec * 1000000 + now.tv_usec;
 #else
 	// clock_t now;
@@ -144,7 +144,7 @@ GetCurrentThreadNotImplemented:
 	if (!QueryPerformanceCounter(&now))
 	{
 		const DWORD lastError = GetLastError();
-		throw Exception(Exception::OTHER_ERROR, "ThreadUserTimer: QueryPerformanceCounter failed with error " + IntToString(lastError));		
+		throw Exception(Exception::OTHER_ERROR, "ThreadUserTimer: QueryPerformanceCounter failed with error " + IntToString(lastError));
 	}
 	return now.QuadPart;
 #elif defined(CRYPTOPP_UNIX_AVAILABLE)

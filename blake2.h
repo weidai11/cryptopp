@@ -1,18 +1,18 @@
 // blake2.h - written and placed in the public domain by Jeffrey Walton and Zooko
-//            Wilcox-O'Hearn. Copyright assigned to the Crypto++ project.
-//            Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's reference BLAKE2
-//            implementation at http://github.com/BLAKE2/BLAKE2.
+//            Wilcox-O'Hearn. Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+//            reference BLAKE2 implementation at http://github.com/BLAKE2/BLAKE2.
 
-//! \file blake2.h
-//! \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests
-//! \details This implmentation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
-//!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
-//!   Static algorithm name return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
-//!   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
-//!   BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)</A>.
-//! \details The library provides specialized SSE2, SSE4 and NEON version of the BLAKE2 compression
-//!   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
-//!   <pre>CXXFLAGS="-DNDEBUG -march=armv8-a+crc -mcpu=cortex-a53 ..."</pre>
+/// \file blake2.h
+/// \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests
+/// \details This implementation follows Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+///   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+///   Static algorithm name return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
+///   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
+///   BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)</A>.
+/// \details The library provides specialized SSE2, SSE4 and NEON version of the BLAKE2 compression
+///   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
+///   <pre>CXXFLAGS="-DNDEBUG -march=armv8-a+crc -mcpu=cortex-a53 ..."</pre>
+/// \since Crypto++ 5.6.4
 
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H
@@ -23,9 +23,9 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class BLAKE2_Info
-//! \brief BLAKE2 hash information
-//! \tparam T_64bit flag indicating 64-bit
+/// \brief BLAKE2 hash information
+/// \tparam T_64bit flag indicating 64-bit
+/// \since Crypto++ 5.6.4
 template <bool T_64bit>
 struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 64 : 32),1,SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
 {
@@ -39,20 +39,20 @@ struct BLAKE2_Info : public VariableKeyLength<(T_64bit ? 64 : 32),0,(T_64bit ? 6
 	CRYPTOPP_CONSTANT(SALTSIZE = (T_64bit ? 16 : 8))
 	CRYPTOPP_CONSTANT(PERSONALIZATIONSIZE = (T_64bit ? 16 : 8))
 
-	static const char *StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return (T_64bit ? "BLAKE2b" : "BLAKE2s");}
 };
 
-//! \class BLAKE2_ParameterBlock
-//! \brief BLAKE2 parameter block
-//! \tparam T_64bit flag indicating 64-bit
-//! \details BLAKE2b uses BLAKE2_ParameterBlock<true>, while BLAKE2s
-//!   uses BLAKE2_ParameterBlock<false>.
+/// \brief BLAKE2 parameter block
+/// \tparam T_64bit flag indicating 64-bit
+/// \details BLAKE2b uses BLAKE2_ParameterBlock<true>, while BLAKE2s
+///   uses BLAKE2_ParameterBlock<false>.
+/// \since Crypto++ 5.6.4
 template <bool T_64bit>
 struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock
 {
 };
 
-//! \brief BLAKE2b parameter block specialization
+/// \brief BLAKE2b parameter block specialization
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 {
@@ -69,7 +69,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 
 	BLAKE2_ParameterBlock(size_t digestSize)
 	{
-		assert(digestSize <= DIGESTSIZE);
+		CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 		memset(this, 0x00, sizeof(*this));
 		digestLength = (byte)digestSize;
 		fanout = depth = 1;
@@ -87,7 +87,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<true>
 	byte personalization[PERSONALIZATIONSIZE];
 };
 
-//! \brief BLAKE2s parameter block specialization
+/// \brief BLAKE2s parameter block specialization
 template<>
 struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 {
@@ -104,7 +104,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 
 	BLAKE2_ParameterBlock(size_t digestSize)
 	{
-		assert(digestSize <= DIGESTSIZE);
+		CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 		memset(this, 0x00, sizeof(*this));
 		digestLength = (byte)digestSize;
 		fanout = depth = 1;
@@ -122,12 +122,12 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_ParameterBlock<false>
 	byte personalization[PERSONALIZATIONSIZE];
 };
 
-//! \class BLAKE2_State
-//! \brief BLAKE2 state information
-//! \tparam W word type
-//! \tparam T_64bit flag indicating 64-bit
-//! \details BLAKE2b uses BLAKE2_State<word64, true>, while BLAKE2s
-//!   uses BLAKE2_State<word32, false>.
+/// \brief BLAKE2 state information
+/// \tparam W word type
+/// \tparam T_64bit flag indicating 64-bit
+/// \details BLAKE2b uses BLAKE2_State<word64, true>, while BLAKE2s
+///   uses BLAKE2_State<word32, false>.
+/// \since Crypto++ 5.6.4
 template <class W, bool T_64bit>
 struct CRYPTOPP_NO_VTABLE BLAKE2_State
 {
@@ -147,12 +147,12 @@ struct CRYPTOPP_NO_VTABLE BLAKE2_State
 	size_t length;
 };
 
-//! \class BLAKE2_Base
-//! \brief BLAKE2 hash implementation
-//! \tparam W word type
-//! \tparam T_64bit flag indicating 64-bit
-//! \details BLAKE2b uses BLAKE2_Base<word64, true>, while BLAKE2s
-//!   uses BLAKE2_Base<word32, false>.
+/// \brief BLAKE2 hash implementation
+/// \tparam W word type
+/// \tparam T_64bit flag indicating 64-bit
+/// \details BLAKE2b uses BLAKE2_Base<word64, true>, while BLAKE2s
+///   uses BLAKE2_Base<word32, false>.
+/// \since Crypto++ 5.6.4
 template <class W, bool T_64bit>
 class BLAKE2_Base : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2_Info<T_64bit> >
 {
@@ -173,15 +173,15 @@ public:
 
 	virtual ~BLAKE2_Base() {}
 
-	//! \brief Retrieve the static algorithm name
-	//! \returns the algorithm name (BLAKE2s or BLAKE2b)
-	static const char *StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
+	/// \brief Retrieve the static algorithm name
+	/// \returns the algorithm name (BLAKE2s or BLAKE2b)
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return BLAKE2_Info<T_64bit>::StaticAlgorithmName();}
 
-	//! \brief Retrieve the object's name
-	//! \returns the object's algorithm name following RFC 7693
-	//! \details Object algorithm name follows the naming described in
-	//!   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
-	//! Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
+	/// \brief Retrieve the object's name
+	/// \returns the object's algorithm name following RFC 7693
+	/// \details Object algorithm name follows the naming described in
+	///   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
+	/// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
 	std::string AlgorithmName() const {return std::string(StaticAlgorithmName()) + "-" + IntToString(this->DigestSize()*8);}
 
 	unsigned int DigestSize() const {return m_digestSize;}
@@ -190,23 +190,23 @@ public:
 	void Update(const byte *input, size_t length);
 	void Restart();
 
-	//! \brief Restart a hash with parameter block and counter
-	//! \param block paramter block
-	//! \param counter counter array
-	//! \details Parameter block is persisted across calls to Restart().
+	/// \brief Restart a hash with parameter block and counter
+	/// \param block parameter block
+	/// \param counter counter array
+	/// \details Parameter block is persisted across calls to Restart().
 	void Restart(const BLAKE2_ParameterBlock<T_64bit>& block, const W counter[2]);
 
-	//! \brief Set tree mode
-	//! \param mode the new tree mode
-	//! \details BLAKE2 has two finalization flags, called State::f[0] and State::f[1].
-	//!   If <tt>treeMode=false</tt> (default), then State::f[1] is never set. If
-	//!   <tt>treeMode=true</tt>, then State::f[1] is set when State::f[0] is set.
-	//!   Tree mode is persisted across calls to Restart().
+	/// \brief Set tree mode
+	/// \param mode the new tree mode
+	/// \details BLAKE2 has two finalization flags, called State::f[0] and State::f[1].
+	///   If <tt>treeMode=false</tt> (default), then State::f[1] is never set. If
+	///   <tt>treeMode=true</tt>, then State::f[1] is set when State::f[0] is set.
+	///   Tree mode is persisted across calls to Restart().
 	void SetTreeMode(bool mode) {m_treeMode=mode;}
 
-	//! \brief Get tree mode
-	//! \returns the current tree mode
-	//! \details Tree mode is persisted across calls to Restart().
+	/// \brief Get tree mode
+	/// \returns the current tree mode
+	/// \details Tree mode is persisted across calls to Restart().
 	bool GetTreeMode() const {return m_treeMode;}
 
 	void TruncatedFinal(byte *hash, size_t size);
@@ -232,14 +232,15 @@ private:
 	bool m_treeMode;
 };
 
-//! \brief The BLAKE2b cryptographic hash function
-//! \details BLAKE2b can function as both a hash and keyed hash. If you want only the hash,
-//!   then use the BLAKE2b constructor that accepts no parameters or digest size. If you
-//!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
-//!   Once a key and digest size are selected, its effectively immutable. The Restart()
-//!   method that accepts a ParameterBlock does not allow you to change it.
-//! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
-//!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+/// \brief The BLAKE2b cryptographic hash function
+/// \details BLAKE2b can function as both a hash and keyed hash. If you want only the hash,
+///   then use the BLAKE2b constructor that accepts no parameters or digest size. If you
+///   want a keyed hash, then use the constructor that accpts the key as a parameter.
+///   Once a key and digest size are selected, its effectively immutable. The Restart()
+///   method that accepts a ParameterBlock does not allow you to change it.
+/// \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+///   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+/// \since Crypto++ 5.6.4
 class BLAKE2b : public BLAKE2_Base<word64, true>
 {
 public:
@@ -247,34 +248,35 @@ public:
 	typedef BLAKE2_ParameterBlock<true> ParameterBlock;
 	CRYPTOPP_COMPILE_ASSERT(sizeof(ParameterBlock) == 64);
 
-	//! \brief Construct a BLAKE2b hash
-	//! \param digestSize the digest size, in bytes
-	//! \param treeMode flag indicating tree mode
+	/// \brief Construct a BLAKE2b hash
+	/// \param digestSize the digest size, in bytes
+	/// \param treeMode flag indicating tree mode
 	BLAKE2b(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
-	//! \brief Construct a BLAKE2b hash
-	//! \param key a byte array used to key the cipher
-	//! \param keyLength the size of the byte array
-	//! \param salt a byte array used as salt
-	//! \param saltLength the size of the byte array
-	//! \param personalization a byte array used as prsonalization string
-	//! \param personalizationLength the size of the byte array
-	//! \param treeMode flag indicating tree mode
-	//! \param digestSize the digest size, in bytes
-	BLAKE2b(const byte *key, size_t keyLength, const byte* salt = NULL, size_t saltLength = 0,
-		const byte* personalization = NULL, size_t personalizationLength = 0,
+	/// \brief Construct a BLAKE2b hash
+	/// \param key a byte array used to key the cipher
+	/// \param keyLength the size of the byte array
+	/// \param salt a byte array used as salt
+	/// \param saltLength the size of the byte array
+	/// \param personalization a byte array used as prsonalization string
+	/// \param personalizationLength the size of the byte array
+	/// \param treeMode flag indicating tree mode
+	/// \param digestSize the digest size, in bytes
+	BLAKE2b(const byte *key, size_t keyLength, const byte* salt = NULLPTR, size_t saltLength = 0,
+		const byte* personalization = NULLPTR, size_t personalizationLength = 0,
 		bool treeMode=false, unsigned int digestSize = DIGESTSIZE)
 		: ThisBase(key, keyLength, salt, saltLength, personalization, personalizationLength, treeMode, digestSize) {}
 };
 
-//! \brief The BLAKE2s cryptographic hash function
-//! \details BLAKE2s can function as both a hash and keyed hash. If you want only the hash,
-//!   then use the BLAKE2s constructor that accepts no parameters or digest size. If you
-//!   want a keyed hash, then use the constuctor that accpts the key as a parameter.
-//!   Once a key and digest size are selected, its effectively immutable. The Restart()
-//!   method that accepts a ParameterBlock does not allow you to change it.
-//! \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
-//!   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+/// \brief The BLAKE2s cryptographic hash function
+/// \details BLAKE2s can function as both a hash and keyed hash. If you want only the hash,
+///   then use the BLAKE2s constructor that accepts no parameters or digest size. If you
+///   want a keyed hash, then use the constructor that accpts the key as a parameter.
+///   Once a key and digest size are selected, its effectively immutable. The Restart()
+///   method that accepts a ParameterBlock does not allow you to change it.
+/// \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
+///   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
+/// \since Crypto++ 5.6.4
 class BLAKE2s : public BLAKE2_Base<word32, false>
 {
 public:
@@ -282,22 +284,22 @@ public:
 	typedef BLAKE2_ParameterBlock<false> ParameterBlock;
 	CRYPTOPP_COMPILE_ASSERT(sizeof(ParameterBlock) == 32);
 
-	//! \brief Construct a BLAKE2s hash
-	//! \param digestSize the digest size, in bytes
-	//! \param treeMode flag indicating tree mode
+	/// \brief Construct a BLAKE2s hash
+	/// \param digestSize the digest size, in bytes
+	/// \param treeMode flag indicating tree mode
 	BLAKE2s(bool treeMode=false, unsigned int digestSize = DIGESTSIZE) : ThisBase(treeMode, digestSize) {}
 
-	//! \brief Construct a BLAKE2s hash
-	//! \param key a byte array used to key the cipher
-	//! \param keyLength the size of the byte array
-	//! \param salt a byte array used as salt
-	//! \param saltLength the size of the byte array
-	//! \param personalization a byte array used as prsonalization string
-	//! \param personalizationLength the size of the byte array
-	//! \param treeMode flag indicating tree mode
-	//! \param digestSize the digest size, in bytes
-	BLAKE2s(const byte *key, size_t keyLength, const byte* salt = NULL, size_t saltLength = 0,
-		const byte* personalization = NULL, size_t personalizationLength = 0,
+	/// \brief Construct a BLAKE2s hash
+	/// \param key a byte array used to key the cipher
+	/// \param keyLength the size of the byte array
+	/// \param salt a byte array used as salt
+	/// \param saltLength the size of the byte array
+	/// \param personalization a byte array used as prsonalization string
+	/// \param personalizationLength the size of the byte array
+	/// \param treeMode flag indicating tree mode
+	/// \param digestSize the digest size, in bytes
+	BLAKE2s(const byte *key, size_t keyLength, const byte* salt = NULLPTR, size_t saltLength = 0,
+		const byte* personalization = NULLPTR, size_t personalizationLength = 0,
 		bool treeMode=false, unsigned int digestSize = DIGESTSIZE)
 		: ThisBase(key, keyLength, salt, saltLength, personalization, personalizationLength, treeMode, digestSize) {}
 };

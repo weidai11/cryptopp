@@ -1,14 +1,14 @@
-// osrng.h - written and placed in the public domain by Wei Dai
+// osrng.h - originally written and placed in the public domain by Wei Dai
 
-//! \file osrng.h
-//! \brief Classes for access to the operating system's random number generators
+/// \file osrng.h
+/// \brief Classes for access to the operating system's random number generators
 
 #ifndef CRYPTOPP_OSRNG_H
 #define CRYPTOPP_OSRNG_H
 
 #include "config.h"
 
-#if !defined(OS_NO_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
+#if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 
 #include "cryptlib.h"
 #include "randpool.h"
@@ -20,26 +20,24 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class OS_RNG_Err
-//! \brief Exception thrown when an operating system error is encountered
+/// \brief Exception thrown when an operating system error is encountered
 class CRYPTOPP_DLL OS_RNG_Err : public Exception
 {
 public:
-	//! \brief Constructs an OS_RNG_Err
-	//! \param operation the operation or API call when the error occurs
+	/// \brief Constructs an OS_RNG_Err
+	/// \param operation the operation or API call when the error occurs
 	OS_RNG_Err(const std::string &operation);
 };
 
 #ifdef NONBLOCKING_RNG_AVAILABLE
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
-//! \class MicrosoftCryptoProvider
-//! \brief Wrapper for Microsoft crypto service provider
-//! \sa \def USE_MS_CRYPTOAPI, \def USE_MS_CNGAPI, \def WORKAROUND_MS_BUG_Q258000
+/// \brief Wrapper for Microsoft crypto service provider
+/// \sa \def USE_MS_CRYPTOAPI, \def USE_MS_CNGAPI
 class CRYPTOPP_DLL MicrosoftCryptoProvider
 {
 public:
-	//! \brief Construct a MicrosoftCryptoProvider
+	/// \brief Construct a MicrosoftCryptoProvider
 	MicrosoftCryptoProvider();
 	~MicrosoftCryptoProvider();
 
@@ -57,13 +55,13 @@ public:
 	typedef PVOID ProviderHandle;
 #endif // USE_MS_CRYPTOAPI or USE_MS_CNGAPI
 
-	//! \brief Retrieves the provider handle
-	//! \returns CryptoAPI provider handle
-	//! \details If USE_MS_CRYPTOAPI is in effect, then CryptAcquireContext()
-	//!   acquires then handle and CryptReleaseContext() releases the handle
-	//!   upon destruction. If USE_MS_CNGAPI is in effect, then
-	//!   BCryptOpenAlgorithmProvider() acquires then handle and
-	//!   BCryptCloseAlgorithmProvider() releases the handle upon destruction.
+	/// \brief Retrieves the provider handle
+	/// \returns CryptoAPI provider handle
+	/// \details If USE_MS_CRYPTOAPI is in effect, then CryptAcquireContext()
+	///   acquires then handle and CryptReleaseContext() releases the handle
+	///   upon destruction. If USE_MS_CNGAPI is in effect, then
+	///   BCryptOpenAlgorithmProvider() acquires then handle and
+	///   BCryptCloseAlgorithmProvider() releases the handle upon destruction.
 	ProviderHandle GetProviderHandle() const {return m_hProvider;}
 
 private:
@@ -78,23 +76,25 @@ private:
 # pragma comment(lib, "bcrypt.lib")
 #endif
 
-#endif //CRYPTOPP_WIN32_AVAILABLE
+#endif // CRYPTOPP_WIN32_AVAILABLE
 
-//! \class NonblockingRng
-//! \brief Wrapper class for /dev/random and /dev/srandom
-//! \details Encapsulates CryptoAPI's CryptGenRandom() or CryptoNG's BCryptGenRandom()
-//!   on Windows, or /dev/urandom on Unix and compatibles.
+/// \brief Wrapper class for /dev/random and /dev/srandom
+/// \details Encapsulates CryptoAPI's CryptGenRandom() or CryptoNG's BCryptGenRandom()
+///   on Windows, or /dev/urandom on Unix and compatibles.
 class CRYPTOPP_DLL NonblockingRng : public RandomNumberGenerator
 {
 public:
-	//! \brief Construct a NonblockingRng
-	NonblockingRng();
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "NonblockingRng"; }
+
 	~NonblockingRng();
-	
-	//! \brief Generate random array of bytes
-	//! \param output the byte buffer
-	//! \param size the length of the buffer, in bytes
-	//! \details GenerateIntoBufferedTransformation() calls are routed to GenerateBlock().
+
+	/// \brief Construct a NonblockingRng
+	NonblockingRng();
+
+	/// \brief Generate random array of bytes
+	/// \param output the byte buffer
+	/// \param size the length of the buffer, in bytes
+	/// \details GenerateIntoBufferedTransformation() calls are routed to GenerateBlock().
 	void GenerateBlock(byte *output, size_t size);
 
 protected:
@@ -109,20 +109,26 @@ protected:
 
 #if defined(BLOCKING_RNG_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-//! \class BlockingRng
-//! \brief Wrapper class for /dev/random and /dev/srandom
-//! \details Encapsulates /dev/random on Linux, OS X and Unix; and /dev/srandom on the BSDs.
+/// \brief Wrapper class for /dev/random and /dev/srandom
+/// \details Encapsulates /dev/random on Linux, OS X and Unix; and /dev/srandom on the BSDs.
+/// \note On Linux the /dev/random interface is effectively deprecated. According to the
+///   Kernel Crypto developers, /dev/urandom or getrandom(2) should be used instead. Also
+///   see <A HREF="https://lkml.org/lkml/2017/7/20/993">[RFC PATCH v12 3/4] Linux Random
+///   Number Generator</A> on the kernel-crypto mailing list.
 class CRYPTOPP_DLL BlockingRng : public RandomNumberGenerator
 {
 public:
-	//! \brief Construct a BlockingRng
-	BlockingRng();
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "BlockingRng"; }
+
 	~BlockingRng();
-	
-	//! \brief Generate random array of bytes
-	//! \param output the byte buffer
-	//! \param size the length of the buffer, in bytes
-	//! \details GenerateIntoBufferedTransformation() calls are routed to GenerateBlock().
+
+	/// \brief Construct a BlockingRng
+	BlockingRng();
+
+	/// \brief Generate random array of bytes
+	/// \param output the byte buffer
+	/// \param size the length of the buffer, in bytes
+	/// \details GenerateIntoBufferedTransformation() calls are routed to GenerateBlock().
 	void GenerateBlock(byte *output, size_t size);
 
 protected:
@@ -131,78 +137,83 @@ protected:
 
 #endif
 
-//! OS_GenerateRandomBlock
-//! \brief Generate random array of bytes
-//! \param blocking specifies whther a bobcking or non-blocking generator should be used
-//! \param output the byte buffer
-//! \param size the length of the buffer, in bytes
-//! \details OS_GenerateRandomBlock() uses the underlying operating system's
-//!   random number generator. On Windows, CryptGenRandom() is called using NonblockingRng.
-//! \details On Unix and compatibles, /dev/urandom is called if blocking is false using
-//!   NonblockingRng. If blocking is true, then either /dev/randomd or /dev/srandom is used
-//!  by way of BlockingRng, if available.
+/// OS_GenerateRandomBlock
+/// \brief Generate random array of bytes
+/// \param blocking specifies whther a bobcking or non-blocking generator should be used
+/// \param output the byte buffer
+/// \param size the length of the buffer, in bytes
+/// \details OS_GenerateRandomBlock() uses the underlying operating system's
+///   random number generator. On Windows, CryptGenRandom() is called using NonblockingRng.
+/// \details On Unix and compatibles, /dev/urandom is called if blocking is false using
+///   NonblockingRng. If blocking is true, then either /dev/randomd or /dev/srandom is used
+///  by way of BlockingRng, if available.
 CRYPTOPP_DLL void CRYPTOPP_API OS_GenerateRandomBlock(bool blocking, byte *output, size_t size);
 
-
-//! \class AutoSeededRandomPool
-//! \brief Automatically Seeded Randomness Pool
-//! \details This class seeds itself using an operating system provided RNG.
-//!    AutoSeededRandomPool was suggested by Leonard Janke.
+/// \brief Automatically Seeded Randomness Pool
+/// \details This class seeds itself using an operating system provided RNG.
+///    AutoSeededRandomPool was suggested by Leonard Janke.
 class CRYPTOPP_DLL AutoSeededRandomPool : public RandomPool
 {
 public:
-	//! \brief Construct an AutoSeededRandomPool
-	//! \param blocking controls seeding with BlockingRng or NonblockingRng
-	//! \param seedSize the size of the seed, in bytes
-	//! \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
-	//!   The parameter is ignored if only one of these is available.
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "AutoSeededRandomPool"; }
+
+	~AutoSeededRandomPool() {}
+
+	/// \brief Construct an AutoSeededRandomPool
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param seedSize the size of the seed, in bytes
+	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
+	///   The parameter is ignored if only one of these is available.
 	explicit AutoSeededRandomPool(bool blocking = false, unsigned int seedSize = 32)
 		{Reseed(blocking, seedSize);}
-	
-	//! \brief Reseed an AutoSeededRandomPool
-	//! \param blocking controls seeding with BlockingRng or NonblockingRng
-	//! \param seedSize the size of the seed, in bytes
+
+	/// \brief Reseed an AutoSeededRandomPool
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param seedSize the size of the seed, in bytes
 	void Reseed(bool blocking = false, unsigned int seedSize = 32);
 };
 
-//! \class AutoSeededX917RNG
-//! \tparam BLOCK_CIPHER a block cipher
-//! \brief Automatically Seeded X9.17 RNG
-//! \details AutoSeededX917RNG is from ANSI X9.17 Appendix C, seeded using an OS provided RNG.
-//!   If 3-key TripleDES (DES_EDE3) is used, then its a X9.17 conforming generator. If AES is
-//!   used, then its a X9.31 conforming generator.
-//! \details Though ANSI X9 prescribes 3-key TripleDES, the template parameter BLOCK_CIPHER can be any
-//!   BlockTransformation derived class.
-//! \sa X917RNG, DefaultAutoSeededRNG
+/// \tparam BLOCK_CIPHER a block cipher
+/// \brief Automatically Seeded X9.17 RNG
+/// \details AutoSeededX917RNG is from ANSI X9.17 Appendix C, seeded using an OS provided RNG.
+///   If 3-key TripleDES (DES_EDE3) is used, then its a X9.17 conforming generator. If AES is
+///   used, then its a X9.31 conforming generator.
+/// \details Though ANSI X9 prescribes 3-key TripleDES, the template parameter BLOCK_CIPHER can be any
+///   BlockTransformation derived class.
+/// \sa X917RNG, DefaultAutoSeededRNG
 template <class BLOCK_CIPHER>
 class AutoSeededX917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
-	//! \brief Construct an AutoSeededX917RNG
-	//! \param blocking controls seeding with BlockingRng or NonblockingRng
-	//! \param autoSeed controls auto seeding of the generator
-	//! \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
-	//!   The parameter is ignored if only one of these is available.
-	//! \sa X917RNG
+	static std::string StaticAlgorithmName() { return std::string("AutoSeededX917RNG(") + BLOCK_CIPHER::StaticAlgorithmName() + std::string(")"); }
+
+	~AutoSeededX917RNG() {}
+
+	/// \brief Construct an AutoSeededX917RNG
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param autoSeed controls auto seeding of the generator
+	/// \details Use blocking to choose seeding with BlockingRng or NonblockingRng.
+	///   The parameter is ignored if only one of these is available.
+	/// \sa X917RNG
 	explicit AutoSeededX917RNG(bool blocking = false, bool autoSeed = true)
 		{if (autoSeed) Reseed(blocking);}
 
-	//! \brief Reseed an AutoSeededX917RNG
-	//! \param blocking controls seeding with BlockingRng or NonblockingRng
-	//! \param additionalEntropy additional entropy to add to the generator
-	//! \param length the size of the additional entropy, in bytes
-	//! \details Internally, the generator uses SHA256 to extract the entropy from
-	//!   from the seed and then stretch the material for the block cipher's key
-	//!   and initialization vector.
-	void Reseed(bool blocking = false, const byte *additionalEntropy = NULL, size_t length = 0);
+	/// \brief Reseed an AutoSeededX917RNG
+	/// \param blocking controls seeding with BlockingRng or NonblockingRng
+	/// \param additionalEntropy additional entropy to add to the generator
+	/// \param length the size of the additional entropy, in bytes
+	/// \details Internally, the generator uses SHA256 to extract the entropy from
+	///   from the seed and then stretch the material for the block cipher's key
+	///   and initialization vector.
+	void Reseed(bool blocking = false, const byte *additionalEntropy = NULLPTR, size_t length = 0);
 
-	//! \brief Deterministically reseed an AutoSeededX917RNG for testing
-	//! \param key the key to use for the deterministic reseeding
-	//! \param keylength the size of the key, in bytes
-	//! \param seed the seed to use for the deterministic reseeding
-	//! \param timeVector a time vector to use for deterministic reseeding
-	//! \details This is a testing interface for testing purposes, and should \a NOT
-	//!   be used in production.
+	/// \brief Deterministically reseed an AutoSeededX917RNG for testing
+	/// \param key the key to use for the deterministic reseeding
+	/// \param keylength the size of the key, in bytes
+	/// \param seed the seed to use for the deterministic reseeding
+	/// \param timeVector a time vector to use for deterministic reseeding
+	/// \details This is a testing interface for testing purposes, and should \a NOT
+	///   be used in production.
 	void Reseed(const byte *key, size_t keylength, const byte *seed, const byte *timeVector);
 
 	bool CanIncorporateEntropy() const {return true;}
@@ -239,17 +250,16 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 	}	// check that seed and key don't have same value
 	while (memcmp(key, seed, STDMIN((unsigned int)BLOCK_CIPHER::BLOCKSIZE, (unsigned int)BLOCK_CIPHER::DEFAULT_KEYLENGTH)) == 0);
 
-	Reseed(key, BLOCK_CIPHER::DEFAULT_KEYLENGTH, seed, NULL);
+	Reseed(key, BLOCK_CIPHER::DEFAULT_KEYLENGTH, seed, NULLPTR);
 }
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<AES>;
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
-//! \class DefaultAutoSeededRNG
-//! \brief A typedef providing a default generator
-//! \details DefaultAutoSeededRNG is a typedef of either AutoSeededX917RNG<AES> or AutoSeededRandomPool.
-//!   If CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined, then DefaultAutoSeededRNG is
-//!   AutoSeededX917RNG<AES>. Otherwise, DefaultAutoSeededRNG is AutoSeededRandomPool.
+/// \brief A typedef providing a default generator
+/// \details DefaultAutoSeededRNG is a typedef of either AutoSeededX917RNG<AES> or AutoSeededRandomPool.
+///   If CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 is defined, then DefaultAutoSeededRNG is
+///   AutoSeededX917RNG<AES>. Otherwise, DefaultAutoSeededRNG is AutoSeededRandomPool.
 class DefaultAutoSeededRNG {}
 #else
 // AutoSeededX917RNG<AES> in FIPS mode, otherwise it's AutoSeededRandomPool

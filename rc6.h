@@ -1,7 +1,8 @@
-// rc6.h - written and placed in the public domain by Wei Dai
+// rc6.h - originally written and placed in the public domain by Wei Dai
 
-//! \file rc6.h
-//! \brief Classes for the RC6 block cipher
+/// \file rc6.h
+/// \brief Classes for the RC6 block cipher
+/// \since Crypto++ 3.0
 
 #ifndef CRYPTOPP_RC6_H
 #define CRYPTOPP_RC6_H
@@ -11,17 +12,17 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-//! \class RC6_Info
-//! \brief RC6 block cipher information
-struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 0, 255>, public VariableRounds<20>
+/// \brief RC6 block cipher information
+/// \since Crypto++ 3.0
+struct RC6_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>, public VariableRounds<20>
 {
-	static const char *StaticAlgorithmName() {return "RC6";}
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RC6";}
 	typedef word32 RC6_WORD;
 };
 
-//! \class RC6
-//! \brief RC6 block cipher
-//! \sa <a href="http://www.weidai.com/scan-mirror/cs.html#RC6">RC6</a>
+/// \brief RC6 block cipher
+/// \sa <a href="http://www.cryptopp.com/wiki/RC6">RC6</a>
+/// \since Crypto++ 3.0
 class RC6 : public RC6_Info, public BlockCipherDocumentation
 {
 	class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<RC6_Info>

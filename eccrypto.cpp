@@ -1,4 +1,4 @@
-// eccrypto.cpp - written and placed in the public domain by Wei Dai
+// eccrypto.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
 
@@ -6,7 +6,7 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4127 4189)
+# pragma warning(disable: 4127 4189 4505)
 #endif
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
@@ -31,7 +31,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 static void ECDSA_TestInstantiations()
 {
 	ECDSA<EC2N>::Signer t1;
@@ -46,8 +46,8 @@ static void ECDSA_TestInstantiations()
 #endif
 #endif
 
-// VC60 workaround: complains when these functions are put into an anonymous namespace
-static Integer ConvertToInteger(const PolynomialMod2 &x)
+ANONYMOUS_NAMESPACE_BEGIN
+inline Integer ConvertToInteger(const PolynomialMod2 &x)
 {
 	unsigned int l = x.ByteCount();
 	SecByteBlock temp(l);
@@ -55,12 +55,12 @@ static Integer ConvertToInteger(const PolynomialMod2 &x)
 	return Integer(temp, l);
 }
 
-static inline Integer ConvertToInteger(const Integer &x)
+inline Integer ConvertToInteger(const Integer &x)
 {
 	return x;
 }
 
-static bool CheckMOVCondition(const Integer &q, const Integer &r)
+inline bool CheckMOVCondition(const Integer &q, const Integer &r)
 {
 	// see "Updated standards for validating elliptic curves", http://eprint.iacr.org/2007/343
 	Integer t = 1;
@@ -77,6 +77,7 @@ static bool CheckMOVCondition(const Integer &q, const Integer &r)
 	}
 	return true;
 }
+ANONYMOUS_NAMESPACE_END
 
 // ******************************************************************
 
@@ -85,9 +86,9 @@ template <class T> struct EcRecommendedParameters;
 template<> struct EcRecommendedParameters<EC2N>
 {
 	EcRecommendedParameters(const OID &oid, unsigned int t2, unsigned int t3, unsigned int t4, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), t0(0), t1(0), t2(t2), t3(t3), t4(t4), a(a), b(b), g(g), n(n), h(h) {}
+		: oid(oid), a(a), b(b), g(g), n(n), h(h), t0(0), t1(0), t2(t2), t3(t3), t4(t4) {}
 	EcRecommendedParameters(const OID &oid, unsigned int t0, unsigned int t1, unsigned int t2, unsigned int t3, unsigned int t4, const char *a, const char *b, const char *g, const char *n, unsigned int h)
-		: oid(oid), t0(t0), t1(t1), t2(t2), t3(t3), t4(t4), a(a), b(b), g(g), n(n), h(h) {}
+		: oid(oid), a(a), b(b), g(g), n(n), h(h), t0(t0), t1(t1), t2(t2), t3(t3), t4(t4) {}
 	EC2N *NewEC() const
 	{
 		StringSource ssA(a, true, new HexDecoder);
@@ -99,9 +100,8 @@ template<> struct EcRecommendedParameters<EC2N>
 	};
 
 	OID oid;
-	unsigned int t0, t1, t2, t3, t4;
 	const char *a, *b, *g, *n;
-	unsigned int h;
+	unsigned int h, t0, t1, t2, t3, t4;
 };
 
 template<> struct EcRecommendedParameters<ECP>
@@ -117,8 +117,7 @@ template<> struct EcRecommendedParameters<ECP>
 	};
 
 	OID oid;
-	const char *p;
-	const char *a, *b, *g, *n;
+	const char *p, *a, *b, *g, *n;
 	unsigned int h;
 };
 
@@ -136,21 +135,21 @@ static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<EC2N> rec[] = {
-		EcRecommendedParameters<EC2N>(ASN1::sect163k1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect163k1(),
 			163, 7, 6, 3, 0,
 			"000000000000000000000000000000000000000001",
 			"000000000000000000000000000000000000000001",
 			"0402FE13C0537BBC11ACAA07D793DE4E6D5E5C94EEE80289070FB05D38FF58321F2E800536D538CCDAA3D9",
 			"04000000000000000000020108A2E0CC0D99F8A5EF",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect163r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect163r1(),
 			163, 7, 6, 3, 0,
 			"07B6882CAAEFA84F9554FF8428BD88E246D2782AE2",
 			"0713612DCDDCB40AAB946BDA29CA91F73AF958AFD9",
 			"040369979697AB43897789566789567F787A7876A65400435EDB42EFAFB2989D51FEFCE3C80988F41FF883",
 			"03FFFFFFFFFFFFFFFFFFFF48AAB689C29CA710279B",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect239k1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect239k1(),
 			239, 158, 0,
 			"000000000000000000000000000000000000000000000000000000000000",
 			"000000000000000000000000000000000000000000000000000000000001",
@@ -164,98 +163,98 @@ static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin
 			"04009D73616F35F4AB1407D73562C10F00A52830277958EE84D1315ED31886",
 			"0100000000000000D9CCEC8A39E56F",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect113r2(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect113r2(),
 			113, 9, 0,
 			"00689918DBEC7E5A0DD6DFC0AA55C7",
 			"0095E9A9EC9B297BD4BF36E059184F",
 			"0401A57A6A7B26CA5EF52FCDB816479700B3ADC94ED1FE674C06E695BABA1D",
 			"010000000000000108789B2496AF93",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect163r2(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect163r2(),
 			163, 7, 6, 3, 0,
 			"000000000000000000000000000000000000000001",
 			"020A601907B8C953CA1481EB10512F78744A3205FD",
 			"0403F0EBA16286A2D57EA0991168D4994637E8343E3600D51FBC6C71A0094FA2CDD545B11C5C0C797324F1",
 			"040000000000000000000292FE77E70C12A4234C33",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect283k1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect283k1(),
 			283, 12, 7, 5, 0,
 			"000000000000000000000000000000000000000000000000000000000000000000000000",
 			"000000000000000000000000000000000000000000000000000000000000000000000001",
 			"040503213F78CA44883F1A3B8162F188E553CD265F23C1567A16876913B0C2AC245849283601CCDA380F1C9E318D90F95D07E5426FE87E45C0E8184698E45962364E34116177DD2259",
 			"01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE9AE2ED07577265DFF7F94451E061E163C61",
 			4),
-		EcRecommendedParameters<EC2N>(ASN1::sect283r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect283r1(),
 			283, 12, 7, 5, 0,
 			"000000000000000000000000000000000000000000000000000000000000000000000001",
 			"027B680AC8B8596DA5A4AF8A19A0303FCA97FD7645309FA2A581485AF6263E313B79A2F5",
 			"0405F939258DB7DD90E1934F8C70B0DFEC2EED25B8557EAC9C80E2E198F8CDBECD86B1205303676854FE24141CB98FE6D4B20D02B4516FF702350EDDB0826779C813F0DF45BE8112F4",
 			"03FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEF90399660FC938A90165B042A7CEFADB307",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect131r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect131r1(),
 			131, 8, 3, 2, 0,
 			"07A11B09A76B562144418FF3FF8C2570B8",
 			"0217C05610884B63B9C6C7291678F9D341",
 			"040081BAF91FDF9833C40F9C181343638399078C6E7EA38C001F73C8134B1B4EF9E150",
 			"0400000000000000023123953A9464B54D",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect131r2(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect131r2(),
 			131, 8, 3, 2, 0,
 			"03E5A88919D7CAFCBF415F07C2176573B2",
 			"04B8266A46C55657AC734CE38F018F2192",
 			"040356DCD8F2F95031AD652D23951BB366A80648F06D867940A5366D9E265DE9EB240F",
 			"0400000000000000016954A233049BA98F",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect193r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect193r1(),
 			193, 15, 0,
 			"0017858FEB7A98975169E171F77B4087DE098AC8A911DF7B01",
 			"00FDFB49BFE6C3A89FACADAA7A1E5BBC7CC1C2E5D831478814",
 			"0401F481BC5F0FF84A74AD6CDF6FDEF4BF6179625372D8C0C5E10025E399F2903712CCF3EA9E3A1AD17FB0B3201B6AF7CE1B05",
 			"01000000000000000000000000C7F34A778F443ACC920EBA49",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect193r2(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect193r2(),
 			193, 15, 0,
 			"0163F35A5137C2CE3EA6ED8667190B0BC43ECD69977702709B",
 			"00C9BB9E8927D4D64C377E2AB2856A5B16E3EFB7F61D4316AE",
 			"0400D9B67D192E0367C803F39E1A7E82CA14A651350AAE617E8F01CE94335607C304AC29E7DEFBD9CA01F596F927224CDECF6C",
 			"010000000000000000000000015AAB561B005413CCD4EE99D5",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect233k1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect233k1(),
 			233, 74, 0,
 			"000000000000000000000000000000000000000000000000000000000000",
 			"000000000000000000000000000000000000000000000000000000000001",
 			"04017232BA853A7E731AF129F22FF4149563A419C26BF50A4C9D6EEFAD612601DB537DECE819B7F70F555A67C427A8CD9BF18AEB9B56E0C11056FAE6A3",
 			"8000000000000000000000000000069D5BB915BCD46EFB1AD5F173ABDF",
 			4),
-		EcRecommendedParameters<EC2N>(ASN1::sect233r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect233r1(),
 			233, 74, 0,
 			"000000000000000000000000000000000000000000000000000000000001",
 			"0066647EDE6C332C7F8C0923BB58213B333B20E9CE4281FE115F7D8F90AD",
 			"0400FAC9DFCBAC8313BB2139F1BB755FEF65BC391F8B36F8F8EB7371FD558B01006A08A41903350678E58528BEBF8A0BEFF867A7CA36716F7E01F81052",
 			"01000000000000000000000000000013E974E72F8A6922031D2603CFE0D7",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect409k1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect409k1(),
 			409, 87, 0,
 			"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 			"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
 			"040060F05F658F49C1AD3AB1890F7184210EFD0987E307C84C27ACCFB8F9F67CC2C460189EB5AAAA62EE222EB1B35540CFE902374601E369050B7C4E42ACBA1DACBF04299C3460782F918EA427E6325165E9EA10E3DA5F6C42E9C55215AA9CA27A5863EC48D8E0286B",
 			"7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFE5F83B2D4EA20400EC4557D5ED3E3E7CA5B4B5C83B8E01E5FCF",
 			4),
-		EcRecommendedParameters<EC2N>(ASN1::sect409r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect409r1(),
 			409, 87, 0,
 			"00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
 			"0021A5C2C8EE9FEB5C4B9A753B7B476B7FD6422EF1F3DD674761FA99D6AC27C8A9A197B272822F6CD57A55AA4F50AE317B13545F",
 			"04015D4860D088DDB3496B0C6064756260441CDE4AF1771D4DB01FFE5B34E59703DC255A868A1180515603AEAB60794E54BB7996A70061B1CFAB6BE5F32BBFA78324ED106A7636B9C5A7BD198D0158AA4F5488D08F38514F1FDF4B4F40D2181B3681C364BA0273C706",
 			"010000000000000000000000000000000000000000000000000001E2AAD6A612F33307BE5FA47C3C9E052F838164CD37D9A21173",
 			2),
-		EcRecommendedParameters<EC2N>(ASN1::sect571k1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect571k1(),
 			571, 10, 5, 2, 0,
 			"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
 			"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
 			"04026EB7A859923FBC82189631F8103FE4AC9CA2970012D5D46024804801841CA44370958493B205E647DA304DB4CEB08CBBD1BA39494776FB988B47174DCA88C7E2945283A01C89720349DC807F4FBF374F4AEADE3BCA95314DD58CEC9F307A54FFC61EFC006D8A2C9D4979C0AC44AEA74FBEBBB9F772AEDCB620B01A7BA7AF1B320430C8591984F601CD4C143EF1C7A3",
 			"020000000000000000000000000000000000000000000000000000000000000000000000131850E1F19A63E4B391A8DB917F4138B630D84BE5D639381E91DEB45CFE778F637C1001",
 			4),
-		EcRecommendedParameters<EC2N>(ASN1::sect571r1(), 
+		EcRecommendedParameters<EC2N>(ASN1::sect571r1(),
 			571, 10, 5, 2, 0,
 			"000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001",
 			"02F40E7E2221F295DE297117B7F3D62F5C6A97FFCB8CEFF1CD6BA8CE4A9A18AD84FFABBD8EFA59332BE7AD6756A66E294AFD185A78FF12AA520E4DE739BACA0C7FFEFF7F2955727A",
@@ -267,10 +266,27 @@ static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin
 	end = rec + sizeof(rec)/sizeof(rec[0]);
 }
 
+// See https://www.cryptopp.com/wiki/SM2 for details on sm2p256v1 and sm2encrypt_recommendedParameters
 static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<ECP> rec[] = {
+		EcRecommendedParameters<ECP>(ASN1::sm2p256v1(),
+			"FFFFFFFE FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF 00000000 FFFFFFFF FFFFFFFF",
+			"FFFFFFFE FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF 00000000 FFFFFFFF FFFFFFFC",
+			"28E9FA9E 9D9F5E34 4D5A9E4B CF6509A7 F39789F5 15AB8F92 DDBCBD41 4D940E93",
+			"04" "32C4AE2C 1F198119 5F990446 6A39C994 8FE30BBF F2660BE1 715A4589 334C74C7"
+			     "BC3736A2 F4F6779C 59BDCEE3 6B692153 D0A9877C C62A4740 02DF32E5 2139F0A0",
+			"FFFFFFFE FFFFFFFF FFFFFFFF FFFFFFFF 7203DF6B 21C6052B 53BBF409 39D54123",
+			1),
+		EcRecommendedParameters<ECP>(ASN1::sm2encrypt_recommendedParameters(),
+			"FFFFFFFE FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF 00000000 FFFFFFFF FFFFFFFF",
+			"FFFFFFFE FFFFFFFF FFFFFFFF FFFFFFFF FFFFFFFF 00000000 FFFFFFFF FFFFFFFC",
+			"28E9FA9E 9D9F5E34 4D5A9E4B CF6509A7 F39789F5 15AB8F92 DDBCBD41 4D940E93",
+			"04" "32C4AE2C 1F198119 5F990446 6A39C994 8FE30BBF F2660BE1 715A4589 334C74C7"
+			     "BC3736A2 F4F6779C 59BDCEE3 6B692153 D0A9877C C62A4740 02DF32E5 2139F0A0",
+			"FFFFFFFE FFFFFFFF FFFFFFFF FFFFFFFF 7203DF6B 21C6052B 53BBF409 39D54123",
+			1),
 		EcRecommendedParameters<ECP>(ASN1::secp192r1(),
 			"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFF",
 			"FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEFFFFFFFFFFFFFFFC",
@@ -457,7 +473,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 	this->SetSubgroupGenerator(G);
 
 	// TODO: this fails in practice. Should it throw?
-	CRYPTOPP_UNUSED(result); assert(result);
+	CRYPTOPP_UNUSED(result); CRYPTOPP_ASSERT(result);
 
 	StringSource ssN(param.n, true, new HexDecoder);
 	m_n.Decode(ssN, (size_t)ssN.MaxRetrievable());
@@ -469,7 +485,7 @@ bool DL_GroupParameters_EC<EC>::GetVoidValue(const char *name, const std::type_i
 {
 	if (strcmp(name, Name::GroupOID()) == 0)
 	{
-		if (m_oid.m_values.empty())
+		if (m_oid.GetValues().empty())
 			return false;
 
 		this->ThrowIfTypeMismatch(name, typeid(OID), valueType);
@@ -547,7 +563,7 @@ void DL_GroupParameters_EC<EC>::BERDecode(BufferedTransformation &bt)
 template <class EC>
 void DL_GroupParameters_EC<EC>::DEREncode(BufferedTransformation &bt) const
 {
-	if (m_encodeAsOID && !m_oid.m_values.empty())
+	if (m_encodeAsOID && !m_oid.GetValues().empty())
 		m_oid.DEREncode(bt);
 	else
 	{
@@ -579,23 +595,29 @@ template <class EC>
 Integer DL_GroupParameters_EC<EC>::ConvertElementToInteger(const Element &element) const
 {
 	return ConvertToInteger(element.x);
-};
+}
 
 template <class EC>
 bool DL_GroupParameters_EC<EC>::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const
 {
 	bool pass = GetCurve().ValidateParameters(rng, level);
+	CRYPTOPP_ASSERT(pass);
 
 	Integer q = GetCurve().FieldSize();
 	pass = pass && m_n!=q;
+	CRYPTOPP_ASSERT(pass);
 
 	if (level >= 2)
 	{
 		Integer qSqrt = q.SquareRoot();
 		pass = pass && m_n>4*qSqrt;
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && VerifyPrime(rng, m_n, level-2);
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && (m_k.IsZero() || m_k == (q+2*qSqrt+1)/m_n);
+		CRYPTOPP_ASSERT(pass);
 		pass = pass && CheckMOVCondition(q, m_n);
+		CRYPTOPP_ASSERT(pass);
 	}
 
 	return pass;
@@ -604,17 +626,25 @@ bool DL_GroupParameters_EC<EC>::ValidateGroup(RandomNumberGenerator &rng, unsign
 template <class EC>
 bool DL_GroupParameters_EC<EC>::ValidateElement(unsigned int level, const Element &g, const DL_FixedBasePrecomputation<Element> *gpc) const
 {
-	bool pass = !IsIdentity(g) && GetCurve().VerifyPoint(g);
+	bool pass = !IsIdentity(g);
+	CRYPTOPP_ASSERT(pass);
+	pass = pass && GetCurve().VerifyPoint(g);
+	CRYPTOPP_ASSERT(pass);
+
 	if (level >= 1)
 	{
 		if (gpc)
+		{
 			pass = pass && gpc->Exponentiate(this->GetGroupPrecomputation(), Integer::One()) == g;
+			CRYPTOPP_ASSERT(pass);
+		}
 	}
 	if (level >= 2 && pass)
 	{
 		const Integer &q = GetSubgroupOrder();
 		Element gq = gpc ? gpc->Exponentiate(this->GetGroupPrecomputation(), q) : this->ExponentiateElement(g, q);
 		pass = pass && IsIdentity(gq);
+		CRYPTOPP_ASSERT(pass);
 	}
 	return pass;
 }
@@ -626,13 +656,13 @@ void DL_GroupParameters_EC<EC>::SimultaneousExponentiate(Element *results, const
 }
 
 template <class EC>
-CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
+typename DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::MultiplyElements(const Element &a, const Element &b) const
 {
 	return GetCurve().Add(a, b);
 }
 
 template <class EC>
-CPP_TYPENAME DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
+typename DL_GroupParameters_EC<EC>::Element DL_GroupParameters_EC<EC>::CascadeExponentiate(const Element &element1, const Integer &exponent1, const Element &element2, const Integer &exponent2) const
 {
 	return GetCurve().CascadeMultiply(exponent1, element1, exponent2, element2);
 }
@@ -705,6 +735,77 @@ void DL_PrivateKey_EC<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool 
 
 template <class EC>
 void DL_PrivateKey_EC<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
+{
+	DERSequenceEncoder privateKey(bt);
+		DEREncodeUnsigned<word32>(privateKey, 1);	// version
+		// SEC 1 ver 1.0 says privateKey (m_d) has the same length as order of the curve
+		// this will be changed to order of base point in a future version
+		this->GetPrivateExponent().DEREncodeAsOctetString(privateKey, this->GetGroupParameters().GetSubgroupOrder().ByteCount());
+	privateKey.MessageEnd();
+}
+
+// ******************************************************************
+
+template <class EC>
+void DL_PublicKey_ECGDSA<EC>::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+	CRYPTOPP_UNUSED(parametersPresent);
+
+	typename EC::Point P;
+	if (!this->GetGroupParameters().GetCurve().DecodePoint(P, bt, size))
+		BERDecodeError();
+	this->SetPublicElement(P);
+}
+
+template <class EC>
+void DL_PublicKey_ECGDSA<EC>::DEREncodePublicKey(BufferedTransformation &bt) const
+{
+	this->GetGroupParameters().GetCurve().EncodePoint(bt, this->GetPublicElement(), this->GetGroupParameters().GetPointCompression());
+}
+
+// ******************************************************************
+
+template <class EC>
+void DL_PrivateKey_ECGDSA<EC>::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+	CRYPTOPP_UNUSED(size);
+	BERSequenceDecoder seq(bt);
+		word32 version;
+		BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);	// check version
+
+		BERGeneralDecoder dec(seq, OCTET_STRING);
+		if (!dec.IsDefiniteLength())
+			BERDecodeError();
+		Integer x;
+		x.Decode(dec, (size_t)dec.RemainingLength());
+		dec.MessageEnd();
+		if (!parametersPresent && seq.PeekByte() != (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
+			BERDecodeError();
+		if (!seq.EndReached() && seq.PeekByte() == (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
+		{
+			BERGeneralDecoder parameters(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 0);
+			this->AccessGroupParameters().BERDecode(parameters);
+			parameters.MessageEnd();
+		}
+		if (!seq.EndReached())
+		{
+			// skip over the public element
+			SecByteBlock subjectPublicKey;
+			unsigned int unusedBits;
+			BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+			BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
+			publicKey.MessageEnd();
+			Element Q;
+			if (!(unusedBits == 0 && this->GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
+				BERDecodeError();
+		}
+	seq.MessageEnd();
+
+	this->SetPrivateExponent(x);
+}
+
+template <class EC>
+void DL_PrivateKey_ECGDSA<EC>::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
 	DERSequenceEncoder privateKey(bt);
 		DEREncodeUnsigned<word32>(privateKey, 1);	// version

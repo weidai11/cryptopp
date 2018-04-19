@@ -1,8 +1,7 @@
-// dll.h - written and placed in the public domain by Wei Dai
+// dll.h - originally written and placed in the public domain by Wei Dai
 
-//! \file
-//! \headerfile dll.h
-//! \brief Functions and definitions required for building the FIPS-140 DLL on Windows
+/// \file dll.h
+/// \brief Functions and definitions required for building the FIPS-140 DLL on Windows
 
 #ifndef CRYPTOPP_DLL_H
 #define CRYPTOPP_DLL_H
@@ -47,14 +46,14 @@
 
 #ifdef _DLL
 // cause CRT DLL to be initialized before Crypto++ so that we can use malloc and free during DllMain()
-#ifdef NDEBUG
-#pragma comment(lib, "msvcrt")
+#ifdef CRYPTOPP_DEBUG
+# pragma comment(lib, "msvcrtd")
+# pragma comment(lib, "cryptopp")
 #else
-#pragma comment(lib, "msvcrtd")
+# pragma comment(lib, "msvcrt")
+# pragma comment(lib, "cryptopp")
 #endif
 #endif
-
-#pragma comment(lib, "cryptopp")
 
 #endif		// #ifdef CRYPTOPP_IMPORTS
 
@@ -62,14 +61,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if !(defined(_MSC_VER) && (_MSC_VER < 1300))
-using std::new_handler;
-#endif
-
 typedef void * (CRYPTOPP_API * PNew)(size_t);
 typedef void (CRYPTOPP_API * PDelete)(void *);
 typedef void (CRYPTOPP_API * PGetNewAndDelete)(PNew &, PDelete &);
-typedef new_handler (CRYPTOPP_API * PSetNewHandler)(new_handler);
+typedef std::new_handler (CRYPTOPP_API * PSetNewHandler)(std::new_handler);
 typedef void (CRYPTOPP_API * PSetNewAndDelete)(PNew, PDelete, PSetNewHandler);
 
 NAMESPACE_END

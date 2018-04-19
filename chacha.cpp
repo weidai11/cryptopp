@@ -1,5 +1,4 @@
 // chacha.cpp - written and placed in the public domain by Jeffrey Walton.
-//              Copyright assigned to the Crypto++ project.
 //              Based on Wei Dai's Salsa20 and Bernstein's reference ChaCha
 //              family implementation at http://cr.yp.to/chacha.html.
 
@@ -13,12 +12,12 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
-    a += b; d ^= a; d = rotlFixed<word32>(d,16); \
-    c += d; b ^= c; b = rotlFixed<word32>(b,12); \
-    a += b; d ^= a; d = rotlFixed<word32>(d, 8); \
-    c += d; b ^= c; b = rotlFixed<word32>(b, 7);
+    a += b; d ^= a; d = rotlConstant<16,word32>(d); \
+    c += d; b ^= c; b = rotlConstant<12,word32>(b); \
+    a += b; d ^= a; d = rotlConstant<8,word32>(d); \
+    c += d; b ^= c; b = rotlConstant<7,word32>(b);
 
-#if !defined(NDEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ChaCha_TestInstantiations()
 {
 	 ChaCha8::Encryption x1;
@@ -31,7 +30,7 @@ template <unsigned int R>
 void ChaCha_Policy<R>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(params);
-	assert(length == 16 || length == 32);
+	CRYPTOPP_ASSERT(length == 16 || length == 32);
 
 	// "expand 16-byte k" or "expand 32-byte k"
 	m_state[0] = 0x61707865;
@@ -50,7 +49,7 @@ template <unsigned int R>
 void ChaCha_Policy<R>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
-	assert(length==8);
+	CRYPTOPP_ASSERT(length==8);
 
 	GetBlock<word32, LittleEndian> get(IV);
 	m_state[12] = m_state[13] = 0;
@@ -73,7 +72,7 @@ void ChaCha_Policy<R>::SeekToIteration(lword iterationCount)
 template<unsigned int R>
 unsigned int ChaCha_Policy<R>::GetAlignment() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && 0
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
 	if (HasSSE2())
 		return 16;
 	else
@@ -84,7 +83,7 @@ unsigned int ChaCha_Policy<R>::GetAlignment() const
 template<unsigned int R>
 unsigned int ChaCha_Policy<R>::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && 0
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
 	if (HasSSE2())
 		return 4*BYTES_PER_ITERATION;
 	else

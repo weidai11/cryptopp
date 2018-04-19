@@ -5,6 +5,10 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM rijndael.cpp" to generate MASM code
 
 /*
+July 2017: Added support for ARM AES instructions via compiler intrinsics.
+*/
+
+/*
 July 2010: Added support for AES-NI instructions via compiler intrinsics.
 */
 
@@ -71,26 +75,27 @@ being unloaded from L1 cache, until that round is finished.
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include "rijndael.h"
-#include "stdcpp.h"		// alloca
 #include "misc.h"
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Clang 3.3 integrated assembler crash on Linux
+#if CRYPTOPP_BOOL_X32 || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400))
+# define CRYPTOPP_DISABLE_RIJNDAEL_ASM
+#endif
+
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
-#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
+#if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 #endif
 
-// Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
-#if (__SUNPRO_CC >= 0x5130)
-# define MAYBE_CONST
-#else
-# define MAYBE_CONST const
-#endif
+// Clang __m128i casts
+#define M128I_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))
 
 #if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
-# if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+# if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
 using namespace rdtable;
 # else
@@ -107,6 +112,69 @@ CRYPTOPP_ALIGN_DATA(16) static word32 Td[256*4];
 #endif // CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
 static volatile bool s_TeFilled = false, s_TdFilled = false;
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_one[] = {0, 0, 0, 1<<24};
+
+/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
+CRYPTOPP_ALIGN_DATA(16)
+const word32 s_rconLE[] = {
+	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
+};
+
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+
+// Determine whether the range between begin and end overlaps
+//   with the same 4k block offsets as the Te table. Logically,
+//   the code is trying to create the condition:
+//
+// Two sepearate memory pages:
+//
+//  +-----+   +-----+
+//  |XXXXX|   |YYYYY|
+//  |XXXXX|   |YYYYY|
+//  |     |   |     |
+//  |     |   |     |
+//  +-----+   +-----+
+//  Te Table   Locals
+//
+// Have a logical cache view of (X and Y may be inverted):
+//
+// +-----+
+// |XXXXX|
+// |XXXXX|
+// |YYYYY|
+// |YYYYY|
+// +-----+
+//
+static inline bool AliasedWithTable(const byte *begin, const byte *end)
+{
+	ptrdiff_t s0 = uintptr_t(begin)%4096, s1 = uintptr_t(end)%4096;
+	ptrdiff_t t0 = uintptr_t(Te)%4096, t1 = (uintptr_t(Te)+sizeof(Te))%4096;
+	if (t1 > t0)
+		return (s0 >= t0 && s0 < t1) || (s1 > t0 && s1 <= t1);
+	else
+		return (s0 < t1 || s1 <= t1) || (s0 >= t0 || s1 > t0);
+}
+
+struct Locals
+{
+	word32 subkeys[4*12], workspace[8];
+	const byte *inBlocks, *inXorBlocks, *outXorBlocks;
+	byte *outBlocks;
+	size_t inIncrement, inXorIncrement, outXorIncrement, outIncrement;
+	size_t regSpill, lengthAndCounterFlag, keysBegin;
+};
+
+const size_t s_aliasPageSize = 4096;
+const size_t s_aliasBlockSize = 256;
+const size_t s_sizeToAllocate = s_aliasPageSize + s_aliasBlockSize + sizeof(Locals);
+
+#endif  // CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+
+ANONYMOUS_NAMESPACE_END
 
 // ************************* Portable Code ************************************
 
@@ -139,7 +207,7 @@ static volatile bool s_TeFilled = false, s_TdFilled = false;
 #define QUARTER_ROUND_E(t, a, b, c, d)		QUARTER_ROUND(TL_M, Te, t, a, b, c, d)
 #define QUARTER_ROUND_D(t, a, b, c, d)		QUARTER_ROUND(TL_M, Td, t, a, b, c, d)
 
-#ifdef IS_LITTLE_ENDIAN
+#ifdef CRYPTOPP_LITTLE_ENDIAN
 	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, d, c, b, a)
 	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, d, c, b, a)
 	#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
@@ -185,11 +253,11 @@ void Rijndael::Base::FillEncTable()
 		for (int j=0; j<4; j++)
 		{
 			Te[i+j*256] = y;
-			y = rotrFixed(y, 8);
+			y = rotrConstant<8>(y);
 		}
 #endif
 	}
-#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	Te[256] = Te[257] = 0;
 #endif
 	s_TeFilled = true;
@@ -208,115 +276,102 @@ void Rijndael::Base::FillDecTable()
 		for (int j=0; j<4; j++)
 		{
 			Td[i+j*256] = y;
-			y = rotrFixed(y, 8);
+			y = rotrConstant<8>(y);
 		}
 #endif
 	}
 	s_TdFilled = true;
 }
 
-void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, const NameValuePairs &)
+#if (CRYPTOPP_AESNI_AVAILABLE)
+extern void Rijndael_UncheckedSetKey_SSE4_AESNI(const byte *userKey, size_t keyLen, word32* rk);
+extern void Rijndael_UncheckedSetKeyRev_AESNI(word32 *key, unsigned int rounds);
+
+extern size_t Rijndael_Enc_AdvancedProcessBlocks_AESNI(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+extern size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
+
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
+extern size_t Rijndael_Enc_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
+
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen,
+        word32* rk, const byte* Se);
+
+extern size_t Rijndael_Enc_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+extern size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subkeys, size_t rounds,
+        const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
+
+void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
 {
-	AssertValidKeyLength(keylen);
+	AssertValidKeyLength(keyLen);
 
-	m_rounds = keylen/4 + 6;
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+	m_aliasBlock.New(s_sizeToAllocate);
+	// The alias block is only used on IA-32 when unaligned data access is in effect.
+	// Setting the low water mark to 0 avoids zeroization when m_aliasBlock is unused.
+	m_aliasBlock.SetMark(0);
+#endif
+
+	m_rounds = keyLen/4 + 6;
 	m_key.New(4*(m_rounds+1));
-
 	word32 *rk = m_key;
 
-#if (CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE && CRYPTOPP_BOOL_SSE4_INTRINSICS_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
+#if (CRYPTOPP_AESNI_AVAILABLE && CRYPTOPP_SSE41_AVAILABLE && (!defined(_MSC_VER) || _MSC_VER >= 1600 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32))
 	// MSVC 2008 SP1 generates bad code for _mm_extract_epi32() when compiling for X64
-	if (HasAESNI() && HasSSE4())
+	if (HasAESNI() && HasSSE41())
 	{
-		static const word32 rcLE[] = {
-			0x01, 0x02, 0x04, 0x08,
-			0x10, 0x20, 0x40, 0x80,
-			0x1B, 0x36, /* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-		};
-		const word32 *rc = rcLE;
-
-		__m128i temp = _mm_loadu_si128((__m128i *)(void *)(userKey+keylen-16));
-		memcpy(rk, userKey, keylen);
-
-		while (true)
-		{
-			rk[keylen/4] = rk[0] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 3) ^ *(rc++);
-			rk[keylen/4+1] = rk[1] ^ rk[keylen/4];
-			rk[keylen/4+2] = rk[2] ^ rk[keylen/4+1];
-			rk[keylen/4+3] = rk[3] ^ rk[keylen/4+2];
-
-			if (rk + keylen/4 + 4 == m_key.end())
-				break;
-
-			if (keylen == 24)
-			{
-				rk[10] = rk[ 4] ^ rk[ 9];
-				rk[11] = rk[ 5] ^ rk[10];
-				temp = _mm_insert_epi32(temp, rk[11], 3);
-			}
-			else if (keylen == 32)
-			{
-				temp = _mm_insert_epi32(temp, rk[11], 3);
-    			rk[12] = rk[ 4] ^ _mm_extract_epi32(_mm_aeskeygenassist_si128(temp, 0), 2);
-    			rk[13] = rk[ 5] ^ rk[12];
-    			rk[14] = rk[ 6] ^ rk[13];
-    			rk[15] = rk[ 7] ^ rk[14];
-				temp = _mm_insert_epi32(temp, rk[15], 3);
-			}
-			else
-				temp = _mm_insert_epi32(temp, rk[7], 3);
-
-			rk += keylen/4;
-		}
-
+		// TODO: Add non-SSE4.1 variant for low-end Atoms. The low-end
+		//  Atoms have SSE2-SSSE3 and AES-NI, but not SSE4.1 or SSE4.2.
+		Rijndael_UncheckedSetKey_SSE4_AESNI(userKey, keyLen, rk);
 		if (!IsForwardTransformation())
-		{
-			rk = m_key;
-			unsigned int i, j;
-
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
-			// __m128i is an unsigned long long[2], and support for swapping it was not added until C++11.
-			// SunCC 12.1 - 12.3 fail to consume the swap; while SunCC 12.4 consumes it without -std=c++11.
-			vec_swap(*(__m128i *)(rk), *(__m128i *)(rk+4*m_rounds));
-#else
-			std::swap(*(__m128i *)(void *)(rk), *(__m128i *)(void *)(rk+4*m_rounds));
-#endif
-			for (i = 4, j = 4*m_rounds-4; i < j; i += 4, j -= 4)
-			{
-				temp = _mm_aesimc_si128(*(__m128i *)(void *)(rk+i));
-				*(__m128i *)(void *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(void *)(rk+j));
-				*(__m128i *)(void *)(rk+j) = temp;
-			}
-
-			*(__m128i *)(void *)(rk+i) = _mm_aesimc_si128(*(__m128i *)(void *)(rk+i));
-		}
+			Rijndael_UncheckedSetKeyRev_AESNI(m_key, m_rounds);
 
 		return;
 	}
 #endif
 
-	GetUserKey(BIG_ENDIAN_ORDER, rk, keylen/4, userKey, keylen);
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (HasAES())
+	{
+		// We still need rcon and Se to fallback to C/C++ for AES-192 and AES-256.
+		// The IBM docs on AES sucks. Intel's docs on AESNI puts IBM to shame.
+		Rijndael_UncheckedSetKey_POWER8(userKey, keyLen, rk, Se);
+		return;
+	}
+#endif
+
+	GetUserKey(BIG_ENDIAN_ORDER, rk, keyLen/4, userKey, keyLen);
 	const word32 *rc = rcon;
 	word32 temp;
 
 	while (true)
 	{
-		temp  = rk[keylen/4-1];
-		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^ (word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
-		rk[keylen/4] = rk[0] ^ x ^ *(rc++);
-		rk[keylen/4+1] = rk[1] ^ rk[keylen/4];
-		rk[keylen/4+2] = rk[2] ^ rk[keylen/4+1];
-		rk[keylen/4+3] = rk[3] ^ rk[keylen/4+2];
+		temp  = rk[keyLen/4-1];
+		word32 x = (word32(Se[GETBYTE(temp, 2)]) << 24) ^ (word32(Se[GETBYTE(temp, 1)]) << 16) ^
+					(word32(Se[GETBYTE(temp, 0)]) << 8) ^ Se[GETBYTE(temp, 3)];
+		rk[keyLen/4] = rk[0] ^ x ^ *(rc++);
+		rk[keyLen/4+1] = rk[1] ^ rk[keyLen/4];
+		rk[keyLen/4+2] = rk[2] ^ rk[keyLen/4+1];
+		rk[keyLen/4+3] = rk[3] ^ rk[keyLen/4+2];
 
-		if (rk + keylen/4 + 4 == m_key.end())
+		if (rk + keyLen/4 + 4 == m_key.end())
 			break;
 
-		if (keylen == 24)
+		if (keyLen == 24)
 		{
 			rk[10] = rk[ 4] ^ rk[ 9];
 			rk[11] = rk[ 5] ^ rk[10];
 		}
-		else if (keylen == 32)
+		else if (keyLen == 32)
 		{
     		temp = rk[11];
     		rk[12] = rk[ 4] ^ (word32(Se[GETBYTE(temp, 3)]) << 24) ^ (word32(Se[GETBYTE(temp, 2)]) << 16) ^ (word32(Se[GETBYTE(temp, 1)]) << 8) ^ Se[GETBYTE(temp, 0)];
@@ -324,7 +379,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
     		rk[14] = rk[ 6] ^ rk[13];
     		rk[15] = rk[ 7] ^ rk[14];
 		}
-		rk += keylen/4;
+		rk += keyLen/4;
 	}
 
 	rk = m_key;
@@ -342,10 +397,11 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 		if (!s_TdFilled)
 			FillDecTable();
 
+		#define InverseMixColumn(x) \
+			TL_M(Td, 0, Se[GETBYTE(x, 3)]) ^ TL_M(Td, 1, Se[GETBYTE(x, 2)]) ^ \
+			TL_M(Td, 2, Se[GETBYTE(x, 1)]) ^ TL_M(Td, 3, Se[GETBYTE(x, 0)])
+
 		unsigned int i, j;
-
-#define InverseMixColumn(x)		TL_M(Td, 0, Se[GETBYTE(x, 3)]) ^ TL_M(Td, 1, Se[GETBYTE(x, 2)]) ^ TL_M(Td, 2, Se[GETBYTE(x, 1)]) ^ TL_M(Td, 3, Se[GETBYTE(x, 0)])
-
 		for (i = 4, j = 4*m_rounds-4; i < j; i += 4, j -= 4)
 		{
 			temp = InverseMixColumn(rk[i    ]); rk[i    ] = InverseMixColumn(rk[j    ]); rk[j    ] = temp;
@@ -365,22 +421,43 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keylen, c
 		temp = ConditionalByteReverse(BIG_ENDIAN_ORDER, rk[3]); rk[3] = ConditionalByteReverse(BIG_ENDIAN_ORDER, rk[4*m_rounds+3]); rk[4*m_rounds+3] = temp;
 	}
 
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
+		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
+#endif
+#if CRYPTOPP_ARM_AES_AVAILABLE
+	if (HasAES())
 		ConditionalByteReverse(BIG_ENDIAN_ORDER, rk+4, rk+4, (m_rounds-1)*16);
 #endif
 }
 
 void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE) || CRYPTOPP_AESNI_AVAILABLE
+# if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
-#else
+# else
 	if (HasAESNI())
-#endif
+# endif
 	{
-		return (void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		(void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
+	if (HasAES())
+	{
+		(void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+	if (HasAES())
+	{
+		(void)Rijndael::Enc::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
 	}
 #endif
 
@@ -454,10 +531,26 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
 	{
-		Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		(void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
+	if (HasAES())
+	{
+		(void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+	if (HasAES())
+	{
+		(void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
 		return;
 	}
 #endif
@@ -549,7 +642,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #endif // #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 
 CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k)
 {
@@ -1033,241 +1126,44 @@ void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
 }
 #endif
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
-
-static inline bool AliasedWithTable(const byte *begin, const byte *end)
-{
-	size_t s0 = size_t(begin)%4096, s1 = size_t(end)%4096;
-	size_t t0 = size_t(Te)%4096, t1 = (size_t(Te)+sizeof(Te))%4096;
-	if (t1 > t0)
-		return (s0 >= t0 && s0 < t1) || (s1 > t0 && s1 <= t1);
-	else
-		return (s0 < t1 || s1 <= t1) || (s0 >= t0 || s1 > t0);
-}
-
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-
-inline void AESNI_Enc_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
-{
-	block = _mm_xor_si128(block, subkeys[0]);
-	for (unsigned int i=1; i<rounds-1; i+=2)
-	{
-		block = _mm_aesenc_si128(block, subkeys[i]);
-		block = _mm_aesenc_si128(block, subkeys[i+1]);
-	}
-	block = _mm_aesenc_si128(block, subkeys[rounds-1]);
-	block = _mm_aesenclast_si128(block, subkeys[rounds]);
-}
-
-inline void AESNI_Enc_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
-{
-	__m128i rk = subkeys[0];
-	block0 = _mm_xor_si128(block0, rk);
-	block1 = _mm_xor_si128(block1, rk);
-	block2 = _mm_xor_si128(block2, rk);
-	block3 = _mm_xor_si128(block3, rk);
-	for (unsigned int i=1; i<rounds; i++)
-	{
-		rk = subkeys[i];
-		block0 = _mm_aesenc_si128(block0, rk);
-		block1 = _mm_aesenc_si128(block1, rk);
-		block2 = _mm_aesenc_si128(block2, rk);
-		block3 = _mm_aesenc_si128(block3, rk);
-	}
-	rk = subkeys[rounds];
-	block0 = _mm_aesenclast_si128(block0, rk);
-	block1 = _mm_aesenclast_si128(block1, rk);
-	block2 = _mm_aesenclast_si128(block2, rk);
-	block3 = _mm_aesenclast_si128(block3, rk);
-}
-
-inline void AESNI_Dec_Block(__m128i &block, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
-{
-	block = _mm_xor_si128(block, subkeys[0]);
-	for (unsigned int i=1; i<rounds-1; i+=2)
-	{
-		block = _mm_aesdec_si128(block, subkeys[i]);
-		block = _mm_aesdec_si128(block, subkeys[i+1]);
-	}
-	block = _mm_aesdec_si128(block, subkeys[rounds-1]);
-	block = _mm_aesdeclast_si128(block, subkeys[rounds]);
-}
-
-inline void AESNI_Dec_4_Blocks(__m128i &block0, __m128i &block1, __m128i &block2, __m128i &block3, MAYBE_CONST __m128i *subkeys, unsigned int rounds)
-{
-	__m128i rk = subkeys[0];
-	block0 = _mm_xor_si128(block0, rk);
-	block1 = _mm_xor_si128(block1, rk);
-	block2 = _mm_xor_si128(block2, rk);
-	block3 = _mm_xor_si128(block3, rk);
-	for (unsigned int i=1; i<rounds; i++)
-	{
-		rk = subkeys[i];
-		block0 = _mm_aesdec_si128(block0, rk);
-		block1 = _mm_aesdec_si128(block1, rk);
-		block2 = _mm_aesdec_si128(block2, rk);
-		block3 = _mm_aesdec_si128(block3, rk);
-	}
-	rk = subkeys[rounds];
-	block0 = _mm_aesdeclast_si128(block0, rk);
-	block1 = _mm_aesdeclast_si128(block1, rk);
-	block2 = _mm_aesdeclast_si128(block2, rk);
-	block3 = _mm_aesdeclast_si128(block3, rk);
-}
-
-CRYPTOPP_ALIGN_DATA(16)
-static const word32 s_one[] = {0, 0, 0, 1<<24};
-
-template <typename F1, typename F4>
-inline size_t AESNI_AdvancedProcessBlocks(F1 func1, F4 func4, MAYBE_CONST __m128i *subkeys, unsigned int rounds, const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-	size_t blockSize = 16;
-	size_t inIncrement = (flags & (BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-	size_t xorIncrement = xorBlocks ? blockSize : 0;
-	size_t outIncrement = (flags & BlockTransformation::BT_DontIncrementInOutPointers) ? 0 : blockSize;
-
-	if (flags & BlockTransformation::BT_ReverseDirection)
-	{
-		assert(length % blockSize == 0);
-		inBlocks += length - blockSize;
-		xorBlocks += length - blockSize;
-		outBlocks += length - blockSize;
-		inIncrement = 0-inIncrement;
-		xorIncrement = 0-xorIncrement;
-		outIncrement = 0-outIncrement;
-	}
-
-	if (flags & BlockTransformation::BT_AllowParallel)
-	{
-		while (length >= 4*blockSize)
-		{
-			__m128i block0 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks), block1, block2, block3;
-			if (flags & BlockTransformation::BT_InBlockIsCounter)
-			{
-				const __m128i be1 = *(const __m128i *)(const void *)s_one;
-				block1 = _mm_add_epi32(block0, be1);
-				block2 = _mm_add_epi32(block1, be1);
-				block3 = _mm_add_epi32(block2, be1);
-				_mm_storeu_si128((__m128i *)(void *)inBlocks, _mm_add_epi32(block3, be1));
-			}
-			else
-			{
-				inBlocks += inIncrement;
-				block1 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
-				inBlocks += inIncrement;
-				block2 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
-				inBlocks += inIncrement;
-				block3 = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
-				inBlocks += inIncrement;
-			}
-
-			if (flags & BlockTransformation::BT_XorInput)
-			{
-				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-			}
-
-			func4(block0, block1, block2, block3, subkeys, rounds);
-
-			if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-			{
-				block0 = _mm_xor_si128(block0, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-				block1 = _mm_xor_si128(block1, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-				block2 = _mm_xor_si128(block2, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-				block3 = _mm_xor_si128(block3, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-				xorBlocks += xorIncrement;
-			}
-
-			_mm_storeu_si128((__m128i *)(void *)outBlocks, block0);
-			outBlocks += outIncrement;
-			_mm_storeu_si128((__m128i *)(void *)outBlocks, block1);
-			outBlocks += outIncrement;
-			_mm_storeu_si128((__m128i *)(void *)outBlocks, block2);
-			outBlocks += outIncrement;
-			_mm_storeu_si128((__m128i *)(void *)outBlocks, block3);
-			outBlocks += outIncrement;
-
-			length -= 4*blockSize;
-		}
-	}
-
-	while (length >= blockSize)
-	{
-		__m128i block = _mm_loadu_si128((const __m128i *)(const void *)inBlocks);
-
-		if (flags & BlockTransformation::BT_XorInput)
-			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-
-		if (flags & BlockTransformation::BT_InBlockIsCounter)
-			const_cast<byte *>(inBlocks)[15]++;
-
-		func1(block, subkeys, rounds);
-
-		if (xorBlocks && !(flags & BlockTransformation::BT_XorInput))
-			block = _mm_xor_si128(block, _mm_loadu_si128((const __m128i *)(const void *)xorBlocks));
-
-		_mm_storeu_si128((__m128i *)(void *)outBlocks, block);
-
-		inBlocks += inIncrement;
-		outBlocks += outIncrement;
-		xorBlocks += xorIncrement;
-		length -= blockSize;
-	}
-
-	return length;
-}
-#endif
-
+#if CRYPTOPP_RIJNDAEL_ADVANCED_PROCESS_BLOCKS
 size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
-		return AESNI_AdvancedProcessBlocks(AESNI_Enc_Block, AESNI_Enc_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_Enc_AdvancedProcessBlocks_AESNI(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
+#if CRYPTOPP_ARM_AES_AVAILABLE
+	if (HasAES())
+		return Rijndael_Enc_AdvancedProcessBlocks_ARMV8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (HasAES())
+		return Rijndael_Enc_AdvancedProcessBlocks128_6x1_ALTIVEC(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 
-#if (CRYPTOPP_BOOL_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+#if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 	if (HasSSE2())
 	{
 		if (length < BLOCKSIZE)
 			return length;
 
-		struct Locals
+		static const byte *zeros = (const byte*)(Te+256);
+		m_aliasBlock.SetMark(m_aliasBlock.size());
+		byte *space = NULLPTR, *originalSpace = const_cast<byte*>(m_aliasBlock.data());
+
+		// round up to nearest 256 byte boundary
+		space = originalSpace +	(s_aliasBlockSize - (uintptr_t)originalSpace % s_aliasBlockSize) % s_aliasBlockSize;
+		while (AliasedWithTable(space, space + sizeof(Locals)))
 		{
-			word32 subkeys[4*12], workspace[8];
-			const byte *inBlocks, *inXorBlocks, *outXorBlocks;
-			byte *outBlocks;
-			size_t inIncrement, inXorIncrement, outXorIncrement, outIncrement;
-			size_t regSpill, lengthAndCounterFlag, keysBegin;
-		};
-
-		const byte* zeros = (byte *)(Te+256);
-		byte *space = NULL;
-
-		do {
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-			// http://msdn.microsoft.com/en-us/library/5471dc8s.aspx
-			space = (byte *)_malloca(255+sizeof(Locals));
-			space += (256-(size_t)space%256)%256;
-#else
-			space = (byte *)alloca(255+sizeof(Locals));
-			space += (256-(size_t)space%256)%256;
-#endif
+			space += 256;
+			CRYPTOPP_ASSERT(space < (originalSpace + s_aliasPageSize));
 		}
-		while (AliasedWithTable(space, space+sizeof(Locals)));
 
 		size_t increment = BLOCKSIZE;
 		if (flags & BT_ReverseDirection)
 		{
-			assert(length % BLOCKSIZE == 0);
+			CRYPTOPP_ASSERT(length % BLOCKSIZE == 0);
 			inBlocks += length - BLOCKSIZE;
 			xorBlocks += length - BLOCKSIZE;
 			outBlocks += length - BLOCKSIZE;
@@ -1292,10 +1188,6 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 
 		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
 
-#if (CRYPTOPP_MSC_VERSION >= 1400)
-		_freea(space);
-#endif
-
 		return length % BLOCKSIZE;
 	}
 #endif
@@ -1303,19 +1195,24 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-#endif
-
-#if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
-
 size_t Rijndael::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const
 {
+#if CRYPTOPP_AESNI_AVAILABLE
 	if (HasAESNI())
-		return AESNI_AdvancedProcessBlocks(AESNI_Dec_Block, AESNI_Dec_4_Blocks, (MAYBE_CONST __m128i *)(const void *)m_key.begin(), m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+		return Rijndael_Dec_AdvancedProcessBlocks_AESNI(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
+#if CRYPTOPP_ARM_AES_AVAILABLE
+	if (HasAES())
+		return Rijndael_Dec_AdvancedProcessBlocks_ARMV8(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
+#if CRYPTOPP_POWER8_AES_AVAILABLE
+	if (HasAES())
+		return Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(m_key, m_rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+#endif
 
 	return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-
-#endif	// #if CRYPTOPP_BOOL_AESNI_INTRINSICS_AVAILABLE
+#endif	// CRYPTOPP_RIJNDAEL_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END
 
