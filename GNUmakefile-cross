@@ -88,7 +88,7 @@ ifeq ($(IS_IOS),1)
   CXX = clang++
 
   CXXFLAGS += $(IOS_FLAGS) -arch $(IOS_ARCH)
-  CXXFLAGS += -isysroot $(IOS_SYSROOT) -stdlib=libc++
+  CXXFLAGS += -isysroot "$(IOS_SYSROOT)" -stdlib=libc++
 
   AR = libtool
   ARFLAGS = -static -o
