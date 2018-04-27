@@ -28,7 +28,7 @@ do
 		echo "Testing for Android support of $platform using $runtime"
 
 		# Test if we can set the environment for the platform
-		./setenv-android.sh "$platform" "$runtime"
+		./setenv-android-gcc.sh "$platform" "$runtime"
 
 		if [ "$?" -eq "0" ]; then
 			echo
@@ -37,7 +37,7 @@ do
 
 			# run in subshell to not keep any env vars
 			(
-				. ./setenv-android.sh "$platform" "$runtime" > /dev/null 2>&1
+				. ./setenv-android-gcc.sh "$platform" "$runtime" > /dev/null 2>&1
 				make -f GNUmakefile-cross static dynamic cryptest.exe
 				if [ "$?" -eq "0" ]; then
 					echo "$platform:$runtime ==> SUCCESS" >> /tmp/build.log
