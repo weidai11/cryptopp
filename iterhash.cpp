@@ -12,6 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, size_t len)
 {
+	CRYPTOPP_ASSERT((input && len) || !(input || len));
 	HashWordType oldCountLo = m_countLo, oldCountHi = m_countHi;
 	if ((m_countLo = oldCountLo + HashWordType(len)) < oldCountLo)
 		m_countHi++;             // carry from low to high
