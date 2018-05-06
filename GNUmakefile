@@ -845,23 +845,28 @@ distclean: clean
 	@-$(RM) cryptopp$(LIB_VER)\.*
 	@-$(RM) CryptoPPRef.zip
 
-# Some users already have a libcryptopp.pc. We install it if the file
-# is present. If you want one, then issue 'make libcryptopp.pc'.
+# Install cryptest.exe, libcryptopp.a, libcryptopp.so and libcryptopp.pc.
+# The library install was broken-out into its own recipe at GH #653.
 .PHONY: install
-install:
-	@-$(MKDIR) $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	$(INSTALL_DATA) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
-ifneq ($(wildcard libcryptopp.a),)
-	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_DATA) libcryptopp.a $(DESTDIR)$(LIBDIR)
-endif
-ifneq ($(wildcard cryptest.exe),)
+install: cryptest.exe install-lib
 	@-$(MKDIR) $(DESTDIR)$(BINDIR)
 	$(INSTALL_PROGRAM) cryptest.exe $(DESTDIR)$(BINDIR)
 	@-$(MKDIR) $(DESTDIR)$(DATADIR)/cryptopp/TestData
 	@-$(MKDIR) $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
 	$(INSTALL_DATA) TestData/*.dat $(DESTDIR)$(DATADIR)/cryptopp/TestData
 	$(INSTALL_DATA) TestVectors/*.txt $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
+
+# A recipe to install only the library, and not cryptest.exe. Also
+# see https://github.com/weidai11/cryptopp/issues/653. Some users
+# already have a libcryptopp.pc. Install the *.pc file if the file
+# is present. If you want one, then issue 'make libcryptopp.pc'.
+.PHONY: install-lib
+install-lib:
+	@-$(MKDIR) $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	$(INSTALL_DATA) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
+ifneq ($(wildcard libcryptopp.a),)
+	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
+	$(INSTALL_DATA) libcryptopp.a $(DESTDIR)$(LIBDIR)
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
