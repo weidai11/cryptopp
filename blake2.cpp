@@ -356,7 +356,7 @@ void BLAKE2_Base<W, T_64bit>::Restart(const BLAKE2_ParameterBlock<T_64bit>& bloc
 template <class W, bool T_64bit>
 void BLAKE2_Base<W, T_64bit>::Update(const byte *input, size_t length)
 {
-    CRYPTOPP_ASSERT(input != NULLPTR);
+    CRYPTOPP_ASSERT(!(input == NULLPTR && length != 0));
     if (length == 0) { return; }
 
     State& state = *m_state.data();
