@@ -174,7 +174,7 @@ case "$THE_ARCH" in
 	TOOLCHAIN_NAME="x86_64-linux-android"
 	AOSP_ABI="x86_64"
 	AOSP_ARCH="arch-x86_64"
-	AOSP_FLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -DCRYPTOPP_DISABLE_CLMUL -DCRYPTOPP_DISABLE_AES -DCRYPTOPP_DISABLE_SHA -funwind-tables -fexceptions -frtti"
+	AOSP_FLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -DCRYPTOPP_DISABLE_CLMUL -DCRYPTOPP_DISABLE_AESNI -DCRYPTOPP_DISABLE_SHANI -funwind-tables -fexceptions -frtti"
 	;;
   *)
 	echo "ERROR: Unknown architecture $1"
