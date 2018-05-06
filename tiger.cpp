@@ -25,6 +25,7 @@ void Tiger::InitState(HashWordType *state)
 
 void Tiger::TruncatedFinal(byte *hash, size_t size)
 {
+	CRYPTOPP_ASSERT(hash != NULLPTR);
 	ThrowIfInvalidTruncatedSize(size);
 
 	PadLastBlock(56, 0x01);

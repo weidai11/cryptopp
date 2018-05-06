@@ -251,8 +251,8 @@ static void KeccakF1600(word64 *state)
 
 void SHA3::Update(const byte *input, size_t length)
 {
-    CRYPTOPP_ASSERT((input && length) || !(input || length));
-    if (!length) { return; }
+    CRYPTOPP_ASSERT(!(input == NULLPTR && length != 0));
+    if (length == 0) { return; }
 
     size_t spaceLeft;
     while (length >= (spaceLeft = r() - m_counter))
@@ -278,6 +278,7 @@ void SHA3::Restart()
 
 void SHA3::TruncatedFinal(byte *hash, size_t size)
 {
+    CRYPTOPP_ASSERT(hash != NULLPTR);
     ThrowIfInvalidTruncatedSize(size);
 
     m_state.BytePtr()[m_counter] ^= 0x06;

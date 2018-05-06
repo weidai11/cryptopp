@@ -10,14 +10,16 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, size_t len)
+template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte *input, size_t length)
 {
-	CRYPTOPP_ASSERT((input && len) || !(input || len));
+	CRYPTOPP_ASSERT(!(input == NULLPTR && length != 0));
+	if (length == 0) { return; }
+
 	HashWordType oldCountLo = m_countLo, oldCountHi = m_countHi;
-	if ((m_countLo = oldCountLo + HashWordType(len)) < oldCountLo)
+	if ((m_countLo = oldCountLo + HashWordType(length)) < oldCountLo)
 		m_countHi++;             // carry from low to high
-	m_countHi += (HashWordType)SafeRightShift<8*sizeof(HashWordType)>(len);
-	if (m_countHi < oldCountHi || SafeRightShift<2*8*sizeof(HashWordType)>(len) != 0)
+	m_countHi += (HashWordType)SafeRightShift<8*sizeof(HashWordType)>(length);
+	if (m_countHi < oldCountHi || SafeRightShift<2*8*sizeof(HashWordType)>(length) != 0)
 		throw HashInputTooLong(this->AlgorithmName());
 
 	const unsigned int blockSize = this->BlockSize();
@@ -29,36 +31,36 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 
 	if (num != 0)	// process left over data
 	{
-		if (num+len >= blockSize)
+		if (num+length >= blockSize)
 		{
 			if (data && input) {memcpy(data+num, input, blockSize-num);}
 			HashBlock(dataBuf);
 			input += (blockSize-num);
-			len -= (blockSize-num);
+			length -= (blockSize-num);
 			num = 0;
 			// drop through and do the rest
 		}
 		else
 		{
-			if (data && input && len) {memcpy(data+num, input, len);}
+			if (data && input && length) {memcpy(data+num, input, length);}
 			return;
 		}
 	}
 
 	// now process the input data in blocks of blockSize bytes and save the leftovers to m_data
-	if (len >= blockSize)
+	if (length >= blockSize)
 	{
 		if (input == data)
 		{
-			CRYPTOPP_ASSERT(len == blockSize);
+			CRYPTOPP_ASSERT(length == blockSize);
 			HashBlock(dataBuf);
 			return;
 		}
 		else if (IsAligned<T>(input))
 		{
-			size_t leftOver = HashMultipleBlocks((T *)(void*)input, len);
-			input += (len - leftOver);
-			len = leftOver;
+			size_t leftOver = HashMultipleBlocks((T *)(void*)input, length);
+			input += (length - leftOver);
+			length = leftOver;
 		}
 		else
 			do
@@ -66,12 +68,12 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 				if (data && input) memcpy(data, input, blockSize);
 				HashBlock(dataBuf);
 				input+=blockSize;
-				len-=blockSize;
-			} while (len >= blockSize);
+				length-=blockSize;
+			} while (length >= blockSize);
 	}
 
-	if (data && input && len && data != input)
-		memcpy(data, input, len);
+	if (data && input && data != input)
+		memcpy(data, input, length);
 }
 
 template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
@@ -129,6 +131,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Restart()
 
 template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(byte *digest, size_t size)
 {
+	CRYPTOPP_ASSERT(digest != NULLPTR);
 	this->ThrowIfInvalidTruncatedSize(size);
 
 	T* dataBuf = this->DataBuf();
