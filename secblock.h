@@ -198,10 +198,10 @@ public:
 #if CRYPTOPP_BOOL_ALIGN16
 		// TODO: Does this need the test 'size*sizeof(T) >= 16'?
 		if (T_Align16 && size)
-			return (pointer)AlignedAllocate(size*sizeof(T));
+			return reinterpret_cast<pointer>(AlignedAllocate(size*sizeof(T)));
 #endif
 
-		return (pointer)UnalignedAllocate(size*sizeof(T));
+		return reinterpret_cast<pointer>(UnalignedAllocate(size*sizeof(T)));
 	}
 
 	/// \brief Deallocates a block of memory
@@ -217,7 +217,7 @@ public:
 		// This will fire if SetMark(0) was called in the SecBlock
 		//  Our self tests exercise it, disable it now.
 		// CRYPTOPP_ASSERT((ptr && size) || !(ptr || size));
-		SecureWipeArray((pointer)ptr, size);
+		SecureWipeArray(reinterpret_cast<pointer>(ptr), size);
 
 #if CRYPTOPP_BOOL_ALIGN16
 		if (T_Align16 && size)

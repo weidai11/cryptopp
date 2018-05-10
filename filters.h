@@ -865,12 +865,12 @@ public:
 	/// \brief Stop redirecting input
 	void StopRedirection() {m_target = NULLPTR;}
 
-	Behavior GetBehavior() {return (Behavior) m_behavior;}
+	Behavior GetBehavior() {return static_cast<Behavior>(m_behavior);}
 	void SetBehavior(Behavior behavior) {m_behavior=behavior;}
 	bool GetPassSignals() const {return (m_behavior & PASS_SIGNALS) != 0;}
-	void SetPassSignals(bool pass) { if (pass) m_behavior |= PASS_SIGNALS; else m_behavior &= ~(word32) PASS_SIGNALS; }
+	void SetPassSignals(bool pass) { if (pass) m_behavior |= PASS_SIGNALS; else m_behavior &= ~static_cast<word32>(PASS_SIGNALS); }
 	bool GetPassWaitObjects() const {return (m_behavior & PASS_WAIT_OBJECTS) != 0;}
-	void SetPassWaitObjects(bool pass) { if (pass) m_behavior |= PASS_WAIT_OBJECTS; else m_behavior &= ~(word32) PASS_WAIT_OBJECTS; }
+	void SetPassWaitObjects(bool pass) { if (pass) m_behavior |= PASS_WAIT_OBJECTS; else m_behavior &= ~static_cast<word32>(PASS_WAIT_OBJECTS); }
 
 	bool CanModifyInput() const
 		{return m_target ? m_target->CanModifyInput() : false;}
@@ -1293,7 +1293,7 @@ public:
 	/// \details Internally, Pump() calls Pump2().
 	/// \note pumpMax is a \p lword, which is a 64-bit value that typically uses \p LWORD_MAX. The default
 	///   argument is a \p size_t that uses \p SIZE_MAX, and it can be 32-bits or 64-bits.
-	lword Pump(lword pumpMax=(size_t)SIZE_MAX)
+	lword Pump(lword pumpMax=SIZE_MAX)
 		{Pump2(pumpMax); return pumpMax;}
 
 	/// \brief Pump messages to attached transformation

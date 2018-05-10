@@ -729,7 +729,7 @@ inline unsigned int TrailingZeros(word32 v)
 #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
 	unsigned long result;
 	_BitScanForward(&result, v);
-	return (unsigned int)result;
+	return static_cast<unsigned int>(result);
 #else
 	// from http://graphics.stanford.edu/~seander/bithacks.html#ZerosOnRightMultLookup
 	static const int MultiplyDeBruijnBitPosition[32] =
@@ -760,7 +760,7 @@ inline unsigned int TrailingZeros(word64 v)
 #elif defined(_MSC_VER) && (_MSC_VER >= 1400) && (defined(_M_X64) || defined(_M_IA64))
 	unsigned long result;
 	_BitScanForward64(&result, v);
-	return (unsigned int)result;
+	return static_cast<unsigned int>(result);
 #else
 	return word32(v) ? TrailingZeros(word32(v)) : 32 + TrailingZeros(word32(v>>32));
 #endif
@@ -1029,7 +1029,7 @@ inline unsigned int GetAlignmentOf()
 ///   If not, then the function effectively performs a modular reduction and returns true if the residue is 0
 inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 {
-	return alignment==1 || (IsPowerOf2(alignment) ? ModPowerOf2((size_t)ptr, alignment) == 0 : (size_t)ptr % alignment == 0);
+	return alignment==1 || (IsPowerOf2(alignment) ? ModPowerOf2(reinterpret_cast<size_t>(ptr), alignment) == 0 : reinterpret_cast<size_t>(ptr) % alignment == 0);
 }
 
 /// \brief Determines whether ptr is minimally aligned
@@ -1184,7 +1184,7 @@ template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 #ifdef __GNUC__
 	asm volatile("rep stosb" : "+c"(n), "+D"(p) : "a"(0) : "memory");
 #else
-	__stosb((byte *)(size_t)p, 0, n);
+	__stosb(reinterpret_cast<byte *>(reinterpret_cast<size_t>(p)), 0, n);
 #endif
 }
 
@@ -1198,7 +1198,7 @@ template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 #ifdef __GNUC__
 	asm volatile("rep stosw" : "+c"(n), "+D"(p) : "a"(0) : "memory");
 #else
-	__stosw((word16 *)(size_t)p, 0, n);
+	__stosw(reinterpret_cast<word16 *>(reinterpret_cast<size_t>(p)), 0, n);
 #endif
 }
 
@@ -1212,7 +1212,7 @@ template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 #ifdef __GNUC__
 	asm volatile("rep stosl" : "+c"(n), "+D"(p) : "a"(0) : "memory");
 #else
-	__stosd((unsigned long *)(size_t)p, 0, n);
+	__stosd(reinterpret_cast<unsigned long *>(reinterpret_cast<size_t>(p)), 0, n);
 #endif
 }
 
@@ -1227,10 +1227,10 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 #ifdef __GNUC__
 	asm volatile("rep stosq" : "+c"(n), "+D"(p) : "a"(0) : "memory");
 #else
-	__stosq((word64 *)(size_t)p, 0, n);
+	__stosq(reinterpret_cast<word64 *>(reinterpret_cast<size_t>(p)), 0, n);
 #endif
 #else
-	SecureWipeBuffer((word32 *)buf, 2*n);
+	SecureWipeBuffer(reinterpret_cast<word32 *>(buf), 2*n);
 #endif
 }
 
@@ -1275,13 +1275,13 @@ template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
 {
 	if (sizeof(T) % 8 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word64>() == 0)
-		SecureWipeBuffer((word64 *)(void *)buf, n * (sizeof(T)/8));
+		SecureWipeBuffer(reinterpret_cast<word64 *>(static_cast<void *>(buf)), n * (sizeof(T)/8));
 	else if (sizeof(T) % 4 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word32>() == 0)
-		SecureWipeBuffer((word32 *)(void *)buf, n * (sizeof(T)/4));
+		SecureWipeBuffer(reinterpret_cast<word32 *>(static_cast<void *>(buf)), n * (sizeof(T)/4));
 	else if (sizeof(T) % 2 == 0 && GetAlignmentOf<T>() % GetAlignmentOf<word16>() == 0)
-		SecureWipeBuffer((word16 *)(void *)buf, n * (sizeof(T)/2));
+		SecureWipeBuffer(reinterpret_cast<word16 *>(static_cast<void *>(buf)), n * (sizeof(T)/2));
 	else
-		SecureWipeBuffer((byte *)(void *)buf, n * sizeof(T));
+		SecureWipeBuffer(reinterpret_cast<byte *>(static_cast<void *>(buf)), n * sizeof(T));
 }
 
 /// \brief Converts a wide character C-string to a multibyte string
@@ -2104,7 +2104,7 @@ inline word64 UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, co
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, byte value, const byte *xorBlock)
 {
 	CRYPTOPP_UNUSED(order);
-	block[0] = (byte)(xorBlock ? (value ^ xorBlock[0]) : value);
+	block[0] = static_cast<byte>(xorBlock ? (value ^ xorBlock[0]) : value);
 }
 
 inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word16 value, const byte *xorBlock)

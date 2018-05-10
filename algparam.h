@@ -28,7 +28,7 @@ public:
 	ConstByteArrayParameter(const char *data = NULLPTR, bool deepCopy = false)
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
-		Assign((const byte *)data, data ? strlen(data) : 0, deepCopy);
+		Assign(reinterpret_cast<const byte *>(data), data ? strlen(data) : 0, deepCopy);
 	}
 
 	/// \brief Construct a ConstByteArrayParameter
@@ -53,7 +53,7 @@ public:
 		: m_deepCopy(false), m_data(NULLPTR), m_size(0)
 	{
 		CRYPTOPP_COMPILE_ASSERT(sizeof(typename T::value_type) == 1);
-		Assign((const byte *)string.data(), string.size(), deepCopy);
+		Assign(reinterpret_cast<const byte *>(string.data()), string.size(), deepCopy);
 	}
 
 	/// \brief Assign contents from a memory buffer

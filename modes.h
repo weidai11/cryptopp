@@ -80,7 +80,7 @@ public:
 
 protected:
 	CipherModeBase() : m_cipher(NULLPTR) {}
-	inline unsigned int BlockSize() const {CRYPTOPP_ASSERT(m_register.size() > 0); return (unsigned int)m_register.size();}
+	inline unsigned int BlockSize() const {CRYPTOPP_ASSERT(m_register.size() > 0); return static_cast<unsigned int>(m_register.size());}
 	virtual void SetFeedbackSize(unsigned int feedbackSize)
 	{
 		if (!(feedbackSize == 0 || feedbackSize == BlockSize()))
@@ -251,7 +251,7 @@ protected:
 	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 	{
 		CBC_Encryption::UncheckedSetKey(key, length, params);
-		m_stolenIV = params.GetValueWithDefault(Name::StolenIV(), (byte *)NULLPTR);
+		m_stolenIV = params.GetValueWithDefault(Name::StolenIV(), static_cast<byte *>(NULLPTR));
 	}
 
 	byte *m_stolenIV;
