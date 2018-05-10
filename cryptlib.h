@@ -131,7 +131,7 @@ const unsigned long INFINITE_TIME = ULONG_MAX;
 template <typename ENUM_TYPE, int VALUE>
 struct EnumToType
 {
-	static ENUM_TYPE ToEnum() {return (ENUM_TYPE)VALUE;}
+	static ENUM_TYPE ToEnum() {return static_cast<ENUM_TYPE>(VALUE);}
 };
 
 /// \brief Provides the byte ordering

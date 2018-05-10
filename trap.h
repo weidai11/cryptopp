@@ -64,8 +64,8 @@
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
-      oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
-          << (int)(__LINE__) << "): " << (char*)(__func__)        \
+      oss << "Assertion failed: " << __FILE__ << "("              \
+          << __LINE__ << "): " << __func__                        \
           << std::endl;                                           \
       std::cerr << oss.str();                                     \
       raise(SIGTRAP);                                             \
@@ -75,8 +75,8 @@
 #  define CRYPTOPP_ASSERT(exp) {                                  \
     if (!(exp)) {                                                 \
       std::ostringstream oss;                                     \
-      oss << "Assertion failed: " << (char*)(__FILE__) << "("     \
-          << (int)(__LINE__) << "): " << (char*)(__FUNCTION__)    \
+      oss << "Assertion failed: " << __FILE__ << "("              \
+          << __LINE__ << "): " << __FUNCTION__                    \
           << std::endl;                                           \
       std::cerr << oss.str();                                     \
       if (IsDebuggerPresent()) {DebugBreak();}                    \

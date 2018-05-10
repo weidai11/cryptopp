@@ -130,7 +130,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	/// \param iterationCount the number of iterations to generate the key stream
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream()
 	virtual void WriteKeystream(byte *keystream, size_t iterationCount)
-		{OperateKeystream(KeystreamOperation(INPUT_NULL | (KeystreamOperationFlags)IsAlignedOn(keystream, GetAlignment())), keystream, NULLPTR, iterationCount);}
+		{OperateKeystream(KeystreamOperation(INPUT_NULL | static_cast<KeystreamOperationFlags>(IsAlignedOn(keystream, GetAlignment()))), keystream, NULLPTR, iterationCount);}
 
 	/// \brief Flag indicating
 	/// \returns true if the stream can be generated independent of the transformation input, false otherwise

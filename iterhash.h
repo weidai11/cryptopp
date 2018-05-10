@@ -168,7 +168,7 @@ public:
 	/// \brief Provides the digest size of the hash
 	/// \return the digest size of the hash, in bytes
 	/// \details DigestSize() returns <tt>DIGESTSIZE</tt>.
-	unsigned int DigestSize() const {return DIGESTSIZE;};
+	unsigned int DigestSize() const {return DIGESTSIZE;}
 
 protected:
 	IteratedHashWithStaticTransform() {this->Init();}
