@@ -245,8 +245,14 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     // 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
     PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
 
+    #ifdef _OPENMP
+    int threads = STDMIN(omp_get_max_threads(),
+        static_cast<int>(STDMIN(static_cast<size_t>(parallel),
+        static_cast<size_t>(std::numeric_limits<int>::max()))));
+    #endif
+
     // http://stackoverflow.com/q/49604260/608639
-    #pragma omp parallel
+    #pragma omp parallel num_threads(threads)
     {
         // Each thread gets its own copy
         AlignedSecByteBlock XY(static_cast<size_t>(blockSize * 256U));
