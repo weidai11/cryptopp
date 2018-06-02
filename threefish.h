@@ -113,7 +113,7 @@ typedef Threefish256::Decryption Threefish256Decryption;
 /// \note Crypto++ provides a byte oriented implementation
 /// \sa Threefish256, Threefish512, Threefish1024, <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 /// \since Crypto++ 6.0
-class CRYPTOPP_NO_VTABLE Threefish512 : public Threefish_Base<32>, public BlockCipherDocumentation
+class CRYPTOPP_NO_VTABLE Threefish512 : public Threefish_Base<64>, public BlockCipherDocumentation
 {
 public:
     /// \brief Threefish block cipher transformation functions
@@ -157,7 +157,7 @@ typedef Threefish512::Decryption Threefish512Decryption;
 /// \note Crypto++ provides a byte oriented implementation
 /// \sa Threefish256, Threefish512, Threefish1024, <a href="http://www.cryptopp.com/wiki/Threefish">Threefish</a>
 /// \since Crypto++ 6.0
-class CRYPTOPP_NO_VTABLE Threefish1024 : public Threefish_Base<32>, public BlockCipherDocumentation
+class CRYPTOPP_NO_VTABLE Threefish1024 : public Threefish_Base<128>, public BlockCipherDocumentation
 {
 public:
     /// \brief Threefish block cipher transformation functions
