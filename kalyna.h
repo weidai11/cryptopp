@@ -163,7 +163,7 @@ public:
 /// \brief Kalyna 512-bit block cipher
 /// \details Kalyna512 provides 512-bit block size. The valid key size is 512-bit.
 /// \since Crypto++ 6.0
-class Kalyna512 : Kalyna512_Info, public BlockCipherDocumentation
+class Kalyna512 : public Kalyna512_Info, public BlockCipherDocumentation
 {
 public:
     class CRYPTOPP_NO_VTABLE Base : public Kalyna_Base, public BlockCipherImpl<Kalyna512_Info>
