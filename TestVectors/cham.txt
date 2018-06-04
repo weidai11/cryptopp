@@ -1,0 +1,26 @@
+AlgorithmType: SymmetricCipher
+Name: CHAM-64/ECB
+#
+Source: CHAM paper, Appendix A, test vector 1
+Comment: CHAM-64/ECB, 128-bit key
+Key: 0100 0302 0504 0706 0908 0b0a 0d0c 0f0e
+Plaintext: 1100 3322 5544 7766
+Ciphertext: 453c 63bc dcfa bf4e
+Test: Encrypt
+
+AlgorithmType: SymmetricCipher
+Name: CHAM-128/ECB
+#
+Source: CHAM paper, Appendix A, test vector 2
+Comment: CHAM-128/ECB, 128-bit key
+Key: 03020100 07060504 0b0a0908 0f0e0d0c
+Plaintext: 33221100 77665544 bbaa9988 ffeeddcc
+Ciphertext: c3746034 b55700c5 8d64ec32 489332f7
+Test: Encrypt
+#
+Source: CHAM paper, Appendix A, test vector 3
+Comment: CHAM-128/ECB, 256-bit key
+Key: 03020100 07060504 0b0a0908 0f0e0d0c f3f2f1f0 f7f6f5f4 fbfaf9f8 fffefdfc
+Plaintext: 33221100 77665544 bbaa9988 ffeeddcc
+Ciphertext: a899c8a0 c929d55c ab670d38 0c4f7ac8
+Test: Encrypt

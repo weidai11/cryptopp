@@ -12,6 +12,7 @@
 #include "seal.h"
 #include "ttmac.h"
 #include "aria.h"
+#include "cham.h"
 #include "camellia.h"
 #include "shacal2.h"
 #include "tea.h"
@@ -176,6 +177,11 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK128> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK64> >();  // Benchmarks
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SPECK128> >(); // Benchmarks
+
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<CHAM64> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<CHAM128> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<CHAM64> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<CHAM128> >(); // Benchmarks
 
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SM4> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SM4> >();  // Test Vectors

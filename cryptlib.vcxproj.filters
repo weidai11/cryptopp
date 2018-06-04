@@ -86,6 +86,9 @@
     <ClCompile Include="chacha.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cham.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="channels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -538,6 +541,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ccm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cham.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="channels.h">

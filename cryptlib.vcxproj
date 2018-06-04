@@ -191,6 +191,7 @@
     <ClCompile Include="cbcmac.cpp" />
     <ClCompile Include="ccm.cpp" />
     <ClCompile Include="chacha.cpp" />
+    <ClCompile Include="cham.cpp" />
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="cmac.cpp" />
     <ClCompile Include="crc.cpp" />
@@ -382,6 +383,7 @@
     <ClInclude Include="cbcmac.h" />
     <ClInclude Include="ccm.h" />
     <ClInclude Include="chacha.h" />
+    <ClInclude Include="cham.h" />
     <ClInclude Include="channels.h" />
     <ClInclude Include="cmac.h" />
     <ClInclude Include="config.h" />

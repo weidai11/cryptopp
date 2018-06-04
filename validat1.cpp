@@ -170,6 +170,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSerpent() && pass;
 	pass=ValidateSHACAL2() && pass;
 	pass=ValidateARIA() && pass;
+	pass=ValidateCHAM() && pass;
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;
@@ -3384,6 +3385,13 @@ bool ValidateARIA()
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(24), valdata, 15) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(32), valdata, 15) && pass3;
 	return pass1 && pass2 && pass3;
+}
+
+bool ValidateCHAM()
+{
+	std::cout << "\nCHAM validation suite running...\n\n";
+
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/cham.txt");
 }
 
 bool ValidateCamellia()

@@ -29,6 +29,7 @@
 #include "ossig.h"
 #include "trap.h"
 
+#include "cham.h"
 #include "validate.h"
 #include "bench.h"
 
@@ -154,6 +155,50 @@ int scoped_main(int argc, char *argv[])
 		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator interface, to key the underlying cipher
 		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+
+#if 1
+		const byte key[] = {0x01, 0x00, 0x03, 0x02, 0x05, 0x04, 0x07, 0x06, 0x09, 0x08, 0x0b, 0x0a, 0x0d, 0x0c, 0x0f, 0x0e};
+		const byte pt[] = {0x11, 0x00, 0x33, 0x22, 0x55, 0x44, 0x77, 0x66};
+		const byte ct[] = {0x45, 0x3c, 0x63, 0xbc, 0xdc, 0xfa, 0xbf, 0x4e};
+		byte t[8];
+
+		//////////////////////////////////////////////
+
+		ECB_Mode<CHAM64>::Encryption enc;
+		enc.SetKey(key, sizeof(key));
+
+		std::memcpy(t, pt, 8);
+		enc.ProcessString(t, 8);
+
+		std::cout << "Cipher text: " << std:: endl;
+		StringSource(t, sizeof(t), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		if (std::memcmp(ct, t, 8) == 0)
+			std::cout << "Encryption is good!" << std::endl;
+		else
+			std::cout << "Encryption is bad!" << std::endl;
+
+		//////////////////////////////////////////////
+
+		ECB_Mode<CHAM64>::Decryption dec;
+		dec.SetKey(key, sizeof(key));
+
+		std::memcpy(t, ct, 8);
+		enc.ProcessString(t, 8);
+
+		std::cout << "Recovered text: " << std::endl;
+		StringSource(t, sizeof(t), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		if (std::memcmp(pt, t, 8) == 0)
+			std::cout << "Decryption is good!" << std::endl;
+		else
+			std::cout << "Decryption is bad!" << std::endl;
+
+		return 0;
+
+#endif
 
 		std::string command, executableName, macFilename;
 
@@ -949,6 +994,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 80: result = ValidateHashDRBG(); break;
 	case 81: result = ValidateHmacDRBG(); break;
 	case 82: result = ValidateNaCl(); break;
+	case 83: result = ValidateCHAM(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
