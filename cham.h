@@ -1,6 +1,7 @@
 ﻿// cham.h - written and placed in the public domain by Kim Sung Hee and Jeffrey Walton
-//          Based on "CHAM: A Family of Lightweight Block Ciphers for Resource-Constrained Devices"
-//          by Bonwook Koo, Dongyoung Roh, Hyeonjin Kim, Younghoon Jung, Dong-Geon Lee, and Daesung Kwon
+//          Based on "CHAM: A Family of Lightweight Block Ciphers for
+//          Resource-Constrained Devices" by Bonwook Koo, Dongyoung Roh,
+//          Hyeonjin Kim, Younghoon Jung, Dong-Geon Lee, and Daesung Kwon
 
 /// \file cham.h
 /// \brief Classes for the CHAM block cipher
@@ -57,8 +58,10 @@ public:
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
-	private:
+
 		SecBlock<word16> m_key;
+		mutable FixedSizeSecBlock<word16, 4> m_x;
+		unsigned int m_kw;
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -105,8 +108,10 @@ public:
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
-	private:
+
 		SecBlock<word32> m_key;
+		mutable FixedSizeSecBlock<word32, 4> m_x;
+		unsigned int m_kw;
     };
 
     /// \brief Provides implementation for encryption transformation
