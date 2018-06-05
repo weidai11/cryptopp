@@ -444,6 +444,7 @@ void Benchmark1(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 
+	// TODO: remove this test block.
 #if 1
 	BenchMarkByName<SymmetricCipher>("CHAM-64/CTR", 16, "CHAM-64(128)/CTR (128-bit key)");
 	BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 16, "CHAM-128(128)/CTR (128-bit key)");
