@@ -444,6 +444,14 @@ void Benchmark1(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 
+#if 1
+	BenchMarkByName<SymmetricCipher>("CHAM-64/CTR", 16, "CHAM-64(128)/CTR (128-bit key)");
+	BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 16, "CHAM-128(128)/CTR (128-bit key)");
+	BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 32, "CHAM-128(256)/CTR (256-bit key)");
+
+	return;
+#endif
+
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 #ifdef NONBLOCKING_RNG_AVAILABLE
@@ -524,14 +532,6 @@ void Benchmark2(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 	std::cout << "<TH>Microseconds to<BR>Setup Key and IV" << cpk;
-
-#if 1
-	BenchMarkByName<SymmetricCipher>("CHAM-64/CTR", 16, "CHAM-64(128)/CTR (128-bit key)");
-	BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 16, "CHAM-128(128)/CTR (128-bit key)");
-	BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 32, "CHAM-128(256)/CTR (256-bit key)");
-
-	return;
-#endif
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
