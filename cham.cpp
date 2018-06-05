@@ -11,16 +11,38 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+using CryptoPP::word16;
 using CryptoPP::word32;
 using CryptoPP::word64;
 using CryptoPP::rotlConstant;
 
-template <unsigned int W>
-inline word64 Power()
+inline word16 CHAM64_Round(word16 x[2], const word16 k[4], unsigned int kw, unsigned int i)
 {
-	CRYPTOPP_ASSERT(W < sizeof(word64));
-	return W64LIT(1) << W;
-};
+	word16 t;
+	if (i % 2 == 0) {
+		t = static_cast<word16>(rotlConstant<8>((x[0] ^ i) +
+				((rotlConstant<1>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+	}
+	else {
+		t = static_cast<word16>(rotlConstant<1>((x[0] ^ i) +
+				((rotlConstant<8>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+	}
+	return t;
+}
+
+inline word32 CHAM128_Round(word32 x[2], const word32 k[4], unsigned int kw, unsigned int i)
+{
+	word32 t;
+	if (i % 2 == 0) {
+		t = static_cast<word32>(rotlConstant<8>((x[0] ^ i) +
+				((rotlConstant<1>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+	}
+	else {
+		t = static_cast<word32>(rotlConstant<1>((x[0] ^ i) +
+				((rotlConstant<8>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+	}
+	return t;
+}
 
 ANONYMOUS_NAMESPACE_END
 
@@ -49,20 +71,15 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	std::memcpy(m_x.begin(), inBlock, CHAM64::BLOCKSIZE);
-
 	const unsigned int R = 80;
-	for (size_t i = 0; i < R; ++i)
+	for (size_t i = 0; i < 4; ++i)
 	{
-		word16 t;
-		if (i % 2 == 0) {
-			t = static_cast<word16>(rotlConstant<8>((m_x[0] ^ i) +
-					((rotlConstant<1>(m_x[1]) ^ m_key[i % (2 * m_kw)]) & 0xFFFF)));
-		}
-		else {
-			t = static_cast<word16>(rotlConstant<1>((m_x[0] ^ i) +
-					((rotlConstant<8>(m_x[1]) ^ m_key[i % (2 * m_kw)]) & 0xFFFF)));
-		}
+		m_x[0] = GetWord<word16>(false, BIG_ENDIAN_ORDER, inBlock);
+		inBlock += sizeof(word16);
+		m_x[1] = GetWord<word16>(false, BIG_ENDIAN_ORDER, inBlock);
+		inBlock += sizeof(word16);
+
+		const word16 t = CHAM64_Round(m_x, m_key, m_kw, i);
 
 		m_x[0] = m_x[1];
 		m_x[1] = m_x[2];
@@ -70,10 +87,20 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 		m_x[3] = t;
 	}
 
-	std::memcpy(outBlock, m_x.begin(), CHAM64::BLOCKSIZE);
+	for (size_t i = 4; i < R; ++i)
+	{
+		const word16 t = CHAM64_Round(m_x, m_key, m_kw, i);
+
+		m_x[0] = m_x[1];
+		m_x[1] = m_x[2];
+		m_x[2] = m_x[3];
+		m_x[3] = t;
+	}
 
 	if (xorBlock)
-		xorbuf(outBlock, xorBlock, CHAM64::BLOCKSIZE);
+		xorbuf(outBlock, inBlock, xorBlock, CHAM64::BLOCKSIZE);
+	else
+		std::memcpy(outBlock, m_x, CHAM64::BLOCKSIZE);
 }
 
 // If CHAM64::Enc::ProcessAndXorBlock and CHAM64::Dec::ProcessAndXorBlock
@@ -112,18 +139,15 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 //   one CHAM128::Base::ProcessAndXorBlock.
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	std::memcpy(m_x.begin(), inBlock, CHAM128::BLOCKSIZE);
-
 	const unsigned int R = 80;
-	for (size_t i = 0; i < R; ++i)
+	for (size_t i = 0; i < 4; ++i)
 	{
-		word32 t;
-		if (i % 2 == 0) {
-			t = rotlConstant<8>((m_x[0] ^ i)+((rotlConstant<1>(m_x[1]) ^ m_key[i % (2 * m_kw)]) & 0xFFFFFFFF));
-		}
-		else {
-			t = rotlConstant<1>((m_x[0] ^ i)+((rotlConstant<8>(m_x[1]) ^ m_key[i % (2 * m_kw)]) & 0xFFFFFFFF));
-		}
+		m_x[0] = GetWord<word32>(false, BIG_ENDIAN_ORDER, inBlock);
+		inBlock += sizeof(word32);
+		m_x[1] = GetWord<word32>(false, BIG_ENDIAN_ORDER, inBlock);
+		inBlock += sizeof(word32);
+
+		const word32 t = CHAM128_Round(m_x, m_key, m_kw, i);
 
 		m_x[0] = m_x[1];
 		m_x[1] = m_x[2];
@@ -131,10 +155,20 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 		m_x[3] = t;
 	}
 
-	std::memcpy(outBlock, m_x.begin(), CHAM128::BLOCKSIZE);
+	for (size_t i = 4; i < R; ++i)
+	{
+		const word32 t = CHAM128_Round(m_x, m_key, m_kw, i);
+
+		m_x[0] = m_x[1];
+		m_x[1] = m_x[2];
+		m_x[2] = m_x[3];
+		m_x[3] = t;
+	}
 
 	if (xorBlock)
-		xorbuf(outBlock, xorBlock, CHAM128::BLOCKSIZE);
+		xorbuf(outBlock, inBlock, xorBlock, CHAM128::BLOCKSIZE);
+	else
+		std::memcpy(outBlock, m_x, CHAM128::BLOCKSIZE);
 }
 
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
