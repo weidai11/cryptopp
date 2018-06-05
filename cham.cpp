@@ -16,29 +16,45 @@ using CryptoPP::word32;
 using CryptoPP::rotlConstant;
 
 template <unsigned int RR>
-inline word16 CHAM64_Round(const word16 x[4], const word16 k[], unsigned int kw, unsigned int i)
+inline void CHAM64_Round(word16 x[4], const word16 k[], unsigned int i)
 {
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
 	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+	CRYPTOPP_CONSTANT(IDX4 = (RR+3) % 4)
 	CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
 	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
 
-	return static_cast<word16>(rotlConstant<R2>((x[IDX1] ^ i) +
-			((rotlConstant<R1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+	x[IDX4] = static_cast<word16>(rotlConstant<R2>((x[IDX1] ^ i) +
+			((rotlConstant<R1>(x[IDX2]) ^ k[i % 16]) & 0xFFFF)));
 }
 
 template <unsigned int RR>
-inline word32 CHAM128_Round(const word32 x[4], const word32 k[], unsigned int kw, unsigned int i)
+inline void CHAM128_128_Round(word32 x[4], const word32 k[], unsigned int i)
 {
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
 	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+	CRYPTOPP_CONSTANT(IDX4 = (RR+3) % 4)
 	CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
 	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
 
-	return static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
-			((rotlConstant<R1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFFFFFF)));
+	x[IDX4] = static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
+			((rotlConstant<R1>(x[IDX2]) ^ k[i % 8]) & 0xFFFFFFFF)));
+}
+
+template <unsigned int RR>
+inline void CHAM128_256_Round(word32 x[4], const word32 k[], unsigned int i)
+{
+	// RR is "round residue". The round function only cares about [0-3].
+	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
+	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+	CRYPTOPP_CONSTANT(IDX4 = (RR+3) % 4)
+	CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
+	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
+
+	x[IDX4] = static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
+			((rotlConstant<R1>(x[IDX2]) ^ k[i % 16]) & 0xFFFFFFFF)));
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -72,20 +88,12 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 	iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
 	const unsigned int R = 80;
-	// for (size_t i = 0; i < R; ++i)
 	for (size_t i = 0; i < R; i+=4)
 	{
-#if 0
-		const word16 t = CHAM64_Round(m_x, m_rk, m_kw, i);
-		m_x[0] = m_x[1];
-		m_x[1] = m_x[2];
-		m_x[2] = m_x[3];
-		m_x[3] = t;
-#endif
-		m_x[0] = CHAM64_Round<0>(m_x, m_rk, m_kw, i);
-		m_x[1] = CHAM64_Round<1>(m_x, m_rk, m_kw, i);
-		m_x[2] = CHAM64_Round<2>(m_x, m_rk, m_kw, i);
-		m_x[3] = CHAM64_Round<3>(m_x, m_rk, m_kw, i);
+		CHAM64_Round<0>(m_x, m_rk, i+0);
+		CHAM64_Round<1>(m_x, m_rk, i+1);
+		CHAM64_Round<2>(m_x, m_rk, i+2);
+		CHAM64_Round<3>(m_x, m_rk, i+3);
 	}
 
 	PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
@@ -127,20 +135,32 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 	// CHAM-128(128) uses 80 rounds, CHAM-128(256) uses 96 rounds.
 	const unsigned int R = (m_kw == 4 ? 80 : 96);
-	// for (size_t i = 0; i < R; ++i)
-	for (size_t i = 0; i < R; i+=4)
+	switch (m_kw)
 	{
-#if 0
-		const word32 t = CHAM128_Round(m_x, m_rk, m_kw, i);
-		m_x[0] = m_x[1];
-		m_x[1] = m_x[2];
-		m_x[2] = m_x[3];
-		m_x[3] = t;
-#endif
-		m_x[0] = CHAM128_Round<0>(m_x, m_rk, m_kw, i);
-		m_x[1] = CHAM128_Round<1>(m_x, m_rk, m_kw, i);
-		m_x[2] = CHAM128_Round<2>(m_x, m_rk, m_kw, i);
-		m_x[3] = CHAM128_Round<3>(m_x, m_rk, m_kw, i);
+	case 4:
+	{
+		for (size_t i = 0; i < R; i+=4)
+		{
+			CHAM128_128_Round<0>(m_x, m_rk, i+0);
+			CHAM128_128_Round<1>(m_x, m_rk, i+1);
+			CHAM128_128_Round<2>(m_x, m_rk, i+2);
+			CHAM128_128_Round<3>(m_x, m_rk, i+3);
+		}
+		break;
+	}
+	case 8:
+	{
+		for (size_t i = 0; i < R; i+=4)
+		{
+			CHAM128_256_Round<0>(m_x, m_rk, i+0);
+			CHAM128_256_Round<1>(m_x, m_rk, i+1);
+			CHAM128_256_Round<2>(m_x, m_rk, i+2);
+			CHAM128_256_Round<3>(m_x, m_rk, i+3);
+		}
+		break;
+	}
+	default:
+		CRYPTOPP_ASSERT(0);;
 	}
 
 	PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
