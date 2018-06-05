@@ -15,32 +15,38 @@ using CryptoPP::word16;
 using CryptoPP::word32;
 using CryptoPP::rotlConstant;
 
+template <unsigned int RR>
 inline word16 CHAM64_Round(word16 x[4], const word16 k[4], unsigned int kw, unsigned int i)
 {
-	word16 t;
+	// RR is "round residue". The round function only cares about [0-3].
+	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
+	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+
 	if (i % 2 == 0) {
-		t = static_cast<word16>(rotlConstant<8>((x[0] ^ i) +
-				((rotlConstant<1>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+		return static_cast<word16>(rotlConstant<8>((x[IDX1] ^ i) +
+				((rotlConstant<1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFF)));
 	}
 	else {
-		t = static_cast<word16>(rotlConstant<1>((x[0] ^ i) +
-				((rotlConstant<8>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+		return static_cast<word16>(rotlConstant<1>((x[IDX1] ^ i) +
+				((rotlConstant<8>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFF)));
 	}
-	return t;
 }
 
+template <unsigned int RR>
 inline word32 CHAM128_Round(word32 x[4], const word32 k[4], unsigned int kw, unsigned int i)
 {
-	word32 t;
+	// RR is "round residue". The round function only cares about [0-3].
+	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
+	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+
 	if (i % 2 == 0) {
-		t = static_cast<word32>(rotlConstant<8>((x[0] ^ i) +
-				((rotlConstant<1>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+		return static_cast<word32>(rotlConstant<8>((x[IDX1] ^ i) +
+				((rotlConstant<1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFFFFFF)));
 	}
 	else {
-		t = static_cast<word32>(rotlConstant<1>((x[0] ^ i) +
-				((rotlConstant<8>(x[1]) ^ k[i % (2 * kw)]) & 0xFFFF)));
+		return static_cast<word32>(rotlConstant<1>((x[IDX1] ^ i) +
+				((rotlConstant<8>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFFFFFF)));
 	}
-	return t;
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -84,10 +90,10 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 		m_x[2] = m_x[3];
 		m_x[3] = t;
 #endif
-		m_x[0] = CHAM64_Round(m_x, m_key, m_kw, i);
-		m_x[1] = CHAM64_Round(m_x, m_key, m_kw, i);
-		m_x[2] = CHAM64_Round(m_x, m_key, m_kw, i);
-		m_x[3] = CHAM64_Round(m_x, m_key, m_kw, i);
+		m_x[0] = CHAM64_Round<0>(m_x, m_key, m_kw, i);
+		m_x[1] = CHAM64_Round<1>(m_x, m_key, m_kw, i);
+		m_x[2] = CHAM64_Round<2>(m_x, m_key, m_kw, i);
+		m_x[3] = CHAM64_Round<3>(m_x, m_key, m_kw, i);
 	}
 
 	PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
@@ -139,10 +145,10 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 		m_x[3] = t;
 #endif
 
-		m_x[0] = CHAM128_Round(m_x, m_key, m_kw, i);
-		m_x[1] = CHAM128_Round(m_x, m_key, m_kw, i);
-		m_x[2] = CHAM128_Round(m_x, m_key, m_kw, i);
-		m_x[3] = CHAM128_Round(m_x, m_key, m_kw, i);
+		m_x[0] = CHAM128_Round<0>(m_x, m_key, m_kw, i);
+		m_x[1] = CHAM128_Round<1>(m_x, m_key, m_kw, i);
+		m_x[2] = CHAM128_Round<2>(m_x, m_key, m_kw, i);
+		m_x[3] = CHAM128_Round<3>(m_x, m_key, m_kw, i);
 	}
 
 	PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
