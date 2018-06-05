@@ -54,14 +54,14 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 
 	// Fix me... Is this correct?
 	m_kw = keyLength/sizeof(word16);
-	m_key.New(keyLength);
+	m_key.New(2*m_kw);
 
 	for (size_t i = 0; i < m_kw; ++i)
 	{
-		// Avoid the cast which violates punning and aliasing rules
-		const byte* addr = userKey+i*sizeof(word16);
-		// Extract k[i]. Under the hood a memcpy happens
-		const word16 ki = GetWord<word16>(false, BIG_ENDIAN_ORDER, addr);
+		// Extract k[i]. Under the hood a memcpy happens.
+		// Can't do the cast. It will SIGBUS on ARM and SPARC.
+		const word16 ki = GetWord<word16>(false, BIG_ENDIAN_ORDER, userKey);
+		userKey += sizeof(word16);
 
 		m_key[i] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<8>(ki);
 		m_key[(i + m_kw) ^ 1] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<11>(ki);
@@ -108,14 +108,14 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 
 	// Fix me... Is this correct?
 	m_kw = keyLength/sizeof(word32);
-	m_key.New(keyLength);
+	m_key.New(2*m_kw);
 
 	for (size_t i = 0; i < m_kw; ++i)
 	{
-		// Avoid the cast which violates punning and aliasing rules
-		const byte* addr = userKey+i*sizeof(word32);
-		// Extract k[i]. Under the hood a memcpy happens
-		const word32 ki = GetWord<word32>(false, BIG_ENDIAN_ORDER, addr);
+		// Extract k[i]. Under the hood a memcpy happens.
+		// Can't do the cast. It will SIGBUS on ARM and SPARC.
+		const word32 ki = GetWord<word32>(false, BIG_ENDIAN_ORDER, userKey);
+		userKey += sizeof(word32);
 
 		m_key[i] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<8>(ki);
 		m_key[(i + m_kw) ^ 1] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<11>(ki);
