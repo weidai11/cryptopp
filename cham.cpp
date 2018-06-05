@@ -52,17 +52,17 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 
 	// Fix me... Is this correct?
 	m_kw = keyLength/sizeof(word16);
-	m_key.New(2*m_kw);
+	m_rk.New(2*m_kw);
 
 	for (size_t i = 0; i < m_kw; ++i)
 	{
 		// Extract k[i]. Under the hood a memcpy happens.
 		// Can't do the cast. It will SIGBUS on ARM and SPARC.
-		const word16 ki = GetWord<word16>(false, BIG_ENDIAN_ORDER, userKey);
+		const word16 rk = GetWord<word16>(false, BIG_ENDIAN_ORDER, userKey);
 		userKey += sizeof(word16);
 
-		m_key[i] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<8>(ki);
-		m_key[(i + m_kw) ^ 1] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<11>(ki);
+		m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
+		m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
 	}
 }
 
@@ -76,16 +76,16 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 	for (size_t i = 0; i < R; i+=4)
 	{
 #if 0
-		const word16 t = CHAM64_Round(m_x, m_key, m_kw, i);
+		const word16 t = CHAM64_Round(m_x, m_rk, m_kw, i);
 		m_x[0] = m_x[1];
 		m_x[1] = m_x[2];
 		m_x[2] = m_x[3];
 		m_x[3] = t;
 #endif
-		m_x[0] = CHAM64_Round<0>(m_x, m_key, m_kw, i);
-		m_x[1] = CHAM64_Round<1>(m_x, m_key, m_kw, i);
-		m_x[2] = CHAM64_Round<2>(m_x, m_key, m_kw, i);
-		m_x[3] = CHAM64_Round<3>(m_x, m_key, m_kw, i);
+		m_x[0] = CHAM64_Round<0>(m_x, m_rk, m_kw, i);
+		m_x[1] = CHAM64_Round<1>(m_x, m_rk, m_kw, i);
+		m_x[2] = CHAM64_Round<2>(m_x, m_rk, m_kw, i);
+		m_x[3] = CHAM64_Round<3>(m_x, m_rk, m_kw, i);
 	}
 
 	PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
@@ -106,17 +106,17 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 
 	// Fix me... Is this correct?
 	m_kw = keyLength/sizeof(word32);
-	m_key.New(2*m_kw);
+	m_rk.New(2*m_kw);
 
 	for (size_t i = 0; i < m_kw; ++i)
 	{
 		// Extract k[i]. Under the hood a memcpy happens.
 		// Can't do the cast. It will SIGBUS on ARM and SPARC.
-		const word32 ki = GetWord<word32>(false, BIG_ENDIAN_ORDER, userKey);
+		const word32 rk = GetWord<word32>(false, BIG_ENDIAN_ORDER, userKey);
 		userKey += sizeof(word32);
 
-		m_key[i] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<8>(ki);
-		m_key[(i + m_kw) ^ 1] = ki ^ rotlConstant<1>(ki) ^ rotlConstant<11>(ki);
+		m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
+		m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
 	}
 }
 
@@ -130,16 +130,16 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	for (size_t i = 0; i < R; i+=4)
 	{
 #if 0
-		const word32 t = CHAM128_Round(m_x, m_key, m_kw, i);
+		const word32 t = CHAM128_Round(m_x, m_rk, m_kw, i);
 		m_x[0] = m_x[1];
 		m_x[1] = m_x[2];
 		m_x[2] = m_x[3];
 		m_x[3] = t;
 #endif
-		m_x[0] = CHAM128_Round<0>(m_x, m_key, m_kw, i);
-		m_x[1] = CHAM128_Round<1>(m_x, m_key, m_kw, i);
-		m_x[2] = CHAM128_Round<2>(m_x, m_key, m_kw, i);
-		m_x[3] = CHAM128_Round<3>(m_x, m_key, m_kw, i);
+		m_x[0] = CHAM128_Round<0>(m_x, m_rk, m_kw, i);
+		m_x[1] = CHAM128_Round<1>(m_x, m_rk, m_kw, i);
+		m_x[2] = CHAM128_Round<2>(m_x, m_rk, m_kw, i);
+		m_x[3] = CHAM128_Round<3>(m_x, m_rk, m_kw, i);
 	}
 
 	PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
