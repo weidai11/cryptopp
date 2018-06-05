@@ -59,7 +59,7 @@ public:
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
-		SecBlock<word16> m_key;
+		SecBlock<word16> m_rk;
 		mutable FixedSizeSecBlock<word16, 4> m_x;
 		unsigned int m_kw;
     };
@@ -109,7 +109,7 @@ public:
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
-		SecBlock<word32> m_key;
+		SecBlock<word32> m_rk;
 		mutable FixedSizeSecBlock<word32, 4> m_x;
 		unsigned int m_kw;
     };

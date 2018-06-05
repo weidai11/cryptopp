@@ -125,7 +125,8 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	GetBlock<word32, BigEndian, false> iblock(inBlock);
 	iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
-	const unsigned int R = 80;
+	// CHAM-128(128) uses 80 rounds, CHAM-128(256) uses 96 rounds.
+	const unsigned int R = (m_kw == 4 ? 80 : 96);
 	// for (size_t i = 0; i < R; ++i)
 	for (size_t i = 0; i < R; i+=4)
 	{
