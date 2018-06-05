@@ -98,6 +98,7 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 
 void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	// TODO: implement decryption. You may need to add another round function for decryption.
     std::memcpy(outBlock, inBlock, CHAM64::BLOCKSIZE);
     if (xorBlock)
         xorbuf(outBlock, xorBlock, CHAM64::BLOCKSIZE);
@@ -166,6 +167,7 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	// TODO: implement decryption. You may need to add another round function for decryption.
     std::memcpy(outBlock, inBlock, CHAM128::BLOCKSIZE);
     if (xorBlock)
         xorbuf(outBlock, xorBlock, CHAM128::BLOCKSIZE);
