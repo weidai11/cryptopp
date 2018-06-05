@@ -13,10 +13,9 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word16;
 using CryptoPP::word32;
-using CryptoPP::word64;
 using CryptoPP::rotlConstant;
 
-inline word16 CHAM64_Round(word16 x[2], const word16 k[4], unsigned int kw, unsigned int i)
+inline word16 CHAM64_Round(word16 x[4], const word16 k[4], unsigned int kw, unsigned int i)
 {
 	word16 t;
 	if (i % 2 == 0) {
@@ -30,7 +29,7 @@ inline word16 CHAM64_Round(word16 x[2], const word16 k[4], unsigned int kw, unsi
 	return t;
 }
 
-inline word32 CHAM128_Round(word32 x[2], const word32 k[4], unsigned int kw, unsigned int i)
+inline word32 CHAM128_Round(word32 x[4], const word32 k[4], unsigned int kw, unsigned int i)
 {
 	word32 t;
 	if (i % 2 == 0) {
@@ -71,41 +70,30 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	GetBlock<word16, BigEndian, false> iblock(inBlock);
+	iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
+
 	const unsigned int R = 80;
-	for (size_t i = 0; i < 4; ++i)
+	// for (size_t i = 0; i < R; ++i)
+	for (size_t i = 0; i < R; i+=4)
 	{
-		m_x[0] = GetWord<word16>(false, BIG_ENDIAN_ORDER, inBlock);
-		inBlock += sizeof(word16);
-		m_x[1] = GetWord<word16>(false, BIG_ENDIAN_ORDER, inBlock);
-		inBlock += sizeof(word16);
-
+#if 0
 		const word16 t = CHAM64_Round(m_x, m_key, m_kw, i);
-
 		m_x[0] = m_x[1];
 		m_x[1] = m_x[2];
 		m_x[2] = m_x[3];
 		m_x[3] = t;
+#endif
+		m_x[0] = CHAM64_Round(m_x, m_key, m_kw, i);
+		m_x[1] = CHAM64_Round(m_x, m_key, m_kw, i);
+		m_x[2] = CHAM64_Round(m_x, m_key, m_kw, i);
+		m_x[3] = CHAM64_Round(m_x, m_key, m_kw, i);
 	}
 
-	for (size_t i = 4; i < R; ++i)
-	{
-		const word16 t = CHAM64_Round(m_x, m_key, m_kw, i);
-
-		m_x[0] = m_x[1];
-		m_x[1] = m_x[2];
-		m_x[2] = m_x[3];
-		m_x[3] = t;
-	}
-
-	if (xorBlock)
-		xorbuf(outBlock, inBlock, xorBlock, CHAM64::BLOCKSIZE);
-	else
-		std::memcpy(outBlock, m_x, CHAM64::BLOCKSIZE);
+	PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
+	oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
-// If CHAM64::Enc::ProcessAndXorBlock and CHAM64::Dec::ProcessAndXorBlock
-//   are the same code, then we can fold them into CHAM64::Base and supply
-//   one CHAM64::Base::ProcessAndXorBlock.
 void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
 	std::memcpy(outBlock, inBlock, CHAM64::BLOCKSIZE);
@@ -134,41 +122,31 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 	}
 }
 
-// If CHAM128::Enc::ProcessAndXorBlock and CHAM128::Dec::ProcessAndXorBlock
-//   are the same code, then we can fold them into CHAM128::Base and supply
-//   one CHAM128::Base::ProcessAndXorBlock.
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+	GetBlock<word32, BigEndian, false> iblock(inBlock);
+	iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
+
 	const unsigned int R = 80;
-	for (size_t i = 0; i < 4; ++i)
+	// for (size_t i = 0; i < R; ++i)
+	for (size_t i = 0; i < R; i+=4)
 	{
-		m_x[0] = GetWord<word32>(false, BIG_ENDIAN_ORDER, inBlock);
-		inBlock += sizeof(word32);
-		m_x[1] = GetWord<word32>(false, BIG_ENDIAN_ORDER, inBlock);
-		inBlock += sizeof(word32);
-
+#if 0
 		const word32 t = CHAM128_Round(m_x, m_key, m_kw, i);
-
 		m_x[0] = m_x[1];
 		m_x[1] = m_x[2];
 		m_x[2] = m_x[3];
 		m_x[3] = t;
+#endif
+
+		m_x[0] = CHAM128_Round(m_x, m_key, m_kw, i);
+		m_x[1] = CHAM128_Round(m_x, m_key, m_kw, i);
+		m_x[2] = CHAM128_Round(m_x, m_key, m_kw, i);
+		m_x[3] = CHAM128_Round(m_x, m_key, m_kw, i);
 	}
 
-	for (size_t i = 4; i < R; ++i)
-	{
-		const word32 t = CHAM128_Round(m_x, m_key, m_kw, i);
-
-		m_x[0] = m_x[1];
-		m_x[1] = m_x[2];
-		m_x[2] = m_x[3];
-		m_x[3] = t;
-	}
-
-	if (xorBlock)
-		xorbuf(outBlock, inBlock, xorBlock, CHAM128::BLOCKSIZE);
-	else
-		std::memcpy(outBlock, m_x, CHAM128::BLOCKSIZE);
+	PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
+	oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
