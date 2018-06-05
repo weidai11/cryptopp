@@ -59,22 +59,23 @@ NAMESPACE_BEGIN(CryptoPP)
 void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
-    CRYPTOPP_ASSERT(keyLength == 16);  // 128-bits
 
     // Fix me... Is this correct?
     m_kw = keyLength/sizeof(word16);
     m_rk.New(2*m_kw);
 
-    for (size_t i = 0; i < m_kw; ++i)
+    for (size_t i = 0; i < m_kw; ++i, userKey += sizeof(word16))
     {
-        // Extract k[i]. Under the hood a memcpy happens.
-        // Can't do the cast. It will SIGBUS on ARM and SPARC.
+        // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
         const word16 rk = GetWord<word16>(false, BIG_ENDIAN_ORDER, userKey);
-        userKey += sizeof(word16);
 
         m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
+
+	//for (size_t i = 0; i < m_rk.size(); ++i)
+	//	printf("%04hx\n", m_rk[i]);
+	//printf("\n");
 }
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -105,22 +106,23 @@ void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
-    CRYPTOPP_ASSERT(keyLength == 16 || keyLength == 32);  // 128-bits or 256-bits
 
     // Fix me... Is this correct?
     m_kw = keyLength/sizeof(word32);
     m_rk.New(2*m_kw);
 
-    for (size_t i = 0; i < m_kw; ++i)
+    for (size_t i = 0; i < m_kw; ++i, userKey += sizeof(word32))
     {
-        // Extract k[i]. Under the hood a memcpy happens.
-        // Can't do the cast. It will SIGBUS on ARM and SPARC.
+        // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
         const word32 rk = GetWord<word32>(false, BIG_ENDIAN_ORDER, userKey);
-        userKey += sizeof(word32);
 
         m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
+
+	//for (size_t i = 0; i < m_rk.size(); ++i)
+	//	printf("%08x\n", m_rk[i]);
+	//printf("\n");
 }
 
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
