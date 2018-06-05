@@ -73,9 +73,9 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
 
-	//for (size_t i = 0; i < m_rk.size(); ++i)
-	//	printf("%04hx\n", m_rk[i]);
-	//printf("\n");
+    //for (size_t i = 0; i < m_rk.size(); ++i)
+    //    printf("%04hx\n", m_rk[i]);
+    //printf("\n");
 }
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -120,9 +120,9 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
 
-	//for (size_t i = 0; i < m_rk.size(); ++i)
-	//	printf("%08x\n", m_rk[i]);
-	//printf("\n");
+    //for (size_t i = 0; i < m_rk.size(); ++i)
+    //    printf("%08x\n", m_rk[i]);
+    //printf("\n");
 }
 
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
