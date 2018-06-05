@@ -156,6 +156,8 @@ int scoped_main(int argc, char *argv[])
 		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
 
+		// TODO: remove this test block.
+		// I usually do this with 'git checkout test.cpp' when the time comes.
 #if 0
 		const byte key[] = {0x01, 0x00, 0x03, 0x02, 0x05, 0x04, 0x07, 0x06, 0x09, 0x08, 0x0b, 0x0a, 0x0d, 0x0c, 0x0f, 0x0e};
 		const byte pt[] = {0x11, 0x00, 0x33, 0x22, 0x55, 0x44, 0x77, 0x66};
