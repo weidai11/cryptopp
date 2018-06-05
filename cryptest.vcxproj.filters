@@ -50,6 +50,9 @@
     <None Include="TestVectors\chacha.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\cham.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\cmac.txt">
       <Filter>TestVectors</Filter>
     </None>
