@@ -21,15 +21,11 @@ inline word16 CHAM64_Round(const word16 x[4], const word16 k[], unsigned int kw,
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
 	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+	CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
+	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
 
-	if (i % 2 == 0) {
-		return static_cast<word16>(rotlConstant<8>((x[IDX1] ^ i) +
-				((rotlConstant<1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFF)));
-	}
-	else {
-		return static_cast<word16>(rotlConstant<1>((x[IDX1] ^ i) +
-				((rotlConstant<8>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFF)));
-	}
+	return static_cast<word16>(rotlConstant<R2>((x[IDX1] ^ i) +
+			((rotlConstant<R1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFF)));
 }
 
 template <unsigned int RR>
@@ -38,15 +34,11 @@ inline word32 CHAM128_Round(const word32 x[4], const word32 k[], unsigned int kw
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
 	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
+	CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
+	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
 
-	if (i % 2 == 0) {
-		return static_cast<word32>(rotlConstant<8>((x[IDX1] ^ i) +
-				((rotlConstant<1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFFFFFF)));
-	}
-	else {
-		return static_cast<word32>(rotlConstant<1>((x[IDX1] ^ i) +
-				((rotlConstant<8>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFFFFFF)));
-	}
+	return static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
+			((rotlConstant<R1>(x[IDX2]) ^ k[i % (2 * kw)]) & 0xFFFFFFFF)));
 }
 
 ANONYMOUS_NAMESPACE_END
