@@ -29,8 +29,8 @@ inline void CHAM64_Round(word16 x[4], const word16 k[], unsigned int i)
 			((rotlConstant<R1>(x[IDX2]) ^ k[i % 16]) & 0xFFFF)));
 }
 
-template <unsigned int RR>
-inline void CHAM128_128_Round(word32 x[4], const word32 k[], unsigned int i)
+template <unsigned int RR, unsigned int RES>
+inline void CHAM128_Round(word32 x[4], const word32 k[], unsigned int i)
 {
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
@@ -40,21 +40,7 @@ inline void CHAM128_128_Round(word32 x[4], const word32 k[], unsigned int i)
 	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
 
 	x[IDX4] = static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
-			((rotlConstant<R1>(x[IDX2]) ^ k[i % 8]) & 0xFFFFFFFF)));
-}
-
-template <unsigned int RR>
-inline void CHAM128_256_Round(word32 x[4], const word32 k[], unsigned int i)
-{
-	// RR is "round residue". The round function only cares about [0-3].
-	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
-	CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
-	CRYPTOPP_CONSTANT(IDX4 = (RR+3) % 4)
-	CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
-	CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
-
-	x[IDX4] = static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
-			((rotlConstant<R1>(x[IDX2]) ^ k[i % 16]) & 0xFFFFFFFF)));
+			((rotlConstant<R1>(x[IDX2]) ^ k[i % RES]) & 0xFFFFFFFF)));
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -133,29 +119,29 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 	GetBlock<word32, BigEndian, false> iblock(inBlock);
 	iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
-	// CHAM-128(128) uses 80 rounds, CHAM-128(256) uses 96 rounds.
-	const unsigned int R = (m_kw == 4 ? 80 : 96);
 	switch (m_kw)
 	{
 	case 4:
 	{
+		const unsigned int R = 80;
 		for (size_t i = 0; i < R; i+=4)
 		{
-			CHAM128_128_Round<0>(m_x, m_rk, i+0);
-			CHAM128_128_Round<1>(m_x, m_rk, i+1);
-			CHAM128_128_Round<2>(m_x, m_rk, i+2);
-			CHAM128_128_Round<3>(m_x, m_rk, i+3);
+			CHAM128_Round<0, 8>(m_x, m_rk, i+0);
+			CHAM128_Round<1, 8>(m_x, m_rk, i+1);
+			CHAM128_Round<2, 8>(m_x, m_rk, i+2);
+			CHAM128_Round<3, 8>(m_x, m_rk, i+3);
 		}
 		break;
 	}
 	case 8:
 	{
+		const unsigned int R = 96;
 		for (size_t i = 0; i < R; i+=4)
 		{
-			CHAM128_256_Round<0>(m_x, m_rk, i+0);
-			CHAM128_256_Round<1>(m_x, m_rk, i+1);
-			CHAM128_256_Round<2>(m_x, m_rk, i+2);
-			CHAM128_256_Round<3>(m_x, m_rk, i+3);
+			CHAM128_Round<0, 16>(m_x, m_rk, i+0);
+			CHAM128_Round<1, 16>(m_x, m_rk, i+1);
+			CHAM128_Round<2, 16>(m_x, m_rk, i+2);
+			CHAM128_Round<3, 16>(m_x, m_rk, i+3);
 		}
 		break;
 	}
