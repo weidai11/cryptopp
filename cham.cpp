@@ -16,7 +16,7 @@ using CryptoPP::word32;
 using CryptoPP::rotlConstant;
 
 template <unsigned int RR>
-inline word16 CHAM64_Round(word16 x[4], const word16 k[4], unsigned int kw, unsigned int i)
+inline word16 CHAM64_Round(const word16 x[4], const word16 k[], unsigned int kw, unsigned int i)
 {
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
@@ -33,7 +33,7 @@ inline word16 CHAM64_Round(word16 x[4], const word16 k[4], unsigned int kw, unsi
 }
 
 template <unsigned int RR>
-inline word32 CHAM128_Round(word32 x[4], const word32 k[4], unsigned int kw, unsigned int i)
+inline word32 CHAM128_Round(const word32 x[4], const word32 k[], unsigned int kw, unsigned int i)
 {
 	// RR is "round residue". The round function only cares about [0-3].
 	CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
@@ -144,7 +144,6 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 		m_x[2] = m_x[3];
 		m_x[3] = t;
 #endif
-
 		m_x[0] = CHAM128_Round<0>(m_x, m_key, m_kw, i);
 		m_x[1] = CHAM128_Round<1>(m_x, m_key, m_kw, i);
 		m_x[2] = CHAM128_Round<2>(m_x, m_key, m_kw, i);
