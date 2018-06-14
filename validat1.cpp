@@ -3389,7 +3389,7 @@ bool ValidateARIA()
 
 bool ValidateCHAM()
 {
-	std::cout << "\nCHAM validation suite running...\n\n";
+	std::cout << "\nCHAM validation suite running...\n";
 
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/cham.txt");
 }
