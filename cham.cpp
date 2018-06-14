@@ -20,36 +20,39 @@
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-using CryptoPP::word16;
-using CryptoPP::word32;
 using CryptoPP::rotlConstant;
+using CryptoPP::rotrConstant;
 
-template <unsigned int RR>
-inline void CHAM64_Round(word16 x[4], const word16 k[], unsigned int i)
+template <unsigned int RR, unsigned int KW, class T>
+inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 {
-    // RR is "round residue". The round function only cares about [0-3].
-    CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
-    CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
-    CRYPTOPP_CONSTANT(IDX4 = (RR+3) % 4)
-    CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
-    CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
+    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4)    // current
+    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4)    // current
+    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4)  // next
+    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 1 : 8)
+    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1)
 
-    x[IDX4] = static_cast<word16>(rotlConstant<R2>((x[IDX1] ^ i) +
-            ((rotlConstant<R1>(x[IDX2]) ^ k[i % 16]) & 0xFFFF)));
+    // Follows conventions in the paper
+    const T kk = static_cast<T>(k[i % KW]);
+    const T aa = static_cast<T>(x[IDX0] ^ i);
+    const T bb = rotlConstant<R1>(x[IDX1]) ^ kk;
+    x[IDX3] = rotlConstant<R2>(static_cast<T>(aa + bb));
 }
 
-template <unsigned int RR, unsigned int KW>
-inline void CHAM128_Round(word32 x[4], const word32 k[], unsigned int i)
+template <unsigned int RR, unsigned int KW, class T>
+inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
 {
-    // RR is "round residue". The round function only cares about [0-3].
-    CRYPTOPP_CONSTANT(IDX1 = (RR+0) % 4)
-    CRYPTOPP_CONSTANT(IDX2 = (RR+1) % 4)
-    CRYPTOPP_CONSTANT(IDX4 = (RR+3) % 4)
-    CRYPTOPP_CONSTANT(R1 = RR % 2 ? 1 : 8)
-    CRYPTOPP_CONSTANT(R2 = RR % 2 ? 8 : 1)
+    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4)    // current
+    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4)    // current
+    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4)  // next
+    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 1 : 8)
+    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1)
 
-    x[IDX4] = static_cast<word32>(rotlConstant<R2>((x[IDX1] ^ i) +
-            ((rotlConstant<R1>(x[IDX2]) ^ k[i % KW]) & 0xFFFFFFFF)));
+    // Follows conventions in the paper
+    const T kk = static_cast<T>(k[i % KW]);
+    const T aa = static_cast<T>(x[IDX3] ^ i);
+    const T bb = rotlConstant<R1>(x[IDX1]) ^ kk;
+    x[IDX0] = rotrConstant<R2>(static_cast<T>(aa - bb));
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -60,7 +63,6 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 {
     CRYPTOPP_UNUSED(params);
 
-    // Fix me... Is this correct?
     m_kw = keyLength/sizeof(word16);
     m_rk.New(2*m_kw);
 
@@ -68,7 +70,6 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
     {
         // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
         const word16 rk = GetWord<word16>(false, BIG_ENDIAN_ORDER, userKey);
-
         m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
@@ -84,12 +85,12 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     const unsigned int R = 80;
-    for (size_t i = 0; i < R; i+=4)
+    for (int i = 0; i < R; i+=4)
     {
-        CHAM64_Round<0>(m_x, m_rk, i+0);
-        CHAM64_Round<1>(m_x, m_rk, i+1);
-        CHAM64_Round<2>(m_x, m_rk, i+2);
-        CHAM64_Round<3>(m_x, m_rk, i+3);
+        CHAM_EncRound<0, 16>(m_x.begin(), m_rk.begin(), i+0);
+        CHAM_EncRound<1, 16>(m_x.begin(), m_rk.begin(), i+1);
+        CHAM_EncRound<2, 16>(m_x.begin(), m_rk.begin(), i+2);
+        CHAM_EncRound<3, 16>(m_x.begin(), m_rk.begin(), i+3);
     }
 
     PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
@@ -99,16 +100,26 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // TODO: implement decryption. You may need to add another round function for decryption.
-    std::memcpy(outBlock, inBlock, CHAM64::BLOCKSIZE);
-    if (xorBlock)
-        xorbuf(outBlock, xorBlock, CHAM64::BLOCKSIZE);
+    GetBlock<word16, BigEndian, false> iblock(inBlock);
+    iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
+
+    const unsigned int R = 80;
+    for (int i = R-1; i >=0 ; i-=4)
+    {
+        CHAM_DecRound<3, 16>(m_x.begin(), m_rk.begin(), i-0);
+        CHAM_DecRound<2, 16>(m_x.begin(), m_rk.begin(), i-1);
+        CHAM_DecRound<1, 16>(m_x.begin(), m_rk.begin(), i-2);
+        CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-3);
+    }
+
+    PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
+    oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
 void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
 
-    // Fix me... Is this correct?
     m_kw = keyLength/sizeof(word32);
     m_rk.New(2*m_kw);
 
@@ -116,7 +127,6 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     {
         // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
         const word32 rk = GetWord<word32>(false, BIG_ENDIAN_ORDER, userKey);
-
         m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
@@ -136,24 +146,24 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     case 4:  // 128-bit key
     {
         const unsigned int R = 80;
-        for (size_t i = 0; i < R; i+=4)
+        for (int i = 0; i < R; i+=4)
         {
-            CHAM128_Round<0, 8>(m_x, m_rk, i+0);
-            CHAM128_Round<1, 8>(m_x, m_rk, i+1);
-            CHAM128_Round<2, 8>(m_x, m_rk, i+2);
-            CHAM128_Round<3, 8>(m_x, m_rk, i+3);
+            CHAM_EncRound<0, 8>(m_x.begin(), m_rk.begin(), i+0);
+            CHAM_EncRound<1, 8>(m_x.begin(), m_rk.begin(), i+1);
+            CHAM_EncRound<2, 8>(m_x.begin(), m_rk.begin(), i+2);
+            CHAM_EncRound<3, 8>(m_x.begin(), m_rk.begin(), i+3);
         }
         break;
     }
     case 8:  // 256-bit key
     {
         const unsigned int R = 96;
-        for (size_t i = 0; i < R; i+=4)
+        for (int i = 0; i < R; i+=4)
         {
-            CHAM128_Round<0, 16>(m_x, m_rk, i+0);
-            CHAM128_Round<1, 16>(m_x, m_rk, i+1);
-            CHAM128_Round<2, 16>(m_x, m_rk, i+2);
-            CHAM128_Round<3, 16>(m_x, m_rk, i+3);
+            CHAM_EncRound<0, 16>(m_x.begin(), m_rk.begin(), i+0);
+            CHAM_EncRound<1, 16>(m_x.begin(), m_rk.begin(), i+1);
+            CHAM_EncRound<2, 16>(m_x.begin(), m_rk.begin(), i+2);
+            CHAM_EncRound<3, 16>(m_x.begin(), m_rk.begin(), i+3);
         }
         break;
     }
@@ -168,9 +178,41 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // TODO: implement decryption. You may need to add another round function for decryption.
-    std::memcpy(outBlock, inBlock, CHAM128::BLOCKSIZE);
-    if (xorBlock)
-        xorbuf(outBlock, xorBlock, CHAM128::BLOCKSIZE);
+    GetBlock<word32, BigEndian, false> iblock(inBlock);
+    iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
+
+    switch (m_kw)
+    {
+    case 4:  // 128-bit key
+    {
+        const unsigned int R = 80;
+        for (int i = R-1; i >= 0; i-=4)
+        {
+            CHAM_DecRound<3, 8>(m_x.begin(), m_rk.begin(), i-0);
+            CHAM_DecRound<2, 8>(m_x.begin(), m_rk.begin(), i-1);
+            CHAM_DecRound<1, 8>(m_x.begin(), m_rk.begin(), i-2);
+            CHAM_DecRound<0, 8>(m_x.begin(), m_rk.begin(), i-3);
+        }
+        break;
+    }
+    case 8:  // 256-bit key
+    {
+        const unsigned int R = 96;
+        for (int i = R-1; i >= 0; i-=4)
+        {
+            CHAM_DecRound<3, 16>(m_x.begin(), m_rk.begin(), i-0);
+            CHAM_DecRound<2, 16>(m_x.begin(), m_rk.begin(), i-1);
+            CHAM_DecRound<1, 16>(m_x.begin(), m_rk.begin(), i-2);
+            CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-3);
+        }
+        break;
+    }
+    default:
+        CRYPTOPP_ASSERT(0);;
+    }
+
+    PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
+    oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
 NAMESPACE_END

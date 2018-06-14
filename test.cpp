@@ -186,7 +186,7 @@ int scoped_main(int argc, char *argv[])
 		dec.SetKey(key, sizeof(key));
 
 		std::memcpy(t, ct, 8);
-		enc.ProcessString(t, 8);
+		dec.ProcessString(t, 8);
 
 		std::cout << "Recovered text: " << std::endl;
 		StringSource(t, sizeof(t), true, new HexEncoder(new FileSink(std::cout)));
