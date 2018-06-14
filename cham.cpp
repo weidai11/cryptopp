@@ -81,12 +81,16 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     const unsigned int R = 80;
-    for (int i = 0; i < R; i+=4)
+    for (int i = 0; i < R; i+=8)
     {
         CHAM_EncRound<0, 16>(m_x.begin(), m_rk.begin(), i+0);
         CHAM_EncRound<1, 16>(m_x.begin(), m_rk.begin(), i+1);
         CHAM_EncRound<2, 16>(m_x.begin(), m_rk.begin(), i+2);
         CHAM_EncRound<3, 16>(m_x.begin(), m_rk.begin(), i+3);
+        CHAM_EncRound<4, 16>(m_x.begin(), m_rk.begin(), i+4);
+        CHAM_EncRound<5, 16>(m_x.begin(), m_rk.begin(), i+5);
+        CHAM_EncRound<6, 16>(m_x.begin(), m_rk.begin(), i+6);
+        CHAM_EncRound<7, 16>(m_x.begin(), m_rk.begin(), i+7);
     }
 
     PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
@@ -99,12 +103,16 @@ void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     const unsigned int R = 80;
-    for (int i = R-1; i >=0 ; i-=4)
+    for (int i = R-1; i >=0 ; i-=8)
     {
-        CHAM_DecRound<3, 16>(m_x.begin(), m_rk.begin(), i-0);
-        CHAM_DecRound<2, 16>(m_x.begin(), m_rk.begin(), i-1);
-        CHAM_DecRound<1, 16>(m_x.begin(), m_rk.begin(), i-2);
-        CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-3);
+        CHAM_DecRound<7, 16>(m_x.begin(), m_rk.begin(), i-0);
+        CHAM_DecRound<6, 16>(m_x.begin(), m_rk.begin(), i-1);
+        CHAM_DecRound<5, 16>(m_x.begin(), m_rk.begin(), i-2);
+        CHAM_DecRound<4, 16>(m_x.begin(), m_rk.begin(), i-3);
+        CHAM_DecRound<3, 16>(m_x.begin(), m_rk.begin(), i-4);
+        CHAM_DecRound<2, 16>(m_x.begin(), m_rk.begin(), i-5);
+        CHAM_DecRound<1, 16>(m_x.begin(), m_rk.begin(), i-6);
+        CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-7);
     }
 
     PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
@@ -137,24 +145,32 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     case 4:  // 128-bit key
     {
         const unsigned int R = 80;
-        for (int i = 0; i < R; i+=4)
+        for (int i = 0; i < R; i+=8)
         {
             CHAM_EncRound<0, 8>(m_x.begin(), m_rk.begin(), i+0);
             CHAM_EncRound<1, 8>(m_x.begin(), m_rk.begin(), i+1);
             CHAM_EncRound<2, 8>(m_x.begin(), m_rk.begin(), i+2);
             CHAM_EncRound<3, 8>(m_x.begin(), m_rk.begin(), i+3);
+            CHAM_EncRound<4, 8>(m_x.begin(), m_rk.begin(), i+4);
+            CHAM_EncRound<5, 8>(m_x.begin(), m_rk.begin(), i+5);
+            CHAM_EncRound<6, 8>(m_x.begin(), m_rk.begin(), i+6);
+            CHAM_EncRound<7, 8>(m_x.begin(), m_rk.begin(), i+7);
         }
         break;
     }
     case 8:  // 256-bit key
     {
         const unsigned int R = 96;
-        for (int i = 0; i < R; i+=4)
+        for (int i = 0; i < R; i+=8)
         {
             CHAM_EncRound<0, 16>(m_x.begin(), m_rk.begin(), i+0);
             CHAM_EncRound<1, 16>(m_x.begin(), m_rk.begin(), i+1);
             CHAM_EncRound<2, 16>(m_x.begin(), m_rk.begin(), i+2);
             CHAM_EncRound<3, 16>(m_x.begin(), m_rk.begin(), i+3);
+            CHAM_EncRound<4, 16>(m_x.begin(), m_rk.begin(), i+4);
+            CHAM_EncRound<5, 16>(m_x.begin(), m_rk.begin(), i+5);
+            CHAM_EncRound<6, 16>(m_x.begin(), m_rk.begin(), i+6);
+            CHAM_EncRound<7, 16>(m_x.begin(), m_rk.begin(), i+7);
         }
         break;
     }
@@ -176,24 +192,32 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     case 4:  // 128-bit key
     {
         const unsigned int R = 80;
-        for (int i = R-1; i >= 0; i-=4)
+        for (int i = R-1; i >= 0; i-=8)
         {
-            CHAM_DecRound<3, 8>(m_x.begin(), m_rk.begin(), i-0);
-            CHAM_DecRound<2, 8>(m_x.begin(), m_rk.begin(), i-1);
-            CHAM_DecRound<1, 8>(m_x.begin(), m_rk.begin(), i-2);
-            CHAM_DecRound<0, 8>(m_x.begin(), m_rk.begin(), i-3);
+            CHAM_DecRound<7, 8>(m_x.begin(), m_rk.begin(), i-0);
+            CHAM_DecRound<6, 8>(m_x.begin(), m_rk.begin(), i-1);
+            CHAM_DecRound<5, 8>(m_x.begin(), m_rk.begin(), i-2);
+            CHAM_DecRound<4, 8>(m_x.begin(), m_rk.begin(), i-3);
+            CHAM_DecRound<3, 8>(m_x.begin(), m_rk.begin(), i-4);
+            CHAM_DecRound<2, 8>(m_x.begin(), m_rk.begin(), i-5);
+            CHAM_DecRound<1, 8>(m_x.begin(), m_rk.begin(), i-6);
+            CHAM_DecRound<0, 8>(m_x.begin(), m_rk.begin(), i-7);
         }
         break;
     }
     case 8:  // 256-bit key
     {
         const unsigned int R = 96;
-        for (int i = R-1; i >= 0; i-=4)
+        for (int i = R-1; i >= 0; i-=8)
         {
-            CHAM_DecRound<3, 16>(m_x.begin(), m_rk.begin(), i-0);
-            CHAM_DecRound<2, 16>(m_x.begin(), m_rk.begin(), i-1);
-            CHAM_DecRound<1, 16>(m_x.begin(), m_rk.begin(), i-2);
-            CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-3);
+            CHAM_DecRound<7, 16>(m_x.begin(), m_rk.begin(), i-0);
+            CHAM_DecRound<6, 16>(m_x.begin(), m_rk.begin(), i-1);
+            CHAM_DecRound<5, 16>(m_x.begin(), m_rk.begin(), i-2);
+            CHAM_DecRound<4, 16>(m_x.begin(), m_rk.begin(), i-3);
+            CHAM_DecRound<3, 16>(m_x.begin(), m_rk.begin(), i-4);
+            CHAM_DecRound<2, 16>(m_x.begin(), m_rk.begin(), i-5);
+            CHAM_DecRound<1, 16>(m_x.begin(), m_rk.begin(), i-6);
+            CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-7);
         }
         break;
     }
