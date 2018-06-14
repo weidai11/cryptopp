@@ -32,6 +32,7 @@ Test: TestVectors/threefish.txt
 Test: TestVectors/sm4.txt
 Test: TestVectors/simon.txt
 Test: TestVectors/speck.txt
+Test: TestVectors/cham.txt
 Test: TestVectors/salsa.txt
 Test: TestVectors/chacha.txt
 #Test: TestVectors/tls_chacha.txt
