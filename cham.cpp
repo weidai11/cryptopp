@@ -26,13 +26,13 @@ using CryptoPP::rotrConstant;
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 {
-    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4)    // current
-    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4)    // current
-    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4)  // next
+    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4)
+    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4)
+    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4)
     CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 1 : 8)
     CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1)
 
-    // Follows conventions in the paper
+    // Follows conventions in the ref impl
     const T kk = static_cast<T>(k[i % KW]);
     const T aa = static_cast<T>(x[IDX0] ^ i);
     const T bb = rotlConstant<R1>(x[IDX1]) ^ kk;
@@ -42,17 +42,17 @@ inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
 {
-    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4)    // current
-    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4)    // current
-    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4)  // next
-    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 1 : 8)
-    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1)
+    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4)
+    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4)
+    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4)
+    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 8 : 1)
+    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 1 : 8)
 
-    // Follows conventions in the paper
+    // Follows conventions in the ref impl
     const T kk = static_cast<T>(k[i % KW]);
-    const T aa = static_cast<T>(x[IDX3] ^ i);
-    const T bb = rotlConstant<R1>(x[IDX1]) ^ kk;
-    x[IDX0] = rotrConstant<R2>(static_cast<T>(aa - bb));
+    const T aa = rotrConstant<R1>(x[IDX3]);
+    const T bb = rotlConstant<R2>(x[IDX1]) ^ kk;
+    x[IDX0] = static_cast<T>((aa - bb) ^ i);
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -73,10 +73,6 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
         m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
-
-    //for (size_t i = 0; i < m_rk.size(); ++i)
-    //    printf("%04hx\n", m_rk[i]);
-    //printf("\n");
 }
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -99,7 +95,6 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 
 void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-    // TODO: implement decryption. You may need to add another round function for decryption.
     GetBlock<word16, BigEndian, false> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
@@ -130,10 +125,6 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         m_rk[i] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<8>(rk);
         m_rk[(i + m_kw) ^ 1] = rk ^ rotlConstant<1>(rk) ^ rotlConstant<11>(rk);
     }
-
-    //for (size_t i = 0; i < m_rk.size(); ++i)
-    //    printf("%08x\n", m_rk[i]);
-    //printf("\n");
 }
 
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -177,7 +168,6 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-    // TODO: implement decryption. You may need to add another round function for decryption.
     GetBlock<word32, BigEndian, false> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
