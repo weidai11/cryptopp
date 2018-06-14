@@ -367,11 +367,12 @@ int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk
 /// \brief Generate a keypair for signing
 /// \param pk public key byte buffer
 /// \param sk private key byte buffer
+/// \param rnd_sk generate random private key
 /// \details crypto_sign_keypair() creates an ed25519 keypair.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 6.0
-int crypto_sign_keypair(byte *pk, byte *sk);
+int crypto_sign_keypair(byte *pk, byte *sk, const bool rnd_sk = true);
 
 /// \brief Produce a keystream using XSalsa20
 /// \details crypto_stream() uses crypto_stream_xsalsa20
