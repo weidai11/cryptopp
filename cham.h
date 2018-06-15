@@ -18,7 +18,6 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief CHAM block cipher information
-/// \tparam BS block size of the cipher, in bytes
 /// \since Crypto++ 7.1
 struct CHAM64_Info : public FixedBlockSize<8>, FixedKeyLength<16>
 {
@@ -30,7 +29,6 @@ struct CHAM64_Info : public FixedBlockSize<8>, FixedKeyLength<16>
 };
 
 /// \brief CHAM block cipher information
-/// \tparam BS block size of the cipher, in bytes
 /// \since Crypto++ 7.1
 struct CHAM128_Info : public FixedBlockSize<16>, VariableKeyLength<16,16,32,16>
 {
