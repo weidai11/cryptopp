@@ -1,4 +1,4 @@
-﻿// cham.h - written and placed in the public domain by Kim Sung Hee and Jeffrey Walton
+// cham.h - written and placed in the public domain by Kim Sung Hee and Jeffrey Walton
 //          Based on "CHAM: A Family of Lightweight Block Ciphers for
 //          Resource-Constrained Devices" by Bonwook Koo, Dongyoung Roh,
 //          Hyeonjin Kim, Younghoon Jung, Dong-Geon Lee, and Daesung Kwon
