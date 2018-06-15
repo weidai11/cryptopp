@@ -52,7 +52,7 @@ inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
     const T kk = k[i % KW];
     const T aa = rotrConstant<R1>(x[IDX3]);
     const T bb = rotlConstant<R2>(x[IDX1]) ^ kk;
-    x[IDX0] = (aa - bb) ^ static_cast<T>(i);
+    x[IDX0] = static_cast<T>(aa - bb) ^ static_cast<T>(i);
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -62,7 +62,6 @@ NAMESPACE_BEGIN(CryptoPP)
 void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
-
     m_kw = keyLength/sizeof(word16);
     m_rk.New(2*m_kw);
 
@@ -77,7 +76,7 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-    GetBlock<word16, BigEndian, false> iblock(inBlock);
+    GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     const unsigned int R = 80;
@@ -93,13 +92,13 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
         CHAM_EncRound<7, 16>(m_x.begin(), m_rk.begin(), i+7);
     }
 
-    PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
+    PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
 void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-    GetBlock<word16, BigEndian, false> iblock(inBlock);
+    GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     const unsigned int R = 80;
@@ -115,14 +114,13 @@ void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
         CHAM_DecRound<0, 16>(m_x.begin(), m_rk.begin(), i-7);
     }
 
-    PutBlock<word16, BigEndian, false> oblock(xorBlock, outBlock);
+    PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
 void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
-
     m_kw = keyLength/sizeof(word32);
     m_rk.New(2*m_kw);
 
@@ -137,7 +135,7 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-    GetBlock<word32, BigEndian, false> iblock(inBlock);
+    GetBlock<word32, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     switch (m_kw)
@@ -178,13 +176,13 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         CRYPTOPP_ASSERT(0);;
     }
 
-    PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
+    PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-    GetBlock<word32, BigEndian, false> iblock(inBlock);
+    GetBlock<word32, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
     switch (m_kw)
@@ -225,7 +223,7 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         CRYPTOPP_ASSERT(0);;
     }
 
-    PutBlock<word32, BigEndian, false> oblock(xorBlock, outBlock);
+    PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 

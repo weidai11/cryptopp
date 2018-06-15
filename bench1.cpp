@@ -592,7 +592,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Threefish-1024(1024)/CTR", 128);
 		BenchMarkByName<SymmetricCipher>("Serpent/CTR");
 		BenchMarkByName<SymmetricCipher>("CAST-128/CTR");
-		BenchMarkByName<SymmetricCipher>("CAST-256/CTR");
+		BenchMarkByName<SymmetricCipher>("CAST-256/CTR", 32);
 		BenchMarkByName<SymmetricCipher>("RC6/CTR");
 		BenchMarkByName<SymmetricCipher>("MARS/CTR");
 		BenchMarkByName<SymmetricCipher>("SHACAL-2/CTR", 16);
@@ -614,7 +614,10 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Kalyna-256/CTR", 32, "Kalyna-256(256)/CTR (256-bit key)");
 		BenchMarkByName<SymmetricCipher>("Kalyna-256/CTR", 64, "Kalyna-256(512)/CTR (512-bit key)");
 		BenchMarkByName<SymmetricCipher>("Kalyna-512/CTR", 64, "Kalyna-512(512)/CTR (512-bit key)");
+	}
 
+	std::cout << "\n<TBODY style=\"background: yellow;\">";
+	{
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 12, "SIMON-64(96)/CTR (96-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 16, "SIMON-64(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-128/CTR", 16, "SIMON-128(128)/CTR (128-bit key)");
@@ -632,7 +635,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 32, "CHAM-128(256)/CTR (256-bit key)");
 	}
 
-	std::cout << "\n<TBODY style=\"background: yellow;\">";
+	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 #if CRYPTOPP_AESNI_AVAILABLE
 		if (HasCLMUL())
