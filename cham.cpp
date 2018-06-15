@@ -33,8 +33,8 @@ inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
     CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1)
 
     // Follows conventions in the ref impl
-    const T kk = static_cast<T>(k[i % KW]);
-    const T aa = static_cast<T>(x[IDX0] ^ i);
+    const T kk = k[i % KW];
+    const T aa = x[IDX0] ^ static_cast<T>(i);
     const T bb = rotlConstant<R1>(x[IDX1]) ^ kk;
     x[IDX3] = rotlConstant<R2>(static_cast<T>(aa + bb));
 }
@@ -49,10 +49,10 @@ inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
     CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 1 : 8)
 
     // Follows conventions in the ref impl
-    const T kk = static_cast<T>(k[i % KW]);
+    const T kk = k[i % KW];
     const T aa = rotrConstant<R1>(x[IDX3]);
     const T bb = rotlConstant<R2>(x[IDX1]) ^ kk;
-    x[IDX0] = static_cast<T>((aa - bb) ^ i);
+    x[IDX0] = (aa - bb) ^ static_cast<T>(i);
 }
 
 ANONYMOUS_NAMESPACE_END
