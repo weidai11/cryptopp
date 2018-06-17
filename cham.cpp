@@ -24,9 +24,12 @@ using CryptoPP::rotlConstant;
 using CryptoPP::rotrConstant;
 
 /// \brief CHAM encryption round
-/// \tparam RR the round number
+/// \tparam RR the round number residue
 /// \tparam KW the number of key words
 /// \tparam T words type
+/// \param x the state array
+/// \param k the subkey table
+/// \param i the round number
 /// \details CHAM_EncRound applies the encryption round to the plain text.
 ///  RR is the "round residue" and it is used modulo 4. ProcessAndXorBlock
 ///  may provide a fully unrolled encryption transformation, or provide
@@ -34,6 +37,10 @@ using CryptoPP::rotrConstant;
 /// \details CHAM_EncRound calculates indexes into the x[] array based
 ///  on the round number residue. There is no need for the assignments
 ///  that shift values in preparations for the next round.
+/// \details CHAM_EncRound depends on the round number. The actual round
+///  being executed is passed through the parameter <tt>i</tt>. If
+///  ProcessAndXorBlock fully unrolled the loop then the parameter
+///  <tt>i</tt> would be unnecessary.
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 {
@@ -51,16 +58,23 @@ inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 }
 
 /// \brief CHAM decryption round
-/// \tparam RR the round number
+/// \tparam RR the round number residue
 /// \tparam KW the number of key words
 /// \tparam T words type
+/// \param x the state array
+/// \param k the subkey table
+/// \param i the round number
 /// \details CHAM_DecRound applies the decryption round to the cipher text.
 ///  RR is the "round residue" and it is used modulo 4. ProcessAndXorBlock
 ///  may provide a fully unrolled decryption transformation, or provide
 ///  a transformation that loops using multiples of 4 decryption rounds.
-/// \details CHAM_EncRound calculates indexes into the x[] array based
+/// \details CHAM_DecRound calculates indexes into the x[] array based
 ///  on the round number residue. There is no need for the assignments
 ///  that shift values in preparations for the next round.
+/// \details CHAM_DecRound depends on the round number. The actual round
+///  being executed is passed through the parameter <tt>i</tt>. If
+///  ProcessAndXorBlock fully unrolled the loop then the parameter
+///  <tt>i</tt> would be unnecessary.
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
 {
