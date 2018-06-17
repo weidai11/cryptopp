@@ -23,6 +23,17 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::rotlConstant;
 using CryptoPP::rotrConstant;
 
+/// \brief CHAM encryption round
+/// \tparam RR the round number
+/// \tparam KW the number of key words
+/// \tparam T words type
+/// \details CHAM_EncRound applies the encryption round to the plain text.
+///  RR is the "round residue" and it is used modulo 4. ProcessAndXorBlock
+///  may provide a fully unrolled encryption transformation, or provide
+///  a transformation that loops using multiples of 4 encryption rounds.
+/// \details CHAM_EncRound calculates indexes into the x[] array based
+///  on the round number residue. There is no need for the assignments
+///  that shift values in preparations for the next round.
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 {
@@ -39,6 +50,17 @@ inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
     x[IDX3] = rotlConstant<R2>(static_cast<T>(aa + bb));
 }
 
+/// \brief CHAM decryption round
+/// \tparam RR the round number
+/// \tparam KW the number of key words
+/// \tparam T words type
+/// \details CHAM_DecRound applies the decryption round to the cipher text.
+///  RR is the "round residue" and it is used modulo 4. ProcessAndXorBlock
+///  may provide a fully unrolled decryption transformation, or provide
+///  a transformation that loops using multiples of 4 decryption rounds.
+/// \details CHAM_EncRound calculates indexes into the x[] array based
+///  on the round number residue. There is no need for the assignments
+///  that shift values in preparations for the next round.
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
 {
@@ -76,6 +98,7 @@ void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, 
 
 void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+    // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
     GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
@@ -98,6 +121,7 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 
 void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+    // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
     GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
@@ -135,6 +159,7 @@ void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 
 void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+    // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
     GetBlock<word32, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
@@ -182,6 +207,7 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
+    // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
     GetBlock<word32, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
