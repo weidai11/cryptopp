@@ -616,6 +616,12 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Kalyna-512/CTR", 64, "Kalyna-512(512)/CTR (512-bit key)");
 	}
 
+	std::cout << "\n<TBODY style=\"background: yellow;\">";
+	{
+		BenchMarkByName<SymmetricCipher>("CHAM-64/CTR", 16, "CHAM-64(128)/CTR (128-bit key)");
+		BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 16, "CHAM-128(128)/CTR (128-bit key)");
+		BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 32, "CHAM-128(256)/CTR (256-bit key)");
+
 		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 16, "LEA-128(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 24, "LEA-128(192)/CTR (192-bit key)");
 		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 32, "LEA-128(256)/CTR (256-bit key)");
@@ -631,10 +637,6 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 16, "SPECK-128(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 24, "SPECK-128(192)/CTR (192-bit key)");
 		BenchMarkByName<SymmetricCipher>("SPECK-128/CTR", 32, "SPECK-128(256)/CTR (256-bit key)");
-
-		BenchMarkByName<SymmetricCipher>("CHAM-64/CTR", 16, "CHAM-64(128)/CTR (128-bit key)");
-		BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 16, "CHAM-128(128)/CTR (128-bit key)");
-		BenchMarkByName<SymmetricCipher>("CHAM-128/CTR", 32, "CHAM-128(256)/CTR (256-bit key)");
 	}
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
