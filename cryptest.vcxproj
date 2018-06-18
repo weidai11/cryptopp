@@ -232,6 +232,7 @@
     <None Include="TestVectors\camellia.txt" />
     <None Include="TestVectors\ccm.txt" />
     <None Include="TestVectors\chacha.txt" />
+    <None Include="TestVectors\cham.txt" />
     <None Include="TestVectors\cmac.txt" />
     <None Include="TestVectors\dlies.txt" />
     <None Include="TestVectors\dsa.txt" />

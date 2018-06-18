@@ -49,6 +49,8 @@ ccm.cpp
 ccm.h
 chacha.cpp
 chacha.h
+cham.cpp
+cham.h
 channels.cpp
 channels.h
 cmac.cpp
@@ -436,6 +438,7 @@ TestVectors/blake2b.txt
 TestVectors/blake2s.txt
 TestVectors/aria.txt
 TestVectors/camellia.txt
+TestVectors/cham.txt
 TestVectors/ccm.txt
 TestVectors/chacha.txt
 TestVectors/cmac.txt

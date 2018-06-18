@@ -1,0 +1,215 @@
+AlgorithmType: SymmetricCipher
+Name: CHAM-64/ECB
+#
+Source: CHAM paper, Appendix A, test vector 1
+Comment: CHAM-64/ECB, 128-bit key
+Key: 0100 0302 0504 0706 0908 0b0a 0d0c 0f0e
+Plaintext: 1100 3322 5544 7766
+Ciphertext: 453c 63bc dcfa bf4e
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: 0277 0a9e a270 1fed 460c c269 9163 e519
+Plaintext: 704a 4e91 eb9b 688d
+Ciphertext: ceda d4dc 00e3 800d
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: 24cd a3e2 c167 92f3 40b6 0017 cabc 07c4
+Plaintext: 115a 31e5 ee65 87f7
+Ciphertext: e1af b96f 3079 4233
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: 0914 eef6 827c 21b9 c697 05ce b28b 7dd5
+Plaintext: e722 2e2b 0f2c ee49
+Ciphertext: 280d 763b 931b da81
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: 2fa2 fb02 1cd5 9124 ee27 1ec9 7307 6a13
+Plaintext: 9fc0 8c64 f9f9 8163
+Ciphertext: 0277 8604 1b15 8cb9
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: 6035 af8d 6d97 6a47 1bc9 cb88 1a4a f2aa
+Plaintext: 657b 5980 aad8 468b
+Ciphertext: 5684 2bf7 606d 67f8
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: be3a cf23 eda6 9014 023e 098b 37c3 9b9e
+Plaintext: ff83 911e 2f35 84a5
+Ciphertext: 9263 2bf9 9819 783a
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: ffde 8a15 21c5 fb5e b6b1 1ec9 05aa c629
+Plaintext: 7802 c7a5 d52f 1868
+Ciphertext: f810 fad0 80f0 19bd
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: fc25 b83f 5058 9cb6 fe7a 5d6c 1635 5cfd
+Plaintext: 1ab2 1791 a5d3 05aa
+Ciphertext: e733 fd94 c357 d36c
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-64/ECB, 128-bit key
+Key: fae3 5e23 e357 3e33 4468 c725 80e5 4a6e
+Plaintext: 5dc5 c55f 6b8d 31e2
+Ciphertext: 5bc2 2475 f93f 6cc8
+Test: Encrypt
+
+AlgorithmType: SymmetricCipher
+Name: CHAM-128/ECB
+#
+Source: CHAM paper, Appendix A, test vector 2
+Comment: CHAM-128/ECB, 128-bit key
+Key: 03020100 07060504 0b0a0908 0f0e0d0c
+Plaintext: 33221100 77665544 bbaa9988 ffeeddcc
+Ciphertext: c3746034 b55700c5 8d64ec32 489332f7
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: a37beb01 15c49898 906f6f1c 73f68cf3
+Plaintext: 463e4b34 efe3faa8 d8b74450 967f34d1
+Ciphertext: 30269e99 4d70c5de 7b0bc631 a96a1458
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: ad97ae34 49a65961 46872c23 08a85a00
+Plaintext: 7c241f66 85111245 83d76a6f 8498946b
+Ciphertext: 633b6cb9 00b390d8 d1bb84cb d84b9ccf
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: 012ddb51 d216a550 3b1632f3 69930aac
+Plaintext: 440a7ce0 23b8499f 991482fd e6069cbe
+Ciphertext: b2b21944 81c5becf 091d3c08 ee6d1749
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: dfd8192b cab7764c 12632c23 95c96b55
+Plaintext: a72c2040 1e652249 6ceb83be d90a2816
+Ciphertext: 0416aae7 302a5219 cd20a3b8 6d879c22
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: c3fe465e dff5a38c 308bcf68 a6d45ba7
+Plaintext: 91167a4b b9641eb2 15195841 f3301521
+Ciphertext: 36d1dd06 e42c583d 9aea8e58 08ee2f3b
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: e7365921 729a2e4b 5e9e2d42 6b53c079
+Plaintext: 9fd5fb98 d2de3459 42cf3edb 2104e849
+Ciphertext: 60f3dd59 406e579e e45a2191 526c5693
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: b880a315 e410aa2d 9d8686e4 ac033a6e
+Plaintext: 05251c25 354ded83 67d50c4c 4a73b66f
+Ciphertext: e3f879f5 8b41baf8 8b458da7 04343a03
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: f0cb7d27 58d7ac44 937b882d 526fb9f8
+Plaintext: 088ede84 315ef415 2e2e22b1 8b45e765
+Ciphertext: 4ff2532c 66a12b2e 869f476e aab2d53f
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 128-bit key
+Key: 28b841b2 9a5e552c e02170c8 fee72a87
+Plaintext: 0fc61c4c fa1db413 9d007659 39df2ba9
+Ciphertext: 6fd504e7 091aca2e 32c88718 3e40b4a4
+Test: Encrypt
+#
+Source: CHAM paper, Appendix A, test vector 3
+Comment: CHAM-128/ECB, 256-bit key
+Key: 03020100 07060504 0b0a0908 0f0e0d0c f3f2f1f0 f7f6f5f4 fbfaf9f8 fffefdfc
+Plaintext: 33221100 77665544 bbaa9988 ffeeddcc
+Ciphertext: a899c8a0 c929d55c ab670d38 0c4f7ac8
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: 4031c291 53a38799 8e0a6bad 6098a6c4 e4a852f8 7daf676e 873c3524 e1527db8
+Plaintext: aac76bc0 ec99e00e 9648a939 1a37c8db
+Ciphertext: c993c682 1545b60c 456af36c b97628e7
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: 0c7be271 0ee365ff 061b8e43 5dbc63e3 52a08866 634223c9 8f4bcc4f a1223aee
+Plaintext: 49eec4dd eb938769 a359a6bf f69353a9
+Ciphertext: 6252cf6f 6524f0ed 0b3a272a 33827bb4
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: 90c69c18 8fcac90f 7c061078 036f3279 5676641c 40358d9f d74867ca 5debd8fa
+Plaintext: c27e5d18 985bd57e 25b7164e 5acb6ceb
+Ciphertext: c7c15e12 2287fd3d 45875c14 629a042c
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: f7bae93e 170bbccd 42a1d993 a6247a9c ae609194 075045fc 95b22ad9 59e16c9c
+Plaintext: 87cc88e7 9f159afe b2e8967b ff1ddd8b
+Ciphertext: 0887e541 4b68e67f a46d19ff 948290b6
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: 15747f3e 359c8462 151d0e6d f06abade 06f246e1 c817332b 1fa9102a 52263db4
+Plaintext: 5c11eab6 3fa257df 7da90d0e 1bf46991
+Ciphertext: 3cabb22e 79c7ad8e d502abf8 74e7d3bf
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: 4c70d578 34042fbd 8f4b7c40 89ac864e 1dee8bac 4093f375 308aa073 655098f1
+Plaintext: 68c7097e ab6c6043 87d2bc67 41dece87
+Ciphertext: 362a9742 dd8238a8 d916409a 4a3c11a1
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: 073359a0 5e54c5f8 882ef21f 01be08d5 7d5c5b87 533059a5 204e2bcd 5652dfc5
+Plaintext: ef94e8fb 7bf2aa7c ac73ef0a 294ad1f8
+Ciphertext: 5914594d db44ba25 ac0bfc05 1b92a9fe
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: dc359e46 f5516d84 89885aee 191494fe 25350de0 69275496 1531e563 59f9e0ee
+Plaintext: d1c5fbd0 7d1e85fc 7922d741 6a5a44dc
+Ciphertext: bbe95a67 06b38ff2 898dfda8 41fe29c7
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: CHAM-128/ECB, 256-bit key
+Key: faf3682d cf6e656c 53bd8c06 de0f7f71 678c5a2d 34624762 d88daf37 21d5ad6c
+Plaintext: 55b32441 7a787fbc 41b91ab2 9a5bf734
+Ciphertext: 2a7dab0b 6769e989 61578998 7e4be9a7
+Test: Encrypt
