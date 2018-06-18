@@ -239,6 +239,7 @@
     <ClCompile Include="kalyna.cpp" />
     <ClCompile Include="kalynatab.cpp" />
     <ClCompile Include="keccak.cpp" />
+    <ClCompile Include="lea.cpp" />
     <ClCompile Include="luc.cpp" />
     <ClCompile Include="mars.cpp" />
     <ClCompile Include="marss.cpp" />
@@ -428,6 +429,7 @@
     <ClInclude Include="kalyna.h" />
     <ClInclude Include="keccak.h" />
     <ClInclude Include="lubyrack.h" />
+    <ClInclude Include="lea.h" />
     <ClInclude Include="luc.h" />
     <ClInclude Include="mars.h" />
     <ClInclude Include="md2.h" />

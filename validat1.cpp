@@ -42,6 +42,7 @@
 #include "shacal2.h"
 #include "camellia.h"
 #include "aria.h"
+#include "lea.h"
 #include "osrng.h"
 #include "drbg.h"
 #include "rdrand.h"
@@ -170,6 +171,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSerpent() && pass;
 	pass=ValidateSHACAL2() && pass;
 	pass=ValidateARIA() && pass;
+	pass=ValidateLEA() && pass;
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;
@@ -3384,6 +3386,13 @@ bool ValidateARIA()
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(24), valdata, 15) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(32), valdata, 15) && pass3;
 	return pass1 && pass2 && pass3;
+}
+
+bool ValidateLEA()
+{
+	std::cout << "\nLEA validation suite running...\n";
+
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/lea.txt");
 }
 
 bool ValidateCamellia()

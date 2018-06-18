@@ -242,6 +242,7 @@
     <None Include="TestVectors\gcm.txt" />
     <None Include="TestVectors\hkdf.txt" />
     <None Include="TestVectors\hmac.txt" />
+    <None Include="TestVectors\lea.txt" />
     <None Include="TestVectors\kalyna.txt" />
     <None Include="TestVectors\mars.txt" />
     <None Include="TestVectors\nr.txt" />

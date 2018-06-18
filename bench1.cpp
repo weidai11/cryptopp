@@ -615,6 +615,10 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Kalyna-256/CTR", 64, "Kalyna-256(512)/CTR (512-bit key)");
 		BenchMarkByName<SymmetricCipher>("Kalyna-512/CTR", 64, "Kalyna-512(512)/CTR (512-bit key)");
 
+		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 16, "LEA-128(128)/CTR (128-bit key)");
+		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 24, "LEA-128(192)/CTR (192-bit key)");
+		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 32, "LEA-128(256)/CTR (256-bit key)");
+
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 12, "SIMON-64(96)/CTR (96-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 16, "SIMON-64(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-128/CTR", 16, "SIMON-128(128)/CTR (128-bit key)");

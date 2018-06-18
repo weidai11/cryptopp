@@ -160,6 +160,8 @@ kalyna.h
 keccak.cpp
 keccak.h
 lubyrack.h
+lea.cpp
+lea.h
 luc.cpp
 luc.h
 mars.cpp
@@ -447,6 +449,7 @@ TestVectors/hkdf.txt
 TestVectors/hmac.txt
 TestVectors/kalyna.txt
 TestVectors/keccak.txt
+TestVectors/lea.txt
 TestVectors/mars.txt
 TestVectors/nr.txt
 TestVectors/panama.txt

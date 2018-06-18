@@ -83,6 +83,9 @@
     <None Include="TestVectors\kalyna.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\lea.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\mars.txt">
       <Filter>TestVectors</Filter>
     </None>
