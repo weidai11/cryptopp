@@ -380,8 +380,8 @@ bool TestSettings()
 
 	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41;
 	std::cout << ", hasSSE4.2 == " << hasSSE42 << ", hasAVX == " << hasAVX << ", hasAVX2 == " << hasAVX2;
-	std::cout << ", hasAESNI == " << hasAESNI << ", hasCLMUL == " << hasCLMUL << ", hasRDRAND == " << HasRDRAND;
-	std::cout << ", hasRDSEED == " << HasRDSEED << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4;
+	std::cout << ", hasAESNI == " << hasAESNI << ", hasCLMUL == " << hasCLMUL << ", hasRDRAND == " << hasRDRAND;
+	std::cout << ", hasRDSEED == " << hasRDSEED << ", hasSHA == " << hasSHA << ", isP4 == " << isP4;
 	std::cout << "\n";
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
