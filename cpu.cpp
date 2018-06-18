@@ -21,6 +21,14 @@
 # include <unistd.h>
 #endif
 
+//#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
+//# if defined(_MSC_VER)
+//#  include <intrin.h>
+//# else
+//#  include <immintrin.h>
+//# endif
+//#endif
+
 // Capability queries, requires Glibc 2.16, http://lwn.net/Articles/519085/
 // CRYPTOPP_GLIBC_VERSION not used because config.h is missing <feature.h>
 #if (((__GLIBC__ * 100) + __GLIBC_MINOR__) >= 216)
@@ -187,6 +195,8 @@ bool CRYPTOPP_SECTION_INIT g_hasSSE2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAVX = false;
+bool CRYPTOPP_SECTION_INIT g_hasAVX2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAESNI = false;
 bool CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
 bool CRYPTOPP_SECTION_INIT g_hasADX = false;
@@ -245,12 +255,38 @@ void DetectX86Features()
 	g_hasAESNI = g_hasSSE2 && ((cpuid1[2] & (1<<25)) != 0);
 	g_hasCLMUL = g_hasSSE2 && ((cpuid1[2] & (1<< 1)) != 0);
 
+	// AVX is similar to SSE, but check both bits 27 (SSE) and 28 (AVX).
+	// https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled
+	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1))
+	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27))
+	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
+	{
+#if defined(__GNUC__)
+		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
+		// http://www.agner.org/optimize/vectorclass/read.php?i=65
+		word32 a=0, d=0;
+		__asm __volatile
+		(
+			// GCC 4.1/Binutils 2.17 cannot consume xgetbv
+			// "xgetbv" : "=a"(a), "=d"(d) : "c"(0) :
+			".byte 0x0f, 0x01, 0xd0"   "\n\t"
+			: "=a"(a), "=d"(d) : "c"(0) :
+		);
+		word64 xcr0 = a | static_cast<word64>(d) << 32;
+		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
+#else
+		word64 xcr0 = _xgetbv(0);
+		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
+#endif
+	}
+
 	if (IsIntel(cpuid0))
 	{
 		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
 		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
 		CRYPTOPP_CONSTANT(   ADX_FLAG = (1 << 19))
 		CRYPTOPP_CONSTANT(   SHA_FLAG = (1 << 29))
+		CRYPTOPP_CONSTANT(  AVX2_FLAG = (1 <<  5))
 
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
@@ -263,6 +299,7 @@ void DetectX86Features()
 				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
 				g_hasADX = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
 				g_hasSHA = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
+				g_hasAVX2 = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
 			}
 		}
 	}
@@ -272,6 +309,7 @@ void DetectX86Features()
 		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
 		CRYPTOPP_CONSTANT(   ADX_FLAG = (1 << 19))
 		CRYPTOPP_CONSTANT(   SHA_FLAG = (1 << 29))
+		CRYPTOPP_CONSTANT(  AVX2_FLAG = (1 <<  5))
 
 		CpuId(0x80000005, 0, cpuid2);
 		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
@@ -284,6 +322,7 @@ void DetectX86Features()
 				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
 				g_hasADX = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
 				g_hasSHA = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
+				g_hasAVX2 = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
 			}
 		}
 	}
@@ -300,11 +339,11 @@ void DetectX86Features()
 		{
 			// Extended features available
 			CpuId(0xC0000001, 0, cpuid2);
-			g_hasPadlockRNG  = (cpuid2[3] /*EDX*/ & RNG_FLAGS) != 0;
-			g_hasPadlockACE  = (cpuid2[3] /*EDX*/ & ACE_FLAGS) != 0;
-			g_hasPadlockACE2 = (cpuid2[3] /*EDX*/ & ACE2_FLAGS) != 0;
-			g_hasPadlockPHE  = (cpuid2[3] /*EDX*/ & PHE_FLAGS) != 0;
-			g_hasPadlockPMM  = (cpuid2[3] /*EDX*/ & PMM_FLAGS) != 0;
+			g_hasPadlockRNG  = (cpuid2[3] /*EDX*/ & RNG_FLAGS) == RNG_FLAGS;
+			g_hasPadlockACE  = (cpuid2[3] /*EDX*/ & ACE_FLAGS) == ACE_FLAGS;
+			g_hasPadlockACE2 = (cpuid2[3] /*EDX*/ & ACE2_FLAGS) == ACE2_FLAGS;
+			g_hasPadlockPHE  = (cpuid2[3] /*EDX*/ & PHE_FLAGS) == PHE_FLAGS;
+			g_hasPadlockPMM  = (cpuid2[3] /*EDX*/ & PMM_FLAGS) == PMM_FLAGS;
 		}
 	}
 

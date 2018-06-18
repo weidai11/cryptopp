@@ -85,6 +85,8 @@ extern CRYPTOPP_DLL bool g_hasSSE2;
 extern CRYPTOPP_DLL bool g_hasSSSE3;
 extern CRYPTOPP_DLL bool g_hasSSE41;
 extern CRYPTOPP_DLL bool g_hasSSE42;
+extern CRYPTOPP_DLL bool g_hasAVX;
+extern CRYPTOPP_DLL bool g_hasAVX2;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_hasSHA;
@@ -158,6 +160,7 @@ inline bool HasSSE42()
 /// \brief Determines AES-NI availability
 /// \returns true if AES-NI is determined to be available, false otherwise
 /// \details HasAESNI() is a runtime check performed using CPUID
+/// \since Crypto++ 5.6.1
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasAESNI()
 {
@@ -169,6 +172,7 @@ inline bool HasAESNI()
 /// \brief Determines Carryless Multiply availability
 /// \returns true if pclmulqdq is determined to be available, false otherwise
 /// \details HasCLMUL() is a runtime check performed using CPUID
+/// \since Crypto++ 5.6.1
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasCLMUL()
 {
@@ -180,6 +184,7 @@ inline bool HasCLMUL()
 /// \brief Determines SHA availability
 /// \returns true if SHA is determined to be available, false otherwise
 /// \details HasSHA() is a runtime check performed using CPUID
+/// \since Crypto++ 6.0
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasSHA()
 {
@@ -191,12 +196,37 @@ inline bool HasSHA()
 /// \brief Determines ADX availability
 /// \returns true if ADX is determined to be available, false otherwise
 /// \details HasADX() is a runtime check performed using CPUID
+/// \since Crypto++ 7.0
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasADX()
 {
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasADX;
+}
+
+/// \brief Determines AVX availability
+/// \returns true if AVX is determined to be available, false otherwise
+/// \details HasAVX() is a runtime check performed using CPUID
+/// \since Crypto++ 7.1
+/// \note This function is only available on Intel IA-32 platforms
+inline bool HasAVX()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasAVX;
+}
+
+/// \brief Determines AVX2 availability
+/// \returns true if AVX2 is determined to be available, false otherwise
+/// \details HasAVX2() is a runtime check performed using CPUID
+/// \since Crypto++ 7.1
+/// \note This function is only available on Intel IA-32 platforms
+inline bool HasAVX2()
+{
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasAVX2;
 }
 
 /// \brief Determines if the CPU is an Intel P4

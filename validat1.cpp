@@ -369,11 +369,20 @@ bool TestSettings()
 	bool hasSSSE3 = HasSSSE3();
 	bool hasSSE41 = HasSSE41();
 	bool hasSSE42 = HasSSE42();
+	bool hasAVX = HasAVX();
+	bool hasAVX2 = HasAVX2();
+	bool hasAESNI = HasAESNI();
+	bool hasCLMUL = HasCLMUL();
+	bool hasRDRAND = HasRDRAND();
+	bool hasRDSEED = HasRDSEED();
+	bool hasSHA = HasSHA();
 	bool isP4 = IsP4();
 
-	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41 << ", hasSSE4.2 == " << hasSSE42;
-	std::cout << ", hasAESNI == " << HasAESNI() << ", hasCLMUL == " << HasCLMUL() << ", hasRDRAND == " << HasRDRAND() << ", hasRDSEED == " << HasRDSEED();
-	std::cout << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4 << "\n";
+	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41;
+	std::cout << ", hasSSE4.2 == " << hasSSE42 << ", hasAVX == " << hasAVX << ", hasAVX2 == " << hasAVX2;
+	std::cout << ", hasAESNI == " << hasAESNI << ", hasCLMUL == " << hasCLMUL << ", hasRDRAND == " << HasRDRAND;
+	std::cout << ", hasRDSEED == " << HasRDSEED << ", hasSHA == " << HasSHA() << ", isP4 == " << isP4;
+	std::cout << "\n";
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 	bool hasNEON = HasNEON();
