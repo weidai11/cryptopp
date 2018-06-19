@@ -15,6 +15,10 @@
 #include "secblock.h"
 #include "algparam.h"
 
+#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
+# define CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS 1
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief CHAM block cipher information
@@ -92,7 +96,7 @@ typedef CHAM64::Decryption CHAM64Decryption;
 /// \brief CHAM 128-bit block cipher
 /// \details CHAM128 provides 128-bit block size. The valid key size is 128-bit and 256-bit.
 /// \note Crypto++ provides a byte oriented implementation
-/// \sa CHAM128, <a href="http://www.cryptopp.com/wiki/CHAM">CHAM</a>, <a href=
+/// \sa CHAM64, <a href="http://www.cryptopp.com/wiki/CHAM">CHAM</a>, <a href=
 ///   "https://pdfs.semanticscholar.org/2f57/61b5c2614cffd58a09cc83c375a2b32a2ed3.pdf">
 ///   CHAM: A Family of Lightweight Block Ciphers for Resource-Constrained Devices</a>
 /// \since Crypto++ 7.1
@@ -120,6 +124,10 @@ public:
     {
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -130,6 +138,10 @@ public:
     {
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;

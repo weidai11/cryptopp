@@ -276,6 +276,7 @@ ifneq ($(IS_i686)$(IS_x86_64),00)
   HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
+    CHAM_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
     SIMON_FLAG = -mssse3
     SPECK_FLAG = -mssse3
@@ -486,6 +487,10 @@ aria-simd.o : aria-simd.cpp
 # SSE4.2 or ARMv8a available
 blake2-simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+
+# SSSE3 available
+cham-simd.o : cham-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CHAM_FLAG) -c) $<
 
 # SSE2 on i586
 cpu.o : cpu.cpp

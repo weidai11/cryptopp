@@ -249,6 +249,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
   HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(GREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
+    CHAM_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
     SIMON_FLAG = -mssse3
     SPECK_FLAG = -mssse3
@@ -289,6 +290,7 @@ ifeq ($(SUN_COMPILER),1)
   ifeq ($(COUNT),0)
     SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    CHAM_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SIMON_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SPECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
@@ -1049,6 +1051,10 @@ aria-simd.o : aria-simd.cpp
 # SSE4.1 or ARMv8a available
 blake2-simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+
+# SSSE3 available
+cham-simd.o : cham-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CHAM_FLAG) -c) $<
 
 # SSE2 on i586
 sse-simd.o : sse-simd.cpp

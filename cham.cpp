@@ -8,6 +8,7 @@
 
 #include "cham.h"
 #include "misc.h"
+#include "cpu.h"
 
 //                 CHAM table of parameters
 //  +-------------------------------------------------
@@ -94,6 +95,14 @@ inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
+extern size_t CHAM128_Enc_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+
+extern size_t CHAM128_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
 
 void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
@@ -298,5 +307,29 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
+
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
+size_t CHAM128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+    if (HasSSSE3()) {
+        const size_t rounds = (m_kw == 4 ? 80 : 96);
+        return CHAM128_Enc_AdvancedProcessBlocks_SSSE3(m_rk, rounds,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t CHAM128::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+    if (HasSSSE3()) {
+        const size_t rounds = (m_kw == 4 ? 80 : 96);
+        return CHAM128_Dec_AdvancedProcessBlocks_SSSE3(m_rk, rounds,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif  // CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END

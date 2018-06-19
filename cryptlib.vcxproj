@@ -192,6 +192,7 @@
     <ClCompile Include="ccm.cpp" />
     <ClCompile Include="chacha.cpp" />
     <ClCompile Include="cham.cpp" />
+    <ClCompile Include="cham-simd.cpp" />
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="cmac.cpp" />
     <ClCompile Include="crc.cpp" />

@@ -89,6 +89,9 @@
     <ClCompile Include="cham.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="cham-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="channels.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

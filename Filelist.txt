@@ -50,6 +50,7 @@ ccm.h
 chacha.cpp
 chacha.h
 cham.cpp
+cham-simd.cpp
 cham.h
 channels.cpp
 channels.h
