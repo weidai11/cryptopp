@@ -129,7 +129,6 @@ inline __m128i RepackXMM(__m128i a, __m128i b, __m128i c, __m128i d)
 {
     return UnpackXMM<IDX>(a, b, c, d);
 }
-#endif
 
 template <unsigned int IDX>
 inline __m128i RepackXMM(__m128i v)
@@ -155,35 +154,34 @@ inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
-        __m128i t1, t2, k, k1, k2;
+        __m128i k, kr, t1, t2;
 
         k = _mm_loadu_si128((const __m128i*) &subkeys[i & MASK]);
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         t1 = _mm_xor_si128(a, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), k1);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
         a = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(b, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), k2);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
         b = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
 
         t1 = _mm_xor_si128(c, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), k1);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
         c = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
 
         t1 = _mm_xor_si128(d, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), k2);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
         d = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
@@ -212,39 +210,38 @@ inline void GCC_NO_UBSAN CHAM128_Dec_Block(__m128i &block0,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
-        __m128i t1, t2, k, k1, k2;
+        __m128i k, kr, t1, t2;
 
         k = _mm_loadu_si128((const __m128i*) &subkeys[(i-3) & MASK]);
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
 
         // Odd round
         t1 = RotateRight32<1>(d);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), k1);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
         d = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
 
         // Even round
         t1 = RotateRight32<8>(c);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), k2);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
         c = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         // Odd round
         t1 = RotateRight32<1>(b);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), k1);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
         b = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Even round
         t1 = RotateRight32<8>(a);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), k2);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
         a = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
@@ -273,35 +270,34 @@ inline void GCC_NO_UBSAN CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
-        __m128i t1, t2, k, k1, k2;
+        __m128i k, kr, t1, t2;
 
         k = _mm_loadu_si128((const __m128i*) &subkeys[i & MASK]);
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         t1 = _mm_xor_si128(a, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), k1);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
         a = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(b, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), k2);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
         b = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
 
         t1 = _mm_xor_si128(c, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), k1);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
         c = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
 
         t1 = _mm_xor_si128(d, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), k2);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
         d = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
@@ -333,39 +329,38 @@ inline void GCC_NO_UBSAN CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
-        __m128i t1, t2, k, k1, k2;
+        __m128i k, kr, t1, t2;
 
         k = _mm_loadu_si128((const __m128i*) &subkeys[(i-3) & MASK]);
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
 
         // Odd round
         t1 = RotateRight32<1>(d);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), k1);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
         d = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
 
         // Even round
         t1 = RotateRight32<8>(c);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), k2);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
         c = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-
-        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
-        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         // Odd round
         t1 = RotateRight32<1>(b);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), k1);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
         b = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Even round
         t1 = RotateRight32<8>(a);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), k2);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
         a = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
@@ -378,6 +373,8 @@ inline void GCC_NO_UBSAN CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     block2 = RepackXMM<2>(a,b,c,d);
     block3 = RepackXMM<3>(a,b,c,d);
 }
+
+#endif
 
 ANONYMOUS_NAMESPACE_END
 
