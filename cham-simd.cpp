@@ -180,40 +180,42 @@ inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
-        __m128i k, kr, t1, t2;
+        __m128i k, k1, k2, t1, t2;
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[i & MASK]);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        // This is a better pattern than loading 4 words via _mm_loadu_si128
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+0) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(a, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), k1);
         a = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(b, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), k2);
         b = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
+
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+2) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(c, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), k1);
         c = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
 
         t1 = _mm_xor_si128(d, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), k2);
         d = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
     }
 
-    // Repack
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a,b,c,d);
 }
@@ -236,44 +238,46 @@ inline void GCC_NO_UBSAN CHAM128_Dec_Block(__m128i &block0,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
-        __m128i k, kr, t1, t2;
+        __m128i k, k1, k2, t1, t2;
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[(i-3) & MASK]);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
+        // This is a better pattern than loading 4 words via _mm_loadu_si128
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-1) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Odd round
         t1 = RotateRight32<1>(d);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), k1);
         d = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
 
         // Even round
         t1 = RotateRight32<8>(c);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), k2);
         c = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-3) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Odd round
         t1 = RotateRight32<1>(b);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), k1);
         b = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Even round
         t1 = RotateRight32<8>(a);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), k2);
         a = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
     }
 
-    // Repack
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a,b,c,d);
 }
@@ -296,40 +300,42 @@ inline void GCC_NO_UBSAN CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
-        __m128i k, kr, t1, t2;
+        __m128i k, k1, k2, t1, t2;
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[i & MASK]);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        // This is a better pattern than loading 4 words via _mm_loadu_si128
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+0) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(a, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), k1);
         a = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(b, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), k2);
         b = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
+
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+2) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
         t1 = _mm_xor_si128(c, counter);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), k1);
         c = RotateLeft32<8>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
 
         t1 = _mm_xor_si128(d, counter);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), k2);
         d = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
     }
 
-    // Repack
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a,b,c,d);
     block1 = RepackXMM<1>(a,b,c,d);
@@ -355,44 +361,46 @@ inline void GCC_NO_UBSAN CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     const unsigned int MASK = (rounds == 80 ? 7 : 15);
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
-        __m128i k, kr, t1, t2;
+        __m128i k, k1, k2, t1, t2;
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[(i-3) & MASK]);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12));
+        // This is a better pattern than loading 4 words via _mm_loadu_si128
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-1) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Odd round
         t1 = RotateRight32<1>(d);
-        t2 = _mm_xor_si128(RotateLeft32<8>(a), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(a), k1);
         d = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8));
 
         // Even round
         t1 = RotateRight32<8>(c);
-        t2 = _mm_xor_si128(RotateLeft32<1>(d), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(d), k2);
         c = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+
+        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-3) & MASK]));
+        k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
+        k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Odd round
         t1 = RotateRight32<1>(b);
-        t2 = _mm_xor_si128(RotateLeft32<8>(c), kr);
+        t2 = _mm_xor_si128(RotateLeft32<8>(c), k1);
         b = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
         // Even round
         t1 = RotateRight32<8>(a);
-        t2 = _mm_xor_si128(RotateLeft32<1>(b), kr);
+        t2 = _mm_xor_si128(RotateLeft32<1>(b), k2);
         a = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
     }
 
-    // Repack
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a,b,c,d);
     block1 = RepackXMM<1>(a,b,c,d);
