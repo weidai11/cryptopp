@@ -121,7 +121,33 @@ inline __m128i UnpackXMM<3>(__m128i a, __m128i b, __m128i c, __m128i d)
 template <unsigned int IDX>
 inline __m128i UnpackXMM(__m128i v)
 {
-    return UnpackXMM<IDX>(v, v, v, v);
+    // Should not be instantiated
+    CRYPTOPP_ASSERT(0);;
+    return _mm_setzero_si128();
+}
+
+template <>
+inline __m128i UnpackXMM<0>(__m128i v)
+{
+    return _mm_shuffle_epi8(v, _mm_set_epi8(0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3));
+}
+
+template <>
+inline __m128i UnpackXMM<1>(__m128i v)
+{
+    return _mm_shuffle_epi8(v, _mm_set_epi8(4,5,6,7, 4,5,6,7, 4,5,6,7, 4,5,6,7));
+}
+
+template <>
+inline __m128i UnpackXMM<2>(__m128i v)
+{
+    return _mm_shuffle_epi8(v, _mm_set_epi8(8,9,10,11, 8,9,10,11, 8,9,10,11, 8,9,10,11));
+}
+
+template <>
+inline __m128i UnpackXMM<3>(__m128i v)
+{
+    return _mm_shuffle_epi8(v, _mm_set_epi8(12,13,14,15, 12,13,14,15, 12,13,14,15, 12,13,14,15));
 }
 
 template <unsigned int IDX>
@@ -133,7 +159,7 @@ inline __m128i RepackXMM(__m128i a, __m128i b, __m128i c, __m128i d)
 template <unsigned int IDX>
 inline __m128i RepackXMM(__m128i v)
 {
-    return RepackXMM<IDX>(v, v, v, v);
+    return UnpackXMM<IDX>(v);
 }
 
 inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
