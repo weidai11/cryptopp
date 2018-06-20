@@ -71,9 +71,17 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <typename F2, typename F6>
+/// \brief AdvancedProcessBlocks for 2 and 6 blocks
+/// \tparam F2 function to process 2 64-bit blocks
+/// \tparam F6 function to process 6 64-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks64_6x2_NEON processes 6 and 2 NEON SIMD words
+///   at a time. For a single block the template uses F2 with a zero block.
+/// \details The subkey type is usually word32 or word64. F2 and F6 must use the
+///   same word type.
+template <typename F2, typename F6, typename W>
 inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
-        const word32 *subKeys, size_t rounds, const byte *inBlocks,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -313,9 +321,17 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     return length;
 }
 
-template <typename F1, typename F6>
+/// \brief AdvancedProcessBlocks for 1 and 6 blocks
+/// \tparam F1 function to process 1 128-bit blocks
+/// \tparam F6 function to process 6 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks128_NEON1x6 processes 6 and 2 NEON SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. F1 and F6 must use the
+///   same word type.
+template <typename F1, typename F6, typename W>
 inline size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
-            const word32 *subKeys, size_t rounds, const byte *inBlocks,
+            const W *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -464,9 +480,17 @@ inline size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
     return length;
 }
 
-template <typename F2, typename F6>
+/// \brief AdvancedProcessBlocks for 2 and 6 blocks
+/// \tparam F2 function to process 2 128-bit blocks
+/// \tparam F6 function to process 6 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks128_6x2_NEON processes 6 and 2 NEON SIMD words
+///   at a time. For a single block the template uses F2 with a zero block.
+/// \details The subkey type is usually word32 or word64. F2 and F6 must use the
+///   same word type.
+template <typename F2, typename F6, typename W>
 inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
-            const word64 *subKeys, size_t rounds, const byte *inBlocks,
+            const W *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -694,9 +718,17 @@ NAMESPACE_END  // CryptoPP
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <typename F2, typename F6>
+/// \brief AdvancedProcessBlocks for 2 and 6 blocks
+/// \tparam F2 function to process 2 64-bit blocks
+/// \tparam F6 function to process 6 64-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks64_6x2_SSE processes 6 and 2 SSE SIMD words
+///   at a time. For a single block the template uses F2 with a zero block.
+/// \details The subkey type is usually word32 or word64. F2 and F6 must use the
+///   same word type.
+template <typename F2, typename F6, typename W>
 inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
-        const word32 *subKeys, size_t rounds, const byte *inBlocks,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -933,9 +965,17 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     return length;
 }
 
-template <typename F2, typename F6>
+/// \brief AdvancedProcessBlocks for 2 and 6 blocks
+/// \tparam F2 function to process 2 128-bit blocks
+/// \tparam F6 function to process 6 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks128_6x2_SSE processes 6 and 2 SSE SIMD words
+///   at a time. For a single block the template uses F2 with a zero block.
+/// \details The subkey type is usually word32 or word64. F2 and F6 must use the
+///   same word type.
+template <typename F2, typename F6, typename W>
 inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
-        const word64 *subKeys, size_t rounds, const byte *inBlocks,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -1121,9 +1161,17 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
     return length;
 }
 
-template <typename F1, typename F4>
+/// \brief AdvancedProcessBlocks for 1 and 4 blocks
+/// \tparam F1 function to process 1 128-bit blocks
+/// \tparam F4 function to process 4 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks128_4x1_SSE processes 4 and 1 SSE SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. F1 and F6 must use the
+///   same word type.
+template <typename F1, typename F4, typename W>
 inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
-        MAYBE_CONST word32 *subKeys, size_t rounds, const byte *inBlocks,
+        MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -1256,9 +1304,17 @@ NAMESPACE_END  // CryptoPP
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <typename F1, typename F6>
+/// \brief AdvancedProcessBlocks for 1 and 6 blocks
+/// \tparam F1 function to process 1 128-bit blocks
+/// \tparam F6 function to process 6 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks128_6x1_ALTIVEC processes 6 and 1 Altivec SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. F1 and F6 must use the
+///   same word type.
+template <typename F1, typename F6, typename W>
 inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
-        const word32 *subKeys, size_t rounds, const byte *inBlocks,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
