@@ -64,8 +64,8 @@ inline __m128i RotateRight16<8>(const __m128i& val)
 }
 
 template <unsigned int IDX>
-inline __m128i UnpackXMM(__m128i a, __m128i b, __m128i c, __m128i d,
-                         __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                         const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // Should not be instantiated
     CRYPTOPP_ASSERT(0);;
@@ -73,8 +73,8 @@ inline __m128i UnpackXMM(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<0>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<0>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -92,8 +92,8 @@ inline __m128i UnpackXMM<0>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<1>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<1>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -111,8 +111,8 @@ inline __m128i UnpackXMM<1>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<2>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<2>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -130,8 +130,8 @@ inline __m128i UnpackXMM<2>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<3>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<3>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -149,8 +149,8 @@ inline __m128i UnpackXMM<3>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<4>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<4>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -168,8 +168,8 @@ inline __m128i UnpackXMM<4>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<5>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<5>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -187,8 +187,8 @@ inline __m128i UnpackXMM<5>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<6>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<6>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -206,8 +206,8 @@ inline __m128i UnpackXMM<6>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <>
-inline __m128i UnpackXMM<7>(__m128i a, __m128i b, __m128i c, __m128i d,
-                            __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i UnpackXMM<7>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                            const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -225,7 +225,7 @@ inline __m128i UnpackXMM<7>(__m128i a, __m128i b, __m128i c, __m128i d,
 }
 
 template <unsigned int IDX>
-inline __m128i UnpackXMM(__m128i v)
+inline __m128i UnpackXMM(const __m128i& v)
 {
     // Should not be instantiated
     CRYPTOPP_ASSERT(0);;
@@ -233,69 +233,69 @@ inline __m128i UnpackXMM(__m128i v)
 }
 
 template <>
-inline __m128i UnpackXMM<0>(__m128i v)
+inline __m128i UnpackXMM<0>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(0,1, 0,1, 0,1, 0,1, 0,1, 0,1, 0,1, 0,1));
 }
 
 template <>
-inline __m128i UnpackXMM<1>(__m128i v)
+inline __m128i UnpackXMM<1>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(2,3, 2,3, 2,3, 2,3, 2,3, 2,3, 2,3, 2,3));
 }
 
 template <>
-inline __m128i UnpackXMM<2>(__m128i v)
+inline __m128i UnpackXMM<2>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(4,5, 4,5, 4,5, 4,5, 4,5, 4,5, 4,5, 4,5));
 }
 
 template <>
-inline __m128i UnpackXMM<3>(__m128i v)
+inline __m128i UnpackXMM<3>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(6,7, 6,7, 6,7, 6,7, 6,7, 6,7, 6,7, 6,7));
 }
 
 template <>
-inline __m128i UnpackXMM<4>(__m128i v)
+inline __m128i UnpackXMM<4>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(8,9, 8,9, 8,9, 8,9, 8,9, 8,9, 8,9, 8,9));
 }
 
 template <>
-inline __m128i UnpackXMM<5>(__m128i v)
+inline __m128i UnpackXMM<5>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(10,11, 10,11, 10,11, 10,11, 10,11, 10,11, 10,11, 10,11));
 }
 
 template <>
-inline __m128i UnpackXMM<6>(__m128i v)
+inline __m128i UnpackXMM<6>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(12,13, 12,13, 12,13, 12,13, 12,13, 12,13, 12,13, 12,13));
 }
 
 template <>
-inline __m128i UnpackXMM<7>(__m128i v)
+inline __m128i UnpackXMM<7>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(14,15, 14,15, 14,15, 14,15, 14,15, 14,15, 14,15, 14,15));
 }
 
 template <unsigned int IDX>
-inline __m128i UnpackXMM(__m128i a, __m128i b)
+inline __m128i UnpackXMM(const __m128i& a, const __m128i& b)
 {
-    const __m128i z = _mm_setzero_si128();
+    const __m128i& z = _mm_setzero_si128();
     return UnpackXMM<IDX>(a, b, z, z, z, z, z, z);
 }
 
 template <unsigned int IDX>
-inline __m128i RepackXMM(__m128i a, __m128i b, __m128i c, __m128i d,
-                         __m128i e, __m128i f, __m128i g, __m128i h)
+inline __m128i RepackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d,
+                         const __m128i& e, const __m128i& f, const __m128i& g, const __m128i& h)
 {
     return UnpackXMM<IDX>(a, b, c, d, e, f, g, h);
 }
 
 template <unsigned int IDX>
-inline __m128i RepackXMM(__m128i v)
+inline __m128i RepackXMM(const __m128i& v)
 {
     return UnpackXMM<IDX>(v);
 }
@@ -803,7 +803,7 @@ inline __m128i RotateRight32<8>(const __m128i& val)
 }
 
 template <unsigned int IDX>
-inline __m128i UnpackXMM(__m128i a, __m128i b, __m128i c, __m128i d)
+inline __m128i UnpackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // Should not be instantiated
     CRYPTOPP_ASSERT(0);;
@@ -811,7 +811,7 @@ inline __m128i UnpackXMM(__m128i a, __m128i b, __m128i c, __m128i d)
 }
 
 template <>
-inline __m128i UnpackXMM<0>(__m128i a, __m128i b, __m128i c, __m128i d)
+inline __m128i UnpackXMM<0>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -824,7 +824,7 @@ inline __m128i UnpackXMM<0>(__m128i a, __m128i b, __m128i c, __m128i d)
 }
 
 template <>
-inline __m128i UnpackXMM<1>(__m128i a, __m128i b, __m128i c, __m128i d)
+inline __m128i UnpackXMM<1>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -837,7 +837,7 @@ inline __m128i UnpackXMM<1>(__m128i a, __m128i b, __m128i c, __m128i d)
 }
 
 template <>
-inline __m128i UnpackXMM<2>(__m128i a, __m128i b, __m128i c, __m128i d)
+inline __m128i UnpackXMM<2>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -850,7 +850,7 @@ inline __m128i UnpackXMM<2>(__m128i a, __m128i b, __m128i c, __m128i d)
 }
 
 template <>
-inline __m128i UnpackXMM<3>(__m128i a, __m128i b, __m128i c, __m128i d)
+inline __m128i UnpackXMM<3>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
@@ -863,7 +863,7 @@ inline __m128i UnpackXMM<3>(__m128i a, __m128i b, __m128i c, __m128i d)
 }
 
 template <unsigned int IDX>
-inline __m128i UnpackXMM(__m128i v)
+inline __m128i UnpackXMM(const __m128i& v)
 {
     // Should not be instantiated
     CRYPTOPP_ASSERT(0);;
@@ -871,37 +871,37 @@ inline __m128i UnpackXMM(__m128i v)
 }
 
 template <>
-inline __m128i UnpackXMM<0>(__m128i v)
+inline __m128i UnpackXMM<0>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3));
 }
 
 template <>
-inline __m128i UnpackXMM<1>(__m128i v)
+inline __m128i UnpackXMM<1>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(4,5,6,7, 4,5,6,7, 4,5,6,7, 4,5,6,7));
 }
 
 template <>
-inline __m128i UnpackXMM<2>(__m128i v)
+inline __m128i UnpackXMM<2>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(8,9,10,11, 8,9,10,11, 8,9,10,11, 8,9,10,11));
 }
 
 template <>
-inline __m128i UnpackXMM<3>(__m128i v)
+inline __m128i UnpackXMM<3>(const __m128i& v)
 {
     return _mm_shuffle_epi8(v, _mm_set_epi8(12,13,14,15, 12,13,14,15, 12,13,14,15, 12,13,14,15));
 }
 
 template <unsigned int IDX>
-inline __m128i RepackXMM(__m128i a, __m128i b, __m128i c, __m128i d)
+inline __m128i RepackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     return UnpackXMM<IDX>(a, b, c, d);
 }
 
 template <unsigned int IDX>
-inline __m128i RepackXMM(__m128i v)
+inline __m128i RepackXMM(const __m128i& v)
 {
     return UnpackXMM<IDX>(v);
 }
