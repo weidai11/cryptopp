@@ -396,7 +396,7 @@ inline void GCC_NO_UBSAN CHAM64_Enc_Block(__m128i &block0,
         g = RotateLeft16<8>(_mm_add_epi16(t3, t4));
 
         counter = _mm_add_epi16(counter, increment);
-		kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
 
         t1 = _mm_xor_si128(d, counter);
         t3 = _mm_xor_si128(h, counter);
@@ -628,7 +628,7 @@ inline void GCC_NO_UBSAN CHAM64_Enc_2_Blocks(__m128i &block0,
         g = RotateLeft16<8>(_mm_add_epi16(t3, t4));
 
         counter = _mm_add_epi16(counter, increment);
-		kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
+        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
 
         t1 = _mm_xor_si128(d, counter);
         t3 = _mm_xor_si128(h, counter);
