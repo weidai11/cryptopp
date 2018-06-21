@@ -16,7 +16,7 @@
 #include "algparam.h"
 
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
-# define CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS 1
+# define CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -74,6 +74,10 @@ public:
     {
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+
+#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -84,6 +88,10 @@ public:
     {
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+
+#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
+#endif
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
@@ -125,7 +133,7 @@ public:
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
     };
@@ -139,7 +147,7 @@ public:
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
     };

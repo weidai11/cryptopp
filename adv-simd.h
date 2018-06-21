@@ -12,6 +12,7 @@
 //    using two encrypt (or decrypt) functions: one that operates on 4 blocks,
 //    and one that operates on 1 block.
 //
+//      * AdvancedProcessBlocks64_2x1_SSE
 //      * AdvancedProcessBlocks64_4x1_SSE
 //      * AdvancedProcessBlocks128_4x1_SSE
 //      * AdvancedProcessBlocks64_6x2_SSE
@@ -717,6 +718,155 @@ NAMESPACE_END  // CryptoPP
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
+
+template <typename F1, typename F2, typename W>
+inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 8);
+
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+
+    const ptrdiff_t blockSize = 8;
+    const ptrdiff_t xmmBlockSize = 16;
+
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+
+    // Clang and Coverity are generating findings using xorBlocks as a flag.
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+
+    if (flags & BT_ReverseDirection)
+    {
+        inBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+    }
+
+    if (flags & BT_AllowParallel)
+    {
+        while (length >= 2*xmmBlockSize)
+        {
+            __m128i block0, block1;
+            if (flags & BT_InBlockIsCounter)
+            {
+                // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
+                // After the dup load we have two counters in the XMM word. Then we need
+                // to increment the low ctr by 0 and the high ctr by 1.
+                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b), _mm_castpd_si128(
+                    _mm_loaddup_pd(CONST_DOUBLE_CAST(inBlocks))));
+
+                // After initial increment of {0,1} remaining counters increment by {2,2}.
+                const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
+                block1 = _mm_add_epi32(be2, block0);
+
+                // Store the next counter. UBsan false positive; mem_addr can be unaligned.
+                _mm_store_sd(DOUBLE_CAST(inBlocks),
+                    _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+            }
+            else
+            {
+                block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+            }
+
+            if (xorInput)
+            {
+                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+            }
+
+            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+            }
+
+            _mm_storeu_si128(M128_CAST(outBlocks), block0);
+            outBlocks += outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block1);
+            outBlocks += outIncrement;
+
+            length -= 2*xmmBlockSize;
+        }
+    }
+
+    if (length)
+    {
+        // Adjust to real block size
+        if (flags & BT_ReverseDirection)
+        {
+            inIncrement += inIncrement ? blockSize : 0;
+            xorIncrement += xorIncrement ? blockSize : 0;
+            outIncrement += outIncrement ? blockSize : 0;
+            inBlocks -= inIncrement;
+            xorBlocks -= xorIncrement;
+            outBlocks -= outIncrement;
+        }
+        else
+        {
+            inIncrement -= inIncrement ? blockSize : 0;
+            xorIncrement -= xorIncrement ? blockSize : 0;
+            outIncrement -= outIncrement ? blockSize : 0;
+        }
+
+        while (length >= blockSize)
+        {
+            __m128i block = _mm_castpd_si128(
+                // UBsan false positive; mem_addr can be unaligned.
+                _mm_load_sd(CONST_DOUBLE_CAST(inBlocks)));
+
+            if (xorInput)
+            {
+                block = _mm_xor_si128(block, _mm_castpd_si128(
+                    // UBsan false positive; mem_addr can be unaligned.
+                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
+            }
+
+            if (flags & BT_InBlockIsCounter)
+                const_cast<byte *>(inBlocks)[7]++;
+
+            func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                block = _mm_xor_si128(block, _mm_castpd_si128(
+                    // UBsan false positive; mem_addr can be unaligned.
+                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
+            }
+
+            // UBsan false positive; mem_addr can be unaligned.
+            _mm_store_sd(DOUBLE_CAST(outBlocks), _mm_castsi128_pd(block));
+
+            inBlocks += inIncrement;
+            outBlocks += outIncrement;
+            xorBlocks += xorIncrement;
+            length -= blockSize;
+        }
+    }
+
+    return length;
+}
 
 /// \brief AdvancedProcessBlocks for 2 and 6 blocks
 /// \tparam F2 function to process 2 64-bit blocks
