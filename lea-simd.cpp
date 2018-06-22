@@ -22,6 +22,18 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__AVX512F__) && defined(__AVX512VL__)
+# define CRYPTOPP_AVX512_ROTATE 1
+# include <immintrin.h>
+#endif
+
+// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
+// compilers don't follow ACLE conventions for the include.
+#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include <stdint.h>
+# include <arm_acle.h>
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;

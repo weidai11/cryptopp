@@ -22,6 +22,11 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__AVX512F__) && defined(__AVX512VL__)
+# define CRYPTOPP_AVX512_ROTATE 1
+# include <immintrin.h>
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word16;
@@ -775,15 +780,23 @@ NAMESPACE_BEGIN(W32)  // CHAM128, 32-bit word size
 template <unsigned int R>
 inline __m128i RotateLeft32(const __m128i& val)
 {
+#if defined(CRYPTOPP_AVX512_ROTATE)
+    return _mm_rol_epi32(val, R);
+#else
     return _mm_or_si128(
         _mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
+#endif
 }
 
 template <unsigned int R>
 inline __m128i RotateRight32(const __m128i& val)
 {
+#if defined(CRYPTOPP_AVX512_ROTATE)
+    return _mm_ror_epi32(val, R);
+#else
     return _mm_or_si128(
         _mm_slli_epi32(val, 32-R), _mm_srli_epi32(val, R));
+#endif
 }
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.

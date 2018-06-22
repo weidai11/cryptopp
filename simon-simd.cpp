@@ -43,14 +43,6 @@
 # include <arm_acle.h>
 #endif
 
-// https://www.spinics.net/lists/gcchelp/msg47735.html and
-// https://www.spinics.net/lists/gcchelp/msg47749.html
-#if (CRYPTOPP_GCC_VERSION >= 40900)
-# define GCC_NO_UBSAN __attribute__ ((no_sanitize_undefined))
-#else
-# define GCC_NO_UBSAN
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
@@ -571,31 +563,26 @@ inline void Swap128(__m128i& a,__m128i& b)
 #endif
 }
 
+template <unsigned int R>
+inline __m128i RotateLeft64(const __m128i& val)
+{
 #if defined(CRYPTOPP_AVX512_ROTATE)
-template <unsigned int R>
-inline __m128i RotateLeft64(const __m128i& val)
-{
     return _mm_rol_epi64(val, R);
-}
-
-template <unsigned int R>
-inline __m128i RotateRight64(const __m128i& val)
-{
-    return _mm_ror_epi64(val, R);
-}
 #else
-template <unsigned int R>
-inline __m128i RotateLeft64(const __m128i& val)
-{
     return _mm_or_si128(
         _mm_slli_epi64(val, R), _mm_srli_epi64(val, 64-R));
+#endif
 }
 
 template <unsigned int R>
 inline __m128i RotateRight64(const __m128i& val)
 {
+#if defined(CRYPTOPP_AVX512_ROTATE)
+    return _mm_ror_epi64(val, R);
+#else
     return _mm_or_si128(
         _mm_slli_epi64(val, 64-R), _mm_srli_epi64(val, R));
+#endif
 }
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
@@ -613,7 +600,6 @@ inline __m128i RotateRight64<8>(const __m128i& val)
     const __m128i mask = _mm_set_epi8(8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1);
     return _mm_shuffle_epi8(val, mask);
 }
-#endif  // CRYPTOPP_AVX512_ROTATE
 
 inline __m128i SIMON128_f(const __m128i& v)
 {
