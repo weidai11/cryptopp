@@ -6,7 +6,7 @@
 //    acceleration. After several implementations we noticed a lot of copy and
 //    paste occuring. adv-simd.h provides a template to avoid the copy and paste.
 //
-//    There are 8 templates provided in this file. The number following the
+//    There are 9 templates provided in this file. The number following the
 //    function name is the block size of the cipher. The name following that
 //    is the acceleration and arrangement. For example 4x1_SSE means Intel SSE
 //    using two encrypt (or decrypt) functions: one that operates on 4 blocks,
@@ -22,6 +22,14 @@
 //      * AdvancedProcessBlocks64_6x2_ALTIVEC
 //      * AdvancedProcessBlocks128_6x2_ALTIVEC
 //
+//    If an arrangement ends in 2, like 6x2, then the template will handle the
+//    single block case by padding with 0's and using the two block function.
+//    This happens at most one time when processing multiple blocks. The extra
+//    processing of a zero block is trivial and worth the tradeoff.
+//
+//    The MAYBE_CONST macro present on x86 is a SunCC workaround. Some versions
+//    of SunCC lose/drop the const-ness in the F1 and F4 functions. It eventually
+//    results in a failed link due to the const/non-const mismatch.
 
 #ifndef CRYPTOPP_ADVANCED_SIMD_TEMPLATES
 #define CRYPTOPP_ADVANCED_SIMD_TEMPLATES
@@ -323,7 +331,7 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
 }
 
 /// \brief AdvancedProcessBlocks for 1 and 6 blocks
-/// \tparam F1 function to process 1 128-bit blocks
+/// \tparam F1 function to process 1 128-bit block
 /// \tparam F6 function to process 6 128-bit blocks
 /// \tparam W word type of the subkey table
 /// \details AdvancedProcessBlocks128_NEON1x6 processes 6 and 2 NEON SIMD words
@@ -721,7 +729,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F1, typename F2, typename W>
 inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
-        const W *subKeys, size_t rounds, const byte *inBlocks,
+        MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -878,7 +886,7 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 ///   same word type.
 template <typename F2, typename F6, typename W>
 inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
-        const W *subKeys, size_t rounds, const byte *inBlocks,
+        MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -1125,7 +1133,7 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
 ///   same word type.
 template <typename F2, typename F6, typename W>
 inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
-        const W *subKeys, size_t rounds, const byte *inBlocks,
+        MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
@@ -1312,12 +1320,12 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
 }
 
 /// \brief AdvancedProcessBlocks for 1 and 4 blocks
-/// \tparam F1 function to process 1 128-bit blocks
+/// \tparam F1 function to process 1 128-bit block
 /// \tparam F4 function to process 4 128-bit blocks
 /// \tparam W word type of the subkey table
 /// \details AdvancedProcessBlocks128_4x1_SSE processes 4 and 1 SSE SIMD words
 ///   at a time.
-/// \details The subkey type is usually word32 or word64. F1 and F6 must use the
+/// \details The subkey type is usually word32 or word64. F1 and F4 must use the
 ///   same word type.
 template <typename F1, typename F4, typename W>
 inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
@@ -1455,7 +1463,7 @@ NAMESPACE_END  // CryptoPP
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief AdvancedProcessBlocks for 1 and 6 blocks
-/// \tparam F1 function to process 1 128-bit blocks
+/// \tparam F1 function to process 1 128-bit block
 /// \tparam F6 function to process 6 128-bit blocks
 /// \tparam W word type of the subkey table
 /// \details AdvancedProcessBlocks128_6x1_ALTIVEC processes 6 and 1 Altivec SIMD words

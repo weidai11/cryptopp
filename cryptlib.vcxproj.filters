@@ -224,6 +224,9 @@
     <ClCompile Include="lea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="lea-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="luc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

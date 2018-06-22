@@ -277,6 +277,7 @@ ifneq ($(IS_i686)$(IS_x86_64),00)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     CHAM_FLAG = -mssse3
+    LEA_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
     SIMON_FLAG = -mssse3
     SPECK_FLAG = -mssse3
@@ -503,6 +504,10 @@ crc-simd.o : crc-simd.cpp
 # PCLMUL or ARMv7a/ARMv8a available
 gcm-simd.o : gcm-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+
+# SSSE3 available
+lea-simd.o : lea-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(LEA_FLAG) -c) $<
 
 # NEON available
 neon-simd.o : neon-simd.cpp

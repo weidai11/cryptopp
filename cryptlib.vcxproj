@@ -242,6 +242,7 @@
     <ClCompile Include="kalynatab.cpp" />
     <ClCompile Include="keccak.cpp" />
     <ClCompile Include="lea.cpp" />
+    <ClCompile Include="lea-simd.cpp" />
     <ClCompile Include="luc.cpp" />
     <ClCompile Include="mars.cpp" />
     <ClCompile Include="marss.cpp" />

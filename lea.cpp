@@ -18,6 +18,7 @@
 
 #include "lea.h"
 #include "misc.h"
+#include "cpu.h"
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -554,6 +555,16 @@ inline void SetKey256(word32 rkey[192], const word32 key[8])
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS
+extern void LEA_SplatKeys_SSSE3(SecBlock<word32>& rkeys);
+
+extern size_t LEA_Enc_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+
+extern size_t LEA_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
+
 void LEA::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
@@ -584,6 +595,15 @@ void LEA::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, con
     default:
         CRYPTOPP_ASSERT(0);;
     }
+
+#if (CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3())
+    {
+        // If we pre-splat the round keys at setup then we avoid a shuffle
+        // at runtime for each subkey used during encryption and decryption.
+        LEA_SplatKeys_SSSE3(m_rkey);
+    }
+#endif
 }
 
 void LEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -825,5 +845,27 @@ void LEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
     PutBlock<word32, LittleEndian> oblock(xorBlock, outBlock);
     oblock(m_temp[0])(m_temp[1])(m_temp[2])(m_temp[3]);
 }
+
+#if CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS
+size_t LEA::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+    if (HasSSSE3()) {
+        return LEA_Enc_AdvancedProcessBlocks_SSSE3(m_rkey, m_rounds,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t LEA::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+    if (HasSSSE3()) {
+        return LEA_Dec_AdvancedProcessBlocks_SSSE3(m_rkey, m_rounds,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif  // CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END

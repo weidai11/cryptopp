@@ -250,6 +250,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     CHAM_FLAG = -mssse3
+    LEA_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
     SIMON_FLAG = -mssse3
     SPECK_FLAG = -mssse3
@@ -291,6 +292,7 @@ ifeq ($(SUN_COMPILER),1)
     SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
     CHAM_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    LEA_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SIMON_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SPECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
@@ -1067,6 +1069,10 @@ crc-simd.o : crc-simd.cpp
 # PCLMUL or ARMv7a/ARMv8a available
 gcm-simd.o : gcm-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+
+# SSSE3 available
+lea-simd.o : lea-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(LEA_FLAG) -c) $<
 
 # NEON available
 neon-simd.o : neon-simd.cpp
