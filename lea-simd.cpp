@@ -255,7 +255,7 @@ inline uint32x4_t RepackNEON(const uint32x4_t& v)
     return UnpackNEON<IDX>(v);
 }
 
-void LEA_Encryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int rounds)
+inline void LEA_Encryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int rounds)
 {
     temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<4>(subkeys)), Xor(temp[3], LoadKey<5>(subkeys))));
     temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<2>(subkeys)), Xor(temp[2], LoadKey<3>(subkeys))));
@@ -368,7 +368,7 @@ void LEA_Encryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int roun
     }
 }
 
-void LEA_Decryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int rounds)
+inline void LEA_Decryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int rounds)
 {
     if(rounds > 28)
     {

@@ -43,10 +43,9 @@
 # include <arm_neon.h>
 #endif
 
-#if (CRYPTOPP_SSSE3_AVAILABLE)
-# include <emmintrin.h>
-# include <pmmintrin.h>
-# include <tmmintrin.h>
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+# include <immintrin.h>
+# include <xmmintrin.h>
 #endif
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
