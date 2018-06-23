@@ -154,7 +154,12 @@ inline uint32x4_t UnpackNEON(const uint32x4_t& a, const uint32x4_t& b, const uin
 template <>
 inline uint32x4_t UnpackNEON<0>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    //uint32x4_t r(a);
+    //r = vsetq_lane_u32(vgetq_lane_u32(b, 0), r, 1);
+    //r = vsetq_lane_u32(vgetq_lane_u32(c, 0), r, 2);
+    //r = vsetq_lane_u32(vgetq_lane_u32(d, 0), r, 3);
+    //return r;
+
     const uint32x4_t r1 = UnpackLow32(a, b);
     const uint32x4_t r2 = UnpackLow32(c, d);
     return UnpackLow64(r1, r2);
@@ -163,7 +168,12 @@ inline uint32x4_t UnpackNEON<0>(const uint32x4_t& a, const uint32x4_t& b, const 
 template <>
 inline uint32x4_t UnpackNEON<1>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    //uint32x4_t r(a);
+    //r = vsetq_lane_u32(vgetq_lane_u32(b, 1), r, 1);
+    //r = vsetq_lane_u32(vgetq_lane_u32(c, 1), r, 2);
+    //r = vsetq_lane_u32(vgetq_lane_u32(d, 1), r, 3);
+    //return r;
+
     const uint32x4_t r1 = UnpackLow32(a, b);
     const uint32x4_t r2 = UnpackLow32(c, d);
     return UnpackHigh64(r1, r2);
@@ -172,7 +182,12 @@ inline uint32x4_t UnpackNEON<1>(const uint32x4_t& a, const uint32x4_t& b, const 
 template <>
 inline uint32x4_t UnpackNEON<2>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    //uint32x4_t r(a);
+    //r = vsetq_lane_u32(vgetq_lane_u32(b, 2), r, 1);
+    //r = vsetq_lane_u32(vgetq_lane_u32(c, 2), r, 2);
+    //r = vsetq_lane_u32(vgetq_lane_u32(d, 2), r, 3);
+    //return r;
+
     const uint32x4_t r1 = UnpackHigh32(a, b);
     const uint32x4_t r2 = UnpackHigh32(c, d);
     return UnpackLow64(r1, r2);
@@ -181,7 +196,12 @@ inline uint32x4_t UnpackNEON<2>(const uint32x4_t& a, const uint32x4_t& b, const 
 template <>
 inline uint32x4_t UnpackNEON<3>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    //uint32x4_t r(a);
+    //r = vsetq_lane_u32(vgetq_lane_u32(b, 3), r, 1);
+    //r = vsetq_lane_u32(vgetq_lane_u32(c, 3), r, 2);
+    //r = vsetq_lane_u32(vgetq_lane_u32(d, 3), r, 3);
+    //return r;
+
     const uint32x4_t r1 = UnpackHigh32(a, b);
     const uint32x4_t r2 = UnpackHigh32(c, d);
     return UnpackHigh64(r1, r2);
