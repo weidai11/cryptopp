@@ -140,7 +140,7 @@ uint32x4_t UnpackHigh64(uint32x4_t a, uint32x4_t b)
 template <unsigned int IDX>
 inline uint32x4_t LoadKey(const word32 rkey[])
 {
-    return vdupq_n_u32(rkey[IDX]);
+    return vld1q_u32(&rkey[IDX*4]);
 }
 
 template <unsigned int IDX>
@@ -1012,6 +1012,16 @@ size_t LEA_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
 #endif // CRYPTOPP_SSSE3_AVAILABLE
 
 #if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+void LEA_SplatKeys_NEON(SecBlock<word32>& rkeys)
+{
+    SecBlock<word32> temp(rkeys.size() * 4);
+    for (size_t i=0, j=0; i<rkeys.size(); i++, j+=4)
+    {
+		vst1q_u32(&temp[j], vdupq_n_u32(rkeys[i]));
+    }
+    std::swap(rkeys, temp);
+}
+
 size_t LEA_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {

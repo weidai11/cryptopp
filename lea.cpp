@@ -567,6 +567,8 @@ extern size_t LEA_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t 
 # endif
 
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
+extern void LEA_SplatKeys_NEON(SecBlock<word32>& rkeys);
+
 extern size_t LEA_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
@@ -606,13 +608,16 @@ void LEA::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, con
         CRYPTOPP_ASSERT(0);;
     }
 
+    // If we pre-splat the round keys at setup then we avoid a shuffle
+    // at runtime for each subkey used during encryption and decryption.
+    // Pre-splatting saves about 0.7 to 1.0 cpb at the cost of 4x storage.
 #if (CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS) && (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
-    {
-        // If we pre-splat the round keys at setup then we avoid a shuffle
-        // at runtime for each subkey used during encryption and decryption.
         LEA_SplatKeys_SSSE3(m_rkey);
-    }
+#endif
+#if (CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS) && (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        LEA_SplatKeys_NEON(m_rkey);
 #endif
 }
 
