@@ -567,7 +567,9 @@ extern size_t LEA_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t 
 # endif
 
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#  if (CRYPTOPP_LEA_ARM_SPLAT_ROUNDKEYS)
 extern void LEA_SplatKeys_NEON(SecBlock<word32>& rkeys);
+#  endif  // CRYPTOPP_LEA_ARM_SPLAT_ROUNDKEYS
 
 extern size_t LEA_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
@@ -616,8 +618,10 @@ void LEA::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, con
         LEA_SplatKeys_SSSE3(m_rkey);
 #endif
 #if (CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS) && (CRYPTOPP_ARM_NEON_AVAILABLE)
+# if (CRYPTOPP_LEA_ARM_SPLAT_ROUNDKEYS)
     if (HasNEON())
         LEA_SplatKeys_NEON(m_rkey);
+# endif  // CRYPTOPP_LEA_ARM_SPLAT_ROUNDKEYS
 #endif
 }
 
