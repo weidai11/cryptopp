@@ -18,6 +18,7 @@
 //      * AdvancedProcessBlocks64_6x2_SSE
 //      * AdvancedProcessBlocks128_6x2_SSE
 //      * AdvancedProcessBlocks64_6x2_NEON
+//      * AdvancedProcessBlocks128_4x1_NEON
 //      * AdvancedProcessBlocks128_6x2_NEON
 //      * AdvancedProcessBlocks64_6x2_ALTIVEC
 //      * AdvancedProcessBlocks128_6x2_ALTIVEC
@@ -474,6 +475,147 @@ inline size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
             const_cast<byte *>(inBlocks)[15]++;
 
         func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+        if (xorOutput)
+            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+
+        vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
+
+        inBlocks += inIncrement;
+        outBlocks += outIncrement;
+        xorBlocks += xorIncrement;
+        length -= blockSize;
+    }
+
+    return length;
+}
+
+/// \brief AdvancedProcessBlocks for 1 and 4 blocks
+/// \tparam F1 function to process 1 128-bit block
+/// \tparam F4 function to process 4 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \tparam V vector type of the NEON data type
+/// \details AdvancedProcessBlocks128_6x2_NEON processes 4 and 1 NEON SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. V is the vector type and it is
+///   usually uint32x4_t or uint64x2_t. F1, F4, W and V must use the same word and
+///   vector type.
+template <typename F1, typename F4, typename W, typename V>
+inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
+            const V& unused, const W *subKeys, size_t rounds, const byte *inBlocks,
+            const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 16);
+    CRYPTOPP_UNUSED(unused);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+#else
+    const word32 s_one32x4[]    = {0, 0, 0, 1};
+#endif
+
+    const ptrdiff_t blockSize = 16;
+    // const ptrdiff_t neonBlockSize = 16;
+
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+    // Clang and Coverity are generating findings using xorBlocks as a flag.
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+
+    if (flags & BT_ReverseDirection)
+    {
+        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+    }
+
+    if (flags & BT_AllowParallel)
+    {
+        while (length >= 4*blockSize)
+        {
+            uint64x2_t block0, block1, block2, block3, block4, block5;
+            if (flags & BT_InBlockIsCounter)
+            {
+                const uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one32x4));
+                block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+
+                block1 = vaddq_u64(block0, be);
+                block2 = vaddq_u64(block1, be);
+                block3 = vaddq_u64(block2, be);
+                vst1q_u8(const_cast<byte*>(inBlocks),
+                    vreinterpretq_u8_u64(vaddq_u64(block3, be)));
+            }
+            else
+            {
+                block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                inBlocks += inIncrement;
+                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                inBlocks += inIncrement;
+                block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                inBlocks += inIncrement;
+                block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                inBlocks += inIncrement;
+            }
+
+            if (xorInput)
+            {
+                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+            }
+
+            func4((V&)block0, (V&)block1, (V&)block2, (V&)block3, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                xorBlocks += xorIncrement;
+            }
+
+            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
+            outBlocks += outIncrement;
+            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
+            outBlocks += outIncrement;
+            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block2));
+            outBlocks += outIncrement;
+            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block3));
+            outBlocks += outIncrement;
+
+            length -= 4*blockSize;
+        }
+	}
+
+    while (length >= blockSize)
+    {
+        uint64x2_t block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+
+        if (xorInput)
+            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+
+        if (flags & BT_InBlockIsCounter)
+            const_cast<byte *>(inBlocks)[15]++;
+
+        func1( (V&)block, subKeys, static_cast<unsigned int>(rounds));
 
         if (xorOutput)
             block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));

@@ -224,6 +224,7 @@ ifeq ($(IS_ARMv7),1)
     GCM_FLAG = -march=armv7-a
     ARIA_FLAG = -march=armv7-a
     BLAKE2_FLAG = -march=armv7-a
+    LEA_FLAG = -march=armv7-a
   endif
 endif
 
@@ -234,6 +235,7 @@ ifeq ($(IS_NEON),1)
     GCM_FLAG += -mfpu=neon
     ARIA_FLAG += -mfpu=neon
     BLAKE2_FLAG += -mfpu=neon
+    LEA_FLAG += -mfpu=neon
     SIMON_FLAG += -mfpu=neon
     SPECK_FLAG += -mfpu=neon
     ifeq ($(IS_ANDROID),1)
@@ -242,6 +244,7 @@ ifeq ($(IS_NEON),1)
         GCM_FLAG += -mfloat-abi=softfp
         ARIA_FLAG += -mfloat-abi=softfp
         BLAKE2_FLAG += -mfloat-abi=softfp
+        LEA_FLAG += -mfloat-abi=softfp
         SIMON_FLAG += -mfloat-abi=softfp
         SPECK_FLAG += -mfloat-abi=softfp
       endif
@@ -255,6 +258,7 @@ ifneq ($(IS_ARMv8),0)
   ifeq ($(IS_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
+    LEA_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
     SIMON_FLAG = -march=armv8-a
     SPECK_FLAG = -march=armv8-a
@@ -505,7 +509,7 @@ crc-simd.o : crc-simd.cpp
 gcm-simd.o : gcm-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
 
-# SSSE3 available
+# SSSE3 or ARMv8a available
 lea-simd.o : lea-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(LEA_FLAG) -c) $<
 

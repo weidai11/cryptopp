@@ -378,6 +378,7 @@ ifeq ($(IS_NEON),1)
     GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     BLAKE2_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    LEA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SIMON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SPECK_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
   endif
@@ -388,6 +389,7 @@ ifeq ($(IS_ARMV8),1)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
+    LEA_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
     SIMON_FLAG = -march=armv8-a
     SPECK_FLAG = -march=armv8-a

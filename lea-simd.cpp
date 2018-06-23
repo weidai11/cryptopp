@@ -27,6 +27,10 @@
 # include <immintrin.h>
 #endif
 
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# include <arm_neon.h>
+#endif
+
 // Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
 // compilers don't follow ACLE conventions for the include.
 #if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
@@ -37,6 +41,489 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+
+inline uint32x4_t Xor(const uint32x4_t& a, const uint32x4_t& b)
+{
+    return veorq_u32(a, b);
+}
+
+inline uint32x4_t Add(const uint32x4_t& a, const uint32x4_t& b)
+{
+    return vaddq_u32(a, b);
+}
+
+inline uint32x4_t Sub(const uint32x4_t& a, const uint32x4_t& b)
+{
+    return vsubq_u32(a, b);
+}
+
+template <unsigned int R>
+inline uint32x4_t RotateLeft(const uint32x4_t& val)
+{
+    const uint32x4_t a(vshlq_n_u32(val, R));
+    const uint32x4_t b(vshrq_n_u32(val, 32 - R));
+    return vorrq_u32(a, b);
+}
+
+template <unsigned int R>
+inline uint32x4_t RotateRight(const uint32x4_t& val)
+{
+    const uint32x4_t a(vshlq_n_u32(val, 32 - R));
+    const uint32x4_t b(vshrq_n_u32(val, R));
+    return vorrq_u32(a, b);
+}
+
+#if defined(__aarch32__) || defined(__aarch64__)
+template <>
+inline uint32x4_t RotateLeft<8>(const uint32x4_t& val)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8_t maskb[16] = { 14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+#else
+    const uint8_t maskb[16] = { 3,0,1,2, 7,4,5,6, 11,8,9,10, 15,12,13,14 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+#endif
+
+    return vreinterpretq_u32_u8(
+        vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
+}
+
+template <>
+inline uint32x4_t RotateRight<8>(const uint32x4_t& val)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8_t maskb[16] = { 12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+#else
+    const uint8_t maskb[16] = { 1,2,3,0, 5,6,7,4, 9,10,11,8, 13,14,14,12 };
+    const uint8x16_t mask = vld1q_u8(maskb);
+#endif
+
+    return vreinterpretq_u32_u8(
+        vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
+}
+#endif
+
+uint32x4_t UnpackLow32(uint32x4_t a, uint32x4_t b)
+{
+    uint32x2_t a1 = vget_low_u32(a);
+    uint32x2_t b1 = vget_low_u32(b);
+    uint32x2x2_t result = vzip_u32(a1, b1);
+    return vcombine_u32(result.val[0], result.val[1]);
+}
+
+uint32x4_t UnpackHigh32(uint32x4_t a, uint32x4_t b)
+{
+    uint32x2_t a1 = vget_high_u32(a);
+    uint32x2_t b1 = vget_high_u32(b);
+    uint32x2x2_t result = vzip_u32(a1, b1);
+    return vcombine_u32(result.val[0], result.val[1]);
+}
+
+uint32x4_t UnpackLow64(uint32x4_t a, uint32x4_t b)
+{
+    uint64x1_t a1 = vget_low_u64((uint64x2_t)a);
+    uint64x1_t b1 = vget_low_u64((uint64x2_t)b);
+    return (uint32x4_t)vcombine_u64(a1, b1);
+}
+
+uint32x4_t UnpackHigh64(uint32x4_t a, uint32x4_t b)
+{
+    uint64x1_t a1 = vget_high_u64((uint64x2_t)a);
+    uint64x1_t b1 = vget_high_u64((uint64x2_t)b);
+    return (uint32x4_t)vcombine_u64(a1, b1);
+}
+
+template <unsigned int IDX>
+inline uint32x4_t LoadKey(const word32 rkey[])
+{
+    return vdupq_n_u32(rkey[IDX]);
+}
+
+template <unsigned int IDX>
+inline uint32x4_t UnpackNEON(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
+{
+    // Should not be instantiated
+    CRYPTOPP_ASSERT(0);;
+    return vmovq_n_u32(0);
+}
+
+template <>
+inline uint32x4_t UnpackNEON<0>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
+{
+    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    const uint32x4_t r1 = UnpackLow32(a, b);
+    const uint32x4_t r2 = UnpackLow32(c, d);
+    return UnpackLow64(r1, r2);
+}
+
+template <>
+inline uint32x4_t UnpackNEON<1>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
+{
+    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    const uint32x4_t r1 = UnpackLow32(a, b);
+    const uint32x4_t r2 = UnpackLow32(c, d);
+    return UnpackHigh64(r1, r2);
+}
+
+template <>
+inline uint32x4_t UnpackNEON<2>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
+{
+    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    const uint32x4_t r1 = UnpackHigh32(a, b);
+    const uint32x4_t r2 = UnpackHigh32(c, d);
+    return UnpackLow64(r1, r2);
+}
+
+template <>
+inline uint32x4_t UnpackNEON<3>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
+{
+    // LEA is little-endian oriented, so there is no need for a separate shuffle.
+    const uint32x4_t r1 = UnpackHigh32(a, b);
+    const uint32x4_t r2 = UnpackHigh32(c, d);
+    return UnpackHigh64(r1, r2);
+}
+
+template <unsigned int IDX>
+inline uint32x4_t UnpackNEON(const uint32x4_t& v)
+{
+    // Should not be instantiated
+    CRYPTOPP_ASSERT(0);;
+    return vmovq_n_u32(0);
+}
+
+template <>
+inline uint32x4_t UnpackNEON<0>(const uint32x4_t& v)
+{
+    // Splat to all lanes
+    return vdupq_n_u32(vgetq_lane_u32(v, 0));
+}
+
+template <>
+inline uint32x4_t UnpackNEON<1>(const uint32x4_t& v)
+{
+    // Splat to all lanes
+    return vdupq_n_u32(vgetq_lane_u32(v, 1));
+}
+
+template <>
+inline uint32x4_t UnpackNEON<2>(const uint32x4_t& v)
+{
+    // Splat to all lanes
+    return vdupq_n_u32(vgetq_lane_u32(v, 2));
+}
+
+template <>
+inline uint32x4_t UnpackNEON<3>(const uint32x4_t& v)
+{
+    // Splat to all lanes
+    return vdupq_n_u32(vgetq_lane_u32(v, 3));
+}
+
+template <unsigned int IDX>
+inline uint32x4_t RepackNEON(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
+{
+    return UnpackNEON<IDX>(a, b, c, d);
+}
+
+template <unsigned int IDX>
+inline uint32x4_t RepackNEON(const uint32x4_t& v)
+{
+    return UnpackNEON<IDX>(v);
+}
+
+void LEA_Encryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int rounds)
+{
+    temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<4>(subkeys)), Xor(temp[3], LoadKey<5>(subkeys))));
+    temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<2>(subkeys)), Xor(temp[2], LoadKey<3>(subkeys))));
+    temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<0>(subkeys)), Xor(temp[1], LoadKey<1>(subkeys))));
+    temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<10>(subkeys)), Xor(temp[0], LoadKey<11>(subkeys))));
+    temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<8>(subkeys)), Xor(temp[3], LoadKey<9>(subkeys))));
+    temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<6>(subkeys)), Xor(temp[2], LoadKey<7>(subkeys))));
+    temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<16>(subkeys)), Xor(temp[1], LoadKey<17>(subkeys))));
+    temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<14>(subkeys)), Xor(temp[0], LoadKey<15>(subkeys))));
+    temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<12>(subkeys)), Xor(temp[3], LoadKey<13>(subkeys))));
+    temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<22>(subkeys)), Xor(temp[2], LoadKey<23>(subkeys))));
+    temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<20>(subkeys)), Xor(temp[1], LoadKey<21>(subkeys))));
+    temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<18>(subkeys)), Xor(temp[0], LoadKey<19>(subkeys))));
+
+    temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<28>(subkeys)), Xor(temp[3], LoadKey<29>(subkeys))));
+    temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<26>(subkeys)), Xor(temp[2], LoadKey<27>(subkeys))));
+    temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<24>(subkeys)), Xor(temp[1], LoadKey<25>(subkeys))));
+    temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<34>(subkeys)), Xor(temp[0], LoadKey<35>(subkeys))));
+    temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<32>(subkeys)), Xor(temp[3], LoadKey<33>(subkeys))));
+    temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<30>(subkeys)), Xor(temp[2], LoadKey<31>(subkeys))));
+    temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<40>(subkeys)), Xor(temp[1], LoadKey<41>(subkeys))));
+    temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<38>(subkeys)), Xor(temp[0], LoadKey<39>(subkeys))));
+    temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<36>(subkeys)), Xor(temp[3], LoadKey<37>(subkeys))));
+    temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<46>(subkeys)), Xor(temp[2], LoadKey<47>(subkeys))));
+    temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<44>(subkeys)), Xor(temp[1], LoadKey<45>(subkeys))));
+    temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<42>(subkeys)), Xor(temp[0], LoadKey<43>(subkeys))));
+
+    temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<52>(subkeys)), Xor(temp[3], LoadKey<53>(subkeys))));
+    temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<50>(subkeys)), Xor(temp[2], LoadKey<51>(subkeys))));
+    temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<48>(subkeys)), Xor(temp[1], LoadKey<49>(subkeys))));
+    temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<58>(subkeys)), Xor(temp[0], LoadKey<59>(subkeys))));
+    temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<56>(subkeys)), Xor(temp[3], LoadKey<57>(subkeys))));
+    temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<54>(subkeys)), Xor(temp[2], LoadKey<55>(subkeys))));
+    temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<64>(subkeys)), Xor(temp[1], LoadKey<65>(subkeys))));
+    temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<62>(subkeys)), Xor(temp[0], LoadKey<63>(subkeys))));
+    temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<60>(subkeys)), Xor(temp[3], LoadKey<61>(subkeys))));
+    temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<70>(subkeys)), Xor(temp[2], LoadKey<71>(subkeys))));
+    temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<68>(subkeys)), Xor(temp[1], LoadKey<69>(subkeys))));
+    temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<66>(subkeys)), Xor(temp[0], LoadKey<67>(subkeys))));
+
+    temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<76>(subkeys)), Xor(temp[3], LoadKey<77>(subkeys))));
+    temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<74>(subkeys)), Xor(temp[2], LoadKey<75>(subkeys))));
+    temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<72>(subkeys)), Xor(temp[1], LoadKey<73>(subkeys))));
+    temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<82>(subkeys)), Xor(temp[0], LoadKey<83>(subkeys))));
+    temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<80>(subkeys)), Xor(temp[3], LoadKey<81>(subkeys))));
+    temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<78>(subkeys)), Xor(temp[2], LoadKey<79>(subkeys))));
+    temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<88>(subkeys)), Xor(temp[1], LoadKey<89>(subkeys))));
+    temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<86>(subkeys)), Xor(temp[0], LoadKey<87>(subkeys))));
+    temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<84>(subkeys)), Xor(temp[3], LoadKey<85>(subkeys))));
+    temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<94>(subkeys)), Xor(temp[2], LoadKey<95>(subkeys))));
+    temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<92>(subkeys)), Xor(temp[1], LoadKey<93>(subkeys))));
+    temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<90>(subkeys)), Xor(temp[0], LoadKey<91>(subkeys))));
+
+    temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<100>(subkeys)), Xor(temp[3], LoadKey<101>(subkeys))));
+    temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<98>(subkeys)), Xor(temp[2], LoadKey<99>(subkeys))));
+    temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<96>(subkeys)), Xor(temp[1], LoadKey<97>(subkeys))));
+    temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<106>(subkeys)), Xor(temp[0], LoadKey<107>(subkeys))));
+    temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<104>(subkeys)), Xor(temp[3], LoadKey<105>(subkeys))));
+    temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<102>(subkeys)), Xor(temp[2], LoadKey<103>(subkeys))));
+    temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<112>(subkeys)), Xor(temp[1], LoadKey<113>(subkeys))));
+    temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<110>(subkeys)), Xor(temp[0], LoadKey<111>(subkeys))));
+    temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<108>(subkeys)), Xor(temp[3], LoadKey<109>(subkeys))));
+    temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<118>(subkeys)), Xor(temp[2], LoadKey<119>(subkeys))));
+    temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<116>(subkeys)), Xor(temp[1], LoadKey<117>(subkeys))));
+    temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<114>(subkeys)), Xor(temp[0], LoadKey<115>(subkeys))));
+
+    temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<124>(subkeys)), Xor(temp[3], LoadKey<125>(subkeys))));
+    temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<122>(subkeys)), Xor(temp[2], LoadKey<123>(subkeys))));
+    temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<120>(subkeys)), Xor(temp[1], LoadKey<121>(subkeys))));
+    temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<130>(subkeys)), Xor(temp[0], LoadKey<131>(subkeys))));
+    temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<128>(subkeys)), Xor(temp[3], LoadKey<129>(subkeys))));
+    temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<126>(subkeys)), Xor(temp[2], LoadKey<127>(subkeys))));
+    temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<136>(subkeys)), Xor(temp[1], LoadKey<137>(subkeys))));
+    temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<134>(subkeys)), Xor(temp[0], LoadKey<135>(subkeys))));
+    temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<132>(subkeys)), Xor(temp[3], LoadKey<133>(subkeys))));
+    temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<142>(subkeys)), Xor(temp[2], LoadKey<143>(subkeys))));
+    temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<140>(subkeys)), Xor(temp[1], LoadKey<141>(subkeys))));
+    temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<138>(subkeys)), Xor(temp[0], LoadKey<139>(subkeys))));
+
+    if(rounds > 24)
+    {
+        temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<148>(subkeys)), Xor(temp[3], LoadKey<149>(subkeys))));
+        temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<146>(subkeys)), Xor(temp[2], LoadKey<147>(subkeys))));
+        temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<144>(subkeys)), Xor(temp[1], LoadKey<145>(subkeys))));
+        temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<154>(subkeys)), Xor(temp[0], LoadKey<155>(subkeys))));
+        temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<152>(subkeys)), Xor(temp[3], LoadKey<153>(subkeys))));
+        temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<150>(subkeys)), Xor(temp[2], LoadKey<151>(subkeys))));
+        temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<160>(subkeys)), Xor(temp[1], LoadKey<161>(subkeys))));
+        temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<158>(subkeys)), Xor(temp[0], LoadKey<159>(subkeys))));
+        temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<156>(subkeys)), Xor(temp[3], LoadKey<157>(subkeys))));
+        temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<166>(subkeys)), Xor(temp[2], LoadKey<167>(subkeys))));
+        temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<164>(subkeys)), Xor(temp[1], LoadKey<165>(subkeys))));
+        temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<162>(subkeys)), Xor(temp[0], LoadKey<163>(subkeys))));
+    }
+
+    if(rounds > 28)
+    {
+        temp[3] = RotateRight<3>(Add(Xor(temp[2], LoadKey<172>(subkeys)), Xor(temp[3], LoadKey<173>(subkeys))));
+        temp[2] = RotateRight<5>(Add(Xor(temp[1], LoadKey<170>(subkeys)), Xor(temp[2], LoadKey<171>(subkeys))));
+        temp[1] = RotateLeft<9>(Add(Xor(temp[0], LoadKey<168>(subkeys)), Xor(temp[1], LoadKey<169>(subkeys))));
+        temp[0] = RotateRight<3>(Add(Xor(temp[3], LoadKey<178>(subkeys)), Xor(temp[0], LoadKey<179>(subkeys))));
+        temp[3] = RotateRight<5>(Add(Xor(temp[2], LoadKey<176>(subkeys)), Xor(temp[3], LoadKey<177>(subkeys))));
+        temp[2] = RotateLeft<9>(Add(Xor(temp[1], LoadKey<174>(subkeys)), Xor(temp[2], LoadKey<175>(subkeys))));
+        temp[1] = RotateRight<3>(Add(Xor(temp[0], LoadKey<184>(subkeys)), Xor(temp[1], LoadKey<185>(subkeys))));
+        temp[0] = RotateRight<5>(Add(Xor(temp[3], LoadKey<182>(subkeys)), Xor(temp[0], LoadKey<183>(subkeys))));
+        temp[3] = RotateLeft<9>(Add(Xor(temp[2], LoadKey<180>(subkeys)), Xor(temp[3], LoadKey<181>(subkeys))));
+        temp[2] = RotateRight<3>(Add(Xor(temp[1], LoadKey<190>(subkeys)), Xor(temp[2], LoadKey<191>(subkeys))));
+        temp[1] = RotateRight<5>(Add(Xor(temp[0], LoadKey<188>(subkeys)), Xor(temp[1], LoadKey<189>(subkeys))));
+        temp[0] = RotateLeft<9>(Add(Xor(temp[3], LoadKey<186>(subkeys)), Xor(temp[0], LoadKey<187>(subkeys))));
+    }
+}
+
+void LEA_Decryption(uint32x4_t temp[4], const word32 *subkeys, unsigned int rounds)
+{
+    if(rounds > 28)
+    {
+        temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<186>(subkeys))), LoadKey<187>(subkeys));
+        temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<188>(subkeys))), LoadKey<189>(subkeys));
+        temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<190>(subkeys))), LoadKey<191>(subkeys));
+        temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<180>(subkeys))), LoadKey<181>(subkeys));
+        temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<182>(subkeys))), LoadKey<183>(subkeys));
+        temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<184>(subkeys))), LoadKey<185>(subkeys));
+        temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<174>(subkeys))), LoadKey<175>(subkeys));
+        temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<176>(subkeys))), LoadKey<177>(subkeys));
+        temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<178>(subkeys))), LoadKey<179>(subkeys));
+        temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<168>(subkeys))), LoadKey<169>(subkeys));
+        temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<170>(subkeys))), LoadKey<171>(subkeys));
+        temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<172>(subkeys))), LoadKey<173>(subkeys));
+    }
+
+    if(rounds > 24)
+    {
+        temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<162>(subkeys))), LoadKey<163>(subkeys));
+        temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<164>(subkeys))), LoadKey<165>(subkeys));
+        temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<166>(subkeys))), LoadKey<167>(subkeys));
+        temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<156>(subkeys))), LoadKey<157>(subkeys));
+        temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<158>(subkeys))), LoadKey<159>(subkeys));
+        temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<160>(subkeys))), LoadKey<161>(subkeys));
+        temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<150>(subkeys))), LoadKey<151>(subkeys));
+        temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<152>(subkeys))), LoadKey<153>(subkeys));
+        temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<154>(subkeys))), LoadKey<155>(subkeys));
+        temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<144>(subkeys))), LoadKey<145>(subkeys));
+        temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<146>(subkeys))), LoadKey<147>(subkeys));
+        temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<148>(subkeys))), LoadKey<149>(subkeys));
+    }
+
+    temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<138>(subkeys))), LoadKey<139>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<140>(subkeys))), LoadKey<141>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<142>(subkeys))), LoadKey<143>(subkeys));
+    temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<132>(subkeys))), LoadKey<133>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<134>(subkeys))), LoadKey<135>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<136>(subkeys))), LoadKey<137>(subkeys));
+    temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<126>(subkeys))), LoadKey<127>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<128>(subkeys))), LoadKey<129>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<130>(subkeys))), LoadKey<131>(subkeys));
+    temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<120>(subkeys))), LoadKey<121>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<122>(subkeys))), LoadKey<123>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<124>(subkeys))), LoadKey<125>(subkeys));
+
+    temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<114>(subkeys))), LoadKey<115>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<116>(subkeys))), LoadKey<117>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<118>(subkeys))), LoadKey<119>(subkeys));
+    temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<108>(subkeys))), LoadKey<109>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<110>(subkeys))), LoadKey<111>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<112>(subkeys))), LoadKey<113>(subkeys));
+    temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<102>(subkeys))), LoadKey<103>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<104>(subkeys))), LoadKey<105>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<106>(subkeys))), LoadKey<107>(subkeys));
+    temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<96>(subkeys))), LoadKey<97>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<98>(subkeys))), LoadKey<99>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<100>(subkeys))), LoadKey<101>(subkeys));
+
+    temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<90>(subkeys))), LoadKey<91>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<92>(subkeys))), LoadKey<93>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<94>(subkeys))), LoadKey<95>(subkeys));
+    temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<84>(subkeys))), LoadKey<85>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<86>(subkeys))), LoadKey<87>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<88>(subkeys))), LoadKey<89>(subkeys));
+    temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<78>(subkeys))), LoadKey<79>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<80>(subkeys))), LoadKey<81>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<82>(subkeys))), LoadKey<83>(subkeys));
+    temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<72>(subkeys))), LoadKey<73>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<74>(subkeys))), LoadKey<75>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<76>(subkeys))), LoadKey<77>(subkeys));
+
+    temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<66>(subkeys))), LoadKey<67>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<68>(subkeys))), LoadKey<69>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<70>(subkeys))), LoadKey<71>(subkeys));
+    temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<60>(subkeys))), LoadKey<61>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<62>(subkeys))), LoadKey<63>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<64>(subkeys))), LoadKey<65>(subkeys));
+    temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<54>(subkeys))), LoadKey<55>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<56>(subkeys))), LoadKey<57>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<58>(subkeys))), LoadKey<59>(subkeys));
+    temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<48>(subkeys))), LoadKey<49>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<50>(subkeys))), LoadKey<51>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<52>(subkeys))), LoadKey<53>(subkeys));
+
+    temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<42>(subkeys))), LoadKey<43>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<44>(subkeys))), LoadKey<45>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<46>(subkeys))), LoadKey<47>(subkeys));
+    temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<36>(subkeys))), LoadKey<37>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<38>(subkeys))), LoadKey<39>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<40>(subkeys))), LoadKey<41>(subkeys));
+    temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<30>(subkeys))), LoadKey<31>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<32>(subkeys))), LoadKey<33>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<34>(subkeys))), LoadKey<35>(subkeys));
+    temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<24>(subkeys))), LoadKey<25>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<26>(subkeys))), LoadKey<27>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<28>(subkeys))), LoadKey<29>(subkeys));
+
+    temp[0] = Xor(Sub(RotateRight<9>(temp[0]), Xor(temp[3], LoadKey<18>(subkeys))), LoadKey<19>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<5>(temp[1]), Xor(temp[0], LoadKey<20>(subkeys))), LoadKey<21>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<3>(temp[2]), Xor(temp[1], LoadKey<22>(subkeys))), LoadKey<23>(subkeys));
+    temp[3] = Xor(Sub(RotateRight<9>(temp[3]), Xor(temp[2], LoadKey<12>(subkeys))), LoadKey<13>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<5>(temp[0]), Xor(temp[3], LoadKey<14>(subkeys))), LoadKey<15>(subkeys));
+    temp[1] = Xor(Sub(RotateLeft<3>(temp[1]), Xor(temp[0], LoadKey<16>(subkeys))), LoadKey<17>(subkeys));
+    temp[2] = Xor(Sub(RotateRight<9>(temp[2]), Xor(temp[1], LoadKey<6>(subkeys))), LoadKey<7>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<5>(temp[3]), Xor(temp[2], LoadKey<8>(subkeys))), LoadKey<9>(subkeys));
+    temp[0] = Xor(Sub(RotateLeft<3>(temp[0]), Xor(temp[3], LoadKey<10>(subkeys))), LoadKey<11>(subkeys));
+    temp[1] = Xor(Sub(RotateRight<9>(temp[1]), Xor(temp[0], LoadKey<0>(subkeys))), LoadKey<1>(subkeys));
+    temp[2] = Xor(Sub(RotateLeft<5>(temp[2]), Xor(temp[1], LoadKey<2>(subkeys))), LoadKey<3>(subkeys));
+    temp[3] = Xor(Sub(RotateLeft<3>(temp[3]), Xor(temp[2], LoadKey<4>(subkeys))), LoadKey<5>(subkeys));
+}
+
+inline void LEA_Enc_Block(uint32x4_t &block0,
+    const word32 *subkeys, unsigned int rounds)
+{
+    uint32x4_t temp[4];
+    temp[0] = UnpackNEON<0>(block0);
+    temp[1] = UnpackNEON<1>(block0);
+    temp[2] = UnpackNEON<2>(block0);
+    temp[3] = UnpackNEON<3>(block0);
+
+    LEA_Encryption(temp, subkeys, rounds);
+
+    block0 = RepackNEON<0>(temp[0], temp[1], temp[2], temp[3]);
+}
+
+inline void LEA_Dec_Block(uint32x4_t &block0,
+    const word32 *subkeys, unsigned int rounds)
+{
+    uint32x4_t temp[4];
+    temp[0] = UnpackNEON<0>(block0);
+    temp[1] = UnpackNEON<1>(block0);
+    temp[2] = UnpackNEON<2>(block0);
+    temp[3] = UnpackNEON<3>(block0);
+
+    LEA_Decryption(temp, subkeys, rounds);
+
+    block0 = RepackNEON<0>(temp[0], temp[1], temp[2], temp[3]);
+}
+
+inline void LEA_Enc_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
+    uint32x4_t &block2, uint32x4_t &block3, const word32 *subkeys, unsigned int rounds)
+{
+    uint32x4_t temp[4];
+    temp[0] = UnpackNEON<0>(block0, block1, block2, block3);
+    temp[1] = UnpackNEON<1>(block0, block1, block2, block3);
+    temp[2] = UnpackNEON<2>(block0, block1, block2, block3);
+    temp[3] = UnpackNEON<3>(block0, block1, block2, block3);
+
+    LEA_Encryption(temp, subkeys, rounds);
+
+    block0 = RepackNEON<0>(temp[0], temp[1], temp[2], temp[3]);
+    block1 = RepackNEON<1>(temp[0], temp[1], temp[2], temp[3]);
+    block2 = RepackNEON<2>(temp[0], temp[1], temp[2], temp[3]);
+    block3 = RepackNEON<3>(temp[0], temp[1], temp[2], temp[3]);
+}
+
+inline void LEA_Dec_4_Blocks(uint32x4_t &block0, uint32x4_t &block1,
+    uint32x4_t &block2, uint32x4_t &block3, const word32 *subkeys, unsigned int rounds)
+{
+    uint32x4_t temp[4];
+    temp[0] = UnpackNEON<0>(block0, block1, block2, block3);
+    temp[1] = UnpackNEON<1>(block0, block1, block2, block3);
+    temp[2] = UnpackNEON<2>(block0, block1, block2, block3);
+    temp[3] = UnpackNEON<3>(block0, block1, block2, block3);
+
+    LEA_Decryption(temp, subkeys, rounds);
+
+    block0 = RepackNEON<0>(temp[0], temp[1], temp[2], temp[3]);
+    block1 = RepackNEON<1>(temp[0], temp[1], temp[2], temp[3]);
+    block2 = RepackNEON<2>(temp[0], temp[1], temp[2], temp[3]);
+    block3 = RepackNEON<3>(temp[0], temp[1], temp[2], temp[3]);
+}
+
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 
@@ -503,5 +990,23 @@ size_t LEA_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif // CRYPTOPP_SSSE3_AVAILABLE
+
+#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+size_t LEA_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    uint32x4_t unused;  // Avoid template argument deduction/substitution failures
+    return AdvancedProcessBlocks128_4x1_NEON(LEA_Enc_Block, LEA_Enc_4_Blocks,
+        unused, subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t LEA_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    uint32x4_t unused;  // Avoid template argument deduction/substitution failures
+    return AdvancedProcessBlocks128_4x1_NEON(LEA_Dec_Block, LEA_Dec_4_Blocks,
+        unused, subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif // CRYPTOPP_ARM_NEON_AVAILABLE
 
 NAMESPACE_END
