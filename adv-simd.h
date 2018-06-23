@@ -494,12 +494,13 @@ inline size_t AdvancedProcessBlocks128_NEON1x6(F1 func1, F6 func6,
 /// \tparam F1 function to process 1 128-bit block
 /// \tparam F4 function to process 4 128-bit blocks
 /// \tparam W word type of the subkey table
-/// \tparam V vector type of the NEON data type
-/// \details AdvancedProcessBlocks128_6x2_NEON processes 4 and 1 NEON SIMD words
+/// \tparam V vector type of the NEON datatype
+/// \details AdvancedProcessBlocks128_4x1_NEON processes 4 and 1 NEON SIMD words
 ///   at a time.
 /// \details The subkey type is usually word32 or word64. V is the vector type and it is
 ///   usually uint32x4_t or uint64x2_t. F1, F4, W and V must use the same word and
-///   vector type.
+///   vector type. The V parameter is used to avoid template argument
+///   deduction/substitution failures.
 template <typename F1, typename F4, typename W, typename V>
 inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             const V& unused, const W *subKeys, size_t rounds, const byte *inBlocks,

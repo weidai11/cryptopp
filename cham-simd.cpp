@@ -83,7 +83,7 @@ inline __m128i UnpackXMM<0>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpacklo_epi16(a, b);
     const __m128i r2 = _mm_unpacklo_epi16(c, d);
@@ -102,7 +102,7 @@ inline __m128i UnpackXMM<1>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpacklo_epi16(a, b);
     const __m128i r2 = _mm_unpacklo_epi16(c, d);
@@ -121,7 +121,7 @@ inline __m128i UnpackXMM<2>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpacklo_epi16(a, b);
     const __m128i r2 = _mm_unpacklo_epi16(c, d);
@@ -140,7 +140,7 @@ inline __m128i UnpackXMM<3>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpacklo_epi16(a, b);
     const __m128i r2 = _mm_unpacklo_epi16(c, d);
@@ -159,7 +159,7 @@ inline __m128i UnpackXMM<4>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpackhi_epi16(a, b);
     const __m128i r2 = _mm_unpackhi_epi16(c, d);
@@ -178,7 +178,7 @@ inline __m128i UnpackXMM<5>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpackhi_epi16(a, b);
     const __m128i r2 = _mm_unpackhi_epi16(c, d);
@@ -197,7 +197,7 @@ inline __m128i UnpackXMM<6>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpackhi_epi16(a, b);
     const __m128i r2 = _mm_unpackhi_epi16(c, d);
@@ -216,7 +216,7 @@ inline __m128i UnpackXMM<7>(const __m128i& a, const __m128i& b, const __m128i& c
 {
     // The shuffle converts to and from little-endian for SSE. A specialized
     // CHAM implementation can avoid the shuffle by framing the data for
-    // encryption, decrementryption and benchmarks. The library cannot take the
+    // encryption, decryption and benchmarks. The library cannot take the
     // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpackhi_epi16(a, b);
     const __m128i r2 = _mm_unpackhi_epi16(c, d);
