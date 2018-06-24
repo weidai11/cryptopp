@@ -236,7 +236,7 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     m_wspace.New(4U);
 
     // Do the endian gyrations from the paper and align pointers
-    typedef GetBlock<word32, LittleEndian, false> KeyBlock;
+    typedef GetBlock<word32, LittleEndian> KeyBlock;
     KeyBlock kblk(userKey);
 
     switch (m_kwords)
@@ -259,7 +259,7 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
 void SIMON64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // Do the endian gyrations from the paper and align pointers
-    typedef GetBlock<word32, LittleEndian, false> InBlock;
+    typedef GetBlock<word32, LittleEndian> InBlock;
     InBlock iblk(inBlock); iblk(m_wspace[1])(m_wspace[0]);
 
     switch (m_rounds)
@@ -275,14 +275,14 @@ void SIMON64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     }
 
     // Do the endian gyrations from the paper and align pointers
-    typedef PutBlock<word32, LittleEndian, false> OutBlock;
+    typedef PutBlock<word32, LittleEndian> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2]);
 }
 
 void SIMON64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // Do the endian gyrations from the paper and align pointers
-    typedef GetBlock<word32, LittleEndian, false> InBlock;
+    typedef GetBlock<word32, LittleEndian> InBlock;
     InBlock iblk(inBlock); iblk(m_wspace[1])(m_wspace[0]);
 
     switch (m_rounds)
@@ -298,7 +298,7 @@ void SIMON64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     }
 
     // Do the endian gyrations from the paper and align pointers
-    typedef PutBlock<word32, LittleEndian, false> OutBlock;
+    typedef PutBlock<word32, LittleEndian> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2]);
 }
 
@@ -315,7 +315,7 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     m_wspace.New(4U);
 
     // Do the endian gyrations from the paper and align pointers
-    typedef GetBlock<word64, LittleEndian, false> KeyBlock;
+    typedef GetBlock<word64, LittleEndian> KeyBlock;
     KeyBlock kblk(userKey);
 
     switch (m_kwords)
@@ -343,7 +343,7 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
 void SIMON128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // Do the endian gyrations from the paper and align pointers
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
+    typedef GetBlock<word64, LittleEndian> InBlock;
     InBlock iblk(inBlock); iblk(m_wspace[1])(m_wspace[0]);
 
     switch (m_rounds)
@@ -362,14 +362,14 @@ void SIMON128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     }
 
     // Do the endian gyrations from the paper and align pointers
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
+    typedef PutBlock<word64, LittleEndian> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2]);
 }
 
 void SIMON128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
     // Do the endian gyrations from the paper and align pointers
-    typedef GetBlock<word64, LittleEndian, false> InBlock;
+    typedef GetBlock<word64, LittleEndian> InBlock;
     InBlock iblk(inBlock); iblk(m_wspace[1])(m_wspace[0]);
 
     switch (m_rounds)
@@ -388,7 +388,7 @@ void SIMON128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     }
 
     // Do the endian gyrations from the paper and align pointers
-    typedef PutBlock<word64, LittleEndian, false> OutBlock;
+    typedef PutBlock<word64, LittleEndian> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2]);
 }
 
