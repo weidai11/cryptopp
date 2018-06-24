@@ -525,9 +525,6 @@ void Benchmark2(double t, double hertz)
 	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 	std::cout << "<TH>Microseconds to<BR>Setup Key and IV" << cpk;
 
-	BenchMarkByName<SymmetricCipher>("HIGHT/CTR");
-	return;
-
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 #if CRYPTOPP_AESNI_AVAILABLE
