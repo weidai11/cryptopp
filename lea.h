@@ -19,19 +19,11 @@
 # define CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
-// Define this if you want to pre-splat the round key table
-// for NEON and Aarch64. Pre-splatting the round key increases
-// performance by about 0.7 cpb on ARM server boards like an
-// AMD Opteron A1100. However, it crushes performance on ARM
-// dev-boards like LeMaker HiKey and Pine64. HiKey and Pine64
-// run about 8 cpb slower when pre-splatting the round keys.
-// # define CRYPTOPP_LEA_ARM_SPLAT_ROUNDKEYS 1
-
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief LEA block cipher information
 /// \since Crypto++ 7.1
-struct LEA_Info : public FixedBlockSize<16>, VariableKeyLength<16,16,32,8>
+struct LEA_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,32,8>
 {
     static const std::string StaticAlgorithmName()
     {
