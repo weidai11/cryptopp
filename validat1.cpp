@@ -172,6 +172,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSHACAL2() && pass;
 	pass=ValidateARIA() && pass;
 	pass=ValidateCHAM() && pass;
+	pass=ValidateHIGHT() && pass;
 	pass=ValidateLEA() && pass;
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
@@ -3403,6 +3404,13 @@ bool ValidateCHAM()
 	std::cout << "\nCHAM validation suite running...\n";
 
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/cham.txt");
+}
+
+bool ValidateHIGHT()
+{
+	std::cout << "\nHIGHT validation suite running...\n";
+
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hight.txt");
 }
 
 bool ValidateLEA()

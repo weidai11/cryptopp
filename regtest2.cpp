@@ -12,7 +12,7 @@
 #include "seal.h"
 #include "ttmac.h"
 #include "aria.h"
-#include "cham.h"
+#include "hight.h"
 #include "camellia.h"
 #include "shacal2.h"
 #include "tea.h"
@@ -33,6 +33,7 @@
 #include "mars.h"
 #include "kalyna.h"
 #include "threefish.h"
+#include "cham.h"
 #include "lea.h"
 #include "simon.h"
 #include "speck.h"
@@ -99,6 +100,8 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SHACAL2> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<ARIA> >();
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<HIGHT> >();
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<HIGHT> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<Camellia> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<TEA> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<XTEA> >();

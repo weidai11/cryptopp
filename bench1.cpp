@@ -525,6 +525,9 @@ void Benchmark2(double t, double hertz)
 	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 	std::cout << "<TH>Microseconds to<BR>Setup Key and IV" << cpk;
 
+	BenchMarkByName<SymmetricCipher>("HIGHT/CTR");
+	return;
+
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 #if CRYPTOPP_AESNI_AVAILABLE
@@ -584,6 +587,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("AES/ECB", 16);
 		BenchMarkByName<SymmetricCipher>("ARIA/CTR", 16);
 		BenchMarkByName<SymmetricCipher>("ARIA/CTR", 32);
+		BenchMarkByName<SymmetricCipher>("HIGHT/CTR");
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 16);
 		BenchMarkByName<SymmetricCipher>("Camellia/CTR", 32);
 		BenchMarkByName<SymmetricCipher>("Twofish/CTR");

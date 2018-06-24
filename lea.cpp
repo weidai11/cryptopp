@@ -4,7 +4,7 @@
 //           Kwon Ho Ryu, and Dong-Geon Lee.
 //
 //           This implementation is based on source files found in a zip file at the
-//           Korea Internet and Security Association (https://www.kisa.or.kr/eng/main.jsp).
+//           Korea Internet and Security Agency (https://www.kisa.or.kr/eng/main.jsp).
 //           The zip files was downloaded from the Korean language area of the site so we
 //           don't have a url or english zip filename to cite. The source filename from
 //           the zip is lea_core.c.

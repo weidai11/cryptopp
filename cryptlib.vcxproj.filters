@@ -194,6 +194,9 @@
     <ClCompile Include="hex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="hmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -658,6 +661,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hkdf.h">

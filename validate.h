@@ -82,6 +82,7 @@ bool ValidateSerpent();
 bool ValidateSHACAL2();
 bool ValidateARIA();
 bool ValidateCHAM();
+bool ValidateHIGHT();
 bool ValidateLEA();
 bool ValidateCamellia();
 bool ValidateSalsa();

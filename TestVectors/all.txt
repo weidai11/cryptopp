@@ -30,10 +30,11 @@ Test: TestVectors/aria.txt
 Test: TestVectors/kalyna.txt
 Test: TestVectors/threefish.txt
 Test: TestVectors/sm4.txt
+Test: TestVectors/hight.txt
+Test: TestVectors/cham.txt
 Test: TestVectors/lea.txt
 Test: TestVectors/simon.txt
 Test: TestVectors/speck.txt
-Test: TestVectors/cham.txt
 Test: TestVectors/salsa.txt
 Test: TestVectors/chacha.txt
 #Test: TestVectors/tls_chacha.txt

@@ -142,6 +142,8 @@ gzip.h
 hashfwd.h
 hex.cpp
 hex.h
+hight.h
+hight.cpp
 hkdf.h
 hmac.cpp
 hmac.h
@@ -451,6 +453,7 @@ TestVectors/eax.txt
 TestVectors/esign.txt
 TestVectors/gcm.txt
 TestVectors/hkdf.txt
+TestVectors/hight.txt
 TestVectors/hmac.txt
 TestVectors/kalyna.txt
 TestVectors/keccak.txt

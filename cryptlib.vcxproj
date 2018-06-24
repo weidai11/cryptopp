@@ -231,6 +231,7 @@
     <ClCompile Include="gost.cpp" />
     <ClCompile Include="gzip.cpp" />
     <ClCompile Include="hex.cpp" />
+    <ClCompile Include="hight.cpp" />
     <ClCompile Include="hmac.cpp" />
     <ClCompile Include="hrtimer.cpp" />
     <ClCompile Include="ida.cpp" />
@@ -422,6 +423,7 @@
     <ClInclude Include="gost.h" />
     <ClInclude Include="gzip.h" />
     <ClInclude Include="hex.h" />
+    <ClInclude Include="hight.h" />
     <ClInclude Include="hkdf.h" />
     <ClInclude Include="hmac.h" />
     <ClInclude Include="hmqv.h" />

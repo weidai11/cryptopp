@@ -1,0 +1,107 @@
+AlgorithmType: SymmetricCipher
+Name: HIGHT/ECB
+#
+Source: HIGHT reference zip file, file KISA_HIGHT_ECB.c
+Comment: HIGHT/ECB, 128-bit key
+Key: 88 E3 4F 8F 08 17 79 F1 E9 F3 94 37 0A D4 05 89
+Plaintext: D7 6D 0D 18 32 7E C5 62
+Ciphertext: E4 BC 2E 31 22 77 E4 DD
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 29 23 BE 84 E1 6C D6 AE 52 90 49 F1 F1 BB E9 EB
+Plaintext: B3 A6 DB 3C 87 0C 3E 99
+Ciphertext: 23 CA D1 A3 CD DF 7E AB
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 24 5E 0D 1C 06 B7 47 DE B3 12 4D C8 43 BB 8B A6
+Plaintext: 1F 03 5A 7D 09 38 25 1F
+Ciphertext: 52 BD 91 BB 26 F8 ED 99
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 5D D4 CB FC 96 F5 45 3B 13 0D 89 0A 1C DB AE 32
+Plaintext: 20 9A 50 EE 40 78 36 FD
+Ciphertext: 95 02 B4 6D 87 B4 41 67
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 12 49 32 F6 9E 7D 49 DC AD 4F 14 F2 44 40 66 D0
+Plaintext: 6B C4 30 B7 32 3B A1 22
+Ciphertext: 20 CB CF 41 65 24 E5 A6
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: F6 22 91 9D E1 8B 1F DA B0 CA 99 02 B9 72 9D 49
+Plaintext: 2C 80 7E C5 99 D5 E9 80
+Ciphertext: F3 1C 89 E6 6C 4F 5A 6F
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: B2 EA C9 CC 53 BF 67 D6 BF 14 D6 7E 2D DC 8E 66
+Plaintext: 83 EF 57 49 61 FF 69 8F
+Ciphertext: 39 21 C8 3B FE 5E 59 6E
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 61 CD D1 1E 9D 9C 16 72 72 E6 1D F0 84 4F 4A 77
+Plaintext: 02 D7 E8 39 2C 53 CB C9
+Ciphertext: 98 2F D7 56 17 44 97 BF
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 12 1E 33 74 9E 0C F4 D5 D4 9F D4 A4 59 7E 35 CF
+Plaintext: 32 22 F4 CC CF D3 90 2D
+Ciphertext: BB 80 F5 0B 35 11 5B A8
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 5D D4 CB FC 96 F5 45 3B 13 0D 89 0A 1C DB AE 32
+Plaintext  : 20 9A 50 EE 40 78 36 FD
+Ciphertext : 95 02 B4 6D 87 B4 41 67
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 12 49 32 F6 9E 7D 49 DC AD 4F 14 F2 44 40 66 D0
+Plaintext  : 6B C4 30 B7 32 3B A1 22
+Ciphertext : 20 CB CF 41 65 24 E5 A6
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: F6 22 91 9D E1 8B 1F DA B0 CA 99 02 B9 72 9D 49
+Plaintext  : 2C 80 7E C5 99 D5 E9 80
+Ciphertext : F3 1C 89 E6 6C 4F 5A 6F
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: B2 EA C9 CC 53 BF 67 D6 BF 14 D6 7E 2D DC 8E 66
+Plaintext  : 83 EF 57 49 61 FF 69 8F
+Ciphertext : 39 21 C8 3B FE 5E 59 6E
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 61 CD D1 1E 9D 9C 16 72 72 E6 1D F0 84 4F 4A 77
+Plaintext  : 02 D7 E8 39 2C 53 CB C9
+Ciphertext : 98 2F D7 56 17 44 97 BF
+Test: Encrypt
+#
+Source: CHAM reference implementation
+Comment: HIGHT/ECB, 128-bit key
+Key: 12 1E 33 74 9E 0C F4 D5 D4 9F D4 A4 59 7E 35 CF
+Plaintext  : 32 22 F4 CC CF D3 90 2D
+Ciphertext : BB 80 F5 0B 35 11 5B A8
+Test: Encrypt
