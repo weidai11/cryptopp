@@ -18,18 +18,18 @@ using CryptoPP::rotrConstant;
 template <class T>
 inline void SIMECK_Encryption(const T key, T& left, T& right, T& temp)
 {
-	temp = left;
-	left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
-	right = temp;
+    temp = left;
+    left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
+    right = temp;
 }
 
 /// \brief SIMECK decryption round
 template <class T>
 inline void SIMECK_Decryption(const T key, T& left, T& right, T& temp)
 {
-	temp = left;
-	left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
-	right = temp;
+    temp = left;
+    left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
+    right = temp;
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -85,14 +85,14 @@ void SIMECK32::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
     CRYPTOPP_CONSTANT(NUM_ROUNDS = 32);
     for (int idx = 0; idx < NUM_ROUNDS; ++idx)
-	{
-		SIMECK_Encryption(m_rk[0], m_t[1], m_t[0], temp);
+    {
+        SIMECK_Encryption(m_rk[0], m_t[1], m_t[0], temp);
 
         constant &= 0xFFFC;
         constant |= sequence & 1;
         sequence >>= 1;
 
-		SIMECK_Encryption(constant, m_rk[1], m_rk[0], temp);
+        SIMECK_Encryption(constant, m_rk[1], m_rk[0], temp);
 
         // rotate the LFSR of m_rk
         temp = m_rk[1];
@@ -111,7 +111,7 @@ void SIMECK32::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_t[1])(m_t[0]);
 
-	// TODO
+    // TODO
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[1])(m_t[0]);
@@ -144,18 +144,18 @@ void SIMECK64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     m_rk[2] = m_mk[2], m_rk[3] = m_mk[3];
 
     word32 constant = 0xFFFFFFFC;
-	word64 sequence = W64LIT(0x938BCA3083F);
+    word64 sequence = W64LIT(0x938BCA3083F);
 
     CRYPTOPP_CONSTANT(NUM_ROUNDS = 44);
     for (int idx = 0; idx < NUM_ROUNDS; ++idx)
-	{
-		SIMECK_Encryption(m_rk[0], m_t[1], m_t[0], temp);
+    {
+        SIMECK_Encryption(m_rk[0], m_t[1], m_t[0], temp);
 
         constant &= 0xFFFFFFFC;
         constant |= sequence & 1;
         sequence >>= 1;
 
-		SIMECK_Encryption(constant, m_rk[1], m_rk[0], temp);
+        SIMECK_Encryption(constant, m_rk[1], m_rk[0], temp);
 
         // rotate the LFSR of m_rk
         temp = m_rk[1];
@@ -174,7 +174,7 @@ void SIMECK64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     GetBlock<word32, BigEndian> iblock(inBlock);
     iblock(m_t[1])(m_t[0]);
 
-	// TODO
+    // TODO
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[1])(m_t[0]);
