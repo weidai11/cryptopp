@@ -29,6 +29,8 @@
 #include "ossig.h"
 #include "trap.h"
 
+#include "simeck.h"
+
 #include "validate.h"
 #include "bench.h"
 
@@ -154,6 +156,73 @@ int scoped_main(int argc, char *argv[])
 		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator interface, to key the underlying cipher
 		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+
+#if 0
+		/* From the SIMECK paper, https://eprint.iacr.org/2015/612.pdf
+		 * Key:  1b1a1918 13121110 0b0a0908 03020100
+		 * Plaintext:  656b696c 20646e75
+		 * Ciphertext:  45ce6902 5f7ab7ed
+		 */
+
+		byte k[16] = {0x1b, 0x1a, 0x19, 0x18, 0x13, 0x12, 0x11, 0x10, 0x0b, 0x0a, 0x09, 0x08, 0x03, 0x02, 0x01, 0x00};
+		byte p[8] = {0x65, 0x6b, 0x69, 0x6c, 0x20, 0x64, 0x6e, 0x75};
+		byte e[8] = {0x45, 0xce, 0x69, 0x02, 0x5f, 0x7a, 0xb7, 0xed};
+		byte c[8], r[8];
+
+		ECB_Mode<SIMECK64>::Encryption enc;
+		enc.SetKey(k, sizeof(k));
+		enc.ProcessString(c, p, sizeof(p));
+
+		ECB_Mode<SIMECK64>::Decryption dec;
+		dec.SetKey(k, sizeof(k));
+		dec.ProcessString(r, c, sizeof(c));
+#endif
+
+#if 0
+		/* From the SIMECK paper, https://eprint.iacr.org/2015/612.pdf
+		 * Key:  1918 1110 0908 0100
+		 * Plaintext:  6565 6877
+		 * Ciphertext:  770d 2c76
+		 */
+
+		byte k[8] = {0x19, 0x18, 0x11, 0x10, 0x09, 0x08, 0x01, 0x00};
+		byte p[4] = {0x65, 0x65, 0x68, 0x77};
+		byte e[4] = {0x77, 0x0d, 0x2c, 0x76};
+		byte c[4], r[4];
+
+		ECB_Mode<SIMECK32>::Encryption enc;
+		enc.SetKey(k, sizeof(k));
+		enc.ProcessString(c, p, sizeof(p));
+
+		ECB_Mode<SIMECK32>::Decryption dec;
+		dec.SetKey(k, sizeof(k));
+		dec.ProcessString(r, c, sizeof(c));
+#endif
+
+#if 0
+		std::cout << "Key: ";
+		StringSource(k, sizeof(k), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		std::cout << "Plaintext: ";
+		StringSource(p, sizeof(p), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		std::cout << "Ciphertext: ";
+		StringSource(c, sizeof(c), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		std::cout << "Expected: ";
+		StringSource(e, sizeof(e), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		std::cout << "Recovered: ";
+		StringSource(r, sizeof(r), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << std::endl;
+
+		if(argc < 10)
+			return 0;
+#endif
 
 		std::string command, executableName, macFilename;
 
