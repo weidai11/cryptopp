@@ -22,7 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SIMECK block cipher information
 /// \since Crypto++ 7.1
-struct SIMECK32_Info : public FixedBlockSize<4>, public FixedKeyLength<8>
+struct SIMECK32_Info : public FixedBlockSize<4>, public FixedKeyLength<8>, public FixedRounds<32>
 {
     static const std::string StaticAlgorithmName()
     {
@@ -33,7 +33,7 @@ struct SIMECK32_Info : public FixedBlockSize<4>, public FixedKeyLength<8>
 
 /// \brief SIMECK block cipher information
 /// \since Crypto++ 7.1
-struct SIMECK64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
+struct SIMECK64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public FixedRounds<44>
 {
     static const std::string StaticAlgorithmName()
     {
@@ -60,8 +60,8 @@ public:
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
-        FixedSizeSecBlock<word16, 4> m_mk;
-        mutable FixedSizeSecBlock<word16, 4> m_rk, m_t;
+        FixedSizeSecBlock<word16, ROUNDS> m_rk;
+        mutable FixedSizeSecBlock<word16, 5> m_t;
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -117,8 +117,8 @@ public:
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
-        FixedSizeSecBlock<word32, 4> m_mk;
-        mutable FixedSizeSecBlock<word32, 4> m_rk, m_t;
+        FixedSizeSecBlock<word32, ROUNDS> m_rk;
+        mutable FixedSizeSecBlock<word32, 5> m_t;
     };
 
     /// \brief Provides implementation for encryption transformation

@@ -15,17 +15,15 @@ using CryptoPP::rotlConstant;
 using CryptoPP::rotrConstant;
 
 /// \brief SIMECK encryption round
+/// \tparam T word type
+/// \param key the key for the round or iteration
+/// \param left the first value
+/// \param right the second value
+/// \param temp a temporary workspace
+/// \details SIMECK_Encryption serves as the key schedule, encryption and
+///   decryption functions.
 template <class T>
 inline void SIMECK_Encryption(const T key, T& left, T& right, T& temp)
-{
-    temp = left;
-    left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
-    right = temp;
-}
-
-/// \brief SIMECK decryption round
-template <class T>
-inline void SIMECK_Decryption(const T key, T& left, T& right, T& temp)
 {
     temp = left;
     left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
@@ -58,18 +56,27 @@ void SIMECK32::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     CRYPTOPP_UNUSED(keyLength);
 
     GetBlock<word16, BigEndian> kblock(userKey);
-    kblock(m_mk[3])(m_mk[2])(m_mk[1])(m_mk[0]);
+    kblock(m_t[3])(m_t[2])(m_t[1])(m_t[0]);
+
+    word16 constant = 0xFFFC;
+    word32 sequence = 0x9A42BB1F;
+    for (unsigned int i = 0; i < ROUNDS; ++i)
+    {
+        m_rk[i] = m_t[0];
+
+        constant &= 0xFFFC;
+        constant |= sequence & 1;
+        sequence >>= 1;
+
+        SIMECK_Encryption(static_cast<word16>(constant), m_t[1], m_t[0], m_t[4]);
+
+        // rotate the LFSR of m_t
+        m_t[4] = m_t[1];
+        m_t[1] = m_t[2];
+        m_t[2] = m_t[3];
+        m_t[3] = m_t[4];
+    }
 }
-
-#define temp m_t[2]
-
-#define LROT16(x, r) (((x) << (r)) | ((x) >> (16 - (r))))
-
-#define ROUND32(key, lft, rgt, tmp) do { \
-    tmp = (lft); \
-    lft = ((lft) & LROT16((lft), 5)) ^ LROT16((lft), 1) ^ (rgt) ^ (key); \
-    rgt = (tmp); \
-} while (0)
 
 void SIMECK32::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
@@ -77,29 +84,8 @@ void SIMECK32::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_t[1])(m_t[0]);
 
-    m_rk[0] = m_mk[0], m_rk[1] = m_mk[1];
-    m_rk[2] = m_mk[2], m_rk[3] = m_mk[3];
-
-    word16 constant = 0xFFFC;
-    word32 sequence = 0x9A42BB1F;
-
-    CRYPTOPP_CONSTANT(NUM_ROUNDS = 32);
-    for (int idx = 0; idx < NUM_ROUNDS; ++idx)
-    {
-        SIMECK_Encryption(m_rk[0], m_t[1], m_t[0], temp);
-
-        constant &= 0xFFFC;
-        constant |= sequence & 1;
-        sequence >>= 1;
-
-        SIMECK_Encryption(constant, m_rk[1], m_rk[0], temp);
-
-        // rotate the LFSR of m_rk
-        temp = m_rk[1];
-        m_rk[1] = m_rk[2];
-        m_rk[2] = m_rk[3];
-        m_rk[3] = temp;
-    }
+    for (int idx = 0; idx < ROUNDS; ++idx)
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[1])(m_t[0]);
@@ -109,12 +95,13 @@ void SIMECK32::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 {
     // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
     GetBlock<word16, BigEndian> iblock(inBlock);
-    iblock(m_t[1])(m_t[0]);
+    iblock(m_t[0])(m_t[1]);
 
-    // TODO
+    for (int idx = ROUNDS - 1; idx >= 0; --idx)
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
-    oblock(m_t[1])(m_t[0]);
+    oblock(m_t[0])(m_t[1]);
 }
 
 void SIMECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
@@ -123,16 +110,27 @@ void SIMECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     CRYPTOPP_UNUSED(keyLength);
 
     GetBlock<word32, BigEndian> kblock(userKey);
-    kblock(m_mk[3])(m_mk[2])(m_mk[1])(m_mk[0]);
+    kblock(m_t[3])(m_t[2])(m_t[1])(m_t[0]);
+
+    word64 constant = W64LIT(0xFFFFFFFC);
+    word64 sequence = W64LIT(0x938BCA3083F);
+    for (unsigned int i = 0; i < ROUNDS; ++i)
+    {
+        m_rk[i] = m_t[0];
+
+        constant &= W64LIT(0xFFFFFFFC);
+        constant |= sequence & 1;
+        sequence >>= 1;
+
+        SIMECK_Encryption(static_cast<word32>(constant), m_t[1], m_t[0], m_t[4]);
+
+        // rotate the LFSR of m_t
+        m_t[4] = m_t[1];
+        m_t[1] = m_t[2];
+        m_t[2] = m_t[3];
+        m_t[3] = m_t[4];
+    }
 }
-
-#define LROT32(x, r) (((x) << (r)) | ((x) >> (32 - (r))))
-
-#define ROUND64(key, lft, rgt, tmp) do { \
-    tmp = (lft); \
-    lft = ((lft) & LROT32((lft), 5)) ^ LROT32((lft), 1) ^ (rgt) ^ (key); \
-    rgt = (tmp); \
-} while (0)
 
 void SIMECK64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
@@ -140,29 +138,8 @@ void SIMECK64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     GetBlock<word32, BigEndian> iblock(inBlock);
     iblock(m_t[1])(m_t[0]);
 
-    m_rk[0] = m_mk[0], m_rk[1] = m_mk[1];
-    m_rk[2] = m_mk[2], m_rk[3] = m_mk[3];
-
-    word32 constant = 0xFFFFFFFC;
-    word64 sequence = W64LIT(0x938BCA3083F);
-
-    CRYPTOPP_CONSTANT(NUM_ROUNDS = 44);
-    for (int idx = 0; idx < NUM_ROUNDS; ++idx)
-    {
-        SIMECK_Encryption(m_rk[0], m_t[1], m_t[0], temp);
-
-        constant &= 0xFFFFFFFC;
-        constant |= sequence & 1;
-        sequence >>= 1;
-
-        SIMECK_Encryption(constant, m_rk[1], m_rk[0], temp);
-
-        // rotate the LFSR of m_rk
-        temp = m_rk[1];
-        m_rk[1] = m_rk[2];
-        m_rk[2] = m_rk[3];
-        m_rk[3] = temp;
-    }
+    for (int idx = 0; idx < ROUNDS; ++idx)
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[1])(m_t[0]);
@@ -172,12 +149,13 @@ void SIMECK64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 {
     // Do not cast the buffer. It will SIGBUS on some ARM and SPARC.
     GetBlock<word32, BigEndian> iblock(inBlock);
-    iblock(m_t[1])(m_t[0]);
+    iblock(m_t[0])(m_t[1]);
 
-    // TODO
+    for (int idx = ROUNDS - 1; idx >= 0; --idx)
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
-    oblock(m_t[1])(m_t[0]);
+    oblock(m_t[0])(m_t[1]);
 }
 
 #if CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS

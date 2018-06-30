@@ -159,6 +159,27 @@ int scoped_main(int argc, char *argv[])
 
 #if 0
 		/* From the SIMECK paper, https://eprint.iacr.org/2015/612.pdf
+		* Key:  1918 1110 0908 0100
+		* Plaintext:  6565 6877
+		* Ciphertext:  770d 2c76
+		*/
+
+		byte k[8] = {0x19, 0x18, 0x11, 0x10, 0x09, 0x08, 0x01, 0x00};
+		byte p[4] = {0x65, 0x65, 0x68, 0x77};
+		byte e[4] = {0x77, 0x0d, 0x2c, 0x76};
+		byte c[4], r[4];
+
+		ECB_Mode<SIMECK32>::Encryption enc;
+		enc.SetKey(k, sizeof(k));
+		enc.ProcessString(c, p, sizeof(p));
+
+		ECB_Mode<SIMECK32>::Decryption dec;
+		dec.SetKey(k, sizeof(k));
+		dec.ProcessString(r, c, sizeof(c));
+#endif
+
+#if 0
+		/* From the SIMECK paper, https://eprint.iacr.org/2015/612.pdf
 		 * Key:  1b1a1918 13121110 0b0a0908 03020100
 		 * Plaintext:  656b696c 20646e75
 		 * Ciphertext:  45ce6902 5f7ab7ed
@@ -174,27 +195,6 @@ int scoped_main(int argc, char *argv[])
 		enc.ProcessString(c, p, sizeof(p));
 
 		ECB_Mode<SIMECK64>::Decryption dec;
-		dec.SetKey(k, sizeof(k));
-		dec.ProcessString(r, c, sizeof(c));
-#endif
-
-#if 0
-		/* From the SIMECK paper, https://eprint.iacr.org/2015/612.pdf
-		 * Key:  1918 1110 0908 0100
-		 * Plaintext:  6565 6877
-		 * Ciphertext:  770d 2c76
-		 */
-
-		byte k[8] = {0x19, 0x18, 0x11, 0x10, 0x09, 0x08, 0x01, 0x00};
-		byte p[4] = {0x65, 0x65, 0x68, 0x77};
-		byte e[4] = {0x77, 0x0d, 0x2c, 0x76};
-		byte c[4], r[4];
-
-		ECB_Mode<SIMECK32>::Encryption enc;
-		enc.SetKey(k, sizeof(k));
-		enc.ProcessString(c, p, sizeof(p));
-
-		ECB_Mode<SIMECK32>::Decryption dec;
 		dec.SetKey(k, sizeof(k));
 		dec.ProcessString(r, c, sizeof(c));
 #endif
@@ -219,10 +219,10 @@ int scoped_main(int argc, char *argv[])
 		std::cout << "Recovered: ";
 		StringSource(r, sizeof(r), true, new HexEncoder(new FileSink(std::cout)));
 		std::cout << std::endl;
-
-		if(argc < 10)
-			return 0;
 #endif
+
+		if (argc < 10)
+			return 0;
 
 		std::string command, executableName, macFilename;
 
