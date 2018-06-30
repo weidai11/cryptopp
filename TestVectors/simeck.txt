@@ -1,0 +1,147 @@
+AlgorithmType: SymmetricCipher
+Name: SIMECK-32/ECB
+#
+Source: SIMECK test vector
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 1918 1110 0908 0100
+Plaintext: 6565 6877
+Ciphertext: 770d 2c76
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 3d6c 4ae1 6784 18be
+Plaintext: 4823 0029
+Ciphertext: 6535 9de9
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 6df1 1649 5f90 6952
+Plaintext: 72ae 2cd6
+Ciphertext: 0ab0 73ca
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 2ea6 0bb3 01eb 26e9
+Plaintext: 41bb 5af1
+Ciphertext: 6ed0 bc2e
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 0099 0f3e 390c 7e87
+Plaintext: 153c 12db
+Ciphertext: 7637 4119
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 4db7 4d06 491c 440d
+Plaintext: 305e 0124
+Ciphertext: 8252 aa91
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 4dc8 074d 2d12 39b3
+Plaintext: 54de 1547
+Ciphertext: e288 e7ea
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 5d03 701f 26a6 428b
+Plaintext: 66bb 6443
+Ciphertext: b730 99ae
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 1e1f 3b25 1238 4509
+Plaintext: 767d 7a5a
+Ciphertext: 058a 62df
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-32/ECB, 64-bit key
+Key: 7ff5 7f96 6bfc 63cb
+Plaintext: 1ad4 6e5d
+Ciphertext: 60c4 43f2
+Test: Encrypt
+
+
+
+AlgorithmType: SymmetricCipher
+Name: SIMECK-64/ECB
+#
+Source: SIMECK test vector
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 1b1a1918 13121110 0b0a0908 03020100
+Plaintext: 656b696c 20646e75
+Ciphertext: 45ce6902 5f7ab7ed
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 0938251f 43bb8ba6 06b747de 870c3e99
+Plaintext: f1bbe9eb e16cd6ae
+Ciphertext: 4d11c6b9 da2f7e28
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 323ba122 444066d0 9e7d49dc 407836fd
+Plaintext: 1cdbae32 96f5453b
+Ciphertext: 1e6a0792 f5a717c5
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 61ff698f 2ddc8e66 53bf67d6 99d5e980
+Plaintext: b9729d49 e18b1fda
+Ciphertext: fca0fa81 94bda9c7
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: cfd3902d 597e35cf 9e0cf4d5 2c53cbc9
+Plaintext: 844f4a77 9d9c1672
+Ciphertext: 562b1caa 75266241
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: f8466a04 6454ceb1 3b33821f d4618dbe
+Plaintext: 78818744 e6d91d2a
+Ciphertext: d946fa49 41516d8e
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 97278a59 28ce0bf5 2543e53c adae2488
+Plaintext: d0576876 162f6768
+Ciphertext: ca3e5050 126fa61b
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: a786c2b5 c19be1c0 978c2ff1 1128c18c
+Plaintext: 08614014 c9cd68d4
+Ciphertext: a307ab5a a10f5c29
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 63b126df 89a98279 0c9bb447 9cfed971
+Plaintext: d96ca166 d923d155
+Ciphertext: 5e47b40d 9854418a
+Test: Encrypt
+#
+Source: SIMECK reference implementation
+Comment: SIMECK-64/ECB, 128-bit key
+Key: 463608dc 1b2861c9 3f410784 28a11e20
+Plaintext: 3f895ef1 62e09612
+Ciphertext: c5fd5a6c 32056800
+Test: Encrypt

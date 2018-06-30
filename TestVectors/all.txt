@@ -33,6 +33,7 @@ Test: TestVectors/sm4.txt
 Test: TestVectors/hight.txt
 Test: TestVectors/cham.txt
 Test: TestVectors/lea.txt
+Test: TestVectors/simeck.txt
 Test: TestVectors/simon.txt
 Test: TestVectors/speck.txt
 Test: TestVectors/salsa.txt
