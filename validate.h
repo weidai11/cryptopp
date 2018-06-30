@@ -81,6 +81,7 @@ bool ValidateTwofish();
 bool ValidateSerpent();
 bool ValidateSHACAL2();
 bool ValidateARIA();
+bool ValidateSIMECK();
 bool ValidateCHAM();
 bool ValidateHIGHT();
 bool ValidateLEA();
