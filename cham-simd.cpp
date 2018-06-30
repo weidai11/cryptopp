@@ -329,8 +329,13 @@ inline void GCC_NO_UBSAN CHAM64_Enc_Block(__m128i &block0,
     for (int i=0; i<static_cast<int>(rounds); i+=8)
     {
         __m128i k, kr, t1, t2, t3, t4;
+        double x[2];
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[i & MASK]);
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i+0) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0));
 
         t1 = _mm_xor_si128(a, counter);
@@ -441,8 +446,13 @@ inline void GCC_NO_UBSAN CHAM64_Dec_Block(__m128i &block0,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=8)
     {
         __m128i k, kr, t1, t2, t3, t4;
+        double x[2];
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[(i-7) & MASK]);
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i-7) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
 
         // Odd round
@@ -561,8 +571,13 @@ inline void GCC_NO_UBSAN CHAM64_Enc_2_Blocks(__m128i &block0,
     for (int i=0; i<static_cast<int>(rounds); i+=8)
     {
         __m128i k, kr, t1, t2, t3, t4;
+        double x[2];
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[i & MASK]);
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i+0) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0));
 
         t1 = _mm_xor_si128(a, counter);
@@ -674,8 +689,13 @@ inline void GCC_NO_UBSAN CHAM64_Dec_2_Blocks(__m128i &block0,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=8)
     {
         __m128i k, kr, t1, t2, t3, t4;
+        double x[2];
 
-        k = _mm_loadu_si128((const __m128i*) &subkeys[(i-7) & MASK]);
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i-7) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
 
         // Odd round
@@ -938,9 +958,13 @@ inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, k1, k2, t1, t2;
+        double x[2];
 
-        // This is a better pattern than loading 4 words via _mm_loadu_si128
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+0) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i+0) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
@@ -956,7 +980,11 @@ inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
 
         counter = _mm_add_epi32(counter, increment);
 
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+2) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i+2) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
@@ -996,9 +1024,13 @@ inline void GCC_NO_UBSAN CHAM128_Dec_Block(__m128i &block0,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, k1, k2, t1, t2;
+        double x[2];
 
-        // This is a better pattern than loading 4 words via _mm_loadu_si128
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-1) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i-1) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
@@ -1016,7 +1048,11 @@ inline void GCC_NO_UBSAN CHAM128_Dec_Block(__m128i &block0,
 
         counter = _mm_sub_epi32(counter, decrement);
 
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-3) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i-3) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
@@ -1058,9 +1094,13 @@ inline void GCC_NO_UBSAN CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, k1, k2, t1, t2;
+        double x[2];
 
-        // This is a better pattern than loading 4 words via _mm_loadu_si128
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+0) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i+0) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
@@ -1076,7 +1116,11 @@ inline void GCC_NO_UBSAN CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
 
         counter = _mm_add_epi32(counter, increment);
 
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i+2) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i+2) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
 
@@ -1119,9 +1163,13 @@ inline void GCC_NO_UBSAN CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, k1, k2, t1, t2;
+        double x[2];
 
-        // This is a better pattern than loading 4 words via _mm_loadu_si128
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-1) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i-1) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
@@ -1139,7 +1187,11 @@ inline void GCC_NO_UBSAN CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
 
         counter = _mm_sub_epi32(counter, decrement);
 
-        k = _mm_castpd_si128(_mm_loadu_pd((const double*) &subkeys[(i-3) & MASK]));
+        // Avoid casting among datatypes
+        std::memcpy(x, &subkeys[(i-3) & MASK], 16);
+        k = _mm_castpd_si128(_mm_loadu_pd(x));
+
+        // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
         k2 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
 
