@@ -221,9 +221,6 @@ int scoped_main(int argc, char *argv[])
 		std::cout << std::endl;
 #endif
 
-		if (argc < 10)
-			return 0;
-
 		std::string command, executableName, macFilename;
 
 		if (argc < 2)

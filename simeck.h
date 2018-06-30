@@ -56,7 +56,7 @@ public:
     /// \details Provides implementation common to encryption and decryption
     /// \since Crypto++ 7.1
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SIMECK32_Info>
-    {
+    {        
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
