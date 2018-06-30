@@ -710,7 +710,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
-#if CRYPTOPP_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE || CRYPTOPP_X64_MASM_AVAILABLE
     if (HasSSE2())
     {
         const size_t res = length & (SHA256::BLOCKSIZE - 1);
