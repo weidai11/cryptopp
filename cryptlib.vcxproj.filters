@@ -377,6 +377,9 @@
     <ClCompile Include="sharkbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simeck.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="simon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -856,6 +859,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="shark.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simeck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="simon.h">

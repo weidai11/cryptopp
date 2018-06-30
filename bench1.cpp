@@ -627,6 +627,9 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 24, "LEA-128(192)/CTR (192-bit key)");
 		BenchMarkByName<SymmetricCipher>("LEA-128/CTR", 32, "LEA-128(256)/CTR (256-bit key)");
 
+		BenchMarkByName<SymmetricCipher>("SIMECK-32/CTR", 8, "SIMECK-32(64)/CTR (64-bit key)");
+		BenchMarkByName<SymmetricCipher>("SIMECK-64/CTR", 16, "SIMECK-64(128)/CTR (128-bit key)");
+
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 12, "SIMON-64(96)/CTR (96-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-64/CTR", 16, "SIMON-64(128)/CTR (128-bit key)");
 		BenchMarkByName<SymmetricCipher>("SIMON-128/CTR", 16, "SIMON-128(128)/CTR (128-bit key)");

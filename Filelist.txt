@@ -286,6 +286,8 @@ sharkbox.cpp
 simple.cpp
 simple.h
 siphash.h
+simeck.cpp
+simeck.h
 simon.cpp
 simon-simd.cpp
 simon.h
@@ -485,6 +487,7 @@ TestVectors/sha3_256_fips_202.txt
 TestVectors/sha3_384_fips_202.txt
 TestVectors/sha3_512_fips_202.txt
 TestVectors/shacal2.txt
+TestVectors/simeck.txt
 TestVectors/simon.txt
 TestVectors/siphash.txt
 TestVectors/sm3.txt

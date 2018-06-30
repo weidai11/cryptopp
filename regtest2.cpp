@@ -35,6 +35,7 @@
 #include "threefish.h"
 #include "cham.h"
 #include "lea.h"
+#include "simeck.h"
 #include "simon.h"
 #include "speck.h"
 #include "sm4.h"
@@ -177,12 +178,17 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<LEA> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<LEA> >(); // Benchmarks
 
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMECK32> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMECK32> >(); // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMECK64> >(); // Test Vectors
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMECK64> >(); // Benchmarks
+
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMON64> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SIMON64> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SIMON128> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SIMON128> >(); // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMON64> >();  // Benchmarks
-	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMON128> >();  // Benchmarks
+	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SIMON128> >(); // Benchmarks
 
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SPECK64> >();  // Test Vectors
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SPECK64> >();  // Test Vectors
