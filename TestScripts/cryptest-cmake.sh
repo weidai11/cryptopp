@@ -27,7 +27,7 @@ mkdir -p "$PWD_DIR/build"
 cd "$PWD_DIR/build"
 
 if ! cmake ../; then
-	echo "autoreconf failed"
+	echo "cmake failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
