@@ -19,13 +19,12 @@ using CryptoPP::rotrConstant;
 /// \param key the key for the round or iteration
 /// \param left the first value
 /// \param right the second value
-/// \param temp a temporary workspace
 /// \details SIMECK_Encryption serves as the key schedule, encryption and
 ///   decryption functions.
 template <class T>
-inline void SIMECK_Encryption(const T key, T& left, T& right, T& temp)
+inline void SIMECK_Encryption(const T key, T& left, T& right)
 {
-    temp = left;
+    const T temp = left;
     left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
     right = temp;
 }
@@ -33,6 +32,16 @@ inline void SIMECK_Encryption(const T key, T& left, T& right, T& temp)
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
+# if (CRYPTOPP_SSSE3_AVAILABLE)
+extern size_t SIMECK64_Enc_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+
+extern size_t SIMECK64_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+# endif  // CRYPTOPP_SSSE3_AVAILABLE
+#endif  // CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
 
 void SIMECK32::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
@@ -52,7 +61,7 @@ void SIMECK32::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         constant |= sequence & 1;
         sequence >>= 1;
 
-        SIMECK_Encryption(static_cast<word16>(constant), m_t[1], m_t[0], m_t[4]);
+        SIMECK_Encryption(static_cast<word16>(constant), m_t[1], m_t[0]);
 
         // rotate the LFSR of m_t
         m_t[4] = m_t[1];
@@ -69,7 +78,7 @@ void SIMECK32::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     iblock(m_t[1])(m_t[0]);
 
     for (int idx = 0; idx < ROUNDS; ++idx)
-        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0]);
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[1])(m_t[0]);
@@ -82,7 +91,7 @@ void SIMECK32::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     iblock(m_t[0])(m_t[1]);
 
     for (int idx = ROUNDS - 1; idx >= 0; --idx)
-        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0]);
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[0])(m_t[1]);
@@ -106,7 +115,7 @@ void SIMECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         constant |= sequence & 1;
         sequence >>= 1;
 
-        SIMECK_Encryption(static_cast<word32>(constant), m_t[1], m_t[0], m_t[4]);
+        SIMECK_Encryption(static_cast<word32>(constant), m_t[1], m_t[0]);
 
         // rotate the LFSR of m_t
         m_t[4] = m_t[1];
@@ -123,7 +132,7 @@ void SIMECK64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     iblock(m_t[1])(m_t[0]);
 
     for (int idx = 0; idx < ROUNDS; ++idx)
-        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0]);
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[1])(m_t[0]);
@@ -136,10 +145,36 @@ void SIMECK64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     iblock(m_t[0])(m_t[1]);
 
     for (int idx = ROUNDS - 1; idx >= 0; --idx)
-        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0], m_t[4]);
+        SIMECK_Encryption(m_rk[idx], m_t[1], m_t[0]);
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[0])(m_t[1]);
 }
+
+#if CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
+size_t SIMECK64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+# if (CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3()) {
+        return SIMECK64_Enc_AdvancedProcessBlocks_SSSE3(m_rk, ROUNDS,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+# endif  // CRYPTOPP_SSSE3_AVAILABLE
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SIMECK64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+# if (CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3()) {
+        return SIMECK64_Dec_AdvancedProcessBlocks_SSSE3(m_rk, ROUNDS,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+# endif  // CRYPTOPP_SSSE3_AVAILABLE
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif  // CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END

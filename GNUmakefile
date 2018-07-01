@@ -252,6 +252,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
     CHAM_FLAG = -mssse3
     LEA_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
+    SIMECK_FLAG = -mssse3
     SIMON_FLAG = -mssse3
     SPECK_FLAG = -mssse3
   endif
@@ -293,6 +294,7 @@ ifeq ($(SUN_COMPILER),1)
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
     CHAM_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LEA_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SIMECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SIMON_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SPECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
@@ -379,6 +381,7 @@ ifeq ($(IS_NEON),1)
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     BLAKE2_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     LEA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SIMECK_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SIMON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SPECK_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
   endif
@@ -391,6 +394,7 @@ ifeq ($(IS_ARMV8),1)
     BLAKE2_FLAG = -march=armv8-a
     LEA_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
+    SIMECK_FLAG = -march=armv8-a
     SIMON_FLAG = -march=armv8-a
     SPECK_FLAG = -march=armv8-a
   endif
@@ -416,6 +420,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ARIA_FLAG = -mcpu=power4 -maltivec
     BLAKE2_FLAG = -mcpu=power4 -maltivec
     SIMON_FLAG = -mcpu=power4 -maltivec
+    SIMECK_FLAG = -mcpu=power4 -maltivec
     SPECK_FLAG = -mcpu=power4 -maltivec
   endif
   # GCC and some compatibles
@@ -425,6 +430,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     AES_FLAG = -mcpu=power8 -maltivec
     GCM_FLAG = -mcpu=power8 -maltivec
     SHA_FLAG = -mcpu=power8 -maltivec
+    SIMECK_FLAG = -mcpu=power8 -maltivec
     SIMON_FLAG = -mcpu=power8 -maltivec
     SPECK_FLAG = -mcpu=power8 -maltivec
   endif
@@ -434,6 +440,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = -qarch=pwr7 -qaltivec
     BLAKE2_FLAG = -qarch=pwr7 -qaltivec
+    SIMECK_FLAG = -qarch=pwr7 -qaltivec
     SIMON_FLAG = -qarch=pwr7 -qaltivec
     SPECK_FLAG = -qarch=pwr7 -qaltivec
   endif
@@ -446,6 +453,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SHA_FLAG = -qarch=pwr8 -qaltivec
     ARIA_FLAG = -qarch=pwr8 -qaltivec
     BLAKE2_FLAG = -qarch=pwr8 -qaltivec
+    SIMECK_FLAG = -qarch=pwr8 -qaltivec
     SIMON_FLAG = -qarch=pwr8 -qaltivec
     SPECK_FLAG = -qarch=pwr8 -qaltivec
   endif
@@ -1095,6 +1103,10 @@ sha-simd.o : sha-simd.cpp
 # SSE4.2/SHA-NI or ARMv8a available
 shacal2-simd.o : shacal2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+
+# SSSE3 or NEON available
+simeck-simd.o : simeck-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SIMECK_FLAG) -c) $<
 
 # SSSE3 or NEON available
 simon-simd.o : simon-simd.cpp

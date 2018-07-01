@@ -287,6 +287,7 @@ simple.cpp
 simple.h
 siphash.h
 simeck.cpp
+simeck-simd.cpp
 simeck.h
 simon.cpp
 simon-simd.cpp

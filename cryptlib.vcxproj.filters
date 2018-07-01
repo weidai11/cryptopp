@@ -380,6 +380,9 @@
     <ClCompile Include="simeck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="simeck-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="simon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

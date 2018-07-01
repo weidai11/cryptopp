@@ -296,6 +296,7 @@
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
     <ClCompile Include="simeck.cpp" />
+    <ClCompile Include="simeck-simd.cpp" />
     <ClCompile Include="simon.cpp" />
     <ClCompile Include="simon-simd.cpp" />
     <ClCompile Include="simple.cpp" />
