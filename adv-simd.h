@@ -869,7 +869,6 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
     const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
 
     // Avoid casting byte* to double*. Clang and GCC do not agree.
-    CRYPTOPP_ALIGN_DATA(16)
     double temp[2];
 
     const ptrdiff_t blockSize = 8;
@@ -1028,7 +1027,6 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
 
     // Avoid casting byte* to double*. Clang and GCC do not agree.
-    CRYPTOPP_ALIGN_DATA(16)
     double temp[2];
 
     const ptrdiff_t blockSize = 8;
@@ -1601,7 +1599,6 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F2 func2,
     const word32 s_one32x4_2b[] = { 0, 2 << 24, 0, 2 << 24 };
 
     // Avoid casting byte* to double*. Clang and GCC do not agree.
-    CRYPTOPP_ALIGN_DATA(16)
     double temp[2];
 
     const ptrdiff_t blockSize = 8;
