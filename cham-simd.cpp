@@ -310,7 +310,7 @@ inline __m128i RepackXMM(const __m128i& v)
     return UnpackXMM<IDX>(v);
 }
 
-inline void GCC_NO_UBSAN CHAM64_Enc_Block(__m128i &block0,
+inline void CHAM64_Enc_Block(__m128i &block0,
     const word16 *subkeys, unsigned int /*rounds*/)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -427,7 +427,7 @@ inline void GCC_NO_UBSAN CHAM64_Enc_Block(__m128i &block0,
     block0 = RepackXMM<0>(a,b,c,d,e,f,g,h);
 }
 
-inline void GCC_NO_UBSAN CHAM64_Dec_Block(__m128i &block0,
+inline void CHAM64_Dec_Block(__m128i &block0,
     const word16 *subkeys, unsigned int /*rounds*/)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -552,7 +552,7 @@ inline void GCC_NO_UBSAN CHAM64_Dec_Block(__m128i &block0,
     block0 = RepackXMM<0>(a,b,c,d,e,f,g,h);
 }
 
-inline void GCC_NO_UBSAN CHAM64_Enc_2_Blocks(__m128i &block0,
+inline void CHAM64_Enc_2_Blocks(__m128i &block0,
     __m128i &block1, const word16 *subkeys, unsigned int /*rounds*/)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -670,7 +670,7 @@ inline void GCC_NO_UBSAN CHAM64_Enc_2_Blocks(__m128i &block0,
     block1 = RepackXMM<1>(a,b,c,d,e,f,g,h);
 }
 
-inline void GCC_NO_UBSAN CHAM64_Dec_2_Blocks(__m128i &block0,
+inline void CHAM64_Dec_2_Blocks(__m128i &block0,
     __m128i &block1, const word16 *subkeys, unsigned int /*rounds*/)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -946,7 +946,7 @@ inline __m128i RepackXMM(const __m128i& v)
     return UnpackXMM<IDX>(v);
 }
 
-inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
+inline void CHAM128_Enc_Block(__m128i &block0,
     const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -1012,7 +1012,7 @@ inline void GCC_NO_UBSAN CHAM128_Enc_Block(__m128i &block0,
     block0 = RepackXMM<0>(a,b,c,d);
 }
 
-inline void GCC_NO_UBSAN CHAM128_Dec_Block(__m128i &block0,
+inline void CHAM128_Dec_Block(__m128i &block0,
     const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -1082,7 +1082,7 @@ inline void GCC_NO_UBSAN CHAM128_Dec_Block(__m128i &block0,
     block0 = RepackXMM<0>(a,b,c,d);
 }
 
-inline void GCC_NO_UBSAN CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
+inline void CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
@@ -1151,7 +1151,7 @@ inline void GCC_NO_UBSAN CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     block3 = RepackXMM<3>(a,b,c,d);
 }
 
-inline void GCC_NO_UBSAN CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
+inline void CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word32 *subkeys, unsigned int rounds)
 {
     // Rearrange the data for vectorization. UnpackXMM includes a
