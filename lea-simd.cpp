@@ -599,11 +599,21 @@ inline __m128i LoadKey(const word32 rkey[])
     return _mm_castps_si128(_mm_load_ps1(&rk));
 }
 
+/// \brief Unpack XMM words
+/// \tparam IDX the element from each XMM word
+/// \param a the first XMM word
+/// \param b the second XMM word
+/// \param c the third XMM word
+/// \param d the fourth XMM word
+/// \details UnpackXMM selects the IDX element from a, b, c, d and returns a concatenation
+///   equivalent to <tt>a[IDX] || b[IDX] || c[IDX] || d[IDX]</tt>.
 template <unsigned int IDX>
 inline __m128i UnpackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // Should not be instantiated
-    CRYPTOPP_ASSERT(0);;
+    CRYPTOPP_UNUSED(a); CRYPTOPP_UNUSED(b);
+    CRYPTOPP_UNUSED(c); CRYPTOPP_UNUSED(d);
+    CRYPTOPP_ASSERT(0);
     return _mm_setzero_si128();
 }
 
@@ -643,11 +653,16 @@ inline __m128i UnpackXMM<3>(const __m128i& a, const __m128i& b, const __m128i& c
     return _mm_unpackhi_epi64(r1, r2);
 }
 
+/// \brief Unpack a XMM word
+/// \tparam IDX the element from each XMM word
+/// \param v the first XMM word
+/// \details UnpackXMM selects the IDX element from v and returns a concatenation
+///   equivalent to <tt>v[IDX] || v[IDX] || v[IDX] || v[IDX]</tt>.
 template <unsigned int IDX>
 inline __m128i UnpackXMM(const __m128i& v)
 {
     // Should not be instantiated
-    CRYPTOPP_ASSERT(0);;
+    CRYPTOPP_UNUSED(v); CRYPTOPP_ASSERT(0);
     return _mm_setzero_si128();
 }
 

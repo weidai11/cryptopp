@@ -86,7 +86,9 @@ template <unsigned int IDX>
 inline __m128i UnpackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
     // Should not be instantiated
-    CRYPTOPP_ASSERT(0);;
+    CRYPTOPP_UNUSED(a); CRYPTOPP_UNUSED(b);
+    CRYPTOPP_UNUSED(c); CRYPTOPP_UNUSED(d);
+    CRYPTOPP_ASSERT(0);
     return _mm_setzero_si128();
 }
 
@@ -135,7 +137,7 @@ template <unsigned int IDX>
 inline __m128i UnpackXMM(const __m128i& v)
 {
     // Should not be instantiated
-    CRYPTOPP_ASSERT(0);;
+    CRYPTOPP_UNUSED(v); CRYPTOPP_ASSERT(0);
     return _mm_setzero_si128();
 }
 
