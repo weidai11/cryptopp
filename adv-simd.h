@@ -918,7 +918,8 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
                 block1 = _mm_add_epi32(be2, block0);
 
-                // Store the next counter. The const_cast is UB.
+                // Store the next counter. When BT_InBlockIsCounter is set
+                // inBlocks is backed by m_register which is non-const.
                 _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
@@ -1080,7 +1081,8 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
                 block4 = _mm_add_epi32(be2, block3);
                 block5 = _mm_add_epi32(be2, block4);
 
-                // Store the next counter. The const_cast is UB.
+                // Store the next counter. When BT_InBlockIsCounter is set
+                // inBlocks is backed by m_register which is non-const.
                 _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
@@ -1166,7 +1168,8 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
                 block1 = _mm_add_epi32(be2, block0);
 
-                // Store the next counter. The const_cast is UB.
+                // Store the next counter. When BT_InBlockIsCounter is set
+                // inBlocks is backed by m_register which is non-const.
                 _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
@@ -1658,7 +1661,8 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
                 block2 = _mm_add_epi32(be2, block1);
                 block3 = _mm_add_epi32(be2, block2);
 
-                // Store the next counter. The const_cast is UB.
+                // Store the next counter. When BT_InBlockIsCounter is set
+                // inBlocks is backed by m_register which is non-const.
                 _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block3)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
