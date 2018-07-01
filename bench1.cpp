@@ -525,10 +525,6 @@ void Benchmark2(double t, double hertz)
 	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
 	std::cout << "<TH>Microseconds to<BR>Setup Key and IV" << cpk;
 
-	BenchMarkByName<SymmetricCipher>("SIMECK-32/CTR", 8, "SIMECK-32(64)/CTR (64-bit key)");
-	BenchMarkByName<SymmetricCipher>("SIMECK-64/CTR", 16, "SIMECK-64(128)/CTR (128-bit key)");
-	return;
-
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 #if CRYPTOPP_AESNI_AVAILABLE
