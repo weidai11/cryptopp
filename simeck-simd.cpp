@@ -179,24 +179,12 @@ inline __m128i RepackXMM(const __m128i& v)
 
 inline void SIMECK64_Encrypt(__m128i &a, __m128i &b, __m128i &c, __m128i &d, const __m128i key)
 {
-    //temp = left
-    //left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
-    //right = left
-
     const __m128i s = a, t = c;
     a = _mm_xor_si128(_mm_and_si128(a, RotateLeft32<5>(a)), RotateLeft32<1>(a));
     c = _mm_xor_si128(_mm_and_si128(c, RotateLeft32<5>(c)), RotateLeft32<1>(c));
     a = _mm_xor_si128(a, _mm_xor_si128(b, key));
     c = _mm_xor_si128(c, _mm_xor_si128(d, key));
     b = s; d = t;
-}
-
-inline __m128i SIMECK64_LoadKey(const word32* subkey)
-{
-    //float f[2];
-    //std::memcpy(f, subkey, 4);
-    //return _mm_castps_si128(_mm_load_ps1(f));
-    return _mm_castps_si128(_mm_load_ps1((const float*)subkey));
 }
 
 inline void SIMECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned int /*rounds*/)
@@ -208,8 +196,14 @@ inline void SIMECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned 
     __m128i d = UnpackXMM<3>(block0);
 
     const unsigned int rounds = 44;
-    for (int i = 0; i<static_cast<int>(rounds); ++i)
-        SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
+    for (int i = 0; i < static_cast<int>(rounds); i += 4)
+    {
+        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(0, 0, 0, 0)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(3, 3, 3, 3)));
+    }
 
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a,b,c,d);
@@ -227,8 +221,14 @@ inline void SIMECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned 
     __m128i d = UnpackXMM<3>(w);
 
     const unsigned int rounds = 44;
-    for (int i = static_cast<int>(rounds)-1; i >= 0; --i)
-        SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
+    for (int i = static_cast<int>(rounds)-1; i >= 0; i -= 4)
+    {
+        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i - 3));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(3, 3, 3, 3)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(0, 0, 0, 0)));
+    }
 
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     w = RepackXMM<0>(a,b,c,d);
@@ -246,8 +246,14 @@ inline void SIMECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i d = UnpackXMM<3>(block0, block1, block2, block3);
 
     const unsigned int rounds = 44;
-    for (int i = 0; i<static_cast<int>(rounds); ++i)
-        SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
+    for (int i = 0; i < static_cast<int>(rounds); i += 4)
+    {
+        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(0, 0, 0, 0)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(3, 3, 3, 3)));
+    }
 
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a, b, c, d);
@@ -272,8 +278,14 @@ inline void SIMECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     __m128i d = UnpackXMM<3>(w, x, y, z);
 
     const unsigned int rounds = 44;
-    for (int i = static_cast<int>(rounds)-1; i >= 0; --i)
-        SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
+    for (int i = static_cast<int>(rounds)-1; i >= 0; i -= 4)
+    {
+        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i - 3));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(3, 3, 3, 3)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
+        SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(0, 0, 0, 0)));
+    }
 
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     w = RepackXMM<0>(a, b, c, d);
