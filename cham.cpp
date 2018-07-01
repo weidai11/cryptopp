@@ -133,7 +133,7 @@ void CHAM64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
     GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
-    const unsigned int R = 80;
+    const int R = 80;
     for (int i = 0; i < R; i+=16)
     {
         CHAM_EncRound< 0, 16>(m_x.begin(), m_rk.begin(),  i+0);
@@ -164,7 +164,7 @@ void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
     GetBlock<word16, BigEndian> iblock(inBlock);
     iblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 
-    const unsigned int R = 80;
+    const int R = 80;
     for (int i = R-1; i >=0 ; i-=16)
     {
         CHAM_DecRound<15, 16>(m_x.begin(), m_rk.begin(),  i-0);
@@ -214,7 +214,7 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     {
     case 4:  // 128-bit key
     {
-        const unsigned int R = 80;
+        const int R = 80;
         for (int i = 0; i < R; i+=8)
         {
             CHAM_EncRound<0, 8>(m_x.begin(), m_rk.begin(), i+0);
@@ -230,7 +230,7 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     }
     case 8:  // 256-bit key
     {
-        const unsigned int R = 96;
+        const int R = 96;
         for (int i = 0; i < R; i+=16)
         {
             CHAM_EncRound< 0, 16>(m_x.begin(), m_rk.begin(),  i+0);
@@ -270,7 +270,7 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     {
     case 4:  // 128-bit key
     {
-        const unsigned int R = 80;
+        const int R = 80;
         for (int i = R-1; i >= 0; i-=8)
         {
             CHAM_DecRound<7, 8>(m_x.begin(), m_rk.begin(), i-0);
@@ -286,7 +286,7 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     }
     case 8:  // 256-bit key
     {
-        const unsigned int R = 96;
+        const int R = 96;
         for (int i = R-1; i >= 0; i-=16)
         {
             CHAM_DecRound<15, 16>(m_x.begin(), m_rk.begin(),  i-0);
