@@ -74,6 +74,14 @@ inline __m128i RotateRight32<8>(const __m128i& val)
     return _mm_shuffle_epi8(val, mask);
 }
 
+/// \brief Unpack XMM words
+/// \tparam IDX the element from each XMM word
+/// \param a the first XMM word
+/// \param b the second XMM word
+/// \param c the third XMM word
+/// \param d the fourth XMM word
+/// \details UnpackXMM selects the IDX element from a, b, c, d and returns a concatenation
+///   equivalent to <tt>a[IDX] || b[IDX] || c[IDX] || d[IDX]</tt>.
 template <unsigned int IDX>
 inline __m128i UnpackXMM(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
@@ -85,10 +93,6 @@ inline __m128i UnpackXMM(const __m128i& a, const __m128i& b, const __m128i& c, c
 template <>
 inline __m128i UnpackXMM<0>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
-    // The shuffle converts to and from little-endian for SSE. A specialized
-    // SIMECK implementation can avoid the shuffle by framing the data for
-    // encryption, decryption and benchmarks. The library cannot take the
-    // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpacklo_epi32(a, b);
     const __m128i r2 = _mm_unpacklo_epi32(c, d);
     return _mm_shuffle_epi8(_mm_unpacklo_epi64(r1, r2),
@@ -98,10 +102,6 @@ inline __m128i UnpackXMM<0>(const __m128i& a, const __m128i& b, const __m128i& c
 template <>
 inline __m128i UnpackXMM<1>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
-    // The shuffle converts to and from little-endian for SSE. A specialized
-    // SIMECK implementation can avoid the shuffle by framing the data for
-    // encryption, decryption and benchmarks. The library cannot take the
-    // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpacklo_epi32(a, b);
     const __m128i r2 = _mm_unpacklo_epi32(c, d);
     return _mm_shuffle_epi8(_mm_unpackhi_epi64(r1, r2),
@@ -111,10 +111,6 @@ inline __m128i UnpackXMM<1>(const __m128i& a, const __m128i& b, const __m128i& c
 template <>
 inline __m128i UnpackXMM<2>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
-    // The shuffle converts to and from little-endian for SSE. A specialized
-    // SIMECK implementation can avoid the shuffle by framing the data for
-    // encryption, decryption and benchmarks. The library cannot take the
-    // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpackhi_epi32(a, b);
     const __m128i r2 = _mm_unpackhi_epi32(c, d);
     return _mm_shuffle_epi8(_mm_unpacklo_epi64(r1, r2),
@@ -124,16 +120,17 @@ inline __m128i UnpackXMM<2>(const __m128i& a, const __m128i& b, const __m128i& c
 template <>
 inline __m128i UnpackXMM<3>(const __m128i& a, const __m128i& b, const __m128i& c, const __m128i& d)
 {
-    // The shuffle converts to and from little-endian for SSE. A specialized
-    // SIMECK implementation can avoid the shuffle by framing the data for
-    // encryption, decryption and benchmarks. The library cannot take the
-    // speed-up because of the byte oriented API.
     const __m128i r1 = _mm_unpackhi_epi32(a, b);
     const __m128i r2 = _mm_unpackhi_epi32(c, d);
     return _mm_shuffle_epi8(_mm_unpackhi_epi64(r1, r2),
         _mm_set_epi8(12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3));
 }
 
+/// \brief Unpack a XMM word
+/// \tparam IDX the element from each XMM word
+/// \param v the first XMM word
+/// \details UnpackXMM selects the IDX element from v and returns a concatenation
+///   equivalent to <tt>v[IDX] || v[IDX] || v[IDX] || v[IDX]</tt>.
 template <unsigned int IDX>
 inline __m128i UnpackXMM(const __m128i& v)
 {
@@ -178,8 +175,7 @@ inline __m128i RepackXMM(const __m128i& v)
     return UnpackXMM<IDX>(v);
 }
 
-inline void SIMECK64_Encrypt(__m128i &a, __m128i &b,
-    __m128i &c, __m128i &d, const __m128i key)
+inline void SIMECK64_Encrypt(__m128i &a, __m128i &b, __m128i &c, __m128i &d, const __m128i key)
 {
     //temp = left
     //left = (left & rotlConstant<5>(left)) ^ rotlConstant<1>(left) ^ right ^ key;
@@ -195,45 +191,40 @@ inline void SIMECK64_Encrypt(__m128i &a, __m128i &b,
 
 inline __m128i SIMECK64_LoadKey(const word32* subkey)
 {
-    float f[2];
-    std::memcpy(f, subkey, 4);
-    return _mm_castps_si128(_mm_load_ps1(f));
+    //float f[2];
+    //std::memcpy(f, subkey, 4);
+    //return _mm_castps_si128(_mm_load_ps1(f));
+    return _mm_castps_si128(_mm_load_ps1((const float*)subkey));
 }
 
-inline void SIMECK64_Enc_Block(__m128i &block0,
-    const word32 *subkeys, unsigned int rounds)
+inline void SIMECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned int /*rounds*/)
 {
-    // Rearrange the data for vectorization. UnpackXMM includes a
-    // little-endian swap for SSE. Thanks to Peter Cordes for help
-    // with packing and unpacking.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 B1 C1 D1][A2 B2 C2 D2] ...
     __m128i a = UnpackXMM<0>(block0);
     __m128i b = UnpackXMM<1>(block0);
     __m128i c = UnpackXMM<2>(block0);
     __m128i d = UnpackXMM<3>(block0);
 
-    for (int i=0; i<static_cast<int>(rounds); ++i)
+    const unsigned int rounds = 44;
+    for (int i = 0; i<static_cast<int>(rounds); ++i)
         SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
 
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
     block0 = RepackXMM<0>(a,b,c,d);
 }
 
-inline void SIMECK64_Dec_Block(__m128i &block0,
-    const word32 *subkeys, unsigned int rounds)
+inline void SIMECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned int /*rounds*/)
 {
-    // SIMECK requires a word swap on the decryption side
+    // SIMECK requires a word swap for the decryption transform
     __m128i w = _mm_shuffle_epi32(block0, _MM_SHUFFLE(2, 3, 0, 1));
 
-    // Rearrange the data for vectorization. UnpackXMM includes a
-    // little-endian swap for SSE. Thanks to Peter Cordes for help
-    // with packing and unpacking.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 B1 C1 D1][A2 B2 C2 D2] ...
     __m128i a = UnpackXMM<0>(w);
     __m128i b = UnpackXMM<1>(w);
     __m128i c = UnpackXMM<2>(w);
     __m128i d = UnpackXMM<3>(w);
 
+    const unsigned int rounds = 44;
     for (int i = static_cast<int>(rounds)-1; i >= 0; --i)
         SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
 
@@ -244,18 +235,16 @@ inline void SIMECK64_Dec_Block(__m128i &block0,
 }
 
 inline void SIMECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1,
-    __m128i &block2, __m128i &block3, const word32 *subkeys, unsigned int rounds)
+    __m128i &block2, __m128i &block3, const word32 *subkeys, unsigned int /*rounds*/)
 {
-    // Rearrange the data for vectorization. UnpackXMM includes a
-    // little-endian swap for SSE. Thanks to Peter Cordes for help
-    // with packing and unpacking.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 B1 C1 D1][A2 B2 C2 D2] ...
     __m128i a = UnpackXMM<0>(block0, block1, block2, block3);
     __m128i b = UnpackXMM<1>(block0, block1, block2, block3);
     __m128i c = UnpackXMM<2>(block0, block1, block2, block3);
     __m128i d = UnpackXMM<3>(block0, block1, block2, block3);
 
-    for (int i=0; i<static_cast<int>(rounds); ++i)
+    const unsigned int rounds = 44;
+    for (int i = 0; i<static_cast<int>(rounds); ++i)
         SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
 
     // [A1 B1 C1 D1][A2 B2 C2 D2] ... => [A1 A2 A3 A4][B1 B2 B3 B4] ...
@@ -266,23 +255,21 @@ inline void SIMECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1,
 }
 
 inline void SIMECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1,
-    __m128i &block2, __m128i &block3, const word32 *subkeys, unsigned int rounds)
+    __m128i &block2, __m128i &block3, const word32 *subkeys, unsigned int /*rounds*/)
 {
-    // SIMECK requires a word swap on the decryption side
+    // SIMECK requires a word swap for the decryption transform
     __m128i w = _mm_shuffle_epi32(block0, _MM_SHUFFLE(2, 3, 0, 1));
     __m128i x = _mm_shuffle_epi32(block1, _MM_SHUFFLE(2, 3, 0, 1));
     __m128i y = _mm_shuffle_epi32(block2, _MM_SHUFFLE(2, 3, 0, 1));
     __m128i z = _mm_shuffle_epi32(block3, _MM_SHUFFLE(2, 3, 0, 1));
 
-    // Rearrange the data for vectorization. UnpackXMM includes a
-    // little-endian swap for SSE. Thanks to Peter Cordes for help
-    // with packing and unpacking.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 B1 C1 D1][A2 B2 C2 D2] ...
     __m128i a = UnpackXMM<0>(w, x, y, z);
     __m128i b = UnpackXMM<1>(w, x, y, z);
     __m128i c = UnpackXMM<2>(w, x, y, z);
     __m128i d = UnpackXMM<3>(w, x, y, z);
 
+    const unsigned int rounds = 44;
     for (int i = static_cast<int>(rounds)-1; i >= 0; --i)
         SIMECK64_Encrypt(a, b, c, d, SIMECK64_LoadKey(subkeys + i));
 
