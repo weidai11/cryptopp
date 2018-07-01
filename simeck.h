@@ -1,4 +1,4 @@
-// simeck.h - written and placed in the public domain by Kim Sung Hee and Jeffrey Walton
+// simeck.h - written and placed in the public domain by Gangqiang Yang and Jeffrey Walton.
 //            Based on "The Simeck Family of Lightweight Block Ciphers" by Gangqiang Yang,
 //            Bo Zhu, Valentin Suder, Mark D. Aagaard, and Guang Gong
 
