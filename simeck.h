@@ -4,6 +4,9 @@
 
 /// \file simeck.h
 /// \brief Classes for the SIMECK block cipher
+/// \sa <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>,
+///   <a href="https://eprint.iacr.org/2015/612.pdf">The Simeck
+///   Family of Lightweight Block Ciphers</a>
 /// \since Crypto++ 7.1
 
 #ifndef CRYPTOPP_SIMECK_H
@@ -45,9 +48,9 @@ struct SIMECK64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, publ
 /// \brief SIMECK 32-bit block cipher
 /// \details SIMECK32 provides 32-bit block size. The valid key size is 64-bit.
 /// \note Crypto++ provides a byte oriented implementation
-/// \sa SIMECK64, <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>, <a href=
-///   "https://eprint.iacr.org/2015/612.pdf">The Simeck Family of Lightweight Block
-///   Ciphers</a>
+/// \sa SIMECK64, <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>,
+///   <a href="https://eprint.iacr.org/2015/612.pdf">The Simeck Family of
+///   Lightweight Block Ciphers</a>
 /// \since Crypto++ 7.1
 class CRYPTOPP_NO_VTABLE SIMECK32 : public SIMECK32_Info, public BlockCipherDocumentation
 {
@@ -94,9 +97,9 @@ typedef SIMECK32::Decryption SIMECK32Decryption;
 /// \brief SIMECK 64-bit block cipher
 /// \details SIMECK64 provides 64-bit block size. The valid key size is 128-bit.
 /// \note Crypto++ provides a byte oriented implementation
-/// \sa SIMECK32, <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>, <a href=
-///   "https://eprint.iacr.org/2015/612.pdf">The Simeck Family of Lightweight Block
-///   Ciphers</a>
+/// \sa SIMECK32, <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>,
+///   <a href= "https://eprint.iacr.org/2015/612.pdf">The Simeck Family of
+///   Lightweight Block Ciphers</a>
 /// \since Crypto++ 7.1
 class CRYPTOPP_NO_VTABLE SIMECK64 : public SIMECK64_Info, public BlockCipherDocumentation
 {

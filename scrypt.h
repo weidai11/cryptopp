@@ -25,7 +25,7 @@ NAMESPACE_BEGIN(CryptoPP)
 ///   example, the library is limited to a derived key length of <tt>SIZE_MAX</tt>,
 ///   and not <tt>(2^32 - 1) * 32</tt>.
 /// \sa <A HREF="https://www.tarsnap.com/scrypt/scrypt.pdf">Stronger Key Derivation via
-///   Sequential Memory-Hard Functions</a>,
+///   Sequential Memory-Hard Functions</A>,
 ///   <A HREF="https://www.tarsnap.com/scrypt.html">The scrypt key derivation function</A>
 ///   and <A HREF="https://tools.ietf.org/html/rfc7914">RFC 7914, The scrypt Password-Based
 ///   Key Derivation Function</A>

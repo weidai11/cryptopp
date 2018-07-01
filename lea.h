@@ -35,8 +35,8 @@ struct LEA_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,32,8
 /// \brief LEA 128-bit block cipher
 /// \details LEA provides 128-bit block size. The valid key size is 128-bits, 192-bits and 256-bits.
 /// \note Crypto++ provides a byte oriented implementation
-/// \sa <a href="http://www.cryptopp.com/wiki/LEA">LEA</a>, <a href=
-///   "https://seed.kisa.or.kr/html/egovframework/iwt/ds/ko/ref/LEA%20A%20128-Bit%20Block%20Cipher%20for%20Fast%20Encryption%20on%20Common%20Processors-English.pdf">
+/// \sa <a href="http://www.cryptopp.com/wiki/LEA">LEA</a>,
+///   <a href="https://seed.kisa.or.kr/html/egovframework/iwt/ds/ko/ref/LEA%20A%20128-Bit%20Block%20Cipher%20for%20Fast%20Encryption%20on%20Common%20Processors-English.pdf">
 ///   LEA: A 128-Bit Block Cipher for Fast Encryption on Common Processors</a>
 /// \since Crypto++ 7.1
 class CRYPTOPP_NO_VTABLE LEA : public LEA_Info, public BlockCipherDocumentation

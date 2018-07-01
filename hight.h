@@ -32,8 +32,9 @@ struct HIGHT_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 /// \brief HIGHT 64-bit block cipher
 /// \details HIGHT provides 64-bit block size. The valid key size is 128-bits.
 /// \note Crypto++ provides a byte oriented implementation
-/// \sa <a href="http://www.cryptopp.com/wiki/HIGHT">HIGHT</a>, <a href=
-///   "https://seed.kisa.or.kr/">Korea Internet &amp; Security Agency</a> website
+/// \sa <a href="http://www.cryptopp.com/wiki/HIGHT">HIGHT</a>,
+///   <a href="https://seed.kisa.or.kr/">Korea Internet &amp; Security
+///   Agency</a> website
 /// \since Crypto++ 7.1
 class CRYPTOPP_NO_VTABLE HIGHT : public HIGHT_Info, public BlockCipherDocumentation
 {

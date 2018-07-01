@@ -855,7 +855,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief AdvancedProcessBlocks for 1 and 2 blocks
 /// \tparam F1 function to process 1 64-bit block
-/// \tparam F4 function to process 2 64-bit blocks
+/// \tparam F2 function to process 2 64-bit blocks
 /// \tparam W word type of the subkey table
 /// \details AdvancedProcessBlocks64_2x1_SSE processes 2 and 1 SSE SIMD words
 ///   at a time.
