@@ -52,14 +52,6 @@
 # include "ppc-simd.h"
 #endif
 
-// https://www.spinics.net/lists/gcchelp/msg47735.html and
-// https://www.spinics.net/lists/gcchelp/msg47749.html
-#if (CRYPTOPP_GCC_VERSION >= 40900)
-# define GCC_NO_UBSAN __attribute__ ((no_sanitize_undefined))
-#else
-# define GCC_NO_UBSAN
-#endif
-
 // ************************ All block ciphers *********************** //
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -603,7 +595,7 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 
             length -= 4*blockSize;
         }
-	}
+    }
 
     while (length >= blockSize)
     {
@@ -859,18 +851,10 @@ NAMESPACE_END  // CryptoPP
 # define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
-// GCC double casts, https://www.spinics.net/lists/gcchelp/msg47735.html
-#ifndef DOUBLE_CAST
-# define DOUBLE_CAST(x) ((double *)(void *)(x))
-#endif
-#ifndef CONST_DOUBLE_CAST
-# define CONST_DOUBLE_CAST(x) ((const double *)(const void *)(x))
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 template <typename F1, typename F2, typename W>
-inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
+inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -883,6 +867,10 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
     const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+
+    // Avoid casting byte* to double*. Clang and GCC do not agree.
+    CRYPTOPP_ALIGN_DATA(16)
+    double temp[2];
 
     const ptrdiff_t blockSize = 8;
     const ptrdiff_t xmmBlockSize = 16;
@@ -915,16 +903,17 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b), _mm_castpd_si128(
-                    _mm_loaddup_pd(CONST_DOUBLE_CAST(inBlocks))));
+                std::memcpy(temp, inBlocks, blockSize);
+                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
+                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
                 block1 = _mm_add_epi32(be2, block0);
 
-                // Store the next counter. UBsan false positive; mem_addr can be unaligned.
-                _mm_store_sd(DOUBLE_CAST(inBlocks),
-                    _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+                // Store the next counter. The const_cast is UB.
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+                std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
             {
@@ -982,15 +971,13 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 
         while (length >= blockSize)
         {
-            __m128i block = _mm_castpd_si128(
-                // UBsan false positive; mem_addr can be unaligned.
-                _mm_load_sd(CONST_DOUBLE_CAST(inBlocks)));
+            std::memcpy(temp, inBlocks, blockSize);
+            __m128i block = _mm_castpd_si128(_mm_load_sd(temp));
 
             if (xorInput)
             {
-                block = _mm_xor_si128(block, _mm_castpd_si128(
-                    // UBsan false positive; mem_addr can be unaligned.
-                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
+                std::memcpy(temp, xorBlocks, blockSize);
+                block = _mm_xor_si128(block, _mm_castpd_si128(_mm_load_sd(temp)));
             }
 
             if (flags & BT_InBlockIsCounter)
@@ -1000,13 +987,12 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 
             if (xorOutput)
             {
-                block = _mm_xor_si128(block, _mm_castpd_si128(
-                    // UBsan false positive; mem_addr can be unaligned.
-                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
+                std::memcpy(temp, xorBlocks, blockSize);
+                block = _mm_xor_si128(block, _mm_castpd_si128(_mm_load_sd(temp)));
             }
 
-            // UBsan false positive; mem_addr can be unaligned.
-            _mm_store_sd(DOUBLE_CAST(outBlocks), _mm_castsi128_pd(block));
+            _mm_store_sd(temp, _mm_castsi128_pd(block));
+            std::memcpy(outBlocks, temp, blockSize);
 
             inBlocks += inIncrement;
             outBlocks += outIncrement;
@@ -1027,7 +1013,7 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
+inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1040,6 +1026,10 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+
+    // Avoid casting byte* to double*. Clang and GCC do not agree.
+    CRYPTOPP_ALIGN_DATA(16)
+    double temp[2];
 
     const ptrdiff_t blockSize = 8;
     const ptrdiff_t xmmBlockSize = 16;
@@ -1072,8 +1062,9 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b), _mm_castpd_si128(
-                    _mm_loaddup_pd(CONST_DOUBLE_CAST(inBlocks))));
+                std::memcpy(temp, inBlocks, blockSize);
+                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
+                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
@@ -1083,9 +1074,9 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
                 block4 = _mm_add_epi32(be2, block3);
                 block5 = _mm_add_epi32(be2, block4);
 
-                // Store the next counter. UBsan false positive; mem_addr can be unaligned.
-                _mm_store_sd(DOUBLE_CAST(inBlocks),
-                    _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
+                // Store the next counter. The const_cast is UB.
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
+                std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
             {
@@ -1161,16 +1152,17 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b), _mm_castpd_si128(
-                    _mm_loaddup_pd(CONST_DOUBLE_CAST(inBlocks))));
+                std::memcpy(temp, inBlocks, blockSize);
+                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
+                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
                 const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
                 block1 = _mm_add_epi32(be2, block0);
 
-                // Store the next counter. UBsan false positive; mem_addr can be unaligned.
-                _mm_store_sd(DOUBLE_CAST(inBlocks),
-                    _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+                // Store the next counter. The const_cast is UB.
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+                std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
             {
@@ -1229,15 +1221,14 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
         while (length >= blockSize)
         {
             __m128i block, zero = _mm_setzero_si128();
-            block = _mm_castpd_si128(
-                // UBsan false positive; mem_addr can be unaligned.
-                _mm_load_sd(CONST_DOUBLE_CAST(inBlocks)));
+            std::memcpy(temp, inBlocks, blockSize);
+            block = _mm_castpd_si128(_mm_load_sd(temp));
 
             if (xorInput)
             {
-                block = _mm_xor_si128(block, _mm_castpd_si128(
-                    // UBsan false positive; mem_addr can be unaligned.
-                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
+                std::memcpy(temp, xorBlocks, blockSize);
+                block = _mm_xor_si128(block,
+                    _mm_castpd_si128(_mm_load_sd(temp)));
             }
 
             if (flags & BT_InBlockIsCounter)
@@ -1247,13 +1238,13 @@ inline size_t GCC_NO_UBSAN AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
 
             if (xorOutput)
             {
-                block = _mm_xor_si128(block, _mm_castpd_si128(
-                    // UBsan false positive; mem_addr can be unaligned.
-                    _mm_load_sd(CONST_DOUBLE_CAST(xorBlocks))));
+                std::memcpy(temp, xorBlocks, blockSize);
+                block = _mm_xor_si128(block,
+                    _mm_castpd_si128(_mm_load_sd(temp)));
             }
 
-            // UBsan false positive; mem_addr can be unaligned.
-            _mm_store_sd(DOUBLE_CAST(outBlocks), _mm_castsi128_pd(block));
+            _mm_store_sd(temp, _mm_castsi128_pd(block));
+            std::memcpy(outBlocks, temp, blockSize);
 
             inBlocks += inIncrement;
             outBlocks += outIncrement;
@@ -1589,6 +1580,175 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
         outBlocks += outIncrement;
         xorBlocks += xorIncrement;
         length -= blockSize;
+    }
+
+    return length;
+}
+
+template <typename F1, typename F2, typename W>
+inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F2 func2,
+    MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
+    const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 8);
+
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_1b[] = { 0, 0, 0, 1 << 24 };
+    CRYPTOPP_ALIGN_DATA(16)
+    const word32 s_one32x4_2b[] = { 0, 2 << 24, 0, 2 << 24 };
+
+    // Avoid casting byte* to double*. Clang and GCC do not agree.
+    CRYPTOPP_ALIGN_DATA(16)
+    double temp[2];
+
+    const ptrdiff_t blockSize = 8;
+    const ptrdiff_t xmmBlockSize = 16;
+
+    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter | BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
+    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+
+    // Clang and Coverity are generating findings using xorBlocks as a flag.
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+
+    if (flags & BT_ReverseDirection)
+    {
+        inBlocks += static_cast<ptrdiff_t>(length)-xmmBlockSize;
+        xorBlocks += static_cast<ptrdiff_t>(length)-xmmBlockSize;
+        outBlocks += static_cast<ptrdiff_t>(length)-xmmBlockSize;
+        inIncrement = 0 - inIncrement;
+        xorIncrement = 0 - xorIncrement;
+        outIncrement = 0 - outIncrement;
+    }
+
+    if (flags & BT_AllowParallel)
+    {
+        while (length >= 4 * xmmBlockSize)
+        {
+            __m128i block0, block1, block2, block3;
+            if (flags & BT_InBlockIsCounter)
+            {
+                // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
+                // After the dup load we have two counters in the XMM word. Then we need
+                // to increment the low ctr by 0 and the high ctr by 1.
+                std::memcpy(temp, inBlocks, blockSize);
+                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
+                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
+
+                // After initial increment of {0,1} remaining counters increment by {2,2}.
+                const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
+                block1 = _mm_add_epi32(be2, block0);
+                block2 = _mm_add_epi32(be2, block1);
+                block3 = _mm_add_epi32(be2, block2);
+
+                // Store the next counter. The const_cast is UB.
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block3)));
+                std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
+            }
+            else
+            {
+                block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+                block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+                block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+                block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
+                inBlocks += inIncrement;
+            }
+
+            if (xorInput)
+            {
+                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+            }
+
+            func2(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+                block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
+                xorBlocks += xorIncrement;
+            }
+
+            _mm_storeu_si128(M128_CAST(outBlocks), block0);
+            outBlocks += outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block1);
+            outBlocks += outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block2);
+            outBlocks += outIncrement;
+            _mm_storeu_si128(M128_CAST(outBlocks), block3);
+            outBlocks += outIncrement;
+
+            length -= 4 * xmmBlockSize;
+        }
+    }
+
+    if (length)
+    {
+        // Adjust to real block size
+        if (flags & BT_ReverseDirection)
+        {
+            inIncrement += inIncrement ? blockSize : 0;
+            xorIncrement += xorIncrement ? blockSize : 0;
+            outIncrement += outIncrement ? blockSize : 0;
+            inBlocks -= inIncrement;
+            xorBlocks -= xorIncrement;
+            outBlocks -= outIncrement;
+        }
+        else
+        {
+            inIncrement -= inIncrement ? blockSize : 0;
+            xorIncrement -= xorIncrement ? blockSize : 0;
+            outIncrement -= outIncrement ? blockSize : 0;
+        }
+
+        while (length >= blockSize)
+        {
+            std::memcpy(temp, inBlocks, blockSize);
+            __m128i block = _mm_castpd_si128(_mm_load_sd(temp));
+
+            if (xorInput)
+            {
+                std::memcpy(temp, xorBlocks, blockSize);
+                block = _mm_xor_si128(block, _mm_castpd_si128(_mm_load_sd(temp)));
+            }
+
+            if (flags & BT_InBlockIsCounter)
+                const_cast<byte *>(inBlocks)[7]++;
+
+            func1(block, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                std::memcpy(temp, xorBlocks, blockSize);
+                block = _mm_xor_si128(block, _mm_castpd_si128(_mm_load_sd(temp)));
+            }
+
+            _mm_store_sd(temp, _mm_castsi128_pd(block));
+            std::memcpy(outBlocks, temp, blockSize);
+
+            inBlocks += inIncrement;
+            outBlocks += outIncrement;
+            xorBlocks += xorIncrement;
+            length -= blockSize;
+        }
     }
 
     return length;
