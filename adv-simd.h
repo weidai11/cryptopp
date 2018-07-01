@@ -853,6 +853,14 @@ NAMESPACE_END  // CryptoPP
 
 NAMESPACE_BEGIN(CryptoPP)
 
+/// \brief AdvancedProcessBlocks for 1 and 2 blocks
+/// \tparam F1 function to process 1 64-bit block
+/// \tparam F4 function to process 2 64-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks64_2x1_SSE processes 2 and 1 SSE SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. F1 and F2 must use the
+///   same word type.
 template <typename F1, typename F2, typename W>
 inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
@@ -1583,8 +1591,16 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
     return length;
 }
 
-template <typename F1, typename F2, typename W>
-inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F2 func2,
+/// \brief AdvancedProcessBlocks for 1 and 4 blocks
+/// \tparam F1 function to process 1 64-bit block
+/// \tparam F4 function to process 6 64-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks64_4x1_SSE processes 4 and 1 SSE SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. F1 and F4 must use the
+///   same word type.
+template <typename F1, typename F4, typename W>
+inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
     MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
     const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1670,7 +1686,7 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F2 func2,
                 xorBlocks += xorIncrement;
             }
 
-            func2(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
+            func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorOutput)
             {
