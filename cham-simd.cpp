@@ -331,14 +331,10 @@ inline void CHAM64_Enc_Block(__m128i &block0,
     __m128i increment = _mm_set_epi16(1,1,1,1,1,1,1,1);
 
     const unsigned int MASK = 15;
-    for (int i=0; i<static_cast<int>(rounds); i+=8)
+    for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        double x[2];
-
-        // Avoid casting among datatypes
-        std::memcpy(x, &subkeys[(i+0) & MASK], 16);
-        k = _mm_castpd_si128(_mm_loadu_pd(x));
+        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[i & MASK])));
 
         // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0));
@@ -381,46 +377,6 @@ inline void CHAM64_Enc_Block(__m128i &block0,
         h = RotateLeft16<1>(_mm_add_epi16(t3, t4));
 
         counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(9,8,9,8, 9,8,9,8, 9,8,9,8, 9,8,9,8));
-
-        t1 = _mm_xor_si128(a, counter);
-        t3 = _mm_xor_si128(e, counter);
-        t2 = _mm_xor_si128(RotateLeft16<1>(b), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(f), kr);
-        a = RotateLeft16<8>(_mm_add_epi16(t1, t2));
-        e = RotateLeft16<8>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,11,10, 11,10,11,10, 11,10,11,10, 11,10,11,10));
-
-        t1 = _mm_xor_si128(b, counter);
-        t3 = _mm_xor_si128(f, counter);
-        t2 = _mm_xor_si128(RotateLeft16<8>(c), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(g), kr);
-        b = RotateLeft16<1>(_mm_add_epi16(t1, t2));
-        f = RotateLeft16<1>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(13,12,13,12, 13,12,13,12, 13,12,13,12, 13,12,13,12));
-
-        t1 = _mm_xor_si128(c, counter);
-        t3 = _mm_xor_si128(g, counter);
-        t2 = _mm_xor_si128(RotateLeft16<1>(d), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(h), kr);
-        c = RotateLeft16<8>(_mm_add_epi16(t1, t2));
-        g = RotateLeft16<8>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
-
-        t1 = _mm_xor_si128(d, counter);
-        t3 = _mm_xor_si128(h, counter);
-        t2 = _mm_xor_si128(RotateLeft16<8>(a), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(e), kr);
-        d = RotateLeft16<1>(_mm_add_epi16(t1, t2));
-        h = RotateLeft16<1>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
     }
 
     // [A1 B1 .. G1 H1][A2 B2 .. G2 H2] ... => [A1 A2 .. A6 A7][B1 B2 .. B6 B7] ...
@@ -448,60 +404,12 @@ inline void CHAM64_Dec_Block(__m128i &block0,
     __m128i decrement = _mm_set_epi16(1,1,1,1,1,1,1,1);
 
     const unsigned int MASK = 15;
-    for (int i = static_cast<int>(rounds)-1; i >= 0; i-=8)
+    for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        double x[2];
-
-        // Avoid casting among datatypes
-        std::memcpy(x, &subkeys[(i-7) & MASK], 16);
-        k = _mm_castpd_si128(_mm_loadu_pd(x));
+        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-3) & MASK])));
 
         // Shuffle out key
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
-
-        // Odd round
-        t1 = RotateRight16<1>(d);
-        t3 = RotateRight16<1>(h);
-        t2 = _mm_xor_si128(RotateLeft16<8>(a), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(e), kr);
-        d = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        h = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(13,12,13,12, 13,12,13,12, 13,12,13,12, 13,12,13,12));
-
-        // Even round
-        t1 = RotateRight16<8>(c);
-        t3 = RotateRight16<8>(g);
-        t2 = _mm_xor_si128(RotateLeft16<1>(d), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(h), kr);
-        c = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        g = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,11,10, 11,10,11,10, 11,10,11,10, 11,10,11,10));
-
-        // Odd round
-        t1 = RotateRight16<1>(b);
-        t3 = RotateRight16<1>(f);
-        t2 = _mm_xor_si128(RotateLeft16<8>(c), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(g), kr);
-        b = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        f = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(9,8,9,8, 9,8,9,8, 9,8,9,8, 9,8,9,8));
-
-        // Even round
-        t1 = RotateRight16<8>(a);
-        t3 = RotateRight16<8>(e);
-        t2 = _mm_xor_si128(RotateLeft16<1>(b), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(f), kr);
-        a = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        e = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,7,6, 7,6,7,6, 7,6,7,6, 7,6,7,6));
 
         // Odd round
@@ -573,14 +481,10 @@ inline void CHAM64_Enc_2_Blocks(__m128i &block0,
     __m128i increment = _mm_set_epi16(1,1,1,1,1,1,1,1);
 
     const unsigned int MASK = 15;
-    for (int i=0; i<static_cast<int>(rounds); i+=8)
+    for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        double x[2];
-
-        // Avoid casting among datatypes
-        std::memcpy(x, &subkeys[(i+0) & MASK], 16);
-        k = _mm_castpd_si128(_mm_loadu_pd(x));
+        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[i & MASK])));
 
         // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0));
@@ -623,46 +527,6 @@ inline void CHAM64_Enc_2_Blocks(__m128i &block0,
         h = RotateLeft16<1>(_mm_add_epi16(t3, t4));
 
         counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(9,8,9,8, 9,8,9,8, 9,8,9,8, 9,8,9,8));
-
-        t1 = _mm_xor_si128(a, counter);
-        t3 = _mm_xor_si128(e, counter);
-        t2 = _mm_xor_si128(RotateLeft16<1>(b), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(f), kr);
-        a = RotateLeft16<8>(_mm_add_epi16(t1, t2));
-        e = RotateLeft16<8>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,11,10, 11,10,11,10, 11,10,11,10, 11,10,11,10));
-
-        t1 = _mm_xor_si128(b, counter);
-        t3 = _mm_xor_si128(f, counter);
-        t2 = _mm_xor_si128(RotateLeft16<8>(c), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(g), kr);
-        b = RotateLeft16<1>(_mm_add_epi16(t1, t2));
-        f = RotateLeft16<1>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(13,12,13,12, 13,12,13,12, 13,12,13,12, 13,12,13,12));
-
-        t1 = _mm_xor_si128(c, counter);
-        t3 = _mm_xor_si128(g, counter);
-        t2 = _mm_xor_si128(RotateLeft16<1>(d), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(h), kr);
-        c = RotateLeft16<8>(_mm_add_epi16(t1, t2));
-        g = RotateLeft16<8>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
-
-        t1 = _mm_xor_si128(d, counter);
-        t3 = _mm_xor_si128(h, counter);
-        t2 = _mm_xor_si128(RotateLeft16<8>(a), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(e), kr);
-        d = RotateLeft16<1>(_mm_add_epi16(t1, t2));
-        h = RotateLeft16<1>(_mm_add_epi16(t3, t4));
-
-        counter = _mm_add_epi16(counter, increment);
     }
 
     // [A1 B1 .. G1 H1][A2 B2 .. G2 H2] ... => [A1 A2 .. A6 A7][B1 B2 .. B6 B7] ...
@@ -691,60 +555,12 @@ inline void CHAM64_Dec_2_Blocks(__m128i &block0,
     __m128i decrement = _mm_set_epi16(1,1,1,1,1,1,1,1);
 
     const unsigned int MASK = 15;
-    for (int i = static_cast<int>(rounds)-1; i >= 0; i-=8)
+    for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        double x[2];
-
-        // Avoid casting among datatypes
-        std::memcpy(x, &subkeys[(i-7) & MASK], 16);
-        k = _mm_castpd_si128(_mm_loadu_pd(x));
+        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-3) & MASK])));
 
         // Shuffle out key
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(15,14,15,14, 15,14,15,14, 15,14,15,14, 15,14,15,14));
-
-        // Odd round
-        t1 = RotateRight16<1>(d);
-        t3 = RotateRight16<1>(h);
-        t2 = _mm_xor_si128(RotateLeft16<8>(a), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(e), kr);
-        d = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        h = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(13,12,13,12, 13,12,13,12, 13,12,13,12, 13,12,13,12));
-
-        // Even round
-        t1 = RotateRight16<8>(c);
-        t3 = RotateRight16<8>(g);
-        t2 = _mm_xor_si128(RotateLeft16<1>(d), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(h), kr);
-        c = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        g = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(11,10,11,10, 11,10,11,10, 11,10,11,10, 11,10,11,10));
-
-        // Odd round
-        t1 = RotateRight16<1>(b);
-        t3 = RotateRight16<1>(f);
-        t2 = _mm_xor_si128(RotateLeft16<8>(c), kr);
-        t4 = _mm_xor_si128(RotateLeft16<8>(g), kr);
-        b = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        f = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
-        kr = _mm_shuffle_epi8(k, _mm_set_epi8(9,8,9,8, 9,8,9,8, 9,8,9,8, 9,8,9,8));
-
-        // Even round
-        t1 = RotateRight16<8>(a);
-        t3 = RotateRight16<8>(e);
-        t2 = _mm_xor_si128(RotateLeft16<1>(b), kr);
-        t4 = _mm_xor_si128(RotateLeft16<1>(f), kr);
-        a = _mm_xor_si128(_mm_sub_epi16(t1, t2), counter);
-        e = _mm_xor_si128(_mm_sub_epi16(t3, t4), counter);
-
-        counter = _mm_sub_epi16(counter, decrement);
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,7,6, 7,6,7,6, 7,6,7,6, 7,6,7,6));
 
         // Odd round
