@@ -296,18 +296,17 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 	std::string name(factoryName ? factoryName : "");
 	member_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(name.c_str()));
 
-	if (!keyLength)
+	if (keyLength == 0)
 		keyLength = obj->DefaultKeyLength();
 
-	if (displayName)
+	if (displayName != NULLPTR)
 		name = displayName;
-	else if (keyLength)
+	else if (keyLength != 0)
 		name += " (" + IntToString(keyLength * 8) + "-bit key)";
 
-	const int blockSize = params.GetIntValueWithDefault(Name::BlockSize(), 0);
-	obj->SetKey(defaultKey, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, blockSize ? blockSize : obj->IVSize()), false)));
+	obj->SetKey(defaultKey, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
 	BenchMark(name.c_str(), *static_cast<T_Interface *>(obj.get()), g_allocatedTime);
-	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, blockSize ? blockSize : obj->IVSize()), false)));
+	BenchMarkKeying(*obj, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(defaultKey, obj->IVSize()), false)));
 }
 
 template <class T_FactoryOutput>
