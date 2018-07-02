@@ -16,6 +16,10 @@ if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryp
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+if [[ ! -z $(command -v dos2unix) ]]; then
+	dos2unix Makefile.am configure.ac libcryptopp.pc.in
+fi
+
 if ! autoreconf --force --install --warnings=all; then
 	echo "autoreconf failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
