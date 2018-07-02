@@ -16,8 +16,19 @@ if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryp
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+# Convert as necessary
 if [[ ! -z $(command -v dos2unix) ]]; then
 	dos2unix Makefile.am configure.ac libcryptopp.pc.in
+fi
+
+# Trim trailing whitespace
+if [[ ! -z $(command -v sed) ]]; then
+	sed -e's/[[:space:]]*$//' Makefile.am > Makefile.am.fixed
+	sed -e's/[[:space:]]*$//' configure.ac > configure.ac.fixed
+	sed -e's/[[:space:]]*$//' libcryptopp.pc.in > libcryptopp.pc.in.fixed
+	mv Makefile.am.fixed Makefile.am
+	mv configure.ac.fixed configure.ac
+	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
 fi
 
 if ! autoreconf --force --install --warnings=all; then
