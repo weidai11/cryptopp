@@ -17,6 +17,8 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HMAC_Base : public VariableKeyLength<16, 0, INT_MAX>, public MessageAuthenticationCode
 {
 public:
+	virtual ~HMAC_Base() {}
+
 	/// \brief Construct a HMAC_Base
 	HMAC_Base() : m_innerHashKeyed(false) {}
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
@@ -53,6 +55,8 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE=T::DIGESTSIZE)
 	CRYPTOPP_CONSTANT(BLOCKSIZE=T::BLOCKSIZE)
 
+	virtual ~HMAC() {}
+
 	/// \brief Construct a HMAC
 	HMAC() {}
 	/// \brief Construct a HMAC
@@ -63,6 +67,7 @@ public:
 
 	static std::string StaticAlgorithmName() {return std::string("HMAC(") + T::StaticAlgorithmName() + ")";}
 	std::string AlgorithmName() const {return std::string("HMAC(") + m_hash.AlgorithmName() + ")";}
+	std::string AlgorithmProvider() const {return m_hash.AlgorithmProvider();}
 
 private:
 	HashTransformation & AccessHash() {return m_hash;}

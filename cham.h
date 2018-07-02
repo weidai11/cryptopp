@@ -60,6 +60,7 @@ public:
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
+        std::string AlgorithmProvider() const;
 
         SecBlock<word16> m_rk;
         mutable FixedSizeSecBlock<word16, 4> m_x;
@@ -118,6 +119,7 @@ public:
     {
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
+        std::string AlgorithmProvider() const;
 
         SecBlock<word32> m_rk;
         mutable FixedSizeSecBlock<word32, 4> m_x;

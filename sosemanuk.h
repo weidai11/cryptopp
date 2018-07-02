@@ -39,6 +39,8 @@ protected:
 	unsigned int GetOptimalBlockSize() const;
 #endif
 
+	std::string AlgorithmProvider() const;
+
 	FixedSizeSecBlock<word32, 25*4> m_key;
 	FixedSizeAlignedSecBlock<word32, 12> m_state;
 };

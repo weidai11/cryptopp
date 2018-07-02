@@ -310,6 +310,27 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *su
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
+std::string Rijndael::Base::AlgorithmProvider() const
+{
+#if (CRYPTOPP_AESNI_AVAILABLE)
+	if (HasAESNI())
+		return "AESNI";
+#endif
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
+	if (HasSSE2())
+		return "SSE2";
+#endif
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
+	if (HasAES())
+		return "ARMv8";
+#endif
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+	if (HasAES())
+		return "Power8";
+#endif
+	return "C++";
+}
+
 void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keyLen);

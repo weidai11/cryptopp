@@ -284,6 +284,25 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
     }
 }
 
+std::string BLAKE2_Base_AlgorithmProvider()
+{
+#if defined(CRYPTOPP_SSE41_AVAILABLE)
+    if (HasSSE41())
+        return "SSE4.1";
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return "NEON";
+#endif
+    return "C++";
+}
+
+template <class W, bool T_64bit>
+std::string BLAKE2_Base<W, T_64bit>::AlgorithmProvider() const
+{
+	return BLAKE2_Base_AlgorithmProvider();
+}
+
 template <class W, bool T_64bit>
 BLAKE2_Base<W, T_64bit>::BLAKE2_Base() : m_state(1), m_block(1), m_digestSize(DIGESTSIZE), m_treeMode(false)
 {

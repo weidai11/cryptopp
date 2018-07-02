@@ -40,7 +40,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
-void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, bool pc=false)
+void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, bool pc = false)
 {
 	unsigned int len = 16;
 	SecByteBlock plaintext(len), ciphertext(key.CiphertextLength(len));
@@ -59,7 +59,8 @@ void BenchMarkEncryption(const char *name, PK_Encryptor &key, double timeTotal, 
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Encryption", pc, i, timeTaken);
+	std::string provider = key.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Encryption", pc, i, timeTaken);
 
 	if (!pc && key.GetMaterial().SupportsPrecomputation())
 	{
@@ -89,7 +90,8 @@ void BenchMarkDecryption(const char *name, PK_Decryptor &priv, PK_Encryptor &pub
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Decryption", false, i, timeTaken);
+	std::string provider = priv.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Decryption", false, i, timeTaken);
 }
 
 void BenchMarkSigning(const char *name, PK_Signer &key, double timeTotal, bool pc=false)
@@ -111,7 +113,8 @@ void BenchMarkSigning(const char *name, PK_Signer &key, double timeTotal, bool p
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Signature", pc, i, timeTaken);
+	std::string provider = key.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Signature", pc, i, timeTaken);
 
 	if (!pc && key.GetMaterial().SupportsPrecomputation())
 	{
@@ -140,7 +143,8 @@ void BenchMarkVerification(const char *name, const PK_Signer &priv, PK_Verifier 
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Verification", pc, i, timeTaken);
+	std::string provider = pub.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Verification", pc, i, timeTaken);
 
 	if (!pc && pub.GetMaterial().SupportsPrecomputation())
 	{
@@ -166,7 +170,8 @@ void BenchMarkKeyGen(const char *name, SimpleKeyAgreementDomain &d, double timeT
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Key-Pair Generation", pc, i, timeTaken);
+	std::string provider = d.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Key-Pair Generation", pc, i, timeTaken);
 
 	if (!pc && d.GetMaterial().SupportsPrecomputation())
 	{
@@ -192,7 +197,8 @@ void BenchMarkKeyGen(const char *name, AuthenticatedKeyAgreementDomain &d, doubl
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Key-Pair Generation", pc, i, timeTaken);
+	std::string provider = d.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Key-Pair Generation", pc, i, timeTaken);
 
 	if (!pc && d.GetMaterial().SupportsPrecomputation())
 	{
@@ -223,7 +229,8 @@ void BenchMarkAgreement(const char *name, SimpleKeyAgreementDomain &d, double ti
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Key Agreement", pc, i, timeTaken);
+	std::string provider = d.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Key Agreement", pc, i, timeTaken);
 }
 
 void BenchMarkAgreement(const char *name, AuthenticatedKeyAgreementDomain &d, double timeTotal, bool pc=false)
@@ -252,7 +259,8 @@ void BenchMarkAgreement(const char *name, AuthenticatedKeyAgreementDomain &d, do
 	}
 	while (timeTaken < timeTotal);
 
-	OutputResultOperations(name, "Key Agreement", pc, i, timeTaken);
+	std::string provider = d.AlgorithmProvider();
+	OutputResultOperations(name, provider.c_str(), "Key Agreement", pc, i, timeTaken);
 }
 
 template <class SCHEME>
@@ -299,7 +307,7 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
-	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
+	std::cout << "\n<TR><TH>Operation<TH>Provider<TH>Milliseconds/Operation" << mco;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{

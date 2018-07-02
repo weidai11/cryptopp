@@ -151,6 +151,23 @@ ANONYMOUS_NAMESPACE_END
 // end of Steve Reid's code //
 //////////////////////////////
 
+std::string SHA1::AlgorithmProvider() const
+{
+#if CRYPTOPP_SHANI_AVAILABLE
+	if (HasSHA())
+		return "SHANI";
+#endif
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+	if (HasSSE2())
+		return "SSE2";
+#endif
+#if CRYPTOPP_ARM_SHA_AVAILABLE
+	if (HasSHA1())
+		return "ARMv8";
+#endif
+	return "C++";
+}
+
 void SHA1::InitState(HashWordType *state)
 {
     state[0] = 0x67452301;
@@ -319,6 +336,32 @@ void SHA256_HashBlock_CXX(word32 *state, const word32 *data)
 #undef h
 
 ANONYMOUS_NAMESPACE_END
+
+std::string SHA256_AlgorithmProvider()
+{
+#if CRYPTOPP_SHANI_AVAILABLE
+	if (HasSHA())
+		return "SHANI";
+#endif
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+	if (HasSSE2())
+		return "SSE2";
+#endif
+#if CRYPTOPP_ARM_SHA_AVAILABLE
+	if (HasSHA2())
+		return "ARMv8";
+#endif
+#if (CRYPTOPP_POWER8_SHA_AVAILABLE)
+	if (HasSHA256())
+		return "Power8";
+#endif
+	return "C++";
+}
+
+std::string SHA224::AlgorithmProvider() const
+{
+	return SHA256_AlgorithmProvider();
+}
 
 void SHA224::InitState(HashWordType *state)
 {
@@ -668,6 +711,11 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
 }
 #endif
 
+std::string SHA256::AlgorithmProvider() const
+{
+	return SHA256_AlgorithmProvider();
+}
+
 void SHA256::Transform(word32 *state, const word32 *data)
 {
     CRYPTOPP_ASSERT(state);
@@ -811,6 +859,29 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 }
 
 // *************************************************************
+
+std::string SHA512_AlgorithmProvider()
+{
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+	if (HasSSE2())
+		return "SSE2";
+#endif
+#if (CRYPTOPP_POWER8_SHA_AVAILABLE)
+	if (HasSHA512())
+		return "Power8";
+#endif
+	return "C++";
+}
+
+std::string SHA384::AlgorithmProvider() const
+{
+	return SHA512_AlgorithmProvider();
+}
+
+std::string SHA512::AlgorithmProvider() const
+{
+	return SHA512_AlgorithmProvider();
+}
 
 void SHA384::InitState(HashWordType *state)
 {

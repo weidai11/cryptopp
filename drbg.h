@@ -232,6 +232,9 @@ public:
     void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)
         {return Hash_Generate(additional, additionaLength, output, size);}
 
+    std::string AlgorithmProvider() const
+        {/*Hack*/HASH hash; return hash.AlgorithmProvider();}
+
 protected:
     // 10.1.1.2 Instantiation of Hash_DRBG (p.39)
     void DRBG_Instantiate(const byte* entropy, size_t entropyLength, const byte* nonce, size_t nonceLength,
@@ -344,6 +347,9 @@ public:
 
     void GenerateBlock(const byte* additional, size_t additionaLength, byte *output, size_t size)
         {return HMAC_Generate(additional, additionaLength, output, size);}
+
+    std::string AlgorithmProvider() const
+        {/*Hack*/HASH hash; return hash.AlgorithmProvider();}
 
 protected:
     // 10.1.2.3 Instantiation of HMAC_DRBG (p.45)

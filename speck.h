@@ -84,6 +84,8 @@ public:
                 "(" + IntToString(m_kwords*sizeof(word32)*8) + ")");
         }
 
+        std::string AlgorithmProvider() const;
+
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
@@ -94,7 +96,7 @@ public:
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
-	public:
+    public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 #if CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
@@ -107,7 +109,7 @@ public:
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
-	public:
+    public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 #if CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
@@ -141,6 +143,8 @@ public:
                 "(" + IntToString(m_kwords*sizeof(word64)*8) + ")");
         }
 
+        std::string AlgorithmProvider() const;
+
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
@@ -151,7 +155,7 @@ public:
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
-	public:
+    public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 #if CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
@@ -164,7 +168,7 @@ public:
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
-	public:
+    public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 #if CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;

@@ -17,6 +17,11 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+std::string PadlockRNG::AlgorithmProvider() const
+{
+    return "Padlock";
+}
+
 PadlockRNG::PadlockRNG(word32 divisor)
 : m_divisor(DivisorHelper(divisor)), m_msr(0)
 {

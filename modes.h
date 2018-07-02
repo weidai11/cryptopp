@@ -116,6 +116,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "CFB";}
+	std::string AlgorithmProvider() const { return m_cipher->AlgorithmProvider(); }
 
 	virtual ~CFB_ModePolicy() {}
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
@@ -150,6 +151,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE OFB_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "OFB";}
+	std::string AlgorithmProvider() const { return m_cipher->AlgorithmProvider(); }
 
 	bool CipherIsRandomAccess() const {return false;}
 	IV_Requirement IVRequirement() const {return UNIQUE_IV;}
@@ -166,6 +168,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CTR_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "CTR";}
+	std::string AlgorithmProvider() const { return m_cipher->AlgorithmProvider(); }
 
 	virtual ~CTR_ModePolicy() {}
 	bool CipherIsRandomAccess() const {return true;}
@@ -210,6 +213,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ECB_OneWay : public BlockOrientedCipherMod
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECB";}
+	std::string AlgorithmProvider() const { return m_cipher->AlgorithmProvider(); }
 
 	void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs)
 		{m_cipher->SetKey(key, length, params); BlockOrientedCipherModeBase::ResizeBuffers();}
@@ -223,6 +227,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_ModeBase : public BlockOrientedCipherM
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "CBC";}
+	std::string AlgorithmProvider() const { return m_cipher->AlgorithmProvider(); }
 
 	IV_Requirement IVRequirement() const {return UNPREDICTABLE_RANDOM_IV;}
 	bool RequireAlignedInput() const {return false;}
@@ -242,6 +247,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CBC_CTS_Encryption : public CBC_Encryption
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "CBC/CTS";}
+	std::string AlgorithmProvider() const { return m_cipher->AlgorithmProvider(); }
 
 	void SetStolenIV(byte *iv) {m_stolenIV = iv;}
 	unsigned int MinLastBlockSize() const {return BlockSize()+1;}
@@ -286,6 +292,8 @@ class CipherModeFinalTemplate_CipherHolder : protected ObjectHolder<CIPHER>, pub
 public:
 	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return CIPHER::StaticAlgorithmName() + "/" + BASE::StaticAlgorithmName();}
+	std::string AlgorithmProvider() const
+		{ return this->m_cipher->AlgorithmProvider(); }
 
 	CipherModeFinalTemplate_CipherHolder()
 	{
@@ -323,6 +331,8 @@ public:
 
 	std::string AlgorithmName() const
 		{return (this->m_cipher ? this->m_cipher->AlgorithmName() + "/" : std::string("")) + BASE::StaticAlgorithmName();}
+	std::string AlgorithmProvider() const
+		{ return this->m_cipher ? this->m_cipher->AlgorithmProvider() : "C++"; }
 };
 
 CRYPTOPP_DLL_TEMPLATE_CLASS CFB_CipherTemplate<AbstractPolicyHolder<CFB_CipherAbstractPolicy, CFB_ModePolicy> >;

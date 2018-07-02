@@ -21,6 +21,8 @@ public:
 	// AuthenticatedSymmetricCipher
 	std::string AlgorithmName() const
 		{return GetMAC().GetCipher().AlgorithmName() + std::string("/EAX");}
+	std::string AlgorithmProvider() const
+		{return GetMAC().GetCipher().AlgorithmProvider();}
 	size_t MinKeyLength() const
 		{return GetMAC().MinKeyLength();}
 	size_t MaxKeyLength() const
@@ -76,6 +78,8 @@ class EAX_Final : public EAX_Base
 public:
 	static std::string StaticAlgorithmName()
 		{return T_BlockCipher::StaticAlgorithmName() + std::string("/EAX");}
+	std::string AlgorithmProvider() const
+		{return m_cmac.AlgorithmProvider();}
 	bool IsForwardTransformation() const
 		{return T_IsEncryption;}
 

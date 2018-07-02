@@ -108,7 +108,5 @@ void WAKE_ROFB_Policy<B>::Iterate(KeystreamOperation operation, byte *output, co
 */
 template class WAKE_Policy<BigEndian>;
 template class WAKE_Policy<LittleEndian>;
-//template class WAKE_ROFB_Policy<BigEndian>;
-//template class WAKE_ROFB_Policy<LittleEndian>;
 
 NAMESPACE_END

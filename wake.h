@@ -54,22 +54,6 @@ struct WAKE_OFB : public WAKE_OFB_Info<B>, public SymmetricCipherDocumentation
 	typedef Encryption Decryption;
 };
 
-/*
-template <class B = BigEndian>
-class WAKE_ROFB_Policy : public WAKE_Policy<B>
-{
-protected:
-	void Iterate(KeystreamOperation operation, byte *output, const byte *input, unsigned int iterationCount);
-};
-
-template <class B = BigEndian>
-struct WAKE_ROFB : public WAKE_Info<B>
-{
-	typedef SymmetricCipherTemplate<ConcretePolicyHolder<AdditiveCipherTemplate<>, WAKE_ROFB_Policy<B> > > Encryption;
-	typedef Encryption Decryption;
-};
-*/
-
 NAMESPACE_END
 
 #endif

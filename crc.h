@@ -36,6 +36,8 @@ public:
 	void UpdateByte(byte b) {m_crc = m_tab[CRC32_INDEX(m_crc) ^ b] ^ CRC32_SHIFTED(m_crc);}
 	byte GetCrcByte(size_t i) const {return reinterpret_cast<const byte *>(&m_crc)[i];}
 
+	std::string AlgorithmProvider() const;
+
 protected:
 	void Reset() {m_crc = CRC32_NEGL;}
 
@@ -60,6 +62,8 @@ public:
 
 	void UpdateByte(byte b) {m_crc = m_tab[CRC32_INDEX(m_crc) ^ b] ^ CRC32_SHIFTED(m_crc);}
 	byte GetCrcByte(size_t i) const {return reinterpret_cast<const byte *>(&m_crc)[i];}
+
+	std::string AlgorithmProvider() const;
 
 protected:
 	void Reset() {m_crc = CRC32_NEGL;}

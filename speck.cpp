@@ -200,6 +200,19 @@ extern size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, si
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
+std::string SPECK64::Base::AlgorithmProvider() const
+{
+#if defined(CRYPTOPP_SSE41_AVAILABLE)
+    if (HasSSE41())
+        return "SSE4.1";
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return "NEON";
+#endif
+    return "C++";
+}
+
 void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(keyLength == 12 || keyLength == 16);
@@ -278,6 +291,19 @@ void SPECK64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 }
 
 ///////////////////////////////////////////////////////////
+
+std::string SPECK128::Base::AlgorithmProvider() const
+{
+#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3())
+        return "SSSE3";
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return "NEON";
+#endif
+    return "C++";
+}
 
 void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {

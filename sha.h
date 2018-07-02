@@ -50,6 +50,8 @@ public:
 	/// \brief The algorithm name
 	/// \returns C-style string "SHA-1"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-1";}
+	// Algorithm class
+	std::string AlgorithmProvider() const;
 
 protected:
 	size_t HashMultipleBlocks(const HashWordType *input, size_t length);
@@ -87,6 +89,9 @@ public:
 	/// \returns C-style string "SHA-256"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-256";}
 
+	// Algorithm class
+	std::string AlgorithmProvider() const;
+
 protected:
 	size_t HashMultipleBlocks(const HashWordType *input, size_t length);
 };
@@ -123,6 +128,9 @@ public:
 	/// \returns C-style string "SHA-224"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-224";}
 
+	// Algorithm class
+	std::string AlgorithmProvider() const;
+
 protected:
 	size_t HashMultipleBlocks(const HashWordType *input, size_t length);
 };
@@ -157,6 +165,9 @@ public:
 	/// \brief The algorithm name
 	/// \returns C-style string "SHA-512"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-512";}
+
+	// Algorithm class
+	std::string AlgorithmProvider() const;
 };
 
 /// \brief SHA-384 message digest
@@ -189,6 +200,9 @@ public:
 	/// \brief The algorithm name
 	/// \returns C-style string "SHA-384"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-384";}
+
+	// Algorithm class
+	std::string AlgorithmProvider() const;
 };
 
 NAMESPACE_END

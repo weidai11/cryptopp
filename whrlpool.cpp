@@ -89,6 +89,15 @@ void Whirlpool_TestInstantiations()
 }
 #endif
 
+std::string Whirlpool::AlgorithmProvider() const
+{
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
+	if (HasSSE2())
+		return "SSE2";
+#endif
+	return "C++";
+}
+
 void Whirlpool::InitState(HashWordType *state)
 {
 	memset(state, 0, 8*sizeof(state[0]));

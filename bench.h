@@ -48,8 +48,8 @@ void Benchmark2(double t, double hertz);
 // Public key systems
 void Benchmark3(double t, double hertz);
 
-void OutputResultBytes(const char *name, double length, double timeTaken);
-void OutputResultOperations(const char *name, const char *operation, bool pc, unsigned long iterations, double timeTaken);
+void OutputResultBytes(const char *name, const char* provider, double length, double timeTaken);
+void OutputResultOperations(const char *name, const char* provider, const char *operation, bool pc, unsigned long iterations, double timeTaken);
 
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP

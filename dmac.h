@@ -28,6 +28,8 @@ public:
 	void TruncatedFinal(byte *mac, size_t size);
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
+	std::string AlgorithmProvider() const;
+
 private:
 	byte *GenerateSubKeys(const byte *key, size_t keylength);
 
@@ -37,6 +39,12 @@ private:
 	typename T::Encryption m_f2;
 	unsigned int m_counter;
 };
+
+template <class T>
+std::string DMAC_Base<T>::AlgorithmProvider() const
+{
+	return m_f2.AlgorithmProvider();
+}
 
 /// \brief DMAC message authentication code
 /// \tparam T class derived from BlockCipherDocumentation

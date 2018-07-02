@@ -80,6 +80,8 @@ public:
         // Override to avoid the base class' throw.
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
     }
+
+    std::string AlgorithmProvider() const;
 };
 
 /// \brief Exception thrown when a RDSEED generator encounters
@@ -130,6 +132,8 @@ public:
         // Override to avoid the base class' throw.
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
     }
+
+    std::string AlgorithmProvider() const;
 };
 
 NAMESPACE_END

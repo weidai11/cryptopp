@@ -44,6 +44,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	{
 	public:
 		void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
+		std::string AlgorithmProvider() const;
 
 	protected:
 		static void FillEncTable();
