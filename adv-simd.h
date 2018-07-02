@@ -1,12 +1,15 @@
 // adv-simd.h - written and placed in the public domain by Jeffrey Walton
-//
+
+/// \file adv-simd.h
+/// \brief Template for AdvancedProcessBlocks and SIMD processing
+
 //    The SIMD based implementations for ciphers that use SSE, NEON and Power7
 //    have a commom pattern. Namely, they have a specialized implementation of
 //    AdvancedProcessBlocks which processes multiple block using hardware
 //    acceleration. After several implementations we noticed a lot of copy and
 //    paste occuring. adv-simd.h provides a template to avoid the copy and paste.
 //
-//    There are 9 templates provided in this file. The number following the
+//    There are 10 templates provided in this file. The number following the
 //    function name is the block size of the cipher. The name following that
 //    is the acceleration and arrangement. For example 4x1_SSE means Intel SSE
 //    using two encrypt (or decrypt) functions: one that operates on 4 blocks,
