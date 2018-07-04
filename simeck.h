@@ -64,7 +64,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
         FixedSizeSecBlock<word16, ROUNDS> m_rk;
-        mutable FixedSizeSecBlock<word16, 4> m_t;
+        mutable FixedSizeSecBlock<word16, 5> m_t;
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -113,7 +113,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 
         FixedSizeSecBlock<word32, ROUNDS> m_rk;
-        mutable FixedSizeSecBlock<word32, 4> m_t;
+        mutable FixedSizeSecBlock<word32, 5> m_t;
     };
 
     /// \brief Provides implementation for encryption transformation
