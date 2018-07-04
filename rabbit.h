@@ -77,10 +77,10 @@ protected:
 };
 
 /// \brief Rabbit stream cipher
-/// \details is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
-//    Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
+/// \details Rabbit is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
+///   Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
 ///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
-/// \sa <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
+/// \sa RabbitWithIV, <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
 ///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
 ///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
@@ -92,10 +92,10 @@ struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
 };
 
 /// \brief Rabbit stream cipher
-/// \details is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
-//    Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
+/// \details Rabbit is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
+///   Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
 ///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
-/// \sa <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
+/// \sa Rabbit, <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
 ///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
 ///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
