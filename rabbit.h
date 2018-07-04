@@ -3,13 +3,12 @@
 //            Thomas Pedersen, Jesper Christiansen and Ove Scavenius.
 //
 //            The reference materials and source files are available at
-//            The eSTREAM Project, http://www.ecrypt.eu.org/stream/rabbitpf.html.
+//            The eSTREAM Project, http://www.ecrypt.eu.org/stream/e2-rabbit.html.
 
 /// \file rabbit.h
 /// \brief Classes for Rabbit stream cipher
-/// \sa <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
-///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
-///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
+/// \sa <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
+///   eSTREAM Project | Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
 /// \since Crypto++ 7.1
 
@@ -80,9 +79,10 @@ protected:
 /// \details Rabbit is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
 ///   Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
 ///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
-/// \sa RabbitWithIV, <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
-///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
-///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
+/// \details Crypto++ provides Rabbit and RabbitWithIV classes. Two classes are necessary
+///   because the library lacks the means to describe and manage optional IVs.
+/// \sa RabbitWithIV, <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
+///   eSTREAM Project | Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
 /// \since Crypto++ 7.1
 struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
@@ -95,9 +95,10 @@ struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
 /// \details Rabbit is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
 ///   Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
 ///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
-/// \sa Rabbit, <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
-///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
-///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
+/// \details Crypto++ provides Rabbit and RabbitWithIV classes. Two classes are necessary
+///   because the library lacks the means to describe and manage optional IVs.
+/// \sa Rabbit, <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
+///   eSTREAM Project | Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
 /// \since Crypto++ 7.1
 struct RabbitWithIV : public RabbitWithIVInfo, public SymmetricCipherDocumentation

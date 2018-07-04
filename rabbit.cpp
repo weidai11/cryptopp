@@ -1,6 +1,9 @@
-// sosemanuk.cpp - written and placed in the public domain by Jeffrey Walton
-//                 based on public domain code by Martin Boesgaard, Mette Vesterager,
-//                 Thomas Pedersen, Jesper Christiansen and Ove Scavenius.
+// rabbit.cpp - written and placed in the public domain by Jeffrey Walton
+//              based on public domain code by Martin Boesgaard, Mette Vesterager,
+//              Thomas Pedersen, Jesper Christiansen and Ove Scavenius.
+//
+//              The reference materials and source files are available at
+//              The eSTREAM Project, http://www.ecrypt.eu.org/stream/e2-rabbit.html.
 
 #include "pch.h"
 #include "config.h"
