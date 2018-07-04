@@ -271,6 +271,7 @@
     <ClCompile Include="queue.cpp" />
     <ClCompile Include="rabin.cpp" />
     <ClCompile Include="randpool.cpp" />
+    <ClCompile Include="rabbit.cpp" />
     <ClCompile Include="rc2.cpp" />
     <ClCompile Include="rc5.cpp" />
     <ClCompile Include="rc6.cpp" />
@@ -469,6 +470,7 @@
     <ClInclude Include="queue.h" />
     <ClInclude Include="rabin.h" />
     <ClInclude Include="randpool.h" />
+    <ClInclude Include="rabbit.h" />
     <ClInclude Include="rc2.h" />
     <ClInclude Include="rc5.h" />
     <ClInclude Include="rc6.h" />

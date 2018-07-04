@@ -305,6 +305,9 @@
     <ClCompile Include="randpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rabbit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="rc2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -799,6 +802,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="randpool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rabbit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="rc2.h">

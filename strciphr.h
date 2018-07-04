@@ -97,7 +97,8 @@ enum KeystreamOperation {
 	/// \brief XOR the input buffer and keystream, write to the aligned output buffer
 	XOR_KEYSTREAM_OUTPUT_ALIGNED= OUTPUT_ALIGNED,
 	/// \brief XOR the aligned input buffer and keystream, write to the aligned output buffer
-	XOR_KEYSTREAM_BOTH_ALIGNED	= OUTPUT_ALIGNED | INPUT_ALIGNED};
+	XOR_KEYSTREAM_BOTH_ALIGNED	= OUTPUT_ALIGNED | INPUT_ALIGNED
+};
 
 /// \brief Policy object for additive stream ciphers
 struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
