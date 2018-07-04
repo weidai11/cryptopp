@@ -8,7 +8,7 @@
 /// \file rabbit.h
 /// \brief Classes for Rabbit stream cipher
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
-///   Stream Cipher Rabbit (v1.1)< /A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
+///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
 ///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
 /// \since Crypto++ 7.1
@@ -81,7 +81,7 @@ protected:
 //    Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
 ///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
-///   Stream Cipher Rabbit (v1.1)< /A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
+///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
 ///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
 /// \since Crypto++ 7.1
@@ -96,7 +96,7 @@ struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
 //    Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
 ///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/p3ciphers/rabbit/rabbit_p3.pdf">The
-///   Stream Cipher Rabbit (v1.1)< /A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
+///   Stream Cipher Rabbit (v1.1)</A>, <A HREF="http://www.ecrypt.eu.org/stream/rabbitpf.html">The
 ///   eSTREAM Project - eSTREAM Phase 3 - Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
 /// \since Crypto++ 7.1
