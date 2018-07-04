@@ -12,7 +12,7 @@
 <dt>Block Ciphers<dd>
 	\ref Rijndael "AES", ARIA, Weak::ARC4, Blowfish, BTEA, \ref CHAM128 "CHAM (64/128)", Camellia,
 	\ref CAST128 "CAST (128/256)", DES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",
-	\ref DES_XEX3 "DESX", GOST, IDEA, LEA, \ref LR "Luby-Rackoff", \ref Kalyna128 "Kalyna (128/256/512)",
+	\ref DES_XEX3 "DESX", GOST, HIGHT, IDEA, LEA, \ref LR "Luby-Rackoff", \ref Kalyna128 "Kalyna (128/256/512)",
 	MARS, RC2, RC5, RC6, \ref SAFER_K "SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent,
 	\ref SHACAL2 "SHACAL-2", SHARK, \ref SIMECK64 "SIMECK (32/64)" SKIPJACK, SM4, Square, TEA,
 	\ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
