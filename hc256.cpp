@@ -34,10 +34,10 @@ inline word32 HC256Policy::H1(word32 u)
 {
 	word32 tem;
 	byte a, b, c, d;
-	a = (byte)((u));
-	b = (byte)((u) >> 8);
-	c = (byte)((u) >> 16);
-	d = (byte)((u) >> 24);
+	a = (byte)(u);
+	b = (byte)(u >> 8);
+	c = (byte)(u >> 16);
+	d = (byte)(u >> 24);
 	tem = m_Q[a] + m_Q[256 + b] + m_Q[512 + c] + m_Q[768 + d];
 	return (tem);
 }
@@ -46,10 +46,10 @@ inline word32 HC256Policy::H2(word32 u)
 {
 	word32 tem;
 	byte a, b, c, d;
-	a = (byte)((u));
-	b = (byte)((u) >> 8);
-	c = (byte)((u) >> 16);
-	d = (byte)((u) >> 24);
+	a = (byte)(u);
+	b = (byte)(u >> 8);
+	c = (byte)(u >> 16);
+	d = (byte)(u >> 24);
 	tem = m_P[a] + m_P[256 + b] + m_P[512 + c] + m_P[768 + d];
 	return (tem);
 }
@@ -95,8 +95,8 @@ void HC256Policy::CipherSetKey(const NameValuePairs &params, const byte *userKey
 void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	size_t msglen = GetBytesPerIteration() * iterationCount;
-	const byte* in = input; byte* out = output;
-	for (unsigned int i = 0; i < (msglen >> 2); i++, in += 4, out += 4)
+	byte* out = output;
+	for (unsigned int i = 0; i < (msglen >> 2); i++, out += 4)
 		PutWord(false, LITTLE_ENDIAN_ORDER, out, Generate());
 
 	// If AdditiveCipherTemplate does not have an accumulated keystream
