@@ -140,6 +140,8 @@ gost.h
 gzip.cpp
 gzip.h
 hashfwd.h
+hc128.cpp
+hc128.h
 hex.cpp
 hex.h
 hight.h
@@ -453,10 +455,12 @@ TestVectors/chacha.txt
 TestVectors/cmac.txt
 TestVectors/dlies.txt
 TestVectors/dsa.txt
+TestVectors/dsa_rfc6979.txt
 TestVectors/dsa_1363.txt
 TestVectors/eax.txt
 TestVectors/esign.txt
 TestVectors/gcm.txt
+TestVectors/hc128.txt
 TestVectors/hkdf.txt
 TestVectors/hight.txt
 TestVectors/hmac.txt
@@ -466,10 +470,10 @@ TestVectors/lea.txt
 TestVectors/mars.txt
 TestVectors/nr.txt
 TestVectors/panama.txt
+TestVectors/rabbit.txt
 TestVectors/rsa_oaep.txt
 TestVectors/rsa_pkcs1_1_5.txt
 TestVectors/rsa_pss.txt
-TestVectors/dsa_rfc6979.txt
 TestVectors/rw.txt
 TestVectors/salsa.txt
 TestVectors/seal.txt
@@ -495,7 +499,6 @@ TestVectors/simon.txt
 TestVectors/siphash.txt
 TestVectors/sm3.txt
 TestVectors/sm4.txt
-TestVectors/rabbit.txt
 TestVectors/sosemanuk.txt
 TestVectors/speck.txt
 TestVectors/tea.txt

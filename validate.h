@@ -86,9 +86,12 @@ bool ValidateCHAM();
 bool ValidateHIGHT();
 bool ValidateLEA();
 bool ValidateCamellia();
-bool ValidateSalsa();
+
+bool ValidateHC128();
 bool ValidateRabbit();
+bool ValidateSalsa();
 bool ValidateSosemanuk();
+
 bool ValidateVMAC();
 bool ValidateCCM();
 bool ValidateGCM();

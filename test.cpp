@@ -938,20 +938,21 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 69: result = ValidateSalsa(); break;
 	case 70: result = ValidateSosemanuk(); break;
 	case 71: result = ValidateRabbit(); break;
-	case 72: result = ValidateVMAC(); break;
-	case 73: result = ValidateCCM(); break;
-	case 74: result = ValidateGCM(); break;
-	case 75: result = ValidateCMAC(); break;
-	case 76: result = ValidateSM3(); break;
-	case 77: result = ValidateBLAKE2s(); break;
-	case 78: result = ValidateBLAKE2b(); break;
-	case 79: result = ValidatePoly1305(); break;
-	case 80: result = ValidateSipHash(); break;
-	case 81: result = ValidateHashDRBG(); break;
-	case 82: result = ValidateHmacDRBG(); break;
-	case 83: result = ValidateNaCl(); break;
-	case 84: result = ValidateSIMECK(); break;
-	case 85: result = ValidateCHAM(); break;
+	case 72: result = ValidateHC128(); break;
+	case 73: result = ValidateVMAC(); break;
+	case 74: result = ValidateCCM(); break;
+	case 75: result = ValidateGCM(); break;
+	case 76: result = ValidateCMAC(); break;
+	case 77: result = ValidateSM3(); break;
+	case 78: result = ValidateBLAKE2s(); break;
+	case 79: result = ValidateBLAKE2b(); break;
+	case 80: result = ValidatePoly1305(); break;
+	case 81: result = ValidateSipHash(); break;
+	case 82: result = ValidateHashDRBG(); break;
+	case 83: result = ValidateHmacDRBG(); break;
+	case 84: result = ValidateNaCl(); break;
+	case 85: result = ValidateSIMECK(); break;
+	case 86: result = ValidateCHAM(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92

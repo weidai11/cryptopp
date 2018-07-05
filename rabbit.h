@@ -46,7 +46,6 @@ protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	bool CanOperateKeystream() const { return true; }
-	unsigned int GetOptimalBlockSize() const { return 16; }
 	bool CipherIsRandomAccess() const { return false; }
 
 	// Master and working states

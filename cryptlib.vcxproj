@@ -230,6 +230,7 @@
     <ClCompile Include="gfpcrypt.cpp" />
     <ClCompile Include="gost.cpp" />
     <ClCompile Include="gzip.cpp" />
+    <ClCompile Include="hc128.cpp" />
     <ClCompile Include="hex.cpp" />
     <ClCompile Include="hight.cpp" />
     <ClCompile Include="hmac.cpp" />
@@ -425,6 +426,7 @@
     <ClInclude Include="gfpcrypt.h" />
     <ClInclude Include="gost.h" />
     <ClInclude Include="gzip.h" />
+    <ClInclude Include="hc128.h" />
     <ClInclude Include="hex.h" />
     <ClInclude Include="hight.h" />
     <ClInclude Include="hkdf.h" />

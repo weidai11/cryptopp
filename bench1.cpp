@@ -567,6 +567,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Sosemanuk");
 		BenchMarkByName<SymmetricCipher>("Rabbit");
 		BenchMarkByName<SymmetricCipher>("RabbitWithIV");
+		BenchMarkByName<SymmetricCipher>("HC128");
 		BenchMarkByName<SymmetricCipher>("MARC4");
 		BenchMarkByName<SymmetricCipher>("SEAL-3.0-LE");
 		BenchMarkByName<SymmetricCipher>("WAKE-OFB-LE");

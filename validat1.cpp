@@ -179,6 +179,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;
 	pass=ValidateRabbit() && pass;
+	pass=ValidateHC128() && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/seed.txt") && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/threefish.txt") && pass;
 	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/kalyna.txt") && pass;
@@ -3479,6 +3480,12 @@ bool ValidateRabbit()
 {
 	std::cout << "\nRabbit validation suite running...\n";
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/rabbit.txt");
+}
+
+bool ValidateHC128()
+{
+	std::cout << "\nHC-128 validation suite running...\n";
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hc128.txt");
 }
 
 bool ValidateVMAC()
