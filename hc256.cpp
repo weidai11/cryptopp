@@ -18,43 +18,43 @@ using CryptoPP::rotrConstant;
 
 inline word32 f1(word32 x)
 {
-	return rotrConstant<7>(x) ^ rotrConstant<18>(x) ^ ((x) >> 3);
+	return rotrConstant<7>(x) ^ rotrConstant<18>(x) ^ (x >> 3);
 }
 
 inline word32 f2(word32 x)
 {
-	return rotrConstant<17>(x) ^ rotrConstant<19>(x) ^ ((x) >> 10);
+	return rotrConstant<17>(x) ^ rotrConstant<19>(x) ^ (x >> 10);
 }
 
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-word32 HC256Policy::H1(word32 u)
+inline word32 HC256Policy::H1(word32 u)
 {
 	word32 tem;
-	unsigned char a, b, c, d;
-	a = (unsigned char)((u));
-	b = (unsigned char)((u) >> 8);
-	c = (unsigned char)((u) >> 16);
-	d = (unsigned char)((u) >> 24);
+	byte a, b, c, d;
+	a = (byte)((u));
+	b = (byte)((u) >> 8);
+	c = (byte)((u) >> 16);
+	d = (byte)((u) >> 24);
 	tem = m_Q[a] + m_Q[256 + b] + m_Q[512 + c] + m_Q[768 + d];
 	return (tem);
 }
 
-word32 HC256Policy::H2(word32 u)
+inline word32 HC256Policy::H2(word32 u)
 {
 	word32 tem;
-	unsigned char a, b, c, d;
-	a = (unsigned char)((u));
-	b = (unsigned char)((u) >> 8);
-	c = (unsigned char)((u) >> 16);
-	d = (unsigned char)((u) >> 24);
+	byte a, b, c, d;
+	a = (byte)((u));
+	b = (byte)((u) >> 8);
+	c = (byte)((u) >> 16);
+	d = (byte)((u) >> 24);
 	tem = m_P[a] + m_P[256 + b] + m_P[512 + c] + m_P[768 + d];
 	return (tem);
 }
 
-word32 HC256Policy::Generate() /*one step of the cipher*/
+inline word32 HC256Policy::Generate() /*one step of the cipher*/
 {
 	word32 i, i3, i10, i12, i1023;
 	word32 output;
@@ -94,17 +94,16 @@ void HC256Policy::CipherSetKey(const NameValuePairs &params, const byte *userKey
 
 void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	size_t msglen = (GetBytesPerIteration() * iterationCount) >> 2;
-	for (unsigned int i = 0; i < msglen; i++, input += 4, output += 4)
-	{
-		PutWord(false, LITTLE_ENDIAN_ORDER, output, Generate());
+	size_t msglen = GetBytesPerIteration() * iterationCount;
+	const byte* in = input; byte* out = output;
+	for (unsigned int i = 0; i < (msglen >> 2); i++, in += 4, out += 4)
+		PutWord(false, LITTLE_ENDIAN_ORDER, out, Generate());
 
-		// If AdditiveCipherTemplate does not have an acculated keystream
-		//  then it will ask OperateKeystream to XOR the plaintext with
-		//  the keystream and write it to the ciphertext buffer.
-		if ((operation & INPUT_NULL) != INPUT_NULL)
-			xorbuf(output, input, 4);
-	}
+	// If AdditiveCipherTemplate does not have an acculated keystream
+	//  then it will ask OperateKeystream to XOR the plaintext with
+	//  the keystream and write it to the ciphertext buffer.
+	if ((operation & INPUT_NULL) != INPUT_NULL)
+		xorbuf(output, input, msglen);
 }
 
 void HC256Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
