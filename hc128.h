@@ -51,7 +51,7 @@ private:
 
 /// \brief HC-128 stream cipher
 /// \details HC-128 is a stream cipher developed by Hongjun Wu. HC-128 is one of the
-///   final four Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
+///   final four Profile 1 (software) ciphers selected for the eSTREAM portfolio.
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/e2-hc128.html">The
 ///   eSTREAM Project | HC-128</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/HC-128">Crypto++ Wiki | HC-128</A>.

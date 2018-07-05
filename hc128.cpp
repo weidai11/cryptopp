@@ -11,22 +11,19 @@
 #include "secblock.h"
 #include "misc.h"
 
-#define u8 byte
-#define u32 word32
-
 /*h1 function*/
 #define h1(x, y) {         \
-     u8 a,c;               \
-     a = (u8) (x);         \
-     c = (u8) ((x) >> 16); \
+     byte a,c;               \
+     a = (byte) (x);         \
+     c = (byte) ((x) >> 16); \
      y = (m_T[512+a])+(m_T[512+256+c]); \
 }
 
 /*h2 function*/
 #define h2(x, y) {         \
-     u8 a,c;               \
-     a = (u8) (x);         \
-     c = (u8) ((x) >> 16); \
+     byte a,c;               \
+     a = (byte) (x);         \
+     c = (byte) ((x) >> 16); \
      y = (m_T[a])+(m_T[256+c]); \
 }
 

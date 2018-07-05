@@ -77,7 +77,7 @@ protected:
 /// \brief Rabbit stream cipher
 /// \details Rabbit is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
 ///   Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
-///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
+///   Profile 1 (software) ciphers selected for the eSTREAM portfolio.
 /// \details Crypto++ provides Rabbit and RabbitWithIV classes. Two classes are necessary
 ///   because the library lacks the means to describe and manage optional IVs.
 /// \sa RabbitWithIV, <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
@@ -93,7 +93,7 @@ struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
 /// \brief Rabbit stream cipher
 /// \details Rabbit is a stream cipher developed by Martin Boesgaard, Mette Vesterager,
 ///   Thomas Pedersen, Jesper Christiansen and Ove Scavenius. Rabbit is one of the final four
-///   Profile 1 (software) ciphers selected for the eSTREAM Portfolio.
+///   Profile 1 (software) ciphers selected for the eSTREAM portfolio.
 /// \details Crypto++ provides Rabbit and RabbitWithIV classes. Two classes are necessary
 ///   because the library lacks the means to describe and manage optional IVs.
 /// \sa Rabbit, <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
