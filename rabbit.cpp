@@ -124,7 +124,7 @@ void RabbitPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKe
 void RabbitPolicy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	byte* out = output;
-	for (unsigned int i = 0; i<iterationCount; ++i, out += 16)
+	for (size_t i = 0; i<iterationCount; ++i, out += 16)
 	{
 		/* Iterate the system */
 		m_wcy = NextState(m_wc, m_wx, m_wcy);

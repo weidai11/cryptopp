@@ -96,7 +96,7 @@ void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 {
 	size_t msglen = GetBytesPerIteration() * iterationCount;
 	byte* out = output;
-	for (unsigned int i = 0; i < (msglen >> 2); i++, out += 4)
+	for (size_t i = 0; i < (msglen >> 2); i++, out += 4)
 		PutWord(false, LITTLE_ENDIAN_ORDER, out, Generate());
 
 	// If AdditiveCipherTemplate does not have an accumulated keystream
