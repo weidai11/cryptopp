@@ -17,8 +17,8 @@
 	\ref SHACAL2 "SHACAL-2", SHARK, \ref SIMECK64 "SIMECK (32/64)" SKIPJACK, SM4, Square, TEA,
 	\ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
 <dt>Stream Ciphers<dd>
-	ChaCha (ChaCha-8/12/20), \ref Panama "Panama-LE", \ref Panama "Panama-BE", Rabbit, Salsa20,
-	\ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
+	ChaCha (ChaCha-8/12/20), \ref HC128 "HC-128", \ref Panama "Panama-LE", \ref Panama "Panama-BE",
+	Rabbit, Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
 	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
 	\ref SHA3 "SHA-3", SM3, Tiger, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SipHash, Whirlpool,
