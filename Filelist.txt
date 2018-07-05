@@ -142,6 +142,8 @@ gzip.h
 hashfwd.h
 hc128.cpp
 hc128.h
+hc256.cpp
+hc256.h
 hex.cpp
 hex.h
 hight.h
