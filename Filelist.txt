@@ -463,6 +463,7 @@ TestVectors/eax.txt
 TestVectors/esign.txt
 TestVectors/gcm.txt
 TestVectors/hc128.txt
+TestVectors/hc256.txt
 TestVectors/hkdf.txt
 TestVectors/hight.txt
 TestVectors/hmac.txt
