@@ -99,7 +99,7 @@ void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 	for (unsigned int i = 0; i < (msglen >> 2); i++, in += 4, out += 4)
 		PutWord(false, LITTLE_ENDIAN_ORDER, out, Generate());
 
-	// If AdditiveCipherTemplate does not have an acculated keystream
+	// If AdditiveCipherTemplate does not have an accumulated keystream
 	//  then it will ask OperateKeystream to XOR the plaintext with
 	//  the keystream and write it to the ciphertext buffer.
 	if ((operation & INPUT_NULL) != INPUT_NULL)

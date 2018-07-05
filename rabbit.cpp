@@ -139,7 +139,7 @@ void RabbitPolicy::OperateKeystream(KeystreamOperation operation, byte *output, 
 		PutWord(false, LITTLE_ENDIAN_ORDER, output +  8, m_wx[4] ^ (m_wx[1] >> 16) ^ (m_wx[7] << 16));
 		PutWord(false, LITTLE_ENDIAN_ORDER, output + 12, m_wx[6] ^ (m_wx[3] >> 16) ^ (m_wx[1] << 16));
 
-		// If AdditiveCipherTemplate does not have an acculated keystream
+		// If AdditiveCipherTemplate does not have an accumulated keystream
 		//  then it will ask OperateKeystream to XOR the plaintext with
 		//  the keystream and write it to the ciphertext buffer.
 		if ((operation & INPUT_NULL) != INPUT_NULL)
@@ -243,7 +243,7 @@ void RabbitWithIVPolicy::OperateKeystream(KeystreamOperation operation, byte *ou
 		PutWord(false, LITTLE_ENDIAN_ORDER, output + 8, m_wx[4] ^ (m_wx[1] >> 16) ^ (m_wx[7] << 16));
 		PutWord(false, LITTLE_ENDIAN_ORDER, output + 12, m_wx[6] ^ (m_wx[3] >> 16) ^ (m_wx[1] << 16));
 
-		// If AdditiveCipherTemplate does not have an acculated keystream
+		// If AdditiveCipherTemplate does not have an accumulated keystream
 		//  then it will ask OperateKeystream to XOR the plaintext with
 		//  the keystream and write it to the ciphertext buffer.
 		if ((operation & INPUT_NULL) != INPUT_NULL)

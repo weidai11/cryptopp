@@ -224,7 +224,7 @@ void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 		PutWord(false, LITTLE_ENDIAN_ORDER, output + 56, keystream[14]);
 		PutWord(false, LITTLE_ENDIAN_ORDER, output + 60, keystream[15]);
 
-		// If AdditiveCipherTemplate does not have an acculated keystream
+		// If AdditiveCipherTemplate does not have an accumulated keystream
 		//  then it will ask OperateKeystream to XOR the plaintext with
 		//  the keystream and write it to the ciphertext buffer.
 		if ((operation & INPUT_NULL) != INPUT_NULL)
