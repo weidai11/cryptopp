@@ -64,7 +64,6 @@ protected:
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
 	bool CanOperateKeystream() const { return true; }
-	unsigned int GetOptimalBlockSize() const { return 16; }
 	bool CipherIsRandomAccess() const { return false; }
 
 	// Master and working states
