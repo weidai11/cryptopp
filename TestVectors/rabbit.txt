@@ -1,3 +1,9 @@
+# These test vectors were generated using the eSTREAM reference
+# implementation for Rabbit using the file rabbit.c. We could
+# not use the published test vectors because they arrived at
+# the incorrect result when plugged back into the reference
+# implementation. Sigh...
+
 AlgorithmType: SymmetricCipher
 Name: Rabbit
 #
