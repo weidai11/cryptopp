@@ -194,6 +194,9 @@
     <ClCompile Include="hc128.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="hc256.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="hex.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -673,6 +676,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hc128.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hc256.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="hex.h">

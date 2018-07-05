@@ -80,6 +80,9 @@
     <None Include="TestVectors\hc128.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\hc256.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\hkdf.txt">
       <Filter>TestVectors</Filter>
     </None>
