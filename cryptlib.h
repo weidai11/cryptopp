@@ -650,7 +650,7 @@ public:
 	/// \brief Sets or reset the key of this object
 	/// \param key the key to use when keying the object
 	/// \param length the size of the key, in bytes
-	/// \param iv the intiialization vector to use when keying the object
+	/// \param iv the initialization vector to use when keying the object
 	/// \param ivLength the size of the iv, in bytes
 	/// \details SetKeyWithIV() calls SetKey() with a NameValuePairs
 	///   that only specifies IV. The IV is a byte buffer with size ivLength.
@@ -660,7 +660,7 @@ public:
 	/// \brief Sets or reset the key of this object
 	/// \param key the key to use when keying the object
 	/// \param length the size of the key, in bytes
-	/// \param iv the intiialization vector to use when keying the object
+	/// \param iv the initialization vector to use when keying the object
 	/// \details SetKeyWithIV() calls SetKey() with a NameValuePairs() object
 	///   that only specifies iv. iv is a byte buffer, and it must have
 	///   a size IVSize().
