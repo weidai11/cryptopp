@@ -193,7 +193,7 @@ void HC128Policy::CipherSetKey(const NameValuePairs &params, const byte *userKey
 {
 	CRYPTOPP_UNUSED(params);
 
-	GetUserKey(LITTLE_ENDIAN_ORDER, m_key, 4, userKey, keylen);
+	GetUserKey(LITTLE_ENDIAN_ORDER, m_key.begin(), 4, userKey, keylen);
 	for (unsigned int i = 4; i < 8; i++)
 		m_key[i] = m_key[i - 4];
 }
@@ -238,7 +238,7 @@ void HC128Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, siz
 {
 	CRYPTOPP_UNUSED(keystreamBuffer);
 
-	GetUserKey(LITTLE_ENDIAN_ORDER, m_iv, 4, iv, length);
+	GetUserKey(LITTLE_ENDIAN_ORDER, m_iv.begin(), 4, iv, length);
 	for (unsigned int i = 4; i < 8; i++)
 		m_iv[i] = m_iv[i - 4];
 

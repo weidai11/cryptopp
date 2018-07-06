@@ -42,10 +42,10 @@ protected:
 	word32 Generate();
 
 private:
+	FixedSizeSecBlock<word32, 8> m_key;
+	FixedSizeSecBlock<word32, 8> m_iv;
 	word32 m_P[1024];
 	word32 m_Q[1024];
-	word32 m_key[8];
-	word32 m_iv[8];
 	word32 m_ctr;
 };
 

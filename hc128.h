@@ -41,12 +41,12 @@ protected:
 	void SetupUpdate();
 
 private:
-	word32 m_T[1024];       /* P[i] = T[i]; Q[i] = T[1024+i];*/
-	word32 m_X[16];
-	word32 m_Y[16];
-	word32 m_key[8];
-	word32 m_iv[8];
-	word32 m_ctr;   /*counter1024 = i mod 1024 at the i-th step */
+	FixedSizeSecBlock<word32, 16> m_X;
+	FixedSizeSecBlock<word32, 16> m_Y;
+	FixedSizeSecBlock<word32, 8> m_key;
+	FixedSizeSecBlock<word32, 8> m_iv;
+	word32 m_T[1024];
+	word32 m_ctr;
 };
 
 /// \brief HC-128 stream cipher
