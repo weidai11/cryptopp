@@ -130,6 +130,15 @@ const word32 CRC32::m_tab[] = {
 #endif
 };
 
+std::string CRC32::AlgorithmProvider() const
+{
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
+	if (HasCRC32())
+		return "ARMv8";
+#endif
+	return "C++";
+}
+
 CRC32::CRC32()
 {
 	Reset();
@@ -288,6 +297,19 @@ const word32 CRC32C::m_tab[] = {
     0x51537dadL
 #endif
 };
+
+std::string CRC32C::AlgorithmProvider() const
+{
+#if (CRYPTOPP_ARM_CRC32_AVAILABLE)
+	if (HasCRC32())
+		return "ARMv8";
+#endif
+#if (CRYPTOPP_SSE42_AVAILABLE)
+	if (HasSSE42())
+		return "SSE4.2";
+#endif
+	return "C++";
+}
 
 CRC32C::CRC32C()
 {

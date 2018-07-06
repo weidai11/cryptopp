@@ -221,6 +221,8 @@ public:
 	void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length)
 		{m_rng->GenerateIntoBufferedTransformation(target, channel, length);}
 
+	std::string AlgorithmProvider() const;
+
 private:
 	member_ptr<RandomNumberGenerator> m_rng;
 };
@@ -251,6 +253,14 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 	while (memcmp(key, seed, STDMIN((unsigned int)BLOCK_CIPHER::BLOCKSIZE, (unsigned int)BLOCK_CIPHER::DEFAULT_KEYLENGTH)) == 0);
 
 	Reseed(key, BLOCK_CIPHER::DEFAULT_KEYLENGTH, seed, NULLPTR);
+}
+
+template <class BLOCK_CIPHER>
+std::string AutoSeededX917RNG<BLOCK_CIPHER>::AlgorithmProvider() const
+{
+	// Hack for now... We need to instantiate one
+	typename BLOCK_CIPHER::Encryption bc;
+	return bc.AlgorithmProvider();
 }
 
 CRYPTOPP_DLL_TEMPLATE_CLASS AutoSeededX917RNG<AES>;

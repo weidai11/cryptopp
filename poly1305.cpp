@@ -12,6 +12,12 @@ NAMESPACE_BEGIN(CryptoPP)
 #define CONSTANT_TIME_CARRY(a,b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
 
 template <class T>
+std::string Poly1305_Base<T>::AlgorithmProvider() const
+{
+	return m_cipher.AlgorithmProvider();
+}
+
+template <class T>
 void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	if (key && length)

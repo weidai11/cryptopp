@@ -41,6 +41,8 @@ class CRYPTOPP_NO_VTABLE IteratedHashBase : public BASE
 public:
 	typedef T HashWordType;
 
+	virtual ~IteratedHashBase() {}
+
 	/// \brief Construct an IteratedHashBase
 	IteratedHashBase() : m_countLo(0), m_countHi(0) {}
 
@@ -81,6 +83,16 @@ public:
 	/// \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
 	///   The hash is restarted the hash for the next message.
 	void TruncatedFinal(byte *digest, size_t digestSize);
+
+	/// \brief Retrieve the provider of this algorithm
+	/// \return the algorithm provider
+	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
+	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///    usually indicate a specialized implementation using instructions from a higher
+	///    instruction set architecture (ISA). Future labels may include external hardware
+	///    like a hardware security module (HSM).
+	/// \note  Provider is not universally implemented yet.
+	virtual std::string AlgorithmProvider() const { return "C++"; }
 
 protected:
 	inline T GetBitCountHi() const {return (m_countLo >> (8*sizeof(T)-3)) + (m_countHi << 3);}

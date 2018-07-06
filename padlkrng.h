@@ -96,6 +96,8 @@ public:
 		CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
 	}
 
+    std::string AlgorithmProvider() const;
+
 	/// \brief Set the XSTORE divisor
 	/// \param divisor the XSTORE divisor
 	/// \returns the old XSTORE divisor

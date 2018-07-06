@@ -43,6 +43,11 @@ extern size_t SIMECK64_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, si
 # endif  // CRYPTOPP_SSSE3_AVAILABLE
 #endif  // CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
 
+std::string SIMECK32::Base::AlgorithmProvider() const
+{
+    return "C++";
+}
+
 void SIMECK32::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
@@ -95,6 +100,15 @@ void SIMECK32::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_t[0])(m_t[1]);
+}
+
+std::string SIMECK64::Base::AlgorithmProvider() const
+{
+#if (CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3())
+        return "SSSE3";
+#endif
+    return "C++";
 }
 
 void SIMECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)

@@ -49,7 +49,7 @@ double g_allocatedTime = 0.0, g_hertz = 0.0, g_logTotal = 0.0;
 unsigned int g_logCount = 0;
 time_t g_testBegin, g_testEnd;
 
-void OutputResultBytes(const char *name, double length, double timeTaken)
+void OutputResultBytes(const char *name, const char *provider, double length, double timeTaken)
 {
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(std::cout);
@@ -59,7 +59,7 @@ void OutputResultBytes(const char *name, double length, double timeTaken)
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
 	double mbs = length / timeTaken / (1024*1024);
-	std::cout << "\n<TR><TD>" << name;
+	std::cout << "\n<TR><TD>" << name << "<TD>" << provider;
 	std::cout << std::setiosflags(std::ios::fixed);
 	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
 	if (g_hertz > 1.0f)
@@ -90,7 +90,7 @@ void OutputResultKeying(double iterations, double timeTaken)
 		std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations;
 }
 
-void OutputResultOperations(const char *name, const char *operation, bool pc, unsigned long iterations, double timeTaken)
+void OutputResultOperations(const char *name, const char *provider, const char *operation, bool pc, unsigned long iterations, double timeTaken)
 {
 	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
 	StreamState ss(std::cout);
@@ -100,6 +100,7 @@ void OutputResultOperations(const char *name, const char *operation, bool pc, un
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
 	std::cout << "\n<TR><TD>" << name << " " << operation << (pc ? " with precomputation" : "");
+	std::cout << "<TD>" << provider;
 	std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
 
 	// Coverity finding
@@ -158,7 +159,8 @@ void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal)
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
+	std::string provider = cipher.AlgorithmProvider();
+	OutputResultBytes(name, provider.c_str(), double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMark(const char *name, AuthenticatedSymmetricCipher &cipher, double timeTotal)
@@ -189,7 +191,8 @@ void BenchMark(const char *name, HashTransformation &ht, double timeTotal)
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
+	std::string provider = ht.AlgorithmProvider();
+	OutputResultBytes(name, provider.c_str(), double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
@@ -212,7 +215,8 @@ void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal)
 	}
 	while (timeTaken < 2.0/3*timeTotal);
 
-	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
+	std::string provider = bt.AlgorithmProvider();
+	OutputResultBytes(name, provider.c_str(), double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMark(const char *name, RandomNumberGenerator &rng, double timeTotal)
@@ -243,7 +247,8 @@ void BenchMark(const char *name, RandomNumberGenerator &rng, double timeTotal)
 		timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND;
 	} while (timeTaken < timeTotal);
 
-	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
+	std::string provider = rng.AlgorithmProvider();
+	OutputResultBytes(name, provider.c_str(), double(blocks) * BUF_SIZE, timeTaken);
 }
 
 // Hack, but we probably need a KeyedRandomNumberGenerator interface
@@ -269,7 +274,8 @@ void BenchMark(const char *name, NIST_DRBG &rng, double timeTotal)
 		timeTaken = double(::clock() - start) / CLOCK_TICKS_PER_SECOND;
 	} while (timeTaken < timeTotal);
 
-	OutputResultBytes(name, double(blocks) * BUF_SIZE, timeTaken);
+	std::string provider = rng.AlgorithmProvider();
+	OutputResultBytes(name, provider.c_str(), double(blocks) * BUF_SIZE, timeTaken);
 }
 
 void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValuePairs &params)
@@ -310,14 +316,14 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 }
 
 template <class T_FactoryOutput>
-void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName=NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
+void BenchMarkByName(const char *factoryName, size_t keyLength = 0, const char *displayName = NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
 {
 	CRYPTOPP_UNUSED(params);
 	BenchMarkByName2<T_FactoryOutput, T_FactoryOutput>(factoryName, keyLength, displayName, params);
 }
 
 template <class T>
-void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
+void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName = NULLPTR, const NameValuePairs &params = g_nullNameValuePairs)
 {
 	CRYPTOPP_UNUSED(params);
 	std::string name = factoryName;
@@ -441,7 +447,7 @@ void Benchmark1(double t, double hertz)
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\">";
 	std::cout << "<COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
-	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
+	std::cout << "\n<TR><TH>Algorithm<TH>Provider<TH>MiB/Second" << cpb;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
@@ -521,7 +527,7 @@ void Benchmark2(double t, double hertz)
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=\"text-align: right;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\"><COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
-	std::cout << "\n<TR><TH>Algorithm<TH>MiB/Second" << cpb;
+	std::cout << "\n<TR><TH>Algorithm<TH>Provider<TH>MiB/Second" << cpb;
 	std::cout << "<TH>Microseconds to<BR>Setup Key and IV" << cpk;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
@@ -561,9 +567,9 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Salsa20");
 		BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/12", MakeParameters(Name::Rounds(), 12));
 		BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/8", MakeParameters(Name::Rounds(), 8));
-		BenchMarkByName<SymmetricCipher>("ChaCha20");
-		BenchMarkByName<SymmetricCipher>("ChaCha12");
-		BenchMarkByName<SymmetricCipher>("ChaCha8");
+		BenchMarkByName<SymmetricCipher>("ChaCha");
+		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha/12", MakeParameters(Name::Rounds(), 12));
+		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha/8", MakeParameters(Name::Rounds(), 8));
 		BenchMarkByName<SymmetricCipher>("Sosemanuk");
 		BenchMarkByName<SymmetricCipher>("Rabbit");
 		BenchMarkByName<SymmetricCipher>("RabbitWithIV");

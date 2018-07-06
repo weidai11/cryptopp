@@ -19,6 +19,15 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+std::string SosemanukPolicy::AlgorithmProvider() const
+{
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
+	if (HasSSE2())
+		return "SSE2";
+#endif
+	return "C++";
+}
+
 void SosemanukPolicy::CipherSetKey(const NameValuePairs &params, const byte *userKey, size_t keylen)
 {
 	CRYPTOPP_UNUSED(params);

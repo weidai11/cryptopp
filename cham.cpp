@@ -112,6 +112,15 @@ extern size_t CHAM128_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, siz
 # endif  // CRYPTOPP_SSSE3_AVAILABLE
 #endif  // CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
 
+std::string CHAM64::Base::AlgorithmProvider() const
+{
+#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3())
+        return "SSSE3";
+#endif
+    return "C++";
+}
+
 void CHAM64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_UNUSED(params);
@@ -187,6 +196,15 @@ void CHAM64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, 
 
     PutBlock<word16, BigEndian> oblock(xorBlock, outBlock);
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
+}
+
+std::string CHAM128::Base::AlgorithmProvider() const
+{
+#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3())
+        return "SSSE3";
+#endif
+    return "C++";
 }
 
 void CHAM128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)

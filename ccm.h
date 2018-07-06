@@ -24,6 +24,8 @@ public:
 	// AuthenticatedSymmetricCipher
 	std::string AlgorithmName() const
 		{return GetBlockCipher().AlgorithmName() + std::string("/CCM");}
+	std::string AlgorithmProvider() const
+		{return GetBlockCipher().AlgorithmProvider();}
 	size_t MinKeyLength() const
 		{return GetBlockCipher().MinKeyLength();}
 	size_t MaxKeyLength() const

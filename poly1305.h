@@ -80,6 +80,8 @@ public:
 	unsigned int BlockSize() const {return BLOCKSIZE;}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 
+	std::string AlgorithmProvider() const;
+
 protected:
 	void HashBlocks(const byte *input, size_t length, word32 padbit);
 	void HashFinal(byte *mac, size_t length);

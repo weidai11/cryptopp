@@ -95,6 +95,15 @@ void Salsa20_Core(word32* data, unsigned int rounds)
 		data[i] += x[i];
 }
 
+std::string Salsa20_Policy::AlgorithmProvider() const
+{
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SALSA_ASM)
+	if (HasSSE2())
+		return "SSE2";
+#endif
+	return "C++";
+}
+
 void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);

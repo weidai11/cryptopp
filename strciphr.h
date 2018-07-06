@@ -5,25 +5,25 @@
 /// \details This file contains helper classes for implementing stream ciphers.
 ///   All this infrastructure may look very complex compared to what's in Crypto++ 4.x,
 ///   but stream ciphers implementations now support a lot of new functionality,
-///   including better performance (minimizing copying), resetting of keys and IVs, and methods to
-///   query which features are supported by a cipher.
-/// \details Here's an explanation of these classes. The word "policy" is used here to mean a class with a
-///   set of methods that must be implemented by individual stream cipher implementations.
-///   This is usually much simpler than the full stream cipher API, which is implemented by
-///   either AdditiveCipherTemplate or CFB_CipherTemplate using the policy. So for example, an
-///   implementation of SEAL only needs to implement the AdditiveCipherAbstractPolicy interface
-///   (since it's an additive cipher, i.e., it xors a keystream into the plaintext).
-///   See this line in seal.h:
+///   including better performance (minimizing copying), resetting of keys and IVs, and
+///   methods to query which features are supported by a cipher.
+/// \details Here's an explanation of these classes. The word "policy" is used here to
+///   mean a class with a set of methods that must be implemented by individual stream
+///   cipher implementations. This is usually much simpler than the full stream cipher
+///   API, which is implemented by either AdditiveCipherTemplate or CFB_CipherTemplate
+///   using the policy. So for example, an implementation of SEAL only needs to implement
+///   the AdditiveCipherAbstractPolicy interface (since it's an additive cipher, i.e., it
+///   xors a keystream into the plaintext). See this line in seal.h:
 /// <pre>
 ///     typedef SymmetricCipherFinal\<ConcretePolicyHolder\<SEAL_Policy\<B\>, AdditiveCipherTemplate\<\> \> \> Encryption;
 /// </pre>
-/// \details AdditiveCipherTemplate and CFB_CipherTemplate are designed so that they don't need
-///   to take a policy class as a template parameter (although this is allowed), so that
-///   their code is not duplicated for each new cipher. Instead they each
-///   get a reference to an abstract policy interface by calling AccessPolicy() on itself, so
+/// \details AdditiveCipherTemplate and CFB_CipherTemplate are designed so that they don't
+///   need to take a policy class as a template parameter (although this is allowed), so
+///   that their code is not duplicated for each new cipher. Instead they each get a
+///   reference to an abstract policy interface by calling AccessPolicy() on itself, so
 ///   AccessPolicy() must be overridden to return the actual policy reference. This is done
-///   by the ConceretePolicyHolder class. Finally, SymmetricCipherFinal implements the constructors and
-///   other functions that must be implemented by the most derived class.
+///   by the ConceretePolicyHolder class. Finally, SymmetricCipherFinal implements the
+///   constructors and other functions that must be implemented by the most derived class.
 
 #ifndef CRYPTOPP_STRCIPHR_H
 #define CRYPTOPP_STRCIPHR_H
@@ -174,6 +174,22 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual void SeekToIteration(lword iterationCount)
 		{CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(!CipherIsRandomAccess());
 		throw NotImplemented("StreamTransformation: this object doesn't support random access");}
+
+	/// \brief Retrieve the provider of this algorithm
+	/// \return the algorithm provider
+	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
+	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///    usually indicate a specialized implementation using instructions from a higher
+	///    instruction set architecture (ISA). Future labels may include external hardware
+	///    like a hardware security module (HSM).
+	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
+	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///    instead of ASM.
+	/// \details Algorithms which combine different instructions or ISAs provide the
+	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	/// \note Provider is not universally implemented yet.
+	virtual std::string AlgorithmProvider() const { return "C++"; }
 };
 
 /// \brief Base class for additive stream ciphers
@@ -277,8 +293,8 @@ public:
 	/// \brief Generate random array of bytes
 	/// \param output the byte buffer
 	/// \param size the length of the buffer, in bytes
-	/// \details All generated values are uniformly distributed over the range specified within the
-	///   the constraints of a particular generator.
+	/// \details All generated values are uniformly distributed over the range specified
+	///   within the constraints of a particular generator.
 	void GenerateBlock(byte *output, size_t size);
 
 	/// \brief Apply keystream to data
@@ -335,6 +351,22 @@ public:
 	/// \param position the absolute position in the stream
 	/// \sa IsRandomAccess()
 	void Seek(lword position);
+
+	/// \brief Retrieve the provider of this algorithm
+	/// \return the algorithm provider
+	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
+	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///    usually indicate a specialized implementation using instructions from a higher
+	///    instruction set architecture (ISA). Future labels may include external hardware
+	///    like a hardware security module (HSM).
+	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
+	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///    instead of ASM.
+	/// \details Algorithms which combine different instructions or ISAs provide the
+	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	/// \note Provider is not universally implemented yet.
+	virtual std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
 
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
@@ -401,6 +433,22 @@ public:
 	virtual void CipherResynchronize(const byte *iv, size_t length)
 		{CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
 		throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
+
+	/// \brief Retrieve the provider of this algorithm
+	/// \return the algorithm provider
+	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
+	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///    usually indicate a specialized implementation using instructions from a higher
+	///    instruction set architecture (ISA). Future labels may include external hardware
+	///    like a hardware security module (HSM).
+	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
+	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///    instead of ASM.
+	/// \details Algorithms which combine different instructions or ISAs provide the
+	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	/// \note Provider is not universally implemented yet.
+	virtual std::string AlgorithmProvider() const { return "C++"; }
 };
 
 /// \brief Base class for feedback based stream ciphers
@@ -538,6 +586,22 @@ public:
 	/// \brief Determines if the cipher is self inverting
 	/// \returns true if the stream cipher is self inverting, false otherwise
 	bool IsSelfInverting() const {return false;}
+
+	/// \brief Retrieve the provider of this algorithm
+	/// \return the algorithm provider
+	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
+	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///    usually indicate a specialized implementation using instructions from a higher
+	///    instruction set architecture (ISA). Future labels may include external hardware
+	///    like a hardware security module (HSM).
+	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
+	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///    instead of ASM.
+	/// \details Algorithms which combine different instructions or ISAs provide the
+	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	/// \note Provider is not universally implemented yet.
+	virtual std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
 
 	typedef typename BASE::PolicyInterface PolicyInterface;
 

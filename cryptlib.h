@@ -588,11 +588,27 @@ public:
 
 	/// \brief Provides the name of this algorithm
 	/// \return the standard algorithm name
-	/// \details The standard algorithm name can be a name like \a AES or \a AES/GCM. Some algorithms
-	///   do not have standard names yet. For example, there is no standard algorithm name for
-	///   Shoup's ECIES.
-	/// \note  AlgorithmName is not universally implemented yet
+	/// \details The standard algorithm name can be a name like <tt>AES<tt> or <tt>AES/GCM</tt>.
+	///   Some algorithms do not have standard names yet. For example, there is no standard
+	///   algorithm name for Shoup's ECIES.
+	/// \note AlgorithmName is not universally implemented yet.
 	virtual std::string AlgorithmName() const {return "unknown";}
+
+	/// \brief Retrieve the provider of this algorithm
+	/// \return the algorithm provider
+	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
+	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///    usually indicate a specialized implementation using instructions from a higher
+	///    instruction set architecture (ISA). Future labels may include external hardware
+	///    like a hardware security module (HSM).
+	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
+	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///    instead of ASM.
+	/// \details Algorithms which combine different instructions or ISAs provide the
+	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	/// \note Provider is not universally implemented yet.
+	virtual std::string AlgorithmProvider() const {return "C++";}
 };
 
 /// \brief Interface for algorithms that take byte strings as keys

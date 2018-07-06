@@ -25,6 +25,7 @@ class VMAC_Base : public IteratedHashBase<word64, MessageAuthenticationCode>
 {
 public:
 	std::string AlgorithmName() const {return std::string("VMAC(") + GetCipher().AlgorithmName() + ")-" + IntToString(DigestSize()*8);}
+	std::string AlgorithmProvider() const {return GetCipher().AlgorithmProvider();}
 	unsigned int IVSize() const {return GetCipher().BlockSize();}
 	unsigned int MinIVLength() const {return 1;}
 	void Resynchronize(const byte *nonce, int length=-1);

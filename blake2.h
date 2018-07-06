@@ -211,6 +211,8 @@ public:
 
 	void TruncatedFinal(byte *hash, size_t size);
 
+	std::string AlgorithmProvider() const;
+
 protected:
 	BLAKE2_Base();
 	BLAKE2_Base(bool treeMode, unsigned int digestSize);
