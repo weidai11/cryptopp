@@ -12,7 +12,7 @@
 #include "misc.h"
 
 /*h1 function*/
-#define h1(x, y) {         \
+#define h1(x, y) {           \
      byte a,c;               \
      a = (byte) (x);         \
      c = (byte) ((x) >> 16); \
@@ -20,7 +20,7 @@
 }
 
 /*h2 function*/
-#define h2(x, y) {         \
+#define h2(x, y) {           \
      byte a,c;               \
      a = (byte) (x);         \
      c = (byte) ((x) >> 16); \
@@ -52,25 +52,25 @@
 }
 
 /*update table P*/
-#define update_P(u,v,a,b,c,d){      \
-     word32 tem0,tem1,tem2,tem3;           \
-     tem0 = rotrConstant<23>(m_T[(v)]);           \
-     tem1 = rotrConstant<10>(m_X[(c)]);           \
-     tem2 = rotrConstant<8>(m_X[(b)]);            \
-     h1(m_X[(d)],tem3);              \
-     (m_T[(u)]) = ((m_T[(u)]) + tem2+(tem0^tem1)) ^ tem3;         \
-     (m_X[(a)]) = (m_T[(u)]);             \
+#define update_P(u,v,a,b,c,d){                \
+     word32 tem0,tem1,tem2,tem3;              \
+     tem0 = rotrConstant<23>(m_T[(v)]);       \
+     tem1 = rotrConstant<10>(m_X[(c)]);       \
+     tem2 = rotrConstant<8>(m_X[(b)]);        \
+     h1(m_X[(d)],tem3);                       \
+     (m_T[(u)]) = ((m_T[(u)]) + tem2+(tem0^tem1)) ^ tem3;  \
+     (m_X[(a)]) = (m_T[(u)]);                 \
 }
 
 /*update table Q*/
-#define update_Q(u,v,a,b,c,d){      \
-     word32 tem0,tem1,tem2,tem3;       \
-     tem0 = rotrConstant<(32-23)>(m_T[(v)]);              \
-     tem1 = rotrConstant<(32-10)>(m_Y[(c)]);              \
-     tem2 = rotrConstant<(32-8)>(m_Y[(b)]);               \
-     h2(m_Y[(d)],tem3);                                   \
+#define update_Q(u,v,a,b,c,d){                \
+     word32 tem0,tem1,tem2,tem3;              \
+     tem0 = rotrConstant<(32-23)>(m_T[(v)]);  \
+     tem1 = rotrConstant<(32-10)>(m_Y[(c)]);  \
+     tem2 = rotrConstant<(32-8)>(m_Y[(b)]);   \
+     h2(m_Y[(d)],tem3);                       \
      (m_T[(u)]) = ((m_T[(u)]) + tem2+(tem0^tem1)) ^ tem3; \
-     (m_Y[(a)]) = (m_T[(u)]);                             \
+     (m_Y[(a)]) = (m_T[(u)]);                 \
 }
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -225,8 +225,11 @@ void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 		PutWord(false, LITTLE_ENDIAN_ORDER, output + 60, keystream[15]);
 
 		// If AdditiveCipherTemplate does not have an accumulated keystream
-		//  then it will ask OperateKeystream to XOR the plaintext with
-		//  the keystream and write it to the ciphertext buffer.
+		//  then it will ask OperateKeystream to generate one. Optionally it
+		//  will ask for an XOR of the input with the keystream while
+		//  writing the result to the output buffer. In all cases the
+		//  output buffer is written. The optional part is adding the
+		//  input buffer and keystream.
 		if ((operation & INPUT_NULL) != INPUT_NULL)
 			xorbuf(output, input, 64);
 
