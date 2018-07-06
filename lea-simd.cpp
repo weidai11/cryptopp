@@ -38,6 +38,9 @@
 # include <arm_acle.h>
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char LEA_SIMD_FNAME[] = __FILE__;
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;

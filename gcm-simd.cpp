@@ -67,6 +67,9 @@
 #define UINT64X2_CAST(x) ((uint64x2_t *)(void *)(x))
 #define CONST_UINT64X2_CAST(x) ((const uint64x2_t *)(const void *)(x))
 
+// Squash MS LNK4221 and libtool warnings
+extern const char GCM_SIMD_FNAME[] = __FILE__;
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 // GCC 4.8 is missing PMULL gear

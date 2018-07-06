@@ -35,6 +35,9 @@
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char CRC_SIMD_FNAME[] = __FILE__;
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
