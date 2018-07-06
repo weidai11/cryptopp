@@ -668,9 +668,12 @@ public:
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
 	/// \brief Secure IVs requirements as enumerated values.
-	/// \details Provides secure IV requirements as a monotonically increasing enumerated values. Requirements can be
-	///   compared using less than (&lt;) and greater than (&gt;). For example, <tt>UNIQUE_IV &lt; RANDOM_IV</tt>
-	///   and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
+	/// \details Provides secure IV requirements as a monotonically increasing enumerated values.
+	///   Requirements can be compared using less than (&lt;) and greater than (&gt;). For example,
+	///   <tt>UNIQUE_IV &lt; RANDOM_IV</tt> and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
+	/// \details Objects that use SimpleKeyingInterface do not support an optional IV. That is,
+	///	  an IV must be present or it must be absent. If you wish to support an optional IV then
+	///   provide two classes - one with an IV and one without an IV.
 	/// \sa IsResynchronizable(), CanUseRandomIVs(), CanUsePredictableIVs(), CanUseStructuredIVs()
 	enum IV_Requirement {
 		/// \brief The IV must be unique
