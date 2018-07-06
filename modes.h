@@ -325,24 +325,48 @@ template <class CIPHER, class BASE>
 class CipherModeFinalTemplate_CipherHolder : protected ObjectHolder<CIPHER>, public AlgorithmImpl<BASE, CipherModeFinalTemplate_CipherHolder<CIPHER, BASE> >
 {
 public:
+	/// \brief Provides the name of this algorithm
+	/// \return the standard algorithm name
+	/// \details The standard algorithm name can be a name like \a AES or \a AES/GCM. Some algorithms
+	///   do not have standard names yet. For example, there is no standard algorithm name for
+	///   Shoup's ECIES.
 	static std::string CRYPTOPP_API StaticAlgorithmName()
 		{return CIPHER::StaticAlgorithmName() + "/" + BASE::StaticAlgorithmName();}
 
+	/// \brief Construct a CipherModeFinalTemplate
 	CipherModeFinalTemplate_CipherHolder()
 	{
 		this->m_cipher = &this->m_object;
 		this->ResizeBuffers();
 	}
+
+	/// \brief Construct a CipherModeFinalTemplate
+	/// \param key a byte array used to key the cipher
+	/// \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
+	///    SimpleKeyingInterface::SetKey.
 	CipherModeFinalTemplate_CipherHolder(const byte *key, size_t length)
 	{
 		this->m_cipher = &this->m_object;
 		this->SetKey(key, length);
 	}
+
+	/// \brief Construct a CipherModeFinalTemplate
+	/// \param key a byte array used to key the cipher
+	/// \param iv a byte array used to resynchronize the cipher
+	/// \details key must be at least DEFAULT_KEYLENGTH in length. iv must be IVSize() or
+	///    BLOCKSIZE in length. Internally, the function calls SimpleKeyingInterface::SetKey.
 	CipherModeFinalTemplate_CipherHolder(const byte *key, size_t length, const byte *iv)
 	{
 		this->m_cipher = &this->m_object;
 		this->SetKey(key, length, MakeParameters(Name::IV(), ConstByteArrayParameter(iv, this->m_cipher->BlockSize())));
 	}
+
+	/// \brief Construct a CipherModeFinalTemplate
+	/// \param key a byte array used to key the cipher
+	/// \param iv a byte array used to resynchronize the cipher
+	/// \param feedbackSize the feedback size, in bytes
+	/// \details key must be at least DEFAULT_KEYLENGTH in length. iv must be IVSize() or
+	///    BLOCKSIZE in length. Internally, the function calls SimpleKeyingInterface::SetKey.
 	CipherModeFinalTemplate_CipherHolder(const byte *key, size_t length, const byte *iv, int feedbackSize)
 	{
 		this->m_cipher = &this->m_object;
