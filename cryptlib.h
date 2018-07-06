@@ -605,11 +605,13 @@ public:
 	/// \brief Returns smallest valid key length
 	/// \returns the minimum key length, in bytes
 	virtual size_t MinKeyLength() const =0;
+
 	/// \brief Returns largest valid key length
 	/// \returns the maximum key length, in bytes
 	virtual size_t MaxKeyLength() const =0;
+
 	/// \brief Returns default key length
-	/// \returns the default (recommended) key length, in bytes
+	/// \returns the default key length, in bytes
 	virtual size_t DefaultKeyLength() const =0;
 
 	/// \brief Returns a valid key length for the algorithm
