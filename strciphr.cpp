@@ -6,6 +6,11 @@
 
 #include "strciphr.h"
 
+// Squash MS LNK4221 and libtool warnings
+#ifndef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+extern const char STRCIPHER_FNAME[] = __FILE__;
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 template <class S>
