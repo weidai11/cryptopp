@@ -27,6 +27,9 @@
 # include <immintrin.h>
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char SIMECK_SIMD_FNAME[] = __FILE__;
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word16;

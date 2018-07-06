@@ -39,8 +39,11 @@ Test: TestVectors/speck.txt
 Test: TestVectors/salsa.txt
 Test: TestVectors/chacha.txt
 #Test: TestVectors/tls_chacha.txt
-Test: TestVectors/vmac.txt
 Test: TestVectors/sosemanuk.txt
+Test: TestVectors/rabbit.txt
+Test: TestVectors/hc128.txt
+Test: TestVectors/hc256.txt
+Test: TestVectors/vmac.txt
 Test: TestVectors/ccm.txt
 Test: TestVectors/gcm.txt
 Test: TestVectors/cmac.txt

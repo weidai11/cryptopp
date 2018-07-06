@@ -1,0 +1,645 @@
+# These test vectors were generated using the eSTREAM reference
+# implementation for HC-128 using the file hc-128.c.
+
+AlgorithmType: SymmetricCipher
+Name: HC-128
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 1-byte msg
+Key: 2923be84e16cd6ae 529049f1f1bbe9eb
+IV: b3a6db3c870c3e99 245e0d1c06b747de
+Plaintext: b3
+Ciphertext: 1f
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 2-byte msg
+Key: 124dc843bb8ba61f 035a7d0938251f5d
+IV: d4cbfc96f5453b13 0d890a1cdbae3220
+Plaintext: 9a50
+Ciphertext: 3a27
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 3-byte msg
+Key: ee407836fd124932 f69e7d49dcad4f14
+IV: f2444066d06bc430 b7323ba122f62291
+Plaintext: 9de18b
+Ciphertext: cd261d
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 4-byte msg
+Key: 1fdab0ca9902b972 9d492c807ec599d5
+IV: e980b2eac9cc53bf 67d6bf14d67e2ddc
+Plaintext: 8e6683ef
+Ciphertext: 60f109d3
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 5-byte msg
+Key: 574961ff698f61cd d11e9d9c167272e6
+IV: 1df0844f4a7702d7 e8392c53cbc9121e
+Plaintext: 33749e0cf4
+Ciphertext: 7b9108bf48
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 6-byte msg
+Key: d5d49fd4a4597e35 cf3222f4cccfd390
+IV: 2d48d38f75e6d91d 2ae5c0f72b788187
+Plaintext: 440e5f5000d4
+Ciphertext: 8702c8d49067
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 7-byte msg
+Key: 618dbe7b0515073b 33821f187092da64
+IV: 54ceb1853e6915f8 466a0496730ed916
+Plaintext: 2f6768d4f74a4a
+Ciphertext: 21bec3a785c54d
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 8-byte msg
+Key: d0576876fa16bb11 adae248879fe52db
+IV: 2543e53cf445d3d8 28ce0bf5c560593d
+Plaintext: 97278a59762dd0c2
+Ciphertext: ab56d21fc9ba82d2
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 9-byte msg
+Key: c9cd68d4496a7925 08614014b13b6aa5
+IV: 1128c18cd6a90b87 978c2ff1151d9a95
+Plaintext: c1 9be1c07ee9a89aa7
+Ciphertext: 63 bf12a1533269e0ea
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 10-byte msg
+Key: 86c2b554bf9ae7d9 23d155903828d1d9
+IV: 6ca1665e4ee1309c fed9719fe2a5e20c
+Plaintext: 9bb4 4765382a4689a982
+Ciphertext: f67f 9f1b78ad1839c4c6
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 11-byte msg
+Key: 797a7678c263b126 dfda296d3e62e096
+IV: 1234bf39a63f895e f16d0ee36c28a11e
+Plaintext: 201dcb c2033f4107840f14
+Ciphertext: e0136b 3d43448daadfa8c0
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 12-byte msg
+Key: 05651b2861c9c5e7 2c8e463608dcf3a8
+IV: 8dfebef2eb71ffa0 d03b75068c7e8778
+Plaintext: 734dd0be 82bedbc246412b8c
+Ciphertext: cce4b159 5e271971a4656bdc
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 13-byte msg
+Key: fa307f70f0a75486 3295aa5b68130be6
+IV: fcf5cabe7d9f898a 411bfdb84f68f672
+Plaintext: 7b1499cdd3 0df0443ab4a66653
+Ciphertext: baeff9b617 946cbaa662e5403c
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 14-byte msg
+Key: 330bcba1105e4cec 034c73e605b4310e
+IV: aaadcfd5b0ca27ff d89d144df4792759
+Plaintext: 427c9cc1f8cd 8c87202364b8a687
+Ciphertext: d559e24c692d 7ae8507f9ca6c590
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 15-byte msg
+Key: 954cb05a8d4e2d99 e73db160deb180ad
+IV: 0841e96741a5d59f e4189f15420026fe
+Plaintext: 4cd12104932fb3 8f735340438aaf7e
+Ciphertext: 05f0d610ecd79f b76805e8309bc909
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 16-byte msg
+Key: ca6fd5cfd3a195ce 5abe65272af607ad
+IV: a1be65a6b4c9c069 3234092c4d018f17
+Plaintext: 56c6db9dc8a6d80b 888138616b681262
+Ciphertext: 9e450e2055249807 a66a569666c30c8d
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 17-byte msg
+Key: f954d0e771174878 0d92291d86299972
+IV: db741cfa4f37b8b5 b09557f5df806c6d
+Plaintext: 8d 74d98b43651108a5 f679bdf7eb15b8e0
+Ciphertext: 68 209f9b599f668c3e a5b0d25ce23c74c1
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 18-byte msg
+Key: e1608f6e3c7bf45b 628a8a8f275cf7e5
+IV: 874a3b329b614084 c6c3b1a7304a10ee
+Plaintext: 756f 032f9e6aef10509b c8814329288af6e9
+Ciphertext: fd43 8d47ebe7e226673b 19a3ae87f6d025b4
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 19-byte msg
+Key: 9e47a18148316ccd a49ede81a38c9810
+IV: ff9a43cdcf57c750 59bfbd1c2703287f
+Plaintext: 5d895f b949344e603ce5de 029842b20d2bb614
+Ciphertext: efbde1 ecb739af688af049 ee86a2f1fd625b46
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 20-byte msg
+Key: ecbbb82f73e2517e 7d1dd884d31f01be
+IV: 506b16d643218319 1518982b2c2e8bf9
+Plaintext: 0edcbcf0 ca0e3d6d94319274 af8db5a490d55e6a
+Ciphertext: c89eface 1d6774d310836c85 67796d789d4b7b9e
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 21-byte msg
+Key: 40fc8076024b176b 36b121db7d5aea72
+IV: 1e828d71a88cb85e d94eaffabfb09474
+Plaintext: 1d75e5dc10 5846daf25b81a07f 5ccb1d36e9497402
+Ciphertext: dbe8350457 21aaf867a97622d7 48a2c71835313e55
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 22-byte msg
+Key: 55d2ac1a0bf7a926 23405ba333b93588
+IV: 68ade12ad5b2325d 0ae55adce9775deb
+Plaintext: b569c53a6c93 980d57eb879adf04 68b2a2d5e6a4c6bc
+Ciphertext: 36b85abf397f d6915731982cf8e9 3102f4029f4d17b0
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 23-byte msg
+Key: 775f8dc38fd62a21 14a9d4041101188d
+IV: aebb731c60ca20cf 5dd62f455329d7a8
+Plaintext: 59cc0dea26ed55 4e8084d92bf837b8 edd57aa05c4efa9f
+Ciphertext: f257546c1380fb 5ba138ec36766597 1cb5688814092614
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 24-byte msg
+Key: 21fc3c36858e81b0 7dbfeeb1e485e912
+IV: 078bc6ec66e2a3f3 b9f4900632b9f404
+Plaintext: 022d2ce01e0174f8 43900ba237169208 531cb5373e370e72
+Ciphertext: 41e720935d60a608 18330bb264fed7fe 76b47d68828c82b0
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 25-byte msg
+Key: fbf246cc26097ef6 7ad8ed559712ca57
+IV: 02b66c086e3fb0e0 3a1c9bdf3a5f40dd
+Plaintext: ba b9e41bc0a6611d92 e5c8bc782b4a77c3 18590a0e6a0a42c4
+Ciphertext: a0 ce582b4f50fc2530 6164b7a190785e8b 446b495df81babfa
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 26-byte msg
+Key: 71be0fe3c301dbff 30b21a89f8652251
+IV: 3c053d4ab3befd8d 9e19d0a1fe69d4fa
+Plaintext: 0467 edbfc91914d13ff8 f2086851adc0c5ec 029412ec946930f6
+Ciphertext: 51dd 18b8c89eabfd3a9a 5c15ab62947a1004 2c2529ad0e1f5d87
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 27-byte msg
+Key: 83af639541e3bddd a158da4f3138cefd
+IV: cac55cef65e569c4 30deaf9ce25eb636
+Plaintext: 4bbe00 562f87846a54365f 6cda3cc50acb493d 05f3ca0ed7f2b1f4
+Ciphertext: 7ed3b5 3b0ba0f76eca6785 2d67b581ebee0e0f ec7e8c248e1e391f
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 28-byte msg
+Key: 988f7418224f583f 7447ef42542edfbe
+IV: 39b6e60c671c1b74 5cfe779d6b6e9348
+Plaintext: a744b33e 02b80487b63022dd e456dd617b6e3d8c 5ce7c467bc2ff2ff
+Ciphertext: d1fff5db 9438dd40263d0344 d15e55b5d21d767d 2c591d4b8ab9b30a
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 29-byte msg
+Key: c9cc0f1390a92411 1ead4b41e592283f
+IV: 62f5b8aefda9492b 3151ca80ec2e451a
+Plaintext: 3935aabe1c 65ce77bd57b3d3c9 170a4e1632f60f86 1013d22d84b726b6
+Ciphertext: f50c60e896 0d63fc1b7b4df87f eb66194a115f6147 62925c92cd8f766a
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 30-byte msg
+Key: a278d802d1eeaf13 21ba5929dec6a62a
+IV: 65cff4473621ebdd 4ba26a99a812c0e0
+Plaintext: 3491206ec762 4f3d84eea0a8690c 22d0247f183f28c0 a9cb01ffd9bde464
+Ciphertext: 5185f4acb30f 28fdb528bd1d9e62 9fc5e97ffafaec59 9cc64559b2787dd1
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 31-byte msg
+Key: b8338b9ad9c3408e 066137743283200c
+IV: af83fd23a244315c b318da3009e16134
+Plaintext: 7577509aed4a63 fb3d49e154f9022c 4eb60a97c2799f79 7c708c803fe04d47
+Ciphertext: b856d160d7b03a cb557a8b10a56bd3 93c323e9b93cccf8 a0f24b3e6605eaf5
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 32-byte msg
+Key: 0a5f742a9a434b59 305abb2b94dc6cb5
+IV: 5a9d2e9c64879827 a848ee98334848bd
+Plaintext: 6edef1c2a1c30e49 b5c780bc3ec20be2 b9ceb7b111b37664 69a308cd15281ceb
+Ciphertext: c6cc294c71d45ba4 8ae582467d3bea93 0106a4e81452ec93 e77f7536810f6b1a
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 33-byte msg
+Key: e95ab8bfb755da5c 13ea603e599525dc
+IV: f2af6d80d2e58357 45e9a0c4ec670ffa
+Plaintext: 02 3b8fcae4e1f9b9d1 2d2256ee3c03cb8d aa17b1ae050529c6 827f28c0ef6a1242
+Ciphertext: d2 9a5a508af59fd703 b59f4da6f6392210 7de9772ac202569b ecfaf8dbb6bd7efa
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 34-byte msg
+Key: e93f8b314fb18a77 f790ae049fedd612
+IV: 267fecaefc450174 d76d9f9aa7755a30
+Plaintext: cd90 a9a5874bf48eaf70 eea3a62a250a8b6b d8d9b08b08d64e32 d1817777fb544d49
+Ciphertext: 09b0 3af5818faf384564 19eb39c41b2dbf7c 87b376ea77bf104e 304ae8b7f57f1d08
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 35-byte msg
+Key: cd49720e219dbf8b bed33904e1fd40a4
+IV: 1d370a1f65745095 687d47ba1d36d234
+Plaintext: 9e23f6 44392c8ea9c49d40 c13271aff264d0f2 4841d6465f0996ff 84e65fc517c53efc
+Ciphertext: d97bc5 583c737f9078e5a8 6979ebc3654cbe96 23e9642c962ca8ef a3e6fda7f277dd18
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 36-byte msg
+Key: 3363c38492ab08a3 aa3ff03f1c55ad51
+IV: 4fc48596585ed588 1e81568cbbe99f6d
+Plaintext: 25c8eb09 0d191d4a07310158 ec97d50d7c1508aa 480f41c8d014a391 e8b3502f60902b85
+Ciphertext: 47ea5dd4 03590c336d6c2d4b be122bf90c195d03 e463a190e0a6e904 25119659f3a79beb
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 37-byte msg
+Key: e3b7e31d202f2d62 28d35010175de7e8
+IV: f7c4e2a8e1c8cf3a 65ca582c2de20c60
+Plaintext: dc2c62053c 62fac599b0274068 c3abba2d24c1109b c461f1fcd8bf4ad3 e61502c020a2e8a5
+Ciphertext: 5de3881f6e b719f089e7702010 b1ed0f6f4f563184 c285f2ad13a6a518 40258e14a3951ba5
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 38-byte msg
+Key: f2f2ea07d76187b7 70db87b1d7e5e944
+IV: 31e11d73828d739c c6ced4573dacb0a1
+Plaintext: 069d373aef06 cc4b8cffb64c8657 192536d7259372cb 8ecea7bf3c692887 4379c68215f9a11f
+Ciphertext: f199ed956da0 d082cc5763493475 e5f2dbc563db339f 702c4099c54fecff 64653948645ddca5
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 39-byte msg
+Key: f76d3e9fb1c6d91d 8a86fccc73245081
+IV: 83b2b471a3bd8c3b 8b755b29ed0d95b2
+Plaintext: ef65ae44dfe777 4122afaa486eeec3 b53a90126b721c0f d16edced1a253f72 ca9e7b0575a87609
+Ciphertext: eb23c2dc0d4ff5 962a652227be862c 9630396eb03cbe81 45e629c417892f4d 43b9b9ef09eb49fc
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 40-byte msg
+Key: cacbe769d17eb874 719ab0ec350f4e59
+IV: 50d6f8a3de2755e0 6cebf76bbb743d36
+Plaintext: c16c7761f10b4c0b bc8d596858e41b13 c0aa0fa6fc591789 a2be20079dab02a7 2deda7b92f7d702f
+Ciphertext: 73c35063376c3b44 6af3a249ffb42c0b b947a5db9626518c cacb9bffdc1904c5 076342c5bf283b69
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 41-byte msg
+Key: 9ffbd4ae5b574be5 29d26a1efc254f12
+IV: 73ff3f02a3b58e03 1635bf9a133ded88
+Plaintext: 20 ca6ae7c6d2a57694 35513267f2c326e8 969c8355fba9f385 2e072b26b18bbf4a e3603b22bcf26f08
+Ciphertext: be dd969b8adeceab48 0c929588d211188d afed1154b94b4234 a2ea422c392b9506 98979230ef426bb1
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 42-byte msg
+Key: bd0b0ac3273c6b07 6c7fb33ce31a1f80
+IV: bfc795ef42117c22 2e01d1f57dfa778e
+Plaintext: 51e2 cf9b2e8289da6730 badfd6ab2e12d046 fff7584966b29394 d2ca7d85372dd91c a9746e5d296970f6
+Ciphertext: cc15 22261b465379c39c 808fc77a818c35ff 4218ad5fd24770dc 64f1f486a4508b6f d6390765773d1fdf
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 43-byte msg
+Key: bfc63d22c9404acd 92c45cf92601fb60
+IV: 6526235b57ed3e02 bfd84f95f3ba701b
+Plaintext: ea7a7e 48971413a475e0b4 ea64174caeb393d9 437ed666dc3a4e39 f18ed84de5648203 e541951413d1d3ca
+Ciphertext: e8d35d 3a9126ef55077e22 97ce1086b6e99611 1cb891bdf7d4c3e0 c8205a91f0d406b6 485577a6fc4b8a49
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 44-byte msg
+Key: e4c7fd70c6e49807 0754f13af2415f94
+IV: 3ba3c8f19d556632 c16ecb3562ce2305
+Plaintext: aff7ba4d f01fbe136d8345a2 8bfd91c839d99342 8ae5af75a3c7bf5f d8935acc129d56cd 748c8b663eb0da87
+Ciphertext: e3850ee3 02e426ea014b7449 fc3acdda8df56a92 a1f875cdad056158 e0fec7057b01044b 92670fe59756885b
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 45-byte msg
+Key: f1966f3db4d9422a f63ae43355f37878
+IV: be49ff89d661dad7 995489684185b9cf
+Plaintext: 6a337e5c73 4add90277f8dd39d 9bfe695c179ba3c3 ea4d52a99f408140 aae9643ffc488b40 d56a5b66da33bf44
+Ciphertext: 8898d30d20 da4602af61e54edc e71fd08f8847aee0 18d11186dc531d00 77cad53293d2cd1f e081483abb1e889d
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 46-byte msg
+Key: 675a1bfa26b582a1 e1b728ea94371a01
+IV: c7722cb81a5433e1 22f375fb735d5e12
+Plaintext: fe9375e09ed5 8e38ed2040a55cf6 994e835d111cb52a bd1fd87fc52e7393 18ce09b15e56a684 2f50b79182211e05
+Ciphertext: f25a43b550ac 23640ba97bd8b417 fcd1b086bc09b587 8bacb13ee5cf4f0c cc7378da6bc3725a c38a9ac995fabb92
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 47-byte msg
+Key: 68ed86b1fab5f453 8fc29f173347025d
+IV: 55422fbdc0a36648 cdb0e611d6a803ed
+Plaintext: eda67976cec900 56139221c2a78d47 447d3419be821007 acd02123a9248033 35924304b577a101 bbb057038809496b
+Ciphertext: 346697b39b85a8 120b9ee5d5526a6f 88dd026c7a03479a 0eb329bf88a8e976 62d02b9a74bd02b8 ddabe7f77068de85
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 48-byte msg
+Key: cff86d6fbc8ce5b1 35a06b166054f2d5
+IV: 65be8ace75dc851e 0bcdd8f07141c495
+Plaintext: 872fb5d8c0c66a8b 6da556663e4e4612 05d84580bee5bc7f cdd4de8e863843ee f288d3fcd018e6be db47aabc4bfac411
+Ciphertext: a2380d5b6f8c4954 1059ef1a037ecc43 1d8a6ad404cf37dd 9c4e818d6504ab99 39c4fb0cf1aa4fe0 6dcbe5b403fb1c1b
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 49-byte msg
+Key: 9e4a3ac1987a904d 892c3185ced4119e
+IV: 9a6c9184f76aa371 07ef2ebf9041b4fb
+Plaintext: b7 7b323a0c8347b0c7 3d997e51fe75cc07 44b5183aa4e7cd7a 03ab1814095df7d9 d3f49321e82acf10 6fde21189fb6a1bf
+Ciphertext: d1 6209941df3b38ac2 0d5ee6f9ad56b2fe 27b69fc4f23c5c0c f47b94e5a1f51818 9029034452bf9387 5749b0188070f12e
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 50-byte msg
+Key: 76085fa3aefbfabb ede96edf3c082e8b
+IV: ba4a73e09181d3eb 2ac7152a9d1d444c
+Plaintext: 6c52 023970271f5213b0 6afac0fdc75598fa 824f6794e3e1d61d 0390e2f2dd368c5b a804d2b265c8dfc8 b46c7f84ebbfd5cd
+Ciphertext: 5902 a5f41050309e0e51 71d0028ef3fc3cfd 83d34425c61de8fc 64fd5e16d6209d19 fe9820a56d7958b7 7a13f4075bcea4d9
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 51-byte msg
+Key: 697950aa2879dba8 9250547d960340ea
+IV: fa0dbde6f3a4b7f8 f33d5fe5c252d98b
+Plaintext: d06335 0dca3ba1306b74dd 05953defc9a05b17 09f26e0509cf764a 6773950dfc5e17ff 03f0af917d350364 d4026b00be41f6ca
+Ciphertext: 8f2d75 204b5d033310f56e 4e31e3970097fa58 0121beb727c562e2 adff066e28e4279d 358378a805110edf ea58ab545fa94437
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 52-byte msg
+Key: 6489af30c4f21e27 532711d7e7bc9c94
+IV: d5c25e11569906d0 300616dd9285e7bc
+Plaintext: 3fe1eda0 ee013ddef1054ca0 1692fadecb69cf8a 853f840b62c9c5ed 0d1635d7e221b3bd 52a7dc568936d0d1 4f8739c42c0d8a65
+Ciphertext: e7559d26 10fcca7f254deca1 39ae06323de3632d e5b1d28f7ba512b1 9edb023754783029 aee725a2dcc1f6ab 14024b20da4a0de0
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 53-byte msg
+Key: d0ce85fcb1720098 f699e801947286ef
+IV: b78a017963e125d0 5b43622d42d51808
+Plaintext: 00ef128b67 29504617b909249e fcf09ee452b72ec7 2fd107026f7d0353 ea00dddd4931a0cb 183b5f361c9f2748 e67832a2a8035dfc
+Ciphertext: 944818774e 9ad427376a900781 390507e57684ea9c 26013997d6b39c34 b502514b79c71ce2 f76e44fc2aa73978 fa18a2fe6d5a5780
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 54-byte msg
+Key: 485edc0bb3902da8 74ca4a2e85ed2324
+IV: 644b4b1c6ab2f2da 59a713b934efee4b
+Plaintext: 5354b940b6a5 93899affb9bd4a4b fcbb380873914c4b 6d9c7c03a9f19d82 cafc7839056721c3 1d3d842691504155 14d8baf93d5c6970
+Ciphertext: 4394d5f1bf96 348e53b011e12c1a b24f502a7c1c9cfb 625eb57581a26004 00645d04bdda58f8 ccd60c9168e75ea3 f567d36b65b151cb
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 55-byte msg
+Key: 80d678165d128bc4 d757e19728499bf3
+IV: b30e5bc73ab01112 51c212a612476b2c
+Plaintext: 13cf746895e3a8 befea3b3f58aaecd 3c3d42476a1ca563 8a9cc369975b18f7 840ed0997fba2d99 77282a19dc935e5e a6a3226f989ff6df
+Ciphertext: 467cfa39230b3d 5eb7a9b5a707d545 eb56f79b1beb9f52 18176a85d25458cc 5300c4a74250e95b 70b764c7423aff9f 17a42a198de23b5f
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 56-byte msg
+Key: c6de21e7557e98b8 8259210ee535b809
+IV: f73b3239d3ab20f7 39cdf6fcd82b6d2c
+Plaintext: cdfd25b367e58f53 2ddc0afc226c4c9e 4721043b623abd40 fea30615b328d0f3 a7e317f655f6c573 8d80d38bbcc9b100 6ec0e84811a8fee0
+Ciphertext: 70172c2c768e0845 f9674683244326b1 810e93c982863768 ae8ae20c6f70135c de78935c8d3f7ab7 0b475b19f4ad5460 54c17a00d2b15192
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 57-byte msg
+Key: fc0e99e3b0fee8db 5d763fd7a81b01be
+IV: ab2bc3e23db3aed8 74022588695da880
+Plaintext: 3b f4f98e57157d8df6 a0e47fe7bb0ddc8e c6232a2d920dce62 cd0522f1c186c7c4 3f6c3d30d557b07a 4750159a3daf763e 3a3b8a12cd94893f
+Ciphertext: c0 eb5dcfec09484f10 6616a822347a8be9 a042dff58efa407e 5d18d7974518b42d 6fd54e75fe2644e4 0c7971717ed927ef 377ead21bf36e652
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 58-byte msg
+Key: 0bce3e313c5f5e9e d53b18c4a73dedf2
+IV: 55c9c2490bb034c4 6d532b76ce0cb213
+Plaintext: a3c9 06b237faecd1a0ae 489af1f8ec65b198 ae7d8cd7bd2749b3 35e0fc3cf0e77d3e a0fb18201a66860c f53a1c5154db4305 00bd28eeba6fb5a3
+Ciphertext: 1eb0 775770c7dbbe36f3 20a543b5e52c2c5d 11b593d25acbb922 2ba480829759d788 04dbdddb9d532bb2 0158ca161c0a5516 36afc416b527d7b9
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 59-byte msg
+Key: cfd9bfeeecc28175 349549999064719f
+IV: 462d910dce5cf357 e19247bbd2a5986a
+Plaintext: 21e87f e84eac97b5eb0630 2df5d348ad64fab7 f701f1a9d8788351 08aed0dc515495a4 f3bdada748ecd837 a4f2bcf37f7729f5 d696a14dceee18ae
+Ciphertext: 3dbbfb 7da64d579e22b833 b4d65379d5e2391a fbb81f50666d60d5 b5cc7b396d3b0ccf 9a3bfd8e4daf0de4 c882fbf83af44cdb b9ad9ec85c4f302f
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 60-byte msg
+Key: 9bf5f868a0906896 d7e1ce99746092c5
+IV: c52e26595da643b5 713475c7826ad9c7
+Plaintext: 3c502524 9ffceabe5c631655 826fbd4159521964 8e19cf5e918473ff 3c154f02b56760f8 95c1a2824aeb8ec3 ba40e01528059dfb 5cf95558fe2da5de
+Ciphertext: a476b404 32eb8bfc632649be ca2e3f61512d7b63 f7c5dc297c07a1a5 b8c6d11a17a972ed dfe59c4e2a260d2c 0e0f7cdd808f66b0 2e27a956b31e569e
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 61-byte msg
+Key: 441601c8cde1b0cc cc06184b68203ccc
+IV: 63fc83a8faf0bb06 0d6e5d0a80d8134a
+Plaintext: e19677824b 671e888af4d5827f ab2a56c6ca2f6297 ba7a6eea9f70dedf 2dc42c5cbd3a96f8 a0b11418b3608d57 33604a2cd36aabc7 0ce3193bb5153be2
+Ciphertext: 601a232e76 1236c291d6ec8e36 093352b5cb728188 67d417a0201c203e 717ea340c38de0e1 563a7380a82204bd adea1c275aceca3e b920bb2a508a653e
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 62-byte msg
+Key: d3c06dfdb2d16e9c 357158be6a41d6b8
+IV: 61e491db3fbfeb51 8efcf048d7d58953
+Plaintext: 730ff30c9ec4 70ffcd663dc34201 c36addc0111c35b3 8afee7cfdb582e37 31f8b4baa8d1a89c 06e81199a9716227 be344efcb436ddd0 f096c064c3b5e2c3
+Ciphertext: 59c2afded2ee 41fda6e5133e3a6e ca4695dd1355f1b6 f9a7287d6528b01f 40af3ea2c43b864c 277fa7f197807bb9 ec54ff36b9ee3035 8da9957c99551e35
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 63-byte msg
+Key: 99993fc77394f9e0 9720a811850ef23b
+IV: 2ee05d9e6173609d 86e1c0c18ea51a01
+Plaintext: 2a00bb413b9cb8 188a703cd6bae31c c67b34b1b00019e6 a2b2a690f02671fe 7a4cf4d12dea320e cd499e72f12f3806 4f0cf9f339787196 68ddafd7f97161b7
+Ciphertext: 8b96f5e3964d5a 7ede97c65316ff59 0bbc3350f08d3ce6 94b604acc4f802a3 d5bcecd7b96a056f d2f443bcaa41ef0f 4a75237ebdfe785d a9802b7d475094dc
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 64-byte msg
+Key: b5683c2995679e23 853b72f469cb55d8
+IV: 5e4bf6ca42b3c399 7670c23ee259bc6d
+Plaintext: 3ae4a16a809a281e cbc8b66a467881bb 7b9ff5dfd2985717 54d1a86db5c5cc47 922aeb3df76b1828 2458307b911d05d7 2f70bcd9f10f7437 8b6a290b7a9cd76e
+Ciphertext: d113b9739f49c0d4 e4f2ebcdfa50fc8c 120915d3a8d281bf 8db2d84cde0e135d b519ec5731714db2 677569ffa0ea23d1 b1c067662dc1beb5 fecef91cbe94752b
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 65-byte msg
+Key: 44a0e24901c2b568 1a53a9d051a12953
+IV: 01271561a7006321 a2a20cc037c8260a
+Plaintext: d8 b04d37a687480734 22ea118eee35577a 2ac61ffd536dfe21 e01b36f6300142d7 c1f6aeeea2192cfb 2bb8e550eb710d20 e297bafaf0d8f691 8e1c12bebcaf3ec8
+Ciphertext: 00 a66964d05879645d 1f6e05a201bc1fd6 d9dc2ad519cd1705 0474f3786d856fef 2492792d700d7b1f 3a3dff30c5c9878a a2e8040aac1d4677 3a95c22c67cb0968
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 67-byte msg
+Key: a357e2fb7000f5d7 def4a080259b7eb7
+IV: 52dba7c0ec307913 d8ff98547a273385
+Plaintext: 1dda89 7b95abac8e22e785 9598291912bd290a a9f3d561d717a38a e0a825a0092cdeec 08cf54a8b94e6608 1213e07b59a24d2e 94330cd142a0a69f 48825f982e970b11
+Ciphertext: ccdf22 5e093f83a33e2b57 47f5cda6bdea9522 a81c32868ce51b46 cd43ac1104a0a487 c0298bdae5175e15 b4d5e681931e9687 30388defb5f76245 8d324cc1605abc19
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 70-byte msg
+Key: 68236fbe281830df dee72bf6c7ee186a
+IV: f5fe52bc3db1dc74 50fea25c280a02ed
+Plaintext: a6418b0779a6 05e54167b14ff4b5 d21181d26badb46c 4b4d5a2947fba583 c714d2d684fa08b7 8f0a848896cef349 63731fb1a57dce7e f3b9e7090e73d71d 66ea3309e0019ff4
+Ciphertext: 124aa4be95be 83022a7f9661f984 25f83f611f104a44 d97ac6a4d02c0283 05388b60339a665f 786587c16c5240a6 db005090f8d9caec 7a7b93535ed8ad2f c4223ec08cd42773
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 77-byte msg
+Key: 37ee7161d98b54d3 7717c387945390dc
+IV: a141c67f2d8681e9 56130329830405e4
+Plaintext: 55c84b9ada 837b2a04b02f995a 0b490feeae87228f 7a57573fb8ece6e8 0091be4a5a3dc938 a4687104341e6338 be52938677748002 7a46b98f6beba097 5b406e00ec70775b b6c3b05ee9b76e94
+Ciphertext: 7ef1651d1e 8eeb54a8c425df73 a6f28ec68a870c5a 0d8e0ceb914df641 3d941152b4774a6d 594b23ba47ff419a 6727766515085dd5 54479dcea4d9613f 8c2f79d5dca36134 83acf7f8fcb44fc2
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 80-byte msg
+Key: 527053e4b620ef50 f6162d7428defadd
+IV: bcfb5dc60c2bab81 33edfa182341d733
+Plaintext: f2af3c3c758abcc2 1076011bcc28784e aa6d4b30386e90cc 6132c00889646a86 da5728c9d847d399 3ce2f3a8ff067975 b5cdb1711cc77261 f58698031260b3f4 b17001d108de9a9c 2160eb62e801651b
+Ciphertext: f6d60dd789ba58ad 61980248c3fe228a 822ed656059b5021 9c57768160766031 cdf1f40577f08351 e4dc830ddf88b7b0 6269172788b7a947 a24d3496541b03f0 678453dd25a72dfa 68b463705e2c5632
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 83-byte msg
+Key: 2276d2e1beb90696 f26a4fe6bc1c451f
+IV: 03ae9d2dd77b9568 fbd193b0a0a508bc
+Plaintext: 74849b afdbcd84ec7c1e35 2c000c40ce161775 6ebbdc4ab8b88d81 7e6c9f0409cbc214 ada716a2a02f9cfd 0db5ebae63b424a0 f3112785baa10774 7becbcd712301884 04a9fd2a5a10ccef b062205789e2bd68
+Ciphertext: dc3e0d ea41fe9e930ecc42 d4f87f9938412934 b109139dc3a2ce44 ed8f6f2a0338d686 632b44b90bb96a9a c289bd8ba49d38e1 2aa8c98fdaf3c502 b5a03c0cc4e30806 58d656f2a6323f02 1f78bb5fd67294bf
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 88-byte msg
+Key: 61c30c16bd28b6cf a864487eaa6e35db
+IV: 69e8e2c12996533e 8f1503e6aaca136c
+Plaintext: 3418a77314d68ea1 280021f542ac6d5b 7040947e81e370de c4317a221333eaaf 108e2079affa4319 f5f62821ffbb75ac 456e063920998fb9 8adc83e625e035d7 808d3ed1957d1e61 96b026a7e98195f5 71d801990fa2f8f6
+Ciphertext: f3344b1d6e28e2c8 fe3945e92b8c5b56 be73fc0e89007b49 b0c657c7bd5648e3 b2cbe0ce529ae947 99113f4f837fa2d5 c7b3be07e8788041 d2fa769c434ff0f4 5a36995531cbc95a 7f79c507bdbe527f 7e2551f0f9f1b32b
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 94-byte msg
+Key: e8dae9b93c0b097d c823ce45679e9394
+IV: e23208e7145f7ae8 4c4655e4f3bee77f
+Plaintext: 6fa566a74674 35c68716633c66fb 750c266865d53c11 ea05b1e9fa49c839 8d48e1efa5909d39 8bd043535b49629e c27fb8f107345333 4896f62a07b8be8e e53f0562ac5e8784 9304c382be53a5af 05556176f6eaa2ef 1d05e4b083181ee6
+Ciphertext: 2e8d0162f582 d2e003be7ec75cd2 f8784708e5d0e710 55bebbf4d2460fbd bcb35b0d85d11e1b 47b3a853cc51aae2 9dd84e17d0d69bb7 6b45db9af9fb6e78 047fd8ed1fd810cd 259c559a25a06b1a db68976f23f3d012 f4ecbdbb3af48dc2
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 98-byte msg
+Key: cda5a485f74d7ad6 c8d14a95447557c3
+IV: f5e99f3be1716bf0 b9432476533068c4
+Plaintext: 5a87 5d38453745db8533 53e7031bbd86c918 13ddff08cf491adb 2de8503c3d5c4f74 36cb2e8c0d2aa4b2 46bc78df0bd538b6 7be42eae44b09073 74e2f78a8cc41234 d6489c96f94c8b16 cb1c8b086639aa8a 7e5955acf2ae83d5 a06b30627e850d8f
+Ciphertext: 3067 05cbcf7382aa0014 ec33923d24694a5b 1511a5afdccad134 a0c7533298229a53 568e4c57100093a0 82a99b4d2eec36d7 00fe2391cc354bc4 ff29d1cfec587b9f 4cb48b3c2a825bbf 310b9fe3f37bae17 50060b4682149f96 9e42f9120143a289
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 105-byte msg
+Key: b6769b32c8a42789 1024e0f839875dc5
+IV: 435c4a00ca5bc75a 8ce30b3b26a74d0e
+Plaintext: 1e a4e4e02656ad299f 2bade95d38f7f7aa 2ad0968d80124a4c f8ceea2f4735f587 0db929ef086f52d2 88b8612d2320bd96 a986de7e5b7e17b3 57f3b328571144f9 9b6138aa2436adb0 23498732b1a0bf10 c0b4fd2552d26ac9 e9c2bf9a3ea7a37d 352633df11cae241
+Ciphertext: f0 eba22b797cf2cdea f1cea9b6de373607 8ff9bfa9c544061f 3dc7b2d645908c3e b078b0c66a777fe9 63df1a9962660516 781c1b5f378cc941 ff9827d829aff0ca c8921fece7dce996 12f2c3ef61d4fd7e c50ec028e9b84f91 7e192aeb58912774 f715719f0884f070
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 109-byte msg
+Key: a783f34a3ea41f57 a11e0aced8ea9794
+IV: 82360d64bfb819c3 4e431737f3988db4
+Plaintext: 1c7ef857c3 15cc579667b63856 4024417d40073123 2ed72e228fd8fe79 779d79eea0ca3ef8 b91ea6db00b0f615 1378d9f903120d9a abbf5cea40adce23 29781d6610f069a2 391d2db8128072dd 0c9c423faab560eb d7d836ee7d1b0fba 532686ccf7f23e8c 3cd1d475c5af1275
+Ciphertext: c547268321 5370e09ace2e69d6 f3512d7a12d88d8d 16de1e4360ff3201 b8b886ee6f1a182b a9920a8f0a38b5b9 d495121b600833b3 212ba68f48720fb8 3cf75bf50448dc1c 868c7471eb048b77 291a0c2d5c4ca5aa 840eeed108b0162f 72063f94ff3b693f 89a2c3e27529ffb0
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 112-byte msg
+Key: 9766975b7992df5c 2aa4756fac2907a0
+IV: b09e687c59277d6b 43845940c440a70f
+Plaintext: 712b483ee40b3edf bd8fc93de784cfb5 1d4b81c8ac8b3c6e 7a23adac47633968 337b9c7d8033d00b 9add30105488dd3d 7577610273d292ec 7e9ab930c0e2f488 e43dd93dd5735c85 c878f3107c9ef8de c0094e533763478d 58d2c5f5b827a014 8c5948a96931acf8 4f465a64e62ce740
+Ciphertext: d1069b3c7420e0c6 2248219beac74cdf e984605e2904e2a9 0c4f2ad5b204738f 0383c5b4afdfd11a 51d99f2d8e74871d 19d46891931b16e1 0f031185df52cc42 c7eec87dcb6cc43e ee5b7d99e9c49f5e 76fb99888955a7d6 2ee63de8f12dd283 036f4e98359a5388 79abc5c01e5696e6
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 119-byte msg
+Key: e991e37ea823fa0f b21923b79905b733
+IV: b631e6c7d6860a38 31ac351a9c730c52
+Plaintext: ff72d9d308eedb ab21fde143a0ea17 e23edc1f74cbb363 8a2033aaa15464ea a733385dbbeb6fd7 3509b857e6a419dc a1d8907af977fbac 4dfa35ec02be8281 106d2d99c0b96f97 b45193ae270d58af 766c971fdf41258d 89a9fb22c540947a 949597b269dbb6c3 30e1d60e8e447038 6be33737ae93fbad
+Ciphertext: bb906cbd47ab23 921dcd447a0993a7 4b54f78ce5b143c1 3ecedf17f012b68d 4823b6aaf15d1315 da749399ff95b6c6 ff54bbc74590686d 0e00e834b8c85d4c 47179e5793bab2aa f0da289249d419cc 27f4527781e50102 b1ba66aa5fc77da8 fd5b85e90c4eae05 fc9d095db85f6ea6 03a499cb7573dd2b
+Test: Encrypt
+#
+Source: hc-128.c reference implementation
+Comment: HC-128, 128-bit key, 128-bit iv, 133-byte msg
+Key: 6f392a1fd910aacd 7f4f9a32ef5aa1e9
+IV: acc0e01b891079f3 56ee5251be6516c3
+Plaintext: 707f7db17d 13ced701dfa2f806 d6ead1a5bb334d6e ef29f70b885ab41f a23db274fa739c56 b94c103a8d8d52a4 fe71424700ed8b6d c4381e99d48bdf6b 5f269dc5d193482c a72e5e7182e5a790 7a3d22d8b4953f4c 37af4e4afb6c386a 43d76da92d651dc7 887cabede5315f93 f1565ba102b4d0d4 ef957164258628e4 f75a0869367284ee
+Ciphertext: 033c9cd9b5 04efda94627f0344 a27e496419efd42e 40b5aa7c6e1602b3 1d222676a1219183 69e0807d77368e49 b4e802e1b0879f76 ccbba06e7403e005 c0c8557c3efa64eb 8fe093f2b01cfcc8 30e0cbeb60b82d79 b7d29752924b6d6d bd206ba3a23e9b22 8440fa4cb8eea924 e9cb192a33c9e2b8 2fd090aa5504c663 3210751efe8136e1
+Test: Encrypt
+#
+Source: HC-128 verified test vectors
+Comment: HC-128, 128-bit key, 128-bit iv, 512-byte msg
+Key: 0000000000000000 0000000000000000
+IV: 0000000000000000 0000000000000000
+Plaintext: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+Ciphertext: 82001573a003fd3b 7fd72ffb0eaf63aa c62f12deb629dca7 2785a66268ec758b 1edb369005608981 78e0ad009abf1f49 1330dc1c246e3d6c b264f6900271d59c fb1c12c1efcb64c5 603ca15ac896d1ab c1082b17b096c917 6547992eaa0eb646 f9e1b4bd35cff88f 047043aebedfbd31 0bb6ca762040ac51 c28203fb1873e539 7afea3aa16bf4a9c 6471aeaa6fc3e042 7d311503a31fe37f 0245e30addf14e93 e8df7d746043aa71 d45397b001787347 bcbf5f23b6fae5a9 b83203cfaefc46be 76f5e28163a6f72f 4ab72fcd90c69eed ef6d5c73539f14e7 ca0bf6a9f229f12d 1492efcfdad11ee2 6de44f0e843178d2 c989d4f21fe9b53c 03c12874e83a7026 3cdc1d88eda83676 7090fb77dae5ecc0 0f5bf5ca8879733f ac19e8de5c725636 7e39e8c9c4efcdd7 5dfa9660bbbeb584 b5593dff4566eac3 7e857d9b9e21ff06 395253c287ab3de3 48e133d87509e1f1 678beb1dfa278ade 7d766ae5863307de 2bb04f975864ebab 903123d6ba517ddd 4b145efb28f72896 8e0d7437fc750977 48e1937162416e5c 98dac486bafef1cc 017df9ce8db87b17 eadcdcfc5e6812a2 7f2fb2d97ced2c9e 0b729527b9b93817 facc1adb7c205063 2575c0a3bd7955ce 713b389bd7e1651a 450c051b77f83a96 da277a370fcebc43 03a18ab1c5ff5342 b319f0593a67f2be 6de7d256cec89f65 61ff60b8ab8621b6 720206975269023f
+Test: Encrypt
+#
+Source: HC-128 verified test vectors
+Comment: HC-128, 128-bit key, 128-bit iv, 512-byte msg
+Key: 8000000000000000 0000000000000000
+IV: 0000000000000000 0000000000000000
+Plaintext: 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+Ciphertext: 378602b98f32a748 47515654ae0de7ed 8f72bc34776a0651 03e51595521ffe47 f9af0a4cb47999cf a26d33bf80954598 9d53debfe7a9efd8 b9109ca6efaddf83 2fe82100ecd66118 d73686bdf879cfcb f35bba32db097fea 1015ff9767b8ec40 a0f85f68bfe6cf5e 2da802d7c08ee9e9 c47510dc03d8fa2d 019a26eaeab7d658 38bac93ff6ac2b28 8c53142696c984f1 cdb28811c1587671 5524f5dd1c3a66b8 47565521adcc6caf aa6ee49fe8e03f13 276a1e8b6c4bed16 4812323da40b37bd e7f8dcc6a1d42ecf 6a49651f7c610657 b1df6e58fbef6a24 6d6d4caa83858839 86325be2b4185b4d 63d4bf766c5f4b73 0b89c3cd66018155 dfe9d37b6f5c1251 6d21763b2febadb2 12ac71388ff93586 48aa1a0e874d3b69 32d7f80a5657f88d a44bdc16aa21e531 e3e473cfe6fca9ee 20739339ce4f2dac 793210c8cc20897f bc468056d084995b 46d396dec7e1b8e0 f90a03be7b6804e6 7abd01162e7d9a1a b9df064ff3b775de be9212c7a5b86658 97be1dc3d112ca8f 5b17b8e803a57d30 530469fde4882f2c 8abadeb718ef4c48 303cf20e6453d735 8dd52e67c721381d 8bdc1dadf206f10c 7900453dfb59e3ed ab05d8816b74a79e 05a77945dd27a2f9 5bb39df39c64bfa1 3f2aae924d3df4fa 22899838adb60980 6c022c36180a3e46 a547cff7f4de1151 a81aed3646b2d86e 1f0f3c22c92d3459 593ed599d1a535df
+Test: Encrypt

@@ -47,7 +47,8 @@
 #endif
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-# include <immintrin.h>
+# include <emmintrin.h>
+# include <pmmintrin.h>
 # include <xmmintrin.h>
 #endif
 

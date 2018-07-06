@@ -241,6 +241,8 @@
     <None Include="TestVectors\eax.txt" />
     <None Include="TestVectors\esign.txt" />
     <None Include="TestVectors\gcm.txt" />
+    <None Include="TestVectors\hc128.txt" />
+    <None Include="TestVectors\hc256.txt" />
     <None Include="TestVectors\hkdf.txt" />
     <None Include="TestVectors\hmac.txt" />
     <None Include="TestVectors\lea.txt" />
@@ -249,6 +251,7 @@
     <None Include="TestVectors\nr.txt" />
     <None Include="TestVectors\panama.txt" />
     <None Include="TestVectors\Readme.txt" />
+    <None Include="TestVectors\rabbit.txt" />
     <None Include="TestVectors\rsa_oaep.txt" />
     <None Include="TestVectors\rsa_pkcs1_1_5.txt" />
     <None Include="TestVectors\rsa_pss.txt" />

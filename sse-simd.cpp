@@ -27,6 +27,9 @@
 # include <emmintrin.h>
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char SSE_SIMD_FNAME[] = __FILE__;
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY

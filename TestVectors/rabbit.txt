@@ -1,0 +1,1980 @@
+# These test vectors were generated using the eSTREAM reference
+# implementation for Rabbit using the file rabbit.c. We could
+# not use the published test vectors because they arrived at
+# the incorrect result when plugged back into the reference
+# implementation. Sigh...
+
+AlgorithmType: SymmetricCipher
+Name: Rabbit
+#
+Source: Rabbit test vectors, Test 1
+Key: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Plaintext: \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: \
+    02 F7 4A 1C 26 45 6B F5 EC D6 A5 36 F0 54 57 B1 \
+    A7 8A C6 89 47 6C 69 7B 39 0C 9C C5 15 D8 E8 88
+Test: Encrypt
+#
+Source: Rabbit test vectors, Test 2
+Key: C2 1F CF 38 81 CD 5E E8 62 8A CC B0 A9 89 0D F8
+Plaintext: \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: \
+    3D 02 E0 C7 30 55 91 12 B4 73 B7 90 DE E0 18 DF \
+    CD 6D 73 0C E5 4E 19 F0 C3 5E C4 79 0E B6 C7 4A
+Test: Encrypt
+#
+Source: Rabbit test vectors, Test 3
+Key: 1D 27 2C 6A 2D 8E 3D FC AC 14 05 6B 78 D6 33 A0
+Plaintext: \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: \
+    A3 A9 7A BB 80 39 38 20 B7 E5 0C 4A BB 53 82 3D \
+    C4 42 37 99 C2 EF C9 FF B3 A4 12 5F 1F 4C 99 A8
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 2923be84 e16cd6ae 529049f1 f1bbe9eb
+Plaintext: b3
+Ciphertext: 53
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: a6db3c87 0c3e9924 5e0d1c06 b747deb3
+Plaintext: 124d
+Ciphertext: 1c4d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: c843bb8b a61f035a 7d093825 1f5dd4cb
+Plaintext: fc96f5
+Ciphertext: 0f58c9
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 453b130d 890a1cdb ae32209a 50ee4078
+Plaintext: 36fd1249
+Ciphertext: 73a3d9af
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 32f69e7d 49dcad4f 14f24440 66d06bc4
+Plaintext: 30 b7323ba1
+Ciphertext: f7 637a4c47
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 22f62291 9de18b1f dab0ca99 02b9729d
+Plaintext: 492c 807ec599
+Ciphertext: 0eaf 24a6f381
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: d5e980b2 eac9cc53 bf67d6bf 14d67e2d
+Plaintext: dc8e66 83ef5749
+Ciphertext: 2d7d53 84c6280d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 61ff698f 61cdd11e 9d9c1672 72e61df0
+Plaintext: 844f4a77 02d7e839
+Ciphertext: bf871830 9a22b082
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 2c53cbc9 121e3374 9e0cf4d5 d49fd4a4
+Plaintext: 59 7e35cf32 22f4cccf
+Ciphertext: 0e c5b64a95 b505e3d1
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: d3902d48 d38f75e6 d91d2ae5 c0f72b78
+Plaintext: 8187 440e5f50 00d4618d
+Ciphertext: b0ff a090f3c5 766e39bc
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: be7b0515 073b3382 1f187092 da6454ce
+Plaintext: b1853e 6915f846 6a049673
+Ciphertext: 73f9f4 72f686d1 acaeae01
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 0ed9162f 6768d4f7 4a4ad057 6876fa16
+Plaintext: bb11adae 248879fe 52db2543
+Ciphertext: 68d150d0 e4f8fe83 1f575d49
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e53cf445 d3d828ce 0bf5c560 593d9727
+Plaintext: 8a 59762dd0 c2c9cd68 d4496a79
+Ciphertext: cb b1e77bf3 0d73f7dd 4e66ecae
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 25086140 14b13b6a a51128c1 8cd6a90b
+Plaintext: 8797 8c2ff115 1d9a95c1 9be1c07e
+Ciphertext: 7637 98d8e5fd c6d70ff4 9b33624f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e9a89aa7 86c2b554 bf9ae7d9 23d15590
+Plaintext: 3828d1 d96ca166 5e4ee130 9cfed971
+Ciphertext: b5bcbb 979ea7d1 87f939f7 c0dacf7c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 9fe2a5e2 0c9bb447 65382a46 89a98279
+Plaintext: 7a7678c2 63b126df da296d3e 62e09612
+Ciphertext: 7d599714 3264097e b6a9ffe3 a75655c4
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 34bf39a6 3f895ef1 6d0ee36c 28a11e20
+Plaintext: 1d cbc2033f 4107840f 1405651b 2861c9c5
+Ciphertext: 2a e080516f 904e7621 592e241a 7778c18b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e72c8e46 3608dcf3 a88dfebe f2eb71ff
+Plaintext: a0d0 3b75068c 7e877873 4dd0be82 bedbc246
+Ciphertext: 9c05 bf8b968a f9ec1cdc 38f5c387 c4d458a4
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 412b8cfa 307f70f0 a7548632 95aa5b68
+Plaintext: 130be6 fcf5cabe 7d9f898a 411bfdb8 4f68f672
+Ciphertext: 049038 dc24afc9 45720df0 5416956c bfccd17d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 7b1499cd d30df044 3ab4a666 53330bcb
+Plaintext: a1105e4c ec034c73 e605b431 0eaaadcf d5b0ca27
+Ciphertext: ba73d8da 066cd03d 40c4e809 3c5afc8b b8a7d082
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: ffd89d14 4df47927 59427c9c c1f8cd8c
+Plaintext: 87 202364b8 a687954c b05a8d4e 2d99e73d b160deb1
+Ciphertext: ba b80e78cc 5c658f5c cb16872a fa7c0594 468c4164
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 80ad0841 e96741a5 d59fe418 9f154200
+Plaintext: 26fe 4cd12104 932fb38f 73534043 8aaf7eca 6fd5cfd3
+Ciphertext: fbca 394bf78f 00389fb4 1e9595c9 fc894c1b e8c38bf9
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: a195ce5a be65272a f607ada1 be65a6b4
+Plaintext: c9c069 3234092c 4d018f17 56c6db9d c8a6d80b 88813861
+Ciphertext: 1e86f1 2de06345 2ab19954 2b9fae14 3ed55989 87b83245
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 6b681262 f954d0e7 71174878 0d92291d
+Plaintext: 86299972 db741cfa 4f37b8b5 b09557f5 df806c6d 8d74d98b
+Ciphertext: 4d72dce6 3a55c2ce b8ab7c00 99a24370 689f7bf9 36cafd97
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 43651108 a5f679bd f7eb15b8 e0e1608f
+Plaintext: 6e 3c7bf45b 628a8a8f 275cf7e5 874a3b32 9b614084 c6c3b1a7
+Ciphertext: db 0b8fe73e b4f22ca1 944a31b6 1fbdede6 f3723df5 adb58ff4
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 304a10ee 756f032f 9e6aef10 509bc881
+Plaintext: 4329 288af6e9 9e47a181 48316ccd a49ede81 a38c9810 ff9a43cd
+Ciphertext: 4126 c8f25d6b 20009282 1c588d40 50c57ebb 335eb017 d08a18c2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: cf57c750 59bfbd1c 2703287f 5d895fb9
+Plaintext: 49344e 603ce5de 029842b2 0d2bb614 ecbbb82f 73e2517e 7d1dd884
+Ciphertext: 6ec97a 57ed5430 60f2fc57 9172d908 bf7bf88d 6bef3f88 02d04bc0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: d31f01be 506b16d6 43218319 1518982b
+Plaintext: 2c2e8bf9 0edcbcf0 ca0e3d6d 94319274 af8db5a4 90d55e6a 40fc8076
+Ciphertext: c041adfd 2cc319ac 08155c02 519932b4 2e625c47 3e6d4e14 9c938822
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 024b176b 36b121db 7d5aea72 1e828d71
+Plaintext: a8 8cb85ed9 4eaffabf b094741d 75e5dc10 5846daf2 5b81a07f 5ccb1d36
+Ciphertext: 2a 37c5563a 740d6b14 34f570ee 9f8e761f 0bdaf98d 8ec7a98e f66064f0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e9497402 55d2ac1a 0bf7a926 23405ba3
+Plaintext: 33b9 358868ad e12ad5b2 325d0ae5 5adce977 5debb569 c53a6c93 980d57eb
+Ciphertext: 96da ae3c6584 1bf3ecb8 904d1207 d0d15cbb 84dcb687 9202e0d8 b8ea0982
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 879adf04 68b2a2d5 e6a4c6bc 775f8dc3
+Plaintext: 8fd62a 2114a9d4 04110118 8daebb73 1c60ca20 cf5dd62f 455329d7 a859cc0d
+Ciphertext: ab578b b0f1c58b 03469713 d291338b 1de32a49 6d3f9039 7476321a 78e15d8d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: ea26ed55 4e8084d9 2bf837b8 edd57aa0
+Plaintext: 5c4efa9f 21fc3c36 858e81b0 7dbfeeb1 e485e912 078bc6ec 66e2a3f3 b9f49006
+Ciphertext: 6d98a1c2 e641f2ee 7c0852f1 89ff7687 5d08bec2 33d0fc22 2457811b aa6fc5f6
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 32b9f404 022d2ce0 1e0174f8 43900ba2
+Plaintext: 37 16920853 1cb5373e 370e72fb f246cc26 097ef67a d8ed5597 12ca5702 b66c086e
+Ciphertext: d2 59cd8f31 877545b2 6dcdc837 5c22fef6 427b689d 5816a43e 15408d64 84fea1f3
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 3fb0e03a 1c9bdf3a 5f40ddba b9e41bc0
+Plaintext: a661 1d92e5c8 bc782b4a 77c31859 0a0e6a0a 42c471be 0fe3c301 dbff30b2 1a89f865
+Ciphertext: 260d c51eea6b 1e2cbc1a 2ae66948 5cee1931 441254ee 1db732a1 973af017 e0c9efd1
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 22513c05 3d4ab3be fd8d9e19 d0a1fe69
+Plaintext: d4fa04 67edbfc9 1914d13f f8f20868 51adc0c5 ec029412 ec946930 f683af63 9541e3bd
+Ciphertext: adf8a1 2b9e3a5e 7cede9cc c2314212 d90d36e8 65fb01d2 f07d96df 7497716f 2d2268dc
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: dda158da 4f3138ce fdcac55c ef65e569
+Plaintext: c430deaf 9ce25eb6 364bbe00 562f8784 6a54365f 6cda3cc5 0acb493d 05f3ca0e d7f2b1f4
+Ciphertext: 9e41672d e053d75c b2914227 a077abbc 0de0be1e 454e628a f20934d5 264f4f84 edeb5be7
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 988f7418 224f583f 7447ef42 542edfbe
+Plaintext: 39 b6e60c67 1c1b745c fe779d6b 6e9348a7 44b33e02 b80487b6 3022dde4 56dd617b 6e3d8c5c
+Ciphertext: 9d 8e7e68fd 38d73a4f 78a6d039 d099caf8 3cca1058 098d1968 965f3060 3ad07993 484a1349
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e7c467bc 2ff2ffc9 cc0f1390 a924111e
+Plaintext: ad4b 41e59228 3f62f5b8 aefda949 2b3151ca 80ec2e45 1a3935aa be1c65ce 77bd57b3 d3c9170a
+Ciphertext: b6e8 01ecfe93 5aea03c2 d02b8285 38fba73d bd6475e5 6a4e690e cee3ea56 8bce53d8 bac0d48f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 4e1632f6 0f861013 d22d84b7 26b6a278
+Plaintext: d802d1 eeaf1321 ba5929de c6a62a65 cff44736 21ebdd4b a26a99a8 12c0e034 91206ec7 624f3d84
+Ciphertext: 32d9dc d1483728 7694fc3a c29ec60b 63cbe201 2fc31467 97b76327 6809c949 d5611920 ec5a7b9d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: eea0a869 0c22d024 7f183f28 c0a9cb01
+Plaintext: ffd9bde4 64b8338b 9ad9c340 8e066137 74328320 0caf83fd 23a24431 5cb318da 3009e161 34757750
+Ciphertext: 22921371 e938bf8d 2946bf63 e7db2d79 fb3c80d2 d2492780 08a7fb47 373ca4e9 1a9cc9a7 dabc4895
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 9aed4a63 fb3d49e1 54f9022c 4eb60a97
+Plaintext: c2 799f797c 708c803f e04d470a 5f742a9a 434b5930 5abb2b94 dc6cb55a 9d2e9c64 879827a8 48ee9833
+Ciphertext: fa bf27e190 ebf9798a 5115fc0f d91a1433 1c8c6d27 81c9ac22 1ba226af c5907d20 2058c898 175b3b22
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 4848bd6e def1c2a1 c30e49b5 c780bc3e
+Plaintext: c20b e2b9ceb7 b111b376 6469a308 cd15281c ebe95ab8 bfb755da 5c13ea60 3e599525 dcf2af6d 80d2e583
+Ciphertext: 2837 066b4440 f8bdd8a2 f8c50d38 09f81fbf b5a32401 9ca8f06d 1449929d 968dac01 082e3b3d c0b97bdb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 5745e9a0 c4ec670f fa023b8f cae4e1f9
+Plaintext: b9d12d 2256ee3c 03cb8daa 17b1ae05 0529c682 7f28c0ef 6a1242e9 3f8b314f b18a77f7 90ae049f edd61226
+Ciphertext: fbdfb3 ef78de01 4091bb32 47d0de45 53bbd1a1 52316051 2ac3bf5b 30d0bbd7 ec5cb4b2 9c96dbee 3bd00cbd
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 7fecaefc 450174d7 6d9f9aa7 755a30cd
+Plaintext: 90a9a587 4bf48eaf 70eea3a6 2a250a8b 6bd8d9b0 8b08d64e 32d18177 77fb544d 49cd4972 0e219dbf 8bbed339
+Ciphertext: aebe41c5 f63189ac 92bfecac 0a9cc7af c74c478e 138eef17 e88752ea a83aecb6 3932eca8 009f3bf1 4829ffbe
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 04e1fd40 a41d370a 1f657450 95687d47
+Plaintext: ba 1d36d234 9e23f644 392c8ea9 c49d40c1 3271aff2 64d0f248 41d6465f 0996ff84 e65fc517 c53efc33 63c38492
+Ciphertext: 86 a5710059 48b3f6a1 91b46021 6c51caf3 fdd2159e bde0aef6 c92a5909 e25b9fd3 95d34119 2fdfdadc 29d0bf08
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: ab08a3aa 3ff03f1c 55ad514f c4859658
+Plaintext: 5ed5 881e8156 8cbbe99f 6d25c8eb 090d191d 4a073101 58ec97d5 0d7c1508 aa480f41 c8d014a3 91e8b350 2f60902b
+Ciphertext: 16bc 445fe2a3 fa75538f f035cce6 bec00b35 cb34fe45 d8ce7119 3ace7af8 ec43280f a2847046 f62e4476 02b3277b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 85e3b7e3 1d202f2d 6228d350 10175de7
+Plaintext: e8f7c4 e2a8e1c8 cf3a65ca 582c2de2 0c60dc2c 62053c62 fac599b0 274068c3 abba2d24 c1109bc4 61f1fcd8 bf4ad3e6
+Ciphertext: eae42b ddab6a11 b6a983ab f7ce3d14 191c827a 172bf1a1 613ca62f c2a1f755 cfdbd3f2 63f649e1 290dcc25 c6696078
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 1502c020 a2e8a5f2 f2ea07d7 6187b770
+Plaintext: db87b1d7 e5e94431 e11d7382 8d739cc6 ced4573d acb0a106 9d373aef 06cc4b8c ffb64c86 57192536 d7259372 cb8ecea7
+Ciphertext: 9e59fbbd 961a29d8 2133a6ac accdc14e 725adc0c eddd97d5 cecb918b 93f6b22d 13ff1907 c67e6990 4f17cdcc c8b11232
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: bf3c6928 874379c6 8215f9a1 1ff76d3e
+Plaintext: 9f b1c6d91d 8a86fccc 73245081 83b2b471 a3bd8c3b 8b755b29 ed0d95b2 ef65ae44 dfe77741 22afaa48 6eeec3b5 3a90126b
+Ciphertext: 8e 8f169860 6bf2ae32 009451eb d2646bd0 1610bf45 16f80a87 30f68b85 d68db6a1 0fba9f3b a5770af3 9acccd6c 1e3aae72
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 721c0fd1 6edced1a 253f72ca 9e7b0575
+Plaintext: a876 09cacbe7 69d17eb8 74719ab0 ec350f4e 5950d6f8 a3de2755 e06cebf7 6bbb743d 36c16c77 61f10b4c 0bbc8d59 6858e41b
+Ciphertext: 3733 0e8a3224 4c47e5aa a7350303 0f588d54 72dec674 6e93f213 5acb2bc6 fad06f4e 70a0c413 764198ab bdd819c6 dce83c32
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 13c0aa0f a6fc5917 89a2be20 079dab02
+Plaintext: a72ded a7b92f7d 702f9ffb d4ae5b57 4be529d2 6a1efc25 4f1273ff 3f02a3b5 8e031635 bf9a133d ed8820ca 6ae7c6d2 a5769435
+Ciphertext: b5bac7 39bde524 a4f87ce6 8b620243 a0815abf 326cd393 37ef67d8 7b0ad1b2 c47408dc cefa6b89 aa5b9e59 ecc25381 4203cfa0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 513267f2 c326e896 9c8355fb a9f3852e
+Plaintext: 072b26b1 8bbf4ae3 603b22bc f26f08bd 0b0ac327 3c6b076c 7fb33ce3 1a1f80bf c795ef42 117c222e 01d1f57d fa778e51 e2cf9b2e
+Ciphertext: 1eac44d9 3383d1a7 c3b5dd5a 820875b4 2531203a ef40cf81 aab3300f ffb02cad 1bcd52bd 6a4489a6 9803a221 205022a4 e4fd6c14
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 8289da67 30badfd6 ab2e12d0 46fff758
+Plaintext: 49 66b29394 d2ca7d85 372dd91c a9746e5d 296970f6 bfc63d22 c9404acd 92c45cf9 2601fb60 6526235b 57ed3e02 bfd84f95 f3ba701b
+Ciphertext: 25 e7d80807 458af8ca 1e522765 52ec6c86 e6ef4228 17733bb6 443e4b2f 4b261b04 363fb10d 9bce2cbb 65a4f6da 45911e70 d982ba06
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: ea7a7e48 971413a4 75e0b4ea 64174cae
+Plaintext: b393 d9437ed6 66dc3a4e 39f18ed8 4de56482 03e54195 1413d1d3 cae4c7fd 70c6e498 070754f1 3af2415f 943ba3c8 f19d5566 32c16ecb
+Ciphertext: 1109 68960fef 096fbfd3 ad58e0b0 f7d9a48d 5ebfe40e b56aa064 f5b895b0 0a4c3ec5 a2528f53 e94de68a 06b127d2 da71692c 8bcc7f7b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 3562ce23 05aff7ba 4df01fbe 136d8345
+Plaintext: a28bfd 91c839d9 93428ae5 af75a3c7 bf5fd893 5acc129d 56cd748c 8b663eb0 da87f196 6f3db4d9 422af63a e43355f3 7878be49 ff89d661
+Ciphertext: bc3558 4a9c7227 4f1eb510 62045134 f0988af6 8d0bed9f 300ecd59 54d4aa5d 6196e16e dd9a0a77 13511e7e 56579ad7 d6ef1b34 8cc1694d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: dad79954 89684185 b9cf6a33 7e5c734a
+Plaintext: dd90277f 8dd39d9b fe695c17 9ba3c3ea 4d52a99f 408140aa e9643ffc 488b40d5 6a5b66da 33bf4467 5a1bfa26 b582a1e1 b728ea94 371a01c7
+Ciphertext: aef4599e 04f97f7f e979b02e e16a0c1a cb5cadb5 24698087 6cda711e 2af261b4 dd25e683 da8f19e9 b164a65f c6229470 f71bb5f3 f808a148
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 722cb81a 5433e122 f375fb73 5d5e12fe
+Plaintext: 93 75e09ed5 8e38ed20 40a55cf6 994e835d 111cb52a bd1fd87f c52e7393 18ce09b1 5e56a684 2f50b791 82211e05 68ed86b1 fab5f453 8fc29f17
+Ciphertext: 4d c36406c2 142b91d9 0a9fcb74 e89cdfc0 987cdeae 770420da 8f2bfe48 242b6062 1cab7975 076ac3f8 7309ea86 c7085b35 3b4de0f7 976a7328
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 3347025d 55422fbd c0a36648 cdb0e611
+Plaintext: d6a8 03ededa6 7976cec9 00561392 21c2a78d 47447d34 19be8210 07acd021 23a92480 33359243 04b577a1 01bbb057 03880949 6bcff86d 6fbc8ce5
+Ciphertext: 6b78 e4ddf79a 47f92f13 1e1f7435 596842e1 3ebdef03 27b62e40 3f840ff4 57c41dcf 8eca39e4 4144c185 bbd7ed81 248161dc 47b4020b 15742ffe
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: b135a06b 166054f2 d565be8a ce75dc85
+Plaintext: 1e0bcd d8f07141 c495872f b5d8c0c6 6a8b6da5 56663e4e 461205d8 4580bee5 bc7fcdd4 de8e8638 43eef288 d3fcd018 e6bedb47 aabc4bfa c4119e4a
+Ciphertext: 3d86c5 cd40a586 ba79c5be 52ef8ba5 8c172f32 b917c42c a5243738 dac0349b e93247ec 3baf9322 6f73c0e4 4fe514c8 d7707ddc a332d257 7e297daa
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 3ac1987a 904d892c 3185ced4 119e9a6c
+Plaintext: 9184f76a a37107ef 2ebf9041 b4fbb77b 323a0c83 47b0c73d 997e51fe 75cc0744 b5183aa4 e7cd7a03 ab181409 5df7d9d3 f49321e8 2acf106f de21189f
+Ciphertext: b1718536 916226a1 fb57ff93 4e254ea3 78eb833a 25952ad9 672c7306 191aa1cf fda4de5c 5d66d209 f980d601 ab6a6a51 139506df c6e25204 45e358d8
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: b6a1bf76 085fa3ae fbfabbed e96edf3c
+Plaintext: 08 2e8bba4a 73e09181 d3eb2ac7 152a9d1d 444c6c52 02397027 1f5213b0 6afac0fd c75598fa 824f6794 e3e1d61d 0390e2f2 dd368c5b a804d2b2 65c8dfc8
+Ciphertext: ce 4dbf6b0f de532234 597c8af3 f753c3e6 80e9e77b 999eeed9 c1cb43ab d0411ee8 bcaa43ea c94a8f88 c2a3383a 2a8e8544 1835f84f 3b794855 efe7ef6f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: b46c7f84 ebbfd5cd 697950aa 2879dba8
+Plaintext: 9250 547d9603 40eafa0d bde6f3a4 b7f8f33d 5fe5c252 d98bd063 350dca3b a1306b74 dd05953d efc9a05b 1709f26e 0509cf76 4a677395 0dfc5e17 ff03f0af
+Ciphertext: 4135 c1b67614 2d3bc58c fd933f04 14afd4a6 89b9b311 c8e07921 7806ec7c ff9e5877 38e0596f 9ae79197 0aa2a62d fd7e5e5e 4b3de482 40423843 0a6aa923
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 917d3503 64d4026b 00be41f6 ca6489af
+Plaintext: 30c4f2 1e275327 11d7e7bc 9c94d5c2 5e115699 06d03006 16dd9285 e7bc3fe1 eda0ee01 3ddef105 4ca01692 fadecb69 cf8a853f 840b62c9 c5ed0d16 35d7e221
+Ciphertext: 83c9cf 2244157f b16d75f6 ed3e8194 05d8b47c 3afe377b a2760933 ad496022 39ab1f7b 6c5c9ed1 5d8f77b3 c7748653 0599fc78 c2fb2fce cb6553b3 2283dc57
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: b3bd52a7 dc568936 d0d14f87 39c42c0d
+Plaintext: 8a65d0ce 85fcb172 0098f699 e8019472 86efb78a 017963e1 25d05b43 622d42d5 180800ef 128b6729 504617b9 09249efc f09ee452 b72ec72f d107026f 7d0353ea
+Ciphertext: 399b2ab3 72ab2e01 de18fdb5 7e1f1778 2ecdc5b7 a5029d54 c05106c3 d795f2f0 421b4179 1acb59dc e5db095c 69563311 4a75a3ba 919c8a42 65eb3289 04ab0607
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 00dddd49 31a0cb18 3b5f361c 9f2748e6
+Plaintext: 78 32a2a803 5dfc485e dc0bb390 2da874ca 4a2e85ed 2324644b 4b1c6ab2 f2da59a7 13b934ef ee4b5354 b940b6a5 93899aff b9bd4a4b fcbb3808 73914c4b 6d9c7c03
+Ciphertext: 8b 75a7d8e8 0ce475a6 3e557871 575e4126 f2271375 025fb029 eb9782fb 38f03275 bbfdb123 59645f3b 6b65dcb8 ade275c3 92022abe 22befdcf fcebfdcd 4396003c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: a9f19d82 cafc7839 056721c3 1d3d8426
+Plaintext: 9150 415514d8 baf93d5c 697080d6 78165d12 8bc4d757 e1972849 9bf3b30e 5bc73ab0 111251c2 12a61247 6b2c13cf 746895e3 a8befea3 b3f58aae cd3c3d42 476a1ca5
+Ciphertext: e2bc 5845d716 d362b19e 1fee23f4 9d7b2106 79857156 b3a41b58 a26c5b81 8859451d 289ec249 16d12f24 56dc2dec 0e995a3c dc746750 9122a342 a520d49f 010d77c1
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 638a9cc3 69975b18 f7840ed0 997fba2d
+Plaintext: 997728 2a19dc93 5e5ea6a3 226f989f f6dfc6de 21e7557e 98b88259 210ee535 b809f73b 3239d3ab 20f739cd f6fcd82b 6d2ccdfd 25b367e5 8f532ddc 0afc226c 4c9e4721
+Ciphertext: 0b8fa9 3d3ac68a 0bd6292f 063b49f7 201b9f52 0d2e082e d1dccea0 bd6d8bb8 90ba7763 e1838529 18346856 95846317 571b9caa a0350313 c10b1bc0 ce8fab3f 715b82fb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 043b623a bd40fea3 0615b328 d0f3a7e3
+Plaintext: 17f655f6 c5738d80 d38bbcc9 b1006ec0 e84811a8 fee0fc0e 99e3b0fe e8db5d76 3fd7a81b 01beab2b c3e23db3 aed87402 2588695d a8803bf4 f98e5715 7d8df6a0 e47fe7bb
+Ciphertext: 6b362010 e85bfb8e ac04969c e306c167 1d99d18c 19580931 bfe60222 1e50a412 60808e39 7ec7c913 efd1d4ce 32740cb5 85e68370 e3c4a6a3 ac0bfece f654528e 256d492a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 0ddc8ec6 232a2d92 0dce62cd 0522f1c1
+Plaintext: 86 c7c43f6c 3d30d557 b07a4750 159a3daf 763e3a3b 8a12cd94 893f0bce 3e313c5f 5e9ed53b 18c4a73d edf255c9 c2490bb0 34c46d53 2b76ce0c b213a3c9 06b237fa ecd1a0ae
+Ciphertext: b2 6de05b59 80bdc46f 8f438494 e7ef5ee3 2739fc86 219976f5 bc8cd6d1 da3fb907 df15fcfd 1cf8996c 60ff37e2 72bb5098 be883fde 106175f1 0d5330fa 46a92c13 b8dcfacb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 489af1f8 ec65b198 ae7d8cd7 bd2749b3
+Plaintext: 35e0 fc3cf0e7 7d3ea0fb 18201a66 860cf53a 1c5154db 430500bd 28eeba6f b5a3cfd9 bfeeecc2 81753495 49999064 719f462d 910dce5c f357e192 47bbd2a5 986a21e8 7fe84eac
+Ciphertext: 2986 36855ebf 21eeb1c1 368ea4fb d1cdb07f d23e5662 daae5ac5 db97c2d1 a3317890 4f3727fc 6919e2b1 74fc2758 5a4876e1 7ffde1c0 5ffb1ca0 636a9f6e 1ef91883 e20e5145
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 97b5eb06 302df5d3 48ad64fa b7f701f1
+Plaintext: a9d878 835108ae d0dc5154 95a4f3bd ada748ec d837a4f2 bcf37f77 29f5d696 a14dceee 18ae9bf5 f868a090 6896d7e1 ce997460 92c5c52e 26595da6 43b57134 75c7826a d9c73c50
+Ciphertext: e52b4c ea70b704 cfabf478 4e38872e a63a4751 49bbbdde e150307e b39e4b34 60326338 190099cd c060a5f8 4e6a9ff9 ad7a3b35 51040bc3 07b5ffbd 0dcad56b e68c4820 402d9821
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 25249ffc eabe5c63 1655826f bd415952
+Plaintext: 19648e19 cf5e9184 73ff3c15 4f02b567 60f895c1 a2824aeb 8ec3ba40 e0152805 9dfb5cf9 5558fe2d a5de4416 01c8cde1 b0cccc06 184b6820 3ccc63fc 83a8faf0 bb060d6e 5d0a80d8
+Ciphertext: 79084d09 5961a99b 017cefba 3030918a 2fceb80e 6a7b2aee d01f67c9 3e781107 f16924a2 87af0f38 79d00c80 d019dc63 307af2bc b7f92cf6 0d7bddc3 fe1a0cc9 a4f4786b 0542c142
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 134ae196 77824b67 1e888af4 d5827fab
+Plaintext: 2a 56c6ca2f 6297ba7a 6eea9f70 dedf2dc4 2c5cbd3a 96f8a0b1 1418b360 8d573360 4a2cd36a abc70ce3 193bb515 3be2d3c0 6dfdb2d1 6e9c3571 58be6a41 d6b861e4 91db3fbf eb518efc
+Ciphertext: b2 de1f55ae 28261f19 a08677f1 0a7e3333 8b7694a8 a6cafca6 34b6ee1e a877b07d dcbd465c 0fd09d24 afb5b861 6fb5a1b3 75766492 08e1a732 c25886ca 30530992 4cd24e66 461eb4d3
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: f048d7d5 8953730f f30c9ec4 70ffcd66
+Plaintext: 3dc3 4201c36a ddc0111c 35b38afe e7cfdb58 2e3731f8 b4baa8d1 a89c06e8 1199a971 6227be34 4efcb436 ddd0f096 c064c3b5 e2c39999 3fc77394 f9e09720 a811850e f23b2ee0 5d9e6173
+Ciphertext: 3b25 af234a15 4de427cb 3f331898 45fa8617 c05b2969 445916ee 80a9472b b8d1ba60 31f93a6d de8d68d6 9f254e98 dba953ca 68c9b95a 94c30e21 6d2ba14d 9b912e31 a68ec98f ec58da83
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 609d86e1 c0c18ea5 1a012a00 bb413b9c
+Plaintext: b8188a 703cd6ba e31cc67b 34b1b000 19e6a2b2 a690f026 71fe7a4c f4d12dea 320ecd49 9e72f12f 38064f0c f9f33978 719668dd afd7f971 61b7b568 3c299567 9e23853b 72f469cb 55d85e4b
+Ciphertext: 4d00f8 9e1fe3b8 5467ceab 06ef8eb9 8bc04ae5 301e3be9 98f71fcb caf4963d 58a56dfb 49969a31 13632966 b2fbe616 20485fe5 838e0468 ac639b88 a39ae0bf 5d1f5858 24556e93 7161a990
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: f6ca42b3 c3997670 c23ee259 bc6d3ae4
+Plaintext: a16a809a 281ecbc8 b66a4678 81bb7b9f f5dfd298 571754d1 a86db5c5 cc47922a eb3df76b 18282458 307b911d 05d72f70 bcd9f10f 74378b6a 290b7a9c d76e44a0 e24901c2 b5681a53 a9d051a1
+Ciphertext: 3de16118 dde34f9c accd3990 a73cbfb6 632d3232 76cb533b c360954f 32169fe2 ae6014ed 9eb9dfef c1b605f1 8de08de3 75e3b2f3 eef7669c c433d32b c47895aa 8120bfa5 aa94ac6c 1d2fda55
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 29530127 1561a700 6321a2a2 0cc037c8
+Plaintext: 26 0ad8b04d 37a68748 073422ea 118eee35 577a2ac6 1ffd536d fe21e01b 36f63001 42d7c1f6 aeeea219 2cfb2bb8 e550eb71 0d20e297 bafaf0d8 f6918e1c 12bebcaf 3ec83aa3 57e2fb70 00f5d7de
+Ciphertext: 30 bb40ec04 629a230a 9c9d7a67 65200e68 c10769cc ace911ec 07d832ad f9fca251 497ef101 cc5a4131 e65bec6e 5626b829 dbfc16a1 352295ec b8a3e00f 26bc3bfe e224a721 971e7ea6 741663dc
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: f4a08025 9b7eb752 dba7c0ec 307913d8
+Plaintext: ff98 547a2733 851dda89 7b95abac 8e22e785 95982919 12bd290a a9f3d561 d717a38a e0a825a0 092cdeec 08cf54a8 b94e6608 1213e07b 59a24d2e 94330cd1 42a0a69f 48825f98 2e970b11 8b68236f
+Ciphertext: c036 21a02ecb 27acbb97 9401f9c6 ce80f18e 5ded30da 997db1aa 991272ed 70a939b6 23d64ab6 0bd5bd40 72442a18 30c0cf93 b89759c8 1a41834f 5bfb9f4c 35d363c1 69db5c30 b9bfa283 fe2f77ca
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: be281830 dfdee72b f6c7ee18 6af5fe52
+Plaintext: bc3db1 dc7450fe a25c280a 02eda641 8b0779a6 05e54167 b14ff4b5 d21181d2 6badb46c 4b4d5a29 47fba583 c714d2d6 84fa08b7 8f0a8488 96cef349 63731fb1 a57dce7e f3b9e709 0e73d71d 66ea3309
+Ciphertext: edd622 8e84e9a0 b31779a6 76a4fd27 96efb1b0 93529773 edafbb65 9ef64cc7 401946a2 7fe0e5ba 00ed79e8 0e6d72c2 6cb0f0dd 6176dc13 50462b6b d220a701 269f64d2 37e3c2cd c3f91c4b a3c5100f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e0019ff4 d737ee71 61d98b54 d37717c3
+Plaintext: 87945390 dca141c6 7f2d8681 e9561303 29830405 e455c84b 9ada837b 2a04b02f 995a0b49 0feeae87 228f7a57 573fb8ec e6e80091 be4a5a3d c938a468 7104341e 6338be52 93867774 80027a46 b98f6beb
+Ciphertext: eb33ff82 ed40b76d 3e90a902 4727599f 13feff53 c8d97532 f1357cbb 084f493d 3867708e d709beb5 9b54c0cb d39ea49f dabe1753 0d1ffc22 9340378b 621fe9f5 39ca98c2 45edd19e daff19ac 90481236
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: a0975b40 6e00ec70 775bb6c3 b05ee9b7
+Plaintext: 6e 94335270 53e4b620 ef50f616 2d7428de faddbcfb 5dc60c2b ab8133ed fa182341 d733f2af 3c3c758a bcc21076 011bcc28 784eaa6d 4b30386e 90cc6132 c0088964 6a86da57 28c9d847 d3993ce2 f3a8ff06
+Ciphertext: ce c534558f 800cd7ab 24c16d7d 20ac7d26 e15810e4 a8aadfa1 d3ff8eb6 a1a92139 9458727f 1ff4fab0 f3a044aa 09349e7f 16e99804 6ad983d9 611d1aaa fb21b2e9 b35a8dff 3a75526b e834ddb4 4b4529ab
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 7975b5cd b1711cc7 7261f586 98031260
+Plaintext: b3f4 b17001d1 08de9a9c 2160eb62 e801651b 832276d2 e1beb906 96f26a4f e6bc1c45 1f03ae9d 2dd77b95 68fbd193 b0a0a508 bc74849b afdbcd84 ec7c1e35 2c000c40 ce161775 6ebbdc4a b8b88d81 7e6c9f04
+Ciphertext: 160f da78b5ab 7ac7f749 449ba8b8 02929908 775aad61 7dab0672 21d11684 56d10f31 ae32de82 cc822dab 6a12f6df b3bab92f f6c4fb2b e4606c30 505e37bb 76610ffb b2341549 ae9103c7 f345d8cf 92df626c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 09cbc214 ada716a2 a02f9cfd 0db5ebae
+Plaintext: 63b424 a0f31127 85baa107 747becbc d7123018 8404a9fd 2a5a10cc efb06220 5789e2bd 68e561c3 0c16bd28 b6cfa864 487eaa6e 35db69e8 e2c12996 533e8f15 03e6aaca 136c3418 a77314d6 8ea12800 21f542ac
+Ciphertext: 07354b 8b183f3d 5975c579 b3d3b861 fe358df1 dcd0dd81 6b3ff5f0 ddcedced 96536155 5e858085 1e458f25 fda08c98 31b1fb7f f7a5c01c e794231f 6481aefe e0082370 19ccfeba 995432f9 461a1e69 09c4c766
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 6d5b7040 947e81e3 70dec431 7a221333
+Plaintext: eaaf108e 2079affa 4319f5f6 2821ffbb 75ac456e 06392099 8fb98adc 83e625e0 35d7808d 3ed1957d 1e6196b0 26a7e981 95f571d8 01990fa2 f8f6687e e8dae9b9 3c0b097d c823ce45 679e9394 e23208e7 145f7ae8
+Ciphertext: 3429d8ce e4bba7f0 09d18b20 bc36aeb0 aadb7219 5e2f2bf3 41948052 a59063b0 89db0914 e0befdaf 8f8fbd65 1eeab579 b08a2c75 b3579b50 381f75ed ee5f2446 63ad4ac7 f12e7220 f585e775 3a89a2ca 192a6ea5
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 4c4655e4 f3bee77f 6fa566a7 467435c6
+Plaintext: 87 16633c66 fb750c26 6865d53c 11ea05b1 e9fa49c8 398d48e1 efa5909d 398bd043 535b4962 9ec27fb8 f1073453 334896f6 2a07b8be 8ee53f05 62ac5e87 849304c3 82be53a5 af055561 76f6eaa2 ef1d05e4 b083181e
+Ciphertext: f5 ce14ad16 9daff3b4 1c00aa96 425140fc 88ad6ee8 7116e397 3ae0c786 b851b188 fa75067c 5d2fea59 fe8b6a80 102451fd 5f0cd0f5 15913af6 94812331 bbe695e9 f2896068 aa159166 3ee86b9f 61a14637 a7d61b97
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e674cda5 a485f74d 7ad6c8d1 4a954475
+Plaintext: 57c3 f5e99f3b e1716bf0 b9432476 533068c4 5a875d38 453745db 853353e7 031bbd86 c91813dd ff08cf49 1adb2de8 503c3d5c 4f7436cb 2e8c0d2a a4b246bc 78df0bd5 38b67be4 2eae44b0 907374e2 f78a8cc4 1234d648
+Ciphertext: c005 74c21fd2 68fd682b b1e252ec a6648edb 7bc17657 0d6b42df dcabc298 0698cb64 a191749b 692987cc 1badc080 fa9f3ea8 2b68dfee 3ea27a4b ab640e80 16aada09 74cfdda4 5313d57d a6b727a1 3123027f 3b52fe4a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 9c96f94c 8b16cb1c 8b086639 aa8a7e59
+Plaintext: 55acf2 ae83d5a0 6b30627e 850d8fe7 b6769b32 c8a42789 1024e0f8 39875dc5 435c4a00 ca5bc75a 8ce30b3b 26a74d0e 1ea4e4e0 2656ad29 9f2bade9 5d38f7f7 aa2ad096 8d80124a 4cf8ceea 2f4735f5 870db929 ef086f52
+Ciphertext: 025763 3717de4d 446fc3bb a941485b 54b34f4e 8d9f8e9d cdb91f65 0100f408 85ef58ef 898442b9 ea92872d fb2d8801 78e0649b 78550f9e e97239d2 c63274c3 c93f8565 6a1242d3 e81a14f4 44d18b68 212ef363 a7aa8ec9
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: d288b861 2d2320bd 96a986de 7e5b7e17
+Plaintext: b357f3b3 28571144 f99b6138 aa2436ad b0234987 32b1a0bf 10c0b4fd 2552d26a c9e9c2bf 9a3ea7a3 7d352633 df11cae2 41e4a783 f34a3ea4 1f57a11e 0aced8ea 97948236 0d64bfb8 19c34e43 1737f398 8db41c7e f857c315
+Ciphertext: bf2bbb1c 0f068d8e 3ea41268 e4c6715a c19f29ac d16f9bf2 3fb5128b 62ce2695 c5c9eea9 07d45587 c285151b e7ce8575 ac5c73dd 01066d94 e5dfc303 7f469dd9 9829f60a 1c98f15b f941aa11 7019aa45 01c04ced 39f876e0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: cc579667 b6385640 24417d40 0731232e
+Plaintext: d7 2e228fd8 fe79779d 79eea0ca 3ef8b91e a6db00b0 f6151378 d9f90312 0d9aabbf 5cea40ad ce232978 1d6610f0 69a2391d 2db81280 72dd0c9c 423faab5 60ebd7d8 36ee7d1b 0fba5326 86ccf7f2 3e8c3cd1 d475c5af 1275d397
+Ciphertext: fc 21f1de98 af8f39b0 c1c09ea4 05c25c1c 31230be7 d03b4b18 048655da f4bc01a3 3524ae0e 5482e481 7a3dd107 b1b5d9d6 e33beb58 b3a51dd3 80479f86 779cf21e 7dc19192 27579db5 48e829c0 437c3b08 0b43a5f8 32676d6f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 66975b79 92df5c2a a4756fac 2907a0b0
+Plaintext: 9e68 7c59277d 6b438459 40c440a7 0f712b48 3ee40b3e dfbd8fc9 3de784cf b51d4b81 c8ac8b3c 6e7a23ad ac476339 68337b9c 7d8033d0 0b9add30 105488dd 3d757761 0273d292 ec7e9ab9 30c0e2f4 88e43dd9 3dd5735c 85c878f3
+Ciphertext: e844 08ffaaef be156cda ba545f5f a8a6acc3 ec11d071 dbb4b42b 632cd1fc 095f103e d66aaf31 425f7295 7167b701 eb1884cc 0b788b3f 59257fc6 49c65141 b1acf925 6d590893 9114d3d2 5fb4e17c 4f033a52 c2f52d56 b2acf1e2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 107c9ef8 dec0094e 53376347 8d58d2c5
+Plaintext: f5b827 a0148c59 48a96931 acf84f46 5a64e62c e74007e9 91e37ea8 23fa0fb2 1923b799 05b733b6 31e6c7d6 860a3831 ac351a9c 730c52ff 72d9d308 eedbab21 fde143a0 ea17e23e dc1f74cb b3638a20 33aaa154 64eaa733 385dbbeb
+Ciphertext: fdbdf2 1fc3452b 0c746bc8 3b190cc4 62f36529 5935e39c 161f78e9 c9d76027 6f64e9c9 7fbe1fb4 1fe63786 4be7e1e7 4e5aa916 069c5b88 3f25439c 3ae69826 0e5a8d35 6a58065e 0e7b4087 da9f6375 96d10674 0e9e0379 644d5786
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 6fd73509 b857e6a4 19dca1d8 907af977
+Plaintext: fbac4dfa 35ec02be 8281106d 2d99c0b9 6f97b451 93ae270d 58af766c 971fdf41 258d89a9 fb22c540 947a9495 97b269db b6c330e1 d60e8e44 70386be3 3737ae93 fbad4714 cd757344 647c3b93 bfd33eb7 0c02b1a1 c99ea4af 291e8723
+Ciphertext: 60946808 7fe3ad61 a18fc6ba 8b4aa3ac 4d443796 fc83125c ee3eccc6 99ae22ac bd655d11 945ffa6b e112efd6 95997349 24521e4b dcdbc6ba c39059a1 64e11647 b38bc98d 78c481a4 889361af b3ee51e0 a7bfdd9a e23751a8 8bc926b3
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: b9eaecd4 43b58f23 f20d9331 b8300e4f
+Plaintext: ed 22c8b639 fc4079b3 87f0b74a 09d21565 5f236bc6 4c67beb4 11ad6f59 3e14b169 c78e4004 5ae451de f0fbc49d a355a182 bfdac24c 1bd9cd59 aa4a660f 4d56a27a eb19be36 c4a61190 024b3fe8 9117b05a 319a409d caec382a fff17ea1
+Ciphertext: f3 68ed3e1b 9d55f61d 603a9a57 9e983e21 0fd713c7 83d30eb7 2d0f10e0 16059c85 770dcd0c 7deae7c3 382520b9 c3d02022 21eba459 c02d5186 a60c1354 35d8012d 35ade8b3 6573c38f 455b70bb e7a2b511 7fc6b768 686673be 533b116e
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 05da0869 b6ef9697 e18ca112 e56a8ef4
+Plaintext: 7e20 2833deea 4d8000a8 e76f392a 1fd910aa cd7f4f9a 32ef5aa1 e9acc0e0 1b891079 f356ee52 51be6516 c3707f7d b17d13ce d701dfa2 f806d6ea d1a5bb33 4d6eef29 f70b885a b41fa23d b274fa73 9c56b94c 103a8d8d 52a4fe71 424700ed
+Ciphertext: 8229 29bb1586 b4e7219d 8bb03a01 8aeaa757 bd6adbc9 f99ecf0e c932395e 100d9de7 5297b822 1b9a059e a004e9a4 7e49016f 95bad78c 7a0cf640 948bd250 39471bb3 93e76cce 1aa78e7c 45f69fd2 c56b2165 1070ea94 7691237e 365f4e0d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 8b6dc438 1e99d48b df6b5f26 9dc5d193
+Plaintext: 482ca7 2e5e7182 e5a7907a 3d22d8b4 953f4c37 af4e4afb 6c386a43 d76da92d 651dc788 7cabede5 315f93f1 565ba102 b4d0d4ef 95716425 8628e4f7 5a086936 7284ee02 3cdef7df fae2750c c5d3ea10 d1a6cd95 f26e3079 5f18a023 b7584d13
+Ciphertext: f39f93 ad4ea9ef 576d06fc 987ab96a e60fc32b be80ce76 37a4822a f01a16f9 68237922 1ebc1fe4 29e11ecf 3e0ee74a 8fd7697f f81427f3 1a95061c e3111640 5600edec 3b2be98e 1ade32c8 edc4a7b6 f6fcd8a8 1bdabfdd a40f6c8f f9805e47
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 41e36bbd 78dfd798 c797fe72 9174fb06
+Plaintext: 7429ffd0 cf2df620 816e676e f4449ced 5ba30462 3796d537 20e8f5cb c2241b0d 26c13249 3396fe42 74940180 1bb3a0eb 462d8299 82eb39e5 8d3c24c1 61cd934d 6dd62da8 26918f05 bef03602 338f9f36 8ce8ac09 60c64ac9 97fc51fa 7456aced
+Ciphertext: d6fc1ad9 83dd30a5 ea369450 f7be4b3c dc1c3237 d7d40316 a161cf84 01272227 e39f1ba4 31ed2ab4 be10be9a e313b864 fbdd1465 e7fc3510 027d8089 2547695f 4ac9e3e5 287bcbed 12418f79 c6ae5eff 37a0b3ac 0985f00a d5cd8fa1 7ac197e5
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: d4d0b994 b006f294 e9ecce9c 45bfe2f5
+Plaintext: b4 3b4c5bd9 0f510cc5 8e451e06 a7ab15e0 179eb5da dd70157d ee90f558 2bb15147 902837f5 ae96d5a0 5bc8d61c a8dbef1b 13a4b4ab fe4fb100 6045b674 bb5472cc 4e0a43bd 8b614daf cba2cac0 4183a00c 2c92392c 51d78ffc a9b586a1 57127fcb
+Ciphertext: 94 b690a006 675bd626 87d88bfa c325c444 eea20914 c7504894 a4aa166b 56bd8a17 bc412f25 57fce187 5e99dac7 55e472b4 a0eb3ba2 2e9206c6 e5951185 5ec27365 4ecf5cc9 854f2a67 3c093027 19b0c1fa d8c7b96b 11bd1b5e 2eaf2b3e 7fbce09d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: dcb82a38 8efa9b7a 479aa1f9 5aea533b
+Plaintext: cb32 eb63bf52 d8f831a8 0ee8e734 a1cda4fa 926ea0a8 e9893579 03d0db59 2e31564a 735a2e06 b37d60e6 f6505302 ff590d9a 2468a7b5 5c65fe07 9a4bac18 597537a3 7819873c 49129e36 e5e283c4 c2f77f5e 872d8c67 1e950b0c 0b75b56f fd8fd405
+Ciphertext: 0592 be6a8e72 8b494009 3cecbad2 302a12fd 278aa402 18716a82 b40d8e48 24da8178 f0e9b2d9 56ffc8ec 7f1ddd94 a028f785 3bcde6bc dfe21bf2 dfa22f27 95a4a997 4458b625 d0c94fa5 c2c1d769 7c689ec7 1a66db2f 261254ee 3ea364f3 d5cc9808
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: a3a6b33c c13f5362 83a55fc2 112f6210
+Plaintext: 63c538 0757a1c3 500153df a6420897 389c0b99 4e448ce7 3079a1d0 44158a1f 76623992 dc2e128d 9a22ef10 044f67e7 030a5020 bafa82c2 696fdebc 91f58f1c 592a9081 30cc6ed3 b4165031 d24d342b 2f967b32 c70aa84c d50c650d f2dac7c2 8063d2ef
+Ciphertext: f507c5 5a552386 3e19bd06 8859bf2a 3e5b0016 4bd4bf28 4cecbbdb f02e2038 8d54e622 121ec203 b676abb0 07bc512d 204aef98 3528a426 dd4182c0 d356f738 cd675b8a a2c21fe5 1b85744a 45809cd3 0e9008a0 45ceff53 04f83817 084faed7 958fd33d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 495940fc 64867e2b 5963f8cd 84e796b6
+Plaintext: bf9d86ee 3bf93da9 afecb879 b5b608c3 70fc0d70 731a82e4 deba3934 caa6a893 e8daa50e 64de6e7a 1052ecaa beca39e5 eddd5f96 a9796346 ac7982c8 c97abab3 8bea8c16 19610166 5c35ebbb 64496d3c 0825bdd8 cd4c2938 0ac958f1 490cd3fd eff4c36c
+Ciphertext: 004a2087 62d5e8c0 fb095db5 8c87ded6 26585daa a8541b3b 02a8d84a 1d341806 5d8ed204 3432574d 8c7a6293 7d6efe06 d176cedd ee9c22f5 72fa55b6 9ac7f8a3 22131ee7 0e7c3b24 10f3a19f 7e0b3721 f7bb16c2 352a31c9 01426883 032dd375 5f187622
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 202dfd57 ddbc3b16 6fd8acb2 09fcb09d
+Plaintext: a9 3adca13f d2451711 03fb595e 21d37a41 e86a34d9 106621a7 21ff2e37 89bf4e03 ec856b94 bbd0a2ea 083aaf1e 9943a646 3b50e599 58f446d4 cc6d99dc f57251a4 092c7d51 ad82fa9c c399e778 839b5af5 cdb85165 bd6becbd 81ffd93e 67510f54 3ad7bfbe
+Ciphertext: 09 bc7b08b9 f0ff327b 06567d95 663c5dcb 1cdf06f2 edb4dbc5 db6d5300 e8bb55f9 873ef27a de8abfaa 50895185 e460d90c 62b23432 417a78fd ae167ed1 19df40f7 399337e9 49b3a8e9 a1b8830e 7003983a 3d0ebf7c 5faef6c0 7de054fb a390bfd8 ab3ce9a9
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: cfe187ef db1feab4 0764fd18 47a96285
+Plaintext: 6755 7a2be7bc d7a508e5 f0da2790 19224a77 b2abf9d5 9e1a4f25 f775502c ff407d39 5ae6a6ac 7b5b00b5 5d00775e 73c745cc e197c4c1 ecf28066 afd59148 10df28a0 f3b667d7 aea77649 bc8cd34a b5f3e966 7d7ce5ed bc83c5b0 8fffb105 7eaa8f11 ad63d246
+Ciphertext: 535c 168959a4 451cb4c6 57e433ca ec77d3e4 857b95e1 45b8f901 688d6cbc bf9e1613 0ec239b5 1c49a4e1 aa671bcf cb447d3e 87be615a 489bb02b eef0f4b1 cfc1f07e f6927eff 774955a4 59b9da75 000c81bc f72f7593 618c05d6 26236196 87ecc5ea 868f3143
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 56d0922a 7647e25a c7ef5ecf ef220361
+Plaintext: f71644 89febd59 6b2fe9db 14f0b48e 005c1f7e dff4f94d 989103cb 8f9e51c7 2483f325 7c64d531 830ce433 31247244 0da9dc5f f09d6abb 0cfc7658 2cf1d1d8 3d4a6291 0e2a10e0 54fde3c0 f1b1659b 76244f60 e6d861d5 bdee922f 305269e0 b733abb0 c9b6360f
+Ciphertext: afce46 7c1c2f46 58e96ff8 4889b3f8 278a64f9 fd6a4759 40ba601c b10212b2 d86cf058 61ec3115 6c0c48ad 690e8fa2 2ef09a8c b28d0755 18220ebb ce5b1875 e73dc224 5d6b8407 5a1bf131 af0a4983 ce17d6f2 cc5adccd 1680db36 ca8df508 6eff25f8 75c52651
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e6eb2da9 db00553c 42b4bfa6 480fa843
+Plaintext: b3509d75 2328e384 972515a9 34710f65 42bc0b17 78770ace 7943765c 9ea905ac f60be055 8bda056e e70ae9a5 d7c3628b 6f5ac532 4e7f4bfa 24b8baa8 710e41b8 8f05a3f5 f2d29846 afc970cb 3b15f928 75aba321 e781e268 49fad4b2 47a52410 85282e7d df7763b3
+Ciphertext: 7d329916 437e949d c3c98df3 8f9066d2 4dbd1830 8b0dad31 af49a583 b36bcdb8 c3920f2e 5e6c92ac 26aa2d6d f50c7f2a 063120e3 2b714c3d 741571af 984966cf 071843db 80ac3cc4 45f0b7ee 0e659e0b e1fdf8cd 1f739915 2a7537ac 2f2c63f4 5093d998 48b9c16a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: f54aef44 e7cd9ae5 5d99ec0d cbe395bf
+Plaintext: f3 f30ca3ab d8755ce0 5bc816db 31305ec3 75b13763 550e6a2e 0bea1d80 0f2da727 8aa9a322 0efe43a8 85bae86d 68c5ef20 32fdcd38 131d5ef0 e8e37a90 6b72caef a7f5d936 b0856ee6 904d1a1d 84eb0d15 691a2ded 718e6aac 1a204b83 612bcd52 32366e6e 24d385a2
+Ciphertext: 93 6ce309f9 352bcda1 dfcec30c e9bbc3fb 8585778b aaef9eb0 8d78d384 6f5094d3 0386b8e2 ed90a1b8 d26b09b2 fb523e5f edfb19c5 c0d767a9 d42c9cc2 3194ca04 5101d88f 641f3595 59cc92ad 7a5f5f8e 1da3bd15 a9b6b253 03094655 897f5751 9e42e107 5c2035e7
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 63c6d473 ed6a60a8 0251810a d52b3569
+Plaintext: 88e9 b9df5722 5b5914b5 8a52d3b0 2fe2e670 40f80c0a 91e3e5ea ee18a9ba 682f1a86 ec2eb71d 1a0a33ba 536b25e3 14b00192 83334793 48cefa2d 9e9e5404 aa06b83e 0bf7e8e5 b26f788c f4408336 dd139c73 c8ac07cc 2c702a61 b9243ed1 a4f74a5a 3fc35242 cc90cb75
+Ciphertext: eb01 8988b020 578ccdcb bb9ab7c5 8e36cd63 54449592 d6068003 c300a301 673f496c 87d5afdc 939d5e20 6b5c7d37 ce62dd55 f2a0d3dc 23cfc65d 60c69444 897e956c 635e6b23 74921911 e53b0096 38ff25a8 8db5b7de 2cdbb30b 43d0263c a041e194 a8f6b339 af868e76
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 935a536f 32149f5c 35ecb57e e6d15bd0
+Plaintext: 6632cf e9fd09b8 22af195d fb107315 bb593ffe 57bab9f2 95f27ab7 711ef976 c0ce516f 135e45ea de848171 da25223c a76d79ed b61e0c7e 6628de77 6d7bf164 7a190886 196fb1c9 d6e583f6 a5b4a52a 81f79087 54061529 17ffa15b 3aa5c00b 466ee07c c1d7583b 52fba854
+Ciphertext: ca11f2 646b1b64 d2fd219f d3eeb201 a5b77ebd eb784cca e27ee4a6 f761f9bb a4710f26 371d9a47 09d52877 4177cb78 8684ac1f ec9e04b4 509af086 9b4e1df3 8f49e9f9 2e34bf8a 3ff0f695 dfdd36a4 e09436fc bcaeb305 093c02d9 69e02350 1ae2f5fb bb342b7b cbf9d45c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 256402c5 91210a33 f818dbdc ef9e4acd
+Plaintext: 9f456e55 6bf560b9 d43f3f29 99ed77f3 22de43f7 1e11715b 6cff6680 372e6134 66030429 33d810a5 194e707c f4e4793c 64c970a7 72ef4c66 7661befb 38d66ff8 5586896e e43c78a9 5aadf21a ab083495 b2ce8fbd d3e424bc dfe7ec37 37bffb80 3577050e c74b212b 5d03cded
+Ciphertext: 8b615976 c58688d0 4a0a2be2 78c6b64f 3ffac400 645c4c57 e043aa47 e36bc352 cf7753b5 25d9a7f1 9ea87b5e 54f08bb7 81b37e0a f2b25b3d 1ab16b65 2efedbda 81be8040 1b33eb5b 6b9d6b7d b0a1b1d3 97594288 6869282f 7d5a9933 405ec88e 2ec68b25 b164e214 4040e0a8
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 06803267 d595aa20 8a1880c5 6e38f71a
+Plaintext: 7f 108d36cd 7d80f024 2d9295eb f909dc4c 75fb1b96 c5c8badf b2e8e8ed fde78e57 f2ad81e7 4103fc43 0a534dcc 37afcec7 0e1517bb 06f27219 dae49022 ddc47a06 8de4c949 6a951a6b 09edbdc8 64c7adbd 740ac50c 022f3082 bafd22d7 8197c5d5 08b977bc a13f32e6 52e74ba7
+Ciphertext: c1 22be5492 700b52c1 2752cabd 52d4bfb0 e7618ad8 8597393e 10a17ed3 300abab0 5fdd6037 0904c4ab bca60a90 256251c7 61cd65b4 b6b04556 61cc5c22 1d3ab93c 2619bc6b 69580894 46e80f57 082ddbb3 8cee459e aed5689f 623fad3b d594126c 4c96841d aa4ed045 efb88ec8
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 28576077 ce628c53 5e87dc60 77ba07d2
+Plaintext: 9068 590c8cb5 f1088e08 2cfa0ec9 61302d69 cf3d45a3 d356c502 5ffc3ca4 a7dcb33d 1df3405e a0f5d8f8 f0f0651c 662c1804 e2570157 04dedda9 9f9e2f41 6abc9220 f9d14d3f ec4b2817 67107e66 c2649431 810c2905 86b34e83 858e781c b93cd418 d5f0dadd 3ed1256e 77a18232
+Ciphertext: f32f 26eb8e85 0f3b1916 fec2a30b 00c9a5e4 005bceac 88090343 f90506c8 3cf61719 e32e887b 365627a7 e05d6573 a2a89585 3cef3295 2e619683 078a21e3 992a0c2e bbf24744 f1d4cd4c 2d8d3c6d 3a56557c 1fc1fd8c 303868b6 7ed3578f 64ab099a 40982224 ee681622 6280045e
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: dc9d47f7 94a5e636 c19dc198 f91340ba
+Plaintext: fa2221 2d999610 c2fc5078 0409ed98 051ea2d9 5e036a5f 711d64de f1e476af a5973723 682e0c17 759091c8 e1063ae9 69ef3af3 6eb6a3bd 3e02cf4c 952c00ec 64f6437f d07a9a16 7e6059be 0e54d19d e5b72c3d 30959827 25d8a8b4 8cbbf620 7f810ee0 6e668735 66d67302 92ddfadb
+Ciphertext: 46e102 e2903169 f901665b 5b1315c7 73757ab3 7e7d5f2d b690ce4a 676c5271 2555b85e 05a3c2a4 56fb55be 9c35d1e3 62f146dd 4641c0db e211a9ad 8b4bd341 2a04067b a2a69a08 d62390ba e9b7c771 c86237eb b7d1458d 18cec994 688bce95 9c76036f cc40c057 b6580933 93bb3c11
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 02df415e ab8991c6 af07b5bd df77a372
+Plaintext: 7e9e5fec 48da1d9e b358a63b 7587fccb 46cd41ff e778d5c1 63f7bf10 954a4e0b eab7ff4b 69bfa276 f050b911 c03c2196 3beaf4c7 ed4cad41 ca108d54 b61b3e12 4b33b7a6 d6fb5fe8 a225752e 7ae3af64 699e215f c4eb616e 6abbe932 4bd1bcb0 277a4da5 98789c19 533fa237 ab64ef5c
+Ciphertext: 04a7ecd1 9e0e0fa1 c6e75010 38e51afe 0d38ae06 153ce7d8 58413b96 7d63131c d0c15a6c 46d7fda6 48cc8ec8 65865dde 89235e1f 1272b078 c4742499 79554652 e8e2a6d5 9189f7ef 8c28fabb c22f23cc b1358c0d 99e6ee35 d1d5a578 6108ab17 8f28d0a4 88ffad99 74f0eec8 594a9a8d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 5752926e 743f396f ce5e9952 5b56100d
+Plaintext: 08 f489efb8 1ca1348a 0608d75b a729a78d 6c0d9d06 2e7c6d7b 63665bee 91825075 09352d3e d1b55fd0 e26eb493 93a56c93 565b9481 a2748ffb 3018f60c 6a5aa2f7 21170630 7e21c2ac 3b9d765a 12aad4f2 7644faed 8267fed4 2f77cabe c9df2a15 a4f92398 0b2e87a6 795ec6b9 0c810731
+Ciphertext: e5 20bc2001 27a55107 0ea82029 f3454ee8 c7e6102b 878e0707 b1501546 55b916a8 ce3598c8 4aca6381 ac832cea 88b3159c 54466f54 34c42fbf afacd2cf da9b6a09 f74c0570 ca1dcf6e 9c801254 673d0380 d02a8cc0 b66de581 a10a9f62 19919eb4 e73fbe21 1170630b 73c18e11 e8ff31ac
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 368f7753 b69ee191 c64a800b 965a1157
+Plaintext: faa1 2b7d5f21 d3460477 4cb76773 2cd8fd06 b5ba2561 61b75f5b bffcb913 7e458bd7 c7e86445 d11544b0 af5c0cc6 6c6f326f 592ab9f8 a6d06170 30981b52 9a68bf65 9fe001e1 a69aa2d3 97b0e3c2 ee7f3f93 0eab59aa d7643452 7ae7a25f 8c47ff12 5a6d1e3c 7d5d84a6 aebcd4b1 db8f8b3a
+Ciphertext: cdd1 5064548e c525d843 b90ccf60 3c857e7d 354fc235 3f5fe733 393c3608 a030a06c 47134d98 802b0186 14f7c5d9 d301710a cad1c348 898ec3ee 2b509d57 e6a8fdee e5c39a3f 304650da 99e03dd1 b5d3df0f e1df06f2 9e744a72 219b02ac 653c7002 7239be56 9d13a18b a284bb4e 4d56a096
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 7a46edc0 1df940c9 46f13781 7d6ab1a5
+Plaintext: a197a4 9f7ce753 f39987c8 d95a287e 2b45025e 829f19ec 9d3cbfc3 02955a3f e71b6779 52cbbf78 800319a5 8494d180 3018e892 38864ba2 9503582c 28fb9e0f a071e486 9d936d59 15927b55 f8b012f9 0f9bfe72 2af918ca 7a44c45c 3cd8be8b 974a17b3 c8fc7a60 7ceeb4be 7dd77351 91754ee6
+Ciphertext: 42d77b 223d45c2 cdeaeacc 71b16b83 bfb6c1d4 2f3af859 4401ed38 b43ba1a2 f6e4f0ce bfe79640 a0a48f7c 680207c2 d5710877 0bfedf12 f631c684 c2090760 7852ce68 dd8b7a1d 9bcc3d57 33de085b 47c2c8ce f3221f21 756a0bff c0e13c17 bbc1ddc0 55b31f5b 45a57fca d5dba08a 5d4d0da3
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: a02106ca 14a60c39 85534319 964f06e9
+Plaintext: 1a2d6df4 7cc0ccca 5d317df0 7e4ee0d7 e1259f0b 2bd237ad 4d95b423 6328bb0e dc4fce7c dcb0cc60 dee5b73f 9ed0ba2b 362e6bf5 876f4d9f dac69910 c77c3e0b 57892662 6565bb67 4a1caaa4 b9a1e6cc e764f1f1 ef2657f6 760c7b48 8af395c9 d004fc0d df88a1c9 e7fddc88 96696ca0 3ceeb965
+Ciphertext: e3996570 9c597437 2671d7e4 4477b37f 3ed7867c 7af595ac 8c1eafbb c5672fc4 7f7dfbd6 77a90dfd 8b00126f 632bb198 d5f69ef2 f04ea916 d607e2e6 c4269947 0c5cc341 749ac58c bc2a921d 1ce5af78 f6ffd19d 6f9048a6 f1064968 98813f8e e285c816 c2348173 7c9ae039 612177ec a5b4037f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 2d9f5b9c 6792e033 7436ca2f 92e7d8e5
+Plaintext: 12 c0876dfe b1d754fe d152917c f54bba07 816478f5 7e53394d ede524e4 5b4252c5 b6743bd6 5f236eb9 80a286f1 a0305946 7577726a f959c2dc c0ec920d 88c3bcc2 12701bb9 3046408f 206466e1 18efa8b2 229e720c 2a7c36ea 55e96056 95e28bcf 7b83f5ed 4cca3048 569e1b95 84101112 31e06025
+Ciphertext: 19 e19fb1e5 36737969 b68932b7 fb6aad91 83e827bc 68e0d32b 2310f7f1 28c4619a 405b32eb a06e1b21 643e6cd2 c6c4de26 8d15d7d1 e7ab67e7 05776b57 3424419b f21b9f63 e5360543 41203a6e fd0989c3 ed24e330 de49ca7a fc102e28 86350051 5e739057 ff91aad6 7199d477 1b3177de fe3461ee
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 3a43fd3f 57e37607 ab2827b5 99b6b1bb
+Plaintext: da37 a8abcc5a 8c550d1b fb2f4946 24fb5036 7fa36ce3 bc68f11c f93b1510 376b0213 0f812a9f a169db99 ced213d6 a7d695de 24de3cf0 1ac09046 672b9799 6f45eee8 cd921776 42181512 f1c1369a cf0031c2 55b77012 7859af2e da4cc65a 4291c33d 4aa63ce5 57abe40c cec55b9a 85c04b6b 78f8b051
+Ciphertext: 13ed 295d1ff3 eefd8f25 d1dab5bf ec3fc924 9341ae23 2ac4c748 a30ddca7 06f0e55f 9b5c9da0 8454ab2a f520bbe0 2a9abc9e c6af45b5 33473c35 92235f1d c076e6fa dd4afe4c a732be5d dd283038 46bfb58b 8c7c1ce4 7849f15a 35db2a9a bcbf5f44 ce43bbeb c10a3323 8f8fb353 be04902c ca7a30ca
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: be79775d bb654b5a 9696ac9b ed8541f7
+Plaintext: c86a6f 11cca52a ddb25d0b 5ff767a3 b6d46910 5a703fcd a2559dcf 8920f6cd b17d9ddf a8532b4a 6b3c209a 2838cdf2 48a271a1 ad63a2f5 3865ee54 8f4bc388 1d5f8c5b 5acb1d64 4c0d5120 4ea5f145 1010d852 dffa556b 26b0d164 35d4b21c 42547f0c ad9c441f 890b38c4 57a49d42 1407e84d 779f22d6
+Ciphertext: 031f2e e34db7c3 6d716885 ce60cada dbd62986 5313c2d9 1afcb86d fb957194 31d20ff4 6cb0b764 88490602 13becfb6 942d1b1f e0d50690 1467a037 259ad205 840dec88 cba7bb78 415c50a6 84210038 087d5a2b c41659fe f18df2d3 37eaaf2a fc60f772 7e0416f0 aabc4a26 6c5139d7 c56a4ae5 f1966a4a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 741c8e27 04248c2e 2845bd19 2b2f6824
+Plaintext: 28201caf cd9f9794 5e6de7b7 fdb9cfdf 28936cc4 83a31869 d81b8fab 5cea511a 34334709 37fda8e1 f62c1ebb f9b0252d 4cfcb463 3bb92072 59bc3dea c736c6aa b22bfff9 1e2698d2 e22ad57e f4ebec69 e73eaf2e b2cf6af4 b3120ffd f47c907c acf28da7 09822f0e 2c51542b 76d4ec3a 0243a24b 724bc095
+Ciphertext: 58d58c3f 8836da78 1e934d38 b534c71b 29556527 43107df2 564581c9 5e06099b 7586315f a7ab3bd1 c7580539 4f6748d5 85487454 6dad6154 edd8c85e 52b07736 15ec827b 87224692 617c3dc3 61c665ed 4a48428f cc2548f0 e53ec118 0c5be26c 3773b170 cf74c434 9ecbc8e3 0bc02069 35e08e68 c8bc92c6
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: ef044c0d 6b227737 296f393c 8079353e
+Plaintext: dc 87e2e805 d2ec49a4 f2d8e203 97e8fd14 793e41b5 92438432 8a4ae00b 737109f8 b6c8dd2b 4db63dd5 33981ceb 19aad52a 5b2bc259 32bc0ace 2b0aba33 d8ac188a c54f346f ad10bf9d ee2920b4 3bd0c53a 915cb7df 6caa7205 3abff37f 10ae1299 9cbc1259 5bc37705 0bd417e5 6420744a 031949d0 a7d463df
+Ciphertext: 21 59ca8146 99f33512 2ddcb057 ab7c36b8 0fa96489 7f76e1c6 7fcd0d2f a856e2d8 da5efbf3 e09a165e f19747df 0670899b 33f00cc2 864a3a22 73d9513d ee448c42 b83a0930 9c0b7b11 21286050 30aae9d1 b31d690f cb8caf62 da6dd304 3d534b71 0c57b878 8b9683a5 c7a5ef84 29e5b4fd 51e932ca ccd5b07c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 9fb2b278 833fa02e 235aa172 bd970c14
+Plaintext: 73e1 2907fb64 8b6599aa a0b24a03 8665422b 20a49927 6a504270 09413c53 27d30c98 7da16a62 b1903b56 e310bfff 839e0c71 658dbb2d 1707e145 724f41c1 6f48bf40 3c3b18e3 8fd5d166 3b6f6d90 0193e3ce a8bb4f1b 4f5be822 032232a7 8d7d7523 8d5e6dae cd3b4322 cf59bc7e a84ab188 11b5bfb7 bc553f4f
+Ciphertext: ee8b e6c48ab6 df716038 de7271a6 b81b67a0 4b1effe8 6840deaa 0cab9c31 176b84c6 5af94653 da3386f6 56bba377 829ccc2a d68535b1 a5e89985 2c110167 97769932 b7c76925 9799b773 527e3b3c 68e5adb9 abb161e0 b44b1ac0 f66e7aa6 5f869d65 4e6c8da5 fd822cbf 63c5ea23 8e745178 516a09d4 c41d23e2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: e44478ce 287a1487 9990d18d 12ca79d2
+Plaintext: c85514 9021cd5c e8ca0371 ca04fcce 143e3d7c fee94585 b5885cac 46068b5b be4decdd 8f1424cd 36f82dcf 1bcf597e b93993a5 fe77e8b1 f5814766 a25285d2 2e87a47f 442855ed bac6bb3f 74c67235 85fcd05a 987c6b7f 8facdb67 699ec1c4 699d0862 74066aa3 bc5a362b 9b9051dc c1b07b05 929dd4d6 ca329f18
+Ciphertext: 1598ab b308f9a2 9453a92d 97d6f8cf 86f6b99c 85dd5847 1363faac 9a3b7672 7a75a8f6 226b3da9 f4c19314 dd1f3d65 455239c0 8860966b c3f257cd ce070bf1 6e1147df bc997ab4 fbe7ced5 30660b29 9fc3c13e 28fe6e89 cf16428e 6973a137 9f0d189d 27bf218a d01fe56b 8fec9a9f daf73e4d 3147b8c7 17cbe40b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 6391451b b8b89def ea566ad6 83dc26fa
+Plaintext: 59d6fe5c b67c1d0d b5842da0 ef3b1bdf 57d41bbd 6300ed8c 6dbf5e70 58751114 76407f9b a9893dda c9d97ec4 46eed825 0f0f4b94 b29c7fa2 c4e94d58 834c81e1 ba75de83 e5fe63d4 9643cd2a 17745d53 51e9db86 ecb5db9a b87d3f76 4c8bfdc9 ed1e23fb b1041863 e36b24ba aaf532cf e60ad57d 5b728ada 11233db2
+Ciphertext: 40bf4569 83d09573 36a6118d 4c7e7331 2281af26 11411197 7c8bf6a9 48a6f0ca d7eaf16e 8a78528f a91d313f 856d001c b2832e82 fb3d9c9d cbe010c5 47aae2c3 6d337fb3 aa4fb248 a2b2e11f b7a6a14f 8c48087d 4240f97e 013fc33d f1d89e48 1e292fc4 e85f8f66 0b50fd82 d495f051 345b0a86 45504ae5 cf90d864
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: fa570e34 d6e254ea 54c3e2ef 7af98a5c
+Plaintext: 46 98e00396 1b406045 fc13cc97 824df4d7 db3a8a3e 6a7b3a17 624ce021 9408f835 85ee5528 c42517f3 7afed711 437a2429 3c0c33ed 5e9fd242 0adb9ea1 e4a476bd e5e42f66 ac8b89ad 15d46249 0dc92a39 a50997ab 65c99a1d e21991c2 9268be27 e04bf816 7c7aa0bb f51bd705 8944ee4f 3cbb1e40 27007aef 138d214b
+Ciphertext: 83 3517aee3 3540a6b5 5c0f91bb 8414cb2f ca43b3c1 320c2af4 70db3aa5 6504c9f8 80860d34 30dbb529 d153ab35 faf3eea3 f03aa6e9 b7a51591 10a57718 00a0e319 33a88ca9 e0ed3ec1 ad9cba06 fbfe8e05 d5e67731 11651118 55e498d2 4d351005 6ef93f3a b9859a93 fcfb10a3 92298181 575bf700 dc871827 18c59011
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: 465cb8bb 9daa1801 dbfb4364 415e9d0e
+Plaintext: 5ff2 59b329a9 31734d4c 5a02c4bf b706a787 4dc04589 f7ef7214 5af12222 1c2c36db 51ac955b 360d7fb5 229c1e38 b9b95ef1 6380ff70 fda8e9cf ceaabff1 bc26b608 bf83a85a 97d76444 ba06497f 912d13a2 e341f4e8 92f3e734 85d74152 e5c68880 8c81892d ba96a500 0a886c1c a52a6da3 b64c4b78 1e99144a 68c0cfce
+Ciphertext: ae06 ac107832 5919227a c6cbaa71 2830942b d0292312 fedd5852 d39b5ec1 c40848b5 746b6c99 58660eae a8121d76 275e5033 a0781833 f82e7441 81d8d6fd 1f565723 5430ccc8 2f9d5a9c dea029ac b249f3fa 76abd507 5ecda67a 3512ee6c b30aa0fe 09618513 fff05b49 f2dc829f 0d07f63b 407d4436 ac78d7eb 02a85936
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, no IV
+Key: ffd2544b 9eeb615c 0915e9f2 fb69af98
+Plaintext: 5f7814 fbc2e92d a9096319 195fad92 ec7213c1 72df0c57 70ea1bd9 2073f33b 7a26deb1 b2f15fc2 02bb169e a953e5b1 34a65178 fc362b94 f0c76f1d 945b6c38 4a6125ec d12af831 0b9c7d4a 032ab155 2e045421 f18a8f3f 6407da5c 569c1dce 917a156c 5e54faa3 4c155fc6 2ece59a6 63f2e363 5ac58181 5412243e 6c1c4e23
+Ciphertext: da95a4 e132a094 75635ce1 89e10a44 87a1af15 f7a99328 4aa3adf0 b756c9ce 76467f9c ed84d92c a27578e6 8540afa4 838c7c85 7619ff44 3ed4174a f46044d6 5713c51d f6aca4c2 9c8be737 a01ff0e7 35961fb4 66f42a7c 67639f88 5674a378 9e31cdd8 0d463004 710deff2 a39ba3d3 2f2503bd 08bba0c7 9b44f212 0bee67cd
+Test: Encrypt
+
+
+AlgorithmType: SymmetricCipher
+Name: RabbitWithIV
+#
+Source: Rabbit test vectors, Test 4
+Key: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+IV: 00 00 00 00 00 00 00 00
+Plaintext: \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: \
+    ED B7 05 67 37 5D CD 7C D8 95 54 F8 5E 27 A7 C6 \
+    8D 4A DC 70 32 29 8F 7B D4 EF F5 04 AC A6 29 5F
+Test: Encrypt
+#
+Source: Rabbit test vectors, Test 5
+Key: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+IV: 59 7E 26 C1 75 F5 73 C3
+Plaintext: \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: \
+    6D 7D 01 22 92 CC DC E0 E2 12 00 58 B9 4E CD 1F \
+    2E 6F 93 ED FF 99 24 7B 01 25 21 D1 10 4E 5F A7
+Test: Encrypt
+#
+Source: Rabbit test vectors, Test 6
+Key: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+IV: 27 17 F4 D2 1A 56 EB A6
+Plaintext: \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: \
+    4D 10 51 A1 23 AF B6 70 BF 8D 85 05 C8 D8 5A 44 \
+    03 5B C3 AC C6 67 AE AE 5B 2C F4 47 79 F2 C8 96
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2923be84 e16cd6ae 529049f1 f1bbe9eb
+IV: b3a6db3c 870c3e99
+Plaintext: 24
+Ciphertext: 66
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 5e0d1c06 b747deb3 124dc843 bb8ba61f
+IV: 035a7d09 38251f5d
+Plaintext: d4cb
+Ciphertext: a3f2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: fc96f545 3b130d89 0a1cdbae 32209a50
+IV: ee407836 fd124932
+Plaintext: f69e7d
+Ciphertext: 14b713
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 49dcad4f 14f24440 66d06bc4 30b7323b
+IV: a122f622 919de18b
+Plaintext: 1fdab0ca
+Ciphertext: 030a9955
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 9902b972 9d492c80 7ec599d5 e980b2ea
+IV: c9cc53bf 67d6bf14
+Plaintext: d6 7e2ddc8e
+Ciphertext: b2 82d6e087
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 6683ef57 4961ff69 8f61cdd1 1e9d9c16
+IV: 7272e61d f0844f4a
+Plaintext: 7702 d7e8392c
+Ciphertext: 0f0a 45cedd90
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 53cbc912 1e33749e 0cf4d5d4 9fd4a459
+IV: 7e35cf32 22f4cccf
+Plaintext: d3902d 48d38f75
+Ciphertext: 93d14b 059019b7
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e6d91d2a e5c0f72b 78818744 0e5f5000
+IV: d4618dbe 7b051507
+Plaintext: 3b33821f 187092da
+Ciphertext: ce4997f1 256ac8c8
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 6454ceb1 853e6915 f8466a04 96730ed9
+IV: 162f6768 d4f74a4a
+Plaintext: d0 576876fa 16bb11ad
+Ciphertext: 1c eb134457 8bbbc8e3
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: ae248879 fe52db25 43e53cf4 45d3d828
+IV: ce0bf5c5 60593d97
+Plaintext: 278a 59762dd0 c2c9cd68
+Ciphertext: 5f05 202ba2cd c8a29e76
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: d4496a79 25086140 14b13b6a a51128c1
+IV: 8cd6a90b 87978c2f
+Plaintext: f1151d 9a95c19b e1c07ee9
+Ciphertext: 1505b5 06ecf6dc fb9b564d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: a89aa786 c2b554bf 9ae7d923 d1559038
+IV: 28d1d96c a1665e4e
+Plaintext: e1309cfe d9719fe2 a5e20c9b
+Ciphertext: 87d03913 a7d356bc 6963fa06
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: b4476538 2a4689a9 82797a76 78c263b1
+IV: 26dfda29 6d3e62e0
+Plaintext: 96 1234bf39 a63f895e f16d0ee3
+Ciphertext: 20 a9a8f3c4 dfb965cf 5a879c4a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 6c28a11e 201dcbc2 033f4107 840f1405
+IV: 651b2861 c9c5e72c
+Plaintext: 8e46 3608dcf3 a88dfebe f2eb71ff
+Ciphertext: de51 85b5e39a 03e83143 9a699647
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: a0d03b75 068c7e87 78734dd0 be82bedb
+IV: c246412b 8cfa307f
+Plaintext: 70f0a7 54863295 aa5b6813 0be6fcf5
+Ciphertext: 938ace 26391bd7 17f6c4f4 33b0480d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: cabe7d9f 898a411b fdb84f68 f6727b14
+IV: 99cdd30d f0443ab4
+Plaintext: a6665333 0bcba110 5e4cec03 4c73e605
+Ciphertext: 7411d203 21205547 820651c0 1cb810cb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: b4310eaa adcfd5b0 ca27ffd8 9d144df4
+IV: 79275942 7c9cc1f8
+Plaintext: cd 8c872023 64b8a687 954cb05a 8d4e2d99
+Ciphertext: 5c 9098ccdd c1b7604a febc7abf ebb9d4f7
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e73db160 deb180ad 0841e967 41a5d59f
+IV: e4189f15 420026fe
+Plaintext: 4cd1 2104932f b38f7353 40438aaf 7eca6fd5
+Ciphertext: 0b67 80a34950 fdd7716a 09d62c3d 5647405a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: cfd3a195 ce5abe65 272af607 ada1be65
+IV: a6b4c9c0 69323409
+Plaintext: 2c4d01 8f1756c6 db9dc8a6 d80b8881 38616b68
+Ciphertext: 3d2580 25848d24 a7249621 808c183b e9147cdb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 1262f954 d0e77117 48780d92 291d8629
+IV: 9972db74 1cfa4f37
+Plaintext: b8b5b095 57f5df80 6c6d8d74 d98b4365 1108a5f6
+Ciphertext: 76cb349c d903e0f1 7f5821d7 b26690b7 333f8f4f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 79bdf7eb 15b8e0e1 608f6e3c 7bf45b62
+IV: 8a8a8f27 5cf7e587
+Plaintext: 4a 3b329b61 4084c6c3 b1a7304a 10ee756f 032f9e6a
+Ciphertext: 88 25c72483 51e5a340 d8c87d01 219ed2bb 07cbeeeb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: ef10509b c8814329 288af6e9 9e47a181
+IV: 48316ccd a49ede81
+Plaintext: a38c 9810ff9a 43cdcf57 c75059bf bd1c2703 287f5d89
+Ciphertext: 13ce 66d80f03 ff43c89d 7b0a94c4 82694b22 f4167299
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 5fb94934 4e603ce5 de029842 b20d2bb6
+IV: 14ecbbb8 2f73e251
+Plaintext: 7e7d1d d884d31f 01be506b 16d64321 83191518 982b2c2e
+Ciphertext: 0c9f2b 7e27422d 12c73cac 677f60c0 e579d844 5b18c17d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 8bf90edc bcf0ca0e 3d6d9431 9274af8d
+IV: b5a490d5 5e6a40fc
+Plaintext: 8076024b 176b36b1 21db7d5a ea721e82 8d71a88c b85ed94e
+Ciphertext: 6ff36061 76490fd5 0081c3f9 fee05c42 7aebf31c 09a4b14a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: affabfb0 94741d75 e5dc1058 46daf25b
+IV: 81a07f5c cb1d36e9
+Plaintext: 49 740255d2 ac1a0bf7 a9262340 5ba333b9 358868ad e12ad5b2
+Ciphertext: 35 e5df4b2b 593ea327 9c11f40f 585b4ac3 05535efc 09d687b3
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 325d0ae5 5adce977 5debb569 c53a6c93
+IV: 980d57eb 879adf04
+Plaintext: 68b2 a2d5e6a4 c6bc775f 8dc38fd6 2a2114a9 d4041101 188daebb
+Ciphertext: e9cf ea093866 7b82c9c2 e1d15653 18badc8e f12b9721 7c1767ef
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 731c60ca 20cf5dd6 2f455329 d7a859cc
+IV: 0dea26ed 554e8084
+Plaintext: d92bf8 37b8edd5 7aa05c4e fa9f21fc 3c36858e 81b07dbf eeb1e485
+Ciphertext: edebc7 af917999 4a147f82 23afa965 4fae9b1b e74bb709 c77008d7
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e912078b c6ec66e2 a3f3b9f4 900632b9
+IV: f404022d 2ce01e01
+Plaintext: 74f84390 0ba23716 9208531c b5373e37 0e72fbf2 46cc2609 7ef67ad8
+Ciphertext: 105edbcb c23364ed 6a314f73 9b47bd87 378fe71d 0430d39e f0a3e8db
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: ed559712 ca5702b6 6c086e3f b0e03a1c
+IV: 9bdf3a5f 40ddbab9
+Plaintext: e4 1bc0a661 1d92e5c8 bc782b4a 77c31859 0a0e6a0a 42c471be 0fe3c301
+Ciphertext: 96 f028826e 484c2bda 8695bdf1 99515418 5b9e1c91 a74c128d bca7b508
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: dbff30b2 1a89f865 22513c05 3d4ab3be
+IV: fd8d9e19 d0a1fe69
+Plaintext: d4fa 0467edbf c91914d1 3ff8f208 6851adc0 c5ec0294 12ec9469 30f683af
+Ciphertext: b89d 187f28d1 a8201701 62833600 e84db203 4b24d7c2 d21b0ae9 6741c666
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 639541e3 bddda158 da4f3138 cefdcac5
+IV: 5cef65e5 69c430de
+Plaintext: af9ce2 5eb6364b be00562f 87846a54 365f6cda 3cc50acb 493d05f3 ca0ed7f2
+Ciphertext: 2e6021 9fbff315 e44483eb 0a97e2bf 8548a9f0 ddb488cf 6541fe1f 2dce3683
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: b1f4988f 7418224f 583f7447 ef42542e
+IV: dfbe39b6 e60c671c
+Plaintext: 1b745cfe 779d6b6e 9348a744 b33e02b8 0487b630 22dde456 dd617b6e 3d8c5ce7
+Ciphertext: 4cf7078f 128ce834 9c9f0122 757dfa22 33a54aec 66fd1aa1 7b0d1928 74a1bfe6
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: c467bc2f f2ffc9cc 0f1390a9 24111ead
+IV: 4b41e592 283f62f5
+Plaintext: b8 aefda949 2b3151ca 80ec2e45 1a3935aa be1c65ce 77bd57b3 d3c9170a 4e1632f6
+Ciphertext: bf 167fced9 0f847f76 81533a31 9bbb23b5 0045b57d cfffdb41 c39ba415 164b0604
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 0f861013 d22d84b7 26b6a278 d802d1ee
+IV: af1321ba 5929dec6
+Plaintext: a62a 65cff447 3621ebdd 4ba26a99 a812c0e0 3491206e c7624f3d 84eea0a8 690c22d0
+Ciphertext: ffc9 3b845a0b 52d350a1 143b1b3d 2faa7a93 65dfe69b 381fbad8 c9a9120f 482b6cce
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 247f183f 28c0a9cb 01ffd9bd e464b833
+IV: 8b9ad9c3 408e0661
+Plaintext: 377432 83200caf 83fd23a2 44315cb3 18da3009 e1613475 77509aed 4a63fb3d 49e154f9
+Ciphertext: cde337 bbdf3cda 57ddc959 0efd5834 2f652e11 35821a1d 7e603fcb 0ca343db fb8eb68a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 022c4eb6 0a97c279 9f797c70 8c803fe0
+IV: 4d470a5f 742a9a43
+Plaintext: 4b59305a bb2b94dc 6cb55a9d 2e9c6487 9827a848 ee983348 48bd6ede f1c2a1c3 0e49b5c7
+Ciphertext: 65da1008 0b64e735 b3fe4023 b0e1802a bf08e7ea 9b96a1fc ef075bc8 bf868862 dd27f862
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 80bc3ec2 0be2b9ce b7b111b3 766469a3
+IV: 08cd1528 1cebe95a
+Plaintext: b8 bfb755da 5c13ea60 3e599525 dcf2af6d 80d2e583 5745e9a0 c4ec670f fa023b8f cae4e1f9
+Ciphertext: 0f 55c0f715 b859fe48 2c4fe882 23006f06 9ed87435 c98c9f03 817df16d 38aaec17 e86ee781
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: b9d12d22 56ee3c03 cb8daa17 b1ae0505
+IV: 29c6827f 28c0ef6a
+Plaintext: 1242 e93f8b31 4fb18a77 f790ae04 9fedd612 267fecae fc450174 d76d9f9a a7755a30 cd90a9a5
+Ciphertext: de08 7ff55648 ca0abddb 0b9ae06d 5b992ab9 c31c10c9 3cd06e11 668ec1f0 2dd8b369 494406af
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 874bf48e af70eea3 a62a250a 8b6bd8d9
+IV: b08b08d6 4e32d181
+Plaintext: 7777fb 544d49cd 49720e21 9dbf8bbe d33904e1 fd40a41d 370a1f65 74509568 7d47ba1d 36d2349e
+Ciphertext: 6982e3 2ada40bc cab62d97 13caf99f 00f711b1 6fbbc07c 56d5fa17 b23274ea 9003f4ab 7a2e996b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 23f64439 2c8ea9c4 9d40c132 71aff264
+IV: d0f24841 d6465f09
+Plaintext: 96ff84e6 5fc517c5 3efc3363 c38492ab 08a3aa3f f03f1c55 ad514fc4 8596585e d5881e81 568cbbe9
+Ciphertext: ad2b36bb 66b9e151 bc1d9a42 73fa860a d1c6d5ff 8cea88bd 842d9154 a251d39c f430b1af 5852a3c4
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 9f6d25c8 eb090d19 1d4a0731 0158ec97
+IV: d50d7c15 08aa480f
+Plaintext: 41 c8d014a3 91e8b350 2f60902b 85e3b7e3 1d202f2d 6228d350 10175de7 e8f7c4e2 a8e1c8cf 3a65ca58
+Ciphertext: 45 9de2df5c 876a8fc6 2bcee924 2f67a7e7 c56f9dbc 06d24967 ad70a659 18c87d7c 33a5c73e 2db3ab78
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2c2de20c 60dc2c62 053c62fa c599b027
+IV: 4068c3ab ba2d24c1
+Plaintext: 109b c461f1fc d8bf4ad3 e61502c0 20a2e8a5 f2f2ea07 d76187b7 70db87b1 d7e5e944 31e11d73 828d739c
+Ciphertext: 2766 bcab2086 29c5c87b 9780fdd6 b5278a82 bc965a83 17c843fc 127224bf 51321bf5 fdd737cb 55b3dcb2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: c6ced457 3dacb0a1 069d373a ef06cc4b
+IV: 8cffb64c 86571925
+Plaintext: 36d725 9372cb8e cea7bf3c 69288743 79c68215 f9a11ff7 6d3e9fb1 c6d91d8a 86fccc73 24508183 b2b471a3
+Ciphertext: b515d7 d6a833e2 7bcf05ce 543263b6 8603f2e2 6b3587d9 db78441d da08c3cc 45590015 d64c1735 97c9d0aa
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: bd8c3b8b 755b29ed 0d95b2ef 65ae44df
+IV: e7774122 afaa486e
+Plaintext: eec3b53a 90126b72 1c0fd16e dced1a25 3f72ca9e 7b0575a8 7609cacb e769d17e b874719a b0ec350f 4e5950d6
+Ciphertext: 15ec36e6 23d1f8d6 44600e06 ff4844c5 5b17d682 16e93165 0c9f9928 e613168e f1f7ab50 59538e13 139cfde0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: f8a3de27 55e06ceb f76bbb74 3d36c16c
+IV: 7761f10b 4c0bbc8d
+Plaintext: 59 6858e41b 13c0aa0f a6fc5917 89a2be20 079dab02 a72deda7 b92f7d70 2f9ffbd4 ae5b574b e529d26a 1efc254f
+Ciphertext: f9 30e1328a d1539583 d2f2a4b9 ff575863 09df2d0d c7de9dd7 b3d9d07f 59abfcc9 8ecc63f8 7b1d48b8 39729626
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 1273ff3f 02a3b58e 031635bf 9a133ded
+IV: 8820ca6a e7c6d2a5
+Plaintext: 7694 35513267 f2c326e8 969c8355 fba9f385 2e072b26 b18bbf4a e3603b22 bcf26f08 bd0b0ac3 273c6b07 6c7fb33c
+Ciphertext: 0ca5 f658719e 29b22305 b4319308 98ac239a 707e77a6 e1eda34d 897e7d50 cdfc8f57 a0779967 4a0dc69f dddbbc02
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e31a1f80 bfc795ef 42117c22 2e01d1f5
+IV: 7dfa778e 51e2cf9b
+Plaintext: 2e8289 da6730ba dfd6ab2e 12d046ff f7584966 b29394d2 ca7d8537 2dd91ca9 746e5d29 6970f6bf c63d22c9 404acd92
+Ciphertext: 67468f 8860fb09 91aa6d05 18350ba7 dc44847d 4332f071 43852cdf c97406a0 25154b8f 92ca68d1 960b987d 18821fb0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: c45cf926 01fb6065 26235b57 ed3e02bf
+IV: d84f95f3 ba701bea
+Plaintext: 7a7e4897 1413a475 e0b4ea64 174caeb3 93d9437e d666dc3a 4e39f18e d84de564 8203e541 951413d1 d3cae4c7 fd70c6e4
+Ciphertext: e7ef38de 187a778c ab035e3a fdc7c490 2c9e8842 ad57d8dd d8c74909 6bcf475f 1241784e d33a5150 24f6f627 7dbc1cce
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 98070754 f13af241 5f943ba3 c8f19d55
+IV: 6632c16e cb3562ce
+Plaintext: 23 05aff7ba 4df01fbe 136d8345 a28bfd91 c839d993 428ae5af 75a3c7bf 5fd8935a cc129d56 cd748c8b 663eb0da 87f1966f
+Ciphertext: e9 b1cf08e1 2317557a 8f9b71c3 58c1863a f0d7f47a 31a4420e e30e2faf 6213ba6c 749817e0 3007f1ac a87853ce 63173482
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 3db4d942 2af63ae4 3355f378 78be49ff
+IV: 89d661da d7995489
+Plaintext: 6841 85b9cf6a 337e5c73 4add9027 7f8dd39d 9bfe695c 179ba3c3 ea4d52a9 9f408140 aae9643f fc488b40 d56a5b66 da33bf44
+Ciphertext: e608 05787d02 8da2d71c 9bfc098d 37d01942 b1f81abc 5db99ab5 15f543ce 04e95a6e ef6527e9 640959e7 a9d1680a c2a289a2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 675a1bfa 26b582a1 e1b728ea 94371a01
+IV: c7722cb8 1a5433e1
+Plaintext: 22f375 fb735d5e 12fe9375 e09ed58e 38ed2040 a55cf699 4e835d11 1cb52abd 1fd87fc5 2e739318 ce09b15e 56a6842f 50b79182
+Ciphertext: e2e8e2 2592e74a 801af451 c70f3d5f a10c73e2 20ea6a4a 13922a0a fc0a9ee2 553acaa7 b4d6ed3a 00ffc54a 66f15b4c bbfff111
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 211e0568 ed86b1fa b5f4538f c29f1733
+IV: 47025d55 422fbdc0
+Plaintext: a36648cd b0e611d6 a803eded a67976ce c9005613 9221c2a7 8d47447d 3419be82 1007acd0 2123a924 80333592 4304b577 a101bbb0
+Ciphertext: 9c8d1850 6eba0f73 a25a369c 6aa082cb eeaf21d1 2429bf0b dc2ac5ce 94ef21a9 3307d985 4f18483b eb958798 034fd9ad 65d16f65
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 57038809 496bcff8 6d6fbc8c e5b135a0
+IV: 6b166054 f2d565be
+Plaintext: 8a ce75dc85 1e0bcdd8 f07141c4 95872fb5 d8c0c66a 8b6da556 663e4e46 1205d845 80bee5bc 7fcdd4de 8e863843 eef288d3 fcd018e6
+Ciphertext: 1e b9d55c95 43d67c90 ba9dbea2 de592c71 bd7877c9 539d89d6 e1b9fa6a 81505510 0f15ec7e b6ab05c0 7f678ece 0adf9da7 343fe892
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: bedb47aa bc4bfac4 119e4a3a c1987a90
+IV: 4d892c31 85ced411
+Plaintext: 9e9a 6c9184f7 6aa37107 ef2ebf90 41b4fbb7 7b323a0c 8347b0c7 3d997e51 fe75cc07 44b5183a a4e7cd7a 03ab1814 095df7d9 d3f49321
+Ciphertext: 80fc 70bb24d7 883f396c 7c35e793 633ffcc4 bb513004 28f73bbc ec543d6a fc0734f6 d7cdc204 cfcb5402 86bfa496 3a821f8b f529321d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e82acf10 6fde2118 9fb6a1bf 76085fa3
+IV: aefbfabb ede96edf
+Plaintext: 3c082e 8bba4a73 e09181d3 eb2ac715 2a9d1d44 4c6c5202 3970271f 5213b06a fac0fdc7 5598fa82 4f6794e3 e1d61d03 90e2f2dd 368c5ba8
+Ciphertext: 10fcc1 d1f9b528 6dab56c2 c3a0db0a 8de674a6 958b9897 16b0bf2f 71572fd2 55dbefe5 dbbfa056 06ac0c6e 20269507 f8b7433b b00bbb14
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 04d2b265 c8dfc8b4 6c7f84eb bfd5cd69
+IV: 7950aa28 79dba892
+Plaintext: 50547d96 0340eafa 0dbde6f3 a4b7f8f3 3d5fe5c2 52d98bd0 63350dca 3ba1306b 74dd0595 3defc9a0 5b1709f2 6e0509cf 764a6773 950dfc5e
+Ciphertext: b751b5c4 7e0b6f02 f5621ee0 b37519a7 2e8d1e3e 499f0bac 2aca90e1 142f1629 b2fa87f0 85651529 034c7f98 36804fed d73e3172 e6bb1975
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 17ff03f0 af917d35 0364d402 6b00be41
+IV: f6ca6489 af30c4f2
+Plaintext: 1e 27532711 d7e7bc9c 94d5c25e 11569906 d0300616 dd9285e7 bc3fe1ed a0ee013d def1054c a01692fa decb69cf 8a853f84 0b62c9c5 ed0d1635
+Ciphertext: c8 b63f54a0 9191ff6f 7eaa9321 0d0fa163 242faf37 44cc69dd d38b4977 9409da5e e17f9e12 50a2d3b7 d9ee730f 7bd07b28 533876f0 9b46ecd7
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: d7e221b3 bd52a7dc 568936d0 d14f8739
+IV: c42c0d8a 65d0ce85
+Plaintext: fcb1 720098f6 99e80194 7286efb7 8a017963 e125d05b 43622d42 d5180800 ef128b67 29504617 b909249e fcf09ee4 52b72ec7 2fd10702 6f7d0353
+Ciphertext: 0813 ac6c9d39 53b69b74 6eccddec eab5dac9 bd55d553 c9cba18b 10bf7b17 48af0bf1 6608109a df859f99 5e2a1027 d1c0889e 244919a3 acaa7846
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: ea00dddd 4931a0cb 183b5f36 1c9f2748
+IV: e67832a2 a8035dfc
+Plaintext: 485edc 0bb3902d a874ca4a 2e85ed23 24644b4b 1c6ab2f2 da59a713 b934efee 4b5354b9 40b6a593 899affb9 bd4a4bfc bb380873 914c4b6d 9c7c03a9
+Ciphertext: d49ac0 74b11273 f406cbae 9b80e047 8ea1fb11 93a93bbc 31c7d969 81c9a573 762a940c 75bc695c d0131c24 0b2e8bb8 c6272d68 4caa357d c82108d5
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: f19d82ca fc783905 6721c31d 3d842691
+IV: 50415514 d8baf93d
+Plaintext: 5c697080 d678165d 128bc4d7 57e19728 499bf3b3 0e5bc73a b0111251 c212a612 476b2c13 cf746895 e3a8befe a3b3f58a aecd3c3d 42476a1c a5638a9c
+Ciphertext: add82de3 7ced25b6 6ad1e86b 5ad315e9 1f7a5d32 e5078a8a 27527daf ddf1fb04 e35cd9db 6f15b110 648b9f4e 75a986dd 793cc49c 7a24751b 6093b7aa
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: c369975b 18f7840e d0997fba 2d997728
+IV: 2a19dc93 5e5ea6a3
+Plaintext: 22 6f989ff6 dfc6de21 e7557e98 b8825921 0ee535b8 09f73b32 39d3ab20 f739cdf6 fcd82b6d 2ccdfd25 b367e58f 532ddc0a fc226c4c 9e472104 3b623abd
+Ciphertext: 3a c314227a 3d3b299d 70dd5f0b 8777ebcd b7629dc0 94b025c2 949624d1 4f6c6a84 5ed609f3 829cb1ac b50be8eb 53876ecb b0c540ff 805f9bdc 3214781c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 40fea306 15b328d0 f3a7e317 f655f6c5
+IV: 738d80d3 8bbcc9b1
+Plaintext: 006e c0e84811 a8fee0fc 0e99e3b0 fee8db5d 763fd7a8 1b01beab 2bc3e23d b3aed874 02258869 5da8803b f4f98e57 157d8df6 a0e47fe7 bb0ddc8e c6232a2d
+Ciphertext: e5b3 035c3bf3 8ca36eff 42f9cf59 9b288567 3dc9be4c ccfc2121 d7e8f5aa 77b07c11 1a23094a 148e0b6c b7857824 c9922e17 31ef8778 61a27d0a 07d0b57d
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 920dce62 cd0522f1 c186c7c4 3f6c3d30
+IV: d557b07a 4750159a
+Plaintext: 3daf76 3e3a3b8a 12cd9489 3f0bce3e 313c5f5e 9ed53b18 c4a73ded f255c9c2 490bb034 c46d532b 76ce0cb2 13a3c906 b237faec d1a0ae48 9af1f8ec 65b198ae
+Ciphertext: 77e2a7 75943882 50b68fa2 940c7360 f19d7442 80b1ffa4 a4ad7e5e 9a58c0f4 fc7a9bec d4147201 3d141a33 eb74d272 c6d2fcec 84c8adbb 813c054b 6b21dd22
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 7d8cd7bd 2749b335 e0fc3cf0 e77d3ea0
+IV: fb18201a 66860cf5
+Plaintext: 3a1c5154 db430500 bd28eeba 6fb5a3cf d9bfeeec c2817534 95499990 64719f46 2d910dce 5cf357e1 9247bbd2 a5986a21 e87fe84e ac97b5eb 06302df5 d348ad64
+Ciphertext: 35ea99c5 195fc91a d13a20d2 d93b23fd a488702e 6dc6a61c cd599714 9b0aaab6 6acd4967 8384cd3b 6dbe64c4 dd050f08 f68f0fcf d7bb1649 4aec22ab 1ef1c105
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: fab7f701 f1a9d878 835108ae d0dc5154
+IV: 95a4f3bd ada748ec
+Plaintext: d8 37a4f2bc f37f7729 f5d696a1 4dceee18 ae9bf5f8 68a09068 96d7e1ce 99746092 c5c52e26 595da643 b5713475 c7826ad9 c73c5025 249ffcea be5c6316 55826fbd
+Ciphertext: 71 d19eb25d 11853f65 8bef1092 94f14d07 dbc89855 f064a050 8f2bd502 fbecd156 e6138da8 e97bf249 494f22e3 53eadacd 2b805240 333832be 24c73747 4e7e432c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 41595219 648e19cf 5e918473 ff3c154f
+IV: 02b56760 f895c1a2
+Plaintext: 824a eb8ec3ba 40e01528 059dfb5c f95558fe 2da5de44 1601c8cd e1b0cccc 06184b68 203ccc63 fc83a8fa f0bb060d 6e5d0a80 d8134ae1 9677824b 671e888a f4d5827f
+Ciphertext: 9b60 d1175e2c 34f87b53 3ee3c209 61f01c18 7688f4ae 1080da32 58344c63 05fb1edb 7c3d6a62 696842cc 196b0c10 abd447ce 42ac1534 444a44ec 4631d903 1db79705
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: ab2a56c6 ca2f6297 ba7a6eea 9f70dedf
+IV: 2dc42c5c bd3a96f8
+Plaintext: a0b114 18b3608d 5733604a 2cd36aab c70ce319 3bb5153b e2d3c06d fdb2d16e 9c357158 be6a41d6 b861e491 db3fbfeb 518efcf0 48d7d589 53730ff3 0c9ec470 ffcd663d
+Ciphertext: 221293 e066c9d4 19d1b83c 75c8dfb6 da9370e1 8d6fd689 c36af45f 9e440937 7044aec2 ade1def3 9f62e7df bed54326 6d0adff7 77c9a9f0 39022255 0c08b831 cec2394c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: c34201c3 6addc011 1c35b38a fee7cfdb
+IV: 582e3731 f8b4baa8
+Plaintext: d1a89c06 e81199a9 716227be 344efcb4 36ddd0f0 96c064c3 b5e2c399 993fc773 94f9e097 20a81185 0ef23b2e e05d9e61 73609d86 e1c0c18e a51a012a 00bb413b 9cb8188a
+Ciphertext: f24a515b fa75d8b6 fe2b158a 0d123721 290173bb 43aeada6 dc1d68c1 73fdf584 61aba5bc 8d3d6b19 6eaa5111 bb0cc699 8c91e41b 775c59ec 5c07a733 bf5e0429 40c1695e
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 703cd6ba e31cc67b 34b1b000 19e6a2b2
+IV: a690f026 71fe7a4c
+Plaintext: f4 d12dea32 0ecd499e 72f12f38 064f0cf9 f3397871 9668ddaf d7f97161 b7b5683c 2995679e 23853b72 f469cb55 d85e4bf6 ca42b3c3 997670c2 3ee259bc 6d3ae4a1 6a809a28
+Ciphertext: 77 e89ff1c1 a6024c33 271685a2 15945f2c cfbedfed f5eb83da bb5f9963 7b2d2dc8 2842374a 44854245 1cbc732c fafb1b71 dd5dbdb7 3d1564fa eb41ce3e 3dee048c 1077828b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 1ecbc8b6 6a467881 bb7b9ff5 dfd29857
+IV: 1754d1a8 6db5c5cc
+Plaintext: 4792 2aeb3df7 6b182824 58307b91 1d05d72f 70bcd9f1 0f74378b 6a290b7a 9cd76e44 a0e24901 c2b5681a 53a9d051 a1295301 271561a7 006321a2 a20cc037 c8260ad8 b04d37a6
+Ciphertext: ef2e 17675a39 3890f968 44079e4c 42aed5f0 0a160be1 63b89e27 ed8a54de 9ea4d3b4 68cfb074 338d8721 e77199f1 e0762b0b c1a67d78 e5a02eab 14591b44 5bfe9e07 f8bbdd66
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 87480734 22ea118e ee35577a 2ac61ffd
+IV: 536dfe21 e01b36f6
+Plaintext: 300142 d7c1f6ae eea2192c fb2bb8e5 50eb710d 20e297ba faf0d8f6 918e1c12 bebcaf3e c83aa357 e2fb7000 f5d7def4 a080259b 7eb752db a7c0ec30 7913d8ff 98547a27 33851dda
+Ciphertext: d0919f 4ebea40d be450a2b 64838670 61ebcd05 df5de865 58a9a1ce 3fb494e7 5e20b16f 9c65c8ce 7c81a700 7a415cfb 7b98f0d6 47e7ecac 6837effd 98e383c8 9fc83227 3e60eec2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 897b95ab ac8e22e7 85959829 1912bd29
+IV: 0aa9f3d5 61d717a3
+Plaintext: 8ae0a825 a0092cde ec08cf54 a8b94e66 081213e0 7b59a24d 2e94330c d142a0a6 9f48825f 982e970b 118b6823 6fbe2818 30dfdee7 2bf6c7ee 186af5fe 52bc3db1 dc7450fe a25c280a
+Ciphertext: 8f3385e5 1d7a2f76 2adf83ba 7778dfcd ba5aaa59 19072572 c4204fb1 546c0019 9b721db3 acac4f77 e4f048b0 3b68385c 6ec40fdc 08025e2e 9075eb94 c2ae0992 94315c34 f1e15b81
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 02eda641 8b0779a6 05e54167 b14ff4b5
+IV: d21181d2 6badb46c
+Plaintext: 4b 4d5a2947 fba583c7 14d2d684 fa08b78f 0a848896 cef34963 731fb1a5 7dce7ef3 b9e7090e 73d71d66 ea3309e0 019ff4d7 37ee7161 d98b54d3 7717c387 945390dc a141c67f 2d8681e9
+Ciphertext: 9c 8c36190d a49a5dea 5a5bb26f a1945ac6 e60c5381 a8c4d24f 59de84bc 7dbe539a 2b2e2afc f55ee4b7 e96433b6 73bb56e8 ef8db39a a4a45fc1 21fbd311 2dd7a8cf 17942d5e 9701cb29
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 56130329 830405e4 55c84b9a da837b2a
+IV: 04b02f99 5a0b490f
+Plaintext: eeae 87228f7a 57573fb8 ece6e800 91be4a5a 3dc938a4 68710434 1e6338be 52938677 7480027a 46b98f6b eba0975b 406e00ec 70775bb6 c3b05ee9 b76e9433 527053e4 b620ef50 f6162d74
+Ciphertext: 2e57 ac6f4863 c5cfd696 eb24bb06 7dc0e9e4 9e3aaff2 2a2276f1 1d7c20e7 9fd68725 4622e3e3 a98f3759 54a0aeab 76dac8ee 5e8eb6d0 ad79b7c5 1b9d74b9 14855379 21e17c75 cb564838
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 28defadd bcfb5dc6 0c2bab81 33edfa18
+IV: 2341d733 f2af3c3c
+Plaintext: 758abc c2107601 1bcc2878 4eaa6d4b 30386e90 cc6132c0 0889646a 86da5728 c9d847d3 993ce2f3 a8ff0679 75b5cdb1 711cc772 61f58698 031260b3 f4b17001 d108de9a 9c2160eb 62e80165
+Ciphertext: 6b06f2 156ff9de 1884441b f1031ddc 0e6c61d7 f6ea4044 24c1c602 07b4cff9 b5fd8582 79914ee9 3c44305c a12938c3 24d44955 f30cb4c5 1c5a847c 47ac441c e07b1e0f 6e31440b c436e254
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 1b832276 d2e1beb9 0696f26a 4fe6bc1c
+IV: 451f03ae 9d2dd77b
+Plaintext: 9568fbd1 93b0a0a5 08bc7484 9bafdbcd 84ec7c1e 352c000c 40ce1617 756ebbdc 4ab8b88d 817e6c9f 0409cbc2 14ada716 a2a02f9c fd0db5eb ae63b424 a0f31127 85baa107 747becbc d7123018
+Ciphertext: 84c7f08d ab3c74fc 8e6a86ef b14fa101 2cdc11d0 213ce756 49be0e74 142dd15c 2e206c6f 024852de 8837b99c c5af8a46 d4f6f6b8 11dcb833 2de760d5 60a23234 6fc27f80 3089bc9f c062b602
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 8404a9fd 2a5a10cc efb06220 5789e2bd
+IV: 68e561c3 0c16bd28
+Plaintext: b6 cfa86448 7eaa6e35 db69e8e2 c1299653 3e8f1503 e6aaca13 6c3418a7 7314d68e a1280021 f542ac6d 5b704094 7e81e370 dec4317a 221333ea af108e20 79affa43 19f5f628 21ffbb75 ac456e06
+Ciphertext: 67 7b68967c a8a4ea6a a3884756 f09846d2 9b9ffc50 1ce11f97 498dc1f2 fd822db0 bd985680 b2b0892a c4026fdc 65c1258c e6fa8f07 5ed2c441 e8e7875d 013a1872 061f7409 8003795f 1d2bb530
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 3920998f b98adc83 e625e035 d7808d3e
+IV: d1957d1e 6196b026
+Plaintext: a7e9 8195f571 d801990f a2f8f668 7ee8dae9 b93c0b09 7dc823ce 45679e93 94e23208 e7145f7a e84c4655 e4f3bee7 7f6fa566 a7467435 c6871663 3c66fb75 0c266865 d53c11ea 05b1e9fa 49c8398d
+Ciphertext: d716 5a37a952 c4b12bd7 23de0b81 9f597086 279b322d 7a99ef54 3610b762 2f54e605 75f8061f ca4bb721 ed09a046 f0b06205 07c8df31 58595c05 238e365c af0f9e73 b238b1c6 42b639b4 1c13d270
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 48e1efa5 909d398b d043535b 49629ec2
+IV: 7fb8f107 34533348
+Plaintext: 96f62a 07b8be8e e53f0562 ac5e8784 9304c382 be53a5af 05556176 f6eaa2ef 1d05e4b0 83181ee6 74cda5a4 85f74d7a d6c8d14a 95447557 c3f5e99f 3be1716b f0b94324 76533068 c45a875d 38453745
+Ciphertext: d14903 0dcd5087 0b45110c e4af057d c31fda27 69ab2bb7 9f955252 32a59940 f1450e21 c310a0d3 055e444d f02f0796 a277e6e6 f51ff4e9 2939579f 074bd907 16b4f598 5d556002 a19bc340 e90095ad
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: db853353 e7031bbd 86c91813 ddff08cf
+IV: 491adb2d e8503c3d
+Plaintext: 5c4f7436 cb2e8c0d 2aa4b246 bc78df0b d538b67b e42eae44 b0907374 e2f78a8c c41234d6 489c96f9 4c8b16cb 1c8b0866 39aa8a7e 5955acf2 ae83d5a0 6b30627e 850d8fe7 b6769b32 c8a42789 1024e0f8
+Ciphertext: d4ba5638 ef9aa740 9a48df52 7ce35a97 704109c8 194840bc 3370c850 543ba738 4cbdb549 82a9baed fb5e7f56 4886220b 76cb1a09 6364622c 6ce19923 53ea2d66 a70b2c33 ed3dc95f 4a547005 9a2e92d9
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 39875dc5 435c4a00 ca5bc75a 8ce30b3b
+IV: 26a74d0e 1ea4e4e0
+Plaintext: 26 56ad299f 2bade95d 38f7f7aa 2ad0968d 80124a4c f8ceea2f 4735f587 0db929ef 086f52d2 88b8612d 2320bd96 a986de7e 5b7e17b3 57f3b328 571144f9 9b6138aa 2436adb0 23498732 b1a0bf10 c0b4fd25
+Ciphertext: b7 27d3cec5 293c1642 1d3d56dc 47129fff 461269f1 3357f7c9 f798601f 815047d0 75e18f91 1e9e211f 3b289350 065a9054 d9aebb4b d34153e6 bc395467 56325a4e ced2073a 9179cc40 9f462800 d9f64f59
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 52d26ac9 e9c2bf9a 3ea7a37d 352633df
+IV: 11cae241 e4a783f3
+Plaintext: 4a3e a41f57a1 1e0aced8 ea979482 360d64bf b819c34e 431737f3 988db41c 7ef857c3 15cc5796 67b63856 4024417d 40073123 2ed72e22 8fd8fe79 779d79ee a0ca3ef8 b91ea6db 00b0f615 1378d9f9 03120d9a
+Ciphertext: c8bb c022f144 0d6c051e 82007269 4549aab0 0f9fa6db 051bdf5e af260be3 b61b783d db470f1d 7ea97664 301f1b22 2d416739 217b1f02 1c707587 74f11dfd 50aea606 999a97b0 7b0aa9c7 a2b76424 b3924dd1
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: abbf5cea 40adce23 29781d66 10f069a2
+IV: 391d2db8 128072dd
+Plaintext: 0c9c42 3faab560 ebd7d836 ee7d1b0f ba532686 ccf7f23e 8c3cd1d4 75c5af12 75d39766 975b7992 df5c2aa4 756fac29 07a0b09e 687c5927 7d6b4384 5940c440 a70f712b 483ee40b 3edfbd8f c93de784 cfb51d4b
+Ciphertext: 2e4ca0 f14596c7 b1108704 7ecaf701 9737b12f 31f0e547 d6460273 c4aef54d 32c71077 fe9bb1fe 44552dfa 23c1b479 2672df71 5984bbb2 1c9aede3 52718130 729e2f32 dfac71fc 9b029929 ad161477 5a9b9e93
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 81c8ac8b 3c6e7a23 adac4763 3968337b
+IV: 9c7d8033 d00b9add
+Plaintext: 30105488 dd3d7577 610273d2 92ec7e9a b930c0e2 f488e43d d93dd573 5c85c878 f3107c9e f8dec009 4e533763 478d58d2 c5f5b827 a0148c59 48a96931 acf84f46 5a64e62c e74007e9 91e37ea8 23fa0fb2 1923b799
+Ciphertext: fbfa9be0 ef9a1f14 0027be10 022d2eb8 19260feb beb100d5 c7929974 6a7b977d 4f878445 c7b89b3f 4f088ba8 f7ccf612 b34a5e8e 89a87a66 85b9eb80 7915b109 2cb82f3d 6b2b1676 aade57ac 254369fc 2c6bcc23
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 05b733b6 31e6c7d6 860a3831 ac351a9c
+IV: 730c52ff 72d9d308
+Plaintext: ee dbab21fd e143a0ea 17e23edc 1f74cbb3 638a2033 aaa15464 eaa73338 5dbbeb6f d73509b8 57e6a419 dca1d890 7af977fb ac4dfa35 ec02be82 81106d2d 99c0b96f 97b45193 ae270d58 af766c97 1fdf4125 8d89a9fb
+Ciphertext: 7d 10109077 bd90d09e 6a1f867d 418d8479 4c77d079 a3a1424d 1d3902b3 19a092ab 47a8431a bad65696 c74a6099 332fde3e c6a5ebfe 5f883fc2 d60d4de3 58e8c5f5 00a19271 b2cf7e12 904bb526 0917d692 803af14a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 22c54094 7a949597 b269dbb6 c330e1d6
+IV: 0e8e4470 386be337
+Plaintext: 37ae 93fbad47 14cd7573 44647c3b 93bfd33e b70c02b1 a1c99ea4 af291e87 23b9eaec d443b58f 23f20d93 31b8300e 4fed22c8 b639fc40 79b387f0 b74a09d2 15655f23 6bc64c67 beb411ad 6f593e14 b169c78e 40045ae4
+Ciphertext: d576 bccb17cb 4d556e1f 5512f461 8966140e 118ef83c 75d9cfca 66db247a f015dae7 9184496a 3c161dd8 65ed2191 03cc3482 cdc19cd4 2e3dd3f4 0e44e57b 1021ec90 9a00d9a5 8fc0c6c3 794e9a06 809dfffe e46a8686
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 51def0fb c49da355 a182bfda c24c1bd9
+IV: cd59aa4a 660f4d56
+Plaintext: a27aeb 19be36c4 a6119002 4b3fe891 17b05a31 9a409dca ec382aff f17ea105 da0869b6 ef9697e1 8ca112e5 6a8ef47e 202833de ea4d8000 a8e76f39 2a1fd910 aacd7f4f 9a32ef5a a1e9acc0 e01b8910 79f356ee 5251be65
+Ciphertext: 186200 8b98a850 e668be46 273e11bb eb7f5e84 201792b3 3aafb4ab b99d9959 d16d6299 060d385b 79224221 1d8a4287 2a11c2b0 6c8dff1a 3e8998ec 532093be 6e73e27c 43f10509 f0cdfde4 5c965cdd 644092a7 f047d5fa
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 16c3707f 7db17d13 ced701df a2f806d6
+IV: ead1a5bb 334d6eef
+Plaintext: 29f70b88 5ab41fa2 3db274fa 739c56b9 4c103a8d 8d52a4fe 71424700 ed8b6dc4 381e99d4 8bdf6b5f 269dc5d1 93482ca7 2e5e7182 e5a7907a 3d22d8b4 953f4c37 af4e4afb 6c386a43 d76da92d 651dc788 7cabede5 315f93f1
+Ciphertext: c6d44002 b23f3545 6fe65586 86912923 61334d3b b99414c2 e57cb2f7 20a556ef 81018ffc f7f48d39 18916504 3f4d65ac 2e353750 f15a9fb4 0b8ad963 d6d5b19a ad1f2f1d 27e83125 a673ba60 6ed40740 cf2c80ee d01250dc
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 565ba102 b4d0d4ef 95716425 8628e4f7
+IV: 5a086936 7284ee02
+Plaintext: 3c def7dffa e2750cc5 d3ea10d1 a6cd95f2 6e30795f 18a023b7 584d1341 e36bbd78 dfd798c7 97fe7291 74fb0674 29ffd0cf 2df62081 6e676ef4 449ced5b a3046237 96d53720 e8f5cbc2 241b0d26 c1324933 96fe4274 9401801b
+Ciphertext: ee 1f7e8f4b 3f890c4d 5ed40874 fe1823ee 36e7d4ac 0a1c0dc2 33f38847 b5c8a194 54e3aaea 2d780465 8e3aa6a5 14a2d3ce 587e83ad 2a432380 0eac4773 90a8cd08 dbd5821c c8256e07 a9419b91 78cbe52c 5dc87fa8 ff8c3ed0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: b3a0eb46 2d829982 eb39e58d 3c24c161
+IV: cd934d6d d62da826
+Plaintext: 918f 05bef036 02338f9f 368ce8ac 0960c64a c997fc51 fa7456ac edd4d0b9 94b006f2 94e9ecce 9c45bfe2 f5b43b4c 5bd90f51 0cc58e45 1e06a7ab 15e0179e b5dadd70 157dee90 f5582bb1 51479028 37f5ae96 d5a05bc8 d61ca8db
+Ciphertext: 3dcb 0d08d541 59bf1ecf df646032 25208817 198adb74 633f5204 e7a15784 44ad9162 a837ae31 a7fb12a2 b5ed1894 4b3554d0 3edbcbea 889f41c8 5c68193e ed6f070e 92d3b091 b9741919 f14ad119 cb710733 c2be4269 fd9ea6bb
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: ef1b13a4 b4abfe4f b1006045 b674bb54
+IV: 72cc4e0a 43bd8b61
+Plaintext: 4dafcb a2cac041 83a00c2c 92392c51 d78ffca9 b586a157 127fcbdc b82a388e fa9b7a47 9aa1f95a ea533bcb 32eb63bf 52d8f831 a80ee8e7 34a1cda4 fa926ea0 a8e98935 7903d0db 592e3156 4a735a2e 06b37d60 e6f65053 02ff590d
+Ciphertext: 427195 9a2d92ff 71bc2eb8 dc85822f 09c7c63c 20d687b0 af0d1849 a5a45401 a5c3f4be c2bac83a 73a597e1 d2ece33f 3f811789 5e0941d1 22051d24 b31fd966 ba36fac3 52dcd7ee 9c26b57a 9e4f08bb 7f8c6cbc 28623a31 6622cad6
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 9a2468a7 b55c65fe 079a4bac 18597537
+IV: a3781987 3c49129e
+Plaintext: 36e5e283 c4c2f77f 5e872d8c 671e950b 0c0b75b5 6ffd8fd4 05a3a6b3 3cc13f53 6283a55f c2112f62 1063c538 0757a1c3 500153df a6420897 389c0b99 4e448ce7 3079a1d0 44158a1f 76623992 dc2e128d 9a22ef10 044f67e7 030a5020
+Ciphertext: 4a697f51 07b8888f c5aabf49 0a9fdf3b 9e9b2ef0 d9c171fe 71244298 085c20c5 709f9265 b61e655a a940e08e c73ff421 6ad7d4ba 3e72052d e9b65714 7920efdc 152a8f85 053217bb 5dbbd5c8 ed118c82 f2f81a96 49bed8c9 9822affc
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: bafa82c2 696fdebc 91f58f1c 592a9081
+IV: 30cc6ed3 b4165031
+Plaintext: d2 4d342b2f 967b32c7 0aa84cd5 0c650df2 dac7c280 63d2ef49 5940fc64 867e2b59 63f8cd84 e796b6bf 9d86ee3b f93da9af ecb879b5 b608c370 fc0d7073 1a82e4de ba3934ca a6a893e8 daa50e64 de6e7a10 52ecaabe ca39e5ed dd5f96a9
+Ciphertext: 47 4230dc2d f3ca5a59 9f16e793 e5fa4797 cb5fd877 63ab7364 100a32a9 41960acb 20325bb2 d114a606 57a13913 3f0012d1 79427534 ce802383 c06edf4a 720b3b39 e64cf894 d7f60629 bf6c9373 7ddf6dd9 127d3a74 390bb428 7a0413f4
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 796346ac 7982c8c9 7abab38b ea8c1619
+IV: 6101665c 35ebbb64
+Plaintext: 496d 3c0825bd d8cd4c29 380ac958 f1490cd3 fdeff4c3 6c202dfd 57ddbc3b 166fd8ac b209fcb0 9da93adc a13fd245 171103fb 595e21d3 7a41e86a 34d91066 21a721ff 2e3789bf 4e03ec85 6b94bbd0 a2ea083a af1e9943 a6463b50 e59958f4
+Ciphertext: b4f3 c25c39e8 b6f4ed30 4f93f704 b83d32f4 b7d72cfa 54d690a7 329f9698 75e14eb7 811c9871 58a242d3 14e919c5 9fbd37d5 fde47b34 279417af 02c96fed 89a997bc b1d24020 1cf84404 0bcdca1a 1de7f17a f5b3478d 49012f6f 3410cc94
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 46d4cc6d 99dcf572 51a4092c 7d51ad82
+IV: fa9cc399 e778839b
+Plaintext: 5af5cd b85165bd 6becbd81 ffd93e67 510f543a d7bfbecf e187efdb 1feab407 64fd1847 a9628567 557a2be7 bcd7a508 e5f0da27 9019224a 77b2abf9 d59e1a4f 25f77550 2cff407d 395ae6a6 ac7b5b00 b55d0077 5e73c745 cce197c4 c1ecf280
+Ciphertext: 0c9b93 5e17ff53 b9f58642 55113dfa 46f2e3cb 615948d1 4dc9abb2 15f8bf82 17e2999d 488fe894 30b4192b 3352fe77 5d3192bc 021568d0 2281a126 68856cad 415be6fd 26314afd d83e5ae9 d6a161ab 9e419839 d9a412ec d361673e 040ea09f
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 66afd591 4810df28 a0f3b667 d7aea776
+IV: 49bc8cd3 4ab5f3e9
+Plaintext: 667d7ce5 edbc83c5 b08fffb1 057eaa8f 11ad63d2 4656d092 2a7647e2 5ac7ef5e cfef2203 61f71644 89febd59 6b2fe9db 14f0b48e 005c1f7e dff4f94d 989103cb 8f9e51c7 2483f325 7c64d531 830ce433 31247244 0da9dc5f f09d6abb 0cfc7658
+Ciphertext: 3761d71b 53aa8822 8a35e0c7 2e622d02 d32e0a3c 2a37eaf4 629f347c 9a7d2696 e6fa8fdf 83132dbf 802f9fa8 6646c070 9eef933c 7dfadaac 310052a1 f1c50a77 6d0850ca 4982072f 81a1cbc6 041b7549 99ba06c9 39f69e5f 1ab81d88 84e3dd33
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2cf1d1d8 3d4a6291 0e2a10e0 54fde3c0
+IV: f1b1659b 76244f60
+Plaintext: e6 d861d5bd ee922f30 5269e0b7 33abb0c9 b6360fe6 eb2da9db 00553c42 b4bfa648 0fa843b3 509d7523 28e38497 2515a934 710f6542 bc0b1778 770ace79 43765c9e a905acf6 0be0558b da056ee7 0ae9a5d7 c3628b6f 5ac5324e 7f4bfa24 b8baa871
+Ciphertext: eb 6ce7c68b 00739d15 a06572dc c4c3c7df 8d613542 ed3a6a23 2bdf74f7 4acb7968 d7e8d5e5 b68d9590 4a567825 25a55390 4b0ee9e3 0ea5e512 e9b64ee5 6d7a189e 3c76a4c0 620d2552 14ef0707 d31c8cc4 06cfc9f6 7e86852e 757f42b8 a6336309
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 0e41b88f 05a3f5f2 d29846af c970cb3b
+IV: 15f92875 aba321e7
+Plaintext: 81e2 6849fad4 b247a524 1085282e 7ddf7763 b3f54aef 44e7cd9a e55d99ec 0dcbe395 bff3f30c a3abd875 5ce05bc8 16db3130 5ec375b1 3763550e 6a2e0bea 1d800f2d a7278aa9 a3220efe 43a885ba e86d68c5 ef2032fd cd38131d 5ef0e8e3 7a906b72
+Ciphertext: bb30 441cd3c5 f66fe2de 01403716 9d52599d c736481c dd8afee9 8475c9ff 4aec16eb 14463b91 14a90a02 70e403db 45abf55d a21d93a4 34804bfe fc74a823 83788869 c605ebd5 1f8a6a9e f05ff4cf abb12fa7 fcfae5c1 72affe0c 2805dcfa 2ff78970
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: caefa7f5 d936b085 6ee6904d 1a1d84eb
+IV: 0d15691a 2ded718e
+Plaintext: 6aac1a 204b8361 2bcd5232 366e6e24 d385a263 c6d473ed 6a60a802 51810ad5 2b356988 e9b9df57 225b5914 b58a52d3 b02fe2e6 7040f80c 0a91e3e5 eaee18a9 ba682f1a 86ec2eb7 1d1a0a33 ba536b25 e314b001 92833347 9348cefa 2d9e9e54 04aa06b8
+Ciphertext: 20a583 e42b6a8c 7fc85171 08ce800e 07cd1510 6f5ce93b 2555e669 ad0d6cc0 56d52e82 153fa934 b823d602 56fb3363 88fcd410 1f52cf9c d0ca0f38 f9956283 7d3383b8 18fa1289 7716712f 700d1190 f0122bc7 f1b99c39 2af5f8e7 0968163b 927e9dec
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 3e0bf7e8 e5b26f78 8cf44083 36dd139c
+IV: 73c8ac07 cc2c702a
+Plaintext: 61b9243e d1a4f74a 5a3fc352 42cc90cb 75935a53 6f32149f 5c35ecb5 7ee6d15b d06632cf e9fd09b8 22af195d fb107315 bb593ffe 57bab9f2 95f27ab7 711ef976 c0ce516f 135e45ea de848171 da25223c a76d79ed b61e0c7e 6628de77 6d7bf164 7a190886
+Ciphertext: f563df9d 80d01de6 9980d8ab d19ec57d 1f47b41c 89411af1 5cee4bd8 2b8cd843 c84e73da 609afee8 baa31061 7fe10787 52171f79 80f528ee b2c60b55 0e596b4d 06dd7865 524e8ba0 13649669 dbccae4b 7fb21af7 0ba9760e e00358fa 47fc4750 203592f0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 196fb1c9 d6e583f6 a5b4a52a 81f79087
+IV: 54061529 17ffa15b
+Plaintext: 3a a5c00b46 6ee07cc1 d7583b52 fba85425 6402c591 210a33f8 18dbdcef 9e4acd9f 456e556b f560b9d4 3f3f2999 ed77f322 de43f71e 11715b6c ff668037 2e613466 03042933 d810a519 4e707cf4 e4793c64 c970a772 ef4c6676 61befb38 d66ff855 86896ee4
+Ciphertext: 02 64a904a6 a8e198d1 417c7b0b 951a0b44 053a5e65 d0456b21 2b039a41 6fccf6ce 608be402 2329a699 4604f7e2 69030d14 6fa859d4 66a0072c 81a92735 a94f6faa 74353281 f63eb646 483f8725 a78978d5 fe248da8 e4a46100 9ea21818 a7f78d8a 4b45fe71
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 3c78a95a adf21aab 083495b2 ce8fbdd3
+IV: e424bcdf e7ec3737
+Plaintext: bffb 80357705 0ec74b21 2b5d03cd ed068032 67d595aa 208a1880 c56e38f7 1a7f108d 36cd7d80 f0242d92 95ebf909 dc4c75fb 1b96c5c8 badfb2e8 e8edfde7 8e57f2ad 81e74103 fc430a53 4dcc37af cec70e15 17bb06f2 7219dae4 9022ddc4 7a068de4 c9496a95
+Ciphertext: 2ec9 30a95ba7 bcc72493 d5e6b3d5 db94de02 2febc6c9 5d1dddca 875987ee 124431a8 b6353bc0 a8689c2a 9405f311 cdd02c7b 70380924 0e657c25 d9623bb2 363c720f f716b8b7 6a812eb3 3d2b6061 88d68ca0 fd22d4dc 6586e0c4 bbd18bf9 db83d798 cd436c6a
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 1a6b09ed bdc864c7 adbd740a c50c022f
+IV: 3082bafd 22d78197
+Plaintext: c5d508 b977bca1 3f32e652 e74ba728 576077ce 628c535e 87dc6077 ba07d290 68590c8c b5f1088e 082cfa0e c961302d 69cf3d45 a3d356c5 025ffc3c a4a7dcb3 3d1df340 5ea0f5d8 f8f0f065 1c662c18 04e25701 5704dedd a99f9e2f 416abc92 20f9d14d 3fec4b28
+Ciphertext: 5dbf8b 207c9181 b4650a38 050980e9 370c8053 5726ae46 f3fe7d8f c48a0a5c b7715ff5 1b14eb02 3aa83479 784fe877 9e3202cf 7a53f157 e41cac1c 64d957d3 b21b874f fce0301e 5555123e 38d183e7 d999e642 23d1faf2 3295aa64 9eef2e26 54f39d33 7d045238
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 1767107e 66c26494 31810c29 0586b34e
+IV: 83858e78 1cb93cd4
+Plaintext: 18d5f0da dd3ed125 6e77a182 32dc9d47 f794a5e6 36c19dc1 98f91340 bafa2221 2d999610 c2fc5078 0409ed98 051ea2d9 5e036a5f 711d64de f1e476af a5973723 682e0c17 759091c8 e1063ae9 69ef3af3 6eb6a3bd 3e02cf4c 952c00ec 64f6437f d07a9a16 7e6059be
+Ciphertext: 9bc526e3 c377a31d 72a16a88 67654975 f2cce828 628c12f6 ee907162 5b305e16 a249918b 20a5462a b5da0c51 f9f2ecda ef4ab092 2e993582 114be781 5c6ee7c6 52a1bfe0 1ee621cb db2b823e 30895b90 1f92faaa 31b77812 4c95ed2b a9916aaa 48d9af10 0b2218fa
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 0e54d19d e5b72c3d 30959827 25d8a8b4
+IV: 8cbbf620 7f810ee0
+Plaintext: 6e 66873566 d6730292 ddfadb02 df415eab 8991c6af 07b5bddf 77a3727e 9e5fec48 da1d9eb3 58a63b75 87fccb46 cd41ffe7 78d5c163 f7bf1095 4a4e0bea b7ff4b69 bfa276f0 50b911c0 3c21963b eaf4c7ed 4cad41ca 108d54b6 1b3e124b 33b7a6d6 fb5fe8a2 25752e7a
+Ciphertext: 00 f1350b82 c3b9bbe9 730ce474 e623d597 a4a9b1fa 23125856 775fb2f7 2def92fb c0a1fb3a c1d246c2 365d5745 ea2d5959 c8a5f2c9 a6015695 a2b3a5f9 877ebae3 56b46eb4 df4b9383 1e50db5d 28fe69a0 98da2525 551860e0 24446e7a c9dab4a8 20042668 fbe1025e
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e3af6469 9e215fc4 eb616e6a bbe9324b
+IV: d1bcb027 7a4da598
+Plaintext: 789c 19533fa2 37ab64ef 5c575292 6e743f39 6fce5e99 525b5610 0d08f489 efb81ca1 348a0608 d75ba729 a78d6c0d 9d062e7c 6d7b6366 5bee9182 50750935 2d3ed1b5 5fd0e26e b49393a5 6c93565b 9481a274 8ffb3018 f60c6a5a a2f72117 06307e21 c2ac3b9d 765a12aa
+Ciphertext: 767c 1e555778 fcef3c03 7d6e166f d60ff9d5 f082de6c cd9e2b24 0c540a1b 7c3c1abb 0f522325 c02de6c1 a128ee66 06c926e8 27fb6d10 c2a78afa 560367a6 998e0ffa 2f23542e da90c99d a69ec7d7 ae9b003f 2a34abbc 5bd42224 c3402f74 bc91b52d 1bed3f51 f9cb4ec9
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: d4f27644 faed8267 fed42f77 cabec9df
+IV: 2a15a4f9 23980b2e
+Plaintext: 87a679 5ec6b90c 81073136 8f7753b6 9ee191c6 4a800b96 5a1157fa a12b7d5f 21d34604 774cb767 732cd8fd 06b5ba25 6161b75f 5bbffcb9 137e458b d7c7e864 45d11544 b0af5c0c c66c6f32 6f592ab9 f8a6d061 7030981b 529a68bf 659fe001 e1a69aa2 d397b0e3 c2ee7f3f
+Ciphertext: 05095f b9cbf9c5 eb7eed71 f8a06d3c 72348e4e 3f97484c 50a1441b 50eab35f 739d2f6d a732f095 63cb36fe aba0ce91 61ca2ad0 56106fff 1a511ffc 4ba552d5 8a37a0c8 63ec4d7e da8e0cf1 068763ea 3ca5e2b1 82b071c9 c92d7511 12ebb4f0 6ae3c66e b1f7da74 35974448
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 930eab59 aad76434 527ae7a2 5f8c47ff
+IV: 125a6d1e 3c7d5d84
+Plaintext: a6aebcd4 b1db8f8b 3a7a46ed c01df940 c946f137 817d6ab1 a5a197a4 9f7ce753 f39987c8 d95a287e 2b45025e 829f19ec 9d3cbfc3 02955a3f e71b6779 52cbbf78 800319a5 8494d180 3018e892 38864ba2 9503582c 28fb9e0f a071e486 9d936d59 15927b55 f8b012f9 0f9bfe72
+Ciphertext: 3f15f7c9 a841e832 f1ff59e8 8b692bb5 cc83b38e 6d34629d 6eb28a85 959e82a8 869a374a a3dd2f4e 02aaae30 3a06e9fe 5de21e6e ee047f61 419aa744 a9c45b64 36e503fe 5f5963a9 2c731f51 7b1db9bb d72d560a 6c9e930d 4dfa45c8 1ca8bf9f 774aa6ae 95430231 9b4d1d5b
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2af918ca 7a44c45c 3cd8be8b 974a17b3
+IV: c8fc7a60 7ceeb4be
+Plaintext: 7d d7735191 754ee6a0 2106ca14 a60c3985 53431996 4f06e91a 2d6df47c c0ccca5d 317df07e 4ee0d7e1 259f0b2b d237ad4d 95b42363 28bb0edc 4fce7cdc b0cc60de e5b73f9e d0ba2b36 2e6bf587 6f4d9fda c69910c7 7c3e0b57 89266265 65bb674a 1caaa4b9 a1e6cce7 64f1f1ef
+Ciphertext: 34 c6ec26dc 07ea3b61 9e52f6a6 4fb65974 24f3346f 11d8b284 b37d405e b03efc35 65ec61c5 1ca7f278 132a7a7b 68ffa934 43d44866 fdaf572f f7a5ec2b 98ee25a1 97fd5a5e 2fc15701 5de182ed a0b58414 9da292ff f7b24607 4e8ed3aa b5e86020 bcb68a06 24c602bf e0ce0162
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2657f676 0c7b488a f395c9d0 04fc0ddf
+IV: 88a1c9e7 fddc8896
+Plaintext: 696c a03ceeb9 652d9f5b 9c6792e0 337436ca 2f92e7d8 e512c087 6dfeb1d7 54fed152 917cf54b ba078164 78f57e53 394dede5 24e45b42 52c5b674 3bd65f23 6eb980a2 86f1a030 59467577 726af959 c2dcc0ec 920d88c3 bcc21270 1bb93046 408f2064 66e118ef a8b2229e 720c2a7c
+Ciphertext: d0dd 740295d1 06c6da8c 60b76529 a90d14e2 fc1ea279 7e95481b 63858863 ecc90250 93f64504 090de1ee c37dba51 aaf70894 c7127ab9 39847d8f be9b895f 98d0b86c 72865f8f ed7718eb be0d9d54 1b261589 1bec45c9 ec391842 ad88ffb8 f1507ca1 98149480 549b6ee6 99629281
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 36ea55e9 605695e2 8bcf7b83 f5ed4cca
+IV: 3048569e 1b958410
+Plaintext: 111231 e060253a 43fd3f57 e37607ab 2827b599 b6b1bbda 37a8abcc 5a8c550d 1bfb2f49 4624fb50 367fa36c e3bc68f1 1cf93b15 10376b02 130f812a 9fa169db 99ced213 d6a7d695 de24de3c f01ac090 46672b97 996f45ee e8cd9217 76421815 12f1c136 9acf0031 c255b770 127859af
+Ciphertext: 1de6fb d0fc2eff 5bf3acce 6f8412dd 2ae8c857 489fc36e 266bfdf7 078c300e 09fd48d7 c4db414c bb855b43 bf5ea106 550fe19a 17a76fb1 e3400c19 444d1a5a 31802661 6d06bbaa e7291272 5b34cdad a725202e f7b6a6c1 40e32cf6 2cb9f6c9 fb1cb3df d4fe5b9b b00e57e1 fa089710
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2eda4cc6 5a4291c3 3d4aa63c e557abe4
+IV: 0ccec55b 9a85c04b
+Plaintext: 6b78f8b0 51be7977 5dbb654b 5a9696ac 9bed8541 f7c86a6f 11cca52a ddb25d0b 5ff767a3 b6d46910 5a703fcd a2559dcf 8920f6cd b17d9ddf a8532b4a 6b3c209a 2838cdf2 48a271a1 ad63a2f5 3865ee54 8f4bc388 1d5f8c5b 5acb1d64 4c0d5120 4ea5f145 1010d852 dffa556b 26b0d164
+Ciphertext: d5df1ff1 035f673b 8ab64941 3388159e ca71a3c7 531ddb85 839c039d 9d365882 d7efad65 d462c6f1 e7d13085 68525938 d18a052f e74a098b 904bc32d af993b4e e2cf60c3 5aea123b f640ae56 d1d330cb bc0443cb 53f0d3d4 dd14b25c 7ea7f72c 05c13761 8ee8b3a9 051bf4d9 8e391359
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 35d4b21c 42547f0c ad9c441f 890b38c4
+IV: 57a49d42 1407e84d
+Plaintext: 77 9f22d674 1c8e2704 248c2e28 45bd192b 2f682428 201cafcd 9f97945e 6de7b7fd b9cfdf28 936cc483 a31869d8 1b8fab5c ea511a34 33470937 fda8e1f6 2c1ebbf9 b0252d4c fcb4633b b9207259 bc3deac7 36c6aab2 2bfff91e 2698d2e2 2ad57ef4 ebec69e7 3eaf2eb2 cf6af4b3 120ffdf4
+Ciphertext: 57 4ac883ad 58249d22 a43b6517 b8af5e4b 345dc67d 9da0419a 730d54c1 7221600b f10de64c 0338d7a9 652d8d62 7de7e0b2 e44c1646 76a2aba0 a961abc1 c85d74e9 f71426c6 22fe50d1 48998c19 cfab350f a3611ab2 db395785 dfa7ff54 7e61c06b 87a2d3af 6d64244c a5037730 d88b030c
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 7c907cac f28da709 822f0e2c 51542b76
+IV: d4ec3a02 43a24b72
+Plaintext: 4bc0 95ef044c 0d6b2277 37296f39 3c807935 3edc87e2 e805d2ec 49a4f2d8 e20397e8 fd14793e 41b59243 84328a4a e00b7371 09f8b6c8 dd2b4db6 3dd53398 1ceb19aa d52a5b2b c25932bc 0ace2b0a ba33d8ac 188ac54f 346fad10 bf9dee29 20b43bd0 c53a915c b7df6caa 72053abf f37f10ae
+Ciphertext: 6e42 7614403e 9eaba1d7 f27bc276 54928f0e ab5baf3d 89253489 e34f12cc 9e306815 455721e4 206f2406 6813636e 336345ba fa6289c4 786a84c6 50d2fb06 ffd19005 0cab0273 1cb735b7 64f5ada4 b22e38c3 5f4754a7 066bac9e 7c690ae3 1574208b 1484481a 1fc4f98b 795af2fe f970e957
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 12999cbc 12595bc3 77050bd4 17e56420
+IV: 744a0319 49d0a7d4
+Plaintext: 63df9f b2b27883 3fa02e23 5aa172bd 970c1473 e12907fb 648b6599 aaa0b24a 03866542 2b20a499 276a5042 7009413c 5327d30c 987da16a 62b1903b 56e310bf ff839e0c 71658dbb 2d1707e1 45724f41 c16f48bf 403c3b18 e38fd5d1 663b6f6d 900193e3 cea8bb4f 1b4f5be8 22032232 a78d7d75
+Ciphertext: bc26c1 23eae682 04846d01 a5d7c0a3 87922a37 4c6b113d 3c5f0f88 c3f8af27 5ba73b66 5a494055 a364c573 eed134d2 e68bcb87 a7612481 1a382f9a 2852deb5 b9366d80 22f9d008 4ae8abe1 52380294 b7854935 97d75c96 357e2dd6 ebd85d37 6758ef10 1ea502d8 4608c1ce 71491999 9a0c07df
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 238d5e6d aecd3b43 22cf59bc 7ea84ab1
+IV: 8811b5bf b7bc553f
+Plaintext: 4fe44478 ce287a14 879990d1 8d12ca79 d2c85514 9021cd5c e8ca0371 ca04fcce 143e3d7c fee94585 b5885cac 46068b5b be4decdd 8f1424cd 36f82dcf 1bcf597e b93993a5 fe77e8b1 f5814766 a25285d2 2e87a47f 442855ed bac6bb3f 74c67235 85fcd05a 987c6b7f 8facdb67 699ec1c4 699d0862
+Ciphertext: f53ff045 10788406 6720f826 3a99fba1 faafdd0f dafa5eb7 ab8ce23c 45c5d8ab 979c2d89 21208356 1d5404ea ada8d0e3 853329fe 6997fd57 b034d2ef 9b1ad83b fb745743 eb9c8018 377cfaf7 80358757 a0fd6a40 20608bf4 d470e51e a1b64f5d 834a8601 d8aff4d8 e68a24fb 2732dac0 af4d7ac0
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 74066aa3 bc5a362b 9b9051dc c1b07b05
+IV: 929dd4d6 ca329f18
+Plaintext: 63 91451bb8 b89defea 566ad683 dc26fa59 d6fe5cb6 7c1d0db5 842da0ef 3b1bdf57 d41bbd63 00ed8c6d bf5e7058 75111476 407f9ba9 893ddac9 d97ec446 eed8250f 0f4b94b2 9c7fa2c4 e94d5883 4c81e1ba 75de83e5 fe63d496 43cd2a17 745d5351 e9db86ec b5db9ab8 7d3f764c 8bfdc9ed 1e23fbb1
+Ciphertext: e8 8b50da9d 09a87d62 f9f29c23 be46a508 6ec33f58 4aafd4af 051e10da 35be3f31 25c344bb 32eaed95 4b6208ad a7cf9d6e 669c2389 aebfdf91 bfa19a31 a64a3f9a 169c2621 cc0754d6 2450ec3f 42e24cd6 332a8e93 d1398ba7 17496d0d 5c66f5fb e1cb6100 9a3c53a6 26abe229 363f3b1d e5f59a06
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 041863e3 6b24baaa f532cfe6 0ad57d5b
+IV: 728ada11 233db2fa
+Plaintext: 570e 34d6e254 ea54c3e2 ef7af98a 5c4698e0 03961b40 6045fc13 cc97824d f4d7db3a 8a3e6a7b 3a17624c e0219408 f83585ee 5528c425 17f37afe d711437a 24293c0c 33ed5e9f d2420adb 9ea1e4a4 76bde5e4 2f66ac8b 89ad15d4 62490dc9 2a39a509 97ab65c9 9a1de219 91c29268 be27e04b f8167c7a
+Ciphertext: 4888 cbaee64b f8fc69be e46cf946 559c8fe3 4a447031 e2bc6438 d0fadc0e f60b14ce dc9a18ed 693560b1 e4aaaf80 afccbcf2 26aa6508 f521cbbc 78d7177d d8b4e4dc 45058fb6 3f86d617 e68a8fbc 046535bb f4b7acb3 6a0959ea 711c0641 32adc621 ffb504bf 264e7f23 999c2748 9309b72e a22d99d2
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: a0bbf51b d7058944 ee4f3cbb 1e402700
+IV: 7aef138d 214b465c
+Plaintext: b8bb9d aa1801db fb436441 5e9d0e5f f259b329 a931734d 4c5a02c4 bfb706a7 874dc045 89f7ef72 145af122 221c2c36 db51ac95 5b360d7f b5229c1e 38b9b95e f16380ff 70fda8e9 cfceaabf f1bc26b6 08bf83a8 5a97d764 44ba0649 7f912d13 a2e341f4 e892f3e7 3485d741 52e5c688 808c8189 2dba96a5
+Ciphertext: 6656ec 6004b588 23ccba41 8b4835b6 655b035a 1f4c4071 40fe2075 1c64d1da f26dc933 182f47fa a7088046 86bd993e 30ac90c4 4c12d123 4647fdc8 bc1d7787 d02cdbd8 b292bba4 4d1b5433 32adf148 ac0fe69f ad5730ce 92be7c4d 3cb8e2cf f28ab93a d133aa8a 48cdd2e2 0631bbc0 b571c77e 727f6bc6
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 000a886c 1ca52a6d a3b64c4b 781e9914
+IV: 4a68c0cf ceffd254
+Plaintext: 4b9eeb61 5c0915e9 f2fb69af 985f7814 fbc2e92d a9096319 195fad92 ec7213c1 72df0c57 70ea1bd9 2073f33b 7a26deb1 b2f15fc2 02bb169e a953e5b1 34a65178 fc362b94 f0c76f1d 945b6c38 4a6125ec d12af831 0b9c7d4a 032ab155 2e045421 f18a8f3f 6407da5c 569c1dce 917a156c 5e54faa3 4c155fc6
+Ciphertext: e1ddb43e b0686a83 b8b74214 53f50d05 fe0b7183 617c9e3b f11e8e15 5f863745 867b4023 e18bb3b1 b6d960a2 846d7289 b402de99 793d58db 81fc6b36 9f4f8e1f e591f353 1ecd5c55 67605d77 e8d192dd 72bcc43f 825e80cd 9f396401 d44817e8 f4e143d4 90ee2c92 0d032528 0522aa9f 0a8a051e a9c26661
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 2ece59a6 63f2e363 5ac58181 5412243e
+IV: 6c1c4e23 d5d876da
+Plaintext: 64 59ae3f4e 8c83b932 2525cb5a d9c8e63e ce498249 50156de0 c54762a1 e310dde8 205c2e98 6ab2cc18 195ced9b 22c953a5 8d2f69cb 29748eba 7e4fb17a 03ab1ef4 914c97b2 18b4a7e7 914833af 33af5297 ea7b5f60 050b4c00 2eaf38ea a00e448f 94c5a325 fc51f1a7 742fc61d 76418a1d cd748b92 4ca04cbc
+Ciphertext: fa b2ccef05 920cf681 ca567045 25d2c959 8f280264 26c14f91 a407f745 646bb0ed 0ec3b3f2 f3d6bf13 d31dc0f3 283179b8 63882751 24202614 bc8daf76 538ec6b4 d0853768 99685916 2ea8da19 d826136b 61310677 62088b15 8347401f ba78a1ca 95cf3ea4 4ca1a788 a1f4303a 8be807a9 87a7a3d8 448fe576
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: bfb02178 2202f8c2 11117a78 80515360
+IV: ac5acd6d 5149a43e
+Plaintext: 1e63 16e866fc 39f51898 91adf14f e294f076 43330b7b 741b2011 71282e8d 4703c590 27eabbe7 b9b421af b20f75bd a90d193d 27df0498 fde0b89c dad574d7 1c72aa43 e721b329 7400c23f ac281713 f63575ad 4d03d570 95b55c42 2ffc8bed cb96b6c4 7d14b789 14e1e38e a7803d1b 7015ea10 dd27e5cb e5a4f44c
+Ciphertext: 9e63 9f51e8e4 012ad938 c453aae1 94216fe7 c24e17b1 60d60989 5cb4a5e4 ebb70d1f 10306756 aa93e79c 3ebcd0b2 44ad5629 53980904 1d4c56cf 80844beb a394f8ea c33c0483 7ddf0ecf ed4ef7b0 7fdd7d13 d4991ddb 6150904b 5df76d98 29899d36 df24f5be 533342a4 982c5cc9 3056fc7e dfe1c698 c01bb0ba
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 9925db97 fb74cf5a 124c2dd0 3e5f6ce5
+IV: ca9d519b c0b461ac
+Plaintext: 01d39c 7194b468 023fd9cc 9f5416de 4fce4f7f c69c8345 8c3d09b9 5c8d1ac3 cbdf9062 2a4beda0 ac4a9fc6 cc8083cc e9d8a713 33d65457 cb294cdf 268050f6 b39fe59f bdb25885 92e10031 e524c37f 7159db53 df94da88 eab6ec29 c1415de4 ac6a5bbb f370fcfd fc2d8375 b3ebdfe1 2e7874a6 927d1ec1 300b7301
+Ciphertext: 6609bf f2faa2c0 24f3673c 198169a0 7deea7b0 cbf55f41 26c1a9ef fd925d8f 3efe41f7 77d6b2c3 3a60e78e 71d5929c 43d51531 3cba271c 96cd7cc0 875fd931 7db96591 f8c6c69f 5ce46bdc 974fa95c b6591f25 7abf8712 718a4e3f c743287a 5acb655e 6dc0348a b453d1c3 810a6b71 87abe950 7bc3d52b f9409687
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: f4774973 0068791e 942ee2f1 3155b0fa
+IV: fe7aded9 6a5ef973
+Plaintext: 133927eb e75169ce 88ca1d8d f5c0c731 6893104a 7a820f28 8d7cc84e 6b32f224 2b71feec 55af54f7 46e4e019 d59bcd5a 364890ee 1fdc2968 2a97a52a 7b1de820 a2cda9ae c24ebee6 f36a9aff e6201402 c8f46ac7 688a8520 9b737e54 e04762cf 40f43217 78552e02 5a075327 71782392 e440a4bc 9cb5abba a9b95ab4
+Ciphertext: e78c58df 373c9e47 548e9d3c 99d737cf e69594ba 4aebebf3 f58a5941 09f268a4 3f6b50a2 f6238823 58b0e019 fdfc626e 403ff438 7466f2d7 08039c3f 5860cfe8 d4c7fc2c 19d6c767 a4aea8d8 944e53d5 04f6d09c 20964435 0d01c836 b871276a 696b4f33 849b3bea e6ea9dba bc4d3ddf 75922421 edb970d7 b68404a4
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: e2d7e899 cc8fa011 beed2db3 42611479
+IV: bdca8270 53d448b4
+Plaintext: 05 84249c1c 114232cb f602e610 45fc83db 3e426172 20e4dd14 3fba06dc 575d99e9 207730bc 223db6e1 cb391ed2 bf4d5418 6ff574b3 edcc3bbc ff52bb49 72ec5291 b02cdc51 9553286e 7f14a9db a49b6ebd a9ce54cd 70d37bfe 31d2f661 ccfcc745 5dcc0aa2 118c70b8 391ceff3 9defb812 13566a88 50018522 fdc221eb
+Ciphertext: e5 dee167b1 d72df2fd 618862bb 7e5cfa83 b429d483 5e7269a2 4aa73f29 8b04e902 faffb48a cc13b01b ebad127d 7cc2a091 6e665a95 76f8366a ad4d015f cd250221 3ded6048 590ab7e9 e5eac803 48831f6d 039d457d 80a537ff bdfd6b67 12b5e632 18376e87 6e5115c6 7ac28251 63de55a7 356262b2 08cc3a77 c14d6110
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 0e95e04d 4fde2178 3ff17608 22d759e1
+IV: 52501a5e d6141cac
+Plaintext: 355e 41708cab a3b0dfbf 85f0adea 899bc789 23a562cf 4d6f6ac6 7ceb1990 d300c9f3 97300615 e478e883 9e779f78 a9d3505d 5dd9208c 34638e59 c6ff0553 f84db1c7 70a99386 4c0ad0e8 132a4f11 ebe88273 0dea8494 77866512 e0e3c2e4 f15b98e2 b2245988 433040f7 cc51e23c b6a107d5 1c21b771 7ca098f8 b3df77cb
+Ciphertext: d949 58578eb1 26517275 2bafbb97 391983c5 944c0e21 dd6a72b1 997275ca 44f4d10a 731b21ff c077f7fe 70e3a88b 8080dbe9 c4f2115f 4a6c8685 db66566c 5bd27d2e a3e8998f a7969f6c 34e1ee21 a03e41c3 842541fa 87c2759d 63129df2 97ce7603 725bc226 ccdb4cb1 cd651171 bc69dd62 eabad456 1c7ec672 ba4648fa
+Test: Encrypt
+#
+Source: rabbit.c reference implementation
+Comment: Rabbit, 128-bit key, 64-bit IV
+Key: 28f2244d 47e983a2 31b0e0b7 b1348382
+IV: 73c7848b 70c6e1ab
+Plaintext: ad79ce 13253a4c 9103dafd 0f154037 5d7e5357 30ab1b58 6a8822a4 9bf32129 c871d8b0 6c1f3e6a bdecdacc 3006719d 3f92e14e 6aa04d89 7c5e7a0c 0f8b79b8 522f87e5 0a8a31f9 d74abc39 b901c3df d2d5226c 6e7a133f 405d9767 ee2218b6 d1514c16 f64c5c20 688546eb b1ed8022 9eb0de5a 431fb5a2 3fed415b 419f444a
+Ciphertext: 81ca77 234c55f5 9414f0a5 8e25a4b5 09c444f4 8487fefe cc9ad3d6 5a439638 7fad9fb7 41627f3e 653e1d11 4199269a e7c14f63 548d3ac6 ba173e98 28b8f2f6 bc077823 c77e142b c272e403 210b74b3 a99660db 52a2a290 436f4748 78bd5956 9c31a957 86e18fea 73600c5a b9a2a750 be7cc553 13701f5d 842ee470 87661a22
+Test: Encrypt

@@ -230,6 +230,8 @@
     <ClCompile Include="gfpcrypt.cpp" />
     <ClCompile Include="gost.cpp" />
     <ClCompile Include="gzip.cpp" />
+    <ClCompile Include="hc128.cpp" />
+    <ClCompile Include="hc256.cpp" />
     <ClCompile Include="hex.cpp" />
     <ClCompile Include="hight.cpp" />
     <ClCompile Include="hmac.cpp" />
@@ -271,6 +273,7 @@
     <ClCompile Include="queue.cpp" />
     <ClCompile Include="rabin.cpp" />
     <ClCompile Include="randpool.cpp" />
+    <ClCompile Include="rabbit.cpp" />
     <ClCompile Include="rc2.cpp" />
     <ClCompile Include="rc5.cpp" />
     <ClCompile Include="rc6.cpp" />
@@ -424,6 +427,8 @@
     <ClInclude Include="gfpcrypt.h" />
     <ClInclude Include="gost.h" />
     <ClInclude Include="gzip.h" />
+    <ClInclude Include="hc128.h" />
+    <ClInclude Include="hc256.h" />
     <ClInclude Include="hex.h" />
     <ClInclude Include="hight.h" />
     <ClInclude Include="hkdf.h" />
@@ -469,6 +474,7 @@
     <ClInclude Include="queue.h" />
     <ClInclude Include="rabin.h" />
     <ClInclude Include="randpool.h" />
+    <ClInclude Include="rabbit.h" />
     <ClInclude Include="rc2.h" />
     <ClInclude Include="rc5.h" />
     <ClInclude Include="rc6.h" />

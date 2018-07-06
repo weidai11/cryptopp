@@ -11,14 +11,14 @@
 	CCM, EAX, \ref GCM "GCM (2K tables)", \ref GCM "GCM (64K tables)"
 <dt>Block Ciphers<dd>
 	\ref Rijndael "AES", ARIA, Weak::ARC4, Blowfish, BTEA, \ref CHAM128 "CHAM (64/128)", Camellia,
-	CAST128, CAST256, DES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",
-	\ref DES_XEX3 "DESX", GOST, IDEA, LEA, \ref LR "Luby-Rackoff", \ref Kalyna128 "Kalyna (128/256/512)",
+	\ref CAST128 "CAST (128/256)", DES, \ref DES_EDE2 "2-key Triple-DES", \ref DES_EDE3 "3-key Triple-DES",
+	\ref DES_XEX3 "DESX", GOST, HIGHT, IDEA, LEA, \ref LR "Luby-Rackoff", \ref Kalyna128 "Kalyna (128/256/512)",
 	MARS, RC2, RC5, RC6, \ref SAFER_K "SAFER-K", \ref SAFER_SK "SAFER-SK", SEED, Serpent,
-	\ref SHACAL2 "SHACAL-2", SHARK, SKIPJACK, SM4, Square, TEA, \ref ThreeWay "3-Way",
-	\ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
+	\ref SHACAL2 "SHACAL-2", SHARK, \ref SIMECK64 "SIMECK (32/64)" SKIPJACK, SM4, Square, TEA,
+	\ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
 <dt>Stream Ciphers<dd>
-	ChaCha (ChaCha-8/12/20), \ref Panama "Panama-LE", \ref Panama "Panama-BE", Salsa20,
-	\ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
+	ChaCha (ChaCha-8/12/20), \ref HC128 "HC-128/256", \ref Panama "Panama-LE", \ref Panama "Panama-BE",
+	Rabbit, Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
 	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
 	\ref SHA3 "SHA-3", SM3, Tiger, RIPEMD160, RIPEMD320, RIPEMD128, RIPEMD256, SipHash, Whirlpool,
@@ -621,11 +621,13 @@ public:
 	/// \brief Returns smallest valid key length
 	/// \returns the minimum key length, in bytes
 	virtual size_t MinKeyLength() const =0;
+
 	/// \brief Returns largest valid key length
 	/// \returns the maximum key length, in bytes
 	virtual size_t MaxKeyLength() const =0;
+
 	/// \brief Returns default key length
-	/// \returns the default (recommended) key length, in bytes
+	/// \returns the default key length, in bytes
 	virtual size_t DefaultKeyLength() const =0;
 
 	/// \brief Returns a valid key length for the algorithm
@@ -682,9 +684,12 @@ public:
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
 	/// \brief Secure IVs requirements as enumerated values.
-	/// \details Provides secure IV requirements as a monotonically increasing enumerated values. Requirements can be
-	///   compared using less than (&lt;) and greater than (&gt;). For example, <tt>UNIQUE_IV &lt; RANDOM_IV</tt>
-	///   and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
+	/// \details Provides secure IV requirements as a monotonically increasing enumerated values.
+	///   Requirements can be compared using less than (&lt;) and greater than (&gt;). For example,
+	///   <tt>UNIQUE_IV &lt; RANDOM_IV</tt> and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
+	/// \details Objects that use SimpleKeyingInterface do not support an optional IV. That is,
+	///	  an IV must be present or it must be absent. If you wish to support an optional IV then
+	///   provide two classes - one with an IV and one without an IV.
 	/// \sa IsResynchronizable(), CanUseRandomIVs(), CanUsePredictableIVs(), CanUseStructuredIVs()
 	enum IV_Requirement {
 		/// \brief The IV must be unique

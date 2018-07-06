@@ -1,3 +1,10 @@
+####################################
+# C++ generic ignore
+# Allows you to use test.cxx and
+# avoid getting in the way of things
+####################################
+*.cxx
+
 ####################
 ## Crypto++ specific
 ####################

@@ -65,7 +65,7 @@ public:
 		std::string AlgorithmProvider() const;
 
         FixedSizeSecBlock<word16, ROUNDS> m_rk;
-        mutable FixedSizeSecBlock<word16, 4> m_t;
+        mutable FixedSizeSecBlock<word16, 5> m_t;
     };
 
     /// \brief Provides implementation for encryption transformation
@@ -115,7 +115,7 @@ public:
 		std::string AlgorithmProvider() const;
 
         FixedSizeSecBlock<word32, ROUNDS> m_rk;
-        mutable FixedSizeSecBlock<word32, 4> m_t;
+        mutable FixedSizeSecBlock<word32, 5> m_t;
     };
 
     /// \brief Provides implementation for encryption transformation

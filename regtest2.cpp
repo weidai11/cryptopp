@@ -22,6 +22,9 @@
 #include "vmac.h"
 #include "tiger.h"
 #include "sosemanuk.h"
+#include "rabbit.h"
+#include "hc128.h"
+#include "hc256.h"
 #include "arc4.h"
 #include "ccm.h"
 #include "gcm.h"
@@ -117,6 +120,10 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<XSalsa20>();
 	RegisterSymmetricCipherDefaultFactories<ChaCha>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
+	RegisterSymmetricCipherDefaultFactories<Rabbit>();
+	RegisterSymmetricCipherDefaultFactories<RabbitWithIV>();
+	RegisterSymmetricCipherDefaultFactories<HC128>();
+	RegisterSymmetricCipherDefaultFactories<HC256>();
 	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<LittleEndian> >();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<BigEndian> >();

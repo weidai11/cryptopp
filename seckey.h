@@ -311,8 +311,9 @@ public:
 	SimpleKeyingInterface::IV_Requirement IVRequirement() const
 		{return (SimpleKeyingInterface::IV_Requirement)INFO::IV_REQUIREMENT;}
 
-	/// \brief The default initialization vector length for the algorithm
-	/// \details IVSize is provided in bytes, not bits. The default implementation uses IV_LENGTH, which is 0.
+	/// \brief The initialization vector length for the algorithm
+	/// \details IVSize is provided in bytes, not bits. The default implementation uses
+	///   IV_LENGTH, which is 0.
 	unsigned int IVSize() const
 		{return INFO::IV_LENGTH;}
 };

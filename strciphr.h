@@ -97,7 +97,8 @@ enum KeystreamOperation {
 	/// \brief XOR the input buffer and keystream, write to the aligned output buffer
 	XOR_KEYSTREAM_OUTPUT_ALIGNED= OUTPUT_ALIGNED,
 	/// \brief XOR the aligned input buffer and keystream, write to the aligned output buffer
-	XOR_KEYSTREAM_BOTH_ALIGNED	= OUTPUT_ALIGNED | INPUT_ALIGNED};
+	XOR_KEYSTREAM_BOTH_ALIGNED	= OUTPUT_ALIGNED | INPUT_ALIGNED
+};
 
 /// \brief Policy object for additive stream ciphers
 struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
@@ -146,7 +147,8 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	///   which will be derived from GetBytesPerIteration().
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream(), KeystreamOperation()
 	virtual void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
-		{CRYPTOPP_UNUSED(operation); CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(false);}
+		{CRYPTOPP_UNUSED(operation); CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input);
+		CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(false);}
 
 	/// \brief Key the cipher
 	/// \param params set of NameValuePairs use to initialize this object
@@ -159,7 +161,8 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	/// \param iv a byte array used to resynchronize the cipher
 	/// \param length the size of the IV array
 	virtual void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
-		{CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length); throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
+		{CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
+		throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 
 	/// \brief Flag indicating random access
 	/// \returns true if the cipher is seekable, false otherwise
@@ -169,7 +172,8 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	/// \brief Seeks to a random position in the stream
 	/// \sa CipherIsRandomAccess()
 	virtual void SeekToIteration(lword iterationCount)
-		{CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(!CipherIsRandomAccess()); throw NotImplemented("StreamTransformation: this object doesn't support random access");}
+		{CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(!CipherIsRandomAccess());
+		throw NotImplemented("StreamTransformation: this object doesn't support random access");}
 
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider
@@ -233,10 +237,17 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 };
 
 /// \brief Helper macro to implement OperateKeystream
+/// \param x KeystreamOperation mask
+/// \param b Endian order
+/// \param i index in output buffer
+/// \param a value to output
 #define CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, b, i, a)	\
 	PutWord(bool(x & OUTPUT_ALIGNED), b, output+i*sizeof(WordType), (x & INPUT_NULL) ? (a) : (a) ^ GetWord<WordType>(bool(x & INPUT_ALIGNED), b, input+i*sizeof(WordType)));
 
 /// \brief Helper macro to implement OperateKeystream
+/// \param x KeystreamOperation mask
+/// \param i index in output buffer
+/// \param a value to output
 #define CRYPTOPP_KEYSTREAM_OUTPUT_XMM(x, i, a)	{\
 	__m128i t = (x & INPUT_NULL) ? a : _mm_xor_si128(a, (x & INPUT_ALIGNED) ? _mm_load_si128((__m128i *)input+i) : _mm_loadu_si128((__m128i *)input+i));\
 	if (x & OUTPUT_ALIGNED) _mm_store_si128((__m128i *)output+i, t);\
@@ -406,8 +417,9 @@ public:
 	/// \param iterationCount the number of iterations to perform on the input
 	/// \sa IsSelfInverting() and IsForwardTransformation()
 	virtual void Iterate(byte *output, const byte *input, CipherDir dir, size_t iterationCount)
-		{CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(dir); CRYPTOPP_UNUSED(iterationCount);
-		 CRYPTOPP_ASSERT(false); /*throw 0;*/ throw Exception(Exception::OTHER_ERROR, "SimpleKeyingInterface: unexpected error");}
+		{CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(dir);
+		CRYPTOPP_UNUSED(iterationCount); CRYPTOPP_ASSERT(false);
+		throw Exception(Exception::OTHER_ERROR, "SimpleKeyingInterface: unexpected error");}
 
 	/// \brief Key the cipher
 	/// \param params set of NameValuePairs use to initialize this object
@@ -419,7 +431,8 @@ public:
 	/// \param iv a byte array used to resynchronize the cipher
 	/// \param length the size of the IV array
 	virtual void CipherResynchronize(const byte *iv, size_t length)
-		{CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length); throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
+		{CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
+		throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider

@@ -77,6 +77,12 @@
     <None Include="TestVectors\gcm.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <None Include="TestVectors\hc128.txt">
+      <Filter>TestVectors</Filter>
+    </None>
+    <None Include="TestVectors\hc256.txt">
+      <Filter>TestVectors</Filter>
+    </None>
     <None Include="TestVectors\hkdf.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -99,6 +105,9 @@
       <Filter>TestVectors</Filter>
     </None>
     <None Include="TestVectors\Readme.txt">
+      <Filter>TestVectors</Filter>
+    </None>
+    <None Include="TestVectors\rabbit.txt">
       <Filter>TestVectors</Filter>
     </None>
     <None Include="TestVectors\rsa_oaep.txt">

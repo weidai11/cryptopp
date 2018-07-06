@@ -28,6 +28,11 @@
 #include "ec2n.h"
 #include "misc.h"
 
+// Squash MS LNK4221 and libtool warnings
+#ifndef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
+extern const char ECCRYPTO_FNAME[] = __FILE__;
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if 0

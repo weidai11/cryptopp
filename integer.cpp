@@ -4361,8 +4361,8 @@ Integer Integer::MultiplicativeInverse() const
 
 Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m)
 {
-	CRYPTOPP_ASSERT(m != 0);
-	if (m == 0)
+	CRYPTOPP_ASSERT(m.NotZero());
+	if (m.IsZero())
 		throw Integer::DivideByZero();
 
 	return x*y%m;
@@ -4370,8 +4370,8 @@ Integer a_times_b_mod_c(const Integer &x, const Integer& y, const Integer& m)
 
 Integer a_exp_b_mod_c(const Integer &x, const Integer& e, const Integer& m)
 {
-	CRYPTOPP_ASSERT(m != 0);
-	if (m == 0)
+	CRYPTOPP_ASSERT(m.NotZero());
+	if (m.IsZero())
 		throw Integer::DivideByZero();
 
 	ModularArithmetic mr(m);
