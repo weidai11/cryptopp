@@ -48,6 +48,7 @@ protected:
 	bool CanOperateKeystream() const { return true; }
 	bool CipherIsRandomAccess() const { return false; }
 
+private:
 	// Master and working states
 	FixedSizeSecBlock<word32, 8> m_mx, m_mc, m_wx, m_wc;
 	// Workspace
@@ -66,6 +67,7 @@ protected:
 	bool CanOperateKeystream() const { return true; }
 	bool CipherIsRandomAccess() const { return false; }
 
+private:
 	// Master and working states
 	FixedSizeSecBlock<word32, 8> m_mx, m_mc, m_wx, m_wc;
 	// Workspace

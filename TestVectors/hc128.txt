@@ -1,8 +1,5 @@
 # These test vectors were generated using the eSTREAM reference
-# implementation for HC-128 using the file hc-128.c. We could not
-# use the published test vectors because they arrived at the
-# incorrect result when plugged back into the reference
-# implementation. Sigh...
+# implementation for HC-128 using the file hc-128.c.
 
 AlgorithmType: SymmetricCipher
 Name: HC-128
