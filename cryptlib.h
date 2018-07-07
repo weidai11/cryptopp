@@ -588,7 +588,7 @@ public:
 
 	/// \brief Provides the name of this algorithm
 	/// \return the standard algorithm name
-	/// \details The standard algorithm name can be a name like <tt>AES<tt> or <tt>AES/GCM</tt>.
+	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
 	///   Some algorithms do not have standard names yet. For example, there is no standard
 	///   algorithm name for Shoup's ECIES.
 	/// \note AlgorithmName is not universally implemented yet.
@@ -608,6 +608,7 @@ public:
 	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
 	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
+	/// \since Crypto++ 7.1
 	virtual std::string AlgorithmProvider() const {return "C++";}
 };
 
