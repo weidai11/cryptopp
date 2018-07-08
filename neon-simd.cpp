@@ -47,6 +47,58 @@ extern "C" {
 }
 #endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
+bool CPU_ProbeARMv7()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+	return false;
+#elif (CRYPTOPP_ARM_NEON_AVAILABLE)
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+	volatile bool result = true;
+	__try
+	{
+		// Modern MS hardware is ARMv7
+		result = true;
+	}
+	__except (EXCEPTION_EXECUTE_HANDLER)
+	{
+		return false;
+	}
+	return result;
+# else
+
+	// longjmp and clobber warnings. Volatile is required.
+	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+	volatile bool result = true;
+
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+	if (oldHandler == SIG_ERR)
+		return false;
+
+	volatile sigset_t oldMask;
+	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+		return false;
+
+	if (setjmp(s_jmpSIGILL))
+		result = false;
+	else
+	{
+		// ARMv7 added movt and movw
+		int a;
+		asm volatile("movw %0,%1 \n"
+					 "movt %0,%1 \n"
+					 : "=r"(a) : "i"(0x1234));
+		result = (a == 0x12341234);
+	}
+
+	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+	signal(SIGILL, oldHandler);
+	return result;
+# endif
+#else
+	return false;
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+}
+
 bool CPU_ProbeNEON()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)

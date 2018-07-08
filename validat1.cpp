@@ -383,13 +383,16 @@ bool TestSettings()
 	bool hasSHA = HasSHA();
 	bool isP4 = IsP4();
 
-	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3 << ", hasSSE4.1 == " << hasSSE41;
-	std::cout << ", hasSSE4.2 == " << hasSSE42 << ", hasAVX == " << hasAVX << ", hasAVX2 == " << hasAVX2;
-	std::cout << ", hasAESNI == " << hasAESNI << ", hasCLMUL == " << hasCLMUL << ", hasRDRAND == " << hasRDRAND;
-	std::cout << ", hasRDSEED == " << hasRDSEED << ", hasSHA == " << hasSHA << ", isP4 == " << isP4;
+	std::cout << "hasSSE2 == " << hasSSE2 << ", hasSSSE3 == " << hasSSSE3;
+	std::cout << ", hasSSE4.1 == " << hasSSE41 << ", hasSSE4.2 == " << hasSSE42;
+	std::cout << ", hasAVX == " << hasAVX << ", hasAVX2 == " << hasAVX2;
+	std::cout << ", hasAESNI == " << hasAESNI << ", hasCLMUL == " << hasCLMUL;
+	std::cout << ", hasRDRAND == " << hasRDRAND << ", hasRDSEED == " << hasRDSEED;
+	std::cout << ", hasSHA == " << hasSHA << ", isP4 == " << isP4;
 	std::cout << "\n";
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+	bool hasARMv7 = HasARMv7();
 	bool hasNEON = HasNEON();
 	bool hasCRC32 = HasCRC32();
 	bool hasPMULL = HasPMULL();
@@ -398,8 +401,10 @@ bool TestSettings()
 	bool hasSHA2 = HasSHA2();
 
 	std::cout << "passed:  ";
-	std::cout << "hasNEON == " << hasNEON << ", hasCRC32 == " << hasCRC32 << ", hasPMULL == " << hasPMULL;
-	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1 << ", hasSHA2 == " << hasSHA2 << "\n";
+	std::cout << "hasARMv7 == " << hasARMv7 << ", hasNEON == " << hasNEON;
+	std::cout << ", hasCRC32 == " << hasCRC32 << ", hasPMULL == " << hasPMULL;
+	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1;
+	std::cout << ", hasSHA2 == " << hasSHA2 << "\n";
 
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 	const bool hasAltivec = HasAltivec();
@@ -410,8 +415,9 @@ bool TestSettings()
 	const bool hasSHA512 = HasSHA512();
 
 	std::cout << "passed:  ";
-	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7 << ", hasPower8 == " << hasPower8;
-	std::cout << ", hasAES == " << hasAES << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512 << "\n";
+	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7;
+	std::cout << ", hasPower8 == " << hasPower8 << ", hasAES == " << hasAES;
+	std::cout << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512 << "\n";
 
 #endif
 

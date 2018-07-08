@@ -358,6 +358,7 @@ void DetectX86Features()
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
+bool CRYPTOPP_SECTION_INIT g_hasARMv7 = false;
 bool CRYPTOPP_SECTION_INIT g_hasNEON = false;
 bool CRYPTOPP_SECTION_INIT g_hasPMULL = false;
 bool CRYPTOPP_SECTION_INIT g_hasCRC32 = false;
@@ -379,6 +380,7 @@ word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 //   http://stackoverflow.com/a/11197770/608639 and
 //   http://gist.github.com/erkanyildiz/390a480f27e86f8cd6ba
 
+extern bool CPU_ProbeARMv7();
 extern bool CPU_ProbeNEON();
 extern bool CPU_ProbeCRC32();
 extern bool CPU_ProbeAES();
@@ -386,6 +388,9 @@ extern bool CPU_ProbeSHA1();
 extern bool CPU_ProbeSHA2();
 extern bool CPU_ProbePMULL();
 
+#ifndef HWCAP_ARMv7
+# define HWCAP_ARMv7 (1 << 29)
+#endif
 #ifndef HWCAP_ASIMD
 # define HWCAP_ASIMD (1 << 1)
 #endif
@@ -423,6 +428,25 @@ extern bool CPU_ProbePMULL();
 # define HWCAP2_SHA2 (1 << 3)
 #endif
 
+inline bool CPU_QueryARMv7()
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+	// ARMv7 or above
+	return true;
+#elif defined(__ANDROID__) && defined(__arm__)
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) != 0) &&
+		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_ARMv7) != 0))
+		return true;
+#elif defined(__linux__) && defined(__arm__)
+	if ((getauxval(AT_HWCAP) & HWCAP_ARMv7) != 0)
+		return true;
+#elif defined(__APPLE__) && defined(__arm__)
+	// Apple hardware is ARMv7 or above.
+	return true;
+#endif
+	return false;
+}
+
 inline bool CPU_QueryNEON()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
@@ -430,7 +454,7 @@ inline bool CPU_QueryNEON()
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_ASIMD) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__arm__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0) &&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
@@ -456,7 +480,7 @@ inline bool CPU_QueryCRC32()
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_CRC32) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0) &&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_CRC32) != 0))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
@@ -475,7 +499,7 @@ inline bool CPU_QueryCRC32()
 inline bool CPU_QueryPMULL()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0) &&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_PMULL) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
@@ -498,11 +522,11 @@ inline bool CPU_QueryPMULL()
 inline bool CPU_QueryAES()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0) &&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_AES) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM)  != 0) &&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_AES) != 0))
 		return true;
 #elif defined(__linux__) && defined(__aarch64__)
@@ -568,7 +592,7 @@ inline bool CPU_QuerySHA1()
 inline bool CPU_QuerySHA2()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
-	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64)  != 0) &&
+	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM64_FEATURE_SHA2) != 0))
 		return true;
 #elif defined(__ANDROID__) && defined(__aarch32__)
@@ -604,7 +628,8 @@ void DetectArmFeatures()
 {
 	// The CPU_ProbeXXX's return false for OSes which
 	//   can't tolerate SIGILL-based probes
-	g_hasNEON  = CPU_QueryNEON() || CPU_ProbeNEON();
+	g_hasARMv7 = CPU_QueryARMv7() || CPU_ProbeARMv7();
+	g_hasNEON = CPU_QueryNEON() || CPU_ProbeNEON();
 	g_hasCRC32 = CPU_QueryCRC32() || CPU_ProbeCRC32();
 	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();

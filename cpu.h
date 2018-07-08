@@ -342,12 +342,28 @@ inline int GetCacheLineSize()
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 extern bool g_ArmDetectionDone;
-extern bool g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
+extern bool g_hasARMv7, g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
 void CRYPTOPP_API DetectArmFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
 /// \name ARM A-32, Aarch32 and AArch64 CPU FEATURES
 //@{
+
+/// \brief Determine if an ARM processor is ARMv7 or above
+/// \returns true if the hardware is ARMv7 or above, false otherwise.
+/// \details Some AES code requires ARMv7 or above
+/// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
+inline bool HasARMv7()
+{
+	// ASIMD is a core feature on Aarch32 and Aarch64 like SSE2 is a core feature on x86_64
+#if defined(__aarch32__) || defined(__aarch64__)
+	return true;
+#else
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasARMv7;
+#endif
+}
 
 /// \brief Determine if an ARM processor has Advanced SIMD available
 /// \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
