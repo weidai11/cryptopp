@@ -81,7 +81,9 @@ public:
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
     }
 
-    std::string AlgorithmProvider() const;
+    std::string AlgorithmProvider() const {
+        return "RDRAND";
+    }
 };
 
 /// \brief Exception thrown when a RDSEED generator encounters
@@ -133,7 +135,9 @@ public:
         CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
     }
 
-    std::string AlgorithmProvider() const;
+    std::string AlgorithmProvider() const {
+        return "RDSEED";
+    }
 };
 
 NAMESPACE_END

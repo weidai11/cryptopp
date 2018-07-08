@@ -206,11 +206,6 @@ inline void RDRAND64(void* output)
 }
 #endif  // CRYPTOPP_BOOL_X64, CRYPTOPP_BOOL_X32 and RDRAND64
 
-std::string RDRAND::AlgorithmProvider() const
-{
-    return "RDRAND";
-}
-
 RDRAND::RDRAND()
 {
     if (!HasRDRAND())
@@ -367,11 +362,6 @@ inline void RDSEED64(void* output)
 #endif
 }
 #endif  // CRYPTOPP_BOOL_X64 and RDSEED64
-
-std::string RDSEED::AlgorithmProvider() const
-{
-    return "RDSEED";
-}
 
 RDSEED::RDSEED()
 {
