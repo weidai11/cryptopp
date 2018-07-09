@@ -126,7 +126,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 				while (iss >> std::skipws >> std::hex >> value)
 				{
 					value = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, value);
-					q.Put((const byte *)&value, 8);
+					q.Put(reinterpret_cast<const byte *>(&value), 8);
 				}
 			}
 			else
@@ -135,7 +135,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 				while (iss >> std::skipws >> std::hex >> value)
 				{
 					value = ConditionalByteReverse(LITTLE_ENDIAN_ORDER, value);
-					q.Put((const byte *)&value, 4);
+					q.Put(reinterpret_cast<const byte *>(&value), 4);
 				}
 			}
 			goto end;
@@ -162,7 +162,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 
 		while (repeat--)
 		{
-			q.Put((const byte *)s2.data(), s2.size());
+			q.Put(reinterpret_cast<const byte*>(&s2[0]), s2.size());
 			RandomizedTransfer(q, target, false);
 		}
 	}
@@ -223,7 +223,7 @@ public:
 		{
 			m_temp.clear();
 			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
-			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign((const byte *)&m_temp[0], m_temp.size(), false);
+			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign(reinterpret_cast<const byte *>(&m_temp[0]), m_temp.size(), false);
 		}
 		else
 			throw ValueTypeMismatch(name, typeid(std::string), valueType);
@@ -262,6 +262,8 @@ void TestSignatureScheme(TestData &v)
 	// Code coverage
 	(void)signer->AlgorithmName();
 	(void)verifier->AlgorithmName();
+	(void)signer->AlgorithmProvider();
+	(void)verifier->AlgorithmProvider();
 
 	TestDataNameValuePairs pairs(v);
 
@@ -306,8 +308,9 @@ void TestSignatureScheme(TestData &v)
 	{
 		TestKeyPairValidAndConsistent(verifier->AccessMaterial(), signer->GetMaterial());
 		SignatureVerificationFilter verifierFilter(*verifier, NULLPTR, SignatureVerificationFilter::THROW_EXCEPTION);
-		verifierFilter.Put((const byte *)"abc", 3);
-		StringSource ss("abc", true, new SignerFilter(Test::GlobalRNG(), *signer, new Redirector(verifierFilter)));
+		const byte msg[3] = {'a', 'b', 'c'};
+		verifierFilter.Put(msg, sizeof(msg));
+		StringSource ss(msg, sizeof(msg), true, new SignerFilter(Test::GlobalRNG(), *signer, new Redirector(verifierFilter)));
 	}
 	else if (test == "Sign")
 	{
@@ -348,6 +351,8 @@ void TestAsymmetricCipher(TestData &v)
 	// Code coverage
 	(void)encryptor->AlgorithmName();
 	(void)decryptor->AlgorithmName();
+	(void)encryptor->AlgorithmProvider();
+	(void)decryptor->AlgorithmProvider();
 
 	std::string keyFormat = GetRequiredDatum(v, "KeyFormat");
 
@@ -406,6 +411,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			// Code coverage
 			(void)encryptor->AlgorithmName();
 			(void)decryptor->AlgorithmName();
+			(void)encryptor->AlgorithmProvider();
+			(void)decryptor->AlgorithmProvider();
 			(void)encryptor->MinKeyLength();
 			(void)decryptor->MinKeyLength();
 			(void)encryptor->MaxKeyLength();
@@ -431,8 +438,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		}
 		else
 		{
-			encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
-			decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+			encryptor->SetKey(reinterpret_cast<const byte*>(&key[0]), key.size(), pairs);
+			decryptor->SetKey(reinterpret_cast<const byte*>(&key[0]), key.size(), pairs);
 		}
 
 		int seek = pairs.GetIntValueWithDefault("Seek", 0);
@@ -442,27 +449,30 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			decryptor->Seek(seek);
 		}
 
-		// If a per-test vector parameter was set for a test, like BlockPadding, BlockSize or Tweak,
-		// then it becomes latched in testDataPairs. The old value is used in subsequent tests, and
-		// it could cause a self test failure in the next test. The behavior surfaced under Kalyna
-		// and Threefish. The Kalyna test vectors use NO_PADDING for all tests excpet one. For
-		// Threefish, using (and not using) a Tweak caused problems as we marched through test
-		// vectors. For BlockPadding, BlockSize or Tweak, unlatch them now, after the key has been
-		// set and NameValuePairs have been processed. Also note we only unlatch from testDataPairs.
-		// If overrideParameters are specified, the caller is responsible for managing the parameter.
+		// If a per-test vector parameter was set for a test, like BlockPadding,
+		// BlockSize or Tweak, then it becomes latched in testDataPairs. The old
+		// value is used in subsequent tests, and it could cause a self test
+		// failure in the next test. The behavior surfaced under Kalyna and
+		// Threefish. The Kalyna test vectors use NO_PADDING for all tests excpet
+		// one. For Threefish, using (and not using) a Tweak caused problems as
+		// we marched through test vectors. For BlockPadding, BlockSize or Tweak,
+		// unlatch them now, after the key has been set and NameValuePairs have
+		// been processed. Also note we only unlatch from testDataPairs. If
+		// overrideParameters are specified, the caller is responsible for
+		// managing the parameter.
 		v.erase("Tweak"); v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 
 		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
 		if (test == "EncryptionMCT" || test == "DecryptionMCT")
 		{
 			SymmetricCipher *cipher = encryptor.get();
-			SecByteBlock buf((byte *)plaintext.data(), plaintext.size()), keybuf((byte *)key.data(), key.size());
+			std::string buf(plaintext), keybuf(key);
 
 			if (test == "DecryptionMCT")
 			{
 				cipher = decryptor.get();
 				ciphertext = GetDecodedDatum(v, "Ciphertext");
-				buf.Assign((byte *)ciphertext.data(), ciphertext.size());
+				buf.assign(ciphertext.begin(), ciphertext.end());
 			}
 
 			for (int i=0; i<400; i++)
@@ -470,15 +480,15 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 				encrypted.reserve(10000 * plaintext.size());
 				for (int j=0; j<10000; j++)
 				{
-					cipher->ProcessString(buf.begin(), buf.size());
-					encrypted.append((char *)buf.begin(), buf.size());
+					cipher->ProcessString(reinterpret_cast<byte*>(&buf[0]), buf.size());
+					encrypted.append(buf.begin(), buf.end());
 				}
 
 				encrypted.erase(0, encrypted.size() - keybuf.size());
-				xorbuf(keybuf.begin(), (const byte *)encrypted.data(), keybuf.size());
-				cipher->SetKey(keybuf, keybuf.size());
+				xorbuf(reinterpret_cast<byte*>(&keybuf[0]), reinterpret_cast<const byte*>(&encrypted[0]), keybuf.size());
+				cipher->SetKey(reinterpret_cast<const byte*>(&keybuf[0]), keybuf.size());
 			}
-			encrypted.assign((char *)buf.begin(), buf.size());
+			encrypted.assign(buf.begin(), buf.end());
 			ciphertext = GetDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
 			if (encrypted != ciphertext)
 			{
@@ -555,9 +565,10 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 		member_ptr<AuthenticatedSymmetricCipher> encryptor, decryptor;
 		encryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
 		decryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
-		encryptor->SetKey((const byte *)key.data(), key.size(), pairs);
-		decryptor->SetKey((const byte *)key.data(), key.size(), pairs);
+		encryptor->SetKey(reinterpret_cast<const byte*>(&key[0]), key.size(), pairs);
+		decryptor->SetKey(reinterpret_cast<const byte*>(&key[0]), key.size(), pairs);
 
+		// Code coverage
 		(void)encryptor->AlgorithmName();
 		(void)decryptor->AlgorithmName();
 
@@ -639,15 +650,21 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	{
 		hash.reset(ObjectFactoryRegistry<HashTransformation>::Registry().CreateObject(name.c_str()));
 		pHash = hash.get();
+
+		// Code coverage
 		(void)hash->AlgorithmName();
+		(void)hash->AlgorithmProvider();
 	}
 	else
 	{
 		mac.reset(ObjectFactoryRegistry<MessageAuthenticationCode>::Registry().CreateObject(name.c_str()));
 		pHash = mac.get();
 		std::string key = GetDecodedDatum(v, "Key");
-		mac->SetKey((const byte *)key.c_str(), key.size(), pairs);
+		mac->SetKey(reinterpret_cast<const byte *>(&key[0]), key.size(), pairs);
+
+		// Code coverage
 		(void)mac->AlgorithmName();
+		(void)mac->AlgorithmProvider();
 	}
 
 	if (test == "Verify" || test == "VerifyTruncated" || test == "NotVerify")
