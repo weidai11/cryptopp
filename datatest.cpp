@@ -503,7 +503,9 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 
 		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
-		RandomizedTransfer(StringStore(plaintext).Ref(), encFilter, true);
+
+		StringStore pstore(plaintext);
+		RandomizedTransfer(pstore, encFilter, true);
 		encFilter.MessageEnd();
 
 		if (test != "EncryptXorDigest")
@@ -523,11 +525,15 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			std::cout << "\n";
 			SignalTestFailure();
 		}
+
 		std::string decrypted;
 		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
-		RandomizedTransfer(StringStore(encrypted).Ref(), decFilter, true);
+
+		StringStore cstore(encrypted);
+		RandomizedTransfer(cstore, decFilter, true);
 		decFilter.MessageEnd();
+
 		if (decrypted != plaintext)
 		{
 			std::cout << "\nincorrectly decrypted: ";
