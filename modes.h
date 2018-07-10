@@ -166,8 +166,9 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CFB_ModePolicy : public ModePolicyCommonTe
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "CFB";}
-	virtual ~CFB_ModePolicy() {}
 
+	virtual ~CFB_ModePolicy() {}
+	CFB_ModePolicy() : m_feedbackSize(0) {}
 	IV_Requirement IVRequirement() const {return RANDOM_IV;}
 
 protected:
