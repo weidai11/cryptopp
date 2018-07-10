@@ -275,7 +275,7 @@ byte *FilterWithBufferedInput::BlockQueue::GetBlock()
 
 byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(size_t &numberOfBytes)
 {
-	numberOfBytes = STDMIN(numberOfBytes, STDMIN(size_t(m_buffer.end()-m_begin), m_size));
+	numberOfBytes = STDMIN(numberOfBytes, STDMIN<size_t>(PtrDiff(m_buffer.end(), m_begin), m_size));
 	byte *ptr = m_begin;
 	m_begin = PtrAdd(m_begin, numberOfBytes);
 	m_size -= numberOfBytes;
@@ -293,7 +293,7 @@ size_t FilterWithBufferedInput::BlockQueue::GetAll(byte *outString)
 	size_t numberOfBytes = m_maxBlocks*m_blockSize;
 	const byte *ptr = GetContigousBlocks(numberOfBytes);
 	memcpy(outString, ptr, numberOfBytes);
-	memcpy(outString+numberOfBytes, m_begin, m_size);
+	memcpy(PtrAdd(outString, numberOfBytes), m_begin, m_size);
 	m_size = 0;
 	return size;
 }
@@ -798,18 +798,18 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			{
 				CRYPTOPP_ASSERT(s < 256);
 				byte pad = static_cast<byte>(s-length);
-				memset(space+length, pad, s-length);
+				memset(PtrAdd(space, length), pad, s-length);
 			}
 			else if (m_padding == W3C_PADDING)
 			{
 				CRYPTOPP_ASSERT(s < 256);
-				memset(space+length, 0, s-length-1);
+				memset(PtrAdd(space, length), 0, s-length-1);
 				space[s-1] = static_cast<byte>(s-length);
 			}
 			else
 			{
 				space[length] = 0x80;
-				memset(space+length+1, 0, s-length-1);
+				memset(PtrAdd(space, length+1), 0, s-length-1);
 			}
 			m_cipher.ProcessData(space, space, s);
 			AttachedTransformation()->Put(space, s);
@@ -822,7 +822,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			if (m_padding == PKCS_PADDING)
 			{
 				byte pad = space[s-1];
-                                if (pad < 1 || pad > s || FindIfNot(space+s-pad, space+s, pad) != space+s)
+                                if (pad < 1 || pad > s || FindIfNot(PtrAdd(space, s-pad), PtrAdd(space, s), pad) != PtrAdd(space, s))
                                     throw InvalidCiphertext("StreamTransformationFilter: invalid PKCS #7 block padding found");
 				length = s-pad;
 			}
