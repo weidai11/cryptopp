@@ -119,8 +119,14 @@ void FIPS140_GenerateRandomFiles();
 bool Validate(int, bool, const char *);
 void PrintSeedAndThreads(const std::string& seed);
 
+#define CRYPTOPP_USE_AES_GENERATOR 1
+
 ANONYMOUS_NAMESPACE_BEGIN
+#if (CRYPTOPP_USE_AES_GENERATOR)
 OFB_Mode<AES>::Encryption s_globalRNG;
+#else
+AutoSeededRandomPool s_globalRNG;
+#endif
 NAMESPACE_END
 
 RandomNumberGenerator & GlobalRNG()
@@ -151,9 +157,13 @@ int scoped_main(int argc, char *argv[])
 		std::string seed = IntToString(time(NULLPTR));
 		seed.resize(16, ' ');
 
-		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator interface, to key the underlying cipher
+		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator
+		//  interface, to key the underlying cipher. If CRYPTOPP_USE_AES_GENERATOR
+		//  is 1 then perform the cast. Otherwise avoid the cast.
+#if (CRYPTOPP_USE_AES_GENERATOR)
 		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
 		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+#endif
 
 		std::string command, executableName, macFilename;
 

@@ -386,6 +386,36 @@ inline PTR PtrSub(PTR pointer, OFF offset)
 	return pointer-static_cast<ptrdiff_t>(offset);
 }
 
+/// \brief Determine pointer difference
+/// \tparam PTR a pointer type
+/// \param pointer1 the first pointer
+/// \param pointer2 the second pointer
+/// \details PtrByteDiff can be used to squash Clang and GCC
+///   UBsan findings for pointer addition and subtraction.
+///   pointer1 and pointer2 must point to the same object or
+///   array (or one past the end), and yields the number of
+///   bytes (not elements) difference.
+template <typename PTR>
+inline uintptr_t PtrByteDiff(const PTR pointer1, const PTR pointer2)
+{
+	return static_cast<uintptr_t>(pointer1) - static_cast<uintptr_t>(pointer2);
+}
+
+/// \brief Determine pointer difference
+/// \tparam PTR a pointer type
+/// \param pointer1 the first pointer
+/// \param pointer2 the second pointer
+/// \details PtrDiff can be used to squash Clang and GCC
+///   UBsan findings for pointer addition and subtraction.
+///   pointer1 and pointer2 must point to the same object or
+///   array (or one past the end), and yields the number of
+///   elements (not bytes) difference.
+template <typename PTR>
+inline ptrdiff_t PtrDiff(const PTR pointer1, const PTR pointer2)
+{
+	return static_cast<ptrdiff_t>(pointer1 - pointer2);
+}
+
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 
 /// \brief Bounds checking replacement for memcpy()

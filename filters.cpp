@@ -264,7 +264,7 @@ byte *FilterWithBufferedInput::BlockQueue::GetBlock()
 	if (m_size >= m_blockSize)
 	{
 		byte *ptr = m_begin;
-		if ((m_begin+=m_blockSize) == m_buffer.end())
+		if ((m_begin = PtrAdd(m_begin, m_blockSize)) == m_buffer.end())
 			m_begin = m_buffer;
 		m_size -= m_blockSize;
 		return ptr;
@@ -304,7 +304,8 @@ void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, size_t lengt
 	if (!inString || !length) return;
 
 	CRYPTOPP_ASSERT(m_size + length <= m_buffer.size());
-	byte *end = (m_size < size_t(m_buffer.end()-m_begin)) ? m_begin + m_size : m_begin + m_size - m_buffer.size();
+	byte *end = (m_size < static_cast<size_t>(PtrDiff(m_buffer.end(), m_begin)) ?
+		PtrAdd(m_begin, m_size) : PtrAdd(m_begin, m_size - m_buffer.size()));
 	size_t len = STDMIN(length, size_t(m_buffer.end()-end));
 	memcpy(end, inString, len);
 	if (len < length)
@@ -541,7 +542,7 @@ size_t ArraySink::Put2(const byte *begin, size_t length, int messageEnd, bool bl
 	if (m_buf && begin)
 	{
 		copied = STDMIN(length, SaturatingSubtract(m_size, m_total));
-		memmove(m_buf+m_total, begin, copied);
+		memmove(PtrAdd(m_buf, m_total), begin, copied);
 	}
 	m_total += copied;
 	return length - copied;
@@ -550,7 +551,7 @@ size_t ArraySink::Put2(const byte *begin, size_t length, int messageEnd, bool bl
 byte * ArraySink::CreatePutSpace(size_t &size)
 {
 	size = SaturatingSubtract(m_size, m_total);
-	return m_buf + m_total;
+	return PtrAdd(m_buf, m_total);
 }
 
 void ArraySink::IsolatedInitialize(const NameValuePairs &parameters)
@@ -571,7 +572,7 @@ size_t ArrayXorSink::Put2(const byte *begin, size_t length, int messageEnd, bool
 	if (m_buf && begin)
 	{
 		copied = STDMIN(length, SaturatingSubtract(m_size, m_total));
-		xorbuf(m_buf+m_total, begin, copied);
+		xorbuf(PtrAdd(m_buf, m_total), begin, copied);
 	}
 	m_total += copied;
 	return length - copied;
@@ -726,7 +727,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			// Process full blocks
 			m_cipher.ProcessData(space, inString, length);
 			AttachedTransformation()->Put(space, length);
-			inString += length;
+			inString = PtrAdd(inString, length);
 		}
 
 		if (leftOver)
@@ -761,7 +762,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 				size_t blockSize = STDMAX(minLastBlockSize, (size_t)m_mandatoryBlockSize);
 				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize);
 				if (inString) {memcpy(space, inString, length);}
-				memset(space + length, 0, blockSize - length);
+				memset(PtrAdd(space, length), 0, blockSize - length);
 				size_t used = m_cipher.ProcessLastBlock(space, blockSize, space, blockSize);
 				AttachedTransformation()->Put(space, used);
 			}
