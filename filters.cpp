@@ -189,7 +189,7 @@ size_t MeterFilter::PutMaybeModifiable(byte *begin, size_t length, int messageEn
 			FILTER_OUTPUT_MAYBE_MODIFIABLE(1, m_begin, t = (size_t)SaturatingSubtract(m_rangesToSkip.front().position, m_currentMessageBytes), false, modifiable);
 
 			CRYPTOPP_ASSERT(t < m_length);
-			m_begin += t;
+			m_begin = PtrAdd(m_begin, t);
 			m_length -= t;
 			m_currentMessageBytes += t;
 			m_totalBytes += t;
@@ -203,7 +203,7 @@ size_t MeterFilter::PutMaybeModifiable(byte *begin, size_t length, int messageEn
 				m_rangesToSkip.pop_front();
 			}
 
-			m_begin += t;
+			m_begin = PtrAdd(m_begin, t);
 			m_length -= t;
 			m_currentMessageBytes += t;
 			m_totalBytes += t;
@@ -277,7 +277,7 @@ byte *FilterWithBufferedInput::BlockQueue::GetContigousBlocks(size_t &numberOfBy
 {
 	numberOfBytes = STDMIN(numberOfBytes, STDMIN(size_t(m_buffer.end()-m_begin), m_size));
 	byte *ptr = m_begin;
-	m_begin += numberOfBytes;
+	m_begin = PtrAdd(m_begin, numberOfBytes);
 	m_size -= numberOfBytes;
 	if (m_size == 0 || m_begin == m_buffer.end())
 		m_begin = m_buffer;
@@ -308,7 +308,7 @@ void FilterWithBufferedInput::BlockQueue::Put(const byte *inString, size_t lengt
 	size_t len = STDMIN(length, size_t(m_buffer.end()-end));
 	memcpy(end, inString, len);
 	if (len < length)
-		memcpy(m_buffer, inString+len, length-len);
+		memcpy(m_buffer, PtrAdd(inString, len), length-len);
 	m_size += length;
 }
 
@@ -364,7 +364,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 			CRYPTOPP_ASSERT(m_queue.CurrentSize() == 0);
 			m_queue.ResetQueue(m_blockSize, (2*m_blockSize+m_lastSize-2)/m_blockSize);
 
-			inString += len;
+			inString = PtrAdd(inString, len);
 			newLength -= m_firstSize;
 			m_firstInputDone = true;
 		}
@@ -385,7 +385,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 				{
 					size_t len = newLength - m_lastSize;
 					NextPutMaybeModifiable(inString, len, modifiable);
-					inString += len;
+					inString = PtrAdd(inString, len);
 					newLength -= len;
 				}
 			}
@@ -402,7 +402,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 					CRYPTOPP_ASSERT(m_queue.CurrentSize() < m_blockSize);
 					size_t len = m_blockSize - m_queue.CurrentSize();
 					m_queue.Put(inString, len);
-					inString += len;
+					inString = PtrAdd(inString, len);
 					NextPutModifiable(m_queue.GetBlock(), m_blockSize);
 					newLength -= m_blockSize;
 				}
@@ -411,7 +411,7 @@ size_t FilterWithBufferedInput::PutMaybeModifiable(byte *inString, size_t length
 				{
 					size_t len = RoundDownToMultipleOf(newLength - m_lastSize, m_blockSize);
 					NextPutMaybeModifiable(inString, len, modifiable);
-					inString += len;
+					inString = PtrAdd(inString, len);
 					newLength -= len;
 				}
 			}
@@ -463,7 +463,7 @@ void FilterWithBufferedInput::NextPutMultiple(const byte *inString, size_t lengt
 	{
 		CRYPTOPP_ASSERT(length >= m_blockSize);
 		NextPutSingle(inString);
-		inString += m_blockSize;
+		inString = PtrAdd(inString, m_blockSize);
 		length -= m_blockSize;
 	}
 }
@@ -679,7 +679,7 @@ void StreamTransformationFilter::NextPutMultiple(const byte *inString, size_t le
 			len = length;
 		m_cipher.ProcessString(space, inString, len);
 		AttachedTransformation()->PutModifiable(space, len);
-		inString += len;
+		inString = PtrAdd(inString, len);
 		length -= len;
 	}
 	while (length > 0);
@@ -719,8 +719,8 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 	{
 		const size_t leftOver = length % m_mandatoryBlockSize;
 		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, m_reservedBufferSize);
-
 		length -= leftOver;
+
 		if (length)
 		{
 			// Process full blocks
@@ -1196,7 +1196,7 @@ size_t StringStore::TransferTo2(BufferedTransformation &target, lword &transferB
 {
 	lword position = 0;
 	size_t blockedBytes = CopyRangeTo2(target, position, transferBytes, channel, blocking);
-	m_count += (size_t)position;
+	m_count += static_cast<size_t>(position);
 	transferBytes = position;
 	return blockedBytes;
 }
@@ -1205,9 +1205,9 @@ size_t StringStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, l
 {
 	size_t i = UnsignedMin(m_length, m_count+begin);
 	size_t len = UnsignedMin(m_length-i, end-begin);
-	size_t blockedBytes = target.ChannelPut2(channel, m_store+i, len, 0, blocking);
+	size_t blockedBytes = target.ChannelPut2(channel, PtrAdd(m_store, i), len, 0, blocking);
 	if (!blockedBytes)
-		begin += len;
+		begin = PtrAdd(begin, len);
 	return blockedBytes;
 }
 
@@ -1240,7 +1240,7 @@ size_t NullStore::CopyRangeTo2(BufferedTransformation &target, lword &begin, lwo
 		size_t blockedBytes = target.ChannelPut2(channel, nullBytes, len, 0, blocking);
 		if (blockedBytes)
 			return blockedBytes;
-		begin += len;
+		begin = PtrAdd(begin, len);
 	}
 	return 0;
 }
@@ -1249,8 +1249,7 @@ size_t NullStore::TransferTo2(BufferedTransformation &target, lword &transferByt
 {
 	lword begin = 0;
 	size_t blockedBytes = NullStore::CopyRangeTo2(target, begin, transferBytes, channel, blocking);
-	transferBytes = begin;
-	m_size -= begin;
+	transferBytes = begin; m_size -= begin;
 	return blockedBytes;
 }
 

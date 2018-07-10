@@ -150,16 +150,16 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 	CRYPTOPP_ASSERT(outBlocks);
 	CRYPTOPP_ASSERT(length);
 
-	const ptrdiff_t blockSize = BlockSize();
-	ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-	ptrdiff_t xorIncrement = xorBlocks ? blockSize : 0;
-	ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+	const unsigned int blockSize = BlockSize();
+	size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+	size_t xorIncrement = xorBlocks ? blockSize : 0;
+	size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
 	if (flags & BT_ReverseDirection)
 	{
-		inBlocks += static_cast<ptrdiff_t>(length - blockSize);
-		xorBlocks += static_cast<ptrdiff_t>(length - blockSize);
-		outBlocks += static_cast<ptrdiff_t>(length - blockSize);
+		inBlocks = PtrAdd(inBlocks, length - blockSize);
+		xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+		outBlocks = PtrAdd(outBlocks, length - blockSize);
 		inIncrement = 0-inIncrement;
 		xorIncrement = 0-xorIncrement;
 		outIncrement = 0-outIncrement;
@@ -184,9 +184,9 @@ size_t BlockTransformation::AdvancedProcessBlocks(const byte *inBlocks, const by
 		if (flags & BT_InBlockIsCounter)
 			const_cast<byte *>(inBlocks)[blockSize-1]++;
 
-		inBlocks += inIncrement;
-		outBlocks += outIncrement;
-		xorBlocks += xorIncrement;
+		inBlocks = PtrAdd(inBlocks, inIncrement);
+		outBlocks = PtrAdd(outBlocks, outIncrement);
+		xorBlocks = PtrAdd(xorBlocks, xorIncrement);
 		length -= blockSize;
 	}
 

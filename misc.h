@@ -360,6 +360,32 @@ template <class T, class F, int instance>
 
 // ************** misc functions ***************
 
+/// \brief Create a pointer with an offset
+/// \tparam PTR a pointer type
+/// \tparam OFF a size type
+/// \param pointer a pointer
+/// \param offset a offset into the pointer
+/// \details PtrAdd can be used to squash Clang and GCC
+///   UBsan findings for pointer addition and subtraction.
+template <typename PTR, typename OFF>
+inline PTR PtrAdd(PTR pointer, OFF offset)
+{
+	return pointer+static_cast<ptrdiff_t>(offset);
+}
+
+/// \brief Create a pointer with an offset
+/// \tparam PTR a pointer type
+/// \tparam OFF a size type
+/// \param pointer a pointer
+/// \param offset a offset into the pointer
+/// \details PtrSub can be used to squash Clang and GCC
+///   UBsan findings for pointer addition and subtraction.
+template <typename PTR, typename OFF>
+inline PTR PtrSub(PTR pointer, OFF offset)
+{
+	return pointer-static_cast<ptrdiff_t>(offset);
+}
+
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 
 /// \brief Bounds checking replacement for memcpy()

@@ -35,26 +35,23 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 {
 	if (m_leftOver > 0)
 	{
-		size_t len = STDMIN(m_leftOver, length);
-		memcpy(outString, KeystreamBufferEnd()-m_leftOver, len);
-		length -= len;
-		m_leftOver -= len;
-		outString += len;
+		const size_t len = STDMIN(m_leftOver, length);
+		memcpy(outString, PtrSub(KeystreamBufferEnd(), m_leftOver), len);
 
-		if (!length)
-			return;
+		length -= len; m_leftOver -= len;
+		outString = PtrAdd(outString, len);
+		if (!length) {return;}
 	}
-	CRYPTOPP_ASSERT(m_leftOver == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (length >= bytesPerIteration)
 	{
-		size_t iterations = length / bytesPerIteration;
+		const size_t iterations = length / bytesPerIteration;
 		policy.WriteKeystream(outString, iterations);
-		outString += iterations * bytesPerIteration;
 		length -= iterations * bytesPerIteration;
+		outString = PtrAdd(outString, iterations * bytesPerIteration);
 	}
 
 	if (length > 0)
@@ -73,35 +70,31 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 {
 	if (m_leftOver > 0)
 	{
-		size_t len = STDMIN(m_leftOver, length);
+		const size_t len = STDMIN(m_leftOver, length);
 		xorbuf(outString, inString, KeystreamBufferEnd()-m_leftOver, len);
-		length -= len;
-		m_leftOver -= len;
-		inString += len;
-		outString += len;
 
-		if (!length)
-			return;
+		length -= len; m_leftOver -= len;
+		inString = PtrAdd(inString, len);
+		outString = PtrAdd(outString, len);
+
+		if (!length) {return;}
 	}
-	CRYPTOPP_ASSERT(m_leftOver == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
 
 	if (policy.CanOperateKeystream() && length >= bytesPerIteration)
 	{
-		size_t iterations = length / bytesPerIteration;
+		const size_t iterations = length / bytesPerIteration;
 		unsigned int alignment = policy.GetAlignment();
 		KeystreamOperation operation = KeystreamOperation((IsAlignedOn(inString, alignment) * 2) | (int)IsAlignedOn(outString, alignment));
-
 		policy.OperateKeystream(operation, outString, inString, iterations);
 
-		inString += iterations * bytesPerIteration;
-		outString += iterations * bytesPerIteration;
+		inString = PtrAdd(inString, iterations * bytesPerIteration);
+		outString = PtrAdd(outString, iterations * bytesPerIteration);
 		length -= iterations * bytesPerIteration;
 
-		if (!length)
-			return;
+		if (!length) {return;}
 	}
 
 	size_t bufferByteSize = m_buffer.size();
@@ -111,9 +104,10 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	{
 		policy.WriteKeystream(m_buffer, bufferIterations);
 		xorbuf(outString, inString, KeystreamBufferBegin(), bufferByteSize);
+
 		length -= bufferByteSize;
-		inString += bufferByteSize;
-		outString += bufferByteSize;
+		inString = PtrAdd(inString, bufferByteSize);
+		outString = PtrAdd(outString, bufferByteSize);
 	}
 
 	if (length > 0)
@@ -181,6 +175,7 @@ void CFB_CipherTemplate<BASE>::Resynchronize(const byte *iv, int length)
 template <class BASE>
 void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString, size_t length)
 {
+	CRYPTOPP_ASSERT(outString); CRYPTOPP_ASSERT(inString);
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
@@ -190,30 +185,28 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 
 	if (m_leftOver)
 	{
-		size_t len = STDMIN(m_leftOver, length);
-		CombineMessageAndShiftRegister(outString, reg + bytesPerIteration - m_leftOver, inString, len);
-		m_leftOver -= len;
-		length -= len;
-		inString += len;
-		outString += len;
+		const size_t len = STDMIN(m_leftOver, length);
+		CombineMessageAndShiftRegister(outString, PtrAdd(reg, bytesPerIteration - m_leftOver), inString, len);
+
+		m_leftOver -= len; length -= len;
+		inString = PtrAdd(inString, len);
+		outString = PtrAdd(outString, len);
+
+		if (!length) {return;}
 	}
-
-	if (!length)
-		return;
-
-	CRYPTOPP_ASSERT(m_leftOver == 0);
 
 	if (policy.CanIterate() && length >= bytesPerIteration && IsAlignedOn(outString, alignment))
 	{
+		const CipherDir cipherDir = GetCipherDir(*this);
 		if (IsAlignedOn(inString, alignment))
-			policy.Iterate(outString, inString, GetCipherDir(*this), length / bytesPerIteration);
+			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 		else
 		{
 			memcpy(outString, inString, length);
-			policy.Iterate(outString, outString, GetCipherDir(*this), length / bytesPerIteration);
+			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 		}
-		inString += length - length % bytesPerIteration;
-		outString += length - length % bytesPerIteration;
+		inString = PtrAdd(inString, length - length % bytesPerIteration);
+		outString = PtrAdd(outString, length - length % bytesPerIteration);
 		length %= bytesPerIteration;
 	}
 
@@ -222,8 +215,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		policy.TransformRegister();
 		CombineMessageAndShiftRegister(outString, reg, inString, bytesPerIteration);
 		length -= bytesPerIteration;
-		inString += bytesPerIteration;
-		outString += bytesPerIteration;
+		inString = PtrAdd(inString, bytesPerIteration);
+		outString = PtrAdd(outString, bytesPerIteration);
 	}
 
 	if (length > 0)
@@ -244,7 +237,7 @@ void CFB_EncryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, 
 template <class BASE>
 void CFB_DecryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length)
 {
-	for (unsigned int i=0; i<length; i++)
+	for (size_t i=0; i<length; i++)
 	{
 		byte b = message[i];
 		output[i] = reg[i] ^ b;

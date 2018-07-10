@@ -104,12 +104,12 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     const word32 s_one32x4_2b[] = {0, 2, 0, 2};
 #endif
 
-    const ptrdiff_t blockSize = 8;
-    const ptrdiff_t neonBlockSize = 16;
+    const size_t blockSize = 8;
+    const size_t neonBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? neonBlockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : neonBlockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : neonBlockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? neonBlockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : neonBlockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -117,9 +117,9 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - neonBlockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - neonBlockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - neonBlockSize;
+        inBlocks = PtrAdd(inBlocks, length - neonBlockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - neonBlockSize);
+        outBlocks = PtrAdd(outBlocks, length - neonBlockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -153,33 +153,33 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             else
             {
                 block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block4 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block5 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = veorq_u32(block4, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = veorq_u32(block5, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
@@ -187,31 +187,31 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = veorq_u32(block4, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = veorq_u32(block5, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block0));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block1));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block2));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block3));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block4));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block5));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*neonBlockSize;
         }
@@ -238,17 +238,17 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             else
             {
                 block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
@@ -256,15 +256,15 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block0));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u32(block1));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 2*neonBlockSize;
         }
@@ -316,9 +316,9 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             vst1_u8(const_cast<byte*>(outBlocks),
                 vget_low_u8(vreinterpretq_u8_u32(block)));
 
-            inBlocks += inIncrement;
-            outBlocks += outIncrement;
-            xorBlocks += xorIncrement;
+            inBlocks = PtrAdd(inBlocks, inIncrement);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             length -= blockSize;
         }
     }
@@ -352,12 +352,12 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     const word32 s_one32x4[]    = {0, 0, 0, 1};
 #endif
 
-    const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t neonBlockSize = 16;
+    const size_t blockSize = 16;
+    // const size_t neonBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -365,9 +365,9 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -394,33 +394,33 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
             else
             {
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block4 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block5 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
@@ -428,31 +428,31 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
             if (xorOutput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block2));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block3));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block4));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block5));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*blockSize;
         }
@@ -476,9 +476,9 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
 
         vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
 
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
         length -= blockSize;
     }
 
@@ -513,12 +513,12 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     const word32 s_one32x4[]    = {0, 0, 0, 1};
 #endif
 
-    const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t neonBlockSize = 16;
+    const size_t blockSize = 16;
+    // const size_t neonBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -526,9 +526,9 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -553,25 +553,25 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             else
             {
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func4((V&)block0, (V&)block1, (V&)block2, (V&)block3, subKeys, static_cast<unsigned int>(rounds));
@@ -579,23 +579,23 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             if (xorOutput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block2));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block3));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 4*blockSize;
         }
@@ -618,9 +618,9 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 
         vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
 
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
         length -= blockSize;
     }
 
@@ -651,12 +651,12 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     const word32 s_one32x4[]    = {0, 0, 0, 1};
 #endif
 
-    const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t neonBlockSize = 16;
+    const size_t blockSize = 16;
+    // const size_t neonBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -664,9 +664,9 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -693,33 +693,33 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             else
             {
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block4 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block5 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
@@ -727,31 +727,31 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = veorq_u64(block4, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = veorq_u64(block5, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block2));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block3));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block4));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block5));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*blockSize;
         }
@@ -771,17 +771,17 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             else
             {
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
@@ -789,15 +789,15 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 2*blockSize;
         }
@@ -821,9 +821,9 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
 
         vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
 
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
         length -= blockSize;
     }
 
@@ -883,12 +883,12 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
     // Avoid casting byte* to double*. Clang and GCC do not agree.
     double temp[2];
 
-    const ptrdiff_t blockSize = 8;
-    const ptrdiff_t xmmBlockSize = 16;
+    const size_t blockSize = 8;
+    const size_t xmmBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -896,9 +896,9 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        inBlocks = PtrAdd(inBlocks, length - xmmBlockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - xmmBlockSize);
+        outBlocks = PtrAdd(outBlocks, length - xmmBlockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -930,17 +930,17 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
@@ -948,15 +948,15 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 2*xmmBlockSize;
         }
@@ -1006,9 +1006,9 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
             _mm_store_sd(temp, _mm_castsi128_pd(block));
             std::memcpy(outBlocks, temp, blockSize);
 
-            inBlocks += inIncrement;
-            outBlocks += outIncrement;
-            xorBlocks += xorIncrement;
+            inBlocks = PtrAdd(inBlocks, inIncrement);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             length -= blockSize;
         }
     }
@@ -1042,12 +1042,12 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     // Avoid casting byte* to double*. Clang and GCC do not agree.
     double temp[2];
 
-    const ptrdiff_t blockSize = 8;
-    const ptrdiff_t xmmBlockSize = 16;
+    const size_t blockSize = 8;
+    const size_t xmmBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -1055,9 +1055,9 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - xmmBlockSize;
+        inBlocks = PtrAdd(inBlocks, length - xmmBlockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - xmmBlockSize);
+        outBlocks = PtrAdd(outBlocks, length - xmmBlockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -1093,33 +1093,33 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block4 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block5 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
@@ -1127,31 +1127,31 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block2);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block3);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block4);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block5);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*xmmBlockSize;
         }
@@ -1180,17 +1180,17 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
@@ -1198,15 +1198,15 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 2*xmmBlockSize;
         }
@@ -1259,9 +1259,9 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             _mm_store_sd(temp, _mm_castsi128_pd(block));
             std::memcpy(outBlocks, temp, blockSize);
 
-            inBlocks += inIncrement;
-            outBlocks += outIncrement;
-            xorBlocks += xorIncrement;
+            inBlocks = PtrAdd(inBlocks, inIncrement);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             length -= blockSize;
         }
     }
@@ -1290,12 +1290,12 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4[] = {0, 0, 0, 1<<24};
 
-    const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t xmmBlockSize = 16;
+    const size_t blockSize = 16;
+    // const size_t xmmBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -1303,9 +1303,9 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -1330,33 +1330,33 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block4 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block5 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
@@ -1364,31 +1364,31 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = _mm_xor_si128(block4, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = _mm_xor_si128(block5, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block2);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block3);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block4);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block5);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*blockSize;
         }
@@ -1406,17 +1406,17 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
@@ -1424,15 +1424,15 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 2*blockSize;
         }
@@ -1456,9 +1456,9 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
 
         _mm_storeu_si128(M128_CAST(outBlocks), block);
 
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
         length -= blockSize;
     }
 
@@ -1486,12 +1486,12 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
     CRYPTOPP_ALIGN_DATA(16)
     const word32 s_one32x4[] = {0, 0, 0, 1<<24};
 
-    const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t xmmBlockSize = 16;
+    const size_t blockSize = 16;
+    // const size_t xmmBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -1499,9 +1499,9 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -1524,25 +1524,25 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
@@ -1550,23 +1550,23 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block2);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block3);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 4*blockSize;
         }
@@ -1589,9 +1589,9 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
 
         _mm_storeu_si128(M128_CAST(outBlocks), block);
 
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
         length -= blockSize;
     }
 
@@ -1624,12 +1624,12 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
     // Avoid casting byte* to double*. Clang and GCC do not agree.
     double temp[2];
 
-    const ptrdiff_t blockSize = 8;
-    const ptrdiff_t xmmBlockSize = 16;
+    const size_t blockSize = 8;
+    const size_t xmmBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter | BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter | BT_DontIncrementInOutPointers)) ? 0 : xmmBlockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? xmmBlockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : xmmBlockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -1637,9 +1637,9 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length)-xmmBlockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length)-xmmBlockSize;
-        outBlocks += static_cast<ptrdiff_t>(length)-xmmBlockSize;
+        inBlocks = PtrAdd(inBlocks, length - xmmBlockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - xmmBlockSize);
+        outBlocks = PtrAdd(outBlocks, length - xmmBlockSize);
         inIncrement = 0 - inIncrement;
         xorIncrement = 0 - xorIncrement;
         outIncrement = 0 - outIncrement;
@@ -1673,25 +1673,25 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
             else
             {
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
@@ -1699,23 +1699,23 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
             if (xorOutput)
             {
                 block0 = _mm_xor_si128(block0, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = _mm_xor_si128(block1, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = _mm_xor_si128(block2, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = _mm_xor_si128(block3, _mm_loadu_si128(CONST_M128_CAST(xorBlocks)));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             _mm_storeu_si128(M128_CAST(outBlocks), block0);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block1);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block2);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             _mm_storeu_si128(M128_CAST(outBlocks), block3);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 4 * xmmBlockSize;
         }
@@ -1765,9 +1765,9 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
             _mm_store_sd(temp, _mm_castsi128_pd(block));
             std::memcpy(outBlocks, temp, blockSize);
 
-            inBlocks += inIncrement;
-            outBlocks += outIncrement;
-            xorBlocks += xorIncrement;
+            inBlocks = PtrAdd(inBlocks, inIncrement);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             length -= blockSize;
         }
     }
@@ -1809,12 +1809,12 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
     const uint32x4_p s_one = {0,0,0,1};
 #endif
 
-    const ptrdiff_t blockSize = 16;
-    // const ptrdiff_t vexBlockSize = 16;
+    const size_t blockSize = 16;
+    // const size_t vexBlockSize = 16;
 
-    ptrdiff_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
-    ptrdiff_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    ptrdiff_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -1822,9 +1822,9 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        xorBlocks += static_cast<ptrdiff_t>(length) - blockSize;
-        outBlocks += static_cast<ptrdiff_t>(length) - blockSize;
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -1850,33 +1850,33 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
             else
             {
                 block0 = VectorLoad(inBlocks);
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block1 = VectorLoad(inBlocks);
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block2 = VectorLoad(inBlocks);
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block3 = VectorLoad(inBlocks);
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block4 = VectorLoad(inBlocks);
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
                 block5 = VectorLoad(inBlocks);
-                inBlocks += inIncrement;
+                inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
                 block0 = VectorXor(block0, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = VectorXor(block1, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = VectorXor(block2, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = VectorXor(block3, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = VectorXor(block4, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = VectorXor(block5, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             func6(block0, block1, block2, block3, block4, block5, subKeys, rounds);
@@ -1884,31 +1884,31 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
             if (xorOutput)
             {
                 block0 = VectorXor(block0, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block1 = VectorXor(block1, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block2 = VectorXor(block2, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block3 = VectorXor(block3, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block4 = VectorXor(block4, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
                 block5 = VectorXor(block5, VectorLoad(xorBlocks));
-                xorBlocks += xorIncrement;
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
             VectorStore(block0, outBlocks);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             VectorStore(block1, outBlocks);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             VectorStore(block2, outBlocks);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             VectorStore(block3, outBlocks);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             VectorStore(block4, outBlocks);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
             VectorStore(block5, outBlocks);
-            outBlocks += outIncrement;
+            outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*blockSize;
         }
@@ -1931,9 +1931,9 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
         VectorStore(block, outBlocks);
 
-        inBlocks += inIncrement;
-        outBlocks += outIncrement;
-        xorBlocks += xorIncrement;
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
         length -= blockSize;
     }
 
