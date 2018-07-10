@@ -6,6 +6,7 @@
 
 #include "queue.h"
 #include "filters.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -16,13 +17,13 @@ class ByteQueueNode
 {
 public:
 	ByteQueueNode(size_t maxSize)
-		: buf(maxSize)
+		: m_buf(maxSize)
 	{
 		m_head = m_tail = 0;
-		next = NULLPTR;
+		m_next = NULLPTR;
 	}
 
-	inline size_t MaxSize() const {return buf.size();}
+	inline size_t MaxSize() const {return m_buf.size();}
 
 	inline size_t CurrentSize() const
 	{
@@ -44,8 +45,8 @@ public:
 		// Avoid passing NULL to memcpy
 		if (!begin || !length) return length;
 		size_t l = STDMIN(length, MaxSize()-m_tail);
-		if (buf+m_tail != begin)
-			memcpy(buf+m_tail, begin, l);
+		if (m_buf+m_tail != begin)
+			memcpy(m_buf+m_tail, begin, l);
 		m_tail += l;
 		return l;
 	}
@@ -55,28 +56,28 @@ public:
 		if (m_tail==m_head)
 			return 0;
 
-		outByte=buf[m_head];
+		outByte=m_buf[m_head];
 		return 1;
 	}
 
 	inline size_t Peek(byte *target, size_t copyMax) const
 	{
 		size_t len = STDMIN(copyMax, m_tail-m_head);
-		memcpy(target, buf+m_head, len);
+		memcpy(target, m_buf+m_head, len);
 		return len;
 	}
 
 	inline size_t CopyTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL) const
 	{
 		size_t len = m_tail-m_head;
-		target.ChannelPut(channel, buf+m_head, len);
+		target.ChannelPut(channel, m_buf+m_head, len);
 		return len;
 	}
 
 	inline size_t CopyTo(BufferedTransformation &target, size_t copyMax, const std::string &channel=DEFAULT_CHANNEL) const
 	{
 		size_t len = STDMIN(copyMax, m_tail-m_head);
-		target.ChannelPut(channel, buf+m_head, len);
+		target.ChannelPut(channel, m_buf+m_head, len);
 		return len;
 	}
 
@@ -97,7 +98,7 @@ public:
 	inline size_t TransferTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL)
 	{
 		size_t len = m_tail-m_head;
-		target.ChannelPutModifiable(channel, buf+m_head, len);
+		target.ChannelPutModifiable(channel, m_buf+m_head, len);
 		m_head = m_tail;
 		return len;
 	}
@@ -105,7 +106,7 @@ public:
 	inline size_t TransferTo(BufferedTransformation &target, lword transferMax, const std::string &channel=DEFAULT_CHANNEL)
 	{
 		size_t len = UnsignedMin(m_tail-m_head, transferMax);
-		target.ChannelPutModifiable(channel, buf+m_head, len);
+		target.ChannelPutModifiable(channel, m_buf+m_head, len);
 		m_head += len;
 		return len;
 	}
@@ -119,12 +120,12 @@ public:
 
 	inline byte operator[](size_t i) const
 	{
-		return buf[m_head+i];
+		return m_buf[m_head+i];
 	}
 
-	ByteQueueNode *next;
+	ByteQueueNode* m_next;
 
-	SecByteBlock buf;
+	SecByteBlock m_buf;
 	size_t m_head, m_tail;
 };
 
@@ -157,13 +158,13 @@ void ByteQueue::CopyFrom(const ByteQueue &copy)
 	m_nodeSize = copy.m_nodeSize;
 	m_head = m_tail = new ByteQueueNode(*copy.m_head);
 
-	for (ByteQueueNode *current=copy.m_head->next; current; current=current->next)
+	for (ByteQueueNode *current=copy.m_head->m_next; current; current=current->m_next)
 	{
-		m_tail->next = new ByteQueueNode(*current);
-		m_tail = m_tail->next;
+		m_tail->m_next = new ByteQueueNode(*current);
+		m_tail = m_tail->m_next;
 	}
 
-	m_tail->next = NULLPTR;
+	m_tail->m_next = NULLPTR;
 
 	Put(copy.m_lazyString, copy.m_lazyLength);
 }
@@ -177,7 +178,7 @@ void ByteQueue::Destroy()
 {
 	for (ByteQueueNode *next, *current=m_head; current; current=next)
 	{
-		next=current->next;
+		next=current->m_next;
 		delete current;
 	}
 }
@@ -192,7 +193,7 @@ lword ByteQueue::CurrentSize() const
 {
 	lword size=0;
 
-	for (ByteQueueNode *current=m_head; current; current=current->next)
+	for (ByteQueueNode *current=m_head; current; current=current->m_next)
 		size += current->CurrentSize();
 
 	return size + m_lazyLength;
@@ -205,15 +206,15 @@ bool ByteQueue::IsEmpty() const
 
 void ByteQueue::Clear()
 {
-	for (ByteQueueNode *next, *current=m_head->next; current; current=next)
+	for (ByteQueueNode *next, *current=m_head->m_next; current; current=next)
 	{
-		next=current->next;
+		next=current->m_next;
 		delete current;
 	}
 
 	m_tail = m_head;
 	m_head->Clear();
-	m_head->next = NULLPTR;
+	m_head->m_next = NULLPTR;
 	m_lazyLength = 0;
 }
 
@@ -227,7 +228,7 @@ size_t ByteQueue::Put2(const byte *inString, size_t length, int messageEnd, bool
 	size_t len;
 	while ((len=m_tail->Put(inString, length)) < length)
 	{
-		inString += len;
+		inString = PtrAdd(inString, len);
 		length -= len;
 		if (m_autoNodeSize && m_nodeSize < s_maxAutoNodeSize)
 			do
@@ -235,8 +236,8 @@ size_t ByteQueue::Put2(const byte *inString, size_t length, int messageEnd, bool
 				m_nodeSize *= 2;
 			}
 			while (m_nodeSize < length && m_nodeSize < s_maxAutoNodeSize);
-		m_tail->next = new ByteQueueNode(STDMAX(m_nodeSize, length));
-		m_tail = m_tail->next;
+		m_tail->m_next = new ByteQueueNode(STDMAX(m_nodeSize, length));
+		m_tail = m_tail->m_next;
 	}
 
 	return 0;
@@ -248,7 +249,7 @@ void ByteQueue::CleanupUsedNodes()
 	while (m_head && m_head != m_tail && m_head->UsedUp())
 	{
 		ByteQueueNode *temp=m_head;
-		m_head=m_head->next;
+		m_head=m_head->m_next;
 		delete temp;
 	}
 
@@ -262,7 +263,7 @@ void ByteQueue::LazyPut(const byte *inString, size_t size)
 	if (m_lazyLength > 0)
 		FinalizeLazyPut();
 
-	if (inString == m_tail->buf+m_tail->m_tail)
+	if (inString == m_tail->m_buf+m_tail->m_tail)
 		Put(inString, size);
 	else
 	{
@@ -345,7 +346,7 @@ size_t ByteQueue::TransferTo2(BufferedTransformation &target, lword &transferByt
 	if (blocking)
 	{
 		lword bytesLeft = transferBytes;
-		for (ByteQueueNode *current=m_head; bytesLeft && current; current=current->next)
+		for (ByteQueueNode *current=m_head; bytesLeft && current; current=current->m_next)
 			bytesLeft -= current->TransferTo(target, bytesLeft, channel);
 		CleanupUsedNodes();
 
@@ -356,7 +357,7 @@ size_t ByteQueue::TransferTo2(BufferedTransformation &target, lword &transferByt
 				target.ChannelPutModifiable(channel, m_lazyString, len);
 			else
 				target.ChannelPut(channel, m_lazyString, len);
-			m_lazyString += len;
+			m_lazyString = PtrAdd(m_lazyString, len);
 			m_lazyLength -= len;
 			bytesLeft -= len;
 		}
@@ -391,13 +392,13 @@ void ByteQueue::Unget(const byte *inString, size_t length)
 {
 	size_t len = STDMIN(length, m_head->m_head);
 	length -= len;
-	m_head->m_head -= len;
-	memcpy(m_head->buf + m_head->m_head, inString + length, len);
+	m_head->m_head = m_head->m_head - len;
+	memcpy(m_head->m_buf + m_head->m_head, inString + length, len);
 
 	if (length > 0)
 	{
 		ByteQueueNode *newHead = new ByteQueueNode(length);
-		newHead->next = m_head;
+		newHead->m_next = m_head;
 		m_head = newHead;
 		m_head->Put(inString, length);
 	}
@@ -412,7 +413,7 @@ const byte * ByteQueue::Spy(size_t &contiguousSize) const
 		return m_lazyString;
 	}
 	else
-		return m_head->buf + m_head->m_head;
+		return m_head->m_buf + m_head->m_head;
 }
 
 byte * ByteQueue::CreatePutSpace(size_t &size)
@@ -422,12 +423,12 @@ byte * ByteQueue::CreatePutSpace(size_t &size)
 
 	if (m_tail->m_tail == m_tail->MaxSize())
 	{
-		m_tail->next = new ByteQueueNode(STDMAX(m_nodeSize, size));
-		m_tail = m_tail->next;
+		m_tail->m_next = new ByteQueueNode(STDMAX(m_nodeSize, size));
+		m_tail = m_tail->m_next;
 	}
 
 	size = m_tail->MaxSize() - m_tail->m_tail;
-	return m_tail->buf + m_tail->m_tail;
+	return PtrAdd(m_tail->m_buf.begin(), m_tail->m_tail);
 }
 
 ByteQueue & ByteQueue::operator=(const ByteQueue &rhs)
@@ -456,7 +457,7 @@ bool ByteQueue::operator==(const ByteQueue &rhs) const
 
 byte ByteQueue::operator[](lword i) const
 {
-	for (ByteQueueNode *current=m_head; current; current=current->next)
+	for (ByteQueueNode *current=m_head; current; current=current->m_next)
 	{
 		if (i < current->CurrentSize())
 			return (*current)[(size_t)i];
@@ -524,7 +525,7 @@ size_t ByteQueue::Walker::TransferTo2(BufferedTransformation &target, lword &tra
 	while (m_node)
 	{
 		size_t len = (size_t)STDMIN(bytesLeft, (lword)m_node->CurrentSize()-m_offset);
-		blockedBytes = target.ChannelPut2(channel, m_node->buf+m_node->m_head+m_offset, len, 0, blocking);
+		blockedBytes = target.ChannelPut2(channel, m_node->m_buf+m_node->m_head+m_offset, len, 0, blocking);
 
 		if (blockedBytes)
 			goto done;
@@ -538,7 +539,7 @@ size_t ByteQueue::Walker::TransferTo2(BufferedTransformation &target, lword &tra
 			goto done;
 		}
 
-		m_node = m_node->next;
+		m_node = m_node->m_next;
 		m_offset = 0;
 	}
 
@@ -549,7 +550,7 @@ size_t ByteQueue::Walker::TransferTo2(BufferedTransformation &target, lword &tra
 		if (blockedBytes)
 			goto done;
 
-		m_lazyString += len;
+		m_lazyString = PtrAdd(m_lazyString, len);
 		m_lazyLength -= len;
 		bytesLeft -= len;
 	}
