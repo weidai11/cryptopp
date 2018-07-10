@@ -156,10 +156,7 @@ public:
 
 protected:
 	T_HashWordType* DataBuf() {return this->m_data;}
-
-	// Squash conversion warning
-	CRYPTOPP_CONSTANT(DCOUNT=T_BlockSize/sizeof(T_HashWordType))
-	FixedSizeSecBlock<T_HashWordType, DCOUNT> m_data;
+	FixedSizeSecBlock<T_HashWordType, T_BlockSize/sizeof(T_HashWordType)> m_data;
 };
 
 /// \brief Iterated hash with a static transformation function
@@ -189,11 +186,9 @@ protected:
 	IteratedHashWithStaticTransform() {this->Init();}
 	void HashEndianCorrectedBlock(const T_HashWordType *data) {T_Transform::Transform(this->m_state, data);}
 	void Init() {T_Transform::InitState(this->m_state);}
-	T_HashWordType* StateBuf() {return this->m_state;}
 
-	// Squash conversion warning
-	CRYPTOPP_CONSTANT(SCOUNT=T_BlockSize/sizeof(T_HashWordType))
-	FixedSizeSecBlock<T_HashWordType, SCOUNT> m_state;
+	T_HashWordType* StateBuf() {return this->m_state;}
+	FixedSizeAlignedSecBlock<T_HashWordType, T_BlockSize/sizeof(T_HashWordType), T_StateAligned> m_state;
 };
 
 #if !defined(__GNUC__) && !defined(__clang__)
