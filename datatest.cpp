@@ -529,7 +529,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			ciphertextXorDigest = GetDecodedDatum(v, "CiphertextXorDigest");
 			xorDigest.append(encrypted, 0, 64);
 			for (size_t i=64; i<encrypted.size(); i++)
-				xorDigest[i%64] ^= encrypted[i];
+				xorDigest[i%64] = static_cast<char>(xorDigest[i%64] ^ encrypted[i]);
 		}
 		if (test != "EncryptXorDigest" ? encrypted != ciphertext : xorDigest != ciphertextXorDigest)
 		{
@@ -556,6 +556,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			std::cout << "\n";
 			SignalTestFailure();
 		}
+
+		encrypted.clear(); decrypted.clear();
 	}
 	else
 	{
