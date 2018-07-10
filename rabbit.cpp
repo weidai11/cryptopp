@@ -195,6 +195,7 @@ void RabbitWithIVPolicy::CipherSetKey(const NameValuePairs &params, const byte *
 void RabbitWithIVPolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer);
+	CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length == 8);
 
 	/* Generate four subvectors */
