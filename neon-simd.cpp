@@ -82,12 +82,11 @@ bool CPU_ProbeARMv7()
 	else
 	{
 		// ARMv7 added movt and movw
-		//int a;
-		//asm volatile("movw %0,%1 \n"
-		//			 "movt %0,%1 \n"
-		//			 : "=r"(a) : "i"(0x1234));
-		//result = (a == 0x12341234);
-		return true;
+		int a;
+		asm volatile("movw %0,%1 \n"
+					 "movt %0,%1 \n"
+					 : "=r"(a) : "i"(0x1234));
+		result = (a == 0x12341234);
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
