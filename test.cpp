@@ -7,8 +7,8 @@
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include "dll.h"
-#include "aes.h"
 #include "cryptlib.h"
+#include "aes.h"
 #include "filters.h"
 #include "md5.h"
 #include "ripemd.h"
@@ -26,6 +26,7 @@
 #include "smartptr.h"
 #include "pkcspad.h"
 #include "stdcpp.h"
+#include "osrng.h"
 #include "ossig.h"
 #include "trap.h"
 
@@ -69,6 +70,10 @@
 # pragma strict_gs_check (on)
 #endif
 
+// If CRYPTOPP_USE_AES_GENERATOR is 1 then AES/OFB based is used.
+// Otherwise the OS random number generator is used.
+#define CRYPTOPP_USE_AES_GENERATOR 1
+
 // Global namespace, provided by other source files
 void FIPS140_SampleApplication();
 void RegisterFactories(CryptoPP::Test::TestClass suites);
@@ -78,8 +83,6 @@ NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
 const int MAX_PHRASE_LENGTH=250;
-
-void PrintSeedAndThreads(const std::string& seed);
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
 std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
@@ -117,15 +120,16 @@ void ForwardTcpPort(const char *sourcePort, const char *destinationHost, const c
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
-void PrintSeedAndThreads(const std::string& seed);
-
-#define CRYPTOPP_USE_AES_GENERATOR 1
 
 ANONYMOUS_NAMESPACE_BEGIN
 #if (CRYPTOPP_USE_AES_GENERATOR)
 OFB_Mode<AES>::Encryption s_globalRNG;
 #else
-AutoSeededRandomPool s_globalRNG;
+# if defined(CRYPTOPP_WIN32_AVAILABLE)
+NonblockingRng s_globalRNG;
+# else
+BlockingRng s_globalRNG;
+# endif
 #endif
 NAMESPACE_END
 
@@ -133,6 +137,10 @@ RandomNumberGenerator & GlobalRNG()
 {
 	return dynamic_cast<RandomNumberGenerator&>(s_globalRNG);
 }
+
+// Global seed used for the self tests
+std::string s_globalSeed;
+void PrintSeedAndThreads();
 
 // See misc.h and trap.h for comments and usage
 #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
@@ -154,15 +162,15 @@ int scoped_main(int argc, char *argv[])
 		RegisterFactories(All);
 
 		// Some editors have problems with the '\0' character when redirecting output.
-		std::string seed = IntToString(time(NULLPTR));
-		seed.resize(16, ' ');
+		s_globalSeed = IntToString(time(NULLPTR));
+		s_globalSeed.resize(16, ' ');
 
-		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator
-		//  interface, to key the underlying cipher. If CRYPTOPP_USE_AES_GENERATOR
-		//  is 1 then perform the cast. Otherwise avoid the cast.
 #if (CRYPTOPP_USE_AES_GENERATOR)
+		// Fetch the OFB_Mode<AES> interface, not the RandomNumberGenerator
+		//  interface, to key the underlying cipher. If CRYPTOPP_USE_AES_GENERATOR is 1
+		//  then AES/OFB based is used. Otherwise the OS random number generator is used.
 		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
-		aesg.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+		aesg.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
 #endif
 
 		std::string command, executableName, macFilename;
@@ -316,7 +324,7 @@ int scoped_main(int argc, char *argv[])
 			if (fname.find(".txt") == std::string::npos)
 				fname = "TestVectors/" + fname + ".txt";
 
-			PrintSeedAndThreads(seed);
+			PrintSeedAndThreads();
 			return !RunTestDataFile(fname.c_str());
 		}
 		else if (command == "t")
@@ -440,9 +448,9 @@ void FIPS140_GenerateRandomFiles()
 #endif
 }
 
-void PrintSeedAndThreads(const std::string& seed)
+void PrintSeedAndThreads()
 {
-	std::cout << "Using seed: " << seed << std::endl;
+	std::cout << "Using seed: " << s_globalSeed << std::endl;
 
 #ifdef _OPENMP
 	int tc = 0;
@@ -866,13 +874,22 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	// Some editors have problems with the '\0' character when redirecting output.
 	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
-	std::string seed = (seedInput ? seedInput : IntToString(::time(NULLPTR)));
-	seed.resize(16, ' ');
-	OFB_Mode<AES>::Encryption& prng = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
-	prng.SetKeyWithIV((byte *)seed.data(), 16, (byte *)seed.data());
+	if (seedInput != NULLPTR)
+	{
+		s_globalSeed = seedInput;
+		s_globalSeed.resize(16, ' ');
+	}
+
+#if (CRYPTOPP_USE_AES_GENERATOR)
+		// Fetch the OFB_Mode<AES> interface, not the RandomNumberGenerator
+		//  interface, to key the underlying cipher. If CRYPTOPP_USE_AES_GENERATOR is 1
+		//  then AES/OFB based is used. Otherwise the OS random number generator is used.
+		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
+		aesg.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
+#endif
 
 	g_testBegin = ::time(NULLPTR);
-	PrintSeedAndThreads(seed);
+	PrintSeedAndThreads();
 
 	switch (alg)
 	{
@@ -987,7 +1004,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	g_testEnd = ::time(NULLPTR);
 
-	std::cout << "\nSeed used was " << seed << std::endl;
+	std::cout << "\nSeed used was " << "'" << s_globalSeed << "'" << std::endl;
 	std::cout << "Test started at " << TimeToString(g_testBegin) << std::endl;
 	std::cout << "Test ended at " << TimeToString(g_testEnd) << std::endl;
 
