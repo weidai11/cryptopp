@@ -150,7 +150,7 @@ void CTR_ModePolicy::OperateKeystream(KeystreamOperation /*operation*/, byte *ou
 		byte lsb = m_counterArray[s-1];
 		size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
 		m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
-		if ((m_counterArray[s-1] = lsb + (byte)blocks) == 0)
+		if ((m_counterArray[s-1] = static_cast<byte>(lsb + (blocks & 0xff))) == 0)
 			IncrementCounterBy256();
 
 		output = PtrAdd(output, blocks*s);
