@@ -94,19 +94,6 @@ void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &
 	}
 }
 
-void RandomizedTransfer(std::string &source, BufferedTransformation &target, bool finish, const std::string &channel=DEFAULT_CHANNEL)
-{
-	StringStore store(source);
-	while (store.MaxRetrievable() > (finish ? 0 : 4096))
-	{
-		byte buf[4096+64];
-		size_t start = Test::GlobalRNG().GenerateWord32(0, 63);
-		size_t len = Test::GlobalRNG().GenerateWord32(1, UnsignedMin(4096U, 3*store.MaxRetrievable()/2));
-		len = store.Get(buf+start, len);
-		target.ChannelPut(channel, buf+start, len);
-	}
-}
-
 void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransformation &target)
 {
 	std::string s1 = GetRequiredDatum(data, name), s2;
@@ -502,6 +489,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 				xorbuf(reinterpret_cast<byte*>(&keybuf[0]), reinterpret_cast<const byte*>(&encrypted[0]), keybuf.size());
 				cipher->SetKey(reinterpret_cast<const byte*>(&keybuf[0]), keybuf.size());
 			}
+
 			encrypted.assign(buf.begin(), buf.end());
 			ciphertext = GetDecodedDatum(v, test == "EncryptionMCT" ? "Ciphertext" : "Plaintext");
 			if (encrypted != ciphertext)
@@ -518,12 +506,14 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
-		// StringStore pstore(plaintext);
-		RandomizedTransfer(plaintext, encFilter, true);
+		StringStore pstore(plaintext);
+		RandomizedTransfer(pstore, encFilter, true);
 		encFilter.MessageEnd();
 
 		if (test != "EncryptXorDigest")
+		{
 			ciphertext = GetDecodedDatum(v, "Ciphertext");
+		}
 		else
 		{
 			ciphertextXorDigest = GetDecodedDatum(v, "CiphertextXorDigest");
@@ -544,8 +534,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
-		// StringStore cstore(encrypted);
-		RandomizedTransfer(encrypted, decFilter, true);
+		StringStore cstore(encrypted);
+		RandomizedTransfer(cstore, decFilter, true);
 		decFilter.MessageEnd();
 
 		if (decrypted != plaintext)
@@ -556,8 +546,6 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			std::cout << "\n";
 			SignalTestFailure();
 		}
-
-		encrypted.clear(); decrypted.clear();
 	}
 	else
 	{

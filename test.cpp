@@ -125,11 +125,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 #if (CRYPTOPP_USE_AES_GENERATOR)
 OFB_Mode<AES>::Encryption s_globalRNG;
 #else
-# if defined(CRYPTOPP_WIN32_AVAILABLE)
 NonblockingRng s_globalRNG;
-# else
-BlockingRng s_globalRNG;
-# endif
 #endif
 NAMESPACE_END
 
