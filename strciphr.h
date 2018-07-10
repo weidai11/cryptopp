@@ -541,6 +541,9 @@ template <class BASE>
 class CRYPTOPP_NO_VTABLE CFB_CipherTemplate : public BASE
 {
 public:
+	virtual ~CFB_CipherTemplate() {}
+	CFB_CipherTemplate() : m_leftOver(0) {}
+
 	/// \brief Apply keystream to data
 	/// \param outString a buffer to write the transformed data
 	/// \param inString a buffer to read the data

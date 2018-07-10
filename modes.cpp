@@ -65,8 +65,8 @@ void CFB_ModePolicy::TransformRegister()
 
 	const ptrdiff_t updateSize = BlockSize()-m_feedbackSize;
 	m_cipher->ProcessBlock(m_register, m_temp);
-	memmove_s(m_register, m_register.size(), m_register+m_feedbackSize, updateSize);
-	memcpy_s(m_register+updateSize, m_register.size()-updateSize, m_temp, m_feedbackSize);
+	memmove_s(m_register, m_register.size(), PtrAdd(m_register.begin(),m_feedbackSize), updateSize);
+	memcpy_s(PtrAdd(m_register.begin(),updateSize), m_register.size()-updateSize, m_temp, m_feedbackSize);
 }
 
 void CFB_ModePolicy::CipherResynchronize(const byte *iv, size_t length)
@@ -150,7 +150,7 @@ void CTR_ModePolicy::OperateKeystream(KeystreamOperation /*operation*/, byte *ou
 		byte lsb = m_counterArray[s-1];
 		size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
 		m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
-		if ((m_counterArray[s-1] = static_cast<byte>(lsb + (blocks & 0xff))) == 0)
+		if ((m_counterArray[s-1] = static_cast<byte>(lsb + blocks)) == 0)
 			IncrementCounterBy256();
 
 		output = PtrAdd(output, blocks*s);
