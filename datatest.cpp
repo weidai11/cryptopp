@@ -94,6 +94,19 @@ void RandomizedTransfer(BufferedTransformation &source, BufferedTransformation &
 	}
 }
 
+void RandomizedTransfer(std::string &source, BufferedTransformation &target, bool finish, const std::string &channel=DEFAULT_CHANNEL)
+{
+	StringStore store(source);
+	while (store.MaxRetrievable() > (finish ? 0 : 4096))
+	{
+		byte buf[4096+64];
+		size_t start = Test::GlobalRNG().GenerateWord32(0, 63);
+		size_t len = Test::GlobalRNG().GenerateWord32(1, UnsignedMin(4096U, 3*store.MaxRetrievable()/2));
+		len = store.Get(buf+start, len);
+		target.ChannelPut(channel, buf+start, len);
+	}
+}
+
 void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransformation &target)
 {
 	std::string s1 = GetRequiredDatum(data, name), s2;
@@ -111,7 +124,8 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 		int repeat = 1;
 		if (s1[0] == 'r')
 		{
-			repeat = ::atoi(s1.c_str()+1);
+			s1 = s1.erase(0, 1);
+			repeat = ::atoi(s1.c_str());
 			s1 = s1.substr(s1.find(' ')+1);
 		}
 
@@ -504,8 +518,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		StreamTransformationFilter encFilter(*encryptor, new StringSink(encrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
-		StringStore pstore(plaintext);
-		RandomizedTransfer(pstore, encFilter, true);
+		// StringStore pstore(plaintext);
+		RandomizedTransfer(plaintext, encFilter, true);
 		encFilter.MessageEnd();
 
 		if (test != "EncryptXorDigest")
@@ -530,8 +544,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		StreamTransformationFilter decFilter(*decryptor, new StringSink(decrypted),
 				static_cast<BlockPaddingSchemeDef::BlockPaddingScheme>(paddingScheme));
 
-		StringStore cstore(encrypted);
-		RandomizedTransfer(cstore, decFilter, true);
+		// StringStore cstore(encrypted);
+		RandomizedTransfer(encrypted, decFilter, true);
 		decFilter.MessageEnd();
 
 		if (decrypted != plaintext)
