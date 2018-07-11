@@ -14,6 +14,8 @@ static inline bool Is8859Character(char c) {
 
 void Gzip::IsolatedInitialize(const NameValuePairs &parameters)
 {
+	Deflator::IsolatedInitialize(parameters);
+
 	ConstByteArrayParameter v;
 	if (parameters.GetValue(Name::FileName(), v))
 		m_filename.assign(reinterpret_cast<const char*>(v.begin()), v.size());
