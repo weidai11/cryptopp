@@ -5,7 +5,16 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM rijndael.cpp" to generate MASM code
 
 /*
-July 2017: Added support for ARM AES instructions via compiler intrinsics.
+July 2018: Added support for ARMv7 AES instructions via Cryptogams ASM.
+           See the head notes in aes-armv4.S for copyright and license.
+*/
+
+/*
+September 2017: Added support for Power8 AES instructions via compiler intrinsics.
+*/
+
+/*
+July 2017: Added support for ARMv8 AES instructions via compiler intrinsics.
 */
 
 /*
@@ -240,6 +249,24 @@ ANONYMOUS_NAMESPACE_END
 #define fd(x)   (f8(x) ^ f4(x) ^ x)
 #define fe(x)   (f8(x) ^ f4(x) ^ f2(x))
 
+unsigned int Rijndael::Base::OptimalDataAlignment() const
+{
+	// CFB mode performs an extra memcpy if buffer is not aligned.
+#if (CRYPTOPP_ARM_AES_AVAILABLE)
+	if (HasAES())
+		return 1;
+#endif
+#if (CRYPTOGAMS_ARM_AES)
+	if (HasARMv7())
+		return 1;
+#endif
+#if (CRYPTOPP_POWER8_AES_AVAILABLE)
+	if (HasAES())
+		return 1;
+#endif
+	return BlockTransformation::OptimalDataAlignment();
+}
+
 void Rijndael::Base::FillEncTable()
 {
 	for (int i=0; i<256; i++)
@@ -300,6 +327,13 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
+#if (CRYPTOGAMS_ARM_AES)
+extern "C" int AES_set_encrypt_key(const unsigned char *userKey, const int bitLen, word32 *rkey);
+extern "C" int AES_set_decrypt_key(const unsigned char *userKey, const int bitLen, word32 *rkey);
+extern "C" void AES_encrypt(const unsigned char in[16], unsigned char out[16], const word32 *rkey);
+extern "C" void AES_decrypt(const unsigned char in[16], unsigned char out[16], const word32 *rkey);
+#endif
+
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 extern void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen,
         word32* rk, const byte* Se);
@@ -308,6 +342,33 @@ extern size_t Rijndael_Enc_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *su
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 extern size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *subkeys, size_t rounds,
         const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
+
+#if (CRYPTOGAMS_ARM_AES)
+int CRYPTOPP_NOINLINE
+CRYPTOGAMS_set_encrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
+{
+	return AES_set_encrypt_key(userKey, bitLen, rkey);
+}
+int CRYPTOPP_NOINLINE
+CRYPTOGAMS_set_decrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
+{
+	return AES_set_decrypt_key(userKey, bitLen, rkey);
+}
+void CRYPTOPP_NOINLINE
+CRYPTOGAMS_encrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
+{
+	AES_encrypt(inBlock, outBlock, rkey);
+	if (xorBlock)
+		xorbuf (outBlock, xorBlock, 16);
+}
+void CRYPTOPP_NOINLINE
+CRYPTOGAMS_decrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
+{
+	AES_decrypt(inBlock, outBlock, rkey);
+	if (xorBlock)
+		xorbuf (outBlock, xorBlock, 16);
+}
 #endif
 
 std::string Rijndael::Base::AlgorithmProvider() const
@@ -324,6 +385,10 @@ std::string Rijndael::Base::AlgorithmProvider() const
 	if (HasAES())
 		return "ARMv8";
 #endif
+#if (CRYPTOGAMS_ARM_AES)
+	if (HasARMv7())
+		return "ARMv7";
+#endif
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
 		return "Power8";
@@ -334,6 +399,20 @@ std::string Rijndael::Base::AlgorithmProvider() const
 void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, const NameValuePairs &)
 {
 	AssertValidKeyLength(keyLen);
+
+#if (CRYPTOGAMS_ARM_AES)
+	if (HasARMv7())
+	{
+		m_rounds = keyLen/4 + 6;
+		m_key.New(4*(15+1)+4);
+
+		if (IsForwardTransformation())
+			CRYPTOGAMS_set_encrypt_key(userKey, keyLen*8, m_key.begin());
+		else
+			CRYPTOGAMS_set_decrypt_key(userKey, keyLen*8, m_key.begin());
+		return;
+	}
+#endif
 
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 	m_aliasBlock.New(s_sizeToAllocate);
@@ -474,6 +553,14 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	}
 #endif
 
+#if (CRYPTOGAMS_ARM_AES)
+	if (HasARMv7())
+	{
+		CRYPTOGAMS_encrypt(inBlock, xorBlock, outBlock, m_key.begin());
+		return;
+	}
+#endif
+
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
 	{
@@ -519,8 +606,8 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	QUARTER_ROUND_FE(s0, t1, t2, t3, t0)
 
 	// Nr - 2 full rounds:
-    unsigned int r = m_rounds/2 - 1;
-    do
+	unsigned int r = m_rounds/2 - 1;
+	do
 	{
 		s0 = rk[0]; s1 = rk[1]; s2 = rk[2]; s3 = rk[3];
 
@@ -536,8 +623,8 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		QUARTER_ROUND_E(s1, t2, t3, t0, t1)
 		QUARTER_ROUND_E(s0, t1, t2, t3, t0)
 
-        rk += 8;
-    } while (--r);
+		rk += 8;
+	} while (--r);
 
 	word32 tbw[4];
 	byte *const tempBlock = (byte *)tbw;
@@ -564,6 +651,14 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	if (HasAES())
 	{
 		(void)Rijndael::Dec::AdvancedProcessBlocks(inBlock, xorBlock, outBlock, 16, 0);
+		return;
+	}
+#endif
+
+#if (CRYPTOGAMS_ARM_AES)
+	if (HasARMv7())
+	{
+		CRYPTOGAMS_decrypt(inBlock, xorBlock, outBlock, m_key.begin());
 		return;
 	}
 #endif
@@ -613,8 +708,8 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	QUARTER_ROUND_FD(s0, t3, t2, t1, t0)
 
 	// Nr - 2 full rounds:
-    unsigned int r = m_rounds/2 - 1;
-    do
+	unsigned int r = m_rounds/2 - 1;
+	do
 	{
 		s0 = rk[0]; s1 = rk[1]; s2 = rk[2]; s3 = rk[3];
 
@@ -630,8 +725,8 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		QUARTER_ROUND_D(s1, t0, t3, t2, t1)
 		QUARTER_ROUND_D(s0, t3, t2, t1, t0)
 
-        rk += 8;
-    } while (--r);
+		rk += 8;
+	} while (--r);
 
 #if !(defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS))
 	// timing attack countermeasure. see comments at top for more details

@@ -5,6 +5,8 @@ adv-simd.h
 adler32.cpp
 adler32.h
 aes.h
+aes-armv4.h
+aes-armv4.S
 algebra.cpp
 algebra.h
 algparam.cpp

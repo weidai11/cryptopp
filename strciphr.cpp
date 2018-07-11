@@ -202,6 +202,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 		else
 		{
+			// GCC and Clang does not like this on ARM.
 			memcpy(outString, inString, length);
 			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 		}

@@ -651,6 +651,15 @@ NAMESPACE_END
 # undef CRYPTOPP_ARM_ACLE_AVAILABLE
 #endif
 
+// Cryptogams offers an ARM asm AES implementation. Crypto++ does
+// not provide an ARM implementation. The Cryptogams implementation
+// is about 2x faster than C/C++. Define this to use the Cryptogams
+// AES implementation on GNU Linux systems. When defined, Crypto++
+// will use aes-armv4.S.
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__arm__)
+# define CRYPTOGAMS_ARM_AES 1
+#endif
+
 #endif  // ARM32, ARM64
 
 // ***************** AltiVec and Power8 ********************

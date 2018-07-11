@@ -162,11 +162,11 @@ int scoped_main(int argc, char *argv[])
 		s_globalSeed.resize(16, ' ');
 
 #if (CRYPTOPP_USE_AES_GENERATOR)
-		// Fetch the OFB_Mode<AES> interface, not the RandomNumberGenerator
+		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator
 		//  interface, to key the underlying cipher. If CRYPTOPP_USE_AES_GENERATOR is 1
 		//  then AES/OFB based is used. Otherwise the OS random number generator is used.
-		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
-		aesg.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
+		SymmetricCipher& cipher = dynamic_cast<SymmetricCipher&>(GlobalRNG());
+		cipher.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
 #endif
 
 		std::string command, executableName, macFilename;
@@ -880,8 +880,8 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 		// Fetch the OFB_Mode<AES> interface, not the RandomNumberGenerator
 		//  interface, to key the underlying cipher. If CRYPTOPP_USE_AES_GENERATOR is 1
 		//  then AES/OFB based is used. Otherwise the OS random number generator is used.
-		OFB_Mode<AES>::Encryption& aesg = dynamic_cast<OFB_Mode<AES>::Encryption&>(GlobalRNG());
-		aesg.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
+		SymmetricCipher& cipher = dynamic_cast<SymmetricCipher&>(GlobalRNG());
+		cipher.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
 #endif
 
 	g_testBegin = ::time(NULLPTR);
@@ -1000,9 +1000,9 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 
 	g_testEnd = ::time(NULLPTR);
 
-	std::cout << "\nSeed used was " << "'" << s_globalSeed << "'" << std::endl;
-	std::cout << "Test started at " << TimeToString(g_testBegin) << std::endl;
-	std::cout << "Test ended at " << TimeToString(g_testEnd) << std::endl;
+	std::cout << "\nSeed used was " << s_globalSeed;
+	std::cout << "\nTest started at " << TimeToString(g_testBegin);
+	std::cout << "\nTest ended at " << TimeToString(g_testEnd) << std::endl;
 
 	return result;
 }

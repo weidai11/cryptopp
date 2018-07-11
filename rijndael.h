@@ -45,6 +45,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 	public:
 		void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
 		std::string AlgorithmProvider() const;
+		unsigned int OptimalDataAlignment() const;
 
 	protected:
 		static void FillEncTable();
@@ -57,7 +58,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 		static const word32 rcon[];
 
 		unsigned int m_rounds;
-		FixedSizeAlignedSecBlock<word32, 4*15> m_key;
+		SecBlock<word32, AllocatorWithCleanup<word32, true> > m_key;
 		mutable SecByteBlock m_aliasBlock;
 	};
 

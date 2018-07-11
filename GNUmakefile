@@ -129,6 +129,13 @@ else
   CXXFLAGS ?= -DNDEBUG -g2 -O3
 endif
 
+# On ARM we may compile aes-armv4.S though the CC compiler
+ifeq ($(GCC_COMPILER),1)
+  CC=gcc
+else ifeq ($(CLANG_COMPILER),1)
+  CC=clang
+endif
+
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr/local
@@ -723,6 +730,13 @@ SRCS += winpipes.cpp
 INCL += resource.h
 endif
 
+# Cryptogams AES for ARMv4 and above. We couple to ARMv7.
+# Disable Thumb via -marm due to unaligned byte buffers.
+ifeq ($(IS_ARM32),1)
+CRYPTOGAMS_AES_ARCH = -march=armv7-a -marm
+SRCS += aes-armv4.S
+endif
+
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
 OBJS := $(OBJS:.S=.o)
@@ -1059,6 +1073,10 @@ endif
 ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 -include GNUmakefile.deps
 endif # Dependencies
+
+# Cryptogams ARM asm implementation. CRYPTOGAMS_AES_ARCH includes -marm.
+aes-armv4.o : aes-armv4.S
+	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
 
 # SSSE3 or NEON available
 aria-simd.o : aria-simd.cpp
