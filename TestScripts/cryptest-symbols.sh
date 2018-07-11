@@ -9,7 +9,7 @@
 ############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_6_1_0
+OLD_VERSION_TAG=CRYPTOPP_7_0_0
 NEW_VERSION_TAG=master
 
 ############################################
@@ -34,11 +34,8 @@ fi
 
 echo
 echo "****************************************************************"
-echo "****************************************************************"
 echo "Testing '$NEW_VERSION_TAG' against '$OLD_VERSION_TAG'"
 echo "****************************************************************"
-echo "****************************************************************"
-echo
 
 ############################################
 # Setup tools and platforms
@@ -224,7 +221,6 @@ echo
 echo "****************************************************************"
 echo "Patching makefile for dynamic linking by cryptest.exe"
 echo "****************************************************************"
-echo
 
 if [[ "$IS_DARWIN" -ne "0" ]]; then
 	"$SED" "$SED_OPTS" -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.dylib $(TESTOBJS)|g' GNUmakefile-symbols
@@ -282,11 +278,10 @@ fi
 
 echo
 echo "****************************************************************"
-echo "Removing dynamic library for $OLD_VERSION_TAG"
+echo "Removing dynamic library and artifacts for $OLD_VERSION_TAG"
 echo "****************************************************************"
-echo
 
-rm -f adhoc.cpp *.o *.so *.dylib
+rm -f adhoc.cpp *.a *.o *.so *.dylib
 
 git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 
