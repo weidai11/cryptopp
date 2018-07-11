@@ -30,8 +30,9 @@ x86 assembly code, doing an 8-bit register move to minimize the number of
 register spills. Also switched to compressed tables and copying round keys to
 the stack.
 
-The C++ implementation now uses compressed tables if
-CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined.
+The C++ implementation uses compressed tables if
+CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS is defined.
+It is defined on x86 platforms by default but no others.
 */
 
 /*
@@ -95,7 +96,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
-#if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
+#if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE))
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
 #endif
 
@@ -103,7 +104,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define M128I_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128I_CAST(x) ((const __m128i *)(const void *)(x))
 
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 # if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
 using namespace rdtable;
@@ -111,14 +112,14 @@ using namespace rdtable;
 static word64 Te[256];
 # endif
 static word64 Td[256];
-#else // Not CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+#else // Not CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS
 # if defined(CRYPTOPP_X64_MASM_AVAILABLE)
 // Unused; avoids linker error on Microsoft X64 non-AESNI platforms
 namespace rdtable {CRYPTOPP_ALIGN_DATA(16) word64 Te[256+2];}
 # endif
 CRYPTOPP_ALIGN_DATA(16) static word32 Te[256*4];
 CRYPTOPP_ALIGN_DATA(16) static word32 Td[256*4];
-#endif // CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
+#endif // CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS
 
 static volatile bool s_TeFilled = false, s_TdFilled = false;
 
@@ -199,7 +200,7 @@ ANONYMOUS_NAMESPACE_END
 	tempBlock[c] = ((byte *)(Te+byte(t)))[1]; t >>= 8;\
 	tempBlock[d] = ((byte *)(Te+t))[1];
 
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 	#define QUARTER_ROUND_LD(t, a, b, c, d)	\
 		tempBlock[a] = ((byte *)(Td+byte(t)))[GetNativeByteOrder()*7]; t >>= 8;\
 		tempBlock[b] = ((byte *)(Td+byte(t)))[GetNativeByteOrder()*7]; t >>= 8;\
@@ -219,7 +220,7 @@ ANONYMOUS_NAMESPACE_END
 #ifdef CRYPTOPP_LITTLE_ENDIAN
 	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, d, c, b, a)
 	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, d, c, b, a)
-	#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+	#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 		#define TL_F(T, i, x)	(*(word32 *)(void *)((byte *)T + x*8 + (6-i)%4+1))
 		#define TL_M(T, i, x)	(*(word32 *)(void *)((byte *)T + x*8 + (i+3)%4+1))
 	#else
@@ -229,7 +230,7 @@ ANONYMOUS_NAMESPACE_END
 #else
 	#define QUARTER_ROUND_FE(t, a, b, c, d)		QUARTER_ROUND(TL_F, Te, t, a, b, c, d)
 	#define QUARTER_ROUND_FD(t, a, b, c, d)		QUARTER_ROUND(TL_F, Td, t, a, b, c, d)
-	#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+	#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 		#define TL_F(T, i, x)	(*(word32 *)(void *)((byte *)T + x*8 + (4-i)%4))
 		#define TL_M			TL_F
 	#else
@@ -272,7 +273,7 @@ void Rijndael::Base::FillEncTable()
 	for (int i=0; i<256; i++)
 	{
 		byte x = Se[i];
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 		word32 y = word32(x)<<8 | word32(x)<<16 | word32(f2(x))<<24;
 		Te[i] = word64(y | f3(x))<<32 | y;
 #else
@@ -295,7 +296,7 @@ void Rijndael::Base::FillDecTable()
 	for (int i=0; i<256; i++)
 	{
 		byte x = Sd[i];
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 		word32 y = word32(fd(x))<<8 | word32(f9(x))<<16 | word32(fe(x))<<24;
 		Td[i] = word64(y | fb(x))<<32 | y | x;
 #else
@@ -591,7 +592,7 @@ void Rijndael::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	unsigned int i;
 	volatile word32 _u = 0;
 	word32 u = _u;
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 	for (i=0; i<2048; i+=cacheLineSize)
 #else
 	for (i=0; i<1024; i+=cacheLineSize)
@@ -693,7 +694,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 	unsigned int i;
 	volatile word32 _u = 0;
 	word32 u = _u;
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
+#if defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS)
 	for (i=0; i<2048; i+=cacheLineSize)
 #else
 	for (i=0; i<1024; i+=cacheLineSize)
@@ -728,9 +729,9 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 		rk += 8;
 	} while (--r);
 
-#if !(defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS) || defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS))
+#if !(defined(CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS))
 	// timing attack countermeasure. see comments at top for more details
-	// If CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is defined,
+	// If CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS is defined,
 	// QUARTER_ROUND_LD will use Td, which is already preloaded.
 	u = _u;
 	for (i=0; i<256; i+=cacheLineSize)

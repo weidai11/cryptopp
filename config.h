@@ -75,8 +75,8 @@
 // this file. At the moment it should only affect std::uncaught_exceptions.
 // #define CRYPTOPP_NO_CXX17 1
 
-// Define this to allow unaligned data access. If you experience a break with
-// GCC at -O3, you should immediately suspect unaligned data accesses.
+// CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is no longer honored. It
+// was removed at https://github.com/weidai11/cryptopp/issues/682
 // #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS 1
 
 // ***************** Less Important Settings ***************

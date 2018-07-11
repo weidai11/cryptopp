@@ -1043,22 +1043,15 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 /// \brief Returns the minimum alignment requirements of a type
 /// \tparam T class or type
 /// \returns the minimum alignment requirements of <tt>T</tt>, in bytes
-/// \details Internally the function calls C++11's <tt>alignof</tt> if available. If not available,
-///   then the function uses compiler specific extensions such as <tt>__alignof</tt> and
-///   <tt>_alignof_</tt>. If an extension is not available, then the function uses
-///   <tt>__BIGGEST_ALIGNMENT__</tt> if <tt>__BIGGEST_ALIGNMENT__</tt> is smaller than <tt>sizeof(T)</tt>.
-///   <tt>sizeof(T)</tt> is used if all others are not available.
-///   In <em>all</em> cases, if <tt>CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS</tt> is defined, then the
-///   function returns 1.
+/// \details Internally the function calls C++11's <tt>alignof</tt> if available. If not
+///   available, then the function uses compiler specific extensions such as
+///   <tt>__alignof</tt> and <tt>_alignof_</tt>. If an extension is not available, then
+///   the function uses <tt>__BIGGEST_ALIGNMENT__</tt> if <tt>__BIGGEST_ALIGNMENT__</tt>
+///   is smaller than <tt>sizeof(T)</tt>. <tt>sizeof(T)</tt> is used if all others are
+///   not available.
 template <class T>
 inline unsigned int GetAlignmentOf()
 {
-// GCC 4.6 (circa 2008) and above aggressively uses vectorization.
-#if defined(CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS)
-	if (sizeof(T) < 16)
-		return 1;
-#endif
-
 #if defined(CRYPTOPP_CXX11_ALIGNOF)
 	return alignof(T);
 #elif (_MSC_VER >= 1300)
@@ -2113,7 +2106,6 @@ inline void GetUserKey(ByteOrder order, T *out, size_t outlen, const byte *in, s
 	ConditionalByteReverse(order, out, out, RoundUpToMultipleOf(inlen, U));
 }
 
-#ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 inline byte UnalignedGetWordNonTemplate(ByteOrder order, const byte *block, const byte *)
 {
 	CRYPTOPP_UNUSED(order);
@@ -2284,7 +2276,6 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value,
 		}
 	}
 }
-#endif	// #ifndef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
 
 /// \brief Access a block of memory
 /// \tparam T class or type
@@ -2306,13 +2297,10 @@ template <class T>
 inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 {
 	CRYPTOPP_UNUSED(assumeAligned);
-#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	return ConditionalByteReverse(order, *reinterpret_cast<const T *>((const void *)block));
-#else
+
 	T temp;
 	memcpy(&temp, block, sizeof(T));
 	return ConditionalByteReverse(order, temp);
-#endif
 }
 
 /// \brief Access a block of memory
@@ -2351,14 +2339,11 @@ template <class T>
 inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, const byte *xorBlock = NULLPTR)
 {
 	CRYPTOPP_UNUSED(assumeAligned);
-#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	*reinterpret_cast<T *>((void *)block) = ConditionalByteReverse(order, value) ^ (xorBlock ? *reinterpret_cast<const T *>((const void *)xorBlock) : 0);
-#else
+
 	T t1, t2;
 	t1 = ConditionalByteReverse(order, value);
 	if (xorBlock) {memcpy(&t2, xorBlock, sizeof(T)); t1 ^= t2;}
 	memcpy(block, &t1, sizeof(T));
-#endif
 }
 
 /// \brief Access a block of memory

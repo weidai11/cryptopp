@@ -281,19 +281,8 @@ bool TestSettings()
 	std::cout << "Library version (library): " << v1 << ", header version (app): " << v2 << "\n";
 #endif
 
-#ifdef CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS
-	// Don't assert the alignment of testvals. That's what this test is for.
-	byte testvals[10] = {1,2,2,3,3,3,3,2,2,1};
-	if (*(word32 *)(void *)(testvals+3) == 0x03030303 && *(word64 *)(void *)(testvals+1) == W64LIT(0x0202030303030202))
-		std::cout << "passed:  Unaligned data access (CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS).\n";
-	else
-	{
-		std::cout << "FAILED:  Unaligned data access gave incorrect results.\n";
-		pass = false;
-	}
-#else
-	std::cout << "passed:  Aligned data access (no CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS).\n";
-#endif
+	// CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS removed at Issue 682.
+	std::cout << "passed:  Aligned data access.\n";
 
 	if (sizeof(byte) == 1)
 		std::cout << "passed:  ";
