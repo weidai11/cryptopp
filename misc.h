@@ -413,7 +413,7 @@ inline ptrdiff_t PtrDiff(const PTR pointer1, const PTR pointer2)
 template <typename PTR>
 inline size_t PtrByteDiff(const PTR pointer1, const PTR pointer2)
 {
-	return (size_t)(static_cast<uintptr_t>(pointer1) - static_cast<uintptr_t>(pointer2));
+	return (size_t)(reinterpret_cast<uintptr_t>(pointer1) - reinterpret_cast<uintptr_t>(pointer2));
 }
 
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
