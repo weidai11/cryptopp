@@ -59,8 +59,8 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 		size_t bufferByteSize = RoundUpToMultipleOf(length, bytesPerIteration);
 		size_t bufferIterations = bufferByteSize / bytesPerIteration;
 
-		policy.WriteKeystream(KeystreamBufferEnd()-bufferByteSize, bufferIterations);
-		memcpy(outString, KeystreamBufferEnd()-bufferByteSize, length);
+		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bufferByteSize), bufferIterations);
+		memcpy(outString, PtrSub(KeystreamBufferEnd(), bufferByteSize), length);
 		m_leftOver = bufferByteSize - length;
 	}
 }
@@ -115,8 +115,8 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		bufferByteSize = RoundUpToMultipleOf(length, bytesPerIteration);
 		bufferIterations = bufferByteSize / bytesPerIteration;
 
-		policy.WriteKeystream(KeystreamBufferEnd()-bufferByteSize, bufferIterations);
-		xorbuf(outString, inString, KeystreamBufferEnd()-bufferByteSize, length);
+		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bufferByteSize), bufferIterations);
+		xorbuf(outString, inString, PtrSub(KeystreamBufferEnd(), bufferByteSize), length);
 		m_leftOver = bufferByteSize - length;
 	}
 }
@@ -141,7 +141,7 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 
 	if (position > 0)
 	{
-		policy.WriteKeystream(KeystreamBufferEnd()-bytesPerIteration, 1);
+		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bytesPerIteration), 1);
 		m_leftOver = bytesPerIteration - (unsigned int)position;
 	}
 	else
