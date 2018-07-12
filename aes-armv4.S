@@ -32,6 +32,9 @@
 @ Profiler-assisted and platform-specific optimization resulted in 16%
 @ improvement on Cortex A8 core and ~21.5 cycles per byte.
 
+@ JW, JUL 2018: Begin defines from taken from arm_arch.h
+@               The defines were included through the header.
+
 # if !defined(__ARM_ARCH__)
 #  if defined(__CC_ARM)
 #   define __ARM_ARCH__ __TARGET_ARCH_ARM
@@ -86,6 +89,8 @@
 #  endif
 # endif
 
+@ JW, JUL 2018: End defines from taken from arm_arch.h
+@               Back to original Cryptogams code
 
 .text
 #if defined(__thumb2__) && !defined(__APPLE__)

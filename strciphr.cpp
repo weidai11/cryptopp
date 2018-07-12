@@ -195,6 +195,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		if (!length) {return;}
 	}
 
+	// TODO: Figure out what is happening on ARM A-32. x86, Aarch64 and PowerPC are OK.
+#if !defined(__arm__)
 	if (policy.CanIterate() && length >= bytesPerIteration && IsAlignedOn(outString, alignment))
 	{
 		const CipherDir cipherDir = GetCipherDir(*this);
@@ -202,7 +204,9 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 		else
 		{
-			// GCC and Clang does not like this on ARM.
+			// GCC and Clang does not like this on ARM. If we create
+			// an aligned temp input buffer, memcpy inString to it,
+			// and then use the temp input then things are [mostly] OK.
 			memcpy(outString, inString, length);
 			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 		}
@@ -210,6 +214,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		outString = PtrAdd(outString, length - length % bytesPerIteration);
 		length %= bytesPerIteration;
 	}
+#endif
 
 	while (length >= bytesPerIteration)
 	{
