@@ -196,6 +196,14 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	}
 
 	// TODO: Figure out what is happening on ARM A-32. x86, Aarch64 and PowerPC are OK.
+	//       The issue surfaced for CFB mode when we cut-in Cryptogams AES ARMv7 asm.
+	//       Using 'outString' for both input and output leads to incorrect results.
+	//
+	//       Benchmarking on Cortex-A7 and Cortex-A9 indicates removing the block
+	//       below does not have a material effect on performance.
+	//
+	//       Also see https://github.com/weidai11/cryptopp/issues/683.
+	//
 #if !defined(__arm__)
 	if (policy.CanIterate() && length >= bytesPerIteration && IsAlignedOn(outString, alignment))
 	{
@@ -204,9 +212,32 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 		else
 		{
-			// GCC and Clang does not like this on ARM. If we create
-			// an aligned temp input buffer, memcpy inString to it,
-			// and then use the temp input then things are [mostly] OK.
+			// GCC and Clang does not like this on ARM. The incorrect result is a string
+			// of 0's instead of ciphertext (or plaintext if decrypting). The 0's trace
+			// back to the allocation for the std::string in datatest.cpp. Elements in the
+			// string are initialized to their default value, which is 0.
+			//
+			// It almost feels as if the compiler does not see the string is transformed
+			// in-place so it short-circuits the transform. However, if we use a stand-alone
+			// reproducer with the same data then the issue is _not_ present.
+			//
+			// When working on this issue we introduced PtrAdd and PtrSub to ensure we were
+			// not running afoul of pointer arithmetic rules of the language. Namely we need
+			// to use ptrdiff_t when subtracting pointers. We believe the relevant code paths
+			// are clean.
+			//
+			// There are two remaining open questions. The first is aliasing rules. Char-types
+			// are not bound by aliasing rules so we are OK. The second is array const-ness.
+			// The arrays are created in datatest.cpp and they are non-const. Since the original
+			// objects are non-const we are OK casting const-ness away as buffers are twiddled.
+			//
+			// One workaround is a distinct and aligned temporary buffer. It [mostly] works
+			// as expected but requires an extra allocation (casts not shown):
+			//
+			//   std::string temp(length);
+			//   std::memcpy(&temp[0], inString, length);
+			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
+			//
 			memcpy(outString, inString, length);
 			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 		}
