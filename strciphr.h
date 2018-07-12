@@ -376,7 +376,7 @@ protected:
 	unsigned int GetBufferByteSize(const PolicyInterface &policy) const {return policy.GetBytesPerIteration() * policy.GetIterationsToBuffer();}
 
 	inline byte * KeystreamBufferBegin() {return this->m_buffer.data();}
-	inline byte * KeystreamBufferEnd() {return (this->m_buffer.data() + this->m_buffer.size());}
+	inline byte * KeystreamBufferEnd() {return (PtrAdd(this->m_buffer.data(), this->m_buffer.size()));}
 
 	SecByteBlock m_buffer;
 	size_t m_leftOver;
