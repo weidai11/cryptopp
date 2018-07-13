@@ -6,8 +6,9 @@
 //    source file is needed because additional CXXFLAGS are required to enable
 //    the appropriate instructions sets in some build configurations.
 //
-//    Based on Markku-Juhani O. Saarinen work at https://github.com/mjosaarinen/sm4ni.
+//    AES-NI based on Markku-Juhani O. Saarinen work at https://github.com/mjosaarinen/sm4ni.
 //
+//    ARMv8 is upcoming.
 
 #include "pch.h"
 #include "config.h"
@@ -25,7 +26,7 @@
 # include <wmmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) && 0
 # include <arm_neon.h>
 #endif
 
@@ -329,7 +330,7 @@ size_t SM4_Enc_AdvancedProcessBlocks_AESNI(const word32* subKeys, size_t rounds,
 }
 #endif // CRYPTOPP_AESNI_AVAILABLE
 
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE)
+#if defined(CRYPTOPP_ARM_NEON_AVAILABLE) && 0
 size_t SM4_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {

@@ -276,6 +276,10 @@ ifneq ($(IS_ARMv8),0)
     GCM_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
   endif
+  HAVE_CRYPTO := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8.4-a+crypto -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
+  ifeq ($(HAVE_CRYPTO),1)
+    SM4_FLAG = -march=armv8.4-a+crypto
+  endif
 endif
 
 # i686 and x86_64
