@@ -8,7 +8,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "cham.h"
+#include "lea.h"
 #include "misc.h"
 #include "adv-simd.h"
 
