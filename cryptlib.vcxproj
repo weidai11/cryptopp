@@ -306,6 +306,7 @@
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="sm3.cpp" />
     <ClCompile Include="sm4.cpp" />
+    <ClCompile Include="sm4-simd.cpp" />
     <ClCompile Include="socketft.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
     <ClCompile Include="speck.cpp" />

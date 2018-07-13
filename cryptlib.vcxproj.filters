@@ -410,6 +410,9 @@
     <ClCompile Include="sm4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="sm4-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="speck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
