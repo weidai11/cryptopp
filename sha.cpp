@@ -952,7 +952,13 @@ const word64 SHA512_K[80] = {
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
 
-ANONYMOUS_NAMESPACE_BEGIN
+// Anonymous namespace removed due to a new compile error.
+//   g++ -DNDEBUG -g2 -O3 -pthread -pipe -c sha.cpp
+//   sha.cpp: Assembler messages:
+//   sha.cpp:1155: Error: symbol `SHA512_Round' is already defined
+//   sha.cpp:1155: Error: symbol `SHA512_Round' is already defined
+
+// ANONYMOUS_NAMESPACE_BEGIN
 
 CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
 {
@@ -1035,8 +1041,8 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
     AS2(    pxor     xmm7, xmm6)\
     AS2(    psrlq    r, c-b)\
     AS2(    pxor     r, xmm7)
-
     ASL(SHA512_Round)
+
     // k + w is in mm0, a is in mm4, e is in mm5
     AS2(    paddq    mm0, [edi+7*8])        // h
     AS2(    movq     mm2, [edi+5*8])        // f
@@ -1070,6 +1076,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
     AS2(    movq     [esi+eax*8+16*8], mm0)
     AS2(    paddq    mm0, [ebx+eax*8])
     ASC(    call,    SHA512_Round)
+
     AS1(    inc      eax)
     AS2(    sub      edi, 8)
     AS2(    test     eax, 7)
@@ -1148,7 +1155,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
 #endif
 }
 
-ANONYMOUS_NAMESPACE_END
+// ANONYMOUS_NAMESPACE_END
 
 #endif    // CRYPTOPP_SSE2_ASM_AVAILABLE
 
