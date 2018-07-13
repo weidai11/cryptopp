@@ -81,7 +81,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -91,7 +91,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -125,7 +125,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -135,7 +135,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -169,7 +169,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -179,7 +179,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 6.0

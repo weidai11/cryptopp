@@ -62,7 +62,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 		mutable SecByteBlock m_aliasBlock;
 	};
 
-	/// \brief Provides implementation for encryption transformation
+	/// \brief Encryption transformation
 	/// \details Enc provides implementation for encryption transformation. All key sizes are supported.
 	///   The library only provides Rijndael with 128-bit blocks, and not 192-bit or 256-bit blocks
 	/// \since Rijndael since Crypto++ 3.1, Intel AES-NI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
@@ -76,7 +76,7 @@ class CRYPTOPP_DLL Rijndael : public Rijndael_Info, public BlockCipherDocumentat
 #endif
 	};
 
-	/// \brief Provides implementation for decryption transformation
+	/// \brief Decryption transformation
 	/// \details Dec provides implementation for decryption transformation. All key sizes are supported.
 	///   The library only provides Rijndael with 128-bit blocks, and not 192-bit or 256-bit blocks
 	/// \since Rijndael since Crypto++ 3.1, Intel AES-NI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,

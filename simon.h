@@ -90,7 +90,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -103,7 +103,7 @@ public:
 #endif
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -149,7 +149,7 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -162,7 +162,7 @@ public:
 #endif
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \since Crypto++ 6.0

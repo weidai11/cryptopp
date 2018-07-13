@@ -68,7 +68,7 @@ public:
         mutable FixedSizeSecBlock<word16, 5> m_t;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 7.1
@@ -78,7 +78,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 7.1
@@ -118,7 +118,7 @@ public:
         mutable FixedSizeSecBlock<word32, 5> m_t;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 7.1
@@ -132,7 +132,7 @@ public:
 #endif
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 7.1

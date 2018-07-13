@@ -54,7 +54,7 @@ public:
         mutable SecBlock<word32, AllocatorWithCleanup<word32> > m_wspace;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key
     ///   sizes are supported.
     /// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is
@@ -72,7 +72,7 @@ public:
 #endif
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is

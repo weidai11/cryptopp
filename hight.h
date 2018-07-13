@@ -51,7 +51,7 @@ public:
         mutable FixedSizeSecBlock<word32, 8> m_xx;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation.
     /// \since Crypto++ 7.1
     class CRYPTOPP_NO_VTABLE Enc : public Base
@@ -60,7 +60,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation.
     /// \since Crypto++ 7.1
     class CRYPTOPP_NO_VTABLE Dec : public Base

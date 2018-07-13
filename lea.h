@@ -56,7 +56,7 @@ public:
         unsigned int m_rounds;
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 7.1
@@ -70,7 +70,7 @@ public:
 #endif
     };
 
-    /// \brief Provides implementation for encryption transformation
+    /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 7.1
