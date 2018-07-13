@@ -307,6 +307,7 @@ ifneq ($(IS_i686)$(IS_x86_64),00)
   HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(EGREP) -i -c __AES__)
   ifeq ($(HAVE_AES),1)
     AES_FLAG = -msse4.1 -maes
+    SM4_FLAG = -mssse3 -maes
   endif
   HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(EGREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
@@ -544,6 +545,10 @@ simon-simd.o : simon-simd.cpp
 # SSSE3 or NEON available
 speck-simd.o : speck-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK_FLAG) -c) $<
+
+# AESNI available
+sm4-simd.o : sm4-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SM4_FLAG) -c) $<
 
 %.o : %.cpp
 	$(CXX) $(strip $(CXXFLAGS) -c) $<

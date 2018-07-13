@@ -89,6 +89,22 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if CRYPTOPP_SM4_ADVANCED_PROCESS_BLOCKS
+# if defined(CRYPTOPP_AESNI_AVAILABLE)
+extern size_t SM4_Enc_AdvancedProcessBlocks_AESNI(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+# endif
+#endif
+
+std::string SM4::Enc::AlgorithmProvider() const
+{
+#if defined(CRYPTOPP_AESNI_AVAILABLE)
+    if (HasAESNI())
+        return "AESNI";
+#endif
+    return "C++";
+}
+
 void SM4::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(keyLength == 16);
@@ -173,5 +189,19 @@ void SM4::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
     typedef PutBlock<word32, BigEndian, false> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2])(m_wspace[1])(m_wspace[0]);
 }
+
+#if CRYPTOPP_SM4_ADVANCED_PROCESS_BLOCKS
+size_t SM4::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
+        byte *outBlocks, size_t length, word32 flags) const
+{
+#if defined(CRYPTOPP_AESNI_AVAILABLE)
+    if (HasAESNI()) {
+        return SM4_Enc_AdvancedProcessBlocks_AESNI(m_rkeys, 32,
+            inBlocks, xorBlocks, outBlocks, length, flags);
+    }
+#endif
+    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif  // CRYPTOPP_SM4_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END

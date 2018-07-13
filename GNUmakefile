@@ -282,6 +282,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
   HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(GREP) -i -c __AES__)
   ifeq ($(HAVE_AES),1)
     AES_FLAG = -msse4.1 -maes
+    SM4_FLAG = -mssse3 -maes
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
   HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(GREP) -i -c __SHA__)
@@ -322,6 +323,7 @@ ifeq ($(SUN_COMPILER),1)
   ifeq ($(COUNT),0)
     GCM_FLAG = -xarch=aes -D__PCLMUL__=1
     AES_FLAG = -xarch=aes -D__AES__=1
+    SM4_FLAG = -xarch=aes -D__AES__=1
     LDFLAGS += -xarch=aes
   endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sha -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
@@ -1137,6 +1139,10 @@ simon-simd.o : simon-simd.cpp
 # SSSE3 or NEON available
 speck-simd.o : speck-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK_FLAG) -c) $<
+
+# AESNI available
+sm4-simd.o : sm4-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SM4_FLAG) -c) $<
 
 # IBM XLC -O3 optimization bug
 ifeq ($(XLC_COMPILER),1)

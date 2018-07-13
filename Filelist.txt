@@ -305,6 +305,7 @@ skipjack.h
 sm3.cpp
 sm3.h
 sm4.cpp
+sm4-simd.cpp
 sm4.h
 smartptr.h
 socketft.cpp
