@@ -12,9 +12,9 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #if defined(_OPENMP)
-static const bool CRYPTOPP_RW_USE_OMP = true;
+# define CRYPTOPP_RW_USE_OMP 1
 #else
-static const bool CRYPTOPP_RW_USE_OMP = false;
+# define CRYPTOPP_RW_USE_OMP 0
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
