@@ -180,7 +180,6 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 
 	PolicyInterface &policy = this->AccessPolicy();
 	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
-	unsigned int alignment = policy.GetAlignment();
 	byte *reg = policy.GetRegisterBegin();
 
 	if (m_leftOver)
@@ -205,6 +204,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
 	//
 #if !defined(__arm__)
+	unsigned int alignment = policy.GetAlignment();
 	if (policy.CanIterate() && length >= bytesPerIteration && IsAlignedOn(outString, alignment))
 	{
 		const CipherDir cipherDir = GetCipherDir(*this);
