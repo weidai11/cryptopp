@@ -689,6 +689,11 @@ NAMESPACE_END
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
 #endif
 
+// Fixup Android and CRC32. TODO: determine when CRC32 is available.
+#if defined(__ANDROID__) || defined(ANDROID)
+# undef CRYPTOPP_ARM_CRC32_AVAILABLE
+#endif
+
 // Cryptogams offers an ARM asm AES implementation. Crypto++ does
 // not provide an asm implementation. The Cryptogams implementation
 // is about 2x faster than C/C++. Define this to use the Cryptogams
