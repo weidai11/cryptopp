@@ -77,19 +77,21 @@ void GetAppleMachineInfo(unsigned int& device, unsigned int& version)
 	uname(&systemInfo);
 
 	std::string machine(systemInfo.machine);
-	if (machine.find("PowerMac") || machine.find("Power Macintosh"))
+	if (machine.find("PowerMac") != std::string::npos ||
+	    machine.find("Power Macintosh") != std::string::npos)
 		device = PowerMac;
-	else if (machine.find("Mac") || machine.find("Macintosh"))
+	else if (machine.find("Mac") != std::string::npos ||
+	         machine.find("Macintosh") != std::string::npos)
 		device = Mac;
-	else if (machine.find("iPhone"))
+	else if (machine.find("iPhone") != std::string::npos)
 		device = iPhone;
-	else if (machine.find("iPod"))
+	else if (machine.find("iPod") != std::string::npos)
 		device = iPod;
-	else if (machine.find("iPad"))
+	else if (machine.find("iPad") != std::string::npos)
 		device = iPad;
-	else if (machine.find("AppleTV"))
+	else if (machine.find("AppleTV") != std::string::npos)
 		device = AppleTV;
-	else if (machine.find("AppleWatch"))
+	else if (machine.find("AppleWatch") != std::string::npos)
 		device = AppleWatch;
 
 	std::string::size_type pos = machine.find_first_of("0123456789");
