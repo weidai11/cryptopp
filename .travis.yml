@@ -116,7 +116,7 @@ script:
         cp ./TestScripts/setenv-ios.sh .
         TestScripts/cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
-        cp ./TestScripts/setenv-android.sh .
+        cp ./TestScripts/setenv-android-gcc.sh .
         TestScripts/cryptest-android.sh
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
