@@ -342,7 +342,7 @@ inline int GetCacheLineSize()
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 extern bool g_ArmDetectionDone;
-extern bool g_hasARMv7, g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2;
+extern bool g_hasARMv7, g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2, g_hasSHA512, g_hasSHA3, g_hasSM3, g_hasSM4;
 void CRYPTOPP_API DetectArmFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
@@ -352,6 +352,7 @@ void CRYPTOPP_API DetectArmFeatures();
 /// \brief Determine if an ARM processor is ARMv7 or above
 /// \returns true if the hardware is ARMv7 or above, false otherwise.
 /// \details Some AES code requires ARMv7 or above
+/// \since Crypto++ 7.1
 /// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasARMv7()
 {
@@ -371,6 +372,7 @@ inline bool HasARMv7()
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///   need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
 ///   (64-bit). Also see ARM's <tt>__ARM_NEON</tt> preprocessor macro.
+/// \since Crypto++ 5.6.4
 /// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasNEON()
 {
@@ -385,12 +387,14 @@ inline bool HasNEON()
 }
 
 /// \brief Determine if an ARM processor provides Polynomial Multiplication
-/// \returns true if the hardware is capable of polynomial multiplications at runtime, false otherwise.
+/// \returns true if the hardware is capable of polynomial multiplications at runtime,
+///   false otherwise.
 /// \details The multiplication instructions are available under Aarch32 and Aarch64.
-/// \details Runtime support requires compile time support. When compiling with GCC, you may
-///   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
+/// \details Runtime support requires compile time support. When compiling with GCC,
+///   you may need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
+/// \since Crypto++ 5.6.4
+/// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasPMULL()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -404,12 +408,14 @@ inline bool HasPMULL()
 
 /// \brief Determine if an ARM processor has CRC32 available
 /// \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
-/// \details CRC32 instructions provide access to the processor's CRC-32 and CRC-32C instructions.
-///   They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and available under Aarch32 and Aarch64.
-/// \details Runtime support requires compile time support. When compiling with GCC, you may
-///   need to compile with <tt>-march=armv8-a+crc</tt>; while Apple requires
+/// \details CRC32 instructions provide access to the processor's CRC-32 and CRC-32C
+///   instructions. They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and
+///   available under Aarch32 and Aarch64.
+/// \details Runtime support requires compile time support. When compiling with GCC,
+///   you may need to compile with <tt>-march=armv8-a+crc</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRC32</tt> preprocessor macro.
-/// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
+/// \since Crypto++ 5.6.4
+/// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasCRC32()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -428,7 +434,8 @@ inline bool HasCRC32()
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
+/// \since Crypto++ 5.6.4
+/// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasAES()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -447,7 +454,8 @@ inline bool HasAES()
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
+/// \since Crypto++ 5.6.4
+/// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA1()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
@@ -459,20 +467,101 @@ inline bool HasSHA1()
 #endif
 }
 
-/// \brief Determine if an ARM processor has SHA2 available
-/// \returns true if the hardware is capable of SHA2 at runtime, false otherwise.
-/// \details SHA2 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
+/// \brief Determine if an ARM processor has SHA256 available
+/// \returns true if the hardware is capable of SHA256 at runtime, false otherwise.
+/// \details SHA256 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
 ///   accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///   need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
+/// \since Crypto++ 5.6.4
+/// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA2()
 {
 #if defined(__aarch32__) || defined(__aarch64__)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA2;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine if an ARM processor has SHA512 available
+/// \returns true if the hardware is capable of SHA512 at runtime, false otherwise.
+/// \details SHA512 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+///   are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
+/// \details Runtime support requires compile time support. When compiling with GCC, you
+///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+/// \since Crypto++ 7.1
+/// \note This function is only available on Aarch32 and Aarch64 platforms
+inline bool HasSHA512()
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSHA512;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine if an ARM processor has SHA3 available
+/// \returns true if the hardware is capable of SHA3 at runtime, false otherwise.
+/// \details SHA3 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+///   are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
+/// \details Runtime support requires compile time support. When compiling with GCC, you
+///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+/// \since Crypto++ 7.1
+/// \note This function is only available on Aarch32 and Aarch64 platforms
+inline bool HasSHA3()
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSHA3;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine if an ARM processor has SM3 available
+/// \returns true if the hardware is capable of SM3 at runtime, false otherwise.
+/// \details SM3 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+///   are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
+/// \details Runtime support requires compile time support. When compiling with GCC, you
+///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+/// \since Crypto++ 7.1
+/// \note This function is only available on Aarch32 and Aarch64 platforms
+inline bool HasSM3()
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSM3;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine if an ARM processor has SM4 available
+/// \returns true if the hardware is capable of SM4 at runtime, false otherwise.
+/// \details SM4 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+///   are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
+/// \details Runtime support requires compile time support. When compiling with GCC, you
+///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+/// \since Crypto++ 7.1
+/// \note This function is only available on Aarch32 and Aarch64 platforms
+inline bool HasSM4()
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSM4;
 #else
 	return false;
 #endif
