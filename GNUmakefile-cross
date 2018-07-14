@@ -506,7 +506,7 @@ cpu-features.o: cpu-features.h cpu-features.c
 
 # Cryptogams ARM asm implementation. CRYPTOGAMS_AES_ARCH includes -marm.
 aes-armv4.o : aes-armv4.S
-	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -c) $<
 
 # SSE4.2 or NEON available
 aria-simd.o : aria-simd.cpp
