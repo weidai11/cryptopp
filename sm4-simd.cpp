@@ -22,7 +22,7 @@
 // #undef CRYPTOPP_AESNI_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
-# include <smmintrin.h>
+# include <tmmintrin.h>
 # include <wmmintrin.h>
 #endif
 
