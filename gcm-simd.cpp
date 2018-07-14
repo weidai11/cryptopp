@@ -25,11 +25,6 @@
 # undef CRYPTOPP_CLMUL_AVAILABLE
 #endif
 
-// Clang and GCC hoops...
-#if !(defined(__ARM_FEATURE_CRYPTO) || defined(_MSC_VER))
-# undef CRYPTOPP_ARM_PMULL_AVAILABLE
-#endif
-
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <emmintrin.h>
 #endif
@@ -43,8 +38,6 @@
 # include <arm_neon.h>
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>

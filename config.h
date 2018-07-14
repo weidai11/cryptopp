@@ -575,90 +575,130 @@ NAMESPACE_END
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 
-// Requires ARMv7 and ACLE 1.0. Testing shows ARMv7 is really ARMv7a under most toolchains.
-// Android still uses ARMv5 and ARMv6 so we have to be conservative when enabling NEON.
+// Requires ARMv7 and ACLE 1.0. -march=armv7-a or above must be present
+// Requires GCC 4.3, Clang 2.8 or Visual Studio 2012
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__ARM_NEON) || defined(__ARM_NEON_FP) || defined(__ARM_FEATURE_NEON) || \
-	(__ARM_ARCH >= 7) || (CRYPTOPP_MSC_VERSION >= 1700)
-#  define CRYPTOPP_ARM_NEON_AVAILABLE 1
-# endif
+# if defined(__arm__) || defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(_M_ARM)
+#  if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800) || \
+      (CRYPTOPP_MSC_VERSION >= 1700)
+#   define CRYPTOPP_ARM_NEON_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
 #endif
 
-// ARMv8 and ASIMD, which is NEON. It is part of ARMv8 core.
-// TODO: Add MSC_VER and ARM-64 platform define when available
+// ARMv8 and ASIMD. -march=armv8-a or above must be present
+// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_ASIMD_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-# if defined(__aarch32__) || defined(__aarch64__) || (CRYPTOPP_MSC_VERSION >= 1910)
-#  define CRYPTOPP_ARM_ASIMD_AVAILABLE 1
-# endif
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
+      (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_CLANG_VERSION >= 30300) || \
+      (CRYPTOPP_MSC_VERSION >= 1910)
+#   define CRYPTOPP_ARM_NEON_AVAILABLE 1
+#   define CRYPTOPP_ARM_ASIMD_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
 #endif
 
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add Android ARMv8 support for CRC32
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__) && !defined(__ANDROID__)
-# if (defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_MSC_VERSION >= 1910) || \
-	defined(__aarch32__) || defined(__aarch64__))
-#  define CRYPTOPP_ARM_CRC32_AVAILABLE 1
-# endif
+// ARMv8 and ASIMD. -march=armv8-a+crc or above must be present
+// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+#   define CRYPTOPP_ARM_CRC32_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
 #endif
 
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add Android ARMv8 support for PMULL
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__apple_build_version__) && !defined(__ANDROID__)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
-	defined(__aarch32__) || defined(__aarch64__)
-#  define CRYPTOPP_ARM_PMULL_AVAILABLE 1
-# endif
+// ARMv8 and ASIMD. -march=armv8-a+crypto or above must be present
+// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+#   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
 #endif
 
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add Android ARMv8 support for AES and SHA
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__ANDROID__)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
-	defined(__aarch32__) || defined(__aarch64__)
-#  define CRYPTOPP_ARM_AES_AVAILABLE 1
-# endif
+// ARMv8 and AES. -march=armv8-a+crypto or above must be present
+// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+#   define CRYPTOPP_ARM_AES_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
 #endif
 
-// Requires ARMv8 and ACLE 2.0. GCC requires 4.8 and above.
-// LLVM Clang requires 3.5. Apple Clang is unknown at the moment.
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-// TODO: Add Android ARMv8 support for AES and SHA
-// TODO: Add MSC_VER and ARM-64 platform define when available
-#if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM) && !defined(__ANDROID__)
-# if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_MSC_VERSION >= 1910) || \
-	defined(__aarch32__) || defined(__aarch64__)
-#  define CRYPTOPP_ARM_SHA_AVAILABLE 1
-# endif
+// ARMv8 and SHA-1, SHA-256. -march=armv8-a+crypto or above must be present
+// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+#   define CRYPTOPP_ARM_SHA1_AVAILABLE 1
+#   define CRYPTOPP_ARM_SHA2_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
+#endif
+
+// ARMv8 and SHA-512, SHA-3. -march=armv8.4-a+crypto or above must be present
+// Requires GCC 8.0, Clang 6.0 or Visual Studio 2021???
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
+      (CRYPTOPP_MSC_VERSION >= 2100)
+#   define CRYPTOPP_ARM_SHA512_AVAILABLE 1
+#   define CRYPTOPP_ARM_SHA3_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
+#endif
+
+// ARMv8 and SM3, SM4. -march=armv8.4-a+crypto or above must be present
+// Requires GCC 8.0, Clang 6.0 or Visual Studio 2021???
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_SM3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
+      (CRYPTOPP_MSC_VERSION >= 2100)
+#   define CRYPTOPP_ARM_SM3_AVAILABLE 1
+#   define CRYPTOPP_ARM_SM4_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
 #endif
 
 // Limit the <arm_acle.h> include.
 #if defined(__aarch32__) || defined(__aarch64__) || (__ARM_ARCH >= 8) || defined(__ARM_ACLE)
-# define CRYPTOPP_ARM_ACLE_AVAILABLE 1
+# if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__APPLE__)
+#  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
+# endif
 #endif
 
-// Man, this is borked. Apple Clang defines __ARM_ACLE but then fails
-// to compile with "fatal error: 'arm_acle.h' file not found"
-#if defined(__ANDROID__) || defined(ANDROID) || defined(__APPLE__)
-# undef CRYPTOPP_ARM_ACLE_AVAILABLE
+// Fixup Apple Clang and PMULL. Apple defines __ARM_FEATURE_CRYPTO for Xcode 6
+// but does not provide PMULL. TODO: determine when PMULL is available.
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 70000)
+# undef CRYPTOPP_ARM_PMULL_AVAILABLE
 #endif
 
 // Cryptogams offers an ARM asm AES implementation. Crypto++ does
-// not provide an ARM implementation. The Cryptogams implementation
+// not provide an asm implementation. The Cryptogams implementation
 // is about 2x faster than C/C++. Define this to use the Cryptogams
 // AES implementation on GNU Linux systems. When defined, Crypto++
 // will use aes-armv4.S. LLVM miscompiles aes-armv4.S so disable
 // under Clang. See https://bugs.llvm.org/show_bug.cgi?id=38133.
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__arm__) && defined(__GNUC__) && !defined(__clang__)
-# define CRYPTOGAMS_ARM_AES 1
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__arm__)
+# if defined(__GNUC__) && !defined(__clang__)
+#  define CRYPTOGAMS_ARM_AES 1
+# endif
 #endif
 
 #endif  // ARM32, ARM64
