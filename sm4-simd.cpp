@@ -21,6 +21,11 @@
 // Do so in both simon.cpp and simon-simd.cpp.
 // #undef CRYPTOPP_AESNI_AVAILABLE
 
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+# include <xmmintrin.h>
+# include <emmintrin.h>
+#endif
+
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include <tmmintrin.h>
 # include <wmmintrin.h>
