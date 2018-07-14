@@ -538,7 +538,7 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     {
         while (length >= 4*blockSize)
         {
-            uint64x2_t block0, block1, block2, block3, block4, block5;
+            uint64x2_t block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
             {
                 const uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one32x4));
