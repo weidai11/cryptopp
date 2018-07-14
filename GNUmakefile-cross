@@ -52,13 +52,6 @@ endif
 #   Android and embedded users typically don't run this configuration.
 HAS_SOLIB_VERSION ?= 0
 
-# On ARM we may compile aes-armv4.S though the CC compiler
-ifeq ($(GCC_COMPILER),1)
-  CC=gcc
-else ifeq ($(CLANG_COMPILER),1)
-  CC=clang
-endif
-
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr/local
@@ -509,11 +502,11 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CC) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
 
 # Cryptogams ARM asm implementation. CRYPTOGAMS_AES_ARCH includes -marm.
 aes-armv4.o : aes-armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
 
 # SSE4.2 or NEON available
 aria-simd.o : aria-simd.cpp
