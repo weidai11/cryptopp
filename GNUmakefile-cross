@@ -32,10 +32,11 @@ endif
 
 IS_i686 := $(shell echo "$HOSTX" | $(EGREP) -v 64 | $(EGREP) -i -c 'i.86')
 IS_x86_64 := $(shell echo "$HOSTX" | $(EGREP) -i -c 'x86_64|amd64')
-IS_ARM := $(shell echo "$HOSTX" | $(EGREP) -i -c 'arm')
+IS_ARM32 := $(shell echo "$(HOSTX)" | $(EGREP) -i -c -E 'arm|armhf|arm7l|eabihf')
 IS_ARMv8 := $(shell echo "$HOSTX" | $(EGREP) -i -c 'aarch32|aarch64')
 
-CLANG_COMPILER := $(shell $(CXX) --version 2>&1 | $(EGREP) -i -c "clang")
+GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -v -E '(llvm|clang)' | $(EGREP) -i -c -E '(gcc|g\+\+)')
+CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -i -c -E '(llvm|clang)')
 
 IS_IOS ?= 0
 IS_ANDROID ?= 0
@@ -50,6 +51,13 @@ endif
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
 #   Android and embedded users typically don't run this configuration.
 HAS_SOLIB_VERSION ?= 0
+
+# On ARM we may compile aes-armv4.S though the CC compiler
+ifeq ($(GCC_COMPILER),1)
+  CC=gcc
+else ifeq ($(CLANG_COMPILER),1)
+  CC=clang
+endif
 
 # Default prefix for make install
 ifeq ($(PREFIX),)
@@ -321,16 +329,25 @@ endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
-
 # For Makefile.am; resource.h is Windows
 INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 
+# Cryptogams AES for ARMv4 and above. We couple to ARMv7.
+# Disable Thumb via -marm due to unaligned byte buffers.
+ifeq ($(IS_ARM32),1)
+CRYPTOGAMS_AES_ARCH = -march=armv7-a -marm
+SRCS += aes-armv4.S
+endif
+
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 OBJS := $(SRCS:.cpp=.o)
+OBJS := $(OBJS:.S=.o)
 
 # List test.cpp first to tame C++ static initialization problems.
-TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp validat4.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp fipsalgt.cpp dlltest.cpp
+TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp validat4.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp dlltest.cpp fipsalgt.cpp
 TESTINCL := bench.h factory.h validate.h
+
+# Test objects
 TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
@@ -492,7 +509,11 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+	$(CC) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+
+# Cryptogams ARM asm implementation. CRYPTOGAMS_AES_ARCH includes -marm.
+aes-armv4.o : aes-armv4.S
+	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
 
 # SSE4.2 or NEON available
 aria-simd.o : aria-simd.cpp
