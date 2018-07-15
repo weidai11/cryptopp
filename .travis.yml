@@ -107,6 +107,18 @@ matrix:
       env:
         - BUILD_MODE=ios
         - PLATFORM=WatchOS
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=armeabi
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=mipsel
+    - os: linux
+      env:
+        - BUILD_MODE=android
+        - PLATFORM=mipsel64
 
 before_install:
   - |
