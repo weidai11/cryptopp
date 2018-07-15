@@ -44,7 +44,7 @@
 // Clang 3.3 integrated assembler crash on Linux
 //  http://github.com/weidai11/cryptopp/issues/264
 // Clang 3.4.1 (x86) crash on FreeBSD 10.3. Clang 3.4.1 (x64) works fine.
-#if defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30500)
+#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30500)) || CRYPTOPP_BOOL_X32
 # define CRYPTOPP_DISABLE_SHA_ASM
 #endif
 
@@ -383,7 +383,7 @@ void SHA256::InitState(HashWordType *state)
 }
 #endif // Not CRYPTOPP_GENERATE_X64_MASM
 
-#if (defined(CRYPTOPP_X86_ASM_AVAILABLE) || defined(CRYPTOPP_X32_ASM_AVAILABLE) || defined(CRYPTOPP_GENERATE_X64_MASM))
+#if defined(CRYPTOPP_X86_ASM_AVAILABLE)
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -407,9 +407,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
     #define DATA_SAVE    [BASE+8*4+16*4+2*WORD_SZ]
     #define DATA_END     [BASE+8*4+16*4+3*WORD_SZ]
     #define Kt(i)        WORD_REG(si)+(i)*4
-#if CRYPTOPP_BOOL_X32
-    #define BASE         esp+8
-#elif CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86
     #define BASE         esp+4
 #elif defined(__GNUC__)
     #define BASE         r8
@@ -520,7 +518,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
         lea rsi, [?SHA256_K@CryptoPP@@3QBIB + 48*4]
 #endif
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
     #ifndef __GNUC__
         AS2(    mov        edi, [len])
         AS2(    lea        WORD_REG(si), [SHA256_K+48*4])
@@ -542,7 +540,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
     AS2(    mov        K_END, WORD_REG(si))
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
     AS2(    test    edi, 1)
     ASJ(    jnz,    2, f)
     AS1(    dec        DWORD PTR K_END)
@@ -551,7 +549,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
     AS2(    movdqu    xmm1, XMMWORD_PTR [WORD_REG(cx)+1*16])
 #endif
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
     ASJ(    jmp,    0, f)
 #endif
@@ -571,13 +569,13 @@ INTEL_NOPREFIX
     AS2(    movdqu    E(0), xmm1)
     AS2(    movdqu    A(0), xmm0)
 #endif
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
     ASL(3)
 #endif
     AS2(    sub        WORD_REG(si), 48*4)
     SWAP_COPY(0)    SWAP_COPY(1)    SWAP_COPY(2)    SWAP_COPY(3)
     SWAP_COPY(4)    SWAP_COPY(5)    SWAP_COPY(6)    SWAP_COPY(7)
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
     SWAP_COPY(8)    SWAP_COPY(9)    SWAP_COPY(10)    SWAP_COPY(11)
     SWAP_COPY(12)    SWAP_COPY(13)    SWAP_COPY(14)    SWAP_COPY(15)
 #endif
@@ -632,7 +630,7 @@ INTEL_NOPREFIX
     AS2(    mov        DATA_SAVE, WORD_REG(dx))
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
     AS2(    test    DWORD PTR K_END, 1)
     ASJ(    jz,        4, f)
 #endif
@@ -648,7 +646,7 @@ INTEL_NOPREFIX
     INTEL_NOPREFIX
 #endif
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
     ASJ(    jmp,    5, f)
     ASL(4)    // non-SSE2
@@ -708,7 +706,7 @@ INTEL_NOPREFIX
 
 ANONYMOUS_NAMESPACE_END
 
-#endif    // CRYPTOPP_X86_ASM_AVAILABLE or CRYPTOPP_GENERATE_X64_MASM
+#endif    // CRYPTOPP_X86_ASM_AVAILABLE
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
@@ -957,7 +955,7 @@ const word64 SHA512_K[80] = {
     W64LIT(0x5fcb6fab3ad6faec), W64LIT(0x6c44198c4a475817)
 };
 
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86)
 
 // Anonymous namespace removed due to a new compile error.
 //   g++ -DNDEBUG -g2 -O3 -pthread -pipe -c sha.cpp
@@ -988,13 +986,8 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
     AS_PUSH_IF86(    ax)
     AS2(    xor      eax, eax)
 
-#if CRYPTOPP_BOOL_X32
-    AS2(    lea      edi, [esp+8+8*8])        // start at middle of state buffer. will decrement pointer each round to avoid copying
-    AS2(    lea      esi, [esp+8+20*8+8])    // 16-byte alignment, then add 8
-#else
     AS2(    lea      edi, [esp+4+8*8])        // start at middle of state buffer. will decrement pointer each round to avoid copying
     AS2(    lea      esi, [esp+4+20*8+8])    // 16-byte alignment, then add 8
-#endif
 
     AS2(    movdqu   xmm0, [ecx+0*16])
     AS2(    movdq2q  mm4, xmm0)
@@ -1125,11 +1118,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
     // do housekeeping every 8 rounds
     AS2(    mov      esi, 0xf)
     AS2(    and      esi, eax)
-#if CRYPTOPP_BOOL_X32
-    AS2(    lea      esi, [esp+8+20*8+8+esi*8])
-#else
     AS2(    lea      esi, [esp+4+20*8+8+esi*8])
-#endif
     AS2(    add      edi, 8*8)
     AS2(    cmp      eax, 80)
     ASJ(    jne,     1, b)
@@ -1248,7 +1237,7 @@ void SHA512::Transform(word64 *state, const word64 *data)
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
 
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86)
     if (HasSSE2())
     {
         SHA512_HashBlock_SSE2(state, data);

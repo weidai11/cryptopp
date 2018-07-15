@@ -11,7 +11,7 @@
 #include "config.h"
 #include "iterhash.h"
 
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if (CRYPTOPP_BOOL_X86)
 #  define SHA_X86_ALIGN16  true
 #else
 #  define SHA_X86_ALIGN16  false
