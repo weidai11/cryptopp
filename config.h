@@ -569,6 +569,22 @@ NAMESPACE_END
 	#define CRYPTOPP_SHANI_AVAILABLE 1
 #endif
 
+// Fixup Android and SSE, Crypto. It may be enabled based on compiler version.
+#if (defined(__ANDROID__) || defined(ANDROID))
+# if (CRYPTOPP_BOOL_X86)
+#  undef CRYPTOPP_SSE41_AVAILABLE
+#  undef CRYPTOPP_SSE42_AVAILABLE
+#  undef CRYPTOPP_CLMUL_AVAILABLE
+#  undef CRYPTOPP_AESNI_AVAILABLE
+#  undef CRYPTOPP_SHANI_AVAILABLE
+# endif
+# if (CRYPTOPP_BOOL_X64)
+#  undef CRYPTOPP_CLMUL_AVAILABLE
+#  undef CRYPTOPP_AESNI_AVAILABLE
+#  undef CRYPTOPP_SHANI_AVAILABLE
+# endif
+#endif
+
 #endif  // X86, X32, X64
 
 // ***************** ARM CPU features ********************

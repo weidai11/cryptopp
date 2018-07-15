@@ -11,7 +11,7 @@
 # ====================================================================
 
 if [ -z "${PLATFORM-}" ]; then
-	PLATFORMS=(iPhoneOS iPhoneSimulator WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
+	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
 else
 	PLATFORMS=(${PLATFORM})
 fi
