@@ -164,7 +164,7 @@ std::string SHA1::AlgorithmProvider() const
 	if (HasSHA())
 		return "SHANI";
 #endif
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 		return "SSE2";
 #endif
@@ -350,7 +350,7 @@ std::string SHA256_AlgorithmProvider()
 	if (HasSHA())
 		return "SHANI";
 #endif
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 		return "SSE2";
 #endif
@@ -819,7 +819,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
-#if CRYPTOPP_SSE2_ASM_AVAILABLE
+#if CRYPTOPP_SSE2_ASM_AVAILABLE || CRYPTOPP_X64_MASM_AVAILABLE
     if (HasSSE2())
     {
         const size_t res = length & (SHA256::BLOCKSIZE - 1);
@@ -867,7 +867,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 
 std::string SHA512_AlgorithmProvider()
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_SHA_ASM)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 		return "SSE2";
 #endif
