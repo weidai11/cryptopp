@@ -51,8 +51,10 @@ matrix:
   include:
     - os: linux
       env:
-        - BUILD_MODE=android
-        - PLATFORM=armeabi
+        - BUILD_MODE=autotools
+    - os: linux
+      env:
+        - BUILD_MODE=cmake
     - os: linux
       env:
         - BUILD_MODE=android
@@ -132,10 +134,18 @@ script:
   - |
     if [[ "$BUILD_MODE" == "ios" ]]; then
         cp ./TestScripts/setenv-ios.sh .
-        TestScripts/cryptest-ios.sh
+        cp ./TestScripts/cryptest-ios.sh .
+        ./cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
         cp ./TestScripts/setenv-android-gcc.sh .
-        TestScripts/cryptest-android.sh
+        cp ./TestScripts/cryptest-android.sh .
+        ./cryptest-android.sh
+    elif [[ "$BUILD_MODE" == "autotools" ]]; then
+        cp ./TestScripts/cryptest-autotools.sh .
+        ./cryptest-autotools.sh
+    elif [[ "$BUILD_MODE" == "cmake" ]]; then
+        cp ./TestScripts/cryptest-cmake.sh .
+        ./cryptest-cmake.sh
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
         ./cryptest.exe v
