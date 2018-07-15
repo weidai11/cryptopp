@@ -45,7 +45,7 @@ IS_NEON ?= 0
 
 # Fixup ARM
 ifeq ($(IS_ARMv8),1)
-  IS_ARM := 0
+  IS_ARM32 := 0
 endif
 
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
@@ -209,7 +209,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
 endif # Dead code stripping
 
 # Pickup ARMv7 and NEON. Do it after Android, iOS and Embedded flags have been set.
-ifeq ($(IS_ARM),1)
+ifeq ($(IS_ARM32),1)
   IS_ARMv7 := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -dM -E - 2>/dev/null | $(EGREP) -i -c '__ARM_ARCH 7')
   ifeq ($(IS_ARMv7),1)
     IS_NEON := 1

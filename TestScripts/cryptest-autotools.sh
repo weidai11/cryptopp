@@ -1,5 +1,27 @@
 #!/usr/bin/env bash
 
+GREP=grep
+SED=sed
+AWK=awk
+MAKE=make
+
+# Fixup, Solaris and friends
+if [[ (-d /usr/xpg4/bin) ]]; then
+	SED=/usr/xpg4/bin/sed
+	AWK=/usr/xpg4/bin/awk
+	GREP=/usr/xpg4/bin/grep
+elif [[ (-d /usr/bin/posix) ]]; then
+	SED=/usr/bin/posix/sed
+	AWK=/usr/bin/posix/awk
+	GREP=/usr/bin/posix/grep
+fi
+
+# Fixup for sed and "illegal byte sequence"
+IS_DARWIN=$(uname -s | "$GREP" -i -c darwin)
+if [[ "$IS_DARWIN" -ne 0 ]]; then
+	export LC_ALL=C
+fi
+
 # Feth the three required files
 if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/Makefile.am -O Makefile.am; then
 	echo "Makefile.am download failed"
@@ -22,10 +44,10 @@ if [[ ! -z $(command -v dos2unix) ]]; then
 fi
 
 # Trim trailing whitespace
-if [[ ! -z $(command -v sed) ]]; then
-	sed -e's/[[:space:]]*$//' Makefile.am > Makefile.am.fixed
-	sed -e's/[[:space:]]*$//' configure.ac > configure.ac.fixed
-	sed -e's/[[:space:]]*$//' libcryptopp.pc.in > libcryptopp.pc.in.fixed
+if [[ ! -z $(command -v "$SED") ]]; then
+	"$SED" -e's/[[:space:]]*$//' Makefile.am > Makefile.am.fixed
+	"$SED" -e's/[[:space:]]*$//' configure.ac > configure.ac.fixed
+	"$SED" -e's/[[:space:]]*$//' libcryptopp.pc.in > libcryptopp.pc.in.fixed
 	mv Makefile.am.fixed Makefile.am
 	mv configure.ac.fixed configure.ac
 	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
@@ -41,7 +63,7 @@ if ! ./configure; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! make -j2 -f Makefile; then
+if ! "$MAKE" -j2 -f Makefile; then
 	echo "make failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
@@ -58,5 +80,3 @@ fi
 
 # Return success
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
-
-
