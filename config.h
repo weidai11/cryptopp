@@ -707,7 +707,7 @@ NAMESPACE_END
 
 // Fixup Android and CRC32. It may be enabled based on compiler version.
 #if (defined(__ANDROID__) || defined(ANDROID)) && !defined(__ARM_FEATURE_CRC32)
-# undef CRYPTOPP_ARM_PMULL_AVAILABLE
+# undef CRYPTOPP_ARM_CRC32_AVAILABLE
 #endif
 
 // Fixup Android and Crypto. It may be enabled based on compiler version.
