@@ -53,6 +53,7 @@ if [[ ! -z $(command -v "$SED") ]]; then
 	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
 fi
 
+mkdir -p m4/
 if ! autoreconf --force --install --warnings=all; then
 	echo "autoreconf failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
