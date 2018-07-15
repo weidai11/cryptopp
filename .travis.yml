@@ -111,6 +111,8 @@ matrix:
 before_install:
   - |
     if [[ "$BUILD_MODE" == "android" ]]; then
+        # https://github.com/travis-ci/travis-ci/issues/9037
+        sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
         TestScripts/install-android.sh
     fi
 
