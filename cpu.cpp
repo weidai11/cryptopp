@@ -452,8 +452,7 @@ extern bool CPU_ProbeSM3();
 extern bool CPU_ProbeSM4();
 extern bool CPU_ProbePMULL();
 
-#if CRYPTOPP_GETAUXV_AVAILABLE
-
+// https://github.com/torvalds/linux/blob/master/arch/arm64/include/uapi/asm/hwcap.h
 #ifndef HWCAP_ARMv7
 # define HWCAP_ARMv7 (1 << 29)
 #endif
@@ -493,7 +492,6 @@ extern bool CPU_ProbePMULL();
 #ifndef HWCAP2_SHA2
 # define HWCAP2_SHA2 (1 << 3)
 #endif
-// https://github.com/torvalds/linux/blob/master/arch/arm64/include/uapi/asm/hwcap.h
 #ifndef HWCAP_SHA3
 # define HWCAP_SHA3 (1 << 17)
 #endif
@@ -506,8 +504,6 @@ extern bool CPU_ProbePMULL();
 #ifndef HWCAP_SHA512
 # define HWCAP_SHA512 (1 << 21)
 #endif
-
-#endif  // CRYPTOPP_GETAUXV_AVAILABLE
 
 inline bool CPU_QueryARMv7()
 {

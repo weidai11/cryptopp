@@ -6,7 +6,7 @@
 //    code from Johannes Schneiders, Skip Hovsmith and Barry O'Rourke.
 //    All code is in the public domain.
 
-// In August 2017 Walton reworked the internals to align all the implementations.
+//     In August 2017 JW reworked the internals to align all the implementations.
 //    Formerly all hashes were software based, IterHashBase handled endian conversions,
 //    and IterHashBase dispatched a single to block SHA{N}::Transform. SHA{N}::Transform
 //    then performed the single block hashing. It was repeated for multiple blocks.
@@ -62,9 +62,16 @@ extern void SHA1_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, siz
 extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA1_AVAILABLE
 extern void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
+#endif
+
+#if CRYPTOPP_ARM_SHA2_AVAILABLE
 extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
+#endif
+
+#if CRYPTOPP_ARM_SHA512_AVAILABLE
+extern void SHA512_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
@@ -161,7 +168,7 @@ std::string SHA1::AlgorithmProvider() const
 	if (HasSSE2())
 		return "SSE2";
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA1_AVAILABLE
 	if (HasSHA1())
 		return "ARMv8";
 #endif
@@ -189,7 +196,7 @@ void SHA1::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA1_AVAILABLE
     if (HasSHA1())
     {
         SHA1_HashMultipleBlocks_ARMV8(state, data, SHA1::BLOCKSIZE, LITTLE_ENDIAN_ORDER);
@@ -212,7 +219,7 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
         return length & (SHA1::BLOCKSIZE - 1);
     }
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA1_AVAILABLE
     if (HasSHA1())
     {
         SHA1_HashMultipleBlocks_ARMV8(m_state, input, length, BIG_ENDIAN_ORDER);
@@ -347,7 +354,7 @@ std::string SHA256_AlgorithmProvider()
 	if (HasSSE2())
 		return "SSE2";
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA2_AVAILABLE
 	if (HasSHA2())
 		return "ARMv8";
 #endif
@@ -728,7 +735,7 @@ void SHA256::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA2_AVAILABLE
     if (HasSHA2())
     {
         SHA256_HashMultipleBlocks_ARMV8(state, data, SHA256::BLOCKSIZE, LITTLE_ENDIAN_ORDER);
@@ -766,7 +773,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
         return res;
     }
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA2_AVAILABLE
     if (HasSHA2())
     {
         SHA256_HashMultipleBlocks_ARMV8(m_state, input, length, BIG_ENDIAN_ORDER);
@@ -822,7 +829,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
         return res;
     }
 #endif
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA2_AVAILABLE
     if (HasSHA2())
     {
         SHA256_HashMultipleBlocks_ARMV8(m_state, input, length, BIG_ENDIAN_ORDER);

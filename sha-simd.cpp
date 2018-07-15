@@ -16,13 +16,10 @@
 # include <immintrin.h>
 #endif
 
-// Use ARMv8 rather than NEON due to compiler inconsistencies
-#if (CRYPTOPP_ARM_SHA_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
@@ -69,7 +66,7 @@ bool CPU_ProbeSHA1()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_ARM_SHA_AVAILABLE)
+#elif (CRYPTOPP_ARM_SHA1_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -124,14 +121,14 @@ bool CPU_ProbeSHA1()
 # endif
 #else
     return false;
-#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
+#endif  // CRYPTOPP_ARM_SHA1_AVAILABLE
 }
 
 bool CPU_ProbeSHA2()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_ARM_SHA_AVAILABLE)
+#elif (CRYPTOPP_ARM_SHA2_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -184,7 +181,7 @@ bool CPU_ProbeSHA2()
 # endif
 #else
     return false;
-#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
+#endif  // CRYPTOPP_ARM_SHA2_AVAILABLE
 }
 #endif  // ARM32 or ARM64
 
@@ -612,7 +609,7 @@ void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, size_t l
 // start of Walton, Schneiders, O'Rourke and Hovsmith code //
 /////////////////////////////////////////////////////////////
 
-#if CRYPTOPP_ARM_SHA_AVAILABLE
+#if CRYPTOPP_ARM_SHA1_AVAILABLE
 void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
     CRYPTOPP_ASSERT(state);
@@ -799,7 +796,9 @@ void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t len
     vst1q_u32(&state[0], ABCD);
     state[4] = E0;
 }
+#endif  // CRYPTOPP_ARM_SHA1_AVAILABLE
 
+#if CRYPTOPP_ARM_SHA2_AVAILABLE
 void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order)
 {
     CRYPTOPP_ASSERT(state);
@@ -967,7 +966,7 @@ void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t l
     vst1q_u32(&state[0], STATE0);
     vst1q_u32(&state[4], STATE1);
 }
-#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
+#endif  // CRYPTOPP_ARM_SHA2_AVAILABLE
 
 ///////////////////////////////////////////////////////////
 // end of Walton, Schneiders, O'Rourke and Hovsmith code //

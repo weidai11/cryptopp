@@ -22,18 +22,6 @@
 # include <immintrin.h>
 #endif
 
-// Use ARMv8 rather than NEON due to compiler inconsistencies
-#if (CRYPTOPP_ARM_SHA_AVAILABLE)
-# include <arm_neon.h>
-#endif
-
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
-#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include <stdint.h>
-# include <arm_acle.h>
-#endif
-
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))

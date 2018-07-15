@@ -64,7 +64,7 @@ bool CPU_ProbeARMv7()
 		return false;
 	}
 	return result;
-# elif defined(__arm__)
+# elif defined(__arm__) && (__ARM_ARCH >= 7)
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;

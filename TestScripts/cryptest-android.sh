@@ -17,6 +17,7 @@ else
 	PLATFORMS=(${PLATFORM})
 fi
 RUNTIMES=(gnu-static gnu-shared stlport-static stlport-shared) #llvm-static llvm-shared
+
 for platform in ${PLATFORMS[@]}
 do
 	for runtime in ${RUNTIMES[@]}
@@ -30,14 +31,15 @@ do
 		# Test if we can set the environment for the platform
 		./setenv-android-gcc.sh "$platform" "$runtime"
 
-		if [ "$?" -eq "0" ]; then
+		if [ "$?" -eq "0" ];
+		then
 			echo
 			echo "Building for $platform using $runtime..."
 			echo
 
 			# run in subshell to not keep any env vars
 			(
-				. ./setenv-android-gcc.sh "$platform" "$runtime" > /dev/null 2>&1
+				source ./setenv-android-gcc.sh "$platform" "$runtime" > /dev/null 2>&1
 				make -f GNUmakefile-cross static dynamic cryptest.exe
 				if [ "$?" -eq "0" ]; then
 					echo "$platform:$runtime ==> SUCCESS" >> /tmp/build.log
@@ -48,7 +50,7 @@ do
 			)
 		else
 			echo
-			echo "$platform with $runtime not supported by Android"
+			echo "There were problems testing $platform with $runtime"
 			echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
 			touch /tmp/build.failed
 		fi

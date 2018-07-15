@@ -381,19 +381,31 @@ bool TestSettings()
 	std::cout << "\n";
 
 #elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+
+# if defined(__arm__)
 	bool hasARMv7 = HasARMv7();
 	bool hasNEON = HasNEON();
+
+	std::cout << "passed:  ";
+	std::cout << "hasARMv7 == " << hasARMv7 << ", hasNEON == " << hasNEON << "\n";
+# else  // __arch32__ and __aarch64__
 	bool hasCRC32 = HasCRC32();
 	bool hasPMULL = HasPMULL();
 	bool hasAES = HasAES();
 	bool hasSHA1 = HasSHA1();
 	bool hasSHA2 = HasSHA2();
+	bool hasSHA512 = HasSHA512();
+	bool hasSHA3 = HasSHA3();
+	bool hasSM3 = HasSM3();
+	bool hasSM4 = HasSM4();
 
 	std::cout << "passed:  ";
-	std::cout << "hasARMv7 == " << hasARMv7 << ", hasNEON == " << hasNEON;
-	std::cout << ", hasCRC32 == " << hasCRC32 << ", hasPMULL == " << hasPMULL;
-	std::cout << ", hasAES == " << hasAES << ", hasSHA1 == " << hasSHA1;
-	std::cout << ", hasSHA2 == " << hasSHA2 << "\n";
+	std::cout << ", hasCRC32 == " << hasCRC32 << ", hasAES == " << hasAES;
+	std::cout << ", hasPMULL == " << hasPMULL << ", hasSHA1 == " << hasSHA1;
+	std::cout << ", hasSHA2 == " << hasSHA2 << ", hasSHA512 == " << hasSHA512;
+	std::cout << ", hasSHA3 == " << hasSHA3 << ", hasSM3 == " << hasSM3;
+	std::cout << ", hasSM4 == " << hasSM4 << "\n";
+# endif
 
 #elif (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 	const bool hasAltivec = HasAltivec();
