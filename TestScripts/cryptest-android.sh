@@ -21,7 +21,7 @@ for platform in ${PLATFORMS[@]}
 
 # Travis shows failures with message "armeabi with gnu-static not supported by Android"
 # It affects the three platforms below and all the runtimes in the list. Try llvm...
-if [[ "$PLATFORM" = "armeabi" || "$PLATFORM" = "mipsel" || "$PLATFORM" = "mipsel64" ]]; then
+if [[ "$PLATFORM" == "armeabi" || "$PLATFORM" == "mipsel" || "$PLATFORM" == "mipsel64" ]]; then
 	RUNTIMES=(llvm-static llvm-shared)
 fi
 
