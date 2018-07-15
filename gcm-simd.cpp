@@ -19,9 +19,9 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
-// SunCC 12.3 - 12.5 crash in GCM_Reduce_CLMUL
+// SunCC 12.3 - 12.6 crash in GCM_Reduce_CLMUL
 //   http://github.com/weidai11/cryptopp/issues/226
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5140)
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5150)
 # undef CRYPTOPP_CLMUL_AVAILABLE
 #endif
 
@@ -506,7 +506,7 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif  // Testing
 
-__m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
+inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
 {
     /*
     The polynomial to be reduced is c0 * x^128 + c1 * x^64 + c2. c0t below refers to the most
