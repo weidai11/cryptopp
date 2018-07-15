@@ -23,7 +23,6 @@
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <xmmintrin.h>
-# include <emmintrin.h>
 # include <immintrin.h>
 #endif
 
@@ -93,21 +92,21 @@ inline __m128i RotateRight(const __m128i& val)
 template <>
 inline __m128i RotateLeft<8>(const __m128i& val)
 {
-    const __m128i r08 = _mm_set_epi64x(0x0E0D0C0F0A09080B, 0x0605040702010003);
+	const __m128i r08 = _mm_set_epi32(0x0E0D0C0F, 0x0A09080B, 0x06050407, 0x02010003);
     return _mm_shuffle_epi8(val, r08);
 }
 
 template <>
 inline __m128i RotateLeft<16>(const __m128i& val)
 {
-    const __m128i mask = _mm_set_epi64x(0x0D0C0F0E09080B0A, 0x0504070601000302);
+    const __m128i mask = _mm_set_epi32(0x0D0C0F0E, 0x09080B0A, 0x05040706, 0x01000302);
     return _mm_shuffle_epi8(val, mask);
 }
 
 template <>
 inline __m128i RotateLeft<24>(const __m128i& val)
 {
-    const __m128i mask = _mm_set_epi64x(0x0C0F0E0D080B0A09, 0x0407060500030201);
+    const __m128i mask = _mm_set_epi32(0x0C0F0E0D, 0x080B0A09, 0x04070605, 0x00030201);
     return _mm_shuffle_epi8(val, mask);
 }
 
@@ -218,21 +217,21 @@ inline void SM4_Encrypt(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, const word32 *subkeys)
 {
     // nibble mask
-    const __m128i c0f = _mm_set_epi64x(0x0F0F0F0F0F0F0F0F, 0x0F0F0F0F0F0F0F0F);
+    const __m128i c0f = _mm_set_epi32(0x0F0F0F0F, 0x0F0F0F0F, 0x0F0F0F0F, 0x0F0F0F0F);
 
     // flip all bytes in all 32-bit words
-    const __m128i flp = _mm_set_epi64x(0x0C0D0E0F08090A0B, 0x0405060700010203);
+    const __m128i flp = _mm_set_epi32(0x0C0D0E0F, 0x08090A0B, 0x04050607, 0x00010203);
 
     // inverse shift rows
-    const __m128i shr = _mm_set_epi64x(0x0306090C0F020508, 0x0B0E0104070A0D00);
+    const __m128i shr = _mm_set_epi32(0x0306090C, 0x0F020508, 0x0B0E0104, 0x070A0D00);
 
     // Affine transform 1 (low and high hibbles)
-    const __m128i m1l = _mm_set_epi64x(0xC7C1B4B222245157, 0x9197E2E474720701);
-    const __m128i m1h = _mm_set_epi64x(0xF052B91BF95BB012, 0xE240AB09EB49A200);
+    const __m128i m1l = _mm_set_epi32(0xC7C1B4B2, 0x22245157, 0x9197E2E4, 0x74720701);
+	const __m128i m1h = _mm_set_epi32(0xF052B91B, 0xF95BB012, 0xE240AB09, 0xEB49A200);
 
     // Affine transform 2 (low and high hibbles)
-    const __m128i m2l = _mm_set_epi64x(0xEDD14478172BBE82, 0x5B67F2CEA19D0834);
-    const __m128i m2h = _mm_set_epi64x(0x11CDBE62CC1063BF, 0xAE7201DD73AFDC00);
+	const __m128i m2l = _mm_set_epi32(0xEDD14478, 0x172BBE82, 0x5B67F2CE, 0xA19D0834);
+	const __m128i m2h = _mm_set_epi32(0x11CDBE62, 0xCC1063BF, 0xAE7201DD, 0x73AFDC00);
 
     __m128i t0 = UnpackXMM<0>(block0, block1, block2, block3);
     __m128i t1 = UnpackXMM<1>(block0, block1, block2, block3);
