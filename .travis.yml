@@ -55,6 +55,12 @@ matrix:
     - os: linux
       env:
         - BUILD_MODE=cmake
+    - os: osx
+      env:
+        - BUILD_MODE=autotools
+    - os: osx
+      env:
+        - BUILD_MODE=cmake
     - os: linux
       env:
         - BUILD_MODE=android
