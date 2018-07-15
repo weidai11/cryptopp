@@ -88,6 +88,10 @@ matrix:
     - os: osx
       env:
         - BUILD_MODE=ios
+        - PLATFORM=Arm64
+    - os: osx
+      env:
+        - BUILD_MODE=ios
         - PLATFORM=WatchOS
     - os: osx
       env:
