@@ -388,10 +388,10 @@ bool TestSettings()
 	bool hasAES = HasAES();
 	bool hasSHA1 = HasSHA1();
 	bool hasSHA2 = HasSHA2();
-	bool hasSHA1 = HasSHA512();
-	bool hasSHA2 = HasSHA3();
-	bool hasSHA1 = HasSM3();
-	bool hasSHA2 = HasSM4();
+	bool hasSHA512 = HasSHA512();
+	bool hasSHA3 = HasSHA3();
+	bool hasSM3 = HasSM3();
+	bool hasSM4 = HasSM4();
 
 # if defined(__arm__)
 	std::cout << "passed:  ";
