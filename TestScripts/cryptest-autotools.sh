@@ -22,6 +22,11 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 	export LC_ALL=C
 fi
 
+# Fixup for Solaris and BSDs
+if [[ ! -z $(command -v gmake) ]]; then
+	MAKE=gmake
+fi
+
 # Feth the three required files
 if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/Makefile.am -O Makefile.am; then
 	echo "Makefile.am download failed"
