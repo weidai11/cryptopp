@@ -237,9 +237,9 @@ ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 else
 ifeq ($(HAVE_GAS)$(GAS224_OR_LATER),10)
-CXXFLAGS += -DCRYPTOPP_DISABLE_SHA
+CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
 
-endif  # -DCRYPTOPP_DISABLE_SHA
+endif  # -DCRYPTOPP_DISABLE_SHANI
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
@@ -284,12 +284,12 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
     AES_FLAG = -msse4.1 -maes
     SM4_FLAG = -mssse3 -maes
   endif
-ifeq ($(findstring -DCRYPTOPP_DISABLE_SHA,$(CXXFLAGS)),)
+ifeq ($(findstring -DCRYPTOPP_DISABLE_SHANI,$(CXXFLAGS)),)
   HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(GREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
     SHA_FLAG = -msse4.2 -msha
   endif
-endif  # -DCRYPTOPP_DISABLE_SHA
+endif  # -DCRYPTOPP_DISABLE_SHANI
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
