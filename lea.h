@@ -19,6 +19,12 @@
 # define CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
+// Yet another SunStudio/SunCC workaround. Failed self tests
+// in SSE code paths on i386 for SunStudio 12.3 and below.
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
+# undef CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief LEA block cipher information
