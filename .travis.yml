@@ -127,6 +127,10 @@ matrix:
       env:
         - BUILD_MODE=android
         - PLATFORM=mipsel64
+    - os: osx
+      env:
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneSimulator
 
 before_install:
   - |
