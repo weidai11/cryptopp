@@ -23,7 +23,7 @@
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <xmmintrin.h>
-# include <immintrin.h>
+# include <emmintrin.h>
 #endif
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
