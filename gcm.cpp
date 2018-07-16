@@ -21,16 +21,6 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
-// SunCC 12.3 - 12.5 crash in GCM_Reduce_CLMUL
-//   http://github.com/weidai11/cryptopp/issues/226
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5140)
-# undef CRYPTOPP_CLMUL_AVAILABLE
-#endif
-
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-# include <emmintrin.h>
-#endif
-
 #include "gcm.h"
 #include "cpu.h"
 
