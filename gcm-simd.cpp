@@ -19,14 +19,9 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
-// SunCC 12.3 - 12.6 crash in GCM_Reduce_CLMUL
-//   http://github.com/weidai11/cryptopp/issues/226
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5150)
-# undef CRYPTOPP_CLMUL_AVAILABLE
-#endif
-
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <emmintrin.h>
+# include <xmmintrin.h>
 #endif
 
 #if (CRYPTOPP_CLMUL_AVAILABLE)
@@ -233,11 +228,6 @@ bool CPU_ProbePMULL()
     return result;
 # else
 
-# if defined(__APPLE__)
-    // No SIGILL probes on Apple platforms. Plus, Apple Clang does not have PMULL intrinsics.
-    return false;
-# endif
-
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;
@@ -275,7 +265,7 @@ bool CPU_ProbePMULL()
 # endif
 #else
     return false;
-#endif  // CRYPTOPP_ARM_SHA_AVAILABLE
+#endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
 }
 #endif  // ARM32 or ARM64
 
@@ -287,7 +277,7 @@ void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)
     CRYPTOPP_ASSERT(IsAlignedOn(c,GetAlignmentOf<uint64x2_t>()));
     *UINT64X2_CAST(a) = veorq_u64(*CONST_UINT64X2_CAST(b), *CONST_UINT64X2_CAST(c));
 }
-#endif
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
 
@@ -433,7 +423,7 @@ void GCM_ReverseHashBufferIfNeeded_PMULL(byte *hashBuffer)
         vst1q_u8(hashBuffer, vextq_u8(x, x, 8));
     }
 }
-#endif
+#endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
 
 #if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 // SunCC 5.10-5.11 compiler crash. Move GCM_Xor16_SSE2 out-of-line, and place in
@@ -449,7 +439,7 @@ void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c)
         _mm_load_si128(CONST_M128_CAST(c))));
 # endif
 }
-#endif
+#endif  // CRYPTOPP_SSE2_ASM_AVAILABLE
 
 #if CRYPTOPP_CLMUL_AVAILABLE
 
@@ -506,7 +496,9 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif  // Testing
 
-inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i &r)
+// SunCC 5.11-5.15 compiler crash. Make the function inline
+// and parameters non-const. Also see GH #188 and GH #224.
+inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, __m128i r)
 {
     /*
     The polynomial to be reduced is c0 * x^128 + c1 * x^64 + c2. c0t below refers to the most
@@ -534,7 +526,7 @@ inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128
     return _mm_xor_si128(c2, c1);
 }
 
-__m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
+inline __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
 {
     const __m128i c0 = _mm_clmulepi64_si128(x,h,0);
     const __m128i c1 = _mm_xor_si128(_mm_clmulepi64_si128(x,h,1), _mm_clmulepi64_si128(x,h,0x10));
@@ -638,6 +630,6 @@ void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
     __m128i &x = *M128_CAST(hashBuffer);
     x = _mm_shuffle_epi8(x, s_clmulConstants[1]);
 }
-#endif
+#endif  // CRYPTOPP_CLMUL_AVAILABLE
 
 NAMESPACE_END
