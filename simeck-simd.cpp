@@ -182,7 +182,8 @@ inline __m128i RepackXMM(const __m128i& v)
 
 inline void SIMECK64_Encrypt(__m128i &a, __m128i &b, __m128i &c, __m128i &d, const __m128i key)
 {
-    const __m128i s = a, t = c;
+    // SunStudio 12.3 workaround
+    __m128i s, t; s = a; t = c;
     a = _mm_xor_si128(_mm_and_si128(a, RotateLeft32<5>(a)), RotateLeft32<1>(a));
     c = _mm_xor_si128(_mm_and_si128(c, RotateLeft32<5>(c)), RotateLeft32<1>(c));
     a = _mm_xor_si128(a, _mm_xor_si128(b, key));
