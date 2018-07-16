@@ -585,6 +585,12 @@ NAMESPACE_END
 # endif
 #endif
 
+// Fixup for SunCC 12.2-12.6. Compiler crash on GCM_Reduce_CLMUL and friends.
+//   http://github.com/weidai11/cryptopp/issues/226
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5150)
+# undef CRYPTOPP_CLMUL_AVAILABLE
+#endif
+
 #endif  // X86, X32, X64
 
 // ***************** ARM CPU features ********************
