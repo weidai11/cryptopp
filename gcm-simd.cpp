@@ -499,7 +499,7 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 
 // SunCC 5.11-5.15 compiler crash. Make the function inline
 // and parameters non-const. Also see GH #188 and GH #224.
-inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, __m128i r)
+inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i& r)
 {
     /*
     The polynomial to be reduced is c0 * x^128 + c1 * x^64 + c2. c0t below refers to the most
