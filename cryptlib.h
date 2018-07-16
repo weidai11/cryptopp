@@ -2356,8 +2356,11 @@ public:
 	/// \details DoQuickSanityCheck() is for internal library use, and it should not be called by library users.
 	void DoQuickSanityCheck() const	{ThrowIfInvalid(NullRNG(), 0);}
 
-#if (defined(__SUNPRO_CC) && __SUNPRO_CC < 0x590)
-	// Sun Studio 11/CC 5.8 workaround: it generates incorrect code when casting to an empty virtual base class
+#if defined(__SUNPRO_CC)
+	// Sun Studio 11/CC 5.8 workaround: it generates incorrect code
+	// when casting to an empty virtual base class. JW, 2018: It is
+	// still a problem in Sun Studio 12.6/CC 5.15 on i386. Just enable
+	// it everywhere in case it affects SPARC (which we don't test).
 	char m_sunCCworkaround;
 #endif
 };
