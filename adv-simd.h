@@ -51,7 +51,8 @@
 # include <arm_acle.h>
 #endif
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+// SunCC needs CRYPTOPP_SSSE3_AVAILABLE, too
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSSE3_AVAILABLE)
 # include <emmintrin.h>
 # include <pmmintrin.h>
 # include <xmmintrin.h>
