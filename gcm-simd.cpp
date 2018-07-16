@@ -526,7 +526,9 @@ inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, __m128i r)
     return _mm_xor_si128(c2, c1);
 }
 
-inline __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
+// SunCC 5.13-5.14 compiler crash. Don't make the function inline.
+// This is in contrast to GCM_Reduce_CLMUL, which must be inline.
+__m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
 {
     const __m128i c0 = _mm_clmulepi64_si128(x,h,0);
     const __m128i c1 = _mm_xor_si128(_mm_clmulepi64_si128(x,h,1), _mm_clmulepi64_si128(x,h,0x10));
