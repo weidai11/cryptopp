@@ -3,6 +3,10 @@
 //          Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen,
 //          Tanja Lange, Peter Schwabe and Sjaak Smetsers.
 
+// The Tweet API was added to the Crypto++ library to cross-validate results. 
+// We debated over putting it in the Test namespace, but settled for the NaCl
+// namespace to segreate it from other parts of the library.
+
 /// \file naclite.h
 /// \brief Crypto++ interface to TweetNaCl library (20140917)
 /// \details TweetNaCl is a compact reimplementation of the NaCl library by
@@ -372,6 +376,17 @@ int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 6.0
 int crypto_sign_keypair(byte *pk, byte *sk);
+
+/// \brief Generate a public key from a secret key
+/// \param pk public key byte buffer
+/// \param sk private key byte buffer
+/// \details crypto_sign_sk2pk() creates an ed25519 public key from an existing
+///   secret key without the tail public key bytes. The function is not part of
+///   libsodium or Tweet API. It was added for interop with the I2P Java library.
+/// \returns 0 on success, non-0 otherwise
+/// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
+/// \since Crypto++ 7.1
+int crypto_sign_sk2pk(byte *pk, const byte *sk);
 
 /// \brief Produce a keystream using XSalsa20
 /// \details crypto_stream() uses crypto_stream_xsalsa20

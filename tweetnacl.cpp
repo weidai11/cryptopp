@@ -755,6 +755,25 @@ int crypto_sign_keypair(byte *pk, byte *sk)
   return 0;
 }
 
+int crypto_sign_sk2pk(byte *pk, const byte *sk)
+{
+  byte d[64];
+  gf p[4];
+  int i;
+
+  // randombytes(sk, 32);
+  crypto_hash(d, sk, 32);
+  d[0] &= 248;
+  d[31] &= 127;
+  d[31] |= 64;
+
+  scalarbase(p,d);
+  pack(pk,p);
+
+  // for(i=0; i<32; ++i) sk[32 + i] = pk[i];
+  return 0;
+}
+
 static const word64 L[32] = {0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58, 0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0x10};
 
 static void modL(byte *r,sword64 x[64])
@@ -895,6 +914,3 @@ NAMESPACE_END  // CryptoPP
 NAMESPACE_END  // NaCl
 
 #endif  // NO_OS_DEPENDENCE
-
-
-
