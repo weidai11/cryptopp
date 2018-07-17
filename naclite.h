@@ -377,12 +377,14 @@ int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk
 /// \since Crypto++ 6.0
 int crypto_sign_keypair(byte *pk, byte *sk);
 
-/// \brief Generate a public key from a secret key
+/// \brief Calculate a public key from a secret key
 /// \param pk public key byte buffer
 /// \param sk private key byte buffer
 /// \details crypto_sign_sk2pk() creates an ed25519 public key from an existing
-///   secret key without the tail public key bytes. The function is not part of
-///   libsodium or Tweet API. It was added for interop with the I2P Java library.
+///   32-byte secret key. The function does not backfill the tail bytes of the
+///   secret key with the calculated public key.
+/// \details crypto_sign_sk2pk() is not part of libsodium or Tweet API. It was
+///   added for interop with the I2P Java library.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 7.1
