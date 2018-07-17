@@ -736,13 +736,14 @@ static void scalarbase(gf p[4],const byte *s)
   scalarmult(p,q,s);
 }
 
-int crypto_sign_keypair(byte *pk, byte *sk)
+int crypto_sign_keypair(byte *pk, byte *sk, const bool rnd_sk)
 {
   byte d[64];
   gf p[4];
   int i;
 
-  randombytes(sk, 32);
+  if (rnd_sk)
+    randombytes(sk, 32);
   crypto_hash(d, sk, 32);
   d[0] &= 248;
   d[31] &= 127;
