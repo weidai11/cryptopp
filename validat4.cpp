@@ -455,11 +455,11 @@ bool TestCryptoSignKeys()
     {
         fail = (crypto_sign_keypair(pk, sk) != 0);
         pass = !fail && pass;
-        
+
         byte xk[crypto_sign_PUBLICKEYBYTES];
         fail = (crypto_sign_sk2pk(xk, sk) != 0);
         pass = !fail && pass;
-        
+
         fail = std::memcmp(xk, pk, sizeof(xk)) != 0;
         pass = !fail && pass;
 

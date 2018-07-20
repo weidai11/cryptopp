@@ -3,7 +3,7 @@
 //          Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen,
 //          Tanja Lange, Peter Schwabe and Sjaak Smetsers.
 
-// The Tweet API was added to the Crypto++ library to cross-validate results. 
+// The Tweet API was added to the Crypto++ library to cross-validate results.
 // We debated over putting it in the Test namespace, but settled for the NaCl
 // namespace to segreate it from other parts of the library.
 
@@ -384,7 +384,7 @@ int crypto_sign_keypair(byte *pk, byte *sk);
 ///   32-byte secret key. The function does not backfill the tail bytes of the
 ///   secret key with the calculated public key.
 /// \details crypto_sign_sk2pk() is not part of libsodium or Tweet API. It was
-///   added for interop with the I2P Java library.
+///   added for interop with some anonymous routing protocols.
 /// \returns 0 on success, non-0 otherwise
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
 /// \since Crypto++ 7.1

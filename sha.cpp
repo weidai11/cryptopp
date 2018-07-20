@@ -1189,7 +1189,7 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
 
     /* Copy context->state[] to working vars */
     std::memcpy(T, state, sizeof(T));
-    
+
     /* Solaris/Sparc64 crash */
     std::memcpy(D, data, sizeof(D));
 
