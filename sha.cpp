@@ -161,18 +161,18 @@ ANONYMOUS_NAMESPACE_END
 std::string SHA1::AlgorithmProvider() const
 {
 #if CRYPTOPP_SHANI_AVAILABLE
-	if (HasSHA())
-		return "SHANI";
+    if (HasSHA())
+        return "SHANI";
 #endif
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-	if (HasSSE2())
-		return "SSE2";
+    if (HasSSE2())
+        return "SSE2";
 #endif
 #if CRYPTOPP_ARM_SHA1_AVAILABLE
-	if (HasSHA1())
-		return "ARMv8";
+    if (HasSHA1())
+        return "ARMv8";
 #endif
-	return "C++";
+    return "C++";
 }
 
 void SHA1::InitState(HashWordType *state)
@@ -347,27 +347,27 @@ ANONYMOUS_NAMESPACE_END
 std::string SHA256_AlgorithmProvider()
 {
 #if CRYPTOPP_SHANI_AVAILABLE
-	if (HasSHA())
-		return "SHANI";
+    if (HasSHA())
+        return "SHANI";
 #endif
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-	if (HasSSE2())
-		return "SSE2";
+    if (HasSSE2())
+        return "SSE2";
 #endif
 #if CRYPTOPP_ARM_SHA2_AVAILABLE
-	if (HasSHA2())
-		return "ARMv8";
+    if (HasSHA2())
+        return "ARMv8";
 #endif
 #if (CRYPTOPP_POWER8_SHA_AVAILABLE)
-	if (HasSHA256())
-		return "Power8";
+    if (HasSHA256())
+        return "Power8";
 #endif
-	return "C++";
+    return "C++";
 }
 
 std::string SHA224::AlgorithmProvider() const
 {
-	return SHA256_AlgorithmProvider();
+    return SHA256_AlgorithmProvider();
 }
 
 void SHA224::InitState(HashWordType *state)
@@ -718,7 +718,7 @@ void CRYPTOPP_FASTCALL SHA256_HashMultipleBlocks_SSE2(word32 *state, const word3
 
 std::string SHA256::AlgorithmProvider() const
 {
-	return SHA256_AlgorithmProvider();
+    return SHA256_AlgorithmProvider();
 }
 
 void SHA256::Transform(word32 *state, const word32 *data)
@@ -868,24 +868,24 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 std::string SHA512_AlgorithmProvider()
 {
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
-	if (HasSSE2())
-		return "SSE2";
+    if (HasSSE2())
+        return "SSE2";
 #endif
 #if (CRYPTOPP_POWER8_SHA_AVAILABLE)
-	if (HasSHA512())
-		return "Power8";
+    if (HasSHA512())
+        return "Power8";
 #endif
-	return "C++";
+    return "C++";
 }
 
 std::string SHA384::AlgorithmProvider() const
 {
-	return SHA512_AlgorithmProvider();
+    return SHA512_AlgorithmProvider();
 }
 
 std::string SHA512::AlgorithmProvider() const
 {
-	return SHA512_AlgorithmProvider();
+    return SHA512_AlgorithmProvider();
 }
 
 void SHA384::InitState(HashWordType *state)
@@ -1166,7 +1166,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 #define g(i) T[(6-i)&7]
 #define h(i) T[(7-i)&7]
 
-#define blk0(i) (W[i]=data[i])
+#define blk0(i) (W[i]=D[i])
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
 
 #define Ch(x,y,z) (z^(x&(y^z)))
@@ -1185,9 +1185,14 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
 
-    word64 W[16]={0}, T[8];
+    word64 W[16]={0}, D[16], T[8];
+
     /* Copy context->state[] to working vars */
-    memcpy(T, state, sizeof(T));
+    std::memcpy(T, state, sizeof(T));
+    
+    /* Solaris/Sparc64 crash */
+    std::memcpy(D, data, sizeof(D));
+
     /* 80 operations, partially loop unrolled */
     for (unsigned int j=0; j<80; j+=16)
     {
@@ -1196,39 +1201,38 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
         R( 8); R( 9); R(10); R(11);
         R(12); R(13); R(14); R(15);
     }
-    /* Add the working vars back into context.state[] */
-    state[0] += a(0);
-    state[1] += b(0);
-    state[2] += c(0);
-    state[3] += d(0);
-    state[4] += e(0);
-    state[5] += f(0);
-    state[6] += g(0);
-    state[7] += h(0);
+
+    /* Solaris 11/Sparc64 crash */
+    if (IsAligned<word64>(state) == true)
+    {
+        /* Add the working vars back into context.state[] */
+        state[0] += a(0);
+        state[1] += b(0);
+        state[2] += c(0);
+        state[3] += d(0);
+        state[4] += e(0);
+        state[5] += f(0);
+        state[6] += g(0);
+        state[7] += h(0);
+    }
+    else
+    {
+        /* Reuse W[] */
+        std::memcpy(W, state, 8 * sizeof(W[0]));
+
+        /* Add the working vars back into context.state[] */
+        W[0] += a(0);
+        W[1] += b(0);
+        W[2] += c(0);
+        W[3] += d(0);
+        W[4] += e(0);
+        W[5] += f(0);
+        W[6] += g(0);
+        W[7] += h(0);
+
+        std::memcpy(state, W, 8 * sizeof(W[0]));
+    }
 }
-
-#undef Ch
-#undef Maj
-
-#undef s0
-#undef s1
-#undef S0
-#undef S1
-
-#undef blk0
-#undef blk1
-#undef blk2
-
-#undef R
-
-#undef a
-#undef b
-#undef c
-#undef d
-#undef e
-#undef f
-#undef g
-#undef h
 
 ANONYMOUS_NAMESPACE_END
 
@@ -1254,6 +1258,29 @@ void SHA512::Transform(word64 *state, const word64 *data)
 
     SHA512_HashBlock_CXX(state, data);
 }
+
+#undef Ch
+#undef Maj
+
+#undef s0
+#undef s1
+#undef S0
+#undef S1
+
+#undef blk0
+#undef blk1
+#undef blk2
+
+#undef R
+
+#undef a
+#undef b
+#undef c
+#undef d
+#undef e
+#undef f
+#undef g
+#undef h
 
 NAMESPACE_END
 

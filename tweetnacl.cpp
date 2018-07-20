@@ -759,7 +759,7 @@ int crypto_sign_sk2pk(byte *pk, const byte *sk)
 {
   byte d[64];
   gf p[4];
-  int i;
+  // int i;
 
   // randombytes(sk, 32);
   crypto_hash(d, sk, 32);

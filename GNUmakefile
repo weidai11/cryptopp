@@ -566,10 +566,6 @@ CXXFLAGS += -KPIC
 endif
 # Add to all Solaris
 CXXFLAGS += -template=no%extdef
-# http://github.com/weidai11/cryptopp/issues/403
-ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
-CXXFLAGS += -xmemalign=4i
-endif
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(GREP) -c -E "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
 # -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21 and was fixed in May 2010
