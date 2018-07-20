@@ -27,13 +27,14 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 
 	T* dataBuf = this->DataBuf();
 	byte* data = (byte *)dataBuf;
-	CRYPTOPP_ASSERT(dataBuf && data);
 
 	if (num != 0)	// process left over data
 	{
 		if (num+length >= blockSize)
 		{
-			if (data && input) {memcpy(data+num, input, blockSize-num);}
+			if (input)
+				{memcpy(data+num, input, blockSize-num);}
+
 			HashBlock(dataBuf);
 			input += (blockSize-num);
 			length -= (blockSize-num);
@@ -42,7 +43,8 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		}
 		else
 		{
-			if (data && input && length) {memcpy(data+num, input, length);}
+			if (input && length)
+				{memcpy(data+num, input, length);}
 			return;
 		}
 	}
@@ -63,16 +65,20 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 			length = leftOver;
 		}
 		else
+		{
 			do
 			{   // copy input first if it's not aligned correctly
-				if (data && input) memcpy(data, input, blockSize);
+				if (input)
+					{ memcpy(data, input, blockSize); }
+
 				HashBlock(dataBuf);
 				input+=blockSize;
 				length-=blockSize;
 			} while (length >= blockSize);
+		}
 	}
 
-	if (data && input && data != input)
+	if (input && data != input)
 		memcpy(data, input, length);
 }
 
@@ -89,10 +95,22 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 	unsigned int blockSize = this->BlockSize();
 	bool noReverse = NativeByteOrderIs(this->GetByteOrder());
 	T* dataBuf = this->DataBuf();
+
+	// IteratedHashBase Update calls this with an aligned input,
+	// but HashBlock may call it with an unaligned buffer.
+
 	do
 	{
 		if (noReverse)
-			this->HashEndianCorrectedBlock(input);
+		{
+			if (IsAligned<word64>(input))
+				this->HashEndianCorrectedBlock(input);
+			else
+			{
+				std::memcpy(dataBuf, input, this->BlockSize());
+				this->HashEndianCorrectedBlock(dataBuf);
+			}
+		}
 		else
 		{
 			ByteReverse(dataBuf, input, this->BlockSize());
@@ -112,6 +130,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::PadLastBlock(unsi
 	unsigned int num = ModPowerOf2(m_countLo, blockSize);
 	T* dataBuf = this->DataBuf();
 	byte* data = (byte *)dataBuf;
+
 	data[num++] = padFirst;
 	if (num <= lastBlockSize)
 		memset(data+num, 0, lastBlockSize-num);
@@ -150,7 +169,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::TruncatedFinal(by
 	else
 	{
 		ConditionalByteReverse<HashWordType>(order, stateBuf, stateBuf, this->DigestSize());
-		memcpy(digest, stateBuf, size);
+		std::memcpy(digest, stateBuf, size);
 	}
 
 	this->Restart();		// reinit for next use
