@@ -16,11 +16,12 @@
 //    SHA{N}::HashMultipleBlocks (class), and the function calls SHA{N}_HashMultipleBlocks
 //    (free standing) or SHA{N}_HashBlock (free standing) as a fallback.
 //
-//    An added wrinkle is hardware is little endian, C++ is big endian, and callers use big endian,
-//    so SHA{N}_HashMultipleBlock accepts a ByteOrder for the incoming data arrangement. Hardware
-//    based SHA{N}_HashMultipleBlock can often perform the endian swap much easier by setting
-//    an EPI mask. Endian swap incurs no penalty on Intel SHA, and 4-instruction penaly on ARM SHA.
-//    Under C++ the full software based swap penalty is incurred due to use of ReverseBytes().
+//    An added wrinkle is hardware is little endian, C++ is big endian, and callers use
+//    big endian, so SHA{N}_HashMultipleBlock accepts a ByteOrder for the incoming data
+//    arrangement. Hardware based SHA{N}_HashMultipleBlock can often perform the endian
+//    swap much easier by setting an EPI mask. Endian swap incurs no penalty on Intel SHA,
+//    and 4-instruction penaly on ARM SHA. Under C++ the full software based swap penalty
+//    is incurred due to use of ReverseBytes().
 //
 //    The rework also removed the hacked-in pointers to implementations.
 
@@ -1166,7 +1167,7 @@ ANONYMOUS_NAMESPACE_BEGIN
 #define g(i) T[(6-i)&7]
 #define h(i) T[(7-i)&7]
 
-#define blk0(i) (W[i]=D[i])
+#define blk0(i) (W[i]=data[i])
 #define blk2(i) (W[i&15]+=s1(W[(i-2)&15])+W[(i-7)&15]+s0(W[(i-15)&15]))
 
 #define Ch(x,y,z) (z^(x&(y^z)))
@@ -1190,9 +1191,6 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
     /* Copy context->state[] to working vars */
     std::memcpy(T, state, sizeof(T));
 
-    /* Solaris/Sparc64 crash */
-    std::memcpy(D, data, sizeof(D));
-
     /* 80 operations, partially loop unrolled */
     for (unsigned int j=0; j<80; j+=16)
     {
@@ -1202,36 +1200,14 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
         R(12); R(13); R(14); R(15);
     }
 
-    /* Solaris 11/Sparc64 crash */
-    if (IsAligned<word64>(state) == true)
-    {
-        /* Add the working vars back into context.state[] */
-        state[0] += a(0);
-        state[1] += b(0);
-        state[2] += c(0);
-        state[3] += d(0);
-        state[4] += e(0);
-        state[5] += f(0);
-        state[6] += g(0);
-        state[7] += h(0);
-    }
-    else
-    {
-        /* Reuse W[] */
-        std::memcpy(W, state, 8 * sizeof(W[0]));
-
-        /* Add the working vars back into context.state[] */
-        W[0] += a(0);
-        W[1] += b(0);
-        W[2] += c(0);
-        W[3] += d(0);
-        W[4] += e(0);
-        W[5] += f(0);
-        W[6] += g(0);
-        W[7] += h(0);
-
-        std::memcpy(state, W, 8 * sizeof(W[0]));
-    }
+	state[0] += a(0);
+	state[1] += b(0);
+	state[2] += c(0);
+	state[3] += d(0);
+	state[4] += e(0);
+	state[5] += f(0);
+	state[6] += g(0);
+	state[7] += h(0);
 }
 
 ANONYMOUS_NAMESPACE_END
