@@ -56,10 +56,18 @@ namespace std {
 #include <cmath>
 
 // uintptr_t and ptrdiff_t
-#if (__cplusplus < 201103L) && (!defined(_MSC_VER) || (_MSC_VER >= 1700))
+#if defined(__SUNPRO_CC)
+# if (__SUNPRO_CC >= 0x5100)
+#  include <stdint.h>
+# endif
+#elif defined(_MSC_VER)
+# if (_MSC_VER >= 1700)
+#  include <stdint.h>
+# else
+#  include <stddef.h>
+# endif
+#elif (__cplusplus < 201103L)
 # include <stdint.h>
-#elif defined(_MSC_VER) && (_MSC_VER < 1700)
-# include <stddef.h>
 #endif
 
 // workaround needed on Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
