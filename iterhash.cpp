@@ -96,16 +96,17 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 	bool noReverse = NativeByteOrderIs(this->GetByteOrder());
 	T* dataBuf = this->DataBuf();
 
-	// IteratedHashBase Update calls this with an aligned input,
-	// but HashBlock may call it with an unaligned buffer.
-	// Alignment checks due to Issues 690/
+	// Alignment checks due to http://github.com/weidai11/cryptopp/issues/690.
+	// Sparc requires 8-byte aligned buffer when HashWordType is word64.
+	// We also had to provide a GetAlignmentOf specialization for word64 on Sparc.
 
 	do
 	{
 		if (noReverse)
 		{
-			if (IsAligned<word64>(input))
+			if (IsAligned<HashWordType>(input))
 			{
+				// Sparc bus error with non-aligned input.
 				this->HashEndianCorrectedBlock(input);
 			}
 			else
@@ -116,8 +117,9 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 		}
 		else
 		{
-			if (IsAligned<word64>(input))
+			if (IsAligned<HashWordType>(input))
 			{
+				// Sparc bus error with non-aligned input.
 				ByteReverse(dataBuf, input, blockSize);
 				this->HashEndianCorrectedBlock(dataBuf);
 			}
