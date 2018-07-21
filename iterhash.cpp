@@ -33,7 +33,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		if (num+length >= blockSize)
 		{
 			if (input)
-				{memcpy(data+num, input, blockSize-num);}
+				{std::memcpy(data+num, input, blockSize-num);}
 
 			HashBlock(dataBuf);
 			input += (blockSize-num);
@@ -44,7 +44,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 		else
 		{
 			if (input && length)
-				{memcpy(data+num, input, length);}
+				{std::memcpy(data+num, input, length);}
 			return;
 		}
 	}
@@ -69,7 +69,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 			do
 			{   // copy input first if it's not aligned correctly
 				if (input)
-					{ memcpy(data, input, blockSize); }
+					{ std::memcpy(data, input, blockSize); }
 
 				HashBlock(dataBuf);
 				input+=blockSize;
@@ -79,7 +79,7 @@ template <class T, class BASE> void IteratedHashBase<T, BASE>::Update(const byte
 	}
 
 	if (input && data != input)
-		memcpy(data, input, length);
+		std::memcpy(data, input, length);
 }
 
 template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpace(size_t &size)
@@ -92,19 +92,22 @@ template <class T, class BASE> byte * IteratedHashBase<T, BASE>::CreateUpdateSpa
 
 template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlocks(const T *input, size_t length)
 {
-	unsigned int blockSize = this->BlockSize();
+	const unsigned int blockSize = this->BlockSize();
 	bool noReverse = NativeByteOrderIs(this->GetByteOrder());
 	T* dataBuf = this->DataBuf();
 
 	// IteratedHashBase Update calls this with an aligned input,
 	// but HashBlock may call it with an unaligned buffer.
+	// Alignment checks due to Issues 690/
 
 	do
 	{
 		if (noReverse)
 		{
 			if (IsAligned<word64>(input))
+			{
 				this->HashEndianCorrectedBlock(input);
+			}
 			else
 			{
 				std::memcpy(dataBuf, input, this->BlockSize());
@@ -113,8 +116,17 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 		}
 		else
 		{
-			ByteReverse(dataBuf, input, this->BlockSize());
-			this->HashEndianCorrectedBlock(dataBuf);
+			if (IsAligned<word64>(input))
+			{
+				ByteReverse(dataBuf, input, this->BlockSize());
+				this->HashEndianCorrectedBlock(dataBuf);
+			}
+			else
+			{
+				std::memcpy(dataBuf, input, this->BlockSize());
+				ByteReverse(dataBuf, dataBuf, this->BlockSize());
+				this->HashEndianCorrectedBlock(dataBuf);
+			}
 		}
 
 		input += blockSize/sizeof(T);

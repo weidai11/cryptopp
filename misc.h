@@ -2068,7 +2068,11 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 template <class T>
 void ByteReverse(T *out, const T *in, size_t byteCount)
 {
+	// Alignment check due to Issues 690
 	CRYPTOPP_ASSERT(byteCount % sizeof(T) == 0);
+	CRYPTOPP_ASSERT(IsAligned<T>(in));
+	CRYPTOPP_ASSERT(IsAligned<T>(out));
+
 	size_t count = byteCount/sizeof(T);
 	for (size_t i=0; i<count; i++)
 		out[i] = ByteReverse(in[i]);
