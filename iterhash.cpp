@@ -110,7 +110,7 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 			}
 			else
 			{
-				std::memcpy(dataBuf, input, this->BlockSize());
+				std::memcpy(dataBuf, input, blockSize);
 				this->HashEndianCorrectedBlock(dataBuf);
 			}
 		}
@@ -118,13 +118,13 @@ template <class T, class BASE> size_t IteratedHashBase<T, BASE>::HashMultipleBlo
 		{
 			if (IsAligned<word64>(input))
 			{
-				ByteReverse(dataBuf, input, this->BlockSize());
+				ByteReverse(dataBuf, input, blockSize);
 				this->HashEndianCorrectedBlock(dataBuf);
 			}
 			else
 			{
-				std::memcpy(dataBuf, input, this->BlockSize());
-				ByteReverse(dataBuf, dataBuf, this->BlockSize());
+				std::memcpy(dataBuf, input, blockSize);
+				ByteReverse(dataBuf, dataBuf, blockSize);
 				this->HashEndianCorrectedBlock(dataBuf);
 			}
 		}
