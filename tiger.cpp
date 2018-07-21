@@ -42,7 +42,7 @@ void Tiger::TruncatedFinal(byte *hash, size_t size)
 
 void Tiger::Transform (word64 *digest, const word64 *X)
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 	if (HasSSE2())
 	{
 #ifdef __GNUC__
@@ -182,19 +182,11 @@ void Tiger::Transform (word64 *digest, const word64 *X)
 		AS2(	psubq	mm3, mm4)\
 		AS2(	movq	[Y+7*8], mm3)
 
-#if CRYPTOPP_BOOL_X32
-		SSE2_pass(mm0, mm1, mm2, 5, esi)
-		SSE2_key_schedule(esp+8, esi)
-		SSE2_pass(mm2, mm0, mm1, 7, esp+8)
-		SSE2_key_schedule(esp+8, esp+8)
-		SSE2_pass(mm1, mm2, mm0, 9, esp+8)
-#else
 		SSE2_pass(mm0, mm1, mm2, 5, esi)
 		SSE2_key_schedule(esp+4, esi)
 		SSE2_pass(mm2, mm0, mm1, 7, esp+4)
 		SSE2_key_schedule(esp+4, esp+4)
 		SSE2_pass(mm1, mm2, mm0, 9, esp+4)
-#endif
 
 		AS2(	pxor	mm0, [eax+0*8])
 		AS2(	movq	[eax+0*8], mm0)
