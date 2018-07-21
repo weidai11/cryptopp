@@ -1058,6 +1058,8 @@ inline unsigned int GetAlignmentOf()
 	return __alignof(T);
 #elif defined(__GNUC__)
 	return __alignof__(T);
+#elif defined(__SUNPRO_CC)
+	return __alignof__(T);
 #elif CRYPTOPP_BOOL_SLOW_WORD64
 	return UnsignedMin(4U, sizeof(T));
 #else
