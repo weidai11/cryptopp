@@ -481,13 +481,17 @@ cryptest.exe: libcryptopp.a $(TESTOBJS)
 # Used to generate list of source files for Autotools, CMakeList and Android.mk
 .PHONY: sources
 sources:
-	$(info Library sources: $(filter-out $(TESTSRCS),$(SRCS)))
+	$(info ***** Library sources *****)
+	$(info $(filter-out $(TESTSRCS),$(SRCS)))
 	$(info )
-	$(info Library headers: $(filter-out $(TESTINCL),$(INCL)))
+	$(info ***** Library headers *****)
+	$(info $(filter-out $(TESTINCL),$(INCL)))
 	$(info )
-	$(info Test sources: $(TESTSRCS))
+	$(info ***** Test sources *****)
+	$(info $(TESTSRCS))
 	$(info )
-	$(info Test headers: $(TESTINCL))
+	$(info ***** Test headers *****)
+	$(info $(TESTINCL))
 
 adhoc.cpp: adhoc.cpp.proto
 ifeq ($(wildcard adhoc.cpp),)

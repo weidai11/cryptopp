@@ -840,8 +840,8 @@ sources: adhoc.cpp
 	$(info ***** Test sources *****)
 	$(info $(TESTSRCS))
 	$(info )
-	$(info ***** Test sources *****)
-	$(info $(TESTSRCS))
+	$(info ***** Test headers *****)
+	$(info $(TESTINCL))
 
 # Directory we want (can't specify on Doygen command line)
 DOCUMENT_DIRECTORY := ref$(LIB_VER)
