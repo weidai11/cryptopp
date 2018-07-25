@@ -20,19 +20,17 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ChaCha_TestInstantiations()
 {
-	ChaCha::Encryption x;
+	ChaCha8::Encryption x1;
+	ChaCha12::Encryption x2;
+	ChaCha20::Encryption x3;
 }
 #endif
 
-void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+template<unsigned int R>
+void ChaCha_Policy<R>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
 	CRYPTOPP_UNUSED(params);
 	CRYPTOPP_ASSERT(length == 16 || length == 32);
-
-	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
-
-	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
-		throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
 
 	// "expand 16-byte k" or "expand 32-byte k"
 	m_state[0] = 0x61707865;
@@ -47,7 +45,8 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
 	get2(m_state[8])(m_state[9])(m_state[10])(m_state[11]);
 }
 
-void ChaCha_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+template<unsigned int R>
+void ChaCha_Policy<R>::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(length==8);
@@ -57,10 +56,11 @@ void ChaCha_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, s
 	get(m_state[14])(m_state[15]);
 }
 
-void ChaCha_Policy::SeekToIteration(lword iterationCount)
+template<unsigned int R>
+void ChaCha_Policy<R>::SeekToIteration(lword iterationCount)
 {
 	CRYPTOPP_UNUSED(iterationCount);
-	throw NotImplemented(std::string(ChaCha_Info::StaticAlgorithmName()) + ":  SeekToIteration is not yet implemented");
+	throw NotImplemented(std::string(ChaCha_Info<R>::StaticAlgorithmName()) + ":  SeekToIteration is not yet implemented");
 
 	// TODO: these were Salsa20, and Wei re-arranged the state array for SSE2 operations.
 	// If we can generate some out-of-band test vectors, then test and implement. Also
@@ -69,7 +69,8 @@ void ChaCha_Policy::SeekToIteration(lword iterationCount)
 	// m_state[5] = (word32)SafeRightShift<32>(iterationCount);
 }
 
-unsigned int ChaCha_Policy::GetAlignment() const
+template<unsigned int R>
+unsigned int ChaCha_Policy<R>::GetAlignment() const
 {
 #if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
 	if (HasSSE2())
@@ -79,7 +80,8 @@ unsigned int ChaCha_Policy::GetAlignment() const
 		return GetAlignmentOf<word32>();
 }
 
-unsigned int ChaCha_Policy::GetOptimalBlockSize() const
+template<unsigned int R>
+unsigned int ChaCha_Policy<R>::GetOptimalBlockSize() const
 {
 #if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
 	if (HasSSE2())
@@ -89,7 +91,8 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 		return BYTES_PER_ITERATION;
 }
 
-void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+template<unsigned int R>
+void ChaCha_Policy<R>::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
 	word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
 
@@ -100,7 +103,7 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output,
 		x8 = m_state[8];	x9 = m_state[9];	x10 = m_state[10];	x11 = m_state[11];
 		x12 = m_state[12];	x13 = m_state[13];	x14 = m_state[14];	x15 = m_state[15];
 
-		for (int i = static_cast<int>(m_rounds); i > 0; i -= 2)
+		for (int i = static_cast<int>(ROUNDS); i > 0; i -= 2)
 		{
 			CHACHA_QUARTER_ROUND(x0, x4,  x8, x12);
 			CHACHA_QUARTER_ROUND(x1, x5,  x9, x13);
@@ -141,5 +144,8 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output,
 	}
 }
 
-NAMESPACE_END
+template class ChaCha_Policy<8>;
+template class ChaCha_Policy<12>;
+template class ChaCha_Policy<20>;
 
+NAMESPACE_END

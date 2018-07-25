@@ -118,7 +118,9 @@ void RegisterFactories2()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<Salsa20>();
 	RegisterSymmetricCipherDefaultFactories<XSalsa20>();
-	RegisterSymmetricCipherDefaultFactories<ChaCha>();
+	RegisterSymmetricCipherDefaultFactories<ChaCha8>();
+	RegisterSymmetricCipherDefaultFactories<ChaCha12>();
+	RegisterSymmetricCipherDefaultFactories<ChaCha20>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
 	RegisterSymmetricCipherDefaultFactories<Rabbit>();
 	RegisterSymmetricCipherDefaultFactories<RabbitWithIV>();
