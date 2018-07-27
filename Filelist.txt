@@ -254,6 +254,7 @@ rdtables.cpp
 regtest1.cpp
 regtest2.cpp
 regtest3.cpp
+regtest4.cpp
 resource.h
 rijndael.cpp
 rijndael-simd.cpp

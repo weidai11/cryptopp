@@ -18,6 +18,7 @@
 #include "sha.h"
 #include "sha3.h"
 #include "sm3.h"
+#include "hkdf.h"
 #include "tiger.h"
 #include "ripemd.h"
 #include "panama.h"
@@ -45,10 +46,14 @@ USING_NAMESPACE(CryptoPP)
 
 // Unkeyed ciphers
 void RegisterFactories1();
-// Shared key ciphers
+// MAC ciphers
 void RegisterFactories2();
-// Public key ciphers
+// Stream ciphers
 void RegisterFactories3();
+// Block ciphers
+void RegisterFactories4();
+// Public key ciphers
+void RegisterFactories5();
 
 void RegisterFactories(Test::TestClass suites)
 {
@@ -59,13 +64,17 @@ void RegisterFactories(Test::TestClass suites)
 	if ((suites & Test::Unkeyed) == Test::Unkeyed)
 		RegisterFactories1();
 
-	if ((suites & Test::SharedKeyMAC) == Test::SharedKeyMAC ||
-		(suites & Test::SharedKeyStream) == Test::SharedKeyStream ||
-		(suites & Test::SharedKeyBlock) == Test::SharedKeyBlock)
+	if ((suites & Test::SharedKeyMAC) == Test::SharedKeyMAC)
 		RegisterFactories2();
 
-	if ((suites & Test::PublicKey) == Test::PublicKey)
+	if ((suites & Test::SharedKeyStream) == Test::SharedKeyStream)
 		RegisterFactories3();
+
+	if ((suites & Test::SharedKeyBlock) == Test::SharedKeyBlock)
+		RegisterFactories4();
+
+	if ((suites & Test::PublicKey) == Test::PublicKey)
+		RegisterFactories5();
 
 	s_registered = true;
 }
@@ -128,4 +137,9 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<NIST_DRBG, Hash_DRBG<SHA256> >("Hash_DRBG(SHA256)");
 	RegisterDefaultFactoryFor<NIST_DRBG, HMAC_DRBG<SHA1> >("HMAC_DRBG(SHA1)");
 	RegisterDefaultFactoryFor<NIST_DRBG, HMAC_DRBG<SHA256> >("HMAC_DRBG(SHA256)");
+
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA1> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA256> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<SHA512> >();
+	RegisterDefaultFactoryFor<KeyDerivationFunction, HKDF<Whirlpool> >();
 }

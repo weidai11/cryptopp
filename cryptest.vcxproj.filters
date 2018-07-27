@@ -400,6 +400,9 @@
     <ClCompile Include="regtest3.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="regtest4.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
     <ClCompile Include="test.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
