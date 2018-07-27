@@ -52,9 +52,9 @@ void PadlockRNG::GenerateBlock(byte *output, size_t size)
 
 			: "=g" (m_msr) : "g" (m_buffer.data()), "g" (m_divisor)
 #if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-			: "rax", "rbx", "rdx", "rdi", "cc"
+			: "rax", "rdx", "rdi", "cc"
 #else
-			: "eax", "ebx", "edx", "edi", "cc"
+			: "eax", "edx", "edi", "cc"
 #endif
 		);
 

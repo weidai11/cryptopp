@@ -58,15 +58,24 @@ fi
 #	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
 #fi
 
+# Run autoreconf twice on failure. Also see
+# https://github.com/tracebox/tracebox/issues/57
+
 mkdir -p m4/
 
 if [[ ! -z $(command -v autoupdate) ]]; then
 	autoupdate
 fi
 
-if ! autoreconf --force --install --warnings=all; then
-	echo "autoreconf failed"
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+if [[ ! -z $(command -v libtoolize) ]]; then
+	libtoolize
+fi
+
+if ! autoreconf -vfi --warnings=all; then
+	if ! autoreconf -vfi; then
+		echo "autoreconf failed"
+		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	fi
 fi
 
 if ! ./configure; then
