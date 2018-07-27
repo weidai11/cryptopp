@@ -44,19 +44,19 @@ if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryp
 fi
 
 # Convert as necessary
-if [[ ! -z $(command -v dos2unix) ]]; then
-	dos2unix Makefile.am configure.ac libcryptopp.pc.in
-fi
+#if [[ ! -z $(command -v dos2unix) ]]; then
+#	dos2unix Makefile.am configure.ac libcryptopp.pc.in
+#fi
 
 # Trim trailing whitespace
-if [[ ! -z $(command -v "$SED") ]]; then
-	"$SED" -e's/[[:space:]]*$//' Makefile.am > Makefile.am.fixed
-	"$SED" -e's/[[:space:]]*$//' configure.ac > configure.ac.fixed
-	"$SED" -e's/[[:space:]]*$//' libcryptopp.pc.in > libcryptopp.pc.in.fixed
-	mv Makefile.am.fixed Makefile.am
-	mv configure.ac.fixed configure.ac
-	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
-fi
+#if [[ ! -z $(command -v "$SED") ]]; then
+#	"$SED" -e's/[[:space:]]*$//' Makefile.am > Makefile.am.fixed
+#	"$SED" -e's/[[:space:]]*$//' configure.ac > configure.ac.fixed
+#	"$SED" -e's/[[:space:]]*$//' libcryptopp.pc.in > libcryptopp.pc.in.fixed
+#	mv Makefile.am.fixed Makefile.am
+#	mv configure.ac.fixed configure.ac
+#	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
+#fi
 
 mkdir -p m4/
 
