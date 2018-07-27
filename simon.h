@@ -25,6 +25,12 @@
 # define CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
+// Yet another SunStudio/SunCC workaround
+#if defined(__SUNPRO_CC)
+# undef CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
+# undef CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SIMON block cipher information

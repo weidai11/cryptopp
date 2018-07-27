@@ -25,6 +25,12 @@
 # define CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
+// Yet another SunStudio/SunCC workaround
+#if defined(__SUNPRO_CC)
+# undef CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
+# undef CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SPECK block cipher information
