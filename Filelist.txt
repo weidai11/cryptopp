@@ -32,6 +32,7 @@ bench.h
 bds10.zip
 bench1.cpp
 bench2.cpp
+bench3.cpp
 bfinit.cpp
 blake2.cpp
 blake2-simd.cpp

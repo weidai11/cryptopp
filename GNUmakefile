@@ -749,7 +749,7 @@ OBJS := $(SRCS:.cpp=.o)
 OBJS := $(OBJS:.S=.o)
 
 # List test.cpp first to tame C++ static initialization problems.
-TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp validat4.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp dlltest.cpp fipsalgt.cpp
+TESTSRCS := adhoc.cpp test.cpp bench1.cpp bench2.cpp bench3.cpp validat0.cpp validat1.cpp validat2.cpp validat3.cpp validat4.cpp datatest.cpp regtest1.cpp regtest2.cpp regtest3.cpp dlltest.cpp fipsalgt.cpp
 TESTINCL := bench.h factory.h validate.h
 
 # Test objects

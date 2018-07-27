@@ -382,6 +382,9 @@
     <ClCompile Include="bench2.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
+    <ClCompile Include="bench3.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
     <ClCompile Include="datatest.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>

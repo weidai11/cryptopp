@@ -48,8 +48,20 @@ void Benchmark2(double t, double hertz);
 // Public key systems
 void Benchmark3(double t, double hertz);
 
-void OutputResultBytes(const char *name, const char* provider, double length, double timeTaken);
-void OutputResultOperations(const char *name, const char* provider, const char *operation, bool pc, unsigned long iterations, double timeTaken);
+// These are defined in bench1.cpp
+extern void OutputResultKeying(double iterations, double timeTaken);
+extern void OutputResultBytes(const char *name, const char *provider, double length, double timeTaken);
+extern void OutputResultOperations(const char *name, const char *provider, const char *operation, bool pc, unsigned long iterations, double timeTaken);
+
+// These are defined in bench1.cpp
+extern void BenchMark(const char *name, BufferedTransformation &bt, double timeTotal);
+extern void BenchMark(const char *name, StreamTransformation &cipher, double timeTotal);
+extern void BenchMark(const char *name, HashTransformation &ht, double timeTotal);
+extern void BenchMark(const char *name, RandomNumberGenerator &rng, double timeTotal);
+
+// These are defined in bench2.cpp
+extern void BenchMarkKeying(SimpleKeyingInterface &c, size_t keyLength, const NameValuePairs &params);
+extern void BenchMark(const char *name, AuthenticatedSymmetricCipher &cipher, double timeTotal);
 
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP
