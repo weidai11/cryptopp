@@ -59,6 +59,11 @@ if [[ ! -z $(command -v "$SED") ]]; then
 fi
 
 mkdir -p m4/
+
+if [[ ! -z $(command -v autoupdate) ]]; then
+	autoupdate
+fi
+
 if ! autoreconf --force --install --warnings=all; then
 	echo "autoreconf failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
