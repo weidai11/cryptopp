@@ -586,7 +586,6 @@ NAMESPACE_END
 #endif
 
 // Fixup for SunCC 12.1-12.4. Bad code generation in AES_Encrypt and friends.
-//   http://github.com/weidai11/cryptopp/issues/226
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5130)
 # undef CRYPTOPP_AESNI_AVAILABLE
 #endif
