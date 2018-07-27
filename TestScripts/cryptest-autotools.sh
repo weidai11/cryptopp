@@ -94,7 +94,7 @@ if ! ./cryptestcwd v; then
 fi
 
 if ! ./cryptestcwd tv all; then
-	echo "cryptestcwd v failed"
+	echo "cryptestcwd tv all failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
