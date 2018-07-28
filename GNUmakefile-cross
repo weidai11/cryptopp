@@ -402,8 +402,9 @@ clean:
 .PHONY: autotools-clean
 autotools-clean:
 	@-$(RM) -f configure.ac configure configure.in Makefile.am Makefile.in Makefile
-	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile
-	@-$(RM) -f stamp-h1 ar-lib *.m4 local.* lt*.sh missing libtool* libcryptopp.pc*
+	@-$(RM) -f config.guess config.status config.sub config.h.in compile depcomp
+	@-$(RM) -f install-sh stamp-h1 ar-lib *.lo *.la *.m4 local.* lt*.sh missing
+	@-$(RM) -f cryptest cryptestcwd libtool* libcryptopp.la libcryptopp.pc*
 	@-$(RM) -rf m4/ auto*.cache/ .deps/ .libs/
 
 .PHONY: cmake-clean
