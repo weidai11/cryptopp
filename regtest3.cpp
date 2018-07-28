@@ -1,5 +1,6 @@
-// regtest2.cpp - originally written and placed in the public domain by Wei Dai
-//                regtest.cpp split into 3 files due to OOM kills by JW in April 2017
+// regtest3.cpp - originally written and placed in the public domain by Wei Dai
+//                regtest.cpp split into 3 files due to OOM kills by JW
+//                in April 2017. A second split occured in July 2018.
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
@@ -10,6 +11,7 @@
 
 #include "modes.h"
 #include "aria.h"
+#include "seed.h"
 #include "hight.h"
 #include "camellia.h"
 #include "shacal2.h"
@@ -37,8 +39,6 @@
 #include "rc5.h"
 #include "skipjack.h"
 #include "blowfish.h"
-#include "seed.h"
-#include "wake.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)

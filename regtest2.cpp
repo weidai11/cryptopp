@@ -1,5 +1,6 @@
 // regtest2.cpp - originally written and placed in the public domain by Wei Dai
-//                regtest.cpp split into 3 files due to OOM kills by JW in April 2017
+//                regtest.cpp split into 3 files due to OOM kills by JW
+//                in April 2017. A second split occured in July 2018.
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
@@ -81,6 +82,8 @@ void RegisterFactories2()
 // Stream ciphers
 void RegisterFactories3()
 {
+	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
+	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 	RegisterSymmetricCipherDefaultFactories<SEAL<LittleEndian> >();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<LittleEndian> >();
 	RegisterSymmetricCipherDefaultFactories<WAKE_OFB<BigEndian> >();
@@ -97,6 +100,4 @@ void RegisterFactories3()
 	RegisterSymmetricCipherDefaultFactories<RabbitWithIV>();
 	RegisterSymmetricCipherDefaultFactories<HC128>();
 	RegisterSymmetricCipherDefaultFactories<HC256>();
-	RegisterSymmetricCipherDefaultFactories<Weak::MARC4>();
-	RegisterSymmetricCipherDefaultFactories<SEAL<> >();
 }
