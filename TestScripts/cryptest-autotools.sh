@@ -52,9 +52,9 @@ if [[ ! -z $(command -v autoupdate) ]]; then
 	autoupdate
 fi
 
-if ! autoreconf -vfi --warnings=all; then
+if ! autoreconf -fi --warnings=all; then
 	echo "autoreconf failed, running again."
-	if ! autoreconf -fi; then
+	if ! autoreconf -vfi; then
 		echo "autoreconf failed"
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
