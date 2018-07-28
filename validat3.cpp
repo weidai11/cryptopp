@@ -10,8 +10,9 @@
 #include "cpu.h"
 #include "validate.h"
 
-#include "osrng.h"
+#include "rng.h"
 #include "drbg.h"
+#include "osrng.h"
 #include "rdrand.h"
 #include "mersenne.h"
 #include "padlkrng.h"
