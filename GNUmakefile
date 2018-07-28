@@ -889,8 +889,8 @@ cmake-clean:
 
 .PHONY: distclean
 distclean: clean autotools-clean cmake-clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
-	@-$(RM) libcryptopp.pc cryptopp.tgz *.o *.bc *.ii *~
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt
+	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
 	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(LIBOBJS:.o=.obj) $(TESTOBJS:.o=.obj) $(DOCUMENT_DIRECTORY)/
 	@-$(RM) -r TestCoverage/
