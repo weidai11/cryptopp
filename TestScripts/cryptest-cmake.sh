@@ -17,14 +17,11 @@ if ! wget --no-check-certificate https://github.com/noloader/cryptopp-cmake/blob
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-# TODO: Remove this. It is for debugging changes before check-in
-# cp ~/cryptopp-cmake/CMakeLists.txt $(pwd)
-
 PWD_DIR=$(pwd)
 
-rm -rf "$PWD_DIR/build"
-mkdir -p "$PWD_DIR/build"
-cd "$PWD_DIR/build"
+rm -rf "$PWD_DIR/cmake_build"
+mkdir -p "$PWD_DIR/cmake_build"
+cd "$PWD_DIR/cmake_build"
 
 if ! cmake ../; then
 	echo "cmake failed"
@@ -48,5 +45,3 @@ fi
 
 # Return success
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
-
-

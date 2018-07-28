@@ -875,19 +875,26 @@ clean:
 	@-$(RM) -r *.dylib.dSYM/
 	@-$(RM) -r cov-int/
 
-.PHONY: distclean
-distclean: clean
-	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
-	@-$(RM) libcryptopp.pc cryptopp.tgz *.o *.bc *.ii *~
-	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
-	@-$(RM) -r $(LIBOBJS:.o=.obj) $(TESTOBJS:.o=.obj) $(DOCUMENT_DIRECTORY)/
+.PHONY: autotools-clean
+autotools-clean:
 	@-$(RM) -f configure.ac configure configure.in Makefile.am Makefile.in Makefile
 	@-$(RM) -f config.guess config.status config.sub depcomp install-sh compile
 	@-$(RM) -f stamp-h1 ar-lib *.m4 local.* lt*.sh missing libtool* libcryptopp.pc*
 	@-$(RM) -rf m4/ auto*.cache/ .deps/ .libs/
+
+.PHONY: cmake-clean
+cmake-clean:
+	@-$(RM) -f cryptopp-config.cmake CMakeLists.txt
+	@-$(RM) -rf cmake_build/
+
+.PHONY: distclean
+distclean: clean autotools-clean cmake-clean
+	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt cryptest-*.txt
+	@-$(RM) libcryptopp.pc cryptopp.tgz *.o *.bc *.ii *~
+	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
+	@-$(RM) -r $(LIBOBJS:.o=.obj) $(TESTOBJS:.o=.obj) $(DOCUMENT_DIRECTORY)/
 	@-$(RM) -r TestCoverage/
-	@-$(RM) cryptopp$(LIB_VER)\.*
-	@-$(RM) CryptoPPRef.zip
+	@-$(RM) cryptopp$(LIB_VER)\.* CryptoPPRef.zip
 
 # Install cryptest.exe, libcryptopp.a, libcryptopp.so and libcryptopp.pc.
 # The library install was broken-out into its own recipe at GH #653.
