@@ -31,29 +31,31 @@ do
 		# Test if we can set the environment for the platform
 		./setenv-android-gcc.sh "$platform" "$runtime"
 
-		if [ "$?" -eq "0" ];
+		if [ "$?" -ne "0" ];
 		then
-			echo
-			echo "Building for $platform using $runtime..."
-			echo
-
-			# run in subshell to not keep any env vars
-			(
-				source ./setenv-android-gcc.sh "$platform" "$runtime" > /dev/null 2>&1
-				make -f GNUmakefile-cross static dynamic cryptest.exe
-				if [ "$?" -eq "0" ]; then
-					echo "$platform:$runtime ==> SUCCESS" >> /tmp/build.log
-				else
-					echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
-					touch /tmp/build.failed
-				fi
-			)
-		else
 			echo
 			echo "There were problems testing $platform with $runtime"
 			echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
+
 			touch /tmp/build.failed
+			continue
 		fi
+
+		echo
+		echo "Building for $platform using $runtime..."
+		echo
+
+		# run in subshell to not keep any env vars
+		(
+			source ./setenv-android-gcc.sh "$platform" "$runtime" > /dev/null 2>&1
+			make -f GNUmakefile-cross static dynamic cryptest.exe
+			if [ "$?" -eq "0" ]; then
+				echo "$platform:$runtime ==> SUCCESS" >> /tmp/build.log
+			else
+				echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
+				touch /tmp/build.failed
+			fi
+		)
 	done
 done
 

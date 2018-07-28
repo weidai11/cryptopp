@@ -739,8 +739,8 @@ endif
 
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
 ifeq ($(IS_ARM32),1)
-CRYPTOGAMS_AES_ARCH = -march=armv7-a
-CRYPTOGAMS_AES_ARCH += -Wa,--noexecstack
+CRYPTOGAMS_AES_FLAG = -march=armv7-a
+CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
 SRCS += aes-armv4.S
 endif
 
@@ -1091,7 +1091,7 @@ endif # Dependencies
 
 # Cryptogams ARM asm implementation.
 aes-armv4.o : aes-armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
+	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_FLAG) -mfloat-abi=$(FP_ABI) -c) $<
 
 # SSSE3 or NEON available
 aria-simd.o : aria-simd.cpp
