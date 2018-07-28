@@ -5,8 +5,11 @@
 #define CRYPTOPP_VALIDATE_H
 
 #include "cryptlib.h"
-#include "integer.h"
 #include "misc.h"
+#include "files.h"
+#include "argnames.h"
+#include "algparam.h"
+#include "hex.h"
 
 #include <iostream>
 #include <sstream>
