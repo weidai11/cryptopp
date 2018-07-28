@@ -15,6 +15,7 @@
 #include "rdrand.h"
 #include "mersenne.h"
 #include "padlkrng.h"
+#include "randpool.h"
 
 #include "gzip.h"
 #include "channels.h"
