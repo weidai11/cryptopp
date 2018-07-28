@@ -740,6 +740,7 @@ endif
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
 ifeq ($(IS_ARM32),1)
 CRYPTOGAMS_AES_ARCH = -march=armv7-a
+CRYPTOGAMS_AES_ARCH += -Wa,--noexecstack
 SRCS += aes-armv4.S
 endif
 
