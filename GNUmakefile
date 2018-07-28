@@ -738,9 +738,8 @@ INCL += resource.h
 endif
 
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
-# Disable Thumb via -marm due to unaligned byte buffers.
 ifeq ($(IS_ARM32),1)
-CRYPTOGAMS_AES_ARCH = -march=armv7-a -marm
+CRYPTOGAMS_AES_ARCH = -march=armv7-a
 SRCS += aes-armv4.S
 endif
 
@@ -1081,7 +1080,7 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 -include GNUmakefile.deps
 endif # Dependencies
 
-# Cryptogams ARM asm implementation. CRYPTOGAMS_AES_ARCH includes -marm.
+# Cryptogams ARM asm implementation.
 aes-armv4.o : aes-armv4.S
 	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_ARCH) -mfloat-abi=$(FP_ABI) -c) $<
 
