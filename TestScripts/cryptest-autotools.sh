@@ -43,21 +43,6 @@ if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryp
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-# Convert as necessary
-#if [[ ! -z $(command -v dos2unix) ]]; then
-#	dos2unix Makefile.am configure.ac libcryptopp.pc.in
-#fi
-
-# Trim trailing whitespace
-#if [[ ! -z $(command -v "$SED") ]]; then
-#	"$SED" -e's/[[:space:]]*$//' Makefile.am > Makefile.am.fixed
-#	"$SED" -e's/[[:space:]]*$//' configure.ac > configure.ac.fixed
-#	"$SED" -e's/[[:space:]]*$//' libcryptopp.pc.in > libcryptopp.pc.in.fixed
-#	mv Makefile.am.fixed Makefile.am
-#	mv configure.ac.fixed configure.ac
-#	mv libcryptopp.pc.in.fixed libcryptopp.pc.in
-#fi
-
 # Run autoreconf twice on failure. Also see
 # https://github.com/tracebox/tracebox/issues/57
 
@@ -67,12 +52,9 @@ if [[ ! -z $(command -v autoupdate) ]]; then
 	autoupdate
 fi
 
-if [[ ! -z $(command -v libtoolize) ]]; then
-	libtoolize
-fi
-
 if ! autoreconf -vfi --warnings=all; then
-	if ! autoreconf -vfi; then
+	echo "autoreconf failed, running again."
+	if ! autoreconf -fi; then
 		echo "autoreconf failed"
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
