@@ -1,4 +1,4 @@
-// bench1.cpp - originally written and placed in the public domain by Wei Dai
+// bench2.cpp - originally written and placed in the public domain by Wei Dai
 //              CryptoPP::Test namespace added by JW in February 2017
 
 #include "cryptlib.h"
@@ -6,17 +6,11 @@
 #include "validate.h"
 
 #include "cpu.h"
-#include "files.h"
-#include "filters.h"
-#include "hex.h"
 #include "factory.h"
+#include "algparam.h"
+#include "argnames.h"
 #include "smartptr.h"
 #include "stdcpp.h"
-
-#include "modes.h"
-#include "aes.h"
-#include "kalyna.h"
-#include "threefish.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)
