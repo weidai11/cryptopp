@@ -92,25 +92,6 @@ SUNCC_513_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (S
 # Enable shared object versioning for Linux
 HAS_SOLIB_VERSION := $(IS_LINUX)
 
-# Fixup SunOS
-ifeq ($(IS_SUN),1)
-IS_X86 := $(shell isainfo -k 2>/dev/null | $(GREP) -i -c "i386")
-IS_X64 := $(shell isainfo -k 2>/dev/null | $(GREP) -i -c "amd64")
-endif
-
-# Fixup AIX
-ifeq ($(IS_AIX),1)
-  # https://www-01.ibm.com/support/docview.wss?uid=swg21256116
-  IS_64BIT := $(shell getconf KERNEL_BITMODE | $(GREP) -i -c "64")
-  ifeq ($(IS_64BIT),1)
-    IS_PPC32 := 0
-    IS_PPC64 := 1
-  else
-    IS_PPC32 := 1
-    IS_PPC64 := 0
-  endif
-endif
-
 # Newlib needs _XOPEN_SOURCE=600 for signals
 HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(GREP) -i -c "__NEWLIB__")
 
@@ -210,13 +191,6 @@ ifneq ($(HAVE_GAS),0)
 endif
 
 ICC111_OR_LATER := $(shell $(CXX) --version 2>&1 | $(GREP) -c -E "\(ICC\) ([2-9][0-9]|1[2-9]|11\.[1-9])")
-
-# Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
-ifeq ($(IS_X86)$(IS_CYGWIN)$(IS_MINGW),000)
- ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
-   CXXFLAGS += -fPIC
- endif
-endif
 
 # .intel_syntax wasn't supported until GNU assembler 2.10
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
@@ -351,13 +325,6 @@ ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
   endif
 endif
 
-# GCC on Solaris needs -m64. Otherwise, i386 is default
-#   http://github.com/weidai11/cryptopp/issues/230
-HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-m32|\-m64')
-ifeq ($(IS_SUN)$(GCC_COMPILER)$(IS_X64)$(HAVE_BITS),1110)
-  CXXFLAGS += -m64
-endif
-
 # Allow use of "/" operator for GNU Assembler.
 #   http://sourceware.org/bugzilla/show_bug.cgi?id=4572
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
@@ -371,16 +338,6 @@ else
 ###########################################################
 #####                 Not X86/X32/X64                 #####
 ###########################################################
-
-# Add PIC
-ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
-  CXXFLAGS += -fPIC
-endif
-
-# Remove -fPIC if present. SunCC adds -KPIC
-ifeq ($(SUN_COMPILER),1)
-  CXXFLAGS := $(subst -fPIC,,$(CXXFLAGS))
-endif
 
 ifeq ($(IS_NEON),1)
   HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(GREP) -i -c -E '\<__ARM_NEON\>')
@@ -505,11 +462,23 @@ endif  # X86, X64, ARM32, ARM64, PPC32, PPC64, etc
 #####                      Common                     #####
 ###########################################################
 
+# Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
+ifeq ($(IS_X86)$(IS_CYGWIN)$(IS_MINGW),000)
+ ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+   CXXFLAGS += -fPIC
+ endif
+endif
+
 # Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
 ifneq ($(IS_LINUX)$(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),0000)
   CXXFLAGS += -pthread
 endif # CXXFLAGS
+
+# Remove -fPIC if present. SunCC use -KPIC
+ifeq ($(SUN_COMPILER),1)
+  CXXFLAGS := $(subst -fPIC,-KPIC,$(CXXFLAGS))
+endif
 
 # Add -pipe for everything except IBM XL C/C++, SunCC and ARM.
 # Allow ARM-64 because they seems to have >1 GB of memory
@@ -554,17 +523,6 @@ endif
 
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
-IS_64 := $(shell isainfo -b 2>/dev/null | $(GREP) -i -c "64")
-HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-m32|\-m64')
-ifeq ($(IS_64)$(HAVE_BITS),10)
-CXXFLAGS += -m64
-else ifeq ($(IS_64)$(HAVE_BITS),00)
-CXXFLAGS += -m32
-endif
-# Add for non-i386
-ifneq ($(IS_X86),1)
-CXXFLAGS += -KPIC
-endif
 # Add to all Solaris
 CXXFLAGS += -template=no%extdef
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(GREP) -c -E "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
