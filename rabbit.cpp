@@ -148,8 +148,8 @@ void RabbitPolicy::OperateKeystream(KeystreamOperation operation, byte *output, 
 	//  then it will ask OperateKeystream to generate one. Optionally it
 	//  will ask for an XOR of the input with the keystream while
 	//  writing the result to the output buffer. In all cases the
-	//  output buffer is written. The optional part is adding the
-	//  input buffer and keystream.
+	//  keystream is written to the output buffer. The optional part is
+	//  adding the input buffer and keystream.
 	if ((operation & INPUT_NULL) != INPUT_NULL)
 		xorbuf(output, input, GetBytesPerIteration() * iterationCount);
 }
@@ -250,8 +250,8 @@ void RabbitWithIVPolicy::OperateKeystream(KeystreamOperation operation, byte *ou
 	//  then it will ask OperateKeystream to generate one. Optionally it
 	//  will ask for an XOR of the input with the keystream while
 	//  writing the result to the output buffer. In all cases the
-	//  output buffer is written. The optional part is adding the
-	//  input buffer and keystream.
+	//  keystream is written to the output buffer. The optional part is
+	//  adding the input buffer and keystream.
 	if ((operation & INPUT_NULL) != INPUT_NULL)
 		xorbuf(output, input, GetBytesPerIteration() * iterationCount);
 }

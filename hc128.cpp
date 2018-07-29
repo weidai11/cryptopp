@@ -228,8 +228,8 @@ void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 		//  then it will ask OperateKeystream to generate one. Optionally it
 		//  will ask for an XOR of the input with the keystream while
 		//  writing the result to the output buffer. In all cases the
-		//  output buffer is written. The optional part is adding the
-		//  input buffer and keystream.
+		//  keystream is written to the output buffer. The optional part is
+		//  adding the input buffer and keystream.
 		if ((operation & INPUT_NULL) != INPUT_NULL)
 			xorbuf(output, input, 64);
 
