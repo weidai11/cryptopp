@@ -15,10 +15,12 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
+using CryptoPP::word64;
 using CryptoPP::rotlConstant;
 
 word32 G_func(word32 x)
 {
+#if 0
 	/* Temporary variables */
 	word32 a, b, h, l;
 
@@ -32,6 +34,12 @@ word32 G_func(word32 x)
 
 	/* Return high XOR low */
 	return static_cast<word32>(h^l);
+#endif
+
+	// Thanks to Jack Lloyd for suggesting the 64-bit multiply.
+	word64 z = x;
+	z *= x;
+	return static_cast<word32>((z >> 32) ^ z);
 }
 
 word32 NextState(word32 c[8], word32 x[8], word32 carry)
