@@ -16,6 +16,8 @@
 #include "smartptr.h"
 #include "validate.h"
 #include "stdcpp.h"
+#include "trap.h"
+
 #include <iostream>
 #include <sstream>
 
@@ -934,9 +936,12 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 	s_thorough = thorough;
 	unsigned int totalTests = 0, failedTests = 0;
 	TestDataFile((filename ? filename : ""), overrideParameters, totalTests, failedTests);
+
 	std::cout << std::dec << "\nTests complete. Total tests = " << totalTests << ". Failed tests = " << failedTests << "." << std::endl;
 	if (failedTests != 0)
 		std::cout << "SOME TESTS FAILED!\n";
+
+	CRYPTOPP_ASSERT(failedTests == 0);
 	return failedTests == 0;
 }
 
