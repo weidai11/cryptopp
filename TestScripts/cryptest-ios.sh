@@ -10,6 +10,11 @@
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
+if [ -z $(command -v ./setenv-ios.sh) ]; then
+	echo "Pailed to locate setenv-ios.sh"
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
 if [ -z "${PLATFORM-}" ]; then
 	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
 else
