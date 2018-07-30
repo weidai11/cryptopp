@@ -435,11 +435,37 @@ public:
 
 private:
 
+	// The bit-twiddling below depends on two things. The first is compiler
+	// alignment of data on the stack and second is CRYPTOPP_ALIGN_DATA. If
+	// the compiler aligns data too densely using natural alignments then
+	// we need to use CRYPTOPP_ALIGN_DATA to move to an 8-byte boundary.
+	//
+	// If unexepected asserts fire on m_allocated then it probably means
+	// class member data is being overwritten because alignments and
+	// subsequent adjustments are not quite correct. Linux, OS X and
+	// Windows are OK, but platforms like AIX and Solaris can have problems.
+	// If we can't control alignment through CRYPTOPP_ALIGN_DATA then we
+	// should probably avoid this allocator.
+	//
+	// Platforms that probably experience trouble at this point are AIX and
+	// Solaris when Sun Studio is less than 12.0 or 12.1. The easiest way
+	// to check is a Debug build so asserts are enabled. Then look for an
+	// assert to fire on m_allocated when the dtor runs. For Sun Studio 12
+	// we were able to clear the assert by using __attribute__(aligned).
+	//
+	// Something else that troubles me about the machinery below is, we
+	// can't use std::ptrdiff_t in place of the byte* and size_t casts. I
+	// believe ptrdiff_t the only way to safely calculate the aligned
+	// address due to the subtraction. Attempts to use ptrdiff_t result in
+	// crashes or SIGSEGV's. That's probably a good sign we should switch to
+	// something else, like a SecBlock backed by a heap allocation.
+
 #ifdef __BORLANDC__
 	T* GetAlignedArray() {return m_array;}
 	T m_array[S];
 #else
-	T* GetAlignedArray() {return (CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? (T*)(void *)(((byte *)m_array) + (0-(size_t)m_array)%16) : m_array;}
+	T* GetAlignedArray() {return (CRYPTOPP_BOOL_ALIGN16 && T_Align16) ?
+		(T*)(((byte*)m_array) + (0-(size_t)m_array)%16) : m_array;}
 	CRYPTOPP_ALIGN_DATA(8) T m_array[(CRYPTOPP_BOOL_ALIGN16 && T_Align16) ? S+8/sizeof(T) : S];
 #endif
 
