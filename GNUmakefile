@@ -266,6 +266,13 @@ endif  # -DCRYPTOPP_DISABLE_SSSE3
 
 # Begin SunCC
 ifeq ($(SUN_COMPILER),1)
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  ifeq ($(COUNT),0)
+    AES_FLAG = -xarch=sse2 -D__SSE2__=1
+    GCM_FLAG = -xarch=sse2 -D__SSE2__=1
+    SHA_FLAG = -xarch=sse2 -D__SSE2__=1
+    LDFLAGS += -xarch=sse2
+  endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=ssse3 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
@@ -396,9 +403,12 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -mcpu=power4 -maltivec
     ARIA_FLAG = -mcpu=power4 -maltivec
     BLAKE2_FLAG = -mcpu=power4 -maltivec
+    CHAM_FLAG = -mcpu=power4 -maltivec
+    LEA_FLAG = -mcpu=power4 -maltivec
     SIMON_FLAG = -mcpu=power4 -maltivec
-    SIMECK_FLAG = -mcpu=power4 -maltivec
     SPECK_FLAG = -mcpu=power4 -maltivec
+    SIMECK_FLAG = -mcpu=power4 -maltivec
+    SM4_FLAG = -mcpu=power7 -maltivecs
   endif
   # GCC and some compatibles
   HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -407,9 +417,12 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     AES_FLAG = -mcpu=power8 -maltivec
     GCM_FLAG = -mcpu=power8 -maltivec
     SHA_FLAG = -mcpu=power8 -maltivec
-    SIMECK_FLAG = -mcpu=power8 -maltivec
+    CHAM_FLAG = -mcpu=power8 -maltivec
+    LEA_FLAG = -mcpu=power8 -maltivec
     SIMON_FLAG = -mcpu=power8 -maltivec
     SPECK_FLAG = -mcpu=power8 -maltivec
+    SIMECK_FLAG = -mcpu=power8 -maltivec
+    SM4_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
@@ -417,9 +430,12 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = -qarch=pwr7 -qaltivec
     BLAKE2_FLAG = -qarch=pwr7 -qaltivec
+    CHAM_FLAG = -qarch=pwr7 -qaltivec
+    LEA_FLAG = -qarch=pwr7 -qaltivec
     SIMECK_FLAG = -qarch=pwr7 -qaltivec
     SIMON_FLAG = -qarch=pwr7 -qaltivec
     SPECK_FLAG = -qarch=pwr7 -qaltivec
+    SM4_FLAG = -qarch=pwr7 -qaltivec
   endif
   # IBM XL C/C++
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
@@ -430,9 +446,12 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SHA_FLAG = -qarch=pwr8 -qaltivec
     ARIA_FLAG = -qarch=pwr8 -qaltivec
     BLAKE2_FLAG = -qarch=pwr8 -qaltivec
+    CHAM_FLAG = -qarch=pwr8 -qaltivec
+    LEA_FLAG = -qarch=pwr8 -qaltivec
     SIMECK_FLAG = -qarch=pwr8 -qaltivec
     SIMON_FLAG = -qarch=pwr8 -qaltivec
     SPECK_FLAG = -qarch=pwr8 -qaltivec
+    SM4_FLAG = -qarch=pwr8 -qaltivec
   endif
 endif
 
@@ -441,10 +460,6 @@ ifeq ($(XLC_COMPILER),1)
   # http://www-01.ibm.com/support/docview.wss?uid=swg21007500
   ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
     CXXFLAGS += -qrtti
-  endif
-  # -fPIC causes link errors dues to unknown option
-  ifneq ($(findstring -fPIC,$(CXXFLAGS)),)
-      CXXFLAGS := $(CXXFLAGS:-fPIC=-qpic)
   endif
   HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-q32|\-q64')
   ifeq ($(IS_PPC64)$(XLC_COMPILER)$(HAVE_BITS),110)
@@ -478,6 +493,11 @@ endif # CXXFLAGS
 # Remove -fPIC if present. SunCC use -KPIC
 ifeq ($(SUN_COMPILER),1)
   CXXFLAGS := $(subst -fPIC,-KPIC,$(CXXFLAGS))
+endif
+
+# Remove -fPIC if present. IBM XL C/C++ use -qpic
+ifeq ($(XLC_COMPILER),1)
+  CXXFLAGS := $(subst -fPIC,-qpic,$(CXXFLAGS))
 endif
 
 # Add -pipe for everything except IBM XL C/C++, SunCC and ARM.

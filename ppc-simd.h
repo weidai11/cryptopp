@@ -147,7 +147,7 @@ inline T Reverse(const T& src)
 inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl_be(0, src);
+    return (uint32x4_p)vec_xl_be(0, (byte*)src);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
     return (uint32x4_p)Reverse(vec_vsx_ld(0, src));
@@ -168,7 +168,7 @@ inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 inline uint32x4_p VectorLoadBE(int off, const uint8_t src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl_be(off, src);
+    return (uint32x4_p)vec_xl_be(off, (byte*)src);
 #else
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
     return (uint32x4_p)Reverse(vec_vsx_ld(off, src));
@@ -213,7 +213,7 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 inline uint32x4_p VectorLoadKey(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl(0, src);
+    return (uint32x4_p)vec_xl(0, (byte*)src);
 #else
     return (uint32x4_p)vec_vsx_ld(0, src);
 #endif
@@ -229,7 +229,7 @@ inline uint32x4_p VectorLoadKey(const byte src[16])
 inline uint32x4_p VectorLoadKey(const word32 src[4])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl(0, src);
+    return (uint32x4_p)vec_xl(0, (byte*)src);
 #else
     return (uint32x4_p)vec_vsx_ld(0, src);
 #endif
@@ -246,7 +246,7 @@ inline uint32x4_p VectorLoadKey(const word32 src[4])
 inline uint32x4_p VectorLoadKey(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p)vec_xl(off, src);
+    return (uint32x4_p)vec_xl(off, (byte*)src);
 #else
     return (uint32x4_p)vec_vsx_ld(off, src);
 #endif
@@ -424,7 +424,7 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 
 #endif  // CRYPTOPP_POWER7_AVAILABLE
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_POWER8_AES_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
@@ -506,6 +506,10 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 #endif
 }
 
+#endif  // CRYPTOPP_POWER8_AES_AVAILABLE
+
+#if defined(CRYPTOPP_POWER8_SHA_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
 /// \brief SHA256 Sigma functions
 /// \tparam func function
 /// \tparam subfunc sub-function
@@ -546,7 +550,7 @@ inline T VectorSHA512(const T& vec)
 #endif
 }
 
-#endif  // CRYPTOPP_POWER8_AVAILABLE
+#endif  // CRYPTOPP_POWER8_SHA_AVAILABLE
 
 NAMESPACE_END
 

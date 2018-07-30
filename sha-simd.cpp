@@ -990,7 +990,7 @@ typedef __vector unsigned long long uint64x2_p8;
 uint32x4_p8 VEC_XL_BE(int offset, const uint8_t* data)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return vec_xl_be(offset, data);
+    return (uint32x4_p8)vec_xl_be(offset, (uint8_t*)data);
 #else
     uint32x4_p8 res;
     __asm(" lxvd2x  %x0, %1, %2    \n\t"
@@ -1016,7 +1016,7 @@ template <class T> static inline
 uint32x4_p8 VectorLoad32x4u(const T* data, int offset)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint32x4_p8)vec_xl(offset, data);
+    return (uint32x4_p8)vec_xl(offset, (uint8_t*)data);
 #else
     return (uint32x4_p8)vec_vsx_ld(offset, data);
 #endif
@@ -1324,7 +1324,7 @@ template <class T> static inline
 uint64x2_p8 VectorLoad64x2u(const T* data, int offset)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    return (uint64x2_p8)vec_xl(offset, (const uint8_t*)data);
+    return (uint64x2_p8)vec_xl(offset, (uint8_t*)data);
 #else
     return (uint64x2_p8)vec_vsx_ld(offset, (const uint8_t*)data);
 #endif
