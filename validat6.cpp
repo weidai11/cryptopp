@@ -240,7 +240,9 @@ bool ValidateBBS()
 
 bool ValidateECP()
 {
-	std::cout << "\nTesting SEC 2, NIST, and Brainpool recommended curves...\n\n";
+	// Remove word recommend. Some ECP curves may not be recommended depending
+	// on whom you ask. ECP is more descriptive item in this case.
+	std::cout << "\nTesting SEC 2, NIST and Brainpool ECP curves...\n\n";
 	bool pass = true; OID oid;
 
 	while (!(oid = DL_GroupParameters_EC<ECP>::GetNextRecommendedParametersOID(oid)).GetValues().empty())
@@ -257,7 +259,9 @@ bool ValidateECP()
 
 bool ValidateEC2N()
 {
-	std::cout << "\nTesting SEC 2 recommended curves...\n\n";
+	// Remove word recommend. Binary curves may not be recommended depending
+	// on whom you ask. EC2N is more descriptive item in this case.
+	std::cout << "\nTesting SEC 2 EC2N curves...\n\n";
 	bool pass = true; OID oid;
 
 #if 1	// TODO: turn this back on when I make EC2N faster for pentanomial basis
