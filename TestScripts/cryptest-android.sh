@@ -12,7 +12,8 @@
 set +e
 
 if [ -z $(command -v ./setenv-android-gcc.sh) ]; then
-	echo "Pailed to locate setenv-android-gcc.sh"
+	echo "Failed to locate setenv-android-gcc.sh"
+	ls -Al *.sh
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 

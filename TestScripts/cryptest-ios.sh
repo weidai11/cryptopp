@@ -11,7 +11,8 @@
 # ====================================================================
 
 if [ -z $(command -v ./setenv-ios.sh) ]; then
-	echo "Pailed to locate setenv-ios.sh"
+	echo "Failed to locate setenv-ios.sh"
+	ls -Al *.sh
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
