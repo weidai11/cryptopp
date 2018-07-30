@@ -129,7 +129,7 @@ bool ValidateECP_Encrypt()
 
 	cpub.AccessKey().Precompute();
 	cpriv.AccessKey().Precompute();
-	bool pass = CryptoSystemValidate(cpriv, cpub) && pass;
+	bool pass = CryptoSystemValidate(cpriv, cpub);
 
 	std::cout << "Turning on point compression..." << std::endl;
 	cpriv.AccessKey().AccessGroupParameters().SetPointCompression(true);
@@ -148,7 +148,7 @@ bool ValidateEC2N_Encrypt()
 	cpriv.AccessMaterial().Save(bq);
 	cpub.AccessKey().AccessGroupParameters().SetEncodeAsOID(true);
 	cpub.AccessMaterial().Save(bq);
-	bool pass = CryptoSystemValidate(cpriv, cpub) && pass;
+	bool pass = CryptoSystemValidate(cpriv, cpub);
 
 	std::cout << "Turning on point compression..." << std::endl;
 	cpriv.AccessKey().AccessGroupParameters().SetPointCompression(true);

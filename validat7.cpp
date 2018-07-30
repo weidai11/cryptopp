@@ -314,7 +314,7 @@ bool ValidateECP_Agreement()
 {
 	ECDH<ECP>::Domain ecdhc(ASN1::secp192r1());
 	ECMQV<ECP>::Domain ecmqvc(ASN1::secp192r1());
-	bool pass = SimpleKeyAgreementValidate(ecdhc) && pass;
+	bool pass = SimpleKeyAgreementValidate(ecdhc);
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
 	std::cout << "Turning on point compression..." << std::endl;
@@ -330,7 +330,7 @@ bool ValidateEC2N_Agreement()
 {
 	ECDH<EC2N>::Domain ecdhc(ASN1::sect193r1());
 	ECMQV<EC2N>::Domain ecmqvc(ASN1::sect193r1());
-	bool pass = SimpleKeyAgreementValidate(ecdhc) && pass;
+	bool pass = SimpleKeyAgreementValidate(ecdhc);
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
 	std::cout << "Turning on point compression..." << std::endl;
