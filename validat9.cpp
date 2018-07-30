@@ -1,4 +1,4 @@
-// validat5.cpp - originally written and placed in the public domain by Wei Dai
+// validat9.cpp - originally written and placed in the public domain by Wei Dai
 //                CryptoPP::Test namespace added by JW in February 2017.
 //                Source files split in July 2018 to expedite compiles.
 

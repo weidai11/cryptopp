@@ -1,4 +1,4 @@
-// validat7.cpp - written and placed in the public domain by Jeffrey Walton
+// validat10.cpp - written and placed in the public domain by Jeffrey Walton
 //                Routines in this source file test NaCl library routines.
 //                Source files split in July 2018 to expedite compiles.
 //
