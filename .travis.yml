@@ -145,12 +145,12 @@ script:
     if [[ "$BUILD_MODE" == "ios" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         cp ./TestScripts/cryptest-ios.sh .
-	chmod +x *.sh
+        chmod +x *.sh
         ./cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
         cp ./TestScripts/setenv-android-gcc.sh .
         cp ./TestScripts/cryptest-android.sh .
-	chmod +x *.sh
+        chmod +x *.sh
         ./cryptest-android.sh
     elif [[ "$BUILD_MODE" == "autotools" ]]; then
         cp ./TestScripts/cryptest-autotools.sh .
