@@ -219,6 +219,9 @@
     <ClCompile Include="validat5.cpp" />
     <ClCompile Include="validat6.cpp" />
     <ClCompile Include="validat7.cpp" />
+    <ClCompile Include="validat8.cpp" />
+    <ClCompile Include="validat9.cpp" />
+    <ClCompile Include="validat10.cpp" />
   </ItemGroup>
   <!-- Header Files -->
   <ItemGroup>

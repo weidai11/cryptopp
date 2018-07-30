@@ -351,6 +351,9 @@ validat4.cpp
 validat5.cpp
 validat6.cpp
 validat7.cpp
+validat8.cpp
+validat9.cpp
+validat10.cpp
 validate.h
 vmac.cpp
 vmac.h

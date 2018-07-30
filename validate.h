@@ -156,6 +156,20 @@ bool TestMersenne();
 bool TestSharing();
 #endif
 
+class FixedRNG : public RandomNumberGenerator
+{
+public:
+	FixedRNG(BufferedTransformation &source) : m_source(source) {}
+
+	void GenerateBlock(byte *output, size_t size)
+	{
+		m_source.Get(output, size);
+	}
+
+private:
+	BufferedTransformation &m_source;
+};
+
 #if 1
 // Coverity findings in benchmark and validation routines
 class StreamState
@@ -180,27 +194,6 @@ private:
 	std::streamsize m_width;
 	std::ios_base::fmtflags m_fmt;
 	std::ostream::char_type m_fill;
-};
-#endif
-
-#if 0
-class StreamState
-{
-public:
-	StreamState(std::ostream& out)
-		: m_out(out), m_state(NULLPTR)
-	{
-		m_state.copyfmt(m_out);
-	}
-
-	~StreamState()
-	{
-		m_out.copyfmt(m_state);
-	}
-
-private:
-	std::ostream& m_out;
-	std::ios m_state;
 };
 #endif
 
@@ -269,10 +262,47 @@ inline int StringToValue<int, true>(const std::string& str)
 	return r;
 }
 
-// Functions that need a RNG; uses AES inf CFB mode with Seed.
-CryptoPP::RandomNumberGenerator & GlobalRNG();
+// Definition in test.cpp
+RandomNumberGenerator & GlobalRNG();
 
-bool RunTestDataFile(const char *filename, const CryptoPP::NameValuePairs &overrideParameters=CryptoPP::g_nullNameValuePairs, bool thorough=true);
+// Definition in datatest.cpp
+bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParameters=g_nullNameValuePairs, bool thorough=true);
+
+// Definitions in validat6.cpp
+bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough = false);
+bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d);
+bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d);
+bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false);
+
+// Miscellaneous PK definitions in validat6.cpp
+// Key Agreement definitions in validat7.cpp
+// Encryption and Decryption definitions in validat8.cpp
+// Sign and Verify definitions in validat9.cpp
+
+bool ValidateECP();
+bool ValidateEC2N();
+
+bool ValidateRSA_Encrypt();
+bool ValidateRSA_Sign();
+
+bool ValidateLUC_Encrypt();
+bool ValidateLUC_Sign();
+
+bool ValidateLUC_DL_Encrypt();
+bool ValidateLUC_DL_Sign();
+
+bool ValidateRabin_Encrypt();
+bool ValidateRabin_Sign();
+
+bool ValidateECP();
+bool ValidateECP_Agreement();
+bool ValidateECP_Encrypt();
+bool ValidateECP_Sign();
+
+bool ValidateEC2N();
+bool ValidateEC2N_Agreement();
+bool ValidateEC2N_Encrypt();
+bool ValidateEC2N_Sign();
 
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP
