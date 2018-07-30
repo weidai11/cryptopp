@@ -354,7 +354,7 @@ NAMESPACE_END
 	#endif
 #endif
 
-// Sun Studio 12 provides GCC-style alignment.
+// Sun Studio Express 3 (December 2006) provides GCC-style attributes.
 #ifndef CRYPTOPP_ALIGN_DATA
 	#if defined(_MSC_VER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
