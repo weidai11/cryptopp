@@ -151,6 +151,7 @@ bool ValidateHMQV()
 	SecByteBlock valA384(hmqvA384.AgreedValueLength()), valB384(hmqvB384.AgreedValueLength());
 
 	hmqvA384.GenerateStaticKeyPair(GlobalRNG(), sprivA384, spubA384);
+	hmqvB384.GenerateStaticKeyPair(GlobalRNG(), sprivB384, spubB384);
 	hmqvA384.GenerateEphemeralKeyPair(GlobalRNG(), eprivA384, epubA384);
 	hmqvB384.GenerateEphemeralKeyPair(GlobalRNG(), eprivB384, epubB384);
 
