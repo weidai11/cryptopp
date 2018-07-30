@@ -195,46 +195,46 @@ bool ValidateBBS()
 	bool pass = true, fail;
 	int j;
 
-	static const byte output1[] = {
+	const byte output1[] = {
 		0x49,0xEA,0x2C,0xFD,0xB0,0x10,0x64,0xA0,0xBB,0xB9,
 		0x2A,0xF1,0x01,0xDA,0xC1,0x8A,0x94,0xF7,0xB7,0xCE};
-	static const byte output2[] = {
+	const byte output2[] = {
 		0x74,0x45,0x48,0xAE,0xAC,0xB7,0x0E,0xDF,0xAF,0xD7,
 		0xD5,0x0E,0x8E,0x29,0x83,0x75,0x6B,0x27,0x46,0xA1};
 
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
 	byte buf[20];
+	std::ostringstream oss;
 
 	bbs.GenerateBlock(buf, 20);
 	fail = memcmp(output1, buf, 20) != 0;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED    " : "passed    ");
+	oss << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<20;j++)
-		std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
-	std::cout << std::endl;
+		oss << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
+	oss << std::endl;
 
 	bbs.Seek(10);
 	bbs.GenerateBlock(buf, 10);
 	fail = memcmp(output1+10, buf, 10) != 0;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED    " : "passed    ");
+	oss << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<10;j++)
-		std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
-	std::cout << std::endl;
+		oss << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
+	oss << std::endl;
 
 	bbs.Seek(1234567);
 	bbs.GenerateBlock(buf, 20);
 	fail = memcmp(output2, buf, 20) != 0;
 	pass = pass && !fail;
 
-	std::cout << (fail ? "FAILED    " : "passed    ");
+	oss << (fail ? "FAILED    " : "passed    ");
 	for (j=0;j<20;j++)
-		std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
-	std::cout << std::endl;
+		oss << std::setw(2) << std::setfill('0') << std::hex << (int)buf[j];
+	oss << std::endl;
 
+	std::cout << oss.str();
 	return pass;
 }
 

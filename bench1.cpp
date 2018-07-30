@@ -13,6 +13,10 @@
 #include "smartptr.h"
 #include "stdcpp.h"
 
+#include <iostream>
+#include <iomanip>
+#include <sstream>
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)
 #endif
@@ -32,7 +36,7 @@ const double CLOCK_TICKS_PER_SECOND = (double)CLK_TCK;
 const double CLOCK_TICKS_PER_SECOND = 1000000.0;
 #endif
 
-const byte defaultKey[] = "0123456789" // 168 + NULL
+extern const byte defaultKey[] = "0123456789" // 168 + NULL
 	"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	"00000000000000000000000000000000000000000000000000000"
 	"00000000000000000000000000000000000000000000000000000";
@@ -43,67 +47,70 @@ time_t g_testBegin, g_testEnd;
 
 void OutputResultBytes(const char *name, const char *provider, double length, double timeTaken)
 {
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
+	std::ostringstream oss;
 
 	// Coverity finding
 	if (length < 0.000001f) length = 0.000001f;
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
 	double mbs = length / timeTaken / (1024*1024);
-	std::cout << "\n<TR><TD>" << name << "<TD>" << provider;
-	std::cout << std::setiosflags(std::ios::fixed);
-	std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
+	oss << "\n<TR><TD>" << name << "<TD>" << provider;
+	oss << std::setiosflags(std::ios::fixed);
+	oss << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << mbs;
 	if (g_hertz > 1.0f)
 	{
 		const double cpb = timeTaken * g_hertz / length;
 		if (cpb < 24.0f)
-			std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << cpb;
+			oss << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << cpb;
 		else
-			std::cout << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << cpb;
+			oss << "<TD>" << std::setprecision(1) << std::setiosflags(std::ios::fixed) << cpb;
 	}
 	g_logTotal += log(mbs);
 	g_logCount++;
+
+	std::cout << oss.str();
 }
 
 void OutputResultKeying(double iterations, double timeTaken)
 {
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
+	std::ostringstream oss;
 
 	// Coverity finding
 	if (iterations < 0.000001f) iterations = 0.000001f;
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
-	std::cout << "<TD>" << std::setprecision(3) << std::setiosflags(std::ios::fixed) << (1000*1000*timeTaken/iterations);
+	oss << "<TD>" << std::setprecision(3) << std::setiosflags(std::ios::fixed) << (1000*1000*timeTaken/iterations);
 
 	// Coverity finding
 	if (g_hertz > 1.0f)
-		std::cout << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations;
+		oss << "<TD>" << std::setprecision(0) << std::setiosflags(std::ios::fixed) << timeTaken * g_hertz / iterations;
+
+	std::cout << oss.str();
 }
 
 void OutputResultOperations(const char *name, const char *provider, const char *operation, bool pc, unsigned long iterations, double timeTaken)
 {
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
+	std::ostringstream oss;
 
 	// Coverity finding
 	if (!iterations) iterations++;
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
-	std::cout << "\n<TR><TD>" << name << " " << operation << (pc ? " with precomputation" : "");
-	std::cout << "<TD>" << provider;
-	std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
+	oss << "\n<TR><TD>" << name << " " << operation << (pc ? " with precomputation" : "");
+	oss << "<TD>" << provider;
+	oss << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
 
 	// Coverity finding
 	if (g_hertz > 1.0f)
 	{
 		const double t = timeTaken * g_hertz / iterations / 1000000;
-		std::cout << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << t;
+		oss << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << t;
 	}
 
 	g_logTotal += log(iterations/timeTaken);
 	g_logCount++;
+
+	std::cout << oss.str();
 }
 
 /*
@@ -276,34 +283,40 @@ void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName = N
 
 void AddHtmlHeader()
 {
+	std::ostringstream oss;
+
 	// HTML5
-	std::cout << "<!DOCTYPE HTML>";
-	std::cout << "\n<HTML lang=\"en\">";
+	oss << "<!DOCTYPE HTML>";
+	oss << "\n<HTML lang=\"en\">";
 
-	std::cout << "\n<HEAD>";
-	std::cout << "\n<META charset=\"UTF-8\">";
-	std::cout << "\n<TITLE>Speed Comparison of Popular Crypto Algorithms</TITLE>";
-	std::cout << "\n<STYLE>\n  table {border-collapse: collapse;}";
-	std::cout << "\n  table, th, td, tr {border: 1px solid black;}\n</STYLE>";
-	std::cout << "\n</HEAD>";
+	oss << "\n<HEAD>";
+	oss << "\n<META charset=\"UTF-8\">";
+	oss << "\n<TITLE>Speed Comparison of Popular Crypto Algorithms</TITLE>";
+	oss << "\n<STYLE>\n  table {border-collapse: collapse;}";
+	oss << "\n  table, th, td, tr {border: 1px solid black;}\n</STYLE>";
+	oss << "\n</HEAD>";
 
-	std::cout << "\n<BODY>";
+	oss << "\n<BODY>";
 
-	std::cout << "\n<H1><A href=\"http://www.cryptopp.com\">Crypto++</A> " << CRYPTOPP_VERSION / 100;
-	std::cout << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << " Benchmarks</H1>";
+	oss << "\n<H1><A href=\"http://www.cryptopp.com\">Crypto++</A> " << CRYPTOPP_VERSION / 100;
+	oss << '.' << (CRYPTOPP_VERSION % 100) / 10 << '.' << CRYPTOPP_VERSION % 10 << " Benchmarks</H1>";
 
-	std::cout << "\n<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>";
+	oss << "\n<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>";
 
 	if (g_hertz > 1.0f)
-		std::cout << "\n<P>CPU frequency of the test platform is " << g_hertz << " Hz.</P>";
+		oss << "\n<P>CPU frequency of the test platform is " << g_hertz << " Hz.</P>";
 	else
-		std::cout << "\n<P>CPU frequency of the test platform was not provided.</P>" << std::endl;
+		oss << "\n<P>CPU frequency of the test platform was not provided.</P>" << std::endl;
+
+	std::cout << oss.str();
 }
 
 void AddHtmlFooter()
 {
+	std::ostringstream oss;
 	std::cout << "\n</BODY>";
 	std::cout << "\n</HTML>" << std::endl;
+	std::cout << oss.str();
 }
 
 void BenchmarkWithCommand(int argc, const char* const argv[])
@@ -327,6 +340,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;
+	std::ostringstream oss;
 
 	AddHtmlHeader();
 
@@ -338,37 +352,36 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 	// Unkeyed algorithms
 	if (suites & Test::Unkeyed)
 	{
-		std::cout << "\n<BR>";
+		oss << "\n<BR>";
 		Benchmark1(t, hertz);
 	}
 
 	// Shared key algorithms
 	if (suites & Test::SharedKey)
 	{
-		std::cout << "\n<BR>";
+		oss << "\n<BR>";
 		Benchmark2(t, hertz);
 	}
 
 	// Public key algorithms
 	if (suites & Test::PublicKey)
 	{
-		std::cout << "\n<BR>";
+		oss << "\n<BR>";
 		Benchmark3(t, hertz);
 	}
 
 	g_testEnd = ::time(NULLPTR);
 
-	{
-		StreamState state(std::cout);
-		std::cout << "\n<P>Throughput Geometric Average: " << std::setiosflags(std::ios::fixed);
-		std::cout << std::exp(g_logTotal/(g_logCount > 0.0f ? g_logCount : 1.0f)) << std::endl;
-	}
+	oss << "\n<P>Throughput Geometric Average: " << std::setiosflags(std::ios::fixed);
+	oss << std::exp(g_logTotal/(g_logCount > 0.0f ? g_logCount : 1.0f)) << std::endl;
 
-	std::cout << "\n<P>Test started at " << TimeToString(g_testBegin);
-	std::cout << "\n<BR>Test ended at " << TimeToString(g_testEnd);
-	std::cout << std::endl;
+	oss << "\n<P>Test started at " << TimeToString(g_testBegin);
+	oss << "\n<BR>Test ended at " << TimeToString(g_testEnd);
+	oss << std::endl;
 
 	AddHtmlFooter();
+
+	std::cout << oss.str();
 }
 
 void Benchmark1(double t, double hertz)

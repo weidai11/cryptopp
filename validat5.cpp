@@ -69,10 +69,9 @@ struct HashTestTuple
 bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsigned int testSetSize)
 {
 	bool pass=true, fail;
-	SecByteBlock digest(md.DigestSize());
+	std::ostringstream oss;
 
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
+	SecByteBlock digest(md.DigestSize());
 	for (unsigned int i=0; i<testSetSize; i++)
 	{
 		unsigned j;
@@ -83,15 +82,16 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		fail = !!memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
-		std::cout << (fail ? "FAILED   " : "passed   ");
+		oss << (fail ? "FAILED   " : "passed   ");
 		for (j=0; j<md.DigestSize(); j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-		std::cout << "   \"" << (char *)testSet[i].input << '\"';
+			oss << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+		oss << "   \"" << (char *)testSet[i].input << '\"';
 		if (testSet[i].repeatTimes != 1)
-			std::cout << " repeated " << std::dec << testSet[i].repeatTimes << " times";
-		std::cout  << std::endl;
+			oss << " repeated " << std::dec << testSet[i].repeatTimes << " times";
+		oss  << std::endl;
 	}
 
+	std::cout << oss.str();
 	return pass;
 }
 
@@ -407,21 +407,19 @@ bool ValidateMD5MAC()
 		{0x18,0xe3,0x49,0xa5,0x24,0x44,0xb3,0x0e,0x5e,0xba,0x5a,0xdd,0xdc,0xd9,0xf1,0x8d},
 		{0xf2,0xb9,0x06,0xa5,0xb8,0x4b,0x9b,0x4b,0xbe,0x95,0xed,0x32,0x56,0x4e,0xe7,0xeb}}};
 
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
-
 	byte digest[MD5MAC::DIGESTSIZE];
 	bool pass=true, fail;
+	std::ostringstream oss;
 
-	std::cout << "\nMD5MAC validation suite running...\n";
+	oss << "\nMD5MAC validation suite running...\n";
 
 	for (int k=0; k<2; k++)
 	{
 		MD5MAC mac(keys[k]);
-		std::cout << "\nKEY: ";
+		oss << "\nKEY: ";
 		for (int j=0;j<MD5MAC::KEYLENGTH;j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
-		std::cout << std::endl << std::endl;
+			oss << std::setw(2) << std::setfill('0') << std::hex << (int)keys[k][j];
+		oss << std::endl << std::endl;
 		for (int i=0;i<7;i++)
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
@@ -429,13 +427,14 @@ bool ValidateMD5MAC()
 			fail = !!memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
-			std::cout << (fail ? "FAILED   " : "passed   ");
+			oss << (fail ? "FAILED   " : "passed   ");
 			for (int j=0;j<MD5MAC::DIGESTSIZE;j++)
-				std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-			std::cout << "   \"" << TestVals[i] << '\"' << std::endl;
+				oss << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+			oss << "   \"" << TestVals[i] << '\"' << std::endl;
 		}
 	}
 
+	std::cout << oss.str();
 	return pass;
 }
 #endif
@@ -540,13 +539,11 @@ bool ValidateTTMAC()
 		{0x54,0xba,0xc3,0x92,0xa8,0x86,0x80,0x6d,0x16,0x95,0x56,0xfc,0xbb,0x67,0x89,0xb5,0x4f,0xb3,0x64,0xfb},
 		{0x0c,0xed,0x2c,0x9f,0x8f,0x0d,0x9d,0x03,0x98,0x1a,0xb5,0xc8,0x18,0x4b,0xac,0x43,0xdd,0x54,0xc4,0x84}};
 
-	// Coverity finding, also see http://stackoverflow.com/a/34509163/608639.
-	StreamState ss(std::cout);
-
 	byte digest[TTMAC::DIGESTSIZE];
 	bool pass=true, fail;
+	std::ostringstream oss;
 
-	std::cout << "\nTwo-Track-MAC validation suite running...\n";
+	oss << "\nTwo-Track-MAC validation suite running...\n";
 
 	TTMAC mac(key, sizeof(key));
 	for (unsigned int k = 0; k<COUNTOF(TestVals); k++)
@@ -556,12 +553,13 @@ bool ValidateTTMAC()
 		fail = !!memcmp(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
-		std::cout << (fail ? "FAILED   " : "passed   ");
+		oss << (fail ? "FAILED   " : "passed   ");
 		for (int j=0;j<TTMAC::DIGESTSIZE;j++)
-			std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
-		std::cout << "   \"" << TestVals[k] << '\"' << std::endl;
+			oss << std::setw(2) << std::setfill('0') << std::hex << (int)digest[j];
+		oss << "   \"" << TestVals[k] << '\"' << std::endl;
 	}
 
+	std::cout << oss.str();
 	return true;
 }
 
