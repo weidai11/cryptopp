@@ -18,7 +18,7 @@ USING_NAMESPACE(std)
 #endif
 
 // Used for testing the compiler and linker in cryptest.sh
-#if defined(CRYPTOPP_ADHOC_MAIN)
+#if defined(CRYPTOPP_ADHOC_MAIN) || defined(ADHOC_MAIN)
 
 int main(int argc, char *argv[])
 {
