@@ -28,6 +28,8 @@ if ! cmake ../; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+make clean 2>/dev/null
+
 if ! make -j2 -f Makefile VERBOSE=1; then
 	echo "make failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1

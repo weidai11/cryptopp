@@ -83,6 +83,8 @@ if ! ./configure; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+make clean 2>/dev/null
+
 if ! "$MAKE" -j2 -f Makefile; then
 	echo "make failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
