@@ -140,23 +140,32 @@ before_install:
         TestScripts/install-android.sh
     fi
 
+# xattr is OS X only and is used to remove quarantine bits
+# from executables. We don't know how to tell the YML script
+# to run xattr on OS X only. Silently eat the failure on Linux.
 script:
   - |
     if [[ "$BUILD_MODE" == "ios" ]]; then
         cp ./TestScripts/setenv-ios.sh .
         cp ./TestScripts/cryptest-ios.sh .
         chmod +x *.sh
+        xattr -r -d com.apple.quarantine *.sh 2>/dev/null
         ./cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
         cp ./TestScripts/setenv-android-gcc.sh .
         cp ./TestScripts/cryptest-android.sh .
         chmod +x *.sh
+        xattr -r -d com.apple.quarantine *.sh 2>/dev/null
         ./cryptest-android.sh
     elif [[ "$BUILD_MODE" == "autotools" ]]; then
         cp ./TestScripts/cryptest-autotools.sh .
+        chmod +x *.sh
+        xattr -r -d com.apple.quarantine *.sh 2>/dev/null
         ./cryptest-autotools.sh
     elif [[ "$BUILD_MODE" == "cmake" ]]; then
         cp ./TestScripts/cryptest-cmake.sh .
+        chmod +x *.sh
+        xattr -r -d com.apple.quarantine *.sh 2>/dev/null
         ./cryptest-cmake.sh
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
