@@ -394,8 +394,7 @@ ifeq ($(IS_ARMV8),1)
   endif
 endif
 
-# PowerPC and PowerPC-64
-# Altivec is available with Power4
+# PowerPC and PowerPC-64. Altivec is available with Power4
 ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
   # GCC and some compatibles
   HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power4 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
@@ -452,6 +451,12 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SIMON_FLAG = -qarch=pwr8 -qaltivec
     SPECK_FLAG = -qarch=pwr8 -qaltivec
     SM4_FLAG = -qarch=pwr8 -qaltivec
+  endif
+  # More stupid LLVM games, with Clang pretending to be the wrong compiler.
+  # https://lists.tetaneutral.net/pipermail/cfarm-users/2018-July/000331.html
+  HAVE_COMPAT = $(shell $(CXX) $(CXXFLAGS) -qxlcompatmacros adhoc.cpp.proto 2>&1 | $(GREP) -i -c -E 'illegal|not supported')
+  ifeq ($(HAVE_COMPAT),0)
+    CXXFLAGS += -qxlcompatmacros
   endif
 endif
 
