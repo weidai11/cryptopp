@@ -52,6 +52,16 @@ endif
 #   Android and embedded users typically don't run this configuration.
 HAS_SOLIB_VERSION ?= 0
 
+# Formely adhoc.cpp was created from adhoc.cpp.proto when needed.
+# This is now needed because ISA tests are performed using adhoc.cpp.
+ifeq ($(wildcard adhoc.cpp),)
+$(shell cp adhoc.cpp.proto adhoc.cpp)
+endif
+
+###########################################################
+#####                General Variables                #####
+###########################################################
+
 # Default prefix for make install
 ifeq ($(PREFIX),)
 PREFIX = /usr/local
@@ -83,6 +93,10 @@ ifneq ($(CLANG_COMPILER),0)
 CXXFLAGS += -Wall
 endif
 
+###########################################################
+#####                       iOS                       #####
+###########################################################
+
 # iOS cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/iOS_(Command_Line).
 ifeq ($(IS_IOS),1)
@@ -95,6 +109,10 @@ ifeq ($(IS_IOS),1)
   ARFLAGS = -static -o
   RANLIB = ranlib
 endif
+
+###########################################################
+#####                     Android                     #####
+###########################################################
 
 # Android cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
@@ -117,6 +135,10 @@ ifeq ($(IS_ANDROID),1)
   AOSP_CPU_OBJ = cpu-features.o
 endif
 
+###########################################################
+#####                    Embedded                     #####
+###########################################################
+
 # ARM embedded cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line)
 #   and http://www.cryptopp.com/wiki/ARM_Embedded_(Bare Metal).
@@ -124,6 +146,10 @@ ifeq ($(IS_ARM_EMBEDDED),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-embedded.sh'
   CXXFLAGS += $(ARM_EMBEDDED_FLAGS) --sysroot=$(ARM_EMBEDDED_SYSROOT)
 endif
+
+###########################################################
+#####                      Common                     #####
+###########################################################
 
 # No ASM for Travis testing
 ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
@@ -320,6 +346,10 @@ ifneq ($(IS_i686)$(IS_x86_64),00)
   endif
 endif
 
+###########################################################
+#####              Source and object files            #####
+###########################################################
+
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
 SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp winpipes.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
 # For Makefile.am; resource.h is Windows
@@ -362,11 +392,15 @@ SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
+###########################################################
+#####                Targets and Recipes              #####
+###########################################################
+
 # Default builds program with static library only
 .PHONY: default
 default: cryptest.exe
 
-.PHONY: all
+.PHONY: all static dynamic
 all: static dynamic cryptest.exe
 
 ifneq ($(IS_IOS),0)

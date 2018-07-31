@@ -95,6 +95,12 @@ HAS_SOLIB_VERSION := $(IS_LINUX)
 # Newlib needs _XOPEN_SOURCE=600 for signals
 HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c "__NEWLIB__")
 
+# Formely adhoc.cpp was created from adhoc.cpp.proto when needed.
+# This is now needed because ISA tests are performed using adhoc.cpp.
+ifeq ($(wildcard adhoc.cpp),)
+$(shell cp adhoc.cpp.proto adhoc.cpp)
+endif
+
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -751,15 +757,15 @@ DLLTESTOBJS := dlltest.dllonly.o
 .PHONY: default
 default: cryptest.exe
 
-.PHONY: all
+.PHONY: all static dynamic
 all: static dynamic cryptest.exe
 
 ifneq ($(IS_DARWIN),0)
-static: adhoc.cpp libcryptopp.a
-shared dynamic dylib: adhoc.cpp libcryptopp.dylib
+static: libcryptopp.a
+shared dynamic dylib: libcryptopp.dylib
 else
-static: adhoc.cpp libcryptopp.a
-shared dynamic: adhoc.cpp libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+static: libcryptopp.a
+shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 .PHONY: dep deps depend
@@ -951,7 +957,7 @@ endif
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
-cryptest.exe: adhoc.cpp libcryptopp.a $(TESTOBJS)
+cryptest.exe:libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
