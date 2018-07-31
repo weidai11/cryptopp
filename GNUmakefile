@@ -93,7 +93,7 @@ SUNCC_513_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (S
 HAS_SOLIB_VERSION := $(IS_LINUX)
 
 # Newlib needs _XOPEN_SOURCE=600 for signals
-HAS_NEWLIB := $(shell $(CXX) -x c++ $(CXXFLAGS) -dM -E adhoc.cpp.proto 2>&1 | $(GREP) -i -c "__NEWLIB__")
+HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c "__NEWLIB__")
 
 ###########################################################
 #####                General Variables                #####
@@ -223,7 +223,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   endif
 endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
-  HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(GREP) -i -c __SSSE3__)
+  HAVE_SSSE3 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     CHAM_FLAG = -mssse3
@@ -234,28 +234,28 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
     SPECK_FLAG = -mssse3
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
-  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -dM -E - 2>/dev/null | $(GREP) -i -c __SSE4_1__)
+  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSE4_1__)
   ifeq ($(HAVE_SSE4),1)
     BLAKE2_FLAG = -msse4.1
     SIMON_FLAG = -msse4.1
     SPECK_FLAG = -msse4.1
   endif
-  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(GREP) -i -c __SSE4_2__)
+  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSE4_2__)
   ifeq ($(HAVE_SSE4),1)
     CRC_FLAG = -msse4.2
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
-  HAVE_CLMUL = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | $(GREP) -i -c __PCLMUL__ )
+  HAVE_CLMUL = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -mpclmul -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __PCLMUL__ )
   ifeq ($(HAVE_CLMUL),1)
     GCM_FLAG = -mssse3 -mpclmul
   endif
-  HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(GREP) -i -c __AES__)
+  HAVE_AES = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -maes -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __AES__)
   ifeq ($(HAVE_AES),1)
     AES_FLAG = -msse4.1 -maes
     SM4_FLAG = -mssse3 -maes
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHANI,$(CXXFLAGS)),)
-  HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(GREP) -i -c __SHA__)
+  HAVE_SHA = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -msha -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
     SHA_FLAG = -msse4.2 -msha
   endif
@@ -347,7 +347,7 @@ else
 ###########################################################
 
 ifeq ($(IS_NEON),1)
-  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E - 2>/dev/null | $(GREP) -i -c -E '\<__ARM_NEON\>')
+  HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '\<__ARM_NEON\>')
   ifeq ($(HAVE_NEON),1)
     NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -366,7 +366,7 @@ ifeq ($(IS_NEON),1)
 endif
 
 ifeq ($(IS_ARMV8),1)
-  HAVE_NEON = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_NEON)
+  HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_NEON)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
@@ -378,17 +378,17 @@ ifeq ($(IS_ARMV8),1)
     SPECK_FLAG = -march=armv8-a
     SM4_FLAG = -march=armv8-a
   endif
-  HAVE_CRC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRC32)
+  HAVE_CRC = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crc -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRC32)
   ifeq ($(HAVE_CRC),1)
     CRC_FLAG = -march=armv8-a+crc
   endif
-  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crypto -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_CRYPTO),1)
     AES_FLAG = -march=armv8-a+crypto
     GCM_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
   endif
-  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8.4-a+crypto -dM -E - 2>/dev/null | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8.4-a+crypto -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_CRYPTO),1)
     SM4_FLAG = -march=armv8.4-a+crypto
   endif
@@ -397,7 +397,7 @@ endif
 # PowerPC and PowerPC-64. Altivec is available with Power4
 ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
   # GCC and some compatibles
-  HAVE_ALTIVEC = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power4 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power4 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -mcpu=power4 -maltivec
     ARIA_FLAG = -mcpu=power4 -maltivec
@@ -410,7 +410,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SM4_FLAG = -mcpu=power7 -maltivecs
   endif
   # GCC and some compatibles
-  HAVE_CRYPTO = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E - 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power8 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_CRYPTO),0)
     ALTIVEC_FLAG = -mcpu=power8 -maltivec
     AES_FLAG = -mcpu=power8 -maltivec
@@ -424,7 +424,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SM4_FLAG = -mcpu=power8 -maltivec
   endif
   # IBM XL C/C++
-  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = -qarch=pwr7 -qaltivec
@@ -437,7 +437,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SM4_FLAG = -qarch=pwr7 -qaltivec
   endif
   # IBM XL C/C++
-  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp.proto 2>/dev/null | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_CRYPTO),0)
     ALTIVEC_FLAG = -qarch=pwr8 -qaltivec
     AES_FLAG = -qarch=pwr8 -qaltivec
@@ -452,16 +452,16 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SPECK_FLAG = -qarch=pwr8 -qaltivec
     SM4_FLAG = -qarch=pwr8 -qaltivec
   endif
-  # More stupid LLVM games, with Clang pretending to be the wrong compiler.
-  # https://lists.tetaneutral.net/pipermail/cfarm-users/2018-July/000331.html
-  HAVE_COMPAT = $(shell $(CXX) $(CXXFLAGS) -qxlcompatmacros adhoc.cpp.proto 2>&1 | $(GREP) -i -c -E 'illegal|not supported')
-  ifeq ($(HAVE_COMPAT),0)
-    CXXFLAGS += -qxlcompatmacros
-  endif
 endif
 
 # IBM XL C/C++ compiler
 ifeq ($(XLC_COMPILER),1)
+  # More stupid LLVM games, with Clang pretending to be a different compiler.
+  # https://lists.tetaneutral.net/pipermail/cfarm-users/2018-July/000331.html
+  HAVE_COMPAT = $(shell $(CXX) $(CXXFLAGS) -qxlcompatmacros adhoc.cpp 2>&1 | $(GREP) -i -c -E 'illegal|not supported')
+  ifeq ($(HAVE_COMPAT),0)
+    CXXFLAGS += -qxlcompatmacros
+  endif
   # http://www-01.ibm.com/support/docview.wss?uid=swg21007500
   ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
     CXXFLAGS += -qrtti
@@ -651,7 +651,7 @@ endif # Valgrind
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-  USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(GREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -E adhoc.cpp 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
@@ -755,11 +755,11 @@ default: cryptest.exe
 all: static dynamic cryptest.exe
 
 ifneq ($(IS_DARWIN),0)
-static: libcryptopp.a
-shared dynamic dylib: libcryptopp.dylib
+static: adhoc.cpp libcryptopp.a
+shared dynamic dylib: adhoc.cpp libcryptopp.dylib
 else
-static: libcryptopp.a
-shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
+static: adhoc.cpp libcryptopp.a
+shared dynamic: adhoc.cpp libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 .PHONY: dep deps depend
@@ -951,7 +951,7 @@ endif
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
-cryptest.exe: libcryptopp.a $(TESTOBJS)
+cryptest.exe: adhoc.cpp libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
@@ -994,7 +994,7 @@ libcryptopp.pc:
 	@echo 'Libs: -L$${libdir} -lcryptopp' >> libcryptopp.pc
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp.proto License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.s *.S *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.cmd
+TEXT_FILES := *.h *.cpp adhoc.cpp License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.s *.S *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.cmd
 EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/ TestScripts/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)

@@ -179,7 +179,7 @@ endif # Valgrind
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-  USING_GLIBCXX := $(shell $(CXX) -x c++ $(CXXFLAGS) -E adhoc.cpp.proto 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -E adhoc.cpp 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
@@ -210,11 +210,11 @@ endif # Dead code stripping
 
 # Pickup ARMv7 and NEON. Do it after Android, iOS and Embedded flags have been set.
 ifeq ($(IS_ARM32),1)
-  IS_ARMv7 := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -dM -E - 2>/dev/null | $(EGREP) -i -c '__ARM_ARCH 7')
+  IS_ARMv7 := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c '__ARM_ARCH 7')
   ifeq ($(IS_ARMv7),1)
     IS_NEON := 1
   else
-    IS_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -dM -E - 2>/dev/null | $(EGREP) -i -c -E '\<__ARM_NEON\>')
+    IS_NEON := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c -E '\<__ARM_NEON\>')
   endif
 endif
 
@@ -257,7 +257,7 @@ endif
 
 # ARMv8-a
 ifneq ($(IS_ARMv8),0)
-  IS_NEON := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_NEON)
+  IS_NEON := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __ARM_NEON)
   ifeq ($(IS_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
@@ -267,17 +267,17 @@ ifneq ($(IS_ARMv8),0)
     SIMON_FLAG = -march=armv8-a
     SPECK_FLAG = -march=armv8-a
   endif
-  HAVE_CRC := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crc -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRC32)
+  HAVE_CRC := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crc -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __ARM_FEATURE_CRC32)
   ifeq ($(HAVE_CRC),1)
     CRC_FLAG = -march=armv8-a+crc
   endif
-  HAVE_CRYPTO := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8-a+crypto -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crypto -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_CRYPTO),1)
     AES_FLAG = -march=armv8-a+crypto
     GCM_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
   endif
-  HAVE_CRYPTO := $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -march=armv8.4-a+crypto -dM -E - 2>/dev/null | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8.4-a+crypto -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_CRYPTO),1)
     SM4_FLAG = -march=armv8.4-a+crypto
   endif
@@ -285,7 +285,7 @@ endif
 
 # i686 and x86_64
 ifneq ($(IS_i686)$(IS_x86_64),00)
-  HAVE_SSSE3 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSSE3__)
+  HAVE_SSSE3 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -dM -E adhoc.cpp 2>&1 |  $(EGREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     CHAM_FLAG = -mssse3
@@ -295,26 +295,26 @@ ifneq ($(IS_i686)$(IS_x86_64),00)
     SIMON_FLAG = -mssse3
     SPECK_FLAG = -mssse3
   endif
-  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSE4_1__)
+  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __SSE4_1__)
   ifeq ($(HAVE_SSE4),1)
     SIMON_FLAG = -msse4.1
     SPECK_FLAG = -msse4.1
   endif
-  HAVE_SSE4 = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -dM -E - 2>/dev/null | $(EGREP) -i -c __SSE4_2__)
+  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __SSE4_2__)
   ifeq ($(HAVE_SSE4),1)
     BLAKE2_FLAG = -msse4.2
     CRC_FLAG = -msse4.2
   endif
-  HAVE_CLMUL = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -mssse3 -mpclmul -dM -E - 2>/dev/null | $(EGREP) -i -c __PCLMUL__ )
+  HAVE_CLMUL = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -mpclmul -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __PCLMUL__ )
   ifeq ($(HAVE_CLMUL),1)
     GCM_FLAG = -mssse3 -mpclmul
   endif
-  HAVE_AES = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.1 -maes -dM -E - 2>/dev/null | $(EGREP) -i -c __AES__)
+  HAVE_AES = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -maes -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __AES__)
   ifeq ($(HAVE_AES),1)
     AES_FLAG = -msse4.1 -maes
     SM4_FLAG = -mssse3 -maes
   endif
-  HAVE_SHA = $(shell echo | $(CXX) -x c++ $(CXXFLAGS) -msse4.2 -msha -dM -E - 2>/dev/null | $(EGREP) -i -c __SHA__)
+  HAVE_SHA = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -msha -dM -E adhoc.cpp 2>&1 | $(EGREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
     SHA_FLAG = -msse4.2 -msha
   endif
