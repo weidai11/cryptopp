@@ -48,8 +48,26 @@ fi
 
 mkdir -p m4/
 
-if [[ ! -z $(command -v autoupdate) ]]; then
-	autoupdate
+if [[ -z $(command -v autoupdate) ]]; then
+	echo "Cannot find autoupdate. Things will probably fail."
+fi
+
+if [[ -z $(command -v libtoolize) ]]; then
+	echo "Cannot find libtoolize. Things will probably fail."
+fi
+
+if [[ -z $(command -v autoreconf) ]]; then
+	echo "Cannot find autoreconf. Things will probably fail."
+fi
+
+if ! autoupdate; then
+	echo "autoupdate failed."
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
+if ! libtoolize -fi; then
+	echo "libtoolize failed."
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 if ! autoreconf -fi --warnings=all; then
