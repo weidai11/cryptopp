@@ -461,14 +461,6 @@ ifeq ($(XLC_COMPILER),1)
   ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
     CXXFLAGS += -qrtti
   endif
-  HAVE_BITS=$(shell echo $(CXXFLAGS) | $(GREP) -i -c -E '\-q32|\-q64')
-  ifeq ($(IS_PPC64)$(XLC_COMPILER)$(HAVE_BITS),110)
-    CXXFLAGS += -q64
-  else
-  ifeq ($(IS_PPC32)$(XLC_COMPILER)$(HAVE_BITS),110)
-    CXXFLAGS += -q32
-  endif
-  endif
 endif
 
 endif  # X86, X64, ARM32, ARM64, PPC32, PPC64, etc
