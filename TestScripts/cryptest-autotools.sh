@@ -49,15 +49,15 @@ fi
 mkdir -p m4/
 
 if [[ -z $(command -v autoupdate) ]]; then
-	echo "Cannot find autoupdate. Things will probably fail."
+	echo "Cannot find autoupdate. Things may fail."
 fi
 
 if [[ -z $(command -v libtoolize) ]]; then
-	echo "Cannot find libtoolize. Things will probably fail."
+	echo "Cannot find libtoolize. Things may fail."
 fi
 
 if [[ -z $(command -v autoreconf) ]]; then
-	echo "Cannot find autoreconf. Things will probably fail."
+	echo "Cannot find autoreconf. Things may fail."
 fi
 
 if ! autoupdate; then
@@ -65,38 +65,37 @@ if ! autoupdate; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! libtoolize -fi; then
-	echo "libtoolize failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
-
-if ! autoreconf -fi --warnings=all; then
-	echo "autoreconf failed, running again."
+if ! autoreconf -fi; then
+	echo "autoreconf failed, running libtoolize."
+	if ! libtoolize -fi; then
+		echo "libtoolize failed."
+		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	fi
 	if ! autoreconf -vfi; then
-		echo "autoreconf failed"
+		echo "autoreconf failed, again."
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
 fi
 
 if ! ./configure; then
-	echo "configure failed"
+	echo "configure failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 make clean 2>/dev/null
 
 if ! "$MAKE" -j2 -f Makefile; then
-	echo "make failed"
+	echo "make failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 if ! ./cryptestcwd v; then
-	echo "cryptestcwd v failed"
+	echo "cryptestcwd v failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 if ! ./cryptestcwd tv all; then
-	echo "cryptestcwd tv all failed"
+	echo "cryptestcwd tv all failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
