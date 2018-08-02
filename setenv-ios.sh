@@ -195,12 +195,12 @@ fi
 
 # https://github.com/weidai11/cryptopp/issues/635
 if [ "$APPLE_SDK" == "iPhoneSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_SSSE3"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator fixup. LD fails to link dylib.
 if [ "$APPLE_SDK" == "iPhoneSimulator" ] && [ "$IOS_ARCH" == "i386" ]; then
-  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=5"
+  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=5 -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # ARMv7s fixup. Xcode 4/iOS 6
@@ -220,7 +220,17 @@ fi
 
 # ARM64 Simulator fixup. Under Xcode 6/iOS 8, it uses x86_64 and not i386
 if [ "$IOS_ARCH" == "x86_64" ]; then
-  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=8"
+  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=8 -DCRYPTOPP_DISABLE_ASM"
+fi
+
+# Disable ASM for simulator
+if [ "$APPLE_SDK" == "WatchSimulator" ]; then
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
+fi
+
+# Disable ASM for simulator
+if [ "$APPLE_SDK" == "AppleTVSimulator" ]; then
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
