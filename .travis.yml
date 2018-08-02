@@ -167,32 +167,21 @@ before_install:
         sudo apt-get install -y autoconf automake libtool
     fi
 
-# xattr is OS X only and is used to remove quarantine bits
-# from executables. We don't know how to tell the YML script
-# to run xattr on OS X only. Silently eat the failure on Linux.
 script:
   - |
     if [[ "$BUILD_MODE" == "ios" ]]; then
-        cp TestScripts/setenv-ios.sh "${PWD}"
-        cp TestScripts/cryptest-ios.sh "${PWD}"
-        chmod +x *.sh
-        xattr -r -d com.apple.quarantine "${PWD}" 2>/dev/null
+        cp TestScripts/setenv-ios.sh .
+        cp TestScripts/cryptest-ios.sh .
         bash cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
-        cp TestScripts/setenv-android-gcc.sh "${PWD}"
-        cp TestScripts/cryptest-android.sh "${PWD}"
-        chmod +x *.sh
-        xattr -r -d com.apple.quarantine "${PWD}" 2>/dev/null
+        cp TestScripts/setenv-android-gcc.sh .
+        cp TestScripts/cryptest-android.sh .
         bash cryptest-android.sh
     elif [[ "$BUILD_MODE" == "autotools" ]]; then
-        cp TestScripts/cryptest-autotools.sh "${PWD}"
-        chmod +x *.sh
-        xattr -r -d com.apple.quarantine "${PWD}" 2>/dev/null
+        cp TestScripts/cryptest-autotools.sh .
         bash cryptest-autotools.sh
     elif [[ "$BUILD_MODE" == "cmake" ]]; then
-        cp TestScripts/cryptest-cmake.sh "${PWD}"
-        chmod +x *.sh
-        xattr -r -d com.apple.quarantine "${PWD}" 2>/dev/null
+        cp TestScripts/cryptest-cmake.sh .
         bash cryptest-cmake.sh
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
