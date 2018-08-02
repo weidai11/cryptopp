@@ -51,7 +51,7 @@ NAMESPACE_BEGIN(Test)
 bool ValidateRSA_Sign()
 {
 	// Must be large enough for RSA-3072 to test SHA3_256
-	byte out[256], outPlain[128];
+	byte out[256];
 	bool pass = true, fail;
 
 	{
