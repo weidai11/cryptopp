@@ -274,6 +274,7 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 # endif
 #endif
 }
+
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
 /// \param src the vector

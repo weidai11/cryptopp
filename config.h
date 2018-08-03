@@ -769,13 +769,6 @@ NAMESPACE_END
 # endif
 #endif
 
-// We need Power5 for 'vector unsigned long long'
-#if !defined(CRYPTOPP_POWER5_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER5) && defined(CRYPTOPP_ALTIVEC_AVAILABLE)
-# if defined(_ARCH_PWR5) || (CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40100)
-#  define CRYPTOPP_POWER5_AVAILABLE 1
-# endif
-#endif
-
 // We need Power7 for unaligned loads and stores
 #if !defined(CRYPTOPP_POWER7_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER7) && defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(_ARCH_PWR7) || (CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40100)
@@ -783,7 +776,7 @@ NAMESPACE_END
 # endif
 #endif
 
-// We need Power8 for in-core crypto
+// We need Power8 for in-core crypto and 64-bit vector types
 #if !defined(CRYPTOPP_POWER8_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER8) && defined(CRYPTOPP_POWER7_AVAILABLE)
 # if defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || (CRYPTOPP_GCC_VERSION >= 40800)
 #  define CRYPTOPP_POWER8_AVAILABLE 1
