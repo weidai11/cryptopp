@@ -6,12 +6,6 @@
 //    is needed because additional CXXFLAGS are required to enable the
 //    appropriate instructions sets in some build configurations.
 
-// TODO: we still need to implement Power8 SHA. Once we have Power8 SHA,
-//    we should be able to use CRYPTOPP_POWER8_AES_AVAILABLE and
-//    CRYPTOPP_POWER8_SHA_AVAILABLE instead of the broader
-//    CRYPTOPP_POWER8_AVAILABLE. The change will need to be coordinated
-//    with the defines in config.h.
-
 // TODO: Bob Wilkinson reported we are misdetecting CRYPTOPP_POWER8_AVAILABLE.
 //    The problem is, the updated compiler supports them but the down-level
 //    assembler and linker do not. We will probably need to fix it through
