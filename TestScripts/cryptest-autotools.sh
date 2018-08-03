@@ -27,7 +27,18 @@ if [[ ! -z $(command -v gmake) ]]; then
 	MAKE=gmake
 fi
 
-# Feth the three required files
+# Fixup for missing libtool
+if [[ ! -z $(command -v libtoolize) ]]; then
+	LIBTOOLIZE=$(command -v libtoolize)
+elif [[ ! -z $(command -v glibtoolize) ]]; then
+	LIBTOOLIZE=$(command -v glibtoolize)
+elif [[ ! -z $(command -v libtool) ]]; then
+	LIBTOOLIZE=$(command -v libtool)
+elif [[ ! -z $(command -v glibtool) ]]; then
+	LIBTOOLIZE=$(command -v glibtool)
+fi
+
+# Fecth the three required files
 if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/Makefile.am -O Makefile.am; then
 	echo "Makefile.am download failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
@@ -43,16 +54,13 @@ if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryp
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-# Run autoreconf twice on failure. Also see
-# https://github.com/tracebox/tracebox/issues/57
-
 mkdir -p m4/
 
 if [[ -z $(command -v autoupdate) ]]; then
 	echo "Cannot find autoupdate. Things may fail."
 fi
 
-if [[ -z $(command -v libtoolize) ]]; then
+if [[ -z "$LIBTOOLIZE" ]]; then
 	echo "Cannot find libtoolize. Things may fail."
 fi
 
@@ -65,13 +73,16 @@ if ! autoupdate; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! autoreconf -fi; then
-	echo "autoreconf failed, running libtoolize."
-	if ! libtoolize -fi; then
-		echo "libtoolize failed."
-		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-	fi
-	if ! autoreconf -vfi; then
+if ! "$LIBTOOLIZE"; then
+	echo "libtoolize failed."
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
+# Run autoreconf twice on failure. Also see
+# https://github.com/tracebox/tracebox/issues/57
+if ! autoreconf; then
+	echo "autoreconf failed, running again."
+	if ! autoreconf -fi; then
 		echo "autoreconf failed, again."
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
