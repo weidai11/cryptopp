@@ -7,16 +7,19 @@
 #include "rdrand.h"
 #include "cpu.h"
 
-// This file (and friends) provides both RDRAND and RDSEED. They were added at
-//   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
-//   to select an implementation or "throw NotImplemented". The class does not
-//   determine if RDRAND or RDSEED are available at runtime. If not available,
-//   then a SIGILL will result. Users of the classes should call HasRDRAND()
-//   or HasRDSEED() to determine if a generator is available.
+// This file (and friends) provides both RDRAND and RDSEED. They were added
+//   at Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
+//   to select an implementation or throws "NotImplemented". Users of the
+//   classes should call HasRDRAND() or HasRDSEED() to determine if a
+//   generator is available at runtime.
 // The original classes accepted a retry count. Retries were superflous for
 //   RDRAND, and RDSEED encountered a failure about 1 in 256 bytes depending
 //   on the processor. Retries were removed at Crypto++ 6.0 because
 //   GenerateBlock unconditionally retries and always fulfills the request.
+// Intel recommends using a retry count in case RDRAND or RDSEED circuit
+//   is bad. This implemenation does not follow the advice and requires
+//   good silicon. If the circuit or processor is bad then the user has
+//   bigger problems than generating random numbers.
 
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
