@@ -161,11 +161,15 @@ bool CPU_ProbePower8()
         result = false;
     else
     {
-        byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
-        const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1+3);
-        VectorStore(v1, b2+1);
+        // POWER8 added 64-bit SIMD operations
+        const word64 m = W64LIT(0xffffffffffffffff);
+        word64 w1[2] = {m, m}, w2[2] = {3, 4}, w3[2];
+        const uint64x2_p v1 = (uint64x2_p)VectorLoad(0, w1);
+        const uint64x2_p v2 = (uint64x2_p)VectorLoad(0, w2);
+        VectorStore(VectorAdd(v1, v2), w3);
 
-        result = (0 == std::memcmp(b1+3, b2+1, 16));
+        // The 64-bit add will overflow.
+        result = (w3[0] == 2 && w3[1] == 3);
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
