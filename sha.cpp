@@ -1186,7 +1186,7 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
     CRYPTOPP_ASSERT(state);
     CRYPTOPP_ASSERT(data);
 
-    word64 W[16]={0}, D[16], T[8];
+    word64 W[16]={0}, T[8];
 
     /* Copy context->state[] to working vars */
     std::memcpy(T, state, sizeof(T));

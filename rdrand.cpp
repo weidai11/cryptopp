@@ -59,6 +59,7 @@ NAMESPACE_BEGIN(CryptoPP)
 // Fills 4 bytes
 inline void RDRAND32(void* output)
 {
+    CRYPTOPP_UNUSED(output);  // MSC warning
 #if defined(GCC_RDRAND_ASM_AVAILABLE)
     __asm__ __volatile__
     (
@@ -75,6 +76,7 @@ inline void RDRAND32(void* output)
 // Fills 8 bytes
 inline void RDRAND64(void* output)
 {
+    CRYPTOPP_UNUSED(output);  // MSC warning
 #if defined(GCC_RDRAND_ASM_AVAILABLE)
     __asm__ __volatile__
     (
@@ -163,6 +165,7 @@ void RDRAND::DiscardBytes(size_t n)
 // Fills 4 bytes
 inline void RDSEED32(void* output)
 {
+    CRYPTOPP_UNUSED(output);  // MSC warning
 #if defined(GCC_RDSEED_ASM_AVAILABLE)
     __asm__ __volatile__
     (
@@ -179,6 +182,7 @@ inline void RDSEED32(void* output)
 // Fills 8 bytes
 inline void RDSEED64(void* output)
 {
+    CRYPTOPP_UNUSED(output);  // MSC warning
 #if defined(GCC_RDSEED_ASM_AVAILABLE)
     __asm__ __volatile__
     (
