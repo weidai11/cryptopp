@@ -125,9 +125,16 @@ bool CPU_ProbePower7()
         result = false;
     else
     {
+        // POWER7 added unaligned loads and store operations
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
-        const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1+3);
-        VectorStore(v1, b2+1);
+
+        // Specifically call the VSX loads and stores
+        #if defined(__xlc__) || defined(__xlC__)
+        vec_xst(vec_xl(0, b1+3), 0, b2+1);
+        #else
+        vec_vsx_st(vec_vsx_ld(0, b1+3), 0, b2+1);
+        #endif
+
         result = (0 == std::memcmp(b1+3, b2+1, 16));
     }
 
@@ -164,14 +171,24 @@ bool CPU_ProbePower8()
     else
     {
         // POWER8 added 64-bit SIMD operations
-        const word64 m = W64LIT(0xffffffffffffffff);
-        word64 w1[2] = {m, m}, w2[2] = {3, 4}, w3[2];
-        const uint64x2_p v1 = (uint64x2_p)VectorLoad(0, (byte*)w1);
-        const uint64x2_p v2 = (uint64x2_p)VectorLoad(0, (byte*)w2);
+        const word64 x = W64LIT(0xffffffffffffffff);
+        word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
 
-        word64 w[2];
-        VectorStore(VectorAdd(v1, v2), (byte*)w);
-        result = (w[0] == 2 && w[1] == 3);
+        // Specifically call the VSX loads and stores
+        #if defined(__xlc__) || defined(__xlC__)
+        const uint64x2_p v1 = (uint64x2_p)vec_xl(0, (byte*)w1);
+        const uint64x2_p v2 = (uint64x2_p)vec_xl(0, (byte*)w2);
+        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
+        vec_xst((uint8x16_p)v3, 0, (byte*)w3);
+        #else
+        const uint64x2_p v1 = (uint64x2_p)vec_vsx_ld(0, (byte*)w1);
+        const uint64x2_p v2 = (uint64x2_p)vec_vsx_ld(0, (byte*)w2);
+        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
+        vec_vsx_st((uint8x16_p)v3, 0, (byte*)w3);
+        #endif
+
+        // Relies on integer wrap
+        result = (w3[0] == 3 && w3[1] == 5);
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
