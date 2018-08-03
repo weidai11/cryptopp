@@ -59,7 +59,7 @@ bool CPU_ProbeAltivec()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE) || (CRYPTOPP_POWER7_AVAILABLE) || (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -78,14 +78,17 @@ bool CPU_ProbeAltivec()
         result = false;
     else
     {
+        CRYPTOPP_ALIGN_DATA(16)
         const byte b1[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+        CRYPTOPP_ALIGN_DATA(16)
         const byte b2[16] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
-        byte b3[16];
+        CRYPTOPP_ALIGN_DATA(16) byte b3[16];
 
-        const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1);
-        const uint8x16_p v2 = (uint8x16_p)VectorLoad(0, b2);
-        const uint8x16_p v3 = (uint8x16_p)VectorXor(v1, v2);
-        VectorStore(v3, b3);
+        // Specifically call the Altivec loads and stores
+        const uint8x16_p v1 = (uint8x16_p)vec_ld(0, (byte*)b1);
+        const uint8x16_p v2 = (uint8x16_p)vec_ld(0, (byte*)b2);
+        const uint8x16_p v3 = (uint8x16_p)vec_xor(v1, v2);
+        vec_st(v3, 0, b3);
 
         result = (0 == std::memcmp(b2, b3, 16));
     }
@@ -103,7 +106,7 @@ bool CPU_ProbePower7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_POWER7_AVAILABLE)
+#elif (CRYPTOPP_POWER7_AVAILABLE) || (CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -125,7 +128,6 @@ bool CPU_ProbePower7()
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
         const uint8x16_p v1 = (uint8x16_p)VectorLoad(0, b1+3);
         VectorStore(v1, b2+1);
-
         result = (0 == std::memcmp(b1+3, b2+1, 16));
     }
 
@@ -164,12 +166,12 @@ bool CPU_ProbePower8()
         // POWER8 added 64-bit SIMD operations
         const word64 m = W64LIT(0xffffffffffffffff);
         word64 w1[2] = {m, m}, w2[2] = {3, 4}, w3[2];
-        const uint64x2_p v1 = (uint64x2_p)VectorLoad(0, w1);
-        const uint64x2_p v2 = (uint64x2_p)VectorLoad(0, w2);
-        VectorStore(VectorAdd(v1, v2), w3);
+        const uint64x2_p v1 = (uint64x2_p)VectorLoad(0, (byte*)w1);
+        const uint64x2_p v2 = (uint64x2_p)VectorLoad(0, (byte*)w2);
 
-        // The 64-bit add will overflow.
-        result = (w3[0] == 2 && w3[1] == 3);
+        word64 w[2];
+        VectorStore(VectorAdd(v1, v2), (byte*)w);
+        result = (w[0] == 2 && w[1] == 3);
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
