@@ -413,7 +413,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
     SIMON_FLAG = -mcpu=power4 -maltivec
     SPECK_FLAG = -mcpu=power4 -maltivec
     SIMECK_FLAG = -mcpu=power4 -maltivec
-    SM4_FLAG = -mcpu=power7 -maltivecs
+    SM4_FLAG = -mcpu=power7 -maltivec
   endif
   # GCC and some compatibles
   HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power8 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
