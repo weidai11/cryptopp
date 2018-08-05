@@ -392,11 +392,6 @@ SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif # HAS_SOLIB_VERSION
 
-# GNUmakefile-cross does not build the docs. But keep this variable
-# in case the distclean recipe from the GNUmakefile is copied here.
-# It avoids the goodness when $(DOCUMENT_DIRECTORY)/ is empty.
-DOCUMENT_DIRECTORY ?= /tmp/cryptopp
-
 ###########################################################
 #####                Targets and Recipes              #####
 ###########################################################
@@ -457,7 +452,8 @@ distclean: clean autotools-clean cmake-clean
 	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
 	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
 	@-$(RM) -r $(LIBOBJS:.o=.obj) $(TESTOBJS:.o=.obj)
-	@-$(RM) -r TestCoverage/
+	@-$(RM) -r $(LIBOBJS:.o=.lst) $(TESTOBJS:.o=.lst)
+	@-$(RM) -r TestCoverage/ ref*/
 	@-$(RM) cryptopp$(LIB_VER)\.* CryptoPPRef.zip
 
 # Install cryptest.exe, libcryptopp.a and libcryptopp.so.
