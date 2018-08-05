@@ -317,7 +317,7 @@ void DetectX86Features()
 	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27))
 	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
 	{
-#if defined(__GNUC__) || defined(__SUNPRO_CC)
+#if defined(__GNUC__) || defined(__SUNPRO_CC) || defined(__BORLANDC__)
 		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 		// http://www.agner.org/optimize/vectorclass/read.php?i=65
 		word32 a=0, d=0;
