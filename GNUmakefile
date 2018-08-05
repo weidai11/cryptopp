@@ -410,11 +410,10 @@ ifeq ($(IS_ARMV8),1)
   endif
 endif
 
-# PowerPC and PowerPC-64. Altivec is available with Power4.
-# The tests below are crafted for IBM XLC and the LLVM front-end.
-# XLC/LLVM only supplies POWER8. So we set the flags for XLC/LLVM
-# and lower it if POWER7 or ALTIVEC is available. I've got a
-# feeling LLVM is going to cause a lot of troubles.
+# PowerPC and PowerPC-64. Altivec is available with POWER4 with GCC and
+# POWER6 with XLC. The tests below are crafted for IBM XLC and the LLVM
+# front-end. XLC/LLVM only supplies POWER8 so we have to set the flags for
+# XLC/LLVM to POWER8. I've got a feeling LLVM is going to cause trouble.
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
   HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power8 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_POWER8),0)
