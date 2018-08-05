@@ -357,8 +357,9 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
                 d1 = veorq_u64(vextq_u64(t1, t1, 1), x);
                 c0 = veorq_u64(c0, PMULL_00(d1, h0));
                 c2 = veorq_u64(c2, PMULL_10(d1, h1));
-                d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)),
-                                                            vget_low_u32(vreinterpretq_u32_u64(d1))));
+                d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(
+                        vget_high_u32(vreinterpretq_u32_u64(d1)),
+                        vget_low_u32(vreinterpretq_u32_u64(d1))));
                 c1 = veorq_u64(c1, PMULL_00(d1, h2));
 
                 break;
@@ -376,8 +377,9 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
                 d1 = veorq_u64(vextq_u64(t2, t2, 1), x);
                 c0 = veorq_u64(c0, PMULL_01(d1, h0));
                 c2 = veorq_u64(c2, PMULL_11(d1, h1));
-                d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(vget_high_u32(vreinterpretq_u32_u64(d1)),
-                                                            vget_low_u32(vreinterpretq_u32_u64(d1))));
+                d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(
+                        vget_high_u32(vreinterpretq_u32_u64(d1)),
+                        vget_low_u32(vreinterpretq_u32_u64(d1))));
                 c1 = veorq_u64(c1, PMULL_01(d1, h2));
 
                 break;
