@@ -101,6 +101,16 @@ ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
 endif
 
+# Fixup AIX
+ifeq ($(IS_AIX),1)
+  BITNESS=$(shell getconf KERNEL_BITMODE)
+  ifeq ($(BITNESS),64)
+    IS_PPC64=1
+  else
+    IS_PPC32=1
+  endif
+endif
+
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -400,63 +410,93 @@ ifeq ($(IS_ARMV8),1)
   endif
 endif
 
-# PowerPC and PowerPC-64. Altivec is available with Power4
-ifneq ($(IS_PPC32)$(IS_PPC64)$(IS_AIX),000)
+# PowerPC and PowerPC-64. Altivec is available with Power4.
+# The tests below are crafted for IBM XLC and the LLVM front-end.
+# XLC/LLVM only supplies POWER8. So we set the flags for XLC/LLVM
+# and lower it if POWER7 or ALTIVEC is available. I've got a
+# feeling LLVM is going to cause a lot of troubles.
+ifneq ($(IS_PPC32)$(IS_PPC64),00)
+  HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power8 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  ifneq ($(HAVE_POWER8),0)
+    POWER8_FLAG = -mcpu=power8 -maltivec
+    AES_FLAG = $(POWER8_FLAG)
+    GCM_FLAG = $(POWER8_FLAG)
+    SHA_FLAG = $(POWER8_FLAG)
+    SM4_FLAG = $(POWER8_FLAG)
+  endif
+
+  # GCC and some compatibles
+  HAVE_POWER7 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power7 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c '_ARCH_PWR7')
+  ifneq ($(HAVE_POWER7),0)
+    POWER7_FLAG = -mcpu=power7 -maltivec
+    ARIA_FLAG = $(POWER7_FLAG)
+    BLAKE2_FLAG = $(POWER7_FLAG)
+    CHAM_FLAG = $(POWER7_FLAG)
+    LEA_FLAG = $(POWER7_FLAG)
+    SIMON_FLAG = $(POWER7_FLAG)
+    SPECK_FLAG = $(POWER7_FLAG)
+    SIMECK_FLAG = $(POWER7_FLAG)
+  endif
+
   # GCC and some compatibles
   HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power4 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -mcpu=power4 -maltivec
-    ARIA_FLAG = -mcpu=power4 -maltivec
-    BLAKE2_FLAG = -mcpu=power4 -maltivec
-    CHAM_FLAG = -mcpu=power4 -maltivec
-    LEA_FLAG = -mcpu=power4 -maltivec
-    SIMON_FLAG = -mcpu=power4 -maltivec
-    SPECK_FLAG = -mcpu=power4 -maltivec
-    SIMECK_FLAG = -mcpu=power4 -maltivec
-    SM4_FLAG = -mcpu=power7 -maltivec
   endif
-  # GCC and some compatibles
-  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power8 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
-  ifneq ($(HAVE_CRYPTO),0)
-    ALTIVEC_FLAG = -mcpu=power8 -maltivec
-    AES_FLAG = -mcpu=power8 -maltivec
-    GCM_FLAG = -mcpu=power8 -maltivec
-    SHA_FLAG = -mcpu=power8 -maltivec
-    CHAM_FLAG = -mcpu=power8 -maltivec
-    LEA_FLAG = -mcpu=power8 -maltivec
-    SIMON_FLAG = -mcpu=power8 -maltivec
-    SPECK_FLAG = -mcpu=power8 -maltivec
-    SIMECK_FLAG = -mcpu=power8 -maltivec
-    SM4_FLAG = -mcpu=power8 -maltivec
-  endif
+
   # IBM XL C/C++
-  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  ifneq ($(HAVE_POWER8),0)
+    POWER8_FLAG = -qarch=pwr8 -qaltivec
+    AES_FLAG = $(POWER8_FLAG)
+    GCM_FLAG = $(POWER8_FLAG)
+    SHA_FLAG = $(POWER8_FLAG)
+    SM4_FLAG = $(POWER8_FLAG)
+  endif
+
+  # IBM XL C/C++
+  HAVE_POWER7 = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR7')
+  ifneq ($(HAVE_POWER7),0)
+    POWER7_FLAG = -qarch=pwr7 -qaltivec
+    ARIA_FLAG = $(POWER7_FLAG)
+    BLAKE2_FLAG = $(POWER7_FLAG)
+    CHAM_FLAG = $(POWER7_FLAG)
+    LEA_FLAG = $(POWER7_FLAG)
+    SIMECK_FLAG = $(POWER7_FLAG)
+    SIMON_FLAG = $(POWER7_FLAG)
+    SPECK_FLAG = $(POWER7_FLAG)
+  endif
+
+  # IBM XL C/C++
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr6 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
-    ALTIVEC_FLAG = -qarch=pwr7 -qaltivec
-    ARIA_FLAG = -qarch=pwr7 -qaltivec
-    BLAKE2_FLAG = -qarch=pwr7 -qaltivec
-    CHAM_FLAG = -qarch=pwr7 -qaltivec
-    LEA_FLAG = -qarch=pwr7 -qaltivec
-    SIMECK_FLAG = -qarch=pwr7 -qaltivec
-    SIMON_FLAG = -qarch=pwr7 -qaltivec
-    SPECK_FLAG = -qarch=pwr7 -qaltivec
-    SM4_FLAG = -qarch=pwr7 -qaltivec
+    ALTIVEC_FLAG = -qarch=pwr6 -qaltivec
   endif
-  # IBM XL C/C++
-  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
-  ifneq ($(HAVE_CRYPTO),0)
-    ALTIVEC_FLAG = -qarch=pwr8 -qaltivec
-    AES_FLAG = -qarch=pwr8 -qaltivec
-    GCM_FLAG = -qarch=pwr8 -qaltivec
-    SHA_FLAG = -qarch=pwr8 -qaltivec
-    ARIA_FLAG = -qarch=pwr8 -qaltivec
-    BLAKE2_FLAG = -qarch=pwr8 -qaltivec
-    CHAM_FLAG = -qarch=pwr8 -qaltivec
-    LEA_FLAG = -qarch=pwr8 -qaltivec
-    SIMECK_FLAG = -qarch=pwr8 -qaltivec
-    SIMON_FLAG = -qarch=pwr8 -qaltivec
-    SPECK_FLAG = -qarch=pwr8 -qaltivec
-    SM4_FLAG = -qarch=pwr8 -qaltivec
+
+  # LLVM front-ends only provide Power8. It really jambs us up
+  # for ppc-simd.cpp which needs ALTIVEC/POWER4. We have similar
+  # problems {lea|cham|simon|speck|...}-simd.cpp and POWER7.
+  HAVE_LLVM = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -E adhoc.cpp 2>&1 | $(GREP) -i -c '__llvm__')
+  ifneq ($(HAVE_LLVM),0)
+    POWER7_FLAG = $(POWER8_FLAG)
+    ARIA_FLAG = $(POWER8_FLAG)
+    BLAKE2_FLAG = $(POWER8_FLAG)
+    CHAM_FLAG = $(POWER8_FLAG)
+    LEA_FLAG = $(POWER8_FLAG)
+    SIMECK_FLAG = $(POWER8_FLAG)
+    SIMON_FLAG = $(POWER8_FLAG)
+    SPECK_FLAG = $(POWER8_FLAG)
+    ALTIVEC_FLAG = $(POWER8_FLAG)
+  endif
+
+  ifeq ($(ALTIVEC_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
+  endif
+  ifeq ($(POWER7_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_POWER7
+  endif
+  ifeq ($(POWER8_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
   endif
 endif
 

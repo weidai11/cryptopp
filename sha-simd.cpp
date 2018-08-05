@@ -185,6 +185,96 @@ bool CPU_ProbeSHA2()
 }
 #endif  // ARM32 or ARM64
 
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+bool CPU_ProbeSHA256()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+    return false;
+#elif (CRYPTOPP_POWER8_AVAILABLE)
+# if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
+
+    // longjmp and clobber warnings. Volatile is required.
+    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+    volatile int result = false;
+
+    volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+    if (oldHandler == SIG_ERR)
+        return false;
+
+    volatile sigset_t oldMask;
+    if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+        return false;
+
+    if (setjmp(s_jmpSIGILL))
+        result = false;
+    else
+    {
+        byte r[16], z[16] = {0};
+        uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+
+        x = VectorSHA256<0,0>(x);
+        x = VectorSHA256<0,1>(x);
+        x = VectorSHA256<1,0>(x);
+        x = VectorSHA256<1,1>(x);
+        VectorStore(x, r);
+
+        result = (0 == std::memcmp(r, z, 16));
+    }
+
+    sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+    signal(SIGILL, oldHandler);
+    return result;
+# endif
+#else
+    return false;
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+}
+
+bool CPU_ProbeSHA512()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+    return false;
+#elif (CRYPTOPP_POWER8_AVAILABLE)
+# if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
+
+    // longjmp and clobber warnings. Volatile is required.
+    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+    volatile int result = false;
+
+    volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+    if (oldHandler == SIG_ERR)
+        return false;
+
+    volatile sigset_t oldMask;
+    if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+        return false;
+
+    if (setjmp(s_jmpSIGILL))
+        result = false;
+    else
+    {
+        byte r[16], z[16] = {0};
+        uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+
+        x = VectorSHA512<0,0>(x);
+        x = VectorSHA512<0,1>(x);
+        x = VectorSHA512<1,0>(x);
+        x = VectorSHA512<1,1>(x);
+        VectorStore(x, r);
+
+        result = (0 == std::memcmp(r, z, 16));
+    }
+
+    sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+    signal(SIGILL, oldHandler);
+    return result;
+# endif
+#else
+    return false;
+#endif  // CRYPTOPP_POWER8_AVAILABLE
+}
+#endif  // PPC32 or PPC64
+
 // ***************** Intel x86 SHA ********************
 
 // provided by sha.cpp, 16-byte aigned

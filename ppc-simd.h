@@ -19,6 +19,26 @@
 #include "config.h"
 #include "misc.h"
 
+// We are boxed into undefining macros like CRYPTOPP_POWER8_AVAILABLE.
+// We set CRYPTOPP_POWER8_AVAILABLE based on compiler versions because
+// we needed them for the SIMD and non-SIMD files. When the SIMD file is
+// compiled it may only get -mcpu=power4 or -mcpu=power7, so the POWER7
+// or POWER8 stuff is not actually available when this header is included.
+#if !defined(__ALTIVEC__)
+# undef CRYPTOPP_ALTIVEC_AVAILABLE
+#endif
+
+#if !defined(_ARCH_PWR7)
+# undef CRYPTOPP_POWER7_AVAILABLE
+#endif
+
+#if !(defined(_ARCH_PWR8) || defined(_ARCH_PWR9) || defined(_CRYPTO))
+# undef CRYPTOPP_POWER8_AVAILABLE
+# undef CRYPTOPP_POWER8_AES_AVAILABLE
+# undef CRYPTOPP_POWER8_SHA_AVAILABLE
+# undef CRYPTOPP_POWER8_PMULL_AVAILABLE
+#endif
+
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 # include <altivec.h>
 # undef vector
@@ -28,84 +48,112 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+// Datatypes
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-
 typedef __vector unsigned char   uint8x16_p;
 typedef __vector unsigned short  uint16x8_p;
 typedef __vector unsigned int    uint32x4_p;
-
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 typedef __vector unsigned long long uint64x2_p;
 #endif
+#endif  // ALTIVEC/POWER4 datatypes
 
-#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+// POWER4 and above
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_POWER7_AVAILABLE)
-
-inline uint32x4_p VectorLoad(const byte src[16])
+/// \brief Reverse a vector
+/// \tparam T vector type
+/// \param src the vector
+/// \details Reverse() endian swaps the bytes in a vector
+/// \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
+/// \since Crypto++ 6.0
+template <class T>
+inline T Reverse(const T& src)
 {
-    uint8x16_p data;
-    if (IsAlignedOn(src, 16))
-    {
-        data = vec_ld(0, src);
-    }
-    else
-    {
-        // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p perm = vec_lvsl(0, src);
-        const uint8x16_p low = vec_ld(0, src);
-        const uint8x16_p high = vec_ld(15, src);
-        data = vec_perm(low, high, perm);
-    }
-
-#if defined(CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)data;
-#else
     const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    return (uint32x4_p)vec_perm(data, data, mask);
-#endif
+    return vec_perm(src, src, mask);
 }
 
-inline void VectorStore(const uint32x4_p data, byte dest[16])
+/// \brief Permutes two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \param mask vector mask
+/// \details VectorPermute returns a new vector from vec1 and vec2
+///   based on mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec1.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
+{
+    return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
+}
+
+/// \brief XOR two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VectorXor returns a new vector from vec1 and vec2. The return
+///   vector is the same type as vec1.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorXor(const T1& vec1, const T2& vec2)
+{
+    return (T1)vec_xor(vec1, (T1)vec2);
+}
+
+/// \brief Add two vector
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VectorAdd returns a new vector from vec1 and vec2.
+///   vec2 is cast to the same type as vec1. The return vector
+///   is the same type as vec1.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorAdd(const T1& vec1, const T2& vec2)
+{
+    return (T1)vec_add(vec1, (T1)vec2);
+}
+
+/// \brief Shift two vectors left
+/// \tparam C shift byte count
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VectorShiftLeft() concatenates vec1 and vec2 and returns a
+///   new vector after shifting the concatenation by the specified number
+///   of bytes. Both vec1 and vec2 are cast to uint8x16_p. The return
+///   vector is the same type as vec1.
+/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, b,
+///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
+///   <tt>vec_sld(b, a, 16-c)</tt>. You should always call the function as
+///   if on a big endian machine as shown below.
+/// <pre>
+///    uint8x16_p r0 = {0};
+///    uint8x16_p r1 = VectorLoad(ptr);
+///    uint8x16_p r5 = VectorShiftLeft<12>(r0, r1);
+/// </pre>
+/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+///   endian sensitive?</A> on Stack Overflow
+/// \since Crypto++ 6.0
+template <unsigned int C, class T1, class T2>
+inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    const uint8x16_p t1 = (uint8x16_p)vec_perm(data, data, mask);
+    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, 16-C);
 #else
-    const uint8x16_p t1 = (uint8x16_p)data;
+    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, C);
 #endif
-
-    if (IsAlignedOn(dest, 16))
-    {
-        vec_st(t1, 0,  dest);
-    }
-    else
-    {
-        // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p t2 = vec_perm(t1, t1, vec_lvsr(0, dest));
-        vec_ste((uint8x16_p) t2,  0, (unsigned char*) dest);
-        vec_ste((uint16x8_p) t2,  1, (unsigned short*)dest);
-        vec_ste((uint32x4_p) t2,  3, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) t2,  4, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) t2,  8, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) t2, 12, (unsigned int*)  dest);
-        vec_ste((uint16x8_p) t2, 14, (unsigned short*)dest);
-        vec_ste((uint8x16_p) t2, 15, (unsigned char*) dest);
-    }
 }
 
-inline uint32x4_p VectorXor(const uint32x4_p vec1, const uint32x4_p vec2)
-{
-    return vec_xor(vec1, vec2);
-}
+#endif  // POWER4 and above
 
-inline uint32x4_p VectorAdd(const uint32x4_p vec1, const uint32x4_p vec2)
-{
-    return vec_add(vec1, vec2);
-}
-
-#endif
-
+// POWER7/POWER4 load and store
 #if defined(CRYPTOPP_POWER7_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Reverse a 16-byte array
@@ -122,19 +170,6 @@ inline void ReverseByteArrayLE(byte src[16])
     const uint8x16_p zero = {0};
     vec_vsx_st(vec_perm(vec_vsx_ld(0, src), zero, mask), 0, src);
 #endif
-}
-
-/// \brief Reverse a vector
-/// \tparam T vector type
-/// \param src the vector
-/// \details Reverse() endian swaps the bytes in a vector
-/// \sa Reverse(), VectorLoadBE(), VectorLoad(), VectorLoadKey()
-/// \since Crypto++ 6.0
-template <class T>
-inline T Reverse(const T& src)
-{
-    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    return vec_perm(src, src, mask);
 }
 
 /// \brief Loads a vector from a byte array
@@ -346,86 +381,65 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 #endif
 }
 
-/// \brief Permutes two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \param mask vector mask
-/// \details VectorPermute returns a new vector from vec1 and vec2
-///   based on mask. mask is an uint8x16_p type vector. The return
-///   vector is the same type as vec1.
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
-{
-    return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
-}
+#else  // not CRYPTOPP_POWER7_AVAILABLE
 
-/// \brief XOR two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \details VectorXor returns a new vector from vec1 and vec2. The return
-///   vector is the same type as vec1.
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VectorXor(const T1& vec1, const T2& vec2)
+// POWER7 is not available. Slow Altivec loads and stores.
+inline uint32x4_p VectorLoad(const byte src[16])
 {
-    return (T1)vec_xor(vec1, (T1)vec2);
-}
+    uint8x16_p data;
+    if (IsAlignedOn(src, 16))
+    {
+        data = vec_ld(0, src);
+    }
+    else
+    {
+        // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
+        const uint8x16_p perm = vec_lvsl(0, src);
+        const uint8x16_p low = vec_ld(0, src);
+        const uint8x16_p high = vec_ld(15, src);
+        data = vec_perm(low, high, perm);
+    }
 
-/// \brief Add two vector
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \details VectorAdd returns a new vector from vec1 and vec2.
-///   vec2 is cast to the same type as vec1. The return vector
-///   is the same type as vec1.
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VectorAdd(const T1& vec1, const T2& vec2)
-{
-    return (T1)vec_add(vec1, (T1)vec2);
-}
-
-/// \brief Shift two vectors left
-/// \tparam C shift byte count
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \details VectorShiftLeft() concatenates vec1 and vec2 and returns a
-///   new vector after shifting the concatenation by the specified number
-///   of bytes. Both vec1 and vec2 are cast to uint8x16_p. The return
-///   vector is the same type as vec1.
-/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, b,
-///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
-///   <tt>vec_sld(b, a, 16-c)</tt>. You should always call the function as
-///   if on a big endian machine as shown below.
-/// <pre>
-///    uint8x16_p r0 = {0};
-///    uint8x16_p r1 = VectorLoad(ptr);
-///    uint8x16_p r5 = VectorShiftLeft<12>(r0, r1);
-/// </pre>
-/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
-///   endian sensitive?</A> on Stack Overflow
-/// \since Crypto++ 6.0
-template <unsigned int C, class T1, class T2>
-inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
-{
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, 16-C);
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    return (uint32x4_p)data;
 #else
-    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, C);
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    return (uint32x4_p)vec_perm(data, data, mask);
 #endif
 }
 
-#endif  // CRYPTOPP_POWER7_AVAILABLE
+inline void VectorStore(const uint32x4_p data, byte dest[16])
+{
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    const uint8x16_p t1 = (uint8x16_p)vec_perm(data, data, mask);
+#else
+    const uint8x16_p t1 = (uint8x16_p)data;
+#endif
 
-#if defined(CRYPTOPP_POWER8_AES_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+    if (IsAlignedOn(dest, 16))
+    {
+        vec_st(t1, 0,  dest);
+    }
+    else
+    {
+        // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
+        const uint8x16_p t2 = vec_perm(t1, t1, vec_lvsr(0, dest));
+        vec_ste((uint8x16_p) t2,  0, (unsigned char*) dest);
+        vec_ste((uint16x8_p) t2,  1, (unsigned short*)dest);
+        vec_ste((uint32x4_p) t2,  3, (unsigned int*)  dest);
+        vec_ste((uint32x4_p) t2,  4, (unsigned int*)  dest);
+        vec_ste((uint32x4_p) t2,  8, (unsigned int*)  dest);
+        vec_ste((uint32x4_p) t2, 12, (unsigned int*)  dest);
+        vec_ste((uint16x8_p) t2, 14, (unsigned short*)dest);
+        vec_ste((uint8x16_p) t2, 15, (unsigned char*) dest);
+    }
+}
+
+#endif  // POWER4/POWER7 load and store
+
+// POWER8 crypto
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
@@ -507,9 +521,9 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 #endif
 }
 
-#endif  // CRYPTOPP_POWER8_AES_AVAILABLE
+#endif  // POWER8 crypto
 
-#if defined(CRYPTOPP_POWER8_SHA_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief SHA256 Sigma functions
 /// \tparam func function
@@ -551,7 +565,7 @@ inline T VectorSHA512(const T& vec)
 #endif
 }
 
-#endif  // CRYPTOPP_POWER8_SHA_AVAILABLE
+#endif  // POWER8 crypto
 
 NAMESPACE_END
 
