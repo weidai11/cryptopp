@@ -90,6 +90,20 @@ inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
     return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
 }
 
+/// \brief AND two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VectorAnd returns a new vector from vec1 and vec2. The return
+///   vector is the same type as vec1.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorAnd(const T1& vec1, const T2& vec2)
+{
+    return (T1)vec_and(vec1, (T1)vec2);
+}
+
 /// \brief XOR two vectors
 /// \tparam T1 vector type
 /// \tparam T2 vector type

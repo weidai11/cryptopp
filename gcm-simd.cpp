@@ -168,9 +168,10 @@ using CryptoPP::uint64x2_p;
 using CryptoPP::VectorAnd;
 using CryptoPP::VectorShiftRight;
 
+// _mm_clmulepi64_si128(a, b, 0x00)
+// High dwords of 'a' and 'b' are masked out.
 inline uint64x2_p VMULL_00(uint64x2_p a, uint64x2_p b)
 {
-	// Multiplies low dwords
 #if defined(__xlc__) || defined(__xlC__)
 	const uint64x2_p m = {0xffffffffffffffffull, 0};
 	return __vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
@@ -180,9 +181,10 @@ inline uint64x2_p VMULL_00(uint64x2_p a, uint64x2_p b)
 #endif
 }
 
+// _mm_clmulepi64_si128(a, b, 0x01)
+// High dword of 'a' is masked out. High dword of 'b' is shifted down.
 inline uint64x2_p VMULL_01(uint64x2_p a, uint64x2_p b)
 {
-	// Multiplies high and low dwords
 #if defined(__xlc__) || defined(__xlC__)
 	const uint64x2_p m = {0xffffffffffffffffull, 0};
 	return __vpmsumd (VectorAnd(a, m), VectorShiftRight<8>(b));
@@ -192,9 +194,10 @@ inline uint64x2_p VMULL_01(uint64x2_p a, uint64x2_p b)
 #endif
 }
 
+// _mm_clmulepi64_si128(a, b, 0x10)
+// High dword of 'a' is shifted down. High dword of 'b' is masked out.
 inline uint64x2_p VMULL_10(uint64x2_p a, uint64x2_p b)
 {
-	// Multiplies high and low dwords
 #if defined(__xlc__) || defined(__xlC__)
 	const uint64x2_p m = {0xffffffffffffffffull, 0};
 	return __vpmsumd (VectorShiftRight<8>(a), VectorAnd(b, m));
@@ -204,9 +207,10 @@ inline uint64x2_p VMULL_10(uint64x2_p a, uint64x2_p b)
 #endif
 }
 
+// _mm_clmulepi64_si128(a, b, 0x11)
+// Low dwords of 'a' and 'b' are masked out.
 inline uint64x2_p VMULL_11(uint64x2_p a, uint64x2_p b)
 {
-	// Multiplies high dwords
 #if defined(__xlc__) || defined(__xlC__)
 	const uint64x2_p m = {0, 0xffffffffffffffffull};
 	return __vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
