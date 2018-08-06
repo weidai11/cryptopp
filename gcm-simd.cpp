@@ -67,31 +67,6 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 // ************************* Miscellaneous ************************* //
 
-// GCC 4.8 is missing PMULL gear
-#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
-# if (CRYPTOPP_GCC_VERSION >= 40800) && (CRYPTOPP_GCC_VERSION < 49000)
-inline poly128_t VMULL_P64(poly64_t a, poly64_t b)
-{
-    return __builtin_aarch64_crypto_pmulldi_ppp (a, b);
-}
-
-inline poly128_t VMULL_HIGH_P64(poly64x2_t a, poly64x2_t b)
-{
-    return __builtin_aarch64_crypto_pmullv2di_ppp (a, b);
-}
-# else
-inline poly128_t VMULL_P64(poly64_t a, poly64_t b)
-{
-    return vmull_p64(a, b);
-}
-
-inline poly128_t VMULL_HIGH_P64(poly64x2_t a, poly64x2_t b)
-{
-    return vmull_high_p64(a, b);
-}
-# endif
-#endif
-
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
 #if defined(__GNUC__)
 // Schneiders, Hovsmith and O'Rourke used this trick.
@@ -189,31 +164,55 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
 
 #if CRYPTOPP_POWER8_PMULL_AVAILABLE
-using CryptoPP::uint8x16_p;
 using CryptoPP::uint64x2_p;
-using CryptoPP::VectorXor;
+using CryptoPP::VectorAnd;
 using CryptoPP::VectorShiftRight;
 
-inline uint64x2_p VMULL_P64(uint64x2_p a, uint64x2_p b)
+inline uint64x2_p VMULL_00(uint64x2_p a, uint64x2_p b)
 {
 	// Multiplies low dwords
 #if defined(__xlc__) || defined(__xlC__)
-	return __vpmsumd (a, b);
+	const uint64x2_p m = {0xffffffffffffffffull, 0};
+	return __vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
 #else
-	return __builtin_crypto_vpmsumd (a, b);
+	const uint64x2_p m = {0xffffffffffffffffull, 0};
+	return __builtin_crypto_vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
 #endif
 }
 
-inline uint64x2_p VMULL_HIGH_P64(uint64x2_p a, uint64x2_p b)
+inline uint64x2_p VMULL_01(uint64x2_p a, uint64x2_p b)
 {
+	// Multiplies high and low dwords
 #if defined(__xlc__) || defined(__xlC__)
-	const uint64x2_p s = VectorShiftRight<8>(a);
-	const uint64x2_p t = VectorShiftRight<8>(b);
-	return __vpmsumd (s, t);
+	const uint64x2_p m = {0xffffffffffffffffull, 0};
+	return __vpmsumd (VectorAnd(a, m), VectorShiftRight<8>(b));
 #else
-	const uint64x2_p s = VectorShiftRight<8>(a);
-	const uint64x2_p t = VectorShiftRight<8>(b);
-	return __builtin_crypto_vpmsumd (s, t);
+	const uint64x2_p m = {0xffffffffffffffffull, 0};
+	return __builtin_crypto_vpmsumd (VectorAnd(a, m), VectorShiftRight<8>(b));
+#endif
+}
+
+inline uint64x2_p VMULL_10(uint64x2_p a, uint64x2_p b)
+{
+	// Multiplies high and low dwords
+#if defined(__xlc__) || defined(__xlC__)
+	const uint64x2_p m = {0xffffffffffffffffull, 0};
+	return __vpmsumd (VectorShiftRight<8>(a), VectorAnd(b, m));
+#else
+	const uint64x2_p m = {0xffffffffffffffffull, 0};
+	return __builtin_crypto_vpmsumd (VectorShiftRight<8>(a), VectorAnd(b, m));
+#endif
+}
+
+inline uint64x2_p VMULL_11(uint64x2_p a, uint64x2_p b)
+{
+	// Multiplies high dwords
+#if defined(__xlc__) || defined(__xlC__)
+	const uint64x2_p m = {0, 0xffffffffffffffffull};
+	return __vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
+#else
+	const uint64x2_p m = {0, 0xffffffffffffffffull};
+	return __builtin_crypto_vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
 #endif
 }
 #endif // CRYPTOPP_POWER8_PMULL_AVAILABLE
@@ -293,8 +292,8 @@ bool CPU_ProbePMULL()
                          b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
-        const poly128_t r1 = VMULL_P64(a1, b1);
-        const poly128_t r2 = VMULL_HIGH_P64((poly64x2_t)(a2), (poly64x2_t)(b2));
+        const poly128_t r1 = VMULL_00(a1, b1);
+        const poly128_t r2 = VMULL_11((poly64x2_t)(a2), (poly64x2_t)(b2));
 
         // Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
         const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
@@ -344,8 +343,8 @@ bool CPU_ProbePMULL()
                          b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
-        const uint64x2_p r1 = VMULL_P64(a1, b1);
-        const uint64x2_p r2 = VMULL_HIGH_P64((uint64x2_p)(a2), (uint64x2_p)(b2));
+        const uint64x2_p r1 = VMULL_00(a1, b1);
+        const uint64x2_p r2 = VMULL_11((uint64x2_p)(a2), (uint64x2_p)(b2));
 
         word64 w1[2], w2[2];
 		VectorStore(r1, (byte*)w1); VectorStore(r2, (byte*)w2);
