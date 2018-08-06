@@ -39,6 +39,10 @@
 # include <arm_acle.h>
 #endif
 
+#if defined(CRYPTOPP_POWER8_PMULL_AVAILABLE)
+# include "ppc-simd.h"
+#endif
+
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
@@ -60,6 +64,8 @@
 extern const char GCM_SIMD_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
+
+// ************************* Miscellaneous ************************* //
 
 // GCC 4.8 is missing PMULL gear
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE)
@@ -182,9 +188,44 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 #endif // Microsoft and compatibles
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
 
+#if CRYPTOPP_POWER8_PMULL_AVAILABLE
+using CryptoPP::uint8x16_p;
+using CryptoPP::uint64x2_p;
+using CryptoPP::VectorXor;
+using CryptoPP::VectorShiftLeft;
+using CryptoPP::VectorShiftRight;
+
+inline uint64x2_p VMULL_P64(uint64x2_p a, uint64x2_p b)
+{
+	// Multiplies low dwords
+#if defined(__xlc__) || defined(__xlC__)
+	return __vpmsumd (a, b);
+#else
+	return __builtin_crypto_vpmsumd (a, b);
+#endif
+}
+
+inline uint64x2_p VMULL_HIGH_P64(uint64x2_p a, uint64x2_p b)
+{
+#if defined(__xlc__) || defined(__xlC__)
+	const uint64x2_p z = VectorXor(a, a);
+	const uint64x2_p s = VectorShiftRight<8>(a, z);
+	const uint64x2_p t = VectorShiftRight<8>(b, z);
+	return __vpmsumd (s, t);
+#else
+	const uint64x2_p z = VectorXor(a, a);
+	const uint64x2_p s = VectorShiftRight<8>(a, z);
+	const uint64x2_p t = VectorShiftRight<8>(b, z);
+	return __builtin_crypto_vpmsumd (s, t);
+#endif
+}
+#endif // CRYPTOPP_POWER8_PMULL_AVAILABLE
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+// ************************* Feature Probes ************************* //
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 extern "C" {
@@ -209,8 +250,10 @@ bool CPU_ProbePMULL()
     __try
     {
         const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
-        const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
         const poly128_t r1 = vmull_p64(a1, b1);
         const poly128_t r2 = vmull_high_p64((poly64x2_t)(a2), (poly64x2_t)(b2));
@@ -219,8 +262,10 @@ bool CPU_ProbePMULL()
         const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
         const uint64x2_t t2 = (uint64x2_t)(r2);  // {bignum,bignum}
 
-        result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 && vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
-                    vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
+        result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 &&
+                    vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
+                    vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 &&
+                    vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
@@ -246,8 +291,10 @@ bool CPU_ProbePMULL()
     else
     {
         const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
-        const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
         const poly128_t r1 = VMULL_P64(a1, b1);
         const poly128_t r2 = VMULL_HIGH_P64((poly64x2_t)(a2), (poly64x2_t)(b2));
@@ -256,8 +303,10 @@ bool CPU_ProbePMULL()
         const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
         const uint64x2_t t2 = (uint64x2_t)(r2);  // {bignum,bignum}
 
-        result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 && vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
-                    vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 && vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
+        result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 &&
+                    vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
+                    vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 &&
+                    vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -269,6 +318,54 @@ bool CPU_ProbePMULL()
 #endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
 }
 #endif  // ARM32 or ARM64
+
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+bool CPU_ProbePMULL()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+    return false;
+#elif (CRYPTOPP_POWER8_PMULL_AVAILABLE)
+    // longjmp and clobber warnings. Volatile is required.
+    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+    volatile bool result = true;
+
+    volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+    if (oldHandler == SIG_ERR)
+        return false;
+
+    volatile sigset_t oldMask;
+    if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+        return false;
+
+    if (setjmp(s_jmpSIGILL))
+        result = false;
+    else
+    {
+        const uint64x2_p a1={0x9090909090909090ull}, b1={0xb0b0b0b0b0b0b0b0ull};
+        const uint8x16_p a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+
+        const uint64x2_p r1 = VMULL_P64(a1, b1);
+        const uint64x2_p r2 = VMULL_HIGH_P64((uint64x2_p)(a2), (uint64x2_p)(b2));
+
+        word64 w1[2], w2[2];
+		VectorStore(r1, (byte*)w1); VectorStore(r2, (byte*)w2);
+        result = !!(w1[0] == 0x5300530053005300ull && w1[1] == 0x5300530053005300ull &&
+                    w2[0] == 0x6c006c006c006c00ull && w2[1] == 0x6c006c006c006c00ull);
+    }
+
+    sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+    signal(SIGILL, oldHandler);
+    return result;
+#else
+    return false;
+#endif  // CRYPTOPP_POWER8_PMULL_AVAILABLE
+}
+#endif  // PPC32 or PPC64
+
+// *************************** ARM NEON *************************** //
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)
@@ -412,6 +509,8 @@ void GCM_ReverseHashBufferIfNeeded_PMULL(byte *hashBuffer)
     }
 }
 #endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
+
+// ***************************** SSE ***************************** //
 
 #if CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 // SunCC 5.10-5.11 compiler crash. Move GCM_Xor16_SSE2 out-of-line, and place in

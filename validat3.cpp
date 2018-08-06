@@ -374,14 +374,16 @@ bool TestSettings()
 	const bool hasAltivec = HasAltivec();
 	const bool hasPower7 = HasPower7();
 	const bool hasPower8 = HasPower8();
+	const bool hasPMULL = HasPMULL();
 	const bool hasAES = HasAES();
 	const bool hasSHA256 = HasSHA256();
 	const bool hasSHA512 = HasSHA512();
 
 	std::cout << "passed:  ";
 	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7;
-	std::cout << ", hasPower8 == " << hasPower8 << ", hasAES == " << hasAES;
-	std::cout << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512 << "\n";
+	std::cout << ", hasPower8 == " << hasPower8 << ", hasPMULL == " << hasPMULL;
+	std::cout << ", hasAES == " << hasAES << ", hasSHA256 == " << hasSHA256;
+	std::cout << ", hasSHA512 == " << hasSHA512 << "\n";
 
 #endif
 

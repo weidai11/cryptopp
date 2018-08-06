@@ -804,6 +804,7 @@ bool CRYPTOPP_SECTION_INIT g_hasAltivec = false;
 bool CRYPTOPP_SECTION_INIT g_hasPower7 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPower8 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false;
+bool CRYPTOPP_SECTION_INIT g_hasPMULL = false;
 bool CRYPTOPP_SECTION_INIT g_hasSHA256 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSHA512 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
@@ -812,6 +813,7 @@ extern bool CPU_ProbeAltivec();
 extern bool CPU_ProbePower7();
 extern bool CPU_ProbePower8();
 extern bool CPU_ProbeAES();
+extern bool CPU_ProbePMULL();
 extern bool CPU_ProbeSHA256();
 extern bool CPU_ProbeSHA512();
 
@@ -884,6 +886,20 @@ inline bool CPU_QueryAES()
 	return false;
 }
 
+inline bool CPU_QueryPMULL()
+{
+	// Power8 and ISA 2.07 provide in-core crypto. Glibc
+	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
+#if defined(__linux__)
+	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO) != 0)
+		return true;
+#elif defined(_AIX)
+	if (__power_8_andup() != 0)
+		return true;
+#endif
+	return false;
+}
+
 inline bool CPU_QuerySHA256()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
@@ -918,7 +934,7 @@ void DetectPowerpcFeatures()
 	g_hasAltivec  = CPU_QueryAltivec() || CPU_ProbeAltivec();
 	g_hasPower7 = CPU_QueryPower7() || CPU_ProbePower7();
 	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();
-	//g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
+	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
 	g_hasSHA256 = CPU_QuerySHA256() || CPU_ProbeSHA256();
 	g_hasSHA512 = CPU_QuerySHA512() || CPU_ProbeSHA512();

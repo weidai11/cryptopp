@@ -342,7 +342,17 @@ inline int GetCacheLineSize()
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 extern bool g_ArmDetectionDone;
-extern bool g_hasARMv7, g_hasNEON, g_hasPMULL, g_hasCRC32, g_hasAES, g_hasSHA1, g_hasSHA2, g_hasSHA512, g_hasSHA3, g_hasSM3, g_hasSM4;
+extern bool g_hasARMv7;
+extern bool g_hasNEON;
+extern bool g_hasPMULL;
+extern bool g_hasCRC32;
+extern bool g_hasAES;
+extern bool g_hasSHA1;
+extern bool g_hasSHA2;
+extern bool g_hasSHA512;
+extern bool g_hasSHA3;
+extern bool g_hasSM3;
+extern bool g_hasSM4;
 void CRYPTOPP_API DetectArmFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
@@ -578,7 +588,13 @@ inline bool HasSM4()
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
 extern bool g_PowerpcDetectionDone;
-extern bool g_hasAltivec, g_hasPower7, g_hasPower8, g_hasAES, g_hasSHA256, g_hasSHA512;
+extern bool g_hasAltivec;
+extern bool g_hasPower7;
+extern bool g_hasPower8;
+extern bool g_hasAES;
+extern bool g_hasPMULL;
+extern bool g_hasSHA256;
+extern bool g_hasSHA512;
 extern word32 g_cacheLineSize;
 void CRYPTOPP_API DetectPowerpcFeatures();
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
@@ -590,11 +606,11 @@ void CRYPTOPP_API DetectPowerpcFeatures();
 /// \returns true if the hardware is capable of Altivec at runtime, false otherwise.
 /// \details Altivec instructions are available under most modern PowerPCs.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
-///   need to compile with <tt>-mcpu=power7</tt>; while IBM XL C/C++ compilers require
-///   <tt>-qarch=pwr7 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
-/// \details Atilvec was first available on Power4 platforms. However Crypto++ releies on unaligned
-///   loads and stores which is a Power7 feature. If the platform lacks Power7 extensions, then the
-///   GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_ALTIVEC</tt>.
+///   need to compile with <tt>-mcpu=power4</tt>; while IBM XL C/C++ compilers require
+///   <tt>-qarch=pwr6 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
+/// \details Atilvec was first available on Power4 platforms. However Crypto++ releies heavily
+///   on unaligned loads and stores which is a Power7 feature. If the platform lacks Power7
+///   extensions, then the GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_POWER7</tt>.
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasAltivec()
 {
@@ -609,9 +625,9 @@ inline bool HasAltivec()
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
 ///   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
-/// \details Atilvec was first available on Power4 platforms. However Crypto++ releies on unaligned
-///   loads and stores which is a Power7 feature. If the platform lacks Power7 extensions, then the
-///   GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_ALTIVEC</tt>.
+/// \details Atilvec was first available on Power4 platforms. However Crypto++ releies heavily
+///   on unaligned loads and stores which is a Power7 feature. If the platform lacks Power7
+///   extensions, then the GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_POWER7</tt>.
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPower7()
 {
@@ -626,9 +642,9 @@ inline bool HasPower7()
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
 ///   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
-/// \details Atilvec was first available on Power4 platforms. However Crypto++ releies on unaligned
-///   loads and stores which is a Power7 feature. If the platform lacks Power7 extensions, then the
-///   GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_ALTIVEC</tt>.
+/// \details Atilvec was first available on Power4 platforms. However Crypto++ releies heavily
+///   on unaligned loads and stores which is a Power7 feature. If the platform lacks Power7
+///   extensions, then the GNUmakefile sets <tt>-DCRYPTOPP_DISABLE_POWER7</tt>.
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPower8()
 {
@@ -649,6 +665,20 @@ inline bool HasAES()
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasAES;
+}
+
+/// \brief Determine if a PowerPC processor has Polynomial Multiply available
+/// \returns true if the hardware is capable of PMULL at runtime, false otherwise.
+/// \details PMULL is part of the in-crypto extensions on Power8 and Power9.
+/// \details Runtime support requires compile time support. When compiling with GCC, you may
+///   need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
+///   <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>__CRYPTO</tt> preprocessor macro.
+/// \note This function is only available on PowerPC and PowerPC-64 platforms
+inline bool HasPMULL()
+{
+	if (!g_PowerpcDetectionDone)
+		DetectPowerpcFeatures();
+	return g_hasPMULL;
 }
 
 /// \brief Determine if a PowerPC processor has SHA256 available
