@@ -1849,44 +1849,44 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
             if (flags & BT_InBlockIsCounter)
             {
-                block0 = VectorLoad(inBlocks);
+                block0 = VectorLoadBE(inBlocks);
                 block1 = VectorAdd(block0, s_one);
                 block2 = VectorAdd(block1, s_one);
                 block3 = VectorAdd(block2, s_one);
                 block4 = VectorAdd(block3, s_one);
                 block5 = VectorAdd(block4, s_one);
                 temp   = VectorAdd(block5, s_one);
-                VectorStore(temp, const_cast<byte*>(inBlocks));
+                VectorStoreBE(temp, const_cast<byte*>(inBlocks));
             }
             else
             {
-                block0 = VectorLoad(inBlocks);
+                block0 = VectorLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = VectorLoad(inBlocks);
+                block1 = VectorLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block2 = VectorLoad(inBlocks);
+                block2 = VectorLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block3 = VectorLoad(inBlocks);
+                block3 = VectorLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block4 = VectorLoad(inBlocks);
+                block4 = VectorLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block5 = VectorLoad(inBlocks);
+                block5 = VectorLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = VectorXor(block0, VectorLoad(xorBlocks));
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoad(xorBlocks));
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoad(xorBlocks));
+                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoad(xorBlocks));
+                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block4 = VectorXor(block4, VectorLoad(xorBlocks));
+                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block5 = VectorXor(block5, VectorLoad(xorBlocks));
+                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
@@ -1894,31 +1894,31 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
             if (xorOutput)
             {
-                block0 = VectorXor(block0, VectorLoad(xorBlocks));
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoad(xorBlocks));
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoad(xorBlocks));
+                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoad(xorBlocks));
+                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block4 = VectorXor(block4, VectorLoad(xorBlocks));
+                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block5 = VectorXor(block5, VectorLoad(xorBlocks));
+                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            VectorStore(block0, outBlocks);
+            VectorStoreBE(block0, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStore(block1, outBlocks);
+            VectorStoreBE(block1, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStore(block2, outBlocks);
+            VectorStoreBE(block2, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStore(block3, outBlocks);
+            VectorStoreBE(block3, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStore(block4, outBlocks);
+            VectorStoreBE(block4, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStore(block5, outBlocks);
+            VectorStoreBE(block5, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*blockSize;
@@ -1927,10 +1927,10 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
     while (length >= blockSize)
     {
-        uint32x4_p block = VectorLoad(inBlocks);
+        uint32x4_p block = VectorLoadBE(inBlocks);
 
         if (xorInput)
-            block = VectorXor(block, VectorLoad(xorBlocks));
+            block = VectorXor(block, VectorLoadBE(xorBlocks));
 
         if (flags & BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
@@ -1938,9 +1938,9 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
         func1(block, subKeys, rounds);
 
         if (xorOutput)
-            block = VectorXor(block, VectorLoad(xorBlocks));
+            block = VectorXor(block, VectorLoadBE(xorBlocks));
 
-        VectorStore(block, outBlocks);
+        VectorStoreBE(block, outBlocks);
 
         inBlocks = PtrAdd(inBlocks, inIncrement);
         outBlocks = PtrAdd(outBlocks, outIncrement);
