@@ -119,6 +119,36 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
     return (T1)vec_add(vec1, (T1)vec2);
 }
 
+/// \brief Shift a vector left
+/// \tparam C shift byte count
+/// \tparam T vector type
+/// \param vec the vector
+/// \details VectorShiftLeft() returns a new vector after shifting the
+///   concatenation of the zero vector and the source vector by the specified
+///   number of bytes. The return vector is the same type as vec.
+/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, z,
+///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
+///   <tt>vec_sld(z, a, 16-c)</tt>. You should always call the function as
+///   if on a big endian machine as shown below.
+/// <pre>
+///    uint8x16_p r1 = VectorLoad(ptr);
+///    uint8x16_p r5 = VectorShiftLeft<12>(r1);
+/// </pre>
+/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+///   endian sensitive?</A> on Stack Overflow
+/// \since Crypto++ 6.0
+template <unsigned int C, class T>
+inline T VectorShiftLeft(const T& vec)
+{
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const T z = VectorXor(vec, vec);
+    return (T)vec_sld((uint8x16_p)z, (uint8x16_p)vec, 16-C);
+#else
+    const T z = VectorXor(vec, vec);
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)z, C);
+#endif
+}
+
 /// \brief Shift two vectors left
 /// \tparam C shift byte count
 /// \tparam T1 vector type
@@ -151,6 +181,30 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 #endif
 }
 
+/// \brief Shift a vector right
+/// \tparam C shift byte count
+/// \tparam T vector type
+/// \param vec the vector
+/// \details VectorShiftRight() returns a new vector after shifting the
+///   concatenation of the zero vector and the source vector by the specified
+///   number of bytes. The return vector is the same type as vec.
+/// \details On big endian machines VectorShiftRight() is <tt>vec_sld(a, z,
+///   c)</tt>. On little endian machines VectorShiftRight() is translated to
+///   <tt>vec_sld(z, a, 16-c)</tt>. You should always call the function as
+///   if on a big endian machine as shown below.
+/// <pre>
+///    uint8x16_p r1 = VectorLoad(ptr);
+///    uint8x16_p r5 = VectorShiftRight<12>(r1);
+/// </pre>
+/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+///   endian sensitive?</A> on Stack Overflow
+/// \since Crypto++ 6.0
+template <unsigned int C, class T>
+inline T VectorShiftRight(const T& vec)
+{
+    return (T)VectorShiftLeft<16-C>(vec);
+}
+
 /// \brief Shift two vectors right
 /// \tparam C shift byte count
 /// \tparam T1 vector type
@@ -161,9 +215,9 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 ///   new vector after shifting the concatenation by the specified number
 ///   of bytes. Both vec1 and vec2 are cast to uint8x16_p. The return
 ///   vector is the same type as vec1.
-/// \details On big endian machines VectorShiftRight() is <tt>vec_sld(a, b,
-///   c)</tt>. On little endian machines VectorShiftRight() is translated to
-///   <tt>vec_sld(b, a, 16-c)</tt>. You should always call the function as
+/// \details On big endian machines VectorShiftRight() is <tt>vec_sld(b, a,
+///   16-c)</tt>. On little endian machines VectorShiftRight() is translated to
+///   <tt>vec_sld(a, b, c)</tt>. You should always call the function as
 ///   if on a big endian machine as shown below.
 /// <pre>
 ///    uint8x16_p r0 = {0};
@@ -176,7 +230,7 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 template <unsigned int C, class T1, class T2>
 inline T1 VectorShiftRight(const T1& vec1, const T2& vec2)
 {
-	return VectorShiftLeft<16-C>(vec1, vec2);
+    return (T1)VectorShiftLeft<16-C>(vec2, vec1);
 }
 
 #endif  // POWER4 and above

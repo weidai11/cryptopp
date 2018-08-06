@@ -192,7 +192,6 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint64x2_p;
 using CryptoPP::VectorXor;
-using CryptoPP::VectorShiftLeft;
 using CryptoPP::VectorShiftRight;
 
 inline uint64x2_p VMULL_P64(uint64x2_p a, uint64x2_p b)
@@ -208,14 +207,12 @@ inline uint64x2_p VMULL_P64(uint64x2_p a, uint64x2_p b)
 inline uint64x2_p VMULL_HIGH_P64(uint64x2_p a, uint64x2_p b)
 {
 #if defined(__xlc__) || defined(__xlC__)
-	const uint64x2_p z = VectorXor(a, a);
-	const uint64x2_p s = VectorShiftRight<8>(a, z);
-	const uint64x2_p t = VectorShiftRight<8>(b, z);
+	const uint64x2_p s = VectorShiftRight<8>(a);
+	const uint64x2_p t = VectorShiftRight<8>(b);
 	return __vpmsumd (s, t);
 #else
-	const uint64x2_p z = VectorXor(a, a);
-	const uint64x2_p s = VectorShiftRight<8>(a, z);
-	const uint64x2_p t = VectorShiftRight<8>(b, z);
+	const uint64x2_p s = VectorShiftRight<8>(a);
+	const uint64x2_p t = VectorShiftRight<8>(b);
 	return __builtin_crypto_vpmsumd (s, t);
 #endif
 }
