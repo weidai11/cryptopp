@@ -14,6 +14,10 @@
 #include "gzip.h"
 #include "zlib.h"
 
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+# include "ppc-simd.h"
+#endif
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -1056,6 +1060,80 @@ bool TestHuffmanCodes()
 
     return pass;
 }
+#endif
+
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
+# if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+bool TestAltivecOps()
+{
+    std::cout << "\nTesting Altivec operations...\n\n";
+    bool pass=true;
+
+    if (HasAltivec() == false)
+    {
+        std::cout << "\nAltivec not available, skipping test." << std::endl;
+        return true;
+    }
+
+    //********** Unaligned loads and stores **********//
+
+    CRYPTOPP_ALIGN_DATA(16)
+    byte dest[20], src[20] = {23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4};
+    const byte exp1[16] ={22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7};
+    const byte exp2[16] ={21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6};
+    const byte exp3[16] ={20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5};
+
+    VectorStore(VectorLoad(src), dest);
+    pass = (0 == std::memcmp(src, dest, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStore(VectorLoad(src+1), dest+1);
+    pass = (0 == std::memcmp(exp1, dest+1, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStore(VectorLoad(src+2), dest+2);
+    pass = (0 == std::memcmp(exp2, dest+2, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStore(VectorLoad(src+3), dest+3);
+    pass = (0 == std::memcmp(exp3, dest+3, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStoreBE(VectorLoadBE(src), dest);
+    pass = (0 == std::memcmp(src, dest, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStoreBE(VectorLoadBE(src+1), dest+1);
+    pass = (0 == std::memcmp(exp1, dest+1, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStoreBE(VectorLoadBE(src+2), dest+2);
+    pass = (0 == std::memcmp(exp2, dest+2, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStoreBE(VectorLoadBE(src+3), dest+3);
+    pass = (0 == std::memcmp(exp3, dest+3, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    VectorStore(VectorLoadBE(src), dest);
+    pass = (0 != std::memcmp(src, dest, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+
+    VectorStoreBE(VectorLoad(src), dest);
+    pass = (0 != std::memcmp(src, dest, 16)) && pass;
+    CRYPTOPP_ASSERT(pass);
+#endif
+
+    if (!pass)
+        std::cout << "FAILED:";
+    else
+        std::cout << "passed:";
+    std::cout << "  Altivec loads and stores" << std::endl;
+
+    return pass;
+}
+#endif
 #endif
 
 NAMESPACE_END  // Test

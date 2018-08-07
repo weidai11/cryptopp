@@ -154,6 +154,9 @@ bool TestCompressors();
 bool TestEncryptors();
 bool TestMersenne();
 bool TestSharing();
+# if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+bool TestAltivecOps();
+# endif
 #endif
 
 class FixedRNG : public RandomNumberGenerator

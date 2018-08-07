@@ -408,7 +408,7 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 #endif
 }
 
-#else  // not CRYPTOPP_POWER7_AVAILABLE
+#else  // ########## Not CRYPTOPP_POWER7_AVAILABLE ##########
 
 // POWER7 is not available. Slow Altivec loads and stores.
 inline uint32x4_p VectorLoad(const byte src[16])
@@ -426,10 +426,21 @@ inline uint32x4_p VectorLoad(const byte src[16])
         const uint8x16_p high = vec_ld(15, src);
         data = vec_perm(low, high, perm);
     }
+}
 
+/// \brief Loads a vector from a byte array
+/// \param src the byte array
+/// \details Loads a vector in big endian format from a byte array.
+///   VectorLoadBE will swap endianess on little endian systems.
+/// \note VectorLoadBE() does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+inline uint32x4_p VectorLoadBE(const uint8_t src[16])
+{
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)data;
+    return (uint32x4_p)VectorLoad(src);
 #else
+    const uint8x16_p data = (uint8x16_p)VectorLoad(src);
     const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
     return (uint32x4_p)vec_perm(data, data, mask);
 #endif
@@ -461,6 +472,26 @@ inline void VectorStore(const uint32x4_p data, byte dest[16])
         vec_ste((uint16x8_p) t2, 14, (unsigned short*)dest);
         vec_ste((uint8x16_p) t2, 15, (unsigned char*) dest);
     }
+}
+
+/// \brief Stores a vector to a byte array
+/// \tparam T vector type
+/// \param src the vector
+/// \param dest the byte array
+/// \details Stores a vector in big endian format to a byte array.
+///   VectorStoreBE will swap endianess on little endian systems.
+/// \note VectorStoreBE does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+template <class T>
+inline void VectorStoreBE(const T& src, uint8_t dest[16])
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    VectorStore(src, dest);
+#else
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    VectorStore(vec_perm(src, src, mask), dest);
+#endif
 }
 
 #endif  // POWER4/POWER7 load and store

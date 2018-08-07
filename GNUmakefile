@@ -1210,6 +1210,9 @@ test.o : test.cpp
 endif
 endif
 
+validat%.o : validat%.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(ALTIVEC_FLAG) -c) $<
+
 %.dllonly.o : %.cpp
 	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DLL_ONLY -c) $< -o $@
 
