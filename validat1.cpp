@@ -1075,6 +1075,12 @@ bool TestAltivecOps()
         return true;
     }
 
+    // These tests may seem superflous, but we really want to test the
+    // Altivec/POWER4 implementation. That does not happen when POWER7
+    // or POWER8 is available because we use POWER7's unaligned loads
+    // and stores with POWER8's AES, SHA, etc. These tests enage
+    // Altivec/POWER4 without POWER7, like on an old PowerMac.
+
     //********** Unaligned loads and stores **********//
 
     CRYPTOPP_ALIGN_DATA(16)
