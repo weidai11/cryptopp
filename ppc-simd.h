@@ -71,7 +71,7 @@ template <class T>
 inline T Reverse(const T& src)
 {
     const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    return vec_perm(src, src, mask);
+    return (T)vec_perm(src, src, mask);
 }
 
 /// \brief Permutes two vectors
@@ -147,40 +147,6 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
     return (T1)vec_add(vec1, (T1)vec2);
 }
 
-/// \brief Shift two vectors left
-/// \tparam C shift byte count
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \details VectorShiftLeft() concatenates vec1 and vec2 and returns a
-///   new vector after shifting the concatenation by the specified number
-///   of bytes. Both vec1 and vec2 are cast to uint8x16_p. The return
-///   vector is the same type as vec1.
-/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, b,
-///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
-///   <tt>vec_sld(b, a, 16-c)</tt>. You should always call the function as
-///   if on a big endian machine as shown below.
-/// <pre>
-///    uint8x16_p r0 = {0};
-///    uint8x16_p r1 = VectorLoad(ptr);
-///    uint8x16_p r5 = VectorShiftLeft<12>(r0, r1);
-/// </pre>
-/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
-///   endian sensitive?</A> on Stack Overflow
-/// \since Crypto++ 6.0
-template <unsigned int C, class T1, class T2>
-inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
-{
-#if CRYPTOPP_BIG_ENDIAN
-    enum { R=(C)&0xf };
-    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, R);
-#else
-    enum { R=(16-C)&0xf };
-    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, R);
-#endif
-}
-
 /// \brief Shift a vector left
 /// \tparam C shift byte count
 /// \tparam T vector type
@@ -203,15 +169,39 @@ template <unsigned int C, class T>
 inline T VectorShiftLeft(const T& vec)
 {
 #if CRYPTOPP_BIG_ENDIAN
-    enum { R=(C)&0xf };
-    const T zero = VectorXor(vec, vec);
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
+    enum { R=(C)&0xf, S=R };
+    const T zero = {0};
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, S);
 #else
-    enum { R=(16-C)&0xf };
-    const T zero = VectorXor(vec, vec);
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
+    enum { R=(16-C)&0xf, S=R };
+    const T zero = {0};
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, S);
 #endif
 }
+
+// Full specializations for 0 over uint8x16_p to uint64x2_p
+template<>
+inline uint8x16_p VectorShiftLeft<0, uint8x16_p>(const uint8x16_p& vec)
+{
+    return vec;
+}
+template<>
+inline uint16x8_p VectorShiftLeft<0, uint16x8_p>(const uint16x8_p& vec)
+{
+    return vec;
+}
+template<>
+inline uint32x4_p VectorShiftLeft<0, uint32x4_p>(const uint32x4_p& vec)
+{
+    return vec;
+}
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+template<>
+inline uint64x2_p VectorShiftLeft<0, uint64x2_p>(const uint64x2_p& vec)
+{
+    return vec;
+}
+#endif
 
 /// \brief Shift a vector right
 /// \tparam C shift byte count
@@ -235,48 +225,86 @@ template <unsigned int C, class T>
 inline T VectorShiftRight(const T& vec)
 {
 #if CRYPTOPP_BIG_ENDIAN
-    enum { R=(C)&0xf };
-    const T zero = VectorXor(vec, vec);
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
+    enum { R=(16-C)&0xf, S=R };
+    const T zero = {0};
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, S);
 #else
-    enum { R=(16-C)&0xf };
-    const T zero = VectorXor(vec, vec);
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
+    enum { R=(C)&0xf, S=R };
+    const T zero = {0};
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, S);
 #endif
 }
 
-/// \brief Shift two vectors right
-/// \tparam C shift byte count
+// Full specializations for 0 over uint8x16_p to uint64x2_p
+template<>
+inline uint8x16_p VectorShiftRight<0, uint8x16_p>(const uint8x16_p& vec)
+{
+    return vec;
+}
+template<>
+inline uint16x8_p VectorShiftRight<0, uint16x8_p>(const uint16x8_p& vec)
+{
+    return vec;
+}
+template<>
+inline uint32x4_p VectorShiftRight<0, uint32x4_p>(const uint32x4_p& vec)
+{
+    return vec;
+}
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+template<>
+inline uint64x2_p VectorShiftRight<0, uint64x2_p>(const uint64x2_p& vec)
+{
+    return vec;
+}
+#endif
+
+// Full specializations for 16 over uint8x16_p to uint64x2_p
+template<>
+inline uint8x16_p VectorShiftRight<16, uint8x16_p>(const uint8x16_p& vec)
+{
+    return vec;
+}
+template<>
+inline uint16x8_p VectorShiftRight<16, uint16x8_p>(const uint16x8_p& vec)
+{
+    return vec;
+}
+template<>
+inline uint32x4_p VectorShiftRight<16, uint32x4_p>(const uint32x4_p& vec)
+{
+    return vec;
+}
+#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+template<>
+inline uint64x2_p VectorShiftRight<16, uint64x2_p>(const uint64x2_p& vec)
+{
+    return vec;
+}
+#endif
+
+/// \brief Compare two vectors
 /// \tparam T1 vector type
 /// \tparam T2 vector type
 /// \param vec1 the first vector
 /// \param vec2 the second vector
-/// \details VectorShiftRight() concatenates vec1 and vec2 and returns a
-///   new vector after shifting the concatenation by the specified number
-///   of bytes. Both vec1 and vec2 are cast to uint8x16_p. The return
-///   vector is the same type as vec1.
-/// \details On big endian machines VectorShiftRight() is <tt>vec_sld(b, a,
-///   16-c)</tt>. On little endian machines VectorShiftRight() is translated to
-///   <tt>vec_sld(a, b, c)</tt>. You should always call the function as
-///   if on a big endian machine as shown below.
-/// <pre>
-///    uint8x16_p r0 = {0};
-///    uint8x16_p r1 = VectorLoad(ptr);
-///    uint8x16_p r5 = VectorShiftRight<12>(r0, r1);
-/// </pre>
-/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
-///   endian sensitive?</A> on Stack Overflow
-/// \since Crypto++ 6.0
-template <unsigned int C, class T1, class T2>
-inline T1 VectorShiftRight(const T1& vec1, const T2& vec2)
+/// \returns true if vec1 equals vec2, false otherwise
+template <class T1, class T2>
+inline bool VectorEqual(const T1& vec1, const T2& vec2)
 {
-#if CRYPTOPP_BIG_ENDIAN
-    enum { R=(C)&0xf };
-    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, R);
-#else
-    enum { R=(16-C)&0xf };
-    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, R);
-#endif
+    return 1 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
+}
+
+/// \brief Compare two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns true if vec1 does not equal vec2, false otherwise
+template <class T1, class T2>
+inline bool VectorNotEqual(const T1& vec1, const T2& vec2)
+{
+    return 0 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
 }
 
 #endif  // POWER4 and above
@@ -296,10 +324,10 @@ inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl_be(0, (byte*)src);
 #else
-# if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return (uint32x4_p)Reverse(vec_vsx_ld(0, src));
-# else
+# if defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)vec_vsx_ld(0, src);
+# else
+    return (uint32x4_p)Reverse(vec_vsx_ld(0, src));
 # endif
 #endif
 }
@@ -317,10 +345,10 @@ inline uint32x4_p VectorLoadBE(int off, const uint8_t src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl_be(off, (byte*)src);
 #else
-# if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return (uint32x4_p)Reverse(vec_vsx_ld(off, src));
-# else
+# if defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)vec_vsx_ld(off, src);
+# else
+    return (uint32x4_p)Reverse(vec_vsx_ld(off, src));
 # endif
 #endif
 }
@@ -371,10 +399,10 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst_be((uint8x16_p)src, 0, dest);
 #else
-# if defined(CRYPTOPP_LITTLE_ENDIAN)
-    vec_vsx_st(Reverse((uint8x16_p)src), 0, dest);
-# else
+# if defined(CRYPTOPP_BIG_ENDIAN)
     vec_vsx_st((uint8x16_p)src, 0, dest);
+# else
+    vec_vsx_st((uint8x16_p)Reverse(src), 0, dest);
 # endif
 #endif
 }
@@ -395,10 +423,10 @@ inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst_be((uint8x16_p)src, off, dest);
 #else
-# if defined(CRYPTOPP_LITTLE_ENDIAN)
-    vec_vsx_st(Reverse((uint8x16_p)src), off, dest);
-# else
+# if defined(CRYPTOPP_BIG_ENDIAN)
     vec_vsx_st((uint8x16_p)src, off, dest);
+# else
+    vec_vsx_st((uint8x16_p)Reverse(src), off, dest);
 # endif
 #endif
 }
@@ -472,37 +500,29 @@ inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 #if defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VectorLoad(src);
 #else
-    const uint8x16_p data = (uint8x16_p)VectorLoad(src);
-    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    return (uint32x4_p)vec_perm(data, data, mask);
+	return (uint32x4_p)Reverse(VectorLoad(src));
 #endif
 }
 
-inline void VectorStore(const uint32x4_p data, byte dest[16])
+template<class T>
+inline void VectorStore(const T& data, byte dest[16])
 {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    const uint8x16_p t1 = (uint8x16_p)vec_perm(data, data, mask);
-#else
-    const uint8x16_p t1 = (uint8x16_p)data;
-#endif
-
     if (IsAlignedOn(dest, 16))
     {
-        vec_st(t1, 0,  dest);
+        vec_st((uint8x16_p)data, 0,  dest);
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p t2 = vec_perm(t1, t1, vec_lvsr(0, dest));
-        vec_ste((uint8x16_p) t2,  0, (unsigned char*) dest);
-        vec_ste((uint16x8_p) t2,  1, (unsigned short*)dest);
-        vec_ste((uint32x4_p) t2,  3, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) t2,  4, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) t2,  8, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) t2, 12, (unsigned int*)  dest);
-        vec_ste((uint16x8_p) t2, 14, (unsigned short*)dest);
-        vec_ste((uint8x16_p) t2, 15, (unsigned char*) dest);
+        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, dest));
+        vec_ste((uint8x16_p) perm,  0, (unsigned char*) dest);
+        vec_ste((uint16x8_p) perm,  1, (unsigned short*)dest);
+        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  dest);
+        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  dest);
+        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  dest);
+        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  dest);
+        vec_ste((uint16x8_p) perm, 14, (unsigned short*)dest);
+        vec_ste((uint8x16_p) perm, 15, (unsigned char*) dest);
     }
 }
 
@@ -521,8 +541,7 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 #if defined(CRYPTOPP_BIG_ENDIAN)
     VectorStore(src, dest);
 #else
-    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    VectorStore(vec_perm(src, src, mask), dest);
+	VectorStore(Reverse(src), dest);
 #endif
 }
 
