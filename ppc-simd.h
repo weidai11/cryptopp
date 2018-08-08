@@ -35,7 +35,7 @@
 #if !(defined(_ARCH_PWR8) || defined(_ARCH_PWR9) || defined(__CRYPTO) || defined(__CRYPTO__))
 # undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_POWER8_AES_AVAILABLE
-# undef CRYPTOPP_POWER8_PMULL_AVAILABLE
+# undef CRYPTOPP_POWER8_VMULL_AVAILABLE
 # undef CRYPTOPP_POWER8_SHA_AVAILABLE
 #endif
 
@@ -55,10 +55,10 @@ typedef __vector unsigned short  uint16x8_p;
 typedef __vector unsigned int    uint32x4_p;
 #if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 typedef __vector unsigned long long uint64x2_p;
-#endif
-#endif  // ALTIVEC/POWER4 datatypes
+#endif  // POWER8 datatypes
+#endif  // ALTIVEC datatypes
 
-// POWER4 and above
+// ALTIVEC and above
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Reverse a vector
@@ -88,6 +88,20 @@ template <class T1, class T2>
 inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
     return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
+}
+
+/// \brief Permutes a vector
+/// \tparam T vector type
+/// \param vec the vector
+/// \param mask vector mask
+/// \details VectorPermute returns a new vector from vec based on
+///   mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorPermute(const T1& vec, const T2& mask)
+{
+    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
 }
 
 /// \brief AND two vectors
@@ -133,36 +147,6 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
     return (T1)vec_add(vec1, (T1)vec2);
 }
 
-/// \brief Shift a vector left
-/// \tparam C shift byte count
-/// \tparam T vector type
-/// \param vec the vector
-/// \details VectorShiftLeft() returns a new vector after shifting the
-///   concatenation of the zero vector and the source vector by the specified
-///   number of bytes. The return vector is the same type as vec.
-/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, z,
-///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
-///   <tt>vec_sld(z, a, 16-c)</tt>. You should always call the function as
-///   if on a big endian machine as shown below.
-/// <pre>
-///    uint8x16_p r1 = VectorLoad(ptr);
-///    uint8x16_p r5 = VectorShiftLeft<12>(r1);
-/// </pre>
-/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
-///   endian sensitive?</A> on Stack Overflow
-/// \since Crypto++ 6.0
-template <unsigned int C, class T>
-inline T VectorShiftLeft(const T& vec)
-{
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const T z = VectorXor(vec, vec);
-    return (T)vec_sld((uint8x16_p)z, (uint8x16_p)vec, 16-C);
-#else
-    const T z = VectorXor(vec, vec);
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)z, C);
-#endif
-}
-
 /// \brief Shift two vectors left
 /// \tparam C shift byte count
 /// \tparam T1 vector type
@@ -188,10 +172,44 @@ inline T VectorShiftLeft(const T& vec)
 template <unsigned int C, class T1, class T2>
 inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, 16-C);
+#if CRYPTOPP_BIG_ENDIAN
+    enum { R=(C)&0xf };
+    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, R);
 #else
-    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, C);
+    enum { R=(16-C)&0xf };
+    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, R);
+#endif
+}
+
+/// \brief Shift a vector left
+/// \tparam C shift byte count
+/// \tparam T vector type
+/// \param vec the vector
+/// \details VectorShiftLeft() returns a new vector after shifting the
+///   concatenation of the zero vector and the source vector by the specified
+///   number of bytes. The return vector is the same type as vec.
+/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, z,
+///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
+///   <tt>vec_sld(z, a, 16-c)</tt>. You should always call the function as
+///   if on a big endian machine as shown below.
+/// <pre>
+///    uint8x16_p r1 = VectorLoad(ptr);
+///    uint8x16_p r5 = VectorShiftLeft<12>(r1);
+/// </pre>
+/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+///   endian sensitive?</A> on Stack Overflow
+/// \since Crypto++ 6.0
+template <unsigned int C, class T>
+inline T VectorShiftLeft(const T& vec)
+{
+#if CRYPTOPP_BIG_ENDIAN
+    enum { R=(C)&0xf };
+    const T zero = VectorXor(vec, vec);
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
+#else
+    enum { R=(16-C)&0xf };
+    const T zero = VectorXor(vec, vec);
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
 #endif
 }
 
@@ -216,7 +234,15 @@ inline T1 VectorShiftLeft(const T1& vec1, const T2& vec2)
 template <unsigned int C, class T>
 inline T VectorShiftRight(const T& vec)
 {
-    return (T)VectorShiftLeft<16-C>(vec);
+#if CRYPTOPP_BIG_ENDIAN
+    enum { R=(C)&0xf };
+    const T zero = VectorXor(vec, vec);
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
+#else
+    enum { R=(16-C)&0xf };
+    const T zero = VectorXor(vec, vec);
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
+#endif
 }
 
 /// \brief Shift two vectors right
@@ -244,7 +270,13 @@ inline T VectorShiftRight(const T& vec)
 template <unsigned int C, class T1, class T2>
 inline T1 VectorShiftRight(const T1& vec1, const T2& vec2)
 {
-    return (T1)VectorShiftLeft<16-C>(vec2, vec1);
+#if CRYPTOPP_BIG_ENDIAN
+    enum { R=(C)&0xf };
+    return (T1)vec_sld((uint8x16_p)vec1, (uint8x16_p)vec2, R);
+#else
+    enum { R=(16-C)&0xf };
+    return (T1)vec_sld((uint8x16_p)vec2, (uint8x16_p)vec1, R);
+#endif
 }
 
 #endif  // POWER4 and above
