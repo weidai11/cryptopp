@@ -472,13 +472,17 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 
 #else  // ########## Not CRYPTOPP_POWER7_AVAILABLE ##########
 
-// POWER7 is not available. Slow Altivec loads and stores.
+/// \brief Loads a vector from a byte array
+/// \param src the byte array
+/// \details Loads a vector in native endian format from a byte array.
+/// \note VectorLoad does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const byte src[16])
 {
-    uint8x16_p data;
     if (IsAlignedOn(src, 16))
     {
-        data = vec_ld(0, src);
+        return (uint32x4_p)vec_ld(0, src);
     }
     else
     {
@@ -486,7 +490,30 @@ inline uint32x4_p VectorLoad(const byte src[16])
         const uint8x16_p perm = vec_lvsl(0, src);
         const uint8x16_p low = vec_ld(0, src);
         const uint8x16_p high = vec_ld(15, src);
-        data = vec_perm(low, high, perm);
+        return (uint32x4_p)vec_perm(low, high, perm);
+    }
+}
+
+/// \brief Loads a vector from a byte array
+/// \param src the byte array
+/// \param off offset into the src byte array
+/// \details Loads a vector in native endian format from a byte array.
+/// \note VectorLoad does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+inline uint32x4_p VectorLoad(int off, const byte src[16])
+{
+    if (IsAlignedOn(src, 16))
+    {
+        return (uint32x4_p)vec_ld(off, src);
+    }
+    else
+    {
+        // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
+        const uint8x16_p perm = vec_lvsl(off, src);
+        const uint8x16_p low = vec_ld(off, src);
+        const uint8x16_p high = vec_ld(15, src);
+        return (uint32x4_p)vec_perm(low, high, perm);
     }
 }
 
