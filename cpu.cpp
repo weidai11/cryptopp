@@ -21,14 +21,6 @@
 # include <unistd.h>
 #endif
 
-//#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
-//# if defined(_MSC_VER)
-//#  include <intrin.h>
-//# else
-//#  include <immintrin.h>
-//# endif
-//#endif
-
 // Capability queries, requires Glibc 2.16, http://lwn.net/Articles/519085/
 // CRYPTOPP_GLIBC_VERSION not used because config.h is missing <feature.h>
 #if (((__GLIBC__ * 100) + __GLIBC_MINOR__) >= 216)
