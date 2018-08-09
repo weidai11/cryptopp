@@ -1067,7 +1067,6 @@ bool TestHuffmanCodes()
 bool TestAltivecOps()
 {
     std::cout << "\nTesting Altivec operations...\n\n";
-    bool pass1=true, pass2=true;
 
     if (HasAltivec() == false)
     {
@@ -1082,6 +1081,7 @@ bool TestAltivecOps()
     // Altivec/POWER4 without POWER7, like on an old PowerMac.
 
     //********** Unaligned loads and stores **********//
+    bool pass1=true;
 
     CRYPTOPP_ALIGN_DATA(16)
     byte dest[20], src[20] = {23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4};
@@ -1138,6 +1138,7 @@ bool TestAltivecOps()
     std::cout << "  Altivec loads and stores" << std::endl;
 
     //********** Shifts **********//
+    bool pass2=true;
 
     uint8x16_p val = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
                       0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff};
@@ -1183,7 +1184,35 @@ bool TestAltivecOps()
         std::cout << "passed:";
     std::cout << "  Altivec left and right shifts" << std::endl;
 
-    return pass1 && pass2;
+    //********** Extraction **********//
+    bool pass3=true;
+    
+    uint8x16_p ex1 = {0x1f,0x1e,0x1d,0x1c, 0x1b,0x1a,0x19,0x18,
+                      0x17,0x16,0x15,0x14, 0x13,0x12,0x11,0x10};
+    uint8x16_p ex2 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+                      0x17,0x16,0x15,0x14, 0x13,0x12,0x11,0x10};
+    uint8x16_p ex3 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+                      0x1f,0x1e,0x1d,0x1c, 0x1b,0x1a,0x19,0x18};
+
+    pass3 = VectorEqual(ex2, VectorGetLow(ex1)) && pass3;
+    CRYPTOPP_ASSERT(pass3);
+    pass3 = VectorEqual(ex3, VectorGetHigh(ex1)) && pass3;
+    CRYPTOPP_ASSERT(pass3);
+
+    uint8x16_p ex4 = VectorShiftRight<8>(VectorShiftLeft<8>(ex1));
+    pass3 = VectorEqual(ex4, VectorGetLow(ex1)) && pass3;
+    CRYPTOPP_ASSERT(pass3);
+    uint8x16_p ex5 = VectorShiftRight<8>(ex1);
+    pass3 = VectorEqual(ex5, VectorGetHigh(ex1)) && pass3;
+    CRYPTOPP_ASSERT(pass3);
+
+    if (!pass3)
+        std::cout << "FAILED:";
+    else
+        std::cout << "passed:";
+    std::cout << "  Altivec vector extraction" << std::endl;
+
+    return pass1 && pass2 && pass3;
 }
 #endif
 #endif

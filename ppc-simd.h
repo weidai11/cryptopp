@@ -58,7 +58,7 @@ typedef __vector unsigned long long uint64x2_p;
 #endif  // POWER8 datatypes
 #endif  // ALTIVEC datatypes
 
-// ALTIVEC and above
+// Applies to all POWER machines
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Reverse a vector
@@ -268,6 +268,22 @@ inline uint64x2_p VectorShiftRight<0, uint64x2_p>(const uint64x2_p& vec)
     return vec;
 }
 #endif
+
+template <class T>
+inline T VectorGetLow(const T& val)
+{
+	const T zero = {0};
+	const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
+	return (T)vec_perm(val, zero, mask);
+}
+
+template <class T>
+inline T VectorGetHigh(const T& val)
+{
+	const T zero = {0};
+	const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
+	return (T)vec_perm(val, zero, mask);
+}
 
 /// \brief Compare two vectors
 /// \tparam T1 vector type
