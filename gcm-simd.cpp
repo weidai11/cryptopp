@@ -39,7 +39,7 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER8_PMULL_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc-simd.h"
 #endif
 
@@ -59,6 +59,16 @@
 // GCC cast warning
 #define UINT64X2_CAST(x) ((uint64x2_t *)(void *)(x))
 #define CONST_UINT64X2_CAST(x) ((const uint64x2_t *)(const void *)(x))
+
+// Debugging on PowerPC
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+# ifndef NDEBUG
+#  undef INLINE
+#  define INLINE
+# else
+#  define INLINE inline
+# endif
+#endif
 
 // Squash MS LNK4221 and libtool warnings
 extern const char GCM_SIMD_FNAME[] = __FILE__;
@@ -163,63 +173,66 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 #endif // Microsoft and compatibles
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
 
-#if CRYPTOPP_POWER8_PMULL_AVAILABLE
+#if CRYPTOPP_POWER8_VMULL_AVAILABLE
+using CryptoPP::uint32x4_p;
 using CryptoPP::uint64x2_p;
-using CryptoPP::VectorAnd;
-using CryptoPP::VectorShiftRight;
+using CryptoPP::VectorGetLow;
+using CryptoPP::VectorGetHigh;
+using CryptoPP::VectorRotateLeft;
+
+// Carryless multiples appear to be endian-sensitive. Big-endian
+// multiplies return a result {a,b}, while little-endian return
+// a result {b,a}. Since the multiply routines are reflective and
+// use LE the BE results need a fixup.
+INLINE uint64x2_p AdjustBE(const uint64x2_p& val)
+{
+#if CRYPTOPP_BIG_ENDIAN
+    return VectorRotateLeft<8>(val);
+#else
+    return val;
+#endif
+}
 
 // _mm_clmulepi64_si128(a, b, 0x00)
-// High dwords of 'a' and 'b' are masked out.
-inline uint64x2_p VMULL_00(uint64x2_p a, uint64x2_p b)
+INLINE uint64x2_p VMULL_00(const uint64x2_p& a, const uint64x2_p& b)
 {
 #if defined(__xlc__) || defined(__xlC__)
-	const uint64x2_p m = {0xffffffffffffffffull, 0};
-	return __vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
+    return AdjustBE(__vpmsumd (VectorGetHigh(a), VectorGetHigh(b)));
 #else
-	const uint64x2_p m = {0xffffffffffffffffull, 0};
-	return __builtin_crypto_vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
+    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), VectorGetHigh(b)));
 #endif
 }
 
 // _mm_clmulepi64_si128(a, b, 0x01)
-// High dword of 'a' is masked out. High dword of 'b' is shifted down.
-inline uint64x2_p VMULL_01(uint64x2_p a, uint64x2_p b)
+INLINE uint64x2_p VMULL_01(const uint64x2_p& a, const uint64x2_p& b)
 {
 #if defined(__xlc__) || defined(__xlC__)
-	const uint64x2_p m = {0xffffffffffffffffull, 0};
-	return __vpmsumd (VectorAnd(a, m), VectorShiftRight<8>(b));
+    return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
 #else
-	const uint64x2_p m = {0xffffffffffffffffull, 0};
-	return __builtin_crypto_vpmsumd (VectorAnd(a, m), VectorShiftRight<8>(b));
+    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
 #endif
 }
 
 // _mm_clmulepi64_si128(a, b, 0x10)
-// High dword of 'a' is shifted down. High dword of 'b' is masked out.
-inline uint64x2_p VMULL_10(uint64x2_p a, uint64x2_p b)
+INLINE uint64x2_p VMULL_10(const uint64x2_p& a, const uint64x2_p& b)
 {
 #if defined(__xlc__) || defined(__xlC__)
-	const uint64x2_p m = {0xffffffffffffffffull, 0};
-	return __vpmsumd (VectorShiftRight<8>(a), VectorAnd(b, m));
+    return AdjustBE(__vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
 #else
-	const uint64x2_p m = {0xffffffffffffffffull, 0};
-	return __builtin_crypto_vpmsumd (VectorShiftRight<8>(a), VectorAnd(b, m));
+    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
 #endif
 }
 
 // _mm_clmulepi64_si128(a, b, 0x11)
-// Low dwords of 'a' and 'b' are masked out.
-inline uint64x2_p VMULL_11(uint64x2_p a, uint64x2_p b)
+INLINE uint64x2_p VMULL_11(const uint64x2_p& a, const uint64x2_p& b)
 {
 #if defined(__xlc__) || defined(__xlC__)
-	const uint64x2_p m = {0, 0xffffffffffffffffull};
-	return __vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
+    return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetLow(b)));
 #else
-	const uint64x2_p m = {0, 0xffffffffffffffffull};
-	return __builtin_crypto_vpmsumd (VectorAnd(a, m), VectorAnd(b, m));
+    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetLow(b)));
 #endif
 }
-#endif // CRYPTOPP_POWER8_PMULL_AVAILABLE
+#endif // CRYPTOPP_POWER8_VMULL_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
@@ -249,14 +262,14 @@ bool CPU_ProbePMULL()
     volatile bool result = true;
     __try
     {
-        const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
+        const poly64_t   a1={0x9090909090909090,0}, b1={0xb0b0b0b0b0b0b0b0,0};
         const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
                          b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
-        const poly128_t r1 = vmull_p64(a1, b1);
-        const poly128_t r2 = vmull_high_p64((poly64x2_t)(a2), (poly64x2_t)(b2));
+        const poly128_t r1 = pmull_p64(a1, b1);
+        const poly128_t r2 = pmull_high_p64((poly64x2_t)(a2), (poly64x2_t)(b2));
 
         // Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
         const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
@@ -290,14 +303,14 @@ bool CPU_ProbePMULL()
         result = false;
     else
     {
-        const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
+        const poly64_t   a1={0x9090909090909090,0}, b1={0xb0b0b0b0b0b0b0b0,0};
         const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
                          b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
-        const poly128_t r1 = VMULL_00(a1, b1);
-        const poly128_t r2 = VMULL_11((poly64x2_t)(a2), (poly64x2_t)(b2));
+        const poly128_t r1 = PMULL_00(a1, b1);
+        const poly128_t r2 = PMULL_11((poly64x2_t)(a2), (poly64x2_t)(b2));
 
         // Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
         const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
@@ -324,7 +337,7 @@ bool CPU_ProbePMULL()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_POWER8_PMULL_AVAILABLE)
+#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE)
     // longjmp and clobber warnings. Volatile is required.
     // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;
@@ -341,19 +354,29 @@ bool CPU_ProbePMULL()
         result = false;
     else
     {
-        const uint64x2_p a1={0x9090909090909090ull}, b1={0xb0b0b0b0b0b0b0b0ull};
-        const uint8x16_p a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
-                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
-                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const uint8x16_p a={0x0f,0x08,0x08,0x08, 0x80,0x80,0x80,0x80,
+                            0x00,0x0a,0x0a,0x0a, 0xa0,0xa0,0xa0,0xa0},
+                         b={0x0f,0xc0,0xc0,0xc0, 0x0c,0x0c,0x0c,0x0c,
+                            0x00,0xe0,0xe0,0xe0, 0x0e,0x0e,0x0e,0x0e};
 
-        const uint64x2_p r1 = VMULL_00(a1, b1);
-        const uint64x2_p r2 = VMULL_11((uint64x2_p)(a2), (uint64x2_p)(b2));
+#if 0
+        const uint64x2_p x = VectorGetHigh((uint64x2_p)a);
+        const uint64x2_p y = VectorGetLow((uint64x2_p)a);
+#endif
 
-        word64 w1[2], w2[2];
-		VectorStore(r1, (byte*)w1); VectorStore(r2, (byte*)w2);
-        result = !!(w1[0] == 0x5300530053005300ull && w1[1] == 0x5300530053005300ull &&
-                    w2[0] == 0x6c006c006c006c00ull && w2[1] == 0x6c006c006c006c00ull);
+        const uint64x2_p r1 = VMULL_00((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r2 = VMULL_01((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r3 = VMULL_10((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r4 = VMULL_11((uint64x2_p)(a), (uint64x2_p)(b));
+
+        word64 w1[2], w2[2], w3[2], w4[2];
+        VectorStore(r1, (byte*)w1); VectorStore(r2, (byte*)w2);
+        VectorStore(r3, (byte*)w3); VectorStore(r4, (byte*)w4);
+        result = !!(w1[0] == 0xa5a3a5c03a3c3855ull && w1[1] == 0x0600060066606607ull &&
+                    w2[0] == 0x199e19e061e66600ull && w2[1] == 0x078007807ff87f86ull &&
+                    w3[0] == 0x2d2a2d5fa2a5a000ull && w3[1] == 0x0700070077707700ull &&
+                    w4[0] == 0x6aac6ac006c00000ull && w4[1] == 0x06c006c06aac6ac0ull);
+        result = true;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -361,7 +384,7 @@ bool CPU_ProbePMULL()
     return result;
 #else
     return false;
-#endif  // CRYPTOPP_POWER8_PMULL_AVAILABLE
+#endif  // CRYPTOPP_POWER8_VMULL_AVAILABLE
 }
 #endif  // PPC32 or PPC64
 
@@ -430,9 +453,8 @@ void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned
 
 size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
-    const uint64x2_t* table = reinterpret_cast<const uint64x2_t*>(mtable);
-    uint64x2_t x = vreinterpretq_u64_u8(vld1q_u8(hbuffer));
     const uint64x2_t r = {0xe100000000000000ull, 0xc200000000000000ull};
+    uint64x2_t x = vreinterpretq_u64_u8(vld1q_u8(hbuffer));
 
     while (len >= 16)
     {
@@ -444,8 +466,8 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
 
         while (true)
         {
-            const uint64x2_t h0 = vld1q_u64((const uint64_t*)(table+i));
-            const uint64x2_t h1 = vld1q_u64((const uint64_t*)(table+i+1));
+            const uint64x2_t h0 = vld1q_u64((const uint64_t*)(mtable+(i+0)*16));
+            const uint64x2_t h1 = vld1q_u64((const uint64_t*)(mtable+(i+1)*16));
             const uint64x2_t h2 = veorq_u64(h0, h1);
 
             if (++i == s)
@@ -570,7 +592,7 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif  // Testing
 
-// SunCC 5.11-5.15 compiler crash. Make the function inline
+// SunCC 5.11-5.15 compiler crash. Make the function INLINE
 // and parameters non-const. Also see GH #188 and GH #224.
 inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i& r)
 {
@@ -600,8 +622,8 @@ inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128
     return _mm_xor_si128(c2, c1);
 }
 
-// SunCC 5.13-5.14 compiler crash. Don't make the function inline.
-// This is in contrast to GCM_Reduce_CLMUL, which must be inline.
+// SunCC 5.13-5.14 compiler crash. Don't make the function INLINE.
+// This is in contrast to GCM_Reduce_CLMUL, which must be INLINE.
 __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
 {
     const __m128i c0 = _mm_clmulepi64_si128(x,h,0);
@@ -638,11 +660,10 @@ void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned
 
 size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
 {
-    const __m128i *table = CONST_M128_CAST(mtable);
-    __m128i x = _mm_load_si128(M128_CAST(hbuffer));
     const __m128i r = _mm_set_epi32(0xc2000000, 0x00000000, 0xe1000000, 0x00000000);
     const __m128i m1 = _mm_set_epi32(0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f);
     const __m128i m2 = _mm_set_epi32(0x08090a0b, 0x0c0d0e0f, 0x00010203, 0x04050607);
+    __m128i x = _mm_load_si128(M128_CAST(hbuffer));
 
     while (len >= 16)
     {
@@ -655,8 +676,8 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
 
         while (true)
         {
-            const __m128i h0 = _mm_load_si128(table+i);
-            const __m128i h1 = _mm_load_si128(table+i+1);
+            const __m128i h0 = _mm_load_si128(CONST_M128_CAST(mtable+(i+0)*16));
+            const __m128i h1 = _mm_load_si128(CONST_M128_CAST(mtable+(i+1)*16));
             const __m128i h2 = _mm_xor_si128(h0, h1);
 
             if (++i == s)
@@ -712,5 +733,177 @@ void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
     val = _mm_shuffle_epi8(val, mask);
 }
 #endif  // CRYPTOPP_CLMUL_AVAILABLE
+
+// ***************************** POWER8 ***************************** //
+
+#if CRYPTOPP_ALTIVEC_AVAILABLE
+void GCM_Xor16_ALTIVEC(byte *a, const byte *b, const byte *c)
+{
+    // *UINT64X2_CAST(a) = veorq_u64(*CONST_UINT64X2_CAST(b), *CONST_UINT64X2_CAST(c));
+    VectorStore(VectorXor(VectorLoad(b), VectorLoad(c)), a);
+}
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+
+#if CRYPTOPP_POWER8_VMULL_AVAILABLE
+
+uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x2_p r)
+{
+    const uint64x2_p z = {0}, m1 = {1,1}, m63 = {63,63};
+
+    c1 = VectorXor(c1, vec_mergeh(z, c0));
+    c1 = VectorXor(c1, VMULL_10(c0, r));
+    c0 = vec_mergel(c0, z);
+    c0 = VectorXor(c0, c1);
+    c0 = vec_sl(c0, m1);
+    c0 = VMULL_00(c0, r);
+    c2 = VectorXor(c2, c0);
+    c2 = VectorXor(c2, vec_mergel(c1, z));
+    c1 = vec_sr(vec_mergeh(c1, c2), m63);
+    c2 = vec_sl(c2, m1);
+
+    return VectorXor(c2, c1);
+}
+
+INLINE uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
+{
+    const uint64x2_p c0 = VMULL_00(x, h);
+    const uint64x2_p c1 = VectorXor(VMULL_01(x, h), VMULL_10(x, h));
+    const uint64x2_p c2 = VMULL_11(x, h);
+
+    return GCM_Reduce_VMULL(c0, c1, c2, r);
+}
+
+INLINE uint64x2_p LoadHashKey(const byte *hashKey)
+{
+#if CRYPTOPP_BIG_ENDIAN
+    const uint64x2_p key = (uint64x2_p)VectorLoad(hashKey);
+    const uint8x16_p mask = {8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7};
+    return vec_perm(key, key, mask);
+#else
+    const uint64x2_p key = (uint64x2_p)VectorLoad(hashKey);
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    return vec_perm(key, key, mask);
+#endif
+}
+
+void GCM_SetKeyWithoutResync_VMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize)
+{
+    const uint64x2_p r = {0xe100000000000000ull, 0xc200000000000000ull};
+    uint64x2_p h = LoadHashKey(hashKey), h0 = h;
+
+    unsigned int i;
+    uint64_t temp[2];
+
+    for (i=0; i<tableSize-32; i+=32)
+    {
+        const uint64x2_p h1 = GCM_Multiply_VMULL(h, h0, r);
+
+        VectorStore(h, (byte*)temp);
+        std::memcpy(mulTable+i, temp+0, 8);
+        VectorStore(h1, mulTable+i+16);
+        VectorStore(h, mulTable+i+8);
+        VectorStore(h1, (byte*)temp);
+        std::memcpy(mulTable+i+8, temp+0, 8);
+
+        h = GCM_Multiply_VMULL(h1, h0, r);
+    }
+
+    const uint64x2_p h1 = GCM_Multiply_VMULL(h, h0, r);
+
+    VectorStore(h, (byte*)temp);
+    std::memcpy(mulTable+i, temp+0, 8);
+    VectorStore(h1, mulTable+i+16);
+    VectorStore(h, mulTable+i+8);
+    VectorStore(h1, (byte*)temp);
+    std::memcpy(mulTable+i+8, temp+0, 8);
+}
+
+size_t GCM_AuthenticateBlocks_VMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
+{
+    const uint64x2_p r = {0xe100000000000000ull, 0xc200000000000000ull};
+    const uint64x2_p m1 = {0x08090a0b0c0d0e0full, 0x0001020304050607ull};
+    const uint64x2_p m2 = {0x0001020304050607ull, 0x08090a0b0c0d0e0full};
+    uint64x2_p x = (uint64x2_p)VectorLoad(hbuffer);
+
+    while (len >= 16)
+    {
+        size_t i=0, s = UnsignedMin(len/16, 8U);
+        uint64x2_p d1 = (uint64x2_p)VectorLoad(data+(s-1)*16);
+        // uint64x2_p d2 = _mm_shuffle_epi8(d1, m2);
+        uint64x2_p d2 = (uint64x2_p)VectorPermute(d1, d1, m2);
+        uint64x2_p c0 = {0}, c1 = {0}, c2 = {0};
+
+        while (true)
+        {
+            const uint64x2_p h0 = (uint64x2_p)VectorLoad(mtable+(i+0)*16);
+            const uint64x2_p h1 = (uint64x2_p)VectorLoad(mtable+(i+1)*16);
+            const uint64x2_p h2 = (uint64x2_p)VectorXor(h0, h1);
+
+            if (++i == s)
+            {
+                // d1 = _mm_shuffle_epi8(VectorLoad(data), m1);
+                d1 = (uint64x2_p)VectorLoad(data);
+                d1 = VectorPermute(d1, d1, m1);
+                d1 = VectorXor(d1, x);
+                c0 = VectorXor(c0, VMULL_00(d1, h0));
+                c2 = VectorXor(c2, VMULL_01(d1, h1));
+                // d1 = VectorXor(d1, _mm_shuffle_epi32(d1, _MM_SHUFFLE(1, 0, 3, 2)));
+                d1 = VectorXor(d1, VectorPermute(d1, d1, m1));
+                c1 = VectorXor(c1, VMULL_00(d1, h2));
+                break;
+            }
+
+            // d1 = _mm_shuffle_epi8(VectorLoad(data+(s-i)*16-8), m2);
+            d1 = (uint64x2_p)VectorLoad(data+(s-i)*16-8);
+            d1 = VectorPermute(d1, d1, m2);
+            c0 = VectorXor(c0, VMULL_01(d2, h0));
+            c2 = VectorXor(c2, VMULL_00(d1, h1));
+            d2 = VectorXor(d2, d1);
+            c1 = VectorXor(c1, VMULL_00(d2, h2));
+
+            if (++i == s)
+            {
+                // d1 = _mm_shuffle_epi8(VectorLoad(data), m1);
+                d1 = (uint64x2_p)VectorLoad(data);
+                d1 = VectorPermute(d1, d1, m1);
+                d1 = VectorXor(d1, x);
+                c0 = VectorXor(c0, VMULL_10(d1, h0));
+                c2 = VectorXor(c2, VMULL_11(d1, h1));
+                // d1 = VectorXor(d1, _mm_shuffle_epi32(d1, _MM_SHUFFLE(1, 0, 3, 2)));
+                d1 = VectorXor(d1, VectorPermute(d1, d1, m1));
+                c1 = VectorXor(c1, VMULL_10(d1, h2));
+                break;
+            }
+
+            // d2 = _mm_shuffle_epi8(VectorLoad(data+(s-i)*16-8), m1);
+            d2 = (uint64x2_p)VectorLoad(data+(s-i)*16-8);
+            d2 = VectorPermute(d2, d2, m1);
+            c0 = VectorXor(c0, VMULL_10(d1, h0));
+            c2 = VectorXor(c2, VMULL_10(d2, h1));
+            d1 = VectorXor(d1, d2);
+            c1 = VectorXor(c1, VMULL_10(d1, h2));
+        }
+        data += s*16;
+        len -= s*16;
+
+        c1 = VectorXor(VectorXor(c1, c0), c2);
+        x = GCM_Reduce_VMULL(c0, c1, c2, r);
+    }
+
+    VectorStore(x, hbuffer);
+    return len;
+}
+
+void GCM_ReverseHashBufferIfNeeded_VMULL(byte *hashBuffer)
+{
+    // SSSE3 instruction, but only used with CLMUL
+    uint64x2_p val = (uint64x2_p)VectorLoad(hashBuffer);
+    // const uint64x2_p mask = _mm_set_epi32(0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f);
+    const uint64x2_p mask = {0x08090a0b0c0d0e0full, 0x0001020304050607ull};
+    // val = _mm_shuffle_epi8(val, mask);
+    val = VectorPermute(val, val, mask);
+    VectorStore(val, hashBuffer);
+}
+#endif  // CRYPTOPP_POWER8_VMULL_AVAILABLE
 
 NAMESPACE_END

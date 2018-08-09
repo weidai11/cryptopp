@@ -35,7 +35,7 @@
 #if !(defined(_ARCH_PWR8) || defined(_ARCH_PWR9) || defined(__CRYPTO) || defined(__CRYPTO__))
 # undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_POWER8_AES_AVAILABLE
-# undef CRYPTOPP_POWER8_PMULL_AVAILABLE
+# undef CRYPTOPP_POWER8_VMULL_AVAILABLE
 # undef CRYPTOPP_POWER8_SHA_AVAILABLE
 #endif
 
@@ -116,6 +116,20 @@ template <class T1, class T2>
 inline T1 VectorAnd(const T1& vec1, const T2& vec2)
 {
     return (T1)vec_and(vec1, (T1)vec2);
+}
+
+/// \brief OR two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VectorOr returns a new vector from vec1 and vec2. The return
+///   vector is the same type as vec1.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorOr(const T1& vec1, const T2& vec2)
+{
+    return (T1)vec_or(vec1, (T1)vec2);
 }
 
 /// \brief XOR two vectors
@@ -269,20 +283,62 @@ inline uint64x2_p VectorShiftRight<0, uint64x2_p>(const uint64x2_p& vec)
 }
 #endif
 
+/// \brief Rotate a vector left
+/// \tparam C shift byte count
+/// \tparam T vector type
+/// \param vec the vector
+/// \details VectorRotateLeft() returns a new vector after rotating the
+///   concatenation of the source vector with itself by the specified
+///   number of bytes. The return vector is the same type as vec.
+/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+///   endian sensitive?</A> on Stack Overflow
+/// \since Crypto++ 6.0
+template <unsigned int C, class T>
+inline T VectorRotateLeft(const T& vec)
+{
+    enum { R = C&0xf };
+#if CRYPTOPP_BIG_ENDIAN
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
+#else
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 16-R);
+#endif
+}
+
+/// \brief Rotate a vector right
+/// \tparam C shift byte count
+/// \tparam T vector type
+/// \param vec the vector
+/// \details VectorRotateRight() returns a new vector after rotating the
+///   concatenation of the source vector with itself by the specified
+///   number of bytes. The return vector is the same type as vec.
+/// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
+///   endian sensitive?</A> on Stack Overflow
+/// \since Crypto++ 6.0
+template <unsigned int C, class T>
+inline T VectorRotateRight(const T& vec)
+{
+    enum { R = C&0xf };
+#if CRYPTOPP_BIG_ENDIAN
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 16-R);
+#else
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
+#endif
+}
+
 template <class T>
 inline T VectorGetLow(const T& val)
 {
-	const T zero = {0};
-	const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
-	return (T)vec_perm(val, zero, mask);
+    const T zero = {0};
+    const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
+    return (T)vec_perm(val, zero, mask);
 }
 
 template <class T>
 inline T VectorGetHigh(const T& val)
 {
-	const T zero = {0};
-	const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
-	return (T)vec_perm(val, zero, mask);
+    const T zero = {0};
+    const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
+    return (T)vec_perm(val, zero, mask);
 }
 
 /// \brief Compare two vectors

@@ -45,10 +45,6 @@ NAMESPACE_BEGIN(CryptoPP)
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-extern void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c);
-#endif
-
 word16 GCM_Base::s_reductionTable[256];
 volatile bool GCM_Base::s_reductionTableInitialized = false;
 
@@ -72,6 +68,14 @@ static inline void Xor16(byte *a, const byte *b, const byte *c)
 extern void GCM_Xor16_SSE2(byte *a, const byte *b, const byte *c);
 #endif  // SSE2
 
+#if CRYPTOPP_ARM_NEON_AVAILABLE
+extern void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c);
+#endif
+
+#if CRYPTOPP_ALTIVEC_AVAILABLE
+extern void GCM_Xor16_ALTIVEC(byte *a, const byte *b, const byte *c);
+#endif
+
 #if CRYPTOPP_CLMUL_AVAILABLE
 extern void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
 extern size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
@@ -85,6 +89,13 @@ extern size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const b
 const unsigned int s_cltableSizeInBlocks = 8;
 extern void GCM_ReverseHashBufferIfNeeded_PMULL(byte *hashBuffer);
 #endif  // CRYPTOPP_ARM_PMULL_AVAILABLE
+
+#if CRYPTOPP_POWER8_VMULL_AVAILABLE
+extern void GCM_SetKeyWithoutResync_VMULL(const byte *hashKey, byte *mulTable, unsigned int tableSize);
+extern size_t GCM_AuthenticateBlocks_VMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer);
+const unsigned int s_cltableSizeInBlocks = 8;
+extern void GCM_ReverseHashBufferIfNeeded_VMULL(byte *hashBuffer);
+#endif  // CRYPTOPP_POWER8_VMULL_AVAILABLE
 
 void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const NameValuePairs &params)
 {
@@ -112,6 +123,15 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
     }
     else
 #elif CRYPTOPP_ARM_PMULL_AVAILABLE
+    if (HasPMULL())
+    {
+        // Avoid "parameter not used" error and suppress Coverity finding
+        (void)params.GetIntValue(Name::TableSize(), tableSize);
+        tableSize = s_cltableSizeInBlocks * blockSize;
+        CRYPTOPP_ASSERT(tableSize > static_cast<int>(blockSize));
+    }
+    else
+#elif CRYPTOPP_POWER8_VMULL_AVAILABLE
     if (HasPMULL())
     {
         // Avoid "parameter not used" error and suppress Coverity finding
@@ -151,6 +171,12 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
         GCM_SetKeyWithoutResync_PMULL(hashKey, mulTable, tableSize);
         return;
     }
+#elif CRYPTOPP_POWER8_VMULL_AVAILABLE
+    if (HasPMULL())
+    {
+        GCM_SetKeyWithoutResync_VMULL(hashKey, mulTable, tableSize);
+        return;
+    }
 #endif
 
     word64 V0, V1;
@@ -183,6 +209,12 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
                 for (j=2; j<=0x80; j*=2)
                     for (k=1; k<j; k++)
                         GCM_Xor16_NEON(mulTable+i*256*16+(j+k)*16, mulTable+i*256*16+j*16, mulTable+i*256*16+k*16);
+            else
+#elif CRYPTOPP_ALTIVEC_AVAILABLE
+            if (HasAltivec())
+                for (j=2; j<=0x80; j*=2)
+                    for (k=1; k<j; k++)
+                        GCM_Xor16_ALTIVEC(mulTable+i*256*16+(j+k)*16, mulTable+i*256*16+j*16, mulTable+i*256*16+k*16);
             else
 #endif
                 for (j=2; j<=0x80; j*=2)
@@ -242,6 +274,15 @@ void GCM_Base::SetKeyWithoutResync(const byte *userKey, size_t keylength, const 
                         GCM_Xor16_NEON(mulTable+1024+i*256+(j+k)*16, mulTable+1024+i*256+j*16, mulTable+1024+i*256+k*16);
                     }
             else
+#elif CRYPTOPP_ALTIVEC_AVAILABLE
+            if (HasAltivec())
+                for (j=2; j<=8; j*=2)
+                    for (k=1; k<j; k++)
+                    {
+                        GCM_Xor16_ALTIVEC(mulTable+i*256+(j+k)*16, mulTable+i*256+j*16, mulTable+i*256+k*16);
+                        GCM_Xor16_ALTIVEC(mulTable+1024+i*256+(j+k)*16, mulTable+1024+i*256+j*16, mulTable+1024+i*256+k*16);
+                    }
+            else
 #endif
                 for (j=2; j<=8; j*=2)
                     for (k=1; k<j; k++)
@@ -264,6 +305,11 @@ inline void GCM_Base::ReverseHashBufferIfNeeded()
     if (HasPMULL())
     {
         GCM_ReverseHashBufferIfNeeded_PMULL(HashBuffer());
+    }
+#elif CRYPTOPP_POWER8_VMULL_AVAILABLE
+    if (HasPMULL())
+    {
+        GCM_ReverseHashBufferIfNeeded_VMULL(HashBuffer());
     }
 #endif
 }
@@ -320,6 +366,8 @@ unsigned int GCM_Base::OptimalDataAlignment() const
         HasSSE2() ? 16 :
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
         HasNEON() ? 4 :
+#elif CRYPTOPP_ALTIVEC_AVAILABLE
+        HasAltivec() ? 16 :
 #endif
         GetBlockCipher().OptimalDataAlignment();
 }
@@ -328,7 +376,7 @@ unsigned int GCM_Base::OptimalDataAlignment() const
 # pragma warning(disable: 4731)    // frame pointer register 'ebp' modified by inline assembly code
 #endif
 
-#endif    // #ifndef CRYPTOPP_GENERATE_X64_MASM
+#endif    // Not CRYPTOPP_GENERATE_X64_MASM
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
@@ -350,6 +398,11 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
     if (HasPMULL())
     {
         return GCM_AuthenticateBlocks_PMULL(data, len, MulTable(), HashBuffer());
+    }
+#elif CRYPTOPP_POWER8_VMULL_AVAILABLE
+    if (HasPMULL())
+    {
+        return GCM_AuthenticateBlocks_VMULL(data, len, MulTable(), HashBuffer());
     }
 #endif
 
@@ -796,5 +849,5 @@ void GCM_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSize)
 
 NAMESPACE_END
 
-#endif    // #ifndef CRYPTOPP_GENERATE_X64_MASM
+#endif    // Not CRYPTOPP_GENERATE_X64_MASM
 #endif
