@@ -35,7 +35,7 @@
 #if !(defined(_ARCH_PWR8) || defined(_ARCH_PWR9) || defined(__CRYPTO) || defined(__CRYPTO__))
 # undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_POWER8_AES_AVAILABLE
-# undef CRYPTOPP_POWER8_VMULL_AVAILABLE
+# undef CRYPTOPP_POWER8_PMULL_AVAILABLE
 # undef CRYPTOPP_POWER8_SHA_AVAILABLE
 #endif
 
@@ -168,14 +168,27 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
 template <unsigned int C, class T>
 inline T VectorShiftLeft(const T& vec)
 {
+    const T zero = {0};
 #if CRYPTOPP_BIG_ENDIAN
-    enum { R=(C)&0xf };
-    const T zero = {0};
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
+    if (C >= 16)
+    {
+        // Out of range
+        return zero;
+    }
+    else
+    {
+        return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
+    }
 #else
-    enum { R=(16-C)&0xf };
-    const T zero = {0};
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
+    if (C >= 16)
+    {
+        // Out of range
+        return zero;
+    }
+    else
+    {
+        return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
+    }
 #endif
 }
 
@@ -224,14 +237,27 @@ inline uint64x2_p VectorShiftLeft<0, uint64x2_p>(const uint64x2_p& vec)
 template <unsigned int C, class T>
 inline T VectorShiftRight(const T& vec)
 {
+    const T zero = {0};
 #if CRYPTOPP_BIG_ENDIAN
-    enum { R=(16-C)&0xf };
-    const T zero = {0};
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
+    if (C >= 16)
+    {
+        // Out of range
+        return zero;
+    }
+    else
+    {
+        return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
+    }
 #else
-    enum { R=(C)&0xf };
-    const T zero = {0};
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
+    if (C >= 16)
+    {
+        // Out of range
+        return zero;
+    }
+    else
+    {
+        return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
+    }
 #endif
 }
 
@@ -254,30 +280,6 @@ inline uint32x4_p VectorShiftRight<0, uint32x4_p>(const uint32x4_p& vec)
 #if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 template<>
 inline uint64x2_p VectorShiftRight<0, uint64x2_p>(const uint64x2_p& vec)
-{
-    return vec;
-}
-#endif
-
-// Full specializations for 16 over uint8x16_p to uint64x2_p
-template<>
-inline uint8x16_p VectorShiftRight<16, uint8x16_p>(const uint8x16_p& vec)
-{
-    return vec;
-}
-template<>
-inline uint16x8_p VectorShiftRight<16, uint16x8_p>(const uint16x8_p& vec)
-{
-    return vec;
-}
-template<>
-inline uint32x4_p VectorShiftRight<16, uint32x4_p>(const uint32x4_p& vec)
-{
-    return vec;
-}
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-template<>
-inline uint64x2_p VectorShiftRight<16, uint64x2_p>(const uint64x2_p& vec)
 {
     return vec;
 }

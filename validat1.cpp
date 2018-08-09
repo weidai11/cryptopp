@@ -1067,7 +1067,7 @@ bool TestHuffmanCodes()
 bool TestAltivecOps()
 {
     std::cout << "\nTesting Altivec operations...\n\n";
-    bool pass=true;
+    bool pass1=true, pass2=true;
 
     if (HasAltivec() == false)
     {
@@ -1085,59 +1085,106 @@ bool TestAltivecOps()
 
     CRYPTOPP_ALIGN_DATA(16)
     byte dest[20], src[20] = {23,22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4};
-    const byte exp1[16] ={22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7};
-    const byte exp2[16] ={21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6};
-    const byte exp3[16] ={20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5};
+    const byte st1[16] ={22,21,20,19,18,17,16,15,14,13,12,11,10,9,8,7};
+    const byte st2[16] ={21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6};
+    const byte st3[16] ={20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5};
 
     VectorStore(VectorLoad(src), dest);
-    pass = (0 == std::memcmp(src, dest, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(src, dest, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStore(VectorLoad(src+1), dest+1);
-    pass = (0 == std::memcmp(exp1, dest+1, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(st1, dest+1, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStore(VectorLoad(src+2), dest+2);
-    pass = (0 == std::memcmp(exp2, dest+2, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(st2, dest+2, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStore(VectorLoad(src+3), dest+3);
-    pass = (0 == std::memcmp(exp3, dest+3, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(st3, dest+3, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStoreBE(VectorLoadBE(src), dest);
-    pass = (0 == std::memcmp(src, dest, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(src, dest, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStoreBE(VectorLoadBE(src+1), dest+1);
-    pass = (0 == std::memcmp(exp1, dest+1, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(st1, dest+1, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStoreBE(VectorLoadBE(src+2), dest+2);
-    pass = (0 == std::memcmp(exp2, dest+2, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(st2, dest+2, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStoreBE(VectorLoadBE(src+3), dest+3);
-    pass = (0 == std::memcmp(exp3, dest+3, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 == std::memcmp(st3, dest+3, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
     VectorStore(VectorLoadBE(src), dest);
-    pass = (0 != std::memcmp(src, dest, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 != std::memcmp(src, dest, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 
     VectorStoreBE(VectorLoad(src), dest);
-    pass = (0 != std::memcmp(src, dest, 16)) && pass;
-    CRYPTOPP_ASSERT(pass);
+    pass1 = (0 != std::memcmp(src, dest, 16)) && pass1;
+    CRYPTOPP_ASSERT(pass1);
 #endif
 
-    if (!pass)
+    if (!pass1)
         std::cout << "FAILED:";
     else
         std::cout << "passed:";
     std::cout << "  Altivec loads and stores" << std::endl;
 
-    return pass;
+    //********** Shifts **********//
+
+    uint8x16_p val = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
+                      0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff};
+    uint8x16_p t;
+
+    pass2 = (VectorEqual(val, t=VectorShiftLeft<0>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+    pass2 = (VectorEqual(val, t=VectorShiftRight<0>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+
+    uint8x16_p lsh1 = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
+                       0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0x00};
+    uint8x16_p rsh1 = {0x00,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
+                       0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff};
+
+    pass2 = (VectorEqual(lsh1, t=VectorShiftLeft<1>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+    pass2 = (VectorEqual(rsh1, t=VectorShiftRight<1>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+
+    uint8x16_p lsh15 = {0xff,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00};
+    uint8x16_p rsh15 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0xff};
+
+    pass2 = (VectorEqual(lsh15, t=VectorShiftLeft<15>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+    pass2 = (VectorEqual(rsh15, t=VectorShiftRight<15>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+
+    uint8x16_p lsh16 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00};
+    uint8x16_p rsh16 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
+                        0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00};
+
+    pass2 = (VectorEqual(lsh16, t=VectorShiftLeft<16>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+    pass2 = (VectorEqual(rsh16, t=VectorShiftRight<16>(val))) && pass2;
+    CRYPTOPP_ASSERT(pass2);
+
+    if (!pass2)
+        std::cout << "FAILED:";
+    else
+        std::cout << "passed:";
+    std::cout << "  Altivec left and right shifts" << std::endl;
+
+    return pass1 && pass2;
 }
 #endif
 #endif
