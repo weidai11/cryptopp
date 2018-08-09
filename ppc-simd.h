@@ -169,13 +169,13 @@ template <unsigned int C, class T>
 inline T VectorShiftLeft(const T& vec)
 {
 #if CRYPTOPP_BIG_ENDIAN
-    enum { R=(C)&0xf, S=R };
+    enum { R=(C)&0xf };
     const T zero = {0};
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, S);
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
 #else
-    enum { R=(16-C)&0xf, S=R };
+    enum { R=(16-C)&0xf };
     const T zero = {0};
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, S);
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
 #endif
 }
 
@@ -225,13 +225,13 @@ template <unsigned int C, class T>
 inline T VectorShiftRight(const T& vec)
 {
 #if CRYPTOPP_BIG_ENDIAN
-    enum { R=(16-C)&0xf, S=R };
+    enum { R=(16-C)&0xf };
     const T zero = {0};
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, S);
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
 #else
-    enum { R=(C)&0xf, S=R };
+    enum { R=(C)&0xf };
     const T zero = {0};
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, S);
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
 #endif
 }
 
@@ -500,7 +500,7 @@ inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 #if defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VectorLoad(src);
 #else
-	return (uint32x4_p)Reverse(VectorLoad(src));
+    return (uint32x4_p)Reverse(VectorLoad(src));
 #endif
 }
 
@@ -541,7 +541,7 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 #if defined(CRYPTOPP_BIG_ENDIAN)
     VectorStore(src, dest);
 #else
-	VectorStore(Reverse(src), dest);
+    VectorStore(Reverse(src), dest);
 #endif
 }
 
