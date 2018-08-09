@@ -70,6 +70,10 @@ bool ValidateAll(bool thorough)
 	// http://github.com/weidai11/cryptopp/issues/346
 	pass=TestASN1Parse() && pass;
 	// Always part of the self tests; call in Debug
+# if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+	pass=TestAltivecOps() && pass;
+# endif
+	// Always part of the self tests; call in Debug
 	pass=ValidateBaseCode() && pass;
 	// https://github.com/weidai11/cryptopp/issues/562
 	pass=ValidateEncoder() && pass;
