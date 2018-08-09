@@ -331,7 +331,7 @@ inline T VectorRotateRight(const T& vec)
 /// \returns vector created from low dword
 /// \details VectorGetLow() extracts the low dword from a vector. The low dword
 ///   is composed of the least significant bits and occupies bytes 8 through 15
-///   when viewed as a big endian array. The returned array is the same type as
+///   when viewed as a big endian array. The return vector is the same type as
 ///   the original vector and padded with 0's in the most significant bit positions.
 template <class T>
 inline T VectorGetLow(const T& val)
@@ -344,17 +344,18 @@ inline T VectorGetLow(const T& val)
 /// \brief Extract a dword from a vector
 /// \tparam T vector type
 /// \param val the vector
-/// \returns vector created from low dword
+/// \returns vector created from high dword
 /// \details VectorGetHigh() extracts the high dword from a vector. The high dword
 ///   is composed of the most significant bits and occupies bytes 0 through 7
-///   when viewed as a big endian array. The returned array is the same type as
+///   when viewed as a big endian array. The return vector is the same type as
 ///   the original vector and padded with 0's in the most significant bit positions.
 template <class T>
 inline T VectorGetHigh(const T& val)
 {
-    const T zero = {0};
-    const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
-    return (T)vec_perm(val, zero, mask);
+    //const T zero = {0};
+    //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
+    //return (T)vec_perm(val, zero, mask);
+    return VectorShiftRight<8>(val);
 }
 
 /// \brief Compare two vectors

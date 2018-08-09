@@ -206,30 +206,45 @@ INLINE uint64x2_p VMULL_00(const uint64x2_p& a, const uint64x2_p& b)
 // _mm_clmulepi64_si128(a, b, 0x01)
 INLINE uint64x2_p VMULL_01(const uint64x2_p& a, const uint64x2_p& b)
 {
+    // Small speedup. VectorGetHigh(b) ensures the high dword of 'b' is 0.
+    // The 0 used in the vmull yields 0 for the high product, so the high
+    // dword of 'a' is "don't care".
 #if defined(__xlc__) || defined(__xlC__)
-    return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
+    // return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
+    return AdjustBE(__vpmsumd (a, VectorGetHigh(b)));
 #else
-    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
+    // return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
+    return AdjustBE(__builtin_crypto_vpmsumd (a, VectorGetHigh(b)));
 #endif
 }
 
 // _mm_clmulepi64_si128(a, b, 0x10)
 INLINE uint64x2_p VMULL_10(const uint64x2_p& a, const uint64x2_p& b)
 {
+    // Small speedup. VectorGetHigh(a) ensures the high dword of 'a' is 0.
+    // The 0 used in the vmull yields 0 for the high product, so the high
+    // dword of 'b' is "don't care".
 #if defined(__xlc__) || defined(__xlC__)
-    return AdjustBE(__vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
+    // return AdjustBE(__vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
+    return AdjustBE(__vpmsumd (VectorGetHigh(a), b));
 #else
-    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
+    // return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
+    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), b));
 #endif
 }
 
 // _mm_clmulepi64_si128(a, b, 0x11)
 INLINE uint64x2_p VMULL_11(const uint64x2_p& a, const uint64x2_p& b)
 {
+    // Small speedup. VectorGetLow(a) ensures the high dword of 'a' is 0.
+    // The 0 used in the vmull yields 0 for the high product, so the high
+    // dword of 'b' is "don't care".
 #if defined(__xlc__) || defined(__xlC__)
-    return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetLow(b)));
+    // return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetLow(b)));
+    return AdjustBE(__vpmsumd (VectorGetLow(a), b));
 #else
-    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetLow(b)));
+    // return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetLow(b)));
+    return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), b));
 #endif
 }
 #endif // CRYPTOPP_POWER8_VMULL_AVAILABLE
@@ -592,7 +607,7 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif  // Testing
 
-// SunCC 5.11-5.15 compiler crash. Make the function INLINE
+// SunCC 5.11-5.15 compiler crash. Make the function inline
 // and parameters non-const. Also see GH #188 and GH #224.
 inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i& r)
 {
@@ -622,8 +637,8 @@ inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128
     return _mm_xor_si128(c2, c1);
 }
 
-// SunCC 5.13-5.14 compiler crash. Don't make the function INLINE.
-// This is in contrast to GCM_Reduce_CLMUL, which must be INLINE.
+// SunCC 5.13-5.14 compiler crash. Don't make the function inline.
+// This is in contrast to GCM_Reduce_CLMUL, which must be inline.
 __m128i GCM_Multiply_CLMUL(const __m128i &x, const __m128i &h, const __m128i &r)
 {
     const __m128i c0 = _mm_clmulepi64_si128(x,h,0);
@@ -739,10 +754,9 @@ void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
 #if CRYPTOPP_ALTIVEC_AVAILABLE
 void GCM_Xor16_ALTIVEC(byte *a, const byte *b, const byte *c)
 {
-    // *UINT64X2_CAST(a) = veorq_u64(*CONST_UINT64X2_CAST(b), *CONST_UINT64X2_CAST(c));
     VectorStore(VectorXor(VectorLoad(b), VectorLoad(c)), a);
 }
-#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 #if CRYPTOPP_POWER8_VMULL_AVAILABLE
 
