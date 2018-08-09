@@ -169,27 +169,19 @@ template <unsigned int C, class T>
 inline T VectorShiftLeft(const T& vec)
 {
     const T zero = {0};
+    if (C >= 16)
+    {
+        // Out of range
+        return zero;
+    }
+    else
+    {
 #if CRYPTOPP_BIG_ENDIAN
-    if (C >= 16)
-    {
-        // Out of range
-        return zero;
-    }
-    else
-    {
-        return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
-    }
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
 #else
-    if (C >= 16)
-    {
-        // Out of range
-        return zero;
-    }
-    else
-    {
-        return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
-    }
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
 #endif
+    }
 }
 
 // Full specializations for 0 over uint8x16_p to uint64x2_p
@@ -238,27 +230,19 @@ template <unsigned int C, class T>
 inline T VectorShiftRight(const T& vec)
 {
     const T zero = {0};
+    if (C >= 16)
+    {
+        // Out of range
+        return zero;
+    }
+    else
+    {
 #if CRYPTOPP_BIG_ENDIAN
-    if (C >= 16)
-    {
-        // Out of range
-        return zero;
-    }
-    else
-    {
-        return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
-    }
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
 #else
-    if (C >= 16)
-    {
-        // Out of range
-        return zero;
-    }
-    else
-    {
-        return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
-    }
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
 #endif
+    }
 }
 
 // Full specializations for 0 over uint8x16_p to uint64x2_p
