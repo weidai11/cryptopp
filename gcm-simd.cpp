@@ -409,9 +409,8 @@ void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)
 // Swaps high and low 64-bit words
 inline uint64x2_t SwapWords(const uint64x2_t& data)
 {
-    return (uint64x2_t)vcombine_u32(
-        vget_high_u32(vreinterpretq_u32_u64(data)),
-        vget_low_u32(vreinterpretq_u32_u64(data)));
+    return (uint64x2_t)vcombine_u64(
+        vget_high_u64(data), vget_low_u64(data));
 }
 
 uint64x2_t GCM_Reduce_PMULL(uint64x2_t c0, uint64x2_t c1, uint64x2_t c2, const uint64x2_t &r)
@@ -600,6 +599,12 @@ __m128i _mm_clmulepi64_si128(const __m128i &a, const __m128i &b, int i)
 }
 #endif  // Testing
 
+// Swaps high and low 64-bit words
+inline __m128i SwapWords(const __m128i& val)
+{
+    return _mm_shuffle_epi32(val, _MM_SHUFFLE(1, 0, 3, 2));
+}
+
 // SunCC 5.11-5.15 compiler crash. Make the function inline
 // and parameters non-const. Also see GH #188 and GH #224.
 inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128i& r)
@@ -694,7 +699,7 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
                 d1 = _mm_xor_si128(d1, x);
                 c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0));
                 c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 1));
-                d1 = _mm_xor_si128(d1, _mm_shuffle_epi32(d1, _MM_SHUFFLE(1, 0, 3, 2)));
+                d1 = _mm_xor_si128(d1, SwapWords(d1));
                 c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d1, h2, 0));
                 break;
             }
@@ -711,7 +716,7 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
                 d1 = _mm_xor_si128(d1, x);
                 c0 = _mm_xor_si128(c0, _mm_clmulepi64_si128(d1, h0, 0x10));
                 c2 = _mm_xor_si128(c2, _mm_clmulepi64_si128(d1, h1, 0x11));
-                d1 = _mm_xor_si128(d1, _mm_shuffle_epi32(d1, _MM_SHUFFLE(1, 0, 3, 2)));
+                d1 = _mm_xor_si128(d1, SwapWords(d1));
                 c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(d1, h2, 0x10));
                 break;
             }
