@@ -336,9 +336,10 @@ inline T VectorRotateRight(const T& vec)
 template <class T>
 inline T VectorGetLow(const T& val)
 {
-    const T zero = {0};
-    const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
-    return (T)vec_perm(val, zero, mask);
+    //const T zero = {0};
+    //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
+    //return (T)vec_perm(val, zero, mask);
+    return VectorShiftLeft<8>(VectorShiftRight<8>(val));
 }
 
 /// \brief Extract a dword from a vector

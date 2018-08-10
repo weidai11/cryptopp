@@ -234,6 +234,10 @@ void Benchmark2(double t, double hertz)
 		if (HasPMULL())
 			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
 		else
+#elif CRYPTOPP_POWER8_VMULL_AVAILABLE
+		if (HasPMULL())
+			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM");
+		else
 #endif
 		{
 			BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/GCM", 0, "AES/GCM (2K tables)", MakeParameters(Name::TableSize(), 2048));
