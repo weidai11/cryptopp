@@ -283,7 +283,7 @@ bool CPU_ProbePMULL()
     volatile bool result = true;
     __try
     {
-        const poly64_t   a1={0x9090909090909090,0}, b1={0xb0b0b0b0b0b0b0b0,0};
+        const poly64_t   a1={0x9090909090909090}, b1={0xb0b0b0b0b0b0b0b0};
         const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
                          b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
@@ -292,7 +292,7 @@ bool CPU_ProbePMULL()
         const poly128_t r1 = pmull_p64(a1, b1);
         const poly128_t r2 = pmull_high_p64((poly64x2_t)(a2), (poly64x2_t)(b2));
 
-        // Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
+        // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
         const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
         const uint64x2_t t2 = (uint64x2_t)(r2);  // {bignum,bignum}
 
@@ -309,7 +309,6 @@ bool CPU_ProbePMULL()
 # else
 
     // longjmp and clobber warnings. Volatile is required.
-    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;
 
     volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
@@ -324,23 +323,20 @@ bool CPU_ProbePMULL()
         result = false;
     else
     {
-        const poly64_t   a1={0x9090909090909090,0}, b1={0xb0b0b0b0b0b0b0b0,0};
-        const poly8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+        // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
+        const uint64x2_t a1={0,0x9090909090909090}, b1={0,0xb0b0b0b0b0b0b0b0};
+        const uint8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
                          b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
 
-        const poly128_t r1 = PMULL_00(a1, b1);
-        const poly128_t r2 = PMULL_11((poly64x2_t)(a2), (poly64x2_t)(b2));
+        const uint64x2_t r1 = PMULL_00(a1, b1);
+        const uint64x2_t r2 = PMULL_11((uint64x2_t)a2, (uint64x2_t)b2);
 
-        // Linaro is missing vreinterpretq_u64_p128. Also see http://github.com/weidai11/cryptopp/issues/233.
-        const uint64x2_t t1 = (uint64x2_t)(r1);  // {bignum,bignum}
-        const uint64x2_t t2 = (uint64x2_t)(r2);  // {bignum,bignum}
-
-        result = !!(vgetq_lane_u64(t1,0) == 0x5300530053005300 &&
-                    vgetq_lane_u64(t1,1) == 0x5300530053005300 &&
-                    vgetq_lane_u64(t2,0) == 0x6c006c006c006c00 &&
-                    vgetq_lane_u64(t2,1) == 0x6c006c006c006c00);
+        result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
+                    vgetq_lane_u64(r1,1) == 0x5300530053005300 &&
+                    vgetq_lane_u64(r2,0) == 0x6c006c006c006c00 &&
+                    vgetq_lane_u64(r2,1) == 0x6c006c006c006c00);
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
@@ -360,7 +356,6 @@ bool CPU_ProbePMULL()
     return false;
 #elif (CRYPTOPP_POWER8_VMULL_AVAILABLE)
     // longjmp and clobber warnings. Volatile is required.
-    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
     volatile bool result = true;
 
     volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
@@ -410,6 +405,14 @@ void GCM_Xor16_NEON(byte *a, const byte *b, const byte *c)
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
+
+// Swaps high and low 64-bit words
+inline uint64x2_t SwapWords(const uint64x2_t& data)
+{
+    return (uint64x2_t)vcombine_u32(
+        vget_high_u32(vreinterpretq_u32_u64(data)),
+        vget_low_u32(vreinterpretq_u32_u64(data)));
+}
 
 uint64x2_t GCM_Reduce_PMULL(uint64x2_t c0, uint64x2_t c1, uint64x2_t c2, const uint64x2_t &r)
 {
@@ -485,9 +488,7 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
                 d1 = veorq_u64(vextq_u64(t1, t1, 1), x);
                 c0 = veorq_u64(c0, PMULL_00(d1, h0));
                 c2 = veorq_u64(c2, PMULL_10(d1, h1));
-                d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(
-                        vget_high_u32(vreinterpretq_u32_u64(d1)),
-                        vget_low_u32(vreinterpretq_u32_u64(d1))));
+                d1 = veorq_u64(d1, SwapWords(d1));
                 c1 = veorq_u64(c1, PMULL_00(d1, h2));
 
                 break;
@@ -505,9 +506,7 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
                 d1 = veorq_u64(vextq_u64(t2, t2, 1), x);
                 c0 = veorq_u64(c0, PMULL_01(d1, h0));
                 c2 = veorq_u64(c2, PMULL_11(d1, h1));
-                d1 = veorq_u64(d1, (uint64x2_t)vcombine_u32(
-                        vget_high_u32(vreinterpretq_u32_u64(d1)),
-                        vget_low_u32(vreinterpretq_u32_u64(d1))));
+                d1 = veorq_u64(d1, SwapWords(d1));
                 c1 = veorq_u64(c1, PMULL_01(d1, h2));
 
                 break;
@@ -826,6 +825,13 @@ void GCM_SetKeyWithoutResync_VMULL(const byte *hashKey, byte *mulTable, unsigned
     std::memcpy(mulTable+i+8, temp+0, 8);
 }
 
+// Swaps high and low 64-bit words
+template <class T>
+INLINE T SwapWords(const T& data)
+{
+    return (T)VectorRotateLeft<8>(data);
+}
+
 INLINE uint64x2_p LoadBuffer1(const byte *dataBuffer)
 {
 #if CRYPTOPP_BIG_ENDIAN
@@ -840,18 +846,10 @@ INLINE uint64x2_p LoadBuffer1(const byte *dataBuffer)
 INLINE uint64x2_p LoadBuffer2(const byte *dataBuffer)
 {
 #if CRYPTOPP_BIG_ENDIAN
-    return (uint64x2_p)VectorRotateLeft<8>(VectorLoad(dataBuffer));
+    return (uint64x2_p)SwapWords(VectorLoadBE(dataBuffer));
 #else
-    const uint64x2_p data = (uint64x2_p)VectorLoad(dataBuffer);
-    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
-    return (uint64x2_p)vec_perm(data, data, mask);
+    return (uint64x2_p)VectorLoadBE(dataBuffer);
 #endif
-}
-
-// Swaps high and low 64-bit words
-INLINE uint64x2_p SwapWords(const uint64x2_p& data)
-{
-    return VectorRotateLeft<8>(data);
 }
 
 size_t GCM_AuthenticateBlocks_VMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)

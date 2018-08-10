@@ -516,7 +516,6 @@ inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
 template<class T>
 inline void VectorStore(const T& src, byte dest[16])
 {
-    // Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst((uint8x16_p)src, 0, dest);
 #else
@@ -535,7 +534,6 @@ inline void VectorStore(const T& src, byte dest[16])
 template<class T>
 inline void VectorStore(const T& src, int off, byte dest[16])
 {
-    // Do not call VectorStoreBE. It slows us down by about 0.5 cpb on LE.
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst((uint8x16_p)src, off, dest);
 #else
