@@ -760,16 +760,16 @@ void GCM_Xor16_ALTIVEC(byte *a, const byte *b, const byte *c)
 
 uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x2_p r)
 {
-    const uint64x2_p z = {0}, m1 = {1,1}, m63 = {63,63};
+    const uint64x2_p m1 = {1,1}, m63 = {63,63};
 
-    c1 = VectorXor(c1, vec_mergeh(z, c0));
+    c1 = VectorXor(c1, VectorShiftRight<8>(c0));
     c1 = VectorXor(c1, VMULL_10(c0, r));
-    c0 = vec_mergel(c0, z);
+    c0 = VectorShiftLeft<8>(c0);
     c0 = VectorXor(c0, c1);
     c0 = vec_sl(c0, m1);
     c0 = VMULL_00(c0, r);
     c2 = VectorXor(c2, c0);
-    c2 = VectorXor(c2, vec_mergel(c1, z));
+    c2 = VectorXor(c2, VectorShiftLeft<8>(c1));
     c1 = vec_sr(vec_mergeh(c1, c2), m63);
     c2 = vec_sl(c2, m1);
 
