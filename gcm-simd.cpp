@@ -1,5 +1,7 @@
 // gcm-simd.cpp - written and placed in the public domain by
 //                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
+//                Original x86 CLMUL by Wei Dai. ARM and POWER8
+//                PMULL and VMULL by JW, UB and MR.
 //
 //    This source file uses intrinsics to gain access to SSE4.2 and
 //    ARMv8a CRC-32 and CRC-32C instructions. A separate source file
@@ -59,16 +61,6 @@
 // GCC cast warning
 #define UINT64X2_CAST(x) ((uint64x2_t *)(void *)(x))
 #define CONST_UINT64X2_CAST(x) ((const uint64x2_t *)(const void *)(x))
-
-// Debugging on PowerPC
-#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
-# ifndef NDEBUG
-#  undef INLINE
-#  define INLINE
-# else
-#  define INLINE inline
-# endif
-#endif
 
 // Squash MS LNK4221 and libtool warnings
 extern const char GCM_SIMD_FNAME[] = __FILE__;
@@ -190,7 +182,7 @@ using CryptoPP::VectorRotateLeft;
 // multiplies return a result {a,b}, while little-endian return
 // a result {b,a}. Since the multiply routines are reflective and
 // use LE the BE results need a fixup.
-INLINE uint64x2_p AdjustBE(const uint64x2_p& val)
+inline uint64x2_p AdjustBE(const uint64x2_p& val)
 {
 #if CRYPTOPP_BIG_ENDIAN
     return VectorRotateLeft<8>(val);
@@ -200,7 +192,7 @@ INLINE uint64x2_p AdjustBE(const uint64x2_p& val)
 }
 
 // _mm_clmulepi64_si128(a, b, 0x00)
-INLINE uint64x2_p VMULL_00(const uint64x2_p& a, const uint64x2_p& b)
+inline uint64x2_p VMULL_00(const uint64x2_p& a, const uint64x2_p& b)
 {
 #if defined(__xlc__) || defined(__xlC__)
     return AdjustBE(__vpmsumd (VectorGetHigh(a), VectorGetHigh(b)));
@@ -210,7 +202,7 @@ INLINE uint64x2_p VMULL_00(const uint64x2_p& a, const uint64x2_p& b)
 }
 
 // _mm_clmulepi64_si128(a, b, 0x01)
-INLINE uint64x2_p VMULL_01(const uint64x2_p& a, const uint64x2_p& b)
+inline uint64x2_p VMULL_01(const uint64x2_p& a, const uint64x2_p& b)
 {
     // Small speedup. VectorGetHigh(b) ensures the high dword of 'b' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
@@ -225,7 +217,7 @@ INLINE uint64x2_p VMULL_01(const uint64x2_p& a, const uint64x2_p& b)
 }
 
 // _mm_clmulepi64_si128(a, b, 0x10)
-INLINE uint64x2_p VMULL_10(const uint64x2_p& a, const uint64x2_p& b)
+inline uint64x2_p VMULL_10(const uint64x2_p& a, const uint64x2_p& b)
 {
     // Small speedup. VectorGetHigh(a) ensures the high dword of 'a' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
@@ -240,7 +232,7 @@ INLINE uint64x2_p VMULL_10(const uint64x2_p& a, const uint64x2_p& b)
 }
 
 // _mm_clmulepi64_si128(a, b, 0x11)
-INLINE uint64x2_p VMULL_11(const uint64x2_p& a, const uint64x2_p& b)
+inline uint64x2_p VMULL_11(const uint64x2_p& a, const uint64x2_p& b)
 {
     // Small speedup. VectorGetLow(a) ensures the high dword of 'a' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
@@ -623,8 +615,7 @@ inline __m128i GCM_Reduce_CLMUL(__m128i c0, __m128i c1, __m128i c2, const __m128
     */
     c1 = _mm_xor_si128(c1, _mm_slli_si128(c0, 8));
     c1 = _mm_xor_si128(c1, _mm_clmulepi64_si128(c0, r, 0x10));
-    c0 = _mm_srli_si128(c0, 8);
-    c0 = _mm_xor_si128(c0, c1);
+    c0 = _mm_xor_si128(c1, _mm_srli_si128(c0, 8));
     c0 = _mm_slli_epi64(c0, 1);
     c0 = _mm_clmulepi64_si128(c0, r, 0);
     c2 = _mm_xor_si128(c2, c0);
@@ -650,9 +641,8 @@ void GCM_SetKeyWithoutResync_CLMUL(const byte *hashKey, byte *mulTable, unsigned
 {
     const __m128i r = _mm_set_epi32(0xc2000000, 0x00000000, 0xe1000000, 0x00000000);
     const __m128i m = _mm_set_epi32(0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f);
-    const __m128i h0 = _mm_shuffle_epi8(_mm_load_si128(CONST_M128_CAST(hashKey)), m);
+    __m128i h0 = _mm_shuffle_epi8(_mm_load_si128(CONST_M128_CAST(hashKey)), m), h = h0;
 
-    __m128i h = h0;
     unsigned int i;
     for (i=0; i<tableSize-32; i+=32)
     {
@@ -774,7 +764,7 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
     return VectorXor(c2, c1);
 }
 
-INLINE uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
+inline uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
 {
     const uint64x2_p c0 = VMULL_00(x, h);
     const uint64x2_p c1 = VectorXor(VMULL_01(x, h), VMULL_10(x, h));
@@ -783,7 +773,7 @@ INLINE uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
     return GCM_Reduce_VMULL(c0, c1, c2, r);
 }
 
-INLINE uint64x2_p LoadHashKey(const byte *hashKey)
+inline uint64x2_p LoadHashKey(const byte *hashKey)
 {
 #if CRYPTOPP_BIG_ENDIAN
     const uint64x2_p key = (uint64x2_p)VectorLoad(hashKey);
@@ -807,19 +797,16 @@ void GCM_SetKeyWithoutResync_VMULL(const byte *hashKey, byte *mulTable, unsigned
     for (i=0; i<tableSize-32; i+=32)
     {
         const uint64x2_p h1 = GCM_Multiply_VMULL(h, h0, r);
-
         VectorStore(h, (byte*)temp);
         std::memcpy(mulTable+i, temp+0, 8);
         VectorStore(h1, mulTable+i+16);
         VectorStore(h, mulTable+i+8);
         VectorStore(h1, (byte*)temp);
         std::memcpy(mulTable+i+8, temp+0, 8);
-
         h = GCM_Multiply_VMULL(h1, h0, r);
     }
 
     const uint64x2_p h1 = GCM_Multiply_VMULL(h, h0, r);
-
     VectorStore(h, (byte*)temp);
     std::memcpy(mulTable+i, temp+0, 8);
     VectorStore(h1, mulTable+i+16);
@@ -830,12 +817,12 @@ void GCM_SetKeyWithoutResync_VMULL(const byte *hashKey, byte *mulTable, unsigned
 
 // Swaps high and low 64-bit words
 template <class T>
-INLINE T SwapWords(const T& data)
+inline T SwapWords(const T& data)
 {
     return (T)VectorRotateLeft<8>(data);
 }
 
-INLINE uint64x2_p LoadBuffer1(const byte *dataBuffer)
+inline uint64x2_p LoadBuffer1(const byte *dataBuffer)
 {
 #if CRYPTOPP_BIG_ENDIAN
     return (uint64x2_p)VectorLoad(dataBuffer);
@@ -846,7 +833,7 @@ INLINE uint64x2_p LoadBuffer1(const byte *dataBuffer)
 #endif
 }
 
-INLINE uint64x2_p LoadBuffer2(const byte *dataBuffer)
+inline uint64x2_p LoadBuffer2(const byte *dataBuffer)
 {
 #if CRYPTOPP_BIG_ENDIAN
     return (uint64x2_p)SwapWords(VectorLoadBE(dataBuffer));
