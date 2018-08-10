@@ -314,8 +314,7 @@ void AddHtmlHeader()
 void AddHtmlFooter()
 {
 	std::ostringstream oss;
-	std::cout << "\n</BODY>";
-	std::cout << "\n</HTML>" << std::endl;
+	oss << "\n</BODY>\n</HTML>\n";
 	std::cout << oss.str();
 }
 
@@ -340,7 +339,6 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;
-	std::ostringstream oss;
 
 	AddHtmlHeader();
 
@@ -352,36 +350,36 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 	// Unkeyed algorithms
 	if (suites & Test::Unkeyed)
 	{
-		oss << "\n<BR>";
+		std::cout << "\n<BR>";
 		Benchmark1(t, hertz);
 	}
 
 	// Shared key algorithms
 	if (suites & Test::SharedKey)
 	{
-		oss << "\n<BR>";
+		std::cout << "\n<BR>";
 		Benchmark2(t, hertz);
 	}
 
 	// Public key algorithms
 	if (suites & Test::PublicKey)
 	{
-		oss << "\n<BR>";
+		std::cout << "\n<BR>";
 		Benchmark3(t, hertz);
 	}
 
 	g_testEnd = ::time(NULLPTR);
 
+	std::ostringstream oss;
 	oss << "\n<P>Throughput Geometric Average: " << std::setiosflags(std::ios::fixed);
 	oss << std::exp(g_logTotal/(g_logCount > 0.0f ? g_logCount : 1.0f)) << std::endl;
 
 	oss << "\n<P>Test started at " << TimeToString(g_testBegin);
 	oss << "\n<BR>Test ended at " << TimeToString(g_testEnd);
-	oss << std::endl;
+	oss << "\n";
+	std::cout << oss.str();
 
 	AddHtmlFooter();
-
-	std::cout << oss.str();
 }
 
 void Benchmark1(double t, double hertz)
