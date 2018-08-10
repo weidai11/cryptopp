@@ -741,9 +741,9 @@ size_t GCM_AuthenticateBlocks_CLMUL(const byte *data, size_t len, const byte *mt
 void GCM_ReverseHashBufferIfNeeded_CLMUL(byte *hashBuffer)
 {
     // SSSE3 instruction, but only used with CLMUL
-    __m128i &val = *M128_CAST(hashBuffer);
     const __m128i mask = _mm_set_epi32(0x00010203, 0x04050607, 0x08090a0b, 0x0c0d0e0f);
-    val = _mm_shuffle_epi8(val, mask);
+    _mm_storeu_si128(M128_CAST(hashBuffer), _mm_shuffle_epi8(
+        _mm_loadu_si128(CONST_M128_CAST(hashBuffer)), mask));
 }
 #endif  // CRYPTOPP_CLMUL_AVAILABLE
 
@@ -764,10 +764,8 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
 
     c1 = VectorXor(c1, VectorShiftRight<8>(c0));
     c1 = VectorXor(c1, VMULL_10(c0, r));
-    c0 = VectorShiftLeft<8>(c0);
-    c0 = VectorXor(c0, c1);
-    c0 = vec_sl(c0, m1);
-    c0 = VMULL_00(c0, r);
+    c0 = VectorXor(c1, VectorShiftLeft<8>(c0));
+    c0 = VMULL_00(vec_sl(c0, m1), r);
     c2 = VectorXor(c2, c0);
     c2 = VectorXor(c2, VectorShiftLeft<8>(c1));
     c1 = vec_sr(vec_mergeh(c1, c2), m63);
