@@ -188,6 +188,11 @@ inline T VectorShiftLeft(const T& vec)
         // Out of range
         return zero;
     }
+    else if (C == 0)
+    {
+        // Noop
+        return vec;
+    }
     else
     {
 #if CRYPTOPP_BIG_ENDIAN
@@ -197,30 +202,6 @@ inline T VectorShiftLeft(const T& vec)
 #endif
     }
 }
-
-// Full specializations for 0 over uint8x16_p to uint64x2_p
-template<>
-inline uint8x16_p VectorShiftLeft<0, uint8x16_p>(const uint8x16_p& vec)
-{
-    return vec;
-}
-template<>
-inline uint16x8_p VectorShiftLeft<0, uint16x8_p>(const uint16x8_p& vec)
-{
-    return vec;
-}
-template<>
-inline uint32x4_p VectorShiftLeft<0, uint32x4_p>(const uint32x4_p& vec)
-{
-    return vec;
-}
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-template<>
-inline uint64x2_p VectorShiftLeft<0, uint64x2_p>(const uint64x2_p& vec)
-{
-    return vec;
-}
-#endif
 
 /// \brief Shift a vector right
 /// \tparam C shift byte count
@@ -249,6 +230,11 @@ inline T VectorShiftRight(const T& vec)
         // Out of range
         return zero;
     }
+    else if (C == 0)
+    {
+        // Noop
+        return vec;
+    }
     else
     {
 #if CRYPTOPP_BIG_ENDIAN
@@ -258,30 +244,6 @@ inline T VectorShiftRight(const T& vec)
 #endif
     }
 }
-
-// Full specializations for 0 over uint8x16_p to uint64x2_p
-template<>
-inline uint8x16_p VectorShiftRight<0, uint8x16_p>(const uint8x16_p& vec)
-{
-    return vec;
-}
-template<>
-inline uint16x8_p VectorShiftRight<0, uint16x8_p>(const uint16x8_p& vec)
-{
-    return vec;
-}
-template<>
-inline uint32x4_p VectorShiftRight<0, uint32x4_p>(const uint32x4_p& vec)
-{
-    return vec;
-}
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-template<>
-inline uint64x2_p VectorShiftRight<0, uint64x2_p>(const uint64x2_p& vec)
-{
-    return vec;
-}
-#endif
 
 /// \brief Rotate a vector left
 /// \tparam C shift byte count
