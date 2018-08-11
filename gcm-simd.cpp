@@ -178,10 +178,14 @@ using CryptoPP::VectorGetLow;
 using CryptoPP::VectorGetHigh;
 using CryptoPP::VectorRotateLeft;
 
-// Carryless multiples appear to be endian-sensitive. Big-endian
-// multiplies return a result {a,b}, while little-endian return
-// a result {b,a}. Since the multiply routines are reflective and
-// use LE the BE results need a fixup.
+// Carryless multiples are endian-sensitive. Big-endian multiplies
+// return a result {a,b}, while little-endian return a result {b,a}.
+// Since the multiply routines are reflective and use LE the BE results
+// need a fixup using AdjustBE. Additionally, parameters to VMULL_NN
+// are presented in a reverse arrangement so we swap the use of
+// VectorGetHigh and VectorGetLow. The presentaion detail is why
+// VMULL_NN is located in this source file rather than ppc-simd.h.
+
 inline uint64x2_p AdjustBE(const uint64x2_p& val)
 {
 #if CRYPTOPP_BIG_ENDIAN
@@ -208,10 +212,8 @@ inline uint64x2_p VMULL_01(const uint64x2_p& a, const uint64x2_p& b)
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'a' is "don't care".
 #if defined(__xlc__) || defined(__xlC__)
-    // return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
     return AdjustBE(__vpmsumd (a, VectorGetHigh(b)));
 #else
-    // return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetHigh(b)));
     return AdjustBE(__builtin_crypto_vpmsumd (a, VectorGetHigh(b)));
 #endif
 }
@@ -223,10 +225,8 @@ inline uint64x2_p VMULL_10(const uint64x2_p& a, const uint64x2_p& b)
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'b' is "don't care".
 #if defined(__xlc__) || defined(__xlC__)
-    // return AdjustBE(__vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
     return AdjustBE(__vpmsumd (VectorGetHigh(a), b));
 #else
-    // return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), VectorGetLow(b)));
     return AdjustBE(__builtin_crypto_vpmsumd (VectorGetHigh(a), b));
 #endif
 }
@@ -238,10 +238,8 @@ inline uint64x2_p VMULL_11(const uint64x2_p& a, const uint64x2_p& b)
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'b' is "don't care".
 #if defined(__xlc__) || defined(__xlC__)
-    // return AdjustBE(__vpmsumd (VectorGetLow(a), VectorGetLow(b)));
     return AdjustBE(__vpmsumd (VectorGetLow(a), b));
 #else
-    // return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), VectorGetLow(b)));
     return AdjustBE(__builtin_crypto_vpmsumd (VectorGetLow(a), b));
 #endif
 }
