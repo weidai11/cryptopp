@@ -23,8 +23,8 @@
 //      * AdvancedProcessBlocks64_6x2_NEON
 //      * AdvancedProcessBlocks128_4x1_NEON
 //      * AdvancedProcessBlocks128_6x2_NEON
-//      * AdvancedProcessBlocks64_6x2_ALTIVEC
-//      * AdvancedProcessBlocks128_6x2_ALTIVEC
+//      * AdvancedProcessBlocks64_6x1_ALTIVEC
+//      * AdvancedProcessBlocks128_6x1_ALTIVEC
 //
 //    If an arrangement ends in 2, like 6x2, then the template will handle the
 //    single block case by padding with 0's and using the two block function.
