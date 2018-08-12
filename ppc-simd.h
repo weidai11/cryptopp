@@ -64,6 +64,7 @@ typedef __vector unsigned long long uint64x2_p;
 /// \brief Reverse a vector
 /// \tparam T vector type
 /// \param src the vector
+/// \returns vector
 /// \details Reverse() endian swaps the bytes in a vector
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
@@ -80,6 +81,7 @@ inline T Reverse(const T& src)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \param mask vector mask
+/// \returns vector
 /// \details VectorPermute returns a new vector from vec1 and vec2
 ///   based on mask. mask is an uint8x16_p type vector. The return
 ///   vector is the same type as vec1.
@@ -94,6 +96,7 @@ inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 /// \tparam T vector type
 /// \param vec the vector
 /// \param mask vector mask
+/// \returns vector
 /// \details VectorPermute returns a new vector from vec based on
 ///   mask. mask is an uint8x16_p type vector. The return
 ///   vector is the same type as vec.
@@ -109,6 +112,7 @@ inline T1 VectorPermute(const T1& vec, const T2& mask)
 /// \tparam T2 vector type
 /// \param vec1 the first vector
 /// \param vec2 the second vector
+/// \returns vector
 /// \details VectorAnd returns a new vector from vec1 and vec2. The return
 ///   vector is the same type as vec1.
 /// \since Crypto++ 6.0
@@ -123,6 +127,7 @@ inline T1 VectorAnd(const T1& vec1, const T2& vec2)
 /// \tparam T2 vector type
 /// \param vec1 the first vector
 /// \param vec2 the second vector
+/// \returns vector
 /// \details VectorOr returns a new vector from vec1 and vec2. The return
 ///   vector is the same type as vec1.
 /// \since Crypto++ 6.0
@@ -137,6 +142,7 @@ inline T1 VectorOr(const T1& vec1, const T2& vec2)
 /// \tparam T2 vector type
 /// \param vec1 the first vector
 /// \param vec2 the second vector
+/// \returns vector
 /// \details VectorXor returns a new vector from vec1 and vec2. The return
 ///   vector is the same type as vec1.
 /// \since Crypto++ 6.0
@@ -146,11 +152,12 @@ inline T1 VectorXor(const T1& vec1, const T2& vec2)
     return (T1)vec_xor(vec1, (T1)vec2);
 }
 
-/// \brief Add two vector
+/// \brief Add two vectors
 /// \tparam T1 vector type
 /// \tparam T2 vector type
 /// \param vec1 the first vector
 /// \param vec2 the second vector
+/// \returns vector
 /// \details VectorAdd returns a new vector from vec1 and vec2.
 ///   vec2 is cast to the same type as vec1. The return vector
 ///   is the same type as vec1.
@@ -161,10 +168,26 @@ inline T1 VectorAdd(const T1& vec1, const T2& vec2)
     return (T1)vec_add(vec1, (T1)vec2);
 }
 
+/// \brief Subtract two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VectorSub returns a new vector from vec1 and vec2.
+///   vec2 is cast to the same type as vec1. The return vector
+///   is the same type as vec1.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorSub(const T1& vec1, const T2& vec2)
+{
+    return (T1)vec_sub(vec1, (T1)vec2);
+}
+
 /// \brief Shift a vector left
 /// \tparam C shift byte count
 /// \tparam T vector type
 /// \param vec the vector
+/// \returns vector
 /// \details VectorShiftLeft() returns a new vector after shifting the
 ///   concatenation of the zero vector and the source vector by the specified
 ///   number of bytes. The return vector is the same type as vec.
@@ -207,6 +230,7 @@ inline T VectorShiftLeft(const T& vec)
 /// \tparam C shift byte count
 /// \tparam T vector type
 /// \param vec the vector
+/// \returns vector
 /// \details VectorShiftRight() returns a new vector after shifting the
 ///   concatenation of the zero vector and the source vector by the specified
 ///   number of bytes. The return vector is the same type as vec.
@@ -249,6 +273,7 @@ inline T VectorShiftRight(const T& vec)
 /// \tparam C shift byte count
 /// \tparam T vector type
 /// \param vec the vector
+/// \returns vector
 /// \details VectorRotateLeft() returns a new vector after rotating the
 ///   concatenation of the source vector with itself by the specified
 ///   number of bytes. The return vector is the same type as vec.
@@ -270,6 +295,7 @@ inline T VectorRotateLeft(const T& vec)
 /// \tparam C shift byte count
 /// \tparam T vector type
 /// \param vec the vector
+/// \returns vector
 /// \details VectorRotateRight() returns a new vector after rotating the
 ///   concatenation of the source vector with itself by the specified
 ///   number of bytes. The return vector is the same type as vec.
@@ -285,6 +311,17 @@ inline T VectorRotateRight(const T& vec)
 #else
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
 #endif
+}
+
+/// \brief Exchange high and low double words
+/// \tparam T vector type
+/// \param vec the vector
+/// \returns vector
+/// \since Crypto++ 7.0
+template <class T>
+inline T VectorSwapWords(const T& vec)
+{
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 8);
 }
 
 /// \brief Extract a dword from a vector
