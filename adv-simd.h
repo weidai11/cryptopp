@@ -886,14 +886,6 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
-
-    // Avoid casting byte* to double*. Clang and GCC do not agree.
-    double temp[2];
-
     const size_t blockSize = 8;
     const size_t xmmBlockSize = 16;
 
@@ -917,25 +909,28 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 
     if (flags & BT_AllowParallel)
     {
+        double temp[2];
         while (length >= 2*xmmBlockSize)
         {
             __m128i block0, block1;
             if (flags & BT_InBlockIsCounter)
             {
+                // Increment of 1 and 2 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
+                const __m128i s_two = _mm_set_epi32(2<<24, 0, 2<<24, 0);
+
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 std::memcpy(temp, inBlocks, blockSize);
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
-                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
+                block0 = _mm_add_epi32(s_one, _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
-                const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
-                block1 = _mm_add_epi32(be2, block0);
+                block1 = _mm_add_epi32(s_two, block0);
 
                 // Store the next counter. When BT_InBlockIsCounter is set then
                 // inBlocks is backed by m_counterArray which is non-const.
-                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(s_two, block1)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
@@ -994,6 +989,7 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 
         while (length >= blockSize)
         {
+            double temp[2];
             std::memcpy(temp, inBlocks, blockSize);
             __m128i block = _mm_castpd_si128(_mm_load_sd(temp));
 
@@ -1045,14 +1041,6 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
-
-    // Avoid casting byte* to double*. Clang and GCC do not agree.
-    double temp[2];
-
     const size_t blockSize = 8;
     const size_t xmmBlockSize = 16;
 
@@ -1076,29 +1064,32 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
 
     if (flags & BT_AllowParallel)
     {
+        double temp[2];
         while (length >= 6*xmmBlockSize)
         {
             __m128i block0, block1, block2, block3, block4, block5;
             if (flags & BT_InBlockIsCounter)
             {
+                // Increment of 1 and 2 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
+                const __m128i s_two = _mm_set_epi32(2<<24, 0, 2<<24, 0);
+
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 std::memcpy(temp, inBlocks, blockSize);
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
-                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
+                block0 = _mm_add_epi32(s_one, _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
-                const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
-                block1 = _mm_add_epi32(be2, block0);
-                block2 = _mm_add_epi32(be2, block1);
-                block3 = _mm_add_epi32(be2, block2);
-                block4 = _mm_add_epi32(be2, block3);
-                block5 = _mm_add_epi32(be2, block4);
+                block1 = _mm_add_epi32(s_two, block0);
+                block2 = _mm_add_epi32(s_two, block1);
+                block3 = _mm_add_epi32(s_two, block2);
+                block4 = _mm_add_epi32(s_two, block3);
+                block5 = _mm_add_epi32(s_two, block4);
 
                 // Store the next counter. When BT_InBlockIsCounter is set then
                 // inBlocks is backed by m_counterArray which is non-const.
-                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi32(be2, block5)));
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi32(s_two, block5)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
@@ -1172,20 +1163,22 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             __m128i block0, block1;
             if (flags & BT_InBlockIsCounter)
             {
+                // Increment of 1 and 2 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
+                const __m128i s_two = _mm_set_epi32(2<<24, 0, 2<<24, 0);
+
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 std::memcpy(temp, inBlocks, blockSize);
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
-                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
+                block0 = _mm_add_epi32(s_one, _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
-                const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
-                block1 = _mm_add_epi32(be2, block0);
+                block1 = _mm_add_epi32(s_two, block0);
 
                 // Store the next counter. When BT_InBlockIsCounter is set then
                 // inBlocks is backed by m_counterArray which is non-const.
-                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block1)));
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(s_two, block1)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
@@ -1244,6 +1237,7 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
 
         while (length >= blockSize)
         {
+            double temp[2];
             __m128i block, zero = _mm_setzero_si128();
             std::memcpy(temp, inBlocks, blockSize);
             block = _mm_castpd_si128(_mm_load_sd(temp));
@@ -1298,9 +1292,6 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-
     const size_t blockSize = 16;
     // const size_t xmmBlockSize = 16;
 
@@ -1329,14 +1320,15 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
             __m128i block0, block1, block2, block3, block4, block5;
             if (flags & BT_InBlockIsCounter)
             {
-                const __m128i be1 = *CONST_M128_CAST(s_one32x4);
+                // Increment of 1 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                block1 = _mm_add_epi32(block0, be1);
-                block2 = _mm_add_epi32(block1, be1);
-                block3 = _mm_add_epi32(block2, be1);
-                block4 = _mm_add_epi32(block3, be1);
-                block5 = _mm_add_epi32(block4, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block5, be1));
+                block1 = _mm_add_epi32(block0, s_one);
+                block2 = _mm_add_epi32(block1, s_one);
+                block3 = _mm_add_epi32(block2, s_one);
+                block4 = _mm_add_epi32(block3, s_one);
+                block5 = _mm_add_epi32(block4, s_one);
+                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block5, s_one));
             }
             else
             {
@@ -1409,10 +1401,11 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
             __m128i block0, block1;
             if (flags & BT_InBlockIsCounter)
             {
-                const __m128i be1 = *CONST_M128_CAST(s_one32x4);
+                // Increment of 1 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                block1 = _mm_add_epi32(block0, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block1, be1));
+                block1 = _mm_add_epi32(block0, s_one);
+                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block1, s_one));
             }
             else
             {
@@ -1494,9 +1487,6 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4[] = {0, 0, 0, 1<<24};
-
     const size_t blockSize = 16;
     // const size_t xmmBlockSize = 16;
 
@@ -1525,12 +1515,13 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
             __m128i block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
             {
-                const __m128i be1 = *CONST_M128_CAST(s_one32x4);
+                // Increment of 1 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
                 block0 = _mm_loadu_si128(CONST_M128_CAST(inBlocks));
-                block1 = _mm_add_epi32(block0, be1);
-                block2 = _mm_add_epi32(block1, be1);
-                block3 = _mm_add_epi32(block2, be1);
-                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block3, be1));
+                block1 = _mm_add_epi32(block0, s_one);
+                block2 = _mm_add_epi32(block1, s_one);
+                block3 = _mm_add_epi32(block2, s_one);
+                _mm_storeu_si128(M128_CAST(inBlocks), _mm_add_epi32(block3, s_one));
             }
             else
             {
@@ -1627,14 +1618,6 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_1b[] = { 0, 0, 0, 1 << 24 };
-    CRYPTOPP_ALIGN_DATA(16)
-    const word32 s_one32x4_2b[] = { 0, 2 << 24, 0, 2 << 24 };
-
-    // Avoid casting byte* to double*. Clang and GCC do not agree.
-    double temp[2];
-
     const size_t blockSize = 8;
     const size_t xmmBlockSize = 16;
 
@@ -1658,27 +1641,30 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
 
     if (flags & BT_AllowParallel)
     {
+        double temp[2];
         while (length >= 4 * xmmBlockSize)
         {
             __m128i block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
             {
+                // Increment of 1 and 2 in big-endian compatible with the ctr byte array.
+                const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
+                const __m128i s_two = _mm_set_epi32(2<<24, 0, 2<<24, 0);
+
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 std::memcpy(temp, inBlocks, blockSize);
-                block0 = _mm_add_epi32(*CONST_M128_CAST(s_one32x4_1b),
-                    _mm_castpd_si128(_mm_loaddup_pd(temp)));
+                block0 = _mm_add_epi32(s_one, _mm_castpd_si128(_mm_loaddup_pd(temp)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
-                const __m128i be2 = *CONST_M128_CAST(s_one32x4_2b);
-                block1 = _mm_add_epi32(be2, block0);
-                block2 = _mm_add_epi32(be2, block1);
-                block3 = _mm_add_epi32(be2, block2);
+                block1 = _mm_add_epi32(s_two, block0);
+                block2 = _mm_add_epi32(s_two, block1);
+                block3 = _mm_add_epi32(s_two, block2);
 
                 // Store the next counter. When BT_InBlockIsCounter is set then
                 // inBlocks is backed by m_counterArray which is non-const.
-                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(be2, block3)));
+                _mm_store_sd(temp, _mm_castsi128_pd(_mm_add_epi64(s_two, block3)));
                 std::memcpy(const_cast<byte*>(inBlocks), temp, blockSize);
             }
             else
@@ -1753,6 +1739,7 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
 
         while (length >= blockSize)
         {
+            double temp[2];
             std::memcpy(temp, inBlocks, blockSize);
             __m128i block = _mm_castpd_si128(_mm_load_sd(temp));
 
