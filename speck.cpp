@@ -450,7 +450,7 @@ size_t SPECK128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
 #if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8() || true)
+    if (HasPower8())
         return SPECK128_Enc_AdvancedProcessBlocks_POWER8(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
