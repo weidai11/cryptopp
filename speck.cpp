@@ -310,6 +310,10 @@ std::string SPECK128::Base::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 #endif
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+        return "Power8";
+#endif
     return "C++";
 }
 
