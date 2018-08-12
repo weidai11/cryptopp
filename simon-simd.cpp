@@ -43,6 +43,10 @@
 # include <arm_acle.h>
 #endif
 
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+# include "ppc-simd.h"
+#endif
+
 // Squash MS LNK4221 and libtool warnings
 extern const char SIMON_SIMD_FNAME[] = __FILE__;
 
@@ -1007,6 +1011,270 @@ inline void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
+// ***************************** Power8 ***************************** //
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+
+using CryptoPP::uint8x16_p;
+using CryptoPP::uint32x4_p;
+using CryptoPP::uint64x2_p;
+
+using CryptoPP::VectorAnd;
+using CryptoPP::VectorXor;
+using CryptoPP::VectorSwapWords;
+
+// Rotate left by bit count
+template<unsigned int C>
+inline uint64x2_p RotateLeft64(const uint64x2_p val)
+{
+    const uint64x2_p m = {C, C};
+    return vec_rl(val, m);
+}
+
+// Rotate right by bit count
+template<unsigned int C>
+inline uint64x2_p RotateRight64(const uint64x2_p val)
+{
+    const uint64x2_p m = {64-C, 64-C};
+    return vec_rl(val, m);
+}
+
+inline uint64x2_p SwapWords(const uint64x2_p val)
+{
+    return VectorSwapWords(val);
+}
+
+inline uint64x2_p SIMON128_f(const uint64x2_p val)
+{
+    return VectorXor(RotateLeft64<2>(val),
+        VectorAnd(RotateLeft64<1>(val), RotateLeft64<8>(val)));
+}
+
+inline void SIMON128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block, block, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block, block, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1);
+    y1 = SwapWords(y1);
+#endif
+
+    for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
+    {
+        const uint64x2_p rk1 = vec_splats((unsigned long long)subkeys[i]);
+        y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk1);
+
+        const uint64x2_p rk2 = vec_splats((unsigned long long)subkeys[i+1]);
+        x1 = VectorXor(VectorXor(x1, SIMON128_f(y1)), rk2);
+    }
+
+    if (rounds & 1)
+    {
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[rounds-1]);
+        y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk);
+        std::swap(x1, y1);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(y1, x1, m1);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(x1, y1, m1);
+#endif
+}
+
+inline void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block, block, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block, block, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1);
+    y1 = SwapWords(y1);
+#endif
+
+
+    if (rounds & 1)
+    {
+        std::swap(x1, y1);
+        const uint64x2_p rk = vec_splats(subkeys[rounds-1]);
+        y1 = VectorXor(VectorXor(y1, rk), SIMON128_f(x1));
+        rounds--;
+    }
+
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
+    {
+        const uint64x2_p rk1 = vec_splats(subkeys[i+1]);
+        x1 = VectorXor(VectorXor(x1, SIMON128_f(y1)), rk1);
+
+        const uint64x2_p rk2 = vec_splats(subkeys[i]);
+        y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk2);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(y1, x1, m1);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(x1, y1, m1);
+#endif
+}
+
+inline void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+            uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
+            uint32x4_p &block5, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block0, block1, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block0, block1, m2);
+    uint64x2_p x2 = (uint64x2_p)vec_perm(block2, block3, m1);
+    uint64x2_p y2 = (uint64x2_p)vec_perm(block2, block3, m2);
+    uint64x2_p x3 = (uint64x2_p)vec_perm(block4, block5, m1);
+    uint64x2_p y3 = (uint64x2_p)vec_perm(block4, block5, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1); x2 = SwapWords(x2); x3 = SwapWords(x3);
+    y1 = SwapWords(y1); y2 = SwapWords(y2); y3 = SwapWords(y3);
+#endif
+
+    for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
+    {
+        const uint64x2_p rk1 = vec_splats((unsigned long long)subkeys[i]);
+        y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk1);
+        y2 = VectorXor(VectorXor(y2, SIMON128_f(x2)), rk1);
+        y3 = VectorXor(VectorXor(y3, SIMON128_f(x3)), rk1);
+
+        const uint64x2_p rk2 = vec_splats((unsigned long long)subkeys[i+1]);
+        x1 = VectorXor(VectorXor(x1, SIMON128_f(y1)), rk2);
+        x2 = VectorXor(VectorXor(x2, SIMON128_f(y2)), rk2);
+        x3 = VectorXor(VectorXor(x3, SIMON128_f(y3)), rk2);
+    }
+
+    if (rounds & 1)
+    {
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[rounds-1]);
+        y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk);
+        y2 = VectorXor(VectorXor(y2, SIMON128_f(x2)), rk);
+        y3 = VectorXor(VectorXor(y3, SIMON128_f(x3)), rk);
+        std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(y1, x1, m1);
+    block1 = (uint32x4_p)vec_perm(y1, x1, m2);
+    block2 = (uint32x4_p)vec_perm(y2, x2, m1);
+    block3 = (uint32x4_p)vec_perm(y2, x2, m2);
+    block4 = (uint32x4_p)vec_perm(y3, x3, m1);
+    block5 = (uint32x4_p)vec_perm(y3, x3, m2);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(x1, y1, m1);
+    block1 = (uint32x4_p)vec_perm(x1, y1, m2);
+    block2 = (uint32x4_p)vec_perm(x2, y2, m1);
+    block3 = (uint32x4_p)vec_perm(x2, y2, m2);
+    block4 = (uint32x4_p)vec_perm(x3, y3, m1);
+    block5 = (uint32x4_p)vec_perm(x3, y3, m2);
+#endif
+}
+
+inline void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+            uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
+            uint32x4_p &block5, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block0, block1, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block0, block1, m2);
+    uint64x2_p x2 = (uint64x2_p)vec_perm(block2, block3, m1);
+    uint64x2_p y2 = (uint64x2_p)vec_perm(block2, block3, m2);
+    uint64x2_p x3 = (uint64x2_p)vec_perm(block4, block5, m1);
+    uint64x2_p y3 = (uint64x2_p)vec_perm(block4, block5, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1); x2 = SwapWords(x2); x3 = SwapWords(x3);
+    y1 = SwapWords(y1); y2 = SwapWords(y2); y3 = SwapWords(y3);
+#endif
+
+    if (rounds & 1)
+    {
+        std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
+        const uint64x2_p rk = vec_splats(subkeys[rounds-1]);
+        y1 = VectorXor(VectorXor(y1, rk), SIMON128_f(x1));
+        y2 = VectorXor(VectorXor(y2, rk), SIMON128_f(x2));
+        y3 = VectorXor(VectorXor(y3, rk), SIMON128_f(x3));
+        rounds--;
+    }
+
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
+    {
+        const uint64x2_p rk1 = vec_splats(subkeys[i+1]);
+        x1 = VectorXor(VectorXor(x1, SIMON128_f(y1)), rk1);
+        x2 = VectorXor(VectorXor(x2, SIMON128_f(y2)), rk1);
+        x3 = VectorXor(VectorXor(x3, SIMON128_f(y3)), rk1);
+
+        const uint64x2_p rk2 = vec_splats(subkeys[i]);
+        y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk2);
+        y2 = VectorXor(VectorXor(y2, SIMON128_f(x2)), rk2);
+        y3 = VectorXor(VectorXor(y3, SIMON128_f(x3)), rk2);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(y1, x1, m1);
+    block1 = (uint32x4_p)vec_perm(y1, x1, m2);
+    block2 = (uint32x4_p)vec_perm(y2, x2, m1);
+    block3 = (uint32x4_p)vec_perm(y2, x2, m2);
+    block4 = (uint32x4_p)vec_perm(y3, x3, m1);
+    block5 = (uint32x4_p)vec_perm(y3, x3, m2);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(x1, y1, m1);
+    block1 = (uint32x4_p)vec_perm(x1, y1, m2);
+    block2 = (uint32x4_p)vec_perm(x2, y2, m1);
+    block3 = (uint32x4_p)vec_perm(x2, y2, m2);
+    block4 = (uint32x4_p)vec_perm(x3, y3, m1);
+    block5 = (uint32x4_p)vec_perm(x3, y3, m2);
+#endif
+}
+
+#endif  // CRYPTOPP_POWER8_AVAILABLE
+
 ANONYMOUS_NAMESPACE_END
 
 ///////////////////////////////////////////////////////////////////////
@@ -1080,5 +1348,23 @@ size_t SIMON128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t ro
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
+
+// ***************************** Power8 ***************************** //
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+size_t SIMON128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks128_6x1_ALTIVEC(SIMON128_Enc_Block, SIMON128_Enc_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SIMON128_Dec_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks128_6x1_ALTIVEC(SIMON128_Dec_Block, SIMON128_Dec_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif  // CRYPTOPP_POWER8_AVAILABLE
 
 NAMESPACE_END
