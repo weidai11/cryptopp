@@ -43,6 +43,10 @@
 # include <arm_acle.h>
 #endif
 
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+# include "ppc-simd.h"
+#endif
+
 // Squash MS LNK4221 and libtool warnings
 extern const char SPECK_SIMD_FNAME[] = __FILE__;
 
@@ -127,9 +131,6 @@ inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
 inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -153,9 +154,6 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
 inline void SPECK64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -180,10 +178,6 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -226,10 +220,6 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -341,9 +331,6 @@ inline uint64x2_t RotateRight64<8>(const uint64x2_t& val)
 inline void SPECK128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -368,9 +355,6 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -412,9 +396,6 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -439,9 +420,6 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -543,9 +521,6 @@ inline __m128i RotateRight64<8>(const __m128i& val)
 inline void SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -571,9 +546,6 @@ inline void SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -616,9 +588,6 @@ inline void SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 inline void SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -644,9 +613,6 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -723,10 +689,6 @@ inline __m128i RotateRight32<8>(const __m128i& val)
 inline void SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -753,10 +715,6 @@ inline void SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
 inline void SPECK64_Dec_Block(__m128i &block0, __m128i &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -784,10 +742,6 @@ inline void SPECK64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -839,10 +793,6 @@ inline void SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -891,6 +841,253 @@ inline void SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 }
 
 #endif  // CRYPTOPP_SSE41_AVAILABLE
+
+// ***************************** Power8 ***************************** //
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+
+using CryptoPP::uint8x16_p;
+using CryptoPP::uint32x4_p;
+using CryptoPP::uint64x2_p;
+
+using CryptoPP::VectorAdd;
+using CryptoPP::VectorSub;
+using CryptoPP::VectorXor;
+using CryptoPP::VectorSwapWords;
+
+// Rotate left by bit count
+template<unsigned int C>
+inline uint64x2_p RotateLeft64(const uint64x2_p val)
+{
+    const uint64x2_p m = {C, C};
+    return vec_rl(val, m);
+}
+
+// Rotate right by bit count
+template<unsigned int C>
+inline uint64x2_p RotateRight64(const uint64x2_p val)
+{
+    const uint64x2_p m = {64-C, 64-C};
+    return vec_rl(val, m);
+}
+
+inline uint64x2_p SwapWords(const uint64x2_p val)
+{
+    return VectorSwapWords(val);
+}
+
+void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block, block, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block, block, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1);
+    y1 = SwapWords(y1);
+#endif
+
+    for (int i=0; i < static_cast<int>(rounds); ++i)
+    {
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+
+        x1 = RotateRight64<8>(x1);
+        x1 = VectorAdd(x1, y1);
+        x1 = VectorXor(x1, rk);
+
+        y1 = RotateLeft64<3>(y1);
+        y1 = VectorXor(y1, x1);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(y1, x1, m1);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(x1, y1, m1);
+#endif
+}
+
+void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block, block, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block, block, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1);
+    y1 = SwapWords(y1);
+#endif
+
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    {
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+
+        y1 = VectorXor(y1, x1);
+        y1 = RotateRight64<3>(y1);
+        x1 = VectorXor(x1, rk);
+        x1 = VectorSub(x1, y1);
+        x1 = RotateLeft64<8>(x1);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(y1, x1, m1);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block = (uint32x4_p)vec_perm(x1, y1, m1);
+#endif
+}
+
+void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+            uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
+            uint32x4_p &block5, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block0, block1, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block0, block1, m2);
+    uint64x2_p x2 = (uint64x2_p)vec_perm(block2, block3, m1);
+    uint64x2_p y2 = (uint64x2_p)vec_perm(block2, block3, m2);
+    uint64x2_p x3 = (uint64x2_p)vec_perm(block4, block5, m1);
+    uint64x2_p y3 = (uint64x2_p)vec_perm(block4, block5, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1); x2 = SwapWords(x2); x3 = SwapWords(x3);
+    y1 = SwapWords(y1); y2 = SwapWords(y2); y3 = SwapWords(y3);
+#endif
+
+    for (int i=0; i < static_cast<int>(rounds); ++i)
+    {
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+
+        x1 = RotateRight64<8>(x1);
+        x2 = RotateRight64<8>(x2);
+        x3 = RotateRight64<8>(x3);
+        x1 = VectorAdd(x1, y1);
+        x2 = VectorAdd(x2, y2);
+        x3 = VectorAdd(x3, y3);
+        x1 = VectorXor(x1, rk);
+        x2 = VectorXor(x2, rk);
+        x3 = VectorXor(x3, rk);
+
+        y1 = RotateLeft64<3>(y1);
+        y2 = RotateLeft64<3>(y2);
+        y3 = RotateLeft64<3>(y3);
+        y1 = VectorXor(y1, x1);
+        y2 = VectorXor(y2, x2);
+        y3 = VectorXor(y3, x3);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(y1, x1, m1);
+    block1 = (uint32x4_p)vec_perm(y1, x1, m2);
+    block2 = (uint32x4_p)vec_perm(y2, x2, m1);
+    block3 = (uint32x4_p)vec_perm(y2, x2, m2);
+    block4 = (uint32x4_p)vec_perm(y3, x3, m1);
+    block5 = (uint32x4_p)vec_perm(y3, x3, m2);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(x1, y1, m1);
+    block1 = (uint32x4_p)vec_perm(x1, y1, m2);
+    block2 = (uint32x4_p)vec_perm(x2, y2, m1);
+    block3 = (uint32x4_p)vec_perm(x2, y2, m2);
+    block4 = (uint32x4_p)vec_perm(x3, y3, m1);
+    block5 = (uint32x4_p)vec_perm(x3, y3, m2);
+#endif
+}
+
+void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+            uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
+            uint32x4_p &block5, const word64 *subkeys, unsigned int rounds)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p m1 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p m2 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+#else
+    const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
+    const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+#endif
+
+    // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
+    uint64x2_p x1 = (uint64x2_p)vec_perm(block0, block1, m1);
+    uint64x2_p y1 = (uint64x2_p)vec_perm(block0, block1, m2);
+    uint64x2_p x2 = (uint64x2_p)vec_perm(block2, block3, m1);
+    uint64x2_p y2 = (uint64x2_p)vec_perm(block2, block3, m2);
+    uint64x2_p x3 = (uint64x2_p)vec_perm(block4, block5, m1);
+    uint64x2_p y3 = (uint64x2_p)vec_perm(block4, block5, m2);
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    x1 = SwapWords(x1); x2 = SwapWords(x2); x3 = SwapWords(x3);
+    y1 = SwapWords(y1); y2 = SwapWords(y2); y3 = SwapWords(y3);
+#endif
+
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    {
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+
+        y1 = VectorXor(y1, x1);
+        y2 = VectorXor(y2, x2);
+        y3 = VectorXor(y3, x3);
+        y1 = RotateRight64<3>(y1);
+        y2 = RotateRight64<3>(y2);
+        y3 = RotateRight64<3>(y3);
+
+        x1 = VectorXor(x1, rk);
+        x2 = VectorXor(x2, rk);
+        x3 = VectorXor(x3, rk);
+        x1 = VectorSub(x1, y1);
+        x2 = VectorSub(x2, y2);
+        x3 = VectorSub(x3, y3);
+        x1 = RotateLeft64<8>(x1);
+        x2 = RotateLeft64<8>(x2);
+        x3 = RotateLeft64<8>(x3);
+    }
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(y1, x1, m1);
+    block1 = (uint32x4_p)vec_perm(y1, x1, m2);
+    block2 = (uint32x4_p)vec_perm(y2, x2, m1);
+    block3 = (uint32x4_p)vec_perm(y2, x2, m2);
+    block4 = (uint32x4_p)vec_perm(y3, x3, m1);
+    block5 = (uint32x4_p)vec_perm(y3, x3, m2);
+#else
+    // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
+    block0 = (uint32x4_p)vec_perm(x1, y1, m1);
+    block1 = (uint32x4_p)vec_perm(x1, y1, m2);
+    block2 = (uint32x4_p)vec_perm(x2, y2, m1);
+    block3 = (uint32x4_p)vec_perm(x2, y2, m2);
+    block4 = (uint32x4_p)vec_perm(x3, y3, m1);
+    block5 = (uint32x4_p)vec_perm(x3, y3, m2);
+#endif
+}
+
+#endif
 
 ANONYMOUS_NAMESPACE_END
 
@@ -965,5 +1162,23 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t ro
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
+
+// ***************************** Power8 ***************************** //
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+size_t SPECK128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks128_6x1_ALTIVEC(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SPECK128_Dec_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks128_6x1_ALTIVEC(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#endif  // CRYPTOPP_POWER8_AVAILABLE
 
 NAMESPACE_END

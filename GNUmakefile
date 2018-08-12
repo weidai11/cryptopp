@@ -422,6 +422,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
     SM4_FLAG = $(POWER8_FLAG)
+    SPECK_FLAG = $(POWER8_FLAG)
   endif
 
   # GCC and some compatibles
@@ -433,7 +434,6 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMON_FLAG = $(POWER7_FLAG)
-    SPECK_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
   endif
 
@@ -451,6 +451,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
     SM4_FLAG = $(POWER8_FLAG)
+    SPECK_FLAG = $(POWER8_FLAG)
   endif
 
   # IBM XL C/C++
@@ -463,7 +464,6 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
     SIMON_FLAG = $(POWER7_FLAG)
-    SPECK_FLAG = $(POWER7_FLAG)
   endif
 
   # IBM XL C/C++
