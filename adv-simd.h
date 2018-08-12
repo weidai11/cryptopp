@@ -106,13 +106,12 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(length >= 8);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const word32 s_zero32x4[]   = {0, 0, 0, 0};
-    const word32 s_one32x4_1b[] = {0, 0, 0, 1<<24};
-    const word32 s_one32x4_2b[] = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = {0, 0, 0, 1<<24};
+    const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
-    const word32 s_zero32x4[]   = {0, 0, 0, 0};
-    const word32 s_one32x4_1b[] = {0, 0, 0, 1};
-    const word32 s_one32x4_2b[] = {0, 2, 0, 2};
+    // TODO: verify these constants on ARM-BE
+    const uint32x4_t s_one = {0, 0, 0, 1};
+    const uint32x4_t s_two = {0, 2, 0, 2};
 #endif
 
     const size_t blockSize = 8;
@@ -147,19 +146,17 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
                 // After the dup load we have two counters in the NEON word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 const uint8x8_t ctr = vld1_u8(inBlocks);
-                block0 = vaddq_u32(vld1q_u32(s_one32x4_1b),
-                    vreinterpretq_u32_u8(vcombine_u8(ctr,ctr)));
+                block0 = vaddq_u32(s_one, vreinterpretq_u32_u8(vcombine_u8(ctr,ctr)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
-                const uint32x4_t be2 = vld1q_u32(s_one32x4_2b);
-                block1 = vaddq_u32(be2, block0);
-                block2 = vaddq_u32(be2, block1);
-                block3 = vaddq_u32(be2, block2);
-                block4 = vaddq_u32(be2, block3);
-                block5 = vaddq_u32(be2, block4);
+                block1 = vaddq_u32(s_two, block0);
+                block2 = vaddq_u32(s_two, block1);
+                block3 = vaddq_u32(s_two, block2);
+                block4 = vaddq_u32(s_two, block3);
+                block5 = vaddq_u32(s_two, block4);
 
                 vst1_u8(const_cast<byte*>(inBlocks), vget_low_u8(
-                    vreinterpretq_u8_u32(vaddq_u32(be2, block5))));
+                    vreinterpretq_u8_u32(vaddq_u32(s_two, block5))));
             }
             else
             {
@@ -236,15 +233,13 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
                 // After the dup load we have two counters in the NEON word. Then we need
                 // to increment the low ctr by 0 and the high ctr by 1.
                 const uint8x8_t ctr = vld1_u8(inBlocks);
-                block0 = vaddq_u32(vld1q_u32(s_one32x4_1b),
-                    vreinterpretq_u32_u8(vcombine_u8(ctr,ctr)));
+                block0 = vaddq_u32(s_one, vreinterpretq_u32_u8(vcombine_u8(ctr,ctr)));
 
                 // After initial increment of {0,1} remaining counters increment by {2,2}.
-                const uint32x4_t be2 = vld1q_u32(s_one32x4_2b);
-                block1 = vaddq_u32(be2, block0);
+                block1 = vaddq_u32(s_two, block0);
 
                 vst1_u8(const_cast<byte*>(inBlocks), vget_low_u8(
-                    vreinterpretq_u8_u32(vaddq_u32(be2, block1))));
+                    vreinterpretq_u8_u32(vaddq_u32(s_two, block1))));
             }
             else
             {
@@ -302,7 +297,7 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
 
         while (length >= blockSize)
         {
-            uint32x4_t block, zero = vld1q_u32(s_zero32x4);
+            uint32x4_t block, zero = {0};
 
             const uint8x8_t v = vld1_u8(inBlocks);
             block = vreinterpretq_u32_u8(vcombine_u8(v,v));
@@ -356,11 +351,12 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const word32 s_zero32x4[]   = {0, 0, 0, 0};
-    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+    const uint32x4_t s_one = {0, 0, 0, 1<<24};
+    const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
-    const word32 s_zero32x4[]   = {0, 0, 0, 0};
-    const word32 s_one32x4[]    = {0, 0, 0, 1};
+    // TODO: verify these constants on ARM-BE
+    const uint32x4_t s_one = {0, 0, 0, 1};
+    const uint32x4_t s_two = {0, 2, 0, 2};
 #endif
 
     const size_t blockSize = 16;
@@ -391,16 +387,15 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
             uint64x2_t block0, block1, block2, block3, block4, block5;
             if (flags & BT_InBlockIsCounter)
             {
-                const uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one32x4));
+                const uint64x2_t one = vreinterpretq_u64_u32(s_one);
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-
-                block1 = vaddq_u64(block0, be);
-                block2 = vaddq_u64(block1, be);
-                block3 = vaddq_u64(block2, be);
-                block4 = vaddq_u64(block3, be);
-                block5 = vaddq_u64(block4, be);
+                block1 = vaddq_u64(block0, one);
+                block2 = vaddq_u64(block1, one);
+                block3 = vaddq_u64(block2, one);
+                block4 = vaddq_u64(block3, one);
+                block5 = vaddq_u64(block4, one);
                 vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block5, be)));
+                    vreinterpretq_u8_u64(vaddq_u64(block5, one)));
             }
             else
             {
@@ -519,9 +514,12 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     CRYPTOPP_UNUSED(unused);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+    const uint32x4_t s_one = {0, 0, 0, 1<<24};
+    const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
-    const word32 s_one32x4[]    = {0, 0, 0, 1};
+    // TODO: verify these constants on ARM-BE
+    const uint32x4_t s_one = {0, 0, 0, 1};
+    const uint32x4_t s_two = {0, 2, 0, 2};
 #endif
 
     const size_t blockSize = 16;
@@ -552,14 +550,13 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             uint64x2_t block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
             {
-                const uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one32x4));
+                const uint64x2_t one = vreinterpretq_u64_u32(s_one);
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-
-                block1 = vaddq_u64(block0, be);
-                block2 = vaddq_u64(block1, be);
-                block3 = vaddq_u64(block2, be);
+                block1 = vaddq_u64(block0, one);
+                block2 = vaddq_u64(block1, one);
+                block3 = vaddq_u64(block2, one);
                 vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block3, be)));
+                    vreinterpretq_u8_u64(vaddq_u64(block3, one)));
             }
             else
             {
@@ -657,9 +654,12 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
 #if defined(CRYPTOPP_LITTLE_ENDIAN)
-    const word32 s_one32x4[]    = {0, 0, 0, 1<<24};
+    const uint32x4_t s_one = {0, 0, 0, 1<<24};
+    const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
-    const word32 s_one32x4[]    = {0, 0, 0, 1};
+    // TODO: verify these constants on ARM-BE
+    const uint32x4_t s_one = {0, 0, 0, 1};
+    const uint32x4_t s_two = {0, 2, 0, 2};
 #endif
 
     const size_t blockSize = 16;
@@ -690,16 +690,15 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             uint64x2_t block0, block1, block2, block3, block4, block5;
             if (flags & BT_InBlockIsCounter)
             {
-                const uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one32x4));
+                const uint64x2_t one = vreinterpretq_u64_u32(s_one);
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-
-                block1 = vaddq_u64(block0, be);
-                block2 = vaddq_u64(block1, be);
-                block3 = vaddq_u64(block2, be);
-                block4 = vaddq_u64(block3, be);
-                block5 = vaddq_u64(block4, be);
+                block1 = vaddq_u64(block0, one);
+                block2 = vaddq_u64(block1, one);
+                block3 = vaddq_u64(block2, one);
+                block4 = vaddq_u64(block3, one);
+                block5 = vaddq_u64(block4, one);
                 vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block5, be)));
+                    vreinterpretq_u8_u64(vaddq_u64(block5, one)));
             }
             else
             {
@@ -772,12 +771,11 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             uint64x2_t block0, block1;
             if (flags & BT_InBlockIsCounter)
             {
-                const uint64x2_t be = vreinterpretq_u64_u32(vld1q_u32(s_one32x4));
+                const uint64x2_t one = vreinterpretq_u64_u32(s_one);
                 block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                block1 = vaddq_u64(block0, be);
-
+                block1 = vaddq_u64(block0, one);
                 vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block1, be)));
+                    vreinterpretq_u8_u64(vaddq_u64(block1, one)));
             }
             else
             {
@@ -1641,7 +1639,6 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
 
     if (flags & BT_AllowParallel)
     {
-        double temp[2];
         while (length >= 4 * xmmBlockSize)
         {
             __m128i block0, block1, block2, block3;
@@ -1650,6 +1647,7 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
                 // Increment of 1 and 2 in big-endian compatible with the ctr byte array.
                 const __m128i s_one = _mm_set_epi32(1<<24, 0, 0, 0);
                 const __m128i s_two = _mm_set_epi32(2<<24, 0, 2<<24, 0);
+                double temp[2];
 
                 // For 64-bit block ciphers we need to load the CTR block, which is 8 bytes.
                 // After the dup load we have two counters in the XMM word. Then we need
@@ -1808,7 +1806,7 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 #endif
 
     const size_t blockSize = 16;
-    // const size_t vexBlockSize = 16;
+    // const size_t vsxBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
