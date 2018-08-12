@@ -125,8 +125,8 @@ void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 	int carry=0;
 	for (int i=BlockSize()-1; i>=0; i--)
 	{
-		unsigned int sum = m_register[i] + byte(iterationCount) + carry;
-		m_counterArray[i] = static_cast<byte>(sum);
+		unsigned int sum = m_register[i] + (iterationCount & 0xff) + carry;
+		m_counterArray[i] = byte(sum & 0xff);
 		carry = sum >> 8;
 		iterationCount >>= 8;
 	}
@@ -147,14 +147,15 @@ void CTR_ModePolicy::OperateKeystream(KeystreamOperation /*operation*/, byte *ou
 
 	while (iterationCount)
 	{
-		byte lsb = m_counterArray[s-1];
-		size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
+		const byte lsb = m_counterArray[s-1];
+		const size_t blocks = UnsignedMin(iterationCount, 256U-lsb);
+
 		m_cipher->AdvancedProcessBlocks(m_counterArray, input, output, blocks*s, BlockTransformation::BT_InBlockIsCounter|BlockTransformation::BT_AllowParallel);
-		if ((m_counterArray[s-1] = static_cast<byte>(lsb + blocks)) == 0)
+		if ((m_counterArray[s-1] = byte(lsb + blocks)) == 0)
 			IncrementCounterBy256();
 
 		output = PtrAdd(output, blocks*s);
-		input  = PtrAdd(input, blocks*inputIncrement);
+		input = PtrAdd(input, blocks*inputIncrement);
 		iterationCount -= blocks;
 	}
 }
@@ -166,7 +167,7 @@ void CTR_ModePolicy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, 
 	CRYPTOPP_ASSERT(length == BlockSize());
 
 	CopyOrZero(m_register, m_register.size(), iv, length);
-	m_counterArray = m_register;
+	m_counterArray.Assign(m_register.begin(), m_register.size());
 }
 
 void BlockOrientedCipherModeBase::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
