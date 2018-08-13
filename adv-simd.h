@@ -1830,7 +1830,7 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
     {
         while (length >= 6*blockSize)
         {
-            uint32x4_p block0, block1, block2, block3, block4, block5, temp;
+            uint32x4_p block0, block1, block2, block3, block4, block5;
 
             if (flags & BT_InBlockIsCounter)
             {
@@ -1840,7 +1840,21 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
                 block3 = VectorAdd(block2, s_one);
                 block4 = VectorAdd(block3, s_one);
                 block5 = VectorAdd(block4, s_one);
-                temp   = VectorAdd(block5, s_one);
+
+                // Hack due to big-endian loads used by POWER8 (and maybe ARM-BE).
+                // CTR_ModePolicy::OperateKeystream is wired such that after
+                // returning from this function if the last counter byte is 0 then
+                // CTR_ModePolicy increments the next to last byte. The problem is,
+                // with a big-endian load, inBlocks[15] is located at index 15. The
+                // vector addition using a 32-bit element generates a carry into
+                // inBlocks[14] and then CTR_ModePolicy increments inBlocks[14] too.
+                //
+                // To find this bug we needed a test case with a ctr of 0xNN...FA.
+                // The last octet is 0xFA and adding 6 creates the wrap to trigger
+                // the issue. If the last octet was 0xFC then 4 would trigger it.
+                // We dumb-lucked into the test with SPECK-128. The test case of
+                // interest is the one with IV 348ECA9766C09F04 826520DE47A212FA.
+                uint8x16_p temp = VectorAdd((uint8x16_p)block5, (uint8x16_p)s_one);
                 VectorStoreBE(temp, const_cast<byte*>(inBlocks));
             }
             else

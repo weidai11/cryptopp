@@ -421,9 +421,9 @@ inline uint32x4_p VectorLoadBE(int off, const byte src[16])
     return (uint32x4_p)vec_xl_be(off, (byte*)src);
 #else
 # if defined(CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)vec_vsx_ld(off, src);
+    return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 # else
-    return (uint32x4_p)Reverse(vec_vsx_ld(off, src));
+    return (uint32x4_p)Reverse(vec_vsx_ld(off, (byte*)src));
 # endif
 #endif
 }
