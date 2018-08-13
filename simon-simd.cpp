@@ -1234,7 +1234,7 @@ inline void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
-        const uint64x2_p rk = vec_splats(subkeys[rounds-1]);
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[rounds-1]);
         y1 = VectorXor(VectorXor(y1, rk), SIMON128_f(x1));
         y2 = VectorXor(VectorXor(y2, rk), SIMON128_f(x2));
         y3 = VectorXor(VectorXor(y3, rk), SIMON128_f(x3));
