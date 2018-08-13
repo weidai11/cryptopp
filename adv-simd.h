@@ -24,6 +24,7 @@
 //      * AdvancedProcessBlocks128_4x1_NEON
 //      * AdvancedProcessBlocks128_6x2_NEON
 //      * AdvancedProcessBlocks64_6x1_ALTIVEC
+//      * AdvancedProcessBlocks128_4x1_ALTIVEC
 //      * AdvancedProcessBlocks128_6x1_ALTIVEC
 //
 //    If an arrangement ends in 2, like 6x2, then the template will handle the
@@ -1780,6 +1781,158 @@ NAMESPACE_END  // CryptoPP
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 
 NAMESPACE_BEGIN(CryptoPP)
+
+/// \brief AdvancedProcessBlocks for 1 and 4 blocks
+/// \tparam F1 function to process 1 128-bit block
+/// \tparam F4 function to process 4 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks128_4x1_ALTIVEC processes 4 and 1 Altivec SIMD words
+///   at a time.
+/// \details The subkey type is usually word32 or word64. F1 and F4 must use the
+///   same word type.
+template <typename F1, typename F4, typename W>
+inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 16);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    const uint32x4_p s_one  = {1,0,0,0};
+#else
+    const uint32x4_p s_one = {0,0,0,1};
+#endif
+
+    const size_t blockSize = 16;
+    // const size_t vsxBlockSize = 16;
+
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+
+    // Clang and Coverity are generating findings using xorBlocks as a flag.
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+
+    if (flags & BT_ReverseDirection)
+    {
+        inBlocks = PtrAdd(inBlocks, length - blockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - blockSize);
+        outBlocks = PtrAdd(outBlocks, length - blockSize);
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+    }
+
+    if (flags & BT_AllowParallel)
+    {
+        while (length >= 4*blockSize)
+        {
+            uint32x4_p block0, block1, block2, block3;
+
+            if (flags & BT_InBlockIsCounter)
+            {
+                block0 = VectorLoadBE(inBlocks);
+                block1 = VectorAdd(block0, s_one);
+                block2 = VectorAdd(block1, s_one);
+                block3 = VectorAdd(block2, s_one);
+
+                // Hack due to big-endian loads used by POWER8 (and maybe ARM-BE).
+                // CTR_ModePolicy::OperateKeystream is wired such that after
+                // returning from this function CTR_ModePolicy will detect wrap on
+                // on the last counter byte and increment the next to last byte.
+                // The problem is, with a big-endian load, inBlocks[15] is really
+                // located at index 15. The vector addition using a 32-bit element
+                // generates a carry into inBlocks[14] and then CTR_ModePolicy
+                // increments inBlocks[14] too.
+                //
+                // To find this bug we needed a test case with a ctr of 0xNN...FA.
+                // The last octet is 0xFA and adding 6 creates the wrap to trigger
+                // the issue. If the last octet was 0xFC then 4 would trigger it.
+                // We dumb-lucked into the test with SPECK-128. The test case of
+                // interest is the one with IV 348ECA9766C09F04 826520DE47A212FA.
+                uint8x16_p temp = VectorAdd((uint8x16_p)block3, (uint8x16_p)s_one);
+                VectorStoreBE(temp, const_cast<byte*>(inBlocks));
+            }
+            else
+            {
+                block0 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block1 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block2 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block3 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+            }
+
+            if (xorInput)
+            {
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            }
+
+            func4(block0, block1, block2, block3, subKeys, rounds);
+
+            if (xorOutput)
+            {
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            }
+
+            VectorStoreBE(block0, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block1, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block2, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block3, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+
+            length -= 4*blockSize;
+        }
+    }
+
+    while (length >= blockSize)
+    {
+        uint32x4_p block = VectorLoadBE(inBlocks);
+
+        if (xorInput)
+            block = VectorXor(block, VectorLoadBE(xorBlocks));
+
+        if (flags & BT_InBlockIsCounter)
+            const_cast<byte *>(inBlocks)[15]++;
+
+        func1(block, subKeys, rounds);
+
+        if (xorOutput)
+            block = VectorXor(block, VectorLoadBE(xorBlocks));
+
+        VectorStoreBE(block, outBlocks);
+
+        inBlocks = PtrAdd(inBlocks, inIncrement);
+        outBlocks = PtrAdd(outBlocks, outIncrement);
+        xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+        length -= blockSize;
+    }
+
+    return length;
+}
 
 /// \brief AdvancedProcessBlocks for 1 and 6 blocks
 /// \tparam F1 function to process 1 128-bit block
