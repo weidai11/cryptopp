@@ -251,7 +251,8 @@ protected:
         const byte* input3, size_t inlen3, const byte* input4, size_t inlen4, byte* output, size_t outlen);
 
 private:
-    SecByteBlock m_c, m_v;
+    HASH m_hash;
+    SecByteBlock m_c, m_v, m_temp;
     word64 m_reseed;
 };
 
@@ -366,6 +367,7 @@ protected:
     void HMAC_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2, const byte* input3, size_t inlen3);
 
 private:
+    HMAC<HASH> m_hmac;
     SecByteBlock m_k, m_v;
     word64 m_reseed;
 };
@@ -451,20 +453,19 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
     // Step 2
     if (additional && additionaLength)
     {
-        HASH hash;
         const byte two = 2;
-        SecByteBlock w(HASH::DIGESTSIZE);
+        m_temp.New(HASH::DIGESTSIZE);
 
-        hash.Update(&two, 1);
-        hash.Update(m_v, m_v.size());
-        hash.Update(additional, additionaLength);
-        hash.Final(w);
+        m_hash.Update(&two, 1);
+        m_hash.Update(m_v, m_v.size());
+        m_hash.Update(additional, additionaLength);
+        m_hash.Final(m_temp);
 
         CRYPTOPP_ASSERT(SEEDLENGTH >= HASH::DIGESTSIZE);
         int carry=0, j=HASH::DIGESTSIZE-1, i=SEEDLENGTH-1;
         while (j>=0)
         {
-            carry = m_v[i] + w[j] + carry;
+            carry = m_v[i] + m_temp[j] + carry;
             m_v[i] = static_cast<byte>(carry);
             i--; j--; carry >>= 8;
         }
@@ -478,84 +479,41 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
 
     // Step 3
     {
-        HASH hash;
-        SecByteBlock data(m_v);
-
+        m_temp.Assign(m_v);
         while (size)
         {
-            hash.Update(data, data.size());
+            m_hash.Update(m_temp, m_temp.size());
             size_t count = STDMIN(size, (size_t)HASH::DIGESTSIZE);
-            hash.TruncatedFinal(output, count);
+            m_hash.TruncatedFinal(output, count);
 
-            IncrementCounterByOne(data, static_cast<unsigned int>(data.size()));
+            IncrementCounterByOne(m_temp, static_cast<unsigned int>(m_temp.size()));
             size -= count; output += count;
         }
     }
 
     // Steps 4-7
     {
-        HASH hash;
         const byte three = 3;
-        SecByteBlock h(HASH::DIGESTSIZE);
+        m_temp.New(HASH::DIGESTSIZE);
 
-        hash.Update(&three, 1);
-        hash.Update(m_v, m_v.size());
-        hash.Final(h);
+        m_hash.Update(&three, 1);
+        m_hash.Update(m_v, m_v.size());
+        m_hash.Final(m_temp);
 
         CRYPTOPP_ASSERT(SEEDLENGTH >= HASH::DIGESTSIZE);
         CRYPTOPP_ASSERT(HASH::DIGESTSIZE >= sizeof(m_reseed));
         int carry=0, k=sizeof(m_reseed)-1, j=HASH::DIGESTSIZE-1, i=SEEDLENGTH-1;
 
-        // Using Integer class slows things down by about 8 cpb.
-        // Using word128 and word64 benefits the first loop only by about 2 cpb.
-#if defined(CRYPTOPP_WORD128_AVAILABLE)
-        byte* p1 = m_v.begin()+SEEDLENGTH-8;
-        byte* p2 = m_c.begin()+SEEDLENGTH-8;
-        byte* p3 = h.begin()+HASH::DIGESTSIZE-8;
-
-        const word64 w1 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p1);
-        const word64 w2 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p2);
-        const word64 w3 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p3);
-        const word64 w4 = m_reseed;
-
-        word128 r = static_cast<word128>(w1) + w2 + w3 + w4;
-        PutWord(false, BIG_ENDIAN_ORDER, p1, static_cast<word64>(r));
-        i -= 8; j -= 8; k=0; carry = static_cast<int>(r >> 64);
-
-        // The default implementation and a couple of others cause a crash in
-        // VS2005, VS2008 and VS2105. This seems to work with all MS compilers.
-#elif defined(CRYPTOPP_MSC_VERSION)
-        byte* p1 = m_v.begin()+SEEDLENGTH-8;
-        byte* p2 = m_c.begin()+SEEDLENGTH-8;
-        byte* p3 = h.begin()+HASH::DIGESTSIZE-8;
-
-        const word64 w1 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p1);
-        const word64 w2 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p2);
-        const word64 w3 = GetWord<word64>(false, BIG_ENDIAN_ORDER, p3);
-        const word64 w4 = m_reseed;
-
-        const word64 r1 = (w1 & 0xffffffff) + (w2 & 0xffffffff) + (w3 & 0xffffffff) + (w4 & 0xffffffff);
-        carry = static_cast<int>(r1 >> 32);
-        const word64 r2 = (w1 >> 32) + (w2 >> 32) + (w3 >> 32) + (w4 >> 32) + carry;
-        carry = static_cast<int>(r2 >> 32);
-
-        const word64 r = (r2 << 32) + (r1 & 0xffffffff);
-        PutWord(false, BIG_ENDIAN_ORDER, p1, r);
-        i -= 8; j -= 8; k=0;
-
-        // Default implementation, but slower on some machines.
-#else
         while (k>=0)
         {
-            carry = m_v[i] + m_c[i] + h[j] + GetByte<word64>(BIG_ENDIAN_ORDER, m_reseed, k) + carry;
+            carry = m_v[i] + m_c[i] + m_temp[j] + GetByte<word64>(BIG_ENDIAN_ORDER, m_reseed, k) + carry;
             m_v[i] = static_cast<byte>(carry);
             i--; j--; k--; carry >>= 8;
         }
-#endif
 
         while (j>=0)
         {
-            carry = m_v[i] + m_c[i] + h[j] + carry;
+            carry = m_v[i] + m_c[i] + m_temp[j] + carry;
             m_v[i] = static_cast<byte>(carry);
             i--; j--; carry >>= 8;
         }
@@ -566,9 +524,6 @@ void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Generate(const byte* additional
             m_v[i] = static_cast<byte>(carry);
             i--; carry >>= 8;
         }
-
-        // CRYPTOPP_WORD128_AVAILABLE causes -Wunused-but-set-variable
-        CRYPTOPP_UNUSED(k);
     }
 
     m_reseed++;
@@ -579,26 +534,25 @@ template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
 void Hash_DRBG<HASH, STRENGTH, SEEDLENGTH>::Hash_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2,
     const byte* input3, size_t inlen3, const byte* input4, size_t inlen4, byte* output, size_t outlen)
 {
-    HASH hash;
     byte counter = 1;
     word32 bits = ConditionalByteReverse(BIG_ENDIAN_ORDER, static_cast<word32>(outlen*8));
 
     while (outlen)
     {
-        hash.Update(&counter, 1);
-        hash.Update(reinterpret_cast<const byte*>(&bits), 4);
+        m_hash.Update(&counter, 1);
+        m_hash.Update(reinterpret_cast<const byte*>(&bits), 4);
 
         if (input1 && inlen1)
-            hash.Update(input1, inlen1);
+            m_hash.Update(input1, inlen1);
         if (input2 && inlen2)
-            hash.Update(input2, inlen2);
+            m_hash.Update(input2, inlen2);
         if (input3 && inlen3)
-            hash.Update(input3, inlen3);
+            m_hash.Update(input3, inlen3);
         if (input4 && inlen4)
-            hash.Update(input4, inlen4);
+            m_hash.Update(input4, inlen4);
 
         size_t count = STDMIN(outlen, (size_t)HASH::DIGESTSIZE);
-        hash.TruncatedFinal(output, count);
+        m_hash.TruncatedFinal(output, count);
 
         output += count; outlen -= count;
         counter++;
@@ -676,17 +630,15 @@ void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Generate(const byte* additional
         HMAC_Update(additional, additionaLength, NULLPTR, 0, NULLPTR, 0);
 
     // Step 3
-    HMAC<HASH> hmac;
-    hmac.SetKey(m_k, m_k.size());
+    m_hmac.SetKey(m_k, m_k.size());
 
     while (size)
     {
-        hmac.Update(m_v, m_v.size());
-        hmac.TruncatedFinal(m_v, m_v.size());
+        m_hmac.Update(m_v, m_v.size());
+        m_hmac.TruncatedFinal(m_v, m_v.size());
 
         size_t count = STDMIN(size, (size_t)HASH::DIGESTSIZE);
         memcpy(output, m_v, count);
-
         size -= count; output += count;
     }
 
@@ -699,51 +651,50 @@ template <typename HASH, unsigned int STRENGTH, unsigned int SEEDLENGTH>
 void HMAC_DRBG<HASH, STRENGTH, SEEDLENGTH>::HMAC_Update(const byte* input1, size_t inlen1, const byte* input2, size_t inlen2, const byte* input3, size_t inlen3)
 {
     const byte zero = 0, one = 1;
-    HMAC<HASH> hmac;
 
     // Step 1
-    hmac.SetKey(m_k, m_k.size());
-    hmac.Update(m_v, m_v.size());
-    hmac.Update(&zero, 1);
+    m_hmac.SetKey(m_k, m_k.size());
+    m_hmac.Update(m_v, m_v.size());
+    m_hmac.Update(&zero, 1);
 
     if (input1 && inlen1)
-        hmac.Update(input1, inlen1);
+        m_hmac.Update(input1, inlen1);
     if (input2 && inlen2)
-        hmac.Update(input2, inlen2);
+        m_hmac.Update(input2, inlen2);
     if (input3 && inlen3)
-        hmac.Update(input3, inlen3);
+        m_hmac.Update(input3, inlen3);
 
-    hmac.TruncatedFinal(m_k, m_k.size());
+    m_hmac.TruncatedFinal(m_k, m_k.size());
 
     // Step 2
-    hmac.SetKey(m_k, m_k.size());
-    hmac.Update(m_v, m_v.size());
+    m_hmac.SetKey(m_k, m_k.size());
+    m_hmac.Update(m_v, m_v.size());
 
-    hmac.TruncatedFinal(m_v, m_v.size());
+    m_hmac.TruncatedFinal(m_v, m_v.size());
 
     // Step 3
     if ((inlen1 | inlen2 | inlen3) == 0)
         return;
 
     // Step 4
-    hmac.SetKey(m_k, m_k.size());
-    hmac.Update(m_v, m_v.size());
-    hmac.Update(&one, 1);
+    m_hmac.SetKey(m_k, m_k.size());
+    m_hmac.Update(m_v, m_v.size());
+    m_hmac.Update(&one, 1);
 
     if (input1 && inlen1)
-        hmac.Update(input1, inlen1);
+        m_hmac.Update(input1, inlen1);
     if (input2 && inlen2)
-        hmac.Update(input2, inlen2);
+        m_hmac.Update(input2, inlen2);
     if (input3 && inlen3)
-        hmac.Update(input3, inlen3);
+        m_hmac.Update(input3, inlen3);
 
-    hmac.TruncatedFinal(m_k, m_k.size());
+    m_hmac.TruncatedFinal(m_k, m_k.size());
 
     // Step 5
-    hmac.SetKey(m_k, m_k.size());
-    hmac.Update(m_v, m_v.size());
+    m_hmac.SetKey(m_k, m_k.size());
+    m_hmac.Update(m_v, m_v.size());
 
-    hmac.TruncatedFinal(m_v, m_v.size());
+    m_hmac.TruncatedFinal(m_v, m_v.size());
 }
 
 NAMESPACE_END
