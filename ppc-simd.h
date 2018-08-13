@@ -394,7 +394,7 @@ inline bool VectorNotEqual(const T1& vec1, const T2& vec2)
 /// \note VectorLoadBE() does not require an aligned array.
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
-inline uint32x4_p VectorLoadBE(const uint8_t src[16])
+inline uint32x4_p VectorLoadBE(const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl_be(0, (byte*)src);
@@ -415,7 +415,7 @@ inline uint32x4_p VectorLoadBE(const uint8_t src[16])
 /// \note VectorLoadBE does not require an aligned array.
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
-inline uint32x4_p VectorLoadBE(int off, const uint8_t src[16])
+inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl_be(off, (byte*)src);
@@ -439,7 +439,7 @@ inline uint32x4_p VectorLoad(const byte src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl(0, (byte*)src);
 #else
-    return (uint32x4_p)vec_vsx_ld(0, src);
+    return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #endif
 }
 
@@ -455,7 +455,7 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl(off, (byte*)src);
 #else
-    return (uint32x4_p)vec_vsx_ld(off, src);
+    return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #endif
 }
 
@@ -469,15 +469,15 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
-inline void VectorStoreBE(const T& src, uint8_t dest[16])
+inline void VectorStoreBE(const T& src, byte dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst_be((uint8x16_p)src, 0, dest);
+    vec_xst_be((uint8x16_p)src, 0, (byte*)dest);
 #else
 # if defined(CRYPTOPP_BIG_ENDIAN)
-    vec_vsx_st((uint8x16_p)src, 0, dest);
+    vec_vsx_st((uint8x16_p)src, 0, (byte*)dest);
 # else
-    vec_vsx_st((uint8x16_p)Reverse(src), 0, dest);
+    vec_vsx_st((uint8x16_p)Reverse(src), 0, (byte*)dest);
 # endif
 #endif
 }
@@ -493,15 +493,15 @@ inline void VectorStoreBE(const T& src, uint8_t dest[16])
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
-inline void VectorStoreBE(const T& src, int off, uint8_t dest[16])
+inline void VectorStoreBE(const T& src, int off, byte dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst_be((uint8x16_p)src, off, dest);
+    vec_xst_be((uint8x16_p)src, off, (byte*)dest);
 #else
 # if defined(CRYPTOPP_BIG_ENDIAN)
-    vec_vsx_st((uint8x16_p)src, off, dest);
+    vec_vsx_st((uint8x16_p)src, off, (byte*)dest);
 # else
-    vec_vsx_st((uint8x16_p)Reverse(src), off, dest);
+    vec_vsx_st((uint8x16_p)Reverse(src), off, (byte*)dest);
 # endif
 #endif
 }
@@ -517,9 +517,9 @@ template<class T>
 inline void VectorStore(const T& src, byte dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst((uint8x16_p)src, 0, dest);
+    vec_xst((uint8x16_p)src, 0, (byte*)dest);
 #else
-    vec_vsx_st((uint8x16_p)src, 0, dest);
+    vec_vsx_st((uint8x16_p)src, 0, (byte*)dest);
 #endif
 }
 
@@ -535,9 +535,9 @@ template<class T>
 inline void VectorStore(const T& src, int off, byte dest[16])
 {
 #if defined(CRYPTOPP_XLC_VERSION)
-    vec_xst((uint8x16_p)src, off, dest);
+    vec_xst((uint8x16_p)src, off, (byte*)dest);
 #else
-    vec_vsx_st((uint8x16_p)src, off, dest);
+    vec_vsx_st((uint8x16_p)src, off, (byte*)dest);
 #endif
 }
 
@@ -595,7 +595,7 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 /// \note VectorLoadBE() does not require an aligned array.
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
-inline uint32x4_p VectorLoadBE(const uint8_t src[16])
+inline uint32x4_p VectorLoadBE(const byte src[16])
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VectorLoad(src);
@@ -636,7 +636,7 @@ inline void VectorStore(const T& data, byte dest[16])
 /// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
-inline void VectorStoreBE(const T& src, uint8_t dest[16])
+inline void VectorStoreBE(const T& src, byte dest[16])
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
     VectorStore(src, dest);
