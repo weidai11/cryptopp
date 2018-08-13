@@ -1843,11 +1843,12 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
                 // Hack due to big-endian loads used by POWER8 (and maybe ARM-BE).
                 // CTR_ModePolicy::OperateKeystream is wired such that after
-                // returning from this function if the last counter byte is 0 then
-                // CTR_ModePolicy increments the next to last byte. The problem is,
-                // with a big-endian load, inBlocks[15] is located at index 15. The
-                // vector addition using a 32-bit element generates a carry into
-                // inBlocks[14] and then CTR_ModePolicy increments inBlocks[14] too.
+                // returning from this function CTR_ModePolicy will detect wrap on
+                // on the last counter byte and increment the next to last byte.
+                // The problem is, with a big-endian load, inBlocks[15] is really
+                // located at index 15. The vector addition using a 32-bit element
+                // generates a carry into inBlocks[14] and then CTR_ModePolicy
+                // increments inBlocks[14] too.
                 //
                 // To find this bug we needed a test case with a ctr of 0xNN...FA.
                 // The last octet is 0xFA and adding 6 creates the wrap to trigger
