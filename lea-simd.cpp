@@ -39,8 +39,8 @@
 #endif
 
 // Do not port this to POWER architecture. Naively we hoped
-// for a 2x speedup. The result was a 5x slow down because
-// of the rotates and scattered loads.
+// for a 2x to 3x speedup. The result was a 5x slow down
+// because of the rotates and scattered loads.
 //
 // C++:
 // <TD>LEA-128(128)/CTR (128-bit key)<TD>C++<TD>207<TD>15.64<TD>0.593<TD>2015
@@ -178,12 +178,6 @@ inline uint32x4_t UnpackNEON(const uint32x4_t& a, const uint32x4_t& b, const uin
 template <>
 inline uint32x4_t UnpackNEON<0>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    //uint32x4_t r(a);
-    //r = vsetq_lane_u32(vgetq_lane_u32(b, 0), r, 1);
-    //r = vsetq_lane_u32(vgetq_lane_u32(c, 0), r, 2);
-    //r = vsetq_lane_u32(vgetq_lane_u32(d, 0), r, 3);
-    //return r;
-
     const uint32x4_t r1 = UnpackLow32(a, b);
     const uint32x4_t r2 = UnpackLow32(c, d);
     return UnpackLow64(r1, r2);
@@ -192,12 +186,6 @@ inline uint32x4_t UnpackNEON<0>(const uint32x4_t& a, const uint32x4_t& b, const 
 template <>
 inline uint32x4_t UnpackNEON<1>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    //uint32x4_t r(a);
-    //r = vsetq_lane_u32(vgetq_lane_u32(b, 1), r, 1);
-    //r = vsetq_lane_u32(vgetq_lane_u32(c, 1), r, 2);
-    //r = vsetq_lane_u32(vgetq_lane_u32(d, 1), r, 3);
-    //return r;
-
     const uint32x4_t r1 = UnpackLow32(a, b);
     const uint32x4_t r2 = UnpackLow32(c, d);
     return UnpackHigh64(r1, r2);
@@ -206,12 +194,6 @@ inline uint32x4_t UnpackNEON<1>(const uint32x4_t& a, const uint32x4_t& b, const 
 template <>
 inline uint32x4_t UnpackNEON<2>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    //uint32x4_t r(a);
-    //r = vsetq_lane_u32(vgetq_lane_u32(b, 2), r, 1);
-    //r = vsetq_lane_u32(vgetq_lane_u32(c, 2), r, 2);
-    //r = vsetq_lane_u32(vgetq_lane_u32(d, 2), r, 3);
-    //return r;
-
     const uint32x4_t r1 = UnpackHigh32(a, b);
     const uint32x4_t r2 = UnpackHigh32(c, d);
     return UnpackLow64(r1, r2);
@@ -220,12 +202,6 @@ inline uint32x4_t UnpackNEON<2>(const uint32x4_t& a, const uint32x4_t& b, const 
 template <>
 inline uint32x4_t UnpackNEON<3>(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
-    //uint32x4_t r(a);
-    //r = vsetq_lane_u32(vgetq_lane_u32(b, 3), r, 1);
-    //r = vsetq_lane_u32(vgetq_lane_u32(c, 3), r, 2);
-    //r = vsetq_lane_u32(vgetq_lane_u32(d, 3), r, 3);
-    //return r;
-
     const uint32x4_t r1 = UnpackHigh32(a, b);
     const uint32x4_t r2 = UnpackHigh32(c, d);
     return UnpackHigh64(r1, r2);
@@ -531,7 +507,7 @@ inline uint32x4_p UnpackSIMD<0>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0};
-	return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)vec_perm(v, v, m);
 }
 
 template <>
@@ -539,7 +515,7 @@ inline uint32x4_p UnpackSIMD<1>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4};
-	return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)vec_perm(v, v, m);
 }
 
 template <>
@@ -547,7 +523,7 @@ inline uint32x4_p UnpackSIMD<2>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8};
-	return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)vec_perm(v, v, m);
 }
 
 template <>
@@ -555,7 +531,7 @@ inline uint32x4_p UnpackSIMD<3>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12};
-	return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)vec_perm(v, v, m);
 }
 
 template <unsigned int IDX>
