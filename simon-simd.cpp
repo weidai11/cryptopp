@@ -1117,17 +1117,17 @@ inline void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigne
     if (rounds & 1)
     {
         std::swap(x1, y1);
-        const uint64x2_p rk = vec_splats(subkeys[rounds-1]);
+        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[rounds-1]);
         y1 = VectorXor(VectorXor(y1, rk), SIMON128_f(x1));
         rounds--;
     }
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
-        const uint64x2_p rk1 = vec_splats(subkeys[i+1]);
+        const uint64x2_p rk1 = vec_splats((unsigned long long)subkeys[i+1]);
         x1 = VectorXor(VectorXor(x1, SIMON128_f(y1)), rk1);
 
-        const uint64x2_p rk2 = vec_splats(subkeys[i]);
+        const uint64x2_p rk2 = vec_splats((unsigned long long)subkeys[i]);
         y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk2);
     }
 
@@ -1243,12 +1243,12 @@ inline void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
-        const uint64x2_p rk1 = vec_splats(subkeys[i+1]);
+        const uint64x2_p rk1 = vec_splats((unsigned long long)subkeys[i+1]);
         x1 = VectorXor(VectorXor(x1, SIMON128_f(y1)), rk1);
         x2 = VectorXor(VectorXor(x2, SIMON128_f(y2)), rk1);
         x3 = VectorXor(VectorXor(x3, SIMON128_f(y3)), rk1);
 
-        const uint64x2_p rk2 = vec_splats(subkeys[i]);
+        const uint64x2_p rk2 = vec_splats((unsigned long long)subkeys[i]);
         y1 = VectorXor(VectorXor(y1, SIMON128_f(x1)), rk2);
         y2 = VectorXor(VectorXor(y2, SIMON128_f(x2)), rk2);
         y3 = VectorXor(VectorXor(y3, SIMON128_f(x3)), rk2);
