@@ -1811,7 +1811,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
     const uint32x4_p s_one  = {1,0,0,0};
     const uint32x4_p s_two  = {2,0,2,0};
 #else
-    enum {LowOffset=0, HighOffset=8};
+    enum {LowOffset=8, HighOffset=0};
     const uint32x4_p s_one = {0,0,0,1};
     const uint32x4_p s_two = {0,2,0,2};
 #endif
