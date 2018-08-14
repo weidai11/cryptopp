@@ -847,7 +847,6 @@ inline void SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 #if defined(CRYPTOPP_POWER8_AVAILABLE)
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
-using CryptoPP::uint64x2_p;
 
 using CryptoPP::VectorAdd;
 using CryptoPP::VectorSub;
