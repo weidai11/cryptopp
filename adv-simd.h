@@ -2018,14 +2018,16 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 
             // There is no easy way to load 8-bytes into a vector. It is
             // even harder without POWER8 due to lack of 64-bit elements.
+            // The high 8 bytes are "don't care" but it if we don't
+            // initialize the block then it generates warnings.
             std::memcpy(temp+LowOffset, inBlocks, 8);
-            std::memset(temp+HighOffset, 0, 8);
+            std::memcpy(temp+HighOffset, inBlocks, 8);  // don't care
             block = (uint32x4_p)VectorLoadBE(temp);
 
             if (xorInput)
             {
                 std::memcpy(temp+LowOffset, xorBlocks, 8);
-                std::memset(temp+HighOffset, 0, 8);
+                std::memcpy(temp+HighOffset, xorBlocks, 8);  // don't care
                 uint32x4_p x = (uint32x4_p)VectorLoadBE(temp);
                 block = VectorXor(block, x);
             }
@@ -2039,7 +2041,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
             if (xorOutput)
             {
                 std::memcpy(temp+LowOffset, xorBlocks, 8);
-                std::memset(temp+HighOffset, 0, 8);
+                std::memcpy(temp+HighOffset, xorBlocks, 8);  // don't care
                 uint32x4_p x = (uint32x4_p)VectorLoadBE(temp);
                 block = VectorXor(block, x);
             }
