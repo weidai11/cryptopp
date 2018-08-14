@@ -23,7 +23,7 @@
 //      * AdvancedProcessBlocks64_6x2_NEON
 //      * AdvancedProcessBlocks128_4x1_NEON
 //      * AdvancedProcessBlocks128_6x2_NEON
-//      * AdvancedProcessBlocks64_6x1_ALTIVEC
+//      * AdvancedProcessBlocks64_6x2_ALTIVEC
 //      * AdvancedProcessBlocks128_4x1_ALTIVEC
 //      * AdvancedProcessBlocks128_6x1_ALTIVEC
 //
@@ -1781,6 +1781,272 @@ NAMESPACE_END  // CryptoPP
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 
 NAMESPACE_BEGIN(CryptoPP)
+
+/// \brief AdvancedProcessBlocks for 2 and 6 blocks
+/// \tparam F2 function to process 2 128-bit blocks
+/// \tparam F6 function to process 6 128-bit blocks
+/// \tparam W word type of the subkey table
+/// \details AdvancedProcessBlocks64_6x2_Altivec processes 6 and 2 Altivec SIMD words
+///   at a time. For a single block the template uses F2 with a zero block.
+/// \details The subkey type is usually word32 or word64. F2 and F6 must use the
+///   same word type.
+template <typename F2, typename F6, typename W>
+inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
+        const W *subKeys, size_t rounds, const byte *inBlocks,
+        const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    CRYPTOPP_ASSERT(subKeys);
+    CRYPTOPP_ASSERT(inBlocks);
+    CRYPTOPP_ASSERT(outBlocks);
+    CRYPTOPP_ASSERT(length >= 8);
+
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+    enum {LowOffset=8, HighOffset=0};
+    const uint32x4_p s_one  = {1,0,0,0};
+    const uint32x4_p s_two  = {2,0,2,0};
+#else
+    enum {LowOffset=0, HighOffset=8};
+    const uint32x4_p s_one = {0,0,0,1};
+    const uint32x4_p s_two = {0,2,0,2};
+#endif
+
+    const size_t blockSize = 8;
+    const size_t vsxBlockSize = 16;
+    CRYPTOPP_ALIGN_DATA(16) uint8_t temp[16];
+
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : vsxBlockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? vsxBlockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : vsxBlockSize;
+
+    // Clang and Coverity are generating findings using xorBlocks as a flag.
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+
+    if (flags & BT_ReverseDirection)
+    {
+        inBlocks = PtrAdd(inBlocks, length - vsxBlockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - vsxBlockSize);
+        outBlocks = PtrAdd(outBlocks, length - vsxBlockSize);
+        inIncrement = 0-inIncrement;
+        xorIncrement = 0-xorIncrement;
+        outIncrement = 0-outIncrement;
+    }
+
+    if (flags & BT_AllowParallel)
+    {
+        while (length >= 6*vsxBlockSize)
+        {
+            uint32x4_p block0, block1, block2, block3, block4, block5;
+            if (flags & BT_InBlockIsCounter)
+            {
+                // There is no easy way to load 8-bytes into a vector. It is
+                // even harder without POWER8 due to lack of 64-bit elements.
+                std::memcpy(temp+LowOffset, inBlocks, 8);
+                std::memcpy(temp+HighOffset, inBlocks, 8);
+                uint32x4_p ctr = (uint32x4_p)VectorLoadBE(temp);
+
+                // For 64-bit block ciphers we need to load the CTR block,
+                // which is 8 bytes. After the dup load we have two counters
+                // in the Altivec word. Then we need to increment the low ctr
+                // by 0 and the high ctr by 1.
+                block0 = VectorAdd(s_one, ctr);
+
+                // After initial increment of {0,1} remaining counters
+                // increment by {2,2}.
+                block1 = VectorAdd(s_two, block0);
+                block2 = VectorAdd(s_two, block1);
+                block3 = VectorAdd(s_two, block2);
+                block4 = VectorAdd(s_two, block3);
+                block5 = VectorAdd(s_two, block4);
+
+                const_cast<byte*>(inBlocks)[7] += 12;
+            }
+            else
+            {
+                block0 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block1 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block2 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block3 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block4 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block5 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+            }
+
+            if (xorInput)
+            {
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            }
+
+            func6(block0, block1, block2, block3, block4, block5, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            }
+
+            VectorStoreBE(block0, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block1, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block2, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block3, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block4, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block5, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+
+            length -= 6*vsxBlockSize;
+        }
+
+        while (length >= 2*vsxBlockSize)
+        {
+            uint32x4_p block0, block1;
+            if (flags & BT_InBlockIsCounter)
+            {
+                // There is no easy way to load 8-bytes into a vector. It is
+                // even harder without POWER8 due to lack of 64-bit elements.
+                std::memcpy(temp+LowOffset, inBlocks, 8);
+                std::memcpy(temp+HighOffset, inBlocks, 8);
+                uint32x4_p ctr = (uint32x4_p)VectorLoadBE(temp);
+
+                // For 64-bit block ciphers we need to load the CTR block,
+                // which is 8 bytes. After the dup load we have two counters
+                // in the Altivec word. Then we need to increment the low ctr
+                // by 0 and the high ctr by 1.
+                block0 = VectorAdd(s_one, ctr);
+
+                // After initial increment of {0,1} remaining counters
+                // increment by {2,2}.
+                block1 = VectorAdd(s_two, block0);
+
+                const_cast<byte*>(inBlocks)[7] += 4;
+            }
+            else
+            {
+                block0 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+                block1 = VectorLoadBE(inBlocks);
+                inBlocks = PtrAdd(inBlocks, inIncrement);
+            }
+
+            if (xorInput)
+            {
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            }
+
+            func2(block0, block1, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            }
+
+            VectorStoreBE(block0, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            VectorStoreBE(block1, outBlocks);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+
+            length -= 2*vsxBlockSize;
+        }
+    }
+
+    if (length)
+    {
+        // Adjust to real block size
+        if (flags & BT_ReverseDirection)
+        {
+            inIncrement += inIncrement ? blockSize : 0;
+            xorIncrement += xorIncrement ? blockSize : 0;
+            outIncrement += outIncrement ? blockSize : 0;
+            inBlocks -= inIncrement;
+            xorBlocks -= xorIncrement;
+            outBlocks -= outIncrement;
+        }
+        else
+        {
+            inIncrement -= inIncrement ? blockSize : 0;
+            xorIncrement -= xorIncrement ? blockSize : 0;
+            outIncrement -= outIncrement ? blockSize : 0;
+        }
+
+        while (length >= blockSize)
+        {
+            uint32x4_p block, zero = {0};
+
+            // There is no easy way to load 8-bytes into a vector. It is
+            // even harder without POWER8 due to lack of 64-bit elements.
+            std::memcpy(temp+LowOffset, inBlocks, 8);
+            std::memset(temp+HighOffset, 0, 8);
+            block = (uint32x4_p)VectorLoadBE(temp);
+
+            if (xorInput)
+            {
+                std::memcpy(temp+LowOffset, xorBlocks, 8);
+                std::memset(temp+HighOffset, 0, 8);
+                uint32x4_p x = (uint32x4_p)VectorLoadBE(temp);
+                block = VectorXor(block, x);
+            }
+
+            if (flags & BT_InBlockIsCounter)
+                const_cast<byte *>(inBlocks)[7]++;
+
+            func2(block, zero, subKeys, static_cast<unsigned int>(rounds));
+
+            if (xorOutput)
+            {
+                std::memcpy(temp+LowOffset, xorBlocks, 8);
+                std::memset(temp+HighOffset, 0, 8);
+                uint32x4_p x = (uint32x4_p)VectorLoadBE(temp);
+                block = VectorXor(block, x);
+            }
+
+            VectorStoreBE(block, temp);
+            std::memcpy(outBlocks, temp+LowOffset, 8);
+
+            inBlocks = PtrAdd(inBlocks, inIncrement);
+            outBlocks = PtrAdd(outBlocks, outIncrement);
+            xorBlocks = PtrAdd(xorBlocks, xorIncrement);
+            length -= blockSize;
+        }
+    }
+
+    return length;
+}
 
 /// \brief AdvancedProcessBlocks for 1 and 4 blocks
 /// \tparam F1 function to process 1 128-bit block
