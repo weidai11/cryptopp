@@ -9,11 +9,17 @@
 //    acceleration. After several implementations we noticed a lot of copy and
 //    paste occuring. adv-simd.h provides a template to avoid the copy and paste.
 //
-//    There are 10 templates provided in this file. The number following the
-//    function name is the block size of the cipher. The name following that
-//    is the acceleration and arrangement. For example 4x1_SSE means Intel SSE
-//    using two encrypt (or decrypt) functions: one that operates on 4 blocks,
-//    and one that operates on 1 block.
+//    There are 11 templates provided in this file. The number following the
+//    function name, 64 or 128, is the block size. The name following the block
+//    size is the arrangement and acceleration. For example 4x1_SSE means Intel
+//    SSE using two encrypt (or decrypt) functions: one that operates on 4 SIMD
+//    words, and one that operates on 1 SIMD words.
+//
+//    The distinction between SIMD words versus cipher blocks is important
+//    because 64-bit ciphers use two cipher blocks for one SIMD word. For
+//    example, AdvancedProcessBlocks64_6x2_ALTIVEC operates on 6 and 2 SIMD
+//    words, which is 12 and 4 cipher blocks. The function will do the right
+//    thing even if there is only one 64-bit block to encrypt.
 //
 //      * AdvancedProcessBlocks64_2x1_SSE
 //      * AdvancedProcessBlocks64_4x1_SSE
@@ -1640,7 +1646,7 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
 
     if (flags & BT_AllowParallel)
     {
-        while (length >= 4 * xmmBlockSize)
+        while (length >= 4*xmmBlockSize)
         {
             __m128i block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
@@ -1713,7 +1719,7 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
             _mm_storeu_si128(M128_CAST(outBlocks), block3);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
-            length -= 4 * xmmBlockSize;
+            length -= 4*xmmBlockSize;
         }
     }
 
@@ -1859,6 +1865,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
                 block4 = VectorAdd(s_two, block3);
                 block5 = VectorAdd(s_two, block4);
 
+                // Update the counter in the caller.
                 const_cast<byte*>(inBlocks)[7] += 12;
             }
             else
@@ -1948,6 +1955,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
                 // increment by {2,2}.
                 block1 = VectorAdd(s_two, block0);
 
+                // Update the counter in the caller.
                 const_cast<byte*>(inBlocks)[7] += 4;
             }
             else
@@ -2022,6 +2030,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
                 block = VectorXor(block, x);
             }
 
+            // Update the counter in the caller.
             if (flags & BT_InBlockIsCounter)
                 const_cast<byte *>(inBlocks)[7]++;
 
