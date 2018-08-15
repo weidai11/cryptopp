@@ -16,7 +16,7 @@
 //    words, and one that operates on 1 SIMD words.
 //
 //    The distinction between SIMD words versus cipher blocks is important
-//    because 64-bit ciphers use two cipher blocks for one SIMD word. For
+//    because 64-bit ciphers use one SIMD word for two cipher blocks. For
 //    example, AdvancedProcessBlocks64_6x2_ALTIVEC operates on 6 and 2 SIMD
 //    words, which is 12 and 4 cipher blocks. The function will do the right
 //    thing even if there is only one 64-bit block to encrypt.
@@ -34,9 +34,9 @@
 //      * AdvancedProcessBlocks128_6x1_ALTIVEC
 //
 //    If an arrangement ends in 2, like 6x2, then the template will handle the
-//    single block case by padding with 0's and using the two block function.
-//    This happens at most one time when processing multiple blocks. The extra
-//    processing of a zero block is trivial and worth the tradeoff.
+//    single block case by padding with 0's and using the two SIMD word
+//    function. This happens at most one time when processing multiple blocks.
+//    The extra processing of a zero block is trivial and worth the tradeoff.
 //
 //    The MAYBE_CONST macro present on x86 is a SunCC workaround. Some versions
 //    of SunCC lose/drop the const-ness in the F1 and F4 functions. It eventually
