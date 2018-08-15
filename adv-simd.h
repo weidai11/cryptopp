@@ -1797,7 +1797,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
+inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
         const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
