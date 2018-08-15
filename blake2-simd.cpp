@@ -39,10 +39,6 @@
 # include <arm_acle.h>
 #endif
 
-// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
-#define M128_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
@@ -285,10 +281,6 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
     t1 = _mm_unpacklo_epi32(m0,m3); \
     t2 = _mm_blend_epi16(t0,t1,0x0F); \
     buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,1,2,3));
-
-//#define _mm_roti_epi32(r, c) \
-//    _mm_xor_si128(_mm_srli_epi32( (r), -(c) ), \
-//    _mm_slli_epi32( (r), 32-(-(c)) ))
 
 #define _mm_roti_epi32(r, c) ( \
     (8==-(c)) ? _mm_shuffle_epi8(r,r8) \
@@ -653,10 +645,6 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     b0 = _mm_unpacklo_epi64(m6, m1); \
     b1 = _mm_unpackhi_epi64(m3, m1); \
     } while(0)
-
-//#define _mm_roti_epi64(r, c) \
-//    _mm_xor_si128(_mm_srli_epi64( (r), -(c) ), \
-//    _mm_slli_epi64( (r), 64-(-(c)) ))
 
 #define _mm_roti_epi64(x, c) \
     (-(c) == 32) ? _mm_shuffle_epi32((x), _MM_SHUFFLE(2,3,0,1))  \
