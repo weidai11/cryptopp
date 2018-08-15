@@ -63,7 +63,7 @@ template <class W>
 struct SIMON_Base
 {
     virtual ~SIMON_Base() {}
-SIMON_Base() : m_kwords(0), m_rounds(0) {}
+    SIMON_Base() : m_kwords(0), m_rounds(0) {}
 
     typedef SecBlock<W, AllocatorWithCleanup<W, true> > AlignedSecBlock;
     mutable AlignedSecBlock m_wspace;  // workspace
