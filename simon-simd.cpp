@@ -140,10 +140,6 @@ inline uint32x4_t SIMON64_f(const uint32x4_t& val)
 inline void SIMON64_Enc_Block(uint32x4_t &block1, uint32x4_t &block0,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -173,10 +169,6 @@ inline void SIMON64_Enc_Block(uint32x4_t &block1, uint32x4_t &block0,
 inline void SIMON64_Dec_Block(uint32x4_t &block0, uint32x4_t &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -208,10 +200,6 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -256,10 +244,6 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t &block2, uint32x4_t &block3, uint32x4_t &block4, uint32x4_t &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. If only a single block is available then
-    // a Zero block is provided to promote vectorizations.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
@@ -380,9 +364,6 @@ inline uint64x2_t SIMON128_f(const uint64x2_t& val)
 inline void SIMON128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -413,9 +394,6 @@ inline void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -459,9 +437,6 @@ inline void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 inline void SIMON128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -493,9 +468,6 @@ inline void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
@@ -617,9 +589,6 @@ inline __m128i SIMON128_f(const __m128i& v)
 inline void SIMON128_Enc_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -653,9 +622,6 @@ inline void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -701,9 +667,6 @@ inline void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 inline void SIMON128_Dec_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -738,9 +701,6 @@ inline void SIMON128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following.
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
@@ -828,10 +788,6 @@ inline __m128i SIMON64_f(const __m128i& v)
 inline void SIMON64_Enc_Block(__m128i &block0, __m128i &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -854,7 +810,6 @@ inline void SIMON64_Enc_Block(__m128i &block0, __m128i &block1,
         Swap128(x1, y1);
     }
 
-    // The is roughly the SSE equivalent to ARM vzp32
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(y1, x1);
     block1 = _mm_unpackhi_epi32(y1, x1);
@@ -863,10 +818,6 @@ inline void SIMON64_Enc_Block(__m128i &block0, __m128i &block1,
 inline void SIMON64_Dec_Block(__m128i &block0, __m128i &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -890,7 +841,6 @@ inline void SIMON64_Dec_Block(__m128i &block0, __m128i &block1,
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON64_f(x1)), rk2);
     }
 
-    // The is roughly the SSE equivalent to ARM vzp32
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(y1, x1);
     block1 = _mm_unpackhi_epi32(y1, x1);
@@ -900,10 +850,6 @@ inline void SIMON64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -942,7 +888,6 @@ inline void SIMON64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
         Swap128(x1, y1); Swap128(x2, y2); Swap128(x3, y3);
     }
 
-    // The is roughly the SSE equivalent to ARM vzp32
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(y1, x1);
     block1 = _mm_unpackhi_epi32(y1, x1);
@@ -956,10 +901,6 @@ inline void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word32 *subkeys, unsigned int rounds)
 {
-    // Rearrange the data for vectorization. The incoming data was read into
-    // a little-endian word array. Depending on the number of blocks it needs to
-    // be permuted to the following. Thanks to Peter Cordes for help with the
-    // SSE permutes below.
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
     const __m128 t0 = _mm_castsi128_ps(block0);
     const __m128 t1 = _mm_castsi128_ps(block1);
@@ -999,7 +940,6 @@ inline void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
         y3 = _mm_xor_si128(_mm_xor_si128(y3, SIMON64_f(x3)), rk2);
     }
 
-    // The is roughly the SSE equivalent to ARM vzp32
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
     block0 = _mm_unpacklo_epi32(y1, x1);
     block1 = _mm_unpackhi_epi32(y1, x1);
