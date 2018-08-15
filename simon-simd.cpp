@@ -43,7 +43,7 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
 # include "ppc-simd.h"
 #endif
 
@@ -951,9 +951,9 @@ inline void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
-// ***************************** Power8 ***************************** //
+// ***************************** Power7 ***************************** //
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
@@ -1191,7 +1191,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     block5 = (uint32x4_p)vec_perm(x3, y3, m4);
 }
 
-#endif  // CRYPTOPP_POWER8_AVAILABLE
+#endif  // CRYPTOPP_POWER7_AVAILABLE
 
 // ***************************** Power8 ***************************** //
 
@@ -1506,23 +1506,27 @@ size_t SIMON128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t ro
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
 
-// ***************************** Power8 ***************************** //
+// ***************************** Power7 ***************************** //
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
-size_t SIMON64_Enc_AdvancedProcessBlocks_POWER8(const word32* subKeys, size_t rounds,
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
+size_t SIMON64_Enc_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t SIMON64_Dec_AdvancedProcessBlocks_POWER8(const word32* subKeys, size_t rounds,
+size_t SIMON64_Dec_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
+#endif
 
+// ***************************** Power8 ***************************** //
+
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
 size_t SIMON128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {

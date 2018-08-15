@@ -200,13 +200,15 @@ extern size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, si
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
+extern size_t SPECK64_Enc_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+
+extern size_t SPECK64_Dec_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
+#endif
+
 #if defined(CRYPTOPP_POWER8_AVAILABLE)
-extern size_t SPECK64_Enc_AdvancedProcessBlocks_POWER8(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-
-extern size_t SPECK64_Dec_AdvancedProcessBlocks_POWER8(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-
 extern size_t SPECK128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
@@ -224,9 +226,9 @@ std::string SPECK64::Base::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return "Power8";
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return "Power7";
 #endif
     return "C++";
 }
@@ -429,9 +431,9 @@ size_t SPECK64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
         return SPECK64_Enc_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return SPECK64_Enc_AdvancedProcessBlocks_POWER8(m_rkeys, (size_t)m_rounds,
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return SPECK64_Enc_AdvancedProcessBlocks_POWER7(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
@@ -450,9 +452,9 @@ size_t SPECK64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
         return SPECK64_Dec_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return SPECK64_Dec_AdvancedProcessBlocks_POWER8(m_rkeys, (size_t)m_rounds,
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return SPECK64_Dec_AdvancedProcessBlocks_POWER7(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
