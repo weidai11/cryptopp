@@ -246,15 +246,17 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
     LEA_FLAG = -mssse3
     SSSE3_FLAG = -mssse3
     SIMECK_FLAG = -mssse3
-    SIMON_FLAG = -mssse3
-    SPECK_FLAG = -mssse3
+    SIMON64_FLAG = -mssse3
+    SIMON128_FLAG = -mssse3
+    SPECK64_FLAG = -mssse3
+    SPECK128_FLAG = -mssse3
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
   HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSE4_1__)
   ifeq ($(HAVE_SSE4),1)
     BLAKE2_FLAG = -msse4.1
-    SIMON_FLAG = -msse4.1
-    SPECK_FLAG = -msse4.1
+    SIMON64_FLAG = -msse4.1
+    SPECK64_FLAG = -msse4.1
   endif
   HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSE4_2__)
   ifeq ($(HAVE_SSE4),1)
@@ -296,15 +298,17 @@ ifeq ($(SUN_COMPILER),1)
     CHAM_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LEA_FLAG = -xarch=ssse3 -D__SSSE3__=1
     SIMECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
-    SIMON_FLAG = -xarch=ssse3 -D__SSSE3__=1
-    SPECK_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SIMON64_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SIMON128_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SPECK64_FLAG = -xarch=ssse3 -D__SSSE3__=1
+    SPECK128_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
   endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_1 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     BLAKE2_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
-    SIMON_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
-    SPECK_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    SIMON64_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    SPECK64_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     LDFLAGS += -xarch=sse4_1
   endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
@@ -375,8 +379,10 @@ ifeq ($(IS_NEON),1)
     LEA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SHA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SIMECK_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
-    SIMON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
-    SPECK_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SIMON64_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SIMON128_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SPECK64_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    SPECK128_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SM4_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
   endif
 endif
@@ -390,8 +396,10 @@ ifeq ($(IS_ARMV8),1)
     LEA_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
     SIMECK_FLAG = -march=armv8-a
-    SIMON_FLAG = -march=armv8-a
-    SPECK_FLAG = -march=armv8-a
+    SIMON64_FLAG = -march=armv8-a
+    SIMON128_FLAG = -march=armv8-a
+    SPECK64_FLAG = -march=armv8-a
+    SPECK128_FLAG = -march=armv8-a
     SM4_FLAG = -march=armv8-a
   endif
   HAVE_CRC = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crc -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRC32)
@@ -422,8 +430,10 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
     SM4_FLAG = $(POWER8_FLAG)
-    SIMON_FLAG = $(POWER8_FLAG)
-    SPECK_FLAG = $(POWER8_FLAG)
+    SIMON64_FLAG = $(POWER8_FLAG)
+    SIMON128_FLAG = $(POWER8_FLAG)
+    SPECK64_FLAG = $(POWER8_FLAG)
+    SPECK128_FLAG = $(POWER8_FLAG)
   endif
 
   # GCC and some compatibles
@@ -435,6 +445,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
+    SIMON64_FLAG = $(POWER7_FLAG)
+    SPECK64_FLAG = $(POWER7_FLAG)
   endif
 
   # GCC and some compatibles
@@ -451,8 +463,10 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
     SM4_FLAG = $(POWER8_FLAG)
-    SIMON_FLAG = $(POWER8_FLAG)
-    SPECK_FLAG = $(POWER8_FLAG)
+    SIMON64_FLAG = $(POWER8_FLAG)
+    SIMON128_FLAG = $(POWER8_FLAG)
+    SPECK64_FLAG = $(POWER8_FLAG)
+    SPECK128_FLAG = $(POWER8_FLAG)
   endif
 
   # IBM XL C/C++
@@ -464,6 +478,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
+    SIMON64_FLAG = $(POWER7_FLAG)
+    SPECK64_FLAG = $(POWER7_FLAG)
   endif
 
   # IBM XL C/C++
@@ -483,8 +499,10 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
     CHAM_FLAG = $(POWER8_FLAG)
     LEA_FLAG = $(POWER8_FLAG)
     SIMECK_FLAG = $(POWER8_FLAG)
-    SIMON_FLAG = $(POWER8_FLAG)
-    SPECK_FLAG = $(POWER8_FLAG)
+    SIMON64_FLAG = $(POWER8_FLAG)
+    SIMON128_FLAG = $(POWER8_FLAG)
+    SPECK64_FLAG = $(POWER8_FLAG)
+    SPECK128_FLAG = $(POWER8_FLAG)
     ALTIVEC_FLAG = $(POWER8_FLAG)
   endif
 
@@ -1166,13 +1184,21 @@ shacal2-simd.o : shacal2-simd.cpp
 simeck-simd.o : simeck-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMECK_FLAG) -c) $<
 
-# SSSE3 or NEON available
-simon-simd.o : simon-simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SIMON_FLAG) -c) $<
+# SSE4.1, NEON or POWER7 available
+simon64-simd.o : simon64-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SIMON64_FLAG) -c) $<
 
-# SSSE3 or NEON available
-speck-simd.o : speck-simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SPECK_FLAG) -c) $<
+# SSSE3, NEON or POWER8 available
+simon128-simd.o : simon128-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
+
+# SSE4.1, NEON or POWER7 available
+speck64-simd.o : speck64-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SPECK64_FLAG) -c) $<
+
+# SSSE3, NEON or POWER8 available
+speck128-simd.o : speck128-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SPECK128_FLAG) -c) $<
 
 # AESNI available
 sm4-simd.o : sm4-simd.cpp

@@ -300,7 +300,8 @@ simeck.cpp
 simeck-simd.cpp
 simeck.h
 simon.cpp
-simon-simd.cpp
+simon64-simd.cpp
+simon128-simd.cpp
 simon.h
 skipjack.cpp
 skipjack.h
@@ -315,7 +316,8 @@ socketft.h
 sosemanuk.cpp
 sosemanuk.h
 speck.cpp
-speck-simd.cpp
+speck64-simd.cpp
+speck128-simd.cpp
 speck.h
 square.cpp
 square.h

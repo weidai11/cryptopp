@@ -301,7 +301,8 @@
     <ClCompile Include="simeck.cpp" />
     <ClCompile Include="simeck-simd.cpp" />
     <ClCompile Include="simon.cpp" />
-    <ClCompile Include="simon-simd.cpp" />
+    <ClCompile Include="simon64-simd.cpp" />
+    <ClCompile Include="simon128-simd.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="sm3.cpp" />
@@ -310,7 +311,8 @@
     <ClCompile Include="socketft.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
     <ClCompile Include="speck.cpp" />
-    <ClCompile Include="speck-simd.cpp" />
+    <ClCompile Include="speck64-simd.cpp" />
+    <ClCompile Include="speck128-simd.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="squaretb.cpp" />
     <ClCompile Include="sse-simd.cpp" />
