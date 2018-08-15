@@ -459,6 +459,29 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 #endif
 }
 
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \details Loads a vector in native endian format from a word array.
+/// \note VectorLoad does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+inline uint32x4_p VectorLoad(const word32 src[4])
+{
+    return VectorLoad((const byte*)src);
+}
+
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \param off offset into the src word array
+/// \details Loads a vector in native endian format from a word array.
+/// \note VectorLoad does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+inline uint32x4_p VectorLoad(int off, const word32 src[4])
+{
+    return VectorLoad(off, (const byte*)src);
+}
+
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
 /// \param src the vector
@@ -586,6 +609,29 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
         const uint8x16_p high = vec_ld(15, src);
         return (uint32x4_p)vec_perm(low, high, perm);
     }
+}
+
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \details Loads a vector in native endian format from a word array.
+/// \note VectorLoad does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+inline uint32x4_p VectorLoad(const word32 src[4])
+{
+    return VectorLoad((const byte*)src);
+}
+
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \param off offset into the src word array
+/// \details Loads a vector in native endian format from a word array.
+/// \note VectorLoad does not require an aligned array.
+/// \sa Reverse(), VectorLoadBE(), VectorLoad()
+/// \since Crypto++ 6.0
+inline uint32x4_p VectorLoad(int off, const word32 src[4])
+{
+    return VectorLoad(off, (const byte*)src);
 }
 
 /// \brief Loads a vector from a byte array
