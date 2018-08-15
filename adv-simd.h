@@ -291,9 +291,9 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             inIncrement += inIncrement ? blockSize : 0;
             xorIncrement += xorIncrement ? blockSize : 0;
             outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
+            inBlocks = PtrAdd(inBlocks, inIncrement);
+            xorBlocks = PtrSub(xorBlocks, xorIncrement);
+            outBlocks = PtrSub(outBlocks, outIncrement);
         }
         else
         {
@@ -981,9 +981,9 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
             inIncrement += inIncrement ? blockSize : 0;
             xorIncrement += xorIncrement ? blockSize : 0;
             outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
+            inBlocks = PtrSub(inBlocks, inIncrement);
+            xorBlocks = PtrSub(xorBlocks, xorIncrement);
+            outBlocks = PtrSub(outBlocks, outIncrement);
         }
         else
         {
@@ -1229,9 +1229,9 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
             inIncrement += inIncrement ? blockSize : 0;
             xorIncrement += xorIncrement ? blockSize : 0;
             outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
+            inBlocks = PtrSub(inBlocks, inIncrement);
+            xorBlocks = PtrSub(xorBlocks, xorIncrement);
+            outBlocks = PtrSub(outBlocks, outIncrement);
         }
         else
         {
@@ -1731,9 +1731,9 @@ inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
             inIncrement += inIncrement ? blockSize : 0;
             xorIncrement += xorIncrement ? blockSize : 0;
             outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
+            inBlocks = PtrSub(inBlocks, inIncrement);
+            xorBlocks = PtrSub(xorBlocks, xorIncrement);
+            outBlocks = PtrSub(outBlocks, outIncrement);
         }
         else
         {
@@ -1797,7 +1797,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
+size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
         const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -2001,9 +2001,9 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
             inIncrement += inIncrement ? blockSize : 0;
             xorIncrement += xorIncrement ? blockSize : 0;
             outIncrement += outIncrement ? blockSize : 0;
-            inBlocks -= inIncrement;
-            xorBlocks -= xorIncrement;
-            outBlocks -= outIncrement;
+            inBlocks = PtrSub(inBlocks, inIncrement);
+            xorBlocks = PtrSub(xorBlocks, xorIncrement);
+            outBlocks = PtrSub(outBlocks, outIncrement);
         }
         else
         {
@@ -2125,14 +2125,7 @@ inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
                 // located at index 15. The vector addition using a 32-bit element
                 // generates a carry into inBlocks[14] and then CTR_ModePolicy
                 // increments inBlocks[14] too.
-                //
-                // To find this bug we needed a test case with a ctr of 0xNN...FA.
-                // The last octet is 0xFA and adding 6 creates the wrap to trigger
-                // the issue. If the last octet was 0xFC then 4 would trigger it.
-                // We dumb-lucked into the test with SPECK-128. The test case of
-                // interest is the one with IV 348ECA9766C09F04 826520DE47A212FA.
-                uint8x16_p temp = VectorAdd((uint8x16_p)block3, (uint8x16_p)s_one);
-                VectorStoreBE(temp, const_cast<byte*>(inBlocks));
+                const_cast<byte*>(inBlocks)[15] += 6;
             }
             else
             {
