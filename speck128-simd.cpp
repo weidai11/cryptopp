@@ -15,16 +15,11 @@
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both speck.cpp and speck-simd.cpp.
 // #undef CRYPTOPP_SSSE3_AVAILABLE
-// #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <pmmintrin.h>
 # include <tmmintrin.h>
-#endif
-
-#if (CRYPTOPP_SSE41_AVAILABLE)
-# include <smmintrin.h>
 #endif
 
 #if defined(__AVX512F__) && defined(__AVX512VL__)
