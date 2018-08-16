@@ -342,6 +342,7 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
     row2 = ff1 = LOADU( &state.h[4] );
     row3 = LOADU( &BLAKE2S_IV[0] );
     row4 = _mm_xor_si128( LOADU( &BLAKE2S_IV[4] ), LOADU( &state.t[0] ) );
+
     BLAKE2S_ROUND( 0 );
     BLAKE2S_ROUND( 1 );
     BLAKE2S_ROUND( 2 );
@@ -352,6 +353,7 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
     BLAKE2S_ROUND( 7 );
     BLAKE2S_ROUND( 8 );
     BLAKE2S_ROUND( 9 );
+
     STOREU( &state.h[0], _mm_xor_si128( ff0, _mm_xor_si128( row1, row3 ) ) );
     STOREU( &state.h[4], _mm_xor_si128( ff1, _mm_xor_si128( row2, row4 ) ) );
 }
@@ -752,6 +754,7 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     row3h = LOADU( &BLAKE2B_IV[2] );
     row4l = _mm_xor_si128( LOADU( &BLAKE2B_IV[4] ), LOADU( &state.t[0] ) );
     row4h = _mm_xor_si128( LOADU( &BLAKE2B_IV[6] ), LOADU( &state.f[0] ) );
+
     BLAKE2B_ROUND( 0 );
     BLAKE2B_ROUND( 1 );
     BLAKE2B_ROUND( 2 );
@@ -764,6 +767,7 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     BLAKE2B_ROUND( 9 );
     BLAKE2B_ROUND( 10 );
     BLAKE2B_ROUND( 11 );
+
     row1l = _mm_xor_si128( row3l, row1l );
     row1h = _mm_xor_si128( row3h, row1h );
     STOREU( &state.h[0], _mm_xor_si128( LOADU( &state.h[0] ), row1l ) );
