@@ -575,13 +575,15 @@ extern size_t LEA_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t r
 
 std::string LEA::Base::AlgorithmProvider() const
 {
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS)
+# if (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
         return "SSSE3";
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# endif
+# if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
+# endif
 #endif
     return "C++";
 }
