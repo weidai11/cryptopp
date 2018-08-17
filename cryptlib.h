@@ -58,7 +58,7 @@
 	HexEncoder, HexDecoder, Base64Encoder, Base64Decoder, Base64URLEncoder, Base64URLDecoder, Base32Encoder,
 	Base32Decoder
 <dt>Wrappers for OS features<dd>
-	Timer, Socket, WindowsHandle, ThreadLocalStorage, ThreadUserTimer
+	Timer, ThreadUserTimer
 
 </dl>
 

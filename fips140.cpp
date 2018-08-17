@@ -36,14 +36,6 @@ PowerUpSelfTestStatus CRYPTOPP_API GetPowerUpSelfTestStatus()
 	return g_powerUpSelfTestStatus;
 }
 
-#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
-ThreadLocalStorage & AccessPowerUpSelfTestInProgress()
-{
-	static ThreadLocalStorage selfTestInProgress;
-	return selfTestInProgress;
-}
-#endif
-
 bool PowerUpSelfTestInProgressOnThisThread()
 {
 #if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
