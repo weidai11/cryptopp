@@ -243,17 +243,19 @@ extern size_t SIMON128_Dec_AdvancedProcessBlocks_POWER8(const word64* subKeys, s
 
 std::string SIMON64::Base::AlgorithmProvider() const
 {
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
+# if (CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
         return "SSE4.1";
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# endif
+# if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
-#endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
+# endif
+# if (CRYPTOPP_POWER7_AVAILABLE)
     if (HasPower7())
         return "Power7";
+# endif
 #endif
     return "C++";
 }
@@ -339,17 +341,19 @@ void SIMON64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
 
 std::string SIMON128::Base::AlgorithmProvider() const
 {
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS)
+# if (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
         return "SSSE3";
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# endif
+# if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
-#endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
+# endif
+# if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
         return "Power8";
+# endif
 #endif
     return "C++";
 }
