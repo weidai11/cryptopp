@@ -903,14 +903,6 @@ NAMESPACE_END
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define BLOCKING_RNG_AVAILABLE
 #	define OS_RNG_AVAILABLE
-#	define HAS_PTHREADS
-#	define THREADS_AVAILABLE
-#endif
-
-// Early IBM XL C on AIX fails to link due to missing pthread gear
-#if defined(_AIX) && defined(__xlC__)
-#	undef HAS_PTHREADS
-#	undef THREADS_AVAILABLE
 #endif
 
 // Cygwin/Newlib requires _XOPEN_SOURCE=600
@@ -920,14 +912,10 @@ NAMESPACE_END
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 # if !defined(WINAPI_FAMILY)
-#	define HAS_WINTHREADS
-#	define THREADS_AVAILABLE
 #	define NONBLOCKING_RNG_AVAILABLE
 #	define OS_RNG_AVAILABLE
 # elif defined(WINAPI_FAMILY)
 #   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
-#	  define HAS_WINTHREADS
-#	  define THREADS_AVAILABLE
 #	  define NONBLOCKING_RNG_AVAILABLE
 #	  define OS_RNG_AVAILABLE
 #   elif !(WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))

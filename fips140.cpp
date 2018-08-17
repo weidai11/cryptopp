@@ -15,10 +15,6 @@ NAMESPACE_BEGIN(CryptoPP)
 #define CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 0
 #endif
 
-#if (CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 && !defined(THREADS_AVAILABLE))
-#error FIPS 140-2 compliance requires the availability of thread local storage.
-#endif
-
 #if (CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 && !defined(OS_RNG_AVAILABLE))
 #error FIPS 140-2 compliance requires the availability of OS provided RNG.
 #endif
