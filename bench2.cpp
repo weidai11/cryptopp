@@ -138,9 +138,9 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("Salsa20");
 		BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/12", MakeParameters(Name::Rounds(), 12));
 		BenchMarkByName<SymmetricCipher>("Salsa20", 0, "Salsa20/8", MakeParameters(Name::Rounds(), 8));
-		BenchMarkByName<SymmetricCipher>("ChaCha8");
-		BenchMarkByName<SymmetricCipher>("ChaCha12");
-		BenchMarkByName<SymmetricCipher>("ChaCha20");
+		BenchMarkByName<SymmetricCipher>("ChaCha");
+		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha/12", MakeParameters(Name::Rounds(), 12));
+		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha/8", MakeParameters(Name::Rounds(), 8));
 		BenchMarkByName<SymmetricCipher>("Sosemanuk");
 		BenchMarkByName<SymmetricCipher>("Rabbit");
 		BenchMarkByName<SymmetricCipher>("RabbitWithIV");

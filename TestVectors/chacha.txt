@@ -1,5 +1,5 @@
 AlgorithmType: SymmetricCipher
-Name: ChaCha8
+Name: ChaCha
 Source: http://tools.ietf.org/html/draft-strombergson-chacha-test-vectors
 Comment: TC1 - All zero key and IV (16-byte key).
 Key: r16 00
@@ -40,7 +40,7 @@ Ciphertext: 2b8f4bb3798306ca5130d47c4f8d4ed13aa0edccc1be6942090faeeca0d7599b7ff0
 Test: Encrypt
 
 AlgorithmType: SymmetricCipher
-Name: ChaCha12
+Name: ChaCha
 Source: http://tools.ietf.org/html/draft-strombergson-chacha-test-vectors
 Comment: TC1 - All zero key and IV (16-byte key).
 Key: r16 00
@@ -81,7 +81,7 @@ Ciphertext: 64b8bdf87b828c4b6dbaf7ef698de03df8b33f635714418f9836ade59be1296946c9
 Test: Encrypt
 
 AlgorithmType: SymmetricCipher
-Name: ChaCha20
+Name: ChaCha
 Source: http://tools.ietf.org/html/draft-strombergson-chacha-test-vectors
 Comment: TC1 - All zero key and IV (16-byte key).
 Key: r16 00
