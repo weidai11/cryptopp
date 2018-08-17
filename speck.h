@@ -31,7 +31,7 @@
 
 // Yet another SunStudio/SunCC workaround. Failed self tests
 // in SSE code paths on i386 for SunStudio 12.3 and below.
-#if defined(__SUNPRO_CC)
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
 # undef CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
 # undef CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
 #endif
