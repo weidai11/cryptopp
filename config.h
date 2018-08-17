@@ -142,15 +142,6 @@
 // see http://github.com/weidai11/cryptopp/issues/389.
 // #define CRYPTOPP_NO_ASSIGN_TO_INTEGER
 
-// choose which style of sockets to wrap (mostly useful for MinGW which has both)
-#if !defined(NO_BERKELEY_STYLE_SOCKETS) && !defined(PREFER_BERKELEY_STYLE_SOCKETS)
-# define PREFER_BERKELEY_STYLE_SOCKETS
-#endif
-
-// #if !defined(NO_WINDOWS_STYLE_SOCKETS) && !defined(PREFER_WINDOWS_STYLE_SOCKETS)
-// # define PREFER_WINDOWS_STYLE_SOCKETS
-// #endif
-
 // set the name of Rijndael cipher, was "Rijndael" before version 5.3
 #define CRYPTOPP_RIJNDAEL_NAME "AES"
 
@@ -217,10 +208,6 @@ namespace CryptoPP { }
 #	else
 #		define TYPE_OF_SOCKLEN_T ::socklen_t
 #	endif
-#endif
-
-#if defined(__CYGWIN__) && defined(PREFER_WINDOWS_STYLE_SOCKETS)
-#	define __USE_W32_SOCKETS
 #endif
 
 // Originally in global namespace to avoid ambiguity with other byte typedefs.
@@ -911,34 +898,6 @@ NAMESPACE_END
 #  endif
 # endif
 #endif
-
-#ifdef CRYPTOPP_UNIX_AVAILABLE
-#	define HAS_BERKELEY_STYLE_SOCKETS
-#	define SOCKETS_AVAILABLE
-#endif
-
-// Sockets are only available under Windows Runtime desktop partition apps (despite the MSDN literature)
-#ifdef CRYPTOPP_WIN32_AVAILABLE
-# define HAS_WINDOWS_STYLE_SOCKETS
-# if !defined(WINAPI_FAMILY)
-#	define SOCKETS_AVAILABLE
-# elif defined(WINAPI_FAMILY)
-#   if (WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP))
-#	  define SOCKETS_AVAILABLE
-#   endif
-# endif
-#endif
-
-#if defined(HAS_WINDOWS_STYLE_SOCKETS) && (!defined(HAS_BERKELEY_STYLE_SOCKETS) || defined(PREFER_WINDOWS_STYLE_SOCKETS))
-#	define USE_WINDOWS_STYLE_SOCKETS
-#else
-#	define USE_BERKELEY_STYLE_SOCKETS
-#endif
-
-#if defined(CRYPTOPP_WIN32_AVAILABLE) && defined(SOCKETS_AVAILABLE) && !defined(USE_BERKELEY_STYLE_SOCKETS)
-#	define WINDOWS_PIPES_AVAILABLE
-#endif
-
 
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 #	define NONBLOCKING_RNG_AVAILABLE

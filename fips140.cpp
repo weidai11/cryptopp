@@ -6,7 +6,6 @@
 
 #include "fips140.h"
 #include "misc.h"
-#include "trdlocal.h"	// needs to be included last for cygwin
 
 NAMESPACE_BEGIN(CryptoPP)
 

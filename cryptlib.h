@@ -48,9 +48,9 @@
 <dt>Compression<dd>
 	Deflator, Inflator, Gzip, Gunzip, ZlibCompressor, ZlibDecompressor
 <dt>Input Source Classes<dd>
-	StringSource, ArraySource, FileSource, SocketSource, WindowsPipeSource, RandomNumberSource
+	StringSource, ArraySource, FileSource, RandomNumberSource
 <dt>Output Sink Classes<dd>
-	StringSinkTemplate, StringSink, ArraySink, FileSink, SocketSink, WindowsPipeSink, RandomNumberSink
+	StringSinkTemplate, StringSink, ArraySink, FileSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
 	StreamTransformationFilter, AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashFilter,
 	HashVerificationFilter, SignerFilter, SignatureVerificationFilter
