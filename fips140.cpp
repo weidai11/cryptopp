@@ -38,20 +38,12 @@ PowerUpSelfTestStatus CRYPTOPP_API GetPowerUpSelfTestStatus()
 
 bool PowerUpSelfTestInProgressOnThisThread()
 {
-#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
-	return AccessPowerUpSelfTestInProgress().GetValue() != NULLPTR;
-#else
-	CRYPTOPP_ASSERT(false);	// should not be called
 	return false;
-#endif
 }
 
 void SetPowerUpSelfTestInProgressOnThisThread(bool inProgress)
 {
 	CRYPTOPP_UNUSED(inProgress);
-#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
-	AccessPowerUpSelfTestInProgress().SetValue((void *)inProgress);
-#endif
 }
 
 void EncryptionPairwiseConsistencyTest_FIPS_140_Only(const PK_Encryptor &encryptor, const PK_Decryptor &decryptor)
