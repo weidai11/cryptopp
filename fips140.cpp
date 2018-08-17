@@ -36,14 +36,25 @@ PowerUpSelfTestStatus CRYPTOPP_API GetPowerUpSelfTestStatus()
 	return g_powerUpSelfTestStatus;
 }
 
+// One variable for all threads for compatibility. Previously this
+// was a ThreadLocalStorage variable, which is per-thread. Also see
+// https://github.com/weidai11/cryptopp/issues/208
+static bool s_inProgress = false;
+
 bool PowerUpSelfTestInProgressOnThisThread()
 {
+#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
+	return s_inProgress;
+#endif
 	return false;
 }
 
 void SetPowerUpSelfTestInProgressOnThisThread(bool inProgress)
 {
 	CRYPTOPP_UNUSED(inProgress);
+#if CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2
+	s_inProgress = inProgress;
+#endif
 }
 
 void EncryptionPairwiseConsistencyTest_FIPS_140_Only(const PK_Encryptor &encryptor, const PK_Decryptor &decryptor)
