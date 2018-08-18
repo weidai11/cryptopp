@@ -771,7 +771,6 @@ SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integ
 INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 
 ifneq ($(IS_MINGW),0)
-SRCS += winpipes.cpp
 INCL += resource.h
 endif
 
