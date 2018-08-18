@@ -674,7 +674,7 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     row2l = _mm_roti_epi64(row2l, -24); \
     row2h = _mm_roti_epi64(row2h, -24);
 
-#define G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+#define BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l); \
     row1h = _mm_add_epi64(_mm_add_epi64(row1h, b1), row2h); \
     \
@@ -719,12 +719,12 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     BLAKE2B_LOAD_MSG_ ##r ##_1(b0, b1); \
     BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
     BLAKE2B_LOAD_MSG_ ##r ##_2(b0, b1); \
-    G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+    BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
     BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     BLAKE2B_LOAD_MSG_ ##r ##_3(b0, b1); \
     BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
     BLAKE2B_LOAD_MSG_ ##r ##_4(b0, b1); \
-    G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+    BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
     BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h);
 
     __m128i row1l, row1h;
