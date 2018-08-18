@@ -12,10 +12,7 @@
 #include "config.h"
 #include "misc.h"
 
-// Clang 3.3 integrated assembler crash on Linux. Other versions
-// produce incorrect results. Clang has never handled Intel ASM
-// very well. I wish LLVM would fix it.
-#if defined(CRYPTOPP_DISABLE_INTEL_ASM)
+#if defined(CRYPTOPP_DISABLE_GCM_ASM)
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
 # undef CRYPTOPP_X64_ASM_AVAILABLE

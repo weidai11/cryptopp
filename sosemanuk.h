@@ -10,10 +10,10 @@
 #include "strciphr.h"
 #include "secblock.h"
 
-// Clang due to "Inline assembly operands don't work with .intel_syntax"
-//   https://llvm.org/bugs/show_bug.cgi?id=24232
+// Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler
+// error with .intel_syntax, http://llvm.org/bugs/show_bug.cgi?id=24232
 #if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_INTEL_ASM)
-# define CRYPTOPP_DISABLE_SOSEMANUK_ASM
+# define CRYPTOPP_DISABLE_SOSEMANUK_ASM 1
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

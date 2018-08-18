@@ -11,6 +11,13 @@
 #include "sha.h"
 #include "misc.h"
 
+#if defined(CRYPTOPP_DISABLE_SHA_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+#endif
+
 #if (CRYPTOPP_SHANI_AVAILABLE)
 # include <nmmintrin.h>
 # include <immintrin.h>

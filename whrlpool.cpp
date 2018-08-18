@@ -73,11 +73,11 @@
 #include "misc.h"
 #include "cpu.h"
 
-// "Inline assembly operands don't work with .intel_syntax",
-//   http://llvm.org/bugs/show_bug.cgi?id=24232
-#if defined(CRYPTOPP_DISABLE_INTEL_ASM)
+#if defined(CRYPTOPP_DISABLE_WHIRLPOOL_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
-# undef CRYPTOPP_SSSE3_ASM_AVAILABLE
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)
