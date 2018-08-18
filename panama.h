@@ -22,6 +22,7 @@ template <class B>
 class CRYPTOPP_NO_VTABLE Panama
 {
 public:
+	std::string AlgorithmProvider() const;
 	void Reset();
 	void Iterate(size_t count, const word32 *p=NULLPTR, byte *output=NULLPTR, const byte *input=NULLPTR, KeystreamOperation operation=WRITE_KEYSTREAM);
 
@@ -134,6 +135,7 @@ class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
 							protected Panama<B>
 {
 protected:
+	std::string AlgorithmProvider() const;
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	bool CipherIsRandomAccess() const {return false;}

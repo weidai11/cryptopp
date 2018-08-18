@@ -18,6 +18,21 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 
 template <class B>
+std::string Panama<B>::AlgorithmProvider() const
+{
+#ifndef CRYPTOPP_DISABLE_PANAMA_ASM
+# if CRYPTOPP_SSSE3_ASM_AVAILABLE
+	if(HasSSSE3())
+		return "SSSE3";
+# elif CRYPTOPP_SSE2_ASM_AVAILABLE
+	if(HasSSE2())
+		return "SSE2";
+# endif
+#endif
+	return "C++";
+}
+
+template <class B>
 void Panama<B>::Reset()
 {
 	memset(m_state, 0, m_state.SizeInBytes());
@@ -57,9 +72,7 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 #endif
 #endif	// #ifdef CRYPTOPP_GENERATE_X64_MASM
 
-#if CRYPTOPP_BOOL_X32
-	#define REG_loopEnd			r8d
-#elif CRYPTOPP_BOOL_X86
+#if CRYPTOPP_BOOL_X86
 	#define REG_loopEnd			[esp]
 #elif defined(CRYPTOPP_GENERATE_X64_MASM)
 	#define REG_loopEnd			rdi
@@ -286,10 +299,7 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+1*16], xmm1)
 	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+0*16], xmm0)
 
-	#if CRYPTOPP_BOOL_X32
-		AS2(	add		esp, 8)
-		AS_POP_IF86(	bp)
-	#elif CRYPTOPP_BOOL_X86
+	#if CRYPTOPP_BOOL_X86
 		AS2(	add		esp, 4)
 		AS_POP_IF86(	bp)
 	#endif
@@ -420,7 +430,7 @@ void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte 
 	m_state[17] = bstart;
 }
 
-namespace Weak {
+NAMESPACE_BEGIN(Weak)
 template <class B>
 size_t PanamaHash<B>::HashMultipleBlocks(const word32 *input, size_t length)
 {
@@ -446,7 +456,7 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 
 	this->Restart();		// reinit for next use
 }
-}
+NAMESPACE_END
 
 template <class B>
 void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
@@ -483,6 +493,12 @@ void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byt
 	else
 #endif
 		this->Iterate(32);
+}
+
+template <class B>
+std::string PanamaCipherPolicy<B>::AlgorithmProvider() const
+{
+	return Panama<B>::AlgorithmProvider();
 }
 
 template <class B>
