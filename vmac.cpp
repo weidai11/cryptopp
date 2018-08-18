@@ -9,6 +9,10 @@
 #include "argnames.h"
 #include "secblock.h"
 
+#if defined(_MSC_VER) && !CRYPTOPP_BOOL_SLOW_WORD64
+#include <intrin.h>
+#endif
+
 #if defined(CRYPTOPP_DISABLE_VMAC_ASM)
 # undef CRYPTOPP_X86_ASM_AVAILABLE
 # undef CRYPTOPP_X32_ASM_AVAILABLE
@@ -21,10 +25,6 @@
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
-
-#if defined(_MSC_VER) && !CRYPTOPP_BOOL_SLOW_WORD64
-#include <intrin.h>
-#endif
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE)
 using CryptoPP::word128;
@@ -174,7 +174,7 @@ unsigned int VMAC_Base::OptimalDataAlignment() const
 		GetCipher().OptimalDataAlignment();
 }
 
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4731)	// frame pointer register 'ebp' modified by inline assembly code
 #endif
@@ -750,7 +750,7 @@ void VMAC_Base::VHASH_Update_Template(const word64 *data, size_t blocksRemaining
 
 inline void VMAC_Base::VHASH_Update(const word64 *data, size_t blocksRemainingInWord64)
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86)
+#if CRYPTOPP_SSE2_ASM_AVAILABLE && CRYPTOPP_BOOL_X86
 	if (HasSSE2())
 	{
 		VHASH_Update_SSE2(data, blocksRemainingInWord64, 0);

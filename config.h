@@ -593,7 +593,7 @@ NAMESPACE_END
 // ***************** ARM CPU features ********************
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
-	
+
 // We don't have an ARM big endian test rig. Disable
 // ARM-BE ASM and instrinsics until we can test it.
 #if defined(CRYPTOPP_BIG_ENDIAN)
