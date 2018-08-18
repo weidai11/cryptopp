@@ -20,7 +20,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 void ChaCha_TestInstantiations()
 {
-	ChaCha8::Encryption x;
+	ChaCha::Encryption x;
 }
 #endif
 
