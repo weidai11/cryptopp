@@ -438,15 +438,13 @@ void Whirlpool::Transform(word64 *digest, const word64 *block)
 		AS2(	mov		WORD_REG(cx), digest)
 		AS2(	mov		WORD_REG(dx), block)
 #endif
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 		AS2(	mov		eax, esp)
 		AS2(	and		esp, -16)
 		AS2(	sub		esp, 16*8)
 		AS_PUSH_IF86(	ax)
 	#if CRYPTOPP_BOOL_X86
 		#define SSE2_workspace	esp+WORD_SZ
-	#elif CRYPTOPP_BOOL_X32
-		#define SSE2_workspace	esp+(WORD_SZ*2)
 	#endif
 #else
 	#define SSE2_workspace	%3

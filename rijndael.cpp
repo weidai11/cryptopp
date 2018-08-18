@@ -90,11 +90,6 @@ being unloaded from L1 cache, until that round is finished.
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Clang 3.3 integrated assembler crash on Linux
-#if CRYPTOPP_BOOL_X32 || (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400))
-# define CRYPTOPP_DISABLE_RIJNDAEL_ASM
-#endif
-
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
 #if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE))
 # define CRYPTOPP_ALLOW_RIJNDAEL_UNALIGNED_DATA_ACCESS 1
@@ -769,7 +764,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 {
 	CRYPTOPP_UNUSED(locals); CRYPTOPP_UNUSED(k);
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 
 #define L_REG			esp
 #define L_INDEX(i)		(L_REG+768+i)
@@ -869,7 +864,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	mov		edi, [g_cacheLineSize])
 #endif
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 	AS2(	mov		[ecx+16*12+16*4], esp)	// save esp to L_SP
 	AS2(	lea		esp, [ecx-768])
 #endif
@@ -929,7 +924,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	movd	eax, xmm1)
 	AS2(	mov		al, BYTE PTR [WORD_REG(si)+15])
 	AS2(	MOVD	MM(2), eax)
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 	AS2(	mov		eax, 1)
 	AS2(	movd	mm3, eax)
 #endif
@@ -1057,7 +1052,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	xor		cl, ch)
 	AS2(	and		WORD_REG(cx), 255)
 	ASL(5)
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 	AS2(	paddb	MM(2), mm3)
 #else
 	AS2(	add		MM(2), 1)
@@ -1158,7 +1153,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	movdqu	xmm2, [WORD_REG(ax)])
 	AS2(	pxor	xmm2, xmm4)
 
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 	AS2(	movdqa	xmm0, [L_INCREMENTS])
 	AS2(	paddd	xmm0, [L_INBLOCKS])
 	AS2(	movdqa	[L_INBLOCKS], xmm0)
@@ -1206,7 +1201,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 	AS2(	movaps	[WORD_REG(ax)+4*16], xmm0)
 	AS2(	movaps	[WORD_REG(ax)+5*16], xmm0)
 	AS2(	movaps	[WORD_REG(ax)+6*16], xmm0)
-#if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32
+#if CRYPTOPP_BOOL_X86
 	AS2(	mov		esp, [L_SP])
 	AS1(	emms)
 #endif
