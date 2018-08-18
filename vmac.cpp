@@ -21,15 +21,17 @@
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
-using CryptoPP::word64;
 
 #if defined(_MSC_VER) && !CRYPTOPP_BOOL_SLOW_WORD64
 #include <intrin.h>
 #endif
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE) && !defined(CRYPTOPP_X64_ASM_AVAILABLE)
+using CryptoPP::word128;
+using CryptoPP::word64;
 # define VMAC_BOOL_WORD128 1
 #else
+using CryptoPP::word64;
 # define VMAC_BOOL_WORD128 0
 #endif
 
