@@ -1045,26 +1045,26 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
     ASL(SHA512_Round)
 
     // k + w is in mm0, a is in mm4, e is in mm5
-    AS2(    paddq    mm0, [edi+7*8])        // h
-    AS2(    movq     mm2, [edi+5*8])        // f
-    AS2(    movq     mm3, [edi+6*8])        // g
+    AS2(    paddq    mm0, [edi+7*8])      // h
+    AS2(    movq     mm2, [edi+5*8])      // f
+    AS2(    movq     mm3, [edi+6*8])      // g
     AS2(    pxor     mm2, mm3)
     AS2(    pand     mm2, mm5)
     SSE2_S0_S1(mm5,14,18,41)
     AS2(    pxor     mm2, mm3)
     AS2(    paddq    mm0, mm2)            // h += Ch(e,f,g)
     AS2(    paddq    mm5, mm0)            // h += S1(e)
-    AS2(    movq     mm2, [edi+1*8])        // b
+    AS2(    movq     mm2, [edi+1*8])      // b
     AS2(    movq     mm1, mm2)
     AS2(    por      mm2, mm4)
-    AS2(    pand     mm2, [edi+2*8])        // c
+    AS2(    pand     mm2, [edi+2*8])      // c
     AS2(    pand     mm1, mm4)
     AS2(    por      mm1, mm2)
     AS2(    paddq    mm1, mm5)            // temp = h + Maj(a,b,c)
-    AS2(    paddq    mm5, [edi+3*8])        // e = d + h
+    AS2(    paddq    mm5, [edi+3*8])      // e = d + h
     AS2(    movq     [edi+3*8], mm5)
     AS2(    movq     [edi+11*8], mm5)
-    SSE2_S0_S1(mm4,28,34,39)            // S0(a)
+    SSE2_S0_S1(mm4,28,34,39)              // S0(a)
     AS2(    paddq    mm4, mm1)            // a = temp + S0(a)
     AS2(    movq     [edi-8], mm4)
     AS2(    movq     [edi+7*8], mm4)
@@ -1200,14 +1200,14 @@ void SHA512_HashBlock_CXX(word64 *state, const word64 *data)
         R(12); R(13); R(14); R(15);
     }
 
-	state[0] += a(0);
-	state[1] += b(0);
-	state[2] += c(0);
-	state[3] += d(0);
-	state[4] += e(0);
-	state[5] += f(0);
-	state[6] += g(0);
-	state[7] += h(0);
+    state[0] += a(0);
+    state[1] += b(0);
+    state[2] += c(0);
+    state[3] += d(0);
+    state[4] += e(0);
+    state[5] += f(0);
+    state[6] += g(0);
+    state[7] += h(0);
 }
 
 ANONYMOUS_NAMESPACE_END
