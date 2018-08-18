@@ -593,6 +593,12 @@ NAMESPACE_END
 // ***************** ARM CPU features ********************
 
 #if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+	
+// We don't have an ARM big endian test rig. Disable
+// ARM-BE ASM and instrinsics until we can test it.
+#if defined(CRYPTOPP_BIG_ENDIAN)
+# define CRYPTOPP_DISABLE_ASM 1
+#endif
 
 // Requires ARMv7 and ACLE 1.0. -march=armv7-a or above must be present
 // Requires GCC 4.3, Clang 2.8 or Visual Studio 2012
