@@ -10,9 +10,9 @@
 #include "config.h"
 #include "iterhash.h"
 
-// Clang 3.3 integrated assembler crash on Linux
-//  http://github.com/weidai11/cryptopp/issues/264
-#if (defined(CRYPTOPP_LLVM_CLANG_VERSION) && (CRYPTOPP_LLVM_CLANG_VERSION < 30400)) || CRYPTOPP_BOOL_X32
+// Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler
+// error with .intel_syntax, http://llvm.org/bugs/show_bug.cgi?id=24232
+#if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_INTEL_ASM)
 # define CRYPTOPP_DISABLE_TIGER_ASM 1
 #endif
 
