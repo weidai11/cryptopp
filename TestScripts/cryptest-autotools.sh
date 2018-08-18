@@ -68,19 +68,19 @@ if [[ -z $(command -v autoreconf) ]]; then
 	echo "Cannot find autoreconf. Things may fail."
 fi
 
-if ! autoupdate; then
+if ! autoupdate 2>/dev/null; then
 	echo "autoupdate failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! "$LIBTOOLIZE"; then
+if ! "$LIBTOOLIZE" 2>/dev/null; then
 	echo "libtoolize failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 # Run autoreconf twice on failure. Also see
 # https://github.com/tracebox/tracebox/issues/57
-if ! autoreconf; then
+if ! autoreconf 2>/dev/null; then
 	echo "autoreconf failed, running again."
 	if ! autoreconf -fi; then
 		echo "autoreconf failed, again."
