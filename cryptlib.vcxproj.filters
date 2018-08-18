@@ -269,9 +269,6 @@
     <ClCompile Include="nbtheory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="network.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="oaep.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -425,9 +422,6 @@
     <ClCompile Include="speck128-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="socketft.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sosemanuk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -458,9 +452,6 @@
     <ClCompile Include="tigertab.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="trdlocal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ttmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -473,16 +464,10 @@
     <ClCompile Include="vmac.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wait.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="wake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="whrlpool.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="winpipes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xtr.cpp">
@@ -774,9 +759,6 @@
     <ClInclude Include="naclite.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="network.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="nr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -918,9 +900,6 @@
     <ClInclude Include="speck.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="socketft.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="sosemanuk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -945,9 +924,6 @@
     <ClInclude Include="trap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="trdlocal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="trunhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -963,16 +939,10 @@
     <ClInclude Include="vmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wait.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="wake.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="whrlpool.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="winpipes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="words.h">

@@ -240,7 +240,6 @@
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="sse-simd.cpp" />
     <ClCompile Include="strciphr.cpp" />
-    <ClCompile Include="trdlocal.cpp" />
   </ItemGroup>
   <!-- Header Files -->
   <ItemGroup>
@@ -309,7 +308,6 @@
     <ClInclude Include="stdcpp.h" />
     <ClInclude Include="strciphr.h" />
     <ClInclude Include="trap.h" />
-    <ClInclude Include="trdlocal.h" />
     <ClInclude Include="words.h" />
   </ItemGroup>
   <!-- Back to Visual Studio boilerplate -->

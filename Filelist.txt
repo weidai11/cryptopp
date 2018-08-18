@@ -202,8 +202,6 @@ naclite.h
 nbtheory.cpp
 nbtheory.h
 neon-simd.cpp
-network.cpp
-network.h
 nr.h
 oaep.cpp
 oaep.h
@@ -311,8 +309,6 @@ sm4.cpp
 sm4-simd.cpp
 sm4.h
 smartptr.h
-socketft.cpp
-socketft.h
 sosemanuk.cpp
 sosemanuk.h
 speck.cpp
@@ -336,8 +332,6 @@ threefish.h
 tiger.cpp
 tiger.h
 tigertab.cpp
-trdlocal.cpp
-trdlocal.h
 trunhash.h
 ttmac.cpp
 ttmac.h
@@ -360,14 +354,10 @@ validate.h
 vmac.cpp
 vmac.h
 vs2005.zip
-wait.cpp
-wait.h
 wake.cpp
 wake.h
 whrlpool.cpp
 whrlpool.h
-winpipes.cpp
-winpipes.h
 words.h
 x64dll.asm
 x64masm.asm
