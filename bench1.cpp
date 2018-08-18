@@ -90,6 +90,7 @@ void OutputResultKeying(double iterations, double timeTaken)
 
 void OutputResultOperations(const char *name, const char *provider, const char *operation, bool pc, unsigned long iterations, double timeTaken)
 {
+	CRYPTOPP_UNUSED(provider);
 	std::ostringstream oss;
 
 	// Coverity finding
@@ -97,7 +98,7 @@ void OutputResultOperations(const char *name, const char *provider, const char *
 	if (timeTaken < 0.000001f) timeTaken = 0.000001f;
 
 	oss << "\n<TR><TD>" << name << " " << operation << (pc ? " with precomputation" : "");
-	oss << "<TD>" << provider;
+	//oss << "<TD>" << provider;
 	oss << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
 
 	// Coverity finding

@@ -314,7 +314,7 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n<COLGROUP><COL style=\"text-align: left;\"><COL style=";
 	std::cout << "\"text-align: right;\"><COL style=\"text-align: right;\">";
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
-	std::cout << "\n<TR><TH>Operation<TH>Provider<TH>Milliseconds/Operation" << mco;
+	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
 
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
