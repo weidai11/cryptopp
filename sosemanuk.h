@@ -30,6 +30,7 @@ struct SosemanukInfo : public VariableKeyLength<16, 1, 32, 1, SimpleKeyingInterf
 class SosemanukPolicy : public AdditiveCipherConcretePolicy<word32, 20>, public SosemanukInfo
 {
 protected:
+	std::string AlgorithmProvider() const;
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
@@ -38,8 +39,6 @@ protected:
 	unsigned int GetAlignment() const;
 	unsigned int GetOptimalBlockSize() const;
 #endif
-
-	std::string AlgorithmProvider() const;
 
 	FixedSizeSecBlock<word32, 25*4> m_key;
 	FixedSizeAlignedSecBlock<word32, 12> m_state;

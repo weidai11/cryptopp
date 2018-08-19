@@ -21,9 +21,11 @@ NAMESPACE_BEGIN(CryptoPP)
 
 std::string SosemanukPolicy::AlgorithmProvider() const
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE
+#ifndef CRYPTOPP_DISABLE_SOSEMANUK_ASM
+# if CRYPTOPP_SSE2_ASM_AVAILABLE
 	if (HasSSE2())
 		return "SSE2";
+# endif
 #endif
 	return "C++";
 }

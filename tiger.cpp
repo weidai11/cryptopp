@@ -16,6 +16,17 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+std::string Tiger::AlgorithmProvider() const
+{
+#ifndef CRYPTOPP_DISABLE_TIGER_ASM
+# if CRYPTOPP_SSE2_ASM_AVAILABLE
+	if (HasSSE2())
+		return "SSE2";
+# endif
+#endif
+	return "C++";
+}
+
 void Tiger::InitState(HashWordType *state)
 {
 	state[0] = W64LIT(0x0123456789ABCDEF);
