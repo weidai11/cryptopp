@@ -546,8 +546,14 @@ endif
 
 # Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
-ifneq ($(IS_LINUX)$(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),0000)
+# BAD_PTHREAD and HAVE_PTHREAD is due to GCC on Solaris. GCC rejects -pthread but defines
+#   39 *_PTHREAD_* related macros. Then we pickup the macros and enable the option...
+BAD_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E 'warning|illegal|unrecognized')
+HAVE_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E adhoc.cpp 2>/dev/null | $(GREP) -i -c 'PTHREAD')
+ifeq ($(BAD_PTHREAD),0)
+ifneq ($(HAVE_PTHREAD),0)
   CXXFLAGS += -pthread
+endif # CXXFLAGS
 endif # CXXFLAGS
 
 # Remove -fPIC if present. SunCC use -KPIC
