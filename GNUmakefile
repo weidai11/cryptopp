@@ -777,9 +777,6 @@ SOLIB_FLAGS=-Wl,-h,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 endif # HAS_SOLIB_VERSION
 
-$(info HAS_SOLIB_VERSION: $(HAS_SOLIB_VERSION))
-$(info SOLIB_FLAGS: $(SOLIB_FLAGS))
-
 ###########################################################
 #####              Source and object files            #####
 ###########################################################
