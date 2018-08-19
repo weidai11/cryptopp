@@ -1235,12 +1235,6 @@ rijndael.o : rijndael.cpp
 	$(CXX) $(strip $(subst -fsanitize=undefined,,$(CXXFLAGS)) -c) $<
 endif
 
-# Don't build VMAC and friends with Asan. Too many false positives.
-ifneq ($(findstring -fsanitize=address,$(CXXFLAGS)),)
-vmac.o : vmac.cpp
-	$(CXX) $(strip $(subst -fsanitize=address,,$(CXXFLAGS)) -c) $<
-endif
-
 # Only use CRYPTOPP_DATA_DIR if its not set in CXXFLAGS
 ifeq ($(findstring -DCRYPTOPP_DATA_DIR, $(strip $(CXXFLAGS))),)
 ifneq ($(strip $(CRYPTOPP_DATA_DIR)),)
