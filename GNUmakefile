@@ -763,16 +763,20 @@ ifeq ($(strip $(LIB_PATCH)),)
 endif
 
 ifeq ($(HAS_SOLIB_VERSION),1)
-# Full version suffix for shared library
-SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
 # Different patchlevels and minors are compatible since 6.1
 SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR)
 # Linux uses -Wl,-soname
 ifeq ($(IS_LINUX),1)
+# Linux uses full version suffix for shared library
+SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 # Solaris uses -Wl,-h
 ifeq ($(IS_SUN),1)
+# Solaris uses major version suffix for shared library, but we use major.minor
+# The minor version allows previous version to remain and not overwritten.
+# https://blogs.oracle.com/solaris/how-to-name-a-solaris-shared-object-v2
+SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-h,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 endif # HAS_SOLIB_VERSION
