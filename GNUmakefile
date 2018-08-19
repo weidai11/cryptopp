@@ -89,8 +89,11 @@ SUNCC_511_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (S
 SUNCC_512_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[2-9]|5\.[2-9]|6\.)")
 SUNCC_513_OR_LATER := $(shell echo "$(SUNCC_VERSION)" | $(GREP) -i -c -E "CC: (Sun|Studio) .* (5\.1[3-9]|5\.[2-9]|6\.)")
 
-# Enable shared object versioning for Linux
-HAS_SOLIB_VERSION := $(IS_LINUX)
+# Enable shared object versioning for Linux and Solaris
+HAS_SOLIB_VERSION ?= 0
+ifneq ($(IS_LINUX)$(IS_SUN),00)
+HAS_SOLIB_VERSION := 1
+endif
 
 # Newlib needs _XOPEN_SOURCE=600 for signals
 HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c "__NEWLIB__")
@@ -764,8 +767,18 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
 # Different patchlevels and minors are compatible since 6.1
 SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR)
+# Linux uses -Wl,-soname
+ifeq ($(IS_LINUX),1)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
+# Solaris uses -Wl,-h
+ifeq ($(IS_SUN),1)
+SOLIB_FLAGS=-Wl,-h,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
+endif
 endif # HAS_SOLIB_VERSION
+
+$(info HAS_SOLIB_VERSION: $(HAS_SOLIB_VERSION))
+$(info SOLIB_FLAGS: $(SOLIB_FLAGS))
 
 ###########################################################
 #####              Source and object files            #####
