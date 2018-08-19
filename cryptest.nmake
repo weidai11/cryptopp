@@ -104,7 +104,7 @@ PLATFORM = x64
 AS = ml.exe
 ASFLAGS = /nologo /D_M_X86 /W3 /Cx /Zi /safeseh
 LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm
-LIB_OBJS = $(LIB_OBJS) rdrand.obj rdrand-x86.obj
+LIB_OBJS = $(LIB_OBJS) rdrand-x86.obj
 LDFLAGS = $(LDFLAGS) /MACHINE:X86
 LDLIBS = $(LDLIBS) kernel32.lib
 !ENDIF
@@ -117,7 +117,7 @@ LDLIBS = $(LDLIBS) kernel32.lib
 AS = ml64.exe
 ASFLAGS = /nologo /D_M_X64 /W3 /Cx /Zi
 LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm
-LIB_OBJS = $(LIB_OBJS) rdrand.obj rdrand-x64.obj x64masm.obj x64dll.obj
+LIB_OBJS = $(LIB_OBJS) rdrand-x64.obj x64masm.obj x64dll.obj
 LDFLAGS = $(LDFLAGS) /MACHINE:X64
 LDLIBS = $(LDLIBS) kernel32.lib
 !ENDIF
