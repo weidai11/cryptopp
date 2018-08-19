@@ -1,3 +1,4 @@
+
 // cpu.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
@@ -54,6 +55,11 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>
 # include <setjmp.h>
+#endif
+
+// Visual Studio 2008 and below is missing _xgetbv. See x64dll.asm for the body.
+#if defined(_MSC_VER) && defined(_M_X64)
+extern "C" unsigned long long __fastcall ExtendedControlRegister(unsigned int);
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -309,18 +315,43 @@ void DetectX86Features()
 	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27))
 	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
 	{
+// GCC 4.1/Binutils 2.17 cannot consume xgetbv
 #if defined(__GNUC__) || defined(__SUNPRO_CC) || defined(__BORLANDC__)
 		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 		// http://www.agner.org/optimize/vectorclass/read.php?i=65
 		word32 a=0, d=0;
 		__asm __volatile
 		(
-			// GCC 4.1/Binutils 2.17 cannot consume xgetbv
 			// "xgetbv" : "=a"(a), "=d"(d) : "c"(0) :
 			".byte 0x0f, 0x01, 0xd0"   "\n\t"
 			: "=a"(a), "=d"(d) : "c"(0) :
 		);
 		word64 xcr0 = a | static_cast<word64>(d) << 32;
+		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
+
+// Visual Studio 2008 and below lack xgetbv
+#elif defined(_MSC_VER) && defined(_M_IX86)
+		word32 a=0, d=0;
+		__asm {
+			push eax
+			push edx
+			push ecx
+			mov ecx, 0
+			_emit 0x0f
+			_emit 0x01
+			_emit 0xd0
+			mov a, eax
+			mov d, edx
+			pop ecx
+			pop edx
+			pop eax
+		}
+		word64 xcr0 = a | static_cast<word64>(d) << 32;
+		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
+
+// Visual Studio 2008 and below lack xgetbv
+#elif defined(_MSC_VER) && defined(_M_X64)
+		word64 xcr0 = ExtendedControlRegister(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 #else
 		word64 xcr0 = _xgetbv(0);
