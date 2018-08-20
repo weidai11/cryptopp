@@ -58,7 +58,7 @@ $1@Baseline_Sub:
 Baseline_Sub ENDP
 
 ALIGN   8
-Rijndael_Enc_AdvancedProcessBlocks	PROC FRAME
+Rijndael_Enc_AdvancedProcessBlocks_SSE2	PROC FRAME
 rex_push_reg rsi
 push_reg rdi
 push_reg rbx
@@ -454,10 +454,10 @@ pop rbx
 pop rdi
 pop rsi
 ret
-Rijndael_Enc_AdvancedProcessBlocks ENDP
+Rijndael_Enc_AdvancedProcessBlocks_SSE2 ENDP
 
 ALIGN   8
-GCM_AuthenticateBlocks_2K	PROC FRAME
+GCM_AuthenticateBlocks_2K_SSE2	PROC FRAME
 rex_push_reg rsi
 push_reg rdi
 push_reg rbx
@@ -593,10 +593,10 @@ pop rbx
 pop rdi
 pop rsi
 ret
-GCM_AuthenticateBlocks_2K ENDP
+GCM_AuthenticateBlocks_2K_SSE2 ENDP
 
 ALIGN   8
-GCM_AuthenticateBlocks_64K	PROC FRAME
+GCM_AuthenticateBlocks_64K_SSE2	PROC FRAME
 rex_push_reg rsi
 push_reg rdi
 .endprolog
@@ -673,7 +673,7 @@ movdqa [rsi], xmm0
 pop rdi
 pop rsi
 ret
-GCM_AuthenticateBlocks_64K ENDP
+GCM_AuthenticateBlocks_64K_SSE2 ENDP
 
 ALIGN   8
 SHA256_HashMultipleBlocks_SSE2	PROC FRAME

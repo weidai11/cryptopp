@@ -760,7 +760,7 @@ void Rijndael::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE && !defined(CRYPTOPP_DISABLE_RIJNDAEL_ASM)
 
-CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k)
+CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks_SSE2(void *locals, const word32 *k)
 {
 	CRYPTOPP_UNUSED(locals); CRYPTOPP_UNUSED(k);
 
@@ -1238,7 +1238,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL Rijndael_Enc_AdvancedProcessBlocks(void *l
 
 #ifdef CRYPTOPP_X64_MASM_AVAILABLE
 extern "C" {
-void Rijndael_Enc_AdvancedProcessBlocks(void *locals, const word32 *k);
+void Rijndael_Enc_AdvancedProcessBlocks_SSE2(void *locals, const word32 *k);
 }
 #endif
 
@@ -1302,7 +1302,7 @@ size_t Rijndael::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 		int keysToCopy = m_rounds - (flags & BT_InBlockIsCounter ? 3 : 2);
 		locals.keysBegin = (12-keysToCopy)*16;
 
-		Rijndael_Enc_AdvancedProcessBlocks(&locals, m_key);
+		Rijndael_Enc_AdvancedProcessBlocks_SSE2(&locals, m_key);
 
 		return length % BLOCKSIZE;
 	}
