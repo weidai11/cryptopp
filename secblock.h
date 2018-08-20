@@ -55,6 +55,8 @@ public:
 	/// \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
+#elif defined(_MSC_VER) && (_MSC_VER <= 1400)
+	static const size_type ELEMS_MAX = (~(size_type)0)/sizeof(T);
 #elif defined(CRYPTOPP_CXX11_ENUM)
 	enum : size_type {ELEMS_MAX = SIZE_MAX/sizeof(T)};
 #else
@@ -501,6 +503,8 @@ public:
 	/// \since Crypto++ 6.0
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	static const size_type ELEMS_MAX = ...;
+#elif defined(_MSC_VER) && (_MSC_VER <= 1400)
+	static const size_type ELEMS_MAX = (~(size_type)0)/sizeof(T);
 #elif defined(CRYPTOPP_CXX11_ENUM)
 	enum : size_type {ELEMS_MAX = A::ELEMS_MAX};
 #else
