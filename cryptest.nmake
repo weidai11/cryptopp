@@ -60,14 +60,14 @@ RM = del.exe
 
 # C4231 is needed for VS2008 and below. Lots of noise...
 CXXFLAGS = /nologo /W4 /wd4231 /wd4511 /wd4156 /D_MBCS /Zi /TP /GR /EHsc
-LDFLAGS = /nologo /SUBSYSTEM:CONSOLE
+LDFLAGS = /nologo /SUBSYSTEM:CONSOLE /DEBUG
 ARFLAGS = /nologo
 LDLIBS =
 
-# Debug build
-# CXXFLAGS = $(CXXFLAGS) /DDEBUG /D_DEBUG /Oi /Oy- /Od /MTd
+# Debug build. Add /DEBUG to linker.
+CXXFLAGS = $(CXXFLAGS) /DDEBUG /D_DEBUG /Oi /Oy- /Od /MTd
 # Release build
-CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
+# CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
 
 # Attempt to detect when <sdkddkver.h> and <winapifamily.h> are available
 #   http://stackoverflow.com/q/40577415 ?
