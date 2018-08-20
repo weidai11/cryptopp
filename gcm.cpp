@@ -19,6 +19,11 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
+// Visual Studio .Net 2003 compiler crash
+#if defined(_MSC_VER) && (_MSC_VER < 1400)
+# pragma optimize("", off)
+#endif
+
 #include "gcm.h"
 #include "cpu.h"
 
