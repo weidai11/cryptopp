@@ -99,7 +99,8 @@ inline void SIMON64_ExpandKey_3W(word32 key[42], const word32 k[3])
     key[0] = k[2]; key[1] = k[1]; key[2] = k[0];
     for (size_t i = 3; i<42; ++i)
     {
-        key[i] = c ^ (z & 1) ^ key[i - 3] ^ rotrConstant<3>(key[i - 1]) ^ rotrConstant<4>(key[i - 1]);
+        key[i] = static_cast<word32>(c ^ (z & 1) ^ key[i - 3] ^
+            rotrConstant<3>(key[i - 1]) ^ rotrConstant<4>(key[i - 1]));
         z >>= 1;
     }
 }
@@ -117,7 +118,9 @@ inline void SIMON64_ExpandKey_4W(word32 key[44], const word32 k[4])
     key[0] = k[3]; key[1] = k[2]; key[2] = k[1]; key[3] = k[0];
     for (size_t i = 4; i<44; ++i)
     {
-        key[i] = c ^ (z & 1) ^ key[i - 4] ^ rotrConstant<3>(key[i - 1]) ^ key[i - 3] ^ rotrConstant<4>(key[i - 1]) ^ rotrConstant<1>(key[i - 3]);
+        key[i] = static_cast<word32>(c ^ (z & 1) ^ key[i - 4] ^
+            rotrConstant<3>(key[i - 1]) ^ key[i - 3] ^ rotrConstant<4>(key[i - 1]) ^
+            rotrConstant<1>(key[i - 3]));
         z >>= 1;
     }
 }
