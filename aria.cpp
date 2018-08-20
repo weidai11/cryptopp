@@ -40,7 +40,7 @@ using CryptoPP::ARIATab::X2;
 using CryptoPP::ARIATab::KRK;
 
 inline byte ARIA_BRF(const word32 x, const int y) {
-	return GETBYTE(x, y);
+	return static_cast<byte>(GETBYTE(x, y));
 }
 
 // Key XOR Layer
