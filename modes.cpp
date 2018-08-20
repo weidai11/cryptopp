@@ -125,7 +125,7 @@ void CTR_ModePolicy::SeekToIteration(lword iterationCount)
 	int carry=0;
 	for (int i=BlockSize()-1; i>=0; i--)
 	{
-		unsigned int sum = (unsigned int)m_register[i] + (iterationCount & 0xff) + carry;
+		unsigned int sum = m_register[i] + (byte)iterationCount + carry;
 		m_counterArray[i] = byte(sum & 0xff);
 		carry = sum >> 8;
 		iterationCount >>= 8;
