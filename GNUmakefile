@@ -551,7 +551,7 @@ endif
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
 # BAD_PTHREAD and HAVE_PTHREAD is due to GCC on Solaris. GCC rejects -pthread but defines
 #   39 *_PTHREAD_* related macros. Then we pickup the macros and enable the option...
-BAD_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E 'warning|illegal|unrecognized')
+BAD_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -c adhoc.cpp 2>&1 | $(GREP) -i -c -E 'warning|illegal|unrecognized')
 HAVE_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E adhoc.cpp 2>/dev/null | $(GREP) -i -c 'PTHREAD')
 ifeq ($(BAD_PTHREAD),0)
 ifneq ($(HAVE_PTHREAD),0)
