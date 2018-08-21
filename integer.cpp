@@ -40,6 +40,11 @@
 //  Singletons, there is no way to express the dependency order to safely
 //  destroy resources. (That's one of the problems C++11 dynamic
 //  intitialization with concurrent execution is supposed to solve).
+// The final problem with Singletons is resource/memory exhaustion in languages
+//  like Java and .Net. Java and .Net load and unload a native DLL hundreds or
+//  thousands of times during the life of a program. Each load produces a
+//  memory leak and they can add up quickly. If they library is being used in
+//  Java or .Net then Singleton must be avoided at all costs.
 
 #include "pch.h"
 #include "config.h"
