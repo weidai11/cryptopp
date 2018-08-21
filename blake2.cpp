@@ -473,11 +473,11 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
 
     // Set last block unconditionally
     State& state = *m_state.data();
-    state.f[0] = static_cast<W>(-1);
+    state.f[0] = ~static_cast<W>(0);
 
     // Set last node if tree mode
     if (m_treeMode)
-        state.f[1] = static_cast<W>(-1);
+        state.f[1] = ~static_cast<W>(0);
 
     // Increment counter for tail bytes only
     IncrementCounter(state.length);
