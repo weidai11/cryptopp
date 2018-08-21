@@ -152,7 +152,6 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
         const byte* saltStr, size_t saltLen,
         const byte* personalizationStr, size_t personalizationLen)
 {
-    // Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
     digestLength = (byte)digestLen;
     keyLength = (byte)keyLen;
     fanout = depth = 1;
@@ -164,8 +163,8 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
     if (saltStr && saltLen)
     {
         memcpy_s(salt, COUNTOF(salt), saltStr, saltLen);
-        const size_t rem = COUNTOF(salt) - saltLen;
-        const size_t off = COUNTOF(salt) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(salt), saltLen);
+        size_t off = COUNTOF(salt) - rem;
         if (rem)
             std::memset(salt+off, 0x00, rem);
     }
@@ -177,8 +176,8 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
     if (personalizationStr && personalizationLen)
     {
         memcpy_s(personalization, COUNTOF(personalization), personalizationStr, personalizationLen);
-        const size_t rem = COUNTOF(personalization) - personalizationLen;
-        const size_t off = COUNTOF(personalization) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(personalization), personalizationLen);
+        size_t off = COUNTOF(personalization) - rem;
         if (rem)
             std::memset(personalization+off, 0x00, rem);
     }
@@ -192,7 +191,6 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
         const byte* saltStr, size_t saltLen,
         const byte* personalizationStr, size_t personalizationLen)
 {
-    // Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
     digestLength = (byte)digestLen;
     keyLength = (byte)keyLen;
     fanout = depth = 1;
@@ -205,8 +203,8 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
     if (saltStr && saltLen)
     {
         memcpy_s(salt, COUNTOF(salt), saltStr, saltLen);
-        const size_t rem = COUNTOF(salt) - saltLen;
-        const size_t off = COUNTOF(salt) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(salt), saltLen);
+        size_t off = COUNTOF(salt) - rem;
         if (rem)
             std::memset(salt+off, 0x00, rem);
     }
@@ -218,8 +216,8 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
     if (personalizationStr && personalizationLen)
     {
         memcpy_s(personalization, COUNTOF(personalization), personalizationStr, personalizationLen);
-        const size_t rem = COUNTOF(personalization) - personalizationLen;
-        const size_t off = COUNTOF(personalization) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(personalization), personalizationLen);
+        size_t off = COUNTOF(personalization) - rem;
         if (rem)
             std::memset(personalization+off, 0x00, rem);
     }
@@ -237,7 +235,7 @@ void BLAKE2_Base<word32, false>::UncheckedSetKey(const byte *key, unsigned int l
         AlignedSecByteBlock temp(BLOCKSIZE);
         memcpy_s(temp, BLOCKSIZE, key, length);
 
-        const size_t rem = BLOCKSIZE - length;
+        size_t rem = SaturatingSubtract(BLOCKSIZE, length);
         if (rem)
             std::memset(temp+length, 0x00, rem);
 
@@ -261,8 +259,8 @@ void BLAKE2_Base<word32, false>::UncheckedSetKey(const byte *key, unsigned int l
     if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
     {
         memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
-        const size_t rem = COUNTOF(block.salt) - t.size();
-        const size_t off = COUNTOF(block.salt) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(block.salt), t.size());
+        size_t off = COUNTOF(block.salt) - rem;
         if (rem)
             std::memset(block.salt+off, 0x00, rem);
     }
@@ -274,8 +272,8 @@ void BLAKE2_Base<word32, false>::UncheckedSetKey(const byte *key, unsigned int l
     if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
     {
         memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
-        const size_t rem = COUNTOF(block.personalization) - t.size();
-        const size_t off = COUNTOF(block.personalization) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(block.personalization), t.size());
+        size_t off = COUNTOF(block.personalization) - rem;
         if (rem)
             std::memset(block.personalization+off, 0x00, rem);
     }
@@ -293,7 +291,7 @@ void BLAKE2_Base<word64, true>::UncheckedSetKey(const byte *key, unsigned int le
         AlignedSecByteBlock temp(BLOCKSIZE);
         memcpy_s(temp, BLOCKSIZE, key, length);
 
-        const size_t rem = BLOCKSIZE - length;
+        size_t rem = SaturatingSubtract(BLOCKSIZE, length);
         if (rem)
             std::memset(temp+length, 0x00, rem);
 
@@ -318,8 +316,8 @@ void BLAKE2_Base<word64, true>::UncheckedSetKey(const byte *key, unsigned int le
     if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
     {
         memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
-        const size_t rem = COUNTOF(block.salt) - t.size();
-        const size_t off = COUNTOF(block.salt) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(block.salt), t.size());
+        size_t off = COUNTOF(block.salt) - rem;
         if (rem)
             std::memset(block.salt+off, 0x00, rem);
     }
@@ -331,8 +329,8 @@ void BLAKE2_Base<word64, true>::UncheckedSetKey(const byte *key, unsigned int le
     if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
     {
         memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
-        const size_t rem = COUNTOF(block.personalization) - t.size();
-        const size_t off = COUNTOF(block.personalization) - rem;
+        size_t rem = SaturatingSubtract(COUNTOF(block.personalization), t.size());
+        size_t off = COUNTOF(block.personalization) - rem;
         if (rem)
             std::memset(block.personalization+off, 0x00, rem);
     }
