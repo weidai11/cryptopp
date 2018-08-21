@@ -235,7 +235,7 @@ void BLAKE2_Base<word32, false>::UncheckedSetKey(const byte *key, unsigned int l
         AlignedSecByteBlock temp(BLOCKSIZE);
         memcpy_s(temp, BLOCKSIZE, key, length);
 
-        size_t rem = SaturatingSubtract(BLOCKSIZE, length);
+        size_t rem = SaturatingSubtract((unsigned int)BLOCKSIZE, length);
         if (rem)
             std::memset(temp+length, 0x00, rem);
 
@@ -291,7 +291,7 @@ void BLAKE2_Base<word64, true>::UncheckedSetKey(const byte *key, unsigned int le
         AlignedSecByteBlock temp(BLOCKSIZE);
         memcpy_s(temp, BLOCKSIZE, key, length);
 
-        size_t rem = SaturatingSubtract(BLOCKSIZE, length);
+        size_t rem = SaturatingSubtract((unsigned int)BLOCKSIZE, length);
         if (rem)
             std::memset(temp+length, 0x00, rem);
 

@@ -5,50 +5,32 @@
 //  pointers on some platforms, like X86 and X64. The function pointers select a fast multiply
 //  and addition based on the cpu. Second, it wants to create Integer::Zero(), Integer::One()
 //  and Integer::Two().
-// The function pointers are initialized in the InitializeInteger class by calling
-//  SetFunctionPointers(). The call to SetFunctionPointers() is guarded to run once. If C++11
-//  dynamic initialization is available, then a standard run_once is used. Otherwise, and simple
-//  flag is used. The flag suffers a race, but the worse case is the same function pointers
-//  get written twice without leaking memory.
-// For Integer::Zero(), Integer::One() and Integer::Two(), we use one of two strategies. First,
-//  if C++11 dynamic initialization is available, then we use a static variable. Second, if
-//  C++11 dynamic initialization is not available, then we fall back to Wei's original code of
-//  a Singleton.
-// Wei's original code was much simpler. It simply used the Singleton pattern, but it always
-//  produced memory findings on some platforms. The Singleton generates memory findings because
-//  it uses a Create On First Use pattern (a dumb Nifty Counter) and the compiler had to be smart
-//  enough to fold them to return the same object. Unix and Linux compilers do a good job of folding
-//  objects, but Microsoft compilers do a rather poor job for some versions of the compilers.
-// Another problem with the Singleton is resource destruction requires running resource acquisition
-//  in reverse. For resources provided through the Singletons, there is no way to express the
-//  dependency order to safely destroy resources. (That's one of the problems C++11 dynamic
+// The function pointers are initialized in the InitializeInteger class by
+//  calling SetFunctionPointers(). The call to SetFunctionPointers() is
+//  guarded to run once using a double-checked pattern. We don't use C++
+//  std::call_once due to bad interactions between libstdc++, glibc and
+//  pthreads. Since they are only function pointers we don't have to worry
+//  about leaking memory. The worst case seems to be the pointer gets written
+//  twice.
+// For Integer::Zero(), Integer::One() and Integer::Two(), we use one of two
+//  strategies. First, if C++11 dynamic initialization is available, then we
+//  use a static variable. Second, if C++11 dynamic initialization is not
+//  available, then we fall back to Wei's original code of a Singleton.
+// Wei's original code was much simpler. It simply used the Singleton pattern,
+//  but it always produced memory findings on some platforms. The Singleton
+//  generates memory findings because it uses a Create On First Use pattern
+//  (a dumb Nifty Counter) and the compiler had to be smart enough to fold
+//  them to return the same object. Unix and Linux compilers do a good job of
+//  folding objects, but Microsoft compilers do a rather poor job for some
+//  versions of the compilers.
+// Another problem with the Singleton is resource destruction requires running
+//  resource acquisition in reverse. For resources provided through the
+//  Singletons, there is no way to express the dependency order to safely
+//  destroy resources. (That's one of the problems C++11 dynamic00
 //  intitialization with concurrent execution is supposed to solve).
 
 #include "pch.h"
 #include "config.h"
-
-#if CRYPTOPP_MSC_VERSION
-# pragma warning(disable: 4100)
-#endif
-
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wunused"
-#if !defined(__clang__)
-# pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-#endif
-#endif
-
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-
-// Define this to statically initialize Integer Zero(), One()
-//   and Two() using Microsoft init_seg(). This is useful for
-//   testing Integer code for leaks when the MSC compiler
-//   does not fold use of the Singletons.
-// #define USE_MSC_INIT_PRIORITY 1
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -102,16 +84,20 @@
 // ***************** C++ Static Initialization ********************
 
 NAMESPACE_BEGIN(CryptoPP)
+
+// Function body near the middle of the file
 static void SetFunctionPointers();
+
+// We used to jump through some hoops to set the function pointers once,
+// including std::call_once. Later we learned std::call_once was fairly
+// buggy due to interactions between libstdc++, glibc and pthreads.
+// Now we use a double-checked pattern. We are not leaking anything so
+// it does not matter if a pointer is written twice during a race.
+// Also see GCC Issue 66146, "call_once not C++11-compliant" (on many
+// platforms), http://gcc.gnu.org/bugzilla/show_bug.cgi?id=66146 and
+// http://github.com/weidai11/cryptopp/issues/707.
 InitializeInteger::InitializeInteger()
 {
-#if !(HAVE_GCC_INIT_PRIORITY || HAVE_MSC_INIT_PRIORITY)
-#if defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static std::once_flag s_flag;
-	std::call_once(s_flag, []() {
-		SetFunctionPointers();
-	});
-#else
 	static bool s_flag;
 	MEMORY_BARRIER();
 	if (s_flag == false)
@@ -120,8 +106,6 @@ InitializeInteger::InitializeInteger()
 		s_flag = true;
 		MEMORY_BARRIER();
 	}
-#endif  // C++11 or C++03 flag
-#endif  // not GCC and MSC init priorities
 }
 
 template <long i>
@@ -195,6 +179,7 @@ static word AtomicInverseModPower2(word A)
 // ********************************************************
 
 #if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || (defined(__x86_64__) && defined(CRYPTOPP_WORD128_AVAILABLE))
+	#define TWO_64_BIT_WORDS 1
 	#define Declare2Words(x)			word x##0, x##1;
 	#define AssignWord(a, b)			a##0 = b; a##1 = 0;
 	#define Add2WordsBy1(a, b, c)		a##0 = b##0 + c; a##1 = b##1 + (a##0 < c);
@@ -744,6 +729,10 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Add(size_t N, word *C, const word 
 	AS1(	setc	al)					// store carry into eax (return result register)
 
 	AddEpilogue
+
+	// http://github.com/weidai11/cryptopp/issues/340
+	CRYPTOPP_UNUSED(A); CRYPTOPP_UNUSED(B);
+	CRYPTOPP_UNUSED(C); CRYPTOPP_UNUSED(N);
 }
 
 CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word *A, const word *B)
@@ -785,6 +774,10 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL Baseline_Sub(size_t N, word *C, const word 
 	AS1(	setc	al)					// store carry into eax (return result register)
 
 	AddEpilogue
+
+	// http://github.com/weidai11/cryptopp/issues/340
+	CRYPTOPP_UNUSED(A); CRYPTOPP_UNUSED(B);
+	CRYPTOPP_UNUSED(C); CRYPTOPP_UNUSED(N);
 }
 
 #if CRYPTOPP_INTEGER_SSE2
@@ -843,6 +836,10 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Add(size_t N, word *C, const word *A, 
 	AS1(	emms)
 
 	AddEpilogue
+
+	// http://github.com/weidai11/cryptopp/issues/340
+	CRYPTOPP_UNUSED(A); CRYPTOPP_UNUSED(B);
+	CRYPTOPP_UNUSED(C); CRYPTOPP_UNUSED(N);
 }
 CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, const word *B)
 {
@@ -899,6 +896,10 @@ CRYPTOPP_NAKED int CRYPTOPP_FASTCALL SSE2_Sub(size_t N, word *C, const word *A, 
 	AS1(	emms)
 
 	AddEpilogue
+
+	// http://github.com/weidai11/cryptopp/issues/340
+	CRYPTOPP_UNUSED(A); CRYPTOPP_UNUSED(B);
+	CRYPTOPP_UNUSED(C); CRYPTOPP_UNUSED(N);
 }
 #endif	// CRYPTOPP_INTEGER_SSE2
 #else   // CRYPTOPP_SSE2_ASM_AVAILABLE
@@ -1295,6 +1296,11 @@ void Baseline_MultiplyBottom2(word *R, const word *AA, const word *BB)
 	MAYBE_CONST word* B = MAYBE_UNCONST_CAST(BB);
 
 	Bot_2
+
+// http://github.com/weidai11/cryptopp/issues/340
+#if defined(TWO_64_BIT_WORDS)
+	CRYPTOPP_UNUSED(d0); CRYPTOPP_UNUSED(d1);
+#endif
 }
 
 void Baseline_MultiplyBottom4(word *R, const word *AA, const word *BB)
@@ -4787,21 +4793,23 @@ public:
 	}
 };
 
-// This is not really needed because each Integer can dynamically initialize itself,
-// but we take a peephole optimization and initialize the class once if init priorities are
-// available. Dynamic initialization will be used if init priorities are not available.
+// This is not really needed because each Integer can dynamically initialize
+// itself, but we take a peephole optimization and initialize the class once
+// if init priorities are available. Dynamic initialization will be used if
+// init priorities are not available.
 
 #if HAVE_GCC_INIT_PRIORITY
 	const InitInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 10))) = InitInteger();
+	const Integer g_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 11))) = Integer(0L);
+	const Integer g_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 12))) = Integer(1L);
+	const Integer g_two __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 13))) = Integer(2L);
 #elif defined(HAVE_MSC_INIT_PRIORITY)
 	#pragma warning(disable: 4075)
 	#pragma init_seg(".CRT$XCU")
 	const InitInteger s_init;
-#   if defined(USE_MSC_INIT_PRIORITY)
 	const Integer g_zero(0L);
 	const Integer g_one(1L);
 	const Integer g_two(2L);
-#   endif
 	#pragma warning(default: 4075)
 #else
 	const InitInteger s_init;
@@ -4811,36 +4819,36 @@ public:
 
 const Integer &Integer::Zero()
 {
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+	return g_zero;
+#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static Integer s_zero(0L);
 	return s_zero;
-#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
-	return g_zero;
-#else
+#else  // Potential memory leak. Avoid if possible.
 	return Singleton<Integer, NewInteger<0L> >().Ref();
 #endif
 }
 
 const Integer &Integer::One()
 {
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+	return g_one;
+#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static Integer s_one(1L);
 	return s_one;
-#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
-	return g_one;
-#else
+#else  // Potential memory leak. Avoid if possible.
 	return Singleton<Integer, NewInteger<1L> >().Ref();
 #endif
 }
 
 const Integer &Integer::Two()
 {
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+	return g_two;
+#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static Integer s_two(2L);
 	return s_two;
-#elif defined(HAVE_MSC_INIT_PRIORITY) && defined(USE_MSC_INIT_PRIORITY)
-	return g_two;
-#else
+#else  // Potential memory leak. Avoid if possible.
 	return Singleton<Integer, NewInteger<2L> >().Ref();
 #endif
 }
