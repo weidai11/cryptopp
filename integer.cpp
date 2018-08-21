@@ -1,32 +1,44 @@
 // integer.cpp - originally written and placed in the public domain by Wei Dai
 // contains public domain code contributed by Alister Lee and Leonard Janke
 
-// Notes by JW: The Integer class needs to do two things. First, it needs to set function
-//  pointers on some platforms, like X86 and X64. The function pointers select a fast multiply
-//  and addition based on the cpu. Second, it wants to create Integer::Zero(), Integer::One()
-//  and Integer::Two().
+// Notes by JW: The Integer class needs to do two things. First, it needs
+//  to set function pointers on some platforms, like X86 and X64. The
+//  function pointers select a fast multiply and addition based on the cpu.
+//  Second, it wants to create Integer::Zero(), Integer::One() and
+//  Integer::Two().
 // The function pointers are initialized in the InitializeInteger class by
 //  calling SetFunctionPointers(). The call to SetFunctionPointers() is
 //  guarded to run once using a double-checked pattern. We don't use C++
 //  std::call_once due to bad interactions between libstdc++, glibc and
-//  pthreads. Since they are only function pointers we don't have to worry
-//  about leaking memory. The worst case seems to be the pointer gets written
-//  twice.
-// For Integer::Zero(), Integer::One() and Integer::Two(), we use one of two
-//  strategies. First, if C++11 dynamic initialization is available, then we
-//  use a static variable. Second, if C++11 dynamic initialization is not
-//  available, then we fall back to Wei's original code of a Singleton.
-// Wei's original code was much simpler. It simply used the Singleton pattern,
-//  but it always produced memory findings on some platforms. The Singleton
-//  generates memory findings because it uses a Create On First Use pattern
-//  (a dumb Nifty Counter) and the compiler had to be smart enough to fold
-//  them to return the same object. Unix and Linux compilers do a good job of
-//  folding objects, but Microsoft compilers do a rather poor job for some
-//  versions of the compilers.
+//  pthreads. The bad interactions were causing crashes for us on platforms
+//  like Sparc and PowerPC. Since we are only setting function pointers we
+//  don't have to worry about leaking memory. The worst case seems to be the
+//  pointers gets written twice until the init flag is set and visible to
+//  all threads.
+// For Integer::Zero(), Integer::One() and Integer::Two(), we use one of three
+//  strategies. First, if initialization priorities are available then we use
+//  them. Initialization priorities are init_priority() on Linux and init_seg()
+//  on Windows. AIX, OS X and several other platforms lack them. Initialization
+//  priorities are platform specific but they are also the most trouble free
+//  with determisitic destruction.
+// Second, if C++11 dynamic initialization is available, then we use it. After
+//  the std::call_once fiasco we dropped the priority dynamic initialization
+//  to avoid unknown troubles platforms that are tested less frequently. In
+//  addition Microsoft platforms mostly do not provide dynamic initialization.
+//  The MSDN docs claim they do but they don't in practice because we need
+//  Visual Studio 2017 and Windows 10 or above.
+// Third, we fall back to Wei's original code of a Singleton. Wei's original
+//  code was much simpler. It simply used the Singleton pattern, but it always
+//  produced memory findings on some platforms. The Singleton generates memory
+//  findings because it uses a Create On First Use pattern (a dumb Nifty
+//  Counter) and the compiler had to be smart enough to fold them to return
+//  the same object. Unix and Linux compilers do a good job of folding objects,
+//  but Microsoft compilers do a rather poor job for some versions of the
+//  compiler.
 // Another problem with the Singleton is resource destruction requires running
 //  resource acquisition in reverse. For resources provided through the
 //  Singletons, there is no way to express the dependency order to safely
-//  destroy resources. (That's one of the problems C++11 dynamic00
+//  destroy resources. (That's one of the problems C++11 dynamic
 //  intitialization with concurrent execution is supposed to solve).
 
 #include "pch.h"
