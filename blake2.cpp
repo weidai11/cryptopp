@@ -158,8 +158,8 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
     fanout = depth = 1;
     nodeDepth = innerLength = 0;
 
-    memset(leafLength, 0x00, COUNTOF(leafLength));
-    memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
+    std::memset(leafLength, 0x00, COUNTOF(leafLength));
+    std::memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
 
     if (saltStr && saltLen)
     {
@@ -167,11 +167,11 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
         const size_t rem = COUNTOF(salt) - saltLen;
         const size_t off = COUNTOF(salt) - rem;
         if (rem)
-            memset(salt+off, 0x00, rem);
+            std::memset(salt+off, 0x00, rem);
     }
     else
     {
-        memset(salt, 0x00, COUNTOF(salt));
+        std::memset(salt, 0x00, COUNTOF(salt));
     }
 
     if (personalizationStr && personalizationLen)
@@ -180,11 +180,11 @@ BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t key
         const size_t rem = COUNTOF(personalization) - personalizationLen;
         const size_t off = COUNTOF(personalization) - rem;
         if (rem)
-            memset(personalization+off, 0x00, rem);
+            std::memset(personalization+off, 0x00, rem);
     }
     else
     {
-        memset(personalization, 0x00, COUNTOF(personalization));
+        std::memset(personalization, 0x00, COUNTOF(personalization));
     }
 }
 
@@ -198,9 +198,9 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
     fanout = depth = 1;
     nodeDepth = innerLength = 0;
 
-    memset(rfu, 0x00, COUNTOF(rfu));
-    memset(leafLength, 0x00, COUNTOF(leafLength));
-    memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
+    std::memset(rfu, 0x00, COUNTOF(rfu));
+    std::memset(leafLength, 0x00, COUNTOF(leafLength));
+    std::memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
 
     if (saltStr && saltLen)
     {
@@ -208,11 +208,11 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
         const size_t rem = COUNTOF(salt) - saltLen;
         const size_t off = COUNTOF(salt) - rem;
         if (rem)
-            memset(salt+off, 0x00, rem);
+            std::memset(salt+off, 0x00, rem);
     }
     else
     {
-        memset(salt, 0x00, COUNTOF(salt));
+        std::memset(salt, 0x00, COUNTOF(salt));
     }
 
     if (personalizationStr && personalizationLen)
@@ -221,16 +221,16 @@ BLAKE2_ParameterBlock<true>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyL
         const size_t rem = COUNTOF(personalization) - personalizationLen;
         const size_t off = COUNTOF(personalization) - rem;
         if (rem)
-            memset(personalization+off, 0x00, rem);
+            std::memset(personalization+off, 0x00, rem);
     }
     else
     {
-        memset(personalization, 0x00, COUNTOF(personalization));
+        std::memset(personalization, 0x00, COUNTOF(personalization));
     }
 }
 
-template <class W, bool T_64bit>
-void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
+template<>  // This specialization lacks rfu[] field
+void BLAKE2_Base<word32, false>::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
 {
     if (key && length)
     {
@@ -239,7 +239,7 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
 
         const size_t rem = BLOCKSIZE - length;
         if (rem)
-            memset(temp+length, 0x00, rem);
+            std::memset(temp+length, 0x00, rem);
 
         m_key.swap(temp);
     }
@@ -248,10 +248,11 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
         m_key.resize(0);
     }
 
-    // Avoid Coverity finding SIZEOF_MISMATCH/suspicious_sizeof
     ParameterBlock& block = *m_block.data();
-    memset(m_block.data(), 0x00, sizeof(ParameterBlock));
+    std::memset(block.leafLength, 0x00, COUNTOF(block.leafLength));
+    std::memset(block.nodeOffset, 0x00, COUNTOF(block.nodeOffset));
 
+    block.nodeDepth = block.innerLength = 0;
     block.keyLength = (byte)length;
     block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
     block.fanout = block.depth = 1;
@@ -263,11 +264,11 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
         const size_t rem = COUNTOF(block.salt) - t.size();
         const size_t off = COUNTOF(block.salt) - rem;
         if (rem)
-            memset(block.salt+off, 0x00, rem);
+            std::memset(block.salt+off, 0x00, rem);
     }
     else
     {
-        memset(block.salt, 0x00, COUNTOF(block.salt));
+        std::memset(block.salt, 0x00, COUNTOF(block.salt));
     }
 
     if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
@@ -276,11 +277,68 @@ void BLAKE2_Base<W, T_64bit>::UncheckedSetKey(const byte *key, unsigned int leng
         const size_t rem = COUNTOF(block.personalization) - t.size();
         const size_t off = COUNTOF(block.personalization) - rem;
         if (rem)
-            memset(block.personalization+off, 0x00, rem);
+            std::memset(block.personalization+off, 0x00, rem);
     }
     else
     {
-        memset(block.personalization, 0x00, COUNTOF(block.personalization));
+        std::memset(block.personalization, 0x00, COUNTOF(block.personalization));
+    }
+}
+
+template<> // This specialization has rfu[] field
+void BLAKE2_Base<word64, true>::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
+{
+    if (key && length)
+    {
+        AlignedSecByteBlock temp(BLOCKSIZE);
+        memcpy_s(temp, BLOCKSIZE, key, length);
+
+        const size_t rem = BLOCKSIZE - length;
+        if (rem)
+            std::memset(temp+length, 0x00, rem);
+
+        m_key.swap(temp);
+    }
+    else
+    {
+        m_key.resize(0);
+    }
+
+    ParameterBlock& block = *m_block.data();
+    std::memset(block.leafLength, 0x00, COUNTOF(block.leafLength));
+    std::memset(block.nodeOffset, 0x00, COUNTOF(block.nodeOffset));
+    std::memset(block.rfu, 0x00, COUNTOF(block.rfu));
+
+    block.nodeDepth = block.innerLength = 0;
+    block.keyLength = (byte)length;
+    block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
+    block.fanout = block.depth = 1;
+
+    ConstByteArrayParameter t;
+    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
+    {
+        memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
+        const size_t rem = COUNTOF(block.salt) - t.size();
+        const size_t off = COUNTOF(block.salt) - rem;
+        if (rem)
+            std::memset(block.salt+off, 0x00, rem);
+    }
+    else
+    {
+        std::memset(block.salt, 0x00, COUNTOF(block.salt));
+    }
+
+    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
+    {
+        memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
+        const size_t rem = COUNTOF(block.personalization) - t.size();
+        const size_t off = COUNTOF(block.personalization) - rem;
+        if (rem)
+            std::memset(block.personalization+off, 0x00, rem);
+    }
+    else
+    {
+        std::memset(block.personalization, 0x00, COUNTOF(block.personalization));
     }
 }
 
@@ -300,7 +358,7 @@ std::string BLAKE2_Base_AlgorithmProvider()
 template <class W, bool T_64bit>
 std::string BLAKE2_Base<W, T_64bit>::AlgorithmProvider() const
 {
-	return BLAKE2_Base_AlgorithmProvider();
+    return BLAKE2_Base_AlgorithmProvider();
 }
 
 template <class W, bool T_64bit>
@@ -426,7 +484,7 @@ void BLAKE2_Base<W, T_64bit>::TruncatedFinal(byte *hash, size_t size)
     // Increment counter for tail bytes only
     IncrementCounter(state.length);
 
-    memset(state.buffer + state.length, 0x00, BLOCKSIZE - state.length);
+    std::memset(state.buffer + state.length, 0x00, BLOCKSIZE - state.length);
     Compress(state.buffer);
 
     // Copy to caller buffer
