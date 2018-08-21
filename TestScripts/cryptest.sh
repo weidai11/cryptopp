@@ -1866,6 +1866,48 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 			echo "Verified vshasigmaw and vshasigmad machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
+
+	PPC_VMULL=0
+	if [[ ("$PPC_VMULL" -eq "0") ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mcpu=power8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			PPC_VMULL=1
+			PPC_VMULL_FLAGS="-mcpu=power8"
+		fi
+	fi
+	if [[ ("$PPC_VMULL" -eq "0") ]]; then
+		"$CXX" -DCRYPTOPP_ADHOC_MAIN -qarch=pwr8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+		if [[ "$?" -eq "0" ]]; then
+			PPC_VMULL=1
+			PPC_VMULL_FLAGS="-qarch=pwr8"
+		fi
+	fi
+
+	if [[ ("$PPC_VMULL" -ne "0") ]]; then
+		echo
+		echo "************************************" | tee -a "$TEST_RESULTS"
+		echo "Testing: Power8 Polynomial Multiply generation" | tee -a "$TEST_RESULTS"
+		echo
+
+		TEST_LIST+=("Power8 Polynomial Multiply generation")
+
+		OBJFILE=gcm-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_VMULL_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+		COUNT=0
+		FAILED=0
+		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
+		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vpmsum)
+		if [[ ("$COUNT" -eq "0") ]]; then
+			FAILED=1
+			echo "ERROR: failed to generate vpmsum instruction" | tee -a "$TEST_RESULTS"
+		fi
+
+		if [[ ("$FAILED" -eq "0") ]]; then
+			echo "Verified vpmsum machine instruction" | tee -a "$TEST_RESULTS"
+		fi
+	fi
 fi
 
 ############################################
