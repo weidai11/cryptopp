@@ -1009,6 +1009,12 @@ if [[ ("$GCC_COMPILER" -ne "0" || "$CLANG_COMPILER" -ne "0") ]]; then
 	WARNING_CXXFLAGS+=("-Wcast-align" "-Wwrite-strings" "-Wformat=2" "-Wformat-security")
 fi
 
+# On PowerPC we test the original Altivec load and store with unaligned data.
+# Modern compilers generate a warning and recommend the new loads and stores.
+if [[ ("$GCC_COMPILER" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0") ) ]]; then
+	WARNING_CXXFLAGS+=("-Wno-deprecated")
+fi
+
 echo | tee -a "$TEST_RESULTS"
 echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
