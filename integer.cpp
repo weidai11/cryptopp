@@ -105,13 +105,11 @@ NAMESPACE_BEGIN(CryptoPP)
 // Function body near the middle of the file
 static void SetFunctionPointers();
 
-// We used to jump through some hoops to set the function pointers once,
-// including std::call_once. Later we learned std::call_once was fairly
-// buggy due to interactions between libstdc++, glibc and pthreads.
-// Now we use a double-checked pattern. We are not leaking anything so
-// it does not matter if a pointer is written twice during a race.
-// Also see GCC Issue 66146, "call_once not C++11-compliant" (on many
-// platforms), http://gcc.gnu.org/bugzilla/show_bug.cgi?id=66146 and
+// Use a double-checked pattern. We are not leaking anything so it
+// does not matter if a pointer is written twice during a race.
+// Avoid std::call_once due to too many problems on platforms like
+// Solaris and Sparc. Also see
+// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=66146 and
 // http://github.com/weidai11/cryptopp/issues/707.
 InitializeInteger::InitializeInteger()
 {
