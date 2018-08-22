@@ -244,6 +244,7 @@
     <ClCompile Include="kalyna.cpp" />
     <ClCompile Include="kalynatab.cpp" />
     <ClCompile Include="keccak.cpp" />
+    <ClCompile Include="keccakc.cpp" />
     <ClCompile Include="lea.cpp" />
     <ClCompile Include="lea-simd.cpp" />
     <ClCompile Include="luc.cpp" />
@@ -439,6 +440,7 @@
     <ClInclude Include="iterhash.h" />
     <ClInclude Include="kalyna.h" />
     <ClInclude Include="keccak.h" />
+    <ClInclude Include="keccakc.h" />
     <ClInclude Include="lubyrack.h" />
     <ClInclude Include="lea.h" />
     <ClInclude Include="luc.h" />

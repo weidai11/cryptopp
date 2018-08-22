@@ -230,6 +230,9 @@
     <ClCompile Include="keccak.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="keccakc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="lea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -709,6 +712,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="keccak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="keccakc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="lubyrack.h">
