@@ -171,6 +171,8 @@ kalyna.cpp
 kalyna.h
 keccak.cpp
 keccak.h
+keccakc.cpp
+keccakc.h
 lubyrack.h
 lea.cpp
 lea-simd.cpp
