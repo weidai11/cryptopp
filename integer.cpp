@@ -4813,7 +4813,7 @@ public:
 // if init priorities are available. Dynamic initialization will be used if
 // init priorities are not available.
 
-#if HAVE_GCC_INIT_PRIORITY
+#if defined(HAVE_GCC_INIT_PRIORITY)
 	const InitInteger s_init __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 10))) = InitInteger();
 	const Integer g_zero __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 11))) = Integer(0L);
 	const Integer g_one __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 12))) = Integer(1L);
@@ -4837,7 +4837,7 @@ const Integer &Integer::Zero()
 #if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
 	return g_zero;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static Integer s_zero(0L);
+	static const Integer s_zero(0L);
 	return s_zero;
 #else  // Potential memory leak. Avoid if possible.
 	return Singleton<Integer, NewInteger<0L> >().Ref();
@@ -4849,7 +4849,7 @@ const Integer &Integer::One()
 #if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
 	return g_one;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static Integer s_one(1L);
+	static const Integer s_one(1L);
 	return s_one;
 #else  // Potential memory leak. Avoid if possible.
 	return Singleton<Integer, NewInteger<1L> >().Ref();
@@ -4861,7 +4861,7 @@ const Integer &Integer::Two()
 #if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
 	return g_two;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
-	static Integer s_two(2L);
+	static const Integer s_two(2L);
 	return s_two;
 #else  // Potential memory leak. Avoid if possible.
 	return Singleton<Integer, NewInteger<2L> >().Ref();

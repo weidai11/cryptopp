@@ -11,6 +11,21 @@
 #include "algebra.cpp"
 #include "eprecomp.cpp"
 
+ANONYMOUS_NAMESPACE_BEGIN
+
+using CryptoPP::EC2N;
+
+#if defined(HAVE_GCC_INIT_PRIORITY)
+  const EC2N::Point g_identity __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 50))) = EC2N::Point();
+#elif defined(HAVE_MSC_INIT_PRIORITY)
+  #pragma warning(disable: 4075)
+  #pragma init_seg(".CRT$XCU")
+  const EC2N::Point g_identity;
+  #pragma warning(default: 4075)
+#endif
+
+ANONYMOUS_NAMESPACE_END
+
 NAMESPACE_BEGIN(CryptoPP)
 
 EC2N::EC2N(BufferedTransformation &bt)
@@ -103,7 +118,7 @@ void EC2N::EncodePoint(BufferedTransformation &bt, const Point &P, bool compress
 		NullStore().TransferTo(bt, EncodedPointSize(compressed));
 	else if (compressed)
 	{
-		bt.Put(2 + (!P.x ? 0 : m_field->Divide(P.y, P.x).GetBit(0)));
+		bt.Put((byte)(2U + (!P.x ? 0U : m_field->Divide(P.y, P.x).GetBit(0))));
 		P.x.Encode(bt, m_field->MaxElementByteLength());
 	}
 	else
@@ -177,7 +192,14 @@ bool EC2N::Equal(const Point &P, const Point &Q) const
 
 const EC2N::Point& EC2N::Identity() const
 {
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+	return g_identity;
+#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static const EC2N::Point g_identity;
+	return g_identity;
+#else
 	return Singleton<Point>().Ref();
+#endif
 }
 
 const EC2N::Point& EC2N::Inverse(const Point &P) const
