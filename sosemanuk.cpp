@@ -412,10 +412,10 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	lea		WORD_REG(cx), [4*WORD_REG(cx)+WORD_REG(cx)])
 		AS2(	lea		WORD_REG(si), [4*WORD_REG(cx)])
 		AS2(	mov		SSE2_wordsLeft, WORD_REG(si))
-		AS2(	movdqa	xmm0, [WORD_REG(ax)+0*16])		// copy state to stack to save a register
-		AS2(	movdqa	[SSE2_stateCopy+0*16], xmm0)
-		AS2(	movdqa	xmm0, [WORD_REG(ax)+1*16])
-		AS2(	movdqa	[SSE2_stateCopy+1*16], xmm0)
+		AS2(	movdqu	xmm0, [WORD_REG(ax)+0*16])		// copy state to stack to save a register
+		AS2(	movdqu	[SSE2_stateCopy+0*16], xmm0)
+		AS2(	movdqu	xmm0, [WORD_REG(ax)+1*16])
+		AS2(	movdqu	[SSE2_stateCopy+1*16], xmm0)
 		AS2(	movq	xmm0, QWORD PTR [WORD_REG(ax)+2*16])
 		AS2(	movq	QWORD PTR [SSE2_stateCopy+2*16], xmm0)
 		AS2(	psrlq	xmm0, 32)
@@ -507,10 +507,10 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 		AS2(	mov		WORD_REG(si), SSE2_wordsLeft2)
 
 		ASL(1)	// second inner loop, 16 words each, 5 iterations
-		AS2(	movdqa	xmm0, [WORD_REG(di)+0*20*4])
-		AS2(	movdqa	xmm2, [WORD_REG(di)+2*20*4])
-		AS2(	movdqa	xmm3, [WORD_REG(di)+3*20*4])
-		AS2(	movdqa	xmm1, [WORD_REG(di)+1*20*4])
+		AS2(	movdqu	xmm0, [WORD_REG(di)+0*20*4])
+		AS2(	movdqu	xmm2, [WORD_REG(di)+2*20*4])
+		AS2(	movdqu	xmm3, [WORD_REG(di)+3*20*4])
+		AS2(	movdqu	xmm1, [WORD_REG(di)+1*20*4])
 		// S2
 		AS2(	movdqa	xmm4, xmm0)
 		AS2(	pand	xmm0, xmm2)
@@ -596,10 +596,10 @@ void SosemanukPolicy::OperateKeystream(KeystreamOperation operation, byte *outpu
 
 		ASL(6)	// save state
 		AS2(	mov		AS_REG_6, SSE2_state)
-		AS2(	movdqa	xmm0, [SSE2_stateCopy+0*16])
-		AS2(	movdqa	[AS_REG_6+0*16], xmm0)
-		AS2(	movdqa	xmm0, [SSE2_stateCopy+1*16])
-		AS2(	movdqa	[AS_REG_6+1*16], xmm0)
+		AS2(	movdqu	xmm0, [SSE2_stateCopy+0*16])
+		AS2(	movdqu	[AS_REG_6+0*16], xmm0)
+		AS2(	movdqu	xmm0, [SSE2_stateCopy+1*16])
+		AS2(	movdqu	[AS_REG_6+1*16], xmm0)
 		AS2(	movq	xmm0, QWORD PTR [SSE2_stateCopy+2*16])
 		AS2(	movq	QWORD PTR [AS_REG_6+2*16], xmm0)
 		AS2(	mov		[AS_REG_6+10*4], ecx)

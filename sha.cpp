@@ -1119,7 +1119,8 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
 
 #define SSE2_CombineState(i)    \
     AS2(    movdqu   xmm0, [edi+i*16])\
-    AS2(    paddq    xmm0, [ecx+i*16])\
+    AS2(    movdqu   xmm1, [ecx+i*16])\
+    AS2(    paddq    xmm0, xmm1)\
     AS2(    movdqu   [ecx+i*16], xmm0)
 
     SSE2_CombineState(0)
@@ -1147,7 +1148,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
 
 // ANONYMOUS_NAMESPACE_END
 
-#endif    // CRYPTOPP_SSE2_ASM_AVAILABLE
+#endif  // CRYPTOPP_SSE2_ASM_AVAILABLE
 
 ANONYMOUS_NAMESPACE_BEGIN
 
