@@ -469,14 +469,21 @@ public:
 private:
 
 #if defined(CRYPTOPP_BOOL_ALIGN16) && defined(CRYPTOPP_ALIGN_ATTRIBUTE)
-	T* GetAlignedArray() {return m_array;}
+	T* GetAlignedArray() {
+		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 16));
+		return m_array;
+	}
 	CRYPTOPP_ALIGN_DATA(16) T m_array[S];
 #elif defined(CRYPTOPP_BOOL_ALIGN16)
 	// There be demons here... Some platforms and small datatypes can
 	// make things go sideways. We experienced it on AIX with XLC. If
 	// we see anymore problems we should probably avoid the stack and
 	// move to aligned heap allocations.
-	T* GetAlignedArray() {return (T*)(void*)(((byte*)m_array) + (0-(size_t)m_array)%16);}
+	T* GetAlignedArray() {
+		T* p_array = (T*)(void*)(((byte*)m_array) + (0-(size_t)m_array)%16);
+		CRYPTOPP_ASSERT(IsAlignedOn(p_array, 16));
+		return p_array;
+	}
 	T m_array[S+8/sizeof(T)];
 #else
 	T* GetAlignedArray() {return m_array;}
