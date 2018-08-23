@@ -36,7 +36,7 @@ inline ECP::Point FromMontgomery(const ModularArithmetic &mr, const ECP::Point &
 	return P.identity ? P : ECP::Point(mr.ConvertOut(P.x), mr.ConvertOut(P.y));
 }
 
-NAMESPACE_END
+ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
