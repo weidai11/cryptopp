@@ -2043,7 +2043,7 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 ///   not part of a full element. If T is int (and int is 4 bytes), then
 ///   <tt>byteCount = 10</tt> means only the first 2 elements or 8 bytes are
 ///   reversed.
-/// \details The follwoing program should help illustrate the behavior.
+/// \details The following program should help illustrate the behavior.
 /// <pre>vector<word32> v1, v2;
 ///
 /// v1.push_back(1);
@@ -2063,7 +2063,7 @@ inline T ConditionalByteReverse(ByteOrder order, T value)
 /// for(unsigned int i = 0; i < v2.size(); i++)
 ///   cout << std::hex << v2[i] << " ";
 /// cout << endl;</pre>
-/// The program above results in the follwoing output.
+/// The program above results in the following output.
 /// <pre>V1: 00000001 00000002 00000003 00000004
 /// V2: 01000000 02000000 03000000 04000000</pre>
 /// \sa ConditionalByteReverse
@@ -2072,8 +2072,8 @@ void ByteReverse(T *out, const T *in, size_t byteCount)
 {
 	// Alignment check due to Issues 690
 	CRYPTOPP_ASSERT(byteCount % sizeof(T) == 0);
-	CRYPTOPP_ASSERT(IsAligned<T>(in));
-	CRYPTOPP_ASSERT(IsAligned<T>(out));
+	//CRYPTOPP_ASSERT(IsAligned<T*>(in));
+	//CRYPTOPP_ASSERT(IsAligned<T*>(out));
 
 	size_t count = byteCount/sizeof(T);
 	for (size_t i=0; i<count; i++)
