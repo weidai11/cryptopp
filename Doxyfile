@@ -1226,7 +1226,9 @@ DOCSET_PUBLISHER_NAME  = Crypto++
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-GENERATE_HTMLHELP      = YES
+# Disabled by JW for server-side search, Aug 2018
+# https://www.stack.nl/~dimitri/doxygen/manual/searching.html
+GENERATE_HTMLHELP      = NO
 
 # The CHM_FILE tag can be used to specify the file name of the resulting .chm
 # file. You can add a path in front of the file if the result should not be
@@ -1494,7 +1496,9 @@ MATHJAX_CODEFILE       =
 # The default value is: YES.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-SEARCHENGINE           = NO
+# Enabled by JW for server-side search, Aug 2018
+# https://www.stack.nl/~dimitri/doxygen/manual/searching.html
+SEARCHENGINE           = YES
 
 # When the SERVER_BASED_SEARCH tag is enabled the search engine will be
 # implemented using a web server instead of a web client using Javascript. There
@@ -1506,7 +1510,9 @@ SEARCHENGINE           = NO
 # The default value is: NO.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-SERVER_BASED_SEARCH    = NO
+# Enabled by JW for server-side search, Aug 2018
+# https://www.stack.nl/~dimitri/doxygen/manual/searching.html
+SERVER_BASED_SEARCH    = YES
 
 # When EXTERNAL_SEARCH tag is enabled doxygen will no longer generate the PHP
 # script for searching. Instead the search results are written to an XML file
