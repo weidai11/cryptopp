@@ -152,8 +152,8 @@ public:
 	{
 		CRYPTOPP_ASSERT(in != NULLPTR);
 		CRYPTOPP_ASSERT(out != NULLPTR);
-		CRYPTOPP_ASSERT(IsAligned<T_HashWordType*>(in));
-		CRYPTOPP_ASSERT(IsAligned<T_HashWordType*>(out));
+		CRYPTOPP_ASSERT(IsAligned<T_HashWordType>(in));
+		CRYPTOPP_ASSERT(IsAligned<T_HashWordType>(out));
 
 		ConditionalByteReverse(T_Endianness::ToEnum(), out, in, byteCount);
 	}
