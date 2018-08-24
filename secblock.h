@@ -469,8 +469,8 @@ public:
 private:
 
 #if defined(CRYPTOPP_BOOL_ALIGN16) && (defined(_M_X64) || defined(__x86_64__))
-	// Before we can add additional platofrms we need to check the linker
-	// documentation for alignment behavior for stack variables.
+	// Before we can add additional platforms we need to check the
+	// linker documentation for alignment behavior for stack variables.
 	// CRYPTOPP_ALIGN_DATA(16) is known OK on Linux, OS X, Solaris.
 	// Also see http://stackoverflow.com/a/1468656/608639.
 	T* GetAlignedArray() {
@@ -478,32 +478,39 @@ private:
 		return m_array;
 	}
 	CRYPTOPP_ALIGN_DATA(16) T m_array[S];
+
 #elif defined(CRYPTOPP_BOOL_ALIGN16)
+
 	// There be demons here... We cannot use CRYPTOPP_ALIGN_DATA(16)
-	// because linkers on 32-bit machines align the stack to 8-bytes
-	// or less by default, not 16-bytes as requested. Additionally,
-	// the AIX linker seems to use 4-bytes by default; however, the
-	// AIX linker seems to honor CRYPTOPP_ALIGN_DATA(8). Given we can
-	// achieve 8-byte array alignment needs to be transformed to a
-	// 16-byte alignment. Also see
-	// http://stackoverflow.com/a/1468656/608639.
+	// because linkers on 32-bit machines (and some 64-bit machines)
+	// align the stack to 8-bytes or less by default, not 16-bytes as
+	// requested. Additionally, the AIX linker seems to use 4-bytes
+	// by default. However, all linkers tested appear to honor
+	// CRYPTOPP_ALIGN_DATA(8). Given we can achieve 8-byte array
+	// alignment, we needs to transform the address returned from
+	// GetAlignedArray() to a 16-byte alignment.
+	// Also see http://stackoverflow.com/a/1468656/608639.
 	//
 	// The 16-byte alignment is achieved by padding the requested
-	// size with extra elements so we have 8-bytes of slack to work
-	// with. Then the pointer is shifted to achieve a 16-byte alignment.
+	// size with extra elements so we have at least 8-bytes of slack
+	// to work with. Then the pointer is moved down to achieve a
+	// 16-byte alignment (stacks grow down).
 	//
 	// The additional 8-bytes introduces a small secondary issue.
-	// The secondary issue is, large T results in 0 = 8/sizeof(T). The
-	// library is OK but users may hit it. So we need to guard for a
-	// large T, and that is what PAD achieves.
+	// The secondary issue is, a large T results in 0 = 8/sizeof(T).
+	// The library is OK but users may hit it. So we need to guard
+	// for a large T, and that is what PAD achieves.
 	T* GetAlignedArray() {
 		T* p_array = (T*)(void*)(((byte*)m_array) + (0-(size_t)m_array)%16);
 		CRYPTOPP_ASSERT(IsAlignedOn(p_array, 16));
 		return p_array;
 	}
-	enum {PAD=((sizeof(T)>=8) ? 1 : 8/sizeof(T))};
+	// PAD is elements, not bytes, and rounded up to ensure no overflow.
+	enum { Q = sizeof(T), PAD = (Q >= 8) ? 1 : (Q >= 4) ? 2 : (Q >= 2) ? 4 : 8 };
 	CRYPTOPP_ALIGN_DATA(8) T m_array[S+PAD];
+
 #else
+
 	T* GetAlignedArray() {return m_array;}
 	T m_array[S];
 #endif
