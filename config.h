@@ -346,13 +346,10 @@ NAMESPACE_END
 // CRYPTOPP_ALIGN_DATA may not be reliable on AIX.
 #ifndef CRYPTOPP_ALIGN_DATA
 	#if defined(_MSC_VER)
-		#define CRYPTOPP_ALIGN_ATTRIBUTE 1
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
 	#elif defined(__GNUC__) || (__SUNPRO_CC >= 0x5100)
-		#define CRYPTOPP_ALIGN_ATTRIBUTE 1
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
 	#elif defined(__xlc__) || defined(__xlC__)
-		#define CRYPTOPP_ALIGN_ATTRIBUTE 1
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
 	#else
 		#define CRYPTOPP_ALIGN_DATA(x)
