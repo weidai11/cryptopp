@@ -265,12 +265,12 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 
 #define SSE2_EXPAND_S(i, j)		\
 	ASS(	pshufd	xmm4, xmm##i, j, j, j, j)	\
-	AS2(	movdqu	[SSE2_WORKSPACE + (i*4+j)*16 + 256], xmm4)
+	AS2(	movdqa	[SSE2_WORKSPACE + (i*4+j)*16 + 256], xmm4)
 
-		AS2(	movdqu	xmm0, [REG_state + 0*16])
-		AS2(	movdqu	xmm1, [REG_state + 1*16])
-		AS2(	movdqu	xmm2, [REG_state + 2*16])
-		AS2(	movdqu	xmm3, [REG_state + 3*16])
+		AS2(	movdqa	xmm0, [REG_state + 0*16])
+		AS2(	movdqa	xmm1, [REG_state + 1*16])
+		AS2(	movdqa	xmm2, [REG_state + 2*16])
+		AS2(	movdqa	xmm3, [REG_state + 3*16])
 		SSE2_EXPAND_S(0, 0)
 		SSE2_EXPAND_S(0, 1)
 		SSE2_EXPAND_S(0, 2)
@@ -311,15 +311,15 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 	AS2(	pxor	xmm##b, xmm4)			\
 	AS2(	pxor	xmm##b, xmm5)
 
-#define L01(A,B,C,D,a,b,c,d,i)		AS2(	movdqu	xmm##A, [SSE2_WORKSPACE + d*16 + i*256])	/* y3 */
-#define L02(A,B,C,D,a,b,c,d,i)		AS2(	movdqu	xmm##C, [SSE2_WORKSPACE + a*16 + i*256])	/* y0 */
+#define L01(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##A, [SSE2_WORKSPACE + d*16 + i*256])	/* y3 */
+#define L02(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##C, [SSE2_WORKSPACE + a*16 + i*256])	/* y0 */
 #define L03(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##C)		/* y0+y3 */
 #define L04(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)
 #define L05(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 7)
 #define L06(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##B, 32-7)
 #define L07(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + b*16 + i*256])
 #define L08(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##B)		/* z1 */
-#define L09(A,B,C,D,a,b,c,d,i)		AS2(	movdqu	[SSE2_WORKSPACE + b*16], xmm##A)
+#define L09(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + b*16], xmm##A)
 #define L10(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)
 #define L11(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##C)		/* z1+y0 */
 #define L12(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)
@@ -327,7 +327,7 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 #define L14(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##D, 32-9)
 #define L15(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + c*16 + i*256])
 #define L16(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##D)		/* z2 */
-#define L17(A,B,C,D,a,b,c,d,i)		AS2(	movdqu	[SSE2_WORKSPACE + c*16], xmm##A)
+#define L17(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + c*16], xmm##A)
 #define L18(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)
 #define L19(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##B)		/* z2+z1 */
 #define L20(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##B, xmm##A)
@@ -335,14 +335,14 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 #define L22(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##B, 32-13)
 #define L23(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, [SSE2_WORKSPACE + d*16 + i*256])
 #define L24(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##B)		/* z3 */
-#define L25(A,B,C,D,a,b,c,d,i)		AS2(	movdqu	[SSE2_WORKSPACE + d*16], xmm##A)
+#define L25(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + d*16], xmm##A)
 #define L26(A,B,C,D,a,b,c,d,i)		AS2(	paddd	xmm##A, xmm##D)		/* z3+z2 */
 #define L27(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	xmm##D, xmm##A)
 #define L28(A,B,C,D,a,b,c,d,i)		AS2(	pslld	xmm##A, 18)
 #define L29(A,B,C,D,a,b,c,d,i)		AS2(	psrld	xmm##D, 32-18)
 #define L30(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##C)		/* xor y0 */
 #define L31(A,B,C,D,a,b,c,d,i)		AS2(	pxor	xmm##A, xmm##D)		/* z0 */
-#define L32(A,B,C,D,a,b,c,d,i)		AS2(	movdqu	[SSE2_WORKSPACE + a*16], xmm##A)
+#define L32(A,B,C,D,a,b,c,d,i)		AS2(	movdqa	[SSE2_WORKSPACE + a*16], xmm##A)
 
 #define SSE2_QUARTER_ROUND_X8(i, a, b, c, d, e, f, g, h)	\
 	L01(0,1,2,3, a,b,c,d, i)	L01(4,5,6,7, e,f,g,h, i)	\
@@ -453,13 +453,13 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		ASJ(	jnz,	6, b)
 
 #define SSE2_OUTPUT_4(a, b, c, d)	\
-	AS2(	movdqu		xmm4, [SSE2_WORKSPACE + a*16 + 256])\
+	AS2(	movdqa		xmm4, [SSE2_WORKSPACE + a*16 + 256])\
 	AS2(	paddd		xmm4, [SSE2_WORKSPACE + a*16])\
-	AS2(	movdqu		xmm5, [SSE2_WORKSPACE + b*16 + 256])\
+	AS2(	movdqa		xmm5, [SSE2_WORKSPACE + b*16 + 256])\
 	AS2(	paddd		xmm5, [SSE2_WORKSPACE + b*16])\
-	AS2(	movdqu		xmm6, [SSE2_WORKSPACE + c*16 + 256])\
+	AS2(	movdqa		xmm6, [SSE2_WORKSPACE + c*16 + 256])\
 	AS2(	paddd		xmm6, [SSE2_WORKSPACE + c*16])\
-	AS2(	movdqu		xmm7, [SSE2_WORKSPACE + d*16 + 256])\
+	AS2(	movdqa		xmm7, [SSE2_WORKSPACE + d*16 + 256])\
 	AS2(	paddd		xmm7, [SSE2_WORKSPACE + d*16])\
 	ASC(	call,		SSE2_Salsa_Output)
 
@@ -480,10 +480,10 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		ASL(5)
 		AS2(	sub		REG_iterationCount, 1)
 		ASJ(	jl,		4, f)
-		AS2(	movdqu	xmm0, [REG_state + 0*16])
-		AS2(	movdqu	xmm1, [REG_state + 1*16])
-		AS2(	movdqu	xmm2, [REG_state + 2*16])
-		AS2(	movdqu	xmm3, [REG_state + 3*16])
+		AS2(	movdqa	xmm0, [REG_state + 0*16])
+		AS2(	movdqa	xmm1, [REG_state + 1*16])
+		AS2(	movdqa	xmm2, [REG_state + 2*16])
+		AS2(	movdqa	xmm3, [REG_state + 3*16])
 		AS2(	mov		REG_roundsLeft, REG_rounds)
 
 		ASL(0)
@@ -504,14 +504,10 @@ void Salsa20_Policy::OperateKeystream(KeystreamOperation operation, byte *output
 		AS2(	sub		REG_roundsLeft, 2)
 		ASJ(	jnz,	0, b)
 
-		AS2(	movdqu	xmm6, [REG_state + 0*16])
-		AS2(	paddd	xmm0, xmm6)
-		AS2(	movdqu	xmm7, [REG_state + 1*16])
-		AS2(	paddd	xmm1, xmm7)
-		AS2(	movdqu	xmm6, [REG_state + 2*16])
-		AS2(	paddd	xmm2, xmm6)
-		AS2(	movdqu	xmm7, [REG_state + 3*16])
-		AS2(	paddd	xmm3, xmm7)
+		AS2(	paddd	xmm0, [REG_state + 0*16])
+		AS2(	paddd	xmm1, [REG_state + 1*16])
+		AS2(	paddd	xmm2, [REG_state + 2*16])
+		AS2(	paddd	xmm3, [REG_state + 3*16])
 
 		AS2(	add		dword ptr [REG_state + 8*4], 1)
 		AS2(	adc		dword ptr [REG_state + 5*4], 0)
