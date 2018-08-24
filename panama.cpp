@@ -93,10 +93,10 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 		AS_PUSH_IF86(	cx)
 	#endif
 
-	AS2(	movdqu	xmm0, XMMWORD_PTR [AS_REG_2+0*16])
-	AS2(	movdqu	xmm1, XMMWORD_PTR [AS_REG_2+1*16])
-	AS2(	movdqu	xmm2, XMMWORD_PTR [AS_REG_2+2*16])
-	AS2(	movdqu	xmm3, XMMWORD_PTR [AS_REG_2+3*16])
+	AS2(	movdqa	xmm0, XMMWORD_PTR [AS_REG_2+0*16])
+	AS2(	movdqa	xmm1, XMMWORD_PTR [AS_REG_2+1*16])
+	AS2(	movdqa	xmm2, XMMWORD_PTR [AS_REG_2+2*16])
+	AS2(	movdqa	xmm3, XMMWORD_PTR [AS_REG_2+3*16])
 	AS2(	mov		eax, dword ptr [AS_REG_2+4*16])
 
 	ASL(4)
@@ -184,8 +184,8 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 	ASL(1)
 	AS2(	test	AS_REG_3, 15)
 	ASJ(	jnz,	3, f)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_3], xmm4)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_3+16], xmm6)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_3], xmm4)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_3+16], xmm6)
 	AS2(	add		AS_REG_3, 32)
 	ASJ(	jmp,	0, f)
 	ASL(3)
@@ -200,26 +200,24 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 	AS2(	lea		AS_REG_7, [AS_REG_6 + (32-24)*32])
 	AS2(	and		AS_REG_7, 31*32)
 
-	AS2(	movdqu	xmm0, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+0*8])
+	AS2(	movdqa	xmm0, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+0*8])
 	AS2(	pxor	xmm3, xmm0)
 	ASS(	pshufd	xmm0, xmm0, 2, 3, 0, 1)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+0*8], xmm3)
-	AS2(	movdqu	xmm5, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+2*8])
-	AS2(	pxor	xmm0, xmm5)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+2*8], xmm0)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+0*8], xmm3)
+	AS2(	pxor	xmm0, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+2*8])
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+2*8], xmm0)
 
-	AS2(	movdqu	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+2*8])
+	AS2(	movdqa	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+2*8])
 	AS2(	pxor	xmm1, xmm4)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+2*8], xmm1)
-	AS2(	movdqu	xmm5, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+0*8])
-	AS2(	pxor	xmm4, xmm5)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+0*8], xmm4)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+2*8], xmm1)
+	AS2(	pxor	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+0*8])
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+0*8], xmm4)
 
 	// theta
-	AS2(	movdqu	xmm3, XMMWORD_PTR [AS_REG_2+3*16])
-	AS2(	movdqu	xmm2, XMMWORD_PTR [AS_REG_2+2*16])
-	AS2(	movdqu	xmm1, XMMWORD_PTR [AS_REG_2+1*16])
-	AS2(	movdqu	xmm0, XMMWORD_PTR [AS_REG_2+0*16])
+	AS2(	movdqa	xmm3, XMMWORD_PTR [AS_REG_2+3*16])
+	AS2(	movdqa	xmm2, XMMWORD_PTR [AS_REG_2+2*16])
+	AS2(	movdqa	xmm1, XMMWORD_PTR [AS_REG_2+1*16])
+	AS2(	movdqa	xmm0, XMMWORD_PTR [AS_REG_2+0*16])
 
 #if CRYPTOPP_SSSE3_ASM_AVAILABLE
 	AS2(	test	AS_REG_6, 1)
@@ -273,16 +271,16 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 	AS2(	lea		AS_REG_7, [AS_REG_6 + 16*32])
 	AS2(	and		AS_REG_7, 31*32)
 
-	AS2(	movdqu	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+0*16])
-	AS2(	movdqu	xmm5, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+0*16])
+	AS2(	movdqa	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+0*16])
+	AS2(	movdqa	xmm5, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+0*16])
 	AS2(	movdqa	xmm6, xmm4)
 	AS2(	punpcklqdq	xmm4, xmm5)
 	AS2(	punpckhqdq	xmm6, xmm5)
 	AS2(	pxor	xmm3, xmm4)
 	AS2(	pxor	xmm2, xmm6)
 
-	AS2(	movdqu	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+1*16])
-	AS2(	movdqu	xmm5, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+1*16])
+	AS2(	movdqa	xmm4, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_1+1*16])
+	AS2(	movdqa	xmm5, XMMWORD_PTR [AS_REG_2+20*4+AS_REG_7+1*16])
 	AS2(	movdqa	xmm6, xmm4)
 	AS2(	punpcklqdq	xmm4, xmm5)
 	AS2(	punpckhqdq	xmm6, xmm5)
@@ -296,10 +294,10 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 
 	// save state
 	AS2(	mov		[AS_REG_2+4*16], eax)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+3*16], xmm3)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+2*16], xmm2)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+1*16], xmm1)
-	AS2(	movdqu	XMMWORD_PTR [AS_REG_2+0*16], xmm0)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+3*16], xmm3)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+2*16], xmm2)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+1*16], xmm1)
+	AS2(	movdqa	XMMWORD_PTR [AS_REG_2+0*16], xmm0)
 
 	#if CRYPTOPP_BOOL_X86
 		AS2(	add		esp, 4)
