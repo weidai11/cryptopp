@@ -1,3 +1,4 @@
+
 // crc-simd.cpp - written and placed in the public domain by
 //                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
@@ -49,7 +50,9 @@ extern "C" {
 
 bool CPU_ProbeARMv7()
 {
-#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+#if defined(__aarch32__) || defined(__aarch64__)
+	return true;
+#elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
 	return false;
 #elif (CRYPTOPP_ARM_NEON_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -92,6 +95,8 @@ bool CPU_ProbeARMv7()
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
+# else
+	return false;
 # endif
 #else
 	return false;
@@ -100,7 +105,9 @@ bool CPU_ProbeARMv7()
 
 bool CPU_ProbeNEON()
 {
-#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+#if defined(__aarch32__) || defined(__aarch64__)
+	return true;
+#elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
 	return false;
 #elif (CRYPTOPP_ARM_NEON_AVAILABLE)
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
@@ -163,6 +170,8 @@ bool CPU_ProbeNEON()
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
+# else
+	return false;
 # endif
 #else
 	return false;
