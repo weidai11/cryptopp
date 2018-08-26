@@ -170,8 +170,6 @@ bool CPU_ProbeNEON()
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
-# else
-	return false;
 # endif
 #else
 	return false;
