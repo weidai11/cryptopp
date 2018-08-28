@@ -39,17 +39,17 @@ elif [[ ! -z $(command -v glibtool) ]]; then
 fi
 
 # Fecth the three required files
-if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/Makefile.am -O Makefile.am; then
+if ! wget --no-check-certificate 'https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/Makefile.am' -O Makefile.am; then
 	echo "Makefile.am download failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/configure.ac -O configure.ac; then
+if ! wget --no-check-certificate 'https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/configure.ac' -O configure.ac; then
 	echo "configure.ac download failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/libcryptopp.pc.in -O libcryptopp.pc.in; then
+if ! wget --no-check-certificate 'https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/libcryptopp.pc.in' -O libcryptopp.pc.in; then
 	echo "libcryptopp.pc.in download failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
@@ -87,6 +87,13 @@ if ! autoreconf 2>/dev/null; then
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
 fi
+
+# Update config.sub config.guess. GNU recommends using the latest for all projects.
+echo "Updating config.sub"
+wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub' -O config.sub
+
+echo "Updating config.guess"
+wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess' -O config.guess
 
 if ! ./configure; then
 	echo "configure failed."
