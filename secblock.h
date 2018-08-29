@@ -331,8 +331,6 @@ class FixedSizeAllocatorWithCleanup : public AllocatorBase<T>
 /// \brief Static secure memory block with cleanup
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements
-/// \tparam T_Align16 boolean that determines whether allocations should
-///    be aligned on a 16-byte boundary
 /// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 ///    based allocation at compile time. The class can grow its memory
 ///    block at runtime if a suitable allocator is available. If size
@@ -527,8 +525,6 @@ private:
 /// \brief Static secure memory block with cleanup
 /// \tparam T class or type
 /// \tparam S fixed-size of the stack-based memory block, in elements
-/// \tparam T_Align16 boolean that determines whether allocations should
-///    be aligned on a 16-byte boundary
 /// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 ///    based allocation at compile time. The class can grow its memory
 ///    block at runtime if a suitable allocator is available. If size
