@@ -34,6 +34,7 @@ void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer 
 		bool solutionsExist = SolveModularQuadraticEquation(r1, r2, 1, -1, 1, q);
 		CRYPTOPP_UNUSED(solutionsExist); CRYPTOPP_ASSERT(solutionsExist);
 	} while (!p.Randomize(rng, minP, maxP, Integer::PRIME, CRT(rng.GenerateBit()?r1:r2, q, 2, 3, EuclideanMultiplicativeInverse(p, 3)), 3*q));
+	CRYPTOPP_ASSERT(p % 3 == 2);
 	CRYPTOPP_ASSERT(((p.Squared() - p + 1) % q).IsZero());
 
 	GFP2_ONB<ModularArithmetic> gfp2(p);
