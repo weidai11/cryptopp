@@ -50,7 +50,7 @@
 <dt>Input Source Classes<dd>
 	StringSource, ArraySource, FileSource, RandomNumberSource
 <dt>Output Sink Classes<dd>
-	StringSinkTemplate, StringSink, ArraySink, FileSink, RandomNumberSink
+	StringSinkTemplate, StringSink, VectorSink, ArraySink, FileSink, RandomNumberSink
 <dt>Filter Wrappers<dd>
 	StreamTransformationFilter, AuthenticatedEncryptionFilter, AuthenticatedDecryptionFilter, HashFilter,
 	HashVerificationFilter, SignerFilter, SignatureVerificationFilter

@@ -1063,12 +1063,13 @@ template <class T>
 class StringSinkTemplate : public Bufferless<Sink>
 {
 public:
+	typedef typename T::value_type value_type;
 	virtual ~StringSinkTemplate() {}
 
 	/// \brief Construct a StringSinkTemplate
 	/// \param output std::basic_string<char> type
 	StringSinkTemplate(T &output)
-		: m_output(&output) {CRYPTOPP_ASSERT(sizeof(output[0])==1);}
+		: m_output(&output) {CRYPTOPP_ASSERT(sizeof(value_type)==1);}
 
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{if (!parameters.GetValue("OutputStringPointer", m_output)) throw InvalidArgument("StringSink: OutputStringPointer not specified");}
@@ -1076,14 +1077,12 @@ public:
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 	{
 		CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking);
-		typedef typename T::traits_type::char_type char_type;
-
 		if (length > 0)
 		{
 			typename T::size_type size = m_output->size();
 			if (length < size && size + length > m_output->capacity())
 				m_output->reserve(2*size);
-			m_output->append((const char_type *)inString, (const char_type *)inString+length);
+			m_output->insert(m_output->end(), (const value_type *)inString, (const value_type *)inString+length);
 		}
 		return 0;
 	}
@@ -1098,6 +1097,11 @@ private:
 /// \since Crypto++ 4.0
 DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink)
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
+
+/// \brief Append input to a std::vector<byte> object
+/// \details VectorSink is a typedef for StringSinkTemplate<std::vector<byte> >.
+DOCUMENTED_TYPEDEF(StringSinkTemplate<std::vector<byte> >, VectorSink);
+CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::vector<byte> >;
 
 /// \brief Incorporates input into RNG as additional entropy
 /// \since Crypto++ 4.0
