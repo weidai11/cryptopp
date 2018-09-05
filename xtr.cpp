@@ -13,7 +13,12 @@ NAMESPACE_BEGIN(CryptoPP)
 
 const GFP2Element & GFP2Element::Zero()
 {
+#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static const GFP2Element s_zero;
+	return s_zero;
+#else
 	return Singleton<GFP2Element>().Ref();
+#endif
 }
 
 void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer &q, GFP2Element &g, unsigned int pbits, unsigned int qbits)
@@ -26,16 +31,23 @@ void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer 
 	const Integer minP = Integer::Power2(pbits - 1);
 	const Integer maxP = Integer::Power2(pbits) - 1;
 
+top:
+
 	Integer r1, r2;
 	do
 	{
-		bool qFound = q.Randomize(rng, minQ, maxQ, Integer::PRIME, 7, 12);
-		CRYPTOPP_UNUSED(qFound); CRYPTOPP_ASSERT(qFound);
-		bool solutionsExist = SolveModularQuadraticEquation(r1, r2, 1, -1, 1, q);
-		CRYPTOPP_UNUSED(solutionsExist); CRYPTOPP_ASSERT(solutionsExist);
-	} while (!p.Randomize(rng, minP, maxP, Integer::PRIME, CRT(rng.GenerateBit()?r1:r2, q, 2, 3, EuclideanMultiplicativeInverse(p, 3)), 3*q));
-	CRYPTOPP_ASSERT(p % 3 == 2);
-	CRYPTOPP_ASSERT(((p.Squared() - p + 1) % q).IsZero());
+		(void)q.Randomize(rng, minQ, maxQ, Integer::PRIME, 7, 12);
+		// Solution always exists because q === 7 mod 12.
+		(void)SolveModularQuadraticEquation(r1, r2, 1, -1, 1, q);
+		// I believe k_i, r1 and r2 are being used slightly different than the
+		// paper's algorithm. I believe it is leading to the failed asserts.
+		// Just make the assert part of the condition.
+		if(!p.Randomize(rng, minP, maxP, Integer::PRIME, CRT(rng.GenerateBit() ?
+			r1 : r2, q, 2, 3, EuclideanMultiplicativeInverse(p, 3)), 3 * q)) { continue; }
+	} while (((p % 3U) != 2) || (((p.Squared() - p + 1) % q).NotZero()));
+
+	// CRYPTOPP_ASSERT((p % 3U) == 2);
+	// CRYPTOPP_ASSERT(((p.Squared() - p + 1) % q).IsZero());
 
 	GFP2_ONB<ModularArithmetic> gfp2(p);
 	GFP2Element three = gfp2.ConvertIn(3), t;
@@ -51,7 +63,11 @@ void XTR_FindPrimesAndGenerator(RandomNumberGenerator &rng, Integer &p, Integer 
 		if (g != three)
 			break;
 	}
-	CRYPTOPP_ASSERT(XTR_Exponentiate(g, q, p) == three);
+
+	if (XTR_Exponentiate(g, q, p) != three)
+		goto top;
+
+	// CRYPTOPP_ASSERT(XTR_Exponentiate(g, q, p) == three);
 }
 
 GFP2Element XTR_Exponentiate(const GFP2Element &b, const Integer &e, const Integer &p)
