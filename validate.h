@@ -23,6 +23,7 @@ NAMESPACE_BEGIN(Test)
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
+bool TestStringSink();
 // bool TestSecRandom();
 bool TestRandomPool();
 #if !defined(NO_OS_DEPENDENCE)
