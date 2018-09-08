@@ -438,6 +438,8 @@ bool TestEncryptors()
         std::string recovered, message = "Now is the time for all good men to come to the aide of their country.";
         //StringSource(message, true, new DefaultEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac.bin")));
         FileSource("TestData/defdmac.bin", true, new DefaultDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
+        if (message != recovered)
+            throw Exception(Exception::OTHER_ERROR, "DefaultDecryptorWithMAC failed a self test");
     }
     catch(const Exception&)
     {
