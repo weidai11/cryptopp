@@ -153,13 +153,14 @@ bool TestCompressors()
 {
     std::cout << "\nTesting Compressors and Decompressors...\n\n";
     bool fail1 = false, fail2 = false, fail3 = false;
+    const unsigned int COMP_COUNT = 64;
 
     try
     {
         // Gzip uses Adler32 checksums. We expect a failure to to happen on occasion.
         // If we see more than 2 failures in a run of 128, then we need to investigate.
         unsigned int truncatedCount=0;
-        for (unsigned int i = 0; i<128; ++i)
+        for (unsigned int i = 0; i<COMP_COUNT; ++i)
         {
             std::string src, dest, rec;
             unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -226,7 +227,7 @@ bool TestCompressors()
     }
 
     // Unzip random data. See if we can induce a crash
-    for (unsigned int i = 0; i<128; i++)
+    for (unsigned int i = 0; i<COMP_COUNT; i++)
     {
         SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -239,7 +240,7 @@ bool TestCompressors()
     }
 
     // Unzip random data. See if we can induce a crash
-    for (unsigned int i = 0; i<128; i++)
+    for (unsigned int i = 0; i<COMP_COUNT; i++)
     {
         SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -274,13 +275,13 @@ bool TestCompressors()
         std::cout << "passed:";
     else
         std::cout << "FAILED:";
-    std::cout << "  128 zips and unzips" << std::endl;
+    std::cout << "  " << COMP_COUNT << " zips and unzips" << std::endl;
 
     // **************************************************************
 
     try
     {
-        for (unsigned int i = 0; i<128; ++i)
+        for (unsigned int i = 0; i<COMP_COUNT; ++i)
         {
             std::string src, dest, rec;
             unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -310,7 +311,7 @@ bool TestCompressors()
     // **************************************************************
 
     // Inflate random data. See if we can induce a crash
-    for (unsigned int i = 0; i<128; i++)
+    for (unsigned int i = 0; i<COMP_COUNT; i++)
     {
         SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -337,7 +338,7 @@ bool TestCompressors()
     }
 
     // Inflate random data. See if we can induce a crash
-    for (unsigned int i = 0; i<128; i++)
+    for (unsigned int i = 0; i<COMP_COUNT; i++)
     {
         SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -353,13 +354,13 @@ bool TestCompressors()
         std::cout << "passed:";
     else
         std::cout << "FAILED:";
-    std::cout << "  128 deflates and inflates\n";
+    std::cout << "  " << COMP_COUNT << " deflates and inflates\n";
 
     // **************************************************************
 
     try
     {
-        for (unsigned int i = 0; i<128; ++i)
+        for (unsigned int i = 0; i<COMP_COUNT; ++i)
         {
             std::string src, dest, rec;
             unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -389,7 +390,7 @@ bool TestCompressors()
     // **************************************************************
 
     // Decompress random data. See if we can induce a crash
-    for (unsigned int i = 0; i<128; i++)
+    for (unsigned int i = 0; i<COMP_COUNT; i++)
     {
         SecByteBlock src;
         unsigned int len = GlobalRNG().GenerateWord32(4, 0xfff);
@@ -416,7 +417,7 @@ bool TestCompressors()
         std::cout << "passed:";
     else
         std::cout << "FAILED:";
-    std::cout << "  128 zlib decompress and compress" << std::endl;
+    std::cout << "  " << COMP_COUNT << " zlib decompress and compress" << std::endl;
 
     // **************************************************************
 
@@ -426,8 +427,30 @@ bool TestCompressors()
 bool TestEncryptors()
 {
     std::cout << "\nTesting Default Encryptors and Decryptors...\n\n";
-    static const unsigned int ENCRYPT_COUNT = 128, ENCRYPT_MAC_COUNT = 64;
-    bool fail1 = false, fail2 = false, fail3 = false, fail4 = false;
+    static const unsigned int ENCRYPT_COUNT = 64, ENCRYPT_MAC_COUNT = 64;
+    bool fail0 = false, fail1 = false, fail2 = false, fail3 = false, fail4 = false;
+
+    // **************************************************************
+
+    try
+    {
+        std::string password = "super secret password";
+        std::string recovered, message = "Now is the time for all good men to come to the aide of their country.";
+        //StringSource(message, true, new DefaultEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac.bin")));
+        FileSource("TestData/defdmac.bin", true, new DefaultDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
+    }
+    catch(const Exception&)
+    {
+        fail0 = true;
+    }
+
+    if (!fail0)
+       std::cout << "passed:";
+    else
+       std::cout << "FAILED:";
+    std::cout << "  cross-platform decryption with MAC of binary file" << std::endl;
+
+    // **************************************************************
 
     try
     {
@@ -614,14 +637,14 @@ bool TestEncryptors()
        std::cout << "FAILED:";
     std::cout << "  " << ENCRYPT_MAC_COUNT << " legacy encryptions and decryptions with MAC" << std::endl;
 
-    return !fail1 && !fail2 && !fail3 && !fail4;
+    return !fail0 && !fail1 && !fail2 && !fail3 && !fail4;
 }
 
 // Information Dispesal and Secret Sharing
 bool TestSharing()
 {
     std::cout << "\nInformation Dispersal and Secret Sharing...\n\n";
-    static const unsigned int INFORMATION_SHARES = 128;
+    static const unsigned int INFORMATION_SHARES = 64;
     static const unsigned int SECRET_SHARES = 64;
     static const unsigned int CHID_LENGTH = 4;
     bool pass=true, fail=false;
