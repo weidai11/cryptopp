@@ -560,10 +560,11 @@ ifneq ($(HAVE_PTHREAD),0)
 endif # CXXFLAGS
 endif # CXXFLAGS
 
-# Remove -fPIC if present. SunCC use -KPIC
+# Remove -fPIC if present. SunCC use -KPIC, and needs the larger GOT table
+# https://docs.oracle.com/cd/E19205-01/819-5267/bkbaq/index.html
 ifeq ($(SUN_COMPILER),1)
   CXXFLAGS := $(subst -fPIC,-KPIC,$(CXXFLAGS))
-  CXXFLAGS := $(subst -fpic,-Kpic,$(CXXFLAGS))
+  CXXFLAGS := $(subst -fpic,-KPIC,$(CXXFLAGS))
 endif
 
 # For SunOS and SunCC Sun wants folks to use -xregs=no%appl
