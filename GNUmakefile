@@ -1,3 +1,4 @@
+
 ###########################################################
 #####        System Attributes and Programs           #####
 ###########################################################
@@ -51,8 +52,8 @@ IS_PPC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'ppc|po
 IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|power64')
 IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
 IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
-IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c 'sparc')
-IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c 'sparc64')
+IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'sun|sparc')
+IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'sun|sparc64')
 
 IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 
@@ -562,7 +563,18 @@ endif # CXXFLAGS
 # Remove -fPIC if present. SunCC use -KPIC
 ifeq ($(SUN_COMPILER),1)
   CXXFLAGS := $(subst -fPIC,-KPIC,$(CXXFLAGS))
+  CXXFLAGS := $(subst -fpic,-Kpic,$(CXXFLAGS))
 endif
+
+# For SunOS and SunCC Sun wants folks to use -xregs=no%appl
+# https://docs.oracle.com/cd/E18659_01/html/821-1383/bkamt.html
+ifeq ($(IS_SUN)$(SUN_COMPILER),11)
+  ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
+    ifeq ($(findstring -xregs=no%appl,$(CXXFLAGS)),)
+      CXXFLAGS += -xregs=no%appl
+    endif  # -xregs
+  endif  # Sparc
+endif  # SunOS
 
 # Remove -fPIC if present. IBM XL C/C++ use -qpic
 ifeq ($(XLC_COMPILER),1)
