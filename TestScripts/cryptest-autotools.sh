@@ -92,8 +92,16 @@ fi
 echo "Updating config.sub"
 wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub' -O config.sub
 
+if [[ -e config.sub ]]; then
+	chmod +x config.sub
+fi
+
 echo "Updating config.guess"
 wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess' -O config.guess
+
+if [[ -e config.guess ]]; then
+	chmod +x config.guess
+fi
 
 if ! ./configure; then
 	echo "configure failed."
