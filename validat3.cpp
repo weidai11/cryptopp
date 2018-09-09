@@ -41,7 +41,6 @@ bool ValidateAll(bool thorough)
 {
 	bool pass=TestSettings();
 	pass=TestOS_RNG() && pass;
-	pass=TestStringSink() && pass;
 	pass=TestRandomPool() && pass;
 #if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 	pass=TestAutoSeededX917() && pass;
@@ -70,6 +69,8 @@ bool ValidateAll(bool thorough)
 	pass=TestHuffmanCodes() && pass;
 	// http://github.com/weidai11/cryptopp/issues/346
 	pass=TestASN1Parse() && pass;
+	// https://github.com/weidai11/cryptopp/pull/334
+	pass=TestStringSink() && pass;
 	// Always part of the self tests; call in Debug
 # if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 	pass=TestAltivecOps() && pass;
@@ -560,26 +561,6 @@ bool TestOS_RNG()
 		std::cout << "\nNo operating system provided nonblocking random number generator, skipping test." << std::endl;
 
 	return pass;
-}
-
-bool TestStringSink()
-{
-	try
-	{
-		std::string in = "The quick brown fox jumps over the lazy dog";
-
-		std::string str;
-		StringSource s1(in, true, new StringSink(str));
-
-		std::vector<byte> vec;
-		StringSource s2(in, true, new VectorSink(vec));
-
-		return str.size() == vec.size() && std::equal(str.begin(), str.end(), vec.begin());
-	}
-	catch(...)
-	{
-	}
-	return false;
 }
 
 bool TestRandomPool()

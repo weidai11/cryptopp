@@ -1488,5 +1488,27 @@ bool TestASN1Parse()
 }
 #endif
 
+#if defined(CRYPTOPP_EXTENDED_VALIDATION)
+bool TestStringSink()
+{
+	try
+	{
+		std::string in = "The quick brown fox jumps over the lazy dog";
+
+		std::string str;
+		StringSource s1(in, true, new StringSink(str));
+
+		std::vector<byte> vec;
+		StringSource s2(in, true, new VectorSink(vec));
+
+		return str.size() == vec.size() && std::equal(str.begin(), str.end(), vec.begin());
+	}
+	catch(const std::exception&)
+	{
+	}
+	return false;
+}
+#endif
+
 NAMESPACE_END  // Test
 NAMESPACE_END  // CryptoPP
