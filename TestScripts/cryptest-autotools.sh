@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+PWD_DIR=$(pwd)
+function cleanup {
+    cd "$PWD_DIR"
+}
+trap cleanup EXIT
+
 GREP=grep
 SED=sed
 AWK=awk
@@ -119,7 +125,7 @@ if ! ./configure; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-make clean 2>/dev/null
+"$MAKE" clean 2>/dev/null
 
 if ! "$MAKE" -j2 -f Makefile; then
 	echo "make failed."

@@ -6,6 +6,11 @@ function cleanup {
 }
 trap cleanup EXIT
 
+# Fixup for Solaris and BSDs
+if [[ ! -z $(command -v gmake) ]]; then
+	MAKE=gmake
+fi
+
 # Feth the three required files
 if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/CMakeLists.txt -O CMakeLists.txt; then
 	echo "CMakeLists.txt download failed"
@@ -28,9 +33,9 @@ if ! cmake ../; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-make clean 2>/dev/null
+"$MAKE" clean 2>/dev/null
 
-if ! make -j2 -f Makefile VERBOSE=1; then
+if ! "$MAKE" -j2 -f Makefile VERBOSE=1; then
 	echo "make failed"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
