@@ -388,7 +388,8 @@ TestData/aria.dat
 TestData/camellia.dat
 TestData/cast128v.dat
 TestData/cast256v.dat
-TestData/defdmac.bin
+TestData/defdmac1.bin
+TestData/defdmac2.bin
 TestData/descert.dat
 TestData/dh1024.dat
 TestData/dh2048.dat

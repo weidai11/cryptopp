@@ -299,8 +299,8 @@ template class DataEncryptor<LegacyBlockCipher,LegacyHashModule,LegacyParameters
 template class DataDecryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo>;
 template class DataEncryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo>;
 template class DataDecryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo>;
-template class DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo>;
-template class DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo>;
+template class DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,LegacyMAC,LegacyParametersInfo>;
+template class DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,LegacyMAC,LegacyParametersInfo>;
 template class DataEncryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo>;
 template class DataDecryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo>;
 

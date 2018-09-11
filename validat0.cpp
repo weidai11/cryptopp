@@ -434,10 +434,22 @@ bool TestEncryptors()
 
     try
     {
+        // Common password and message.
         std::string password = "super secret password";
         std::string recovered, message = "Now is the time for all good men to come to the aide of their country.";
-        //StringSource(message, true, new DefaultEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac.bin")));
-        FileSource("TestData/defdmac.bin", true, new DefaultDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
+
+        // This data was generated with Crypto++ 5.6.2
+        //StringSource(message, true, new LegacyEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac1.bin")));
+        FileSource("TestData/defdmac1.bin", true, new LegacyDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
+        if (message != recovered)
+            throw Exception(Exception::OTHER_ERROR, "LegacyDecryptorWithMAC failed a self test");
+
+        // Reset sink
+        recovered.clear();
+
+        // This data was generated with Crypto++ 6.0
+        //StringSource(message, true, new DefaultEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac2.bin")));
+        FileSource("TestData/defdmac2.bin", true, new DefaultDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
         if (message != recovered)
             throw Exception(Exception::OTHER_ERROR, "DefaultDecryptorWithMAC failed a self test");
     }
@@ -1491,22 +1503,22 @@ bool TestASN1Parse()
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 bool TestStringSink()
 {
-	try
-	{
-		std::string in = "The quick brown fox jumps over the lazy dog";
+    try
+    {
+        std::string in = "The quick brown fox jumps over the lazy dog";
 
-		std::string str;
-		StringSource s1(in, true, new StringSink(str));
+        std::string str;
+        StringSource s1(in, true, new StringSink(str));
 
-		std::vector<byte> vec;
-		StringSource s2(in, true, new VectorSink(vec));
+        std::vector<byte> vec;
+        StringSource s2(in, true, new VectorSink(vec));
 
-		return str.size() == vec.size() && std::equal(str.begin(), str.end(), vec.begin());
-	}
-	catch(const std::exception&)
-	{
-	}
-	return false;
+        return str.size() == vec.size() && std::equal(str.begin(), str.end(), vec.begin());
+    }
+    catch(const std::exception&)
+    {
+    }
+    return false;
 }
 #endif
 

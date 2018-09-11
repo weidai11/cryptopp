@@ -275,12 +275,12 @@ struct DefaultDecryptor : public DataDecryptor<DefaultBlockCipher,DefaultHashMod
 /// \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
 ///   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
 ///   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
-struct LegacyEncryptorWithMAC : public DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo> {};
+struct LegacyEncryptorWithMAC : public DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,LegacyMAC,LegacyParametersInfo> {};
 /// \brief Password-based decryptor with MAC (deprecated)
 /// \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
 ///   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
 ///   <tt>Default*</tt> classes, and the old algorithms are available with the <tt>Legacy*</tt> classes.
-struct LegacyDecryptorWithMAC : public DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo> {};
+struct LegacyDecryptorWithMAC : public DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,LegacyMAC,LegacyParametersInfo> {};
 /// \brief Password-based encryptor with MAC
 /// \details Crypto++ 5.6.5 and earlier used the legacy algorithms, including DES_EDE2 and SHA1.
 ///   Crypto++ 5.7 switched to AES and SHA256. The updated algorithms are available with the
@@ -298,8 +298,8 @@ typedef DataDecryptor<LegacyBlockCipher,LegacyHashModule,LegacyParametersInfo> L
 typedef DataEncryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo> DefaultEncryptor;
 typedef DataDecryptor<DefaultBlockCipher,DefaultHashModule,DefaultParametersInfo> DefaultDecryptor;
 
-typedef DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo> LegacyEncryptorWithMAC;
-typedef DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,DefaultMAC,LegacyParametersInfo> LegacyDecryptorWithMAC;
+typedef DataEncryptorWithMAC<LegacyBlockCipher,LegacyHashModule,LegacyMAC,LegacyParametersInfo> LegacyEncryptorWithMAC;
+typedef DataDecryptorWithMAC<LegacyBlockCipher,LegacyHashModule,LegacyMAC,LegacyParametersInfo> LegacyDecryptorWithMAC;
 
 typedef DataEncryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo> DefaultEncryptorWithMAC;
 typedef DataDecryptorWithMAC<DefaultBlockCipher,DefaultHashModule,DefaultMAC,DefaultParametersInfo> DefaultDecryptorWithMAC;
