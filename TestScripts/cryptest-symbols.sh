@@ -6,6 +6,12 @@
 # This is a test script that can be used on some Linux/Unix/Apple machines to automate testing
 # of the shared object to ensure linking and symbols don't go missing from release to release.
 
+# Fixup ancient Bash
+# https://unix.stackexchange.com/q/468579/56041
+if [[ -z "$BASH_SOURCE" ]]; then
+	BASH_SOURCE="$0"
+fi
+
 ############################################
 # Tags to test
 

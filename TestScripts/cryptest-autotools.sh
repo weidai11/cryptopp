@@ -11,6 +11,12 @@ SED=sed
 AWK=awk
 MAKE=make
 
+# Fixup ancient Bash
+# https://unix.stackexchange.com/q/468579/56041
+if [[ -z "$BASH_SOURCE" ]]; then
+	BASH_SOURCE="$0"
+fi
+
 # Fixup, Solaris and friends
 if [[ (-d /usr/xpg4/bin) ]]; then
 	SED=/usr/xpg4/bin/sed

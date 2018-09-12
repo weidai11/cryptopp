@@ -143,6 +143,12 @@ int scoped_main(int argc, char *argv[])
 	_CrtSetDbgFlag( tempflag );
 #endif
 
+#ifdef _SUNPRO_CC
+	// No need for thread safety for the test program
+	cout.set_safe_flag(stream_MT::unsafe_object);
+	cin.set_safe_flag(stream_MT::unsafe_object);
+#endif
+
 	try
 	{
 		RegisterFactories(All);
