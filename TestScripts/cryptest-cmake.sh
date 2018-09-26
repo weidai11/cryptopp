@@ -15,6 +15,8 @@ fi
 # Fixup for Solaris and BSDs
 if [[ ! -z $(command -v gmake) ]]; then
 	MAKE=gmake
+else
+	MAKE=make
 fi
 
 # Feth the three required files
