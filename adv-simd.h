@@ -291,7 +291,7 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
             inIncrement += inIncrement ? blockSize : 0;
             xorIncrement += xorIncrement ? blockSize : 0;
             outIncrement += outIncrement ? blockSize : 0;
-            inBlocks = PtrAdd(inBlocks, inIncrement);
+            inBlocks = PtrSub(inBlocks, inIncrement);
             xorBlocks = PtrSub(xorBlocks, xorIncrement);
             outBlocks = PtrSub(outBlocks, outIncrement);
         }
