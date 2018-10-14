@@ -20,7 +20,7 @@
 //    big endian, so SHA{N}_HashMultipleBlock accepts a ByteOrder for the incoming data
 //    arrangement. Hardware based SHA{N}_HashMultipleBlock can often perform the endian
 //    swap much easier by setting an EPI mask. Endian swap incurs no penalty on Intel SHA,
-//    and 4-instruction penaly on ARM SHA. Under C++ the full software based swap penalty
+//    and 4-instruction penalty on ARM SHA. Under C++ the full software based swap penalty
 //    is incurred due to use of ReverseBytes().
 //
 //    The rework also removed the hacked-in pointers to implementations.
