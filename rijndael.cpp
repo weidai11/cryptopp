@@ -345,25 +345,21 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *su
 #endif
 
 #if (CRYPTOGAMS_ARM_AES)
-int CRYPTOPP_NOINLINE
-CRYPTOGAMS_set_encrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
+int CRYPTOGAMS_set_encrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
 {
 	return AES_set_encrypt_key(userKey, bitLen, rkey);
 }
-int CRYPTOPP_NOINLINE
-CRYPTOGAMS_set_decrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
+int CRYPTOGAMS_set_decrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
 {
 	return AES_set_decrypt_key(userKey, bitLen, rkey);
 }
-void CRYPTOPP_NOINLINE
-CRYPTOGAMS_encrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
+void CRYPTOGAMS_encrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
 {
 	AES_encrypt(inBlock, outBlock, rkey);
 	if (xorBlock)
 		xorbuf (outBlock, xorBlock, 16);
 }
-void CRYPTOPP_NOINLINE
-CRYPTOGAMS_decrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
+void CRYPTOGAMS_decrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
 {
 	AES_decrypt(inBlock, outBlock, rkey);
 	if (xorBlock)
