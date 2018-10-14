@@ -88,6 +88,8 @@ bool ValidateSIMECK();
 bool ValidateCHAM();
 bool ValidateHIGHT();
 bool ValidateLEA();
+bool ValidateSIMON();
+bool ValidateSPECK();
 bool ValidateCamellia();
 
 bool ValidateHC128();

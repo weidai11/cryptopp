@@ -145,6 +145,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateHIGHT() && pass;
 	pass=ValidateLEA() && pass;
 	pass=ValidateSIMECK() && pass;
+	pass=ValidateSIMON() && pass;
+	pass=ValidateSPECK() && pass;
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
 	pass=ValidateSosemanuk() && pass;

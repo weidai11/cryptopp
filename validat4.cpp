@@ -1682,6 +1682,20 @@ bool ValidateLEA()
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/lea.txt");
 }
 
+bool ValidateSIMON()
+{
+	std::cout << "\nSIMON validation suite running...\n";
+
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/simon.txt");
+}
+
+bool ValidateSPECK()
+{
+	std::cout << "\nSPECK validation suite running...\n";
+
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/speck.txt");
+}
+
 bool ValidateCamellia()
 {
 	std::cout << "\nCamellia validation suite running...\n\n";
