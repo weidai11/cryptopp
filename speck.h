@@ -47,6 +47,10 @@ NAMESPACE_BEGIN(CryptoPP)
 template <unsigned int L, unsigned int D, unsigned int N, unsigned int M>
 struct SPECK_Info : public FixedBlockSize<L>, VariableKeyLength<D, N, M>
 {
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize(Keylength)
@@ -90,6 +94,10 @@ public:
     class CRYPTOPP_NO_VTABLE Base : protected SPECK_Base<word32>, public BlockCipherImpl<SPECK_Info<8, 12, 12, 16> >
     {
     public:
+        /// \brief The algorithm name
+        /// \returns the algorithm name
+        /// \details AlgorithmName returns the algorithm's name as a
+        ///   member function.
         std::string AlgorithmName() const {
             return StaticAlgorithmName() + (m_kwords == 0 ? "" :
                 "(" + IntToString(m_kwords*sizeof(word32)*8) + ")");
@@ -149,6 +157,10 @@ public:
     class CRYPTOPP_NO_VTABLE Base : protected SPECK_Base<word64>, public BlockCipherImpl<SPECK_Info<16, 16, 16, 32> >
     {
     public:
+        /// \brief The algorithm name
+        /// \returns the algorithm name
+        /// \details AlgorithmName returns the algorithm's name as a
+        ///   member function.
         std::string AlgorithmName() const {
             return StaticAlgorithmName() + (m_kwords == 0 ? "" :
                 "(" + IntToString(m_kwords*sizeof(word64)*8) + ")");

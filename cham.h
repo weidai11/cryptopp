@@ -31,6 +31,10 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 7.1
 struct CHAM64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 {
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize
@@ -42,6 +46,10 @@ struct CHAM64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 /// \since Crypto++ 7.1
 struct CHAM128_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,32,16>
 {
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize
