@@ -390,7 +390,7 @@ void Benchmark1(double t, double hertz)
 
 	const char *cpb;
 	if (g_hertz > 1.0f)
-		cpb = "<TH>Cycles Per Byte";
+		cpb = "<TH>Cycles/Byte";
 	else
 		cpb = "";
 

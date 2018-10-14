@@ -82,7 +82,7 @@ void Benchmark2(double t, double hertz)
 	const char *cpb, *cpk;
 	if (g_hertz > 1.0f)
 	{
-		cpb = "<TH>Cycles Per Byte";
+		cpb = "<TH>Cycles/Byte";
 		cpk = "<TH>Cycles to<BR>Setup Key and IV";
 	}
 	else
