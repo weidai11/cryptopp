@@ -42,12 +42,6 @@ class FixedBlockSize
 public:
 	/// \brief The block size of the algorithm provided as a constant.
 	CRYPTOPP_CONSTANT(BLOCKSIZE = N)
-	/// \brief The default blocksize for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(DEFAULT_BLOCKSIZE = N)
-	/// \brief The minimum blocksize for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(MIN_BLOCKSIZE = N)
-	/// \brief The maximum blocksize for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(MAX_BLOCKSIZE = N)
 };
 
 // ************** rounds ***************
