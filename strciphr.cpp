@@ -199,7 +199,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//       Using 'outString' for both input and output leads to incorrect results.
 	//
 	//       Benchmarking on Cortex-A7 and Cortex-A9 indicates removing the block
-	//       below does not have a material effect on performance.
+	//       below costs about 9 cpb for CFB mode on ARM.
 	//
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
 	//
@@ -235,8 +235,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			// One workaround is a distinct and aligned temporary buffer. It [mostly] works
 			// as expected but requires an extra allocation (casts not shown):
 			//
-			//   std::string temp(length);
-			//   std::memcpy(&temp[0], inString, length);
+			//   std::string temp(inString, length);
 			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
 			//
 			memcpy(outString, inString, length);
