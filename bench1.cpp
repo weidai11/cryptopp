@@ -45,6 +45,23 @@ double g_allocatedTime = 0.0, g_hertz = 0.0, g_logTotal = 0.0;
 unsigned int g_logCount = 0;
 time_t g_testBegin, g_testEnd;
 
+inline std::string HertzToString(double hz)
+{
+	std::ostringstream oss;
+	oss.precision(3);
+
+	if (hz >= 0.999e+9)
+		oss << hz / 1e+9 << " GHz";
+	else if (hz >= 0.999e+6)
+		oss << hz / 1e+6 << " MHz";
+	else if (hz >= 0.999e+3)
+		oss << hz / 1e+3 << " KHz";
+	else
+		oss << hz << " Hz";
+
+	return oss.str();
+}
+
 void OutputResultBytes(const char *name, const char *provider, double length, double timeTaken)
 {
 	std::ostringstream oss;
@@ -305,7 +322,7 @@ void AddHtmlHeader()
 	oss << "\n<P>Here are speed benchmarks for some commonly used cryptographic algorithms.</P>";
 
 	if (g_hertz > 1.0f)
-		oss << "\n<P>CPU frequency of the test platform is " << g_hertz << " Hz.</P>";
+		oss << "\n<P>CPU frequency of the test platform is " << HertzToString(g_hertz) << ".</P>";
 	else
 		oss << "\n<P>CPU frequency of the test platform was not provided.</P>" << std::endl;
 
