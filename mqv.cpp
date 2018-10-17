@@ -8,6 +8,9 @@
 #include "hmqv.h"
 #include "fhmqv.h"
 
+// Squash MS LNK4221 and libtool warnings
+extern const char MQV_FNAME[] = __FILE__;
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
