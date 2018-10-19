@@ -61,7 +61,7 @@ public:
 	/// \details padding is set to -1, which means use default padding. If not
 	///   required, then the value must be set via IsolatedInitialize().
 	BaseN_Decoder(BufferedTransformation *attachment=NULLPTR)
-		: m_lookup(NULLPTR), m_padding(0), m_bitsPerChar(0)
+		: m_lookup(NULLPTR), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 			{Detach(attachment);}
 
@@ -74,7 +74,7 @@ public:
 	/// \details padding is set to -1, which means use default padding. If not
 	///   required, then the value must be set via IsolatedInitialize().
 	BaseN_Decoder(const int *lookup, int log2base, BufferedTransformation *attachment=NULLPTR)
-		: m_lookup(NULLPTR), m_padding(0), m_bitsPerChar(0)
+		: m_lookup(NULLPTR), m_bitsPerChar(0)
 		, m_outputBlockSize(0), m_bytePos(0), m_bitPos(0)
 	{
 		Detach(attachment);
@@ -98,7 +98,7 @@ public:
 
 private:
 	const int *m_lookup;
-	int m_padding, m_bitsPerChar, m_outputBlockSize;
+	int m_bitsPerChar, m_outputBlockSize;
 	int m_bytePos, m_bitPos;
 	SecByteBlock m_outBuf;
 };
