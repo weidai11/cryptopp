@@ -406,7 +406,7 @@ bool TestSettings()
 bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 {
 	bool pass = true, result = true;
-	const size_t GENERATE_SIZE = 1024*10, ENTROPY_SIZE = 32;
+	const size_t GENERATE_SIZE = 1024*10, DISCARD_SIZE = 256, ENTROPY_SIZE = 32;
 
 	if(drain)
 	{
@@ -438,9 +438,9 @@ bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 			GlobalRNG().GenerateBlock(entropy, entropy.SizeInBytes());
 
 			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
-			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
-			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
-			prng.IncorporateEntropy(entropy, entropy.SizeInBytes());
+			prng.IncorporateEntropy(entropy, entropy.SizeInBytes()-1);
+			prng.IncorporateEntropy(entropy, entropy.SizeInBytes()-2);
+			prng.IncorporateEntropy(entropy, entropy.SizeInBytes()-3);
 		}
 	}
 	catch (const Exception& /*ex*/)
@@ -481,7 +481,10 @@ bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 	try
 	{
 		pass = true;
-		prng.DiscardBytes(GENERATE_SIZE);
+		prng.DiscardBytes(DISCARD_SIZE);
+		prng.DiscardBytes(DISCARD_SIZE-1);
+		prng.DiscardBytes(DISCARD_SIZE-2);
+		prng.DiscardBytes(DISCARD_SIZE-3);
 	}
 	catch (const Exception&)
 	{
@@ -493,7 +496,7 @@ bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 		std::cout << "FAILED:";
 	else
 		std::cout << "passed:";
-	std::cout << "  DiscardBytes with " << GENERATE_SIZE << " bytes\n";
+	std::cout << "  DiscardBytes with " << 4*DISCARD_SIZE << " bytes\n";
 
 	// Miscellaneous for code coverage
 	(void)prng.AlgorithmName();  // "unknown"
@@ -517,9 +520,8 @@ bool TestOS_RNG()
 
 		MeterFilter meter(new Redirector(TheBitBucket()));
 		RandomNumberSource test(*rng, UINT_MAX, false, new Deflator(new Redirector(meter)));
-		unsigned long total=0, length=0;
+		unsigned long total=0;
 		time_t t = time(NULLPTR), t1 = 0;
-		CRYPTOPP_UNUSED(length);
 
 		// check that it doesn't take too long to generate a reasonable amount of randomness
 		while (total < 16 && (t1 < 10 || total*8 > (unsigned long)t1))
@@ -537,38 +539,6 @@ bool TestOS_RNG()
 		else
 			std::cout << "passed:";
 		std::cout << "  it took " << long(t1) << " seconds to generate " << total << " bytes" << std::endl;
-
-#if 0	// disable this part. it's causing an unpredictable pause during the validation testing
-		if (t1 < 2)
-		{
-			// that was fast, are we really blocking?
-			// first exhaust the extropy reserve
-			t = time(NULLPTR);
-			while (time(NULLPTR) - t < 2)
-			{
-				test.Pump(1);
-				total += 1;
-			}
-
-			// if it generates too many bytes in a certain amount of time,
-			// something's probably wrong
-			t = time(NULLPTR);
-			while (time(NULLPTR) - t < 2)
-			{
-				test.Pump(1);
-				total += 1;
-				length += 1;
-			}
-			if (length > 1024)
-			{
-				std::cout << "FAILED:";
-				pass = false;
-			}
-			else
-				std::cout << "passed:";
-			std::cout << "  it generated " << length << " bytes in " << long(time(NULLPTR) - t) << " seconds" << std::endl;
-		}
-#endif
 
 		test.AttachedTransformation()->MessageEnd();
 
