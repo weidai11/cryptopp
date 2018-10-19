@@ -477,7 +477,6 @@ bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 		std::cout << "passed:";
 	std::cout << "  GenerateWord32 and Crop\n";
 
-
 	try
 	{
 		pass = true;
@@ -501,6 +500,7 @@ bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 	// Miscellaneous for code coverage
 	(void)prng.AlgorithmName();  // "unknown"
 
+	CRYPTOPP_ASSERT(result);
 	return result;
 }
 
@@ -594,6 +594,7 @@ bool TestOS_RNG()
 		std::cout << "\nNo operating system provided non-blocking random number generator, skipping test." << std::endl;
 #endif
 
+	CRYPTOPP_ASSERT(pass);
 	return pass;
 }
 
@@ -677,18 +678,39 @@ bool TestMersenne()
 {
 	std::cout << "\nTesting Mersenne Twister...\n\n";
 
-	MT19937ar prng;
+	member_ptr<RandomNumberGenerator> rng;
 	bool pass = true;
 
-	pass = Test_RandomNumberGenerator(prng);
+	try {rng.reset(new MT19937ar);}
+	catch (const PadlockRNG_Err &) {}
 
-	// First 10; http://create.stephan-brumme.com/mersenne-twister/
-	word32 result[10], expected[10] = {0xD091BB5C, 0x22AE9EF6,
-		0xE7E1FAEE, 0xD5C31F79, 0x2082352C, 0xF807B7DF, 0xE9D30005,
-		0x3895AFE1, 0xA1E24BBA, 0x4EE4092B};
+	if(rng.get())
+	{
+		pass = Test_RandomNumberGenerator(*rng.get());
+	}
 
-	prng.GenerateBlock(reinterpret_cast<byte*>(result), sizeof(result));
-	pass = (0 == std::memcmp(result, expected, sizeof(expected))) && pass;
+	// Reset state
+	try {rng.reset(new MT19937ar);}
+	catch (const PadlockRNG_Err &) {}
+
+	if(rng.get())
+	{
+		// First 10; http://create.stephan-brumme.com/mersenne-twister/
+		word32 result[10], expected[10] = {
+			0xD091BB5C, 0x22AE9EF6, 0xE7E1FAEE, 0xD5C31F79,
+			0x2082352C, 0xF807B7DF, 0xE9D30005, 0x3895AFE1,
+			0xA1E24BBA, 0x4EE4092B
+		};
+
+		rng->GenerateBlock(reinterpret_cast<byte*>(result), sizeof(result));
+		pass = (0 == std::memcmp(result, expected, sizeof(expected))) && pass;
+
+		if (!pass)
+			std::cout << "FAILED:";
+		else
+			std::cout << "passed:";
+		std::cout << "  Expected sequence from MT19937\n";
+	}
 
 	return pass;
 }
