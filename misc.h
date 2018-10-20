@@ -1223,7 +1223,9 @@ void SecureWipeBuffer(T *buf, size_t n)
 		*(--p) = 0;
 }
 
-#if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
+#if !defined(CRYPTOPP_DISABLE_ASM) && \
+    (_MSC_VER >= 1400 || defined(__GNUC__)) && \
+    (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
 
 /// \brief Sets each byte of an array to 0
 /// \param buf an array of bytes
