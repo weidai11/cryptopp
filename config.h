@@ -61,6 +61,11 @@
 // explictly use the ISAs.
 // #define CRYPTOPP_DISABLE_ASM 1
 
+// https://github.com/weidai11/cryptopp/issues/719
+#if defined(__native_client__)
+# define CRYPTOPP_DISABLE_ASM 1
+#endif
+
 // Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
 // end of this file. Some compilers and standard C++ headers advertise C++11
 // but they are really just C++03 with some additional C++11 headers and
@@ -250,9 +255,13 @@ typedef signed int sword32;
 typedef word64 lword;
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
-// Clang pretends to be VC++, too.
-//   See http://github.com/weidai11/cryptopp/issues/147
-#if defined(_MSC_VER) && defined(__clang__)
+// It is OK to remove the hard stop below, but you are on your own.
+//   After building the library be sure to run self tests described
+//   https://www.cryptopp.com/wiki/Release_Process#Self_Tests
+// Some relevant bug reports can be found at:
+//   * Clang: http://github.com/weidai11/cryptopp/issues/147
+//   * Native Client: https://github.com/weidai11/cryptopp/issues/719
+#if (defined(_MSC_VER) && defined(__clang__))
 # error: "Unsupported configuration"
 #endif
 
@@ -470,7 +479,7 @@ NAMESPACE_END
 
 // Apple Clang prior to 5.0 cannot handle SSE2
 #if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
-# define CRYPTOPP_DISABLE_ASM
+# define CRYPTOPP_DISABLE_ASM 1
 #endif
 
 // Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
