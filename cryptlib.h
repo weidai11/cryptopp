@@ -1435,7 +1435,7 @@ public:
 };
 
 /// \brief Interface for key derivation functions
-/// \since Crypto++ 6.2
+/// \since Crypto++ 7.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyDerivationFunction : public Algorithm
 {
 public:
@@ -1499,7 +1499,7 @@ protected:
 };
 
 /// \brief Interface for password based key derivation functions
-/// \since Crypto++ 6.2
+/// \since Crypto++ 7.0
 struct PasswordBasedKeyDerivationFunction : public KeyDerivationFunction
 {
 };

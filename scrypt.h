@@ -8,7 +8,7 @@
 ///   <A HREF="https://www.tarsnap.com/scrypt.html">The scrypt key derivation function</A>
 ///   and <A HREF="https://tools.ietf.org/html/rfc7914">RFC 7914, The scrypt Password-Based
 ///   Key Derivation Function</A>
-/// \since Crypto++ 6.2
+/// \since Crypto++ 7.0
 
 #ifndef CRYPTOPP_SCRYPT_H
 #define CRYPTOPP_SCRYPT_H
@@ -29,7 +29,7 @@ NAMESPACE_BEGIN(CryptoPP)
 ///   <A HREF="https://www.tarsnap.com/scrypt.html">The scrypt key derivation function</A>
 ///   and <A HREF="https://tools.ietf.org/html/rfc7914">RFC 7914, The scrypt Password-Based
 ///   Key Derivation Function</A>
-/// \since Crypto++ 6.2
+/// \since Crypto++ 7.0
 class Scrypt : public KeyDerivationFunction
 {
 public:
