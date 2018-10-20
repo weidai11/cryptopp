@@ -604,7 +604,7 @@ bool TestRandomPool()
 	bool pass=true;
 
 	try {prng.reset(new RandomPool);}
-	catch (OS_RNG_Err &) {}
+	catch (Exception &) {}
 
 	if(prng.get())
 	{
@@ -614,7 +614,7 @@ bool TestRandomPool()
 
 #if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 	try {prng.reset(new AutoSeededRandomPool);}
-	catch (OS_RNG_Err &) {}
+	catch (Exception &) {}
 
 	if(prng.get())
 	{
@@ -626,7 +626,7 @@ bool TestRandomPool()
 	// Old, PGP 2.6 style RandomPool. Added because users were still having problems
 	//  with it in 2017. The missing functionality was a barrier to upgrades.
 	try {prng.reset(new OldRandomPool);}
-	catch (OS_RNG_Err &) {}
+	catch (Exception &) {}
 
 	if(prng.get())
 	{
