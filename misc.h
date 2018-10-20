@@ -1213,11 +1213,13 @@ inline void ConditionalSwapPointers(bool c, T &a, T &b)
 /// \tparam T class or type
 /// \param buf an array of elements
 /// \param n the number of elements in the array
-/// \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal
+/// \details The operation performs a wipe or zeroization. The function
+///   attempts to survive optimizations and dead code removal.
 template <class T>
 void SecureWipeBuffer(T *buf, size_t n)
 {
-	// GCC 4.3.2 on Cygwin optimizes away the first store if this loop is done in the forward direction
+	// GCC 4.3.2 on Cygwin optimizes away the first store if this
+	// loop is done in the forward direction
 	volatile T *p = buf+n;
 	while (n--)
 		*(--p) = 0;
@@ -1230,7 +1232,8 @@ void SecureWipeBuffer(T *buf, size_t n)
 /// \brief Sets each byte of an array to 0
 /// \param buf an array of bytes
 /// \param n the number of elements in the array
-/// \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
+/// \details The operation performs a wipe or zeroization. The function
+///   attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 {
 	volatile byte *p = buf;
@@ -1244,7 +1247,8 @@ template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 /// \brief Sets each 16-bit element of an array to 0
 /// \param buf an array of 16-bit words
 /// \param n the number of elements in the array
-/// \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
+/// \details The operation performs a wipe or zeroization. The function
+///   attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 {
 	volatile word16 *p = buf;
@@ -1258,7 +1262,8 @@ template<> inline void SecureWipeBuffer(word16 *buf, size_t n)
 /// \brief Sets each 32-bit element of an array to 0
 /// \param buf an array of 32-bit words
 /// \param n the number of elements in the array
-/// \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
+/// \details The operation performs a wipe or zeroization. The function
+///   attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 {
 	volatile word32 *p = buf;
@@ -1272,24 +1277,25 @@ template<> inline void SecureWipeBuffer(word32 *buf, size_t n)
 /// \brief Sets each 64-bit element of an array to 0
 /// \param buf an array of 64-bit words
 /// \param n the number of elements in the array
-/// \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
+/// \details The operation performs a wipe or zeroization. The function
+///   attempts to survive optimizations and dead code removal.
 template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 {
 #if CRYPTOPP_BOOL_X64
 	volatile word64 *p = buf;
-#ifdef __GNUC__
+# ifdef __GNUC__
 	asm volatile("rep stosq" : "+c"(n), "+D"(p) : "a"(0) : "memory");
-#else
+# else
 	__stosq(reinterpret_cast<word64 *>(reinterpret_cast<size_t>(p)), 0, n);
-#endif
+# endif
 #else
 	SecureWipeBuffer(reinterpret_cast<word32 *>(buf), 2*n);
 #endif
 }
 
-#endif	// #if (_MSC_VER >= 1400 || defined(__GNUC__)) && (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86)
+#endif	// CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X86
 
-#if (_MSC_VER >= 1700) && defined(_M_ARM)
+#if !defined(CRYPTOPP_DISABLE_ASM) && (_MSC_VER >= 1700) && defined(_M_ARM)
 template<> inline void SecureWipeBuffer(byte *buf, size_t n)
 {
 	char *p = reinterpret_cast<char*>(buf+n);
@@ -1323,7 +1329,8 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 /// \tparam T class or type
 /// \param buf an array of elements
 /// \param n the number of elements in the array
-/// \details The operation performs a wipe or zeroization. The function attempts to survive optimizations and dead code removal.
+/// \details The operation performs a wipe or zeroization. The function
+///   attempts to survive optimizations and dead code removal.
 template <class T>
 inline void SecureWipeArray(T *buf, size_t n)
 {
@@ -1868,7 +1875,7 @@ template<> inline word32 rotrMod<word32>(word32 x, unsigned int y)
 	return (__rlwnm(x,32-y,0,31));
 }
 
-#endif // #if (defined(__MWERKS__) && TARGET_CPU_PPC)
+#endif // __MWERKS__ && TARGET_CPU_PPC
 
 // ************** endian reversal ***************
 
