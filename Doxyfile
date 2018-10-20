@@ -1498,7 +1498,8 @@ MATHJAX_CODEFILE       =
 
 # Enabled by JW for server-side search, Aug 2018
 # https://www.stack.nl/~dimitri/doxygen/manual/searching.html
-SEARCHENGINE           = YES
+# SEARCHENGINE           = YES
+SEARCHENGINE		 = NO
 
 # When the SERVER_BASED_SEARCH tag is enabled the search engine will be
 # implemented using a web server instead of a web client using Javascript. There
@@ -1513,7 +1514,7 @@ SEARCHENGINE           = YES
 # Enabled by JW for server-side search, Aug 2018
 # https://www.stack.nl/~dimitri/doxygen/manual/searching.html
 # SERVER_BASED_SEARCH    = YES
-SERVER_BASED_SEARCH    = NO
+SERVER_BASED_SEARCH	 = NO
 
 # When EXTERNAL_SEARCH tag is enabled doxygen will no longer generate the PHP
 # script for searching. Instead the search results are written to an XML file
