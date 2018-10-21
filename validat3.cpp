@@ -732,7 +732,6 @@ bool TestMersenne()
 		PadlockRNG& padlock = dynamic_cast<PadlockRNG&>(*rng.get());
 		pass = Test_RandomNumberGenerator(padlock);
 
-		static const unsigned int SIZE = 10000;
 		SecByteBlock zero(16), one(16), t(16);
 
 		// Cryptography Research, Inc tests
