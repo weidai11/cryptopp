@@ -1225,9 +1225,6 @@ DOCSET_PUBLISHER_NAME  = Crypto++
 # compressed HTML files.
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
-
-# Disabled by JW for server-side search, Aug 2018
-# https://www.stack.nl/~dimitri/doxygen/manual/searching.html
 GENERATE_HTMLHELP      = NO
 
 # The CHM_FILE tag can be used to specify the file name of the resulting .chm
@@ -1496,9 +1493,9 @@ MATHJAX_CODEFILE       =
 # The default value is: YES.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-# Enabled by JW for server-side search, Aug 2018
-# https://www.stack.nl/~dimitri/doxygen/manual/searching.html
-# SEARCHENGINE           = YES
+# JW: Do _not_ enable server-side search. It consumes too many resources
+# and results in OOM Kills on MySQL, which corrupts the database.
+# https://github.com/weidai11/cryptopp/issues/720
 SEARCHENGINE		 = NO
 
 # When the SERVER_BASED_SEARCH tag is enabled the search engine will be
@@ -1511,9 +1508,9 @@ SEARCHENGINE		 = NO
 # The default value is: NO.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-# Enabled by JW for server-side search, Aug 2018
-# https://www.stack.nl/~dimitri/doxygen/manual/searching.html
-# SERVER_BASED_SEARCH    = YES
+# JW: Do _not_ enable server-side search. It consumes too many resources
+# and results in OOM Kills on MySQL, which corrupts the database.
+# https://github.com/weidai11/cryptopp/issues/720
 SERVER_BASED_SEARCH	 = NO
 
 # When EXTERNAL_SEARCH tag is enabled doxygen will no longer generate the PHP
