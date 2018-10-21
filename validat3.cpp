@@ -733,6 +733,8 @@ bool TestMersenne()
 		pass = Test_RandomNumberGenerator(padlock);
 
 		SecByteBlock zero(16), one(16), t(16);
+		std::memset(zero, 0x00, zero.size());
+		std::memset( one, 0xff,  one.size());
 
 		// Cryptography Research, Inc tests
 		word32 oldDivisor = padlock.SetDivisor(0);
