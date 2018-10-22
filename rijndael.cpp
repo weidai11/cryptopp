@@ -120,15 +120,6 @@ static volatile bool s_TeFilled = false, s_TdFilled = false;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_one[] = {0, 0, 0, 1<<24};
-
-/* for 128-bit blocks, Rijndael never uses more than 10 rcon values */
-CRYPTOPP_ALIGN_DATA(16)
-const word32 s_rconLE[] = {
-	0x01, 0x02, 0x04, 0x08,	0x10, 0x20, 0x40, 0x80,	0x1B, 0x36
-};
-
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
 
 // Determine whether the range between begin and end overlaps
