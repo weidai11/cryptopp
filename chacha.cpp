@@ -12,8 +12,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-extern void ChaCha_OperateKeystream_SSE2(KeystreamOperation operation, byte *output,
-                const word32 *state, size_t iterationCount, unsigned int rounds);
+extern void ChaCha_OperateKeystream_SSE2(const word32 *state, byte *message, unsigned int rounds);
 #endif
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
@@ -104,7 +103,7 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 	{
 		while (iterationCount >= 4)
 		{
-			ChaCha_OperateKeystream_SSE2(operation, output, m_state, iterationCount, m_rounds);
+			ChaCha_OperateKeystream_SSE2(m_state, output, m_rounds);
 
 			if ((operation & INPUT_NULL) != INPUT_NULL)
 				xorbuf(output, input, 4*BYTES_PER_ITERATION);
