@@ -51,6 +51,7 @@ cbcmac.h
 ccm.cpp
 ccm.h
 chacha.cpp
+chacha-simd.cpp
 chacha.h
 cham.cpp
 cham-simd.cpp

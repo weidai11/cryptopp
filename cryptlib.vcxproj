@@ -191,6 +191,7 @@
     <ClCompile Include="cbcmac.cpp" />
     <ClCompile Include="ccm.cpp" />
     <ClCompile Include="chacha.cpp" />
+    <ClCompile Include="chacha-simd.cpp" />
     <ClCompile Include="cham.cpp" />
     <ClCompile Include="cham-simd.cpp" />
     <ClCompile Include="channels.cpp" />

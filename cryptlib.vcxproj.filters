@@ -86,6 +86,9 @@
     <ClCompile Include="chacha.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="chacha-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cham.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

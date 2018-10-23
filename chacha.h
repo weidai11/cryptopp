@@ -35,10 +35,15 @@ protected:
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
-	bool CipherIsRandomAccess() const {return false;} // TODO
+	bool CipherIsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);
+
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	unsigned int GetAlignment() const;
 	unsigned int GetOptimalBlockSize() const;
+#endif
+
+	std::string AlgorithmProvider() const;
 
 	FixedSizeAlignedSecBlock<word32, 16> m_state;
 	int m_rounds;

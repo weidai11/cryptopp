@@ -41,6 +41,7 @@ protected:
 	void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
 	bool CipherIsRandomAccess() const {return true;}
 	void SeekToIteration(lword iterationCount);
+
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	unsigned int GetAlignment() const;
 	unsigned int GetOptimalBlockSize() const;

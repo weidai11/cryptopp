@@ -11,6 +11,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+extern
+void ChaCha_OperateKeystream_SSE2(KeystreamOperation operation, byte *output,
+        const word32 *state, size_t iterationCount, unsigned int rounds);
+#endif
+
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
     a += b; d ^= a; d = rotlConstant<16,word32>(d); \
     c += d; b ^= c; b = rotlConstant<12,word32>(b); \
@@ -23,6 +29,15 @@ void ChaCha_TestInstantiations()
 	ChaCha::Encryption x;
 }
 #endif
+
+std::string ChaCha_Policy::AlgorithmProvider() const
+{
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
+	if (HasSSE2())
+		return "SSE2";
+#endif
+	return "C++";
+}
 
 void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
@@ -58,19 +73,19 @@ void ChaCha_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, s
 
 void ChaCha_Policy::SeekToIteration(lword iterationCount)
 {
-	CRYPTOPP_UNUSED(iterationCount);
-	throw NotImplemented(std::string(ChaCha_Info::StaticAlgorithmName()) + ":  SeekToIteration is not yet implemented");
-
 	// TODO: these were Salsa20, and Wei re-arranged the state array for SSE2 operations.
 	// If we can generate some out-of-band test vectors, then test and implement. Also
 	//  see the test vectors in salsa.txt and the use of Seek test argument.
 	// m_state[8] = (word32)iterationCount;
 	// m_state[5] = (word32)SafeRightShift<32>(iterationCount);
+
+	m_state[13] = (word32)iterationCount;
+	m_state[12] = (word32)SafeRightShift<32>(iterationCount);
 }
 
 unsigned int ChaCha_Policy::GetAlignment() const
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
 	if (HasSSE2())
 		return 16;
 	else
@@ -80,7 +95,7 @@ unsigned int ChaCha_Policy::GetAlignment() const
 
 unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_SSE2_ASM_AVAILABLE && 0
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
 	if (HasSSE2())
 		return 4*BYTES_PER_ITERATION;
 	else
@@ -88,12 +103,34 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 		return BYTES_PER_ITERATION;
 }
 
-void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
+void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
+        byte *output, const byte *input, size_t iterationCount)
 {
-	word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
+#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
+	if (HasSSE2())
+	{
+		while (iterationCount >= 4)
+		{
+			ChaCha_OperateKeystream_SSE2(operation, output, m_state, iterationCount, m_rounds);
+
+			if ((operation & INPUT_NULL) != INPUT_NULL)
+				xorbuf(output, input, 4*BYTES_PER_ITERATION);
+
+			m_state[12] += 4;
+			if (m_state[12] < 4)
+				m_state[13]++;
+
+			input += 4*BYTES_PER_ITERATION;
+			output += 4*BYTES_PER_ITERATION;
+			iterationCount -= 4;
+		}
+	}
+#endif
 
 	while (iterationCount--)
 	{
+		word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
+
 		x0 = m_state[0];	x1 = m_state[1];	x2 = m_state[2];	x3 = m_state[3];
 		x4 = m_state[4];	x5 = m_state[5];	x6 = m_state[6];	x7 = m_state[7];
 		x8 = m_state[8];	x9 = m_state[9];	x10 = m_state[10];	x11 = m_state[11];
@@ -112,7 +149,7 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output,
 			CHACHA_QUARTER_ROUND(x3, x4,  x9, x14);
 		}
 
-		#undef CHACHA_OUTPUT
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
 		#define CHACHA_OUTPUT(x){\
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 0, x0 + m_state[0]);\
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 1, x1 + m_state[1]);\
@@ -131,12 +168,12 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation, byte *output,
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 14, x14 + m_state[14]);\
 			CRYPTOPP_KEYSTREAM_OUTPUT_WORD(x, LITTLE_ENDIAN_ORDER, 15, x15 + m_state[15]);}
 
-#ifndef CRYPTOPP_DOXYGEN_PROCESSING
 		CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(CHACHA_OUTPUT, BYTES_PER_ITERATION);
+		#undef CHACHA_OUTPUT
 #endif
 
-		++m_state[12];
-		m_state[13] += static_cast<word32>(m_state[12] == 0);
+		if (++m_state[12] == 0)
+			m_state[13]++;
 	}
 }
 
