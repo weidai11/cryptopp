@@ -728,24 +728,36 @@ void TestKeyDerivationFunction(TestData &v)
 	}
 }
 
+inline char FirstChar(const std::string& str) {
+	if (str.empty()) return 0;
+	return str[0];
+}
+
+inline char LastChar(const std::string& str) {
+	if (str.empty()) return 0;
+	return str[str.length()-1];
+}
+
 // GetField parses the name/value pairs. The tricky part is the insertion operator
 // because Unix&Linux uses LF, OS X uses CR, and Windows uses CRLF. If this function
 // is modified, then run 'cryptest.exe tv rsa_pkcs1_1_5' as a test. Its the parser
 // file from hell. If it can be parsed without error, then things are likely OK.
+// For istream.fail() see https://stackoverflow.com/q/34395801/608639.
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
 	// ***** Name *****
-	name.clear();
-	is >> name;
-
-	if (name.empty())
+	name: name.clear();
+	if ((is >> name).fail() == true)
 		return false;
 
-	if (name[name.size()-1] != ':')
+	// Eat whitespace and comments gracefully
+	if (name.empty() || name[0] =='#')
+		goto name;
+
+	if (LastChar(name) != ':')
 	{
 		char c;
-		is >> std::skipws >> c;
-		if (c != ':')
+		if ((is >> std::skipws >> c).fail() == true || c != ':')
 			SignalTestError();
 	}
 	else
@@ -762,7 +774,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 	while (continueLine && std::getline(is, line))
 	{
 		// Unix and Linux may have a stray \r because of Windows
-		if (!line.empty() && (line[line.size() - 1] == '\r' || line[line.size() - 1] == '\n')) {
+		if (!line.empty() && (LastChar(line) == '\r' || LastChar(line) == '\n')) {
 			line.erase(line.size()-1);
 		}
 
@@ -775,7 +787,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 				continue;
 			}
 			// Check end of line. It must be last character
-			if (line[line.size() - 1] == '\\') {
+			if (LastChar(line) == '\\') {
 				continueLine = true;
 			}
 			// Check for comment. It can be first character
