@@ -12,9 +12,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-extern
-void ChaCha_OperateKeystream_SSE2(KeystreamOperation operation, byte *output,
-        const word32 *state, size_t iterationCount, unsigned int rounds);
+extern void ChaCha_OperateKeystream_SSE2(KeystreamOperation operation, byte *output,
+                const word32 *state, size_t iterationCount, unsigned int rounds);
 #endif
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
@@ -73,12 +72,6 @@ void ChaCha_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, s
 
 void ChaCha_Policy::SeekToIteration(lword iterationCount)
 {
-	// TODO: these were Salsa20, and Wei re-arranged the state array for SSE2 operations.
-	// If we can generate some out-of-band test vectors, then test and implement. Also
-	//  see the test vectors in salsa.txt and the use of Seek test argument.
-	// m_state[8] = (word32)iterationCount;
-	// m_state[5] = (word32)SafeRightShift<32>(iterationCount);
-
 	m_state[13] = (word32)iterationCount;
 	m_state[12] = (word32)SafeRightShift<32>(iterationCount);
 }
