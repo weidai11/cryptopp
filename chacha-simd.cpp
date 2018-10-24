@@ -63,7 +63,7 @@ template <>
 inline __m128i RotateLeft<8>(const __m128i val)
 {
 #ifdef __XOP__
-	return _mm_roti_epi32(val, R);
+	return _mm_roti_epi32(val, 8);
 #else
 	const __m128i mask = _mm_set_epi8(14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3);
 	return _mm_shuffle_epi8(val, mask);
@@ -74,7 +74,7 @@ template <>
 inline __m128i RotateLeft<16>(const __m128i val)
 {
 #ifdef __XOP__
-	return _mm_roti_epi32(val, R);
+	return _mm_roti_epi32(val, 16);
 #else
 	const __m128i mask = _mm_set_epi8(13,12,15,14, 9,8,11,10, 5,4,7,6, 1,0,3,2);
 	return _mm_shuffle_epi8(val, mask);

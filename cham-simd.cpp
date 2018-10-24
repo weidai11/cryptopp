@@ -22,6 +22,10 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__XOP__)
+# include <ammintrin.h>
+#endif
+
 #if defined(__AVX512F__) && defined(__AVX512VL__)
 # define CRYPTOPP_AVX512_ROTATE 1
 # include <immintrin.h>
@@ -44,31 +48,47 @@ NAMESPACE_BEGIN(W16)  // CHAM64, 16-bit word size
 template <unsigned int R>
 inline __m128i RotateLeft16(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi16(val, R);
+#else
     return _mm_or_si128(
         _mm_slli_epi16(val, R), _mm_srli_epi16(val, 16-R));
+#endif
 }
 
 template <unsigned int R>
 inline __m128i RotateRight16(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi16(val, 16-R);
+#else
     return _mm_or_si128(
         _mm_slli_epi16(val, 16-R), _mm_srli_epi16(val, R));
+#endif
 }
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline __m128i RotateLeft16<8>(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi16(val, 8);
+#else
     const __m128i mask = _mm_set_epi8(14,15, 12,13, 10,11, 8,9, 6,7, 4,5, 2,3, 0,1);
     return _mm_shuffle_epi8(val, mask);
+#endif
 }
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline __m128i RotateRight16<8>(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi16(val, 16-8);
+#else
     const __m128i mask = _mm_set_epi8(14,15, 12,13, 10,11, 8,9, 6,7, 4,5, 2,3, 0,1);
     return _mm_shuffle_epi8(val, mask);
+#endif
 }
 
 template <unsigned int IDX>
@@ -626,6 +646,8 @@ inline __m128i RotateLeft32(const __m128i& val)
 {
 #if defined(CRYPTOPP_AVX512_ROTATE)
     return _mm_rol_epi32(val, R);
+#elif defined(__XOP__)
+    return _mm_roti_epi32(val, R);
 #else
     return _mm_or_si128(
         _mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
@@ -637,6 +659,8 @@ inline __m128i RotateRight32(const __m128i& val)
 {
 #if defined(CRYPTOPP_AVX512_ROTATE)
     return _mm_ror_epi32(val, R);
+#elif defined(__XOP__)
+    return _mm_roti_epi32(val, 32-R);
 #else
     return _mm_or_si128(
         _mm_slli_epi32(val, 32-R), _mm_srli_epi32(val, R));
@@ -647,16 +671,24 @@ inline __m128i RotateRight32(const __m128i& val)
 template <>
 inline __m128i RotateLeft32<8>(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi32(val, 8);
+#else
     const __m128i mask = _mm_set_epi8(14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3);
     return _mm_shuffle_epi8(val, mask);
+#endif
 }
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
 inline __m128i RotateRight32<8>(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi32(val, 32-8);
+#else
     const __m128i mask = _mm_set_epi8(12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1);
     return _mm_shuffle_epi8(val, mask);
+#endif
 }
 
 template <unsigned int IDX>

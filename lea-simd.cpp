@@ -22,6 +22,10 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__XOP__)
+# include <ammintrin.h>
+#endif
+
 #if defined(__AVX512F__) && defined(__AVX512VL__)
 # define CRYPTOPP_AVX512_ROTATE 1
 # include <immintrin.h>
@@ -279,31 +283,47 @@ inline __m128i Sub(const __m128i& a, const __m128i& b)
 template <unsigned int R>
 inline __m128i RotateLeft(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi32(val, R);
+#else
     return _mm_or_si128(
         _mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
+#endif
 }
 
 template <unsigned int R>
 inline __m128i RotateRight(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi32(val, 32-R);
+#else
     return _mm_or_si128(
         _mm_slli_epi32(val, 32-R), _mm_srli_epi32(val, R));
+#endif
 }
 
 // Faster than two Shifts and an Or.
 template <>
 inline __m128i RotateLeft<8>(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi32(val, 8);
+#else
     const __m128i mask = _mm_set_epi8(14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3);
     return _mm_shuffle_epi8(val, mask);
+#endif
 }
 
 // Faster than two Shifts and an Or.
 template <>
 inline __m128i RotateRight<8>(const __m128i& val)
 {
+#if defined(__XOP__)
+    return _mm_roti_epi32(val, 32-8);
+#else
     const __m128i mask = _mm_set_epi8(12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1);
     return _mm_shuffle_epi8(val, mask);
+#endif
 }
 
 template <unsigned int IDX>
