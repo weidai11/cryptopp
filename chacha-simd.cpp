@@ -22,7 +22,7 @@
 # include <emmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) && 0
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>
 #endif
 
@@ -46,7 +46,7 @@ inline __m128i RotateLeft(const __m128i val)
 	return _mm_or_si128(_mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
 }
 
-#endif  // (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
+#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
@@ -54,12 +54,13 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
-void ChaCha_OperateKeystream_SSE2(const word32 *state, byte *message, unsigned int rounds)
+void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds, bool xorInput)
 {
 	const __m128i* state_mm = reinterpret_cast<const __m128i*>(state);
-	__m128i* message_mm = reinterpret_cast<__m128i*>(message);
+	const __m128i* input_mm = reinterpret_cast<const __m128i*>(input);
+	__m128i* output_mm = reinterpret_cast<__m128i*>(output);
 
-	const __m128i state0 = _mm_load_si128(state_mm);
+	const __m128i state0 = _mm_load_si128(state_mm + 0);
 	const __m128i state1 = _mm_load_si128(state_mm + 1);
 	const __m128i state2 = _mm_load_si128(state_mm + 2);
 	const __m128i state3 = _mm_load_si128(state_mm + 3);
@@ -262,27 +263,59 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, byte *message, unsigned i
 	r3_3 = _mm_add_epi32(r3_3, state3);
 	r3_3 = _mm_add_epi64(r3_3, _mm_set_epi32(0, 0, 0, 3));
 
-	_mm_storeu_si128(message_mm + 0, r0_0);
-	_mm_storeu_si128(message_mm + 1, r0_1);
-	_mm_storeu_si128(message_mm + 2, r0_2);
-	_mm_storeu_si128(message_mm + 3, r0_3);
+	if (xorInput)
+	{
+		r0_0 = _mm_xor_si128(_mm_loadu_si128(input_mm + 0), r0_0);
+		r0_1 = _mm_xor_si128(_mm_loadu_si128(input_mm + 1), r0_1);
+		r0_2 = _mm_xor_si128(_mm_loadu_si128(input_mm + 2), r0_2);
+		r0_3 = _mm_xor_si128(_mm_loadu_si128(input_mm + 3), r0_3);
+	}
 
-	_mm_storeu_si128(message_mm + 4, r1_0);
-	_mm_storeu_si128(message_mm + 5, r1_1);
-	_mm_storeu_si128(message_mm + 6, r1_2);
-	_mm_storeu_si128(message_mm + 7, r1_3);
+	_mm_storeu_si128(output_mm + 0, r0_0);
+	_mm_storeu_si128(output_mm + 1, r0_1);
+	_mm_storeu_si128(output_mm + 2, r0_2);
+	_mm_storeu_si128(output_mm + 3, r0_3);
 
-	_mm_storeu_si128(message_mm + 8, r2_0);
-	_mm_storeu_si128(message_mm + 9, r2_1);
-	_mm_storeu_si128(message_mm + 10, r2_2);
-	_mm_storeu_si128(message_mm + 11, r2_3);
+	if (xorInput)
+	{
+		r1_0 = _mm_xor_si128(_mm_loadu_si128(input_mm + 4), r1_0);
+		r1_1 = _mm_xor_si128(_mm_loadu_si128(input_mm + 5), r1_1);
+		r1_2 = _mm_xor_si128(_mm_loadu_si128(input_mm + 6), r1_2);
+		r1_3 = _mm_xor_si128(_mm_loadu_si128(input_mm + 7), r1_3);
+	}
 
-	_mm_storeu_si128(message_mm + 12, r3_0);
-	_mm_storeu_si128(message_mm + 13, r3_1);
-	_mm_storeu_si128(message_mm + 14, r3_2);
-	_mm_storeu_si128(message_mm + 15, r3_3);
+	_mm_storeu_si128(output_mm + 4, r1_0);
+	_mm_storeu_si128(output_mm + 5, r1_1);
+	_mm_storeu_si128(output_mm + 6, r1_2);
+	_mm_storeu_si128(output_mm + 7, r1_3);
+
+	if (xorInput)
+	{
+		r2_0 = _mm_xor_si128(_mm_loadu_si128(input_mm + 8), r2_0);
+		r2_1 = _mm_xor_si128(_mm_loadu_si128(input_mm + 9), r2_1);
+		r2_2 = _mm_xor_si128(_mm_loadu_si128(input_mm + 10), r2_2);
+		r2_3 = _mm_xor_si128(_mm_loadu_si128(input_mm + 11), r2_3);
+	}
+
+	_mm_storeu_si128(output_mm + 8, r2_0);
+	_mm_storeu_si128(output_mm + 9, r2_1);
+	_mm_storeu_si128(output_mm + 10, r2_2);
+	_mm_storeu_si128(output_mm + 11, r2_3);
+
+	if (xorInput)
+	{
+		r3_0 = _mm_xor_si128(_mm_loadu_si128(input_mm + 12), r3_0);
+		r3_1 = _mm_xor_si128(_mm_loadu_si128(input_mm + 13), r3_1);
+		r3_2 = _mm_xor_si128(_mm_loadu_si128(input_mm + 14), r3_2);
+		r3_3 = _mm_xor_si128(_mm_loadu_si128(input_mm + 15), r3_3);
+	}
+
+	_mm_storeu_si128(output_mm + 12, r3_0);
+	_mm_storeu_si128(output_mm + 13, r3_1);
+	_mm_storeu_si128(output_mm + 14, r3_2);
+	_mm_storeu_si128(output_mm + 15, r3_3);
 }
 
-#endif  // (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
+#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
 NAMESPACE_END

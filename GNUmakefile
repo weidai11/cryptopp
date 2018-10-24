@@ -238,9 +238,8 @@ endif  # CXXFLAGS
 
 # SSE2 is a core feature of x86_64
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-  ifeq ($(IS_X86),1)
-    SSE_FLAG = -msse2
-  endif
+  SSE_FLAG = -msse2
+  CHACHA_FLAG = -msse2
 endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
   HAVE_SSSE3 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSSE3__)
@@ -379,6 +378,7 @@ ifeq ($(IS_NEON),1)
     CRC_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     BLAKE2_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    CHACHA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     CHAM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     LEA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SHA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -396,6 +396,7 @@ ifeq ($(IS_ARMV8),1)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
+    CHACHA_FLAG = -march=armv8-a
     CHAM_FLAG = -march=armv8-a
     LEA_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
@@ -1175,6 +1176,10 @@ aria-simd.o : aria-simd.cpp
 # SSE4.1 or ARMv8a available
 blake2-simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+
+# SSE2 or NEON available
+chacha-simd.o : chacha-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_FLAG) -c) $<
 
 # SSSE3 available
 cham-simd.o : cham-simd.cpp
