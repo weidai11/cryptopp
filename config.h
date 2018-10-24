@@ -496,7 +496,7 @@ NAMESPACE_END
 		#define CRYPTOPP_SSE2_ASM_AVAILABLE 1
 	#endif
 
-	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || defined(__SSSE3__))
+	#if !defined(CRYPTOPP_DISABLE_SSSE3) && (_MSC_VER >= 1500 || CRYPTOPP_GCC_VERSION >= 40300 || defined(__SSSE3__))
 		#define CRYPTOPP_SSSE3_ASM_AVAILABLE 1
 	#endif
 #endif
@@ -510,7 +510,7 @@ NAMESPACE_END
 #endif
 
 // 32-bit SunCC does not enable SSE2 by default.
-#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || defined(__SSE2__))
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
 	#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1
 #endif
 

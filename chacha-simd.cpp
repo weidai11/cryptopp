@@ -17,7 +17,7 @@
 #include "chacha.h"
 #include "misc.h"
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
 #endif
@@ -38,7 +38,7 @@ extern const char CHACHA_SIMD_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
 template <unsigned int R>
 inline __m128i RotateLeft(const __m128i val)
@@ -46,13 +46,13 @@ inline __m128i RotateLeft(const __m128i val)
 	return _mm_or_si128(_mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
 }
 
-#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#endif  // (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
 void ChaCha_OperateKeystream_SSE2(const word32 *state, byte *message, unsigned int rounds)
 {
@@ -283,6 +283,6 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, byte *message, unsigned i
 	_mm_storeu_si128(message_mm + 15, r3_3);
 }
 
-#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#endif  // (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
 NAMESPACE_END

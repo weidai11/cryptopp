@@ -11,8 +11,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 extern void ChaCha_OperateKeystream_SSE2(const word32 *state, byte *message, unsigned int rounds);
+#endif
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+extern void ChaCha_OperateKeystream_NEON(const word32 *state, byte *message, unsigned int rounds);
 #endif
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
@@ -30,7 +34,7 @@ void ChaCha_TestInstantiations()
 
 std::string ChaCha_Policy::AlgorithmProvider() const
 {
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 	if (HasSSE2())
 		return "SSE2";
 #endif
@@ -77,7 +81,7 @@ void ChaCha_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaCha_Policy::GetAlignment() const
 {
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 	if (HasSSE2())
 		return 16;
 	else
@@ -87,7 +91,7 @@ unsigned int ChaCha_Policy::GetAlignment() const
 
 unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 {
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 	if (HasSSE2())
 		return 4*BYTES_PER_ITERATION;
 	else
@@ -98,7 +102,7 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
-#if CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 	if (HasSSE2())
 	{
 		while (iterationCount >= 4)
