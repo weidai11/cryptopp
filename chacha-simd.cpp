@@ -9,7 +9,7 @@
 //    SSE2 implementation based on Botan's chacha_sse2.cpp. Many thanks
 //    to Jack Lloyd and the Botan team for allowing us to use it.
 //
-//    ARMv8 Power7 is upcoming.
+//    NEON and Power7 is upcoming.
 
 #include "pch.h"
 #include "config.h"
@@ -20,6 +20,10 @@
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
+#endif
+
+#if (CRYPTOPP_SSSE3_INTRIN_AVAILABLE || CRYPTOPP_SSSE3_ASM_AVAILABLE)
+# include <tmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
@@ -45,6 +49,22 @@ inline __m128i RotateLeft(const __m128i val)
 {
 	return _mm_or_si128(_mm_slli_epi32(val, R), _mm_srli_epi32(val, 32-R));
 }
+
+#ifdef __SSSE3__
+template <>
+inline __m128i RotateLeft<8>(const __m128i val)
+{
+	const __m128i mask = _mm_set_epi8(14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3);
+	return _mm_shuffle_epi8(val, mask);
+}
+
+template <>
+inline __m128i RotateLeft<16>(const __m128i val)
+{
+	const __m128i mask = _mm_set_epi8(13,12,15,14, 9,8,11,10, 5,4,7,6, 1,0,3,2);
+	return _mm_shuffle_epi8(val, mask);
+}
+#endif
 
 #endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
