@@ -286,7 +286,7 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
     t2 = _mm_blend_epi16(t0,t1,0x0F); \
     buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,1,2,3));
 
-#define _mm_roti_epi32(r, c) ( \
+#define MM_ROTI_EPI32(r, c) ( \
     (8==-(c)) ? _mm_shuffle_epi8(r,r8) \
     : (16==-(c)) ? _mm_shuffle_epi8(r,r16) \
     : _mm_xor_si128(_mm_srli_epi32( (r), -(c) ), \
@@ -295,18 +295,18 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
 #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
     row1 = _mm_add_epi32( _mm_add_epi32( row1, buf), row2 ); \
     row4 = _mm_xor_si128( row4, row1 ); \
-    row4 = _mm_roti_epi32(row4, -16); \
+    row4 = MM_ROTI_EPI32(row4, -16); \
     row3 = _mm_add_epi32( row3, row4 );   \
     row2 = _mm_xor_si128( row2, row3 ); \
-    row2 = _mm_roti_epi32(row2, -12);
+    row2 = MM_ROTI_EPI32(row2, -12);
 
 #define BLAKE2S_G2(row1,row2,row3,row4,buf) \
     row1 = _mm_add_epi32( _mm_add_epi32( row1, buf), row2 ); \
     row4 = _mm_xor_si128( row4, row1 ); \
-    row4 = _mm_roti_epi32(row4, -8); \
+    row4 = MM_ROTI_EPI32(row4, -8); \
     row3 = _mm_add_epi32( row3, row4 );   \
     row2 = _mm_xor_si128( row2, row3 ); \
-    row2 = _mm_roti_epi32(row2, -7);
+    row2 = MM_ROTI_EPI32(row2, -7);
 
 #define DIAGONALIZE(row1,row2,row3,row4) \
     row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(2,1,0,3) ); \
@@ -652,7 +652,7 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     b1 = _mm_unpackhi_epi64(m3, m1); \
     } while(0)
 
-#define _mm_roti_epi64(x, c) \
+#define MM_ROTI_EPI64(x, c) \
     (-(c) == 32) ? _mm_shuffle_epi32((x), _MM_SHUFFLE(2,3,0,1))  \
     : (-(c) == 24) ? _mm_shuffle_epi8((x), r24) \
     : (-(c) == 16) ? _mm_shuffle_epi8((x), r16) \
@@ -666,8 +666,8 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     row4l = _mm_xor_si128(row4l, row1l); \
     row4h = _mm_xor_si128(row4h, row1h); \
     \
-    row4l = _mm_roti_epi64(row4l, -32); \
-    row4h = _mm_roti_epi64(row4h, -32); \
+    row4l = MM_ROTI_EPI64(row4l, -32); \
+    row4h = MM_ROTI_EPI64(row4h, -32); \
     \
     row3l = _mm_add_epi64(row3l, row4l); \
     row3h = _mm_add_epi64(row3h, row4h); \
@@ -675,8 +675,8 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     row2l = _mm_xor_si128(row2l, row3l); \
     row2h = _mm_xor_si128(row2h, row3h); \
     \
-    row2l = _mm_roti_epi64(row2l, -24); \
-    row2h = _mm_roti_epi64(row2h, -24);
+    row2l = MM_ROTI_EPI64(row2l, -24); \
+    row2h = MM_ROTI_EPI64(row2h, -24);
 
 #define BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l); \
@@ -685,8 +685,8 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     row4l = _mm_xor_si128(row4l, row1l); \
     row4h = _mm_xor_si128(row4h, row1h); \
     \
-    row4l = _mm_roti_epi64(row4l, -16); \
-    row4h = _mm_roti_epi64(row4h, -16); \
+    row4l = MM_ROTI_EPI64(row4l, -16); \
+    row4h = MM_ROTI_EPI64(row4h, -16); \
     \
     row3l = _mm_add_epi64(row3l, row4l); \
     row3h = _mm_add_epi64(row3h, row4h); \
@@ -694,8 +694,8 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     row2l = _mm_xor_si128(row2l, row3l); \
     row2h = _mm_xor_si128(row2h, row3h); \
     \
-    row2l = _mm_roti_epi64(row2l, -63); \
-    row2h = _mm_roti_epi64(row2h, -63); \
+    row2l = MM_ROTI_EPI64(row2l, -63); \
+    row2h = MM_ROTI_EPI64(row2h, -63); \
 
 #define BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     t0 = row4l;\
