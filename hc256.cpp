@@ -94,19 +94,27 @@ void HC256Policy::CipherSetKey(const NameValuePairs &params, const byte *userKey
 
 void HC256Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	size_t msglen = GetBytesPerIteration() * iterationCount;
-	byte* out = output;
-	for (size_t i = 0; i < (msglen >> 2); i++, out += 4)
-		PutWord(false, LITTLE_ENDIAN_ORDER, out, Generate());
+	while (iterationCount--)
+	{
+		PutWord(false, LITTLE_ENDIAN_ORDER, output +  0, Generate());
+		PutWord(false, LITTLE_ENDIAN_ORDER, output +  4, Generate());
+		PutWord(false, LITTLE_ENDIAN_ORDER, output +  8, Generate());
+		PutWord(false, LITTLE_ENDIAN_ORDER, output + 12, Generate());
 
-	// If AdditiveCipherTemplate does not have an accumulated keystream
-	//  then it will ask OperateKeystream to generate one. Optionally it
-	//  will ask for an XOR of the input with the keystream while
-	//  writing the result to the output buffer. In all cases the
-	//  keystream is written to the output buffer. The optional part is
-	//  adding the input buffer and keystream.
-	if ((operation & INPUT_NULL) != INPUT_NULL)
-		xorbuf(output, input, msglen);
+		// If AdditiveCipherTemplate does not have an accumulated keystream
+		//  then it will ask OperateKeystream to generate one. Optionally it
+		//  will ask for an XOR of the input with the keystream while
+		//  writing the result to the output buffer. In all cases the
+		//  keystream is written to the output buffer. The optional part is
+		//  adding the input buffer and keystream.
+		if ((operation & INPUT_NULL) != INPUT_NULL)
+		{
+			xorbuf(output, input, BYTES_PER_ITERATION);
+			input += BYTES_PER_ITERATION;
+		}
+
+		output += BYTES_PER_ITERATION;
+	}
 }
 
 void HC256Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)

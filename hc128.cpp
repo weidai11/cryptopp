@@ -200,8 +200,7 @@ void HC128Policy::CipherSetKey(const NameValuePairs &params, const byte *userKey
 
 void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount)
 {
-	size_t msglen = GetBytesPerIteration() * iterationCount;
-	while (msglen >= 64)
+	while (iterationCount--)
 	{
 		word32 keystream[16];
 		GenerateKeystream(keystream);
@@ -231,9 +230,12 @@ void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 		//  keystream is written to the output buffer. The optional part is
 		//  adding the input buffer and keystream.
 		if ((operation & INPUT_NULL) != INPUT_NULL)
-			xorbuf(output, input, 64);
+		{
+			xorbuf(output, input, BYTES_PER_ITERATION);
+			input += BYTES_PER_ITERATION;
+		}
 
-		msglen -= 64; input += 64; output += 64;
+		output += BYTES_PER_ITERATION;
 	}
 }
 
