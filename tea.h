@@ -119,7 +119,7 @@ struct BTEA_Info : public FixedKeyLength<16>
 class BTEA : public BTEA_Info, public BlockCipherDocumentation
 {
 	/// \brief BTEA block cipher default operation
-	class CRYPTOPP_NO_VTABLE Base : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BlockCipher, BTEA_Info>, BTEA_Info>, public BTEA_Info
+	class CRYPTOPP_NO_VTABLE Base : public AlgorithmImpl<SimpleKeyingInterfaceImpl<BlockCipher, BTEA_Info>, BTEA_Info>
 	{
 	public:
 		void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
