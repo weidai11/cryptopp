@@ -53,7 +53,7 @@
 # include <arm_neon.h>
 #endif
 
-#if defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+#if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
