@@ -22,9 +22,9 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 5.6.4
 struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
-	static const char* StaticAlgorithmName() {
-		return "ChaCha";
-	}
+    static const char* StaticAlgorithmName() {
+        return "ChaCha";
+    }
 };
 
 /// \brief ChaCha stream cipher implementation
@@ -32,18 +32,18 @@ struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterf
 class CRYPTOPP_NO_VTABLE ChaCha_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
 protected:
-	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
-	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
-	void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
-	bool CipherIsRandomAccess() const {return true;}
-	void SeekToIteration(lword iterationCount);
-	unsigned int GetAlignment() const;
-	unsigned int GetOptimalBlockSize() const;
+    void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
+    void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
+    void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
+    bool CipherIsRandomAccess() const {return true;}
+    void SeekToIteration(lword iterationCount);
+    unsigned int GetAlignment() const;
+    unsigned int GetOptimalBlockSize() const;
 
-	std::string AlgorithmProvider() const;
+    std::string AlgorithmProvider() const;
 
-	FixedSizeAlignedSecBlock<word32, 16> m_state;
-	int m_rounds;
+    FixedSizeAlignedSecBlock<word32, 16> m_state;
+    int m_rounds;
 };
 
 /// \brief ChaCha stream cipher
@@ -56,8 +56,8 @@ protected:
 /// \since Crypto++ 5.6.4
 struct ChaCha : public ChaCha_Info, public SymmetricCipherDocumentation
 {
-	typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy, AdditiveCipherTemplate<> >, ChaCha_Info > Encryption;
-	typedef Encryption Decryption;
+    typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy, AdditiveCipherTemplate<> >, ChaCha_Info > Encryption;
+    typedef Encryption Decryption;
 };
 
 NAMESPACE_END
