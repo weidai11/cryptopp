@@ -11,6 +11,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+extern void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *output, unsigned int rounds, bool xorInput);
+#endif
+
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds, bool xorInput);
 #endif
@@ -33,6 +37,10 @@ std::string ChaCha_Policy::AlgorithmProvider() const
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 	if (HasSSE2())
 		return "SSE2";
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+	if (HasNEON())
+		return "NEON";
 #endif
 	return "C++";
 }
@@ -92,6 +100,11 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 		return 4*BYTES_PER_ITERATION;
 	else
 #endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+	if (HasNEON())
+		return 4*BYTES_PER_ITERATION;
+	else
+#endif
 		return BYTES_PER_ITERATION;
 }
 
@@ -113,7 +126,26 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 			if (m_state[12] < 4)
 				m_state[13]++;
 
-			input += !!xorInput*4*BYTES_PER_ITERATION;
+			input += (!!xorInput)*4*BYTES_PER_ITERATION;
+			output += 4*BYTES_PER_ITERATION;
+			iterationCount -= 4;
+		}
+	}
+#endif
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+	if (HasNEON())
+	{
+		while (iterationCount >= 4)
+		{
+			bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+			ChaCha_OperateKeystream_NEON(m_state, input, output, m_rounds, xorInput);
+
+			m_state[12] += 4;
+			if (m_state[12] < 4)
+				m_state[13]++;
+
+			input += (!!xorInput)*4*BYTES_PER_ITERATION;
 			output += 4*BYTES_PER_ITERATION;
 			iterationCount -= 4;
 		}
