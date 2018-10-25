@@ -1,3 +1,4 @@
+
 // blake2-simd.cpp - written and placed in the public domain by
 //                   Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
@@ -286,11 +287,16 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
     t2 = _mm_blend_epi16(t0,t1,0x0F); \
     buf = _mm_shuffle_epi32(t2,_MM_SHUFFLE(0,1,2,3));
 
-#define MM_ROTI_EPI32(r, c) ( \
-    (8==-(c)) ? _mm_shuffle_epi8(r,r8) \
+#ifdef __XOP__
+# define MM_ROTI_EPI32(r, c) \
+    _mm_roti_epi32(r, c)
+#else
+# define MM_ROTI_EPI32(r, c) ( \
+      (8==-(c)) ? _mm_shuffle_epi8(r,r8) \
     : (16==-(c)) ? _mm_shuffle_epi8(r,r16) \
     : _mm_xor_si128(_mm_srli_epi32( (r), -(c) ), \
       _mm_slli_epi32( (r), 32-(-(c)) )) )
+#endif
 
 #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
     row1 = _mm_add_epi32( _mm_add_epi32( row1, buf), row2 ); \
@@ -652,12 +658,17 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
     b1 = _mm_unpackhi_epi64(m3, m1); \
     } while(0)
 
-#define MM_ROTI_EPI64(x, c) \
-    (-(c) == 32) ? _mm_shuffle_epi32((x), _MM_SHUFFLE(2,3,0,1))  \
+#ifdef __XOP__
+# define MM_ROTI_EPI64(r, c) \
+    _mm_roti_epi64(r, c)
+#else
+# define MM_ROTI_EPI64(x, c) \
+      (-(c) == 32) ? _mm_shuffle_epi32((x), _MM_SHUFFLE(2,3,0,1))  \
     : (-(c) == 24) ? _mm_shuffle_epi8((x), r24) \
     : (-(c) == 16) ? _mm_shuffle_epi8((x), r16) \
     : (-(c) == 63) ? _mm_xor_si128(_mm_srli_epi64((x), -(c)), _mm_add_epi64((x), (x)))  \
     : _mm_xor_si128(_mm_srli_epi64((x), -(c)), _mm_slli_epi64((x), 64-(-(c))))
+#endif
 
 #define BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     row1l = _mm_add_epi64(_mm_add_epi64(row1l, b0), row2l); \
