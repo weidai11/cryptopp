@@ -9,7 +9,7 @@
 //    SSE2 implementation based on Botan's chacha_sse2.cpp. Many thanks
 //    to Jack Lloyd and the Botan team for allowing us to use it.
 //
-//    NEON and Power7 is upcoming.
+//    Power8 is upcoming.
 
 #include "pch.h"
 #include "config.h"
@@ -17,16 +17,16 @@
 #include "chacha.h"
 #include "misc.h"
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
+#if defined(__SSE2__) || defined(_MSC_VER)
 # include <xmmintrin.h>
 # include <emmintrin.h>
 #endif
 
-#if (CRYPTOPP_SSSE3_INTRIN_AVAILABLE || CRYPTOPP_SSSE3_ASM_AVAILABLE)
+#if defined(__SSSE3__) || defined(_MSC_VER)
 # include <tmmintrin.h>
 #endif
 
-#ifdef __XOP__
+#if defined(__XOP__)
 # include <ammintrin.h>
 #endif
 
@@ -128,29 +128,31 @@ inline __m128i RotateLeft(const __m128i val)
 #endif
 }
 
-#if defined(__SSSE3__)
 template <>
 inline __m128i RotateLeft<8>(const __m128i val)
 {
-#ifdef __XOP__
+#if defined(__XOP__)
     return _mm_roti_epi32(val, 8);
-#else
+#elif defined(__SSSE3__)
     const __m128i mask = _mm_set_epi8(14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3);
     return _mm_shuffle_epi8(val, mask);
+#else
+    return _mm_or_si128(_mm_slli_epi32(val, 8), _mm_srli_epi32(val, 32-8));
 #endif
 }
 
 template <>
 inline __m128i RotateLeft<16>(const __m128i val)
 {
-#ifdef __XOP__
+#if defined(__XOP__)
     return _mm_roti_epi32(val, 16);
-#else
+#elif defined(__SSSE3__)
     const __m128i mask = _mm_set_epi8(13,12,15,14, 9,8,11,10, 5,4,7,6, 1,0,3,2);
     return _mm_shuffle_epi8(val, mask);
+#else
+    return _mm_or_si128(_mm_slli_epi32(val, 16), _mm_srli_epi32(val, 32-16));
 #endif
 }
-#endif  // SSE3
 
 #endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
