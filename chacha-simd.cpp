@@ -9,18 +9,20 @@
 //    SSE2 implementation based on Botan's chacha_sse2.cpp. Many thanks
 //    to Jack Lloyd and the Botan team for allowing us to use it.
 //
-//    The SSE2 implementation is kind of unusual among Crypto++ implementations.
-//    We guard on SSE2 and use HasSSE2(). However, if a target machine has
-//    SSSE3 or XOP available (say, by -march=native), then we can pull another
-//    200 to 500 MB/s out of ChaCha. To capture SSSE3 and XOP we use the compiler
-//    defines __SSSE3__ and __XOP__ and forgo runtime tests.
+//    The SSE2 implementation is kind of unusual among Crypto++ algorithms.
+//    We guard on CRYTPOPP_SSE2_AVAILABLE and use HasSSE2() at runtime. However,
+//    if the compiler says a target machine has SSSE3 or XOP available (say, by
+//    way of -march=native), then we can pull another 150 to 800 MB/s out of
+//    ChaCha. To capture SSSE3 and XOP we use the compiler defines __SSSE3__ and
+//    __XOP__ and forgo runtime tests.
 //
-//    Runtime tests for HasSSSE3() and HasXop() are too expensive. The rotates
-//    are on a critical path and the runtime tests crush performance.
+//    Runtime tests for HasSSSE3() and HasXop() are too expensive to make a
+//    sub-case of SSE2. The rotates are on a critical path and the runtime tests
+//    crush performance.
 //
 //    Here are some relative numbers for ChaCha8:
-//    * Intel Skylake, 3.0 GHz: SSE2 at 2000 MB/s; SSSE3 at 2350 MB/s.
-//    * AMD Bulldozer, 3.3 GHz: SSE2 at 2140 MB/s; XOP at 2550 MB/s.
+//    * Intel Skylake, 3.0 GHz: SSE2 at 2160 MB/s; SSSE3 at 2310 MB/s.
+//    * AMD Bulldozer, 3.3 GHz: SSE2 at 1680 MB/s; XOP at 2510 MB/s.
 //
 //    Power8 is upcoming.
 
@@ -66,54 +68,68 @@ ANONYMOUS_NAMESPACE_BEGIN
 template <unsigned int R>
 inline uint32x4_t RotateLeft(const uint32x4_t& val)
 {
-    const uint32x4_t a(vshlq_n_u32(val, R));
-    const uint32x4_t b(vshrq_n_u32(val, 32 - R));
-    return vorrq_u32(a, b);
+    return vorrq_u32(vshlq_n_u32(val, R), vshrq_n_u32(val, 32 - R));
 }
 
 template <unsigned int R>
 inline uint32x4_t RotateRight(const uint32x4_t& val)
 {
-    const uint32x4_t a(vshlq_n_u32(val, 32 - R));
-    const uint32x4_t b(vshrq_n_u32(val, R));
-    return vorrq_u32(a, b);
+    return vorrq_u32(vshlq_n_u32(val, 32 - R), vshrq_n_u32(val, R));
 }
 
-#if defined(__aarch32__) || defined(__aarch64__)
 template <>
 inline uint32x4_t RotateLeft<8>(const uint32x4_t& val)
 {
+#if defined(__aarch32__) || defined(__aarch64__)
     const uint8_t maskb[16] = { 3,0,1,2, 7,4,5,6, 11,8,9,10, 15,12,13,14 };
     const uint8x16_t mask = vld1q_u8(maskb);
 
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
+#else
+    return vorrq_u32(vshlq_n_u32(val, 8),
+        vshrq_n_u32(val, 32 - 8));
+#endif
 }
 
 template <>
 inline uint32x4_t RotateLeft<16>(const uint32x4_t& val)
 {
+#if defined(__aarch32__) || defined(__aarch64__)
     return vreinterpretq_u32_u16(
         vrev32q_u16(vreinterpretq_u16_u32(val)));
-}
-
-template <>
-inline uint32x4_t RotateRight<16>(const uint32x4_t& val)
-{
-    return vreinterpretq_u32_u16(
-        vrev32q_u16(vreinterpretq_u16_u32(val)));
+#else
+    return vorrq_u32(vshlq_n_u32(val, 16),
+        vshrq_n_u32(val, 32 - 16));
+#endif
 }
 
 template <>
 inline uint32x4_t RotateRight<8>(const uint32x4_t& val)
 {
+#if defined(__aarch32__) || defined(__aarch64__)
     const uint8_t maskb[16] = { 1,2,3,0, 5,6,7,4, 9,10,11,8, 13,14,15,12 };
     const uint8x16_t mask = vld1q_u8(maskb);
 
     return vreinterpretq_u32_u8(
         vqtbl1q_u8(vreinterpretq_u8_u32(val), mask));
+#else
+    return vorrq_u32(vshrq_n_u32(val, 8),
+        vshlq_n_u32(val, 32 - 8));
+#endif
 }
-#endif  // Aarch32 or Aarch64
+
+template <>
+inline uint32x4_t RotateRight<16>(const uint32x4_t& val)
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+    return vreinterpretq_u32_u16(
+        vrev32q_u16(vreinterpretq_u16_u32(val)));
+#else
+    return vorrq_u32(vshrq_n_u32(val, 16),
+        vshlq_n_u32(val, 32 - 16));
+#endif
+}
 
 // ChaCha's use of shuffle is really a 4, 8, or 12 byte rotation:
 //   * [3,2,1,0] => [0,3,2,1] is Extract<1>(x)
