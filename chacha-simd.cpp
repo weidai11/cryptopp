@@ -46,6 +46,8 @@ extern const char CHACHA_SIMD_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+// ***************************** NEON ***************************** //
+
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <unsigned int R>
@@ -101,16 +103,18 @@ inline uint32x4_t RotateRight<8>(const uint32x4_t& val)
 #endif  // Aarch32 or Aarch64
 
 // ChaCha's use of shuffle is really a 4, 8, or 12 byte rotation:
-//   * [3,2,1,0] => [0,3,2,1] is Shuffle<1>(x)
-//   * [3,2,1,0] => [1,0,3,2] is Shuffle<2>(x)
-//   * [3,2,1,0] => [2,1,0,3] is Shuffle<3>(x)
+//   * [3,2,1,0] => [0,3,2,1] is Extract<1>(x)
+//   * [3,2,1,0] => [1,0,3,2] is Extract<2>(x)
+//   * [3,2,1,0] => [2,1,0,3] is Extract<3>(x)
 template <unsigned int S>
-inline uint32x4_t Shuffle(const uint32x4_t& val)
+inline uint32x4_t Extract(const uint32x4_t& val)
 {
     return vextq_u32(val, val, S);
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+
+// ***************************** SSE2 ***************************** //
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
@@ -153,6 +157,8 @@ inline __m128i RotateLeft<16>(const __m128i val)
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+// ***************************** NEON ***************************** //
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
@@ -252,21 +258,21 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
         r2_1 = RotateLeft<7>(r2_1);
         r3_1 = RotateLeft<7>(r3_1);
 
-        r0_1 = Shuffle<1>(r0_1);
-        r0_2 = Shuffle<2>(r0_2);
-        r0_3 = Shuffle<3>(r0_3);
+        r0_1 = Extract<1>(r0_1);
+        r0_2 = Extract<2>(r0_2);
+        r0_3 = Extract<3>(r0_3);
 
-        r1_1 = Shuffle<1>(r1_1);
-        r1_2 = Shuffle<2>(r1_2);
-        r1_3 = Shuffle<3>(r1_3);
+        r1_1 = Extract<1>(r1_1);
+        r1_2 = Extract<2>(r1_2);
+        r1_3 = Extract<3>(r1_3);
 
-        r2_1 = Shuffle<1>(r2_1);
-        r2_2 = Shuffle<2>(r2_2);
-        r2_3 = Shuffle<3>(r2_3);
+        r2_1 = Extract<1>(r2_1);
+        r2_2 = Extract<2>(r2_2);
+        r2_3 = Extract<3>(r2_3);
 
-        r3_1 = Shuffle<1>(r3_1);
-        r3_2 = Shuffle<2>(r3_2);
-        r3_3 = Shuffle<3>(r3_3);
+        r3_1 = Extract<1>(r3_1);
+        r3_2 = Extract<2>(r3_2);
+        r3_3 = Extract<3>(r3_3);
 
         r0_0 = vaddq_u32(r0_0, r0_1);
         r1_0 = vaddq_u32(r1_0, r1_1);
@@ -328,21 +334,21 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
         r2_1 = RotateLeft<7>(r2_1);
         r3_1 = RotateLeft<7>(r3_1);
 
-        r0_1 = Shuffle<3>(r0_1);
-        r0_2 = Shuffle<2>(r0_2);
-        r0_3 = Shuffle<1>(r0_3);
+        r0_1 = Extract<3>(r0_1);
+        r0_2 = Extract<2>(r0_2);
+        r0_3 = Extract<1>(r0_3);
 
-        r1_1 = Shuffle<3>(r1_1);
-        r1_2 = Shuffle<2>(r1_2);
-        r1_3 = Shuffle<1>(r1_3);
+        r1_1 = Extract<3>(r1_1);
+        r1_2 = Extract<2>(r1_2);
+        r1_3 = Extract<1>(r1_3);
 
-        r2_1 = Shuffle<3>(r2_1);
-        r2_2 = Shuffle<2>(r2_2);
-        r2_3 = Shuffle<1>(r2_3);
+        r2_1 = Extract<3>(r2_1);
+        r2_2 = Extract<2>(r2_2);
+        r2_3 = Extract<1>(r2_3);
 
-        r3_1 = Shuffle<3>(r3_1);
-        r3_2 = Shuffle<2>(r3_2);
-        r3_3 = Shuffle<1>(r3_3);
+        r3_1 = Extract<3>(r3_1);
+        r3_2 = Extract<2>(r3_2);
+        r3_3 = Extract<1>(r3_3);
     }
 
     r0_0 = vaddq_u32(r0_0, state0);
@@ -425,6 +431,8 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
 }
 
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+
+// ***************************** SSE2 ***************************** //
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 
