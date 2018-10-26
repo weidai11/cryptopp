@@ -12,11 +12,11 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-extern void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *output, unsigned int rounds, bool xorInput);
+extern void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
-extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds, bool xorInput);
+extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
@@ -124,8 +124,8 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
     {
         while (iterationCount >= 4)
         {
-            bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
-            ChaCha_OperateKeystream_SSE2(m_state, input, output, m_rounds, xorInput);
+            const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+            ChaCha_OperateKeystream_SSE2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
             m_state[12] += 4;
             if (m_state[12] < 4)
@@ -143,8 +143,8 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
     {
         while (iterationCount >= 4)
         {
-            bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
-            ChaCha_OperateKeystream_NEON(m_state, input, output, m_rounds, xorInput);
+            const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+            ChaCha_OperateKeystream_NEON(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
             m_state[12] += 4;
             if (m_state[12] < 4)
@@ -163,8 +163,8 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 
         x0 = m_state[0];    x1 = m_state[1];    x2 = m_state[2];    x3 = m_state[3];
         x4 = m_state[4];    x5 = m_state[5];    x6 = m_state[6];    x7 = m_state[7];
-        x8 = m_state[8];    x9 = m_state[9];    x10 = m_state[10];    x11 = m_state[11];
-        x12 = m_state[12];    x13 = m_state[13];    x14 = m_state[14];    x15 = m_state[15];
+        x8 = m_state[8];    x9 = m_state[9];    x10 = m_state[10];  x11 = m_state[11];
+        x12 = m_state[12];  x13 = m_state[13];  x14 = m_state[14];  x15 = m_state[15];
 
         for (int i = static_cast<int>(m_rounds); i > 0; i -= 2)
         {
