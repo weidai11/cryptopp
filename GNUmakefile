@@ -864,7 +864,7 @@ endif
 
 .PHONY: dep deps depend
 dep deps depend GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
+	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DISABLE_ASM) -MM *.cpp > GNUmakefile.deps
 
 # CXXFLAGS are tuned earlier.
 .PHONY: native no-asm asan ubsan
