@@ -9,6 +9,19 @@
 //    SSE2 implementation based on Botan's chacha_sse2.cpp. Many thanks
 //    to Jack Lloyd and the Botan team for allowing us to use it.
 //
+//    The SSE2 implementation is kind of unusual among Crypto++ implementations.
+//    We guard on SSE2 and use HasSSE2(). However, if a target machine has
+//    SSSE3 or XOP available (say, by -march=native), then we can pull another
+//    200 to 500 MB/s out of ChaCha. To capture SSSE3 and XOP we use the compiler
+//    defines __SSSE3__ and __XOP__ and forgo runtime tests.
+//
+//    Runtime tests for HasSSSE3() and HasXop() are too expensive. The rotates
+//    are on a critical path and the runtime tests crush performance.
+//
+//    Here are some relative numbers for ChaCha8:
+//    * Intel Skylake, 3.0 GHz: SSE2 at 2000 MB/s; SSSE3 at 2350 MB/s.
+//    * AMD Bulldozer, 3.3 GHz: SSE2 at 2140 MB/s; XOP at 2550 MB/s.
+//
 //    Power8 is upcoming.
 
 #include "pch.h"
