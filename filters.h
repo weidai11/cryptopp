@@ -1308,7 +1308,9 @@ public:
 		{PumpMessages2(count); return count;}
 
 	/// \brief Pump all data to attached transformation
-	/// \details Internally, PumpAll() calls PumpAll2().
+	/// \details Internally, PumpAll() calls PumpAll2(). PumpAll() signals the
+	///   end of the current message as if MessageEnd() was called. To avoid the
+	///   MessageEnd() signal call Pump(-1).
 	void PumpAll()
 		{PumpAll2();}
 
