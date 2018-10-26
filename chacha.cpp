@@ -32,6 +32,11 @@ void ChaCha_TestInstantiations()
 }
 #endif
 
+std::string ChaCha_Policy::AlgorithmName() const
+{
+    return std::string("ChaCha")+IntToString(m_rounds);
+}
+
 std::string ChaCha_Policy::AlgorithmProvider() const
 {
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)

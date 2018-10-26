@@ -22,6 +22,13 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 5.6.4
 struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
+    /// \details Bernstein named the cipher variants ChaCha8, ChaCha12 and
+    ///   ChaCha20. More generally, Bernstein called the family ChaCha{r}.
+    ///   AlgorithmName() provides the exact name once rounds are set.
     static const char* StaticAlgorithmName() {
         return "ChaCha";
     }
@@ -40,6 +47,7 @@ protected:
     unsigned int GetAlignment() const;
     unsigned int GetOptimalBlockSize() const;
 
+    std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
     FixedSizeAlignedSecBlock<word32, 16> m_state;
