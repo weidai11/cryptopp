@@ -105,7 +105,7 @@ inline uint32x4_t RotateRight32(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8_t maskb[16] = { 14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3 };
     const uint8x16_t mask = vld1q_u8(maskb);
 #else
@@ -121,7 +121,7 @@ inline uint32x4_t RotateLeft32<8>(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateRight32<8>(const uint32x4_t& val)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8_t maskb[16] = { 12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1 };
     const uint8x16_t mask = vld1q_u8(maskb);
 #else
@@ -559,7 +559,7 @@ inline uint32x4_p SIMON64_f(const uint32x4_p val)
 inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {7,6,5,4, 15,14,13,12, 23,22,21,20, 31,30,29,28};
     const uint8x16_p m2 = {3,2,1,0, 11,10,9,8, 19,18,17,16, 27,26,25,24};
 #else
@@ -587,7 +587,7 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
         std::swap(x1, y1);
     }
 
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m3 = {19,18,17,16, 3,2,1,0, 23,22,21,20, 7,6,5,4};
     const uint8x16_p m4 = {27,26,25,24, 11,10,9,8, 31,30,29,28, 15,14,13,12};
 #else
@@ -603,7 +603,7 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
     const word32 *subkeys, unsigned int rounds)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {7,6,5,4, 15,14,13,12, 23,22,21,20, 31,30,29,28};
     const uint8x16_p m2 = {3,2,1,0, 11,10,9,8, 19,18,17,16, 27,26,25,24};
 #else
@@ -632,7 +632,7 @@ inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk2);
     }
 
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m3 = {19,18,17,16, 3,2,1,0, 23,22,21,20, 7,6,5,4};
     const uint8x16_p m4 = {27,26,25,24, 11,10,9,8, 31,30,29,28, 15,14,13,12};
 #else
@@ -649,7 +649,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
             uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
             uint32x4_p &block5, const word32 *subkeys, unsigned int rounds)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {7,6,5,4, 15,14,13,12, 23,22,21,20, 31,30,29,28};
     const uint8x16_p m2 = {3,2,1,0, 11,10,9,8, 19,18,17,16, 27,26,25,24};
 #else
@@ -687,7 +687,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
     }
 
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m3 = {19,18,17,16, 3,2,1,0, 23,22,21,20, 7,6,5,4};
     const uint8x16_p m4 = {27,26,25,24, 11,10,9,8, 31,30,29,28, 15,14,13,12};
 #else
@@ -708,7 +708,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
             uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
             uint32x4_p &block5, const word32 *subkeys, unsigned int rounds)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {7,6,5,4, 15,14,13,12, 23,22,21,20, 31,30,29,28};
     const uint8x16_p m2 = {3,2,1,0, 11,10,9,8, 19,18,17,16, 27,26,25,24};
 #else
@@ -747,7 +747,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk2);
     }
 
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m3 = {19,18,17,16, 3,2,1,0, 23,22,21,20, 7,6,5,4};
     const uint8x16_p m4 = {27,26,25,24, 11,10,9,8, 31,30,29,28, 15,14,13,12};
 #else

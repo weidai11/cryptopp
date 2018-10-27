@@ -107,7 +107,7 @@ inline uint32x4_t RotateRight(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateLeft<8>(const uint32x4_t& val)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8_t maskb[16] = { 14,13,12,15, 10,9,8,11, 6,5,4,7, 2,1,0,3 };
     const uint8x16_t mask = vld1q_u8(maskb);
 #else
@@ -122,7 +122,7 @@ inline uint32x4_t RotateLeft<8>(const uint32x4_t& val)
 template <>
 inline uint32x4_t RotateRight<8>(const uint32x4_t& val)
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8_t maskb[16] = { 12,15,14,13, 8,11,10,9, 4,7,6,5, 0,3,2,1 };
     const uint8x16_t mask = vld1q_u8(maskb);
 #else

@@ -285,7 +285,7 @@ public:
 #endif
 	{
 #if defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE)
-#  if defined(CRYPTOPP_LITTLE_ENDIAN)
+#  if (CRYPTOPP_LITTLE_ENDIAN)
 		const word t[2] = {low,high};
 		memcpy(&m_whole, t, sizeof(m_whole));
 #  else

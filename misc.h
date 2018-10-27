@@ -1094,9 +1094,9 @@ inline bool IsAligned(const void *ptr)
 	return IsAlignedOn(ptr, GetAlignmentOf<T>());
 }
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
 	typedef LittleEndian NativeByteOrder;
-#elif defined(CRYPTOPP_BIG_ENDIAN)
+#elif (CRYPTOPP_BIG_ENDIAN)
 	typedef BigEndian NativeByteOrder;
 #else
 # error "Unable to determine endian-ness"
