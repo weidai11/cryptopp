@@ -5,7 +5,7 @@
 /// \details All key sizes are supported. The library only provides Rijndael with 128-bit blocks,
 ///   and not 192-bit or 256-bit blocks
 /// \since Rijndael since Crypto++ 3.1, Intel AES-NI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
-///   Power8 AES since Crypto++ 6.0, ARMv7 AES since Crypto++ 7.1
+///   Power8 AES since Crypto++ 6.0, ARMv7 AES since Crypto++ 8.0
 
 #ifndef CRYPTOPP_RIJNDAEL_H
 #define CRYPTOPP_RIJNDAEL_H
