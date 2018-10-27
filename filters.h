@@ -1295,8 +1295,10 @@ public:
 	/// \param pumpMax the maximpum number of bytes to pump
 	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	/// \details Internally, Pump() calls Pump2().
-	/// \note pumpMax is a \p lword, which is a 64-bit value that typically uses \p LWORD_MAX. The default
-	///   argument is a \p size_t that uses \p SIZE_MAX, and it can be 32-bits or 64-bits.
+	/// \note pumpMax is a <tt>lword</tt>, which is a 64-bit value that typically uses
+	///   <tt>LWORD_MAX</tt>. The default argument is a <tt>size_t</tt> that uses
+	///   <tt>SIZE_MAX</tt>, and it can be 32-bits or 64-bits.
+	/// \sa Pump2, PumpAll, AnyRetrievable, MaxRetrievable
 	lword Pump(lword pumpMax=SIZE_MAX)
 		{Pump2(pumpMax); return pumpMax;}
 
@@ -1308,9 +1310,10 @@ public:
 		{PumpMessages2(count); return count;}
 
 	/// \brief Pump all data to attached transformation
-	/// \details Internally, PumpAll() calls PumpAll2(). PumpAll() signals the
-	///   end of the current message as if MessageEnd() was called. To avoid the
-	///   MessageEnd() signal call Pump(-1).
+	/// \details Pumps all data to the attached transformation and signal the end of the current
+	///   message. To avoid the MessageEnd() signal call Pump(LWORD_MAX) or Pump2(LWORD_MAX, bool).
+	/// \details Internally, PumpAll() calls PumpAll2(), which calls PumpMessages().
+	/// \sa Pump, Pump2, AnyRetrievable, MaxRetrievable
 	void PumpAll()
 		{PumpAll2();}
 
@@ -1321,6 +1324,7 @@ public:
 	/// \details byteCount is an \a IN and \a OUT parameter. When the call is made, byteCount is the
 	///   requested size of the pump. When the call returns, byteCount is the number of bytes that
 	///   were pumped.
+	/// \sa Pump, PumpAll, AnyRetrievable, MaxRetrievable
 	virtual size_t Pump2(lword &byteCount, bool blocking=true) =0;
 
 	/// \brief Pump messages to attached transformation
@@ -1332,6 +1336,7 @@ public:
 	/// \brief Pump all data to attached transformation
 	/// \param blocking specifies whether the object should block when processing input
 	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \sa Pump, Pump2, AnyRetrievable, MaxRetrievable
 	virtual size_t PumpAll2(bool blocking=true);
 
 	/// \brief Determines if the Source is exhausted
