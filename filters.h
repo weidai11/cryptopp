@@ -1296,8 +1296,8 @@ public:
 	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	/// \details Internally, Pump() calls Pump2().
 	/// \note pumpMax is a <tt>lword</tt>, which is a 64-bit value that typically uses
-	///   <tt>LWORD_MAX</tt>. The default argument is a <tt>size_t</tt> that uses
-	///   <tt>SIZE_MAX</tt>, and it can be 32-bits or 64-bits.
+	///   <tt>LWORD_MAX</tt>. The default argument is <tt>SIZE_MAX</tt>, and it can be
+	///   32-bits or 64-bits.
 	/// \sa Pump2, PumpAll, AnyRetrievable, MaxRetrievable
 	lword Pump(lword pumpMax=SIZE_MAX)
 		{Pump2(pumpMax); return pumpMax;}
@@ -1311,7 +1311,8 @@ public:
 
 	/// \brief Pump all data to attached transformation
 	/// \details Pumps all data to the attached transformation and signal the end of the current
-	///   message. To avoid the MessageEnd() signal call Pump(LWORD_MAX) or Pump2(LWORD_MAX, bool).
+	///   message. To avoid the MessageEnd() signal call \ref Pump "Pump(LWORD_MAX)" or \ref Pump2
+	///   "Pump2(LWORD_MAX, bool)".
 	/// \details Internally, PumpAll() calls PumpAll2(), which calls PumpMessages().
 	/// \sa Pump, Pump2, AnyRetrievable, MaxRetrievable
 	void PumpAll()
