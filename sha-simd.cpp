@@ -1190,7 +1190,7 @@ uint32x4_p8 VectorPack(const uint32x4_p8 a, const uint32x4_p8 b,
 template <unsigned int L> static inline
 uint32x4_p8 VectorShiftLeft(const uint32x4_p8 val)
 {
-#if ((CRYPTOPP_LITTLE_ENDIAN))
+#if (CRCRYPTOPP_LITTLE_ENDIAN)
     return (uint32x4_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, (16-L)&0xf);
 #else
     return (uint32x4_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, L&0xf);
@@ -1481,7 +1481,7 @@ uint64x2_p8 VectorPack(const uint64x2_p8 x, const uint64x2_p8 y)
 template <unsigned int L> static inline
 uint64x2_p8 VectorShiftLeft(const uint64x2_p8 val)
 {
-#if ((CRYPTOPP_LITTLE_ENDIAN))
+#if (CRCRYPTOPP_LITTLE_ENDIAN)
     return (uint64x2_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, (16-L)&0xf);
 #else
     return (uint64x2_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, L&0xf);
