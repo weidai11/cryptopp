@@ -75,6 +75,21 @@ inline T Reverse(const T& src)
     return (T)vec_perm(src, src, mask);
 }
 
+/// \brief Permutes a vector
+/// \tparam T vector type
+/// \param vec the vector
+/// \param mask vector mask
+/// \returns vector
+/// \details VectorPermute returns a new vector from vec based on
+///   mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec.
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VectorPermute(const T1& vec, const T2& mask)
+{
+    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
+}
+
 /// \brief Permutes two vectors
 /// \tparam T1 vector type
 /// \tparam T2 vector type
@@ -90,21 +105,6 @@ template <class T1, class T2>
 inline T1 VectorPermute(const T1& vec1, const T1& vec2, const T2& mask)
 {
     return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
-}
-
-/// \brief Permutes a vector
-/// \tparam T vector type
-/// \param vec the vector
-/// \param mask vector mask
-/// \returns vector
-/// \details VectorPermute returns a new vector from vec based on
-///   mask. mask is an uint8x16_p type vector. The return
-///   vector is the same type as vec.
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VectorPermute(const T1& vec, const T2& mask)
-{
-    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
 }
 
 /// \brief AND two vectors
@@ -538,6 +538,23 @@ inline void VectorStoreBE(const T& src, int off, byte dest[16])
 /// \since Crypto++ 6.0
 template<class T>
 inline void VectorStore(const T& src, byte dest[16])
+{
+#if defined(CRYPTOPP_XLC_VERSION)
+    vec_xst((uint8x16_p)src, 0, (byte*)dest);
+#else
+    vec_vsx_st((uint8x16_p)src, 0, (byte*)dest);
+#endif
+}
+
+/// \brief Stores a vector to a byte array
+/// \tparam T vector type
+/// \param src the vector
+/// \param dest the byte array
+/// \details Stores a vector in native endian format to a byte array.
+/// \note VectorStore does not require an aligned array.
+/// \since Crypto++ 6.0
+template<class T>
+inline void VectorStore(byte dest[16], const T& src)
 {
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst((uint8x16_p)src, 0, (byte*)dest);
