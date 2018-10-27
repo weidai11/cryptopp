@@ -19,6 +19,10 @@ extern void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input,
 extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
+#if (CRYPTOPP_POWER8_AVAILABLE)
+extern void ChaCha_OperateKeystream_POWER8(const word32 *state, const byte* input, byte *output, unsigned int rounds);
+#endif
+
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
     a += b; d ^= a; d = rotlConstant<16,word32>(d); \
     c += d; b ^= c; b = rotlConstant<12,word32>(b); \
@@ -46,6 +50,10 @@ std::string ChaCha_Policy::AlgorithmProvider() const
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
+#endif
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+        return "Power8";
 #endif
     return "C++";
 }
@@ -110,6 +118,11 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
         return 4*BYTES_PER_ITERATION;
     else
 #endif
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
         return BYTES_PER_ITERATION;
 }
 
@@ -145,6 +158,25 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
         {
             const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
             ChaCha_OperateKeystream_NEON(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+            m_state[12] += 4;
+            if (m_state[12] < 4)
+                m_state[13]++;
+
+            input += (!!xorInput)*4*BYTES_PER_ITERATION;
+            output += 4*BYTES_PER_ITERATION;
+            iterationCount -= 4;
+        }
+    }
+#endif
+
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+    {
+        while (iterationCount >= 4)
+        {
+            const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+            ChaCha_OperateKeystream_POWER8(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
             m_state[12] += 4;
             if (m_state[12] < 4)
