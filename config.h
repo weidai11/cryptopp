@@ -58,7 +58,8 @@
 // compiled using C++ only. The library code will not include SSE2 (and
 // above), NEON, Aarch32, Aarch64, Power4, Power7 or Power8. Note the compiler
 // may use higher ISAs depending on compiler options, but the library will not
-// explictly use the ISAs.
+// explictly use the ISAs. When disabling ASM, it is best to do it from
+// config.h to ensure the library and all programs share the setting.
 // #define CRYPTOPP_DISABLE_ASM 1
 
 // https://github.com/weidai11/cryptopp/issues/719
