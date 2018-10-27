@@ -211,7 +211,7 @@ using CryptoPP::uint64x2_p;
 using CryptoPP::VectorLoad;
 using CryptoPP::VectorStore;
 
-// Permutes bytes in 32-bit words to little endian.
+// Permutes bytes in packed 32-bit words to little endian.
 // State is already in proper endian order. Input and
 // output must be permuted during load and save.
 inline uint32x4_p VectorLoad32LE(const uint8_t src[16])
@@ -225,7 +225,7 @@ inline uint32x4_p VectorLoad32LE(const uint8_t src[16])
 #endif
 }
 
-// Permutes bytes in 32-bit words to little endian.
+// Permutes bytes in packed 32-bit words to little endian.
 // State is already in proper endian order. Input and
 // output must be permuted during load and save.
 inline void VectorStore32LE(uint8_t dest[16], const uint32x4_p& val)
@@ -238,7 +238,7 @@ inline void VectorStore32LE(uint8_t dest[16], const uint32x4_p& val)
 #endif
 }
 
-// Rotate left by bit count
+// Rotate packed 32-bit words left by bit count
 template<unsigned int C>
 inline uint32x4_p RotateLeft(const uint32x4_p val)
 {
@@ -246,7 +246,7 @@ inline uint32x4_p RotateLeft(const uint32x4_p val)
     return vec_rl(val, m);
 }
 
-// Rotate right by bit count
+// Rotate packed 32-bit words right by bit count
 template<unsigned int C>
 inline uint32x4_p RotateRight(const uint32x4_p val)
 {
@@ -288,7 +288,7 @@ inline uint32x4_p Shuffle(const uint32x4_p& val)
 }
 
 // Helper to perform 64-bit addition across two elements of 32-bit vectors
-inline uint32x4_p Add64(const uint32x4_p& a, const uint32x4_p& b)
+inline uint32x4_p VectorAdd64(const uint32x4_p& a, const uint32x4_p& b)
 {
     return (uint32x4_p)vec_add((uint64x2_p)a, (uint64x2_p)b);
 }
@@ -856,17 +856,17 @@ void ChaCha_OperateKeystream_POWER8(const word32 *state, const byte* input, byte
     uint32x4_p r1_0 = state0;
     uint32x4_p r1_1 = state1;
     uint32x4_p r1_2 = state2;
-    uint32x4_p r1_3 = Add64(r0_3, CTRS[0]);
+    uint32x4_p r1_3 = VectorAdd64(r0_3, CTRS[0]);
 
     uint32x4_p r2_0 = state0;
     uint32x4_p r2_1 = state1;
     uint32x4_p r2_2 = state2;
-    uint32x4_p r2_3 = Add64(r0_3, CTRS[1]);
+    uint32x4_p r2_3 = VectorAdd64(r0_3, CTRS[1]);
 
     uint32x4_p r3_0 = state0;
     uint32x4_p r3_1 = state1;
     uint32x4_p r3_2 = state2;
-    uint32x4_p r3_3 = Add64(r0_3, CTRS[2]);
+    uint32x4_p r3_3 = VectorAdd64(r0_3, CTRS[2]);
 
     for (int i = static_cast<int>(rounds); i > 0; i -= 2)
     {
@@ -1032,19 +1032,19 @@ void ChaCha_OperateKeystream_POWER8(const word32 *state, const byte* input, byte
     r1_1 = VectorAdd(r1_1, state1);
     r1_2 = VectorAdd(r1_2, state2);
     r1_3 = VectorAdd(r1_3, state3);
-    r1_3 = Add64(r1_3, CTRS[0]);
+    r1_3 = VectorAdd64(r1_3, CTRS[0]);
 
     r2_0 = VectorAdd(r2_0, state0);
     r2_1 = VectorAdd(r2_1, state1);
     r2_2 = VectorAdd(r2_2, state2);
     r2_3 = VectorAdd(r2_3, state3);
-    r2_3 = Add64(r2_3, CTRS[1]);
+    r2_3 = VectorAdd64(r2_3, CTRS[1]);
 
     r3_0 = VectorAdd(r3_0, state0);
     r3_1 = VectorAdd(r3_1, state1);
     r3_2 = VectorAdd(r3_2, state2);
     r3_3 = VectorAdd(r3_3, state3);
-    r3_3 = Add64(r3_3, CTRS[2]);
+    r3_3 = VectorAdd64(r3_3, CTRS[2]);
 
     if (input)
     {
