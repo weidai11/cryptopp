@@ -1292,7 +1292,7 @@ public:
 	//@{
 
 	/// \brief Pump data to attached transformation
-	/// \param pumpMax the maximpum number of bytes to pump
+	/// \param pumpMax the maximum number of bytes to pump
 	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	/// \details Internally, Pump() calls Pump2().
 	/// \note pumpMax is a <tt>lword</tt>, which is a 64-bit value that typically uses
@@ -1303,7 +1303,7 @@ public:
 		{Pump2(pumpMax); return pumpMax;}
 
 	/// \brief Pump messages to attached transformation
-	/// \param count the maximpum number of messages to pump
+	/// \param count the maximum number of messages to pump
 	/// \returns TODO
 	/// \details Internally, PumpMessages() calls PumpMessages2().
 	unsigned int PumpMessages(unsigned int count=UINT_MAX)
@@ -1319,7 +1319,7 @@ public:
 		{PumpAll2();}
 
 	/// \brief Pump data to attached transformation
-	/// \param byteCount the maximpum number of bytes to pump
+	/// \param byteCount the maximum number of bytes to pump
 	/// \param blocking specifies whether the object should block when processing input
 	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
 	/// \details byteCount is an \a IN and \a OUT parameter. When the call is made, byteCount is the
@@ -1329,7 +1329,7 @@ public:
 	virtual size_t Pump2(lword &byteCount, bool blocking=true) =0;
 
 	/// \brief Pump messages to attached transformation
-	/// \param messageCount the maximpum number of messages to pump
+	/// \param messageCount the maximum number of messages to pump
 	/// \param blocking specifies whether the object should block when processing input
 	/// \details messageCount is an IN and OUT parameter.
 	virtual size_t PumpMessages2(unsigned int &messageCount, bool blocking=true) =0;
