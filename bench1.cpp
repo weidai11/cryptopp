@@ -45,19 +45,19 @@ double g_allocatedTime = 0.0, g_hertz = 0.0, g_logTotal = 0.0;
 unsigned int g_logCount = 0;
 time_t g_testBegin, g_testEnd;
 
-inline std::string HertzToString(double hz)
+inline std::string HertzToString(double hertz)
 {
 	std::ostringstream oss;
 	oss.precision(3);
 
-	if (hz >= 0.999e+9)
-		oss << hz / 1e+9 << " GHz";
-	else if (hz >= 0.999e+6)
-		oss << hz / 1e+6 << " MHz";
-	else if (hz >= 0.999e+3)
-		oss << hz / 1e+3 << " KHz";
+	if (hertz >= 0.999e+9)
+		oss << hertz / 1e+9 << " GHz";
+	else if (hertz >= 0.999e+6)
+		oss << hertz / 1e+6 << " MHz";
+	else if (hertz >= 0.999e+3)
+		oss << hertz / 1e+3 << " KHz";
 	else
-		oss << hz << " Hz";
+		oss << hertz << " Hz";
 
 	return oss.str();
 }
