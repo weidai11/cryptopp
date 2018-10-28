@@ -262,29 +262,29 @@ inline uint32x4_p RotateRight(const uint32x4_p val)
 template <unsigned int S>
 inline uint32x4_p Shuffle(const uint32x4_p& val)
 {
-    switch (S%4)
-    {
-    case 1:
-        {
-            const uint8x16_p mask = {4,5,6,7, 8,9,10,11, 12,13,14,15, 0,1,2,3};
-            return vec_perm(val, val, mask);
-        }
-    case 2:
-        {
-            const uint8x16_p mask = {8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7};
-            return vec_perm(val, val, mask);
-        }
-    case 3:
-        {
-            const uint8x16_p mask = {12,13,14,15, 0,1,2,3, 4,5,6,7, 8,9,10,11};
-            return vec_perm(val, val, mask);
-        }
-    default:
-        {
-            CRYPTOPP_ASSERT(0);
-            return val;
-        }
-    }
+    CRYPTOPP_ASSERT(0);
+    return val;
+}
+
+template <>
+inline uint32x4_p Shuffle<1>(const uint32x4_p& val)
+{
+    const uint8x16_p mask = {4,5,6,7, 8,9,10,11, 12,13,14,15, 0,1,2,3};
+    return vec_perm(val, val, mask);
+}
+
+template <>
+inline uint32x4_p Shuffle<2>(const uint32x4_p& val)
+{
+    const uint8x16_p mask = {8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7};
+    return vec_perm(val, val, mask);
+}
+
+template <>
+inline uint32x4_p Shuffle<3>(const uint32x4_p& val)
+{
+    const uint8x16_p mask = {12,13,14,15, 0,1,2,3, 4,5,6,7, 8,9,10,11};
+    return vec_perm(val, val, mask);
 }
 
 // Helper to perform 64-bit addition across two elements of 32-bit vectors
