@@ -191,7 +191,7 @@ using CryptoPP::VectorRotateLeft;
 
 inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 {
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return VectorRotateLeft<8>(val);
 #else
     return val;
@@ -776,7 +776,7 @@ inline uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
 
 inline uint64x2_p LoadHashKey(const byte *hashKey)
 {
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint64x2_p key = (uint64x2_p)VectorLoad(hashKey);
     const uint8x16_p mask = {8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7};
     return vec_perm(key, key, mask);
@@ -825,7 +825,7 @@ inline T SwapWords(const T& data)
 
 inline uint64x2_p LoadBuffer1(const byte *dataBuffer)
 {
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return (uint64x2_p)VectorLoad(dataBuffer);
 #else
     const uint64x2_p data = (uint64x2_p)VectorLoad(dataBuffer);
@@ -836,7 +836,7 @@ inline uint64x2_p LoadBuffer1(const byte *dataBuffer)
 
 inline uint64x2_p LoadBuffer2(const byte *dataBuffer)
 {
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return (uint64x2_p)SwapWords(VectorLoadBE(dataBuffer));
 #else
     return (uint64x2_p)VectorLoadBE(dataBuffer);

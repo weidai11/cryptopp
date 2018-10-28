@@ -112,7 +112,7 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_t s_one = {0, 0, 0, 1<<24};
     const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
@@ -357,7 +357,7 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_t s_one = {0, 0, 0, 1<<24};
     const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
@@ -520,7 +520,7 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(length >= 16);
     CRYPTOPP_UNUSED(unused);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_t s_one = {0, 0, 0, 1<<24};
     const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
@@ -660,7 +660,7 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_t s_one = {0, 0, 0, 1<<24};
     const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
@@ -1806,7 +1806,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     enum {LowOffset=8, HighOffset=0};
     const uint32x4_p s_one  = {1,0,0,0};
     const uint32x4_p s_two  = {2,0,2,0};
@@ -2077,7 +2077,7 @@ inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_p s_one  = {1,0,0,0};
 #else
     const uint32x4_p s_one = {0,0,0,1};
@@ -2222,7 +2222,7 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_p s_one  = {1,0,0,0};
 #else
     const uint32x4_p s_one = {0,0,0,1};

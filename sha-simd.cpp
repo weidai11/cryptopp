@@ -1115,7 +1115,7 @@ void VectorStore32x4u(const uint32x4_p8 val, T* data, int offset)
 template <class T> static inline
 uint32x4_p8 VectorLoadMsg32x4(const T* data, int offset)
 {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint8x16_p8 mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
     const uint32x4_p8 r = VectorLoad32x4u(data, offset);
     return (uint32x4_p8)vec_perm(r, r, mask);
@@ -1190,7 +1190,7 @@ uint32x4_p8 VectorPack(const uint32x4_p8 a, const uint32x4_p8 b,
 template <unsigned int L> static inline
 uint32x4_p8 VectorShiftLeft(const uint32x4_p8 val)
 {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     return (uint32x4_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, (16-L)&0xf);
 #else
     return (uint32x4_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, L&0xf);
@@ -1409,7 +1409,7 @@ void VectorStore64x2u(const uint64x2_p8 val, T* data, int offset)
 template <class T> static inline
 uint64x2_p8 VectorLoadMsg64x2(const T* data, int offset)
 {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     const uint8x16_p8 mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
     return VectorPermute64x2(VectorLoad64x2u(data, offset), mask);
 #else
@@ -1481,7 +1481,7 @@ uint64x2_p8 VectorPack(const uint64x2_p8 x, const uint64x2_p8 y)
 template <unsigned int L> static inline
 uint64x2_p8 VectorShiftLeft(const uint64x2_p8 val)
 {
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     return (uint64x2_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, (16-L)&0xf);
 #else
     return (uint64x2_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, L&0xf);

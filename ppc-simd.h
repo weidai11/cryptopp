@@ -218,7 +218,7 @@ inline T VectorShiftLeft(const T& vec)
     }
     else
     {
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
 #else
     return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
@@ -261,7 +261,7 @@ inline T VectorShiftRight(const T& vec)
     }
     else
     {
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
 #else
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
@@ -284,7 +284,7 @@ template <unsigned int C, class T>
 inline T VectorRotateLeft(const T& vec)
 {
     enum { R = C&0xf };
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
 #else
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 16-R);
@@ -306,7 +306,7 @@ template <unsigned int C, class T>
 inline T VectorRotateRight(const T& vec)
 {
     enum { R = C&0xf };
-#if CRYPTOPP_BIG_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 16-R);
 #else
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
@@ -399,7 +399,7 @@ inline uint32x4_p VectorLoadBE(const byte src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl_be(0, (byte*)src);
 #else
-# if defined(CRYPTOPP_BIG_ENDIAN)
+# if (CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)vec_vsx_ld(0, src);
 # else
     return (uint32x4_p)Reverse(vec_vsx_ld(0, src));
@@ -420,7 +420,7 @@ inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     return (uint32x4_p)vec_xl_be(off, (byte*)src);
 #else
-# if defined(CRYPTOPP_BIG_ENDIAN)
+# if (CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 # else
     return (uint32x4_p)Reverse(vec_vsx_ld(off, (byte*)src));
@@ -497,7 +497,7 @@ inline void VectorStoreBE(const T& src, byte dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst_be((uint8x16_p)src, 0, (byte*)dest);
 #else
-# if defined(CRYPTOPP_BIG_ENDIAN)
+# if (CRYPTOPP_BIG_ENDIAN)
     vec_vsx_st((uint8x16_p)src, 0, (byte*)dest);
 # else
     vec_vsx_st((uint8x16_p)Reverse(src), 0, (byte*)dest);
@@ -521,7 +521,7 @@ inline void VectorStoreBE(const T& src, int off, byte dest[16])
 #if defined(CRYPTOPP_XLC_VERSION)
     vec_xst_be((uint8x16_p)src, off, (byte*)dest);
 #else
-# if defined(CRYPTOPP_BIG_ENDIAN)
+# if (CRYPTOPP_BIG_ENDIAN)
     vec_vsx_st((uint8x16_p)src, off, (byte*)dest);
 # else
     vec_vsx_st((uint8x16_p)Reverse(src), off, (byte*)dest);
@@ -660,7 +660,7 @@ inline uint32x4_p VectorLoad(int off, const word32 src[4])
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(const byte src[16])
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VectorLoad(src);
 #else
     return (uint32x4_p)Reverse(VectorLoad(src));
@@ -701,7 +701,7 @@ inline void VectorStore(const T& data, byte dest[16])
 template <class T>
 inline void VectorStoreBE(const T& src, byte dest[16])
 {
-#if defined(CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN)
     VectorStore(src, dest);
 #else
     VectorStore(Reverse(src), dest);

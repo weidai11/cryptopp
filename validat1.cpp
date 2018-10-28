@@ -1121,7 +1121,7 @@ bool TestAltivecOps()
     pass1 = (0 == std::memcmp(st3, dest+3, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
+#if (CRYPTOPP_LITTLE_ENDIAN)
     VectorStore(VectorLoadBE(src), dest);
     pass1 = (0 != std::memcmp(src, dest, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);

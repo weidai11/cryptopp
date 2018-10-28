@@ -214,7 +214,7 @@ bool TestSettings()
 
 	if (w == 0x04030201L)
 	{
-#ifdef CRYPTOPP_LITTLE_ENDIAN
+#if (CRYPTOPP_LITTLE_ENDIAN)
 		std::cout << "passed:  ";
 #else
 		std::cout << "FAILED:  ";
@@ -224,7 +224,7 @@ bool TestSettings()
 	}
 	else if (w == 0x01020304L)
 	{
-#ifndef CRYPTOPP_LITTLE_ENDIAN
+#if (CRYPTOPP_BIG_ENDIAN)
 		std::cout << "passed:  ";
 #else
 		std::cout << "FAILED:  ";

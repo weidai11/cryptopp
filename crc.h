@@ -12,7 +12,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 const word32 CRC32_NEGL = 0xffffffffL;
 
-#ifdef CRYPTOPP_LITTLE_ENDIAN
+#if (CRYPTOPP_LITTLE_ENDIAN)
 #define CRC32_INDEX(c) (c & 0xff)
 #define CRC32_SHIFTED(c) (c >> 8)
 #else

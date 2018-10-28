@@ -438,7 +438,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
             #define READ_TABLE_WORD64_COMMON(a, b, c, d)    *(word64 *)(void *)(mulTable+(a*1024)+(b*256)+c+d*8)
 
-            #ifdef CRYPTOPP_LITTLE_ENDIAN
+            #if (CRYPTOPP_LITTLE_ENDIAN)
                 #if CRYPTOPP_BOOL_SLOW_WORD64
                     word32 z0 = (word32)x0;
                     word32 z1 = (word32)(x0>>32);
@@ -509,7 +509,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
             #define READ_TABLE_WORD64_COMMON(a, c, d)    *(word64 *)(void *)(mulTable+(a)*256*16+(c)+(d)*8)
 
-            #ifdef CRYPTOPP_LITTLE_ENDIAN
+            #if (CRYPTOPP_LITTLE_ENDIAN)
                 #if CRYPTOPP_BOOL_SLOW_WORD64
                     word32 z0 = (word32)x0;
                     word32 z1 = (word32)(x0>>32);
