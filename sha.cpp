@@ -73,11 +73,11 @@ extern void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, 
 extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t length, ByteOrder order);
 #endif
 
+// We add extern to export table to sha-simd.cpp, but it
+//  cleared http://github.com/weidai11/cryptopp/issues/502
 extern const word32 SHA256_K[64];
 extern const word64 SHA512_K[80];
 
-// We add extern to export table to sha-simd.cpp, but it
-//  cleared http://github.com/weidai11/cryptopp/issues/502
 CRYPTOPP_ALIGN_DATA(16)
 const word64 SHA512_K[80] = {
     W64LIT(0x428a2f98d728ae22), W64LIT(0x7137449123ef65cd),
