@@ -34,9 +34,17 @@ rm -rf "$PWD_DIR/cmake_build"
 mkdir -p "$PWD_DIR/cmake_build"
 cd "$PWD_DIR/cmake_build"
 
-if ! cmake ../; then
-	echo "cmake failed"
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+if [[ ! -z "$CXX" ]];
+then
+	if ! CXX="$CXX" cmake -DCMAKE_CXX_COMPILER="$CXX" ../; then
+		echo "cmake failed"
+		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	fi
+else
+	if ! cmake ../; then
+		echo "cmake failed"
+		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	fi
 fi
 
 "$MAKE" clean 2>/dev/null
