@@ -97,7 +97,7 @@ HAS_SOLIB_VERSION := 1
 endif
 
 # Newlib needs _XOPEN_SOURCE=600 for signals
-HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c "__NEWLIB__")
+HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -dM -E pch.cpp 2>&1 | $(GREP) -i -c "__NEWLIB__")
 
 # Formely adhoc.cpp was created from adhoc.cpp.proto when needed.
 # This is now needed because ISA tests are performed using adhoc.cpp.
@@ -242,7 +242,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   CHACHA_FLAG = -msse2
 endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
-  HAVE_SSSE3 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSSE3__)
+  HAVE_SSSE3 = $(shell $(CXX) $(CXXFLAGS) -mssse3 -dM -E pch.cpp 2>&1 | $(GREP) -i -c __SSSE3__)
   ifeq ($(HAVE_SSSE3),1)
     ARIA_FLAG = -mssse3
     CHAM_FLAG = -mssse3
@@ -255,28 +255,28 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
     SPECK128_FLAG = -mssse3
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
-  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSE4_1__)
+  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -msse4.1 -dM -E pch.cpp 2>&1 | $(GREP) -i -c __SSE4_1__)
   ifeq ($(HAVE_SSE4),1)
     BLAKE2_FLAG = -msse4.1
     SIMON64_FLAG = -msse4.1
     SPECK64_FLAG = -msse4.1
   endif
-  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SSE4_2__)
+  HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -msse4.2 -dM -E pch.cpp 2>&1 | $(GREP) -i -c __SSE4_2__)
   ifeq ($(HAVE_SSE4),1)
     CRC_FLAG = -msse4.2
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
-  HAVE_CLMUL = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mssse3 -mpclmul -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __PCLMUL__ )
+  HAVE_CLMUL = $(shell $(CXX) $(CXXFLAGS) -mssse3 -mpclmul -dM -E pch.cpp 2>&1 | $(GREP) -i -c __PCLMUL__ )
   ifeq ($(HAVE_CLMUL),1)
     GCM_FLAG = -mssse3 -mpclmul
   endif
-  HAVE_AES = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.1 -maes -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __AES__)
+  HAVE_AES = $(shell $(CXX) $(CXXFLAGS) -msse4.1 -maes -dM -E pch.cpp 2>&1 | $(GREP) -i -c __AES__)
   ifeq ($(HAVE_AES),1)
     AES_FLAG = -msse4.1 -maes
     SM4_FLAG = -mssse3 -maes
   endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHANI,$(CXXFLAGS)),)
-  HAVE_SHA = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -msse4.2 -msha -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __SHA__)
+  HAVE_SHA = $(shell $(CXX) $(CXXFLAGS) -msse4.2 -msha -dM -E pch.cpp 2>&1 | $(GREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
     SHA_FLAG = -msse4.2 -msha
   endif
@@ -370,7 +370,7 @@ else
 ###########################################################
 
 ifeq ($(IS_NEON),1)
-  HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '\<__ARM_NEON\>')
+  HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon -dM -E pch.cpp 2>&1 | $(GREP) -i -c -E '\<__ARM_NEON\>')
   ifeq ($(HAVE_NEON),1)
     NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -392,7 +392,7 @@ ifeq ($(IS_NEON),1)
 endif
 
 ifeq ($(IS_ARMV8),1)
-  HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_NEON)
+  HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -march=armv8-a -dM -E pch.cpp 2>&1 | $(GREP) -i -c __ARM_NEON)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
     BLAKE2_FLAG = -march=armv8-a
@@ -407,17 +407,17 @@ ifeq ($(IS_ARMV8),1)
     SPECK128_FLAG = -march=armv8-a
     SM4_FLAG = -march=armv8-a
   endif
-  HAVE_CRC = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crc -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRC32)
+  HAVE_CRC = $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crc -dM -E pch.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRC32)
   ifeq ($(HAVE_CRC),1)
     CRC_FLAG = -march=armv8-a+crc
   endif
-  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8-a+crypto -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -march=armv8-a+crypto -dM -E pch.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_CRYPTO),1)
     AES_FLAG = -march=armv8-a+crypto
     GCM_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
   endif
-  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -march=armv8.4-a+crypto -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
+  HAVE_CRYPTO = $(shell $(CXX) $(CXXFLAGS) -march=armv8.4-a+crypto -dM -E pch.cpp 2>&1 | $(GREP) -i -c __ARM_FEATURE_CRYPTO)
   ifeq ($(HAVE_CRYPTO),1)
     SM4_FLAG = -march=armv8.4-a+crypto
   endif
@@ -428,7 +428,7 @@ endif
 # front-end. XLC/LLVM only supplies POWER8 so we have to set the flags for
 # XLC/LLVM to POWER8. I've got a feeling LLVM is going to cause trouble.
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
-  HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power8 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -mcpu=power8 -maltivec -dM -E pch.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_POWER8),0)
     POWER8_FLAG = -mcpu=power8 -maltivec
     AES_FLAG = $(POWER8_FLAG)
@@ -443,7 +443,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   endif
 
   # GCC and some compatibles
-  HAVE_POWER7 = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power7 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c '_ARCH_PWR7')
+  HAVE_POWER7 = $(shell $(CXX) $(CXXFLAGS) -mcpu=power7 -maltivec -dM -E pch.cpp 2>&1 | $(GREP) -i -c '_ARCH_PWR7')
   ifneq ($(HAVE_POWER7),0)
     POWER7_FLAG = -mcpu=power7 -maltivec
     ARIA_FLAG = $(POWER7_FLAG)
@@ -456,13 +456,13 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   endif
 
   # GCC and some compatibles
-  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -mcpu=power4 -maltivec -dM -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -mcpu=power4 -maltivec -dM -E pch.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -mcpu=power4 -maltivec
   endif
 
   # IBM XL C/C++
-  HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
+  HAVE_POWER8 = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr8 -qaltivec -E pch.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR8|_ARCH_PWR9|__CRYPTO')
   ifneq ($(HAVE_POWER8),0)
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     AES_FLAG = $(POWER8_FLAG)
@@ -477,7 +477,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   endif
 
   # IBM XL C/C++
-  HAVE_POWER7 = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR7')
+  HAVE_POWER7 = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr7 -qaltivec -E pch.cpp 2>&1 | $(GREP) -i -c -E '_ARCH_PWR7')
   ifneq ($(HAVE_POWER7),0)
     POWER7_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = $(POWER7_FLAG)
@@ -490,7 +490,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   endif
 
   # IBM XL C/C++
-  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr6 -qaltivec -E adhoc.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
+  HAVE_ALTIVEC = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -qarch=pwr6 -qaltivec -E pch.cpp 2>&1 | $(GREP) -i -c '__ALTIVEC__')
   ifneq ($(HAVE_ALTIVEC),0)
     ALTIVEC_FLAG = -qarch=pwr6 -qaltivec
   endif
@@ -498,7 +498,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   # LLVM front-ends only provide Power8. It really jambs us up
   # for ppc-simd.cpp which needs ALTIVEC/POWER4. We have similar
   # problems {lea|cham|simon|speck|...}-simd.cpp and POWER7.
-  HAVE_LLVM = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -E adhoc.cpp 2>&1 | $(GREP) -i -c '__llvm__')
+  HAVE_LLVM = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -E pch.cpp 2>&1 | $(GREP) -i -c '__llvm__')
   ifneq ($(HAVE_LLVM),0)
     POWER7_FLAG = $(POWER8_FLAG)
     ARIA_FLAG = $(POWER8_FLAG)
@@ -529,7 +529,7 @@ endif
 ifeq ($(XLC_COMPILER),1)
   # More stupid LLVM games, with Clang pretending to be a different compiler.
   # https://lists.tetaneutral.net/pipermail/cfarm-users/2018-July/000331.html
-  HAVE_COMPAT = $(shell $(CXX) $(CXXFLAGS) -qxlcompatmacros adhoc.cpp 2>&1 | $(GREP) -i -c -E 'illegal|not supported')
+  HAVE_COMPAT = $(shell $(CXX) $(CXXFLAGS) -qxlcompatmacros pch.cpp 2>&1 | $(GREP) -i -c -E 'illegal|not supported')
   ifeq ($(HAVE_COMPAT),0)
     CXXFLAGS += -qxlcompatmacros
   endif
@@ -556,8 +556,8 @@ endif
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
 # BAD_PTHREAD and HAVE_PTHREAD is due to GCC on Solaris. GCC rejects -pthread but defines
 #   39 *_PTHREAD_* related macros. Then we pickup the macros and enable the option...
-BAD_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -c adhoc.cpp 2>&1 | $(GREP) -i -c -E 'warning|incorrect|illegal|unrecognized')
-HAVE_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E adhoc.cpp 2>/dev/null | $(GREP) -i -c 'PTHREAD')
+BAD_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -c pch.cpp 2>&1 | $(GREP) -i -c -E 'warning|incorrect|illegal|unrecognized')
+HAVE_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E pch.cpp 2>/dev/null | $(GREP) -i -c 'PTHREAD')
 ifeq ($(BAD_PTHREAD),0)
 ifneq ($(HAVE_PTHREAD),0)
   CXXFLAGS += -pthread
@@ -744,7 +744,7 @@ endif # Valgrind
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -DADHOC_MAIN -E adhoc.cpp 2>&1 | $(GREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -E pch.cpp 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
