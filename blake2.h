@@ -12,7 +12,8 @@
 /// \details The library provides specialized SSE2, SSE4 and NEON version of the BLAKE2 compression
 ///   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
 ///   <pre>CXXFLAGS="-DNDEBUG -march=armv8-a+crc -mcpu=cortex-a53 ..."</pre>
-/// \since Crypto++ 5.6.4
+/// \since C++ since Crypto++ 5.6.4, SSE since Crypto++ 5.6.4, NEON since Crypto++ 6.0,
+///   BLAKE2b Power8 since Crypto++ 8.0
 
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H

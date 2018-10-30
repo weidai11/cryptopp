@@ -432,6 +432,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER8),0)
     POWER8_FLAG = -mcpu=power8 -maltivec
     AES_FLAG = $(POWER8_FLAG)
+    BLAKE2_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
@@ -447,7 +448,6 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER7),0)
     POWER7_FLAG = -mcpu=power7 -maltivec
     ARIA_FLAG = $(POWER7_FLAG)
-    BLAKE2_FLAG = $(POWER7_FLAG)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
@@ -466,6 +466,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER8),0)
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     AES_FLAG = $(POWER8_FLAG)
+    BLAKE2_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
@@ -481,7 +482,6 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER7),0)
     POWER7_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = $(POWER7_FLAG)
-    BLAKE2_FLAG = $(POWER7_FLAG)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
@@ -1274,7 +1274,7 @@ test.o : test.cpp
 endif
 endif
 
-validat%.o : validat%.cpp
+validat1.o : validat1.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ALTIVEC_FLAG) -c) $<
 
 %.dllonly.o : %.cpp

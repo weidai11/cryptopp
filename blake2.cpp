@@ -14,6 +14,7 @@
 // Do so in both blake2.cpp and blake2-simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
+// #undef CRYPTOPP_POWER8_AVAILABLE
 
 // Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
 // 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
@@ -146,6 +147,10 @@ extern void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state);
+#endif
+
+#if CRYPTOPP_POWER8_AVAILABLE
+extern void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2_State<word64, true>& state);
 #endif
 
 BLAKE2_ParameterBlock<false>::BLAKE2_ParameterBlock(size_t digestLen, size_t keyLen,
@@ -340,7 +345,8 @@ void BLAKE2_Base<word64, true>::UncheckedSetKey(const byte *key, unsigned int le
     }
 }
 
-std::string BLAKE2_Base_AlgorithmProvider()
+template <class W, bool T_64bit>
+std::string BLAKE2_Base<W, T_64bit>::AlgorithmProvider() const
 {
 #if defined(CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
@@ -350,13 +356,11 @@ std::string BLAKE2_Base_AlgorithmProvider()
     if (HasNEON())
         return "NEON";
 #endif
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8() && T_64bit == true)
+        return "Power8";
+#endif
     return "C++";
-}
-
-template <class W, bool T_64bit>
-std::string BLAKE2_Base<W, T_64bit>::AlgorithmProvider() const
-{
-    return BLAKE2_Base_AlgorithmProvider();
 }
 
 template <class W, bool T_64bit>
@@ -512,6 +516,12 @@ void BLAKE2_Base<word64, true>::Compress(const byte *input)
     if(HasNEON())
     {
         return BLAKE2_Compress64_NEON(input, *m_state.data());
+    }
+#endif
+#if CRYPTOPP_POWER8_AVAILABLE
+    if(HasPower8())
+    {
+        return BLAKE2_Compress64_POWER8(input, *m_state.data());
     }
 #endif
     return BLAKE2_Compress64_CXX(input, *m_state.data());

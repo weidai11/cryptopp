@@ -16,6 +16,7 @@
 // Do so in both blake2.cpp and blake2-simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
+// #undef CRYPTOPP_POWER8_AVAILABLE
 
 // Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
 // 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
@@ -40,12 +41,16 @@
 # include <arm_acle.h>
 #endif
 
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
+# include "ppc-simd.h"
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word32;
 using CryptoPP::word64;
 
-#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER8_AVAILABLE)
 
 CRYPTOPP_ALIGN_DATA(16)
 const word32 BLAKE2S_IV[8] = {
@@ -1273,7 +1278,7 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state
 
     #define vrorq_n_u64_63(x) veorq_u64(vaddq_u64(x, x), vshrq_n_u64(x, 63))
 
-    #define G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+    #define BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     do { \
       row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
       row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
@@ -1284,7 +1289,7 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state
       row2l = vrorq_n_u64_24(row2l); row2h = vrorq_n_u64_24(row2h); \
     } while(0)
 
-    #define G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+    #define BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     do { \
       row1l = vaddq_u64(vaddq_u64(row1l, b0), row2l); \
       row1h = vaddq_u64(vaddq_u64(row1h, b1), row2h); \
@@ -1317,20 +1322,16 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state
     do { \
       uint64x2_t b0, b1; \
       BLAKE2B_LOAD_MSG_ ##r ##_1(b0, b1); \
-      G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
       BLAKE2B_LOAD_MSG_ ##r ##_2(b0, b1); \
-      G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
       BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
       BLAKE2B_LOAD_MSG_ ##r ##_3(b0, b1); \
-      G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
       BLAKE2B_LOAD_MSG_ ##r ##_4(b0, b1); \
-      G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
       BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     } while(0)
-
-    CRYPTOPP_ASSERT(IsAlignedOn(&state.h[0],GetAlignmentOf<uint64x2_t>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(&state.t[0],GetAlignmentOf<uint64x2_t>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(&state.f[0],GetAlignmentOf<uint64x2_t>()));
 
     const uint64x2_t m0 = vreinterpretq_u64_u8(vld1q_u8(input +  00));
     const uint64x2_t m1 = vreinterpretq_u64_u8(vld1q_u8(input +  16));
@@ -1373,5 +1374,462 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state
     vst1q_u64(&state.h[6], veorq_u64(h3, veorq_u64(row2h, row4h)));
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+
+#if (CRYPTOPP_POWER8_AVAILABLE)
+
+inline uint64x2_p VectorLoad64(const void* p)
+{
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+    return (uint64x2_p)vec_xl(0, (uint8_t*)p);
+#else
+    return (uint64x2_p)vec_vsx_ld(0, (uint8_t*)p);
+#endif
+}
+
+inline uint64x2_p VectorLoad64LE(const void* p)
+{
+#if __BIG_ENDIAN__
+    const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
+    const uint64x2_p v = VectorLoad64(p);
+    return vec_perm(v, v, m);
+#else
+    return VectorLoad64(p);
+#endif
+}
+
+inline void VectorStore64(void* p, const uint64x2_p x)
+{
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+    vec_xst((uint8x16_p)x,0,(uint8_t*)p);
+#else
+    vec_vsx_st((uint8x16_p)x,0,(uint8_t*)p);
+#endif
+}
+
+inline void VectorStore64LE(void* p, const uint64x2_p x)
+{
+#if __BIG_ENDIAN__
+    const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
+    VectorStore64(p, vec_perm(x, x, m));
+#else
+    VectorStore64(p, x);
+#endif
+}
+
+template <unsigned int C>
+inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
+{
+#if __BIG_ENDIAN__
+    return (uint64x2_p)vec_sld((uint8x16_p)a, (uint8x16_p)b, C);
+#else
+    return (uint64x2_p)vec_sld((uint8x16_p)b, (uint8x16_p)a, 16-C);
+#endif
+}
+
+#define vec_ext(a,b,c) VectorShiftLeftOctet<c*8>(a, b)
+
+void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2_State<word64, true>& state)
+{
+    // Permute masks
+    const uint8x16_p LL_MASK = { 0,1,2,3,4,5,6,7,       16,17,18,19,20,21,22,23 };
+    const uint8x16_p LH_MASK = { 0,1,2,3,4,5,6,7,       24,25,26,27,28,29,30,31 };
+    const uint8x16_p HL_MASK = { 8,9,10,11,12,13,14,15, 16,17,18,19,20,21,22,23 };
+    const uint8x16_p HH_MASK = { 8,9,10,11,12,13,14,15, 24,25,26,27,28,29,30,31 };
+
+    #define BLAKE2B_LOAD_MSG_0_1(b0, b1) \
+    do { \
+         b0 = vec_perm(m0, m1, LL_MASK); \
+         b1 = vec_perm(m2, m3, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_0_2(b0, b1) \
+    do { \
+         b0 = vec_perm(m0, m1, HH_MASK); \
+         b1 = vec_perm(m2, m3, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_0_3(b0, b1) \
+    do { \
+         b0 = vec_perm(m4, m5, LL_MASK); \
+         b1 = vec_perm(m6, m7, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_0_4(b0, b1) \
+    do { \
+         b0 = vec_perm(m4, m5, HH_MASK); \
+         b1 = vec_perm(m6, m7, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_1_1(b0, b1) \
+    do { \
+         b0 = vec_perm(m7, m2, LL_MASK); \
+         b1 = vec_perm(m4, m6, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_1_2(b0, b1) \
+    do { \
+         b0 = vec_perm(m5, m4, LL_MASK); \
+         b1 = vec_ext(m7, m3, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_1_3(b0, b1) \
+    do { \
+         b0 = vec_ext(m0, m0, 1); \
+         b1 = vec_perm(m5, m2, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_1_4(b0, b1) \
+    do { \
+         b0 = vec_perm(m6, m1, LL_MASK); \
+         b1 = vec_perm(m3, m1, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_2_1(b0, b1) \
+    do { \
+         b0 = vec_ext(m5, m6, 1); \
+         b1 = vec_perm(m2, m7, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_2_2(b0, b1) \
+    do { \
+         b0 = vec_perm(m4, m0, LL_MASK); \
+         b1 = vec_perm(m1, m6, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_2_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m5, m1, LH_MASK); \
+         b1 = vec_perm(m3, m4, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_2_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m7, m3, LL_MASK); \
+         b1 = vec_ext(m0, m2, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_3_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m3, m1, HH_MASK); \
+         b1 = vec_perm(m6, m5, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_3_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m4, m0, HH_MASK); \
+         b1 = vec_perm(m6, m7, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_3_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m1, m2, LH_MASK); \
+         b1 = vec_perm(m2, m7, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_3_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m3, m5, LL_MASK); \
+         b1 = vec_perm(m0, m4, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_4_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m4, m2, HH_MASK); \
+         b1 = vec_perm(m1, m5, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_4_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m0, m3, LH_MASK); \
+         b1 = vec_perm(m2, m7, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_4_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m7, m5, LH_MASK); \
+         b1 = vec_perm(m3, m1, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_4_4(b0, b1) \
+       do { \
+         b0 = vec_ext(m0, m6, 1); \
+         b1 = vec_perm(m4, m6, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_5_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m1, m3, LL_MASK); \
+         b1 = vec_perm(m0, m4, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_5_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m6, m5, LL_MASK); \
+         b1 = vec_perm(m5, m1, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_5_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m2, m3, LH_MASK); \
+         b1 = vec_perm(m7, m0, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_5_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m6, m2, HH_MASK); \
+         b1 = vec_perm(m7, m4, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_6_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m6, m0, LH_MASK); \
+         b1 = vec_perm(m7, m2, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_6_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m2, m7, HH_MASK); \
+         b1 = vec_ext(m6, m5, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_6_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m0, m3, LL_MASK); \
+         b1 = vec_ext(m4, m4, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_6_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m3, m1, HH_MASK); \
+         b1 = vec_perm(m1, m5, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_7_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m6, m3, HH_MASK); \
+         b1 = vec_perm(m6, m1, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_7_2(b0, b1) \
+       do { \
+         b0 = vec_ext(m5, m7, 1); \
+         b1 = vec_perm(m0, m4, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_7_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m2, m7, HH_MASK); \
+         b1 = vec_perm(m4, m1, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_7_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m0, m2, LL_MASK); \
+         b1 = vec_perm(m3, m5, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_8_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m3, m7, LL_MASK); \
+         b1 = vec_ext(m5, m0, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_8_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m7, m4, HH_MASK); \
+         b1 = vec_ext(m1, m4, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_8_3(b0, b1) \
+       do { \
+         b0 = m6; \
+         b1 = vec_ext(m0, m5, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_8_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m1, m3, LH_MASK); \
+         b1 = m2; \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_9_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m5, m4, LL_MASK); \
+         b1 = vec_perm(m3, m0, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_9_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m1, m2, LL_MASK); \
+         b1 = vec_perm(m3, m2, LH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_9_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m7, m4, HH_MASK); \
+         b1 = vec_perm(m1, m6, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_9_4(b0, b1) \
+       do { \
+         b0 = vec_ext(m5, m7, 1); \
+         b1 = vec_perm(m6, m0, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_10_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m0, m1, LL_MASK); \
+         b1 = vec_perm(m2, m3, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_10_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m0, m1, HH_MASK); \
+         b1 = vec_perm(m2, m3, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_10_3(b0, b1) \
+       do { \
+         b0 = vec_perm(m4, m5, LL_MASK); \
+         b1 = vec_perm(m6, m7, LL_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_10_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m4, m5, HH_MASK); \
+         b1 = vec_perm(m6, m7, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_11_1(b0, b1) \
+       do { \
+         b0 = vec_perm(m7, m2, LL_MASK); \
+         b1 = vec_perm(m4, m6, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_11_2(b0, b1) \
+       do { \
+         b0 = vec_perm(m5, m4, LL_MASK); \
+         b1 = vec_ext(m7, m3, 1); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_11_3(b0, b1) \
+       do { \
+         b0 = vec_ext(m0, m0, 1); \
+         b1 = vec_perm(m5, m2, HH_MASK); \
+    } while(0)
+
+    #define BLAKE2B_LOAD_MSG_11_4(b0, b1) \
+       do { \
+         b0 = vec_perm(m6, m1, LL_MASK); \
+         b1 = vec_perm(m3, m1, HH_MASK); \
+    } while(0)
+
+    // Power8 has packed 64-bit rotate, but in terms of left rotate
+    const uint64x2_p ROR16_MASK = { 64-16, 64-16 };
+    const uint64x2_p ROR24_MASK = { 64-24, 64-24 };
+    const uint64x2_p ROR32_MASK = { 64-32, 64-32 };
+    const uint64x2_p ROR63_MASK = { 64-63, 64-63 };
+
+    #define vec_ror_32(x) vec_rl(x, ROR32_MASK)
+    #define vec_ror_24(x) vec_rl(x, ROR24_MASK)
+    #define vec_ror_16(x) vec_rl(x, ROR16_MASK)
+    #define vec_ror_63(x) vec_rl(x, ROR63_MASK)
+
+    #define BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+    do { \
+      row1l = vec_add(vec_add(row1l, b0), row2l); \
+      row1h = vec_add(vec_add(row1h, b1), row2h); \
+      row4l = vec_xor(row4l, row1l); row4h = vec_xor(row4h, row1h); \
+      row4l = vec_ror_32(row4l); row4h = vec_ror_32(row4h); \
+      row3l = vec_add(row3l, row4l); row3h = vec_add(row3h, row4h); \
+      row2l = vec_xor(row2l, row3l); row2h = vec_xor(row2h, row3h); \
+      row2l = vec_ror_24(row2l); row2h = vec_ror_24(row2h); \
+    } while(0)
+
+    #define BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
+    do { \
+      row1l = vec_add(vec_add(row1l, b0), row2l); \
+      row1h = vec_add(vec_add(row1h, b1), row2h); \
+      row4l = vec_xor(row4l, row1l); row4h = vec_xor(row4h, row1h); \
+      row4l = vec_ror_16(row4l); row4h = vec_ror_16(row4h); \
+      row3l = vec_add(row3l, row4l); row3h = vec_add(row3h, row4h); \
+      row2l = vec_xor(row2l, row3l); row2h = vec_xor(row2h, row3h); \
+      row2l = vec_ror_63(row2l); row2h = vec_ror_63(row2h); \
+    } while(0)
+
+    #define BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
+    do { \
+      uint64x2_p t0 = vec_ext(row2l, row2h, 1); \
+      uint64x2_p t1 = vec_ext(row2h, row2l, 1); \
+      row2l = t0; row2h = t1; t0 = row3l;  row3l = row3h; row3h = t0; \
+      t0 = vec_ext(row4h, row4l, 1); t1 = vec_ext(row4l, row4h, 1); \
+      row4l = t0; row4h = t1; \
+    } while(0)
+
+    #define BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
+    do { \
+      uint64x2_p t0 = vec_ext(row2h, row2l, 1); \
+      uint64x2_p t1 = vec_ext(row2l, row2h, 1); \
+      row2l = t0; row2h = t1; t0 = row3l; row3l = row3h; row3h = t0; \
+      t0 = vec_ext(row4l, row4h, 1); t1 = vec_ext(row4h, row4l, 1); \
+      row4l = t0; row4h = t1; \
+    } while(0)
+
+    #define BLAKE2B_ROUND(r) \
+    do { \
+      uint64x2_p b0, b1; \
+      BLAKE2B_LOAD_MSG_ ##r ##_1(b0, b1); \
+      BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_LOAD_MSG_ ##r ##_2(b0, b1); \
+      BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
+      BLAKE2B_LOAD_MSG_ ##r ##_3(b0, b1); \
+      BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_LOAD_MSG_ ##r ##_4(b0, b1); \
+      BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1); \
+      BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
+    } while(0)
+
+    const uint64x2_p m0 = VectorLoad64LE(input +  00);
+    const uint64x2_p m1 = VectorLoad64LE(input +  16);
+    const uint64x2_p m2 = VectorLoad64LE(input +  32);
+    const uint64x2_p m3 = VectorLoad64LE(input +  48);
+    const uint64x2_p m4 = VectorLoad64LE(input +  64);
+    const uint64x2_p m5 = VectorLoad64LE(input +  80);
+    const uint64x2_p m6 = VectorLoad64LE(input +  96);
+    const uint64x2_p m7 = VectorLoad64LE(input + 112);
+
+    uint64x2_p row1l, row1h, row2l, row2h;
+    uint64x2_p row3l, row3h, row4l, row4h;
+
+    const uint64x2_p h0 = row1l = VectorLoad64LE(&state.h[0]);
+    const uint64x2_p h1 = row1h = VectorLoad64LE(&state.h[2]);
+    const uint64x2_p h2 = row2l = VectorLoad64LE(&state.h[4]);
+    const uint64x2_p h3 = row2h = VectorLoad64LE(&state.h[6]);
+
+    row3l = VectorLoad64(&BLAKE2B_IV[0]);
+    row3h = VectorLoad64(&BLAKE2B_IV[2]);
+    row4l = vec_xor(VectorLoad64(&BLAKE2B_IV[4]), VectorLoad64(&state.t[0]));
+    row4h = vec_xor(VectorLoad64(&BLAKE2B_IV[6]), VectorLoad64(&state.f[0]));
+
+    BLAKE2B_ROUND(0);
+    BLAKE2B_ROUND(1);
+    BLAKE2B_ROUND(2);
+    BLAKE2B_ROUND(3);
+    BLAKE2B_ROUND(4);
+    BLAKE2B_ROUND(5);
+    BLAKE2B_ROUND(6);
+    BLAKE2B_ROUND(7);
+    BLAKE2B_ROUND(8);
+    BLAKE2B_ROUND(9);
+    BLAKE2B_ROUND(10);
+    BLAKE2B_ROUND(11);
+
+    VectorStore64LE(&state.h[0], vec_xor(h0, vec_xor(row1l, row3l)));
+    VectorStore64LE(&state.h[2], vec_xor(h1, vec_xor(row1h, row3h)));
+    VectorStore64LE(&state.h[4], vec_xor(h2, vec_xor(row2l, row4l)));
+    VectorStore64LE(&state.h[6], vec_xor(h3, vec_xor(row2h, row4h)));
+}
+#endif  // POWER8
 
 NAMESPACE_END
