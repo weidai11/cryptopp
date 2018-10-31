@@ -1430,7 +1430,12 @@ inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 
 void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2_State<word64, true>& state)
 {
-    // Permute masks. High is element 0 (most significant), low is element 1 (least significant).
+    // Permute masks. High is element 0 (most significant), low is
+    // element 1 (least significant). We can use vec_mergeh(a,b) for
+    // vec_perm(a,b,HH_MASK) and vec_mergel(a,b) for vec_perm(a,b,LL_MASK).
+    // Benchmarks don't show a material difference. However, the code that
+    // uses vec_mergeh and vec_mergel is about 880 bytes shorter.
+
     const uint8x16_p HH_MASK = { 0,1,2,3,4,5,6,7,       16,17,18,19,20,21,22,23 };
     const uint8x16_p HL_MASK = { 0,1,2,3,4,5,6,7,       24,25,26,27,28,29,30,31 };
     const uint8x16_p LH_MASK = { 8,9,10,11,12,13,14,15, 16,17,18,19,20,21,22,23 };

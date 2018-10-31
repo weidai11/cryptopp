@@ -337,7 +337,7 @@ inline T VectorGetLow(const T& val)
 {
     //const T zero = {0};
     //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
-    //return (T)vec_perm(val, zero, mask);
+    //return (T)vec_perm(zero, val, mask);
     return VectorShiftRight<8>(VectorShiftLeft<8>(val));
 }
 
@@ -354,7 +354,7 @@ inline T VectorGetHigh(const T& val)
 {
     //const T zero = {0};
     //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
-    //return (T)vec_perm(val, zero, mask);
+    //return (T)vec_perm(zero, val, mask);
     return VectorShiftRight<8>(val);
 }
 
