@@ -1067,7 +1067,7 @@ public:
 	virtual ~StringSinkTemplate() {}
 
 	/// \brief Construct a StringSinkTemplate
-	/// \param output std::basic_string<char> type
+	/// \param output std::basic_string<char> or std::vector<byte> type
 	StringSinkTemplate(T &output)
 		: m_output(&output) {CRYPTOPP_ASSERT(sizeof(value_type)==1);}
 
@@ -1425,6 +1425,24 @@ public:
 ///   The third constructor takes a pointer and length.
 /// \since Crypto++ 5.6.0
 DOCUMENTED_TYPEDEF(StringSource, ArraySource)
+
+/// \brief std::vector-based implementation of the Source interface
+/// \since Crypto++ 8.0
+class CRYPTOPP_DLL VectorSource : public SourceTemplate<StringStore>
+{
+public:
+	/// \brief Construct a VectorSource
+	/// \param attachment an optional attached transformation
+	VectorSource(BufferedTransformation *attachment = NULLPTR)
+		: SourceTemplate<StringStore>(attachment) {}
+
+	/// \brief Construct a VectorSource
+	/// \param vec vector of bytes
+	/// \param pumpAll flag indicating if source data should be pumped to its attached transformation
+	/// \param attachment an optional attached transformation
+	VectorSource(const std::vector<byte> &vec, bool pumpAll, BufferedTransformation *attachment = NULLPTR)
+		: SourceTemplate<StringStore>(attachment) {SourceInitialize(pumpAll, MakeParameters("InputBuffer", ConstByteArrayParameter(vec)));}
+};
 
 /// \brief RNG-based implementation of Source interface
 /// \since Crypto++ 4.0

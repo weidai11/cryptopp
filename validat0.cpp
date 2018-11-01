@@ -1513,7 +1513,13 @@ bool TestStringSink()
         std::vector<byte> vec;
         StringSource s2(in, true, new VectorSink(vec));
 
-        return str.size() == vec.size() && std::equal(str.begin(), str.end(), vec.begin());
+        std::vector<byte> vec2;
+        VectorSource s3(vec, true, new VectorSink(vec2));
+
+        return str.size() == vec.size() &&
+            std::equal(str.begin(), str.end(), vec.begin()) &&
+            vec.size() == vec2.size() &&
+            std::equal(vec.begin(), vec.end(), vec2.begin());
     }
     catch(const std::exception&)
     {

@@ -44,8 +44,8 @@ public:
 	}
 
 	/// \brief Construct a ConstByteArrayParameter
-	/// \tparam T a std::basic_string<char> class
-	/// \param string a std::basic_string<char> class
+	/// \tparam T a std::basic_string<char> or std::vector<byte> class
+	/// \param string a std::basic_string<char> or std::vector<byte> object
 	/// \param deepCopy flag indicating whether the data should be copied
 	/// \details The deepCopy option is used when the NameValuePairs object can't
 	///   keep a copy of the data available
