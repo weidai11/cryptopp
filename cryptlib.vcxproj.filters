@@ -59,7 +59,10 @@
     <ClCompile Include="blake2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="blake2-simd.cpp">
+    <ClCompile Include="blake2s-simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="blake2b-simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="blowfish.cpp">

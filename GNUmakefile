@@ -257,7 +257,8 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_SSSE3,$(CXXFLAGS)),)
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SSE4,$(CXXFLAGS)),)
   HAVE_SSE4 = $(shell $(CXX) $(CXXFLAGS) -msse4.1 -dM -E pch.cpp 2>&1 | $(GREP) -i -c __SSE4_1__)
   ifeq ($(HAVE_SSE4),1)
-    BLAKE2_FLAG = -msse4.1
+    BLAKE2B_FLAG = -msse4.1
+    BLAKE2S_FLAG = -msse4.1
     SIMON64_FLAG = -msse4.1
     SPECK64_FLAG = -msse4.1
   endif
@@ -309,7 +310,8 @@ ifeq ($(SUN_COMPILER),1)
   endif
   COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_1 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
-    BLAKE2_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    BLAKE2B_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
+    BLAKE2S_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     SIMON64_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     SPECK64_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     LDFLAGS += -xarch=sse4_1
@@ -377,7 +379,8 @@ ifeq ($(IS_NEON),1)
     AES_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     CRC_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     GCM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
-    BLAKE2_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    BLAKE2B_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    BLAKE2S_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     CHACHA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     CHAM_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     LEA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -395,7 +398,8 @@ ifeq ($(IS_ARMV8),1)
   HAVE_NEON = $(shell $(CXX) $(CXXFLAGS) -march=armv8-a -dM -E pch.cpp 2>&1 | $(GREP) -i -c __ARM_NEON)
   ifeq ($(HAVE_NEON),1)
     ARIA_FLAG = -march=armv8-a
-    BLAKE2_FLAG = -march=armv8-a
+    BLAKE2B_FLAG = -march=armv8-a
+    BLAKE2S_FLAG = -march=armv8-a
     CHACHA_FLAG = -march=armv8-a
     CHAM_FLAG = -march=armv8-a
     LEA_FLAG = -march=armv8-a
@@ -432,7 +436,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER8),0)
     POWER8_FLAG = -mcpu=power8 -maltivec
     AES_FLAG = $(POWER8_FLAG)
-    BLAKE2_FLAG = $(POWER8_FLAG)
+    BLAKE2B_FLAG = $(POWER8_FLAG)
+    BLAKE2S_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
@@ -448,6 +453,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER7),0)
     POWER7_FLAG = -mcpu=power7 -maltivec
     ARIA_FLAG = $(POWER7_FLAG)
+    BLAKE2S_FLAG = $(POWER7_FLAG)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
@@ -466,7 +472,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER8),0)
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     AES_FLAG = $(POWER8_FLAG)
-    BLAKE2_FLAG = $(POWER8_FLAG)
+    BLAKE2B_FLAG = $(POWER8_FLAG)
+    BLAKE2S_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
     GCM_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
@@ -482,6 +489,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_POWER7),0)
     POWER7_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = $(POWER7_FLAG)
+    BLAKE2S_FLAG = $(POWER7_FLAG)
     CHAM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
@@ -502,7 +510,8 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   ifneq ($(HAVE_LLVM),0)
     POWER7_FLAG = $(POWER8_FLAG)
     ARIA_FLAG = $(POWER8_FLAG)
-    BLAKE2_FLAG = $(POWER8_FLAG)
+    BLAKE2B_FLAG = $(POWER8_FLAG)
+    BLAKE2S_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
     CHAM_FLAG = $(POWER8_FLAG)
     LEA_FLAG = $(POWER8_FLAG)
@@ -1176,9 +1185,13 @@ aes-armv4.o : aes-armv4.S
 aria-simd.o : aria-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
-# SSE4.1 or ARMv8a available
-blake2-simd.o : blake2-simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
+# SSE, NEON or POWER7 available
+blake2s-simd.o : blake2s-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2S_FLAG) -c) $<
+
+# SSE, NEON or POWER8 available
+blake2b-simd.o : blake2b-simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2B_FLAG) -c) $<
 
 # SSE2 or NEON available
 chacha-simd.o : chacha-simd.cpp

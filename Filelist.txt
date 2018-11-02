@@ -35,7 +35,8 @@ bench2.cpp
 bench3.cpp
 bfinit.cpp
 blake2.cpp
-blake2-simd.cpp
+blake2s-simd.cpp
+blake2b-simd.cpp
 blake2.h
 blowfish.cpp
 blowfish.h

@@ -182,7 +182,8 @@
     <ClCompile Include="basecode.cpp" />
     <ClCompile Include="bfinit.cpp" />
     <ClCompile Include="blake2.cpp" />
-    <ClCompile Include="blake2-simd.cpp" />
+    <ClCompile Include="blake2s-simd.cpp" />
+    <ClCompile Include="blake2b-simd.cpp" />
     <ClCompile Include="blowfish.cpp" />
     <ClCompile Include="blumshub.cpp" />
     <ClCompile Include="camellia.cpp" />
