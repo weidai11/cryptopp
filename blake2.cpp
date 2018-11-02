@@ -22,7 +22,7 @@
 # undef CRYPTOPP_ARM_NEON_AVAILABLE
 #endif
 
-// Disable POWER7 on PowerPC big-endian machines. BLAKE2s runs slower than C++.
+// Disable POWER7 on PowerPC big-endian machines. Blake2s/POWER7 runs slower than C++.
 #if defined(__powerpc__) && defined(__BIG_ENDIAN__)
 # undef CRYPTOPP_POWER7_AVAILABLE
 #endif

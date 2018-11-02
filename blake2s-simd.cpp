@@ -16,7 +16,7 @@
 // Do so in both blake2.cpp and blake2-simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
-// #undef CRYPTOPP_POWER8_AVAILABLE
+// #undef CRYPTOPP_POWER7_AVAILABLE
 
 // Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
 // 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
@@ -45,7 +45,7 @@
 # include "ppc-simd.h"
 #endif
 
-// Disable POWER7 on PowerPC big-endian machines. BLAKE2s runs slower than C++.
+// Disable POWER7 on PowerPC big-endian machines. Blake2s/POWER7 runs slower than C++.
 #if defined(__powerpc__) && defined(__BIG_ENDIAN__)
 # undef CRYPTOPP_POWER7_AVAILABLE
 #endif
@@ -64,18 +64,6 @@ const word32 BLAKE2S_IV[8] = {
 };
 
 #endif
-
-#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER8_AVAILABLE)
-
-CRYPTOPP_ALIGN_DATA(16)
-const word64 BLAKE2B_IV[8] = {
-    W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
-    W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
-    W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
-    W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)
-};
-
-#endif  // CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
