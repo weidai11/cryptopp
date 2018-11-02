@@ -22,6 +22,11 @@
 # undef CRYPTOPP_ARM_NEON_AVAILABLE
 #endif
 
+// Disable POWER7 on PowerPC big-endian machines. BLAKE2s runs slower than C++.
+#if defined(__powerpc__) && defined(__BIG_ENDIAN__)
+# undef CRYPTOPP_POWER7_AVAILABLE
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
@@ -147,6 +152,10 @@ extern void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>
 #if CRYPTOPP_ARM_NEON_AVAILABLE
 extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state);
+#endif
+
+#if CRYPTOPP_POWER7_AVAILABLE
+extern void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2_State<word32, false>& state);
 #endif
 
 #if CRYPTOPP_POWER8_AVAILABLE
@@ -356,6 +365,10 @@ std::string BLAKE2_Base<W, T_64bit>::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 #endif
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7() && T_64bit == false)
+        return "Power7";
+#endif
 #if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8() && T_64bit == true)
         return "Power8";
@@ -540,6 +553,12 @@ void BLAKE2_Base<word32, false>::Compress(const byte *input)
     if(HasNEON())
     {
         return BLAKE2_Compress32_NEON(input, *m_state.data());
+    }
+#endif
+#if CRYPTOPP_POWER7_AVAILABLE
+    if(HasPower7())
+    {
+        return BLAKE2_Compress32_POWER7(input, *m_state.data());
     }
 #endif
     return BLAKE2_Compress32_CXX(input, *m_state.data());

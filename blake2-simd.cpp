@@ -41,8 +41,13 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
 # include "ppc-simd.h"
+#endif
+
+// Disable POWER7 on PowerPC big-endian machines. BLAKE2s runs slower than C++.
+#if defined(__powerpc__) && defined(__BIG_ENDIAN__)
+# undef CRYPTOPP_POWER7_AVAILABLE
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -50,13 +55,17 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::word32;
 using CryptoPP::word64;
 
-#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER8_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER7_AVAILABLE)
 
 CRYPTOPP_ALIGN_DATA(16)
 const word32 BLAKE2S_IV[8] = {
     0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
     0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
 };
+
+#endif
+
+#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER8_AVAILABLE)
 
 CRYPTOPP_ALIGN_DATA(16)
 const word64 BLAKE2B_IV[8] = {
@@ -1375,6 +1384,376 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
+#if (CRYPTOPP_POWER7_AVAILABLE)
+
+inline uint32x4_p VectorLoad32(const void* p)
+{
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+    return (uint32x4_p)vec_xl(0, (uint8_t*)p);
+#else
+    return (uint32x4_p)vec_vsx_ld(0, (uint8_t*)p);
+#endif
+}
+
+inline uint32x4_p VectorLoad32LE(const void* p)
+{
+#if __BIG_ENDIAN__
+    const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
+    const uint32x4_p v = VectorLoad32(p);
+    return vec_perm(v, v, m);
+#else
+    return VectorLoad32(p);
+#endif
+}
+
+inline void VectorStore32(void* p, const uint32x4_p x)
+{
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+    vec_xst((uint8x16_p)x,0,(uint8_t*)p);
+#else
+    vec_vsx_st((uint8x16_p)x,0,(uint8_t*)p);
+#endif
+}
+
+inline void VectorStore32LE(void* p, const uint32x4_p x)
+{
+#if __BIG_ENDIAN__
+    const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
+    VectorStore32(p, vec_perm(x, x, m));
+#else
+    VectorStore32(p, x);
+#endif
+}
+
+template <unsigned int C>
+inline uint8x16_p VectorShiftLeftOctet(const uint8x16_p a)
+{
+#if __BIG_ENDIAN__
+    return (uint8x16_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, C);
+#else
+    return (uint8x16_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, 16-C);
+#endif
+}
+
+template <unsigned int C>
+inline uint32x4_p VectorShiftLeftOctet(const uint32x4_p a)
+{
+#if __BIG_ENDIAN__
+    return (uint32x4_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, C);
+#else
+    return (uint32x4_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, 16-C);
+#endif
+}
+
+template <unsigned int E1, unsigned int E2>
+inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b)
+{
+    // Re-index
+    enum {X=E1&3, Y=E2&3};
+
+    // Don't care element
+    const unsigned int DC = 31;
+
+    // Element 3 combinations
+    if (X == 0 && Y == 0)
+    {
+        const uint8x16_p mask = {0,1,2,3, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, b, mask);
+    }
+    else if (X == 0 && Y == 1)
+    {
+        const uint8x16_p mask = {0,1,2,3, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<4>(b), mask);
+    }
+    else if (X == 0 && Y == 2)
+    {
+        const uint8x16_p mask = {0,1,2,3, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<8>(b), mask);
+    }
+    else if (X == 0 && Y == 3)
+    {
+        const uint8x16_p mask = {0,1,2,3, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<12>(b), mask);
+    }
+
+    // Element 1 combinations
+    else if (X == 1 && Y == 0)
+    {
+        const uint8x16_p mask = {4,5,6,7, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, b, mask);
+    }
+    else if (X == 1 && Y == 1)
+    {
+        const uint8x16_p mask = {4,5,6,7, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<4>(b), mask);
+    }
+    else if (X == 1 && Y == 2)
+    {
+        const uint8x16_p mask = {4,5,6,7, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<8>(b), mask);
+    }
+    else if (X == 1 && Y == 3)
+    {
+        const uint8x16_p mask = {4,5,6,7, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<12>(b), mask);
+    }
+
+    // Element 2 combinations
+    else if (X == 2 && Y == 0)
+    {
+        const uint8x16_p mask = {8,9,10,11, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, b, mask);
+    }
+    else if (X == 2 && Y == 1)
+    {
+        const uint8x16_p mask = {8,9,10,11, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<4>(b), mask);
+    }
+    else if (X == 2 && Y == 2)
+    {
+        const uint8x16_p mask = {8,9,10,11, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<8>(b), mask);
+    }
+    else if (X == 2 && Y == 3)
+    {
+        const uint8x16_p mask = {8,9,10,11, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<12>(b), mask);
+    }
+
+    // Element 3 combinations
+    else if (X == 3 && Y == 0)
+    {
+        const uint8x16_p mask = {12,13,14,15, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, b, mask);
+    }
+    else if (X == 3 && Y == 1)
+    {
+        const uint8x16_p mask = {12,13,14,15, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<4>(b), mask);
+    }
+    else if (X == 3 && Y == 2)
+    {
+        const uint8x16_p mask = {12,13,14,15, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<8>(b), mask);
+    }
+    else if (X == 3 && Y == 3)
+    {
+        const uint8x16_p mask = {12,13,14,15, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
+        return vec_perm(a, VectorShiftLeftOctet<12>(b), mask);
+    }
+}
+
+template <unsigned int E1, unsigned int E2, unsigned int E3, unsigned int E4>
+inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b,
+                              const uint32x4_p c, const uint32x4_p d)
+{
+    // Re-index
+    enum {W=E1&3, X=E2&3, Y=E3&3, Z=E4&3};
+
+    const uint32x4_p t0 = VectorSet32<W,X>(a, b);
+    const uint32x4_p t1 = VectorSet32<Y,Z>(c, d);
+
+    // Power7 follows SSE2's implementation, and this is _mm_set_epi32.
+    const uint8x16_p mask = {20,21,22,23, 16,17,18,19, 4,5,6,7, 0,1,2,3};
+    const uint32x4_p r = vec_perm(t0, t1, mask);
+    return r;
+}
+
+template<>
+uint32x4_p VectorSet32<2,0,2,0>(const uint32x4_p a, const uint32x4_p b,
+                                const uint32x4_p c, const uint32x4_p d)
+{
+    // a=b, c=d, mask is {2,0, 2,0}
+    const uint8x16_p mask = {16,17,18,19, 24,25,26,27, 0,1,2,3, 8,9,10,11};
+    const uint32x4_p r = vec_perm(a, c, mask);
+    return r;
+}
+
+template<>
+uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
+                                const uint32x4_p c, const uint32x4_p d)
+{
+    // a=b, c=d, mask is {3,1, 3,1}
+    const uint8x16_p mask = {20,21,22,23, 28,29,30,31, 4,5,6,7, 12,13,14,15};
+    const uint32x4_p r = vec_perm(a, c, mask);
+    return r;
+}
+
+void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2_State<word32, false>& state)
+{
+    # define m1 m0
+    # define m2 m0
+    # define m3 m0
+
+    # define m5 m4
+    # define m6 m4
+    # define m7 m4
+
+    # define m9 m8
+    # define m10 m8
+    # define m11 m8
+
+    # define m13 m12
+    # define m14 m12
+    # define m15 m12
+
+    // #define BLAKE2S_LOAD_MSG_0_1(buf) buf = VectorSet32<6,4,2,0>(m6,m4,m2,m0);
+    #define BLAKE2S_LOAD_MSG_0_1(buf) buf = VectorSet32<2,0,2,0>(m6,m4,m2,m0);
+    // #define BLAKE2S_LOAD_MSG_0_2(buf) buf = VectorSet32<7,5,3,1>(m7,m5,m3,m1);
+    #define BLAKE2S_LOAD_MSG_0_2(buf) buf = VectorSet32<3,1,3,1>(m7,m5,m3,m1);
+    // #define BLAKE2S_LOAD_MSG_0_3(buf) buf = VectorSet32<14,12,10,8>(m14,m12,m10,m8);
+    #define BLAKE2S_LOAD_MSG_0_3(buf) buf = VectorSet32<2,0,2,0>(m14,m12,m10,m8);
+    // #define BLAKE2S_LOAD_MSG_0_4(buf) buf = VectorSet32<15,13,11,9>(m15,m13,m11,m9);
+    #define BLAKE2S_LOAD_MSG_0_4(buf) buf = VectorSet32<3,1,3,1>(m15,m13,m11,m9);
+
+    #define BLAKE2S_LOAD_MSG_1_1(buf) buf = VectorSet32<13,9,4,14>(m13,m9,m4,m14);
+    #define BLAKE2S_LOAD_MSG_1_2(buf) buf = VectorSet32<6,15,8,10>(m6,m15,m8,m10)
+    #define BLAKE2S_LOAD_MSG_1_3(buf) buf = VectorSet32<5,11,0,1>(m5,m11,m0,m1)
+    #define BLAKE2S_LOAD_MSG_1_4(buf) buf = VectorSet32<3,7,2,12>(m3,m7,m2,m12)
+
+    #define BLAKE2S_LOAD_MSG_2_1(buf) buf = VectorSet32<15,5,12,11>(m15,m5,m12,m11)
+    #define BLAKE2S_LOAD_MSG_2_2(buf) buf = VectorSet32<13,2,0,8>(m13,m2,m0,m8)
+    #define BLAKE2S_LOAD_MSG_2_3(buf) buf = VectorSet32<9,7,3,10>(m9,m7,m3,m10)
+    #define BLAKE2S_LOAD_MSG_2_4(buf) buf = VectorSet32<4,1,6,14>(m4,m1,m6,m14)
+
+    #define BLAKE2S_LOAD_MSG_3_1(buf) buf = VectorSet32<11,13,3,7>(m11,m13,m3,m7)
+    #define BLAKE2S_LOAD_MSG_3_2(buf) buf = VectorSet32<14,12,1,9>(m14,m12,m1,m9)
+    #define BLAKE2S_LOAD_MSG_3_3(buf) buf = VectorSet32<15,4,5,2>(m15,m4,m5,m2)
+    #define BLAKE2S_LOAD_MSG_3_4(buf) buf = VectorSet32<8,0,10,6>(m8,m0,m10,m6)
+
+    #define BLAKE2S_LOAD_MSG_4_1(buf) buf = VectorSet32<10,2,5,9>(m10,m2,m5,m9)
+    #define BLAKE2S_LOAD_MSG_4_2(buf) buf = VectorSet32<15,4,7,0>(m15,m4,m7,m0)
+    #define BLAKE2S_LOAD_MSG_4_3(buf) buf = VectorSet32<3,6,11,14>(m3,m6,m11,m14)
+    #define BLAKE2S_LOAD_MSG_4_4(buf) buf = VectorSet32<13,8,12,1>(m13,m8,m12,m1)
+
+    #define BLAKE2S_LOAD_MSG_5_1(buf) buf = VectorSet32<8,0,6,2>(m8,m0,m6,m2)
+    #define BLAKE2S_LOAD_MSG_5_2(buf) buf = VectorSet32<3,11,10,12>(m3,m11,m10,m12)
+    #define BLAKE2S_LOAD_MSG_5_3(buf) buf = VectorSet32<1,15,7,4>(m1,m15,m7,m4)
+    #define BLAKE2S_LOAD_MSG_5_4(buf) buf = VectorSet32<9,14,5,13>(m9,m14,m5,m13)
+
+    #define BLAKE2S_LOAD_MSG_6_1(buf) buf = VectorSet32<4,14,1,12>(m4,m14,m1,m12)
+    #define BLAKE2S_LOAD_MSG_6_2(buf) buf = VectorSet32<10,13,15,5>(m10,m13,m15,m5)
+    #define BLAKE2S_LOAD_MSG_6_3(buf) buf = VectorSet32<8,9,6,0>(m8,m9,m6,m0)
+    #define BLAKE2S_LOAD_MSG_6_4(buf) buf = VectorSet32<11,2,3,7>(m11,m2,m3,m7)
+
+    #define BLAKE2S_LOAD_MSG_7_1(buf) buf = VectorSet32<3,12,7,13>(m3,m12,m7,m13)
+    #define BLAKE2S_LOAD_MSG_7_2(buf) buf = VectorSet32<9,1,14,11>(m9,m1,m14,m11)
+    #define BLAKE2S_LOAD_MSG_7_3(buf) buf = VectorSet32<2,8,15,5>(m2,m8,m15,m5)
+    #define BLAKE2S_LOAD_MSG_7_4(buf) buf = VectorSet32<10,6,4,0>(m10,m6,m4,m0)
+
+    #define BLAKE2S_LOAD_MSG_8_1(buf) buf = VectorSet32<0,11,14,6>(m0,m11,m14,m6)
+    #define BLAKE2S_LOAD_MSG_8_2(buf) buf = VectorSet32<8,3,9,15>(m8,m3,m9,m15)
+    #define BLAKE2S_LOAD_MSG_8_3(buf) buf = VectorSet32<10,1,13,12>(m10,m1,m13,m12)
+    #define BLAKE2S_LOAD_MSG_8_4(buf) buf = VectorSet32<5,4,7,2>(m5,m4,m7,m2)
+
+    #define BLAKE2S_LOAD_MSG_9_1(buf) buf = VectorSet32<1,7,8,10>(m1,m7,m8,m10)
+    #define BLAKE2S_LOAD_MSG_9_2(buf) buf = VectorSet32<5,6,4,2>(m5,m6,m4,m2)
+    #define BLAKE2S_LOAD_MSG_9_3(buf) buf = VectorSet32<13,3,9,15>(m13,m3,m9,m15)
+    #define BLAKE2S_LOAD_MSG_9_4(buf) buf = VectorSet32<0,12,14,11>(m0,m12,m14,m11)
+
+    // Altivec has packed 32-bit rotate, but in terms of left rotate
+    const uint32x4_p ROR16_MASK = { 32-16, 32-16, 32-16, 32-16 };
+    const uint32x4_p ROR12_MASK = { 32-12, 32-12, 32-12, 32-12 };
+    const uint32x4_p ROR8_MASK  = { 32-8, 32-8, 32-8, 32-8 };
+    const uint32x4_p ROR7_MASK  = { 32-7, 32-7, 32-7, 32-7 };
+
+    #define vec_ror_16(x) vec_rl(x, ROR16_MASK)
+    #define vec_ror_12(x) vec_rl(x, ROR12_MASK)
+    #define vec_ror_8(x)  vec_rl(x, ROR8_MASK)
+    #define vec_ror_7(x)  vec_rl(x, ROR7_MASK)
+
+    #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
+      row1 = vec_add( vec_add( row1, buf), row2 ); \
+      row4 = vec_xor( row4, row1 ); \
+      row4 = vec_ror_16(row4); \
+      row3 = vec_add( row3, row4 );   \
+      row2 = vec_xor( row2, row3 ); \
+      row2 = vec_ror_12(row2);
+
+    #define BLAKE2S_G2(row1,row2,row3,row4,buf) \
+      row1 = vec_add( vec_add( row1, buf), row2 ); \
+      row4 = vec_xor( row4, row1 ); \
+      row4 = vec_ror_8(row4); \
+      row3 = vec_add( row3, row4 );   \
+      row2 = vec_xor( row2, row3 ); \
+      row2 = vec_ror_7(row2);
+
+    const uint8x16_p D2103_MASK = {12,13,14,15, 0,1,2,3, 4,5,6,7, 8,9,10,11};
+    const uint8x16_p D1032_MASK = {8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7};
+    const uint8x16_p D0321_MASK = {4,5,6,7, 8,9,10,11, 12,13,14,15, 0,1,2,3};
+
+    #define BLAKE2S_DIAGONALIZE(row1,row2,row3,row4) \
+      row4 = vec_perm( row4, row4, D2103_MASK ); \
+      row3 = vec_perm( row3, row3, D1032_MASK ); \
+      row2 = vec_perm( row2, row2, D0321_MASK );
+
+    #define BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4) \
+      row4 = vec_perm( row4, row4, D0321_MASK ); \
+      row3 = vec_perm( row3, row3, D1032_MASK ); \
+      row2 = vec_perm( row2, row2, D2103_MASK );
+
+    #define BLAKE2S_ROUND(r)  \
+      BLAKE2S_LOAD_MSG_ ##r ##_1(buf1); \
+      BLAKE2S_G1(row1,row2,row3,row4,buf1); \
+      BLAKE2S_LOAD_MSG_ ##r ##_2(buf2); \
+      BLAKE2S_G2(row1,row2,row3,row4,buf2); \
+      BLAKE2S_DIAGONALIZE(row1,row2,row3,row4); \
+      BLAKE2S_LOAD_MSG_ ##r ##_3(buf3); \
+      BLAKE2S_G1(row1,row2,row3,row4,buf3); \
+      BLAKE2S_LOAD_MSG_ ##r ##_4(buf4); \
+      BLAKE2S_G2(row1,row2,row3,row4,buf4); \
+      BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4);
+
+    uint32x4_p row1, row2, row3, row4;
+    uint32x4_p buf1, buf2, buf3, buf4;
+    uint32x4_p  ff0,  ff1;
+
+    const uint32x4_p  m0 = VectorLoad32LE(input +  0);
+    const uint32x4_p  m4 = VectorLoad32LE(input + 16);
+    const uint32x4_p  m8 = VectorLoad32LE(input + 32);
+    const uint32x4_p m12 = VectorLoad32LE(input + 48);
+
+    row1 = ff0 = VectorLoad32LE( &state.h[0] );
+    row2 = ff1 = VectorLoad32LE( &state.h[4] );
+    row3 = VectorLoad32( &BLAKE2S_IV[0] );
+    row4 = vec_xor( VectorLoad32( &BLAKE2S_IV[4] ), VectorLoad32( &state.t[0] ) );
+
+    BLAKE2S_ROUND( 0 );
+    BLAKE2S_ROUND( 1 );
+    BLAKE2S_ROUND( 2 );
+    BLAKE2S_ROUND( 3 );
+    BLAKE2S_ROUND( 4 );
+    BLAKE2S_ROUND( 5 );
+    BLAKE2S_ROUND( 6 );
+    BLAKE2S_ROUND( 7 );
+    BLAKE2S_ROUND( 8 );
+    BLAKE2S_ROUND( 9 );
+
+    VectorStore32LE( &state.h[0], vec_xor( ff0, vec_xor( row1, row3 ) ) );
+    VectorStore32LE( &state.h[4], vec_xor( ff1, vec_xor( row2, row4 ) ) );
+
+    #undef m0
+    #undef m1
+    #undef m2
+    #undef m3
+
+    #undef m4
+    #undef m5
+    #undef m6
+    #undef m7
+
+    #undef m8
+    #undef m9
+    #undef m10
+    #undef m11
+
+    #undef m12
+    #undef m13
+    #undef m14
+    #undef m15
+}
+#endif  // CRYPTOPP_POWER7_AVAILABLE
+
 #if (CRYPTOPP_POWER8_AVAILABLE)
 
 inline uint64x2_p VectorLoad64(const void* p)
@@ -1394,38 +1773,6 @@ inline uint64x2_p VectorLoad64LE(const void* p)
     return vec_perm(v, v, m);
 #else
     return VectorLoad64(p);
-#endif
-}
-
-// This is the missing vec_lx_be in GCC (XLC has it). The pointer p
-// should point to an array that has been manually endian-reversed.
-inline uint8x16_p VectorLoad8BE(const void* p)
-{
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return (uint8x16_p)vec_lx_be((uint8_t*)p);
-#else
-    int offset = 0;
-    uint8x16_p res;
-    __asm(" lxvd2x  %x0, %1, %2    \n\t"
-          : "=wa" (res)
-          : "r" (p), "r" (offset/4), "Z" (*(const char (*)[16]) p));
-    return res;
-#endif
-}
-
-// This is the missing vec_ld_be in GCC (XLC has it). The pointer p
-// should point to an array that has been manually endian-reversed.
-inline uint64x2_p VectorLoad64BE(const void* p)
-{
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return (uint64x2_p)vec_lx_be((uint8_t*)p);
-#else
-    int offset = 0;
-    uint64x2_p res;
-    __asm(" lxvd2x  %x0, %1, %2    \n\t"
-          : "=wa" (res)
-          : "r" (p), "r" (offset/4), "Z" (*(const char (*)[16]) p));
-    return res;
 #endif
 }
 
@@ -1460,10 +1807,11 @@ inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 
 #define vec_ext(a,b,c) VectorShiftLeftOctet<c*8>(a, b)
 
-// vec_mergeh(a,b) is equivalent to vec_perm(a,b,HH_MASK); and vec_mergel(a,b)
-// is equivalent vec_perm(a,b,LL_MASK). Benchmarks show vec_mergeh and
-// vec_mergel is faster on little-endian machines by 0.4 cpb. Benchmarks show
-// vec_perm is faster on big-endian machines by 1.5 cpb. The code that uses
+// vec_mergeh(a,b) is equivalent to vec_perm(a,b,HH_MASK); and
+// vec_mergel(a,b) is equivalent vec_perm(a,b,LL_MASK). Benchmarks
+// show vec_mergeh and vec_mergel is faster on little-endian
+// machines by 0.4 cpb. Benchmarks show vec_perm is faster on
+// big-endian machines by 1.5 cpb. The code that uses
 // vec_mergeh and vec_mergel is about 880 bytes shorter.
 
 #if defined(__GNUC__) && (__BIG_ENDIAN__)
@@ -1476,8 +1824,8 @@ inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 
 void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2_State<word64, true>& state)
 {
-    // Permute masks. High is element 0 (most significant), low is
-    // element 1 (least significant).
+    // Permute masks. High is element 0 (most significant),
+    // low is element 1 (least significant).
 
 #if defined(__GNUC__) && (__BIG_ENDIAN__)
     const uint8x16_p HH_MASK = { 0,1,2,3,4,5,6,7,       16,17,18,19,20,21,22,23 };
@@ -1881,6 +2229,6 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2_State<word64, true>& sta
     VectorStore64LE(&state.h[4], vec_xor(h2, vec_xor(row2l, row4l)));
     VectorStore64LE(&state.h[6], vec_xor(h3, vec_xor(row2h, row4h)));
 }
-#endif  // POWER8
+#endif  // CRYPTOPP_POWER8_AVAILABLE
 
 NAMESPACE_END
