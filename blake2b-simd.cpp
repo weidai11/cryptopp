@@ -1,6 +1,6 @@
-
 // blake2-simd.cpp - written and placed in the public domain by
-//                   Jeffrey Walton, Uri Blumenthal and Marcel Raad.
+//                   Samuel Neves, Jeffrey Walton, Uri Blumenthal
+//                   and Marcel Raad.
 //
 //    This source file uses intrinsics to gain access to ARMv7a/ARMv8a
 //    NEON, Power8 and SSE4.1 instructions. A separate source file is
@@ -16,7 +16,7 @@
 // Do so in both blake2.cpp and blake2-simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
-// #undef CRYPTOPP_POWER8_AVAILABLE
+// #undef CRYPTOPP_ALTIVEC_AVAILABLE
 
 // Disable NEON/ASIMD for Cortex-A53 and A57. The shifts are too slow and C/C++ is about
 // 3 cpb faster than NEON/ASIMD. Also see http://github.com/weidai11/cryptopp/issues/367.
@@ -41,7 +41,7 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE)
 # include "ppc-simd.h"
 #endif
 

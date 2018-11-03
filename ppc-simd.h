@@ -27,8 +27,6 @@
 // We also need to handle the case of -DCRYPTOPP_ALTIVEC_AVAILABLE=0.
 #if !defined(__ALTIVEC__)
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
-# undef CRYPTOPP_POWER7_AVAILABLE
-# undef CRYPTOPP_POWER8_AVAILABLE
 #endif
 
 #if !defined(_ARCH_PWR7)
@@ -49,7 +47,18 @@
 # undef bool
 #endif
 
+#if !(CRYPTOPP_ALTIVEC_AVAILABLE)
+# undef CRYPTOPP_POWER7_AVAILABLE
+# undef CRYPTOPP_POWER8_AVAILABLE
+# undef CRYPTOPP_POWER8_AES_AVAILABLE
+# undef CRYPTOPP_POWER8_VMULL_AVAILABLE
+# undef CRYPTOPP_POWER8_SHA_AVAILABLE
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
+
+// Wrap everything in this file based on CRYPTOPP_ALTIVEC_AVAILABLE
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
 // Datatypes
 #if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
@@ -841,6 +850,8 @@ inline T VectorSHA512(const T& vec)
 }
 
 #endif  // POWER8 crypto
+
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 NAMESPACE_END
 
