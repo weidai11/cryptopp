@@ -1037,26 +1037,6 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2_State<word32, false>& st
 
     VectorStore32LE( &state.h[0], vec_xor( ff0, vec_xor( row1, row3 ) ) );
     VectorStore32LE( &state.h[4], vec_xor( ff1, vec_xor( row2, row4 ) ) );
-
-    #undef m0
-    #undef m1
-    #undef m2
-    #undef m3
-
-    #undef m4
-    #undef m5
-    #undef m6
-    #undef m7
-
-    #undef m8
-    #undef m9
-    #undef m10
-    #undef m11
-
-    #undef m12
-    #undef m13
-    #undef m14
-    #undef m15
 }
 #endif  // CRYPTOPP_POWER7_AVAILABLE
 
