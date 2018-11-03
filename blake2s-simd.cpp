@@ -45,24 +45,11 @@
 # include "ppc-simd.h"
 #endif
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-using CryptoPP::word32;
-using CryptoPP::word64;
-
-#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER7_AVAILABLE)
-
-CRYPTOPP_ALIGN_DATA(16)
-const word32 BLAKE2S_IV[8] = {
-    0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
-    0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
-};
-
-#endif
-
-ANONYMOUS_NAMESPACE_END
-
 NAMESPACE_BEGIN(CryptoPP)
+
+// Exported by blake2.cpp
+extern const word32 BLAKE2S_IV[8];
+extern const word64 BLAKE2B_IV[8];
 
 #if CRYPTOPP_SSE41_AVAILABLE
 
@@ -71,7 +58,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define TOF(reg) _mm_castsi128_ps((reg))
 #define TOI(reg) _mm_castps_si128((reg))
 
-void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& state)
+void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
 {
     #define BLAKE2S_LOAD_MSG_0_1(buf) \
     buf = TOI(_mm_shuffle_ps(TOF(m0), TOF(m1), _MM_SHUFFLE(2,0,2,0)));
@@ -367,7 +354,7 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2_State<word32, false>& stat
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
-void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& state)
+void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 {
     #define BLAKE2S_LOAD_MSG_0_1(buf) \
     do { uint32x2_t t0, t1; \
@@ -656,10 +643,6 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2_State<word32, false>& stat
       BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4); \
     } while(0)
 
-    CRYPTOPP_ASSERT(IsAlignedOn(&state.h[0],GetAlignmentOf<uint32x4_t>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(&state.t[0],GetAlignmentOf<uint32x4_t>()));
-    CRYPTOPP_ASSERT(IsAlignedOn(&state.f[0],GetAlignmentOf<uint32x4_t>()));
-
     const uint32x4_t m0 = vreinterpretq_u32_u8(vld1q_u8((input + 00)));
     const uint32x4_t m1 = vreinterpretq_u32_u8(vld1q_u8((input + 16)));
     const uint32x4_t m2 = vreinterpretq_u32_u8(vld1q_u8((input + 32)));
@@ -880,7 +863,7 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
     return vec_perm(a, c, mask);
 }
 
-void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2_State<word32, false>& state)
+void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
 {
     # define m1 m0
     # define m2 m0

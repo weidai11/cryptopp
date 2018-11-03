@@ -45,26 +45,11 @@
 # include "ppc-simd.h"
 #endif
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-using CryptoPP::word32;
-using CryptoPP::word64;
-
-#if (CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE || CRYPTOPP_POWER8_AVAILABLE)
-
-CRYPTOPP_ALIGN_DATA(16)
-const word64 BLAKE2B_IV[8] = {
-    W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
-    W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
-    W64LIT(0x510e527fade682d1), W64LIT(0x9b05688c2b3e6c1f),
-    W64LIT(0x1f83d9abfb41bd6b), W64LIT(0x5be0cd19137e2179)
-};
-
-#endif  // CRYPTOPP_SSE41_AVAILABLE || CRYPTOPP_ARM_NEON_AVAILABLE
-
-ANONYMOUS_NAMESPACE_END
-
 NAMESPACE_BEGIN(CryptoPP)
+
+// Exported by blake2.cpp
+extern const word32 BLAKE2S_IV[8];
+extern const word64 BLAKE2B_IV[8];
 
 #if CRYPTOPP_SSE41_AVAILABLE
 
@@ -73,7 +58,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #define TOF(reg) _mm_castsi128_ps((reg))
 #define TOI(reg) _mm_castps_si128((reg))
 
-void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state)
+void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2b_State& state)
 {
     #define BLAKE2B_LOAD_MSG_0_1(b0, b1) \
     do { \
@@ -500,7 +485,7 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2_State<word64, true>& state
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
 #if CRYPTOPP_ARM_NEON_AVAILABLE
-void BLAKE2_Compress64_NEON(const byte* input, BLAKE2_State<word64, true>& state)
+void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 {
     #define BLAKE2B_LOAD_MSG_0_1(b0, b1) \
     do { b0 = vcombine_u64(vget_low_u64(m0), vget_low_u64(m1)); b1 = vcombine_u64(vget_low_u64(m2), vget_low_u64(m3)); } while(0)
@@ -823,7 +808,7 @@ inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 #  define vec_merge_lo(a,b) vec_mergel(a,b)
 #endif
 
-void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2_State<word64, true>& state)
+void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 {
     // Permute masks. High is element 0 (most significant),
     // low is element 1 (least significant).
