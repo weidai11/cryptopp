@@ -791,7 +791,7 @@ inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 #endif
 }
 
-#define vec_ext(a,b,c) VectorShiftLeftOctet<c*8>(a, b)
+#define vec_sldo(a,b,c) VectorShiftLeftOctet<c*8>(a, b)
 
 // vec_mergeh(a,b) is equivalent to vec_perm(a,b,HH_MASK); and
 // vec_mergel(a,b) is equivalent vec_perm(a,b,LL_MASK). Benchmarks
@@ -854,12 +854,12 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_1_2(b0, b1) \
     do { \
          b0 = vec_merge_hi(m5, m4); \
-         b1 = vec_ext(m7, m3, 1); \
+         b1 = vec_sldo(m7, m3, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_1_3(b0, b1) \
     do { \
-         b0 = vec_ext(m0, m0, 1); \
+         b0 = vec_sldo(m0, m0, 1); \
          b1 = vec_merge_lo(m5, m2); \
     } while(0)
 
@@ -871,7 +871,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_2_1(b0, b1) \
     do { \
-         b0 = vec_ext(m5, m6, 1); \
+         b0 = vec_sldo(m5, m6, 1); \
          b1 = vec_merge_lo(m2, m7); \
     } while(0)
 
@@ -890,7 +890,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_2_4(b0, b1) \
        do { \
          b0 = vec_merge_hi(m7, m3); \
-         b1 = vec_ext(m0, m2, 1); \
+         b1 = vec_sldo(m0, m2, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_3_1(b0, b1) \
@@ -937,7 +937,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_4_4(b0, b1) \
        do { \
-         b0 = vec_ext(m0, m6, 1); \
+         b0 = vec_sldo(m0, m6, 1); \
          b1 = vec_perm(m4, m6, HL_MASK); \
     } while(0)
 
@@ -974,13 +974,13 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_6_2(b0, b1) \
        do { \
          b0 = vec_merge_lo(m2, m7); \
-         b1 = vec_ext(m6, m5, 1); \
+         b1 = vec_sldo(m6, m5, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_6_3(b0, b1) \
        do { \
          b0 = vec_merge_hi(m0, m3); \
-         b1 = vec_ext(m4, m4, 1); \
+         b1 = vec_sldo(m4, m4, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_6_4(b0, b1) \
@@ -997,7 +997,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_7_2(b0, b1) \
        do { \
-         b0 = vec_ext(m5, m7, 1); \
+         b0 = vec_sldo(m5, m7, 1); \
          b1 = vec_merge_lo(m0, m4); \
     } while(0)
 
@@ -1016,19 +1016,19 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_8_1(b0, b1) \
        do { \
          b0 = vec_merge_hi(m3, m7); \
-         b1 = vec_ext(m5, m0, 1); \
+         b1 = vec_sldo(m5, m0, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_8_2(b0, b1) \
        do { \
          b0 = vec_merge_lo(m7, m4); \
-         b1 = vec_ext(m1, m4, 1); \
+         b1 = vec_sldo(m1, m4, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_8_3(b0, b1) \
        do { \
          b0 = m6; \
-         b1 = vec_ext(m0, m5, 1); \
+         b1 = vec_sldo(m0, m5, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_8_4(b0, b1) \
@@ -1057,7 +1057,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_9_4(b0, b1) \
        do { \
-         b0 = vec_ext(m5, m7, 1); \
+         b0 = vec_sldo(m5, m7, 1); \
          b1 = vec_merge_hi(m6, m0); \
     } while(0)
 
@@ -1094,12 +1094,12 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_11_2(b0, b1) \
        do { \
          b0 = vec_merge_hi(m5, m4); \
-         b1 = vec_ext(m7, m3, 1); \
+         b1 = vec_sldo(m7, m3, 1); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_11_3(b0, b1) \
        do { \
-         b0 = vec_ext(m0, m0, 1); \
+         b0 = vec_sldo(m0, m0, 1); \
          b1 = vec_merge_lo(m5, m2); \
     } while(0)
 
@@ -1144,19 +1144,19 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_DIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     do { \
-      uint64x2_p t0 = vec_ext(row2l, row2h, 1); \
-      uint64x2_p t1 = vec_ext(row2h, row2l, 1); \
+      uint64x2_p t0 = vec_sldo(row2l, row2h, 1); \
+      uint64x2_p t1 = vec_sldo(row2h, row2l, 1); \
       row2l = t0; row2h = t1; t0 = row3l;  row3l = row3h; row3h = t0; \
-      t0 = vec_ext(row4h, row4l, 1); t1 = vec_ext(row4l, row4h, 1); \
+      t0 = vec_sldo(row4h, row4l, 1); t1 = vec_sldo(row4l, row4h, 1); \
       row4l = t0; row4h = t1; \
     } while(0)
 
     #define BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h) \
     do { \
-      uint64x2_p t0 = vec_ext(row2h, row2l, 1); \
-      uint64x2_p t1 = vec_ext(row2l, row2h, 1); \
+      uint64x2_p t0 = vec_sldo(row2h, row2l, 1); \
+      uint64x2_p t1 = vec_sldo(row2l, row2h, 1); \
       row2l = t0; row2h = t1; t0 = row3l; row3l = row3h; row3h = t0; \
-      t0 = vec_ext(row4l, row4h, 1); t1 = vec_ext(row4h, row4l, 1); \
+      t0 = vec_sldo(row4l, row4h, 1); t1 = vec_sldo(row4h, row4l, 1); \
       row4l = t0; row4h = t1; \
     } while(0)
 
