@@ -24,8 +24,11 @@
 // we needed them for the SIMD and non-SIMD files. When the SIMD file is
 // compiled it may only get -mcpu=power4 or -mcpu=power7, so the POWER7
 // or POWER8 stuff is not actually available when this header is included.
+// We also need to handle the case of -DCRYPTOPP_ALTIVEC_AVAILABLE=0.
 #if !defined(__ALTIVEC__)
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
+# undef CRYPTOPP_POWER7_AVAILABLE
+# undef CRYPTOPP_POWER8_AVAILABLE
 #endif
 
 #if !defined(_ARCH_PWR7)
@@ -39,7 +42,7 @@
 # undef CRYPTOPP_POWER8_SHA_AVAILABLE
 #endif
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 # include <altivec.h>
 # undef vector
 # undef pixel
@@ -49,17 +52,17 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // Datatypes
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 typedef __vector unsigned char   uint8x16_p;
 typedef __vector unsigned short  uint16x8_p;
 typedef __vector unsigned int    uint32x4_p;
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 typedef __vector unsigned long long uint64x2_p;
 #endif  // POWER8 datatypes
 #endif  // ALTIVEC datatypes
 
 // Applies to all POWER machines
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Reverse a vector
 /// \tparam T vector type
@@ -385,7 +388,7 @@ inline bool VectorNotEqual(const T1& vec1, const T2& vec2)
 #endif  // POWER4 and above
 
 // POWER7/POWER4 load and store
-#if defined(CRYPTOPP_POWER7_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_POWER7_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
@@ -711,7 +714,7 @@ inline void VectorStoreBE(const T& src, byte dest[16])
 #endif  // POWER4/POWER7 load and store
 
 // POWER8 crypto
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
@@ -795,7 +798,7 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 
 #endif  // POWER8 crypto
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if (CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief SHA256 Sigma functions
 /// \tparam func function
