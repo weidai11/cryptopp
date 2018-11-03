@@ -864,8 +864,7 @@ inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b,
 
     // Power7 follows SSE2's implementation, and this is _mm_set_epi32.
     const uint8x16_p mask = {20,21,22,23, 16,17,18,19, 4,5,6,7, 0,1,2,3};
-    const uint32x4_p r = vec_perm(t0, t1, mask);
-    return r;
+    return vec_perm(t0, t1, mask);
 }
 
 template<>
@@ -874,8 +873,7 @@ uint32x4_p VectorSet32<2,0,2,0>(const uint32x4_p a, const uint32x4_p b,
 {
     // a=b, c=d, mask is {2,0, 2,0}
     const uint8x16_p mask = {16,17,18,19, 24,25,26,27, 0,1,2,3, 8,9,10,11};
-    const uint32x4_p r = vec_perm(a, c, mask);
-    return r;
+    return vec_perm(a, c, mask);
 }
 
 template<>
@@ -884,8 +882,7 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
 {
     // a=b, c=d, mask is {3,1, 3,1}
     const uint8x16_p mask = {20,21,22,23, 28,29,30,31, 4,5,6,7, 12,13,14,15};
-    const uint32x4_p r = vec_perm(a, c, mask);
-    return r;
+    return vec_perm(a, c, mask);
 }
 
 void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2_State<word32, false>& state)
