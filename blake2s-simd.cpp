@@ -53,7 +53,7 @@ extern const word64 BLAKE2B_IV[8];
 
 #if CRYPTOPP_SSE41_AVAILABLE
 
-#define LOADU(p)  _mm_loadu_si128( (const __m128i *)(const void*)(p) )
+#define LOADU(p)  _mm_loadu_si128((const __m128i *)(const void*)(p))
 #define STOREU(p,r) _mm_storeu_si128((__m128i *)(void*)(p), r)
 #define TOF(reg) _mm_castsi128_ps((reg))
 #define TOI(reg) _mm_castps_si128((reg))
@@ -278,35 +278,35 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
 # define MM_ROTI_EPI32(r, c) ( \
       (8==-(c)) ? _mm_shuffle_epi8(r,r8) \
     : (16==-(c)) ? _mm_shuffle_epi8(r,r16) \
-    : _mm_xor_si128(_mm_srli_epi32( (r), -(c) ), \
-      _mm_slli_epi32( (r), 32-(-(c)) )) )
+    : _mm_xor_si128(_mm_srli_epi32((r), -(c)), \
+      _mm_slli_epi32((r), 32-(-(c)))))
 #endif
 
 #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
-    row1 = _mm_add_epi32( _mm_add_epi32( row1, buf), row2 ); \
-    row4 = _mm_xor_si128( row4, row1 ); \
+    row1 = _mm_add_epi32(_mm_add_epi32(row1, buf), row2); \
+    row4 = _mm_xor_si128(row4, row1); \
     row4 = MM_ROTI_EPI32(row4, -16); \
-    row3 = _mm_add_epi32( row3, row4 );   \
-    row2 = _mm_xor_si128( row2, row3 ); \
+    row3 = _mm_add_epi32(row3, row4);   \
+    row2 = _mm_xor_si128(row2, row3); \
     row2 = MM_ROTI_EPI32(row2, -12);
 
 #define BLAKE2S_G2(row1,row2,row3,row4,buf) \
-    row1 = _mm_add_epi32( _mm_add_epi32( row1, buf), row2 ); \
-    row4 = _mm_xor_si128( row4, row1 ); \
+    row1 = _mm_add_epi32(_mm_add_epi32(row1, buf), row2); \
+    row4 = _mm_xor_si128(row4, row1); \
     row4 = MM_ROTI_EPI32(row4, -8); \
-    row3 = _mm_add_epi32( row3, row4 );   \
-    row2 = _mm_xor_si128( row2, row3 ); \
+    row3 = _mm_add_epi32(row3, row4);   \
+    row2 = _mm_xor_si128(row2, row3); \
     row2 = MM_ROTI_EPI32(row2, -7);
 
 #define DIAGONALIZE(row1,row2,row3,row4) \
-    row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(2,1,0,3) ); \
-    row3 = _mm_shuffle_epi32( row3, _MM_SHUFFLE(1,0,3,2) ); \
-    row2 = _mm_shuffle_epi32( row2, _MM_SHUFFLE(0,3,2,1) );
+    row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(2,1,0,3)); \
+    row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2)); \
+    row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(0,3,2,1));
 
 #define UNDIAGONALIZE(row1,row2,row3,row4) \
-    row4 = _mm_shuffle_epi32( row4, _MM_SHUFFLE(0,3,2,1) ); \
-    row3 = _mm_shuffle_epi32( row3, _MM_SHUFFLE(1,0,3,2) ); \
-    row2 = _mm_shuffle_epi32( row2, _MM_SHUFFLE(2,1,0,3) );
+    row4 = _mm_shuffle_epi32(row4, _MM_SHUFFLE(0,3,2,1)); \
+    row3 = _mm_shuffle_epi32(row3, _MM_SHUFFLE(1,0,3,2)); \
+    row2 = _mm_shuffle_epi32(row2, _MM_SHUFFLE(2,1,0,3));
 
 #define BLAKE2S_ROUND(r)  \
     BLAKE2S_LOAD_MSG_ ##r ##_1(buf1); \
@@ -324,32 +324,32 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
     __m128i buf1, buf2, buf3, buf4;
     __m128i t0, t1, t2, ff0, ff1;
 
-    const __m128i r8 = _mm_set_epi8( 12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1 );
-    const __m128i r16 = _mm_set_epi8( 13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2 );
+    const __m128i r8 = _mm_set_epi8(12, 15, 14, 13, 8, 11, 10, 9, 4, 7, 6, 5, 0, 3, 2, 1);
+    const __m128i r16 = _mm_set_epi8(13, 12, 15, 14, 9, 8, 11, 10, 5, 4, 7, 6, 1, 0, 3, 2);
 
-    const __m128i m0 = LOADU( input + 00 );
-    const __m128i m1 = LOADU( input + 16 );
-    const __m128i m2 = LOADU( input + 32 );
-    const __m128i m3 = LOADU( input + 48 );
+    const __m128i m0 = LOADU(input + 00);
+    const __m128i m1 = LOADU(input + 16);
+    const __m128i m2 = LOADU(input + 32);
+    const __m128i m3 = LOADU(input + 48);
 
-    row1 = ff0 = LOADU( &state.h[0] );
-    row2 = ff1 = LOADU( &state.h[4] );
-    row3 = LOADU( &BLAKE2S_IV[0] );
-    row4 = _mm_xor_si128( LOADU( &BLAKE2S_IV[4] ), LOADU( &state.tf[0] ) );
+    row1 = ff0 = LOADU(&state.h[0]);
+    row2 = ff1 = LOADU(&state.h[4]);
+    row3 = LOADU(&BLAKE2S_IV[0]);
+    row4 = _mm_xor_si128(LOADU(&BLAKE2S_IV[4]), LOADU(&state.tf[0]));
 
-    BLAKE2S_ROUND( 0 );
-    BLAKE2S_ROUND( 1 );
-    BLAKE2S_ROUND( 2 );
-    BLAKE2S_ROUND( 3 );
-    BLAKE2S_ROUND( 4 );
-    BLAKE2S_ROUND( 5 );
-    BLAKE2S_ROUND( 6 );
-    BLAKE2S_ROUND( 7 );
-    BLAKE2S_ROUND( 8 );
-    BLAKE2S_ROUND( 9 );
+    BLAKE2S_ROUND(0);
+    BLAKE2S_ROUND(1);
+    BLAKE2S_ROUND(2);
+    BLAKE2S_ROUND(3);
+    BLAKE2S_ROUND(4);
+    BLAKE2S_ROUND(5);
+    BLAKE2S_ROUND(6);
+    BLAKE2S_ROUND(7);
+    BLAKE2S_ROUND(8);
+    BLAKE2S_ROUND(9);
 
-    STOREU( &state.h[0], _mm_xor_si128( ff0, _mm_xor_si128( row1, row3 ) ) );
-    STOREU( &state.h[4], _mm_xor_si128( ff1, _mm_xor_si128( row2, row4 ) ) );
+    STOREU(&state.h[0], _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
+    STOREU(&state.h[4], _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
 }
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
@@ -643,10 +643,10 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
       BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4); \
     } while(0)
 
-    const uint32x4_t m0 = vreinterpretq_u32_u8(vld1q_u8((input + 00)));
-    const uint32x4_t m1 = vreinterpretq_u32_u8(vld1q_u8((input + 16)));
-    const uint32x4_t m2 = vreinterpretq_u32_u8(vld1q_u8((input + 32)));
-    const uint32x4_t m3 = vreinterpretq_u32_u8(vld1q_u8((input + 48)));
+    const uint32x4_t m0 = vreinterpretq_u32_u8(vld1q_u8(input + 00));
+    const uint32x4_t m1 = vreinterpretq_u32_u8(vld1q_u8(input + 16));
+    const uint32x4_t m2 = vreinterpretq_u32_u8(vld1q_u8(input + 32));
+    const uint32x4_t m3 = vreinterpretq_u32_u8(vld1q_u8(input + 48));
 
     uint32x4_t row1, row2, row3, row4;
 
@@ -947,19 +947,19 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
     #define vec_ror_7(x)  vec_rl(x, ROR7_MASK)
 
     #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
-      row1 = vec_add( vec_add( row1, buf), row2 ); \
-      row4 = vec_xor( row4, row1 ); \
+      row1 = vec_add(vec_add(row1, buf), row2); \
+      row4 = vec_xor(row4, row1); \
       row4 = vec_ror_16(row4); \
-      row3 = vec_add( row3, row4 );   \
-      row2 = vec_xor( row2, row3 ); \
+      row3 = vec_add(row3, row4);   \
+      row2 = vec_xor(row2, row3); \
       row2 = vec_ror_12(row2);
 
     #define BLAKE2S_G2(row1,row2,row3,row4,buf) \
-      row1 = vec_add( vec_add( row1, buf), row2 ); \
-      row4 = vec_xor( row4, row1 ); \
+      row1 = vec_add(vec_add(row1, buf), row2); \
+      row4 = vec_xor(row4, row1); \
       row4 = vec_ror_8(row4); \
-      row3 = vec_add( row3, row4 );   \
-      row2 = vec_xor( row2, row3 ); \
+      row3 = vec_add(row3, row4);   \
+      row2 = vec_xor(row2, row3); \
       row2 = vec_ror_7(row2);
 
     const uint8x16_p D2103_MASK = {12,13,14,15, 0,1,2,3, 4,5,6,7, 8,9,10,11};
@@ -967,14 +967,14 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
     const uint8x16_p D0321_MASK = {4,5,6,7, 8,9,10,11, 12,13,14,15, 0,1,2,3};
 
     #define BLAKE2S_DIAGONALIZE(row1,row2,row3,row4) \
-      row4 = vec_perm( row4, row4, D2103_MASK ); \
-      row3 = vec_perm( row3, row3, D1032_MASK ); \
-      row2 = vec_perm( row2, row2, D0321_MASK );
+      row4 = vec_perm(row4, row4, D2103_MASK); \
+      row3 = vec_perm(row3, row3, D1032_MASK); \
+      row2 = vec_perm(row2, row2, D0321_MASK);
 
     #define BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4) \
-      row4 = vec_perm( row4, row4, D0321_MASK ); \
-      row3 = vec_perm( row3, row3, D1032_MASK ); \
-      row2 = vec_perm( row2, row2, D2103_MASK );
+      row4 = vec_perm(row4, row4, D0321_MASK); \
+      row3 = vec_perm(row3, row3, D1032_MASK); \
+      row2 = vec_perm(row2, row2, D2103_MASK);
 
     #define BLAKE2S_ROUND(r)  \
       BLAKE2S_LOAD_MSG_ ##r ##_1(buf1); \
@@ -997,24 +997,24 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
     const uint32x4_p  m8 = VectorLoad32LE(input + 32);
     const uint32x4_p m12 = VectorLoad32LE(input + 48);
 
-    row1 = ff0 = VectorLoad32LE( &state.h[0] );
-    row2 = ff1 = VectorLoad32LE( &state.h[4] );
-    row3 = VectorLoad32( &BLAKE2S_IV[0] );
-    row4 = vec_xor( VectorLoad32( &BLAKE2S_IV[4] ), VectorLoad32( &state.tf[0] ) );
+    row1 = ff0 = VectorLoad32LE(&state.h[0]);
+    row2 = ff1 = VectorLoad32LE(&state.h[4]);
+    row3 = VectorLoad32(&BLAKE2S_IV[0]);
+    row4 = vec_xor(VectorLoad32(&BLAKE2S_IV[4]), VectorLoad32(&state.tf[0]));
 
-    BLAKE2S_ROUND( 0 );
-    BLAKE2S_ROUND( 1 );
-    BLAKE2S_ROUND( 2 );
-    BLAKE2S_ROUND( 3 );
-    BLAKE2S_ROUND( 4 );
-    BLAKE2S_ROUND( 5 );
-    BLAKE2S_ROUND( 6 );
-    BLAKE2S_ROUND( 7 );
-    BLAKE2S_ROUND( 8 );
-    BLAKE2S_ROUND( 9 );
+    BLAKE2S_ROUND(0);
+    BLAKE2S_ROUND(1);
+    BLAKE2S_ROUND(2);
+    BLAKE2S_ROUND(3);
+    BLAKE2S_ROUND(4);
+    BLAKE2S_ROUND(5);
+    BLAKE2S_ROUND(6);
+    BLAKE2S_ROUND(7);
+    BLAKE2S_ROUND(8);
+    BLAKE2S_ROUND(9);
 
-    VectorStore32LE( &state.h[0], vec_xor( ff0, vec_xor( row1, row3 ) ) );
-    VectorStore32LE( &state.h[4], vec_xor( ff1, vec_xor( row2, row4 ) ) );
+    VectorStore32LE(&state.h[0], vec_xor(ff0, vec_xor(row1, row3)));
+    VectorStore32LE(&state.h[4], vec_xor(ff1, vec_xor(row2, row4)));
 }
 #endif  // CRYPTOPP_POWER7_AVAILABLE
 

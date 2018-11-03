@@ -53,7 +53,7 @@ extern const word64 BLAKE2B_IV[8];
 
 #if CRYPTOPP_SSE41_AVAILABLE
 
-#define LOADU(p)  _mm_loadu_si128( (const __m128i *)(const void*)(p) )
+#define LOADU(p)  _mm_loadu_si128((const __m128i *)(const void*)(p))
 #define STOREU(p,r) _mm_storeu_si128((__m128i *)(void*)(p), r)
 #define TOF(reg) _mm_castsi128_ps((reg))
 #define TOI(reg) _mm_castps_si128((reg))
@@ -439,48 +439,48 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2b_State& state)
     __m128i b0, b1;
     __m128i t0, t1;
 
-    const __m128i r16 = _mm_setr_epi8( 2, 3, 4, 5, 6, 7, 0, 1, 10, 11, 12, 13, 14, 15, 8, 9 );
-    const __m128i r24 = _mm_setr_epi8( 3, 4, 5, 6, 7, 0, 1, 2, 11, 12, 13, 14, 15, 8, 9, 10 );
+    const __m128i r16 = _mm_setr_epi8(2, 3, 4, 5, 6, 7, 0, 1, 10, 11, 12, 13, 14, 15, 8, 9);
+    const __m128i r24 = _mm_setr_epi8(3, 4, 5, 6, 7, 0, 1, 2, 11, 12, 13, 14, 15, 8, 9, 10);
 
-    const __m128i m0 = LOADU( input + 00 );
-    const __m128i m1 = LOADU( input + 16 );
-    const __m128i m2 = LOADU( input + 32 );
-    const __m128i m3 = LOADU( input + 48 );
-    const __m128i m4 = LOADU( input + 64 );
-    const __m128i m5 = LOADU( input + 80 );
-    const __m128i m6 = LOADU( input + 96 );
-    const __m128i m7 = LOADU( input + 112 );
+    const __m128i m0 = LOADU(input + 00);
+    const __m128i m1 = LOADU(input + 16);
+    const __m128i m2 = LOADU(input + 32);
+    const __m128i m3 = LOADU(input + 48);
+    const __m128i m4 = LOADU(input + 64);
+    const __m128i m5 = LOADU(input + 80);
+    const __m128i m6 = LOADU(input + 96);
+    const __m128i m7 = LOADU(input + 112);
 
-    row1l = LOADU( &state.h[0] );
-    row1h = LOADU( &state.h[2] );
-    row2l = LOADU( &state.h[4] );
-    row2h = LOADU( &state.h[6] );
-    row3l = LOADU( &BLAKE2B_IV[0] );
-    row3h = LOADU( &BLAKE2B_IV[2] );
-    row4l = _mm_xor_si128( LOADU( &BLAKE2B_IV[4] ), LOADU( &state.tf[0] ) );
-    row4h = _mm_xor_si128( LOADU( &BLAKE2B_IV[6] ), LOADU( &state.tf[2] ) );
+    row1l = LOADU(&state.h[0]);
+    row1h = LOADU(&state.h[2]);
+    row2l = LOADU(&state.h[4]);
+    row2h = LOADU(&state.h[6]);
+    row3l = LOADU(&BLAKE2B_IV[0]);
+    row3h = LOADU(&BLAKE2B_IV[2]);
+    row4l = _mm_xor_si128(LOADU(&BLAKE2B_IV[4]), LOADU(&state.tf[0]));
+    row4h = _mm_xor_si128(LOADU(&BLAKE2B_IV[6]), LOADU(&state.tf[2]));
 
-    BLAKE2B_ROUND( 0 );
-    BLAKE2B_ROUND( 1 );
-    BLAKE2B_ROUND( 2 );
-    BLAKE2B_ROUND( 3 );
-    BLAKE2B_ROUND( 4 );
-    BLAKE2B_ROUND( 5 );
-    BLAKE2B_ROUND( 6 );
-    BLAKE2B_ROUND( 7 );
-    BLAKE2B_ROUND( 8 );
-    BLAKE2B_ROUND( 9 );
-    BLAKE2B_ROUND( 10 );
-    BLAKE2B_ROUND( 11 );
+    BLAKE2B_ROUND(0);
+    BLAKE2B_ROUND(1);
+    BLAKE2B_ROUND(2);
+    BLAKE2B_ROUND(3);
+    BLAKE2B_ROUND(4);
+    BLAKE2B_ROUND(5);
+    BLAKE2B_ROUND(6);
+    BLAKE2B_ROUND(7);
+    BLAKE2B_ROUND(8);
+    BLAKE2B_ROUND(9);
+    BLAKE2B_ROUND(10);
+    BLAKE2B_ROUND(11);
 
-    row1l = _mm_xor_si128( row3l, row1l );
-    row1h = _mm_xor_si128( row3h, row1h );
-    STOREU( &state.h[0], _mm_xor_si128( LOADU( &state.h[0] ), row1l ) );
-    STOREU( &state.h[2], _mm_xor_si128( LOADU( &state.h[2] ), row1h ) );
-    row2l = _mm_xor_si128( row4l, row2l );
-    row2h = _mm_xor_si128( row4h, row2h );
-    STOREU( &state.h[4], _mm_xor_si128( LOADU( &state.h[4] ), row2l ) );
-    STOREU( &state.h[6], _mm_xor_si128( LOADU( &state.h[6] ), row2h ) );
+    row1l = _mm_xor_si128(row3l, row1l);
+    row1h = _mm_xor_si128(row3h, row1h);
+    STOREU(&state.h[0], _mm_xor_si128(LOADU(&state.h[0]), row1l));
+    STOREU(&state.h[2], _mm_xor_si128(LOADU(&state.h[2]), row1h));
+    row2l = _mm_xor_si128(row4l, row2l);
+    row2h = _mm_xor_si128(row4h, row2h);
+    STOREU(&state.h[4], _mm_xor_si128(LOADU(&state.h[4]), row2l));
+    STOREU(&state.h[6], _mm_xor_si128(LOADU(&state.h[6]), row2h));
 }
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
@@ -633,11 +633,11 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 
     #define vrorq_n_u64_32(x) vreinterpretq_u64_u32(vrev64q_u32(vreinterpretq_u32_u64((x))))
 
-    #define vrorq_n_u64_24(x) vcombine_u64(\
+    #define vrorq_n_u64_24(x) vcombine_u64( \
         vreinterpret_u64_u8(vext_u8(vreinterpret_u8_u64(vget_low_u64(x)), vreinterpret_u8_u64(vget_low_u64(x)), 3)), \
         vreinterpret_u64_u8(vext_u8(vreinterpret_u8_u64(vget_high_u64(x)), vreinterpret_u8_u64(vget_high_u64(x)), 3)))
 
-    #define vrorq_n_u64_16(x) vcombine_u64(\
+    #define vrorq_n_u64_16(x) vcombine_u64( \
         vreinterpret_u64_u8(vext_u8(vreinterpret_u8_u64(vget_low_u64(x)), vreinterpret_u8_u64(vget_low_u64(x)), 2)), \
         vreinterpret_u64_u8(vext_u8(vreinterpret_u8_u64(vget_high_u64(x)), vreinterpret_u8_u64(vget_high_u64(x)), 2)))
 
