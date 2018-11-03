@@ -134,12 +134,12 @@ struct CRYPTOPP_NO_VTABLE BLAKE2s_State
     {
         // Set all members except scratch buffer[]
         h[0]=h[1]=h[2]=h[3]=h[4]=h[5]=h[6]=h[7] = 0;
-        t[0]=t[1]=f[0]=f[1] = 0;
+        tf[0]=tf[1]=tf[2]=tf[3] = 0;
         length = 0;
     }
 
-    // SSE2, SSE4 and NEON depend upon t[] and f[] being side-by-side
-    word32 h[8], t[2], f[2];
+    // SSE4, Power7 and NEON depend upon t[] and f[] being side-by-side
+    word32 h[8], tf[4];  // t[2], f[2];
     byte  buffer[BLAKE2s_Info::BLOCKSIZE];
     size_t length;
 };
@@ -152,12 +152,12 @@ struct CRYPTOPP_NO_VTABLE BLAKE2b_State
     {
         // Set all members except scratch buffer[]
         h[0]=h[1]=h[2]=h[3]=h[4]=h[5]=h[6]=h[7] = 0;
-        t[0]=t[1]=f[0]=f[1] = 0;
+        tf[0]=tf[1]=tf[2]=tf[3] = 0;
         length = 0;
     }
 
-    // SSE2, SSE4 and NEON depend upon t[] and f[] being side-by-side
-    word64 h[8], t[2], f[2];
+    // SSE4, Power8 and NEON depend upon t[] and f[] being side-by-side
+    word64 h[8], tf[4];  // t[2], f[2];
     byte  buffer[BLAKE2b_Info::BLOCKSIZE];
     size_t length;
 };

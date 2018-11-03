@@ -335,7 +335,7 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
     row1 = ff0 = LOADU( &state.h[0] );
     row2 = ff1 = LOADU( &state.h[4] );
     row3 = LOADU( &BLAKE2S_IV[0] );
-    row4 = _mm_xor_si128( LOADU( &BLAKE2S_IV[4] ), LOADU( &state.t[0] ) );
+    row4 = _mm_xor_si128( LOADU( &BLAKE2S_IV[4] ), LOADU( &state.tf[0] ) );
 
     BLAKE2S_ROUND( 0 );
     BLAKE2S_ROUND( 1 );
@@ -653,7 +653,7 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
     const uint32x4_t f0 = row1 = vld1q_u32(&state.h[0]);
     const uint32x4_t f1 = row2 = vld1q_u32(&state.h[4]);
     row3 = vld1q_u32(&BLAKE2S_IV[0]);
-    row4 = veorq_u32(vld1q_u32(&BLAKE2S_IV[4]), vld1q_u32(&state.t[0]));
+    row4 = veorq_u32(vld1q_u32(&BLAKE2S_IV[4]), vld1q_u32(&state.tf[0]));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
@@ -1000,7 +1000,7 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
     row1 = ff0 = VectorLoad32LE( &state.h[0] );
     row2 = ff1 = VectorLoad32LE( &state.h[4] );
     row3 = VectorLoad32( &BLAKE2S_IV[0] );
-    row4 = vec_xor( VectorLoad32( &BLAKE2S_IV[4] ), VectorLoad32( &state.t[0] ) );
+    row4 = vec_xor( VectorLoad32( &BLAKE2S_IV[4] ), VectorLoad32( &state.tf[0] ) );
 
     BLAKE2S_ROUND( 0 );
     BLAKE2S_ROUND( 1 );

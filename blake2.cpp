@@ -455,12 +455,12 @@ void BLAKE2s::Restart(const BLAKE2s_ParameterBlock& block, const word32 counter[
     }
 
     State& state = *m_state.data();
-    state.t[0] = state.t[1] = 0, state.f[0] = state.f[1] = 0, state.length = 0;
+    state.tf[0] = state.tf[1] = 0, state.tf[2] = state.tf[3] = 0, state.length = 0;
 
     if (counter != NULLPTR)
     {
-        state.t[0] = counter[0];
-        state.t[1] = counter[1];
+        state.tf[0] = counter[0];
+        state.tf[1] = counter[1];
     }
 
     const word32* iv = BLAKE2S_IV;
@@ -486,12 +486,12 @@ void BLAKE2b::Restart(const BLAKE2b_ParameterBlock& block, const word64 counter[
     }
 
     State& state = *m_state.data();
-    state.t[0] = state.t[1] = 0, state.f[0] = state.f[1] = 0, state.length = 0;
+    state.tf[0] = state.tf[1] = 0, state.tf[2] = state.tf[3] = 0, state.length = 0;
 
     if (counter != NULLPTR)
     {
-        state.t[0] = counter[0];
-        state.t[1] = counter[1];
+        state.tf[0] = counter[0];
+        state.tf[1] = counter[1];
     }
 
     const word64* iv = BLAKE2B_IV;
@@ -584,11 +584,11 @@ void BLAKE2s::TruncatedFinal(byte *hash, size_t size)
 
     // Set last block unconditionally
     State& state = *m_state.data();
-    state.f[0] = ~static_cast<word32>(0);
+    state.tf[2] = ~static_cast<word32>(0);
 
     // Set last node if tree mode
     if (m_treeMode)
-        state.f[1] = ~static_cast<word32>(0);
+        state.tf[3] = ~static_cast<word32>(0);
 
     // Increment counter for tail bytes only
     IncrementCounter(state.length);
@@ -609,11 +609,11 @@ void BLAKE2b::TruncatedFinal(byte *hash, size_t size)
 
     // Set last block unconditionally
     State& state = *m_state.data();
-    state.f[0] = ~static_cast<word64>(0);
+    state.tf[2] = ~static_cast<word64>(0);
 
     // Set last node if tree mode
     if (m_treeMode)
-        state.f[1] = ~static_cast<word64>(0);
+        state.tf[3] = ~static_cast<word64>(0);
 
     // Increment counter for tail bytes only
     IncrementCounter(state.length);
@@ -630,15 +630,15 @@ void BLAKE2b::TruncatedFinal(byte *hash, size_t size)
 void BLAKE2s::IncrementCounter(size_t count)
 {
     State& state = *m_state.data();
-    state.t[0] += static_cast<word32>(count);
-    state.t[1] += !!(state.t[0] < count);
+    state.tf[0] += static_cast<word32>(count);
+    state.tf[1] += !!(state.tf[0] < count);
 }
 
 void BLAKE2b::IncrementCounter(size_t count)
 {
     State& state = *m_state.data();
-    state.t[0] += static_cast<word64>(count);
-    state.t[1] += !!(state.t[0] < count);
+    state.tf[0] += static_cast<word64>(count);
+    state.tf[1] += !!(state.tf[0] < count);
 }
 
 void BLAKE2s::Compress(const byte *input)
@@ -702,10 +702,10 @@ void BLAKE2_Compress64_CXX(const byte* input, BLAKE2b_State& state)
     v[ 9] = iv[1];
     v[10] = iv[2];
     v[11] = iv[3];
-    v[12] = state.t[0] ^ iv[4];
-    v[13] = state.t[1] ^ iv[5];
-    v[14] = state.f[0] ^ iv[6];
-    v[15] = state.f[1] ^ iv[7];
+    v[12] = state.tf[0] ^ iv[4];
+    v[13] = state.tf[1] ^ iv[5];
+    v[14] = state.tf[2] ^ iv[6];
+    v[15] = state.tf[3] ^ iv[7];
 
     BLAKE2B_ROUND<0>(m, v);
     BLAKE2B_ROUND<1>(m, v);
@@ -739,10 +739,10 @@ void BLAKE2_Compress32_CXX(const byte* input, BLAKE2s_State& state)
     v[ 9] = iv[1];
     v[10] = iv[2];
     v[11] = iv[3];
-    v[12] = state.t[0] ^ iv[4];
-    v[13] = state.t[1] ^ iv[5];
-    v[14] = state.f[0] ^ iv[6];
-    v[15] = state.f[1] ^ iv[7];
+    v[12] = state.tf[0] ^ iv[4];
+    v[13] = state.tf[1] ^ iv[5];
+    v[14] = state.tf[2] ^ iv[6];
+    v[15] = state.tf[3] ^ iv[7];
 
     BLAKE2S_ROUND<0>(m, v);
     BLAKE2S_ROUND<1>(m, v);

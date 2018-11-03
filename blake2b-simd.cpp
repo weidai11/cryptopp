@@ -457,8 +457,8 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2b_State& state)
     row2h = LOADU( &state.h[6] );
     row3l = LOADU( &BLAKE2B_IV[0] );
     row3h = LOADU( &BLAKE2B_IV[2] );
-    row4l = _mm_xor_si128( LOADU( &BLAKE2B_IV[4] ), LOADU( &state.t[0] ) );
-    row4h = _mm_xor_si128( LOADU( &BLAKE2B_IV[6] ), LOADU( &state.f[0] ) );
+    row4l = _mm_xor_si128( LOADU( &BLAKE2B_IV[4] ), LOADU( &state.tf[0] ) );
+    row4h = _mm_xor_si128( LOADU( &BLAKE2B_IV[6] ), LOADU( &state.tf[2] ) );
 
     BLAKE2B_ROUND( 0 );
     BLAKE2B_ROUND( 1 );
@@ -717,8 +717,8 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 
     row3l = vld1q_u64(&BLAKE2B_IV[0]);
     row3h = vld1q_u64(&BLAKE2B_IV[2]);
-    row4l = veorq_u64(vld1q_u64(&BLAKE2B_IV[4]), vld1q_u64(&state.t[0]));
-    row4h = veorq_u64(vld1q_u64(&BLAKE2B_IV[6]), vld1q_u64(&state.f[0]));
+    row4l = veorq_u64(vld1q_u64(&BLAKE2B_IV[4]), vld1q_u64(&state.tf[0]));
+    row4h = veorq_u64(vld1q_u64(&BLAKE2B_IV[6]), vld1q_u64(&state.tf[2]));
 
     BLAKE2B_ROUND(0);
     BLAKE2B_ROUND(1);
@@ -1194,8 +1194,8 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     row3l = VectorLoad64(&BLAKE2B_IV[0]);
     row3h = VectorLoad64(&BLAKE2B_IV[2]);
-    row4l = vec_xor(VectorLoad64(&BLAKE2B_IV[4]), VectorLoad64(&state.t[0]));
-    row4h = vec_xor(VectorLoad64(&BLAKE2B_IV[6]), VectorLoad64(&state.f[0]));
+    row4l = vec_xor(VectorLoad64(&BLAKE2B_IV[4]), VectorLoad64(&state.tf[0]));
+    row4h = vec_xor(VectorLoad64(&BLAKE2B_IV[6]), VectorLoad64(&state.tf[2]));
 
     BLAKE2B_ROUND(0);
     BLAKE2B_ROUND(1);
