@@ -13,7 +13,7 @@
 ///   function. For best results under ARM NEON, specify both an architecture and cpu. For example:
 ///   <pre>CXXFLAGS="-DNDEBUG -march=armv8-a+crc -mcpu=cortex-a53 ..."</pre>
 /// \since C++ since Crypto++ 5.6.4, SSE since Crypto++ 5.6.4, NEON since Crypto++ 6.0,
-///   BLAKE2b Power8 since Crypto++ 8.0
+///   Power8 since Crypto++ 8.0
 
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H
@@ -170,7 +170,8 @@ struct CRYPTOPP_NO_VTABLE BLAKE2b_State
 ///   method that accepts a ParameterBlock does not allow you to change it.
 /// \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 ///   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
-/// \since Crypto++ 5.6.4
+/// \since C++ since Crypto++ 5.6.4, SSE since Crypto++ 5.6.4, NEON since Crypto++ 6.0,
+///   Power8 since Crypto++ 8.0
 class BLAKE2s : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2s_Info>
 {
 public:
@@ -269,7 +270,8 @@ private:
 ///   method that accepts a ParameterBlock does not allow you to change it.
 /// \sa Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
 ///   <A HREF="http://blake2.net/blake2.pdf">BLAKE2: simpler, smaller, fast as MD5</A> (2013.01.29).
-/// \since Crypto++ 5.6.4
+/// \since C++ since Crypto++ 5.6.4, SSE since Crypto++ 5.6.4, NEON since Crypto++ 6.0,
+///   Power8 since Crypto++ 8.0
 class BLAKE2b : public SimpleKeyingInterfaceImpl<MessageAuthenticationCode, BLAKE2b_Info>
 {
 public:
