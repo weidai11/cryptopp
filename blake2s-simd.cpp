@@ -735,13 +735,15 @@ inline uint32x4_p VectorShiftLeftOctet(const uint32x4_p a)
 template <unsigned int E1, unsigned int E2>
 inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b)
 {
-    // Re-index
+    // Re-index. I'd like to use something like Z=Y*4 and then
+    // VectorShiftLeftOctet<Z>(b) but it crashes early Red Hat
+    // GCC compilers.
     enum {X=E1&3, Y=E2&3};
 
     // Don't care element
     const unsigned int DC = 31;
 
-    // Element 3 combinations
+    // Element 0 combinations
     if (X == 0 && Y == 0)
     {
         const uint8x16_p mask = {0,1,2,3, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
