@@ -171,9 +171,10 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_SSE2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
+                // MultiBlockSafe avoids overflow on the counter words
                 m_state[12] += 4;
-                if (m_state[12] < 4)
-                    m_state[13]++;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
@@ -190,9 +191,10 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_NEON(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
+                // MultiBlockSafe avoids overflow on the counter words
                 m_state[12] += 4;
-                if (m_state[12] < 4)
-                    m_state[13]++;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
@@ -209,9 +211,10 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_POWER8(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
+                // MultiBlockSafe avoids overflow on the counter words
                 m_state[12] += 4;
-                if (m_state[12] < 4)
-                    m_state[13]++;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
