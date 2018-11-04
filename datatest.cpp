@@ -20,6 +20,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cerrno>
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)
