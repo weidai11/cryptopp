@@ -524,15 +524,15 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
-libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(LDFLAGS) $(LDLIBS)
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) $(AOSP_CPU_OBJ)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(AOSP_CPU_OBJ) $(LDFLAGS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
-libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
+libcryptopp.dylib: $(LIBOBJS) $(AOSP_CPU_OBJ)
+	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS) $(AOSP_CPU_OBJ)
 
 cryptest.exe: libcryptopp.a $(TESTOBJS)
 	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
@@ -565,7 +565,7 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+	$(CC) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
 
 # Cryptogams ARM asm implementation.
 aes-armv4.o : aes-armv4.S
