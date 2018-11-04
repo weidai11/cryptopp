@@ -398,7 +398,7 @@ public:
 	/// \param value the value retrieved upon success
 	/// \return true if an word64 value was retrieved, false otherwise
 	/// \sa GetValue(), GetValueWithDefault(), GetWord64ValueWithDefault(), GetIntValue(),
-    ///   GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredIntParameter()
+	///   GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL bool GetWord64Value(const char *name, word64 &value) const
 		{return GetValue(name, value);}
 
