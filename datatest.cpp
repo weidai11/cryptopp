@@ -30,6 +30,12 @@
 # pragma warning(disable: 4505 4355)
 #endif
 
+#ifdef _MSC_VER
+# define STRTOUL64 _strtoui64
+#else
+# define STRTOUL64 strtoull
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
@@ -220,6 +226,16 @@ public:
 
 		if (valueType == typeid(int))
 			*reinterpret_cast<int *>(pValue) = atoi(value.c_str());
+		else if (valueType == typeid(word64))
+		{
+			std::string x(value); errno = 0;
+			const char* beg = &x[0];
+			char* end = &x[0] + value.size();
+
+			*reinterpret_cast<word64*>(pValue) = STRTOUL64(beg, &end, 0);
+			if (errno != 0)
+				return false;
+		}
 		else if (valueType == typeid(Integer))
 			*reinterpret_cast<Integer *>(pValue) = Integer((std::string(value) + "h").c_str());
 		else if (valueType == typeid(ConstByteArrayParameter))
@@ -445,11 +461,20 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 			decryptor->SetKey(reinterpret_cast<const byte*>(&key[0]), key.size(), pairs);
 		}
 
-		int seek = pairs.GetIntValueWithDefault("Seek", 0);
-		if (seek)
+		word64 seek64 = pairs.GetWord64ValueWithDefault("Seek64", 0);
+		if (seek64)
 		{
-			encryptor->Seek(seek);
-			decryptor->Seek(seek);
+			encryptor->Seek(seek64);
+			decryptor->Seek(seek64);
+		}
+		else
+		{
+			int seek = pairs.GetIntValueWithDefault("Seek", 0);
+			if (seek)
+			{
+				encryptor->Seek(seek);
+				decryptor->Seek(seek);
+			}
 		}
 
 		// If a per-test vector parameter was set for a test, like BlockPadding,

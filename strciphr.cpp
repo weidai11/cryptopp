@@ -76,8 +76,6 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		length -= len; m_leftOver -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
-
-		if (!length) {return;}
 	}
 
 	PolicyInterface &policy = this->AccessPolicy();
@@ -93,8 +91,6 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
 		length -= iterations * bytesPerIteration;
-
-		if (!length) {return;}
 	}
 
 	size_t bufferByteSize = m_buffer.size();
@@ -134,7 +130,7 @@ template <class BASE>
 void AdditiveCipherTemplate<BASE>::Seek(lword position)
 {
 	PolicyInterface &policy = this->AccessPolicy();
-	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+	word32 bytesPerIteration = policy.GetBytesPerIteration();
 
 	policy.SeekToIteration(position / bytesPerIteration);
 	position %= bytesPerIteration;
@@ -142,7 +138,7 @@ void AdditiveCipherTemplate<BASE>::Seek(lword position)
 	if (position > 0)
 	{
 		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bytesPerIteration), 1);
-		m_leftOver = bytesPerIteration - (unsigned int)position;
+		m_leftOver = bytesPerIteration - static_cast<word32>(position);
 	}
 	else
 		m_leftOver = 0;
@@ -179,7 +175,7 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	CRYPTOPP_ASSERT(length % this->MandatoryBlockSize() == 0);
 
 	PolicyInterface &policy = this->AccessPolicy();
-	unsigned int bytesPerIteration = policy.GetBytesPerIteration();
+	word32 bytesPerIteration = policy.GetBytesPerIteration();
 	byte *reg = policy.GetRegisterBegin();
 
 	if (m_leftOver)
@@ -190,8 +186,6 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		m_leftOver -= len; length -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
-
-		if (!length) {return;}
 	}
 
 	// TODO: Figure out what is happening on ARM A-32. x86, Aarch64 and PowerPC are OK.
@@ -204,8 +198,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
 	//
 	// UPDATE: It appears the issue is related to alignment checks. When we made
-	//       the alignment check result volatile GCC and Clang stopped
-	//       short-circuiting the transform, which is what we wanted. I suspect
+	//       the alignment check result volatile GCC and Clang stopped short-
+	//       circuiting the transform, which is what we wanted. I suspect
 	//       there's a little more to the issue, but we can enable the block again.
 
 	const unsigned int alignment = policy.GetAlignment();

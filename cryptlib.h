@@ -393,6 +393,24 @@ public:
 	CRYPTOPP_DLL int GetIntValueWithDefault(const char *name, int defaultValue) const
 		{return GetValueWithDefault(name, defaultValue);}
 
+	/// \brief Get a named value with type word64
+	/// \param name the name of the value to retrieve
+	/// \param value the value retrieved upon success
+	/// \return true if an word64 value was retrieved, false otherwise
+	/// \sa GetValue(), GetValueWithDefault(), GetWord64ValueWithDefault(), GetIntValue(),
+    ///   GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredIntParameter()
+	CRYPTOPP_DLL bool GetWord64Value(const char *name, word64 &value) const
+		{return GetValue(name, value);}
+
+	/// \brief Get a named value with type word64, with default
+	/// \param name the name of the value to retrieve
+	/// \param defaultValue the default value if the name does not exist
+	/// \return the value retrieved on success or the default value
+	/// \sa GetValue(), GetValueWithDefault(), GetWord64Value(), GetIntValue(),
+	///   GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredWord64Parameter()
+	CRYPTOPP_DLL word64 GetWord64ValueWithDefault(const char *name, word64 defaultValue) const
+		{return GetValueWithDefault(name, defaultValue);}
+
 	/// \brief Ensures an expected name and type is present
 	/// \param name the name of the value
 	/// \param stored the type that was stored for the name
