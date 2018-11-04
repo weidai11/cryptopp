@@ -1,6 +1,7 @@
 // chacha.h - written and placed in the public domain by Jeffrey Walton.
-//            Based on Wei Dai's Salsa20 and Bernstein's reference ChaCha
-//            family implementation at http://cr.yp.to/chacha.html.
+//            Based on Wei Dai's Salsa20, Botan's SSE2 implementation,
+//            and Bernstein's reference ChaCha family implementation at
+//            http://cr.yp.to/chacha.html.
 
 /// \file chacha.h
 /// \brief Classes for ChaCha8, ChaCha12 and ChaCha20 stream ciphers
@@ -49,6 +50,13 @@ protected:
 
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
+
+    // MultiBlockSafe detects a condition that can arise in the SIMD
+    // implementations where we overflow one of the 32-bit state words
+    // during addition in an intermediate result. Conditions to trigger
+    // issue include a user seeks to around 2^32 blocks (256 GB of data).
+    // https://github.com/weidai11/cryptopp/issues/732
+    bool MultiBlockSafe() const;
 
     FixedSizeAlignedSecBlock<word32, 16> m_state;
     int m_rounds;
