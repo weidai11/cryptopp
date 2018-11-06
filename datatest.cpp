@@ -81,6 +81,7 @@ std::string TrimSpace(std::string str)
 
 static void OutputTestData(const TestData &v)
 {
+	std::cerr << "\n";
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
 	{
 		std::cerr << i->first << ": " << i->second << std::endl;
@@ -99,10 +100,14 @@ static void SignalUnknownAlgorithmError(const std::string& algType)
 	throw Exception(Exception::OTHER_ERROR, "Unknown algorithm " + algType + " during validation test");
 }
 
-static void SignalTestError()
+static void SignalTestError(const char* msg = NULLPTR)
 {
 	OutputTestData(*s_currentTestData);
-	throw Exception(Exception::OTHER_ERROR, "Unexpected error during validation test");
+
+	if (msg)
+		throw Exception(Exception::OTHER_ERROR, msg);
+	else
+		throw Exception(Exception::OTHER_ERROR, "Unexpected error during validation test");
 }
 
 bool DataExists(const TestData &data, const char *name)
@@ -115,7 +120,10 @@ const std::string & GetRequiredDatum(const TestData &data, const char *name)
 {
 	TestData::const_iterator i = data.find(name);
 	if (i == data.end())
-		SignalTestError();
+	{
+		std::string msg("Required datum \"" + std::string(name) + "\" missing");
+		SignalTestError(msg.c_str());
+	}
 	return i->second;
 }
 
@@ -383,7 +391,8 @@ void TestSignatureScheme(TestData &v)
 	}
 	else
 	{
-		SignalTestError();
+		std::string msg("Unknown signature test \"" + test + "\"");
+		SignalTestError(msg.c_str());
 		CRYPTOPP_ASSERT(false);
 	}
 }
@@ -429,7 +438,8 @@ void TestAsymmetricCipher(TestData &v)
 	}
 	else
 	{
-		SignalTestError();
+		std::string msg("Unknown asymmetric cipher test \"" + test + "\"");
+		SignalTestError(msg.c_str());
 		CRYPTOPP_ASSERT(false);
 	}
 }
@@ -605,8 +615,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 	}
 	else
 	{
-		std::cout << "\nunexpected test name\n";
-		SignalTestError();
+		std::string msg("Unknown symmetric cipher test \"" + test + "\"");
+		SignalTestError(msg.c_str());
 	}
 }
 
@@ -695,8 +705,8 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 	}
 	else
 	{
-		std::cout << "\nunexpected test name\n";
-		SignalTestError();
+		std::string msg("Unknown authenticated symmetric cipher test \"" + test + "\"");
+		SignalTestError(msg.c_str());
 	}
 }
 
@@ -747,8 +757,8 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 	}
 	else
 	{
-		SignalTestError();
-		CRYPTOPP_ASSERT(false);
+		std::string msg("Unknown digest or mac test \"" + test + "\"");
+		SignalTestError(msg.c_str());
 	}
 }
 
@@ -811,7 +821,7 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 		std::string::size_type pos = line.find(':');
 		if (pos == std::string::npos)
-			SignalTestError();
+			SignalTestError("Unable to parse name/value pair");
 
 		name = TrimSpace(line.substr(0, pos));
 		line = TrimSpace(line.substr(pos + 1));
