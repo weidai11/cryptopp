@@ -51,6 +51,34 @@ public:
 
 static const TestData *s_currentTestData = NULLPTR;
 
+std::string TrimComment(std::string str)
+{
+	if (str.empty()) return "";
+
+	std::string::size_type first = str.find("#");
+
+	if (first != std::string::npos)
+		return str.substr(0, first);
+	else
+		return str;
+}
+
+std::string TrimSpace(std::string str)
+{
+	if (str.empty()) return "";
+
+	const std::string whitespace(" \r\t\n");
+	std::string::size_type beg = str.find_first_not_of(whitespace);
+	std::string::size_type end = str.find_last_not_of(whitespace);
+
+	if (beg != std::string::npos && end != std::string::npos)
+		return str.substr(beg, end+1);
+	else if (beg != std::string::npos)
+		return str.substr(beg);
+	else
+		return "";
+}
+
 static void OutputTestData(const TestData &v)
 {
 	for (TestData::const_iterator i = v.begin(); i != v.end(); ++i)
@@ -771,78 +799,74 @@ inline char LastChar(const std::string& str) {
 // For istream.fail() see https://stackoverflow.com/q/34395801/608639.
 bool GetField(std::istream &is, std::string &name, std::string &value)
 {
+	std::string line;
+	name.clear(); value.clear();
+
 	// ***** Name *****
-	name: name.clear();
-	if ((is >> name).fail() == true)
-		return false;
-
-	// Eat whitespace and comments gracefully
-	if (name.empty() || name[0] =='#')
-		goto name;
-
-	if (LastChar(name) != ':')
+	while (is >> std::ws && std::getline(is, line))
 	{
-		char c;
-		if ((is >> std::skipws >> c).fail() == true || c != ':')
-			SignalTestError();
-	}
-	else
-		name.erase(name.size()-1);
+		// Eat whitespace and comments gracefully
+		if (line.empty() || line[0] == '#')
+			continue;
 
-	while (is.peek() == ' ')
-		is.ignore(1);
+		std::string::size_type pos = line.find(':');
+		if (pos == std::string::npos)
+			SignalTestError();
+
+		name = TrimSpace(line.substr(0, pos));
+		line = TrimSpace(line.substr(pos + 1));
+
+		// Empty name is bad
+		if (name.empty())
+			return false;
+
+		// Empty value is ok
+		if (line.empty())
+			return true;
+
+		break;
+	}
 
 	// ***** Value *****
-	value.clear();
-	std::string line;
 	bool continueLine = true;
 
-	while (continueLine && std::getline(is, line))
+	do
 	{
-		// Unix and Linux may have a stray \r because of Windows
-		if (!line.empty() && (LastChar(line) == '\r' || LastChar(line) == '\n')) {
-			line.erase(line.size()-1);
-		}
+		// Trim leading and trailing whitespace, including OS X and Windows
+		// new lines. Don't parse comments here because there may be a line
+		// continuation at the end.
+		line = TrimSpace(line);
 
 		continueLine = false;
-		if (!line.empty())
-		{
-			// Early out for immediate line continuation
-			if (line[0] == '\\') {
-				continueLine = true;
-				continue;
-			}
-			// Check end of line. It must be last character
-			if (LastChar(line) == '\\') {
-				continueLine = true;
-			}
-			// Check for comment. It can be first character
-			if (line[0] == '#') {
-				continue;
-			}
+		if (line.empty())
+			continue;
+
+		// Early out for immediate line continuation
+		if (line[0] == '\\') {
+			continueLine = true;
+			continue;
+		}
+		// Check end of line. It must be last character
+		if (LastChar(line) == '\\') {
+			continueLine = true;
+			line.erase(line.end()-1);
+			line = TrimSpace(line);
 		}
 
-		// Leading and trailing position. The leading position moves right, and
-		// trailing position moves left. The sub-string in the middle is the value
-		// for the name. We leave one space when line continuation is in effect.
-		// The value can be an empty string. One Plaintext value is often empty
-		// for algorithm testing.
-		std::string::size_type l=0, t=std::string::npos;
-		const std::string whitespace = "\t \r\n";
+		// Re-trim after parsing
+		line = TrimComment(line);
+		line = TrimSpace(line);
 
-		l = line.find_first_not_of(whitespace, l);
-		if (l == std::string::npos) { l = 0; }
-		t = line.find('#', l);
-		if (t != std::string::npos) { t--; }
-		t = line.find_last_not_of(whitespace+"\\", t);
-		if (t != std::string::npos) { t++; }
+		if (line.empty())
+			continue;
 
-		CRYPTOPP_ASSERT(t >= l);
-		value += line.substr(l, t - l);
+		// Finally... the value
+		value += line;
 
 		if (continueLine)
 			value += ' ';
 	}
+	while (continueLine && is >> std::ws && std::getline(is, line));
 
 	return true;
 }
@@ -897,14 +921,11 @@ void TestDataFile(std::string filename, const NameValuePairs &overrideParameters
 
 	while (file)
 	{
-		while (file.peek() == '#')
-			file.ignore((std::numeric_limits<std::streamsize>::max)(), '\n');
-
-		if (file.peek() == '\n' || file.peek() == '\r')
-			v.clear();
-
 		if (!GetField(file, name, value))
 			break;
+
+		if (name == "AlgorithmType")
+			v.clear();
 
 		// Can't assert value. Plaintext is sometimes empty.
 		// CRYPTOPP_ASSERT(!value.empty());
