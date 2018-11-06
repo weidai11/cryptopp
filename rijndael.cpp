@@ -88,6 +88,14 @@ being unloaded from L1 cache, until that round is finished.
 #include "misc.h"
 #include "cpu.h"
 
+// MSVC bug, still don't know how to fix it. TODO, figure out
+// when we can re-enable optimizations for MSVC. Also see
+// https://github.com/weidai11/cryptopp/issues/649
+#if defined(_MSC_VER) && (_MSC_VER >= 1910)
+# pragma optimize("", off)
+# pragma optimize("ts", on)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Hack for http://github.com/weidai11/cryptopp/issues/42 and http://github.com/weidai11/cryptopp/issues/132
