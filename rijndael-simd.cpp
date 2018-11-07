@@ -138,7 +138,7 @@ bool CPU_ProbeAES()
 #endif  // ARM32 or ARM64
 
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
-	bool CPU_ProbePower7()
+    bool CPU_ProbePower7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
@@ -804,7 +804,7 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 {
     const size_t rounds = keyLen / 4 + 6;
     const word32 *rc = s_rconBE;
-	word32 *rkey = rk, temp;
+    word32 *rkey = rk, temp;
 
     GetUserKey(BIG_ENDIAN_ORDER, rkey, keyLen/4, userKey, keyLen);
 
@@ -856,10 +856,10 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
     }
 
     for ( ; i<rounds+1; i++, rkey+=4)
-	{
+    {
         const uint8x16_p d = vec_vsx_ld( 0, (uint8_t*)rkey);
         vec_vsx_st(vec_perm(d, zero, mask),  0, (uint8_t*)rkey);
-	}
+    }
 #endif
 }
 
