@@ -1,3 +1,6 @@
-# Solaris mapfile to override hardware caps to avoid kills
+# Solaris mapfile to override hardware caps to avoid load-time kills.
+# Thanks to Andrew Henle for the mapfile version 1 syntax. Also see
+# https://stackoverflow.com/q/53210019/608639.
 
 hwcap_1 = SSE SSE2 OVERRIDE;
+hwcap_2	= V0x0;
