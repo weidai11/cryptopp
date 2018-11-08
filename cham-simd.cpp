@@ -17,6 +17,12 @@
 // #undef CRYPTOPP_SSSE3_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
+#if defined(CRYPTOPP_SSE2_AVAILABLE)
+# define CRYPTOPP_AVX512_ROTATE 1
+# include <xmmintrin.h>
+# include <emmintrin.h>
+#endif
+
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <pmmintrin.h>
 # include <tmmintrin.h>
@@ -24,11 +30,6 @@
 
 #if defined(__XOP__)
 # include <ammintrin.h>
-#endif
-
-#if defined(__AVX512F__) && defined(__AVX512VL__)
-# define CRYPTOPP_AVX512_ROTATE 1
-# include <immintrin.h>
 #endif
 
 // Squash MS LNK4221 and libtool warnings

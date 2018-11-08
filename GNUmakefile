@@ -227,9 +227,10 @@ ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 else
 ifeq ($(HAVE_GAS)$(GAS224_OR_LATER),10)
+CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
 CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
 
-endif  # -DCRYPTOPP_DISABLE_SHANI
+endif  # -DCRYPTOPP_DISABLE_AVX and SHANI
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
@@ -276,26 +277,33 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_AESNI,$(CXXFLAGS)),)
     AES_FLAG = -msse4.1 -maes
     SM4_FLAG = -mssse3 -maes
   endif
+ifeq ($(findstring -DCRYPTOPP_DISABLE_AVX2,$(CXXFLAGS)),)
+  HAVE_AVX2 = $(shell $(CXX) $(CXXFLAGS) -mavx2 -dM -E pch.cpp 2>&1 | $(GREP) -i -c __AVX2__)
+  ifeq ($(HAVE_AVX2),1)
+    CHACHA_AVX2_FLAG = -mavx2
+  endif
 ifeq ($(findstring -DCRYPTOPP_DISABLE_SHANI,$(CXXFLAGS)),)
   HAVE_SHA = $(shell $(CXX) $(CXXFLAGS) -msse4.2 -msha -dM -E pch.cpp 2>&1 | $(GREP) -i -c __SHA__)
   ifeq ($(HAVE_SHA),1)
     SHA_FLAG = -msse4.2 -msha
   endif
 endif  # -DCRYPTOPP_DISABLE_SHANI
+endif  # -DCRYPTOPP_DISABLE_AVX2
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
 
 # Begin SunCC
 ifeq ($(SUN_COMPILER),1)
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse2 -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     AES_FLAG = -xarch=sse2 -D__SSE2__=1
+    CHACHA_FLAG = -xarch=sse2 -D__SSE2__=1
     GCM_FLAG = -xarch=sse2 -D__SSE2__=1
     SHA_FLAG = -xarch=sse2 -D__SSE2__=1
     LDFLAGS += -xarch=sse2
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=ssse3 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=ssse3 -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     SSSE3_FLAG = -xarch=ssse3 -D__SSSE3__=1
     ARIA_FLAG = -xarch=ssse3 -D__SSSE3__=1
@@ -308,7 +316,7 @@ ifeq ($(SUN_COMPILER),1)
     SPECK128_FLAG = -xarch=ssse3 -D__SSSE3__=1
     LDFLAGS += -xarch=ssse3
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_1 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_1 -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     BLAKE2B_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     BLAKE2S_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
@@ -316,19 +324,28 @@ ifeq ($(SUN_COMPILER),1)
     SPECK64_FLAG = -xarch=sse4_1 -D__SSE4_1__=1
     LDFLAGS += -xarch=sse4_1
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sse4_2 -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     CRC_FLAG = -xarch=sse4_2 -D__SSE4_2__=1
     LDFLAGS += -xarch=sse4_2
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=aes -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=aes -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     GCM_FLAG = -xarch=aes -D__PCLMUL__=1
     AES_FLAG = -xarch=aes -D__AES__=1
     SM4_FLAG = -xarch=aes -D__AES__=1
     LDFLAGS += -xarch=aes
   endif
-  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sha -xdumpmacros /dev/null 2>&1 | $(GREP) -i -c "illegal")
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=avx -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
+  ifeq ($(COUNT),0)
+    LDFLAGS += -xarch=avx
+  endif
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=avx2 -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
+  ifeq ($(COUNT),0)
+    CHACHA_AVX2_FLAG = -xarch=avx2 -D__AVX2__=1
+    LDFLAGS += -xarch=avx2
+  endif
+  COUNT := $(shell $(CXX) $(CXXFLAGS) -E -xarch=sha -xdumpmacros pch.cpp 2>&1 | $(GREP) -i -c "illegal")
   ifeq ($(COUNT),0)
     SHA_FLAG = -xarch=sha -D__SHA__=1
     LDFLAGS += -xarch=sha
@@ -646,8 +663,8 @@ ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
 CXXFLAGS += -template=no%extdef
 SUN_CC10_BUGGY := $(shell $(CXX) -V 2>&1 | $(GREP) -c -E "CC: Sun .* 5\.10 .* (2009|2010/0[1-4])")
 ifneq ($(SUN_CC10_BUGGY),0)
-# -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21 and was fixed in May 2010
-# remove it if you get "already had a body defined" errors in vector.cc
+# -DCRYPTOPP_INCLUDE_VECTOR_CC is needed for Sun Studio 12u1 Sun C++ 5.10 SunOS_i386 128229-02 2009/09/21
+# and was fixed in May 2010. Remove it if you get "already had a body defined" errors in vector.cc
 CXXFLAGS += -DCRYPTOPP_INCLUDE_VECTOR_CC
 endif
 AR = $(CXX)
@@ -1196,6 +1213,10 @@ blake2b-simd.o : blake2b-simd.cpp
 # SSE2 or NEON available
 chacha-simd.o : chacha-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_FLAG) -c) $<
+
+# AVX2 available
+chacha-avx.o : chacha-avx.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_AVX2_FLAG) -c) $<
 
 # SSSE3 available
 cham-simd.o : cham-simd.cpp

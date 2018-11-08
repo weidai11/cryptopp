@@ -20,6 +20,10 @@ extern void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input,
 extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
+#if (CRYPTOPP_AVX2_AVAILABLE)
+extern void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
+#endif
+
 #if (CRYPTOPP_POWER8_AVAILABLE)
 extern void ChaCha_OperateKeystream_POWER8(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
@@ -62,17 +66,25 @@ std::string ChaCha_Policy::AlgorithmName() const
 
 std::string ChaCha_Policy::AlgorithmProvider() const
 {
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return "AVX2";
+    else
+#endif
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
     if (HasSSE2())
         return "SSE2";
+    else
 #endif
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
+    else
 #endif
 #if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
         return "Power8";
+    else
 #endif
     return "C++";
 }
@@ -117,11 +129,17 @@ void ChaCha_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaCha_Policy::GetAlignment() const
 {
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return 16;
+    else
+#endif
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
     if (HasSSE2())
         return 16;
     else
-#elif (CRYPTOPP_POWER8_AVAILABLE)
+#endif
+#if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
         return 16;
     else
@@ -131,6 +149,11 @@ unsigned int ChaCha_Policy::GetAlignment() const
 
 unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 {
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return 8 * BYTES_PER_ITERATION;
+    else
+#endif
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
     if (HasSSE2())
         return 4*BYTES_PER_ITERATION;
@@ -149,10 +172,9 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
         return BYTES_PER_ITERATION;
 }
 
-bool ChaCha_Policy::MultiBlockSafe() const
+bool ChaCha_Policy::MultiBlockSafe(unsigned int blocks) const
 {
-    const word32 c = m_state[12];
-    return 0xffffffff - c > 4;
+    return 0xffffffff - m_state[12] > blocks;
 }
 
 // OperateKeystream always produces a key stream. The key stream is written
@@ -163,10 +185,30 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 {
     do
     {
+#if (CRYPTOPP_AVX2_AVAILABLE)
+        if (HasAVX2())
+        {
+            while (iterationCount >= 8 && MultiBlockSafe(8))
+            {
+                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+                ChaCha_OperateKeystream_AVX2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+                // MultiBlockSafe avoids overflow on the counter words
+                m_state[12] += 8;
+                //if (m_state[12] < 8)
+                //    m_state[13]++;
+
+                input += (!!xorInput) * 8 * BYTES_PER_ITERATION;
+                output += 8 * BYTES_PER_ITERATION;
+                iterationCount -= 8;
+            }
+        }
+#endif
+
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
         if (HasSSE2())
         {
-            while (iterationCount >= 4 && MultiBlockSafe())
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_SSE2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
@@ -186,7 +228,7 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
         if (HasNEON())
         {
-            while (iterationCount >= 4 && MultiBlockSafe())
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_NEON(m_state, xorInput ? input : NULLPTR, output, m_rounds);
@@ -206,7 +248,7 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 #if (CRYPTOPP_POWER8_AVAILABLE)
         if (HasPower8())
         {
-            while (iterationCount >= 4 && MultiBlockSafe())
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_POWER8(m_state, xorInput ? input : NULLPTR, output, m_rounds);

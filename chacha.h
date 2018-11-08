@@ -56,7 +56,7 @@ protected:
     // during addition in an intermediate result. Conditions to trigger
     // issue include a user seeks to around 2^32 blocks (256 GB of data).
     // https://github.com/weidai11/cryptopp/issues/732
-    bool MultiBlockSafe() const;
+    inline bool MultiBlockSafe(unsigned int blocks) const;
 
     FixedSizeAlignedSecBlock<word32, 16> m_state;
     int m_rounds;

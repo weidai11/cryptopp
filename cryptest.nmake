@@ -55,8 +55,8 @@ LIB_SRCS = \
     algparam.cpp arc4.cpp aria-simd.cpp aria.cpp ariatab.cpp asn.cpp \
     authenc.cpp base32.cpp base64.cpp basecode.cpp bfinit.cpp blake2s-simd.cpp \
     blake2b-simd.cpp blake2.cpp blowfish.cpp blumshub.cpp camellia.cpp cast.cpp casts.cpp \
-    cbcmac.cpp ccm.cpp chacha-simd.cpp chacha.cpp cham-simd.cpp cham.cpp channels.cpp \
-    cmac.cpp crc-simd.cpp crc.cpp default.cpp des.cpp dessp.cpp dh.cpp \
+    cbcmac.cpp ccm.cpp chacha-avx.cpp chacha-simd.cpp chacha.cpp cham-simd.cpp cham.cpp \
+    channels.cpp cmac.cpp crc-simd.cpp crc.cpp default.cpp des.cpp dessp.cpp dh.cpp \
     dh2.cpp dll.cpp dsa.cpp eax.cpp ec2n.cpp eccrypto.cpp ecp.cpp elgamal.cpp \
     emsa2.cpp eprecomp.cpp esign.cpp files.cpp filters.cpp fips140.cpp \
     fipstest.cpp gcm-simd.cpp gcm.cpp gf256.cpp gf2_32.cpp gf2n.cpp \
@@ -83,8 +83,8 @@ LIB_OBJS = \
     algparam.obj arc4.obj aria-simd.obj aria.obj ariatab.obj asn.obj \
     authenc.obj base32.obj base64.obj basecode.obj bfinit.obj blake2s-simd.obj \
     blake2b-simd.obj blake2.obj blowfish.obj blumshub.obj camellia.obj cast.obj casts.obj \
-    cbcmac.obj ccm.obj chacha-simd.obj chacha.obj cham-simd.obj cham.obj channels.obj \
-    cmac.obj crc-simd.obj crc.obj default.obj des.obj dessp.obj dh.obj \
+    cbcmac.obj ccm.obj chacha-avx.obj chacha-simd.obj chacha.obj cham-simd.obj cham.obj \
+    channels.obj cmac.obj crc-simd.obj crc.obj default.obj des.obj dessp.obj dh.obj \
     dh2.obj dll.obj dsa.obj eax.obj ec2n.obj eccrypto.obj ecp.obj elgamal.obj \
     emsa2.obj eprecomp.obj esign.obj files.obj filters.obj fips140.obj \
     fipstest.obj gcm-simd.obj gcm.obj gf256.obj gf2_32.obj gf2n.obj \

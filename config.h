@@ -484,6 +484,11 @@ NAMESPACE_END
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
+// SunCC prior to 5.10 cannot handle some SSE intrinsics
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5100)
+# define CRYPTOPP_DISABLE_ASM 1
+#endif
+
 // Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
 // We can enable SSE2 for Sun Studio in the makefile with -D__SSE2__, but users may not compile with it.
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(__SSE2__) && defined(__x86_64__) && (__SUNPRO_CC >= 0x5100)
@@ -561,6 +566,22 @@ NAMESPACE_END
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
 	#define CRYPTOPP_AESNI_AVAILABLE 1
+#endif
+
+// Requires Binutils 2.24
+#if !defined(CRYPTOPP_DISABLE_AVX) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
+	(defined(__AVX2__) || (CRYPTOPP_MSC_VERSION >= 1800) || (__SUNPRO_CC >= 0x5130) || \
+	(CRYPTOPP_GCC_VERSION >= 40700) || (__INTEL_COMPILER >= 1400) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30100) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40600))
+#define CRYPTOPP_AVX_AVAILABLE 1
+#endif
+
+// Requires Binutils 2.24
+#if !defined(CRYPTOPP_DISABLE_AVX2) && defined(CRYPTOPP_AVX_AVAILABLE) && \
+	(defined(__AVX2__) || (CRYPTOPP_MSC_VERSION >= 1800) || (__SUNPRO_CC >= 0x5130) || \
+	(CRYPTOPP_GCC_VERSION >= 40700) || (__INTEL_COMPILER >= 1400) || \
+	(CRYPTOPP_LLVM_CLANG_VERSION >= 30100) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40600))
+#define CRYPTOPP_AVX2_AVAILABLE 1
 #endif
 
 // Guessing at SHA for SunCC. Its not in Sun Studio 12.6. Also see
