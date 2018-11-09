@@ -207,6 +207,7 @@ ifneq ($(HAVE_GAS),0)
   GAS217_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.1[7-9]|2\.[2-9]|[3-9])")
   GAS218_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.1[8-9]|2\.[2-9]|[3-9])")
   GAS219_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.19|2\.[2-9]|[3-9])")
+  GAS223_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.2[3-9]|2\.[4-9]|[3-9])")
   GAS224_OR_LATER := $(shell $(CXX) -xc -c /dev/null -Wa,-v -o/dev/null 2>&1 | $(GREP) -c -E "GNU assembler version (2\.2[4-9]|2\.[3-9]|[3-9])")
 endif
 
@@ -226,11 +227,14 @@ else
 ifeq ($(HAVE_GAS)$(GAS219_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
 else
-ifeq ($(HAVE_GAS)$(GAS224_OR_LATER),10)
+ifeq ($(HAVE_GAS)$(GAS223_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
+else
+ifeq ($(HAVE_GAS)$(GAS224_OR_LATER),10)
 CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
 
-endif  # -DCRYPTOPP_DISABLE_AVX and SHANI
+endif  # -DCRYPTOPP_DISABLE_SHANI
+endif  # -DCRYPTOPP_DISABLE_AVX
 endif  # -DCRYPTOPP_DISABLE_AESNI
 endif  # -DCRYPTOPP_DISABLE_SSE4
 endif  # -DCRYPTOPP_DISABLE_SSSE3
