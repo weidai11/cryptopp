@@ -36,9 +36,20 @@ extern const char CHACHA_AVX_FNAME[] = __FILE__;
 # define MAYBE_CONST const
 #endif
 
-#if (CRYPTOPP_AVX2_AVAILABLE)
+// VS2017 and global optimization bug. TODO, figure out when
+// we can re-enable full optimizations for VS2017. Also see
+// https://github.com/weidai11/cryptopp/issues/649 and
+// https://github.com/weidai11/cryptopp/issues/735. The
+// 649 issue affects AES but it is the same here. The 735
+// issue is ChaCha AVX2 cut-in where it surfaced again.
+#if (_MSC_VER >= 1910) && defined(NDEBUG)
+# pragma optimize("", off)
+# pragma optimize("ts", on)
+#endif
 
 ANONYMOUS_NAMESPACE_BEGIN
+
+#if (CRYPTOPP_AVX2_AVAILABLE)
 
 template <unsigned int R>
 inline __m256i RotateLeft(const __m256i val)
@@ -62,9 +73,13 @@ inline __m256i RotateLeft<16>(const __m256i val)
     return _mm256_shuffle_epi8(val, mask);
 }
 
+#endif CRYPTOPP_AVX2_AVAILABLE
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if (CRYPTOPP_AVX2_AVAILABLE)
 
 void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
@@ -358,6 +373,6 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     }
 }
 
-NAMESPACE_END
-
 #endif  // CRYPTOPP_AVX2_AVAILABLE
+
+NAMESPACE_END
