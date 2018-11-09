@@ -73,7 +73,7 @@ inline __m256i RotateLeft<16>(const __m256i val)
     return _mm256_shuffle_epi8(val, mask);
 }
 
-#endif CRYPTOPP_AVX2_AVAILABLE
+#endif  // CRYPTOPP_AVX2_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
