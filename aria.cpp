@@ -85,11 +85,11 @@ inline byte ARIA_BRF(const word32 x, const int y) {
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 extern void ARIA_UncheckedSetKey_Schedule_NEON(byte* rk, word32* ws, unsigned int keylen);
-extern void ARIA_ProcessAndXorBlock_Xor_NEON(const byte* xorBlock, byte* outblock);
+extern void ARIA_ProcessAndXorBlock_NEON(const byte* xorBlock, byte* outblock, const byte *rk, word32 *t);
 #endif
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
-extern void ARIA_ProcessAndXorBlock_Xor_SSSE3(const byte* xorBlock, byte* outBlock, const byte *rk, word32 *t);
+extern void ARIA_ProcessAndXorBlock_SSSE3(const byte* xorBlock, byte* outBlock, const byte *rk, word32 *t);
 #endif
 
 // n-bit right shift of Y XORed to X
@@ -283,12 +283,19 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 #if CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
 	if (HasSSSE3())
 	{
-		ARIA_ProcessAndXorBlock_Xor_SSSE3(xorBlock, outBlock, rk, t);
+		ARIA_ProcessAndXorBlock_SSSE3(xorBlock, outBlock, rk, t);
 		return;
 	}
 	else
 #endif  // CRYPTOPP_ENABLE_ARIA_SSSE3_INTRINSICS
-
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+	if (HasNEON())
+	{
+		ARIA_ProcessAndXorBlock_NEON(xorBlock, outBlock, rk, t);
+		return;
+	}
+	else
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 #if (CRYPTOPP_LITTLE_ENDIAN)
 	{
 		outBlock[ 0] = (byte)(X1[ARIA_BRF(t[0],3)]   ) ^ rk[ 3];
@@ -329,19 +336,9 @@ void ARIA::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, b
 	}
 #endif  // CRYPTOPP_LITTLE_ENDIAN
 
-#if CRYPTOPP_ARM_NEON_AVAILABLE
-	if (HasNEON())
-	{
-		if (xorBlock != NULLPTR)
-			ARIA_ProcessAndXorBlock_Xor_NEON(xorBlock, outBlock);
-	}
-	else
-#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
-	{
-		if (xorBlock != NULLPTR)
-			for (unsigned int n=0; n<ARIA::BLOCKSIZE; ++n)
-				outBlock[n] ^= xorBlock[n];
-	}
+	if (xorBlock != NULLPTR)
+		for (unsigned int n=0; n<ARIA::BLOCKSIZE; ++n)
+			outBlock[n] ^= xorBlock[n];
 }
 
 NAMESPACE_END
