@@ -148,13 +148,11 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 
 	if (keylen == 32)
 	{
-		GetBlock<word32, BigEndian, false>k32(mk+16);
-		k32(w1[0])(w1[1])(w1[2])(w1[3]);
+		block(w1[0])(w1[1])(w1[2])(w1[3]);
 	}
 	else if (keylen == 24)
 	{
-		GetBlock<word32, BigEndian, false>k24(mk+16);
-		k24(w1[0])(w1[1]); w1[2] = w1[3] = 0;
+		block(w1[0])(w1[1]); w1[2] = w1[3] = 0;
 	}
 	else
 	{
