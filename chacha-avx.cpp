@@ -2,16 +2,17 @@
 //                  Jack Lloyd and Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
-//    SSE2, ARM NEON and ARMv8a, and Power7 Altivec instructions. A separate
-//    source file is needed because additional CXXFLAGS are required to enable
-//    the appropriate instructions sets in some build configurations.
+//    AVX2 instructions. A separate source file is needed because
+//    additional CXXFLAGS are required to enable the appropriate
+//    instructions sets in some build configurations.
 //
-//    AVX implementation based on Botan's chacha_avx.cpp. Many thanks
+//    AVX2 implementation based on Botan's chacha_avx.cpp. Many thanks
 //    to Jack Lloyd and the Botan team for allowing us to use it.
 //
 //    Here are some relative numbers for ChaCha8:
-//    * Intel Skylake, 3.0 GHz: AVX2 at 4385 MB/s; 0.59 cpb.
-//    * AMD Bulldozer, 3.3 GHz: AVX2 at 1680 MB/s; 1.47 cpb.
+//    * Intel Skylake,   3.0 GHz: AVX2 at 4411 MB/s; 0.57 cpb.
+//    * Intel Broadwell, 2.3 GHz: AVX2 at 3828 MB/s; 0.58 cpb.
+//    * AMD Bulldozer,   3.3 GHz: AVX2 at 1680 MB/s; 1.47 cpb.
 
 #include "pch.h"
 #include "config.h"
@@ -28,7 +29,7 @@
 // Squash MS LNK4221 and libtool warnings
 extern const char CHACHA_AVX_FNAME[] = __FILE__;
 
-// Sun Studio 12.4 OK, 12.5 and 12.6 error.
+// Sun Studio 12.4 OK, 12.5 and 12.6 compile error.
 #if (__SUNPRO_CC >= 0x5140) && (__SUNPRO_CC <= 0x5150)
 # define MAYBE_CONST
 #else
@@ -283,13 +284,13 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     if (input_mm)
     {
         _mm256_storeu_si256(output_mm + 0, _mm256_xor_si256(_mm256_loadu_si256(input_mm + 0),
-                            _mm256_permute2x128_si256(X0_0, X0_1, 1 + (3 << 4))));
+            _mm256_permute2x128_si256(X0_0, X0_1, 1 + (3 << 4))));
         _mm256_storeu_si256(output_mm + 1, _mm256_xor_si256(_mm256_loadu_si256(input_mm + 1),
-                            _mm256_permute2x128_si256(X0_2, X0_3, 1 + (3 << 4))));
+            _mm256_permute2x128_si256(X0_2, X0_3, 1 + (3 << 4))));
         _mm256_storeu_si256(output_mm + 2, _mm256_xor_si256(_mm256_loadu_si256(input_mm + 2),
-                            _mm256_permute2x128_si256(X1_0, X1_1, 1 + (3 << 4))));
+            _mm256_permute2x128_si256(X1_0, X1_1, 1 + (3 << 4))));
         _mm256_storeu_si256(output_mm + 3, _mm256_xor_si256(_mm256_loadu_si256(input_mm + 3),
-                            _mm256_permute2x128_si256(X1_2, X1_3, 1 + (3 << 4))));
+            _mm256_permute2x128_si256(X1_2, X1_3, 1 + (3 << 4))));
     }
     else
     {
