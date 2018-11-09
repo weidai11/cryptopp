@@ -457,13 +457,13 @@ bool Test_RandomNumberGenerator(RandomNumberGenerator& prng, bool drain=false)
 
 	try
 	{
-		word32 result = prng.GenerateWord32();
-		result = prng.GenerateWord32((result & 0xff), 0xffffffff - (result & 0xff));
+		word32 val = prng.GenerateWord32();
+		val = prng.GenerateWord32((val & 0xff), 0xffffffff - (val & 0xff));
 
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 4);
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 3);
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 2);
-		prng.GenerateBlock(reinterpret_cast<byte*>(&result), 1);
+		prng.GenerateBlock(reinterpret_cast<byte*>(&val), 4);
+		prng.GenerateBlock(reinterpret_cast<byte*>(&val), 3);
+		prng.GenerateBlock(reinterpret_cast<byte*>(&val), 2);
+		prng.GenerateBlock(reinterpret_cast<byte*>(&val), 1);
 	}
 	catch (const Exception&)
 	{
