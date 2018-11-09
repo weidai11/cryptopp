@@ -2,5 +2,14 @@
 # for the mapfile version 1 syntax. Also see https://stackoverflow.com/q/53210019/608639 and
 # https://www.oracle.com/technetwork/server-storage/solaris/hwcap-modification-139536.html
 
-hwcap_1 = SSE SSE2 OVERRIDE;
-hwcap_2	= V0x0;
+# Use this if you need $mapfile_version 1. Unfortunately, it does
+# not work. The linker does not remove hwcap_2 capabilities.
+# hwcap_1 = SSE SSE2 OVERRIDE;
+# hwcap_2	= V0x0;
+
+# This will clear all caps, but it does not work on Solaris 9
+$mapfile_version 2
+CAPABILITY {
+	HW_1 = ;
+	HW_2 = ;
+};
