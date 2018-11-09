@@ -1736,6 +1736,13 @@ bool ValidateSalsa()
 	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/salsa.txt");
 }
 
+bool ValidateChaCha()
+{
+	std::cout << "\nChaCha validation suite running...\n";
+
+	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/chacha.txt");
+}
+
 bool ValidateSosemanuk()
 {
 	std::cout << "\nSosemanuk validation suite running...\n";
