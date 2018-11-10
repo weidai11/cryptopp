@@ -32,7 +32,7 @@
     <ClCompile Include="aria.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="aria-simd.cpp">
+    <ClCompile Include="aria_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ariatab.cpp">
@@ -59,10 +59,10 @@
     <ClCompile Include="blake2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="blake2s-simd.cpp">
+    <ClCompile Include="blake2s_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="blake2b-simd.cpp">
+    <ClCompile Include="blake2b_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="blowfish.cpp">
@@ -89,16 +89,16 @@
     <ClCompile Include="chacha.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="chacha-simd.cpp">
+    <ClCompile Include="chacha_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="chacha-avx.cpp">
+    <ClCompile Include="chacha_avx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cham.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cham-simd.cpp">
+    <ClCompile Include="cham_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="channels.cpp">
@@ -113,7 +113,7 @@
     <ClCompile Include="crc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="crc-simd.cpp">
+    <ClCompile Include="crc_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cryptlib.cpp">
@@ -179,7 +179,7 @@
     <ClCompile Include="gcm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="gcm-simd.cpp">
+    <ClCompile Include="gcm_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="gf256.cpp">
@@ -245,7 +245,7 @@
     <ClCompile Include="lea.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="lea-simd.cpp">
+    <ClCompile Include="lea_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="luc.cpp">
@@ -341,7 +341,7 @@
     <ClCompile Include="rijndael.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="rijndael-simd.cpp">
+    <ClCompile Include="rijndael_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ripemd.cpp">
@@ -377,7 +377,7 @@
     <ClCompile Include="sha.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sha-simd.cpp">
+    <ClCompile Include="sha_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sha3.cpp">
@@ -386,7 +386,7 @@
     <ClCompile Include="shacal2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="shacal2-simd.cpp">
+    <ClCompile Include="shacal2_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="shark.cpp">
@@ -398,16 +398,16 @@
     <ClCompile Include="simeck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simeck-simd.cpp">
+    <ClCompile Include="simeck_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simon64-simd.cpp">
+    <ClCompile Include="simon64_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simon128-simd.cpp">
+    <ClCompile Include="simon128_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simple.cpp">
@@ -422,16 +422,16 @@
     <ClCompile Include="sm4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sm4-simd.cpp">
+    <ClCompile Include="sm4_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="speck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="speck64-simd.cpp">
+    <ClCompile Include="speck64_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="speck128-simd.cpp">
+    <ClCompile Include="speck128_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sosemanuk.cpp">
@@ -443,7 +443,7 @@
     <ClCompile Include="squaretb.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="sse-simd.cpp">
+    <ClCompile Include="sse_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="strciphr.cpp">
@@ -519,7 +519,7 @@
     <ClInclude Include="adler32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="adv-simd.h">
+    <ClInclude Include="adv_simd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="aes.h">
