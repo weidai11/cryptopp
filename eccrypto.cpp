@@ -136,7 +136,7 @@ struct OIDLessThan
 	inline bool operator()(const EcRecommendedParameters<T>& a, const EcRecommendedParameters<T>& b) {return a.oid < b.oid;}
 };
 
-static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end)
+void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin, const EcRecommendedParameters<EC2N> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<EC2N> rec[] = {
@@ -272,7 +272,7 @@ static void GetRecommendedParameters(const EcRecommendedParameters<EC2N> *&begin
 }
 
 // See https://www.cryptopp.com/wiki/SM2 for details on sm2p256v1 and sm2encrypt_recommendedParameters
-static void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
+void GetRecommendedParameters(const EcRecommendedParameters<ECP> *&begin, const EcRecommendedParameters<ECP> *&end)
 {
 	// this array must be sorted by OID
 	static const EcRecommendedParameters<ECP> rec[] = {
