@@ -1,4 +1,4 @@
-// chacha-avx.cpp - written and placed in the public domain by
+// chacha_avx.cpp - written and placed in the public domain by
 //                  Jack Lloyd and Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to

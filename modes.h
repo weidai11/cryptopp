@@ -242,7 +242,7 @@ protected:
 	void CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length);
 	void SeekToIteration(lword iterationCount);
 
-	// adv-simd.h increments the counter
+	// adv_simd.h increments the counter
 	mutable SecByteBlock m_counterArray;
 };
 

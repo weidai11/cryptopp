@@ -6,7 +6,7 @@
 
 /*
 July 2018: Added support for ARMv7 AES instructions via Cryptogams ASM.
-           See the head notes in aes-armv4.S for copyright and license.
+           See the head notes in aes_armv4.S for copyright and license.
 */
 
 /*

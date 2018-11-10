@@ -1,6 +1,6 @@
-// ppc-simd.h - written and placed in public domain by Jeffrey Walton
+// ppc_simd.h - written and placed in public domain by Jeffrey Walton
 
-/// \file ppc-simd.h
+/// \file ppc_simd.h
 /// \brief Support functions for PowerPC and vector operations
 /// \details This header provides an agnostic interface into GCC and
 ///   IBM XL C/C++ compilers modulo their different built-in functions

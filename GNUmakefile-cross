@@ -374,7 +374,7 @@ INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 ifeq ($(IS_ARM32),1)
 CRYPTOGAMS_AES_FLAG = -march=armv7-a
 CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
-SRCS += aes-armv4.S
+SRCS += aes_armv4.S
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -568,23 +568,23 @@ cpu-features.o: cpu-features.h cpu-features.c
 	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
 
 # Cryptogams ARM asm implementation.
-aes-armv4.o : aes-armv4.S
+aes_armv4.o : aes_armv4.S
 	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_FLAG) -c) $<
 
 # SSE4.2 or NEON available
-aria-simd.o : aria-simd.cpp
+aria_simd.o : aria_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
-blake2-simd.o : blake2-simd.cpp
+blake2_simd.o : blake2-simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2_FLAG) -c) $<
 
 # SSE2 or NEON available
-chacha-simd.o : chacha-simd.cpp
+chacha_simd.o : chacha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_FLAG) -c) $<
 
 # SSSE3 available
-cham-simd.o : cham-simd.cpp
+cham_simd.o : cham_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHAM_FLAG) -c) $<
 
 # SSE2 on i586
@@ -592,55 +592,55 @@ cpu.o : cpu.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CPU_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
-crc-simd.o : crc-simd.cpp
+crc_simd.o : crc_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
 
 # PCLMUL or ARMv7a/ARMv8a available
-gcm-simd.o : gcm-simd.cpp
+gcm_simd.o : gcm_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
 
 # SSSE3 or ARMv8a available
-lea-simd.o : lea-simd.cpp
+lea_simd.o : lea_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(LEA_FLAG) -c) $<
 
 # NEON available
-neon-simd.o : neon-simd.cpp
+neon_simd.o : neon_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
-rijndael-simd.o : rijndael-simd.cpp
+rijndael_simd.o : rijndael_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
-sha-simd.o : sha-simd.cpp
+sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
-shacal2-simd.o : shacal2-simd.cpp
+shacal2_simd.o : shacal2_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # SSSE3 or NEON available
-simeck-simd.o : simeck-simd.cpp
+simeck_simd.o : simeck_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMECK_FLAG) -c) $<
 
 # SSE4.1, NEON or POWER7 available
-simon64-simd.o : simon64-simd.cpp
+simon64_simd.o : simon64_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMON64_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
-simon128-simd.o : simon128-simd.cpp
+simon128_simd.o : simon128_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
 
 # SSE4.1, NEON or POWER7 available
-speck64-simd.o : speck64-simd.cpp
+speck64_simd.o : speck64_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK64_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
-speck128-simd.o : speck128-simd.cpp
+speck128_simd.o : speck128_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK128_FLAG) -c) $<
 
 # AESNI available
-sm4-simd.o : sm4-simd.cpp
+sm4_simd.o : sm4_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SM4_FLAG) -c) $<
 
 %.o : %.cpp

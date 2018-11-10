@@ -758,7 +758,7 @@ NAMESPACE_END
 // not provide an asm implementation. The Cryptogams implementation
 // is about 2x faster than C/C++. Define this to use the Cryptogams
 // AES implementation on GNU Linux systems. When defined, Crypto++
-// will use aes-armv4.S. LLVM miscompiles aes-armv4.S so disable
+// will use aes_armv4.S. LLVM miscompiles aes_armv4.S so disable
 // under Clang. See https://bugs.llvm.org/show_bug.cgi?id=38133.
 #if !defined(CRYPTOPP_DISABLE_ASM) && defined(__arm__)
 # if defined(__GNUC__) && !defined(__clang__)

@@ -173,7 +173,7 @@
     <ClCompile Include="algparam.cpp" />
     <ClCompile Include="arc4.cpp" />
     <ClCompile Include="aria.cpp" />
-    <ClCompile Include="aria-simd.cpp" />
+    <ClCompile Include="aria_simd.cpp" />
     <ClCompile Include="ariatab.cpp" />
     <ClCompile Include="asn.cpp" />
     <ClCompile Include="authenc.cpp" />
@@ -182,8 +182,8 @@
     <ClCompile Include="basecode.cpp" />
     <ClCompile Include="bfinit.cpp" />
     <ClCompile Include="blake2.cpp" />
-    <ClCompile Include="blake2s-simd.cpp" />
-    <ClCompile Include="blake2b-simd.cpp" />
+    <ClCompile Include="blake2s_simd.cpp" />
+    <ClCompile Include="blake2b_simd.cpp" />
     <ClCompile Include="blowfish.cpp" />
     <ClCompile Include="blumshub.cpp" />
     <ClCompile Include="camellia.cpp" />
@@ -192,17 +192,17 @@
     <ClCompile Include="cbcmac.cpp" />
     <ClCompile Include="ccm.cpp" />
     <ClCompile Include="chacha.cpp" />
-    <ClCompile Include="chacha-simd.cpp" />
-    <ClCompile Include="chacha-avx.cpp">
+    <ClCompile Include="chacha_simd.cpp" />
+    <ClCompile Include="chacha_avx.cpp">
       <!-- Requires Visual Studio 2013 and above -->
       <ExcludedFromBuild Condition=" '$(PlatformToolset)' == 'v100' Or '$(PlatformToolset)' == 'v110' ">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="cham.cpp" />
-    <ClCompile Include="cham-simd.cpp" />
+    <ClCompile Include="cham_simd.cpp" />
     <ClCompile Include="channels.cpp" />
     <ClCompile Include="cmac.cpp" />
     <ClCompile Include="crc.cpp" />
-    <ClCompile Include="crc-simd.cpp" />
+    <ClCompile Include="crc_simd.cpp" />
     <ClCompile Include="default.cpp" />
     <ClCompile Include="des.cpp" />
     <ClCompile Include="dessp.cpp" />
@@ -229,7 +229,7 @@
     <ClCompile Include="fips140.cpp" />
     <ClCompile Include="fipstest.cpp" />
     <ClCompile Include="gcm.cpp" />
-    <ClCompile Include="gcm-simd.cpp" />
+    <ClCompile Include="gcm_simd.cpp" />
     <ClCompile Include="gf256.cpp" />
     <ClCompile Include="gf2_32.cpp" />
     <ClCompile Include="gf2n.cpp" />
@@ -252,7 +252,7 @@
     <ClCompile Include="keccak.cpp" />
     <ClCompile Include="keccakc.cpp" />
     <ClCompile Include="lea.cpp" />
-    <ClCompile Include="lea-simd.cpp" />
+    <ClCompile Include="lea_simd.cpp" />
     <ClCompile Include="luc.cpp" />
     <ClCompile Include="mars.cpp" />
     <ClCompile Include="marss.cpp" />
@@ -286,7 +286,7 @@
     <ClCompile Include="rdrand.cpp" />
     <ClCompile Include="rdtables.cpp" />
     <ClCompile Include="rijndael.cpp" />
-    <ClCompile Include="rijndael-simd.cpp" />
+    <ClCompile Include="rijndael_simd.cpp" />
     <ClCompile Include="ripemd.cpp" />
     <ClCompile Include="rng.cpp" />
     <ClCompile Include="rsa.cpp" />
@@ -298,29 +298,29 @@
     <ClCompile Include="seed.cpp" />
     <ClCompile Include="serpent.cpp" />
     <ClCompile Include="sha.cpp" />
-    <ClCompile Include="sha-simd.cpp" />
+    <ClCompile Include="sha_simd.cpp" />
     <ClCompile Include="sha3.cpp" />
     <ClCompile Include="shacal2.cpp" />
-    <ClCompile Include="shacal2-simd.cpp" />
+    <ClCompile Include="shacal2_simd.cpp" />
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
     <ClCompile Include="simeck.cpp" />
-    <ClCompile Include="simeck-simd.cpp" />
+    <ClCompile Include="simeck_simd.cpp" />
     <ClCompile Include="simon.cpp" />
-    <ClCompile Include="simon64-simd.cpp" />
-    <ClCompile Include="simon128-simd.cpp" />
+    <ClCompile Include="simon64_simd.cpp" />
+    <ClCompile Include="simon128_simd.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
     <ClCompile Include="sm3.cpp" />
     <ClCompile Include="sm4.cpp" />
-    <ClCompile Include="sm4-simd.cpp" />
+    <ClCompile Include="sm4_simd.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
     <ClCompile Include="speck.cpp" />
-    <ClCompile Include="speck64-simd.cpp" />
-    <ClCompile Include="speck128-simd.cpp" />
+    <ClCompile Include="speck64_simd.cpp" />
+    <ClCompile Include="speck128_simd.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="squaretb.cpp" />
-    <ClCompile Include="sse-simd.cpp" />
+    <ClCompile Include="sse_simd.cpp" />
     <ClCompile Include="strciphr.cpp" />
     <ClCompile Include="tea.cpp" />
     <ClCompile Include="tftables.cpp" />
@@ -377,7 +377,7 @@
   <ItemGroup>
     <ClInclude Include="3way.h" />
     <ClInclude Include="adler32.h" />
-    <ClInclude Include="adv-simd.h" />
+    <ClInclude Include="adv_simd.h" />
     <ClInclude Include="aes.h" />
     <ClInclude Include="algebra.h" />
     <ClInclude Include="algparam.h" />

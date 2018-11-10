@@ -1,4 +1,4 @@
-// sm4-simd.cpp - written and placed in the public domain by
+// sm4_simd.cpp - written and placed in the public domain by
 //                Markku-Juhani O. Saarinen and Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
@@ -15,7 +15,7 @@
 
 #include "sm4.h"
 #include "misc.h"
-#include "adv-simd.h"
+#include "adv_simd.h"
 
 // Uncomment for benchmarking C++ against SSE.
 // Do so in both simon.cpp and simon-simd.cpp.

@@ -1,4 +1,4 @@
-// rijndael-simd.cpp - written and placed in the public domain by
+// rijndael_simd.cpp - written and placed in the public domain by
 //                     Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //                     AES-NI code originally written by Wei Dai.
 //
@@ -23,7 +23,7 @@
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
-#include "adv-simd.h"
+#include "adv_simd.h"
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include <smmintrin.h>
@@ -40,7 +40,7 @@
 #endif
 
 #if defined(CRYPTOPP_POWER8_AES_AVAILABLE)
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

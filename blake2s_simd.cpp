@@ -42,7 +42,7 @@
 #endif
 
 #if (CRYPTOPP_POWER7_AVAILABLE)
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

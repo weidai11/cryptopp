@@ -1,4 +1,4 @@
-// gcm-simd.cpp - written and placed in the public domain by
+// gcm_simd.cpp - written and placed in the public domain by
 //                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //                Original x86 CLMUL by Wei Dai. ARM and POWER8
 //                PMULL and VMULL by JW, UB and MR.
@@ -39,7 +39,7 @@
 #endif
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
@@ -186,7 +186,7 @@ using CryptoPP::VectorRotateLeft;
 // algorithm on both big and little-endian systems, but it is
 // awful to try to follow the logic because it is so backwards.
 // Because functions like VMULL_NN are so backwards we can't put
-// them in ppc-simd.h. They simply don't work the way a typical
+// them in ppc_simd.h. They simply don't work the way a typical
 // user expects them to work.
 
 inline uint64x2_p VMULL2LE(const uint64x2_p& val)

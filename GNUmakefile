@@ -126,7 +126,7 @@ else
   CXXFLAGS ?= -DNDEBUG -g2 -O3
 endif
 
-# On ARM we may compile aes-armv4.S though the CC compiler
+# On ARM we may compile aes_armv4.S though the CC compiler
 ifeq ($(GCC_COMPILER),1)
   CC=gcc
 else ifeq ($(CLANG_COMPILER),1)
@@ -525,7 +525,7 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
   endif
 
   # LLVM front-ends only provide Power8. It really jambs us up
-  # for ppc-simd.cpp which needs ALTIVEC/POWER4. We have similar
+  # for ppc_simd.cpp which needs ALTIVEC/POWER4. We have similar
   # problems {lea|cham|simon|speck|...}-simd.cpp and POWER7.
   HAVE_LLVM = $(shell $(CXX) $(CXXFLAGS) -qshowmacros -E pch.cpp 2>&1 | $(GREP) -i -c '__llvm__')
   ifneq ($(HAVE_LLVM),0)
@@ -849,7 +849,7 @@ endif
 ifeq ($(IS_ARM32),1)
 CRYPTOGAMS_AES_FLAG = -march=armv7-a
 CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
-SRCS += aes-armv4.S
+SRCS += aes_armv4.S
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -1199,91 +1199,91 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 # Cryptogams ARM asm implementation.
-aes-armv4.o : aes-armv4.S
+aes_armv4.o : aes_armv4.S
 	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_FLAG) -mfloat-abi=$(FP_ABI) -c) $<
 
 # SSSE3 or NEON available
-aria-simd.o : aria-simd.cpp
+aria_simd.o : aria_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
 # SSE, NEON or POWER7 available
-blake2s-simd.o : blake2s-simd.cpp
+blake2s_simd.o : blake2s_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2S_FLAG) -c) $<
 
 # SSE, NEON or POWER8 available
-blake2b-simd.o : blake2b-simd.cpp
+blake2b_simd.o : blake2b_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2B_FLAG) -c) $<
 
 # SSE2 or NEON available
-chacha-simd.o : chacha-simd.cpp
+chacha_simd.o : chacha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_FLAG) -c) $<
 
 # AVX2 available
-chacha-avx.o : chacha-avx.cpp
+chacha_avx.o : chacha_avx.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_AVX2_FLAG) -c) $<
 
 # SSSE3 available
-cham-simd.o : cham-simd.cpp
+cham_simd.o : cham_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHAM_FLAG) -c) $<
 
 # SSE2 on i586
-sse-simd.o : sse-simd.cpp
+sse_simd.o : sse_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SSE_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
-crc-simd.o : crc-simd.cpp
+crc_simd.o : crc_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
 
 # PCLMUL or ARMv7a/ARMv8a available
-gcm-simd.o : gcm-simd.cpp
+gcm_simd.o : gcm_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
 
 # SSSE3 available
-lea-simd.o : lea-simd.cpp
+lea_simd.o : lea_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(LEA_FLAG) -c) $<
 
 # NEON available
-neon-simd.o : neon-simd.cpp
+neon_simd.o : neon_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
 
 # AltiVec, Power7, Power8 available
-ppc-simd.o : ppc-simd.cpp
+ppc_simd.o : ppc_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ALTIVEC_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
-rijndael-simd.o : rijndael-simd.cpp
+rijndael_simd.o : rijndael_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
-sha-simd.o : sha-simd.cpp
+sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
-shacal2-simd.o : shacal2-simd.cpp
+shacal2_simd.o : shacal2_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # SSSE3 or NEON available
-simeck-simd.o : simeck-simd.cpp
+simeck_simd.o : simeck_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMECK_FLAG) -c) $<
 
 # SSE4.1, NEON or POWER7 available
-simon64-simd.o : simon64-simd.cpp
+simon64_simd.o : simon64_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMON64_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
-simon128-simd.o : simon128-simd.cpp
+simon128_simd.o : simon128_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
 
 # SSE4.1, NEON or POWER7 available
-speck64-simd.o : speck64-simd.cpp
+speck64_simd.o : speck64_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK64_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
-speck128-simd.o : speck128-simd.cpp
+speck128_simd.o : speck128_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK128_FLAG) -c) $<
 
 # AESNI available
-sm4-simd.o : sm4-simd.cpp
+sm4_simd.o : sm4_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SM4_FLAG) -c) $<
 
 # IBM XLC -O3 optimization bug

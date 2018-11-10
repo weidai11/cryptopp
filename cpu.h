@@ -18,8 +18,8 @@
 /// </pre>
 /// \details Generally speaking, CPU_Query() is in the source file <tt>cpu.cpp</tt> because it
 ///   does not require special architectural flags. CPU_Probe() is in a source file that recieves
-///   architectural flags, like <tt>sse-simd.cpp</tt>, <tt>neon-simd.cpp</tt> and
-///   <tt>ppc-simd.cpp</tt>. For example, compiling <tt>neon-simd.cpp</tt> on an ARM64 machine will
+///   architectural flags, like <tt>sse_simd.cpp</tt>, <tt>neon_simd.cpp</tt> and
+///   <tt>ppc_simd.cpp</tt>. For example, compiling <tt>neon_simd.cpp</tt> on an ARM64 machine will
 ///   have <tt>-march=armv8-a</tt> applied during a compile to make the instruction set architecture
 ///   (ISA) available.
 /// \details The cpu probes are expensive when compared to a standard OS feature query. The library

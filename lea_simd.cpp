@@ -1,4 +1,4 @@
-// lea-simd.cpp - written and placed in the public domain by Jeffrey Walton
+// lea_simd.cpp - written and placed in the public domain by Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
 //    SSSE3, ARM NEON and ARMv8a, and Power8 Altivec instructions. A separate
@@ -10,7 +10,7 @@
 
 #include "lea.h"
 #include "misc.h"
-#include "adv-simd.h"
+#include "adv_simd.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both simon.cpp and simon-simd.cpp.
@@ -58,7 +58,7 @@
 
 #undef CRYPTOPP_POWER8_AVAILABLE
 #if defined(CRYPTOPP_POWER8_AVAILABLE)
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 // Squash MS LNK4221 and libtool warnings

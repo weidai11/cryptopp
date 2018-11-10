@@ -1,4 +1,4 @@
-// simeck-simd.cpp - written and placed in the public domain by Gangqiang Yang and Jeffrey Walton.
+// simeck_simd.cpp - written and placed in the public domain by Gangqiang Yang and Jeffrey Walton.
 //
 //    This source file uses intrinsics and built-ins to gain access to
 //    SSSE3, ARM NEON and ARMv8a, and Power7 Altivec instructions. A separate
@@ -10,7 +10,7 @@
 
 #include "simeck.h"
 #include "misc.h"
-#include "adv-simd.h"
+#include "adv_simd.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both simon.cpp and simon-simd.cpp.

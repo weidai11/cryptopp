@@ -8,13 +8,13 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// crc-simd.cpp
+// crc_simd.cpp
 #if (CRYPTOPP_ARM_CRC32_AVAILABLE)
 extern void CRC32_Update_ARMV8(const byte *s, size_t n, word32& c);
 extern void CRC32C_Update_ARMV8(const byte *s, size_t n, word32& c);
 #endif
 
-// crc-simd.cpp
+// crc_simd.cpp
 #if (CRYPTOPP_SSE42_AVAILABLE)
 extern void CRC32C_Update_SSE42(const byte *s, size_t n, word32& c);
 #endif

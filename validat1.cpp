@@ -15,7 +15,7 @@
 #include "zlib.h"
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 #include <iostream>

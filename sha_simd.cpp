@@ -1,4 +1,4 @@
-// sha-simd.cpp - written and placed in the public domain by
+// sha_simd.cpp - written and placed in the public domain by
 //                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
 //    This source file uses intrinsics to gain access to SHA-NI and
@@ -33,7 +33,7 @@
 #endif
 
 #if CRYPTOPP_POWER8_SHA_AVAILABLE
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY

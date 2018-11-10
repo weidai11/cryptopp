@@ -210,7 +210,7 @@
     <ClCompile Include="fips140.cpp" />
     <ClCompile Include="fipstest.cpp" />
     <ClCompile Include="gcm.cpp" />
-    <ClCompile Include="gcm-simd.cpp" />
+    <ClCompile Include="gcm_simd.cpp" />
     <ClCompile Include="gf2n.cpp" />
     <ClCompile Include="gfpcrypt.cpp" />
     <ClCompile Include="hex.cpp" />
@@ -230,15 +230,15 @@
     <ClCompile Include="randpool.cpp" />
     <ClCompile Include="rdtables.cpp" />
     <ClCompile Include="rijndael.cpp" />
-    <ClCompile Include="rijndael-simd.cpp" />
+    <ClCompile Include="rijndael_simd.cpp" />
     <ClCompile Include="rng.cpp" />
     <ClCompile Include="rsa.cpp" />
     <ClCompile Include="rw.cpp" />
     <ClCompile Include="sha.cpp" />
-    <ClCompile Include="sha-simd.cpp" />
+    <ClCompile Include="sha_simd.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
-    <ClCompile Include="sse-simd.cpp" />
+    <ClCompile Include="sse_simd.cpp" />
     <ClCompile Include="strciphr.cpp" />
   </ItemGroup>
   <!-- Header Files -->

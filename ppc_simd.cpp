@@ -1,4 +1,4 @@
-// ppc-simd.cpp - written and placed in the public domain by
+// ppc_simd.cpp - written and placed in the public domain by
 //                Jeffrey Walton, Uri Blumenthal and Marcel Raad.
 //
 //    This source file uses intrinsics to gain access to AltiVec,
@@ -11,7 +11,7 @@
 #include "stdcpp.h"
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
-# include "ppc-simd.h"
+# include "ppc_simd.h"
 #endif
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
