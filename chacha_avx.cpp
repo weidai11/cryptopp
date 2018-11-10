@@ -371,6 +371,9 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
         _mm256_storeu_si256(output_mm + 14, _mm256_permute2x128_si256(X3_0, X3_1, 0 + (2 << 4)));
         _mm256_storeu_si256(output_mm + 15, _mm256_permute2x128_si256(X3_2, X3_3, 0 + (2 << 4)));
     }
+    
+    // https://stackoverflow.com/a/7841251/608639
+    _mm256_zeroupper();
 }
 
 #endif  // CRYPTOPP_AVX2_AVAILABLE
