@@ -30,12 +30,12 @@
 #include "chacha.h"
 #include "misc.h"
 
-#if defined(__SSE2__) || defined(_MSC_VER)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
 #endif
 
-#if defined(__SSSE3__) || defined(_MSC_VER)
+#if defined(__SSSE3__)
 # include <tmmintrin.h>
 #endif
 

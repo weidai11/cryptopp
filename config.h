@@ -484,15 +484,10 @@ NAMESPACE_END
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
-// SunCC prior to 5.10 cannot handle some SSE intrinsics
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5100)
+// Sun Studio 12.1 provides GCC inline assembly
+// http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
+#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5100)
 # define CRYPTOPP_DISABLE_ASM 1
-#endif
-
-// Sun Studio 12 provides GCC inline assembly, http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
-// We can enable SSE2 for Sun Studio in the makefile with -D__SSE2__, but users may not compile with it.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(__SSE2__) && defined(__x86_64__) && (__SUNPRO_CC >= 0x5100)
-# define __SSE2__ 1
 #endif
 
 #if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
@@ -517,7 +512,7 @@ NAMESPACE_END
 #endif
 
 // 32-bit SunCC does not enable SSE2 by default.
-#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__))
+#if !defined(CRYPTOPP_DISABLE_ASM) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__) || (__SUNPRO_CC >= 0x5100))
 	#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1
 #endif
 
