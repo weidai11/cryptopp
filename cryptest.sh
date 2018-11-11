@@ -1173,7 +1173,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		TEST_LIST+=("X86 CRC32 code generation")
 
-		OBJFILE=crc-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=crc_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1213,7 +1213,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		TEST_LIST+=("X86 AES-NI code generation")
 
-		OBJFILE=rijndael-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=rijndael_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1277,7 +1277,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		TEST_LIST+=("X86 carryless multiply code generation")
 
-		OBJFILE=gcm-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=gcm_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1365,7 +1365,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		TEST_LIST+=("X86 SHA code generation")
 
-		OBJFILE=sha-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1436,7 +1436,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		TEST_LIST+=("ARM NEON code generation")
 
-		OBJFILE=aria-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=aria_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1544,7 +1544,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		TEST_LIST+=("ARM CRC32 code generation")
 
-		OBJFILE=crc-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=crc_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1596,7 +1596,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		TEST_LIST+=("ARM carryless multiply code generation")
 
-		OBJFILE=gcm-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=gcm_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1636,7 +1636,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		TEST_LIST+=("ARM AES generation")
 
-		OBJFILE=rijndael-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=rijndael_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1688,7 +1688,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 
 		TEST_LIST+=("ARM SHA generation")
 
-		OBJFILE=sha-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1792,7 +1792,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 
 		TEST_LIST+=("Power8 AES generation")
 
-		OBJFILE=rijndael-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=rijndael_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_AES_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1855,7 +1855,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 
 		TEST_LIST+=("Power8 SHA generation")
 
-		OBJFILE=sha-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_SHA_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
@@ -1906,7 +1906,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 
 		TEST_LIST+=("Power8 carryless multiply generation")
 
-		OBJFILE=gcm-simd.o; rm -f "$OBJFILE" 2>/dev/null
+		OBJFILE=gcm_simd.o; rm -f "$OBJFILE" 2>/dev/null
 		CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_VMULL_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
 		COUNT=0
