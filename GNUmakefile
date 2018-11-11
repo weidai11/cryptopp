@@ -641,15 +641,21 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 
   # IBM XL C/C++
   TPROG = TestPrograms/test_altivec.cxx
-  TOPT = -qarch=pwr5 -qaltivec
+  TOPT = -qarch=pwr4 -qaltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
-    ALTIVEC_FLAG = -qarch=pwr5 -qaltivec
+    ALTIVEC_FLAG = -qarch=pwr4 -qaltivec
   else
-    TOPT = -qarch=pwr6 -qaltivec
+    TOPT = -qarch=pwr5 -qaltivec
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
-      ALTIVEC_FLAG = -qarch=pwr6 -qaltivec
+      ALTIVEC_FLAG = -qarch=pwr5 -qaltivec
+    else
+      TOPT = -qarch=pwr6 -qaltivec
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      ifeq ($(HAVE_OPT),0)
+        ALTIVEC_FLAG = -qarch=pwr6 -qaltivec
+      endif
     endif
   endif
 
@@ -678,11 +684,9 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 
   ifeq ($(ALTIVEC_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
-  endif
-  ifeq ($(POWER7_FLAG),)
+  else ifeq ($(POWER7_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER7
-  endif
-  ifeq ($(POWER8_FLAG),)
+  else ifeq ($(POWER8_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
   endif
 endif
