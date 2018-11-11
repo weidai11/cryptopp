@@ -195,7 +195,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 
   # Tell MacPorts and Homebrew GCC to use Clang integrated assembler
   #   http://github.com/weidai11/cryptopp/issues/190
-  ifeq ($(IS_DARWIN)$(GCC_COMPILER)$(OSXPORT_COMPILER),111)
+  ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),111)
     ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
       CXXFLAGS += -Wa,-q
     endif
