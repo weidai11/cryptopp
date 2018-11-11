@@ -676,7 +676,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
       SIMON128_FLAG = $(POWER8_FLAG)
       SPECK64_FLAG = $(POWER8_FLAG)
       SPECK128_FLAG = $(POWER8_FLAG)
-	endif
+    endif
     ifeq ($(ALTIVEC_FLAG),)
       ALTIVEC_FLAG = $(POWER8_FLAG)
     endif
@@ -689,6 +689,8 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   else ifeq ($(POWER8_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
   endif
+
+# CRYPTOPP_DISABLE_ASM
 endif
 
 # IBM XL C/C++ compiler
@@ -708,9 +710,9 @@ endif
 
 # Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
 ifeq ($(IS_X86)$(IS_CYGWIN)$(IS_MINGW),000)
- ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
-   CXXFLAGS += -fPIC
- endif
+  ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+    CXXFLAGS += -fPIC
+  endif
 endif
 
 # Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
