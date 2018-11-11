@@ -89,10 +89,6 @@ ifneq ($(IS_LINUX)$(IS_SUN),00)
 HAS_SOLIB_VERSION := 1
 endif
 
-# Newlib needs _XOPEN_SOURCE=600 for signals
-TPROG = TestPrograms/test_cxx.cxx
-HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -dM -E $(TPROG) 2>&1 | $(GREP) -i -c "__NEWLIB__")
-
 # Formely adhoc.cpp was created from adhoc.cpp.proto when needed.
 ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
@@ -157,10 +153,13 @@ ifeq ($(ARFLAGS),rv)
 ARFLAGS = r
 endif
 
+# Newlib needs _XOPEN_SOURCE=600 for signals
+TPROG = TestPrograms/test_cxx.cxx
+HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -dM -E $(TPROG) 2>&1 | $(GREP) -i -c "__NEWLIB__")
 ifneq ($(HAS_NEWLIB),0)
- ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
-   CXXFLAGS += -D_XOPEN_SOURCE=600
- endif
+  ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
+    CXXFLAGS += -D_XOPEN_SOURCE=600
+  endif
 endif
 
 # Clang integrated assembler will be used with -Wa,-q
@@ -228,7 +227,6 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
       TPROG = TestPrograms/test_sse41.cxx
       TOPT = -msse4.1
       HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-      TOPT = -msse4.1
       ifeq ($(HAVE_OPT),0)
         BLAKE2B_FLAG = -msse4.1
         BLAKE2S_FLAG = -msse4.1
