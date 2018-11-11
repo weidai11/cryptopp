@@ -51,18 +51,6 @@ public:
 
 static const TestData *s_currentTestData = NULLPTR;
 
-std::string TrimComment(std::string str)
-{
-	if (str.empty()) return "";
-
-	std::string::size_type first = str.find("#");
-
-	if (first != std::string::npos)
-		return str.substr(0, first);
-	else
-		return str;
-}
-
 std::string TrimSpace(std::string str)
 {
 	if (str.empty()) return "";
@@ -77,6 +65,18 @@ std::string TrimSpace(std::string str)
 		return str.substr(beg);
 	else
 		return "";
+}
+
+std::string TrimComment(std::string str)
+{
+	if (str.empty()) return "";
+
+	std::string::size_type first = str.find("#");
+
+	if (first != std::string::npos)
+		return TrimSpace(str.substr(0, first));
+	else
+		return TrimSpace(str);
 }
 
 static void OutputTestData(const TestData &v)
@@ -865,7 +865,6 @@ bool GetField(std::istream &is, std::string &name, std::string &value)
 
 		// Re-trim after parsing
 		line = TrimComment(line);
-		line = TrimSpace(line);
 
 		if (line.empty())
 			continue;
