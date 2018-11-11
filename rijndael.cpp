@@ -246,7 +246,6 @@ ANONYMOUS_NAMESPACE_END
 
 unsigned int Rijndael::Base::OptimalDataAlignment() const
 {
-	// CFB mode performs an extra memcpy if buffer is not aligned.
 #if (CRYPTOPP_AESNI_AVAILABLE)
 	if (HasAESNI())
 		return 1;
