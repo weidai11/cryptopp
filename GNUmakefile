@@ -430,7 +430,7 @@ endif
 ifneq ($(IS_ARM32)$(IS_ARMV8)$(IS_NEON),000)
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
 
-ifeq ($(IS_NEON),1)
+ifeq ($(IS_ARM32)$(IS_NEON),11)
 
   TPROG = TestPrograms/test_neon.cxx
   TOPT = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -453,6 +453,8 @@ ifeq ($(IS_NEON),1)
     SPECK64_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SPECK128_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     SM4_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+  else
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
 # IS_NEON
@@ -471,6 +473,7 @@ ifeq ($(IS_ARMV8),1)
   TOPT = -march=armv8-a
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
+    ASIMD_FLAG = -march=armv8-a
     ARIA_FLAG = -march=armv8-a
     BLAKE2B_FLAG = -march=armv8-a
     BLAKE2S_FLAG = -march=armv8-a
@@ -484,30 +487,36 @@ ifeq ($(IS_ARMV8),1)
     SPECK64_FLAG = -march=armv8-a
     SPECK128_FLAG = -march=armv8-a
     SM4_FLAG = -march=armv8-a
+  else
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
-  TPROG = TestPrograms/test_crc.cxx
-  TOPT = -march=armv8-a+crc
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
-    CRC_FLAG = -march=armv8-a+crc
-  endif
+  ifneq ($(ASIMD_FLAG),)
+    TPROG = TestPrograms/test_crc.cxx
+    TOPT = -march=armv8-a+crc
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    ifeq ($(HAVE_OPT),0)
+      CRC_FLAG = -march=armv8-a+crc
+    endif
 
-  TPROG = TestPrograms/test_crypto_v81.cxx
-  TOPT = -march=armv8-a+crypto
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
-    AES_FLAG = -march=armv8-a+crypto
-    GCM_FLAG = -march=armv8-a+crypto
-    SHA_FLAG = -march=armv8-a+crypto
-  endif
+    TPROG = TestPrograms/test_crypto_v81.cxx
+    TOPT = -march=armv8-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    ifeq ($(HAVE_OPT),0)
+      AES_FLAG = -march=armv8-a+crypto
+      GCM_FLAG = -march=armv8-a+crypto
+      SHA_FLAG = -march=armv8-a+crypto
+    endif
 
-  TPROG = TestPrograms/test_crypto_v84.cxx
-  TOPT = -march=armv8.4-a+crypto
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
-    SM3_FLAG = -march=armv8.4-a+crypto
-    SM4_FLAG = -march=armv8.4-a+crypto
+    ifneq ($(AES_FLAG),)
+      TPROG = TestPrograms/test_crypto_v84.cxx
+      TOPT = -march=armv8.4-a+crypto
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      ifeq ($(HAVE_OPT),0)
+        SM3_FLAG = -march=armv8.4-a+crypto
+        SM4_FLAG = -march=armv8.4-a+crypto
+      endif
+    endif
   endif
 
 # IS_ARMV8
@@ -1402,6 +1411,10 @@ speck64_simd.o : speck64_simd.cpp
 # SSSE3, NEON or POWER8 available
 speck128_simd.o : speck128_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SPECK128_FLAG) -c) $<
+
+# ARMv8.4 available
+sm3_simd.o : sm3_simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SM3_FLAG) -c) $<
 
 # AESNI available
 sm4_simd.o : sm4_simd.cpp
