@@ -180,7 +180,7 @@ endif # _WIN32_WINNT
 endif # IS_MINGW
 
 # For feature tests
-BAD_RESULT="fatal|error|unknown|unrecognized|illegal|ignored|incorrect|not found|not exist|cannot find|not supported"
+BAD_RESULT="fatal|error|unknown|unrecognized|illegal|ignored|incorrect|not found|not exist|cannot find|not supported|no such instruction"
 
 ###########################################################
 #####               X86/X32/X64 Options               #####
