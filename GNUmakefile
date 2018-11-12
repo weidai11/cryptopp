@@ -213,14 +213,14 @@ ifeq ($(DETECT_FEATURES),1)
     endif
   endif
 
-  TPROG = TestPrograms/test_sse2.cxx
+  TPROG = TestPrograms/test_x86_sse2.cxx
   TOPT = -msse2
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     SSE_FLAG = -msse2
     CHACHA_FLAG = -msse2
 
-    TPROG = TestPrograms/test_ssse3.cxx
+    TPROG = TestPrograms/test_x86_ssse3.cxx
     TOPT = -mssse3
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
@@ -234,7 +234,7 @@ ifeq ($(DETECT_FEATURES),1)
       SPECK64_FLAG = -mssse3
       SPECK128_FLAG = -mssse3
 
-      TPROG = TestPrograms/test_sse41.cxx
+      TPROG = TestPrograms/test_x86_sse41.cxx
       TOPT = -msse4.1
       HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
@@ -243,13 +243,13 @@ ifeq ($(DETECT_FEATURES),1)
         SIMON64_FLAG = -msse4.1
         SPECK64_FLAG = -msse4.1
 
-        TPROG = TestPrograms/test_sse42.cxx
+        TPROG = TestPrograms/test_x86_sse42.cxx
         TOPT = -msse4.2
         HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
         ifeq ($(HAVE_OPT),0)
           CRC_FLAG = -msse4.2
 
-          TPROG = TestPrograms/test_clmul.cxx
+          TPROG = TestPrograms/test_x86_clmul.cxx
           TOPT = -mssse3 -mpclmul
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -258,7 +258,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
           endif
 
-          TPROG = TestPrograms/test_aesni.cxx
+          TPROG = TestPrograms/test_x86_aes.cxx
           TOPT = -msse4.1 -maes
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -268,7 +268,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
           endif
 
-          TPROG = TestPrograms/test_avx.cxx
+          TPROG = TestPrograms/test_x86_avx.cxx
           TOPT = -mavx
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -277,7 +277,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
           endif
 
-          TPROG = TestPrograms/test_avx2.cxx
+          TPROG = TestPrograms/test_x86_avx2.cxx
           TOPT = -mavx2
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -286,7 +286,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
           endif
 
-          TPROG = TestPrograms/test_shani.cxx
+          TPROG = TestPrograms/test_x86_sha.cxx
           TOPT = -msse4.2 -msha
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -321,7 +321,7 @@ endif
 ifeq ($(SUN_COMPILER),1)
 ifeq ($(DETECT_FEATURES),1)
 
-  TPROG = TestPrograms/test_sse2.cxx
+  TPROG = TestPrograms/test_x86_sse2.cxx
   TOPT = -xarch=sse2
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -329,7 +329,7 @@ ifeq ($(DETECT_FEATURES),1)
     CHACHA_FLAG = -xarch=sse2
     LDFLAGS += -xarch=sse2
 
-    TPROG = TestPrograms/test_ssse3.cxx
+    TPROG = TestPrograms/test_x86_ssse3.cxx
     TOPT = -xarch=ssse3
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
@@ -344,7 +344,7 @@ ifeq ($(DETECT_FEATURES),1)
       SPECK128_FLAG = -xarch=ssse3
       LDFLAGS += -xarch=ssse3
 
-      TPROG = TestPrograms/test_sse41.cxx
+      TPROG = TestPrograms/test_x86_sse41.cxx
       TOPT = -xarch=sse4_1
       HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
@@ -354,14 +354,14 @@ ifeq ($(DETECT_FEATURES),1)
         SPECK64_FLAG = -xarch=sse4_1
         LDFLAGS += -xarch=sse4_1
 
-        TPROG = TestPrograms/test_sse42.cxx
+        TPROG = TestPrograms/test_x86_sse42.cxx
         TOPT = -xarch=sse4_2
         HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
         ifeq ($(HAVE_OPT),0)
           CRC_FLAG = -xarch=sse4_2
           LDFLAGS += -xarch=sse4_2
 
-          TPROG = TestPrograms/test_clmul.cxx
+          TPROG = TestPrograms/test_x86_clmul.cxx
           TOPT = -xarch=ssse3 -xarch=aes
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -370,7 +370,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
           endif
 
-          TPROG = TestPrograms/test_aesni.cxx
+          TPROG = TestPrograms/test_x86_aes.cxx
           TOPT = -xarch=sse4_1 -xarch=aes
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -381,7 +381,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
           endif
 
-          TPROG = TestPrograms/test_avx.cxx
+          TPROG = TestPrograms/test_x86_avx.cxx
           TOPT = -xarch=avx
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -391,7 +391,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
           endif
 
-          TPROG = TestPrograms/test_avx2.cxx
+          TPROG = TestPrograms/test_x86_avx2.cxx
           TOPT = -xarch=avx2
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
@@ -401,7 +401,7 @@ ifeq ($(DETECT_FEATURES),1)
             CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
           endif
 
-          TPROG = TestPrograms/test_shani.cxx
+          TPROG = TestPrograms/test_x86_sha.cxx
           TOPT = -xarch=sse4_2 -xarch=sha
           HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
