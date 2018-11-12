@@ -1175,9 +1175,11 @@ NAMESPACE_END
 // Clang and __EXCEPTIONS see http://releases.llvm.org/3.6.0/tools/clang/docs/ReleaseNotes.html
 #if defined(__clang__)
 # if __EXCEPTIONS && __has_feature(cxx_exceptions)
-#  define CRYPTOPP_CXX17_EXCEPTIONS 1
+#  if __cpp_lib_uncaught_exceptions
+#   define CRYPTOPP_CXX17_EXCEPTIONS 1
+#  endif
 # endif
-#elif (CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1800) || (CRYPTOPP_GCC_VERSION >= 60000)
+#elif (CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1800) || (CRYPTOPP_GCC_VERSION >= 60000) || (__cpp_lib_uncaught_exceptions)
 # define CRYPTOPP_CXX17_EXCEPTIONS 1
 #endif // uncaught_exceptions compilers
 

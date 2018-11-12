@@ -297,7 +297,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   else
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
   endif
-  
+
   # https://github.com/weidai11/cryptopp/issues/738
   UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
 
