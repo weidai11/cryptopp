@@ -299,7 +299,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   endif
 
   # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # CRYPTOPP_DISABLE_ASM
 endif
@@ -415,7 +415,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   endif
 
   # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # CRYPTOPP_DISABLE_ASM
 endif
@@ -481,7 +481,7 @@ ifeq ($(IS_ARM32)$(IS_NEON),11)
   endif
 
   # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # IS_NEON
 endif
@@ -546,7 +546,7 @@ ifeq ($(IS_ARMV8),1)
   endif
 
   # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # IS_ARMV8
 endif
@@ -720,7 +720,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   endif
 
   # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # CRYPTOPP_DISABLE_ASM
 endif
@@ -1147,7 +1147,7 @@ clean:
 	@-$(RM) *.la *.lo *.gcov *.gcno *.gcda *.stackdump core core-*
 	@-$(RM) a.out /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
-	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/ *.out.dSYM/
+	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/ a.out.dSYM/
 	@-$(RM) -r cov-int/
 
 # Feature testing runs the compiler and produces an [unwanted] a.out artifact.
@@ -1155,7 +1155,7 @@ clean:
 # the makefile is run again without privileges. This rule cleans a.out.
 .PHONY: aout-clean
 aout-clean:
-	@-$(RM) -r a.out *.out.dSYM/
+	@-$(RM) -r a.out a.out.dSYM/
 
 .PHONY: autotools-clean
 autotools-clean:
