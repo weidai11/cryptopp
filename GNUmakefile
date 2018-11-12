@@ -604,7 +604,7 @@ ifeq ($(DETECT_FEATURES),1)
   # get XLC defines. The POWER8 really jambs us up for ppc_simd.cpp
   # which needs ALTIVEC/POWER4. We have similar problems with POWER7.
   ifeq ($(XLC_COMPILER)$(findstring -qxlcompatmacros,$(CXXFLAGS)),1)
-    TPROG = TestPrograms/test_altivec.cxx
+    TPROG = TestPrograms/test_ppc_altivec.cxx
     TOPT = -qxlcompatmacros
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
@@ -613,7 +613,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # GCC and some compatibles
-  TPROG = TestPrograms/test_power8.cxx
+  TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = -mcpu=power8 -maltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -632,7 +632,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # GCC and some compatibles
-  TPROG = TestPrograms/test_power7.cxx
+  TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = -mcpu=power7 -maltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -647,7 +647,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # GCC and some compatibles
-  TPROG = TestPrograms/test_altivec.cxx
+  TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = -mcpu=power4 -maltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -667,7 +667,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # IBM XL C/C++
-  TPROG = TestPrograms/test_power8.cxx
+  TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = -qarch=pwr8 -qaltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -686,7 +686,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # IBM XL C/C++
-  TPROG = TestPrograms/test_power7.cxx
+  TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = -qarch=pwr7 -qaltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -701,7 +701,7 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # IBM XL C/C++
-  TPROG = TestPrograms/test_altivec.cxx
+  TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = -qarch=pwr4 -qaltivec
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
