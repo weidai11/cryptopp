@@ -729,9 +729,11 @@ NAMESPACE_END
 #endif
 
 // Limit the <arm_acle.h> include.
-#if defined(__aarch32__) || defined(__aarch64__) || (__ARM_ARCH >= 8) || defined(__ARM_ACLE)
-# if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__APPLE__)
-#  define CRYPTOPP_ARM_ACLE_AVAILABLE 1
+#if !defined(CRYPTOPP_ARM_ACLE_AVAILABLE)
+# if defined(__aarch32__) || defined(__aarch64__) || (__ARM_ARCH >= 8) || defined(__ARM_ACLE)
+#  if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__APPLE__)
+#   define CRYPTOPP_ARM_ACLE_AVAILABLE 1
+#  endif
 # endif
 #endif
 

@@ -104,6 +104,16 @@ ifeq ($(IS_AIX),1)
   endif
 endif
 
+# Hack to skip CPU feature tests for some recipes
+DETECT_FEATURES ?= 1
+ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),-DCRYPTOPP_DISABLE_ASM)
+  DETECT_FEATURES := 0
+else ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
+  DETECT_FEATURES := 0
+else ifeq ($(findstring distclean,$(MAKECMDGOALS)),distclean)
+  DETECT_FEATURES := 0
+endif
+
 ###########################################################
 #####                General Variables                #####
 ###########################################################
@@ -190,7 +200,7 @@ ifneq ($(IS_X86)$(IS_X64),00)
 
 # Begin GCC and compatibles
 ifneq ($(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),000)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(DETECT_FEATURES),1)
 
   # Tell MacPorts and Homebrew GCC to use Clang integrated assembler
   #   http://github.com/weidai11/cryptopp/issues/190
@@ -301,7 +311,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   # https://github.com/weidai11/cryptopp/issues/738
   UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
-# CRYPTOPP_DISABLE_ASM
+# DETECT_FEATURES
 endif
 
 # End GCC and compatibles
@@ -309,7 +319,7 @@ endif
 
 # Begin SunCC
 ifeq ($(SUN_COMPILER),1)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_sse2.cxx
   TOPT = -xarch=sse2
@@ -417,7 +427,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   # https://github.com/weidai11/cryptopp/issues/738
   UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
-# CRYPTOPP_DISABLE_ASM
+# DETECT_FEATURES
 endif
 
 # End SunCC
@@ -451,11 +461,11 @@ endif
 ###########################################################
 
 ifneq ($(IS_ARM32)$(IS_ARMV8)$(IS_NEON),000)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(DETECT_FEATURES),1)
 
 ifeq ($(IS_ARM32)$(IS_NEON),11)
 
-  TPROG = TestPrograms/test_neon.cxx
+  TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
@@ -488,16 +498,18 @@ endif
 
 ifeq ($(IS_ARMV8),1)
 
-  TPROG = TestPrograms/test_asimd.cxx
+  TPROG = TestPrograms/test_arm_acle.cxx
   TOPT = -march=armv8-a
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifneq ($(HAVE_OPT),0)
+  ifeq ($(HAVE_OPT),0)
+	ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_AVAILABLE=1
+  else
 	CXXFLAGS += -DCRYPTOPP_ARM_ACLE_AVAILABLE=0
   endif
 
-  TPROG = TestPrograms/test_asimd.cxx
+  TPROG = TestPrograms/test_arm_asimd.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     ASIMD_FLAG = -march=armv8-a
     ARIA_FLAG = -march=armv8-a
@@ -518,26 +530,46 @@ ifeq ($(IS_ARMV8),1)
   endif
 
   ifneq ($(ASIMD_FLAG),)
-    TPROG = TestPrograms/test_crc.cxx
-    TOPT = -march=armv8-a+crc
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    TPROG = TestPrograms/test_arm_crc.cxx
+    TOPT = -march=armv8.1-a+crc
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
-      CRC_FLAG = -march=armv8-a+crc
+      CRC_FLAG = -march=armv8.1-a+crc
+    else
+      CXXFLAGS += -DCRYPTOPP_ARM_CRC32_AVAILABLE=0
     endif
 
-    TPROG = TestPrograms/test_crypto_v81.cxx
-    TOPT = -march=armv8-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    TPROG = TestPrograms/test_arm_aes.cxx
+    TOPT = -march=armv8.1-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
-      AES_FLAG = -march=armv8-a+crypto
-      GCM_FLAG = -march=armv8-a+crypto
-      SHA_FLAG = -march=armv8-a+crypto
+      AES_FLAG = -march=armv8.1-a+crypto
+    else
+      CXXFLAGS += -DCRYPTOPP_ARM_AES_AVAILABLE=0
+    endif
+
+    TPROG = TestPrograms/test_arm_pmull.cxx
+    TOPT = -march=armv8.1-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    ifeq ($(HAVE_OPT),0)
+      GCM_FLAG = -march=armv8.1-a+crypto
+    else
+      CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
+    endif
+
+    TPROG = TestPrograms/test_arm_sha.cxx
+    TOPT = -march=armv8.1-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    ifeq ($(HAVE_OPT),0)
+      SHA_FLAG = -march=armv8.1-a+crypto
+    else
+      CXXFLAGS += -DCRYPTOPP_ARM_SHA_AVAILABLE=0
     endif
 
     ifneq ($(AES_FLAG),)
       TPROG = TestPrograms/test_crypto_v84.cxx
       TOPT = -march=armv8.4-a+crypto
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
         SM3_FLAG = -march=armv8.4-a+crypto
         SM4_FLAG = -march=armv8.4-a+crypto
@@ -551,7 +583,7 @@ ifeq ($(IS_ARMV8),1)
 # IS_ARMV8
 endif
 
-# CRYPTOPP_DISABLE_ASM
+# DETECT_FEATURES
 endif
 
 # IS_ARM32, IS_ARMV8, IS_NEON
@@ -566,7 +598,7 @@ endif
 # front-end. XLC/LLVM only supplies POWER8 so we have to set the flags for
 # XLC/LLVM to POWER8. I've got a feeling LLVM is going to cause trouble.
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+ifeq ($(DETECT_FEATURES),1)
 
   # LLVM front-ends only provide POWER8 and need special options to
   # get XLC defines. The POWER8 really jambs us up for ppc_simd.cpp
@@ -722,7 +754,7 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   # https://github.com/weidai11/cryptopp/issues/738
   UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
-# CRYPTOPP_DISABLE_ASM
+# DETECT_FEATURES
 endif
 
 # IBM XL C/C++ compiler
