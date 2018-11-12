@@ -1130,9 +1130,9 @@ clean:
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct et
 	@-$(RM) *.la *.lo *.gcov *.gcno *.gcda *.stackdump core core-*
-	@-$(RM) /tmp/adhoc.exe
+	@-$(RM) a.out /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
-	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/
+	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/ *.out.dSYM/
 	@-$(RM) -r cov-int/
 
 .PHONY: autotools-clean
