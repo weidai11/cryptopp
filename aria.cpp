@@ -112,7 +112,6 @@ void ARIA::Base::UncheckedSetKey(const byte *key, unsigned int keylen, const Nam
 	m_rk.New(16*17);  // round keys
 	m_w.New(4*7);     // w0, w1, w2, w3, t and u
 
-	const byte *mk = key;
 	byte *rk = m_rk.data();
 	int Q, q, R, r;
 
