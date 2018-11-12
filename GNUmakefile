@@ -297,6 +297,9 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   else
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
   endif
+  
+  # https://github.com/weidai11/cryptopp/issues/738
+  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
 
 # CRYPTOPP_DISABLE_ASM
 endif
@@ -411,6 +414,9 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
   endif
 
+  # https://github.com/weidai11/cryptopp/issues/738
+  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+
 # CRYPTOPP_DISABLE_ASM
 endif
 
@@ -474,6 +480,9 @@ ifeq ($(IS_ARM32)$(IS_NEON),11)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
+  # https://github.com/weidai11/cryptopp/issues/738
+  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
+
 # IS_NEON
 endif
 
@@ -535,6 +544,9 @@ ifeq ($(IS_ARMV8),1)
       endif
     endif
   endif
+
+  # https://github.com/weidai11/cryptopp/issues/738
+  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
 
 # IS_ARMV8
 endif
@@ -706,6 +718,9 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   else ifeq ($(POWER8_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
   endif
+
+  # https://github.com/weidai11/cryptopp/issues/738
+  UNUSED := $(shell rm -f a.out && rm -rf *.out.dSYM/)
 
 # CRYPTOPP_DISABLE_ASM
 endif
@@ -1135,6 +1150,13 @@ clean:
 	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/ *.out.dSYM/
 	@-$(RM) -r cov-int/
 
+# Feature testing runs the compiler and produces an [unwanted] a.out artifact.
+# If a.out is created using privileges then it will cause problems later if
+# the makefile is run again without privileges. This rule cleans a.out.
+.PHONY: aout-clean
+aout-clean:
+	@-$(RM) -r a.out *.out.dSYM/
+
 .PHONY: autotools-clean
 autotools-clean:
 	@-$(RM) -f configure.ac configure configure.in Makefile.am Makefile.in Makefile
@@ -1149,7 +1171,7 @@ cmake-clean:
 	@-$(RM) -rf cmake_build/
 
 .PHONY: distclean
-distclean: clean autotools-clean cmake-clean
+distclean: clean autotools-clean cmake-clean aout-clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt
 	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
 	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
