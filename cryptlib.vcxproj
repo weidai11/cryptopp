@@ -196,6 +196,7 @@
     <ClCompile Include="chacha_avx.cpp">
       <!-- Requires Visual Studio 2013 and above -->
       <ExcludedFromBuild Condition=" '$(PlatformToolset)' == 'v100' Or '$(PlatformToolset)' == 'v110' ">true</ExcludedFromBuild>
+      <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
     <ClCompile Include="cham.cpp" />
     <ClCompile Include="cham_simd.cpp" />
