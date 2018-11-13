@@ -668,8 +668,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Drop SIMON64 and SPECK64 to Power4 if Power7 not available
   ifeq ($(SIMON64_FLAG)$(SPECK64_FLAG),)
-    SPECK64_FLAG = $(ALTIVEC_FLAG)
     SIMON64_FLAG = $(ALTIVEC_FLAG)
+    SPECK64_FLAG = $(ALTIVEC_FLAG)
   endif
 
   # IBM XL C/C++
@@ -751,8 +751,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Drop SIMON64 and SPECK64 to Power4 if Power7 not available
   ifeq ($(SIMON64_FLAG)$(SPECK64_FLAG),)
-    SPECK64_FLAG = $(ALTIVEC_FLAG)
     SIMON64_FLAG = $(ALTIVEC_FLAG)
+    SPECK64_FLAG = $(ALTIVEC_FLAG)
   endif
 
   ifeq ($(ALTIVEC_FLAG),)

@@ -1,7 +1,7 @@
 // simon-simd.cpp - written and placed in the public domain by Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
-//    SSSE3, ARM NEON and ARMv8a, and Power7 Altivec instructions. A separate
+//    SSSE3, ARM NEON and ARMv8a, and Altivec instructions. A separate
 //    source file is needed because additional CXXFLAGS are required to enable
 //    the appropriate instructions sets in some build configurations.
 
@@ -46,8 +46,16 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc_simd.h"
+#endif
+
+#ifndef CRYPTOPP_INLINE
+# if defined(CRYPTOPP_DEBUG)
+#  define CRYPTOPP_INLINE static
+# else
+#  define CRYPTOPP_INLINE inline
+# endif
 #endif
 
 // Squash MS LNK4221 and libtool warnings
@@ -523,15 +531,16 @@ inline void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
-// ***************************** Power7 ***************************** //
+// ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
 
 using CryptoPP::VectorAnd;
 using CryptoPP::VectorXor;
+using CryptoPP::VectorLoad;
 using CryptoPP::VectorLoadBE;
 
 // Rotate left by bit count
@@ -573,16 +582,29 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk1 = vec_splats(subkeys[i]);
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk1);
-
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk1 = VectorLoad(0, subkeys+i);
+        uint32x4_p rk2 = VectorLoad(0, subkeys+i+1);
+        rk1 = vec_perm(rk1, rk1, m);
+        rk2 = vec_perm(rk2, rk2, m);
+#endif
+        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk1);
         x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk2);
     }
 
     if (rounds & 1)
     {
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        rk = vec_perm(rk, rk, m);
+#endif
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk);
         std::swap(x1, y1);
     }
@@ -618,17 +640,30 @@ inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         std::swap(x1, y1);
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        rk = vec_perm(rk, rk, m);
+#endif
         y1 = VectorXor(VectorXor(y1, rk), SIMON64_f(x1));
         rounds--;
     }
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk1 = vec_splats(subkeys[i+1]);
-        x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk1);
-
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk1 = VectorLoad(0, subkeys+i+1);
+        uint32x4_p rk2 = VectorLoad(0, subkeys+i);
+        rk1 = vec_perm(rk1, rk1, m);
+        rk2 = vec_perm(rk2, rk2, m);
+#endif
+        x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk1);
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk2);
     }
 
@@ -667,12 +702,20 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk1 = vec_splats(subkeys[i]);
+        const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk1 = VectorLoad(0, subkeys+i);
+        uint32x4_p rk2 = VectorLoad(0, subkeys+i+1);
+        rk1 = vec_perm(rk1, rk1, m);
+        rk2 = vec_perm(rk2, rk2, m);
+#endif
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk1);
         y2 = VectorXor(VectorXor(y2, SIMON64_f(x2)), rk1);
         y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk1);
 
-        const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
         x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk2);
         x2 = VectorXor(VectorXor(x2, SIMON64_f(y2)), rk2);
         x3 = VectorXor(VectorXor(x3, SIMON64_f(y3)), rk2);
@@ -680,7 +723,13 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     if (rounds & 1)
     {
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        rk = vec_perm(rk, rk, m);
+#endif
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk);
         y2 = VectorXor(VectorXor(y2, SIMON64_f(x2)), rk);
         y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk);
@@ -727,7 +776,14 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
+
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        rk = vec_perm(rk, rk, m);
+#endif
         y1 = VectorXor(VectorXor(y1, rk), SIMON64_f(x1));
         y2 = VectorXor(VectorXor(y2, rk), SIMON64_f(x2));
         y3 = VectorXor(VectorXor(y3, rk), SIMON64_f(x3));
@@ -736,12 +792,20 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
+#if CRYPTOPP_POWER7_AVAILABLE
         const uint32x4_p rk1 = vec_splats(subkeys[i+1]);
+        const uint32x4_p rk2 = vec_splats(subkeys[i]);
+#else
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        uint32x4_p rk1 = VectorLoad(0, subkeys+i+1);
+        uint32x4_p rk2 = VectorLoad(0, subkeys+i);
+        rk1 = vec_perm(rk1, rk1, m);
+        rk2 = vec_perm(rk2, rk2, m);
+#endif
         x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk1);
         x2 = VectorXor(VectorXor(x2, SIMON64_f(y2)), rk1);
         x3 = VectorXor(VectorXor(x3, SIMON64_f(y3)), rk1);
 
-        const uint32x4_p rk2 = vec_splats(subkeys[i]);
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk2);
         y2 = VectorXor(VectorXor(y2, SIMON64_f(x2)), rk2);
         y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk2);
@@ -764,7 +828,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     block5 = (uint32x4_p)vec_perm(x3, y3, m4);
 }
 
-#endif  // CRYPTOPP_POWER7_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
@@ -808,17 +872,17 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 }
 #endif
 
-// ***************************** Power7 ***************************** //
+// ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
-size_t SIMON64_Enc_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+size_t SIMON64_Enc_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t SIMON64_Dec_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+size_t SIMON64_Dec_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
