@@ -587,8 +587,8 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(0, subkeys+i);
-        uint32x4_p rk2 = VectorLoad(0, subkeys+i+1);
+        uint32x4_p rk1 = VectorLoad(subkeys+i);
+        uint32x4_p rk2 = VectorLoad(subkeys+i+1);
         rk1 = vec_perm(rk1, rk1, m);
         rk2 = vec_perm(rk2, rk2, m);
 #endif
@@ -602,7 +602,7 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
         rk = vec_perm(rk, rk, m);
 #endif
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk);
@@ -644,7 +644,7 @@ inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
         rk = vec_perm(rk, rk, m);
 #endif
         y1 = VectorXor(VectorXor(y1, rk), SIMON64_f(x1));
@@ -658,8 +658,8 @@ inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(0, subkeys+i+1);
-        uint32x4_p rk2 = VectorLoad(0, subkeys+i);
+        uint32x4_p rk1 = VectorLoad(subkeys+i+1);
+        uint32x4_p rk2 = VectorLoad(subkeys+i);
         rk1 = vec_perm(rk1, rk1, m);
         rk2 = vec_perm(rk2, rk2, m);
 #endif
@@ -707,8 +707,8 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(0, subkeys+i);
-        uint32x4_p rk2 = VectorLoad(0, subkeys+i+1);
+        uint32x4_p rk1 = VectorLoad(subkeys+i);
+        uint32x4_p rk2 = VectorLoad(subkeys+i+1);
         rk1 = vec_perm(rk1, rk1, m);
         rk2 = vec_perm(rk2, rk2, m);
 #endif
@@ -727,7 +727,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
         rk = vec_perm(rk, rk, m);
 #endif
         y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk);
@@ -781,7 +781,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+rounds-1);
+        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
         rk = vec_perm(rk, rk, m);
 #endif
         y1 = VectorXor(VectorXor(y1, rk), SIMON64_f(x1));
@@ -797,8 +797,8 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(0, subkeys+i+1);
-        uint32x4_p rk2 = VectorLoad(0, subkeys+i);
+        uint32x4_p rk1 = VectorLoad(subkeys+i+1);
+        uint32x4_p rk2 = VectorLoad(subkeys+i);
         rk1 = vec_perm(rk1, rk1, m);
         rk2 = vec_perm(rk2, rk2, m);
 #endif

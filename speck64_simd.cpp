@@ -526,7 +526,7 @@ void SPECK64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 #else
         // subkeys has extra elements so memory backs the last subkey
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+i);
+        uint32x4_p rk = VectorLoad(subkeys+i);
         rk = vec_perm(rk, rk, m);
 #endif
 
@@ -573,7 +573,7 @@ void SPECK64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
 #else
         // subkeys has extra elements so memory backs the last subkey
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+i);
+        uint32x4_p rk = VectorLoad(subkeys+i);
         rk = vec_perm(rk, rk, m);
 #endif
 
@@ -625,7 +625,7 @@ void SPECK64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #else
         // subkeys has extra elements so memory backs the last subkey
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+i);
+        uint32x4_p rk = VectorLoad(subkeys+i);
         rk = vec_perm(rk, rk, m);
 #endif
 
@@ -694,7 +694,7 @@ void SPECK64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #else
         // subkeys has extra elements so memory backs the last subkey
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(0, subkeys+i);
+        uint32x4_p rk = VectorLoad(subkeys+i);
         rk = vec_perm(rk, rk, m);
 #endif
 
