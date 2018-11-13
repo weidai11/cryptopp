@@ -1,8 +1,9 @@
 #include <string>
-#include <pthreads.h>
+#include <pthread.h>
 
 void* function(void *ptr)
 {
+	return 0;
 }
 
 int main(int argc, char* argv[])
