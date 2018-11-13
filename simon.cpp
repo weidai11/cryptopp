@@ -263,6 +263,10 @@ std::string SIMON64::Base::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 # endif
+# if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return "Power7";
+# endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
         return "Altivec";
