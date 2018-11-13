@@ -313,7 +313,7 @@ CRYPTOPP_INLINE __m128i RotateRight64(const __m128i& val)
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
-CRYPTOPP_INLINE __m128i RotateLeft64<8>(const __m128i& val)
+__m128i RotateLeft64<8>(const __m128i& val)
 {
 #if defined(__XOP__)
     return _mm_roti_epi64(val, 8);
@@ -325,7 +325,7 @@ CRYPTOPP_INLINE __m128i RotateLeft64<8>(const __m128i& val)
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
-CRYPTOPP_INLINE __m128i RotateRight64<8>(const __m128i& val)
+__m128i RotateRight64<8>(const __m128i& val)
 {
 #if defined(__XOP__)
     return _mm_roti_epi64(val, 64-8);
