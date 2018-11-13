@@ -357,13 +357,13 @@ class CRYPTOPP_DLL GF2NPP : public GF2NP
 public:
 	// polynomial modulus = x^t0 + x^t1 + x^t2 + x^t3 + x^t4, t0 > t1 > t2 > t3 > t4
 	GF2NPP(unsigned int t0, unsigned int t1, unsigned int t2, unsigned int t3, unsigned int t4)
-		: GF2NP(PolynomialMod2::Pentanomial(t0, t1, t2, t3, t4)), t0(t0), t1(t1), t2(t2), t3(t3) {}
+		: GF2NP(PolynomialMod2::Pentanomial(t0, t1, t2, t3, t4)), t1(t1), t2(t2), t3(t3) {}
 
 	GF2NP * Clone() const {return new GF2NPP(*this);}
 	void DEREncode(BufferedTransformation &bt) const;
 
 private:
-	unsigned int t0, t1, t2, t3;
+	unsigned int t1, t2, t3;
 };
 
 // construct new GF2NP from the ASN.1 sequence Characteristic-two
