@@ -666,6 +666,12 @@ ifeq ($(DETECT_FEATURES),1)
     endif
   endif
 
+  # Drop SIMON64 and SPECK64 to Power4 if Power7 not available
+  ifeq ($(SIMON64_FLAG)$(SPECK64_FLAG),)
+    SPECK64_FLAG = $(ALTIVEC_FLAG)
+    SIMON64_FLAG = $(ALTIVEC_FLAG)
+  endif
+
   # IBM XL C/C++
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = -qarch=pwr8 -qaltivec
@@ -741,6 +747,12 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(ALTIVEC_FLAG),)
       ALTIVEC_FLAG = $(POWER8_FLAG)
     endif
+  endif
+
+  # Drop SIMON64 and SPECK64 to Power4 if Power7 not available
+  ifeq ($(SIMON64_FLAG)$(SPECK64_FLAG),)
+    SPECK64_FLAG = $(ALTIVEC_FLAG)
+    SIMON64_FLAG = $(ALTIVEC_FLAG)
   endif
 
   ifeq ($(ALTIVEC_FLAG),)

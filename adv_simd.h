@@ -74,6 +74,14 @@
 # include "ppc_simd.h"
 #endif
 
+#ifndef CRYPTOPP_INLINE
+# if defined(CRYPTOPP_DEBUG)
+#  define CRYPTOPP_INLINE static
+# else
+#  define CRYPTOPP_INLINE inline
+# endif
+#endif
+
 // ************************ All block ciphers *********************** //
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -103,7 +111,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
         const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -348,7 +356,7 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
 /// \details The subkey type is usually word32 or word64. F1 and F6 must use the
 ///   same word type.
 template <typename F1, typename F6, typename W>
-inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
             const W *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -510,7 +518,7 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
 ///   vector type. The V parameter is used to avoid template argument
 ///   deduction/substitution failures.
 template <typename F1, typename F4, typename W, typename V>
-inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             const V& unused, const W *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -651,7 +659,7 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
             const W *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -882,7 +890,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details The subkey type is usually word32 or word64. F1 and F2 must use the
 ///   same word type.
 template <typename F1, typename F2, typename W>
-inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1037,7 +1045,7 @@ inline size_t AdvancedProcessBlocks64_2x1_SSE(F1 func1, F2 func2,
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1288,7 +1296,7 @@ inline size_t AdvancedProcessBlocks64_6x2_SSE(F2 func2, F6 func6,
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1483,7 +1491,7 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
 /// \details The subkey type is usually word32 or word64. F1 and F4 must use the
 ///   same word type.
 template <typename F1, typename F4, typename W>
-inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
         MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1614,7 +1622,7 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
 /// \details The subkey type is usually word32 or word64. F1 and F4 must use the
 ///   same word type.
 template <typename F1, typename F4, typename W>
-inline size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_4x1_SSE(F1 func1, F4 func4,
     MAYBE_CONST W *subKeys, size_t rounds, const byte *inBlocks,
     const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -1797,7 +1805,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details The subkey type is usually word32 or word64. F2 and F6 must use the
 ///   same word type.
 template <typename F2, typename F6, typename W>
-inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
         const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -2068,7 +2076,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 /// \details The subkey type is usually word32 or word64. F1 and F4 must use the
 ///   same word type.
 template <typename F1, typename F4, typename W>
-inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
         const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -2213,7 +2221,7 @@ inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
 /// \details The subkey type is usually word32 or word64. F1 and F6 must use the
 ///   same word type.
 template <typename F1, typename F6, typename W>
-inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
+CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
         const W *subKeys, size_t rounds, const byte *inBlocks,
         const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
