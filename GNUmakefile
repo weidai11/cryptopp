@@ -12,6 +12,9 @@ SHELL = /bin/sh
 TMPDIR ?= /tmp
 # Used for ARMv7 and NEON.
 FP_ABI ?= hard
+# Used for feature tests
+TOUT ?= a.out
+TOUT := $(strip $(TOUT))
 
 # Command and arguments
 AR ?= ar
@@ -38,8 +41,8 @@ else
   GREP ?= grep
 endif
 
-# Attempt to determine host machine, fallback to "this" machine.
-#   The host machine is the one the package runs on. Most people
+# Attempt to determine target machine, fallback to "this" machine.
+#   The target machine is the one the package runs on. Most people
 #   call this the "target", but not Autotools.
 HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
 ifeq ($(HOSTX),)
@@ -50,10 +53,10 @@ IS_X86 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'i.86|x86
 IS_X64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E '_64|d64')
 IS_PPC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'ppc|power')
 IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|power64')
-IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
-IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
 IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'sun|sparc')
 IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'sun|sparc64')
+IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
+IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
 
 IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 
@@ -111,6 +114,8 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),-DCRYPTOPP_DISABLE_ASM)
 else ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
   DETECT_FEATURES := 0
 else ifeq ($(findstring distclean,$(MAKECMDGOALS)),distclean)
+  DETECT_FEATURES := 0
+else ifeq ($(findstring distclean,$(MAKECMDGOALS)),trim)
   DETECT_FEATURES := 0
 endif
 
@@ -215,14 +220,14 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse2.cxx
   TOPT = -msse2
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     SSE_FLAG = -msse2
     CHACHA_FLAG = -msse2
 
     TPROG = TestPrograms/test_x86_ssse3.cxx
     TOPT = -mssse3
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       ARIA_FLAG = -mssse3
       CHAM_FLAG = -mssse3
@@ -236,7 +241,7 @@ ifeq ($(DETECT_FEATURES),1)
 
       TPROG = TestPrograms/test_x86_sse41.cxx
       TOPT = -msse4.1
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
         BLAKE2B_FLAG = -msse4.1
         BLAKE2S_FLAG = -msse4.1
@@ -245,13 +250,13 @@ ifeq ($(DETECT_FEATURES),1)
 
         TPROG = TestPrograms/test_x86_sse42.cxx
         TOPT = -msse4.2
-        HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+        HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
         ifeq ($(HAVE_OPT),0)
           CRC_FLAG = -msse4.2
 
           TPROG = TestPrograms/test_x86_clmul.cxx
           TOPT = -mssse3 -mpclmul
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             GCM_FLAG = -mssse3 -mpclmul
           else
@@ -260,7 +265,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_aes.cxx
           TOPT = -msse4.1 -maes
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             AES_FLAG = -msse4.1 -maes
             SM4_FLAG = -mssse3 -maes
@@ -270,7 +275,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_avx.cxx
           TOPT = -mavx
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             AVX_FLAG = -mavx
           else
@@ -279,7 +284,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_avx2.cxx
           TOPT = -mavx2
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             CHACHA_AVX2_FLAG = -mavx2
           else
@@ -288,7 +293,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_sha.cxx
           TOPT = -msse4.2 -msha
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             SHA_FLAG = -msse4.2 -msha
           else
@@ -308,9 +313,6 @@ ifeq ($(DETECT_FEATURES),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
   endif
 
-  # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
-
 # DETECT_FEATURES
 endif
 
@@ -323,7 +325,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse2.cxx
   TOPT = -xarch=sse2
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     SSE_FLAG = -xarch=sse2
     CHACHA_FLAG = -xarch=sse2
@@ -331,7 +333,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_x86_ssse3.cxx
     TOPT = -xarch=ssse3
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       ARIA_FLAG = -xarch=ssse3
       CHAM_FLAG = -xarch=ssse3
@@ -346,7 +348,7 @@ ifeq ($(DETECT_FEATURES),1)
 
       TPROG = TestPrograms/test_x86_sse41.cxx
       TOPT = -xarch=sse4_1
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
         BLAKE2B_FLAG = -xarch=sse4_1
         BLAKE2S_FLAG = -xarch=sse4_1
@@ -356,14 +358,14 @@ ifeq ($(DETECT_FEATURES),1)
 
         TPROG = TestPrograms/test_x86_sse42.cxx
         TOPT = -xarch=sse4_2
-        HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+        HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
         ifeq ($(HAVE_OPT),0)
           CRC_FLAG = -xarch=sse4_2
           LDFLAGS += -xarch=sse4_2
 
           TPROG = TestPrograms/test_x86_clmul.cxx
           TOPT = -xarch=ssse3 -xarch=aes
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             GCM_FLAG = -xarch=ssse3 -xarch=aes
           else
@@ -372,7 +374,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_aes.cxx
           TOPT = -xarch=sse4_1 -xarch=aes
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             AES_FLAG = -xarch=sse4_1 -xarch=aes
             SM4_FLAG = -xarch=ssse3 -xarch=aes
@@ -383,7 +385,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_avx.cxx
           TOPT = -xarch=avx
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             AVX_FLAG = -xarch=avx
             LDFLAGS += -xarch=avx
@@ -393,7 +395,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_avx2.cxx
           TOPT = -xarch=avx2
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             CHACHA_AVX2_FLAG = -xarch=avx2
             LDFLAGS += -xarch=avx2
@@ -403,7 +405,7 @@ ifeq ($(DETECT_FEATURES),1)
 
           TPROG = TestPrograms/test_x86_sha.cxx
           TOPT = -xarch=sse4_2 -xarch=sha
-          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+          HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
           ifeq ($(HAVE_OPT),0)
             SHA_FLAG = -xarch=sse4_2 -xarch=sha
             LDFLAGS += -xarch=sha
@@ -423,9 +425,6 @@ ifeq ($(DETECT_FEATURES),1)
   else
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
   endif
-
-  # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # DETECT_FEATURES
 endif
@@ -467,7 +466,7 @@ ifeq ($(IS_ARM32)$(IS_NEON),11)
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -490,9 +489,6 @@ ifeq ($(IS_ARM32)$(IS_NEON),11)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
-  # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
-
 # IS_NEON
 endif
 
@@ -500,7 +496,7 @@ ifeq ($(IS_ARMV8),1)
 
   TPROG = TestPrograms/test_arm_acle.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
 	ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_AVAILABLE=1
   else
@@ -509,7 +505,7 @@ ifeq ($(IS_ARMV8),1)
 
   TPROG = TestPrograms/test_arm_asimd.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     ASIMD_FLAG = -march=armv8-a
     ARIA_FLAG = -march=armv8-a
@@ -532,7 +528,7 @@ ifeq ($(IS_ARMV8),1)
   ifneq ($(ASIMD_FLAG),)
     TPROG = TestPrograms/test_arm_crc.cxx
     TOPT = -march=armv8.1-a+crc
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       CRC_FLAG = -march=armv8.1-a+crc
     else
@@ -541,7 +537,7 @@ ifeq ($(IS_ARMV8),1)
 
     TPROG = TestPrograms/test_arm_aes.cxx
     TOPT = -march=armv8.1-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       AES_FLAG = -march=armv8.1-a+crypto
     else
@@ -550,7 +546,7 @@ ifeq ($(IS_ARMV8),1)
 
     TPROG = TestPrograms/test_arm_pmull.cxx
     TOPT = -march=armv8.1-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       GCM_FLAG = -march=armv8.1-a+crypto
     else
@@ -559,7 +555,7 @@ ifeq ($(IS_ARMV8),1)
 
     TPROG = TestPrograms/test_arm_sha.cxx
     TOPT = -march=armv8.1-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       SHA_FLAG = -march=armv8.1-a+crypto
     else
@@ -569,16 +565,13 @@ ifeq ($(IS_ARMV8),1)
     ifneq ($(AES_FLAG),)
       TPROG = TestPrograms/test_crypto_v84.cxx
       TOPT = -march=armv8.4-a+crypto
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
         SM3_FLAG = -march=armv8.4-a+crypto
         SM4_FLAG = -march=armv8.4-a+crypto
       endif
     endif
   endif
-
-  # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
 
 # IS_ARMV8
 endif
@@ -606,7 +599,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(XLC_COMPILER)$(findstring -qxlcompatmacros,$(CXXFLAGS)),1)
     TPROG = TestPrograms/test_ppc_altivec.cxx
     TOPT = -qxlcompatmacros
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       CXXFLAGS += -qxlcompatmacros
     endif
@@ -615,7 +608,7 @@ ifeq ($(DETECT_FEATURES),1)
   # GCC and some compatibles
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = -mcpu=power8 -maltivec
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     POWER8_FLAG = -mcpu=power8 -maltivec
     AES_FLAG = $(POWER8_FLAG)
@@ -634,7 +627,7 @@ ifeq ($(DETECT_FEATURES),1)
   # GCC and some compatibles
   TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = -mcpu=power7 -maltivec
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     POWER7_FLAG = -mcpu=power7 -maltivec
     ARIA_FLAG = $(POWER7_FLAG)
@@ -649,17 +642,17 @@ ifeq ($(DETECT_FEATURES),1)
   # GCC and some compatibles
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = -mcpu=power4 -maltivec
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     ALTIVEC_FLAG = -mcpu=power4 -maltivec
   else
     TOPT = -mcpu=power5 -maltivec
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       ALTIVEC_FLAG = -mcpu=power5 -maltivec
     else
       TOPT = -mcpu=power6 -maltivec
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
         ALTIVEC_FLAG = -mcpu=power6 -maltivec
       endif
@@ -675,7 +668,7 @@ ifeq ($(DETECT_FEATURES),1)
   # IBM XL C/C++
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = -qarch=pwr8 -qaltivec
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     AES_FLAG = $(POWER8_FLAG)
@@ -694,7 +687,7 @@ ifeq ($(DETECT_FEATURES),1)
   # IBM XL C/C++
   TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = -qarch=pwr7 -qaltivec
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     POWER7_FLAG = -qarch=pwr7 -qaltivec
     ARIA_FLAG = $(POWER7_FLAG)
@@ -709,17 +702,17 @@ ifeq ($(DETECT_FEATURES),1)
   # IBM XL C/C++
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = -qarch=pwr4 -qaltivec
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
   ifeq ($(HAVE_OPT),0)
     ALTIVEC_FLAG = -qarch=pwr4 -qaltivec
   else
     TOPT = -qarch=pwr5 -qaltivec
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
     ifeq ($(HAVE_OPT),0)
       ALTIVEC_FLAG = -qarch=pwr5 -qaltivec
     else
       TOPT = -qarch=pwr6 -qaltivec
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
       ifeq ($(HAVE_OPT),0)
         ALTIVEC_FLAG = -qarch=pwr6 -qaltivec
       endif
@@ -763,9 +756,6 @@ ifeq ($(DETECT_FEATURES),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
   endif
 
-  # https://github.com/weidai11/cryptopp/issues/738
-  UNUSED := $(shell rm -f a.out && rm -rf a.out.dSYM/)
-
 # DETECT_FEATURES
 endif
 
@@ -793,16 +783,16 @@ endif
 
 # Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
-# BAD_PTHREAD and HAVE_PTHREAD is due to GCC on Solaris. GCC rejects -pthread but defines
-#   39 *_PTHREAD_* related macros. Then we pickup the macros and enable the option...
-TPROG = TestPrograms/test_cxx.cxx
-BAD_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -c $(TPROG) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-HAVE_PTHREAD = $(shell $(CXX) $(CXXFLAGS) -pthread -dM -E $(TPROG) 2>/dev/null | $(GREP) -i -c 'PTHREAD')
-ifeq ($(BAD_PTHREAD),0)
-ifneq ($(HAVE_PTHREAD),0)
-  CXXFLAGS += -pthread
-endif # CXXFLAGS
-endif # CXXFLAGS
+ifeq ($(DETECT_FEATURES),1)
+ ifeq ($(findstring -pthread,$(CXXFLAGS)),)
+  TPROG = TestPrograms/test_pthreads.cxx
+  TOPT = -pthread
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  ifeq ($(HAVE_OPT),0)
+   CXXFLAGS += -pthread
+  endif # CXXFLAGS
+ endif  # pthread
+endif  # DETECT_FEATURES
 
 # Remove -fPIC if present. SunCC use -KPIC, and needs the larger GOT table
 # https://docs.oracle.com/cd/E19205-01/819-5267/bkbaq/index.html
@@ -811,7 +801,7 @@ ifeq ($(SUN_COMPILER),1)
   CXXFLAGS := $(subst -fpic,-KPIC,$(CXXFLAGS))
 endif
 
-# For SunOS and SunCC Sun wants folks to use -xregs=no%appl
+# Add -xregs=no%appl SPARC. SunCC should not use certain registers in library code.
 # https://docs.oracle.com/cd/E18659_01/html/821-1383/bkamt.html
 ifeq ($(IS_SUN)$(SUN_COMPILER),11)
   ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
@@ -824,6 +814,7 @@ endif  # SunOS
 # Remove -fPIC if present. IBM XL C/C++ use -qpic
 ifeq ($(XLC_COMPILER),1)
   CXXFLAGS := $(subst -fPIC,-qpic,$(CXXFLAGS))
+  CXXFLAGS := $(subst -fpic,-qpic,$(CXXFLAGS))
 endif
 
 # Add -pipe for everything except IBM XL C/C++, SunCC and ARM.
@@ -985,7 +976,7 @@ endif # Valgrind
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
   TPROG = TestPrograms/test_cxx.cxx
-  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -E $(TPROG) 2>&1 | $(GREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -E $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
@@ -1042,6 +1033,22 @@ SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR)
 SOLIB_FLAGS=-Wl,-h,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 endif # HAS_SOLIB_VERSION
+
+###########################################################
+#####                Temp file cleanup                #####
+###########################################################
+
+# After this point no more test programs should be run.
+# https://github.com/weidai11/cryptopp/issues/738
+ifeq ($(findstring /dev/null,$(TOUT)),)
+  # $(info TOUT is not /dev/null, cleaning $(TOUT))
+  ifeq ($(wildcard $(TOUT)),$(TOUT))
+    UNUSED := $(shell $(RM) $(TOUT) 2>/dev/null)
+  endif
+  ifeq ($(wildcard $(TOUT).dSYM/),$(TOUT).dSYM/)
+    UNUSED := $(shell $(RM) -r $(TOUT).dSYM/ 2>/dev/null)
+  endif
+endif
 
 ###########################################################
 #####              Source and object files            #####
@@ -1189,17 +1196,10 @@ clean:
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct et
 	@-$(RM) *.la *.lo *.gcov *.gcno *.gcda *.stackdump core core-*
-	@-$(RM) a.out /tmp/adhoc.exe
+	@-$(RM) /tmp/adhoc.exe
 	@-$(RM) -r /tmp/cryptopp_test/
-	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/ a.out.dSYM/
+	@-$(RM) -r *.exe.dSYM/ *.dylib.dSYM/
 	@-$(RM) -r cov-int/
-
-# Feature testing runs the compiler and produces an [unwanted] a.out artifact.
-# If a.out is created using privileges then it will cause problems later if
-# the makefile is run again without privileges. This rule cleans a.out.
-.PHONY: aout-clean
-aout-clean:
-	@-$(RM) -r a.out a.out.dSYM/
 
 .PHONY: autotools-clean
 autotools-clean:
@@ -1215,7 +1215,7 @@ cmake-clean:
 	@-$(RM) -rf cmake_build/
 
 .PHONY: distclean
-distclean: clean autotools-clean cmake-clean aout-clean
+distclean: clean autotools-clean cmake-clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt
 	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
 	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
@@ -1345,8 +1345,8 @@ libcryptopp.pc:
 	@echo 'Libs: -L$${libdir} -lcryptopp' >> libcryptopp.pc
 
 # This recipe prepares the distro files
-TEXT_FILES := *.h *.cpp adhoc.cpp License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.s *.S *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestScripts/*.sh TestScripts/*.cmd
-EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/ TestScripts/
+TEXT_FILES := *.h *.cpp adhoc.cpp License.txt Readme.txt Install.txt Filelist.txt Doxyfile cryptest* cryptlib* dlltest* cryptdll* *.sln *.s *.S *.vcxproj *.filters cryptopp.rc TestVectors/*.txt TestData/*.dat TestPrograms/*.cxx TestScripts/*.sh TestScripts/*.cmd
+EXEC_FILES := GNUmakefile GNUmakefile-cross TestData/ TestVectors/ TestScripts/ TestPrograms/
 
 ifeq ($(wildcard Filelist.txt),Filelist.txt)
 DIST_FILES := $(shell cat Filelist.txt)
@@ -1373,7 +1373,7 @@ convert:
 	@-$(CHMOD) 0700 $(EXEC_FILES) *.sh *.cmd TestScripts/*.sh TestScripts/*.cmd
 	@-$(CHMOD) 0700 *.cmd *.sh GNUmakefile GNUmakefile-cross TestScripts/*.sh
 	-unix2dos --keepdate --quiet $(TEXT_FILES) .*.yml *.asm *.cmd TestScripts/*.*
-	-dos2unix --keepdate --quiet GNUmakefile GNUmakefile-cross *.supp *.s *.sh *.mapfile TestScripts/*.sh
+	-dos2unix --keepdate --quiet GNUmakefile* *.supp *.s *.S *.sh *.mapfile TestScripts/*.sh
 ifneq ($(IS_DARWIN),0)
 	@-xattr -c *
 endif
