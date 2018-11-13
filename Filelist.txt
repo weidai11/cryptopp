@@ -529,6 +529,7 @@ test_arm_pmull.cxx
 test_arm_sha.cxx
 test_crypto_v84.cxx
 test_cxx.cxx
+test_pthreads.cxx
 test_ppc_altivec.cxx
 test_ppc_power7.cxx
 test_ppc_power8.cxx
