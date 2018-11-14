@@ -302,13 +302,13 @@ inline uint32x4_p VectorAdd64(const uint32x4_p& a, const uint32x4_p& b)
 #if (_ARCH_PWR8 || _ARCH_PWR9)
     return (uint32x4_p)vec_add((uint64x2_p)a, (uint64x2_p)b);
 #else
-	// The carry mask selects carries from elements 1 and 3 and sets remaining
-	// elements to 0. The mask also shifts the carried values left by 4 bytes
-	// so the carries are added to elements 0 and 2.
-	const uint8x16_p cmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
-	const uint32x4_p zero = {0, 0, 0, 0};
+    // The carry mask selects carries from elements 1 and 3 and sets remaining
+    // elements to 0. The mask also shifts the carried values left by 4 bytes
+    // so the carries are added to elements 0 and 2.
+    const uint8x16_p cmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
+    const uint32x4_p zero = {0, 0, 0, 0};
 
-	uint32x4_p cy = vec_addc(a, b);
+    uint32x4_p cy = vec_addc(a, b);
     cy = vec_perm(cy, zero, cmask);
     return vec_add(vec_add(a, b), cy);
 #endif
