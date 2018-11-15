@@ -211,7 +211,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details VecLoadBE loads a vector in from a byte array. VecLoadBE
-///   will reverse all bytes in the arrya on a little endian system.
+///   will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
@@ -245,7 +245,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \param src the byte array
 /// \param off offset into the src byte array
 /// \details VecLoadBE loads a vector in from a byte array. VecLoadBE
-///   will reverse all bytes in the arrya on a little endian system.
+///   will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
@@ -352,12 +352,13 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 /// \tparam T vector type
 /// \param data the vector
 /// \param dest the byte array
-/// \details Stores a vector in native endian format to a byte array.
+/// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecStore_ALTIVEC() is used if POWER7 or above
-///   is not available. VecStore_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
 template<class T>
@@ -379,12 +380,13 @@ inline void VecStore(const T data, byte dest[16])
 /// \param data the vector
 /// \param off the byte offset into the array
 /// \param dest the byte array
-/// \details Stores a vector in native endian format to a byte array.
+/// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecStore_ALTIVEC() is used if POWER7 or above
-///   is not available. VecStore_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
 template<class T>
@@ -405,12 +407,13 @@ inline void VecStore(const T data, int off, byte dest[16])
 /// \tparam T vector type
 /// \param data the vector
 /// \param dest the byte array
-/// \details Stores a vector in native endian format to a byte array.
+/// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecStore_ALTIVEC() is used if POWER7 or above
-///   is not available. VecStore_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
 template<class T>
@@ -424,12 +427,13 @@ inline void VecStore(const T data, word32 dest[4])
 /// \param data the vector
 /// \param off the byte offset into the array
 /// \param dest the byte array
-/// \details Stores a vector in native endian format to a byte array.
+/// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecStore_ALTIVEC() is used if POWER7 or above
-///   is not available. VecStore_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
 template<class T>
@@ -442,14 +446,15 @@ inline void VecStore(const T data, int off, word32 dest[4])
 /// \tparam T vector type
 /// \param src the vector
 /// \param dest the byte array
-/// \details Stores a vector in big endian format to a byte array.
-///   VecStoreBE will swap all bytes on little endian systems.
+/// \details VecStoreBE stores a vector to a byte array. VecStoreBE
+///   will reverse all bytes in the array on a little endian system.
 /// \details VecStoreBE uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecStore_ALTIVEC() is used if POWER7 or above
-///   is not available. VecStore_ALTIVEC() is relatively expensive.
-/// \note VecStoreBE does not require an aligned array.
+///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
+/// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
 template <class T>
 inline void VecStoreBE(const T src, byte dest[16])
@@ -478,14 +483,15 @@ inline void VecStoreBE(const T src, byte dest[16])
 /// \param src the vector
 /// \param off offset into the dest byte array
 /// \param dest the byte array
-/// \details Stores a vector in big endian format to a byte array.
-///   VecStoreBE will swap all bytes on little endian systems.
+/// \details VecStoreBE stores a vector to a byte array. VecStoreBE
+///   will reverse all bytes in the array on a little endian system.
 /// \details VecStoreBE uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecStore_ALTIVEC() is used if POWER7 or above
-///   is not available. VecStore_ALTIVEC() is relatively expensive.
-/// \note VecStoreBE does not require an aligned array.
+///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
+/// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
 template <class T>
 inline void VecStoreBE(const T src, int off, byte dest[16])
