@@ -1,6 +1,7 @@
-// blake2.h - written and placed in the public domain by Jeffrey Walton and Zooko
-//            Wilcox-O'Hearn. Based on Aumasson, Neves, Wilcox-O'Hearn and Winnerlein's
-//            reference BLAKE2 implementation at http://github.com/BLAKE2/BLAKE2.
+// blake2.h - written and placed in the public domain by Jeffrey Walton
+//            and Zooko Wilcox-O'Hearn. Based on Aumasson, Neves,
+//            Wilcox-O'Hearn and Winnerlein's reference BLAKE2
+//            implementation at http://github.com/BLAKE2/BLAKE2.
 
 /// \file blake2.h
 /// \brief Classes for BLAKE2b and BLAKE2s message digests and keyed message digests

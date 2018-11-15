@@ -7,6 +7,16 @@
 //    needed because additional CXXFLAGS are required to enable the
 //    appropriate instructions sets in some build configurations.
 
+// The BLAKE2b and BLAKE2s numbers are consistent with the BLAKE2 team's
+// numbers. However, we have an Altivec/POWER7 implementation of BLAKE2s,
+// and a POWER8 implementation of BLAKE2b (BLAKE2 is missing them). The
+// Altivec/POWER7 code is about 2x faster than C++ when using GCC 5.0 or
+// above. The POWER8 code is about 2.5x faster than C++ when using GCC 5.0
+// or above. If you use GCC 4.0 (PowerMac) or GCC 4.8 (GCC Compile Farm)
+// then the PowerPC code will be slower than C++. Be sure to use GCC 5.0
+// or above for PowerPC builds or disable Altivec for BLAKE2b and BLAKE2s
+// if using the old compilers.
+
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
@@ -41,7 +51,7 @@
 # include <arm_acle.h>
 #endif
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc_simd.h"
 #endif
 
@@ -671,7 +681,7 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
 inline uint32x4_p VectorLoad32(const void* p)
 {
@@ -984,6 +994,6 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
     VectorStore32LE(&state.h[0], vec_xor(ff0, vec_xor(row1, row3)));
     VectorStore32LE(&state.h[4], vec_xor(ff1, vec_xor(row2, row4)));
 }
-#endif  // CRYPTOPP_POWER7_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 NAMESPACE_END
