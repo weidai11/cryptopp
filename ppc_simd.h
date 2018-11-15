@@ -215,22 +215,22 @@ inline T VectorShiftLeftOctet(const T& vec)
 /// \tparam T vector type
 /// \param vec the vector
 /// \returns vector
-/// \details VectorShiftRight() returns a new vector after shifting the
+/// \details VectorShiftRightOctet() returns a new vector after shifting the
 ///   concatenation of the zero vector and the source vector by the specified
 ///   number of bytes. The return vector is the same type as vec.
-/// \details On big endian machines VectorShiftRight() is <tt>vec_sld(a, z,
-///   c)</tt>. On little endian machines VectorShiftRight() is translated to
+/// \details On big endian machines VectorShiftRightOctet() is <tt>vec_sld(a, z,
+///   c)</tt>. On little endian machines VectorShiftRightOctet() is translated to
 ///   <tt>vec_sld(z, a, 16-c)</tt>. You should always call the function as
 ///   if on a big endian machine as shown below.
 /// <pre>
 ///    uint8x16_p r1 = VectorLoad(ptr);
-///    uint8x16_p r5 = VectorShiftRight<12>(r1);
+///    uint8x16_p r5 = VectorShiftRightOctet<12>(r1);
 /// </pre>
 /// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
 ///   endian sensitive?</A> on Stack Overflow
 /// \since Crypto++ 6.0
 template <unsigned int C, class T>
-inline T VectorShiftRight(const T& vec)
+inline T VectorShiftRightOctet(const T& vec)
 {
     const T zero = {0};
     if (C >= 16)
@@ -322,7 +322,7 @@ inline T VectorGetLow(const T& val)
     //const T zero = {0};
     //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
     //return (T)vec_perm(zero, val, mask);
-    return VectorShiftRight<8>(VectorShiftLeftOctet<8>(val));
+    return VectorShiftRightOctet<8>(VectorShiftLeftOctet<8>(val));
 }
 
 /// \brief Extract a dword from a vector
@@ -339,7 +339,7 @@ inline T VectorGetHigh(const T& val)
     //const T zero = {0};
     //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
     //return (T)vec_perm(zero, val, mask);
-    return VectorShiftRight<8>(val);
+    return VectorShiftRightOctet<8>(val);
 }
 
 /// \brief Compare two vectors

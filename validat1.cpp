@@ -1145,7 +1145,7 @@ bool TestAltivecOps()
 
     pass2 = (VectorEqual(val, VectorShiftLeftOctet<0>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(val, VectorShiftRight<0>(val))) && pass2;
+    pass2 = (VectorEqual(val, VectorShiftRightOctet<0>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     uint8x16_p lsh1 = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
@@ -1155,7 +1155,7 @@ bool TestAltivecOps()
 
     pass2 = (VectorEqual(lsh1, VectorShiftLeftOctet<1>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(rsh1, VectorShiftRight<1>(val))) && pass2;
+    pass2 = (VectorEqual(rsh1, VectorShiftRightOctet<1>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     uint8x16_p lsh15 = {0xff,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
@@ -1165,7 +1165,7 @@ bool TestAltivecOps()
 
     pass2 = (VectorEqual(lsh15, VectorShiftLeftOctet<15>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(rsh15, VectorShiftRight<15>(val))) && pass2;
+    pass2 = (VectorEqual(rsh15, VectorShiftRightOctet<15>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     uint8x16_p lsh16 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
@@ -1175,7 +1175,7 @@ bool TestAltivecOps()
 
     pass2 = (VectorEqual(lsh16, VectorShiftLeftOctet<16>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(rsh16, VectorShiftRight<16>(val))) && pass2;
+    pass2 = (VectorEqual(rsh16, VectorShiftRightOctet<16>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     if (!pass2)
@@ -1199,10 +1199,10 @@ bool TestAltivecOps()
     pass3 = VectorEqual(ex3, VectorGetHigh(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
 
-    uint8x16_p ex4 = VectorShiftRight<8>(VectorShiftLeftOctet<8>(ex1));
+    uint8x16_p ex4 = VectorShiftRightOctet<8>(VectorShiftLeftOctet<8>(ex1));
     pass3 = VectorEqual(ex4, VectorGetLow(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
-    uint8x16_p ex5 = VectorShiftRight<8>(ex1);
+    uint8x16_p ex5 = VectorShiftRightOctet<8>(ex1);
     pass3 = VectorEqual(ex5, VectorGetHigh(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
 

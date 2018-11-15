@@ -753,7 +753,7 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
 {
     const uint64x2_p m1 = {1,1}, m63 = {63,63};
 
-    c1 = VectorXor(c1, VectorShiftRight<8>(c0));
+    c1 = VectorXor(c1, VectorShiftRightOctet<8>(c0));
     c1 = VectorXor(c1, VMULL_10LE(c0, r));
     c0 = VectorXor(c1, VectorShiftLeftOctet<8>(c0));
     c0 = VMULL_00LE(vec_sl(c0, m1), r);
