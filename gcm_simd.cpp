@@ -173,7 +173,7 @@ using CryptoPP::uint32x4_p;
 using CryptoPP::uint64x2_p;
 using CryptoPP::VectorGetLow;
 using CryptoPP::VectorGetHigh;
-using CryptoPP::VectorRotateLeft;
+using CryptoPP::VectorRotateLeftOctet;
 
 // POWER8 GCM mode is confusing. The algorithm is reflected so
 // nearly everything we do is reversed for a little-endian system,
@@ -192,7 +192,7 @@ using CryptoPP::VectorRotateLeft;
 inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
-    return VectorRotateLeft<8>(val);
+    return VectorRotateLeftOctet<8>(val);
 #else
     return val;
 #endif
@@ -755,10 +755,10 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
 
     c1 = VectorXor(c1, VectorShiftRight<8>(c0));
     c1 = VectorXor(c1, VMULL_10LE(c0, r));
-    c0 = VectorXor(c1, VectorShiftLeft<8>(c0));
+    c0 = VectorXor(c1, VectorShiftLeftOctet<8>(c0));
     c0 = VMULL_00LE(vec_sl(c0, m1), r);
     c2 = VectorXor(c2, c0);
-    c2 = VectorXor(c2, VectorShiftLeft<8>(c1));
+    c2 = VectorXor(c2, VectorShiftLeftOctet<8>(c1));
     c1 = vec_sr(vec_mergeh(c1, c2), m63);
     c2 = vec_sl(c2, m1);
 
@@ -820,7 +820,7 @@ void GCM_SetKeyWithoutResync_VMULL(const byte *hashKey, byte *mulTable, unsigned
 template <class T>
 inline T SwapWords(const T& data)
 {
-    return (T)VectorRotateLeft<8>(data);
+    return (T)VectorRotateLeftOctet<8>(data);
 }
 
 inline uint64x2_p LoadBuffer1(const byte *dataBuffer)

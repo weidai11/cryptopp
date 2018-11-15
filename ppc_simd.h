@@ -172,22 +172,22 @@ inline T1 VectorSub(const T1& vec1, const T2& vec2)
 /// \tparam T vector type
 /// \param vec the vector
 /// \returns vector
-/// \details VectorShiftLeft() returns a new vector after shifting the
+/// \details VectorShiftLeftOctet() returns a new vector after shifting the
 ///   concatenation of the zero vector and the source vector by the specified
 ///   number of bytes. The return vector is the same type as vec.
-/// \details On big endian machines VectorShiftLeft() is <tt>vec_sld(a, z,
-///   c)</tt>. On little endian machines VectorShiftLeft() is translated to
+/// \details On big endian machines VectorShiftLeftOctet() is <tt>vec_sld(a, z,
+///   c)</tt>. On little endian machines VectorShiftLeftOctet() is translated to
 ///   <tt>vec_sld(z, a, 16-c)</tt>. You should always call the function as
 ///   if on a big endian machine as shown below.
 /// <pre>
 ///    uint8x16_p r1 = VectorLoad(ptr);
-///    uint8x16_p r5 = VectorShiftLeft<12>(r1);
+///    uint8x16_p r5 = VectorShiftLeftOctet<12>(r1);
 /// </pre>
 /// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
 ///   endian sensitive?</A> on Stack Overflow
 /// \since Crypto++ 6.0
 template <unsigned int C, class T>
-inline T VectorShiftLeft(const T& vec)
+inline T VectorShiftLeftOctet(const T& vec)
 {
     const T zero = {0};
     if (C >= 16)
@@ -258,14 +258,14 @@ inline T VectorShiftRight(const T& vec)
 /// \tparam T vector type
 /// \param vec the vector
 /// \returns vector
-/// \details VectorRotateLeft() returns a new vector after rotating the
+/// \details VectorRotateLeftOctet() returns a new vector after rotating the
 ///   concatenation of the source vector with itself by the specified
 ///   number of bytes. The return vector is the same type as vec.
 /// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
 ///   endian sensitive?</A> on Stack Overflow
 /// \since Crypto++ 6.0
 template <unsigned int C, class T>
-inline T VectorRotateLeft(const T& vec)
+inline T VectorRotateLeftOctet(const T& vec)
 {
     enum { R = C&0xf };
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -280,14 +280,14 @@ inline T VectorRotateLeft(const T& vec)
 /// \tparam T vector type
 /// \param vec the vector
 /// \returns vector
-/// \details VectorRotateRight() returns a new vector after rotating the
+/// \details VectorRotateRightOctet() returns a new vector after rotating the
 ///   concatenation of the source vector with itself by the specified
 ///   number of bytes. The return vector is the same type as vec.
 /// \sa <A HREF="https://stackoverflow.com/q/46341923/608639">Is vec_sld
 ///   endian sensitive?</A> on Stack Overflow
 /// \since Crypto++ 6.0
 template <unsigned int C, class T>
-inline T VectorRotateRight(const T& vec)
+inline T VectorRotateRightOctet(const T& vec)
 {
     enum { R = C&0xf };
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -322,7 +322,7 @@ inline T VectorGetLow(const T& val)
     //const T zero = {0};
     //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
     //return (T)vec_perm(zero, val, mask);
-    return VectorShiftRight<8>(VectorShiftLeft<8>(val));
+    return VectorShiftRight<8>(VectorShiftLeftOctet<8>(val));
 }
 
 /// \brief Extract a dword from a vector
