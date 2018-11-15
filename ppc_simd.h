@@ -38,7 +38,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-// Wrap everything in this file based on CRYPTOPP_ALTIVEC_AVAILABLE
 #if defined(__ALTIVEC__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 // Datatypes
@@ -760,7 +759,7 @@ inline bool VectorNotEqual(const T1 vec1, const T2 vec2)
 
 //////////////////////// Power8 Crypto ////////////////////////
 
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
