@@ -1188,22 +1188,6 @@ uint32x4_p8 VectorPack(const uint32x4_p8 a, const uint32x4_p8 b,
     return vec_perm(vec_perm(a,b,m1), vec_perm(c,d,m1), m2);
 }
 
-template <unsigned int L> static inline
-uint32x4_p8 VectorShiftLeftOctet(const uint32x4_p8 val)
-{
-#if (CRYPTOPP_LITTLE_ENDIAN)
-    return (uint32x4_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, (16-L)&0xf);
-#else
-    return (uint32x4_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, L&0xf);
-#endif
-}
-
-template <>
-uint32x4_p8 VectorShiftLeftOctet<0>(const uint32x4_p8 val) { return val; }
-
-template <>
-uint32x4_p8 VectorShiftLeftOctet<16>(const uint32x4_p8 val) { return val; }
-
 template <unsigned int R> static inline
 void SHA256_ROUND1(uint32x4_p8 W[16], uint32x4_p8 S[8], const uint32x4_p8 K, const uint32x4_p8 M)
 {
@@ -1476,22 +1460,6 @@ uint64x2_p8 VectorPack(const uint64x2_p8 x, const uint64x2_p8 y)
     const uint8x16_p8 m = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
     return vec_perm(x,y,m);
 }
-
-template <unsigned int L> static inline
-uint64x2_p8 VectorShiftLeftOctet(const uint64x2_p8 val)
-{
-#if (CRYPTOPP_LITTLE_ENDIAN)
-    return (uint64x2_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, (16-L)&0xf);
-#else
-    return (uint64x2_p8)vec_sld((uint8x16_p8)val, (uint8x16_p8)val, L&0xf);
-#endif
-}
-
-template <>
-uint64x2_p8 VectorShiftLeftOctet<0>(const uint64x2_p8 val) { return val; }
-
-template <>
-uint64x2_p8 VectorShiftLeftOctet<16>(const uint64x2_p8 val) { return val; }
 
 template <unsigned int R> static inline
 void SHA512_ROUND1(uint64x2_p8 W[16], uint64x2_p8 S[8], const uint64x2_p8 K, const uint64x2_p8 M)
