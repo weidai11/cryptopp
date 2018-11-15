@@ -67,6 +67,13 @@ inline T Reverse(const T src)
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details Loads a vector in native endian format from a byte array.
+/// \details VectorLoad_ALTIVEC() uses <tt>vec_ld</tt> if the effective address
+///   of <tt>dest</tt> is aligned, and uses <tt>vec_lvsl</tt> and <tt>vec_perm</tt>
+///   otherwise.
+///   <tt>vec_lvsl</tt> and <tt>vec_perm</tt> are relatively expensive so you should
+///   provide aligned memory adresses.
+/// \details VectorLoad_ALTIVEC() is used automatically when POWER7 or above
+///   and unaligned loads is not available.
 /// \note VectorLoad does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad_ALTIVEC(const byte src[16])
@@ -89,6 +96,11 @@ inline uint32x4_p VectorLoad_ALTIVEC(const byte src[16])
 /// \param src the byte array
 /// \param off offset into the src byte array
 /// \details Loads a vector in native endian format from a byte array.
+/// \details VectorLoad_ALTIVEC() uses <tt>vec_ld</tt> if the effective address
+///   of <tt>dest</tt> is aligned, and uses <tt>vec_lvsl</tt> and <tt>vec_perm</tt>
+///   otherwise.
+///   <tt>vec_lvsl</tt> and <tt>vec_perm</tt> are relatively expensive so you should
+///   provide aligned memory adresses.
 /// \note VectorLoad does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad_ALTIVEC(int off, const byte src[16])
@@ -110,6 +122,11 @@ inline uint32x4_p VectorLoad_ALTIVEC(int off, const byte src[16])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details Loads a vector in native endian format from a byte array.
+/// \details VectorLoad uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorLoad_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorLoad_ALTIVEC() is relatively expensive.
 /// \note VectorLoad does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const byte src[16])
@@ -129,6 +146,11 @@ inline uint32x4_p VectorLoad(const byte src[16])
 /// \param src the byte array
 /// \param off offset into the byte array
 /// \details Loads a vector in native endian format from a byte array.
+/// \details VectorLoad uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorLoad_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorLoad_ALTIVEC() is relatively expensive.
 /// \note VectorLoad does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const byte src[16])
@@ -147,8 +169,13 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details Loads a vector in native endian format from a byte array.
+/// \details VectorLoad uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorLoad_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorLoad_ALTIVEC() is relatively expensive.
 /// \note VectorLoad does not require an aligned array.
-/// \since Crypto++ 6.0
+/// \since Crypto++ 8.0
 inline uint32x4_p VectorLoad(const word32 src[4])
 {
     return VectorLoad((const byte*)src);
@@ -159,7 +186,7 @@ inline uint32x4_p VectorLoad(const word32 src[4])
 /// \param off offset into the byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \note VectorLoad does not require an aligned array.
-/// \since Crypto++ 6.0
+/// \since Crypto++ 8.0
 inline uint32x4_p VectorLoad(int off, const word32 src[4])
 {
     return VectorLoad(off, (const byte*)src);
@@ -169,6 +196,11 @@ inline uint32x4_p VectorLoad(int off, const word32 src[4])
 /// \param src the byte array
 /// \details Loads a vector in big endian format from a byte array.
 ///   VectorLoadBE will swap all bytes on little endian systems.
+/// \details VectorLoadBE uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorLoad_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorLoad_ALTIVEC() is relatively expensive.
 /// \note VectorLoadBE() does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(const byte src[16])
@@ -197,6 +229,11 @@ inline uint32x4_p VectorLoadBE(const byte src[16])
 /// \param off offset into the src byte array
 /// \details Loads a vector in big endian format from a byte array.
 ///   VectorLoadBE will swap all bytes on little endian systems.
+/// \details VectorLoadBE uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorLoad_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorLoad_ALTIVEC() is relatively expensive.
 /// \note VectorLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(int off, const byte src[16])
@@ -222,6 +259,19 @@ inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 
 //////////////////////// Stores ////////////////////////
 
+/// \brief Stores a vector to a byte array
+/// \tparam T vector type
+/// \param data the vector
+/// \param dest the byte array
+/// \details Stores a vector in native endian format to a byte array.
+/// \details VectorStore_ALTIVEC() uses <tt>vec_st</tt> if the effective address
+///   of <tt>dest</tt> is aligned, and uses <tt>vec_ste</tt> otherwise.
+///   <tt>vec_ste</tt> is relatively expensive so you should provide aligned
+///   memory adresses.
+/// \details VectorStore_ALTIVEC() is used automatically when POWER7 or above
+///   and unaligned loads is not available.
+/// \note VectorStore does not require an aligned array.
+/// \since Crypto++ 8.0
 template<class T>
 inline void VectorStore_ALTIVEC(const T data, byte dest[16])
 {
@@ -244,6 +294,20 @@ inline void VectorStore_ALTIVEC(const T data, byte dest[16])
     }
 }
 
+/// \brief Stores a vector to a byte array
+/// \tparam T vector type
+/// \param data the vector
+/// \param off the byte offset into the array
+/// \param dest the byte array
+/// \details Stores a vector in native endian format to a byte array.
+/// \details VectorStore_ALTIVEC() uses <tt>vec_st</tt> if the effective address
+///   of <tt>dest</tt> is aligned, and uses <tt>vec_ste</tt> otherwise.
+///   <tt>vec_ste</tt> is relatively expensive so you should provide aligned
+///   memory adresses.
+/// \details VectorStore_ALTIVEC() is used automatically when POWER7 or above
+///   and unaligned loads is not available.
+/// \note VectorStore does not require an aligned array.
+/// \since Crypto++ 8.0
 template<class T>
 inline void VectorStore_ALTIVEC(const T data, int off, byte dest[16])
 {
@@ -271,6 +335,11 @@ inline void VectorStore_ALTIVEC(const T data, int off, byte dest[16])
 /// \param data the vector
 /// \param dest the byte array
 /// \details Stores a vector in native endian format to a byte array.
+/// \details VectorStore uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorStore_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorStore_ALTIVEC() is relatively expensive.
 /// \note VectorStore does not require an aligned array.
 /// \since Crypto++ 6.0
 template<class T>
@@ -293,6 +362,11 @@ inline void VectorStore(const T data, byte dest[16])
 /// \param off the byte offset into the array
 /// \param dest the byte array
 /// \details Stores a vector in native endian format to a byte array.
+/// \details VectorStore uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorStore_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorStore_ALTIVEC() is relatively expensive.
 /// \note VectorStore does not require an aligned array.
 /// \since Crypto++ 6.0
 template<class T>
@@ -314,6 +388,11 @@ inline void VectorStore(const T data, int off, byte dest[16])
 /// \param data the vector
 /// \param dest the byte array
 /// \details Stores a vector in native endian format to a byte array.
+/// \details VectorStore uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorStore_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorStore_ALTIVEC() is relatively expensive.
 /// \note VectorStore does not require an aligned array.
 /// \since Crypto++ 8.0
 template<class T>
@@ -328,6 +407,11 @@ inline void VectorStore(const T data, word32 dest[4])
 /// \param off the byte offset into the array
 /// \param dest the byte array
 /// \details Stores a vector in native endian format to a byte array.
+/// \details VectorStore uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorStore_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorStore_ALTIVEC() is relatively expensive.
 /// \note VectorStore does not require an aligned array.
 /// \since Crypto++ 8.0
 template<class T>
@@ -342,6 +426,11 @@ inline void VectorStore(const T data, int off, word32 dest[4])
 /// \param dest the byte array
 /// \details Stores a vector in big endian format to a byte array.
 ///   VectorStoreBE will swap all bytes on little endian systems.
+/// \details VectorStoreBE uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorStore_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorStore_ALTIVEC() is relatively expensive.
 /// \note VectorStoreBE does not require an aligned array.
 /// \since Crypto++ 6.0
 template <class T>
@@ -373,6 +462,11 @@ inline void VectorStoreBE(const T src, byte dest[16])
 /// \param dest the byte array
 /// \details Stores a vector in big endian format to a byte array.
 ///   VectorStoreBE will swap all bytes on little endian systems.
+/// \details VectorStoreBE uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   an aligned memory address.
+/// \details VectorStore_ALTIVEC() is used if POWER7 or above
+///   is not available. VectorStore_ALTIVEC() is relatively expensive.
 /// \note VectorStoreBE does not require an aligned array.
 /// \since Crypto++ 6.0
 template <class T>
