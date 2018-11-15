@@ -311,12 +311,27 @@ inline void VectorStore(const T data, int off, byte dest[16])
 #endif
 }
 
+/// \brief Stores a vector to a word array
+/// \tparam T vector type
+/// \param data the vector
+/// \param off the byte offset into the array
+/// \param dest the byte array
+/// \details Stores a vector in native endian format to a byte array.
+/// \note VectorStore does not require an aligned array.
+/// \since Crypto++ 8.0
 template<class T>
 inline void VectorStore(const T data, word32 dest[4])
 {
     VectorStore((uint8x16_p)data, 0, (byte*)dest);
 }
 
+/// \brief Stores a vector to a word array
+/// \tparam T vector type
+/// \param data the vector
+/// \param dest the byte array
+/// \details Stores a vector in native endian format to a byte array.
+/// \note VectorStore does not require an aligned array.
+/// \since Crypto++ 8.0
 template<class T>
 inline void VectorStore(const T data, int off, word32 dest[4])
 {
