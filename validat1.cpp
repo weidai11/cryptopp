@@ -1089,44 +1089,44 @@ bool TestAltivecOps()
     const byte st2[16] ={21,20,19,18,17,16,15,14,13,12,11,10,9,8,7,6};
     const byte st3[16] ={20,19,18,17,16,15,14,13,12,11,10,9,8,7,6,5};
 
-    VectorStore(VectorLoad(src), dest);
+    VecStore(VecLoad(src), dest);
     pass1 = (0 == std::memcmp(src, dest, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStore(VectorLoad(src+1), dest+1);
+    VecStore(VecLoad(src+1), dest+1);
     pass1 = (0 == std::memcmp(st1, dest+1, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStore(VectorLoad(src+2), dest+2);
+    VecStore(VecLoad(src+2), dest+2);
     pass1 = (0 == std::memcmp(st2, dest+2, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStore(VectorLoad(src+3), dest+3);
+    VecStore(VecLoad(src+3), dest+3);
     pass1 = (0 == std::memcmp(st3, dest+3, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStoreBE(VectorLoadBE(src), dest);
+    VecStoreBE(VecLoadBE(src), dest);
     pass1 = (0 == std::memcmp(src, dest, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStoreBE(VectorLoadBE(src+1), dest+1);
+    VecStoreBE(VecLoadBE(src+1), dest+1);
     pass1 = (0 == std::memcmp(st1, dest+1, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStoreBE(VectorLoadBE(src+2), dest+2);
+    VecStoreBE(VecLoadBE(src+2), dest+2);
     pass1 = (0 == std::memcmp(st2, dest+2, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStoreBE(VectorLoadBE(src+3), dest+3);
+    VecStoreBE(VecLoadBE(src+3), dest+3);
     pass1 = (0 == std::memcmp(st3, dest+3, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    VectorStore(VectorLoadBE(src), dest);
+    VecStore(VecLoadBE(src), dest);
     pass1 = (0 != std::memcmp(src, dest, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 
-    VectorStoreBE(VectorLoad(src), dest);
+    VecStoreBE(VecLoad(src), dest);
     pass1 = (0 != std::memcmp(src, dest, 16)) && pass1;
     CRYPTOPP_ASSERT(pass1);
 #endif
@@ -1143,9 +1143,9 @@ bool TestAltivecOps()
     uint8x16_p val = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
                       0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff};
 
-    pass2 = (VectorEqual(val, VectorShiftLeftOctet<0>(val))) && pass2;
+    pass2 = (VecEqual(val, VecShiftLeftOctet<0>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(val, VectorShiftRightOctet<0>(val))) && pass2;
+    pass2 = (VecEqual(val, VecShiftRightOctet<0>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     uint8x16_p lsh1 = {0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
@@ -1153,9 +1153,9 @@ bool TestAltivecOps()
     uint8x16_p rsh1 = {0x00,0xff,0xff,0xff, 0xff,0xff,0xff,0xff,
                        0xff,0xff,0xff,0xff, 0xff,0xff,0xff,0xff};
 
-    pass2 = (VectorEqual(lsh1, VectorShiftLeftOctet<1>(val))) && pass2;
+    pass2 = (VecEqual(lsh1, VecShiftLeftOctet<1>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(rsh1, VectorShiftRightOctet<1>(val))) && pass2;
+    pass2 = (VecEqual(rsh1, VecShiftRightOctet<1>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     uint8x16_p lsh15 = {0xff,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
@@ -1163,9 +1163,9 @@ bool TestAltivecOps()
     uint8x16_p rsh15 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
                         0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0xff};
 
-    pass2 = (VectorEqual(lsh15, VectorShiftLeftOctet<15>(val))) && pass2;
+    pass2 = (VecEqual(lsh15, VecShiftLeftOctet<15>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(rsh15, VectorShiftRightOctet<15>(val))) && pass2;
+    pass2 = (VecEqual(rsh15, VecShiftRightOctet<15>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     uint8x16_p lsh16 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
@@ -1173,9 +1173,9 @@ bool TestAltivecOps()
     uint8x16_p rsh16 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
                         0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00};
 
-    pass2 = (VectorEqual(lsh16, VectorShiftLeftOctet<16>(val))) && pass2;
+    pass2 = (VecEqual(lsh16, VecShiftLeftOctet<16>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
-    pass2 = (VectorEqual(rsh16, VectorShiftRightOctet<16>(val))) && pass2;
+    pass2 = (VecEqual(rsh16, VecShiftRightOctet<16>(val))) && pass2;
     CRYPTOPP_ASSERT(pass2);
 
     if (!pass2)
@@ -1194,16 +1194,16 @@ bool TestAltivecOps()
     uint8x16_p ex3 = {0x00,0x00,0x00,0x00, 0x00,0x00,0x00,0x00,
                       0x1f,0x1e,0x1d,0x1c, 0x1b,0x1a,0x19,0x18};
 
-    pass3 = VectorEqual(ex2, VectorGetLow(ex1)) && pass3;
+    pass3 = VecEqual(ex2, VecGetLow(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
-    pass3 = VectorEqual(ex3, VectorGetHigh(ex1)) && pass3;
+    pass3 = VecEqual(ex3, VecGetHigh(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
 
-    uint8x16_p ex4 = VectorShiftRightOctet<8>(VectorShiftLeftOctet<8>(ex1));
-    pass3 = VectorEqual(ex4, VectorGetLow(ex1)) && pass3;
+    uint8x16_p ex4 = VecShiftRightOctet<8>(VecShiftLeftOctet<8>(ex1));
+    pass3 = VecEqual(ex4, VecGetLow(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
-    uint8x16_p ex5 = VectorShiftRightOctet<8>(ex1);
-    pass3 = VectorEqual(ex5, VectorGetHigh(ex1)) && pass3;
+    uint8x16_p ex5 = VecShiftRightOctet<8>(ex1);
+    pass3 = VecEqual(ex5, VecGetHigh(ex1)) && pass3;
     CRYPTOPP_ASSERT(pass3);
 
     if (!pass3)

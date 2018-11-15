@@ -73,7 +73,7 @@ bool CPU_ProbeAltivec()
         // Specifically call the Altivec loads and stores
         const uint8x16_p v1 = (uint8x16_p)vec_ld(0, (byte*)b1);
         const uint8x16_p v2 = (uint8x16_p)vec_ld(0, (byte*)b2);
-        const uint8x16_p v3 = (uint8x16_p)vec_xor(v1, v2);
+        const uint8x16_p v3 = (uint8x16_p)VecXor(v1, v2);
         vec_st(v3, 0, b3);
 
         result = (0 == std::memcmp(b2, b3, 16));

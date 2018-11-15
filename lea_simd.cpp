@@ -439,17 +439,17 @@ using CryptoPP::uint64x2_p;
 
 inline uint32x4_p Xor(const uint32x4_p& a, const uint32x4_p& b)
 {
-    return vec_xor(a, b);
+    return VecXor(a, b);
 }
 
 inline uint32x4_p Add(const uint32x4_p& a, const uint32x4_p& b)
 {
-    return vec_add(a, b);
+    return VecAdd(a, b);
 }
 
 inline uint32x4_p Sub(const uint32x4_p& a, const uint32x4_p& b)
 {
-    return vec_sub(a, b);
+    return VecSub(a, b);
 }
 
 template <unsigned int R>
@@ -479,7 +479,7 @@ inline uint32x4_p UnpackSIMD(const uint32x4_p& a, const uint32x4_p& b, const uin
     CRYPTOPP_UNUSED(a); CRYPTOPP_UNUSED(b);
     CRYPTOPP_UNUSED(c); CRYPTOPP_UNUSED(d);
     CRYPTOPP_ASSERT(0);
-    return vec_xor(a, a);
+    return VecXor(a, a);
 }
 
 template <>
@@ -519,7 +519,7 @@ inline uint32x4_p UnpackSIMD(const uint32x4_p& v)
 {
     // Should not be instantiated
     CRYPTOPP_ASSERT(0);
-    return vec_xor(v, v);
+    return VecXor(v, v);
 }
 
 template <>
@@ -527,7 +527,7 @@ inline uint32x4_p UnpackSIMD<0>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0};
-    return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)VecPermute(v, v, m);
 }
 
 template <>
@@ -535,7 +535,7 @@ inline uint32x4_p UnpackSIMD<1>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4};
-    return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)VecPermute(v, v, m);
 }
 
 template <>
@@ -543,7 +543,7 @@ inline uint32x4_p UnpackSIMD<2>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {11,10,9,8, 11,10,9,8, 11,10,9,8, 11,10,9,8};
-    return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)VecPermute(v, v, m);
 }
 
 template <>
@@ -551,7 +551,7 @@ inline uint32x4_p UnpackSIMD<3>(const uint32x4_p& v)
 {
     // Splat to all lanes
     const uint8x16_p m = {15,14,13,12, 15,14,13,12, 15,14,13,12, 15,14,13,12};
-    return (uint32x4_p)vec_perm(v, v, m);
+    return (uint32x4_p)VecPermute(v, v, m);
 }
 
 template <unsigned int IDX>

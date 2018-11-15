@@ -1857,54 +1857,54 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
                 // even harder without POWER8 due to lack of 64-bit elements.
                 std::memcpy(temp+LowOffset, inBlocks, 8);
                 std::memcpy(temp+HighOffset, inBlocks, 8);
-                uint32x4_p ctr = (uint32x4_p)VectorLoadBE(temp);
+                uint32x4_p ctr = (uint32x4_p)VecLoadBE(temp);
 
                 // For 64-bit block ciphers we need to load the CTR block,
                 // which is 8 bytes. After the dup load we have two counters
                 // in the Altivec word. Then we need to increment the low ctr
                 // by 0 and the high ctr by 1.
-                block0 = VectorAdd(s_one, ctr);
+                block0 = VecAdd(s_one, ctr);
 
                 // After initial increment of {0,1} remaining counters
                 // increment by {2,2}.
-                block1 = VectorAdd(s_two, block0);
-                block2 = VectorAdd(s_two, block1);
-                block3 = VectorAdd(s_two, block2);
-                block4 = VectorAdd(s_two, block3);
-                block5 = VectorAdd(s_two, block4);
+                block1 = VecAdd(s_two, block0);
+                block2 = VecAdd(s_two, block1);
+                block3 = VecAdd(s_two, block2);
+                block4 = VecAdd(s_two, block3);
+                block5 = VecAdd(s_two, block4);
 
                 // Update the counter in the caller.
                 const_cast<byte*>(inBlocks)[7] += 12;
             }
             else
             {
-                block0 = VectorLoadBE(inBlocks);
+                block0 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = VectorLoadBE(inBlocks);
+                block1 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block2 = VectorLoadBE(inBlocks);
+                block2 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block3 = VectorLoadBE(inBlocks);
+                block3 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block4 = VectorLoadBE(inBlocks);
+                block4 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block5 = VectorLoadBE(inBlocks);
+                block5 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                block2 = VecXor(block2, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                block3 = VecXor(block3, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
+                block4 = VecXor(block4, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
+                block5 = VecXor(block5, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
@@ -1912,31 +1912,31 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 
             if (xorOutput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                block2 = VecXor(block2, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                block3 = VecXor(block3, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
+                block4 = VecXor(block4, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
+                block5 = VecXor(block5, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            VectorStoreBE(block0, outBlocks);
+            VecStoreBE(block0, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block1, outBlocks);
+            VecStoreBE(block1, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block2, outBlocks);
+            VecStoreBE(block2, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block3, outBlocks);
+            VecStoreBE(block3, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block4, outBlocks);
+            VecStoreBE(block4, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block5, outBlocks);
+            VecStoreBE(block5, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*vsxBlockSize;
@@ -1951,34 +1951,34 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
                 // even harder without POWER8 due to lack of 64-bit elements.
                 std::memcpy(temp+LowOffset, inBlocks, 8);
                 std::memcpy(temp+HighOffset, inBlocks, 8);
-                uint32x4_p ctr = (uint32x4_p)VectorLoadBE(temp);
+                uint32x4_p ctr = (uint32x4_p)VecLoadBE(temp);
 
                 // For 64-bit block ciphers we need to load the CTR block,
                 // which is 8 bytes. After the dup load we have two counters
                 // in the Altivec word. Then we need to increment the low ctr
                 // by 0 and the high ctr by 1.
-                block0 = VectorAdd(s_one, ctr);
+                block0 = VecAdd(s_one, ctr);
 
                 // After initial increment of {0,1} remaining counters
                 // increment by {2,2}.
-                block1 = VectorAdd(s_two, block0);
+                block1 = VecAdd(s_two, block0);
 
                 // Update the counter in the caller.
                 const_cast<byte*>(inBlocks)[7] += 4;
             }
             else
             {
-                block0 = VectorLoadBE(inBlocks);
+                block0 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = VectorLoadBE(inBlocks);
+                block1 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
@@ -1986,15 +1986,15 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 
             if (xorOutput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            VectorStoreBE(block0, outBlocks);
+            VecStoreBE(block0, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block1, outBlocks);
+            VecStoreBE(block1, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 2*vsxBlockSize;
@@ -2030,14 +2030,14 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
             // initialize the block then it generates warnings.
             std::memcpy(temp+LowOffset, inBlocks, 8);
             std::memcpy(temp+HighOffset, inBlocks, 8);  // don't care
-            block = (uint32x4_p)VectorLoadBE(temp);
+            block = (uint32x4_p)VecLoadBE(temp);
 
             if (xorInput)
             {
                 std::memcpy(temp+LowOffset, xorBlocks, 8);
                 std::memcpy(temp+HighOffset, xorBlocks, 8);  // don't care
-                uint32x4_p x = (uint32x4_p)VectorLoadBE(temp);
-                block = VectorXor(block, x);
+                uint32x4_p x = (uint32x4_p)VecLoadBE(temp);
+                block = VecXor(block, x);
             }
 
             // Update the counter in the caller.
@@ -2050,11 +2050,11 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
             {
                 std::memcpy(temp+LowOffset, xorBlocks, 8);
                 std::memcpy(temp+HighOffset, xorBlocks, 8);  // don't care
-                uint32x4_p x = (uint32x4_p)VectorLoadBE(temp);
-                block = VectorXor(block, x);
+                uint32x4_p x = (uint32x4_p)VecLoadBE(temp);
+                block = VecXor(block, x);
             }
 
-            VectorStoreBE(block, temp);
+            VecStoreBE(block, temp);
             std::memcpy(outBlocks, temp+LowOffset, 8);
 
             inBlocks = PtrAdd(inBlocks, inIncrement);
@@ -2120,10 +2120,10 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
 
             if (flags & BT_InBlockIsCounter)
             {
-                block0 = VectorLoadBE(inBlocks);
-                block1 = VectorAdd(block0, s_one);
-                block2 = VectorAdd(block1, s_one);
-                block3 = VectorAdd(block2, s_one);
+                block0 = VecLoadBE(inBlocks);
+                block1 = VecAdd(block0, s_one);
+                block2 = VecAdd(block1, s_one);
+                block3 = VecAdd(block2, s_one);
 
                 // Hack due to big-endian loads used by POWER8 (and maybe ARM-BE).
                 // CTR_ModePolicy::OperateKeystream is wired such that after
@@ -2137,25 +2137,25 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
             }
             else
             {
-                block0 = VectorLoadBE(inBlocks);
+                block0 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = VectorLoadBE(inBlocks);
+                block1 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block2 = VectorLoadBE(inBlocks);
+                block2 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block3 = VectorLoadBE(inBlocks);
+                block3 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                block2 = VecXor(block2, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                block3 = VecXor(block3, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
@@ -2163,23 +2163,23 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
 
             if (xorOutput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                block2 = VecXor(block2, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                block3 = VecXor(block3, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            VectorStoreBE(block0, outBlocks);
+            VecStoreBE(block0, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block1, outBlocks);
+            VecStoreBE(block1, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block2, outBlocks);
+            VecStoreBE(block2, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block3, outBlocks);
+            VecStoreBE(block3, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 4*blockSize;
@@ -2188,10 +2188,10 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
 
     while (length >= blockSize)
     {
-        uint32x4_p block = VectorLoadBE(inBlocks);
+        uint32x4_p block = VecLoadBE(inBlocks);
 
         if (xorInput)
-            block = VectorXor(block, VectorLoadBE(xorBlocks));
+            block = VecXor(block, VecLoadBE(xorBlocks));
 
         if (flags & BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
@@ -2199,9 +2199,9 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
         func1(block, subKeys, rounds);
 
         if (xorOutput)
-            block = VectorXor(block, VectorLoadBE(xorBlocks));
+            block = VecXor(block, VecLoadBE(xorBlocks));
 
-        VectorStoreBE(block, outBlocks);
+        VecStoreBE(block, outBlocks);
 
         inBlocks = PtrAdd(inBlocks, inIncrement);
         outBlocks = PtrAdd(outBlocks, outIncrement);
@@ -2265,12 +2265,12 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
             if (flags & BT_InBlockIsCounter)
             {
-                block0 = VectorLoadBE(inBlocks);
-                block1 = VectorAdd(block0, s_one);
-                block2 = VectorAdd(block1, s_one);
-                block3 = VectorAdd(block2, s_one);
-                block4 = VectorAdd(block3, s_one);
-                block5 = VectorAdd(block4, s_one);
+                block0 = VecLoadBE(inBlocks);
+                block1 = VecAdd(block0, s_one);
+                block2 = VecAdd(block1, s_one);
+                block3 = VecAdd(block2, s_one);
+                block4 = VecAdd(block3, s_one);
+                block5 = VecAdd(block4, s_one);
 
                 // Hack due to big-endian loads used by POWER8 (and maybe ARM-BE).
                 // CTR_ModePolicy::OperateKeystream is wired such that after
@@ -2286,38 +2286,38 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
                 // the issue. If the last octet was 0xFC then 4 would trigger it.
                 // We dumb-lucked into the test with SPECK-128. The test case of
                 // interest is the one with IV 348ECA9766C09F04 826520DE47A212FA.
-                uint8x16_p temp = VectorAdd((uint8x16_p)block5, (uint8x16_p)s_one);
-                VectorStoreBE(temp, const_cast<byte*>(inBlocks));
+                uint8x16_p temp = VecAdd((uint8x16_p)block5, (uint8x16_p)s_one);
+                VecStoreBE(temp, const_cast<byte*>(inBlocks));
             }
             else
             {
-                block0 = VectorLoadBE(inBlocks);
+                block0 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = VectorLoadBE(inBlocks);
+                block1 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block2 = VectorLoadBE(inBlocks);
+                block2 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block3 = VectorLoadBE(inBlocks);
+                block3 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block4 = VectorLoadBE(inBlocks);
+                block4 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block5 = VectorLoadBE(inBlocks);
+                block5 = VecLoadBE(inBlocks);
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                block2 = VecXor(block2, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                block3 = VecXor(block3, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
+                block4 = VecXor(block4, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
+                block5 = VecXor(block5, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
@@ -2325,31 +2325,31 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
             if (xorOutput)
             {
-                block0 = VectorXor(block0, VectorLoadBE(xorBlocks));
+                block0 = VecXor(block0, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = VectorXor(block1, VectorLoadBE(xorBlocks));
+                block1 = VecXor(block1, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = VectorXor(block2, VectorLoadBE(xorBlocks));
+                block2 = VecXor(block2, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = VectorXor(block3, VectorLoadBE(xorBlocks));
+                block3 = VecXor(block3, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block4 = VectorXor(block4, VectorLoadBE(xorBlocks));
+                block4 = VecXor(block4, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block5 = VectorXor(block5, VectorLoadBE(xorBlocks));
+                block5 = VecXor(block5, VecLoadBE(xorBlocks));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            VectorStoreBE(block0, outBlocks);
+            VecStoreBE(block0, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block1, outBlocks);
+            VecStoreBE(block1, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block2, outBlocks);
+            VecStoreBE(block2, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block3, outBlocks);
+            VecStoreBE(block3, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block4, outBlocks);
+            VecStoreBE(block4, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            VectorStoreBE(block5, outBlocks);
+            VecStoreBE(block5, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 6*blockSize;
@@ -2358,10 +2358,10 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
     while (length >= blockSize)
     {
-        uint32x4_p block = VectorLoadBE(inBlocks);
+        uint32x4_p block = VecLoadBE(inBlocks);
 
         if (xorInput)
-            block = VectorXor(block, VectorLoadBE(xorBlocks));
+            block = VecXor(block, VecLoadBE(xorBlocks));
 
         if (flags & BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
@@ -2369,9 +2369,9 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
         func1(block, subKeys, rounds);
 
         if (xorOutput)
-            block = VectorXor(block, VectorLoadBE(xorBlocks));
+            block = VecXor(block, VecLoadBE(xorBlocks));
 
-        VectorStoreBE(block, outBlocks);
+        VecStoreBE(block, outBlocks);
 
         inBlocks = PtrAdd(inBlocks, inIncrement);
         outBlocks = PtrAdd(outBlocks, outIncrement);

@@ -214,12 +214,12 @@ bool CPU_ProbePower8()
         #if defined(__xlc__) || defined(__xlC__)
         const uint64x2_p v1 = (uint64x2_p)vec_xl(0, (byte*)w1);
         const uint64x2_p v2 = (uint64x2_p)vec_xl(0, (byte*)w2);
-        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
+        const uint64x2_p v3 = VecAdd(v1, v2);  // 64-bit add
         vec_xst((uint8x16_p)v3, 0, (byte*)w3);
         #else
         const uint64x2_p v1 = (uint64x2_p)vec_vsx_ld(0, (byte*)w1);
         const uint64x2_p v2 = (uint64x2_p)vec_vsx_ld(0, (byte*)w2);
-        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
+        const uint64x2_p v3 = VecAdd(v1, v2);  // 64-bit add
         vec_vsx_st((uint8x16_p)v3, 0, (byte*)w3);
         #endif
 
@@ -265,13 +265,13 @@ bool CPU_ProbeAES()
                           0x9a, 0xc6, 0x8d, 0x2a, 0xe9, 0xf8, 0x48, 0x08};
         byte r[16] = {255}, z[16] = {};
 
-        uint8x16_p k = (uint8x16_p)VectorLoad(0, key);
-        uint8x16_p s = (uint8x16_p)VectorLoad(0, state);
-        s = VectorEncrypt(s, k);
-        s = VectorEncryptLast(s, k);
-        s = VectorDecrypt(s, k);
-        s = VectorDecryptLast(s, k);
-        VectorStore(s, r);
+        uint8x16_p k = (uint8x16_p)VecLoad(0, key);
+        uint8x16_p s = (uint8x16_p)VecLoad(0, state);
+        s = VecEncrypt(s, k);
+        s = VecEncryptLast(s, k);
+        s = VecDecrypt(s, k);
+        s = VecDecryptLast(s, k);
+        VecStore(s, r);
 
         result = (0 != std::memcmp(r, z, 16));
     }
@@ -697,17 +697,17 @@ static inline void POWER8_Enc_Block(uint32x4_p &block, const word32 *subkeys, un
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VectorLoad(keys);
-    block = VectorXor(block, k);
+    uint32x4_p k = VecLoad(keys);
+    block = VecXor(block, k);
 
     for (size_t i=1; i<rounds-1; i+=2)
     {
-        block = VectorEncrypt(block, VectorLoad(  i*16,   keys));
-        block = VectorEncrypt(block, VectorLoad((i+1)*16, keys));
+        block = VecEncrypt(block, VecLoad(  i*16,   keys));
+        block = VecEncrypt(block, VecLoad((i+1)*16, keys));
     }
 
-    block = VectorEncrypt(block, VectorLoad((rounds-1)*16, keys));
-    block = VectorEncryptLast(block, VectorLoad(rounds*16, keys));
+    block = VecEncrypt(block, VecLoad((rounds-1)*16, keys));
+    block = VecEncryptLast(block, VecLoad(rounds*16, keys));
 }
 
 static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -717,32 +717,32 @@ static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VectorLoad(keys);
-    block0 = VectorXor(block0, k);
-    block1 = VectorXor(block1, k);
-    block2 = VectorXor(block2, k);
-    block3 = VectorXor(block3, k);
-    block4 = VectorXor(block4, k);
-    block5 = VectorXor(block5, k);
+    uint32x4_p k = VecLoad(keys);
+    block0 = VecXor(block0, k);
+    block1 = VecXor(block1, k);
+    block2 = VecXor(block2, k);
+    block3 = VecXor(block3, k);
+    block4 = VecXor(block4, k);
+    block5 = VecXor(block5, k);
 
     for (size_t i=1; i<rounds; ++i)
     {
-        k = VectorLoad(i*16, keys);
-        block0 = VectorEncrypt(block0, k);
-        block1 = VectorEncrypt(block1, k);
-        block2 = VectorEncrypt(block2, k);
-        block3 = VectorEncrypt(block3, k);
-        block4 = VectorEncrypt(block4, k);
-        block5 = VectorEncrypt(block5, k);
+        k = VecLoad(i*16, keys);
+        block0 = VecEncrypt(block0, k);
+        block1 = VecEncrypt(block1, k);
+        block2 = VecEncrypt(block2, k);
+        block3 = VecEncrypt(block3, k);
+        block4 = VecEncrypt(block4, k);
+        block5 = VecEncrypt(block5, k);
     }
 
-    k = VectorLoad(rounds*16, keys);
-    block0 = VectorEncryptLast(block0, k);
-    block1 = VectorEncryptLast(block1, k);
-    block2 = VectorEncryptLast(block2, k);
-    block3 = VectorEncryptLast(block3, k);
-    block4 = VectorEncryptLast(block4, k);
-    block5 = VectorEncryptLast(block5, k);
+    k = VecLoad(rounds*16, keys);
+    block0 = VecEncryptLast(block0, k);
+    block1 = VecEncryptLast(block1, k);
+    block2 = VecEncryptLast(block2, k);
+    block3 = VecEncryptLast(block3, k);
+    block4 = VecEncryptLast(block4, k);
+    block5 = VecEncryptLast(block5, k);
 }
 
 static inline void POWER8_Dec_Block(uint32x4_p &block, const word32 *subkeys, unsigned int rounds)
@@ -750,17 +750,17 @@ static inline void POWER8_Dec_Block(uint32x4_p &block, const word32 *subkeys, un
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VectorLoad(rounds*16, keys);
-    block = VectorXor(block, k);
+    uint32x4_p k = VecLoad(rounds*16, keys);
+    block = VecXor(block, k);
 
     for (size_t i=rounds-1; i>1; i-=2)
     {
-        block = VectorDecrypt(block, VectorLoad(  i*16,   keys));
-        block = VectorDecrypt(block, VectorLoad((i-1)*16, keys));
+        block = VecDecrypt(block, VecLoad(  i*16,   keys));
+        block = VecDecrypt(block, VecLoad((i-1)*16, keys));
     }
 
-    block = VectorDecrypt(block, VectorLoad(16, keys));
-    block = VectorDecryptLast(block, VectorLoad(0, keys));
+    block = VecDecrypt(block, VecLoad(16, keys));
+    block = VecDecryptLast(block, VecLoad(0, keys));
 }
 
 static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -770,32 +770,32 @@ static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VectorLoad(rounds*16, keys);
-    block0 = VectorXor(block0, k);
-    block1 = VectorXor(block1, k);
-    block2 = VectorXor(block2, k);
-    block3 = VectorXor(block3, k);
-    block4 = VectorXor(block4, k);
-    block5 = VectorXor(block5, k);
+    uint32x4_p k = VecLoad(rounds*16, keys);
+    block0 = VecXor(block0, k);
+    block1 = VecXor(block1, k);
+    block2 = VecXor(block2, k);
+    block3 = VecXor(block3, k);
+    block4 = VecXor(block4, k);
+    block5 = VecXor(block5, k);
 
     for (size_t i=rounds-1; i>0; --i)
     {
-        k = VectorLoad(i*16, keys);
-        block0 = VectorDecrypt(block0, k);
-        block1 = VectorDecrypt(block1, k);
-        block2 = VectorDecrypt(block2, k);
-        block3 = VectorDecrypt(block3, k);
-        block4 = VectorDecrypt(block4, k);
-        block5 = VectorDecrypt(block5, k);
+        k = VecLoad(i*16, keys);
+        block0 = VecDecrypt(block0, k);
+        block1 = VecDecrypt(block1, k);
+        block2 = VecDecrypt(block2, k);
+        block3 = VecDecrypt(block3, k);
+        block4 = VecDecrypt(block4, k);
+        block5 = VecDecrypt(block5, k);
     }
 
-    k = VectorLoad(0, keys);
-    block0 = VectorDecryptLast(block0, k);
-    block1 = VectorDecryptLast(block1, k);
-    block2 = VectorDecryptLast(block2, k);
-    block3 = VectorDecryptLast(block3, k);
-    block4 = VectorDecryptLast(block4, k);
-    block5 = VectorDecryptLast(block5, k);
+    k = VecLoad(0, keys);
+    block0 = VecDecryptLast(block0, k);
+    block1 = VecDecryptLast(block1, k);
+    block2 = VecDecryptLast(block2, k);
+    block3 = VecDecryptLast(block3, k);
+    block4 = VecDecryptLast(block4, k);
+    block5 = VecDecryptLast(block5, k);
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -851,14 +851,14 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
     {
         const uint8x16_p d1 = vec_vsx_ld( 0, (uint8_t*)rkey);
         const uint8x16_p d2 = vec_vsx_ld(16, (uint8_t*)rkey);
-        vec_vsx_st(vec_perm(d1, zero, mask),  0, (uint8_t*)rkey);
-        vec_vsx_st(vec_perm(d2, zero, mask), 16, (uint8_t*)rkey);
+        vec_vsx_st(VecPermute(d1, zero, mask),  0, (uint8_t*)rkey);
+        vec_vsx_st(VecPermute(d2, zero, mask), 16, (uint8_t*)rkey);
     }
 
     for ( ; i<rounds+1; i++, rkey+=4)
     {
         const uint8x16_p d = vec_vsx_ld( 0, (uint8_t*)rkey);
-        vec_vsx_st(vec_perm(d, zero, mask),  0, (uint8_t*)rkey);
+        vec_vsx_st(VecPermute(d, zero, mask),  0, (uint8_t*)rkey);
     }
 #endif
 }

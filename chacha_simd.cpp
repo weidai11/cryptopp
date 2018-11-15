@@ -206,7 +206,7 @@ inline __m128i RotateLeft<16>(const __m128i val)
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
 // ChaCha_OperateKeystream_POWER7 is optimized for POWER7. However, Altivec
-// is supported by using vec_ld and vec_st, and using a composite vec_add
+// is supported by using vec_ld and vec_st, and using a composite VecAdd
 // that supports 64-bit element adds. vec_ld and vec_st add significant
 // overhead when memory is not aligned. Despite the drawbacks Altivec
 // is profitable. The numbers for ChaCha8 are:
@@ -216,33 +216,34 @@ inline __m128i RotateLeft<16>(const __m128i val)
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
-using CryptoPP::VectorLoad;
-using CryptoPP::VectorStore;
+using CryptoPP::VecLoad;
+using CryptoPP::VecStore;
+using CryptoPP::VecPermute;
 
 // Permutes bytes in packed 32-bit words to little endian.
 // State is already in proper endian order. Input and
 // output must be permuted during load and save.
-inline uint32x4_p VectorLoad32LE(const uint8_t src[16])
+inline uint32x4_p VecLoad32LE(const uint8_t src[16])
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    const uint32x4_p val = VectorLoad(src);
-    return vec_perm(val, val, mask);
+    const uint32x4_p val = VecLoad(src);
+    return VecPermute(val, val, mask);
 #else
-    return VectorLoad(src);
+    return VecLoad(src);
 #endif
 }
 
 // Permutes bytes in packed 32-bit words to little endian.
 // State is already in proper endian order. Input and
 // output must be permuted during load and save.
-inline void VectorStore32LE(uint8_t dest[16], const uint32x4_p& val)
+inline void VecStore32LE(uint8_t dest[16], const uint32x4_p& val)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    VectorStore(vec_perm(val, val, mask), dest);
+    VecStore(VecPermute(val, val, mask), dest);
 #else
-    return VectorStore(val, dest);
+    return VecStore(val, dest);
 #endif
 }
 
@@ -262,21 +263,21 @@ template <>
 inline uint32x4_p Shuffle<1>(const uint32x4_p& val)
 {
     const uint8x16_p mask = {4,5,6,7, 8,9,10,11, 12,13,14,15, 0,1,2,3};
-    return vec_perm(val, val, mask);
+    return VecPermute(val, val, mask);
 }
 
 template <>
 inline uint32x4_p Shuffle<2>(const uint32x4_p& val)
 {
     const uint8x16_p mask = {8,9,10,11, 12,13,14,15, 0,1,2,3, 4,5,6,7};
-    return vec_perm(val, val, mask);
+    return VecPermute(val, val, mask);
 }
 
 template <>
 inline uint32x4_p Shuffle<3>(const uint32x4_p& val)
 {
     const uint8x16_p mask = {12,13,14,15, 0,1,2,3, 4,5,6,7, 8,9,10,11};
-    return vec_perm(val, val, mask);
+    return VecPermute(val, val, mask);
 }
 
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
@@ -825,10 +826,10 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
 
 void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
-    const uint32x4_p state0 = VectorLoad(state + 0*4);
-    const uint32x4_p state1 = VectorLoad(state + 1*4);
-    const uint32x4_p state2 = VectorLoad(state + 2*4);
-    const uint32x4_p state3 = VectorLoad(state + 3*4);
+    const uint32x4_p state0 = VecLoad(state + 0*4);
+    const uint32x4_p state1 = VecLoad(state + 1*4);
+    const uint32x4_p state2 = VecLoad(state + 2*4);
+    const uint32x4_p state3 = VecLoad(state + 3*4);
 
     const uint32x4_p CTRS[3] = {
         {1,0,0,0}, {2,0,0,0}, {3,0,0,0}
@@ -842,79 +843,79 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
     uint32x4_p r1_0 = state0;
     uint32x4_p r1_1 = state1;
     uint32x4_p r1_2 = state2;
-    uint32x4_p r1_3 = VectorAdd64(r0_3, CTRS[0]);
+    uint32x4_p r1_3 = VecAdd64(r0_3, CTRS[0]);
 
     uint32x4_p r2_0 = state0;
     uint32x4_p r2_1 = state1;
     uint32x4_p r2_2 = state2;
-    uint32x4_p r2_3 = VectorAdd64(r0_3, CTRS[1]);
+    uint32x4_p r2_3 = VecAdd64(r0_3, CTRS[1]);
 
     uint32x4_p r3_0 = state0;
     uint32x4_p r3_1 = state1;
     uint32x4_p r3_2 = state2;
-    uint32x4_p r3_3 = VectorAdd64(r0_3, CTRS[2]);
+    uint32x4_p r3_3 = VecAdd64(r0_3, CTRS[2]);
 
     for (int i = static_cast<int>(rounds); i > 0; i -= 2)
     {
-        r0_0 = VectorAdd(r0_0, r0_1);
-        r1_0 = VectorAdd(r1_0, r1_1);
-        r2_0 = VectorAdd(r2_0, r2_1);
-        r3_0 = VectorAdd(r3_0, r3_1);
+        r0_0 = VecAdd(r0_0, r0_1);
+        r1_0 = VecAdd(r1_0, r1_1);
+        r2_0 = VecAdd(r2_0, r2_1);
+        r3_0 = VecAdd(r3_0, r3_1);
 
-        r0_3 = VectorXor(r0_3, r0_0);
-        r1_3 = VectorXor(r1_3, r1_0);
-        r2_3 = VectorXor(r2_3, r2_0);
-        r3_3 = VectorXor(r3_3, r3_0);
+        r0_3 = VecXor(r0_3, r0_0);
+        r1_3 = VecXor(r1_3, r1_0);
+        r2_3 = VecXor(r2_3, r2_0);
+        r3_3 = VecXor(r3_3, r3_0);
 
-        r0_3 = VectorRotateLeft<16>(r0_3);
-        r1_3 = VectorRotateLeft<16>(r1_3);
-        r2_3 = VectorRotateLeft<16>(r2_3);
-        r3_3 = VectorRotateLeft<16>(r3_3);
+        r0_3 = VecRotateLeft<16>(r0_3);
+        r1_3 = VecRotateLeft<16>(r1_3);
+        r2_3 = VecRotateLeft<16>(r2_3);
+        r3_3 = VecRotateLeft<16>(r3_3);
 
-        r0_2 = VectorAdd(r0_2, r0_3);
-        r1_2 = VectorAdd(r1_2, r1_3);
-        r2_2 = VectorAdd(r2_2, r2_3);
-        r3_2 = VectorAdd(r3_2, r3_3);
+        r0_2 = VecAdd(r0_2, r0_3);
+        r1_2 = VecAdd(r1_2, r1_3);
+        r2_2 = VecAdd(r2_2, r2_3);
+        r3_2 = VecAdd(r3_2, r3_3);
 
-        r0_1 = VectorXor(r0_1, r0_2);
-        r1_1 = VectorXor(r1_1, r1_2);
-        r2_1 = VectorXor(r2_1, r2_2);
-        r3_1 = VectorXor(r3_1, r3_2);
+        r0_1 = VecXor(r0_1, r0_2);
+        r1_1 = VecXor(r1_1, r1_2);
+        r2_1 = VecXor(r2_1, r2_2);
+        r3_1 = VecXor(r3_1, r3_2);
 
-        r0_1 = VectorRotateLeft<12>(r0_1);
-        r1_1 = VectorRotateLeft<12>(r1_1);
-        r2_1 = VectorRotateLeft<12>(r2_1);
-        r3_1 = VectorRotateLeft<12>(r3_1);
+        r0_1 = VecRotateLeft<12>(r0_1);
+        r1_1 = VecRotateLeft<12>(r1_1);
+        r2_1 = VecRotateLeft<12>(r2_1);
+        r3_1 = VecRotateLeft<12>(r3_1);
 
-        r0_0 = VectorAdd(r0_0, r0_1);
-        r1_0 = VectorAdd(r1_0, r1_1);
-        r2_0 = VectorAdd(r2_0, r2_1);
-        r3_0 = VectorAdd(r3_0, r3_1);
+        r0_0 = VecAdd(r0_0, r0_1);
+        r1_0 = VecAdd(r1_0, r1_1);
+        r2_0 = VecAdd(r2_0, r2_1);
+        r3_0 = VecAdd(r3_0, r3_1);
 
-        r0_3 = VectorXor(r0_3, r0_0);
-        r1_3 = VectorXor(r1_3, r1_0);
-        r2_3 = VectorXor(r2_3, r2_0);
-        r3_3 = VectorXor(r3_3, r3_0);
+        r0_3 = VecXor(r0_3, r0_0);
+        r1_3 = VecXor(r1_3, r1_0);
+        r2_3 = VecXor(r2_3, r2_0);
+        r3_3 = VecXor(r3_3, r3_0);
 
-        r0_3 = VectorRotateLeft<8>(r0_3);
-        r1_3 = VectorRotateLeft<8>(r1_3);
-        r2_3 = VectorRotateLeft<8>(r2_3);
-        r3_3 = VectorRotateLeft<8>(r3_3);
+        r0_3 = VecRotateLeft<8>(r0_3);
+        r1_3 = VecRotateLeft<8>(r1_3);
+        r2_3 = VecRotateLeft<8>(r2_3);
+        r3_3 = VecRotateLeft<8>(r3_3);
 
-        r0_2 = VectorAdd(r0_2, r0_3);
-        r1_2 = VectorAdd(r1_2, r1_3);
-        r2_2 = VectorAdd(r2_2, r2_3);
-        r3_2 = VectorAdd(r3_2, r3_3);
+        r0_2 = VecAdd(r0_2, r0_3);
+        r1_2 = VecAdd(r1_2, r1_3);
+        r2_2 = VecAdd(r2_2, r2_3);
+        r3_2 = VecAdd(r3_2, r3_3);
 
-        r0_1 = VectorXor(r0_1, r0_2);
-        r1_1 = VectorXor(r1_1, r1_2);
-        r2_1 = VectorXor(r2_1, r2_2);
-        r3_1 = VectorXor(r3_1, r3_2);
+        r0_1 = VecXor(r0_1, r0_2);
+        r1_1 = VecXor(r1_1, r1_2);
+        r2_1 = VecXor(r2_1, r2_2);
+        r3_1 = VecXor(r3_1, r3_2);
 
-        r0_1 = VectorRotateLeft<7>(r0_1);
-        r1_1 = VectorRotateLeft<7>(r1_1);
-        r2_1 = VectorRotateLeft<7>(r2_1);
-        r3_1 = VectorRotateLeft<7>(r3_1);
+        r0_1 = VecRotateLeft<7>(r0_1);
+        r1_1 = VecRotateLeft<7>(r1_1);
+        r2_1 = VecRotateLeft<7>(r2_1);
+        r3_1 = VecRotateLeft<7>(r3_1);
 
         r0_1 = Shuffle<1>(r0_1);
         r0_2 = Shuffle<2>(r0_2);
@@ -932,65 +933,65 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r3_2 = Shuffle<2>(r3_2);
         r3_3 = Shuffle<3>(r3_3);
 
-        r0_0 = VectorAdd(r0_0, r0_1);
-        r1_0 = VectorAdd(r1_0, r1_1);
-        r2_0 = VectorAdd(r2_0, r2_1);
-        r3_0 = VectorAdd(r3_0, r3_1);
+        r0_0 = VecAdd(r0_0, r0_1);
+        r1_0 = VecAdd(r1_0, r1_1);
+        r2_0 = VecAdd(r2_0, r2_1);
+        r3_0 = VecAdd(r3_0, r3_1);
 
-        r0_3 = VectorXor(r0_3, r0_0);
-        r1_3 = VectorXor(r1_3, r1_0);
-        r2_3 = VectorXor(r2_3, r2_0);
-        r3_3 = VectorXor(r3_3, r3_0);
+        r0_3 = VecXor(r0_3, r0_0);
+        r1_3 = VecXor(r1_3, r1_0);
+        r2_3 = VecXor(r2_3, r2_0);
+        r3_3 = VecXor(r3_3, r3_0);
 
-        r0_3 = VectorRotateLeft<16>(r0_3);
-        r1_3 = VectorRotateLeft<16>(r1_3);
-        r2_3 = VectorRotateLeft<16>(r2_3);
-        r3_3 = VectorRotateLeft<16>(r3_3);
+        r0_3 = VecRotateLeft<16>(r0_3);
+        r1_3 = VecRotateLeft<16>(r1_3);
+        r2_3 = VecRotateLeft<16>(r2_3);
+        r3_3 = VecRotateLeft<16>(r3_3);
 
-        r0_2 = VectorAdd(r0_2, r0_3);
-        r1_2 = VectorAdd(r1_2, r1_3);
-        r2_2 = VectorAdd(r2_2, r2_3);
-        r3_2 = VectorAdd(r3_2, r3_3);
+        r0_2 = VecAdd(r0_2, r0_3);
+        r1_2 = VecAdd(r1_2, r1_3);
+        r2_2 = VecAdd(r2_2, r2_3);
+        r3_2 = VecAdd(r3_2, r3_3);
 
-        r0_1 = VectorXor(r0_1, r0_2);
-        r1_1 = VectorXor(r1_1, r1_2);
-        r2_1 = VectorXor(r2_1, r2_2);
-        r3_1 = VectorXor(r3_1, r3_2);
+        r0_1 = VecXor(r0_1, r0_2);
+        r1_1 = VecXor(r1_1, r1_2);
+        r2_1 = VecXor(r2_1, r2_2);
+        r3_1 = VecXor(r3_1, r3_2);
 
-        r0_1 = VectorRotateLeft<12>(r0_1);
-        r1_1 = VectorRotateLeft<12>(r1_1);
-        r2_1 = VectorRotateLeft<12>(r2_1);
-        r3_1 = VectorRotateLeft<12>(r3_1);
+        r0_1 = VecRotateLeft<12>(r0_1);
+        r1_1 = VecRotateLeft<12>(r1_1);
+        r2_1 = VecRotateLeft<12>(r2_1);
+        r3_1 = VecRotateLeft<12>(r3_1);
 
-        r0_0 = VectorAdd(r0_0, r0_1);
-        r1_0 = VectorAdd(r1_0, r1_1);
-        r2_0 = VectorAdd(r2_0, r2_1);
-        r3_0 = VectorAdd(r3_0, r3_1);
+        r0_0 = VecAdd(r0_0, r0_1);
+        r1_0 = VecAdd(r1_0, r1_1);
+        r2_0 = VecAdd(r2_0, r2_1);
+        r3_0 = VecAdd(r3_0, r3_1);
 
-        r0_3 = VectorXor(r0_3, r0_0);
-        r1_3 = VectorXor(r1_3, r1_0);
-        r2_3 = VectorXor(r2_3, r2_0);
-        r3_3 = VectorXor(r3_3, r3_0);
+        r0_3 = VecXor(r0_3, r0_0);
+        r1_3 = VecXor(r1_3, r1_0);
+        r2_3 = VecXor(r2_3, r2_0);
+        r3_3 = VecXor(r3_3, r3_0);
 
-        r0_3 = VectorRotateLeft<8>(r0_3);
-        r1_3 = VectorRotateLeft<8>(r1_3);
-        r2_3 = VectorRotateLeft<8>(r2_3);
-        r3_3 = VectorRotateLeft<8>(r3_3);
+        r0_3 = VecRotateLeft<8>(r0_3);
+        r1_3 = VecRotateLeft<8>(r1_3);
+        r2_3 = VecRotateLeft<8>(r2_3);
+        r3_3 = VecRotateLeft<8>(r3_3);
 
-        r0_2 = VectorAdd(r0_2, r0_3);
-        r1_2 = VectorAdd(r1_2, r1_3);
-        r2_2 = VectorAdd(r2_2, r2_3);
-        r3_2 = VectorAdd(r3_2, r3_3);
+        r0_2 = VecAdd(r0_2, r0_3);
+        r1_2 = VecAdd(r1_2, r1_3);
+        r2_2 = VecAdd(r2_2, r2_3);
+        r3_2 = VecAdd(r3_2, r3_3);
 
-        r0_1 = VectorXor(r0_1, r0_2);
-        r1_1 = VectorXor(r1_1, r1_2);
-        r2_1 = VectorXor(r2_1, r2_2);
-        r3_1 = VectorXor(r3_1, r3_2);
+        r0_1 = VecXor(r0_1, r0_2);
+        r1_1 = VecXor(r1_1, r1_2);
+        r2_1 = VecXor(r2_1, r2_2);
+        r3_1 = VecXor(r3_1, r3_2);
 
-        r0_1 = VectorRotateLeft<7>(r0_1);
-        r1_1 = VectorRotateLeft<7>(r1_1);
-        r2_1 = VectorRotateLeft<7>(r2_1);
-        r3_1 = VectorRotateLeft<7>(r3_1);
+        r0_1 = VecRotateLeft<7>(r0_1);
+        r1_1 = VecRotateLeft<7>(r1_1);
+        r2_1 = VecRotateLeft<7>(r2_1);
+        r3_1 = VecRotateLeft<7>(r3_1);
 
         r0_1 = Shuffle<3>(r0_1);
         r0_2 = Shuffle<2>(r0_2);
@@ -1009,80 +1010,80 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r3_3 = Shuffle<1>(r3_3);
     }
 
-    r0_0 = VectorAdd(r0_0, state0);
-    r0_1 = VectorAdd(r0_1, state1);
-    r0_2 = VectorAdd(r0_2, state2);
-    r0_3 = VectorAdd(r0_3, state3);
+    r0_0 = VecAdd(r0_0, state0);
+    r0_1 = VecAdd(r0_1, state1);
+    r0_2 = VecAdd(r0_2, state2);
+    r0_3 = VecAdd(r0_3, state3);
 
-    r1_0 = VectorAdd(r1_0, state0);
-    r1_1 = VectorAdd(r1_1, state1);
-    r1_2 = VectorAdd(r1_2, state2);
-    r1_3 = VectorAdd(r1_3, state3);
-    r1_3 = VectorAdd64(r1_3, CTRS[0]);
+    r1_0 = VecAdd(r1_0, state0);
+    r1_1 = VecAdd(r1_1, state1);
+    r1_2 = VecAdd(r1_2, state2);
+    r1_3 = VecAdd(r1_3, state3);
+    r1_3 = VecAdd64(r1_3, CTRS[0]);
 
-    r2_0 = VectorAdd(r2_0, state0);
-    r2_1 = VectorAdd(r2_1, state1);
-    r2_2 = VectorAdd(r2_2, state2);
-    r2_3 = VectorAdd(r2_3, state3);
-    r2_3 = VectorAdd64(r2_3, CTRS[1]);
+    r2_0 = VecAdd(r2_0, state0);
+    r2_1 = VecAdd(r2_1, state1);
+    r2_2 = VecAdd(r2_2, state2);
+    r2_3 = VecAdd(r2_3, state3);
+    r2_3 = VecAdd64(r2_3, CTRS[1]);
 
-    r3_0 = VectorAdd(r3_0, state0);
-    r3_1 = VectorAdd(r3_1, state1);
-    r3_2 = VectorAdd(r3_2, state2);
-    r3_3 = VectorAdd(r3_3, state3);
-    r3_3 = VectorAdd64(r3_3, CTRS[2]);
-
-    if (input)
-    {
-        r0_0 = VectorXor(VectorLoad32LE(input + 0*16), r0_0);
-        r0_1 = VectorXor(VectorLoad32LE(input + 1*16), r0_1);
-        r0_2 = VectorXor(VectorLoad32LE(input + 2*16), r0_2);
-        r0_3 = VectorXor(VectorLoad32LE(input + 3*16), r0_3);
-    }
-
-    VectorStore32LE(output + 0*16, r0_0);
-    VectorStore32LE(output + 1*16, r0_1);
-    VectorStore32LE(output + 2*16, r0_2);
-    VectorStore32LE(output + 3*16, r0_3);
+    r3_0 = VecAdd(r3_0, state0);
+    r3_1 = VecAdd(r3_1, state1);
+    r3_2 = VecAdd(r3_2, state2);
+    r3_3 = VecAdd(r3_3, state3);
+    r3_3 = VecAdd64(r3_3, CTRS[2]);
 
     if (input)
     {
-        r1_0 = VectorXor(VectorLoad32LE(input + 4*16), r1_0);
-        r1_1 = VectorXor(VectorLoad32LE(input + 5*16), r1_1);
-        r1_2 = VectorXor(VectorLoad32LE(input + 6*16), r1_2);
-        r1_3 = VectorXor(VectorLoad32LE(input + 7*16), r1_3);
+        r0_0 = VecXor(VecLoad32LE(input + 0*16), r0_0);
+        r0_1 = VecXor(VecLoad32LE(input + 1*16), r0_1);
+        r0_2 = VecXor(VecLoad32LE(input + 2*16), r0_2);
+        r0_3 = VecXor(VecLoad32LE(input + 3*16), r0_3);
     }
 
-    VectorStore32LE(output + 4*16, r1_0);
-    VectorStore32LE(output + 5*16, r1_1);
-    VectorStore32LE(output + 6*16, r1_2);
-    VectorStore32LE(output + 7*16, r1_3);
+    VecStore32LE(output + 0*16, r0_0);
+    VecStore32LE(output + 1*16, r0_1);
+    VecStore32LE(output + 2*16, r0_2);
+    VecStore32LE(output + 3*16, r0_3);
 
     if (input)
     {
-        r2_0 = VectorXor(VectorLoad32LE(input +  8*16), r2_0);
-        r2_1 = VectorXor(VectorLoad32LE(input +  9*16), r2_1);
-        r2_2 = VectorXor(VectorLoad32LE(input + 10*16), r2_2);
-        r2_3 = VectorXor(VectorLoad32LE(input + 11*16), r2_3);
+        r1_0 = VecXor(VecLoad32LE(input + 4*16), r1_0);
+        r1_1 = VecXor(VecLoad32LE(input + 5*16), r1_1);
+        r1_2 = VecXor(VecLoad32LE(input + 6*16), r1_2);
+        r1_3 = VecXor(VecLoad32LE(input + 7*16), r1_3);
     }
 
-    VectorStore32LE(output +  8*16, r2_0);
-    VectorStore32LE(output +  9*16, r2_1);
-    VectorStore32LE(output + 10*16, r2_2);
-    VectorStore32LE(output + 11*16, r2_3);
+    VecStore32LE(output + 4*16, r1_0);
+    VecStore32LE(output + 5*16, r1_1);
+    VecStore32LE(output + 6*16, r1_2);
+    VecStore32LE(output + 7*16, r1_3);
 
     if (input)
     {
-        r3_0 = VectorXor(VectorLoad32LE(input + 12*16), r3_0);
-        r3_1 = VectorXor(VectorLoad32LE(input + 13*16), r3_1);
-        r3_2 = VectorXor(VectorLoad32LE(input + 14*16), r3_2);
-        r3_3 = VectorXor(VectorLoad32LE(input + 15*16), r3_3);
+        r2_0 = VecXor(VecLoad32LE(input +  8*16), r2_0);
+        r2_1 = VecXor(VecLoad32LE(input +  9*16), r2_1);
+        r2_2 = VecXor(VecLoad32LE(input + 10*16), r2_2);
+        r2_3 = VecXor(VecLoad32LE(input + 11*16), r2_3);
     }
 
-    VectorStore32LE(output + 12*16, r3_0);
-    VectorStore32LE(output + 13*16, r3_1);
-    VectorStore32LE(output + 14*16, r3_2);
-    VectorStore32LE(output + 15*16, r3_3);
+    VecStore32LE(output +  8*16, r2_0);
+    VecStore32LE(output +  9*16, r2_1);
+    VecStore32LE(output + 10*16, r2_2);
+    VecStore32LE(output + 11*16, r2_3);
+
+    if (input)
+    {
+        r3_0 = VecXor(VecLoad32LE(input + 12*16), r3_0);
+        r3_1 = VecXor(VecLoad32LE(input + 13*16), r3_1);
+        r3_2 = VecXor(VecLoad32LE(input + 14*16), r3_2);
+        r3_3 = VecXor(VecLoad32LE(input + 15*16), r3_3);
+    }
+
+    VecStore32LE(output + 12*16, r3_0);
+    VecStore32LE(output + 13*16, r3_1);
+    VecStore32LE(output + 14*16, r3_2);
+    VecStore32LE(output + 15*16, r3_3);
 }
 
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE

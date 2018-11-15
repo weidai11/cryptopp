@@ -742,7 +742,7 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 
 #if (CRYPTOPP_POWER8_AVAILABLE)
 
-inline uint64x2_p VectorLoad64(const void* p)
+inline uint64x2_p VecLoad64(const void* p)
 {
 #if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint64x2_p)vec_xl(0, (uint8_t*)p);
@@ -751,18 +751,18 @@ inline uint64x2_p VectorLoad64(const void* p)
 #endif
 }
 
-inline uint64x2_p VectorLoad64LE(const void* p)
+inline uint64x2_p VecLoad64LE(const void* p)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    const uint64x2_p v = VectorLoad64(p);
-    return vec_perm(v, v, m);
+    const uint64x2_p v = VecLoad64(p);
+    return VecPermute(v, v, m);
 #else
-    return VectorLoad64(p);
+    return VecLoad64(p);
 #endif
 }
 
-inline void VectorStore64(void* p, const uint64x2_p x)
+inline void VecStore64(void* p, const uint64x2_p x)
 {
 #if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)x,0,(uint8_t*)p);
@@ -771,18 +771,18 @@ inline void VectorStore64(void* p, const uint64x2_p x)
 #endif
 }
 
-inline void VectorStore64LE(void* p, const uint64x2_p x)
+inline void VecStore64LE(void* p, const uint64x2_p x)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    VectorStore64(p, vec_perm(x, x, m));
+    VecStore64(p, VecPermute(x, x, m));
 #else
-    VectorStore64(p, x);
+    VecStore64(p, x);
 #endif
 }
 
 template <unsigned int C>
-inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
+inline uint64x2_p VecShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 {
 #if __BIG_ENDIAN__
     return (uint64x2_p)vec_sld((uint8x16_p)a, (uint8x16_p)b, C);
@@ -791,18 +791,18 @@ inline uint64x2_p VectorShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 #endif
 }
 
-#define vec_shl_octet(a,b,c) VectorShiftLeftOctet<c*8>(a, b)
+#define vec_shl_octet(a,b,c) VecShiftLeftOctet<c*8>(a, b)
 
-// vec_mergeh(a,b) is equivalent to vec_perm(a,b,HH_MASK); and
-// vec_mergel(a,b) is equivalent vec_perm(a,b,LL_MASK). Benchmarks
+// vec_mergeh(a,b) is equivalent to VecPermute(a,b,HH_MASK); and
+// vec_mergel(a,b) is equivalent VecPermute(a,b,LL_MASK). Benchmarks
 // show vec_mergeh and vec_mergel is faster on little-endian
-// machines by 0.4 cpb. Benchmarks show vec_perm is faster on
+// machines by 0.4 cpb. Benchmarks show VecPermute is faster on
 // big-endian machines by 1.5 cpb. The code that uses
 // vec_mergeh and vec_mergel is about 880 bytes shorter.
 
 #if defined(__GNUC__) && (__BIG_ENDIAN__)
-#  define vec_merge_hi(a,b) vec_perm(a,b, HH_MASK)
-#  define vec_merge_lo(a,b) vec_perm(a,b, LL_MASK)
+#  define vec_merge_hi(a,b) VecPermute(a,b, HH_MASK)
+#  define vec_merge_lo(a,b) VecPermute(a,b, LL_MASK)
 #else
 #  define vec_merge_hi(a,b) vec_mergeh(a,b)
 #  define vec_merge_lo(a,b) vec_mergel(a,b)
@@ -878,12 +878,12 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_2_2(b0, b1) \
     do { \
          b0 = vec_merge_hi(m4, m0); \
-         b1 = vec_perm(m1, m6, HL_MASK); \
+         b1 = VecPermute(m1, m6, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_2_3(b0, b1) \
        do { \
-         b0 = vec_perm(m5, m1, HL_MASK); \
+         b0 = VecPermute(m5, m1, HL_MASK); \
          b1 = vec_merge_lo(m3, m4); \
     } while(0)
 
@@ -907,8 +907,8 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_3_3(b0, b1) \
        do { \
-         b0 = vec_perm(m1, m2, HL_MASK); \
-         b1 = vec_perm(m2, m7, HL_MASK); \
+         b0 = VecPermute(m1, m2, HL_MASK); \
+         b1 = VecPermute(m2, m7, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_3_4(b0, b1) \
@@ -925,20 +925,20 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_4_2(b0, b1) \
        do { \
-         b0 = vec_perm(m0, m3, HL_MASK); \
-         b1 = vec_perm(m2, m7, HL_MASK); \
+         b0 = VecPermute(m0, m3, HL_MASK); \
+         b1 = VecPermute(m2, m7, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_4_3(b0, b1) \
        do { \
-         b0 = vec_perm(m7, m5, HL_MASK); \
-         b1 = vec_perm(m3, m1, HL_MASK); \
+         b0 = VecPermute(m7, m5, HL_MASK); \
+         b1 = VecPermute(m3, m1, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_4_4(b0, b1) \
        do { \
          b0 = vec_shl_octet(m0, m6, 1); \
-         b1 = vec_perm(m4, m6, HL_MASK); \
+         b1 = VecPermute(m4, m6, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_5_1(b0, b1) \
@@ -955,19 +955,19 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_5_3(b0, b1) \
        do { \
-         b0 = vec_perm(m2, m3, HL_MASK); \
+         b0 = VecPermute(m2, m3, HL_MASK); \
          b1 = vec_merge_lo(m7, m0); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_5_4(b0, b1) \
        do { \
          b0 = vec_merge_lo(m6, m2); \
-         b1 = vec_perm(m7, m4, HL_MASK); \
+         b1 = VecPermute(m7, m4, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_6_1(b0, b1) \
        do { \
-         b0 = vec_perm(m6, m0, HL_MASK); \
+         b0 = VecPermute(m6, m0, HL_MASK); \
          b1 = vec_merge_hi(m7, m2); \
     } while(0)
 
@@ -986,13 +986,13 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_6_4(b0, b1) \
        do { \
          b0 = vec_merge_lo(m3, m1); \
-         b1 = vec_perm(m1, m5, HL_MASK); \
+         b1 = VecPermute(m1, m5, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_7_1(b0, b1) \
        do { \
          b0 = vec_merge_lo(m6, m3); \
-         b1 = vec_perm(m6, m1, HL_MASK); \
+         b1 = VecPermute(m6, m1, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_7_2(b0, b1) \
@@ -1033,7 +1033,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_LOAD_MSG_8_4(b0, b1) \
        do { \
-         b0 = vec_perm(m1, m3, HL_MASK); \
+         b0 = VecPermute(m1, m3, HL_MASK); \
          b1 = m2; \
     } while(0)
 
@@ -1046,7 +1046,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     #define BLAKE2B_LOAD_MSG_9_2(b0, b1) \
        do { \
          b0 = vec_merge_hi(m1, m2); \
-         b1 = vec_perm(m3, m2, HL_MASK); \
+         b1 = VecPermute(m3, m2, HL_MASK); \
     } while(0)
 
     #define BLAKE2B_LOAD_MSG_9_3(b0, b1) \
@@ -1122,23 +1122,23 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     #define BLAKE2B_G1(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     do { \
-      row1l = vec_add(vec_add(row1l, b0), row2l); \
-      row1h = vec_add(vec_add(row1h, b1), row2h); \
-      row4l = vec_xor(row4l, row1l); row4h = vec_xor(row4h, row1h); \
+      row1l = VecAdd(VecAdd(row1l, b0), row2l); \
+      row1h = VecAdd(VecAdd(row1h, b1), row2h); \
+      row4l = VecXor(row4l, row1l); row4h = VecXor(row4h, row1h); \
       row4l = vec_ror_32(row4l); row4h = vec_ror_32(row4h); \
-      row3l = vec_add(row3l, row4l); row3h = vec_add(row3h, row4h); \
-      row2l = vec_xor(row2l, row3l); row2h = vec_xor(row2h, row3h); \
+      row3l = VecAdd(row3l, row4l); row3h = VecAdd(row3h, row4h); \
+      row2l = VecXor(row2l, row3l); row2h = VecXor(row2h, row3h); \
       row2l = vec_ror_24(row2l); row2h = vec_ror_24(row2h); \
     } while(0)
 
     #define BLAKE2B_G2(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h,b0,b1) \
     do { \
-      row1l = vec_add(vec_add(row1l, b0), row2l); \
-      row1h = vec_add(vec_add(row1h, b1), row2h); \
-      row4l = vec_xor(row4l, row1l); row4h = vec_xor(row4h, row1h); \
+      row1l = VecAdd(VecAdd(row1l, b0), row2l); \
+      row1h = VecAdd(VecAdd(row1h, b1), row2h); \
+      row4l = VecXor(row4l, row1l); row4h = VecXor(row4h, row1h); \
       row4l = vec_ror_16(row4l); row4h = vec_ror_16(row4h); \
-      row3l = vec_add(row3l, row4l); row3h = vec_add(row3h, row4h); \
-      row2l = vec_xor(row2l, row3l); row2h = vec_xor(row2h, row3h); \
+      row3l = VecAdd(row3l, row4l); row3h = VecAdd(row3h, row4h); \
+      row2l = VecXor(row2l, row3l); row2h = VecXor(row2h, row3h); \
       row2l = vec_ror_63(row2l); row2h = vec_ror_63(row2h); \
     } while(0)
 
@@ -1175,27 +1175,27 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
       BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     } while(0)
 
-    const uint64x2_p m0 = VectorLoad64LE(input +  00);
-    const uint64x2_p m1 = VectorLoad64LE(input +  16);
-    const uint64x2_p m2 = VectorLoad64LE(input +  32);
-    const uint64x2_p m3 = VectorLoad64LE(input +  48);
-    const uint64x2_p m4 = VectorLoad64LE(input +  64);
-    const uint64x2_p m5 = VectorLoad64LE(input +  80);
-    const uint64x2_p m6 = VectorLoad64LE(input +  96);
-    const uint64x2_p m7 = VectorLoad64LE(input + 112);
+    const uint64x2_p m0 = VecLoad64LE(input +  00);
+    const uint64x2_p m1 = VecLoad64LE(input +  16);
+    const uint64x2_p m2 = VecLoad64LE(input +  32);
+    const uint64x2_p m3 = VecLoad64LE(input +  48);
+    const uint64x2_p m4 = VecLoad64LE(input +  64);
+    const uint64x2_p m5 = VecLoad64LE(input +  80);
+    const uint64x2_p m6 = VecLoad64LE(input +  96);
+    const uint64x2_p m7 = VecLoad64LE(input + 112);
 
     uint64x2_p row1l, row1h, row2l, row2h;
     uint64x2_p row3l, row3h, row4l, row4h;
 
-    const uint64x2_p h0 = row1l = VectorLoad64LE(&state.h[0]);
-    const uint64x2_p h1 = row1h = VectorLoad64LE(&state.h[2]);
-    const uint64x2_p h2 = row2l = VectorLoad64LE(&state.h[4]);
-    const uint64x2_p h3 = row2h = VectorLoad64LE(&state.h[6]);
+    const uint64x2_p h0 = row1l = VecLoad64LE(&state.h[0]);
+    const uint64x2_p h1 = row1h = VecLoad64LE(&state.h[2]);
+    const uint64x2_p h2 = row2l = VecLoad64LE(&state.h[4]);
+    const uint64x2_p h3 = row2h = VecLoad64LE(&state.h[6]);
 
-    row3l = VectorLoad64(&BLAKE2B_IV[0]);
-    row3h = VectorLoad64(&BLAKE2B_IV[2]);
-    row4l = vec_xor(VectorLoad64(&BLAKE2B_IV[4]), VectorLoad64(&state.tf[0]));
-    row4h = vec_xor(VectorLoad64(&BLAKE2B_IV[6]), VectorLoad64(&state.tf[2]));
+    row3l = VecLoad64(&BLAKE2B_IV[0]);
+    row3h = VecLoad64(&BLAKE2B_IV[2]);
+    row4l = VecXor(VecLoad64(&BLAKE2B_IV[4]), VecLoad64(&state.tf[0]));
+    row4h = VecXor(VecLoad64(&BLAKE2B_IV[6]), VecLoad64(&state.tf[2]));
 
     BLAKE2B_ROUND(0);
     BLAKE2B_ROUND(1);
@@ -1210,10 +1210,10 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     BLAKE2B_ROUND(10);
     BLAKE2B_ROUND(11);
 
-    VectorStore64LE(&state.h[0], vec_xor(h0, vec_xor(row1l, row3l)));
-    VectorStore64LE(&state.h[2], vec_xor(h1, vec_xor(row1h, row3h)));
-    VectorStore64LE(&state.h[4], vec_xor(h2, vec_xor(row2l, row4l)));
-    VectorStore64LE(&state.h[6], vec_xor(h3, vec_xor(row2h, row4h)));
+    VecStore64LE(&state.h[0], VecXor(h0, VecXor(row1l, row3l)));
+    VecStore64LE(&state.h[2], VecXor(h1, VecXor(row1h, row3h)));
+    VecStore64LE(&state.h[4], VecXor(h2, VecXor(row2l, row4l)));
+    VecStore64LE(&state.h[6], VecXor(h3, VecXor(row2h, row4h)));
 }
 #endif  // CRYPTOPP_POWER8_AVAILABLE
 

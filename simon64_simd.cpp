@@ -538,10 +538,11 @@ CRYPTOPP_INLINE void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
 
-using CryptoPP::VectorAnd;
-using CryptoPP::VectorXor;
-using CryptoPP::VectorLoad;
-using CryptoPP::VectorLoadBE;
+using CryptoPP::VecAnd;
+using CryptoPP::VecXor;
+using CryptoPP::VecLoad;
+using CryptoPP::VecLoadBE;
+using CryptoPP::VecPermute;
 
 // Rotate left by bit count
 template<unsigned int C>
@@ -561,8 +562,8 @@ CRYPTOPP_INLINE uint32x4_p RotateRight32(const uint32x4_p val)
 
 CRYPTOPP_INLINE uint32x4_p SIMON64_f(const uint32x4_p val)
 {
-    return VectorXor(RotateLeft32<2>(val),
-        VectorAnd(RotateLeft32<1>(val), RotateLeft32<8>(val)));
+    return VecXor(RotateLeft32<2>(val),
+        VecAnd(RotateLeft32<1>(val), RotateLeft32<8>(val)));
 }
 
 CRYPTOPP_INLINE void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
@@ -577,8 +578,8 @@ CRYPTOPP_INLINE void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    uint32x4_p x1 = vec_perm(block0, block1, m1);
-    uint32x4_p y1 = vec_perm(block0, block1, m2);
+    uint32x4_p x1 = VecPermute(block0, block1, m1);
+    uint32x4_p y1 = VecPermute(block0, block1, m2);
 
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
@@ -587,13 +588,13 @@ CRYPTOPP_INLINE void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(subkeys+i);
-        uint32x4_p rk2 = VectorLoad(subkeys+i+1);
-        rk1 = vec_perm(rk1, rk1, m);
-        rk2 = vec_perm(rk2, rk2, m);
+        uint32x4_p rk1 = VecLoad(subkeys+i);
+        uint32x4_p rk2 = VecLoad(subkeys+i+1);
+        rk1 = VecPermute(rk1, rk1, m);
+        rk2 = VecPermute(rk2, rk2, m);
 #endif
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk1);
-        x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk2);
+        y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk1);
+        x1 = VecXor(VecXor(x1, SIMON64_f(y1)), rk2);
     }
 
     if (rounds & 1)
@@ -602,10 +603,10 @@ CRYPTOPP_INLINE void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
-        rk = vec_perm(rk, rk, m);
+        uint32x4_p rk = VecLoad(subkeys+rounds-1);
+        rk = VecPermute(rk, rk, m);
 #endif
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk);
+        y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk);
         std::swap(x1, y1);
     }
 
@@ -618,8 +619,8 @@ CRYPTOPP_INLINE void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    block0 = (uint32x4_p)vec_perm(x1, y1, m3);
-    block1 = (uint32x4_p)vec_perm(x1, y1, m4);
+    block0 = (uint32x4_p)VecPermute(x1, y1, m3);
+    block1 = (uint32x4_p)VecPermute(x1, y1, m4);
 }
 
 CRYPTOPP_INLINE void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
@@ -634,8 +635,8 @@ CRYPTOPP_INLINE void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A2 A3 A4][B1 B2 B3 B4] ... => [A1 A3 B1 B3][A2 A4 B2 B4] ...
-    uint32x4_p x1 = vec_perm(block0, block1, m1);
-    uint32x4_p y1 = vec_perm(block0, block1, m2);
+    uint32x4_p x1 = VecPermute(block0, block1, m1);
+    uint32x4_p y1 = VecPermute(block0, block1, m2);
 
     if (rounds & 1)
     {
@@ -644,10 +645,10 @@ CRYPTOPP_INLINE void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
-        rk = vec_perm(rk, rk, m);
+        uint32x4_p rk = VecLoad(subkeys+rounds-1);
+        rk = VecPermute(rk, rk, m);
 #endif
-        y1 = VectorXor(VectorXor(y1, rk), SIMON64_f(x1));
+        y1 = VecXor(VecXor(y1, rk), SIMON64_f(x1));
         rounds--;
     }
 
@@ -658,13 +659,13 @@ CRYPTOPP_INLINE void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(subkeys+i+1);
-        uint32x4_p rk2 = VectorLoad(subkeys+i);
-        rk1 = vec_perm(rk1, rk1, m);
-        rk2 = vec_perm(rk2, rk2, m);
+        uint32x4_p rk1 = VecLoad(subkeys+i+1);
+        uint32x4_p rk2 = VecLoad(subkeys+i);
+        rk1 = VecPermute(rk1, rk1, m);
+        rk2 = VecPermute(rk2, rk2, m);
 #endif
-        x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk1);
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk2);
+        x1 = VecXor(VecXor(x1, SIMON64_f(y1)), rk1);
+        y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk2);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -676,8 +677,8 @@ CRYPTOPP_INLINE void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A3 B1 B3][A2 A4 B2 B4] => [A1 A2 A3 A4][B1 B2 B3 B4]
-    block0 = (uint32x4_p)vec_perm(x1, y1, m3);
-    block1 = (uint32x4_p)vec_perm(x1, y1, m4);
+    block0 = (uint32x4_p)VecPermute(x1, y1, m3);
+    block1 = (uint32x4_p)VecPermute(x1, y1, m4);
 }
 
 CRYPTOPP_INLINE void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -693,12 +694,12 @@ CRYPTOPP_INLINE void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint32x4_p x1 = (uint32x4_p)vec_perm(block0, block1, m1);
-    uint32x4_p y1 = (uint32x4_p)vec_perm(block0, block1, m2);
-    uint32x4_p x2 = (uint32x4_p)vec_perm(block2, block3, m1);
-    uint32x4_p y2 = (uint32x4_p)vec_perm(block2, block3, m2);
-    uint32x4_p x3 = (uint32x4_p)vec_perm(block4, block5, m1);
-    uint32x4_p y3 = (uint32x4_p)vec_perm(block4, block5, m2);
+    uint32x4_p x1 = (uint32x4_p)VecPermute(block0, block1, m1);
+    uint32x4_p y1 = (uint32x4_p)VecPermute(block0, block1, m2);
+    uint32x4_p x2 = (uint32x4_p)VecPermute(block2, block3, m1);
+    uint32x4_p y2 = (uint32x4_p)VecPermute(block2, block3, m2);
+    uint32x4_p x3 = (uint32x4_p)VecPermute(block4, block5, m1);
+    uint32x4_p y3 = (uint32x4_p)VecPermute(block4, block5, m2);
 
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
@@ -707,18 +708,18 @@ CRYPTOPP_INLINE void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(subkeys+i);
-        uint32x4_p rk2 = VectorLoad(subkeys+i+1);
-        rk1 = vec_perm(rk1, rk1, m);
-        rk2 = vec_perm(rk2, rk2, m);
+        uint32x4_p rk1 = VecLoad(subkeys+i);
+        uint32x4_p rk2 = VecLoad(subkeys+i+1);
+        rk1 = VecPermute(rk1, rk1, m);
+        rk2 = VecPermute(rk2, rk2, m);
 #endif
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk1);
-        y2 = VectorXor(VectorXor(y2, SIMON64_f(x2)), rk1);
-        y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk1);
+        y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk1);
+        y2 = VecXor(VecXor(y2, SIMON64_f(x2)), rk1);
+        y3 = VecXor(VecXor(y3, SIMON64_f(x3)), rk1);
 
-        x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk2);
-        x2 = VectorXor(VectorXor(x2, SIMON64_f(y2)), rk2);
-        x3 = VectorXor(VectorXor(x3, SIMON64_f(y3)), rk2);
+        x1 = VecXor(VecXor(x1, SIMON64_f(y1)), rk2);
+        x2 = VecXor(VecXor(x2, SIMON64_f(y2)), rk2);
+        x3 = VecXor(VecXor(x3, SIMON64_f(y3)), rk2);
     }
 
     if (rounds & 1)
@@ -727,12 +728,12 @@ CRYPTOPP_INLINE void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
-        rk = vec_perm(rk, rk, m);
+        uint32x4_p rk = VecLoad(subkeys+rounds-1);
+        rk = VecPermute(rk, rk, m);
 #endif
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk);
-        y2 = VectorXor(VectorXor(y2, SIMON64_f(x2)), rk);
-        y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk);
+        y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk);
+        y2 = VecXor(VecXor(y2, SIMON64_f(x2)), rk);
+        y3 = VecXor(VecXor(y3, SIMON64_f(x3)), rk);
         std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
     }
 
@@ -745,12 +746,12 @@ CRYPTOPP_INLINE void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
 #endif
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = (uint32x4_p)vec_perm(x1, y1, m3);
-    block1 = (uint32x4_p)vec_perm(x1, y1, m4);
-    block2 = (uint32x4_p)vec_perm(x2, y2, m3);
-    block3 = (uint32x4_p)vec_perm(x2, y2, m4);
-    block4 = (uint32x4_p)vec_perm(x3, y3, m3);
-    block5 = (uint32x4_p)vec_perm(x3, y3, m4);
+    block0 = (uint32x4_p)VecPermute(x1, y1, m3);
+    block1 = (uint32x4_p)VecPermute(x1, y1, m4);
+    block2 = (uint32x4_p)VecPermute(x2, y2, m3);
+    block3 = (uint32x4_p)VecPermute(x2, y2, m4);
+    block4 = (uint32x4_p)VecPermute(x3, y3, m3);
+    block5 = (uint32x4_p)VecPermute(x3, y3, m4);
 }
 
 CRYPTOPP_INLINE void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -766,12 +767,12 @@ CRYPTOPP_INLINE void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint32x4_p x1 = (uint32x4_p)vec_perm(block0, block1, m1);
-    uint32x4_p y1 = (uint32x4_p)vec_perm(block0, block1, m2);
-    uint32x4_p x2 = (uint32x4_p)vec_perm(block2, block3, m1);
-    uint32x4_p y2 = (uint32x4_p)vec_perm(block2, block3, m2);
-    uint32x4_p x3 = (uint32x4_p)vec_perm(block4, block5, m1);
-    uint32x4_p y3 = (uint32x4_p)vec_perm(block4, block5, m2);
+    uint32x4_p x1 = (uint32x4_p)VecPermute(block0, block1, m1);
+    uint32x4_p y1 = (uint32x4_p)VecPermute(block0, block1, m2);
+    uint32x4_p x2 = (uint32x4_p)VecPermute(block2, block3, m1);
+    uint32x4_p y2 = (uint32x4_p)VecPermute(block2, block3, m2);
+    uint32x4_p x3 = (uint32x4_p)VecPermute(block4, block5, m1);
+    uint32x4_p y3 = (uint32x4_p)VecPermute(block4, block5, m2);
 
     if (rounds & 1)
     {
@@ -781,12 +782,12 @@ CRYPTOPP_INLINE void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VectorLoad(subkeys+rounds-1);
-        rk = vec_perm(rk, rk, m);
+        uint32x4_p rk = VecLoad(subkeys+rounds-1);
+        rk = VecPermute(rk, rk, m);
 #endif
-        y1 = VectorXor(VectorXor(y1, rk), SIMON64_f(x1));
-        y2 = VectorXor(VectorXor(y2, rk), SIMON64_f(x2));
-        y3 = VectorXor(VectorXor(y3, rk), SIMON64_f(x3));
+        y1 = VecXor(VecXor(y1, rk), SIMON64_f(x1));
+        y2 = VecXor(VecXor(y2, rk), SIMON64_f(x2));
+        y3 = VecXor(VecXor(y3, rk), SIMON64_f(x3));
         rounds--;
     }
 
@@ -797,18 +798,18 @@ CRYPTOPP_INLINE void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VectorLoad(subkeys+i+1);
-        uint32x4_p rk2 = VectorLoad(subkeys+i);
-        rk1 = vec_perm(rk1, rk1, m);
-        rk2 = vec_perm(rk2, rk2, m);
+        uint32x4_p rk1 = VecLoad(subkeys+i+1);
+        uint32x4_p rk2 = VecLoad(subkeys+i);
+        rk1 = VecPermute(rk1, rk1, m);
+        rk2 = VecPermute(rk2, rk2, m);
 #endif
-        x1 = VectorXor(VectorXor(x1, SIMON64_f(y1)), rk1);
-        x2 = VectorXor(VectorXor(x2, SIMON64_f(y2)), rk1);
-        x3 = VectorXor(VectorXor(x3, SIMON64_f(y3)), rk1);
+        x1 = VecXor(VecXor(x1, SIMON64_f(y1)), rk1);
+        x2 = VecXor(VecXor(x2, SIMON64_f(y2)), rk1);
+        x3 = VecXor(VecXor(x3, SIMON64_f(y3)), rk1);
 
-        y1 = VectorXor(VectorXor(y1, SIMON64_f(x1)), rk2);
-        y2 = VectorXor(VectorXor(y2, SIMON64_f(x2)), rk2);
-        y3 = VectorXor(VectorXor(y3, SIMON64_f(x3)), rk2);
+        y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk2);
+        y2 = VecXor(VecXor(y2, SIMON64_f(x2)), rk2);
+        y3 = VecXor(VecXor(y3, SIMON64_f(x3)), rk2);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -820,12 +821,12 @@ CRYPTOPP_INLINE void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1
 #endif
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = (uint32x4_p)vec_perm(x1, y1, m3);
-    block1 = (uint32x4_p)vec_perm(x1, y1, m4);
-    block2 = (uint32x4_p)vec_perm(x2, y2, m3);
-    block3 = (uint32x4_p)vec_perm(x2, y2, m4);
-    block4 = (uint32x4_p)vec_perm(x3, y3, m3);
-    block5 = (uint32x4_p)vec_perm(x3, y3, m4);
+    block0 = (uint32x4_p)VecPermute(x1, y1, m3);
+    block1 = (uint32x4_p)VecPermute(x1, y1, m4);
+    block2 = (uint32x4_p)VecPermute(x2, y2, m3);
+    block3 = (uint32x4_p)VecPermute(x2, y2, m4);
+    block4 = (uint32x4_p)VecPermute(x3, y3, m3);
+    block5 = (uint32x4_p)VecPermute(x3, y3, m4);
 }
 
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE

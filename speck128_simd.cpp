@@ -479,9 +479,10 @@ using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
 using CryptoPP::uint64x2_p;
 
-using CryptoPP::VectorAdd;
-using CryptoPP::VectorSub;
-using CryptoPP::VectorXor;
+using CryptoPP::VecAdd;
+using CryptoPP::VecSub;
+using CryptoPP::VecXor;
+using CryptoPP::VecPermute;
 
 // Rotate left by bit count
 template<unsigned int C>
@@ -510,19 +511,19 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)vec_perm(block, block, m1);
-    uint64x2_p y1 = (uint64x2_p)vec_perm(block, block, m2);
+    uint64x2_p x1 = (uint64x2_p)VecPermute(block, block, m1);
+    uint64x2_p y1 = (uint64x2_p)VecPermute(block, block, m2);
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
         const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
 
         x1 = RotateRight64<8>(x1);
-        x1 = VectorAdd(x1, y1);
-        x1 = VectorXor(x1, rk);
+        x1 = VecAdd(x1, y1);
+        x1 = VecXor(x1, rk);
 
         y1 = RotateLeft64<3>(y1);
-        y1 = VectorXor(y1, x1);
+        y1 = VecXor(y1, x1);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -534,7 +535,7 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #endif
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block = (uint32x4_p)vec_perm(x1, y1, m3);
+    block = (uint32x4_p)VecPermute(x1, y1, m3);
 }
 
 void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
@@ -548,17 +549,17 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)vec_perm(block, block, m1);
-    uint64x2_p y1 = (uint64x2_p)vec_perm(block, block, m2);
+    uint64x2_p x1 = (uint64x2_p)VecPermute(block, block, m1);
+    uint64x2_p y1 = (uint64x2_p)VecPermute(block, block, m2);
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
 
-        y1 = VectorXor(y1, x1);
+        y1 = VecXor(y1, x1);
         y1 = RotateRight64<3>(y1);
-        x1 = VectorXor(x1, rk);
-        x1 = VectorSub(x1, y1);
+        x1 = VecXor(x1, rk);
+        x1 = VecSub(x1, y1);
         x1 = RotateLeft64<8>(x1);
     }
 
@@ -571,7 +572,7 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #endif
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block = (uint32x4_p)vec_perm(x1, y1, m3);
+    block = (uint32x4_p)VecPermute(x1, y1, m3);
 }
 
 void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -587,12 +588,12 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)vec_perm(block0, block1, m1);
-    uint64x2_p y1 = (uint64x2_p)vec_perm(block0, block1, m2);
-    uint64x2_p x2 = (uint64x2_p)vec_perm(block2, block3, m1);
-    uint64x2_p y2 = (uint64x2_p)vec_perm(block2, block3, m2);
-    uint64x2_p x3 = (uint64x2_p)vec_perm(block4, block5, m1);
-    uint64x2_p y3 = (uint64x2_p)vec_perm(block4, block5, m2);
+    uint64x2_p x1 = (uint64x2_p)VecPermute(block0, block1, m1);
+    uint64x2_p y1 = (uint64x2_p)VecPermute(block0, block1, m2);
+    uint64x2_p x2 = (uint64x2_p)VecPermute(block2, block3, m1);
+    uint64x2_p y2 = (uint64x2_p)VecPermute(block2, block3, m2);
+    uint64x2_p x3 = (uint64x2_p)VecPermute(block4, block5, m1);
+    uint64x2_p y3 = (uint64x2_p)VecPermute(block4, block5, m2);
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
@@ -601,19 +602,19 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         x1 = RotateRight64<8>(x1);
         x2 = RotateRight64<8>(x2);
         x3 = RotateRight64<8>(x3);
-        x1 = VectorAdd(x1, y1);
-        x2 = VectorAdd(x2, y2);
-        x3 = VectorAdd(x3, y3);
-        x1 = VectorXor(x1, rk);
-        x2 = VectorXor(x2, rk);
-        x3 = VectorXor(x3, rk);
+        x1 = VecAdd(x1, y1);
+        x2 = VecAdd(x2, y2);
+        x3 = VecAdd(x3, y3);
+        x1 = VecXor(x1, rk);
+        x2 = VecXor(x2, rk);
+        x3 = VecXor(x3, rk);
 
         y1 = RotateLeft64<3>(y1);
         y2 = RotateLeft64<3>(y2);
         y3 = RotateLeft64<3>(y3);
-        y1 = VectorXor(y1, x1);
-        y2 = VectorXor(y2, x2);
-        y3 = VectorXor(y3, x3);
+        y1 = VecXor(y1, x1);
+        y2 = VecXor(y2, x2);
+        y3 = VecXor(y3, x3);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -625,12 +626,12 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = (uint32x4_p)vec_perm(x1, y1, m3);
-    block1 = (uint32x4_p)vec_perm(x1, y1, m4);
-    block2 = (uint32x4_p)vec_perm(x2, y2, m3);
-    block3 = (uint32x4_p)vec_perm(x2, y2, m4);
-    block4 = (uint32x4_p)vec_perm(x3, y3, m3);
-    block5 = (uint32x4_p)vec_perm(x3, y3, m4);
+    block0 = (uint32x4_p)VecPermute(x1, y1, m3);
+    block1 = (uint32x4_p)VecPermute(x1, y1, m4);
+    block2 = (uint32x4_p)VecPermute(x2, y2, m3);
+    block3 = (uint32x4_p)VecPermute(x2, y2, m4);
+    block4 = (uint32x4_p)VecPermute(x3, y3, m3);
+    block5 = (uint32x4_p)VecPermute(x3, y3, m4);
 }
 
 void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -646,30 +647,30 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)vec_perm(block0, block1, m1);
-    uint64x2_p y1 = (uint64x2_p)vec_perm(block0, block1, m2);
-    uint64x2_p x2 = (uint64x2_p)vec_perm(block2, block3, m1);
-    uint64x2_p y2 = (uint64x2_p)vec_perm(block2, block3, m2);
-    uint64x2_p x3 = (uint64x2_p)vec_perm(block4, block5, m1);
-    uint64x2_p y3 = (uint64x2_p)vec_perm(block4, block5, m2);
+    uint64x2_p x1 = (uint64x2_p)VecPermute(block0, block1, m1);
+    uint64x2_p y1 = (uint64x2_p)VecPermute(block0, block1, m2);
+    uint64x2_p x2 = (uint64x2_p)VecPermute(block2, block3, m1);
+    uint64x2_p y2 = (uint64x2_p)VecPermute(block2, block3, m2);
+    uint64x2_p x3 = (uint64x2_p)VecPermute(block4, block5, m1);
+    uint64x2_p y3 = (uint64x2_p)VecPermute(block4, block5, m2);
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
 
-        y1 = VectorXor(y1, x1);
-        y2 = VectorXor(y2, x2);
-        y3 = VectorXor(y3, x3);
+        y1 = VecXor(y1, x1);
+        y2 = VecXor(y2, x2);
+        y3 = VecXor(y3, x3);
         y1 = RotateRight64<3>(y1);
         y2 = RotateRight64<3>(y2);
         y3 = RotateRight64<3>(y3);
 
-        x1 = VectorXor(x1, rk);
-        x2 = VectorXor(x2, rk);
-        x3 = VectorXor(x3, rk);
-        x1 = VectorSub(x1, y1);
-        x2 = VectorSub(x2, y2);
-        x3 = VectorSub(x3, y3);
+        x1 = VecXor(x1, rk);
+        x2 = VecXor(x2, rk);
+        x3 = VecXor(x3, rk);
+        x1 = VecSub(x1, y1);
+        x2 = VecSub(x2, y2);
+        x3 = VecSub(x3, y3);
         x1 = RotateLeft64<8>(x1);
         x2 = RotateLeft64<8>(x2);
         x3 = RotateLeft64<8>(x3);
@@ -684,12 +685,12 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 B1][A2 B2] ... => [A1 A2][B1 B2] ...
-    block0 = (uint32x4_p)vec_perm(x1, y1, m3);
-    block1 = (uint32x4_p)vec_perm(x1, y1, m4);
-    block2 = (uint32x4_p)vec_perm(x2, y2, m3);
-    block3 = (uint32x4_p)vec_perm(x2, y2, m4);
-    block4 = (uint32x4_p)vec_perm(x3, y3, m3);
-    block5 = (uint32x4_p)vec_perm(x3, y3, m4);
+    block0 = (uint32x4_p)VecPermute(x1, y1, m3);
+    block1 = (uint32x4_p)VecPermute(x1, y1, m4);
+    block2 = (uint32x4_p)VecPermute(x2, y2, m3);
+    block3 = (uint32x4_p)VecPermute(x2, y2, m4);
+    block4 = (uint32x4_p)VecPermute(x3, y3, m3);
+    block5 = (uint32x4_p)VecPermute(x3, y3, m4);
 }
 
 #endif  // CRYPTOPP_POWER8_AVAILABLE
