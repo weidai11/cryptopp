@@ -633,7 +633,9 @@ inline T1 VecSub(const T1 vec1, const T2 vec2)
 /// \param vec2 the second vector
 /// \returns vector
 /// \details VecAdd64 returns a new vector from vec1 and vec2.
-///   vec1 and vec2 are added as uint64x2_p quantities.
+///   vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
+///   and below VecAdd64 manages the carries from two elements in
+///   a uint32x4_p vector.
 /// \since Crypto++ 8.0
 inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 {
