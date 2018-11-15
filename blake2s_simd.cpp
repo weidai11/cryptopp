@@ -675,60 +675,32 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 
 inline uint32x4_p VectorLoad32(const void* p)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return (uint32x4_p)vec_xl(0, (uint8_t*)p);
-#else
-    return (uint32x4_p)vec_vsx_ld(0, (uint8_t*)p);
-#endif
+    return VectorLoad((const word32*)p);
 }
 
 inline uint32x4_p VectorLoad32LE(const void* p)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    const uint32x4_p v = VectorLoad32(p);
+    const uint32x4_p v = VectorLoad((const word32*)p);
     return vec_perm(v, v, m);
 #else
-    return VectorLoad32(p);
+    return VectorLoad((const word32*)p);
 #endif
 }
 
 inline void VectorStore32(void* p, const uint32x4_p x)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    vec_xst((uint8x16_p)x,0,(uint8_t*)p);
-#else
-    vec_vsx_st((uint8x16_p)x,0,(uint8_t*)p);
-#endif
+    VectorStore(x, (word32*)p);
 }
 
 inline void VectorStore32LE(void* p, const uint32x4_p x)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    VectorStore32(p, vec_perm(x, x, m));
+    VectorStore(vec_perm(x, x, m), (word32*)p);
 #else
-    VectorStore32(p, x);
-#endif
-}
-
-template <unsigned int C>
-inline uint8x16_p VectorShiftLeftOctet(const uint8x16_p a)
-{
-#if __BIG_ENDIAN__
-    return (uint8x16_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, C);
-#else
-    return (uint8x16_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, 16-C);
-#endif
-}
-
-template <unsigned int C>
-inline uint32x4_p VectorShiftLeftOctet(const uint32x4_p a)
-{
-#if __BIG_ENDIAN__
-    return (uint32x4_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, C);
-#else
-    return (uint32x4_p)vec_sld((uint8x16_p)a, (uint8x16_p)a, 16-C);
+    VectorStore(x, (word32*)p);
 #endif
 }
 
@@ -937,16 +909,10 @@ void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
     #define BLAKE2S_LOAD_MSG_9_3(buf) buf = VectorSet32<13,3,9,15>(m13,m3,m9,m15)
     #define BLAKE2S_LOAD_MSG_9_4(buf) buf = VectorSet32<0,12,14,11>(m0,m12,m14,m11)
 
-    // Altivec has packed 32-bit rotate, but in terms of left rotate
-    const uint32x4_p ROR16_MASK = { 32-16, 32-16, 32-16, 32-16 };
-    const uint32x4_p ROR12_MASK = { 32-12, 32-12, 32-12, 32-12 };
-    const uint32x4_p ROR8_MASK  = { 32-8, 32-8, 32-8, 32-8 };
-    const uint32x4_p ROR7_MASK  = { 32-7, 32-7, 32-7, 32-7 };
-
-    #define vec_ror_16(x) vec_rl(x, ROR16_MASK)
-    #define vec_ror_12(x) vec_rl(x, ROR12_MASK)
-    #define vec_ror_8(x)  vec_rl(x, ROR8_MASK)
-    #define vec_ror_7(x)  vec_rl(x, ROR7_MASK)
+    #define vec_ror_16(x) VectorRotateRight<16>(x)
+    #define vec_ror_12(x) VectorRotateRight<12>(x)
+    #define vec_ror_8(x)  VectorRotateRight<8>(x)
+    #define vec_ror_7(x)  VectorRotateRight<7>(x)
 
     #define BLAKE2S_G1(row1,row2,row3,row4,buf) \
       row1 = vec_add(vec_add(row1, buf), row2); \
