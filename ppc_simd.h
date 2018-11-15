@@ -518,7 +518,8 @@ inline void VecStoreBE(const T src, int off, byte dest[16])
 //////////////////////// Miscellaneous ////////////////////////
 
 /// \brief Permutes a vector
-/// \tparam T vector type
+/// \tparam T1 vector type
+/// \tparam T2 vector type
 /// \param vec the vector
 /// \param mask vector mask
 /// \returns vector
