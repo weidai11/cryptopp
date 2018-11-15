@@ -610,14 +610,14 @@ ifeq ($(DETECT_FEATURES),1)
   endif
 
   # XLC with LLVM front-ends failed to define XLC defines.
-  ifeq ($(findstring -qxlcompatmacros,$(CXXFLAGS)),)
-    TPROG = TestPrograms/test_ppc_altivec.cxx
-    TOPT = -qxlcompatmacros
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
-      CXXFLAGS += -qxlcompatmacros
-    endif
-  endif
+  #ifeq ($(findstring -qxlcompatmacros,$(CXXFLAGS)),)
+  #  TPROG = TestPrograms/test_ppc_altivec.cxx
+  #  TOPT = -qxlcompatmacros
+  #  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+  #  ifeq ($(HAVE_OPT),0)
+  #    CXXFLAGS += -qxlcompatmacros
+  #  endif
+  #endif
 
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = $(POWER9_FLAG)
