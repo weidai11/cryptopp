@@ -131,9 +131,9 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 /// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
-///   is not available. VecLoad_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -156,9 +156,9 @@ inline uint32x4_p VecLoad(const byte src[16])
 /// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
-///   is not available. VecLoad_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -180,9 +180,9 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 /// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
-///   is not available. VecLoad_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -197,9 +197,9 @@ inline uint32x4_p VecLoad(const word32 src[4])
 /// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
-///   is not available. VecLoad_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -214,9 +214,9 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 ///   will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
-///   is not available. VecLoad_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -248,9 +248,9 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 ///   will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
-///   is not available. VecLoad_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -355,9 +355,9 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 /// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
-///   is not available. VecStore_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -383,9 +383,9 @@ inline void VecStore(const T data, byte dest[16])
 /// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
-///   is not available. VecStore_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -410,9 +410,9 @@ inline void VecStore(const T data, int off, byte dest[16])
 /// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
-///   is not available. VecStore_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -430,9 +430,9 @@ inline void VecStore(const T data, word32 dest[4])
 /// \details VecStore stores a vector to a byte array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
-///   is not available. VecStore_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -450,9 +450,9 @@ inline void VecStore(const T data, int off, word32 dest[4])
 ///   will reverse all bytes in the array on a little endian system.
 /// \details VecStoreBE uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
-///   is not available. VecStore_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -487,9 +487,9 @@ inline void VecStoreBE(const T src, byte dest[16])
 ///   will reverse all bytes in the array on a little endian system.
 /// \details VecStoreBE uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
-///   an aligned memory address. VecStore_ALTIVEC() is used if POWER7
-///   is not available. VecStore_ALTIVEC() is relatively expensive and
-///   requires extra instructions to fix up unaligned effective memory
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -885,6 +885,7 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 /// \param key the subkey vector
 /// \details VecEncrypt performs one round of AES encryption of state
 ///   using subkey key. The return vector is the same type as vec1.
+/// \details VecEncrypt is available on POWER8 and above
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecEncrypt(const T1 state, const T2 key)
@@ -905,6 +906,7 @@ inline T1 VecEncrypt(const T1 state, const T2 key)
 /// \param key the subkey vector
 /// \details VecEncryptLast performs the final round of AES encryption
 ///   of state using subkey key. The return vector is the same type as vec1.
+/// \details VecEncryptLast is available on POWER8 and above
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecEncryptLast(const T1 state, const T2 key)
@@ -925,6 +927,7 @@ inline T1 VecEncryptLast(const T1 state, const T2 key)
 /// \param key the subkey vector
 /// \details VecDecrypt performs one round of AES decryption of state
 ///   using subkey key. The return vector is the same type as vec1.
+/// \details VecDecrypt is available on POWER8 and above
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecDecrypt(const T1 state, const T2 key)
@@ -945,6 +948,7 @@ inline T1 VecDecrypt(const T1 state, const T2 key)
 /// \param key the subkey vector
 /// \details VecDecryptLast performs the final round of AES decryption
 ///   of state using subkey key. The return vector is the same type as vec1.
+/// \details VecDecryptLast is available on POWER8 and above
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecDecryptLast(const T1 state, const T2 key)
@@ -965,6 +969,7 @@ inline T1 VecDecryptLast(const T1 state, const T2 key)
 /// \param vec the block to transform
 /// \details VecSHA256 selects sigma0, sigma1, Sigma0, Sigma1 based on
 ///   func and subfunc. The return vector is the same type as vec.
+/// \details VecSHA256 is available on POWER8 and above
 /// \since Crypto++ 6.0
 template <int func, int subfunc, class T>
 inline T VecSHA256(const T vec)
@@ -985,6 +990,7 @@ inline T VecSHA256(const T vec)
 /// \param vec the block to transform
 /// \details VecSHA512 selects sigma0, sigma1, Sigma0, Sigma1 based on
 ///   func and subfunc. The return vector is the same type as vec.
+/// \details VecSHA512 is available on POWER8 and above
 /// \since Crypto++ 6.0
 template <int func, int subfunc, class T>
 inline T VecSHA512(const T vec)
