@@ -29,8 +29,8 @@
 # undef bool
 #endif
 
-// VectorLoad_ALTIVEC and VectorStore_ALTIVEC are too noisy on modern compilers
-
+// VectorLoad_ALTIVEC and VectorStore_ALTIVEC are
+// too noisy on modern compilers
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated"
@@ -146,7 +146,6 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \param off offset into the byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \note VectorLoad does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -313,7 +312,6 @@ inline void VectorStore(const T data, int off, byte dest[16])
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the byte offset into the array
 /// \param dest the byte array
 /// \details Stores a vector in native endian format to a byte array.
 /// \note VectorStore does not require an aligned array.
@@ -327,6 +325,7 @@ inline void VectorStore(const T data, word32 dest[4])
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
 /// \param data the vector
+/// \param off the byte offset into the array
 /// \param dest the byte array
 /// \details Stores a vector in native endian format to a byte array.
 /// \note VectorStore does not require an aligned array.

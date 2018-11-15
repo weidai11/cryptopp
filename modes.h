@@ -361,6 +361,7 @@ public:
 
 	/// \brief Construct a CipherModeFinalTemplate
 	/// \param key a byte array used to key the cipher
+	/// \param length size of the key in bytes
 	/// \details key must be at least DEFAULT_KEYLENGTH in length. Internally, the function calls
 	///    SimpleKeyingInterface::SetKey.
 	CipherModeFinalTemplate_CipherHolder(const byte *key, size_t length)
@@ -371,6 +372,7 @@ public:
 
 	/// \brief Construct a CipherModeFinalTemplate
 	/// \param key a byte array used to key the cipher
+	/// \param length size of the key in bytes
 	/// \param iv a byte array used to resynchronize the cipher
 	/// \details key must be at least DEFAULT_KEYLENGTH in length. iv must be IVSize() or
 	///    BLOCKSIZE in length. Internally, the function calls SimpleKeyingInterface::SetKey.
@@ -382,6 +384,7 @@ public:
 
 	/// \brief Construct a CipherModeFinalTemplate
 	/// \param key a byte array used to key the cipher
+	/// \param length size of the key in bytes
 	/// \param iv a byte array used to resynchronize the cipher
 	/// \param feedbackSize the feedback size, in bytes
 	/// \details key must be at least DEFAULT_KEYLENGTH in length. iv must be IVSize() or
