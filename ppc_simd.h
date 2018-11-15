@@ -11,6 +11,9 @@
 ///   IBM XL C/C++ compilers also experience it due to lack of
 ///   <tt>vec_xl_be</tt> support on some platforms. Modern compilers
 ///   provide best support and don't need many of the little hacks below.
+/// \details At Crypto++ 8.0 the various VectorFunc were renamed to
+///   VecFunc. For example, VectorAnd was changed to VecAnd. The name change
+///   helped consolidate two slightly different implementations.
 /// \since Crypto++ 6.0
 
 // Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8. The preprocessor macros
