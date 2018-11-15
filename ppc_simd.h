@@ -43,12 +43,16 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if defined(__ALTIVEC__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-// Datatypes
+/// \brief Vector of 8-bit elements
 typedef __vector unsigned char   uint8x16_p;
+/// \brief Vector of 16-bit elements
 typedef __vector unsigned short  uint16x8_p;
+/// \brief Vector of 32-bit elements
 typedef __vector unsigned int    uint32x4_p;
 
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Vector of 64-bit elements
+/// \details uint64x2_p is available on POWER8 and above
 typedef __vector unsigned long long uint64x2_p;
 #endif  // _ARCH_PWR8
 
