@@ -25,60 +25,32 @@
 // compiled it may only get -mcpu=power4 or -mcpu=power7, so the POWER7
 // or POWER8 stuff is not actually available when this header is included.
 // We also need to handle the case of -DCRYPTOPP_ALTIVEC_AVAILABLE=0.
-#if !defined(__ALTIVEC__)
-# undef CRYPTOPP_ALTIVEC_AVAILABLE
-#endif
 
-#if !defined(_ARCH_PWR7)
-# undef CRYPTOPP_POWER7_AVAILABLE
-#endif
-
-#if !(defined(_ARCH_PWR8) || defined(_ARCH_PWR9) || defined(__CRYPTO) || defined(__CRYPTO__))
-# undef CRYPTOPP_POWER8_AVAILABLE
-# undef CRYPTOPP_POWER8_AES_AVAILABLE
-# undef CRYPTOPP_POWER8_VMULL_AVAILABLE
-# undef CRYPTOPP_POWER8_SHA_AVAILABLE
-#endif
-
-#if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__ALTIVEC__)
 # include <altivec.h>
 # undef vector
 # undef pixel
 # undef bool
 #endif
 
-#if !(CRYPTOPP_ALTIVEC_AVAILABLE)
-# undef CRYPTOPP_POWER7_AVAILABLE
-# undef CRYPTOPP_POWER8_AVAILABLE
-# undef CRYPTOPP_POWER8_AES_AVAILABLE
-# undef CRYPTOPP_POWER8_VMULL_AVAILABLE
-# undef CRYPTOPP_POWER8_SHA_AVAILABLE
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 // Wrap everything in this file based on CRYPTOPP_ALTIVEC_AVAILABLE
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(__ALTIVEC__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 // Datatypes
-#if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 typedef __vector unsigned char   uint8x16_p;
 typedef __vector unsigned short  uint16x8_p;
 typedef __vector unsigned int    uint32x4_p;
-#if (CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8)
 typedef __vector unsigned long long uint64x2_p;
 #endif  // POWER8 datatypes
-#endif  // ALTIVEC datatypes
-
-// Applies to all POWER machines
-#if (CRYPTOPP_ALTIVEC_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Reverse a vector
 /// \tparam T vector type
 /// \param src the vector
 /// \returns vector
 /// \details Reverse() endian swaps the bytes in a vector
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
 inline T Reverse(const T& src)
@@ -394,17 +366,14 @@ inline bool VectorNotEqual(const T1& vec1, const T2& vec2)
     return 0 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
 }
 
-#endif  // POWER4 and above
-
 // POWER7/POWER4 load and store
-#if (CRYPTOPP_POWER7_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR7)
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details Loads a vector in big endian format from a byte array.
 ///   VectorLoadBE will swap endianess on little endian systems.
 /// \note VectorLoadBE() does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(const byte src[16])
 {
@@ -425,7 +394,6 @@ inline uint32x4_p VectorLoadBE(const byte src[16])
 /// \details Loads a vector in big endian format from a byte array.
 ///   VectorLoadBE will swap endianess on little endian systems.
 /// \note VectorLoadBE does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 {
@@ -444,7 +412,6 @@ inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 /// \param src the byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const byte src[16])
 {
@@ -460,7 +427,6 @@ inline uint32x4_p VectorLoad(const byte src[16])
 /// \param off offset into the src byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const byte src[16])
 {
@@ -475,7 +441,6 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 /// \param src the word array
 /// \details Loads a vector in native endian format from a word array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const word32 src[4])
 {
@@ -487,7 +452,6 @@ inline uint32x4_p VectorLoad(const word32 src[4])
 /// \param off offset into the src word array
 /// \details Loads a vector in native endian format from a word array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const word32 src[4])
 {
@@ -501,7 +465,6 @@ inline uint32x4_p VectorLoad(int off, const word32 src[4])
 /// \details Stores a vector in big endian format to a byte array.
 ///   VectorStoreBE will swap endianess on little endian systems.
 /// \note VectorStoreBE does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
 inline void VectorStoreBE(const T& src, byte dest[16])
@@ -525,7 +488,6 @@ inline void VectorStoreBE(const T& src, byte dest[16])
 /// \details Stores a vector in big endian format to a byte array.
 ///   VectorStoreBE will swap endianess on little endian systems.
 /// \note VectorStoreBE does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
 inline void VectorStoreBE(const T& src, int off, byte dest[16])
@@ -599,7 +561,6 @@ inline void VectorStore(const T& src, int off, byte dest[16])
 /// \param src the byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const byte src[16])
 {
@@ -622,7 +583,6 @@ inline uint32x4_p VectorLoad(const byte src[16])
 /// \param off offset into the src byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const byte src[16])
 {
@@ -644,7 +604,6 @@ inline uint32x4_p VectorLoad(int off, const byte src[16])
 /// \param src the word array
 /// \details Loads a vector in native endian format from a word array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const word32 src[4])
 {
@@ -656,7 +615,6 @@ inline uint32x4_p VectorLoad(const word32 src[4])
 /// \param off offset into the src word array
 /// \details Loads a vector in native endian format from a word array.
 /// \note VectorLoad does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const word32 src[4])
 {
@@ -668,7 +626,6 @@ inline uint32x4_p VectorLoad(int off, const word32 src[4])
 /// \details Loads a vector in big endian format from a byte array.
 ///   VectorLoadBE will swap endianess on little endian systems.
 /// \note VectorLoadBE() does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(const byte src[16])
 {
@@ -708,7 +665,6 @@ inline void VectorStore(const T& data, byte dest[16])
 /// \details Stores a vector in big endian format to a byte array.
 ///   VectorStoreBE will swap endianess on little endian systems.
 /// \note VectorStoreBE does not require an aligned array.
-/// \sa Reverse(), VectorLoadBE(), VectorLoad()
 /// \since Crypto++ 6.0
 template <class T>
 inline void VectorStoreBE(const T& src, byte dest[16])
@@ -723,7 +679,7 @@ inline void VectorStoreBE(const T& src, byte dest[16])
 #endif  // POWER4/POWER7 load and store
 
 // POWER8 crypto
-#if (CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8)
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
@@ -807,7 +763,7 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 
 #endif  // POWER8 crypto
 
-#if (CRYPTOPP_POWER8_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8)
 
 /// \brief SHA256 Sigma functions
 /// \tparam func function
