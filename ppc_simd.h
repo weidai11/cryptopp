@@ -128,12 +128,13 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \details Loads a vector in native endian format from a byte array.
+/// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecLoad_ALTIVEC() is used if POWER7 or above
-///   is not available. VecLoad_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(const byte src[16])
@@ -152,12 +153,13 @@ inline uint32x4_p VecLoad(const byte src[16])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \param off offset into the byte array
-/// \details Loads a vector in native endian format from a byte array.
+/// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecLoad_ALTIVEC() is used if POWER7 or above
-///   is not available. VecLoad_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(int off, const byte src[16])
@@ -175,12 +177,13 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \details Loads a vector in native endian format from a byte array.
+/// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecLoad_ALTIVEC() is used if POWER7 or above
-///   is not available. VecLoad_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(const word32 src[4])
@@ -191,7 +194,13 @@ inline uint32x4_p VecLoad(const word32 src[4])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \param off offset into the byte array
-/// \details Loads a vector in native endian format from a byte array.
+/// \details VecLoad loads a vector in from a byte array.
+/// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(int off, const word32 src[4])
@@ -201,14 +210,15 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \details Loads a vector in big endian format from a byte array.
-///   VecLoadBE will swap all bytes on little endian systems.
+/// \details VecLoadBE loads a vector in from a byte array. VecLoadBE
+///   will reverse all bytes in the arrya on a little endian system.
 /// \details VecLoadBE uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecLoad_ALTIVEC() is used if POWER7 or above
-///   is not available. VecLoad_ALTIVEC() is relatively expensive.
-/// \note VecLoadBE() does not require an aligned array.
+///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
+/// \note VecLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
@@ -234,13 +244,14 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \param off offset into the src byte array
-/// \details Loads a vector in big endian format from a byte array.
-///   VecLoadBE will swap all bytes on little endian systems.
+/// \details VecLoadBE loads a vector in from a byte array. VecLoadBE
+///   will reverse all bytes in the arrya on a little endian system.
 /// \details VecLoadBE uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
-///   an aligned memory address.
-/// \details VecLoad_ALTIVEC() is used if POWER7 or above
-///   is not available. VecLoad_ALTIVEC() is relatively expensive.
+///   an aligned memory address. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() is relatively expensive and
+///   requires extra instructions to fix up unaligned effective memory
+///   addresses.
 /// \note VecLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
