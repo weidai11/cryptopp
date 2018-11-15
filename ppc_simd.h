@@ -408,7 +408,7 @@ inline bool VectorNotEqual(const T1& vec1, const T2& vec2)
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(const byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl_be(0, (byte*)src);
 #else
 # if (CRYPTOPP_BIG_ENDIAN)
@@ -429,7 +429,7 @@ inline uint32x4_p VectorLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl_be(off, (byte*)src);
 #else
 # if (CRYPTOPP_BIG_ENDIAN)
@@ -448,7 +448,7 @@ inline uint32x4_p VectorLoadBE(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(const byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
 #else
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
@@ -464,7 +464,7 @@ inline uint32x4_p VectorLoad(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VectorLoad(int off, const byte src[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
 #else
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
@@ -506,7 +506,7 @@ inline uint32x4_p VectorLoad(int off, const word32 src[4])
 template <class T>
 inline void VectorStoreBE(const T& src, byte dest[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst_be((uint8x16_p)src, 0, (byte*)dest);
 #else
 # if (CRYPTOPP_BIG_ENDIAN)
@@ -530,7 +530,7 @@ inline void VectorStoreBE(const T& src, byte dest[16])
 template <class T>
 inline void VectorStoreBE(const T& src, int off, byte dest[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst_be((uint8x16_p)src, off, (byte*)dest);
 #else
 # if (CRYPTOPP_BIG_ENDIAN)
@@ -551,7 +551,7 @@ inline void VectorStoreBE(const T& src, int off, byte dest[16])
 template<class T>
 inline void VectorStore(const T& src, byte dest[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)src, 0, (byte*)dest);
 #else
     vec_vsx_st((uint8x16_p)src, 0, (byte*)dest);
@@ -568,7 +568,7 @@ inline void VectorStore(const T& src, byte dest[16])
 template<class T>
 inline void VectorStore(byte dest[16], const T& src)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)src, 0, (byte*)dest);
 #else
     vec_vsx_st((uint8x16_p)src, 0, (byte*)dest);
@@ -586,7 +586,7 @@ inline void VectorStore(byte dest[16], const T& src)
 template<class T>
 inline void VectorStore(const T& src, int off, byte dest[16])
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)src, off, (byte*)dest);
 #else
     vec_vsx_st((uint8x16_p)src, off, (byte*)dest);
@@ -736,9 +736,9 @@ inline void VectorStoreBE(const T& src, byte dest[16])
 template <class T1, class T2>
 inline T1 VectorEncrypt(const T1& state, const T2& key)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (T1)__vcipher((uint8x16_p)state, (uint8x16_p)key);
-#elif defined(CRYPTOPP_GCC_VERSION)
+#elif defined(__GNUC__)
     return (T1)__builtin_crypto_vcipher((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
@@ -756,9 +756,9 @@ inline T1 VectorEncrypt(const T1& state, const T2& key)
 template <class T1, class T2>
 inline T1 VectorEncryptLast(const T1& state, const T2& key)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (T1)__vcipherlast((uint8x16_p)state, (uint8x16_p)key);
-#elif defined(CRYPTOPP_GCC_VERSION)
+#elif defined(__GNUC__)
     return (T1)__builtin_crypto_vcipherlast((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
@@ -776,9 +776,9 @@ inline T1 VectorEncryptLast(const T1& state, const T2& key)
 template <class T1, class T2>
 inline T1 VectorDecrypt(const T1& state, const T2& key)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (T1)__vncipher((uint8x16_p)state, (uint8x16_p)key);
-#elif defined(CRYPTOPP_GCC_VERSION)
+#elif defined(__GNUC__)
     return (T1)__builtin_crypto_vncipher((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
@@ -796,9 +796,9 @@ inline T1 VectorDecrypt(const T1& state, const T2& key)
 template <class T1, class T2>
 inline T1 VectorDecryptLast(const T1& state, const T2& key)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (T1)__vncipherlast((uint8x16_p)state, (uint8x16_p)key);
-#elif defined(CRYPTOPP_GCC_VERSION)
+#elif defined(__GNUC__)
     return (T1)__builtin_crypto_vncipherlast((uint64x2_p)state, (uint64x2_p)key);
 #else
     CRYPTOPP_ASSERT(0);
@@ -820,9 +820,9 @@ inline T1 VectorDecryptLast(const T1& state, const T2& key)
 template <int func, int subfunc, class T>
 inline T VectorSHA256(const T& vec)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (T)__vshasigmaw((uint32x4_p)vec, func, subfunc);
-#elif defined(CRYPTOPP_GCC_VERSION)
+#elif defined(__GNUC__)
     return (T)__builtin_crypto_vshasigmaw((uint32x4_p)vec, func, subfunc);
 #else
     CRYPTOPP_ASSERT(0);
@@ -840,9 +840,9 @@ inline T VectorSHA256(const T& vec)
 template <int func, int subfunc, class T>
 inline T VectorSHA512(const T& vec)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (T)__vshasigmad((uint64x2_p)vec, func, subfunc);
-#elif defined(CRYPTOPP_GCC_VERSION)
+#elif defined(__GNUC__)
     return (T)__builtin_crypto_vshasigmad((uint64x2_p)vec, func, subfunc);
 #else
     CRYPTOPP_ASSERT(0);

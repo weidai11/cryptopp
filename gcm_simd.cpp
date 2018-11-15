@@ -201,7 +201,7 @@ inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 // _mm_clmulepi64_si128(a, b, 0x00)
 inline uint64x2_p VMULL_00LE(const uint64x2_p& a, const uint64x2_p& b)
 {
-#if defined(__xlc__) || defined(__xlC__)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return VMULL2LE(__vpmsumd (VectorGetHigh(a), VectorGetHigh(b)));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VectorGetHigh(a), VectorGetHigh(b)));
@@ -214,7 +214,7 @@ inline uint64x2_p VMULL_01LE(const uint64x2_p& a, const uint64x2_p& b)
     // Small speedup. VectorGetHigh(b) ensures the high dword of 'b' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'a' is "don't care".
-#if defined(__xlc__) || defined(__xlC__)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return VMULL2LE(__vpmsumd (a, VectorGetHigh(b)));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (a, VectorGetHigh(b)));
@@ -227,7 +227,7 @@ inline uint64x2_p VMULL_10LE(const uint64x2_p& a, const uint64x2_p& b)
     // Small speedup. VectorGetHigh(a) ensures the high dword of 'a' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'b' is "don't care".
-#if defined(__xlc__) || defined(__xlC__)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return VMULL2LE(__vpmsumd (VectorGetHigh(a), b));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VectorGetHigh(a), b));
@@ -240,7 +240,7 @@ inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
     // Small speedup. VectorGetLow(a) ensures the high dword of 'a' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'b' is "don't care".
-#if defined(__xlc__) || defined(__xlC__)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return VMULL2LE(__vpmsumd (VectorGetLow(a), b));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VectorGetLow(a), b));

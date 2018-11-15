@@ -1093,7 +1093,7 @@ typedef __vector unsigned long long uint64x2_p8;
 template <class T> static inline
 uint32x4_p8 VectorLoad32x4u(const T* data, int offset)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p8)vec_xl(offset, (uint8_t*)data);
 #else
     return (uint32x4_p8)vec_vsx_ld(offset, data);
@@ -1104,7 +1104,7 @@ uint32x4_p8 VectorLoad32x4u(const T* data, int offset)
 template <class T> static inline
 void VectorStore32x4u(const uint32x4_p8 val, T* data, int offset)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
 #else
     vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
@@ -1142,7 +1142,7 @@ uint32x4_p8 VectorMaj(const uint32x4_p8 x, const uint32x4_p8 y, const uint32x4_p
 static inline
 uint32x4_p8 Vector_sigma0(const uint32x4_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmaw(val, 0, 0);
 #else
     return __builtin_crypto_vshasigmaw(val, 0, 0);
@@ -1152,7 +1152,7 @@ uint32x4_p8 Vector_sigma0(const uint32x4_p8 val)
 static inline
 uint32x4_p8 Vector_sigma1(const uint32x4_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmaw(val, 0, 0xf);
 #else
     return __builtin_crypto_vshasigmaw(val, 0, 0xf);
@@ -1162,7 +1162,7 @@ uint32x4_p8 Vector_sigma1(const uint32x4_p8 val)
 static inline
 uint32x4_p8 VectorSigma0(const uint32x4_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmaw(val, 1, 0);
 #else
     return __builtin_crypto_vshasigmaw(val, 1, 0);
@@ -1172,7 +1172,7 @@ uint32x4_p8 VectorSigma0(const uint32x4_p8 val)
 static inline
 uint32x4_p8 VectorSigma1(const uint32x4_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmaw(val, 1, 0xf);
 #else
     return __builtin_crypto_vshasigmaw(val, 1, 0xf);
@@ -1385,7 +1385,7 @@ uint64x2_p8 VectorPermute64x2(const uint64x2_p8 val, const uint8x16_p8 mask)
 template <class T> static inline
 uint64x2_p8 VectorLoad64x2u(const T* data, int offset)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint64x2_p8)vec_xl(offset, (uint8_t*)data);
 #else
     return (uint64x2_p8)vec_vsx_ld(offset, (const uint8_t*)data);
@@ -1396,7 +1396,7 @@ uint64x2_p8 VectorLoad64x2u(const T* data, int offset)
 template <class T> static inline
 void VectorStore64x2u(const uint64x2_p8 val, T* data, int offset)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
 #else
     vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
@@ -1433,7 +1433,7 @@ uint64x2_p8 VectorMaj(const uint64x2_p8 x, const uint64x2_p8 y, const uint64x2_p
 static inline
 uint64x2_p8 Vector_sigma0(const uint64x2_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmad(val, 0, 0);
 #else
     return __builtin_crypto_vshasigmad(val, 0, 0);
@@ -1443,7 +1443,7 @@ uint64x2_p8 Vector_sigma0(const uint64x2_p8 val)
 static inline
 uint64x2_p8 Vector_sigma1(const uint64x2_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmad(val, 0, 0xf);
 #else
     return __builtin_crypto_vshasigmad(val, 0, 0xf);
@@ -1453,7 +1453,7 @@ uint64x2_p8 Vector_sigma1(const uint64x2_p8 val)
 static inline
 uint64x2_p8 VectorSigma0(const uint64x2_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmad(val, 1, 0);
 #else
     return __builtin_crypto_vshasigmad(val, 1, 0);
@@ -1463,7 +1463,7 @@ uint64x2_p8 VectorSigma0(const uint64x2_p8 val)
 static inline
 uint64x2_p8 VectorSigma1(const uint64x2_p8 val)
 {
-#if defined(CRYPTOPP_XLC_VERSION)
+#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return __vshasigmad(val, 1, 0xf);
 #else
     return __builtin_crypto_vshasigmad(val, 1, 0xf);
