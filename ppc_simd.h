@@ -311,6 +311,18 @@ inline void VectorStore(const T data, int off, byte dest[16])
 #endif
 }
 
+template<class T>
+inline void VectorStore(const T data, word32 dest[4])
+{
+    VectorStore((uint8x16_p)data, 0, (byte*)dest);
+}
+
+template<class T>
+inline void VectorStore(const T data, int off, word32 dest[4])
+{
+    VectorStore((uint8x16_p)data, off, (byte*)dest);
+}
+
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
 /// \param src the vector
