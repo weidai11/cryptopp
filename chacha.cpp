@@ -24,7 +24,7 @@ extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input,
 extern void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 extern void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
@@ -86,6 +86,11 @@ std::string ChaCha_Policy::AlgorithmProvider() const
         return "Power7";
     else
 #endif
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return "Altivec";
+    else
+#endif
     return "C++";
 }
 
@@ -139,8 +144,8 @@ unsigned int ChaCha_Policy::GetAlignment() const
         return 16;
     else
 #endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
         return 16;
     else
 #endif
@@ -164,8 +169,8 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
         return 4*BYTES_PER_ITERATION;
     else
 #endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
         return 4*BYTES_PER_ITERATION;
     else
 #endif
@@ -245,8 +250,8 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
         }
 #endif
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
-        if (HasPower7())
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+        if (HasAltivec())
         {
             while (iterationCount >= 4 && MultiBlockSafe(4))
             {

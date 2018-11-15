@@ -2,7 +2,7 @@
 //                   Jack Lloyd and Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
-//    SSE2, ARM NEON and ARMv8a, and Power7 Altivec instructions. A separate
+//    SSE2, ARM NEON and ARMv8a, Power7 and Altivec instructions. A separate
 //    source file is needed because additional CXXFLAGS are required to enable
 //    the appropriate instructions sets in some build configurations.
 //
@@ -54,7 +54,7 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc_simd.h"
 #endif
 
@@ -201,24 +201,23 @@ inline __m128i RotateLeft<16>(const __m128i val)
 
 #endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
-// **************************** POWER7 **************************** //
+// **************************** Altivec **************************** //
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
-// POWER8 is optional and runs about 0.6 cpb faster because
-// of the native 64-bit vector add. That's about 700 MB/s on
-// GCC112 from the compile farm. Use -mcpu=power8 to engage
-// POWER8. POWER7 lacks 64-bit element support, so code built
-// with -mcpu=power8 will SIGILL on POWER7 machines.
+// ChaCha_OperateKeystream_POWER7 is optimized for POWER7. However, Altivec
+// is supported by using vec_ld and vec_st, and using a composite vec_add
+// that supports 64-bit element adds. vec_ld and vec_st add significant
+// overhead when memory is not aligned. Despite the drawbacks Altivec
+// is profitable. The numbers for ChaCha8 are:
+//
+//   PowerMac, C++, 2.0 GHz: 205 MB/s, 9.29 cpb
+//   PowerMac, Altivec, 2.0 GHz: 471 MB/s, 4.09 cpb
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
 using CryptoPP::VectorLoad;
 using CryptoPP::VectorStore;
-
-#if (_ARCH_PWR8 || _ARCH_PWR9)
-using CryptoPP::uint64x2_p;
-#endif
 
 // Permutes bytes in packed 32-bit words to little endian.
 // State is already in proper endian order. Input and
@@ -241,26 +240,10 @@ inline void VectorStore32LE(uint8_t dest[16], const uint32x4_p& val)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    VectorStore(dest, vec_perm(val, val, mask));
+    VectorStore(vec_perm(val, val, mask), dest);
 #else
-    return VectorStore(dest, val);
+    return VectorStore(val, dest);
 #endif
-}
-
-// Rotate packed 32-bit words left by bit count
-template<unsigned int C>
-inline uint32x4_p RotateLeft(const uint32x4_p val)
-{
-    const uint32x4_p m = {C, C, C, C};
-    return vec_rl(val, m);
-}
-
-// Rotate packed 32-bit words right by bit count
-template<unsigned int C>
-inline uint32x4_p RotateRight(const uint32x4_p val)
-{
-    const uint32x4_p m = {32-C, 32-C, 32-C, 32-C};
-    return vec_rl(val, m);
 }
 
 // ChaCha's use of x86 shuffle is really a 4, 8, or 12 byte
@@ -296,25 +279,7 @@ inline uint32x4_p Shuffle<3>(const uint32x4_p& val)
     return vec_perm(val, val, mask);
 }
 
-// Helper to perform 64-bit addition across two elements of 32-bit vectors
-inline uint32x4_p VectorAdd64(const uint32x4_p& a, const uint32x4_p& b)
-{
-#if (_ARCH_PWR8 || _ARCH_PWR9)
-    return (uint32x4_p)vec_add((uint64x2_p)a, (uint64x2_p)b);
-#else
-    // The carry mask selects carries from elements 1 and 3 and sets remaining
-    // elements to 0. The mask also shifts the carried values left by 4 bytes
-    // so the carries are added to elements 0 and 2.
-    const uint8x16_p cmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
-    const uint32x4_p zero = {0, 0, 0, 0};
-
-    uint32x4_p cy = vec_addc(a, b);
-    cy = vec_perm(cy, zero, cmask);
-    return vec_add(vec_add(a, b), cy);
-#endif
-}
-
-#endif  // CRYPTOPP_POWER7_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
@@ -856,7 +821,7 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
 
 #endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
 void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
@@ -901,10 +866,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_3 = VectorXor(r2_3, r2_0);
         r3_3 = VectorXor(r3_3, r3_0);
 
-        r0_3 = RotateLeft<16>(r0_3);
-        r1_3 = RotateLeft<16>(r1_3);
-        r2_3 = RotateLeft<16>(r2_3);
-        r3_3 = RotateLeft<16>(r3_3);
+        r0_3 = VectorRotateLeft<16>(r0_3);
+        r1_3 = VectorRotateLeft<16>(r1_3);
+        r2_3 = VectorRotateLeft<16>(r2_3);
+        r3_3 = VectorRotateLeft<16>(r3_3);
 
         r0_2 = VectorAdd(r0_2, r0_3);
         r1_2 = VectorAdd(r1_2, r1_3);
@@ -916,10 +881,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_1 = VectorXor(r2_1, r2_2);
         r3_1 = VectorXor(r3_1, r3_2);
 
-        r0_1 = RotateLeft<12>(r0_1);
-        r1_1 = RotateLeft<12>(r1_1);
-        r2_1 = RotateLeft<12>(r2_1);
-        r3_1 = RotateLeft<12>(r3_1);
+        r0_1 = VectorRotateLeft<12>(r0_1);
+        r1_1 = VectorRotateLeft<12>(r1_1);
+        r2_1 = VectorRotateLeft<12>(r2_1);
+        r3_1 = VectorRotateLeft<12>(r3_1);
 
         r0_0 = VectorAdd(r0_0, r0_1);
         r1_0 = VectorAdd(r1_0, r1_1);
@@ -931,10 +896,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_3 = VectorXor(r2_3, r2_0);
         r3_3 = VectorXor(r3_3, r3_0);
 
-        r0_3 = RotateLeft<8>(r0_3);
-        r1_3 = RotateLeft<8>(r1_3);
-        r2_3 = RotateLeft<8>(r2_3);
-        r3_3 = RotateLeft<8>(r3_3);
+        r0_3 = VectorRotateLeft<8>(r0_3);
+        r1_3 = VectorRotateLeft<8>(r1_3);
+        r2_3 = VectorRotateLeft<8>(r2_3);
+        r3_3 = VectorRotateLeft<8>(r3_3);
 
         r0_2 = VectorAdd(r0_2, r0_3);
         r1_2 = VectorAdd(r1_2, r1_3);
@@ -946,10 +911,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_1 = VectorXor(r2_1, r2_2);
         r3_1 = VectorXor(r3_1, r3_2);
 
-        r0_1 = RotateLeft<7>(r0_1);
-        r1_1 = RotateLeft<7>(r1_1);
-        r2_1 = RotateLeft<7>(r2_1);
-        r3_1 = RotateLeft<7>(r3_1);
+        r0_1 = VectorRotateLeft<7>(r0_1);
+        r1_1 = VectorRotateLeft<7>(r1_1);
+        r2_1 = VectorRotateLeft<7>(r2_1);
+        r3_1 = VectorRotateLeft<7>(r3_1);
 
         r0_1 = Shuffle<1>(r0_1);
         r0_2 = Shuffle<2>(r0_2);
@@ -977,10 +942,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_3 = VectorXor(r2_3, r2_0);
         r3_3 = VectorXor(r3_3, r3_0);
 
-        r0_3 = RotateLeft<16>(r0_3);
-        r1_3 = RotateLeft<16>(r1_3);
-        r2_3 = RotateLeft<16>(r2_3);
-        r3_3 = RotateLeft<16>(r3_3);
+        r0_3 = VectorRotateLeft<16>(r0_3);
+        r1_3 = VectorRotateLeft<16>(r1_3);
+        r2_3 = VectorRotateLeft<16>(r2_3);
+        r3_3 = VectorRotateLeft<16>(r3_3);
 
         r0_2 = VectorAdd(r0_2, r0_3);
         r1_2 = VectorAdd(r1_2, r1_3);
@@ -992,10 +957,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_1 = VectorXor(r2_1, r2_2);
         r3_1 = VectorXor(r3_1, r3_2);
 
-        r0_1 = RotateLeft<12>(r0_1);
-        r1_1 = RotateLeft<12>(r1_1);
-        r2_1 = RotateLeft<12>(r2_1);
-        r3_1 = RotateLeft<12>(r3_1);
+        r0_1 = VectorRotateLeft<12>(r0_1);
+        r1_1 = VectorRotateLeft<12>(r1_1);
+        r2_1 = VectorRotateLeft<12>(r2_1);
+        r3_1 = VectorRotateLeft<12>(r3_1);
 
         r0_0 = VectorAdd(r0_0, r0_1);
         r1_0 = VectorAdd(r1_0, r1_1);
@@ -1007,10 +972,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_3 = VectorXor(r2_3, r2_0);
         r3_3 = VectorXor(r3_3, r3_0);
 
-        r0_3 = RotateLeft<8>(r0_3);
-        r1_3 = RotateLeft<8>(r1_3);
-        r2_3 = RotateLeft<8>(r2_3);
-        r3_3 = RotateLeft<8>(r3_3);
+        r0_3 = VectorRotateLeft<8>(r0_3);
+        r1_3 = VectorRotateLeft<8>(r1_3);
+        r2_3 = VectorRotateLeft<8>(r2_3);
+        r3_3 = VectorRotateLeft<8>(r3_3);
 
         r0_2 = VectorAdd(r0_2, r0_3);
         r1_2 = VectorAdd(r1_2, r1_3);
@@ -1022,10 +987,10 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
         r2_1 = VectorXor(r2_1, r2_2);
         r3_1 = VectorXor(r3_1, r3_2);
 
-        r0_1 = RotateLeft<7>(r0_1);
-        r1_1 = RotateLeft<7>(r1_1);
-        r2_1 = RotateLeft<7>(r2_1);
-        r3_1 = RotateLeft<7>(r3_1);
+        r0_1 = VectorRotateLeft<7>(r0_1);
+        r1_1 = VectorRotateLeft<7>(r1_1);
+        r2_1 = VectorRotateLeft<7>(r2_1);
+        r3_1 = VectorRotateLeft<7>(r3_1);
 
         r0_1 = Shuffle<3>(r0_1);
         r0_2 = Shuffle<2>(r0_2);
@@ -1120,6 +1085,6 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
     VectorStore32LE(output + 15*16, r3_3);
 }
 
-#endif  // CRYPTOPP_POWER7_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 NAMESPACE_END
