@@ -565,7 +565,7 @@ ifeq ($(wildcard GNUmakefile.deps),GNUmakefile.deps)
 endif # Dependencies
 
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CC) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
 
 # Cryptogams ARM asm implementation.
 aes_armv4.o : aes_armv4.S
