@@ -70,7 +70,7 @@
 # include <xmmintrin.h>
 #endif
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(__ALTIVEC__)
 # include "ppc_simd.h"
 #endif
 
@@ -1792,7 +1792,7 @@ NAMESPACE_END  // CryptoPP
 
 // *********************** Altivec/Power 4 ********************** //
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(__ALTIVEC__)
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -2384,6 +2384,6 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 
 NAMESPACE_END  // CryptoPP
 
-#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // __ALTIVEC__
 
 #endif  // CRYPTOPP_ADVANCED_SIMD_TEMPLATES
