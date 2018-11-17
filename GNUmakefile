@@ -668,7 +668,6 @@ ifeq ($(DETECT_FEATURES),1)
     BLAKE2S_FLAG = $(POWER7_FLAG)
     CHACHA_FLAG = $(POWER7_FLAG)
     CHAM_FLAG = $(POWER7_FLAG)
-    GCM_FLAG = $(POWER7_FLAG)
     LEA_FLAG = $(POWER7_FLAG)
     SIMECK_FLAG = $(POWER7_FLAG)
     SIMON64_FLAG = $(POWER7_FLAG)
@@ -702,6 +701,11 @@ ifeq ($(DETECT_FEATURES),1)
     ALTIVEC_FLAG = $(POWER4_FLAG)
   else
     POWER4_FLAG =
+  endif
+
+  # Drop GCM to Power7 if Power8 is not available.
+  ifeq ($(POWER8_FLAG),)
+    GCM_FLAG = $(POWER7_FLAG)
   endif
 
   # Drop SIMON64 and SPECK64 to Power4 if Power7 not available
