@@ -175,19 +175,10 @@ ifeq ($(ARFLAGS),rv)
 ARFLAGS = r
 endif
 
-# Newlib needs _XOPEN_SOURCE=600 for signals
-TPROG = TestPrograms/test_cxx.cxx
-HAS_NEWLIB := $(shell $(CXX) $(CXXFLAGS) -dM -E $(TPROG) 2>&1 | $(GREP) -i -c "__NEWLIB__")
-ifneq ($(HAS_NEWLIB),0)
-  ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
-    CXXFLAGS += -D_XOPEN_SOURCE=600
-  endif
-endif
-
 # Clang integrated assembler will be used with -Wa,-q
 CLANG_INTEGRATED_ASSEMBLER ?= 0
 
-# original MinGW targets Win2k by default, but lacks proper Win2k support
+# Original MinGW targets Win2k by default, but lacks proper Win2k support
 # if target Windows version is not specified, use Windows XP instead
 ifeq ($(IS_MINGW),1)
 ifeq ($(findstring -D_WIN32_WINNT,$(CXXFLAGS)),)
@@ -200,6 +191,15 @@ endif # WINVER
 endif # _WIN32_WINDOWS
 endif # _WIN32_WINNT
 endif # IS_MINGW
+
+# Newlib needs _XOPEN_SOURCE=600 for signals
+TPROG = TestPrograms/test_newlib.cxx
+HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+ifeq ($(HAVE_OPT),0)
+  ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
+    CXXFLAGS += -D_XOPEN_SOURCE=600
+  endif
+endif
 
 ###########################################################
 #####               X86/X32/X64 Options               #####
