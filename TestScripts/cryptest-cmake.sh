@@ -41,12 +41,12 @@ cd "$PWD_DIR/cmake_build"
 
 if [[ ! -z "$CXX" ]];
 then
-	if ! CXX="$CXX" cmake -DCMAKE_CXX_COMPILER="$CXX" ../; then
+	if ! CXX="$CXX" "$CMAKE" -DCMAKE_CXX_COMPILER="$CXX" ../; then
 		echo "cmake failed"
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
 else
-	if ! cmake ../; then
+	if ! "$CMAKE" ../; then
 		echo "cmake failed"
 		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 	fi
