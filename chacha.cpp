@@ -24,10 +24,10 @@ extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input,
 extern void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-// ChaCha_OperateKeystream_POWER7 may be compiled with either -mcpu=power7 or
-// -mcpu=power4. The makefile drops to POWER4 if POWER7 is not available.
+#if (CRYPTOPP_POWER7_AVAILABLE)
 extern void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds);
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+extern void ChaCha_OperateKeystream_ALTIVEC(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
 #define CHACHA_QUARTER_ROUND(a,b,c,d) \
@@ -256,7 +256,6 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
         {
             while (iterationCount >= 4 && MultiBlockSafe(4))
             {
-                // ChaCha_OperateKeystream_POWER7 compiled with -mcpu=power7 and -DCRYPTOPP_POWER7_AVAILABLE
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_POWER7(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
@@ -275,9 +274,8 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
         {
             while (iterationCount >= 4 && MultiBlockSafe(4))
             {
-                // ChaCha_OperateKeystream_POWER7 compiled with -mcpu=power4 and -DCRYPTOPP_ALTIVEC_AVAILABLE
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
-                ChaCha_OperateKeystream_POWER7(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+                ChaCha_OperateKeystream_ALTIVEC(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
                 // MultiBlockSafe avoids overflow on the counter words
                 m_state[12] += 4;

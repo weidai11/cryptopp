@@ -714,6 +714,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Drop to Power4 if Power7 not available
   ifeq ($(POWER7_FLAG),)
+    BLAKE2S_FLAG = $(ALTIVEC_FLAG)
     CHACHA_FLAG = $(ALTIVEC_FLAG)
     SIMON64_FLAG = $(ALTIVEC_FLAG)
     SPECK64_FLAG = $(ALTIVEC_FLAG)

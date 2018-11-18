@@ -162,10 +162,10 @@ extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state);
 #endif
 
-#if CRYPTOPP_ALTIVEC_AVAILABLE
-// BLAKE2_Compress32_POWER7 may be compiled with either -mcpu=power7 or
-// -mcpu=power4. The makefile drops to POWER4 if POWER7 is not available.
+#if CRYPTOPP_POWER7_AVAILABLE
 extern void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state);
+#elif CRYPTOPP_ALTIVEC_AVAILABLE
+extern void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state);
 #endif
 
 #if CRYPTOPP_POWER8_AVAILABLE
@@ -670,14 +670,12 @@ void BLAKE2s::Compress(const byte *input)
 #if CRYPTOPP_POWER7_AVAILABLE
     if(HasPower7())
     {
-        // BLAKE2_Compress32_POWER7 compiled with -mcpu=power7 and -DCRYPTOPP_POWER7_AVAILABLE
         return BLAKE2_Compress32_POWER7(input, *m_state.data());
     }
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
     if(HasAltivec())
     {
-        // BLAKE2_Compress32_POWER7 compiled with -mcpu=power4 and -DCRYPTOPP_ALTIVEC_AVAILABLE
-        return BLAKE2_Compress32_POWER7(input, *m_state.data());
+        return BLAKE2_Compress32_ALTIVEC(input, *m_state.data());
     }
 #endif
     return BLAKE2_Compress32_CXX(input, *m_state.data());

@@ -822,9 +822,12 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
 
 #endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
 
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
 
-void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds)
+// ChaCha_OperateKeystream_CORE will use either POWER7 or ALTIVEC,
+// depending on the flags used to compile this source file. The
+// abstractions are handled in VecLoad, VecStore and friends.
+inline void ChaCha_OperateKeystream_CORE(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
     const uint32x4_p state0 = VecLoad(state + 0*4);
     const uint32x4_p state1 = VecLoad(state + 1*4);
@@ -1086,6 +1089,22 @@ void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte
     VecStore32LE(output + 15*16, r3_3);
 }
 
-#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
+
+#if (CRYPTOPP_POWER7_AVAILABLE)
+
+void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds)
+{
+    ChaCha_OperateKeystream_CORE(state, input, output, rounds);
+}
+
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+
+void ChaCha_OperateKeystream_ALTIVEC(const word32 *state, const byte* input, byte *output, unsigned int rounds)
+{
+    ChaCha_OperateKeystream_CORE(state, input, output, rounds);
+}
+
+#endif
 
 NAMESPACE_END
