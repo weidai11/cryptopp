@@ -1440,9 +1440,17 @@ lea_simd.o : lea_simd.cpp
 neon_simd.o : neon_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
 
-# AltiVec, Power7, Power8 available
+# AltiVec available
 ppc_simd.o : ppc_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(ALTIVEC_FLAG) -c) $<
+
+# Power7 available
+ppc_power7.o : ppc_power7.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(POWER7_FLAG) -c) $<
+
+# Power8 available
+ppc_power8.o : ppc_power8.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(POWER8_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
 rijndael_simd.o : rijndael_simd.cpp
