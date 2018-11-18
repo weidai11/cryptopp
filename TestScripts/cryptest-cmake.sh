@@ -19,6 +19,11 @@ else
 	MAKE=make
 fi
 
+# Fixup for AIX
+if [[ -z "$CMAKE" ]]; then
+	CMAKE=cmake
+fi
+
 # Feth the three required files
 if ! wget --no-check-certificate https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/CMakeLists.txt -O CMakeLists.txt; then
 	echo "CMakeLists.txt download failed"
