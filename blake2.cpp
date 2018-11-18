@@ -670,13 +670,13 @@ void BLAKE2s::Compress(const byte *input)
 #if CRYPTOPP_POWER7_AVAILABLE
     if(HasPower7())
     {
-		// BLAKE2_Compress32_POWER7 compiled with -mcpu=power7 and -DCRYPTOPP_POWER7_AVAILABLE
+        // BLAKE2_Compress32_POWER7 compiled with -mcpu=power7 and -DCRYPTOPP_POWER7_AVAILABLE
         return BLAKE2_Compress32_POWER7(input, *m_state.data());
     }
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
     if(HasAltivec())
     {
-		// BLAKE2_Compress32_POWER7 compiled with -mcpu=power4 and -DCRYPTOPP_ALTIVEC_AVAILABLE
+        // BLAKE2_Compress32_POWER7 compiled with -mcpu=power4 and -DCRYPTOPP_ALTIVEC_AVAILABLE
         return BLAKE2_Compress32_POWER7(input, *m_state.data());
     }
 #endif
