@@ -847,6 +847,11 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
     return VecPermute(a, c, mask);
 }
 
+// BLAKE2_Compress32_CORE will use either POWER7 or ALTIVEC,
+// depending on the flags used to compile this source file. The
+// abstractions are handled in VecLoad, VecStore and friends. In
+// the future we may to provide both POWER7 or ALTIVEC at the same
+// time to better support distros.
 void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
 {
     # define m1 m0

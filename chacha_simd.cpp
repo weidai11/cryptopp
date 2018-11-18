@@ -826,7 +826,9 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
 
 // ChaCha_OperateKeystream_CORE will use either POWER7 or ALTIVEC,
 // depending on the flags used to compile this source file. The
-// abstractions are handled in VecLoad, VecStore and friends.
+// abstractions are handled in VecLoad, VecStore and friends. In
+// the future we may to provide both POWER7 or ALTIVEC at the same
+// time to better support distros.
 inline void ChaCha_OperateKeystream_CORE(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
     const uint32x4_p state0 = VecLoad(state + 0*4);
