@@ -38,7 +38,7 @@ extern "C" {
 #endif  // CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
-    bool CPU_ProbePower7()
+bool CPU_ProbePower7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
@@ -65,10 +65,12 @@ extern "C" {
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
         // Specifically call the VSX loads and stores
-        #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-        vec_xst(vec_xl(0, b1+3), 0, b2+1);
+        #if defined(__old_xlc__) || defined(__old_xlC__)
+            vec_xstw4(vec_xlw4(0, b1+3), 0, b2+1);
+        #elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+            vec_xst(vec_xl(0, b1+3), 0, b2+1);
         #else
-        vec_vsx_st(vec_vsx_ld(0, b1+3), 0, b2+1);
+            vec_vsx_st(vec_vsx_ld(0, b1+3), 0, b2+1);
         #endif
 
         result = (0 == std::memcmp(b1+3, b2+1, 16));
