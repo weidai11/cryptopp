@@ -1,7 +1,7 @@
 #include <altivec.h>
 int main(int argc, char* argv[])
 {
-#if defined(__ibmxl__)
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
 	__vector unsigned char x;
 	x=__vcipher(x,x);
 	x=__vcipherlast(x,x);
