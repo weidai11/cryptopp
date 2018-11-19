@@ -1081,101 +1081,75 @@ void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t l
 // Indexes into the S[] array
 enum {A=0, B=1, C, D, E, F, G, H};
 
-typedef __vector unsigned char      uint8x16_p8;
-typedef __vector unsigned int       uint32x4_p8;
-typedef __vector unsigned long long uint64x2_p8;
-
-#endif  // CRYPTOPP_POWER8_SHA_AVAILABLE
-
-#if CRYPTOPP_POWER8_SHA_AVAILABLE
-
-// Unaligned load
-template <class T> static inline
-uint32x4_p8 VecLoad32x4u(const T* data, int offset)
-{
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return (uint32x4_p8)vec_xl(offset, (uint8_t*)data);
-#else
-    return (uint32x4_p8)vec_vsx_ld(offset, data);
-#endif
-}
-
-// Unaligned store
-template <class T> static inline
-void VecStore32x4u(const uint32x4_p8 val, T* data, int offset)
-{
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
-#else
-    vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
-#endif
-}
-
-// Unaligned load of a user message. The load is big-endian,
-//   and then the message is permuted for 32-bit words.
-template <class T> static inline
-uint32x4_p8 VecLoadMsg32x4(const T* data, int offset)
+inline
+uint32x4_p VecLoad32(const word32* data, int offset)
 {
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint8x16_p8 mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    const uint32x4_p8 r = VecLoad32x4u(data, offset);
-    return (uint32x4_p8)VecPermute(r, r, mask);
+    const uint8x16_p mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
+    const uint32x4_p val = VecLoad(offset, data);
+    return (uint32x4_p)VecPermute(val, val, mask);
 #else
-    return VecLoad32x4u(data, offset);
+    return VecLoad(offset, data);
 #endif
 }
 
-static inline
-uint32x4_p8 VectorCh(const uint32x4_p8 x, const uint32x4_p8 y, const uint32x4_p8 z)
+template<class T> inline
+void VecStore32(const T data, word32 dest[4])
+{
+	VecStore(data, dest);
+}
+
+inline
+uint32x4_p VectorCh(const uint32x4_p x, const uint32x4_p y, const uint32x4_p z)
 {
     // The trick below is due to Andy Polyakov and Jack Lloyd
     return vec_sel(z,y,x);
 }
 
-static inline
-uint32x4_p8 VectorMaj(const uint32x4_p8 x, const uint32x4_p8 y, const uint32x4_p8 z)
+inline
+uint32x4_p VectorMaj(const uint32x4_p x, const uint32x4_p y, const uint32x4_p z)
 {
     // The trick below is due to Andy Polyakov and Jack Lloyd
     return vec_sel(y, z, VecXor(x, y));
 }
 
-static inline
-uint32x4_p8 Vector_sigma0(const uint32x4_p8 val)
+inline
+uint32x4_p Vector_sigma0(const uint32x4_p val)
 {
     return VecSHA256<0,0>(val);
 }
 
-static inline
-uint32x4_p8 Vector_sigma1(const uint32x4_p8 val)
+inline
+uint32x4_p Vector_sigma1(const uint32x4_p val)
 {
     return VecSHA256<0,0xf>(val);
 }
 
-static inline
-uint32x4_p8 VectorSigma0(const uint32x4_p8 val)
+inline
+uint32x4_p VectorSigma0(const uint32x4_p val)
 {
     return VecSHA256<1,0>(val);
 }
 
-static inline
-uint32x4_p8 VectorSigma1(const uint32x4_p8 val)
+inline
+uint32x4_p VectorSigma1(const uint32x4_p val)
 {
     return VecSHA256<1,0xf>(val);
 }
 
-static inline
-uint32x4_p8 VectorPack(const uint32x4_p8 a, const uint32x4_p8 b,
-                       const uint32x4_p8 c, const uint32x4_p8 d)
+inline
+uint32x4_p VectorPack(const uint32x4_p a, const uint32x4_p b,
+                       const uint32x4_p c, const uint32x4_p d)
 {
-    const uint8x16_p8 m1 = {0,1,2,3, 16,17,18,19, 0,0,0,0, 0,0,0,0};
-    const uint8x16_p8 m2 = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
+    const uint8x16_p m1 = {0,1,2,3, 16,17,18,19, 0,0,0,0, 0,0,0,0};
+    const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
     return VecPermute(VecPermute(a,b,m1), VecPermute(c,d,m1), m2);
 }
 
-template <unsigned int R> static inline
-void SHA256_ROUND1(uint32x4_p8 W[16], uint32x4_p8 S[8], const uint32x4_p8 K, const uint32x4_p8 M)
+template <unsigned int R> inline
+void SHA256_ROUND1(uint32x4_p W[16], uint32x4_p S[8], const uint32x4_p K, const uint32x4_p M)
 {
-    uint32x4_p8 T1, T2;
+    uint32x4_p T1, T2;
 
     W[R] = M;
     T1 = S[H] + VectorSigma1(S[E]) + VectorCh(S[E],S[F],S[G]) + K + M;
@@ -1187,18 +1161,18 @@ void SHA256_ROUND1(uint32x4_p8 W[16], uint32x4_p8 S[8], const uint32x4_p8 K, con
     S[A] = T1 + T2;
 }
 
-template <unsigned int R> static inline
-void SHA256_ROUND2(uint32x4_p8 W[16], uint32x4_p8 S[8], const uint32x4_p8 K)
+template <unsigned int R> inline
+void SHA256_ROUND2(uint32x4_p W[16], uint32x4_p S[8], const uint32x4_p K)
 {
     // Indexes into the W[] array
     enum {IDX0=(R+0)&0xf, IDX1=(R+1)&0xf, IDX9=(R+9)&0xf, IDX14=(R+14)&0xf};
 
-    const uint32x4_p8 s0 = Vector_sigma0(W[IDX1]);
-    const uint32x4_p8 s1 = Vector_sigma1(W[IDX14]);
+    const uint32x4_p s0 = Vector_sigma0(W[IDX1]);
+    const uint32x4_p s1 = Vector_sigma1(W[IDX14]);
 
-    uint32x4_p8 T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
+    uint32x4_p T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
     T1 += S[H] + VectorSigma1(S[E]) + VectorCh(S[E],S[F],S[G]) + K;
-    uint32x4_p8 T2 = VectorSigma0(S[A]) + VectorMaj(S[A],S[B],S[C]);
+    uint32x4_p T2 = VectorSigma0(S[A]) + VectorMaj(S[A],S[B],S[C]);
 
     S[H] = S[G]; S[G] = S[F]; S[F] = S[E];
     S[E] = S[D] + T1;
@@ -1215,9 +1189,9 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
     const uint32_t* k = reinterpret_cast<const uint32_t*>(SHA256_K);
     const uint32_t* m = reinterpret_cast<const uint32_t*>(data);
 
-    uint32x4_p8 abcd = VecLoad32x4u(state+0, 0);
-    uint32x4_p8 efgh = VecLoad32x4u(state+4, 0);
-    uint32x4_p8 W[16], S[8], vm, vk;
+    uint32x4_p abcd = VecLoad(state+0);
+    uint32x4_p efgh = VecLoad(state+4);
+    uint32x4_p W[16], S[8], vm, vk;
 
     size_t blocks = length / SHA256::BLOCKSIZE;
     while (blocks--)
@@ -1233,8 +1207,8 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         S[H] = VecShiftLeftOctet<4>(S[G]);
 
         // Rounds 0-16
-        vk = VecLoad32x4u(k, offset);
-        vm = VecLoadMsg32x4(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad32(m, offset);
         SHA256_ROUND1<0>(W,S, vk,vm);
         offset+=16;
 
@@ -1250,8 +1224,8 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         vm = VecShiftLeftOctet<4>(vm);
         SHA256_ROUND1<3>(W,S, vk,vm);
 
-        vk = VecLoad32x4u(k, offset);
-        vm = VecLoadMsg32x4(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad32(m, offset);
         SHA256_ROUND1<4>(W,S, vk,vm);
         offset+=16;
 
@@ -1267,8 +1241,8 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         vm = VecShiftLeftOctet<4>(vm);
         SHA256_ROUND1<7>(W,S, vk,vm);
 
-        vk = VecLoad32x4u(k, offset);
-        vm = VecLoadMsg32x4(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad32(m, offset);
         SHA256_ROUND1<8>(W,S, vk,vm);
         offset+=16;
 
@@ -1284,8 +1258,8 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         vm = VecShiftLeftOctet<4>(vm);
         SHA256_ROUND1<11>(W,S, vk,vm);
 
-        vk = VecLoad32x4u(k, offset);
-        vm = VecLoadMsg32x4(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad32(m, offset);
         SHA256_ROUND1<12>(W,S, vk,vm);
         offset+=16;
 
@@ -1306,28 +1280,28 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         // Rounds 16-64
         for (unsigned int i=16; i<64; i+=16)
         {
-            vk = VecLoad32x4u(k, offset);
+            vk = VecLoad(offset, k);
             SHA256_ROUND2<0>(W,S, vk);
             SHA256_ROUND2<1>(W,S, VecShiftLeftOctet<4>(vk));
             SHA256_ROUND2<2>(W,S, VecShiftLeftOctet<8>(vk));
             SHA256_ROUND2<3>(W,S, VecShiftLeftOctet<12>(vk));
             offset+=16;
 
-            vk = VecLoad32x4u(k, offset);
+            vk = VecLoad(offset, k);
             SHA256_ROUND2<4>(W,S, vk);
             SHA256_ROUND2<5>(W,S, VecShiftLeftOctet<4>(vk));
             SHA256_ROUND2<6>(W,S, VecShiftLeftOctet<8>(vk));
             SHA256_ROUND2<7>(W,S, VecShiftLeftOctet<12>(vk));
             offset+=16;
 
-            vk = VecLoad32x4u(k, offset);
+            vk = VecLoad(offset, k);
             SHA256_ROUND2<8>(W,S, vk);
             SHA256_ROUND2<9>(W,S, VecShiftLeftOctet<4>(vk));
             SHA256_ROUND2<10>(W,S, VecShiftLeftOctet<8>(vk));
             SHA256_ROUND2<11>(W,S, VecShiftLeftOctet<12>(vk));
             offset+=16;
 
-            vk = VecLoad32x4u(k, offset);
+            vk = VecLoad(offset, k);
             SHA256_ROUND2<12>(W,S, vk);
             SHA256_ROUND2<13>(W,S, VecShiftLeftOctet<4>(vk));
             SHA256_ROUND2<14>(W,S, VecShiftLeftOctet<8>(vk));
@@ -1339,100 +1313,76 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
         efgh += VectorPack(S[E],S[F],S[G],S[H]);
     }
 
-    VecStore32x4u(abcd, state+0, 0);
-    VecStore32x4u(efgh, state+4, 0);
+    VecStore32(abcd, state+0);
+    VecStore32(efgh, state+4);
 }
 
-static inline
-uint64x2_p8 VecPermute64x2(const uint64x2_p8 val, const uint8x16_p8 mask)
+inline
+void VecStore64(const uint64x2_p val, word64* data)
 {
-    return (uint64x2_p8)VecPermute(val, val, mask);
+	VecStore(val, data);
 }
 
-// Unaligned load
-template <class T> static inline
-uint64x2_p8 VecLoad64x2u(const T* data, int offset)
-{
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return (uint64x2_p8)vec_xl(offset, (uint8_t*)data);
-#else
-    return (uint64x2_p8)vec_vsx_ld(offset, (const uint8_t*)data);
-#endif
-}
-
-// Unaligned store
-template <class T> static inline
-void VecStore64x2u(const uint64x2_p8 val, T* data, int offset)
-{
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    vec_xst((uint8x16_p8)val, offset, (uint8_t*)data);
-#else
-    vec_vsx_st((uint8x16_p8)val, offset, (uint8_t*)data);
-#endif
-}
-
-// Unaligned load of a user message. The load is big-endian,
-//   and then the message is permuted for 32-bit words.
-template <class T> static inline
-uint64x2_p8 VecLoadMsg64x2(const T* data, int offset)
+inline
+uint64x2_p VecLoad64(const word64* data, int offset)
 {
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint8x16_p8 mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
-    return VecPermute64x2(VecLoad64x2u(data, offset), mask);
+    const uint8x16_p mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
+    return VecPermute(VecLoad(offset, data), mask);
 #else
-    return VecLoad64x2u(data, offset);
+    return VecLoad(offset, data);
 #endif
 }
 
-static inline
-uint64x2_p8 VectorCh(const uint64x2_p8 x, const uint64x2_p8 y, const uint64x2_p8 z)
+inline
+uint64x2_p VectorCh(const uint64x2_p x, const uint64x2_p y, const uint64x2_p z)
 {
     // The trick below is due to Andy Polyakov and Jack Lloyd
     return vec_sel(z,y,x);
 }
 
-static inline
-uint64x2_p8 VectorMaj(const uint64x2_p8 x, const uint64x2_p8 y, const uint64x2_p8 z)
+inline
+uint64x2_p VectorMaj(const uint64x2_p x, const uint64x2_p y, const uint64x2_p z)
 {
     // The trick below is due to Andy Polyakov and Jack Lloyd
     return vec_sel(y, z, VecXor(x, y));
 }
 
-static inline
-uint64x2_p8 Vector_sigma0(const uint64x2_p8 val)
+inline
+uint64x2_p Vector_sigma0(const uint64x2_p val)
 {
     return VecSHA512<0,0>(val);
 }
 
-static inline
-uint64x2_p8 Vector_sigma1(const uint64x2_p8 val)
+inline
+uint64x2_p Vector_sigma1(const uint64x2_p val)
 {
     return VecSHA512<0,0xf>(val);
 }
 
-static inline
-uint64x2_p8 VectorSigma0(const uint64x2_p8 val)
+inline
+uint64x2_p VectorSigma0(const uint64x2_p val)
 {
     return VecSHA512<1,0>(val);
 }
 
-static inline
-uint64x2_p8 VectorSigma1(const uint64x2_p8 val)
+inline
+uint64x2_p VectorSigma1(const uint64x2_p val)
 {
     return VecSHA512<1,0xf>(val);
 }
 
-static inline
-uint64x2_p8 VectorPack(const uint64x2_p8 x, const uint64x2_p8 y)
+inline
+uint64x2_p VectorPack(const uint64x2_p x, const uint64x2_p y)
 {
-    const uint8x16_p8 m = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
+    const uint8x16_p m = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
     return VecPermute(x,y,m);
 }
 
-template <unsigned int R> static inline
-void SHA512_ROUND1(uint64x2_p8 W[16], uint64x2_p8 S[8], const uint64x2_p8 K, const uint64x2_p8 M)
+template <unsigned int R> inline
+void SHA512_ROUND1(uint64x2_p W[16], uint64x2_p S[8], const uint64x2_p K, const uint64x2_p M)
 {
-    uint64x2_p8 T1, T2;
+    uint64x2_p T1, T2;
 
     W[R] = M;
     T1 = S[H] + VectorSigma1(S[E]) + VectorCh(S[E],S[F],S[G]) + K + M;
@@ -1444,18 +1394,18 @@ void SHA512_ROUND1(uint64x2_p8 W[16], uint64x2_p8 S[8], const uint64x2_p8 K, con
     S[A] = T1 + T2;
 }
 
-template <unsigned int R> static inline
-void SHA512_ROUND2(uint64x2_p8 W[16], uint64x2_p8 S[8], const uint64x2_p8 K)
+template <unsigned int R> inline
+void SHA512_ROUND2(uint64x2_p W[16], uint64x2_p S[8], const uint64x2_p K)
 {
     // Indexes into the W[] array
     enum {IDX0=(R+0)&0xf, IDX1=(R+1)&0xf, IDX9=(R+9)&0xf, IDX14=(R+14)&0xf};
 
-    const uint64x2_p8 s0 = Vector_sigma0(W[IDX1]);
-    const uint64x2_p8 s1 = Vector_sigma1(W[IDX14]);
+    const uint64x2_p s0 = Vector_sigma0(W[IDX1]);
+    const uint64x2_p s1 = Vector_sigma1(W[IDX14]);
 
-    uint64x2_p8 T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
+    uint64x2_p T1 = (W[IDX0] += s0 + s1 + W[IDX9]);
     T1 += S[H] + VectorSigma1(S[E]) + VectorCh(S[E],S[F],S[G]) + K;
-    uint64x2_p8 T2 = VectorSigma0(S[A]) + VectorMaj(S[A],S[B],S[C]);
+    uint64x2_p T2 = VectorSigma0(S[A]) + VectorMaj(S[A],S[B],S[C]);
 
     S[H] = S[G]; S[G] = S[F]; S[F] = S[E];
     S[E] = S[D] + T1;
@@ -1472,11 +1422,11 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
     const uint64_t* k = reinterpret_cast<const uint64_t*>(SHA512_K);
     const uint64_t* m = reinterpret_cast<const uint64_t*>(data);
 
-    uint64x2_p8 ab = VecLoad64x2u(state+0, 0);
-    uint64x2_p8 cd = VecLoad64x2u(state+2, 0);
-    uint64x2_p8 ef = VecLoad64x2u(state+4, 0);
-    uint64x2_p8 gh = VecLoad64x2u(state+6, 0);
-    uint64x2_p8 W[16], S[8], vm, vk;
+    uint64x2_p ab = VecLoad(state+0);
+    uint64x2_p cd = VecLoad(state+2);
+    uint64x2_p ef = VecLoad(state+4);
+    uint64x2_p gh = VecLoad(state+6);
+    uint64x2_p W[16], S[8], vm, vk;
 
     size_t blocks = length / SHA512::BLOCKSIZE;
     while (blocks--)
@@ -1491,8 +1441,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         S[H] = VecShiftLeftOctet<8>(S[G]);
 
         // Rounds 0-16
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<0>(W,S, vk,vm);
         offset+=16;
 
@@ -1500,8 +1450,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<1>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<2>(W,S, vk,vm);
         offset+=16;
 
@@ -1509,8 +1459,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<3>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<4>(W,S, vk,vm);
         offset+=16;
 
@@ -1518,8 +1468,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<5>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<6>(W,S, vk,vm);
         offset+=16;
 
@@ -1527,8 +1477,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<7>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<8>(W,S, vk,vm);
         offset+=16;
 
@@ -1536,8 +1486,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<9>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<10>(W,S, vk,vm);
         offset+=16;
 
@@ -1545,8 +1495,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<11>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<12>(W,S, vk,vm);
         offset+=16;
 
@@ -1554,8 +1504,8 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         vm = VecShiftLeftOctet<8>(vm);
         SHA512_ROUND1<13>(W,S, vk,vm);
 
-        vk = VecLoad64x2u(k, offset);
-        vm = VecLoadMsg64x2(m, offset);
+        vk = VecLoad(offset, k);
+        vm = VecLoad64(m, offset);
         SHA512_ROUND1<14>(W,S, vk,vm);
         offset+=16;
 
@@ -1568,42 +1518,42 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         // Rounds 16-80
         for (unsigned int i=16; i<80; i+=16)
         {
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<0>(W,S, vk);
             SHA512_ROUND2<1>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<2>(W,S, vk);
             SHA512_ROUND2<3>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<4>(W,S, vk);
             SHA512_ROUND2<5>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<6>(W,S, vk);
             SHA512_ROUND2<7>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<8>(W,S, vk);
             SHA512_ROUND2<9>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<10>(W,S, vk);
             SHA512_ROUND2<11>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<12>(W,S, vk);
             SHA512_ROUND2<13>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
 
-            vk = VecLoad64x2u(k, offset);
+            vk = VecLoad(offset, k);
             SHA512_ROUND2<14>(W,S, vk);
             SHA512_ROUND2<15>(W,S, VecShiftLeftOctet<8>(vk));
             offset+=16;
@@ -1615,10 +1565,10 @@ void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t 
         gh += VectorPack(S[G],S[H]);
     }
 
-    VecStore64x2u(ab, state+0, 0);
-    VecStore64x2u(cd, state+2, 0);
-    VecStore64x2u(ef, state+4, 0);
-    VecStore64x2u(gh, state+6, 0);
+    VecStore64(ab, state+0);
+    VecStore64(cd, state+2);
+    VecStore64(ef, state+4);
+    VecStore64(gh, state+6);
 }
 
 #endif  // CRYPTOPP_POWER8_SHA_AVAILABLE
