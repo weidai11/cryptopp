@@ -101,7 +101,7 @@ $(shell cp adhoc.cpp.proto adhoc.cpp)
 endif
 
 # For feature tests
-BAD_RESULT="fatal|error|unknown|unrecognized|illegal|ignored|incorrect|not found|not exist|cannot find|not supported|not compatible|no such instruction|invalid mnemonic"
+BAD_RESULT="fatal|error|unknown|unrecognized|unexpected|illegal|ignored|incorrect|not found|not exist|cannot find|not supported|not compatible|no such instruction|invalid mnemonic"
 
 # Hack to skip CPU feature tests for some recipes
 DETECT_FEATURES ?= 1
