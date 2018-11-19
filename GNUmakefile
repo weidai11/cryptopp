@@ -617,16 +617,16 @@ ifeq ($(DETECT_FEATURES),1)
   #ifeq ($(findstring -qxlcompatmacros,$(CXXFLAGS)),)
   #  TPROG = TestPrograms/test_ppc_altivec.cxx
   #  TOPT = -qxlcompatmacros
-  #  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  #  ifeq ($(HAVE_OPT),0)
+  #  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  #  ifeq ($(strip $(HAVE_OPT)),0)
   #    CXXFLAGS += -qxlcompatmacros
   #  endif
   #endif
 
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = $(POWER9_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG = $(POWER9_FLAG)
     AES_FLAG = $(POWER9_FLAG)
     BLAKE2B_FLAG = $(POWER9_FLAG)
@@ -645,8 +645,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = $(POWER8_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG = $(POWER8_FLAG)
     AES_FLAG = $(POWER8_FLAG)
     BLAKE2B_FLAG = $(POWER8_FLAG)
@@ -665,8 +665,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = $(POWER7_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG = $(POWER7_FLAG)
     ARIA_FLAG = $(POWER7_FLAG)
     BLAKE2S_FLAG = $(POWER7_FLAG)
@@ -682,8 +682,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = $(POWER6_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG = $(POWER6_FLAG)
   else
     POWER6_FLAG =
@@ -691,8 +691,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = $(POWER5_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG = $(POWER5_FLAG)
   else
     POWER5_FLAG =
@@ -700,8 +700,8 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = $(POWER4_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG = $(POWER4_FLAG)
   else
     POWER4_FLAG =
