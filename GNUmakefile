@@ -604,6 +604,7 @@ ifeq ($(DETECT_FEATURES),1)
     POWER6_FLAG = -qarch=pwr6 -qaltivec
     POWER5_FLAG = -qarch=pwr5 -qaltivec
     POWER4_FLAG = -qarch=pwr4 -qaltivec
+    POWER3_FLAG = -qarch=pwr3 -qaltivec
   else
     POWER9_FLAG = -mcpu=power9 -maltivec
     POWER8_FLAG = -mcpu=power8 -maltivec
@@ -611,6 +612,7 @@ ifeq ($(DETECT_FEATURES),1)
     POWER6_FLAG = -mcpu=power6 -maltivec
     POWER5_FLAG = -mcpu=power5 -maltivec
     POWER4_FLAG = -mcpu=power4 -maltivec
+    POWER3_FLAG = -mcpu=power3 -maltivec
   endif
 
   # XLC with LLVM front-ends failed to define XLC defines.
@@ -743,6 +745,15 @@ ifeq ($(DETECT_FEATURES),1)
     ALTIVEC_FLAG = $(POWER4_FLAG)
   else
     POWER4_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_ppc_altivec.cxx
+  TOPT = $(POWER3_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    ALTIVEC_FLAG = $(POWER3_FLAG)
+  else
+    POWER3_FLAG =
   endif
 
   #####################################################################
