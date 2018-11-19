@@ -156,10 +156,10 @@ inline uint32x4_p VecLoad(const byte src[16])
 #endif
 }
 
-/// \brief Loads a vector from a byte array
-/// \param src the byte array
-/// \param off offset into the byte array
-/// \details VecLoad loads a vector in from a byte array.
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \param off offset into the word array
+/// \details VecLoad loads a vector in from a word array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
@@ -181,9 +181,9 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 #endif
 }
 
-/// \brief Loads a vector from a byte array
-/// \param src the byte array
-/// \details VecLoad loads a vector in from a byte array.
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \details VecLoad loads a vector in from a word array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
@@ -197,10 +197,10 @@ inline uint32x4_p VecLoad(const word32 src[4])
     return VecLoad((const byte*)src);
 }
 
-/// \brief Loads a vector from a byte array
-/// \param src the byte array
-/// \param off offset into the byte array
-/// \details VecLoad loads a vector in from a byte array.
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \param off offset into the word array
+/// \details VecLoad loads a vector in from a word array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
@@ -213,6 +213,43 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 {
     return VecLoad(off, (const byte*)src);
 }
+
+#if defined(_ARCH_PWR8)
+
+/// \brief Loads a vector from a word array
+/// \param src the word array
+/// \details VecLoad loads a vector in from a word array.
+/// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
+///   addresses.
+/// \note VecLoad does not require an aligned array.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecLoad(const word64 src[2])
+{
+    return (uint64x2_p)VecLoad((const byte*)src);
+}
+
+/// \brief Loads a vector from a byte array
+/// \param src the word array
+/// \param off offset into the word array
+/// \details VecLoad loads a vector in from a word array.
+/// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
+///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
+///   addresses.
+/// \note VecLoad does not require an aligned array.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecLoad(int off, const word64 src[2])
+{
+    return (uint64x2_p)VecLoad(off, (const byte*)src);
+}
+
+#endif  // _ARCH_PWR8
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
@@ -412,8 +449,8 @@ inline void VecStore(const T data, int off, byte dest[16])
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
 /// \param data the vector
-/// \param dest the byte array
-/// \details VecStore stores a vector to a byte array.
+/// \param dest the word array
+/// \details VecStore stores a vector to a word array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
@@ -432,8 +469,8 @@ inline void VecStore(const T data, word32 dest[4])
 /// \tparam T vector type
 /// \param data the vector
 /// \param off the byte offset into the array
-/// \param dest the byte array
-/// \details VecStore stores a vector to a byte array.
+/// \param dest the word array
+/// \details VecStore stores a vector to a word array.
 /// \details VecStore uses POWER7's <tt>vec_xst</tt> or
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
@@ -447,6 +484,49 @@ inline void VecStore(const T data, int off, word32 dest[4])
 {
     VecStore((uint8x16_p)data, off, (byte*)dest);
 }
+
+#if defined(_ARCH_PWR8)
+
+/// \brief Stores a vector to a word array
+/// \tparam T vector type
+/// \param data the vector
+/// \param dest the word array
+/// \details VecStore stores a vector to a word array.
+/// \details VecStore uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
+///   addresses.
+/// \note VecStore does not require an aligned array.
+/// \since Crypto++ 8.0
+template<class T>
+inline void VecStore(const T data, word64 dest[2])
+{
+    VecStore((uint8x16_p)data, 0, (byte*)dest);
+}
+
+/// \brief Stores a vector to a word array
+/// \tparam T vector type
+/// \param data the vector
+/// \param off the byte offset into the array
+/// \param dest the word array
+/// \details VecStore stores a vector to a word array.
+/// \details VecStore uses POWER7's <tt>vec_xst</tt> or
+///   <tt>vec_vsx_st</tt> if available. The instructions do not require
+///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
+///   is not available. VecStore_ALTIVEC() can be relatively expensive if
+///   extra instructions are required to fix up unaligned effective memory
+///   addresses.
+/// \note VecStore does not require an aligned array.
+/// \since Crypto++ 8.0
+template<class T>
+inline void VecStore(const T data, int off, word64 dest[2])
+{
+    VecStore((uint8x16_p)data, off, (byte*)dest);
+}
+
+#endif  // _ARCH_PWR8
 
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
