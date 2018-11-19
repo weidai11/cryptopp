@@ -32,8 +32,9 @@
 # undef bool
 #endif
 
-// IBM XLC on AIX does not define __CRYPTO__ like it should. More LLVM goodness.
-#if defined(_AIX) && defined(__xlC__)
+// IBM XLC on AIX does not define __CRYPTO__ like it should with -qarch=pwr8.
+// Crypto is available in XLC 13.1 and above. More LLVM front-end goodness.
+#if defined(_AIX) && defined(_ARCH_PWR8) && (__xlC__ >= 0xd01)
 # undef __CRYPTO__
 # define __CRYPTO__ 1
 #endif
