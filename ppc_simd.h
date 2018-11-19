@@ -214,7 +214,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     return VecLoad(off, (const byte*)src);
 }
 
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Loads a vector from a word array
 /// \param src the word array
@@ -485,7 +485,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
     VecStore((uint8x16_p)data, off, (byte*)dest);
 }
 
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
