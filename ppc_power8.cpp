@@ -66,7 +66,7 @@ bool CPU_ProbePower8()
         word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
 
         // Specifically call the VSX loads and stores
-        #if defined(__xlc__) || defined(__xlC__)
+        #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
         const uint64x2_p v1 = (uint64x2_p)vec_xl(0, (byte*)w1);
         const uint64x2_p v2 = (uint64x2_p)vec_xl(0, (byte*)w2);
         const uint64x2_p v3 = VecAdd(v1, v2);  // 64-bit add

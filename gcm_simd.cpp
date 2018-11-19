@@ -64,7 +64,7 @@ extern const char GCM_SIMD_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-// ************************* Miscellaneous ************************* //
+// *************************** ARM NEON *************************** //
 
 #if CRYPTOPP_ARM_PMULL_AVAILABLE
 #if defined(__GNUC__)
@@ -168,7 +168,10 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
 #endif // Microsoft and compatibles
 #endif // CRYPTOPP_ARM_PMULL_AVAILABLE
 
+// ************************** Power 8 Crypto ************************** //
+
 #if CRYPTOPP_POWER8_VMULL_AVAILABLE
+
 using CryptoPP::uint32x4_p;
 using CryptoPP::uint64x2_p;
 using CryptoPP::VecGetLow;
@@ -201,8 +204,10 @@ inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 // _mm_clmulepi64_si128(a, b, 0x00)
 inline uint64x2_p VMULL_00LE(const uint64x2_p& a, const uint64x2_p& b)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
     return VMULL2LE(__vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
 #endif
@@ -214,8 +219,10 @@ inline uint64x2_p VMULL_01LE(const uint64x2_p& a, const uint64x2_p& b)
     // Small speedup. VecGetHigh(b) ensures the high dword of 'b' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'a' is "don't care".
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
     return VMULL2LE(__vpmsumd (a, VecGetHigh(b)));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (a, VecGetHigh(b)));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (a, VecGetHigh(b)));
 #endif
@@ -227,8 +234,10 @@ inline uint64x2_p VMULL_10LE(const uint64x2_p& a, const uint64x2_p& b)
     // Small speedup. VecGetHigh(a) ensures the high dword of 'a' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'b' is "don't care".
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
     return VMULL2LE(__vpmsumd (VecGetHigh(a), b));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), b));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), b));
 #endif
@@ -240,8 +249,10 @@ inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
     // Small speedup. VecGetLow(a) ensures the high dword of 'a' is 0.
     // The 0 used in the vmull yields 0 for the high product, so the high
     // dword of 'b' is "don't care".
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
     return VMULL2LE(__vpmsumd (VecGetLow(a), b));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
 #endif

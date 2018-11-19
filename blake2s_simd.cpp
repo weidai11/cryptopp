@@ -812,6 +812,9 @@ inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b)
         const uint8x16_p mask = {12,13,14,15, 16,17,18,19, DC,DC,DC,DC, DC,DC,DC,DC};
         return VecPermute(a, VecShiftLeftOctet<12>(b), mask);
     }
+
+    // Quiet IBM XLC warning
+    return VecXor(a, a);
 }
 
 template <unsigned int E1, unsigned int E2, unsigned int E3, unsigned int E4>
@@ -1005,14 +1008,14 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
 
 void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
 {
-	BLAKE2_Compress32_CORE(input, state);
+    BLAKE2_Compress32_CORE(input, state);
 }
 
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
 
 void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state)
 {
-	BLAKE2_Compress32_CORE(input, state);
+    BLAKE2_Compress32_CORE(input, state);
 }
 
 #endif

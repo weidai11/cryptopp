@@ -529,7 +529,7 @@ size_t Rijndael_Dec_AdvancedProcessBlocks_AESNI(const word32 *subKeys, size_t ro
 
 #endif  // CRYPTOPP_AESNI_AVAILABLE
 
-// ***************************** Power 8 ***************************** //
+// ************************** Power 8 Crypto ************************** //
 
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 

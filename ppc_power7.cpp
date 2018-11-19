@@ -65,7 +65,7 @@ extern "C" {
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
         // Specifically call the VSX loads and stores
-        #if defined(__xlc__) || defined(__xlC__)
+        #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
         vec_xst(vec_xl(0, b1+3), 0, b2+1);
         #else
         vec_vsx_st(vec_vsx_ld(0, b1+3), 0, b2+1);

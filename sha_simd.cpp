@@ -222,7 +222,7 @@ bool CPU_ProbeSHA256()
     else
     {
         byte r[16], z[16] = {0};
-        uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+        uint8x16_p x = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
         x = VecSHA256<0,0>(x);
         x = VecSHA256<0,1>(x);
@@ -1142,41 +1142,25 @@ uint32x4_p8 VectorMaj(const uint32x4_p8 x, const uint32x4_p8 y, const uint32x4_p
 static inline
 uint32x4_p8 Vector_sigma0(const uint32x4_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmaw(val, 0, 0);
-#else
-    return __builtin_crypto_vshasigmaw(val, 0, 0);
-#endif
+    return VecSHA256<0,0>(val);
 }
 
 static inline
 uint32x4_p8 Vector_sigma1(const uint32x4_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmaw(val, 0, 0xf);
-#else
-    return __builtin_crypto_vshasigmaw(val, 0, 0xf);
-#endif
+    return VecSHA256<0,0xf>(val);
 }
 
 static inline
 uint32x4_p8 VectorSigma0(const uint32x4_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmaw(val, 1, 0);
-#else
-    return __builtin_crypto_vshasigmaw(val, 1, 0);
-#endif
+    return VecSHA256<1,0>(val);
 }
 
 static inline
 uint32x4_p8 VectorSigma1(const uint32x4_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmaw(val, 1, 0xf);
-#else
-    return __builtin_crypto_vshasigmaw(val, 1, 0xf);
-#endif
+    return VecSHA256<1,0xf>(val);
 }
 
 static inline
@@ -1417,41 +1401,25 @@ uint64x2_p8 VectorMaj(const uint64x2_p8 x, const uint64x2_p8 y, const uint64x2_p
 static inline
 uint64x2_p8 Vector_sigma0(const uint64x2_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmad(val, 0, 0);
-#else
-    return __builtin_crypto_vshasigmad(val, 0, 0);
-#endif
+    return VecSHA512<0,0>(val);
 }
 
 static inline
 uint64x2_p8 Vector_sigma1(const uint64x2_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmad(val, 0, 0xf);
-#else
-    return __builtin_crypto_vshasigmad(val, 0, 0xf);
-#endif
+    return VecSHA512<0,0xf>(val);
 }
 
 static inline
 uint64x2_p8 VectorSigma0(const uint64x2_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmad(val, 1, 0);
-#else
-    return __builtin_crypto_vshasigmad(val, 1, 0);
-#endif
+    return VecSHA512<1,0>(val);
 }
 
 static inline
 uint64x2_p8 VectorSigma1(const uint64x2_p8 val)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return __vshasigmad(val, 1, 0xf);
-#else
-    return __builtin_crypto_vshasigmad(val, 1, 0xf);
-#endif
+    return VecSHA512<1,0xf>(val);
 }
 
 static inline
