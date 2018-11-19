@@ -626,7 +626,7 @@ ifeq ($(DETECT_FEATURES),1)
   #endif
 
   #####################################################################
-  # AES is a separate submodule of POWER8 due to possible export
+  # Crypto is a separate submodule of POWER8 due to possible export
   # restrictions by the government. It is the reason LLVM choose
   # different intrinsics than GCC and XLC.
 
@@ -642,6 +642,20 @@ ifeq ($(DETECT_FEATURES),1)
   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
     AES_FLAG = $(POWER8_FLAG)
+  endif
+
+  TPROG = TestPrograms/test_ppc_vmull.cxx
+  TOPT = $(POWER9_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    GCM_FLAG = $(POWER9_FLAG)
+  endif
+
+  TPROG = TestPrograms/test_ppc_vmull.cxx
+  TOPT = $(POWER8_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    GCM_FLAG = $(POWER8_FLAG)
   endif
 
   TPROG = TestPrograms/test_ppc_sha.cxx
@@ -669,7 +683,6 @@ ifeq ($(DETECT_FEATURES),1)
     BLAKE2B_FLAG = $(POWER9_FLAG)
     BLAKE2S_FLAG = $(POWER9_FLAG)
     CHACHA_FLAG = $(POWER9_FLAG)
-    GCM_FLAG = $(POWER9_FLAG)
     SM4_FLAG = $(POWER9_FLAG)
     SIMON64_FLAG = $(POWER9_FLAG)
     SIMON128_FLAG = $(POWER9_FLAG)
@@ -687,7 +700,6 @@ ifeq ($(DETECT_FEATURES),1)
     BLAKE2B_FLAG = $(POWER8_FLAG)
     BLAKE2S_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
-    GCM_FLAG = $(POWER8_FLAG)
     SM4_FLAG = $(POWER8_FLAG)
     SIMON64_FLAG = $(POWER8_FLAG)
     SIMON128_FLAG = $(POWER8_FLAG)
@@ -787,13 +799,19 @@ ifeq ($(DETECT_FEATURES),1)
   # Fixups for missing crypto
 
   ifneq ($(POWER9_FLAG)$(POWER8_FLAG),)
-    ifeq ($(AES_FLAG),)
-      CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_AES
+    ifeq ($(AES_FLAG)$(GCM_FLAG)$(SHA_FLAG),)
+	  CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_CRYPTO
+	else
+      ifeq ($(AES_FLAG),)
+        CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_AES
+      endif
+      ifeq ($(GCM_FLAG),)
+        CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_VMULL
+      endif
+      ifeq ($(SHA_FLAG),)
+        CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_SHA
+      endif
     endif
-    ifeq ($(SHA_FLAG),)
-      CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_SHA
-    endif
-	# CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_VMULL
   endif
 
 # DETECT_FEATURES

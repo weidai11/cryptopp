@@ -756,7 +756,7 @@ void GCM_Xor16_POWER7(byte *a, const byte *b, const byte *c)
 {
     VecStore(VecXor(VecLoad(b), VecLoad(c)), a);
 }
-#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER7_AVAILABLE
 
 #if CRYPTOPP_POWER8_VMULL_AVAILABLE
 
