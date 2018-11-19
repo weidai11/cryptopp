@@ -58,7 +58,7 @@ typedef __vector unsigned int    uint32x4_p;
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
-/// \details uint64x2_p is available on POWER8 and above
+/// \details uint64x2_p is available on POWER8 and above.
 typedef __vector unsigned long long uint64x2_p;
 #endif  // _ARCH_PWR8
 
@@ -225,6 +225,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
 ///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
+/// \details VecLoad with 64-bit elements is available on POWER8 and above.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(const word64 src[2])
@@ -242,6 +243,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
 ///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
+/// \details VecLoad with 64-bit elements is available on POWER8 and above.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(int off, const word64 src[2])
@@ -498,6 +500,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
 ///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
+/// \details VecStore with 64-bit elements is available on POWER8 and above.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
 template<class T>
@@ -518,6 +521,7 @@ inline void VecStore(const T data, word64 dest[2])
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
 ///   extra instructions are required to fix up unaligned effective memory
 ///   addresses.
+/// \details VecStore with 64-bit elements is available on POWER8 and above.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
 template<class T>
@@ -974,7 +978,7 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 /// \param key the subkey vector
 /// \details VecEncrypt performs one round of AES encryption of state
 ///   using subkey key. The return vector is the same type as vec1.
-/// \details VecEncrypt is available on POWER8 and above
+/// \details VecEncrypt is available on POWER8 and above.
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecEncrypt(const T1 state, const T2 key)
@@ -997,7 +1001,7 @@ inline T1 VecEncrypt(const T1 state, const T2 key)
 /// \param key the subkey vector
 /// \details VecEncryptLast performs the final round of AES encryption
 ///   of state using subkey key. The return vector is the same type as vec1.
-/// \details VecEncryptLast is available on POWER8 and above
+/// \details VecEncryptLast is available on POWER8 and above.
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecEncryptLast(const T1 state, const T2 key)
@@ -1020,7 +1024,7 @@ inline T1 VecEncryptLast(const T1 state, const T2 key)
 /// \param key the subkey vector
 /// \details VecDecrypt performs one round of AES decryption of state
 ///   using subkey key. The return vector is the same type as vec1.
-/// \details VecDecrypt is available on POWER8 and above
+/// \details VecDecrypt is available on POWER8 and above.
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecDecrypt(const T1 state, const T2 key)
@@ -1043,7 +1047,7 @@ inline T1 VecDecrypt(const T1 state, const T2 key)
 /// \param key the subkey vector
 /// \details VecDecryptLast performs the final round of AES decryption
 ///   of state using subkey key. The return vector is the same type as vec1.
-/// \details VecDecryptLast is available on POWER8 and above
+/// \details VecDecryptLast is available on POWER8 and above.
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecDecryptLast(const T1 state, const T2 key)
@@ -1066,7 +1070,7 @@ inline T1 VecDecryptLast(const T1 state, const T2 key)
 /// \param vec the block to transform
 /// \details VecSHA256 selects sigma0, sigma1, Sigma0, Sigma1 based on
 ///   func and subfunc. The return vector is the same type as vec.
-/// \details VecSHA256 is available on POWER8 and above
+/// \details VecSHA256 is available on POWER8 and above.
 /// \since Crypto++ 6.0
 template <int func, int subfunc, class T>
 inline T VecSHA256(const T vec)
@@ -1089,7 +1093,7 @@ inline T VecSHA256(const T vec)
 /// \param vec the block to transform
 /// \details VecSHA512 selects sigma0, sigma1, Sigma0, Sigma1 based on
 ///   func and subfunc. The return vector is the same type as vec.
-/// \details VecSHA512 is available on POWER8 and above
+/// \details VecSHA512 is available on POWER8 and above.
 /// \since Crypto++ 6.0
 template <int func, int subfunc, class T>
 inline T VecSHA512(const T vec)
