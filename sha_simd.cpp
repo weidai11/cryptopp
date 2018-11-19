@@ -1096,7 +1096,7 @@ uint32x4_p VecLoad32(const word32* data, int offset)
 template<class T> inline
 void VecStore32(const T data, word32 dest[4])
 {
-	VecStore(data, dest);
+    VecStore(data, dest);
 }
 
 inline
@@ -1320,7 +1320,7 @@ void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, size_t 
 inline
 void VecStore64(const uint64x2_p val, word64* data)
 {
-	VecStore(val, data);
+    VecStore(val, data);
 }
 
 inline
