@@ -451,7 +451,7 @@ inline void VecStore(const T data, byte dest[16])
     vec_vsx_st((uint8x16_p)data, 0, (byte*)dest);
 #  endif
 #else
-    VecStore(data, dest);
+    VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #endif
 }
 
@@ -481,7 +481,7 @@ inline void VecStore(const T data, int off, byte dest[16])
     vec_vsx_st((uint8x16_p)data, off, (byte*)dest);
 #  endif
 #else
-    VecStore(data, off, dest);
+    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #endif
 }
 
@@ -604,9 +604,9 @@ inline void VecStoreBE(const T data, byte dest[16])
 #  endif
 #else  // _ARCH_PWR7
 #  if (CRYPTOPP_BIG_ENDIAN)
-     VecStore(data, dest);
+     VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #  else
-     VecStore(VecReverse(data), dest);
+     VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #  endif
 #endif  // _ARCH_PWR7
 }
@@ -647,9 +647,9 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 #  endif
 #else  // _ARCH_PWR7
 #  if (CRYPTOPP_BIG_ENDIAN)
-     VecStore(data, dest);
+     VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #  else
-     VecStore(VecReverse(data), dest);
+     VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #  endif
 #endif  // _ARCH_PWR7
 }
