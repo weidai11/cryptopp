@@ -39,19 +39,20 @@
 # define __CRYPTO__ 1
 #endif
 
-// Hack to detect early XLC compilers. XLC compilers for POWER7
-// use vec_xlw4 and vec_xstw4. XLC compilers for POWER8 and above
-// use vec_xl and vec_xst. The way to tell the difference is,
-// POWER7 XLC compilers are version 12.x and earlier. The open
-// question is, how to handle early Clang compilers for POWER7.
-// We know the latest Clang compilers support vec_xl and vec_xst.
-// 0x0d00 is hex for version 0x0d (13) and 0x00 (0), or 13.0.
+// Hack to detect early XLC compilers. XLC compilers for POWER7 use
+// vec_xlw4 and vec_xstw4. Some XLC compilers for POWER7 and above
+// use vec_xl and vec_xst. The way to tell the difference is, XLC
+// compilers version 13.0 and earlier use vec_xlw4 and vec_xstw4.
+// XLC compilers 13.1 and later are use vec_xl and vec_xst. The open
+// question is, how to handle early Clang compilers for POWER7. We
+// know the latest Clang compilers support vec_xl and vec_xst. Also
+// see https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
 
-#if defined(__xlc__) && (__xlc__ < 0x0d00)
-# define __old_xlc__ 1
+#if defined(__xlc__) && (__xlc__ < 0x0d01)
+# define __early_xlc__ 1
 #endif
-#if defined(__xlC__) && (__xlC__ < 0x0d00)
-# define __old_xlC__ 1
+#if defined(__xlC__) && (__xlC__ < 0x0d01)
+# define __early_xlC__ 1
 #endif
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
@@ -162,7 +163,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 inline uint32x4_p VecLoad(const byte src[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
@@ -189,7 +190,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
@@ -288,7 +289,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #    else
@@ -328,7 +329,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #    else
@@ -442,7 +443,7 @@ template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, 0, (byte*)dest);
@@ -472,7 +473,7 @@ template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, off, (byte*)dest);
@@ -586,7 +587,7 @@ template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #    else
@@ -629,7 +630,7 @@ template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR7)
-#  if defined(__old_xlc__) || defined(__old_xlC__)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #    else

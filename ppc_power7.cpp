@@ -65,7 +65,7 @@ bool CPU_ProbePower7()
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
         // Specifically call the VSX loads and stores
-        #if defined(__old_xlc__) || defined(__old_xlC__)
+        #if defined(__early_xlc__) || defined(__early_xlC__)
             vec_xstw4(vec_xlw4(0, b1+3), 0, b2+1);
         #elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
             vec_xst(vec_xl(0, b1+3), 0, b2+1);
