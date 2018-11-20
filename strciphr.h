@@ -203,6 +203,8 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	typedef WT WordType;
 	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W)
 
+	virtual ~AdditiveCipherConcretePolicy() {}
+
 #if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
 	/// \brief Provides data alignment requirements
 	/// \returns data alignment requirements, in bytes
@@ -289,6 +291,7 @@ class CRYPTOPP_NO_VTABLE AdditiveCipherTemplate : public BASE, public RandomNumb
 {
 public:
 	virtual ~AdditiveCipherTemplate() {}
+	AdditiveCipherTemplate() : m_leftOver(0) {}
 
 	/// \brief Generate random array of bytes
 	/// \param output the byte buffer
@@ -366,7 +369,7 @@ public:
 	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
 	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
-	virtual std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
+	std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
 
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
@@ -378,7 +381,7 @@ protected:
 	inline byte * KeystreamBufferBegin() {return this->m_buffer.data();}
 	inline byte * KeystreamBufferEnd() {return (PtrAdd(this->m_buffer.data(), this->m_buffer.size()));}
 
-	SecByteBlock m_buffer;
+	AlignedSecByteBlock m_buffer;
 	size_t m_leftOver;
 };
 
@@ -460,6 +463,8 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 {
 	typedef WT WordType;
 
+	virtual ~CFB_CipherConcretePolicy() {}
+
 	/// \brief Provides data alignment requirements
 	/// \returns data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
@@ -494,8 +499,8 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 		/// \returns reference to the next feedback register word
 		inline RegisterOutput& operator()(WordType &registerWord)
 		{
-			CRYPTOPP_ASSERT(IsAligned<WordType>(m_output));
-			CRYPTOPP_ASSERT(IsAligned<WordType>(m_input));
+			//CRYPTOPP_ASSERT(IsAligned<WordType>(m_output));
+			//CRYPTOPP_ASSERT(IsAligned<WordType>(m_input));
 
 			if (!NativeByteOrderIs(B::ToEnum()))
 				registerWord = ByteReverse(registerWord);
@@ -508,18 +513,26 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 				}
 				else
 				{
-					WordType ct = *(const WordType *)m_input ^ registerWord;
+					// WordType ct = *(const WordType *)m_input ^ registerWord;
+					WordType ct = GetWord<WordType>(false, NativeByteOrder::ToEnum(), m_input) ^ registerWord;
 					registerWord = ct;
-					*(WordType*)m_output = ct;
+
+					// *(WordType*)m_output = ct;
+					PutWord<WordType>(false, NativeByteOrder::ToEnum(), m_output, ct);
+
 					m_input += sizeof(WordType);
 					m_output += sizeof(WordType);
 				}
 			}
 			else
 			{
-				WordType ct = *(const WordType *)m_input;
-				*(WordType*)m_output = registerWord ^ ct;
+				// WordType ct = *(const WordType *)m_input;
+				WordType ct = GetWord<WordType>(false, NativeByteOrder::ToEnum(), m_input);
+
+				// *(WordType*)m_output = registerWord ^ ct;
+				PutWord<WordType>(false, NativeByteOrder::ToEnum(), m_output, registerWord ^ ct);
 				registerWord = ct;
+
 				m_input += sizeof(WordType);
 				m_output += sizeof(WordType);
 			}
@@ -604,7 +617,7 @@ public:
 	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
 	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
-	virtual std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
+	std::string AlgorithmProvider() const { return this->GetPolicy().AlgorithmProvider(); }
 
 	typedef typename BASE::PolicyInterface PolicyInterface;
 
