@@ -10,8 +10,6 @@
 ///   Static algorithm name return either "BLAKE2b" or "BLAKE2s". An object algorithm name follows
 ///   the naming described in <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The
 ///   BLAKE2 Cryptographic Hash and Message Authentication Code (MAC)</A>.
-/// \details The library provides specialized SSE4, NEON and PowerPC version of the BLAKE2 compression
-///   function. For best results under ARM NEON, specify both an architecture and cpu.
 /// \since C++ since Crypto++ 5.6.4, SSE since Crypto++ 5.6.4, NEON since Crypto++ 6.0,
 ///   Power8 since Crypto++ 8.0
 
