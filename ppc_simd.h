@@ -474,7 +474,7 @@ inline void VecStore(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR7)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
-    vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
+    vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, off, (byte*)dest);
 #  else
