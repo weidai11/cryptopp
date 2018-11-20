@@ -39,6 +39,10 @@ struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterf
 /// \since Crypto++ 5.6.4
 class CRYPTOPP_NO_VTABLE ChaCha_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
+public:
+	~ChaCha_Policy() {}
+	ChaCha_Policy() : m_rounds(0) {}
+
 protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
     void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
@@ -59,7 +63,7 @@ protected:
     inline bool MultiBlockSafe(unsigned int blocks) const;
 
     FixedSizeAlignedSecBlock<word32, 16> m_state;
-    int m_rounds;
+    unsigned int m_rounds;
 };
 
 /// \brief ChaCha stream cipher
