@@ -34,6 +34,14 @@
 # undef CRYPTOPP_ARM_NEON_AVAILABLE
 #endif
 
+// BLAKE2s bug on AIX 7.1 (POWER7) with XLC 12.01
+// https://github.com/weidai11/cryptopp/issues/743
+#if defined(__xlC__) && (__xlC__ < 0x0d01)
+# define CRYPTOPP_DISABLE_ALTIVEC 1
+# undef CRYPTOPP_POWER7_AVAILABLE
+# undef CRYPTOPP_ALTIVEC_AVAILABLE
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Export the tables to the SIMD files
