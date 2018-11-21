@@ -829,9 +829,11 @@ inline T VecShiftLeftOctet(const T vec)
     else
     {
 #if (CRYPTOPP_BIG_ENDIAN)
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
+    enum { R=C&0xf };
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
 #else
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
+    enum { R=(16-C)&0xf };  // Linux xlC 13.1 workaround in Debug builds
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
 #endif
     }
 }
@@ -872,9 +874,11 @@ inline T VecShiftRightOctet(const T vec)
     else
     {
 #if (CRYPTOPP_BIG_ENDIAN)
-    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, 16-C);
+    enum { R=(16-C)&0xf };  // Linux xlC 13.1 workaround in Debug builds
+    return (T)vec_sld((uint8x16_p)zero, (uint8x16_p)vec, R);
 #else
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, C);
+    enum { R=C&0xf };
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)zero, R);
 #endif
     }
 }
@@ -893,11 +897,12 @@ inline T VecShiftRightOctet(const T vec)
 template <unsigned int C, class T>
 inline T VecRotateLeftOctet(const T vec)
 {
-    enum { R = C&0xf };
 #if (CRYPTOPP_BIG_ENDIAN)
+    enum { R = C&0xf };
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
 #else
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 16-R);
+    enum { R=(16-C)&0xf };  // Linux xlC 13.1 workaround in Debug builds
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
 #endif
 }
 
@@ -915,10 +920,11 @@ inline T VecRotateLeftOctet(const T vec)
 template <unsigned int C, class T>
 inline T VecRotateRightOctet(const T vec)
 {
-    enum { R = C&0xf };
 #if (CRYPTOPP_BIG_ENDIAN)
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 16-R);
+    enum { R=(16-C)&0xf };  // Linux xlC 13.1 workaround in Debug builds
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
 #else
+    enum { R = C&0xf };
     return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, R);
 #endif
 }
