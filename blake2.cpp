@@ -389,7 +389,7 @@ void BLAKE2s::UncheckedSetKey(const byte *key, unsigned int length, const Crypto
         m_keyLength = 0;
     }
 
-    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
+    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), m_digestSize);
 
     m_state.Reset();
     m_block.Reset(m_digestSize, m_keyLength);
@@ -420,7 +420,7 @@ void BLAKE2b::UncheckedSetKey(const byte *key, unsigned int length, const Crypto
         m_keyLength = 0;
     }
 
-    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
+    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), m_digestSize);
 
     m_state.Reset();
     m_block.Reset(m_digestSize, m_keyLength);
