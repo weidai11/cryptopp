@@ -7,14 +7,6 @@
 #include "misc.h"
 #include "cpu.h"
 
-#ifndef CRYPTOPP_INLINE
-# if defined(CRYPTOPP_DEBUG)
-#  define CRYPTOPP_INLINE static
-# else
-#  define CRYPTOPP_INLINE inline
-# endif
-#endif
-
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both simon.cpp and simon-simd.cpp.
 // #undef CRYPTOPP_SSSE3_AVAILABLE

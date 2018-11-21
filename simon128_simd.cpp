@@ -46,14 +46,6 @@
 # include "ppc_simd.h"
 #endif
 
-#ifndef CRYPTOPP_INLINE
-# if defined(CRYPTOPP_DEBUG)
-#  define CRYPTOPP_INLINE static
-# else
-#  define CRYPTOPP_INLINE inline
-# endif
-#endif
-
 // Squash MS LNK4221 and libtool warnings
 extern const char SIMON128_SIMD_FNAME[] = __FILE__;
 
@@ -62,8 +54,6 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
-using CryptoPP::rotlFixed;
-using CryptoPP::rotrFixed;
 using CryptoPP::vec_swap;  // SunCC
 
 // *************************** ARM NEON ************************** //
@@ -71,7 +61,7 @@ using CryptoPP::vec_swap;  // SunCC
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <class T>
-CRYPTOPP_INLINE T UnpackHigh64(const T& a, const T& b)
+inline T UnpackHigh64(const T& a, const T& b)
 {
     const uint64x1_t x(vget_high_u64((uint64x2_t)a));
     const uint64x1_t y(vget_high_u64((uint64x2_t)b));
@@ -79,7 +69,7 @@ CRYPTOPP_INLINE T UnpackHigh64(const T& a, const T& b)
 }
 
 template <class T>
-CRYPTOPP_INLINE T UnpackLow64(const T& a, const T& b)
+inline T UnpackLow64(const T& a, const T& b)
 {
     const uint64x1_t x(vget_low_u64((uint64x2_t)a));
     const uint64x1_t y(vget_low_u64((uint64x2_t)b));
@@ -87,7 +77,7 @@ CRYPTOPP_INLINE T UnpackLow64(const T& a, const T& b)
 }
 
 template <unsigned int R>
-CRYPTOPP_INLINE uint64x2_t RotateLeft64(const uint64x2_t& val)
+inline uint64x2_t RotateLeft64(const uint64x2_t& val)
 {
     const uint64x2_t a(vshlq_n_u64(val, R));
     const uint64x2_t b(vshrq_n_u64(val, 64 - R));
@@ -95,7 +85,7 @@ CRYPTOPP_INLINE uint64x2_t RotateLeft64(const uint64x2_t& val)
 }
 
 template <unsigned int R>
-CRYPTOPP_INLINE uint64x2_t RotateRight64(const uint64x2_t& val)
+inline uint64x2_t RotateRight64(const uint64x2_t& val)
 {
     const uint64x2_t a(vshlq_n_u64(val, 64 - R));
     const uint64x2_t b(vshrq_n_u64(val, R));
@@ -105,7 +95,7 @@ CRYPTOPP_INLINE uint64x2_t RotateRight64(const uint64x2_t& val)
 #if defined(__aarch32__) || defined(__aarch64__)
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
-CRYPTOPP_INLINE uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
+inline uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
@@ -121,7 +111,7 @@ CRYPTOPP_INLINE uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
 
 // Faster than two Shifts and an Or. Thanks to Louis Wingers and Bryan Weeks.
 template <>
-CRYPTOPP_INLINE uint64x2_t RotateRight64<8>(const uint64x2_t& val)
+inline uint64x2_t RotateRight64<8>(const uint64x2_t& val)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
@@ -136,13 +126,13 @@ CRYPTOPP_INLINE uint64x2_t RotateRight64<8>(const uint64x2_t& val)
 }
 #endif
 
-CRYPTOPP_INLINE uint64x2_t SIMON128_f(const uint64x2_t& val)
+inline uint64x2_t SIMON128_f(const uint64x2_t& val)
 {
     return veorq_u64(RotateLeft64<2>(val),
         vandq_u64(RotateLeft64<1>(val), RotateLeft64<8>(val)));
 }
 
-CRYPTOPP_INLINE void SIMON128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
+inline void SIMON128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
@@ -171,7 +161,7 @@ CRYPTOPP_INLINE void SIMON128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
     block1 = UnpackHigh64(y1, x1);
 }
 
-CRYPTOPP_INLINE void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
+inline void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
@@ -215,7 +205,7 @@ CRYPTOPP_INLINE void SIMON128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block
     block5 = UnpackHigh64(y3, x3);
 }
 
-CRYPTOPP_INLINE void SIMON128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
+inline void SIMON128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     const word64 *subkeys, unsigned int rounds)
 {
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
@@ -245,7 +235,7 @@ CRYPTOPP_INLINE void SIMON128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     block1 = UnpackHigh64(y1, x1);
 }
 
-CRYPTOPP_INLINE void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
+inline void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t &block2, uint64x2_t &block3, uint64x2_t &block4, uint64x2_t &block5,
     const word64 *subkeys, unsigned int rounds)
 {
@@ -312,7 +302,7 @@ CRYPTOPP_INLINE void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block
 # define CONST_DOUBLE_CAST(x) ((const double *)(const void *)(x))
 #endif
 
-CRYPTOPP_INLINE void Swap128(__m128i& a,__m128i& b)
+inline void Swap128(__m128i& a,__m128i& b)
 {
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
     // __m128i is an unsigned long long[2], and support for swapping it was not added until C++11.
@@ -324,7 +314,7 @@ CRYPTOPP_INLINE void Swap128(__m128i& a,__m128i& b)
 }
 
 template <unsigned int R>
-CRYPTOPP_INLINE __m128i RotateLeft64(const __m128i& val)
+inline __m128i RotateLeft64(const __m128i& val)
 {
 #if defined(CRYPTOPP_AVX512_ROTATE)
     return _mm_rol_epi64(val, R);
@@ -337,7 +327,7 @@ CRYPTOPP_INLINE __m128i RotateLeft64(const __m128i& val)
 }
 
 template <unsigned int R>
-CRYPTOPP_INLINE __m128i RotateRight64(const __m128i& val)
+inline __m128i RotateRight64(const __m128i& val)
 {
 #if defined(CRYPTOPP_AVX512_ROTATE)
     return _mm_ror_epi64(val, R);
@@ -373,13 +363,13 @@ __m128i RotateRight64<8>(const __m128i& val)
 #endif
 }
 
-CRYPTOPP_INLINE __m128i SIMON128_f(const __m128i& v)
+inline __m128i SIMON128_f(const __m128i& v)
 {
     return _mm_xor_si128(RotateLeft64<2>(v),
         _mm_and_si128(RotateLeft64<1>(v), RotateLeft64<8>(v)));
 }
 
-CRYPTOPP_INLINE void SIMON128_Enc_Block(__m128i &block0, __m128i &block1,
+inline void SIMON128_Enc_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
@@ -411,7 +401,7 @@ CRYPTOPP_INLINE void SIMON128_Enc_Block(__m128i &block0, __m128i &block1,
     block1 = _mm_unpackhi_epi64(y1, x1);
 }
 
-CRYPTOPP_INLINE void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
+inline void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
@@ -457,7 +447,7 @@ CRYPTOPP_INLINE void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     block5 = _mm_unpackhi_epi64(y3, x3);
 }
 
-CRYPTOPP_INLINE void SIMON128_Dec_Block(__m128i &block0, __m128i &block1,
+inline void SIMON128_Dec_Block(__m128i &block0, __m128i &block1,
     const word64 *subkeys, unsigned int rounds)
 {
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
@@ -490,7 +480,7 @@ CRYPTOPP_INLINE void SIMON128_Dec_Block(__m128i &block0, __m128i &block1,
     block1 = _mm_unpackhi_epi64(y1, x1);
 }
 
-CRYPTOPP_INLINE void SIMON128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
+inline void SIMON128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i &block2, __m128i &block3, __m128i &block4, __m128i &block5,
     const word64 *subkeys, unsigned int rounds)
 {
@@ -554,7 +544,7 @@ using CryptoPP::VecPermute;
 
 // Rotate left by bit count
 template<unsigned int C>
-CRYPTOPP_INLINE uint64x2_p RotateLeft64(const uint64x2_p val)
+inline uint64x2_p RotateLeft64(const uint64x2_p val)
 {
     const uint64x2_p m = {C, C};
     return vec_rl(val, m);
@@ -562,19 +552,19 @@ CRYPTOPP_INLINE uint64x2_p RotateLeft64(const uint64x2_p val)
 
 // Rotate right by bit count
 template<unsigned int C>
-CRYPTOPP_INLINE uint64x2_p RotateRight64(const uint64x2_p val)
+inline uint64x2_p RotateRight64(const uint64x2_p val)
 {
     const uint64x2_p m = {64-C, 64-C};
     return vec_rl(val, m);
 }
 
-CRYPTOPP_INLINE uint64x2_p SIMON128_f(const uint64x2_p val)
+inline uint64x2_p SIMON128_f(const uint64x2_p val)
 {
     return VecXor(RotateLeft64<2>(val),
         VecAnd(RotateLeft64<1>(val), RotateLeft64<8>(val)));
 }
 
-CRYPTOPP_INLINE void SIMON128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
+inline void SIMON128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {31,30,29,28,27,26,25,24, 15,14,13,12,11,10,9,8};
@@ -616,7 +606,7 @@ CRYPTOPP_INLINE void SIMON128_Enc_Block(uint32x4_p &block, const word64 *subkeys
     block = (uint32x4_p)VecPermute(x1, y1, m3);
 }
 
-CRYPTOPP_INLINE void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
+inline void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {31,30,29,28,27,26,25,24, 15,14,13,12,11,10,9,8};
@@ -659,7 +649,7 @@ CRYPTOPP_INLINE void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys
     block = (uint32x4_p)VecPermute(x1, y1, m3);
 }
 
-CRYPTOPP_INLINE void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+inline void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
             uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
             uint32x4_p &block5, const word64 *subkeys, unsigned int rounds)
 {
@@ -718,7 +708,7 @@ CRYPTOPP_INLINE void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block
     block5 = (uint32x4_p)VecPermute(x3, y3, m4);
 }
 
-CRYPTOPP_INLINE void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
+inline void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
             uint32x4_p &block2, uint32x4_p &block3, uint32x4_p &block4,
             uint32x4_p &block5, const word64 *subkeys, unsigned int rounds)
 {
