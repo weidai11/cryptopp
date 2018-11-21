@@ -837,7 +837,7 @@ endif
 
 # Add -fPIC for targets *except* X86, X32, Cygwin or MinGW
 ifeq ($(IS_X86)$(IS_CYGWIN)$(IS_MINGW),000)
-  ifeq ($(findstring -fPIC,$(CXXFLAGS)),)
+  ifeq ($(findstring -fpic,$(CXXFLAGS))$(findstring -fPIC,$(CXXFLAGS)),)
     CXXFLAGS += -fPIC
   endif
 endif
@@ -845,14 +845,25 @@ endif
 # Use -pthread whenever it is available. See http://www.hpl.hp.com/techreports/2004/HPL-2004-209.pdf
 #   http://stackoverflow.com/questions/2127797/gcc-significance-of-pthread-flag-when-compiling
 ifeq ($(DETECT_FEATURES),1)
- ifeq ($(findstring -pthread,$(CXXFLAGS)),)
-  TPROG = TestPrograms/test_pthreads.cxx
-  TOPT = -pthread
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
-   CXXFLAGS += -pthread
-  endif # CXXFLAGS
- endif  # pthread
+ ifeq ($(XLC_COMPILER),1)
+  ifeq ($(findstring -qthreaded,$(CXXFLAGS)),)
+   TPROG = TestPrograms/test_pthreads.cxx
+   TOPT = -qthreaded
+   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+   ifeq ($(HAVE_OPT),0)
+    CXXFLAGS += -qthreaded
+   endif # CXXFLAGS
+  endif # qthreaded
+ else
+  ifeq ($(findstring -pthread,$(CXXFLAGS)),)
+   TPROG = TestPrograms/test_pthreads.cxx
+   TOPT = -pthread
+   HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
+   ifeq ($(HAVE_OPT),0)
+    CXXFLAGS += -pthread
+   endif  # CXXFLAGS
+  endif  # pthread
+ endif  # XLC/GCC and friends
 endif  # DETECT_FEATURES
 
 # Remove -fPIC if present. SunCC use -KPIC, and needs the larger GOT table
@@ -860,6 +871,12 @@ endif  # DETECT_FEATURES
 ifeq ($(SUN_COMPILER),1)
   CXXFLAGS := $(subst -fPIC,-KPIC,$(CXXFLAGS))
   CXXFLAGS := $(subst -fpic,-KPIC,$(CXXFLAGS))
+endif
+
+# Remove -fPIC if present. IBM XL C/C++ use -qpic
+ifeq ($(XLC_COMPILER),1)
+  CXXFLAGS := $(subst -fPIC,-qpic,$(CXXFLAGS))
+  CXXFLAGS := $(subst -fpic,-qpic,$(CXXFLAGS))
 endif
 
 # Add -xregs=no%appl SPARC. SunCC should not use certain registers in library code.
@@ -871,12 +888,6 @@ ifeq ($(IS_SUN)$(SUN_COMPILER),11)
     endif  # -xregs
   endif  # Sparc
 endif  # SunOS
-
-# Remove -fPIC if present. IBM XL C/C++ use -qpic
-ifeq ($(XLC_COMPILER),1)
-  CXXFLAGS := $(subst -fPIC,-qpic,$(CXXFLAGS))
-  CXXFLAGS := $(subst -fpic,-qpic,$(CXXFLAGS))
-endif
 
 # Add -pipe for everything except IBM XL C/C++, SunCC and ARM.
 # Allow ARM-64 because they seems to have >1 GB of memory
