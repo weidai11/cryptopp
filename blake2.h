@@ -65,29 +65,46 @@ struct CRYPTOPP_NO_VTABLE BLAKE2s_ParameterBlock
 
     BLAKE2s_ParameterBlock()
     {
-        memset(this, 0x00, sizeof(*this));
-        digestLength = DIGESTSIZE;
-        fanout = depth = 1;
+        Reset();
     }
 
     BLAKE2s_ParameterBlock(size_t digestSize)
     {
-        CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-        memset(this, 0x00, sizeof(*this));
-        digestLength = (byte)digestSize;
-        fanout = depth = 1;
+        Reset(digestSize);
     }
 
     BLAKE2s_ParameterBlock(size_t digestSize, size_t keyLength, const byte* salt, size_t saltLength,
         const byte* personalization, size_t personalizationLength);
 
-    byte digestLength;
-    byte keyLength, fanout, depth;
-    byte leafLength[4];
-    byte nodeOffset[6];
-    byte nodeDepth, innerLength;
-    byte salt[SALTSIZE];
-    byte personalization[PERSONALIZATIONSIZE];
+    void Reset(size_t digestLength=DIGESTSIZE, size_t keyLength=0);
+
+    byte* data() {
+        return m_data.data();
+    }
+
+    const byte* data() const {
+        return m_data.data();
+    }
+
+    size_t size() const {
+        return m_data.size();
+    }
+
+    byte* salt() {
+        return m_data + SaltOff;
+    }
+
+    byte* personalization() {
+        return m_data + PersonalizationOff;
+    }
+
+    // Offsets into the byte array
+    enum {
+        DigestOff = 0, KeyOff = 1, FanoutOff = 2, DepthOff = 3, LeafOff = 4, NodeOff = 8,
+        NodeDepthOff = 14, InnerOff = 15, SaltOff = 16, PersonalizationOff = 24
+    };
+
+    FixedSizeAlignedSecBlock<byte, 32, true> m_data;
 };
 
 /// \brief BLAKE2b parameter block
@@ -99,65 +116,112 @@ struct CRYPTOPP_NO_VTABLE BLAKE2b_ParameterBlock
 
     BLAKE2b_ParameterBlock()
     {
-        memset(this, 0x00, sizeof(*this));
-        digestLength = DIGESTSIZE;
-        fanout = depth = 1;
+        Reset();
     }
 
     BLAKE2b_ParameterBlock(size_t digestSize)
     {
-        CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-        memset(this, 0x00, sizeof(*this));
-        digestLength = (byte)digestSize;
-        fanout = depth = 1;
+        Reset(digestSize);
     }
 
     BLAKE2b_ParameterBlock(size_t digestSize, size_t keyLength, const byte* salt, size_t saltLength,
         const byte* personalization, size_t personalizationLength);
 
-    byte digestLength;
-    byte keyLength, fanout, depth;
-    byte leafLength[4];
-    byte nodeOffset[8];
-    byte nodeDepth, innerLength, rfu[14];
-    byte salt[SALTSIZE];
-    byte personalization[PERSONALIZATIONSIZE];
+    void Reset(size_t digestLength=DIGESTSIZE, size_t keyLength=0);
+
+    byte* data() {
+        return m_data.data();
+    }
+
+    const byte* data() const {
+        return m_data.data();
+    }
+
+    size_t size() const {
+        return m_data.size();
+    }
+
+    byte* salt() {
+        return m_data + SaltOff;
+    }
+
+    byte* personalization() {
+        return m_data + PersonalizationOff;
+    }
+
+    // Offsets into the byte array
+    enum {
+        DigestOff = 0, KeyOff = 1, FanoutOff = 2, DepthOff = 3, LeafOff = 4, NodeOff = 8,
+        NodeDepthOff = 16, InnerOff = 17, RfuOff = 18, SaltOff = 32, PersonalizationOff = 48
+    };
+
+    FixedSizeAlignedSecBlock<byte, 64, true> m_data;
 };
 
 /// \brief BLAKE2s state information
 /// \since Crypto++ 5.6.4
 struct CRYPTOPP_NO_VTABLE BLAKE2s_State
 {
-    BLAKE2s_State()
-    {
-        // Set all members except scratch buffer[]
-        h[0]=h[1]=h[2]=h[3]=h[4]=h[5]=h[6]=h[7] = 0;
-        tf[0]=tf[1]=tf[2]=tf[3] = 0;
-        length = 0;
+    BLAKE2s_State() {
+        Reset();
+    }
+
+    void Reset();
+
+    inline word32* h() {
+        return m_hft.data();
+    }
+
+    inline word32* t() {
+        return m_hft.data() + 8;
+    }
+
+    inline word32* f() {
+        return m_hft.data() + 10;
+    }
+
+    inline byte* data() {
+        return m_buf.data();
     }
 
     // SSE4, Power7 and NEON depend upon t[] and f[] being side-by-side
-    word32 h[8], tf[4];  // t[2], f[2];
-    byte  buffer[BLAKE2s_Info::BLOCKSIZE];
-    size_t length;
+    CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2s_Info::BLOCKSIZE);
+    FixedSizeAlignedSecBlock<word32, 8+2+2, true> m_hft;
+    FixedSizeAlignedSecBlock<byte, BLOCKSIZE, true> m_buf;
+    size_t m_len;
 };
 
 /// \brief BLAKE2b state information
 /// \since Crypto++ 5.6.4
 struct CRYPTOPP_NO_VTABLE BLAKE2b_State
 {
-    BLAKE2b_State()
-    {
-        // Set all members except scratch buffer[]
-        h[0]=h[1]=h[2]=h[3]=h[4]=h[5]=h[6]=h[7] = 0;
-        tf[0]=tf[1]=tf[2]=tf[3] = 0;
-        length = 0;
+    BLAKE2b_State() {
+        Reset();
+    }
+
+    void Reset();
+
+    inline word64* h() {
+        return m_hft.data();
+    }
+
+    inline word64* t() {
+        return m_hft.data() + 8;
+    }
+
+    inline word64* f() {
+        return m_hft.data() + 10;
+    }
+
+    inline byte* data() {
+        return m_buf.data();
     }
 
     // SSE4, Power8 and NEON depend upon t[] and f[] being side-by-side
-    word64 h[8], tf[4];  // t[2], f[2];
-    byte  buffer[BLAKE2b_Info::BLOCKSIZE];
-    size_t length;
+    CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2b_Info::BLOCKSIZE);
+    FixedSizeAlignedSecBlock<word64, 8+2+2, true> m_hft;
+    FixedSizeAlignedSecBlock<byte, BLOCKSIZE, true> m_buf;
+    size_t m_len;
 };
 
 /// \brief The BLAKE2s cryptographic hash function
@@ -184,8 +248,6 @@ public:
 
     typedef BLAKE2s_State State;
     typedef BLAKE2s_ParameterBlock ParameterBlock;
-    typedef SecBlock<State, AllocatorWithCleanup<State, true> > AlignedState;
-    typedef SecBlock<ParameterBlock, AllocatorWithCleanup<ParameterBlock, true> > AlignedParameterBlock;
 
     CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "BLAKE2s";}
 
@@ -214,10 +276,10 @@ public:
     /// \details Object algorithm name follows the naming described in
     ///   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
     /// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
-    std::string AlgorithmName() const {return std::string(BLAKE2s_Info::StaticAlgorithmName()) + "-" + IntToString(this->DigestSize()*8);}
+    std::string AlgorithmName() const {return std::string(BLAKE2s_Info::StaticAlgorithmName()) + "-" + IntToString(DigestSize()*8);}
 
     unsigned int DigestSize() const {return m_digestSize;}
-    unsigned int OptimalDataAlignment() const {return (CRYPTOPP_BOOL_ALIGN16 ? 16 : GetAlignmentOf<word32>());}
+    unsigned int OptimalDataAlignment() const;
 
     void Update(const byte *input, size_t length);
     void Restart();
@@ -253,10 +315,10 @@ protected:
     void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-    AlignedState m_state;
-    AlignedParameterBlock m_block;
+    State m_state;
+    ParameterBlock m_block;
     AlignedSecByteBlock m_key;
-    word32 m_digestSize;
+    word32 m_digestSize, m_keyLength;
     bool m_treeMode;
 };
 
@@ -284,8 +346,6 @@ public:
 
     typedef BLAKE2b_State State;
     typedef BLAKE2b_ParameterBlock ParameterBlock;
-    typedef SecBlock<State, AllocatorWithCleanup<State, true> > AlignedState;
-    typedef SecBlock<ParameterBlock, AllocatorWithCleanup<ParameterBlock, true> > AlignedParameterBlock;
 
     CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "BLAKE2b";}
 
@@ -314,10 +374,10 @@ public:
     /// \details Object algorithm name follows the naming described in
     ///   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
     /// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
-    std::string AlgorithmName() const {return std::string(BLAKE2b_Info::StaticAlgorithmName()) + "-" + IntToString(this->DigestSize()*8);}
+    std::string AlgorithmName() const {return std::string(BLAKE2b_Info::StaticAlgorithmName()) + "-" + IntToString(DigestSize()*8);}
 
     unsigned int DigestSize() const {return m_digestSize;}
-    unsigned int OptimalDataAlignment() const {return (CRYPTOPP_BOOL_ALIGN16 ? 16 : GetAlignmentOf<word64>());}
+    unsigned int OptimalDataAlignment() const;
 
     void Update(const byte *input, size_t length);
     void Restart();
@@ -354,10 +414,10 @@ protected:
     void UncheckedSetKey(const byte* key, unsigned int length, const CryptoPP::NameValuePairs& params);
 
 private:
-    AlignedState m_state;
-    AlignedParameterBlock m_block;
+    State m_state;
+    ParameterBlock m_block;
     AlignedSecByteBlock m_key;
-    word32 m_digestSize;
+    word32 m_digestSize, m_keyLength;
     bool m_treeMode;
 };
 

@@ -55,6 +55,9 @@
 # include "ppc_simd.h"
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char BLAKE2S_SIMD_FNAME[] = __FILE__;
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Exported by blake2.cpp
@@ -342,10 +345,10 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
     const __m128i m2 = LOADU(input + 32);
     const __m128i m3 = LOADU(input + 48);
 
-    row1 = ff0 = LOADU(&state.h[0]);
-    row2 = ff1 = LOADU(&state.h[4]);
-    row3 = LOADU(&BLAKE2S_IV[0]);
-    row4 = _mm_xor_si128(LOADU(&BLAKE2S_IV[4]), LOADU(&state.tf[0]));
+    row1 = ff0 = LOADU(state.h()+0);
+    row2 = ff1 = LOADU(state.h()+4);
+    row3 = LOADU(BLAKE2S_IV+0);
+    row4 = _mm_xor_si128(LOADU(&BLAKE2S_IV[4]), LOADU(state.t()+0));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
@@ -358,8 +361,8 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
     BLAKE2S_ROUND(8);
     BLAKE2S_ROUND(9);
 
-    STOREU(&state.h[0], _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
-    STOREU(&state.h[4], _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
+    STOREU(state.h()+0, _mm_xor_si128(ff0, _mm_xor_si128(row1, row3)));
+    STOREU(state.h()+4, _mm_xor_si128(ff1, _mm_xor_si128(row2, row4)));
 }
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
@@ -660,10 +663,10 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 
     uint32x4_t row1, row2, row3, row4;
 
-    const uint32x4_t f0 = row1 = vld1q_u32(&state.h[0]);
-    const uint32x4_t f1 = row2 = vld1q_u32(&state.h[4]);
-    row3 = vld1q_u32(&BLAKE2S_IV[0]);
-    row4 = veorq_u32(vld1q_u32(&BLAKE2S_IV[4]), vld1q_u32(&state.tf[0]));
+    const uint32x4_t f0 = row1 = vld1q_u32(state.h()+0);
+    const uint32x4_t f1 = row2 = vld1q_u32(state.h()+4);
+    row3 = vld1q_u32(BLAKE2S_IV+0);
+    row4 = veorq_u32(vld1q_u32(&BLAKE2S_IV[4]), vld1q_u32(state.t()+0));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
@@ -676,8 +679,8 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
     BLAKE2S_ROUND(8);
     BLAKE2S_ROUND(9);
 
-    vst1q_u32(&state.h[0], veorq_u32(f0, veorq_u32(row1, row3)));
-    vst1q_u32(&state.h[4], veorq_u32(f1, veorq_u32(row2, row4)));
+    vst1q_u32(state.h()+0, veorq_u32(f0, veorq_u32(row1, row3)));
+    vst1q_u32(state.h()+4, veorq_u32(f1, veorq_u32(row2, row4)));
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
@@ -983,10 +986,10 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
     const uint32x4_p  m8 = VecLoad32LE(input + 32);
     const uint32x4_p m12 = VecLoad32LE(input + 48);
 
-    row1 = ff0 = VecLoad32LE(&state.h[0]);
-    row2 = ff1 = VecLoad32LE(&state.h[4]);
-    row3 = VecLoad32(&BLAKE2S_IV[0]);
-    row4 = VecXor(VecLoad32(&BLAKE2S_IV[4]), VecLoad32(&state.tf[0]));
+    row1 = ff0 = VecLoad32LE(state.h()+0);
+    row2 = ff1 = VecLoad32LE(state.h()+4);
+    row3 = VecLoad32(BLAKE2S_IV+0);
+    row4 = VecXor(VecLoad32(&BLAKE2S_IV[4]), VecLoad32(state.t()+0));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
@@ -999,8 +1002,8 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
     BLAKE2S_ROUND(8);
     BLAKE2S_ROUND(9);
 
-    VecStore32LE(&state.h[0], VecXor(ff0, VecXor(row1, row3)));
-    VecStore32LE(&state.h[4], VecXor(ff1, VecXor(row2, row4)));
+    VecStore32LE(state.h()+0, VecXor(ff0, VecXor(row1, row3)));
+    VecStore32LE(state.h()+4, VecXor(ff1, VecXor(row2, row4)));
 }
 #endif  // CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
 

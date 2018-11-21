@@ -45,6 +45,9 @@
 # include "ppc_simd.h"
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char BLAKE2B_SIMD_FNAME[] = __FILE__;
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Exported by blake2.cpp
@@ -451,14 +454,14 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2b_State& state)
     const __m128i m6 = LOADU(input + 96);
     const __m128i m7 = LOADU(input + 112);
 
-    row1l = LOADU(&state.h[0]);
-    row1h = LOADU(&state.h[2]);
-    row2l = LOADU(&state.h[4]);
-    row2h = LOADU(&state.h[6]);
-    row3l = LOADU(&BLAKE2B_IV[0]);
-    row3h = LOADU(&BLAKE2B_IV[2]);
-    row4l = _mm_xor_si128(LOADU(&BLAKE2B_IV[4]), LOADU(&state.tf[0]));
-    row4h = _mm_xor_si128(LOADU(&BLAKE2B_IV[6]), LOADU(&state.tf[2]));
+    row1l = LOADU(state.h()+0);
+    row1h = LOADU(state.h()+2);
+    row2l = LOADU(state.h()+4);
+    row2h = LOADU(state.h()+6);
+    row3l = LOADU(BLAKE2B_IV+0);
+    row3h = LOADU(BLAKE2B_IV+2);
+    row4l = _mm_xor_si128(LOADU(BLAKE2B_IV+4), LOADU(state.t()+0));
+    row4h = _mm_xor_si128(LOADU(BLAKE2B_IV+6), LOADU(state.f()+0));
 
     BLAKE2B_ROUND(0);
     BLAKE2B_ROUND(1);
@@ -475,12 +478,12 @@ void BLAKE2_Compress64_SSE4(const byte* input, BLAKE2b_State& state)
 
     row1l = _mm_xor_si128(row3l, row1l);
     row1h = _mm_xor_si128(row3h, row1h);
-    STOREU(&state.h[0], _mm_xor_si128(LOADU(&state.h[0]), row1l));
-    STOREU(&state.h[2], _mm_xor_si128(LOADU(&state.h[2]), row1h));
+    STOREU(state.h()+0, _mm_xor_si128(LOADU(state.h()+0), row1l));
+    STOREU(state.h()+2, _mm_xor_si128(LOADU(state.h()+2), row1h));
     row2l = _mm_xor_si128(row4l, row2l);
     row2h = _mm_xor_si128(row4h, row2h);
-    STOREU(&state.h[4], _mm_xor_si128(LOADU(&state.h[4]), row2l));
-    STOREU(&state.h[6], _mm_xor_si128(LOADU(&state.h[6]), row2h));
+    STOREU(state.h()+4, _mm_xor_si128(LOADU(state.h()+4), row2l));
+    STOREU(state.h()+6, _mm_xor_si128(LOADU(state.h()+6), row2h));
 }
 #endif  // CRYPTOPP_SSE41_AVAILABLE
 
@@ -710,15 +713,15 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
     uint64x2_t row1l, row1h, row2l, row2h;
     uint64x2_t row3l, row3h, row4l, row4h;
 
-    const uint64x2_t h0 = row1l = vld1q_u64(&state.h[0]);
-    const uint64x2_t h1 = row1h = vld1q_u64(&state.h[2]);
-    const uint64x2_t h2 = row2l = vld1q_u64(&state.h[4]);
-    const uint64x2_t h3 = row2h = vld1q_u64(&state.h[6]);
+    const uint64x2_t h0 = row1l = vld1q_u64(state.h()+0);
+    const uint64x2_t h1 = row1h = vld1q_u64(state.h()+2);
+    const uint64x2_t h2 = row2l = vld1q_u64(state.h()+4);
+    const uint64x2_t h3 = row2h = vld1q_u64(state.h()+6);
 
-    row3l = vld1q_u64(&BLAKE2B_IV[0]);
-    row3h = vld1q_u64(&BLAKE2B_IV[2]);
-    row4l = veorq_u64(vld1q_u64(&BLAKE2B_IV[4]), vld1q_u64(&state.tf[0]));
-    row4h = veorq_u64(vld1q_u64(&BLAKE2B_IV[6]), vld1q_u64(&state.tf[2]));
+    row3l = vld1q_u64(BLAKE2B_IV+0);
+    row3h = vld1q_u64(BLAKE2B_IV+2);
+    row4l = veorq_u64(vld1q_u64(BLAKE2B_IV+4), vld1q_u64(state.t()+0));
+    row4h = veorq_u64(vld1q_u64(BLAKE2B_IV+6), vld1q_u64(state.f()+0));
 
     BLAKE2B_ROUND(0);
     BLAKE2B_ROUND(1);
@@ -733,10 +736,10 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
     BLAKE2B_ROUND(10);
     BLAKE2B_ROUND(11);
 
-    vst1q_u64(&state.h[0], veorq_u64(h0, veorq_u64(row1l, row3l)));
-    vst1q_u64(&state.h[2], veorq_u64(h1, veorq_u64(row1h, row3h)));
-    vst1q_u64(&state.h[4], veorq_u64(h2, veorq_u64(row2l, row4l)));
-    vst1q_u64(&state.h[6], veorq_u64(h3, veorq_u64(row2h, row4h)));
+    vst1q_u64(state.h()+0, veorq_u64(h0, veorq_u64(row1l, row3l)));
+    vst1q_u64(state.h()+2, veorq_u64(h1, veorq_u64(row1h, row3h)));
+    vst1q_u64(state.h()+4, veorq_u64(h2, veorq_u64(row2l, row4l)));
+    vst1q_u64(state.h()+6, veorq_u64(h3, veorq_u64(row2h, row4h)));
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
@@ -1187,15 +1190,15 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     uint64x2_p row1l, row1h, row2l, row2h;
     uint64x2_p row3l, row3h, row4l, row4h;
 
-    const uint64x2_p h0 = row1l = VecLoad64LE(&state.h[0]);
-    const uint64x2_p h1 = row1h = VecLoad64LE(&state.h[2]);
-    const uint64x2_p h2 = row2l = VecLoad64LE(&state.h[4]);
-    const uint64x2_p h3 = row2h = VecLoad64LE(&state.h[6]);
+    const uint64x2_p h0 = row1l = VecLoad64LE(state.h()+0);
+    const uint64x2_p h1 = row1h = VecLoad64LE(state.h()+2);
+    const uint64x2_p h2 = row2l = VecLoad64LE(state.h()+4);
+    const uint64x2_p h3 = row2h = VecLoad64LE(state.h()+6);
 
-    row3l = VecLoad64(&BLAKE2B_IV[0]);
-    row3h = VecLoad64(&BLAKE2B_IV[2]);
-    row4l = VecXor(VecLoad64(&BLAKE2B_IV[4]), VecLoad64(&state.tf[0]));
-    row4h = VecXor(VecLoad64(&BLAKE2B_IV[6]), VecLoad64(&state.tf[2]));
+    row3l = VecLoad64(BLAKE2B_IV+0);
+    row3h = VecLoad64(BLAKE2B_IV+2);
+    row4l = VecXor(VecLoad64(BLAKE2B_IV+4), VecLoad64(state.t()+0));
+    row4h = VecXor(VecLoad64(BLAKE2B_IV+6), VecLoad64(state.f()+0));
 
     BLAKE2B_ROUND(0);
     BLAKE2B_ROUND(1);
@@ -1210,10 +1213,10 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     BLAKE2B_ROUND(10);
     BLAKE2B_ROUND(11);
 
-    VecStore64LE(&state.h[0], VecXor(h0, VecXor(row1l, row3l)));
-    VecStore64LE(&state.h[2], VecXor(h1, VecXor(row1h, row3h)));
-    VecStore64LE(&state.h[4], VecXor(h2, VecXor(row2l, row4l)));
-    VecStore64LE(&state.h[6], VecXor(h3, VecXor(row2h, row4h)));
+    VecStore64LE(state.h()+0, VecXor(h0, VecXor(row1l, row3l)));
+    VecStore64LE(state.h()+2, VecXor(h1, VecXor(row1h, row3h)));
+    VecStore64LE(state.h()+4, VecXor(h2, VecXor(row2l, row4l)));
+    VecStore64LE(state.h()+6, VecXor(h3, VecXor(row2h, row4h)));
 }
 #endif  // CRYPTOPP_POWER8_AVAILABLE
 

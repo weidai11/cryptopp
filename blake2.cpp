@@ -172,194 +172,24 @@ extern void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state);
 extern void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state);
 #endif
 
-BLAKE2s_ParameterBlock::BLAKE2s_ParameterBlock(size_t digestLen, size_t keyLen,
-        const byte* saltStr, size_t saltLen,
-        const byte* personalizationStr, size_t personalizationLen)
+unsigned int BLAKE2b::OptimalDataAlignment() const
 {
-    digestLength = (byte)digestLen;
-    keyLength = (byte)keyLen;
-    fanout = depth = 1;
-    nodeDepth = innerLength = 0;
-
-    std::memset(leafLength, 0x00, COUNTOF(leafLength));
-    std::memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
-
-    if (saltStr && saltLen)
-    {
-        memcpy_s(salt, COUNTOF(salt), saltStr, saltLen);
-        size_t rem = SaturatingSubtract(COUNTOF(salt), saltLen);
-        size_t off = COUNTOF(salt) - rem;
-        if (rem)
-            std::memset(salt+off, 0x00, rem);
-    }
+#if defined(CRYPTOPP_SSE41_AVAILABLE)
+    if (HasSSE41())
+        return 16;
     else
-    {
-        std::memset(salt, 0x00, COUNTOF(salt));
-    }
-
-    if (personalizationStr && personalizationLen)
-    {
-        memcpy_s(personalization, COUNTOF(personalization), personalizationStr, personalizationLen);
-        size_t rem = SaturatingSubtract(COUNTOF(personalization), personalizationLen);
-        size_t off = COUNTOF(personalization) - rem;
-        if (rem)
-            std::memset(personalization+off, 0x00, rem);
-    }
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return 4;
     else
-    {
-        std::memset(personalization, 0x00, COUNTOF(personalization));
-    }
-}
-
-BLAKE2b_ParameterBlock::BLAKE2b_ParameterBlock(size_t digestLen, size_t keyLen,
-        const byte* saltStr, size_t saltLen,
-        const byte* personalizationStr, size_t personalizationLen)
-{
-    digestLength = (byte)digestLen;
-    keyLength = (byte)keyLen;
-    fanout = depth = 1;
-    nodeDepth = innerLength = 0;
-
-    std::memset(rfu, 0x00, COUNTOF(rfu));
-    std::memset(leafLength, 0x00, COUNTOF(leafLength));
-    std::memset(nodeOffset, 0x00, COUNTOF(nodeOffset));
-
-    if (saltStr && saltLen)
-    {
-        memcpy_s(salt, COUNTOF(salt), saltStr, saltLen);
-        size_t rem = SaturatingSubtract(COUNTOF(salt), saltLen);
-        size_t off = COUNTOF(salt) - rem;
-        if (rem)
-            std::memset(salt+off, 0x00, rem);
-    }
+#endif
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+        return 16;
     else
-    {
-        std::memset(salt, 0x00, COUNTOF(salt));
-    }
-
-    if (personalizationStr && personalizationLen)
-    {
-        memcpy_s(personalization, COUNTOF(personalization), personalizationStr, personalizationLen);
-        size_t rem = SaturatingSubtract(COUNTOF(personalization), personalizationLen);
-        size_t off = COUNTOF(personalization) - rem;
-        if (rem)
-            std::memset(personalization+off, 0x00, rem);
-    }
-    else
-    {
-        std::memset(personalization, 0x00, COUNTOF(personalization));
-    }
-}
-
-void BLAKE2s::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
-{
-    if (key && length)
-    {
-        AlignedSecByteBlock temp(BLOCKSIZE);
-        memcpy_s(temp, BLOCKSIZE, key, length);
-
-        size_t rem = SaturatingSubtract((unsigned int)BLOCKSIZE, length);
-        if (rem)
-            std::memset(temp+length, 0x00, rem);
-
-        m_key.swap(temp);
-    }
-    else
-    {
-        m_key.resize(0);
-    }
-
-    ParameterBlock& block = *m_block.data();
-    std::memset(block.leafLength, 0x00, COUNTOF(block.leafLength));
-    std::memset(block.nodeOffset, 0x00, COUNTOF(block.nodeOffset));
-
-    block.nodeDepth = block.innerLength = 0;
-    block.keyLength = (byte)length;
-    block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
-    block.fanout = block.depth = 1;
-
-    ConstByteArrayParameter t;
-    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
-    {
-        memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
-        size_t rem = SaturatingSubtract(COUNTOF(block.salt), t.size());
-        size_t off = COUNTOF(block.salt) - rem;
-        if (rem)
-            std::memset(block.salt+off, 0x00, rem);
-    }
-    else
-    {
-        std::memset(block.salt, 0x00, COUNTOF(block.salt));
-    }
-
-    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
-    {
-        memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
-        size_t rem = SaturatingSubtract(COUNTOF(block.personalization), t.size());
-        size_t off = COUNTOF(block.personalization) - rem;
-        if (rem)
-            std::memset(block.personalization+off, 0x00, rem);
-    }
-    else
-    {
-        std::memset(block.personalization, 0x00, COUNTOF(block.personalization));
-    }
-}
-
-void BLAKE2b::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
-{
-    if (key && length)
-    {
-        AlignedSecByteBlock temp(BLOCKSIZE);
-        memcpy_s(temp, BLOCKSIZE, key, length);
-
-        size_t rem = SaturatingSubtract((unsigned int)BLOCKSIZE, length);
-        if (rem)
-            std::memset(temp+length, 0x00, rem);
-
-        m_key.swap(temp);
-    }
-    else
-    {
-        m_key.resize(0);
-    }
-
-    ParameterBlock& block = *m_block.data();
-    std::memset(block.leafLength, 0x00, COUNTOF(block.leafLength));
-    std::memset(block.nodeOffset, 0x00, COUNTOF(block.nodeOffset));
-    std::memset(block.rfu, 0x00, COUNTOF(block.rfu));
-
-    block.nodeDepth = block.innerLength = 0;
-    block.keyLength = (byte)length;
-    block.digestLength = (byte)params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
-    block.fanout = block.depth = 1;
-
-    ConstByteArrayParameter t;
-    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
-    {
-        memcpy_s(block.salt, COUNTOF(block.salt), t.begin(), t.size());
-        size_t rem = SaturatingSubtract(COUNTOF(block.salt), t.size());
-        size_t off = COUNTOF(block.salt) - rem;
-        if (rem)
-            std::memset(block.salt+off, 0x00, rem);
-    }
-    else
-    {
-        std::memset(block.salt, 0x00, COUNTOF(block.salt));
-    }
-
-    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
-    {
-        memcpy_s(block.personalization, COUNTOF(block.personalization), t.begin(), t.size());
-        size_t rem = SaturatingSubtract(COUNTOF(block.personalization), t.size());
-        size_t off = COUNTOF(block.personalization) - rem;
-        if (rem)
-            std::memset(block.personalization+off, 0x00, rem);
-    }
-    else
-    {
-        std::memset(block.personalization, 0x00, COUNTOF(block.personalization));
-    }
+#endif
+    return GetAlignmentOf<word32>();
 }
 
 std::string BLAKE2b::AlgorithmProvider() const
@@ -367,16 +197,43 @@ std::string BLAKE2b::AlgorithmProvider() const
 #if defined(CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
         return "SSE4.1";
+    else
 #endif
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
+    else
 #endif
 #if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
         return "Power8";
+    else
 #endif
     return "C++";
+}
+
+unsigned int BLAKE2s::OptimalDataAlignment() const
+{
+#if defined(CRYPTOPP_SSE41_AVAILABLE)
+    if (HasSSE41())
+        return 16;
+    else
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return 4;
+    else
+#endif
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return 16;
+    else
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 16;
+    else
+#endif
+    return GetAlignmentOf<word32>();
 }
 
 std::string BLAKE2s::AlgorithmProvider() const
@@ -384,208 +241,343 @@ std::string BLAKE2s::AlgorithmProvider() const
 #if defined(CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
         return "SSE4.1";
+    else
 #endif
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
         return "NEON";
+    else
 #endif
 #if (CRYPTOPP_POWER7_AVAILABLE)
     if (HasPower7())
         return "Power7";
+    else
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
         return "Altivec";
+    else
 #endif
     return "C++";
 }
 
-BLAKE2s::BLAKE2s(bool treeMode, unsigned int digestSize) : m_state(1), m_block(1), m_digestSize(digestSize), m_treeMode(treeMode)
+void BLAKE2s_State::Reset()
 {
-    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
-
-    UncheckedSetKey(NULLPTR, 0, MakeParameters(Name::DigestSize(), (int)digestSize)(Name::TreeMode(), treeMode, false));
-    Restart();
+    std::memset(m_hft, 0x00, m_hft.SizeInBytes());
+    m_len = 0;
 }
 
-BLAKE2b::BLAKE2b(bool treeMode, unsigned int digestSize) : m_state(1), m_block(1), m_digestSize(digestSize), m_treeMode(treeMode)
+void BLAKE2b_State::Reset()
+{
+    std::memset(m_hft, 0x00, m_hft.SizeInBytes());
+    m_len = 0;
+}
+
+BLAKE2s_ParameterBlock::BLAKE2s_ParameterBlock(size_t digestLen, size_t keyLen,
+        const byte* saltStr, size_t saltLen,
+        const byte* personalizationStr, size_t personalizationLen)
+{
+    Reset(digestLen, keyLen);
+
+    if (saltStr && saltLen)
+        memcpy_s(salt(), SALTSIZE, saltStr, saltLen);
+
+    if (personalizationStr && personalizationLen)
+        memcpy_s(personalization(), PERSONALIZATIONSIZE, personalizationStr, personalizationLen);
+}
+
+BLAKE2b_ParameterBlock::BLAKE2b_ParameterBlock(size_t digestLen, size_t keyLen,
+        const byte* saltStr, size_t saltLen,
+        const byte* personalizationStr, size_t personalizationLen)
+{
+    Reset(digestLen, keyLen);
+
+    if (saltStr && saltLen)
+        memcpy_s(salt(), SALTSIZE, saltStr, saltLen);
+
+    if (personalizationStr && personalizationLen)
+        memcpy_s(personalization(), PERSONALIZATIONSIZE, personalizationStr, personalizationLen);
+}
+
+void BLAKE2s_ParameterBlock::Reset(size_t digestLen, size_t keyLen)
+{
+    std::memset(m_data, 0x00, m_data.size());
+    m_data[DigestOff] = static_cast<byte>(digestLen);
+    m_data[KeyOff] = static_cast<byte>(keyLen);
+    m_data[FanoutOff] = m_data[DepthOff] = 1;
+}
+
+void BLAKE2b_ParameterBlock::Reset(size_t digestLen, size_t keyLen)
+{
+    std::memset(m_data, 0x00, m_data.size());
+    m_data[DigestOff] = static_cast<byte>(digestLen);
+    m_data[KeyOff] = static_cast<byte>(keyLen);
+    m_data[FanoutOff] = m_data[DepthOff] = 1;
+}
+
+BLAKE2s::BLAKE2s(bool treeMode, unsigned int digestSize)
+    : m_digestSize(digestSize), m_keyLength(0), m_treeMode(treeMode)
 {
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
 
-    UncheckedSetKey(NULLPTR, 0, MakeParameters(Name::DigestSize(), (int)digestSize)(Name::TreeMode(), treeMode, false));
-    Restart();
+    UncheckedSetKey(NULLPTR, 0, MakeParameters
+        (Name::DigestSize(), (int)digestSize)
+        (Name::TreeMode(), treeMode));
+}
+
+BLAKE2b::BLAKE2b(bool treeMode, unsigned int digestSize)
+    : m_digestSize(digestSize), m_keyLength(0), m_treeMode(treeMode)
+{
+    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
+
+    UncheckedSetKey(NULLPTR, 0, MakeParameters
+        (Name::DigestSize(), (int)digestSize)
+        (Name::TreeMode(), treeMode));
 }
 
 BLAKE2s::BLAKE2s(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-    : m_state(1), m_block(1), m_digestSize(digestSize), m_treeMode(treeMode)
+    : m_digestSize(digestSize), m_keyLength(keyLength), m_treeMode(treeMode)
 {
     CRYPTOPP_ASSERT(keyLength <= MAX_KEYLENGTH);
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
     CRYPTOPP_ASSERT(saltLength <= SALTSIZE);
     CRYPTOPP_ASSERT(personalizationLength <= PERSONALIZATIONSIZE);
 
-    UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters(Name::DigestSize(),(int)digestSize)(Name::TreeMode(),treeMode, false)
-        (Name::Salt(), ConstByteArrayParameter(salt, saltLength))(Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
-    Restart();
+    UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters
+        (Name::DigestSize(),(int)digestSize)
+        (Name::TreeMode(),treeMode)
+        (Name::Salt(), ConstByteArrayParameter(salt, saltLength))
+        (Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
 }
 
 BLAKE2b::BLAKE2b(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-    : m_state(1), m_block(1), m_digestSize(digestSize), m_treeMode(treeMode)
+    : m_digestSize(digestSize), m_keyLength(keyLength), m_treeMode(treeMode)
 {
     CRYPTOPP_ASSERT(keyLength <= MAX_KEYLENGTH);
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
     CRYPTOPP_ASSERT(saltLength <= SALTSIZE);
     CRYPTOPP_ASSERT(personalizationLength <= PERSONALIZATIONSIZE);
 
-    UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters(Name::DigestSize(),(int)digestSize)(Name::TreeMode(),treeMode, false)
-        (Name::Salt(), ConstByteArrayParameter(salt, saltLength))(Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
+    UncheckedSetKey(key, static_cast<unsigned int>(keyLength), MakeParameters
+        (Name::DigestSize(),(int)digestSize)
+        (Name::TreeMode(),treeMode)
+        (Name::Salt(), ConstByteArrayParameter(salt, saltLength))
+        (Name::Personalization(), ConstByteArrayParameter(personalization, personalizationLength)));
+}
+
+void BLAKE2s::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
+{
+    if (key && length)
+    {
+        m_key.New(BLOCKSIZE);
+        std::memcpy(m_key, key, length);
+        std::memset(m_key + length, 0x00, BLOCKSIZE - length);
+        m_keyLength = length;
+    }
+    else
+    {
+        m_key.resize(0);
+        m_keyLength = 0;
+    }
+
+    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
+
+    m_state.Reset();
+    m_block.Reset(m_digestSize, m_keyLength);
+    (void)params.GetValue(Name::TreeMode(), m_treeMode);
+
+    ConstByteArrayParameter t;
+    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
+        memcpy_s(m_block.salt(), SALTSIZE, t.begin(), t.size());
+
+    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
+        memcpy_s(m_block.personalization(), PERSONALIZATIONSIZE, t.begin(), t.size());
+
+    Restart();
+}
+
+void BLAKE2b::UncheckedSetKey(const byte *key, unsigned int length, const CryptoPP::NameValuePairs& params)
+{
+    if (key && length)
+    {
+        m_key.New(BLOCKSIZE);
+        std::memcpy(m_key, key, length);
+        std::memset(m_key + length, 0x00, BLOCKSIZE - length);
+        m_keyLength = length;
+    }
+    else
+    {
+        m_key.resize(0);
+        m_keyLength = 0;
+    }
+
+    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), DIGESTSIZE);
+
+    m_state.Reset();
+    m_block.Reset(m_digestSize, m_keyLength);
+    (void)params.GetValue(Name::TreeMode(), m_treeMode);
+
+    ConstByteArrayParameter t;
+    if (params.GetValue(Name::Salt(), t) && t.begin() && t.size())
+        memcpy_s(m_block.salt(), SALTSIZE, t.begin(), t.size());
+
+    if (params.GetValue(Name::Personalization(), t) && t.begin() && t.size())
+        memcpy_s(m_block.personalization(), PERSONALIZATIONSIZE, t.begin(), t.size());
+
     Restart();
 }
 
 void BLAKE2s::Restart()
 {
     static const word32 zero[2] = {0,0};
-    Restart(*m_block.data(), zero);
+    Restart(m_block, zero);
 }
 
 void BLAKE2b::Restart()
 {
     static const word64 zero[2] = {0,0};
-    Restart(*m_block.data(), zero);
+    Restart(m_block, zero);
 }
 
 void BLAKE2s::Restart(const BLAKE2s_ParameterBlock& block, const word32 counter[2])
 {
-    // We take a parameter block as a parameter to allow customized state.
-    // Avoid the copy of the parameter block when we are passing our own block.
-    if (&block != m_block.data())
-    {
-        memcpy_s(m_block.data(), sizeof(ParameterBlock), &block, sizeof(ParameterBlock));
-        m_block.data()->digestLength = (byte)m_digestSize;
-        m_block.data()->keyLength = (byte)m_key.size();
-    }
-
-    State& state = *m_state.data();
-    state.tf[0] = state.tf[1] = 0, state.tf[2] = state.tf[3] = 0, state.length = 0;
-
+    // We take a counter as a parameter to allow customized state.
+    m_state.Reset();
     if (counter != NULLPTR)
     {
-        state.tf[0] = counter[0];
-        state.tf[1] = counter[1];
+        word32* t = m_state.t();
+        t[0] = counter[0];
+        t[1] = counter[1];
+    }
+
+    // We take a parameter block as a parameter to allow customized state.
+    // Avoid the copy of the parameter block when we are passing our own block.
+    if (block.data() == m_block.data())
+        m_block.Reset(m_digestSize, m_keyLength);
+    else
+    {
+        std::memcpy(m_block.data(), block.data(), m_block.size());
+        m_block.m_data[BLAKE2s_ParameterBlock::DigestOff] = (byte)m_digestSize;
+        m_block.m_data[BLAKE2s_ParameterBlock::KeyOff] = (byte)m_keyLength;
     }
 
     const word32* iv = BLAKE2S_IV;
-    PutBlock<word32, LittleEndian, true> put(m_block.data(), &state.h[0]);
+    PutBlock<word32, LittleEndian, true> put(m_block.data(), m_state.h());
     put(iv[0])(iv[1])(iv[2])(iv[3])(iv[4])(iv[5])(iv[6])(iv[7]);
 
-    // When BLAKE2 is keyed, the input stream is simply {key||message}. Key it
-    // during Restart to avoid FirstPut and friends. Key size == 0 means no key.
-    if (m_key.size())
-        Update(m_key, m_key.size());
+    // When BLAKE2 is keyed, the input stream is simply {key || 0 || message}.
+    // The key is padded to a full Blocksize with 0. Key it during Restart to
+    // avoid FirstPut and friends. Key size == 0 means no key.
+    if (m_keyLength)
+        Update(m_key, BLOCKSIZE);
 }
-
 
 void BLAKE2b::Restart(const BLAKE2b_ParameterBlock& block, const word64 counter[2])
 {
-    // We take a parameter block as a parameter to allow customized state.
-    // Avoid the copy of the parameter block when we are passing our own block.
-    if (&block != m_block.data())
-    {
-        memcpy_s(m_block.data(), sizeof(ParameterBlock), &block, sizeof(ParameterBlock));
-        m_block.data()->digestLength = (byte)m_digestSize;
-        m_block.data()->keyLength = (byte)m_key.size();
-    }
-
-    State& state = *m_state.data();
-    state.tf[0] = state.tf[1] = 0, state.tf[2] = state.tf[3] = 0, state.length = 0;
-
+    // We take a counter as a parameter to allow customized state.
+    m_state.Reset();
     if (counter != NULLPTR)
     {
-        state.tf[0] = counter[0];
-        state.tf[1] = counter[1];
+        word64* t = m_state.t();
+        t[0] = counter[0];
+        t[1] = counter[1];
+    }
+
+    // We take a parameter block as a parameter to allow customized state.
+    // Avoid the copy of the parameter block when we are passing our own block.
+    if (block.data() == m_block.data())
+        m_block.Reset(m_digestSize, m_keyLength);
+    else
+    {
+        std::memcpy(m_block.data(), block.data(), m_block.size());
+        m_block.m_data[BLAKE2b_ParameterBlock::DigestOff] = (byte)m_digestSize;
+        m_block.m_data[BLAKE2b_ParameterBlock::KeyOff] = (byte)m_keyLength;
     }
 
     const word64* iv = BLAKE2B_IV;
-    PutBlock<word64, LittleEndian, true> put(m_block.data(), &state.h[0]);
+    PutBlock<word64, LittleEndian, true> put(m_block.data(), m_state.h());
     put(iv[0])(iv[1])(iv[2])(iv[3])(iv[4])(iv[5])(iv[6])(iv[7]);
 
-    // When BLAKE2 is keyed, the input stream is simply {key||message}. Key it
-    // during Restart to avoid FirstPut and friends. Key size == 0 means no key.
-    if (m_key.size())
-        Update(m_key, m_key.size());
+    // When BLAKE2 is keyed, the input stream is simply {key || 0 || message}.
+    // The key is padded to a full Blocksize with 0. Key it during Restart to
+    // avoid FirstPut and friends. Key size == 0 means no key.
+    if (m_keyLength)
+        Update(m_key, BLOCKSIZE);
 }
 
 void BLAKE2s::Update(const byte *input, size_t length)
 {
-    CRYPTOPP_ASSERT(!(input == NULLPTR && length != 0));
-    if (length == 0) { return; }
+    CRYPTOPP_ASSERT(input != NULLPTR || length == 0);
 
-    State& state = *m_state.data();
-    if (state.length + length > BLOCKSIZE)
+    if (length > BLOCKSIZE - m_state.m_len)
     {
-        // Complete current block
-        const size_t fill = BLOCKSIZE - state.length;
-        memcpy_s(&state.buffer[state.length], fill, input, fill);
+        if (m_state.m_len != 0)
+        {
+            // Complete current block
+            const size_t fill = BLOCKSIZE - m_state.m_len;
+            std::memcpy(m_state.m_buf+m_state.m_len, input, fill);
 
-        IncrementCounter();
-        Compress(state.buffer);
-        state.length = 0;
+            IncrementCounter(BLOCKSIZE);
+            Compress(m_state.m_buf);
+            m_state.m_len = 0;
 
-        length -= fill, input += fill;
+            length -= fill, input += fill;
+        }
 
         // Compress in-place to avoid copies
         while (length > BLOCKSIZE)
         {
-            IncrementCounter();
+            IncrementCounter(BLOCKSIZE);
             Compress(input);
             length -= BLOCKSIZE, input += BLOCKSIZE;
         }
     }
 
     // Copy tail bytes
-    if (input && length)
+    if (length)
     {
-        CRYPTOPP_ASSERT(length <= BLOCKSIZE - state.length);
-        memcpy_s(&state.buffer[state.length], length, input, length);
-        state.length += static_cast<unsigned int>(length);
+        CRYPTOPP_ASSERT(length <= BLOCKSIZE - m_state.m_len);
+        std::memcpy(m_state.m_buf+m_state.m_len, input, length);
+        m_state.m_len += static_cast<unsigned int>(length);
     }
 }
 
-
 void BLAKE2b::Update(const byte *input, size_t length)
 {
-    CRYPTOPP_ASSERT(!(input == NULLPTR && length != 0));
-    if (length == 0) { return; }
+    CRYPTOPP_ASSERT(input != NULLPTR || length == 0);
 
-    State& state = *m_state.data();
-    if (state.length + length > BLOCKSIZE)
+    if (length > BLOCKSIZE - m_state.m_len)
     {
-        // Complete current block
-        const size_t fill = BLOCKSIZE - state.length;
-        memcpy_s(&state.buffer[state.length], fill, input, fill);
+        if (m_state.m_len != 0)
+        {
+            // Complete current block
+            const size_t fill = BLOCKSIZE - m_state.m_len;
+            std::memcpy(m_state.m_buf+m_state.m_len, input, fill);
 
-        IncrementCounter();
-        Compress(state.buffer);
-        state.length = 0;
+            IncrementCounter(BLOCKSIZE);
+            Compress(m_state.m_buf);
+            m_state.m_len = 0;
 
-        length -= fill, input += fill;
+            length -= fill, input += fill;
+        }
 
         // Compress in-place to avoid copies
         while (length > BLOCKSIZE)
         {
-            IncrementCounter();
+            CRYPTOPP_ASSERT(m_state.m_len == 0);
+            IncrementCounter(BLOCKSIZE);
             Compress(input);
             length -= BLOCKSIZE, input += BLOCKSIZE;
         }
     }
 
     // Copy tail bytes
-    if (input && length)
+    if (length)
     {
-        CRYPTOPP_ASSERT(length <= BLOCKSIZE - state.length);
-        memcpy_s(&state.buffer[state.length], length, input, length);
-        state.length += static_cast<unsigned int>(length);
+        CRYPTOPP_ASSERT(length <= BLOCKSIZE - m_state.m_len);
+        std::memcpy(m_state.m_buf + m_state.m_len, input, length);
+        m_state.m_len += static_cast<unsigned int>(length);
     }
 }
 
@@ -593,23 +585,23 @@ void BLAKE2s::TruncatedFinal(byte *hash, size_t size)
 {
     CRYPTOPP_ASSERT(hash != NULLPTR);
     this->ThrowIfInvalidTruncatedSize(size);
+    word32* f = m_state.f();
 
     // Set last block unconditionally
-    State& state = *m_state.data();
-    state.tf[2] = ~static_cast<word32>(0);
+    f[0] = ~static_cast<word32>(0);
 
     // Set last node if tree mode
     if (m_treeMode)
-        state.tf[3] = ~static_cast<word32>(0);
+        f[1] = ~static_cast<word32>(0);
 
     // Increment counter for tail bytes only
-    IncrementCounter(state.length);
+    IncrementCounter(m_state.m_len);
 
-    std::memset(state.buffer + state.length, 0x00, BLOCKSIZE - state.length);
-    Compress(state.buffer);
+    std::memset(m_state.m_buf + m_state.m_len, 0x00, BLOCKSIZE - m_state.m_len);
+    Compress(m_state.m_buf);
 
     // Copy to caller buffer
-    memcpy_s(hash, size, &state.h[0], size);
+    std::memcpy(hash, m_state.h(), size);
 
     Restart();
 }
@@ -618,39 +610,39 @@ void BLAKE2b::TruncatedFinal(byte *hash, size_t size)
 {
     CRYPTOPP_ASSERT(hash != NULLPTR);
     this->ThrowIfInvalidTruncatedSize(size);
+    word64* f = m_state.f();
 
     // Set last block unconditionally
-    State& state = *m_state.data();
-    state.tf[2] = ~static_cast<word64>(0);
+    f[0] = ~static_cast<word64>(0);
 
     // Set last node if tree mode
     if (m_treeMode)
-        state.tf[3] = ~static_cast<word64>(0);
+        f[1] = ~static_cast<word64>(0);
 
     // Increment counter for tail bytes only
-    IncrementCounter(state.length);
+    IncrementCounter(m_state.m_len);
 
-    std::memset(state.buffer + state.length, 0x00, BLOCKSIZE - state.length);
-    Compress(state.buffer);
+    std::memset(m_state.m_buf + m_state.m_len, 0x00, BLOCKSIZE - m_state.m_len);
+    Compress(m_state.m_buf);
 
     // Copy to caller buffer
-    memcpy_s(hash, size, &state.h[0], size);
+    std::memcpy(hash, m_state.h(), size);
 
     Restart();
 }
 
 void BLAKE2s::IncrementCounter(size_t count)
 {
-    State& state = *m_state.data();
-    state.tf[0] += static_cast<word32>(count);
-    state.tf[1] += !!(state.tf[0] < count);
+    word32* t = m_state.t();
+    t[0] += static_cast<word32>(count);
+    t[1] += !!(t[0] < count);
 }
 
 void BLAKE2b::IncrementCounter(size_t count)
 {
-    State& state = *m_state.data();
-    state.tf[0] += static_cast<word64>(count);
-    state.tf[1] += !!(state.tf[0] < count);
+    word64* t = m_state.t();
+    t[0] += static_cast<word64>(count);
+    t[1] += !!(t[0] < count);
 }
 
 void BLAKE2s::Compress(const byte *input)
@@ -658,27 +650,27 @@ void BLAKE2s::Compress(const byte *input)
 #if CRYPTOPP_SSE41_AVAILABLE
     if(HasSSE41())
     {
-        return BLAKE2_Compress32_SSE4(input, *m_state.data());
+        return BLAKE2_Compress32_SSE4(input, m_state);
     }
 #endif
 #if CRYPTOPP_ARM_NEON_AVAILABLE
     if(HasNEON())
     {
-        return BLAKE2_Compress32_NEON(input, *m_state.data());
+        return BLAKE2_Compress32_NEON(input, m_state);
     }
 #endif
 #if CRYPTOPP_POWER7_AVAILABLE
     if(HasPower7())
     {
-        return BLAKE2_Compress32_POWER7(input, *m_state.data());
+        return BLAKE2_Compress32_POWER7(input, m_state);
     }
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
     if(HasAltivec())
     {
-        return BLAKE2_Compress32_ALTIVEC(input, *m_state.data());
+        return BLAKE2_Compress32_ALTIVEC(input, m_state);
     }
 #endif
-    return BLAKE2_Compress32_CXX(input, *m_state.data());
+    return BLAKE2_Compress32_CXX(input, m_state);
 }
 
 void BLAKE2b::Compress(const byte *input)
@@ -686,22 +678,22 @@ void BLAKE2b::Compress(const byte *input)
 #if CRYPTOPP_SSE41_AVAILABLE
     if(HasSSE41())
     {
-        return BLAKE2_Compress64_SSE4(input, *m_state.data());
+        return BLAKE2_Compress64_SSE4(input, m_state);
     }
 #endif
 #if CRYPTOPP_ARM_NEON_AVAILABLE
     if(HasNEON())
     {
-        return BLAKE2_Compress64_NEON(input, *m_state.data());
+        return BLAKE2_Compress64_NEON(input, m_state);
     }
 #endif
 #if CRYPTOPP_POWER8_AVAILABLE
     if(HasPower8())
     {
-        return BLAKE2_Compress64_POWER8(input, *m_state.data());
+        return BLAKE2_Compress64_POWER8(input, m_state);
     }
 #endif
-    return BLAKE2_Compress64_CXX(input, *m_state.data());
+    return BLAKE2_Compress64_CXX(input, m_state);
 }
 
 void BLAKE2_Compress64_CXX(const byte* input, BLAKE2b_State& state)
@@ -711,18 +703,19 @@ void BLAKE2_Compress64_CXX(const byte* input, BLAKE2b_State& state)
     GetBlock<word64, LittleEndian, true> get1(input);
     get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
 
-    GetBlock<word64, LittleEndian, true> get2(&state.h[0]);
+    GetBlock<word64, LittleEndian, true> get2(state.h());
     get2(v[0])(v[1])(v[2])(v[3])(v[4])(v[5])(v[6])(v[7]);
 
     const word64* iv = BLAKE2B_IV;
+    const word64* tf = state.t();
     v[ 8] = iv[0];
     v[ 9] = iv[1];
     v[10] = iv[2];
     v[11] = iv[3];
-    v[12] = state.tf[0] ^ iv[4];
-    v[13] = state.tf[1] ^ iv[5];
-    v[14] = state.tf[2] ^ iv[6];
-    v[15] = state.tf[3] ^ iv[7];
+    v[12] = tf[0] ^ iv[4];
+    v[13] = tf[1] ^ iv[5];
+    v[14] = tf[2] ^ iv[6];
+    v[15] = tf[3] ^ iv[7];
 
     BLAKE2B_ROUND<0>(m, v);
     BLAKE2B_ROUND<1>(m, v);
@@ -737,8 +730,9 @@ void BLAKE2_Compress64_CXX(const byte* input, BLAKE2b_State& state)
     BLAKE2B_ROUND<10>(m, v);
     BLAKE2B_ROUND<11>(m, v);
 
-    for(unsigned int i = 0; i < 8; ++i)
-        state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
+    word64* h = state.h();
+    for (unsigned int i = 0; i < 8; ++i)
+        h[i] = h[i] ^ ConditionalByteReverse(LITTLE_ENDIAN_ORDER, v[i] ^ v[i + 8]);
 }
 
 void BLAKE2_Compress32_CXX(const byte* input, BLAKE2s_State& state)
@@ -748,18 +742,19 @@ void BLAKE2_Compress32_CXX(const byte* input, BLAKE2s_State& state)
     GetBlock<word32, LittleEndian, true> get1(input);
     get1(m[0])(m[1])(m[2])(m[3])(m[4])(m[5])(m[6])(m[7])(m[8])(m[9])(m[10])(m[11])(m[12])(m[13])(m[14])(m[15]);
 
-    GetBlock<word32, LittleEndian, true> get2(&state.h[0]);
+    GetBlock<word32, LittleEndian, true> get2(state.h());
     get2(v[0])(v[1])(v[2])(v[3])(v[4])(v[5])(v[6])(v[7]);
 
     const word32* iv = BLAKE2S_IV;
+    const word32* tf = state.t();
     v[ 8] = iv[0];
     v[ 9] = iv[1];
     v[10] = iv[2];
     v[11] = iv[3];
-    v[12] = state.tf[0] ^ iv[4];
-    v[13] = state.tf[1] ^ iv[5];
-    v[14] = state.tf[2] ^ iv[6];
-    v[15] = state.tf[3] ^ iv[7];
+    v[12] = tf[0] ^ iv[4];
+    v[13] = tf[1] ^ iv[5];
+    v[14] = tf[2] ^ iv[6];
+    v[15] = tf[3] ^ iv[7];
 
     BLAKE2S_ROUND<0>(m, v);
     BLAKE2S_ROUND<1>(m, v);
@@ -772,8 +767,9 @@ void BLAKE2_Compress32_CXX(const byte* input, BLAKE2s_State& state)
     BLAKE2S_ROUND<8>(m, v);
     BLAKE2S_ROUND<9>(m, v);
 
-    for(unsigned int i = 0; i < 8; ++i)
-        state.h[i] = state.h[i] ^ ConditionalByteReverse(LittleEndian::ToEnum(), v[i] ^ v[i + 8]);
+    word32* h = state.h();
+    for (unsigned int i = 0; i < 8; ++i)
+        h[i] = h[i] ^ ConditionalByteReverse(LITTLE_ENDIAN_ORDER, v[i] ^ v[i + 8]);
 }
 
 NAMESPACE_END
