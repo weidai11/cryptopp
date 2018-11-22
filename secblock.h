@@ -500,7 +500,10 @@ private:
 	// for a large T, and that is what PAD achieves.
 	T* GetAlignedArray() {
 		T* p_array = (T*)(void*)(((byte*)m_array) + (0-(size_t)m_array)%16);
+		// Verify the 16-byte alignment
 		CRYPTOPP_ASSERT(IsAlignedOn(p_array, 16));
+		// Verify allocated array with pad is large enough.
+		CRYPTOPP_ASSERT(p_array+S <= m_array+(S+PAD));
 		return p_array;
 	}
 	// PAD is elements, not bytes, and rounded up to ensure no overflow.
