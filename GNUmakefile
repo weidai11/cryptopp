@@ -1064,7 +1064,16 @@ ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
       endif # CXXFLAGS
     endif # HAS_NEWLIB
   endif # USING_GLIBCXX
-endif # GNU Debug build
+
+  ifeq ($(XLC_COMPILER),1)
+   TPROG = TestPrograms/test_cxx.cxx
+   TOPT = -qheapdebug -qro
+   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+   ifeq ($(strip $(HAVE_OPT)),0)
+    CXXFLAGS += -qheapdebug -qro
+   endif  # CXXFLAGS
+  endif # XLC_COMPILER
+endif  # Debug build
 
 # Dead code stripping. Issue 'make lean'.
 ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
