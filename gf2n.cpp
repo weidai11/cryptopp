@@ -361,7 +361,7 @@ PolynomialMod2 PolynomialMod2::Modulo(const PolynomialMod2 &b) const
 PolynomialMod2& PolynomialMod2::operator<<=(unsigned int n)
 {
 #if defined(CRYPTOPP_DEBUG)
-	int x; CRYPTOPP_UNUSED(x);
+	int x=0; CRYPTOPP_UNUSED(x);
 	CRYPTOPP_ASSERT(SafeConvert(n,x));
 #endif
 
