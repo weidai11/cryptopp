@@ -470,13 +470,12 @@ template <class B>
 void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
 	CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
-	CRYPTOPP_ASSERT(IsAlignedOn(iv,GetAlignmentOf<word32>()));
 	CRYPTOPP_ASSERT(length==32);
 
 	this->Reset();
 	this->Iterate(1, m_key);
 	if (iv && IsAligned<word32>(iv))
-		this->Iterate(1, (const word32 *)(void *)iv);
+		this->Iterate(1, reinterpret_cast<const word32*>(iv));
 	else
 	{
 		FixedSizeSecBlock<word32, 8> buf;
