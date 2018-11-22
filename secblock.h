@@ -484,17 +484,15 @@ private:
 	// align the stack to 8-bytes or less by default, not 16-bytes as
 	// requested. Additionally, the AIX linker seems to use 4-bytes
 	// by default. However, all linkers tested appear to honor
-	// CRYPTOPP_ALIGN_DATA(8). Given we can achieve 8-byte array
-	// alignment, we needs to transform the address returned from
-	// GetAlignedArray() to a 16-byte alignment.
-	// Also see http://stackoverflow.com/a/1468656/608639.
+	// CRYPTOPP_ALIGN_DATA(8). Also see
+	// http://stackoverflow.com/a/1468656/608639.
 	//
 	// The 16-byte alignment is achieved by padding the requested
-	// size with extra elements so we have at least 8-bytes of slack
+	// size with extra elements so we have at least 16-bytes of slack
 	// to work with. Then the pointer is moved down to achieve a
 	// 16-byte alignment (stacks grow down).
 	//
-	// The additional 8-bytes introduces a small secondary issue.
+	// The additional 16-bytes introduces a small secondary issue.
 	// The secondary issue is, a large T results in 0 = 8/sizeof(T).
 	// The library is OK but users may hit it. So we need to guard
 	// for a large T, and that is what PAD achieves.
@@ -506,19 +504,23 @@ private:
 		CRYPTOPP_ASSERT(p_array+S <= m_array+(S+PAD));
 		return p_array;
 	}
+
+#   if defined(_AIX)
+	// PAD is elements, not bytes, and rounded up to ensure no overflow.
+	enum { Q = sizeof(T), PAD = (Q >= 16) ? 1 : (Q >= 8) ? 2 : (Q >= 4) ? 4 : (Q >= 2) ? 8 : 16 };
+	CRYPTOPP_ALIGN_DATA(8) T m_array[S+PAD];
+#   else
 	// PAD is elements, not bytes, and rounded up to ensure no overflow.
 	enum { Q = sizeof(T), PAD = (Q >= 8) ? 1 : (Q >= 4) ? 2 : (Q >= 2) ? 4 : 8 };
 	CRYPTOPP_ALIGN_DATA(8) T m_array[S+PAD];
+#   endif
 
 #else
 
-	// The 8-byte alignments follows convention of Linux and Windows.
-	// Linux and Windows receives most testing. Duplicate it here for
-	// other platforms like AIX and Solaris. AIX and Solaris often use
-	// alignments smaller than expected. In fact AIX caught us by
-	// surprise with word16 and word32.
+	// CRYPTOPP_BOOL_ALIGN16 is 0. Use natural alignment of T.
 	T* GetAlignedArray() {return m_array;}
-	CRYPTOPP_ALIGN_DATA(8) T m_array[S];
+	CRYPTOPP_ALIGN_DATA(4) T m_array[S];
+
 #endif
 
 	A m_fallbackAllocator;
