@@ -2,22 +2,24 @@
 
 /// \file ppc_simd.h
 /// \brief Support functions for PowerPC and vector operations
-/// \details This header provides an agnostic interface into GCC and
-///   IBM XL C/C++ compilers modulo their different built-in functions
+/// \details This header provides an agnostic interface into Clang, GCC
+///   and IBM XL C/C++ compilers modulo their different built-in functions
 ///   for accessing vector intructions.
-/// \details The abstractions are necesssary to support back to GCC 4.8.
-///   GCC 4.8 and 4.9 are still popular, and they are the default
-///   compiler for GCC112, GCC118 and others on the compile farm. Older
-///   IBM XL C/C++ compilers also experience it due to lack of
-///   <tt>vec_xl_be</tt> support on some platforms. Modern compilers
-///   provide best support and don't need many of the little hacks below.
-/// \details At Crypto++ 8.0 the various VectorFunc were renamed to
-///   VecFunc. For example, VectorAnd was changed to VecAnd. The name change
-///   helped consolidate two slightly different implementations.
-/// \since Crypto++ 6.0
+/// \details The abstractions are necesssary to support back to GCC 4.8 and
+///   XLC 11 and 12. GCC 4.8 and 4.9 are still popular, and they are the
+///   default compiler for GCC112, GCC118 and others on the compile farm.
+///   Older IBM XL C/C++ compilers also experience it due to lack of
+///   <tt>vec_xl</tt> and <tt>vec_xst</tt> support on some platforms. Modern
+///   compilers provide best support and don't need many of the little hacks
+///   below.
+/// \details At Crypto++ 8.0 the various VectorFunc{Name} were renamed to
+///   VecFunc{Name}. For example, VectorAnd was changed to VecAnd. The name
+///   change helped consolidate two slightly different implementations.
+/// \since Crypto++ 6.0, LLVM Clang compiler support since Crypto++ 8.0
 
-// Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8. The preprocessor macros
-// depend on compiler options like -maltivec (and not compiler versions).
+// Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8 when detecting actual availaibility
+// of the feature for the source file being compiled. The preprocessor macros
+// depend on compiler options like -maltivec; and not compiler versions.
 
 #ifndef CRYPTOPP_PPC_CRYPTO_H
 #define CRYPTOPP_PPC_CRYPTO_H
@@ -40,13 +42,14 @@
 #endif
 
 // Hack to detect early XLC compilers. XLC compilers for POWER7 use
-// vec_xlw4 and vec_xstw4. Some XLC compilers for POWER7 and above
-// use vec_xl and vec_xst. The way to tell the difference is, XLC
-// compilers version 13.0 and earlier use vec_xlw4 and vec_xstw4.
-// XLC compilers 13.1 and later are use vec_xl and vec_xst. The open
-// question is, how to handle early Clang compilers for POWER7. We
-// know the latest Clang compilers support vec_xl and vec_xst. Also
-// see https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
+// vec_xlw4 and vec_xstw4 (and ld2 variants); not vec_xl and vec_st.
+// Some XLC compilers for POWER7 and above use vec_xl and vec_xst.
+// The way to tell the difference is, XLC compilers version 13.0 and
+// earlier use vec_xlw4 and vec_xstw4. XLC compilers 13.1 and later
+// are use vec_xl and vec_xst. The open question is, how to handle
+// early Clang compilers for POWER7. We know the latest Clang
+// compilers support vec_xl and vec_xst. Also see
+// https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
 
 #if defined(__xlc__) && (__xlc__ < 0x0d01)
 # define __early_xlc__ 1
@@ -156,7 +159,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -183,7 +186,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -209,7 +212,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -226,7 +229,7 @@ inline uint32x4_p VecLoad(const word32 src[4])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecLoad does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -244,7 +247,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \details VecLoad with 64-bit elements is available on POWER8 and above.
 /// \note VecLoad does not require an aligned array.
@@ -262,7 +265,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \details VecLoad with 64-bit elements is available on POWER8 and above.
 /// \note VecLoad does not require an aligned array.
@@ -282,7 +285,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -322,7 +325,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecLoadBE does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -435,7 +438,7 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -465,7 +468,7 @@ inline void VecStore(const T data, byte dest[16])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -494,7 +497,7 @@ inline void VecStore(const T data, int off, byte dest[16])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -514,7 +517,7 @@ inline void VecStore(const T data, word32 dest[4])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 8.0
@@ -535,7 +538,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \details VecStore with 64-bit elements is available on POWER8 and above.
 /// \note VecStore does not require an aligned array.
@@ -556,7 +559,7 @@ inline void VecStore(const T data, word64 dest[2])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \details VecStore with 64-bit elements is available on POWER8 and above.
 /// \note VecStore does not require an aligned array.
@@ -579,7 +582,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
@@ -622,7 +625,7 @@ inline void VecStoreBE(const T data, byte dest[16])
 ///   <tt>vec_vsx_st</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecStore_ALTIVEC() is used if POWER7
 ///   is not available. VecStore_ALTIVEC() can be relatively expensive if
-///   extra instructions are required to fix up unaligned effective memory
+///   extra instructions are required to fix up unaligned memory
 ///   addresses.
 /// \note VecStore does not require an aligned array.
 /// \since Crypto++ 6.0
