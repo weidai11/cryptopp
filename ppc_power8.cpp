@@ -64,20 +64,19 @@ bool CPU_ProbePower8()
     {
         // POWER8 added 64-bit SIMD operations
         const word64 x = W64LIT(0xffffffffffffffff);
-        word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
-		typedef unsigned long long* ull_ptr;
+        word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];        
 
         // Specifically call the VSX loads and stores with 64-bit types
         #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-        const uint64x2_p v1 = vec_xl(0, (ull_ptr)w1);
-        const uint64x2_p v2 = vec_xl(0, (ull_ptr)w2);
+        const uint64x2_p v1 = vec_xl(0, (unsigned long long*)w1);
+        const uint64x2_p v2 = vec_xl(0, (unsigned long long*)w2);
         const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
-        vec_xst(v3, 0, (ull_ptr)w3);
+        vec_xst(v3, 0, (unsigned long long*)w3);
         #else
-        const uint64x2_p v1 = vec_vsx_ld(0, (ull_ptr)w1);
-        const uint64x2_p v2 = vec_vsx_ld(0, (ull_ptr)w2);
+        const uint64x2_p v1 = (uint64x2_p)vec_vsx_ld(0, (const byte*)w1);
+        const uint64x2_p v2 = (uint64x2_p)vec_vsx_ld(0, (const byte*)w2);
         const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
-        vec_vsx_st(v3, 0, (ull_ptr)w3);
+        vec_vsx_st((uint8x16_p)v3, 0, (byte*)w3);
         #endif
 
         // Relies on integer wrap
