@@ -361,7 +361,7 @@ NAMESPACE_END
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
 	#elif defined(__GNUC__) || (__SUNPRO_CC >= 0x5100)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
-	#elif defined(__xlc__) || defined(__xlC__) || defined(__IBM_ATTRIBUTES)
+	#elif defined(__xlc__) || defined(__xlC__)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
 	#else
 		#define CRYPTOPP_ALIGN_DATA(x)
