@@ -65,18 +65,19 @@ bool CPU_ProbePower8()
         // POWER8 added 64-bit SIMD operations
         const word64 x = W64LIT(0xffffffffffffffff);
         word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
+		typedef unsigned long long* ull_ptr;
 
         // Specifically call the VSX loads and stores with 64-bit types
         #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-        const uint64x2_p v1 = vec_xl(0, w1);
-        const uint64x2_p v2 = vec_xl(0, w2);
+        const uint64x2_p v1 = vec_xl(0, (ull_ptr)w1);
+        const uint64x2_p v2 = vec_xl(0, (ull_ptr)w2);
         const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
-        vec_xst(v3, 0, w3);
+        vec_xst(v3, 0, (ull_ptr)w3);
         #else
-        const uint64x2_p v1 = vec_vsx_ld(0, w1);
-        const uint64x2_p v2 = vec_vsx_ld(0, w2);
+        const uint64x2_p v1 = vec_vsx_ld(0, (ull_ptr)w1);
+        const uint64x2_p v2 = vec_vsx_ld(0, (ull_ptr)w2);
         const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
-        vec_vsx_st(v3, 0, (byte*)w3);
+        vec_vsx_st(v3, 0, (ull_ptr)w3);
         #endif
 
         // Relies on integer wrap
@@ -168,9 +169,9 @@ bool CPU_ProbeSHA256()
         uint8x16_p x = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
         x = VecSHA256<0,0>(x);
-        x = VecSHA256<0,1>(x);
+        x = VecSHA256<0,0xf>(x);
         x = VecSHA256<1,0>(x);
-        x = VecSHA256<1,1>(x);
+        x = VecSHA256<1,0xf>(x);
         VecStore(x, r);
 
         result = (0 == std::memcmp(r, z, 16));
@@ -209,12 +210,12 @@ bool CPU_ProbeSHA512()
     else
     {
         byte r[16], z[16] = {0};
-        uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+        uint8x16_p x = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
         x = VecSHA512<0,0>(x);
-        x = VecSHA512<0,1>(x);
+        x = VecSHA512<0,0xf>(x);
         x = VecSHA512<1,0>(x);
-        x = VecSHA512<1,1>(x);
+        x = VecSHA512<1,0xf>(x);
         VecStore(x, r);
 
         result = (0 == std::memcmp(r, z, 16));
