@@ -354,13 +354,14 @@ NAMESPACE_END
 
 // Sun Studio Express 3 (December 2006) provides GCC-style attributes.
 // IBM XL C/C++ alignment modifier per Optimization Guide, pp. 19-20.
+// __IBM_ATTRIBUTES per XLC 12.1 AIX Compiler Manual, p. 473.
 // CRYPTOPP_ALIGN_DATA may not be reliable on AIX.
 #ifndef CRYPTOPP_ALIGN_DATA
 	#if defined(_MSC_VER)
 		#define CRYPTOPP_ALIGN_DATA(x) __declspec(align(x))
 	#elif defined(__GNUC__) || (__SUNPRO_CC >= 0x5100)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
-	#elif defined(__xlc__) || defined(__xlC__)
+	#elif defined(__xlc__) || defined(__xlC__) || defined(__IBM_ATTRIBUTES)
 		#define CRYPTOPP_ALIGN_DATA(x) __attribute__((aligned(x)))
 	#else
 		#define CRYPTOPP_ALIGN_DATA(x)
