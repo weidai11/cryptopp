@@ -45,7 +45,7 @@ bool CPU_ProbeAltivec()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#elif (_ARCH_PWR3) && (CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.

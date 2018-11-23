@@ -42,7 +42,7 @@ bool CPU_ProbePower8()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (_ARCH_PWR8)
+#elif (_ARCH_PWR8) && defined(CRYPTOPP_POWER8_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
