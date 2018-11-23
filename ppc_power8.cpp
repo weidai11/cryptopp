@@ -38,6 +38,7 @@ extern "C" {
 #endif  // CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
 
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+
 bool CPU_ProbePower8()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
@@ -65,17 +66,17 @@ bool CPU_ProbePower8()
         const word64 x = W64LIT(0xffffffffffffffff);
         word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
 
-        // Specifically call the VSX loads and stores
+        // Specifically call the VSX loads and stores with 64-bit types
         #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-        const uint64x2_p v1 = (uint64x2_p)vec_xl(0, (byte*)w1);
-        const uint64x2_p v2 = (uint64x2_p)vec_xl(0, (byte*)w2);
-        const uint64x2_p v3 = VecAdd(v1, v2);  // 64-bit add
-        vec_xst((uint8x16_p)v3, 0, (byte*)w3);
+        const uint64x2_p v1 = vec_xl(0, w1);
+        const uint64x2_p v2 = vec_xl(0, w2);
+        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
+        vec_xst(v3, 0, w3);
         #else
-        const uint64x2_p v1 = (uint64x2_p)vec_vsx_ld(0, (byte*)w1);
-        const uint64x2_p v2 = (uint64x2_p)vec_vsx_ld(0, (byte*)w2);
-        const uint64x2_p v3 = VecAdd(v1, v2);  // 64-bit add
-        vec_vsx_st((uint8x16_p)v3, 0, (byte*)w3);
+        const uint64x2_p v1 = vec_vsx_ld(0, w1);
+        const uint64x2_p v2 = vec_vsx_ld(0, w2);
+        const uint64x2_p v3 = vec_add(v1, v2);  // 64-bit add
+        vec_vsx_st(v3, 0, (byte*)w3);
         #endif
 
         // Relies on integer wrap
@@ -95,7 +96,7 @@ bool CPU_ProbeAES()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (__CRYPTO__)
+#elif (__CRYPTO__) && defined(CRYPTOPP_POWER8_AES_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -139,6 +140,95 @@ bool CPU_ProbeAES()
     return false;
 #endif  // __CRYPTO__
 }
+
+bool CPU_ProbeSHA256()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+    return false;
+#elif (__CRYPTO__) && defined(CRYPTOPP_POWER8_SHA_AVAILABLE)
+# if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
+
+    // longjmp and clobber warnings. Volatile is required.
+    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+    volatile int result = false;
+
+    volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+    if (oldHandler == SIG_ERR)
+        return false;
+
+    volatile sigset_t oldMask;
+    if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+        return false;
+
+    if (setjmp(s_jmpSIGILL))
+        result = false;
+    else
+    {
+        byte r[16], z[16] = {0};
+        uint8x16_p x = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+
+        x = VecSHA256<0,0>(x);
+        x = VecSHA256<0,1>(x);
+        x = VecSHA256<1,0>(x);
+        x = VecSHA256<1,1>(x);
+        VecStore(x, r);
+
+        result = (0 == std::memcmp(r, z, 16));
+    }
+
+    sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+    signal(SIGILL, oldHandler);
+    return result;
+# endif
+#else
+    return false;
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+}
+
+bool CPU_ProbeSHA512()
+{
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+    return false;
+#elif (__CRYPTO__) && defined(CRYPTOPP_POWER8_SHA_AVAILABLE)
+# if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
+
+    // longjmp and clobber warnings. Volatile is required.
+    // http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
+    volatile int result = false;
+
+    volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
+    if (oldHandler == SIG_ERR)
+        return false;
+
+    volatile sigset_t oldMask;
+    if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+        return false;
+
+    if (setjmp(s_jmpSIGILL))
+        result = false;
+    else
+    {
+        byte r[16], z[16] = {0};
+        uint8x16_p x = ((uint8x16_p){0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0});
+
+        x = VecSHA512<0,0>(x);
+        x = VecSHA512<0,1>(x);
+        x = VecSHA512<1,0>(x);
+        x = VecSHA512<1,1>(x);
+        VecStore(x, r);
+
+        result = (0 == std::memcmp(r, z, 16));
+    }
+
+    sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
+    signal(SIGILL, oldHandler);
+    return result;
+# endif
+#else
+    return false;
+#endif  // CRYPTOPP_POWER8_AVAILABLE
+}
+
 #endif  // PPC32 or PPC64
 
 NAMESPACE_END
