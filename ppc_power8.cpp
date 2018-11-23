@@ -64,7 +64,7 @@ bool CPU_ProbePower8()
     {
         // POWER8 added 64-bit SIMD operations
         const word64 x = W64LIT(0xffffffffffffffff);
-        word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];        
+        word64 w1[2] = {x, x}, w2[2] = {4, 6}, w3[2];
 
         // Specifically call the VSX loads and stores with 64-bit types
         #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))

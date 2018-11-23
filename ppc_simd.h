@@ -123,8 +123,12 @@ inline uint32x4_p VecOne()
 template <class T>
 inline T VecReverse(const T data)
 {
+#if (_ARCH_PWR9)
+    return (T)vec_revb((uint8x16_p)data);
+#else
     const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
     return (T)vec_perm(data, data, mask);
+#endif
 }
 
 //////////////////////// Loads ////////////////////////
@@ -723,7 +727,7 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 template <class T>
 inline void VecStoreBE(const T data, word32 dest[4])
 {
-	return VecStoreBE((uint8x16_p)data, (byte*)dest);
+    return VecStoreBE((uint8x16_p)data, (byte*)dest);
 }
 
 /// \brief Stores a vector to a word array
@@ -745,7 +749,7 @@ inline void VecStoreBE(const T data, word32 dest[4])
 template <class T>
 inline void VecStoreBE(const T data, int off, word32 dest[4])
 {
-	return VecStoreBE((uint8x16_p)data, (byte*)dest);
+    return VecStoreBE((uint8x16_p)data, (byte*)dest);
 }
 
 //////////////////////// Miscellaneous ////////////////////////
