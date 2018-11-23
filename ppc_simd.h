@@ -749,7 +749,7 @@ inline void VecStoreBE(const T data, word32 dest[4])
 template <class T>
 inline void VecStoreBE(const T data, int off, word32 dest[4])
 {
-    return VecStoreBE((uint8x16_p)data, (byte*)dest);
+    return VecStoreBE((uint8x16_p)data, off, (byte*)dest);
 }
 
 //////////////////////// Miscellaneous ////////////////////////
@@ -788,7 +788,7 @@ inline T1 VecPermute(const T1 vec, const T2 mask)
 template <class T1, class T2>
 inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
 {
-    return (T1)vec_perm(vec1, vec2, (uint8x16_p)mask);
+    return (T1)vec_perm(vec1, (T1)vec2, (uint8x16_p)mask);
 }
 
 /// \brief AND two vectors
