@@ -1145,14 +1145,14 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
-#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateLeft() rotates each element in a packed vector by bit count.
-/// \details VecRotateLeft() with 64-bit elements is available on POWER7 and above.
+/// \details VecRotateLeft() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
 ///   vec_rl
 /// \since Crypto++ 8.0
@@ -1180,14 +1180,14 @@ inline uint32x4_p VecRotateRight(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
-#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector right
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateRight() rotates each element in a packed vector by bit count.
-/// \details VecRotateRight() with 64-bit elements is available on POWER7 and above.
+/// \details VecRotateRight() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
 ///   vec_rl
 /// \since Crypto++ 8.0
