@@ -10,8 +10,23 @@
 ///   default compiler for GCC112, GCC118 and others on the compile farm.
 ///   Older IBM XL C/C++ compilers also experience it due to lack of
 ///   <tt>vec_xl</tt> and <tt>vec_xst</tt> support on some platforms. Modern
-///   compilers provide best support and don't need many of the little hacks
+///   compilers provide best support and don't need many of the hacks
 ///   below.
+/// \details The library is tested with the following PowerPC machines and
+///   compilers. GCC110, GCC111, GCC112, GCC119 and GCC135 are provided by
+///   the <A HREF="https://cfarm.tetaneutral.net/">GCC Compile Farm</A>
+///   - PowerMac G5, OSX 10.5, POWER4, Apple GCC 4.0
+///   - PowerMac G5, OSX 10.5, POWER4, Macports GCC 5.0
+///   - GCC110, Linux, POWER7, GCC 4.8.5
+///   - GCC110, Linux, POWER7, XLC 12.01
+///   - GCC111, AIX, POWER7, GCC 4.8.1
+///   - GCC111, AIX, POWER7, XLC 12.01
+///   - GCC112, Linux, POWER8, GCC 4.8.5
+///   - GCC112, Linux, POWER8, XLC 13.01
+///   - GCC112, Linux, POWER8, Clang 7.0
+///   - GCC119, AIX, POWER8, GCC 7.2.0
+///   - GCC119, AIX, POWER8, XLC 13.01
+///   - GCC135, Linux, POWER9, GCC 7.0
 /// \details At Crypto++ 8.0 the various VectorFunc{Name} were renamed to
 ///   VecFunc{Name}. For example, VectorAnd was changed to VecAnd. The name
 ///   change helped consolidate two slightly different implementations.
@@ -25,7 +40,7 @@
 // DO NOT USE this pattern in VecLoad and VecStore. We have to use the
 // spaghetti code tangled in preprocessor macros because XLC 12 generates
 // bad code in some places. To verify the bad code generation test on
-// GCC111 with XLC 12.01 installed. XLC 13 on GCC112 and GCC119 are OK.
+// GCC111 with XLC 12.01 installed. XLC 13.01 on GCC112 and GCC119 are OK.
 //
 //   inline uint32x4_p VecLoad(const byte src[16])
 //   {
