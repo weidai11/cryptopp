@@ -38,6 +38,7 @@
 // https://github.com/weidai11/cryptopp/issues/743
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
 # define CRYPTOPP_DISABLE_ALTIVEC 1
+# define CRYPTOPP_POWER7_ALTIVEC 1
 # undef CRYPTOPP_POWER7_AVAILABLE
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
@@ -356,7 +357,7 @@ void BLAKE2_Compress32_SSE4(const byte* input, BLAKE2s_State& state)
     row1 = ff0 = LOADU(state.h()+0);
     row2 = ff1 = LOADU(state.h()+4);
     row3 = LOADU(BLAKE2S_IV+0);
-    row4 = _mm_xor_si128(LOADU(&BLAKE2S_IV[4]), LOADU(state.t()+0));
+    row4 = _mm_xor_si128(LOADU(BLAKE2S_IV+4), LOADU(state.t()+0));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
@@ -674,7 +675,7 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
     const uint32x4_t f0 = row1 = vld1q_u32(state.h()+0);
     const uint32x4_t f1 = row2 = vld1q_u32(state.h()+4);
     row3 = vld1q_u32(BLAKE2S_IV+0);
-    row4 = veorq_u32(vld1q_u32(&BLAKE2S_IV[4]), vld1q_u32(state.t()+0));
+    row4 = veorq_u32(vld1q_u32(BLAKE2S_IV+4), vld1q_u32(state.t()+0));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
@@ -997,7 +998,7 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
     row1 = ff0 = VecLoad32LE(state.h()+0);
     row2 = ff1 = VecLoad32LE(state.h()+4);
     row3 = VecLoad32(BLAKE2S_IV+0);
-    row4 = VecXor(VecLoad32(&BLAKE2S_IV[4]), VecLoad32(state.t()+0));
+    row4 = VecXor(VecLoad32(BLAKE2S_IV+4), VecLoad32(state.t()+0));
 
     BLAKE2S_ROUND(0);
     BLAKE2S_ROUND(1);
