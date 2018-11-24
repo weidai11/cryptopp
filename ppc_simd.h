@@ -25,7 +25,7 @@
 // DO NOT USE this pattern in VecLoad and VecStore. We have to use the
 // spaghetti code tangled in preprocessor macros because XLC 12 generates
 // bad code in some places. To verify the bad code generation test on
-// GCC111 with XLC 12.01 installed. XLC 13 on GCC112 and GCC119 is OK.
+// GCC111 with XLC 12.01 installed. XLC 13 on GCC112 and GCC119 are OK.
 //
 //   inline uint32x4_p VecLoad(const byte src[16])
 //   {
@@ -337,7 +337,6 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 }
 
 #endif  // _ARCH_PWR7
-
 
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
@@ -1144,6 +1143,26 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
+#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+/// \brief Rotate a vector left
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateLeft rotates each element in a packed vector by bit count.
+/// \details VecRotateLeft with 64-bit elements is available on POWER7 and above.
+/// \par Wraps
+///   vec_rl
+/// \since Crypto++ 8.0
+template<unsigned int C>
+inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
+{
+    const uint64x2_p m = {C, C};
+    return vec_rl(vec, m);
+}
+
+#endif
+
 /// \brief Rotate a vector right
 /// \tparam C shift bit count
 /// \param vec the vector
@@ -1158,6 +1177,26 @@ inline uint32x4_p VecRotateRight(const uint32x4_p vec)
     const uint32x4_p m = {32-C, 32-C, 32-C, 32-C};
     return vec_rl(vec, m);
 }
+
+#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+/// \brief Rotate a vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateRight rotates each element in a packed vector by bit count.
+/// \details VecRotateRight with 64-bit elements is available on POWER7 and above.
+/// \par Wraps
+///   vec_rl
+/// \since Crypto++ 8.0
+template<unsigned int C>
+inline uint64x2_p VecRotateRight(const uint64x2_p vec)
+{
+    const uint64x2_p m = {64-C, 64-C};
+    return vec_rl(vec, m);
+}
+
+#endif
 
 /// \brief Exchange high and low double words
 /// \tparam T vector type
