@@ -27,6 +27,18 @@
 ///   - GCC119, AIX, POWER8, GCC 7.2.0
 ///   - GCC119, AIX, POWER8, XLC 13.01
 ///   - GCC135, Linux, POWER9, GCC 7.0
+/// \details 12 machines are used for testing because the three compilers form
+///   five profiles. The profiles are listed below.
+///   - GCC (Linux GCC, Macports GCC, etc. Consistent across machines)
+///   - XLC 13.0 and earlier (all IBM components)
+///   - XLC 13.1 and later on Linux (LLVM front-end, no compatibility macros)
+///   - XLC 13.1 and later on Linux (LLVM front-end, -qxlcompatmacros option)
+///   - LLVM Clang (traditional Clang compiler)
+/// \details The LLVM front-end makes it tricky to write portable code because
+///   LLVM pretends to be other compilers but cannot consume other compiler's
+///   builtins. When using XLC with -qxlcompatmacros the compiler pretends to
+///   be GCC, Clang and XLC all at once but it can only consume it's variety
+///   of builtins.
 /// \details At Crypto++ 8.0 the various VectorFunc{Name} were renamed to
 ///   VecFunc{Name}. For example, VectorAnd was changed to VecAnd. The name
 ///   change helped consolidate two slightly different implementations.
