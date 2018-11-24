@@ -323,6 +323,62 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 
 #endif  // _ARCH_PWR8
 
+
+/// \brief Loads a vector from an aligned byte array
+/// \param src the byte array
+/// \details VecLoadAligned loads a vector in from an aligned byte array.
+/// \details VecLoadAligned uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   aligned effective memory addresses. Altivec's <tt>vec_ld</tt> is used
+///   if POWER7 is not available. The effective address of <tt>src</tt> must
+///   be aligned.
+/// \par Wraps
+///   vec_ld, vec_xlw4, vec_xld2, vec_xl, vec_vsx_ld
+/// \since Crypto++ 8.0
+inline uint32x4_p VecLoadAligned(const byte src[16])
+{
+#if defined(_ARCH_PWR7)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
+    return (uint32x4_p)vec_xlw4(0, (byte*)src);
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+    return (uint32x4_p)vec_xl(0, (byte*)src);
+#  else
+    return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
+#  endif
+#else  // _ARCH_PWR7
+    CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
+    return (uint32x4_p)vec_ld(0, (byte*)src);
+#endif  // _ARCH_PWR7
+}
+
+/// \brief Loads a vector from an aligned byte array
+/// \param src the byte array
+/// \param off offset into the byte array
+/// \details VecLoadAligned loads a vector in from an aligned byte array.
+/// \details VecLoadAligned uses POWER7's <tt>vec_xl</tt> or
+///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
+///   aligned effective memory addresses. Altivec's <tt>vec_ld</tt> is used
+///   if POWER7 is not available. The effective address of <tt>src</tt> must
+///   be aligned.
+/// \par Wraps
+///   vec_ld, vec_xlw4, vec_xld2, vec_xl, vec_vsx_ld
+/// \since Crypto++ 8.0
+inline uint32x4_p VecLoadAligned(int off, const byte src[16])
+{
+#if defined(_ARCH_PWR7)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
+    return (uint32x4_p)vec_xlw4(off, (byte*)src);
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
+    return (uint32x4_p)vec_xl(off, (byte*)src);
+#  else
+    return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
+#  endif
+#else  // _ARCH_PWR7
+    CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
+    return (uint32x4_p)vec_ld(off, (byte*)src);
+#endif  // _ARCH_PWR7
+}
+
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details VecLoadBE loads a vector in from a byte array. VecLoadBE
