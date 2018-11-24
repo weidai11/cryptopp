@@ -23,7 +23,7 @@
 // not compiler versions.
 
 // DO NOT USE this pattern in VecLoad and VecStore. We have to use the
-// spahetti code tangled in preprocessor macros because XLC 12 generates
+// spaghetti code tangled in preprocessor macros because XLC 12 generates
 // bad code in some places. To verify the bad code generation test on
 // GCC111 with XLC 12.01 installed. XLC 13 on GCC112 and GCC119 is OK.
 //
@@ -100,14 +100,14 @@ typedef __vector unsigned short  uint16x8_p;
 /// \since Crypto++ 6.0
 typedef __vector unsigned int    uint32x4_p;
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
-/// \details uint64x2_p is available on POWER8 and above.
+/// \details uint64x2_p is available on POWER7 and above.
 /// \par Wraps
 ///   __vector unsigned long long
 /// \since Crypto++ 6.0
 typedef __vector unsigned long long uint64x2_p;
-#endif  // _ARCH_PWR8
+#endif  // _ARCH_PWR7
 
 /// \brief The 0 vector
 /// \returns a 32-bit vector of 0's
@@ -297,7 +297,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     return VecLoad(off, (const byte*)src);
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Loads a vector from a word array
 /// \param src the word array
@@ -308,7 +308,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 ///   is not available. VecLoad_ALTIVEC() can be relatively expensive if
 ///   extra instructions are required to fix up unaligned memory
 ///   addresses.
-/// \details VecLoad with 64-bit elements is available on POWER8 and above.
+/// \details VecLoad with 64-bit elements is available on POWER7 and above.
 /// \par Wraps
 ///   vec_xlw4, vec_xld2, vec_xl, vec_vsx_ld (and Altivec load)
 /// \since Crypto++ 8.0
@@ -336,7 +336,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     return (uint64x2_p)VecLoad(off, (const byte*)src);
 }
 
-#endif  // _ARCH_PWR8
+#endif  // _ARCH_PWR7
 
 
 /// \brief Loads a vector from an aligned byte array
@@ -969,6 +969,7 @@ inline T1 VecSub(const T1 vec1, const T2 vec2)
 /// \since Crypto++ 8.0
 inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 {
+    // 64-bit elements available at POWER7, but addudm requires POWER8
 #if defined(_ARCH_PWR8)
     return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
