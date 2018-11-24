@@ -717,7 +717,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
 
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
-/// \param src the vector
+/// \param data the vector
 /// \param dest the byte array
 /// \details VecStoreBE() stores a vector to a byte array. VecStoreBE
 ///   will reverse all bytes in the array on a little endian system.
@@ -760,7 +760,7 @@ inline void VecStoreBE(const T data, byte dest[16])
 
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
-/// \param src the vector
+/// \param data the vector
 /// \param off offset into the dest byte array
 /// \param dest the byte array
 /// \details VecStoreBE() stores a vector to a byte array. VecStoreBE
@@ -804,7 +804,7 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
-/// \param src the vector
+/// \param data the vector
 /// \param dest the word array
 /// \details VecStoreBE() stores a vector to a word array. VecStoreBE
 ///   will reverse all bytes in the array on a little endian system.
@@ -825,7 +825,7 @@ inline void VecStoreBE(const T data, word32 dest[4])
 
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
-/// \param src the vector
+/// \param data the vector
 /// \param off offset into the dest word array
 /// \param dest the word array
 /// \details VecStoreBE() stores a vector to a word array. VecStoreBE
