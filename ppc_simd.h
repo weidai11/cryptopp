@@ -137,18 +137,18 @@ inline T VecReverse(const T data)
 /// \param src the byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \details VecLoad_ALTIVEC() uses <tt>vec_ld</tt> if the effective address
-///   of <tt>dest</tt> is aligned, and uses <tt>vec_lvsl</tt> and <tt>vec_perm</tt>
-///   otherwise.
-///   <tt>vec_lvsl</tt> and <tt>vec_perm</tt> are relatively expensive so you should
-///   provide aligned memory adresses.
-/// \details VecLoad_ALTIVEC() is used automatically when POWER7 or above
-///   and unaligned loads is not available.
+///   of <tt>src</tt> is aligned. If unaligned it uses <tt>vec_lvsl</tt>,
+///   <tt>vec_ld</tt>, <tt>vec_perm</tt> and <tt>src</tt>. The fixups using
+///   <tt>vec_lvsl</tt> and <tt>vec_perm</tt> are relatively expensive so
+///   you should provide aligned memory adresses.
 /// \par Wraps
 ///   vec_ld, vec_lvsl, vec_perm
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 {
-    if (IsAlignedOn(src, 16))
+    // Avoid IsAlignedOn for convenience.
+    uintptr_t eff = reinterpret_cast<uintptr_t>(src)+0;
+    if (eff % 16 == 0)
     {
         return (uint32x4_p)vec_ld(0, src);
     }
@@ -167,16 +167,18 @@ inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 /// \param off offset into the src byte array
 /// \details Loads a vector in native endian format from a byte array.
 /// \details VecLoad_ALTIVEC() uses <tt>vec_ld</tt> if the effective address
-///   of <tt>dest</tt> is aligned, and uses <tt>vec_lvsl</tt> and <tt>vec_perm</tt>
-///   otherwise.
-///   <tt>vec_lvsl</tt> and <tt>vec_perm</tt> are relatively expensive so you should
-///   provide aligned memory adresses.
+///   of <tt>src</tt> is aligned. If unaligned it uses <tt>vec_lvsl</tt>,
+///   <tt>vec_ld</tt>, <tt>vec_perm</tt> and <tt>src</tt>.
+/// \details The fixups using <tt>vec_lvsl</tt> and <tt>vec_perm</tt> are
+///   relatively expensive so you should provide aligned memory adresses.
 /// \par Wraps
 ///   vec_ld, vec_lvsl, vec_perm
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 {
-    if (IsAlignedOn(src, 16))
+    // Avoid IsAlignedOn for convenience.
+    uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    if (eff % 16 == 0)
     {
         return (uint32x4_p)vec_ld(off, src);
     }
@@ -217,10 +219,10 @@ inline uint32x4_p VecLoad(const byte src[16])
 #endif
 }
 
-/// \brief Loads a vector from a word array
-/// \param src the word array
-/// \param off offset into the word array
-/// \details VecLoad loads a vector in from a word array.
+/// \brief Loads a vector from a byte array
+/// \param src the byte array
+/// \param off offset into the byte array
+/// \details VecLoad loads a vector in from a byte array.
 /// \details VecLoad uses POWER7's <tt>vec_xl</tt> or
 ///   <tt>vec_vsx_ld</tt> if available. The instructions do not require
 ///   aligned effective memory addresses. VecLoad_ALTIVEC() is used if POWER7
@@ -300,7 +302,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
     return (uint64x2_p)VecLoad((const byte*)src);
 }
 
-/// \brief Loads a vector from a byte array
+/// \brief Loads a vector from a word array
 /// \param src the word array
 /// \param off offset into the word array
 /// \details VecLoad loads a vector in from a word array.
@@ -421,7 +423,9 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
 template<class T>
 inline void VecStore_ALTIVEC(const T data, byte dest[16])
 {
-    if (IsAlignedOn(dest, 16))
+    // Avoid IsAlignedOn for convenience.
+    uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+0;
+    if (eff % 16 == 0)
     {
         vec_st((uint8x16_p)data, 0,  dest);
     }
@@ -458,7 +462,9 @@ inline void VecStore_ALTIVEC(const T data, byte dest[16])
 template<class T>
 inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 {
-    if (IsAlignedOn(dest, 16))
+    // Avoid IsAlignedOn for convenience.
+    uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
+    if (eff % 16 == 0)
     {
         vec_st((uint8x16_p)data, off,  dest);
     }
