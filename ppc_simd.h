@@ -17,9 +17,24 @@
 ///   change helped consolidate two slightly different implementations.
 /// \since Crypto++ 6.0, LLVM Clang compiler support since Crypto++ 8.0
 
-// Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8 when detecting actual availaibility
-// of the feature for the source file being compiled. The preprocessor macros
-// depend on compiler options like -maltivec; and not compiler versions.
+// Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8 when detecting actual
+// availaibility of the feature for the source file being compiled. The
+// preprocessor macros depend on compiler options like -maltivec; and
+// not compiler versions.
+
+// DO NOT USE this pattern in VecLoad and VecStore. We have to use the
+// spahetti code tangled in preprocessor macros because XLC 12 generates
+// bad code in some places. To verify the bad code generation test on
+// GCC111 with XLC 12.01 installed. XLC 13 on GCC112 and GCC119 is OK.
+//
+//   inline uint32x4_p VecLoad(const byte src[16])
+//   {
+//   #if defined(_ARCH_PWR7)
+//       return (uint32x4_p) *(uint8x16_p*)((byte*)src);
+//   #else
+//       return VecLoad_ALTIVEC(src);
+//   #endif
+//   }
 
 #ifndef CRYPTOPP_PPC_CRYPTO_H
 #define CRYPTOPP_PPC_CRYPTO_H
