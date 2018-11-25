@@ -198,7 +198,7 @@ unsigned int BLAKE2b::OptimalDataAlignment() const
         return 16;
     else
 #endif
-    return GetAlignmentOf<word32>();
+    return GetAlignmentOf<word64>();
 }
 
 std::string BLAKE2b::AlgorithmProvider() const
@@ -345,7 +345,7 @@ BLAKE2b::BLAKE2b(bool treeMode, unsigned int digestSize)
 
 BLAKE2s::BLAKE2s(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-    : m_digestSize(digestSize), m_keyLength(keyLength), m_treeMode(treeMode)
+    : m_digestSize(digestSize), m_keyLength(static_cast<unsigned int>(keyLength)), m_treeMode(treeMode)
 {
     CRYPTOPP_ASSERT(keyLength <= MAX_KEYLENGTH);
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
@@ -361,7 +361,7 @@ BLAKE2s::BLAKE2s(const byte *key, size_t keyLength, const byte* salt, size_t sal
 
 BLAKE2b::BLAKE2b(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
-    : m_digestSize(digestSize), m_keyLength(keyLength), m_treeMode(treeMode)
+    : m_digestSize(digestSize), m_keyLength(static_cast<unsigned int>(keyLength)), m_treeMode(treeMode)
 {
     CRYPTOPP_ASSERT(keyLength <= MAX_KEYLENGTH);
     CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
@@ -390,7 +390,8 @@ void BLAKE2s::UncheckedSetKey(const byte *key, unsigned int length, const Crypto
         m_keyLength = 0;
     }
 
-    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), m_digestSize);
+    m_digestSize = static_cast<unsigned int>(params.GetIntValueWithDefault(
+                       Name::DigestSize(), static_cast<int>(m_digestSize)));
 
     m_state.Reset();
     m_block.Reset(m_digestSize, m_keyLength);
@@ -421,7 +422,8 @@ void BLAKE2b::UncheckedSetKey(const byte *key, unsigned int length, const Crypto
         m_keyLength = 0;
     }
 
-    m_digestSize = params.GetIntValueWithDefault(Name::DigestSize(), m_digestSize);
+    m_digestSize = static_cast<unsigned int>(params.GetIntValueWithDefault(
+                       Name::DigestSize(), static_cast<int>(m_digestSize)));
 
     m_state.Reset();
     m_block.Reset(m_digestSize, m_keyLength);
