@@ -802,6 +802,8 @@ ifeq ($(DETECT_FEATURES),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER7
   else ifeq ($(POWER9_FLAG)$(POWER8_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
+  else ifeq ($(POWER9_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_POWER9
   endif
 
   #####################################################################
