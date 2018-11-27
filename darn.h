@@ -11,6 +11,8 @@
 
 /// \file darn.h
 /// \brief Classes for DARN RNG
+/// \sa <A HREF="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">Power
+///   ISA Version 3.0B</A>
 /// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_DARN_H
@@ -22,8 +24,6 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Exception thrown when a DARN generator encounters
 ///    a generator related error.
-/// \sa <A HREF="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">Power
-///   ISA Version 3.0B</A>
 /// \since Crypto++ 8.0
 class DARN_Err : public Exception
 {
@@ -33,12 +33,16 @@ public:
 };
 
 /// \brief Hardware generated random numbers using DARN instruction
-/// \details DARN() provides access to Power9's random number generator.
+/// \details DARN() provides access to Power9's random number generator. The
+///   Crypto++ implementation provides conditioned random numbers from the
+///   generator as opposed to raw random numbers. According to Power ISA 3.0B
+///   manual, a conditioned random number has been processed by hardware to
+///   reduce bias. A raw random number is unconditioned noise source output.
 /// \details According to Power ISA 3.0B manual, the random number generator
-///   provided by this instruction is NIST SP800-90B and SP800-90C compliant to
-///   the extent possible given the completeness of the standards at the time
-///   the hardware is designed. The random number generator provides a minimum
-///   of 0.5 bits of entropy per bit.
+///   provided by the <tt>darn</tt> instruction is NIST SP800-90B and SP800-90C
+///   compliant to the extent possible given the completeness of the standards
+///   at the time the hardware is designed. The random number generator provides
+///   a minimum of 0.5 bits of entropy per bit.
 /// \par Wraps
 ///   darn instruction
 /// \sa <A HREF="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">Power
