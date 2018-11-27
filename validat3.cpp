@@ -12,6 +12,7 @@
 
 #include "rng.h"
 #include "drbg.h"
+#include "darn.h"
 #include "osrng.h"
 #include "rdrand.h"
 #include "mersenne.h"
@@ -53,6 +54,9 @@ bool ValidateAll(bool thorough)
 	pass=TestPadlockRNG() && pass;
 	pass=TestRDRAND() && pass;
 	pass=TestRDSEED() && pass;
+#endif
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+	pass=TestDARN() && pass;
 #endif
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92
@@ -383,6 +387,7 @@ bool TestSettings()
 	const bool hasAltivec = HasAltivec();
 	const bool hasPower7 = HasPower7();
 	const bool hasPower8 = HasPower8();
+	const bool hasPower9 = HasPower9();
 	const bool hasPMULL = HasPMULL();
 	const bool hasAES = HasAES();
 	const bool hasSHA256 = HasSHA256();
@@ -390,9 +395,9 @@ bool TestSettings()
 
 	std::cout << "passed:  ";
 	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7;
-	std::cout << ", hasPower8 == " << hasPower8 << ", hasPMULL == " << hasPMULL;
-	std::cout << ", hasAES == " << hasAES << ", hasSHA256 == " << hasSHA256;
-	std::cout << ", hasSHA512 == " << hasSHA512 << "\n";
+	std::cout << ", hasPower8 == " << hasPower8 << ", hasPower9 == " << hasPower9;
+	std::cout << ", hasPMULL == " << hasPMULL << ", hasAES == " << hasAES;
+	std::cout << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512 << "\n";
 
 #endif
 
@@ -718,7 +723,7 @@ bool TestMersenne()
 #endif
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-	bool TestPadlockRNG()
+bool TestPadlockRNG()
 {
 	std::cout << "\nTesting Padlock RNG generator...\n\n";
 
@@ -877,7 +882,50 @@ bool TestRDSEED()
 
 	return pass;
 }
-#endif
+#endif // x86, x32, or x64
+
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+bool TestDARN()
+{
+	std::cout << "\nTesting DARN generator...\n\n";
+
+	bool pass = true;
+	member_ptr<RandomNumberGenerator> rng;
+
+	try {rng.reset(new DARN);}
+	catch (const DARN_Err &) {}
+
+	if (rng.get())
+	{
+		DARN& darn = dynamic_cast<DARN&>(*rng.get());
+		pass = Test_RandomNumberGenerator(darn) && pass;
+
+		MaurerRandomnessTest maurer;
+		const unsigned int SIZE = 1024*10;
+		RandomNumberSource(darn, SIZE, true, new Redirector(maurer));
+
+		CRYPTOPP_ASSERT(0 == maurer.BytesNeeded());
+		const double mv = maurer.GetTestValue();
+		if (mv < 0.98f)
+			pass = false;
+
+		std::ostringstream oss;
+		oss.flags(std::ios::fixed);
+		oss.precision(6);
+
+		if (!pass)
+			oss << "FAILED:";
+		else
+			oss << "passed:";
+		oss << "  Maurer Randomness Test returned value " << mv << "\n";
+		std::cout << oss.str();
+	}
+	else
+		std::cout << "DARN generator not available, skipping test.\n";
+
+	return pass;
+}
+#endif  // PPC32 or PPC64
 
 bool ValidateHashDRBG()
 {

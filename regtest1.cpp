@@ -27,6 +27,7 @@
 
 #include "osrng.h"
 #include "drbg.h"
+#include "darn.h"
 #include "mersenne.h"
 #include "rdrand.h"
 #include "padlkrng.h"
@@ -132,6 +133,10 @@ void RegisterFactories1()
 		RegisterDefaultFactoryFor<RandomNumberGenerator, RDRAND>();
 	if (HasRDSEED())
 		RegisterDefaultFactoryFor<RandomNumberGenerator, RDSEED>();
+#endif
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+	if (HasDARN())
+		RegisterDefaultFactoryFor<RandomNumberGenerator, DARN>();
 #endif
 	RegisterDefaultFactoryFor<RandomNumberGenerator, OFB_Mode<AES>::Encryption >("AES/OFB RNG");
 	RegisterDefaultFactoryFor<NIST_DRBG, Hash_DRBG<SHA1> >("Hash_DRBG(SHA1)");

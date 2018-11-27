@@ -89,4 +89,5 @@ bool CPU_ProbeAltivec()
 }
 
 # endif  // CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
+
 NAMESPACE_END

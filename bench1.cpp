@@ -6,12 +6,18 @@
 #include "validate.h"
 
 #include "cpu.h"
-#include "drbg.h"
 #include "factory.h"
 #include "algparam.h"
 #include "argnames.h"
 #include "smartptr.h"
 #include "stdcpp.h"
+
+#include "osrng.h"
+#include "drbg.h"
+#include "darn.h"
+#include "mersenne.h"
+#include "rdrand.h"
+#include "padlkrng.h"
 
 #include <iostream>
 #include <iomanip>
@@ -437,6 +443,10 @@ void Benchmark1(double t, double hertz)
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDRAND");
 		if (HasRDSEED())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDSEED");
+#endif
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+		if (HasDARN())
+			BenchMarkByNameKeyLess<RandomNumberGenerator>("DARN");
 #endif
 		BenchMarkByNameKeyLess<RandomNumberGenerator>("AES/OFB RNG");
 		BenchMarkByNameKeyLess<NIST_DRBG>("Hash_DRBG(SHA1)");

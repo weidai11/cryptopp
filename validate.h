@@ -33,6 +33,9 @@ bool TestRDRAND();
 bool TestRDSEED();
 bool TestPadlockRNG();
 #endif
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+bool TestDARN();
+#endif
 bool ValidateBaseCode();
 bool ValidateEncoder();
 bool ValidateCRC32();

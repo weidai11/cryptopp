@@ -82,6 +82,8 @@ cryptlib.h
 cryptlib.vcxproj
 cryptlib.vcxproj.filters
 cryptopp.rc
+darn.cpp
+darn.h
 datatest.cpp
 default.cpp
 default.h
@@ -228,8 +230,9 @@ polynomi.cpp
 polynomi.h
 ppc_power7.cpp
 ppc_power8.cpp
-ppc_simd.h
+ppc_power9.cpp
 ppc_simd.cpp
+ppc_simd.h
 pssr.cpp
 pssr.h
 pubkey.cpp
@@ -534,9 +537,13 @@ TestPrograms/test_arm_sha.cxx
 TestPrograms/test_crypto_v84.cxx
 TestPrograms/test_cxx.cxx
 TestPrograms/test_newlib.cxx
+TestPrograms/test_ppc_aes.cxx
 TestPrograms/test_ppc_altivec.cxx
 TestPrograms/test_ppc_power7.cxx
 TestPrograms/test_ppc_power8.cxx
+TestPrograms/test_ppc_power9.cxx
+TestPrograms/test_ppc_sha.cxx
+TestPrograms/test_ppc_vmull.cxx
 TestPrograms/test_pthreads.cxx
 TestPrograms/test_x86_aes.cxx
 TestPrograms/test_x86_avx.cxx
