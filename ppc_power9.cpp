@@ -107,13 +107,13 @@ bool CPU_ProbeDARN()
         result = false;
     else
     {
-        // "darn r3, 1" in big- and little-endian
+        // This is "darn r3, 0". It provides a conditioned 32-bit
+        // word. It is available on both 32-bit and 64-bit.
 #if CRYPTOPP_BIG_ENDIAN
-        __asm__ __volatile__ (".byte 0x7c, 0x61, 0x05, 0xe6  \n" : : : "r3");
+        __asm__ __volatile__ (".byte 0x7c, 0x60, 0x05, 0xe6  \n" : : : "r3");
 #else
-        __asm__ __volatile__ (".byte 0xe6, 0x05, 0x61, 0x7c  \n" : : : "r3");
+        __asm__ __volatile__ (".byte 0xe6, 0x05, 0x60, 0x7c  \n" : : : "r3");
 #endif
-        // If we got here without SIGILL then success
         result = true;
     }
 
