@@ -2,10 +2,11 @@
 //          DARN requires POWER9/ISA 3.0.
 
 // At the moment only GCC 7.0 (and above) seems to support __builtin_darn()
-// and __builtin_darn_32(). Clang 7.0 does not provide them. XLC is unknown.
-// To cover more platforms we provide GCC inline assembly like we do with
-// RDRAND and RDSEED. Platforms that don't support GCC inline assembly or
-// the builtin will fail the compile. Also see
+// and __builtin_darn_32(). Clang 7.0 does not provide them. XLC is unknown,
+// but there are no hits when searching IBM's site. To cover more platforms
+// we provide GCC inline assembly like we do with RDRAND and RDSEED.
+// Platforms that don't support GCC inline assembly or the builtin will fail
+// the compile. Also see
 // https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-ISA-3_002e0.html
 
 /// \file darn.h
@@ -21,6 +22,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Exception thrown when a DARN generator encounters
 ///    a generator related error.
+/// \sa <A HREF="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">Power
+///   ISA Version 3.0B</A>
 /// \since Crypto++ 8.0
 class DARN_Err : public Exception
 {
@@ -30,7 +33,16 @@ public:
 };
 
 /// \brief Hardware generated random numbers using DARN instruction
-/// \sa MaurerRandomnessTest() for random bit generators
+/// \details DARN() provides access to Power9's random number generator.
+/// \details According to Power ISA 3.0B manual, the random number generator
+///   provided by this instruction is NIST SP800-90B and SP800-90C compliant to
+///   the extent possible given the completeness of the standards at the time
+///   the hardware is designed. The random number generator provides a minimum
+///   of 0.5 bits of entropy per bit.
+/// \par Wraps
+///   darn instruction
+/// \sa <A HREF="https://openpowerfoundation.org/?resource_lib=power-isa-version-3-0">Power
+///   ISA Version 3.0B</A>, MaurerRandomnessTest() for random bit generators
 /// \since Crypto++ 8.0
 class DARN : public RandomNumberGenerator
 {
