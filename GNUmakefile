@@ -683,7 +683,7 @@ ifeq ($(DETECT_FEATURES),1)
   #####################################################################
   # Looking for a POWER8 option
 
-  TPROG = TestPrograms/test_ppc_power8.cxx
+  TPROG = TestPrograms/test_ppc_power9.cxx
   TOPT = $(POWER9_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
@@ -691,6 +691,7 @@ ifeq ($(DETECT_FEATURES),1)
     BLAKE2B_FLAG = $(POWER9_FLAG)
     BLAKE2S_FLAG = $(POWER9_FLAG)
     CHACHA_FLAG = $(POWER9_FLAG)
+    DARN_FLAG = $(POWER9_FLAG)
     SM4_FLAG = $(POWER9_FLAG)
     SIMON64_FLAG = $(POWER9_FLAG)
     SIMON128_FLAG = $(POWER9_FLAG)
@@ -1534,6 +1535,10 @@ chacha_avx.o : chacha_avx.cpp
 cham_simd.o : cham_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(CHAM_FLAG) -c) $<
 
+# Power9 available
+darn.o : darn.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(DARN_FLAG) -c) $<
+
 # SSE2 on i586
 sse_simd.o : sse_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SSE_FLAG) -c) $<
@@ -1565,6 +1570,10 @@ ppc_power7.o : ppc_power7.cpp
 # Power8 available
 ppc_power8.o : ppc_power8.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(POWER8_FLAG) -c) $<
+
+# Power9 available
+ppc_power9.o : ppc_power9.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(POWER9_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
 rijndael_simd.o : rijndael_simd.cpp

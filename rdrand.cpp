@@ -72,7 +72,7 @@ inline void RDRAND32(void* output)
 #endif
 }
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
+#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
 // Fills 8 bytes
 inline void RDRAND64(void* output)
 {
@@ -107,10 +107,10 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
 
 #elif defined(GCC_RDRAND_ASM_AVAILABLE)
 
-#   if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
+#   if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
     size_t i = 0;
     for (i = 0; i < size/8; i++)
-        RDRAND64(reinterpret_cast<word64*>(output)+i);
+        RDRAND64(output+i*8);
 
     output += i*8;
     size -= i*8;
@@ -124,7 +124,7 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
 #   else
     size_t i = 0;
     for (i = 0; i < size/4; i++)
-        RDRAND32(reinterpret_cast<word32*>(output)+i);
+        RDRAND32(output+i*4);
 
     output += i*4;
     size -= i*4;
@@ -178,7 +178,7 @@ inline void RDSEED32(void* output)
 #endif
 }
 
-#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
+#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
 // Fills 8 bytes
 inline void RDSEED64(void* output)
 {
@@ -212,10 +212,10 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
     MASM_RDSEED_GenerateBlock(output, size);
 
 #elif defined(GCC_RDSEED_ASM_AVAILABLE)
-#   if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32
+#   if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
     size_t i = 0;
     for (i = 0; i < size/8; i++)
-        RDSEED64(reinterpret_cast<word64*>(output)+i);
+        RDSEED64(output+i*8);
 
     output += i*8;
     size -= i*8;
@@ -229,7 +229,7 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
 #   else
     size_t i = 0;
     for (i = 0; i < size/4; i++)
-        RDSEED32(reinterpret_cast<word32*>(output)+i);
+        RDSEED32(output+i*4);
 
     output += i*4;
     size -= i*4;
@@ -273,11 +273,13 @@ RDRAND::RDRAND()
 
 void RDRAND::GenerateBlock(byte *output, size_t size)
 {
+    // Constructor will throw, should not get here
     CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
 }
 
 void RDRAND::DiscardBytes(size_t n)
 {
+    // Constructor will throw, should not get here
     CRYPTOPP_UNUSED(n);
 }
 
@@ -288,11 +290,13 @@ RDSEED::RDSEED()
 
 void RDSEED::GenerateBlock(byte *output, size_t size)
 {
+    // Constructor will throw, should not get here
     CRYPTOPP_UNUSED(output); CRYPTOPP_UNUSED(size);
 }
 
 void RDSEED::DiscardBytes(size_t n)
 {
+    // Constructor will throw, should not get here
     CRYPTOPP_UNUSED(n);
 }
 

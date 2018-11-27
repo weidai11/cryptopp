@@ -827,20 +827,25 @@ bool CRYPTOPP_SECTION_INIT g_PowerpcDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasAltivec = false;
 bool CRYPTOPP_SECTION_INIT g_hasPower7 = false;
 bool CRYPTOPP_SECTION_INIT g_hasPower8 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPower9 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAES = false;
 bool CRYPTOPP_SECTION_INIT g_hasPMULL = false;
 bool CRYPTOPP_SECTION_INIT g_hasSHA256 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSHA512 = false;
+bool CRYPTOPP_SECTION_INIT g_hasDARN = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 extern bool CPU_ProbeAltivec();
 extern bool CPU_ProbePower7();
 extern bool CPU_ProbePower8();
+extern bool CPU_ProbePower9();
 extern bool CPU_ProbeAES();
 extern bool CPU_ProbePMULL();
 extern bool CPU_ProbeSHA256();
 extern bool CPU_ProbeSHA512();
+extern bool CPU_ProbeDARN();
 
+// Linux defines
 #ifndef PPC_FEATURE_HAS_ALTIVEC
 # define PPC_FEATURE_HAS_ALTIVEC  0x10000000
 #endif
@@ -850,17 +855,39 @@ extern bool CPU_ProbeSHA512();
 #ifndef PPC_FEATURE2_ARCH_2_07
 # define PPC_FEATURE2_ARCH_2_07   0x80000000
 #endif
+#ifndef PPC_FEATURE2_ARCH_3_00
+# define PPC_FEATURE2_ARCH_3_00   0x00800000
+#endif
 #ifndef PPC_FEATURE2_VEC_CRYPTO
 # define PPC_FEATURE2_VEC_CRYPTO  0x02000000
 #endif
 
+// AIX defines. We used to just call __power_7_andup()
+// and friends but at Power9, too many compilers were
+// missing __power_9_andup(). Instead we switched to
+// a pattern similar to OpenSSL caps testing.
+#ifndef __power_6_andup
+# define __power_6_andup() __power_set(0xffffffffU<<14)
+#endif
+#ifndef __power_7_andup
+# define __power_7_andup() __power_set(0xffffffffU<<15)
+#endif
+#ifndef __power_8_andup
+# define __power_8_andup() __power_set(0xffffffffU<<16)
+#endif
+#ifndef __power_9_andup
+# define __power_9_andup() __power_set(0xffffffffU<<17)
+#endif
+
+// AIX first supported Altivec at Power6, though it
+// was available much earlier for other vendors.
 inline bool CPU_QueryAltivec()
 {
 #if defined(__linux__)
 	if ((getauxval(AT_HWCAP) & PPC_FEATURE_HAS_ALTIVEC) != 0)
 		return true;
 #elif defined(_AIX)
-	if (__power_vmx() != 0)
+	if (__power_6_andup() != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__POWERPC__)
 	unsigned int device, version;
@@ -891,6 +918,19 @@ inline bool CPU_QueryPower8()
 		return true;
 #elif defined(_AIX)
 	if (__power_8_andup() != 0)
+		return true;
+#endif
+	return false;
+}
+
+inline bool CPU_QueryPower9()
+{
+	// Power9 and ISA 3.0.
+#if defined(__linux__)
+	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_3_00) != 0)
+		return true;
+#elif defined(_AIX)
+	if (__power_9_andup() != 0)
 		return true;
 #endif
 	return false;
@@ -951,6 +991,20 @@ inline bool CPU_QuerySHA512()
 	return false;
 }
 
+// Power9 random number generator
+inline bool CPU_QueryDARN()
+{
+	// Power9 and ISA 3.0 provide DARN.
+#if defined(__linux__)
+	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_3_00) != 0)
+		return true;
+#elif defined(_AIX)
+	if (__power_9_andup() != 0)
+		return true;
+#endif
+	return false;
+}
+
 void DetectPowerpcFeatures()
 {
 	// The CPU_ProbeXXX's return false for OSes which
@@ -958,10 +1012,12 @@ void DetectPowerpcFeatures()
 	g_hasAltivec  = CPU_QueryAltivec() || CPU_ProbeAltivec();
 	g_hasPower7 = CPU_QueryPower7() || CPU_ProbePower7();
 	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();
+	g_hasPower9 = CPU_QueryPower9() || CPU_ProbePower9();
 	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
 	g_hasSHA256 = CPU_QuerySHA256() || CPU_ProbeSHA256();
 	g_hasSHA512 = CPU_QuerySHA512() || CPU_ProbeSHA512();
+	g_hasDARN = CPU_QueryDARN() || CPU_ProbeDARN();
 
 #if defined(_AIX) && defined(SC_L1C_DLS)
 	// /usr/include/sys/systemcfg.h
