@@ -16,8 +16,10 @@
 
 // Inline assembler available in GCC 3.2 or above. For practical
 // purposes we check for GCC 4.0 or above. GCC imposters claim
-// to be GCC 4.2.1 so it will capture them, too.
-#if (__GNUC__ >= 4) || defined(__IBM_GCC_ASM)
+// to be GCC 4.2.1 so it will capture them, too. We exclude the
+// Apple machines because they are not Power9 and use a slightly
+// different syntax in their assembler.
+#if ((__GNUC__ >= 4) || defined(__IBM_GCC_ASM)) && !defined(__APPLE__)
 # define GCC_DARN_ASM_AVAILABLE 1
 #endif
 
@@ -60,7 +62,12 @@ inline void DARN32(void* output)
     // This is probably going to break some platforms.
     // We will deal with them as we encounter them.
     *ptr = __builtin_darn_32();
+#elif defined(__APPLE__)
+    // Nop. Apple G4 and G5 machines are too old. They will
+    // avoid this code path because HasPower9() returns false.
+    CRYPTOPP_ASSERT(0);
 #else
+    // Catch other compile breaks
     int XXX[-1];
 #endif
 }
@@ -97,7 +104,12 @@ inline void DARN64(void* output)
     // This is probably going to break some platforms.
     // We will deal with them as we encounter them.
     *ptr = __builtin_darn();
+#elif defined(__APPLE__)
+    // Nop. Apple G4 and G5 machines are too old. They will
+    // avoid this code path because HasPower9() returns false.
+    CRYPTOPP_ASSERT(0);
 #else
+    // Catch other compile breaks
     int XXX[-1];
 #endif
 }
