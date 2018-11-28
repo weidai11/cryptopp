@@ -14,7 +14,10 @@
 // Platforms that don't support GCC inline assembly or the builtin will fail
 // the compile.
 
-#if defined(__GNUC__) || defined(__IBM_GCC_ASM)
+// Inline assembler available in GCC 3.2 or above. For practical
+// purposes we check for GCC 4.0 or above. GCC imposters claim
+// to be GCC 4.2.1 so it will capture them, too.
+#if (__GNUC__ >= 4) || defined(__IBM_GCC_ASM)
 # define GCC_DARN_ASM_AVAILABLE 1
 #endif
 
