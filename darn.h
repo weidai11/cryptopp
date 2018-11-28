@@ -84,6 +84,9 @@ public:
     std::string AlgorithmProvider() const {
         return "Power9";
     }
+
+private:
+    SecBlock<byte, AllocatorWithCleanup<byte, true> > m_temp;
 };
 
 NAMESPACE_END

@@ -8,11 +8,11 @@
 #include "cpu.h"
 
 // At the moment only GCC 7.0 (and above) seems to support __builtin_darn()
-// and __builtin_darn_32(). Clang 7.0 does not provide them. XLC is unknown,
-// but there are no hits when searching IBM's site. To cover more platforms
-// we provide GCC inline assembly like we do with RDRAND and RDSEED.
-// Platforms that don't support GCC inline assembly or the builtin will fail
-// the compile.
+// and __builtin_darn_32(). Clang 7.0 does not provide them, but it does
+// support assembly instructions. XLC is unknown, but there are no hits when
+// searching IBM's site. To cover more platforms we provide GCC inline
+// assembly like we do with RDRAND and RDSEED. Platforms that don't support
+// GCC inline assembly or the builtin will fail the compile.
 
 // Inline assembler available in GCC 3.2 or above. For practical
 // purposes we check for GCC 4.0 or above. GCC imposters claim
@@ -121,6 +121,9 @@ DARN::DARN()
 {
     if (!HasDARN())
         throw DARN_Err("HasDARN");
+
+    // Scratch buffer in case user buffers are unaligned.
+    m_temp.New(8);
 }
 
 void DARN::GenerateBlock(byte *output, size_t size)
@@ -131,13 +134,12 @@ void DARN::GenerateBlock(byte *output, size_t size)
 
 #if (CRYPTOPP_BOOL_PPC64)
 
-    word64 val;
+    // Check alignment
     i = reinterpret_cast<uintptr_t>(output) & 0x7;
-
     if (i != 0)
     {
-        DARN64(&val);
-        std::memcpy(output, &val, i);
+        DARN64(m_temp);
+        std::memcpy(output, m_temp, i);
 
         output += i;
         size -= i;
@@ -152,19 +154,18 @@ void DARN::GenerateBlock(byte *output, size_t size)
 
     if (size)
     {
-        DARN64(&val);
-        std::memcpy(output, &val, size);
+        DARN64(m_temp);
+        std::memcpy(output, m_temp, size);
     }
 
 #elif (CRYPTOPP_BOOL_PPC32)
 
-    word32 val;
+    // Check alignment
     i = reinterpret_cast<uintptr_t>(output) & 0x3;
-
     if (i != 0)
     {
-        DARN32(&val);
-        std::memcpy(output, &val, i);
+        DARN32(m_temp);
+        std::memcpy(output, m_temp, i);
 
         output += i;
         size -= i;
@@ -178,8 +179,8 @@ void DARN::GenerateBlock(byte *output, size_t size)
 
     if (size)
     {
-        DARN32(&val);
-        std::memcpy(output, &val, size);
+        DARN32(m_temp);
+        std::memcpy(output, m_temp, size);
     }
 
 #else
