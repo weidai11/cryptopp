@@ -44,6 +44,9 @@
     <ClCompile Include="cryptlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="darn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="des.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -230,6 +233,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="cryptlib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="darn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="des.h">

@@ -204,6 +204,7 @@
     <ClCompile Include="cmac.cpp" />
     <ClCompile Include="crc.cpp" />
     <ClCompile Include="crc_simd.cpp" />
+    <ClCompile Include="darn.cpp" />
     <ClCompile Include="default.cpp" />
     <ClCompile Include="des.cpp" />
     <ClCompile Include="dessp.cpp" />
@@ -405,6 +406,7 @@
     <ClInclude Include="cpu.h" />
     <ClInclude Include="crc.h" />
     <ClInclude Include="cryptlib.h" />
+    <ClInclude Include="darn.h" />
     <ClInclude Include="default.h" />
     <ClInclude Include="des.h" />
     <ClInclude Include="dh.h" />
