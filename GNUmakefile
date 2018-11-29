@@ -609,18 +609,15 @@ ifeq ($(DETECT_FEATURES),1)
     POWER9_FLAG = -qarch=pwr9 -qaltivec
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     POWER7_FLAG = -qarch=pwr7 -qaltivec
-    POWER6_FLAG = -qarch=pwr6 -qaltivec
-    POWER5_FLAG = -qarch=pwr5 -qaltivec
-    POWER4_FLAG = -qarch=pwr4 -qaltivec
-    POWER3_FLAG = -qarch=pwr3 -qaltivec
+    POWER9_FLAG = -qarch=pwr6 -qaltivec
+    POWER8_FLAG = -qarch=pwr5 -qaltivec
+    POWER7_FLAG = -qarch=pwr4 -qaltivec
+    ALTIVEC_FLAG = -qaltivec
   else
     POWER9_FLAG = -mcpu=power9 -maltivec
     POWER8_FLAG = -mcpu=power8 -maltivec
     POWER7_FLAG = -mcpu=power7 -maltivec
-    POWER6_FLAG = -mcpu=power6 -maltivec
-    POWER5_FLAG = -mcpu=power5 -maltivec
-    POWER4_FLAG = -mcpu=power4 -maltivec
-    POWER3_FLAG = -mcpu=power3 -maltivec
+    ALTIVEC_FLAG = -maltivec
   endif
 
   # XLC with LLVM front-ends failed to define XLC defines.
@@ -634,69 +631,13 @@ ifeq ($(DETECT_FEATURES),1)
   #endif
 
   #####################################################################
-  # Crypto is a separate submodule of POWER8 due to possible export
-  # restrictions by the government. It is the reason LLVM choose
-  # different intrinsics than GCC and XLC.
-
-  TPROG = TestPrograms/test_ppc_aes.cxx
-  TOPT = $(POWER9_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    AES_FLAG = $(POWER9_FLAG)
-  endif
-
-  TPROG = TestPrograms/test_ppc_aes.cxx
-  TOPT = $(POWER8_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    AES_FLAG = $(POWER8_FLAG)
-  endif
-
-  TPROG = TestPrograms/test_ppc_vmull.cxx
-  TOPT = $(POWER9_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    GCM_FLAG = $(POWER9_FLAG)
-  endif
-
-  TPROG = TestPrograms/test_ppc_vmull.cxx
-  TOPT = $(POWER8_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    GCM_FLAG = $(POWER8_FLAG)
-  endif
-
-  TPROG = TestPrograms/test_ppc_sha.cxx
-  TOPT = $(POWER9_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    SHA_FLAG = $(POWER9_FLAG)
-  endif
-
-  TPROG = TestPrograms/test_ppc_sha.cxx
-  TOPT = $(POWER8_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    SHA_FLAG = $(POWER8_FLAG)
-  endif
-
-  #####################################################################
   # Looking for a POWER8 option
 
   TPROG = TestPrograms/test_ppc_power9.cxx
   TOPT = $(POWER9_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER9_FLAG)
-    BLAKE2B_FLAG = $(POWER9_FLAG)
-    BLAKE2S_FLAG = $(POWER9_FLAG)
-    CHACHA_FLAG = $(POWER9_FLAG)
     DARN_FLAG = $(POWER9_FLAG)
-    SM4_FLAG = $(POWER9_FLAG)
-    SIMON64_FLAG = $(POWER9_FLAG)
-    SIMON128_FLAG = $(POWER9_FLAG)
-    SPECK64_FLAG = $(POWER9_FLAG)
-    SPECK128_FLAG = $(POWER9_FLAG)
   else
     POWER9_FLAG =
   endif
@@ -705,14 +646,13 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = $(POWER8_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER8_FLAG)
     BLAKE2B_FLAG = $(POWER8_FLAG)
-    BLAKE2S_FLAG = $(POWER8_FLAG)
-    CHACHA_FLAG = $(POWER8_FLAG)
-    SM4_FLAG = $(POWER8_FLAG)
-    SIMON64_FLAG = $(POWER8_FLAG)
+    CRC_FLAG = $(POWER8_FLAG)
+    GCM_FLAG = $(POWER8_FLAG)
+    AES_FLAG = $(POWER8_FLAG)
+    SHA_FLAG = $(POWER8_FLAG)
+    SHACAL2_FLAG = $(POWER8_FLAG)
     SIMON128_FLAG = $(POWER8_FLAG)
-    SPECK64_FLAG = $(POWER8_FLAG)
     SPECK128_FLAG = $(POWER8_FLAG)
   else
     POWER8_FLAG =
@@ -725,7 +665,6 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = $(POWER7_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER7_FLAG)
     ARIA_FLAG = $(POWER7_FLAG)
     BLAKE2S_FLAG = $(POWER7_FLAG)
     CHACHA_FLAG = $(POWER7_FLAG)
@@ -742,39 +681,36 @@ ifeq ($(DETECT_FEATURES),1)
   # Looking for an Altivec option
 
   TPROG = TestPrograms/test_ppc_altivec.cxx
-  TOPT = $(POWER6_FLAG)
+  TOPT = $(ALTIVEC_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER6_FLAG)
-  else
-    POWER6_FLAG =
+  ifneq ($(strip $(HAVE_OPT)),0)
+    ALTIVEC_FLAG =
   endif
 
-  TPROG = TestPrograms/test_ppc_altivec.cxx
-  TOPT = $(POWER5_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER5_FLAG)
-  else
-    POWER5_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_ppc_altivec.cxx
-  TOPT = $(POWER4_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER4_FLAG)
-  else
-    POWER4_FLAG =
-  endif
-
-  TPROG = TestPrograms/test_ppc_altivec.cxx
-  TOPT = $(POWER3_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    ALTIVEC_FLAG = $(POWER3_FLAG)
-  else
-    POWER3_FLAG =
+  # XLC fixup
+  ifeq ($(XLC_COMPILER)$(ALTIVEC_FLAG),1)
+    TPROG = TestPrograms/test_ppc_altivec.cxx
+    TOPT = $(POWER4_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      ALTIVEC_FLAG = $(POWER4_FLAG)
+    else
+      TPROG = TestPrograms/test_ppc_altivec.cxx
+      TOPT = $(POWER5_FLAG)
+      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+      ifeq ($(strip $(HAVE_OPT)),0)
+        ALTIVEC_FLAG = $(POWER5_FLAG)
+      else
+        TPROG = TestPrograms/test_ppc_altivec.cxx
+        TOPT = $(POWER6_FLAG)
+        HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+        ifeq ($(strip $(HAVE_OPT)),0)
+          ALTIVEC_FLAG = $(POWER6_FLAG)
+        else
+          ALTIVEC_FLAG =
+        endif
+      endif
+    endif
   endif
 
   #####################################################################
@@ -782,15 +718,19 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Drop to Power7 if Power8 is not available.
   ifeq ($(POWER8_FLAG),)
-    GCM_FLAG = $(POWER7_FLAG)
+    ifneq ($(POWER7_FLAG),)
+      GCM_FLAG = $(POWER7_FLAG)
+    endif
   endif
 
   # Drop to Power4 if Power7 not available
   ifeq ($(POWER7_FLAG),)
-    BLAKE2S_FLAG = $(ALTIVEC_FLAG)
-    CHACHA_FLAG = $(ALTIVEC_FLAG)
-    SIMON64_FLAG = $(ALTIVEC_FLAG)
-    SPECK64_FLAG = $(ALTIVEC_FLAG)
+    ifneq ($(ALTIVEC_FLAG),)
+      BLAKE2S_FLAG = $(ALTIVEC_FLAG)
+      CHACHA_FLAG = $(ALTIVEC_FLAG)
+      SIMON64_FLAG = $(ALTIVEC_FLAG)
+      SPECK64_FLAG = $(ALTIVEC_FLAG)
+    endif
   endif
 
   #####################################################################
@@ -798,31 +738,12 @@ ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(ALTIVEC_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
-  else ifeq ($(POWER9_FLAG)$(POWER8_FLAG)$(POWER7_FLAG),)
+  else ifeq ($(POWER8_FLAG)$(POWER7_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER7
-  else ifeq ($(POWER9_FLAG)$(POWER8_FLAG),)
+  else ifeq ($(POWER8_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
   else ifeq ($(POWER9_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER9
-  endif
-
-  #####################################################################
-  # Fixups for missing crypto
-
-  ifneq ($(POWER9_FLAG)$(POWER8_FLAG),)
-    ifeq ($(AES_FLAG)$(GCM_FLAG)$(SHA_FLAG),)
-	  CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_CRYPTO
-	else
-      ifeq ($(AES_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_AES
-      endif
-      ifeq ($(GCM_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_VMULL
-      endif
-      ifeq ($(SHA_FLAG),)
-        CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8_SHA
-      endif
-    endif
   endif
 
 # DETECT_FEATURES
