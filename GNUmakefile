@@ -609,9 +609,9 @@ ifeq ($(DETECT_FEATURES),1)
     POWER9_FLAG = -qarch=pwr9 -qaltivec
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     POWER7_FLAG = -qarch=pwr7 -qaltivec
-    POWER9_FLAG = -qarch=pwr6 -qaltivec
-    POWER8_FLAG = -qarch=pwr5 -qaltivec
-    POWER7_FLAG = -qarch=pwr4 -qaltivec
+    POWER6_FLAG = -qarch=pwr6 -qaltivec
+    POWER5_FLAG = -qarch=pwr5 -qaltivec
+    POWER4_FLAG = -qarch=pwr4 -qaltivec
     ALTIVEC_FLAG = -qaltivec
   else
     POWER9_FLAG = -mcpu=power9 -maltivec
