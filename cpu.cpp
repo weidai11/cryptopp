@@ -845,7 +845,8 @@ extern bool CPU_ProbeSHA256();
 extern bool CPU_ProbeSHA512();
 extern bool CPU_ProbeDARN();
 
-// Linux defines
+// Linux define values from 64-Bit ELF V2 ABI Specification.
+// http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/ch_preface.html
 #ifndef PPC_FEATURE_HAS_ALTIVEC
 # define PPC_FEATURE_HAS_ALTIVEC  0x10000000
 #endif
