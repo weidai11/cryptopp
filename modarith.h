@@ -8,10 +8,10 @@
 
 // implementations are in integer.cpp
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "integer.h"
-#include "algebra.h"
-#include "secblock.h"
+#include <cryptopp/algebra.h>
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 #if CRYPTOPP_MSC_VERSION

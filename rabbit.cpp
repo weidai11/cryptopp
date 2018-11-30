@@ -9,7 +9,7 @@
 #include "config.h"
 
 #include "rabbit.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

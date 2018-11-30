@@ -6,9 +6,9 @@
 #ifndef CRYPTOPP_POLYNOMI_H
 #define CRYPTOPP_POLYNOMI_H
 
-#include "cryptlib.h"
-#include "secblock.h"
-#include "algebra.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
+#include <cryptopp/algebra.h>
 #include "misc.h"
 
 #include <iosfwd>

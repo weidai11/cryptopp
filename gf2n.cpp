@@ -5,15 +5,15 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "cryptlib.h"
-#include "algebra.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/algebra.h>
 #include "randpool.h"
 #include "filters.h"
 #include "smartptr.h"
 #include "words.h"
 #include "misc.h"
 #include "gf2n.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "oids.h"
 
 #include <iostream>

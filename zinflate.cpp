@@ -8,7 +8,7 @@
 #include "pch.h"
 
 #include "zinflate.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)

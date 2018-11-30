@@ -6,11 +6,11 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "cpu.h"
-#include "validate.h"
+#include <cryptopp/validate.h>
 
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "gzip.h"
 #include "zlib.h"
 

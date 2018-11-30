@@ -1,14 +1,14 @@
 // bench3.cpp - originally written and placed in the public domain by Wei Dai
 //              CryptoPP::Test namespace added by JW in February 2017
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "bench.h"
-#include "validate.h"
+#include <cryptopp/validate.h>
 
 #include "cpu.h"
 #include "factory.h"
-#include "algparam.h"
-#include "argnames.h"
+#include <cryptopp/algparam.h>
+#include <cryptopp/argnames.h>
 #include "smartptr.h"
 #include "stdcpp.h"
 
@@ -27,7 +27,7 @@
 #include "rw.h"
 #include "ecp.h"
 #include "ec2n.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "dh.h"
 #include "mqv.h"
 #include "hmqv.h"

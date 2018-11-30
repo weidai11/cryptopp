@@ -9,7 +9,7 @@
 /// \since Crypto++ 5.6.4
 
 #include "gfpcrypt.h"
-#include "algebra.h"
+#include <cryptopp/algebra.h>
 #include "sha.h"
 
 NAMESPACE_BEGIN(CryptoPP)

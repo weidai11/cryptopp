@@ -7,7 +7,7 @@
 #define CRYPTOPP_TEA_H
 
 #include "seckey.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

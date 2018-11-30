@@ -7,7 +7,7 @@
 
 #define CRYPTOPP_DEFAULT_NO_DLL
 #include "dll.h"
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "filters.h"
 #include "smartptr.h"
 #include "pkcspad.h"

@@ -2,8 +2,8 @@
 
 #include "pch.h"
 #include "config.h"
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 #include "rdrand.h"
 #include "cpu.h"
 

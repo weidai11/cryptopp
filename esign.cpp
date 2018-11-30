@@ -12,9 +12,9 @@
 #include "modarith.h"
 #include "integer.h"
 #include "nbtheory.h"
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "sha.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

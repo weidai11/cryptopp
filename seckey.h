@@ -7,7 +7,7 @@
 #define CRYPTOPP_SECKEY_H
 
 #include "config.h"
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "misc.h"
 #include "simple.h"
 #include "stdcpp.h"

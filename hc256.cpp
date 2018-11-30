@@ -8,7 +8,7 @@
 #include "config.h"
 
 #include "hc256.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_CCM_H
 #define CRYPTOPP_CCM_H
 
-#include "authenc.h"
+#include <cryptopp/authenc.h>
 #include "modes.h"
 
 NAMESPACE_BEGIN(CryptoPP)

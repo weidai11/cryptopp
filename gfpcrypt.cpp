@@ -14,7 +14,7 @@
 #include "nbtheory.h"
 #include "modarith.h"
 #include "integer.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "oids.h"
 #include "misc.h"
 

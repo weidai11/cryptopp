@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_MQUEUE_H
 #define CRYPTOPP_MQUEUE_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "queue.h"
 #include "filters.h"
 #include "misc.h"

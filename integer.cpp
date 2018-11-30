@@ -52,14 +52,14 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "integer.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "modarith.h"
 #include "nbtheory.h"
 #include "smartptr.h"
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "filters.h"
 #include "stdcpp.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "oids.h"
 #include "words.h"
 #include "pubkey.h"		// for P1363_KDF2

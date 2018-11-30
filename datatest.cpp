@@ -4,7 +4,7 @@
 #define CRYPTOPP_DEFAULT_NO_DLL
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "factory.h"
 #include "integer.h"
 #include "filters.h"
@@ -14,7 +14,7 @@
 #include "trunhash.h"
 #include "queue.h"
 #include "smartptr.h"
-#include "validate.h"
+#include <cryptopp/validate.h>
 #include "stdcpp.h"
 #include "trap.h"
 

@@ -37,7 +37,7 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "sha.h"
 #include "misc.h"
 #include "cpu.h"

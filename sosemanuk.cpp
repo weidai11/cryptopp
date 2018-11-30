@@ -13,7 +13,7 @@
 
 #include "sosemanuk.h"
 #include "serpentp.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "misc.h"
 #include "cpu.h"
 

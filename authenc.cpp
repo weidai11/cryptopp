@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "authenc.h"
+#include <cryptopp/authenc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

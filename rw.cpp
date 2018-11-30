@@ -3,11 +3,11 @@
 #include "pch.h"
 
 #include "rw.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "integer.h"
 #include "nbtheory.h"
 #include "modarith.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 
 #ifndef CRYPTOPP_IMPORTS
 

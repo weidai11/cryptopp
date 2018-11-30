@@ -7,8 +7,8 @@
 
 #include "threefish.h"
 #include "misc.h"
-#include "algparam.h"
-#include "argnames.h"
+#include <cryptopp/algparam.h>
+#include <cryptopp/argnames.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

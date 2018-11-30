@@ -10,7 +10,7 @@
 
 #include "speck.h"
 #include "misc.h"
-#include "adv_simd.h"
+#include <cryptopp/adv_simd.h>
 
 #ifndef CRYPTOPP_INLINE
 # if defined(CRYPTOPP_DEBUG)

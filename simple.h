@@ -13,7 +13,7 @@
 # pragma warning(disable: 4127 4189)
 #endif
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

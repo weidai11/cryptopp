@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "integer.h"
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -13,7 +13,7 @@
 #include "config.h"
 
 #include "kalyna.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 #include "misc.h"
 #include "cpu.h"
 

@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_ELGAMAL_H
 #define CRYPTOPP_ELGAMAL_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "modexppc.h"
 #include "integer.h"
 #include "gfpcrypt.h"

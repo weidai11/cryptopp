@@ -15,15 +15,15 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "misc.h"
 #include "filters.h"
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "fips140.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 #include "fltrimpl.h"
 #include "osrng.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "smartptr.h"
 #include "stdcpp.h"
 

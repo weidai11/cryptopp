@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_VMAC_H
 #define CRYPTOPP_VMAC_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "iterhash.h"
 #include "seckey.h"
 

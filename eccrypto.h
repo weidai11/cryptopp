@@ -8,10 +8,10 @@
 #define CRYPTOPP_ECCRYPTO_H
 
 #include "config.h"
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "pubkey.h"
 #include "integer.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "hmac.h"
 #include "sha.h"
 #include "gfpcrypt.h"

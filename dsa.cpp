@@ -5,7 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "dsa.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "integer.h"
 #include "filters.h"
 #include "nbtheory.h"

@@ -13,7 +13,7 @@
 #define CRYPTOPP_IMPORTS
 #endif
 
-#include "aes.h"
+#include <cryptopp/aes.h>
 #include "cbcmac.h"
 #include "ccm.h"
 #include "cmac.h"

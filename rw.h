@@ -12,7 +12,7 @@
 #ifndef CRYPTOPP_RW_H
 #define CRYPTOPP_RW_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "pubkey.h"
 #include "integer.h"
 

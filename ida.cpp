@@ -5,7 +5,7 @@
 
 #include "ida.h"
 #include "stdcpp.h"
-#include "algebra.h"
+#include <cryptopp/algebra.h>
 #include "gf2_32.h"
 #include "polynomi.h"
 #include "polynomi.cpp"

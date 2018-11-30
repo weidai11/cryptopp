@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_RDRAND_H
 #define CRYPTOPP_RDRAND_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 
 // This class file provides both RDRAND and RDSEED. They were added at
 //   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}

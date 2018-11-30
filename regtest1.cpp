@@ -4,13 +4,13 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "factory.h"
 #include "bench.h"
 #include "cpu.h"
 
 #include "crc.h"
-#include "adler32.h"
+#include <cryptopp/adler32.h>
 #include "md2.h"
 #include "md5.h"
 #include "keccak.h"
@@ -33,7 +33,7 @@
 #include "padlkrng.h"
 
 #include "modes.h"
-#include "aes.h"
+#include <cryptopp/aes.h>
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)

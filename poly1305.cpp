@@ -2,8 +2,8 @@
 //                Based on Andy Polyakov's Base-2^26 scalar multiplication implementation for OpenSSL.
 
 #include "pch.h"
-#include "cryptlib.h"
-#include "aes.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/aes.h>
 #include "cpu.h"
 #include "poly1305.h"
 

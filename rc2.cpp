@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "rc2.h"
 #include "misc.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

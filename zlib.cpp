@@ -9,7 +9,7 @@
 #include "zlib.h"
 #include "zdeflate.h"
 #include "zinflate.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

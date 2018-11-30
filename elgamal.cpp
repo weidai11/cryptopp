@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "elgamal.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "nbtheory.h"
 
 // Squash MS LNK4221 and libtool warnings

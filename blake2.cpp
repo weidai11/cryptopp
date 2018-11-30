@@ -15,9 +15,9 @@
 
 #include "pch.h"
 #include "config.h"
-#include "cryptlib.h"
-#include "argnames.h"
-#include "algparam.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/argnames.h>
+#include <cryptopp/algparam.h>
 #include "blake2.h"
 #include "cpu.h"
 

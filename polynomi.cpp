@@ -5,7 +5,7 @@
 
 #include "pch.h"
 #include "polynomi.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 
 #include <sstream>
 #include <iostream>

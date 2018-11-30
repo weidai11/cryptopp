@@ -6,12 +6,12 @@
 #ifndef CRYPTOPP_MODES_H
 #define CRYPTOPP_MODES_H
 
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 #include "misc.h"
 #include "strciphr.h"
-#include "argnames.h"
-#include "algparam.h"
+#include <cryptopp/argnames.h>
+#include <cryptopp/algparam.h>
 
 // Issue 340
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE

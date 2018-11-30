@@ -11,9 +11,9 @@
 
 #include "config.h"
 #include "seckey.h"
-#include "secblock.h"
-#include "algparam.h"
-#include "argnames.h"
+#include <cryptopp/secblock.h>
+#include <cryptopp/algparam.h>
+#include <cryptopp/argnames.h>
 #include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)

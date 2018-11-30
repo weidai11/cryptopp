@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_OBJFACT_H
 #define CRYPTOPP_OBJFACT_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "misc.h"
 #include "stdcpp.h"
 

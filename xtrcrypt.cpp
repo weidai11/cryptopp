@@ -2,12 +2,12 @@
 
 #include "pch.h"
 
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "integer.h"
 #include "xtrcrypt.h"
 #include "nbtheory.h"
 #include "modarith.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

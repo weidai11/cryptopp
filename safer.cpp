@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "safer.h"
 #include "misc.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4244)

@@ -6,8 +6,8 @@
 
 #include "vmac.h"
 #include "cpu.h"
-#include "argnames.h"
-#include "secblock.h"
+#include <cryptopp/argnames.h>
+#include <cryptopp/secblock.h>
 
 #if defined(_MSC_VER) && !CRYPTOPP_BOOL_SLOW_WORD64
 #include <intrin.h>

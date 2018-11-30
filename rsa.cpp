@@ -2,12 +2,12 @@
 
 #include "pch.h"
 #include "rsa.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "sha.h"
 #include "oids.h"
 #include "modarith.h"
 #include "nbtheory.h"
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "fips140.h"
 #include "pkcspad.h"
 

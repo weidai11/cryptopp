@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_ZDEFLATE_H
 #define CRYPTOPP_ZDEFLATE_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "filters.h"
 #include "misc.h"
 

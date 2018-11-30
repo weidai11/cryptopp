@@ -4,7 +4,7 @@
 #ifndef CRYPTOPP_BENCH_H
 #define CRYPTOPP_BENCH_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 
 #include <iostream>
 #include <iomanip>

@@ -25,7 +25,7 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 #endif
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "stdcpp.h"
 #include "smartptr.h"
 

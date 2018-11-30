@@ -9,8 +9,8 @@
 #ifndef CRYPTOPP_NIST_DRBG_H
 #define CRYPTOPP_NIST_DRBG_H
 
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 #include "hmac.h"
 #include "sha.h"
 

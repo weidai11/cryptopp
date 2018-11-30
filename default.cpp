@@ -7,7 +7,7 @@
 # pragma warning(disable: 4127 4189)
 #endif
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "filters.h"
 #include "smartptr.h"
 #include "default.h"

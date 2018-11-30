@@ -26,8 +26,8 @@
 #ifndef CRYPTOPP_SIPHASH_H
 #define CRYPTOPP_SIPHASH_H
 
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

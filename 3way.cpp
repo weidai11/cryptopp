@@ -2,7 +2,7 @@
 // The original code and all modifications are in the public domain.
 
 #include "pch.h"
-#include "3way.h"
+#include <cryptopp/3way.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

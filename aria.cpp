@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "aria.h"
+#include <cryptopp/aria.h>
 #include "misc.h"
 #include "cpu.h"
 

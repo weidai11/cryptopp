@@ -35,10 +35,10 @@
 # pragma warning(disable: 4127 4189 4231 4275)
 #endif
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "seckey.h"
-#include "secblock.h"
-#include "argnames.h"
+#include <cryptopp/secblock.h>
+#include <cryptopp/argnames.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

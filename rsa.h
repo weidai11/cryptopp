@@ -8,13 +8,13 @@
 #ifndef CRYPTOPP_RSA_H
 #define CRYPTOPP_RSA_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "pubkey.h"
 #include "integer.h"
 #include "pkcspad.h"
 #include "oaep.h"
 #include "emsa2.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

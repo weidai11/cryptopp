@@ -5,7 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "ecp.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "integer.h"
 #include "nbtheory.h"
 #include "modarith.h"

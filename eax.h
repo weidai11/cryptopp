@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_EAX_H
 #define CRYPTOPP_EAX_H
 
-#include "authenc.h"
+#include <cryptopp/authenc.h>
 #include "modes.h"
 #include "cmac.h"
 

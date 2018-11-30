@@ -15,7 +15,7 @@
 
 #include "sm4.h"
 #include "misc.h"
-#include "adv_simd.h"
+#include <cryptopp/adv_simd.h>
 
 // Uncomment for benchmarking C++ against SSE.
 // Do so in both simon.cpp and simon-simd.cpp.

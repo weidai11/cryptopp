@@ -6,8 +6,8 @@
 
 #include "eprecomp.h"
 #include "integer.h"
-#include "algebra.h"
-#include "asn.h"
+#include <cryptopp/algebra.h>
+#include <cryptopp/asn.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

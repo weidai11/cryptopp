@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_GZIP_H
 #define CRYPTOPP_GZIP_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "zdeflate.h"
 #include "zinflate.h"
 #include "crc.h"

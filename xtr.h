@@ -5,10 +5,10 @@
 /// \brief The XTR public key system
 /// \details The XTR public key system by Arjen K. Lenstra and Eric R. Verheul
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "modarith.h"
 #include "integer.h"
-#include "algebra.h"
+#include <cryptopp/algebra.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

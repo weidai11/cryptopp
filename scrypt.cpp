@@ -5,8 +5,8 @@
 #include "pch.h"
 
 #include "scrypt.h"
-#include "algparam.h"
-#include "argnames.h"
+#include <cryptopp/algparam.h>
+#include <cryptopp/argnames.h>
 #include "pwdbased.h"
 #include "stdcpp.h"
 #include "salsa.h"

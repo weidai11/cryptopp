@@ -7,7 +7,7 @@
 #include "cpu.h"
 #include "sha.h"
 #include "misc.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

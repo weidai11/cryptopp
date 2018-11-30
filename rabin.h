@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_RABIN_H
 #define CRYPTOPP_RABIN_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "oaep.h"
 #include "pssr.h"
 #include "integer.h"

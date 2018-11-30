@@ -4,7 +4,7 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "factory.h"
 #include "bench.h"
 #include "cpu.h"

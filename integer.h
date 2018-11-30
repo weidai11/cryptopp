@@ -16,8 +16,8 @@
 #ifndef CRYPTOPP_INTEGER_H
 #define CRYPTOPP_INTEGER_H
 
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 #include "stdcpp.h"
 
 #include <iosfwd>

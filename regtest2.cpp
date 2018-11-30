@@ -4,7 +4,7 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "factory.h"
 #include "bench.h"
 #include "cpu.h"
@@ -28,7 +28,7 @@
 #include "panama.h"
 
 // Stream ciphers
-#include "arc4.h"
+#include <cryptopp/arc4.h>
 #include "seal.h"
 #include "wake.h"
 #include "chacha.h"
@@ -40,7 +40,7 @@
 #include "sosemanuk.h"
 
 // Block for CMAC
-#include "aes.h"
+#include <cryptopp/aes.h>
 #include "des.h"
 
 // Aggressive stack checking with VS2005 SP1 and above.

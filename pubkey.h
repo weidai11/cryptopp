@@ -41,14 +41,14 @@
 # pragma warning(disable: 4702)
 #endif
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "integer.h"
-#include "algebra.h"
+#include <cryptopp/algebra.h>
 #include "modarith.h"
 #include "filters.h"
 #include "eprecomp.h"
 #include "fips140.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 #include "smartptr.h"
 #include "stdcpp.h"
 

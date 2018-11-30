@@ -7,8 +7,8 @@
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
 #include "dll.h"
-#include "cryptlib.h"
-#include "aes.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/aes.h>
 #include "filters.h"
 #include "md5.h"
 #include "ripemd.h"
@@ -17,7 +17,7 @@
 #include "default.h"
 #include "randpool.h"
 #include "ida.h"
-#include "base64.h"
+#include <cryptopp/base64.h>
 #include "factory.h"
 #include "whrlpool.h"
 #include "tiger.h"
@@ -28,7 +28,7 @@
 #include "ossig.h"
 #include "trap.h"
 
-#include "validate.h"
+#include <cryptopp/validate.h>
 #include "bench.h"
 
 #include <iostream>

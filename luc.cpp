@@ -2,11 +2,11 @@
 
 #include "pch.h"
 #include "luc.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "sha.h"
 #include "integer.h"
 #include "nbtheory.h"
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "pkcspad.h"
 
 NAMESPACE_BEGIN(CryptoPP)

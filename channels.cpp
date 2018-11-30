@@ -5,7 +5,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "channels.h"
 
 #if CRYPTOPP_MSC_VERSION

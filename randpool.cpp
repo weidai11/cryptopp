@@ -9,7 +9,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "randpool.h"
-#include "aes.h"
+#include <cryptopp/aes.h>
 #include "sha.h"
 #include "hrtimer.h"
 #include "trap.h"

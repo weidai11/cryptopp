@@ -5,7 +5,7 @@
 /// \brief XTR public key system
 /// \sa  "The XTR public key system" by Arjen K. Lenstra and Eric R. Verheul
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "xtr.h"
 #include "integer.h"
 

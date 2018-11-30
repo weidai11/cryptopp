@@ -23,7 +23,7 @@
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
-#include "adv_simd.h"
+#include <cryptopp/adv_simd.h>
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include <smmintrin.h>

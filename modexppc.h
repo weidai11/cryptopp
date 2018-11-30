@@ -1,10 +1,10 @@
 #ifndef CRYPTOPP_MODEXPPC_H
 #define CRYPTOPP_MODEXPPC_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "modarith.h"
 #include "integer.h"
-#include "algebra.h"
+#include <cryptopp/algebra.h>
 #include "eprecomp.h"
 #include "smartptr.h"
 #include "pubkey.h"

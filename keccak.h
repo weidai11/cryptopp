@@ -12,8 +12,8 @@
 #ifndef CRYPTOPP_KECCAK_H
 #define CRYPTOPP_KECCAK_H
 
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

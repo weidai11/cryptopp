@@ -12,7 +12,7 @@
 #ifndef CRYPTOPP_OIDS_H
 #define CRYPTOPP_OIDS_H
 
-#include "asn.h"
+#include <cryptopp/asn.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -6,21 +6,21 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "cpu.h"
-#include "validate.h"
+#include <cryptopp/validate.h>
 
 #include "hex.h"
-#include "base32.h"
-#include "base64.h"
+#include <cryptopp/base32.h>
+#include <cryptopp/base64.h>
 
 #include "rc2.h"
-#include "aes.h"
+#include <cryptopp/aes.h>
 #include "des.h"
 #include "rc5.h"
 #include "rc6.h"
-#include "3way.h"
-#include "aria.h"
+#include <cryptopp/3way.h>
+#include <cryptopp/aria.h>
 #include "cast.h"
 #include "mars.h"
 #include "idea.h"
@@ -37,7 +37,7 @@
 #include "camellia.h"
 #include "skipjack.h"
 
-#include "arc4.h"
+#include <cryptopp/arc4.h>
 #include "salsa.h"
 #include "chacha.h"
 #include "rabbit.h"

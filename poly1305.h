@@ -44,11 +44,11 @@
 #ifndef CRYPTOPP_POLY1305_H
 #define CRYPTOPP_POLY1305_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "seckey.h"
-#include "secblock.h"
-#include "argnames.h"
-#include "algparam.h"
+#include <cryptopp/secblock.h>
+#include <cryptopp/argnames.h>
+#include <cryptopp/algparam.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

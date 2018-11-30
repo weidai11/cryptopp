@@ -5,7 +5,7 @@
 #include "integer.h"
 #include "nbtheory.h"
 #include "modarith.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "sha.h"
 
 NAMESPACE_BEGIN(CryptoPP)

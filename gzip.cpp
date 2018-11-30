@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "gzip.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -6,11 +6,11 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "cpu.h"
-#include "validate.h"
+#include <cryptopp/validate.h>
 
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "oids.h"
 #include "blumshub.h"
 #include "eccrypto.h"

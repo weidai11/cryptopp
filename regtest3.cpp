@@ -4,19 +4,19 @@
 
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "factory.h"
 #include "bench.h"
 #include "cpu.h"
 
 #include "modes.h"
-#include "aria.h"
+#include <cryptopp/aria.h>
 #include "seed.h"
 #include "hight.h"
 #include "camellia.h"
 #include "shacal2.h"
 #include "tea.h"
-#include "aes.h"
+#include <cryptopp/aes.h>
 #include "tiger.h"
 #include "ccm.h"
 #include "gcm.h"

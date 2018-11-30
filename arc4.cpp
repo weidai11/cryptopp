@@ -8,7 +8,7 @@
 
 #include "pch.h"
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-#include "arc4.h"
+#include <cryptopp/arc4.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 namespace Weak1 {

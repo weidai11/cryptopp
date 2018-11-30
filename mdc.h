@@ -7,7 +7,7 @@
 #define CRYPTOPP_MDC_H
 
 #include "seckey.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 // GCC cast warning

@@ -13,8 +13,8 @@
 
 #include "config.h"
 #include "seckey.h"
-#include "secblock.h"
-#include "algparam.h"
+#include <cryptopp/secblock.h>
+#include <cryptopp/algparam.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

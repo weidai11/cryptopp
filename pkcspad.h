@@ -8,7 +8,7 @@
 #ifndef CRYPTOPP_PKCSPAD_H
 #define CRYPTOPP_PKCSPAD_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "pubkey.h"
 #include "hashfwd.h"
 

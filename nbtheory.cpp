@@ -7,7 +7,7 @@
 #include "nbtheory.h"
 #include "integer.h"
 #include "modarith.h"
-#include "algparam.h"
+#include <cryptopp/algparam.h>
 #include "smartptr.h"
 #include "misc.h"
 #include "stdcpp.h"

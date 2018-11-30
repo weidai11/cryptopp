@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "base64.h"
+#include <cryptopp/base64.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 ANONYMOUS_NAMESPACE_BEGIN

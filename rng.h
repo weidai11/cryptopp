@@ -9,7 +9,7 @@
 #ifndef CRYPTOPP_RNG_H
 #define CRYPTOPP_RNG_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "filters.h"
 #include "smartptr.h"
 

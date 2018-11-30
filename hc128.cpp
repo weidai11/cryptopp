@@ -8,7 +8,7 @@
 #include "config.h"
 
 #include "hc128.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 #include "misc.h"
 
 /*h1 function*/

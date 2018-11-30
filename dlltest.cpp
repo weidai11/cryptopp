@@ -3,7 +3,7 @@
 #endif
 
 #include "dll.h"
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "filters.h"
 #include "pkcspad.h"
 

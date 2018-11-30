@@ -15,7 +15,7 @@
 
 #include "config.h"
 #include "seckey.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86 || \
     CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64 || \

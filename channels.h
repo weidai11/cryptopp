@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_CHANNELS_H
 #define CRYPTOPP_CHANNELS_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "simple.h"
 #include "smartptr.h"
 #include "stdcpp.h"

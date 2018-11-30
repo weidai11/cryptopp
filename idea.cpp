@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "idea.h"
 #include "misc.h"
-#include "secblock.h"
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

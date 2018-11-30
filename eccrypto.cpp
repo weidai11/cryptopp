@@ -20,10 +20,10 @@
 #include "integer.h"
 #include "nbtheory.h"
 #include "filters.h"
-#include "argnames.h"
+#include <cryptopp/argnames.h>
 #include "smartptr.h"
 #include "oids.h"
-#include "asn.h"
+#include <cryptopp/asn.h>
 #include "hex.h"
 #include "ec2n.h"
 #include "misc.h"

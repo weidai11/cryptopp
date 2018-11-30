@@ -10,11 +10,11 @@
 #ifndef CRYPTOPP_LUC_H
 #define CRYPTOPP_LUC_H
 
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 #include "gfpcrypt.h"
 #include "integer.h"
-#include "algebra.h"
-#include "secblock.h"
+#include <cryptopp/algebra.h>
+#include <cryptopp/secblock.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

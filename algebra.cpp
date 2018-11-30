@@ -5,7 +5,7 @@
 #ifndef CRYPTOPP_ALGEBRA_CPP	// SunCC workaround: compiler could cause this file to be included twice
 #define CRYPTOPP_ALGEBRA_CPP
 
-#include "algebra.h"
+#include <cryptopp/algebra.h>
 #include "integer.h"
 
 #include <vector>

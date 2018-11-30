@@ -8,7 +8,7 @@
 
 #include "sha.h"
 #include "hmac.h"
-#include "aes.h"
+#include <cryptopp/aes.h>
 #include "des.h"
 #include "modes.h"
 #include "filters.h"
