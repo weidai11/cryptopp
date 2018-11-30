@@ -4826,6 +4826,13 @@ public:
 	const Integer g_one(1L);
 	const Integer g_two(2L);
 	#pragma warning(default: 4075)
+#elif HAVE_XLC_INIT_PRIORITY
+	// XLC needs constant, not a define
+	#pragma priority(280)
+	const InitInteger s_init;
+	const Integer g_zero(0L);
+	const Integer g_one(1L);
+	const Integer g_two(2L);
 #else
 	const InitInteger s_init;
 #endif
@@ -4834,7 +4841,7 @@ public:
 
 const Integer &Integer::Zero()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_zero;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const Integer s_zero(0L);
@@ -4846,7 +4853,7 @@ const Integer &Integer::Zero()
 
 const Integer &Integer::One()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_one;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const Integer s_one(1L);
@@ -4858,7 +4865,7 @@ const Integer &Integer::One()
 
 const Integer &Integer::Two()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_two;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const Integer s_two(2L);

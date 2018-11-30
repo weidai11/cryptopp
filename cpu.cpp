@@ -1069,6 +1069,10 @@ public:
 	#pragma init_seg(".CRT$XCU")
 	const InitCpu s_init;
 	#pragma warning(default: 4075)
+#elif HAVE_XLC_INIT_PRIORITY
+	// XLC needs constant, not a define
+	#pragma priority(270)
+	const InitCpu s_init;
 #else
 	const InitCpu s_init;
 #endif

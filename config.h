@@ -373,6 +373,8 @@ NAMESPACE_END
 	#define CRYPTOPP_SECTION_INIT __attribute__((section ("__DATA,__data")))
 #elif (defined(__ELF__) && (CRYPTOPP_GCC_VERSION >= 40300))
 	#define CRYPTOPP_SECTION_INIT __attribute__((section ("nocommon")))
+#elif defined(__ELF__) && (defined(__xlC__) || defined(__ibmxl__))
+	#define CRYPTOPP_SECTION_INIT __attribute__((section ("nocommon")))
 #else
 	#define CRYPTOPP_SECTION_INIT
 #endif
@@ -858,7 +860,7 @@ NAMESPACE_END
 #if defined(_MSC_VER)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT
 #	define CRYPTOPP_NOINLINE __declspec(noinline)
-#elif defined(__xlc__) || defined(__xlC__)
+#elif defined(__xlc__) || defined(__xlC__) || defined(__ibmxl__)
 #	define CRYPTOPP_NOINLINE_DOTDOTDOT ...
 #	define CRYPTOPP_NOINLINE __attribute__((noinline))
 #elif defined(__GNUC__)
@@ -904,10 +906,8 @@ NAMESPACE_END
 // CRYPTOPP_USER_PRIORITY is for other libraries and user code that is using Crypto++
 // and managing C++ static object creation. It is guaranteed not to conflict with
 // values used by (or would be used by) the Crypto++ library.
-#if defined(CRYPTOPP_INIT_PRIORITY) && (CRYPTOPP_INIT_PRIORITY > 0)
-# define CRYPTOPP_USER_PRIORITY (CRYPTOPP_INIT_PRIORITY + 101)
-#else
-# define CRYPTOPP_USER_PRIORITY 350
+#ifndef CRYPTOPP_USER_PRIORITY
+# define CRYPTOPP_USER_PRIORITY (CRYPTOPP_INIT_PRIORITY+101)
 #endif
 
 // Most platforms allow us to specify when to create C++ objects. Apple and Sun do not.
@@ -916,6 +916,8 @@ NAMESPACE_END
 #  define HAVE_GCC_INIT_PRIORITY 1
 # elif (CRYPTOPP_MSC_VERSION >= 1310)
 #  define HAVE_MSC_INIT_PRIORITY 1
+# elif defined(__xlc__) || defined(__xlC__) || defined(__ibmxl__)
+#  define HAVE_XLC_INIT_PRIORITY 1
 # endif
 #endif  // CRYPTOPP_INIT_PRIORITY, NO_OS_DEPENDENCE, Apple, Sun
 
@@ -1048,15 +1050,6 @@ NAMESPACE_END
 # define CRYPTOPP_DEPRECATED(msg) __attribute__((deprecated))
 #else
 # define CRYPTOPP_DEPRECATED(msg)
-#endif
-
-// ************** Instrumentation ***************
-
-// GCC does not support; see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=78204
-#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
-# define CRYPTOPP_NO_SANITIZE(x) __attribute__((no_sanitize(x)))
-#else
-# define CRYPTOPP_NO_SANITIZE(x)
 #endif
 
 // ***************** C++11 related ********************

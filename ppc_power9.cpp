@@ -51,8 +51,6 @@ bool CPU_ProbePower9()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif defined(__xlC__) && defined(__linux__)
-    return false;
 #elif defined(CRYPTOPP_POWER9_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
     // longjmp and clobber warnings. Volatile is required.
@@ -99,8 +97,6 @@ bool CPU_ProbePower9()
 bool CPU_ProbeDARN()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
-    return false;
-#elif defined(__xlC__) && defined(__linux__)
     return false;
 #else
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
