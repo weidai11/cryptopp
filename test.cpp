@@ -9,14 +9,14 @@
 #include "dll.h"
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/aes.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "md5.h"
 #include "ripemd.h"
 #include "rng.h"
 #include "gzip.h"
 #include <cryptopp/default.h>
 #include "randpool.h"
-#include "ida.h"
+#include <cryptopp/ida.h>
 #include <cryptopp/base64.h>
 #include "factory.h"
 #include "whrlpool.h"

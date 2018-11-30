@@ -4,7 +4,7 @@
 #define CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
 #endif
 
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 #include "misc.h"
 #include "cpu.h"
 

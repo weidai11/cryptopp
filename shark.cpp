@@ -4,7 +4,7 @@
 #include "shark.h"
 #include "misc.h"
 #include "modes.h"
-#include "gf256.h"
+#include <cryptopp/gf256.h>
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wmissing-braces"

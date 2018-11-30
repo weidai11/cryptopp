@@ -7,7 +7,7 @@
 #define CRYPTOPP_ZDEFLATE_H
 
 #include <cryptopp/cryptlib.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

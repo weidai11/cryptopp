@@ -4,8 +4,8 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "eprecomp.h"
-#include "integer.h"
+#include <cryptopp/eprecomp.h>
+#include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include <cryptopp/asn.h>
 

@@ -5,7 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "queue.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

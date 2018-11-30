@@ -9,7 +9,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include "pubkey.h"
-#include "emsa2.h"
+#include <cryptopp/emsa2.h>
 
 #ifdef CRYPTOPP_IS_DLL
 #include "sha.h"

@@ -7,7 +7,7 @@
 #define CRYPTOPP_TTMAC_H
 
 #include "seckey.h"
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 #include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)

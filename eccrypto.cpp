@@ -16,16 +16,16 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "eccrypto.h"
-#include "integer.h"
+#include <cryptopp/eccrypto.h>
+#include <cryptopp/integer.h>
 #include "nbtheory.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include <cryptopp/argnames.h>
 #include "smartptr.h"
 #include "oids.h"
 #include <cryptopp/asn.h>
-#include "hex.h"
-#include "ec2n.h"
+#include <cryptopp/hex.h>
+#include <cryptopp/ec2n.h>
 #include "misc.h"
 
 // Squash MS LNK4221 and libtool warnings

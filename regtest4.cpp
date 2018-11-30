@@ -13,9 +13,9 @@
 #include "nr.h"
 #include "rw.h"
 #include "rsa.h"
-#include "dsa.h"
+#include <cryptopp/dsa.h>
 #include "pssr.h"
-#include "esign.h"
+#include <cryptopp/esign.h>
 
 // Hashes
 #include "md2.h"

@@ -7,7 +7,7 @@
 #define CRYPTOPP_PANAMA_H
 
 #include "strciphr.h"
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 #include <cryptopp/secblock.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler error with .intel_syntax

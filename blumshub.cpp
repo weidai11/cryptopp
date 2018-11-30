@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include <cryptopp/blumshub.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

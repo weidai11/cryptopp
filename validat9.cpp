@@ -24,13 +24,13 @@
 #include "whrlpool.h"
 
 #include "rw.h"
-#include "dsa.h"
-#include "luc.h"
+#include <cryptopp/dsa.h>
+#include <cryptopp/luc.h>
 #include "rsa.h"
-#include "esign.h"
+#include <cryptopp/esign.h>
 #include "rabin.h"
 #include "pubkey.h"
-#include "eccrypto.h"
+#include <cryptopp/eccrypto.h>
 
 #include <iostream>
 #include <iomanip>

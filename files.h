@@ -8,7 +8,7 @@
 #define CRYPTOPP_FILES_H
 
 #include <cryptopp/cryptlib.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include <cryptopp/argnames.h>
 #include "smartptr.h"
 

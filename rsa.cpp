@@ -8,7 +8,7 @@
 #include "modarith.h"
 #include "nbtheory.h"
 #include <cryptopp/algparam.h>
-#include "fips140.h"
+#include <cryptopp/fips140.h>
 #include "pkcspad.h"
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING) && !defined(CRYPTOPP_IS_DLL)

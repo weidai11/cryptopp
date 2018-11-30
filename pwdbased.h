@@ -10,10 +10,10 @@
 
 #include <cryptopp/cryptlib.h>
 #include "hrtimer.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>
-#include "hmac.h"
+#include <cryptopp/hmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

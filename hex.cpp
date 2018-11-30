@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "hex.h"
+#include <cryptopp/hex.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 ANONYMOUS_NAMESPACE_BEGIN

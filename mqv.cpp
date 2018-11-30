@@ -5,8 +5,8 @@
 #include "pch.h"
 #include "config.h"
 #include "mqv.h"
-#include "hmqv.h"
-#include "fhmqv.h"
+#include <cryptopp/hmqv.h>
+#include <cryptopp/fhmqv.h>
 
 // Squash MS LNK4221 and libtool warnings
 extern const char MQV_FNAME[] = __FILE__;

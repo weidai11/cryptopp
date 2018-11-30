@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "hmac.h"
+#include <cryptopp/hmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

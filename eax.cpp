@@ -1,7 +1,7 @@
 // eax.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "eax.h"
+#include <cryptopp/eax.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

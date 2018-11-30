@@ -10,7 +10,7 @@
 #include "cpu.h"
 
 // For MAC's
-#include "hmac.h"
+#include <cryptopp/hmac.h>
 #include <cryptopp/cmac.h>
 #include <cryptopp/dmac.h>
 #include "vmac.h"
@@ -18,7 +18,7 @@
 
 // Ciphers
 #include "md5.h"
-#include "keccak.h"
+#include <cryptopp/keccak.h>
 #include "sha.h"
 #include "sha3.h"
 #include <cryptopp/blake2.h>
@@ -34,8 +34,8 @@
 #include <cryptopp/chacha.h>
 #include "salsa.h"
 #include "rabbit.h"
-#include "hc128.h"
-#include "hc256.h"
+#include <cryptopp/hc128.h>
+#include <cryptopp/hc256.h>
 #include "panama.h"
 #include "sosemanuk.h"
 

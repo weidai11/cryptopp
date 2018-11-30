@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_MD4_H
 #define CRYPTOPP_MD4_H
 
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

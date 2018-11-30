@@ -13,20 +13,20 @@
 #include <cryptopp/adler32.h>
 #include "md2.h"
 #include "md5.h"
-#include "keccak.h"
+#include <cryptopp/keccak.h>
 #include "sha3.h"
 #include <cryptopp/blake2.h>
 #include "sha.h"
 #include "sha3.h"
 #include "sm3.h"
-#include "hkdf.h"
+#include <cryptopp/hkdf.h>
 #include "tiger.h"
 #include "ripemd.h"
 #include "panama.h"
 #include "whrlpool.h"
 
 #include "osrng.h"
-#include "drbg.h"
+#include <cryptopp/drbg.h>
 #include <cryptopp/darn.h>
 #include "mersenne.h"
 #include "rdrand.h"

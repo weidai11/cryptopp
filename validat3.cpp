@@ -11,7 +11,7 @@
 #include <cryptopp/validate.h>
 
 #include "rng.h"
-#include "drbg.h"
+#include <cryptopp/drbg.h>
 #include <cryptopp/darn.h>
 #include "osrng.h"
 #include "rdrand.h"

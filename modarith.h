@@ -9,7 +9,7 @@
 // implementations are in integer.cpp
 
 #include <cryptopp/cryptlib.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include <cryptopp/secblock.h>
 #include "misc.h"

@@ -7,7 +7,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "hc256.h"
+#include <cryptopp/hc256.h>
 #include <cryptopp/secblock.h>
 #include "misc.h"
 

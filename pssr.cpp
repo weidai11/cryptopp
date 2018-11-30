@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "pssr.h"
-#include "emsa2.h"
+#include <cryptopp/emsa2.h>
 #include "ripemd.h"
 #include "whrlpool.h"
 #include "misc.h"

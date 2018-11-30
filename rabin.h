@@ -9,7 +9,7 @@
 #include <cryptopp/cryptlib.h>
 #include "oaep.h"
 #include "pssr.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

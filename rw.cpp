@@ -4,7 +4,7 @@
 
 #include "rw.h"
 #include <cryptopp/asn.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "nbtheory.h"
 #include "modarith.h"
 #include <cryptopp/asn.h>

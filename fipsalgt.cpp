@@ -11,7 +11,7 @@
 #include "dll.h"
 #include <cryptopp/cryptlib.h>
 #include "smartptr.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "oids.h"
 
 USING_NAMESPACE(CryptoPP)

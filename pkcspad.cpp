@@ -6,8 +6,8 @@
 #define CRYPTOPP_PKCSPAD_CPP
 
 #include "pkcspad.h"
-#include "emsa2.h"
-#include "hashfwd.h"
+#include <cryptopp/emsa2.h>
+#include <cryptopp/hashfwd.h>
 #include "misc.h"
 #include "trap.h"
 

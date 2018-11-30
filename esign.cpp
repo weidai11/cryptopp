@@ -8,9 +8,9 @@
 # pragma warning(disable: 4589)
 #endif
 
-#include "esign.h"
+#include <cryptopp/esign.h>
 #include "modarith.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "nbtheory.h"
 #include <cryptopp/algparam.h>
 #include "sha.h"

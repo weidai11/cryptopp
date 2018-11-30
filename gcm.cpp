@@ -24,7 +24,7 @@
 # pragma optimize("", off)
 #endif
 
-#include "gcm.h"
+#include <cryptopp/gcm.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

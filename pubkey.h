@@ -42,12 +42,12 @@
 #endif
 
 #include <cryptopp/cryptlib.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include "modarith.h"
-#include "filters.h"
-#include "eprecomp.h"
-#include "fips140.h"
+#include <cryptopp/filters.h>
+#include <cryptopp/eprecomp.h>
+#include <cryptopp/fips140.h>
 #include <cryptopp/argnames.h>
 #include "smartptr.h"
 #include "stdcpp.h"

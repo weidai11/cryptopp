@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_MD5_H
 #define CRYPTOPP_MD5_H
 
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -17,13 +17,13 @@
 #include "sha3.h"
 
 #include <cryptopp/dh.h>
-#include "luc.h"
+#include <cryptopp/luc.h>
 #include "mqv.h"
 #include "xtr.h"
-#include "hmqv.h"
+#include <cryptopp/hmqv.h>
 #include "pubkey.h"
 #include "xtrcrypt.h"
-#include "eccrypto.h"
+#include <cryptopp/eccrypto.h>
 
 #include <iostream>
 #include <iomanip>

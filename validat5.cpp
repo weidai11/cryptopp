@@ -28,13 +28,13 @@
 #include "poly1305.h"
 #include "whrlpool.h"
 
-#include "hkdf.h"
+#include <cryptopp/hkdf.h>
 #include "scrypt.h"
 #include "pwdbased.h"
 
 #include <cryptopp/cmac.h>
 #include <cryptopp/dmac.h>
-#include "hmac.h"
+#include <cryptopp/hmac.h>
 #include "ttmac.h"
 
 #include <iostream>

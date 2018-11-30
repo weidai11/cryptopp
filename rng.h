@@ -10,7 +10,7 @@
 #define CRYPTOPP_RNG_H
 
 #include <cryptopp/cryptlib.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)

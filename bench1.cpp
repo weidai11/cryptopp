@@ -13,7 +13,7 @@
 #include "stdcpp.h"
 
 #include "osrng.h"
-#include "drbg.h"
+#include <cryptopp/drbg.h>
 #include <cryptopp/darn.h>
 #include "mersenne.h"
 #include "rdrand.h"

@@ -6,8 +6,8 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "pubkey.h"
-#include "integer.h"
-#include "filters.h"
+#include <cryptopp/integer.h>
+#include <cryptopp/filters.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

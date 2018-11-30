@@ -6,7 +6,7 @@
 #define CRYPTOPP_ALGEBRA_CPP
 
 #include <cryptopp/algebra.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 
 #include <vector>
 

@@ -8,11 +8,11 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/algebra.h>
 #include "randpool.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "smartptr.h"
 #include "words.h"
 #include "misc.h"
-#include "gf2n.h"
+#include <cryptopp/gf2n.h>
 #include <cryptopp/asn.h>
 #include "oids.h"
 

@@ -8,7 +8,7 @@
 #endif
 
 #include <cryptopp/cryptlib.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "smartptr.h"
 #include <cryptopp/default.h>
 #include "queue.h"

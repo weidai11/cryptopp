@@ -4,10 +4,10 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "dsa.h"
+#include <cryptopp/dsa.h>
 #include <cryptopp/asn.h>
-#include "integer.h"
-#include "filters.h"
+#include <cryptopp/integer.h>
+#include <cryptopp/filters.h>
 #include "nbtheory.h"
 
 NAMESPACE_BEGIN(CryptoPP)

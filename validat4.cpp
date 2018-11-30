@@ -10,7 +10,7 @@
 #include "cpu.h"
 #include <cryptopp/validate.h>
 
-#include "hex.h"
+#include <cryptopp/hex.h>
 #include <cryptopp/base32.h>
 #include <cryptopp/base64.h>
 
@@ -23,8 +23,8 @@
 #include <cryptopp/aria.h>
 #include <cryptopp/cast.h>
 #include "mars.h"
-#include "idea.h"
-#include "gost.h"
+#include <cryptopp/idea.h>
+#include <cryptopp/gost.h>
 #include "seal.h"
 #include "seed.h"
 #include "safer.h"
@@ -46,9 +46,9 @@
 #include "modes.h"
 #include <cryptopp/cmac.h>
 #include <cryptopp/dmac.h>
-#include "hmac.h"
+#include <cryptopp/hmac.h>
 
-#include "drbg.h"
+#include <cryptopp/drbg.h>
 
 #include <iostream>
 #include <iomanip>

@@ -1,7 +1,7 @@
 // elgamal.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "elgamal.h"
+#include <cryptopp/elgamal.h>
 #include <cryptopp/asn.h>
 #include "nbtheory.h"
 

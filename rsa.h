@@ -10,10 +10,10 @@
 
 #include <cryptopp/cryptlib.h>
 #include "pubkey.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "pkcspad.h"
 #include "oaep.h"
-#include "emsa2.h"
+#include <cryptopp/emsa2.h>
 #include <cryptopp/asn.h>
 
 NAMESPACE_BEGIN(CryptoPP)

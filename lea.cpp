@@ -16,7 +16,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "lea.h"
+#include <cryptopp/lea.h>
 #include "misc.h"
 #include "cpu.h"
 

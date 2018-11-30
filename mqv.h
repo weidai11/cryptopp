@@ -8,9 +8,9 @@
 #define CRYPTOPP_MQV_H
 
 #include <cryptopp/cryptlib.h>
-#include "gfpcrypt.h"
+#include <cryptopp/gfpcrypt.h>
 #include "modarith.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include "misc.h"
 

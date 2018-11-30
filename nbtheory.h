@@ -7,7 +7,7 @@
 #define CRYPTOPP_NBTHEORY_H
 
 #include <cryptopp/cryptlib.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/algparam.h>
 
 NAMESPACE_BEGIN(CryptoPP)

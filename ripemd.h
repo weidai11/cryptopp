@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_RIPEMD_H
 #define CRYPTOPP_RIPEMD_H
 
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

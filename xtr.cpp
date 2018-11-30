@@ -4,7 +4,7 @@
 
 #include "xtr.h"
 #include "nbtheory.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include "modarith.h"
 #include "algebra.cpp"

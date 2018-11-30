@@ -10,10 +10,10 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "gfpcrypt.h"
+#include <cryptopp/gfpcrypt.h>
 #include "nbtheory.h"
 #include "modarith.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/asn.h>
 #include "oids.h"
 #include "misc.h"

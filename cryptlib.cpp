@@ -17,9 +17,9 @@
 
 #include <cryptopp/cryptlib.h>
 #include "misc.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include <cryptopp/algparam.h>
-#include "fips140.h"
+#include <cryptopp/fips140.h>
 #include <cryptopp/argnames.h>
 #include "fltrimpl.h"
 #include "osrng.h"

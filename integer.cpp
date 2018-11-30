@@ -51,13 +51,13 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/secblock.h>
 #include "modarith.h"
 #include "nbtheory.h"
 #include "smartptr.h"
 #include <cryptopp/algparam.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "stdcpp.h"
 #include <cryptopp/asn.h>
 #include "oids.h"

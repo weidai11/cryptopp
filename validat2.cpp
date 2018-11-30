@@ -11,7 +11,7 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/algebra.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "nbtheory.h"
 
 #include <iostream>

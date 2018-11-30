@@ -18,8 +18,8 @@ http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 #include "pch.h"
-#include "keccak.h"
-#include "keccakc.h"
+#include <cryptopp/keccak.h>
+#include <cryptopp/keccakc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

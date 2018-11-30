@@ -6,7 +6,7 @@
 
 #include "square.h"
 #include "misc.h"
-#include "gf256.h"
+#include <cryptopp/gf256.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4244)

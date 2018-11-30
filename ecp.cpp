@@ -4,12 +4,12 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "ecp.h"
+#include <cryptopp/ecp.h>
 #include <cryptopp/asn.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "nbtheory.h"
 #include "modarith.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "algebra.cpp"
 
 ANONYMOUS_NAMESPACE_BEGIN

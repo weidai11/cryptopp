@@ -20,7 +20,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "naclite.h"
 #include <cryptopp/validate.h>
 

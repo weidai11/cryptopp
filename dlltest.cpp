@@ -4,7 +4,7 @@
 
 #include "dll.h"
 #include <cryptopp/cryptlib.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "pkcspad.h"
 
 #if CRYPTOPP_MSC_VERSION

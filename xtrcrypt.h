@@ -7,7 +7,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include "xtr.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

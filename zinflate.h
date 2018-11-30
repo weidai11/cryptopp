@@ -3,7 +3,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)

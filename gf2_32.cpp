@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "misc.h"
-#include "gf2_32.h"
+#include <cryptopp/gf2_32.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

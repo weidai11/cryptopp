@@ -3,7 +3,7 @@
 #include "pch.h"
 
 #include "rng.h"
-#include "fips140.h"
+#include <cryptopp/fips140.h>
 
 #include <time.h>
 #include <math.h>

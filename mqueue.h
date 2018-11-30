@@ -3,7 +3,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include "queue.h"
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "misc.h"
 
 #include <deque>

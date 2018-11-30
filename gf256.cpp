@@ -1,7 +1,7 @@
 // gf256.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "gf256.h"
+#include <cryptopp/gf256.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -11,13 +11,13 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/asn.h>
-#include "gf2n.h"
+#include <cryptopp/gf2n.h>
 #include <cryptopp/default.h>
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "polynomi.h"
 #include <cryptopp/channels.h>
 
-#include "ida.h"
+#include <cryptopp/ida.h>
 #include "gzip.h"
 #include "zlib.h"
 

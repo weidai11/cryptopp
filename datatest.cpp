@@ -6,9 +6,9 @@
 
 #include <cryptopp/cryptlib.h>
 #include "factory.h"
-#include "integer.h"
-#include "filters.h"
-#include "hex.h"
+#include <cryptopp/integer.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
 #include "randpool.h"
 #include "files.h"
 #include "trunhash.h"

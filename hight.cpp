@@ -12,7 +12,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "hight.h"
+#include <cryptopp/hight.h>
 #include "misc.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

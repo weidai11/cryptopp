@@ -5,7 +5,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "nbtheory.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include "modarith.h"
 #include <cryptopp/algparam.h>
 #include "smartptr.h"

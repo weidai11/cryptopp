@@ -13,7 +13,7 @@
 #include <cryptopp/cryptlib.h>
 #include "randpool.h"
 #include "smartptr.h"
-#include "fips140.h"
+#include <cryptopp/fips140.h>
 #include "rng.h"
 #include <cryptopp/aes.h>
 #include "sha.h"

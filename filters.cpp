@@ -13,7 +13,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include "mqueue.h"
 #include "fltrimpl.h"
 #include <cryptopp/argnames.h>

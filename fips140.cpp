@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "fips140.h"
+#include <cryptopp/fips140.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

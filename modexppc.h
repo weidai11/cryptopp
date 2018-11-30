@@ -3,9 +3,9 @@
 
 #include <cryptopp/cryptlib.h>
 #include "modarith.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
-#include "eprecomp.h"
+#include <cryptopp/eprecomp.h>
 #include "smartptr.h"
 #include "pubkey.h"
 

@@ -16,7 +16,7 @@
 #include "words.h"
 #include "words.h"
 #include "stdcpp.h"
-#include "integer.h"
+#include <cryptopp/integer.h>
 
 // for memalign
 #if defined(CRYPTOPP_MEMALIGN_AVAILABLE) || defined(CRYPTOPP_MM_MALLOC_AVAILABLE) || defined(QNX)

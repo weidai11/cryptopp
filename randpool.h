@@ -19,7 +19,7 @@
 #define CRYPTOPP_RANDPOOL_H
 
 #include <cryptopp/cryptlib.h>
-#include "filters.h"
+#include <cryptopp/filters.h>
 #include <cryptopp/secblock.h>
 #include "smartptr.h"
 #include <cryptopp/aes.h>

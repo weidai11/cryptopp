@@ -4,10 +4,10 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "ec2n.h"
+#include <cryptopp/ec2n.h>
 #include <cryptopp/asn.h>
-#include "integer.h"
-#include "filters.h"
+#include <cryptopp/integer.h>
+#include <cryptopp/filters.h>
 #include "algebra.cpp"
 #include "eprecomp.cpp"
 

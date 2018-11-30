@@ -8,7 +8,7 @@
 #define CRYPTOPP_VMAC_H
 
 #include <cryptopp/cryptlib.h>
-#include "iterhash.h"
+#include <cryptopp/iterhash.h>
 #include "seckey.h"
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler

@@ -13,14 +13,14 @@
 #include <cryptopp/asn.h>
 #include "oids.h"
 
-#include "luc.h"
+#include <cryptopp/luc.h>
 #include "rsa.h"
 #include "xtr.h"
 #include "rabin.h"
 #include "pubkey.h"
-#include "elgamal.h"
+#include <cryptopp/elgamal.h>
 #include "xtrcrypt.h"
-#include "eccrypto.h"
+#include <cryptopp/eccrypto.h>
 
 #include <iostream>
 #include <iomanip>

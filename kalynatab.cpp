@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "kalyna.h"
+#include <cryptopp/kalyna.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(KalynaTab)

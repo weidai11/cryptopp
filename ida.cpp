@@ -3,10 +3,10 @@
 #include "pch.h"
 #include "config.h"
 
-#include "ida.h"
+#include <cryptopp/ida.h>
 #include "stdcpp.h"
 #include <cryptopp/algebra.h>
-#include "gf2_32.h"
+#include <cryptopp/gf2_32.h>
 #include "polynomi.h"
 #include "polynomi.cpp"
 
