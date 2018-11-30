@@ -15,14 +15,14 @@
 # pragma warning(disable: 4189 4231 4275)
 #endif
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "pubkey.h"
 #include "integer.h"
 #include "modexppc.h"
-#include <cryptopp/algparam.h>
+#include "algparam.h"
 #include "smartptr.h"
 #include "sha.h"
-#include <cryptopp/asn.h>
+#include "asn.h"
 #include "hmac.h"
 #include "misc.h"
 

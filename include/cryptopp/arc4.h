@@ -7,9 +7,9 @@
 #ifndef CRYPTOPP_ARC4_H
 #define CRYPTOPP_ARC4_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "strciphr.h"
-#include <cryptopp/secblock.h>
+#include "secblock.h"
 #include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)

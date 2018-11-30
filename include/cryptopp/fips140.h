@@ -11,8 +11,8 @@
 #ifndef CRYPTOPP_FIPS140_H
 #define CRYPTOPP_FIPS140_H
 
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/secblock.h>
+#include "cryptlib.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

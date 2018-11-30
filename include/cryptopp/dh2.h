@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_DH2_H
 #define CRYPTOPP_DH2_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

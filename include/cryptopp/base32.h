@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_BASE32_H
 #define CRYPTOPP_BASE32_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "basecode.h"
 
 NAMESPACE_BEGIN(CryptoPP)

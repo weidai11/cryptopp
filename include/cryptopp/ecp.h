@@ -6,9 +6,9 @@
 #ifndef CRYPTOPP_ECP_H
 #define CRYPTOPP_ECP_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "integer.h"
-#include <cryptopp/algebra.h>
+#include "algebra.h"
 #include "modarith.h"
 #include "ecpoint.h"
 #include "eprecomp.h"

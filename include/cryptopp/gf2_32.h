@@ -6,8 +6,8 @@
 #ifndef CRYPTOPP_GF2_32_H
 #define CRYPTOPP_GF2_32_H
 
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/secblock.h>
+#include "cryptlib.h"
+#include "secblock.h"
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

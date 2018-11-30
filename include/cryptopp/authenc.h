@@ -20,8 +20,8 @@
 #ifndef CRYPTOPP_AUTHENC_H
 #define CRYPTOPP_AUTHENC_H
 
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/secblock.h>
+#include "cryptlib.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

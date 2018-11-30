@@ -22,7 +22,7 @@
 #include <cryptopp/3way.h>
 #include <cryptopp/aria.h>
 #include <cryptopp/cast.h>
-#include "mars.h"
+#include <cryptopp/mars.h>
 #include <cryptopp/idea.h>
 #include <cryptopp/gost.h>
 #include "seal.h"

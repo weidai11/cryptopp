@@ -25,7 +25,7 @@
 #include "serpent.h"
 #include <cryptopp/cast.h>
 #include "rc6.h"
-#include "mars.h"
+#include <cryptopp/mars.h>
 #include <cryptopp/kalyna.h>
 #include "threefish.h"
 #include <cryptopp/cham.h>

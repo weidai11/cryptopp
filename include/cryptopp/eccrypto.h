@@ -8,19 +8,19 @@
 #define CRYPTOPP_ECCRYPTO_H
 
 #include "config.h"
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "pubkey.h"
 #include "integer.h"
-#include <cryptopp/asn.h>
+#include "asn.h"
 #include "hmac.h"
 #include "sha.h"
 #include "gfpcrypt.h"
-#include <cryptopp/dh.h>
+#include "dh.h"
 #include "mqv.h"
 #include "hmqv.h"
 #include "fhmqv.h"
 #include "ecp.h"
-#include <cryptopp/ec2n.h>
+#include "ec2n.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

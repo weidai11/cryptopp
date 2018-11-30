@@ -12,8 +12,8 @@
 
 #include "config.h"
 #include "seckey.h"
-#include <cryptopp/secblock.h>
-#include <cryptopp/algparam.h>
+#include "secblock.h"
+#include "algparam.h"
 
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
 # define CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS 1

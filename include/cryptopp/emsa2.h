@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_EMSA2_H
 #define CRYPTOPP_EMSA2_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "pubkey.h"
 #include "hashfwd.h"
 #include "misc.h"

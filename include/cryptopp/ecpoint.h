@@ -8,9 +8,9 @@
 #ifndef CRYPTOPP_ECPOINT_H
 #define CRYPTOPP_ECPOINT_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "integer.h"
-#include <cryptopp/algebra.h>
+#include "algebra.h"
 #include "gf2n.h"
 
 NAMESPACE_BEGIN(CryptoPP)

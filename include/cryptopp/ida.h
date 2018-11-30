@@ -6,11 +6,11 @@
 #ifndef CRYPTOPP_IDA_H
 #define CRYPTOPP_IDA_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "mqueue.h"
-#include <cryptopp/filters.h>
-#include <cryptopp/channels.h>
-#include <cryptopp/secblock.h>
+#include "filters.h"
+#include "channels.h"
+#include "secblock.h"
 #include "stdcpp.h"
 #include "misc.h"
 

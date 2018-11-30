@@ -6,11 +6,11 @@
 #ifndef CRYPTOPP_GF2N_H
 #define CRYPTOPP_GF2N_H
 
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/secblock.h>
-#include <cryptopp/algebra.h>
+#include "cryptlib.h"
+#include "secblock.h"
+#include "algebra.h"
 #include "misc.h"
-#include <cryptopp/asn.h>
+#include "asn.h"
 
 #include <iosfwd>
 

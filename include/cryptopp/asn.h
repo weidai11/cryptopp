@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_ASN_H
 #define CRYPTOPP_ASN_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "filters.h"
 #include "smartptr.h"
 #include "stdcpp.h"

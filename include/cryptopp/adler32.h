@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_ADLER32_H
 #define CRYPTOPP_ADLER32_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

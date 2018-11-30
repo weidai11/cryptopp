@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_CRC32_H
 #define CRYPTOPP_CRC32_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

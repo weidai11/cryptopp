@@ -3,8 +3,8 @@
 #ifndef CRYPTOPP_ITERHASH_H
 #define CRYPTOPP_ITERHASH_H
 
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/secblock.h>
+#include "cryptlib.h"
+#include "secblock.h"
 #include "misc.h"
 #include "simple.h"
 

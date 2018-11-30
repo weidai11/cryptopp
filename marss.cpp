@@ -1,7 +1,7 @@
 // MARS S-Box
 
 #include "pch.h"
-#include "mars.h"
+#include <cryptopp/mars.h>
 #include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)

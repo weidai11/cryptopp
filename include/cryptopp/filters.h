@@ -6,20 +6,20 @@
 #ifndef CRYPTOPP_FILTERS_H
 #define CRYPTOPP_FILTERS_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
 # pragma warning(disable: 4127 4189 4231 4275 4514)
 #endif
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "simple.h"
-#include <cryptopp/secblock.h>
+#include "secblock.h"
 #include "misc.h"
 #include "smartptr.h"
 #include "queue.h"
-#include <cryptopp/algparam.h>
+#include "algparam.h"
 #include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)

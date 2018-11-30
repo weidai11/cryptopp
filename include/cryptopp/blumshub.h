@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_BLUMSHUB_H
 #define CRYPTOPP_BLUMSHUB_H
 
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 #include "modarith.h"
 #include "integer.h"
 

@@ -7,10 +7,10 @@
 #define CRYPTOPP_ALGPARAM_H
 
 #include "config.h"
-#include <cryptopp/cryptlib.h>
+#include "cryptlib.h"
 
 #include "smartptr.h"
-#include <cryptopp/secblock.h>
+#include "secblock.h"
 #include "integer.h"
 #include "misc.h"
 

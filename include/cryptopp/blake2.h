@@ -16,8 +16,8 @@
 #ifndef CRYPTOPP_BLAKE2_H
 #define CRYPTOPP_BLAKE2_H
 
-#include <cryptopp/cryptlib.h>
-#include <cryptopp/secblock.h>
+#include "cryptlib.h"
+#include "secblock.h"
 #include "seckey.h"
 
 NAMESPACE_BEGIN(CryptoPP)
