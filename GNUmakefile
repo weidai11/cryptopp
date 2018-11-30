@@ -637,7 +637,7 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = $(POWER9_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-    DARN_FLAG = $(POWER9_FLAG)
+    # DARN_FLAG = $(POWER9_FLAG)
   else
     POWER9_FLAG =
   endif
