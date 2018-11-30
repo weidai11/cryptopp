@@ -1,7 +1,7 @@
 // blowfish.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "blowfish.h"
+#include <cryptopp/blowfish.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

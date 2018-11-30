@@ -10,7 +10,7 @@
 #include <cryptopp/cryptlib.h>
 #include "filters.h"
 #include "smartptr.h"
-#include "default.h"
+#include <cryptopp/default.h>
 #include "queue.h"
 
 #include <time.h>

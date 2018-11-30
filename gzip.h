@@ -9,7 +9,7 @@
 #include <cryptopp/cryptlib.h>
 #include "zdeflate.h"
 #include "zinflate.h"
-#include "crc.h"
+#include <cryptopp/crc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

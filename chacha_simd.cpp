@@ -27,7 +27,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "chacha.h"
+#include <cryptopp/chacha.h>
 #include "misc.h"
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)

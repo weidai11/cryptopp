@@ -12,7 +12,7 @@
 
 #include "rng.h"
 #include "drbg.h"
-#include "darn.h"
+#include <cryptopp/darn.h>
 #include "osrng.h"
 #include "rdrand.h"
 #include "mersenne.h"
@@ -20,7 +20,7 @@
 #include "randpool.h"
 
 #include "gzip.h"
-#include "channels.h"
+#include <cryptopp/channels.h>
 
 #include <iostream>
 #include <iomanip>

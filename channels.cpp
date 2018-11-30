@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include <cryptopp/cryptlib.h>
-#include "channels.h"
+#include <cryptopp/channels.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)

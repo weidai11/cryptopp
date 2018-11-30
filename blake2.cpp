@@ -18,7 +18,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>
-#include "blake2.h"
+#include <cryptopp/blake2.h>
 #include "cpu.h"
 
 // Uncomment for benchmarking C++ against SSE2 or NEON.

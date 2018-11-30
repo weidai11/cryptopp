@@ -14,12 +14,12 @@
 #endif
 
 #include <cryptopp/aes.h>
-#include "cbcmac.h"
-#include "ccm.h"
-#include "cmac.h"
-#include "channels.h"
-#include "des.h"
-#include "dh.h"
+#include <cryptopp/cbcmac.h>
+#include <cryptopp/ccm.h>
+#include <cryptopp/cmac.h>
+#include <cryptopp/channels.h>
+#include <cryptopp/des.h>
+#include <cryptopp/dh.h>
 #include "dsa.h"
 #include "ec2n.h"
 #include "eccrypto.h"

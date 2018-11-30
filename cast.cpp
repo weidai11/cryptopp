@@ -2,7 +2,7 @@
 // based on Steve Reid's public domain cast.c
 
 #include "pch.h"
-#include "cast.h"
+#include <cryptopp/cast.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

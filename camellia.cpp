@@ -19,7 +19,7 @@ See comments at top of rijndael.cpp for more details.
 # endif
 #endif
 
-#include "camellia.h"
+#include <cryptopp/camellia.h>
 #include "misc.h"
 #include "cpu.h"
 

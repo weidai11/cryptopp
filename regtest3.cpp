@@ -13,32 +13,32 @@
 #include <cryptopp/aria.h>
 #include "seed.h"
 #include "hight.h"
-#include "camellia.h"
+#include <cryptopp/camellia.h>
 #include "shacal2.h"
 #include "tea.h"
 #include <cryptopp/aes.h>
 #include "tiger.h"
-#include "ccm.h"
+#include <cryptopp/ccm.h>
 #include "gcm.h"
 #include "eax.h"
 #include "twofish.h"
 #include "serpent.h"
-#include "cast.h"
+#include <cryptopp/cast.h>
 #include "rc6.h"
 #include "mars.h"
 #include "kalyna.h"
 #include "threefish.h"
-#include "cham.h"
+#include <cryptopp/cham.h>
 #include "lea.h"
 #include "simeck.h"
 #include "simon.h"
 #include "speck.h"
 #include "sm4.h"
-#include "des.h"
+#include <cryptopp/des.h>
 #include "idea.h"
 #include "rc5.h"
 #include "skipjack.h"
-#include "blowfish.h"
+#include <cryptopp/blowfish.h>
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)

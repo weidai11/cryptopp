@@ -14,7 +14,7 @@
 #include "ripemd.h"
 #include "rng.h"
 #include "gzip.h"
-#include "default.h"
+#include <cryptopp/default.h>
 #include "randpool.h"
 #include "ida.h"
 #include <cryptopp/base64.h>

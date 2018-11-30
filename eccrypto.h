@@ -15,7 +15,7 @@
 #include "hmac.h"
 #include "sha.h"
 #include "gfpcrypt.h"
-#include "dh.h"
+#include <cryptopp/dh.h>
 #include "mqv.h"
 #include "hmqv.h"
 #include "fhmqv.h"

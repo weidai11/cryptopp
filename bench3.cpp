@@ -28,7 +28,7 @@
 #include "ecp.h"
 #include "ec2n.h"
 #include <cryptopp/asn.h>
-#include "dh.h"
+#include <cryptopp/dh.h>
 #include "mqv.h"
 #include "hmqv.h"
 #include "fhmqv.h"

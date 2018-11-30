@@ -8,7 +8,7 @@
 
 #include <cryptopp/authenc.h>
 #include "modes.h"
-#include "cmac.h"
+#include <cryptopp/cmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

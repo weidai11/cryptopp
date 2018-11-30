@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "ccm.h"
+#include <cryptopp/ccm.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

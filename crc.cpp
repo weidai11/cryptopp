@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "crc.h"
+#include <cryptopp/crc.h>
 #include "misc.h"
 #include "cpu.h"
 

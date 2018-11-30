@@ -12,10 +12,10 @@
 
 #include <cryptopp/asn.h>
 #include "gf2n.h"
-#include "default.h"
+#include <cryptopp/default.h>
 #include "integer.h"
 #include "polynomi.h"
-#include "channels.h"
+#include <cryptopp/channels.h>
 
 #include "ida.h"
 #include "gzip.h"

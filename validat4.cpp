@@ -16,12 +16,12 @@
 
 #include "rc2.h"
 #include <cryptopp/aes.h>
-#include "des.h"
+#include <cryptopp/des.h>
 #include "rc5.h"
 #include "rc6.h"
 #include <cryptopp/3way.h>
 #include <cryptopp/aria.h>
-#include "cast.h"
+#include <cryptopp/cast.h>
 #include "mars.h"
 #include "idea.h"
 #include "gost.h"
@@ -33,19 +33,19 @@
 #include "serpent.h"
 #include "shacal2.h"
 #include "twofish.h"
-#include "blowfish.h"
-#include "camellia.h"
+#include <cryptopp/blowfish.h>
+#include <cryptopp/camellia.h>
 #include "skipjack.h"
 
 #include <cryptopp/arc4.h>
 #include "salsa.h"
-#include "chacha.h"
+#include <cryptopp/chacha.h>
 #include "rabbit.h"
 #include "sosemanuk.h"
 
 #include "modes.h"
-#include "cmac.h"
-#include "dmac.h"
+#include <cryptopp/cmac.h>
+#include <cryptopp/dmac.h>
 #include "hmac.h"
 
 #include "drbg.h"

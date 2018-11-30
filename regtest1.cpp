@@ -9,13 +9,13 @@
 #include "bench.h"
 #include "cpu.h"
 
-#include "crc.h"
+#include <cryptopp/crc.h>
 #include <cryptopp/adler32.h>
 #include "md2.h"
 #include "md5.h"
 #include "keccak.h"
 #include "sha3.h"
-#include "blake2.h"
+#include <cryptopp/blake2.h>
 #include "sha.h"
 #include "sha3.h"
 #include "sm3.h"
@@ -27,7 +27,7 @@
 
 #include "osrng.h"
 #include "drbg.h"
-#include "darn.h"
+#include <cryptopp/darn.h>
 #include "mersenne.h"
 #include "rdrand.h"
 #include "padlkrng.h"

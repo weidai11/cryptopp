@@ -4,7 +4,7 @@
 #include "config.h"
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "darn.h"
+#include <cryptopp/darn.h>
 #include "cpu.h"
 
 // At the moment only GCC 7.0 (and above) seems to support __builtin_darn()

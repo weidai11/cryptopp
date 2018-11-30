@@ -11,8 +11,8 @@
 
 // For MAC's
 #include "hmac.h"
-#include "cmac.h"
-#include "dmac.h"
+#include <cryptopp/cmac.h>
+#include <cryptopp/dmac.h>
 #include "vmac.h"
 #include "ttmac.h"
 
@@ -21,7 +21,7 @@
 #include "keccak.h"
 #include "sha.h"
 #include "sha3.h"
-#include "blake2.h"
+#include <cryptopp/blake2.h>
 #include "ripemd.h"
 #include "poly1305.h"
 #include "siphash.h"
@@ -31,7 +31,7 @@
 #include <cryptopp/arc4.h>
 #include "seal.h"
 #include "wake.h"
-#include "chacha.h"
+#include <cryptopp/chacha.h>
 #include "salsa.h"
 #include "rabbit.h"
 #include "hc128.h"
@@ -41,7 +41,7 @@
 
 // Block for CMAC
 #include <cryptopp/aes.h>
-#include "des.h"
+#include <cryptopp/des.h>
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)

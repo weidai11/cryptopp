@@ -5,7 +5,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "chacha.h"
+#include <cryptopp/chacha.h>
 #include <cryptopp/argnames.h>
 #include "misc.h"
 #include "cpu.h"

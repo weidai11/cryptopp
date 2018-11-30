@@ -2,7 +2,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "cbcmac.h"
+#include <cryptopp/cbcmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -20,7 +20,7 @@
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
-#include "blake2.h"
+#include <cryptopp/blake2.h>
 
 // Uncomment for benchmarking C++ against SSE2 or NEON.
 // Do so in both blake2.cpp and blake2-simd.cpp.

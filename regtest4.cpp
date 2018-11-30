@@ -9,7 +9,7 @@
 #include "bench.h"
 #include "cpu.h"
 
-#include "dh.h"
+#include <cryptopp/dh.h>
 #include "nr.h"
 #include "rw.h"
 #include "rsa.h"

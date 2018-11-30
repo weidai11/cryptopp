@@ -17,7 +17,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "chacha.h"
+#include <cryptopp/chacha.h>
 #include "misc.h"
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)

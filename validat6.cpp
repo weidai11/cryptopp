@@ -12,7 +12,7 @@
 
 #include <cryptopp/asn.h>
 #include "oids.h"
-#include "blumshub.h"
+#include <cryptopp/blumshub.h>
 #include "eccrypto.h"
 
 #include <iostream>

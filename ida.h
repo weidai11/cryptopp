@@ -9,7 +9,7 @@
 #include <cryptopp/cryptlib.h>
 #include "mqueue.h"
 #include "filters.h"
-#include "channels.h"
+#include <cryptopp/channels.h>
 #include <cryptopp/secblock.h>
 #include "stdcpp.h"
 #include "misc.h"

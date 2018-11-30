@@ -11,7 +11,7 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/aes.h>
-#include "crc.h"
+#include <cryptopp/crc.h>
 #include <cryptopp/adler32.h>
 
 #include "md2.h"
@@ -22,7 +22,7 @@
 #include "sha3.h"
 #include "pssr.h"
 #include "tiger.h"
-#include "blake2.h"
+#include <cryptopp/blake2.h>
 #include "ripemd.h"
 #include "siphash.h"
 #include "poly1305.h"
@@ -32,8 +32,8 @@
 #include "scrypt.h"
 #include "pwdbased.h"
 
-#include "cmac.h"
-#include "dmac.h"
+#include <cryptopp/cmac.h>
+#include <cryptopp/dmac.h>
 #include "hmac.h"
 #include "ttmac.h"
 

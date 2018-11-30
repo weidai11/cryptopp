@@ -8,7 +8,7 @@
 #include "misc.h"
 
 #if defined(CRYPTOPP_DEBUG)
-#include "des.h"
+#include <cryptopp/des.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

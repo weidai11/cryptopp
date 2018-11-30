@@ -16,7 +16,7 @@
 #include "sha.h"
 #include "sha3.h"
 
-#include "dh.h"
+#include <cryptopp/dh.h>
 #include "luc.h"
 #include "mqv.h"
 #include "xtr.h"

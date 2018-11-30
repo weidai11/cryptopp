@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "dh.h"
+#include <cryptopp/dh.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

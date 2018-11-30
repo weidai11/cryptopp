@@ -24,7 +24,7 @@
 #include "pkcspad.h"
 #include "integer.h"
 #include "oaep.h"
-#include "dh.h"
+#include <cryptopp/dh.h>
 
 #include <limits.h>
 

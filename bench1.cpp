@@ -14,7 +14,7 @@
 
 #include "osrng.h"
 #include "drbg.h"
-#include "darn.h"
+#include <cryptopp/darn.h>
 #include "mersenne.h"
 #include "rdrand.h"
 #include "padlkrng.h"
