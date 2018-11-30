@@ -4,7 +4,7 @@
 // and also placed in the public domain
 
 #include "pch.h"
-#include "ripemd.h"
+#include <cryptopp/ripemd.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

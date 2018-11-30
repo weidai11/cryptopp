@@ -12,7 +12,7 @@
 
 #include <cryptopp/algebra.h>
 #include <cryptopp/integer.h>
-#include "nbtheory.h"
+#include <cryptopp/nbtheory.h>
 
 #include <iostream>
 #include <iomanip>

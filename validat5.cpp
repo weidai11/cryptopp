@@ -14,28 +14,28 @@
 #include <cryptopp/crc.h>
 #include <cryptopp/adler32.h>
 
-#include "md2.h"
-#include "md4.h"
-#include "md5.h"
+#include <cryptopp/md2.h>
+#include <cryptopp/md4.h>
+#include <cryptopp/md5.h>
 
-#include "sha.h"
-#include "sha3.h"
-#include "pssr.h"
-#include "tiger.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
+#include <cryptopp/pssr.h>
+#include <cryptopp/tiger.h>
 #include <cryptopp/blake2.h>
-#include "ripemd.h"
-#include "siphash.h"
-#include "poly1305.h"
-#include "whrlpool.h"
+#include <cryptopp/ripemd.h>
+#include <cryptopp/siphash.h>
+#include <cryptopp/poly1305.h>
+#include <cryptopp/whrlpool.h>
 
 #include <cryptopp/hkdf.h>
-#include "scrypt.h"
-#include "pwdbased.h"
+#include <cryptopp/scrypt.h>
+#include <cryptopp/pwdbased.h>
 
 #include <cryptopp/cmac.h>
 #include <cryptopp/dmac.h>
 #include <cryptopp/hmac.h>
-#include "ttmac.h"
+#include <cryptopp/ttmac.h>
 
 #include <iostream>
 #include <iomanip>

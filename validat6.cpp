@@ -11,7 +11,7 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 #include <cryptopp/blumshub.h>
 #include <cryptopp/eccrypto.h>
 

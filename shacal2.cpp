@@ -13,7 +13,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "shacal2.h"
+#include <cryptopp/shacal2.h>
 #include "misc.h"
 #include "cpu.h"
 

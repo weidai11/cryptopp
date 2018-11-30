@@ -4,7 +4,7 @@
 #include "config.h"
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "padlkrng.h"
+#include <cryptopp/padlkrng.h>
 #include "cpu.h"
 
 // The Padlock Security Engine RNG has a few items to be aware of. You can

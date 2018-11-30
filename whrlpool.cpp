@@ -69,7 +69,7 @@
 # pragma warning(disable: 4127)
 #endif
 
-#include "whrlpool.h"
+#include <cryptopp/whrlpool.h>
 #include "misc.h"
 #include "cpu.h"
 

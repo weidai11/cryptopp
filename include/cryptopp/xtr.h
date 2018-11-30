@@ -6,7 +6,7 @@
 /// \details The XTR public key system by Arjen K. Lenstra and Eric R. Verheul
 
 #include <cryptopp/cryptlib.h>
-#include "modarith.h"
+#include <cryptopp/modarith.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 

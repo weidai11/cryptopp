@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "rng.h"
+#include <cryptopp/rng.h>
 #include <cryptopp/fips140.h>
 
 #include <time.h>

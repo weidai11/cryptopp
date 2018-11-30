@@ -1,7 +1,7 @@
 // seed.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "seed.h"
+#include <cryptopp/seed.h>
 #include "misc.h"
 #include "stdcpp.h"
 

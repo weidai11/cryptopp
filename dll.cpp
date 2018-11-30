@@ -6,7 +6,7 @@
 #include "dll.h"
 #include "config.h"
 #include <cryptopp/iterhash.h>
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 #include <cryptopp/emsa2.h>
 
 #if defined(CRYPTOPP_MSC_VERSION)

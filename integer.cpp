@@ -53,17 +53,17 @@
 
 #include <cryptopp/integer.h>
 #include <cryptopp/secblock.h>
-#include "modarith.h"
-#include "nbtheory.h"
+#include <cryptopp/modarith.h>
+#include <cryptopp/nbtheory.h>
 #include "smartptr.h"
 #include <cryptopp/algparam.h>
 #include <cryptopp/filters.h>
 #include "stdcpp.h"
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 #include "words.h"
-#include "pubkey.h"		// for P1363_KDF2
-#include "sha.h"
+#include <cryptopp/pubkey.h>		// for P1363_KDF2
+#include <cryptopp/sha.h>
 #include "cpu.h"
 #include "misc.h"
 

@@ -22,7 +22,7 @@
 #include <cryptopp/fips140.h>
 #include <cryptopp/argnames.h>
 #include "fltrimpl.h"
-#include "osrng.h"
+#include <cryptopp/osrng.h>
 #include <cryptopp/secblock.h>
 #include "smartptr.h"
 #include "stdcpp.h"

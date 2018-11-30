@@ -4,9 +4,9 @@
 
 #include <cryptopp/asn.h>
 #include <cryptopp/integer.h>
-#include "xtrcrypt.h"
-#include "nbtheory.h"
-#include "modarith.h"
+#include <cryptopp/xtrcrypt.h>
+#include <cryptopp/nbtheory.h>
+#include <cryptopp/modarith.h>
 #include <cryptopp/argnames.h>
 
 NAMESPACE_BEGIN(CryptoPP)

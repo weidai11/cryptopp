@@ -12,31 +12,31 @@
 #include "smartptr.h"
 #include "stdcpp.h"
 
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 #include <cryptopp/gfpcrypt.h>
 #include <cryptopp/eccrypto.h>
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 
 #include "files.h"
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
-#include "rsa.h"
+#include <cryptopp/rsa.h>
 #include "nr.h"
 #include <cryptopp/dsa.h>
 #include <cryptopp/luc.h>
-#include "rw.h"
+#include <cryptopp/rw.h>
 #include <cryptopp/ecp.h>
 #include <cryptopp/ec2n.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/dh.h>
-#include "mqv.h"
+#include <cryptopp/mqv.h>
 #include <cryptopp/hmqv.h>
 #include <cryptopp/fhmqv.h>
-#include "xtrcrypt.h"
+#include <cryptopp/xtrcrypt.h>
 #include <cryptopp/esign.h>
-#include "pssr.h"
-#include "oids.h"
-#include "randpool.h"
+#include <cryptopp/pssr.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/randpool.h>
 #include "stdcpp.h"
 #include "hrtimer.h"
 

@@ -18,11 +18,11 @@
 
 #include <cryptopp/eccrypto.h>
 #include <cryptopp/integer.h>
-#include "nbtheory.h"
+#include <cryptopp/nbtheory.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/argnames.h>
 #include "smartptr.h"
-#include "oids.h"
+#include <cryptopp/oids.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/hex.h>
 #include <cryptopp/ec2n.h>

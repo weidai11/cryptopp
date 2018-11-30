@@ -11,11 +11,11 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include <cryptopp/gfpcrypt.h>
-#include "nbtheory.h"
-#include "modarith.h"
+#include <cryptopp/nbtheory.h>
+#include <cryptopp/modarith.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

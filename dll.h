@@ -29,17 +29,17 @@
 #include <cryptopp/gcm.h>
 #include <cryptopp/hex.h>
 #include <cryptopp/hmac.h>
-#include "modes.h"
-#include "mqueue.h"
-#include "nbtheory.h"
-#include "osrng.h"
-#include "pkcspad.h"
-#include "pssr.h"
-#include "randpool.h"
-#include "rsa.h"
-#include "rw.h"
-#include "sha.h"
-#include "skipjack.h"
+#include <cryptopp/modes.h>
+#include <cryptopp/mqueue.h>
+#include <cryptopp/nbtheory.h>
+#include <cryptopp/osrng.h>
+#include <cryptopp/pkcspad.h>
+#include <cryptopp/pssr.h>
+#include <cryptopp/randpool.h>
+#include <cryptopp/rsa.h>
+#include <cryptopp/rw.h>
+#include <cryptopp/sha.h>
+#include <cryptopp/skipjack.h>
 
 #ifdef CRYPTOPP_IMPORTS
 

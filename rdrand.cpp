@@ -4,7 +4,7 @@
 #include "config.h"
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "rdrand.h"
+#include <cryptopp/rdrand.h>
 #include "cpu.h"
 
 // This file (and friends) provides both RDRAND and RDSEED. They were added

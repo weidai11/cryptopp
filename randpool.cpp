@@ -8,15 +8,15 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "randpool.h"
+#include <cryptopp/randpool.h>
 #include <cryptopp/aes.h>
-#include "sha.h"
+#include <cryptopp/sha.h>
 #include "hrtimer.h"
 #include "trap.h"
 
 // OldRandomPool
-#include "mdc.h"
-#include "modes.h"
+#include <cryptopp/mdc.h>
+#include <cryptopp/modes.h>
 
 #include <time.h>
 

@@ -4,7 +4,7 @@
 // originally came from Hal Finney's public domain secsplit.c.
 
 #include "pch.h"
-#include "polynomi.h"
+#include <cryptopp/polynomi.h>
 #include <cryptopp/secblock.h>
 
 #include <sstream>

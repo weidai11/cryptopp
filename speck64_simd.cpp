@@ -8,7 +8,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "speck.h"
+#include <cryptopp/speck.h>
 #include "misc.h"
 #include <cryptopp/adv_simd.h>
 

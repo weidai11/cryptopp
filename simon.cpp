@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "simon.h"
+#include <cryptopp/simon.h>
 #include "misc.h"
 #include "cpu.h"
 

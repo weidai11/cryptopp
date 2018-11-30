@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "twofish.h"
+#include <cryptopp/twofish.h>
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wmissing-braces"

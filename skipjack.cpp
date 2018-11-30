@@ -5,7 +5,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "skipjack.h"
+#include <cryptopp/skipjack.h>
 
 /*
  *	Optimized implementation of SKIPJACK algorithm

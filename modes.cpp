@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "modes.h"
+#include <cryptopp/modes.h>
 #include "misc.h"
 
 #if defined(CRYPTOPP_DEBUG)

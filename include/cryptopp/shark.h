@@ -8,7 +8,7 @@
 #define CRYPTOPP_SHARK_H
 
 #include "config.h"
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)

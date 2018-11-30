@@ -7,8 +7,8 @@
 #include <cryptopp/ecp.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/integer.h>
-#include "nbtheory.h"
-#include "modarith.h"
+#include <cryptopp/nbtheory.h>
+#include <cryptopp/modarith.h>
 #include <cryptopp/filters.h>
 #include "algebra.cpp"
 

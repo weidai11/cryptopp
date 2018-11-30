@@ -2,7 +2,7 @@
 #define CRYPTOPP_MODEXPPC_H
 
 #include <cryptopp/cryptlib.h>
-#include "modarith.h"
+#include <cryptopp/modarith.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include <cryptopp/eprecomp.h>

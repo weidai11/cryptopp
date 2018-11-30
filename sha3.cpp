@@ -18,7 +18,7 @@ http://creativecommons.org/publicdomain/zero/1.0/
 */
 
 #include "pch.h"
-#include "sha3.h"
+#include <cryptopp/sha3.h>
 #include <cryptopp/keccakc.h>
 
 NAMESPACE_BEGIN(CryptoPP)

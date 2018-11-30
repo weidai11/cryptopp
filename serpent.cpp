@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "serpent.h"
+#include <cryptopp/serpent.h>
 #include <cryptopp/secblock.h>
 #include "misc.h"
 

@@ -38,7 +38,7 @@
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include <cryptopp/secblock.h>
-#include "sha.h"
+#include <cryptopp/sha.h>
 #include "misc.h"
 #include "cpu.h"
 

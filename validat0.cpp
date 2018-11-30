@@ -14,7 +14,7 @@
 #include <cryptopp/gf2n.h>
 #include <cryptopp/default.h>
 #include <cryptopp/integer.h>
-#include "polynomi.h"
+#include <cryptopp/polynomi.h>
 #include <cryptopp/channels.h>
 
 #include <cryptopp/ida.h>

@@ -7,7 +7,7 @@
 #include "stdcpp.h"
 #include <cryptopp/algebra.h>
 #include <cryptopp/gf2_32.h>
-#include "polynomi.h"
+#include <cryptopp/polynomi.h>
 #include "polynomi.cpp"
 
 ANONYMOUS_NAMESPACE_BEGIN

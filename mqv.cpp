@@ -4,7 +4,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "mqv.h"
+#include <cryptopp/mqv.h>
 #include <cryptopp/hmqv.h>
 #include <cryptopp/fhmqv.h>
 

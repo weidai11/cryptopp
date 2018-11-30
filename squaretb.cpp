@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "square.h"
+#include <cryptopp/square.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

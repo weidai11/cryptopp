@@ -11,15 +11,15 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 
 #include <cryptopp/luc.h>
-#include "rsa.h"
-#include "xtr.h"
-#include "rabin.h"
-#include "pubkey.h"
+#include <cryptopp/rsa.h>
+#include <cryptopp/xtr.h>
+#include <cryptopp/rabin.h>
+#include <cryptopp/pubkey.h>
 #include <cryptopp/elgamal.h>
-#include "xtrcrypt.h"
+#include <cryptopp/xtrcrypt.h>
 #include <cryptopp/eccrypto.h>
 
 #include <iostream>

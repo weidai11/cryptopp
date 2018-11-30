@@ -11,18 +11,18 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 
-#include "sha.h"
-#include "sha3.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
 
 #include <cryptopp/dh.h>
 #include <cryptopp/luc.h>
-#include "mqv.h"
-#include "xtr.h"
+#include <cryptopp/mqv.h>
+#include <cryptopp/xtr.h>
 #include <cryptopp/hmqv.h>
-#include "pubkey.h"
-#include "xtrcrypt.h"
+#include <cryptopp/pubkey.h>
+#include <cryptopp/xtrcrypt.h>
 #include <cryptopp/eccrypto.h>
 
 #include <iostream>

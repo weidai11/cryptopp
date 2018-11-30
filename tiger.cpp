@@ -3,7 +3,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "tiger.h"
+#include <cryptopp/tiger.h>
 #include "misc.h"
 #include "cpu.h"
 

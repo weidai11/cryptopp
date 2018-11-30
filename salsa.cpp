@@ -7,7 +7,7 @@
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#include "salsa.h"
+#include <cryptopp/salsa.h>
 #include <cryptopp/argnames.h>
 #include "misc.h"
 #include "cpu.h"

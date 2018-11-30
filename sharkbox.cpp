@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "shark.h"
+#include <cryptopp/shark.h>
 
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wmissing-braces"

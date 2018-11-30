@@ -9,7 +9,7 @@
 #include <cryptopp/integer.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/hex.h>
-#include "randpool.h"
+#include <cryptopp/randpool.h>
 #include "files.h"
 #include "trunhash.h"
 #include "queue.h"

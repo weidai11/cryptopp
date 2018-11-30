@@ -1,12 +1,12 @@
 // rabin.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "rabin.h"
+#include <cryptopp/rabin.h>
 #include <cryptopp/integer.h>
-#include "nbtheory.h"
-#include "modarith.h"
+#include <cryptopp/nbtheory.h>
+#include <cryptopp/modarith.h>
 #include <cryptopp/asn.h>
-#include "sha.h"
+#include <cryptopp/sha.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

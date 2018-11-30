@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "strciphr.h"
+#include <cryptopp/strciphr.h>
 
 // Squash MS LNK4221 and libtool warnings
 #ifndef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES

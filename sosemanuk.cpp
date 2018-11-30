@@ -11,7 +11,7 @@
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#include "sosemanuk.h"
+#include <cryptopp/sosemanuk.h>
 #include "serpentp.h"
 #include <cryptopp/secblock.h>
 #include "misc.h"

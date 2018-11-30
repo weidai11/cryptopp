@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_SQUARE_H
 #define CRYPTOPP_SQUARE_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)

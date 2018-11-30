@@ -9,7 +9,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/iterhash.h>
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler
 // error with .intel_syntax, http://llvm.org/bugs/show_bug.cgi?id=24232

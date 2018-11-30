@@ -1,10 +1,10 @@
 // pssr.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "pssr.h"
+#include <cryptopp/pssr.h>
 #include <cryptopp/emsa2.h>
-#include "ripemd.h"
-#include "whrlpool.h"
+#include <cryptopp/ripemd.h>
+#include <cryptopp/whrlpool.h>
 #include "misc.h"
 
 #include <functional>

@@ -7,8 +7,8 @@
 #define CRYPTOPP_RABIN_H
 
 #include <cryptopp/cryptlib.h>
-#include "oaep.h"
-#include "pssr.h"
+#include <cryptopp/oaep.h>
+#include <cryptopp/pssr.h>
 #include <cryptopp/integer.h>
 
 NAMESPACE_BEGIN(CryptoPP)

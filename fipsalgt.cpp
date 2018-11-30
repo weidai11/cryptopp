@@ -12,7 +12,7 @@
 #include <cryptopp/cryptlib.h>
 #include "smartptr.h"
 #include <cryptopp/filters.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 
 USING_NAMESPACE(CryptoPP)
 

@@ -3,11 +3,11 @@
 #include "pch.h"
 #include <cryptopp/luc.h>
 #include <cryptopp/asn.h>
-#include "sha.h"
+#include <cryptopp/sha.h>
 #include <cryptopp/integer.h>
-#include "nbtheory.h"
+#include <cryptopp/nbtheory.h>
 #include <cryptopp/algparam.h>
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

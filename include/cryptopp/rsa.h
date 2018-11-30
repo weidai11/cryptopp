@@ -9,10 +9,10 @@
 #define CRYPTOPP_RSA_H
 
 #include <cryptopp/cryptlib.h>
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 #include <cryptopp/integer.h>
-#include "pkcspad.h"
-#include "oaep.h"
+#include <cryptopp/pkcspad.h>
+#include <cryptopp/oaep.h>
 #include <cryptopp/emsa2.h>
 #include <cryptopp/asn.h>
 

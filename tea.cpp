@@ -1,7 +1,7 @@
 // tea.cpp - modified by Wei Dai from code in the original paper
 
 #include "pch.h"
-#include "tea.h"
+#include <cryptopp/tea.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

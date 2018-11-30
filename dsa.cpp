@@ -8,7 +8,7 @@
 #include <cryptopp/asn.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/filters.h>
-#include "nbtheory.h"
+#include <cryptopp/nbtheory.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

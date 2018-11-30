@@ -8,7 +8,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "sha.h"
+#include <cryptopp/sha.h>
 #include "misc.h"
 
 #if defined(CRYPTOPP_DISABLE_SHA_ASM)

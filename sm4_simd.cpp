@@ -13,7 +13,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "sm4.h"
+#include <cryptopp/sm4.h>
 #include "misc.h"
 #include <cryptopp/adv_simd.h>
 

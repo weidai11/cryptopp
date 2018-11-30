@@ -11,25 +11,25 @@
 #include <cryptopp/validate.h>
 
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 
-#include "md2.h"
-#include "md4.h"
-#include "md5.h"
+#include <cryptopp/md2.h>
+#include <cryptopp/md4.h>
+#include <cryptopp/md5.h>
 
-#include "sha.h"
-#include "sha3.h"
-#include "pssr.h"
-#include "ripemd.h"
-#include "whrlpool.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
+#include <cryptopp/pssr.h>
+#include <cryptopp/ripemd.h>
+#include <cryptopp/whrlpool.h>
 
-#include "rw.h"
+#include <cryptopp/rw.h>
 #include <cryptopp/dsa.h>
 #include <cryptopp/luc.h>
-#include "rsa.h"
+#include <cryptopp/rsa.h>
 #include <cryptopp/esign.h>
-#include "rabin.h"
-#include "pubkey.h"
+#include <cryptopp/rabin.h>
+#include <cryptopp/pubkey.h>
 #include <cryptopp/eccrypto.h>
 
 #include <iostream>

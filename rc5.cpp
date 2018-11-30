@@ -1,7 +1,7 @@
 // rc5.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "rc5.h"
+#include <cryptopp/rc5.h>
 #include "misc.h"
 #include <cryptopp/secblock.h>
 

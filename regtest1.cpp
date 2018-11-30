@@ -11,28 +11,28 @@
 
 #include <cryptopp/crc.h>
 #include <cryptopp/adler32.h>
-#include "md2.h"
-#include "md5.h"
+#include <cryptopp/md2.h>
+#include <cryptopp/md5.h>
 #include <cryptopp/keccak.h>
-#include "sha3.h"
+#include <cryptopp/sha3.h>
 #include <cryptopp/blake2.h>
-#include "sha.h"
-#include "sha3.h"
-#include "sm3.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
+#include <cryptopp/sm3.h>
 #include <cryptopp/hkdf.h>
-#include "tiger.h"
-#include "ripemd.h"
-#include "panama.h"
-#include "whrlpool.h"
+#include <cryptopp/tiger.h>
+#include <cryptopp/ripemd.h>
+#include <cryptopp/panama.h>
+#include <cryptopp/whrlpool.h>
 
-#include "osrng.h"
+#include <cryptopp/osrng.h>
 #include <cryptopp/drbg.h>
 #include <cryptopp/darn.h>
-#include "mersenne.h"
-#include "rdrand.h"
-#include "padlkrng.h"
+#include <cryptopp/mersenne.h>
+#include <cryptopp/rdrand.h>
+#include <cryptopp/padlkrng.h>
 
-#include "modes.h"
+#include <cryptopp/modes.h>
 #include <cryptopp/aes.h>
 
 // Aggressive stack checking with VS2005 SP1 and above.

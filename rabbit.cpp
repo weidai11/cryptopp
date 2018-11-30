@@ -8,7 +8,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "rabbit.h"
+#include <cryptopp/rabbit.h>
 #include <cryptopp/secblock.h>
 #include "misc.h"
 

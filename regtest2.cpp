@@ -14,30 +14,30 @@
 #include <cryptopp/cmac.h>
 #include <cryptopp/dmac.h>
 #include "vmac.h"
-#include "ttmac.h"
+#include <cryptopp/ttmac.h>
 
 // Ciphers
-#include "md5.h"
+#include <cryptopp/md5.h>
 #include <cryptopp/keccak.h>
-#include "sha.h"
-#include "sha3.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/sha3.h>
 #include <cryptopp/blake2.h>
-#include "ripemd.h"
-#include "poly1305.h"
-#include "siphash.h"
-#include "panama.h"
+#include <cryptopp/ripemd.h>
+#include <cryptopp/poly1305.h>
+#include <cryptopp/siphash.h>
+#include <cryptopp/panama.h>
 
 // Stream ciphers
 #include <cryptopp/arc4.h>
-#include "seal.h"
-#include "wake.h"
+#include <cryptopp/seal.h>
+#include <cryptopp/wake.h>
 #include <cryptopp/chacha.h>
-#include "salsa.h"
-#include "rabbit.h"
+#include <cryptopp/salsa.h>
+#include <cryptopp/rabbit.h>
 #include <cryptopp/hc128.h>
 #include <cryptopp/hc256.h>
-#include "panama.h"
-#include "sosemanuk.h"
+#include <cryptopp/panama.h>
+#include <cryptopp/sosemanuk.h>
 
 // Block for CMAC
 #include <cryptopp/aes.h>

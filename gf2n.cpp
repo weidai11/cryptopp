@@ -7,14 +7,14 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/algebra.h>
-#include "randpool.h"
+#include <cryptopp/randpool.h>
 #include <cryptopp/filters.h>
 #include "smartptr.h"
 #include "words.h"
 #include "misc.h"
 #include <cryptopp/gf2n.h>
 #include <cryptopp/asn.h>
-#include "oids.h"
+#include <cryptopp/oids.h>
 
 #include <iostream>
 

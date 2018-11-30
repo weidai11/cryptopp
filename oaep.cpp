@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "oaep.h"
+#include <cryptopp/oaep.h>
 #include "stdcpp.h"
 #include "smartptr.h"
 

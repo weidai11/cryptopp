@@ -7,7 +7,7 @@
 #define CRYPTOPP_QUEUE_H
 
 #include <cryptopp/cryptlib.h>
-#include "simple.h"
+#include <cryptopp/simple.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

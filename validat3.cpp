@@ -10,14 +10,14 @@
 #include "cpu.h"
 #include <cryptopp/validate.h>
 
-#include "rng.h"
+#include <cryptopp/rng.h>
 #include <cryptopp/drbg.h>
 #include <cryptopp/darn.h>
-#include "osrng.h"
-#include "rdrand.h"
-#include "mersenne.h"
-#include "padlkrng.h"
-#include "randpool.h"
+#include <cryptopp/osrng.h>
+#include <cryptopp/rdrand.h>
+#include <cryptopp/mersenne.h>
+#include <cryptopp/padlkrng.h>
+#include <cryptopp/randpool.h>
 
 #include "gzip.h"
 #include <cryptopp/channels.h>

@@ -5,7 +5,7 @@
 #ifndef CRYPTOPP_PKCSPAD_CPP	// SunCC workaround: compiler could cause this file to be included twice
 #define CRYPTOPP_PKCSPAD_CPP
 
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 #include <cryptopp/emsa2.h>
 #include <cryptopp/hashfwd.h>
 #include "misc.h"

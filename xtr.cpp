@@ -2,11 +2,11 @@
 
 #include "pch.h"
 
-#include "xtr.h"
-#include "nbtheory.h"
+#include <cryptopp/xtr.h>
+#include <cryptopp/nbtheory.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
-#include "modarith.h"
+#include <cryptopp/modarith.h>
 #include "algebra.cpp"
 
 NAMESPACE_BEGIN(CryptoPP)

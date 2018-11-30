@@ -10,7 +10,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
 #include "smartptr.h"
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 #include "misc.h"
 
 // Simply disable CRYPTOPP_WIN32_AVAILABLE for Windows Phone and Windows Store apps

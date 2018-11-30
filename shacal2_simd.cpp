@@ -14,7 +14,7 @@
 
 #include "pch.h"
 #include "config.h"
-#include "sha.h"
+#include <cryptopp/sha.h>
 #include "misc.h"
 
 #if (CRYPTOPP_SHANI_AVAILABLE)

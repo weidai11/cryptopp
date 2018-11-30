@@ -16,8 +16,8 @@
 
 #if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 
-#include "osrng.h"
-#include "rng.h"
+#include <cryptopp/osrng.h>
+#include <cryptopp/rng.h>
 
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #define WIN32_LEAN_AND_MEAN

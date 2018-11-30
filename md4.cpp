@@ -16,7 +16,7 @@
 
 #include "pch.h"
 #define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-#include "md4.h"
+#include <cryptopp/md4.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -21,7 +21,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/integer.h>
-#include "naclite.h"
+#include <cryptopp/naclite.h>
 #include <cryptopp/validate.h>
 
 #include <iostream>

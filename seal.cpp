@@ -3,9 +3,9 @@
 
 #include "pch.h"
 
-#include "seal.h"
+#include <cryptopp/seal.h>
 #include "cpu.h"
-#include "sha.h"
+#include <cryptopp/sha.h>
 #include "misc.h"
 #include <cryptopp/secblock.h>
 

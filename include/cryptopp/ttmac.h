@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_TTMAC_H
 #define CRYPTOPP_TTMAC_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/iterhash.h>
 #include <cryptopp/secblock.h>
 

@@ -6,9 +6,9 @@
 #ifndef CRYPTOPP_WAKE_H
 #define CRYPTOPP_WAKE_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
-#include "strciphr.h"
+#include <cryptopp/strciphr.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

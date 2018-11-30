@@ -1,19 +1,19 @@
 // rsa.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "rsa.h"
+#include <cryptopp/rsa.h>
 #include <cryptopp/asn.h>
-#include "sha.h"
-#include "oids.h"
-#include "modarith.h"
-#include "nbtheory.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/oids.h>
+#include <cryptopp/modarith.h>
+#include <cryptopp/nbtheory.h>
 #include <cryptopp/algparam.h>
 #include <cryptopp/fips140.h>
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING) && !defined(CRYPTOPP_IS_DLL)
-#include "sha3.h"
-#include "pssr.h"
+#include <cryptopp/sha3.h>
+#include <cryptopp/pssr.h>
 NAMESPACE_BEGIN(CryptoPP)
 void RSA_TestInstantiations()
 {

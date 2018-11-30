@@ -5,9 +5,9 @@
 
 #include "pch.h"
 #include "config.h"
-#include "naclite.h"
+#include <cryptopp/naclite.h>
 #include "misc.h"
-#include "osrng.h"
+#include <cryptopp/osrng.h>
 #include "stdcpp.h"
 
 // Don't destroy const time properties when squashing warnings.

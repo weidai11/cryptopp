@@ -5,7 +5,7 @@
 #include "dll.h"
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
-#include "pkcspad.h"
+#include <cryptopp/pkcspad.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4505 4355)

@@ -4,14 +4,14 @@
 
 #include "pch.h"
 
-#include "scrypt.h"
+#include <cryptopp/scrypt.h>
 #include <cryptopp/algparam.h>
 #include <cryptopp/argnames.h>
-#include "pwdbased.h"
+#include <cryptopp/pwdbased.h>
 #include "stdcpp.h"
-#include "salsa.h"
+#include <cryptopp/salsa.h>
 #include "misc.h"
-#include "sha.h"
+#include <cryptopp/sha.h>
 
 #include <sstream>
 #ifdef _OPENMP

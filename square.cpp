@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "square.h"
+#include <cryptopp/square.h>
 #include "misc.h"
 #include <cryptopp/gf256.h>
 

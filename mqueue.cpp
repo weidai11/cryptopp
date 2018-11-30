@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "mqueue.h"
+#include <cryptopp/mqueue.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

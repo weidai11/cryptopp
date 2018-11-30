@@ -44,15 +44,15 @@ namespace std {
 
 // make_unchecked_array_iterator
 #if _MSC_VER >= 1600
-#include <iterator>
+# include <iterator>
 #endif
 
 #if defined(CRYPTOPP_CXX11_ATOMICS)
-#include <atomic>
+# include <atomic>
 #endif
 
 #if defined(CRYPTOPP_CXX11_SYNCHRONIZATION)
-#include <mutex>
+# include <mutex>
 #endif
 
 #if defined(CRYPTOPP_CXX11_RVALUES)

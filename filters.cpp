@@ -14,7 +14,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include <cryptopp/filters.h>
-#include "mqueue.h"
+#include <cryptopp/mqueue.h>
 #include "fltrimpl.h"
 #include <cryptopp/argnames.h>
 #include "smartptr.h"

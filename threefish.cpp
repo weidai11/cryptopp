@@ -5,7 +5,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "threefish.h"
+#include <cryptopp/threefish.h>
 #include "misc.h"
 #include <cryptopp/algparam.h>
 #include <cryptopp/argnames.h>

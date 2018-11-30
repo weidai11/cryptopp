@@ -14,7 +14,7 @@
 	#include "config.h"
 
 	#ifdef USE_PRECOMPILED_HEADERS
-		#include "simple.h"
+		#include <cryptopp/simple.h>
 		#include <cryptopp/secblock.h>
 		#include "misc.h"
 		#include "smartptr.h"

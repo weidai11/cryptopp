@@ -2,7 +2,7 @@
 // based on Wei Dai's RC5 code.
 
 #include "pch.h"
-#include "rc6.h"
+#include <cryptopp/rc6.h>
 #include "misc.h"
 #include <cryptopp/secblock.h>
 

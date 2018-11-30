@@ -5,7 +5,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/aes.h>
 #include "cpu.h"
-#include "poly1305.h"
+#include <cryptopp/poly1305.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

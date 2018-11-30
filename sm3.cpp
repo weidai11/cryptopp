@@ -10,7 +10,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "sm3.h"
+#include <cryptopp/sm3.h>
 #include "misc.h"
 #include "cpu.h"
 

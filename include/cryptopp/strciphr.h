@@ -36,7 +36,7 @@
 #endif
 
 #include <cryptopp/cryptlib.h>
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/argnames.h>
 

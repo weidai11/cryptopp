@@ -5,7 +5,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/filters.h>
 

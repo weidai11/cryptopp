@@ -1,7 +1,7 @@
 // safer.cpp - modified by by Wei Dai from Richard De Moliner's safer.c
 
 #include "pch.h"
-#include "safer.h"
+#include <cryptopp/safer.h>
 #include "misc.h"
 #include <cryptopp/argnames.h>
 

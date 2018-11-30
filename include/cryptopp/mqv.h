@@ -9,7 +9,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/gfpcrypt.h>
-#include "modarith.h"
+#include <cryptopp/modarith.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include "misc.h"

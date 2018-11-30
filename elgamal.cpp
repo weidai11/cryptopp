@@ -3,7 +3,7 @@
 #include "pch.h"
 #include <cryptopp/elgamal.h>
 #include <cryptopp/asn.h>
-#include "nbtheory.h"
+#include <cryptopp/nbtheory.h>
 
 // Squash MS LNK4221 and libtool warnings
 extern const char ELGAMAL_FNAME[] = __FILE__;

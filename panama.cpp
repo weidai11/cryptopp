@@ -6,7 +6,7 @@
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#include "panama.h"
+#include <cryptopp/panama.h>
 #include <cryptopp/secblock.h>
 #include "misc.h"
 #include "cpu.h"

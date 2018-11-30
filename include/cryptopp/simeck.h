@@ -13,7 +13,7 @@
 #define CRYPTOPP_SIMECK_H
 
 #include "config.h"
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/algparam.h>
 

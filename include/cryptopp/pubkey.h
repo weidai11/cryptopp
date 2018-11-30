@@ -44,7 +44,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
-#include "modarith.h"
+#include <cryptopp/modarith.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/eprecomp.h>
 #include <cryptopp/fips140.h>

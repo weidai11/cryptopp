@@ -11,16 +11,16 @@
 
 #include <cryptopp/dh.h>
 #include "nr.h"
-#include "rw.h"
-#include "rsa.h"
+#include <cryptopp/rw.h>
+#include <cryptopp/rsa.h>
 #include <cryptopp/dsa.h>
-#include "pssr.h"
+#include <cryptopp/pssr.h>
 #include <cryptopp/esign.h>
 
 // Hashes
-#include "md2.h"
-#include "md5.h"
-#include "sha.h"
+#include <cryptopp/md2.h>
+#include <cryptopp/md5.h>
+#include <cryptopp/sha.h>
 
 // Aggressive stack checking with VS2005 SP1 and above.
 #if (_MSC_FULL_VER >= 140050727)

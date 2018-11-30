@@ -12,12 +12,12 @@
 #include "smartptr.h"
 #include "stdcpp.h"
 
-#include "osrng.h"
+#include <cryptopp/osrng.h>
 #include <cryptopp/drbg.h>
 #include <cryptopp/darn.h>
-#include "mersenne.h"
-#include "rdrand.h"
-#include "padlkrng.h"
+#include <cryptopp/mersenne.h>
+#include <cryptopp/rdrand.h>
+#include <cryptopp/padlkrng.h>
 
 #include <iostream>
 #include <iomanip>

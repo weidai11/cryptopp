@@ -4,7 +4,7 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "simple.h"
+#include <cryptopp/simple.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 
