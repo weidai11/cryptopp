@@ -541,7 +541,7 @@ ifeq ($(IS_ARMV8),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+crypto
     endif
-	
+
   # ASIMD_FLAG
   endif
 
