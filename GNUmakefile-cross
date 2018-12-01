@@ -138,15 +138,19 @@ endif
 #####              Compiler and Platform              #####
 ###########################################################
 
-# Wait until CXXFLAGS have been set by setenv scripts
+# Wait until CXXFLAGS have been set by setenv scripts.
 
-GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -v -E '(llvm|clang)' | $(EGREP) -i -c -E '(gcc|g\+\+)')
-CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -i -c -E '(llvm|clang)')
+GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -v -E 'llvm|clang' | $(EGREP) -i -c -E '(gcc|g\+\+)')
+CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -i -c -E 'llvm|clang')
 
 HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
 ifeq ($(HOSTX),)
   HOSTX := $(shell uname -m 2>/dev/null)
 endif
+
+# This dance is because Clang reports the host architecture instead
+# of the target architecture. Running Clang on an x86_64 machine with
+# -arch arm64 yields x86_64 instead of aarch64 or arm64.
 
 ifeq ($(CLANG_COMPILER),1)
   IS_X86 := $(shell echo $(CXXFLAGS) | $(EGREP) -v 64 | $(EGREP) -i -c -E 'i.86')
@@ -160,7 +164,7 @@ else
   IS_ARMV8 := $(shell echo $(HOSTX) | $(EGREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 endif
 
-$(info Here's what we think is happening... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
+$(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
 
 ###########################################################
 #####                  Test Program                   #####
