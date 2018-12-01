@@ -92,12 +92,23 @@ endif
 # Enable shared object versioning for Linux and Solaris
 HAS_SOLIB_VERSION ?= 0
 ifneq ($(IS_LINUX)$(IS_SUN),00)
-HAS_SOLIB_VERSION := 1
+  HAS_SOLIB_VERSION := 1
 endif
 
 # Formely adhoc.cpp was created from adhoc.cpp.proto when needed.
 ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
+endif
+
+# Tell MacPorts and Homebrew GCC to use Clang integrated assembler
+#   http://github.com/weidai11/cryptopp/issues/190
+ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
+  ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
+    CXXFLAGS += -Wa,-q
+  endif
+  ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
+  endif
 endif
 
 # Hack to skip CPU feature tests for some recipes
@@ -222,17 +233,6 @@ endif
 
 ifneq ($(IS_X86)$(IS_X64),00)
 ifeq ($(DETECT_FEATURES),1)
-
-  # Tell MacPorts and Homebrew GCC to use Clang integrated assembler
-  #   http://github.com/weidai11/cryptopp/issues/190
-  ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
-    ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
-      CXXFLAGS += -Wa,-q
-    endif
-    ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
-      CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
-    endif
-  endif
 
   ifeq ($(SUN_COMPILER),1)
     SSE2_FLAG = -xarch=sse2
@@ -373,15 +373,25 @@ ifeq ($(DETECT_FEATURES),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
   else ifeq ($(SSE42_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-  else ifeq ($(AESNI_FLAG),)
+  endif
+
+  # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
+  # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
+  ifeq ($(CLMUL_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+  endif
+  ifeq ($(AESNI_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-  else ifeq ($(AVX_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
-  else ifeq ($(AVX2_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
-  else ifeq ($(SHANI_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+  endif
+
+  ifneq ($(SSE42_FLAG),)
+    ifeq ($(AVX_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
+    else ifeq ($(AVX2_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
+    else ifeq ($(SHANI_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+    endif
   endif
 
 # DETECT_FEATURES
