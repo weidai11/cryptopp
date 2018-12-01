@@ -56,7 +56,7 @@ IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|powerpc64|power64'
 IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'sun|sparc')
 IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'sun|sparc64')
 IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
-IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
+IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 
 IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 
@@ -527,15 +527,22 @@ ifeq ($(IS_ARMV8),1)
       CXXFLAGS += -DCRYPTOPP_ARM_SHA_AVAILABLE=0
     endif
 
-    ifneq ($(AES_FLAG),)
-      TPROG = TestPrograms/test_crypto_v84.cxx
-      TOPT = -march=armv8.4-a+crypto
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-      ifeq ($(strip $(HAVE_OPT)),0)
-        SM3_FLAG = -march=armv8.4-a+crypto
-        SM4_FLAG = -march=armv8.4-a+crypto
-      endif
+    TPROG = TestPrograms/test_arm_sm3.cxx
+    TOPT = -march=armv8.4-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SM3_FLAG = -march=armv8.4-a+crypto
+      SM4_FLAG = -march=armv8.4-a+crypto
     endif
+
+    TPROG = TestPrograms/test_arm_sha3.cxx
+    TOPT = -march=armv8.4-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SHA3_FLAG = -march=armv8.4-a+crypto
+    endif
+	
+  # ASIMD_FLAG
   endif
 
 # IS_ARMV8
@@ -1020,10 +1027,11 @@ INCL += resource.h
 endif
 
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
+# Avoid iOS. It cannot consume the assembly.
 ifeq ($(IS_ARM32),1)
-CRYPTOGAMS_AES_FLAG = -march=armv7-a
-CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
-SRCS += aes_armv4.S
+  CRYPTOGAMS_AES_FLAG = -march=armv7-a
+  CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
+  SRCS += aes_armv4.S
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -1448,6 +1456,9 @@ rijndael_simd.o : rijndael_simd.cpp
 # SSE4.2/SHA-NI or ARMv8a available
 sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+
+sha3_simd.o : sha3_simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SHA3_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 shacal2_simd.o : shacal2_simd.cpp
