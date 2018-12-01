@@ -349,7 +349,7 @@ ifeq ($(DETECT_FEATURES),1)
     SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
     SUN_LDFLAGS += $(SHANI_FLAG)
   else
-    SHA_FLAG =
+    SHANI_FLAG =
   endif
 
   ifeq ($(SUN_COMPILER),1)
