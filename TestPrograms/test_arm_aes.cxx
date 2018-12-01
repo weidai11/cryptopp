@@ -10,7 +10,7 @@
 
 int main(int argc, char* argv[])
 {
-	uint8x16_t x;
+	uint8x16_t x={0};
 	x=vaeseq_u8(x,x);
 	x=vaesmcq_u8(x);
 	x=vaesdq_u8(x,x);
