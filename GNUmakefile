@@ -100,9 +100,6 @@ ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
 endif
 
-# For feature tests
-BAD_RESULT="fatal|error|unknown|unrecognized|unexpected|illegal|ignored|incorrect|not found|not exist|cannot find|not supported|not compatible|no such instruction|invalid mnemonic"
-
 # Hack to skip CPU feature tests for some recipes
 DETECT_FEATURES ?= 1
 ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),-DCRYPTOPP_DISABLE_ASM)
@@ -132,6 +129,16 @@ ifeq ($(IS_AIX),1)
   else
     IS_PPC32=1
   endif
+endif
+
+# libc++ is LLVM's standard C++ library. If we add libc++
+# here then all user programs must use it too. The open
+# question is, which choice is easier on users?
+ifneq ($(IS_DARWIN),0)
+  CXX ?= c++
+  # CXXFLAGS += -stdlib=libc++
+  AR = libtool
+  ARFLAGS = -static -o
 endif
 
 ###########################################################
@@ -791,16 +798,6 @@ ifeq ($(IS_LINUX),1)
     endif # LDLIBS
   endif # OpenMP
 endif # IS_LINUX
-
-# libc++ is LLVM's standard C++ library. If we add libc++
-# here then all user programs must use it too. The open
-# question is, which choice is easier on users?
-ifneq ($(IS_DARWIN),0)
-  CXX ?= c++
-  # CXXFLAGS += -stdlib=libc++
-  AR = libtool
-  ARFLAGS = -static -o
-endif
 
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
