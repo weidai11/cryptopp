@@ -670,11 +670,11 @@ CRYPTOPP_INLINE size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
     const uint32x4_t s_one = {0, 0, 0, 1<<24};
-    const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
+    //const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
 #else
     // TODO: verify these constants on ARM-BE
     const uint32x4_t s_one = {0, 0, 0, 1};
-    const uint32x4_t s_two = {0, 2, 0, 2};
+    //const uint32x4_t s_two = {0, 2, 0, 2};
 #endif
 
     const size_t blockSize = 16;
