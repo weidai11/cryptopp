@@ -4506,10 +4506,20 @@ const Integer& ModularArithmetic::Half(const Integer &a) const
 	if (a.reg.size()==m_modulus.reg.size())
 	{
 		CryptoPP::DivideByPower2Mod(m_result.reg.begin(), a.reg, 1, m_modulus.reg, a.reg.size());
+        while (m_result.IsNegative())
+            m_result += m_modulus;
+        while (m_result >= m_modulus)
+            m_result -= m_modulus;
 		return m_result;
 	}
-	else
-		return m_result1 = (a.IsEven() ? (a >> 1) : ((a+m_modulus) >> 1));
+	else {
+		m_result1 = (a.IsEven() ? (a >> 1) : ((a + m_modulus) >> 1));
+        while (m_result1.IsNegative())
+            m_result1 += m_modulus;
+        while (m_result1 >= m_modulus)
+            m_result1 -= m_modulus;
+		return m_result1;
+	}
 }
 
 const Integer& ModularArithmetic::Add(const Integer &a, const Integer &b) const
@@ -4521,13 +4531,19 @@ const Integer& ModularArithmetic::Add(const Integer &a, const Integer &b) const
 		{
 			CryptoPP::Subtract(m_result.reg.begin(), m_result.reg, m_modulus.reg, a.reg.size());
 		}
+        while (m_result.IsNegative())
+            m_result += m_modulus;
+        while (m_result >= m_modulus)
+            m_result -= m_modulus;
 		return m_result;
 	}
 	else
 	{
 		m_result1 = a+b;
-		if (m_result1 >= m_modulus)
-			m_result1 -= m_modulus;
+        while (m_result1.IsNegative())
+            m_result1 += m_modulus;
+        while (m_result1 >= m_modulus)
+            m_result1 -= m_modulus;
 		return m_result1;
 	}
 }
@@ -4544,10 +4560,13 @@ Integer& ModularArithmetic::Accumulate(Integer &a, const Integer &b) const
 	}
 	else
 	{
-		a+=b;
-		if (a>=m_modulus)
-			a-=m_modulus;
+		a += b;
 	}
+
+    while (a.IsNegative())
+         a += m_modulus;
+     while (a >= m_modulus)
+         a -= m_modulus;
 
 	return a;
 }
@@ -4558,13 +4577,19 @@ const Integer& ModularArithmetic::Subtract(const Integer &a, const Integer &b) c
 	{
 		if (CryptoPP::Subtract(m_result.reg.begin(), a.reg, b.reg, a.reg.size()))
 			CryptoPP::Add(m_result.reg.begin(), m_result.reg, m_modulus.reg, a.reg.size());
+		while (m_result.IsNegative())
+			m_result += m_modulus;
+		while (m_result >= m_modulus)
+			m_result -= m_modulus;
 		return m_result;
 	}
 	else
 	{
 		m_result1 = a-b;
-		if (m_result1.IsNegative())
-			m_result1 += m_modulus;
+        while (m_result1.IsNegative())
+            m_result1 += m_modulus;
+        while (m_result1 >= m_modulus)
+            m_result1 -= m_modulus;
 		return m_result1;
 	}
 }
@@ -4578,11 +4603,13 @@ Integer& ModularArithmetic::Reduce(Integer &a, const Integer &b) const
 	}
 	else
 	{
-		a-=b;
-		if (a.IsNegative())
-			a+=m_modulus;
+		a -= b;
 	}
 
+    while (a.IsNegative())
+        a += m_modulus;
+    while (a >= m_modulus)
+        a -= m_modulus;
 	return a;
 }
 
@@ -4595,6 +4622,10 @@ const Integer& ModularArithmetic::Inverse(const Integer &a) const
 	if (CryptoPP::Subtract(m_result.reg.begin(), m_result.reg, a.reg, a.reg.size()))
 		Decrement(m_result.reg.begin()+a.reg.size(), m_modulus.reg.size()-a.reg.size());
 
+    while (m_result.IsNegative())
+        m_result += m_modulus;
+    while (m_result >= m_modulus)
+        m_result -= m_modulus;
 	return m_result;
 }
 
@@ -4643,6 +4674,11 @@ const Integer& MontgomeryRepresentation::Multiply(const Integer &a, const Intege
 	AsymmetricMultiply(T, T+2*N, a.reg, a.reg.size(), b.reg, b.reg.size());
 	SetWords(T+a.reg.size()+b.reg.size(), 0, 2*N-a.reg.size()-b.reg.size());
 	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+
+	while (m_result.IsNegative())
+		m_result += m_modulus;
+	while (m_result >= m_modulus)
+		m_result -= m_modulus;
 	return m_result;
 }
 
@@ -4656,6 +4692,11 @@ const Integer& MontgomeryRepresentation::Square(const Integer &a) const
 	CryptoPP::Square(T, T+2*N, a.reg, a.reg.size());
 	SetWords(T+2*a.reg.size(), 0, 2*N-2*a.reg.size());
 	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+
+	while (m_result.IsNegative())
+		m_result += m_modulus;
+	while (m_result >= m_modulus)
+		m_result -= m_modulus;
 	return m_result;
 }
 
@@ -4669,6 +4710,11 @@ Integer MontgomeryRepresentation::ConvertOut(const Integer &a) const
 	CopyWords(T, a.reg, a.reg.size());
 	SetWords(T+a.reg.size(), 0, 2*N-a.reg.size());
 	MontgomeryReduce(R, T+2*N, T, m_modulus.reg, m_u.reg, N);
+
+	while (m_result.IsNegative())
+		m_result += m_modulus;
+	while (m_result >= m_modulus)
+		m_result -= m_modulus;
 	return m_result;
 }
 
@@ -4692,6 +4738,10 @@ const Integer& MontgomeryRepresentation::MultiplicativeInverse(const Integer &a)
 	else
 		MultiplyByPower2Mod(R, R, N*WORD_BITS-k, m_modulus.reg, N);
 
+	while (m_result.IsNegative())
+		m_result += m_modulus;
+	while (m_result >= m_modulus)
+		m_result -= m_modulus;
 	return m_result;
 }
 

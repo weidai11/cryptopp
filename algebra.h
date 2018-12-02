@@ -59,25 +59,35 @@ public:
 	/// \brief Doubles an element in the group
 	/// \param a the element
 	/// \returns the element doubled
-	virtual const Element& Double(const Element &a) const;
+	virtual const Element& Double(const Element &a) const {
+		return this->Add(a, a);
+	}
 
 	/// \brief Subtracts elements in the group
 	/// \param a first element
 	/// \param b second element
 	/// \returns the difference of <tt>a</tt> and <tt>b</tt>. The element <tt>a</tt> must provide a Subtract member function.
-	virtual const Element& Subtract(const Element &a, const Element &b) const;
+	virtual const Element& Subtract(const Element &a, const Element &b) const {
+		// make copy of a in case Inverse() overwrites it
+		Element a1(a);
+		return this->Add(a1, Inverse(b));
+	}
 
 	/// \brief TODO
 	/// \param a first element
 	/// \param b second element
 	/// \returns TODO
-	virtual Element& Accumulate(Element &a, const Element &b) const;
+	virtual Element& Accumulate(Element &a, const Element &b) const {
+		return a = this->Add(a, b);
+	}
 
 	/// \brief Reduces an element in the congruence class
 	/// \param a element to reduce
 	/// \param b the congruence class
 	/// \returns the reduced element
-	virtual Element& Reduce(Element &a, const Element &b) const;
+	virtual Element& Reduce(Element &a, const Element &b) const {
+		return a = this->Subtract(a, b);
+	}
 
 	/// \brief Performs a scalar multiplication
 	/// \param a multiplicand
@@ -155,19 +165,29 @@ public:
 	/// \brief Square an element in the group
 	/// \param a the element
 	/// \returns the element squared
-	virtual const Element& Square(const Element &a) const;
+	virtual const Element& Square(const Element &a) const {
+		return this->Multiply(a, a);
+	}
 
 	/// \brief Divides elements in the group
 	/// \param a the dividend
 	/// \param b the divisor
 	/// \returns the quotient
-	virtual const Element& Divide(const Element &a, const Element &b) const;
+	virtual const Element& Divide(const Element &a, const Element &b) const {
+		// make copy of a in case MultiplicativeInverse() overwrites it
+		Element a1(a);
+		return this->Multiply(a1, this->MultiplicativeInverse(b));
+	}
 
 	/// \brief Raises a base to an exponent in the group
 	/// \param a the base
 	/// \param e the exponent
 	/// \returns the exponentiation
-	virtual Element Exponentiate(const Element &a, const Integer &e) const;
+	virtual Element Exponentiate(const Element &base, const Integer &exponent) const {
+		Element result;
+		SimultaneousExponentiate(&result, base, &exponent, 1);
+		return result;
+	}
 
 	/// \brief TODO
 	/// \param x first element
@@ -175,7 +195,9 @@ public:
 	/// \param y second element
 	/// \param e2 second exponent
 	/// \returns TODO
-	virtual Element CascadeExponentiate(const Element &x, const Integer &e1, const Element &y, const Integer &e2) const;
+	virtual Element CascadeExponentiate(const Element &x, const Integer &e1, const Element &y, const Integer &e2) const {
+		return MultiplicativeGroup().AbstractGroup<T>::CascadeScalarMultiply(x, e1, y, e2);
+	}
 
 	/// \brief Exponentiates a base to multiple exponents in the Ring
 	/// \param results an array of Elements
@@ -187,7 +209,9 @@ public:
 	/// \details SimultaneousExponentiate() must be implemented in a derived class.
 	/// \pre <tt>COUNTOF(results) == exponentsCount</tt>
 	/// \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
-	virtual void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
+	virtual void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const {
+		MultiplicativeGroup().AbstractGroup<T>::SimultaneousMultiply(results, base, exponents, exponentsCount);
+	}
 
 	/// \brief Retrieves the multiplicative group
 	/// \returns the multiplicative group
@@ -289,13 +313,28 @@ public:
 	/// \param a the element
 	/// \param b the modulus
 	/// \returns the result of <tt>a%b</tt>.
-	virtual const Element& Mod(const Element &a, const Element &b) const =0;
+	virtual const Element& Mod(const Element &a, const Element &b) const {
+		Element q;
+		this->DivisionAlgorithm(result, q, a, b);
+		return result;
+	}
 
 	/// \brief Calculates the greatest common denominator in the ring
 	/// \param a the first element
 	/// \param b the second element
 	/// \returns the the greatest common denominator of a and b.
-	virtual const Element& Gcd(const Element &a, const Element &b) const;
+	virtual const Element& Gcd(const Element &a, const Element &b) const {
+		Element g[3]={b, a};
+		unsigned int i0=0, i1=1, i2=2;
+
+		while (!this->Equal(g[i1], this->Identity()))
+		{
+			g[i2] = this->Mod(g[i0], g[i1]);
+			unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
+		}
+
+		return result = g[i0];
+	}
 
 protected:
 	mutable Element result;
@@ -434,7 +473,24 @@ public:
 	const Element& Square(const Element &a) const
 		{return m_domain.Mod(m_domain.Square(a), m_modulus);}
 
-	const Element& MultiplicativeInverse(const Element &a) const;
+	const Element& MultiplicativeInverse(const Element &a) const {
+		Element g[3]={m_modulus, a};
+		Element v[3]={m_domain.Identity(), m_domain.MultiplicativeIdentity()};
+		Element y;
+		unsigned int i0=0, i1=1, i2=2;
+
+		while (!this->Equal(g[i1], this->Identity()))
+		{
+			// y = g[i0] / g[i1];
+			// g[i2] = g[i0] % g[i1];
+			m_domain.DivisionAlgorithm(g[i2], y, g[i0], g[i1]);
+			// v[i2] = v[i0] - (v[i1] * y);
+			v[i2] = m_domain.Subtract(v[i0], m_domain.Multiply(v[i1], y));
+			unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
+		}
+
+		return m_domain.IsUnit(g[i0]) ? m_domain.Divide(v[i0], g[i0]) : m_domain.Identity();
+	}
 
 	bool operator==(const QuotientRing<T> &rhs) const
 		{return m_domain == rhs.m_domain && m_modulus == rhs.m_modulus;}

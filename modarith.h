@@ -78,14 +78,25 @@ public:
 	/// \param a Element to decode
 	void BERDecodeElement(BufferedTransformation &in, Element &a) const;
 
+	/// \brief assignment operator
+	/// \param ma other ModularArithmetic
+	/// \returns new ModularArithmetic
+	ModularArithmetic& operator=(const ModularArithmetic &ma) {
+		if (this != &ma) {
+			m_modulus = ma.m_modulus;
+			m_result.reg.resize(m_modulus.reg.size());
+		}
+		return *this;
+	}
+
 	/// \brief Retrieves the modulus
 	/// \returns the modulus
-	const Integer& GetModulus() const {return m_modulus;}
+	const Integer& GetModulus() const { return m_modulus; }
 
 	/// \brief Sets the modulus
 	/// \param newModulus the new modulus
 	void SetModulus(const Integer &newModulus)
-		{m_modulus = newModulus; m_result.reg.resize(m_modulus.reg.size());}
+		{ m_modulus = newModulus; m_result.reg.resize(m_modulus.reg.size()); }
 
 	/// \brief Retrieves the representation
 	/// \returns true if the if the modulus is in Montgomery form for multiplication, false otherwise
@@ -97,7 +108,7 @@ public:
 	/// \details ConvertIn is useful for derived classes, like MontgomeryRepresentation, which
 	///   must convert between representations.
 	virtual Integer ConvertIn(const Integer &a) const
-		{return a%m_modulus;}
+		{ return  a % m_modulus; }
 
 	/// \brief Reduces an element in the congruence class
 	/// \param a element to convert
@@ -105,7 +116,7 @@ public:
 	/// \details ConvertOut is useful for derived classes, like MontgomeryRepresentation, which
 	///   must convert between representations.
 	virtual Integer ConvertOut(const Integer &a) const
-		{return a;}
+		{ return a % m_modulus; }
 
 	/// \brief Divides an element by 2
 	/// \param a element to convert
@@ -117,12 +128,12 @@ public:
 	/// \returns true if the elements are equal, false otherwise
 	/// \details Equal() tests the elements for equality using <tt>a==b</tt>
 	bool Equal(const Integer &a, const Integer &b) const
-		{return a==b;}
+		{ return a==b; }
 
 	/// \brief Provides the Identity element
 	/// \returns the Identity element
 	const Integer& Identity() const
-		{return Integer::Zero();}
+		{ return Integer::Zero(); }
 
 	/// \brief Adds elements in the ring
 	/// \param a first element
@@ -158,13 +169,13 @@ public:
 	/// \returns the element doubled
 	/// \details Double returns <tt>Add(a, a)</tt>. The element <tt>a</tt> must provide an Add member function.
 	const Integer& Double(const Integer &a) const
-		{return Add(a, a);}
+		{ return Add(a, a); }
 
 	/// \brief Retrieves the multiplicative identity
 	/// \returns the multiplicative identity
 	/// \details the base class implementations returns 1.
 	const Integer& MultiplicativeIdentity() const
-		{return Integer::One();}
+		{ return Integer::One(); }
 
 	/// \brief Multiplies elements in the ring
 	/// \param a the multiplicand
@@ -172,27 +183,27 @@ public:
 	/// \returns the product of a and b
 	/// \details Multiply returns <tt>a*b\%n</tt>.
 	const Integer& Multiply(const Integer &a, const Integer &b) const
-		{return m_result1 = a*b%m_modulus;}
+		{ return m_result1 = (a * b) % m_modulus; }
 
 	/// \brief Square an element in the ring
 	/// \param a the element
 	/// \returns the element squared
 	/// \details Square returns <tt>a*a\%n</tt>. The element <tt>a</tt> must provide a Square member function.
 	const Integer& Square(const Integer &a) const
-		{return m_result1 = a.Squared()%m_modulus;}
+		{ return m_result1 = a.Squared() % m_modulus; }
 
 	/// \brief Determines whether an element is a unit in the ring
 	/// \param a the element
 	/// \returns true if the element is a unit after reduction, false otherwise.
 	bool IsUnit(const Integer &a) const
-		{return Integer::Gcd(a, m_modulus).IsUnit();}
+		{ return Integer::Gcd(a, m_modulus).IsUnit(); }
 
 	/// \brief Calculate the multiplicative inverse of an element in the ring
 	/// \param a the element
 	/// \details MultiplicativeInverse returns <tt>a<sup>-1</sup>\%n</tt>. The element <tt>a</tt> must
 	///   provide a InverseMod member function.
 	const Integer& MultiplicativeInverse(const Integer &a) const
-		{return m_result1 = a.InverseMod(m_modulus);}
+		{ return m_result1 = a.InverseMod(m_modulus); }
 
 	/// \brief Divides elements in the ring
 	/// \param a the dividend
@@ -200,7 +211,7 @@ public:
 	/// \returns the quotient
 	/// \details Divide returns <tt>a*b<sup>-1</sup>\%n</tt>.
 	const Integer& Divide(const Integer &a, const Integer &b) const
-		{return Multiply(a, MultiplicativeInverse(b));}
+		{ return Multiply(a, MultiplicativeInverse(b)); }
 
 	/// \brief TODO
 	/// \param x first element
@@ -225,12 +236,12 @@ public:
 	/// \brief Provides the maximum bit size of an element in the ring
 	/// \returns maximum bit size of an element
 	unsigned int MaxElementBitLength() const
-		{return (m_modulus-1).BitCount();}
+		{ return (m_modulus-1).BitCount(); }
 
 	/// \brief Provides the maximum byte size of an element in the ring
 	/// \returns maximum byte size of an element
 	unsigned int MaxElementByteLength() const
-		{return (m_modulus-1).ByteCount();}
+		{ return (m_modulus-1).ByteCount(); }
 
 	/// \brief Provides a random element in the ring
 	/// \param rng RandomNumberGenerator used to generate material
@@ -251,7 +262,7 @@ public:
 	/// \returns true if this is equal to the other, false otherwise
 	/// \details The operator tests for equality using <tt>this.m_modulus == rhs.m_modulus</tt>.
 	bool operator==(const ModularArithmetic &rhs) const
-		{return m_modulus == rhs.m_modulus;}
+		{ return m_modulus == rhs.m_modulus; }
 
 	static const RandomizationParameter DefaultRandomizationParameter ;
 

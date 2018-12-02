@@ -12,80 +12,80 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-template <class T> const T& AbstractGroup<T>::Double(const Element &a) const
-{
-	return this->Add(a, a);
-}
+//template <class T> const T& AbstractGroup<T>::Double(const Element &a) const
+//{
+//	return this->Add(a, a);
+//}
 
-template <class T> const T& AbstractGroup<T>::Subtract(const Element &a, const Element &b) const
-{
-	// make copy of a in case Inverse() overwrites it
-	Element a1(a);
-	return this->Add(a1, Inverse(b));
-}
+//template <class T> const T& AbstractGroup<T>::Subtract(const Element &a, const Element &b) const
+//{
+//	// make copy of a in case Inverse() overwrites it
+//	Element a1(a);
+//	return this->Add(a1, Inverse(b));
+//}
 
-template <class T> T& AbstractGroup<T>::Accumulate(Element &a, const Element &b) const
-{
-	return a = this->Add(a, b);
-}
+//template <class T> T& AbstractGroup<T>::Accumulate(Element &a, const Element &b) const
+//{
+//	return a = this->Add(a, b);
+//}
 
-template <class T> T& AbstractGroup<T>::Reduce(Element &a, const Element &b) const
-{
-	return a = this->Subtract(a, b);
-}
+//template <class T> T& AbstractGroup<T>::Reduce(Element &a, const Element &b) const
+//{
+//	return a = this->Subtract(a, b);
+//}
 
-template <class T> const T& AbstractRing<T>::Square(const Element &a) const
-{
-	return this->Multiply(a, a);
-}
+//template <class T> const T& AbstractRing<T>::Square(const Element &a) const
+//{
+//	return this->Multiply(a, a);
+//}
 
-template <class T> const T& AbstractRing<T>::Divide(const Element &a, const Element &b) const
-{
-	// make copy of a in case MultiplicativeInverse() overwrites it
-	Element a1(a);
-	return this->Multiply(a1, this->MultiplicativeInverse(b));
-}
+//template <class T> const T& AbstractRing<T>::Divide(const Element &a, const Element &b) const
+//{
+//	// make copy of a in case MultiplicativeInverse() overwrites it
+//	Element a1(a);
+//	return this->Multiply(a1, this->MultiplicativeInverse(b));
+//}
 
-template <class T> const T& AbstractEuclideanDomain<T>::Mod(const Element &a, const Element &b) const
-{
-	Element q;
-	this->DivisionAlgorithm(result, q, a, b);
-	return result;
-}
+//template <class T> const T& AbstractEuclideanDomain<T>::Mod(const Element &a, const Element &b) const
+//{
+//	Element q;
+//	this->DivisionAlgorithm(result, q, a, b);
+//	return result;
+//}
 
-template <class T> const T& AbstractEuclideanDomain<T>::Gcd(const Element &a, const Element &b) const
-{
-	Element g[3]={b, a};
-	unsigned int i0=0, i1=1, i2=2;
+//template <class T> const T& AbstractEuclideanDomain<T>::Gcd(const Element &a, const Element &b) const
+//{
+//	Element g[3]={b, a};
+//	unsigned int i0=0, i1=1, i2=2;
+//
+//	while (!this->Equal(g[i1], this->Identity()))
+//	{
+//		g[i2] = this->Mod(g[i0], g[i1]);
+//		unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
+//	}
+//
+//	return result = g[i0];
+//}
 
-	while (!this->Equal(g[i1], this->Identity()))
-	{
-		g[i2] = this->Mod(g[i0], g[i1]);
-		unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
-	}
-
-	return result = g[i0];
-}
-
-template <class T> const typename QuotientRing<T>::Element& QuotientRing<T>::MultiplicativeInverse(const Element &a) const
-{
-	Element g[3]={m_modulus, a};
-	Element v[3]={m_domain.Identity(), m_domain.MultiplicativeIdentity()};
-	Element y;
-	unsigned int i0=0, i1=1, i2=2;
-
-	while (!this->Equal(g[i1], this->Identity()))
-	{
-		// y = g[i0] / g[i1];
-		// g[i2] = g[i0] % g[i1];
-		m_domain.DivisionAlgorithm(g[i2], y, g[i0], g[i1]);
-		// v[i2] = v[i0] - (v[i1] * y);
-		v[i2] = m_domain.Subtract(v[i0], m_domain.Multiply(v[i1], y));
-		unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
-	}
-
-	return m_domain.IsUnit(g[i0]) ? m_domain.Divide(v[i0], g[i0]) : m_domain.Identity();
-}
+//template <class T> const typename QuotientRing<T>::Element& QuotientRing<T>::MultiplicativeInverse(const Element &a) const
+//{
+//	Element g[3]={m_modulus, a};
+//	Element v[3]={m_domain.Identity(), m_domain.MultiplicativeIdentity()};
+//	Element y;
+//	unsigned int i0=0, i1=1, i2=2;
+//
+//	while (!this->Equal(g[i1], this->Identity()))
+//	{
+//		// y = g[i0] / g[i1];
+//		// g[i2] = g[i0] % g[i1];
+//		m_domain.DivisionAlgorithm(g[i2], y, g[i0], g[i1]);
+//		// v[i2] = v[i0] - (v[i1] * y);
+//		v[i2] = m_domain.Subtract(v[i0], m_domain.Multiply(v[i1], y));
+//		unsigned int t = i0; i0 = i1; i1 = i2; i2 = t;
+//	}
+//
+//	return m_domain.IsUnit(g[i0]) ? m_domain.Divide(v[i0], g[i0]) : m_domain.Identity();
+//}
 
 template <class T> T AbstractGroup<T>::ScalarMultiply(const Element &base, const Integer &exponent) const
 {
@@ -313,28 +313,28 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 	}
 }
 
-template <class T> T AbstractRing<T>::Exponentiate(const Element &base, const Integer &exponent) const
-{
-	Element result;
-	SimultaneousExponentiate(&result, base, &exponent, 1);
-	return result;
-}
+//template <class T> T AbstractRing<T>::Exponentiate(const Element &base, const Integer &exponent) const
+//{
+//	Element result;
+//	SimultaneousExponentiate(&result, base, &exponent, 1);
+//	return result;
+//}
 
-template <class T> T AbstractRing<T>::CascadeExponentiate(const Element &x, const Integer &e1, const Element &y, const Integer &e2) const
-{
-	return MultiplicativeGroup().AbstractGroup<T>::CascadeScalarMultiply(x, e1, y, e2);
-}
+//template <class T> T AbstractRing<T>::CascadeExponentiate(const Element &x, const Integer &e1, const Element &y, const Integer &e2) const
+//{
+//	return MultiplicativeGroup().AbstractGroup<T>::CascadeScalarMultiply(x, e1, y, e2);
+//}
 
 template <class Element, class Iterator> Element GeneralCascadeExponentiation(const AbstractRing<Element> &ring, Iterator begin, Iterator end)
 {
 	return GeneralCascadeMultiplication<Element>(ring.MultiplicativeGroup(), begin, end);
 }
 
-template <class T>
-void AbstractRing<T>::SimultaneousExponentiate(T *results, const T &base, const Integer *exponents, unsigned int expCount) const
-{
-	MultiplicativeGroup().AbstractGroup<T>::SimultaneousMultiply(results, base, exponents, expCount);
-}
+//template <class T>
+//void AbstractRing<T>::SimultaneousExponentiate(T *results, const T &base, const Integer *exponents, unsigned int expCount) const
+//{
+//	MultiplicativeGroup().AbstractGroup<T>::SimultaneousMultiply(results, base, exponents, expCount);
+//}
 
 NAMESPACE_END
 
