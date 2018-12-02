@@ -315,16 +315,17 @@ ifeq ($(DETECT_FEATURES),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
   endif
 
-  # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
-  # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
-  ifeq ($(CLMUL_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
-  endif
-  ifeq ($(AESNI_FLAG),)
-    CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-  endif
-
   ifneq ($(SSE42_FLAG),)
+
+    # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
+    # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
+    ifeq ($(CLMUL_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+    endif
+    ifeq ($(AESNI_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+    endif
+
     ifeq ($(AVX_FLAG),)
       CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
     else ifeq ($(AVX2_FLAG),)
