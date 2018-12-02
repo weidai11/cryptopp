@@ -9,6 +9,13 @@
 
 #include "cryptlib.h"
 
+#if defined(__APPLE__)
+#include <TargetConditionals.h>
+#if defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) && TARGET_OS_OSX
+#include <x86intrin.h>
+#endif /* CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER */
+#endif /* __APPLE__ */
+
 // This class file provides both RDRAND and RDSEED. They were added at
 //   Crypto++ 5.6.3. At compile time, it uses CRYPTOPP_BOOL_{X86|X32|X64}
 //   to select an implementation or "throw NotImplemented". At runtime the
