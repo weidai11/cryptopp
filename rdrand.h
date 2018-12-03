@@ -12,7 +12,7 @@
 #if defined(__APPLE__)
 #include <TargetConditionals.h>
 #if defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER) && TARGET_OS_OSX
-#include <x86intrin.h>
+#include <immintrin.h>
 #endif /* CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER */
 #endif /* __APPLE__ */
 
