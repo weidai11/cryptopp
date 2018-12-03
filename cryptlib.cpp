@@ -986,6 +986,42 @@ int LibraryVersion(CRYPTOPP_NOINLINE_DOTDOTDOT)
 	return CRYPTOPP_BUILD_VERSION;
 }
 
+class NullNameValuePairs : public NameValuePairs
+{
+public:
+	NullNameValuePairs() {}    //  Clang complains a default ctor must be avilable
+	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+		{CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue); return false;}
+};
+
+#if HAVE_GCC_INIT_PRIORITY
+CRYPTOPP_COMPILE_ASSERT(CRYPTOPP_INIT_PRIORITY >= 101);
+const std::string DEFAULT_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 25))) = "";
+const std::string AAD_CHANNEL __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 26))) = "AAD";
+const NullNameValuePairs s_nullNameValuePairs __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 27)));
+const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
+#elif HAVE_MSC_INIT_PRIORITY
+#pragma warning(disable: 4073)
+#pragma init_seg(lib)
+const std::string DEFAULT_CHANNEL = "";
+const std::string AAD_CHANNEL = "AAD";
+const NullNameValuePairs s_nullNameValuePairs;
+const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
+#pragma warning(default: 4073)
+#elif HAVE_XLC_INIT_PRIORITY
+#pragma priority(260)
+const std::string DEFAULT_CHANNEL = "";
+const std::string AAD_CHANNEL = "AAD";
+const NullNameValuePairs s_nullNameValuePairs;
+const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
+#else
+static const std::string s1(""), s2("AAD");
+const std::string DEFAULT_CHANNEL = s1;
+const std::string AAD_CHANNEL = s2;
+const simple_ptr<NullNameValuePairs> s_pNullNameValuePairs(new NullNameValuePairs);
+const NameValuePairs &g_nullNameValuePairs = *s_pNullNameValuePairs.m_p;
+#endif
+
 NAMESPACE_END  // CryptoPP
 
 #endif  // CRYPTOPP_IMPORTS
