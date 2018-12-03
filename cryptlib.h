@@ -472,25 +472,31 @@ public:
 #if CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief Default channel for BufferedTransformation
 /// \details DEFAULT_CHANNEL is equal to an empty string
-/// \details Crypto++ 6.0 placed DEFAULT_CHANNEL in the header, rather than declaring it as extern and
-///   placing the definition in the source file. As an external definition the string DEFAULT_CHANNEL
-///   was subject to static initialization order fiasco problems.
+/// \details The definition for DEFAULT_CHANNEL is in <tt>cryptlib.cpp</tt>.
+///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///   Initialization Order Fiasco</A>. If you experience a crash in
+///   DEFAULT_CHANNEL where the string object is NULL, then you probably have
+///   a global object using DEFAULT_CHANNEL before it has been constructed.
 const std::string DEFAULT_CHANNEL;
 
 /// \brief Channel for additional authenticated data
 /// \details AAD_CHANNEL is equal to "AAD"
-/// \details Crypto++ 6.0 placed AAD_CHANNEL in the header, rather than declaring it as extern and
-///   placing the definition in the source file. As an external definition the string AAD_CHANNEL
-///   was subject to static initialization order fiasco problems.
+/// \details The definition for AAD_CHANNEL is in <tt>cryptlib.cpp</tt>.
+///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///   Initialization Order Fiasco</A>. If you experience a crash in
+///   AAD_CHANNEL where the string object is NULL, then you probably have a
+///   global object using AAD_CHANNEL before it has been constructed.
 const std::string AAD_CHANNEL;
 
 /// \brief An empty set of name-value pairs
-/// \details Crypto++ 6.0 placed g_nullNameValuePairs in the header, rather than declaring it as extern
-///   and placing the definition in the source file. As an external definition the g_nullNameValuePairs
-///   was subject to static initialization order fiasco problems.
+/// \details The definition for g_nullNameValuePairs is in <tt>cryptlib.cpp</tt>.
+///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///   Initialization Order Fiasco</A>. If you experience a crash in
+///   g_nullNameValuePairs where the string object is NULL, then you probably
+///   have a global object using g_nullNameValuePairs before it has been
+///   constructed.
 const NameValuePairs& g_nullNameValuePairs;
 
-// Sun Studio 12.3 and earlier can't handle NameValuePairs initialization
 #else
 extern const std::string DEFAULT_CHANNEL;
 extern const std::string AAD_CHANNEL;
