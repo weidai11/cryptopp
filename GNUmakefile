@@ -147,6 +147,8 @@ else
   ZOPT = -O0
 endif
 
+CXXFLAGS += -I$(PWD) -I$(PWD)/include
+
 # On ARM we may compile aes_armv4.S though the CC compiler
 ifeq ($(GCC_COMPILER),1)
   CC=gcc
