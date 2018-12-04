@@ -393,11 +393,11 @@ ifeq ($(IS_ARMV8),1)
     PMUL_FLAG =
     SHA_FLAG =
   else
-    ASIMD_FLAG = -march=armv8.1-a
-    CRC_FLAG = -march=armv8.1-a+crc
-    AES_FLAG = -march=armv8.1-a+crypto
-    PMULL_FLAG = -march=armv8.1-a+crypto
-    SHA_FLAG = -march=armv8.1-a+crypto
+    ASIMD_FLAG = -march=armv8-a
+    CRC_FLAG = -march=armv8-a+crc
+    AES_FLAG = -march=armv8-a+crypto
+    PMULL_FLAG = -march=armv8-a+crypto
+    SHA_FLAG = -march=armv8-a+crypto
   endif
 
   TPROG = TestPrograms/test_arm_acle.cxx
