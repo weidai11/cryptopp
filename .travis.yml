@@ -4,7 +4,7 @@ os:
   - linux
   - osx
 
-dist: trusty
+dist: xenial
 sudo: required
 
 # OS X only supports one image. Use the latest.

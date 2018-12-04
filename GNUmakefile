@@ -801,10 +801,12 @@ ifeq ($(IS_SUN)$(SUN_COMPILER),11)
   endif  # X86/X32/X64
 endif  # SunOS
 
+# TODO: can we remove this since removing sockets?
 ifneq ($(IS_MINGW),0)
   LDLIBS += -lws2_32
 endif
 
+# TODO: can we remove this since removing sockets?
 ifneq ($(IS_SUN),0)
   LDLIBS += -lnsl -lsocket
 endif
@@ -834,20 +836,36 @@ endif
 
 # No ASM for Travis testing
 ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+  endif # CXXFLAGS
 endif # No ASM
 
 # Native build testing. Issue 'make native'.
 ifeq ($(findstring native,$(MAKECMDGOALS)),native)
-  ifeq ($(findstring -march=native,$(CXXFLAGS)),)
-    ifeq ($(IS_SUN)$(SUN_COMPILER),11)
-      CXXFLAGS += -native
-    else
-      CXXFLAGS += -march=native
-    endif # CXXFLAGS
-  endif # Sun
+  NATIVE_OPT =
+
+  # Try GCC and compatibles first
+  TPROG = TestPrograms/test_cxx.cxx
+  TOPT = -march=native
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    NATIVE_OPT = -march=native
+  endif # NATIVE_OPT
+
+  # Try SunCC next
+  ifeq ($(NATIVE_OPT),)
+    TOPT = -native
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      NATIVE_OPT = -native
+    endif # NATIVE_OPT
+  endif
+
+  ifneq ($(NATIVE_OPT),)
+    CXXFLAGS += $(NATIVE_OPT)
+  endif
+
 endif # Native
 
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.
