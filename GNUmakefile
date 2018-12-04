@@ -240,7 +240,7 @@ ifeq ($(DETECT_FEATURES),1)
     SSSE3_FLAG = -xarch=ssse3
     SSE41_FLAG = -xarch=sse4_1
     SSE42_FLAG = -xarch=sse4_2
-    CLMUL_FLAG = -xarch=clmul
+    CLMUL_FLAG = -xarch=aes
     AESNI_FLAG = -xarch=aes
     AVX_FLAG = -xarch=avx
     AVX2_FLAG = -xarch=avx2
