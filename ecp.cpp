@@ -24,6 +24,9 @@ using CryptoPP::ModularArithmetic;
   #pragma init_seg(".CRT$XCU")
   const ECP::Point g_identity;
   #pragma warning(default: 4075)
+#elif defined(HAVE_XLC_INIT_PRIORITY)
+  #pragma priority(290)
+  const ECP::Point g_identity;
 #endif
 
 inline ECP::Point ToMontgomery(const ModularArithmetic &mr, const ECP::Point &P)
@@ -215,7 +218,7 @@ bool ECP::Equal(const Point &P, const Point &Q) const
 
 const ECP::Point& ECP::Identity() const
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_identity;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const ECP::Point g_identity;

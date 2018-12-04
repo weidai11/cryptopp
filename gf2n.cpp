@@ -31,6 +31,10 @@ using CryptoPP::PolynomialMod2;
   const PolynomialMod2 g_zero;
   const PolynomialMod2 g_one(1);
   #pragma warning(default: 4075)
+#elif defined(HAVE_XLC_INIT_PRIORITY)
+  #pragma priority(290)
+  const PolynomialMod2 g_zero;
+  const PolynomialMod2 g_one(1);
 #endif
 
 ANONYMOUS_NAMESPACE_END
@@ -144,7 +148,7 @@ struct NewPolynomialMod2
 
 const PolynomialMod2 &PolynomialMod2::Zero()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_zero;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const PolynomialMod2 g_zero;
@@ -156,7 +160,7 @@ const PolynomialMod2 &PolynomialMod2::Zero()
 
 const PolynomialMod2 &PolynomialMod2::One()
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_one;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const PolynomialMod2 g_one(1);
