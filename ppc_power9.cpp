@@ -80,11 +80,12 @@ bool CPU_ProbePower9()
 #endif  // _ARCH_PWR9
 }
 
-// The DARN probe is not guarded with a preprocessor macro at the moment. We don't
-// use CRYPTOPP_POWER9_AVAILABLE because old compilers, like GCC 4.8 on CentOS 7,
-// will report NO even though we can produce the random numbers. Other Power9
-// implementations which use builtins will use the preprocessor macro guard. This
-// strategy also gets into a situation where Power9 is not available but DARN is.
+// The DARN probe is not guarded with a preprocessor macro at the moment. We
+// don't use CRYPTOPP_POWER9_AVAILABLE because old compilers, like GCC 4.8 on
+// CentOS 7, will report NO even though we can produce the random numbers.
+// Other Power9 implementations which use builtins will use the preprocessor
+// macro guard. This strategy also gets into a situation where Power9 is not
+// available but DARN is.
 bool CPU_ProbeDARN()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)

@@ -11,6 +11,7 @@
 #include "filters.h"
 #include "channels.h"
 #include "secblock.h"
+#include "gf2_32.h"
 #include "stdcpp.h"
 #include "misc.h"
 
@@ -56,10 +57,11 @@ protected:
 	std::vector<word32> m_inputChannelIds, m_outputChannelIds, m_outputToInput;
 	std::vector<std::string> m_outputChannelIdStrings;
 	std::vector<ByteQueue> m_outputQueues;
-	int m_threshold;
-	unsigned int m_channelsReady, m_channelsFinished;
 	std::vector<SecBlock<word32> > m_v;
 	SecBlock<word32> m_u, m_w, m_y;
+	const GF2_32 m_gf32;
+	unsigned int m_channelsReady, m_channelsFinished;
+	int m_threshold;
 };
 
 /// \brief Shamir's Secret Sharing Algorithm

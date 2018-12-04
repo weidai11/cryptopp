@@ -50,11 +50,13 @@ do
   # i386 (simulator)
   if [ "$CL" == "i386" ]; then
     IOS_ARCH=i386
+	APPLE_SDK=iPhoneSimulator
   fi
 
   # x86_64 (simulator)
   if [ "$CL" == "x86_64" ]; then
     IOS_ARCH=x86_64
+	APPLE_SDK=iPhoneSimulator
   fi
 
   # ARMv5

@@ -185,7 +185,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2s_State
     }
 
     // SSE4, Power7 and NEON depend upon t[] and f[] being side-by-side
-    CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2s_Info::BLOCKSIZE);
+    CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2s_Info::BLOCKSIZE)
     FixedSizeAlignedSecBlock<word32, 8+2+2, true> m_hft;
     FixedSizeAlignedSecBlock<byte, BLOCKSIZE, true> m_buf;
     size_t m_len;
@@ -218,7 +218,7 @@ struct CRYPTOPP_NO_VTABLE BLAKE2b_State
     }
 
     // SSE4, Power8 and NEON depend upon t[] and f[] being side-by-side
-    CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2b_Info::BLOCKSIZE);
+    CRYPTOPP_CONSTANT(BLOCKSIZE = BLAKE2b_Info::BLOCKSIZE)
     FixedSizeAlignedSecBlock<word64, 8+2+2, true> m_hft;
     FixedSizeAlignedSecBlock<byte, BLOCKSIZE, true> m_buf;
     size_t m_len;

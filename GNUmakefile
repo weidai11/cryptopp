@@ -56,7 +56,7 @@ IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|powerpc64|power64'
 IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'sun|sparc')
 IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'sun|sparc64')
 IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
-IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64')
+IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 
 IS_NEON := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | $(GREP) -i -c -E 'armv7|armhf|arm7l|eabihf|armv8|aarch32|aarch64')
 
@@ -72,7 +72,7 @@ IS_CYGWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Cygwin")
 IS_DARWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Darwin")
 IS_NETBSD := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "NetBSD")
 IS_AIX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "aix")
-IS_SUN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "SunOS")
+IS_SUN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c -E "SunOS|Solaris")
 
 SUN_COMPILER := $(shell $(CXX) -V 2>&1 | $(GREP) -i -c -E 'CC: (Sun|Studio)')
 GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -v -E '(llvm|clang)' | $(GREP) -i -c -E '(gcc|g\+\+)')
@@ -92,7 +92,7 @@ endif
 # Enable shared object versioning for Linux and Solaris
 HAS_SOLIB_VERSION ?= 0
 ifneq ($(IS_LINUX)$(IS_SUN),00)
-HAS_SOLIB_VERSION := 1
+  HAS_SOLIB_VERSION := 1
 endif
 
 # Formely adhoc.cpp was created from adhoc.cpp.proto when needed.
@@ -100,8 +100,16 @@ ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
 endif
 
-# For feature tests
-BAD_RESULT="fatal|error|unknown|unrecognized|unexpected|illegal|ignored|incorrect|not found|not exist|cannot find|not supported|not compatible|no such instruction|invalid mnemonic"
+# Tell MacPorts and Homebrew GCC to use Clang integrated assembler
+#   http://github.com/weidai11/cryptopp/issues/190
+ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
+  ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
+    CXXFLAGS += -Wa,-q
+  endif
+  ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
+  endif
+endif
 
 # Hack to skip CPU feature tests for some recipes
 DETECT_FEATURES ?= 1
@@ -132,6 +140,16 @@ ifeq ($(IS_AIX),1)
   else
     IS_PPC32=1
   endif
+endif
+
+# libc++ is LLVM's standard C++ library. If we add libc++
+# here then all user programs must use it too. The open
+# question is, which choice is easier on users?
+ifneq ($(IS_DARWIN),0)
+  CXX ?= c++
+  # CXXFLAGS += -stdlib=libc++
+  AR = libtool
+  ARFLAGS = -static -o
 endif
 
 ###########################################################
@@ -204,8 +222,8 @@ endif # IS_MINGW
 
 # Newlib needs _XOPEN_SOURCE=600 for signals
 TPROG = TestPrograms/test_newlib.cxx
-HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-ifeq ($(HAVE_OPT),0)
+HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+ifeq ($(strip $(HAVE_OPT)),0)
   ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
     CXXFLAGS += -D_XOPEN_SOURCE=600
   endif
@@ -216,234 +234,170 @@ endif
 ###########################################################
 
 ifneq ($(IS_X86)$(IS_X64),00)
-
-# Begin GCC and compatibles
-ifneq ($(GCC_COMPILER)$(CLANG_COMPILER)$(INTEL_COMPILER),000)
 ifeq ($(DETECT_FEATURES),1)
 
-  # Tell MacPorts and Homebrew GCC to use Clang integrated assembler
-  #   http://github.com/weidai11/cryptopp/issues/190
-  ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
-    ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
-      CXXFLAGS += -Wa,-q
-    endif
-    ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
-      CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
-    endif
+  ifeq ($(SUN_COMPILER),1)
+    SSE2_FLAG = -xarch=sse2
+    SSE3_FLAG = -xarch=sse3
+    SSSE3_FLAG = -xarch=ssse3
+    SSE41_FLAG = -xarch=sse4_1
+    SSE42_FLAG = -xarch=sse4_2
+    CLMUL_FLAG = -xarch=clmul
+    AESNI_FLAG = -xarch=aes
+    AVX_FLAG = -xarch=avx
+    AVX2_FLAG = -xarch=avx2
+    SHANI_FLAG = -xarch=sha
+  else
+    SSE2_FLAG = -msse2
+    SSE3_FLAG = -msse3
+    SSSE3_FLAG = -mssse3
+    SSE41_FLAG = -msse4.1
+    SSE42_FLAG = -msse4.2
+    CLMUL_FLAG = -mpclmul
+    AESNI_FLAG = -maes
+    AVX_FLAG = -mavx
+    AVX2_FLAG = -mavx2
+    SHANI_FLAG = -msha
   endif
 
   TPROG = TestPrograms/test_x86_sse2.cxx
-  TOPT = -msse2
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
-    SSE_FLAG = -msse2
-    CHACHA_FLAG = -msse2
-
-    TPROG = TestPrograms/test_x86_ssse3.cxx
-    TOPT = -mssse3
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
-      ARIA_FLAG = -mssse3
-      CHAM_FLAG = -mssse3
-      LEA_FLAG = -mssse3
-      SSSE3_FLAG = -mssse3
-      SIMECK_FLAG = -mssse3
-      SIMON64_FLAG = -mssse3
-      SIMON128_FLAG = -mssse3
-      SPECK64_FLAG = -mssse3
-      SPECK128_FLAG = -mssse3
-
-      TPROG = TestPrograms/test_x86_sse41.cxx
-      TOPT = -msse4.1
-      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-      ifeq ($(HAVE_OPT),0)
-        BLAKE2B_FLAG = -msse4.1
-        BLAKE2S_FLAG = -msse4.1
-        SIMON64_FLAG = -msse4.1
-        SPECK64_FLAG = -msse4.1
-
-        TPROG = TestPrograms/test_x86_sse42.cxx
-        TOPT = -msse4.2
-        HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-        ifeq ($(HAVE_OPT),0)
-          CRC_FLAG = -msse4.2
-
-          TPROG = TestPrograms/test_x86_clmul.cxx
-          TOPT = -mssse3 -mpclmul
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            GCM_FLAG = -mssse3 -mpclmul
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
-          endif
-
-          TPROG = TestPrograms/test_x86_aes.cxx
-          TOPT = -msse4.1 -maes
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            AES_FLAG = -msse4.1 -maes
-            SM4_FLAG = -mssse3 -maes
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-          endif
-
-          TPROG = TestPrograms/test_x86_avx.cxx
-          TOPT = -mavx
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            AVX_FLAG = -mavx
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
-          endif
-
-          TPROG = TestPrograms/test_x86_avx2.cxx
-          TOPT = -mavx2
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            CHACHA_AVX2_FLAG = -mavx2
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
-          endif
-
-          TPROG = TestPrograms/test_x86_sha.cxx
-          TOPT = -msse4.2 -msha
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            SHA_FLAG = -msse4.2 -msha
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
-          endif
-
-        else
-          CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-        endif
-      else
-        CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-      endif
-    else
-      CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
-    endif
+  TOPT = $(SSE2_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    CHACHA_FLAG = $(SSE2_FLAG)
+    SUN_LDFLAGS += $(SSE2_FLAG)
   else
-    CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
+    SSE2_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_ssse3.cxx
+  TOPT = $(SSSE3_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    ARIA_FLAG = $(SSSE3_FLAG)
+    CHAM_FLAG = $(SSSE3_FLAG)
+    LEA_FLAG = $(SSSE3_FLAG)
+    SIMECK_FLAG = $(SSSE3_FLAG)
+    SIMON64_FLAG = $(SSSE3_FLAG)
+    SIMON128_FLAG = $(SSSE3_FLAG)
+    SPECK64_FLAG = $(SSSE3_FLAG)
+    SPECK128_FLAG = $(SSSE3_FLAG)
+    SUN_LDFLAGS += $(SSSE3_FLAG)
+  else
+    SSSE3_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_sse41.cxx
+  TOPT = $(SSE41_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    BLAKE2B_FLAG = $(SSE41_FLAG)
+    BLAKE2S_FLAG = $(SSE41_FLAG)
+    SIMON64_FLAG = $(SSE41_FLAG)
+    SPECK64_FLAG = $(SSE41_FLAG)
+    SUN_LDFLAGS += $(SSE41_FLAG)
+  else
+    SSE41_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_sse42.cxx
+  TOPT = $(SSE42_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    CRC_FLAG = $(SSE42_FLAG)
+    SUN_LDFLAGS += $(SSE42_FLAG)
+  else
+    SSE42_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_clmul.cxx
+  TOPT = $(CLMUL_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
+    SUN_LDFLAGS += $(CLMUL_FLAG)
+  else
+    CLMUL_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_aes.cxx
+  TOPT = $(AESNI_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
+    SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
+    SUN_LDFLAGS += $(AESNI_FLAG)
+  else
+    AESNI_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_avx.cxx
+  TOPT = $(AVX_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    # XXX_FLAG = $(AVX_FLAG)
+    SUN_LDFLAGS += $(AVX_FLAG)
+  else
+    AVX_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_avx2.cxx
+  TOPT = $(AVX2_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    CHACHA_AVX2_FLAG = $(AVX2_FLAG)
+    SUN_LDFLAGS += $(AVX2_FLAG)
+  else
+    AVX2_FLAG =
+  endif
+
+  TPROG = TestPrograms/test_x86_sha.cxx
+  TOPT = $(SHANI_FLAG)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
+    SUN_LDFLAGS += $(SHANI_FLAG)
+  else
+    SHANI_FLAG =
+  endif
+
+  ifeq ($(SUN_COMPILER),1)
+    LDFLAGS += $(SUN_LDFLAGS)
+  endif
+
+  ifeq ($(SSE2_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+  else ifeq ($(SSE3_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_SSE3
+  else ifeq ($(SSSE3_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
+  else ifeq ($(SSE41_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+  else ifeq ($(SSE42_FLAG),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
+  endif
+
+  ifneq ($(SSE42_FLAG),)
+
+    # Unusual GCC/Clang on Macports. It assembles AES, but not CLMUL.
+    # test_x86_clmul.s:15: no such instruction: 'pclmulqdq $0, %xmm1,%xmm0'
+    ifeq ($(CLMUL_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
+    endif
+    ifeq ($(AESNI_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
+    endif
+
+    ifeq ($(AVX_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
+    else ifeq ($(AVX2_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
+    else ifeq ($(SHANI_FLAG),)
+      CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
+    endif
   endif
 
 # DETECT_FEATURES
-endif
-
-# End GCC and compatibles
-endif
-
-# Begin SunCC
-ifeq ($(SUN_COMPILER),1)
-ifeq ($(DETECT_FEATURES),1)
-
-  TPROG = TestPrograms/test_x86_sse2.cxx
-  TOPT = -xarch=sse2
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
-    SSE_FLAG = -xarch=sse2
-    CHACHA_FLAG = -xarch=sse2
-    LDFLAGS += -xarch=sse2
-
-    TPROG = TestPrograms/test_x86_ssse3.cxx
-    TOPT = -xarch=ssse3
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
-      ARIA_FLAG = -xarch=ssse3
-      CHAM_FLAG = -xarch=ssse3
-      LEA_FLAG = -xarch=ssse3
-      SSSE3_FLAG = -xarch=ssse3
-      SIMECK_FLAG = -xarch=ssse3
-      SIMON64_FLAG = -xarch=ssse3
-      SIMON128_FLAG = -xarch=ssse3
-      SPECK64_FLAG = -xarch=ssse3
-      SPECK128_FLAG = -xarch=ssse3
-      LDFLAGS += -xarch=ssse3
-
-      TPROG = TestPrograms/test_x86_sse41.cxx
-      TOPT = -xarch=sse4_1
-      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-      ifeq ($(HAVE_OPT),0)
-        BLAKE2B_FLAG = -xarch=sse4_1
-        BLAKE2S_FLAG = -xarch=sse4_1
-        SIMON64_FLAG = -xarch=sse4_1
-        SPECK64_FLAG = -xarch=sse4_1
-        LDFLAGS += -xarch=sse4_1
-
-        TPROG = TestPrograms/test_x86_sse42.cxx
-        TOPT = -xarch=sse4_2
-        HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-        ifeq ($(HAVE_OPT),0)
-          CRC_FLAG = -xarch=sse4_2
-          LDFLAGS += -xarch=sse4_2
-
-          TPROG = TestPrograms/test_x86_clmul.cxx
-          TOPT = -xarch=ssse3 -xarch=aes
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            GCM_FLAG = -xarch=ssse3 -xarch=aes
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_CLMUL
-          endif
-
-          TPROG = TestPrograms/test_x86_aes.cxx
-          TOPT = -xarch=sse4_1 -xarch=aes
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            AES_FLAG = -xarch=sse4_1 -xarch=aes
-            SM4_FLAG = -xarch=ssse3 -xarch=aes
-            LDFLAGS += -xarch=aes
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_AESNI
-          endif
-
-          TPROG = TestPrograms/test_x86_avx.cxx
-          TOPT = -xarch=avx
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            AVX_FLAG = -xarch=avx
-            LDFLAGS += -xarch=avx
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_AVX
-          endif
-
-          TPROG = TestPrograms/test_x86_avx2.cxx
-          TOPT = -xarch=avx2
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            CHACHA_AVX2_FLAG = -xarch=avx2
-            LDFLAGS += -xarch=avx2
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_AVX2
-          endif
-
-          TPROG = TestPrograms/test_x86_sha.cxx
-          TOPT = -xarch=sse4_2 -xarch=sha
-          HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-          ifeq ($(HAVE_OPT),0)
-            SHA_FLAG = -xarch=sse4_2 -xarch=sha
-            LDFLAGS += -xarch=sha
-          else
-            CXXFLAGS += -DCRYPTOPP_DISABLE_SHANI
-          endif
-
-        else
-          CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-        endif
-      else
-        CXXFLAGS += -DCRYPTOPP_DISABLE_SSE4
-      endif
-    else
-      CXXFLAGS += -DCRYPTOPP_DISABLE_SSSE3
-    endif
-  else
-    CXXFLAGS += -DCRYPTOPP_DISABLE_SSE2
-  endif
-
-# DETECT_FEATURES
-endif
-
-# End SunCC
 endif
 
 ifneq ($(INTEL_COMPILER),0)
@@ -480,8 +434,8 @@ ifeq ($(IS_ARM32)$(IS_NEON),11)
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
     AES_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
@@ -510,8 +464,8 @@ ifeq ($(IS_ARMV8),1)
 
   TPROG = TestPrograms/test_arm_acle.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
 	ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_AVAILABLE=1
   else
 	CXXFLAGS += -DCRYPTOPP_ARM_ACLE_AVAILABLE=0
@@ -519,8 +473,8 @@ ifeq ($(IS_ARMV8),1)
 
   TPROG = TestPrograms/test_arm_asimd.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-  ifeq ($(HAVE_OPT),0)
+  HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
     ASIMD_FLAG = -march=armv8-a
     ARIA_FLAG = -march=armv8-a
     BLAKE2B_FLAG = -march=armv8-a
@@ -542,8 +496,8 @@ ifeq ($(IS_ARMV8),1)
   ifneq ($(ASIMD_FLAG),)
     TPROG = TestPrograms/test_arm_crc.cxx
     TOPT = -march=armv8.1-a+crc
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG = -march=armv8.1-a+crc
     else
       CXXFLAGS += -DCRYPTOPP_ARM_CRC32_AVAILABLE=0
@@ -551,8 +505,8 @@ ifeq ($(IS_ARMV8),1)
 
     TPROG = TestPrograms/test_arm_aes.cxx
     TOPT = -march=armv8.1-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
       AES_FLAG = -march=armv8.1-a+crypto
     else
       CXXFLAGS += -DCRYPTOPP_ARM_AES_AVAILABLE=0
@@ -560,8 +514,8 @@ ifeq ($(IS_ARMV8),1)
 
     TPROG = TestPrograms/test_arm_pmull.cxx
     TOPT = -march=armv8.1-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG = -march=armv8.1-a+crypto
     else
       CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
@@ -569,22 +523,29 @@ ifeq ($(IS_ARMV8),1)
 
     TPROG = TestPrograms/test_arm_sha.cxx
     TOPT = -march=armv8.1-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-    ifeq ($(HAVE_OPT),0)
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG = -march=armv8.1-a+crypto
     else
       CXXFLAGS += -DCRYPTOPP_ARM_SHA_AVAILABLE=0
     endif
 
-    ifneq ($(AES_FLAG),)
-      TPROG = TestPrograms/test_crypto_v84.cxx
-      TOPT = -march=armv8.4-a+crypto
-      HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-      ifeq ($(HAVE_OPT),0)
-        SM3_FLAG = -march=armv8.4-a+crypto
-        SM4_FLAG = -march=armv8.4-a+crypto
-      endif
+    TPROG = TestPrograms/test_arm_sm3.cxx
+    TOPT = -march=armv8.4-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SM3_FLAG = -march=armv8.4-a+crypto
+      SM4_FLAG = -march=armv8.4-a+crypto
     endif
+
+    TPROG = TestPrograms/test_arm_sha3.cxx
+    TOPT = -march=armv8.4-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SHA3_FLAG = -march=armv8.4-a+crypto
+    endif
+
+  # ASIMD_FLAG
   endif
 
 # IS_ARMV8
@@ -639,7 +600,7 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = $(POWER9_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-    DARN_FLAG = $(POWER9_FLAG)
+    # DARN_FLAG = $(POWER9_FLAG)
   else
     POWER9_FLAG =
   endif
@@ -783,8 +744,8 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(findstring -qthreaded,$(CXXFLAGS)),)
    TPROG = TestPrograms/test_pthreads.cxx
    TOPT = -qthreaded
-   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-   ifeq ($(HAVE_OPT),0)
+   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+   ifeq ($(strip $(HAVE_OPT)),0)
     CXXFLAGS += -qthreaded
    endif # CXXFLAGS
   endif # qthreaded
@@ -792,8 +753,8 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(findstring -pthread,$(CXXFLAGS)),)
    TPROG = TestPrograms/test_pthreads.cxx
    TOPT = -pthread
-   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | $(GREP) -i -c -E $(BAD_RESULT))
-   ifeq ($(HAVE_OPT),0)
+   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+   ifeq ($(strip $(HAVE_OPT)),0)
     CXXFLAGS += -pthread
    endif  # CXXFLAGS
   endif  # pthread
@@ -857,16 +818,6 @@ ifeq ($(IS_LINUX),1)
     endif # LDLIBS
   endif # OpenMP
 endif # IS_LINUX
-
-# libc++ is LLVM's standard C++ library. If we add libc++
-# here then all user programs must use it too. The open
-# question is, which choice is easier on users?
-ifneq ($(IS_DARWIN),0)
-  CXX ?= c++
-  # CXXFLAGS += -stdlib=libc++
-  AR = libtool
-  ARFLAGS = -static -o
-endif
 
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
@@ -1079,10 +1030,11 @@ INCL += resource.h
 endif
 
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
+# Avoid iOS. It cannot consume the assembly.
 ifeq ($(IS_ARM32),1)
-CRYPTOGAMS_AES_FLAG = -march=armv7-a
-CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
-SRCS += aes_armv4.S
+  CRYPTOGAMS_AES_FLAG = -march=armv7-a
+  CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
+  SRCS += aes_armv4.S
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -1466,7 +1418,7 @@ darn.o : darn.cpp
 
 # SSE2 on i586
 sse_simd.o : sse_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SSE_FLAG) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(SSE2_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
 crc_simd.o : crc_simd.cpp
@@ -1507,6 +1459,9 @@ rijndael_simd.o : rijndael_simd.cpp
 # SSE4.2/SHA-NI or ARMv8a available
 sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+
+sha3_simd.o : sha3_simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SHA3_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 shacal2_simd.o : shacal2_simd.cpp

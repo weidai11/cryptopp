@@ -468,63 +468,39 @@ public:
 	CRYPTOPP_DLL virtual bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 };
 
-/// \brief Interface for retrieving values given their names
-/// \details This class is used when no names or values are present. Typically a program uses
-///   g_nullNameValuePairs rather than creating its own NullNameValuePairs object.
-/// \details NullNameValuePairs always existed in cryptlib.cpp. Crypto++ 6.0 moved NullNameValuePairs
-///   into the header. This allowed the library to define g_nullNameValuePairs in the header rather
-///   than declaring it as extern and placing the definition in the source file. As an external definition
-///   the string g_nullNameValuePairs was subject to static initialization order fiasco problems.
-/// \sa NameValuePairs, g_nullNameValuePairs,
-///   <A HREF="http://www.cryptopp.com/wiki/NameValuePairs">NameValuePairs</A> on the Crypto++ wiki
-class NullNameValuePairs : public NameValuePairs
-{
-public:
-	NullNameValuePairs() {}    //  Clang complains a default ctor must be avilable
-	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
-		{CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue); return false;}
-};
-
-// More static initialization order fiasco workarounds. These definitions cannot be extern and
-// cannot be static class members because they require a single definition in a source file.
-// User programs should use g_nullNameValuePairs rather than s_nullNameValuePairs.
-static const NullNameValuePairs s_nullNameValuePairs;
-
 // Doxygen cannot handle initialization
 #if CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief Default channel for BufferedTransformation
 /// \details DEFAULT_CHANNEL is equal to an empty string
-/// \details Crypto++ 6.0 placed DEFAULT_CHANNEL in the header, rather than declaring it as extern and
-///   placing the definition in the source file. As an external definition the string DEFAULT_CHANNEL
-///   was subject to static initialization order fiasco problems.
+/// \details The definition for DEFAULT_CHANNEL is in <tt>cryptlib.cpp</tt>.
+///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///   Initialization Order Fiasco</A>. If you experience a crash in
+///   DEFAULT_CHANNEL where the string object is NULL, then you probably have
+///   a global object using DEFAULT_CHANNEL before it has been constructed.
 const std::string DEFAULT_CHANNEL;
 
 /// \brief Channel for additional authenticated data
 /// \details AAD_CHANNEL is equal to "AAD"
-/// \details Crypto++ 6.0 placed AAD_CHANNEL in the header, rather than declaring it as extern and
-///   placing the definition in the source file. As an external definition the string AAD_CHANNEL
-///   was subject to static initialization order fiasco problems.
+/// \details The definition for AAD_CHANNEL is in <tt>cryptlib.cpp</tt>.
+///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///   Initialization Order Fiasco</A>. If you experience a crash in
+///   AAD_CHANNEL where the string object is NULL, then you probably have a
+///   global object using AAD_CHANNEL before it has been constructed.
 const std::string AAD_CHANNEL;
 
 /// \brief An empty set of name-value pairs
-/// \details Crypto++ 6.0 placed g_nullNameValuePairs in the header, rather than declaring it as extern
-///   and placing the definition in the source file. As an external definition the g_nullNameValuePairs
-///   was subject to static initialization order fiasco problems.
-const NameValuePairs g_nullNameValuePairs;
+/// \details The definition for g_nullNameValuePairs is in <tt>cryptlib.cpp</tt>.
+///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///   Initialization Order Fiasco</A>. If you experience a crash in
+///   g_nullNameValuePairs where the string object is NULL, then you probably
+///   have a global object using g_nullNameValuePairs before it has been
+///   constructed.
+const NameValuePairs& g_nullNameValuePairs;
 
-// Sun Studio 12.3 and earlier can't handle NameValuePairs initialization
-#elif defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5130)
-static const std::string DEFAULT_CHANNEL;
-static const std::string AAD_CHANNEL = "AAD";
-static const NameValuePairs& g_nullNameValuePairs = s_nullNameValuePairs;
-
-// We don't really want static here since it detracts from public symbol visibility, but the Windows
-// DLL fails to compile when the symbols are only const. Apparently Microsoft compilers don't treat
-// const the same as static in a translation unit for visibility under C++.
 #else
-static const std::string DEFAULT_CHANNEL;
-static const std::string AAD_CHANNEL("AAD");
-static const NameValuePairs& g_nullNameValuePairs(s_nullNameValuePairs);
+extern const std::string DEFAULT_CHANNEL;
+extern const std::string AAD_CHANNEL;
+extern const NameValuePairs& g_nullNameValuePairs;
 #endif
 
 // Document additional name spaces which show up elsewhere in the sources.
