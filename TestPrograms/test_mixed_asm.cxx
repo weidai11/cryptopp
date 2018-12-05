@@ -2,18 +2,18 @@
 #include <cstddef>
 int main(int argc, char* argv[])
 {
-	size_t ret = 1;
+	size_t ret = 1, N = 1;
 	asm __volatile__
 	(
 #if defined(__amd64__) || defined(__x86_64__)
 		".intel_syntax   noprefix ;\n"
 		"xor rsi, rsi    ;\n"
-		"neg rsi         ;\n"
-		"inc rsi         ;\n"
-		"push rsi        ;\n"
+		"neg %1          ;\n"
+		"inc %1          ;\n"
+		"push %1         ;\n"
 		"pop rax         ;\n"
 		".att_syntax     prefix ;\n"
-		: "=a" (ret) : : "%rsi"
+		: "=a" (ret) : "c" (N) : "%rsi"
 #else
 		".intel_syntax   noprefix ;\n"
 		"xor esi, esi    ;\n"
@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 		"push esi        ;\n"
 		"pop eax         ;\n"
 		".att_syntax     prefix ;\n"
-		: "=a" (ret) : : "%esi"
+		: "=a" (ret) : "c" (N) : "%esi"
 #endif
 	);
 	return (int)ret;
