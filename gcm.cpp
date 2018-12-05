@@ -712,7 +712,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
         AS2(    add     WORD_REG(cx), 16           )
         AS2(    sub     WORD_REG(dx), 1            )
-        ATT_NOPREFIX
+        // ATT_NOPREFIX
         ASJ(    jnz,    0, b                       )
         INTEL_NOPREFIX
         AS2(    movdqa  [WORD_REG(si)], xmm0       )
@@ -799,7 +799,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
         AS2(    add     WORD_REG(cx), 16      )
         AS2(    sub     WORD_REG(dx), 1       )
-        ATT_NOPREFIX
+        // ATT_NOPREFIX
         ASJ(    jnz,    1, b                  )
         INTEL_NOPREFIX
         AS2(    movdqa  [WORD_REG(si)], xmm0  )
