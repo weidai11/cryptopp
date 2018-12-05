@@ -184,7 +184,7 @@ endif
 
 # Strip out -Wall, -Wextra and friends for feature testing
 ifeq ($(DETECT_FEATURES),1)
-  TCXXFLAGS := $(filter-out -Wall -Wextra -Werror -Wunused -Wconversion, $(CXXFLAGS))
+  TCXXFLAGS := $(filter-out -Wall -Wextra -Werror% -Wunused -Wconversion -Wp%, $(CXXFLAGS))
   ifneq ($(strip $(TCXXFLAGS)),)
     $(info Using testing flags: $(TCXXFLAGS))
   endif
