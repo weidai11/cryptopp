@@ -12,13 +12,6 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if defined(CRYPTOPP_DISABLE_GCM_ASM)
-# undef CRYPTOPP_X86_ASM_AVAILABLE
-# undef CRYPTOPP_X32_ASM_AVAILABLE
-# undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_SSE2_ASM_AVAILABLE
-#endif
-
 // Visual Studio .Net 2003 compiler crash
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
 # pragma optimize("", off)
@@ -27,13 +20,20 @@
 #include "gcm.h"
 #include "cpu.h"
 
+#if defined(CRYPTOPP_DISABLE_GCM_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 // Different assemblers accept different mnemonics: 'movd eax, xmm0' vs
 //   'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
-#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
-// 'movd eax, xmm0' only. REG_WORD() macro not used.
+#if defined(CRYPTOPP_DISABLE_MIXED_ASM)
+// 'movd eax, xmm0' only. REG_WORD() macro not used. Clang path.
 # define USE_MOVD_REG32 1
 #elif defined(__GNUC__) || defined(_MSC_VER)
 // 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
@@ -712,7 +712,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
         AS2(    add     WORD_REG(cx), 16           )
         AS2(    sub     WORD_REG(dx), 1            )
-        ATT_NOPREFIX
+        // ATT_NOPREFIX
         ASJ(    jnz,    0, b                       )
         INTEL_NOPREFIX
         AS2(    movdqa  [WORD_REG(si)], xmm0       )
@@ -799,7 +799,7 @@ size_t GCM_Base::AuthenticateBlocks(const byte *data, size_t len)
 
         AS2(    add     WORD_REG(cx), 16      )
         AS2(    sub     WORD_REG(dx), 1       )
-        ATT_NOPREFIX
+        // ATT_NOPREFIX
         ASJ(    jnz,    1, b                  )
         INTEL_NOPREFIX
         AS2(    movdqa  [WORD_REG(si)], xmm0  )
