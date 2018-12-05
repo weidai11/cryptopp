@@ -11,7 +11,7 @@
 #include "secblock.h"
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler error with .intel_syntax
-#if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_INTEL_ASM)
+#if CRYPTOPP_BOOL_X32 || defined(CRYPTOPP_DISABLE_MIXED_ASM)
 # define CRYPTOPP_DISABLE_PANAMA_ASM
 #endif
 

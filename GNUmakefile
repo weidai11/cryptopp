@@ -418,6 +418,14 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   endif
 endif
 
+# Early versions of Clang cannot handle mixed asm, where the body is
+# Intel style with no prefix and the templates are AT&T style
+TPROG = TestPrograms/test_mixed_asm.cxx
+HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+ifneq ($(strip $(HAVE_OPT)),0)
+  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
+endif
+
 # IS_X86, IS_X32 and IS_X64
 endif
 

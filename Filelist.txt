@@ -539,6 +539,7 @@ TestPrograms/test_arm_sha.cxx
 TestPrograms/test_arm_sm3.cxx
 TestPrograms/test_arm_sm4.cxx
 TestPrograms/test_cxx.cxx
+TestPrograms/test_mixed_asm.cxx
 TestPrograms/test_newlib.cxx
 TestPrograms/test_ppc_aes.cxx
 TestPrograms/test_ppc_altivec.cxx
