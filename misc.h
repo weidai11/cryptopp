@@ -1077,19 +1077,24 @@ inline unsigned int GetAlignmentOf()
 /// \brief Determines whether ptr is aligned to a minimum value
 /// \param ptr the pointer being checked for alignment
 /// \param alignment the alignment value to test the pointer against
-/// \returns true if <tt>ptr</tt> is aligned on at least <tt>alignment</tt> boundary, false otherwise
-/// \details Internally the function tests whether alignment is 1. If so, the function returns true.
-///   If not, then the function effectively performs a modular reduction and returns true if the residue is 0
+/// \returns true if <tt>ptr</tt> is aligned on at least <tt>alignment</tt>
+///  boundary, false otherwise
+/// \details Internally the function tests whether alignment is 1. If so,
+///  the function returns true. If not, then the function effectively
+///  performs a modular reduction and returns true if the residue is 0.
 inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 {
-	return alignment==1 || (IsPowerOf2(alignment) ? ModPowerOf2(reinterpret_cast<size_t>(ptr), alignment) == 0 : reinterpret_cast<size_t>(ptr) % alignment == 0);
+	const uintptr_t x = reinterpret_cast<uintptr_t>(ptr);
+	return alignment==1 || (IsPowerOf2(alignment) ? ModPowerOf2(x, alignment) == 0 : x % alignment == 0);
 }
 
 /// \brief Determines whether ptr is minimally aligned
 /// \tparam T class or type
 /// \param ptr the pointer to check for alignment
-/// \returns true if <tt>ptr</tt> is aligned to at least <tt>T</tt> boundary, false otherwise
-/// \details Internally the function calls IsAlignedOn with a second parameter of GetAlignmentOf<T>
+/// \returns true if <tt>ptr</tt> is aligned to at least <tt>T</tt>
+///  boundary, false otherwise
+/// \details Internally the function calls IsAlignedOn with a second
+///  parameter of GetAlignmentOf<T>.
 template <class T>
 inline bool IsAligned(const void *ptr)
 {
@@ -1105,14 +1110,15 @@ inline bool IsAligned(const void *ptr)
 #endif
 
 /// \brief Returns NativeByteOrder as an enumerated ByteOrder value
-/// \returns LittleEndian if the native byte order is little-endian, and BigEndian if the
-///   native byte order is big-endian
-/// \details NativeByteOrder is a typedef depending on the platform. If CRYPTOPP_LITTLE_ENDIAN is
-///   set in config.h, then GetNativeByteOrder returns LittleEndian. If
-///   (CRYPTOPP_BIG_ENDIAN) is set, then GetNativeByteOrder returns BigEndian.
-/// \note There are other byte orders besides little- and big-endian, and they include bi-endian
-///   and PDP-endian. If a system is neither little-endian nor big-endian, then a compile time
-///   error occurs.
+/// \returns LittleEndian if the native byte order is little-endian,
+///  and BigEndian if the native byte order is big-endian
+/// \details NativeByteOrder is a typedef depending on the platform.
+///  If CRYPTOPP_LITTLE_ENDIAN is set in config.h, then
+///  GetNativeByteOrder returns LittleEndian. If CRYPTOPP_BIG_ENDIAN
+///  is set, then GetNativeByteOrder returns BigEndian.
+/// \note There are other byte orders besides little- and big-endian,
+///  and they include bi-endian and PDP-endian. If a system is neither
+///  little-endian nor big-endian, then a compile time error occurs.
 inline ByteOrder GetNativeByteOrder()
 {
 	return NativeByteOrder::ToEnum();
