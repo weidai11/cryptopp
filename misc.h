@@ -1294,7 +1294,7 @@ template<> inline void SecureWipeBuffer(word64 *buf, size_t n)
 # ifdef __GNUC__
 	asm volatile("rep stosq" : "+c"(n), "+D"(p) : "a"(0) : "memory");
 # else
-	__stosq(reinterpret_cast<word64 *>(reinterpret_cast<size_t>(p)), 0, n);
+	__stosq(const_cast<word64 *>(p), 0, n);
 # endif
 #else
 	SecureWipeBuffer(reinterpret_cast<word32 *>(buf), 2*n);
