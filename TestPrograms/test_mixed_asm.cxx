@@ -17,9 +17,9 @@ int main(int argc, char* argv[])
 #else
 		".intel_syntax   noprefix ;\n"
 		"xor esi, esi    ;\n"
-		"neg esi         ;\n"
-		"inc esi         ;\n"
-		"push esi        ;\n"
+		"neg %1          ;\n"
+		"inc %1          ;\n"
+		"push %1         ;\n"
 		"pop eax         ;\n"
 		".att_syntax     prefix ;\n"
 		: "=a" (ret) : "c" (N) : "%esi"
