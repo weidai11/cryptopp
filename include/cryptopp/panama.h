@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_PANAMA_H
 #define CRYPTOPP_PANAMA_H
 
-#include "strciphr.h"
+#include <cryptopp/strciphr.h>
 #include <cryptopp/iterhash.h>
 #include <cryptopp/secblock.h>
 

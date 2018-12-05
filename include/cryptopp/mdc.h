@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_MDC_H
 #define CRYPTOPP_MDC_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 #include "misc.h"
 

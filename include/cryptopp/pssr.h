@@ -8,11 +8,11 @@
 #define CRYPTOPP_PSSR_H
 
 #include <cryptopp/cryptlib.h>
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 #include <cryptopp/emsa2.h>
 
 #ifdef CRYPTOPP_IS_DLL
-#include "sha.h"
+#include <cryptopp/sha.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

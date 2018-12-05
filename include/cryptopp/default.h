@@ -6,12 +6,12 @@
 #ifndef CRYPTOPP_DEFAULT_H
 #define CRYPTOPP_DEFAULT_H
 
-#include "sha.h"
-#include "hmac.h"
-#include "aes.h"
-#include "des.h"
-#include "modes.h"
-#include "filters.h"
+#include <cryptopp/sha.h>
+#include <cryptopp/hmac.h>
+#include <cryptopp/aes.h>
+#include <cryptopp/des.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/filters.h>
 #include "smartptr.h"
 
 NAMESPACE_BEGIN(CryptoPP)

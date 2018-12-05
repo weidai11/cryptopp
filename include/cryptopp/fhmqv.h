@@ -8,9 +8,9 @@
 /// \brief Classes for Fully Hashed Menezes-Qu-Vanstone key agreement in GF(p)
 /// \since Crypto++ 5.6.4
 
-#include "gfpcrypt.h"
-#include "algebra.h"
-#include "sha.h"
+#include <cryptopp/gfpcrypt.h>
+#include <cryptopp/algebra.h>
+#include <cryptopp/sha.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

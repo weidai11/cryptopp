@@ -9,11 +9,11 @@
 #define CRYPTOPP_PKCSPAD_H
 
 #include <cryptopp/cryptlib.h>
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 #include <cryptopp/hashfwd.h>
 
 #ifdef CRYPTOPP_IS_DLL
-#include "sha.h"
+#include <cryptopp/sha.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_SAFER_H
 #define CRYPTOPP_SAFER_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)

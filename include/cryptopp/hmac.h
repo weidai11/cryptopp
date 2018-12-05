@@ -6,8 +6,8 @@
 #ifndef CRYPTOPP_HMAC_H
 #define CRYPTOPP_HMAC_H
 
-#include "seckey.h"
-#include "secblock.h"
+#include <cryptopp/seckey.h>
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

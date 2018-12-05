@@ -15,7 +15,7 @@
 #ifndef CRYPTOPP_RABBIT_H
 #define CRYPTOPP_RABBIT_H
 
-#include "strciphr.h"
+#include <cryptopp/strciphr.h>
 #include <cryptopp/secblock.h>
 
 // The library does not have a way to describe an optional IV. Rabbit takes

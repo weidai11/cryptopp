@@ -45,7 +45,7 @@
 #define CRYPTOPP_POLY1305_H
 
 #include <cryptopp/cryptlib.h>
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>

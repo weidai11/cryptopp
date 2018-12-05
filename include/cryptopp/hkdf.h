@@ -7,10 +7,10 @@
 #ifndef CRYPTOPP_HKDF_H
 #define CRYPTOPP_HKDF_H
 
-#include "cryptlib.h"
-#include "secblock.h"
-#include "algparam.h"
-#include "hmac.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
+#include <cryptopp/algparam.h>
+#include <cryptopp/hmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

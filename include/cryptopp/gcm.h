@@ -7,8 +7,8 @@
 #ifndef CRYPTOPP_GCM_H
 #define CRYPTOPP_GCM_H
 
-#include "authenc.h"
-#include "modes.h"
+#include <cryptopp/authenc.h>
+#include <cryptopp/modes.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler
 // error with .intel_syntax, http://llvm.org/bugs/show_bug.cgi?id=24232

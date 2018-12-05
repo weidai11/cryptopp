@@ -3,10 +3,10 @@
 #ifndef CRYPTOPP_ITERHASH_H
 #define CRYPTOPP_ITERHASH_H
 
-#include "cryptlib.h"
-#include "secblock.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
 #include "misc.h"
-#include "simple.h"
+#include <cryptopp/simple.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

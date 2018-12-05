@@ -13,7 +13,7 @@
 #include <cryptopp/hmac.h>
 #include <cryptopp/cmac.h>
 #include <cryptopp/dmac.h>
-#include "vmac.h"
+#include <cryptopp/vmac.h>
 #include <cryptopp/ttmac.h>
 
 // Ciphers

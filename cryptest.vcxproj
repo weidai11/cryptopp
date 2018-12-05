@@ -227,7 +227,7 @@
   <ItemGroup>
     <ClInclude Include="bench.h" />
     <ClInclude Include="factory.h" />
-    <ClInclude Include="validate.h" />
+    <ClInclude Include="include\cryptopp\validate.h" />
   </ItemGroup>
   <!-- Test Files -->
   <ItemGroup>

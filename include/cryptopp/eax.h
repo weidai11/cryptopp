@@ -6,9 +6,9 @@
 #ifndef CRYPTOPP_EAX_H
 #define CRYPTOPP_EAX_H
 
-#include "authenc.h"
-#include "modes.h"
-#include "cmac.h"
+#include <cryptopp/authenc.h>
+#include <cryptopp/modes.h>
+#include <cryptopp/cmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

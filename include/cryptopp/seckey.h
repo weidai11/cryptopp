@@ -9,7 +9,7 @@
 #include "config.h"
 #include <cryptopp/cryptlib.h>
 #include "misc.h"
-#include "simple.h"
+#include <cryptopp/simple.h>
 #include "stdcpp.h"
 
 #if CRYPTOPP_MSC_VERSION

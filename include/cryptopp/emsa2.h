@@ -6,13 +6,13 @@
 #ifndef CRYPTOPP_EMSA2_H
 #define CRYPTOPP_EMSA2_H
 
-#include "cryptlib.h"
-#include "pubkey.h"
-#include "hashfwd.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/pubkey.h>
+#include <cryptopp/hashfwd.h>
 #include "misc.h"
 
 #ifdef CRYPTOPP_IS_DLL
-# include "sha.h"
+# include <cryptopp/sha.h>
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

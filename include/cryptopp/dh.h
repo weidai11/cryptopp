@@ -6,9 +6,9 @@
 #ifndef CRYPTOPP_DH_H
 #define CRYPTOPP_DH_H
 
-#include "cryptlib.h"
-#include "gfpcrypt.h"
-#include "algebra.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/gfpcrypt.h>
+#include <cryptopp/algebra.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

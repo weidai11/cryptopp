@@ -10,7 +10,7 @@
 #ifndef CRYPTOPP_RIJNDAEL_H
 #define CRYPTOPP_RIJNDAEL_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler

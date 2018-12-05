@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_SOSEMANUK_H
 #define CRYPTOPP_SOSEMANUK_H
 
-#include "strciphr.h"
+#include <cryptopp/strciphr.h>
 #include <cryptopp/secblock.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler

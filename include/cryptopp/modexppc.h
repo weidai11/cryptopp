@@ -7,7 +7,7 @@
 #include <cryptopp/algebra.h>
 #include <cryptopp/eprecomp.h>
 #include "smartptr.h"
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

@@ -9,10 +9,10 @@
 #ifndef CRYPTOPP_NIST_DRBG_H
 #define CRYPTOPP_NIST_DRBG_H
 
-#include "cryptlib.h"
-#include "secblock.h"
-#include "hmac.h"
-#include "sha.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/secblock.h>
+#include <cryptopp/hmac.h>
+#include <cryptopp/sha.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

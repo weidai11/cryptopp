@@ -8,8 +8,8 @@
 #define CRYPTOPP_OAEP_H
 
 #include <cryptopp/cryptlib.h>
-#include "pubkey.h"
-#include "sha.h"
+#include <cryptopp/pubkey.h>
+#include <cryptopp/sha.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

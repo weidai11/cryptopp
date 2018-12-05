@@ -6,8 +6,8 @@
 #ifndef CRYPTOPP_LUBYRACK_H
 #define CRYPTOPP_LUBYRACK_H
 
-#include "simple.h"
-#include "secblock.h"
+#include <cryptopp/simple.h>
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

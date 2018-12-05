@@ -6,8 +6,8 @@
 #ifndef CRYPTOPP_DSA_H
 #define CRYPTOPP_DSA_H
 
-#include "cryptlib.h"
-#include "gfpcrypt.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/gfpcrypt.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

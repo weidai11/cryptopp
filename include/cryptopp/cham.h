@@ -11,9 +11,9 @@
 #define CRYPTOPP_CHAM_H
 
 #include "config.h"
-#include "seckey.h"
-#include "secblock.h"
-#include "algparam.h"
+#include <cryptopp/seckey.h>
+#include <cryptopp/secblock.h>
+#include <cryptopp/algparam.h>
 
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
 # define CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS 1

@@ -14,8 +14,8 @@
 #ifndef CRYPTOPP_HC256_H
 #define CRYPTOPP_HC256_H
 
-#include "strciphr.h"
-#include "secblock.h"
+#include <cryptopp/strciphr.h>
+#include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

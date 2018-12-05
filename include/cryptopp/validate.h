@@ -7,9 +7,9 @@
 #include <cryptopp/cryptlib.h>
 #include "misc.h"
 #include "files.h"
-#include "argnames.h"
-#include "algparam.h"
-#include "hex.h"
+#include <cryptopp/argnames.h>
+#include <cryptopp/algparam.h>
+#include <cryptopp/hex.h>
 
 #include <iostream>
 #include <sstream>

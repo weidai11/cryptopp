@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_DMAC_H
 #define CRYPTOPP_DMAC_H
 
-#include "cbcmac.h"
+#include <cryptopp/cbcmac.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

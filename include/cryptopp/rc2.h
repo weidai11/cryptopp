@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_RC2_H
 #define CRYPTOPP_RC2_H
 
-#include "seckey.h"
+#include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/algparam.h>
 

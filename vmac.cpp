@@ -4,7 +4,7 @@
 #include "pch.h"
 #include "config.h"
 
-#include "vmac.h"
+#include <cryptopp/vmac.h>
 #include "cpu.h"
 #include <cryptopp/argnames.h>
 #include <cryptopp/secblock.h>

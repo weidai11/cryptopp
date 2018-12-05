@@ -7,11 +7,11 @@
 #define CRYPTOPP_ALGPARAM_H
 
 #include "config.h"
-#include "cryptlib.h"
+#include <cryptopp/cryptlib.h>
 
 #include "smartptr.h"
-#include "secblock.h"
-#include "integer.h"
+#include <cryptopp/secblock.h>
+#include <cryptopp/integer.h>
 #include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)

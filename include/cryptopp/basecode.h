@@ -6,10 +6,10 @@
 #ifndef CRYPTOPP_BASECODE_H
 #define CRYPTOPP_BASECODE_H
 
-#include "cryptlib.h"
-#include "filters.h"
-#include "algparam.h"
-#include "argnames.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/algparam.h>
+#include <cryptopp/argnames.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

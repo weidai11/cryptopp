@@ -7,14 +7,14 @@
 #ifndef CRYPTOPP_EC2N_H
 #define CRYPTOPP_EC2N_H
 
-#include "cryptlib.h"
-#include "gf2n.h"
-#include "integer.h"
-#include "algebra.h"
-#include "ecpoint.h"
-#include "eprecomp.h"
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/gf2n.h>
+#include <cryptopp/integer.h>
+#include <cryptopp/algebra.h>
+#include <cryptopp/ecpoint.h>
+#include <cryptopp/eprecomp.h>
 #include "smartptr.h"
-#include "pubkey.h"
+#include <cryptopp/pubkey.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

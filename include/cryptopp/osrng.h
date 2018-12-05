@@ -11,12 +11,12 @@
 #if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 
 #include <cryptopp/cryptlib.h>
-#include "randpool.h"
+#include <cryptopp/randpool.h>
 #include "smartptr.h"
 #include <cryptopp/fips140.h>
-#include "rng.h"
+#include <cryptopp/rng.h>
 #include <cryptopp/aes.h>
-#include "sha.h"
+#include <cryptopp/sha.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 
