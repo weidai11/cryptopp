@@ -278,10 +278,8 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 // Apple and LLVM's Clang. Apple Clang version 7.0 roughly equals LLVM Clang version 3.7
 #if defined(__clang__) && defined(__apple_build_version__)
 	#define CRYPTOPP_APPLE_CLANG_VERSION (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
-	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
 #elif defined(__clang__)
 	#define CRYPTOPP_LLVM_CLANG_VERSION  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
-	#define CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER 1
 #endif
 
 #ifdef _MSC_VER
@@ -292,6 +290,12 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 #if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 10700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 20000)
 	#define CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE 1
 #endif
+
+// Some Clang cannot handle mixed asm with positional arguments, where the
+// body is Intel style with no prefix and the templates are AT&T style.
+// Define this is the Makefile misdetects the configuration.
+// Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+// #define CRYPTOPP_DISABLE_MIXED_ASM 1
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx

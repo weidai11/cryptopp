@@ -1,4 +1,6 @@
-// This represents the pattern found in Crypto++
+// Most Clang cannot handle mixed asm with positional arguments, where the
+// body is Intel style with no prefix and the templates are AT&T style.
+// Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
 #include <cstddef>
 int main(int argc, char* argv[])
 {
