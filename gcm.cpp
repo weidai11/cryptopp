@@ -12,13 +12,6 @@
 #ifndef CRYPTOPP_IMPORTS
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
-#if defined(CRYPTOPP_DISABLE_GCM_ASM)
-# undef CRYPTOPP_X86_ASM_AVAILABLE
-# undef CRYPTOPP_X32_ASM_AVAILABLE
-# undef CRYPTOPP_X64_ASM_AVAILABLE
-# undef CRYPTOPP_SSE2_ASM_AVAILABLE
-#endif
-
 // Visual Studio .Net 2003 compiler crash
 #if defined(_MSC_VER) && (_MSC_VER < 1400)
 # pragma optimize("", off)
@@ -26,6 +19,13 @@
 
 #include "gcm.h"
 #include "cpu.h"
+
+#if defined(CRYPTOPP_DISABLE_GCM_ASM)
+# undef CRYPTOPP_X86_ASM_AVAILABLE
+# undef CRYPTOPP_X32_ASM_AVAILABLE
+# undef CRYPTOPP_X64_ASM_AVAILABLE
+# undef CRYPTOPP_SSE2_ASM_AVAILABLE
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
