@@ -106,9 +106,6 @@ ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
   ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
     CXXFLAGS += -Wa,-q
   endif
-  ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
-  endif
 endif
 
 # Hack to skip CPU feature tests for some recipes

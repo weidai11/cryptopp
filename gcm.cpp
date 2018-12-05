@@ -32,8 +32,8 @@ NAMESPACE_BEGIN(CryptoPP)
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 // Different assemblers accept different mnemonics: 'movd eax, xmm0' vs
 //   'movd rax, xmm0' vs 'mov eax, xmm0' vs 'mov rax, xmm0'
-#if (CRYPTOPP_LLVM_CLANG_VERSION >= 30600) || (CRYPTOPP_APPLE_CLANG_VERSION >= 70000)
-// 'movd eax, xmm0' only. REG_WORD() macro not used.
+#if defined(CRYPTOPP_DISABLE_MIXED_ASM)
+// 'movd eax, xmm0' only. REG_WORD() macro not used. Clang path.
 # define USE_MOVD_REG32 1
 #elif defined(__GNUC__) || defined(_MSC_VER)
 // 'movd eax, xmm0' or 'movd rax, xmm0'. REG_WORD() macro supplies REG32 or REG64.
