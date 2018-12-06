@@ -7,7 +7,7 @@
 //    instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 # include <signal.h>

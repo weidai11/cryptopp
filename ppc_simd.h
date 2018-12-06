@@ -66,8 +66,8 @@
 #ifndef CRYPTOPP_PPC_CRYPTO_H
 #define CRYPTOPP_PPC_CRYPTO_H
 
-#include "config.h"
-#include "misc.h"
+#include <cryptopp/config.h>
+#include <cryptopp/misc.h>
 
 #if defined(__ALTIVEC__)
 # include <altivec.h>

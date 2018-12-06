@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_OS_SIGNAL_H
 #define CRYPTOPP_OS_SIGNAL_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if defined(UNIX_SIGNALS_AVAILABLE)
 # include <signal.h>

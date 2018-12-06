@@ -7,8 +7,8 @@
 //    appropriate instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
-#include "stdcpp.h"
+#include <cryptopp/config.h>
+#include <cryptopp/stdcpp.h>
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc_simd.h"

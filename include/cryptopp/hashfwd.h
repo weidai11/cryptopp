@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_HASHFWD_H
 #define CRYPTOPP_HASHFWD_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

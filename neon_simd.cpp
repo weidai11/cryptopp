@@ -8,8 +8,8 @@
 //    appropriate instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
-#include "stdcpp.h"
+#include <cryptopp/config.h>
+#include <cryptopp/stdcpp.h>
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>
