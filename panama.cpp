@@ -8,7 +8,7 @@
 
 #include <cryptopp/panama.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

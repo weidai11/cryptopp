@@ -3,7 +3,7 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sosemanuk.cpp" to generate MASM code
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4702 4731)
@@ -14,7 +14,7 @@
 #include <cryptopp/sosemanuk.h>
 #include "serpentp.h"
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

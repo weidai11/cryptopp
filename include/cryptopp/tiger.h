@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_TIGER_H
 #define CRYPTOPP_TIGER_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/iterhash.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler

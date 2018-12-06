@@ -1,7 +1,7 @@
 // basecode.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4100)
@@ -14,7 +14,7 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include <cryptopp/basecode.h>
-#include "fltrimpl.h"
+#include <cryptopp/fltrimpl.h>
 #include <ctype.h>
 
 NAMESPACE_BEGIN(CryptoPP)

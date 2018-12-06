@@ -5,11 +5,11 @@
 //             The eSTREAM Project, http://www.ecrypt.eu.org/stream/e2-hc128.html.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/hc128.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 /*h1 function*/
 #define h1(x, y) {           \

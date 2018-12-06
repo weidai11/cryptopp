@@ -25,10 +25,10 @@
 //    * AMD Bulldozer, 3.3 GHz: SSE2 at 1680 MB/s; XOP at 2510 MB/s.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/chacha.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
 # include <xmmintrin.h>

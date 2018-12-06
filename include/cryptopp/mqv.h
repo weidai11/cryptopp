@@ -12,7 +12,7 @@
 #include <cryptopp/modarith.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

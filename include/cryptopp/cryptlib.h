@@ -100,9 +100,9 @@ and getting us started on the manual.
 #ifndef CRYPTOPP_CRYPTLIB_H
 #define CRYPTOPP_CRYPTLIB_H
 
-#include "config.h"
-#include "stdcpp.h"
-#include "trap.h"
+#include <cryptopp/config.h>
+#include <cryptopp/stdcpp.h>
+#include <cryptopp/trap.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

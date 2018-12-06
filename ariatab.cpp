@@ -1,7 +1,7 @@
 // ariatab.cpp - written and placed in the public domain by Jeffrey Walton
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)

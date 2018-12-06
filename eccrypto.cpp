@@ -2,7 +2,7 @@
 
 #include "pch.h"
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
@@ -21,12 +21,12 @@
 #include <cryptopp/nbtheory.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/argnames.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/oids.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/hex.h>
 #include <cryptopp/ec2n.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 // Squash MS LNK4221 and libtool warnings
 #ifndef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES

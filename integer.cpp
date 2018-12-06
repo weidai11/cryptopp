@@ -47,7 +47,7 @@
 //  Java or .Net then Singleton must be avoided at all costs.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -55,17 +55,17 @@
 #include <cryptopp/secblock.h>
 #include <cryptopp/modarith.h>
 #include <cryptopp/nbtheory.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/algparam.h>
 #include <cryptopp/filters.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/oids.h>
 #include "words.h"
 #include <cryptopp/pubkey.h>		// for P1363_KDF2
 #include <cryptopp/sha.h>
 #include "cpu.h"
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #include <iostream>
 

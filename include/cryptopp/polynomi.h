@@ -9,7 +9,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/algebra.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #include <iosfwd>
 #include <vector>

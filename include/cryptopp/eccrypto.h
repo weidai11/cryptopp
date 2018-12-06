@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_ECCRYPTO_H
 #define CRYPTOPP_ECCRYPTO_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/pubkey.h>
 #include <cryptopp/integer.h>

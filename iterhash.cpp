@@ -5,7 +5,7 @@
 #endif
 
 #include <cryptopp/iterhash.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

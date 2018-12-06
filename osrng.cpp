@@ -3,7 +3,7 @@
 // Thanks to Leonard Janke for the suggestion for AutoSeededRandomPool.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #ifndef CRYPTOPP_IMPORTS
 

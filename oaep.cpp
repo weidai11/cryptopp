@@ -5,8 +5,8 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include <cryptopp/oaep.h>
-#include "stdcpp.h"
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/stdcpp.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

@@ -9,8 +9,8 @@
 //    the appropriate instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
-#include "misc.h"
+#include <cryptopp/config.h>
+#include <cryptopp/misc.h>
 
 #if defined(CRYPTOPP_DISABLE_GCM_ASM)
 # undef CRYPTOPP_X86_ASM_AVAILABLE

@@ -11,8 +11,8 @@
 #include <cryptopp/randpool.h>
 #include <cryptopp/aes.h>
 #include <cryptopp/sha.h>
-#include "hrtimer.h"
-#include "trap.h"
+#include <cryptopp/hrtimer.h>
+#include <cryptopp/trap.h>
 
 // OldRandomPool
 #include <cryptopp/mdc.h>

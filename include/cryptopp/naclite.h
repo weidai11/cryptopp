@@ -46,8 +46,8 @@
 #ifndef CRYPTOPP_NACL_H
 #define CRYPTOPP_NACL_H
 
-#include "config.h"
-#include "stdcpp.h"
+#include <cryptopp/config.h>
+#include <cryptopp/stdcpp.h>
 
 #if defined(NO_OS_DEPENDENCE)
 # define CRYPTOPP_DISABLE_NACL 1

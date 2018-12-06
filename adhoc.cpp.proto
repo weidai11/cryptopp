@@ -1,4 +1,4 @@
-#include "config.h"
+#include <cryptopp/config.h>
 #include <iosfwd>
 #include <string>
 

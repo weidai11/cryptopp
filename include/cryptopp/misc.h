@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_MISC_H
 #define CRYPTOPP_MISC_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
@@ -26,8 +26,8 @@
 #endif
 
 #include <cryptopp/cryptlib.h>
-#include "stdcpp.h"
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/stdcpp.h>
 
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1400

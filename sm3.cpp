@@ -8,10 +8,10 @@
 //    is stubbed for an eventual SM3_HashMultipleBlocks_ARMV8.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/sm3.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

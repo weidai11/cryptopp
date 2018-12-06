@@ -4,7 +4,7 @@
 #define CRYPTOPP_DEFAULT_NO_DLL
 
 #include "dll.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/iterhash.h>
 #include <cryptopp/pkcspad.h>
 #include <cryptopp/emsa2.h>

@@ -8,7 +8,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include "cpu.h"
-#include <cryptopp/validate.h>
+#include "validate.h"
 
 #include <cryptopp/asn.h>
 #include <cryptopp/gf2n.h>

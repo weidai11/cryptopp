@@ -4,11 +4,11 @@
 //                 Janssen, Tanja Lange, Peter Schwabe and Sjaak Smetsers.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/naclite.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/osrng.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 
 // Don't destroy const time properties when squashing warnings.
 #if CRYPTOPP_MSC_VERSION

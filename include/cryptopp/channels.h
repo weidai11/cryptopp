@@ -8,8 +8,8 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/simple.h>
-#include "smartptr.h"
-#include "stdcpp.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/stdcpp.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

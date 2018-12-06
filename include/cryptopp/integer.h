@@ -18,7 +18,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 
 #include <iosfwd>
 

@@ -1,7 +1,7 @@
 // misc.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4189)
@@ -12,10 +12,10 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "words.h"
 #include "words.h"
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 #include <cryptopp/integer.h>
 
 // for memalign

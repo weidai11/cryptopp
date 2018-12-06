@@ -1,6 +1,6 @@
 #include "pch.h"
 #include <cryptopp/gost.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

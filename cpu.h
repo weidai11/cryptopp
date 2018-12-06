@@ -30,7 +30,7 @@
 #ifndef CRYPTOPP_CPU_H
 #define CRYPTOPP_CPU_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 // Issue 340
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE

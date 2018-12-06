@@ -3,10 +3,10 @@
 //                 available at http://cppcrypto.sourceforge.net/.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/threefish.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/algparam.h>
 #include <cryptopp/argnames.h>
 

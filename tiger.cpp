@@ -1,10 +1,10 @@
 // tiger.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/tiger.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 #if defined(CRYPTOPP_DISABLE_TIGER_ASM)

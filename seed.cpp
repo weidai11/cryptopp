@@ -2,8 +2,8 @@
 
 #include "pch.h"
 #include <cryptopp/seed.h>
-#include "misc.h"
-#include "stdcpp.h"
+#include <cryptopp/misc.h>
+#include <cryptopp/stdcpp.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

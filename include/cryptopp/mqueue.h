@@ -2,9 +2,9 @@
 #define CRYPTOPP_MQUEUE_H
 
 #include <cryptopp/cryptlib.h>
-#include "queue.h"
+#include <cryptopp/queue.h>
 #include <cryptopp/filters.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #include <deque>
 

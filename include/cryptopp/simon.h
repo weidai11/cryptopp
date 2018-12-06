@@ -13,7 +13,7 @@
 #ifndef CRYPTOPP_SIMON_H
 #define CRYPTOPP_SIMON_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 

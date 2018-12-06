@@ -11,14 +11,14 @@
 	#include "cpu.h"
 
 # else
-	#include "config.h"
+	#include <cryptopp/config.h>
 
 	#ifdef USE_PRECOMPILED_HEADERS
 		#include <cryptopp/simple.h>
 		#include <cryptopp/secblock.h>
-		#include "misc.h"
-		#include "smartptr.h"
-		#include "stdcpp.h"
+		#include <cryptopp/misc.h>
+		#include <cryptopp/fltrimpl.h>
+		#include <cryptopp/stdcpp.h>
 	#endif
 # endif
 

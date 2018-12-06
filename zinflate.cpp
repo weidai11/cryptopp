@@ -9,7 +9,7 @@
 
 #include "zinflate.h"
 #include <cryptopp/secblock.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

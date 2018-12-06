@@ -5,7 +5,7 @@
 #define CRYPTOPP_VALIDATE_H
 
 #include <cryptopp/cryptlib.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "files.h"
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>

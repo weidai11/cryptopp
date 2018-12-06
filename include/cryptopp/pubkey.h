@@ -34,7 +34,7 @@
 #ifndef CRYPTOPP_PUBKEY_H
 #define CRYPTOPP_PUBKEY_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
@@ -49,8 +49,8 @@
 #include <cryptopp/eprecomp.h>
 #include <cryptopp/fips140.h>
 #include <cryptopp/argnames.h>
-#include "smartptr.h"
-#include "stdcpp.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/stdcpp.h>
 
 #if defined(__SUNPRO_CC)
 # define MAYBE_RETURN(x) return x

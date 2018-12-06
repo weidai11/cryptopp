@@ -5,10 +5,10 @@
 //    is stubbed for an eventual SM4_Round_ARMV8.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/sm4.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

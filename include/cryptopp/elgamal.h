@@ -12,7 +12,7 @@
 #include <cryptopp/gfpcrypt.h>
 #include <cryptopp/pubkey.h>
 #include <cryptopp/dsa.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

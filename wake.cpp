@@ -3,7 +3,7 @@
 #include "pch.h"
 
 #include <cryptopp/wake.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

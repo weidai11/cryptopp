@@ -12,7 +12,7 @@
 #include <cryptopp/modarith.h>
 #include <cryptopp/ecpoint.h>
 #include <cryptopp/eprecomp.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/pubkey.h>
 
 #if CRYPTOPP_MSC_VERSION

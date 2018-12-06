@@ -28,7 +28,7 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4100 4731)
@@ -39,7 +39,7 @@
 
 #include <cryptopp/secblock.h>
 #include <cryptopp/sha.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 #if defined(CRYPTOPP_DISABLE_SHA_ASM)

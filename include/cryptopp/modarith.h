@@ -12,7 +12,7 @@
 #include <cryptopp/integer.h>
 #include <cryptopp/algebra.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

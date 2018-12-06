@@ -6,11 +6,11 @@
 //              The eSTREAM Project, http://www.ecrypt.eu.org/stream/e2-rabbit.html.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/rabbit.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

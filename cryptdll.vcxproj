@@ -243,11 +243,9 @@
   </ItemGroup>
   <!-- Header Files -->
   <ItemGroup>
-    <ClInclude Include="config.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="dll.h" />
     <ClInclude Include="files.h" />
-    <ClInclude Include="fltrimpl.h" />
     <ClInclude Include="include\cryptopp\aes.h" />
     <ClInclude Include="include\cryptopp\algebra.h" />
     <ClInclude Include="include\cryptopp\algparam.h" />
@@ -260,6 +258,7 @@
     <ClInclude Include="include\cryptopp\ccm.h" />
     <ClInclude Include="include\cryptopp\channels.h" />
     <ClInclude Include="include\cryptopp\cmac.h" />
+    <ClInclude Include="include\cryptopp\config.h" />
     <ClInclude Include="include\cryptopp\cryptlib.h" />
     <ClInclude Include="include\cryptopp\des.h" />
     <ClInclude Include="include\cryptopp\dh.h" />
@@ -272,6 +271,7 @@
     <ClInclude Include="include\cryptopp\eprecomp.h" />
     <ClInclude Include="include\cryptopp\filters.h" />
     <ClInclude Include="include\cryptopp\fips140.h" />
+    <ClInclude Include="include\cryptopp\fltrimpl.h" />
     <ClInclude Include="include\cryptopp\gcm.h" />
     <ClInclude Include="include\cryptopp\gf2n.h" />
     <ClInclude Include="include\cryptopp\gfpcrypt.h" />
@@ -280,6 +280,7 @@
     <ClInclude Include="include\cryptopp\integer.h" />
     <ClInclude Include="include\cryptopp\iterhash.h" />
     <ClInclude Include="include\cryptopp\mdc.h" />
+    <ClInclude Include="include\cryptopp\misc.h" />
     <ClInclude Include="include\cryptopp\modarith.h" />
     <ClInclude Include="include\cryptopp\modes.h" />
     <ClInclude Include="include\cryptopp\modexppc.h" />
@@ -292,6 +293,7 @@
     <ClInclude Include="include\cryptopp\pkcspad.h" />
     <ClInclude Include="include\cryptopp\pssr.h" />
     <ClInclude Include="include\cryptopp\pubkey.h" />
+    <ClInclude Include="include\cryptopp\queue.h" />
     <ClInclude Include="include\cryptopp\randpool.h" />
     <ClInclude Include="include\cryptopp\rijndael.h" />
     <ClInclude Include="include\cryptopp\rng.h" />
@@ -302,13 +304,11 @@
     <ClInclude Include="include\cryptopp\sha.h" />
     <ClInclude Include="include\cryptopp\simple.h" />
     <ClInclude Include="include\cryptopp\skipjack.h" />
+    <ClInclude Include="include\cryptopp\smartptr.h" />
+    <ClInclude Include="include\cryptopp\stdcpp.h" />
     <ClInclude Include="include\cryptopp\strciphr.h" />
-    <ClInclude Include="misc.h" />
+    <ClInclude Include="include\cryptopp\trap.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="queue.h" />
-    <ClInclude Include="smartptr.h" />
-    <ClInclude Include="stdcpp.h" />
-    <ClInclude Include="trap.h" />
     <ClInclude Include="words.h" />
   </ItemGroup>
   <!-- Back to Visual Studio boilerplate -->

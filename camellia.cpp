@@ -10,7 +10,7 @@ See comments at top of rijndael.cpp for more details.
 */
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4456)
@@ -20,7 +20,7 @@ See comments at top of rijndael.cpp for more details.
 #endif
 
 #include <cryptopp/camellia.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

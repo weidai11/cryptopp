@@ -63,14 +63,14 @@
  */
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4127)
 #endif
 
 #include <cryptopp/whrlpool.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 #if defined(CRYPTOPP_DISABLE_WHIRLPOOL_ASM)

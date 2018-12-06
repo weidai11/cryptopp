@@ -1,7 +1,7 @@
 // via-rng.cpp - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/padlkrng.h>

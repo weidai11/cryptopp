@@ -12,11 +12,11 @@
 #include <cryptopp/randpool.h>
 #include "files.h"
 #include "trunhash.h"
-#include "queue.h"
-#include "smartptr.h"
-#include <cryptopp/validate.h>
-#include "stdcpp.h"
-#include "trap.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/queue.h>
+#include "validate.h"
+#include <cryptopp/stdcpp.h>
+#include <cryptopp/trap.h>
 
 #include <iostream>
 #include <sstream>

@@ -7,8 +7,8 @@
 //    appropriate instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
-#include "misc.h"
+#include <cryptopp/config.h>
+#include <cryptopp/misc.h>
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <tmmintrin.h>

@@ -8,9 +8,9 @@
 #include <cryptopp/integer.h>
 #include <cryptopp/modarith.h>
 #include <cryptopp/algparam.h>
-#include "smartptr.h"
-#include "misc.h"
-#include "stdcpp.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/misc.h>
+#include <cryptopp/stdcpp.h>
 
 #ifdef _OPENMP
 # include <omp.h>

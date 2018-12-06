@@ -11,7 +11,7 @@
 #include <cryptopp/pubkey.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/asn.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

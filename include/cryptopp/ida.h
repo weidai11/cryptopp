@@ -12,8 +12,8 @@
 #include <cryptopp/channels.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/gf2_32.h>
-#include "stdcpp.h"
-#include "misc.h"
+#include <cryptopp/stdcpp.h>
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

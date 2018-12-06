@@ -7,9 +7,9 @@
 //    appropriate instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/sha.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #if defined(CRYPTOPP_DISABLE_SHA_ASM)
 # undef CRYPTOPP_X86_ASM_AVAILABLE

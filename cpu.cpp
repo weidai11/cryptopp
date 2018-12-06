@@ -1,7 +1,7 @@
 // cpu.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #ifndef EXCEPTION_EXECUTE_HANDLER
 # define EXCEPTION_EXECUTE_HANDLER 1
@@ -10,8 +10,8 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "cpu.h"
-#include "misc.h"
-#include "stdcpp.h"
+#include <cryptopp/misc.h>
+#include <cryptopp/stdcpp.h>
 
 #ifdef _AIX
 # include <sys/systemcfg.h>

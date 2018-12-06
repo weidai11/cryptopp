@@ -1,8 +1,8 @@
 #ifndef CRYPTOPP_WORDS_H
 #define CRYPTOPP_WORDS_H
 
-#include "config.h"
-#include "misc.h"
+#include <cryptopp/config.h>
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

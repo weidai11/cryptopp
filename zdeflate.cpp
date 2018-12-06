@@ -7,8 +7,8 @@
 
 #include "pch.h"
 #include "zdeflate.h"
-#include "stdcpp.h"
-#include "misc.h"
+#include <cryptopp/stdcpp.h>
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

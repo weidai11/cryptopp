@@ -3,10 +3,10 @@
 //              Bo Zhu, Valentin Suder, Mark D. Aagaard, and Guang Gong
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/simeck.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

@@ -6,13 +6,13 @@
 #ifndef CRYPTOPP_OSRNG_H
 #define CRYPTOPP_OSRNG_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/randpool.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/fips140.h>
 #include <cryptopp/rng.h>
 #include <cryptopp/aes.h>

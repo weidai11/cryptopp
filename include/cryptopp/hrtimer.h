@@ -1,7 +1,7 @@
 #ifndef CRYPTOPP_HRTIMER_H
 #define CRYPTOPP_HRTIMER_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if !defined(HIGHRES_TIMER_AVAILABLE) || (defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(THREAD_TIMER_AVAILABLE))
 #include <time.h>

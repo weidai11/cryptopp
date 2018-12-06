@@ -4,7 +4,7 @@
 
 #include "pch.h"
 #include <cryptopp/mars.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

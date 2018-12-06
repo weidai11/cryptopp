@@ -22,7 +22,7 @@
 #include <cryptopp/secblock.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/naclite.h>
-#include <cryptopp/validate.h>
+#include "validate.h"
 
 #include <iostream>
 #include <iomanip>

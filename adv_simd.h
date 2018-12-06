@@ -45,9 +45,9 @@
 #ifndef CRYPTOPP_ADVANCED_SIMD_TEMPLATES
 #define CRYPTOPP_ADVANCED_SIMD_TEMPLATES
 
-#include "config.h"
-#include "misc.h"
-#include "stdcpp.h"
+#include <cryptopp/config.h>
+#include <cryptopp/misc.h>
+#include <cryptopp/stdcpp.h>
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include <arm_neon.h>

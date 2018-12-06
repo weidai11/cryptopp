@@ -1,9 +1,9 @@
 // crc.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/crc.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

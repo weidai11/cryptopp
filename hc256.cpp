@@ -5,11 +5,11 @@
 //             The eSTREAM Project, http://www.ecrypt.eu.org/stream/hc256.html.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/hc256.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

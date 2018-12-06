@@ -7,7 +7,7 @@
 #ifndef CRYPTOPP_SHARK_H
 #define CRYPTOPP_SHARK_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 

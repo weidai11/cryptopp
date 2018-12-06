@@ -1,7 +1,7 @@
 // default.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4127 4189)
@@ -9,9 +9,9 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/default.h>
-#include "queue.h"
+#include <cryptopp/queue.h>
 
 #include <time.h>
 #include <memory>

@@ -450,7 +450,7 @@
     <ClInclude Include="factory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\cryptopp\validate.h">
+    <ClInclude Include="validate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

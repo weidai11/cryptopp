@@ -14,7 +14,7 @@
 #ifndef CRYPTOPP_SM3_H
 #define CRYPTOPP_SM3_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/iterhash.h>
 
 NAMESPACE_BEGIN(CryptoPP)

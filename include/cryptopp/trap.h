@@ -15,13 +15,13 @@
 #ifndef CRYPTOPP_TRAP_H
 #define CRYPTOPP_TRAP_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if defined(CRYPTOPP_DEBUG)
 #  include <iostream>
 #  include <sstream>
 #  if defined(UNIX_SIGNALS_AVAILABLE)
-#    include "ossig.h"
+#    include <cryptopp/ossig.h>
 #  elif defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(__CYGWIN__)
      extern "C" __declspec(dllimport) void __stdcall DebugBreak();
      extern "C" __declspec(dllimport)  int __stdcall IsDebuggerPresent();

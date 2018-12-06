@@ -4,10 +4,10 @@
 //              http://cr.yp.to/chacha.html.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/chacha.h>
 #include <cryptopp/argnames.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 NAMESPACE_BEGIN(CryptoPP)

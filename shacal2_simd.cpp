@@ -13,9 +13,9 @@
 //    sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/sha.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #if (CRYPTOPP_SHANI_AVAILABLE)
 # include <nmmintrin.h>

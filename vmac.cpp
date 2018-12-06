@@ -2,7 +2,7 @@
 // based on Ted Krovetz's public domain vmac.c and draft-krovetz-vmac-01.txt
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/vmac.h>
 #include "cpu.h"

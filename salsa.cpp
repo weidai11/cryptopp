@@ -3,13 +3,13 @@
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM salsa.cpp" to generate MASM code
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #ifndef CRYPTOPP_GENERATE_X64_MASM
 
 #include <cryptopp/salsa.h>
 #include <cryptopp/argnames.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 #if CRYPTOPP_MSC_VERSION

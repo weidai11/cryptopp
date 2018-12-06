@@ -8,7 +8,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/strciphr.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>

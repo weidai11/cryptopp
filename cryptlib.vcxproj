@@ -377,15 +377,12 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.h" />
+    <ClInclude Include="adv_simd.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="files.h" />
-    <ClInclude Include="fltrimpl.h" />
     <ClInclude Include="gzip.h" />
-    <ClInclude Include="hrtimer.h" />
     <ClInclude Include="include\cryptopp\3way.h" />
     <ClInclude Include="include\cryptopp\adler32.h" />
-    <ClInclude Include="include\cryptopp\adv_simd.h" />
     <ClInclude Include="include\cryptopp\aes.h" />
     <ClInclude Include="include\cryptopp\algebra.h" />
     <ClInclude Include="include\cryptopp\algparam.h" />
@@ -408,6 +405,7 @@
     <ClInclude Include="include\cryptopp\cham.h" />
     <ClInclude Include="include\cryptopp\channels.h" />
     <ClInclude Include="include\cryptopp\cmac.h" />
+    <ClInclude Include="include\cryptopp\config.h" />
     <ClInclude Include="include\cryptopp\crc.h" />
     <ClInclude Include="include\cryptopp\cryptlib.h" />
     <ClInclude Include="include\cryptopp\darn.h" />
@@ -430,6 +428,7 @@
     <ClInclude Include="include\cryptopp\fhmqv.h" />
     <ClInclude Include="include\cryptopp\filters.h" />
     <ClInclude Include="include\cryptopp\fips140.h" />
+    <ClInclude Include="include\cryptopp\fltrimpl.h" />
     <ClInclude Include="include\cryptopp\gcm.h" />
     <ClInclude Include="include\cryptopp\gf256.h" />
     <ClInclude Include="include\cryptopp\gf2n.h" />
@@ -443,6 +442,7 @@
     <ClInclude Include="include\cryptopp\hkdf.h" />
     <ClInclude Include="include\cryptopp\hmac.h" />
     <ClInclude Include="include\cryptopp\hmqv.h" />
+    <ClInclude Include="include\cryptopp\hrtimer.h" />
     <ClInclude Include="include\cryptopp\ida.h" />
     <ClInclude Include="include\cryptopp\idea.h" />
     <ClInclude Include="include\cryptopp\integer.h" />
@@ -458,6 +458,7 @@
     <ClInclude Include="include\cryptopp\md4.h" />
     <ClInclude Include="include\cryptopp\md5.h" />
     <ClInclude Include="include\cryptopp\mdc.h" />
+    <ClInclude Include="include\cryptopp\misc.h" />
     <ClInclude Include="include\cryptopp\modarith.h" />
     <ClInclude Include="include\cryptopp\modes.h" />
     <ClInclude Include="include\cryptopp\modexppc.h" />
@@ -476,6 +477,7 @@
     <ClInclude Include="include\cryptopp\pssr.h" />
     <ClInclude Include="include\cryptopp\pubkey.h" />
     <ClInclude Include="include\cryptopp\pwdbased.h" />
+    <ClInclude Include="include\cryptopp\queue.h" />
     <ClInclude Include="include\cryptopp\rabbit.h" />
     <ClInclude Include="include\cryptopp\rabin.h" />
     <ClInclude Include="include\cryptopp\randpool.h" />
@@ -507,13 +509,16 @@
     <ClInclude Include="include\cryptopp\skipjack.h" />
     <ClInclude Include="include\cryptopp\sm3.h" />
     <ClInclude Include="include\cryptopp\sm4.h" />
+    <ClInclude Include="include\cryptopp\smartptr.h" />
     <ClInclude Include="include\cryptopp\sosemanuk.h" />
     <ClInclude Include="include\cryptopp\speck.h" />
     <ClInclude Include="include\cryptopp\square.h" />
+    <ClInclude Include="include\cryptopp\stdcpp.h" />
     <ClInclude Include="include\cryptopp\strciphr.h" />
     <ClInclude Include="include\cryptopp\tea.h" />
     <ClInclude Include="include\cryptopp\threefish.h" />
     <ClInclude Include="include\cryptopp\tiger.h" />
+    <ClInclude Include="include\cryptopp\trap.h" />
     <ClInclude Include="include\cryptopp\ttmac.h" />
     <ClInclude Include="include\cryptopp\twofish.h" />
     <ClInclude Include="include\cryptopp\vmac.h" />
@@ -521,13 +526,8 @@
     <ClInclude Include="include\cryptopp\whrlpool.h" />
     <ClInclude Include="include\cryptopp\xtr.h" />
     <ClInclude Include="include\cryptopp\xtrcrypt.h" />
-    <ClInclude Include="misc.h" />
     <ClInclude Include="nr.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="queue.h" />
-    <ClInclude Include="smartptr.h" />
-    <ClInclude Include="stdcpp.h" />
-    <ClInclude Include="trap.h" />
     <ClInclude Include="trunhash.h" />
     <ClInclude Include="tweetnacl.h" />
     <ClInclude Include="words.h" />

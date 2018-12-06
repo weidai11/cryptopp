@@ -8,9 +8,9 @@
 #include <cryptopp/algparam.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/pwdbased.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 #include <cryptopp/salsa.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/sha.h>
 
 #include <sstream>

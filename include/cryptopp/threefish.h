@@ -9,12 +9,12 @@
 #ifndef CRYPTOPP_THREEFISH_H
 #define CRYPTOPP_THREEFISH_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 #include <cryptopp/algparam.h>
 #include <cryptopp/argnames.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

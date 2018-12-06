@@ -14,10 +14,10 @@
 //           the LEA paper.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/lea.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 ANONYMOUS_NAMESPACE_BEGIN

@@ -2,10 +2,10 @@
 // Based on Paulo S.L.M. Barreto's public domain implementation
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/square.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/gf256.h>
 
 #if CRYPTOPP_MSC_VERSION

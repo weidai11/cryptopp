@@ -9,7 +9,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/pubkey.h>
 #include <cryptopp/hashfwd.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #ifdef CRYPTOPP_IS_DLL
 # include <cryptopp/sha.h>

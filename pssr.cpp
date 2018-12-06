@@ -5,7 +5,7 @@
 #include <cryptopp/emsa2.h>
 #include <cryptopp/ripemd.h>
 #include <cryptopp/whrlpool.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #include <functional>
 

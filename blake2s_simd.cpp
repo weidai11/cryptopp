@@ -18,8 +18,8 @@
 // if using the old compilers.
 
 #include "pch.h"
-#include "config.h"
-#include "misc.h"
+#include <cryptopp/config.h>
+#include <cryptopp/misc.h>
 #include <cryptopp/blake2.h>
 
 // Uncomment for benchmarking C++ against SSE2 or NEON.

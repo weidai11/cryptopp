@@ -4,10 +4,10 @@
 //            Hyeonjin Kim, Younghoon Jung, Dong-Geon Lee, and Daesung Kwon
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/cham.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 //                 CHAM table of parameters

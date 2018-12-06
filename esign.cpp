@@ -1,7 +1,7 @@
 // esign.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 // TODO: fix the C4589 warnings
 #if CRYPTOPP_MSC_VERSION

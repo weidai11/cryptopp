@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_SIMPLE_H
 #define CRYPTOPP_SIMPLE_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
@@ -14,7 +14,7 @@
 #endif
 
 #include <cryptopp/cryptlib.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

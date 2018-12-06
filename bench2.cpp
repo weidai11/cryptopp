@@ -3,14 +3,14 @@
 
 #include <cryptopp/cryptlib.h>
 #include "bench.h"
-#include <cryptopp/validate.h>
+#include "validate.h"
 
 #include "cpu.h"
 #include "factory.h"
 #include <cryptopp/algparam.h>
 #include <cryptopp/argnames.h>
-#include "smartptr.h"
-#include "stdcpp.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/stdcpp.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)

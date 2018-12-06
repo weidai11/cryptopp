@@ -15,10 +15,10 @@
 //    * AMD Bulldozer,   3.3 GHz: AVX2 at 1680 MB/s; 1.47 cpb.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/chacha.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 #if defined(CRYPTOPP_AVX2_AVAILABLE)
 # include <xmmintrin.h>

@@ -1,7 +1,7 @@
 // gf2n.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #ifndef CRYPTOPP_IMPORTS
 
@@ -9,9 +9,9 @@
 #include <cryptopp/algebra.h>
 #include <cryptopp/randpool.h>
 #include <cryptopp/filters.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include "words.h"
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/gf2n.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/oids.h>

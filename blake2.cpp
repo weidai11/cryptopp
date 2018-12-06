@@ -14,7 +14,7 @@
 // if using the old compilers.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>

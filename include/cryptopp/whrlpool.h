@@ -10,7 +10,7 @@
 /// \details Crypto++ provides version 3.0 of the Whirlpool algorithm.
 ///   This version of the algorithm was submitted for ISO standardization.
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/iterhash.h>
 
 // Clang 3.3 integrated assembler crash on Linux. Clang 3.4 due to compiler

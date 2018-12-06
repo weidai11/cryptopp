@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_CAMELLIA_H
 #define CRYPTOPP_CAMELLIA_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/seckey.h>
 #include <cryptopp/secblock.h>
 

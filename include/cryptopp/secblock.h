@@ -6,9 +6,9 @@
 #ifndef CRYPTOPP_SECBLOCK_H
 #define CRYPTOPP_SECBLOCK_H
 
-#include "config.h"
-#include "stdcpp.h"
-#include "misc.h"
+#include <cryptopp/config.h>
+#include <cryptopp/stdcpp.h>
+#include <cryptopp/misc.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

@@ -21,14 +21,14 @@
 #include "factory.h"
 #include <cryptopp/whrlpool.h>
 #include <cryptopp/tiger.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/pkcspad.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 #include <cryptopp/osrng.h>
-#include "ossig.h"
-#include "trap.h"
+#include <cryptopp/ossig.h>
+#include <cryptopp/trap.h>
 
-#include <cryptopp/validate.h>
+#include "validate.h"
 #include "bench.h"
 
 #include <iostream>

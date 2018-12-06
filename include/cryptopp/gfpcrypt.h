@@ -8,7 +8,7 @@
 #ifndef CRYPTOPP_GFPCRYPT_H
 #define CRYPTOPP_GFPCRYPT_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
@@ -20,11 +20,11 @@
 #include <cryptopp/integer.h>
 #include <cryptopp/modexppc.h>
 #include <cryptopp/algparam.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/sha.h>
 #include <cryptopp/asn.h>
 #include <cryptopp/hmac.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

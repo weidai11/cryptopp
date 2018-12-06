@@ -16,11 +16,11 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/simple.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
-#include "smartptr.h"
-#include "queue.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/misc.h>
+#include <cryptopp/queue.h>
 #include <cryptopp/algparam.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

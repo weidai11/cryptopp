@@ -1,7 +1,7 @@
 // gf2_32.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/gf2_32.h>
 
 NAMESPACE_BEGIN(CryptoPP)

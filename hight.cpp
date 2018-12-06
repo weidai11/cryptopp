@@ -10,10 +10,10 @@
 //           the zip is KISA_HIGHT_ECB.c.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/hight.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

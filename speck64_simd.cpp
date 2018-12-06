@@ -6,11 +6,11 @@
 //    the appropriate instructions sets in some build configurations.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/speck.h>
-#include "misc.h"
-#include <cryptopp/adv_simd.h>
+#include <cryptopp/misc.h>
+#include "adv_simd.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both speck.cpp and speck-simd.cpp.

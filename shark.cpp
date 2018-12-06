@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include <cryptopp/shark.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/modes.h>
 #include <cryptopp/gf256.h>
 

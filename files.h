@@ -10,7 +10,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/argnames.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 
 #include <iostream>
 #include <fstream>

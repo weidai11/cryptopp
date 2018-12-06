@@ -5,7 +5,7 @@
 
 #include "pch.h"
 #include <cryptopp/ripemd.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

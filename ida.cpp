@@ -1,10 +1,10 @@
 // ida.cpp - originally written and placed in the public domain by Wei Dai
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/ida.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 #include <cryptopp/algebra.h>
 #include <cryptopp/polynomi.h>
 #include "polynomi.cpp"

@@ -8,8 +8,8 @@
 #include <cryptopp/pkcspad.h>
 #include <cryptopp/emsa2.h>
 #include <cryptopp/hashfwd.h>
-#include "misc.h"
-#include "trap.h"
+#include <cryptopp/misc.h>
+#include <cryptopp/trap.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

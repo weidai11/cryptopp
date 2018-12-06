@@ -8,10 +8,10 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
-#include "smartptr.h"
-#include "stdcpp.h"
-#include "queue.h"
-#include "misc.h"
+#include <cryptopp/smartptr.h>
+#include <cryptopp/stdcpp.h>
+#include <cryptopp/queue.h>
+#include <cryptopp/misc.h>
 
 // Issue 340
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE

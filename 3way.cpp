@@ -3,7 +3,7 @@
 
 #include "pch.h"
 #include <cryptopp/3way.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 NAMESPACE_BEGIN(CryptoPP)
 

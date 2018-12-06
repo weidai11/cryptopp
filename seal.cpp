@@ -6,7 +6,7 @@
 #include <cryptopp/seal.h>
 #include "cpu.h"
 #include <cryptopp/sha.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/secblock.h>
 
 NAMESPACE_BEGIN(CryptoPP)

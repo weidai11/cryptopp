@@ -3,7 +3,7 @@
 //           FHMQV provided by Uri Blumenthal.
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/mqv.h>
 #include <cryptopp/hmqv.h>
 #include <cryptopp/fhmqv.h>

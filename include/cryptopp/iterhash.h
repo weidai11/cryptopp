@@ -5,7 +5,7 @@
 
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/secblock.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/simple.h>
 
 #if CRYPTOPP_MSC_VERSION

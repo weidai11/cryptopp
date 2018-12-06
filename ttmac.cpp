@@ -2,7 +2,7 @@
 
 #include "pch.h"
 #include <cryptopp/ttmac.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 
 ANONYMOUS_NAMESPACE_BEGIN
 

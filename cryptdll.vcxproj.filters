@@ -187,37 +187,10 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cpu.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="dll.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="files.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fltrimpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="misc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="queue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="smartptr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdcpp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="trap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="words.h">
@@ -388,6 +361,31 @@
     <ClInclude Include="include\cryptopp\strciphr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\cryptopp\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\fltrimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\stdcpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\trap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\smartptr.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cryptopp.rc">

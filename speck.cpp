@@ -1,10 +1,10 @@
 // speck.cpp - written and placed in the public domain by Jeffrey Walton
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/speck.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 #ifndef CRYPTOPP_INLINE

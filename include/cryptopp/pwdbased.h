@@ -9,7 +9,7 @@
 #define CRYPTOPP_PWDBASED_H
 
 #include <cryptopp/cryptlib.h>
-#include "hrtimer.h"
+#include <cryptopp/hrtimer.h>
 #include <cryptopp/integer.h>
 #include <cryptopp/argnames.h>
 #include <cryptopp/algparam.h>

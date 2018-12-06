@@ -15,7 +15,7 @@
  */
 
 #include "pch.h"
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/des.h>
 
 NAMESPACE_BEGIN(CryptoPP)

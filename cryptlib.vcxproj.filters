@@ -529,9 +529,6 @@
     <ClInclude Include="include\cryptopp\adler32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\cryptopp\adv_simd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\cryptopp\aes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -931,40 +928,16 @@
     <ClInclude Include="include\cryptopp\xtrcrypt.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="files.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="fltrimpl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="gzip.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="hrtimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="misc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="nr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="queue.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="smartptr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdcpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="words.h">
@@ -974,15 +947,40 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\cryptopp\darn.h" />
-    <ClInclude Include="trap.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="trunhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="tweetnacl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\cryptopp\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\fltrimpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\hrtimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\queue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\stdcpp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\trap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="adv_simd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\smartptr.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="rdrand.asm">
@@ -992,5 +990,6 @@
       <Filter>Miscellaneous</Filter>
     </CustomBuild>
     <CustomBuild Include="x64masm.asm" />
+    <CustomBuild Include="x64dll.asm" />
   </ItemGroup>
 </Project>

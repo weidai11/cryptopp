@@ -6,11 +6,11 @@
 #ifndef CRYPTOPP_SECKEY_H
 #define CRYPTOPP_SECKEY_H
 
-#include "config.h"
+#include <cryptopp/config.h>
 #include <cryptopp/cryptlib.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include <cryptopp/simple.h>
-#include "stdcpp.h"
+#include <cryptopp/stdcpp.h>
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

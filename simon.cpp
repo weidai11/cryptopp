@@ -1,10 +1,10 @@
 // simon.h - written and placed in the public domain by Jeffrey Walton
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/simon.h>
-#include "misc.h"
+#include <cryptopp/misc.h>
 #include "cpu.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.

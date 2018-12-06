@@ -1,7 +1,7 @@
 // Twofish tables
 
 #include "pch.h"
-#include "config.h"
+#include <cryptopp/config.h>
 
 #include <cryptopp/twofish.h>
 

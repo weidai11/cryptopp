@@ -21,7 +21,7 @@
 #include <cryptopp/cryptlib.h>
 #include <cryptopp/filters.h>
 #include <cryptopp/secblock.h>
-#include "smartptr.h"
+#include <cryptopp/smartptr.h>
 #include <cryptopp/aes.h>
 
 NAMESPACE_BEGIN(CryptoPP)
