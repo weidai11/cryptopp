@@ -40,7 +40,7 @@
 #endif
 
 // Applies to both X86/X32/X64 and ARM32/ARM64
-#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION) || defined(CRYPTOPP_CLANG_INTEGRATED_ASSEMBLER)
+#if defined(CRYPTOPP_LLVM_CLANG_VERSION) || defined(CRYPTOPP_APPLE_CLANG_VERSION)
 	#define NEW_LINE "\n"
 	#define INTEL_PREFIX ".intel_syntax;"
 	#define INTEL_NOPREFIX ".intel_syntax;"

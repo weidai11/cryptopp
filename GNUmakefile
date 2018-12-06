@@ -106,9 +106,6 @@ ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
   ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
     CXXFLAGS += -Wa,-q
   endif
-  ifeq ($(findstring -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_CLANG_INTEGRATED_ASSEMBLER=1
-  endif
 endif
 
 # Hack to skip CPU feature tests for some recipes
@@ -125,7 +122,7 @@ endif
 
 # Strip out -Wall, -Wextra and friends for feature testing
 ifeq ($(DETECT_FEATURES),1)
-  TCXXFLAGS := $(filter-out -Wall -Wextra -Werror -Wunused -Wconversion, $(CXXFLAGS))
+  TCXXFLAGS := $(filter-out -Wall -Wextra -Werror% -Wunused -Wconversion -Wp%, $(CXXFLAGS))
   ifneq ($(strip $(TCXXFLAGS)),)
     $(info Using testing flags: $(TCXXFLAGS))
   endif
@@ -242,7 +239,7 @@ ifeq ($(DETECT_FEATURES),1)
     SSSE3_FLAG = -xarch=ssse3
     SSE41_FLAG = -xarch=sse4_1
     SSE42_FLAG = -xarch=sse4_2
-    CLMUL_FLAG = -xarch=clmul
+    CLMUL_FLAG = -xarch=aes
     AESNI_FLAG = -xarch=aes
     AVX_FLAG = -xarch=avx
     AVX2_FLAG = -xarch=avx2
@@ -420,6 +417,15 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   endif
 endif
 
+# Most Clang cannot handle mixed asm with positional arguments, where the
+# body is Intel style with no prefix and the templates are AT&T style.
+# Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+TPROG = TestPrograms/test_mixed_asm.cxx
+HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+ifneq ($(strip $(HAVE_OPT)),0)
+  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
+endif
+
 # IS_X86, IS_X32 and IS_X64
 endif
 
@@ -495,37 +501,37 @@ ifeq ($(IS_ARMV8),1)
 
   ifneq ($(ASIMD_FLAG),)
     TPROG = TestPrograms/test_arm_crc.cxx
-    TOPT = -march=armv8.1-a+crc
+    TOPT = -march=armv8-a+crc
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
-      CRC_FLAG = -march=armv8.1-a+crc
+      CRC_FLAG = -march=armv8-a+crc
     else
       CXXFLAGS += -DCRYPTOPP_ARM_CRC32_AVAILABLE=0
     endif
 
     TPROG = TestPrograms/test_arm_aes.cxx
-    TOPT = -march=armv8.1-a+crypto
+    TOPT = -march=armv8-a+crypto
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
-      AES_FLAG = -march=armv8.1-a+crypto
+      AES_FLAG = -march=armv8-a+crypto
     else
       CXXFLAGS += -DCRYPTOPP_ARM_AES_AVAILABLE=0
     endif
 
     TPROG = TestPrograms/test_arm_pmull.cxx
-    TOPT = -march=armv8.1-a+crypto
+    TOPT = -march=armv8-a+crypto
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
-      GCM_FLAG = -march=armv8.1-a+crypto
+      GCM_FLAG = -march=armv8-a+crypto
     else
       CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
     endif
 
     TPROG = TestPrograms/test_arm_sha.cxx
-    TOPT = -march=armv8.1-a+crypto
+    TOPT = -march=armv8-a+crypto
     HAVE_OPT = $(shell $(CXX) $(CXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
-      SHA_FLAG = -march=armv8.1-a+crypto
+      SHA_FLAG = -march=armv8-a+crypto
     else
       CXXFLAGS += -DCRYPTOPP_ARM_SHA_AVAILABLE=0
     endif
@@ -803,10 +809,12 @@ ifeq ($(IS_SUN)$(SUN_COMPILER),11)
   endif  # X86/X32/X64
 endif  # SunOS
 
+# TODO: can we remove this since removing sockets?
 ifneq ($(IS_MINGW),0)
   LDLIBS += -lws2_32
 endif
 
+# TODO: can we remove this since removing sockets?
 ifneq ($(IS_SUN),0)
   LDLIBS += -lnsl -lsocket
 endif
@@ -836,20 +844,36 @@ endif
 
 # No ASM for Travis testing
 ifeq ($(findstring no-asm,$(MAKECMDGOALS)),no-asm)
-ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
-CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
-endif # CXXFLAGS
+  ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
+  endif # CXXFLAGS
 endif # No ASM
 
 # Native build testing. Issue 'make native'.
 ifeq ($(findstring native,$(MAKECMDGOALS)),native)
-  ifeq ($(findstring -march=native,$(CXXFLAGS)),)
-    ifeq ($(IS_SUN)$(SUN_COMPILER),11)
-      CXXFLAGS += -native
-    else
-      CXXFLAGS += -march=native
-    endif # CXXFLAGS
-  endif # Sun
+  NATIVE_OPT =
+
+  # Try GCC and compatibles first
+  TPROG = TestPrograms/test_cxx.cxx
+  TOPT = -march=native
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    NATIVE_OPT = -march=native
+  endif # NATIVE_OPT
+
+  # Try SunCC next
+  ifeq ($(NATIVE_OPT),)
+    TOPT = -native
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      NATIVE_OPT = -native
+    endif # NATIVE_OPT
+  endif
+
+  ifneq ($(NATIVE_OPT),)
+    CXXFLAGS += $(NATIVE_OPT)
+  endif
+
 endif # Native
 
 # Undefined Behavior Sanitizer (UBsan) testing. Issue 'make ubsan'.

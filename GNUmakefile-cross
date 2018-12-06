@@ -186,7 +186,7 @@ endif
 
 # Strip out -Wall, -Wextra and friends for feature testing
 ifeq ($(DETECT_FEATURES),1)
-  TCXXFLAGS := $(filter-out -Wall -Wextra -Werror -Wunused -Wconversion, $(CXXFLAGS))
+  TCXXFLAGS := $(filter-out -Wall -Wextra -Werror% -Wunused -Wconversion -Wp%, $(CXXFLAGS))
   ifneq ($(strip $(TCXXFLAGS)),)
     $(info Using testing flags: $(TCXXFLAGS))
   endif
@@ -395,11 +395,11 @@ ifeq ($(IS_ARMV8),1)
     PMUL_FLAG =
     SHA_FLAG =
   else
-    ASIMD_FLAG = -march=armv8.1-a
-    CRC_FLAG = -march=armv8.1-a+crc
-    AES_FLAG = -march=armv8.1-a+crypto
-    PMULL_FLAG = -march=armv8.1-a+crypto
-    SHA_FLAG = -march=armv8.1-a+crypto
+    ASIMD_FLAG = -march=armv8-a
+    CRC_FLAG = -march=armv8-a+crc
+    AES_FLAG = -march=armv8-a+crypto
+    PMULL_FLAG = -march=armv8-a+crypto
+    SHA_FLAG = -march=armv8-a+crypto
   endif
 
   TPROG = TestPrograms/test_arm_acle.cxx

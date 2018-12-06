@@ -22,6 +22,9 @@ using CryptoPP::EC2N;
   #pragma init_seg(".CRT$XCU")
   const EC2N::Point g_identity;
   #pragma warning(default: 4075)
+#elif defined(HAVE_XLC_INIT_PRIORITY)
+  #pragma priority(290)
+  const EC2N::Point g_identity;
 #endif
 
 ANONYMOUS_NAMESPACE_END
@@ -192,7 +195,7 @@ bool EC2N::Equal(const Point &P, const Point &Q) const
 
 const EC2N::Point& EC2N::Identity() const
 {
-#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY)
+#if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_identity;
 #elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static const EC2N::Point g_identity;
