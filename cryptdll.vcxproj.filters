@@ -385,7 +385,9 @@
     <ClInclude Include="cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\cryptopp\smartptr.h" />
+    <ClInclude Include="include\cryptopp\smartptr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="cryptopp.rc">
