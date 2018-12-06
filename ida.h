@@ -23,7 +23,7 @@ class RawIDA : public AutoSignaling<Unflushable<Multichannel<Filter> > >
 {
 public:
 	RawIDA(BufferedTransformation *attachment=NULLPTR)
-		: m_threshold (0), m_channelsReady(0), m_channelsFinished(0)
+		: m_channelsReady(0), m_channelsFinished(0), m_threshold (0)
 			{Detach(attachment);}
 
 	unsigned int GetThreshold() const {return m_threshold;}
