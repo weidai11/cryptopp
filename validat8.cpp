@@ -45,7 +45,7 @@ bool ValidateRSA_Encrypt()
 	bool pass = true, fail;
 
 	{
-		FileSource keys(CRYPTOPP_DATA_DIR "TestData/rsa1024.dat", true, new HexDecoder);
+		FileSource keys(DataDir("TestData/rsa1024.dat").c_str(), true, new HexDecoder);
 		RSAES_PKCS1v15_Decryptor rsaPriv(keys);
 		RSAES_PKCS1v15_Encryptor rsaPub(rsaPriv);
 
@@ -72,8 +72,8 @@ bool ValidateRSA_Encrypt()
 		bq.Put(oaepSeed, 20);
 		FixedRNG rng(bq);
 
-		FileSource privFile(CRYPTOPP_DATA_DIR "TestData/rsa400pv.dat", true, new HexDecoder);
-		FileSource pubFile(CRYPTOPP_DATA_DIR "TestData/rsa400pb.dat", true, new HexDecoder);
+		FileSource privFile(DataDir("TestData/rsa400pv.dat").c_str(), true, new HexDecoder);
+		FileSource pubFile(DataDir("TestData/rsa400pb.dat").c_str(), true, new HexDecoder);
 		RSAES_OAEP_SHA_Decryptor rsaPriv;
 		rsaPriv.AccessKey().BERDecodePrivateKey(privFile, false, 0);
 		RSAES_OAEP_SHA_Encryptor rsaPub(pubFile);
@@ -94,7 +94,7 @@ bool ValidateRSA_Encrypt()
 
 bool ValidateLUC_Encrypt()
 {
-	FileSource f(CRYPTOPP_DATA_DIR "TestData/luc1024.dat", true, new HexDecoder);
+	FileSource f(DataDir("TestData/luc1024.dat").c_str(), true, new HexDecoder);
 	LUCES_OAEP_SHA_Decryptor priv(GlobalRNG(), 512);
 	LUCES_OAEP_SHA_Encryptor pub(priv);
 	return CryptoSystemValidate(priv, pub);
@@ -104,7 +104,7 @@ bool ValidateLUC_DL_Encrypt()
 {
 	std::cout << "\nLUC-IES validation suite running...\n\n";
 
-	FileSource fc(CRYPTOPP_DATA_DIR "TestData/lucc512.dat", true, new HexDecoder);
+	FileSource fc(DataDir("TestData/lucc512.dat").c_str(), true, new HexDecoder);
 	LUC_IES<>::Decryptor privC(fc);
 	LUC_IES<>::Encryptor pubC(privC);
 	return CryptoSystemValidate(privC, pubC);
@@ -112,7 +112,7 @@ bool ValidateLUC_DL_Encrypt()
 
 bool ValidateRabin_Encrypt()
 {
-	FileSource f(CRYPTOPP_DATA_DIR "TestData/rabi1024.dat", true, new HexDecoder);
+	FileSource f(DataDir("TestData/rabi1024.dat").c_str(), true, new HexDecoder);
 	RabinES<OAEP<SHA1> >::Decryptor priv(f);
 	RabinES<OAEP<SHA1> >::Encryptor pub(priv);
 	return CryptoSystemValidate(priv, pub);
@@ -163,7 +163,7 @@ bool ValidateElGamal()
 	std::cout << "\nElGamal validation suite running...\n\n";
 	bool pass = true;
 	{
-		FileSource fc(CRYPTOPP_DATA_DIR "TestData/elgc1024.dat", true, new HexDecoder);
+		FileSource fc(DataDir("TestData/elgc1024.dat").c_str(), true, new HexDecoder);
 		ElGamalDecryptor privC(fc);
 		ElGamalEncryptor pubC(privC);
 		privC.AccessKey().Precompute();
@@ -181,7 +181,7 @@ bool ValidateDLIES()
 	std::cout << "\nDLIES validation suite running...\n\n";
 	bool pass = true;
 	{
-		FileSource fc(CRYPTOPP_DATA_DIR "TestData/dlie1024.dat", true, new HexDecoder);
+		FileSource fc(DataDir("TestData/dlie1024.dat").c_str(), true, new HexDecoder);
 		DLIES<>::Decryptor privC(fc);
 		DLIES<>::Encryptor pubC(privC);
 		pass = CryptoSystemValidate(privC, pubC) && pass;

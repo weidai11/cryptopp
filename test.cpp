@@ -398,7 +398,7 @@ int scoped_main(int argc, char *argv[])
 			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
-			FileSource usage(CRYPTOPP_DATA_DIR "TestData/usage.dat", true, new FileSink(std::cout));
+			FileSource usage(DataDir("TestData/usage.dat").c_str(), true, new FileSink(std::cout));
 			return 1;
 		}
 		else if (command == "V")

@@ -913,13 +913,7 @@ void OutputNameValuePairs(const NameValuePairs &v)
 
 void TestDataFile(std::string filename, const NameValuePairs &overrideParameters, unsigned int &totalTests, unsigned int &failedTests)
 {
-	static const std::string dataDirectory(CRYPTOPP_DATA_DIR);
-	if (!dataDirectory.empty())
-	{
-		if(dataDirectory != filename.substr(0, dataDirectory.length()))
-			filename.insert(0, dataDirectory);
-	}
-
+	filename = DataDir(filename);
 	std::ifstream file(filename.c_str());
 	if (!file.good())
 		throw Exception(Exception::OTHER_ERROR, "Can not open file " + filename + " for reading");

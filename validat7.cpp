@@ -45,7 +45,7 @@ bool ValidateDH()
 {
 	std::cout << "\nDH validation suite running...\n\n";
 
-	FileSource f(CRYPTOPP_DATA_DIR "TestData/dh1024.dat", true, new HexDecoder());
+	FileSource f(DataDir("TestData/dh1024.dat").c_str(), true, new HexDecoder);
 	DH dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }
@@ -54,7 +54,7 @@ bool ValidateMQV()
 {
 	std::cout << "\nMQV validation suite running...\n\n";
 
-	FileSource f(CRYPTOPP_DATA_DIR "TestData/mqv1024.dat", true, new HexDecoder());
+	FileSource f(DataDir("TestData/mqv1024.dat").c_str(), true, new HexDecoder);
 	MQV mqv(f);
 	return AuthenticatedKeyAgreementValidate(mqv);
 }
@@ -64,9 +64,9 @@ bool ValidateHMQV()
 	std::cout << "\nHMQV validation suite running...\n\n";
 
 	ECHMQV256 hmqvB(false);
-	FileSource f256(CRYPTOPP_DATA_DIR "TestData/hmqv256.dat", true, new HexDecoder());
-	FileSource f384(CRYPTOPP_DATA_DIR "TestData/hmqv384.dat", true, new HexDecoder());
-	FileSource f512(CRYPTOPP_DATA_DIR "TestData/hmqv512.dat", true, new HexDecoder());
+	FileSource f256(DataDir("TestData/hmqv256.dat").c_str(), true, new HexDecoder);
+	FileSource f384(DataDir("TestData/hmqv384.dat").c_str(), true, new HexDecoder);
+	FileSource f512(DataDir("TestData/hmqv512.dat").c_str(), true, new HexDecoder);
 	hmqvB.AccessGroupParameters().BERDecode(f256);
 
 	std::cout << "HMQV with NIST P-256 and SHA-256:" << std::endl;
@@ -181,9 +181,9 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 
 	//ECFHMQV< ECP >::Domain fhmqvB(false /*server*/);
 	ECFHMQV256 fhmqvB(false);
-	FileSource f256(CRYPTOPP_DATA_DIR "TestData/fhmqv256.dat", true, new HexDecoder());
-	FileSource f384(CRYPTOPP_DATA_DIR "TestData/fhmqv384.dat", true, new HexDecoder());
-	FileSource f512(CRYPTOPP_DATA_DIR "TestData/fhmqv512.dat", true, new HexDecoder());
+	FileSource f256(DataDir("TestData/fhmqv256.dat").c_str(), true, new HexDecoder);
+	FileSource f384(DataDir("TestData/fhmqv384.dat").c_str(), true, new HexDecoder);
+	FileSource f512(DataDir("TestData/fhmqv512.dat").c_str(), true, new HexDecoder);
 	fhmqvB.AccessGroupParameters().BERDecode(f256);
 
 	std::cout << "FHMQV with NIST P-256 and SHA-256:" << std::endl;
@@ -296,7 +296,7 @@ bool ValidateLUC_DH()
 {
 	std::cout << "\nLUC-DH validation suite running...\n\n";
 
-	FileSource f(CRYPTOPP_DATA_DIR "TestData/lucd512.dat", true, new HexDecoder());
+	FileSource f(DataDir("TestData/lucd512.dat").c_str(), true, new HexDecoder);
 	LUC_DH dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }
@@ -305,7 +305,7 @@ bool ValidateXTR_DH()
 {
 	std::cout << "\nXTR-DH validation suite running...\n\n";
 
-	FileSource f(CRYPTOPP_DATA_DIR "TestData/xtrdh171.dat", true, new HexDecoder());
+	FileSource f(DataDir("TestData/xtrdh171.dat").c_str(), true, new HexDecoder);
 	XTR_DH dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }

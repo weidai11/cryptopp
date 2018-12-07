@@ -327,12 +327,12 @@ bool ValidateDES()
 {
 	std::cout << "\nDES validation suite running...\n\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/descert.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/descert.dat").c_str(), true, new HexDecoder);
 	bool pass = BlockTransformationTest(FixedRoundsCipherFactory<DESEncryption, DESDecryption>(), valdata);
 
 	std::cout << "\nTesting EDE2, EDE3, and XEX3 variants...\n\n";
 
-	FileSource valdata1(CRYPTOPP_DATA_DIR "TestData/3desval.dat", true, new HexDecoder);
+	FileSource valdata1(DataDir("TestData/3desval.dat").c_str(), true, new HexDecoder);
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<DES_EDE2_Encryption, DES_EDE2_Decryption>(), valdata1, 1) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<DES_EDE3_Encryption, DES_EDE3_Decryption>(), valdata1, 1) && pass;
 	pass = BlockTransformationTest(FixedRoundsCipherFactory<DES_XEX3_Encryption, DES_XEX3_Decryption>(), valdata1, 1) && pass;
@@ -649,7 +649,7 @@ bool ValidateIDEA()
 {
 	std::cout << "\nIDEA validation suite running...\n\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/ideaval.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/ideaval.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<IDEAEncryption, IDEADecryption>(), valdata);
 }
 
@@ -657,7 +657,7 @@ bool ValidateSAFER()
 {
 	std::cout << "\nSAFER validation suite running...\n\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/saferval.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/saferval.dat").c_str(), true, new HexDecoder);
 	bool pass = true;
 	pass = BlockTransformationTest(VariableRoundsCipherFactory<SAFER_K_Encryption, SAFER_K_Decryption>(8,6), valdata, 4) && pass;
 	pass = BlockTransformationTest(VariableRoundsCipherFactory<SAFER_K_Encryption, SAFER_K_Decryption>(16,12), valdata, 4) && pass;
@@ -670,7 +670,7 @@ bool ValidateRC2()
 {
 	std::cout << "\nRC2 validation suite running...\n\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rc2val.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/rc2val.dat").c_str(), true, new HexDecoder);
 	HexEncoder output(new FileSink(std::cout));
 	SecByteBlock plain(RC2Encryption::BLOCKSIZE), cipher(RC2Encryption::BLOCKSIZE), out(RC2Encryption::BLOCKSIZE), outplain(RC2Encryption::BLOCKSIZE);
 	SecByteBlock key(128);
@@ -899,7 +899,7 @@ bool ValidateRC5()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rc5val.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/rc5val.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(VariableRoundsCipherFactory<RC5Encryption, RC5Decryption>(16, 12), valdata) && pass1 && pass2;
 }
 
@@ -929,7 +929,7 @@ bool ValidateRC6()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rc6val.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/rc6val.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(16), valdata, 2) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(24), valdata, 2) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RC6Encryption, RC6Decryption>(32), valdata, 2) && pass3;
@@ -962,7 +962,7 @@ bool ValidateMARS()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/marsval.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/marsval.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(16), valdata, 4) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(24), valdata, 3) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<MARSEncryption, MARSDecryption>(32), valdata, 2) && pass3;
@@ -995,11 +995,11 @@ bool ValidateRijndael()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/rijndael.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/rijndael.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(16), valdata, 4) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(24), valdata, 3) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<RijndaelEncryption, RijndaelDecryption>(32), valdata, 2) && pass3;
-	pass3 = RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/aes.txt") && pass3;
+	pass3 = RunTestDataFile("TestVectors/aes.txt") && pass3;
 	return pass1 && pass2 && pass3;
 }
 
@@ -1025,7 +1025,7 @@ bool ValidateTwofish()
 	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/twofishv.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/twofishv.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(16), valdata, 4) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(24), valdata, 3) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<TwofishEncryption, TwofishDecryption>(32), valdata, 2) && pass3;
@@ -1054,7 +1054,7 @@ bool ValidateSerpent()
 	pass2 = dec.StaticGetValidKeyLength(128) == 32 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/serpentv.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/serpentv.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(16), valdata, 5) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(24), valdata, 4) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SerpentEncryption, SerpentDecryption>(32), valdata, 3) && pass3;
@@ -1142,7 +1142,7 @@ bool ValidateThreeWay()
 	pass2 = dec.StaticGetValidKeyLength(16) == 12 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/3wayval.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/3wayval.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<ThreeWayEncryption, ThreeWayDecryption>(), valdata) && pass1 && pass2;
 }
 
@@ -1168,7 +1168,7 @@ bool ValidateGOST()
 	pass2 = dec.StaticGetValidKeyLength(64) == 32 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/gostval.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/gostval.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<GOSTEncryption, GOSTDecryption>(), valdata) && pass1 && pass2;
 }
 
@@ -1194,7 +1194,7 @@ bool ValidateSHARK()
 	pass2 = dec.StaticGetValidKeyLength(32) == 16 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/sharkval.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/sharkval.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<SHARKEncryption, SHARKDecryption>(), valdata) && pass1 && pass2;
 }
 
@@ -1220,7 +1220,7 @@ bool ValidateCAST()
 	pass2 = dec1.StaticGetValidKeyLength(17) == 16 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource val128(CRYPTOPP_DATA_DIR "TestData/cast128v.dat", true, new HexDecoder);
+	FileSource val128(DataDir("TestData/cast128v.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(16), val128, 1) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(10), val128, 1) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CAST128Encryption, CAST128Decryption>(5), val128, 1) && pass3;
@@ -1253,7 +1253,7 @@ bool ValidateCAST()
 	pass5 = dec2.StaticGetValidKeyLength(33) == 32 && pass5;
 	std::cout << (pass4 && pass5 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource val256(CRYPTOPP_DATA_DIR "TestData/cast256v.dat", true, new HexDecoder);
+	FileSource val256(DataDir("TestData/cast256v.dat").c_str(), true, new HexDecoder);
 	pass6 = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(16), val256, 1) && pass6;
 	pass6 = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(24), val256, 1) && pass6;
 	pass6 = BlockTransformationTest(FixedRoundsCipherFactory<CAST256Encryption, CAST256Decryption>(32), val256, 1) && pass6;
@@ -1279,7 +1279,7 @@ bool ValidateSquare()
 	pass2 = dec.StaticGetValidKeyLength(17) == 16 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/squareva.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/squareva.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<SquareEncryption, SquareDecryption>(), valdata) && pass1 && pass2;
 }
 
@@ -1301,7 +1301,7 @@ bool ValidateSKIPJACK()
 	pass2 = dec.StaticGetValidKeyLength(16) == 10 && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/skipjack.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/skipjack.dat").c_str(), true, new HexDecoder);
 	return BlockTransformationTest(FixedRoundsCipherFactory<SKIPJACKEncryption, SKIPJACKDecryption>(), valdata) && pass1 && pass2;
 }
 
@@ -1615,7 +1615,7 @@ bool ValidateSHACAL2()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/shacal2v.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/shacal2v.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(16), valdata, 4) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<SHACAL2Encryption, SHACAL2Decryption>(64), valdata, 10) && pass3;
 	return pass1 && pass2 && pass3;
@@ -1647,7 +1647,7 @@ bool ValidateARIA()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/aria.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/aria.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(16), valdata, 15) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(24), valdata, 15) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<ARIAEncryption, ARIADecryption>(32), valdata, 15) && pass3;
@@ -1658,42 +1658,42 @@ bool ValidateSIMECK()
 {
 	std::cout << "\nSIMECK validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/simeck.txt");
+	return RunTestDataFile("TestVectors/simeck.txt");
 }
 
 bool ValidateCHAM()
 {
 	std::cout << "\nCHAM validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/cham.txt");
+	return RunTestDataFile("TestVectors/cham.txt");
 }
 
 bool ValidateHIGHT()
 {
 	std::cout << "\nHIGHT validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hight.txt");
+	return RunTestDataFile("TestVectors/hight.txt");
 }
 
 bool ValidateLEA()
 {
 	std::cout << "\nLEA validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/lea.txt");
+	return RunTestDataFile("TestVectors/lea.txt");
 }
 
 bool ValidateSIMON()
 {
 	std::cout << "\nSIMON validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/simon.txt");
+	return RunTestDataFile("TestVectors/simon.txt");
 }
 
 bool ValidateSPECK()
 {
 	std::cout << "\nSPECK validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/speck.txt");
+	return RunTestDataFile("TestVectors/speck.txt");
 }
 
 bool ValidateCamellia()
@@ -1722,7 +1722,7 @@ bool ValidateCamellia()
 	pass2 = dec.StaticGetValidKeyLength(SIZE_MAX) == dec.MaxKeyLength() && pass2;
 	std::cout << (pass1 && pass2 ? "passed:" : "FAILED:") << "  Algorithm key lengths\n";
 
-	FileSource valdata(CRYPTOPP_DATA_DIR "TestData/camellia.dat", true, new HexDecoder);
+	FileSource valdata(DataDir("TestData/camellia.dat").c_str(), true, new HexDecoder);
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(16), valdata, 15) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(24), valdata, 15) && pass3;
 	pass3 = BlockTransformationTest(FixedRoundsCipherFactory<CamelliaEncryption, CamelliaDecryption>(32), valdata, 15) && pass3;
@@ -1733,65 +1733,65 @@ bool ValidateSalsa()
 {
 	std::cout << "\nSalsa validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/salsa.txt");
+	return RunTestDataFile("TestVectors/salsa.txt");
 }
 
 bool ValidateChaCha()
 {
 	std::cout << "\nChaCha validation suite running...\n";
 
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/chacha.txt");
+	return RunTestDataFile("TestVectors/chacha.txt");
 }
 
 bool ValidateSosemanuk()
 {
 	std::cout << "\nSosemanuk validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sosemanuk.txt");
+	return RunTestDataFile("TestVectors/sosemanuk.txt");
 }
 
 bool ValidateRabbit()
 {
 	std::cout << "\nRabbit validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/rabbit.txt");
+	return RunTestDataFile("TestVectors/rabbit.txt");
 }
 
 bool ValidateHC128()
 {
 	std::cout << "\nHC-128 validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hc128.txt");
+	return RunTestDataFile("TestVectors/hc128.txt");
 }
 
 bool ValidateHC256()
 {
 	std::cout << "\nHC-256 validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hc256.txt");
+	return RunTestDataFile("TestVectors/hc256.txt");
 }
 
 bool ValidateVMAC()
 {
 	std::cout << "\nVMAC validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/vmac.txt");
+	return RunTestDataFile("TestVectors/vmac.txt");
 }
 
 bool ValidateCCM()
 {
 	std::cout << "\nAES/CCM validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/ccm.txt");
+	return RunTestDataFile("TestVectors/ccm.txt");
 }
 
 bool ValidateGCM()
 {
 	std::cout << "\nAES/GCM validation suite running...\n";
 	std::cout << "\n2K tables:";
-	bool pass = RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)2048));
+	bool pass = RunTestDataFile("TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)2048));
 	std::cout << "\n64K tables:";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)64*1024)) && pass;
+	return RunTestDataFile("TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)64*1024)) && pass;
 }
 
 bool ValidateCMAC()
 {
 	std::cout << "\nCMAC validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/cmac.txt");
+	return RunTestDataFile("TestVectors/cmac.txt");
 }
 
 NAMESPACE_END  // Test

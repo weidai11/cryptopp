@@ -95,11 +95,22 @@
 #define CRYPTOPP_VERSION 710
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
-//   Be mindful of the trailing slash since its simple concatenation.
-//   g++ ... -DCRYPTOPP_DATA_DIR='"/tmp/cryptopp_test/share/"'
+//   Be sure to add the trailing slash since its simple concatenation.
+//   After https://github.com/weidai11/cryptopp/issues/760 the library
+//   should find the test vectors and data without much effort. It
+//   will search in "./" and "$ORIGIN/../share/cryptopp" automatically.
 #ifndef CRYPTOPP_DATA_DIR
 # define CRYPTOPP_DATA_DIR ""
 #endif
+
+// Define this to disable the test suite from searching for test
+//   vectors and data in "./" and "$ORIGIN/../share/cryptopp". The
+//   library will still search in CRYPTOPP_DATA_DIR, regardless.
+//   Some distros may want to disable this feature. Also see
+//   https://github.com/weidai11/cryptopp/issues/760
+// #ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+// # define CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+// #endif
 
 // Define this if you want or need the library's memcpy_s and memmove_s.
 //   See http://github.com/weidai11/cryptopp/issues/28.

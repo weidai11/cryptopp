@@ -246,8 +246,42 @@ inline int StringToValue<int, true>(const std::string& str)
 	return r;
 }
 
+inline std::string AddSeparator(std::string str)
+{
+	const char last = (str.empty() ? '\0' : *str.end()-1);
+	if (last != '/' && last != '\\')
+		return str + "/";
+	return str;
+}
+
+inline std::string DataDir(const std::string& filename)
+{
+	std::ifstream file;
+#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+	// Data files in PWD are probably the newest. This is probably a build directory.
+	file.open(std::string("./") + filename);
+	if (file.is_open())
+		return std::string("./") + filename;
+#endif
+#ifdef CRYPTOPP_DATA_DIR
+	// Honor the user's setting next. This is likely an install directory if it is not "./".
+	std::string data_dir(AddSeparator(CRYPTOPP_DATA_DIR));
+	file.open(data_dir + filename);
+	if (file.is_open())
+		data_dir + filename;
+#endif
+#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+	// Finally look in {$ORIGIN}/bin/../share/
+	file.open(std::string("../share/cryptopp/") + filename);
+	if (file.is_open())
+		return std::string("../share/cryptopp/") + filename;
+#endif
+	// This will cause the expected exception in the caller
+	return filename;
+}
+
 // Definition in test.cpp
-RandomNumberGenerator & GlobalRNG();
+RandomNumberGenerator& GlobalRNG();
 
 // Definition in datatest.cpp
 bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParameters=g_nullNameValuePairs, bool thorough=true);
