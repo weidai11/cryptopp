@@ -314,7 +314,9 @@ int scoped_main(int argc, char *argv[])
 			// TestDataFile() adds CRYPTOPP_DATA_DIR as required
 			std::string fname = (argv[2] ? argv[2] : "all");
 			if (fname.find(".txt") == std::string::npos)
-				fname = "TestVectors/" + fname + ".txt";
+				fname += ".txt";
+			if (fname.find("TestVectors") == std::string::npos)
+				fname = "TestVectors/" + fname;
 
 			PrintSeedAndThreads();
 			return !RunTestDataFile(fname.c_str());
@@ -328,7 +330,7 @@ int scoped_main(int argc, char *argv[])
 			std::cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 
 			std::cout << "\nPlaintext: ";
-			std::cin.getline(plaintext, 1024);
+			std::cin.getline(plaintext, sizeof(plaintext));
 
 			std::string ciphertext = EncryptString(plaintext, passPhrase);
 			std::cout << "\nCiphertext: " << ciphertext << std::endl;
@@ -361,7 +363,7 @@ int scoped_main(int argc, char *argv[])
 			char thisSeed[1024];
 			std::cout << "\nRandom Seed: ";
 			std::ws(std::cin);
-			std::cin.getline(thisSeed, 1024);
+			std::cin.getline(thisSeed, sizeof(thisSeed));
 			SecretShareFile(StringToValue<int, true>(argv[2]), StringToValue<int, true>(argv[3]), argv[4], thisSeed);
 		}
 		else if (command == "sr")
