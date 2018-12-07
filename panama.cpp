@@ -89,8 +89,7 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 		AS2(	mov		REG_loopEnd, AS_REG_1)
 	#else
 		AS_PUSH_IF86(	bp)
-		// AS1(	push	AS_REG_1) // AS_REG_1 is defined as ecx uner X86 and X32 (see cpu.h)
-		AS_PUSH_IF86(	cx)
+		AS1(	push	AS_REG_1)
 	#endif
 
 	AS2(	movdqa	xmm0, XMMWORD_PTR [AS_REG_2+0*16])
@@ -336,7 +335,6 @@ void CRYPTOPP_NOINLINE Panama_SSE2_Pull(size_t count, word32 *state, word32 *z, 
 template <class B>
 void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte *input, KeystreamOperation operation)
 {
-	CRYPTOPP_ASSERT(IsAlignedOn(m_state,GetAlignmentOf<word32>()));
 	word32 bstart = m_state[17];
 	word32 *const aPtr = m_state;
 	word32 cPtr[17];
@@ -344,8 +342,8 @@ void Panama<B>::Iterate(size_t count, const word32 *p, byte *output, const byte 
 #define bPtr ((byte *)(aPtr+20))
 
 // reorder the state for SSE2
-// a and c: 4 8 12 16 | 3 7 11 15 | 2 6 10 14 | 1 5 9 13 | 0
-//			xmm0		xmm1		xmm2		xmm3		eax
+// a and c: 4 8 12 16 | 3 7 11 15 | 2 6 10 14 | 1 5 9 13 |  0  |
+//            xmm0        xmm1        xmm2        xmm3     eax
 #define a(i) aPtr[((i)*13+16) % 17]		// 13 is inverse of 4 mod 17
 #define c(i) cPtr[((i)*13+16) % 17]
 // b: 0 4 | 1 5 | 2 6 | 3 7
@@ -445,14 +443,13 @@ void PanamaHash<B>::TruncatedFinal(byte *hash, size_t size)
 
 	this->PadLastBlock(this->BLOCKSIZE, 0x01);
 
-	HashEndianCorrectedBlock(this->m_data);
+	this->HashEndianCorrectedBlock(this->m_data);
 
 	this->Iterate(32);	// pull
 
-	FixedSizeSecBlock<word32, 8> buf;
-	this->Iterate(1, NULLPTR, buf.BytePtr(), NULLPTR);
+	this->Iterate(1, NULLPTR, m_buf.BytePtr(), NULLPTR);
 
-	memcpy(hash, buf, size);
+	memcpy(hash, m_buf, size);
 
 	this->Restart();		// reinit for next use
 }
@@ -469,8 +466,8 @@ void PanamaCipherPolicy<B>::CipherSetKey(const NameValuePairs &params, const byt
 template <class B>
 void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byte *iv, size_t length)
 {
-	CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv); CRYPTOPP_UNUSED(length);
-	CRYPTOPP_ASSERT(length==32);
+	CRYPTOPP_UNUSED(keystreamBuffer); CRYPTOPP_UNUSED(iv);
+	CRYPTOPP_UNUSED(length); CRYPTOPP_ASSERT(length==32);
 
 	this->Reset();
 	this->Iterate(1, m_key);
@@ -478,12 +475,11 @@ void PanamaCipherPolicy<B>::CipherResynchronize(byte *keystreamBuffer, const byt
 		this->Iterate(1, reinterpret_cast<const word32*>(iv));
 	else
 	{
-		FixedSizeSecBlock<word32, 8> buf;
 		if (iv)
-			memcpy(buf, iv, 32);
+			memcpy(m_buf, iv, 32);
 		else
-			memset(buf, 0, 32);
-		this->Iterate(1, buf);
+			memset(m_buf, 0, 32);
+		this->Iterate(1, m_buf);
 	}
 
 #if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
@@ -516,7 +512,8 @@ void PanamaCipherPolicy<B>::OperateKeystream(KeystreamOperation operation, byte 
 {
 #if (CRYPTOPP_SSE2_ASM_AVAILABLE || defined(CRYPTOPP_X64_MASM_AVAILABLE)) && !defined(CRYPTOPP_DISABLE_PANAMA_ASM)
 	if (B::ToEnum() == LITTLE_ENDIAN_ORDER && HasSSE2())
-		Panama_SSE2_Pull(iterationCount, this->m_state, (word32 *)(void *)output, (const word32 *)(void *)input);
+		Panama_SSE2_Pull(iterationCount, this->m_state,
+			reinterpret_cast<word32*>(output), reinterpret_cast<const word32*>(input));
 	else
 #endif
 		this->Iterate(iterationCount, NULLPTR, output, input, operation);

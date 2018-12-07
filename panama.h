@@ -25,6 +25,7 @@ template <class B>
 class CRYPTOPP_NO_VTABLE Panama
 {
 public:
+	virtual ~Panama() {}
 	std::string AlgorithmProvider() const;
 	void Reset();
 	void Iterate(size_t count, const word32 *p=NULLPTR, byte *output=NULLPTR, const byte *input=NULLPTR, KeystreamOperation operation=WRITE_KEYSTREAM);
@@ -44,6 +45,7 @@ class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32
 {
 public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE = 32)
+	virtual ~PanamaHash() {}
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, size_t size);
@@ -54,6 +56,8 @@ protected:
 	void HashEndianCorrectedBlock(const word32 *data) {this->Iterate(1, data);}	// push
 	size_t HashMultipleBlocks(const word32 *input, size_t length);
 	word32* StateBuf() {return NULLPTR;}
+
+	FixedSizeSecBlock<word32, 8> m_buf;
 };
 }
 
@@ -138,6 +142,7 @@ class PanamaCipherPolicy : public AdditiveCipherConcretePolicy<word32, 8>,
 							protected Panama<B>
 {
 protected:
+	virtual ~PanamaCipherPolicy() {}
 	std::string AlgorithmProvider() const;
 	void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
 	void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
@@ -146,6 +151,7 @@ protected:
 	unsigned int GetAlignment() const;
 
 	FixedSizeSecBlock<word32, 8> m_key;
+	FixedSizeSecBlock<word32, 8> m_buf;
 };
 
 /// \brief Panama stream cipher
