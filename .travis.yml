@@ -121,6 +121,16 @@ matrix:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=AppleTVOS
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=WatchSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVSimulator
 
   allow_failures:
     - os: osx
@@ -143,7 +153,6 @@ matrix:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=AppleTVSimulator
-
     - os: linux
       env:
         - BUILD_OS=linux
