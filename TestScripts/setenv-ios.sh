@@ -226,15 +226,17 @@ if [ "$IOS_ARCH" == "x86_64" ]; then
 fi
 
 # Disable ASM for simulator. We are failing on Travis due to missing _start.
-# Also see https://stackoverflow.com/q/24841283/608639
+# We may need to link against crt1.o for simulator builds. Also see
+# https://stackoverflow.com/q/24841283/608639
 if [ "$APPLE_SDK" == "WatchSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM -no_new_main"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Disable ASM for simulator. We are failing on Travis due to missing _start.
-# Also see https://stackoverflow.com/q/24841283/608639
+# We may need to link against crt1.o for simulator builds. Also see
+# https://stackoverflow.com/q/24841283/608639
 if [ "$APPLE_SDK" == "AppleTVSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM -no_new_main"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
