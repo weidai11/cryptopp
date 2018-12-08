@@ -50,13 +50,13 @@ do
   # i386 (simulator)
   if [ "$CL" == "i386" ]; then
     IOS_ARCH=i386
-	APPLE_SDK=iPhoneSimulator
+    APPLE_SDK=iPhoneSimulator
   fi
 
   # x86_64 (simulator)
   if [ "$CL" == "x86_64" ]; then
     IOS_ARCH=x86_64
-	APPLE_SDK=iPhoneSimulator
+    APPLE_SDK=iPhoneSimulator
   fi
 
   # ARMv5
@@ -225,14 +225,16 @@ if [ "$IOS_ARCH" == "x86_64" ]; then
   IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=8 -DCRYPTOPP_DISABLE_ASM"
 fi
 
-# Disable ASM for simulator
+# Disable ASM for simulator. We are failing on Travis due to missing _start.
+# Also see https://stackoverflow.com/q/24841283/608639
 if [ "$APPLE_SDK" == "WatchSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM -no_new_main"
 fi
 
-# Disable ASM for simulator
+# Disable ASM for simulator. We are failing on Travis due to missing _start.
+# Also see https://stackoverflow.com/q/24841283/608639
 if [ "$APPLE_SDK" == "AppleTVSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM -no_new_main"
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
