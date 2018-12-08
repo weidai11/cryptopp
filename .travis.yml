@@ -8,7 +8,7 @@ dist: xenial
 sudo: required
 
 # OS X only supports one image. Use the latest.
-osx_image: xcode9.4
+osx_image: xcode10.1
 
 git:
   depth: 3
