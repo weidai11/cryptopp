@@ -256,25 +256,28 @@ inline std::string AddSeparator(std::string str)
 
 inline std::string DataDir(const std::string& filename)
 {
+	std::string name;
 	std::ifstream file;
 #ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
 	// Data files in PWD are probably the newest. This is probably a build directory.
-	file.open(std::string("./") + filename);
+	name = std::string("./") + filename;
+	file.open(name.c_str());
 	if (file.is_open())
-		return std::string("./") + filename;
+		return name;
 #endif
 #ifdef CRYPTOPP_DATA_DIR
 	// Honor the user's setting next. This is likely an install directory if it is not "./".
-	std::string data_dir(AddSeparator(CRYPTOPP_DATA_DIR));
-	file.open(data_dir + filename);
+	name = AddSeparator(CRYPTOPP_DATA_DIR) + filename;
+	file.open(name.c_str());
 	if (file.is_open())
-		data_dir + filename;
+		return name;
 #endif
 #ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
 	// Finally look in {$ORIGIN}/bin/../share/
-	file.open(std::string("../share/cryptopp/") + filename);
+	name = std::string("../share/cryptopp/") + filename;
+	file.open(name.c_str());
 	if (file.is_open())
-		return std::string("../share/cryptopp/") + filename;
+		return name;
 #endif
 	// This will cause the expected exception in the caller
 	return filename;
