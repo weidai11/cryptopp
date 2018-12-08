@@ -126,6 +126,16 @@ matrix:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=iPhoneSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=WatchSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVSimulator
 
   allow_failures:
     - os: osx
