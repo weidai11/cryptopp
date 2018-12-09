@@ -2,8 +2,16 @@
 set -e
 
 # for local debugging
-if [[ -f setenv-travis.sh ]]; then
-    source setenv-travis.sh
+if [[ -f ./setenv-travis.sh ]]; then
+	echo "Setting variables in setenv-travis.sh"
+    source ./setenv-travis.sh
+elif [[ -f ./TestScripts/setenv-travis.sh ]]; then
+	echo "Setting variables in TestScripts/setenv-travis.sh"
+    source ./TestScripts/setenv-travis.sh
+fi
+
+if [[ -z "$ANDROID_SDK_ROOT" ]] || [[ -z "$ANDROID_NDK_ROOT" ]]; then
+	echo "ANDROID_SDK_ROOT or ANDROID_NDK_ROOT is not set"
 fi
 
 # install android deps
