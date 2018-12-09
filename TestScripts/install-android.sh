@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
+# for local debugging
+if [[ -f setenv-travis.sh ]]; then
+    source setenv-travis.sh
+fi
+
 # install android deps
 sudo apt-get -qq update
 sudo apt-get -qq install --no-install-recommends openjdk-8-jdk unzip
