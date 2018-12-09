@@ -11,7 +11,7 @@ sudo: required
 osx_image: xcode10.1
 
 git:
-  depth: 3
+  depth: 5
 
 compiler:
   - clang
