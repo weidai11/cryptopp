@@ -337,7 +337,7 @@ inline int GetCacheLineSize()
 
 // ***************************** ARM-32, Aarch32 and Aarch64 ***************************** //
 
-#if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64 || CRYPTOPP_DOXYGEN_PROCESSING
+#if CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8 || CRYPTOPP_DOXYGEN_PROCESSING
 
 // Hide from Doxygen
 #ifndef CRYPTOPP_DOXYGEN_PROCESSING
@@ -579,7 +579,7 @@ inline bool HasSM4()
 
 //@}
 
-#endif  // CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
+#endif  // CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8
 
 // ***************************** PowerPC ***************************** //
 

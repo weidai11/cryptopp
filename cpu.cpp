@@ -435,7 +435,7 @@ void DetectX86Features()
 
 // *************************** ARM-32, Aarch32 and Aarch64 ***************************
 
-#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8)
 
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasARMv7 = false;
@@ -1050,7 +1050,7 @@ public:
 	{
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 		CryptoPP::DetectX86Features();
-#elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
+#elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8
 		CryptoPP::DetectArmFeatures();
 #elif CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 		CryptoPP::DetectPowerpcFeatures();

@@ -14,3 +14,5 @@ mkdir -p "$ANDROID_NDK_ROOT"
 
 # https://stackoverflow.com/a/47028911/608639
 touch "$ANDROID_HOME/repositories.cfg"
+
+[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0

@@ -57,7 +57,7 @@
 
 // Define this to disable ASM, intrinsics and built-ins. The library will be
 // compiled using C++ only. The library code will not include SSE2 (and
-// above), NEON, Aarch32, Aarch64, Power4, Power7 or Power8. Note the compiler
+// above), NEON, Aarch32, Aarch64, or Altivec (and above). Note the compiler
 // may use higher ISAs depending on compiler options, but the library will not
 // explictly use the ISAs. When disabling ASM, it is best to do it from
 // config.h to ensure the library and all programs share the setting.
@@ -400,16 +400,8 @@ NAMESPACE_END
 
 #ifdef _MSC_VER
 	// 4127: conditional expression is constant
-	// 4231: nonstandard extension used : 'extern' before template explicit instantiation
-	// 4250: dominance
-	// 4251: member needs to have dll-interface
-	// 4275: base needs to have dll-interface
-	// 4505: unreferenced local function
 	// 4512: assignment operator not generated
-	// 4660: explicitly instantiating a class that's already implicitly instantiated
 	// 4661: no suitable definition provided for explicit template instantiation request
-	// 4786: identifier was truncated in debug information
-	// 4355: 'this' : used in base member initializer list
 	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
 #	pragma warning(disable: 4127 4512 4661 4910)
 	// Security related, possible defects
@@ -441,9 +433,11 @@ NAMESPACE_END
 
 // ***************** Platform and CPU features ********************
 
-// Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
-// Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
-// the System V ABI specs calls out, like on some Solaris installations and just about any 32-bit system with Clang.
+// Linux provides X32, which is 32-bit integers, longs and pointers on x86_64
+// using the full x86_64 register set. Detect via __ILP32__
+// (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places
+// than the System V ABI specs calls out, like on some Solaris installations
+// and just about any 32-bit system with Clang.
 #if (defined(__ILP32__) || defined(_ILP32)) && defined(__x86_64__)
 	#define CRYPTOPP_BOOL_X32 1
 #endif
@@ -457,23 +451,22 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_X64 1
 #endif
 
-// Undo the ASM and Intrinsic related defines due to X32.
+// Undo the ASM related defines due to X32.
 #if CRYPTOPP_BOOL_X32
 # undef CRYPTOPP_BOOL_X64
 # undef CRYPTOPP_X64_ASM_AVAILABLE
 # undef CRYPTOPP_X64_MASM_AVAILABLE
 #endif
 
-// Microsoft plans to support ARM-64, but its not clear how to detect it.
-//   TODO: Add MSC_VER and ARM-64 platform define when available
-#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
-	#define CRYPTOPP_BOOL_ARM64 1
-#elif defined(__arm__) || defined(__aarch32__) || defined(_M_ARM)
+// Microsoft added ARM64 define December 2017.
+#if defined(__arm64__) || defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+	#define CRYPTOPP_BOOL_ARMV8 1
+#elif defined(__arm__) || defined(_M_ARM)
 	#define CRYPTOPP_BOOL_ARM32 1
 #endif
 
 // AltiVec and Power8 crypto
-#if defined(__powerpc64__) || defined(_ARCH_PPC64)
+#if defined(__ppc64__) || defined(__powerpc64__) || defined(_ARCH_PPC64)
 	#define CRYPTOPP_BOOL_PPC64 1
 #elif defined(__powerpc__) || defined(_ARCH_PPC)
 	#define CRYPTOPP_BOOL_PPC32 1
@@ -629,7 +622,7 @@ NAMESPACE_END
 
 // ***************** ARM CPU features ********************
 
-#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#if (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8)
 
 // We don't have an ARM big endian test rig. Disable
 // ARM-BE ASM and instrinsics until we can test it.
