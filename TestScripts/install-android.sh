@@ -15,6 +15,9 @@ mkdir -p "$ANDROID_HOME"
 mkdir -p "$ANDROID_SDK_ROOT"
 mkdir -p "$ANDROID_NDK_ROOT"
 
+# https://stackoverflow.com/a/47028911/608639
+touch "$ANDROID_HOME/repositories.cfg"
+
 # android skd/ndk
 curl -Lo /tmp/android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-3859397.zip
 unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK"
