@@ -87,6 +87,7 @@ bool ValidateAll(bool thorough)
 	pass=TestCompressors() && pass;
 	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
+	pass=TestCurve25519() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;

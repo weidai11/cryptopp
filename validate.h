@@ -160,6 +160,7 @@ bool TestStringSink();
 // Additional tests due to no coverage
 bool TestCompressors();
 bool TestEncryptors();
+bool TestCurve25519();
 bool TestMersenne();
 bool TestSharing();
 # if defined(CRYPTOPP_ALTIVEC_AVAILABLE)

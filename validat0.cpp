@@ -16,10 +16,16 @@
 #include "integer.h"
 #include "polynomi.h"
 #include "channels.h"
+#include "osrng.h"
 
 #include "ida.h"
 #include "gzip.h"
 #include "zlib.h"
+
+//curve25519
+#include "xed25519.h"
+#include "donna.h"
+#include "naclite.h"
 
 #include <iostream>
 #include <iomanip>
@@ -45,8 +51,8 @@ bool TestPolynomialMod2()
 
     std::cout << "\nTesting PolynomialMod2 bit operations...\n\n";
 
-    static const unsigned int start = 0;
-    static const unsigned int stop = 4 * WORD_BITS + 1;
+    const unsigned int start = 0;
+    const unsigned int stop = 4 * WORD_BITS + 1;
 
     for (unsigned int i = start; i < stop; i++)
     {
@@ -424,10 +430,39 @@ bool TestCompressors()
     return !fail1 && !fail2 && !fail3;
 }
 
+bool TestCurve25519()
+{
+    std::cout << "\nTesting curve25519...\n\n";
+
+	AutoSeededRandomPool prng;
+	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
+
+	// Langley's curve25519-donna
+	prng.GenerateBlock(priv1, priv1.size());
+	prng.GenerateBlock(priv2, priv2.size());
+	const byte base[32] = {9};
+	Donna::curve25519(pub1, priv1, base);
+	Donna::curve25519(pub2, priv2, base);
+
+	int ret1 = Donna::curve25519(share1, priv1, pub2);
+	int ret2 = Donna::curve25519(share2, priv2, pub1);
+	int ret3 = std::memcmp(share1, share2, 32);
+
+	// Bernstein's Tweet NaCl
+	NaCl::crypto_box_keypair(pub2, priv1);
+
+	int ret4 = Donna::curve25519(share1, priv1, pub2);
+	int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
+	int ret6 = std::memcmp(share1, share2, 32);
+
+	bool pass = ret1 == 0 && ret2 == 0 && ret3 == 0 && ret4 == 0 && ret5 == 0 && ret6 == 0;
+	return pass;
+}
+
 bool TestEncryptors()
 {
     std::cout << "\nTesting Default Encryptors and Decryptors...\n\n";
-    static const unsigned int ENCRYPT_COUNT = 64, ENCRYPT_MAC_COUNT = 64;
+    const unsigned int ENCRYPT_COUNT = 64, ENCRYPT_MAC_COUNT = 64;
     bool fail0 = false, fail1 = false, fail2 = false, fail3 = false, fail4 = false;
 
     // **************************************************************
@@ -658,9 +693,9 @@ bool TestEncryptors()
 bool TestSharing()
 {
     std::cout << "\nInformation Dispersal and Secret Sharing...\n\n";
-    static const unsigned int INFORMATION_SHARES = 64;
-    static const unsigned int SECRET_SHARES = 64;
-    static const unsigned int CHID_LENGTH = 4;
+    const unsigned int INFORMATION_SHARES = 64;
+    const unsigned int SECRET_SHARES = 64;
+    const unsigned int CHID_LENGTH = 4;
     bool pass=true, fail=false;
 
     // ********** Infrmation Dispersal **********//
@@ -1337,7 +1372,7 @@ bool TestASN1Parse()
 
     // All the types Crypto++ recognizes.
     //   "C" is one content octet with value 0x43.
-    static const ASN1_TestTuple bitStrings[] =
+    const ASN1_TestTuple bitStrings[] =
     {
         // The first "\x00" content octet is the "initial octet" representing unused bits. In the
         //   primitive encoding form, there may be zero, one or more contents after the initial octet.
@@ -1364,7 +1399,7 @@ bool TestASN1Parse()
 
     pass = RunASN1TestSet(bitStrings, COUNTOF(bitStrings)) && pass;
 
-    static const ASN1_TestTuple octetStrings[] =
+    const ASN1_TestTuple octetStrings[] =
     {
         // In the primitive encoding form, there may be zero, one or more contents.
         {ACCEPT, OCTET_STRING, "OCTET_STRING", "\x04\x00", 2},  // definite length, short form, zero content octets
@@ -1391,7 +1426,7 @@ bool TestASN1Parse()
 
     pass = RunASN1TestSet(octetStrings, COUNTOF(octetStrings)) && pass;
 
-    static const ASN1_TestTuple utf8Strings[] =
+    const ASN1_TestTuple utf8Strings[] =
     {
         {ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x00", 2},  // definite length, short form, zero content octets
         {ACCEPT, UTF8_STRING, "UTF8_STRING", "\x0c\x01" "C", 3},  // definite length, short form, expected content octets
@@ -1417,7 +1452,7 @@ bool TestASN1Parse()
 
     pass = RunASN1TestSet(utf8Strings, COUNTOF(utf8Strings)) && pass;
 
-    static const ASN1_TestTuple printableStrings[] =
+    const ASN1_TestTuple printableStrings[] =
     {
         {ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x00", 2},  // definite length, short form, zero content octets
         {ACCEPT, PRINTABLE_STRING, "PRINTABLE_STRING", "\x13\x01" "C", 3},  // definite length, short form, expected content octets
@@ -1443,7 +1478,7 @@ bool TestASN1Parse()
 
     pass = RunASN1TestSet(printableStrings, COUNTOF(printableStrings)) && pass;
 
-    static const ASN1_TestTuple ia5Strings[] =
+    const ASN1_TestTuple ia5Strings[] =
     {
         {ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x00", 2},  // definite length, short form, zero content octets
         {ACCEPT, IA5_STRING, "IA5_STRING", "\x16\x01" "C", 3},  // definite length, short form, expected content octets
@@ -1469,7 +1504,7 @@ bool TestASN1Parse()
 
     pass = RunASN1TestSet(ia5Strings, COUNTOF(ia5Strings)) && pass;
 
-    static const ASN1_TestTuple integerValues[] =
+    const ASN1_TestTuple integerValues[] =
     {
         // 8.3.1 The encoding of an integer value shall be primitive. The contents octets shall consist of one or more octets.
         {REJECT, INTEGER, "INTEGER", "\x02\x00", 2},  // definite length, short form, zero content octets
