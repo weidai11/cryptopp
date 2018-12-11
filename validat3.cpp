@@ -171,6 +171,7 @@ bool ValidateAll(bool thorough)
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
+	pass=ValidateX25519() && pass;
 	pass=ValidateMQV() && pass;
 	pass=ValidateHMQV() && pass;
 	pass=ValidateFHMQV() && pass;
