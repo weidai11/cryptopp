@@ -385,7 +385,7 @@ void fmonty(limb *x2, limb *z2, /* output 2Q */
 // -----------------------------------------------------------------------------
 void swap_conditional(limb a[5], limb b[5], limb iswap)
 {
-  unsigned i;
+  unsigned int i;
   const limb swap = -iswap;
 
   for (i = 0; i < 5; ++i) {
@@ -408,7 +408,7 @@ void cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
   limb e[5] = {0}, f[5] = {1}, g[5] = {0}, h[5] = {1};
   limb *nqpqx2 = e, *nqpqz2 = f, *nqx2 = g, *nqz2 = h;
 
-  unsigned i, j;
+  unsigned int i, j;
 
   memcpy(nqpqx, q, sizeof(limb) * 5);
 

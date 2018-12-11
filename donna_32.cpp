@@ -93,7 +93,7 @@ typedef sword64 limb;
 /* Sum two numbers: output += in */
 void fsum(limb *output, const limb *in)
 {
-  unsigned i;
+  unsigned int i;
   for (i = 0; i < 10; i += 2) {
     output[0+i] = output[0+i] + in[0+i];
     output[1+i] = output[1+i] + in[1+i];
@@ -104,7 +104,7 @@ void fsum(limb *output, const limb *in)
  * (note the order of the arguments!). */
 void fdifference(limb *output, const limb *in)
 {
-  unsigned i;
+  unsigned int i;
   for (i = 0; i < 10; ++i) {
     output[i] = in[i] - output[i];
   }
@@ -113,7 +113,7 @@ void fdifference(limb *output, const limb *in)
 /* Multiply a number by a scalar: output = in * scalar */
 void fscalar_product(limb *output, const limb *in, const limb scalar)
 {
-  unsigned i;
+  unsigned int i;
   for (i = 0; i < 10; ++i) {
     output[i] = in[i] * scalar;
   }
@@ -741,7 +741,7 @@ void fmonty(limb *x2, limb *z2,  /* output 2Q */
  * INT32_MAX. */
 void swap_conditional(limb a[19], limb b[19], limb iswap)
 {
-  unsigned i;
+  unsigned int i;
   const sword32 swap = (sword32) -iswap;
 
   for (i = 0; i < 10; ++i) {
@@ -764,7 +764,7 @@ cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
   limb e[19] = {0}, f[19] = {1}, g[19] = {0}, h[19] = {1};
   limb *nqpqx2 = e, *nqpqz2 = f, *nqx2 = g, *nqz2 = h;
 
-  unsigned i, j;
+  unsigned int i, j;
 
   memcpy(nqpqx, q, sizeof(limb) * 10);
 
