@@ -1,6 +1,6 @@
-// xed25519.h - written and placed in public domain by Jeffrey Walton
-//              This is a port of Adam Langley's curve25519-donna
-//              located at https://github.com/agl/curve25519-donna
+// xed25519_64.cpp - written and placed in public domain by Jeffrey Walton
+//                   This is a port of Adam Langley's curve25519-donna
+//                   located at https://github.com/agl/curve25519-donna
 
 /* Copyright 2008, Google Inc.
  * All rights reserved.
@@ -48,8 +48,3 @@
  * This is, almost, a clean room reimplementation from the curve25519 paper. It
  * uses many of the tricks described therein. Only the crecip function is taken
  * from the sample implementation. */
-
-#ifndef CRYPTOPP_XED25519_H
-#define CRYPTOPP_XED25519_H
-
-#endif  // CRYPTOPP_XED25519_H
