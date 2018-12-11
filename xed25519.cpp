@@ -44,13 +44,13 @@ x25519::x25519(BufferedTransformation &params)
       BERGeneralDecoder x(seq, BIT_STRING);
       if (!x.IsDefiniteLength() || x.MaxRetrievable() < 32)
         BERDecodeError();
-      x.Put(m_sk, 32);
+      x.Get(m_sk, 32);
       x.MessageEnd();
 
       BERGeneralDecoder y(seq, OCTET_STRING);
       if (!y.IsDefiniteLength() || y.MaxRetrievable() < 32)
         BERDecodeError();
-      y.Put(m_pk, 32);
+      y.Get(m_pk, 32);
       y.MessageEnd();
 
     seq.MessageEnd();
@@ -146,7 +146,7 @@ bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherP
     CRYPTOPP_ASSERT(otherPublicKey != NULLPTR);
 
     if (validateOtherPublicKey && Validate(NullRNG(), 3) == false)
-        throw Exception(Exception::OTHER_ERROR, "Failed to validate key");
+        return false;
 
     return Donna::curve25519(agreedValue, privateKey, otherPublicKey) == 0;
 }
