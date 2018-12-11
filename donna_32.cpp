@@ -93,8 +93,7 @@ typedef sword64 limb;
 /* Sum two numbers: output += in */
 void fsum(limb *output, const limb *in)
 {
-  unsigned int i;
-  for (i = 0; i < 10; i += 2) {
+  for (unsigned int i = 0; i < 10; i += 2) {
     output[0+i] = output[0+i] + in[0+i];
     output[1+i] = output[1+i] + in[1+i];
   }
@@ -104,8 +103,7 @@ void fsum(limb *output, const limb *in)
  * (note the order of the arguments!). */
 void fdifference(limb *output, const limb *in)
 {
-  unsigned int i;
-  for (i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 10; ++i) {
     output[i] = in[i] - output[i];
   }
 }
@@ -113,8 +111,7 @@ void fdifference(limb *output, const limb *in)
 /* Multiply a number by a scalar: output = in * scalar */
 void fscalar_product(limb *output, const limb *in, const limb scalar)
 {
-  unsigned int i;
-  for (i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 10; ++i) {
     output[i] = in[i] * scalar;
   }
 }
@@ -307,10 +304,9 @@ inline limb div_by_2_25(const limb v)
  * On entry: |output[i]| < 280*2^54 */
 void freduce_coefficients(limb *output)
 {
-  unsigned int i;
   output[10] = 0;
 
-  for (i = 0; i < 10; i += 2) {
+  for (unsigned int i = 0; i < 10; i += 2) {
     limb over = div_by_2_26(output[i]);
     /* The entry condition (that |output[i]| < 280*2^54) means that over is, at
      * most, 280*2^28 in the first iteration of this loop. This is added to the
@@ -329,6 +325,7 @@ void freduce_coefficients(limb *output)
     output[i+1] -= over << 25;
     output[i+2] += over;
   }
+
   /* Now |output[10]| < 281*2^29 and all other coefficients are reduced. */
   output[0] += output[10] << 4;
   output[0] += output[10] << 1;
@@ -741,10 +738,9 @@ void fmonty(limb *x2, limb *z2,  /* output 2Q */
  * INT32_MAX. */
 void swap_conditional(limb a[19], limb b[19], limb iswap)
 {
-  unsigned int i;
   const sword32 swap = (sword32) -iswap;
 
-  for (i = 0; i < 10; ++i) {
+  for (unsigned int i = 0; i < 10; ++i) {
     const sword32 x = swap & ( ((sword32)a[i]) ^ ((sword32)b[i]) );
     a[i] = ((sword32)a[i]) ^ x;
     b[i] = ((sword32)b[i]) ^ x;
@@ -764,14 +760,12 @@ cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
   limb e[19] = {0}, f[19] = {1}, g[19] = {0}, h[19] = {1};
   limb *nqpqx2 = e, *nqpqz2 = f, *nqx2 = g, *nqz2 = h;
 
-  unsigned int i, j;
-
   memcpy(nqpqx, q, sizeof(limb) * 10);
 
-  for (i = 0; i < 32; ++i) {
-    byte byte = n[31 - i];
-    for (j = 0; j < 8; ++j) {
-      const limb bit = byte >> 7;
+  for (unsigned int i = 0; i < 32; ++i) {
+    byte b = n[31 - i];
+    for (unsigned int j = 0; j < 8; ++j) {
+      const limb bit = b >> 7;
 
       swap_conditional(nqx, nqpqx, bit);
       swap_conditional(nqz, nqpqz, bit);
@@ -796,7 +790,7 @@ cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
       nqpqz = nqpqz2;
       nqpqz2 = t;
 
-      byte <<= 1;
+      b <<= 1;
     }
   }
 
