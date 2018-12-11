@@ -109,6 +109,7 @@ bool ValidateCMAC();
 
 bool ValidateBBS();
 bool ValidateDH();
+bool ValidateX25519();
 bool ValidateMQV();
 bool ValidateHMQV();
 bool ValidateFHMQV();

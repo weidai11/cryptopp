@@ -482,7 +482,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int curve25519(byte *pubkey, const byte *seckey, const byte *basepoint)
+int curve25519(byte pubkey[32], const byte seckey[32], const byte basepoint[32])
 {
   limb bp[5], x[5], z[5], zmone[5];
   uint8_t e[32];

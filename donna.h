@@ -57,7 +57,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int curve25519(byte *pubkey, const byte *seckey, const byte *basepoint);
+int curve25519(byte pubkey[32], const byte seckey[32], const byte basepoint[32]);
 
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
