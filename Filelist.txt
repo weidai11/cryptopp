@@ -101,6 +101,9 @@ dlltest.vcxproj
 dlltest.vcxproj.filters
 dmac.h
 drbg.h
+donna.h
+donna_32.cpp
+donna_64.cpp
 dsa.cpp
 dsa.h
 eax.cpp
@@ -371,6 +374,9 @@ whrlpool.h
 words.h
 x64dll.asm
 x64masm.asm
+xed25519.h
+xed25519_32.cpp
+xed25519_64.cpp
 xtr.cpp
 xtr.h
 xtrcrypt.cpp
