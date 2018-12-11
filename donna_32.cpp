@@ -807,7 +807,8 @@ cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
 // -----------------------------------------------------------------------------
 // Shamelessly copied from djb's code
 // -----------------------------------------------------------------------------
-void crecip(limb *out, const limb *z) {
+void crecip(limb *out, const limb *z)
+{
   limb z2[10];
   limb z9[10];
   limb z11[10];

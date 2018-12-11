@@ -343,12 +343,13 @@ void fcontract(byte *output, const felem input)
  *   qmqp: short form, preserved
  */
 void fmonty(limb *x2, limb *z2, /* output 2Q */
-       limb *x3, limb *z3, /* output Q + Q' */
-       limb *x, limb *z,   /* input Q */
-       limb *xprime, limb *zprime, /* input Q' */
-       const limb *qmqp /* input Q - Q' */) {
-  limb origx[5], origxprime[5], zzz[5], xx[5], zz[5], xxprime[5],
-        zzprime[5], zzzprime[5];
+            limb *x3, limb *z3, /* output Q + Q' */
+            limb *x, limb *z,   /* input Q */
+            limb *xprime, limb *zprime, /* input Q' */
+            const limb *qmqp /* input Q - Q' */)
+{
+  limb origx[5], origxprime[5], zzz[5], xx[5], zz[5];
+  limb xxprime[5], zzprime[5], zzzprime[5];
 
   memcpy(origx, x, 5 * sizeof(limb));
   fsum(x, z);
@@ -382,7 +383,8 @@ void fmonty(limb *x2, limb *z2, /* output 2Q */
 // This function performs the swap without leaking any side-channel
 // information.
 // -----------------------------------------------------------------------------
-void swap_conditional(limb a[5], limb b[5], limb iswap) {
+void swap_conditional(limb a[5], limb b[5], limb iswap)
+{
   unsigned i;
   const limb swap = -iswap;
 
@@ -399,7 +401,8 @@ void swap_conditional(limb a[5], limb b[5], limb iswap) {
  *   n: a little endian, 32-byte number
  *   q: a point of the curve (short form)
  */
-void cmult(limb *resultx, limb *resultz, const byte *n, const limb *q) {
+void cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
+{
   limb a[5] = {0}, b[5] = {1}, c[5] = {1}, d[5] = {0};
   limb *nqpqx = a, *nqpqz = b, *nqx = c, *nqz = d, *t;
   limb e[5] = {0}, f[5] = {1}, g[5] = {0}, h[5] = {1};
@@ -449,7 +452,8 @@ void cmult(limb *resultx, limb *resultz, const byte *n, const limb *q) {
 // -----------------------------------------------------------------------------
 // Shamelessly copied from djb's code, tightened a little
 // -----------------------------------------------------------------------------
-void crecip(felem out, const felem z) {
+void crecip(felem out, const felem z)
+{
   felem a,t0,b,c;
 
   /* 2 */ fsquare_times(a, z, 1); // a = 2
