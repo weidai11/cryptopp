@@ -449,7 +449,7 @@ bool TestCurve25519()
 	int ret3 = std::memcmp(share1, share2, 32);
 
 	// Bernstein's Tweet NaCl
-	NaCl::crypto_box_keypair(pub2, priv1);
+	NaCl::crypto_box_keypair(pub2, priv2);
 
 	int ret4 = Donna::curve25519(share1, priv1, pub2);
 	int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
