@@ -140,6 +140,12 @@
     <ClCompile Include="dll.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="donna_32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="donna_64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dsa.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -628,6 +634,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dsa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="donna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="eax.h">
