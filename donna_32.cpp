@@ -509,7 +509,7 @@ void fcontract(byte *output, limb *input_limbs)
 
   /* |input_limbs[i]| < 2^26, so it's valid to convert to an sword32. */
   for (i = 0; i < 10; i++) {
-    input[i] = static_cast<sword32>(input_limbs[i]);
+    input[i] = (sword32)input_limbs[i];
   }
 
   for (j = 0; j < 2; ++j) {
