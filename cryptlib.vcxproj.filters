@@ -482,6 +482,12 @@
     <ClCompile Include="whrlpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xed25519_32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="xed25519_64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="xtr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -961,6 +967,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="words.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xed25519.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xtr.h">
