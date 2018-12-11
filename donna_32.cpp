@@ -51,7 +51,20 @@
 
 #include "pch.h"
 
-#include "xed25519.h"
+#include "config.h"
+#include "donna.h"
+#include "stdcpp.h"
+
+// This macro is not in a header like config.h because
+// we don't want it exposed to user code. We also need
+// a standard header like <stdint.h> or <stdef.h>.
+#if UINTPTR_MAX == 0xffffffff
+# define CRYPTOPP_32BIT 1
+#else
+# define CRYPTOPP_64BIT 1
+#endif
+
+#if defined(CRYPTOPP_32BIT)
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -60,5 +73,12 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
+int curve25519(u8 *pubkey, const u8 *seckey, const u8 *basepoint)
+{
+	return 0;
+}
+
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
+
+#endif  // CRYPTOPP_32BIT
