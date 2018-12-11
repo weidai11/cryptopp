@@ -54,7 +54,6 @@ public:
 
     /// \brief Create a x25519 object
     /// \param params public and private key
-    /// \param y private key
     /// \details This constructor creates a x25519 object using existing parameters.
     ///   The <tt>params</tt> can be created with <tt>DEREncode</tt>.
     /// \note The public key is not validated.
