@@ -57,8 +57,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-typedef byte u8;
-int curve25519(u8 *pubkey, const u8 *seckey, const u8 *basepoint);
+int curve25519(byte *pubkey, const byte *seckey, const byte *basepoint);
 
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP

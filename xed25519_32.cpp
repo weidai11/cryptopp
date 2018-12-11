@@ -2,6 +2,8 @@
 //                   Crypto++ specific implementation wrapped around Adam
 //                   Langley's curve25519-donna.
 
+#include "pch.h"
+
 #include "xed25519.h"
 #include "donna.h"
 
