@@ -47,9 +47,8 @@ NAMESPACE_BEGIN(Test)
 // Issue 64: "PolynomialMod2::operator<<=", http://github.com/weidai11/cryptopp/issues/64
 bool TestPolynomialMod2()
 {
-    bool pass1 = true, pass2 = true, pass3 = true;
-
     std::cout << "\nTesting PolynomialMod2 bit operations...\n\n";
+    bool pass1 = true, pass2 = true, pass3 = true;
 
     const unsigned int start = 0;
     const unsigned int stop = 4 * WORD_BITS + 1;
@@ -432,31 +431,48 @@ bool TestCompressors()
 
 bool TestCurve25519()
 {
-    std::cout << "\nTesting curve25519...\n\n";
+    std::cout << "\nTesting curve25519 Key Agreements...\n\n";
+    const unsigned int AGREE_COUNT = 64;
+    bool pass = true;
 
-	AutoSeededRandomPool prng;
-	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
+    AutoSeededRandomPool prng;
+    SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
 
-	// Langley's curve25519-donna
-	prng.GenerateBlock(priv1, priv1.size());
-	prng.GenerateBlock(priv2, priv2.size());
-	const byte base[32] = {9};
-	Donna::curve25519(pub1, priv1, base);
-	Donna::curve25519(pub2, priv2, base);
+    for (unsigned int i=0; i<AGREE_COUNT; ++i)
+    {
+        // Langley's curve25519-donna
+        prng.GenerateBlock(priv1, priv1.size());
+        prng.GenerateBlock(priv2, priv2.size());
 
-	int ret1 = Donna::curve25519(share1, priv1, pub2);
-	int ret2 = Donna::curve25519(share2, priv2, pub1);
-	int ret3 = std::memcmp(share1, share2, 32);
+        priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
+        priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
 
-	// Bernstein's Tweet NaCl
-	NaCl::crypto_box_keypair(pub2, priv2);
+        const byte base[32] = {9};
+        Donna::curve25519(pub1, priv1, base);
+        Donna::curve25519(pub2, priv2, base);
 
-	int ret4 = Donna::curve25519(share1, priv1, pub2);
-	int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
-	int ret6 = std::memcmp(share1, share2, 32);
+        int ret1 = Donna::curve25519(share1, priv1, pub2);
+        int ret2 = Donna::curve25519(share2, priv2, pub1);
+        int ret3 = std::memcmp(share1, share2, 32);
 
-	bool pass = ret1 == 0 && ret2 == 0 && ret3 == 0 && ret4 == 0 && ret5 == 0 && ret6 == 0;
-	return pass;
+        // Bernstein's Tweet NaCl
+        NaCl::crypto_box_keypair(pub2, priv2);
+
+        int ret4 = Donna::curve25519(share1, priv1, pub2);
+        int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
+        int ret6 = std::memcmp(share1, share2, 32);
+
+        bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
+        pass = pass && !fail;
+    }
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
+
+    return pass;
 }
 
 bool TestEncryptors()
