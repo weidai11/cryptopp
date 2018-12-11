@@ -55,11 +55,6 @@ bool ValidateX25519()
 {
 	std::cout << "\nx25519 validation suite running...\n\n";
 
-	//x25519 x(GlobalRNG());
-	//HexEncoder encoder(new FileSink("TestData/x25519.dat", false));
-	//x.DEREncode(encoder);
-	//encoder.MessageEnd();
-
 	FileSource f(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
 	x25519 dh(f);
 	return SimpleKeyAgreementValidate(dh);

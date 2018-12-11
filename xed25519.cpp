@@ -83,11 +83,6 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
 
 bool x25519::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
-    //return GetValueHelper(this, name, valueType, pValue).Assignable()
-    //    CRYPTOPP_GET_FUNCTION_ENTRY(SecretKey)
-    //    CRYPTOPP_GET_FUNCTION_ENTRY(PublicKey)
-    //    ;
-
     if (valueType == typeid(ConstByteArrayParameter))
     {
         if (std::strcmp(name, "SecretKey") == 0)
@@ -107,11 +102,6 @@ bool x25519::GetVoidValue(const char *name, const std::type_info &valueType, voi
 
 void x25519::AssignFrom(const NameValuePairs &source)
 {
-    //AssignFromHelper(this, source)
-    //    CRYPTOPP_SET_FUNCTION_ENTRY(SecretKey)
-    //    CRYPTOPP_SET_FUNCTION_ENTRY(PublicKey)
-    //    ;
-
     ConstByteArrayParameter val;
     if (source.GetValue("SecretKey", val))
     {
