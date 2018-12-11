@@ -829,9 +829,10 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 12: result = ValidateThreeWay(); break;
 	case 13: result = ValidateBBS(); break;
 	case 14: result = ValidateDH(); break;
-	case 15: result = ValidateRSA(); break;
-	case 16: result = ValidateElGamal(); break;
-	case 17: result = ValidateDSA(thorough); break;
+	case 15: result = ValidateX25519(); break;
+	case 16: result = ValidateRSA(); break;
+	case 17: result = ValidateElGamal(); break;
+	case 18: result = ValidateDSA(thorough); break;
 //	case 18: result = ValidateHAVAL(); break;
 	case 19: result = ValidateSAFER(); break;
 	case 20: result = ValidateLUC(); break;

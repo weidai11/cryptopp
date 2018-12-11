@@ -22,6 +22,7 @@
 #include "xtr.h"
 #include "hmqv.h"
 #include "pubkey.h"
+#include "xed25519.h"
 #include "xtrcrypt.h"
 #include "eccrypto.h"
 
@@ -47,6 +48,15 @@ bool ValidateDH()
 
 	FileSource f(DataDir("TestData/dh1024.dat").c_str(), true, new HexDecoder);
 	DH dh(f);
+	return SimpleKeyAgreementValidate(dh);
+}
+
+bool ValidateX25519()
+{
+	std::cout << "\nx25519 validation suite running...\n\n";
+
+	FileSource f(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
+	x25519 dh(f);
 	return SimpleKeyAgreementValidate(dh);
 }
 

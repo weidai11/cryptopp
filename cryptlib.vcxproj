@@ -213,6 +213,8 @@
     <ClCompile Include="dll.cpp">
       <PrecompiledHeader />
     </ClCompile>
+    <ClCompile Include="donna_32.cpp" />
+    <ClCompile Include="donna_64.cpp" />
     <ClCompile Include="dsa.cpp" />
     <ClCompile Include="eax.cpp" />
     <ClCompile Include="ec2n.cpp" />
@@ -335,6 +337,7 @@
     <ClCompile Include="vmac.cpp" />
     <ClCompile Include="wake.cpp" />
     <ClCompile Include="whrlpool.cpp" />
+    <ClCompile Include="xed25519.cpp" />
     <ClCompile Include="xtr.cpp" />
     <ClCompile Include="xtrcrypt.cpp" />
     <ClCompile Include="zdeflate.cpp" />
@@ -413,6 +416,7 @@
     <ClInclude Include="dh2.h" />
     <ClInclude Include="dmac.h" />
     <ClInclude Include="drbg.h" />
+    <ClInclude Include="donna.h" />
     <ClInclude Include="dsa.h" />
     <ClInclude Include="eax.h" />
     <ClInclude Include="ec2n.h" />
@@ -529,6 +533,7 @@
     <ClInclude Include="wake.h" />
     <ClInclude Include="whrlpool.h" />
     <ClInclude Include="words.h" />
+    <ClInclude Include="xed25519.h" />
     <ClInclude Include="xtr.h" />
     <ClInclude Include="xtrcrypt.h" />
     <ClInclude Include="zdeflate.h" />

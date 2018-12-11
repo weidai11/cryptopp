@@ -109,6 +109,7 @@ bool ValidateCMAC();
 
 bool ValidateBBS();
 bool ValidateDH();
+bool ValidateX25519();
 bool ValidateMQV();
 bool ValidateHMQV();
 bool ValidateFHMQV();
@@ -160,6 +161,7 @@ bool TestStringSink();
 // Additional tests due to no coverage
 bool TestCompressors();
 bool TestEncryptors();
+bool TestCurve25519();
 bool TestMersenne();
 bool TestSharing();
 # if defined(CRYPTOPP_ALTIVEC_AVAILABLE)

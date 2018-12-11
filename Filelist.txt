@@ -101,6 +101,9 @@ dlltest.vcxproj
 dlltest.vcxproj.filters
 dmac.h
 drbg.h
+donna.h
+donna_32.cpp
+donna_64.cpp
 dsa.cpp
 dsa.h
 eax.cpp
@@ -371,6 +374,8 @@ whrlpool.h
 words.h
 x64dll.asm
 x64masm.asm
+xed25519.h
+xed25519.cpp
 xtr.cpp
 xtr.h
 xtrcrypt.cpp
@@ -455,6 +460,7 @@ TestData/skipjack.dat
 TestData/squareva.dat
 TestData/twofishv.dat
 TestData/usage.dat
+TestData/x25519.dat
 TestData/xtrdh171.dat
 TestData/xtrdh342.dat
 TestVectors/Readme.txt

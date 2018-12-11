@@ -119,6 +119,9 @@
     <ClCompile Include="cryptlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="darn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="default.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -135,6 +138,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="donna_32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="donna_64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dsa.cpp">
@@ -482,6 +491,9 @@
     <ClCompile Include="whrlpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xed25519.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="xtr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -597,6 +609,9 @@
     <ClInclude Include="cryptlib.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="darn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="default.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -616,6 +631,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="dsa.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="donna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="eax.h">
@@ -961,6 +979,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="words.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xed25519.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xtr.h">

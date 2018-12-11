@@ -29,6 +29,7 @@
 #include "ec2n.h"
 #include "asn.h"
 #include "dh.h"
+#include "xed25519.h"
 #include "mqv.h"
 #include "hmqv.h"
 #include "fhmqv.h"
@@ -390,6 +391,7 @@ void Benchmark3(double t, double hertz)
 		ECGDSA<ECP, SHA1>::Verifier spub3(spriv3);
 		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
 		ECMQV<ECP>::Domain ecmqvc(ASN1::secp256k1());
+		x25519 x25519ka(Test::GlobalRNG());
 
 		BenchMarkEncryption("ECIES over GF(p) 256", cpub, t);
 		BenchMarkDecryption("ECIES over GF(p) 256", cpriv, cpub, t);
@@ -399,6 +401,8 @@ void Benchmark3(double t, double hertz)
 		BenchMarkVerification("ECDSA-RFC6979 over GF(p) 256", spriv2, spub2, t);
 		BenchMarkSigning("ECGDSA over GF(p) 256", spriv3, t);
 		BenchMarkVerification("ECGDSA over GF(p) 256", spriv3, spub3, t);
+		BenchMarkKeyGen("x25519", x25519ka, t);
+		BenchMarkAgreement("x25519", x25519ka, t);
 		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(p) 256", ecmqvc, t);
