@@ -20,6 +20,12 @@ x25519::x25519(const byte y[32], const byte x[32])
     std::memcpy(m_sk, x, 32);
 }
 
+x25519::x25519(const byte x[32])
+{
+    std::memcpy(m_sk, x, 32);
+    GeneratePublicKey(NullRNG(), m_sk, m_pk);
+}
+
 x25519::x25519(const Integer &y, const Integer &x)
 {
     ArraySink ys(m_pk, 32);
@@ -27,6 +33,13 @@ x25519::x25519(const Integer &y, const Integer &x)
 
     ArraySink xs(m_sk, 32);
     x.Encode(xs, 32);
+}
+
+x25519::x25519(const Integer &x)
+{
+    ArraySink xs(m_sk, 32);
+    x.Encode(xs, 32);
+    GeneratePublicKey(NullRNG(), m_sk, m_pk);
 }
 
 x25519::x25519(RandomNumberGenerator &rng)
