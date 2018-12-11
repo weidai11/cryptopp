@@ -8,7 +8,6 @@
 #include "asn.h"
 #include "integer.h"
 #include "filters.h"
-#include "argnames.h"
 
 #include "xed25519.h"
 #include "donna.h"
