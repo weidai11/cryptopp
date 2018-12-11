@@ -16,7 +16,6 @@
 #include "integer.h"
 #include "polynomi.h"
 #include "channels.h"
-#include "osrng.h"
 
 #include "ida.h"
 #include "gzip.h"
@@ -435,14 +434,12 @@ bool TestCurve25519()
     const unsigned int AGREE_COUNT = 64;
     bool pass = true;
 
-    AutoSeededRandomPool prng;
     SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
-
     for (unsigned int i=0; i<AGREE_COUNT; ++i)
     {
         // Langley's curve25519-donna
-        prng.GenerateBlock(priv1, priv1.size());
-        prng.GenerateBlock(priv2, priv2.size());
+        GlobalRNG().GenerateBlock(priv1, priv1.size());
+        GlobalRNG().GenerateBlock(priv2, priv2.size());
 
         priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
         priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
