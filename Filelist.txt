@@ -460,6 +460,7 @@ TestData/skipjack.dat
 TestData/squareva.dat
 TestData/twofishv.dat
 TestData/usage.dat
+TestData/x25519.dat
 TestData/xtrdh171.dat
 TestData/xtrdh342.dat
 TestVectors/Readme.txt
