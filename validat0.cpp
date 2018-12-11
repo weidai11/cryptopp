@@ -491,7 +491,7 @@ bool TestEncryptors()
 
         // This data was generated with Crypto++ 5.6.2
         //StringSource(message, true, new LegacyEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac1.bin")));
-        FileSource("TestData/defdmac1.bin", true, new LegacyDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
+        FileSource(DataDir("TestData/defdmac1.bin").c_str(), true, new LegacyDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
         if (message != recovered)
             throw Exception(Exception::OTHER_ERROR, "LegacyDecryptorWithMAC failed a self test");
 
@@ -500,7 +500,7 @@ bool TestEncryptors()
 
         // This data was generated with Crypto++ 6.0
         //StringSource(message, true, new DefaultEncryptorWithMAC(password.c_str(), new FileSink("TestData/defdmac2.bin")));
-        FileSource("TestData/defdmac2.bin", true, new DefaultDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
+        FileSource(DataDir("TestData/defdmac2.bin").c_str(), true, new DefaultDecryptorWithMAC(password.c_str(), new StringSink(recovered)));
         if (message != recovered)
             throw Exception(Exception::OTHER_ERROR, "DefaultDecryptorWithMAC failed a self test");
     }
