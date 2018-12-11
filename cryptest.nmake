@@ -77,8 +77,8 @@ LIB_SRCS = \
     sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp speck64_simd.cpp \
     square.cpp squaretb.cpp sse_simd.cpp strciphr.cpp tea.cpp tftables.cpp \
     threefish.cpp tiger.cpp tigertab.cpp ttmac.cpp tweetnacl.cpp twofish.cpp \
-    vmac.cpp wake.cpp whrlpool.cpp xed25519_32.cpp xed25519_64.cpp xtr.cpp \
-    xtrcrypt.cpp zdeflate.cpp zinflate.cpp zlib.cpp
+    vmac.cpp wake.cpp whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp \
+    zdeflate.cpp zinflate.cpp zlib.cpp
 
 LIB_OBJS = \
     cryptlib.obj cpu.obj integer.obj 3way.obj adler32.obj algebra.obj \
@@ -107,8 +107,8 @@ LIB_OBJS = \
     sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj speck64_simd.obj \
     square.obj squaretb.obj sse_simd.obj strciphr.obj tea.obj tftables.obj \
     threefish.obj tiger.obj tigertab.obj ttmac.obj tweetnacl.obj twofish.obj \
-    vmac.obj wake.obj whrlpool.obj xed25519_32.obj xed25519_64.obj xtr.obj \
-    xtrcrypt.obj zdeflate.obj zinflate.obj zlib.obj
+    vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj \
+    zdeflate.obj zinflate.obj zlib.obj
 
 TEST_SRCS = \
     test.cpp bench1.cpp bench2.cpp bench3.cpp datatest.cpp \

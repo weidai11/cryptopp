@@ -375,8 +375,7 @@ words.h
 x64dll.asm
 x64masm.asm
 xed25519.h
-xed25519_32.cpp
-xed25519_64.cpp
+xed25519.cpp
 xtr.cpp
 xtr.h
 xtrcrypt.cpp

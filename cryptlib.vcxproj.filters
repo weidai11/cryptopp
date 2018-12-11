@@ -491,10 +491,7 @@
     <ClCompile Include="whrlpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="xed25519_32.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="xed25519_64.cpp">
+    <ClCompile Include="xed25519.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="xtr.cpp">

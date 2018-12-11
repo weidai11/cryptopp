@@ -337,8 +337,7 @@
     <ClCompile Include="vmac.cpp" />
     <ClCompile Include="wake.cpp" />
     <ClCompile Include="whrlpool.cpp" />
-    <ClCompile Include="xed25519_32.cpp" />
-    <ClCompile Include="xed25519_64.cpp" />
+    <ClCompile Include="xed25519.cpp" />
     <ClCompile Include="xtr.cpp" />
     <ClCompile Include="xtrcrypt.cpp" />
     <ClCompile Include="zdeflate.cpp" />
