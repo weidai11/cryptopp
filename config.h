@@ -190,6 +190,7 @@
 ///   <ul>
 ///     <li>Name - namespace for names used with \p NameValuePairs and documented in argnames.h
 ///     <li>NaCl - namespace for NaCl library functions like crypto_box, crypto_box_open, crypto_sign, and crypto_sign_open
+///     <li>Donna - namespace for curve25519 library operations. The name was selected due to use of Adam Langley's curve25519-donna.
 ///     <li>Test - namespace for testing and benchmarks classes
 ///     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5 and Pananma
 ///   </ul>
