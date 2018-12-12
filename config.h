@@ -217,18 +217,6 @@ namespace CryptoPP { }
 #define DOCUMENTED_NAMESPACE_BEGIN(x) namespace x {
 #define DOCUMENTED_NAMESPACE_END }
 
-// What is the type of the third parameter to bind?
-// For Unix, the new standard is ::socklen_t (typically unsigned int), and the old standard is int.
-// Unfortunately there is no way to tell whether or not socklen_t is defined.
-// To work around this, TYPE_OF_SOCKLEN_T is a macro so that you can change it from the makefile.
-#ifndef TYPE_OF_SOCKLEN_T
-#	if defined(_WIN32) || defined(__CYGWIN__)
-#		define TYPE_OF_SOCKLEN_T int
-#	else
-#		define TYPE_OF_SOCKLEN_T ::socklen_t
-#	endif
-#endif
-
 // Originally in global namespace to avoid ambiguity with other byte typedefs.
 // Moved to Crypto++ namespace due to C++17, std::byte and potential compile problems. Also see
 // http://www.cryptopp.com/wiki/std::byte and http://github.com/weidai11/cryptopp/issues/442
