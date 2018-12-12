@@ -185,7 +185,7 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
 
     if (level >= 1 && is_clamped(m_sk) == 0)
         return false;
-    else if (level >= 2 && is_small_order(m_pk) != 0)
+    if (level >= 2 && is_small_order(m_pk) != 0)
         return false;
 
     return true;
