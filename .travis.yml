@@ -7,7 +7,6 @@ os:
 dist: xenial
 sudo: required
 
-# OS X only supports one image. Use the latest.
 osx_image: xcode10.1
 
 git:
@@ -40,14 +39,6 @@ matrix:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
-    # Skip UBsan due to GCC 4.8
-    - os: linux
-      compiler: gcc
-      env: BUILD_MODE="ubsan"
-    # Skip UBsan due to Clang 3.4
-    - os: osx
-      compiler: clang
-      env: BUILD_MODE="ubsan"
 
   include:
     - os: linux
