@@ -63,6 +63,11 @@ int is_small_order(const byte s[32])
   return (int) ((k >> 8) & 1);
 }
 
+int is_clamped(const byte s[32])
+{
+  return (s[0] & 248) == s[0] && (s[31] & 127) == s[31] && (s[31] | 64) == s[31];
+}
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -71,12 +76,18 @@ x25519::x25519(const byte y[32], const byte x[32])
 {
     std::memcpy(m_pk, y, 32);
     std::memcpy(m_sk, x, 32);
+
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 }
 
 x25519::x25519(const byte x[32])
 {
     std::memcpy(m_sk, x, 32);
     GeneratePublicKey(NullRNG(), m_sk, m_pk);
+
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 }
 
 x25519::x25519(const Integer &y, const Integer &x)
@@ -86,6 +97,9 @@ x25519::x25519(const Integer &y, const Integer &x)
 
     ArraySink xs(m_sk, 32);
     x.Encode(xs, 32);
+
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 }
 
 x25519::x25519(const Integer &x)
@@ -93,46 +107,72 @@ x25519::x25519(const Integer &x)
     ArraySink xs(m_sk, 32);
     x.Encode(xs, 32);
     GeneratePublicKey(NullRNG(), m_sk, m_pk);
+
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 }
 
 x25519::x25519(RandomNumberGenerator &rng)
 {
     GeneratePrivateKey(rng, m_sk);
     GeneratePublicKey(NullRNG(), m_sk, m_pk);
+
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 }
 
 x25519::x25519(BufferedTransformation &params)
 {
-    // TODO: Fix the on-disk format once we know what it is.
+    // TODO: Fix the on-disk format once we determine what it is.
     BERSequenceDecoder seq(params);
 
-      BERGeneralDecoder x(seq, BIT_STRING);
-      if (!x.IsDefiniteLength() || x.MaxRetrievable() < 32)
-        BERDecodeError();
-      x.Get(m_sk, 32);
-      x.MessageEnd();
+      size_t read; byte unused;
 
-      BERGeneralDecoder y(seq, OCTET_STRING);
-      if (!y.IsDefiniteLength() || y.MaxRetrievable() < 32)
-        BERDecodeError();
-      y.Get(m_pk, 32);
-      y.MessageEnd();
+      BERSequenceDecoder sk(seq, BIT_STRING);
+      read = sk.Get(unused);  // unused bits
+      CRYPTOPP_ASSERT(read == 1 && unused == 0);
+
+      CRYPTOPP_ASSERT(sk.MaxRetrievable() >= 32);
+      read = sk.Get(m_sk, 32);
+      sk.MessageEnd();
+
+      if (read != 32)
+          throw BERDecodeErr();
+
+      if (seq.EndReached())
+      {
+          GeneratePublicKey(NullRNG(), m_sk, m_pk);
+      }
+      else
+      {
+          BERSequenceDecoder pk(seq, OCTET_STRING);
+          CRYPTOPP_ASSERT(pk.MaxRetrievable() >= 32);
+          read = pk.Get(m_pk, 32);
+          pk.MessageEnd();
+
+          if (read != 32)
+              throw BERDecodeErr();
+      }
 
     seq.MessageEnd();
+
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 }
 
 void x25519::DEREncode(BufferedTransformation &params) const
 {
-    // TODO: Fix the on-disk format once we know what it is.
+    // TODO: Fix the on-disk format once we determine what it is.
     DERSequenceEncoder seq(params);
 
-      DERSequenceEncoder x(seq, BIT_STRING);
-      x.Put(m_sk, 32);
-      x.MessageEnd();
+      DERSequenceEncoder sk(seq, BIT_STRING);
+      sk.Put((byte)0);   // unused bits
+      sk.Put(m_sk, 32);
+      sk.MessageEnd();
 
-      DERSequenceEncoder y(seq, OCTET_STRING);
-      y.Put(m_pk, 32);
-      y.MessageEnd();
+      DERSequenceEncoder pk(seq, OCTET_STRING);
+      pk.Put(m_pk, 32);
+      pk.MessageEnd();
 
     seq.MessageEnd();
 }
@@ -140,8 +180,12 @@ void x25519::DEREncode(BufferedTransformation &params) const
 bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng);
+    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
+    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
 
-    if (level >= 2 && is_small_order(m_pk) != 0)
+    if (level >= 1 && is_clamped(m_sk) == 0)
+        return false;
+    else if (level >= 2 && is_small_order(m_pk) != 0)
         return false;
 
     return true;
