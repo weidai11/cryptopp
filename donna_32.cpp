@@ -315,15 +315,15 @@ void freduce_degree(limb *output)
 inline limb div_by_2_26(const limb v)
 {
   /* High word of v; no shift needed. */
-  const uint32_t highword = (uint32_t) (((uint64_t) v) >> 32);
+  const word32 highword = (word32) (((word64) v) >> 32);
 
   // Modified for SunCC. See comments for SignExtexnd function.
   /* Set to all 1s if v was negative; else set to 0s. */
-  /* const int32_t sign = ((int32_t) highword) >> 31; */
-  const int32_t sign = SignExtend(highword);
+  /* const sword32 sign = ((sword32) highword) >> 31; */
+  const sword32 sign = SignExtend(highword);
 
   /* Set to 0x3ffffff if v was negative; else set to 0. */
-  const int32_t roundoff = ((uint32_t) sign) >> 6;
+  const sword32 roundoff = ((word32) sign) >> 6;
   /* Should return v / (1<<26) */
   return (v + roundoff) >> 26;
 }
@@ -334,15 +334,15 @@ inline limb div_by_2_26(const limb v)
 inline limb div_by_2_25(const limb v)
 {
   /* High word of v; no shift needed*/
-  const uint32_t highword = (uint32_t) (((uint64_t) v) >> 32);
+  const word32 highword = (word32) (((word64) v) >> 32);
 
   // Modified for SunCC. See comments for SignExtexnd function.
   /* Set to all 1s if v was negative; else set to 0s. */
-  /* const int32_t sign = ((int32_t) highword) >> 31; */
-  const int32_t sign = SignExtend(highword);
+  /* const sword32 sign = ((sword32) highword) >> 31; */
+  const sword32 sign = SignExtend(highword);
 
   /* Set to 0x1ffffff if v was negative; else set to 0. */
-  const int32_t roundoff = ((uint32_t) sign) >> 7;
+  const sword32 roundoff = ((word32) sign) >> 7;
   /* Should return v / (1<<25) */
   return (v + roundoff) >> 25;
 }
