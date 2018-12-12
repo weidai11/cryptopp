@@ -168,7 +168,6 @@ bool ValidateDSA(bool thorough)
 	DSA::Verifier pub1(fs2);
 	CRYPTOPP_ASSERT(pub.GetKey() == pub1.GetKey());
 	pass = SignatureValidate(priv, pub, thorough) && pass;
-	pass = RunTestDataFile("TestVectors/dsa.txt", g_nullNameValuePairs, thorough) && pass;
 
 	return pass;
 }
