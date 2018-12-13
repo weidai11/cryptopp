@@ -485,7 +485,7 @@ NAMESPACE_BEGIN(Donna)
 
 int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-  limb bp[10], x[10], z[11], zmone[10];
+  limb bp[5], x[5], z[5], zmone[5];
   byte e[32];
 
   for (unsigned int i = 0; i < 32; ++i)
