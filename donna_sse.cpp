@@ -1,11 +1,11 @@
 // donna_sse.cpp - written and placed in public domain by Jeffrey Walton
-//                 This is a port of Andrew Moon's public domain code.
+//                 This is an integration of Andrew Moon's public domain code.
 //                 Also see curve25519-donna-sse2.h.
 
-// This is a port of Andrew Moon's public domain code. The port was clean,
-// but it has one potential problem. The original code is C and relies upon
-// unions. Accessing the inactive union member is undefined behavior in C++.
-// That means copying the array into packedelem8.u is OK; but then using
+// This is a integration of Andrew Moon's public domain code. The port was
+// clean, but it has one potential problem. The original code is C and relies
+// upon unions. Accessing the inactive union member is undefined behavior in
+// C++. That means copying the array into packedelem8.u is OK; but then using
 // packedelem8.v in a calcualtion is undefined behavior. We will have to
 // keep an eye on things or rewrite significant portions of this code.
 
