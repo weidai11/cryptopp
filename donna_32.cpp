@@ -42,6 +42,7 @@ typedef word32 bignum25519align16[12];
 
 #define mul32x32_64(a,b) (((word64)(a))*(b))
 
+const byte basePoint[32] = {9};
 const word32 reduce_mask_25 = (1 << 25) - 1;
 const word32 reduce_mask_26 = (1 << 26) - 1;
 
@@ -354,7 +355,7 @@ curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
 void
-curve25519_expand(bignum25519 out, const unsigned char in[32]) {
+curve25519_expand(bignum25519 out, const byte in[32]) {
     word32 x0,x1,x2,x3,x4,x5,x6,x7;
 
     GetBlock<word32, LittleEndian> block(in);
@@ -376,7 +377,7 @@ curve25519_expand(bignum25519 out, const unsigned char in[32]) {
  * little-endian, 32-byte array
  */
 void
-curve25519_contract(unsigned char out[32], const bignum25519 in) {
+curve25519_contract(byte out[32], const bignum25519 in) {
     bignum25519 f;
     curve25519_copy(f, in);
 
@@ -436,10 +437,10 @@ curve25519_contract(unsigned char out[32], const bignum25519 in) {
     f[9] <<= 6;
 
     #define F(i, s) \
-        out[s+0] |= (unsigned char )(f[i] & 0xff); \
-        out[s+1] = (unsigned char )((f[i] >> 8) & 0xff); \
-        out[s+2] = (unsigned char )((f[i] >> 16) & 0xff); \
-        out[s+3] = (unsigned char )((f[i] >> 24) & 0xff);
+        out[s+0] |= (byte)(f[i] & 0xff); \
+        out[s+1]  = (byte)((f[i] >>  8) & 0xff); \
+        out[s+2]  = (byte)((f[i] >> 16) & 0xff); \
+        out[s+3]  = (byte)((f[i] >> 24) & 0xff);
 
     out[0] = 0;
     out[16] = 0;
@@ -475,8 +476,6 @@ int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othe
 
 int curve25519(byte publicKey[32], const byte secretKey[32])
 {
-    const byte basePoint[32] = {9};
-
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
     if (HasSSE2())
         return curve25519_SSE2(publicKey, secretKey, basePoint);

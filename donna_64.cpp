@@ -49,6 +49,7 @@ typedef word64 bignum25519[5];
 #define shr128(out,in,shift) out = (word64)(in >> (shift));
 #define shl128(out,in,shift) out = (word64)((in << shift) >> 64);
 
+const byte basePoint[32] = {9};
 const word64 reduce_mask_40 = ((word64)1 << 40) - 1;
 const word64 reduce_mask_51 = ((word64)1 << 51) - 1;
 const word64 reduce_mask_56 = ((word64)1 << 56) - 1;
@@ -183,7 +184,6 @@ curve25519_mul(bignum25519 out, const bignum25519 in2, const bignum25519 in) {
     mul64x64_128(mul, r4, s4) add128(t[3], mul)
 #endif
 
-
                          r0 = lo128(t[0]) & reduce_mask_51; shr128(c, t[0], 51);
     add128_64(t[1], c)   r1 = lo128(t[1]) & reduce_mask_51; shr128(c, t[1], 51);
     add128_64(t[2], c)   r2 = lo128(t[2]) & reduce_mask_51; shr128(c, t[2], 51);
@@ -292,7 +292,7 @@ curve25519_square(bignum25519 out, const bignum25519 in) {
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
 inline void
-curve25519_expand(bignum25519 out, const unsigned char *in) {
+curve25519_expand(bignum25519 out, const byte *in) {
     word64 x0,x1,x2,x3;
 
     GetBlock<word64, LittleEndian> block(in);
@@ -309,7 +309,7 @@ curve25519_expand(bignum25519 out, const unsigned char *in) {
  * little-endian, 32-byte array
  */
 inline void
-curve25519_contract(unsigned char *out, const bignum25519 input) {
+curve25519_contract(byte *out, const bignum25519 input) {
     word64 t[5];
     word64 f, i;
 
@@ -348,7 +348,7 @@ curve25519_contract(unsigned char *out, const bignum25519 input) {
 
     #define write51full(n,shift) \
         f = ((t[n] >> shift) | (t[n+1] << (51 - shift))); \
-        for (i = 0; i < 8; i++, f >>= 8) *out++ = (unsigned char)f;
+        for (i = 0; i < 8; i++, f >>= 8) *out++ = (byte)f;
     #define write51(n) write51full(n,13*n)
     write51(0)
     write51(1)
@@ -375,8 +375,6 @@ int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othe
 
 int curve25519(byte publicKey[32], const byte secretKey[32])
 {
-  const byte basePoint[32] = {9};
-
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
     if (HasSSE2())
         return curve25519_SSE2(publicKey, secretKey, basePoint);

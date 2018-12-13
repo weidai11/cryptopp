@@ -33,8 +33,11 @@ using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::word64;
 
+using CryptoPP::GetBlock;
+using CryptoPP::LittleEndian;
+
 typedef union packedelem8_t {
-    unsigned char u[16];
+    byte u[16];
     xmmi v;
 } packedelem8;
 
@@ -945,28 +948,22 @@ curve25519_square_packed64(packedelem64 *out, const packedelem64 *r) {
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
 void
-curve25519_expand(bignum25519 out, const unsigned char in[32]) {
+curve25519_expand(bignum25519 out, const byte in[32]) {
     word32 x0,x1,x2,x3,x4,x5,x6,x7;
 
-    x0 = *(word32 *)(in + 0);
-    x1 = *(word32 *)(in + 4);
-    x2 = *(word32 *)(in + 8);
-    x3 = *(word32 *)(in + 12);
-    x4 = *(word32 *)(in + 16);
-    x5 = *(word32 *)(in + 20);
-    x6 = *(word32 *)(in + 24);
-    x7 = *(word32 *)(in + 28);
+    GetBlock<word32, LittleEndian> block(in);
+    block(x0)(x1)(x2)(x3)(x4)(x5)(x6)(x7);
 
-    out[0] = (                        x0       ) & 0x3ffffff;
+    out[0] = (                      x0       ) & 0x3ffffff;
     out[1] = ((((word64)x1 << 32) | x0) >> 26) & 0x1ffffff;
     out[2] = ((((word64)x2 << 32) | x1) >> 19) & 0x3ffffff;
     out[3] = ((((word64)x3 << 32) | x2) >> 13) & 0x1ffffff;
-    out[4] = ((                       x3) >>  6) & 0x3ffffff;
-    out[5] = (                        x4       ) & 0x1ffffff;
+    out[4] = ((                     x3) >>  6) & 0x3ffffff;
+    out[5] = (                      x4       ) & 0x1ffffff;
     out[6] = ((((word64)x5 << 32) | x4) >> 25) & 0x3ffffff;
     out[7] = ((((word64)x6 << 32) | x5) >> 19) & 0x1ffffff;
     out[8] = ((((word64)x7 << 32) | x6) >> 12) & 0x3ffffff;
-    out[9] = ((                       x7) >>  6) & 0x1ffffff;
+    out[9] = ((                     x7) >>  6) & 0x1ffffff;
     out[10] = 0;
     out[11] = 0;
 }
@@ -975,7 +972,7 @@ curve25519_expand(bignum25519 out, const unsigned char in[32]) {
  * little-endian, 32-byte array
  */
 void
-curve25519_contract(unsigned char out[32], const bignum25519 in) {
+curve25519_contract(byte out[32], const bignum25519 in) {
     ALIGN(16) bignum25519 f;
     curve25519_copy(f, in);
 
@@ -1035,10 +1032,10 @@ curve25519_contract(unsigned char out[32], const bignum25519 in) {
     f[9] <<= 6;
 
     #define F(i, s) \
-        out[s+0] |= (unsigned char )(f[i] & 0xff); \
-        out[s+1] = (unsigned char )((f[i] >> 8) & 0xff); \
-        out[s+2] = (unsigned char )((f[i] >> 16) & 0xff); \
-        out[s+3] = (unsigned char )((f[i] >> 24) & 0xff);
+        out[s+0] |= (byte)(f[i] & 0xff); \
+        out[s+1]  = (byte)((f[i] >>  8) & 0xff); \
+        out[s+2]  = (byte)((f[i] >> 16) & 0xff); \
+        out[s+3]  = (byte)((f[i] >> 24) & 0xff);
 
     out[0] = 0;
     out[16] = 0;
@@ -1053,85 +1050,6 @@ curve25519_contract(unsigned char out[32], const bignum25519 in) {
     F(8,25);
     F(9,28);
     #undef F
-}
-
-/* if (iswap) swap(a, b) */
-inline void
-curve25519_swap_conditional(bignum25519 a, bignum25519 b, word32 iswap) {
-    const word32 swap = (word32)(-(int32_t)iswap);
-    xmmi a0,a1,a2,b0,b1,b2,x0,x1,x2;
-    xmmi mask = _mm_cvtsi32_si128(swap);
-    mask = _mm_shuffle_epi32(mask, 0);
-    a0 = _mm_load_si128((xmmi *)a + 0);
-    a1 = _mm_load_si128((xmmi *)a + 1);
-    b0 = _mm_load_si128((xmmi *)b + 0);
-    b1 = _mm_load_si128((xmmi *)b + 1);
-    b0 = _mm_xor_si128(a0, b0);
-    b1 = _mm_xor_si128(a1, b1);
-    x0 = _mm_and_si128(b0, mask);
-    x1 = _mm_and_si128(b1, mask);
-    x0 = _mm_xor_si128(x0, a0);
-    x1 = _mm_xor_si128(x1, a1);
-    a0 = _mm_xor_si128(x0, b0);
-    a1 = _mm_xor_si128(x1, b1);
-    _mm_store_si128((xmmi *)a + 0, x0);
-    _mm_store_si128((xmmi *)a + 1, x1);
-    _mm_store_si128((xmmi *)b + 0, a0);
-    _mm_store_si128((xmmi *)b + 1, a1);
-
-    a2 = _mm_load_si128((xmmi *)a + 2);
-    b2 = _mm_load_si128((xmmi *)b + 2);
-    b2 = _mm_xor_si128(a2, b2);
-    x2 = _mm_and_si128(b2, mask);
-    x2 = _mm_xor_si128(x2, a2);
-    a2 = _mm_xor_si128(x2, b2);
-    _mm_store_si128((xmmi *)b + 2, a2);
-    _mm_store_si128((xmmi *)a + 2, x2);
-}
-
-/* out = (flag) ? out : in */
-inline void
-curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag) {
-    xmmi a0,a1,a2,a3,a4,a5,b0,b1,b2,b3,b4,b5;
-    const word32 nb = flag - 1;
-    xmmi masknb = _mm_shuffle_epi32(_mm_cvtsi32_si128(nb),0);
-    a0 = _mm_load_si128((xmmi *)in + 0);
-    a1 = _mm_load_si128((xmmi *)in + 1);
-    a2 = _mm_load_si128((xmmi *)in + 2);
-    b0 = _mm_load_si128((xmmi *)out + 0);
-    b1 = _mm_load_si128((xmmi *)out + 1);
-    b2 = _mm_load_si128((xmmi *)out + 2);
-    a0 = _mm_andnot_si128(masknb, a0);
-    a1 = _mm_andnot_si128(masknb, a1);
-    a2 = _mm_andnot_si128(masknb, a2);
-    b0 = _mm_and_si128(masknb, b0);
-    b1 = _mm_and_si128(masknb, b1);
-    b2 = _mm_and_si128(masknb, b2);
-    a0 = _mm_or_si128(a0, b0);
-    a1 = _mm_or_si128(a1, b1);
-    a2 = _mm_or_si128(a2, b2);
-    _mm_store_si128((xmmi*)out + 0, a0);
-    _mm_store_si128((xmmi*)out + 1, a1);
-    _mm_store_si128((xmmi*)out + 2, a2);
-
-    a3 = _mm_load_si128((xmmi *)in + 3);
-    a4 = _mm_load_si128((xmmi *)in + 4);
-    a5 = _mm_load_si128((xmmi *)in + 5);
-    b3 = _mm_load_si128((xmmi *)out + 3);
-    b4 = _mm_load_si128((xmmi *)out + 4);
-    b5 = _mm_load_si128((xmmi *)out + 5);
-    a3 = _mm_andnot_si128(masknb, a3);
-    a4 = _mm_andnot_si128(masknb, a4);
-    a5 = _mm_andnot_si128(masknb, a5);
-    b3 = _mm_and_si128(masknb, b3);
-    b4 = _mm_and_si128(masknb, b4);
-    b5 = _mm_and_si128(masknb, b5);
-    a3 = _mm_or_si128(a3, b3);
-    a4 = _mm_or_si128(a4, b4);
-    a5 = _mm_or_si128(a5, b5);
-    _mm_store_si128((xmmi*)out + 3, a3);
-    _mm_store_si128((xmmi*)out + 4, a4);
-    _mm_store_si128((xmmi*)out + 5, a5);
 }
 
 ANONYMOUS_NAMESPACE_END
