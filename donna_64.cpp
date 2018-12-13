@@ -1,66 +1,18 @@
 // donna_64.cpp - written and placed in public domain by Jeffrey Walton
-//                This is a port of Adam Langley's curve25519-donna
-//                located at https://github.com/agl/curve25519-donna
-
-/* Copyright 2008, Google Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * curve25519-donna: Curve25519 elliptic curve, public key function
- *
- * http://code.google.com/p/curve25519-donna/
- *
- * Adam Langley <agl@imperialviolet.org>
- *
- * Derived from public domain C code by Daniel J. Bernstein <djb@cr.yp.to>
- *
- * More information about curve25519 can be found here
- *   http://cr.yp.to/ecdh.html
- *
- * djb's sample implementation of curve25519 is written in a special assembly
- * language called qhasm and uses the floating point registers.
- *
- * This is, almost, a clean room reimplementation from the curve25519 paper. It
- * uses many of the tricks described therein. Only the crecip function is taken
- * from the sample implementation. */
+//                This is a integration of Andrew Moon's public domain code.
+//                Also see curve25519-donna-64bit.h.
 
 #include "pch.h"
 
 #include "config.h"
 #include "donna.h"
 #include "stdcpp.h"
+#include "misc.h"
 #include "cpu.h"
 
-// This macro is not in a header like config.h because
-// we don't want it exposed to user code. We also need
-// a standard header like <stdint.h> or <stdef.h>.
-// Langley uses uint128_t in the 64-bit code paths so
-// we further restrict 64-bit code.
+// This macro is not in a header like config.h because we don't want it
+// exposed to user code. We also need a standard header like <stdint.h>
+// or <stdef.h>.
 #if (UINTPTR_MAX == 0xffffffff) || !defined(CRYPTOPP_WORD128_AVAILABLE)
 # define CRYPTOPP_32BIT 1
 #else
@@ -77,405 +29,331 @@ ANONYMOUS_NAMESPACE_BEGIN
 using std::memcpy;
 using CryptoPP::byte;
 using CryptoPP::word32;
-using CryptoPP::word64;
 using CryptoPP::sword32;
+using CryptoPP::word64;
 using CryptoPP::sword64;
 using CryptoPP::word128;
 
-typedef word64 limb;
-typedef limb felem[5];
+using CryptoPP::GetBlock;
+using CryptoPP::BigEndian;
+using CryptoPP::LittleEndian;
 
-// This is a special gcc mode for 128-bit integers. It's implemented on 64-bit
-// platforms only as far as I know.
-//typedef unsigned uint128_t __attribute__((mode(TI)));
+typedef word64 bignum25519[5];
 
-/* Sum two numbers: output += in */
-inline void fsum(limb *output, const limb *in)
-{
-  output[0] += in[0];
-  output[1] += in[1];
-  output[2] += in[2];
-  output[3] += in[3];
-  output[4] += in[4];
+#define lo128(a) ((word64)a)
+#define hi128(a) ((word64)(a >> 64))
+
+#define add128(a,b) a += b;
+#define add128_64(a,b) a += (word64)b;
+#define mul64x64_128(out,a,b) out = (word128)a * b;
+#define shr128(out,in,shift) out = (word64)(in >> (shift));
+#define shl128(out,in,shift) out = (word64)((in << shift) >> 64);
+
+const word64 reduce_mask_40 = ((word64)1 << 40) - 1;
+const word64 reduce_mask_51 = ((word64)1 << 51) - 1;
+const word64 reduce_mask_56 = ((word64)1 << 56) - 1;
+
+/* out = in */
+inline void
+curve25519_copy(bignum25519 out, const bignum25519 in) {
+    out[0] = in[0];
+    out[1] = in[1];
+    out[2] = in[2];
+    out[3] = in[3];
+    out[4] = in[4];
 }
 
-/* Find the difference of two numbers: output = in - output
- * (note the order of the arguments!)
- *
- * Assumes that out[i] < 2**52
- * On return, out[i] < 2**55
- */
-inline void fdifference_backwards(felem out, const felem in)
-{
-  /* 152 is 19 << 3 */
-  const limb two54m152 = (((limb)1) << 54) - 152;
-  const limb two54m8 = (((limb)1) << 54) - 8;
-
-  out[0] = in[0] + two54m152 - out[0];
-  out[1] = in[1] + two54m8 - out[1];
-  out[2] = in[2] + two54m8 - out[2];
-  out[3] = in[3] + two54m8 - out[3];
-  out[4] = in[4] + two54m8 - out[4];
+/* out = a + b */
+inline void
+curve25519_add(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+    out[3] = a[3] + b[3];
+    out[4] = a[4] + b[4];
 }
 
-/* Multiply a number by a scalar: output = in * scalar */
-inline void fscalar_product(felem output, const felem in, const limb scalar)
-{
-  word128 a;
-
-  a = ((word128) in[0]) * scalar;
-  output[0] = ((limb)a) & 0x7ffffffffffff;
-
-  a = ((word128) in[1]) * scalar + ((limb) (a >> 51));
-  output[1] = ((limb)a) & 0x7ffffffffffff;
-
-  a = ((word128) in[2]) * scalar + ((limb) (a >> 51));
-  output[2] = ((limb)a) & 0x7ffffffffffff;
-
-  a = ((word128) in[3]) * scalar + ((limb) (a >> 51));
-  output[3] = ((limb)a) & 0x7ffffffffffff;
-
-  a = ((word128) in[4]) * scalar + ((limb) (a >> 51));
-  output[4] = ((limb)a) & 0x7ffffffffffff;
-
-  output[0] += (a >> 51) * 19;
+/* out = a + b, where a and/or b are the result of a basic op (add,sub) */
+inline void
+curve25519_add_after_basic(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    out[0] = a[0] + b[0];
+    out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2];
+    out[3] = a[3] + b[3];
+    out[4] = a[4] + b[4];
 }
 
-/* Multiply two numbers: output = in2 * in
- *
- * output must be distinct to both inputs. The inputs are reduced coefficient
- * form, the output is not.
- *
- * Assumes that in[i] < 2**55 and likewise for in2.
- * On return, output[i] < 2**52
- */
-inline void fmul(felem output, const felem in2, const felem in)
-{
-  word128 t[5];
-  limb r0,r1,r2,r3,r4,s0,s1,s2,s3,s4,c;
-
-  r0 = in[0];
-  r1 = in[1];
-  r2 = in[2];
-  r3 = in[3];
-  r4 = in[4];
-
-  s0 = in2[0];
-  s1 = in2[1];
-  s2 = in2[2];
-  s3 = in2[3];
-  s4 = in2[4];
-
-  t[0]  =  ((word128) r0) * s0;
-  t[1]  =  ((word128) r0) * s1 + ((word128) r1) * s0;
-  t[2]  =  ((word128) r0) * s2 + ((word128) r2) * s0 + ((word128) r1) * s1;
-  t[3]  =  ((word128) r0) * s3 + ((word128) r3) * s0 + ((word128) r1) * s2 + ((word128) r2) * s1;
-  t[4]  =  ((word128) r0) * s4 + ((word128) r4) * s0 + ((word128) r3) * s1 + ((word128) r1) * s3 + ((word128) r2) * s2;
-
-  r4 *= 19;
-  r1 *= 19;
-  r2 *= 19;
-  r3 *= 19;
-
-  t[0] += ((word128) r4) * s1 + ((word128) r1) * s4 + ((word128) r2) * s3 + ((word128) r3) * s2;
-  t[1] += ((word128) r4) * s2 + ((word128) r2) * s4 + ((word128) r3) * s3;
-  t[2] += ((word128) r4) * s3 + ((word128) r3) * s4;
-  t[3] += ((word128) r4) * s4;
-
-                  r0 = (limb)t[0] & 0x7ffffffffffff; c = (limb)(t[0] >> 51);
-  t[1] += c;      r1 = (limb)t[1] & 0x7ffffffffffff; c = (limb)(t[1] >> 51);
-  t[2] += c;      r2 = (limb)t[2] & 0x7ffffffffffff; c = (limb)(t[2] >> 51);
-  t[3] += c;      r3 = (limb)t[3] & 0x7ffffffffffff; c = (limb)(t[3] >> 51);
-  t[4] += c;      r4 = (limb)t[4] & 0x7ffffffffffff; c = (limb)(t[4] >> 51);
-  r0 +=   c * 19; c = r0 >> 51; r0 = r0 & 0x7ffffffffffff;
-  r1 +=   c;      c = r1 >> 51; r1 = r1 & 0x7ffffffffffff;
-  r2 +=   c;
-
-  output[0] = r0;
-  output[1] = r1;
-  output[2] = r2;
-  output[3] = r3;
-  output[4] = r4;
+inline void
+curve25519_add_reduce(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word64 c;
+    out[0] = a[0] + b[0]    ; c = (out[0] >> 51); out[0] &= reduce_mask_51;
+    out[1] = a[1] + b[1] + c; c = (out[1] >> 51); out[1] &= reduce_mask_51;
+    out[2] = a[2] + b[2] + c; c = (out[2] >> 51); out[2] &= reduce_mask_51;
+    out[3] = a[3] + b[3] + c; c = (out[3] >> 51); out[3] &= reduce_mask_51;
+    out[4] = a[4] + b[4] + c; c = (out[4] >> 51); out[4] &= reduce_mask_51;
+    out[0] += c * 19;
 }
 
-inline void fsquare_times(felem output, const felem in, limb count)
-{
-  word128 t[5];
-  limb r0,r1,r2,r3,r4,c;
-  limb d0,d1,d2,d4,d419;
+/* multiples of p */
+const word64 twoP0      = 0x0fffffffffffda;
+const word64 twoP1234   = 0x0ffffffffffffe;
+const word64 fourP0     = 0x1fffffffffffb4;
+const word64 fourP1234  = 0x1ffffffffffffc;
 
-  r0 = in[0];
-  r1 = in[1];
-  r2 = in[2];
-  r3 = in[3];
-  r4 = in[4];
+/* out = a - b */
+inline void
+curve25519_sub(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    out[0] = a[0] + twoP0    - b[0];
+    out[1] = a[1] + twoP1234 - b[1];
+    out[2] = a[2] + twoP1234 - b[2];
+    out[3] = a[3] + twoP1234 - b[3];
+    out[4] = a[4] + twoP1234 - b[4];
+}
 
-  do {
-    d0 = r0 * 2;
-    d1 = r1 * 2;
+/* out = a - b, where a and/or b are the result of a basic op (add,sub) */
+inline void
+curve25519_sub_after_basic(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    out[0] = a[0] + fourP0    - b[0];
+    out[1] = a[1] + fourP1234 - b[1];
+    out[2] = a[2] + fourP1234 - b[2];
+    out[3] = a[3] + fourP1234 - b[3];
+    out[4] = a[4] + fourP1234 - b[4];
+}
+
+inline void
+curve25519_sub_reduce(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word64 c;
+    out[0] = a[0] + fourP0    - b[0]    ; c = (out[0] >> 51); out[0] &= reduce_mask_51;
+    out[1] = a[1] + fourP1234 - b[1] + c; c = (out[1] >> 51); out[1] &= reduce_mask_51;
+    out[2] = a[2] + fourP1234 - b[2] + c; c = (out[2] >> 51); out[2] &= reduce_mask_51;
+    out[3] = a[3] + fourP1234 - b[3] + c; c = (out[3] >> 51); out[3] &= reduce_mask_51;
+    out[4] = a[4] + fourP1234 - b[4] + c; c = (out[4] >> 51); out[4] &= reduce_mask_51;
+    out[0] += c * 19;
+}
+
+/* out = -a */
+inline void
+curve25519_neg(bignum25519 out, const bignum25519 a) {
+    word64 c;
+    out[0] = twoP0    - a[0]    ; c = (out[0] >> 51); out[0] &= reduce_mask_51;
+    out[1] = twoP1234 - a[1] + c; c = (out[1] >> 51); out[1] &= reduce_mask_51;
+    out[2] = twoP1234 - a[2] + c; c = (out[2] >> 51); out[2] &= reduce_mask_51;
+    out[3] = twoP1234 - a[3] + c; c = (out[3] >> 51); out[3] &= reduce_mask_51;
+    out[4] = twoP1234 - a[4] + c; c = (out[4] >> 51); out[4] &= reduce_mask_51;
+    out[0] += c * 19;
+}
+
+/* out = a * b */
+inline void
+curve25519_mul(bignum25519 out, const bignum25519 in2, const bignum25519 in) {
+#if !defined(CRYPTOPP_WORD128_AVAILABLE)
+    word128 mul;
+#endif
+    word128 t[5];
+    word64 r0,r1,r2,r3,r4,s0,s1,s2,s3,s4,c;
+
+    r0 = in[0]; r1 = in[1]; r2 = in[2]; r3 = in[3]; r4 = in[4];
+    s0 = in2[0]; s1 = in2[1]; s2 = in2[2]; s3 = in2[3]; s4 = in2[4];
+
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+    t[0]  =  ((word128) r0) * s0;
+    t[1]  =  ((word128) r0) * s1 + ((word128) r1) * s0;
+    t[2]  =  ((word128) r0) * s2 + ((word128) r2) * s0 + ((word128) r1) * s1;
+    t[3]  =  ((word128) r0) * s3 + ((word128) r3) * s0 + ((word128) r1) * s2 + ((word128) r2) * s1;
+    t[4]  =  ((word128) r0) * s4 + ((word128) r4) * s0 + ((word128) r3) * s1 + ((word128) r1) * s3 + ((word128) r2) * s2;
+#else
+    mul64x64_128(t[0], r0, s0)
+    mul64x64_128(t[1], r0, s1) mul64x64_128(mul, r1, s0) add128(t[1], mul)
+    mul64x64_128(t[2], r0, s2) mul64x64_128(mul, r2, s0) add128(t[2], mul) mul64x64_128(mul, r1, s1) add128(t[2], mul)
+    mul64x64_128(t[3], r0, s3) mul64x64_128(mul, r3, s0) add128(t[3], mul) mul64x64_128(mul, r1, s2) add128(t[3], mul) mul64x64_128(mul, r2, s1) add128(t[3], mul)
+    mul64x64_128(t[4], r0, s4) mul64x64_128(mul, r4, s0) add128(t[4], mul) mul64x64_128(mul, r3, s1) add128(t[4], mul) mul64x64_128(mul, r1, s3) add128(t[4], mul) mul64x64_128(mul, r2, s2) add128(t[4], mul)
+#endif
+
+    r1 *= 19; r2 *= 19; r3 *= 19; r4 *= 19;
+
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+    t[0] += ((word128) r4) * s1 + ((word128) r1) * s4 + ((word128) r2) * s3 + ((word128) r3) * s2;
+    t[1] += ((word128) r4) * s2 + ((word128) r2) * s4 + ((word128) r3) * s3;
+    t[2] += ((word128) r4) * s3 + ((word128) r3) * s4;
+    t[3] += ((word128) r4) * s4;
+#else
+    mul64x64_128(mul, r4, s1) add128(t[0], mul) mul64x64_128(mul, r1, s4) add128(t[0], mul) mul64x64_128(mul, r2, s3) add128(t[0], mul) mul64x64_128(mul, r3, s2) add128(t[0], mul)
+    mul64x64_128(mul, r4, s2) add128(t[1], mul) mul64x64_128(mul, r2, s4) add128(t[1], mul) mul64x64_128(mul, r3, s3) add128(t[1], mul)
+    mul64x64_128(mul, r4, s3) add128(t[2], mul) mul64x64_128(mul, r3, s4) add128(t[2], mul)
+    mul64x64_128(mul, r4, s4) add128(t[3], mul)
+#endif
+
+
+                         r0 = lo128(t[0]) & reduce_mask_51; shr128(c, t[0], 51);
+    add128_64(t[1], c)   r1 = lo128(t[1]) & reduce_mask_51; shr128(c, t[1], 51);
+    add128_64(t[2], c)   r2 = lo128(t[2]) & reduce_mask_51; shr128(c, t[2], 51);
+    add128_64(t[3], c)   r3 = lo128(t[3]) & reduce_mask_51; shr128(c, t[3], 51);
+    add128_64(t[4], c)   r4 = lo128(t[4]) & reduce_mask_51; shr128(c, t[4], 51);
+    r0 +=   c * 19; c = r0 >> 51; r0 = r0 & reduce_mask_51;
+    r1 +=   c;
+
+    out[0] = r0; out[1] = r1; out[2] = r2; out[3] = r3; out[4] = r4;
+}
+
+ void
+curve25519_mul_noinline(bignum25519 out, const bignum25519 in2, const bignum25519 in) {
+    curve25519_mul(out, in2, in);
+}
+
+/* out = in^(2 * count) */
+ void
+curve25519_square_times(bignum25519 out, const bignum25519 in, word64 count) {
+#if !defined(CRYPTOPP_WORD128_AVAILABLE)
+    word128 mul;
+#endif
+    word128 t[5];
+    word64 r0,r1,r2,r3,r4,c;
+    word64 d0,d1,d2,d4,d419;
+
+    r0 = in[0]; r1 = in[1]; r2 = in[2]; r3 = in[3]; r4 = in[4];
+
+    do {
+        d0 = r0 * 2; d1 = r1 * 2;
+        d2 = r2 * 2 * 19;
+        d419 = r4 * 19;
+        d4 = d419 * 2;
+
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+        t[0] = ((word128) r0) * r0 + ((word128) d4) * r1 + (((word128) d2) * (r3     ));
+        t[1] = ((word128) d0) * r1 + ((word128) d4) * r2 + (((word128) r3) * (r3 * 19));
+        t[2] = ((word128) d0) * r2 + ((word128) r1) * r1 + (((word128) d4) * (r3     ));
+        t[3] = ((word128) d0) * r3 + ((word128) d1) * r2 + (((word128) r4) * (d419   ));
+        t[4] = ((word128) d0) * r4 + ((word128) d1) * r3 + (((word128) r2) * (r2     ));
+#else
+        mul64x64_128(t[0], r0, r0) mul64x64_128(mul, d4, r1) add128(t[0], mul) mul64x64_128(mul, d2,      r3) add128(t[0], mul)
+        mul64x64_128(t[1], d0, r1) mul64x64_128(mul, d4, r2) add128(t[1], mul) mul64x64_128(mul, r3, r3 * 19) add128(t[1], mul)
+        mul64x64_128(t[2], d0, r2) mul64x64_128(mul, r1, r1) add128(t[2], mul) mul64x64_128(mul, d4,      r3) add128(t[2], mul)
+        mul64x64_128(t[3], d0, r3) mul64x64_128(mul, d1, r2) add128(t[3], mul) mul64x64_128(mul, r4,    d419) add128(t[3], mul)
+        mul64x64_128(t[4], d0, r4) mul64x64_128(mul, d1, r3) add128(t[4], mul) mul64x64_128(mul, r2,      r2) add128(t[4], mul)
+#endif
+
+        r0 = lo128(t[0]) & reduce_mask_51;
+        r1 = lo128(t[1]) & reduce_mask_51; shl128(c, t[0], 13); r1 += c;
+        r2 = lo128(t[2]) & reduce_mask_51; shl128(c, t[1], 13); r2 += c;
+        r3 = lo128(t[3]) & reduce_mask_51; shl128(c, t[2], 13); r3 += c;
+        r4 = lo128(t[4]) & reduce_mask_51; shl128(c, t[3], 13); r4 += c;
+                                           shl128(c, t[4], 13); r0 += c * 19;
+                       c = r0 >> 51; r0 &= reduce_mask_51;
+        r1 += c     ;  c = r1 >> 51; r1 &= reduce_mask_51;
+        r2 += c     ;  c = r2 >> 51; r2 &= reduce_mask_51;
+        r3 += c     ;  c = r3 >> 51; r3 &= reduce_mask_51;
+        r4 += c     ;  c = r4 >> 51; r4 &= reduce_mask_51;
+        r0 += c * 19;
+    } while(--count);
+
+    out[0] = r0; out[1] = r1; out[2] = r2; out[3] = r3; out[4] = r4;
+}
+
+inline void
+curve25519_square(bignum25519 out, const bignum25519 in) {
+#if !defined(CRYPTOPP_WORD128_AVAILABLE)
+    word128 mul;
+#endif
+    word128 t[5];
+    word64 r0,r1,r2,r3,r4,c;
+    word64 d0,d1,d2,d4,d419;
+
+    r0 = in[0]; r1 = in[1]; r2 = in[2]; r3 = in[3]; r4 = in[4];
+
+    d0 = r0 * 2; d1 = r1 * 2;
     d2 = r2 * 2 * 19;
     d419 = r4 * 19;
     d4 = d419 * 2;
 
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
     t[0] = ((word128) r0) * r0 + ((word128) d4) * r1 + (((word128) d2) * (r3     ));
     t[1] = ((word128) d0) * r1 + ((word128) d4) * r2 + (((word128) r3) * (r3 * 19));
     t[2] = ((word128) d0) * r2 + ((word128) r1) * r1 + (((word128) d4) * (r3     ));
     t[3] = ((word128) d0) * r3 + ((word128) d1) * r2 + (((word128) r4) * (d419   ));
     t[4] = ((word128) d0) * r4 + ((word128) d1) * r3 + (((word128) r2) * (r2     ));
+#else
+    mul64x64_128(t[0], r0, r0) mul64x64_128(mul, d4, r1) add128(t[0], mul) mul64x64_128(mul, d2,      r3) add128(t[0], mul)
+    mul64x64_128(t[1], d0, r1) mul64x64_128(mul, d4, r2) add128(t[1], mul) mul64x64_128(mul, r3, r3 * 19) add128(t[1], mul)
+    mul64x64_128(t[2], d0, r2) mul64x64_128(mul, r1, r1) add128(t[2], mul) mul64x64_128(mul, d4,      r3) add128(t[2], mul)
+    mul64x64_128(t[3], d0, r3) mul64x64_128(mul, d1, r2) add128(t[3], mul) mul64x64_128(mul, r4,    d419) add128(t[3], mul)
+    mul64x64_128(t[4], d0, r4) mul64x64_128(mul, d1, r3) add128(t[4], mul) mul64x64_128(mul, r2,      r2) add128(t[4], mul)
+#endif
 
-                    r0 = (limb)t[0] & 0x7ffffffffffff; c = (limb)(t[0] >> 51);
-    t[1] += c;      r1 = (limb)t[1] & 0x7ffffffffffff; c = (limb)(t[1] >> 51);
-    t[2] += c;      r2 = (limb)t[2] & 0x7ffffffffffff; c = (limb)(t[2] >> 51);
-    t[3] += c;      r3 = (limb)t[3] & 0x7ffffffffffff; c = (limb)(t[3] >> 51);
-    t[4] += c;      r4 = (limb)t[4] & 0x7ffffffffffff; c = (limb)(t[4] >> 51);
-    r0 +=   c * 19; c = r0 >> 51; r0 = r0 & 0x7ffffffffffff;
-    r1 +=   c;      c = r1 >> 51; r1 = r1 & 0x7ffffffffffff;
-    r2 +=   c;
-  } while(--count);
+                         r0 = lo128(t[0]) & reduce_mask_51; shr128(c, t[0], 51);
+    add128_64(t[1], c)   r1 = lo128(t[1]) & reduce_mask_51; shr128(c, t[1], 51);
+    add128_64(t[2], c)   r2 = lo128(t[2]) & reduce_mask_51; shr128(c, t[2], 51);
+    add128_64(t[3], c)   r3 = lo128(t[3]) & reduce_mask_51; shr128(c, t[3], 51);
+    add128_64(t[4], c)   r4 = lo128(t[4]) & reduce_mask_51; shr128(c, t[4], 51);
+    r0 +=   c * 19; c = r0 >> 51; r0 = r0 & reduce_mask_51;
+    r1 +=   c;
 
-  output[0] = r0;
-  output[1] = r1;
-  output[2] = r2;
-  output[3] = r3;
-  output[4] = r4;
-}
-
-/* Load a little-endian 64-bit number  */
-limb load_limb(const byte *in)
-{
-  return
-    ((limb)in[0]) |
-    (((limb)in[1]) << 8) |
-    (((limb)in[2]) << 16) |
-    (((limb)in[3]) << 24) |
-    (((limb)in[4]) << 32) |
-    (((limb)in[5]) << 40) |
-    (((limb)in[6]) << 48) |
-    (((limb)in[7]) << 56);
-}
-
-void store_limb(byte *out, limb in)
-{
-  out[0] = in & 0xff;
-  out[1] = (in >> 8) & 0xff;
-  out[2] = (in >> 16) & 0xff;
-  out[3] = (in >> 24) & 0xff;
-  out[4] = (in >> 32) & 0xff;
-  out[5] = (in >> 40) & 0xff;
-  out[6] = (in >> 48) & 0xff;
-  out[7] = (in >> 56) & 0xff;
+    out[0] = r0; out[1] = r1; out[2] = r2; out[3] = r3; out[4] = r4;
 }
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
-void fexpand(limb *output, const byte *in)
-{
-  output[0] = load_limb(in) & 0x7ffffffffffff;
-  output[1] = (load_limb(in+6) >> 3) & 0x7ffffffffffff;
-  output[2] = (load_limb(in+12) >> 6) & 0x7ffffffffffff;
-  output[3] = (load_limb(in+19) >> 1) & 0x7ffffffffffff;
-  output[4] = (load_limb(in+24) >> 12) & 0x7ffffffffffff;
+inline void
+curve25519_expand(bignum25519 out, const unsigned char *in) {
+    word64 x0,x1,x2,x3;
+
+    GetBlock<word64, LittleEndian> block(in);
+    block(x0)(x1)(x2)(x3);
+
+    out[0] = x0 & reduce_mask_51; x0 = (x0 >> 51) | (x1 << 13);
+    out[1] = x0 & reduce_mask_51; x1 = (x1 >> 38) | (x2 << 26);
+    out[2] = x1 & reduce_mask_51; x2 = (x2 >> 25) | (x3 << 39);
+    out[3] = x2 & reduce_mask_51; x3 = (x3 >> 12);
+    out[4] = x3 & reduce_mask_51;
 }
 
 /* Take a fully reduced polynomial form number and contract it into a
  * little-endian, 32-byte array
  */
-void fcontract(byte *output, const felem input)
-{
-  word128 t[5];
+inline void
+curve25519_contract(unsigned char *out, const bignum25519 input) {
+    word64 t[5];
+    word64 f, i;
 
-  t[0] = input[0];
-  t[1] = input[1];
-  t[2] = input[2];
-  t[3] = input[3];
-  t[4] = input[4];
+    t[0] = input[0]; t[1] = input[1]; t[2] = input[2];
+    t[3] = input[3]; t[4] = input[4];
 
-  t[1] += t[0] >> 51; t[0] &= 0x7ffffffffffff;
-  t[2] += t[1] >> 51; t[1] &= 0x7ffffffffffff;
-  t[3] += t[2] >> 51; t[2] &= 0x7ffffffffffff;
-  t[4] += t[3] >> 51; t[3] &= 0x7ffffffffffff;
-  t[0] += 19 * (t[4] >> 51); t[4] &= 0x7ffffffffffff;
+    #define curve25519_contract_carry() \
+        t[1] += t[0] >> 51; t[0] &= reduce_mask_51; \
+        t[2] += t[1] >> 51; t[1] &= reduce_mask_51; \
+        t[3] += t[2] >> 51; t[2] &= reduce_mask_51; \
+        t[4] += t[3] >> 51; t[3] &= reduce_mask_51;
 
-  t[1] += t[0] >> 51; t[0] &= 0x7ffffffffffff;
-  t[2] += t[1] >> 51; t[1] &= 0x7ffffffffffff;
-  t[3] += t[2] >> 51; t[2] &= 0x7ffffffffffff;
-  t[4] += t[3] >> 51; t[3] &= 0x7ffffffffffff;
-  t[0] += 19 * (t[4] >> 51); t[4] &= 0x7ffffffffffff;
+    #define curve25519_contract_carry_full() curve25519_contract_carry() \
+        t[0] += 19 * (t[4] >> 51); t[4] &= reduce_mask_51;
 
-  /* now t is between 0 and 2^255-1, properly carried. */
-  /* case 1: between 0 and 2^255-20. case 2: between 2^255-19 and 2^255-1. */
+    #define curve25519_contract_carry_final() curve25519_contract_carry() \
+        t[4] &= reduce_mask_51;
 
-  t[0] += 19;
+    curve25519_contract_carry_full()
+    curve25519_contract_carry_full()
 
-  t[1] += t[0] >> 51; t[0] &= 0x7ffffffffffff;
-  t[2] += t[1] >> 51; t[1] &= 0x7ffffffffffff;
-  t[3] += t[2] >> 51; t[2] &= 0x7ffffffffffff;
-  t[4] += t[3] >> 51; t[3] &= 0x7ffffffffffff;
-  t[0] += 19 * (t[4] >> 51); t[4] &= 0x7ffffffffffff;
+    /* now t is between 0 and 2^255-1, properly carried. */
+    /* case 1: between 0 and 2^255-20. case 2: between 2^255-19 and 2^255-1. */
+    t[0] += 19;
+    curve25519_contract_carry_full()
 
-  /* now between 19 and 2^255-1 in both cases, and offset by 19. */
+    /* now between 19 and 2^255-1 in both cases, and offset by 19. */
+    t[0] += (reduce_mask_51 + 1) - 19;
+    t[1] += (reduce_mask_51 + 1) - 1;
+    t[2] += (reduce_mask_51 + 1) - 1;
+    t[3] += (reduce_mask_51 + 1) - 1;
+    t[4] += (reduce_mask_51 + 1) - 1;
 
-  t[0] += 0x8000000000000 - 19;
-  t[1] += 0x8000000000000 - 1;
-  t[2] += 0x8000000000000 - 1;
-  t[3] += 0x8000000000000 - 1;
-  t[4] += 0x8000000000000 - 1;
+    /* now between 2^255 and 2^256-20, and offset by 2^255. */
+    curve25519_contract_carry_final()
 
-  /* now between 2^255 and 2^256-20, and offset by 2^255. */
-
-  t[1] += t[0] >> 51; t[0] &= 0x7ffffffffffff;
-  t[2] += t[1] >> 51; t[1] &= 0x7ffffffffffff;
-  t[3] += t[2] >> 51; t[2] &= 0x7ffffffffffff;
-  t[4] += t[3] >> 51; t[3] &= 0x7ffffffffffff;
-  t[4] &= 0x7ffffffffffff;
-
-  store_limb(output,    t[0] | (t[1] << 51));
-  store_limb(output+8,  (t[1] >> 13) | (t[2] << 38));
-  store_limb(output+16, (t[2] >> 26) | (t[3] << 25));
-  store_limb(output+24, (t[3] >> 39) | (t[4] << 12));
-}
-
-/* Input: Q, Q', Q-Q'
- * Output: 2Q, Q+Q'
- *
- *   x2 z3: long form
- *   x3 z3: long form
- *   x z: short form, destroyed
- *   xprime zprime: short form, destroyed
- *   qmqp: short form, preserved
- */
-void fmonty(limb *x2, limb *z2, /* output 2Q */
-            limb *x3, limb *z3, /* output Q + Q' */
-            limb *x, limb *z,   /* input Q */
-            limb *xprime, limb *zprime, /* input Q' */
-            const limb *qmqp /* input Q - Q' */)
-{
-  limb origx[5], origxprime[5], zzz[5], xx[5], zz[5];
-  limb xxprime[5], zzprime[5], zzzprime[5];
-
-  memcpy(origx, x, 5 * sizeof(limb));
-  fsum(x, z);
-  fdifference_backwards(z, origx);  // does x - z
-
-  memcpy(origxprime, xprime, sizeof(limb) * 5);
-  fsum(xprime, zprime);
-  fdifference_backwards(zprime, origxprime);
-  fmul(xxprime, xprime, z);
-  fmul(zzprime, x, zprime);
-  memcpy(origxprime, xxprime, sizeof(limb) * 5);
-  fsum(xxprime, zzprime);
-  fdifference_backwards(zzprime, origxprime);
-  fsquare_times(x3, xxprime, 1);
-  fsquare_times(zzzprime, zzprime, 1);
-  fmul(z3, zzzprime, qmqp);
-
-  fsquare_times(xx, x, 1);
-  fsquare_times(zz, z, 1);
-  fmul(x2, xx, zz);
-  fdifference_backwards(zz, xx);  // does zz = xx - zz
-  fscalar_product(zzz, zz, 121665);
-  fsum(zzz, xx);
-  fmul(z2, zz, zzz);
-}
-
-// -----------------------------------------------------------------------------
-// Maybe swap the contents of two limb arrays (@a and @b), each @len elements
-// long. Perform the swap iff @swap is non-zero.
-//
-// This function performs the swap without leaking any side-channel
-// information.
-// -----------------------------------------------------------------------------
-void swap_conditional(limb a[5], limb b[5], limb iswap)
-{
-  const limb swap = -iswap;
-
-  for (unsigned int i = 0; i < 5; ++i) {
-    const limb x = swap & (a[i] ^ b[i]);
-    a[i] ^= x;
-    b[i] ^= x;
-  }
-}
-
-/* Calculates nQ where Q is the x-coordinate of a point on the curve
- *
- *   resultx/resultz: the x coordinate of the resulting curve point (short form)
- *   n: a little endian, 32-byte number
- *   q: a point of the curve (short form)
- */
-void cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
-{
-  limb a[5] = {0}, b[5] = {1}, c[5] = {1}, d[5] = {0};
-  limb *nqpqx = a, *nqpqz = b, *nqx = c, *nqz = d, *t;
-  limb e[5] = {0}, f[5] = {1}, g[5] = {0}, h[5] = {1};
-  limb *nqpqx2 = e, *nqpqz2 = f, *nqx2 = g, *nqz2 = h;
-
-  memcpy(nqpqx, q, sizeof(limb) * 5);
-
-  for (unsigned int i = 0; i < 32; ++i) {
-    byte b = n[31 - i];
-    for (unsigned int j = 0; j < 8; ++j) {
-      const limb bit = b >> 7;
-
-      swap_conditional(nqx, nqpqx, bit);
-      swap_conditional(nqz, nqpqz, bit);
-      fmonty(nqx2, nqz2,
-             nqpqx2, nqpqz2,
-             nqx, nqz,
-             nqpqx, nqpqz,
-             q);
-      swap_conditional(nqx2, nqpqx2, bit);
-      swap_conditional(nqz2, nqpqz2, bit);
-
-      t = nqx;
-      nqx = nqx2;
-      nqx2 = t;
-      t = nqz;
-      nqz = nqz2;
-      nqz2 = t;
-      t = nqpqx;
-      nqpqx = nqpqx2;
-      nqpqx2 = t;
-      t = nqpqz;
-      nqpqz = nqpqz2;
-      nqpqz2 = t;
-
-      b <<= 1;
-    }
-  }
-
-  memcpy(resultx, nqx, sizeof(limb) * 5);
-  memcpy(resultz, nqz, sizeof(limb) * 5);
-}
-
-
-// -----------------------------------------------------------------------------
-// Shamelessly copied from djb's code, tightened a little
-// -----------------------------------------------------------------------------
-void crecip(felem out, const felem z)
-{
-  felem a,t0,b,c;
-
-  /* 2 */ fsquare_times(a, z, 1); // a = 2
-  /* 8 */ fsquare_times(t0, a, 2);
-  /* 9 */ fmul(b, t0, z); // b = 9
-  /* 11 */ fmul(a, b, a); // a = 11
-  /* 22 */ fsquare_times(t0, a, 1);
-  /* 2^5 - 2^0 = 31 */ fmul(b, t0, b);
-  /* 2^10 - 2^5 */ fsquare_times(t0, b, 5);
-  /* 2^10 - 2^0 */ fmul(b, t0, b);
-  /* 2^20 - 2^10 */ fsquare_times(t0, b, 10);
-  /* 2^20 - 2^0 */ fmul(c, t0, b);
-  /* 2^40 - 2^20 */ fsquare_times(t0, c, 20);
-  /* 2^40 - 2^0 */ fmul(t0, t0, c);
-  /* 2^50 - 2^10 */ fsquare_times(t0, t0, 10);
-  /* 2^50 - 2^0 */ fmul(b, t0, b);
-  /* 2^100 - 2^50 */ fsquare_times(t0, b, 50);
-  /* 2^100 - 2^0 */ fmul(c, t0, b);
-  /* 2^200 - 2^100 */ fsquare_times(t0, c, 100);
-  /* 2^200 - 2^0 */ fmul(t0, t0, c);
-  /* 2^250 - 2^50 */ fsquare_times(t0, t0, 50);
-  /* 2^250 - 2^0 */ fmul(t0, t0, b);
-  /* 2^255 - 2^5 */ fsquare_times(t0, t0, 5);
-  /* 2^255 - 21 */ fmul(out, t0, a);
+    #define write51full(n,shift) \
+        f = ((t[n] >> shift) | (t[n+1] << (51 - shift))); \
+        for (i = 0; i < 8; i++, f >>= 8) *out++ = (unsigned char)f;
+    #define write51(n) write51full(n,13*n)
+    write51(0)
+    write51(1)
+    write51(2)
+    write51(3)
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -485,24 +363,14 @@ NAMESPACE_BEGIN(Donna)
 
 int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-  limb bp[5], x[5], z[5], zmone[5];
-  byte e[32];
+    bignum25519 out, r, s;
+    curve25519_expand(r, secretKey);
+    curve25519_expand(s, othersKey);
 
-  for (unsigned int i = 0; i < 32; ++i)
-    e[i] = secretKey[i];
+    curve25519_mul(out, r, s);
+    curve25519_contract(sharedKey, out);
 
-  // I'd like to remove this copy/clamp but I don't
-  // know if an attacker can cause an information
-  // leak if multiply is misused.
-  e[0] &= 248; e[31] &= 127; e[31] |= 64;
-
-  fexpand(bp, othersKey);
-  cmult(x, z, e, bp);
-  crecip(zmone, z);
-  fmul(z, x, zmone);
-  fcontract(sharedKey, z);
-
-  return 0;
+    return 0;
 }
 
 int curve25519(byte publicKey[32], const byte secretKey[32])
@@ -510,23 +378,23 @@ int curve25519(byte publicKey[32], const byte secretKey[32])
   const byte basePoint[32] = {9};
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-  if (HasSSE2())
-      return curve25519_SSE2(publicKey, secretKey, basePoint);
-  else
+    if (HasSSE2())
+        return curve25519_SSE2(publicKey, secretKey, basePoint);
+    else
 #endif
 
-  return curve25519_CXX(publicKey, secretKey, basePoint);
+    return curve25519_CXX(publicKey, secretKey, basePoint);
 }
 
 int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-  if (HasSSE2())
-      return curve25519_SSE2(sharedKey, secretKey, othersKey);
-  else
+    if (HasSSE2())
+        return curve25519_SSE2(sharedKey, secretKey, othersKey);
+    else
 #endif
 
-  return curve25519_CXX(sharedKey, secretKey, othersKey);
+    return curve25519_CXX(sharedKey, secretKey, othersKey);
 }
 
 NAMESPACE_END  // Donna
