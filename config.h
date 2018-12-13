@@ -461,6 +461,13 @@ NAMESPACE_END
 	#define CRYPTOPP_BOOL_PPC32 1
 #endif
 
+// And MIPS. TODO: finish these defines
+#if defined(__mips64__)
+	#define CRYPTOPP_BOOL_MIPS64 1
+#elif defined(__mips__)
+	#define CRYPTOPP_BOOL_MIPS32 1
+#endif
+
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 # define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY 1
 #else

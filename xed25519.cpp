@@ -133,7 +133,7 @@ x25519::x25519(BufferedTransformation &params)
 
       read = sk.Get(unused);  // unused bits
       CRYPTOPP_ASSERT(read == 1 && unused == 0);
-      
+
       read = sk.Get(m_sk, 32);
       sk.MessageEnd();
 

@@ -66,12 +66,12 @@
 # define CRYPTOPP_64BIT 1
 #endif
 
-// Some compilers don't handle the code for the arithmetic shifts well.
-// For compilers we know how to support we will issue the asm to sidestep
-// the problem. We also switch to a slightly different pattern. We
-// believe the pattern preserves the existing properties without a
-// branch. The ASM uses one intruction, while the C statement use 2 to 6
-// instructions, depending on the compiler.
+// Some compilers don't handle the code for the arithmetic shifts
+// well. For compilers we know how to support we will issue the asm
+// to sidestep the problem. We also switch to a slightly different
+// pattern. We believe the pattern preserves the existing properties
+// without a branch. The ASM uses one intruction, while the C statement
+// use 2 to 6 instructions, depending on the compiler.
 #if (__GNUC__ >= 3) || (__SUNPRO_CC >= 0x5100)
 # define CRYPTOPP_ASR_ASM 1
 #endif
@@ -92,9 +92,12 @@ using CryptoPP::sword64;
 
 typedef sword64 limb;
 
-// Added by JW for SunCC. Avoid the bit twiddling hacks.
+// Added by JW for SunCC. SignExtendShift is just an
+// arithmetic shift. Easier said than done in C. Use
+// inline ASM when available. Avoid the bit twiddling
+// hacks. Also see the comments for CRYPTOPP_ASR_ASM.
 template <unsigned int S>
-inline int SignExtend(int val)
+inline int SignExtendShift(int val)
 {
 #if defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_X86)
     __asm__
@@ -110,15 +113,21 @@ inline int SignExtend(int val)
         : "+r" (val) : "I" (S) :
     );
     return val;
+#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_MIPS32)
+    __asm__
+    (
+        "sra %0, %0, %1    \n"
+        : "+r" (val) : "I" (S) :
+    );
+    return val;
 #else
-    // GCC and SunCC compile down to a shift and neg.
-    // Also see the comments for CRYPTOPP_ASR_ASM.
-    return (val >> S) * -1;
+    const unsigned int v = ((unsigned int)val >> S);
+    return ((signed int)v * -1);
 #endif
 }
 
 template <unsigned int S>
-inline unsigned int SignExtend(unsigned int val)
+inline unsigned int SignExtendShift(unsigned int val)
 {
 #if defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_X86)
     __asm__
@@ -134,9 +143,14 @@ inline unsigned int SignExtend(unsigned int val)
         : "+r" (val) : "I" (S) :
     );
     return val;
+#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_MIPS32)
+    __asm__
+    (
+        "sra %0, %0, %1    \n"
+        : "+r" (val) : "I" (S) :
+    );
+    return val;
 #else
-    // GCC and SunCC compile down to a shift and neg.
-    // Also see the comments for CRYPTOPP_ASR_ASM.
     const signed int v = (signed int)(val >> S);
     return (unsigned int)(v * -1);
 #endif
@@ -341,7 +355,7 @@ inline limb div_by_2_26(const limb v)
   // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
   /* Set to all 1s if v was negative; else set to 0s. */
   /* const sword32 sign = ((sword32) highword) >> 31; */
-  const word32 sign = SignExtend<31>(highword);
+  const word32 sign = SignExtendShift<31>(highword);
 
   /* Set to 0x3ffffff if v was negative; else set to 0. */
   /* const sword32 roundoff = ((word32) sign) >> 6; */
@@ -362,7 +376,7 @@ inline limb div_by_2_25(const limb v)
   // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
   /* Set to all 1s if v was negative; else set to 0s. */
   /* const sword32 sign = ((sword32) highword) >> 31; */
-  const word32 sign = SignExtend<31>(highword);
+  const word32 sign = SignExtendShift<31>(highword);
 
   /* Set to 0x1ffffff if v was negative; else set to 0. */
   /* const sword32 roundoff = ((word32) sign) >> 7; */
@@ -558,7 +572,7 @@ sword32 sword32_eq(sword32 a, sword32 b)
   a &= a << 2;
   a &= a << 1;
   /* return a >> 31; */
-  return (sword32)SignExtend<31>(a);
+  return (sword32)SignExtendShift<31>(a);
 }
 
 /* sword32_gte returns 0xffffffff if a >= b and zero otherwise, where a and b are
@@ -569,7 +583,7 @@ sword32 sword32_gte(sword32 a, sword32 b)
   a -= b;
   /* a >= 0 iff a >= b. */
   /* return ~(a >> 31); */
-  return ~(sword32)SignExtend<31>(a);
+  return ~(sword32)SignExtendShift<31>(a);
 }
 
 /* Take a fully reduced polynomial form number and contract it into a
