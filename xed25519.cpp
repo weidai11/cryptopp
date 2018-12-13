@@ -129,10 +129,11 @@ x25519::x25519(BufferedTransformation &params)
       size_t read; byte unused;
 
       BERSequenceDecoder sk(seq, BIT_STRING);
+      CRYPTOPP_ASSERT(sk.MaxRetrievable() >= 33);
+
       read = sk.Get(unused);  // unused bits
       CRYPTOPP_ASSERT(read == 1 && unused == 0);
-
-      CRYPTOPP_ASSERT(sk.MaxRetrievable() >= 32);
+      
       read = sk.Get(m_sk, 32);
       sk.MessageEnd();
 
@@ -236,8 +237,7 @@ void x25519::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKe
 {
     CRYPTOPP_UNUSED(rng);
 
-    const byte base[32] = {9};
-    (void)Donna::curve25519(publicKey, privateKey, base);
+    (void)Donna::curve25519(publicKey, privateKey);
 }
 
 bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey) const

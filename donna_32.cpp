@@ -68,8 +68,8 @@
 
 // Some compilers don't handle the code for the arithmetic shifts well.
 // For compilers we know how to support we will issue the asm to sidestep
-// believe the problem. We also switch to a slightly different pattern.
-// We believe the pattern preserves the existing properties without a
+// the problem. We also switch to a slightly different pattern. We
+// believe the pattern preserves the existing properties without a
 // branch. The ASM uses one intruction, while the C statement use 2 to 6
 // instructions, depending on the compiler.
 #if (__GNUC__ >= 3) || (__SUNPRO_CC >= 0x5100)
@@ -137,7 +137,7 @@ inline unsigned int SignExtend(unsigned int val)
 #else
     // GCC and SunCC compile down to a shift and neg.
     // Also see the comments for CRYPTOPP_ASR_ASM.
-    const signed int v = (signed int)(val >> S)
+    const signed int v = (signed int)(val >> S);
     return (unsigned int)(v * -1);
 #endif
 }
