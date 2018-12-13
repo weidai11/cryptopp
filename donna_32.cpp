@@ -38,9 +38,9 @@ using CryptoPP::BigEndian;
 using CryptoPP::LittleEndian;
 
 typedef word32 bignum25519[10];
-typedef word32 bignum25519align16[12];
 
 #define mul32x32_64(a,b) (((word64)(a))*(b))
+#define ALIGN(n) CRYPTOPP_ALIGN_DATA(n)
 
 const byte basePoint[32] = {9};
 const word32 reduce_mask_25 = (1 << 25) - 1;
@@ -66,114 +66,43 @@ curve25519_add(bignum25519 out, const bignum25519 a, const bignum25519 b) {
     out[8] = a[8] + b[8]; out[9] = a[9] + b[9];
 }
 
-inline void
-curve25519_add_after_basic(bignum25519 out, const bignum25519 a, const bignum25519 b) {
-    word32 c;
-    out[0] = a[0] + b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
-    out[1] = a[1] + b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
-    out[2] = a[2] + b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
-    out[3] = a[3] + b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
-    out[4] = a[4] + b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
-    out[5] = a[5] + b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
-    out[6] = a[6] + b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
-    out[7] = a[7] + b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
-    out[8] = a[8] + b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
-    out[9] = a[9] + b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
-    out[0] += 19 * c;
-}
-
-inline void
-curve25519_add_reduce(bignum25519 out, const bignum25519 a, const bignum25519 b) {
-    word32 c;
-    out[0] = a[0] + b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
-    out[1] = a[1] + b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
-    out[2] = a[2] + b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
-    out[3] = a[3] + b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
-    out[4] = a[4] + b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
-    out[5] = a[5] + b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
-    out[6] = a[6] + b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
-    out[7] = a[7] + b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
-    out[8] = a[8] + b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
-    out[9] = a[9] + b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
-    out[0] += 19 * c;
-}
-
-/* multiples of p */
-const word32 twoP0       = 0x07ffffda;
-const word32 twoP13579   = 0x03fffffe;
-const word32 twoP2468    = 0x07fffffe;
-const word32 fourP0      = 0x0fffffb4;
-const word32 fourP13579  = 0x07fffffc;
-const word32 fourP2468   = 0x0ffffffc;
-
 /* out = a - b */
 inline void
 curve25519_sub(bignum25519 out, const bignum25519 a, const bignum25519 b) {
     word32 c;
-    out[0] = twoP0     + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
-    out[1] = twoP13579 + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
-    out[2] = twoP2468  + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
-    out[3] = twoP13579 + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
-    out[4] = twoP2468  + a[4] - b[4] + c;
-    out[5] = twoP13579 + a[5] - b[5]    ;
-    out[6] = twoP2468  + a[6] - b[6]    ;
-    out[7] = twoP13579 + a[7] - b[7]    ;
-    out[8] = twoP2468  + a[8] - b[8]    ;
-    out[9] = twoP13579 + a[9] - b[9]    ;
-}
-
-/* out = a - b, where a is the result of a basic op (add,sub) */
-inline void
-curve25519_sub_after_basic(bignum25519 out, const bignum25519 a, const bignum25519 b) {
-    word32 c;
-    out[0] = fourP0     + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
-    out[1] = fourP13579 + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
-    out[2] = fourP2468  + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
-    out[3] = fourP13579 + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
-    out[4] = fourP2468  + a[4] - b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
-    out[5] = fourP13579 + a[5] - b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
-    out[6] = fourP2468  + a[6] - b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
-    out[7] = fourP13579 + a[7] - b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
-    out[8] = fourP2468  + a[8] - b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
-    out[9] = fourP13579 + a[9] - b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
+    out[0] = 0x7ffffda + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = 0x3fffffe + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = 0x7fffffe + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = 0x3fffffe + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = 0x7fffffe + a[4] - b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
+    out[5] = 0x3fffffe + a[5] - b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
+    out[6] = 0x7fffffe + a[6] - b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
+    out[7] = 0x3fffffe + a[7] - b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
+    out[8] = 0x7fffffe + a[8] - b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
+    out[9] = 0x3fffffe + a[9] - b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
     out[0] += 19 * c;
 }
 
+/* out = in * scalar */
 inline void
-curve25519_sub_reduce(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+curve25519_scalar_product(bignum25519 out, const bignum25519 in, const word32 scalar) {
+    word64 a;
     word32 c;
-    out[0] = fourP0     + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
-    out[1] = fourP13579 + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
-    out[2] = fourP2468  + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
-    out[3] = fourP13579 + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
-    out[4] = fourP2468  + a[4] - b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
-    out[5] = fourP13579 + a[5] - b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
-    out[6] = fourP2468  + a[6] - b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
-    out[7] = fourP13579 + a[7] - b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
-    out[8] = fourP2468  + a[8] - b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
-    out[9] = fourP13579 + a[9] - b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
-    out[0] += 19 * c;
-}
-
-/* out = -a */
-inline void
-curve25519_neg(bignum25519 out, const bignum25519 a) {
-    word32 c;
-    out[0] = twoP0     - a[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
-    out[1] = twoP13579 - a[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
-    out[2] = twoP2468  - a[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
-    out[3] = twoP13579 - a[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
-    out[4] = twoP2468  - a[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
-    out[5] = twoP13579 - a[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
-    out[6] = twoP2468  - a[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
-    out[7] = twoP13579 - a[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
-    out[8] = twoP2468  - a[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
-    out[9] = twoP13579 - a[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
-    out[0] += 19 * c;
+    a = mul32x32_64(in[0], scalar);     out[0] = (word32)a & reduce_mask_26; c = (word32)(a >> 26);
+    a = mul32x32_64(in[1], scalar) + c; out[1] = (word32)a & reduce_mask_25; c = (word32)(a >> 25);
+    a = mul32x32_64(in[2], scalar) + c; out[2] = (word32)a & reduce_mask_26; c = (word32)(a >> 26);
+    a = mul32x32_64(in[3], scalar) + c; out[3] = (word32)a & reduce_mask_25; c = (word32)(a >> 25);
+    a = mul32x32_64(in[4], scalar) + c; out[4] = (word32)a & reduce_mask_26; c = (word32)(a >> 26);
+    a = mul32x32_64(in[5], scalar) + c; out[5] = (word32)a & reduce_mask_25; c = (word32)(a >> 25);
+    a = mul32x32_64(in[6], scalar) + c; out[6] = (word32)a & reduce_mask_26; c = (word32)(a >> 26);
+    a = mul32x32_64(in[7], scalar) + c; out[7] = (word32)a & reduce_mask_25; c = (word32)(a >> 25);
+    a = mul32x32_64(in[8], scalar) + c; out[8] = (word32)a & reduce_mask_26; c = (word32)(a >> 26);
+    a = mul32x32_64(in[9], scalar) + c; out[9] = (word32)a & reduce_mask_25; c = (word32)(a >> 25);
+                                        out[0] += c * 19;
 }
 
 /* out = a * b */
-void
+inline void
 curve25519_mul(bignum25519 out, const bignum25519 a, const bignum25519 b) {
     word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
     word32 s0,s1,s2,s3,s4,s5,s6,s7,s8,s9;
@@ -238,8 +167,8 @@ curve25519_mul(bignum25519 out, const bignum25519 a, const bignum25519 b) {
     out[5] = r5; out[6] = r6; out[7] = r7; out[8] = r8; out[9] = r9;
 }
 
-/* out = in*in */
-void
+/* out = in * in */
+inline void
 curve25519_square(bignum25519 out, const bignum25519 in) {
     word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
     word32 d6,d7,d8,d9;
@@ -294,8 +223,7 @@ curve25519_square(bignum25519 out, const bignum25519 in) {
     out[5] = r5; out[6] = r6; out[7] = r7; out[8] = r8; out[9] = r9;
 }
 
-
-/* out = in ^ (2 * count) */
+/* out = in^(2 * count) */
 void
 curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
     word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
@@ -303,7 +231,7 @@ curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
     word64 m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,c;
     word32 p;
 
-    r0 = in[0]; r1 = in[1];    r2 = in[2]; r3 = in[3]; r4 = in[4];
+    r0 = in[0]; r1 = in[1]; r2 = in[2]; r3 = in[3]; r4 = in[4];
     r5 = in[5]; r6 = in[6]; r7 = in[7]; r8 = in[8]; r9 = in[9];
 
     do {
@@ -356,26 +284,54 @@ curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
 void
 curve25519_expand(bignum25519 out, const byte in[32]) {
+
     word32 x0,x1,x2,x3,x4,x5,x6,x7;
 
     GetBlock<word32, LittleEndian> block(in);
     block(x0)(x1)(x2)(x3)(x4)(x5)(x6)(x7);
 
-    out[0] = (                      x0       ) & 0x3ffffff;
-    out[1] = ((((word64)x1 << 32) | x0) >> 26) & 0x1ffffff;
-    out[2] = ((((word64)x2 << 32) | x1) >> 19) & 0x3ffffff;
-    out[3] = ((((word64)x3 << 32) | x2) >> 13) & 0x1ffffff;
-    out[4] = ((                     x3) >>  6) & 0x3ffffff;
-    out[5] = (                      x4       ) & 0x1ffffff;
-    out[6] = ((((word64)x5 << 32) | x4) >> 25) & 0x3ffffff;
-    out[7] = ((((word64)x6 << 32) | x5) >> 19) & 0x1ffffff;
-    out[8] = ((((word64)x7 << 32) | x6) >> 12) & 0x3ffffff;
-    out[9] = ((                     x7) >>  6) & 0x1ffffff;
+#if 0
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+        x0 = *(word32 *)(in + 0);
+        x1 = *(word32 *)(in + 4);
+        x2 = *(word32 *)(in + 8);
+        x3 = *(word32 *)(in + 12);
+        x4 = *(word32 *)(in + 16);
+        x5 = *(word32 *)(in + 20);
+        x6 = *(word32 *)(in + 24);
+        x7 = *(word32 *)(in + 28);
+#else
+        #define F(s)                       \
+            ((((word32)in[s + 0])      ) | \
+             (((word32)in[s + 1]) <<  8) | \
+             (((word32)in[s + 2]) << 16) | \
+             (((word32)in[s + 3]) << 24))
+        x0 = F(0);
+        x1 = F(4);
+        x2 = F(8);
+        x3 = F(12);
+        x4 = F(16);
+        x5 = F(20);
+        x6 = F(24);
+        x7 = F(28);
+        #undef F
+#endif
+#endif
+
+    out[0] = (                      x0       ) & reduce_mask_26;
+    out[1] = ((((word64)x1 << 32) | x0) >> 26) & reduce_mask_25;
+    out[2] = ((((word64)x2 << 32) | x1) >> 19) & reduce_mask_26;
+    out[3] = ((((word64)x3 << 32) | x2) >> 13) & reduce_mask_25;
+    out[4] = ((                     x3) >>  6) & reduce_mask_26;
+    out[5] = (                      x4       ) & reduce_mask_25;
+    out[6] = ((((word64)x5 << 32) | x4) >> 25) & reduce_mask_26;
+    out[7] = ((((word64)x6 << 32) | x5) >> 19) & reduce_mask_25;
+    out[8] = ((((word64)x7 << 32) | x6) >> 12) & reduce_mask_26;
+    out[9] = ((                     x7) >>  6) & reduce_mask_25; /* ignore the top bit */
+    // out[9] = ((                     x7) >>  6) & reduce_mask_26;
 }
 
-/* Take a fully reduced polynomial form number and contract it into a
- * little-endian, 32-byte array
- */
+/* Take a fully reduced polynomial form number and contract it into a little-endian, 32-byte array */
 void
 curve25519_contract(byte out[32], const bignum25519 in) {
     bignum25519 f;
@@ -409,16 +365,16 @@ curve25519_contract(byte out[32], const bignum25519 in) {
     carry_pass_full()
 
     /* now between 19 and 2^255-1 in both cases, and offset by 19. */
-    f[0] += (reduce_mask_26 + 1) - 19;
-    f[1] += (reduce_mask_25 + 1) - 1;
-    f[2] += (reduce_mask_26 + 1) - 1;
-    f[3] += (reduce_mask_25 + 1) - 1;
-    f[4] += (reduce_mask_26 + 1) - 1;
-    f[5] += (reduce_mask_25 + 1) - 1;
-    f[6] += (reduce_mask_26 + 1) - 1;
-    f[7] += (reduce_mask_25 + 1) - 1;
-    f[8] += (reduce_mask_26 + 1) - 1;
-    f[9] += (reduce_mask_25 + 1) - 1;
+    f[0] += (1 << 26) - 19;
+    f[1] += (1 << 25) - 1;
+    f[2] += (1 << 26) - 1;
+    f[3] += (1 << 25) - 1;
+    f[4] += (1 << 26) - 1;
+    f[5] += (1 << 25) - 1;
+    f[6] += (1 << 26) - 1;
+    f[7] += (1 << 25) - 1;
+    f[8] += (1 << 26) - 1;
+    f[9] += (1 << 25) - 1;
 
     /* now between 2^255 and 2^256-20, and offset by 2^255. */
     carry_pass_final()
@@ -437,7 +393,7 @@ curve25519_contract(byte out[32], const bignum25519 in) {
     f[9] <<= 6;
 
     #define F(i, s) \
-        out[s+0] |= (byte)(f[i] & 0xff); \
+        out[s+0] |= (byte)( f[i] & 0xff); \
         out[s+1]  = (byte)((f[i] >>  8) & 0xff); \
         out[s+2]  = (byte)((f[i] >> 16) & 0xff); \
         out[s+3]  = (byte)((f[i] >> 24) & 0xff);
@@ -457,6 +413,66 @@ curve25519_contract(byte out[32], const bignum25519 in) {
     #undef F
 }
 
+inline void
+curve25519_swap_conditional(bignum25519 x, bignum25519 qpx, word32 iswap) {
+    const word32 swap = (word32)(-(sword32)iswap);
+    word32 x0,x1,x2,x3,x4,x5,x6,x7,x8,x9;
+
+    x0 = swap & (x[0] ^ qpx[0]); x[0] ^= x0; qpx[0] ^= x0;
+    x1 = swap & (x[1] ^ qpx[1]); x[1] ^= x1; qpx[1] ^= x1;
+    x2 = swap & (x[2] ^ qpx[2]); x[2] ^= x2; qpx[2] ^= x2;
+    x3 = swap & (x[3] ^ qpx[3]); x[3] ^= x3; qpx[3] ^= x3;
+    x4 = swap & (x[4] ^ qpx[4]); x[4] ^= x4; qpx[4] ^= x4;
+    x5 = swap & (x[5] ^ qpx[5]); x[5] ^= x5; qpx[5] ^= x5;
+    x6 = swap & (x[6] ^ qpx[6]); x[6] ^= x6; qpx[6] ^= x6;
+    x7 = swap & (x[7] ^ qpx[7]); x[7] ^= x7; qpx[7] ^= x7;
+    x8 = swap & (x[8] ^ qpx[8]); x[8] ^= x8; qpx[8] ^= x8;
+    x9 = swap & (x[9] ^ qpx[9]); x[9] ^= x9; qpx[9] ^= x9;
+}
+
+/*
+ * In:  b =   2^5 - 2^0
+ * Out: b = 2^250 - 2^0
+ */
+void
+curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
+    bignum25519 ALIGN(16) t0,c;
+
+    /* 2^5  - 2^0 */ /* b */
+    /* 2^10 - 2^5 */ curve25519_square_times(t0, b, 5);
+    /* 2^10 - 2^0 */ curve25519_mul(b, t0, b);
+    /* 2^20 - 2^10 */ curve25519_square_times(t0, b, 10);
+    /* 2^20 - 2^0 */ curve25519_mul(c, t0, b);
+    /* 2^40 - 2^20 */ curve25519_square_times(t0, c, 20);
+    /* 2^40 - 2^0 */ curve25519_mul(t0, t0, c);
+    /* 2^50 - 2^10 */ curve25519_square_times(t0, t0, 10);
+    /* 2^50 - 2^0 */ curve25519_mul(b, t0, b);
+    /* 2^100 - 2^50 */ curve25519_square_times(t0, b, 50);
+    /* 2^100 - 2^0 */ curve25519_mul(c, t0, b);
+    /* 2^200 - 2^100 */ curve25519_square_times(t0, c, 100);
+    /* 2^200 - 2^0 */ curve25519_mul(t0, t0, c);
+    /* 2^250 - 2^50 */ curve25519_square_times(t0, t0, 50);
+    /* 2^250 - 2^0 */ curve25519_mul(b, t0, b);
+}
+
+/*
+ * z^(p - 2) = z(2^255 - 21)
+ */
+void
+curve25519_recip(bignum25519 out, const bignum25519 z) {
+    ALIGN(16) bignum25519 a, t0, b;
+
+    /* 2 */ curve25519_square(a, z); /* a = 2 */
+    /* 8 */ curve25519_square_times(t0, a, 2);
+    /* 9 */ curve25519_mul(b, t0, z); /* b = 9 */
+    /* 11 */ curve25519_mul(a, b, a); /* a = 11 */
+    /* 22 */ curve25519_square(t0, a);
+    /* 2^5 - 2^0 = 31 */ curve25519_mul(b, t0, b);
+    /* 2^250 - 2^0 */ curve25519_pow_two5mtwo0_two250mtwo0(b);
+    /* 2^255 - 2^5 */ curve25519_square_times(b, b, 5);
+    /* 2^255 - 21 */  curve25519_mul(out, b, a);
+}
+
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -464,12 +480,68 @@ NAMESPACE_BEGIN(Donna)
 
 int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-    bignum25519 out, r, s;
-    curve25519_expand(r, secretKey);
-    curve25519_expand(s, othersKey);
+    FixedSizeSecBlock<byte, 32> e;
+    for (size_t i = 0;i < 32;++i)
+        e[i] = secretKey[i];
 
-    curve25519_mul(out, r, s);
-    curve25519_contract(sharedKey, out);
+    e[ 0] &= 0xf8;
+    e[31] &= 0x7f;
+    e[31] |= 0x40;
+
+    bignum25519 nqpqx = {1}, nqpqz = {0}, nqz = {1}, nqx;
+    bignum25519 q, qx, qpqx, qqx, zzz, zmone;
+    size_t bit, lastbit;
+
+    curve25519_expand(q, othersKey);
+    curve25519_copy(nqx, q);
+
+    /* bit 255 is always 0, and bit 254 is always 1, so skip bit 255 and
+       start pre-swapped on bit 254 */
+    lastbit = 1;
+
+    /* we are doing bits 254..3 in the loop, but are swapping in bits 253..2 */
+    for (int i = 253; i >= 2; i--) {
+        curve25519_add(qx, nqx, nqz);
+        curve25519_sub(nqz, nqx, nqz);
+        curve25519_add(qpqx, nqpqx, nqpqz);
+        curve25519_sub(nqpqz, nqpqx, nqpqz);
+        curve25519_mul(nqpqx, qpqx, nqz);
+        curve25519_mul(nqpqz, qx, nqpqz);
+        curve25519_add(qqx, nqpqx, nqpqz);
+        curve25519_sub(nqpqz, nqpqx, nqpqz);
+        curve25519_square(nqpqz, nqpqz);
+        curve25519_square(nqpqx, qqx);
+        curve25519_mul(nqpqz, nqpqz, q);
+        curve25519_square(qx, qx);
+        curve25519_square(nqz, nqz);
+        curve25519_mul(nqx, qx, nqz);
+        curve25519_sub(nqz, qx, nqz);
+        curve25519_scalar_product(zzz, nqz, 121665);
+        curve25519_add(zzz, zzz, qx);
+        curve25519_mul(nqz, nqz, zzz);
+
+        bit = (e[i/8] >> (i & 7)) & 1;
+        curve25519_swap_conditional(nqx, nqpqx, bit ^ lastbit);
+        curve25519_swap_conditional(nqz, nqpqz, bit ^ lastbit);
+        lastbit = bit;
+    }
+
+    /* the final 3 bits are always zero, so we only need to double */
+    for (int i = 0; i < 3; i++) {
+        curve25519_add(qx, nqx, nqz);
+        curve25519_sub(nqz, nqx, nqz);
+        curve25519_square(qx, qx);
+        curve25519_square(nqz, nqz);
+        curve25519_mul(nqx, qx, nqz);
+        curve25519_sub(nqz, qx, nqz);
+        curve25519_scalar_product(zzz, nqz, 121665);
+        curve25519_add(zzz, zzz, qx);
+        curve25519_mul(nqz, nqz, zzz);
+    }
+
+    curve25519_recip(zmone, nqz);
+    curve25519_mul(nqz, nqx, zmone);
+    curve25519_contract(sharedKey, nqz);
 
     return 0;
 }
