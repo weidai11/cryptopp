@@ -1,8 +1,6 @@
 // donna_32.cpp - written and placed in public domain by Jeffrey Walton
-//                 This is a integration of Andrew Moon's public domain code.
-//                 Also see curve25519-donna-32bit.h.
-
-// This is an integration of Andrew Moon's public domain code.
+//                This is a integration of Andrew Moon's public domain code.
+//                Also see curve25519-donna-32bit.h.
 
 #include "pch.h"
 
@@ -14,8 +12,7 @@
 
 // This macro is not in a header like config.h because we don't want it
 // exposed to user code. We also need a standard header like <stdint.h>
-// or <stdef.h>. Langley uses uint128_t in the 64-bit code paths so
-// we further restrict 64-bit code.
+// or <stdef.h>.
 #if (UINTPTR_MAX == 0xffffffff) || !defined(CRYPTOPP_WORD128_AVAILABLE)
 # define CRYPTOPP_32BIT 1
 #else
@@ -31,9 +28,10 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using std::memcpy;
 using CryptoPP::byte;
-using CryptoPP::word16;
 using CryptoPP::word32;
+using CryptoPP::sword32;
 using CryptoPP::word64;
+using CryptoPP::sword64;
 
 using CryptoPP::GetBlock;
 using CryptoPP::BigEndian;
@@ -174,7 +172,7 @@ curve25519_neg(bignum25519 out, const bignum25519 a) {
 }
 
 /* out = a * b */
-static void
+void
 curve25519_mul(bignum25519 out, const bignum25519 a, const bignum25519 b) {
     word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
     word32 s0,s1,s2,s3,s4,s5,s6,s7,s8,s9;
@@ -240,7 +238,7 @@ curve25519_mul(bignum25519 out, const bignum25519 a, const bignum25519 b) {
 }
 
 /* out = in*in */
-static void
+void
 curve25519_square(bignum25519 out, const bignum25519 in) {
     word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
     word32 d6,d7,d8,d9;
@@ -297,7 +295,7 @@ curve25519_square(bignum25519 out, const bignum25519 in) {
 
 
 /* out = in ^ (2 * count) */
-static void
+void
 curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
     word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
     word32 d6,d7,d8,d9;
@@ -355,37 +353,12 @@ curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
 }
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
-static void
+void
 curve25519_expand(bignum25519 out, const unsigned char in[32]) {
     word32 x0,x1,x2,x3,x4,x5,x6,x7;
 
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-        //x0 = *(word32 *)(in + 0);
-        //x1 = *(word32 *)(in + 4);
-        //x2 = *(word32 *)(in + 8);
-        //x3 = *(word32 *)(in + 12);
-        //x4 = *(word32 *)(in + 16);
-        //x5 = *(word32 *)(in + 20);
-        //x6 = *(word32 *)(in + 24);
-        //x7 = *(word32 *)(in + 28);
-        GetBlock<word32, LittleEndian> block(in);
-        block(x0)(x1)(x2)(x3)(x4)(x5)(x6)(x7);
-#else
-        #define F(s)                         \
-            ((((word32)in[s + 0])      ) | \
-             (((word32)in[s + 1]) <<  8) | \
-             (((word32)in[s + 2]) << 16) | \
-             (((word32)in[s + 3]) << 24))
-        x0 = F(0);
-        x1 = F(4);
-        x2 = F(8);
-        x3 = F(12);
-        x4 = F(16);
-        x5 = F(20);
-        x6 = F(24);
-        x7 = F(28);
-        #undef F
-#endif
+    GetBlock<word32, LittleEndian> block(in);
+    block(x0)(x1)(x2)(x3)(x4)(x5)(x6)(x7);
 
     out[0] = (                      x0       ) & 0x3ffffff;
     out[1] = ((((word64)x1 << 32) | x0) >> 26) & 0x1ffffff;
@@ -402,7 +375,7 @@ curve25519_expand(bignum25519 out, const unsigned char in[32]) {
 /* Take a fully reduced polynomial form number and contract it into a
  * little-endian, 32-byte array
  */
-static void
+void
 curve25519_contract(unsigned char out[32], const bignum25519 in) {
     bignum25519 f;
     curve25519_copy(f, in);
@@ -483,57 +456,6 @@ curve25519_contract(unsigned char out[32], const bignum25519 in) {
     #undef F
 }
 
-/* out = (flag) ? in : out */
-inline void
-curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag) {
-    const word32 nb = flag - 1, b = ~nb;
-    const word32 *inl = (const word32 *)in;
-    word32 *outl = (word32 *)out;
-    outl[0] = (outl[0] & nb) | (inl[0] & b);
-    outl[1] = (outl[1] & nb) | (inl[1] & b);
-    outl[2] = (outl[2] & nb) | (inl[2] & b);
-    outl[3] = (outl[3] & nb) | (inl[3] & b);
-    outl[4] = (outl[4] & nb) | (inl[4] & b);
-    outl[5] = (outl[5] & nb) | (inl[5] & b);
-    outl[6] = (outl[6] & nb) | (inl[6] & b);
-    outl[7] = (outl[7] & nb) | (inl[7] & b);
-    outl[8] = (outl[8] & nb) | (inl[8] & b);
-    outl[9] = (outl[9] & nb) | (inl[9] & b);
-    outl[10] = (outl[10] & nb) | (inl[10] & b);
-    outl[11] = (outl[11] & nb) | (inl[11] & b);
-    outl[12] = (outl[12] & nb) | (inl[12] & b);
-    outl[13] = (outl[13] & nb) | (inl[13] & b);
-    outl[14] = (outl[14] & nb) | (inl[14] & b);
-    outl[15] = (outl[15] & nb) | (inl[15] & b);
-    outl[16] = (outl[16] & nb) | (inl[16] & b);
-    outl[17] = (outl[17] & nb) | (inl[17] & b);
-    outl[18] = (outl[18] & nb) | (inl[18] & b);
-    outl[19] = (outl[19] & nb) | (inl[19] & b);
-    outl[20] = (outl[20] & nb) | (inl[20] & b);
-    outl[21] = (outl[21] & nb) | (inl[21] & b);
-    outl[22] = (outl[22] & nb) | (inl[22] & b);
-    outl[23] = (outl[23] & nb) | (inl[23] & b);
-
-}
-
-/* if (iswap) swap(a, b) */
-inline void
-curve25519_swap_conditional(bignum25519 a, bignum25519 b, word32 iswap) {
-    const word32 swap = (word32)(-(int32_t)iswap);
-    word32 x0,x1,x2,x3,x4,x5,x6,x7,x8,x9;
-
-    x0 = swap & (a[0] ^ b[0]); a[0] ^= x0; b[0] ^= x0;
-    x1 = swap & (a[1] ^ b[1]); a[1] ^= x1; b[1] ^= x1;
-    x2 = swap & (a[2] ^ b[2]); a[2] ^= x2; b[2] ^= x2;
-    x3 = swap & (a[3] ^ b[3]); a[3] ^= x3; b[3] ^= x3;
-    x4 = swap & (a[4] ^ b[4]); a[4] ^= x4; b[4] ^= x4;
-    x5 = swap & (a[5] ^ b[5]); a[5] ^= x5; b[5] ^= x5;
-    x6 = swap & (a[6] ^ b[6]); a[6] ^= x6; b[6] ^= x6;
-    x7 = swap & (a[7] ^ b[7]); a[7] ^= x7; b[7] ^= x7;
-    x8 = swap & (a[8] ^ b[8]); a[8] ^= x8; b[8] ^= x8;
-    x9 = swap & (a[9] ^ b[9]); a[9] ^= x9; b[9] ^= x9;
-}
-
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -541,7 +463,6 @@ NAMESPACE_BEGIN(Donna)
 
 int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-    // The original function used bignum25519 as parameters.
     bignum25519 out, r, s;
     curve25519_expand(r, secretKey);
     curve25519_expand(s, othersKey);
