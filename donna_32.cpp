@@ -2,10 +2,14 @@
 //                This is a integration of Andrew Moon's public domain code.
 //                Also see curve25519-donna-32bit.h.
 
+// If needed, see Moon's commit "Go back to ignoring 256th bit",
+// https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
+
 #include "pch.h"
 
 #include "config.h"
 #include "donna.h"
+#include "secblock.h"
 #include "stdcpp.h"
 #include "misc.h"
 #include "cpu.h"
@@ -290,34 +294,6 @@ curve25519_expand(bignum25519 out, const byte in[32]) {
     GetBlock<word32, LittleEndian> block(in);
     block(x0)(x1)(x2)(x3)(x4)(x5)(x6)(x7);
 
-#if 0
-#if defined(CRYPTOPP_LITTLE_ENDIAN)
-        x0 = *(word32 *)(in + 0);
-        x1 = *(word32 *)(in + 4);
-        x2 = *(word32 *)(in + 8);
-        x3 = *(word32 *)(in + 12);
-        x4 = *(word32 *)(in + 16);
-        x5 = *(word32 *)(in + 20);
-        x6 = *(word32 *)(in + 24);
-        x7 = *(word32 *)(in + 28);
-#else
-        #define F(s)                       \
-            ((((word32)in[s + 0])      ) | \
-             (((word32)in[s + 1]) <<  8) | \
-             (((word32)in[s + 2]) << 16) | \
-             (((word32)in[s + 3]) << 24))
-        x0 = F(0);
-        x1 = F(4);
-        x2 = F(8);
-        x3 = F(12);
-        x4 = F(16);
-        x5 = F(20);
-        x6 = F(24);
-        x7 = F(28);
-        #undef F
-#endif
-#endif
-
     out[0] = (                      x0       ) & reduce_mask_26;
     out[1] = ((((word64)x1 << 32) | x0) >> 26) & reduce_mask_25;
     out[2] = ((((word64)x2 << 32) | x1) >> 19) & reduce_mask_26;
@@ -328,7 +304,6 @@ curve25519_expand(bignum25519 out, const byte in[32]) {
     out[7] = ((((word64)x6 << 32) | x5) >> 19) & reduce_mask_25;
     out[8] = ((((word64)x7 << 32) | x6) >> 12) & reduce_mask_26;
     out[9] = ((                     x7) >>  6) & reduce_mask_25; /* ignore the top bit */
-    // out[9] = ((                     x7) >>  6) & reduce_mask_26;
 }
 
 /* Take a fully reduced polynomial form number and contract it into a little-endian, 32-byte array */
