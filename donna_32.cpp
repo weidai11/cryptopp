@@ -1,59 +1,15 @@
 // donna_32.cpp - written and placed in public domain by Jeffrey Walton
-//                This is a port of Adam Langley's curve25519-donna
-//                located at https://github.com/agl/curve25519-donna
+//                 This is a integration of Andrew Moon's public domain code.
+//                 Also see curve25519-donna-32bit.h.
 
-/* Copyright 2008, Google Inc.
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
- *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- * curve25519-donna: Curve25519 elliptic curve, public key function
- *
- * http://code.google.com/p/curve25519-donna/
- *
- * Adam Langley <agl@imperialviolet.org>
- *
- * Derived from public domain C code by Daniel J. Bernstein <djb@cr.yp.to>
- *
- * More information about curve25519 can be found here
- *   http://cr.yp.to/ecdh.html
- *
- * djb's sample implementation of curve25519 is written in a special assembly
- * language called qhasm and uses the floating point registers.
- *
- * This is, almost, a clean room reimplementation from the curve25519 paper. It
- * uses many of the tricks described therein. Only the crecip function is taken
- * from the sample implementation. */
+// This is an integration of Andrew Moon's public domain code.
 
 #include "pch.h"
 
 #include "config.h"
 #include "donna.h"
 #include "stdcpp.h"
+#include "misc.h"
 #include "cpu.h"
 
 // This macro is not in a header like config.h because we don't want it
@@ -66,16 +22,6 @@
 # define CRYPTOPP_64BIT 1
 #endif
 
-// Some compilers don't handle the code for the arithmetic shifts
-// well. For compilers we know how to support we will issue the asm
-// to sidestep the problem. We also switch to a slightly different
-// pattern. We believe the pattern preserves the existing properties
-// without a branch. The ASM uses one intruction, while the C statement
-// use 2 to 6 instructions, depending on the compiler.
-#if (__GNUC__ >= 3) || (__SUNPRO_CC >= 0x5100)
-# define CRYPTOPP_ASR_ASM 1
-#endif
-
 // Squash MS LNK4221 and libtool warnings
 extern const char DONNA32_FNAME[] = __FILE__;
 
@@ -85,879 +31,507 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using std::memcpy;
 using CryptoPP::byte;
+using CryptoPP::word16;
 using CryptoPP::word32;
 using CryptoPP::word64;
-using CryptoPP::sword32;
-using CryptoPP::sword64;
 
-typedef sword64 limb;
+using CryptoPP::GetBlock;
+using CryptoPP::BigEndian;
+using CryptoPP::LittleEndian;
 
-// Added by JW for SunCC. SignExtendShift is just an
-// arithmetic shift. Easier said than done in C. Use
-// inline ASM when available. Avoid the bit twiddling
-// hacks. Also see the comments for CRYPTOPP_ASR_ASM.
-template <unsigned int S>
-inline int SignExtendShift(int val)
-{
-#if defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_X86)
-    __asm__
-    (
-        "sar %1, %0    \n"
-        : "+g" (val) : "I" (S) : "cc"
-    );
-    return val;
-#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_ARM32)
-    __asm__
-    (
-        "asr %0, %0, %1    \n"
-        : "+r" (val) : "I" (S) :
-    );
-    return val;
-#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_MIPS32)
-    __asm__
-    (
-        "sra %0, %0, %1    \n"
-        : "+r" (val) : "I" (S) :
-    );
-    return val;
-#else
-    const unsigned int v = ((unsigned int)val >> S);
-    return ((signed int)v * -1);
-#endif
+typedef word32 bignum25519[10];
+typedef word32 bignum25519align16[12];
+
+#define mul32x32_64(a,b) (((word64)(a))*(b))
+
+const word32 reduce_mask_25 = (1 << 25) - 1;
+const word32 reduce_mask_26 = (1 << 26) - 1;
+
+/* out = in */
+inline void
+curve25519_copy(bignum25519 out, const bignum25519 in) {
+    out[0] = in[0]; out[1] = in[1];
+    out[2] = in[2]; out[3] = in[3];
+    out[4] = in[4]; out[5] = in[5];
+    out[6] = in[6]; out[7] = in[7];
+    out[8] = in[8]; out[9] = in[9];
 }
 
-template <unsigned int S>
-inline unsigned int SignExtendShift(unsigned int val)
-{
-#if defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_X86)
-    __asm__
-    (
-        "sar %1, %0    \n"
-        : "+g" (val) : "I" (S) : "cc"
-    );
-    return val;
-#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_ARM32)
-    __asm__
-    (
-        "asr %0, %0, %1    \n"
-        : "+r" (val) : "I" (S) :
-    );
-    return val;
-#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_MIPS32)
-    __asm__
-    (
-        "sra %0, %0, %1    \n"
-        : "+r" (val) : "I" (S) :
-    );
-    return val;
-#else
-    const signed int v = (signed int)(val >> S);
-    return (unsigned int)(v * -1);
-#endif
+/* out = a + b */
+inline void
+curve25519_add(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    out[0] = a[0] + b[0]; out[1] = a[1] + b[1];
+    out[2] = a[2] + b[2]; out[3] = a[3] + b[3];
+    out[4] = a[4] + b[4]; out[5] = a[5] + b[5];
+    out[6] = a[6] + b[6]; out[7] = a[7] + b[7];
+    out[8] = a[8] + b[8]; out[9] = a[9] + b[9];
 }
 
-/* Field element representation:
- *
- * Field elements are written as an array of signed, 64-bit limbs, least
- * significant first. The value of the field element is:
- *   x[0] + 2^26·x[1] + x^51·x[2] + 2^102·x[3] + ...
- *
- * i.e. the limbs are 26, 25, 26, 25, ... bits wide. */
-
-/* Sum two numbers: output += in */
-void fsum(limb *output, const limb *in)
-{
-  for (unsigned int i = 0; i < 10; i += 2) {
-    output[0+i] = output[0+i] + in[0+i];
-    output[1+i] = output[1+i] + in[1+i];
-  }
+inline void
+curve25519_add_after_basic(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word32 c;
+    out[0] = a[0] + b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = a[1] + b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = a[2] + b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = a[3] + b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = a[4] + b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
+    out[5] = a[5] + b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
+    out[6] = a[6] + b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
+    out[7] = a[7] + b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
+    out[8] = a[8] + b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
+    out[9] = a[9] + b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
+    out[0] += 19 * c;
 }
 
-/* Find the difference of two numbers: output = in - output
- * (note the order of the arguments!). */
-void fdifference(limb *output, const limb *in)
-{
-  for (unsigned int i = 0; i < 10; ++i) {
-    output[i] = in[i] - output[i];
-  }
+inline void
+curve25519_add_reduce(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word32 c;
+    out[0] = a[0] + b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = a[1] + b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = a[2] + b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = a[3] + b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = a[4] + b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
+    out[5] = a[5] + b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
+    out[6] = a[6] + b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
+    out[7] = a[7] + b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
+    out[8] = a[8] + b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
+    out[9] = a[9] + b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
+    out[0] += 19 * c;
 }
 
-/* Multiply a number by a scalar: output = in * scalar */
-void fscalar_product(limb *output, const limb *in, const limb scalar)
-{
-  for (unsigned int i = 0; i < 10; ++i) {
-    output[i] = in[i] * scalar;
-  }
+/* multiples of p */
+const word32 twoP0       = 0x07ffffda;
+const word32 twoP13579   = 0x03fffffe;
+const word32 twoP2468    = 0x07fffffe;
+const word32 fourP0      = 0x0fffffb4;
+const word32 fourP13579  = 0x07fffffc;
+const word32 fourP2468   = 0x0ffffffc;
+
+/* out = a - b */
+inline void
+curve25519_sub(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word32 c;
+    out[0] = twoP0     + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = twoP13579 + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = twoP2468  + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = twoP13579 + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = twoP2468  + a[4] - b[4] + c;
+    out[5] = twoP13579 + a[5] - b[5]    ;
+    out[6] = twoP2468  + a[6] - b[6]    ;
+    out[7] = twoP13579 + a[7] - b[7]    ;
+    out[8] = twoP2468  + a[8] - b[8]    ;
+    out[9] = twoP13579 + a[9] - b[9]    ;
 }
 
-/* Multiply two numbers: output = in2 * in
- *
- * output must be distinct to both inputs. The inputs are reduced coefficient
- * form, the output is not.
- *
- * output[x] <= 14 * the largest product of the input limbs. */
-void fproduct(limb *output, const limb *in2, const limb *in)
-{
-  output[0] =       ((limb) ((sword32) in2[0])) * ((sword32) in[0]);
-  output[1] =       ((limb) ((sword32) in2[0])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[0]);
-  output[2] =  2 *  ((limb) ((sword32) in2[1])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[0]);
-  output[3] =       ((limb) ((sword32) in2[1])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[0]);
-  output[4] =       ((limb) ((sword32) in2[2])) * ((sword32) in[2]) +
-               2 * (((limb) ((sword32) in2[1])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[1])) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[0]);
-  output[5] =       ((limb) ((sword32) in2[2])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[0]);
-  output[6] =  2 * (((limb) ((sword32) in2[3])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[1])) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[0]);
-  output[7] =       ((limb) ((sword32) in2[3])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[0]);
-  output[8] =       ((limb) ((sword32) in2[4])) * ((sword32) in[4]) +
-               2 * (((limb) ((sword32) in2[3])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[1])) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[0]);
-  output[9] =       ((limb) ((sword32) in2[4])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in2[0])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[0]);
-  output[10] = 2 * (((limb) ((sword32) in2[5])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[1])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[1])) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[2]);
-  output[11] =      ((limb) ((sword32) in2[5])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in2[2])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[2]);
-  output[12] =      ((limb) ((sword32) in2[6])) * ((sword32) in[6]) +
-               2 * (((limb) ((sword32) in2[5])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[3])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[3])) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[4]);
-  output[13] =      ((limb) ((sword32) in2[6])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[7])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in2[4])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[4]);
-  output[14] = 2 * (((limb) ((sword32) in2[7])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[5])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[5])) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[6]);
-  output[15] =      ((limb) ((sword32) in2[7])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in2[8])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in2[6])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[6]);
-  output[16] =      ((limb) ((sword32) in2[8])) * ((sword32) in[8]) +
-               2 * (((limb) ((sword32) in2[7])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[7]));
-  output[17] =      ((limb) ((sword32) in2[8])) * ((sword32) in[9]) +
-                    ((limb) ((sword32) in2[9])) * ((sword32) in[8]);
-  output[18] = 2 *  ((limb) ((sword32) in2[9])) * ((sword32) in[9]);
+/* out = a - b, where a is the result of a basic op (add,sub) */
+inline void
+curve25519_sub_after_basic(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word32 c;
+    out[0] = fourP0     + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = fourP13579 + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = fourP2468  + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = fourP13579 + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = fourP2468  + a[4] - b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
+    out[5] = fourP13579 + a[5] - b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
+    out[6] = fourP2468  + a[6] - b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
+    out[7] = fourP13579 + a[7] - b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
+    out[8] = fourP2468  + a[8] - b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
+    out[9] = fourP13579 + a[9] - b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
+    out[0] += 19 * c;
 }
 
-/* Reduce a long form to a short form by taking the input mod 2^255 - 19.
- *
- * On entry: |output[i]| < 14*2^54
- * On exit: |output[0..8]| < 280*2^54 */
-void freduce_degree(limb *output)
-{
-  /* Each of these shifts and adds ends up multiplying the value by 19.
-   *
-   * For output[0..8], the absolute entry value is < 14*2^54 and we add, at
-   * most, 19*14*2^54 thus, on exit, |output[0..8]| < 280*2^54. */
-  output[8] += output[18] << 4;
-  output[8] += output[18] << 1;
-  output[8] += output[18];
-  output[7] += output[17] << 4;
-  output[7] += output[17] << 1;
-  output[7] += output[17];
-  output[6] += output[16] << 4;
-  output[6] += output[16] << 1;
-  output[6] += output[16];
-  output[5] += output[15] << 4;
-  output[5] += output[15] << 1;
-  output[5] += output[15];
-  output[4] += output[14] << 4;
-  output[4] += output[14] << 1;
-  output[4] += output[14];
-  output[3] += output[13] << 4;
-  output[3] += output[13] << 1;
-  output[3] += output[13];
-  output[2] += output[12] << 4;
-  output[2] += output[12] << 1;
-  output[2] += output[12];
-  output[1] += output[11] << 4;
-  output[1] += output[11] << 1;
-  output[1] += output[11];
-  output[0] += output[10] << 4;
-  output[0] += output[10] << 1;
-  output[0] += output[10];
+inline void
+curve25519_sub_reduce(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word32 c;
+    out[0] = fourP0     + a[0] - b[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = fourP13579 + a[1] - b[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = fourP2468  + a[2] - b[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = fourP13579 + a[3] - b[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = fourP2468  + a[4] - b[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
+    out[5] = fourP13579 + a[5] - b[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
+    out[6] = fourP2468  + a[6] - b[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
+    out[7] = fourP13579 + a[7] - b[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
+    out[8] = fourP2468  + a[8] - b[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
+    out[9] = fourP13579 + a[9] - b[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
+    out[0] += 19 * c;
 }
 
-// Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
-// #if (-1 & 3) != 3
-// #error "This code only works on a two's complement system"
-// #endif
-
-/* return v / 2^26, using only shifts and adds.
- *
- * On entry: v can take any value. */
-inline limb div_by_2_26(const limb v)
-{
-  /* High word of v; no shift needed. */
-  const word32 highword = (word32) (((word64) v) >> 32);
-
-  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
-  /* Set to all 1s if v was negative; else set to 0s. */
-  /* const sword32 sign = ((sword32) highword) >> 31; */
-  const word32 sign = SignExtendShift<31>(highword);
-
-  /* Set to 0x3ffffff if v was negative; else set to 0. */
-  /* const sword32 roundoff = ((word32) sign) >> 6; */
-  const sword32 roundoff = (sword32)(sign >> 6);
-
-  /* Should return v / (1<<26) */
-  return (v + roundoff) >> 26;
+/* out = -a */
+inline void
+curve25519_neg(bignum25519 out, const bignum25519 a) {
+    word32 c;
+    out[0] = twoP0     - a[0]    ; c = (out[0] >> 26); out[0] &= reduce_mask_26;
+    out[1] = twoP13579 - a[1] + c; c = (out[1] >> 25); out[1] &= reduce_mask_25;
+    out[2] = twoP2468  - a[2] + c; c = (out[2] >> 26); out[2] &= reduce_mask_26;
+    out[3] = twoP13579 - a[3] + c; c = (out[3] >> 25); out[3] &= reduce_mask_25;
+    out[4] = twoP2468  - a[4] + c; c = (out[4] >> 26); out[4] &= reduce_mask_26;
+    out[5] = twoP13579 - a[5] + c; c = (out[5] >> 25); out[5] &= reduce_mask_25;
+    out[6] = twoP2468  - a[6] + c; c = (out[6] >> 26); out[6] &= reduce_mask_26;
+    out[7] = twoP13579 - a[7] + c; c = (out[7] >> 25); out[7] &= reduce_mask_25;
+    out[8] = twoP2468  - a[8] + c; c = (out[8] >> 26); out[8] &= reduce_mask_26;
+    out[9] = twoP13579 - a[9] + c; c = (out[9] >> 25); out[9] &= reduce_mask_25;
+    out[0] += 19 * c;
 }
 
-/* return v / (2^25), using only shifts and adds.
- *
- * On entry: v can take any value. */
-inline limb div_by_2_25(const limb v)
-{
-  /* High word of v; no shift needed*/
-  const word32 highword = (word32) (((word64) v) >> 32);
+/* out = a * b */
+static void
+curve25519_mul(bignum25519 out, const bignum25519 a, const bignum25519 b) {
+    word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
+    word32 s0,s1,s2,s3,s4,s5,s6,s7,s8,s9;
+    word64 m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,c;
+    word32 p;
 
-  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
-  /* Set to all 1s if v was negative; else set to 0s. */
-  /* const sword32 sign = ((sword32) highword) >> 31; */
-  const word32 sign = SignExtendShift<31>(highword);
+    r0 = b[0]; r1 = b[1]; r2 = b[2]; r3 = b[3]; r4 = b[4];
+    r5 = b[5]; r6 = b[6]; r7 = b[7]; r8 = b[8]; r9 = b[9];
 
-  /* Set to 0x1ffffff if v was negative; else set to 0. */
-  /* const sword32 roundoff = ((word32) sign) >> 7; */
-  const sword32 roundoff = (sword32)(sign >> 7);
+    s0 = a[0]; s1 = a[1]; s2 = a[2]; s3 = a[3]; s4 = a[4];
+    s5 = a[5]; s6 = a[6]; s7 = a[7]; s8 = a[8]; s9 = a[9];
 
-  /* Should return v / (1<<25) */
-  return (v + roundoff) >> 25;
+    m1 = mul32x32_64(r0, s1) + mul32x32_64(r1, s0);
+    m3 = mul32x32_64(r0, s3) + mul32x32_64(r1, s2) + mul32x32_64(r2, s1) + mul32x32_64(r3, s0);
+    m5 = mul32x32_64(r0, s5) + mul32x32_64(r1, s4) + mul32x32_64(r2, s3) + mul32x32_64(r3, s2) + mul32x32_64(r4, s1) + mul32x32_64(r5, s0);
+    m7 = mul32x32_64(r0, s7) + mul32x32_64(r1, s6) + mul32x32_64(r2, s5) + mul32x32_64(r3, s4) + mul32x32_64(r4, s3) + mul32x32_64(r5, s2) + mul32x32_64(r6, s1) + mul32x32_64(r7, s0);
+    m9 = mul32x32_64(r0, s9) + mul32x32_64(r1, s8) + mul32x32_64(r2, s7) + mul32x32_64(r3, s6) + mul32x32_64(r4, s5) + mul32x32_64(r5, s4) + mul32x32_64(r6, s3) + mul32x32_64(r7, s2) + mul32x32_64(r8, s1) + mul32x32_64(r9, s0);
+
+    r1 *= 2; r3 *= 2; r5 *= 2; r7 *= 2;
+
+    m0 = mul32x32_64(r0, s0);
+    m2 = mul32x32_64(r0, s2) + mul32x32_64(r1, s1) + mul32x32_64(r2, s0);
+    m4 = mul32x32_64(r0, s4) + mul32x32_64(r1, s3) + mul32x32_64(r2, s2) + mul32x32_64(r3, s1) + mul32x32_64(r4, s0);
+    m6 = mul32x32_64(r0, s6) + mul32x32_64(r1, s5) + mul32x32_64(r2, s4) + mul32x32_64(r3, s3) + mul32x32_64(r4, s2) + mul32x32_64(r5, s1) + mul32x32_64(r6, s0);
+    m8 = mul32x32_64(r0, s8) + mul32x32_64(r1, s7) + mul32x32_64(r2, s6) + mul32x32_64(r3, s5) + mul32x32_64(r4, s4) + mul32x32_64(r5, s3) + mul32x32_64(r6, s2) + mul32x32_64(r7, s1) + mul32x32_64(r8, s0);
+
+    r1 *= 19; r2 *= 19;
+    r3 = (r3 / 2) * 19;
+    r4 *= 19;
+    r5 = (r5 / 2) * 19;
+    r6 *= 19;
+    r7 = (r7 / 2) * 19;
+    r8 *= 19; r9 *= 19;
+
+    m1 += (mul32x32_64(r9, s2) + mul32x32_64(r8, s3) + mul32x32_64(r7, s4) + mul32x32_64(r6, s5) + mul32x32_64(r5, s6) + mul32x32_64(r4, s7) + mul32x32_64(r3, s8) + mul32x32_64(r2, s9));
+    m3 += (mul32x32_64(r9, s4) + mul32x32_64(r8, s5) + mul32x32_64(r7, s6) + mul32x32_64(r6, s7) + mul32x32_64(r5, s8) + mul32x32_64(r4, s9));
+    m5 += (mul32x32_64(r9, s6) + mul32x32_64(r8, s7) + mul32x32_64(r7, s8) + mul32x32_64(r6, s9));
+    m7 += (mul32x32_64(r9, s8) + mul32x32_64(r8, s9));
+
+    r3 *= 2; r5 *= 2; r7 *= 2; r9 *= 2;
+
+    m0 += (mul32x32_64(r9, s1) + mul32x32_64(r8, s2) + mul32x32_64(r7, s3) + mul32x32_64(r6, s4) + mul32x32_64(r5, s5) + mul32x32_64(r4, s6) + mul32x32_64(r3, s7) + mul32x32_64(r2, s8) + mul32x32_64(r1, s9));
+    m2 += (mul32x32_64(r9, s3) + mul32x32_64(r8, s4) + mul32x32_64(r7, s5) + mul32x32_64(r6, s6) + mul32x32_64(r5, s7) + mul32x32_64(r4, s8) + mul32x32_64(r3, s9));
+    m4 += (mul32x32_64(r9, s5) + mul32x32_64(r8, s6) + mul32x32_64(r7, s7) + mul32x32_64(r6, s8) + mul32x32_64(r5, s9));
+    m6 += (mul32x32_64(r9, s7) + mul32x32_64(r8, s8) + mul32x32_64(r7, s9));
+    m8 += (mul32x32_64(r9, s9));
+
+                                 r0 = (word32)m0 & reduce_mask_26; c = (m0 >> 26);
+    m1 += c;                     r1 = (word32)m1 & reduce_mask_25; c = (m1 >> 25);
+    m2 += c;                     r2 = (word32)m2 & reduce_mask_26; c = (m2 >> 26);
+    m3 += c;                     r3 = (word32)m3 & reduce_mask_25; c = (m3 >> 25);
+    m4 += c;                     r4 = (word32)m4 & reduce_mask_26; c = (m4 >> 26);
+    m5 += c;                     r5 = (word32)m5 & reduce_mask_25; c = (m5 >> 25);
+    m6 += c;                     r6 = (word32)m6 & reduce_mask_26; c = (m6 >> 26);
+    m7 += c;                     r7 = (word32)m7 & reduce_mask_25; c = (m7 >> 25);
+    m8 += c;                     r8 = (word32)m8 & reduce_mask_26; c = (m8 >> 26);
+    m9 += c;                     r9 = (word32)m9 & reduce_mask_25; p = (word32)(m9 >> 25);
+    m0 = r0 + mul32x32_64(p,19); r0 = (word32)m0 & reduce_mask_26; p = (word32)(m0 >> 26);
+    r1 += p;
+
+    out[0] = r0; out[1] = r1; out[2] = r2; out[3] = r3; out[4] = r4;
+    out[5] = r5; out[6] = r6; out[7] = r7; out[8] = r8; out[9] = r9;
 }
 
-/* Reduce all coefficients of the short form input so that |x| < 2^26.
- *
- * On entry: |output[i]| < 280*2^54 */
-void freduce_coefficients(limb *output)
-{
-  output[10] = 0;
+/* out = in*in */
+static void
+curve25519_square(bignum25519 out, const bignum25519 in) {
+    word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
+    word32 d6,d7,d8,d9;
+    word64 m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,c;
+    word32 p;
 
-  for (unsigned int i = 0; i < 10; i += 2) {
-    limb over = div_by_2_26(output[i]);
-    /* The entry condition (that |output[i]| < 280*2^54) means that over is, at
-     * most, 280*2^28 in the first iteration of this loop. This is added to the
-     * next limb and we can approximate the resulting bound of that limb by
-     * 281*2^54. */
-    output[i] -= over << 26;
-    output[i+1] += over;
+    r0 = in[0]; r1 = in[1]; r2 = in[2]; r3 = in[3]; r4 = in[4];
+    r5 = in[5]; r6 = in[6]; r7 = in[7]; r8 = in[8]; r9 = in[9];
 
-    /* For the first iteration, |output[i+1]| < 281*2^54, thus |over| <
-     * 281*2^29. When this is added to the next limb, the resulting bound can
-     * be approximated as 281*2^54.
-     *
-     * For subsequent iterations of the loop, 281*2^54 remains a conservative
-     * bound and no overflow occurs. */
-    over = div_by_2_25(output[i+1]);
-    output[i+1] -= over << 25;
-    output[i+2] += over;
-  }
+    m0 = mul32x32_64(r0, r0);
+    r0 *= 2;
+    m1 = mul32x32_64(r0, r1);
+    m2 = mul32x32_64(r0, r2) + mul32x32_64(r1, r1 * 2);
+    r1 *= 2;
+    m3 = mul32x32_64(r0, r3) + mul32x32_64(r1, r2    );
+    m4 = mul32x32_64(r0, r4) + mul32x32_64(r1, r3 * 2) + mul32x32_64(r2, r2);
+    r2 *= 2;
+    m5 = mul32x32_64(r0, r5) + mul32x32_64(r1, r4    ) + mul32x32_64(r2, r3);
+    m6 = mul32x32_64(r0, r6) + mul32x32_64(r1, r5 * 2) + mul32x32_64(r2, r4) + mul32x32_64(r3, r3 * 2);
+    r3 *= 2;
+    m7 = mul32x32_64(r0, r7) + mul32x32_64(r1, r6    ) + mul32x32_64(r2, r5) + mul32x32_64(r3, r4    );
+    m8 = mul32x32_64(r0, r8) + mul32x32_64(r1, r7 * 2) + mul32x32_64(r2, r6) + mul32x32_64(r3, r5 * 2) + mul32x32_64(r4, r4    );
+    m9 = mul32x32_64(r0, r9) + mul32x32_64(r1, r8    ) + mul32x32_64(r2, r7) + mul32x32_64(r3, r6    ) + mul32x32_64(r4, r5 * 2);
 
-  /* Now |output[10]| < 281*2^29 and all other coefficients are reduced. */
-  output[0] += output[10] << 4;
-  output[0] += output[10] << 1;
-  output[0] += output[10];
+    d6 = r6 * 19; d7 = r7 * 2 * 19;
+    d8 = r8 * 19; d9 = r9 * 2 * 19;
 
-  output[10] = 0;
+    m0 += (mul32x32_64(d9, r1    ) + mul32x32_64(d8, r2    ) + mul32x32_64(d7, r3    ) + mul32x32_64(d6, r4 * 2) + mul32x32_64(r5, r5 * 2 * 19));
+    m1 += (mul32x32_64(d9, r2 / 2) + mul32x32_64(d8, r3    ) + mul32x32_64(d7, r4    ) + mul32x32_64(d6, r5 * 2));
+    m2 += (mul32x32_64(d9, r3    ) + mul32x32_64(d8, r4 * 2) + mul32x32_64(d7, r5 * 2) + mul32x32_64(d6, r6    ));
+    m3 += (mul32x32_64(d9, r4    ) + mul32x32_64(d8, r5 * 2) + mul32x32_64(d7, r6    ));
+    m4 += (mul32x32_64(d9, r5 * 2) + mul32x32_64(d8, r6 * 2) + mul32x32_64(d7, r7    ));
+    m5 += (mul32x32_64(d9, r6    ) + mul32x32_64(d8, r7 * 2));
+    m6 += (mul32x32_64(d9, r7 * 2) + mul32x32_64(d8, r8    ));
+    m7 += (mul32x32_64(d9, r8    ));
+    m8 += (mul32x32_64(d9, r9    ));
 
-  /* Now output[1..9] are reduced, and |output[0]| < 2^26 + 19*281*2^29
-   * So |over| will be no more than 2^16. */
-  {
-    limb over = div_by_2_26(output[0]);
-    output[0] -= over << 26;
-    output[1] += over;
-  }
+                                 r0 = (word32)m0 & reduce_mask_26; c = (m0 >> 26);
+    m1 += c;                     r1 = (word32)m1 & reduce_mask_25; c = (m1 >> 25);
+    m2 += c;                     r2 = (word32)m2 & reduce_mask_26; c = (m2 >> 26);
+    m3 += c;                     r3 = (word32)m3 & reduce_mask_25; c = (m3 >> 25);
+    m4 += c;                     r4 = (word32)m4 & reduce_mask_26; c = (m4 >> 26);
+    m5 += c;                     r5 = (word32)m5 & reduce_mask_25; c = (m5 >> 25);
+    m6 += c;                     r6 = (word32)m6 & reduce_mask_26; c = (m6 >> 26);
+    m7 += c;                     r7 = (word32)m7 & reduce_mask_25; c = (m7 >> 25);
+    m8 += c;                     r8 = (word32)m8 & reduce_mask_26; c = (m8 >> 26);
+    m9 += c;                     r9 = (word32)m9 & reduce_mask_25; p = (word32)(m9 >> 25);
+    m0 = r0 + mul32x32_64(p,19); r0 = (word32)m0 & reduce_mask_26; p = (word32)(m0 >> 26);
+    r1 += p;
 
-  /* Now output[0,2..9] are reduced, and |output[1]| < 2^25 + 2^16 < 2^26. The
-   * bound on |output[1]| is sufficient to meet our needs. */
+    out[0] = r0; out[1] = r1; out[2] = r2; out[3] = r3; out[4] = r4;
+    out[5] = r5; out[6] = r6; out[7] = r7; out[8] = r8; out[9] = r9;
 }
 
-/* A helpful wrapper around fproduct: output = in * in2.
- *
- * On entry: |in[i]| < 2^27 and |in2[i]| < 2^27.
- *
- * output must be distinct to both inputs. The output is reduced degree
- * (indeed, one need only provide storage for 10 limbs) and |output[i]| < 2^26. */
-void fmul(limb *output, const limb *in, const limb *in2)
-{
-  limb t[19];
-  fproduct(t, in, in2);
-  /* |t[i]| < 14*2^54 */
-  freduce_degree(t);
-  freduce_coefficients(t);
-  /* |t[i]| < 2^26 */
-  memcpy(output, t, sizeof(limb) * 10);
-}
 
-/* Square a number: output = in**2
- *
- * output must be distinct from the input. The inputs are reduced coefficient
- * form, the output is not.
- *
- * output[x] <= 14 * the largest product of the input limbs. */
-void fsquare_inner(limb *output, const limb *in)
-{
-  output[0] =       ((limb) ((sword32) in[0])) * ((sword32) in[0]);
-  output[1] =  2 *  ((limb) ((sword32) in[0])) * ((sword32) in[1]);
-  output[2] =  2 * (((limb) ((sword32) in[1])) * ((sword32) in[1]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[2]));
-  output[3] =  2 * (((limb) ((sword32) in[1])) * ((sword32) in[2]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[3]));
-  output[4] =       ((limb) ((sword32) in[2])) * ((sword32) in[2]) +
-               4 *  ((limb) ((sword32) in[1])) * ((sword32) in[3]) +
-               2 *  ((limb) ((sword32) in[0])) * ((sword32) in[4]);
-  output[5] =  2 * (((limb) ((sword32) in[2])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in[1])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[5]));
-  output[6] =  2 * (((limb) ((sword32) in[3])) * ((sword32) in[3]) +
-                    ((limb) ((sword32) in[2])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[6]) +
-               2 *  ((limb) ((sword32) in[1])) * ((sword32) in[5]));
-  output[7] =  2 * (((limb) ((sword32) in[3])) * ((sword32) in[4]) +
-                    ((limb) ((sword32) in[2])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in[1])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[7]));
-  output[8] =       ((limb) ((sword32) in[4])) * ((sword32) in[4]) +
-               2 * (((limb) ((sword32) in[2])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[8]) +
-               2 * (((limb) ((sword32) in[1])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[3])) * ((sword32) in[5])));
-  output[9] =  2 * (((limb) ((sword32) in[4])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in[3])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in[2])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[1])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in[0])) * ((sword32) in[9]));
-  output[10] = 2 * (((limb) ((sword32) in[5])) * ((sword32) in[5]) +
-                    ((limb) ((sword32) in[4])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in[2])) * ((sword32) in[8]) +
-               2 * (((limb) ((sword32) in[3])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[1])) * ((sword32) in[9])));
-  output[11] = 2 * (((limb) ((sword32) in[5])) * ((sword32) in[6]) +
-                    ((limb) ((sword32) in[4])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[3])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in[2])) * ((sword32) in[9]));
-  output[12] =      ((limb) ((sword32) in[6])) * ((sword32) in[6]) +
-               2 * (((limb) ((sword32) in[4])) * ((sword32) in[8]) +
-               2 * (((limb) ((sword32) in[5])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[3])) * ((sword32) in[9])));
-  output[13] = 2 * (((limb) ((sword32) in[6])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[5])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in[4])) * ((sword32) in[9]));
-  output[14] = 2 * (((limb) ((sword32) in[7])) * ((sword32) in[7]) +
-                    ((limb) ((sword32) in[6])) * ((sword32) in[8]) +
-               2 *  ((limb) ((sword32) in[5])) * ((sword32) in[9]));
-  output[15] = 2 * (((limb) ((sword32) in[7])) * ((sword32) in[8]) +
-                    ((limb) ((sword32) in[6])) * ((sword32) in[9]));
-  output[16] =      ((limb) ((sword32) in[8])) * ((sword32) in[8]) +
-               4 *  ((limb) ((sword32) in[7])) * ((sword32) in[9]);
-  output[17] = 2 *  ((limb) ((sword32) in[8])) * ((sword32) in[9]);
-  output[18] = 2 *  ((limb) ((sword32) in[9])) * ((sword32) in[9]);
-}
+/* out = in ^ (2 * count) */
+static void
+curve25519_square_times(bignum25519 out, const bignum25519 in, int count) {
+    word32 r0,r1,r2,r3,r4,r5,r6,r7,r8,r9;
+    word32 d6,d7,d8,d9;
+    word64 m0,m1,m2,m3,m4,m5,m6,m7,m8,m9,c;
+    word32 p;
 
-/* fsquare sets output = in^2.
- *
- * On entry: The |in| argument is in reduced coefficients form and |in[i]| <
- * 2^27.
- *
- * On exit: The |output| argument is in reduced coefficients form (indeed, one
- * need only provide storage for 10 limbs) and |out[i]| < 2^26. */
-void
-fsquare(limb *output, const limb *in)
-{
-  limb t[19];
-  fsquare_inner(t, in);
-  /* |t[i]| < 14*2^54 because the largest product of two limbs will be <
-   * 2^(27+27) and fsquare_inner adds together, at most, 14 of those
-   * products. */
-  freduce_degree(t);
-  freduce_coefficients(t);
-  /* |t[i]| < 2^26 */
-  memcpy(output, t, sizeof(limb) * 10);
+    r0 = in[0]; r1 = in[1];    r2 = in[2]; r3 = in[3]; r4 = in[4];
+    r5 = in[5]; r6 = in[6]; r7 = in[7]; r8 = in[8]; r9 = in[9];
+
+    do {
+        m0 = mul32x32_64(r0, r0);
+        r0 *= 2;
+        m1 = mul32x32_64(r0, r1);
+        m2 = mul32x32_64(r0, r2) + mul32x32_64(r1, r1 * 2);
+        r1 *= 2;
+        m3 = mul32x32_64(r0, r3) + mul32x32_64(r1, r2    );
+        m4 = mul32x32_64(r0, r4) + mul32x32_64(r1, r3 * 2) + mul32x32_64(r2, r2);
+        r2 *= 2;
+        m5 = mul32x32_64(r0, r5) + mul32x32_64(r1, r4    ) + mul32x32_64(r2, r3);
+        m6 = mul32x32_64(r0, r6) + mul32x32_64(r1, r5 * 2) + mul32x32_64(r2, r4) + mul32x32_64(r3, r3 * 2);
+        r3 *= 2;
+        m7 = mul32x32_64(r0, r7) + mul32x32_64(r1, r6    ) + mul32x32_64(r2, r5) + mul32x32_64(r3, r4    );
+        m8 = mul32x32_64(r0, r8) + mul32x32_64(r1, r7 * 2) + mul32x32_64(r2, r6) + mul32x32_64(r3, r5 * 2) + mul32x32_64(r4, r4    );
+        m9 = mul32x32_64(r0, r9) + mul32x32_64(r1, r8    ) + mul32x32_64(r2, r7) + mul32x32_64(r3, r6    ) + mul32x32_64(r4, r5 * 2);
+
+        d6 = r6 * 19; d7 = r7 * 2 * 19;
+        d8 = r8 * 19; d9 = r9 * 2 * 19;
+
+        m0 += (mul32x32_64(d9, r1    ) + mul32x32_64(d8, r2    ) + mul32x32_64(d7, r3    ) + mul32x32_64(d6, r4 * 2) + mul32x32_64(r5, r5 * 2 * 19));
+        m1 += (mul32x32_64(d9, r2 / 2) + mul32x32_64(d8, r3    ) + mul32x32_64(d7, r4    ) + mul32x32_64(d6, r5 * 2));
+        m2 += (mul32x32_64(d9, r3    ) + mul32x32_64(d8, r4 * 2) + mul32x32_64(d7, r5 * 2) + mul32x32_64(d6, r6    ));
+        m3 += (mul32x32_64(d9, r4    ) + mul32x32_64(d8, r5 * 2) + mul32x32_64(d7, r6    ));
+        m4 += (mul32x32_64(d9, r5 * 2) + mul32x32_64(d8, r6 * 2) + mul32x32_64(d7, r7    ));
+        m5 += (mul32x32_64(d9, r6    ) + mul32x32_64(d8, r7 * 2));
+        m6 += (mul32x32_64(d9, r7 * 2) + mul32x32_64(d8, r8    ));
+        m7 += (mul32x32_64(d9, r8    ));
+        m8 += (mul32x32_64(d9, r9    ));
+
+                                     r0 = (word32)m0 & reduce_mask_26; c = (m0 >> 26);
+        m1 += c;                     r1 = (word32)m1 & reduce_mask_25; c = (m1 >> 25);
+        m2 += c;                     r2 = (word32)m2 & reduce_mask_26; c = (m2 >> 26);
+        m3 += c;                     r3 = (word32)m3 & reduce_mask_25; c = (m3 >> 25);
+        m4 += c;                     r4 = (word32)m4 & reduce_mask_26; c = (m4 >> 26);
+        m5 += c;                     r5 = (word32)m5 & reduce_mask_25; c = (m5 >> 25);
+        m6 += c;                     r6 = (word32)m6 & reduce_mask_26; c = (m6 >> 26);
+        m7 += c;                     r7 = (word32)m7 & reduce_mask_25; c = (m7 >> 25);
+        m8 += c;                     r8 = (word32)m8 & reduce_mask_26; c = (m8 >> 26);
+        m9 += c;                     r9 = (word32)m9 & reduce_mask_25; p = (word32)(m9 >> 25);
+        m0 = r0 + mul32x32_64(p,19); r0 = (word32)m0 & reduce_mask_26; p = (word32)(m0 >> 26);
+        r1 += p;
+    } while (--count);
+
+    out[0] = r0; out[1] = r1; out[2] = r2; out[3] = r3; out[4] = r4;
+    out[5] = r5; out[6] = r6; out[7] = r7; out[8] = r8; out[9] = r9;
 }
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
-void fexpand(limb *output, const byte *input)
-{
-#define F(n,start,shift,mask) \
-  output[n] = ((((limb) input[start + 0]) | \
-                ((limb) input[start + 1]) << 8 | \
-                ((limb) input[start + 2]) << 16 | \
-                ((limb) input[start + 3]) << 24) >> shift) & mask;
-  F(0, 0, 0, 0x3ffffff);
-  F(1, 3, 2, 0x1ffffff);
-  F(2, 6, 3, 0x3ffffff);
-  F(3, 9, 5, 0x1ffffff);
-  F(4, 12, 6, 0x3ffffff);
-  F(5, 16, 0, 0x1ffffff);
-  F(6, 19, 1, 0x3ffffff);
-  F(7, 22, 3, 0x1ffffff);
-  F(8, 25, 4, 0x3ffffff);
-  F(9, 28, 6, 0x1ffffff);
-#undef F
-}
+static void
+curve25519_expand(bignum25519 out, const unsigned char in[32]) {
+    word32 x0,x1,x2,x3,x4,x5,x6,x7;
 
-// Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
-// #if (-32 >> 1) != -16
-// #error "This code only works when >> does sign-extension on negative numbers"
-// #endif
+#if defined(CRYPTOPP_LITTLE_ENDIAN)
+        //x0 = *(word32 *)(in + 0);
+        //x1 = *(word32 *)(in + 4);
+        //x2 = *(word32 *)(in + 8);
+        //x3 = *(word32 *)(in + 12);
+        //x4 = *(word32 *)(in + 16);
+        //x5 = *(word32 *)(in + 20);
+        //x6 = *(word32 *)(in + 24);
+        //x7 = *(word32 *)(in + 28);
+        GetBlock<word32, LittleEndian> block(in);
+        block(x0)(x1)(x2)(x3)(x4)(x5)(x6)(x7);
+#else
+        #define F(s)                         \
+            ((((word32)in[s + 0])      ) | \
+             (((word32)in[s + 1]) <<  8) | \
+             (((word32)in[s + 2]) << 16) | \
+             (((word32)in[s + 3]) << 24))
+        x0 = F(0);
+        x1 = F(4);
+        x2 = F(8);
+        x3 = F(12);
+        x4 = F(16);
+        x5 = F(20);
+        x6 = F(24);
+        x7 = F(28);
+        #undef F
+#endif
 
-/* sword32_eq returns 0xffffffff iff a == b and zero otherwise. */
-sword32 sword32_eq(sword32 a, sword32 b)
-{
-  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
-  a = ~(a ^ b);
-  a &= a << 16;
-  a &= a << 8;
-  a &= a << 4;
-  a &= a << 2;
-  a &= a << 1;
-  /* return a >> 31; */
-  return (sword32)SignExtendShift<31>(a);
-}
-
-/* sword32_gte returns 0xffffffff if a >= b and zero otherwise, where a and b are
- * both non-negative. */
-sword32 sword32_gte(sword32 a, sword32 b)
-{
-  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
-  a -= b;
-  /* a >= 0 iff a >= b. */
-  /* return ~(a >> 31); */
-  return ~(sword32)SignExtendShift<31>(a);
+    out[0] = (                      x0       ) & 0x3ffffff;
+    out[1] = ((((word64)x1 << 32) | x0) >> 26) & 0x1ffffff;
+    out[2] = ((((word64)x2 << 32) | x1) >> 19) & 0x3ffffff;
+    out[3] = ((((word64)x3 << 32) | x2) >> 13) & 0x1ffffff;
+    out[4] = ((                     x3) >>  6) & 0x3ffffff;
+    out[5] = (                      x4       ) & 0x1ffffff;
+    out[6] = ((((word64)x5 << 32) | x4) >> 25) & 0x3ffffff;
+    out[7] = ((((word64)x6 << 32) | x5) >> 19) & 0x1ffffff;
+    out[8] = ((((word64)x7 << 32) | x6) >> 12) & 0x3ffffff;
+    out[9] = ((                     x7) >>  6) & 0x1ffffff;
 }
 
 /* Take a fully reduced polynomial form number and contract it into a
- * little-endian, 32-byte array.
- *
- * On entry: |input_limbs[i]| < 2^26 */
-void fcontract(byte *output, limb *input_limbs)
-{
-  int i, j;
-  sword32 input[10];
-  sword32 mask;
+ * little-endian, 32-byte array
+ */
+static void
+curve25519_contract(unsigned char out[32], const bignum25519 in) {
+    bignum25519 f;
+    curve25519_copy(f, in);
 
-  /* |input_limbs[i]| < 2^26, so it's valid to convert to an sword32. */
-  for (i = 0; i < 10; i++) {
-    input[i] = (sword32)input_limbs[i];
-  }
+    #define carry_pass() \
+        f[1] += f[0] >> 26; f[0] &= reduce_mask_26; \
+        f[2] += f[1] >> 25; f[1] &= reduce_mask_25; \
+        f[3] += f[2] >> 26; f[2] &= reduce_mask_26; \
+        f[4] += f[3] >> 25; f[3] &= reduce_mask_25; \
+        f[5] += f[4] >> 26; f[4] &= reduce_mask_26; \
+        f[6] += f[5] >> 25; f[5] &= reduce_mask_25; \
+        f[7] += f[6] >> 26; f[6] &= reduce_mask_26; \
+        f[8] += f[7] >> 25; f[7] &= reduce_mask_25; \
+        f[9] += f[8] >> 26; f[8] &= reduce_mask_26;
 
-  for (j = 0; j < 2; ++j) {
-    for (i = 0; i < 9; ++i) {
-      if ((i & 1) == 1) {
-        /* This calculation is a time-invariant way to make input[i]
-         * non-negative by borrowing from the next-larger limb. */
-        const sword32 mask = input[i] >> 31;
-        const sword32 carry = -((input[i] & mask) >> 25);
-        input[i] = input[i] + (carry << 25);
-        input[i+1] = input[i+1] - carry;
-      } else {
-        const sword32 mask = input[i] >> 31;
-        const sword32 carry = -((input[i] & mask) >> 26);
-        input[i] = input[i] + (carry << 26);
-        input[i+1] = input[i+1] - carry;
-      }
-    }
+    #define carry_pass_full() \
+        carry_pass() \
+        f[0] += 19 * (f[9] >> 25); f[9] &= reduce_mask_25;
 
-    /* There's no greater limb for input[9] to borrow from, but we can multiply
-     * by 19 and borrow from input[0], which is valid mod 2^255-19. */
-    {
-      const sword32 mask = input[9] >> 31;
-      const sword32 carry = -((input[9] & mask) >> 25);
-      input[9] = input[9] + (carry << 25);
-      input[0] = input[0] - (carry * 19);
-    }
+    #define carry_pass_final() \
+        carry_pass() \
+        f[9] &= reduce_mask_25;
 
-    /* After the first iteration, input[1..9] are non-negative and fit within
-     * 25 or 26 bits, depending on position. However, input[0] may be
-     * negative. */
-  }
+    carry_pass_full()
+    carry_pass_full()
 
-  /* The first borrow-propagation pass above ended with every limb
-     except (possibly) input[0] non-negative.
+    /* now t is between 0 and 2^255-1, properly carried. */
+    /* case 1: between 0 and 2^255-20. case 2: between 2^255-19 and 2^255-1. */
+    f[0] += 19;
+    carry_pass_full()
 
-     If input[0] was negative after the first pass, then it was because of a
-     carry from input[9]. On entry, input[9] < 2^26 so the carry was, at most,
-     one, since (2**26-1) >> 25 = 1. Thus input[0] >= -19.
+    /* now between 19 and 2^255-1 in both cases, and offset by 19. */
+    f[0] += (reduce_mask_26 + 1) - 19;
+    f[1] += (reduce_mask_25 + 1) - 1;
+    f[2] += (reduce_mask_26 + 1) - 1;
+    f[3] += (reduce_mask_25 + 1) - 1;
+    f[4] += (reduce_mask_26 + 1) - 1;
+    f[5] += (reduce_mask_25 + 1) - 1;
+    f[6] += (reduce_mask_26 + 1) - 1;
+    f[7] += (reduce_mask_25 + 1) - 1;
+    f[8] += (reduce_mask_26 + 1) - 1;
+    f[9] += (reduce_mask_25 + 1) - 1;
 
-     In the second pass, each limb is decreased by at most one. Thus the second
-     borrow-propagation pass could only have wrapped around to decrease
-     input[0] again if the first pass left input[0] negative *and* input[1]
-     through input[9] were all zero.  In that case, input[1] is now 2^25 - 1,
-     and this last borrow-propagation step will leave input[1] non-negative. */
-  {
-    const sword32 mask = input[0] >> 31;
-    const sword32 carry = -((input[0] & mask) >> 26);
-    input[0] = input[0] + (carry << 26);
-    input[1] = input[1] - carry;
-  }
+    /* now between 2^255 and 2^256-20, and offset by 2^255. */
+    carry_pass_final()
 
-  /* All input[i] are now non-negative. However, there might be values between
-   * 2^25 and 2^26 in a limb which is, nominally, 25 bits wide. */
-  for (j = 0; j < 2; j++) {
-    for (i = 0; i < 9; i++) {
-      if ((i & 1) == 1) {
-        const sword32 carry = input[i] >> 25;
-        input[i] &= 0x1ffffff;
-        input[i+1] += carry;
-      } else {
-        const sword32 carry = input[i] >> 26;
-        input[i] &= 0x3ffffff;
-        input[i+1] += carry;
-      }
-    }
+    #undef carry_pass
+    #undef carry_full
+    #undef carry_final
 
-    {
-      const sword32 carry = input[9] >> 25;
-      input[9] &= 0x1ffffff;
-      input[0] += 19*carry;
-    }
-  }
+    f[1] <<= 2;
+    f[2] <<= 3;
+    f[3] <<= 5;
+    f[4] <<= 6;
+    f[6] <<= 1;
+    f[7] <<= 3;
+    f[8] <<= 4;
+    f[9] <<= 6;
 
-  /* If the first carry-chain pass, just above, ended up with a carry from
-   * input[9], and that caused input[0] to be out-of-bounds, then input[0] was
-   * < 2^26 + 2*19, because the carry was, at most, two.
-   *
-   * If the second pass carried from input[9] again then input[0] is < 2*19 and
-   * the input[9] -> input[0] carry didn't push input[0] out of bounds. */
+    #define F(i, s) \
+        out[s+0] |= (unsigned char )(f[i] & 0xff); \
+        out[s+1] = (unsigned char )((f[i] >> 8) & 0xff); \
+        out[s+2] = (unsigned char )((f[i] >> 16) & 0xff); \
+        out[s+3] = (unsigned char )((f[i] >> 24) & 0xff);
 
-  /* It still remains the case that input might be between 2^255-19 and 2^255.
-   * In this case, input[1..9] must take their maximum value and input[0] must
-   * be >= (2^255-19) & 0x3ffffff, which is 0x3ffffed. */
-  mask = sword32_gte(input[0], 0x3ffffed);
-  for (i = 1; i < 10; i++) {
-    if ((i & 1) == 1) {
-      mask &= sword32_eq(input[i], 0x1ffffff);
-    } else {
-      mask &= sword32_eq(input[i], 0x3ffffff);
-    }
-  }
-
-  /* mask is either 0xffffffff (if input >= 2^255-19) and zero otherwise. Thus
-   * this conditionally subtracts 2^255-19. */
-  input[0] -= mask & 0x3ffffed;
-
-  for (i = 1; i < 10; i++) {
-    if ((i & 1) == 1) {
-      input[i] -= mask & 0x1ffffff;
-    } else {
-      input[i] -= mask & 0x3ffffff;
-    }
-  }
-
-  input[1] <<= 2;
-  input[2] <<= 3;
-  input[3] <<= 5;
-  input[4] <<= 6;
-  input[6] <<= 1;
-  input[7] <<= 3;
-  input[8] <<= 4;
-  input[9] <<= 6;
-#define F(i, s) \
-  output[s+0] |=  input[i] & 0xff; \
-  output[s+1]  = (input[i] >> 8) & 0xff; \
-  output[s+2]  = (input[i] >> 16) & 0xff; \
-  output[s+3]  = (input[i] >> 24) & 0xff;
-  output[0] = 0;
-  output[16] = 0;
-  F(0,0);
-  F(1,3);
-  F(2,6);
-  F(3,9);
-  F(4,12);
-  F(5,16);
-  F(6,19);
-  F(7,22);
-  F(8,25);
-  F(9,28);
-#undef F
+    out[0] = 0;
+    out[16] = 0;
+    F(0,0);
+    F(1,3);
+    F(2,6);
+    F(3,9);
+    F(4,12);
+    F(5,16);
+    F(6,19);
+    F(7,22);
+    F(8,25);
+    F(9,28);
+    #undef F
 }
 
-/* Input: Q, Q', Q-Q'
- * Output: 2Q, Q+Q'
- *
- *   x2 z3: long form
- *   x3 z3: long form
- *   x z: short form, destroyed
- *   xprime zprime: short form, destroyed
- *   qmqp: short form, preserved
- *
- * On entry and exit, the absolute value of the limbs of all inputs and outputs
- * are < 2^26. */
-void fmonty(limb *x2, limb *z2,  /* output 2Q */
-            limb *x3, limb *z3,  /* output Q + Q' */
-            limb *x, limb *z,    /* input Q */
-            limb *xprime, limb *zprime,  /* input Q' */
-            const limb *qmqp /* input Q - Q' */)
-{
-  limb origx[10], origxprime[10], zzz[19], xx[19], zz[19];
-  limb xxprime[19], zzprime[19], zzzprime[19], xxxprime[19];
+/* out = (flag) ? in : out */
+inline void
+curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag) {
+    const word32 nb = flag - 1, b = ~nb;
+    const word32 *inl = (const word32 *)in;
+    word32 *outl = (word32 *)out;
+    outl[0] = (outl[0] & nb) | (inl[0] & b);
+    outl[1] = (outl[1] & nb) | (inl[1] & b);
+    outl[2] = (outl[2] & nb) | (inl[2] & b);
+    outl[3] = (outl[3] & nb) | (inl[3] & b);
+    outl[4] = (outl[4] & nb) | (inl[4] & b);
+    outl[5] = (outl[5] & nb) | (inl[5] & b);
+    outl[6] = (outl[6] & nb) | (inl[6] & b);
+    outl[7] = (outl[7] & nb) | (inl[7] & b);
+    outl[8] = (outl[8] & nb) | (inl[8] & b);
+    outl[9] = (outl[9] & nb) | (inl[9] & b);
+    outl[10] = (outl[10] & nb) | (inl[10] & b);
+    outl[11] = (outl[11] & nb) | (inl[11] & b);
+    outl[12] = (outl[12] & nb) | (inl[12] & b);
+    outl[13] = (outl[13] & nb) | (inl[13] & b);
+    outl[14] = (outl[14] & nb) | (inl[14] & b);
+    outl[15] = (outl[15] & nb) | (inl[15] & b);
+    outl[16] = (outl[16] & nb) | (inl[16] & b);
+    outl[17] = (outl[17] & nb) | (inl[17] & b);
+    outl[18] = (outl[18] & nb) | (inl[18] & b);
+    outl[19] = (outl[19] & nb) | (inl[19] & b);
+    outl[20] = (outl[20] & nb) | (inl[20] & b);
+    outl[21] = (outl[21] & nb) | (inl[21] & b);
+    outl[22] = (outl[22] & nb) | (inl[22] & b);
+    outl[23] = (outl[23] & nb) | (inl[23] & b);
 
-  memcpy(origx, x, 10 * sizeof(limb));
-  fsum(x, z);
-  /* |x[i]| < 2^27 */
-  fdifference(z, origx);  /* does x - z */
-  /* |z[i]| < 2^27 */
-
-  memcpy(origxprime, xprime, sizeof(limb) * 10);
-  fsum(xprime, zprime);
-  /* |xprime[i]| < 2^27 */
-  fdifference(zprime, origxprime);
-  /* |zprime[i]| < 2^27 */
-  fproduct(xxprime, xprime, z);
-  /* |xxprime[i]| < 14*2^54: the largest product of two limbs will be <
-   * 2^(27+27) and fproduct adds together, at most, 14 of those products.
-   * (Approximating that to 2^58 doesn't work out.) */
-  fproduct(zzprime, x, zprime);
-  /* |zzprime[i]| < 14*2^54 */
-  freduce_degree(xxprime);
-  freduce_coefficients(xxprime);
-  /* |xxprime[i]| < 2^26 */
-  freduce_degree(zzprime);
-  freduce_coefficients(zzprime);
-  /* |zzprime[i]| < 2^26 */
-  memcpy(origxprime, xxprime, sizeof(limb) * 10);
-  fsum(xxprime, zzprime);
-  /* |xxprime[i]| < 2^27 */
-  fdifference(zzprime, origxprime);
-  /* |zzprime[i]| < 2^27 */
-  fsquare(xxxprime, xxprime);
-  /* |xxxprime[i]| < 2^26 */
-  fsquare(zzzprime, zzprime);
-  /* |zzzprime[i]| < 2^26 */
-  fproduct(zzprime, zzzprime, qmqp);
-  /* |zzprime[i]| < 14*2^52 */
-  freduce_degree(zzprime);
-  freduce_coefficients(zzprime);
-  /* |zzprime[i]| < 2^26 */
-  memcpy(x3, xxxprime, sizeof(limb) * 10);
-  memcpy(z3, zzprime, sizeof(limb) * 10);
-
-  fsquare(xx, x);
-  /* |xx[i]| < 2^26 */
-  fsquare(zz, z);
-  /* |zz[i]| < 2^26 */
-  fproduct(x2, xx, zz);
-  /* |x2[i]| < 14*2^52 */
-  freduce_degree(x2);
-  freduce_coefficients(x2);
-  /* |x2[i]| < 2^26 */
-  fdifference(zz, xx);  // does zz = xx - zz
-  /* |zz[i]| < 2^27 */
-  memset(zzz + 10, 0, sizeof(limb) * 9);
-  fscalar_product(zzz, zz, 121665);
-  /* |zzz[i]| < 2^(27+17) */
-  /* No need to call freduce_degree here:
-     fscalar_product doesn't increase the degree of its input. */
-  freduce_coefficients(zzz);
-  /* |zzz[i]| < 2^26 */
-  fsum(zzz, xx);
-  /* |zzz[i]| < 2^27 */
-  fproduct(z2, zz, zzz);
-  /* |z2[i]| < 14*2^(26+27) */
-  freduce_degree(z2);
-  freduce_coefficients(z2);
-  /* |z2|i| < 2^26 */
 }
 
-/* Conditionally swap two reduced-form limb arrays if 'iswap' is 1, but leave
- * them unchanged if 'iswap' is 0.  Runs in data-invariant time to avoid
- * side-channel attacks.
- *
- * NOTE that this function requires that 'iswap' be 1 or 0; other values give
- * wrong results.  Also, the two limb arrays must be in reduced-coefficient,
- * reduced-degree form: the values in a[10..19] or b[10..19] aren't swapped,
- * and all all values in a[0..9],b[0..9] must have magnitude less than
- * INT32_MAX. */
-void swap_conditional(limb a[19], limb b[19], limb iswap)
-{
-  const sword32 swap = (sword32) -iswap;
+/* if (iswap) swap(a, b) */
+inline void
+curve25519_swap_conditional(bignum25519 a, bignum25519 b, word32 iswap) {
+    const word32 swap = (word32)(-(int32_t)iswap);
+    word32 x0,x1,x2,x3,x4,x5,x6,x7,x8,x9;
 
-  for (unsigned int i = 0; i < 10; ++i) {
-    const sword32 x = swap & ( ((sword32)a[i]) ^ ((sword32)b[i]) );
-    a[i] = ((sword32)a[i]) ^ x;
-    b[i] = ((sword32)b[i]) ^ x;
-  }
-}
-
-/* Calculates nQ where Q is the x-coordinate of a point on the curve
- *
- *   resultx/resultz: the x coordinate of the resulting curve point (short form)
- *   n: a little endian, 32-byte number
- *   q: a point of the curve (short form) */
-void
-cmult(limb *resultx, limb *resultz, const byte *n, const limb *q)
-{
-  limb a[19] = {0}, b[19] = {1}, c[19] = {1}, d[19] = {0};
-  limb *nqpqx = a, *nqpqz = b, *nqx = c, *nqz = d, *t;
-  limb e[19] = {0}, f[19] = {1}, g[19] = {0}, h[19] = {1};
-  limb *nqpqx2 = e, *nqpqz2 = f, *nqx2 = g, *nqz2 = h;
-
-  memcpy(nqpqx, q, sizeof(limb) * 10);
-
-  for (unsigned int i = 0; i < 32; ++i) {
-    byte b = n[31 - i];
-    for (unsigned int j = 0; j < 8; ++j) {
-      const limb bit = b >> 7;
-
-      swap_conditional(nqx, nqpqx, bit);
-      swap_conditional(nqz, nqpqz, bit);
-      fmonty(nqx2, nqz2,
-             nqpqx2, nqpqz2,
-             nqx, nqz,
-             nqpqx, nqpqz,
-             q);
-      swap_conditional(nqx2, nqpqx2, bit);
-      swap_conditional(nqz2, nqpqz2, bit);
-
-      t = nqx;
-      nqx = nqx2;
-      nqx2 = t;
-      t = nqz;
-      nqz = nqz2;
-      nqz2 = t;
-      t = nqpqx;
-      nqpqx = nqpqx2;
-      nqpqx2 = t;
-      t = nqpqz;
-      nqpqz = nqpqz2;
-      nqpqz2 = t;
-
-      b <<= 1;
-    }
-  }
-
-  memcpy(resultx, nqx, sizeof(limb) * 10);
-  memcpy(resultz, nqz, sizeof(limb) * 10);
-}
-
-// -----------------------------------------------------------------------------
-// Shamelessly copied from djb's code
-// -----------------------------------------------------------------------------
-void crecip(limb *out, const limb *z)
-{
-  limb z2[10];
-  limb z9[10];
-  limb z11[10];
-  limb z2_5_0[10];
-  limb z2_10_0[10];
-  limb z2_20_0[10];
-  limb z2_50_0[10];
-  limb z2_100_0[10];
-  limb t0[10];
-  limb t1[10];
-  int i;
-
-  /* 2 */ fsquare(z2,z);
-  /* 4 */ fsquare(t1,z2);
-  /* 8 */ fsquare(t0,t1);
-  /* 9 */ fmul(z9,t0,z);
-  /* 11 */ fmul(z11,z9,z2);
-  /* 22 */ fsquare(t0,z11);
-  /* 2^5 - 2^0 = 31 */ fmul(z2_5_0,t0,z9);
-
-  /* 2^6 - 2^1 */ fsquare(t0,z2_5_0);
-  /* 2^7 - 2^2 */ fsquare(t1,t0);
-  /* 2^8 - 2^3 */ fsquare(t0,t1);
-  /* 2^9 - 2^4 */ fsquare(t1,t0);
-  /* 2^10 - 2^5 */ fsquare(t0,t1);
-  /* 2^10 - 2^0 */ fmul(z2_10_0,t0,z2_5_0);
-
-  /* 2^11 - 2^1 */ fsquare(t0,z2_10_0);
-  /* 2^12 - 2^2 */ fsquare(t1,t0);
-  /* 2^20 - 2^10 */ for (i = 2;i < 10;i += 2) { fsquare(t0,t1); fsquare(t1,t0); }
-  /* 2^20 - 2^0 */ fmul(z2_20_0,t1,z2_10_0);
-
-  /* 2^21 - 2^1 */ fsquare(t0,z2_20_0);
-  /* 2^22 - 2^2 */ fsquare(t1,t0);
-  /* 2^40 - 2^20 */ for (i = 2;i < 20;i += 2) { fsquare(t0,t1); fsquare(t1,t0); }
-  /* 2^40 - 2^0 */ fmul(t0,t1,z2_20_0);
-
-  /* 2^41 - 2^1 */ fsquare(t1,t0);
-  /* 2^42 - 2^2 */ fsquare(t0,t1);
-  /* 2^50 - 2^10 */ for (i = 2;i < 10;i += 2) { fsquare(t1,t0); fsquare(t0,t1); }
-  /* 2^50 - 2^0 */ fmul(z2_50_0,t0,z2_10_0);
-
-  /* 2^51 - 2^1 */ fsquare(t0,z2_50_0);
-  /* 2^52 - 2^2 */ fsquare(t1,t0);
-  /* 2^100 - 2^50 */ for (i = 2;i < 50;i += 2) { fsquare(t0,t1); fsquare(t1,t0); }
-  /* 2^100 - 2^0 */ fmul(z2_100_0,t1,z2_50_0);
-
-  /* 2^101 - 2^1 */ fsquare(t1,z2_100_0);
-  /* 2^102 - 2^2 */ fsquare(t0,t1);
-  /* 2^200 - 2^100 */ for (i = 2;i < 100;i += 2) { fsquare(t1,t0); fsquare(t0,t1); }
-  /* 2^200 - 2^0 */ fmul(t1,t0,z2_100_0);
-
-  /* 2^201 - 2^1 */ fsquare(t0,t1);
-  /* 2^202 - 2^2 */ fsquare(t1,t0);
-  /* 2^250 - 2^50 */ for (i = 2;i < 50;i += 2) { fsquare(t0,t1); fsquare(t1,t0); }
-  /* 2^250 - 2^0 */ fmul(t0,t1,z2_50_0);
-
-  /* 2^251 - 2^1 */ fsquare(t1,t0);
-  /* 2^252 - 2^2 */ fsquare(t0,t1);
-  /* 2^253 - 2^3 */ fsquare(t1,t0);
-  /* 2^254 - 2^4 */ fsquare(t0,t1);
-  /* 2^255 - 2^5 */ fsquare(t1,t0);
-  /* 2^255 - 21 */ fmul(out,t1,z11);
+    x0 = swap & (a[0] ^ b[0]); a[0] ^= x0; b[0] ^= x0;
+    x1 = swap & (a[1] ^ b[1]); a[1] ^= x1; b[1] ^= x1;
+    x2 = swap & (a[2] ^ b[2]); a[2] ^= x2; b[2] ^= x2;
+    x3 = swap & (a[3] ^ b[3]); a[3] ^= x3; b[3] ^= x3;
+    x4 = swap & (a[4] ^ b[4]); a[4] ^= x4; b[4] ^= x4;
+    x5 = swap & (a[5] ^ b[5]); a[5] ^= x5; b[5] ^= x5;
+    x6 = swap & (a[6] ^ b[6]); a[6] ^= x6; b[6] ^= x6;
+    x7 = swap & (a[7] ^ b[7]); a[7] ^= x7; b[7] ^= x7;
+    x8 = swap & (a[8] ^ b[8]); a[8] ^= x8; b[8] ^= x8;
+    x9 = swap & (a[9] ^ b[9]); a[9] ^= x9; b[9] ^= x9;
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -967,48 +541,39 @@ NAMESPACE_BEGIN(Donna)
 
 int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-  limb bp[10], x[10], z[11], zmone[10];
-  byte e[32];
+    // The original function used bignum25519 as parameters.
+    bignum25519 out, r, s;
+    curve25519_expand(r, secretKey);
+    curve25519_expand(s, othersKey);
 
-  for (unsigned int i = 0; i < 32; ++i)
-    e[i] = secretKey[i];
+    curve25519_mul(out, r, s);
+    curve25519_contract(sharedKey, out);
 
-  // I'd like to remove this copy/clamp but I don't
-  // know if an attacker can cause an information
-  // leak if multiply is misused.
-  e[0] &= 248; e[31] &= 127; e[31] |= 64;
-
-  fexpand(bp, othersKey);
-  cmult(x, z, e, bp);
-  crecip(zmone, z);
-  fmul(z, x, zmone);
-  fcontract(sharedKey, z);
-
-  return 0;
+    return 0;
 }
 
 int curve25519(byte publicKey[32], const byte secretKey[32])
 {
-  const byte basePoint[32] = {9};
+    const byte basePoint[32] = {9};
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-  if (HasSSE2())
-      return curve25519_SSE2(publicKey, secretKey, basePoint);
-  else
+    if (HasSSE2())
+        return curve25519_SSE2(publicKey, secretKey, basePoint);
+    else
 #endif
 
-  return curve25519_CXX(publicKey, secretKey, basePoint);
+    return curve25519_CXX(publicKey, secretKey, basePoint);
 }
 
 int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-  if (HasSSE2())
-      return curve25519_SSE2(sharedKey, secretKey, othersKey);
-  else
+    if (HasSSE2())
+        return curve25519_SSE2(sharedKey, secretKey, othersKey);
+    else
 #endif
 
-  return curve25519_CXX(sharedKey, secretKey, othersKey);
+    return curve25519_CXX(sharedKey, secretKey, othersKey);
 }
 
 NAMESPACE_END  // Donna
