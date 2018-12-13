@@ -146,6 +146,9 @@
     <ClCompile Include="donna_64.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="donna_sse.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="dsa.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

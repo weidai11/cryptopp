@@ -104,6 +104,7 @@ drbg.h
 donna.h
 donna_32.cpp
 donna_64.cpp
+donna_sse.cpp
 dsa.cpp
 dsa.h
 eax.cpp

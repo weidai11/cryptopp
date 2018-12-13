@@ -215,6 +215,7 @@
     </ClCompile>
     <ClCompile Include="donna_32.cpp" />
     <ClCompile Include="donna_64.cpp" />
+    <ClCompile Include="donna_sse.cpp" />
     <ClCompile Include="dsa.cpp" />
     <ClCompile Include="eax.cpp" />
     <ClCompile Include="ec2n.cpp" />

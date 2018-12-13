@@ -58,8 +58,8 @@ LIB_SRCS = \
     cast.cpp casts.cpp cbcmac.cpp ccm.cpp chacha.cpp chacha_avx.cpp \
     chacha_simd.cpp cham.cpp cham_simd.cpp channels.cpp cmac.cpp crc.cpp \
     crc_simd.cpp darn.cpp default.cpp des.cpp dessp.cpp dh.cpp dh2.cpp \
-    dll.cpp donna_32.cpp donna_64.cpp dsa.cpp eax.cpp ec2n.cpp eccrypto.cpp \
-    ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp esign.cpp files.cpp \
+    dll.cpp donna_32.cpp donna_64.cpp donna_sse.cpp dsa.cpp eax.cpp ec2n.cpp \
+    eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp esign.cpp files.cpp \
     filters.cpp fips140.cpp fipstest.cpp gcm.cpp gcm_simd.cpp gf256.cpp \
     gf2_32.cpp gf2n.cpp gfpcrypt.cpp gost.cpp gzip.cpp hc128.cpp hc256.cpp \
     hex.cpp hight.cpp hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp \
@@ -88,8 +88,8 @@ LIB_OBJS = \
     cast.obj casts.obj cbcmac.obj ccm.obj chacha.obj chacha_avx.obj \
     chacha_simd.obj cham.obj cham_simd.obj channels.obj cmac.obj crc.obj \
     crc_simd.obj darn.obj default.obj des.obj dessp.obj dh.obj dh2.obj \
-    dll.obj donna_32.obj donna_64.obj dsa.obj eax.obj ec2n.obj eccrypto.obj \
-    ecp.obj elgamal.obj emsa2.obj eprecomp.obj esign.obj files.obj \
+    dll.obj donna_32.obj donna_64.obj donna_sse.obj dsa.obj eax.obj ec2n.obj \
+    eccrypto.obj ecp.obj elgamal.obj emsa2.obj eprecomp.obj esign.obj files.obj \
     filters.obj fips140.obj fipstest.obj gcm.obj gcm_simd.obj gf256.obj \
     gf2_32.obj gf2n.obj gfpcrypt.obj gost.obj gzip.obj hc128.obj hc256.obj \
     hex.obj hight.obj hmac.obj hrtimer.obj ida.obj idea.obj iterhash.obj \

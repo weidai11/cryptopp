@@ -816,7 +816,11 @@ cham_simd.o : cham_simd.cpp
 darn.o : darn.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(DARN_FLAG) -c) $<
 
-# SSE2 on i586
+# SSE2 on i686
+donna_sse.o : donna_sse.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+
+# SSE2 on i686
 sse_simd.o : sse_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SSE2_FLAG) -c) $<
 

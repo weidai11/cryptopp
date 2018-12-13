@@ -965,13 +965,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int curve25519(byte publicKey[32], const byte secretKey[32])
-{
-  const byte basePoint[32] = {9};
-  return curve25519(publicKey, secretKey, basePoint);
-}
-
-int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
+int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
   limb bp[10], x[10], z[11], zmone[10];
   byte e[32];
@@ -979,16 +973,42 @@ int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKe
   for (unsigned int i = 0; i < 32; ++i)
     e[i] = secretKey[i];
 
-  e[0] &= 248;
-  e[31] &= 127;
-  e[31] |= 64;
+  // I'd like to remove this copy/clamp but I don't
+  // know if an attacker can cause an information
+  // leak if multiply is misused.
+  e[0] &= 248; e[31] &= 127; e[31] |= 64;
 
   fexpand(bp, othersKey);
   cmult(x, z, e, bp);
   crecip(zmone, z);
   fmul(z, x, zmone);
   fcontract(sharedKey, z);
+
   return 0;
+}
+
+int curve25519(byte publicKey[32], const byte secretKey[32])
+{
+  const byte basePoint[32] = {9};
+
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+  if (HasSSE2())
+      return curve25519_SSE2(publicKey, secretKey, basePoint);
+  else
+#endif
+
+  return curve25519_CXX(publicKey, secretKey, basePoint);
+}
+
+int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
+{
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+  if (HasSSE2())
+      return curve25519_SSE2(sharedKey, secretKey, othersKey);
+  else
+#endif
+
+  return curve25519_CXX(sharedKey, secretKey, othersKey);
 }
 
 NAMESPACE_END  // Donna
