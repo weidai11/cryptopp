@@ -15,7 +15,9 @@
 #include "donna.h"
 #include "misc.h"
 
-#include <emmintrin.h>
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+# include <emmintrin.h>
+#endif
 
 // Squash MS LNK4221 and libtool warnings
 extern const char DONNA_SSE_FNAME[] = __FILE__;
