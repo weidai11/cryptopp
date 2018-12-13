@@ -16,11 +16,8 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
 
-// See the comments for the code in tweetnacl.cpp
-int is_small_order(const byte s[32])
-{
-  CRYPTOPP_ALIGN_DATA(16)
-  const byte blacklist[][32] = {
+CRYPTOPP_ALIGN_DATA(16)
+const byte blacklist[][32] = {
     { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
       0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 },
     { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -47,38 +44,48 @@ int is_small_order(const byte s[32])
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
   };
 
-  // The magic 12 is the count of blaklisted points
-  byte c[12] = { 0 };
-  for (size_t j = 0; j < 32; j++) {
-    for (size_t i = 0; i < COUNTOF(blacklist); i++) {
-      c[i] |= s[j] ^ blacklist[i][j];
-    }
-  }
-
-  unsigned int k = 0;
-  for (size_t i = 0; i < COUNTOF(blacklist); i++) {
-    k |= (c[i] - 1);
-  }
-
-  return (int) ((k >> 8) & 1);
-}
-
-int is_clamped(const byte s[32])
-{
-  return (s[0] & 248) == s[0] && (s[31] & 127) == s[31] && (s[31] | 64) == s[31];
-}
-
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+bool x25519::IsClamped(const byte x[32])
+{
+    return (x[0] & 248) == x[0] && (x[31] & 127) == x[31] && (x[31] | 64) == x[31];
+}
+
+// See the comments for the code in tweetnacl.cpp
+bool x25519::IsSmallOrder(const byte y[32])
+{
+    // The magic 12 is the count of blaklisted points
+    byte c[12] = { 0 };
+    for (size_t j = 0; j < 32; j++) {
+        for (size_t i = 0; i < COUNTOF(blacklist); i++) {
+            c[i] |= y[j] ^ blacklist[i][j];
+        }
+    }
+
+    unsigned int k = 0;
+    for (size_t i = 0; i < COUNTOF(blacklist); i++) {
+        k |= (c[i] - 1);
+    }
+
+    return (bool) ((k >> 8) & 1);
+}
+
+void x25519::ClampKey(byte x[32])
+{
+    x[0] &= 248;
+    x[31] &= 127;
+    x[31] |= 64;
+}
 
 x25519::x25519(const byte y[32], const byte x[32])
 {
     std::memcpy(m_pk, y, 32);
     std::memcpy(m_sk, x, 32);
 
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(const byte x[32])
@@ -86,8 +93,8 @@ x25519::x25519(const byte x[32])
     std::memcpy(m_sk, x, 32);
     GeneratePublicKey(NullRNG(), m_sk, m_pk);
 
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(const Integer &y, const Integer &x)
@@ -98,8 +105,8 @@ x25519::x25519(const Integer &y, const Integer &x)
     ArraySink xs(m_sk, 32);
     x.Encode(xs, 32);
 
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(const Integer &x)
@@ -108,8 +115,8 @@ x25519::x25519(const Integer &x)
     x.Encode(xs, 32);
     GeneratePublicKey(NullRNG(), m_sk, m_pk);
 
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(RandomNumberGenerator &rng)
@@ -117,8 +124,8 @@ x25519::x25519(RandomNumberGenerator &rng)
     GeneratePrivateKey(rng, m_sk);
     GeneratePublicKey(NullRNG(), m_sk, m_pk);
 
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(BufferedTransformation &params)
@@ -157,8 +164,8 @@ x25519::x25519(BufferedTransformation &params)
 
     seq.MessageEnd();
 
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 void x25519::DEREncode(BufferedTransformation &params) const
@@ -181,12 +188,12 @@ void x25519::DEREncode(BufferedTransformation &params) const
 bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng);
-    CRYPTOPP_ASSERT(is_clamped(m_sk) != 0);
-    CRYPTOPP_ASSERT(is_small_order(m_pk) == 0);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 
-    if (level >= 1 && is_clamped(m_sk) == 0)
+    if (level >= 1 && IsClamped(m_sk) == false)
         return false;
-    if (level >= 2 && is_small_order(m_pk) != 0)
+    if (level >= 2 && IsSmallOrder(m_pk) == true)
         return false;
 
     return true;
@@ -227,10 +234,7 @@ void x25519::AssignFrom(const NameValuePairs &source)
 void x25519::GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
 {
     rng.GenerateBlock(privateKey, 32);
-
-    privateKey[0] &= 248;
-    privateKey[31] &= 127;
-    privateKey[31] |= 64;
+    ClampKey(privateKey);
 }
 
 void x25519::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
@@ -245,7 +249,7 @@ bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherP
     CRYPTOPP_ASSERT(agreedValue != NULLPTR);
     CRYPTOPP_ASSERT(otherPublicKey != NULLPTR);
 
-    if (validateOtherPublicKey && is_small_order(otherPublicKey) != 0)
+    if (validateOtherPublicKey && IsSmallOrder(otherPublicKey))
         return false;
 
     return Donna::curve25519(agreedValue, privateKey, otherPublicKey) == 0;

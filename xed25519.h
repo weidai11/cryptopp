@@ -21,6 +21,18 @@ class Integer;
 class x25519 : public SimpleKeyAgreementDomain, public CryptoParameters
 {
 public:
+    /// \brief Test if a key is clamped
+    /// \param x private key
+    static bool IsClamped(const byte x[32]);
+
+    /// \brief Test if a key has small order
+    /// \param y public key
+    static bool IsSmallOrder(const byte y[32]);
+
+    /// \brief Test if a key is clamped
+    /// \param x private key
+    static void ClampKey(byte x[32]);
+
     /// \brief Create a x25519 object
     /// \param y public key
     /// \param x private key
