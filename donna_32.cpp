@@ -56,15 +56,24 @@
 #include "stdcpp.h"
 #include "cpu.h"
 
-// This macro is not in a header like config.h because
-// we don't want it exposed to user code. We also need
-// a standard header like <stdint.h> or <stdef.h>.
-// Langley uses uint128_t in the 64-bit code paths so
+// This macro is not in a header like config.h because we don't want it
+// exposed to user code. We also need a standard header like <stdint.h>
+// or <stdef.h>. Langley uses uint128_t in the 64-bit code paths so
 // we further restrict 64-bit code.
 #if (UINTPTR_MAX == 0xffffffff) || !defined(CRYPTOPP_WORD128_AVAILABLE)
 # define CRYPTOPP_32BIT 1
 #else
 # define CRYPTOPP_64BIT 1
+#endif
+
+// Some compilers don't handle the code for the arithmetic shifts well.
+// For compilers we know how to support we will issue the asm to sidestep
+// believe the problem. We also switch to a slightly different pattern.
+// We believe the pattern preserves the existing properties without a
+// branch. The ASM uses one intruction, while the C statement use 2 to 6
+// instructions, depending on the compiler.
+#if (__GNUC__ >= 3) || (__SUNPRO_CC >= 0x5100)
+# define CRYPTOPP_ASR_ASM 1
 #endif
 
 // Squash MS LNK4221 and libtool warnings
@@ -84,41 +93,53 @@ using CryptoPP::sword64;
 typedef sword64 limb;
 
 // Added by JW for SunCC. Avoid the bit twiddling hacks.
+template <unsigned int S>
 inline int SignExtend(int val)
 {
-#if (__GNUC__ >= 3) || (__SUNPRO_CC >= 0x5100)
-# if CRYPTOPP_BOOL_X86
+#if defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_X86)
     __asm__
     (
-        "sar $31, %0      \n"
-        : "+g" (val) : : "cc"
+        "sar %1, %0    \n"
+        : "+g" (val) : "I" (S) : "cc"
     );
     return val;
-# endif
-// TODO: ARM
-#endif
-
+#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_ARM32)
+    __asm__
+    (
+        "asr %0, %0, %1    \n"
+        : "+r" (val) : "I" (S) :
+    );
+    return val;
+#else
     // GCC and SunCC compile down to a shift and neg.
-    return (val >> 31) * -1;
+    // Also see the comments for CRYPTOPP_ASR_ASM.
+    return (val >> S) * -1;
+#endif
 }
 
-// Added by JW for SunCC. Avoid the bit twiddling hacks.
+template <unsigned int S>
 inline unsigned int SignExtend(unsigned int val)
 {
-#if (__GNUC__ >= 3) || (__SUNPRO_CC >= 0x5100)
-# if CRYPTOPP_BOOL_X86
+#if defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_X86)
     __asm__
     (
-        "sar $31, %0      \n"
-        : "+g" (val) : : "cc"
+        "sar %1, %0    \n"
+        : "+g" (val) : "I" (S) : "cc"
     );
     return val;
-# endif
-// TODO: ARM
-#endif
-
+#elif defined(CRYPTOPP_ASR_ASM) && (CRYPTOPP_BOOL_ARM32)
+    __asm__
+    (
+        "asr %0, %0, %1    \n"
+        : "+r" (val) : "I" (S) :
+    );
+    return val;
+#else
     // GCC and SunCC compile down to a shift and neg.
-    return (unsigned int)(((signed int)(val >> 31)) * -1);
+    // Also see the comments for CRYPTOPP_ASR_ASM.
+    const signed int v = (signed int)(val >> S)
+    return (unsigned int)(v * -1);
+#endif
 }
 
 /* Field element representation:
@@ -304,7 +325,7 @@ void freduce_degree(limb *output)
   output[0] += output[10];
 }
 
-// Modified for SunCC. See comments for SignExtexnd function.
+// Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
 // #if (-1 & 3) != 3
 // #error "This code only works on a two's complement system"
 // #endif
@@ -317,13 +338,15 @@ inline limb div_by_2_26(const limb v)
   /* High word of v; no shift needed. */
   const word32 highword = (word32) (((word64) v) >> 32);
 
-  // Modified for SunCC. See comments for SignExtexnd function.
+  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
   /* Set to all 1s if v was negative; else set to 0s. */
   /* const sword32 sign = ((sword32) highword) >> 31; */
-  const sword32 sign = SignExtend(highword);
+  const word32 sign = SignExtend<31>(highword);
 
   /* Set to 0x3ffffff if v was negative; else set to 0. */
-  const sword32 roundoff = ((word32) sign) >> 6;
+  /* const sword32 roundoff = ((word32) sign) >> 6; */
+  const sword32 roundoff = (sword32)(sign >> 6);
+
   /* Should return v / (1<<26) */
   return (v + roundoff) >> 26;
 }
@@ -336,13 +359,15 @@ inline limb div_by_2_25(const limb v)
   /* High word of v; no shift needed*/
   const word32 highword = (word32) (((word64) v) >> 32);
 
-  // Modified for SunCC. See comments for SignExtexnd function.
+  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
   /* Set to all 1s if v was negative; else set to 0s. */
   /* const sword32 sign = ((sword32) highword) >> 31; */
-  const sword32 sign = SignExtend(highword);
+  const word32 sign = SignExtend<31>(highword);
 
   /* Set to 0x1ffffff if v was negative; else set to 0. */
-  const sword32 roundoff = ((word32) sign) >> 7;
+  /* const sword32 roundoff = ((word32) sign) >> 7; */
+  const sword32 roundoff = (sword32)(sign >> 7);
+
   /* Should return v / (1<<25) */
   return (v + roundoff) >> 25;
 }
@@ -517,7 +542,7 @@ void fexpand(limb *output, const byte *input)
 #undef F
 }
 
-// Modified for SunCC. See comments for SignExtexnd function.
+// Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
 // #if (-32 >> 1) != -16
 // #error "This code only works when >> does sign-extension on negative numbers"
 // #endif
@@ -525,7 +550,7 @@ void fexpand(limb *output, const byte *input)
 /* sword32_eq returns 0xffffffff iff a == b and zero otherwise. */
 sword32 sword32_eq(sword32 a, sword32 b)
 {
-  // Modified for SunCC. See comments for SignExtexnd function.
+  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
   a = ~(a ^ b);
   a &= a << 16;
   a &= a << 8;
@@ -533,18 +558,18 @@ sword32 sword32_eq(sword32 a, sword32 b)
   a &= a << 2;
   a &= a << 1;
   /* return a >> 31; */
-  return (sword32)SignExtend(a);
+  return (sword32)SignExtend<31>(a);
 }
 
 /* sword32_gte returns 0xffffffff if a >= b and zero otherwise, where a and b are
  * both non-negative. */
 sword32 sword32_gte(sword32 a, sword32 b)
 {
-  // Modified for SunCC. See comments for SignExtexnd function.
+  // Modified for SunCC. See comments for CRYPTOPP_ASR_ASM.
   a -= b;
   /* a >= 0 iff a >= b. */
   /* return ~(a >> 31); */
-  return ~(sword32)SignExtend(a);
+  return ~(sword32)SignExtend<31>(a);
 }
 
 /* Take a fully reduced polynomial form number and contract it into a
