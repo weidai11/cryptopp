@@ -214,7 +214,7 @@ curve25519_contract(byte out[32], const bignum25519 in) {
  */
 inline void
 curve25519_swap_conditional(bignum25519 a, bignum25519 b, word32 iswap) {
-    const word32 swap = (word32)(-(int32_t)iswap);
+    const word32 swap = (word32)(-(sword32)iswap);
     xmmi a0,a1,a2,b0,b1,b2,x0,x1,x2;
     xmmi mask = _mm_cvtsi32_si128(swap);
     mask = _mm_shuffle_epi32(mask, 0);
@@ -1114,16 +1114,16 @@ int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte oth
     packed32bignum25519 qx, qz, pqz, pqx;
     packed64bignum25519 nq, sq, sqscalar, prime, primex, primez, nqpq;
     bignum25519mulprecomp preq;
-    size_t bit, lastbit;
+    size_t i=0, bit=0, lastbit=0;
 
     curve25519_expand(nqpqx, othersKey);
     curve25519_mul_precompute(&preq, nqpqx);
 
     /* do bits 254..3 */
-    for (int i = 254, lastbit = 0; i >= 3; i--) {
+    for (i = 254, lastbit=0; i >= 3; i--) {
         bit = (e[i/8] >> (i & 7)) & 1;
-        curve25519_swap_conditional(nqx, nqpqx, bit ^ lastbit);
-        curve25519_swap_conditional(nqz, nqpqz, bit ^ lastbit);
+        curve25519_swap_conditional(nqx, nqpqx, (word32)(bit ^ lastbit));
+        curve25519_swap_conditional(nqz, nqpqz, (word32)(bit ^ lastbit));
         lastbit = bit;
 
         curve25519_tangle32(qx, nqx, nqpqx); /* qx = [nqx,nqpqx] */
@@ -1149,11 +1149,11 @@ int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte oth
 
     /* it's possible to get rid of this swap with the swap in the above loop
        at the bottom instead of the top, but compilers seem to optimize better this way */
-    curve25519_swap_conditional(nqx, nqpqx, bit);
-    curve25519_swap_conditional(nqz, nqpqz, bit);
+    curve25519_swap_conditional(nqx, nqpqx, (word32)bit);
+    curve25519_swap_conditional(nqz, nqpqz, (word32)bit);
 
     /* do bits 2..0 */
-    for (size_t i = 0; i < 3; i++) {
+    for (i = 0; i < 3; i++) {
         curve25519_compute_nq(nq, nqx, nqz);
         curve25519_square_packed64(sq, nq); /* sq = nq^2 */
         curve25519_121665_packed64(sqscalar, sq); /* sqscalar = sq * [121666,121665] */

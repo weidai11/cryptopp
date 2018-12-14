@@ -54,15 +54,23 @@ int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKe
 # define CRYPTOPP_CURVE25519_32BIT 1
 #endif
 
-// Benchmarking on a modern 64-bit Core i5-6400 shows SSE2 on Linux
+// Benchmarking on a modern 64-bit Core i5-6400 @2.7 GHz shows SSE2 on Linux
 // is not profitable. Here are the numbers in milliseconds/operation:
 //
 //   * Langley, C++, 0.050
 //   * Moon, C++: 0.040
 //   * Moon, SSE2: 0.061
 //   * Moon, native: 0.045
+//
+// However, a modern 64-bit Core i5-3200 @2.3 GHz shows SSE2 is profitable
+// for MS compilers. Here are the numbers in milliseconds/operation:
+//
+//   * x86, no SSE2, 0.294
+//   * x86, SSE2, 0.097
+//   * x64, no SSE2, 0.081
+//   * x64, SSE2, 0.071
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE) && 0
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE) && defined(_MSC_VER)
 # define CRYPTOPP_CURVE25519_SSE2 1
 #endif
 
