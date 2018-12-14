@@ -401,7 +401,7 @@ curve25519_swap_conditional(bignum25519 x, bignum25519 qpx, word32 iswap) {
  */
 void
 curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
-    bignum25519 ALIGN(16) t0,c;
+    ALIGN(16) bignum25519 t0,c;
 
     /* 2^5  - 2^0 */ /* b */
     /* 2^10 - 2^5 */ curve25519_square_times(t0, b, 5);
