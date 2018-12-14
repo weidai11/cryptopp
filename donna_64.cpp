@@ -13,16 +13,16 @@
 #include "misc.h"
 #include "cpu.h"
 
+// Squash MS LNK4221 and libtool warnings
+extern const char DONNA64_FNAME[] = __FILE__;
+
+#if defined(CRYPTOPP_CURVE25519_64BIT)
+
 #if defined(_MSC_VER)
 # include <intrin.h>
 # pragma intrinsic(_umul128)
 # pragma intrinsic(__shiftright128)
 #endif
-
-// Squash MS LNK4221 and libtool warnings
-extern const char DONNA64_FNAME[] = __FILE__;
-
-#if defined(CRYPTOPP_CURVE25519_64BIT)
 
 ANONYMOUS_NAMESPACE_BEGIN
 
