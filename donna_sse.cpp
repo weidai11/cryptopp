@@ -1,13 +1,14 @@
 // donna_sse.cpp - written and placed in public domain by Jeffrey Walton
-//                 This is an integration of Andrew Moon's public domain code.
-//                 Also see curve25519-donna-sse2.h.
+//                 This is a integration of Andrew Moon's public domain code.
+//                 Also see https://github.com/floodyberry/curve25519-donna.
 
 // This is a integration of Andrew Moon's public domain code. The port was
 // clean, but it has one potential problem. The original code is C and relies
 // upon unions. Accessing the inactive union member is undefined behavior in
 // C++. That means copying the array into packedelem8.u is OK; but then using
-// packedelem8.v in a calcualtion is undefined behavior. We will have to
-// keep an eye on things or rewrite significant portions of this code.
+// packedelem8.v in a calcualtion is UB. Fortunately most (all?) compilers
+// take pity on C++ developers and compile the code. We will have to keep an
+// eye on things or rewrite significant portions of this code.
 
 // If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
@@ -19,14 +20,20 @@
 #include "secblock.h"
 #include "misc.h"
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_CURVE25519_SSE2)
 # include <emmintrin.h>
+#endif
+
+// The data is aligned, but Clang issues warning based on type
+// and not the actual alignment of the variable and data.
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wcast-align"
 #endif
 
 // Squash MS LNK4221 and libtool warnings
 extern const char DONNA_SSE_FNAME[] = __FILE__;
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_CURVE25519_SSE2)
 
 typedef __m128i xmmi;
 #define ALIGN(n) CRYPTOPP_ALIGN_DATA(n)
@@ -1164,4 +1171,4 @@ int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte oth
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
 
-#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#endif  // CRYPTOPP_CURVE25519_SSE2

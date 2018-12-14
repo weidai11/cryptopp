@@ -1,6 +1,12 @@
 // donna.h - written and placed in public domain by Jeffrey Walton
-//           This is a port of Adam Langley's curve25519-donna
-//           located at https://github.com/agl/curve25519-donna
+//           This is a integration of Andrew Moon's public domain code.
+//           Also see https://github.com/floodyberry/curve25519-donna.
+
+// Benchmarking on a modern Core i5-6400 shows SSE2 on Linux is not
+// profitable. You can enable it with CRYPTOPP_CURVE25519_SSE2.
+
+// If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
+// https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
 
 #ifndef CRYPTOPP_DONNA_H
 #define CRYPTOPP_DONNA_H
@@ -39,7 +45,19 @@ int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKe
 # define CRYPTOPP_CURVE25519_64BIT 1
 #endif
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+// Benchmarking on a modern Core i5-6400 shows SSE2 on Linux is
+// not profitable. Here are the numbers in milliseconds/operation:
+//
+//   * Langley, C++, 0.050
+//   * Moon, C++: 0.040
+//   * Moon, SSE2: 0.061
+//   * Moon, native: 0.045
+
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE) && 0
+# define CRYPTOPP_CURVE25519_SSE2 1
+#endif
+
+#if (CRYPTOPP_CURVE25519_SSE2)
   extern int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
 #endif
 

@@ -1,6 +1,6 @@
 // donna_32.cpp - written and placed in public domain by Jeffrey Walton
 //                This is a integration of Andrew Moon's public domain code.
-//                Also see curve25519-donna-32bit.h.
+//                Also see https://github.com/floodyberry/curve25519-donna.
 
 // If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
@@ -448,10 +448,7 @@ int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othe
     FixedSizeSecBlock<byte, 32> e;
     for (size_t i = 0;i < 32;++i)
         e[i] = secretKey[i];
-
-    e[ 0] &= 0xf8;
-    e[31] &= 0x7f;
-    e[31] |= 0x40;
+    e[0] &= 0xf8; e[31] &= 0x7f; e[31] |= 0x40;
 
     bignum25519 nqpqx = {1}, nqpqz = {0}, nqz = {1}, nqx;
     bignum25519 q, qx, qpqx, qqx, zzz, zmone;
@@ -513,7 +510,7 @@ int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othe
 
 int curve25519(byte publicKey[32], const byte secretKey[32])
 {
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_CURVE25519_SSE2)
     if (HasSSE2())
         return curve25519_SSE2(publicKey, secretKey, basePoint);
     else
@@ -524,7 +521,7 @@ int curve25519(byte publicKey[32], const byte secretKey[32])
 
 int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_CURVE25519_SSE2)
     if (HasSSE2())
         return curve25519_SSE2(sharedKey, secretKey, othersKey);
     else

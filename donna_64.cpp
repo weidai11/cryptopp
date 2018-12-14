@@ -1,6 +1,6 @@
 // donna_64.cpp - written and placed in public domain by Jeffrey Walton
 //                This is a integration of Andrew Moon's public domain code.
-//                Also see curve25519-donna-64bit.h.
+//                Also see https://github.com/floodyberry/curve25519-donna.
 
 // If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
@@ -442,7 +442,7 @@ int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othe
 
 int curve25519(byte publicKey[32], const byte secretKey[32])
 {
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_CURVE25519_SSE2)
     if (HasSSE2())
         return curve25519_SSE2(publicKey, secretKey, basePoint);
     else
@@ -453,7 +453,7 @@ int curve25519(byte publicKey[32], const byte secretKey[32])
 
 int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_CURVE25519_SSE2)
     if (HasSSE2())
         return curve25519_SSE2(sharedKey, secretKey, othersKey);
     else
