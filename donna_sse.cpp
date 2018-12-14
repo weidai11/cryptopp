@@ -128,16 +128,16 @@ curve25519_expand(bignum25519 out, const byte in[32]) {
     x6 = *(word32 *)(in + 24);
     x7 = *(word32 *)(in + 28);
 
-    out[0] = (                        x0       ) & reduce_mask_26;
+    out[0] = (                      x0       ) & reduce_mask_26;
     out[1] = ((((word64)x1 << 32) | x0) >> 26) & reduce_mask_25;
     out[2] = ((((word64)x2 << 32) | x1) >> 19) & reduce_mask_26;
     out[3] = ((((word64)x3 << 32) | x2) >> 13) & reduce_mask_25;
-    out[4] = ((                       x3) >>  6) & reduce_mask_26;
-    out[5] = (                        x4       ) & reduce_mask_25;
+    out[4] = ((                     x3) >>  6) & reduce_mask_26;
+    out[5] = (                      x4       ) & reduce_mask_25;
     out[6] = ((((word64)x5 << 32) | x4) >> 25) & reduce_mask_26;
     out[7] = ((((word64)x6 << 32) | x5) >> 19) & reduce_mask_25;
     out[8] = ((((word64)x7 << 32) | x6) >> 12) & reduce_mask_26;
-    out[9] = ((                       x7) >>  6) & reduce_mask_25; /* ignore the top bit */
+    out[9] = ((                     x7) >>  6) & reduce_mask_25; /* ignore the top bit */
 
     out[10] = 0;
     out[11] = 0;
