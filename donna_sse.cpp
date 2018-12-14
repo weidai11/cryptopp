@@ -116,7 +116,7 @@ curve25519_copy(bignum25519 out, const bignum25519 in) {
 
 /* Take a little-endian, 32-byte number and expand it into polynomial form */
 inline void
-curve25519_expand(bignum25519 out, const unsigned char in[32]) {
+curve25519_expand(bignum25519 out, const byte in[32]) {
     word32 x0,x1,x2,x3,x4,x5,x6,x7;
 
     x0 = *(word32 *)(in + 0);
@@ -147,7 +147,7 @@ curve25519_expand(bignum25519 out, const unsigned char in[32]) {
  * little-endian, 32-byte array
  */
 inline void
-curve25519_contract(unsigned char out[32], const bignum25519 in) {
+curve25519_contract(byte out[32], const bignum25519 in) {
     ALIGN(16) bignum25519 f;
 
     curve25519_copy(f, in);
