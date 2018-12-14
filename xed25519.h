@@ -1,11 +1,20 @@
 // xed25519.h - written and placed in public domain by Jeffrey Walton
-//              Crypto++ specific implementation wrapped around Adam
-//              Langley's curve25519-donna.
+//              Crypto++ specific implementation wrapped around Andrew
+//              Moon's public domain curve25519-donna. Also see
+//              https://github.com/floodyberry/curve25519-donna.
 
 // Typically the key agreement classes encapsulate their data more
 // than x25519 does below. We made them a little more accessible
 // due to crypto_box operations. Once the library cuts-in the
 // crypto_box operations the x25519 class will be more restricted.
+
+/// \file xed25519.h
+/// \brief Classes for x25519 and ed25519 operations
+/// \details This implementation integrates Andrew Moon's public domain
+///   curve25519-donna.
+/// \sa Andrew Moon's GitHub <A
+///   HREF="https://github.com/floodyberry/curve25519-donna">curve25519-donna</A>
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_XED25519_H
 #define CRYPTOPP_XED25519_H
@@ -32,6 +41,8 @@ public:
     /// \brief Test if a key is clamped
     /// \param x private key
     static void ClampKey(byte x[32]);
+
+    virtual ~x25519() {}
 
     /// \brief Create a x25519 object
     /// \param y public key

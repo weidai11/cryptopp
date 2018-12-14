@@ -1,6 +1,7 @@
-// xed25519_32.cpp - written and placed in public domain by Jeffrey Walton
-//                   Crypto++ specific implementation wrapped around Adam
-//                   Langley's curve25519-donna.
+// xed25519.cpp - written and placed in public domain by Jeffrey Walton
+//                Crypto++ specific implementation wrapped around Andrew
+//                Moon's public domain curve25519-donna. Also see
+//                https://github.com/floodyberry/curve25519-donna.
 
 #include "pch.h"
 
