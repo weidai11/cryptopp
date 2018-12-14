@@ -22,9 +22,13 @@
 #include "xtr.h"
 #include "hmqv.h"
 #include "pubkey.h"
-#include "xed25519.h"
 #include "xtrcrypt.h"
 #include "eccrypto.h"
+
+// Curve25519
+#include "xed25519.h"
+#include "donna.h"
+#include "naclite.h"
 
 #include <iostream>
 #include <iomanip>
@@ -350,6 +354,56 @@ bool ValidateEC2N_Agreement()
 	pass = AuthenticatedKeyAgreementValidate(ecmqvc) && pass;
 
 	return pass;
+}
+
+// TestCurve25519 is slighty more comprehensive than ValidateX25519
+// because it cross-validates against Bernstein's NaCL library.
+// TestCurve25519 called in Debug builds.
+bool TestCurve25519()
+{
+    std::cout << "\nTesting curve25519 Key Agreements...\n\n";
+    const unsigned int AGREE_COUNT = 64;
+    bool pass = true;
+
+    SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
+    for (unsigned int i=0; i<AGREE_COUNT; ++i)
+    {
+        GlobalRNG().GenerateBlock(priv1, priv1.size());
+        GlobalRNG().GenerateBlock(priv2, priv2.size());
+
+        priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
+        priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
+
+        // Andrew Moon's curve25519-donna
+        Donna::curve25519(pub1, priv1);
+        Donna::curve25519(pub2, priv2);
+
+        int ret1 = Donna::curve25519(share1, priv1, pub2);
+        int ret2 = Donna::curve25519(share2, priv2, pub1);
+        int ret3 = std::memcmp(share1, share2, 32);
+
+#if defined(NO_OS_DEPENDENCE)
+        int ret4=0, ret5=0, ret6=0;
+#else
+        // Bernstein's NaCl requires DefaultAutoSeededRNG.
+        NaCl::crypto_box_keypair(pub2, priv2);
+
+        int ret4 = Donna::curve25519(share1, priv1, pub2);
+        int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
+        int ret6 = std::memcmp(share1, share2, 32);
+#endif
+
+        bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
+        pass = pass && !fail;
+    }
+
+    if (pass)
+        std::cout << "passed:";
+    else
+        std::cout << "FAILED:";
+    std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
+
+    return pass;
 }
 
 NAMESPACE_END  // Test
