@@ -6,6 +6,7 @@
 #define CRYPTOPP_DONNA_H
 
 #include "cryptlib.h"
+#include "stdcpp.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
@@ -29,6 +30,14 @@ int curve25519(byte publicKey[32], const byte secretKey[32]);
 ///   performs a scalar multiplication using the two keys and writes the result
 ///   to <tt>sharedKey</tt>.
 int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
+
+//****************************** Internal ******************************//
+
+#if (UINTPTR_MAX == 0xffffffff) || !defined(CRYPTOPP_WORD128_AVAILABLE)
+# define CRYPTOPP_CURVE25519_32BIT 1
+#else
+# define CRYPTOPP_CURVE25519_64BIT 1
+#endif
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
   extern int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);

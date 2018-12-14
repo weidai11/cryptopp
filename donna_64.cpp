@@ -10,23 +10,13 @@
 #include "config.h"
 #include "donna.h"
 #include "secblock.h"
-#include "stdcpp.h"
 #include "misc.h"
 #include "cpu.h"
-
-// This macro is not in a header like config.h because we don't want it
-// exposed to user code. We also need a standard header like <stdint.h>
-// or <stdef.h>.
-#if (UINTPTR_MAX == 0xffffffff) || !defined(CRYPTOPP_WORD128_AVAILABLE)
-# define CRYPTOPP_32BIT 1
-#else
-# define CRYPTOPP_64BIT 1
-#endif
 
 // Squash MS LNK4221 and libtool warnings
 extern const char DONNA64_FNAME[] = __FILE__;
 
-#if defined(CRYPTOPP_64BIT)
+#if defined(CRYPTOPP_CURVE25519_64BIT)
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -475,4 +465,4 @@ int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKe
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
 
-#endif  // CRYPTOPP_64BIT
+#endif  // CRYPTOPP_CURVE25519_64BIT

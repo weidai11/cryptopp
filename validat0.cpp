@@ -443,7 +443,7 @@ bool TestCurve25519()
         priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
         priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
 
-        // Langley's curve25519-donna
+        // Andrew Moon's curve25519-donna
         Donna::curve25519(pub1, priv1);
         Donna::curve25519(pub2, priv2);
 
