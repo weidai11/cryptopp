@@ -9,7 +9,7 @@
 // packedelem8.v in a calcualtion is undefined behavior. We will have to
 // keep an eye on things or rewrite significant portions of this code.
 
-// If needed, see Moon's commit "Go back to ignoring 256th bit",
+// If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
 
 #include "pch.h"

@@ -2,7 +2,7 @@
 //                This is a integration of Andrew Moon's public domain code.
 //                Also see curve25519-donna-32bit.h.
 
-// If needed, see Moon's commit "Go back to ignoring 256th bit",
+// If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
 
 #include "pch.h"

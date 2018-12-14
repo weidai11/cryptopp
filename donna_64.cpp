@@ -2,7 +2,7 @@
 //                This is a integration of Andrew Moon's public domain code.
 //                Also see curve25519-donna-64bit.h.
 
-// If needed, see Moon's commit "Go back to ignoring 256th bit",
+// If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
 
 #include "pch.h"
@@ -46,7 +46,7 @@ typedef word64 bignum25519[5];
 
 const byte basePoint[32] = {9};
 const word64 reduce_mask_51 = ((word64)1 << 51) - 1;
-const word64 reduce_mask_52 = ((word64)1 << 52) - 1;
+// const word64 reduce_mask_52 = ((word64)1 << 52) - 1;
 
 /* out = in */
 inline void
