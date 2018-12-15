@@ -11,7 +11,7 @@
     </Filter>
     <Filter Include="TestData">
       <UniqueIdentifier>{a634d4f4-ddc0-44b4-9c37-d9ffdddc7b06}</UniqueIdentifier>
-      <Extensions>.dat</Extensions>
+      <Extensions>.dat;.bin</Extensions>
     </Filter>
     <Filter Include="TestVectors">
       <UniqueIdentifier>{2e247f14-f75a-4e15-9804-dccce165306f}</UniqueIdentifier>
@@ -23,6 +23,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <!-- Begin Test Vectors -->
     <None Include="TestVectors\aes.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -50,6 +51,9 @@
     <None Include="TestVectors\chacha.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\chacha_tls.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\cham.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -83,6 +87,9 @@
     <None Include="TestVectors\hc256.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\hight.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\hkdf.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -92,6 +99,9 @@
     <None Include="TestVectors\kalyna.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\keccak.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\lea.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -134,18 +144,57 @@
     <None Include="TestVectors\sha.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\sha1_160_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha1_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\sha2.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\sha2_224_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_256_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_384_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_512_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\sha3.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\sha3_224_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_256_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_384_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_512_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\shacal2.txt">
       <Filter>TestVectors</Filter>
     </None>
     <None Include="TestVectors\siphash.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <Text Include="TestVectors\simeck.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <None Include="TestVectors\simon.txt">
       <Filter>TestVectors</Filter>
     </None>
@@ -179,6 +228,7 @@
     <None Include="TestVectors\whrlpool.txt">
       <Filter>TestVectors</Filter>
     </None>
+    <!-- Begin Test Data -->
     <None Include="TestData\3desval.dat">
       <Filter>TestData</Filter>
     </None>
@@ -195,6 +245,12 @@
       <Filter>TestData</Filter>
     </None>
     <None Include="TestData\cast256v.dat">
+      <Filter>TestData</Filter>
+    </None>
+    <None Include="TestData\defdmac1.bin">
+      <Filter>TestData</Filter>
+    </None>
+    <None Include="TestData\defdmac2.bin">
       <Filter>TestData</Filter>
     </None>
     <None Include="TestData\descert.dat">
@@ -326,6 +382,9 @@
     <None Include="TestData\rsa2048.dat">
       <Filter>TestData</Filter>
     </None>
+    <None Include="TestData\rsa2048a.dat">
+      <Filter>TestData</Filter>
+    </None>
     <None Include="TestData\rsa400pb.dat">
       <Filter>TestData</Filter>
     </None>
@@ -365,6 +424,9 @@
     <None Include="TestData\usage.dat">
       <Filter>TestData</Filter>
     </None>
+    <None Include="TestData\x25519.dat">
+      <Filter>TestData</Filter>
+    </None>
     <None Include="TestData\xtrdh171.dat">
       <Filter>TestData</Filter>
     </None>
@@ -374,6 +436,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="adhoc.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="bench1.cpp">
@@ -401,9 +466,6 @@
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="regtest4.cpp">
-      <Filter>Source Code</Filter>
-    </ClCompile>
-    <ClCompile Include="test.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="validat0.cpp">

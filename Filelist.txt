@@ -476,6 +476,7 @@ TestVectors/camellia.txt
 TestVectors/cham.txt
 TestVectors/ccm.txt
 TestVectors/chacha.txt
+TestVectors/chacha_tls.txt
 TestVectors/cmac.txt
 TestVectors/dlies.txt
 TestVectors/dsa.txt
