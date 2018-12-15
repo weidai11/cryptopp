@@ -32,6 +32,11 @@
 #include "pubkey.h"
 #include "eccrypto.h"
 
+// Curve25519
+#include "xed25519.h"
+#include "donna.h"
+#include "naclite.h"
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -647,6 +652,68 @@ bool ValidateESIGN()
 	FileSource keys(DataDir("TestData/esig1536.dat").c_str(), true, new HexDecoder);
 	ESIGN<SHA1>::Signer signer(keys);
 	ESIGN<SHA1>::Verifier verifier(signer);
+
+	fail = !SignatureValidate(signer, verifier);
+	pass = pass && !fail;
+
+	fail = !verifier.VerifyMessage((byte *)plain, strlen(plain), signature, verifier.SignatureLength());
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "verification check against test vector\n";
+
+	std::cout << "Generating signature key from seed..." << std::endl;
+	signer.AccessKey().GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const byte *)"test", 4))("KeySize", 3*512));
+	verifier = signer;
+
+	fail = !SignatureValidate(signer, verifier);
+	pass = pass && !fail;
+
+	return pass;
+}
+
+bool ValidateEd25519()
+{
+	std::cout << "\ned25519 validation suite running...\n\n";
+
+	bool pass = true, fail;
+
+#if 0
+	{
+		byte sk[NaCl::crypto_sign_SECRETKEYBYTES], pk[NaCl::crypto_sign_PUBLICKEYBYTES];
+		NaCl::crypto_sign_keypair(pk, sk);
+
+		FileSink fs("TestData/ed25519.dat", true);
+		DERSequenceEncoder seq(fs);
+		DERGeneralEncoder xx_sk(seq, BIT_STRING);
+		xx_sk.Put((byte)0);   // unused bits
+		xx_sk.Put(sk, sizeof(sk));
+		xx_sk.MessageEnd();
+
+		DERGeneralEncoder xx_pk(seq, OCTET_STRING);
+		xx_pk.Put(pk, sizeof(pk));
+		xx_pk.MessageEnd();
+
+		seq.MessageEnd();
+
+		byte sig[128]; word64 siglen = 128;
+		int ret = NaCl::crypto_sign(sig, &siglen, (byte*)"test", 4, sk);
+		siglen -= 4;
+
+		StringSource(sig, siglen, true, new HexEncoder(new FileSink(std::cout)));
+	}
+#endif
+
+	const char plain[] = "test";
+	const byte signature[] =
+		"\x49\x2F\xD1\x91\xD2\x3F\x94\x84\x23\x7E\xA1\x81\xE1\x0D\xA7\x24"
+		"\xEA\x4C\x15\x96\xEC\xC6\xAF\xD3\xDC\xD2\xD3\x8C\x0E\x1B\xDD\x10"
+		"\xFD\xCF\xCB\xE9\xC6\x26\x3D\x83\xC5\x8C\x4B\x7A\xA1\x4C\xC0\x51"
+		"\x23\x76\xFE\x3F\x86\x02\x11\x6E\xFE\x4B\x8D\xB7\xD9\x44\xBE\x0C";
+
+	FileSource keys(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
+	ed25519::Signer signer(keys);
+	ed25519::Verifier verifier(signer);
 
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;

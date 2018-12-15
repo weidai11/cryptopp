@@ -443,7 +443,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
+int curve25519_mult_CXX(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
     FixedSizeSecBlock<byte, 32> e;
     for (size_t i = 0;i < 32;++i)
@@ -508,26 +508,31 @@ int curve25519_CXX(byte sharedKey[32], const byte secretKey[32], const byte othe
     return 0;
 }
 
-int curve25519(byte publicKey[32], const byte secretKey[32])
+int curve25519_mult(byte publicKey[32], const byte secretKey[32])
 {
 #if (CRYPTOPP_CURVE25519_SSE2)
     if (HasSSE2())
-        return curve25519_SSE2(publicKey, secretKey, basePoint);
+		return curve25519_mult_SSE2(publicKey, secretKey, basePoint);
     else
 #endif
 
-    return curve25519_CXX(publicKey, secretKey, basePoint);
+    return curve25519_mult_CXX(publicKey, secretKey, basePoint);
 }
 
-int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
+int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
 #if (CRYPTOPP_CURVE25519_SSE2)
     if (HasSSE2())
-        return curve25519_SSE2(sharedKey, secretKey, othersKey);
+        return curve25519_mult_SSE2(sharedKey, secretKey, othersKey);
     else
 #endif
 
-    return curve25519_CXX(sharedKey, secretKey, othersKey);
+    return curve25519_mult_CXX(sharedKey, secretKey, othersKey);
+}
+
+int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte[32])
+{
+	return 0;
 }
 
 NAMESPACE_END  // Donna

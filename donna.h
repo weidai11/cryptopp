@@ -21,21 +21,47 @@ NAMESPACE_BEGIN(Donna)
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
 /// \returns 0 on success, non-0 otherwise
-/// \details This curve25519() overload generates a public key from an existing
-///   secret key. Internally curve25519() performs a scalar multiplication
+/// \details This curve25519_mult() overload generates a public key from an existing
+///   secret key. Internally curve25519_mult() performs a scalar multiplication
 ///   using the base point and writes the result to <tt>pubkey</tt>.
-int curve25519(byte publicKey[32], const byte secretKey[32]);
+int curve25519_mult(byte publicKey[32], const byte secretKey[32]);
 
 /// \brief Generate shared key
 /// \param sharedKey byte array for the shared secret
 /// \param secretKey byte array with the private key
 /// \param othersKey byte array with the peer's public key
 /// \returns 0 on success, non-0 otherwise
-/// \details This curve25519() overload generates a shared key from an existing
-///   a secret key and the other party's public key. Internally curve25519()
+/// \details This curve25519_mult() overload generates a shared key from an existing
+///   secret key and the other party's public key. Internally curve25519_mult()
 ///   performs a scalar multiplication using the two keys and writes the result
 ///   to <tt>sharedKey</tt>.
-int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
+int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
+
+/// \brief Generate a signing keypair from a seed
+/// \param hash HashTransformation derived class
+/// \param publicKey byte array for the public key
+/// \param secretKey byte array for the private key
+/// \param seed byte array with the secret seed
+/// \returns 0 on success, non-0 otherwise
+/// \details ed25519_keypair() generates a signing keypair from a secret seed.
+///   Internally ed25519_keypair() hashes the seed, performs a scalar multiplication
+///   using the secret key, and then writes the result to <tt>publicKey</tt>
+///   and <tt>secretKey</tt>.
+/// \details Most implementations use SHA-512 for the <tt>hash</tt>. Signing key
+///   generation requires 64-bytes so the hash must produce 64-bytes or safely
+///   truncate to 64-bytes.
+int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte[32]);
+
+/// \brief Generate a public key from a secret key
+/// \param publicKey byte array for the public key
+/// \param secretKey byte array for the private key
+/// \returns 0 on success, non-0 otherwise
+/// \details ed25519_keypair() generates a public key from a secret key.
+///   Internally ed25519_keypair() performs a scalar multiplication
+///   using the secret key and then writes the result to <tt>publicKey</tt>.
+///   Only the first 32-bytes of <tt>secretKey</tt> are used during this
+///   operation.
+int ed25519_keypair(byte publicKey[32], const byte secretKey[32]);
 
 //****************************** Internal ******************************//
 
@@ -75,7 +101,7 @@ int curve25519(byte sharedKey[32], const byte secretKey[32], const byte othersKe
 #endif
 
 #if (CRYPTOPP_CURVE25519_SSE2)
-  extern int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
+  extern int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
 #endif
 
 NAMESPACE_END  // Donna

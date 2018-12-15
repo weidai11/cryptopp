@@ -1103,7 +1103,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
+int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
     FixedSizeSecBlock<byte, 32> e;
     for (size_t i = 0;i < 32;++i)

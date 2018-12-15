@@ -412,6 +412,7 @@ TestData/dlie2048.dat
 TestData/dsa1024.dat
 TestData/dsa1024b.dat
 TestData/dsa512.dat
+TestData/ed25519.dat
 TestData/elgc1024.dat
 TestData/esig1023.dat
 TestData/esig1536.dat
