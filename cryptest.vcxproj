@@ -99,7 +99,7 @@
     </ClCompile>
     <Link>
       <ErrorReporting>NoErrorReport</ErrorReporting>
-      <AdditionalDependencies>cryptlib.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>cryptlib.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(Platform)\Output\$(Configuration)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <ProgramDatabaseFile>$(OutDir)\cryptlib.pdb</ProgramDatabaseFile>
@@ -150,7 +150,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(Platform)\DLL_Output\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cryptopp.lib;cryptlib.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>cryptopp.lib;cryptlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='DLL-Import Release'" Label="DLL Debug Configuration">
@@ -159,7 +159,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(Platform)\DLL_Output\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cryptopp.lib;cryptlib.lib;Ws2_32.lib</AdditionalDependencies>
+      <AdditionalDependencies>cryptopp.lib;cryptlib.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <!-- X86 Configurations -->
@@ -229,60 +229,79 @@
     <ClInclude Include="factory.h" />
     <ClInclude Include="validate.h" />
   </ItemGroup>
-  <!-- Test Files -->
+  <!-- Test Vectors -->
   <ItemGroup>
-    <None Include="TestVectors\aes.txt" />
-    <None Include="TestVectors\all.txt" />
-    <None Include="TestVectors\blake2.txt" />
-    <None Include="TestVectors\blake2b.txt" />
-    <None Include="TestVectors\blake2s.txt" />
-    <None Include="TestVectors\aria.txt" />
-    <None Include="TestVectors\camellia.txt" />
-    <None Include="TestVectors\ccm.txt" />
-    <None Include="TestVectors\chacha.txt" />
-    <None Include="TestVectors\cham.txt" />
-    <None Include="TestVectors\cmac.txt" />
-    <None Include="TestVectors\dlies.txt" />
-    <None Include="TestVectors\dsa.txt" />
-    <None Include="TestVectors\dsa_1363.txt" />
-    <None Include="TestVectors\dsa_rfc6979.txt" />
-    <None Include="TestVectors\eax.txt" />
-    <None Include="TestVectors\esign.txt" />
-    <None Include="TestVectors\gcm.txt" />
-    <None Include="TestVectors\hc128.txt" />
-    <None Include="TestVectors\hc256.txt" />
-    <None Include="TestVectors\hkdf.txt" />
-    <None Include="TestVectors\hmac.txt" />
-    <None Include="TestVectors\lea.txt" />
-    <None Include="TestVectors\kalyna.txt" />
-    <None Include="TestVectors\mars.txt" />
-    <None Include="TestVectors\nr.txt" />
-    <None Include="TestVectors\panama.txt" />
-    <None Include="TestVectors\Readme.txt" />
-    <None Include="TestVectors\rabbit.txt" />
-    <None Include="TestVectors\rsa_oaep.txt" />
-    <None Include="TestVectors\rsa_pkcs1_1_5.txt" />
-    <None Include="TestVectors\rsa_pss.txt" />
-    <None Include="TestVectors\rw.txt" />
-    <None Include="TestVectors\salsa.txt" />
-    <None Include="TestVectors\seal.txt" />
-    <None Include="TestVectors\seed.txt" />
-    <None Include="TestVectors\sha.txt" />
-    <None Include="TestVectors\sha2.txt" />
-    <None Include="TestVectors\sha3.txt" />
-    <None Include="TestVectors\shacal2.txt" />
-    <None Include="TestVectors\simon.txt" />
-    <None Include="TestVectors\siphash.txt" />
+    <Text Include="TestVectors\aes.txt" />
+    <Text Include="TestVectors\all.txt" />
+    <Text Include="TestVectors\blake2.txt" />
+    <Text Include="TestVectors\blake2b.txt" />
+    <Text Include="TestVectors\blake2s.txt" />
+    <Text Include="TestVectors\aria.txt" />
+    <Text Include="TestVectors\camellia.txt" />
+    <Text Include="TestVectors\ccm.txt" />
+    <Text Include="TestVectors\chacha.txt" />
+    <Text Include="TestVectors\chacha_tls.txt" />
+    <Text Include="TestVectors\cham.txt" />
+    <Text Include="TestVectors\cmac.txt" />
+    <Text Include="TestVectors\dlies.txt" />
+    <Text Include="TestVectors\dsa.txt" />
+    <Text Include="TestVectors\dsa_1363.txt" />
+    <Text Include="TestVectors\dsa_rfc6979.txt" />
+    <Text Include="TestVectors\eax.txt" />
+    <Text Include="TestVectors\esign.txt" />
+    <Text Include="TestVectors\gcm.txt" />
+    <Text Include="TestVectors\hc128.txt" />
+    <Text Include="TestVectors\hc256.txt" />
+    <Text Include="TestVectors\hight.txt" />
+    <Text Include="TestVectors\hkdf.txt" />
+    <Text Include="TestVectors\hmac.txt" />
+    <Text Include="TestVectors\kalyna.txt" />
+    <Text Include="TestVectors\keccak.txt" />
+    <Text Include="TestVectors\lea.txt" />
+    <Text Include="TestVectors\mars.txt" />
+    <Text Include="TestVectors\nr.txt" />
+    <Text Include="TestVectors\panama.txt" />
+    <Text Include="TestVectors\Readme.txt" />
+    <Text Include="TestVectors\rabbit.txt" />
+    <Text Include="TestVectors\rsa_oaep.txt" />
+    <Text Include="TestVectors\rsa_pkcs1_1_5.txt" />
+    <Text Include="TestVectors\rsa_pss.txt" />
+    <Text Include="TestVectors\rw.txt" />
+    <Text Include="TestVectors\salsa.txt" />
+    <Text Include="TestVectors\seal.txt" />
+    <Text Include="TestVectors\seed.txt" />
+    <Text Include="TestVectors\sha.txt" />
+    <Text Include="TestVectors\sha1_160_fips_180.txt" />
+    <Text Include="TestVectors\sha1_fips_180.txt" />
+    <Text Include="TestVectors\sha2.txt" />
+    <Text Include="TestVectors\sha2_224_fips_180.txt" />
+    <Text Include="TestVectors\sha2_256_fips_180.txt" />
+    <Text Include="TestVectors\sha2_384_fips_180.txt" />
+    <Text Include="TestVectors\sha2_512_fips_180.txt" />
+    <Text Include="TestVectors\sha2_fips_180.txt" />
+    <Text Include="TestVectors\sha3.txt" />
+    <Text Include="TestVectors\sha3_224_fips_202.txt" />
+    <Text Include="TestVectors\sha3_256_fips_202.txt" />
+    <Text Include="TestVectors\sha3_384_fips_202.txt" />
+    <Text Include="TestVectors\sha3_512_fips_202.txt" />
+    <Text Include="TestVectors\sha3_fips_202.txt" />
+    <Text Include="TestVectors\shacal2.txt" />
+    <Text Include="TestVectors\simon.txt" />
+    <Text Include="TestVectors\siphash.txt" />
+    <Text Include="TestVectors\simeck.txt" />
     <Text Include="TestVectors\sm3.txt" />
-    <None Include="TestVectors\sm4.txt" />
-    <None Include="TestVectors\sosemanuk.txt" />
-    <None Include="TestVectors\speck.txt" />
-    <None Include="TestVectors\tea.txt" />
-    <None Include="TestVectors\threefish.txt" />
-    <None Include="TestVectors\ttmac.txt" />
-    <None Include="TestVectors\vmac.txt" />
-    <None Include="TestVectors\wake.txt" />
-    <None Include="TestVectors\whrlpool.txt" />
+    <Text Include="TestVectors\sm4.txt" />
+    <Text Include="TestVectors\sosemanuk.txt" />
+    <Text Include="TestVectors\speck.txt" />
+    <Text Include="TestVectors\tea.txt" />
+    <Text Include="TestVectors\threefish.txt" />
+    <Text Include="TestVectors\ttmac.txt" />
+    <Text Include="TestVectors\vmac.txt" />
+    <Text Include="TestVectors\wake.txt" />
+    <Text Include="TestVectors\whrlpool.txt" />
+  </ItemGroup>
+  <!-- Test Data -->
+  <ItemGroup>
     <None Include="TestData\3desval.dat" />
     <None Include="TestData\3wayval.dat" />
     <None Include="TestData\aria.dat" />
@@ -290,6 +309,8 @@
     <None Include="TestData\cast128v.dat" />
     <None Include="TestData\cast256v.dat" />
     <None Include="TestData\descert.dat" />
+    <None Include="TestData\defdmac1.bin" />
+    <None Include="TestData\defdmac2.bin" />
     <None Include="TestData\dh1024.dat" />
     <None Include="TestData\dh2048.dat" />
     <None Include="TestData\dlie1024.dat" />
@@ -332,6 +353,7 @@
     <None Include="TestData\rijndael.dat" />
     <None Include="TestData\rsa1024.dat" />
     <None Include="TestData\rsa2048.dat" />
+    <None Include="TestData\rsa2048a.dat" />
     <None Include="TestData\rsa400pb.dat" />
     <None Include="TestData\rsa400pv.dat" />
     <None Include="TestData\rsa512a.dat" />
@@ -345,6 +367,7 @@
     <None Include="TestData\squareva.dat" />
     <None Include="TestData\twofishv.dat" />
     <None Include="TestData\usage.dat" />
+    <None Include="TestData\x25519.dat" />
     <None Include="TestData\xtrdh171.dat" />
     <None Include="TestData\xtrdh342.dat" />
   </ItemGroup>
