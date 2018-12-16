@@ -960,7 +960,7 @@ curve25519_swap_conditional(bignum25519 a, bignum25519 b, word32 iswap) {
  */
 void
 curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
-    bignum25519 ALIGN(16) t0,c;
+    ALIGN(16) bignum25519 t0,c;
 
     /* 2^5  - 2^0 */ /* b */
     /* 2^10 - 2^5 */ curve25519_square_times(t0, b, 5);
@@ -984,7 +984,7 @@ curve25519_pow_two5mtwo0_two250mtwo0(bignum25519 b) {
  */
 void
 curve25519_recip(bignum25519 out, const bignum25519 z) {
-    bignum25519 ALIGN(16) a,t0,b;
+    ALIGN(16) bignum25519 a,t0,b;
 
     /* 2 */ curve25519_square_times(a, z, 1); /* a = 2 */
     /* 8 */ curve25519_square_times(t0, a, 2);
@@ -1002,7 +1002,7 @@ curve25519_recip(bignum25519 out, const bignum25519 z) {
  */
 void
 curve25519_pow_two252m3(bignum25519 two252m3, const bignum25519 z) {
-    bignum25519 ALIGN(16) b,c,t0;
+    ALIGN(16) bignum25519 b,c,t0;
 
     /* 2 */ curve25519_square_times(c, z, 1); /* c = 2 */
     /* 8 */ curve25519_square_times(t0, c, 2); /* t0 = 8 */
