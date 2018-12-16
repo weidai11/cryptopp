@@ -25,16 +25,16 @@
 #include "cryptlib.h"
 #include "pubkey.h"
 #include "oids.h"
-#include "misc.h"
 
+// TODO: remove this header
 #include "naclite.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
+class OID;
+class Integer;
 struct ed25519Signer;
 struct ed25519Verifier;
-class Integer;
-class OID;
 
 /// \brief x25519 with key validation
 /// \since Crypto++ 8.0
@@ -85,6 +85,13 @@ public:
     /// \note The public key is not validated.
     x25519(BufferedTransformation &params);
 
+    /// \brief Clamp a private key
+    /// \param y public key
+    /// \param x private key
+    /// \details ClampKeys() clamps a private key and then regenerates the
+    ///   public key from the private key.
+    void ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const;
+
     /// \brief Test if a key is clamped
     /// \param x private key
     bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
@@ -92,10 +99,6 @@ public:
     /// \brief Test if a key has small order
     /// \param y public key
     bool IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const;
-
-    /// \brief Test if a key is clamped
-    /// \param x private key
-    void ClampKey(byte x[SECRET_KEYLENGTH]) const;
 
     /// \brief Decode a x25519 object
     /// \param params serialized object
@@ -132,25 +135,21 @@ protected:
 
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
-    ed25519_MessageAccumulator() {}
+    ed25519_MessageAccumulator() {m_msg.reserve(4096);}
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
-        CRYPTOPP_UNUSED(rng);
+        CRYPTOPP_UNUSED(rng); m_msg.reserve(4096);
     }
 
     void Update(const byte* msg, size_t len) {
-        m_msg += SecByteBlock(msg, len);
+        m_msg.insert(m_msg.end(), msg, msg+len);
     }
 
     void Restart() {
-        m_msg.New(0);
-    }
-
-    byte* begin() {
-        return m_msg.begin();
+        m_msg.clear();
     }
 
     const byte* begin() const {
-        return m_msg.begin();
+        return &m_msg[0];
     }
 
     size_t size() const {
@@ -158,9 +157,12 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
     }
 
 protected:
-    SecByteBlock m_msg;
+    // TODO: Find an equivalent Crypto++ structure.
+    std::vector<byte, AllocatorWithCleanup<byte> > m_msg;
 };
 
+/// \brief ed25519 signature algorithm
+/// \since Crypto++ 8.0
 struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
 {
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 64)
@@ -207,6 +209,13 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     /// \note The public key is not validated.
     ed25519Signer(BufferedTransformation &params);
 
+    /// \brief Clamp a private key
+    /// \param y public key
+    /// \param x private key
+    /// \details ClampKeys() clamps a private key and then regenerates the
+    ///   public key from the private key.
+    void ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const;
+
     /// \brief Test if a key is clamped
     /// \param x private key
     bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
@@ -239,17 +248,13 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
 
     // DL_SignatureSchemeBase
     size_t SignatureLength() const { return SIGNATURE_LENGTH; }
-
     size_t MaxRecoverableLength() const { return 0; }
-
     size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const {
         CRYPTOPP_UNUSED(signatureLength); return 0;
     }
 
-    bool IsProbabilistic() const { return true; }
-
+    bool IsProbabilistic() const { return false; }
     bool AllowNonrecoverablePart() const { return false; }
-
     bool RecoverablePartFirst() const { return false; }
 
     PK_MessageAccumulator* NewSignatureAccumulator(RandomNumberGenerator &rng) const {
@@ -287,6 +292,8 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
 };
 
+/// \brief ed25519 signature verification algorithm
+/// \since Crypto++ 8.0
 struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 {
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 64)
@@ -347,17 +354,13 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 
     // DL_SignatureSchemeBase
     size_t SignatureLength() const { return SIGNATURE_LENGTH; }
-
     size_t MaxRecoverableLength() const { return 0; }
-
     size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const {
         CRYPTOPP_UNUSED(signatureLength); return 0;
     }
 
-    bool IsProbabilistic() const { return true; }
-
+    bool IsProbabilistic() const { return false; }
     bool AllowNonrecoverablePart() const { return false; }
-
     bool RecoverablePartFirst() const { return false; }
 
     ed25519_MessageAccumulator* NewVerificationAccumulator() const {
@@ -374,7 +377,6 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
 
         ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-
         SecByteBlock temp(SIGNATURE_LENGTH+accum.size());
         word64 tlen=temp.size();
 
@@ -393,6 +395,8 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
 };
 
+/// \brief ed25519 signature scheme
+/// \since Crypto++ 8.0
 struct ed25519
 {
     typedef ed25519Signer Signer;

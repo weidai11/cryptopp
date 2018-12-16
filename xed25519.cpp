@@ -64,10 +64,7 @@ x25519::x25519(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
 x25519::x25519(const byte x[SECRET_KEYLENGTH])
 {
     std::memcpy(m_sk, x, SECRET_KEYLENGTH);
-    Donna::curve25519_mult(m_pk, m_sk);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+    ClampKeys(m_pk, m_sk);
 }
 
 x25519::x25519(const Integer &y, const Integer &x)
@@ -86,20 +83,13 @@ x25519::x25519(const Integer &x)
 {
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
-    Donna::curve25519_mult(m_pk, m_sk);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+    ClampKeys(m_pk, m_sk);
 }
 
 x25519::x25519(RandomNumberGenerator &rng)
 {
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    ClampKey(m_sk);
-    Donna::curve25519_mult(m_pk, m_sk);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+    ClampKeys(m_pk, m_sk);
 }
 
 x25519::x25519(BufferedTransformation &params)
@@ -123,7 +113,7 @@ x25519::x25519(BufferedTransformation &params)
 
       if (seq.EndReached())
       {
-          Donna::curve25519_mult(m_pk, m_sk);
+          ClampKeys(m_pk, m_sk);
       }
       else
       {
@@ -140,6 +130,12 @@ x25519::x25519(BufferedTransformation &params)
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+}
+
+void x25519::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
+{
+    x[0] &= 248; x[31] &= 127; x[31] |= 64;
+    Donna::curve25519_mult(y, x);
 }
 
 bool x25519::IsClamped(const byte x[SECRET_KEYLENGTH]) const
@@ -163,13 +159,6 @@ bool x25519::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
     }
 
     return (bool)((k >> 8) & 1);
-}
-
-void x25519::ClampKey(byte x[SECRET_KEYLENGTH]) const
-{
-    x[0] &= 248;
-    x[31] &= 127;
-    x[31] |= 64;
 }
 
 void x25519::DEREncode(BufferedTransformation &params) const
@@ -246,24 +235,22 @@ void x25519::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &pa
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    ClampKey(m_sk);
-    (void)Donna::curve25519_mult(m_pk, m_sk);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+    ClampKeys(m_pk, m_sk);
 }
 
 void x25519::GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
 {
     rng.GenerateBlock(privateKey, SECRET_KEYLENGTH);
-    ClampKey(privateKey);
+    byte y[PUBLIC_KEYLENGTH];
+    ClampKeys(y, privateKey);
 }
 
 void x25519::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
 {
     CRYPTOPP_UNUSED(rng);
 
-    (void)Donna::curve25519_mult(publicKey, privateKey);
+    SecByteBlock x(privateKey, SECRET_KEYLENGTH);
+    ClampKeys(publicKey, x);
 }
 
 bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey) const
@@ -283,12 +270,14 @@ ed25519Signer::ed25519Signer(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET
 {
     std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
     std::memcpy(m_sk, x, SECRET_KEYLENGTH);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
 }
 
 ed25519Signer::ed25519Signer(const byte x[SECRET_KEYLENGTH])
 {
     std::memcpy(m_sk, x, SECRET_KEYLENGTH);
-    Donna::curve25519_mult(m_pk, m_sk);
+    ClampKeys(m_pk, m_sk);
 }
 
 ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
@@ -298,19 +287,21 @@ ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
 
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
 }
 
 ed25519Signer::ed25519Signer(const Integer &x)
 {
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
-    Donna::curve25519_mult(m_pk, m_sk);
+    ClampKeys(m_pk, m_sk);
 }
 
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
 {
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    Donna::curve25519_mult(m_pk, m_sk);
+    ClampKeys(m_pk, m_sk);
 }
 
 ed25519Signer::ed25519Signer(BufferedTransformation &params)
@@ -334,7 +325,7 @@ ed25519Signer::ed25519Signer(BufferedTransformation &params)
 
       if (seq.EndReached())
       {
-          Donna::curve25519_mult(m_pk, m_sk);
+          ClampKeys(m_pk, m_sk);
       }
       else
       {
@@ -348,6 +339,14 @@ ed25519Signer::ed25519Signer(BufferedTransformation &params)
       }
 
     seq.MessageEnd();
+}
+
+void ed25519Signer::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
+{
+    x[0] &= 248; x[31] &= 127; x[31] |= 64;
+    int ret = NaCl::crypto_sign_sk2pk(x+32, x);
+    std::memcpy(y, x+32, 32);
+    CRYPTOPP_ASSERT(ret == 0);
 }
 
 bool ed25519Signer::IsClamped(const byte x[SECRET_KEYLENGTH]) const
@@ -403,8 +402,8 @@ void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePa
     if (params.GetValue("Seed", seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
-    rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    (void)Donna::curve25519_mult(m_pk, m_sk);
+    rng.GenerateBlock(m_sk, 32);    
+    ClampKeys(m_pk, m_sk);
 }
 
 // ******************** ed25519 Verifier ************************* //

@@ -530,7 +530,7 @@ int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte oth
     return curve25519_mult_CXX(sharedKey, secretKey, othersKey);
 }
 
-int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte[32])
+int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte seed[32])
 {
 	return 0;
 }

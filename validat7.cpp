@@ -416,7 +416,7 @@ bool TestEd25519()
 	bool pass = true;
 
 #if 0
-	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
+	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32);
 	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
 	{
 		GlobalRNG().GenerateBlock(priv1, priv1.size());
@@ -425,12 +425,12 @@ bool TestEd25519()
 		priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
 		priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
 
-		// Andrew Moon's curve25519-donna
-		Donna::curve25519_mult(pub1, priv1);
-		Donna::curve25519_mult(pub2, priv2);
+		// Andrew Moon's ed25519-donna
+		Donna::ed25519_sign(pub1, priv1);
+		Donna::ed25519_sign(pub2, priv2);
 
-		int ret1 = Donna::curve25519_mult(share1, priv1, pub2);
-		int ret2 = Donna::curve25519_mult(share2, priv2, pub1);
+		int ret1 = Donna::ed25519_sign(share1, priv1, pub2);
+		int ret2 = Donna::ed25519_sign(share2, priv2, pub1);
 		int ret3 = std::memcmp(share1, share2, 32);
 
 #if defined(NO_OS_DEPENDENCE)
@@ -439,8 +439,8 @@ bool TestEd25519()
 		// Bernstein's NaCl requires DefaultAutoSeededRNG.
 		NaCl::crypto_box_keypair(pub2, priv2);
 
-		int ret4 = Donna::curve25519_mult(share1, priv1, pub2);
-		int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
+		int ret4 = Donna::ed25519_sign(share1, priv1, pub2);
+		int ret5 = NaCl::crypto_sign(share2, priv2, pub1);
 		int ret6 = std::memcmp(share1, share2, 32);
 #endif
 

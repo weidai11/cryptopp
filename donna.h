@@ -47,14 +47,14 @@ int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte oth
 ///   Internally ed25519_keypair() hashes the seed, performs a scalar multiplication
 ///   using the secret key, and then writes the result to <tt>publicKey</tt>
 ///   and <tt>secretKey</tt>.
-/// \details Most implementations use SHA-512 for the <tt>hash</tt>. Signing key
-///   generation requires 64-bytes so the hash must produce 64-bytes or safely
-///   truncate to 64-bytes.
-int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte[32]);
+/// \details Signing key generation requires 64-bytes hash. The hash function must
+///   produce 64-bytes or safely truncate to 64-bytes. Most implementations use
+///   SHA-512 for the hash, but BLAKE2b is fine as long as interop is not an issue.
+int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte seed[32]);
 
 /// \brief Generate a public key from a secret key
 /// \param publicKey byte array for the public key
-/// \param secretKey byte array for the private key
+/// \param secretKey byte array with the private key
 /// \returns 0 on success, non-0 otherwise
 /// \details ed25519_keypair() generates a public key from a secret key.
 ///   Internally ed25519_keypair() performs a scalar multiplication
@@ -88,7 +88,7 @@ int ed25519_keypair(byte publicKey[32], const byte secretKey[32]);
 //   * Moon, SSE2: 0.061
 //   * Moon, native: 0.045
 //
-// However, a modern 64-bit Core i5-3200 @2.3 GHz shows SSE2 is profitable
+// However, a modern 64-bit Core i5-3200 @2.5 GHz shows SSE2 is profitable
 // for MS compilers. Here are the numbers in milliseconds/operation:
 //
 //   * x86, no SSE2, 0.294
