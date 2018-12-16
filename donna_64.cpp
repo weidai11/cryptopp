@@ -1310,7 +1310,6 @@ ge25519_unpack_negative_vartime(ge25519 *r, const byte p[32]) {
     curve25519_mul(r->t, r->x, r->y);
     return 1;
 }
-#endif
 
 /* computes [s1]p1 + [s2]basepoint */
 void
@@ -1354,6 +1353,7 @@ ge25519_double_scalarmult_vartime(ge25519 *r, const ge25519 *p1, const bignum256
         ge25519_p1p1_to_partial(r, &t);
     }
 }
+#endif
 
 #if !defined(HAVE_GE25519_SCALARMULT_BASE_CHOOSE_NIELS)
 
