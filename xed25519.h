@@ -1,7 +1,8 @@
 // xed25519.h - written and placed in public domain by Jeffrey Walton
 //              Crypto++ specific implementation wrapped around Andrew
-//              Moon's public domain curve25519-donna. Also see
-//              https://github.com/floodyberry/curve25519-donna.
+//              Moon's public domain curve25519-donna and ed25519-donna,
+//              https://github.com/floodyberry/curve25519-donna and
+//              https://github.com/floodyberry/ed25519-donna.
 
 // Typically the key agreement classes encapsulate their data more
 // than x25519 does below. We made them a little more accessible
@@ -12,8 +13,10 @@
 /// \brief Classes for x25519 and ed25519 operations
 /// \details This implementation integrates Andrew Moon's public domain
 ///   curve25519-donna.
-/// \sa Andrew Moon's GitHub <A
+/// \sa Andrew Moon's x22519 GitHub <A
 ///   HREF="https://github.com/floodyberry/curve25519-donna">curve25519-donna</A>
+///   and ed22519 GitHub <A
+///   HREF="https://github.com/floodyberry/ed25519-donna">ed25519-donna</A>
 /// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_XED25519_H
@@ -22,6 +25,9 @@
 #include "cryptlib.h"
 #include "pubkey.h"
 #include "oids.h"
+#include "misc.h"
+
+#include "naclite.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -124,29 +130,35 @@ protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
 };
 
-struct ed25519_SignatureAccumulator : public PK_MessageAccumulator
+struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
-    ed25519_SignatureAccumulator(RandomNumberGenerator &rng) : m_rng(rng) {}
+    ed25519_MessageAccumulator() {}
+    ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
+        CRYPTOPP_UNUSED(rng);
+    }
 
     void Update(const byte* msg, size_t len) {
-        m_msg.Put(msg, len);
+        m_msg += SecByteBlock(msg, len);
+    }
+
+    void Restart() {
+        m_msg.New(0);
+    }
+
+    byte* begin() {
+        return m_msg.begin();
+    }
+
+    const byte* begin() const {
+        return m_msg.begin();
+    }
+
+    size_t size() const {
+        return m_msg.size();
     }
 
 protected:
-    ByteQueue m_msg;
-    RandomNumberGenerator& m_rng;
-};
-
-struct ed25519_VerificationAccumulator : public PK_MessageAccumulator
-{
-    ed25519_VerificationAccumulator() {}
-
-    void Update(const byte* msg, size_t len) {
-        m_msg.Put(msg, len);
-    }
-
-protected:
-    ByteQueue m_msg;
+    SecByteBlock m_msg;
 };
 
 struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
@@ -195,6 +207,10 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     /// \note The public key is not validated.
     ed25519Signer(BufferedTransformation &params);
 
+    /// \brief Test if a key is clamped
+    /// \param x private key
+    bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
+
     // CryptoMaterial
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
@@ -204,53 +220,40 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
 
     // DL_ObjectImplBase
-    PrivateKey& AccessKey() {
-        return *this;
-    }
+    PrivateKey& AccessKey() { return *this; }
 
-    PrivateKey& AccessPrivateKey() {
-        return *this;
-    }
+    PrivateKey& AccessPrivateKey() { return *this; }
 
     OID GetAlgorithmID() const {
         return ASN1::curve25519();
     }
 
-    void BERDecodePrivateKey(BufferedTransformation &, bool, size_t) {
-
+    void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
+        CRYPTOPP_UNUSED(bt); CRYPTOPP_UNUSED(parametersPresent);
+        CRYPTOPP_UNUSED(size);
     }
 
-    void DEREncodePrivateKey(BufferedTransformation &) const {
-
+    void DEREncodePrivateKey(BufferedTransformation &bt) const {
+        CRYPTOPP_UNUSED(bt);
     }
 
     // DL_SignatureSchemeBase
-    size_t SignatureLength() const {
-        return SIGNATURE_LENGTH;
-    }
+    size_t SignatureLength() const { return SIGNATURE_LENGTH; }
 
-    size_t MaxRecoverableLength() const {
-        return 0;
-    }
+    size_t MaxRecoverableLength() const { return 0; }
 
     size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const {
         CRYPTOPP_UNUSED(signatureLength); return 0;
     }
 
-    bool IsProbabilistic() const {
-        return true;
-    }
+    bool IsProbabilistic() const { return true; }
 
-    bool AllowNonrecoverablePart() const {
-        return false;
-    }
+    bool AllowNonrecoverablePart() const { return false; }
 
-    bool RecoverablePartFirst() const {
-        return false;
-    }
+    bool RecoverablePartFirst() const { return false; }
 
     PK_MessageAccumulator* NewSignatureAccumulator(RandomNumberGenerator &rng) const {
-        return new ed25519_SignatureAccumulator(rng);
+        return new ed25519_MessageAccumulator(rng);
     }
 
     void InputRecoverableMessage(PK_MessageAccumulator &messageAccumulator, const byte *recoverableMessage, size_t recoverableMessageLength) const {
@@ -260,9 +263,22 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     }
 
     size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const {
-        CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(messageAccumulator);
-        CRYPTOPP_UNUSED(signature); CRYPTOPP_UNUSED(restart);
-        return 0;
+        CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
+
+        ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
+        SecByteBlock temp(SIGNATURE_LENGTH+accum.size());
+        word64 tlen=temp.size();
+
+        int ret = NaCl::crypto_sign(temp, &tlen, accum.begin(), accum.size(), m_sk);
+        CRYPTOPP_ASSERT(ret == 0);
+
+        CRYPTOPP_ASSERT(tlen == accum.size()+SIGNATURE_LENGTH);
+        std::memcpy(signature, temp, SIGNATURE_LENGTH);
+
+        if (restart)
+            accum.Restart();
+
+        return ret == 0 ? SIGNATURE_LENGTH : 0;
     }
 
 protected:
@@ -312,65 +328,65 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     void AssignFrom(const NameValuePairs &source);
 
     // DL_ObjectImplBase
-    PublicKey& AccessKey() {
-        return *this;
-    }
+    PublicKey& AccessKey() { return *this; }
 
-    PublicKey& AccessPublicKey() {
-        return *this;
-    }
+    PublicKey& AccessPublicKey() { return *this; }
 
     OID GetAlgorithmID() const {
-        return ASN1::curve25519ph();
+        return ASN1::curve25519();
     }
 
-    void BERDecodePublicKey(BufferedTransformation &, bool, size_t) {
-
+     void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
+        CRYPTOPP_UNUSED(bt); CRYPTOPP_UNUSED(parametersPresent);
+        CRYPTOPP_UNUSED(size);
     }
 
-    void DEREncodePublicKey(BufferedTransformation &) const {
-
+    void DEREncodePublicKey(BufferedTransformation &bt) const {
+        CRYPTOPP_UNUSED(bt);
     }
 
     // DL_SignatureSchemeBase
-    size_t SignatureLength() const {
-        return SIGNATURE_LENGTH;
-    }
+    size_t SignatureLength() const { return SIGNATURE_LENGTH; }
 
-    size_t MaxRecoverableLength() const {
-        return 0;
-    }
+    size_t MaxRecoverableLength() const { return 0; }
 
     size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const {
         CRYPTOPP_UNUSED(signatureLength); return 0;
     }
 
-    bool IsProbabilistic() const {
-        return true;
+    bool IsProbabilistic() const { return true; }
+
+    bool AllowNonrecoverablePart() const { return false; }
+
+    bool RecoverablePartFirst() const { return false; }
+
+    ed25519_MessageAccumulator* NewVerificationAccumulator() const {
+        return new ed25519_MessageAccumulator;
     }
 
-    bool AllowNonrecoverablePart() const {
-        return false;
+    void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const {
+        // TODO: verify signature is always inserted first...
+        ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
+        CRYPTOPP_ASSERT(accum.size() == 0);
+        accum.Update(signature, signatureLength);
     }
 
-    bool RecoverablePartFirst() const {
-        return false;
+    bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
+
+        ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
+
+        SecByteBlock temp(SIGNATURE_LENGTH+accum.size());
+        word64 tlen=temp.size();
+
+        int ret = NaCl::crypto_sign_open(temp, &tlen, accum.begin(), accum.size(), m_pk);
+        accum.Restart();
+
+        return ret == 0;
     }
 
-    PK_MessageAccumulator* NewVerificationAccumulator() const {
-        return new ed25519_VerificationAccumulator;
-    }
-
-    void InputSignature(PK_MessageAccumulator &, const byte *, size_t) const {
-
-    }
-
-    bool VerifyAndRestart(PK_MessageAccumulator &) const {
-        return false;
-    }
-
-    DecodingResult RecoverAndRestart(byte *, PK_MessageAccumulator &) const {
-        return DecodingResult();
+     DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
+        CRYPTOPP_UNUSED(recoveredMessage); CRYPTOPP_UNUSED(messageAccumulator);
+        throw NotImplemented("ed25519Verifier: this object does not support recoverable messages");
     }
 
 protected:

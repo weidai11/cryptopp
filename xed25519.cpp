@@ -1,7 +1,8 @@
 // xed25519.cpp - written and placed in public domain by Jeffrey Walton
 //                Crypto++ specific implementation wrapped around Andrew
-//                Moon's public domain curve25519-donna. Also see
-//                https://github.com/floodyberry/curve25519-donna.
+//                Moon's public domain curve25519-donna and ed25519-donna,
+//                https://github.com/floodyberry/curve25519-donna and
+//                https://github.com/floodyberry/ed25519-donna.
 
 #include "pch.h"
 
@@ -349,9 +350,14 @@ ed25519Signer::ed25519Signer(BufferedTransformation &params)
     seq.MessageEnd();
 }
 
+bool ed25519Signer::IsClamped(const byte x[SECRET_KEYLENGTH]) const
+{
+    return (x[0] & 248) == x[0] && (x[31] & 127) == x[31] && (x[31] | 64) == x[31];
+}
+
 bool ed25519Signer::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
-    CRYPTOPP_UNUSED(rng);
+    CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
     return true;
 }
 
