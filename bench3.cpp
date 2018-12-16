@@ -29,10 +29,10 @@
 #include "ec2n.h"
 #include "asn.h"
 #include "dh.h"
-#include "xed25519.h"
 #include "mqv.h"
 #include "hmqv.h"
 #include "fhmqv.h"
+#include "xed25519.h"
 #include "xtrcrypt.h"
 #include "esign.h"
 #include "pssr.h"
@@ -317,6 +317,28 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
 
+	// TODO: remove this block
+	std::cout << "\n<TBODY style=\"background: yellow;\">";
+	{
+		ECDSA<ECP, SHA1>::Signer spriv(Test::GlobalRNG(), ASN1::secp256k1());
+		ECDSA<ECP, SHA1>::Verifier spub(spriv);
+		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
+
+		x25519 agree(Test::GlobalRNG());
+		ed25519::Signer sign(Test::GlobalRNG());
+		ed25519::Verifier verify(sign);
+
+		BenchMarkSigning("ECDSA over GF(p) 256", spriv, t);
+		BenchMarkVerification("ECDSA over GF(p) 256", spriv, spub, t);
+		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
+		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
+
+		BenchMarkSigning("ed25519", sign, t);
+		BenchMarkVerification("ed25519", sign, verify, t);
+		BenchMarkKeyGen("x25519", agree, t);
+		BenchMarkAgreement("x25519", agree, t);
+	}
+
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 		BenchMarkCrypto<RSAES<OAEP<SHA1> > >("TestData/rsa1024.dat", "RSA 1024", t);
@@ -381,6 +403,18 @@ void Benchmark3(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
+		x25519 agree(Test::GlobalRNG());
+		ed25519::Signer sign(Test::GlobalRNG());
+		ed25519::Verifier verify(sign);
+
+		BenchMarkSigning("ed25519", sign, t);
+		BenchMarkVerification("ed25519", sign, verify, t);
+		BenchMarkKeyGen("x25519", agree, t);
+		BenchMarkAgreement("x25519", agree, t);
+	}
+
+	std::cout << "\n<TBODY style=\"background: white;\">";
+	{
 		ECIES<ECP>::Decryptor cpriv(Test::GlobalRNG(), ASN1::secp256k1());
 		ECIES<ECP>::Encryptor cpub(cpriv);
 		ECDSA<ECP, SHA1>::Signer spriv(cpriv);
@@ -391,7 +425,6 @@ void Benchmark3(double t, double hertz)
 		ECGDSA<ECP, SHA1>::Verifier spub3(spriv3);
 		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
 		ECMQV<ECP>::Domain ecmqvc(ASN1::secp256k1());
-		x25519 x25519ka(Test::GlobalRNG());
 
 		BenchMarkEncryption("ECIES over GF(p) 256", cpub, t);
 		BenchMarkDecryption("ECIES over GF(p) 256", cpriv, cpub, t);
@@ -401,15 +434,13 @@ void Benchmark3(double t, double hertz)
 		BenchMarkVerification("ECDSA-RFC6979 over GF(p) 256", spriv2, spub2, t);
 		BenchMarkSigning("ECGDSA over GF(p) 256", spriv3, t);
 		BenchMarkVerification("ECGDSA over GF(p) 256", spriv3, spub3, t);
-		BenchMarkKeyGen("x25519", x25519ka, t);
-		BenchMarkAgreement("x25519", x25519ka, t);
 		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
 		BenchMarkKeyGen("ECMQVC over GF(p) 256", ecmqvc, t);
 		BenchMarkAgreement("ECMQVC over GF(p) 256", ecmqvc, t);
 	}
 
-	std::cout << "\n<TBODY style=\"background: white;\">";
+	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
 		ECIES<EC2N>::Decryptor cpriv(Test::GlobalRNG(), ASN1::sect233r1());
 		ECIES<EC2N>::Encryptor cpub(cpriv);
