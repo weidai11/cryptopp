@@ -135,7 +135,7 @@ protected:
 
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
-    CRYPTOPP_CONSTANT(RESERVE_SIZE=1024)
+    CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64)
 
     ed25519_MessageAccumulator() {
         m_msg.reserve(RESERVE_SIZE);
@@ -146,7 +146,8 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
     }
 
     void Update(const byte* msg, size_t len) {
-        m_msg.insert(m_msg.end(), msg, msg+len);
+        if (msg && len)
+            m_msg.insert(m_msg.end(), msg, msg+len);
     }
 
     void Restart() {
@@ -235,7 +236,6 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
 
     // DL_ObjectImplBase
     PrivateKey& AccessKey() { return *this; }
-
     PrivateKey& AccessPrivateKey() { return *this; }
 
     OID GetAlgorithmID() const {
@@ -341,7 +341,6 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 
     // DL_ObjectImplBase
     PublicKey& AccessKey() { return *this; }
-
     PublicKey& AccessPublicKey() { return *this; }
 
     OID GetAlgorithmID() const {
@@ -376,7 +375,9 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
         // TODO: verify signature is always inserted first...
         ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
         CRYPTOPP_ASSERT(accum.size() == 0);
-        accum.Update(signature, signatureLength);
+
+        if (signature && signatureLength)
+            accum.Update(signature, signatureLength);
     }
 
     bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
