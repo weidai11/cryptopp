@@ -102,6 +102,9 @@ dlltest.vcxproj.filters
 dmac.h
 drbg.h
 donna.h
+donna_32.h
+donna_64.h
+donna_sse.h
 donna_32.cpp
 donna_64.cpp
 donna_sse.cpp

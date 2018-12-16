@@ -298,7 +298,7 @@ ed25519Signer::ed25519Signer(const Integer &x)
 
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
 {
-    rng.GenerateBlock(m_sk, 32);    
+    rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
     int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
     std::memcpy(m_pk, m_sk+32, 32);
@@ -399,7 +399,7 @@ void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePa
     if (params.GetValue("Seed", seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
-    rng.GenerateBlock(m_sk, 32);    
+    rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
     int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
     std::memcpy(m_pk, m_sk+32, 32);

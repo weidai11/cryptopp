@@ -724,13 +724,6 @@ bool ValidateEd25519()
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "verification check against test vector\n";
 
-	std::cout << "Generating signature key from seed..." << std::endl;
-	signer.AccessKey().GenerateRandom(GlobalRNG(), MakeParameters("Seed", ConstByteArrayParameter((const byte *)"test", 4)));
-	verifier = signer;
-
-	fail = !SignatureValidate(signer, verifier);
-	pass = pass && !fail;
-
 	return pass;
 }
 

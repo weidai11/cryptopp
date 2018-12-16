@@ -17,6 +17,8 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
+//***************************** curve25519 *****************************//
+
 /// \brief Generate public key
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
@@ -37,6 +39,8 @@ int curve25519_mult(byte publicKey[32], const byte secretKey[32]);
 ///   to <tt>sharedKey</tt>.
 int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
 
+//******************************* ed25519 *******************************//
+
 /// \brief Generate a signing keypair from a seed
 /// \param hash HashTransformation derived class
 /// \param publicKey byte array for the public key
@@ -50,7 +54,7 @@ int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte oth
 /// \details Signing key generation requires 64-bytes hash. The hash function must
 ///   produce 64-bytes or safely truncate to 64-bytes. Most implementations use
 ///   SHA-512 for the hash, but BLAKE2b is fine as long as interop is not an issue.
-int ed25519_keypair(HashTransformation& hash, byte publicKey[32], byte secretKey[64], const byte seed[32]);
+int ed25519_keypair(byte publicKey[32], byte secretKey[32], const byte seed[32]);
 
 /// \brief Generate a public key from a secret key
 /// \param publicKey byte array for the public key

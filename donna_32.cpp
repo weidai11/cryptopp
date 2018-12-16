@@ -18,9 +18,10 @@ extern const char DONNA32_FNAME[] = __FILE__;
 
 #if defined(CRYPTOPP_CURVE25519_32BIT)
 
+#include "donna_32.h"
+
 ANONYMOUS_NAMESPACE_BEGIN
 
-using std::memcpy;
 using CryptoPP::byte;
 using CryptoPP::word32;
 using CryptoPP::sword32;
@@ -30,14 +31,8 @@ using CryptoPP::sword64;
 using CryptoPP::GetBlock;
 using CryptoPP::LittleEndian;
 
-typedef word32 bignum25519[10];
-
-#define mul32x32_64(a,b) (((word64)(a))*(b))
-#define ALIGN(n) CRYPTOPP_ALIGN_DATA(n)
-
-const byte basePoint[32] = {9};
-const word32 reduce_mask_25 = (1 << 25) - 1;
-const word32 reduce_mask_26 = (1 << 26) - 1;
+// Bring in all the symbols from the 32-bit header
+using namespace CryptoPP::Donna::Donna32;
 
 /* out = in */
 inline void
