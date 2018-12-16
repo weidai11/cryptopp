@@ -89,7 +89,8 @@ x25519::x25519(const Integer &x)
 x25519::x25519(RandomNumberGenerator &rng)
 {
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    ClampKeys(m_pk, m_sk);
+    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
+    Donna::curve25519_mult(m_pk, m_sk);
 }
 
 x25519::x25519(BufferedTransformation &params)
@@ -226,16 +227,13 @@ void x25519::AssignFrom(const NameValuePairs &source)
 
 void x25519::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
 {
-    // Avoid throwing parameter not used
-    int unused;
-    params.GetValue("KeySize", unused);
-
     ConstByteArrayParameter seed;
     if (params.GetValue("Seed", seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    ClampKeys(m_pk, m_sk);
+    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
+    Donna::curve25519_mult(m_pk, m_sk);
 }
 
 void x25519::GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
@@ -300,8 +298,11 @@ ed25519Signer::ed25519Signer(const Integer &x)
 
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
 {
-    rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    ClampKeys(m_pk, m_sk);
+    rng.GenerateBlock(m_sk, 32);    
+    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
+    int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
+    std::memcpy(m_pk, m_sk+32, 32);
+    CRYPTOPP_ASSERT(ret == 0);
 }
 
 ed25519Signer::ed25519Signer(BufferedTransformation &params)
@@ -394,16 +395,15 @@ void ed25519Signer::AssignFrom(const NameValuePairs &source)
 
 void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
 {
-    // Avoid throwing parameter not used
-    int unused;
-    params.GetValue("KeySize", unused);
-
     ConstByteArrayParameter seed;
     if (params.GetValue("Seed", seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, 32);    
-    ClampKeys(m_pk, m_sk);
+    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
+    int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
+    std::memcpy(m_pk, m_sk+32, 32);
+    CRYPTOPP_ASSERT(ret == 0);
 }
 
 // ******************** ed25519 Verifier ************************* //

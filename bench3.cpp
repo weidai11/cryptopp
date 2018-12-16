@@ -324,9 +324,9 @@ void Benchmark3(double t, double hertz)
 		ECDSA<ECP, SHA1>::Verifier spub(spriv);
 		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
 
-		x25519 agree(Test::GlobalRNG());
 		ed25519::Signer sign(Test::GlobalRNG());
 		ed25519::Verifier verify(sign);
+		x25519 agree(Test::GlobalRNG());
 
 		BenchMarkSigning("ECDSA over GF(p) 256", spriv, t);
 		BenchMarkVerification("ECDSA over GF(p) 256", spriv, spub, t);
