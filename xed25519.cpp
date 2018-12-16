@@ -300,8 +300,10 @@ ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
 {
     rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
-    int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
-    std::memcpy(m_pk, m_sk+32, 32);
+    // int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
+    // std::memcpy(m_pk, m_sk+32, 32);
+	int ret = Donna::ed25519_publickey(m_pk, m_sk);
+	std::memcpy(m_sk+32, m_pk, 32);
     CRYPTOPP_ASSERT(ret == 0);
 }
 

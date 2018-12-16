@@ -4,6 +4,10 @@
 //               https://github.com/floodyberry/curve25519-donna and
 //               https://github.com/floodyberry/ed25519-donna.
 
+// This source file multiplexes two different repos using namespaces. This
+// was a little easier from a project management standpoint. We only need
+// two files per architecture at the expense of namespaces and bloat.
+
 #ifndef CRYPTOPP_DONNA_SSE_H
 #define CRYPTOPP_DONNA_SSE_H
 
@@ -12,7 +16,7 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
-NAMESPACE_BEGIN(DonnaSSE)
+NAMESPACE_BEGIN(ArchSSE)
 
 using CryptoPP::byte;
 using CryptoPP::word32;
@@ -73,7 +77,7 @@ const packedelem32 packed2p2 = {{0x7fffffe,0x3fffffe,0x0000000,0x0000000}};
 const packedelem32 packed32zeromodp0 = {{0x7ffffda,0x7ffffda,0x3fffffe,0x3fffffe}};
 const packedelem32 packed32zeromodp1 = {{0x7fffffe,0x7fffffe,0x3fffffe,0x3fffffe}};
 
-NAMESPACE_END  // DonnaSSE
+NAMESPACE_END  // ArchSSE
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
 

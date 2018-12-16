@@ -415,45 +415,32 @@ bool TestEd25519()
 	const unsigned int SIGN_COUNT = 64;
 	bool pass = true;
 
-#if 0
-	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32);
+	// Test key conversion
+	byte seed[32], s1[32], s2[32], p1[32], p2[32];
 	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
 	{
-		GlobalRNG().GenerateBlock(priv1, priv1.size());
-		GlobalRNG().GenerateBlock(priv2, priv2.size());
+		GlobalRNG().GenerateBlock(seed, 32);
+		std::memcpy(s1, seed, 32);
+		std::memcpy(s2, seed, 32);
 
-		priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
-		priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
+		int ret1 = NaCl::crypto_sign_sk2pk(p1, s1);
+		int ret2 = Donna::ed25519_publickey(p2, s2);
+		int ret3 = std::memcmp(p1, p2, 32);
 
-		// Andrew Moon's ed25519-donna
-		Donna::ed25519_sign(pub1, priv1);
-		Donna::ed25519_sign(pub2, priv2);
+		//StringSource(p1, 32, true, new HexEncoder(new FileSink(std::cout)));
+		//std::cout << std::endl;
+		//StringSource(p2, 32, true, new HexEncoder(new FileSink(std::cout)));
+		//std::cout << std::endl;
 
-		int ret1 = Donna::ed25519_sign(share1, priv1, pub2);
-		int ret2 = Donna::ed25519_sign(share2, priv2, pub1);
-		int ret3 = std::memcmp(share1, share2, 32);
-
-#if defined(NO_OS_DEPENDENCE)
-		int ret4 = 0, ret5 = 0, ret6 = 0;
-#else
-		// Bernstein's NaCl requires DefaultAutoSeededRNG.
-		NaCl::crypto_box_keypair(pub2, priv2);
-
-		int ret4 = Donna::ed25519_sign(share1, priv1, pub2);
-		int ret5 = NaCl::crypto_sign(share2, priv2, pub1);
-		int ret6 = std::memcmp(share1, share2, 32);
-#endif
-
-		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
 		pass = pass && !fail;
 	}
-#endif
 
 	if (pass)
 		std::cout << "passed:";
 	else
 		std::cout << "FAILED:";
-	std::cout << "  " << SIGN_COUNT << " signatures" << std::endl;
+	std::cout << "  " << SIGN_COUNT << " public key conversions" << std::endl;
 
 	return pass;
 }

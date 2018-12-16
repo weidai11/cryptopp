@@ -44,7 +44,7 @@ using CryptoPP::GetBlock;
 using CryptoPP::LittleEndian;
 
 // Bring in all the symbols from the SSE header
-using namespace CryptoPP::Donna::DonnaSSE;
+using namespace CryptoPP::Donna::ArchSSE;
 
 /* Copy a bignum to another: out = in */
 inline void

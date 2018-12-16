@@ -36,6 +36,8 @@ class Integer;
 struct ed25519Signer;
 struct ed25519Verifier;
 
+// ******************** x25519 Agreement ************************* //
+
 /// \brief x25519 with key validation
 /// \since Crypto++ 8.0
 class x25519 : public SimpleKeyAgreementDomain, public CryptoParameters
@@ -132,6 +134,8 @@ protected:
     FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
 };
+
+// ****************** ed25519 Signatures *********************** //
 
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {

@@ -2,9 +2,6 @@
 //           This is a integration of Andrew Moon's public domain code.
 //           Also see https://github.com/floodyberry/curve25519-donna.
 
-// Benchmarking on a modern Core i5-6400 shows SSE2 on Linux is not
-// profitable. You can enable it with CRYPTOPP_CURVE25519_SSE2.
-
 // If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
 
@@ -41,31 +38,16 @@ int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte oth
 
 //******************************* ed25519 *******************************//
 
-/// \brief Generate a signing keypair from a seed
-/// \param hash HashTransformation derived class
-/// \param publicKey byte array for the public key
-/// \param secretKey byte array for the private key
-/// \param seed byte array with the secret seed
-/// \returns 0 on success, non-0 otherwise
-/// \details ed25519_keypair() generates a signing keypair from a secret seed.
-///   Internally ed25519_keypair() hashes the seed, performs a scalar multiplication
-///   using the secret key, and then writes the result to <tt>publicKey</tt>
-///   and <tt>secretKey</tt>.
-/// \details Signing key generation requires 64-bytes hash. The hash function must
-///   produce 64-bytes or safely truncate to 64-bytes. Most implementations use
-///   SHA-512 for the hash, but BLAKE2b is fine as long as interop is not an issue.
-int ed25519_keypair(byte publicKey[32], byte secretKey[32], const byte seed[32]);
-
-/// \brief Generate a public key from a secret key
+/// \brief Creates a public key from a secret key
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
 /// \returns 0 on success, non-0 otherwise
-/// \details ed25519_keypair() generates a public key from a secret key.
-///   Internally ed25519_keypair() performs a scalar multiplication
+/// \details ed25519_publickey() generates a public key from a secret key.
+///   Internally ed25519_publickey() performs a scalar multiplication
 ///   using the secret key and then writes the result to <tt>publicKey</tt>.
 ///   Only the first 32-bytes of <tt>secretKey</tt> are used during this
 ///   operation.
-int ed25519_keypair(byte publicKey[32], const byte secretKey[32]);
+int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
 
 //****************************** Internal ******************************//
 
