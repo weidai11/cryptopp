@@ -41,9 +41,9 @@ NAMESPACE_BEGIN(Test)
 bool ValidateAll(bool thorough)
 {
 	bool pass=TestSettings();
-	//pass = TestX25519() && pass;
+	pass = TestX25519() && pass;
 	pass = TestEd25519() && pass;
-	//pass = ValidateX25519() && pass;
+	pass = ValidateX25519() && pass;
 	pass = ValidateEd25519() && pass;
 	pass=TestOS_RNG() && pass;
 	pass=TestRandomPool() && pass;
