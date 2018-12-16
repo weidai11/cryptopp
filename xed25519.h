@@ -135,9 +135,14 @@ protected:
 
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
-    ed25519_MessageAccumulator() {m_msg.reserve(4096);}
+    CRYPTOPP_CONSTANT(RESERVE_SIZE=1024)
+
+    ed25519_MessageAccumulator() {
+        m_msg.reserve(RESERVE_SIZE);
+    }
+
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
-        CRYPTOPP_UNUSED(rng); m_msg.reserve(4096);
+        CRYPTOPP_UNUSED(rng); m_msg.reserve(RESERVE_SIZE);
     }
 
     void Update(const byte* msg, size_t len) {
