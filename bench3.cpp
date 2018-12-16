@@ -403,9 +403,9 @@ void Benchmark3(double t, double hertz)
 
 	std::cout << "\n<TBODY style=\"background: yellow;\">";
 	{
-		x25519 agree(Test::GlobalRNG());
 		ed25519::Signer sign(Test::GlobalRNG());
 		ed25519::Verifier verify(sign);
+		x25519 agree(Test::GlobalRNG());
 
 		BenchMarkSigning("ed25519", sign, t);
 		BenchMarkVerification("ed25519", sign, verify, t);
