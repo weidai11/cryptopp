@@ -1037,14 +1037,6 @@ ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const unsi
     hash.Final(hram);
 }
 
-inline int
-ed25519_verify(const byte *x, const byte *y, size_t len) {
-    size_t differentbits = 0;
-    while (len--)
-            differentbits |= (*x++ ^ *y++);
-    return (int) (1 & ((differentbits - 1) >> 8));
-}
-
 inline bignum256modm_element_t
 lt_modm(bignum256modm_element_t a, bignum256modm_element_t b) {
     return (a - b) >> 31;
