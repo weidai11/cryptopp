@@ -25,9 +25,6 @@
 #include "pubkey.h"
 #include "oids.h"
 
-// TODO: remove this header
-#include "naclite.h"
-
 NAMESPACE_BEGIN(CryptoPP)
 
 class OID;
