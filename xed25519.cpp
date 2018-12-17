@@ -302,7 +302,6 @@ ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
 
     int ret = Donna::ed25519_publickey(m_pk, m_sk);
-    std::memcpy(m_sk+32, m_pk, 32);
     CRYPTOPP_ASSERT(ret == 0);
 }
 
@@ -347,7 +346,6 @@ void ed25519Signer::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]
 {
     x[0] &= 248; x[31] &= 127; x[31] |= 64;
     int ret = Donna::ed25519_publickey(y, x);
-    std::memcpy(x+32, y, 32);
     CRYPTOPP_ASSERT(ret == 0);
 }
 
@@ -368,7 +366,7 @@ bool ed25519Signer::GetVoidValue(const char *name, const std::type_info &valueTy
     {
         if (std::strcmp(name, "SecretKey") == 0 || std::strcmp(name, "PrivateExponent") == 0)
         {
-            std::memcpy(pValue, m_sk, 64);
+			std::memcpy(pValue, m_sk, SECRET_KEYLENGTH);
             return true;
         }
         else if (std::strcmp(name, "PublicKey") == 0)
@@ -403,8 +401,20 @@ void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePa
     rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
     int ret = Donna::ed25519_publickey(m_pk, m_sk);
-    std::memcpy(m_sk+32, m_pk, 32);
     CRYPTOPP_ASSERT(ret == 0);
+}
+
+size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const {
+    CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
+
+    ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
+    int ret = Donna::ed25519_sign(accum.begin(), accum.size(), m_sk, m_pk, signature);
+    CRYPTOPP_ASSERT(ret == 0);
+
+    if (restart)
+        accum.Restart();
+
+    return ret == 0 ? SIGNATURE_LENGTH : 0;
 }
 
 // ******************** ed25519 Verifier ************************* //

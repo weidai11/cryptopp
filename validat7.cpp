@@ -412,25 +412,20 @@ bool TestX25519()
 bool TestEd25519()
 {
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
-	const unsigned int SIGN_COUNT = 64;
+	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
 	bool pass = true;
 
 	// Test key conversion
-	byte seed[32], s1[32], s2[32], p1[32], p2[32];
+	byte seed[32], sk1[64], sk2[64], pk1[32], pk2[32];
 	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
 	{
 		GlobalRNG().GenerateBlock(seed, 32);
-		std::memcpy(s1, seed, 32);
-		std::memcpy(s2, seed, 32);
+		std::memcpy(sk1, seed, 32);
+		std::memcpy(sk2, seed, 32);
 
-		int ret1 = NaCl::crypto_sign_sk2pk(p1, s1);
-		int ret2 = Donna::ed25519_publickey(p2, s2);
-		int ret3 = std::memcmp(p1, p2, 32);
-
-		//StringSource(p1, 32, true, new HexEncoder(new FileSink(std::cout)));
-		//std::cout << std::endl;
-		//StringSource(p2, 32, true, new HexEncoder(new FileSink(std::cout)));
-		//std::cout << std::endl;
+		int ret1 = NaCl::crypto_sign_sk2pk(pk1, sk1);
+		int ret2 = Donna::ed25519_publickey(pk2, sk2);
+		int ret3 = std::memcmp(pk1, pk2, 32);
 
 		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
 		pass = pass && !fail;
@@ -441,6 +436,36 @@ bool TestEd25519()
 	else
 		std::cout << "FAILED:";
 	std::cout << "  " << SIGN_COUNT << " public key conversions" << std::endl;
+
+	// Test signature generation
+	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		std::memcpy(sk2, sk1, 32);
+		std::memcpy(pk2, pk1, 32);
+
+		// Message and signatures
+		byte msg[MSG_SIZE], sig1[MSG_SIZE+64+32], sig2[MSG_SIZE+64+32];
+		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+		word64 smlen = sizeof(sig1);
+
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg, MSG_SIZE, sk1);
+		int ret2 = Donna::ed25519_sign(msg, MSG_SIZE, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
+		pass = pass && !fail;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << SIGN_COUNT << " signatures" << std::endl;
 
 	return pass;
 }

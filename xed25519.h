@@ -276,24 +276,7 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
         throw NotImplemented("ed25519Signer: this object does not support recoverable messages");
     }
 
-    size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const {
-        CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
-
-        ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-        SecByteBlock temp(SIGNATURE_LENGTH+accum.size());
-        word64 tlen=temp.size();
-
-        int ret = NaCl::crypto_sign(temp, &tlen, accum.begin(), accum.size(), m_sk);
-        CRYPTOPP_ASSERT(ret == 0);
-
-        CRYPTOPP_ASSERT(tlen == accum.size()+SIGNATURE_LENGTH);
-        std::memcpy(signature, temp, SIGNATURE_LENGTH);
-
-        if (restart)
-            accum.Restart();
-
-        return ret == 0 ? SIGNATURE_LENGTH : 0;
-    }
+    size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const;
 
 protected:
     friend ed25519Verifier;
@@ -305,7 +288,7 @@ protected:
 /// \since Crypto++ 8.0
 struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 {
-    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 64)
+    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
 

@@ -45,9 +45,20 @@ int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte oth
 /// \details ed25519_publickey() generates a public key from a secret key.
 ///   Internally ed25519_publickey() performs a scalar multiplication
 ///   using the secret key and then writes the result to <tt>publicKey</tt>.
-///   Only the first 32-bytes of <tt>secretKey</tt> are used during this
-///   operation.
 int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
+
+/// \brief Creates a signature on a message
+/// \param message byte array with the message
+/// \param messageLength size of the message, in bytes
+/// \param publicKey byte array with the public key
+/// \param secretKey byte array with the private key
+/// \param signature byte array for the signature
+/// \returns 0 on success, non-0 otherwise
+/// \details ed25519_sign() generates a signature on a message using
+///   the public and private keys. The various buffers can be exact
+///   sizes, and do not require extra space like when using the
+///   NaCl library functions.
+int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
 
 //****************************** Internal ******************************//
 

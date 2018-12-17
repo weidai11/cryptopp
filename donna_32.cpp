@@ -1032,6 +1032,22 @@ ed25519_extsk(hash_512bits extsk, const byte sk[32]) {
     extsk[31] |= 64;
 }
 
+void
+ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const unsigned char *m, size_t mlen) {
+    //ed25519_hash_context ctx;
+    //ed25519_hash_init(&ctx);
+    //ed25519_hash_update(&ctx, RS, 32);
+    //ed25519_hash_update(&ctx, pk, 32);
+    //ed25519_hash_update(&ctx, m, mlen);
+    //ed25519_hash_final(&ctx, hram);
+
+    SHA512 hash;
+    hash.Update(RS, 32);
+    hash.Update(pk, 32);
+    hash.Update(m, mlen);
+    hash.Final(hram);
+}
+
 inline int
 ed25519_verify(const byte *x, const byte *y, size_t len) {
     size_t differentbits = 0;
@@ -1826,7 +1842,8 @@ NAMESPACE_END  // CryptoPP
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[32])
+int
+ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[32])
 {
     using namespace CryptoPP::Donna::Ed25519;
 
@@ -1843,9 +1860,63 @@ int ed25519_publickey_CXX(byte publicKey[32], const byte secretKey[32])
     return 0;
 }
 
-int ed25519_publickey(byte publicKey[32], const byte secretKey[32])
+int
+ed25519_publickey(byte publicKey[32], const byte secretKey[32])
 {
     return ed25519_publickey_CXX(publicKey, secretKey);
+}
+
+int
+ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32], byte RS[64])
+{
+    using namespace CryptoPP::Donna::Ed25519;
+
+    // ed25519_hash_context ctx;
+    bignum256modm r, S, a;
+    ALIGN(16) ge25519 R;
+    hash_512bits extsk, hashr, hram;
+
+    ed25519_extsk(extsk, sk);
+
+    /* r = H(aExt[32..64], m) */
+    //ed25519_hash_init(&ctx);
+    //ed25519_hash_update(&ctx, extsk + 32, 32);
+    //ed25519_hash_update(&ctx, m, mlen);
+    //ed25519_hash_final(&ctx, hashr);
+    //expand256_modm(r, hashr, 64);
+
+    SHA512 hash;
+    hash.Update(extsk + 32, 32);
+    hash.Update(m, mlen);
+    hash.Final(hashr);
+    expand256_modm(r, hashr, 64);
+
+    /* R = rB */
+    ge25519_scalarmult_base_niels(&R, ge25519_niels_base_multiples, r);
+    ge25519_pack(RS, &R);
+
+    /* S = H(R,A,m).. */
+    ed25519_hram(hram, RS, pk, m, mlen);
+    expand256_modm(S, hram, 64);
+
+    /* S = H(R,A,m)a */
+    expand256_modm(a, extsk, 32);
+    mul256_modm(S, S, a);
+
+    /* S = (r + H(R,A,m)a) */
+    add256_modm(S, S, r);
+
+    /* S = (r + H(R,A,m)a) mod L */
+    contract256_modm(RS + 32, S);
+
+	return 0;
+}
+
+int
+ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32],
+             const byte publicKey[32], byte signature[64])
+{
+    return ed25519_sign_CXX(message, messageLength, secretKey, publicKey, signature);
 }
 
 NAMESPACE_END  // Donna
