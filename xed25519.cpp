@@ -366,7 +366,7 @@ bool ed25519Signer::GetVoidValue(const char *name, const std::type_info &valueTy
     {
         if (std::strcmp(name, "SecretKey") == 0 || std::strcmp(name, "PrivateExponent") == 0)
         {
-			std::memcpy(pValue, m_sk, SECRET_KEYLENGTH);
+            std::memcpy(pValue, m_sk, SECRET_KEYLENGTH);
             return true;
         }
         else if (std::strcmp(name, "PublicKey") == 0)
