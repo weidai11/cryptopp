@@ -243,6 +243,9 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
 
     // DL_PrivateKey
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
+    void MakePublicKey (PublicKey &pub) const;
+    void SetPrivateExponent (const byte x[SECRET_KEYLENGTH]);
+    void SetPrivateExponent (const Integer &x);
 
     // DL_ObjectImplBase
     PrivateKey& AccessKey() { return *this; }
@@ -285,7 +288,6 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const;
 
 protected:
-    friend ed25519Verifier;
     FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
 };
@@ -331,6 +333,10 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
     void AssignFrom(const NameValuePairs &source);
 
+    // DL_PublicKey
+    void SetPublicElement (const byte y[PUBLIC_KEYLENGTH]);
+    void SetPublicElement (const Integer &y);
+
     // DL_ObjectImplBase
     PublicKey& AccessKey() { return *this; }
     PublicKey& AccessPublicKey() { return *this; }
@@ -373,7 +379,7 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 
     bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;
 
-     DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
+    DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
         CRYPTOPP_UNUSED(recoveredMessage); CRYPTOPP_UNUSED(messageAccumulator);
         throw NotImplemented("ed25519Verifier: this object does not support recoverable messages");
     }

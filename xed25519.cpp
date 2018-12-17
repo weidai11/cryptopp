@@ -401,6 +401,23 @@ void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePa
     CRYPTOPP_ASSERT(ret == 0);
 }
 
+void ed25519Signer::MakePublicKey (PublicKey &pub) const
+{
+    pub.AssignFrom(MakeParameters("PublicKey", ConstByteArrayParameter(m_pk.begin(), m_pk.size(), false)));
+}
+
+void ed25519Signer::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
+{
+    std::memcpy(m_sk, x, SECRET_KEYLENGTH);
+}
+
+void ed25519Signer::SetPrivateExponent (const Integer &x)
+{
+    ArraySink xs(m_sk, SECRET_KEYLENGTH);
+    x.Encode(xs, SECRET_KEYLENGTH);
+    ClampKeys(m_pk, m_sk);
+}
+
 size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const {
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
@@ -446,7 +463,7 @@ ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
 
 ed25519Verifier::ed25519Verifier(const ed25519Signer& signer)
 {
-    std::memcpy(m_pk, signer.m_pk, PUBLIC_KEYLENGTH);
+    signer.MakePublicKey(AccessPublicKey());
 }
 
 bool ed25519Verifier::Validate(RandomNumberGenerator &rng, unsigned int level) const
@@ -478,10 +495,21 @@ void ed25519Verifier::AssignFrom(const NameValuePairs &source)
     }
 }
 
+void ed25519Verifier::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
+{
+    std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
+}
+
+void ed25519Verifier::SetPublicElement (const Integer &y)
+{
+    ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
+    y.Encode(ys, PUBLIC_KEYLENGTH);
+}
+
 bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
 
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-	int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), m_pk, accum.signature());
+    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), m_pk, accum.signature());
     accum.Restart();
 
     return ret == 0;
