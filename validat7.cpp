@@ -495,8 +495,8 @@ bool TestEd25519()
 		}
 
 		// Verify the other's signature using the other's key
-		word64 mlen = smlen;
-		int ret4 = NaCl::crypto_sign_open(msg, &mlen, sig1, 64, pk2);
+		word64 mlen = sizeof(msg);
+		int ret4 = NaCl::crypto_sign_open(msg, &mlen, sig1, smlen, pk2);
 		int ret5 = Donna::ed25519_sign_open(msg, MSG_SIZE, pk1, sig2);
 
 		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
