@@ -300,10 +300,9 @@ ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
 {
     rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
-    // int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
-    // std::memcpy(m_pk, m_sk+32, 32);
-	int ret = Donna::ed25519_publickey(m_pk, m_sk);
-	std::memcpy(m_sk+32, m_pk, 32);
+
+    int ret = Donna::ed25519_publickey(m_pk, m_sk);
+    std::memcpy(m_sk+32, m_pk, 32);
     CRYPTOPP_ASSERT(ret == 0);
 }
 
@@ -347,8 +346,8 @@ ed25519Signer::ed25519Signer(BufferedTransformation &params)
 void ed25519Signer::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
 {
     x[0] &= 248; x[31] &= 127; x[31] |= 64;
-    int ret = NaCl::crypto_sign_sk2pk(x+32, x);
-    std::memcpy(y, x+32, 32);
+    int ret = Donna::ed25519_publickey(y, x);
+    std::memcpy(x+32, y, 32);
     CRYPTOPP_ASSERT(ret == 0);
 }
 
@@ -403,8 +402,8 @@ void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePa
 
     rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
-    int ret = NaCl::crypto_sign_sk2pk(m_sk+32, m_sk);
-    std::memcpy(m_pk, m_sk+32, 32);
+    int ret = Donna::ed25519_publickey(m_pk, m_sk);
+    std::memcpy(m_sk+32, m_pk, 32);
     CRYPTOPP_ASSERT(ret == 0);
 }
 
