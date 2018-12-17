@@ -317,28 +317,6 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
 
-	// TODO: remove this block
-	std::cout << "\n<TBODY style=\"background: yellow;\">";
-	{
-		ECDSA<ECP, SHA1>::Signer spriv(Test::GlobalRNG(), ASN1::secp256k1());
-		ECDSA<ECP, SHA1>::Verifier spub(spriv);
-		ECDH<ECP>::Domain ecdhc(ASN1::secp256k1());
-
-		ed25519::Signer sign(Test::GlobalRNG());
-		ed25519::Verifier verify(sign);
-		x25519 agree(Test::GlobalRNG());
-
-		BenchMarkSigning("ECDSA over GF(p) 256", spriv, t);
-		BenchMarkVerification("ECDSA over GF(p) 256", spriv, spub, t);
-		BenchMarkKeyGen("ECDHC over GF(p) 256", ecdhc, t);
-		BenchMarkAgreement("ECDHC over GF(p) 256", ecdhc, t);
-
-		BenchMarkSigning("ed25519", sign, t);
-		BenchMarkVerification("ed25519", sign, verify, t);
-		BenchMarkKeyGen("x25519", agree, t);
-		BenchMarkAgreement("x25519", agree, t);
-	}
-
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 		BenchMarkCrypto<RSAES<OAEP<SHA1> > >("TestData/rsa1024.dat", "RSA 1024", t);
