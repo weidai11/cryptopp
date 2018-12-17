@@ -1017,10 +1017,6 @@ curve25519_pow_two252m3(bignum25519 two252m3, const bignum25519 z) {
 
 inline void
 ed25519_hash(byte *hash, const byte *in, size_t inlen) {
-    //ed25519_hash_context ctx;
-    //ed25519_hash_init(&ctx);
-    //ed25519_hash_update(&ctx, in, inlen);
-    //ed25519_hash_final(&ctx, hash);
     SHA512().CalculateDigest(hash, in, inlen);
 }
 
@@ -1034,13 +1030,6 @@ ed25519_extsk(hash_512bits extsk, const byte sk[32]) {
 
 void
 ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const unsigned char *m, size_t mlen) {
-    //ed25519_hash_context ctx;
-    //ed25519_hash_init(&ctx);
-    //ed25519_hash_update(&ctx, RS, 32);
-    //ed25519_hash_update(&ctx, pk, 32);
-    //ed25519_hash_update(&ctx, m, mlen);
-    //ed25519_hash_final(&ctx, hram);
-
     SHA512 hash;
     hash.Update(RS, 32);
     hash.Update(pk, 32);
@@ -1871,7 +1860,6 @@ ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32
 {
     using namespace CryptoPP::Donna::Ed25519;
 
-    // ed25519_hash_context ctx;
     bignum256modm r, S, a;
     ALIGN(16) ge25519 R;
     hash_512bits extsk, hashr, hram;
@@ -1879,12 +1867,6 @@ ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32
     ed25519_extsk(extsk, sk);
 
     /* r = H(aExt[32..64], m) */
-    //ed25519_hash_init(&ctx);
-    //ed25519_hash_update(&ctx, extsk + 32, 32);
-    //ed25519_hash_update(&ctx, m, mlen);
-    //ed25519_hash_final(&ctx, hashr);
-    //expand256_modm(r, hashr, 64);
-
     SHA512 hash;
     hash.Update(extsk + 32, 32);
     hash.Update(m, mlen);
@@ -1909,7 +1891,7 @@ ed25519_sign_CXX(const byte *m, size_t mlen, const byte sk[32], const byte pk[32
     /* S = (r + H(R,A,m)a) mod L */
     contract256_modm(RS + 32, S);
 
-	return 0;
+    return 0;
 }
 
 int

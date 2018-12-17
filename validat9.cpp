@@ -675,34 +675,7 @@ bool ValidateESIGN()
 bool ValidateEd25519()
 {
 	std::cout << "\ned25519 validation suite running...\n\n";
-
 	bool pass = true, fail;
-
-#if 0
-	{
-		byte sk[NaCl::crypto_sign_SECRETKEYBYTES], pk[NaCl::crypto_sign_PUBLICKEYBYTES];
-		NaCl::crypto_sign_keypair(pk, sk);
-
-		FileSink fs("TestData/ed25519.dat", true);
-		DERSequenceEncoder seq(fs);
-		DERGeneralEncoder xx_sk(seq, BIT_STRING);
-		xx_sk.Put((byte)0);   // unused bits
-		xx_sk.Put(sk, sizeof(sk));
-		xx_sk.MessageEnd();
-
-		DERGeneralEncoder xx_pk(seq, OCTET_STRING);
-		xx_pk.Put(pk, sizeof(pk));
-		xx_pk.MessageEnd();
-
-		seq.MessageEnd();
-
-		byte sig[128]; word64 siglen = 128;
-		int ret = NaCl::crypto_sign(sig, &siglen, (byte*)"test", 4, sk);
-		siglen -= 4;
-
-		StringSource(sig, siglen, true, new HexEncoder(new FileSink(std::cout)));
-	}
-#endif
 
 	const char plain[] = "test";
 	const byte signature[] =
