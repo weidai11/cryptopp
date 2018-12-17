@@ -239,16 +239,13 @@ void x25519::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &pa
 void x25519::GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
 {
     rng.GenerateBlock(privateKey, SECRET_KEYLENGTH);
-    byte y[PUBLIC_KEYLENGTH];
-    ClampKeys(y, privateKey);
+    privateKey[0] &= 248; privateKey[31] &= 127; privateKey[31] |= 64;
 }
 
 void x25519::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
 {
     CRYPTOPP_UNUSED(rng);
-
-    SecByteBlock x(privateKey, SECRET_KEYLENGTH);
-    ClampKeys(publicKey, x);
+    Donna::curve25519_mult(publicKey, privateKey);
 }
 
 bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey) const
