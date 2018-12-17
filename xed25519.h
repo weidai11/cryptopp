@@ -5,14 +5,13 @@
 //              https://github.com/floodyberry/ed25519-donna.
 
 // Typically the key agreement classes encapsulate their data more
-// than x25519 does below. We made them a little more accessible
-// due to crypto_box operations. Once the library cuts-in the
-// crypto_box operations the x25519 class will be more restricted.
+// than x25519 does below. They are a little more accessible
+// due to crypto_box operations.
 
 /// \file xed25519.h
 /// \brief Classes for x25519 and ed25519 operations
-/// \details This implementation integrates Andrew Moon's public domain
-///   curve25519-donna.
+/// \details This implementation integrates Andrew Moon's public domain code
+///   for curve25519-donna and ed25519-donna.
 /// \sa Andrew Moon's x22519 GitHub <A
 ///   HREF="https://github.com/floodyberry/curve25519-donna">curve25519-donna</A>
 ///   and ed22519 GitHub <A
