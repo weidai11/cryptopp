@@ -14,8 +14,14 @@
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
 
 /// \file donna.h
-/// \details Functions for curve25519 and ed25519
-/// \details
+/// \details Functions for curve25519 and ed25519 operations
+/// \details This header provides the entry points into Andrew Moon's
+///   curve25519 and ed25519 curve functions. The Crypto++ classes x25519
+///   and ed25519 use the functions. The functions are in the <tt>Donna</tt>
+///   namespace and are curve25519_mult(), ed25519_publickey(),
+///   ed25519_sign() and ed25519_sign_open().
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
 
 #ifndef CRYPTOPP_DONNA_H
 #define CRYPTOPP_DONNA_H
@@ -28,24 +34,25 @@ NAMESPACE_BEGIN(Donna)
 
 //***************************** curve25519 *****************************//
 
-/// \brief Generate public key
+/// \brief Generate a public key
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
 /// \returns 0 on success, non-0 otherwise
-/// \details This curve25519_mult() overload generates a public key from an existing
-///   secret key. Internally curve25519_mult() performs a scalar multiplication
-///   using the base point and writes the result to <tt>pubkey</tt>.
+/// \details curve25519_mult() generates a public key from an existing
+///   secret key. Internally curve25519_mult() performs a scalar
+///   multiplication using the base point and writes the result to
+///   <tt>pubkey</tt>.
 int curve25519_mult(byte publicKey[32], const byte secretKey[32]);
 
-/// \brief Generate shared key
+/// \brief Generate a shared key
 /// \param sharedKey byte array for the shared secret
 /// \param secretKey byte array with the private key
 /// \param othersKey byte array with the peer's public key
 /// \returns 0 on success, non-0 otherwise
-/// \details This curve25519_mult() overload generates a shared key from an existing
-///   secret key and the other party's public key. Internally curve25519_mult()
-///   performs a scalar multiplication using the two keys and writes the result
-///   to <tt>sharedKey</tt>.
+/// \details curve25519_mult() generates a shared key from an existing
+///   secret key and the other party's public key. Internally
+///   curve25519_mult() performs a scalar multiplication using the two keys
+///   and writes the result to <tt>sharedKey</tt>.
 int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
 
 //******************************* ed25519 *******************************//
@@ -70,6 +77,8 @@ int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
 ///   the public and private keys. The various buffers can be exact
 ///   sizes, and do not require extra space like when using the
 ///   NaCl library functions.
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
 int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
 
 /// \brief Verifies a signature on a message
@@ -81,6 +90,8 @@ int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey
 /// \details ed25519_sign_open() verifies a signature on a message using
 ///   the public. The various buffers can be exact sizes, and do not
 ///   require extra space like when using the NaCl library functions.
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
 int
 ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKey[32], const byte signature[64]);
 
