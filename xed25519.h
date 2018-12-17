@@ -366,17 +366,7 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
             accum.Update(signature, signatureLength);
     }
 
-    bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
-
-        ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-        SecByteBlock temp(SIGNATURE_LENGTH+accum.size());
-        word64 tlen=temp.size();
-
-        int ret = NaCl::crypto_sign_open(temp, &tlen, accum.begin(), accum.size(), m_pk);
-        accum.Restart();
-
-        return ret == 0;
-    }
+    bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;
 
      DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
         CRYPTOPP_UNUSED(recoveredMessage); CRYPTOPP_UNUSED(messageAccumulator);

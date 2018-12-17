@@ -435,7 +435,7 @@ bool TestEd25519()
 		std::cout << "passed:";
 	else
 		std::cout << "FAILED:";
-	std::cout << "  " << SIGN_COUNT << " public key conversions" << std::endl;
+	std::cout << "  " << SIGN_COUNT << " public keys" << std::endl;
 
 	// Test signature generation
 	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
@@ -466,6 +466,48 @@ bool TestEd25519()
 	else
 		std::cout << "FAILED:";
 	std::cout << "  " << SIGN_COUNT << " signatures" << std::endl;
+
+	// Test signature generation
+	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		std::memcpy(sk2, sk1, 32);
+		std::memcpy(pk2, pk1, 32);
+
+		// Message and signatures
+		byte msg[MSG_SIZE], sig1[MSG_SIZE+64+32], sig2[MSG_SIZE+64+32];
+		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+		word64 smlen = sizeof(sig1);
+
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg, MSG_SIZE, sk1);
+		int ret2 = Donna::ed25519_sign(msg, MSG_SIZE, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool tamper = GlobalRNG().GenerateBit() & 1;
+		if (tamper)
+		{
+			sig1[1] ^= 1;
+			sig2[1] ^= 1;
+		}
+
+		// Verify the other's signature using the other's key
+		word64 mlen = smlen;
+		int ret4 = NaCl::crypto_sign_open(msg, &mlen, sig1, 64, pk2);
+		int ret5 = Donna::ed25519_sign_open(msg, MSG_SIZE, pk1, sig2);
+
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+		pass = pass && !fail;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
 
 	return pass;
 }

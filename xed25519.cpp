@@ -478,4 +478,15 @@ void ed25519Verifier::AssignFrom(const NameValuePairs &source)
     }
 }
 
+bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
+
+    ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
+    const byte* msg = accum.begin()+SIGNATURE_LENGTH;
+    size_t mlen = SaturatingSubtract(accum.size(), (size_t)SIGNATURE_LENGTH);
+    int ret = Donna::ed25519_sign_open(msg, mlen, m_pk, accum.begin());
+    accum.Restart();
+
+    return ret == 0;
+}
+
 NAMESPACE_END  // CryptoPP
