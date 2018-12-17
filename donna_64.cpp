@@ -256,7 +256,6 @@ curve25519_square(bignum25519 out, const bignum25519 in) {
 inline void
 curve25519_expand(bignum25519 out, const byte *in) {
     word64 x0,x1,x2,x3;
-
     GetBlock<word64, LittleEndian> block(in);
     block(x0)(x1)(x2)(x3);
 
@@ -657,7 +656,6 @@ curve25519_square(bignum25519 out, const bignum25519 in) {
 inline void
 curve25519_expand(bignum25519 out, const byte *in) {
     word64 x0,x1,x2,x3;
-
     GetBlock<word64, LittleEndian> block(in);
     block(x0)(x1)(x2)(x3);
 

@@ -288,7 +288,6 @@ protected:
 /// \since Crypto++ 8.0
 struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 {
-    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
 
