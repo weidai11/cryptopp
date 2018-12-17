@@ -136,13 +136,14 @@ protected:
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
     CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64)
+    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH=64)
 
     ed25519_MessageAccumulator() {
-        m_msg.reserve(RESERVE_SIZE);
+        Restart();
     }
 
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
-        CRYPTOPP_UNUSED(rng); m_msg.reserve(RESERVE_SIZE);
+        CRYPTOPP_UNUSED(rng); Restart();
     }
 
     void Update(const byte* msg, size_t len) {
@@ -151,15 +152,24 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
     }
 
     void Restart() {
-        m_msg.clear();
+        m_msg.reserve(RESERVE_SIZE);
+        m_msg.resize(SIGNATURE_LENGTH);
     }
 
-    const byte* begin() const {
+    byte* signature() {
         return &m_msg[0];
     }
 
+    const byte* signature() const {
+        return &m_msg[0];
+    }
+
+    const byte* data() const {
+        return &m_msg[0]+SIGNATURE_LENGTH;
+    }
+
     size_t size() const {
-        return m_msg.size();
+        return m_msg.size()-SIGNATURE_LENGTH;
     }
 
 protected:
@@ -354,12 +364,11 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     }
 
     void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const {
-        // TODO: verify signature is always inserted first...
+        CRYPTOPP_ASSERT(signature != NULLPTR);
+        CRYPTOPP_ASSERT(signatureLength == SIGNATURE_LENGTH);
         ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-        CRYPTOPP_ASSERT(accum.size() == 0);
-
         if (signature && signatureLength)
-            accum.Update(signature, signatureLength);
+            std::memcpy(accum.signature(), signature, STDMIN((size_t)SIGNATURE_LENGTH, signatureLength));
     }
 
     bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;

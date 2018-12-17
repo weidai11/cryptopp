@@ -405,7 +405,7 @@ size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccum
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    int ret = Donna::ed25519_sign(accum.begin(), accum.size(), m_sk, m_pk, signature);
+    int ret = Donna::ed25519_sign(accum.data(), accum.size(), m_sk, m_pk, signature);
     CRYPTOPP_ASSERT(ret == 0);
 
     if (restart)
@@ -481,9 +481,7 @@ void ed25519Verifier::AssignFrom(const NameValuePairs &source)
 bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
 
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    const byte* msg = accum.begin()+SIGNATURE_LENGTH;
-    size_t mlen = SaturatingSubtract(accum.size(), (size_t)SIGNATURE_LENGTH);
-    int ret = Donna::ed25519_sign_open(msg, mlen, m_pk, accum.begin());
+	int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), m_pk, accum.signature());
     accum.Restart();
 
     return ret == 0;
