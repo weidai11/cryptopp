@@ -1,10 +1,14 @@
 // donna_32.cpp - written and placed in public domain by Jeffrey Walton
-//                This is a integration of Andrew Moon's public domain code.
-//                Also see https://github.com/floodyberry/curve25519-donna.
+//                Crypto++ specific implementation wrapped around Andrew
+//                Moon's public domain curve25519-donna and ed25519-donna,
+//                https://github.com/floodyberry/curve25519-donna and
+//                https://github.com/floodyberry/ed25519-donna.
 
-// This source file multiplexes two different repos using namespaces. This
-// was a little easier from a project management standpoint. We only need
-// two files per architecture at the expense of namespaces and bloat.
+// The curve25519 and ed25519 source files multiplex different repos and
+// architectures using namespaces. The repos are Andrew Moon's
+// curve25519-donna and ed25519-donna. The architectures are 32-bit, 64-bit
+// and SSE. For example, 32-bit x25519 uses symbols from Donna::X25519 and
+// Donna::Arch32.
 
 // A fair amount of duplication happens below, but we could not directly
 // use curve25519 for both x25519 and ed25519. A close examination reveals
@@ -1555,7 +1559,14 @@ ge25519_pack(byte r[32], const ge25519 *p) {
     r[31] ^= ((parity[0] & 1) << 7);
 }
 
-#if 0
+int
+ed25519_verify(const unsigned char *x, const unsigned char *y, size_t len) {
+    size_t differentbits = 0;
+    while (len--)
+        differentbits |= (*x++ ^ *y++);
+    return (int) (1 & ((differentbits - 1) >> 8));
+}
+
 int
 ge25519_unpack_negative_vartime(ge25519 *r, const byte p[32]) {
     const byte zero[32] = {0};
@@ -1648,7 +1659,6 @@ ge25519_double_scalarmult_vartime(ge25519 *r, const ge25519 *p1, const bignum256
         ge25519_p1p1_to_partial(r, &t);
     }
 }
-#endif
 
 #if !defined(HAVE_GE25519_SCALARMULT_BASE_CHOOSE_NIELS)
 
@@ -1895,6 +1905,40 @@ ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32]
              const byte publicKey[32], byte signature[64])
 {
     return ed25519_sign_CXX(message, messageLength, secretKey, publicKey, signature);
+}
+
+int
+ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte RS[64]) {
+
+    using namespace CryptoPP::Donna::Ed25519;
+
+    ALIGN(16) ge25519 R, A;
+    hash_512bits hash;
+    bignum256modm hram, S;
+    unsigned char checkR[32];
+
+    if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
+        return -1;
+
+    /* hram = H(R,A,m) */
+    ed25519_hram(hash, RS, pk, m, mlen);
+    expand256_modm(hram, hash, 64);
+
+    /* S */
+    expand256_modm(S, RS + 32, 32);
+
+    /* SB - H(R,A,m)A */
+    ge25519_double_scalarmult_vartime(&R, &A, hram, S);
+    ge25519_pack(checkR, &R);
+
+    /* check that R = SB - H(R,A,m)A */
+    return ed25519_verify(RS, checkR, 32) ? 0 : -1;
+}
+
+int
+ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKey[32], const byte signature[64])
+{
+    return ed25519_sign_open_CXX(message, messageLength, publicKey, signature);
 }
 
 NAMESPACE_END  // Donna

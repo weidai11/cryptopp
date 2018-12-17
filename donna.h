@@ -1,9 +1,21 @@
 // donna.h - written and placed in public domain by Jeffrey Walton
-//           This is a integration of Andrew Moon's public domain code.
-//           Also see https://github.com/floodyberry/curve25519-donna.
+//           Crypto++ specific implementation wrapped around Andrew
+//           Moon's public domain curve25519-donna and ed25519-donna,
+//           https://github.com/floodyberry/curve25519-donna and
+//           https://github.com/floodyberry/ed25519-donna.
+
+// The curve25519 and ed25519 source files multiplex different repos and
+// architectures using namespaces. The repos are Andrew Moon's
+// curve25519-donna and ed25519-donna. The architectures are 32-bit, 64-bit
+// and SSE. For example, 32-bit x25519 uses symbols from Donna::X25519 and
+// Donna::Arch32.
 
 // If needed, see Moon's commit "Go back to ignoring 256th bit [sic]",
 // https://github.com/floodyberry/curve25519-donna/commit/57a683d18721a658
+
+/// \file donna.h
+/// \details Functions for curve25519 and ed25519
+/// \details
 
 #ifndef CRYPTOPP_DONNA_H
 #define CRYPTOPP_DONNA_H
@@ -59,6 +71,18 @@ int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
 ///   sizes, and do not require extra space like when using the
 ///   NaCl library functions.
 int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
+
+/// \brief Verifies a signature on a message
+/// \param message byte array with the message
+/// \param messageLength size of the message, in bytes
+/// \param publicKey byte array with the public key
+/// \param signature byte array with the signature
+/// \returns 0 on success, non-0 otherwise
+/// \details ed25519_sign_open() verifies a signature on a message using
+///   the public. The various buffers can be exact sizes, and do not
+///   require extra space like when using the NaCl library functions.
+int
+ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKey[32], const byte signature[64]);
 
 //****************************** Internal ******************************//
 
