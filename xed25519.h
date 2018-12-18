@@ -184,6 +184,7 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
+    typedef Integer Element;
 
     virtual ~ed25519Signer() {}
 
@@ -243,9 +244,10 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
 
     // DL_PrivateKey
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
-    void MakePublicKey (PublicKey &pub) const;
-    void SetPrivateExponent (const byte x[SECRET_KEYLENGTH]);
-    void SetPrivateExponent (const Integer &x);
+    void MakePublicKey(PublicKey &pub) const;
+    void SetPrivateExponent(const byte x[SECRET_KEYLENGTH]);
+    void SetPrivateExponent(const Integer &x);
+    const Integer& GetPrivateExponent() const;
 
     // DL_ObjectImplBase
     PrivateKey& AccessKey() { return *this; }
@@ -290,6 +292,7 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
 protected:
     FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
+    mutable Integer m_temp;  // for DL_PrivateKey
 };
 
 /// \brief ed25519 signature verification algorithm
@@ -298,6 +301,7 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 {
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
+    typedef Integer Element;
 
     virtual ~ed25519Verifier() {}
 
@@ -334,8 +338,9 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     void AssignFrom(const NameValuePairs &source);
 
     // DL_PublicKey
-    void SetPublicElement (const byte y[PUBLIC_KEYLENGTH]);
-    void SetPublicElement (const Integer &y);
+    void SetPublicElement(const byte y[PUBLIC_KEYLENGTH]);
+    void SetPublicElement(const Element &y);
+    const Element& GetPublicElement() const;
 
     // DL_ObjectImplBase
     PublicKey& AccessKey() { return *this; }
@@ -386,6 +391,7 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
 
 protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
+    mutable Integer m_temp;  // for DL_PublicKey
 };
 
 /// \brief ed25519 signature scheme

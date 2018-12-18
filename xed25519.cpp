@@ -10,6 +10,7 @@
 #include "asn.h"
 #include "integer.h"
 #include "filters.h"
+#include "stdcpp.h"
 
 #include "xed25519.h"
 #include "donna.h"
@@ -69,11 +70,16 @@ x25519::x25519(const byte x[SECRET_KEYLENGTH])
 
 x25519::x25519(const Integer &y, const Integer &x)
 {
+    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
     ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
     y.Encode(ys, PUBLIC_KEYLENGTH);
+    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
 
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
+    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
@@ -81,9 +87,16 @@ x25519::x25519(const Integer &y, const Integer &x)
 
 x25519::x25519(const Integer &x)
 {
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
+    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
+
     ClampKeys(m_pk, m_sk);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(RandomNumberGenerator &rng)
@@ -277,20 +290,31 @@ ed25519Signer::ed25519Signer(const byte x[SECRET_KEYLENGTH])
 
 ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
 {
+    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
     ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
     y.Encode(ys, PUBLIC_KEYLENGTH);
+    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
 
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
+    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
 }
 
 ed25519Signer::ed25519Signer(const Integer &x)
 {
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
+    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
+
     ClampKeys(m_pk, m_sk);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
 }
 
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
@@ -413,9 +437,21 @@ void ed25519Signer::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
 
 void ed25519Signer::SetPrivateExponent (const Integer &x)
 {
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
     ArraySink xs(m_sk, SECRET_KEYLENGTH);
     x.Encode(xs, SECRET_KEYLENGTH);
+    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
+
     ClampKeys(m_pk, m_sk);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+}
+
+const Integer& ed25519Signer::GetPrivateExponent() const
+{
+    m_temp = Integer(m_sk, SECRET_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
+    return m_temp;
 }
 
 size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const {
@@ -440,8 +476,11 @@ ed25519Verifier::ed25519Verifier(const byte y[PUBLIC_KEYLENGTH])
 
 ed25519Verifier::ed25519Verifier(const Integer &y)
 {
+    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
+
     ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
     y.Encode(ys, PUBLIC_KEYLENGTH);
+    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
 }
 
 ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
@@ -502,8 +541,17 @@ void ed25519Verifier::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
 
 void ed25519Verifier::SetPublicElement (const Integer &y)
 {
+    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
+
     ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
     y.Encode(ys, PUBLIC_KEYLENGTH);
+    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
+}
+
+const Integer& ed25519Verifier::GetPublicElement() const
+{
+    m_temp = Integer(m_pk, PUBLIC_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
+    return m_temp;
 }
 
 bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
