@@ -83,6 +83,12 @@ DEFINE_OID(1, iso)
 					DEFINE_OID(teletrust_ellipticCurve()+1+9, brainpoolP320r1)
 					DEFINE_OID(teletrust_ellipticCurve()+1+11, brainpoolP384r1)
 					DEFINE_OID(teletrust_ellipticCurve()+1+13, brainpoolP512r1)
+		// https://tools.ietf.org/html/draft-ietf-curdle-pkix-07
+		DEFINE_OID(identified_organization()+101, thawte)
+			DEFINE_OID(thawte()+110, X25519)
+			DEFINE_OID(thawte()+111, X448)
+			DEFINE_OID(thawte()+112, Ed25519)
+			DEFINE_OID(thawte()+113, Ed448)
 		DEFINE_OID(identified_organization()+132, certicom)
 			DEFINE_OID(certicom()+0, certicom_ellipticCurve)
 				// these are sorted by curve type and then by OID
