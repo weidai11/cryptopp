@@ -57,7 +57,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 #endif
 
 // Visual Studio 2008 and below is missing _xgetbv. See x64dll.asm for the body.
-#if defined(_MSC_VER) && defined(_M_X64)
+#if defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
 extern "C" unsigned long long __fastcall ExtendedControlRegister(unsigned int);
 #endif
 
@@ -337,7 +337,7 @@ void DetectX86Features()
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
 // Visual Studio 2008 and below lack xgetbv
-#elif defined(_MSC_VER) && defined(_M_IX86)
+#elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_IX86)
 		word32 a=0, d=0;
 		__asm {
 			push eax
@@ -357,7 +357,7 @@ void DetectX86Features()
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
 // Visual Studio 2008 and below lack xgetbv
-#elif defined(_MSC_VER) && defined(_M_X64)
+#elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
 		word64 xcr0 = ExtendedControlRegister(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 #elif defined(__SUNPRO_CC)  // fall into
