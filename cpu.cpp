@@ -280,6 +280,14 @@ static inline bool IsAMD(const word32 output[4])
 		(output[3] /*EDX*/ == 0x69746E65);
 }
 
+static inline bool IsHygon(const word32 output[4])
+{
+	// This is the "HygonGenuine" string.
+	return (output[1] /*EBX*/ == 0x6f677948) &&
+		(output[2] /*ECX*/ == 0x656e6975) &&
+		(output[3] /*EDX*/ == 0x6e65476e);
+}
+
 static inline bool IsVIA(const word32 output[4])
 {
 	// This is the "CentaurHauls" string. Some non-PadLock's can return "VIA VIA VIA "
@@ -383,7 +391,7 @@ void DetectX86Features()
 			}
 		}
 	}
-	else if (IsAMD(cpuid0))
+	else if (IsAMD(cpuid0) || IsHygon(cpuid0))
 	{
 		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
 		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
