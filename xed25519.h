@@ -8,14 +8,31 @@
 // than x25519 does below. They are a little more accessible
 // due to crypto_box operations.
 
+
 /// \file xed25519.h
 /// \brief Classes for x25519 and ed25519 operations
 /// \details This implementation integrates Andrew Moon's public domain code
 ///   for curve25519-donna and ed25519-donna.
+/// \details Moving keys into and out of the library proceeds as follows.
+///   If an Integer class is accepted or returned, then the data is in big
+///   endian format. That is, the MSB is at byte position 0, and the LSB
+///   is at byte position 31. The Integer will work as expected, just like
+///   an int or a long.
+/// \details If a byte array is accepted, then the byte array is in little
+///   endian format. That is, the LSB is at byte position 0, and the MSB is
+///   at byte position 31. This follows the implementation where byte 0 is
+///   clamed with 248. That is my_arr[0] &= 248 to mask the lower 3 bits.
+/// \details PKCS8 and X509 keys encoded using ASN.1 follow little endian
+///   arrays. The format is specified in <A HREF=
+///   "https:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>.
+/// \details If you have a little endian array and you want to wrap it in
+///   an Integer using big endian then you can perform the following:
+/// <pre>Integer x(my_arr, SECRET_KEYLENGTH, UNSIGNED, LITTLE_ENDIAN_ORDER);</pre>
 /// \sa Andrew Moon's x22519 GitHub <A
-///   HREF="https://github.com/floodyberry/curve25519-donna">curve25519-donna</A>
-///   and ed22519 GitHub <A
-///   HREF="https://github.com/floodyberry/ed25519-donna">ed25519-donna</A>
+///   HREF="https://github.com/floodyberry/curve25519-donna">curve25519-donna</A>,
+///   ed22519 GitHub <A
+///   HREF="https://github.com/floodyberry/ed25519-donna">ed25519-donna</A>, and
+///   <A HREF="https:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>
 /// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_XED25519_H
@@ -36,7 +53,7 @@ struct ed25519Verifier;
 
 /// \brief x25519 with key validation
 /// \since Crypto++ 8.0
-class x25519 : public SimpleKeyAgreementDomain, public CryptoParameters
+class x25519 : public SimpleKeyAgreementDomain, public CryptoParameters, public PKCS8PrivateKey
 {
 public:
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
@@ -83,6 +100,12 @@ public:
     /// \note The public key is not validated.
     x25519(BufferedTransformation &params);
 
+    /// \brief Create a x25519 object
+    /// \param oid an object identifier
+    /// \details This constructor creates a new x25519 using the specified OID. The public
+    ///   and private points are uninitialized.
+    x25519(const OID &oid);
+
     /// \brief Clamp a private key
     /// \param y public key
     /// \param x private key
@@ -98,12 +121,17 @@ public:
     /// \param y public key
     bool IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const;
 
-    /// \brief Decode a x25519 object
-    /// \param params serialized object
-    /// \details DEREncode() writes the public and private key as an ASN.1 structure.
-    ///   The private key is written first as a <tt>BIT_STRING</tt>. The public key
-    ///   is written second as an <tt>OCTET_STRING</tt>.
-    void DEREncode(BufferedTransformation &params) const;
+    /// \Brief Get the Object Identifier
+    /// \returns the Object Identifier
+    OID GetAlgorithmID() const {
+        return m_oid.Empty() ? ASN1::curve25519() : m_oid;
+    }
+
+    /// \Brief Set the Object Identifier
+    /// \param oid the new Object Identifier
+    void SetAlgorithmID(const OID& oid) {
+        m_oid = oid;
+    }
 
     // CryptoParameters
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
@@ -112,6 +140,17 @@ public:
 
     // CryptoParameters
     CryptoParameters & AccessCryptoParameters() {return *this;}
+
+    /// \brief DER encode ASN.1 object
+    /// \param bt BufferedTransformation object
+    /// \details Save() will write the OID associated with algorithm or scheme.
+    ///   In the case of public and private keys, this function writes the
+    ///   subjectPubicKeyInfo parts.
+    void Save(BufferedTransformation &bt) const;
+
+    /// \brief BER decode ASN.1 object
+    /// \param bt BufferedTransformation object
+    void Load(BufferedTransformation &bt);
 
     // DL_PrivateKey
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
@@ -127,11 +166,21 @@ public:
     bool Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey=true) const;
 
 protected:
+
+    // Determines whether old or new RFC key format
+    OID PeekOID(BufferedTransformation &bt) const;
+
+    // PKCS8PrivateKey
+    void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+    void DEREncodePrivateKey(BufferedTransformation &bt) const;
+
+protected:
     FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
+    OID m_oid;  // preferred OID
 };
 
-// ****************** ed25519 Signatures *********************** //
+// ****************** ed25519 Signer *********************** //
 
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
@@ -177,9 +226,52 @@ protected:
     std::vector<byte, AllocatorWithCleanup<byte> > m_msg;
 };
 
+struct ed25519PrivateKey : public PKCS8PrivateKey
+{
+    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
+
+    // CryptoMaterial
+    bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
+    bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
+    void AssignFrom(const NameValuePairs &source);
+
+    // GroupParameters
+    OID GetAlgorithmID() const {
+        return m_oid.Empty() ? ASN1::curve25519() : m_oid;
+    }
+
+    // PKCS8PrivateKey
+    void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+    void DEREncodePrivateKey(BufferedTransformation &bt) const;
+
+    // PKCS8PrivateKey
+    void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
+    void SetPrivateExponent(const byte x[SECRET_KEYLENGTH]);
+    void SetPrivateExponent(const Integer &x);
+    const Integer& GetPrivateExponent() const;
+
+    /// \brief Clamp a private key
+    /// \param y public key
+    /// \param x private key
+    /// \details ClampKeys() clamps a private key and then regenerates the
+    ///   public key from the private key.
+    void ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const;
+
+    /// \brief Test if a key is clamped
+    /// \param x private key
+    bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
+
+    FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
+    FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
+    OID m_oid;  // preferred OID
+    mutable Integer m_x;  // for DL_PrivateKey
+};
+
 /// \brief ed25519 signature algorithm
 /// \since Crypto++ 8.0
-struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
+struct ed25519Signer : public PK_Signer
 {
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
@@ -226,45 +318,10 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     /// \note The public key is not validated.
     ed25519Signer(BufferedTransformation &params);
 
-    /// \brief Clamp a private key
-    /// \param y public key
-    /// \param x private key
-    /// \details ClampKeys() clamps a private key and then regenerates the
-    ///   public key from the private key.
-    void ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const;
-
-    /// \brief Test if a key is clamped
-    /// \param x private key
-    bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
-
-    // CryptoMaterial
-    bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
-    bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
-    void AssignFrom(const NameValuePairs &source);
-
-    // DL_PrivateKey
-    void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
-    void MakePublicKey(PublicKey &pub) const;
-    void SetPrivateExponent(const byte x[SECRET_KEYLENGTH]);
-    void SetPrivateExponent(const Integer &x);
-    const Integer& GetPrivateExponent() const;
-
     // DL_ObjectImplBase
-    PrivateKey& AccessKey() { return *this; }
-    PrivateKey& AccessPrivateKey() { return *this; }
-
-    OID GetAlgorithmID() const {
-        return ASN1::curve25519();
-    }
-
-    void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
-        CRYPTOPP_UNUSED(bt); CRYPTOPP_UNUSED(parametersPresent);
-        CRYPTOPP_UNUSED(size);
-    }
-
-    void DEREncodePrivateKey(BufferedTransformation &bt) const {
-        CRYPTOPP_UNUSED(bt);
-    }
+    PrivateKey& AccessKey() { return m_key; }
+    PrivateKey& AccessPrivateKey() { return m_key; }
+    void MakePublicKey(PublicKey &pub) const;
 
     // DL_SignatureSchemeBase
     size_t SignatureLength() const { return SIGNATURE_LENGTH; }
@@ -290,14 +347,48 @@ struct ed25519Signer : public PK_Signer, public PKCS8PrivateKey
     size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const;
 
 protected:
-    FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
+    ed25519PrivateKey m_key;
+};
+
+// ****************** ed25519 Verifier *********************** //
+
+struct ed25519PublicKey : public X509PublicKey
+{
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    typedef Integer Element;
+
+    OID GetAlgorithmID() const {
+        return m_oid.Empty() ? ASN1::curve25519() : m_oid;
+    }
+
+    void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
+        CRYPTOPP_UNUSED(bt); CRYPTOPP_UNUSED(parametersPresent);
+        CRYPTOPP_UNUSED(size);
+        CRYPTOPP_ASSERT(0);
+    }
+
+    void DEREncodePublicKey(BufferedTransformation &bt) const {
+        CRYPTOPP_UNUSED(bt);
+        CRYPTOPP_ASSERT(0);
+    }
+
+    bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
+    bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
+    void AssignFrom(const NameValuePairs &source);
+
+    // DL_PublicKey
+    void SetPublicElement(const byte y[PUBLIC_KEYLENGTH]);
+    void SetPublicElement(const Element &y);
+    const Element& GetPublicElement() const;
+
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
-    mutable Integer m_temp;  // for DL_PrivateKey
+    OID m_oid;  // preferred OID
+    mutable Integer m_y;  // for DL_PublicKey
 };
 
 /// \brief ed25519 signature verification algorithm
 /// \since Crypto++ 8.0
-struct ed25519Verifier : public PK_Verifier, public X509PublicKey
+struct ed25519Verifier : public PK_Verifier
 {
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
@@ -333,31 +424,9 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     /// \note The public key is not validated.
     ed25519Verifier(const ed25519Signer& signer);
 
-    bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
-    bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
-    void AssignFrom(const NameValuePairs &source);
-
-    // DL_PublicKey
-    void SetPublicElement(const byte y[PUBLIC_KEYLENGTH]);
-    void SetPublicElement(const Element &y);
-    const Element& GetPublicElement() const;
-
     // DL_ObjectImplBase
-    PublicKey& AccessKey() { return *this; }
-    PublicKey& AccessPublicKey() { return *this; }
-
-    OID GetAlgorithmID() const {
-        return ASN1::curve25519();
-    }
-
-     void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
-        CRYPTOPP_UNUSED(bt); CRYPTOPP_UNUSED(parametersPresent);
-        CRYPTOPP_UNUSED(size);
-    }
-
-    void DEREncodePublicKey(BufferedTransformation &bt) const {
-        CRYPTOPP_UNUSED(bt);
-    }
+    PublicKey& AccessKey() { return m_key; }
+    PublicKey& AccessPublicKey() { return m_key; }
 
     // DL_SignatureSchemeBase
     size_t SignatureLength() const { return SIGNATURE_LENGTH; }
@@ -390,8 +459,7 @@ struct ed25519Verifier : public PK_Verifier, public X509PublicKey
     }
 
 protected:
-    FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
-    mutable Integer m_temp;  // for DL_PublicKey
+    ed25519PublicKey m_key;
 };
 
 /// \brief ed25519 signature scheme

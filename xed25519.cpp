@@ -45,7 +45,7 @@ const byte blacklist[][32] = {
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff },
     { 0xdb, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
       0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }
-  };
+};
 
 ANONYMOUS_NAMESPACE_END
 
@@ -65,7 +65,7 @@ x25519::x25519(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
 x25519::x25519(const byte x[SECRET_KEYLENGTH])
 {
     std::memcpy(m_sk, x, SECRET_KEYLENGTH);
-    ClampKeys(m_pk, m_sk);
+    Donna::curve25519_mult(m_pk, m_sk);
 }
 
 x25519::x25519(const Integer &y, const Integer &x)
@@ -73,13 +73,8 @@ x25519::x25519(const Integer &y, const Integer &x)
     CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
 
-    ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
-    y.Encode(ys, PUBLIC_KEYLENGTH);
-    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
-
-    ArraySink xs(m_sk, SECRET_KEYLENGTH);
-    x.Encode(xs, SECRET_KEYLENGTH);
-    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
+    y.Encode(m_pk, PUBLIC_KEYLENGTH); std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
+    x.Encode(m_sk, SECRET_KEYLENGTH); std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
@@ -89,11 +84,9 @@ x25519::x25519(const Integer &x)
 {
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
 
-    ArraySink xs(m_sk, SECRET_KEYLENGTH);
-    x.Encode(xs, SECRET_KEYLENGTH);
+    x.Encode(m_sk, SECRET_KEYLENGTH);
     std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
-
-    ClampKeys(m_pk, m_sk);
+    Donna::curve25519_mult(m_pk, m_sk);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
@@ -108,39 +101,8 @@ x25519::x25519(RandomNumberGenerator &rng)
 
 x25519::x25519(BufferedTransformation &params)
 {
-    // TODO: Fix the on-disk format once we determine what it is.
-    BERSequenceDecoder seq(params);
-
-      size_t read; byte unused;
-
-      BERSequenceDecoder sk(seq, BIT_STRING);
-      CRYPTOPP_ASSERT(sk.MaxRetrievable() >= SECRET_KEYLENGTH+1);
-
-      read = sk.Get(unused);  // unused bits
-      CRYPTOPP_ASSERT(read == 1 && unused == 0);
-
-      read = sk.Get(m_sk, SECRET_KEYLENGTH);
-      sk.MessageEnd();
-
-      if (read != SECRET_KEYLENGTH)
-          throw BERDecodeErr();
-
-      if (seq.EndReached())
-      {
-          ClampKeys(m_pk, m_sk);
-      }
-      else
-      {
-          BERSequenceDecoder pk(seq, OCTET_STRING);
-          CRYPTOPP_ASSERT(pk.MaxRetrievable() >= PUBLIC_KEYLENGTH);
-          read = pk.Get(m_pk, PUBLIC_KEYLENGTH);
-          pk.MessageEnd();
-
-          if (read != PUBLIC_KEYLENGTH)
-              throw BERDecodeErr();
-      }
-
-    seq.MessageEnd();
+    // BERDecode(params);
+    Load(params);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
@@ -175,21 +137,121 @@ bool x25519::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
     return (bool)((k >> 8) & 1);
 }
 
-void x25519::DEREncode(BufferedTransformation &params) const
+void x25519::Save(BufferedTransformation &bt) const
 {
-    // TODO: Fix the on-disk format once we determine what it is.
-    DERSequenceEncoder seq(params);
+    OID oid = PeekOID(bt);
+    if (oid == ASN1::curve25519())
+        DEREncode(bt);
+    else
+    {
+        CRYPTOPP_ASSERT(0);
+        throw NotImplemented("x25519: Save");
+    }
+}
 
-      DERSequenceEncoder sk(seq, BIT_STRING);
-      sk.Put((byte)0);   // unused bits
-      sk.Put(m_sk, SECRET_KEYLENGTH);
-      sk.MessageEnd();
+void x25519::Load(BufferedTransformation &bt)
+{
+    OID oid = PeekOID(bt);
+    if (oid == ASN1::curve25519())
+        BERDecode(bt);
+    else
+    {
+        CRYPTOPP_ASSERT(0);
+        throw NotImplemented("x25519: Load");
+    }
+}
 
-      DERSequenceEncoder pk(seq, OCTET_STRING);
-      pk.Put(m_pk, PUBLIC_KEYLENGTH);
-      pk.MessageEnd();
+OID x25519::PeekOID(BufferedTransformation &bt) const
+{
+    // Don't consume the stream
+    ByteQueue queue;
+    bt.CopyTo(queue);
+    OID oid;
+    
+    try    {
+        BERSequenceDecoder privateKeyInfo(queue);
+            word32 version;
+            BERDecodeUnsigned<word32>(privateKeyInfo, version, INTEGER, 0, 0);    // check version
 
+            BERSequenceDecoder algorithm(privateKeyInfo);
+              oid = OID(algorithm);
+              if (!algorithm.EndReached())  // Drain remaining
+                algorithm.TransferTo(TheBitBucket());
+            algorithm.MessageEnd();
+
+          if (!privateKeyInfo.EndReached())  // Drain remaining
+            privateKeyInfo.TransferTo(TheBitBucket());
+        privateKeyInfo.MessageEnd();
+    }
+    catch(const Exception&) {
+        oid = OID();
+    }
+
+    return oid;
+}
+
+void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+    BERSequenceDecoder seq(bt);
+        word32 version;
+        BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);    // check version
+
+        BERGeneralDecoder dec(seq, OCTET_STRING);
+        if (!dec.IsDefiniteLength())
+            BERDecodeError();
+
+        //Integer x;
+        //x.Decode(dec, (size_t)dec.RemainingLength());
+        //dec.MessageEnd();
+        dec.Get(m_sk, SECRET_KEYLENGTH);
+        dec.MessageEnd();
+
+        // Hack by JW... Only a private key?
+        if (dec.EndReached())
+        {
+            ClampKeys(m_pk, m_sk);
+            return;
+        }
+
+        if (!parametersPresent && seq.PeekByte() != (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
+            BERDecodeError();
+        if (!seq.EndReached() && seq.PeekByte() == (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
+        {
+            //BERGeneralDecoder parameters(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 0);
+            //this->AccessGroupParameters().BERDecode(parameters);
+            //parameters.MessageEnd();
+
+            // We require a named curve, and not domain parameters
+            BERDecodeError();
+        }
+        if (!seq.EndReached())
+        {
+            // skip over the public element
+            SecByteBlock subjectPublicKey;
+            unsigned int unusedBits;
+            BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+            BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
+            publicKey.MessageEnd();
+
+            //Element Q;
+            //if (!(unusedBits == 0 && this->GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
+            //    BERDecodeError();
+            if (unusedBits != 0)
+                BERDecodeError();
+        }
     seq.MessageEnd();
+
+    // this->SetPrivateExponent(x);
+}
+
+void x25519::DEREncodePrivateKey(BufferedTransformation &bt) const
+{
+    DERSequenceEncoder privateKey(bt);
+        DEREncodeUnsigned<word32>(privateKey, 1);    // version
+        DERGeneralEncoder enc(privateKey, OCTET_STRING);
+          enc.Put(m_sk, SECRET_KEYLENGTH);
+        enc.MessageEnd();
+    privateKey.MessageEnd();
 }
 
 bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
@@ -208,18 +270,28 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
 
 bool x25519::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
-    if (valueType == typeid(ConstByteArrayParameter))
+    if (std::strcmp(name, Name::PrivateExponent()) == 0 || std::strcmp(name, "SecretKey") == 0)
     {
-        if (std::strcmp(name, "SecretKey") == 0 || std::strcmp(name, "PrivateExponent") == 0)
-        {
-            std::memcpy(pValue, m_sk, SECRET_KEYLENGTH);
-            return true;
-        }
-        else if (std::strcmp(name, "PublicKey") == 0)
-        {
-            std::memcpy(pValue, m_pk, PUBLIC_KEYLENGTH);
-            return true;
-        }
+        this->ThrowIfTypeMismatch(name, typeid(ConstByteArrayParameter), valueType);
+        reinterpret_cast<ConstByteArrayParameter*>(pValue)->Assign(m_sk, SECRET_KEYLENGTH, false);
+        return true;
+    }
+
+    if (std::strcmp(name, Name::PublicElement()) == 0)
+    {
+        this->ThrowIfTypeMismatch(name, typeid(ConstByteArrayParameter), valueType);
+        reinterpret_cast<ConstByteArrayParameter*>(pValue)->Assign(m_pk, PUBLIC_KEYLENGTH, false);
+        return true;
+    }
+
+    if (std::strcmp(name, Name::GroupOID()) == 0)
+    {
+        if (m_oid.Empty())
+            return false;
+
+        this->ThrowIfTypeMismatch(name, typeid(OID), valueType);
+        *reinterpret_cast<OID *>(pValue) = m_oid;
+        return true;
     }
 
     return false;
@@ -228,20 +300,27 @@ bool x25519::GetVoidValue(const char *name, const std::type_info &valueType, voi
 void x25519::AssignFrom(const NameValuePairs &source)
 {
     ConstByteArrayParameter val;
-    if (source.GetValue("SecretKey", val) || source.GetValue("PrivateExponent", val))
+    if (source.GetValue(Name::PrivateExponent(), val) || source.GetValue("SecretKey", val))
     {
         std::memcpy(m_sk, val.begin(), SECRET_KEYLENGTH);
     }
-    else if (source.GetValue("PublicKey", val))
+
+    if (source.GetValue(Name::PublicElement(), val))
     {
         std::memcpy(m_pk, val.begin(), PUBLIC_KEYLENGTH);
+    }
+
+    OID oid;
+    if (source.GetValue(Name::GroupOID(), oid))
+    {
+        m_oid = oid;
     }
 }
 
 void x25519::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
 {
     ConstByteArrayParameter seed;
-    if (params.GetValue("Seed", seed) && rng.CanIncorporateEntropy())
+    if (params.GetValue(Name::Seed(), seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
@@ -274,149 +353,82 @@ bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherP
 
 // ******************** ed25519 Signer ************************* //
 
-ed25519Signer::ed25519Signer(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
-{
-    std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
-    std::memcpy(m_sk, x, SECRET_KEYLENGTH);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-}
-
-ed25519Signer::ed25519Signer(const byte x[SECRET_KEYLENGTH])
-{
-    std::memcpy(m_sk, x, SECRET_KEYLENGTH);
-    ClampKeys(m_pk, m_sk);
-}
-
-ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
-{
-    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
-    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
-
-    ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
-    y.Encode(ys, PUBLIC_KEYLENGTH);
-    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
-
-    ArraySink xs(m_sk, SECRET_KEYLENGTH);
-    x.Encode(xs, SECRET_KEYLENGTH);
-    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-}
-
-ed25519Signer::ed25519Signer(const Integer &x)
-{
-    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
-
-    ArraySink xs(m_sk, SECRET_KEYLENGTH);
-    x.Encode(xs, SECRET_KEYLENGTH);
-    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
-
-    ClampKeys(m_pk, m_sk);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-}
-
-ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
-{
-    rng.GenerateBlock(m_sk, 32);
-    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
-
-    int ret = Donna::ed25519_publickey(m_pk, m_sk);
-    CRYPTOPP_ASSERT(ret == 0);
-}
-
-ed25519Signer::ed25519Signer(BufferedTransformation &params)
-{
-    // TODO: Fix the on-disk format once we determine what it is.
-    BERSequenceDecoder seq(params);
-
-      size_t read; byte unused;
-
-      BERSequenceDecoder sk(seq, BIT_STRING);
-      CRYPTOPP_ASSERT(sk.MaxRetrievable() >= SECRET_KEYLENGTH + 1);
-
-      read = sk.Get(unused);  // unused bits
-      CRYPTOPP_ASSERT(read == 1 && unused == 0);
-
-      read = sk.Get(m_sk, SECRET_KEYLENGTH);
-      sk.MessageEnd();
-
-      if (read != SECRET_KEYLENGTH)
-          throw BERDecodeErr();
-
-      if (seq.EndReached())
-      {
-          ClampKeys(m_pk, m_sk);
-      }
-      else
-      {
-          BERSequenceDecoder pk(seq, OCTET_STRING);
-          CRYPTOPP_ASSERT(pk.MaxRetrievable() >= PUBLIC_KEYLENGTH);
-          read = pk.Get(m_pk, PUBLIC_KEYLENGTH);
-          pk.MessageEnd();
-
-          if (read != PUBLIC_KEYLENGTH)
-              throw BERDecodeErr();
-      }
-
-    seq.MessageEnd();
-}
-
-void ed25519Signer::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
+void ed25519PrivateKey::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
 {
     x[0] &= 248; x[31] &= 127; x[31] |= 64;
     int ret = Donna::ed25519_publickey(y, x);
     CRYPTOPP_ASSERT(ret == 0);
 }
 
-bool ed25519Signer::IsClamped(const byte x[SECRET_KEYLENGTH]) const
+bool ed25519PrivateKey::IsClamped(const byte x[SECRET_KEYLENGTH]) const
 {
     return (x[0] & 248) == x[0] && (x[31] & 127) == x[31] && (x[31] | 64) == x[31];
 }
 
-bool ed25519Signer::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
     return true;
 }
 
-bool ed25519Signer::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+bool ed25519PrivateKey::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 {
-    if (valueType == typeid(ConstByteArrayParameter))
+     if (std::strcmp(name, Name::PrivateExponent()) == 0 || std::strcmp(name, "SecretKey") == 0)
+     {
+        this->ThrowIfTypeMismatch(name, typeid(ConstByteArrayParameter), valueType);
+        reinterpret_cast<ConstByteArrayParameter*>(pValue)->Assign(m_sk, SECRET_KEYLENGTH, false);
+        return true;
+    }
+
+    if (std::strcmp(name, Name::PublicElement()) == 0)
     {
-        if (std::strcmp(name, "SecretKey") == 0 || std::strcmp(name, "PrivateExponent") == 0)
-        {
-            std::memcpy(pValue, m_sk, SECRET_KEYLENGTH);
-            return true;
-        }
-        else if (std::strcmp(name, "PublicKey") == 0)
-        {
-            std::memcpy(pValue, m_pk, PUBLIC_KEYLENGTH);
-            return true;
-        }
+        this->ThrowIfTypeMismatch(name, typeid(ConstByteArrayParameter), valueType);
+        reinterpret_cast<ConstByteArrayParameter*>(pValue)->Assign(m_pk, PUBLIC_KEYLENGTH, false);
+        return true;
+    }
+
+    if (std::strcmp(name, Name::GroupOID()) == 0)
+    {
+        if (m_oid.Empty())
+            return false;
+
+        this->ThrowIfTypeMismatch(name, typeid(OID), valueType);
+        *reinterpret_cast<OID *>(pValue) = m_oid;
+        return true;
     }
 
     return false;
 }
 
-void ed25519Signer::AssignFrom(const NameValuePairs &source)
+void ed25519PrivateKey::AssignFrom(const NameValuePairs &source)
 {
     ConstByteArrayParameter val;
-    if (source.GetValue("SecretKey", val) || source.GetValue("PrivateExponent", val))
+    if (source.GetValue(Name::PrivateExponent(), val) || source.GetValue("SecretKey", val))
     {
+        CRYPTOPP_ASSERT(val.size() == SECRET_KEYLENGTH);
         std::memcpy(m_sk, val.begin(), SECRET_KEYLENGTH);
     }
-    else if (source.GetValue("PublicKey", val))
+    if (source.GetValue(Name::PublicElement(), val))
     {
+        CRYPTOPP_ASSERT(val.size() == PUBLIC_KEYLENGTH);
         std::memcpy(m_pk, val.begin(), PUBLIC_KEYLENGTH);
     }
+
+    OID oid;
+    if (source.GetValue(Name::GroupOID(), oid))
+    {
+        m_oid = oid;
+    }
+
+    bool clamp = false;
+    if (source.GetValue("Clamp", clamp) && clamp == true)
+        ClampKeys(m_pk, m_sk);
 }
 
-void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
+void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params=g_nullNameValuePairs)
 {
     ConstByteArrayParameter seed;
-    if (params.GetValue("Seed", seed) && rng.CanIncorporateEntropy())
+    if (params.GetValue(Name::Seed(), seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, 32);
@@ -425,40 +437,117 @@ void ed25519Signer::GenerateRandom(RandomNumberGenerator &rng, const NameValuePa
     CRYPTOPP_ASSERT(ret == 0);
 }
 
+void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+    CRYPTOPP_ASSERT(bt.MaxRetrievable() >= (lword)SECRET_KEYLENGTH);
+    bt.Get(m_sk, STDMIN(size, (size_t)SECRET_KEYLENGTH));
+    ClampKeys(m_pk, m_sk);
+
+    if (parametersPresent)
+    {
+        CRYPTOPP_ASSERT(0);
+    }
+}
+
+void ed25519PrivateKey::DEREncodePrivateKey(BufferedTransformation &bt) const
+{
+    bt.Put(m_sk, SECRET_KEYLENGTH);
+}
+
 void ed25519Signer::MakePublicKey (PublicKey &pub) const
 {
-    pub.AssignFrom(MakeParameters("PublicKey", ConstByteArrayParameter(m_pk.begin(), m_pk.size(), false)));
+    const ed25519PrivateKey& key = static_cast<const ed25519PrivateKey&>(GetPrivateKey());
+    pub.AssignFrom(MakeParameters
+        (Name::PublicElement(), ConstByteArrayParameter(key.m_pk.begin(), PUBLIC_KEYLENGTH))
+        (Name::GroupOID(), key.GetAlgorithmID()));
 }
 
-void ed25519Signer::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
+void ed25519PrivateKey::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
 {
-    std::memcpy(m_sk, x, SECRET_KEYLENGTH);
+    AssignFrom(MakeParameters
+        (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH))
+        ("Clamp", true));
 }
 
-void ed25519Signer::SetPrivateExponent (const Integer &x)
+void ed25519PrivateKey::SetPrivateExponent (const Integer &x)
 {
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
 
-    ArraySink xs(m_sk, SECRET_KEYLENGTH);
-    x.Encode(xs, SECRET_KEYLENGTH);
-    std::reverse(m_sk+0, m_sk+SECRET_KEYLENGTH);
+    SecByteBlock by(PUBLIC_KEYLENGTH), bx(SECRET_KEYLENGTH);
+    x.Encode(bx, SECRET_KEYLENGTH); std::reverse(bx+0, bx+SECRET_KEYLENGTH);
 
-    ClampKeys(m_pk, m_sk);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    AssignFrom(MakeParameters
+        (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false))
+        (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false))
+        ("Clamp", true));
 }
 
-const Integer& ed25519Signer::GetPrivateExponent() const
+const Integer& ed25519PrivateKey::GetPrivateExponent() const
 {
-    m_temp = Integer(m_sk, SECRET_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
-    return m_temp;
+    m_x = Integer(m_sk, SECRET_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
+    return m_x;
 }
 
-size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const {
+////////////////////////
+
+ed25519Signer::ed25519Signer(const byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH])
+{
+    AccessPrivateKey().AssignFrom(MakeParameters
+        (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH, false))
+        (Name::PublicElement(), ConstByteArrayParameter(y, PUBLIC_KEYLENGTH, false)));
+}
+
+ed25519Signer::ed25519Signer(const byte x[SECRET_KEYLENGTH])
+{
+    AccessPrivateKey().AssignFrom(MakeParameters
+        (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH, false))
+        ("Clamp", true));
+}
+
+ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
+{
+    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
+    SecByteBlock by(PUBLIC_KEYLENGTH), bx(SECRET_KEYLENGTH);
+    y.Encode(by, PUBLIC_KEYLENGTH); std::reverse(by+0, by+PUBLIC_KEYLENGTH);
+    x.Encode(bx, SECRET_KEYLENGTH); std::reverse(bx+0, bx+SECRET_KEYLENGTH);
+
+    AccessPrivateKey().AssignFrom(MakeParameters
+        (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false))
+        (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false)));
+}
+
+ed25519Signer::ed25519Signer(const Integer &x)
+{
+    CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
+
+    SecByteBlock bx(SECRET_KEYLENGTH);
+    x.Encode(bx, SECRET_KEYLENGTH); std::reverse(bx+0, bx+SECRET_KEYLENGTH);
+
+    AccessPrivateKey().AssignFrom(MakeParameters
+        (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false))
+        ("Clamp", true));
+}
+
+ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)
+{
+    AccessPrivateKey().GenerateRandom(rng);
+}
+
+ed25519Signer::ed25519Signer(BufferedTransformation &params)
+{
+    ed25519PrivateKey& key = static_cast<ed25519PrivateKey&>(AccessPrivateKey());
+    key.BERDecode(params);
+}
+
+size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const
+{
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    int ret = Donna::ed25519_sign(accum.data(), accum.size(), m_sk, m_pk, signature);
+    const ed25519PrivateKey& pk = static_cast<const ed25519PrivateKey&>(GetPrivateKey());
+    int ret = Donna::ed25519_sign(accum.data(), accum.size(), pk.m_sk, pk.m_pk, signature);
     CRYPTOPP_ASSERT(ret == 0);
 
     if (restart)
@@ -469,18 +558,88 @@ size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccum
 
 // ******************** ed25519 Verifier ************************* //
 
+bool ed25519PublicKey::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
+{
+    if (std::strcmp(name, Name::PublicElement()) == 0)
+    {
+        this->ThrowIfTypeMismatch(name, typeid(ConstByteArrayParameter), valueType);
+        reinterpret_cast<ConstByteArrayParameter*>(pValue)->Assign(m_pk, PUBLIC_KEYLENGTH, false);
+        return true;
+    }
+
+    if (std::strcmp(name, Name::GroupOID()) == 0)
+    {
+        if (m_oid.Empty())
+            return false;
+
+        this->ThrowIfTypeMismatch(name, typeid(OID), valueType);
+        *reinterpret_cast<OID *>(pValue) = m_oid;
+        return true;
+    }
+
+    return false;
+}
+
+void ed25519PublicKey::AssignFrom(const NameValuePairs &source)
+{
+    ConstByteArrayParameter ba;
+    if (source.GetValue(Name::PublicElement(), ba))
+    {
+        std::memcpy(m_pk, ba.begin(), PUBLIC_KEYLENGTH);
+    }
+
+    OID oid;
+    if (source.GetValue(Name::GroupOID(), oid))
+    {
+        m_oid = oid;
+    }
+}
+
+void ed25519PublicKey::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
+{
+    AssignFrom(MakeParameters(Name::PublicElement(), ConstByteArrayParameter(y, PUBLIC_KEYLENGTH)));
+}
+
+void ed25519PublicKey::SetPublicElement (const Integer &y)
+{
+    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
+
+    SecByteBlock by(PUBLIC_KEYLENGTH);
+    y.Encode(by, PUBLIC_KEYLENGTH); std::reverse(by+0, by+PUBLIC_KEYLENGTH);
+
+    AssignFrom(MakeParameters
+        (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false)));
+}
+
+const Integer& ed25519PublicKey::GetPublicElement() const
+{
+    m_y = Integer(m_pk, PUBLIC_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
+    return m_y;
+}
+
+bool ed25519PublicKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
+{
+    CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
+    return true;
+}
+
+////////////////////////
+
 ed25519Verifier::ed25519Verifier(const byte y[PUBLIC_KEYLENGTH])
 {
-    std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
+    AccessPublicKey().AssignFrom(MakeParameters
+        (Name::PublicElement(), ConstByteArrayParameter(y, PUBLIC_KEYLENGTH)));
 }
 
 ed25519Verifier::ed25519Verifier(const Integer &y)
 {
     CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
 
-    ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
-    y.Encode(ys, PUBLIC_KEYLENGTH);
-    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
+    SecByteBlock by(PUBLIC_KEYLENGTH);
+    y.Encode(by, PUBLIC_KEYLENGTH); std::reverse(by+0, by+PUBLIC_KEYLENGTH);
+
+    AccessPublicKey().AssignFrom(MakeParameters
+        (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false)));
 }
 
 ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
@@ -490,12 +649,14 @@ ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
 
       size_t read;
       BERSequenceDecoder pk(seq, OCTET_STRING);
-      CRYPTOPP_ASSERT(pk.MaxRetrievable() >= PUBLIC_KEYLENGTH);
-      read = pk.Get(m_pk, PUBLIC_KEYLENGTH);
+
+        CRYPTOPP_ASSERT(pk.MaxRetrievable() >= PUBLIC_KEYLENGTH);
+        read = pk.Get(m_key.m_pk, PUBLIC_KEYLENGTH);
+
       pk.MessageEnd();
 
       if (read != PUBLIC_KEYLENGTH)
-          throw BERDecodeErr();
+        throw BERDecodeErr();
 
     seq.MessageEnd();
 }
@@ -505,59 +666,11 @@ ed25519Verifier::ed25519Verifier(const ed25519Signer& signer)
     signer.MakePublicKey(AccessPublicKey());
 }
 
-bool ed25519Verifier::Validate(RandomNumberGenerator &rng, unsigned int level) const
+bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
 {
-    CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
-    return true;
-}
-
-bool ed25519Verifier::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
-{
-    if (valueType == typeid(ConstByteArrayParameter))
-    {
-        if (std::strcmp(name, "PublicKey") == 0)
-        {
-            std::memcpy(pValue, m_pk, PUBLIC_KEYLENGTH);
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void ed25519Verifier::AssignFrom(const NameValuePairs &source)
-{
-    ConstByteArrayParameter val;
-    if (source.GetValue("PublicKey", val))
-    {
-        std::memcpy(m_pk, val.begin(), PUBLIC_KEYLENGTH);
-    }
-}
-
-void ed25519Verifier::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
-{
-    std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
-}
-
-void ed25519Verifier::SetPublicElement (const Integer &y)
-{
-    CRYPTOPP_ASSERT(y.MinEncodedSize() <= PUBLIC_KEYLENGTH);
-
-    ArraySink ys(m_pk, PUBLIC_KEYLENGTH);
-    y.Encode(ys, PUBLIC_KEYLENGTH);
-    std::reverse(m_pk+0, m_pk+PUBLIC_KEYLENGTH);
-}
-
-const Integer& ed25519Verifier::GetPublicElement() const
-{
-    m_temp = Integer(m_pk, PUBLIC_KEYLENGTH, Integer::UNSIGNED, LITTLE_ENDIAN_ORDER);
-    return m_temp;
-}
-
-bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const {
-
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), m_pk, accum.signature());
+    const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
+    int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.m_pk.begin(), accum.signature());
     accum.Restart();
 
     return ret == 0;

@@ -317,6 +317,18 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
 
+	std::cout << "\n<TBODY style=\"background: yellow;\">";
+	{
+		ed25519::Signer sign(Test::GlobalRNG());
+		ed25519::Verifier verify(sign);
+		x25519 agree(Test::GlobalRNG());
+
+		BenchMarkSigning("ed25519", sign, t);
+		BenchMarkVerification("ed25519", sign, verify, t);
+		BenchMarkKeyGen("x25519", agree, t);
+		BenchMarkAgreement("x25519", agree, t);
+	}
+
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 		BenchMarkCrypto<RSAES<OAEP<SHA1> > >("TestData/rsa1024.dat", "RSA 1024", t);

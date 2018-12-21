@@ -143,7 +143,7 @@ bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough)
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "signature key validation\n";
 
-	const byte *message = (byte *)"test message";
+	const byte message[] = "test message";
 	const int messageLen = 12;
 
 	SecByteBlock signature(priv.MaxSignatureLength());
