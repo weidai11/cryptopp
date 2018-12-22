@@ -42,6 +42,7 @@ SETENV_VERBOSE=1
 
 APPLE_SDK=
 IOS_ARCH=
+BACK_ARCH=
 
 for ARG in "$@"
 do
@@ -49,66 +50,74 @@ do
 
   # i386 (simulator)
   if [ "$CL" == "i386" ]; then
-    IOS_ARCH=i386
+    BACK_ARCH=i386
+    APPLE_SDK=iPhoneSimulator
   fi
 
   # x86_64 (simulator)
   if [ "$CL" == "x86_64" ]; then
-    IOS_ARCH=x86_64
+    BACK_ARCH=x86_64
+    APPLE_SDK=iPhoneSimulator
   fi
 
   # ARMv5
   if [ "$CL" == "armv5" ]; then
-    IOS_ARCH=armv5
+    BACK_ARCH=armv5
   fi
 
   # ARMv6
   if [ "$CL" == "armv6" ]; then
-    IOS_ARCH=armv6
+    BACK_ARCH=armv6
   fi
 
   # ARMv7
   if [ "$CL" == "armv7" ]; then
-    IOS_ARCH=armv7
+    BACK_ARCH=armv7
   fi
 
   # ARMv7s
   if [ "$CL" == "armv7s" ]; then
-    IOS_ARCH=armv7s
+    BACK_ARCH=armv7s
   fi
 
   # ARM64
   if [[ ("$CL" == "arm64" || "$CL" == "armv8" || "$CL" == "aarch64") ]]; then
-    IOS_ARCH=arm64
+    BACK_ARCH=arm64
   fi
 
   # iPhone
   if [[ ("$CL" == "iphone" || "$CL" == "iphoneos") ]]; then
+    BACK_ARCH=armv7
     APPLE_SDK=iPhoneOS
   fi
 
   # iPhone Simulator
   if [[ ("$CL" == "simulator" || "$CL" == "iphonesimulator") ]]; then
+    BACK_ARCH=i386
     APPLE_SDK=iPhoneSimulator
   fi
 
   # Watch
   if [[ ("$CL" == "watch" || "$CL" == "watchos" || "$CL" == "applewatch") ]]; then
+    BACK_ARCH=armv7
     APPLE_SDK=WatchOS
   fi
 
   # Watch Simulator
   if [ "$CL" == "watchsimulator" ]; then
+    BACK_ARCH=i386
     APPLE_SDK=WatchSimulator
   fi
 
   # Apple TV
   if [[ ("$CL" == "tv" || "$CL" == "appletv" || "$CL" == "appletvos") ]]; then
+    BACK_ARCH=arm64
     APPLE_SDK=AppleTVOS
   fi
 
   # Apple TV Simulator
   if [[ ("$CL" == "tvsimulator" || "$CL" == "appletvsimulator") ]]; then
+    BACK_ARCH=x86_64
     APPLE_SDK=AppleTVSimulator
   fi
 
@@ -116,21 +125,13 @@ done
 
 # Defaults if not set
 if [ -z "$APPLE_SDK" ]; then
+    BACK_ARCH=armv7
 	APPLE_SDK=iPhoneOS
 fi
 
+# Defaults if not set
 if [ -z "$IOS_ARCH" ]; then
-	if [ "$APPLE_SDK" == "iPhoneOS" ]; then
-		IOS_ARCH=armv7
-	elif [ "$APPLE_SDK" == "iPhoneSimulator" ]; then
-		IOS_ARCH=i386
-	elif [ "$APPLE_SDK" == "AppleTVOS" ]; then
-		IOS_ARCH=arm64
-	elif [ "$APPLE_SDK" == "WatchOS" ]; then
-		IOS_ARCH=armv7
-	fi
-
-	# TODO: fill in missing simulator architectures
+	IOS_ARCH="$BACK_ARCH"
 fi
 
 # Allow a user override? I think we should be doing this. The use case is:
@@ -219,18 +220,25 @@ if [ "$APPLE_SDK" == "AppleTVOS" ]; then
 fi
 
 # ARM64 Simulator fixup. Under Xcode 6/iOS 8, it uses x86_64 and not i386
+# -ios_simulator_version_min does not work though it is in LLVM sources.
 if [ "$IOS_ARCH" == "x86_64" ]; then
-  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=8 -DCRYPTOPP_DISABLE_ASM"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
-# Disable ASM for simulator
+# Disable ASM for simulator. We are failing on Travis due to missing _start.
+# We may need to link against crt1.o for simulator builds. Also see
+# https://stackoverflow.com/q/24841283/608639
+# -watchos_simulator_version_min does not work though it is in LLVM sources.
 if [ "$APPLE_SDK" == "WatchSimulator" ]; then
   IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
-# Disable ASM for simulator
+# Disable ASM for simulator. We are failing on Travis due to missing _start.
+# We may need to link against crt1.o for simulator builds. Also see
+# https://stackoverflow.com/q/24841283/608639
+# -tvos_simulator_version_min does not work though it is in LLVM sources.
 if [ "$APPLE_SDK" == "AppleTVSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
+  IOS_FLAGS="$IOS_FLAGS -tvos_simulator_version_min -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8

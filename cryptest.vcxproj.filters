@@ -11,7 +11,7 @@
     </Filter>
     <Filter Include="TestData">
       <UniqueIdentifier>{a634d4f4-ddc0-44b4-9c37-d9ffdddc7b06}</UniqueIdentifier>
-      <Extensions>.dat</Extensions>
+      <Extensions>.dat;.bin</Extensions>
     </Filter>
     <Filter Include="TestVectors">
       <UniqueIdentifier>{2e247f14-f75a-4e15-9804-dccce165306f}</UniqueIdentifier>
@@ -23,162 +23,214 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="TestVectors\aes.txt">
+    <!-- Begin Test Vectors -->
+    <Text Include="TestVectors\aes.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\all.txt">
+    </Text>
+    <Text Include="TestVectors\all.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\blake2.txt">
+    </Text>
+    <Text Include="TestVectors\blake2.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\blake2b.txt">
+    </Text>
+    <Text Include="TestVectors\blake2b.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\blake2s.txt">
+    </Text>
+    <Text Include="TestVectors\blake2s.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\aria.txt">
+    </Text>
+    <Text Include="TestVectors\aria.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\camellia.txt">
+    </Text>
+    <Text Include="TestVectors\camellia.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\ccm.txt">
+    </Text>
+    <Text Include="TestVectors\ccm.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\chacha.txt">
+    </Text>
+    <Text Include="TestVectors\chacha.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\cham.txt">
+    </Text>
+    <Text Include="TestVectors\chacha_tls.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\cmac.txt">
+    </Text>
+    <Text Include="TestVectors\cham.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\dlies.txt">
+    </Text>
+    <Text Include="TestVectors\cmac.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\dsa.txt">
+    </Text>
+    <Text Include="TestVectors\dlies.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\dsa_1363.txt">
+    </Text>
+    <Text Include="TestVectors\dsa.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\dsa_rfc6979.txt">
+    </Text>
+    <Text Include="TestVectors\dsa_1363.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\eax.txt">
+    </Text>
+    <Text Include="TestVectors\dsa_rfc6979.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\esign.txt">
+    </Text>
+    <Text Include="TestVectors\eax.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\gcm.txt">
+    </Text>
+    <Text Include="TestVectors\esign.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\hc128.txt">
+    </Text>
+    <Text Include="TestVectors\gcm.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\hc256.txt">
+    </Text>
+    <Text Include="TestVectors\hc128.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\hkdf.txt">
+    </Text>
+    <Text Include="TestVectors\hc256.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\hmac.txt">
+    </Text>
+    <Text Include="TestVectors\hight.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\kalyna.txt">
+    </Text>
+    <Text Include="TestVectors\hkdf.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\lea.txt">
+    </Text>
+    <Text Include="TestVectors\hmac.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\mars.txt">
+    </Text>
+    <Text Include="TestVectors\kalyna.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\nr.txt">
+    </Text>
+    <Text Include="TestVectors\keccak.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\panama.txt">
+    </Text>
+    <Text Include="TestVectors\lea.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\Readme.txt">
+    </Text>
+    <Text Include="TestVectors\mars.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\rabbit.txt">
+    </Text>
+    <Text Include="TestVectors\nr.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\rsa_oaep.txt">
+    </Text>
+    <Text Include="TestVectors\panama.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\rsa_pkcs1_1_5.txt">
+    </Text>
+    <Text Include="TestVectors\Readme.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\rsa_pss.txt">
+    </Text>
+    <Text Include="TestVectors\rabbit.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\rw.txt">
+    </Text>
+    <Text Include="TestVectors\rsa_oaep.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\salsa.txt">
+    </Text>
+    <Text Include="TestVectors\rsa_pkcs1_1_5.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\seal.txt">
+    </Text>
+    <Text Include="TestVectors\rsa_pss.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\seed.txt">
+    </Text>
+    <Text Include="TestVectors\rw.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\sha.txt">
+    </Text>
+    <Text Include="TestVectors\salsa.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\sha2.txt">
+    </Text>
+    <Text Include="TestVectors\seal.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\sha3.txt">
+    </Text>
+    <Text Include="TestVectors\seed.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\shacal2.txt">
+    </Text>
+    <Text Include="TestVectors\sha.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\siphash.txt">
+    </Text>
+    <Text Include="TestVectors\sha1_160_fips_180.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\simon.txt">
+    </Text>
+    <Text Include="TestVectors\sha1_fips_180.txt">
       <Filter>TestVectors</Filter>
-    </None>
+    </Text>
+    <Text Include="TestVectors\sha2.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_224_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_256_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_384_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_512_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha2_fips_180.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_224_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_256_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_384_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_512_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\sha3_fips_202.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\shacal2.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\siphash.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\simeck.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
+    <Text Include="TestVectors\simon.txt">
+      <Filter>TestVectors</Filter>
+    </Text>
     <Text Include="TestVectors\sm3.txt">
       <Filter>TestVectors</Filter>
     </Text>
-    <None Include="TestVectors\sm4.txt">
+    <Text Include="TestVectors\sm4.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\sosemanuk.txt">
+    </Text>
+    <Text Include="TestVectors\sosemanuk.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\speck.txt">
+    </Text>
+    <Text Include="TestVectors\speck.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\tea.txt">
+    </Text>
+    <Text Include="TestVectors\tea.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\threefish.txt">
+    </Text>
+    <Text Include="TestVectors\threefish.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\ttmac.txt">
+    </Text>
+    <Text Include="TestVectors\ttmac.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\vmac.txt">
+    </Text>
+    <Text Include="TestVectors\vmac.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\wake.txt">
+    </Text>
+    <Text Include="TestVectors\wake.txt">
       <Filter>TestVectors</Filter>
-    </None>
-    <None Include="TestVectors\whrlpool.txt">
+    </Text>
+    <Text Include="TestVectors\whrlpool.txt">
       <Filter>TestVectors</Filter>
-    </None>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Begin Test Data -->
     <None Include="TestData\3desval.dat">
       <Filter>TestData</Filter>
     </None>
@@ -195,6 +247,12 @@
       <Filter>TestData</Filter>
     </None>
     <None Include="TestData\cast256v.dat">
+      <Filter>TestData</Filter>
+    </None>
+    <None Include="TestData\defdmac1.bin">
+      <Filter>TestData</Filter>
+    </None>
+    <None Include="TestData\defdmac2.bin">
       <Filter>TestData</Filter>
     </None>
     <None Include="TestData\descert.dat">
@@ -326,6 +384,9 @@
     <None Include="TestData\rsa2048.dat">
       <Filter>TestData</Filter>
     </None>
+    <None Include="TestData\rsa2048a.dat">
+      <Filter>TestData</Filter>
+    </None>
     <None Include="TestData\rsa400pb.dat">
       <Filter>TestData</Filter>
     </None>
@@ -365,6 +426,9 @@
     <None Include="TestData\usage.dat">
       <Filter>TestData</Filter>
     </None>
+    <None Include="TestData\x25519.dat">
+      <Filter>TestData</Filter>
+    </None>
     <None Include="TestData\xtrdh171.dat">
       <Filter>TestData</Filter>
     </None>
@@ -374,6 +438,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="adhoc.cpp">
+      <Filter>Source Code</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="bench1.cpp">
@@ -401,9 +468,6 @@
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="regtest4.cpp">
-      <Filter>Source Code</Filter>
-    </ClCompile>
-    <ClCompile Include="test.cpp">
       <Filter>Source Code</Filter>
     </ClCompile>
     <ClCompile Include="validat0.cpp">

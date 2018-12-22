@@ -37,7 +37,7 @@ extern const byte defaultKey[];
 extern time_t g_testBegin;
 extern time_t g_testEnd;
 
-// Command handler
+// Benchmark command handler
 void BenchmarkWithCommand(int argc, const char* const argv[]);
 // Top level, prints preamble and postamble
 void Benchmark(Test::TestClass suites, double t, double hertz);

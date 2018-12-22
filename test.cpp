@@ -314,7 +314,9 @@ int scoped_main(int argc, char *argv[])
 			// TestDataFile() adds CRYPTOPP_DATA_DIR as required
 			std::string fname = (argv[2] ? argv[2] : "all");
 			if (fname.find(".txt") == std::string::npos)
-				fname = "TestVectors/" + fname + ".txt";
+				fname += ".txt";
+			if (fname.find("TestVectors") == std::string::npos)
+				fname = "TestVectors/" + fname;
 
 			PrintSeedAndThreads();
 			return !RunTestDataFile(fname.c_str());
@@ -328,7 +330,7 @@ int scoped_main(int argc, char *argv[])
 			std::cin.getline(passPhrase, MAX_PHRASE_LENGTH);
 
 			std::cout << "\nPlaintext: ";
-			std::cin.getline(plaintext, 1024);
+			std::cin.getline(plaintext, sizeof(plaintext));
 
 			std::string ciphertext = EncryptString(plaintext, passPhrase);
 			std::cout << "\nCiphertext: " << ciphertext << std::endl;
@@ -361,7 +363,7 @@ int scoped_main(int argc, char *argv[])
 			char thisSeed[1024];
 			std::cout << "\nRandom Seed: ";
 			std::ws(std::cin);
-			std::cin.getline(thisSeed, 1024);
+			std::cin.getline(thisSeed, sizeof(thisSeed));
 			SecretShareFile(StringToValue<int, true>(argv[2]), StringToValue<int, true>(argv[3]), argv[4], thisSeed);
 		}
 		else if (command == "sr")
@@ -398,7 +400,7 @@ int scoped_main(int argc, char *argv[])
 			AES_CTR_Encrypt(argv[2], argv[3], argv[4], argv[5]);
 		else if (command == "h")
 		{
-			FileSource usage(CRYPTOPP_DATA_DIR "TestData/usage.dat", true, new FileSink(std::cout));
+			FileSource usage(DataDir("TestData/usage.dat").c_str(), true, new FileSink(std::cout));
 			return 1;
 		}
 		else if (command == "V")
@@ -827,9 +829,10 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 12: result = ValidateThreeWay(); break;
 	case 13: result = ValidateBBS(); break;
 	case 14: result = ValidateDH(); break;
-	case 15: result = ValidateRSA(); break;
-	case 16: result = ValidateElGamal(); break;
-	case 17: result = ValidateDSA(thorough); break;
+	case 15: result = ValidateX25519(); break;
+	case 16: result = ValidateRSA(); break;
+	case 17: result = ValidateElGamal(); break;
+	case 18: result = ValidateDSA(thorough); break;
 //	case 18: result = ValidateHAVAL(); break;
 	case 19: result = ValidateSAFER(); break;
 	case 20: result = ValidateLUC(); break;

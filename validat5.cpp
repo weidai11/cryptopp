@@ -214,13 +214,19 @@ bool ValidateMD5()
 bool ValidateSHA()
 {
 	std::cout << "\nSHA validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
+	return RunTestDataFile("TestVectors/sha.txt");
 }
 
 bool ValidateSHA2()
 {
-	std::cout << "\nSHA validation suite running...\n";
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha.txt");
+	std::cout << "\nSHA-2 validation suite running...\n";
+	return RunTestDataFile("TestVectors/sha2.txt");
+}
+
+bool ValidateSHA3()
+{
+	std::cout << "\nSHA-3 validation suite running...\n";
+	return RunTestDataFile("TestVectors/sha3.txt");
 }
 
 bool ValidateTiger()
@@ -367,12 +373,12 @@ bool ValidateHAVAL()
 
 bool ValidatePanama()
 {
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/panama.txt");
+	return RunTestDataFile("TestVectors/panama.txt");
 }
 
 bool ValidateWhirlpool()
 {
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/whrlpool.txt");
+	return RunTestDataFile("TestVectors/whrlpool.txt");
 }
 
 #ifdef CRYPTOPP_REMOVED
@@ -441,7 +447,7 @@ bool ValidateMD5MAC()
 
 bool ValidateHMAC()
 {
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/hmac.txt");
+	return RunTestDataFile("TestVectors/hmac.txt");
 }
 
 #ifdef CRYPTOPP_REMOVED
@@ -2016,7 +2022,7 @@ bool ValidateBLAKE2b()
 
 bool ValidateSM3()
 {
-	return RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sm3.txt");
+	return RunTestDataFile("TestVectors/sm3.txt");
 }
 
 NAMESPACE_END  // Test

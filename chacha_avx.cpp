@@ -49,6 +49,12 @@ extern const char CHACHA_AVX_FNAME[] = __FILE__;
 # endif
 #endif
 
+// The data is aligned, but Clang issues warning based on type
+// and not the actual alignment of the variable and data.
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wcast-align"
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 #if (CRYPTOPP_AVX2_AVAILABLE)

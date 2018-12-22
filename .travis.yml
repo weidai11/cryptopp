@@ -7,11 +7,10 @@ os:
 dist: xenial
 sudo: required
 
-# OS X only supports one image. Use the latest.
-osx_image: xcode9.4
+osx_image: xcode10.1
 
 git:
-  depth: 3
+  depth: 5
 
 compiler:
   - clang
@@ -20,10 +19,11 @@ compiler:
 env:
   global:
     - BUILD_JOBS=2
-    - ANDROID_HOME=$HOME/android/sdk
-    - ANDROID_NDK=$HOME/android/sdk/ndk-bundle
-    - ANDROID_SDK_ROOT=$ANDROID_HOME
-    - ANDROID_NDK_ROOT=$ANDROID_NDK
+    - ANDROID_HOME="$HOME/.android"
+    - ANDROID_SDK="$HOME/android/sdk/"
+    - ANDROID_NDK="$HOME/android/sdk/ndk-bundle"
+    - ANDROID_SDK_ROOT="$ANDROID_SDK"
+    - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
   matrix:
     - BUILD_MODE="all"
@@ -39,14 +39,6 @@ matrix:
     # Skip GCC on OS X entirely
     - os: osx
       compiler: gcc
-    # Skip UBsan due to GCC 4.8
-    - os: linux
-      compiler: gcc
-      env: BUILD_MODE="ubsan"
-    # Skip UBsan due to Clang 3.4
-    - os: osx
-      compiler: clang
-      env: BUILD_MODE="ubsan"
 
   include:
     - os: linux
@@ -124,7 +116,12 @@ matrix:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
-        - PLATFORM=iPhoneSimulator
+        - PLATFORM=WatchSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVSimulator
 
   allow_failures:
     - os: osx
@@ -132,6 +129,21 @@ matrix:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=WatchOS
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=WatchSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVSimulator
     - os: linux
       env:
         - BUILD_OS=linux
@@ -179,6 +191,7 @@ before_install:
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
         sudo apt-get update
+        source TestScripts/setenv-travis.sh
         bash TestScripts/install-android.sh
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then

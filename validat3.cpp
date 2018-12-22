@@ -87,6 +87,7 @@ bool ValidateAll(bool thorough)
 	pass=TestCompressors() && pass;
 	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
+	pass=TestCurve25519() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;
@@ -99,8 +100,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
 
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/keccak.txt") && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sha3.txt") && pass;
+	pass=RunTestDataFile("TestVectors/keccak.txt") && pass;
+	pass=RunTestDataFile("TestVectors/sha3.txt") && pass;
 
 	pass=ValidateHashDRBG() && pass;
 	pass=ValidateHmacDRBG() && pass;
@@ -158,18 +159,19 @@ bool ValidateAll(bool thorough)
 	pass=ValidateRabbit() && pass;
 	pass=ValidateHC128() && pass;
 	pass=ValidateHC256() && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/seed.txt") && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/threefish.txt") && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/kalyna.txt") && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/sm4.txt") && pass;
+	pass=RunTestDataFile("TestVectors/seed.txt") && pass;
+	pass=RunTestDataFile("TestVectors/threefish.txt") && pass;
+	pass=RunTestDataFile("TestVectors/kalyna.txt") && pass;
+	pass=RunTestDataFile("TestVectors/sm4.txt") && pass;
 	pass=ValidateVMAC() && pass;
 	pass=ValidateCCM() && pass;
 	pass=ValidateGCM() && pass;
 	pass=ValidateCMAC() && pass;
-	pass=RunTestDataFile(CRYPTOPP_DATA_DIR "TestVectors/eax.txt") && pass;
+	pass=RunTestDataFile("TestVectors/eax.txt") && pass;
 
 	pass=ValidateBBS() && pass;
 	pass=ValidateDH() && pass;
+	pass=ValidateX25519() && pass;
 	pass=ValidateMQV() && pass;
 	pass=ValidateHMQV() && pass;
 	pass=ValidateFHMQV() && pass;
@@ -356,7 +358,7 @@ bool TestSettings()
 	std::cout << ", hasSHA == " << hasSHA << ", isP4 == " << isP4;
 	std::cout << "\n";
 
-#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8)
 
 # if defined(__arm__)
 	bool hasARMv7 = HasARMv7();

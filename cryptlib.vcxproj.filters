@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Header Files">
@@ -119,6 +119,9 @@
     <ClCompile Include="cryptlib.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="darn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="default.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -135,6 +138,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dll.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="donna_32.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="donna_64.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="donna_sse.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="dsa.cpp">
@@ -482,6 +494,9 @@
     <ClCompile Include="whrlpool.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xed25519.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="xtr.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -596,6 +611,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\cryptopp\crc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\darn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\cryptopp\cryptlib.h">
@@ -946,7 +964,6 @@
     <ClInclude Include="include\cryptopp\vmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\cryptopp\darn.h" />
     <ClInclude Include="trunhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -981,6 +998,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\cryptopp\smartptr.h" />
+    <ClInclude Include="include\cryptopp\xed25519.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cryptopp\donna.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="rdrand.asm">
@@ -990,6 +1013,5 @@
       <Filter>Miscellaneous</Filter>
     </CustomBuild>
     <CustomBuild Include="x64masm.asm" />
-    <CustomBuild Include="x64dll.asm" />
   </ItemGroup>
 </Project>

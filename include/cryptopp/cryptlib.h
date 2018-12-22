@@ -17,7 +17,7 @@
 	\ref SHACAL2 "SHACAL-2", SHARK, \ref SIMECK64 "SIMECK (32/64)" SKIPJACK, SM4, Square, TEA,
 	\ref ThreeWay "3-Way", \ref Threefish256 "Threefish (256/512/1024)", Twofish, XTEA
 <dt>Stream Ciphers<dd>
-	ChaCha (ChaCha-8/12/20), \ref HC128 "HC-128/256", \ref Panama "Panama-LE", \ref Panama "Panama-BE",
+	\ref ChaCha "ChaCha (8/12/20)", \ref HC128 "HC-128/256", \ref Panama "Panama-LE", \ref Panama "Panama-BE",
 	Rabbit, Salsa20, \ref SEAL "SEAL-LE", \ref SEAL "SEAL-BE", WAKE, XSalsa20
 <dt>Hash Functions<dd>
 	BLAKE2s, BLAKE2b, \ref Keccak "Keccak (F1600)", SHA1, SHA224, SHA256, SHA384, SHA512,
@@ -28,8 +28,9 @@
 <dt>Message Authentication Codes<dd>
 	BLAKE2b, BLAKE2s, CBC_MAC, CMAC, DMAC, \ref GCM "GCM (GMAC)", HMAC, Poly1305, TTMAC, VMAC
 <dt>Random Number Generators<dd>
-	NullRNG(), LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
-	NIST Hash_DRBG and HMAC_DRBG, \ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)", RDRAND, RDSEED
+	NullRNG, LC_RNG, RandomPool, BlockingRng, NonblockingRng, AutoSeededRandomPool, AutoSeededX917RNG,
+	NIST Hash_DRBG and HMAC_DRBG, \ref MersenneTwister "MersenneTwister (MT19937 and MT19937-AR)",
+	DARN, RDRAND, RDSEED
 <dt>Key Derivation and Password-based Cryptography<dd>
 	HKDF, \ref PKCS12_PBKDF "PBKDF (PKCS #12)", \ref PKCS5_PBKDF1 "PBKDF-1 (PKCS #5)",
 	\ref PKCS5_PBKDF2_HMAC "PBKDF-2/HMAC (PKCS #5)"
@@ -38,7 +39,8 @@
 <dt>Public Key Signature Schemes<dd>
 	DSA2, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO, RabinSS, RWSS, ESIGN
 <dt>Key Agreement<dd>
-	DH, DH2, \ref MQV_Domain "MQV", \ref HMQV_Domain "HMQV", \ref FHMQV_Domain "FHMQV", ECDH, ECMQV, ECHMQV,
+	DH, DH2, \ref MQV_Domain "MQV", \ref HMQV_Domain "HMQV", \ref FHMQV_Domain "FHMQV",
+    ECDH, x25519, ECMQV, ECHMQV,
 	ECFHMQV, XTR_DH
 <dt>Algebraic Structures<dd>
 	Integer, PolynomialMod2, PolynomialOver, RingOfPolynomialsOver,

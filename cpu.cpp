@@ -57,7 +57,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 #endif
 
 // Visual Studio 2008 and below is missing _xgetbv. See x64dll.asm for the body.
-#if defined(_MSC_VER) && defined(_M_X64)
+#if defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
 extern "C" unsigned long long __fastcall ExtendedControlRegister(unsigned int);
 #endif
 
@@ -280,6 +280,14 @@ static inline bool IsAMD(const word32 output[4])
 		(output[3] /*EDX*/ == 0x69746E65);
 }
 
+static inline bool IsHygon(const word32 output[4])
+{
+	// This is the "HygonGenuine" string.
+	return (output[1] /*EBX*/ == 0x6f677948) &&
+		(output[2] /*ECX*/ == 0x656e6975) &&
+		(output[3] /*EDX*/ == 0x6e65476e);
+}
+
 static inline bool IsVIA(const word32 output[4])
 {
 	// This is the "CentaurHauls" string. Some non-PadLock's can return "VIA VIA VIA "
@@ -329,7 +337,7 @@ void DetectX86Features()
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
 // Visual Studio 2008 and below lack xgetbv
-#elif defined(_MSC_VER) && defined(_M_IX86)
+#elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_IX86)
 		word32 a=0, d=0;
 		__asm {
 			push eax
@@ -349,7 +357,7 @@ void DetectX86Features()
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
 // Visual Studio 2008 and below lack xgetbv
-#elif defined(_MSC_VER) && defined(_M_X64)
+#elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
 		word64 xcr0 = ExtendedControlRegister(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 #elif defined(__SUNPRO_CC)  // fall into
@@ -383,7 +391,7 @@ void DetectX86Features()
 			}
 		}
 	}
-	else if (IsAMD(cpuid0))
+	else if (IsAMD(cpuid0) || IsHygon(cpuid0))
 	{
 		CRYPTOPP_CONSTANT(RDRAND_FLAG = (1 << 30))
 		CRYPTOPP_CONSTANT(RDSEED_FLAG = (1 << 18))
@@ -435,7 +443,7 @@ void DetectX86Features()
 
 // *************************** ARM-32, Aarch32 and Aarch64 ***************************
 
-#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64)
+#elif (CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8)
 
 bool CRYPTOPP_SECTION_INIT g_ArmDetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasARMv7 = false;
@@ -1050,7 +1058,7 @@ public:
 	{
 #if CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 		CryptoPP::DetectX86Features();
-#elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARM64
+#elif CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8
 		CryptoPP::DetectArmFeatures();
 #elif CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
 		CryptoPP::DetectPowerpcFeatures();

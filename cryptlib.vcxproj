@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!-- Microsoft documentation for VCXPROJ file format is located at -->
   <!-- the following URL. The documentation leaves a lot to be desired. -->
@@ -213,6 +213,9 @@
     <ClCompile Include="dll.cpp">
       <PrecompiledHeader />
     </ClCompile>
+    <ClCompile Include="donna_32.cpp" />
+    <ClCompile Include="donna_64.cpp" />
+    <ClCompile Include="donna_sse.cpp" />
     <ClCompile Include="dsa.cpp" />
     <ClCompile Include="eax.cpp" />
     <ClCompile Include="ec2n.cpp" />
@@ -335,6 +338,7 @@
     <ClCompile Include="vmac.cpp" />
     <ClCompile Include="wake.cpp" />
     <ClCompile Include="whrlpool.cpp" />
+    <ClCompile Include="xed25519.cpp" />
     <ClCompile Include="xtr.cpp" />
     <ClCompile Include="xtrcrypt.cpp" />
     <ClCompile Include="zdeflate.cpp" />
@@ -414,6 +418,7 @@
     <ClInclude Include="include\cryptopp\dh.h" />
     <ClInclude Include="include\cryptopp\dh2.h" />
     <ClInclude Include="include\cryptopp\dmac.h" />
+    <ClInclude Include="include\cryptopp\donna.h" />
     <ClInclude Include="include\cryptopp\drbg.h" />
     <ClInclude Include="include\cryptopp\dsa.h" />
     <ClInclude Include="include\cryptopp\eax.h" />
@@ -524,6 +529,7 @@
     <ClInclude Include="include\cryptopp\vmac.h" />
     <ClInclude Include="include\cryptopp\wake.h" />
     <ClInclude Include="include\cryptopp\whrlpool.h" />
+    <ClInclude Include="include\cryptopp\xed25519.h" />
     <ClInclude Include="include\cryptopp\xtr.h" />
     <ClInclude Include="include\cryptopp\xtrcrypt.h" />
     <ClInclude Include="nr.h" />

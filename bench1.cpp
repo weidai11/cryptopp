@@ -122,13 +122,13 @@ void OutputResultOperations(const char *name, const char *provider, const char *
 
 	oss << "\n<TR><TD>" << name << " " << operation << (pc ? " with precomputation" : "");
 	//oss << "<TD>" << provider;
-	oss << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
+	oss << "<TD>" << std::setprecision(3) << std::setiosflags(std::ios::fixed) << (1000*timeTaken/iterations);
 
 	// Coverity finding
 	if (g_hertz > 1.0f)
 	{
 		const double t = timeTaken * g_hertz / iterations / 1000000;
-		oss << "<TD>" << std::setprecision(2) << std::setiosflags(std::ios::fixed) << t;
+		oss << "<TD>" << std::setprecision(3) << std::setiosflags(std::ios::fixed) << t;
 	}
 
 	g_logTotal += log(iterations/timeTaken);
