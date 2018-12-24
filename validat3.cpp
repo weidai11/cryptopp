@@ -41,10 +41,6 @@ NAMESPACE_BEGIN(Test)
 bool ValidateAll(bool thorough)
 {
 	bool pass=TestSettings();
-	pass = ValidateX25519() && pass;
-	pass = ValidateEd25519() && pass;
-	pass = TestX25519() && pass;
-	pass = TestEd25519() && pass;
 	pass=TestOS_RNG() && pass;
 	pass=TestRandomPool() && pass;
 #if !defined(NO_OS_DEPENDENCE) && defined(OS_RNG_AVAILABLE)

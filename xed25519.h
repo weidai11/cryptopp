@@ -169,11 +169,15 @@ public:
     ///   the best interop, and keys will work with OpenSSL. The the other
     ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
     ///   which is the new format.
-    void Save(BufferedTransformation &bt, bool v0) const { DEREncode(bt, v0 ? 0 : 1); }
+    void Save(BufferedTransformation &bt, bool v0) const {
+        DEREncode(bt, v0 ? 0 : 1);
+    }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    void Load(BufferedTransformation &bt) { BERDecode(bt); }
+    void Load(BufferedTransformation &bt) {
+        BERDecode(bt);
+    }
 
     // PKCS8PrivateKey
     void BERDecode(BufferedTransformation &bt);
@@ -292,11 +296,15 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   the best interop, and keys will work with OpenSSL. The the other
     ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
     ///   which is the new format.
-    void Save(BufferedTransformation &bt, bool v0) const { DEREncode(bt, v0 ? 0 : 1); }
+    void Save(BufferedTransformation &bt, bool v0) const {
+        DEREncode(bt, v0 ? 0 : 1);
+    }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    void Load(BufferedTransformation &bt) { BERDecode(bt); }
+    void Load(BufferedTransformation &bt) {
+        BERDecode(bt);
+    }
 
     /// \brief Initializes a public key from this key
     /// \param pub reference to a public key
@@ -441,11 +449,15 @@ struct ed25519PublicKey : public X509PublicKey
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
-    void Save(BufferedTransformation &bt) const { BEREncode(bt); }
+    void Save(BufferedTransformation &bt) const {
+        BEREncode(bt);
+    }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    void Load(BufferedTransformation &bt) { BERDecode(bt); }
+    void Load(BufferedTransformation &bt) {
+        BERDecode(bt);
+    }
 
     // X509PublicKey
     void BERDecode(BufferedTransformation &bt);
