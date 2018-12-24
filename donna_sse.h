@@ -10,6 +10,7 @@
 
 #ifndef CRYPTOPP_DONNA_SSE_H
 #define CRYPTOPP_DONNA_SSE_H
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
 
 #include "config.h"
 #include <emmintrin.h>
@@ -81,4 +82,5 @@ NAMESPACE_END  // ArchSSE
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
 
+#endif  // CRYPTOPP_DOXYGEN_PROCESSING
 #endif  // CRYPTOPP_DONNA_SSE_H

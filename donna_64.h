@@ -10,6 +10,7 @@
 
 #ifndef CRYPTOPP_DONNA_64_H
 #define CRYPTOPP_DONNA_64_H
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
 
 #include "config.h"
 
@@ -452,4 +453,5 @@ NAMESPACE_END  // Arch64
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
 
+#endif  // CRYPTOPP_DOXYGEN_PROCESSING
 #endif  // CRYPTOPP_DONNA_64_H

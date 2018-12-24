@@ -97,6 +97,8 @@ ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKe
 
 //****************************** Internal ******************************//
 
+#ifndef CRYPTOPP_DOXYGEN_PROCESSING
+
 // CRYPTOPP_WORD128_AVAILABLE mostly depends upon GCC support for
 // __SIZEOF_INT128__. If __SIZEOF_INT128__ is not available then Moon
 // provides routines for MSC and GCC. It should cover most platforms,
@@ -135,6 +137,8 @@ ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKe
 #if (CRYPTOPP_CURVE25519_SSE2)
   extern int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32]);
 #endif
+
+#endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
 NAMESPACE_END  // Donna
 NAMESPACE_END  // CryptoPP
