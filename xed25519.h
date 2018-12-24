@@ -497,14 +497,12 @@ struct ed25519Verifier : public PK_Verifier
 
     /// \brief Create a ed25519Verifier object
     /// \param y public key
-    /// \param x private key
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
     /// \note The public key is not validated.
     ed25519Verifier(const byte y[PUBLIC_KEYLENGTH]);
 
     /// \brief Create a ed25519Verifier object
     /// \param y public key
-    /// \param x private key
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
     /// \note The public key is not validated.
     ed25519Verifier(const Integer &y);
@@ -517,7 +515,7 @@ struct ed25519Verifier : public PK_Verifier
     ed25519Verifier(BufferedTransformation &params);
 
     /// \brief Create a ed25519Verifier object
-    /// \param params public and private key
+    /// \param signer ed25519 signer object
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
     ///   The <tt>params</tt> can be created with <tt>DEREncode</tt>.
     /// \note The public key is not validated.
