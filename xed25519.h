@@ -44,7 +44,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-class OID;
 class Integer;
 struct ed25519Signer;
 struct ed25519Verifier;
