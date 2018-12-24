@@ -102,9 +102,6 @@ x25519::x25519(RandomNumberGenerator &rng)
 x25519::x25519(BufferedTransformation &params)
 {
     Load(params);
-
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
-    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 void x25519::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
@@ -136,120 +133,116 @@ bool x25519::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
     return (bool)((k >> 8) & 1);
 }
 
-void x25519::Save(BufferedTransformation &bt) const
+void x25519::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
 {
-    if (m_oid == ASN1::curve25519())
-        DEREncode(bt);
+    // We have not yet determined the OID to use for this object.
+    // We can't use OID's decoder because it throws BERDecodeError
+    // if the OIDs do not match.
+    OID oid(bt);
+
+    if (!m_oid.Empty() && m_oid != oid)
+        BERDecodeError();  // Only accept user specified OID
+    else if (oid == ASN1::curve25519() || oid == ASN1::X25519())
+        m_oid = oid;  // Accept any of the x25519 OIDs
     else
-    {
-        CRYPTOPP_ASSERT(0);
-        throw NotImplemented("x25519: Save");
-    }
+        BERDecodeError();
 }
 
-void x25519::Load(BufferedTransformation &bt)
+void x25519::BERDecode(BufferedTransformation &bt)
 {
-    OID oid = PeekOID(bt);
-    if (oid == ASN1::curve25519())
-    {
-        m_oid = ASN1::curve25519();
-        BERDecode(bt);
-    }
-    else
-    {
-        CRYPTOPP_ASSERT(0);
-        throw NotImplemented("x25519: Load");
-    }
-}
-
-OID x25519::PeekOID(BufferedTransformation &bt) const
-{
-    // Don't consume the stream
-    ByteQueue queue;
-    bt.CopyTo(queue);
-    OID oid;
-
-    try    {
-        BERSequenceDecoder privateKeyInfo(queue);
-            word32 version;
-            BERDecodeUnsigned<word32>(privateKeyInfo, version, INTEGER);
-
-            BERSequenceDecoder algorithm(privateKeyInfo);
-              oid = OID(algorithm);
-              if (!algorithm.EndReached())  // Drain remaining
-                algorithm.TransferTo(TheBitBucket());
-            algorithm.MessageEnd();
-
-          if (!privateKeyInfo.EndReached())  // Drain remaining
-            privateKeyInfo.TransferTo(TheBitBucket());
-        privateKeyInfo.MessageEnd();
-    }
-    catch(const Exception&) {
-        oid = OID();
-    }
-
-    return oid;
-}
-
-void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
-{
-    // This code is based on BERDecodePrivateKey from eccrypto.cpp. However,
-    // we don't decode or encode the group parameters. We just handle the
-    // private key and optionally the public key.
-    BERSequenceDecoder seq(bt);
+    // https://tools.ietf.org/html/rfc8410, section 7 and
+    // https://www.cryptopp.com/wiki/X25519_and_ed25519_keys
+    BERSequenceDecoder privateKeyInfo(bt);
         word32 version;
-        BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);    // check version
+        BERDecodeUnsigned<word32>(privateKeyInfo, version, INTEGER, 0, 1);    // check version
 
-        BERGeneralDecoder dec(seq, OCTET_STRING);
-        if (!dec.IsDefiniteLength())
-            BERDecodeError();
+        BERSequenceDecoder algorithm(privateKeyInfo);
+            // GetAlgorithmID().BERDecodeAndCheck(algorithm);
+            BERDecodeAndCheckAlgorithmID(algorithm);
+        algorithm.MessageEnd();
+
+        BERGeneralDecoder octetString(privateKeyInfo, OCTET_STRING);
+            BERDecodePrivateKey(octetString, false, (size_t)privateKeyInfo.RemainingLength());
+        octetString.MessageEnd();
 
         bool generatePublicKey = true;
-        dec.Get(m_sk, SECRET_KEYLENGTH);
-        dec.MessageEnd();
-
-        if (parametersPresent && !seq.EndReached())
+        if (version == 1)
         {
-            BERGeneralDecoder parameters(seq);
-                parameters.TransferTo(TheBitBucket(), size);
-            parameters.MessageEnd();
-        }
-
-        if (!seq.EndReached())
-        {
+            BERGeneralDecoder publicKey(privateKeyInfo, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
             SecByteBlock subjectPublicKey;
             unsigned int unusedBits;
-            BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
             BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
                 CRYPTOPP_ASSERT(unusedBits == 0);
                 CRYPTOPP_ASSERT(subjectPublicKey.size() == PUBLIC_KEYLENGTH);
-                std::memcpy(m_pk, subjectPublicKey, PUBLIC_KEYLENGTH);
+                if (subjectPublicKey.size() != PUBLIC_KEYLENGTH)
+                    BERDecodeError();
+                std::memcpy(m_pk.begin(), subjectPublicKey, PUBLIC_KEYLENGTH);
                 generatePublicKey = false;
             publicKey.MessageEnd();
         }
 
-    seq.MessageEnd();
+    privateKeyInfo.MessageEnd();
 
     if (generatePublicKey)
         Donna::curve25519_mult(m_pk, m_sk);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+}
+
+void x25519::DEREncode(BufferedTransformation &bt, int version) const
+{
+    // https://tools.ietf.org/html/rfc8410, section 7 and
+    // https://www.cryptopp.com/wiki/X25519_and_ed25519_keys
+    CRYPTOPP_ASSERT(version == 0 || version == 1);
+
+    DERSequenceEncoder privateKeyInfo(bt);
+        DEREncodeUnsigned<word32>(privateKeyInfo, version);
+
+        DERSequenceEncoder algorithm(privateKeyInfo);
+            GetAlgorithmID().DEREncode(algorithm);
+        algorithm.MessageEnd();
+
+        DERGeneralEncoder octetString(privateKeyInfo, OCTET_STRING);
+            DEREncodePrivateKey(octetString);
+        octetString.MessageEnd();
+
+        if (version == 1)
+        {
+            DERGeneralEncoder publicKey(privateKeyInfo, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+                DEREncodeBitString(publicKey, m_pk, PUBLIC_KEYLENGTH);
+            publicKey.MessageEnd();
+        }
+
+    privateKeyInfo.MessageEnd();
+}
+
+void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+{
+    // https://tools.ietf.org/html/rfc8410 and
+    // https://www.cryptopp.com/wiki/X25519_and_ed25519_keys
+
+    BERGeneralDecoder privateKey(bt, OCTET_STRING);
+
+        if (!privateKey.IsDefiniteLength())
+            BERDecodeError();
+
+        size = privateKey.Get(m_sk, SECRET_KEYLENGTH);
+        if (size != SECRET_KEYLENGTH)
+            BERDecodeError();
+
+        // We don't know how to decode them
+        if (parametersPresent)
+            BERDecodeError();
+
+    privateKey.MessageEnd();
 }
 
 void x25519::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
-    DERSequenceEncoder privateKey(bt);
-        DEREncodeUnsigned<word32>(privateKey, 1);    // version
-        DERGeneralEncoder enc(privateKey, OCTET_STRING);
-            enc.Put(m_sk, SECRET_KEYLENGTH);
-        enc.MessageEnd();
-
-#if 0
-        // Test code to write public key in context of private key. The code
-        // is used to test BERDecodePrivateKey borrowed from eccrypto.cpp
-        DERGeneralEncoder publicKeyInfo(privateKey, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
-            DEREncodeBitString(publicKeyInfo, m_pk, PUBLIC_KEYLENGTH);
-        publicKeyInfo.MessageEnd();
-#endif
-
+    // https://tools.ietf.org/html/rfc8410
+    DERGeneralEncoder privateKey(bt, OCTET_STRING);
+        privateKey.Put(m_sk, SECRET_KEYLENGTH);
     privateKey.MessageEnd();
 }
 
@@ -438,19 +431,64 @@ void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameVal
 
 void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
-    CRYPTOPP_ASSERT(bt.MaxRetrievable() >= (lword)SECRET_KEYLENGTH);
-    bt.Get(m_sk, STDMIN(size, (size_t)SECRET_KEYLENGTH));
-    ClampKeys(m_pk, m_sk);
+    // This code is based on BERDecodePrivateKey from eccrypto.cpp. However,
+    // we don't decode or encode the group parameters. We just handle the
+    // private key and optionally the public key.
+    BERSequenceDecoder seq(bt);
+        word32 version;
+        BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);    // check version
 
-    if (parametersPresent)
-    {
-        CRYPTOPP_ASSERT(0);
-    }
+        BERGeneralDecoder dec(seq, OCTET_STRING);
+        if (!dec.IsDefiniteLength())
+            BERDecodeError();
+
+        bool generatePublicKey = true;
+        dec.Get(m_sk, SECRET_KEYLENGTH);
+        dec.MessageEnd();
+
+        if (parametersPresent && !seq.EndReached())
+        {
+            BERGeneralDecoder parameters(seq);
+                parameters.TransferTo(TheBitBucket(), size);
+            parameters.MessageEnd();
+        }
+
+        if (!seq.EndReached())
+        {
+            SecByteBlock subjectPublicKey;
+            unsigned int unusedBits;
+            BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+            BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
+                CRYPTOPP_ASSERT(unusedBits == 0);
+                CRYPTOPP_ASSERT(subjectPublicKey.size() == PUBLIC_KEYLENGTH);
+                std::memcpy(m_pk, subjectPublicKey, PUBLIC_KEYLENGTH);
+                generatePublicKey = false;
+            publicKey.MessageEnd();
+        }
+
+    seq.MessageEnd();
+
+    if (generatePublicKey)
+        Donna::ed25519_publickey(m_pk, m_sk);
 }
 
 void ed25519PrivateKey::DEREncodePrivateKey(BufferedTransformation &bt) const
 {
-    bt.Put(m_sk, SECRET_KEYLENGTH);
+    DERSequenceEncoder privateKey(bt);
+        DEREncodeUnsigned<word32>(privateKey, 1);    // version
+        DERGeneralEncoder enc(privateKey, OCTET_STRING);
+            enc.Put(m_sk, SECRET_KEYLENGTH);
+        enc.MessageEnd();
+
+#if 0
+        // Test code to write public key in context of private key. The code
+        // is used to test BERDecodePrivateKey borrowed from eccrypto.cpp
+        DERGeneralEncoder publicKeyInfo(privateKey, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+            DEREncodeBitString(publicKeyInfo, m_pk, PUBLIC_KEYLENGTH);
+        publicKeyInfo.MessageEnd();
+#endif
+
+    privateKey.MessageEnd();
 }
 
 void ed25519Signer::MakePublicKey (PublicKey &pub) const

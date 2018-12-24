@@ -61,9 +61,28 @@ bool ValidateX25519()
 
 #if 0
 	x25519 xxx(GlobalRNG());
-	HexEncoder hex(new FileSink("TestData/x25519.dat2"));
-	xxx.DEREncode(hex);
+	HexEncoder hex(new FileSink("TestData/x25519v0.dat"));
+	xxx.Save(hex, true);
 	hex.MessageEnd();
+#endif
+
+#if 0
+	x25519 xxx(GlobalRNG());
+	HexEncoder hex(new FileSink("TestData/x25519v1.dat"));
+	xxx.Save(hex, false);
+	hex.MessageEnd();
+#endif
+
+#if 0
+	FileSource f(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
+	x25519 dh(f);
+	return SimpleKeyAgreementValidate(dh);
+#endif
+
+#if 0
+	FileSource f(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
+	x25519 dh(f);
+	return SimpleKeyAgreementValidate(dh);
 #endif
 
 	FileSource f(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
