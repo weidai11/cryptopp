@@ -124,7 +124,7 @@ public:
     /// \Brief Get the Object Identifier
     /// \returns the Object Identifier
     /// \details The default OID is from RFC 8410 using id-X25519.
-    ///  The private key format is RFC 5958.
+    ///   The default private key format is RFC 5208.
     OID GetAlgorithmID() const {
         return m_oid.Empty() ? ASN1::X25519() : m_oid;
     }
@@ -150,9 +150,9 @@ public:
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using id-X25519.
-    ///  The private key format is RFC 5208, which is the old format.
-    ///  The old format provides the best interop, and keys will work
-    ///  with OpenSSL.
+    ///   The default private key format is RFC 5208, which is the old format.
+    ///   The old format provides the best interop, and keys will work
+    ///   with OpenSSL.
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
     }
@@ -164,12 +164,12 @@ public:
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using id-X25519.
-    ///  The private key format is RFC 5958.
+    ///   The default private key format is RFC 5208.
     /// \details v0 means version 0 INTEGER is written. Version 0 means
-    ///  RFC 5208 format, which is the old format. The old format provides
-    ///  the best interop, and keys will work with OpenSSL. The the other
-    ///  option is using version 1 INTEGER. Version 1 means RFC 5958 format,
-    ///  which is the new format.
+    ///   RFC 5208 format, which is the old format. The old format provides
+    ///   the best interop, and keys will work with OpenSSL. The the other
+    ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
+    ///   which is the new format.
     void Save(BufferedTransformation &bt, bool v0) const {
         DEREncode(bt, v0 ? 0 : 1);
     }
@@ -268,27 +268,55 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
 
     // GroupParameters
     OID GetAlgorithmID() const {
-        return m_oid.Empty() ? ASN1::curve25519() : m_oid;
+        return m_oid.Empty() ? ASN1::Ed25519() : m_oid;
     }
 
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
+    /// \param v0 flag indicating v0
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
+    /// \details The default OID is from RFC 8410 using id-X25519.
+    ///   The default private key format is RFC 5208, which is the old format.
+    ///   The old format provides the best interop, and keys will work
+    ///   with OpenSSL.
     void Save(BufferedTransformation &bt) const {
-        PKCS8PrivateKey::DEREncode(bt);
+        DEREncode(bt, 0);
+    }
+
+    /// \brief DER encode ASN.1 object
+    /// \param bt BufferedTransformation object
+    /// \param v0 flag indicating v0
+    /// \details Save() will write the OID associated with algorithm or scheme.
+    ///   In the case of public and private keys, this function writes the
+    ///   subjectPubicKeyInfo parts.
+    /// \details The default OID is from RFC 8410 using id-Ed25519.
+    ///   The default private key format is RFC 5208.
+    /// \details v0 means version 0 INTEGER is written. Version 0 means
+    ///   RFC 5208 format, which is the old format. The old format provides
+    ///   the best interop, and keys will work with OpenSSL. The the other
+    ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
+    ///   which is the new format.
+    void Save(BufferedTransformation &bt, bool v0) const {
+        DEREncode(bt, v0 ? 0 : 1);
     }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
     void Load(BufferedTransformation &bt) {
-        PKCS8PrivateKey::BERDecode(bt);
+        BERDecode(bt);
     }
 
     // PKCS8PrivateKey
+    void BERDecode(BufferedTransformation &bt);
+    void DEREncode(BufferedTransformation &bt) const { DEREncode(bt, 0); }
+    void DEREncode(BufferedTransformation &bt, int version) const;
     void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
     void DEREncodePrivateKey(BufferedTransformation &bt) const;
+
+    // Hack because multiple OIDs are available
+    void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // PKCS8PrivateKey
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params);
@@ -402,7 +430,7 @@ struct ed25519PublicKey : public X509PublicKey
     typedef Integer Element;
 
     OID GetAlgorithmID() const {
-        return m_oid.Empty() ? ASN1::curve25519() : m_oid;
+        return m_oid.Empty() ? ASN1::Ed25519() : m_oid;
     }
 
     void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
