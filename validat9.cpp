@@ -684,42 +684,6 @@ bool ValidateEd25519()
 		"\xF6\xA7\xDE\x33\x29\xCA\x45\xAC\x69\x2A\x80\xB7\xDB\x7F\x07\x37"
 		"\x77\xC4\xBF\xC5\x45\x79\x3A\xAC\xB5\x16\xAE\x4E\xD9\x16\x95\x0E";
 
-#if 0
-	ed25519PrivateKey xxx;
-	xxx.GenerateRandom(GlobalRNG(), g_nullNameValuePairs);
-	HexEncoder hex(new FileSink("TestData/ed25519v1.dat"));
-	xxx.Save(hex, false);
-	hex.MessageEnd();
-#endif
-
-#if 0
-	ed25519PrivateKey xxx;
-	xxx.GenerateRandom(GlobalRNG(), g_nullNameValuePairs);
-	HexEncoder hex(new FileSink("TestData/ed25519v0.dat"));
-	xxx.Save(hex, true);
-	hex.MessageEnd();
-#endif
-
-#if 0
-	ed25519PrivateKey xxx;
-	xxx.GenerateRandom(GlobalRNG(), g_nullNameValuePairs);
-	HexEncoder hex(new FileSink("TestData/ed25519v1.dat"));
-	xxx.Save(hex, false);
-	hex.MessageEnd();
-#endif
-
-#if 0
-	ed25519::Signer xxx(GlobalRNG());
-	ed25519::Verifier yyy(xxx);
-
-	HexEncoder hex(new FileSink("TestData/ed25519_ver.dat"));
-	yyy.AccessKey().Save(hex);
-	hex.MessageEnd();
-
-	ed25519::Verifier zzz;
-	zzz.AccessKey().Load(FileSource("TestData/ed25519_ver.dat", true, new HexDecoder).Ref());
-#endif
-
 	FileSource keys(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
 	ed25519::Signer signer(keys);
 	ed25519::Verifier verifier(signer);
