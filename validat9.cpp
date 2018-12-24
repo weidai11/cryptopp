@@ -708,7 +708,7 @@ bool ValidateEd25519()
 	hex.MessageEnd();
 #endif
 
-	FileSource keys(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
+	FileSource keys(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
 	ed25519::Signer signer(keys);
 	ed25519::Verifier verifier(signer);
 

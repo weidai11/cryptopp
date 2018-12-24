@@ -560,12 +560,11 @@ void ed25519PrivateKey::SetPrivateExponent (const Integer &x)
 {
     CRYPTOPP_ASSERT(x.MinEncodedSize() <= SECRET_KEYLENGTH);
 
-    SecByteBlock by(PUBLIC_KEYLENGTH), bx(SECRET_KEYLENGTH);
+    SecByteBlock bx(SECRET_KEYLENGTH);
     x.Encode(bx, SECRET_KEYLENGTH); std::reverse(bx+0, bx+SECRET_KEYLENGTH);
 
     AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false))
-        (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false))
         ("Clamp", true));
 }
 
