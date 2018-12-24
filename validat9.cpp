@@ -708,6 +708,18 @@ bool ValidateEd25519()
 	hex.MessageEnd();
 #endif
 
+#if 0
+	ed25519::Signer xxx(GlobalRNG());
+	ed25519::Verifier yyy(xxx);
+
+	HexEncoder hex(new FileSink("TestData/ed25519_ver.dat"));
+	yyy.AccessKey().Save(hex);
+	hex.MessageEnd();
+
+	ed25519::Verifier zzz;
+	zzz.AccessKey().Load(FileSource("TestData/ed25519_ver.dat", true, new HexDecoder).Ref());
+#endif
+
 	FileSource keys(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
 	ed25519::Signer signer(keys);
 	ed25519::Verifier verifier(signer);

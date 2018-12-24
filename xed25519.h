@@ -145,7 +145,6 @@ public:
 
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \param v0 flag indicating v0
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
@@ -170,15 +169,11 @@ public:
     ///   the best interop, and keys will work with OpenSSL. The the other
     ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
     ///   which is the new format.
-    void Save(BufferedTransformation &bt, bool v0) const {
-        DEREncode(bt, v0 ? 0 : 1);
-    }
+    void Save(BufferedTransformation &bt, bool v0) const { DEREncode(bt, v0 ? 0 : 1); }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    void Load(BufferedTransformation &bt) {
-        BERDecode(bt);
-    }
+    void Load(BufferedTransformation &bt) { BERDecode(bt); }
 
     // PKCS8PrivateKey
     void BERDecode(BufferedTransformation &bt);
@@ -273,7 +268,6 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
 
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \param v0 flag indicating v0
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
@@ -298,15 +292,15 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   the best interop, and keys will work with OpenSSL. The the other
     ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
     ///   which is the new format.
-    void Save(BufferedTransformation &bt, bool v0) const {
-        DEREncode(bt, v0 ? 0 : 1);
-    }
+    void Save(BufferedTransformation &bt, bool v0) const { DEREncode(bt, v0 ? 0 : 1); }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    void Load(BufferedTransformation &bt) {
-        BERDecode(bt);
-    }
+    void Load(BufferedTransformation &bt) { BERDecode(bt); }
+
+    /// \brief Initializes a public key from this key
+    /// \param pub reference to a public key
+    void MakePublicKey(PublicKey &pub) const;
 
     // PKCS8PrivateKey
     void BERDecode(BufferedTransformation &bt);
@@ -353,6 +347,9 @@ struct ed25519Signer : public PK_Signer
     virtual ~ed25519Signer() {}
 
     /// \brief Create a ed25519Signer object
+    ed25519Signer() {}
+
+    /// \brief Create a ed25519Signer object
     /// \param y public key
     /// \param x private key
     /// \details This constructor creates a ed25519Signer object using existing parameters.
@@ -393,7 +390,9 @@ struct ed25519Signer : public PK_Signer
     // DL_ObjectImplBase
     PrivateKey& AccessKey() { return m_key; }
     PrivateKey& AccessPrivateKey() { return m_key; }
-    void MakePublicKey(PublicKey &pub) const;
+
+    const PrivateKey& GetKey() const { return m_key; }
+    const PrivateKey& GetPrivateKey() const { return m_key; }
 
     // DL_SignatureSchemeBase
     size_t SignatureLength() const { return SIGNATURE_LENGTH; }
@@ -433,16 +432,29 @@ struct ed25519PublicKey : public X509PublicKey
         return m_oid.Empty() ? ASN1::Ed25519() : m_oid;
     }
 
-    void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) {
-        CRYPTOPP_UNUSED(bt); CRYPTOPP_UNUSED(parametersPresent);
-        CRYPTOPP_UNUSED(size);
-        CRYPTOPP_ASSERT(0);
-    }
+    /// \brief DER encode ASN.1 object
+    /// \param bt BufferedTransformation object
+    /// \details Save() will write the OID associated with algorithm or scheme.
+    ///   In the case of public and private keys, this function writes the
+    ///   subjectPubicKeyInfo parts.
+    /// \details The default OID is from RFC 8410 using id-X25519.
+    ///   The default private key format is RFC 5208, which is the old format.
+    ///   The old format provides the best interop, and keys will work
+    ///   with OpenSSL.
+    void Save(BufferedTransformation &bt) const { BEREncode(bt); }
 
-    void DEREncodePublicKey(BufferedTransformation &bt) const {
-        CRYPTOPP_UNUSED(bt);
-        CRYPTOPP_ASSERT(0);
-    }
+    /// \brief BER decode ASN.1 object
+    /// \param bt BufferedTransformation object
+    void Load(BufferedTransformation &bt) { BERDecode(bt); }
+
+    // X509PublicKey
+    void BERDecode(BufferedTransformation &bt);
+    void DEREncode(BufferedTransformation &bt) const;
+    void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
+    void DEREncodePublicKey(BufferedTransformation &bt) const;
+
+    // Hack because multiple OIDs are available
+    void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
@@ -467,6 +479,9 @@ struct ed25519Verifier : public PK_Verifier
     typedef Integer Element;
 
     virtual ~ed25519Verifier() {}
+
+    /// \brief Create a ed25519Verifier object
+    ed25519Verifier() {}
 
     /// \brief Create a ed25519Verifier object
     /// \param y public key
@@ -499,6 +514,9 @@ struct ed25519Verifier : public PK_Verifier
     // DL_ObjectImplBase
     PublicKey& AccessKey() { return m_key; }
     PublicKey& AccessPublicKey() { return m_key; }
+
+    const PublicKey& GetKey() const { return m_key; }
+    const PublicKey& GetPublicKey() const { return m_key; }
 
     // DL_SignatureSchemeBase
     size_t SignatureLength() const { return SIGNATURE_LENGTH; }

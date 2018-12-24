@@ -217,7 +217,7 @@ void x25519::DEREncode(BufferedTransformation &bt, int version) const
     privateKeyInfo.MessageEnd();
 }
 
-void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
 {
     // https://tools.ietf.org/html/rfc8410 and
     // https://www.cryptopp.com/wiki/curve25519_keys
@@ -227,7 +227,7 @@ void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPres
         if (!privateKey.IsDefiniteLength())
             BERDecodeError();
 
-        size = privateKey.Get(m_sk, SECRET_KEYLENGTH);
+        size_t size = privateKey.Get(m_sk, SECRET_KEYLENGTH);
         if (size != SECRET_KEYLENGTH)
             BERDecodeError();
 
@@ -429,6 +429,13 @@ void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameVal
     CRYPTOPP_ASSERT(ret == 0);
 }
 
+void ed25519PrivateKey::MakePublicKey (PublicKey &pub) const
+{
+    pub.AssignFrom(MakeParameters
+        (Name::PublicElement(), ConstByteArrayParameter(m_pk.begin(), PUBLIC_KEYLENGTH))
+        (Name::GroupOID(), GetAlgorithmID()));
+}
+
 void ed25519PrivateKey::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
 {
     // We have not yet determined the OID to use for this object.
@@ -512,7 +519,7 @@ void ed25519PrivateKey::DEREncode(BufferedTransformation &bt, int version) const
     privateKeyInfo.MessageEnd();
 }
 
-void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
+void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
 {
     // https://tools.ietf.org/html/rfc8410 and
     // https://www.cryptopp.com/wiki/curve25519_keys
@@ -522,7 +529,7 @@ void ed25519PrivateKey::BERDecodePrivateKey(BufferedTransformation &bt, bool par
         if (!privateKey.IsDefiniteLength())
             BERDecodeError();
 
-        size = privateKey.Get(m_sk, SECRET_KEYLENGTH);
+        size_t size = privateKey.Get(m_sk, SECRET_KEYLENGTH);
         if (size != SECRET_KEYLENGTH)
             BERDecodeError();
 
@@ -539,14 +546,6 @@ void ed25519PrivateKey::DEREncodePrivateKey(BufferedTransformation &bt) const
     DERGeneralEncoder privateKey(bt, OCTET_STRING);
         privateKey.Put(m_sk, SECRET_KEYLENGTH);
     privateKey.MessageEnd();
-}
-
-void ed25519Signer::MakePublicKey (PublicKey &pub) const
-{
-    const ed25519PrivateKey& key = static_cast<const ed25519PrivateKey&>(GetPrivateKey());
-    pub.AssignFrom(MakeParameters
-        (Name::PublicElement(), ConstByteArrayParameter(key.m_pk.begin(), PUBLIC_KEYLENGTH))
-        (Name::GroupOID(), key.GetAlgorithmID()));
 }
 
 void ed25519PrivateKey::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
@@ -681,9 +680,74 @@ void ed25519PublicKey::AssignFrom(const NameValuePairs &source)
     }
 }
 
+void ed25519PublicKey::BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt)
+{
+    // We have not yet determined the OID to use for this object.
+    // We can't use OID's decoder because it throws BERDecodeError
+    // if the OIDs do not match.
+    OID oid(bt);
+
+    if (!m_oid.Empty() && m_oid != oid)
+        BERDecodeError();  // Only accept user specified OID
+    else if (oid == ASN1::curve25519() || oid == ASN1::Ed25519())
+        m_oid = oid;  // Accept any of the ed25519PublicKey OIDs
+    else
+        BERDecodeError();
+}
+
+void ed25519PublicKey::BERDecode(BufferedTransformation &bt)
+{
+    BERSequenceDecoder publicKeyInfo(bt);
+
+        BERSequenceDecoder algorithm(publicKeyInfo);
+            // GetAlgorithmID().BERDecodeAndCheck(algorithm);
+            BERDecodeAndCheckAlgorithmID(algorithm);
+        algorithm.MessageEnd();
+
+        BERDecodePublicKey(publicKeyInfo, false, (size_t)publicKeyInfo.RemainingLength());
+
+    publicKeyInfo.MessageEnd();
+}
+
+void ed25519PublicKey::DEREncode(BufferedTransformation &bt) const
+{
+    DERSequenceEncoder publicKeyInfo(bt);
+
+        DERSequenceEncoder algorithm(publicKeyInfo);
+            GetAlgorithmID().DEREncode(algorithm);
+        algorithm.MessageEnd();
+
+        DEREncodePublicKey(publicKeyInfo);
+
+    publicKeyInfo.MessageEnd();
+}
+
+void ed25519PublicKey::BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t /*size*/)
+{
+    // We don't know how to decode them
+    if (parametersPresent)
+        BERDecodeError();
+
+    SecByteBlock subjectPublicKey;
+    unsigned int unusedBits;
+    BERDecodeBitString(bt, subjectPublicKey, unusedBits);
+
+    CRYPTOPP_ASSERT(unusedBits == 0);
+    CRYPTOPP_ASSERT(subjectPublicKey.size() == PUBLIC_KEYLENGTH);
+    if (subjectPublicKey.size() != PUBLIC_KEYLENGTH)
+        BERDecodeError();
+
+    std::memcpy(m_pk.begin(), subjectPublicKey, PUBLIC_KEYLENGTH);
+}
+
+void ed25519PublicKey::DEREncodePublicKey(BufferedTransformation &bt) const
+{
+    DEREncodeBitString(bt, m_pk, PUBLIC_KEYLENGTH);
+}
+
 void ed25519PublicKey::SetPublicElement (const byte y[PUBLIC_KEYLENGTH])
 {
-    AssignFrom(MakeParameters(Name::PublicElement(), ConstByteArrayParameter(y, PUBLIC_KEYLENGTH)));
+    std::memcpy(m_pk, y, PUBLIC_KEYLENGTH);
 }
 
 void ed25519PublicKey::SetPublicElement (const Integer &y)
@@ -693,8 +757,7 @@ void ed25519PublicKey::SetPublicElement (const Integer &y)
     SecByteBlock by(PUBLIC_KEYLENGTH);
     y.Encode(by, PUBLIC_KEYLENGTH); std::reverse(by+0, by+PUBLIC_KEYLENGTH);
 
-    AssignFrom(MakeParameters
-        (Name::PublicElement(), ConstByteArrayParameter(by, PUBLIC_KEYLENGTH, false)));
+    std::memcpy(m_pk, by, PUBLIC_KEYLENGTH);
 }
 
 const Integer& ed25519PublicKey::GetPublicElement() const
@@ -749,7 +812,8 @@ ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
 
 ed25519Verifier::ed25519Verifier(const ed25519Signer& signer)
 {
-    signer.MakePublicKey(AccessPublicKey());
+    const ed25519PrivateKey& priv = static_cast<const ed25519PrivateKey&>(signer.GetPrivateKey());
+    priv.MakePublicKey(AccessPublicKey());
 }
 
 bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
