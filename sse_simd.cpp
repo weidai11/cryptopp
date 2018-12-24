@@ -24,7 +24,9 @@
 
 // Needed by SunCC and MSVC
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-# include <emmintrin.h>
+# if !defined(CRYPTOPP_NO_CPU_FEATURE_PROBES) && !CRYPTOPP_SSE2_ASM_AVAILABLE && CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#  include <emmintrin.h>
+# endif
 #endif
 
 // Squash MS LNK4221 and libtool warnings

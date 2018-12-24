@@ -9,38 +9,42 @@
 
 /// \file naclite.h
 /// \brief Crypto++ interface to TweetNaCl library (20140917)
-/// \details TweetNaCl is a compact reimplementation of the NaCl library by
-///   Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen, Tanja Lange,
-///   Peter Schwabe and Sjaak Smetsers. The library is less than 20 KB in size
-///   and provides 25 of the NaCl library functions.
+/// \details TweetNaCl is a compact reimplementation of the NaCl library
+///   by Daniel J. Bernstein, Bernard van Gastel, Wesley Janssen, Tanja
+///   Lange, Peter Schwabe and Sjaak Smetsers. The library is less than
+///   20 KB in size and provides 25 of the NaCl library functions.
 /// \details The compact library uses curve25519, XSalsa20, Poly1305 and
-///   SHA-512 as default primitives, and includes both x25519 key exchange and
-///   ed25519 signatures. The complete list of functions can be found in
-///   <A HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
+///   SHA-512 as default primitives, and includes both x25519 key exchange
+///   and ed25519 signatures. The complete list of functions can be found
+///   in <A
+///   HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917), Table 1, page 5.
-/// \details Crypto++ rejects small order elements using libsodium's blacklist. The
-///   TweetNaCl library allowed them but the library predated the attack. If you wish
-///   to allow small elements then use the "unchecked" versions of crypto_box_unchecked,
-///   crypto_box_open_unchecked and crypto_box_beforenm_unchecked.
-/// \details TweetNaCl is well written but not well optimzed. It runs 2x to 3x
-///   slower than optimized routines from libsodium. However, the library is still
-///    2x to 4x faster than the algorithms NaCl was designed to replace.
+/// \details Crypto++ rejects small order elements using libsodium's
+///   blacklist. The TweetNaCl library allowed them but the library predated
+///   the attack. If you wish to allow small elements then use the "unchecked"
+///   versions of crypto_box_unchecked, crypto_box_open_unchecked and
+///   crypto_box_beforenm_unchecked.
+/// \details TweetNaCl is well written but not well optimzed. It runs about
+///   10x slower than optimized routines from libsodium. However, the library
+///   is still 2x to 4x faster than the algorithms NaCl was designed to replace
+///   and allows cross-checking results from an independent implementation.
 /// \details The Crypto++ wrapper for TweetNaCl requires OS features. That is,
-///    <tt>NO_OS_DEPENDENCE</tt> cannot be defined. It is due to TweetNaCl's
-///    internal function <tt>randombytes</tt>. Crypto++ used
-///    <tt>DefaultAutoSeededRNG</tt> within <tt>randombytes</tt>, so OS integration
-///    must be enabled. You can use another generator like <tt>RDRAND</tt> to
-///    avoid the restriction.
-/// \sa <A HREF="https://cr.yp.to/highspeed/coolnacl-20120725.pdf">The security impact
-///   of a new cryptographic library</A>, <A
+///   <tt>NO_OS_DEPENDENCE</tt> cannot be defined. It is due to TweetNaCl's
+///   internal function <tt>randombytes</tt>. Crypto++ used
+///   <tt>DefaultAutoSeededRNG</tt> within <tt>randombytes</tt>, so OS
+///   integration must be enabled. You can use another generator like
+///   <tt>RDRAND</tt> to avoid the restriction.
+/// \sa <A HREF="https://cr.yp.to/highspeed/coolnacl-20120725.pdf">The security
+///   impact of a new cryptographic library</A>, <A
 ///   HREF="https://tweetnacl.cr.yp.to/tweetnacl-20140917.pdf">TweetNaCl:
 ///   A crypto library in 100 tweets</A> (20140917), <A
-///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You: A
-///   Microarchitectural Side Channel Attack on Several Real-World Applications of
-///   Curve25519</A>, <A
+///   HREF="https://eprint.iacr.org/2017/806.pdf">May the Fourth Be With You:
+///   A Microarchitectural Side Channel Attack on Several Real-World
+///   Applications of Curve25519</A>, <A
 ///   HREF="https://github.com/jedisct1/libsodium/commit/afabd7e7386e1194">libsodium
-///   commit afabd7e7386e1194</A> and <A HREF="https://tools.ietf.org/html/rfc7748">RFC
-///   7748, Elliptic Curves for Security</A>, Section 6.
+///   commit afabd7e7386e1194</A> and <A
+///   HREF="https://tools.ietf.org/html/rfc7748">RFC 7748, Elliptic Curves for
+///   Security</A>, Section 6.
 /// \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_NACL_H
