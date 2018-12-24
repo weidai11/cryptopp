@@ -170,7 +170,7 @@ OID x25519::PeekOID(BufferedTransformation &bt) const
     ByteQueue queue;
     bt.CopyTo(queue);
     OID oid;
-    
+
     try    {
         BERSequenceDecoder privateKeyInfo(queue);
             word32 version;
@@ -244,7 +244,7 @@ void x25519::DEREncodePrivateKey(BufferedTransformation &bt) const
             enc.Put(m_sk, SECRET_KEYLENGTH);
         enc.MessageEnd();
 
-#if 1
+#if 0
         // Test code to write public key in context of private key. The code
         // is used to test BERDecodePrivateKey borrowed from eccrypto.cpp
         DERGeneralEncoder publicKeyInfo(privateKey, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
