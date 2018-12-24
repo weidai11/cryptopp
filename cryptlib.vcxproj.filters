@@ -639,6 +639,15 @@
     <ClInclude Include="donna.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="donna_32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="donna_64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="donna_sse.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="eax.h">
       <Filter>Header Files</Filter>
     </ClInclude>

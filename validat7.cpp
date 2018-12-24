@@ -356,10 +356,10 @@ bool ValidateEC2N_Agreement()
 	return pass;
 }
 
-// TestCurve25519 is slighty more comprehensive than ValidateX25519
+// TestX25519 is slighty more comprehensive than ValidateX25519
 // because it cross-validates against Bernstein's NaCL library.
-// TestCurve25519 called in Debug builds.
-bool TestCurve25519()
+// TestX25519 called in Debug builds.
+bool TestX25519()
 {
     std::cout << "\nTesting curve25519 Key Agreements...\n\n";
     const unsigned int AGREE_COUNT = 64;
@@ -375,11 +375,11 @@ bool TestCurve25519()
         priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
 
         // Andrew Moon's curve25519-donna
-        Donna::curve25519(pub1, priv1);
-        Donna::curve25519(pub2, priv2);
+        Donna::curve25519_mult(pub1, priv1);
+        Donna::curve25519_mult(pub2, priv2);
 
-        int ret1 = Donna::curve25519(share1, priv1, pub2);
-        int ret2 = Donna::curve25519(share2, priv2, pub1);
+        int ret1 = Donna::curve25519_mult(share1, priv1, pub2);
+        int ret2 = Donna::curve25519_mult(share2, priv2, pub1);
         int ret3 = std::memcmp(share1, share2, 32);
 
 #if defined(NO_OS_DEPENDENCE)
@@ -388,7 +388,7 @@ bool TestCurve25519()
         // Bernstein's NaCl requires DefaultAutoSeededRNG.
         NaCl::crypto_box_keypair(pub2, priv2);
 
-        int ret4 = Donna::curve25519(share1, priv1, pub2);
+        int ret4 = Donna::curve25519_mult(share1, priv1, pub2);
         int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
         int ret6 = std::memcmp(share1, share2, 32);
 #endif
@@ -404,6 +404,115 @@ bool TestCurve25519()
     std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
 
     return pass;
+}
+
+// TestEd25519 is slighty more comprehensive than ValidateEd25519
+// because it cross-validates against Bernstein's NaCL library.
+// TestEd25519 called in Debug builds.
+bool TestEd25519()
+{
+	std::cout << "\nTesting ed25519 Signatures...\n\n";
+	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
+	const unsigned int NACL_EXTRA=NaCl::crypto_sign_BYTES;
+	bool pass = true;
+
+	// Test key conversion
+	byte seed[32], sk1[64], sk2[64], pk1[32], pk2[32];
+	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	{
+		GlobalRNG().GenerateBlock(seed, 32);
+		std::memcpy(sk1, seed, 32);
+		std::memcpy(sk2, seed, 32);
+
+		int ret1 = NaCl::crypto_sign_sk2pk(pk1, sk1);
+		int ret2 = Donna::ed25519_publickey(pk2, sk2);
+		int ret3 = std::memcmp(pk1, pk2, 32);
+
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
+		pass = pass && !fail;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << SIGN_COUNT << " public keys" << std::endl;
+
+	// Test signature generation
+	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		std::memcpy(sk2, sk1, 32);
+		std::memcpy(pk2, pk1, 32);
+
+		// Message and signatures
+		byte msg[MSG_SIZE], sig1[MSG_SIZE+NACL_EXTRA], sig2[64];
+		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+		word64 smlen = sizeof(sig1);
+
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg, MSG_SIZE, sk1);
+		int ret2 = Donna::ed25519_sign(msg, MSG_SIZE, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
+		pass = pass && !fail;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << SIGN_COUNT << " signatures" << std::endl;
+
+	// Test signature verification
+	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		std::memcpy(sk2, sk1, 32);
+		std::memcpy(pk2, pk1, 32);
+
+		// Message and signatures
+		byte msg1[MSG_SIZE+NACL_EXTRA], msg2[MSG_SIZE];
+		byte sig1[MSG_SIZE+NACL_EXTRA], sig2[64];
+		GlobalRNG().GenerateBlock(msg1, MSG_SIZE);
+		std::memcpy(msg2, msg1, MSG_SIZE);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+
+		word64 smlen = sizeof(sig1);
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg1, MSG_SIZE, sk1);
+		int ret2 = Donna::ed25519_sign(msg2, MSG_SIZE, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool tamper = !!GlobalRNG().GenerateBit();
+		if (tamper)
+		{
+			sig1[1] ^= 1;
+			sig2[1] ^= 1;
+		}
+
+		// Verify the other's signature using the other's key
+		word64 mlen = MSG_SIZE+NACL_EXTRA;
+		int ret4 = NaCl::crypto_sign_open(msg1, &mlen, sig1, smlen, pk2);
+		int ret5 = Donna::ed25519_sign_open(msg2, MSG_SIZE, pk1, sig2);
+
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+		pass = pass && !fail;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
+
+	return pass;
 }
 
 NAMESPACE_END  // Test

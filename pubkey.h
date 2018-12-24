@@ -1050,7 +1050,7 @@ public:
 				CRYPTOPP_GET_FUNCTION_ENTRY(PublicElement);
 	}
 
-	/// \brief Initialize or reinitialize this this key
+	/// \brief Initialize or reinitialize this key
 	/// \param source NameValuePairs to assign
 	void AssignFrom(const NameValuePairs &source);
 
@@ -1135,7 +1135,7 @@ public:
 				CRYPTOPP_GET_FUNCTION_ENTRY(PrivateExponent);
 	}
 
-	/// \brief Initialize or reinitialize this this key
+	/// \brief Initialize or reinitialize this key
 	/// \param source NameValuePairs to assign
 	void AssignFrom(const NameValuePairs &source)
 	{

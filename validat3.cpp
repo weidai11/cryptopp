@@ -87,7 +87,7 @@ bool ValidateAll(bool thorough)
 	pass=TestCompressors() && pass;
 	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
-	pass=TestCurve25519() && pass;
+	pass=TestX25519() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;
@@ -193,6 +193,8 @@ bool ValidateAll(bool thorough)
 	pass=ValidateECGDSA(thorough) && pass;
 	pass=ValidateESIGN() && pass;
 
+	pass=ValidateX25519() && pass;
+	pass=ValidateEd25519() && pass;
 	pass=ValidateNaCl() && pass;
 
 	if (pass)

@@ -279,6 +279,9 @@
     <None Include="TestData\dsa512.dat">
       <Filter>TestData</Filter>
     </None>
+    <None Include="TestData\ed25519.dat">
+      <Filter>TestData</Filter>
+    </None>
     <None Include="TestData\elgc1024.dat">
       <Filter>TestData</Filter>
     </None>

@@ -109,7 +109,6 @@ bool ValidateCMAC();
 
 bool ValidateBBS();
 bool ValidateDH();
-bool ValidateX25519();
 bool ValidateMQV();
 bool ValidateHMQV();
 bool ValidateFHMQV();
@@ -134,7 +133,10 @@ bool ValidateESIGN();
 bool ValidateHashDRBG();
 bool ValidateHmacDRBG();
 
-bool TestCurve25519();
+bool TestX25519();
+bool TestEd25519();
+bool ValidateX25519();
+bool ValidateEd25519();
 bool ValidateNaCl();
 
 // If CRYPTOPP_DEBUG or CRYPTOPP_COVERAGE is in effect, then perform additional tests

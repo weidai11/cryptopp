@@ -418,6 +418,9 @@
     <ClInclude Include="dmac.h" />
     <ClInclude Include="drbg.h" />
     <ClInclude Include="donna.h" />
+    <ClInclude Include="donna_32.h" />
+    <ClInclude Include="donna_64.h" />
+    <ClInclude Include="donna_sse.h" />
     <ClInclude Include="dsa.h" />
     <ClInclude Include="eax.h" />
     <ClInclude Include="ec2n.h" />

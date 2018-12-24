@@ -20,10 +20,6 @@
 #include "secblock.h"
 #include "misc.h"
 
-#if (CRYPTOPP_CURVE25519_SSE2)
-# include <emmintrin.h>
-#endif
-
 // The data is aligned, but Clang issues warning based on type
 // and not the actual alignment of the variable and data.
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
@@ -35,8 +31,7 @@ extern const char DONNA_SSE_FNAME[] = __FILE__;
 
 #if (CRYPTOPP_CURVE25519_SSE2)
 
-typedef __m128i xmmi;
-#define ALIGN(n) CRYPTOPP_ALIGN_DATA(n)
+#include "donna_sse.h"
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -45,62 +40,11 @@ using CryptoPP::word32;
 using CryptoPP::sword32;
 using CryptoPP::word64;
 using CryptoPP::sword64;
-
 using CryptoPP::GetBlock;
 using CryptoPP::LittleEndian;
 
-typedef union packedelem8_t {
-    byte u[16];
-    xmmi v;
-} packedelem8;
-
-typedef union packedelem32_t {
-    word32 u[4];
-    xmmi v;
-} packedelem32;
-
-typedef union packedelem64_t {
-    word64 u[2];
-    xmmi v;
-} packedelem64;
-
-/* 10 elements + an extra 2 to fit in 3 xmm registers */
-typedef word32 bignum25519[12];
-typedef packedelem32 packed32bignum25519[5];
-typedef packedelem64 packed64bignum25519[10];
-
-const word32 reduce_mask_26 = (1 << 26) - 1;
-const word32 reduce_mask_25 = (1 << 25) - 1;
-
-const packedelem32 sse2_bot32bitmask = {{0xffffffff, 0x00000000, 0xffffffff, 0x00000000}};
-const packedelem32 sse2_top32bitmask = {{0x00000000, 0xffffffff, 0x00000000, 0xffffffff}};
-const packedelem32 sse2_top64bitmask = {{0x00000000, 0x00000000, 0xffffffff, 0xffffffff}};
-const packedelem32 sse2_bot64bitmask = {{0xffffffff, 0xffffffff, 0x00000000, 0x00000000}};
-
-/* reduction masks */
-const packedelem64 packedmask26 = {{0x03ffffff, 0x03ffffff}};
-const packedelem64 packedmask25 = {{0x01ffffff, 0x01ffffff}};
-const packedelem32 packedmask2625 = {{0x3ffffff,0,0x1ffffff,0}};
-const packedelem32 packedmask26262626 = {{0x03ffffff, 0x03ffffff, 0x03ffffff, 0x03ffffff}};
-const packedelem32 packedmask25252525 = {{0x01ffffff, 0x01ffffff, 0x01ffffff, 0x01ffffff}};
-
-/* multipliers */
-const packedelem64 packednineteen = {{19, 19}};
-const packedelem64 packednineteenone = {{19, 1}};
-const packedelem64 packedthirtyeight = {{38, 38}};
-const packedelem64 packed3819 = {{19*2,19}};
-const packedelem64 packed9638 = {{19*4,19*2}};
-
-/* 121666,121665 */
-const packedelem64 packed121666121665 = {{121666, 121665}};
-
-/* 2*(2^255 - 19) = 0 mod p */
-const packedelem32 packed2p0 = {{0x7ffffda,0x3fffffe,0x7fffffe,0x3fffffe}};
-const packedelem32 packed2p1 = {{0x7fffffe,0x3fffffe,0x7fffffe,0x3fffffe}};
-const packedelem32 packed2p2 = {{0x7fffffe,0x3fffffe,0x0000000,0x0000000}};
-
-const packedelem32 packed32zeromodp0 = {{0x7ffffda,0x7ffffda,0x3fffffe,0x3fffffe}};
-const packedelem32 packed32zeromodp1 = {{0x7fffffe,0x7fffffe,0x3fffffe,0x3fffffe}};
+// Bring in all the symbols from the SSE header
+using namespace CryptoPP::Donna::ArchSSE;
 
 /* Copy a bignum to another: out = in */
 inline void
@@ -1103,7 +1047,7 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Donna)
 
-int curve25519_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
+int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byte othersKey[32])
 {
     FixedSizeSecBlock<byte, 32> e;
     for (size_t i = 0;i < 32;++i)

@@ -318,6 +318,7 @@
     <None Include="TestData\dsa1024.dat" />
     <None Include="TestData\dsa1024b.dat" />
     <None Include="TestData\dsa512.dat" />
+    <None Include="TestData\ed25519.dat" />
     <None Include="TestData\elgc1024.dat" />
     <None Include="TestData\esig1023.dat" />
     <None Include="TestData\esig1536.dat" />

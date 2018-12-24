@@ -32,6 +32,11 @@
 #include "pubkey.h"
 #include "eccrypto.h"
 
+// Curve25519
+#include "xed25519.h"
+#include "donna.h"
+#include "naclite.h"
+
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -663,6 +668,34 @@ bool ValidateESIGN()
 
 	fail = !SignatureValidate(signer, verifier);
 	pass = pass && !fail;
+
+	return pass;
+}
+
+bool ValidateEd25519()
+{
+	std::cout << "\ned25519 validation suite running...\n\n";
+	bool pass = true, fail;
+
+	const char plain[] = "test";
+	const byte signature[] =
+		"\x91\x12\x44\x91\xA5\x99\xF8\x49\xBA\xB2\xC4\xF2\xBA\x0B\xAA\x99"
+		"\xC8\xC5\xF5\x19\xDC\x07\xD4\x4C\xF7\x31\xDE\x2F\x2B\x81\xB2\x81"
+		"\xF6\xA7\xDE\x33\x29\xCA\x45\xAC\x69\x2A\x80\xB7\xDB\x7F\x07\x37"
+		"\x77\xC4\xBF\xC5\x45\x79\x3A\xAC\xB5\x16\xAE\x4E\xD9\x16\x95\x0E";
+
+	FileSource keys(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
+	ed25519::Signer signer(keys);
+	ed25519::Verifier verifier(signer);
+
+	fail = !SignatureValidate(signer, verifier);
+	pass = pass && !fail;
+
+	fail = !verifier.VerifyMessage((byte *)plain, strlen(plain), signature, verifier.SignatureLength());
+	pass = pass && !fail;
+
+	std::cout << (fail ? "FAILED    " : "passed    ");
+	std::cout << "verification check against test vector\n";
 
 	return pass;
 }
