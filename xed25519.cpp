@@ -153,7 +153,10 @@ void x25519::Load(BufferedTransformation &bt)
 {
     OID oid = PeekOID(bt);
     if (oid == ASN1::curve25519())
+    {
+        m_oid = ASN1::curve25519();
         BERDecode(bt);
+    }
     else
     {
         CRYPTOPP_ASSERT(0);
@@ -171,7 +174,7 @@ OID x25519::PeekOID(BufferedTransformation &bt) const
     try    {
         BERSequenceDecoder privateKeyInfo(queue);
             word32 version;
-            BERDecodeUnsigned<word32>(privateKeyInfo, version, INTEGER, 0, 0);    // check version
+            BERDecodeUnsigned<word32>(privateKeyInfo, version, INTEGER);
 
             BERSequenceDecoder algorithm(privateKeyInfo);
               oid = OID(algorithm);
@@ -192,6 +195,9 @@ OID x25519::PeekOID(BufferedTransformation &bt) const
 
 void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size)
 {
+    // This code is based on BERDecodePrivateKey from eccrypto.cpp. However,
+    // we don't decode or encode the group parameters. We just handle the
+    // private key and optionally the public key.
     BERSequenceDecoder seq(bt);
         word32 version;
         BERDecodeUnsigned<word32>(seq, version, INTEGER, 1, 1);    // check version
@@ -200,48 +206,34 @@ void x25519::BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPres
         if (!dec.IsDefiniteLength())
             BERDecodeError();
 
-        //Integer x;
-        //x.Decode(dec, (size_t)dec.RemainingLength());
-        //dec.MessageEnd();
+        bool generatePublicKey = true;
         dec.Get(m_sk, SECRET_KEYLENGTH);
         dec.MessageEnd();
 
-        // Hack by JW... Only a private key?
-        if (dec.EndReached())
+        if (parametersPresent && !seq.EndReached())
         {
-            ClampKeys(m_pk, m_sk);
-            return;
+            BERGeneralDecoder parameters(seq);
+                parameters.TransferTo(TheBitBucket(), size);
+            parameters.MessageEnd();
         }
 
-        if (!parametersPresent && seq.PeekByte() != (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
-            BERDecodeError();
-        if (!seq.EndReached() && seq.PeekByte() == (CONTEXT_SPECIFIC | CONSTRUCTED | 0))
-        {
-            //BERGeneralDecoder parameters(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 0);
-            //this->AccessGroupParameters().BERDecode(parameters);
-            //parameters.MessageEnd();
-
-            // We require a named curve, and not domain parameters
-            BERDecodeError();
-        }
         if (!seq.EndReached())
         {
-            // skip over the public element
             SecByteBlock subjectPublicKey;
             unsigned int unusedBits;
             BERGeneralDecoder publicKey(seq, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
             BERDecodeBitString(publicKey, subjectPublicKey, unusedBits);
+                CRYPTOPP_ASSERT(unusedBits == 0);
+                CRYPTOPP_ASSERT(subjectPublicKey.size() == PUBLIC_KEYLENGTH);
+                std::memcpy(m_pk, subjectPublicKey, PUBLIC_KEYLENGTH);
+                generatePublicKey = false;
             publicKey.MessageEnd();
-
-            //Element Q;
-            //if (!(unusedBits == 0 && this->GetGroupParameters().GetCurve().DecodePoint(Q, subjectPublicKey, subjectPublicKey.size())))
-            //    BERDecodeError();
-            if (unusedBits != 0)
-                BERDecodeError();
         }
+
     seq.MessageEnd();
 
-    // this->SetPrivateExponent(x);
+    if (generatePublicKey)
+        Donna::curve25519_mult(m_pk, m_sk);
 }
 
 void x25519::DEREncodePrivateKey(BufferedTransformation &bt) const
@@ -249,8 +241,17 @@ void x25519::DEREncodePrivateKey(BufferedTransformation &bt) const
     DERSequenceEncoder privateKey(bt);
         DEREncodeUnsigned<word32>(privateKey, 1);    // version
         DERGeneralEncoder enc(privateKey, OCTET_STRING);
-          enc.Put(m_sk, SECRET_KEYLENGTH);
+            enc.Put(m_sk, SECRET_KEYLENGTH);
         enc.MessageEnd();
+
+#if 1
+        // Test code to write public key in context of private key. The code
+        // is used to test BERDecodePrivateKey borrowed from eccrypto.cpp
+        DERGeneralEncoder publicKeyInfo(privateKey, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
+            DEREncodeBitString(publicKeyInfo, m_pk, PUBLIC_KEYLENGTH);
+        publicKeyInfo.MessageEnd();
+#endif
+
     privateKey.MessageEnd();
 }
 
