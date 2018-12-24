@@ -101,7 +101,6 @@ x25519::x25519(RandomNumberGenerator &rng)
 
 x25519::x25519(BufferedTransformation &params)
 {
-    // BERDecode(params);
     Load(params);
 
     CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
@@ -139,8 +138,7 @@ bool x25519::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
 
 void x25519::Save(BufferedTransformation &bt) const
 {
-    OID oid = PeekOID(bt);
-    if (oid == ASN1::curve25519())
+    if (m_oid == ASN1::curve25519())
         DEREncode(bt);
     else
     {
