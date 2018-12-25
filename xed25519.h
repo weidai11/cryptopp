@@ -197,7 +197,7 @@ public:
     ///   means RFC 5958 format, which is the new format.
     void DEREncode(BufferedTransformation &bt, int version) const;
 
-    /// \brief Determine of OID is valid for this object
+    /// \brief Determine if OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
     ///   <tt>bt</tt> and determines if it valid for this object. The
     ///   problem in practice is there are multiple OIDs available to
@@ -383,7 +383,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   means RFC 5958 format, which is the new format.
     void DEREncode(BufferedTransformation &bt, int version) const;
 
-    /// \brief Determine of OID is valid for this object
+    /// \brief Determine if OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
     ///   <tt>bt</tt> and determines if it valid for this object. The
     ///   problem in practice is there are multiple OIDs available to
@@ -566,7 +566,7 @@ struct ed25519PublicKey : public X509PublicKey
     void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
     void DEREncodePublicKey(BufferedTransformation &bt) const;
 
-    /// \brief Determine of OID is valid for this object
+    /// \brief Determine if OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
     ///   <tt>bt</tt> and determines if it valid for this object. The
     ///   problem in practice is there are multiple OIDs available to
