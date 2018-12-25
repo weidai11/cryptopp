@@ -187,7 +187,7 @@ public:
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \param version indicates version
-    /// \details DEREncodeSave() will write the OID associated with algorithm or
+    /// \details DEREncode() will write the OID associated with algorithm or
     ///   scheme. In the case of public and private keys, this function writes
     ///   the subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using id-X25519.
@@ -367,9 +367,22 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     // PKCS8PrivateKey
     void BERDecode(BufferedTransformation &bt);
     void DEREncode(BufferedTransformation &bt) const { DEREncode(bt, 0); }
-    void DEREncode(BufferedTransformation &bt, int version) const;
     void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
     void DEREncodePrivateKey(BufferedTransformation &bt) const;
+
+    /// \brief DER encode ASN.1 object
+    /// \param bt BufferedTransformation object
+    /// \param version indicates version
+    /// \details DEREncode() will write the OID associated with algorithm or
+    ///   scheme. In the case of public and private keys, this function writes
+    ///   the subjectPubicKeyInfo parts.
+    /// \details The default OID is from RFC 8410 using id-X25519.
+    ///   The default private key format is RFC 5208.
+    /// \details The value of version is written as the INTEGER. Version 0 means
+    ///   RFC 5208 format, which is the old format. The old format provides
+    ///   the best interop, and keys will work with OpenSSL. The value 1 INTEGER
+    ///   means RFC 5958 format, which is the new format.
+    void DEREncode(BufferedTransformation &bt, int version) const;
 
     /// \brief Determine of OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
