@@ -412,9 +412,14 @@ bool TestX25519()
 bool TestEd25519()
 {
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
+	bool pass = true;
+
+#if defined(NO_OS_DEPENDENCE)
+	std::cout << "\nNo operating system provided random number generator, skipping test." << std::endl;
+	return pass;
+#else
 	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
 	const unsigned int NACL_EXTRA=NaCl::crypto_sign_BYTES;
-	bool pass = true;
 
 	// Test key conversion
 	byte seed[32], sk1[64], sk2[64], pk1[32], pk2[32];
@@ -511,6 +516,7 @@ bool TestEd25519()
 	else
 		std::cout << "FAILED:";
 	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
+#endif
 
 	return pass;
 }
