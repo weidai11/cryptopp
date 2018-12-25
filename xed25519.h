@@ -54,8 +54,14 @@ struct ed25519Verifier;
 class x25519 : public SimpleKeyAgreementDomain, public CryptoParameters, public PKCS8PrivateKey
 {
 public:
+    /// \brief Size of the private key
+    /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    /// \brief Size of the public key
+    /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    /// \brief Size of the shared key
+    /// \details SHARED_KEYLENGTH is the size of the shared key, in bytes.
     CRYPTOPP_CONSTANT(SHARED_KEYLENGTH = 32)
 
     virtual ~x25519() {}
@@ -312,11 +318,27 @@ protected:
 ///   and Point, which provide the low level field operations
 ///   found in traditional implementations like NIST curves over
 ///   prime and binary fields.
+/// \details ed25519PrivateKey is also unusual because the
+///   class members of interest are byte arrays and not Integers.
+///   In addition, the byte byte arrays are "little-endian" meaning
+///   LSB is at element 0 and the MSB is at element 31.
+/// \details If you call GetPrivateExponent() then the little-endian
+///   byte array is converted to a big-endian Integer so it can be
+///   returned the way a caller expects. And calling
+///   SetPrivateExponent() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PrivateKey : public PKCS8PrivateKey
 {
+    /// \brief Size of the private key
+    /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    /// \brief Size of the public key
+    /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    /// \brief Size of the siganture
+    /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
+    ///   ed25519 is a DL-based signature scheme. The signature is the
+    ///   concatenation of <tt>r || s</tt>.
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
 
     // CryptoMaterial
@@ -451,8 +473,16 @@ protected:
 /// \since Crypto++ 8.0
 struct ed25519Signer : public PK_Signer
 {
+    /// \brief Size of the private key
+    /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    /// \brief Size of the public key
+    /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    /// \brief Size of the siganture
+    /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
+    ///   ed25519 is a DL-based signature scheme. The signature is the
+    ///   concatenation of <tt>r || s</tt>.
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
     typedef Integer Element;
 
@@ -543,9 +573,19 @@ protected:
 ///   and Point, which provide the low level field operations
 ///   found in traditional implementations like NIST curves over
 ///   prime and binary fields.
+/// \details ed25519PublicKey is also unusual because the
+///   class members of interest are byte arrays and not Integers.
+///   In addition, the byte byte arrays are "little-endian" meaning
+///   LSB is at element 0 and the MSB is at element 31.
+/// \details If you call GetPublicElement() then the little-endian
+///   byte array is converted to a big-endian Integer so it can be
+///   returned the way a caller expects. And calling
+///   SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PublicKey : public X509PublicKey
 {
+    /// \brief Size of the public key
+    /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
     typedef Integer Element;
 
