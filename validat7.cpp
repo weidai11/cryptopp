@@ -86,10 +86,10 @@ bool ValidateHMQV()
 	std::cout << "HMQV with NIST P-256 and SHA-256:" << std::endl;
 
 	if (hmqvB.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -97,10 +97,10 @@ bool ValidateHMQV()
 	ECHMQV< ECP >::Domain hmqvA(oid, true /*client*/);
 
 	if (hmqvA.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -120,17 +120,17 @@ bool ValidateHMQV()
 
 	if (!(hmqvA.Agree(valA, sprivA, eprivA, spubB, epubB) && hmqvB.Agree(valB, sprivB, eprivB, spubA, epubA)))
 	{
-		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA.begin(), valB.begin(), hmqvA.AgreedValueLength()))
 	{
-		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed	authenticated key agreement" << std::endl;
+	std::cout << "passed    authenticated key agreement" << std::endl;
 
 	// Now test HMQV with NIST P-384 curve and SHA384 hash
 	std::cout << std::endl;
@@ -140,10 +140,10 @@ bool ValidateHMQV()
 	hmqvB384.AccessGroupParameters().BERDecode(f384);
 
 	if (hmqvB384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -151,10 +151,10 @@ bool ValidateHMQV()
 	ECHMQV384 hmqvA384(oid384, true /*client*/);
 
 	if (hmqvA384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -174,17 +174,17 @@ bool ValidateHMQV()
 
 	if (!(hmqvA384.Agree(valA384, sprivA384, eprivA384, spubB384, epubB384) && hmqvB384.Agree(valB384, sprivB384, eprivB384, spubA384, epubA384)))
 	{
-		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA384.begin(), valB384.begin(), hmqvA384.AgreedValueLength()))
 	{
-		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed	authenticated key agreement" << std::endl;
+	std::cout << "passed    authenticated key agreement" << std::endl;
 
 	return true;
 }
@@ -203,10 +203,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	std::cout << "FHMQV with NIST P-256 and SHA-256:" << std::endl;
 
 	if (fhmqvB.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -214,10 +214,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	ECFHMQV< ECP >::Domain fhmqvA(oid, true /*client*/);
 
 	if (fhmqvA.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -237,17 +237,17 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 
 	if (!(fhmqvA.Agree(valA, sprivA, eprivA, spubB, epubB) && fhmqvB.Agree(valB, sprivB, eprivB, spubA, epubA)))
 	{
-		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA.begin(), valB.begin(), fhmqvA.AgreedValueLength()))
 	{
-		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed	authenticated key agreement" << std::endl;
+	std::cout << "passed    authenticated key agreement" << std::endl;
 
 	// Now test FHMQV with NIST P-384 curve and SHA384 hash
 	std::cout << std::endl;
@@ -257,10 +257,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	fhmqvB384.AccessGroupParameters().BERDecode(f384);
 
 	if (fhmqvB384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -268,10 +268,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	ECHMQV384 fhmqvA384(oid384, true /*client*/);
 
 	if (fhmqvA384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -291,17 +291,17 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 
 	if (!(fhmqvA384.Agree(valA384, sprivA384, eprivA384, spubB384, epubB384) && fhmqvB384.Agree(valB384, sprivB384, eprivB384, spubA384, epubA384)))
 	{
-		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA384.begin(), valB384.begin(), fhmqvA384.AgreedValueLength()))
 	{
-		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed	authenticated key agreement" << std::endl;
+	std::cout << "passed    authenticated key agreement" << std::endl;
 
 	return true;
 }
@@ -366,11 +366,24 @@ bool TestX25519()
 	bool pass = true;
 
 	try {
-		x25519 x1(FileSource(DataDir("TestData/x25519.dat").c_str(), true).Ref());
-		x25519 x2(FileSource(DataDir("TestData/x25519v0.dat").c_str(), true).Ref());
-		x25519 x3(FileSource(DataDir("TestData/x25519v1.dat").c_str(), true).Ref());
+
+		FileSource f1(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
+		FileSource f2(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f3(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
+
+		x25519 x1(f1);
+		x25519 x2(f2);
+		x25519 x3(f3);
+
+		FileSource f4(DataDir("TestData/x25519.dat").c_str(), true, new HexDecoder);
+		FileSource f5(DataDir("TestData/x25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f6(DataDir("TestData/x25519v1.dat").c_str(), true, new HexDecoder);
+
+		x1.Load(f4);
+		x2.Load(f5);
+		x3.Load(f6);
 	}
-	catch (BERDecodeErr&) {
+	catch (const BERDecodeErr&) {
 		pass = false;
 	}
 
@@ -424,11 +437,23 @@ bool TestEd25519()
 	bool pass = true;
 
 	try {
-		ed25519::Signer s1(FileSource(DataDir("TestData/ed25519.dat").c_str(), true).Ref());
-		ed25519::Signer s2(FileSource(DataDir("TestData/ed25519v0.dat").c_str(), true).Ref());
-		ed25519::Signer s3(FileSource(DataDir("TestData/ed25519v1.dat").c_str(), true).Ref());
+		FileSource f1(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
+		FileSource f2(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f3(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
+
+		ed25519::Signer s1(f1);
+		ed25519::Signer s2(f2);
+		ed25519::Signer s3(f3);
+
+		FileSource f4(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
+		FileSource f5(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f6(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
+
+		s1.AccessKey().Load(f4);
+		s2.AccessKey().Load(f5);
+		s3.AccessKey().Load(f6);
 	}
-	catch (BERDecodeErr&) {
+	catch (const BERDecodeErr&) {
 		pass = false;
 	}
 

@@ -922,6 +922,10 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 9994: result = TestHuffmanCodes(); break;
 	// http://github.com/weidai11/cryptopp/issues/346
 	case 9993: result = TestASN1Parse(); break;
+	// http://github.com/weidai11/cryptopp/issues/242
+	case 9992: result = TestX25519(); break;
+	// http://github.com/weidai11/cryptopp/issues/346
+	case 9991: result = TestEd25519(); break;
 # if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 	case 9992: result = TestAltivecOps(); break;
 # endif

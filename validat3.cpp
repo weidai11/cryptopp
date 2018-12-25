@@ -88,6 +88,7 @@ bool ValidateAll(bool thorough)
 	pass=TestSharing() && pass;
 	pass=TestEncryptors() && pass;
 	pass=TestX25519() && pass;
+	pass=TestEd25519() && pass;
 #endif
 
 	pass=ValidateCRC32() && pass;
