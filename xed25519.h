@@ -275,7 +275,7 @@ protected:
     std::vector<byte, AllocatorWithCleanup<byte> > m_msg;
 };
 
-/// \brief ed25519 private key
+/// \brief Ed25519 private key
 /// \details ed25519PrivateKey is somewhat of a hack. It needed to
 ///   provide DL_PrivateKey interface to fit into the existing
 ///   framework, but it lacks a lot of the internals of a true
@@ -388,7 +388,7 @@ protected:
     mutable Integer m_x;  // for DL_PrivateKey
 };
 
-/// \brief ed25519 signature algorithm
+/// \brief Ed25519 signature algorithm
 /// \since Crypto++ 8.0
 struct ed25519Signer : public PK_Signer
 {
@@ -476,7 +476,7 @@ protected:
 
 // ****************** ed25519 Verifier *********************** //
 
-/// \brief ed25519 public key
+/// \brief Ed25519 public key
 /// \details ed25519PublicKey is somewhat of a hack. It needed to
 ///   provide DL_PublicKey interface to fit into the existing
 ///   framework, but it lacks a lot of the internals of a true
@@ -544,7 +544,7 @@ protected:
     mutable Integer m_y;  // for DL_PublicKey
 };
 
-/// \brief ed25519 signature verification algorithm
+/// \brief Ed25519 signature verification algorithm
 /// \since Crypto++ 8.0
 struct ed25519Verifier : public PK_Verifier
 {
@@ -624,7 +624,7 @@ protected:
     ed25519PublicKey m_key;
 };
 
-/// \brief ed25519 signature scheme
+/// \brief Ed25519 signature scheme
 /// \since Crypto++ 8.0
 struct ed25519
 {
