@@ -95,7 +95,7 @@ public:
     /// \brief Create a x25519 object
     /// \param params public and private key
     /// \details This constructor creates a x25519 object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>DEREncode</tt>.
+    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     x25519(BufferedTransformation &params);
 
@@ -427,7 +427,7 @@ struct ed25519Signer : public PK_Signer
     /// \brief Create a ed25519Signer object
     /// \param params public and private key
     /// \details This constructor creates a ed25519Signer object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>DEREncode</tt>.
+    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Signer(BufferedTransformation &params);
 
@@ -554,14 +554,14 @@ struct ed25519Verifier : public PK_Verifier
     /// \brief Create a ed25519Verifier object
     /// \param params public and private key
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>DEREncode</tt>.
+    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Verifier(BufferedTransformation &params);
 
     /// \brief Create a ed25519Verifier object
     /// \param signer ed25519 signer object
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>DEREncode</tt>.
+    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Verifier(const ed25519Signer& signer);
 
