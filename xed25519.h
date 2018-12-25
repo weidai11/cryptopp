@@ -150,6 +150,8 @@ public:
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
     }
@@ -165,14 +167,18 @@ public:
     /// \details v1 means INTEGER 0 is written. INTEGER 0 means
     ///   RFC 5208 format, which is the old format. The old format provides
     ///   the best interop, and keys will work with OpenSSL. The other
-    ///   option is using INTEGER 1. INTEGER 1 means RFC 5958 format,
+    ///   option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
     ///   which is the new format.
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Save(BufferedTransformation &bt, bool v1) const {
         DEREncode(bt, v1 ? 0 : 1);
     }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
     }
@@ -332,6 +338,8 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
     }
@@ -347,14 +355,18 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \details v1 means INTEGER 0 is written. INTEGER 0 means
     ///   RFC 5208 format, which is the old format. The old format provides
     ///   the best interop, and keys will work with OpenSSL. The other
-    ///   option is using INTEGER 1. INTEGER 1 means RFC 5958 format,
+    ///   option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
     ///   which is the new format.
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Save(BufferedTransformation &bt, bool v1) const {
         DEREncode(bt, v1 ? 0 : 1);
     }
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
     }
@@ -556,6 +568,8 @@ struct ed25519PublicKey : public X509PublicKey
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
+    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric 
+    ///   Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
     }
