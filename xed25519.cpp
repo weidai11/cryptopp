@@ -66,6 +66,9 @@ x25519::x25519(const byte x[SECRET_KEYLENGTH])
 {
     std::memcpy(m_sk, x, SECRET_KEYLENGTH);
     Donna::curve25519_mult(m_pk, m_sk);
+
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
 x25519::x25519(const Integer &y, const Integer &x)

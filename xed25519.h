@@ -209,41 +209,63 @@ protected:
 
 // ****************** ed25519 Signer *********************** //
 
+/// \brief ed25519 message accumulator
+/// \details ed25519 buffers the entire message. The class does not
+///   digest the message incrementally, so you should be careful with
+///   large messages like files on-disk. The behavior is by design
+///   because Bernstein feels small messages should be authenticated;
+///   and larger messages will be hashed by the application.
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
     CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64)
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH=64)
 
+    /// \brief Create a message accumulator
     ed25519_MessageAccumulator() {
         Restart();
     }
 
+    /// \brief Create a message accumulator
+    /// \details ed25519 does not use a RNG. You can safely use
+    ///   NullRNG() because IsProbablistic returns false;
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
         CRYPTOPP_UNUSED(rng); Restart();
     }
 
+    /// \brief Add data to the accumulator
+    /// \param msg pointer to the data to accumulate
+    /// \param len the size of the data, in bytes
     void Update(const byte* msg, size_t len) {
         if (msg && len)
             m_msg.insert(m_msg.end(), msg, msg+len);
     }
 
+    /// \brief Reset the accumulator
     void Restart() {
         m_msg.reserve(RESERVE_SIZE);
         m_msg.resize(SIGNATURE_LENGTH);
     }
 
+    /// \brief Retrieve pointer to signature buffer
+    /// \returns pointer to signature buffer
     byte* signature() {
         return &m_msg[0];
     }
 
+    /// \brief Retrieve pointer to signature buffer
+    /// \returns pointer to signature buffer
     const byte* signature() const {
         return &m_msg[0];
     }
 
+    /// \brief Retrieve pointer to data buffer
+    /// \returns pointer to data buffer
     const byte* data() const {
         return &m_msg[0]+SIGNATURE_LENGTH;
     }
 
+    /// \brief Retrieve size of data buffer
+    /// \returns size of the data buffer, in bytes
     size_t size() const {
         return m_msg.size()-SIGNATURE_LENGTH;
     }
