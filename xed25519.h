@@ -205,9 +205,9 @@ public:
     ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
     ///   and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
-    ///   OID set by the user, ASN1::curve25519() and ASN1::X25519().
-    ///   ASN1::curve25519() is generic and says "this key is valid for
-    ///   curve25519 operations". ASN1::X25519() is specific and says
+    ///   OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::X25519()</tt>.
+    ///   <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
+    ///   curve25519 operations". <tt>ASN1::X25519()</tt> is specific and says
     ///   "this key is valid for x25519 key exchange."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
@@ -391,9 +391,9 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
     ///   and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
-    ///   OID set by the user, ASN1::curve25519() and ASN1::Ed25519().
-    ///   ASN1::curve25519() is generic and says "this key is valid for
-    ///   curve25519 operations". ASN1::Ed25519() is specific and says
+    ///   OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::Ed25519()</tt>.
+    ///   <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
+    ///   curve25519 operations". <tt>ASN1::Ed25519()</tt> is specific and says
     ///   "this key is valid for ed25519 signing."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
@@ -574,9 +574,9 @@ struct ed25519PublicKey : public X509PublicKey
     ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
     ///   and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
-    ///   OID set by the user, ASN1::curve25519() and ASN1::Ed25519().
-    ///   ASN1::curve25519() is generic and says "this key is valid for
-    ///   curve25519 operations". ASN1::Ed25519() is specific and says
+    ///   OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::Ed25519()</tt>.
+    ///   <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
+    ///   curve25519 operations". <tt>ASN1::Ed25519()</tt> is specific and says
     ///   "this key is valid for ed25519 signing."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
