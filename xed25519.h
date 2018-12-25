@@ -181,11 +181,35 @@ public:
     // PKCS8PrivateKey
     void BERDecode(BufferedTransformation &bt);
     void DEREncode(BufferedTransformation &bt) const { DEREncode(bt, 0); }
-    void DEREncode(BufferedTransformation &bt, int version) const;
     void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
     void DEREncodePrivateKey(BufferedTransformation &bt) const;
 
-    // Hack because multiple OIDs are available
+    /// \brief DER encode ASN.1 object
+    /// \param bt BufferedTransformation object
+    /// \param version indicates version
+    /// \details DEREncodeSave() will write the OID associated with algorithm or
+    ///   scheme. In the case of public and private keys, this function writes
+    ///   the subjectPubicKeyInfo parts.
+    /// \details The default OID is from RFC 8410 using id-X25519.
+    ///   The default private key format is RFC 5208.
+    /// \details The value of version is written as the INTEGER. Version 0 means
+    ///   RFC 5208 format, which is the old format. The old format provides
+    ///   the best interop, and keys will work with OpenSSL. The value 1 INTEGER
+    ///   means RFC 5958 format, which is the new format.
+    void DEREncode(BufferedTransformation &bt, int version) const;
+
+    /// \brief Determine of OID is valid for this object
+    /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
+    ///   <tt>bt</tt> and determines if it valid for this object. The
+    ///   problem in practice is there are multiple OIDs available to
+    ///   denote curve25519 operations. The OIDs include an old GNU
+    ///   OID used by SSH, OIDs specifified in draft-josefsson-pkix-newcurves,
+    ///   and OIDs specified in draft-ietf-curdle-pkix.
+    /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
+    ///   OID set by the user, ASN1::curve25519() and ASN1::X25519().
+    ///   ASN1::curve25519() is generic and says "this key is valid for
+    ///   curve25519 operations". ASN1::X25519() is specific and says
+    ///   "this key is valid for x25519 key exchange."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // DL_PrivateKey
@@ -347,7 +371,18 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
     void DEREncodePrivateKey(BufferedTransformation &bt) const;
 
-    // Hack because multiple OIDs are available
+    /// \brief Determine of OID is valid for this object
+    /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
+    ///   <tt>bt</tt> and determines if it valid for this object. The
+    ///   problem in practice is there are multiple OIDs available to
+    ///   denote curve25519 operations. The OIDs include an old GNU
+    ///   OID used by SSH, OIDs specifified in draft-josefsson-pkix-newcurves,
+    ///   and OIDs specified in draft-ietf-curdle-pkix.
+    /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
+    ///   OID set by the user, ASN1::curve25519() and ASN1::Ed25519().
+    ///   ASN1::curve25519() is generic and says "this key is valid for
+    ///   curve25519 operations". ASN1::Ed25519() is specific and says
+    ///   "this key is valid for ed25519 signing."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // PKCS8PrivateKey
@@ -519,7 +554,18 @@ struct ed25519PublicKey : public X509PublicKey
     void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size);
     void DEREncodePublicKey(BufferedTransformation &bt) const;
 
-    // Hack because multiple OIDs are available
+    /// \brief Determine of OID is valid for this object
+    /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
+    ///   <tt>bt</tt> and determines if it valid for this object. The
+    ///   problem in practice is there are multiple OIDs available to
+    ///   denote curve25519 operations. The OIDs include an old GNU
+    ///   OID used by SSH, OIDs specifified in draft-josefsson-pkix-newcurves,
+    ///   and OIDs specified in draft-ietf-curdle-pkix.
+    /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
+    ///   OID set by the user, ASN1::curve25519() and ASN1::Ed25519().
+    ///   ASN1::curve25519() is generic and says "this key is valid for
+    ///   curve25519 operations". ASN1::Ed25519() is specific and says
+    ///   "this key is valid for ed25519 signing."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
