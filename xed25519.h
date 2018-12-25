@@ -202,7 +202,7 @@ public:
     ///   <tt>bt</tt> and determines if it valid for this object. The
     ///   problem in practice is there are multiple OIDs available to
     ///   denote curve25519 operations. The OIDs include an old GNU
-    ///   OID used by SSH, OIDs specifified in draft-josefsson-pkix-newcurves,
+    ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
     ///   and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
     ///   OID set by the user, ASN1::curve25519() and ASN1::X25519().
@@ -388,7 +388,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   <tt>bt</tt> and determines if it valid for this object. The
     ///   problem in practice is there are multiple OIDs available to
     ///   denote curve25519 operations. The OIDs include an old GNU
-    ///   OID used by SSH, OIDs specifified in draft-josefsson-pkix-newcurves,
+    ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
     ///   and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
     ///   OID set by the user, ASN1::curve25519() and ASN1::Ed25519().
@@ -571,7 +571,7 @@ struct ed25519PublicKey : public X509PublicKey
     ///   <tt>bt</tt> and determines if it valid for this object. The
     ///   problem in practice is there are multiple OIDs available to
     ///   denote curve25519 operations. The OIDs include an old GNU
-    ///   OID used by SSH, OIDs specifified in draft-josefsson-pkix-newcurves,
+    ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
     ///   and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
     ///   OID set by the user, ASN1::curve25519() and ASN1::Ed25519().
