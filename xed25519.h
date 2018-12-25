@@ -227,7 +227,7 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 
     /// \brief Create a message accumulator
     /// \details ed25519 does not use a RNG. You can safely use
-    ///   NullRNG() because IsProbablistic returns false;
+    ///   NullRNG() because IsProbablistic returns false.
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
         CRYPTOPP_UNUSED(rng); Restart();
     }
@@ -358,6 +358,21 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param x private key
     bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
 
+    /// \brief Retrieve private key byte array
+    /// \returns the private key byte array
+    /// \details GetPrivateKeyBytePtr() is used by signing code to call ed25519_sign.
+    const byte* GetPrivateKeyBytePtr() const {
+        return m_sk.begin();
+    }
+
+    /// \brief Retrieve public key byte array
+    /// \returns the public key byte array
+    /// \details GetPublicKeyBytePtr() is used by signing code to call ed25519_sign.
+    const byte* GetPublicKeyBytePtr() const {
+        return m_pk.begin();
+    }
+
+protected:
     FixedSizeSecBlock<byte, SECRET_KEYLENGTH> m_sk;
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
     OID m_oid;  // preferred OID
@@ -498,6 +513,14 @@ struct ed25519PublicKey : public X509PublicKey
     void SetPublicElement(const Element &y);
     const Element& GetPublicElement() const;
 
+    /// \brief Retrieve public key byte array
+    /// \returns the public key byte array
+    /// \details GetPublicKeyBytePtr() is used by signing code to call ed25519_sign.
+    const byte* GetPublicKeyBytePtr() const {
+        return m_pk.begin();
+    }
+
+protected:
     FixedSizeSecBlock<byte, PUBLIC_KEYLENGTH> m_pk;
     OID m_oid;  // preferred OID
     mutable Integer m_y;  // for DL_PublicKey
