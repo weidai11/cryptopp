@@ -121,7 +121,7 @@ public:
 
     /// \Brief Get the Object Identifier
     /// \returns the Object Identifier
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208.
     OID GetAlgorithmID() const {
         return m_oid.Empty() ? ASN1::X25519() : m_oid;
@@ -146,7 +146,7 @@ public:
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
@@ -156,19 +156,19 @@ public:
 
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \param v0 flag indicating v0
+    /// \param v1 flag indicating v1
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208.
-    /// \details v0 means version 0 INTEGER is written. Version 0 means
+    /// \details v1 means INTEGER 0 is written. INTEGER 0 means
     ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The the other
-    ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
+    ///   the best interop, and keys will work with OpenSSL. The other
+    ///   option is using INTEGER 1. INTEGER 1 means RFC 5958 format,
     ///   which is the new format.
-    void Save(BufferedTransformation &bt, bool v0) const {
-        DEREncode(bt, v0 ? 0 : 1);
+    void Save(BufferedTransformation &bt, bool v1) const {
+        DEREncode(bt, v1 ? 0 : 1);
     }
 
     /// \brief BER decode ASN.1 object
@@ -189,11 +189,11 @@ public:
     /// \details DEREncode() will write the OID associated with algorithm or
     ///   scheme. In the case of public and private keys, this function writes
     ///   the subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208.
-    /// \details The value of version is written as the INTEGER. Version 0 means
+    /// \details The value of version is written as the INTEGER. INTEGER 0 means
     ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The value 1 INTEGER
+    ///   the best interop, and keys will work with OpenSSL. The INTEGER 1
     ///   means RFC 5958 format, which is the new format.
     void DEREncode(BufferedTransformation &bt, int version) const;
 
@@ -328,7 +328,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-Ed25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-Ed25519</tt>.
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
@@ -338,19 +338,19 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
 
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \param v0 flag indicating v0
+    /// \param v1 flag indicating v1
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-Ed25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-Ed25519</tt>.
     ///   The default private key format is RFC 5208.
-    /// \details v0 means version 0 INTEGER is written. Version 0 means
+    /// \details v1 means INTEGER 0 is written. INTEGER 0 means
     ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The the other
-    ///   option is using version 1 INTEGER. Version 1 means RFC 5958 format,
+    ///   the best interop, and keys will work with OpenSSL. The other
+    ///   option is using INTEGER 1. INTEGER 1 means RFC 5958 format,
     ///   which is the new format.
-    void Save(BufferedTransformation &bt, bool v0) const {
-        DEREncode(bt, v0 ? 0 : 1);
+    void Save(BufferedTransformation &bt, bool v1) const {
+        DEREncode(bt, v1 ? 0 : 1);
     }
 
     /// \brief BER decode ASN.1 object
@@ -375,11 +375,11 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \details DEREncode() will write the OID associated with algorithm or
     ///   scheme. In the case of public and private keys, this function writes
     ///   the subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208.
-    /// \details The value of version is written as the INTEGER. Version 0 means
+    /// \details The value of version is written as the INTEGER. INTEGER 0 means
     ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The value 1 INTEGER
+    ///   the best interop, and keys will work with OpenSSL. The INTEGER 1
     ///   means RFC 5958 format, which is the new format.
     void DEREncode(BufferedTransformation &bt, int version) const;
 
@@ -546,7 +546,7 @@ struct ed25519PublicKey : public X509PublicKey
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
