@@ -436,6 +436,7 @@ bool TestEd25519()
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
 	bool pass = true;
 
+	// Test key loads
 	try {
 		FileSource f1(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
 		FileSource f2(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
@@ -496,13 +497,14 @@ bool TestEd25519()
 		// Message and signatures
 		byte msg[MSG_SIZE], sig1[MSG_SIZE+NACL_EXTRA], sig2[64];
 		GlobalRNG().GenerateBlock(msg, MSG_SIZE);
+		size_t len = GlobalRNG().GenerateWord32(0, MSG_SIZE);
 
 		// Spike the signatures
 		sig1[1] = 1; sig2[2] = 2;
 		word64 smlen = sizeof(sig1);
 
-		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg, MSG_SIZE, sk1);
-		int ret2 = Donna::ed25519_sign(msg, MSG_SIZE, sk2, pk2, sig2);
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg, len, sk1);
+		int ret2 = Donna::ed25519_sign(msg, len, sk2, pk2, sig2);
 		int ret3 = std::memcmp(sig1, sig2, 64);
 
 		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0;
@@ -527,14 +529,15 @@ bool TestEd25519()
 		byte msg1[MSG_SIZE+NACL_EXTRA], msg2[MSG_SIZE];
 		byte sig1[MSG_SIZE+NACL_EXTRA], sig2[64];
 		GlobalRNG().GenerateBlock(msg1, MSG_SIZE);
-		std::memcpy(msg2, msg1, MSG_SIZE);
+		size_t len = GlobalRNG().GenerateWord32(0, MSG_SIZE);
+		std::memcpy(msg2, msg1, len);
 
 		// Spike the signatures
 		sig1[1] = 1; sig2[2] = 2;
 
 		word64 smlen = sizeof(sig1);
-		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg1, MSG_SIZE, sk1);
-		int ret2 = Donna::ed25519_sign(msg2, MSG_SIZE, sk2, pk2, sig2);
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg1, len, sk1);
+		int ret2 = Donna::ed25519_sign(msg2, len, sk2, pk2, sig2);
 		int ret3 = std::memcmp(sig1, sig2, 64);
 
 		bool tamper = !!GlobalRNG().GenerateBit();
@@ -545,9 +548,9 @@ bool TestEd25519()
 		}
 
 		// Verify the other's signature using the other's key
-		word64 mlen = MSG_SIZE+NACL_EXTRA;
+		word64 mlen = len+NACL_EXTRA;
 		int ret4 = NaCl::crypto_sign_open(msg1, &mlen, sig1, smlen, pk2);
-		int ret5 = Donna::ed25519_sign_open(msg2, MSG_SIZE, pk1, sig2);
+		int ret5 = Donna::ed25519_sign_open(msg2, len, pk1, sig2);
 
 		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
 		pass = pass && !fail;
