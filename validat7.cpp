@@ -436,31 +436,7 @@ bool TestEd25519()
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
 	bool pass = true;
 
-	// Test key loads
-	try {
-		FileSource f1(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
-		FileSource f2(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
-		FileSource f3(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
-
-		ed25519::Signer s1(f1);
-		ed25519::Signer s2(f2);
-		ed25519::Signer s3(f3);
-
-		FileSource f4(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
-		FileSource f5(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
-		FileSource f6(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
-
-		s1.AccessKey().Load(f4);
-		s2.AccessKey().Load(f5);
-		s3.AccessKey().Load(f6);
-	}
-	catch (const BERDecodeErr&) {
-		pass = false;
-	}
-
-#if defined(NO_OS_DEPENDENCE)
-	return pass;
-#else
+#ifndef NO_OS_DEPENDENCE
 	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
 	const unsigned int NACL_EXTRA=NaCl::crypto_sign_BYTES;
 
@@ -562,6 +538,84 @@ bool TestEd25519()
 		std::cout << "FAILED:";
 	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
 #endif
+
+	// RFC 8032 test vector
+	try
+	{
+		// RFC 8032 Ed25519 test vector 3, p. 23
+		byte sk[] = {
+		   0xc5,0xaa,0x8d,0xf4,0x3f,0x9f,0x83,0x7b,0xed,0xb7,0x44,0x2f,0x31,0xdc,0xb7,0xb1,
+		   0x66,0xd3,0x85,0x35,0x07,0x6f,0x09,0x4b,0x85,0xce,0x3a,0x2e,0x0b,0x44,0x58,0xf7
+		};
+		byte pk[] = {
+			0xfc,0x51,0xcd,0x8e,0x62,0x18,0xa1,0xa3,0x8d,0xa4,0x7e,0xd0,0x02,0x30,0xf0,0x58,
+			0x08,0x16,0xed,0x13,0xba,0x33,0x03,0xac,0x5d,0xeb,0x91,0x15,0x48,0x90,0x80,0x25
+		};
+
+		const byte exp[] = {
+			0x62,0x91,0xd6,0x57,0xde,0xec,0x24,0x02,0x48,0x27,0xe6,0x9c,0x3a,0xbe,0x01,0xa3,
+			0x0c,0xe5,0x48,0xa2,0x84,0x74,0x3a,0x44,0x5e,0x36,0x80,0xd7,0xdb,0x5a,0xc3,0xac,
+			0x18,0xff,0x9b,0x53,0x8d,0x16,0xf2,0x90,0xae,0x67,0xf7,0x60,0x98,0x4d,0xc6,0x59,
+			0x4a,0x7c,0x15,0xe9,0x71,0x6e,0xd2,0x8d,0xc0,0x27,0xbe,0xce,0xea,0x1e,0xc4,0x0a
+		};
+
+		const byte msg[2] = {0xaf, 0x82}; byte sig[64];
+
+		// Test the filter framework
+		ed25519Signer signer(pk, sk);
+		StringSource(msg, sizeof(msg), true, new SignerFilter(NullRNG(), signer, new ArraySink(sig, sizeof(sig))));
+
+		if (std::memcmp(exp, sig, 64) != 0)
+			throw Exception(Exception::OTHER_ERROR, "TestEd25519: SignerFilter");
+
+		ed25519Verifier verifier(pk);
+		int flags = SignatureVerificationFilter::THROW_EXCEPTION | SignatureVerificationFilter::SIGNATURE_AT_END;
+		int result;
+		std::string msg_sig = std::string((char*)msg, sizeof(msg)) + std::string((char*)sig, sizeof(sig));
+		StringSource(msg_sig, true, new SignatureVerificationFilter(verifier, new ArraySink((byte*)&result, sizeof(result)), flags));
+
+		if (result == 0)
+			throw Exception(Exception::OTHER_ERROR, "TestEd25519: SignatureVerificationFilter");
+	}
+	catch(const Exception&)
+	{
+		pass = false;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  RFC 8032 test vectors" << std::endl;
+
+
+	// Test key loads
+	try {
+		FileSource f1(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
+		FileSource f2(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f3(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
+
+		ed25519::Signer s1(f1);
+		ed25519::Signer s2(f2);
+		ed25519::Signer s3(f3);
+
+		FileSource f4(DataDir("TestData/ed25519.dat").c_str(), true, new HexDecoder);
+		FileSource f5(DataDir("TestData/ed25519v0.dat").c_str(), true, new HexDecoder);
+		FileSource f6(DataDir("TestData/ed25519v1.dat").c_str(), true, new HexDecoder);
+
+		s1.AccessKey().Load(f4);
+		s2.AccessKey().Load(f5);
+		s3.AccessKey().Load(f6);
+	}
+	catch (const BERDecodeErr&) {
+		pass = false;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  RFC 5208 and 5958 key loads" << std::endl;
 
 	return pass;
 }
