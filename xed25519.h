@@ -8,7 +8,6 @@
 // than x25519 does below. They are a little more accessible
 // due to crypto_box operations.
 
-
 /// \file xed25519.h
 /// \brief Classes for x25519 and ed25519 operations
 /// \details This implementation integrates Andrew Moon's public domain code
@@ -234,8 +233,8 @@ protected:
 // ****************** ed25519 Signer *********************** //
 
 /// \brief ed25519 message accumulator
-/// \details ed25519 buffers the entire message. The class does not
-///   digest the message incrementally, so you should be careful with
+/// \details ed25519 buffers the entire message, and does not
+///   digest the message incrementally. You should be careful with
 ///   large messages like files on-disk. The behavior is by design
 ///   because Bernstein feels small messages should be authenticated;
 ///   and larger messages will be hashed by the application.
