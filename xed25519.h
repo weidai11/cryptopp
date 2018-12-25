@@ -275,6 +275,15 @@ protected:
     std::vector<byte, AllocatorWithCleanup<byte> > m_msg;
 };
 
+/// \brief ed25519 private key
+/// \details ed25519PrivateKey is somewhat of a hack. It needed to
+///   provide DL_PrivateKey interface to fit into the existing
+///   framework, but it lacks a lot of the internals of a true
+///   DL_PrivateKey. The missing pieces include GroupParameters
+///   and Point, which provide the low level field operations
+///   found in traditional implementations like NIST curves over
+///   prime and binary fields.
+/// \since Crypto++ 8.0
 struct ed25519PrivateKey : public PKCS8PrivateKey
 {
     CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
@@ -467,6 +476,15 @@ protected:
 
 // ****************** ed25519 Verifier *********************** //
 
+/// \brief ed25519 public key
+/// \details ed25519PublicKey is somewhat of a hack. It needed to
+///   provide DL_PublicKey interface to fit into the existing
+///   framework, but it lacks a lot of the internals of a true
+///   DL_PublicKey. The missing pieces include GroupParameters
+///   and Point, which provide the low level field operations
+///   found in traditional implementations like NIST curves over
+///   prime and binary fields.
+/// \since Crypto++ 8.0
 struct ed25519PublicKey : public X509PublicKey
 {
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
