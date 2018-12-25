@@ -86,10 +86,10 @@ bool ValidateHMQV()
 	std::cout << "HMQV with NIST P-256 and SHA-256:" << std::endl;
 
 	if (hmqvB.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -97,10 +97,10 @@ bool ValidateHMQV()
 	ECHMQV< ECP >::Domain hmqvA(oid, true /*client*/);
 
 	if (hmqvA.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -120,17 +120,17 @@ bool ValidateHMQV()
 
 	if (!(hmqvA.Agree(valA, sprivA, eprivA, spubB, epubB) && hmqvB.Agree(valB, sprivB, eprivB, spubA, epubA)))
 	{
-		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA.begin(), valB.begin(), hmqvA.AgreedValueLength()))
 	{
-		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed    authenticated key agreement" << std::endl;
+	std::cout << "passed	authenticated key agreement" << std::endl;
 
 	// Now test HMQV with NIST P-384 curve and SHA384 hash
 	std::cout << std::endl;
@@ -140,10 +140,10 @@ bool ValidateHMQV()
 	hmqvB384.AccessGroupParameters().BERDecode(f384);
 
 	if (hmqvB384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -151,10 +151,10 @@ bool ValidateHMQV()
 	ECHMQV384 hmqvA384(oid384, true /*client*/);
 
 	if (hmqvA384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -174,17 +174,17 @@ bool ValidateHMQV()
 
 	if (!(hmqvA384.Agree(valA384, sprivA384, eprivA384, spubB384, epubB384) && hmqvB384.Agree(valB384, sprivB384, eprivB384, spubA384, epubA384)))
 	{
-		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA384.begin(), valB384.begin(), hmqvA384.AgreedValueLength()))
 	{
-		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed    authenticated key agreement" << std::endl;
+	std::cout << "passed	authenticated key agreement" << std::endl;
 
 	return true;
 }
@@ -203,10 +203,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	std::cout << "FHMQV with NIST P-256 and SHA-256:" << std::endl;
 
 	if (fhmqvB.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -214,10 +214,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	ECFHMQV< ECP >::Domain fhmqvA(oid, true /*client*/);
 
 	if (fhmqvA.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -237,17 +237,17 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 
 	if (!(fhmqvA.Agree(valA, sprivA, eprivA, spubB, epubB) && fhmqvB.Agree(valB, sprivB, eprivB, spubA, epubA)))
 	{
-		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA.begin(), valB.begin(), fhmqvA.AgreedValueLength()))
 	{
-		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed    authenticated key agreement" << std::endl;
+	std::cout << "passed	authenticated key agreement" << std::endl;
 
 	// Now test FHMQV with NIST P-384 curve and SHA384 hash
 	std::cout << std::endl;
@@ -257,10 +257,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	fhmqvB384.AccessGroupParameters().BERDecode(f384);
 
 	if (fhmqvB384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (server)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (server)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (server)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (server)" << std::endl;
 		return false;
 	}
 
@@ -268,10 +268,10 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 	ECHMQV384 fhmqvA384(oid384, true /*client*/);
 
 	if (fhmqvA384.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (client)" << std::endl;
+		std::cout << "passed	authenticated key agreement domain parameters validation (client)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (client)" << std::endl;
+		std::cout << "FAILED	authenticated key agreement domain parameters invalid (client)" << std::endl;
 		return false;
 	}
 
@@ -291,17 +291,17 @@ std::cout << "\nFHMQV validation suite running...\n\n";
 
 	if (!(fhmqvA384.Agree(valA384, sprivA384, eprivA384, spubB384, epubB384) && fhmqvB384.Agree(valB384, sprivB384, eprivB384, spubA384, epubA384)))
 	{
-		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
+		std::cout << "FAILED	authenticated key agreement failed" << std::endl;
 		return false;
 	}
 
 	if (memcmp(valA384.begin(), valB384.begin(), fhmqvA384.AgreedValueLength()))
 	{
-		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
+		std::cout << "FAILED	authenticated agreed values not equal" << std::endl;
 		return false;
 	}
 
-	std::cout << "passed    authenticated key agreement" << std::endl;
+	std::cout << "passed	authenticated key agreement" << std::endl;
 
 	return true;
 }
@@ -361,49 +361,58 @@ bool ValidateEC2N_Agreement()
 // TestX25519 called in Debug builds.
 bool TestX25519()
 {
-    std::cout << "\nTesting curve25519 Key Agreements...\n\n";
-    const unsigned int AGREE_COUNT = 64;
-    bool pass = true;
+	std::cout << "\nTesting curve25519 Key Agreements...\n\n";
+	const unsigned int AGREE_COUNT = 64;
+	bool pass = true;
 
-    SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
-    for (unsigned int i=0; i<AGREE_COUNT; ++i)
-    {
-        GlobalRNG().GenerateBlock(priv1, priv1.size());
-        GlobalRNG().GenerateBlock(priv2, priv2.size());
+	try {
+		x25519 x1(FileSource(DataDir("TestData/x25519.dat").c_str(), true).Ref());
+		x25519 x2(FileSource(DataDir("TestData/x25519v0.dat").c_str(), true).Ref());
+		x25519 x3(FileSource(DataDir("TestData/x25519v1.dat").c_str(), true).Ref());
+	}
+	catch (BERDecodeErr&) {
+		pass = false;
+	}
 
-        priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
-        priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
+	SecByteBlock priv1(32), priv2(32), pub1(32), pub2(32), share1(32), share2(32);
+	for (unsigned int i=0; i<AGREE_COUNT; ++i)
+	{
+		GlobalRNG().GenerateBlock(priv1, priv1.size());
+		GlobalRNG().GenerateBlock(priv2, priv2.size());
 
-        // Andrew Moon's curve25519-donna
-        Donna::curve25519_mult(pub1, priv1);
-        Donna::curve25519_mult(pub2, priv2);
+		priv1[0] &= 248; priv1[31] &= 127; priv1[31] |= 64;
+		priv2[0] &= 248; priv2[31] &= 127; priv2[31] |= 64;
 
-        int ret1 = Donna::curve25519_mult(share1, priv1, pub2);
-        int ret2 = Donna::curve25519_mult(share2, priv2, pub1);
-        int ret3 = std::memcmp(share1, share2, 32);
+		// Andrew Moon's curve25519-donna
+		Donna::curve25519_mult(pub1, priv1);
+		Donna::curve25519_mult(pub2, priv2);
+
+		int ret1 = Donna::curve25519_mult(share1, priv1, pub2);
+		int ret2 = Donna::curve25519_mult(share2, priv2, pub1);
+		int ret3 = std::memcmp(share1, share2, 32);
 
 #if defined(NO_OS_DEPENDENCE)
-        int ret4=0, ret5=0, ret6=0;
+		int ret4=0, ret5=0, ret6=0;
 #else
-        // Bernstein's NaCl requires DefaultAutoSeededRNG.
-        NaCl::crypto_box_keypair(pub2, priv2);
+		// Bernstein's NaCl requires DefaultAutoSeededRNG.
+		NaCl::crypto_box_keypair(pub2, priv2);
 
-        int ret4 = Donna::curve25519_mult(share1, priv1, pub2);
-        int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
-        int ret6 = std::memcmp(share1, share2, 32);
+		int ret4 = Donna::curve25519_mult(share1, priv1, pub2);
+		int ret5 = NaCl::crypto_scalarmult(share2, priv2, pub1);
+		int ret6 = std::memcmp(share1, share2, 32);
 #endif
 
-        bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
-        pass = pass && !fail;
-    }
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ret4 != 0 || ret5 != 0 || ret6 != 0;
+		pass = pass && !fail;
+	}
 
-    if (pass)
-        std::cout << "passed:";
-    else
-        std::cout << "FAILED:";
-    std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << AGREE_COUNT << " key agreements" << std::endl;
 
-    return pass;
+	return pass;
 }
 
 // TestEd25519 is slighty more comprehensive than ValidateEd25519
@@ -414,8 +423,16 @@ bool TestEd25519()
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
 	bool pass = true;
 
+	try {
+		ed25519::Signer s1(FileSource(DataDir("TestData/ed25519.dat").c_str(), true).Ref());
+		ed25519::Signer s2(FileSource(DataDir("TestData/ed25519v0.dat").c_str(), true).Ref());
+		ed25519::Signer s3(FileSource(DataDir("TestData/ed25519v1.dat").c_str(), true).Ref());
+	}
+	catch (BERDecodeErr&) {
+		pass = false;
+	}
+
 #if defined(NO_OS_DEPENDENCE)
-	std::cout << "\nNo operating system provided random number generator, skipping test." << std::endl;
 	return pass;
 #else
 	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
