@@ -37,11 +37,11 @@
 <dt>Public Key Cryptosystems<dd>
 	DLIES, ECIES, LUCES, RSAES, RabinES, LUC_IES
 <dt>Public Key Signature Schemes<dd>
-	DSA, DSA2, Ed25519, GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO, RabinSS, RWSS, ESIGN
+	DSA, DSA2, \ref ed25519 "Ed25519", GDSA, ECDSA, NR, ECNR, LUCSS, RSASS, RSASS_ISO,
+	RabinSS, RWSS, ESIGN
 <dt>Key Agreement<dd>
-	DH, DH2, X25519, \ref MQV_Domain "MQV", \ref HMQV_Domain "HMQV", \ref FHMQV_Domain "FHMQV",
-    ECDH, x25519, ECMQV, ECHMQV,
-	ECFHMQV, XTR_DH
+	DH, DH2, \ref x25519 "X25519", \ref MQV_Domain "MQV", \ref HMQV_Domain "HMQV",
+    \ref FHMQV_Domain "FHMQV", ECDH, x25519, ECMQV, ECHMQV, ECFHMQV, XTR_DH
 <dt>Algebraic Structures<dd>
 	Integer, PolynomialMod2, PolynomialOver, RingOfPolynomialsOver,
 	ModularArithmetic, MontgomeryRepresentation, GFP2_ONB, GF2NP, GF256, GF2_32, EC2N, ECP
