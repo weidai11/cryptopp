@@ -111,7 +111,7 @@ public:
     ///   public key from the private key.
     void ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const;
 
-    /// \brief Test if a key is clamped
+    /// \brief Determine if private key is clamped
     /// \param x private key
     bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
 
@@ -410,7 +410,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   public key from the private key.
     void ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const;
 
-    /// \brief Test if a key is clamped
+    /// \brief Determine if private key is clamped
     /// \param x private key
     bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
 
