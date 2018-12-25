@@ -349,7 +349,7 @@ void ed25519PrivateKey::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLEN
 {
     x[0] &= 248; x[31] &= 127; x[31] |= 64;
     int ret = Donna::ed25519_publickey(y, x);
-    CRYPTOPP_ASSERT(ret == 0);
+    CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
 
 bool ed25519PrivateKey::IsClamped(const byte x[SECRET_KEYLENGTH]) const
@@ -426,7 +426,7 @@ void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameVal
     rng.GenerateBlock(m_sk, 32);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
     int ret = Donna::ed25519_publickey(m_pk, m_sk);
-    CRYPTOPP_ASSERT(ret == 0);
+    CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
 
 void ed25519PrivateKey::MakePublicKey (PublicKey &pub) const
