@@ -328,7 +328,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \details Save() will write the OID associated with algorithm or scheme.
     ///   In the case of public and private keys, this function writes the
     ///   subjectPubicKeyInfo parts.
-    /// \details The default OID is from RFC 8410 using id-X25519.
+    /// \details The default OID is from RFC 8410 using id-Ed25519.
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
