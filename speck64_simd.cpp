@@ -50,14 +50,6 @@
 # include "ppc_simd.h"
 #endif
 
-#ifndef inline
-# if defined(CRYPTOPP_DEBUG)
-#  define inline static
-# else
-#  define inline inline
-# endif
-#endif
-
 // Squash MS LNK4221 and libtool warnings
 extern const char SPECK64_SIMD_FNAME[] = __FILE__;
 
