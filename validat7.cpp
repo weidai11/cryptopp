@@ -570,12 +570,10 @@ bool TestEd25519()
 
 		ed25519Verifier verifier(pk);
 		int flags = SignatureVerificationFilter::THROW_EXCEPTION | SignatureVerificationFilter::SIGNATURE_AT_END;
-		int result;
 		std::string msg_sig = std::string((char*)msg, sizeof(msg)) + std::string((char*)sig, sizeof(sig));
-		StringSource(msg_sig, true, new SignatureVerificationFilter(verifier, new ArraySink((byte*)&result, sizeof(result)), flags));
+		StringSource(msg_sig, true, new SignatureVerificationFilter(verifier, NULLPTR, flags));
 
-		if (result == 0)
-			throw Exception(Exception::OTHER_ERROR, "TestEd25519: SignatureVerificationFilter");
+		// No throw is success
 	}
 	catch(const Exception&)
 	{
