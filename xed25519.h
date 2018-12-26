@@ -450,6 +450,10 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param x private key
     bool IsClamped(const byte x[SECRET_KEYLENGTH]) const;
 
+    /// \brief Test if a key has small order
+    /// \param y public key
+    bool IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const;
+
     /// \brief Retrieve private key byte array
     /// \returns the private key byte array
     /// \details GetPrivateKeyBytePtr() is used by signing code to call ed25519_sign.
