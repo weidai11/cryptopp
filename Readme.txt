@@ -39,11 +39,12 @@ Currently the library contains the following algorithms:
    padding schemes for public-key  PKCS#1 v2.0, OAEP, PSS, PSSR, IEEE P1363
                           systems  EMSA2 and EMSA5
 
-                                   Diffie-Hellman (DH), Unified Diffie-Hellman
-            key agreement schemes  (DH2), Menezes-Qu-Vanstone (MQV), Hashed MQV (HMQV),
+                                   Diffie-Hellman (DH), Unified Diffie-Hellman (DH2),
+            key agreement schemes  Menezes-Qu-Vanstone (MQV), Hashed MQV (HMQV),
                                    Fully Hashed MQV (FHMQV), LUCDIF, XTR-DH
 
-      elliptic curve cryptography  ECDSA, Determinsitic ECDSA, ECNR, ECIES, ECDH, ECMQV
+      elliptic curve cryptography  ECDSA, Determinsitic ECDSA, ed25519, ECNR, ECIES,
+                                   ECDH, ECMQV, x25519
 
           insecure or obsolescent  MD2, MD4, MD5, Panama Hash, DES, ARC4, SEAL
 algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
@@ -53,7 +54,7 @@ algorithms retained for backwards  3.0, WAKE-OFB, DESX (DES-XEX3), RC2,
 Other features include:
 
   * pseudo random number generators (PRNG): ANSI X9.17 appendix C, RandomPool,
-    VIA Padlock, RDRAND, RDSEED, NIST Hash and HMAC DRBGs
+    DARN, VIA Padlock, RDRAND, RDSEED, NIST Hash and HMAC DRBGs
   * password based key derivation functions: PBKDF1 and PBKDF2 from PKCS #5,
     PBKDF from PKCS #12 appendix B, HKDF from RFC 5869, Scrypt from RFC 7914
   * Shamir's secret sharing scheme and Rabin's information dispersal algorithm
