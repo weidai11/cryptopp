@@ -927,7 +927,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	// http://github.com/weidai11/cryptopp/issues/346
 	case 9991: result = TestEd25519(); break;
 # if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
-	case 9992: result = TestAltivecOps(); break;
+	case 9990: result = TestAltivecOps(); break;
 # endif
 #endif
 
