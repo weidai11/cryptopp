@@ -31,17 +31,6 @@
 # include <wmmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) && 0
-# include <arm_neon.h>
-#endif
-
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
-#if (CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include <stdint.h>
-# include <arm_acle.h>
-#endif
-
 // Squash MS LNK4221 and libtool warnings
 extern const char SM4_SIMD_FNAME[] = __FILE__;
 
@@ -334,23 +323,5 @@ size_t SM4_Enc_AdvancedProcessBlocks_AESNI(const word32* subKeys, size_t rounds,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif // CRYPTOPP_AESNI_AVAILABLE
-
-#if defined(CRYPTOPP_ARM_NEON_AVAILABLE) && 0
-size_t SM4_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    uint32x4_t unused;  // Avoid template argument deduction/substitution failures
-    return AdvancedProcessBlocks128_4x1_NEON(SM4_Enc_Block, SM4_Enc_4_Blocks,
-        unused, subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
-}
-
-size_t SM4_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
-{
-    uint32x4_t unused;  // Avoid template argument deduction/substitution failures
-    return AdvancedProcessBlocks128_4x1_NEON(SM4_Dec_Block, SM4_Dec_4_Blocks,
-        unused, subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
-}
-#endif // CRYPTOPP_ARM_NEON_AVAILABLE
 
 NAMESPACE_END
