@@ -269,10 +269,8 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
         SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
         ClampKeys(pk, sk);
 
-        bool equal = true;
-        equal &= VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH);
-        equal &= VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH);
-        if (equal == false)
+        // Secret key is already clamped, bufs are equal
+        if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false)
             return false;
     }
 
@@ -396,10 +394,8 @@ bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level)
         SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
         ClampKeys(pk, sk);
 
-        bool equal = true;
-        equal &= VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH);
-        equal &= VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH);
-        if (equal == false)
+        // Secret key is already clamped, bufs are equal
+        if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false)
             return false;
     }
 
