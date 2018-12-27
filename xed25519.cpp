@@ -264,6 +264,15 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
         return false;
     if (level >= 2 && IsSmallOrder(m_pk) == true)
         return false;
+    if (level >= 3)
+    {
+        SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
+        ClampKeys(pk, sk);
+        if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false || VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH) == false)
+        {
+            return false;
+        }
+    }
 
     return true;
 }
@@ -372,7 +381,24 @@ bool ed25519PrivateKey::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
 
 bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
-    CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(level);
+    CRYPTOPP_UNUSED(rng);
+    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
+    CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
+
+    if (level >= 1 && IsClamped(m_sk) == false)
+        return false;
+    if (level >= 2 && IsSmallOrder(m_pk) == true)
+        return false;
+    if (level >= 3)
+    {
+        SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
+        ClampKeys(pk, sk);
+        if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false || VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH) == false)
+        {
+            return false;
+        }
+    }
+
     return true;
 }
 
