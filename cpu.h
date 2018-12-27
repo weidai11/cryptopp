@@ -208,7 +208,7 @@ inline bool HasADX()
 /// \brief Determines AVX availability
 /// \returns true if AVX is determined to be available, false otherwise
 /// \details HasAVX() is a runtime check performed using CPUID
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasAVX()
 {
@@ -220,7 +220,7 @@ inline bool HasAVX()
 /// \brief Determines AVX2 availability
 /// \returns true if AVX2 is determined to be available, false otherwise
 /// \details HasAVX2() is a runtime check performed using CPUID
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasAVX2()
 {
@@ -362,7 +362,7 @@ void CRYPTOPP_API DetectArmFeatures();
 /// \brief Determine if an ARM processor is ARMv7 or above
 /// \returns true if the hardware is ARMv7 or above, false otherwise.
 /// \details Some AES code requires ARMv7 or above
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
 inline bool HasARMv7()
 {
@@ -504,7 +504,7 @@ inline bool HasSHA2()
 /// \details Runtime support requires compile time support. When compiling with GCC, you
 ///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA512()
 {
@@ -524,7 +524,7 @@ inline bool HasSHA512()
 /// \details Runtime support requires compile time support. When compiling with GCC, you
 ///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA3()
 {
@@ -544,7 +544,7 @@ inline bool HasSHA3()
 /// \details Runtime support requires compile time support. When compiling with GCC, you
 ///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSM3()
 {
@@ -564,7 +564,7 @@ inline bool HasSM3()
 /// \details Runtime support requires compile time support. When compiling with GCC, you
 ///   may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
 ///   <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSM4()
 {

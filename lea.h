@@ -5,7 +5,7 @@
 
 /// \file lea.h
 /// \brief Classes for the LEA block cipher
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_LEA_H
 #define CRYPTOPP_LEA_H
@@ -28,7 +28,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief LEA block cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct LEA_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,32,8>
 {
     /// \brief The algorithm name
@@ -48,13 +48,13 @@ struct LEA_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,32,8
 /// \sa <a href="http://www.cryptopp.com/wiki/LEA">LEA</a>,
 ///   <a href="https://seed.kisa.or.kr/html/egovframework/iwt/ds/ko/ref/LEA%20A%20128-Bit%20Block%20Cipher%20for%20Fast%20Encryption%20on%20Common%20Processors-English.pdf">
 ///   LEA: A 128-Bit Block Cipher for Fast Encryption on Common Processors</a>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class CRYPTOPP_NO_VTABLE LEA : public LEA_Info, public BlockCipherDocumentation
 {
 public:
     /// \brief LEA block cipher transformation functions
     /// \details Provides implementation common to encryption and decryption
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<LEA_Info>
     {
     protected:
@@ -69,7 +69,7 @@ public:
     /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:
@@ -83,7 +83,7 @@ public:
     /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     public:

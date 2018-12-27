@@ -6,7 +6,7 @@
 
 /// \file hight.h
 /// \brief Classes for the HIGHT block cipher
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_HIGHT_H
 #define CRYPTOPP_HIGHT_H
@@ -19,7 +19,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief HIGHT block cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct HIGHT_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 {
     static const std::string StaticAlgorithmName()
@@ -35,13 +35,13 @@ struct HIGHT_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 /// \sa <a href="http://www.cryptopp.com/wiki/HIGHT">HIGHT</a>,
 ///   <a href="https://seed.kisa.or.kr/">Korea Internet &amp; Security
 ///   Agency</a> website
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class CRYPTOPP_NO_VTABLE HIGHT : public HIGHT_Info, public BlockCipherDocumentation
 {
 public:
     /// \brief HIGHT block cipher transformation functions
     /// \details Provides implementation common to encryption and decryption
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<HIGHT_Info>
     {
     protected:
@@ -53,7 +53,7 @@ public:
 
     /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:
@@ -62,7 +62,7 @@ public:
 
     /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     public:

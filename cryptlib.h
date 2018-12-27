@@ -3,7 +3,7 @@
 /// \file cryptlib.h
 /// \brief Abstract base classes that provide a uniform interface to this library.
 
-/*!	\mainpage Crypto++ Library 7.1 API Reference
+/*!	\mainpage Crypto++ Library 8.0 API Reference
 <dl>
 <dt>Abstract Base Classes<dd>
 	cryptlib.h
@@ -604,7 +604,7 @@ public:
 	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
 	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
-	/// \since Crypto++ 7.1
+	/// \since Crypto++ 8.0
 	virtual std::string AlgorithmProvider() const {return "C++";}
 };
 

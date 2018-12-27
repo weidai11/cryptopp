@@ -9,7 +9,7 @@
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/e2-hc128.html">The
 ///   eSTREAM Project | HC-128</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/HC-128">Crypto++ Wiki | HC-128</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_HC128_H
 #define CRYPTOPP_HC128_H
@@ -20,14 +20,14 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief HC-128 stream cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct HC128Info : public FixedKeyLength<16, SimpleKeyingInterface::UNIQUE_IV, 16>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "HC-128"; }
 };
 
 /// \brief HC-128 stream cipher implementation
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class HC128Policy : public AdditiveCipherConcretePolicy<word32, 16>, public HC128Info
 {
 protected:
@@ -55,7 +55,7 @@ private:
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/e2-hc128.html">The
 ///   eSTREAM Project | HC-128</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/HC-128">Crypto++ Wiki | HC-128</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct HC128 : public HC128Info, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<HC128Policy, AdditiveCipherTemplate<> >, HC128Info> Encryption;

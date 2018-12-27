@@ -10,7 +10,7 @@
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
 ///   eSTREAM Project | Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_RABBIT_H
 #define CRYPTOPP_RABBIT_H
@@ -25,21 +25,21 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Rabbit stream cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct RabbitInfo : public FixedKeyLength<16, SimpleKeyingInterface::NOT_RESYNCHRONIZABLE>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "Rabbit"; }
 };
 
 /// \brief Rabbit stream cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct RabbitWithIVInfo : public FixedKeyLength<16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "RabbitWithIV"; }
 };
 
 /// \brief Rabbit stream cipher implementation
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class RabbitPolicy : public AdditiveCipherConcretePolicy<word32, 4>, public RabbitInfo
 {
 protected:
@@ -57,7 +57,7 @@ private:
 };
 
 /// \brief Rabbit stream cipher implementation
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class RabbitWithIVPolicy : public AdditiveCipherConcretePolicy<word32, 4>, public RabbitWithIVInfo
 {
 protected:
@@ -84,7 +84,7 @@ private:
 /// \sa RabbitWithIV, <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
 ///   eSTREAM Project | Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<RabbitPolicy, AdditiveCipherTemplate<> >, RabbitInfo> Encryption;
@@ -100,7 +100,7 @@ struct Rabbit : public RabbitInfo, public SymmetricCipherDocumentation
 /// \sa Rabbit, <A HREF="http://www.ecrypt.eu.org/stream/e2-rabbit.html">The
 ///   eSTREAM Project | Rabbit</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/Rabbit">Crypto++ Wiki | Rabbit</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct RabbitWithIV : public RabbitWithIVInfo, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<RabbitWithIVPolicy, AdditiveCipherTemplate<> >, RabbitWithIVInfo> Encryption;

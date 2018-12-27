@@ -7,7 +7,7 @@
 /// \sa <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>,
 ///   <a href="https://eprint.iacr.org/2015/612.pdf">The Simeck
 ///   Family of Lightweight Block Ciphers</a>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_SIMECK_H
 #define CRYPTOPP_SIMECK_H
@@ -30,7 +30,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SIMECK block cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct SIMECK32_Info : public FixedBlockSize<4>, public FixedKeyLength<8>, public FixedRounds<32>
 {
     /// \brief The algorithm name
@@ -45,7 +45,7 @@ struct SIMECK32_Info : public FixedBlockSize<4>, public FixedKeyLength<8>, publi
 };
 
 /// \brief SIMECK block cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct SIMECK64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public FixedRounds<44>
 {
     /// \brief The algorithm name
@@ -65,13 +65,13 @@ struct SIMECK64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, publ
 /// \sa SIMECK64, <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>,
 ///   <a href="https://eprint.iacr.org/2015/612.pdf">The Simeck Family of
 ///   Lightweight Block Ciphers</a>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class CRYPTOPP_NO_VTABLE SIMECK32 : public SIMECK32_Info, public BlockCipherDocumentation
 {
 public:
     /// \brief SIMECK block cipher transformation functions
     /// \details Provides implementation common to encryption and decryption
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SIMECK32_Info>
     {
     protected:
@@ -85,7 +85,7 @@ public:
     /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:
@@ -95,7 +95,7 @@ public:
     /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     public:
@@ -115,13 +115,13 @@ typedef SIMECK32::Decryption SIMECK32Decryption;
 /// \sa SIMECK32, <a href="http://www.cryptopp.com/wiki/SIMECK">SIMECK</a>,
 ///   <a href= "https://eprint.iacr.org/2015/612.pdf">The Simeck Family of
 ///   Lightweight Block Ciphers</a>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class CRYPTOPP_NO_VTABLE SIMECK64 : public SIMECK64_Info, public BlockCipherDocumentation
 {
 public:
     /// \brief SIMECK block cipher transformation functions
     /// \details Provides implementation common to encryption and decryption
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<SIMECK64_Info>
     {
     protected:
@@ -135,7 +135,7 @@ public:
     /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:
@@ -149,7 +149,7 @@ public:
     /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     public:

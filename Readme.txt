@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 7.0 - APR/08/2018
+Version 8.0 - DEC/28/2018
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -92,13 +92,13 @@ The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
   * Visual Studio 2003 - 2017
-  * GCC 3.3 - 8.0
+  * GCC 3.3 - 9.0
   * Apple Clang 4.3 - 9.3
-  * LLVM Clang 2.9 - 4.0
-  * C++Builder 2010
+  * LLVM Clang 2.9 - 7.0
+  * C++Builder 2015
   * Intel C++ Compiler 9 - 16.0
-  * Sun Studio 12u1 - 12.5
-  * IBM XL C/C++ 10.0 - 13.1
+  * Sun Studio 12u1 - 12.6
+  * IBM XL C/C++ 10.0 - 13.3
 
 *** Important Usage Notes ***
 
@@ -283,6 +283,25 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
+8.0.0 - December 28, 2018
+
+      - major release, recompile of programs required
+      - expanded community input and support
+         * 54 unique contributors as of this release
+      - add x25519 key exchange and ed25519 signature scheme
+      - add limited Asymmetric Key Package support from RFC 5958
+      - add Power9 DARN random number generator support
+      - add CHAM, HC-128, HC-256, Hight, LEA, Rabbit, Simeck
+      - fix FixedSizeAllocatorWithCleanup may be unaligned on some platforms
+      - cutover to GNU Make-based cpu feature tests
+      - rename files with dashes to underscores
+      - fix LegacyDecryptor and LegacyDecryptorWithMAC use wrong MAC
+      - fix incorrect AES/CBC decryption on Windows
+      - avoid Singleton<T> when possible, avoid std::call_once completely
+      - fix SPARC alignment problems due to GetAlignmentOf<T>() on word64
+      - add ARM AES asm implementation from Cryptogams
+      - remove CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS support
+
 7.0.0 - April 8, 2018
       - major release, recompile of programs required
       - expanded community input and support
@@ -340,67 +359,6 @@ for the record back to Crypto++ 1.0.
       - improved Testing and QA
       - ported to MSVC 2017, Xcode 8.1, Sun Studio 12.5, GCC 7.3,
         MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
-
-5.6.5 - October 11, 2016
-      - maintenance release, recompile of programs recommended
-      - expanded community input and support
-         * 25 unique contributors as of this release
-      - fixed CVE-2016-7420 (Issue 277, document NDEBUG for production/release)
-      - fixed CVE-2016-7544 (Issue 302, avoid _malloca and _freea)
-      - shipped library in recommended state
-         * backwards compatibility achieved with <config.compat>
-      - Visual Studio project file cleanup
-         * improved X86 and X64 MSBuild support
-         * added ARM-based MSBuild awareness
-      - improved Testing and QA
-         * expanded platforms and compilers
-         * expanded Coverity into OS X and Windows platforms
-         * added Windows test scripts using Strawberry Perl
-      - ported to MSVC 2015 SP3, Xcode 7.3, Sun Studio 12.5, GCC 7.0,
-        MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
-
-5.6.4 - September 11, 2016
-      - maintenance release, honored API/ABI/Versioning requirements
-      - expanded community input and support
-         * 22 unique contributors for this release
-      - fixed CVE-2016-3995
-      - changed SHA3 to FIPS 202 (F1600, XOF d=0x06)
-      - added Keccak (F1600, XOF d=0x01)
-      - added ChaCha (ChaCha8/12/20)
-      - added HMQV and FHMQV
-         * Hashed and Fully Hashed MQV
-      - added BLAKE2 (BLAKE2s and BLAKE2b)
-         * C++, SSE2, SSE4, ARM NEON and ARMv8 ASIMD
-      - added CRC32-C
-         * C/C++, Amd64 CRC, and ARMv8 CRC
-      - improved Rabin-William signatures
-         * Tweaked roots <em>e</em> and <em>f</em>
-      - improved C++11 support
-         * atomics, threads and fences
-         * alginof, alignas
-         * constexpr
-         * noexcept
-      - improved GCM mode
-         * ARM NEON and ARMv8 ASIMD
-         * ARMv8 carry-less multiply
-      - improved Windows 8 and 10 support
-         * Windows Phone, Universal Windows Platform, Windows Store
-      - improved MIPS, ARMv7 and ARMv8 support
-         * added scripts setenv-{android|embedded|ios}.sh for GNUmakefile-cross
-         * aggressive use of -march=<arch> and -mfpu=<fpu> in cryptest.sh
-      - improved build systems
-         * Visual Studio 2010 default
-         * added CMake support (lacks FindCryptopp.cmake)
-         * archived VC++ 5/0/6.0 project files (vc60.zip)
-         * archived VS2005 project files (vs2005.zip)
-         * archived Borland project files (bds10.zip)
-      - improved Testing and QA
-         * expanded platforms and compilers
-         * added code generation tests based on CPU features
-         * added C++03, C++11, C++14, C++17 testing
-         * added -O3, -O5, -Ofast and -Os testing
-      - ported to MSVC 2015 SP3, Xcode 9.0, Sun Studio 12.5, GCC 7.0,
-        MacPorts GCC 7.0, Clang 3.8, Intel C++ 17.00
 
 June 2015 - Changing of the guard. Wei Dai turned the library over to the
         community. The first community release was Crypto++ 5.6.3. Wei is

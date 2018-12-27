@@ -60,7 +60,7 @@ public:
     /// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is
     ///   not acclerated because it is not profitable. Thanks to Markku-Juhani Olavi
     ///   Saarinen.
-    /// \since Crypto++ 6.0, AESNI encryption since Crypto++ 7.1
+    /// \since Crypto++ 6.0, AESNI encryption since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:

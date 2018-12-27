@@ -5,7 +5,7 @@
 
 /// \file cham.h
 /// \brief Classes for the CHAM block cipher
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_CHAM_H
 #define CRYPTOPP_CHAM_H
@@ -28,7 +28,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief CHAM block cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct CHAM64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 {
     /// \brief The algorithm name
@@ -43,7 +43,7 @@ struct CHAM64_Info : public FixedBlockSize<8>, public FixedKeyLength<16>
 };
 
 /// \brief CHAM block cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct CHAM128_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,32,16>
 {
     /// \brief The algorithm name
@@ -63,13 +63,13 @@ struct CHAM128_Info : public FixedBlockSize<16>, public VariableKeyLength<16,16,
 /// \sa CHAM128, <a href="http://www.cryptopp.com/wiki/CHAM">CHAM</a>,
 ///   <a href="https://pdfs.semanticscholar.org/2f57/61b5c2614cffd58a09cc83c375a2b32a2ed3.pdf">
 ///   CHAM: A Family of Lightweight Block Ciphers for Resource-Constrained Devices</a>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class CRYPTOPP_NO_VTABLE CHAM64 : public CHAM64_Info, public BlockCipherDocumentation
 {
 public:
     /// \brief CHAM block cipher transformation functions
     /// \details Provides implementation common to encryption and decryption
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<CHAM64_Info>
     {
     protected:
@@ -84,7 +84,7 @@ public:
     /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:
@@ -98,7 +98,7 @@ public:
     /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     public:
@@ -122,13 +122,13 @@ typedef CHAM64::Decryption CHAM64Decryption;
 /// \sa CHAM64, <a href="http://www.cryptopp.com/wiki/CHAM">CHAM</a>,
 ///   <a href="https://pdfs.semanticscholar.org/2f57/61b5c2614cffd58a09cc83c375a2b32a2ed3.pdf">
 ///   CHAM: A Family of Lightweight Block Ciphers for Resource-Constrained Devices</a>
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class CRYPTOPP_NO_VTABLE CHAM128 : public CHAM128_Info, public BlockCipherDocumentation
 {
 public:
     /// \brief CHAM block cipher transformation functions
     /// \details Provides implementation common to encryption and decryption
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Base : public BlockCipherImpl<CHAM128_Info>
     {
     protected:
@@ -143,7 +143,7 @@ public:
     /// \brief Encryption transformation
     /// \details Enc provides implementation for encryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
     public:
@@ -157,7 +157,7 @@ public:
     /// \brief Encryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
-    /// \since Crypto++ 7.1
+    /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
     public:

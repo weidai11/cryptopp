@@ -9,7 +9,7 @@
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/hc256.html">The
 ///   eSTREAM Project | HC-256</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/HC-128">Crypto++ Wiki | HC-128</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_HC256_H
 #define CRYPTOPP_HC256_H
@@ -20,14 +20,14 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief HC-256 stream cipher information
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct HC256Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 32>
 {
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "HC-256"; }
 };
 
 /// \brief HC-256 stream cipher implementation
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 class HC256Policy : public AdditiveCipherConcretePolicy<word32, 4>, public HC256Info
 {
 protected:
@@ -55,7 +55,7 @@ private:
 /// \sa <A HREF="http://www.ecrypt.eu.org/stream/hc256.html">The
 ///   eSTREAM Project | HC-256</A> and
 ///   <A HREF="https://www.cryptopp.com/wiki/HC-128">Crypto++ Wiki | HC-128</A>.
-/// \since Crypto++ 7.1
+/// \since Crypto++ 8.0
 struct HC256 : public HC256Info, public SymmetricCipherDocumentation
 {
 	typedef SymmetricCipherFinal<ConcretePolicyHolder<HC256Policy, AdditiveCipherTemplate<> >, HC256Info> Encryption;
