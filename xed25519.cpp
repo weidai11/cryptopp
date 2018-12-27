@@ -268,10 +268,12 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
     {
         SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
         ClampKeys(pk, sk);
-        if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false || VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH) == false)
-        {
+
+        bool equal = true;
+        equal &= VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH);
+        equal &= VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH);
+        if (equal == false)
             return false;
-        }
     }
 
     return true;
@@ -393,10 +395,12 @@ bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level)
     {
         SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
         ClampKeys(pk, sk);
-        if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false || VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH) == false)
-        {
+
+        bool equal = true;
+        equal &= VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH);
+        equal &= VerifyBufsEqual(sk, m_sk, SECRET_KEYLENGTH);
+        if (equal == false)
             return false;
-        }
     }
 
     return true;
