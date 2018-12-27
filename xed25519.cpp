@@ -173,9 +173,12 @@ void x25519::BERDecode(BufferedTransformation &bt)
             BERDecodePrivateKey(octetString, false, (size_t)privateKeyInfo.RemainingLength());
         octetString.MessageEnd();
 
+        // publicKey [1] IMPLICIT PublicKey OPTIONAL
         bool generatePublicKey = true;
-        if (version == 1)
+        if (privateKeyInfo.EndReached() == false /*version == 1?*/)
         {
+            // Should we test this before decoding? In either case we
+            // just throw a BERDecodeErr() when we can't parse it.
             BERGeneralDecoder publicKey(privateKeyInfo, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
             SecByteBlock subjectPublicKey;
             unsigned int unusedBits;
@@ -510,9 +513,12 @@ void ed25519PrivateKey::BERDecode(BufferedTransformation &bt)
             BERDecodePrivateKey(octetString, false, (size_t)privateKeyInfo.RemainingLength());
         octetString.MessageEnd();
 
+        // publicKey [1] IMPLICIT PublicKey OPTIONAL
         bool generatePublicKey = true;
-        if (version == 1)
+        if (privateKeyInfo.EndReached() == false /*version == 1?*/)
         {
+            // Should we test this before decoding? In either case we
+            // just throw a BERDecodeErr() when we can't parse it.
             BERGeneralDecoder publicKey(privateKeyInfo, CONTEXT_SPECIFIC | CONSTRUCTED | 1);
             SecByteBlock subjectPublicKey;
             unsigned int unusedBits;
