@@ -694,9 +694,6 @@ void StreamTransformationFilter::NextPutModifiable(byte *inString, size_t length
 
 void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 {
-	byte *space = NULLPTR;
-
-#if 1
 	// This block is new to StreamTransformationFilter. It somewhat of a hack and was added
 	//  for OCB mode; see GitHub Issue 515. The rub with OCB is, its a block cipher and the
 	//  last block size can be 0. However, "last block = 0" is not the 0 predacted in the
@@ -719,7 +716,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 	if (m_isSpecial)
 	{
 		const size_t leftOver = length % m_mandatoryBlockSize;
-		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, m_reservedBufferSize);
+		byte* space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, m_reservedBufferSize);
 		length -= leftOver;
 
 		if (length)
@@ -745,7 +742,6 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 
 		return;
 	}
-#endif
 
 	switch (m_padding)
 	{
@@ -760,7 +756,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 			{
 				// do padding
 				size_t blockSize = STDMAX(minLastBlockSize, (size_t)m_mandatoryBlockSize);
-				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize);
+				byte* space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, blockSize);
 				if (inString) {memcpy(space, inString, length);}
 				memset(PtrAdd(space, length), 0, blockSize - length);
 				size_t used = m_cipher.ProcessLastBlock(space, blockSize, space, blockSize);
@@ -776,7 +772,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 						throw InvalidCiphertext("StreamTransformationFilter: ciphertext length is not a multiple of block size");
 				}
 
-				space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, m_optimalBufferSize);
+				byte* space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, m_optimalBufferSize);
 				size_t used = m_cipher.ProcessLastBlock(space, length, inString, length);
 				AttachedTransformation()->Put(space, used);
 			}
@@ -787,6 +783,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 	case W3C_PADDING:
 	case ONE_AND_ZEROS_PADDING:
 		unsigned int s;
+		byte* space;
 		s = m_mandatoryBlockSize;
 		CRYPTOPP_ASSERT(s > 1);
 		space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, s, m_optimalBufferSize);
