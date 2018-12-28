@@ -956,15 +956,16 @@ void SHA512::InitState(HashWordType *state)
 
 #if CRYPTOPP_SSE2_ASM_AVAILABLE && (CRYPTOPP_BOOL_X86)
 
-// Anonymous namespace removed due to a new compile error.
+ANONYMOUS_NAMESPACE_BEGIN
+
+// No inlining due to https://github.com/weidai11/cryptopp/issues/684
 //   g++ -DNDEBUG -g2 -O3 -pthread -pipe -c sha.cpp
 //   sha.cpp: Assembler messages:
 //   sha.cpp:1155: Error: symbol `SHA512_Round' is already defined
 //   sha.cpp:1155: Error: symbol `SHA512_Round' is already defined
 
-// ANONYMOUS_NAMESPACE_BEGIN
-
-CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
+CRYPTOPP_NOINLINE CRYPTOPP_NAKED
+void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const word64 *data)
 {
 #ifdef __GNUC__
     __asm__ __volatile__
@@ -1150,7 +1151,7 @@ CRYPTOPP_NAKED void CRYPTOPP_FASTCALL SHA512_HashBlock_SSE2(word64 *state, const
 #endif
 }
 
-// ANONYMOUS_NAMESPACE_END
+ANONYMOUS_NAMESPACE_END
 
 #endif    // CRYPTOPP_SSE2_ASM_AVAILABLE
 
