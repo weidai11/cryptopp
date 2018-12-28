@@ -322,8 +322,13 @@ void DetectX86Features()
 	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27))
 	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
 	{
+
+// Unable to perform the necessary tests
+#if defined(CRYPTOPP_DISABLE_ASM)
+		g_hasAVX = false;
+
 // GCC 4.1/Binutils 2.17 cannot consume xgetbv
-#if defined(__GNUC__) || (__SUNPRO_CC >= 0x5100) || defined(__BORLANDC__)
+#elif defined(__GNUC__) || (__SUNPRO_CC >= 0x5100) || defined(__BORLANDC__)
 		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 		// http://www.agner.org/optimize/vectorclass/read.php?i=65
 		word32 a=0, d=0;
@@ -360,8 +365,12 @@ void DetectX86Features()
 #elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
 		word64 xcr0 = ExtendedControlRegister(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
-#elif defined(__SUNPRO_CC)  // fall into
+
+// Downlevel SunCC
+#elif defined(__SUNPRO_CC)
 		g_hasAVX = false;
+
+// _xgetbv is available
 #else
 		word64 xcr0 = _xgetbv(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
