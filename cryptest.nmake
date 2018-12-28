@@ -129,6 +129,13 @@ LD = link.exe
 AR = lib.exe
 RM = del.exe
 
+# We may misdetect the environment on VS2005 or so. Uncomment as
+# needed to match the Developer Prompt environment.
+# PLATFORM = x86
+# PLATFORM = x64
+# PLATFORM = arm
+# PLATFORM = arm64
+
 # C4231 is needed for VS2008 and below. Lots of noise...
 CXXFLAGS = /nologo /W4 /wd4231 /wd4511 /wd4156 /D_MBCS /Zi /TP /GR /EHsc
 LDFLAGS = /nologo /SUBSYSTEM:CONSOLE /DEBUG
