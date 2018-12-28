@@ -23,23 +23,26 @@
 #include "pch.h"
 #include "config.h"
 #include "misc.h"
-#include "adv_simd.h"
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
+# include "adv_simd.h"
 # include <smmintrin.h>
 # include <wmmintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# include "adv_simd.h"
 # include <arm_neon.h>
 #endif
 
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
+# include "adv_simd.h"
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
 
 #if defined(CRYPTOPP_POWER8_AES_AVAILABLE)
+# include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
 
