@@ -4,7 +4,8 @@ The History file contains the items that comprise the release notes. The
 items in the list below used to be in Readme.txt. Readme.txt now contans the
 last several releases.
 
-1.0 - First public release.  Withdrawn at the request of RSA DSI.
+1.0 - First public release
+    - Withdrawn at the request of RSA DSI over patent claims
     - included Blowfish, BBS, DES, DH, Diamond, DSA, ElGamal, IDEA,
       MD5, RC4, RC5, RSA, SHA, WAKE, secret sharing, DEFLATE compression
     - had a serious bug in the RSA key generation code.
@@ -432,3 +433,22 @@ last several releases.
       - remove s_nullNameValuePairs from unnamed namespace
       - ported to MSVC 2017, Xcode 9.3, Sun Studio 12.5, GCC 8.0.1,
         MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
+
+8.0.0 - December 28, 2018
+
+      - major release, recompile of programs required
+      - expanded community input and support
+         * 54 unique contributors as of this release
+      - add x25519 key exchange and ed25519 signature scheme
+      - add limited Asymmetric Key Package support from RFC 5958
+      - add Power9 DARN random number generator support
+      - add CHAM, HC-128, HC-256, Hight, LEA, Rabbit, Simeck
+      - fix FixedSizeAllocatorWithCleanup may be unaligned on some platforms
+      - cutover to GNU Make-based cpu feature tests
+      - rename files with dashes to underscores
+      - fix LegacyDecryptor and LegacyDecryptorWithMAC use wrong MAC
+      - fix incorrect AES/CBC decryption on Windows
+      - avoid Singleton<T> when possible, avoid std::call_once completely
+      - fix SPARC alignment problems due to GetAlignmentOf<T>() on word64
+      - add ARM AES asm implementation from Cryptogams
+      - remove CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS support

@@ -366,4 +366,3 @@ June 2015 - Changing of the guard. Wei Dai turned the library over to the
         still provides guidance when we have questions.
 
 Originally written by Wei Dai, maintained by the Crypto++ Project
-
