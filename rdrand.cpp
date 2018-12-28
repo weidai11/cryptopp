@@ -24,7 +24,7 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#if defined(CRYPTOPP_CPUID_AVAILABLE)
+#if defined(CRYPTOPP_CPUID_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 
 # if defined(CRYPTOPP_MSC_VERSION)
 #   define MASM_RDRAND_ASM_AVAILABLE 1
@@ -54,7 +54,7 @@ extern "C" void CRYPTOPP_FASTCALL MASM_RDSEED_GenerateBlock(byte*, size_t);
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_CPUID_AVAILABLE)
+#if defined(CRYPTOPP_CPUID_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 
 // Fills 4 bytes
 inline void RDRAND32(void* output)
