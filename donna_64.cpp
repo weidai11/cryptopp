@@ -728,7 +728,7 @@ curve25519_contract(byte *out, const bignum25519 input) {
 
 /* out = (flag) ? in : out */
 inline void
-curve25519_move_conditional_bytes(uint8_t out[96], const uint8_t in[96], word64 flag) {
+curve25519_move_conditional_bytes(byte out[96], const byte in[96], word64 flag) {
     const word64 nb = flag - 1, b = ~nb;
     const word64 *inq = (const word64 *)in;
     word64 *outq = (word64 *)out;
@@ -749,7 +749,7 @@ curve25519_move_conditional_bytes(uint8_t out[96], const uint8_t in[96], word64 
 /* if (iswap) swap(a, b) */
 inline void
 curve25519_swap_conditional(bignum25519 a, bignum25519 b, word64 iswap) {
-    const word64 swap = (word64)(-(int64_t)iswap);
+    const word64 swap = (word64)(-(sword64)iswap);
     word64 x0,x1,x2,x3,x4;
 
     x0 = swap & (a[0] ^ b[0]); a[0] ^= x0; b[0] ^= x0;
@@ -1376,7 +1376,7 @@ ge25519_windowb_equal(word32 b, word32 c) {
 }
 
 void
-ge25519_scalarmult_base_choose_niels(ge25519_niels *t, const uint8_t table[256][96], word32 pos, signed char b) {
+ge25519_scalarmult_base_choose_niels(ge25519_niels *t, const byte table[256][96], word32 pos, signed char b) {
     bignum25519 neg;
     word32 sign = (word32)((byte)b >> 7);
     word32 mask = ~(sign - 1);
@@ -1384,7 +1384,7 @@ ge25519_scalarmult_base_choose_niels(ge25519_niels *t, const uint8_t table[256][
     word32 i;
 
     /* ysubx, xaddy, t2d in packed form. initialize to ysubx = 1, xaddy = 1, t2d = 0 */
-    uint8_t packed[96] = {0};
+    byte packed[96] = {0};
     packed[0] = 1;
     packed[32] = 1;
 
@@ -1406,7 +1406,7 @@ ge25519_scalarmult_base_choose_niels(ge25519_niels *t, const uint8_t table[256][
 
 /* computes [s]basepoint */
 void
-ge25519_scalarmult_base_niels(ge25519 *r, const uint8_t basepoint_table[256][96], const bignum256modm s) {
+ge25519_scalarmult_base_niels(ge25519 *r, const byte basepoint_table[256][96], const bignum256modm s) {
     signed char b[64];
     word32 i;
     ge25519_niels t;
