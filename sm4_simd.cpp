@@ -22,6 +22,7 @@
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include "adv_simd.h"
+# include <emmintrin.h>
 # include <tmmintrin.h>
 # include <wmmintrin.h>
 #endif

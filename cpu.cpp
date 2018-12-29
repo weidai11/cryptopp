@@ -336,7 +336,7 @@ void DetectX86Features()
 		(
 			// "xgetbv" : "=a"(a), "=d"(d) : "c"(0) :
 			".byte 0x0f, 0x01, 0xd0"   "\n\t"
-			: "=a"(a), "=d"(d) : "c"(0) :
+			: "=a"(a), "=d"(d) : "c"(0) : "cc"
 		);
 		word64 xcr0 = a | static_cast<word64>(d) << 32;
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
