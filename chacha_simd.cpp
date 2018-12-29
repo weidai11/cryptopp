@@ -30,7 +30,12 @@
 #include "chacha.h"
 #include "misc.h"
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
+// Internal compiler error in GCC 3.3 and below
+#if defined(__GNUC__) && (__GNUC__ < 4)
+# undef CRYPTOPP_SSE2_INTRIN_AVAILABLE
+#endif
+
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <xmmintrin.h>
 # include <emmintrin.h>
 #endif
@@ -161,7 +166,7 @@ inline uint32x4_t Add64(const uint32x4_t& a, const uint32x4_t& b)
 
 // ***************************** SSE2 ***************************** //
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 
 template <unsigned int R>
 inline __m128i RotateLeft(const __m128i val)
@@ -199,7 +204,7 @@ inline __m128i RotateLeft<16>(const __m128i val)
 #endif
 }
 
-#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
+#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
 
 // **************************** Altivec **************************** //
 
@@ -556,7 +561,7 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
 
 // ***************************** SSE2 ***************************** //
 
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE)
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 
 void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
@@ -820,7 +825,7 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
     _mm_storeu_si128(output_mm + 15, r3_3);
 }
 
-#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE || CRYPTOPP_SSE2_ASM_AVAILABLE
+#endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
 
 #if (CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
 
