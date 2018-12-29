@@ -26,8 +26,9 @@
 # include <ammintrin.h>
 #endif
 
-#ifdef __AVX512F__
+#if defined(__AVX512F__)
 # define CRYPTOPP_AVX512_ROTATE 1
+# include <immintrin.h>
 #endif
 
 // Squash MS LNK4221 and libtool warnings
