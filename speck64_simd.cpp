@@ -10,7 +10,6 @@
 
 #include "speck.h"
 #include "misc.h"
-#include "adv_simd.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
 // Do so in both speck.cpp and speck-simd.cpp.
@@ -18,6 +17,7 @@
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
+# include "adv_simd.h"
 # include <pmmintrin.h>
 # include <tmmintrin.h>
 #endif
@@ -30,12 +30,13 @@
 # include <ammintrin.h>
 #endif
 
-#if defined(__AVX512F__) && defined(__AVX512VL__)
+#if defined(__AVX512F__)
 # define CRYPTOPP_AVX512_ROTATE 1
 # include <immintrin.h>
 #endif
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# include "adv_simd.h"
 # include <arm_neon.h>
 #endif
 
@@ -47,6 +48,7 @@
 #endif
 
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+# include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
 
