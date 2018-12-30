@@ -100,9 +100,9 @@ ifeq ($(wildcard adhoc.cpp),)
 $(shell cp adhoc.cpp.proto adhoc.cpp)
 endif
 
-# Tell MacPorts and Homebrew GCC to use Clang integrated assembler
+# Tell MacPorts and Homebrew GCC to use Clang integrated assembler (only on Intel-based Macs)
 #   http://github.com/weidai11/cryptopp/issues/190
-ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER),11)
+ifeq ($(GCC_COMPILER)$(OSXPORT_COMPILER)$(IS_PPC32)$(IS_PPC64),1100)
   ifeq ($(findstring -Wa,-q,$(CXXFLAGS)),)
     CXXFLAGS += -Wa,-q
   endif
