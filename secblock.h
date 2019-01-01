@@ -71,6 +71,12 @@ public:
 	///   to optimize it well in either form.
 	CRYPTOPP_CONSTEXPR size_type max_size() const {return ELEMS_MAX;}
 
+#if defined(__SUNPRO_CC)
+	// https://github.com/weidai11/cryptopp/issues/770
+	// and https://stackoverflow.com/q/53999461/608639
+	CRYPTOPP_CONSTEXPR size_type max_size(size_type n) const {return (~(size_type)0)/n;}
+#endif
+
 #if defined(CRYPTOPP_CXX11_VARIADIC_TEMPLATES) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 	/// \brief Constructs a new V using variadic arguments

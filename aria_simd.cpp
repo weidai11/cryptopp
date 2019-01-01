@@ -47,7 +47,7 @@ using CryptoPP::byte;
 using CryptoPP::word32;
 
 inline byte ARIA_BRF(const word32 x, const int y) {
-	return GETBYTE(x, y);
+	return static_cast<byte>(GETBYTE(x, y));
 }
 
 ANONYMOUS_NAMESPACE_END
