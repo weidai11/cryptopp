@@ -20,6 +20,12 @@
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
+// A hint to help locate TestData/ and TestVectors/ after install. Due to
+// execve the path can be malicious. If the path is ficticous then we move
+// onto the next potential path. Also note we only read from the path; we
+// never write through it. Storage for the string is in test.cpp.
+extern std::string g_argvPathHint;
+
 bool ValidateAll(bool thorough);
 bool TestSettings();
 bool TestOS_RNG();
@@ -205,10 +211,10 @@ inline std::string TimeToString(const time_t& t)
 
 	// Cleanup whitespace
 	std::string::size_type pos = 0;
-	while (!str.empty() && std::isspace(*(str.end()-1)))
+	while (!str.empty() && std::isspace(str[str.length()-1]))
 		{str.erase(str.end()-1);}
 	while (!str.empty() && std::string::npos != (pos = str.find("  ", pos)))
-		{ str.erase(pos, 1); }
+		{str.erase(pos, 1);}
 
 	return str;
 }
@@ -252,46 +258,60 @@ inline int StringToValue<int, true>(const std::string& str)
 
 inline std::string AddSeparator(std::string str)
 {
-	const char last = (str.empty() ? '\0' : *str.end()-1);
+	const char last = (str.empty() ? '\0' : str[str.length()-1]);
 	if (last != '/' && last != '\\')
 		return str + "/";
 	return str;
 }
 
-// Ideally we would cache the directory and just add the prefix
-// to subsequent calls, but ... Static Initialization Order Fiasco
+static std::string GetDataDir()
+{
+	std::ifstream file;
+	std::string name, filename = "TestData/usage.dat";
+
+#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+	name = AddSeparator(g_argvPathHint) + filename;
+	file.open(name.c_str());
+	if (file.is_open())
+		return AddSeparator(g_argvPathHint);
+#endif
+#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+	// Look in $ORIGIN/../share/. This is likely a Linux install directory.
+	name = AddSeparator(g_argvPathHint) + std::string("../share/cryptopp/") + filename;
+	file.open(name.c_str());
+	if (file.is_open())
+		return AddSeparator(g_argvPathHint) + std::string("../share/cryptopp/");
+#endif
+	return "./";
+}
+
 inline std::string DataDir(const std::string& filename)
 {
 	std::string name;
 	std::ifstream file;
-#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
-	// Data files in PWD are probably the newest. This is probably a build directory.
-	name = std::string("./") + filename;
-	file.open(name.c_str());
-	if (file.is_open())
-		return name;
-#endif
+
 #ifdef CRYPTOPP_DATA_DIR
-	// Honor the user's setting next. This is likely an install directory if it is not "./".
+	// Honor CRYPTOPP_DATA_DIR. This is likely an install directory if it is not "./".
 	name = AddSeparator(CRYPTOPP_DATA_DIR) + filename;
 	file.open(name.c_str());
 	if (file.is_open())
 		return name;
 #endif
-#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
-	// Look in /usr/local/bin/share/. This is LSB and default install directory for users.
-	name = std::string("/usr/local/share/cryptopp/") + filename;
+
+#if CRYPTOPP_CXX11_DYNAMIC_INIT
+	static std::string path = AddSeparator(GetDataDir());
+	name = path + filename;
+	file.open(name.c_str());
+	if (file.is_open())
+		return name;
+#else
+	// Avoid static initialzation problems
+	name = AddSeparator(GetDataDir()) + filename;
 	file.open(name.c_str());
 	if (file.is_open())
 		return name;
 #endif
-#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
-	// Finally look in $ORIGIN/../share/. This is likely a Linux install directory for users.
-	name = std::string("../share/cryptopp/") + filename;
-	file.open(name.c_str());
-	if (file.is_open())
-		return name;
-#endif
+
 	// This will cause the expected exception in the caller
 	return filename;
 }

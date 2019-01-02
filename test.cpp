@@ -75,6 +75,7 @@ NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(Test)
 
 const int MAX_PHRASE_LENGTH=250;
+std::string g_argvPathHint="";
 
 void GenerateRSAKey(unsigned int keyLength, const char *privFilename, const char *pubFilename, const char *seed);
 std::string RSAEncryptString(const char *pubFilename, const char *seed, const char *message);
@@ -148,6 +149,16 @@ int scoped_main(int argc, char *argv[])
 	cout.set_safe_flag(stream_MT::unsafe_object);
 	cin.set_safe_flag(stream_MT::unsafe_object);
 #endif
+
+	// A hint to help locate TestData/ and TestVectors/ after install.
+	g_argvPathHint = argc > 0 ? argv[0] : "";
+#if defined(AT_EXECFN)
+	if (getauxval(AT_EXECFN))
+		g_argvPathHint = getauxval(AT_EXECFN);
+#endif
+	std::string::size_type pos = g_argvPathHint.find_last_of("\\/");
+	if (pos != std::string::npos)
+		g_argvPathHint.erase(pos+1);
 
 	try
 	{
