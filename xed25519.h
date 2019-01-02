@@ -282,6 +282,14 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
         CRYPTOPP_UNUSED(rng); Restart();
     }
 
+    /// \brief Add data to the accumulator
+    /// \param msg pointer to the data to accumulate
+    /// \param len the size of the data, in bytes
+    void Update(const byte* msg, size_t len) {
+        if (msg && len)
+            m_msg.insert(m_msg.end(), msg, msg+len);
+    }
+
     /// \brief Reset the accumulator
     void Restart() {
         m_msg.reserve(RESERVE_SIZE);
