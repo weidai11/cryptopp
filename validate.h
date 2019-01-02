@@ -279,6 +279,13 @@ inline std::string DataDir(const std::string& filename)
 		return name;
 #endif
 #ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+	// Look in /usr/local/bin/share/. This is LSB and default install directory for users.
+	name = std::string("/usr/local/share/cryptopp/") + filename;
+	file.open(name.c_str());
+	if (file.is_open())
+		return name;
+#endif
+#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
 	// Finally look in $ORIGIN/../share/. This is likely a Linux install directory for users.
 	name = std::string("../share/cryptopp/") + filename;
 	file.open(name.c_str());
