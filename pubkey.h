@@ -379,7 +379,7 @@ public:
 		{
 			static HashIdentifier CRYPTOPP_API Lookup()
 			{
-				return HashIdentifier((const byte *)NULLPTR, 0);
+				return HashIdentifier(static_cast<const byte *>(NULLPTR), 0);
 			}
 		};
 	};

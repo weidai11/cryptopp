@@ -60,7 +60,7 @@ protected:
 
 	void AuthenticateData(const byte *data, size_t len);
 	const SymmetricCipher & GetSymmetricCipher() const
-		{return const_cast<AuthenticatedSymmetricCipherBase *>(this)->AccessSymmetricCipher();};
+		{return const_cast<AuthenticatedSymmetricCipherBase *>(this)->AccessSymmetricCipher();}
 
 	virtual SymmetricCipher & AccessSymmetricCipher() =0;
 	virtual bool AuthenticationIsOnPlaintext() const =0;
