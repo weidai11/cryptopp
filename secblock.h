@@ -421,7 +421,7 @@ public:
 			CRYPTOPP_ASSERT(size <= S);
 			CRYPTOPP_ASSERT(m_allocated);
 			m_allocated = false;
-			SecureWipeArray((pointer)ptr, size);
+			SecureWipeArray(reinterpret_cast<pointer>(ptr), size);
 		}
 		else
 			m_fallbackAllocator.deallocate(ptr, size);
@@ -503,7 +503,7 @@ private:
 	// The library is OK but users may hit it. So we need to guard
 	// for a large T, and that is what PAD achieves.
 	T* GetAlignedArray() {
-		T* p_array = (T*)(void*)(((byte*)m_array) + (0-(size_t)m_array)%16);
+		T* p_array = reinterpret_cast<T*>(static_cast<void*>((reinterpret_cast<byte*>(m_array)) + (0-reinterpret_cast<size_t>(m_array))%16));
 		// Verify the 16-byte alignment
 		CRYPTOPP_ASSERT(IsAlignedOn(p_array, 16));
 		// Verify allocated array with pad is large enough.

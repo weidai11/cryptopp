@@ -265,7 +265,7 @@ public:
 	/// \brief The maximum key length used by the algorithm
 	/// \returns maximum key length used by the algorithm, in bytes
 	size_t MaxKeyLength() const
-		{return (size_t)INFO::MAX_KEYLENGTH;}
+		{return static_cast<size_t>(INFO::MAX_KEYLENGTH);}
 
 	/// \brief The default key length used by the algorithm
 	/// \returns default key length used by the algorithm, in bytes
@@ -286,7 +286,7 @@ public:
 	/// \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	///  in cryptlib.h for allowed values.
 	SimpleKeyingInterface::IV_Requirement IVRequirement() const
-		{return (SimpleKeyingInterface::IV_Requirement)INFO::IV_REQUIREMENT;}
+		{return static_cast<SimpleKeyingInterface::IV_Requirement>(INFO::IV_REQUIREMENT);}
 
 	/// \brief The initialization vector length for the algorithm
 	/// \details IVSize is provided in bytes, not bits. The default implementation uses
