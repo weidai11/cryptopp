@@ -305,7 +305,7 @@ inline std::string DataDir(const std::string& filename)
 	if (file.is_open())
 		return name;
 #else
-	// Avoid static initialzation problems
+	// Avoid static initialization problems
 	name = AddSeparator(GetDataDir()) + filename;
 	file.open(name.c_str());
 	if (file.is_open())

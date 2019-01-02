@@ -249,7 +249,22 @@ protected:
 ///   digest the message incrementally. You should be careful with
 ///   large messages like files on-disk. The behavior is by design
 ///   because Bernstein feels small messages should be authenticated;
-///   and larger messages will be hashed by the application.
+///   and larger messages will be digested by the application.
+/// \details The accumulator is used for signing and verification.
+///   The first 64-bytes of storage is reserved for the signature.
+///   During signing the signature storage is unused. During
+///   verification the first 64 bytes holds the signature. The
+///   signature is provided by the PK_Verifier framework and the
+///   call to PK_Signer::InputSignature. Member functions data()
+///   and size() refer to the accumulated message. Member function
+///   signature() refers to the signature with an implicit size of
+///   SIGNATURE_LENGTH bytes.
+/// \details Applications which digest large messages, like an ISO
+///   disk file, should take care because the design effectively
+///   disgorges the format operation from the signing operation.
+///   Put another way, be careful to ensure what you are signing is
+///   is in fact a digest of the intended message, and not a different
+///   message digest supplied by an attacker.
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
     CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64)
@@ -265,14 +280,6 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
     ///   NullRNG() because IsProbablistic returns false.
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
         CRYPTOPP_UNUSED(rng); Restart();
-    }
-
-    /// \brief Add data to the accumulator
-    /// \param msg pointer to the data to accumulate
-    /// \param len the size of the data, in bytes
-    void Update(const byte* msg, size_t len) {
-        if (msg && len)
-            m_msg.insert(m_msg.end(), msg, msg+len);
     }
 
     /// \brief Reset the accumulator
