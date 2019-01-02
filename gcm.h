@@ -80,7 +80,7 @@ protected:
 	virtual BlockCipher & AccessBlockCipher() =0;
 	virtual GCM_TablesOption GetTablesOption() const =0;
 
-	const BlockCipher & GetBlockCipher() const {return const_cast<GCM_Base *>(this)->AccessBlockCipher();};
+	const BlockCipher & GetBlockCipher() const {return const_cast<GCM_Base *>(this)->AccessBlockCipher();}
 	byte *HashBuffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
 	byte *HashKey() {return m_buffer+2*REQUIRED_BLOCKSIZE;}
 	byte *MulTable() {return m_buffer+3*REQUIRED_BLOCKSIZE;}

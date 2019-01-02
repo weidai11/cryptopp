@@ -73,7 +73,7 @@ protected:
 	virtual BlockCipher & AccessBlockCipher() =0;
 	virtual int DefaultDigestSize() const =0;
 
-	const BlockCipher & GetBlockCipher() const {return const_cast<CCM_Base *>(this)->AccessBlockCipher();};
+	const BlockCipher & GetBlockCipher() const {return const_cast<CCM_Base *>(this)->AccessBlockCipher();}
 	byte *CBC_Buffer() {return m_buffer+REQUIRED_BLOCKSIZE;}
 
 	enum {REQUIRED_BLOCKSIZE = 16};
