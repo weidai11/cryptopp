@@ -41,6 +41,21 @@
 #include <windows.h>
 #endif
 
+#if defined(CRYPTOPP_UNIX_AVAILABLE) || defined(CRYPTOPP_BSD_AVAILABLE)
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#define UNIX_PATH_FAMILY 1
+#endif
+
+#if defined(CRYPTOPP_OSX_AVAILABLE)
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <mach-o/dyld.h>
+#define UNIX_PATH_FAMILY 1
+#endif
+
 #if (_MSC_VER >= 1000)
 #include <crtdbg.h>		// for the debug heap
 #endif
@@ -433,20 +448,76 @@ int scoped_main(int argc, char *argv[])
 
 void SetArgvPathHint(const char* argv0, std::string& pathHint)
 {
-	pathHint = argv0 ? argv0 : "";
+	// OS X and Solaris provide a larger path using pathconf than MAX_PATH.
+	// Also see https://stackoverflow.com/a/33249023/608639 for FreeBSD.
+#if defined(UNIX_PATH_FAMILY)
+	size_t path_max = 0;
+	long ret = pathconf(argv0, _PC_PATH_MAX);
+	if (SafeConvert(ret, path_max) == false)
+	{
+# if defined(MAX_PATH)
+		path_max = MAX_PATH;
+# else
+		path_max = 4096;
+# endif
+	}
+#else
+	// Windows and others?
+	size_t path_max = MAX_PATH;
+#endif
+
+	const size_t argLen = std::strlen(argv0);
+	if (argLen >= path_max)
+		return; // Can't use realpath safely
+	pathHint = std::string(argv0, argLen);
+
 #if defined(AT_EXECFN)
 	if (getauxval(AT_EXECFN))
 		pathHint = getauxval(AT_EXECFN);
-#elif defined(_WIN32) || defined(_WIN64)
+#elif defined(CRYPTOPP_WIN32_AVAILABLE)
 	char* pgmptr = NULLPTR;
 	errno_t err = _get_pgmptr(&pgmptr);
 	if (err == 0 && pgmptr != NULLPTR)
 		pathHint = pgmptr;
+#elif defined(CRYPTOPP_OSX_AVAILABLE)
+	std::string t(path_max, (char)0);
+	unsigned int len = (unsigned int)t.size();
+	if (_NSGetExecutablePath(&t[0], &len) == 0)
+	{
+		t.resize(len);
+		std::swap(pathHint, t);
+	}
 #elif defined(sun) || defined(__sun)
-	pathHint = getexecname();
+	if (getexecname())
+		pathHint = getexecname();
 #endif
 
-	// Trim the executable name
+#if defined(UNIX_PATH_FAMILY)
+# if (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
+	char* resolved = realpath (pathHint.c_str(), NULLPTR);
+	if (resolved != NULLPTR)
+	{
+		pathHint = resolved;
+		std::free(resolved);
+	}
+# else
+	std::string resolved(path_max, (char)0);
+	char* r = realpath (pathHint.c_str(), &resolved[0]);
+	if (r != NULLPTR)
+	{
+		resolved.resize(std::strlen(&resolved[0]));
+		std::swap(pathHint, resolved);
+	}
+# endif
+
+	// Is it possible for realpath to fail?
+	struct stat buf; int x;
+	x = lstat(pathHint.c_str(), &buf);
+	if (S_ISLNK(buf.st_mode))
+		pathHint.clear();
+#endif
+
+	// Trim the executable name, leave the path with a slash.
 	std::string::size_type pos = pathHint.find_last_of("\\/");
 	if (pos != std::string::npos)
 		pathHint.erase(pos+1);
