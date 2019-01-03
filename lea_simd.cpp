@@ -44,18 +44,18 @@
 #endif
 
 // Do not port this to POWER architecture. Naively we hoped
-// for a 2x to 3x speedup. The result was a 5x slow down
-// because of the rotates and scattered loads.
+// for a 2x to 3x speedup. The result was a 5x slow down.
+// The table below shows MiB/s and cpb.
 //
 // C++:
-// <TD>LEA-128(128)/CTR (128-bit key)<TD>C++<TD>207<TD>15.64<TD>0.593<TD>2015
-// <TD>LEA-128(192)/CTR (192-bit key)<TD>C++<TD>186<TD>17.48<TD>0.699<TD>2378
-// <TD>LEA-128(256)/CTR (256-bit key)<TD>C++<TD>124<TD>26.2<TD>0.842<TD>2861
+// <TD>LEA-128(128)/CTR (128-bit key)<TD>C++<TD>207<TD>15.64
+// <TD>LEA-128(192)/CTR (192-bit key)<TD>C++<TD>186<TD>17.48
+// <TD>LEA-128(256)/CTR (256-bit key)<TD>C++<TD>124<TD>26.2
 //
 // Power8:
-// <TD>LEA-128(128)/CTR (128-bit key)<TD>Power8<TD>37<TD>88.7<TD>0.595<TD>2023
-// <TD>LEA-128(192)/CTR (192-bit key)<TD>Power8<TD>40<TD>82.1<TD>0.699<TD>2375
-// <TD>LEA-128(256)/CTR (256-bit key)<TD>Power8<TD>28<TD>116.0<TD>1.006<TD>3419
+// <TD>LEA-128(128)/CTR (128-bit key)<TD>Power8<TD>37<TD>88.7
+// <TD>LEA-128(192)/CTR (192-bit key)<TD>Power8<TD>40<TD>82.1
+// <TD>LEA-128(256)/CTR (256-bit key)<TD>Power8<TD>28<TD>116.0
 
 #undef CRYPTOPP_POWER8_AVAILABLE
 #if defined(CRYPTOPP_POWER8_AVAILABLE)
