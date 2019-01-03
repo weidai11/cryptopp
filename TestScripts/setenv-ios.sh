@@ -63,26 +63,31 @@ do
   # ARMv5
   if [ "$CL" == "armv5" ]; then
     BACK_ARCH=armv5
+    APPLE_SDK=iPhoneOS
   fi
 
   # ARMv6
   if [ "$CL" == "armv6" ]; then
     BACK_ARCH=armv6
+    APPLE_SDK=iPhoneOS
   fi
 
   # ARMv7
   if [ "$CL" == "armv7" ]; then
     BACK_ARCH=armv7
+    APPLE_SDK=iPhoneOS
   fi
 
   # ARMv7s
   if [ "$CL" == "armv7s" ]; then
     BACK_ARCH=armv7s
+    APPLE_SDK=iPhoneOS
   fi
 
   # ARM64
   if [[ ("$CL" == "arm64" || "$CL" == "armv8" || "$CL" == "aarch64") ]]; then
     BACK_ARCH=arm64
+    APPLE_SDK=iPhoneOS
   fi
 
   # iPhone
