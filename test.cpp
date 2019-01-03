@@ -155,6 +155,8 @@ int scoped_main(int argc, char *argv[])
 #if defined(AT_EXECFN)
 	if (getauxval(AT_EXECFN))
 		g_argvPathHint = getauxval(AT_EXECFN);
+#elif defined(sun) || defined(__sun)
+	g_argvPathHint = getexecname();
 #endif
 	std::string::size_type pos = g_argvPathHint.find_last_of("\\/");
 	if (pos != std::string::npos)
