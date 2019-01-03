@@ -24,21 +24,16 @@ RANLIB ?= ranlib
 CP ?= cp
 MV ?= mv
 RM ?= rm -f
+GREP ?= grep
 CHMOD ?= chmod
 MKDIR ?= mkdir -p
 
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
 
-INSTALL = install
-INSTALL_PROGRAM = $(INSTALL)
-INSTALL_DATA = $(INSTALL) -m 644
-
 # Solaris provides a non-Posix grep at /usr/bin
 ifneq ($(wildcard /usr/xpg4/bin/grep),)
-  GREP ?= /usr/xpg4/bin/grep
-else
-  GREP ?= grep
+  GREP := /usr/xpg4/bin/grep
 endif
 
 # Attempt to determine target machine, fallback to "this" machine.
@@ -1225,11 +1220,14 @@ distclean: clean autotools-clean cmake-clean
 .PHONY: install
 install: cryptest.exe install-lib
 	@-$(MKDIR) $(DESTDIR)$(BINDIR)
-	$(INSTALL_PROGRAM) cryptest.exe $(DESTDIR)$(BINDIR)
+	$(CP) cryptest.exe $(DESTDIR)$(BINDIR)
+	$(CHMOD) 0755 $(DESTDIR)$(BINDIR)/cryptest.exe
 	@-$(MKDIR) $(DESTDIR)$(DATADIR)/cryptopp/TestData
 	@-$(MKDIR) $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
-	$(INSTALL_DATA) TestData/*.dat $(DESTDIR)$(DATADIR)/cryptopp/TestData
-	$(INSTALL_DATA) TestVectors/*.txt $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
+	$(CP) TestData/*.dat $(DESTDIR)$(DATADIR)/cryptopp/TestData
+	$(CHMOD) 0644 $(DESTDIR)$(DATADIR)/cryptopp/TestData/*.dat
+	$(CP) TestVectors/*.txt $(DESTDIR)$(DATADIR)/cryptopp/TestVectors
+	$(CHMOD) 0644 $(DESTDIR)$(DATADIR)/cryptopp/TestVectors/*.txt
 
 # A recipe to install only the library, and not cryptest.exe. Also
 # see https://github.com/weidai11/cryptopp/issues/653. Some users
@@ -1238,19 +1236,23 @@ install: cryptest.exe install-lib
 .PHONY: install-lib
 install-lib:
 	@-$(MKDIR) $(DESTDIR)$(INCLUDEDIR)/cryptopp
-	$(INSTALL_DATA) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	$(CP) *.h $(DESTDIR)$(INCLUDEDIR)/cryptopp
+	$(CHMOD) 0644 $(DESTDIR)$(INCLUDEDIR)/cryptopp/*.h
 ifneq ($(wildcard libcryptopp.a),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_DATA) libcryptopp.a $(DESTDIR)$(LIBDIR)
+	$(CP) libcryptopp.a $(DESTDIR)$(LIBDIR)
+	$(CHMOD) 0644 $(DESTDIR)$(LIBDIR)/libcryptopp.a
 endif
 ifneq ($(wildcard libcryptopp.dylib),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_PROGRAM) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	$(CP) libcryptopp.dylib $(DESTDIR)$(LIBDIR)
+	$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 	-install_name_tool -id $(DESTDIR)$(LIBDIR)/libcryptopp.dylib $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
 endif
 ifneq ($(wildcard libcryptopp.so$(SOLIB_VERSION_SUFFIX)),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)
-	$(INSTALL_PROGRAM) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
+	$(CP) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)
+	$(CHMOD) 0755 $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	$(LDCONF) $(DESTDIR)$(LIBDIR)
@@ -1258,7 +1260,8 @@ endif
 endif
 ifneq ($(wildcard libcryptopp.pc),)
 	@-$(MKDIR) $(DESTDIR)$(LIBDIR)/pkgconfig
-	$(INSTALL_DATA) libcryptopp.pc $(DESTDIR)$(LIBDIR)/pkgconfig/libcryptopp.pc
+	$(CP) libcryptopp.pc $(DESTDIR)$(LIBDIR)/pkgconfig
+	$(CHMOD) 0644 $(DESTDIR)$(LIBDIR)/pkgconfig/libcryptopp.pc
 endif
 
 .PHONY: remove uninstall
