@@ -111,6 +111,7 @@ void HexDecode(const char *infile, const char *outfile);
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool, const char *);
+void SetArgvPathHint(const char* argv0, std::string& pathHint);
 
 ANONYMOUS_NAMESPACE_BEGIN
 #if (CRYPTOPP_USE_AES_GENERATOR)
@@ -151,16 +152,7 @@ int scoped_main(int argc, char *argv[])
 #endif
 
 	// A hint to help locate TestData/ and TestVectors/ after install.
-	g_argvPathHint = argc > 0 ? argv[0] : "";
-#if defined(AT_EXECFN)
-	if (getauxval(AT_EXECFN))
-		g_argvPathHint = getauxval(AT_EXECFN);
-#elif defined(sun) || defined(__sun)
-	g_argvPathHint = getexecname();
-#endif
-	std::string::size_type pos = g_argvPathHint.find_last_of("\\/");
-	if (pos != std::string::npos)
-		g_argvPathHint.erase(pos+1);
+	SetArgvPathHint(argv[0], g_argvPathHint);
 
 	try
 	{
@@ -438,6 +430,27 @@ int scoped_main(int argc, char *argv[])
 		return -2;
 	}
 } // main()
+
+void SetArgvPathHint(const char* argv0, std::string& pathHint)
+{
+	pathHint = argv0 ? argv0 : "";
+#if defined(AT_EXECFN)
+	if (getauxval(AT_EXECFN))
+		pathHint = getauxval(AT_EXECFN);
+#elif defined(_WIN32) || defined(_WIN64)
+	char* pgmptr = NULLPTR;
+	errno_t err = _get_pgmptr(&pgmptr);
+	if (err == 0 && pgmptr != NULLPTR)
+		pathHint = pgmptr;
+#elif defined(sun) || defined(__sun)
+	pathHint = getexecname();
+#endif
+
+	// Trim the executable name
+	std::string::size_type pos = pathHint.find_last_of("\\/");
+	if (pos != std::string::npos)
+		pathHint.erase(pos+1);
+}
 
 void FIPS140_GenerateRandomFiles()
 {
