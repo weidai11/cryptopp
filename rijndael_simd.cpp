@@ -197,7 +197,7 @@ static inline void ARMV8_Enc_6_Blocks(uint64x2_t &data0, uint64x2_t &data1,
     uint8x16_t key;
     for (unsigned int i=0; i<rounds-1; ++i)
     {
-        uint8x16_t key = vld1q_u8(keys+i*16);
+        key = vld1q_u8(keys+i*16);
         // AES single round encryption
         block0 = vaeseq_u8(block0, key);
         // AES mix columns
