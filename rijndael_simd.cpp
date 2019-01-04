@@ -26,6 +26,7 @@
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include "adv_simd.h"
+# include <emmintrin.h>
 # include <smmintrin.h>
 # include <wmmintrin.h>
 #endif
@@ -39,7 +40,6 @@
 #endif
 
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include "adv_simd.h"
 # include <stdint.h>
 # include <arm_acle.h>
 #endif

@@ -53,8 +53,6 @@
 # include <arm_neon.h>
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
