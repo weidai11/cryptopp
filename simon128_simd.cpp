@@ -62,6 +62,14 @@ using CryptoPP::vec_swap;  // SunCC
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
+// Missing from Microsoft's implementation???
+#if defined(_MSC_VER)
+inline uint64x2_t vld1q_dup_u64(const uint64_t* ptr)
+{
+	return vmovq_n_u64(*ptr);
+}
+#endif
+
 template <class T>
 inline T UnpackHigh64(const T& a, const T& b)
 {
