@@ -567,11 +567,11 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             {
                 const uint32x4_t one = s_one;
                 block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
-                block1 = vaddq_u32(block0, one);
-                block2 = vaddq_u32(block1, one);
-                block3 = vaddq_u32(block2, one);
-                vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u32(vaddq_u32(block3, one)));
+                block1 = vreinterpretq_u32_u64(vaddq_u64(vreinterpretq_u64_u32(block0), vreinterpretq_u64_u32(one)));
+                block2 = vreinterpretq_u32_u64(vaddq_u64(vreinterpretq_u64_u32(block1), vreinterpretq_u64_u32(one)));
+                block3 = vreinterpretq_u32_u64(vaddq_u64(vreinterpretq_u64_u32(block2), vreinterpretq_u64_u32(one)));
+                vst1q_u8(const_cast<byte*>(inBlocks), vreinterpretq_u8_u64(vaddq_u64(
+                    vreinterpretq_u64_u32(block3), vreinterpretq_u64_u32(one))));
             }
             else
             {
