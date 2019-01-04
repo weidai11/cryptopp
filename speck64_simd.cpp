@@ -35,9 +35,12 @@
 # include <immintrin.h>
 #endif
 
+// C1189: error: This header is specific to ARM targets
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "adv_simd.h"
-# include <arm_neon.h>
+# ifndef _M_ARM64
+#  include <arm_neon.h>
+# endif
 #endif
 
 // Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
