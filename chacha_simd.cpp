@@ -72,11 +72,13 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 // Thanks to Peter Cordes, https://stackoverflow.com/q/54016821/608639
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# if defined(_MSC_VER)
-#  define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
-# else
-#  define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
-# endif
+# ifndef PACK32x4
+#  if defined(_MSC_VER)
+#   define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
+#  else
+#   define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
+#  endif
+# endif  // PACK32x4
 #endif  // Microsoft workaround
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
