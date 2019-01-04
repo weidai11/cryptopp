@@ -53,7 +53,7 @@
 #include "config.h"
 #include "stdcpp.h"
 
-#if defined(NO_OS_DEPENDENCE)
+#if defined(NO_OS_DEPENDENCE) || !defined(OS_RNG_AVAILABLE)
 # define CRYPTOPP_DISABLE_NACL 1
 #endif
 

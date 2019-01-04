@@ -513,13 +513,11 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
 /// \tparam F1 function to process 1 128-bit block
 /// \tparam F4 function to process 4 128-bit blocks
 /// \tparam W word type of the subkey table
-/// \tparam V vector type of the NEON datatype
 /// \details AdvancedProcessBlocks128_4x1_NEON processes 4 and 1 NEON SIMD words
 ///   at a time.
 /// \details The subkey type is usually word32 or word64. V is the vector type and it is
-///   usually uint32x4_t or uint64x2_t. F1, F4, W and V must use the same word and
-///   vector type. The V parameter is used to avoid template argument
-///   deduction/substitution failures.
+///   usually uint32x4_t or uint32x4_t. F1, F4, and W must use the same word and
+///   vector type.
 template <typename F1, typename F4, typename W>
 inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
             const W *subKeys, size_t rounds, const byte *inBlocks,
@@ -564,38 +562,38 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     {
         while (length >= 4*blockSize)
         {
-            uint64x2_t block0, block1, block2, block3;
+            uint32x4_t block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
             {
-                const uint64x2_t one = vreinterpretq_u64_u32(s_one);
-                block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                block1 = vaddq_u64(block0, one);
-                block2 = vaddq_u64(block1, one);
-                block3 = vaddq_u64(block2, one);
+                const uint32x4_t one = s_one;
+                block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
+                block1 = vaddq_u32(block0, one);
+                block2 = vaddq_u32(block1, one);
+                block3 = vaddq_u32(block2, one);
                 vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block3, one)));
+                    vreinterpretq_u8_u32(vaddq_u32(block3, one)));
             }
             else
             {
-                block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block2 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block3 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
@@ -603,23 +601,23 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 
             if (xorOutput)
             {
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block0));
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block1));
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block2));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block2));
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block3));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block3));
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 4*blockSize;
@@ -628,10 +626,10 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 
     while (length >= blockSize)
     {
-        uint64x2_t block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+        uint32x4_t block = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
 
         if (xorInput)
-            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+            block = veorq_u32(block, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
 
         if (flags & BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
@@ -639,9 +637,9 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
         func1(block, subKeys, static_cast<unsigned int>(rounds));
 
         if (xorOutput)
-            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+            block = veorq_u32(block, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
 
-        vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
+        vst1q_u8(outBlocks, vreinterpretq_u8_u32(block));
 
         inBlocks = PtrAdd(inBlocks, inIncrement);
         outBlocks = PtrAdd(outBlocks, outIncrement);
