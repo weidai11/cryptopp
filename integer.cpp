@@ -233,7 +233,7 @@ static word AtomicInverseModPower2(word A)
 	#define GetBorrow(u)				u##1
 #else
 	#define Declare2Words(x)			dword x;
-	#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER) && !defined(_M_ARM)
+	#if _MSC_VER >= 1400 && !defined(__INTEL_COMPILER) && !(defined(_M_ARM) || defined(_M_ARM64))
 		#define MultiplyWords(p, a, b)		p = __emulu(a, b);
 	#else
 		#define MultiplyWords(p, a, b)		p = (dword)a*b;
