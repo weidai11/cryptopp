@@ -63,8 +63,8 @@ using CryptoPP::vec_swap;  // SunCC
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
-// Missing from Microsoft's implementation???
-#if defined(_MSC_VER)
+// Missing from Microsoft's ARM A-32 implementation
+#if defined(_MSC_VER) && !defined(_M_ARM64)
 inline uint64x2_t vld1q_dup_u64(const uint64_t* ptr)
 {
 	return vmovq_n_u64(*ptr);
