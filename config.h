@@ -921,7 +921,7 @@ NAMESPACE_END
 
 #ifndef NO_OS_DEPENDENCE
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #define CRYPTOPP_WIN32_AVAILABLE
 #endif
 

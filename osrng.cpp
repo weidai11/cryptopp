@@ -10,6 +10,7 @@
 // Win32 has CryptoAPI and <wincrypt.h>. Windows 10 and Windows Store 10 have CNG and <bcrypt.h>.
 //  There's a hole for Windows Phone 8 and Windows Store 8. There is no userland crypto available.
 //  Also see http://stackoverflow.com/questions/36974545/random-numbers-for-windows-phone-8-and-windows-store-8
+//  and https://social.msdn.microsoft.com/Forums/vstudio/en-US/25b83e13-c85f-4aa1-a057-88a279ea3fd6/what-crypto-random-generator-c-code-could-use-on-wp81
 #if defined(CRYPTOPP_WIN32_AVAILABLE) && !defined(OS_RNG_AVAILABLE)
 # pragma message("WARNING: Compiling for Windows but an OS RNG is not available. This is likely a Windows Phone 8 or Windows Store 8 app.")
 #endif
