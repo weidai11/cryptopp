@@ -401,7 +401,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 					}
 				}
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400 && !defined(_M_ARM)
+#if defined(_MSC_VER) && _MSC_VER >= 1400 && !(defined(_M_ARM) || defined(_M_ARM64))
 				// first byte of _CRT_DEBUGGER_HOOK gets modified in memory by the debugger invisibly, so read it from file
 				if (IsDebuggerPresent())
 				{
