@@ -30,18 +30,18 @@
 #include <windows.h>
 
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-#ifdef _M_IX86
-#define _CRT_DEBUGGER_HOOK _crt_debugger_hook
-#else
-#define _CRT_DEBUGGER_HOOK __crt_debugger_hook
-#endif
-#if _MSC_VER < 1900
+# ifdef _M_IX86
+#  define _CRT_DEBUGGER_HOOK _crt_debugger_hook
+# else
+#  define _CRT_DEBUGGER_HOOK __crt_debugger_hook
+# endif
+# if _MSC_VER < 1900
 extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
-#else
+# else
 extern "C" {void __cdecl _CRT_DEBUGGER_HOOK(int); }
+# endif
 #endif
-#endif
-#endif
+#endif  // CRYPTOPP_WIN32_AVAILABLE
 
 #include <sstream>
 #include <iostream>
