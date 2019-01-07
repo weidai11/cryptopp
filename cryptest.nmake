@@ -16,8 +16,11 @@
 # You must also add /DCRYPTOPP_DEBUG or /DDEBUG if you want a debug build with
 #  the library's assert. The library moved from Posix NDEBUG and assert() to
 #  CRYPTOPP_ASSERT at 5.6.5 due to CVE-2016-7420. CRYPTOPP_ASSERT has the
-#  additional benefit of using DebugBreak(), and the  program does not crash
+#  additional benefit of using DebugBreak(), and the program does not crash
 #  while you are debugging it like would happen with Posix assert().
+
+# There is mention of cryptopp.dll and CRYPTOPP_IMPORTS below. They are for
+#  for testing. Attempting to produce a working DLL on Windows fails.
 
 # The list of LIB_SRCS and TEST_SRCS was generated under Linux with
 #  "make sources | fold -w74 -s". The list of LIB_OBJS and TEST_OBJS was
@@ -212,32 +215,29 @@ LIB_OBJS = $(LIB_OBJS) neon_simd.obj
 
 all: cryptest.exe
 
+# For testing cryptopp.dll and CRYPTOPP_IMPORTS
+#cryptest.exe: pch.pch cryptopp.lib $(TEST_OBJS)
+#	$(LD) $(LDFLAGS) $(TEST_OBJS) cryptopp.lib $(LDLIBS) /out:$@
+
 cryptest.exe: pch.pch cryptlib.lib $(TEST_OBJS)
 	$(LD) $(LDFLAGS) $(TEST_OBJS) cryptlib.lib $(LDLIBS) /out:$@
 
 cryptlib.lib: $(LIB_OBJS)
 	$(AR) $(ARFLAGS) $(LIB_OBJS) /out:$@
 
-#map2def source code available in TestPrograms/
-# map2def.exe: map2def.obj
-#	$(LD) map2def.obj kernel32.lib /out:$@
-
-#dump2def source code available in TestPrograms/
-#dump2def.exe: dump2def.obj
-#	$(LD) dump2def.obj kernel32.lib /out:$@
+cryptopp.dump: cryptlib.lib
+	dumpbin.exe /LINKERMEMBER cryptlib.lib /OUT:$@
 
 cryptopp.map:
 	$(LD) $(LDFLAGS) /DLL /MAP /MAPINFO:EXPORTS $(LIB_OBJS)
 	mv cryptlib.map cryptopp.map
 
-cryptopp.dump: cryptlib.lib
-	dumpbin.exe /LINKERMEMBER cryptlib.lib /OUT:$@
-
 cryptopp.def: cryptlib.lib cryptopp.dump
 	dump2def.exe cryptopp.dump cryptopp.def
 
-cryptopp.dll: $(LIB_OBJS) cryptopp.def
-	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:$@
+# LD produces 3 output artifacts for cryptopp.dll
+cryptopp.dll cryptopp.lib cryptopp.exp: $(LIB_OBJS) cryptopp.def
+	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
 
 clean:
 	$(RM) /F /Q pch.pch $(LIB_OBJS) pch.obj rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj cryptlib.lib $(TEST_OBJS) cryptest.exe *.pdb
@@ -270,6 +270,19 @@ x64dll.obj:
 chacha_avx.obj:
 	$(CXX) $(CXXFLAGS) /arch:AVX /c chacha_avx.cpp
 !endif
+
+# For testing cryptopp.dll and CRYPTOPP_IMPORTS
+#CXXFLAGS_IMPORTS = /wd4275 /DCRYPTOPP_IMPORTS
+#test.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
+#*test.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
+#bench*.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
+#regtest*.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
+#validat*.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
 
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) /c $<
