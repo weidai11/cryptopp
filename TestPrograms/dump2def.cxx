@@ -4,7 +4,10 @@
 //                a static library. Then, the exports can used to build
 //                a dynamic link library with the same exports.
 //
-//    The workflow for Crypto++ is:
+//    If you wish to compile this source file using cl.exe, then:
+//      cl.exe /DNDEBUG /Oi /Oy /O2 /Zi /TP /GR /EHsc /MT dump2def.cxx
+//
+//    The intended workflow in Crypto++ is:
 //
 //      1. Open a Developer Prompt
 //      2. CD to cryptopp/ directory
