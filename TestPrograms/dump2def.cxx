@@ -47,11 +47,41 @@
 #define LIBRARY_NAME "Crypto++ Library"
 typedef std::set<std::string> SymbolMap;
 
+const int ErrorSuccess = 0;
+const int ErrorDumpExtension = 1;
+const int ErrorTooFewOpts = 2;
+const int ErrorTooManyOpts = 3;
+const int ErrorOpenInputFailed = 4;
+const int ErrorOpenOutputFailed = 5;
+const int ErrorReadException = 6;
+const int ErrorWriteException = 7;
+
 void PrintHelpAndExit(int code)
 {
 	std::cout << "dump2def - create a module definitions file from a dumpbin file" << std::endl;
 	std::cout << "           Written and placed in public domain by Jeffrey Walton" << std::endl;
 	std::cout << std::endl;
+
+	switch (code)
+	{
+		case ErrorDumpExtension:
+			std::cout << "Error: input file is missing \".dump\" extension.\n" << std::endl;
+			break;
+		case ErrorTooFewOpts:
+			std::cout << "Error: Too few options were supplied.\n" << std::endl;
+			break;
+		case ErrorTooManyOpts:
+			std::cout << "Error: Too many options were supplied.\n" << std::endl;
+			break;
+		case ErrorOpenInputFailed:
+			std::cout << "Error: Failed to open input file.\n" << std::endl;
+			break;
+		case ErrorOpenOutputFailed:
+			std::cout << "Error: Failed to open output file.\n" << std::endl;
+			break;
+		default:
+			;;
+	}
 
 	std::cout << "Usage: " << std::endl;
 
@@ -62,7 +92,7 @@ void PrintHelpAndExit(int code)
 	std::cout << "  dump2def <infile> <outfile>" << std::endl;
 	std::cout << "    - Create a def file from <infile> and write it to <outfile>" << std::endl;
 
-	std::exit(code);
+	std::exit((code == ErrorSuccess ? 0 : 1));
 }
 
 int main(int argc, char* argv[])
@@ -75,9 +105,9 @@ int main(int argc, char* argv[])
 		opts.push_back(argv[i]);
 
 	// Look for help
-	std::string opt = opts.size() < 3 ? "" : opts[1].substr(0,2);
+	std::string opt = (opts.size() > 1 ? opts[1].substr(0,2) : "");
 	if (opt == "/h" || opt == "-h" || opt == "/?" || opt == "-?")
-		PrintHelpAndExit(0);
+		PrintHelpAndExit(ErrorSuccess);
 
 	// Add <outfile> as needed
 	if (opts.size() == 2)
@@ -85,15 +115,17 @@ int main(int argc, char* argv[])
 		std::string outfile = opts[1];
 		std::string::size_type pos = outfile.length() < 5 ? std::string::npos : outfile.length() - 5;
 		if (pos == std::string::npos || outfile.substr(pos) != ".dump")
-			PrintHelpAndExit(1);
+			PrintHelpAndExit(ErrorDumpExtension);
 
 		outfile.replace(pos, 5, ".def");
 		opts.push_back(outfile);
 	}
 
 	// Check or exit
-	if (opts.size() != 3)
-		PrintHelpAndExit(1);
+	if (opts.size() < 2)
+		PrintHelpAndExit(ErrorTooFewOpts);
+	if (opts.size() > 3)
+		PrintHelpAndExit(ErrorTooManyOpts);
 
 	// ******************** Read MAP file ******************** //
 
@@ -102,6 +134,10 @@ int main(int argc, char* argv[])
 	try
 	{
 		std::ifstream infile(opts[1].c_str());
+
+		if (infile.is_open() == false)
+			PrintHelpAndExit(ErrorOpenInputFailed);
+
 		std::string::size_type pos;
 		std::string line;
 
@@ -134,7 +170,7 @@ int main(int argc, char* argv[])
 		std::cerr << ex.what() << std::endl;
 		std::cerr << std::endl;
 
-		PrintHelpAndExit(1);
+		PrintHelpAndExit(ErrorReadException);
 	}
 
 	// ******************** Write DEF file ******************** //
@@ -142,6 +178,9 @@ int main(int argc, char* argv[])
 	try
 	{
 		std::ofstream outfile(opts[2].c_str());
+
+		if (outfile.is_open() == false)
+			PrintHelpAndExit(ErrorOpenOutputFailed);
 
 		// Library name, cryptopp.dll
 		std::string name = opts[2];
@@ -168,7 +207,7 @@ int main(int argc, char* argv[])
 		std::cerr << ex.what() << std::endl;
 		std::cerr << std::endl;
 
-		PrintHelpAndExit(1);
+		PrintHelpAndExit(ErrorWriteException);
 	}
 
 	return 0;
