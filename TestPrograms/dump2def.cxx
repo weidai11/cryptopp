@@ -40,6 +40,8 @@
 #include <vector>
 #include <set>
 
+// Friendly name
+#define LIBRARY_NAME "Crypto++ Library"
 typedef std::set<std::string> SymbolMap;
 
 void PrintHelpAndExit(int code)
@@ -146,7 +148,7 @@ int main(int argc, char* argv[])
 			name.erase(pos);
 
 		outfile << "LIBRARY " << name << std::endl;
-		outfile << "DESCRIPTION \"Crypto++ Library\"" << std::endl;
+		outfile << "DESCRIPTION \"" << LIBRARY_NAME << "\"" << std::endl;
 		outfile << "EXPORTS" << std::endl;
 		outfile << std::endl;
 
@@ -165,10 +167,6 @@ int main(int argc, char* argv[])
 
 		PrintHelpAndExit(1);
 	}
-
-	std::cout << std::endl;
-	std::cout << symbols.size() << " library symbols";
-	std::cout << std::endl;
 
 	return 0;
 }
