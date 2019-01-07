@@ -113,16 +113,18 @@ LIB_OBJS = \
     vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj \
     zdeflate.obj zinflate.obj zlib.obj
 
+# Omit dlltest.cpp
 TEST_SRCS = \
     test.cpp bench1.cpp bench2.cpp bench3.cpp datatest.cpp \
-    dlltest.cpp fipsalgt.cpp validat0.cpp validat1.cpp validat2.cpp \
+    fipsalgt.cpp validat0.cpp validat1.cpp validat2.cpp \
     validat3.cpp validat4.cpp validat5.cpp validat6.cpp validat7.cpp \
     validat8.cpp validat9.cpp validat10.cpp regtest1.cpp regtest2.cpp \
     regtest3.cpp regtest4.cpp
 
+# Omit dlltest.obj
 TEST_OBJS = \
     test.obj bench1.obj bench2.obj bench3.obj datatest.obj \
-    dlltest.obj fipsalgt.obj validat0.obj validat1.obj validat2.obj \
+    fipsalgt.obj validat0.obj validat1.obj validat2.obj \
     validat3.obj validat4.obj validat5.obj validat6.obj validat7.obj \
     validat8.obj validat9.obj validat10.obj regtest1.obj regtest2.obj \
     regtest3.obj regtest4.obj
@@ -272,22 +274,51 @@ chacha_avx.obj:
 !endif
 
 # For testing cryptopp.dll and CRYPTOPP_IMPORTS
-#CXXFLAGS_IMPORTS = /wd4275 /DCRYPTOPP_IMPORTS
+#CXXFLAGS_IMPORTS = /wd4275 /wd4251 /DCRYPTOPP_IMPORTS
 #test.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
-#*test.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
-#bench*.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
-#regtest*.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
-#validat*.obj:
-#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#datatest.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#fipstest.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#bench1.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#bench2.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#bench3.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest1.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest2.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest3.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest4.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat1.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat2.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat3.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat4.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat5.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat6.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat7.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat8.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat9.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat10.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
 
 # For testing cryptopp.dll and CRYPTOPP_EXPORTS
-#CXXFLAGS_EXPORTS = /wd4275 /wd4251 /DCRYPTOPP_DLL_ONLY
+#CXXFLAGS_EXPORTS = /wd4275 /wd4251 /DCXXFLAGS_EXPORTS
 #.cpp.obj:
-#	$(CXX) $(CXXFLAGS) /c $<
 #	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXPORTS) /c $<
 
 .cpp.obj:
