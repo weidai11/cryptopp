@@ -284,6 +284,12 @@ chacha_avx.obj:
 #validat*.obj:
 #	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $*.cpp
 
+# For testing cryptopp.dll and CRYPTOPP_EXPORTS
+#CXXFLAGS_EXPORTS = /wd4275 /wd4251 /DCRYPTOPP_DLL_ONLY
+#.cpp.obj:
+#	$(CXX) $(CXXFLAGS) /c $<
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXPORTS) /c $<
+
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) /c $<
 
