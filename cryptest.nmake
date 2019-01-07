@@ -218,6 +218,26 @@ cryptest.exe: pch.pch cryptlib.lib $(TEST_OBJS)
 cryptlib.lib: $(LIB_OBJS)
 	$(AR) $(ARFLAGS) $(LIB_OBJS) /out:$@
 
+#map2def source code available in TestPrograms/
+# map2def.exe: map2def.obj
+#	$(LD) map2def.obj kernel32.lib /out:$@
+
+#dump2def source code available in TestPrograms/
+#dump2def.exe: dump2def.obj
+#	$(LD) dump2def.obj kernel32.lib /out:$@
+
+cryptopp.map:
+	$(LD) $(LDFLAGS) /DLL /MAP /MAPINFO:EXPORTS $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
+
+cryptopp.dump: cryptlib.lib
+	dumpbin /LINKERMEMBER cryptlib.lib > cryptopp.dump
+
+cryptopp.def: cryptlib.lib cryptopp.dump
+	dump2def.exe cryptopp.dump cryptopp.def
+
+cryptopp.dll: $(LIB_OBJS) cryptopp.def
+	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:$@
+
 clean:
 	$(RM) /F /Q pch.pch $(LIB_OBJS) pch.obj rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj cryptlib.lib $(TEST_OBJS) cryptest.exe *.pdb
 

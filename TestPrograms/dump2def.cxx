@@ -1,8 +1,37 @@
 // dump2def.cxx - Written and placed in public domain by Jeffrey Walton
-//                Create a module definitions file from a dumpbin file/
+//                Create a module definitions file from a dumpbin file.
 //                dump2def can be used to create a list of exports from
 //                a static library. Then, the exports can used to build
 //                a dynamic link library with the same exports.
+//
+//    The workflow for Crypto++ is:
+//
+//      1. Open a Developer Prompt
+//      2. CD to cryptopp/ directory
+//      3. nmake /f cryptest.nmake cryptopp.dll
+//
+//    The cryptopp.dll recipe first builds cryptlib.lib. Then it calls
+//    dumpbin.exe to export all symbols from cryptlib.lib and writes them
+//    to cryptopp.dump. The recipe then calls dump2def.exe to create a
+//    module definition file. Finally, the recipe builds cryptopp.dll
+//    using the module definition file cryptopp.def. The linker creates
+//    the import lib cryptopp.lib and export cryptopp.exp automatically.
+//
+//    This is only "half the problem solved" for those who wish to use
+//    a DLL. The program must import the import lib cryptopp.lib. Then
+//    the program must ensure the library headers export the symbol or
+//    class with CRYPTOPP_DLL. CRYPTOPP_DLL is only present on some classes
+//    because the FIPS module only allowed approved algorithms like AES and
+//    SHA. Other classes like Base64Encoder and HexEncoder lack CRYPTOPP_DLL.
+//
+//    CRYPTOPP_DLL simply adds declspec(dllimport) when CRYPTOPP_IMPORTS is
+//    defined. The limitation of requiring declspec(dllimport) is imposed by
+//    Microsoft. Microsoft does not allow a program to "import everything".
+//
+//    If you would like to read more about the FIPS module and the pain it
+//    causes then see https://www.cryptopp.com/wiki/FIPS_DLL. In fact we
+//    recommend you delete the CryptDll and DllTest projects from the
+//    Visual Studio solution file.
 
 #include <iostream>
 #include <fstream>
@@ -27,14 +56,14 @@ void PrintHelpAndExit(int code)
 
 	std::cout << "  dump2def <infile> <outfile>" << std::endl;
 	std::cout << "    - Create a def file from <infile> and write it to <outfile>" << std::endl;
-	
+
 	std::exit(code);
 }
 
 int main(int argc, char* argv[])
 {
 	// ******************** Handle Options ******************** //
-	
+
 	// Convenience item
 	std::vector<std::string> opts;
 	for (size_t i=0; i<argc; ++i)
@@ -44,7 +73,7 @@ int main(int argc, char* argv[])
 	std::string opt = opts.size() < 3 ? "" : opts[1].substr(0,2);
 	if (opt == "/h" || opt == "-h" || opt == "/?" || opt == "-?")
 		PrintHelpAndExit(0);
-	
+
 	// Add <outfile> as needed
 	if (opts.size() == 2)
 	{
@@ -52,7 +81,7 @@ int main(int argc, char* argv[])
 		std::string::size_type pos = outfile.length() < 5 ? std::string::npos : outfile.length() - 5;
 		if (pos == std::string::npos || outfile.substr(pos) != ".dump")
 			PrintHelpAndExit(1);
-		
+
 		outfile.replace(pos, 5, ".def");
 		opts.push_back(outfile);
 	}
@@ -75,7 +104,7 @@ int main(int argc, char* argv[])
 		while (std::getline(infile, line))
 		{
 			pos = line.find("public symbols");
-			if (pos == std::string::npos) { continue; }		
+			if (pos == std::string::npos) { continue; }
 
 			// Eat the whitespace after the table heading
 			infile >> std::ws;
@@ -117,7 +146,7 @@ int main(int argc, char* argv[])
 			name.erase(pos);
 
 		outfile << "LIBRARY " << name << std::endl;
-		outfile << "DESCRIPTION \"Crypto++ Library\"" << std::endl;		
+		outfile << "DESCRIPTION \"Crypto++ Library\"" << std::endl;
 		outfile << "EXPORTS" << std::endl;
 		outfile << std::endl;
 
