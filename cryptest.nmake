@@ -234,7 +234,7 @@ cryptlib.lib: $(LIB_OBJS)
 cryptopp.dump: cryptlib.lib
 	dumpbin.exe /LINKERMEMBER cryptlib.lib /OUT:$@
 
-cryptopp.map:
+cryptopp.map: $(LIB_OBJS)
 	$(LD) $(LDFLAGS) /DLL /MAP /MAPINFO:EXPORTS $(LIB_OBJS)
 	mv cryptlib.map cryptopp.map
 
