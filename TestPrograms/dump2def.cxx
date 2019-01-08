@@ -44,7 +44,7 @@
 #include <set>
 
 // Friendly name
-#define LIBRARY_NAME "Crypto++ Library"
+#define LIBRARY_DESC "Crypto++ Library"
 typedef std::set<std::string> SymbolMap;
 
 const int ErrorSuccess = 0;
@@ -190,7 +190,7 @@ int main(int argc, char* argv[])
 			name.erase(pos);
 
 		outfile << "LIBRARY " << name << std::endl;
-		outfile << "DESCRIPTION \"" << LIBRARY_NAME << "\"" << std::endl;
+		outfile << "DESCRIPTION \"" << LIBRARY_DESC << "\"" << std::endl;
 		outfile << "EXPORTS" << std::endl;
 		outfile << std::endl;
 

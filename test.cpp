@@ -448,22 +448,21 @@ int scoped_main(int argc, char *argv[])
 
 void SetArgvPathHint(const char* argv0, std::string& pathHint)
 {
+# if (PATH_MAX > 0)  // Posix
+	size_t path_max = (size_t)PATH_MAX;
+#elif (MAX_PATH > 0)  // Microsoft
+	size_t path_max = (size_t)MAX_PATH;
+#else
+	size_t path_max = 260;
+#endif
+
 	// OS X and Solaris provide a larger path using pathconf than MAX_PATH.
 	// Also see https://stackoverflow.com/a/33249023/608639 for FreeBSD.
-#if defined(UNIX_PATH_FAMILY)
-	size_t path_max = 0;
+#if defined(_PC_PATH_MAX)
 	long ret = pathconf(argv0, _PC_PATH_MAX);
+	const size_t old_path_max = path_max;
 	if (SafeConvert(ret, path_max) == false)
-	{
-# if defined(MAX_PATH)
-		path_max = MAX_PATH;
-# else
-		path_max = 4096;
-# endif
-	}
-#else
-	// Windows and others?
-	size_t path_max = MAX_PATH;
+		path_max = old_path_max;
 #endif
 
 	const size_t argLen = std::strlen(argv0);
