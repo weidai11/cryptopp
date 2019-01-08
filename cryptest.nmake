@@ -237,6 +237,7 @@ cryptopp.dump: cryptlib.lib
 cryptopp.map:
 	$(LD) $(LDFLAGS) /DLL /MAP /MAPINFO:EXPORTS $(LIB_OBJS)
 	mv cryptlib.map cryptopp.map
+	get-content somefile.txt | %{$_ -replace "cryptlib","cryptopp"}
 
 cryptopp.def: cryptopp.dump
 	dump2def.exe cryptopp.dump cryptopp.def
