@@ -19,8 +19,10 @@
 #  additional benefit of using DebugBreak(), and the program does not crash
 #  while you are debugging it like would happen with Posix assert().
 
-# There is mention of cryptopp.dll and CRYPTOPP_IMPORTS below. They are for
-#  for testing. Attempting to produce a working DLL on Windows fails.
+# There is mention of cryptopp.dll, CRYPTOPP_IMPORTS and CRYPTOPP_EXPORTS
+#  below. They are for testing only. Attempting to produce a working DLL on
+#  Windows fails. Too many missing symbols because cryptest.exe exercises
+#  about 80% of the library, but CRYPTOPP_DLL is only used for FIPS algos.
 
 # The list of LIB_SRCS and TEST_SRCS was generated under Linux with
 #  "make sources | fold -w74 -s". The list of LIB_OBJS and TEST_OBJS was
