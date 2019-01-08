@@ -512,7 +512,7 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 	// Is it possible for realpath to fail?
 	struct stat buf; int x;
 	x = lstat(pathHint.c_str(), &buf);
-	if (S_ISLNK(buf.st_mode))
+	if (x != 0 || S_ISLNK(buf.st_mode))
 		pathHint.clear();
 #endif
 
