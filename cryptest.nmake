@@ -115,6 +115,9 @@ LIB_OBJS = \
     vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj \
     zdeflate.obj zinflate.obj zlib.obj
 
+ASM_OBJS = \
+    rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj
+
 TEST_SRCS = \
     test.cpp bench1.cpp bench2.cpp bench3.cpp datatest.cpp \
     dlltest.cpp fipsalgt.cpp validat0.cpp validat1.cpp validat2.cpp \
@@ -132,7 +135,8 @@ TEST_OBJS = \
 CXX = cl.exe
 LD = link.exe
 AR = lib.exe
-RM = del.exe
+RM = del
+RMDIR = rd
 
 # We may misdetect the environment on VS2005 or so. Uncomment as
 # needed to match the Developer Prompt environment.
@@ -234,15 +238,40 @@ cryptopp.map:
 	$(LD) $(LDFLAGS) /DLL /MAP /MAPINFO:EXPORTS $(LIB_OBJS)
 	mv cryptlib.map cryptopp.map
 
-cryptopp.def: cryptlib.lib cryptopp.dump
+cryptopp.def: cryptopp.dump
 	dump2def.exe cryptopp.dump cryptopp.def
 
 # LD produces 3 output artifacts for cryptopp.dll
 cryptopp.dll cryptopp.lib cryptopp.exp: $(LIB_OBJS) cryptopp.def
 	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
 
-clean:
-	$(RM) /F /Q pch.pch $(LIB_OBJS) pch.obj rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj cryptlib.lib $(TEST_OBJS) cryptest.exe *.pdb
+clean ::
+	$(RM) /F /Q cryptest.exe cryptlib.lib pch.pch pch.obj 2>null
+clean ::
+	$(RM) /F /Q cryptopp.dll cryptopp.lib cryptopp.exp cryptopp.def 2>null
+clean ::
+	$(RM) /F /Q $(LIB_OBJS) $(ASM_OBJS) 2>null
+clean ::
+	$(RM) /F /Q $(TEST_OBJS) *.pdb 2>null
+
+distclean :: clean
+!IF EXIST ($(USERNAME).sdf)
+	attrib -r -a -s -h $(USERNAME).sdf 2>null
+	$(RM) /F /Q $(USERNAME).sdf 2>null
+!ENDIF
+!IF EXIST ($(USERNAME).suo)
+	attrib -r -a -s -h $(USERNAME).suo 2>null
+	$(RM) /F /Q $(USERNAME).suo 2>null
+!ENDIF
+!IF EXIST (Win32\)
+	$(RMDIR) Win32\ /q /s 2>null
+!ENDIF
+!IF EXIST (x64\)
+	$(RMDIR) x64\ /q /s 2>null
+!ENDIF
+!IF EXIST (ipch\)
+	$(RMDIR) ipch\ /q /s 2>null
+!ENDIF
 
 # Precompiled header
 pch.pch: pch.h pch.cpp
