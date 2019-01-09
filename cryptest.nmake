@@ -246,7 +246,9 @@ cryptopp.dll cryptopp.lib cryptopp.exp: $(LIB_OBJS) cryptopp.def
 	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
 
 clean ::
-	$(RM) /F /Q cryptest.exe cryptest.lib cryptest.exp cryptlib.lib pch.pch 2>null
+	$(RM) /F /Q cryptest.exe cryptest.lib cryptest.exp pch.pch 2>null
+clean ::
+	$(RM) /F /Q cryptlib.lib cryptlib.exp cryptlib.dll 2>null
 clean ::
 	$(RM) /F /Q cryptopp.dll cryptopp.lib cryptopp.exp cryptopp.def 2>null
 clean ::
