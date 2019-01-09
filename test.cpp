@@ -491,15 +491,14 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 		pathHint = getexecname();
 #endif
 
-#if defined(UNIX_PATH_FAMILY)
-# if (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
+#if (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
 	char* resolved = realpath (pathHint.c_str(), NULLPTR);
 	if (resolved != NULLPTR)
 	{
 		pathHint = resolved;
 		std::free(resolved);
 	}
-# else
+#elif defined(UNIX_PATH_FAMILY)
 	std::string resolved(path_max, (char)0);
 	char* r = realpath (pathHint.c_str(), &resolved[0]);
 	if (r != NULLPTR)
@@ -507,8 +506,9 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 		resolved.resize(std::strlen(&resolved[0]));
 		std::swap(pathHint, resolved);
 	}
-# endif
+#endif
 
+#if defined(UNIX_PATH_FAMILY)
 	// Is it possible for realpath to fail?
 	struct stat buf; int x;
 	x = lstat(pathHint.c_str(), &buf);

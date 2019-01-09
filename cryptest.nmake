@@ -246,13 +246,11 @@ cryptopp.dll cryptopp.lib cryptopp.exp: $(LIB_OBJS) cryptopp.def
 	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
 
 clean ::
-	$(RM) /F /Q cryptest.exe cryptlib.lib pch.pch pch.obj 2>null
+	$(RM) /F /Q cryptest.exe cryptest.lib cryptest.exp cryptlib.lib pch.pch 2>null
 clean ::
 	$(RM) /F /Q cryptopp.dll cryptopp.lib cryptopp.exp cryptopp.def 2>null
 clean ::
-	$(RM) /F /Q $(LIB_OBJS) $(ASM_OBJS) 2>null
-clean ::
-	$(RM) /F /Q $(TEST_OBJS) *.pdb 2>null
+	$(RM) /F /Q pch.obj $(LIB_OBJS) $(ASM_OBJS) $(TEST_OBJS) *.pdb 2>null
 
 distclean :: clean
 !IF EXIST ($(USERNAME).sdf)
