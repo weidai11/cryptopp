@@ -1156,6 +1156,7 @@ inline CipherDir GetCipherDir(const T &obj)
 ///   to free memory. There is no guarantee CallNewHandler will be able to procure more memory so
 ///   an allocation succeeds. If the call to set_new_handler fails, then CallNewHandler throws
 ///   a bad_alloc exception.
+/// \sa AlignedAllocate, AlignedDeallocate, UnalignedAllocate, UnalignedDeallocate
 CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 
 /// \brief Performs an addition with carry on a block of bytes
@@ -1380,37 +1381,44 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
 ///   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
 std::wstring StringWiden(const char *str, bool throwOnError = true);
 
-#ifdef CRYPTOPP_DOXYGEN_PROCESSING
-
 /// \brief Allocates a buffer on 16-byte boundary
 /// \param size the size of the buffer
-/// \details AlignedAllocate is primarily used when the data will be proccessed by MMX, SSE2 and NEON
-///   instructions. The assembly language routines rely on the alignment. If the alignment is not
+/// \details AlignedAllocate is primarily used when the data will be
+///   proccessed by SSE, NEON, ARMv8 or PowerPC instructions. The assembly
+///   language routines rely on the alignment. If the alignment is not
 ///   respected, then a SIGBUS could be generated on Unix and Linux, and an
 ///   EXCEPTION_DATATYPE_MISALIGNMENT could be generated on Windows.
-/// \note AlignedAllocate and AlignedDeallocate are available when CRYPTOPP_BOOL_ALIGN16 is
-///   defined. CRYPTOPP_BOOL_ALIGN16 is defined in config.h
+/// \details Formerly, AlignedAllocate and AlignedDeallocate were only
+///   available on certain platforms when CRYTPOPP_DISABLE_ASM was not in
+///   effect. However, Android and iOS debug simulator builds got into a
+///   state where the aligned allocator was not available and caused link
+///   failures.
+/// \since AlignedAllocate for SIMD since Crypto++ 1.0, AlignedAllocate
+///   for all builds since Crypto++ 8.1
+/// \sa AlignedDeallocate, UnalignedAllocate, UnalignedDeallocate, CallNewHandler,
+///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
 CRYPTOPP_DLL void* CRYPTOPP_API AlignedAllocate(size_t size);
 
 /// \brief Frees a buffer allocated with AlignedAllocate
 /// \param ptr the buffer to free
-/// \note AlignedAllocate and AlignedDeallocate are available when CRYPTOPP_BOOL_ALIGN16 is
-///   defined. CRYPTOPP_BOOL_ALIGN16 is defined in config.h
+/// \since AlignedDeallocate for SIMD since Crypto++ 1.0, AlignedAllocate
+///   for all builds since Crypto++ 8.1
+/// \sa AlignedAllocate, UnalignedAllocate, UnalignedDeallocate, CallNewHandler,
+///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
 CRYPTOPP_DLL void CRYPTOPP_API AlignedDeallocate(void *ptr);
-
-#endif // CRYPTOPP_DOXYGEN_PROCESSING
-
-#if CRYPTOPP_BOOL_ALIGN16
-CRYPTOPP_DLL void* CRYPTOPP_API AlignedAllocate(size_t size);
-CRYPTOPP_DLL void CRYPTOPP_API AlignedDeallocate(void *ptr);
-#endif // CRYPTOPP_BOOL_ALIGN16
 
 /// \brief Allocates a buffer
 /// \param size the size of the buffer
+/// \since Crypto++ 1.0
+/// \sa AlignedAllocate, AlignedDeallocate, UnalignedDeallocate, CallNewHandler,
+///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
 CRYPTOPP_DLL void * CRYPTOPP_API UnalignedAllocate(size_t size);
 
 /// \brief Frees a buffer allocated with UnalignedAllocate
 /// \param ptr the buffer to free
+/// \since Crypto++ 1.0
+/// \sa AlignedAllocate, AlignedDeallocate, UnalignedAllocate, CallNewHandler,
+///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
 CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *ptr);
 
 // ************** rotate functions ***************
