@@ -884,7 +884,7 @@ int crypto_sign_open(byte *m,word64 *mlen,const byte *sm,word64 n,const byte *pk
   byte t[32],h[64];
   gf p[4],q[4];
 
-  *mlen = -1;
+  *mlen = ~W64LIT(0);
   if (n < 64) return -1;
 
   if (unpackneg(q,pk)) return -1;

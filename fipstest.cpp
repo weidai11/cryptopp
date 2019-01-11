@@ -30,18 +30,18 @@
 #include <windows.h>
 
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-#ifdef _M_IX86
-#define _CRT_DEBUGGER_HOOK _crt_debugger_hook
-#else
-#define _CRT_DEBUGGER_HOOK __crt_debugger_hook
-#endif
-#if _MSC_VER < 1900
+# ifdef _M_IX86
+#  define _CRT_DEBUGGER_HOOK _crt_debugger_hook
+# else
+#  define _CRT_DEBUGGER_HOOK __crt_debugger_hook
+# endif
+# if _MSC_VER < 1900
 extern "C" {_CRTIMP void __cdecl _CRT_DEBUGGER_HOOK(int);}
-#else
+# else
 extern "C" {void __cdecl _CRT_DEBUGGER_HOOK(int); }
+# endif
 #endif
-#endif
-#endif
+#endif  // CRYPTOPP_WIN32_AVAILABLE
 
 #include <sstream>
 #include <iostream>
@@ -401,7 +401,7 @@ bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModule
 					}
 				}
 
-#if defined(_MSC_VER) && _MSC_VER >= 1400 && !defined(_M_ARM)
+#if defined(_MSC_VER) && _MSC_VER >= 1400 && !(defined(_M_ARM) || defined(_M_ARM64))
 				// first byte of _CRT_DEBUGGER_HOOK gets modified in memory by the debugger invisibly, so read it from file
 				if (IsDebuggerPresent())
 				{

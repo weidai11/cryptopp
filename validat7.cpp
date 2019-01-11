@@ -404,7 +404,7 @@ bool TestX25519()
 		int ret2 = Donna::curve25519_mult(share2, priv2, pub1);
 		int ret3 = std::memcmp(share1, share2, 32);
 
-#if defined(NO_OS_DEPENDENCE)
+#if defined(CRYPTOPP_DISABLE_NACL)
 		int ret4=0, ret5=0, ret6=0;
 #else
 		// Bernstein's NaCl requires DefaultAutoSeededRNG.
@@ -436,7 +436,7 @@ bool TestEd25519()
 	std::cout << "\nTesting ed25519 Signatures...\n\n";
 	bool pass = true;
 
-#ifndef NO_OS_DEPENDENCE
+#ifndef CRYPTOPP_DISABLE_NACL
 	const unsigned int SIGN_COUNT = 64, MSG_SIZE=128;
 	const unsigned int NACL_EXTRA=NaCl::crypto_sign_BYTES;
 

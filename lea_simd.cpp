@@ -31,31 +31,32 @@
 # include <immintrin.h>
 #endif
 
+// C1189: error: This header is specific to ARM targets
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "adv_simd.h"
-# include <arm_neon.h>
+# ifndef _M_ARM64
+#  include <arm_neon.h>
+# endif
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
 
 // Do not port this to POWER architecture. Naively we hoped
-// for a 2x to 3x speedup. The result was a 5x slow down
-// because of the rotates and scattered loads.
+// for a 2x to 3x speedup. The result was a 5x slow down.
+// The table below shows MiB/s and cpb.
 //
 // C++:
-// <TD>LEA-128(128)/CTR (128-bit key)<TD>C++<TD>207<TD>15.64<TD>0.593<TD>2015
-// <TD>LEA-128(192)/CTR (192-bit key)<TD>C++<TD>186<TD>17.48<TD>0.699<TD>2378
-// <TD>LEA-128(256)/CTR (256-bit key)<TD>C++<TD>124<TD>26.2<TD>0.842<TD>2861
+// <TD>LEA-128(128)/CTR (128-bit key)<TD>C++<TD>207<TD>15.64
+// <TD>LEA-128(192)/CTR (192-bit key)<TD>C++<TD>186<TD>17.48
+// <TD>LEA-128(256)/CTR (256-bit key)<TD>C++<TD>124<TD>26.2
 //
 // Power8:
-// <TD>LEA-128(128)/CTR (128-bit key)<TD>Power8<TD>37<TD>88.7<TD>0.595<TD>2023
-// <TD>LEA-128(192)/CTR (192-bit key)<TD>Power8<TD>40<TD>82.1<TD>0.699<TD>2375
-// <TD>LEA-128(256)/CTR (256-bit key)<TD>Power8<TD>28<TD>116.0<TD>1.006<TD>3419
+// <TD>LEA-128(128)/CTR (128-bit key)<TD>Power8<TD>37<TD>88.7
+// <TD>LEA-128(192)/CTR (192-bit key)<TD>Power8<TD>40<TD>82.1
+// <TD>LEA-128(256)/CTR (256-bit key)<TD>Power8<TD>28<TD>116.0
 
 #undef CRYPTOPP_POWER8_AVAILABLE
 #if defined(CRYPTOPP_POWER8_AVAILABLE)
@@ -1036,17 +1037,15 @@ size_t LEA_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
 size_t LEA_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    uint32x4_t unused;  // Avoid template argument deduction/substitution failures
     return AdvancedProcessBlocks128_4x1_NEON(LEA_Enc_Block, LEA_Enc_4_Blocks,
-        unused, subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
 size_t LEA_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
-    uint32x4_t unused;  // Avoid template argument deduction/substitution failures
     return AdvancedProcessBlocks128_4x1_NEON(LEA_Dec_Block, LEA_Dec_4_Blocks,
-        unused, subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 #endif // CRYPTOPP_ARM_NEON_AVAILABLE
 

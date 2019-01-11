@@ -16,8 +16,13 @@
 # You must also add /DCRYPTOPP_DEBUG or /DDEBUG if you want a debug build with
 #  the library's assert. The library moved from Posix NDEBUG and assert() to
 #  CRYPTOPP_ASSERT at 5.6.5 due to CVE-2016-7420. CRYPTOPP_ASSERT has the
-#  additional benefit of using DebugBreak(), and the  program does not crash
+#  additional benefit of using DebugBreak(), and the program does not crash
 #  while you are debugging it like would happen with Posix assert().
+
+# There is mention of cryptopp.dll, CRYPTOPP_IMPORTS and CRYPTOPP_EXPORTS
+#  below. They are for testing only. Attempting to produce a working DLL on
+#  Windows fails. Too many missing symbols because cryptest.exe exercises
+#  about 80% of the library, but CRYPTOPP_DLL is only used for FIPS algos.
 
 # The list of LIB_SRCS and TEST_SRCS was generated under Linux with
 #  "make sources | fold -w74 -s". The list of LIB_OBJS and TEST_OBJS was
@@ -110,6 +115,9 @@ LIB_OBJS = \
     vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj \
     zdeflate.obj zinflate.obj zlib.obj
 
+ASM_OBJS = \
+    rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj
+
 TEST_SRCS = \
     test.cpp bench1.cpp bench2.cpp bench3.cpp datatest.cpp \
     dlltest.cpp fipsalgt.cpp validat0.cpp validat1.cpp validat2.cpp \
@@ -127,7 +135,8 @@ TEST_OBJS = \
 CXX = cl.exe
 LD = link.exe
 AR = lib.exe
-RM = del.exe
+RM = del
+RMDIR = rd
 
 # We may misdetect the environment on VS2005 or so. Uncomment as
 # needed to match the Developer Prompt environment.
@@ -201,7 +210,6 @@ LDFLAGS = $(LDFLAGS) /MACHINE:X64
 LDLIBS = $(LDLIBS) kernel32.lib
 !ENDIF
 
-# We still don't know what we need for ARM64 on Windows. ARM64 and arm64 may be incorrect
 !IF "$(PLATFORM)" == "ARM" || "$(PLATFORM)" == "arm" || "$(PLATFORM)" == "ARM64" || "$(PLATFORM)" == "arm64"
 # CXXFLAGS = $(CXXFLAGS) /D_ARM_WINAPI_PARTITION_DESKTOP_SDK_AVAILABLE=1 /DWINAPI_FAMILY=WINAPI_FAMILY_DESKTOP_APP
 CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_PHONE_APP
@@ -213,14 +221,57 @@ LIB_OBJS = $(LIB_OBJS) neon_simd.obj
 
 all: cryptest.exe
 
+# For testing cryptopp.dll and CRYPTOPP_IMPORTS
+#cryptest.exe: pch.pch cryptopp.lib $(TEST_OBJS)
+#	$(LD) $(LDFLAGS) $(TEST_OBJS) cryptopp.lib $(LDLIBS) /out:$@
+
 cryptest.exe: pch.pch cryptlib.lib $(TEST_OBJS)
 	$(LD) $(LDFLAGS) $(TEST_OBJS) cryptlib.lib $(LDLIBS) /out:$@
 
 cryptlib.lib: $(LIB_OBJS)
 	$(AR) $(ARFLAGS) $(LIB_OBJS) /out:$@
 
-clean:
-	$(RM) /F /Q pch.pch $(LIB_OBJS) pch.obj rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj cryptlib.lib $(TEST_OBJS) cryptest.exe *.pdb
+cryptopp.dump: cryptlib.lib
+	dumpbin.exe /LINKERMEMBER cryptlib.lib /OUT:$@
+
+cryptopp.map: $(LIB_OBJS)
+	$(LD) $(LDFLAGS) /DLL /MAP /MAPINFO:EXPORTS $(LIB_OBJS)
+	mv cryptlib.map cryptopp.map
+
+cryptopp.def: cryptopp.dump
+	dump2def.exe cryptopp.dump cryptopp.def
+
+# LD produces 3 output artifacts for cryptopp.dll
+cryptopp.dll cryptopp.lib cryptopp.exp: $(LIB_OBJS) cryptopp.def
+	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
+
+clean ::
+	$(RM) /F /Q cryptest.exe cryptest.lib cryptest.exp pch.pch 2>null
+clean ::
+	$(RM) /F /Q cryptlib.lib cryptlib.exp cryptlib.dll 2>null
+clean ::
+	$(RM) /F /Q cryptopp.dll cryptopp.lib cryptopp.exp cryptopp.def 2>null
+clean ::
+	$(RM) /F /Q pch.obj $(LIB_OBJS) $(ASM_OBJS) $(TEST_OBJS) *.pdb 2>null
+
+distclean :: clean
+!IF EXIST ($(USERNAME).sdf)
+	attrib -r -a -s -h $(USERNAME).sdf 2>null
+	$(RM) /F /Q $(USERNAME).sdf 2>null
+!ENDIF
+!IF EXIST ($(USERNAME).suo)
+	attrib -r -a -s -h $(USERNAME).suo 2>null
+	$(RM) /F /Q $(USERNAME).suo 2>null
+!ENDIF
+!IF EXIST (Win32\)
+	$(RMDIR) Win32\ /q /s 2>null
+!ENDIF
+!IF EXIST (x64\)
+	$(RMDIR) x64\ /q /s 2>null
+!ENDIF
+!IF EXIST (ipch\)
+	$(RMDIR) ipch\ /q /s 2>null
+!ENDIF
 
 # Precompiled header
 pch.pch: pch.h pch.cpp
@@ -250,6 +301,54 @@ x64dll.obj:
 chacha_avx.obj:
 	$(CXX) $(CXXFLAGS) /arch:AVX /c chacha_avx.cpp
 !endif
+
+# For testing cryptopp.dll and CRYPTOPP_IMPORTS
+#CXXFLAGS_IMPORTS = /wd4275 /wd4251 /DCRYPTOPP_IMPORTS
+#test.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#datatest.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#fipstest.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#bench1.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#bench2.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#bench3.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest1.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest2.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest3.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#regtest4.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat1.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat2.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat3.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat4.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat5.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat6.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat7.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat8.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat9.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+#validat10.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_IMPORTS) /c $?
+
+# For testing cryptopp.dll and CRYPTOPP_EXPORTS
+#CXXFLAGS_EXPORTS = /wd4275 /wd4251 /DCXXFLAGS_EXPORTS
+#.cpp.obj:
+#	$(CXX) $(CXXFLAGS) $(CXXFLAGS_EXPORTS) /c $<
 
 .cpp.obj:
 	$(CXX) $(CXXFLAGS) /c $<

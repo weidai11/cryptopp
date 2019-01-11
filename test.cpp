@@ -448,22 +448,21 @@ int scoped_main(int argc, char *argv[])
 
 void SetArgvPathHint(const char* argv0, std::string& pathHint)
 {
+# if (PATH_MAX > 0)  // Posix
+	size_t path_max = (size_t)PATH_MAX;
+#elif (MAX_PATH > 0)  // Microsoft
+	size_t path_max = (size_t)MAX_PATH;
+#else
+	size_t path_max = 260;
+#endif
+
 	// OS X and Solaris provide a larger path using pathconf than MAX_PATH.
 	// Also see https://stackoverflow.com/a/33249023/608639 for FreeBSD.
-#if defined(UNIX_PATH_FAMILY)
-	size_t path_max = 0;
+#if defined(_PC_PATH_MAX)
 	long ret = pathconf(argv0, _PC_PATH_MAX);
+	const size_t old_path_max = path_max;
 	if (SafeConvert(ret, path_max) == false)
-	{
-# if defined(MAX_PATH)
-		path_max = MAX_PATH;
-# else
-		path_max = 4096;
-# endif
-	}
-#else
-	// Windows and others?
-	size_t path_max = MAX_PATH;
+		path_max = old_path_max;
 #endif
 
 	const size_t argLen = std::strlen(argv0);
@@ -492,15 +491,14 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 		pathHint = getexecname();
 #endif
 
-#if defined(UNIX_PATH_FAMILY)
-# if (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
+#if (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
 	char* resolved = realpath (pathHint.c_str(), NULLPTR);
 	if (resolved != NULLPTR)
 	{
 		pathHint = resolved;
 		std::free(resolved);
 	}
-# else
+#elif defined(UNIX_PATH_FAMILY)
 	std::string resolved(path_max, (char)0);
 	char* r = realpath (pathHint.c_str(), &resolved[0]);
 	if (r != NULLPTR)
@@ -508,12 +506,13 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 		resolved.resize(std::strlen(&resolved[0]));
 		std::swap(pathHint, resolved);
 	}
-# endif
+#endif
 
+#if defined(UNIX_PATH_FAMILY)
 	// Is it possible for realpath to fail?
 	struct stat buf; int x;
 	x = lstat(pathHint.c_str(), &buf);
-	if (S_ISLNK(buf.st_mode))
+	if (x != 0 || S_ISLNK(buf.st_mode))
 		pathHint.clear();
 #endif
 

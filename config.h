@@ -645,7 +645,7 @@ NAMESPACE_END
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
       (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_CLANG_VERSION >= 30300) || \
-      (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_NEON_AVAILABLE 1
 #   define CRYPTOPP_ARM_ASIMD_AVAILABLE 1
 #  endif  // Compilers
@@ -658,7 +658,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -670,7 +670,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -694,7 +694,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_SHA1_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA2_AVAILABLE 1
 #  endif  // Compilers
@@ -707,7 +707,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
-      (CRYPTOPP_MSC_VERSION >= 2100)
+      (CRYPTOPP_MSC_VERSION >= 5000)
 #   define CRYPTOPP_ARM_SHA512_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA3_AVAILABLE 1
 #  endif  // Compilers
@@ -720,7 +720,7 @@ NAMESPACE_END
 #if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_SM3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
-      (CRYPTOPP_MSC_VERSION >= 2100)
+      (CRYPTOPP_MSC_VERSION >= 5000)
 #   define CRYPTOPP_ARM_SM3_AVAILABLE 1
 #   define CRYPTOPP_ARM_SM4_AVAILABLE 1
 #  endif  // Compilers
@@ -921,7 +921,7 @@ NAMESPACE_END
 
 #ifndef NO_OS_DEPENDENCE
 
-#if defined(_WIN32) || defined(__CYGWIN__)
+#if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #define CRYPTOPP_WIN32_AVAILABLE
 #endif
 

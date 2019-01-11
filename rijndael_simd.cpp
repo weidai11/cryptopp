@@ -26,17 +26,20 @@
 
 #if (CRYPTOPP_AESNI_AVAILABLE)
 # include "adv_simd.h"
+# include <emmintrin.h>
 # include <smmintrin.h>
 # include <wmmintrin.h>
 #endif
 
+// C1189: error: This header is specific to ARM targets
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 # include "adv_simd.h"
-# include <arm_neon.h>
+# ifndef _M_ARM64
+#  include <arm_neon.h>
+# endif
 #endif
 
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
-# include "adv_simd.h"
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
@@ -194,7 +197,7 @@ static inline void ARMV8_Enc_6_Blocks(uint64x2_t &data0, uint64x2_t &data1,
     uint8x16_t key;
     for (unsigned int i=0; i<rounds-1; ++i)
     {
-        uint8x16_t key = vld1q_u8(keys+i*16);
+        key = vld1q_u8(keys+i*16);
         // AES single round encryption
         block0 = vaeseq_u8(block0, key);
         // AES mix columns

@@ -18,6 +18,11 @@
 # include <omp.h>
 #endif
 
+// Issue 777
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wtautological-compare"
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;

@@ -49,7 +49,8 @@
 #include "misc.h"
 #include "stdcpp.h"
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+// C1189: error: This header is specific to ARM targets
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(_M_ARM64)
 # include <arm_neon.h>
 #endif
 
@@ -57,6 +58,17 @@
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
+
+// Thanks to Peter Cordes, https://stackoverflow.com/q/54016821/608639
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# ifndef PACK32x4
+#  if defined(_MSC_VER)
+#   define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
+#  else
+#   define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
+#  endif
+# endif  // PACK32x4
+#endif  // Microsoft workaround
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <emmintrin.h>
@@ -113,12 +125,12 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(length >= 8);
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = {0, 0, 0, 1<<24};
-    const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
+    const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
 #else
     // TODO: verify these constants on ARM-BE
-    const uint32x4_t s_one = {0, 0, 0, 1};
-    const uint32x4_t s_two = {0, 2, 0, 2};
+    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
+    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
 #endif
 
     const size_t blockSize = 8;
@@ -358,12 +370,12 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = {0, 0, 0, 1<<24};
-    //const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
+    //const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
 #else
     // TODO: verify these constants on ARM-BE
-    const uint32x4_t s_one = {0, 0, 0, 1};
-    //const uint32x4_t s_two = {0, 2, 0, 2};
+    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
+    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
 #endif
 
     const size_t blockSize = 16;
@@ -502,31 +514,28 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
 /// \tparam F1 function to process 1 128-bit block
 /// \tparam F4 function to process 4 128-bit blocks
 /// \tparam W word type of the subkey table
-/// \tparam V vector type of the NEON datatype
 /// \details AdvancedProcessBlocks128_4x1_NEON processes 4 and 1 NEON SIMD words
 ///   at a time.
 /// \details The subkey type is usually word32 or word64. V is the vector type and it is
-///   usually uint32x4_t or uint64x2_t. F1, F4, W and V must use the same word and
-///   vector type. The V parameter is used to avoid template argument
-///   deduction/substitution failures.
-template <typename F1, typename F4, typename W, typename V>
+///   usually uint32x4_t or uint32x4_t. F1, F4, and W must use the same word and
+///   vector type.
+template <typename F1, typename F4, typename W>
 inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
-            const V& unused, const W *subKeys, size_t rounds, const byte *inBlocks,
+            const W *subKeys, size_t rounds, const byte *inBlocks,
             const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     CRYPTOPP_ASSERT(subKeys);
     CRYPTOPP_ASSERT(inBlocks);
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
-    CRYPTOPP_UNUSED(unused);
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = {0, 0, 0, 1<<24};
-    //const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
+    //const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
 #else
     // TODO: verify these constants on ARM-BE
-    const uint32x4_t s_one = {0, 0, 0, 1};
-    //const uint32x4_t s_two = {0, 2, 0, 2};
+    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
+    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
 #endif
 
     const size_t blockSize = 16;
@@ -554,62 +563,62 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     {
         while (length >= 4*blockSize)
         {
-            uint64x2_t block0, block1, block2, block3;
+            uint32x4_t block0, block1, block2, block3;
             if (flags & BT_InBlockIsCounter)
             {
-                const uint64x2_t one = vreinterpretq_u64_u32(s_one);
-                block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
-                block1 = vaddq_u64(block0, one);
-                block2 = vaddq_u64(block1, one);
-                block3 = vaddq_u64(block2, one);
-                vst1q_u8(const_cast<byte*>(inBlocks),
-                    vreinterpretq_u8_u64(vaddq_u64(block3, one)));
+                const uint32x4_t one = s_one;
+                block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
+                block1 = vreinterpretq_u32_u64(vaddq_u64(vreinterpretq_u64_u32(block0), vreinterpretq_u64_u32(one)));
+                block2 = vreinterpretq_u32_u64(vaddq_u64(vreinterpretq_u64_u32(block1), vreinterpretq_u64_u32(one)));
+                block3 = vreinterpretq_u32_u64(vaddq_u64(vreinterpretq_u64_u32(block2), vreinterpretq_u64_u32(one)));
+                vst1q_u8(const_cast<byte*>(inBlocks), vreinterpretq_u8_u64(vaddq_u64(
+                    vreinterpretq_u64_u32(block3), vreinterpretq_u64_u32(one))));
             }
             else
             {
-                block0 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block0 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block1 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block1 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block2 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block2 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
-                block3 = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+                block3 = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
                 inBlocks = PtrAdd(inBlocks, inIncrement);
             }
 
             if (xorInput)
             {
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            func4((V&)block0, (V&)block1, (V&)block2, (V&)block3, subKeys, static_cast<unsigned int>(rounds));
+            func4(block0, block1, block2, block3, subKeys, static_cast<unsigned int>(rounds));
 
             if (xorOutput)
             {
-                block0 = veorq_u64(block0, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block0 = veorq_u32(block0, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block1 = veorq_u64(block1, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block1 = veorq_u32(block1, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block2 = veorq_u64(block2, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block2 = veorq_u32(block2, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
-                block3 = veorq_u64(block3, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+                block3 = veorq_u32(block3, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
                 xorBlocks = PtrAdd(xorBlocks, xorIncrement);
             }
 
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block0));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block0));
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block1));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block1));
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block2));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block2));
             outBlocks = PtrAdd(outBlocks, outIncrement);
-            vst1q_u8(outBlocks, vreinterpretq_u8_u64(block3));
+            vst1q_u8(outBlocks, vreinterpretq_u8_u32(block3));
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
             length -= 4*blockSize;
@@ -618,20 +627,20 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
 
     while (length >= blockSize)
     {
-        uint64x2_t block = vreinterpretq_u64_u8(vld1q_u8(inBlocks));
+        uint32x4_t block = vreinterpretq_u32_u8(vld1q_u8(inBlocks));
 
         if (xorInput)
-            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+            block = veorq_u32(block, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
 
         if (flags & BT_InBlockIsCounter)
             const_cast<byte *>(inBlocks)[15]++;
 
-        func1( (V&)block, subKeys, static_cast<unsigned int>(rounds));
+        func1(block, subKeys, static_cast<unsigned int>(rounds));
 
         if (xorOutput)
-            block = veorq_u64(block, vreinterpretq_u64_u8(vld1q_u8(xorBlocks)));
+            block = veorq_u32(block, vreinterpretq_u32_u8(vld1q_u8(xorBlocks)));
 
-        vst1q_u8(outBlocks, vreinterpretq_u8_u64(block));
+        vst1q_u8(outBlocks, vreinterpretq_u8_u32(block));
 
         inBlocks = PtrAdd(inBlocks, inIncrement);
         outBlocks = PtrAdd(outBlocks, outIncrement);
@@ -661,12 +670,12 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = {0, 0, 0, 1<<24};
-    //const uint32x4_t s_two = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
+    //const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
 #else
     // TODO: verify these constants on ARM-BE
-    const uint32x4_t s_one = {0, 0, 0, 1};
-    //const uint32x4_t s_two = {0, 2, 0, 2};
+    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
+    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
 #endif
 
     const size_t blockSize = 16;

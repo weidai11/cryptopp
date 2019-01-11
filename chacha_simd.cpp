@@ -48,12 +48,11 @@
 # include <ammintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+// C1189: error: This header is specific to ARM targets
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(_M_ARM64)
 # include <arm_neon.h>
 #endif
 
-// Can't use CRYPTOPP_ARM_XXX_AVAILABLE because too many
-// compilers don't follow ACLE conventions for the include.
 #if (CRYPTOPP_ARM_ACLE_AVAILABLE)
 # include <stdint.h>
 # include <arm_acle.h>
@@ -69,6 +68,17 @@ extern const char CHACHA_SIMD_FNAME[] = __FILE__;
 ANONYMOUS_NAMESPACE_BEGIN
 
 // ***************************** NEON ***************************** //
+
+// Thanks to Peter Cordes, https://stackoverflow.com/q/54016821/608639
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# ifndef PACK32x4
+#  if defined(_MSC_VER)
+#   define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
+#  else
+#   define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
+#  endif
+# endif  // PACK32x4
+#endif  // Microsoft workaround
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
@@ -303,7 +313,9 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
     const uint32x4_t state3 = vld1q_u32(state + 3*4);
 
     const uint32x4_t CTRS[3] = {
-        {1,0,0,0}, {2,0,0,0}, {3,0,0,0}
+        PACK32x4(1,0,0,0),
+        PACK32x4(2,0,0,0),
+        PACK32x4(3,0,0,0)
     };
 
     uint32x4_t r0_0 = state0;
