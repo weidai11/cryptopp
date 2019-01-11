@@ -206,7 +206,7 @@ fi
 
 # Simulator fixup. LD fails to link dylib.
 if [ "$APPLE_SDK" == "iPhoneSimulator" ] && [ "$IOS_ARCH" == "i386" ]; then
-  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=5 -DCRYPTOPP_DISABLE_ASM"
+  IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=5"
 fi
 
 # ARMv7s fixup. Xcode 4/iOS 6
@@ -222,12 +222,6 @@ fi
 # Yet another ARM64 fixup.
 if [ "$APPLE_SDK" == "AppleTVOS" ]; then
   IOS_FLAGS=""
-fi
-
-# ARM64 Simulator fixup. Under Xcode 6/iOS 8, it uses x86_64 and not i386
-# -ios_simulator_version_min does not work though it is in LLVM sources.
-if [ "$IOS_ARCH" == "x86_64" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Disable ASM for simulator. We are failing on Travis due to missing _start.
