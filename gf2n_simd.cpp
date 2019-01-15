@@ -40,17 +40,6 @@ using CryptoPP::word;
 
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE)
 
-template <unsigned int S>
-inline uint64x2_t _mm_shuffle_epi32(uint64x2_t a)
-{
-    uint32x4_t ret;
-    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 0) & 0x3), ret, 0);
-    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 2) & 0x3), ret, 1);
-    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 4) & 0x3), ret, 2);
-    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 6) & 0x3), ret, 3);
-    return vreinterpretq_u64_u32(ret);
-}
-
 // c1c0 = a * b
 inline void
 F2N_Multiply_128x128_ARMv8(uint64x2_t& c1, uint64x2_t& c0, const uint64x2_t& a, const uint64x2_t& b)
@@ -59,16 +48,14 @@ F2N_Multiply_128x128_ARMv8(uint64x2_t& c1, uint64x2_t& c0, const uint64x2_t& a, 
 
     c0 = PMULL_00(a, b);
     c1 = PMULL_11(a, b);
-    t1  = _mm_shuffle_epi32<0xEE>(a);
-    t1  = veorq_u64(a, t1);
-    t2  = _mm_shuffle_epi32<0xEE>(b);
-    t2  = veorq_u64(b, t2);
-    t1  = PMULL_00(t1, t2);
-    t1  = veorq_u64(c0, t1);
-    t1  = veorq_u64(c1, t1);
-    t2  = t1;
-    //t1  = _mm_slli_si128(t1, 8);
-    //t2  = _mm_srli_si128(t2, 8);
+    t1 = vmovq_n_u64(vgetq_lane_u64(a, 1));
+    t1 = veorq_u64(a, t1);
+    t2 = vmovq_n_u64(vgetq_lane_u64(b, 1));
+    t2 = veorq_u64(b, t2);
+    t1 = PMULL_00(t1, t2);
+    t1 = veorq_u64(c0, t1);
+    t1 = veorq_u64(c1, t1);
+    t2 = t1;
     t1 = vextq_u64(z0, t1, 1);
     t2 = vextq_u64(t2, z0, 1);
     c0 = veorq_u64(c0, t1);
