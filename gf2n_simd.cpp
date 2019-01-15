@@ -131,12 +131,15 @@ GF2NT_233_Reduce_ARMv8(uint64x2_t& c3, uint64x2_t& c2, uint64x2_t& c1, uint64x2_
 inline void
 GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
 {
-    const uint64_t* pAA = reinterpret_cast<const uint64_t*>(pA);
-    const uint64_t* pBB = reinterpret_cast<const uint64_t*>(pB);
-    uint64x2_t a0 = vld1q_u64(pAA+0);
-    uint64x2_t a1 = vld1q_u64(pAA+2);
-    uint64x2_t b0 = vld1q_u64(pBB+0);
-    uint64x2_t b1 = vld1q_u64(pBB+2);
+    // word is either 32-bit or 64-bit, depending on the platform.
+    // Load using a 32-bit pointer to avoid possible alignment issues.
+    const uint32_t* pAA = reinterpret_cast<const uint32_t*>(pA);
+    const uint32_t* pBB = reinterpret_cast<const uint32_t*>(pB);
+
+    uint64x2_t a0 = vreinterpretq_u64_u32(vld1q_u32(pAA+0));
+    uint64x2_t a1 = vreinterpretq_u64_u32(vld1q_u32(pAA+2));
+    uint64x2_t b0 = vreinterpretq_u64_u32(vld1q_u32(pBB+0));
+    uint64x2_t b1 = vreinterpretq_u64_u32(vld1q_u32(pBB+2));
 
     uint64x2_t c0, c1, c2, c3, c4, c5;
     F2N_Multiply_128x128_ARMv8(c1, c0, a0, b0);
@@ -156,9 +159,9 @@ GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
 
     GF2NT_233_Reduce_ARMv8(c3, c2, c1, c0);
 
-    uint64_t* pCC = reinterpret_cast<uint64_t*>(pC);
-    vst1q_u64(pCC+0, c0);
-    vst1q_u64(pCC+2, c1);
+    uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
+    vst1q_u32(pCC+0, vreinterpretq_u32_u64(c0));
+    vst1q_u32(pCC+2, vreinterpretq_u32_u64(c1));
 }
 
 #endif
