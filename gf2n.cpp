@@ -42,7 +42,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_CLMUL_AVAILABLE) || defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+#if defined(CRYPTOPP_CLMUL_AVAILABLE) || defined(CRYPTOPP_ARM_PMULL_AVAILABLE) || defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
 extern void GF2NT_233_Multiply_Reduce(const word* pA, const word* pB, word* pC);
 #endif
 
@@ -988,6 +988,21 @@ const GF2NT::Element& GF2NT233::Multiply(const Element &a, const Element &b) con
 		return result;
 	}
 	else
+#elif defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
+	if (HasPMULL())
+	{
+		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);
+		CRYPTOPP_ASSERT(b.reg.size()*WORD_BITS == 256);
+		CRYPTOPP_ASSERT(result.reg.size()*WORD_BITS == 256);
+
+		const word* pA = a.reg.begin();
+		const word* pB = b.reg.begin();
+		word* pR = result.reg.begin();
+
+		GF2NT_233_Multiply_Reduce(pA, pB, pR);
+		return result;
+	}
+	else
 #endif
 
 	return GF2NT::Multiply(a, b);
@@ -1009,6 +1024,19 @@ const GF2NT::Element& GF2NT233::Square(const Element &a) const
 	}
 	else
 #elif defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+	if (HasPMULL())
+	{
+		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);
+		CRYPTOPP_ASSERT(result.reg.size()*WORD_BITS == 256);
+
+		const word* pA = a.reg.begin();
+		word* pR = result.reg.begin();
+
+		GF2NT_233_Multiply_Reduce(pA, pA, pR);
+		return result;
+	}
+	else
+#elif defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
 	if (HasPMULL())
 	{
 		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);
