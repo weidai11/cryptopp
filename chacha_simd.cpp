@@ -69,17 +69,6 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 // ***************************** NEON ***************************** //
 
-// Thanks to Peter Cordes, https://stackoverflow.com/q/54016821/608639
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# ifndef PACK32x4
-#  if defined(_MSC_VER)
-#   define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
-#  else
-#   define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
-#  endif
-# endif  // PACK32x4
-#endif  // Microsoft workaround
-
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
 
 template <unsigned int R>
@@ -312,10 +301,9 @@ void ChaCha_OperateKeystream_NEON(const word32 *state, const byte* input, byte *
     const uint32x4_t state2 = vld1q_u32(state + 2*4);
     const uint32x4_t state3 = vld1q_u32(state + 3*4);
 
+    const unsigned int w[] = {1,0,0,0, 2,0,0,0, 3,0,0,0};
     const uint32x4_t CTRS[3] = {
-        PACK32x4(1,0,0,0),
-        PACK32x4(2,0,0,0),
-        PACK32x4(3,0,0,0)
+        vld1q_u32(w+0), vld1q_u32(w+4), vld1q_u32(w+8)
     };
 
     uint32x4_t r0_0 = state0;

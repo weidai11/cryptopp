@@ -18,6 +18,7 @@ aria.cpp
 aria_simd.cpp
 aria.h
 argnames.h
+arm_simd.h
 asn.cpp
 asn.h
 authenc.cpp

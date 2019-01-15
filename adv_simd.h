@@ -59,17 +59,6 @@
 # include <arm_acle.h>
 #endif
 
-// Thanks to Peter Cordes, https://stackoverflow.com/q/54016821/608639
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# ifndef PACK32x4
-#  if defined(_MSC_VER)
-#   define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
-#  else
-#   define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
-#  endif
-# endif  // PACK32x4
-#endif  // Microsoft workaround
-
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 # include <emmintrin.h>
 # include <xmmintrin.h>
@@ -124,14 +113,10 @@ inline size_t AdvancedProcessBlocks64_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 8);
 
-#if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
-    const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
-#else
-    // TODO: verify these constants on ARM-BE
-    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
-    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
-#endif
+    const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
+    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = vld1q_u32(w_one);
+    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 8;
     const size_t neonBlockSize = 16;
@@ -369,14 +354,10 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
-    //const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
-#else
-    // TODO: verify these constants on ARM-BE
-    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
-    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
-#endif
+    const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
+    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = vld1q_u32(w_one);
+    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
@@ -529,14 +510,10 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
-    //const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
-#else
-    // TODO: verify these constants on ARM-BE
-    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
-    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
-#endif
+    const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
+    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = vld1q_u32(w_one);
+    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
@@ -669,14 +646,10 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(outBlocks);
     CRYPTOPP_ASSERT(length >= 16);
 
-#if (CRYPTOPP_LITTLE_ENDIAN)
-    const uint32x4_t s_one = PACK32x4(0, 0, 0, 1<<24);
-    //const uint32x4_t s_two = PACK32x4(0, 2<<24, 0, 2<<24);
-#else
-    // TODO: verify these constants on ARM-BE
-    //const uint32x4_t s_one = PACK32x4(0, 0, 0, 1);
-    //const uint32x4_t s_two = PACK32x4(0, 2, 0, 2);
-#endif
+    const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
+    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
+    const uint32x4_t s_one = vld1q_u32(w_one);
+    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
