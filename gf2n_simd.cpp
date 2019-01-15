@@ -64,7 +64,7 @@ F2N_Multiply_128x128_ARMv8(uint64x2_t& c1, uint64x2_t& c0, const uint64x2_t& a, 
 
 // x = (x << n), z = 0
 template <unsigned int N>
-inline uint64x2_t XMM_SHL_N(uint64x2_t x)
+inline uint64x2_t ShiftLeft128_ARMv8(uint64x2_t x)
 {
     uint64x2_t u=x, v, z={0};
     x = vshlq_n_u64(x, N);
@@ -91,32 +91,32 @@ GF2NT_233_Reduce_ARMv8(uint64x2_t& c3, uint64x2_t& c2, uint64x2_t& c1, uint64x2_
     a1 = vshrq_n_u64(a1, 23);
     c1 = vorrq_u64(a1, a0);
     b2 = vshrq_n_u64(c2, (64-23));
-    c3 = XMM_SHL_N<23>(c3);
+    c3 = ShiftLeft128_ARMv8<23>(c3);
     a0 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     c3 = vorrq_u64(c3, a0);
     b1 = vshrq_n_u64(b1, (64-23));
-    c2 = XMM_SHL_N<23>(c2);
+    c2 = ShiftLeft128_ARMv8<23>(c2);
     a0 = vcombine_u64(vget_high_u64(b1), vget_high_u64(z0));
     c2 = vorrq_u64(c2, a0);
     b3 = c3;
     b2 = vshrq_n_u64(c2, (64-10));
-    b3 = XMM_SHL_N<10>(b3);
+    b3 = ShiftLeft128_ARMv8<10>(b3);
     a0 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     b3 = vorrq_u64(b3, a0);
     a0 = vcombine_u64(vget_high_u64(c3), vget_high_u64(z0));
     b3 = veorq_u64(b3, a0);
     b1 = vshrq_n_u64(b3, (64-23));
-    b3 = XMM_SHL_N<23>(b3);
+    b3 = ShiftLeft128_ARMv8<23>(b3);
     b3 = vcombine_u64(vget_high_u64(b3), vget_high_u64(z0));
     b3 = vorrq_u64(b3, b1);
     c2 = veorq_u64(c2, b3);
     b3 = c3;
     b2 = vshrq_n_u64(c2, (64-10));
-    b3 = XMM_SHL_N<10>(b3);
+    b3 = ShiftLeft128_ARMv8<10>(b3);
     b2 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     b3 = vorrq_u64(b3, b2);
     b2 = c2;
-    b2 = XMM_SHL_N<10>(b2);
+    b2 = ShiftLeft128_ARMv8<10>(b2);
     a0 = vcombine_u64(vget_low_u64(z0), vget_low_u64(b2));
     c2 = veorq_u64(c2, a0);
     a0 = vcombine_u64(vget_low_u64(z0), vget_low_u64(b3));
@@ -175,23 +175,23 @@ F2N_Multiply_128x128_CLMUL(__m128i& c1, __m128i& c0, const __m128i& a, const __m
 
     c0 = _mm_clmulepi64_si128(a, b, 0x00);
     c1 = _mm_clmulepi64_si128(a, b, 0x11);
-    t1  = _mm_shuffle_epi32(a, 0xEE);
-    t1  = _mm_xor_si128(a, t1);
-    t2  = _mm_shuffle_epi32(b, 0xEE);
-    t2  = _mm_xor_si128(b, t2);
-    t1  = _mm_clmulepi64_si128(t1, t2, 0x00);
-    t1  = _mm_xor_si128(c0, t1);
-    t1  = _mm_xor_si128(c1, t1);
-    t2  = t1;
-    t1  = _mm_slli_si128(t1, 8);
-    t2  = _mm_srli_si128(t2, 8);
+    t1 = _mm_shuffle_epi32(a, 0xEE);
+    t1 = _mm_xor_si128(a, t1);
+    t2 = _mm_shuffle_epi32(b, 0xEE);
+    t2 = _mm_xor_si128(b, t2);
+    t1 = _mm_clmulepi64_si128(t1, t2, 0x00);
+    t1 = _mm_xor_si128(c0, t1);
+    t1 = _mm_xor_si128(c1, t1);
+    t2 = t1;
+    t1 = _mm_slli_si128(t1, 8);
+    t2 = _mm_srli_si128(t2, 8);
     c0 = _mm_xor_si128(c0, t1);
     c1 = _mm_xor_si128(c1, t2);
 }
 
 // x = (x << n), z = 0
 template <unsigned int N>
-inline __m128i XMM_SHL_N(__m128i x, const __m128i& z)
+inline __m128i ShiftLeft128_SSE(__m128i x, const __m128i& z)
 {
     __m128i u=x, v;
     x = _mm_slli_epi64(x, N);
@@ -219,32 +219,32 @@ GF2NT_233_Reduce_CLMUL(__m128i& c3, __m128i& c2, __m128i& c1, __m128i& c0)
     a1 = _mm_srli_epi64(a1, 23);
     c1 = _mm_or_si128(a1, a0);
     b2 = _mm_srli_epi64(c2, (64-23));
-    c3 = XMM_SHL_N<23>(c3, z0);
+    c3 = ShiftLeft128_SSE<23>(c3, z0);
     a0 = _mm_unpackhi_epi64(b2, z0);
     c3 = _mm_or_si128(c3, a0);
     b1 = _mm_srli_epi64(b1, (64-23));
-    c2 = XMM_SHL_N<23>(c2, z0);
+    c2 = ShiftLeft128_SSE<23>(c2, z0);
     a0 = _mm_unpackhi_epi64(b1, z0);
     c2 = _mm_or_si128(c2, a0);
     b3 = c3;
     b2 = _mm_srli_epi64(c2, (64-10));
-    b3 = XMM_SHL_N<10>(b3, z0);
+    b3 = ShiftLeft128_SSE<10>(b3, z0);
     a0 = _mm_unpackhi_epi64(b2, z0);
     b3 = _mm_or_si128(b3, a0);
     a0 = _mm_unpackhi_epi64(c3, z0);
     b3 = _mm_xor_si128(b3, a0);
     b1 = _mm_srli_epi64(b3, (64-23));
-    b3 = XMM_SHL_N<23>(b3, z0);
+    b3 = ShiftLeft128_SSE<23>(b3, z0);
     b3 = _mm_unpackhi_epi64(b3, z0);
     b3 = _mm_or_si128(b3, b1);
     c2 = _mm_xor_si128(c2, b3);
     b3 = c3;
     b2 = _mm_srli_epi64(c2, (64-10));
-    b3 = XMM_SHL_N<10>(b3, z0);
+    b3 = ShiftLeft128_SSE<10>(b3, z0);
     b2 = _mm_unpackhi_epi64(b2, z0);
     b3 = _mm_or_si128(b3, b2);
     b2 = c2;
-    b2 = XMM_SHL_N<10>(b2, z0);
+    b2 = ShiftLeft128_SSE<10>(b2, z0);
     a0 = _mm_unpacklo_epi64(z0, b2);
     c2 = _mm_xor_si128(c2, a0);
     a0 = _mm_unpacklo_epi64(z0, b3);

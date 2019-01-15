@@ -189,14 +189,18 @@ bool CPU_ProbePMULL()
     __try
     {
         // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
-        const uint64x2_t a1={0,0x9090909090909090}, b1={0,0xb0b0b0b0b0b0b0b0};
-        const uint8x16_t a2=PACK8x16(0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
-                                     0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0),
-                         b2=PACK8x16(0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
-                                     0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0);
+        const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+        const uint64x2_t a1=vld1q_u64(wa1), b1=vld1q_u64(wb1);
+
+        const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                      wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const uint64x2_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
 
         const uint64x2_t r1 = PMULL_00(a1, b1);
-        const uint64x2_t r2 = PMULL_11((uint64x2_t)a2, (uint64x2_t)b2);
+        const uint64x2_t r2 = PMULL_11(vreinterpret_u64_u8(a2),
+                                       vreinterpret_u64_u8(b2));
 
         result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
                     vgetq_lane_u64(r1,1) == 0x5300530053005300 &&
@@ -226,14 +230,18 @@ bool CPU_ProbePMULL()
     else
     {
         // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
-        const uint64x2_t a1={0,0x9090909090909090}, b1={0,0xb0b0b0b0b0b0b0b0};
-        const uint8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+        const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+        const uint64x2_t a1=vld1q_u64(wa1), b1=vld1q_u64(wb1);
+
+        const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                      wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const uint64x2_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
 
         const uint64x2_t r1 = PMULL_00(a1, b1);
-        const uint64x2_t r2 = PMULL_11((uint64x2_t)a2, (uint64x2_t)b2);
+        const uint64x2_t r2 = PMULL_11(vreinterpret_u64_u8(a2),
+                                       vreinterpret_u64_u8(b2));
 
         result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
                     vgetq_lane_u64(r1,1) == 0x5300530053005300 &&
