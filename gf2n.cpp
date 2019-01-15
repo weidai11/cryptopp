@@ -13,8 +13,9 @@
 #include "words.h"
 #include "misc.h"
 #include "gf2n.h"
-#include "asn.h"
 #include "oids.h"
+#include "asn.h"
+#include "cpu.h"
 
 #include <iostream>
 
@@ -40,6 +41,10 @@ using CryptoPP::PolynomialMod2;
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+#if defined(CRYPTOPP_CLMUL_AVAILABLE)
+extern void GF2NT_233_Multiply_Reduce(const word* pA, const word* pB, word* pC);
+#endif
 
 PolynomialMod2::PolynomialMod2()
 {
@@ -941,6 +946,56 @@ GF2NP * BERDecodeGF2NP(BufferedTransformation &bt)
 	seq.MessageEnd();
 
 	return result.release();
+}
+
+// ********************************************************
+
+GF2NT233::GF2NT233(unsigned int c0, unsigned int c1, unsigned int c2)
+	: GF2NT(c0, c1, c2)
+{
+	CRYPTOPP_ASSERT(c0 > c1 && c1 > c2 && c2==0);
+}
+
+const GF2NT::Element& GF2NT233::Multiply(const Element &a, const Element &b) const
+{
+#if defined(CRYPTOPP_CLMUL_AVAILABLE)
+	if (HasCLMUL())
+	{
+		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);
+		CRYPTOPP_ASSERT(b.reg.size()*WORD_BITS == 256);
+		CRYPTOPP_ASSERT(result.reg.size()*WORD_BITS == 256);
+
+		const word* pA = a.reg.begin();
+		const word* pB = b.reg.begin();
+		word* pR = result.reg.begin();
+
+		GF2NT_233_Multiply_Reduce(pA, pB, pR);
+		return result;
+	}
+	else
+#endif
+
+	return GF2NT::Multiply(a, b);
+}
+
+const GF2NT::Element& GF2NT233::Square(const Element &a) const
+{
+#if defined(CRYPTOPP_CLMUL_AVAILABLE)
+	if (HasCLMUL())
+	{
+		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);
+		CRYPTOPP_ASSERT(result.reg.size()*WORD_BITS == 256);
+
+		const word* pA = a.reg.begin();
+		word* pR = result.reg.begin();
+
+		GF2NT_233_Multiply_Reduce(pA, pA, pR);
+		return result;
+	}
+	else
+#endif
+
+	return GF2NT::Square(a);
 }
 
 NAMESPACE_END
