@@ -196,11 +196,11 @@ bool CPU_ProbePMULL()
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
                       wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
-        const uint64x2_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
+        const uint8x16_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
 
         const uint64x2_t r1 = PMULL_00(a1, b1);
-        const uint64x2_t r2 = PMULL_11(vreinterpret_u64_u8(a2),
-                                       vreinterpret_u64_u8(b2));
+        const uint64x2_t r2 = PMULL_11(vreinterpretq_u64_u8(a2),
+                                       vreinterpretq_u64_u8(b2));
 
         result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
                     vgetq_lane_u64(r1,1) == 0x5300530053005300 &&
@@ -237,11 +237,11 @@ bool CPU_ProbePMULL()
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
                       wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
-        const uint64x2_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
+        const uint8x16_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
 
         const uint64x2_t r1 = PMULL_00(a1, b1);
-        const uint64x2_t r2 = PMULL_11(vreinterpret_u64_u8(a2),
-                                       vreinterpret_u64_u8(b2));
+        const uint64x2_t r2 = PMULL_11(vreinterpretq_u64_u8(a2),
+                                       vreinterpretq_u64_u8(b2));
 
         result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
                     vgetq_lane_u64(r1,1) == 0x5300530053005300 &&
