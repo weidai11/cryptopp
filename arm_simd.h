@@ -23,7 +23,7 @@
 inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
 {
 #if defined(_MSC_VER)
-	const __n64 x = { vgetq_lane_u64(a, 0) };
+    const __n64 x = { vgetq_lane_u64(a, 0) };
     const __n64 y = { vgetq_lane_u64(b, 0) };
     return vmull_p64(x, y);
 #elif defined(__GNUC__)

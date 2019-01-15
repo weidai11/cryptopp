@@ -80,7 +80,7 @@ void PolynomialMod2::Randomize(RandomNumberGenerator &rng, size_t nbits)
 PolynomialMod2 PolynomialMod2::AllOnes(size_t bitLength)
 {
 	PolynomialMod2 result((word)0, bitLength);
-	SetWords(result.reg, word(SIZE_MAX), result.reg.size());
+	SetWords(result.reg, ~(word(0)), result.reg.size());
 	if (bitLength%WORD_BITS)
 		result.reg[result.reg.size()-1] = (word)Crop(result.reg[result.reg.size()-1], bitLength%WORD_BITS);
 	return result;
