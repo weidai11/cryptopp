@@ -317,6 +317,33 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n<THEAD style=\"background: #F0F0F0\">";
 	std::cout << "\n<TR><TH>Operation<TH>Milliseconds/Operation" << mco;
 
+	std::cout << "\n<TBODY style=\"background: yellow;\">";
+	{
+		ECIES<EC2N>::Decryptor cpriv(Test::GlobalRNG(), ASN1::sect233r1());
+		ECIES<EC2N>::Encryptor cpub(cpriv);
+		ECDSA<EC2N, SHA1>::Signer spriv(cpriv);
+		ECDSA<EC2N, SHA1>::Verifier spub(spriv);
+		ECDSA_RFC6979<EC2N, SHA1>::Signer spriv2(cpriv);
+		ECDSA_RFC6979<EC2N, SHA1>::Verifier spub2(spriv);
+		ECGDSA<EC2N, SHA1>::Signer spriv3(Test::GlobalRNG(), ASN1::sect233r1());
+		ECGDSA<EC2N, SHA1>::Verifier spub3(spriv3);
+		ECDH<EC2N>::Domain ecdhc(ASN1::sect233r1());
+		ECMQV<EC2N>::Domain ecmqvc(ASN1::sect233r1());
+
+		BenchMarkEncryption("ECIES over GF(2^n) 233", cpub, t);
+		BenchMarkDecryption("ECIES over GF(2^n) 233", cpriv, cpub, t);
+		BenchMarkSigning("ECDSA over GF(2^n) 233", spriv, t);
+		BenchMarkVerification("ECDSA over GF(2^n) 233", spriv, spub, t);
+		BenchMarkSigning("ECDSA-RFC6979 over GF(2^n) 233", spriv2, t);
+		BenchMarkVerification("ECDSA-RFC6979 over GF(2^n) 233", spriv2, spub2, t);
+		BenchMarkSigning("ECGDSA over GF(2^n) 233", spriv3, t);
+		BenchMarkVerification("ECGDSA over GF(2^n) 233", spriv3, spub3, t);
+		BenchMarkKeyGen("ECDHC over GF(2^n) 233", ecdhc, t);
+		BenchMarkAgreement("ECDHC over GF(2^n) 233", ecdhc, t);
+		BenchMarkKeyGen("ECMQVC over GF(2^n) 233", ecmqvc, t);
+		BenchMarkAgreement("ECMQVC over GF(2^n) 233", ecmqvc, t);
+	}
+
 	std::cout << "\n<TBODY style=\"background: white;\">";
 	{
 		BenchMarkCrypto<RSAES<OAEP<SHA1> > >("TestData/rsa1024.dat", "RSA 1024", t);

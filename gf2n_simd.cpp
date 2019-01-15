@@ -28,9 +28,155 @@
 # include <wmmintrin.h>
 #endif
 
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
+# include "arm_simd.h"
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::word;
+
+// ************************** ARMv8 ************************** //
+
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE)
+
+template <unsigned int S>
+inline uint64x2_t _mm_shuffle_epi32(uint64x2_t a)
+{
+    uint32x4_t ret;
+    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 0) & 0x3), ret, 0);
+    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 2) & 0x3), ret, 1);
+    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 4) & 0x3), ret, 2);
+    ret = vsetq_lane_u32(vgetq_lane_u32(vreinterpretq_u32_u64(a), (S >> 6) & 0x3), ret, 3);
+    return vreinterpretq_u64_u32(ret);
+}
+
+// c1c0 = a * b
+inline void
+F2N_Multiply_128x128_ARMv8(uint64x2_t& c1, uint64x2_t& c0, const uint64x2_t& a, const uint64x2_t& b)
+{
+    uint64x2_t t1, t2, z0 = {0};
+
+    c0 = PMULL_00(a, b);
+    c1 = PMULL_11(a, b);
+    t1  = _mm_shuffle_epi32<0xEE>(a);
+    t1  = veorq_u64(a, t1);
+    t2  = _mm_shuffle_epi32<0xEE>(b);
+    t2  = veorq_u64(b, t2);
+    t1  = PMULL_00(t1, t2);
+    t1  = veorq_u64(c0, t1);
+    t1  = veorq_u64(c1, t1);
+    t2  = t1;
+    //t1  = _mm_slli_si128(t1, 8);
+    //t2  = _mm_srli_si128(t2, 8);
+    t1 = vextq_u64(z0, t1, 1);
+    t2 = vextq_u64(t2, z0, 1);
+    c0 = veorq_u64(c0, t1);
+    c1 = veorq_u64(c1, t2);
+}
+
+// x = (x << n), z = 0
+template <unsigned int N>
+inline uint64x2_t XMM_SHL_N(uint64x2_t x)
+{
+    uint64x2_t u=x, v, z={0};
+    x = vshlq_n_u64(x, N);
+    u = vshrq_n_u64(u, (64-N));
+    v = vcombine_u64(vget_low_u64(z), vget_low_u64(u));
+    x = vorrq_u64(x, v);
+    return x;
+}
+
+// c1c0 = c3c2c1c0 MOD p. This is a Barrett reduction. Reading at
+// Intel paper or https://github.com/antonblanchard/crc32-vpmsum.
+inline void
+GF2NT_233_Reduce_ARMv8(uint64x2_t& c3, uint64x2_t& c2, uint64x2_t& c1, uint64x2_t& c0)
+{
+    const unsigned int mask[4] = {
+        0xffffffff, 0xffffffff, 0xffffffff, 0x000001ff,
+    };
+
+    uint64x2_t b3, b2, b1, /*b0,*/ a1, a0, m0, z0 = {0};
+    m0 = vreinterpretq_u64_u32(vld1q_u32(mask));
+    b1 = c1; a1 = c1;
+    a0 = vcombine_u64(vget_low_u64(c1), vget_low_u64(z0));
+    a1 = vshlq_n_u64(a1, 23);
+    a1 = vshrq_n_u64(a1, 23);
+    c1 = vorrq_u64(a1, a0);
+    b2 = vshrq_n_u64(c2, (64-23));
+    c3 = XMM_SHL_N<23>(c3);
+    a0 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
+    c3 = vorrq_u64(c3, a0);
+    b1 = vshrq_n_u64(b1, (64-23));
+    c2 = XMM_SHL_N<23>(c2);
+    a0 = vcombine_u64(vget_high_u64(b1), vget_high_u64(z0));
+    c2 = vorrq_u64(c2, a0);
+    b3 = c3;
+    b2 = vshrq_n_u64(c2, (64-10));
+    b3 = XMM_SHL_N<10>(b3);
+    a0 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
+    b3 = vorrq_u64(b3, a0);
+    a0 = vcombine_u64(vget_high_u64(c3), vget_high_u64(z0));
+    b3 = veorq_u64(b3, a0);
+    b1 = vshrq_n_u64(b3, (64-23));
+    b3 = XMM_SHL_N<23>(b3);
+    b3 = vcombine_u64(vget_high_u64(b3), vget_high_u64(z0));
+    b3 = vorrq_u64(b3, b1);
+    c2 = veorq_u64(c2, b3);
+    b3 = c3;
+    b2 = vshrq_n_u64(c2, (64-10));
+    b3 = XMM_SHL_N<10>(b3);
+    b2 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
+    b3 = vorrq_u64(b3, b2);
+    b2 = c2;
+    b2 = XMM_SHL_N<10>(b2);
+    a0 = vcombine_u64(vget_low_u64(z0), vget_low_u64(b2));
+    c2 = veorq_u64(c2, a0);
+    a0 = vcombine_u64(vget_low_u64(z0), vget_low_u64(b3));
+    a1 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
+    a0 = vorrq_u64(a0, a1);
+    c3 = veorq_u64(c3, a0);
+    c0 = veorq_u64(c0, c2);
+    c1 = veorq_u64(c1, c3);
+    c1 = vandq_u64(c1, m0);
+}
+
+inline void
+GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
+{
+    const uint64_t* pAA = reinterpret_cast<const uint64_t*>(pA);
+    const uint64_t* pBB = reinterpret_cast<const uint64_t*>(pB);
+    uint64x2_t a0 = vld1q_u64(pAA+0);
+    uint64x2_t a1 = vld1q_u64(pAA+2);
+    uint64x2_t b0 = vld1q_u64(pBB+0);
+    uint64x2_t b1 = vld1q_u64(pBB+2);
+
+    uint64x2_t c0, c1, c2, c3, c4, c5;
+    F2N_Multiply_128x128_ARMv8(c1, c0, a0, b0);
+    F2N_Multiply_128x128_ARMv8(c3, c2, a1, b1);
+
+    a0 = veorq_u64(a0, a1);
+    b0 = veorq_u64(b0, b1);
+
+    F2N_Multiply_128x128_ARMv8(c5, c4, a0, b0);
+
+    c4 = veorq_u64(c4, c0);
+    c4 = veorq_u64(c4, c2);
+    c5 = veorq_u64(c5, c1);
+    c5 = veorq_u64(c5, c3);
+    c1 = veorq_u64(c1, c4);
+    c2 = veorq_u64(c2, c5);
+
+    GF2NT_233_Reduce_ARMv8(c3, c2, c1, c0);
+
+    uint64_t* pCC = reinterpret_cast<uint64_t*>(pC);
+    vst1q_u64(pCC+0, c0);
+    vst1q_u64(pCC+2, c1);
+}
+
+#endif
+
+// ************************** x86 ************************** //
 
 #if defined(CRYPTOPP_CLMUL_AVAILABLE)
 
@@ -70,7 +216,8 @@ inline __m128i XMM_SHL_N(__m128i x, const __m128i& z)
 
 // c1c0 = c3c2c1c0 MOD p. This is a Barrett reduction. Reading at
 // Intel paper or https://github.com/antonblanchard/crc32-vpmsum.
-inline void GF2NT_233_Reduce(__m128i& c3, __m128i& c2, __m128i& c1, __m128i& c0)
+inline void
+GF2NT_233_Reduce_CLMUL(__m128i& c3, __m128i& c2, __m128i& c1, __m128i& c0)
 {
     const unsigned int m[4] = {
         0xffffffff, 0xffffffff, 0xffffffff, 0x000001ff
@@ -148,7 +295,7 @@ GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC)
     c1 = _mm_xor_si128(c1, c4);
     c2 = _mm_xor_si128(c2, c5);
 
-    GF2NT_233_Reduce(c3, c2, c1, c0);
+    GF2NT_233_Reduce_CLMUL(c3, c2, c1, c0);
 
     __m128i* pCC = reinterpret_cast<__m128i*>(pC);
     _mm_storeu_si128(pCC+0, c0);
@@ -165,6 +312,8 @@ void GF2NT_233_Multiply_Reduce(const word* pA, const word* pB, word* pC)
 {
 #if defined(CRYPTOPP_CLMUL_AVAILABLE)
     return GF2NT_233_Multiply_Reduce_CLMUL(pA, pB, pC);
+#elif (CRYPTOPP_ARM_PMULL_AVAILABLE)
+    return GF2NT_233_Multiply_Reduce_ARMv8(pA, pB, pC);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
