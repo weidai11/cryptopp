@@ -137,9 +137,9 @@ GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
     const uint32_t* pBB = reinterpret_cast<const uint32_t*>(pB);
 
     uint64x2_t a0 = vreinterpretq_u64_u32(vld1q_u32(pAA+0));
-    uint64x2_t a1 = vreinterpretq_u64_u32(vld1q_u32(pAA+2));
+    uint64x2_t a1 = vreinterpretq_u64_u32(vld1q_u32(pAA+4));
     uint64x2_t b0 = vreinterpretq_u64_u32(vld1q_u32(pBB+0));
-    uint64x2_t b1 = vreinterpretq_u64_u32(vld1q_u32(pBB+2));
+    uint64x2_t b1 = vreinterpretq_u64_u32(vld1q_u32(pBB+4));
 
     uint64x2_t c0, c1, c2, c3, c4, c5;
     F2N_Multiply_128x128_ARMv8(c1, c0, a0, b0);
@@ -161,7 +161,7 @@ GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
 
     uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
     vst1q_u32(pCC+0, vreinterpretq_u32_u64(c0));
-    vst1q_u32(pCC+2, vreinterpretq_u32_u64(c1));
+    vst1q_u32(pCC+4, vreinterpretq_u32_u64(c1));
 }
 
 #endif
