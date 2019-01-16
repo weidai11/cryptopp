@@ -297,11 +297,13 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 // Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
 // #define CRYPTOPP_DISABLE_MIXED_ASM 1
 
-// Several compilers discard SIMD code that loads unaligned data. For example,
-// Power7 can load unaligned data using vec_vsx_ld but GCC and Clang require
-// 16-byte aligned arrays when using builtin function. Define this to disable
-// Crypto++ code that uses problematic builtins or intrinsics.
-// #define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
+// Several compilers discard SIMD code that loads unaligned data. The symptom
+// is often self test failures and UBsan findings of unaligned loads. For
+// example, Power7 can load unaligned data using vec_vsx_ld but some versions
+// of GCC and Clang require 16-byte aligned arrays when using the builtin
+// function. It is not limited to SSE and PowerPC code. Define this to disable
+// Crypto++ code that uses potentially problematic builtins or intrinsics.
+#define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
 
 // This list will probably grow over time as more compilers are identified.
 #if defined(CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE)
