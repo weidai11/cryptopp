@@ -304,41 +304,56 @@ GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC)
 
 #if defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
 
+using CryptoPP::byte;
 using CryptoPP::word;
 using CryptoPP::uint8x16_p;
-using CryptoPP::uint32x4_p;
 using CryptoPP::uint64x2_p;
+
+using CryptoPP::VecLoad;
+using CryptoPP::VecLoadBE;
+using CryptoPP::VecStore;
 
 using CryptoPP::VecOr;
 using CryptoPP::VecXor;
 using CryptoPP::VecAnd;
-using CryptoPP::VecLoad;
-using CryptoPP::VecStore;
+
 using CryptoPP::VecGetLow;
 using CryptoPP::VecGetHigh;
 using CryptoPP::VecPermute;
+using CryptoPP::VecShiftLeft;
+using CryptoPP::VecShiftRight;
+using CryptoPP::VecRotateLeftOctet;
 
-inline uint64x2_p
-VMULL_00(const uint64x2_p& a, const uint64x2_p& b)
+inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 {
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return __vpmsumd (VecGetHigh(a), VecGetHigh(b));
-#elif defined(__clang__)
-    return __builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b));
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecRotateLeftOctet<8>(val);
 #else
-    return __builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b));
+    return val;
 #endif
 }
 
-inline uint64x2_p
-VMULL_11(const uint64x2_p& a, const uint64x2_p& b)
+// _mm_clmulepi64_si128(a, b, 0x00)
+inline uint64x2_p VMULL_00LE(const uint64x2_p& a, const uint64x2_p& b)
 {
 #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return __vpmsumd (VecGetLow(a), b);
+    return VMULL2LE(__vpmsumd (VecGetHigh(a), VecGetHigh(b)));
 #elif defined(__clang__)
-    return __builtin_altivec_crypto_vpmsumd (VecGetLow(a), b);
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
 #else
-    return __builtin_crypto_vpmsumd (VecGetLow(a), b);
+    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+#endif
+}
+
+// _mm_clmulepi64_si128(a, b, 0x11)
+inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return VMULL2LE(__vpmsumd (VecGetLow(a), b));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
+#else
+    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
 #endif
 }
 
@@ -348,26 +363,23 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
 {
     const uint8_t mb1[] = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
     const uint8_t mb2[] = {8,9,10,11, 12,13,14,15, 16,17,18,19, 20,21,22,23};
+
     const uint8x16_p m1 = (uint8x16_p)VecLoad(mb1);
     const uint8x16_p m2 = (uint8x16_p)VecLoad(mb2);
 
     uint64x2_p t1, t2, z0={0};
 
-    c0 = VMULL_00(a, b);
-    c1 = VMULL_11(a, b);
-    // t1 = vmovq_n_u64(vgetq_lane_u64(a, 1));
+    c0 = VMULL_00LE(a, b);
+    c1 = VMULL_11LE(a, b);
     t1 = VecPermute(a, a, m1);
     t1 = VecXor(a, t1);
-    // t2 = vmovq_n_u64(vgetq_lane_u64(b, 1));
     t2 = VecPermute(b, b, m1);
     t2 = VecXor(b, t2);
-    t1 = VMULL_00(t1, t2);
+    t1 = VMULL_00LE(t1, t2);
     t1 = VecXor(c0, t1);
     t1 = VecXor(c1, t1);
     t2 = t1;
-    // t1 = vextq_u64(z0, t1, 1);
     t1 = VecPermute(z0, t1, m2);
-    // t2 = vextq_u64(t2, z0, 1);
     t2 = VecPermute(t2, z0, m2);
     c0 = VecXor(c0, t1);
     c1 = VecXor(c1, t2);
@@ -377,13 +389,12 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
 template <unsigned int N>
 inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 {
-    const uint64x2_p R={N,N}, S={64-N,64-N};
     const uint8_t mb[] = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
     const uint8x16_p m = (uint8x16_p)VecLoad(mb);
 
     uint64x2_p u=x, v, z={0};
-    x = vec_sl(x, R);
-    u = vec_sr(u, S);
+    x = VecShiftLeft<N>(x);
+    u = VecShiftRight<64-N>(u);
     v = VecPermute(z, u, m);
     x = VecOr(x, v);
     return x;
@@ -394,64 +405,49 @@ inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 inline void
 GF2NT_233_Reduce_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint64x2_p& c0)
 {
-    // High and low masks for permutes
+    const uint64_t mask[] = {0xffffffffffffffff, 0x01ffffffffff};
     const uint8_t lmb[] = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
     const uint8_t hmb[] = {8,9,10,11, 12,13,14,15, 24,25,26,27, 28,29,30,31};
+
+    const uint64x2_p m0 = (uint64x2_p)VecLoad(mask);
     const uint8x16_p lm = (uint8x16_p)VecLoad(lmb);
     const uint8x16_p hm = (uint8x16_p)VecLoad(hmb);
 
-    const unsigned int mask[4] = { 0xffffffff, 0xffffffff, 0xffffffff, 0x000001ff };
-    const uint64x2_p m0 = (uint64x2_p)VecLoad(mask);
-
-    const uint64x2_p R23 = {23,23};
-    const uint64x2_p R41 = {64-23,64-23};
-    const uint64x2_p R54 = {64-10,64-10};
-
     uint64x2_p b3, b2, b1, /*b0,*/ a1, a0, z0={0};
     b1 = c1; a1 = c1;
-    // a0 = vcombine_u64(vget_low_u64(c1), vget_low_u64(z0));
     a0 = VecPermute(c1, z0, lm);
-    a1 = vec_sl(a1, R23);
-    a1 = vec_sr(a1, R23);
+    a1 = VecShiftLeft<23>(a1);
+    a1 = VecShiftRight<23>(a1);
     c1 = VecOr(a1, a0);
-    b2 = vec_sr(c2, R41);
+    b2 = VecShiftRight<64-23>(c2);
     c3 = ShiftLeft128_POWER8<23>(c3);
-    // a0 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     a0 = VecPermute(b2, z0, hm);
     c3 = VecOr(c3, a0);
-    b1 = vec_sr(b1, R41);
+    b1 = VecShiftRight<64-23>(b1);
     c2 = ShiftLeft128_POWER8<23>(c2);
-    // a0 = vcombine_u64(vget_high_u64(b1), vget_high_u64(z0));
     a0 = VecPermute(b1, z0, hm);
     c2 = VecOr(c2, a0);
     b3 = c3;
-    b2 = vec_sr(c2, R54);
+    b2 = VecShiftRight<64-10>(c2);
     b3 = ShiftLeft128_POWER8<10>(b3);
-    // a0 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     a0 = VecPermute(b2, z0, hm);
     b3 = VecOr(b3, a0);
-    // a0 = vcombine_u64(vget_high_u64(c3), vget_high_u64(z0));
     a0 = VecPermute(c3, z0, hm);
     b3 = VecXor(b3, a0);
-    b1 = vec_sr(b3, R41);
+    b1 = VecShiftRight<64-23>(b3);
     b3 = ShiftLeft128_POWER8<23>(b3);
-    // b3 = vcombine_u64(vget_high_u64(b3), vget_high_u64(z0));
     b3 = VecPermute(b3, z0, hm);
     b3 = VecOr(b3, b1);
     c2 = VecXor(c2, b3);
     b3 = c3;
-    b2 = vec_sr(c2, R54);
+    b2 = VecShiftRight<64-10>(c2);
     b3 = ShiftLeft128_POWER8<10>(b3);
-    // b2 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     b2 = VecPermute(b2, z0, hm);
     b3 = VecOr(b3, b2);
     b2 = c2;
     b2 = ShiftLeft128_POWER8<10>(b2);
-    // a0 = vcombine_u64(vget_low_u64(z0), vget_low_u64(b2));
     a0 = VecPermute(z0, b2, lm);
     c2 = VecXor(c2, a0);
-    // a0 = vcombine_u64(vget_low_u64(z0), vget_low_u64(b3));
-    // a1 = vcombine_u64(vget_high_u64(b2), vget_high_u64(z0));
     a0 = VecPermute(z0, b3, lm);
     a1 = VecPermute(b2, z0, hm);
     a0 = VecOr(a0, a1);
@@ -465,14 +461,23 @@ inline void
 GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC)
 {
     // word is either 32-bit or 64-bit, depending on the platform.
-    // Load using a 32-bit pointer to avoid possible alignment issues.
-    const uint32_t* pAA = reinterpret_cast<const uint32_t*>(pA);
-    const uint32_t* pBB = reinterpret_cast<const uint32_t*>(pB);
+    // Load using a byte pointer to avoid possible alignment issues.
+    const byte* pAA = reinterpret_cast<const byte*>(pA);
+    const byte* pBB = reinterpret_cast<const byte*>(pB);
 
     uint64x2_p a0 = (uint64x2_p)VecLoad(pAA+0);
-    uint64x2_p a1 = (uint64x2_p)VecLoad(pAA+4);
+    uint64x2_p a1 = (uint64x2_p)VecLoad(pAA+16);
     uint64x2_p b0 = (uint64x2_p)VecLoad(pBB+0);
-    uint64x2_p b1 = (uint64x2_p)VecLoad(pBB+4);
+    uint64x2_p b1 = (uint64x2_p)VecLoad(pBB+16);
+
+#if (CRYPTOPP_BIG_ENDIAN)
+    const uint8_t mb[] = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+    const uint8x16_p m = (uint8x16_p)VecLoad(mb);
+    a0 = VecPermute(a0, m);
+    a1 = VecPermute(a1, m);
+    b0 = VecPermute(b0, m);
+    b1 = VecPermute(b1, m);
+#endif
 
     uint64x2_p c0, c1, c2, c3, c4, c5;
     F2N_Multiply_128x128_POWER8(c1, c0, a0, b0);
@@ -492,9 +497,14 @@ GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC)
 
     GF2NT_233_Reduce_POWER8(c3, c2, c1, c0);
 
-    uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
+#if (CRYPTOPP_BIG_ENDIAN)
+    c0 = VecPermute(c0, m);
+    c1 = VecPermute(c1, m);
+#endif
+
+    byte* pCC = reinterpret_cast<byte*>(pC);
     VecStore(c0, pCC+0);
-    VecStore(c1, pCC+4);
+    VecStore(c1, pCC+16);
 }
 
 #endif
