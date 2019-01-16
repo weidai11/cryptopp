@@ -18,9 +18,11 @@
 # include <omp.h>
 #endif
 
-// Issue 777
+// https://github.com/weidai11/cryptopp/issues/777
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic ignored "-Wtautological-compare"
+# if defined(__clang__)
+#  pragma GCC diagnostic ignored "-Wtautological-compare"
+# endif
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
