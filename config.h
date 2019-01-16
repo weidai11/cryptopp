@@ -68,6 +68,30 @@
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
+// Some Clang and SunCC cannot handle mixed asm with positional arguments,
+// where the body is Intel style with no prefix and the templates are
+// AT&T style. Define this is the Makefile misdetects the configuration.
+// Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+// #define CRYPTOPP_DISABLE_MIXED_ASM 1
+
+// Several compilers discard SIMD code that loads unaligned data. The symptom
+// is often self test failures and UBsan findings for unaligned loads. For
+// example, Power7 can load unaligned data using vec_vsx_ld but some versions
+// of GCC and Clang require 16-byte aligned data when using the builtin.
+// It is not limited to SSE and PowerPC code. Define this to disable
+// Crypto++ code that uses potentially problematic builtins or intrinsics.
+// Also see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88234 and
+// https://bugs.llvm.org/show_bug.cgi?id=39704
+// #define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
+
+// This list will probably grow over time as more compilers are identified.
+#if defined(CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE)
+# define CRYPTOPP_DISABLE_LEA_SIMD 1
+# define CRYPTOPP_DISABLE_SIMON_SIMD 1
+# define CRYPTOPP_DISABLE_SPECK_SIMD 1
+# define CRYPTOPP_DISABLE_SM4_SIMD 1
+#endif
+
 // Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
 // end of this file. Some compilers and standard C++ headers advertise C++11
 // but they are really just C++03 with some additional C++11 headers and
@@ -289,28 +313,6 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 // Need GCC 4.6/Clang 1.7/Apple Clang 2.0 or above due to "GCC diagnostic {push|pop}"
 #if (CRYPTOPP_GCC_VERSION >= 40600) || (CRYPTOPP_LLVM_CLANG_VERSION >= 10700) || (CRYPTOPP_APPLE_CLANG_VERSION >= 20000)
 	#define CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE 1
-#endif
-
-// Some Clang and SunCC cannot handle mixed asm with positional arguments,
-// where the body is Intel style with no prefix and the templates are
-// AT&T style. Define this is the Makefile misdetects the configuration.
-// Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
-// #define CRYPTOPP_DISABLE_MIXED_ASM 1
-
-// Several compilers discard SIMD code that loads unaligned data. The symptom
-// is often self test failures and UBsan findings of unaligned loads. For
-// example, Power7 can load unaligned data using vec_vsx_ld but some versions
-// of GCC and Clang require 16-byte aligned arrays when using the builtin
-// function. It is not limited to SSE and PowerPC code. Define this to disable
-// Crypto++ code that uses potentially problematic builtins or intrinsics.
-// #define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
-
-// This list will probably grow over time as more compilers are identified.
-#if defined(CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE)
-# define CRYPTOPP_DISABLE_LEA_SIMD 1
-# define CRYPTOPP_DISABLE_SIMON_SIMD 1
-# define CRYPTOPP_DISABLE_SPECK_SIMD 1
-# define CRYPTOPP_DISABLE_SM4_SIMD 1
 #endif
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
