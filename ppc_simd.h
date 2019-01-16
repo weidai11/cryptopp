@@ -1213,7 +1213,7 @@ inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
 /// \details VecShiftLeft() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
 ///   vec_rl
-/// \since Crypto++ 8.0
+/// \since Crypto++ 8.1
 template<unsigned int C>
 inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
 {
