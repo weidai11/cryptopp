@@ -238,6 +238,7 @@
     <ClCompile Include="gf256.cpp" />
     <ClCompile Include="gf2_32.cpp" />
     <ClCompile Include="gf2n.cpp" />
+    <ClCompile Include="gf2n_simd.cpp" />
     <ClCompile Include="gfpcrypt.cpp" />
     <ClCompile Include="gost.cpp" />
     <ClCompile Include="gzip.cpp" />

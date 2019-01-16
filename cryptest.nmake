@@ -66,8 +66,8 @@ LIB_SRCS = \
     dll.cpp donna_32.cpp donna_64.cpp donna_sse.cpp dsa.cpp eax.cpp ec2n.cpp \
     eccrypto.cpp ecp.cpp elgamal.cpp emsa2.cpp eprecomp.cpp esign.cpp files.cpp \
     filters.cpp fips140.cpp fipstest.cpp gcm.cpp gcm_simd.cpp gf256.cpp \
-    gf2_32.cpp gf2n.cpp gfpcrypt.cpp gost.cpp gzip.cpp hc128.cpp hc256.cpp \
-    hex.cpp hight.cpp hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp \
+    gf2_32.cpp gf2n.cpp gf2n_sind.cpp gfpcrypt.cpp gost.cpp gzip.cpp hc128.cpp \
+    hc256.cpp hex.cpp hight.cpp hmac.cpp hrtimer.cpp ida.cpp idea.cpp iterhash.cpp \
     kalyna.cpp kalynatab.cpp keccak.cpp keccakc.cpp lea.cpp lea_simd.cpp \
     luc.cpp mars.cpp marss.cpp md2.cpp md4.cpp md5.cpp misc.cpp modes.cpp \
     mqueue.cpp mqv.cpp nbtheory.cpp neon_simd.cpp oaep.cpp osrng.cpp \
@@ -96,8 +96,8 @@ LIB_OBJS = \
     dll.obj donna_32.obj donna_64.obj donna_sse.obj dsa.obj eax.obj ec2n.obj \
     eccrypto.obj ecp.obj elgamal.obj emsa2.obj eprecomp.obj esign.obj files.obj \
     filters.obj fips140.obj fipstest.obj gcm.obj gcm_simd.obj gf256.obj \
-    gf2_32.obj gf2n.obj gfpcrypt.obj gost.obj gzip.obj hc128.obj hc256.obj \
-    hex.obj hight.obj hmac.obj hrtimer.obj ida.obj idea.obj iterhash.obj \
+    gf2_32.obj gf2n.obj gf2n_simd.obj gfpcrypt.obj gost.obj gzip.obj hc128.obj \
+    hc256.obj hex.obj hight.obj hmac.obj hrtimer.obj ida.obj idea.obj iterhash.obj \
     kalyna.obj kalynatab.obj keccak.obj keccakc.obj lea.obj lea_simd.obj \
     luc.obj mars.obj marss.obj md2.obj md4.obj md5.obj misc.obj modes.obj \
     mqueue.obj mqv.obj nbtheory.obj neon_simd.obj oaep.obj osrng.obj \

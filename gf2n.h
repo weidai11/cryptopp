@@ -246,6 +246,7 @@ public:
 
 private:
 	friend class GF2NT;
+	friend class GF2NT233;
 
 	SecWordBlock reg;
 };
@@ -344,11 +345,27 @@ public:
 
 	const Element& MultiplicativeInverse(const Element &a) const;
 
-private:
+protected:
 	const Element& Reduced(const Element &a) const;
 
 	unsigned int t0, t1;
 	mutable PolynomialMod2 result;
+};
+
+/// \brief GF(2^n) for b233 and k233
+/// \details GF2NT233 is a specialization of GF2NT that provides Multiply()
+///   and Square() operations when carryless multiplies is available.
+class CRYPTOPP_DLL GF2NT233 : public GF2NT
+{
+public:
+	// polynomial modulus = x^t0 + x^t1 + x^t2, t0 > t1 > t2
+	GF2NT233(unsigned int t0, unsigned int t1, unsigned int t2);
+
+	GF2NP * Clone() const {return new GF2NT233(*this);}
+
+	const Element& Multiply(const Element &a, const Element &b) const;
+
+	const Element& Square(const Element &a) const;
 };
 
 /// \brief GF(2^n) with Pentanomial Basis

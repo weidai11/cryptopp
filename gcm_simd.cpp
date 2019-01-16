@@ -39,6 +39,10 @@
 # include <arm_acle.h>
 #endif
 
+#if defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+# include "arm_simd.h"
+#endif
+
 #if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "ppc_simd.h"
 #endif
@@ -51,31 +55,6 @@
 #ifndef EXCEPTION_EXECUTE_HANDLER
 # define EXCEPTION_EXECUTE_HANDLER 1
 #endif
-
-// Thanks to Peter Cordes, https://stackoverflow.com/q/54016821/608639
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# ifndef PACK32x4
-#  if defined(_MSC_VER)
-#   define PACK32x4(w,x,y,z) { ((w) + (word64(x) << 32)), ((y) + (word64(z) << 32)) }
-#  else
-#   define PACK32x4(w,x,y,z) { (w), (x), (y), (z) }
-#  endif
-# endif  // PACK32x4
-
-# ifndef PACK8x16
-#  if defined(_MSC_VER)
-#   define PACK8x16(a,b,c,d, e,f,g,h, i,j,k,l, m,n,o,p) \
-        PACK32x4( (a+(b<<8)+(c<<16)+(word32(d)<<24)), \
-		          (e+(f<<8)+(g<<16)+(word32(h)<<24)), \
-				  (i+(j<<8)+(k<<16)+(word32(l)<<24)), \
-				  (m+(n<<8)+(o<<16)+(word32(p)<<24)) )
-#  else
-#   define PACK8x16(a,b,c,d, e,f,g,h, i,j,k,l, m,n,o,p) \
-                  { (a),(b),(c),(d),(e),(f),(g),(h),(i),(j),(k),(l),(m),(n),(o),(p) }
-#  endif
-# endif  // PACK8x16
-
-#endif // Microsoft workaround
 
 // Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
@@ -90,113 +69,7 @@ extern const char GCM_SIMD_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
-// *************************** ARM NEON *************************** //
-
-#if CRYPTOPP_ARM_PMULL_AVAILABLE
-
-inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
-{
-#if defined(_MSC_VER)
-	const __n64 x = { vgetq_lane_u64(a, 0) };
-    const __n64 y = { vgetq_lane_u64(b, 0) };
-    return vmull_p64(x, y);
-#elif defined(__GNUC__)
-    uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (a), "w" (b) );
-    return r;
-#else
-    return (uint64x2_t)(vmull_p64(
-        vgetq_lane_u64(vreinterpretq_u64_u8(a),0),
-        vgetq_lane_u64(vreinterpretq_u64_u8(b),0)));
-#endif
-}
-
-inline uint64x2_t PMULL_01(const uint64x2_t a, const uint64x2_t b)
-{
-#if defined(_MSC_VER)
-    const __n64 x = { vgetq_lane_u64(a, 0) };
-    const __n64 y = { vgetq_lane_u64(b, 1) };
-    return vmull_p64(x, y);
-#elif defined(__GNUC__)
-    uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (a), "w" (vget_high_u64(b)) );
-    return r;
-#else
-    return (uint64x2_t)(vmull_p64(
-        vgetq_lane_u64(vreinterpretq_u64_u8(a),0),
-        vgetq_lane_u64(vreinterpretq_u64_u8(b),1)));
-#endif
-}
-
-inline uint64x2_t PMULL_10(const uint64x2_t a, const uint64x2_t b)
-{
-#if defined(_MSC_VER)
-    const __n64 x = { vgetq_lane_u64(a, 1) };
-    const __n64 y = { vgetq_lane_u64(b, 0) };
-    return vmull_p64(x, y);
-#elif defined(__GNUC__)
-    uint64x2_t r;
-    __asm __volatile("pmull    %0.1q, %1.1d, %2.1d \n\t"
-        :"=w" (r) : "w" (vget_high_u64(a)), "w" (b) );
-    return r;
-#else
-    return (uint64x2_t)(vmull_p64(
-        vgetq_lane_u64(vreinterpretq_u64_u8(a),1),
-        vgetq_lane_u64(vreinterpretq_u64_u8(b),0)));
-#endif
-}
-
-inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
-{
-#if defined(_MSC_VER)
-    const __n64 x = { vgetq_lane_u64(a, 1) };
-    const __n64 y = { vgetq_lane_u64(b, 1) };
-    return vmull_p64(x, y);
-#elif defined(__GNUC__)
-    uint64x2_t r;
-    __asm __volatile("pmull2   %0.1q, %1.2d, %2.2d \n\t"
-        :"=w" (r) : "w" (a), "w" (b) );
-    return r;
-#else
-    return (uint64x2_t)(vmull_p64(
-        vgetq_lane_u64(vreinterpretq_u64_u8(a),1),
-        vgetq_lane_u64(vreinterpretq_u64_u8(b),1)));
-#endif
-}
-
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
-{
-#if defined(_MSC_VER)
-    return (uint64x2_t)vextq_u8(
-        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), c);
-#else
-    uint64x2_t r;
-    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
-        :"=w" (r) : "w" (a), "w" (b), "I" (c) );
-    return r;
-#endif
-}
-
-// https://github.com/weidai11/cryptopp/issues/366
-template <unsigned int C>
-inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b)
-{
-#if defined(_MSC_VER)
-    return (uint64x2_t)vextq_u8(
-        vreinterpretq_u8_u64(a), vreinterpretq_u8_u64(b), C);
-#else
-    uint64x2_t r;
-    __asm __volatile("ext   %0.16b, %1.16b, %2.16b, %3 \n\t"
-        :"=w" (r) : "w" (a), "w" (b), "I" (C) );
-    return r;
-#endif
-}
-
-#endif // CRYPTOPP_ARM_PMULL_AVAILABLE
-
-// ************************** Power 8 Crypto ************************** //
+// ************************** Power8 Crypto ************************** //
 
 #if CRYPTOPP_POWER8_VMULL_AVAILABLE
 
@@ -316,14 +189,18 @@ bool CPU_ProbePMULL()
     __try
     {
         // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
-        const uint64x2_t a1={0,0x9090909090909090}, b1={0,0xb0b0b0b0b0b0b0b0};
-        const uint8x16_t a2=PACK8x16(0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
-                                     0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0),
-                         b2=PACK8x16(0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
-                                     0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0);
+        const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+        const uint64x2_t a1=vld1q_u64(wa1), b1=vld1q_u64(wb1);
+
+        const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                      wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const uint8x16_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
 
         const uint64x2_t r1 = PMULL_00(a1, b1);
-        const uint64x2_t r2 = PMULL_11((uint64x2_t)a2, (uint64x2_t)b2);
+        const uint64x2_t r2 = PMULL_11(vreinterpretq_u64_u8(a2),
+                                       vreinterpretq_u64_u8(b2));
 
         result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
                     vgetq_lane_u64(r1,1) == 0x5300530053005300 &&
@@ -353,14 +230,18 @@ bool CPU_ProbePMULL()
     else
     {
         // Linaro is missing a lot of pmull gear. Also see http://github.com/weidai11/cryptopp/issues/233.
-        const uint64x2_t a1={0,0x9090909090909090}, b1={0,0xb0b0b0b0b0b0b0b0};
-        const uint8x16_t a2={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+        const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+        const uint64x2_t a1=vld1q_u64(wa1), b1=vld1q_u64(wb1);
+
+        const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
                              0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
-                         b2={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                      wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const uint8x16_t a2=vld1q_u8(wa2), b2=vld1q_u8(wb2);
 
         const uint64x2_t r1 = PMULL_00(a1, b1);
-        const uint64x2_t r2 = PMULL_11((uint64x2_t)a2, (uint64x2_t)b2);
+        const uint64x2_t r2 = PMULL_11(vreinterpretq_u64_u8(a2),
+                                       vreinterpretq_u64_u8(b2));
 
         result = !!(vgetq_lane_u64(r1,0) == 0x5300530053005300 &&
                     vgetq_lane_u64(r1,1) == 0x5300530053005300 &&

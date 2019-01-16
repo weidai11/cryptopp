@@ -1172,6 +1172,21 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
+/// \brief Shift a packed vector left
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftLeft() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///   vec_sl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
+{
+    const uint32x4_p m = {C, C, C, C};
+    return vec_sl(vec, m);
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
@@ -1188,6 +1203,22 @@ inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
 {
     const uint64x2_p m = {C, C};
     return vec_rl(vec, m);
+}
+
+/// \brief Shift a packed vector left
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftLeft() rotates each element in a packed vector by bit count.
+/// \details VecShiftLeft() with 64-bit elements is available on POWER8 and above.
+/// \par Wraps
+///   vec_sl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
+{
+    const uint64x2_p m = {C, C};
+    return vec_sl(vec, m);
 }
 
 #endif
@@ -1207,6 +1238,21 @@ inline uint32x4_p VecRotateRight(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
+/// \brief Shift a packed vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftRight() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///   vec_rl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint32x4_p VecShiftRight(const uint32x4_p vec)
+{
+    const uint32x4_p m = {C, C, C, C};
+    return vec_sr(vec, m);
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector right
@@ -1223,6 +1269,22 @@ inline uint64x2_p VecRotateRight(const uint64x2_p vec)
 {
     const uint64x2_p m = {64-C, 64-C};
     return vec_rl(vec, m);
+}
+
+/// \brief Shift a packed vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftRight() rotates each element in a packed vector by bit count.
+/// \details VecShiftRight() with 64-bit elements is available on POWER8 and above.
+/// \par Wraps
+///   vec_sr
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint64x2_p VecShiftRight(const uint64x2_p vec)
+{
+    const uint64x2_p m = {C, C};
+    return vec_sr(vec, m);
 }
 
 #endif

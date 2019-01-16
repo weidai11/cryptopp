@@ -18,6 +18,7 @@ aria.cpp
 aria_simd.cpp
 aria.h
 argnames.h
+arm_simd.h
 asn.cpp
 asn.h
 authenc.cpp
@@ -146,6 +147,7 @@ gf256.cpp
 gf256.h
 gf2_32.cpp
 gf2_32.h
+gf2n_simd.cpp
 gf2n.cpp
 gf2n.h
 gfpcrypt.cpp
