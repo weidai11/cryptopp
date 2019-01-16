@@ -473,7 +473,7 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 #if defined(AT_EXECFN)
 	if (getauxval(AT_EXECFN))
 		pathHint = getauxval(AT_EXECFN);
-#elif defined(CRYPTOPP_WIN32_AVAILABLE)
+#elif defined(_MSC_VER)
 	char* pgmptr = NULLPTR;
 	errno_t err = _get_pgmptr(&pgmptr);
 	if (err == 0 && pgmptr != NULLPTR)
