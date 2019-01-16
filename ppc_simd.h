@@ -1178,7 +1178,7 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
 /// \returns vector
 /// \details VecShiftLeft() rotates each element in a packed vector by bit count.
 /// \par Wraps
-///   vec_rl
+///   vec_sl
 /// \since Crypto++ 8.1
 template<unsigned int C>
 inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
@@ -1212,7 +1212,7 @@ inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
 /// \details VecShiftLeft() rotates each element in a packed vector by bit count.
 /// \details VecShiftLeft() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
-///   vec_rl
+///   vec_sl
 /// \since Crypto++ 8.1
 template<unsigned int C>
 inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
