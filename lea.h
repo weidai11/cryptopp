@@ -16,7 +16,9 @@
 #include "algparam.h"
 
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8)
-# define CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS 1
+# ifndef CRYPTOPP_DISABLE_LEA_SIMD
+#  define CRYPTOPP_LEA_ADVANCED_PROCESS_BLOCKS 1
+# endif
 #endif
 
 // Yet another SunStudio/SunCC workaround. Failed self tests

@@ -291,11 +291,25 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 	#define CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE 1
 #endif
 
-// Some Clang cannot handle mixed asm with positional arguments, where the
-// body is Intel style with no prefix and the templates are AT&T style.
-// Define this is the Makefile misdetects the configuration.
+// Some Clang and SunCC cannot handle mixed asm with positional arguments,
+// where the body is Intel style with no prefix and the templates are
+// AT&T style. Define this is the Makefile misdetects the configuration.
 // Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
 // #define CRYPTOPP_DISABLE_MIXED_ASM 1
+
+// Several compilers discard SIMD code that loads unaligned data. For example,
+// Power7 can load unaligned data using vec_vsx_ld but GCC and Clang require
+// 16-byte aligned arrays when using builtin function. Define this to disable
+// Crypto++ code that uses problematic builtins or intrinsics.
+// #define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
+
+// This list will probably grow over time as more compilers are identified.
+#if defined(CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE)
+# define CRYPTOPP_DISABLE_LEA_SIMD 1
+# define CRYPTOPP_DISABLE_SIMON_SIMD 1
+# define CRYPTOPP_DISABLE_SPECK_SIMD 1
+# define CRYPTOPP_DISABLE_SM4_SIMD 1
+#endif
 
 // define hword, word, and dword. these are used for multiprecision integer arithmetic
 // Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
