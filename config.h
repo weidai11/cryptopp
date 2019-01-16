@@ -303,7 +303,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 // of GCC and Clang require 16-byte aligned arrays when using the builtin
 // function. It is not limited to SSE and PowerPC code. Define this to disable
 // Crypto++ code that uses potentially problematic builtins or intrinsics.
-#define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
+// #define CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE 1
 
 // This list will probably grow over time as more compilers are identified.
 #if defined(CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE)
