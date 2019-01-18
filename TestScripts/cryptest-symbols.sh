@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 
-# cryptest.sh - written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-#               Copyright assigned to Crypto++ project.
+# cryptest.sh - written and placed in public domain by Jeffrey Walton and Uri
+#               Blumenthal.
 
-# This is a test script that can be used on some Linux/Unix/Apple machines to automate testing
-# of the shared object to ensure linking and symbols don't go missing from release to release.
+# This is a test script that can be used on some Linux/Unix/Apple machines to
+# automate testing of the shared object to ensure linking and symbols don't go
+# missing from release to release.
 
 # Fixup ancient Bash
 # https://unix.stackexchange.com/q/468579/56041
@@ -13,9 +14,19 @@ if [[ -z "$BASH_SOURCE" ]]; then
 fi
 
 ############################################
+# Cleanup
+
+PWD_DIR=$(pwd)
+function cleanup {
+    rm -f adhoc.cpp *.a *.o *.so *.dylib GNUmakefile-symbols
+    cd "$PWD_DIR"
+}
+trap cleanup EXIT
+
+############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_7_0_0
+OLD_VERSION_TAG=CRYPTOPP_8_0_0
 NEW_VERSION_TAG=master
 
 ############################################
