@@ -405,51 +405,46 @@ inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 inline void
 GF2NT_233_Reduce_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint64x2_p& c0)
 {
-    const uint64_t mask[] = {0xffffffffffffffff, 0x01ffffffffff};
-    const uint8_t lmb[] = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
-    const uint8_t hmb[] = {8,9,10,11, 12,13,14,15, 24,25,26,27, 28,29,30,31};
-
-    const uint64x2_p m0 = (uint64x2_p)VecLoad(mask);
-    const uint8x16_p lm = (uint8x16_p)VecLoad(lmb);
-    const uint8x16_p hm = (uint8x16_p)VecLoad(hmb);
+    const uint64_t mod[] = {0xffffffffffffffff, 0x01ffffffffff};
+    const uint64x2_p m0 = (uint64x2_p)VecLoad(mod);
 
     uint64x2_p b3, b2, b1, /*b0,*/ a1, a0, z0={0};
     b1 = c1; a1 = c1;
-    a0 = VecPermute(c1, z0, lm);
+    a0 = vec_mergeh(c1, z0);
     a1 = VecShiftLeft<23>(a1);
     a1 = VecShiftRight<23>(a1);
     c1 = VecOr(a1, a0);
     b2 = VecShiftRight<64-23>(c2);
     c3 = ShiftLeft128_POWER8<23>(c3);
-    a0 = VecPermute(b2, z0, hm);
+    a0 = vec_mergel(b2, z0);
     c3 = VecOr(c3, a0);
     b1 = VecShiftRight<64-23>(b1);
     c2 = ShiftLeft128_POWER8<23>(c2);
-    a0 = VecPermute(b1, z0, hm);
+    a0 = vec_mergel(b1, z0);
     c2 = VecOr(c2, a0);
     b3 = c3;
     b2 = VecShiftRight<64-10>(c2);
     b3 = ShiftLeft128_POWER8<10>(b3);
-    a0 = VecPermute(b2, z0, hm);
+    a0 = vec_mergel(b2, z0);
     b3 = VecOr(b3, a0);
-    a0 = VecPermute(c3, z0, hm);
+    a0 = vec_mergel(c3, z0);
     b3 = VecXor(b3, a0);
     b1 = VecShiftRight<64-23>(b3);
     b3 = ShiftLeft128_POWER8<23>(b3);
-    b3 = VecPermute(b3, z0, hm);
+    b3 = vec_mergel(b3, z0);
     b3 = VecOr(b3, b1);
     c2 = VecXor(c2, b3);
     b3 = c3;
     b2 = VecShiftRight<64-10>(c2);
     b3 = ShiftLeft128_POWER8<10>(b3);
-    b2 = VecPermute(b2, z0, hm);
+    b2 = vec_mergel(b2, z0);
     b3 = VecOr(b3, b2);
     b2 = c2;
     b2 = ShiftLeft128_POWER8<10>(b2);
-    a0 = VecPermute(z0, b2, lm);
+    a0 = vec_mergeh(z0, b2);
     c2 = VecXor(c2, a0);
-    a0 = VecPermute(z0, b3, lm);
-    a1 = VecPermute(b2, z0, hm);
+    a0 = vec_mergeh(z0, b3);
+    a1 = vec_mergel(b2, z0);
     a0 = VecOr(a0, a1);
     c3 = VecXor(c3, a0);
     c0 = VecXor(c0, c2);
