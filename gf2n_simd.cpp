@@ -361,26 +361,20 @@ inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
 inline void
 F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a, const uint64x2_p& b)
 {
-    const uint8_t mb1[] = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
-    const uint8_t mb2[] = {8,9,10,11, 12,13,14,15, 16,17,18,19, 20,21,22,23};
-
-    const uint8x16_p m1 = (uint8x16_p)VecLoad(mb1);
-    const uint8x16_p m2 = (uint8x16_p)VecLoad(mb2);
-
     uint64x2_p t1, t2, z0={0};
 
     c0 = VMULL_00LE(a, b);
     c1 = VMULL_11LE(a, b);
-    t1 = VecPermute(a, a, m1);
+    t1 = vec_mergel(a, a);
     t1 = VecXor(a, t1);
-    t2 = VecPermute(b, b, m1);
+    t2 = vec_mergel(b, b);
     t2 = VecXor(b, t2);
     t1 = VMULL_00LE(t1, t2);
     t1 = VecXor(c0, t1);
     t1 = VecXor(c1, t1);
     t2 = t1;
-    t1 = VecPermute(z0, t1, m2);
-    t2 = VecPermute(t2, z0, m2);
+    t1 = vec_mergeh(z0, t1);
+    t2 = vec_mergel(t2, z0);
     c0 = VecXor(c0, t1);
     c1 = VecXor(c1, t2);
 }
@@ -389,13 +383,10 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
 template <unsigned int N>
 inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 {
-    const uint8_t mb[] = {0,1,2,3, 4,5,6,7, 16,17,18,19, 20,21,22,23};
-    const uint8x16_p m = (uint8x16_p)VecLoad(mb);
-
     uint64x2_p u=x, v, z={0};
     x = VecShiftLeft<N>(x);
     u = VecShiftRight<64-N>(u);
-    v = VecPermute(z, u, m);
+    v = vec_mergeh(z, u);
     x = VecOr(x, v);
     return x;
 }
