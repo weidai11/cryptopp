@@ -317,8 +317,6 @@ using CryptoPP::VecOr;
 using CryptoPP::VecXor;
 using CryptoPP::VecAnd;
 
-using CryptoPP::VecGetLow;
-using CryptoPP::VecGetHigh;
 using CryptoPP::VecPermute;
 using CryptoPP::VecShiftLeft;
 using CryptoPP::VecShiftRight;
@@ -336,24 +334,26 @@ inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 // _mm_clmulepi64_si128(a, b, 0x00)
 inline uint64x2_p VMULL_00LE(const uint64x2_p& a, const uint64x2_p& b)
 {
+    const uint64x2_p z={0};
 #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+    return VMULL2LE(__vpmsumd (vec_mergeh(z, a), vec_mergeh(z, b)));
 #elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (vec_mergeh(z, a), vec_mergeh(z, b)));
 #else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+    return VMULL2LE(__builtin_crypto_vpmsumd (vec_mergeh(z, a), vec_mergeh(z, b)));
 #endif
 }
 
 // _mm_clmulepi64_si128(a, b, 0x11)
 inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
 {
+    const uint64x2_p z={0};
 #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetLow(a), b));
+    return VMULL2LE(__vpmsumd (vec_mergel(z, a), b));
 #elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (vec_mergel(z, a), b));
 #else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
+    return VMULL2LE(__builtin_crypto_vpmsumd (vec_mergel(z, a), b));
 #endif
 }
 
