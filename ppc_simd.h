@@ -39,9 +39,10 @@
 ///   builtins. When using XLC with -qxlcompatmacros the compiler pretends to
 ///   be GCC, Clang and XLC all at once but it can only consume it's variety
 ///   of builtins.
-/// \details At Crypto++ 8.0 the various VectorFunc{Name} were renamed to
-///   VecFunc{Name}. For example, VectorAnd was changed to VecAnd. The name
-///   change helped consolidate two slightly different implementations.
+/// \details At Crypto++ 8.0 the various <tt>Vector{FuncName}</tt> were
+///   renamed to <tt>Vec{FuncName}</tt>. For example, <tt>VectorAnd</tt> was
+///   changed to <tt>VecAnd</tt>. The name change helped consolidate two
+///   slightly different implementations.
 /// \since Crypto++ 6.0, LLVM Clang compiler support since Crypto++ 8.0
 
 // Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8 when detecting actual
