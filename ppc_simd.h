@@ -1187,6 +1187,32 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
     return vec_sl(vec, m);
 }
 
+/// \brief Merge two vectors
+/// \param v1 the first vector
+/// \param v2 the second vector
+/// \returns vector
+/// \par Wraps
+///   vec_mergeh
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeHi(const T v1, const T v2)
+{
+    return vec_mergeh(v1, v2);
+}
+
+/// \brief Merge two vectors
+/// \param v1 the first vector
+/// \param v2 the second vector
+/// \returns vector
+/// \par Wraps
+///   vec_mergel
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeLo(const T v1, const T v2)
+{
+    return vec_mergel(v1, v2);
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
