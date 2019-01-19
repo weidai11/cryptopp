@@ -1189,29 +1189,31 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
 }
 
 /// \brief Merge two vectors
-/// \param v1 the first vector
-/// \param v2 the second vector
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
 /// \returns vector
 /// \par Wraps
 ///   vec_mergeh
 /// \since Crypto++ 8.1
 template <class T>
-inline T VecMergeHi(const T v1, const T v2)
+inline T VecMergeHi(const T vec1, const T vec2)
 {
-    return vec_mergeh(v1, v2);
+    return vec_mergeh(vec1, vec2);
 }
 
 /// \brief Merge two vectors
-/// \param v1 the first vector
-/// \param v2 the second vector
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
 /// \returns vector
 /// \par Wraps
 ///   vec_mergel
 /// \since Crypto++ 8.1
 template <class T>
-inline T VecMergeLo(const T v1, const T v2)
+inline T VecMergeLo(const T vec1, const T vec2)
 {
-    return vec_mergel(v1, v2);
+    return vec_mergel(vec1, vec2);
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
