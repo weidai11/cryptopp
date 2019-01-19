@@ -310,7 +310,6 @@ using CryptoPP::uint8x16_p;
 using CryptoPP::uint64x2_p;
 
 using CryptoPP::VecLoad;
-using CryptoPP::VecLoadBE;
 using CryptoPP::VecStore;
 
 using CryptoPP::VecOr;
@@ -361,7 +360,8 @@ inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
 inline void
 F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a, const uint64x2_p& b)
 {
-    uint64x2_p t1, t2, z0={0};
+    uint64x2_p t1, t2;
+    const uint64x2_p z0={0};
 
     c0 = VMULL_00LE(a, b);
     c1 = VMULL_11LE(a, b);
@@ -383,7 +383,9 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
 template <unsigned int N>
 inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 {
-    uint64x2_p u=x, v, z={0};
+    uint64x2_p u=x, v;
+    const uint64x2_p z={0};
+
     x = VecShiftLeft<N>(x);
     u = VecShiftRight<64-N>(u);
     v = vec_mergeh(z, u);
@@ -399,7 +401,9 @@ GF2NT_233_Reduce_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint64x2
     const uint64_t mod[] = {0xffffffffffffffff, 0x01ffffffffff};
     const uint64x2_p m0 = (uint64x2_p)VecLoad(mod);
 
-    uint64x2_p b3, b2, b1, /*b0,*/ a1, a0, z0={0};
+    uint64x2_p b3, b2, b1, /*b0,*/ a1, a0;
+    const uint64x2_p z0={0};
+
     b1 = c1; a1 = c1;
     a0 = vec_mergeh(c1, z0);
     a1 = VecShiftLeft<23>(a1);
