@@ -185,17 +185,23 @@ bool CPU_ProbePMULL()
         result = false;
     else
     {
-        const uint8x16_p a={0x0f,0x08,0x08,0x08, 0x80,0x80,0x80,0x80,
-                            0x00,0x0a,0x0a,0x0a, 0xa0,0xa0,0xa0,0xa0},
-                         b={0x0f,0xc0,0xc0,0xc0, 0x0c,0x0c,0x0c,0x0c,
-                            0x00,0xe0,0xe0,0xe0, 0x0e,0x0e,0x0e,0x0e};
+        const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+        const uint64x2_p a1=VecLoad(wa1), b1=VecLoad(wb1);
 
-        const uint64x2_p r1 = VecPolyMultiply00LE((uint64x2_p)(a), (uint64x2_p)(b));
-        const uint64x2_p r2 = VecPolyMultiply01LE((uint64x2_p)(a), (uint64x2_p)(b));
-        const uint64x2_p r3 = VecPolyMultiply10LE((uint64x2_p)(a), (uint64x2_p)(b));
-        const uint64x2_p r4 = VecPolyMultiply11LE((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
+                             0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0,0xa0},
+                      wb2[]={0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,0xc0,
+                             0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
+        const uint32x4_p a2=VecLoad(wa2), b2=VecLoad(wb2);
 
-        result = VecNotEqual(r1, r2) && VecNotEqual(r3, r4);
+        const uint64x2_p r1 = VecPolyMultiply00LE(a1, b1);
+        const uint64x2_p r2 = VecPolyMultiply11LE((uint64x2_p)a2, (uint64x2_p)b2);
+
+        const uint64_t wc1[]={0x5300530053005300, 0x5300530053005300},
+                       wc2[]={0x6c006c006c006c00, 0x6c006c006c006c00};
+        const uint64x2_p c1=VecLoad(wc1), c2=VecLoad(wc2);
+
+        result = !!(VecEqual(r1, c1) && VecEqual(r2, c2));
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
