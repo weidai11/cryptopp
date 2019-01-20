@@ -176,7 +176,8 @@ inline T VecReverse(const T data)
 #endif
 }
 
-//////////////////////// Loads ////////////////////////
+/// \name LOAD OPERATIONS
+//@{
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
@@ -504,7 +505,10 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
 #endif  // _ARCH_PWR7
 }
 
-//////////////////////// Stores ////////////////////////
+//@}
+
+/// \name STORE OPERATIONS
+//@{
 
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
@@ -858,7 +862,10 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
     return VecStoreBE((uint8x16_p)data, off, (byte*)dest);
 }
 
-//////////////////////// Miscellaneous ////////////////////////
+//@}
+
+/// \name OTHER OPERATIONS
+//@{
 
 /// \brief Permutes a vector
 /// \tparam T1 vector type
@@ -1409,9 +1416,14 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
     return 0 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
 }
 
+//@}
+
 //////////////////////// Power8 Crypto ////////////////////////
 
 #if defined(__CRYPTO__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+/// \name POLYNOMIAL MULTIPLICATION
+//@{
 
 /// \brief Polynomial multiplication helper
 /// \details VMULL2LE helps perform polynomial multiplication
@@ -1521,6 +1533,11 @@ inline uint64x2_p VecPolyMultiply11LE(const uint64x2_p& a, const uint64x2_p& b)
 #endif
 }
 
+//@}
+
+/// \name AES ENCRYPTION
+//@{
+
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
 /// \tparam T2 vector type
@@ -1621,6 +1638,11 @@ inline T1 VecDecryptLast(const T1 state, const T2 key)
 #endif
 }
 
+//@}
+
+/// \name SHA DIGESTS
+//@{
+
 /// \brief SHA256 Sigma functions
 /// \tparam func function
 /// \tparam fmask function mask
@@ -1670,6 +1692,8 @@ inline T VecSHA512(const T vec)
     CRYPTOPP_ASSERT(0);
 #endif
 }
+
+//@}
 
 #endif  // __CRYPTO__
 
