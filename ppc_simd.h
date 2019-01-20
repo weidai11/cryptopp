@@ -864,45 +864,8 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
 
 //@}
 
-/// \name OTHER OPERATIONS
+/// \name LOGICAL OPERATIONS
 //@{
-
-/// \brief Permutes a vector
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec the vector
-/// \param mask vector mask
-/// \returns vector
-/// \details VecPermute() returns a new vector from vec based on
-///   mask. mask is an uint8x16_p type vector. The return
-///   vector is the same type as vec.
-/// \par Wraps
-///   vec_perm
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VecPermute(const T1 vec, const T2 mask)
-{
-    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
-}
-
-/// \brief Permutes two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \param mask vector mask
-/// \returns vector
-/// \details VecPermute() returns a new vector from vec1 and vec2
-///   based on mask. mask is an uint8x16_p type vector. The return
-///   vector is the same type as vec1.
-/// \par Wraps
-///   vec_perm
-/// \since Crypto++ 6.0
-template <class T1, class T2>
-inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
-{
-    return (T1)vec_perm(vec1, (T1)vec2, (uint8x16_p)mask);
-}
 
 /// \brief AND two vectors
 /// \tparam T1 vector type
@@ -954,6 +917,11 @@ inline T1 VecXor(const T1 vec1, const T2 vec2)
 {
     return (T1)vec_xor(vec1, (T1)vec2);
 }
+
+//@}
+
+/// \name ARITHMETIC OPERATIONS
+//@{
 
 /// \brief Add two vectors
 /// \tparam T1 vector type
@@ -1019,6 +987,48 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     cy = vec_perm(cy, zero, cmask);
     return vec_add(vec_add(vec1, vec2), cy);
 #endif
+}
+
+//@}
+
+/// \name OTHER OPERATIONS
+//@{
+
+/// \brief Permutes a vector
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec the vector
+/// \param mask vector mask
+/// \returns vector
+/// \details VecPermute() returns a new vector from vec based on
+///   mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec.
+/// \par Wraps
+///   vec_perm
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VecPermute(const T1 vec, const T2 mask)
+{
+    return (T1)vec_perm(vec, vec, (uint8x16_p)mask);
+}
+
+/// \brief Permutes two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \param mask vector mask
+/// \returns vector
+/// \details VecPermute() returns a new vector from vec1 and vec2
+///   based on mask. mask is an uint8x16_p type vector. The return
+///   vector is the same type as vec1.
+/// \par Wraps
+///   vec_perm
+/// \since Crypto++ 6.0
+template <class T1, class T2>
+inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
+{
+    return (T1)vec_perm(vec1, (T1)vec2, (uint8x16_p)mask);
 }
 
 /// \brief Shift a vector left
@@ -1441,7 +1451,7 @@ inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply00LE perform polynomial multiplication and presents
+/// \details VecPolyMultiply00LE performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x00)</tt>.
 ///  The <tt>0x00</tt> indicates the low 64-bits of <tt>a</tt> and <tt>b</tt>
 ///  are multiplied.
@@ -1465,7 +1475,7 @@ inline uint64x2_p VecPolyMultiply00LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply01LE perform polynomial multiplication and presents
+/// \details VecPolyMultiply01LE performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x01)</tt>.
 ///  The <tt>0x01</tt> indicates the low 64-bits of <tt>a</tt> and high
 ///  64-bits of <tt>b</tt> are multiplied.
@@ -1489,7 +1499,7 @@ inline uint64x2_p VecPolyMultiply01LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply10LE perform polynomial multiplication and presents
+/// \details VecPolyMultiply10LE performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x10)</tt>.
 ///  The <tt>0x10</tt> indicates the high 64-bits of <tt>a</tt> and low
 ///  64-bits of <tt>b</tt> are multiplied.
@@ -1513,7 +1523,7 @@ inline uint64x2_p VecPolyMultiply10LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply11LE perform polynomial multiplication and presents
+/// \details VecPolyMultiply11LE performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x11)</tt>.
 ///  The <tt>0x11</tt> indicates the high 64-bits of <tt>a</tt> and <tt>b</tt>
 ///  are multiplied.
@@ -1530,6 +1540,33 @@ inline uint64x2_p VecPolyMultiply11LE(const uint64x2_p& a, const uint64x2_p& b)
     return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
 #else
     return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \tparam T the vector type
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply performs polynomial multiplication. POWER8
+///   polynomial multiplication multiplies the high and low terms, and then XOR's
+///   the high and low products. That is, the result is <tt>ah*bh XOR al*bl</tt>.
+///   It is different behavior than Intel polynomial multiplication.
+///   To obtain a single product without the XOR, then set one of the high or
+///   low terms to 0. For example, setting <tt>ah=0</tt> results in <tt>0*bh
+///   XOR al*bl = al*bl</tt>.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecPolyMultiply(const T& a, const T& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return (T)__vpmsumd (a, b);
+#elif defined(__clang__)
+    return (T)__builtin_altivec_crypto_vpmsumd (a, b);
+#else
+    return (T)__builtin_crypto_vpmsumd (a, b);
 #endif
 }
 
