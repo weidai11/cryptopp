@@ -343,40 +343,8 @@ using CryptoPP::VecShiftLeft;
 using CryptoPP::VecShiftRight;
 using CryptoPP::VecRotateLeftOctet;
 
-inline uint64x2_p VMULL2LE(const uint64x2_p& val)
-{
-#if (CRYPTOPP_BIG_ENDIAN)
-    return VecRotateLeftOctet<8>(val);
-#else
-    return val;
-#endif
-}
-
-// _mm_clmulepi64_si128(a, b, 0x00)
-inline uint64x2_p VMULL_00LE(const uint64x2_p& a, const uint64x2_p& b)
-{
-    const uint64x2_p z={0};
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecMergeHi(z, a), VecMergeHi(z, b)));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecMergeHi(z, a), VecMergeHi(z, b)));
-#else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecMergeHi(z, a), VecMergeHi(z, b)));
-#endif
-}
-
-// _mm_clmulepi64_si128(a, b, 0x11)
-inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
-{
-    const uint64x2_p z={0};
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecMergeLo(z, a), b));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecMergeLo(z, a), b));
-#else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecMergeLo(z, a), b));
-#endif
-}
+using CryptoPP::VecPolyMultiply00LE;
+using CryptoPP::VecPolyMultiply11LE;
 
 // c1c0 = a * b
 inline void
@@ -385,13 +353,13 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
     uint64x2_p t1, t2;
     const uint64x2_p z0={0};
 
-    c0 = VMULL_00LE(a, b);
-    c1 = VMULL_11LE(a, b);
+    c0 = VecPolyMultiply00LE(a, b);
+    c1 = VecPolyMultiply11LE(a, b);
     t1 = VecMergeLo(a, a);
     t1 = VecXor(a, t1);
     t2 = VecMergeLo(b, b);
     t2 = VecXor(b, t2);
-    t1 = VMULL_00LE(t1, t2);
+    t1 = VecPolyMultiply00LE(t1, t2);
     t1 = VecXor(c0, t1);
     t1 = VecXor(c1, t1);
     t2 = t1;

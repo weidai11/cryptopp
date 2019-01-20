@@ -67,101 +67,6 @@
 // Squash MS LNK4221 and libtool warnings
 extern const char GCM_SIMD_FNAME[] = __FILE__;
 
-ANONYMOUS_NAMESPACE_BEGIN
-
-// ************************** Power8 Crypto ************************** //
-
-#if CRYPTOPP_POWER8_VMULL_AVAILABLE
-
-using CryptoPP::uint32x4_p;
-using CryptoPP::uint64x2_p;
-using CryptoPP::VecGetLow;
-using CryptoPP::VecGetHigh;
-using CryptoPP::VecRotateLeftOctet;
-
-// POWER8 GCM mode is confusing. The algorithm is reflected so
-// nearly everything we do is reversed for a little-endian system,
-// including on big-endian machines. VMULL2LE swaps dwords for a
-// little endian machine; VMULL_00LE, VMULL_01LE, VMULL_10LE and
-// VMULL_11LE are backwards and (1) read low words with
-// VecGetHigh, (2) read high words with VecGetLow, and
-// (3) yields a product that is endian swapped. The steps ensures
-// GCM parameters are presented in the correct order for the
-// algorithm on both big and little-endian systems, but it is
-// awful to try to follow the logic because it is so backwards.
-// Because functions like VMULL_NN are so backwards we can't put
-// them in ppc_simd.h. They simply don't work the way a typical
-// user expects them to work.
-
-inline uint64x2_p VMULL2LE(const uint64x2_p& val)
-{
-#if (CRYPTOPP_BIG_ENDIAN)
-    return VecRotateLeftOctet<8>(val);
-#else
-    return val;
-#endif
-}
-
-// _mm_clmulepi64_si128(a, b, 0x00)
-inline uint64x2_p VMULL_00LE(const uint64x2_p& a, const uint64x2_p& b)
-{
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetHigh(a), VecGetHigh(b)));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
-#else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
-#endif
-}
-
-// _mm_clmulepi64_si128(a, b, 0x01)
-inline uint64x2_p VMULL_01LE(const uint64x2_p& a, const uint64x2_p& b)
-{
-    // Small speedup. VecGetHigh(b) ensures the high dword of 'b' is 0.
-    // The 0 used in the vmull yields 0 for the high product, so the high
-    // dword of 'a' is "don't care".
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (a, VecGetHigh(b)));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (a, VecGetHigh(b)));
-#else
-    return VMULL2LE(__builtin_crypto_vpmsumd (a, VecGetHigh(b)));
-#endif
-}
-
-// _mm_clmulepi64_si128(a, b, 0x10)
-inline uint64x2_p VMULL_10LE(const uint64x2_p& a, const uint64x2_p& b)
-{
-    // Small speedup. VecGetHigh(a) ensures the high dword of 'a' is 0.
-    // The 0 used in the vmull yields 0 for the high product, so the high
-    // dword of 'b' is "don't care".
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetHigh(a), b));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), b));
-#else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), b));
-#endif
-}
-
-// _mm_clmulepi64_si128(a, b, 0x11)
-inline uint64x2_p VMULL_11LE(const uint64x2_p& a, const uint64x2_p& b)
-{
-    // Small speedup. VecGetLow(a) ensures the high dword of 'a' is 0.
-    // The 0 used in the vmull yields 0 for the high product, so the high
-    // dword of 'b' is "don't care".
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetLow(a), b));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
-#else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
-#endif
-}
-#endif // CRYPTOPP_POWER8_VMULL_AVAILABLE
-
-ANONYMOUS_NAMESPACE_END
-
 NAMESPACE_BEGIN(CryptoPP)
 
 // ************************* Feature Probes ************************* //
@@ -285,10 +190,10 @@ bool CPU_ProbePMULL()
                          b={0x0f,0xc0,0xc0,0xc0, 0x0c,0x0c,0x0c,0x0c,
                             0x00,0xe0,0xe0,0xe0, 0x0e,0x0e,0x0e,0x0e};
 
-        const uint64x2_p r1 = VMULL_00LE((uint64x2_p)(a), (uint64x2_p)(b));
-        const uint64x2_p r2 = VMULL_01LE((uint64x2_p)(a), (uint64x2_p)(b));
-        const uint64x2_p r3 = VMULL_10LE((uint64x2_p)(a), (uint64x2_p)(b));
-        const uint64x2_p r4 = VMULL_11LE((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r1 = VecPolyMultiply00LE((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r2 = VecPolyMultiply01LE((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r3 = VecPolyMultiply10LE((uint64x2_p)(a), (uint64x2_p)(b));
+        const uint64x2_p r4 = VecPolyMultiply11LE((uint64x2_p)(a), (uint64x2_p)(b));
 
         result = VecNotEqual(r1, r2) && VecNotEqual(r3, r4);
     }
@@ -671,9 +576,9 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
     const uint64x2_p m1 = {1,1}, m63 = {63,63};
 
     c1 = VecXor(c1, VecShiftRightOctet<8>(c0));
-    c1 = VecXor(c1, VMULL_10LE(c0, r));
+    c1 = VecXor(c1, VecPolyMultiply10LE(c0, r));
     c0 = VecXor(c1, VecShiftLeftOctet<8>(c0));
-    c0 = VMULL_00LE(vec_sl(c0, m1), r);
+    c0 = VecPolyMultiply00LE(vec_sl(c0, m1), r);
     c2 = VecXor(c2, c0);
     c2 = VecXor(c2, VecShiftLeftOctet<8>(c1));
     c1 = vec_sr(vec_mergeh(c1, c2), m63);
@@ -684,9 +589,9 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
 
 inline uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
 {
-    const uint64x2_p c0 = VMULL_00LE(x, h);
-    const uint64x2_p c1 = VecXor(VMULL_01LE(x, h), VMULL_10LE(x, h));
-    const uint64x2_p c2 = VMULL_11LE(x, h);
+    const uint64x2_p c0 = VecPolyMultiply00LE(x, h);
+    const uint64x2_p c1 = VecXor(VecPolyMultiply01LE(x, h), VecPolyMultiply10LE(x, h));
+    const uint64x2_p c2 = VecPolyMultiply11LE(x, h);
 
     return GCM_Reduce_VMULL(c0, c1, c2, r);
 }
@@ -781,35 +686,35 @@ size_t GCM_AuthenticateBlocks_VMULL(const byte *data, size_t len, const byte *mt
             {
                 d1 = LoadBuffer2(data);
                 d1 = VecXor(d1, x);
-                c0 = VecXor(c0, VMULL_00LE(d1, h0));
-                c2 = VecXor(c2, VMULL_01LE(d1, h1));
+                c0 = VecXor(c0, VecPolyMultiply00LE(d1, h0));
+                c2 = VecXor(c2, VecPolyMultiply01LE(d1, h1));
                 d1 = VecXor(d1, SwapWords(d1));
-                c1 = VecXor(c1, VMULL_00LE(d1, h2));
+                c1 = VecXor(c1, VecPolyMultiply00LE(d1, h2));
                 break;
             }
 
             d1 = LoadBuffer1(data+(s-i)*16-8);
-            c0 = VecXor(c0, VMULL_01LE(d2, h0));
-            c2 = VecXor(c2, VMULL_01LE(d1, h1));
+            c0 = VecXor(c0, VecPolyMultiply01LE(d2, h0));
+            c2 = VecXor(c2, VecPolyMultiply01LE(d1, h1));
             d2 = VecXor(d2, d1);
-            c1 = VecXor(c1, VMULL_01LE(d2, h2));
+            c1 = VecXor(c1, VecPolyMultiply01LE(d2, h2));
 
             if (++i == s)
             {
                 d1 = LoadBuffer2(data);
                 d1 = VecXor(d1, x);
-                c0 = VecXor(c0, VMULL_10LE(d1, h0));
-                c2 = VecXor(c2, VMULL_11LE(d1, h1));
+                c0 = VecXor(c0, VecPolyMultiply10LE(d1, h0));
+                c2 = VecXor(c2, VecPolyMultiply11LE(d1, h1));
                 d1 = VecXor(d1, SwapWords(d1));
-                c1 = VecXor(c1, VMULL_10LE(d1, h2));
+                c1 = VecXor(c1, VecPolyMultiply10LE(d1, h2));
                 break;
             }
 
             d2 = LoadBuffer2(data+(s-i)*16-8);
-            c0 = VecXor(c0, VMULL_10LE(d1, h0));
-            c2 = VecXor(c2, VMULL_10LE(d2, h1));
+            c0 = VecXor(c0, VecPolyMultiply10LE(d1, h0));
+            c2 = VecXor(c2, VecPolyMultiply10LE(d2, h1));
             d1 = VecXor(d1, d2);
-            c1 = VecXor(c1, VMULL_10LE(d1, h2));
+            c1 = VecXor(c1, VecPolyMultiply10LE(d1, h2));
         }
         data += s*16;
         len -= s*16;

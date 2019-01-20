@@ -1345,10 +1345,12 @@ inline T VecSwapWords(const T vec)
 template <class T>
 inline T VecGetLow(const T val)
 {
-    //const T zero = {0};
-    //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 8,9,10,11, 12,13,14,15 };
-    //return (T)vec_perm(zero, val, mask);
+#if (CRYPTOPP_BIG_ENDIAN)
+    const T zero = {0};
+    return VecMergeLo(zero, val);
+#else
     return VecShiftRightOctet<8>(VecShiftLeftOctet<8>(val));
+#endif
 }
 
 /// \brief Extract a dword from a vector
@@ -1365,10 +1367,12 @@ inline T VecGetLow(const T val)
 template <class T>
 inline T VecGetHigh(const T val)
 {
-    //const T zero = {0};
-    //const uint8x16_p mask = {16,16,16,16, 16,16,16,16, 0,1,2,3, 4,5,6,7 };
-    //return (T)vec_perm(zero, val, mask);
+#if (CRYPTOPP_BIG_ENDIAN)
+    const T zero = {0};
+    return VecMergeHi(zero, val);
+#else
     return VecShiftRightOctet<8>(val);
+#endif
 }
 
 /// \brief Compare two vectors
@@ -1408,6 +1412,114 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 //////////////////////// Power8 Crypto ////////////////////////
 
 #if defined(__CRYPTO__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+/// \brief Polynomial multiplication helper
+/// \details VMULL2LE helps perform polynomial multiplication
+///  by presenting the results like Intel's <tt>_mm_clmulepi64_si128</tt>.
+inline uint64x2_p VMULL2LE(const uint64x2_p& val)
+{
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecRotateLeftOctet<8>(val);
+#else
+    return val;
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply00LE perform polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x00)</tt>.
+///  The <tt>0x00</tt> indicates the low 64-bits of <tt>a</tt> and <tt>b</tt>
+///  are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply00LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return VMULL2LE(__vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+#else
+    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply01LE perform polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x01)</tt>.
+///  The <tt>0x01</tt> indicates the low 64-bits of <tt>a</tt> and high
+///  64-bits of <tt>b</tt> are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply01LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return VMULL2LE(__vpmsumd (a, VecGetHigh(b)));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (a, VecGetHigh(b)));
+#else
+    return VMULL2LE(__builtin_crypto_vpmsumd (a, VecGetHigh(b)));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply10LE perform polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x10)</tt>.
+///  The <tt>0x10</tt> indicates the high 64-bits of <tt>a</tt> and low
+///  64-bits of <tt>b</tt> are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply10LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return VMULL2LE(__vpmsumd (VecGetHigh(a), b));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), b));
+#else
+    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), b));
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply11LE perform polynomial multiplication and presents
+///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x11)</tt>.
+///  The <tt>0x11</tt> indicates the high 64-bits of <tt>a</tt> and <tt>b</tt>
+///  are multiplied.
+/// \note An Intel XMM register is composed of 128-bits. The leftmost bit
+///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.0
+inline uint64x2_p VecPolyMultiply11LE(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return VMULL2LE(__vpmsumd (VecGetLow(a), b));
+#elif defined(__clang__)
+    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
+#else
+    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
+#endif
+}
 
 /// \brief One round of AES encryption
 /// \tparam T1 vector type
