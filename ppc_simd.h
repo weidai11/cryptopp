@@ -1435,15 +1435,28 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 /// \name POLYNOMIAL MULTIPLICATION
 //@{
 
-/// \brief Polynomial multiplication helper
-/// \details VMULL2LE helps perform polynomial multiplication
-///  by presenting the results like Intel's <tt>_mm_clmulepi64_si128</tt>.
-inline uint64x2_p VMULL2LE(const uint64x2_p& val)
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply() performs polynomial multiplication. POWER8
+///   polynomial multiplication multiplies the high and low terms, and then
+///   XOR's the high and low products. That is, the result is <tt>ah*bh XOR
+///   al*bl</tt>. It is different behavior than Intel polynomial
+///   multiplication. To obtain a single product without the XOR, then set
+///   one of the high or low terms to 0. For example, setting <tt>ah=0</tt>
+///   results in <tt>0*bh XOR al*bl = al*bl</tt>.
+/// \par Wraps
+///   __vpmsumw, __builtin_altivec_crypto_vpmsumw and __builtin_crypto_vpmsumw.
+/// \since Crypto++ 8.1
+inline uint32x4_p VecPolyMultiply(const uint32x4_p& a, const uint32x4_p& b)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
-    return VecRotateLeftOctet<8>(val);
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return __vpmsumw (a, b);
+#elif defined(__clang__)
+    return __builtin_altivec_crypto_vpmsumw (a, b);
 #else
-    return val;
+    return __builtin_crypto_vpmsumw (a, b);
 #endif
 }
 
@@ -1451,7 +1464,32 @@ inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply00LE performs polynomial multiplication and presents
+/// \details VecPolyMultiply() performs polynomial multiplication. POWER8
+///   polynomial multiplication multiplies the high and low terms, and then
+///   XOR's the high and low products. That is, the result is <tt>ah*bh XOR
+///   al*bl</tt>. It is different behavior than Intel polynomial
+///   multiplication. To obtain a single product without the XOR, then set
+///   one of the high or low terms to 0. For example, setting <tt>ah=0</tt>
+///   results in <tt>0*bh XOR al*bl = al*bl</tt>.
+/// \par Wraps
+///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
+/// \since Crypto++ 8.1
+inline uint64x2_p VecPolyMultiply(const uint64x2_p& a, const uint64x2_p& b)
+{
+#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
+    return __vpmsumd (a, b);
+#elif defined(__clang__)
+    return __builtin_altivec_crypto_vpmsumd (a, b);
+#else
+    return __builtin_crypto_vpmsumd (a, b);
+#endif
+}
+
+/// \brief Polynomial multiplication
+/// \param a the first term
+/// \param b the second term
+/// \returns vector product
+/// \details VecPolyMultiply00LE() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x00)</tt>.
 ///  The <tt>0x00</tt> indicates the low 64-bits of <tt>a</tt> and <tt>b</tt>
 ///  are multiplied.
@@ -1462,12 +1500,10 @@ inline uint64x2_p VMULL2LE(const uint64x2_p& val)
 /// \since Crypto++ 8.0
 inline uint64x2_p VecPolyMultiply00LE(const uint64x2_p& a, const uint64x2_p& b)
 {
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetHigh(a), VecGetHigh(b)));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(VecGetHigh(a), VecGetHigh(b)));
 #else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), VecGetHigh(b)));
+    return VecPolyMultiply(VecGetHigh(a), VecGetHigh(b));
 #endif
 }
 
@@ -1475,7 +1511,7 @@ inline uint64x2_p VecPolyMultiply00LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply01LE performs polynomial multiplication and presents
+/// \details VecPolyMultiply01LE performs() polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x01)</tt>.
 ///  The <tt>0x01</tt> indicates the low 64-bits of <tt>a</tt> and high
 ///  64-bits of <tt>b</tt> are multiplied.
@@ -1486,12 +1522,10 @@ inline uint64x2_p VecPolyMultiply00LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \since Crypto++ 8.0
 inline uint64x2_p VecPolyMultiply01LE(const uint64x2_p& a, const uint64x2_p& b)
 {
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (a, VecGetHigh(b)));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (a, VecGetHigh(b)));
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(a, VecGetHigh(b)));
 #else
-    return VMULL2LE(__builtin_crypto_vpmsumd (a, VecGetHigh(b)));
+    return VecPolyMultiply(a, VecGetHigh(b));
 #endif
 }
 
@@ -1499,7 +1533,7 @@ inline uint64x2_p VecPolyMultiply01LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply10LE performs polynomial multiplication and presents
+/// \details VecPolyMultiply10LE() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x10)</tt>.
 ///  The <tt>0x10</tt> indicates the high 64-bits of <tt>a</tt> and low
 ///  64-bits of <tt>b</tt> are multiplied.
@@ -1510,12 +1544,10 @@ inline uint64x2_p VecPolyMultiply01LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \since Crypto++ 8.0
 inline uint64x2_p VecPolyMultiply10LE(const uint64x2_p& a, const uint64x2_p& b)
 {
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetHigh(a), b));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetHigh(a), b));
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(VecGetHigh(a), b));
 #else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetHigh(a), b));
+    return VecPolyMultiply(VecGetHigh(a), b);
 #endif
 }
 
@@ -1523,7 +1555,7 @@ inline uint64x2_p VecPolyMultiply10LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \param a the first term
 /// \param b the second term
 /// \returns vector product
-/// \details VecPolyMultiply11LE performs polynomial multiplication and presents
+/// \details VecPolyMultiply11LE() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x11)</tt>.
 ///  The <tt>0x11</tt> indicates the high 64-bits of <tt>a</tt> and <tt>b</tt>
 ///  are multiplied.
@@ -1534,39 +1566,10 @@ inline uint64x2_p VecPolyMultiply10LE(const uint64x2_p& a, const uint64x2_p& b)
 /// \since Crypto++ 8.0
 inline uint64x2_p VecPolyMultiply11LE(const uint64x2_p& a, const uint64x2_p& b)
 {
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return VMULL2LE(__vpmsumd (VecGetLow(a), b));
-#elif defined(__clang__)
-    return VMULL2LE(__builtin_altivec_crypto_vpmsumd (VecGetLow(a), b));
+#if (CRYPTOPP_BIG_ENDIAN)
+    return VecSwapWords(VecPolyMultiply(VecGetLow(a), b));
 #else
-    return VMULL2LE(__builtin_crypto_vpmsumd (VecGetLow(a), b));
-#endif
-}
-
-/// \brief Polynomial multiplication
-/// \tparam T the vector type
-/// \param a the first term
-/// \param b the second term
-/// \returns vector product
-/// \details VecPolyMultiply performs polynomial multiplication. POWER8
-///   polynomial multiplication multiplies the high and low terms, and then XOR's
-///   the high and low products. That is, the result is <tt>ah*bh XOR al*bl</tt>.
-///   It is different behavior than Intel polynomial multiplication.
-///   To obtain a single product without the XOR, then set one of the high or
-///   low terms to 0. For example, setting <tt>ah=0</tt> results in <tt>0*bh
-///   XOR al*bl = al*bl</tt>.
-/// \par Wraps
-///   __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
-/// \since Crypto++ 8.1
-template <class T>
-inline T VecPolyMultiply(const T& a, const T& b)
-{
-#if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return (T)__vpmsumd (a, b);
-#elif defined(__clang__)
-    return (T)__builtin_altivec_crypto_vpmsumd (a, b);
-#else
-    return (T)__builtin_crypto_vpmsumd (a, b);
+    return VecPolyMultiply(VecGetLow(a), b);
 #endif
 }
 
