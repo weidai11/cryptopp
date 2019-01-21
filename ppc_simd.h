@@ -1362,9 +1362,9 @@ inline T VecSwapWords(const T vec)
 template <class T>
 inline T VecGetLow(const T val)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
     const T zero = {0};
-    return VecMergeLo(zero, val);
+    return (T)VecMergeLo((uint64x2_p)zero, (uint64x2_p)val);
 #else
     return VecShiftRightOctet<8>(VecShiftLeftOctet<8>(val));
 #endif
@@ -1384,9 +1384,9 @@ inline T VecGetLow(const T val)
 template <class T>
 inline T VecGetHigh(const T val)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
+#if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
     const T zero = {0};
-    return VecMergeHi(zero, val);
+    return (T)VecMergeHi((uint64x2_p)zero, (uint64x2_p)val);
 #else
     return VecShiftRightOctet<8>(val);
 #endif
