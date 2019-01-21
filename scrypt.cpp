@@ -183,6 +183,16 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
         }
     }
 
+    // https://github.com/weidai11/cryptopp/issues/787
+    CRYPTOPP_ASSERT(parallelization <= std::numeric_limits<int>::max());
+    if (parallelization > static_cast<word64>(std::numeric_limits<int>::max()))
+    {
+        std::ostringstream oss;
+        oss << " parallelization " << parallelization << " is larger than ";
+        oss << numeric_limits<int>::max();
+        throw InvalidArgument("Scrypt: " + oss.str());
+    }
+
     CRYPTOPP_ASSERT(IsPowerOf2(cost));
     if (IsPowerOf2(cost) == false)
         throw InvalidArgument("Scrypt: cost must be a power of 2");
@@ -257,10 +267,10 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     // 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
     PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
 
-	// Visual Studio and OpenMP 2.0 fixup. We must use int, not size_t.
-	int maxParallel=0;
-	if (!SafeConvert(parallel, maxParallel))
-		maxParallel = std::numeric_limits<int>::max();
+    // Visual Studio and OpenMP 2.0 fixup. We must use int, not size_t.
+    int maxParallel=0;
+    if (!SafeConvert(parallel, maxParallel))
+        maxParallel = std::numeric_limits<int>::max();
 
     #ifdef _OPENMP
     int threads = STDMIN(omp_get_max_threads(), maxParallel);
