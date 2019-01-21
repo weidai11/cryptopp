@@ -90,6 +90,17 @@ F2N_Multiply_256x256_ARMv8(uint64x2_t& c3, uint64x2_t& c2, uint64x2_t& c1, uint6
     c2 = veorq_u64(c2, c5);
 }
 
+// c3c2c1c0 = a1a0 * a1a0
+inline void
+F2N_Square_256_ARMv8(uint64x2_t& c3, uint64x2_t& c2, uint64x2_t& c1,
+    uint64x2_t& c0, const uint64x2_t& a1, const uint64x2_t& a0)
+{
+    c0 = PMULL_00(a0, a0);
+    c1 = PMULL_11(a0, a0);
+    c2 = PMULL_00(a1, a1);
+    c3 = PMULL_11(a1, a1);
+}
+
 // x = (x << n), z = 0
 template <unsigned int N>
 inline uint64x2_t ShiftLeft128_ARMv8(uint64x2_t x)
@@ -208,6 +219,17 @@ F2N_Multiply_256x256_CLMUL(__m128i& c3, __m128i& c2, __m128i& c1, __m128i& c0,
     c5 = _mm_xor_si128(c5, c3);
     c1 = _mm_xor_si128(c1, c4);
     c2 = _mm_xor_si128(c2, c5);
+}
+
+// c3c2c1c0 = a1a0 * a1a0
+inline void
+F2N_Square_256_CLMUL(__m128i& c3, __m128i& c2, __m128i& c1,
+    __m128i& c0, const __m128i& a1, const __m128i& a0)
+{
+    c0 = _mm_clmulepi64_si128(a0, a0, 0x00);
+    c1 = _mm_clmulepi64_si128(a0, a0, 0x11);
+    c2 = _mm_clmulepi64_si128(a1, a1, 0x00);
+    c3 = _mm_clmulepi64_si128(a1, a1, 0x11);
 }
 
 // x = (x << n), z = 0
@@ -352,6 +374,17 @@ F2N_Multiply_256x256_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint
     c2 = VecXor(c2, c5);
 }
 
+// c3c2c1c0 = a1a0 * a1a0
+inline void
+F2N_Square_256_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1,
+    uint64x2_p& c0, const uint64x2_p& a1, const uint64x2_p& a0)
+{
+    c0 = VecPolyMultiply00LE(a0, a0);
+    c1 = VecPolyMultiply11LE(a0, a0);
+    c2 = VecPolyMultiply00LE(a1, a1);
+    c3 = VecPolyMultiply11LE(a1, a1);
+}
+
 // x = (x << n), z = 0
 template <unsigned int N>
 inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
@@ -447,6 +480,22 @@ GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC)
     _mm_storeu_si128(pCC+1, c1);
 }
 
+void
+GF2NT_233_Square_Reduce_CLMUL(const word* pA, word* pC)
+{
+    const __m128i* pAA = reinterpret_cast<const __m128i*>(pA);
+    __m128i a0 = _mm_loadu_si128(pAA+0);
+    __m128i a1 = _mm_loadu_si128(pAA+1);
+
+    __m128i c0, c1, c2, c3;
+    F2N_Square_256_CLMUL(c3, c2, c1, c0, a1, a0);
+    GF2NT_233_Reduce_CLMUL(c3, c2, c1, c0);
+
+    __m128i* pCC = reinterpret_cast<__m128i*>(pC);
+    _mm_storeu_si128(pCC+0, c0);
+    _mm_storeu_si128(pCC+1, c1);
+}
+
 #elif defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
 
 void
@@ -464,6 +513,24 @@ GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
 
     uint64x2_t c0, c1, c2, c3;
     F2N_Multiply_256x256_ARMv8(c3, c2, c1, c0, a1, a0, b1, b0);
+    GF2NT_233_Reduce_ARMv8(c3, c2, c1, c0);
+
+    uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
+    vst1q_u32(pCC+0, vreinterpretq_u32_u64(c0));
+    vst1q_u32(pCC+4, vreinterpretq_u32_u64(c1));
+}
+
+void
+GF2NT_233_Square_Reduce_ARMv8(const word* pA, word* pC)
+{
+    // word is either 32-bit or 64-bit, depending on the platform.
+    // Load using a 32-bit pointer to avoid possible alignment issues.
+    const uint32_t* pAA = reinterpret_cast<const uint32_t*>(pA);
+    uint64x2_t a0 = vreinterpretq_u64_u32(vld1q_u32(pAA+0));
+    uint64x2_t a1 = vreinterpretq_u64_u32(vld1q_u32(pAA+4));
+
+    uint64x2_t c0, c1, c2, c3;
+    F2N_Square_256_ARMv8(c3, c2, c1, c0, a1, a0);
     GF2NT_233_Reduce_ARMv8(c3, c2, c1, c0);
 
     uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
@@ -497,6 +564,38 @@ GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC)
 
     uint64x2_p c0, c1, c2, c3;
     F2N_Multiply_256x256_POWER8(c3, c2, c1, c0, a1, a0, b1, b0);
+    GF2NT_233_Reduce_POWER8(c3, c2, c1, c0);
+
+#if (CRYPTOPP_BIG_ENDIAN)
+    c0 = VecPermute(c0, m);
+    c1 = VecPermute(c1, m);
+#endif
+
+    byte* pCC = reinterpret_cast<byte*>(pC);
+    VecStore(c0, pCC+0);
+    VecStore(c1, pCC+16);
+}
+
+void
+GF2NT_233_Square_Reduce_POWER8(const word* pA, word* pC)
+{
+    // word is either 32-bit or 64-bit, depending on the platform.
+    // Load using a byte pointer to avoid possible alignment issues.
+    const byte* pAA = reinterpret_cast<const byte*>(pA);
+    uint64x2_p a0 = (uint64x2_p)VecLoad(pAA+0);
+    uint64x2_p a1 = (uint64x2_p)VecLoad(pAA+16);
+
+#if (CRYPTOPP_BIG_ENDIAN)
+    const uint8_t mb[] = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+    const uint8x16_p m = (uint8x16_p)VecLoad(mb);
+    a0 = VecPermute(a0, m);
+    a1 = VecPermute(a1, m);
+    b0 = VecPermute(b0, m);
+    b1 = VecPermute(b1, m);
+#endif
+
+    uint64x2_p c0, c1, c2, c3;
+    F2N_Square_256_POWER8(c3, c2, c1, c0, a1, a0);
     GF2NT_233_Reduce_POWER8(c3, c2, c1, c0);
 
 #if (CRYPTOPP_BIG_ENDIAN)
