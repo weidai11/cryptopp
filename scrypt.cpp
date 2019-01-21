@@ -14,6 +14,8 @@
 #include "sha.h"
 
 #include <sstream>
+#include <limits>
+
 #ifdef _OPENMP
 # include <omp.h>
 #endif
@@ -189,7 +191,7 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     {
         std::ostringstream oss;
         oss << " parallelization " << parallelization << " is larger than ";
-        oss << numeric_limits<int>::max();
+        oss << std::numeric_limits<int>::max();
         throw InvalidArgument("Scrypt: " + oss.str());
     }
 
