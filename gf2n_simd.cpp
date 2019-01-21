@@ -318,8 +318,8 @@ using CryptoPP::VecXor;
 using CryptoPP::VecAnd;
 
 using CryptoPP::VecPermute;
-using CryptoPP::VecMergeHi;
-using CryptoPP::VecMergeLo;
+using CryptoPP::VecMergeHigh;
+using CryptoPP::VecMergeLow;
 using CryptoPP::VecShiftLeft;
 using CryptoPP::VecShiftRight;
 using CryptoPP::VecRotateLeftOctet;
@@ -336,16 +336,16 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
 
     c0 = VecPolyMultiply00LE(a, b);
     c1 = VecPolyMultiply11LE(a, b);
-    t1 = VecMergeLo(a, a);
+    t1 = VecMergeLow(a, a);
     t1 = VecXor(a, t1);
-    t2 = VecMergeLo(b, b);
+    t2 = VecMergeLow(b, b);
     t2 = VecXor(b, t2);
     t1 = VecPolyMultiply00LE(t1, t2);
     t1 = VecXor(c0, t1);
     t1 = VecXor(c1, t1);
     t2 = t1;
-    t1 = VecMergeHi(z0, t1);
-    t2 = VecMergeLo(t2, z0);
+    t1 = VecMergeHigh(z0, t1);
+    t2 = VecMergeLow(t2, z0);
     c0 = VecXor(c0, t1);
     c1 = VecXor(c1, t2);
 }
@@ -394,7 +394,7 @@ inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 
     x = VecShiftLeft<N>(x);
     u = VecShiftRight<64-N>(u);
-    v = VecMergeHi(z, u);
+    v = VecMergeHigh(z, u);
     x = VecOr(x, v);
     return x;
 }
@@ -411,41 +411,41 @@ GF2NT_233_Reduce_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint64x2
     const uint64x2_p z0={0};
 
     b1 = c1; a1 = c1;
-    a0 = VecMergeHi(c1, z0);
+    a0 = VecMergeHigh(c1, z0);
     a1 = VecShiftLeft<23>(a1);
     a1 = VecShiftRight<23>(a1);
     c1 = VecOr(a1, a0);
     b2 = VecShiftRight<64-23>(c2);
     c3 = ShiftLeft128_POWER8<23>(c3);
-    a0 = VecMergeLo(b2, z0);
+    a0 = VecMergeLow(b2, z0);
     c3 = VecOr(c3, a0);
     b1 = VecShiftRight<64-23>(b1);
     c2 = ShiftLeft128_POWER8<23>(c2);
-    a0 = VecMergeLo(b1, z0);
+    a0 = VecMergeLow(b1, z0);
     c2 = VecOr(c2, a0);
     b3 = c3;
     b2 = VecShiftRight<64-10>(c2);
     b3 = ShiftLeft128_POWER8<10>(b3);
-    a0 = VecMergeLo(b2, z0);
+    a0 = VecMergeLow(b2, z0);
     b3 = VecOr(b3, a0);
-    a0 = VecMergeLo(c3, z0);
+    a0 = VecMergeLow(c3, z0);
     b3 = VecXor(b3, a0);
     b1 = VecShiftRight<64-23>(b3);
     b3 = ShiftLeft128_POWER8<23>(b3);
-    b3 = VecMergeLo(b3, z0);
+    b3 = VecMergeLow(b3, z0);
     b3 = VecOr(b3, b1);
     c2 = VecXor(c2, b3);
     b3 = c3;
     b2 = VecShiftRight<64-10>(c2);
     b3 = ShiftLeft128_POWER8<10>(b3);
-    b2 = VecMergeLo(b2, z0);
+    b2 = VecMergeLow(b2, z0);
     b3 = VecOr(b3, b2);
     b2 = c2;
     b2 = ShiftLeft128_POWER8<10>(b2);
-    a0 = VecMergeHi(z0, b2);
+    a0 = VecMergeHigh(z0, b2);
     c2 = VecXor(c2, a0);
-    a0 = VecMergeHi(z0, b3);
-    a1 = VecMergeLo(b2, z0);
+    a0 = VecMergeHigh(z0, b3);
+    a1 = VecMergeLow(b2, z0);
     a0 = VecOr(a0, a1);
     c3 = VecXor(c3, a0);
     c0 = VecXor(c0, c2);

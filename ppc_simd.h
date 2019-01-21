@@ -1214,7 +1214,7 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
 ///   vec_mergeh
 /// \since Crypto++ 8.1
 template <class T>
-inline T VecMergeHi(const T vec1, const T vec2)
+inline T VecMergeHigh(const T vec1, const T vec2)
 {
     return vec_mergeh(vec1, vec2);
 }
@@ -1228,7 +1228,7 @@ inline T VecMergeHi(const T vec1, const T vec2)
 ///   vec_mergel
 /// \since Crypto++ 8.1
 template <class T>
-inline T VecMergeLo(const T vec1, const T vec2)
+inline T VecMergeLow(const T vec1, const T vec2)
 {
     return vec_mergel(vec1, vec2);
 }
@@ -1364,7 +1364,7 @@ inline T VecGetLow(const T val)
 {
 #if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
     const T zero = {0};
-    return (T)VecMergeLo((uint64x2_p)zero, (uint64x2_p)val);
+    return (T)VecMergeLow((uint64x2_p)zero, (uint64x2_p)val);
 #else
     return VecShiftRightOctet<8>(VecShiftLeftOctet<8>(val));
 #endif
@@ -1386,7 +1386,7 @@ inline T VecGetHigh(const T val)
 {
 #if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
     const T zero = {0};
-    return (T)VecMergeHi((uint64x2_p)zero, (uint64x2_p)val);
+    return (T)VecMergeHigh((uint64x2_p)zero, (uint64x2_p)val);
 #else
     return VecShiftRightOctet<8>(val);
 #endif
