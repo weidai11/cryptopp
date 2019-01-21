@@ -1027,7 +1027,7 @@ const GF2NT::Element& GF2NT233::Square(const Element &a) const
 		const word* pA = a.reg.begin();
 		word* pR = result.reg.begin();
 
-		GF2NT_233_Multiply_Reduce(pA, pA, pR);
+		GF2NT_233_Multiply_Reduce_CLMUL(pA, pA, pR);
 		return result;
 	}
 	else
@@ -1040,7 +1040,7 @@ const GF2NT::Element& GF2NT233::Square(const Element &a) const
 		const word* pA = a.reg.begin();
 		word* pR = result.reg.begin();
 
-		GF2NT_233_Multiply_Reduce(pA, pA, pR);
+		GF2NT_233_Multiply_Reduce_ARMv8(pA, pA, pR);
 		return result;
 	}
 	else
@@ -1053,7 +1053,7 @@ const GF2NT::Element& GF2NT233::Square(const Element &a) const
 		const word* pA = a.reg.begin();
 		word* pR = result.reg.begin();
 
-		GF2NT_233_Multiply_Reduce(pA, pA, pR);
+		GF2NT_233_Multiply_Reduce_POWER8(pA, pA, pR);
 		return result;
 	}
 	else
