@@ -60,9 +60,14 @@ static inline void BlockCopy(byte* dest, byte* src, size_t len)
 
 static inline void BlockXOR(byte* dest, byte* src, size_t len)
 {
+#ifdef _MSC_VER
+    for (size_t i = 0; i < len; ++i)
+        dest[i] ^= src[i];
+#else
     #pragma omp simd
     for (size_t i = 0; i < len; ++i)
         dest[i] ^= src[i];
+#endif
 }
 
 static inline void PBKDF2_SHA256(byte* buf, size_t dkLen,
@@ -252,10 +257,13 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     // 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
     PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
 
+	// Visual Studio and OpenMP 2.0 fixup. We must use int, not size_t.
+	int maxParallel=0;
+	if (!SafeConvert(parallel, maxParallel))
+		maxParallel = std::numeric_limits<int>::max();
+
     #ifdef _OPENMP
-    int threads = STDMIN(omp_get_max_threads(),
-        static_cast<int>(STDMIN(static_cast<size_t>(parallel),
-        static_cast<size_t>(std::numeric_limits<int>::max()))));
+    int threads = STDMIN(omp_get_max_threads(), maxParallel);
     #endif
 
     // http://stackoverflow.com/q/49604260/608639
@@ -267,7 +275,7 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
 
         // 2: for i = 0 to p - 1 do
         #pragma omp for
-        for (size_t i = 0; i < static_cast<size_t>(parallel); ++i)
+        for (int i = 0; i < maxParallel; ++i)
         {
             // 3: B_i <-- MF(B_i, N)
             const ptrdiff_t offset = static_cast<ptrdiff_t>(blockSize*i*128);

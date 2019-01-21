@@ -155,6 +155,7 @@ LDLIBS =
 # CXXFLAGS = $(CXXFLAGS) /DDEBUG /D_DEBUG /Oi /Oy- /Od /MTd
 # Release build. Add /OPT:REF to linker
 CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
+# Linker flags.
 LDFLAGS = $(LDFLAGS) /OPT:REF
 
 # Attempt to detect when <sdkddkver.h> and <winapifamily.h> are available

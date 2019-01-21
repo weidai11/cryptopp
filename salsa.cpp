@@ -90,9 +90,14 @@ void Salsa20_Core(word32* data, unsigned int rounds)
 		x[15] ^= rotlConstant<18>(x[14]+x[13]);
 	}
 
+#ifdef _MSC_VER
+	for (size_t i = 0; i < 16; ++i)
+		data[i] += x[i];
+#else
 	#pragma omp simd
 	for (size_t i = 0; i < 16; ++i)
 		data[i] += x[i];
+#endif
 }
 
 std::string Salsa20_Policy::AlgorithmProvider() const
