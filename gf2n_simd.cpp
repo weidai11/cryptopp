@@ -156,28 +156,6 @@ GF2NT_233_Reduce_ARMv8(uint64x2_t& c3, uint64x2_t& c2, uint64x2_t& c1, uint64x2_
     c1 = vandq_u64(c1, m0);
 }
 
-inline void
-GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
-{
-    // word is either 32-bit or 64-bit, depending on the platform.
-    // Load using a 32-bit pointer to avoid possible alignment issues.
-    const uint32_t* pAA = reinterpret_cast<const uint32_t*>(pA);
-    const uint32_t* pBB = reinterpret_cast<const uint32_t*>(pB);
-
-    uint64x2_t a0 = vreinterpretq_u64_u32(vld1q_u32(pAA+0));
-    uint64x2_t a1 = vreinterpretq_u64_u32(vld1q_u32(pAA+4));
-    uint64x2_t b0 = vreinterpretq_u64_u32(vld1q_u32(pBB+0));
-    uint64x2_t b1 = vreinterpretq_u64_u32(vld1q_u32(pBB+4));
-
-    uint64x2_t c0, c1, c2, c3;
-    F2N_Multiply_256x256_ARMv8(c3, c2, c1, c0, a1, a0, b1, b0);
-    GF2NT_233_Reduce_ARMv8(c3, c2, c1, c0);
-
-    uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
-    vst1q_u32(pCC+0, vreinterpretq_u32_u64(c0));
-    vst1q_u32(pCC+4, vreinterpretq_u32_u64(c1));
-}
-
 #endif
 
 // ************************** SSE ************************** //
@@ -297,25 +275,6 @@ GF2NT_233_Reduce_CLMUL(__m128i& c3, __m128i& c2, __m128i& c1, __m128i& c0)
     c0 = _mm_xor_si128(c0, c2);
     c1 = _mm_xor_si128(c1, c3);
     c1 = _mm_and_si128(c1, m0);
-}
-
-inline void
-GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC)
-{
-    const __m128i* pAA = reinterpret_cast<const __m128i*>(pA);
-    const __m128i* pBB = reinterpret_cast<const __m128i*>(pB);
-    __m128i a0 = _mm_loadu_si128(pAA+0);
-    __m128i a1 = _mm_loadu_si128(pAA+1);
-    __m128i b0 = _mm_loadu_si128(pBB+0);
-    __m128i b1 = _mm_loadu_si128(pBB+1);
-
-    __m128i c0, c1, c2, c3;
-    F2N_Multiply_256x256_CLMUL(c3, c2, c1, c0, a1, a0, b1, b0);
-    GF2NT_233_Reduce_CLMUL(c3, c2, c1, c0);
-
-    __m128i* pCC = reinterpret_cast<__m128i*>(pC);
-    _mm_storeu_si128(pCC+0, c0);
-    _mm_storeu_si128(pCC+1, c1);
 }
 
 #endif
@@ -461,7 +420,60 @@ GF2NT_233_Reduce_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint64x2
     c1 = VecAnd(c1, m0);
 }
 
-inline void
+#endif
+
+ANONYMOUS_NAMESPACE_END
+
+NAMESPACE_BEGIN(CryptoPP)
+
+#if defined(CRYPTOPP_CLMUL_AVAILABLE)
+
+void
+GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC)
+{
+    const __m128i* pAA = reinterpret_cast<const __m128i*>(pA);
+    const __m128i* pBB = reinterpret_cast<const __m128i*>(pB);
+    __m128i a0 = _mm_loadu_si128(pAA+0);
+    __m128i a1 = _mm_loadu_si128(pAA+1);
+    __m128i b0 = _mm_loadu_si128(pBB+0);
+    __m128i b1 = _mm_loadu_si128(pBB+1);
+
+    __m128i c0, c1, c2, c3;
+    F2N_Multiply_256x256_CLMUL(c3, c2, c1, c0, a1, a0, b1, b0);
+    GF2NT_233_Reduce_CLMUL(c3, c2, c1, c0);
+
+    __m128i* pCC = reinterpret_cast<__m128i*>(pC);
+    _mm_storeu_si128(pCC+0, c0);
+    _mm_storeu_si128(pCC+1, c1);
+}
+
+#elif defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+
+void
+GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
+{
+    // word is either 32-bit or 64-bit, depending on the platform.
+    // Load using a 32-bit pointer to avoid possible alignment issues.
+    const uint32_t* pAA = reinterpret_cast<const uint32_t*>(pA);
+    const uint32_t* pBB = reinterpret_cast<const uint32_t*>(pB);
+
+    uint64x2_t a0 = vreinterpretq_u64_u32(vld1q_u32(pAA+0));
+    uint64x2_t a1 = vreinterpretq_u64_u32(vld1q_u32(pAA+4));
+    uint64x2_t b0 = vreinterpretq_u64_u32(vld1q_u32(pBB+0));
+    uint64x2_t b1 = vreinterpretq_u64_u32(vld1q_u32(pBB+4));
+
+    uint64x2_t c0, c1, c2, c3;
+    F2N_Multiply_256x256_ARMv8(c3, c2, c1, c0, a1, a0, b1, b0);
+    GF2NT_233_Reduce_ARMv8(c3, c2, c1, c0);
+
+    uint32_t* pCC = reinterpret_cast<uint32_t*>(pC);
+    vst1q_u32(pCC+0, vreinterpretq_u32_u64(c0));
+    vst1q_u32(pCC+4, vreinterpretq_u32_u64(c1));
+}
+
+#elif defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
+
+void
 GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC)
 {
     // word is either 32-bit or 64-bit, depending on the platform.
@@ -498,22 +510,5 @@ GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC)
 }
 
 #endif
-
-ANONYMOUS_NAMESPACE_END
-
-NAMESPACE_BEGIN(CryptoPP)
-
-void GF2NT_233_Multiply_Reduce(const word* pA, const word* pB, word* pC)
-{
-#if defined(CRYPTOPP_CLMUL_AVAILABLE)
-    return GF2NT_233_Multiply_Reduce_CLMUL(pA, pB, pC);
-#elif (CRYPTOPP_ARM_PMULL_AVAILABLE)
-    return GF2NT_233_Multiply_Reduce_ARMv8(pA, pB, pC);
-#elif defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
-    return GF2NT_233_Multiply_Reduce_POWER8(pA, pB, pC);
-#else
-    CRYPTOPP_ASSERT(0);
-#endif
-}
 
 NAMESPACE_END

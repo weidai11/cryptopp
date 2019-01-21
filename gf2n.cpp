@@ -42,8 +42,16 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_CLMUL_AVAILABLE) || defined(CRYPTOPP_ARM_PMULL_AVAILABLE) || defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
-extern void GF2NT_233_Multiply_Reduce(const word* pA, const word* pB, word* pC);
+#if defined(CRYPTOPP_CLMUL_AVAILABLE)
+extern void GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC);
+#endif
+
+#if defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+extern void GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC);
+#endif
+
+#if defined(CRYPTOPP_POWER8_VMULL_AVAILABLE)
+extern void GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC);
 #endif
 
 PolynomialMod2::PolynomialMod2()
@@ -969,7 +977,7 @@ const GF2NT::Element& GF2NT233::Multiply(const Element &a, const Element &b) con
 		const word* pB = b.reg.begin();
 		word* pR = result.reg.begin();
 
-		GF2NT_233_Multiply_Reduce(pA, pB, pR);
+		GF2NT_233_Multiply_Reduce_CLMUL(pA, pB, pR);
 		return result;
 	}
 	else
@@ -984,7 +992,7 @@ const GF2NT::Element& GF2NT233::Multiply(const Element &a, const Element &b) con
 		const word* pB = b.reg.begin();
 		word* pR = result.reg.begin();
 
-		GF2NT_233_Multiply_Reduce(pA, pB, pR);
+		GF2NT_233_Multiply_Reduce_ARMv8(pA, pB, pR);
 		return result;
 	}
 	else
@@ -999,7 +1007,7 @@ const GF2NT::Element& GF2NT233::Multiply(const Element &a, const Element &b) con
 		const word* pB = b.reg.begin();
 		word* pR = result.reg.begin();
 
-		GF2NT_233_Multiply_Reduce(pA, pB, pR);
+		GF2NT_233_Multiply_Reduce_POWER8(pA, pB, pR);
 		return result;
 	}
 	else
