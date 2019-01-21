@@ -590,8 +590,6 @@ GF2NT_233_Square_Reduce_POWER8(const word* pA, word* pC)
     const uint8x16_p m = (uint8x16_p)VecLoad(mb);
     a0 = VecPermute(a0, m);
     a1 = VecPermute(a1, m);
-    b0 = VecPermute(b0, m);
-    b1 = VecPermute(b1, m);
 #endif
 
     uint64x2_p c0, c1, c2, c3;
