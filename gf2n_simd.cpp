@@ -403,7 +403,7 @@ inline uint64x2_p ShiftLeft128_POWER8(uint64x2_p x)
 inline void
 GF2NT_233_Reduce_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1, uint64x2_p& c0)
 {
-    const uint64_t mod[] = {0xffffffffffffffff, 0x01ffffffffff};
+    const uint64_t mod[] = {W64LIT(0xffffffffffffffff), W64LIT(0x01ffffffffff)};
     const uint64x2_p m0 = (uint64x2_p)VecLoad(mod);
 
     uint64x2_p b3, b2, b1, /*b0,*/ a1, a0;
