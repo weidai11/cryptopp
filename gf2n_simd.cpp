@@ -318,11 +318,10 @@ using CryptoPP::VecXor;
 using CryptoPP::VecAnd;
 
 using CryptoPP::VecPermute;
-using CryptoPP::VecMergeHigh;
 using CryptoPP::VecMergeLow;
+using CryptoPP::VecMergeHigh;
 using CryptoPP::VecShiftLeft;
 using CryptoPP::VecShiftRight;
-using CryptoPP::VecRotateLeftOctet;
 
 using CryptoPP::VecPolyMultiply00LE;
 using CryptoPP::VecPolyMultiply11LE;
