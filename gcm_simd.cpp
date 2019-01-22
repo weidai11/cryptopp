@@ -185,7 +185,8 @@ bool CPU_ProbePMULL()
         result = false;
     else
     {
-        const uint64_t wa1[]={0,0x9090909090909090}, wb1[]={0,0xb0b0b0b0b0b0b0b0};
+        const uint64_t wa1[]={0,W64LIT(0x9090909090909090)},
+                       wb1[]={0,W64LIT(0xb0b0b0b0b0b0b0b0)};
         const uint64x2_p a1=VecLoad(wa1), b1=VecLoad(wb1);
 
         const uint8_t wa2[]={0x80,0x80,0x80,0x80,0x80,0x80,0x80,0x80,
@@ -197,8 +198,8 @@ bool CPU_ProbePMULL()
         const uint64x2_p r1 = VecPolyMultiply00LE(a1, b1);
         const uint64x2_p r2 = VecPolyMultiply11LE((uint64x2_p)a2, (uint64x2_p)b2);
 
-        const uint64_t wc1[]={0x5300530053005300, 0x5300530053005300},
-                       wc2[]={0x6c006c006c006c00, 0x6c006c006c006c00};
+        const uint64_t wc1[]={W64LIT(0x5300530053005300), W64LIT(0x5300530053005300)},
+                       wc2[]={W64LIT(0x6c006c006c006c00), W64LIT(0x6c006c006c006c00)};
         const uint64x2_p c1=VecLoad(wc1), c2=VecLoad(wc2);
 
         result = !!(VecEqual(r1, c1) && VecEqual(r2, c2));
