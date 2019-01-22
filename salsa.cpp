@@ -90,8 +90,8 @@ void Salsa20_Core(word32* data, unsigned int rounds)
 		x[15] ^= rotlConstant<18>(x[14]+x[13]);
 	}
 
-// OpenMP 3.0 released May 2008.
-#if _OPENMP >= 200805
+// OpenMP 4.0 released July 2013.
+#if _OPENMP >= 201307
 	#pragma omp simd
 	for (size_t i = 0; i < 16; ++i)
 		data[i] += x[i];

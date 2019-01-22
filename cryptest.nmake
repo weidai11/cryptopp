@@ -154,7 +154,7 @@ LDLIBS =
 # Debug build.
 # CXXFLAGS = $(CXXFLAGS) /DDEBUG /D_DEBUG /Oi /Oy- /Od /MTd
 # Release build. Add /OPT:REF to linker
-CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
+CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT /openmp
 # Linker flags.
 LDFLAGS = $(LDFLAGS) /OPT:REF
 
