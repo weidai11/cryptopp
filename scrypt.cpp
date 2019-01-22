@@ -64,11 +64,12 @@ static inline void BlockCopy(byte* dest, byte* src, size_t len)
 
 static inline void BlockXOR(byte* dest, byte* src, size_t len)
 {
-#ifdef _MSC_VER
+// OpenMP 3.0 released May 2008.
+#if _OPENMP >= 200805
+    #pragma omp simd
     for (size_t i = 0; i < len; ++i)
         dest[i] ^= src[i];
 #else
-    #pragma omp simd
     for (size_t i = 0; i < len; ++i)
         dest[i] ^= src[i];
 #endif

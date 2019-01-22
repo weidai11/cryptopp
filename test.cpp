@@ -547,7 +547,8 @@ void PrintSeedAndThreads()
 		tc = omp_get_num_threads();
 	}
 
-	std::cout << "Using " << tc << " OMP " << (tc == 1 ? "thread" : "threads") << std::endl;
+	std::cout << "OpenMP version " << (int)_OPENMP << ", ";
+	std::cout << tc << (tc == 1 ? " thread" : "threads") << std::endl;
 #endif
 }
 
