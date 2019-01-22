@@ -24,6 +24,8 @@
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # if defined(__clang__)
 #  pragma GCC diagnostic ignored "-Wtautological-compare"
+# elif defined(__GNUC__)
+#  pragma GCC diagnostic ignored "-Wtype-limits"
 # endif
 #endif
 
