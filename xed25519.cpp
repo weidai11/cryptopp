@@ -468,7 +468,7 @@ void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameVal
     if (params.GetValue(Name::Seed(), seed) && rng.CanIncorporateEntropy())
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
-    rng.GenerateBlock(m_sk, 32);
+    rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
     m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
     int ret = Donna::ed25519_publickey(m_pk, m_sk);
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);

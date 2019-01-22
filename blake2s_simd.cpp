@@ -848,6 +848,7 @@ uint32x4_p VectorSet32<2,0,2,0>(const uint32x4_p a, const uint32x4_p b,
                                 const uint32x4_p c, const uint32x4_p d)
 {
     // a=b, c=d, mask is {2,0, 2,0}
+    CRYPTOPP_UNUSED(b); CRYPTOPP_UNUSED(d);
     const uint8x16_p mask = {16,17,18,19, 24,25,26,27, 0,1,2,3, 8,9,10,11};
     return VecPermute(a, c, mask);
 }
@@ -857,6 +858,7 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
                                 const uint32x4_p c, const uint32x4_p d)
 {
     // a=b, c=d, mask is {3,1, 3,1}
+    CRYPTOPP_UNUSED(b); CRYPTOPP_UNUSED(d);
     const uint8x16_p mask = {20,21,22,23, 28,29,30,31, 4,5,6,7, 12,13,14,15};
     return VecPermute(a, c, mask);
 }
