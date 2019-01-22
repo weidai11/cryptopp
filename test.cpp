@@ -548,7 +548,7 @@ void PrintSeedAndThreads()
 	}
 
 	std::cout << "OpenMP version " << (int)_OPENMP << ", ";
-	std::cout << tc << (tc == 1 ? " thread" : "threads") << std::endl;
+	std::cout << tc << (tc == 1 ? " thread" : " threads") << std::endl;
 #endif
 }
 
