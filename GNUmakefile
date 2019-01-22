@@ -1538,6 +1538,10 @@ sm4_simd.o : sm4_simd.cpp
 ifeq ($(XLC_COMPILER),1)
 sm3.o : sm3.cpp
 	$(CXX) $(strip $(subst -O3,-O2,$(CXXFLAGS)) -c) $<
+donna_32.o : donna_32.cpp
+	$(CXX) $(strip $(subst -O3,-O2,$(CXXFLAGS)) -c) $<
+donna_64.o : donna_64.cpp
+	$(CXX) $(strip $(subst -O3,-O2,$(CXXFLAGS)) -c) $<
 endif
 
 # SSE2 on i686
