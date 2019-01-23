@@ -41,28 +41,35 @@ using CryptoPP::rotlConstant;
 using CryptoPP::LITTLE_ENDIAN_ORDER;
 using CryptoPP::AlignedSecByteBlock;
 
-static inline void LE32ENC(byte* out, word32 in)
+inline void LE32ENC(byte* out, word32 in)
 {
     PutWord(false, LITTLE_ENDIAN_ORDER, out, in);
 }
 
-static inline word32 LE32DEC(const byte* in)
+inline word32 LE32DEC(const byte* in)
 {
     return GetWord<word32>(false, LITTLE_ENDIAN_ORDER, in);
 }
 
-static inline word64 LE64DEC(const byte* in)
+inline word64 LE64DEC(const byte* in)
 {
     return GetWord<word64>(false, LITTLE_ENDIAN_ORDER, in);
 }
 
-static inline void BlockCopy(byte* dest, byte* src, size_t len)
+inline void BlockCopy(byte* dest, byte* src, size_t len)
 {
+// OpenMP 4.0 released July 2013.
+#if _OPENMP >= 201307
+    #pragma omp simd
     for (size_t i = 0; i < len; ++i)
         dest[i] = src[i];
+#else
+    for (size_t i = 0; i < len; ++i)
+        dest[i] = src[i];
+#endif
 }
 
-static inline void BlockXOR(byte* dest, byte* src, size_t len)
+inline void BlockXOR(byte* dest, byte* src, size_t len)
 {
 // OpenMP 4.0 released July 2013.
 #if _OPENMP >= 201307
@@ -75,7 +82,7 @@ static inline void BlockXOR(byte* dest, byte* src, size_t len)
 #endif
 }
 
-static inline void PBKDF2_SHA256(byte* buf, size_t dkLen,
+inline void PBKDF2_SHA256(byte* buf, size_t dkLen,
     const byte* passwd, size_t passwdlen,
     const byte* salt, size_t saltlen, byte count)
 {
@@ -86,7 +93,7 @@ static inline void PBKDF2_SHA256(byte* buf, size_t dkLen,
     pbkdf.DeriveKey(buf, dkLen, 0, passwd, passwdlen, salt, saltlen, count, 0.0f);
 }
 
-static inline void Salsa20_8(byte B[64])
+inline void Salsa20_8(byte B[64])
 {
     word32 B32[16];
 
@@ -99,7 +106,7 @@ static inline void Salsa20_8(byte B[64])
         LE32ENC(&B[4 * i], B32[i]);
 }
 
-static inline void BlockMix(byte* B, byte* Y, size_t r)
+inline void BlockMix(byte* B, byte* Y, size_t r)
 {
     byte X[64];
 
@@ -125,13 +132,13 @@ static inline void BlockMix(byte* B, byte* Y, size_t r)
         BlockCopy(&B[(i + r) * 64], &Y[(i * 2 + 1) * 64], 64);
 }
 
-static inline word64 Integerify(byte* B, size_t r)
+inline word64 Integerify(byte* B, size_t r)
 {
     byte* X = &B[(2 * r - 1) * 64];
     return LE64DEC(X);
 }
 
-static inline void Smix(byte* B, size_t r, word64 N, byte* V, byte* XY)
+inline void Smix(byte* B, size_t r, word64 N, byte* V, byte* XY)
 {
     byte* X = XY;
     byte* Y = XY+128*r;
