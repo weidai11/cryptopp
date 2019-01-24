@@ -125,7 +125,7 @@ public:
     /// \param y public key
     bool IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const;
 
-    /// \Brief Get the Object Identifier
+    /// \brief Get the Object Identifier
     /// \returns the Object Identifier
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208.
@@ -133,7 +133,7 @@ public:
         return m_oid.Empty() ? ASN1::X25519() : m_oid;
     }
 
-    /// \Brief Set the Object Identifier
+    /// \brief Set the Object Identifier
     /// \param oid the new Object Identifier
     void SetAlgorithmID(const OID& oid) {
         m_oid = oid;
@@ -337,12 +337,10 @@ protected:
 ///   class members of interest are byte arrays and not Integers.
 ///   In addition, the byte arrays are little-endian meaning
 ///   LSB is at element 0 and the MSB is at element 31.
-///   If you call \ref ed25519PrivateKey::GetPrivateExponent()
-///   "GetPrivateExponent()" then the little-endian byte array is
-///   converted to a big-endian Integer() so it can be returned
-///   the way a caller expects. And calling
-///   \ref ed25519PrivateKey::SetPrivateExponent "SetPrivateExponent()"
-///   perfoms a similar internal conversion.
+///   If you call GetPrivateExponent() then the little-endian byte
+///   array is converted to a big-endian Integer() so it can be
+///   returned the way a caller expects. And calling
+///   SetPrivateExponent perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PrivateKey : public PKCS8PrivateKey
 {
@@ -598,12 +596,10 @@ protected:
 ///   class members of interest are byte arrays and not Integers.
 ///   In addition, the byte arrays are little-endian meaning
 ///   LSB is at element 0 and the MSB is at element 31.
-///   If you call \ref ed25519PublicKey::GetPublicElement()
-///   "GetPublicElement()" then the little-endian byte array is
-///   converted to a big-endian Integer() so it can be returned
-///   the way a caller expects. And calling
-///   \ref ed25519PublicKey::SetPublicElement "SetPublicElement()"
-///   perfoms a similar internal conversion.
+///   If you call GetPublicElement() then the little-endian byte
+///   array is converted to a big-endian Integer() so it can be
+///   returned the way a caller expects. And calling 
+///   SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PublicKey : public X509PublicKey
 {
