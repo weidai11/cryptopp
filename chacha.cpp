@@ -337,6 +337,9 @@ std::string ChaChaTLS_Policy::AlgorithmName() const
 
 std::string ChaChaTLS_Policy::AlgorithmProvider() const
 {
+    // Disable SIMD until we can generate large block test vectors
+    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+#if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
         return "AVX2";
@@ -360,6 +363,7 @@ std::string ChaChaTLS_Policy::AlgorithmProvider() const
     if (HasAltivec())
         return "Altivec";
     else
+#endif
 #endif
     return "C++";
 }
@@ -414,6 +418,9 @@ void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaChaTLS_Policy::GetAlignment() const
 {
+    // Disable SIMD until we can generate large block test vectors
+    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+#if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
         return 16;
@@ -429,13 +436,14 @@ unsigned int ChaChaTLS_Policy::GetAlignment() const
         return 16;
     else
 #endif
+#endif
         return GetAlignmentOf<word32>();
 }
 
 unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 {
-	// Disable SIMD until we can generate large block test vectors
-	// https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+    // Disable SIMD until we can generate large block test vectors
+    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
 #if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
@@ -467,8 +475,8 @@ unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
-	// Disable SIMD until we can generate large block test vectors
-	// https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+    // Disable SIMD until we can generate large block test vectors
+    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
 #if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
         if (HasAVX2())
