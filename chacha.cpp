@@ -63,8 +63,11 @@ extern void ChaCha_OperateKeystream_ALTIVEC(const word32 *state, const byte* inp
 void ChaCha_TestInstantiations()
 {
     ChaCha::Encryption x;
+    ChaChaTLS::Encryption y;
 }
 #endif
+
+////////////////////////////// Bernstein ChaCha //////////////////////////////
 
 std::string ChaCha_Policy::AlgorithmName() const
 {
@@ -102,8 +105,7 @@ std::string ChaCha_Policy::AlgorithmProvider() const
 
 void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
-    CRYPTOPP_UNUSED(params);
-    CRYPTOPP_ASSERT(length == 16 || length == 32);
+    CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 16 || length == 32);
 
     m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
     if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
@@ -324,6 +326,283 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 
     // We may re-enter a SIMD keystream operation from here.
     } while (iterationCount--);
+}
+
+////////////////////////////// IETF ChaChaTLS //////////////////////////////
+
+std::string ChaChaTLS_Policy::AlgorithmName() const
+{
+    return std::string("ChaChaTLS")+IntToString(static_cast<unsigned int>(m_rounds));
+}
+
+std::string ChaChaTLS_Policy::AlgorithmProvider() const
+{
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return "AVX2";
+    else
+#endif
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+    if (HasSSE2())
+        return "SSE2";
+    else
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return "NEON";
+    else
+#endif
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return "Power7";
+    else
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return "Altivec";
+    else
+#endif
+    return "C++";
+}
+
+void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
+{
+    CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 32);
+
+    // ChaChaTLS is always 20 rounds. Fetch Rounds() to avoid a spurious failure.
+    int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
+    if (rounds != 20)
+        throw InvalidRounds(ChaChaTLS::StaticAlgorithmName(), rounds);
+
+    // RFC 7539 test vectors use an initial block counter. However, some of them
+    // don't start at 0. If Resynchronize() is called we set to 0. Hence, stash
+    // the initial block counter in m_state[16]. Then use it in Resynchronize().
+    int block;
+    if (params.GetValue("InitialBlock", block))
+        m_state[16] = static_cast<word32>(block);
+    else
+        m_state[16] = 0;
+
+    // State words are defined in RFC 7539, Section 2.3.
+    m_state[0] = 0x61707865;
+    m_state[1] = 0x3320646e;
+    m_state[2] = 0x79622d32;
+    m_state[3] = 0x6b206574;
+
+    // State words are defined in RFC 7539, Section 2.3. Key is 32-bytes.
+    GetBlock<word32, LittleEndian> get(key);
+    get(m_state[4])(m_state[5])(m_state[6])(m_state[7])(m_state[8])(m_state[9])(m_state[10])(m_state[11]);
+}
+
+void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
+{
+    CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
+    CRYPTOPP_ASSERT(length==12);
+
+    // State words are defined in RFC 7539, Section 2.3
+    GetBlock<word32, LittleEndian> get(IV);
+    m_state[12] = m_state[16];
+    get(m_state[13])(m_state[14])(m_state[15]);
+}
+
+void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
+{
+    // State words are defined in RFC 7539, Section 2.3
+    // Should we throw here???
+    CRYPTOPP_ASSERT(iterationCount <= std::numeric_limits<word32>::max());
+    m_state[12] = (word32)iterationCount;  // low word
+}
+
+unsigned int ChaChaTLS_Policy::GetAlignment() const
+{
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return 16;
+    else
+#endif
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+    if (HasSSE2())
+        return 16;
+    else
+#endif
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 16;
+    else
+#endif
+        return GetAlignmentOf<word32>();
+}
+
+unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
+{
+	// Disable SIMD until we can generate large block test vectors
+	// https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+#if 0
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return 8 * BYTES_PER_ITERATION;
+    else
+#endif
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+    if (HasSSE2())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
+#endif
+        return BYTES_PER_ITERATION;
+}
+
+// OperateKeystream always produces a key stream. The key stream is written
+// to output. Optionally a message may be supplied to xor with the key stream.
+// The message is input, and output = output ^ input.
+void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
+        byte *output, const byte *input, size_t iterationCount)
+{
+	// Disable SIMD until we can generate large block test vectors
+	// https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+#if 0
+#if (CRYPTOPP_AVX2_AVAILABLE)
+        if (HasAVX2())
+        {
+            while (iterationCount >= 8)
+            {
+                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+                ChaCha_OperateKeystream_AVX2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+                // MultiBlockSafe avoids overflow on the counter words
+                m_state[12] += 8;
+                //if (m_state[12] < 8)
+                //    m_state[13]++;
+
+                input += (!!xorInput) * 8 * BYTES_PER_ITERATION;
+                output += 8 * BYTES_PER_ITERATION;
+                iterationCount -= 8;
+            }
+        }
+#endif
+
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+        if (HasSSE2())
+        {
+            while (iterationCount >= 4)
+            {
+                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+                ChaCha_OperateKeystream_SSE2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+                // MultiBlockSafe avoids overflow on the counter words
+                m_state[12] += 4;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
+
+                input += (!!xorInput)*4*BYTES_PER_ITERATION;
+                output += 4*BYTES_PER_ITERATION;
+                iterationCount -= 4;
+            }
+        }
+#endif
+
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+        if (HasNEON())
+        {
+            while (iterationCount >= 4)
+            {
+                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+                ChaCha_OperateKeystream_NEON(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+                // MultiBlockSafe avoids overflow on the counter words
+                m_state[12] += 4;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
+
+                input += (!!xorInput)*4*BYTES_PER_ITERATION;
+                output += 4*BYTES_PER_ITERATION;
+                iterationCount -= 4;
+            }
+        }
+#endif
+
+#if (CRYPTOPP_POWER7_AVAILABLE)
+        if (HasPower7())
+        {
+            while (iterationCount >= 4)
+            {
+                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+                ChaCha_OperateKeystream_POWER7(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+                // MultiBlockSafe avoids overflow on the counter words
+                m_state[12] += 4;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
+
+                input += (!!xorInput)*4*BYTES_PER_ITERATION;
+                output += 4*BYTES_PER_ITERATION;
+                iterationCount -= 4;
+            }
+        }
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+        if (HasAltivec())
+        {
+            while (iterationCount >= 4)
+            {
+                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
+                ChaCha_OperateKeystream_ALTIVEC(m_state, xorInput ? input : NULLPTR, output, m_rounds);
+
+                // MultiBlockSafe avoids overflow on the counter words
+                m_state[12] += 4;
+                //if (m_state[12] < 4)
+                //    m_state[13]++;
+
+                input += (!!xorInput)*4*BYTES_PER_ITERATION;
+                output += 4*BYTES_PER_ITERATION;
+                iterationCount -= 4;
+            }
+        }
+#endif
+#endif
+
+    while (iterationCount--)
+    {
+        word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
+
+        x0 = m_state[0];    x1 = m_state[1];    x2 = m_state[2];    x3 = m_state[3];
+        x4 = m_state[4];    x5 = m_state[5];    x6 = m_state[6];    x7 = m_state[7];
+        x8 = m_state[8];    x9 = m_state[9];    x10 = m_state[10];  x11 = m_state[11];
+        x12 = m_state[12];  x13 = m_state[13];  x14 = m_state[14];  x15 = m_state[15];
+
+        for (int i = static_cast<int>(m_rounds); i > 0; i -= 2)
+        {
+            CHACHA_QUARTER_ROUND(x0, x4,  x8, x12);
+            CHACHA_QUARTER_ROUND(x1, x5,  x9, x13);
+            CHACHA_QUARTER_ROUND(x2, x6, x10, x14);
+            CHACHA_QUARTER_ROUND(x3, x7, x11, x15);
+
+            CHACHA_QUARTER_ROUND(x0, x5, x10, x15);
+            CHACHA_QUARTER_ROUND(x1, x6, x11, x12);
+            CHACHA_QUARTER_ROUND(x2, x7,  x8, x13);
+            CHACHA_QUARTER_ROUND(x3, x4,  x9, x14);
+        }
+
+        CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(CHACHA_OUTPUT, BYTES_PER_ITERATION);
+
+        if (++m_state[12] == 0)
+        {
+            // m_state[13]++;
+
+            // RFC 7539 does not say what to do here. ChaCha-TLS uses state[13]
+            // for part of the nonce. We can't carry into it. Shit or go blind...
+            // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+            CRYPTOPP_ASSERT(0);
+        }
+    }
 }
 
 NAMESPACE_END

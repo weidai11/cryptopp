@@ -1,37 +1,93 @@
 AlgorithmType: SymmetricCipher
-Name: ChaCha20
+Name: ChaChaTLS
 Source: http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305
-Comment: Section 7, Test 1
-Key: 0000000000000000000000000000000000000000000000000000000000000000
-IV: 0000000000000000
-Plaintext:
-Ciphertext: 76b8e0ada0f13d90405d6ae55386bd28bdd219b8a08ded1aa836efcc8b770dc7da41597c5157488d7724e03fb8d84a376a43b8f41518a11cc387b669
+#
+Comment: Section A.2, ChaCha20 Encryption, Test 1
+Key: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+IV: 00 00 00 00 00 00 00 00 00 00 00 00
+Plaintext: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+           00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+           00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 \
+           00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+Ciphertext: 76 b8 e0 ad a0 f1 3d 90 40 5d 6a e5 53 86 bd 28 \
+            bd d2 19 b8 a0 8d ed 1a a8 36 ef cc 8b 77 0d c7 \
+            da 41 59 7c 51 57 48 8d 77 24 e0 3f b8 d8 4a 37 \
+            6a 43 b8 f4 15 18 a1 1c c3 87 b6 69 b2 ee 65 86
 Test: Encrypt
-Comment: Section 7, Test 2
-Key: 0000000000000000000000000000000000000000000000000000000000000001
-IV: 0000000000000000
-Plaintext:
-Ciphertext: 4540f05a9f1fb296d7736e7b208e3c96eb4fe1834688d2604f450952ed432d41bbe2a0b6ea7566d2a5d1e7e20d42af2c53d792b1c43fea817e9ad275
+#
+Comment: Section A.2, ChaCha20 Encryption, Test 2
+Key: 0000000000000000 0000000000000000 0000000000000000 0000000000000001
+IV: 00 00 00 00 00 00 00 00 00 00 00 02
+Plaintext: 41 6e 79 20 73 75 62 6d 69 73 73 69 6f 6e 20 74 \
+           6f 20 74 68 65 20 49 45 54 46 20 69 6e 74 65 6e \
+           64 65 64 20 62 79 20 74 68 65 20 43 6f 6e 74 72 \
+           69 62 75 74 6f 72 20 66 6f 72 20 70 75 62 6c 69 \
+           63 61 74 69 6f 6e 20 61 73 20 61 6c 6c 20 6f 72 \
+           20 70 61 72 74 20 6f 66 20 61 6e 20 49 45 54 46 \
+           20 49 6e 74 65 72 6e 65 74 2d 44 72 61 66 74 20 \
+           6f 72 20 52 46 43 20 61 6e 64 20 61 6e 79 20 73 \
+           74 61 74 65 6d 65 6e 74 20 6d 61 64 65 20 77 69 \
+           74 68 69 6e 20 74 68 65 20 63 6f 6e 74 65 78 74 \
+           20 6f 66 20 61 6e 20 49 45 54 46 20 61 63 74 69 \
+           76 69 74 79 20 69 73 20 63 6f 6e 73 69 64 65 72 \
+           65 64 20 61 6e 20 22 49 45 54 46 20 43 6f 6e 74 \
+           72 69 62 75 74 69 6f 6e 22 2e 20 53 75 63 68 20 \
+           73 74 61 74 65 6d 65 6e 74 73 20 69 6e 63 6c 75 \
+           64 65 20 6f 72 61 6c 20 73 74 61 74 65 6d 65 6e \
+           74 73 20 69 6e 20 49 45 54 46 20 73 65 73 73 69 \
+           6f 6e 73 2c 20 61 73 20 77 65 6c 6c 20 61 73 20 \
+           77 72 69 74 74 65 6e 20 61 6e 64 20 65 6c 65 63 \
+           74 72 6f 6e 69 63 20 63 6f 6d 6d 75 6e 69 63 61 \
+           74 69 6f 6e 73 20 6d 61 64 65 20 61 74 20 61 6e \
+           79 20 74 69 6d 65 20 6f 72 20 70 6c 61 63 65 2c \
+           20 77 68 69 63 68 20 61 72 65 20 61 64 64 72 65 \
+           73 73 65 64 20 74 6f
+Ciphertext: a3 fb f0 7d f3 fa 2f de 4f 37 6c a2 3e 82 73 70 \
+            41 60 5d 9f 4f 4f 57 bd 8c ff 2c 1d 4b 79 55 ec \
+            2a 97 94 8b d3 72 29 15 c8 f3 d3 37 f7 d3 70 05 \
+            0e 9e 96 d6 47 b7 c3 9f 56 e0 31 ca 5e b6 25 0d \
+            40 42 e0 27 85 ec ec fa 4b 4b b5 e8 ea d0 44 0e \
+            20 b6 e8 db 09 d8 81 a7 c6 13 2f 42 0e 52 79 50 \
+            42 bd fa 77 73 d8 a9 05 14 47 b3 29 1c e1 41 1c \
+            68 04 65 55 2a a6 c4 05 b7 76 4d 5e 87 be a8 5a \
+            d0 0f 84 49 ed 8f 72 d0 d6 62 ab 05 26 91 ca 66 \
+            42 4b c8 6d 2d f8 0e a4 1f 43 ab f9 37 d3 25 9d \
+            c4 b2 d0 df b4 8a 6c 91 39 dd d7 f7 69 66 e9 28 \
+            e6 35 55 3b a7 6c 5c 87 9d 7b 35 d4 9e b2 e6 2b \
+            08 71 cd ac 63 89 39 e2 5e 8a 1e 0e f9 d5 28 0f \
+            a8 ca 32 8b 35 1c 3c 76 59 89 cb cf 3d aa 8b 6c \
+            cc 3a af 9f 39 79 c9 2b 37 20 fc 88 dc 95 ed 84 \
+            a1 be 05 9c 64 99 b9 fd a2 36 e7 e8 18 b0 4b 0b \
+            c3 9c 1e 87 6b 19 3b fe 55 69 75 3f 88 12 8c c0 \
+            8a aa 9b 63 d1 a1 6f 80 ef 25 54 d7 18 9c 41 1f \
+            58 69 ca 52 c5 b8 3f a3 6f f2 16 b9 c1 d3 00 62 \
+            be bc fd 2d c5 bc e0 91 19 34 fd a7 9a 86 f6 e6 \
+            98 ce d7 59 c3 ff 9b 64 77 33 8f 3d a4 f9 cd 85 \
+            14 ea 99 82 cc af b3 41 b2 38 4d d9 02 f3 d1 ab \
+            7a c6 1d d2 9c 6f 21 ba 5b 86 2f 37 30 e3 7c fd \
+            c4 fd 80 6c 22 f2 21
+InitialBlock: 1
 Test: Encrypt
-Comment: Section 7, Test 3
-Key: 0000000000000000000000000000000000000000000000000000000000000000
-IV: 0000000000000001
-Plaintext:
-Ciphertext: de9cba7bf3d69ef5e786dc63973f653a0b49e015adbff7134fcb7df137821031e85a050278a7084527214f73efc7fa5b5277062eb7a0433e445f41e3
-Test: Encrypt
-Comment: Section 7, Test 4
-Key: 0000000000000000000000000000000000000000000000000000000000000000
-IV: 0100000000000000
-Plaintext:
-Ciphertext: ef3fdfd6c61578fbf5cf35bd3dd33b8009631634d21e42ac33960bd138e50d32111e4caf237ee53ca8ad6426194a88545ddc497a0b466e7d6bbdb004
-Test: Encrypt
-Comment: Section 7, Test 5
-Key: 000102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f
-IV: 0001020304050607
-Plaintext:
-Ciphertext: f798a189f195e66982105ffb640bb7757f579da31602fc93ec01ac56f85ac3c134a4547b733b46413042c9440049176905d3be59ea1c53f1 \
-            5916155c2be8241a38008b9a26bc35941e2444177c8ade6689de95264986d95889fb60e84629c9bd9a5acb1cc118be563eb9b3a4a472f82e \
-            09a7e778492b562ef7130e88dfe031c79db9d4f7c7a899151b9a475032b63fc385245fe054e3dd5a97a5f576fe064025d3ce042c566ab2c5 \
-            07b138db853e3d6959660996546cc9c4a6eafdc777c040d70eaf46f76dad3979e5c5360c3317166a1c894c94a371876a94df7628fe4eaaf2 \
-            ccb27d5aaae0ad7ad0f9d4b6ad3b54098746d4524d38407a6deb
+#
+Comment: Section A.2, ChaCha20 Encryption, Test 3
+Key: 1c 92 40 a5 eb 55 d3 8a f3 33 88 86 04 f6 b5 f0 \
+     47 39 17 c1 40 2b 80 09 9d ca 5c bc 20 70 75 c0
+IV: 00 00 00 00 00 00 00 00 00 00 00 02
+Plaintext: 27 54 77 61 73 20 62 72 69 6c 6c 69 67 2c 20 61 \
+           6e 64 20 74 68 65 20 73 6c 69 74 68 79 20 74 6f \
+           76 65 73 0a 44 69 64 20 67 79 72 65 20 61 6e 64 \
+           20 67 69 6d 62 6c 65 20 69 6e 20 74 68 65 20 77 \
+           61 62 65 3a 0a 41 6c 6c 20 6d 69 6d 73 79 20 77 \
+           65 72 65 20 74 68 65 20 62 6f 72 6f 67 6f 76 65 \
+           73 2c 0a 41 6e 64 20 74 68 65 20 6d 6f 6d 65 20 \
+           72 61 74 68 73 20 6f 75 74 67 72 61 62 65 2e
+Ciphertext: 62 e6 34 7f 95 ed 87 a4 5f fa e7 42 6f 27 a1 df \
+            5f b6 91 10 04 4c 0d 73 11 8e ff a9 5b 01 e5 cf \
+            16 6d 3d f2 d7 21 ca f9 b2 1e 5f b1 4c 61 68 71 \
+            fd 84 c5 4f 9d 65 b2 83 19 6c 7f e4 f6 05 53 eb \
+            f3 9c 64 02 c4 22 34 e3 2a 35 6b 3e 76 43 12 a6 \
+            1a 55 32 05 57 16 ea d6 96 25 68 f8 7d 3f 3f 77 \
+            04 c6 a8 d1 bc d1 bf 4d 50 d6 15 4b 6d a7 31 b1 \
+            87 b5 8d fd 72 8a fa 36 75 7a 79 7a c1 88 d1
+InitialBlock: 42
 Test: Encrypt

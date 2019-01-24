@@ -93,6 +93,7 @@ void RegisterFactories3()
 	RegisterSymmetricCipherDefaultFactories<Salsa20>();
 	RegisterSymmetricCipherDefaultFactories<XSalsa20>();
 	RegisterSymmetricCipherDefaultFactories<ChaCha>();
+	RegisterSymmetricCipherDefaultFactories<ChaChaTLS>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
 	RegisterSymmetricCipherDefaultFactories<Rabbit>();
 	RegisterSymmetricCipherDefaultFactories<RabbitWithIV>();

@@ -527,7 +527,7 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		// been processed. Also note we only unlatch from testDataPairs. If
 		// overrideParameters are specified, the caller is responsible for
 		// managing the parameter.
-		v.erase("Tweak"); v.erase("BlockSize"); v.erase("BlockPaddingScheme");
+		v.erase("Tweak"); v.erase("InitialBlock"); v.erase("BlockSize"); v.erase("BlockPaddingScheme");
 
 		std::string encrypted, xorDigest, ciphertext, ciphertextXorDigest;
 		if (test == "EncryptionMCT" || test == "DecryptionMCT")

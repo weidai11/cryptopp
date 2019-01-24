@@ -598,7 +598,7 @@ protected:
 ///   LSB is at element 0 and the MSB is at element 31.
 ///   If you call GetPublicElement() then the little-endian byte
 ///   array is converted to a big-endian Integer() so it can be
-///   returned the way a caller expects. And calling 
+///   returned the way a caller expects. And calling
 ///   SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PublicKey : public X509PublicKey

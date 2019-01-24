@@ -156,6 +156,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateCamellia() && pass;
 	pass=ValidateSalsa() && pass;
 	pass=ValidateChaCha() && pass;
+	pass=ValidateChaChaTLS() && pass;
 	pass=ValidateSosemanuk() && pass;
 	pass=ValidateRabbit() && pass;
 	pass=ValidateHC128() && pass;

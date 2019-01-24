@@ -1743,6 +1743,13 @@ bool ValidateChaCha()
 	return RunTestDataFile("TestVectors/chacha.txt");
 }
 
+bool ValidateChaChaTLS()
+{
+	std::cout << "\nChaCha-TLS validation suite running...\n";
+
+	return RunTestDataFile("TestVectors/chacha_tls.txt");
+}
+
 bool ValidateSosemanuk()
 {
 	std::cout << "\nSosemanuk validation suite running...\n";

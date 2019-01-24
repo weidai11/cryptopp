@@ -106,6 +106,7 @@ bool ValidateHC256();
 bool ValidateRabbit();
 bool ValidateSalsa();
 bool ValidateChaCha();
+bool ValidateChaChaTLS();
 bool ValidateSosemanuk();
 
 bool ValidateVMAC();

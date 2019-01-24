@@ -983,10 +983,11 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 68: result = ValidateTTMAC(); break;
 	case 70: result = ValidateSalsa(); break;
 	case 71: result = ValidateChaCha(); break;
-	case 72: result = ValidateSosemanuk(); break;
-	case 73: result = ValidateRabbit(); break;
-	case 74: result = ValidateHC128(); break;
-	case 75: result = ValidateHC256(); break;
+	case 72: result = ValidateChaChaTLS(); break;
+	case 73: result = ValidateSosemanuk(); break;
+	case 74: result = ValidateRabbit(); break;
+	case 75: result = ValidateHC128(); break;
+	case 76: result = ValidateHC256(); break;
 	case 80: result = ValidateVMAC(); break;
 	case 81: result = ValidateCCM(); break;
 	case 82: result = ValidateGCM(); break;
