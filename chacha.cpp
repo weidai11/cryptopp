@@ -314,7 +314,7 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 16 || length == 32);
 
     m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
-    if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
+    if (m_rounds != 20 && m_rounds != 12 && m_rounds != 8)
         throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
 
     // "expand 16-byte k" or "expand 32-byte k"
@@ -356,9 +356,6 @@ unsigned int ChaCha_Policy::GetOptimalBlockSize() const
     return ChaCha_GetOptimalBlockSize();
 }
 
-// OperateKeystream always produces a key stream. The key stream is written
-// to output. Optionally a message may be supplied to xor with the key stream.
-// The message is input, and output = output ^ input.
 void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
@@ -387,9 +384,13 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     if (rounds != 20)
         throw InvalidRounds(ChaChaTLS::StaticAlgorithmName(), rounds);
 
-    // RFC 7539 test vectors use an initial block counter. However, some of them
-    // don't start at 0. If Resynchronize() is called we set to 0. Hence, stash
-    // the initial block counter in m_state[16]. Then use it in Resynchronize().
+    // RFC 7539 test vectors use an initial block counter. However, the counter
+    // can be an arbitrary value per RFC 7539 Section 2.4. We stash the counter
+    // away in state[16] and use it for a Resynchronize() operation. I think
+    // the initial counter is used more like a Tweak when non-0, and it should
+    // be provided in Resynchronize() (light-weight re-keying). However,
+    // Resynchronize() does not have an overload that allows us to pass it into
+    // the function, so we have to use the heavier-weight SetKey to change it.
     word64 block;
     if (params.GetValue("InitialBlock", block))
         m_state[16] = static_cast<word32>(block);
@@ -420,7 +421,6 @@ void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV
 
 void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 {
-    // State words are defined in RFC 7539, Section 2.3
     // Should we throw here???
     CRYPTOPP_ASSERT(iterationCount <= std::numeric_limits<word32>::max());
     m_state[12] = (word32)iterationCount;  // low word
@@ -436,9 +436,6 @@ unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
     return ChaCha_GetOptimalBlockSize();
 }
 
-// OperateKeystream always produces a key stream. The key stream is written
-// to output. Optionally a message may be supplied to xor with the key stream.
-// The message is input, and output = output ^ input.
 void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
