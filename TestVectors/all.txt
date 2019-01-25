@@ -38,7 +38,7 @@ Test: TestVectors/simon.txt
 Test: TestVectors/speck.txt
 Test: TestVectors/salsa.txt
 Test: TestVectors/chacha.txt
-#Test: TestVectors/tls_chacha.txt
+Test: TestVectors/chacha_tls.txt
 Test: TestVectors/sosemanuk.txt
 Test: TestVectors/rabbit.txt
 Test: TestVectors/hc128.txt
