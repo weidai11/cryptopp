@@ -68,13 +68,6 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
-    // MultiBlockSafe detects a condition that can arise in the SIMD
-    // implementations where we overflow one of the 32-bit state words
-    // during addition in an intermediate result. Conditions to trigger
-    // issue include a user seeks to around 2^32 blocks (256 GB of data).
-    // https://github.com/weidai11/cryptopp/issues/732
-    inline bool MultiBlockSafe(unsigned int blocks) const;
-
     FixedSizeAlignedSecBlock<word32, 16> m_state;
     unsigned int m_rounds;
 };
@@ -130,13 +123,6 @@ protected:
 
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
-
-    // MultiBlockSafe detects a condition that can arise in the SIMD
-    // implementations where we overflow one of the 32-bit state words
-    // during addition in an intermediate result. Conditions to trigger
-    // issue include a user seeks to around 2^32 blocks (256 GB of data).
-    // https://github.com/weidai11/cryptopp/issues/732
-    inline bool MultiBlockSafe(unsigned int blocks) const;
 
     FixedSizeAlignedSecBlock<word32, 16+1> m_state;
     CRYPTOPP_CONSTANT(m_rounds = ChaChaTLS_Info::ROUNDS)
