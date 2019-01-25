@@ -224,7 +224,7 @@ Ciphertext: \
     F1B418A34AA18F15DE0B9667D7925B4651F8E73D4191B2C868915344BDBD18E5
 Test: Encrypt
 #
-Comment: All 0 key, all 0 iv, 0 counter block, 256 bytes
+Comment: All 0 key, all 0 iv, 0xfffffffe counter block, 256 bytes
 Key: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
 IV: 00 00 00 00 00 00 00 00 00 00 00 00
 Plaintext: r256 00
