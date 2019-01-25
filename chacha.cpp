@@ -380,7 +380,7 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     // RFC 7539 test vectors use an initial block counter. However, some of them
     // don't start at 0. If Resynchronize() is called we set to 0. Hence, stash
     // the initial block counter in m_state[16]. Then use it in Resynchronize().
-    int block;
+    word64 block;
     if (params.GetValue("InitialBlock", block))
         m_state[16] = static_cast<word32>(block);
     else
@@ -605,8 +605,8 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
         {
             // m_state[13]++;
 
-            // RFC 7539 does not say what to do here. ChaCha-TLS uses state[13]
-            // for part of the nonce. We can't carry into it. Shit or go blind...
+            // RFC 7539 does not say what to do here. ChaCha-TLS uses state[13] for
+            // part of the nonce, and we can't carry into it. Shit or go blind...
             // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
             CRYPTOPP_ASSERT(0);
         }
