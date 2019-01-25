@@ -332,12 +332,12 @@ void ChaCha_Policy::OperateKeystream(KeystreamOperation operation,
 
 std::string ChaChaTLS_Policy::AlgorithmName() const
 {
-    return std::string("ChaChaTLS")+IntToString(static_cast<unsigned int>(m_rounds));
+    return std::string("ChaChaTLS");
 }
 
 std::string ChaChaTLS_Policy::AlgorithmProvider() const
 {
-    // Disable SIMD until we can generate large block test vectors
+    // Disable SIMD until we obtain large block test vectors and handle wrap.
     // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
 #if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
@@ -418,7 +418,7 @@ void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaChaTLS_Policy::GetAlignment() const
 {
-    // Disable SIMD until we can generate large block test vectors
+    // Disable SIMD until we obtain large block test vectors and handle wrap.
     // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
 #if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
@@ -442,7 +442,7 @@ unsigned int ChaChaTLS_Policy::GetAlignment() const
 
 unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 {
-    // Disable SIMD until we can generate large block test vectors
+    // Disable SIMD until we obtain large block test vectors and handle wrap.
     // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
 #if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
@@ -475,7 +475,7 @@ unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
-    // Disable SIMD until we can generate large block test vectors
+    // Disable SIMD until we obtain large block test vectors and handle wrap.
     // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
 #if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
