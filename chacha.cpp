@@ -219,18 +219,7 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
     } while (iterationCount--);
 }
 
-ANONYMOUS_NAMESPACE_END
-
-NAMESPACE_BEGIN(CryptoPP)
-
-////////////////////////////// Bernstein ChaCha //////////////////////////////
-
-std::string ChaCha_Policy::AlgorithmName() const
-{
-    return std::string("ChaCha")+IntToString(m_rounds);
-}
-
-std::string ChaCha_Policy::AlgorithmProvider() const
+std::string ChaCha_AlgorithmProvider()
 {
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
@@ -257,6 +246,67 @@ std::string ChaCha_Policy::AlgorithmProvider() const
     else
 #endif
     return "C++";
+}
+
+unsigned int ChaCha_GetAlignment()
+{
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return 16;
+    else
+#endif
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+    if (HasSSE2())
+        return 16;
+    else
+#endif
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 16;
+    else
+#endif
+        return GetAlignmentOf<word32>();
+}
+
+unsigned int ChaCha_GetOptimalBlockSize()
+{
+#if (CRYPTOPP_AVX2_AVAILABLE)
+    if (HasAVX2())
+        return 8 * BYTES_PER_ITERATION;
+    else
+#endif
+#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+    if (HasSSE2())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 4*BYTES_PER_ITERATION;
+    else
+#endif
+        return BYTES_PER_ITERATION;
+}
+
+ANONYMOUS_NAMESPACE_END
+
+NAMESPACE_BEGIN(CryptoPP)
+
+////////////////////////////// Bernstein ChaCha //////////////////////////////
+
+std::string ChaCha_Policy::AlgorithmName() const
+{
+    return std::string("ChaCha")+IntToString(m_rounds);
+}
+
+std::string ChaCha_Policy::AlgorithmProvider() const
+{
+    return ChaCha_AlgorithmProvider();
 }
 
 void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
@@ -298,47 +348,12 @@ void ChaCha_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaCha_Policy::GetAlignment() const
 {
-#if (CRYPTOPP_AVX2_AVAILABLE)
-    if (HasAVX2())
-        return 16;
-    else
-#endif
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-    if (HasSSE2())
-        return 16;
-    else
-#endif
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return 16;
-    else
-#endif
-        return GetAlignmentOf<word32>();
+    return ChaCha_GetAlignment();
 }
 
 unsigned int ChaCha_Policy::GetOptimalBlockSize() const
 {
-#if (CRYPTOPP_AVX2_AVAILABLE)
-    if (HasAVX2())
-        return 8 * BYTES_PER_ITERATION;
-    else
-#endif
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-    if (HasSSE2())
-        return 4*BYTES_PER_ITERATION;
-    else
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return 4*BYTES_PER_ITERATION;
-    else
-#endif
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return 4*BYTES_PER_ITERATION;
-    else
-#endif
-        return BYTES_PER_ITERATION;
+    return ChaCha_GetOptimalBlockSize();
 }
 
 // OperateKeystream always produces a key stream. The key stream is written
@@ -360,31 +375,7 @@ std::string ChaChaTLS_Policy::AlgorithmName() const
 
 std::string ChaChaTLS_Policy::AlgorithmProvider() const
 {
-#if (CRYPTOPP_AVX2_AVAILABLE)
-    if (HasAVX2())
-        return "AVX2";
-    else
-#endif
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-    if (HasSSE2())
-        return "SSE2";
-    else
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return "NEON";
-    else
-#endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
-        return "Power7";
-    else
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return "Altivec";
-    else
-#endif
-    return "C++";
+    return ChaCha_AlgorithmProvider();
 }
 
 void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
@@ -437,47 +428,12 @@ void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaChaTLS_Policy::GetAlignment() const
 {
-#if (CRYPTOPP_AVX2_AVAILABLE)
-    if (HasAVX2())
-        return 16;
-    else
-#endif
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-    if (HasSSE2())
-        return 16;
-    else
-#endif
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return 16;
-    else
-#endif
-        return GetAlignmentOf<word32>();
+    return ChaCha_GetAlignment();
 }
 
 unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 {
-#if (CRYPTOPP_AVX2_AVAILABLE)
-    if (HasAVX2())
-        return 8 * BYTES_PER_ITERATION;
-    else
-#endif
-#if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
-    if (HasSSE2())
-        return 4*BYTES_PER_ITERATION;
-    else
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return 4*BYTES_PER_ITERATION;
-    else
-#endif
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return 4*BYTES_PER_ITERATION;
-    else
-#endif
-        return BYTES_PER_ITERATION;
+    return ChaCha_GetOptimalBlockSize();
 }
 
 // OperateKeystream always produces a key stream. The key stream is written
@@ -486,9 +442,16 @@ unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
-    word32 discard;
+    word32 discard=0;
     ChaCha_OperateKeystream(operation, m_state, m_state[12], discard,
             m_rounds, output, input, iterationCount);
+
+    // If this fires it means ChaCha_OperateKeystream generated a carry
+    // that was discarded. The problem is, the RFC does not specify what
+    // should happen when the counter block wraps. All we can do is
+    // inform the user that something bad may happen because we don't
+    // know what we should do.
+    CRYPTOPP_ASSERT(discard==0);
 }
 
 NAMESPACE_END
