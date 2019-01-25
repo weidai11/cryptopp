@@ -3,12 +3,12 @@
 //            and Bernstein's reference ChaCha family implementation at
 //            http://cr.yp.to/chacha.html.
 
-// Crypto++ added Bernstein's ChaCha classses at version 5.6.4 of the library.
-// The IETF uses a slightly different implementation, and the classes were
-// added at Crypto++ version 8.1. We wanted to maintain ABI compatibility at
-// the 8.1 release so the original ChaCha classes were not disturbed. Instead
-// new classes were added for IETF ChaCha. The back-end implementation shares
-// code as expected, however.
+// The library added Bernstein's ChaCha classses at Crypto++ 5.6.4. The IETF
+// uses a slightly different implementation than Bernstein, and the IETF
+// classes were added at Crypto++ 8.1. We wanted to maintain ABI compatibility
+// at the 8.1 release so the original ChaCha classes were not disturbed.
+// Instead new classes were added for IETF ChaCha. The back-end implementation
+// shares code as expected, however.
 
 /// \file chacha.h
 /// \brief Classes for ChaCha8, ChaCha12 and ChaCha20 stream ciphers
@@ -73,12 +73,10 @@ protected:
 };
 
 /// \brief ChaCha stream cipher
-/// \details Bernstein and ECRYPT's ChaCha is _slightly_ different from the TLS working
-///   group's implementation for cipher suites
-///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
-///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and
-///   <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
-/// \sa <a href="http://cr.yp.to/chacha/chacha-20080208.pdf">ChaCha, a variant of Salsa20</a> (2008.01.28).
+/// \details This is Bernstein and ECRYPT's ChaCha. It is _slightly_ different
+///   from the IETF's version of ChaCha called ChaChaTLS.
+/// \sa <a href="http://cr.yp.to/chacha/chacha-20080208.pdf">ChaCha, a variant
+///   of Salsa20</a> (2008.01.28).
 /// \since Crypto++ 5.6.4
 struct ChaCha : public ChaCha_Info, public SymmetricCipherDocumentation
 {
@@ -96,9 +94,9 @@ struct ChaChaTLS_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_
     /// \returns the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
     ///   member function.
-    /// \details This is the IETF's variant of Bernstein's ChaCha from RFC 7539.
-    ///   IETF ChaCha is called ChaChaTLS in the Crypto++ library. It is
-    ///   _slightly_ different from Bernstein's implementation.
+    /// \details This is the IETF's variant of Bernstein's ChaCha from RFC
+    ///   7539. IETF ChaCha is called ChaChaTLS in the Crypto++ library. It
+    ///   is _slightly_ different from Bernstein's implementation.
     static const char* StaticAlgorithmName() {
         return "ChaChaTLS";
     }
@@ -131,7 +129,7 @@ protected:
 /// \brief ChaCha-TLS stream cipher
 /// \details This is the IETF's variant of Bernstein's ChaCha from RFC 7539.
 ///   IETF ChaCha is called ChaChaTLS in the Crypto++ library. It is
-///   _slightly_ different from the Bernstein's implementation. ChaCha-TLS
+///   _slightly_ different from the Bernstein implementation. ChaCha-TLS
 ///   can be used for cipher suites
 ///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
 ///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and

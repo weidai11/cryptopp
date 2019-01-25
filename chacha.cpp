@@ -83,9 +83,9 @@ enum {BYTES_PER_ITERATION=64};
 // during addition in an intermediate result. Conditions to trigger
 // issue include a user seeks to around 2^32 blocks (256 GB of data).
 // https://github.com/weidai11/cryptopp/issues/732
-inline bool MultiBlockSafe(unsigned int state12, unsigned int blocks)
+inline bool MultiBlockSafe(unsigned int ctrLow, unsigned int blocks)
 {
-    return 0xffffffff - state12 > blocks;
+    return 0xffffffff - ctrLow > blocks;
 }
 
 // OperateKeystream always produces a key stream. The key stream is written
@@ -217,6 +217,9 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
 
     // We may re-enter a SIMD keystream operation from here.
     } while (iterationCount--);
+
+    #undef CHACHA_QUARTER_ROUND
+    #undef CHACHA_OUTPUT
 }
 
 std::string ChaCha_AlgorithmProvider()
