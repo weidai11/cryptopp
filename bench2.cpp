@@ -141,7 +141,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha20");
 		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha12", MakeParameters(Name::Rounds(), 12));
 		BenchMarkByName<SymmetricCipher>("ChaCha", 0, "ChaCha8", MakeParameters(Name::Rounds(), 8));
-		BenchMarkByName<SymmetricCipher>("ChaChaTLS");
+		BenchMarkByName<SymmetricCipher>("ChaChaTLS", 0, "ChaChaTLS");
 		BenchMarkByName<SymmetricCipher>("Sosemanuk");
 		BenchMarkByName<SymmetricCipher>("Rabbit");
 		BenchMarkByName<SymmetricCipher>("RabbitWithIV");
