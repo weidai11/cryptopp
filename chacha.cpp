@@ -337,9 +337,6 @@ std::string ChaChaTLS_Policy::AlgorithmName() const
 
 std::string ChaChaTLS_Policy::AlgorithmProvider() const
 {
-    // Disable SIMD until we obtain large block test vectors and handle wrap.
-    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
-#if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
         return "AVX2";
@@ -363,7 +360,6 @@ std::string ChaChaTLS_Policy::AlgorithmProvider() const
     if (HasAltivec())
         return "Altivec";
     else
-#endif
 #endif
     return "C++";
 }
@@ -418,9 +414,6 @@ void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 
 unsigned int ChaChaTLS_Policy::GetAlignment() const
 {
-    // Disable SIMD until we obtain large block test vectors and handle wrap.
-    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
-#if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
         return 16;
@@ -436,15 +429,11 @@ unsigned int ChaChaTLS_Policy::GetAlignment() const
         return 16;
     else
 #endif
-#endif
         return GetAlignmentOf<word32>();
 }
 
 unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 {
-    // Disable SIMD until we obtain large block test vectors and handle wrap.
-    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
-#if 0
 #if (CRYPTOPP_AVX2_AVAILABLE)
     if (HasAVX2())
         return 8 * BYTES_PER_ITERATION;
@@ -465,8 +454,12 @@ unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
         return 4*BYTES_PER_ITERATION;
     else
 #endif
-#endif
         return BYTES_PER_ITERATION;
+}
+
+bool ChaChaTLS_Policy::MultiBlockSafe(unsigned int blocks) const
+{
+    return 0xffffffff - m_state[12] > blocks;
 }
 
 // OperateKeystream always produces a key stream. The key stream is written
@@ -475,21 +468,18 @@ unsigned int ChaChaTLS_Policy::GetOptimalBlockSize() const
 void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
-    // Disable SIMD until we obtain large block test vectors and handle wrap.
-    // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
-#if 0
+    do
+    {
 #if (CRYPTOPP_AVX2_AVAILABLE)
         if (HasAVX2())
         {
-            while (iterationCount >= 8)
+            while (iterationCount >= 8 && MultiBlockSafe(8))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_AVX2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
-                // MultiBlockSafe avoids overflow on the counter words
+                // MultiBlockSafe avoids overflow on the counter word
                 m_state[12] += 8;
-                //if (m_state[12] < 8)
-                //    m_state[13]++;
 
                 input += (!!xorInput) * 8 * BYTES_PER_ITERATION;
                 output += 8 * BYTES_PER_ITERATION;
@@ -501,15 +491,13 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
         if (HasSSE2())
         {
-            while (iterationCount >= 4)
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_SSE2(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
-                // MultiBlockSafe avoids overflow on the counter words
+                // MultiBlockSafe avoids overflow on the counter word
                 m_state[12] += 4;
-                //if (m_state[12] < 4)
-                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
@@ -521,15 +509,13 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
         if (HasNEON())
         {
-            while (iterationCount >= 4)
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_NEON(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
-                // MultiBlockSafe avoids overflow on the counter words
+                // MultiBlockSafe avoids overflow on the counter word
                 m_state[12] += 4;
-                //if (m_state[12] < 4)
-                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
@@ -541,15 +527,13 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
 #if (CRYPTOPP_POWER7_AVAILABLE)
         if (HasPower7())
         {
-            while (iterationCount >= 4)
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_POWER7(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
-                // MultiBlockSafe avoids overflow on the counter words
+                // MultiBlockSafe avoids overflow on the counter word
                 m_state[12] += 4;
-                //if (m_state[12] < 4)
-                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
@@ -559,15 +543,13 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
         if (HasAltivec())
         {
-            while (iterationCount >= 4)
+            while (iterationCount >= 4 && MultiBlockSafe(4))
             {
                 const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
                 ChaCha_OperateKeystream_ALTIVEC(m_state, xorInput ? input : NULLPTR, output, m_rounds);
 
-                // MultiBlockSafe avoids overflow on the counter words
+                // MultiBlockSafe avoids overflow on the counter word
                 m_state[12] += 4;
-                //if (m_state[12] < 4)
-                //    m_state[13]++;
 
                 input += (!!xorInput)*4*BYTES_PER_ITERATION;
                 output += 4*BYTES_PER_ITERATION;
@@ -575,42 +557,44 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
             }
         }
 #endif
-#endif
 
-    while (iterationCount--)
-    {
-        word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
-
-        x0 = m_state[0];    x1 = m_state[1];    x2 = m_state[2];    x3 = m_state[3];
-        x4 = m_state[4];    x5 = m_state[5];    x6 = m_state[6];    x7 = m_state[7];
-        x8 = m_state[8];    x9 = m_state[9];    x10 = m_state[10];  x11 = m_state[11];
-        x12 = m_state[12];  x13 = m_state[13];  x14 = m_state[14];  x15 = m_state[15];
-
-        for (int i = static_cast<int>(m_rounds); i > 0; i -= 2)
+        if (iterationCount)
         {
-            CHACHA_QUARTER_ROUND(x0, x4,  x8, x12);
-            CHACHA_QUARTER_ROUND(x1, x5,  x9, x13);
-            CHACHA_QUARTER_ROUND(x2, x6, x10, x14);
-            CHACHA_QUARTER_ROUND(x3, x7, x11, x15);
+            word32 x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15;
 
-            CHACHA_QUARTER_ROUND(x0, x5, x10, x15);
-            CHACHA_QUARTER_ROUND(x1, x6, x11, x12);
-            CHACHA_QUARTER_ROUND(x2, x7,  x8, x13);
-            CHACHA_QUARTER_ROUND(x3, x4,  x9, x14);
+            x0 = m_state[0];    x1 = m_state[1];    x2 = m_state[2];    x3 = m_state[3];
+            x4 = m_state[4];    x5 = m_state[5];    x6 = m_state[6];    x7 = m_state[7];
+            x8 = m_state[8];    x9 = m_state[9];    x10 = m_state[10];  x11 = m_state[11];
+            x12 = m_state[12];  x13 = m_state[13];  x14 = m_state[14];  x15 = m_state[15];
+
+            for (int i = static_cast<int>(m_rounds); i > 0; i -= 2)
+            {
+                CHACHA_QUARTER_ROUND(x0, x4,  x8, x12);
+                CHACHA_QUARTER_ROUND(x1, x5,  x9, x13);
+                CHACHA_QUARTER_ROUND(x2, x6, x10, x14);
+                CHACHA_QUARTER_ROUND(x3, x7, x11, x15);
+
+                CHACHA_QUARTER_ROUND(x0, x5, x10, x15);
+                CHACHA_QUARTER_ROUND(x1, x6, x11, x12);
+                CHACHA_QUARTER_ROUND(x2, x7,  x8, x13);
+                CHACHA_QUARTER_ROUND(x3, x4,  x9, x14);
+            }
+
+            CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(CHACHA_OUTPUT, BYTES_PER_ITERATION);
+
+            if (++m_state[12] == 0)
+            {
+                // m_state[13]++;
+
+                // RFC 7539 does not say what to do here. ChaCha-TLS uses state[13] for
+                // part of the nonce, and we can't carry into it. Shit or go blind...
+                // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
+                CRYPTOPP_ASSERT(0);
+            }
         }
 
-        CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(CHACHA_OUTPUT, BYTES_PER_ITERATION);
-
-        if (++m_state[12] == 0)
-        {
-            // m_state[13]++;
-
-            // RFC 7539 does not say what to do here. ChaCha-TLS uses state[13] for
-            // part of the nonce, and we can't carry into it. Shit or go blind...
-            // https://mailarchive.ietf.org/arch/msg/saag/S0_YjVkzEx2s2bHd8KIzjK1CwZ4
-            CRYPTOPP_ASSERT(0);
-        }
-    }
+    // We may re-enter a SIMD keystream operation from here.
+    } while (iterationCount--);
 }
 
 NAMESPACE_END
