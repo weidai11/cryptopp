@@ -79,10 +79,11 @@ typedef word32 WordType;
 enum {BYTES_PER_ITERATION=64};
 
 // MultiBlockSafe detects a condition that can arise in the SIMD
-// implementations where we overflow one of the 32-bit state words
-// during addition in an intermediate result. Conditions to trigger
-// issue include a user seeks to around 2^32 blocks (256 GB of data).
-// https://github.com/weidai11/cryptopp/issues/732
+// implementations where we overflow one of the 32-bit state words during
+// addition in an intermediate result. Preconditions for the issue include
+// a user seeks to around 2^32 blocks (256 GB of data) for ChaCha; or a
+// user specifies an arbitrarily large initial counter block for ChaChaTLS.
+// Also see https://github.com/weidai11/cryptopp/issues/732.
 inline bool MultiBlockSafe(unsigned int ctrLow, unsigned int blocks)
 {
     return 0xffffffff - ctrLow > blocks;
