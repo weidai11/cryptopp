@@ -200,7 +200,14 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 template <typename WT, unsigned int W, unsigned int X = 1, class BASE = AdditiveCipherAbstractPolicy>
 struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 {
+	/// \brief Word type for the cipher
 	typedef WT WordType;
+
+	/// \brief Number of bytes for an iteration
+	/// \details BYTES_PER_ITERATION is the product <tt>sizeof(WordType) * W</tt>.
+	///  For example, ChaCha uses 16 each <tt>word32</tt>, and the value of
+	///  BYTES_PER_ITERATION is 64. Each invocation of the ChaCha block function
+	///  produces 64 bytes of keystream.
 	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W)
 
 	virtual ~AdditiveCipherConcretePolicy() {}
@@ -208,8 +215,9 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 #if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
 	/// \brief Provides data alignment requirements
 	/// \returns data alignment requirements, in bytes
-	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
-	///   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
+	/// \details Internally, the default implementation returns 1. If the stream
+	///  cipher is implemented using an SSE2 ASM or intrinsics, then the value
+	///  returned is usually 16.
 	unsigned int GetAlignment() const {return GetAlignmentOf<WordType>();}
 #endif
 
@@ -223,7 +231,8 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	unsigned int GetIterationsToBuffer() const {return X;}
 
 	/// \brief Flag indicating
-	/// \returns true if the stream can be generated independent of the transformation input, false otherwise
+	/// \returns true if the stream can be generated independent of the
+	///  transformation input, false otherwise
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream()
 	bool CanOperateKeystream() const {return true;}
 
