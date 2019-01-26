@@ -384,7 +384,7 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 32);
 
     // ChaChaTLS is always 20 rounds. Fetch Rounds() to avoid a spurious failure.
-    int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
+    int rounds = params.GetIntValueWithDefault(Name::Rounds(), ROUNDS);
     if (rounds != 20)
         throw InvalidRounds(ChaChaTLS::StaticAlgorithmName(), rounds);
 
@@ -423,12 +423,6 @@ void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV
     get(m_state[13])(m_state[14])(m_state[15]);
 }
 
-void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, word32 initialBlock, const byte *IV, size_t length)
-{
-    m_state[16] = initialBlock;
-    this->CipherResynchronize(keystreamBuffer, IV, length);
-}
-
 void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 {
     // Should we throw here??? If the initial block counter is
@@ -454,14 +448,15 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
 {
     word32 discard=0;
     ChaCha_OperateKeystream(operation, m_state, m_state[12], discard,
-            m_rounds, output, input, iterationCount);
+            ROUNDS, output, input, iterationCount);
 
     // If this fires it means ChaCha_OperateKeystream generated a counter
     // block carry that was discarded. The problem is, the RFC does not
     // specify what should happen when the counter block wraps. All we can
     // do is inform the user that something bad may happen because we don't
     // know what we should do.
-    // Also see https://github.com/weidai11/cryptopp/issues/790.
+    // Also see https://github.com/weidai11/cryptopp/issues/790 and
+    // https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU
     CRYPTOPP_ASSERT(discard==0);
 }
 
