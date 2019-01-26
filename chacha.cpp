@@ -388,8 +388,8 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     if (rounds != 20)
         throw InvalidRounds(ChaChaTLS::StaticAlgorithmName(), rounds);
 
-    // RFC 7539 test vectors use an initial block counter. However, the counter
-    // can be an arbitrary value per RFC 7539 Section 2.4. We stash the counter
+    // RFC 8439 test vectors use an initial block counter. However, the counter
+    // can be an arbitrary value per RFC 8439 Section 2.4. We stash the counter
     // away in state[16] and use it for a Resynchronize() operation. I think
     // the initial counter is used more like a Tweak when non-0, and it should
     // be provided in Resynchronize() (light-weight re-keying). However,
@@ -401,13 +401,13 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     else
         m_state[16] = 0;
 
-    // State words are defined in RFC 7539, Section 2.3.
+    // State words are defined in RFC 8439, Section 2.3.
     m_state[0] = 0x61707865;
     m_state[1] = 0x3320646e;
     m_state[2] = 0x79622d32;
     m_state[3] = 0x6b206574;
 
-    // State words are defined in RFC 7539, Section 2.3. Key is 32-bytes.
+    // State words are defined in RFC 8439, Section 2.3. Key is 32-bytes.
     GetBlock<word32, LittleEndian> get(key);
     get(m_state[4])(m_state[5])(m_state[6])(m_state[7])(m_state[8])(m_state[9])(m_state[10])(m_state[11]);
 }
@@ -417,10 +417,16 @@ void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV
     CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
     CRYPTOPP_ASSERT(length==12);
 
-    // State words are defined in RFC 7539, Section 2.3
+    // State words are defined in RFC 8439, Section 2.3
     GetBlock<word32, LittleEndian> get(IV);
     m_state[12] = m_state[16];
     get(m_state[13])(m_state[14])(m_state[15]);
+}
+
+void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, word32 initialBlock, const byte *IV, size_t length)
+{
+    m_state[16] = initialBlock;
+    this->CipherResynchronize(keystreamBuffer, IV, length);
 }
 
 void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)

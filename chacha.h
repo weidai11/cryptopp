@@ -95,7 +95,7 @@ struct ChaChaTLS_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_
     /// \details StaticAlgorithmName returns the algorithm's name as a static
     ///   member function.
     /// \details This is the IETF's variant of Bernstein's ChaCha from RFC
-    ///   7539. IETF ChaCha is called ChaChaTLS in the Crypto++ library. It
+    ///   8439. IETF ChaCha is called ChaChaTLS in the Crypto++ library. It
     ///   is _slightly_ different from Bernstein's implementation.
     static const char* StaticAlgorithmName() {
         return "ChaChaTLS";
@@ -114,6 +114,7 @@ protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
     void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
     void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
+	void CipherResynchronize(byte *keystreamBuffer, word32 initialBlock, const byte *IV, size_t length);
     bool CipherIsRandomAccess() const {return true;}
     void SeekToIteration(lword iterationCount);
     unsigned int GetAlignment() const;
@@ -127,15 +128,16 @@ protected:
 };
 
 /// \brief ChaCha-TLS stream cipher
-/// \details This is the IETF's variant of Bernstein's ChaCha from RFC 7539.
+/// \details This is the IETF's variant of Bernstein's ChaCha from RFC 8439.
 ///   IETF ChaCha is called ChaChaTLS in the Crypto++ library. It is
 ///   _slightly_ different from the Bernstein implementation. ChaCha-TLS
 ///   can be used for cipher suites
 ///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
 ///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and
 ///   <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
-/// \sa <a href="https://tools.ietf.org/html/rfc7539">ChaCha20 and Poly1305 for
-///   IETF Protocols</a>.
+/// \sa <a href="https://tools.ietf.org/html/rfc8439">ChaCha20 and Poly1305 for
+///   IETF Protocols</a> and <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
+///   790, ChaChaTLS results when counter block wraps</A>.
 /// \since Crypto++ 8.1
 struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 {
