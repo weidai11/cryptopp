@@ -22,6 +22,14 @@ Richard De Moliner - safer.cpp
 Matthew Skala - twofish.cpp
 Kevin Springle - camellia.cpp, shacal2.cpp, ttmac.cpp, whrlpool.cpp, ripemd.cpp
 Ronny Van Keer - sha3.cpp
+Daniel J. Bernstein - chacha.cpp
+
+The Crypto++ Library uses portions of Andy Polyakov's CRYPTOGAMS for Poly1305
+scalar multiplication and aes_armv4.S. CRYPTOGAMS is dual licensed with a
+permissive BSD-style license. The CRYPTOGAMS license is reproduced below.
+
+The Crypto++ Library uses portions of Jack Lloyd's Botan for ChaCha SSE2 and
+AVX. Botan placed the code in public domain for Crypto++ to use.
 
 The Crypto++ Library (as a compilation) is currently licensed under the Boost
 Software License 1.0 (http://www.boost.org/users/license.html).
@@ -49,3 +57,22 @@ SHALL THE COPYRIGHT HOLDERS OR ANYONE DISTRIBUTING THE SOFTWARE BE LIABLE
 FOR ANY DAMAGES OR OTHER LIABILITY, WHETHER IN CONTRACT, TORT OR OTHERWISE,
 ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
+
+CRYPTOGAMS License
+
+Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+
+* Redistributions of source code must retain copyright notices,
+  this list of conditions and the following disclaimer.
+* Redistributions in binary form must reproduce the above
+  copyright notice, this list of conditions and the following
+  disclaimer in the documentation and/or other materials
+  provided with the distribution.
+* Neither the name of the CRYPTOGAMS nor the names of its copyright
+  holder and contributors may be used to endorse or promote products
+  derived from this software without specific prior written permission.
