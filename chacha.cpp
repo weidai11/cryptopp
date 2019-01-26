@@ -425,7 +425,10 @@ void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV
 
 void ChaChaTLS_Policy::SeekToIteration(lword iterationCount)
 {
-    // Should we throw here???
+    // Should we throw here??? If the initial block counter is
+    // large then we can wrap and process more data as long as
+    // data processed in the security context does not exceed
+    // 2^32 blocks or approximately 256 GB of data.
     CRYPTOPP_ASSERT(iterationCount <= std::numeric_limits<word32>::max());
     m_state[12] = (word32)iterationCount;  // low word
 }
@@ -447,11 +450,12 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
     ChaCha_OperateKeystream(operation, m_state, m_state[12], discard,
             m_rounds, output, input, iterationCount);
 
-    // If this fires it means ChaCha_OperateKeystream generated a carry
-    // that was discarded. The problem is, the RFC does not specify what
-    // should happen when the counter block wraps. All we can do is
-    // inform the user that something bad may happen because we don't
+    // If this fires it means ChaCha_OperateKeystream generated a counter
+    // block carry that was discarded. The problem is, the RFC does not
+    // specify what should happen when the counter block wraps. All we can
+    // do is inform the user that something bad may happen because we don't
     // know what we should do.
+    // Also see https://github.com/weidai11/cryptopp/issues/790.
     CRYPTOPP_ASSERT(discard==0);
 }
 
