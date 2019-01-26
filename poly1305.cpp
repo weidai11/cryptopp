@@ -25,9 +25,154 @@
 #include "aes.h"
 #include "cpu.h"
 
+#define CONSTANT_TIME_CARRY(a,b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+using namespace CryptoPP;
+enum {BLOCKSIZE=16};
+
+void Poly1305_HashBlocks(word32 h[5], word32 r[4], const byte *input, size_t length, word32 padbit)
+{
+	word32 r0, r1, r2, r3;
+	word32 s1, s2, s3;
+	word32 h0, h1, h2, h3, h4, c;
+	word64 d0, d1, d2, d3;
+
+	r0 = r[0]; r1 = r[1];
+	r2 = r[2]; r3 = r[3];
+
+	s1 = r1 + (r1 >> 2);
+	s2 = r2 + (r2 >> 2);
+	s3 = r3 + (r3 >> 2);
+
+	h0 = h[0]; h1 = h[1]; h2 = h[2];
+	h3 = h[3]; h4 = h[4];
+
+	while (length >= BLOCKSIZE)
+	{
+		// h += m[i]
+		h0 = (word32)(d0 = (word64)h0 +	             GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  0));
+		h1 = (word32)(d1 = (word64)h1 + (d0 >> 32) + GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  4));
+		h2 = (word32)(d2 = (word64)h2 + (d1 >> 32) + GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  8));
+		h3 = (word32)(d3 = (word64)h3 + (d2 >> 32) + GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input + 12));
+		h4 += (word32)(d3 >> 32) + padbit;
+
+		// h *= r "%" p
+		d0 = ((word64)h0 * r0) +
+			 ((word64)h1 * s3) +
+			 ((word64)h2 * s2) +
+			 ((word64)h3 * s1);
+		d1 = ((word64)h0 * r1) +
+			 ((word64)h1 * r0) +
+			 ((word64)h2 * s3) +
+			 ((word64)h3 * s2) +
+			 (h4 * s1);
+		d2 = ((word64)h0 * r2) +
+			 ((word64)h1 * r1) +
+			 ((word64)h2 * r0) +
+			 ((word64)h3 * s3) +
+			 (h4 * s2);
+		d3 = ((word64)h0 * r3) +
+			 ((word64)h1 * r2) +
+			 ((word64)h2 * r1) +
+			 ((word64)h3 * r0) +
+			 (h4 * s3);
+		h4 = (h4 * r0);
+
+		// a) h4:h0 = h4<<128 + d3<<96 + d2<<64 + d1<<32 + d0
+		h0 = (word32)d0;
+		h1 = (word32)(d1 += d0 >> 32);
+		h2 = (word32)(d2 += d1 >> 32);
+		h3 = (word32)(d3 += d2 >> 32);
+		h4 += (word32)(d3 >> 32);
+
+		// b) (h4:h0 += (h4:h0>>130) * 5) %= 2^130
+		c = (h4 >> 2) + (h4 & ~3U);
+		h4 &= 3;
+		h0 += c;
+		h1 += (c = CONSTANT_TIME_CARRY(h0,c));
+		h2 += (c = CONSTANT_TIME_CARRY(h1,c));
+		h3 += (c = CONSTANT_TIME_CARRY(h2,c));
+		h4 +=      CONSTANT_TIME_CARRY(h3,c);
+
+		input += BLOCKSIZE;
+		length -= BLOCKSIZE;
+	}
+
+	h[0] = h0; h[1] = h1; h[2] = h2;
+	h[3] = h3; h[4] = h4;
+}
+
+void Poly1305_HashFinal(word32 h[5], word32 n[4], byte *mac, size_t size)
+{
+	word32 h0, h1, h2, h3, h4;
+	word32 g0, g1, g2, g3, g4;
+	word32 mask;
+	word64 t;
+
+	h0 = h[0];
+	h1 = h[1];
+	h2 = h[2];
+	h3 = h[3];
+	h4 = h[4];
+
+	// compare to modulus by computing h + -p
+	g0 = (word32)(t = (word64)h0 + 5);
+	g1 = (word32)(t = (word64)h1 + (t >> 32));
+	g2 = (word32)(t = (word64)h2 + (t >> 32));
+	g3 = (word32)(t = (word64)h3 + (t >> 32));
+	g4 = h4 + (word32)(t >> 32);
+
+	// if there was carry into 131st bit, h3:h0 = g3:g0
+	mask = 0 - (g4 >> 2);
+	g0 &= mask; g1 &= mask;
+	g2 &= mask; g3 &= mask;
+	mask = ~mask;
+	h0 = (h0 & mask) | g0; h1 = (h1 & mask) | g1;
+	h2 = (h2 & mask) | g2; h3 = (h3 & mask) | g3;
+
+	// mac = (h + nonce) % (2^128)
+	h0 = (word32)(t = (word64)h0 + n[0]);
+	h1 = (word32)(t = (word64)h1 + (t >> 32) + n[1]);
+	h2 = (word32)(t = (word64)h2 + (t >> 32) + n[2]);
+	h3 = (word32)(t = (word64)h3 + (t >> 32) + n[3]);
+
+	if (size >= BLOCKSIZE)
+	{
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  0, h0);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  4, h1);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  8, h2);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac + 12, h3);
+	}
+	else
+	{
+		FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m;
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  0, h0);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  4, h1);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  8, h2);
+		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m + 12, h3);
+		memcpy(mac, m, size);
+	}
+}
+
+ANONYMOUS_NAMESPACE_END
+
 NAMESPACE_BEGIN(CryptoPP)
 
-#define CONSTANT_TIME_CARRY(a,b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
+// No longer needed. Remove at next major version bump
+template <class T>
+void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbit) {
+	CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(padbit);
+	CRYPTOPP_ASSERT(0);
+}
+
+// No longer needed. Remove at next major version bump
+template <class T>
+void Poly1305_Base<T>::HashFinal(byte *mac, size_t length) {
+	CRYPTOPP_UNUSED(mac); CRYPTOPP_UNUSED(length);
+	CRYPTOPP_ASSERT(0);
+}
 
 template <class T>
 std::string Poly1305_Base<T>::AlgorithmProvider() const
@@ -87,7 +232,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 		{
 			// Process
 			memcpy_s(m_acc + num, BLOCKSIZE - num, input, rem);
-			HashBlocks(m_acc, BLOCKSIZE, 1);
+			Poly1305_HashBlocks(m_h, m_r, m_acc, BLOCKSIZE, 1);
 			input += rem;
 			length -= rem;
 		}
@@ -104,7 +249,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 	length -= rem;
 
 	if (length >= BLOCKSIZE) {
-		HashBlocks(input, length, 1);
+		Poly1305_HashBlocks(m_h, m_r, input, length, 1);
 		input += length;
 	}
 
@@ -112,79 +257,6 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 		memcpy(m_acc, input, rem);
 
 	m_idx = rem;
-}
-
-template <class T>
-void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbit)
-{
-	word32 r0, r1, r2, r3;
-	word32 s1, s2, s3;
-	word32 h0, h1, h2, h3, h4, c;
-	word64 d0, d1, d2, d3;
-
-	r0 = m_r[0]; r1 = m_r[1];
-	r2 = m_r[2]; r3 = m_r[3];
-
-	s1 = r1 + (r1 >> 2);
-	s2 = r2 + (r2 >> 2);
-	s3 = r3 + (r3 >> 2);
-
-	h0 = m_h[0]; h1 = m_h[1]; h2 = m_h[2];
-	h3 = m_h[3]; h4 = m_h[4];
-
-	while (length >= BLOCKSIZE)
-	{
-		// h += m[i]
-		h0 = (word32)(d0 = (word64)h0 +	             GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  0));
-		h1 = (word32)(d1 = (word64)h1 + (d0 >> 32) + GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  4));
-		h2 = (word32)(d2 = (word64)h2 + (d1 >> 32) + GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  8));
-		h3 = (word32)(d3 = (word64)h3 + (d2 >> 32) + GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input + 12));
-		h4 += (word32)(d3 >> 32) + padbit;
-
-		// h *= r "%" p
-		d0 = ((word64)h0 * r0) +
-			 ((word64)h1 * s3) +
-			 ((word64)h2 * s2) +
-			 ((word64)h3 * s1);
-		d1 = ((word64)h0 * r1) +
-			 ((word64)h1 * r0) +
-			 ((word64)h2 * s3) +
-			 ((word64)h3 * s2) +
-			 (h4 * s1);
-		d2 = ((word64)h0 * r2) +
-			 ((word64)h1 * r1) +
-			 ((word64)h2 * r0) +
-			 ((word64)h3 * s3) +
-			 (h4 * s2);
-		d3 = ((word64)h0 * r3) +
-			 ((word64)h1 * r2) +
-			 ((word64)h2 * r1) +
-			 ((word64)h3 * r0) +
-			 (h4 * s3);
-		h4 = (h4 * r0);
-
-		// a) h4:h0 = h4<<128 + d3<<96 + d2<<64 + d1<<32 + d0
-		h0 = (word32)d0;
-		h1 = (word32)(d1 += d0 >> 32);
-		h2 = (word32)(d2 += d1 >> 32);
-		h3 = (word32)(d3 += d2 >> 32);
-		h4 += (word32)(d3 >> 32);
-
-		// b) (h4:h0 += (h4:h0>>130) * 5) %= 2^130
-		c = (h4 >> 2) + (h4 & ~3U);
-		h4 &= 3;
-		h0 += c;
-		h1 += (c = CONSTANT_TIME_CARRY(h0,c));
-		h2 += (c = CONSTANT_TIME_CARRY(h1,c));
-		h3 += (c = CONSTANT_TIME_CARRY(h2,c));
-		h4 +=      CONSTANT_TIME_CARRY(h3,c);
-
-		input += BLOCKSIZE;
-		length -= BLOCKSIZE;
-	}
-
-	m_h[0] = h0; m_h[1] = h1; m_h[2] = h2;
-	m_h[3] = h3; m_h[4] = h4;
 }
 
 template <class T>
@@ -201,67 +273,14 @@ void Poly1305_Base<T>::TruncatedFinal(byte *mac, size_t size)
 		m_acc[num++] = 1;   /* pad bit */
 		while (num < BLOCKSIZE)
 			m_acc[num++] = 0;
-		HashBlocks(m_acc, BLOCKSIZE, 0);
+		Poly1305_HashBlocks(m_h, m_r, m_acc, BLOCKSIZE, 0);
 	}
 
-	HashFinal(mac, size);
+	Poly1305_HashFinal(m_h, m_n, mac, size);
 
 	// Restart
 	m_used = true;
 	Restart();
-}
-
-template <class T>
-void Poly1305_Base<T>::HashFinal(byte *mac, size_t size)
-{
-	word32 h0, h1, h2, h3, h4;
-	word32 g0, g1, g2, g3, g4;
-	word32 mask;
-	word64 t;
-
-	h0 = m_h[0];
-	h1 = m_h[1];
-	h2 = m_h[2];
-	h3 = m_h[3];
-	h4 = m_h[4];
-
-	// compare to modulus by computing h + -p
-	g0 = (word32)(t = (word64)h0 + 5);
-	g1 = (word32)(t = (word64)h1 + (t >> 32));
-	g2 = (word32)(t = (word64)h2 + (t >> 32));
-	g3 = (word32)(t = (word64)h3 + (t >> 32));
-	g4 = h4 + (word32)(t >> 32);
-
-	// if there was carry into 131st bit, h3:h0 = g3:g0
-	mask = 0 - (g4 >> 2);
-	g0 &= mask; g1 &= mask;
-	g2 &= mask; g3 &= mask;
-	mask = ~mask;
-	h0 = (h0 & mask) | g0; h1 = (h1 & mask) | g1;
-	h2 = (h2 & mask) | g2; h3 = (h3 & mask) | g3;
-
-	// mac = (h + nonce) % (2^128)
-	h0 = (word32)(t = (word64)h0 + m_n[0]);
-	h1 = (word32)(t = (word64)h1 + (t >> 32) + m_n[1]);
-	h2 = (word32)(t = (word64)h2 + (t >> 32) + m_n[2]);
-	h3 = (word32)(t = (word64)h3 + (t >> 32) + m_n[3]);
-
-	if (size >= BLOCKSIZE)
-	{
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  0, h0);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  4, h1);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  8, h2);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac + 12, h3);
-	}
-	else
-	{
-		FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m;
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  0, h0);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  4, h1);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  8, h2);
-		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m + 12, h3);
-		memcpy(mac, m, size);
-	}
 }
 
 template <class T>
