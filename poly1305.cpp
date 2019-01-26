@@ -1,11 +1,29 @@
 // poly1305.cpp - written and placed in the public domain by Jeffrey Walton and Jean-Pierre Munch
-//                Based on Andy Polyakov's Base-2^26 scalar multiplication implementation for OpenSSL.
+//                Based on Andy Polyakov's Base-2^26 scalar multiplication implementation.
+//                For more information, see https://www.openssl.org/~appro/cryptogams/.
+
+// Copyright (c) 2006-2017, CRYPTOGAMS by <appro@openssl.org>
+// All rights reserved.
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions
+// are met:
+//
+// * Redistributions of source code must retain copyright notices,
+//   this list of conditions and the following disclaimer.
+// * Redistributions in binary form must reproduce the above
+//   copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials
+//   provided with the distribution.
+// * Neither the name of the CRYPTOGAMS nor the names of its copyright
+//   holder and contributors may be used to endorse or promote products
+//   derived from this software without specific prior written permission.
 
 #include "pch.h"
 #include "cryptlib.h"
+#include "poly1305.h"
 #include "aes.h"
 #include "cpu.h"
-#include "poly1305.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
