@@ -504,8 +504,8 @@ TestVectors/keccak.txt
 TestVectors/lea.txt
 TestVectors/mars.txt
 TestVectors/nr.txt
-TestVectors/ocb.txt
 TestVectors/panama.txt
+TestVectors/poly1305aes.txt
 TestVectors/rabbit.txt
 TestVectors/Readme.txt
 TestVectors/rsa_oaep.txt

@@ -1,0 +1,2241 @@
+AlgorithmType: MAC
+Name: Poly1305(AES)
+Source: https://cr.yp.to/mac/test.html, poly1305_gmpxx.cpp
+#
+Comment: Test Case 1
+Key: 3a531e44608449c6 f1d8f804d92ea240 b3c0760794efd901 90366600cc394508
+IV: 520eea431d6fa5b5 bb2ed08f76cabb67
+Message: ""
+MAC: ac2eb652cd95fdd7 7292772cad957b39
+Test: Verify
+#
+Comment: Test Case 2
+Key: 3b531e44608449c6 f1d8f804d92ea240 b3c0760794efd901 90366600cc394508
+IV: 520eea431d6fa5b5 bb2ed08f76cabb67
+Message: ""
+MAC: ac2eb652cd95fdd7 7292772cad957b39
+Test: NotVerify
+#
+Comment: Test Case 3
+Key: 572d0376b521f794 ca8be00e97cdc29a 83608405903aeb00 7cda130ef05d3207
+IV: 2d98544bd340a2ff e9eca4f062b51325
+Message: 27
+MAC: 976e6f0fa40a1eaf 122bae01a0f12ef8
+Test: Verify
+#
+Comment: Test Case 4
+Key: 572c0376b521f794 ca8be00e97cdc29a 83608405903aeb00 7cda130ef05d3207
+IV: 2d98544bd340a2ff e9eca4f062b51325
+Message: 27
+MAC: 976e6f0fa40a1eaf 122bae01a0f12ef8
+Test: NotVerify
+#
+Comment: Test Case 5
+Key: 38bb6e7e07c883b7 a56e83ccaf382f2d 65526d0900e17f0a 9839cf06e079d60c
+IV: 0630f6be64233a95 a19c1dd2ed7f4dff
+Message: 3410
+MAC: 4ef262d84cb67cf3 5d7bfe51c807ad3b
+Test: Verify
+#
+Comment: Test Case 6
+Key: 38bb6f7e07c883b7 a56e83ccaf382f2d 65526d0900e17f0a 9839cf06e079d60c
+IV: 0630f6be64233a95 a19c1dd2ed7f4dff
+Message: 3410
+MAC: 4ef262d84cb67cf3 5d7bfe51c807ad3b
+Test: NotVerify
+#
+Comment: Test Case 7
+Key: ed757ef7184b5de8 91f5a6f79652b5ef d552480bac7d450d bc0a1105083d8d08
+IV: 5fc029908e346d86 f9dbcb431cfaa79c
+Message: be6eda
+MAC: d27ab15642fbe007 1db356441fce4cb9
+Test: Verify
+#
+Comment: Test Case 8
+Key: ed757ef6184b5de8 91f5a6f79652b5ef d552480bac7d450d bc0a1105083d8d08
+IV: 5fc029908e346d86 f9dbcb431cfaa79c
+Message: be6eda
+MAC: d27ab15642fbe007 1db356441fce4cb9
+Test: NotVerify
+#
+Comment: Test Case 9
+Key: 638c49c62cd53908 5b93806d4ed63068 457d73095cbd110c b4d68108c4e3c807
+IV: b90f722e94c42002 cebfc6a99cf67273
+Message: 54ac570c
+MAC: 1a2df3d11304ad2a b035471602bf62a8
+Test: Verify
+#
+Comment: Test Case 10
+Key: 638c49c62dd53908 5b93806d4ed63068 457d73095cbd110c b4d68108c4e3c807
+IV: b90f722e94c42002 cebfc6a99cf67273
+Message: 54ac570c
+MAC: 1a2df3d11304ad2a b035471602bf62a8
+Test: NotVerify
+#
+Comment: Test Case 11
+Key: 358e981458e8ae0a 6a0856547d6aacc6 efca9a0f08b51006 f80ac803d85bd10f
+IV: a1d688f5c083897c 5bd529f21cc50502
+Message: cdc5de8ab1
+MAC: 8d3d0ec52d4cdabf b83a6b767ff346ce
+Test: Verify
+#
+Comment: Test Case 12
+Key: 358e981458e9ae0a 6a0856547d6aacc6 efca9a0f08b51006 f80ac803d85bd10f
+IV: a1d688f5c083897c 5bd529f21cc50502
+Message: cdc5de8ab1
+MAC: 8d3d0ec52d4cdabf b83a6b767ff346ce
+Test: NotVerify
+#
+Comment: Test Case 13
+Key: 347edf8ebef3f539 e6c024f8c734dac5 c201ed00e04d0a05 e836110cb880960d
+IV: 12af8709c61ac905 b8326cc9b6527f89
+Message: baf4e9e5f668
+MAC: 69b4b3064fef3a4b 5284c52e98b00aa6
+Test: Verify
+#
+Comment: Test Case 14
+Key: 347edf8ebef3f439 e6c024f8c734dac5 c201ed00e04d0a05 e836110cb880960d
+IV: 12af8709c61ac905 b8326cc9b6527f89
+Message: baf4e9e5f668
+MAC: 69b4b3064fef3a4b 5284c52e98b00aa6
+Test: NotVerify
+#
+Comment: Test Case 15
+Key: d8c7ad1ad2c1f8b5 17df2abee88e0ae4 af153c039c95d403 3851be06c8471800
+IV: eddc5e47799d011d 7ac5f46b9c96d363
+Message: 62ba0cded46488
+MAC: ce7283379126756e e0714b750bce6508
+Test: Verify
+#
+Comment: Test Case 16
+Key: d8c7ad1ad2c1f8b4 17df2abee88e0ae4 af153c039c95d403 3851be06c8471800
+IV: eddc5e47799d011d 7ac5f46b9c96d363
+Message: 62ba0cded46488
+MAC: ce7283379126756e e0714b750bce6508
+Test: NotVerify
+#
+Comment: Test Case 17
+Key: 3a054f251a2c14dd 738e66c6da91f05b bf38680fa4acd007 8c3b2800bce6df07
+IV: a7cbe9bcdf80cf15 15d835fca50f0ccf
+Message: 1de8f1a527064454
+MAC: 0a7d3e4de25b5260 e616630b2bfef444
+Test: Verify
+#
+Comment: Test Case 18
+Key: 3a054f251a2c14dd 728e66c6da91f05b bf38680fa4acd007 8c3b2800bce6df07
+IV: a7cbe9bcdf80cf15 15d835fca50f0ccf
+Message: 1de8f1a527064454
+MAC: 0a7d3e4de25b5260 e616630b2bfef444
+Test: NotVerify
+#
+Comment: Test Case 19
+Key: cd66850dfa5b5713 7b044d87cab7697a d7073f0c28c4bc0e 806bfd07a4bf8304
+IV: 6c92b0a2ca9f8c7c 5b21e9c4c3042793
+Message: c2e237b1fb9a8a1d 7c
+MAC: b839bb230d8438ef 95c058df3d2416be
+Test: Verify
+#
+Comment: Test Case 20
+Key: cd66850dfa5b5713 7b054d87cab7697a d7073f0c28c4bc0e 806bfd07a4bf8304
+IV: 6c92b0a2ca9f8c7c 5b21e9c4c3042793
+Message: c2e237b1fb9a8a1d 7c
+MAC: b839bb230d8438ef 95c058df3d2416be
+Test: NotVerify
+#
+Comment: Test Case 21
+Key: c19cc8402592fadd 5a60ae359c4f4feb c515740cf4aa9e03 681f1c096c50b40e
+IV: 9c1fce39fb8e9067 31ed075398eff69a
+Message: 3117afd63e04daa8 d746
+MAC: 2b6cec549673064a 155a660f9d1d434c
+Test: Verify
+#
+Comment: Test Case 22
+Key: c19cc8402592fadd 5a60af359c4f4feb c515740cf4aa9e03 681f1c096c50b40e
+IV: 9c1fce39fb8e9067 31ed075398eff69a
+Message: 3117afd63e04daa8 d746
+MAC: 2b6cec549673064a 155a660f9d1d434c
+Test: NotVerify
+#
+Comment: Test Case 23
+Key: 5c43175945d01c08 b8214f72a5361dc2 85c54308f04b2e00 08ab110a64600d03
+IV: 814de7bb6d852269 4db7b71011567efe
+Message: 64844f9b136efe47 d34a13
+MAC: 1d23468363a034eb 24ec5f29e19e90bf
+Test: Verify
+#
+Comment: Test Case 24
+Key: 5c43175945d01c08 b8214f73a5361dc2 85c54308f04b2e00 08ab110a64600d03
+IV: 814de7bb6d852269 4db7b71011567efe
+Message: 64844f9b136efe47 d34a13
+MAC: 1d23468363a034eb 24ec5f29e19e90bf
+Test: NotVerify
+#
+Comment: Test Case 25
+Key: db50887996557695 d0a01a9a47624b12 7cd7350a98ece40b 082c4d0fd8d84005
+IV: 1e9852e49adda2ca 38c193b68966d5f6
+Message: e5c8dea2dfe897a4 cd1bc088
+MAC: 3aeb33abe8a50682 7fc03ddbf5b9ea90
+Test: Verify
+#
+Comment: Test Case 26
+Key: db50887996557695 d0a01a9a46624b12 7cd7350a98ece40b 082c4d0fd8d84005
+IV: 1e9852e49adda2ca 38c193b68966d5f6
+Message: e5c8dea2dfe897a4 cd1bc088
+MAC: 3aeb33abe8a50682 7fc03ddbf5b9ea90
+Test: NotVerify
+#
+Comment: Test Case 27
+Key: 5103b2fc7bdcf2b2 ebe90f3eb73dcd23 cb23360cdce59903 5cacc204cc02cc0d
+IV: 7b16aed50c242595 175b57af85f72f39
+Message: eb76489b67840d91 dc97316580
+MAC: 6b534e1110a07f69 540b8aba7c74f805
+Test: Verify
+#
+Comment: Test Case 28
+Key: 5103b2fc7bdcf2b2 ebe90f3eb73ccd23 cb23360cdce59903 5cacc204cc02cc0d
+IV: 7b16aed50c242595 175b57af85f72f39
+Message: eb76489b67840d91 dc97316580
+MAC: 6b534e1110a07f69 540b8aba7c74f805
+Test: NotVerify
+#
+Comment: Test Case 29
+Key: 4a461594d34057ae 4f7b3cd4fb5305e1 23ab440db8dbca09 fc81740b9873aa03
+IV: 01978a0c9e5285f7 1a5259371011578e
+Message: 95e1eeb8bae35f38 78c347d2870b
+MAC: 46a06f6df9e04850 98345c3ca9da0f3b
+Test: Verify
+#
+Comment: Test Case 30
+Key: 4a461594d34057ae 4f7b3cd4fb5304e1 23ab440db8dbca09 fc81740b9873aa03
+IV: 01978a0c9e5285f7 1a5259371011578e
+Message: 95e1eeb8bae35f38 78c347d2870b
+MAC: 46a06f6df9e04850 98345c3ca9da0f3b
+Test: NotVerify
+#
+Comment: Test Case 31
+Key: ccdc2c4fe8119e8c 3852acd427d12dad 8abc540b74ab5504 104cf70fd07dbb0e
+IV: 234a9770ab2f7dc9 64bc3d16c30be785
+Message: 4222e6f8cbde7777 374970e0361f7d
+MAC: 4e8cae177b553da4 9420c6d7cab8c47c
+Test: Verify
+#
+Comment: Test Case 32
+Key: ccdc2c4fe8119e8c 3852acd427d12dac 8abc540b74ab5504 104cf70fd07dbb0e
+IV: 234a9770ab2f7dc9 64bc3d16c30be785
+Message: 4222e6f8cbde7777 374970e0361f7d
+MAC: 4e8cae177b553da4 9420c6d7cab8c47c
+Test: NotVerify
+#
+Comment: Test Case 33
+Key: f90c3e55ca762908 c2927c421f247b88 c73e2307b885110a 644e0c047cddbc09
+IV: 910027d8d99fb9c2 d9c7dcf3e5b03d20
+Message: 33b37ebbd7a5acb8 b2f15ae1a900eaa4
+MAC: 94cb812ec522184c fbe5977965f7bc21
+Test: Verify
+#
+Comment: Test Case 34
+Key: f80c3e55ca762908 c2927c421f247b88 c73e2307b885110a 644e0c047cddbc09
+IV: 910027d8d99fb9c2 d9c7dcf3e5b03d20
+Message: 33b37ebbd7a5acb8 b2f15ae1a900eaa4
+MAC: 94cb812ec522184c fbe5977965f7bc21
+Test: NotVerify
+#
+Comment: Test Case 35
+Key: c4e6268b1a29173f 67a6e532ad11fc53 7ade130e3850a401 9ca32104c4a1b20a
+IV: df79baec9caf14ff 9862a495bf2dbea5
+Message: 0db5c1b8e06cd303 b4e23808ba00ff29 c6
+MAC: 07bd8ccf4a96866f 33c424659c32146b
+Test: Verify
+#
+Comment: Test Case 36
+Key: c4e7268b1a29173f 67a6e532ad11fc53 7ade130e3850a401 9ca32104c4a1b20a
+IV: df79baec9caf14ff 9862a495bf2dbea5
+Message: 0db5c1b8e06cd303 b4e23808ba00ff29 c6
+MAC: 07bd8ccf4a96866f 33c424659c32146b
+Test: NotVerify
+#
+Comment: Test Case 37
+Key: fd33f31ca1df5bff e907d32f3d191106 b49b880dec380d08 70f070061c9abe0a
+IV: 9ca3718cb526aac3 e5b4dcf39d0b45ce
+Message: 944599a1f7147b04 50b68c539372db1b 7826
+MAC: 6cf4d8da56e4814e 0760ba3e20ecaf50
+Test: Verify
+#
+Comment: Test Case 38
+Key: fd33f21ca1df5bff e907d32f3d191106 b49b880dec380d08 70f070061c9abe0a
+IV: 9ca3718cb526aac3 e5b4dcf39d0b45ce
+Message: 944599a1f7147b04 50b68c539372db1b 7826
+MAC: 6cf4d8da56e4814e 0760ba3e20ecaf50
+Test: NotVerify
+#
+Comment: Test Case 39
+Key: 3491ae037303a42c c55a1d7b09219d76 87126506b8453409 b8f2e80df819980d
+IV: f84db7e157e7e1e6 d8febb14d56069ec
+Message: 4591c5eadfd9878e 2ae3c98eb0eb9bde f6cd7b
+MAC: 4a8fde4bf0d5173c b250e3a7c30279a1
+Test: Verify
+#
+Comment: Test Case 40
+Key: 3491ae027303a42c c55a1d7b09219d76 87126506b8453409 b8f2e80df819980d
+IV: f84db7e157e7e1e6 d8febb14d56069ec
+Message: 4591c5eadfd9878e 2ae3c98eb0eb9bde f6cd7b
+MAC: 4a8fde4bf0d5173c b250e3a7c30279a1
+Test: NotVerify
+#
+Comment: Test Case 41
+Key: b6dad5f6c64ad041 882dc8c67c41caf9 caabfe01181b2603 1818e709d42d460a
+IV: 7348953ff5cd5334 a82b2d30d9a3fa3a
+Message: 2210bfbac20ad685 6c26024218903903 bf92c999
+MAC: 618c34a1207187a8 edadc1104c68a548
+Test: Verify
+#
+Comment: Test Case 42
+Key: b6dad5f6c74ad041 882dc8c67c41caf9 caabfe01181b2603 1818e709d42d460a
+IV: 7348953ff5cd5334 a82b2d30d9a3fa3a
+Message: 2210bfbac20ad685 6c26024218903903 bf92c999
+MAC: 618c34a1207187a8 edadc1104c68a548
+Test: NotVerify
+#
+Comment: Test Case 43
+Key: fb948fbd3118166e 5e912aa8b7a8b5c4 bb28800e64676906 54c2fb0c90aa720e
+IV: 8bcf0d60ba2aa082 8e4e1b5bcd9ef629
+Message: 1153fe5d7b3c8071 9038af0f15bbb4a0 ce38cab3e5
+MAC: 9414ba39d951e9aa 5412e448003617d7
+Test: Verify
+#
+Comment: Test Case 44
+Key: fb948fbd3119166e 5e912aa8b7a8b5c4 bb28800e64676906 54c2fb0c90aa720e
+IV: 8bcf0d60ba2aa082 8e4e1b5bcd9ef629
+Message: 1153fe5d7b3c8071 9038af0f15bbb4a0 ce38cab3e5
+MAC: 9414ba39d951e9aa 5412e448003617d7
+Test: NotVerify
+#
+Comment: Test Case 45
+Key: 07a8b28a24b3ca39 05390cff53fb7c04 713c920fec033d06 3874100dcc6b8703
+IV: 3424f8bdc8daefc4 bd3799d4ca1a0a73
+Message: 41c680f0fd5ae7d7 2f350f14bec15ac6 f0f3e5e0c0bb
+MAC: 092982b68d8f9e80 5e4decadda5857b3
+Test: Verify
+#
+Comment: Test Case 46
+Key: 07a8b28a24b3cb39 05390cff53fb7c04 713c920fec033d06 3874100dcc6b8703
+IV: 3424f8bdc8daefc4 bd3799d4ca1a0a73
+Message: 41c680f0fd5ae7d7 2f350f14bec15ac6 f0f3e5e0c0bb
+MAC: 092982b68d8f9e80 5e4decadda5857b3
+Test: NotVerify
+#
+Comment: Test Case 47
+Key: 50dfd80bdf43d8ce badf04580edb7a83 f4a0630ea42baa04 a85dc20bb4b06004
+IV: 22d05cdadc8c9118 a7975d00fbcada9e
+Message: cbcc6b1a9b1963f8 e3df0af1af8b81f4 9dded47a38981b
+MAC: f7e8f5ec70d151ba b3563b1d0596738d
+Test: Verify
+#
+Comment: Test Case 48
+Key: 50dfd80bdf43d8cf badf04580edb7a83 f4a0630ea42baa04 a85dc20bb4b06004
+IV: 22d05cdadc8c9118 a7975d00fbcada9e
+Message: cbcc6b1a9b1963f8 e3df0af1af8b81f4 9dded47a38981b
+MAC: f7e8f5ec70d151ba b3563b1d0596738d
+Test: NotVerify
+#
+Comment: Test Case 49
+Key: 33c95a0f77546834 2a1b39db7624bcb5 880a35044c55520e 8cb5ee0f4061fa04
+IV: 20eb3856ed92551a 419a9e285662d797
+Message: 10ce9f484e3f9783 be01d63de137d89f 91c5644652582fb0
+MAC: f353e58c34cc72f5 e1adb3ad615c50c5
+Test: Verify
+#
+Comment: Test Case 50
+Key: 33c95a0f77546834 2b1b39db7624bcb5 880a35044c55520e 8cb5ee0f4061fa04
+IV: 20eb3856ed92551a 419a9e285662d797
+Message: 10ce9f484e3f9783 be01d63de137d89f 91c5644652582fb0
+MAC: f353e58c34cc72f5 e1adb3ad615c50c5
+Test: NotVerify
+#
+Comment: Test Case 51
+Key: 497f98b467b4290f 9c50d800ca00cf0f cd52e90ac86b7503 b86fe90c60608209
+IV: 1bbd7758929bc3b6 745e346f0b6da07d
+Message: 9715990b618a19f8 95ce57d35c08ddf5 65752317815ef6f7 76
+MAC: 31f24f7654bee001 33a11ae13e2c2006
+Test: Verify
+#
+Comment: Test Case 52
+Key: 497f98b467b4290f 9c51d800ca00cf0f cd52e90ac86b7503 b86fe90c60608209
+IV: 1bbd7758929bc3b6 745e346f0b6da07d
+Message: 9715990b618a19f8 95ce57d35c08ddf5 65752317815ef6f7 76
+MAC: 31f24f7654bee001 33a11ae13e2c2006
+Test: NotVerify
+#
+Comment: Test Case 53
+Key: f4ed4440fa7f56ea 0381bf20bb3e7563 fc1c610ff41ef108 a81cc8077010a807
+IV: 971d06b0c9130222 645dcbf828f29c06
+Message: 07d303e0253b2836 e3c8aa45a21eecf4 461a2ccdbad772e9 d839
+MAC: c71fc796901b1017 7a5ad803d9304bb5
+Test: Verify
+#
+Comment: Test Case 54
+Key: f4ed4440fa7f56ea 0381be20bb3e7563 fc1c610ff41ef108 a81cc8077010a807
+IV: 971d06b0c9130222 645dcbf828f29c06
+Message: 07d303e0253b2836 e3c8aa45a21eecf4 461a2ccdbad772e9 d839
+MAC: c71fc796901b1017 7a5ad803d9304bb5
+Test: NotVerify
+#
+Comment: Test Case 55
+Key: 8ba79b11ed7a3a2e a4368bb7e4558051 901bde0104cf4708 a8d518034c27630b
+IV: 63a7000789b21fce c62ba6dafedfdd10
+Message: ff828e1c84d9d0b1 23e54c36764602a8 2d810e8e632fcd83 089c46
+MAC: a447449cbef2dfba 01ad78f8db28bd4c
+Test: Verify
+#
+Comment: Test Case 56
+Key: 8ba79b11ed7a3a2e a4368bb6e4558051 901bde0104cf4708 a8d518034c27630b
+IV: 63a7000789b21fce c62ba6dafedfdd10
+Message: ff828e1c84d9d0b1 23e54c36764602a8 2d810e8e632fcd83 089c46
+MAC: a447449cbef2dfba 01ad78f8db28bd4c
+Test: NotVerify
+#
+Comment: Test Case 57
+Key: ad8d57d71451e119 5b2c99c71f8e03cb 887015030c18c901 90453e02e8db3d06
+IV: d7fcbba8b8e9a52c a33f6bbee0928477
+Message: 972f08503e59ccee 69384b110de7474b b5d398e7da9cafb2 7a708ad5
+MAC: 97e4205a3388ab6f 50e3bd209d1e1e31
+Test: Verify
+#
+Comment: Test Case 58
+Key: ad8d57d71451e119 5b2c99c71e8e03cb 887015030c18c901 90453e02e8db3d06
+IV: d7fcbba8b8e9a52c a33f6bbee0928477
+Message: 972f08503e59ccee 69384b110de7474b b5d398e7da9cafb2 7a708ad5
+MAC: 97e4205a3388ab6f 50e3bd209d1e1e31
+Test: NotVerify
+#
+Comment: Test Case 59
+Key: 737f4b1cdb0989ca c74902d9b4a50d8c a7f0a70f9cbad50a b0dc2502a0303606
+IV: dc9a4d3fb417682e 7e656a54f4a3b37f
+Message: d9e3b85c93ca54c0 c2dbbaad2366c9b3 595780d9ee105198 dfe54608c8
+MAC: 089c502423974b44 83e910f9f2f73cf8
+Test: Verify
+#
+Comment: Test Case 60
+Key: 737f4b1cdb0989ca c74902d9b4a40d8c a7f0a70f9cbad50a b0dc2502a0303606
+IV: dc9a4d3fb417682e 7e656a54f4a3b37f
+Message: d9e3b85c93ca54c0 c2dbbaad2366c9b3 595780d9ee105198 dfe54608c8
+MAC: 089c502423974b44 83e910f9f2f73cf8
+Test: NotVerify
+#
+Comment: Test Case 61
+Key: 937c9e1d70bd45de 912f7ebd6cb7b7c1 6169a808e46ab402 505fa20bd0021503
+IV: d2ae7c3faf5834c8 7f5183ee151322d0
+Message: b95821f5b7ab21a0 12cffed1d746166b 2fa2debf792f2b9a 56ebe3d0be94
+MAC: 211e064c7cc420ea b4ae53b706fcc98c
+Test: Verify
+#
+Comment: Test Case 62
+Key: 937c9e1d70bd45de 912f7ebd6cb7b6c1 6169a808e46ab402 505fa20bd0021503
+IV: d2ae7c3faf5834c8 7f5183ee151322d0
+Message: b95821f5b7ab21a0 12cffed1d746166b 2fa2debf792f2b9a 56ebe3d0be94
+MAC: 211e064c7cc420ea b4ae53b706fcc98c
+Test: NotVerify
+#
+Comment: Test Case 63
+Key: b39175ea76e99fbc a29419c1b514f47b 46661c01106e2604 38ce1e0b0831990e
+IV: bf4f9c815eba4b07 b188e526b0aae4f9
+Message: 08116d1fb5d8d0a4 bda58b0297447d32 585bdb670158f3d1 d3a192c34b0153
+MAC: 7a4d178d63b0fde3 ea64815df552045f
+Test: Verify
+#
+Comment: Test Case 64
+Key: b39175ea76e99fbc a29419c1b514f47a 46661c01106e2604 38ce1e0b0831990e
+IV: bf4f9c815eba4b07 b188e526b0aae4f9
+Message: 08116d1fb5d8d0a4 bda58b0297447d32 585bdb670158f3d1 d3a192c34b0153
+MAC: 7a4d178d63b0fde3 ea64815df552045f
+Test: NotVerify
+#
+Comment: Test Case 65
+Key: 8ce694c9eaa3701e 0c3e913ad58e5856 a2d0710cb88ee20f 8076c9009c08a40a
+IV: e66d9c5310d16149 949b52fd0949e0e0
+Message: 91defd921c423ad8 eb85bfb64c674a1e f54a2617a5902444 e4c9f8e2c87b0e59
+MAC: 769e7ba90abbd991 b9bc5a743ec90cec
+Test: Verify
+#
+Comment: Test Case 66
+Key: 8de694c9eaa3701e 0c3e913ad58e5856 a2d0710cb88ee20f 8076c9009c08a40a
+IV: e66d9c5310d16149 949b52fd0949e0e0
+Message: 91defd921c423ad8 eb85bfb64c674a1e f54a2617a5902444 e4c9f8e2c87b0e59
+MAC: 769e7ba90abbd991 b9bc5a743ec90cec
+Test: NotVerify
+#
+Comment: Test Case 67
+Key: 837f7eed73c6e867 32e1397881f06257 e827a60e88685103 9c5b110a54715909
+IV: e7eb3f6a29901ef3 8b1701df7289f9ea
+Message: \
+    617153894c969f9b 0b063c2097111c42 f0039469ce8c47f4 ca30596aedb9864e \
+    2b
+MAC: d832b2987566a484 ccf5eda6f9844c75
+Test: Verify
+#
+Comment: Test Case 68
+Key: 837f7eed73c6e867 32e1397881f06257 e827a60e88685103 9c5b110a54715909
+IV: e7ea3f6a29901ef3 8b1701df7289f9ea
+Message: \
+    617153894c969f9b 0b063c2097111c42 f0039469ce8c47f4 ca30596aedb9864e \
+    2b
+MAC: d832b2987566a484 ccf5eda6f9844c75
+Test: NotVerify
+#
+Comment: Test Case 69
+Key: 1f0e98d14aafbcc0 35f85d11827ce2d0 69453008d8f00605 982f7e0388974c08
+IV: b937c335ff135b23 61e305056010866a
+Message: \
+    c55d5116898bc6e2 bc1895ca769f145c e456707172a06ddd fd96ece55f3f3e24 \
+    9c8f3a26
+MAC: fb3b580c250567c2 4256893c534e3f94
+Test: Verify
+#
+Comment: Test Case 70
+Key: 1f0e98d14aafbcc0 35f85d11827ce2d0 69453008d8f00605 982f7e0388974c08
+IV: b937c335fe135b23 61e305056010866a
+Message: \
+    c55d5116898bc6e2 bc1895ca769f145c e456707172a06ddd fd96ece55f3f3e24 \
+    9c8f3a26
+MAC: fb3b580c250567c2 4256893c534e3f94
+Test: NotVerify
+#
+Comment: Test Case 71
+Key: 16452e68121aa5ff a3a679070e3087fd 4ba2b00678d46908 d8299f0a5ccb1f02
+IV: 414bb6eb595b43bc 983258bdd525b166
+Message: \
+    7beba4c39846f9a4 7ccc8274033d6470 43bcc5d225027e41 66f68d0c9147890c \
+    322ecfcb74c86f
+MAC: 5d577b83990e665e a8d4841b1d3b491e
+Test: Verify
+#
+Comment: Test Case 72
+Key: 16452e68121aa5ff a3a679070e3087fd 4ba2b00678d46908 d8299f0a5ccb1f02
+IV: 414bb6eb595b43bd 983258bdd525b166
+Message: \
+    7beba4c39846f9a4 7ccc8274033d6470 43bcc5d225027e41 66f68d0c9147890c \
+    322ecfcb74c86f
+MAC: 5d577b83990e665e a8d4841b1d3b491e
+Test: NotVerify
+#
+Comment: Test Case 73
+Key: 8cd250f082495401 7f7f33569dfacb30 b3cb7204949c4206 90b7180860e4970e
+IV: 3d2576b7f284bb2f de713fe4dede098c
+Message: \
+    8fcca7677f0ce3bf 872e0d003bacbe60 0bb7dae8cf132de4 72e363d886562e16 \
+    22d57da2e1606169 8f6f
+MAC: f55fd9bfff0921ba 7aee522dbbfad5ff
+Test: Verify
+#
+Comment: Test Case 74
+Key: 8cd250f082495401 7f7f33569dfacb30 b3cb7204949c4206 90b7180860e4970e
+IV: 3d2576b7f284bb2f de713ee4dede098c
+Message: \
+    8fcca7677f0ce3bf 872e0d003bacbe60 0bb7dae8cf132de4 72e363d886562e16 \
+    22d57da2e1606169 8f6f
+MAC: f55fd9bfff0921ba 7aee522dbbfad5ff
+Test: NotVerify
+#
+Comment: Test Case 75
+Key: 6081df789408b3b5 bc6d05c8fc054e4c 2499f30528a91907 e817960b5020b502
+IV: 93ff7ed5f406c58b 0328378f28283366
+Message: \
+    e2578db17f301cf4 739759b5a1f58765 cd1b6ae44c49b5d3 5f69a9192e148310 \
+    6b10c1eb40dedfb4 75386916
+MAC: f0f872da682d1f1b d424f653a176d4f5
+Test: Verify
+#
+Comment: Test Case 76
+Key: 6081df789408b3b5 bc6d05c8fc054e4c 2499f30528a91907 e817960b5020b502
+IV: 93ff7ed5f406c58b 0328378f29283366
+Message: \
+    e2578db17f301cf4 739759b5a1f58765 cd1b6ae44c49b5d3 5f69a9192e148310 \
+    6b10c1eb40dedfb4 75386916
+MAC: f0f872da682d1f1b d424f653a176d4f5
+Test: NotVerify
+#
+Comment: Test Case 77
+Key: 2d9ed31ba16bbede c3092a3376212a8c 45b6b30d2cf9420a d8f9140d54921b02
+IV: cf7a320a659a6926 25588d77a0f0d84e
+Message: \
+    36d7a58519eacb62 388e4250264c998f df411de6e2d08dd1 f72f46044d63ed83 \
+    3a9308547dd3b6b5 62f90688459f
+MAC: 153a0edf890a1b48 1fc6db041ef7a8cc
+Test: Verify
+#
+Comment: Test Case 78
+Key: 2d9ed31ba16bbede c3092a3376212a8c 45b6b30d2cf9420a d8f9140d54921b02
+IV: cf7a320a659a6926 25588d77a0f0d94e
+Message: \
+    36d7a58519eacb62 388e4250264c998f df411de6e2d08dd1 f72f46044d63ed83 \
+    3a9308547dd3b6b5 62f90688459f
+MAC: 153a0edf890a1b48 1fc6db041ef7a8cc
+Test: NotVerify
+#
+Comment: Test Case 79
+Key: dc584807b3af9bd0 8b64559e4773b610 ccd6320da43e5101 a0b6220994ce8a02
+IV: f7033ed6155ce835 23b194ed4ac28ac0
+Message: \
+    773596b4be54907c 77829a96c56e02be 336dba308f8935b6 3ab9a53042b043b9 \
+    e6da6da42efe20a5 80ba3b45283d045c ab
+MAC: c7fa6e1ad4d99d06 af988472c75cc22b
+Test: Verify
+#
+Comment: Test Case 80
+Key: dc584807b3af9bd0 8b64559e4773b610 ccd6320da43e5101 a0b6220994ce8a02
+IV: f7023ed6155ce835 23b194ed4ac28ac0
+Message: \
+    773596b4be54907c 77829a96c56e02be 336dba308f8935b6 3ab9a53042b043b9 \
+    e6da6da42efe20a5 80ba3b45283d045c ab
+MAC: c7fa6e1ad4d99d06 af988472c75cc22b
+Test: NotVerify
+#
+Comment: Test Case 81
+Key: 54b6ab48396f3b0b e96fdb6e1c6f6364 2d01c70364060208 6cdf91083ca78a02
+IV: bef64819848d3d68 6f14d51ced10bf2a
+Message: \
+    013536819972cc24 0130aa7165b7fb02 b787f9c9d84e005e 5aadfeac0787f308 \
+    bc2989559c557a9d 85240eeadb0aec92 91e65b69
+MAC: 1982f519a3944797 bace9ab8ba943f25
+Test: Verify
+#
+Comment: Test Case 82
+Key: 54b6ab48396f3b0b e96fdb6e1c6f6364 2d01c70364060208 6cdf91083ca78a02
+IV: bef64819858d3d68 6f14d51ced10bf2a
+Message: \
+    013536819972cc24 0130aa7165b7fb02 b787f9c9d84e005e 5aadfeac0787f308 \
+    bc2989559c557a9d 85240eeadb0aec92 91e65b69
+MAC: 1982f519a3944797 bace9ab8ba943f25
+Test: NotVerify
+#
+Comment: Test Case 83
+Key: 8c27ee8975a22885 d5ba970a5ecd2d0c 5d54df049c577a0b 8cf87c0d04629703
+IV: 67b511ecbb4cd652 65c5ad728dc71fe7
+Message: \
+    d1fd01de544c75ae 4aa405e8a2df5f13 6f510eff9c7f3cb6 cb207542ff2d67d0 \
+    2a68ae7fb4242dfe c833e66a12467d81 978c80340bbd
+MAC: ecd4b1791da19178 b6baeb5617561025
+Test: Verify
+#
+Comment: Test Case 84
+Key: 8c27ee8975a22885 d5ba970a5ecd2d0c 5d54df049c577a0b 8cf87c0d04629703
+IV: 67b511ecbb4cd752 65c5ad728dc71fe7
+Message: \
+    d1fd01de544c75ae 4aa405e8a2df5f13 6f510eff9c7f3cb6 cb207542ff2d67d0 \
+    2a68ae7fb4242dfe c833e66a12467d81 978c80340bbd
+MAC: ecd4b1791da19178 b6baeb5617561025
+Test: NotVerify
+#
+Comment: Test Case 85
+Key: c9a3653738669ab9 a0217fde076de139 80540507ac4be00a dc34ac0f7494e000
+IV: fd6a7d9c715475fb 1b3be7cbb59356bf
+Message: \
+    6e46b4bdd190a538 336f2583043d8222 8e232717af5a54c7 81f94328285f2196 \
+    a6d5547765f9af99 69d41c6d119e8f9f c1b6b671110a3892
+MAC: 16f9012f49932738 be308a64d859c4c8
+Test: Verify
+#
+Comment: Test Case 86
+Key: c9a3653738669ab9 a0217fde076de139 80540507ac4be00a dc34ac0f7494e000
+IV: fd6a7d9c715475fb 1a3be7cbb59356bf
+Message: \
+    6e46b4bdd190a538 336f2583043d8222 8e232717af5a54c7 81f94328285f2196 \
+    a6d5547765f9af99 69d41c6d119e8f9f c1b6b671110a3892
+MAC: 16f9012f49932738 be308a64d859c4c8
+Test: NotVerify
+#
+Comment: Test Case 87
+Key: 6be74c89c2edda68 cc0a747d4574f542 7f2e8b0630cab805 4074860674abec0f
+IV: 5fc10ea9dea8a10f 72005a4c5c65b28c
+Message: \
+    d37145b51d14e2d1 7b6f91c24bd42a21 aaf4a835908676b5 a83c26b5285cb3fb \
+    cdf8b0eb0c92bc87 024e494d22746ecd 681702f89d78ae45 b4d4fa
+MAC: c61e5918fbbf5b97 04f57dcb802c2c93
+Test: Verify
+#
+Comment: Test Case 88
+Key: 6be74c89c2edda68 cc0a747d4574f542 7f2e8b0630cab805 4074860674abec0f
+IV: 5fc10ea9dea8a10f 72005a4d5c65b28c
+Message: \
+    d37145b51d14e2d1 7b6f91c24bd42a21 aaf4a835908676b5 a83c26b5285cb3fb \
+    cdf8b0eb0c92bc87 024e494d22746ecd 681702f89d78ae45 b4d4fa
+MAC: c61e5918fbbf5b97 04f57dcb802c2c93
+Test: NotVerify
+#
+Comment: Test Case 89
+Key: 4b4ed80173a4c87a 4466a6cdc59a8fce 77a1620a70da8908 2c467c0a54de2f0f
+IV: f616b0253855d4fc ec0e7762efb1c7b3
+Message: \
+    4dec903619b1e4be 6217a9faf6946580 7145f9c598aa73d8 78909a4de2d9cb2f \
+    c55b65de0d4a9d6f 61466958dbcfd84c 14d111ad7b8485f4 141f41f6f80c
+MAC: a11f0e1c3c0ad610 6685ac42cf0e4b31
+Test: Verify
+#
+Comment: Test Case 90
+Key: 4b4ed80173a4c87a 4466a6cdc59a8fce 77a1620a70da8908 2c467c0a54de2f0f
+IV: f616b0253855d4fc ec0e7762efb1c6b3
+Message: \
+    4dec903619b1e4be 6217a9faf6946580 7145f9c598aa73d8 78909a4de2d9cb2f \
+    c55b65de0d4a9d6f 61466958dbcfd84c 14d111ad7b8485f4 141f41f6f80c
+MAC: a11f0e1c3c0ad610 6685ac42cf0e4b31
+Test: NotVerify
+#
+Comment: Test Case 91
+Key: 7b17e19e9bc75105 bb4a28ec15f61b3a 8a0e7f0c4807210b 24b2430ac43d2d02
+IV: 2ba8c6e05abda8df 752120373ea7e02e
+Message: \
+    d62872f6d6dd8d0d 85e298c53ae3889f 82eaff965c5ba0a2 7fdacc1ac491ef9a \
+    b961908f3f1d9cc4 0034893a1811d99a fbd9305734d0f9b3 aac5ce6f56bd090f \
+    1f
+MAC: 98b3a78e99876411 ec818bf643aed405
+Test: Verify
+#
+Comment: Test Case 92
+Key: 7b17e19e9bc75105 bb4a28ec15f61b3a 8a0e7f0c4807210b 24b2430ac43d2d02
+IV: 2ba9c6e05abda8df 752120373ea7e02e
+Message: \
+    d62872f6d6dd8d0d 85e298c53ae3889f 82eaff965c5ba0a2 7fdacc1ac491ef9a \
+    b961908f3f1d9cc4 0034893a1811d99a fbd9305734d0f9b3 aac5ce6f56bd090f \
+    1f
+MAC: 98b3a78e99876411 ec818bf643aed405
+Test: NotVerify
+#
+Comment: Test Case 93
+Key: 9712d03a980a2995 77ea7c9c294185a4 5a14a00cc88e6001 c42a2c0890552e09
+IV: 1af57008b37913ce c9d54cba64e83e16
+Message: \
+    36066bf27f0e1745 6664cdbed62f906b a8b745b66bba66f0 ca9d56ed512b2d87 \
+    319879b0a690f50c f4c3cbcaf25b359b 127a517d35b76eff 55c4eca6ef192d21 \
+    b1a7d157
+MAC: 49c85f723d6d862d 9c48c60b0daf3540
+Test: Verify
+#
+Comment: Test Case 94
+Key: 9712d03a980a2995 77ea7c9c294185a4 5a14a00cc88e6001 c42a2c0890552e09
+IV: 1af57008b27913ce c9d54cba64e83e16
+Message: \
+    36066bf27f0e1745 6664cdbed62f906b a8b745b66bba66f0 ca9d56ed512b2d87 \
+    319879b0a690f50c f4c3cbcaf25b359b 127a517d35b76eff 55c4eca6ef192d21 \
+    b1a7d157
+MAC: 49c85f723d6d862d 9c48c60b0daf3540
+Test: NotVerify
+#
+Comment: Test Case 95
+Key: d8116ff353108c3c 8e904dd479b7c4d9 450d920c1cba5d08 3038e50528108201
+IV: 4b216d2de830762e aeb59d14166722ab
+Message: \
+    7480250e31b7c847 63612bb77cd4e97c b8619a253adc6059 5c2b6c165a0111ce \
+    8136dcb3eda4fa51 06260882faf2feb2 5399d78d7538e7d1 6353e7bd54f88bd5 \
+    2f67881c0b836d
+MAC: 6bc3a5e8af0b62a0 b3f665f013fa7697
+Test: Verify
+#
+Comment: Test Case 96
+Key: d8116ff353108c3c 8e904dd479b7c4d9 450d920c1cba5d08 3038e50528108201
+IV: 4b216d2de830762f aeb59d14166722ab
+Message: \
+    7480250e31b7c847 63612bb77cd4e97c b8619a253adc6059 5c2b6c165a0111ce \
+    8136dcb3eda4fa51 06260882faf2feb2 5399d78d7538e7d1 6353e7bd54f88bd5 \
+    2f67881c0b836d
+MAC: 6bc3a5e8af0b62a0 b3f665f013fa7697
+Test: NotVerify
+#
+Comment: Test Case 97
+Key: 169a310b0ab5260c df6cd0ca4c16e7a3 8ed6330a0051bc07 2860c50944b6770c
+IV: 3c85adebcd39bc20 dfd8ee8df3dff952
+Message: \
+    874f3a3611a18030 68a4d1669a41c92a 19d6215c94d6da16 2c3636fbf50b287c \
+    5b63b36c04339c6c d76ed272af9b9cc9 71bd250593ff1cbf 3552ba2b5ee3a7b9 \
+    465a254a8dc2b665 30
+MAC: 58c9a9d670666988 88c26988f2e3e40b
+Test: Verify
+#
+Comment: Test Case 98
+Key: 169a310b0ab5260c df6cd0ca4c16e7a3 8ed6330a0051bc07 2860c50944b6770c
+IV: 3c85adebcd39bc20 dfd9ee8df3dff952
+Message: \
+    874f3a3611a18030 68a4d1669a41c92a 19d6215c94d6da16 2c3636fbf50b287c \
+    5b63b36c04339c6c d76ed272af9b9cc9 71bd250593ff1cbf 3552ba2b5ee3a7b9 \
+    465a254a8dc2b665 30
+MAC: 58c9a9d670666988 88c26988f2e3e40b
+Test: NotVerify
+#
+Comment: Test Case 99
+Key: 38d5dd0db299ecad d9fb121a26804d89 e9632a058cefbf03 ec53da0860bd910b
+IV: 136525fca792e00d 5c600ae1c03d516d
+Message: \
+    04d65a39ae300151 d41cf27729a250d2 d19bdd554a9edcf4 a4525f5250ad3955 \
+    84938e32c3908497 ac760ed6185ea8ea f9853f43231b37c7 6d9619be445213c8 \
+    e5a1faa8317e3fde f54db40d
+MAC: 14ab25a0d3ee0d3f aa36e4a19539237f
+Test: Verify
+#
+Comment: Test Case 100
+Key: 38d5dd0db299ecad d9fb121a26804d89 e9632a058cefbf03 ec53da0860bd910b
+IV: 136525fca792e00d 5c600ae1c13d516d
+Message: \
+    04d65a39ae300151 d41cf27729a250d2 d19bdd554a9edcf4 a4525f5250ad3955 \
+    84938e32c3908497 ac760ed6185ea8ea f9853f43231b37c7 6d9619be445213c8 \
+    e5a1faa8317e3fde f54db40d
+MAC: 14ab25a0d3ee0d3f aa36e4a19539237f
+Test: NotVerify
+#
+Comment: Test Case 101
+Key: 3b770b5a690d300e 83e567ed70a9341d 42da740950288c07 bc73a607acd97208
+IV: 5d185b49f23d3ed6 733c931612705665
+Message: \
+    2b80364b20bd3ed4 52646cb1d70a3cf8 ce9cdfd1086878bd b3b5effab52041e1 \
+    a0782cc0356a9587 ce0138a50b759dda 117cab19e523d698 d8c5938ee5d46f85 \
+    4c9b468205db09d3 dc4278e7b715c1
+MAC: de3052b377388047 1ba820f6054fd9fa
+Test: Verify
+#
+Comment: Test Case 102
+Key: 3b770b5a690d300e 83e567ed70a9341d 42da740950288c07 bc73a607acd97208
+IV: 5d185b49f23d3ed6 733c931612705664
+Message: \
+    2b80364b20bd3ed4 52646cb1d70a3cf8 ce9cdfd1086878bd b3b5effab52041e1 \
+    a0782cc0356a9587 ce0138a50b759dda 117cab19e523d698 d8c5938ee5d46f85 \
+    4c9b468205db09d3 dc4278e7b715c1
+MAC: de3052b377388047 1ba820f6054fd9fa
+Test: NotVerify
+#
+Comment: Test Case 103
+Key: 0cf65a5a640e8085 c813bbc38f8d0da9 23c1de017c8b6306 043c790dc0385e0f
+IV: c0df5364b72d6a8c fa9e024ddab578f9
+Message: \
+    370a807637d98f0b bdd5b2c04f048f42 2e4d8fcee0f8e085 a87186c9c18a84f8 \
+    94046ecbdefdd69b d3885b228cea64ba 38f48918ec699d95 da235e9bade29341 \
+    e7020cc5ffe260d2 6abbf5f6a659b1de 4d3a
+MAC: 4af21fe1f0338c4f afca2aea1e0f0a02
+Test: Verify
+#
+Comment: Test Case 104
+Key: 0cf65a5a640e8085 c813bbc38f8d0da9 23c1de017c8b6306 043c790dc0385e0f
+IV: c0df5264b72d6a8c fa9e024ddab578f9
+Message: \
+    370a807637d98f0b bdd5b2c04f048f42 2e4d8fcee0f8e085 a87186c9c18a84f8 \
+    94046ecbdefdd69b d3885b228cea64ba 38f48918ec699d95 da235e9bade29341 \
+    e7020cc5ffe260d2 6abbf5f6a659b1de 4d3a
+MAC: 4af21fe1f0338c4f afca2aea1e0f0a02
+Test: NotVerify
+#
+Comment: Test Case 105
+Key: b757585cf1d1de0a 86239b901b18b6bb c7c3860064b67b05 688fe5037066700a
+IV: 41355a8f7450070c 76da7ce1f4fdd0ab
+Message: \
+    8f6435aa911139f1 b2c7142e1785bf17 47f09ed480f1e2d5 6f4381fc9a707d2a \
+    d4b2d465c30e5775 d56ba4edf0630437 53a20cd394eea903 312affcc9a7df66f \
+    2fcad4f3d82b68ae 970c9b876f9fbfc3 42cb96d6b9
+MAC: f64b43003de675e1 e95648fb75ab521c
+Test: Verify
+#
+Comment: Test Case 106
+Key: b757585cf1d1de0a 86239b901b18b6bb c7c3860064b67b05 688fe5037066700a
+IV: 41355a8f7451070c 76da7ce1f4fdd0ab
+Message: \
+    8f6435aa911139f1 b2c7142e1785bf17 47f09ed480f1e2d5 6f4381fc9a707d2a \
+    d4b2d465c30e5775 d56ba4edf0630437 53a20cd394eea903 312affcc9a7df66f \
+    2fcad4f3d82b68ae 970c9b876f9fbfc3 42cb96d6b9
+MAC: f64b43003de675e1 e95648fb75ab521c
+Test: NotVerify
+#
+Comment: Test Case 107
+Key: ab33abc0cb4818ee 07278263708cc20e 4fe42a05340fee05 345cd308ac4ab40b
+IV: 0b71cb49e00f025f 1c86cf6cb719e405
+Message: \
+    c6a5ec8117d0525f 4fa2a4b79f7c4ffe 3b88cf3affd13c88 0aa09d20ad54a473 \
+    f990f41060466fb0 e914678890b686cb 3e56053e2742c632 e2645290b8f603b2 \
+    87f8c2e73e329727 46ffafd6b536a2f4 8ca732b3e9f8e5cc
+MAC: 88862fd57b10dd2f 18bcf03ca865c922
+Test: Verify
+#
+Comment: Test Case 108
+Key: ab33abc0cb4818ee 07278263708cc20e 4fe42a05340fee05 345cd308ac4ab40b
+IV: 0b71cb49e00f025f 1d86cf6cb719e405
+Message: \
+    c6a5ec8117d0525f 4fa2a4b79f7c4ffe 3b88cf3affd13c88 0aa09d20ad54a473 \
+    f990f41060466fb0 e914678890b686cb 3e56053e2742c632 e2645290b8f603b2 \
+    87f8c2e73e329727 46ffafd6b536a2f4 8ca732b3e9f8e5cc
+MAC: 88862fd57b10dd2f 18bcf03ca865c922
+Test: NotVerify
+#
+Comment: Test Case 109
+Key: 1979725e541b0e75 a66035452dfb74f3 ea82c10a34861307 5c39dd0eacf46708
+IV: 569e58c06b1d531e 886ab31a9992f604
+Message: \
+    55776a372762f832 41491bc466fb31cb b6e38adaabbfb531 0ab9a5e5836be0d9 \
+    e24b100aad083cee 5157b2b852e38308 c60ee371cd98a3d8 5148bdd4b39dad96 \
+    e8bda095c5dc8317 3436cf8619528fe0 6072512e0af4065b 3cc3
+MAC: 170c645ec76586a2 c858418d0015e77f
+Test: Verify
+#
+Comment: Test Case 110
+Key: 1979725e541b0e75 a66035452dfb74f3 ea82c10a34861307 5c39dd0eacf46708
+IV: 569e58c06b1d531e 886ab21a9992f604
+Message: \
+    55776a372762f832 41491bc466fb31cb b6e38adaabbfb531 0ab9a5e5836be0d9 \
+    e24b100aad083cee 5157b2b852e38308 c60ee371cd98a3d8 5148bdd4b39dad96 \
+    e8bda095c5dc8317 3436cf8619528fe0 6072512e0af4065b 3cc3
+MAC: 170c645ec76586a2 c858418d0015e77f
+Test: NotVerify
+#
+Comment: Test Case 111
+Key: 0a7d4baf917fda91 37b30972768fa9fa ec249e0b983a6304 dc0b5001bc993508
+IV: 0c5a15772852e0e8 51bd8dbd51780b14
+Message: \
+    fabb0052b959391a 87e720e4a546d1a4 cd5a170513b5a100 4c70ffde5316624d \
+    d2629f8bbbd9a542 c0c626650cf809d9 5220de66d67f6622 f06501437c63904e \
+    c530d980097ec2c9 44e92e50e1382a33 5808992e88ff5178 6552bbe1
+MAC: 747f05cccc8de4fd 5eee85fed00f534a
+Test: Verify
+#
+Comment: Test Case 112
+Key: 0a7d4baf917fda91 37b30972768fa9fa ec249e0b983a6304 dc0b5001bc993508
+IV: 0c5a15772852e0e8 51bd8dbd50780b14
+Message: \
+    fabb0052b959391a 87e720e4a546d1a4 cd5a170513b5a100 4c70ffde5316624d \
+    d2629f8bbbd9a542 c0c626650cf809d9 5220de66d67f6622 f06501437c63904e \
+    c530d980097ec2c9 44e92e50e1382a33 5808992e88ff5178 6552bbe1
+MAC: 747f05cccc8de4fd 5eee85fed00f534a
+Test: NotVerify
+#
+Comment: Test Case 113
+Key: 9dc2c63588b9caa2 674c8ceba05e4df2 6c377c083431140d 48b7ba08e8bf7905
+IV: 87145ac6297d42c3 1069d58aea6d6c92
+Message: \
+    925e8bd95965a178 f27195a9f1751345 6434b8dbf8f78bdb 08987188383567ca \
+    93f2a3ed5844654a b5fbf3a67006ecd4 3aa4b0329b3b0ea3 d37f2c0bb493d547 \
+    867834debd9a2872 951b19052105d95c a9898e44c59ce898 1b14a4cfa779
+MAC: da23e1233fe64fc2 74f433ef0d2eca24
+Test: Verify
+#
+Comment: Test Case 114
+Key: 9dc2c63588b9caa2 674c8ceba05e4df2 6c377c083431140d 48b7ba08e8bf7905
+IV: 87145ac6297d42c3 1069d58aea6d6d92
+Message: \
+    925e8bd95965a178 f27195a9f1751345 6434b8dbf8f78bdb 08987188383567ca \
+    93f2a3ed5844654a b5fbf3a67006ecd4 3aa4b0329b3b0ea3 d37f2c0bb493d547 \
+    867834debd9a2872 951b19052105d95c a9898e44c59ce898 1b14a4cfa779
+MAC: da23e1233fe64fc2 74f433ef0d2eca24
+Test: NotVerify
+#
+Comment: Test Case 115
+Key: 26163d146e4c6905 4daa11510e5928c6 06c3bf0f541e2900 cc884c0eb8bc2200
+IV: 8fe3f46cc21cfe54 025690247512480c
+Message: \
+    02abab6fd2875fd7 ed841e5d63f26e63 4e509443e893f7c5 68212682b5f412b8 \
+    9fbd277144864931 0a678e6d5afcd1a8 4d65ec35f9e3fa61 0420e3b914f571b3 \
+    b39824f71e6d2928 d5b7962fb467d701 ccc336c5a63027aa 500a646400d517b3 \
+    6e
+MAC: 72c637b4035a1ab2 a3e3d0c7a150c778
+Test: Verify
+#
+Comment: Test Case 116
+Key: 26163d146e4c6905 4daa11510e5928c6 06c3bf0f541e2900 cc884c0eb8bc2200
+IV: 8fe2f46cc21cfe54 025690247512480c
+Message: \
+    02abab6fd2875fd7 ed841e5d63f26e63 4e509443e893f7c5 68212682b5f412b8 \
+    9fbd277144864931 0a678e6d5afcd1a8 4d65ec35f9e3fa61 0420e3b914f571b3 \
+    b39824f71e6d2928 d5b7962fb467d701 ccc336c5a63027aa 500a646400d517b3 \
+    6e
+MAC: 72c637b4035a1ab2 a3e3d0c7a150c778
+Test: NotVerify
+#
+Comment: Test Case 117
+Key: fe511c0f470e6cd5 6c66ff6fd4be301b 6e18570c8408450f 3c732109c4dedd03
+IV: db679459aa5f7d99 aa656dd8510c7362
+Message: \
+    e4af9dabae61bb3a e334f5444c1160b2 c5826161e4203204 bcc89718cf6709b3 \
+    16a65ec40719feeb 4ef32f9a048f4cca 11ae2bf5ce5dfa8b 2591a3f4f8ada70e \
+    5306d25b1fd0466d c37508c704549115 02bc0bd11a055c3f 96ff348eacdb9c00 \
+    e16e5b
+MAC: 8a73a20226de87f5 910e1eac1a7ba2c0
+Test: Verify
+#
+Comment: Test Case 118
+Key: fe511c0f470e6cd5 6c66ff6fd4be301b 6e18570c8408450f 3c732109c4dedd03
+IV: db679458aa5f7d99 aa656dd8510c7362
+Message: \
+    e4af9dabae61bb3a e334f5444c1160b2 c5826161e4203204 bcc89718cf6709b3 \
+    16a65ec40719feeb 4ef32f9a048f4cca 11ae2bf5ce5dfa8b 2591a3f4f8ada70e \
+    5306d25b1fd0466d c37508c704549115 02bc0bd11a055c3f 96ff348eacdb9c00 \
+    e16e5b
+MAC: 8a73a20226de87f5 910e1eac1a7ba2c0
+Test: NotVerify
+#
+Comment: Test Case 119
+Key: 95e303c25626748e 0aee43fade297cb2 a389c50be8aa740d 0c150307782c8300
+IV: ca9df120c0c038ab 5ff356530d6ac7b9
+Message: \
+    7ef54cdeaf9b4ffe affb96c408a6105e 4961844dcce6d16e 4de4d6fd0b5db68a \
+    520368019eb7ff4d b39612bb3c221a85 839ed25085a4bed2 8894d093f2861d44 \
+    898546283d4575f0 db87ab18a9c59d2d 64707de9143bbb9c d08b2fc2124d069b \
+    d24cc30f92
+MAC: e01a9be779eb9a44 6b579b90a2445005
+Test: Verify
+#
+Comment: Test Case 120
+Key: 95e303c25626748e 0aee43fade297cb2 a389c50be8aa740d 0c150307782c8300
+IV: ca9df120c0c138ab 5ff356530d6ac7b9
+Message: \
+    7ef54cdeaf9b4ffe affb96c408a6105e 4961844dcce6d16e 4de4d6fd0b5db68a \
+    520368019eb7ff4d b39612bb3c221a85 839ed25085a4bed2 8894d093f2861d44 \
+    898546283d4575f0 db87ab18a9c59d2d 64707de9143bbb9c d08b2fc2124d069b \
+    d24cc30f92
+MAC: e01a9be779eb9a44 6b579b90a2445005
+Test: NotVerify
+#
+Comment: Test Case 121
+Key: 3c16bf7332772a5a ba1f6c6c2a688ed0 e57e5c06fc52da07 b43776050cce5209
+IV: de00be537152569d e8aefa5a0bee4311
+Message: \
+    de3cfc3a7b17c5fa 1628e516144a5a04 f48ec1768b76efda 43cd78311e0e95fc \
+    4a9237c5a9fcc0c0 25a5d639ef303de3 bffe594a744924b7 169ce834aa7e30f4 \
+    1067bab9647a7989 1f4fc20e80fff23f fd4b897294ad29aa 4912def3900fe7a0 \
+    76a159da1bd3633a
+MAC: 30a93bfe0f6c5021 7b0854d37c8b2924
+Test: Verify
+#
+Comment: Test Case 122
+Key: 3c16bf7332772a5a ba1f6c6c2a688ed0 e57e5c06fc52da07 b43776050cce5209
+IV: de00be537152569d e9aefa5a0bee4311
+Message: \
+    de3cfc3a7b17c5fa 1628e516144a5a04 f48ec1768b76efda 43cd78311e0e95fc \
+    4a9237c5a9fcc0c0 25a5d639ef303de3 bffe594a744924b7 169ce834aa7e30f4 \
+    1067bab9647a7989 1f4fc20e80fff23f fd4b897294ad29aa 4912def3900fe7a0 \
+    76a159da1bd3633a
+MAC: 30a93bfe0f6c5021 7b0854d37c8b2924
+Test: NotVerify
+#
+Comment: Test Case 123
+Key: f63c7f160268026c 74279ec968b2caa8 dfd42403ec4e0108 bc38020b009f5809
+IV: 2f6b0692990a93e6 a18b66d5da5a3a65
+Message: \
+    e53d45f8aed86d47 4500bff5ad7ca065 de62478e03391929 9f5dd11e84be4469 \
+    fb8962a962cff1a7 cfb09c7d2c3ce20a 9e2999a162b2ca02 0f9c20935a64fd55 \
+    ee5fff502ef0f7fe a0937bcccf5dd76d 86700ee822d8ea32 740ac5ce6fc2245d \
+    2123ad5013a44eb3 37c9
+MAC: b82152536d4458ae 229f30f4e56c5058
+Test: Verify
+#
+Comment: Test Case 124
+Key: f63c7f160268026c 74279ec968b2caa8 dfd42403ec4e0108 bc38020b009f5809
+IV: 2f6b0692990a93e6 a18b67d5da5a3a65
+Message: \
+    e53d45f8aed86d47 4500bff5ad7ca065 de62478e03391929 9f5dd11e84be4469 \
+    fb8962a962cff1a7 cfb09c7d2c3ce20a 9e2999a162b2ca02 0f9c20935a64fd55 \
+    ee5fff502ef0f7fe a0937bcccf5dd76d 86700ee822d8ea32 740ac5ce6fc2245d \
+    2123ad5013a44eb3 37c9
+MAC: b82152536d4458ae 229f30f4e56c5058
+Test: NotVerify
+#
+Comment: Test Case 125
+Key: 9950970a9f328ffe 4428d3f63f37763f ec072a0e74709c0f a81bef0d94c80c0e
+IV: 1a49fae6bef1fcbc 313d2e7de725389a
+Message: \
+    5525d7a107abef12 e67297be0850bc8a 2059c6049b05b59c 8e42854f3b2c1490 \
+    51eb325896216a7c 93013a9c52f62672 4fed76ebf22b8780 6e0cd0a938e43989 \
+    cf6be2658c4ce120 4e1cbca012e21262 cf894dc2b4d44222 e112cb19f605a3c5 \
+    70852afdd10c1d1f 28d9bf3abb
+MAC: 206e7e3254583c96 c5d7871ea263b864
+Test: Verify
+#
+Comment: Test Case 126
+Key: 9950970a9f328ffe 4428d3f63f37763f ec072a0e74709c0f a81bef0d94c80c0e
+IV: 1a49fae6bef1fcbc 313d2e7de724389a
+Message: \
+    5525d7a107abef12 e67297be0850bc8a 2059c6049b05b59c 8e42854f3b2c1490 \
+    51eb325896216a7c 93013a9c52f62672 4fed76ebf22b8780 6e0cd0a938e43989 \
+    cf6be2658c4ce120 4e1cbca012e21262 cf894dc2b4d44222 e112cb19f605a3c5 \
+    70852afdd10c1d1f 28d9bf3abb
+MAC: 206e7e3254583c96 c5d7871ea263b864
+Test: NotVerify
+#
+Comment: Test Case 127
+Key: 83c3e9a7d86d70c4 cea36a39c965d5bb 5ecc7b09b42f2205 f893c309f0ca2a05
+IV: af16a30ca249aa69 28d2348a83df4353
+Message: \
+    14ad92b3fd2b8c4a 4ac056f4695708bd 94808ea5f714000d 11e000148b6ab19f \
+    174353146fdf5fb9 9fb5ad090cb6c6a0 3654452d68453b79 253b8eb1a53f50bd \
+    83a3d1f28330ab22 e5582bf10ef19144 45d672ae1bad2741 e8b5f28df5424a78 \
+    e61c6a694c158b32 6db7237ca8b5c0ee
+MAC: 2374d8f7b47ca80a df684fcca1f89317
+Test: Verify
+#
+Comment: Test Case 128
+Key: 83c3e9a7d86d70c4 cea36a39c965d5bb 5ecc7b09b42f2205 f893c309f0ca2a05
+IV: ae16a30ca249aa69 28d2348a83df4353
+Message: \
+    14ad92b3fd2b8c4a 4ac056f4695708bd 94808ea5f714000d 11e000148b6ab19f \
+    174353146fdf5fb9 9fb5ad090cb6c6a0 3654452d68453b79 253b8eb1a53f50bd \
+    83a3d1f28330ab22 e5582bf10ef19144 45d672ae1bad2741 e8b5f28df5424a78 \
+    e61c6a694c158b32 6db7237ca8b5c0ee
+MAC: 2374d8f7b47ca80a df684fcca1f89317
+Test: NotVerify
+#
+Comment: Test Case 129
+Key: 426bcb75f4b359ce a3ccda7b32c4d655 8d99f20490efde0e 34c78c0370211302
+IV: ef2a6f6e25671a48 9a0b1be6d5dc9f3d
+Message: \
+    55215ca72a73e599 ac063627a7d31553 4f8938747e66b5ff 58c8b9372b1b3d80 \
+    3c9927660c0c00b9 1336e0ba09f60e58 7f46ccfdac81fd04 4ab63b75d178f60d \
+    111d741e2a74d73d aab7f7b3ad050b2c 4bd82af85927fca3 dd3819aeb00fbbc2 \
+    2c2fe056a3b7934d 6e8b001c900c48dc e472
+MAC: e52d22fddfe6b82c dfde654e75f46b17
+Test: Verify
+#
+Comment: Test Case 130
+Key: 426bcb75f4b359ce a3ccda7b32c4d655 8d99f20490efde0e 34c78c0370211302
+IV: ef2a6e6e25671a48 9a0b1be6d5dc9f3d
+Message: \
+    55215ca72a73e599 ac063627a7d31553 4f8938747e66b5ff 58c8b9372b1b3d80 \
+    3c9927660c0c00b9 1336e0ba09f60e58 7f46ccfdac81fd04 4ab63b75d178f60d \
+    111d741e2a74d73d aab7f7b3ad050b2c 4bd82af85927fca3 dd3819aeb00fbbc2 \
+    2c2fe056a3b7934d 6e8b001c900c48dc e472
+MAC: e52d22fddfe6b82c dfde654e75f46b17
+Test: NotVerify
+#
+Comment: Test Case 131
+Key: 2864990f09379d96 9a29dc4983ce76f3 57ad6a02e4480b06 78f751088c1cc408
+IV: ccb9f45538e3b00d 7fcd3b74be192115
+Message: \
+    1bb3713e36888baf a430b6d5b343634c 9864d1193ea9830b b4f1e81da77cc1c2 \
+    2f320066ba8c155f bccb346f0e97bca6 fb8dbf39364344ea 342c07dba8c89ed8 \
+    fa9e3eb52a5314e7 1e48562cdf12d2da a09214d6d558c109 85c8e52d9183058b \
+    2143404c965433b4 9c89e07b9cb3563c 456a121ac2
+MAC: 2bc86a54ac7ca9da fe9fa1ea35b28ef3
+Test: Verify
+#
+Comment: Test Case 132
+Key: 2864990f09379d96 9a29dc4983ce76f3 57ad6a02e4480b06 78f751088c1cc408
+IV: ccb9f45538e2b00d 7fcd3b74be192115
+Message: \
+    1bb3713e36888baf a430b6d5b343634c 9864d1193ea9830b b4f1e81da77cc1c2 \
+    2f320066ba8c155f bccb346f0e97bca6 fb8dbf39364344ea 342c07dba8c89ed8 \
+    fa9e3eb52a5314e7 1e48562cdf12d2da a09214d6d558c109 85c8e52d9183058b \
+    2143404c965433b4 9c89e07b9cb3563c 456a121ac2
+MAC: 2bc86a54ac7ca9da fe9fa1ea35b28ef3
+Test: NotVerify
+#
+Comment: Test Case 133
+Key: aa64843062bff0fd 31277bc651636c0a c1478f0438e44600 6880620978d2a805
+IV: 5401ac60ebf9316c 58e3a855356bf3a5
+Message: \
+    7a3f897257910ff5 2ab846f3820f7097 fcfc92a3498c3d78 37bab37100b49c7b \
+    f325ed4bb6fd40e0 b586d4379644cf92 40613689ed730224 2db5952e6931a95d \
+    5696a80d93e8ed48 6fc18005054f9746 b0cdcf9e40d1c26e 86589cf089454de0 \
+    dbf5ed6fdddab74c 9c3751a186e9e737 b6b7d5f7889765
+MAC: efe9be146e41886f 616d85c6726815aa
+Test: Verify
+#
+Comment: Test Case 134
+Key: aa64843062bff0fd 31277bc651636c0a c1478f0438e44600 6880620978d2a805
+IV: 5401ac60ebf9316d 58e3a855356bf3a5
+Message: \
+    7a3f897257910ff5 2ab846f3820f7097 fcfc92a3498c3d78 37bab37100b49c7b \
+    f325ed4bb6fd40e0 b586d4379644cf92 40613689ed730224 2db5952e6931a95d \
+    5696a80d93e8ed48 6fc18005054f9746 b0cdcf9e40d1c26e 86589cf089454de0 \
+    dbf5ed6fdddab74c 9c3751a186e9e737 b6b7d5f7889765
+MAC: efe9be146e41886f 616d85c6726815aa
+Test: NotVerify
+#
+Comment: Test Case 135
+Key: 28f7487cd468f48a 14f55cdb578c5992 4347a106dcd72707 a8d6c406fcdb8705
+IV: 2b5f486e443f89a3 788e90e34f6d8bb4
+Message: \
+    8df39b9f38720e5c 55442a2abfa964fa d5cae47e1df67368 0a274d7c9de8252b \
+    dbc0ca1332d86f88 1c9ab2dc4316d618 e0ba97fdb00a65ba 31b336cf9b5bfa76 \
+    1bc4894e9cf8d6b9 928895d59e6bee7e 25857bd58fe18fc1 94c5902f208aa53b \
+    4e2e89ea265fa3b9 e7388e85a37c03c8 017f9d91602c52f4 f1e2
+MAC: ded205a63939a2f2 f1a424e361e7f1d8
+Test: Verify
+#
+Comment: Test Case 136
+Key: 28f7487cd468f48a 14f55cdb578c5992 4347a106dcd72707 a8d6c406fcdb8705
+IV: 2b5f486e443f89a3 788e91e34f6d8bb4
+Message: \
+    8df39b9f38720e5c 55442a2abfa964fa d5cae47e1df67368 0a274d7c9de8252b \
+    dbc0ca1332d86f88 1c9ab2dc4316d618 e0ba97fdb00a65ba 31b336cf9b5bfa76 \
+    1bc4894e9cf8d6b9 928895d59e6bee7e 25857bd58fe18fc1 94c5902f208aa53b \
+    4e2e89ea265fa3b9 e7388e85a37c03c8 017f9d91602c52f4 f1e2
+MAC: ded205a63939a2f2 f1a424e361e7f1d8
+Test: NotVerify
+#
+Comment: Test Case 137
+Key: 14803d3642458fe9 218eafa15942643c d8ff1f0facfe220d 94057e0d9c79e701
+IV: 07ee44f45243e1cf 7549e030e7404ddc
+Message: \
+    34853c37dc2b2868 f2117f6da6bb40e2 9f364bd7918c659c 66a9e812c9ceb0fd \
+    54ec3430185c980a 6d177714d2b7f672 ee41497fceae1b34 58034621d2f71e26 \
+    e35356fbafee051d 067d31d834274a22 6993a13742bc6b9a c0b1bb92a8d9b88c \
+    2c0e87dcfc8df902 0a2adb3e512561ba b902f1fbbf5c957f 0e5011b6
+MAC: 7373b222ce4fa316 109f323cdf4c7d1f
+Test: Verify
+#
+Comment: Test Case 138
+Key: 14803d3642458fe9 218eafa15942643c d8ff1f0facfe220d 94057e0d9c79e701
+IV: 07ee44f45243e1cf 7549e030e6404ddc
+Message: \
+    34853c37dc2b2868 f2117f6da6bb40e2 9f364bd7918c659c 66a9e812c9ceb0fd \
+    54ec3430185c980a 6d177714d2b7f672 ee41497fceae1b34 58034621d2f71e26 \
+    e35356fbafee051d 067d31d834274a22 6993a13742bc6b9a c0b1bb92a8d9b88c \
+    2c0e87dcfc8df902 0a2adb3e512561ba b902f1fbbf5c957f 0e5011b6
+MAC: 7373b222ce4fa316 109f323cdf4c7d1f
+Test: NotVerify
+#
+Comment: Test Case 139
+Key: f02d2b6233cd5d9d 77caac36ff47b28f 5b2ae10710456c0c eceb2602f4ea7408
+IV: 2c9bcbf4260d064b 2be60ffcfa8647f7
+Message: \
+    50ea32711d9b7ff4 2b8f1fd4e1890e00 f57e26c113a0ffa3 01c88c7a291d3c7a \
+    076eeb24096a1834 f93708dac117dbb6 950177a8a1774ca2 3fd81c69f558e3fc \
+    c6ce20d038380432 6f0d0c3024e7e7b9 e85e6189d5ad2c15 85487e7aa1617667 \
+    2f963767ce3c993e 49a66e6d8d552676 b487ff89352b9eba 741c35157dab
+MAC: bd7f853b760c5f67 fcd32e58ed8f07c6
+Test: Verify
+#
+Comment: Test Case 140
+Key: f02d2b6233cd5d9d 77caac36ff47b28f 5b2ae10710456c0c eceb2602f4ea7408
+IV: 2c9bcbf4260d064b 2be60ffcfa8646f7
+Message: \
+    50ea32711d9b7ff4 2b8f1fd4e1890e00 f57e26c113a0ffa3 01c88c7a291d3c7a \
+    076eeb24096a1834 f93708dac117dbb6 950177a8a1774ca2 3fd81c69f558e3fc \
+    c6ce20d038380432 6f0d0c3024e7e7b9 e85e6189d5ad2c15 85487e7aa1617667 \
+    2f963767ce3c993e 49a66e6d8d552676 b487ff89352b9eba 741c35157dab
+MAC: bd7f853b760c5f67 fcd32e58ed8f07c6
+Test: NotVerify
+#
+Comment: Test Case 141
+Key: 598811e405e8c16d 7eee810d26b44c0c de31f80a9ce7880e 501edd05108bb309
+IV: 9cdf2d81599e47fa 875370e45003f743
+Message: \
+    6f323b7ad3d11343 0d969a291a837372 fde4630a804b6b0e 812f6d42471335b6 \
+    4570311942445c4f dbf678f579ec6777 d0cb815016ec5e97 1bcbd963df0f1924 \
+    7f4a3dc18f9a106a 90895f0a75c68145 910296a7eef43f09 c0186c9f2786c3a7 \
+    d001685f9b79c92b 02283577efb6bc80 b85228a64767b007 7f1ca6a7a2694e73 \
+    6a
+MAC: b10fab2439555c04 8ec89ae5c18f196c
+Test: Verify
+#
+Comment: Test Case 142
+Key: 598811e405e8c16d 7eee810d26b44c0c de31f80a9ce7880e 501edd05108bb309
+IV: 9cdf2d81599e47fa 875370e45003f743
+Message: \
+    6f323b7ad3d11343 0d969a291a837372 fde4630a804b6b0e 812f6d42471335b6 \
+    4570311942445c4f dbf678f579ec6777 d0cb815016ec5e97 1bcbd963df0f1924 \
+    7f4a3dc18f9a106a 90895f0a75c68145 910296a7eef43f09 c0186c9f2786c3a7 \
+    d001685f9b79c92b 02283577efb6bc80 b85228a64767b007 7f1ca6a7a2694e73 \
+    6a
+MAC: b10eab2439555c04 8ec89ae5c18f196c
+Test: NotVerify
+#
+Comment: Test Case 143
+Key: 06b9a99d936a34ea ff1a2a72b03b0362 5178910acc8ff706 682f1a00c09fff09
+IV: f504e437c89718f6 a1d27bbb53286352
+Message: \
+    4e61784281cea3f8 6aea2423c6ed60f0 e0f9a9fd486d786b bc2514fe25ca5b73 \
+    2bd3b5aca158a50c 42c92f08b690f996 89a293d10f0c3dcc 3151ca571b25ca46 \
+    f880f29ad897a61b 60d52317651cadee bf41c0ce4dfd9a7e 4e64d56989a0af82 \
+    20a11cf839c21399 9737b0fd535eeb12 9fabe1eca87b6af6 e0405f69e00eeb00 \
+    b007f8e9c90c
+MAC: 3b0e9232d72dead0 85e0f2a7f0df05b6
+Test: Verify
+#
+Comment: Test Case 144
+Key: 06b9a99d936a34ea ff1a2a72b03b0362 5178910acc8ff706 682f1a00c09fff09
+IV: f504e437c89718f6 a1d27bbb53286352
+Message: \
+    4e61784281cea3f8 6aea2423c6ed60f0 e0f9a9fd486d786b bc2514fe25ca5b73 \
+    2bd3b5aca158a50c 42c92f08b690f996 89a293d10f0c3dcc 3151ca571b25ca46 \
+    f880f29ad897a61b 60d52317651cadee bf41c0ce4dfd9a7e 4e64d56989a0af82 \
+    20a11cf839c21399 9737b0fd535eeb12 9fabe1eca87b6af6 e0405f69e00eeb00 \
+    b007f8e9c90c
+MAC: 3b0e9232d72debd0 85e0f2a7f0df05b6
+Test: NotVerify
+#
+Comment: Test Case 145
+Key: d8e88e1b64091f0f 57de740b050364a2 e0af7a0dbcdda707 106a590608a22c03
+IV: 6d5fbec45670dfc8 82383da3f2b650fe
+Message: \
+    47d03ab62e574b94 9542b74716f2fde0 d298d2b5804c6dd5 4bbe3fdf29bb4170 \
+    8b7b26b9d2714e67 b305aecaf7acaac9 447c7ec4c9eb9914 a9d8f3d29334431e \
+    af69d881db26e98e 2b9758224303eb87 7f694c4854e55dfd be50cf5185127034 \
+    7c48b6576e9fe599 363ebb7a41a601c0 0f4d0963336660f1 b62f423b42b270be \
+    fa261568c5fa01fb 38bc75
+MAC: d38deab2a7e2d678 c08b29a1ca2657aa
+Test: Verify
+#
+Comment: Test Case 146
+Key: d8e88e1b64091f0f 57de740b050364a2 e0af7a0dbcdda707 106a590608a22c03
+IV: 6d5fbec45670dfc8 82383da3f2b650fe
+Message: \
+    47d03ab62e574b94 9542b74716f2fde0 d298d2b5804c6dd5 4bbe3fdf29bb4170 \
+    8b7b26b9d2714e67 b305aecaf7acaac9 447c7ec4c9eb9914 a9d8f3d29334431e \
+    af69d881db26e98e 2b9758224303eb87 7f694c4854e55dfd be50cf5185127034 \
+    7c48b6576e9fe599 363ebb7a41a601c0 0f4d0963336660f1 b62f423b42b270be \
+    fa261568c5fa01fb 38bc75
+MAC: d38deab2a7e2d678 c08b29a0ca2657aa
+Test: NotVerify
+#
+Comment: Test Case 147
+Key: a031598422919d75 0abed24efce7f7e1 b897e700f489780a 98b06106c0fec700
+IV: 5ff14a96dca1fa37 7f34987a720b6284
+Message: \
+    ff472b717ceaf225 986c379ba2d95e71 ff940b0cfe5b8208 c1c9f476fc6e2cfb \
+    b5576d31425f56da cb8d756e67d4df66 68ea726745f46f07 be637dbad1a9b686 \
+    0123b743820d1d4d 9b92bb02669a68cf 84da36cacea5d18c 084e47d9f8fd5ff9 \
+    20163ca22359efbe ebabc052452821ca 025794d1fc655d04 b3a4ddaba13ca4c1 \
+    52e0637539533425 fef477431d980d
+MAC: 9e32308a4c1d7425 b0bf82670db4f7cc
+Test: Verify
+#
+Comment: Test Case 148
+Key: a031598422919d75 0abed24efce7f7e1 b897e700f489780a 98b06106c0fec700
+IV: 5ff14a96dca1fa37 7f34987a720b6284
+Message: \
+    ff472b717ceaf225 986c379ba2d95e71 ff940b0cfe5b8208 c1c9f476fc6e2cfb \
+    b5576d31425f56da cb8d756e67d4df66 68ea726745f46f07 be637dbad1a9b686 \
+    0123b743820d1d4d 9b92bb02669a68cf 84da36cacea5d18c 084e47d9f8fd5ff9 \
+    20163ca22359efbe ebabc052452821ca 025794d1fc655d04 b3a4ddaba13ca4c1 \
+    52e0637539533425 fef477431d980d
+MAC: 9e32308a4c1d7425 b0bf82670db4f7cd
+Test: NotVerify
+#
+Comment: Test Case 149
+Key: d42ab2df6867c020 16775ff8d57d6d0c 263c6002dc9c0601 d81561044877490e
+IV: a63f484e8c240862 a4da54f48f252aab
+Message: \
+    3a4fc4be78c7765e b79c55e8a8c4648f fec6e3dfa84e239b 00e60198d9548813 \
+    a44cd21c14487acb e4cfb38c93181b91 deff70874d93224d 7a23e553786e671c \
+    ba3938ce81b29a65 824df115650da744 0c17cb59abeda625 108b7888f9dfa4b4 \
+    18dc82998f1cfe11 6af026cffdcd1309 e5de6290cb08b5dc 932d648d0d094125 \
+    e5c3bf74e0bd854a adac19aa792db35e 0b15ee
+MAC: 78198c9c78e70445 d59cf9637333b422
+Test: Verify
+#
+Comment: Test Case 150
+Key: d42ab2df6867c020 16775ff8d57d6d0c 263c6002dc9c0601 d81561044877490e
+IV: a63f484e8c240862 a4da54f48f252aab
+Message: \
+    3a4fc4be78c7765e b79c55e8a8c4648f fec6e3dfa84e239b 00e60198d9548813 \
+    a44cd21c14487acb e4cfb38c93181b91 deff70874d93224d 7a23e553786e671c \
+    ba3938ce81b29a65 824df115650da744 0c17cb59abeda625 108b7888f9dfa4b4 \
+    18dc82998f1cfe11 6af026cffdcd1309 e5de6290cb08b5dc 932d648d0d094125 \
+    e5c3bf74e0bd854a adac19aa792db35e 0b15ee
+MAC: 78198c9d78e70445 d59cf9637333b422
+Test: NotVerify
+#
+Comment: Test Case 151
+Key: 8ea121bcd31be023 e9764fcca96cc17c 6649750b5889e500 7c3f6901d8bf1209
+IV: fbe2fd476fcc9eac 30e6709da96ab9be
+Message: \
+    3643bb520c2a9a36 68b16e8f307bd6fe a9eea59c6ad58660 cc0218ab790fe1af \
+    529c015ec69b942e 4d02be7d7e947b27 8220c4ecf54a4dc2 4c656dc5744e74c6 \
+    ea7624b011b8de5e bb9cdb39315660b3 7724a06c6eed2ebb 529b80c6e9f58cd3 \
+    6bb0837c6862db23 feb65c2f0dbde384 e183f050701f0bc2 ba8b88a4801477eb \
+    c4fb682c5d43505b f9ac8b06696e8a4b f17b9b619aa623
+MAC: df05149e5936a453 68dd4ea70029fac9
+Test: Verify
+#
+Comment: Test Case 152
+Key: 8ea121bcd31be023 e9764fcca96cc17c 6649750b5889e500 7c3f6901d8bf1209
+IV: fbe2fd476fcc9eac 30e6709da96ab9be
+Message: \
+    3643bb520c2a9a36 68b16e8f307bd6fe a9eea59c6ad58660 cc0218ab790fe1af \
+    529c015ec69b942e 4d02be7d7e947b27 8220c4ecf54a4dc2 4c656dc5744e74c6 \
+    ea7624b011b8de5e bb9cdb39315660b3 7724a06c6eed2ebb 529b80c6e9f58cd3 \
+    6bb0837c6862db23 feb65c2f0dbde384 e183f050701f0bc2 ba8b88a4801477eb \
+    c4fb682c5d43505b f9ac8b06696e8a4b f17b9b619aa623
+MAC: df05149e5936a452 68dd4ea70029fac9
+Test: NotVerify
+#
+Comment: Test Case 153
+Key: e6d70b4ed7143807 d5a2370330fb7d5c 1b8a3003a076a204 94b59c09f8faf801
+IV: f1fab72efaea2cbf 8825d7284b98cdbe
+Message: \
+    fb385a7b29b17880 62907cee5d7c34a1 67135dc251b74f0a 029c8785038342fe \
+    bb9c79e54df165af 81e19dde5ed17fc5 e4dc883594d74096 73c71c764b5e7406 \
+    faeeeb48df51f761 32953f9066bf564b 9bde802fb5c0c629 88e29fd34014d93a \
+    02c582e1167a4248 0f82d975412fc0dc 0d410cc201d2eb89 b48b5cf49f362ea1 \
+    fbb182112bc5593a 4732af886170646e b17031b2421c3cf6 a798ea46
+MAC: 434c9754aaeb1642 3988e3de6073fcdd
+Test: Verify
+#
+Comment: Test Case 154
+Key: e6d70b4ed7143807 d5a2370330fb7d5c 1b8a3003a076a204 94b59c09f8faf801
+IV: f1fab72efaea2cbf 8825d7284b98cdbe
+Message: \
+    fb385a7b29b17880 62907cee5d7c34a1 67135dc251b74f0a 029c8785038342fe \
+    bb9c79e54df165af 81e19dde5ed17fc5 e4dc883594d74096 73c71c764b5e7406 \
+    faeeeb48df51f761 32953f9066bf564b 9bde802fb5c0c629 88e29fd34014d93a \
+    02c582e1167a4248 0f82d975412fc0dc 0d410cc201d2eb89 b48b5cf49f362ea1 \
+    fbb182112bc5593a 4732af886170646e b17031b2421c3cf6 a798ea46
+MAC: 434c9754aaeb1642 3988e3de6173fcdd
+Test: NotVerify
+#
+Comment: Test Case 155
+Key: b50b75ffea0d6bb8 bd58a0bd04abfa2d c316d30cb4a2410d 3c0f130b8c4e8b03
+IV: f46b230a6158da70 4e891f1e865e5f9e
+Message: \
+    1c4aed0a1994d9b9 d56eb568ca9c42da 24941bab0f592bd4 5f21a3ab4211e95e \
+    5bd669756a422e3f b1e3a87b7fea55a3 7e714f8dca7a6229 9b05d5dd16be3c72 \
+    94a5e7fee7153d98 f9e51378d0691c4e da6bdca4e53ecd80 43a25d5a6099ccf4 \
+    3eb3f226c830bec1 15d23ae53b563415 c110b9a64e862691 2983eb891db77e5b \
+    6a708133a040f4b6 122e9b4d84cf6245 df1beb2da111bfca 95aa54b262d20dcc \
+    42
+MAC: 98a78f6cca139e52 e14464122ab5b7e9
+Test: Verify
+#
+Comment: Test Case 156
+Key: b50b75ffea0d6bb8 bd58a0bd04abfa2d c316d30cb4a2410d 3c0f130b8c4e8b03
+IV: f46b230a6158da70 4e891f1e865e5f9e
+Message: \
+    1c4aed0a1994d9b9 d56eb568ca9c42da 24941bab0f592bd4 5f21a3ab4211e95e \
+    5bd669756a422e3f b1e3a87b7fea55a3 7e714f8dca7a6229 9b05d5dd16be3c72 \
+    94a5e7fee7153d98 f9e51378d0691c4e da6bdca4e53ecd80 43a25d5a6099ccf4 \
+    3eb3f226c830bec1 15d23ae53b563415 c110b9a64e862691 2983eb891db77e5b \
+    6a708133a040f4b6 122e9b4d84cf6245 df1beb2da111bfca 95aa54b262d20dcc \
+    42
+MAC: 98a68f6cca139e52 e14464122ab5b7e9
+Test: NotVerify
+#
+Comment: Test Case 157
+Key: ab44696f723e8e4b c0053a818f030ed9 9f47290c1cd9d00f 507d63042853d405
+IV: 19752141c045ffad 7e75e5e6c16ea3a0
+Message: \
+    2af9b9c3761b681a b791137ca1bf8105 94d44b9bb1245cd3 172ab290566ec481 \
+    677d44dd98acf84f 3d0bccdfcb4de45f 222ffad35356a66a 8058fad7c7bf582e \
+    3c9c0cd548042485 0ff064da3e493960 783333cc8ada360a 3231e1f9f039282c \
+    d534011d3826a347 16072254505bb4c9 8fe89519c2cb23f4 fc05eeec3e161914 \
+    4a1a318240d4c957 dcebab2c4760f5d6 488aef0a5612fe52 17ec3f5602586a4c \
+    729bce
+MAC: f2a02c7a7b6a4eb4 65fe916e29b7ac9b
+Test: Verify
+#
+Comment: Test Case 158
+Key: ab44696f723e8e4b c0053a818f030ed9 9f47290c1cd9d00f 507d63042853d405
+IV: 19752141c045ffad 7e75e5e6c16ea3a0
+Message: \
+    2af9b9c3761b681a b791137ca1bf8105 94d44b9bb1245cd3 172ab290566ec481 \
+    677d44dd98acf84f 3d0bccdfcb4de45f 222ffad35356a66a 8058fad7c7bf582e \
+    3c9c0cd548042485 0ff064da3e493960 783333cc8ada360a 3231e1f9f039282c \
+    d534011d3826a347 16072254505bb4c9 8fe89519c2cb23f4 fc05eeec3e161914 \
+    4a1a318240d4c957 dcebab2c4760f5d6 488aef0a5612fe52 17ec3f5602586a4c \
+    729bce
+MAC: f2a02c7b7b6a4eb4 65fe916e29b7ac9b
+Test: NotVerify
+#
+Comment: Test Case 159
+Key: b02d7718ceb2dcde e194cf2916ab67e8 7c3c8301a4eeec0a cc962600d0b38301
+IV: 232f40d629bf87db 798e04510d6fc794
+Message: \
+    7b62335aca4b1914 4a17f961ce904c15 1ca3a1600fccc8ae 20662b61b840d333 \
+    a2068e6c52a7819c be7afd8c0a49a126 ec4287fc0f4faa2f b5d5906d1563a0b8 \
+    6a2e24bcd5a55894 1f56202a9fc2508c 04d78813263242db 08d3481d36e9d5a0 \
+    17fa5ced9fb581bf 0ba1e9aa63393668 11be7b37f1be13f9 915b16c744ec685c \
+    e6c4498579ca4484 6b2d2fcf67653778 24b2af1570c20e01 1e24c9621031bef6 \
+    f5077c6fd1
+MAC: e8f3923ccb00a760 74cb4629879c3037
+Test: Verify
+#
+Comment: Test Case 160
+Key: b02d7718ceb2dcde e194cf2916ab67e8 7c3c8301a4eeec0a cc962600d0b38301
+IV: 232f40d629bf87db 798e04510d6fc794
+Message: \
+    7b62335aca4b1914 4a17f961ce904c15 1ca3a1600fccc8ae 20662b61b840d333 \
+    a2068e6c52a7819c be7afd8c0a49a126 ec4287fc0f4faa2f b5d5906d1563a0b8 \
+    6a2e24bcd5a55894 1f56202a9fc2508c 04d78813263242db 08d3481d36e9d5a0 \
+    17fa5ced9fb581bf 0ba1e9aa63393668 11be7b37f1be13f9 915b16c744ec685c \
+    e6c4498579ca4484 6b2d2fcf67653778 24b2af1570c20e01 1e24c9621031bef6 \
+    f5077c6fd1
+MAC: e8f3923ccb01a760 74cb4629879c3037
+Test: NotVerify
+#
+Comment: Test Case 161
+Key: cb3121c9508ae924 98d9b608d07ac4a7 f243c905c07b560f d077060efc215a09
+IV: 3979e0442ffed5a4 40111abd3fa4186e
+Message: \
+    c0fb894053565e58 d31ecc286a52804f 3ffb0c155f0068cf 8952ae8a66889c27 \
+    832667d67cc62e50 e4fb784e4df89d8c f3a9a152a9092232 5bd0bcc25859e9db \
+    7f50b1fb16e04bfa dbc34828bbe5b4ae 8e5501385f236aba f3277c4b806526ff \
+    b6d7faccb746c792 090fbac5f56e7383 c474bb239726dd8a 4d5ad5cdbffbcc75 \
+    d3c6428a0c091d16 18d7db0d464e910a c34c2d5a720ae5bf 64ba8c24b6589989 \
+    1fdb132be43041fd 08
+MAC: 2f7477c0528e1815 4d2c65a65f52f19f
+Test: Verify
+#
+Comment: Test Case 162
+Key: cb3121c9508ae924 98d9b608d07ac4a7 f243c905c07b560f d077060efc215a09
+IV: 3979e0442ffed5a4 40111abd3fa4186e
+Message: \
+    c0fb894053565e58 d31ecc286a52804f 3ffb0c155f0068cf 8952ae8a66889c27 \
+    832667d67cc62e50 e4fb784e4df89d8c f3a9a152a9092232 5bd0bcc25859e9db \
+    7f50b1fb16e04bfa dbc34828bbe5b4ae 8e5501385f236aba f3277c4b806526ff \
+    b6d7faccb746c792 090fbac5f56e7383 c474bb239726dd8a 4d5ad5cdbffbcc75 \
+    d3c6428a0c091d16 18d7db0d464e910a c34c2d5a720ae5bf 64ba8c24b6589989 \
+    1fdb132be43041fd 08
+MAC: 2f7477c0528e1815 4d2d65a65f52f19f
+Test: NotVerify
+#
+Comment: Test Case 163
+Key: 9258c41382528ffc 30c8e6d85c717501 9cde980bf4ab340c a46ecd0134a4e60a
+IV: d8ac06d40e359aeb a45b078d53f4a62f
+Message: \
+    20398ac4a32dff0c c528f2aa894efe97 f2abd9c0794511d8 110e60fe20171340 \
+    509d04f3ca03ff90 2bf13ab540384c32 e425f25d6b04357c 12967b32ad8e72fd \
+    2b76f0f579ef85a5 e0bf5a20f8a653dc cc453937496eb35c 042e8eb1bc01aee7 \
+    779eddf18d62966e 22f08e1a96e1f662 272f99709d4dcca2 7b5b53385c021fd3 \
+    a0fcc42e5f5a9c81 4a2a9be10c914333 c0dda35d2a70ffa5 cb53dd2755fdfaf5 \
+    f9bf235819bfd964 ea7445
+MAC: a9d90cdbfe2ab9ef 724964ea98b8c738
+Test: Verify
+#
+Comment: Test Case 164
+Key: 9258c41382528ffc 30c8e6d85c717501 9cde980bf4ab340c a46ecd0134a4e60a
+IV: d8ac06d40e359aeb a45b078d53f4a62f
+Message: \
+    20398ac4a32dff0c c528f2aa894efe97 f2abd9c0794511d8 110e60fe20171340 \
+    509d04f3ca03ff90 2bf13ab540384c32 e425f25d6b04357c 12967b32ad8e72fd \
+    2b76f0f579ef85a5 e0bf5a20f8a653dc cc453937496eb35c 042e8eb1bc01aee7 \
+    779eddf18d62966e 22f08e1a96e1f662 272f99709d4dcca2 7b5b53385c021fd3 \
+    a0fcc42e5f5a9c81 4a2a9be10c914333 c0dda35d2a70ffa5 cb53dd2755fdfaf5 \
+    f9bf235819bfd964 ea7445
+MAC: a9d90cdbfe2ab9ef 724964eb98b8c738
+Test: NotVerify
+#
+Comment: Test Case 165
+Key: c82e71320c9f568d 9b25e34caafd2724 124d7a0a008a2306 a892eb0c5c1d1a06
+IV: 47f1c3cf16df5ec0 338a4b4dec49aeb6
+Message: \
+    277385bf886ecbc8 27790f8b4b883b11 cf212696cc29de91 3b76df63b3480cdb \
+    bb919a44ff650c26 df1bb22aa3ed3b72 0e6108da8ae66cc6 5d4b29109335eb4f \
+    c68593c5eb9fecca ba9ef45d8b2fcf99 91d8741bbee0e11b 2b0b2cbe40170d07 \
+    9da0cc883fb852f9 564656e175267b06 feef22bccf03d8fa 0e04b84f1bc656b8 \
+    662240a6db929f31 d8f6134e1c8e541a 7d76d64c7aae4688 b2fed7cec42d862b \
+    50c7d12b59705c32 666f8082fdd49c
+MAC: 2147f43c50e6c84a d619b55b78027059
+Test: Verify
+#
+Comment: Test Case 166
+Key: c82e71320c9f568d 9b25e34caafd2724 124d7a0a008a2306 a892eb0c5c1d1a06
+IV: 47f1c3cf16df5ec0 338a4b4dec49aeb6
+Message: \
+    277385bf886ecbc8 27790f8b4b883b11 cf212696cc29de91 3b76df63b3480cdb \
+    bb919a44ff650c26 df1bb22aa3ed3b72 0e6108da8ae66cc6 5d4b29109335eb4f \
+    c68593c5eb9fecca ba9ef45d8b2fcf99 91d8741bbee0e11b 2b0b2cbe40170d07 \
+    9da0cc883fb852f9 564656e175267b06 feef22bccf03d8fa 0e04b84f1bc656b8 \
+    662240a6db929f31 d8f6134e1c8e541a 7d76d64c7aae4688 b2fed7cec42d862b \
+    50c7d12b59705c32 666f8082fdd49c
+MAC: 2147f43c50e6c84a d619b55b78027058
+Test: NotVerify
+#
+Comment: Test Case 167
+Key: 72699aa6d1a6b03a 9beac8d5373ebd59 34216b04107fc305 04509f0a14fb3608
+IV: 39980f3bb0befc65 8bf649cc9e8e6cc4
+Message: \
+    e9fb3c1bebe54a97 7f8dce0ba9d7df22 fc504181ff28f4f6 ba36226dc9a50db3 \
+    a149ce8c2e1823ae a5f2b94fc99871c5 e8b246e7da3add95 71ff023aa50fed46 \
+    59bbd287d3f63579 e8eec8b18639776e ecbd55c6f8335b69 325da3d76d911dc6 \
+    4cf04d20e68399ce 71617ff89af66686 b4bc4dacefa81521 06b8f97349163996 \
+    0686b6ec094fba7b b03a734a30d9d1e4 951e9084c6a5a6cc 5e9f3fa7b5783dbc \
+    fff3a808426383f2 9df63dcdd00eb265 2c42ea
+MAC: c48bdecdcf0d4453 69d77798946f73b4
+Test: Verify
+#
+Comment: Test Case 168
+Key: 72699aa6d1a6b03a 9beac8d5373ebd59 34216b04107fc305 04509f0a14fb3608
+IV: 39980f3bb0befc65 8bf649cc9e8e6cc4
+Message: \
+    e9fb3c1bebe54a97 7f8dce0ba9d7df22 fc504181ff28f4f6 ba36226dc9a50db3 \
+    a149ce8c2e1823ae a5f2b94fc99871c5 e8b246e7da3add95 71ff023aa50fed46 \
+    59bbd287d3f63579 e8eec8b18639776e ecbd55c6f8335b69 325da3d76d911dc6 \
+    4cf04d20e68399ce 71617ff89af66686 b4bc4dacefa81521 06b8f97349163996 \
+    0686b6ec094fba7b b03a734a30d9d1e4 951e9084c6a5a6cc 5e9f3fa7b5783dbc \
+    fff3a808426383f2 9df63dcdd00eb265 2c42ea
+MAC: c48bdecccf0d4453 69d77798946f73b4
+Test: NotVerify
+#
+Comment: Test Case 169
+Key: 5b90a20d19e9741f b97a26bc7e8af1ed 4627f908d4d32d04 204b460268edf705
+IV: 2e382faf0879ba61 5ab03e271dce7005
+Message: \
+    f6884c601ebd6498 8e020ee4bec785a7 9c04b407450ba842 0bb3c011110d4d07 \
+    959a67b457cc4ce5 ce5ac98d214e34bd 52e8c497f36cdafe 209a1031a75d383d \
+    f7a0f14f6c3d343a 97fec7b84cfb759f e43936d7a510d6c5 abe6f652432f8f3b \
+    cf808a3bbdbe7554 bc3d0c093881a81c badef460efca259a b01cecf34b7c2e1a \
+    fcb855ba77ca0e33 071b3c409ce45c57 c350b7b21adc4cca f838be43b4ec5db1 \
+    a5b26b1c7d794f84 948cc43170218833 713fe58c1b31
+MAC: 3284819518cc7aa8 fd6f8b11cc4ddef9
+Test: Verify
+#
+Comment: Test Case 170
+Key: 5b90a20d19e9741f b97a26bc7e8af1ed 4627f908d4d32d04 204b460268edf705
+IV: 2e382faf0879ba61 5ab03e271dce7005
+Message: \
+    f6884c601ebd6498 8e020ee4bec785a7 9c04b407450ba842 0bb3c011110d4d07 \
+    959a67b457cc4ce5 ce5ac98d214e34bd 52e8c497f36cdafe 209a1031a75d383d \
+    f7a0f14f6c3d343a 97fec7b84cfb759f e43936d7a510d6c5 abe6f652432f8f3b \
+    cf808a3bbdbe7554 bc3d0c093881a81c badef460efca259a b01cecf34b7c2e1a \
+    fcb855ba77ca0e33 071b3c409ce45c57 c350b7b21adc4cca f838be43b4ec5db1 \
+    a5b26b1c7d794f84 948cc43170218833 713fe58c1b31
+MAC: 3284819518cc7ba8 fd6f8b11cc4ddef9
+Test: NotVerify
+#
+Comment: Test Case 171
+Key: b8f07b2002ffe8e0 9f57cb9be73d5969 1f6e3b0818203505 3cb2b805bcfe4205
+IV: a631ad79fa8c5f2b e39c02000e51eb01
+Message: \
+    e66dade6b2ba35d9 9cc06a83c5bf035f 891caca9d54bec06 7b141498291a4b0f \
+    87f8f639b22b124e eb7dd2b03cd510c5 f2bc6fc7075bcd83 70e21b99fc66a984 \
+    5e9fbd11cad05fb5 4d31658907754ef9 31bdc039198dbc89 6fd7226c3dcbf09b \
+    6aadac347d0ce9ca 3d4f5344c4a23df6 5ffd2f788beb01fa c22466ffef569a5a \
+    04478e8153784c90 c79fd58b411281a1 10b0199b9b1b955d 3ffc5c2e52f78856 \
+    3e17d8918f242156 c3f6e1050963a619 13bfb4afda490c19 45
+MAC: b6de2b7236910ea3 77eba20013d88a90
+Test: Verify
+#
+Comment: Test Case 172
+Key: b8f07b2002ffe8e0 9f57cb9be73d5969 1f6e3b0818203505 3cb2b805bcfe4205
+IV: a631ad79fa8c5f2b e39c02000e51eb01
+Message: \
+    e66dade6b2ba35d9 9cc06a83c5bf035f 891caca9d54bec06 7b141498291a4b0f \
+    87f8f639b22b124e eb7dd2b03cd510c5 f2bc6fc7075bcd83 70e21b99fc66a984 \
+    5e9fbd11cad05fb5 4d31658907754ef9 31bdc039198dbc89 6fd7226c3dcbf09b \
+    6aadac347d0ce9ca 3d4f5344c4a23df6 5ffd2f788beb01fa c22466ffef569a5a \
+    04478e8153784c90 c79fd58b411281a1 10b0199b9b1b955d 3ffc5c2e52f78856 \
+    3e17d8918f242156 c3f6e1050963a619 13bfb4afda490c19 45
+MAC: b6de2b7236910ea3 77eaa20013d88a90
+Test: NotVerify
+#
+Comment: Test Case 173
+Key: 1546fafedbd9cdd4 e358a281f77385ef 9b0446013c1aff02 ec76a804c86c460f
+IV: 35455427d1f5245f 5b93f00eea8e7cb4
+Message: \
+    32c7fbcfc019c0f6 867934228778bd14 4eb2790b9e046b0f d836a9b857fa3389 \
+    c12e5882481978ce 92acf11924ae2d72 60a67dfeabe80e83 1eb73b76b26eff73 \
+    9d58f5e5716db303 19a41c3d5249afb3 ef2cb19a15bf1e33 7759a929c8a99c65 \
+    01924a72fffd7519 a29156f4da06a7c9 3259644718827b8f db24b8a3cd5508ce \
+    e75240e650b5fff2 4656e6205c8eea8e e74ed6ffd0518fab 75474f439c571183 \
+    aa526afa0769ec4e bfd26e1b6058aa47 a6804776d1d62246 1d7189bac89b
+MAC: e7fcb60bdf06d192 b04abd33db4458a9
+Test: Verify
+#
+Comment: Test Case 174
+Key: 1546fafedbd9cdd4 e358a281f77385ef 9b0446013c1aff02 ec76a804c86c460f
+IV: 35455427d1f5245f 5b93f00eea8e7cb4
+Message: \
+    32c7fbcfc019c0f6 867934228778bd14 4eb2790b9e046b0f d836a9b857fa3389 \
+    c12e5882481978ce 92acf11924ae2d72 60a67dfeabe80e83 1eb73b76b26eff73 \
+    9d58f5e5716db303 19a41c3d5249afb3 ef2cb19a15bf1e33 7759a929c8a99c65 \
+    01924a72fffd7519 a29156f4da06a7c9 3259644718827b8f db24b8a3cd5508ce \
+    e75240e650b5fff2 4656e6205c8eea8e e74ed6ffd0518fab 75474f439c571183 \
+    aa526afa0769ec4e bfd26e1b6058aa47 a6804776d1d62246 1d7189bac89b
+MAC: e7fcb60bdf06d192 b04abd33db4459a9
+Test: NotVerify
+#
+Comment: Test Case 175
+Key: 8ded728c12f252c4 aa53440d2ce32bf6 cceece027cfec40f 707879039445e302
+IV: d5b66f02644d9d12 db0b64e63ab4090d
+Message: \
+    1932c16ba952635c a2fc9a57e34f6d69 6a5298ce427d1101 7b17d1c6edabcd06 \
+    dd8e7286e0d5e282 d17ddab5cc471e36 9ab704dc3416deb0 2daf761a5a432138 \
+    d193beb268a13439 1e0eeeea560d21f0 c425ccf83baaa869 5a1e83b461a4ec33 \
+    37abe59f4c19d96a 28c7547ed4756e98 9b3a91d6e5393f3f 58c3f3b967e0ec9f \
+    8bd13ed7eb174113 df9591b30bff4ca6 39dd7c1e16bc5d6e 7f5128e6311485bc \
+    e6c493d1dbd4e4ba 69756e7474ba1aad 9797ccad53291cd2 7a44b8ab583e673e
+MAC: cff1c193ea81b664 1dae1d862c25604a
+Test: Verify
+#
+Comment: Test Case 176
+Key: 8ded728c12f252c4 aa53440d2ce32bf6 cceece027cfec40f 707879039445e302
+IV: d5b66f02644d9d12 db0b64e63ab4090d
+Message: \
+    1932c16ba952635c a2fc9a57e34f6d69 6a5298ce427d1101 7b17d1c6edabcd06 \
+    dd8e7286e0d5e282 d17ddab5cc471e36 9ab704dc3416deb0 2daf761a5a432138 \
+    d193beb268a13439 1e0eeeea560d21f0 c425ccf83baaa869 5a1e83b461a4ec33 \
+    37abe59f4c19d96a 28c7547ed4756e98 9b3a91d6e5393f3f 58c3f3b967e0ec9f \
+    8bd13ed7eb174113 df9591b30bff4ca6 39dd7c1e16bc5d6e 7f5128e6311485bc \
+    e6c493d1dbd4e4ba 69756e7474ba1aad 9797ccad53291cd2 7a44b8ab583e673e
+MAC: cef1c193ea81b664 1dae1d862c25604a
+Test: NotVerify
+#
+Comment: Test Case 177
+Key: 7d9dc572ae17ca71 539cbe9fb47c1a52 c4fd29051cb7da04 50bf8f05e0bf9a0f
+IV: be43c5748fe5702a 0036a2a0c955b92e
+Message: \
+    38234ee1d431a370 42970e69bba45b9d c2741f2f2c287dbd cf8f7256fbdbc133 \
+    ff0f14d340b84382 4f52eb0af646a7b9 bac6e8e6ef65a3be f41614eff1d523f0 \
+    e437c424ef07a73f 59924950d9f10993 b7f17aa6561d644a 33783a254d5d1531 \
+    94d95684e1fdc33a 8f0c8a68fd93fcb5 84765bda93c025c7 385fec86bc01b750 \
+    db0dd4bc0a97f69a a48102a114fe5699 74b273087298cfaa f7bb30b3bce80497 \
+    f5d85300704a9a14 cb9cb5df9b0c780f beec173084e6da7c a10b2f5ef333f5e8 \
+    0c49e87c
+MAC: ce0568d2b6d343c3 1378eeeb082e04f2
+Test: Verify
+#
+Comment: Test Case 178
+Key: 7d9dc572ae17ca71 539cbe9fb47c1a52 c4fd29051cb7da04 50bf8f05e0bf9a0f
+IV: be43c5748fe5702a 0036a2a0c955b92e
+Message: \
+    38234ee1d431a370 42970e69bba45b9d c2741f2f2c287dbd cf8f7256fbdbc133 \
+    ff0f14d340b84382 4f52eb0af646a7b9 bac6e8e6ef65a3be f41614eff1d523f0 \
+    e437c424ef07a73f 59924950d9f10993 b7f17aa6561d644a 33783a254d5d1531 \
+    94d95684e1fdc33a 8f0c8a68fd93fcb5 84765bda93c025c7 385fec86bc01b750 \
+    db0dd4bc0a97f69a a48102a114fe5699 74b273087298cfaa f7bb30b3bce80497 \
+    f5d85300704a9a14 cb9cb5df9b0c780f beec173084e6da7c a10b2f5ef333f5e8 \
+    0c49e87c
+MAC: ce0568d2b7d343c3 1378eeeb082e04f2
+Test: NotVerify
+#
+Comment: Test Case 179
+Key: 215a083da2d33757 12df3415f15c4ad4 1cd08403005bbd00 24347b098c039201
+IV: d4c659ee85838acc 5ab6747664b1c07a
+Message: \
+    3259f27f10f327ca 97ee2dbfea3cfbd4 a91f6afc0ddd6bbc c156dc642a977e5c \
+    f070dc006303cafa f1f7badc34b5b0dd d41ad9e2f7449eb9 9a7b1dc4129b2002 \
+    0cfc026f00cd6af1 c424cdf8d97dd5ad 98ae8f8ff22e488c a96550bb0171bd0d \
+    6dbf7c6d8ce65f51 0a2c49e3aa1f9142 cd20d1c04e1a4cf7 7f9db2800e6f8d7b \
+    2f0ae9bbf0480cfb 7456de1e756f6042 903202de4c4fd6cb ec884cfaf8d97527 \
+    e35ee2d4a6efcf1b 45ad39ba1d9afcad ccff8b184e61e33a ea2f34e209a909ec \
+    08ebc0aeda8f
+MAC: 874b1928e716d1ea 893cc5bbb496dfa2
+Test: Verify
+#
+Comment: Test Case 180
+Key: 215a083da2d33757 12df3415f15c4ad4 1cd08403005bbd00 24347b098c039201
+IV: d4c659ee85838acc 5ab6747664b1c07a
+Message: \
+    3259f27f10f327ca 97ee2dbfea3cfbd4 a91f6afc0ddd6bbc c156dc642a977e5c \
+    f070dc006303cafa f1f7badc34b5b0dd d41ad9e2f7449eb9 9a7b1dc4129b2002 \
+    0cfc026f00cd6af1 c424cdf8d97dd5ad 98ae8f8ff22e488c a96550bb0171bd0d \
+    6dbf7c6d8ce65f51 0a2c49e3aa1f9142 cd20d1c04e1a4cf7 7f9db2800e6f8d7b \
+    2f0ae9bbf0480cfb 7456de1e756f6042 903202de4c4fd6cb ec884cfaf8d97527 \
+    e35ee2d4a6efcf1b 45ad39ba1d9afcad ccff8b184e61e33a ea2f34e209a909ec \
+    08ebc0aeda8f
+MAC: 874b1928e716d0ea 893cc5bbb496dfa2
+Test: NotVerify
+#
+Comment: Test Case 181
+Key: 89ade0a51d18ac8d c817ae364916daad 683b6b0b4878d607 6c467f0da0d6fb0a
+IV: 62f2bdddadab9c0a 1ee144792dd56d7b
+Message: \
+    3b5b2f6a1bea6686 c12f29b9384cf51f f0895ec892f7aac4 247eb907050c3e40 \
+    676daa8257110818 4032d2787ec7976e 50f636e2ede1a711 5f6019646c57a4d3 \
+    c54e551c5f5e359f 9007170eceaf7c1f a5b2019293a8a3f2 08bc567414fa47d9 \
+    499df5a8fb2a488b 315f99000e151fb3 c720455bc9e94dd1 a5a446b99e8d92e7 \
+    2a889025b2d8b0e4 3749e4465e03f926 233f81ec28cebecd 720487119119f8bc \
+    a188e15460923898 db1cde3a1fd76042 16e12f3eafed0c22 f1933382ac2b3e4e \
+    b420a214b2daac8d f6
+MAC: 90e9c71a177ce480 ade32a9b1ca7dcac
+Test: Verify
+#
+Comment: Test Case 182
+Key: 89ade0a51d18ac8d c817ae364916daad 683b6b0b4878d607 6c467f0da0d6fb0a
+IV: 62f2bdddadab9c0a 1ee144792dd56d7b
+Message: \
+    3b5b2f6a1bea6686 c12f29b9384cf51f f0895ec892f7aac4 247eb907050c3e40 \
+    676daa8257110818 4032d2787ec7976e 50f636e2ede1a711 5f6019646c57a4d3 \
+    c54e551c5f5e359f 9007170eceaf7c1f a5b2019293a8a3f2 08bc567414fa47d9 \
+    499df5a8fb2a488b 315f99000e151fb3 c720455bc9e94dd1 a5a446b99e8d92e7 \
+    2a889025b2d8b0e4 3749e4465e03f926 233f81ec28cebecd 720487119119f8bc \
+    a188e15460923898 db1cde3a1fd76042 16e12f3eafed0c22 f1933382ac2b3e4e \
+    b420a214b2daac8d f6
+MAC: 90e9c71a177ce480 ade22a9b1ca7dcac
+Test: NotVerify
+#
+Comment: Test Case 183
+Key: 358e5d777d875ede c764a1af6d1d8efb 596f550040429001 d43a7b081cea8d01
+IV: db111275d91033ab 8e9979b2d93e494a
+Message: \
+    b17e62f8882c1f1f e43a1705a5ea1df9 6f939dc7d6bf1cd9 615e18ec37d13ee8 \
+    4fa0e0d7cd00f6b1 3a0db7dff7d4d866 67762e3e354a1796 a92f82e001c1c850 \
+    61a8282ea81ee0e2 2c97c1236b9a8ad2 10b810450228dcab 575e8b581f53a981 \
+    fcd1afa4ef8f871b 26483f91e2c964f2 817438839c142ff4 72ba4c920ef5130a \
+    c6c2aeb65235d178 7e100a60d96e535a e28bde7f9f0d7311 c7bfa3d5b5b6df7b \
+    798e31cbc3034341 134da2edbbf5479e 80251d1f329030fa 4fd4cf048aaf8003 \
+    3db1ce00b41242c8 5fe4b51b
+MAC: 4338838dc3a7a573 c545a601713ddd8c
+Test: Verify
+#
+Comment: Test Case 184
+Key: 358e5d777d875ede c764a1af6d1d8efb 596f550040429001 d43a7b081cea8d01
+IV: db111275d91033ab 8e9979b2d93e494a
+Message: \
+    b17e62f8882c1f1f e43a1705a5ea1df9 6f939dc7d6bf1cd9 615e18ec37d13ee8 \
+    4fa0e0d7cd00f6b1 3a0db7dff7d4d866 67762e3e354a1796 a92f82e001c1c850 \
+    61a8282ea81ee0e2 2c97c1236b9a8ad2 10b810450228dcab 575e8b581f53a981 \
+    fcd1afa4ef8f871b 26483f91e2c964f2 817438839c142ff4 72ba4c920ef5130a \
+    c6c2aeb65235d178 7e100a60d96e535a e28bde7f9f0d7311 c7bfa3d5b5b6df7b \
+    798e31cbc3034341 134da2edbbf5479e 80251d1f329030fa 4fd4cf048aaf8003 \
+    3db1ce00b41242c8 5fe4b51b
+MAC: 4338838dc3a7a573 c545a601703ddd8c
+Test: NotVerify
+#
+Comment: Test Case 185
+Key: 51ba21dfc80e5a17 2b105ceb0feebb9a 911bcf058c01660f 8cab170d6066bf05
+IV: ab9c1d9c865ad223 c779104cc86c6272
+Message: \
+    3e6c4bc1fde422af 5fcf141716e00cf2 2a9f65ddf04505bd d86b18aa5728dc95 \
+    942857910c79416b 4955825f358e515f 2db63c1efb42dbd4 adf37e041b5b9ab0 \
+    83f1418f6a82fab3 d87c120d0a646d38 1aa95616eb31ea98 24689d40c337f046 \
+    2831d592b4cf468c 4b589956bc068ed7 b0e4ed9b15d73439 3fd1790308694930 \
+    9b1fc24fee08db3a 6174901d7b1ef42b 02e1c617b8fa50f8 cbcafbd3334403ce \
+    63c61d52cef88c2f 6d1c4de83a41133c 23d953dbd4a3d39f 6dce73a113766f76 \
+    3c8dc80b85543af2 7087daaac9ede6ec
+MAC: 484cb447bee35696 597383d74cd02350
+Test: Verify
+#
+Comment: Test Case 186
+Key: 51ba21dfc80e5a17 2b105ceb0feebb9a 911bcf058c01660f 8cab170d6066bf05
+IV: ab9c1d9c865ad223 c779104cc86c6272
+Message: \
+    3e6c4bc1fde422af 5fcf141716e00cf2 2a9f65ddf04505bd d86b18aa5728dc95 \
+    942857910c79416b 4955825f358e515f 2db63c1efb42dbd4 adf37e041b5b9ab0 \
+    83f1418f6a82fab3 d87c120d0a646d38 1aa95616eb31ea98 24689d40c337f046 \
+    2831d592b4cf468c 4b589956bc068ed7 b0e4ed9b15d73439 3fd1790308694930 \
+    9b1fc24fee08db3a 6174901d7b1ef42b 02e1c617b8fa50f8 cbcafbd3334403ce \
+    63c61d52cef88c2f 6d1c4de83a41133c 23d953dbd4a3d39f 6dce73a113766f76 \
+    3c8dc80b85543af2 7087daaac9ede6ec
+MAC: 494cb447bee35696 597383d74cd02350
+Test: NotVerify
+#
+Comment: Test Case 187
+Key: 6da8cdd10a08ea5f 91fc22beeb656cbe a61c170660d0f205 3c638c0a0874d308
+IV: 983dcfde03981b66 06a6feccb90d1d1c
+Message: \
+    2742d15c88199f1d dc20c23a09e370a2 aba1565109cd41a2 c0a2d767c125c6e8 \
+    679745efb1e40c8d 05cec70eb137b05c d906ade2d3ef8494 915bfb5280c13be7 \
+    5880d70964e39769 b25e77639627c06f 2d6d51015cd695ee 319040b2517b99a9 \
+    fb70b360544ac906 a841693e6829ad96 97ff97f3d52ce106 bc22b80d9d52b699 \
+    c269f916b3c21c5c 03869a6caf480246 47993a1cc51b2281 3ddb8edb2d4474ef \
+    ae6d06612f22bd33 a8589f58a0a19ee7 3ad803fff4258031 000e0c2d52801d00 \
+    ed23621d451f50ee 77ef461790e4feca bd01c9
+MAC: 39f6fedeebdf484c 0162f2b9bc7cd207
+Test: Verify
+#
+Comment: Test Case 188
+Key: 6da8cdd10a08ea5f 91fc22beeb656cbe a61c170660d0f205 3c638c0a0874d308
+IV: 983dcfde03981b66 06a6feccb90d1d1c
+Message: \
+    2742d15c88199f1d dc20c23a09e370a2 aba1565109cd41a2 c0a2d767c125c6e8 \
+    679745efb1e40c8d 05cec70eb137b05c d906ade2d3ef8494 915bfb5280c13be7 \
+    5880d70964e39769 b25e77639627c06f 2d6d51015cd695ee 319040b2517b99a9 \
+    fb70b360544ac906 a841693e6829ad96 97ff97f3d52ce106 bc22b80d9d52b699 \
+    c269f916b3c21c5c 03869a6caf480246 47993a1cc51b2281 3ddb8edb2d4474ef \
+    ae6d06612f22bd33 a8589f58a0a19ee7 3ad803fff4258031 000e0c2d52801d00 \
+    ed23621d451f50ee 77ef461790e4feca bd01c9
+MAC: 39f6fedfebdf484c 0162f2b9bc7cd207
+Test: NotVerify
+#
+Comment: Test Case 189
+Key: e9798d537b048738 a4242e971e1c3706 dc09cc0d949c0b00 045672015c7f3f05
+IV: 495e793185d02cab b83cd855d27b96aa
+Message: \
+    c9dd471158a612f4 67fc6094a1328410 0d4bb5cfb43edddc 056370c6dd8a37a7 \
+    687eb8c025cab48c c714216846a57853 f12d22a56bff8170 63f137407c6ee7e4 \
+    eca0a4116a589e31 6cbf99b264110555 3e27faaa267c1a89 6d51cae9bfb1cdac \
+    5171bdbcc95bed35 1a87e77f98ecd4d7 13cf813a4b9bc3b8 ed8da2ac3f6f5890 \
+    e1164caa713ae08c c1c70b59b4df30c7 aeb101f94dc5b23a 5254e691c33f22a4 \
+    556e4fc6a82f5269 f65dc3aa3df372eb a573e5f238972c8b eb121cae513e53a6 \
+    ada26d55d1bfbfc7 1d82725a75e4451a 572a0c90c1
+MAC: ad99dba365abc977 fc642f47197b30af
+Test: Verify
+#
+Comment: Test Case 190
+Key: e9798d537b048738 a4242e971e1c3706 dc09cc0d949c0b00 045672015c7f3f05
+IV: 495e793185d02cab b83cd855d27b96aa
+Message: \
+    c9dd471158a612f4 67fc6094a1328410 0d4bb5cfb43edddc 056370c6dd8a37a7 \
+    687eb8c025cab48c c714216846a57853 f12d22a56bff8170 63f137407c6ee7e4 \
+    eca0a4116a589e31 6cbf99b264110555 3e27faaa267c1a89 6d51cae9bfb1cdac \
+    5171bdbcc95bed35 1a87e77f98ecd4d7 13cf813a4b9bc3b8 ed8da2ac3f6f5890 \
+    e1164caa713ae08c c1c70b59b4df30c7 aeb101f94dc5b23a 5254e691c33f22a4 \
+    556e4fc6a82f5269 f65dc3aa3df372eb a573e5f238972c8b eb121cae513e53a6 \
+    ada26d55d1bfbfc7 1d82725a75e4451a 572a0c90c1
+MAC: ad99dba365aac977 fc642f47197b30af
+Test: NotVerify
+#
+Comment: Test Case 191
+Key: 51e2e1cd7108d5d2 d2485cd71e5a1f88 cbf4e00c041fc50e 9c8bfd08ec181d0f
+IV: ca1537b0f8d4d475 a54351d35b8e4332
+Message: \
+    7a0fcbdb60cc6141 b15b93bce1d26084 f15e037c72711830 648d40c20e48ea88 \
+    57b563b781c5f832 208bef025d4f864e ad89cb1ffbe34f5f 718f217fd70b072e \
+    c06ae5422fdd7450 686352c5b2d8135f 62de7e5dc2cdbc33 5cdeb233e9b961aa \
+    2346ec532360a38b c4f55076cd64d62f 42548c042249377e 27e9b210a213bac6 \
+    5aa6197d07bc09cb b159417ebd17ae00 6c3a048e833c0caa 25bebbc8d2758e2c \
+    1ca7a92363b2ee14 0c2f92c94740c9b3 7bce41fe0a4da92f 0c64f7ded9850af5 \
+    2cb3188f6606a372 36363b7d760530f1 d371f0ddbe990cca fd04
+MAC: 8596ce3a437fc3ad 480b94cf14ef26f2
+Test: Verify
+#
+Comment: Test Case 192
+Key: 51e2e1cd7108d5d2 d2485cd71e5a1f88 cbf4e00c041fc50e 9c8bfd08ec181d0f
+IV: ca1537b0f8d4d475 a54351d35b8e4332
+Message: \
+    7a0fcbdb60cc6141 b15b93bce1d26084 f15e037c72711830 648d40c20e48ea88 \
+    57b563b781c5f832 208bef025d4f864e ad89cb1ffbe34f5f 718f217fd70b072e \
+    c06ae5422fdd7450 686352c5b2d8135f 62de7e5dc2cdbc33 5cdeb233e9b961aa \
+    2346ec532360a38b c4f55076cd64d62f 42548c042249377e 27e9b210a213bac6 \
+    5aa6197d07bc09cb b159417ebd17ae00 6c3a048e833c0caa 25bebbc8d2758e2c \
+    1ca7a92363b2ee14 0c2f92c94740c9b3 7bce41fe0a4da92f 0c64f7ded9850af5 \
+    2cb3188f6606a372 36363b7d760530f1 d371f0ddbe990cca fd04
+MAC: 8596ce3a437fc3ad 480b95cf14ef26f2
+Test: NotVerify
+#
+Comment: Test Case 193
+Key: 56bb41b3dee1d840 3b8041fae3df46df 2c915f05586d580c 2cd0e80f646fc70d
+IV: d4b557fdc397b7e9 15f1be52b14c1506
+Message: \
+    4811172f6779337b e22137f6cde33bdb 08e56cd5eb8ad02a a2de2ebd84140acc \
+    2522fb8c9b2e077e 4f3e741d21b0f82a 9564ff80efcfaa91 add94e32ed59fe12 \
+    7bfa9f1628a69478 e5099506b98d304e f22fcfe1ff7972ac 52c0de3f19dd5294 \
+    d7f1abff973f777c 480c83019ab3508c e31f6de298df8eeb 9f6d2ab94a7c4d21 \
+    6df8200538988180 a404823eb8d2ca9b f1377d89160b74b6 789f6fc21bbce389 \
+    b5048eed9c0f6d40 14ef7fccc14967b2 81e43c97efb04d68 4fbc2a6b790ef42e \
+    12821bae9188eea5 786d7139b7d8ec38 bc28cfacd81d1428 d93e9352
+MAC: aa756ce29065093d be0a0e6aaa2c0e59
+Test: Verify
+#
+Comment: Test Case 194
+Key: 56bb41b3dee1d840 3b8041fae3df46df 2c915f05586d580c 2cd0e80f646fc70d
+IV: d4b557fdc397b7e9 15f1be52b14c1506
+Message: \
+    4811172f6779337b e22137f6cde33bdb 08e56cd5eb8ad02a a2de2ebd84140acc \
+    2522fb8c9b2e077e 4f3e741d21b0f82a 9564ff80efcfaa91 add94e32ed59fe12 \
+    7bfa9f1628a69478 e5099506b98d304e f22fcfe1ff7972ac 52c0de3f19dd5294 \
+    d7f1abff973f777c 480c83019ab3508c e31f6de298df8eeb 9f6d2ab94a7c4d21 \
+    6df8200538988180 a404823eb8d2ca9b f1377d89160b74b6 789f6fc21bbce389 \
+    b5048eed9c0f6d40 14ef7fccc14967b2 81e43c97efb04d68 4fbc2a6b790ef42e \
+    12821bae9188eea5 786d7139b7d8ec38 bc28cfacd81d1428 d93e9352
+MAC: aa756ce29065093d be0a0e6aab2c0e59
+Test: NotVerify
+#
+Comment: Test Case 195
+Key: 1da20ac4b28d370b d72e6f96e90c582b b28a5202c4421c08 006ff90c9407eb02
+IV: fa5f94fdb528cd75 632dd889bdba519c
+Message: \
+    351443ec3fb2df34 c38e72d8a9cc2741 a3db65c0233f6b70 12d380f95e093d93 \
+    1e80805d325f91f5 ed03cd96d0f4d773 cf3d34f27c9f638e 72e388d0ecc5640a \
+    45e4677743f96c30 fc39c6cc2d9d40fc da74ef561352e585 356d562132ba2c77 \
+    9e93eee18c5a1189 93d755c07495bc4f 09aba51cfd8aa232 f7f85429b280a050 \
+    138e31a0e842297b 197e3b8d14f8dc1d a3823aa10cdcd304 d4272d86a7ced6bb \
+    5c075b454984c062 02fcef16f4cc3497 4e6e385a4a0c5e1e 338ca4db5a7a96b6 \
+    81f1fbca75bc2c77 b81b8eace7c24335 307c907a88ee98bb 7a3c96d4b62c8b
+MAC: 68cc74f56ea6453f d00a701942faf4b4
+Test: Verify
+#
+Comment: Test Case 196
+Key: 1da20ac4b28d370b d72e6f96e90c582b b28a5202c4421c08 006ff90c9407eb02
+IV: fa5f94fdb528cd75 632dd889bdba519c
+Message: \
+    351443ec3fb2df34 c38e72d8a9cc2741 a3db65c0233f6b70 12d380f95e093d93 \
+    1e80805d325f91f5 ed03cd96d0f4d773 cf3d34f27c9f638e 72e388d0ecc5640a \
+    45e4677743f96c30 fc39c6cc2d9d40fc da74ef561352e585 356d562132ba2c77 \
+    9e93eee18c5a1189 93d755c07495bc4f 09aba51cfd8aa232 f7f85429b280a050 \
+    138e31a0e842297b 197e3b8d14f8dc1d a3823aa10cdcd304 d4272d86a7ced6bb \
+    5c075b454984c062 02fcef16f4cc3497 4e6e385a4a0c5e1e 338ca4db5a7a96b6 \
+    81f1fbca75bc2c77 b81b8eace7c24335 307c907a88ee98bb 7a3c96d4b62c8b
+MAC: 68cc74f56ea6453f d00a701942faf4b5
+Test: NotVerify
+#
+Comment: Test Case 197
+Key: c7b5529db9d6c508 70aa64bd6753b786 d62901022ce49b01 908bad02545b3c0e
+IV: d58216b1b7f8ba08 556e6833e3c53860
+Message: \
+    2b4b70eb82d3957a 8f9cf483046f9352 4ed549956e88613f 1893f828cdc9ddf8 \
+    144ee396217910b1 1505341974c76cc2 9cb5570a3db84955 4b417d180a5b111f \
+    a9f4b5ca6dc67b82 cbaf9c3f77080113 bd581efa10674f5c a9cc74b32785d2d0 \
+    7a889be74e166a19 c606583d0e5950cb b16ec5c1d6141d7f e09232081705d891 \
+    8d7379db8ae3f450 e94c8df7a5ddc256 4c8717229b35a17b c7d383ded85c7065 \
+    cfe94059cc34a9b5 8036ac25146e7b60 f5938290c8230b8f f68f6dcfebdd34ba \
+    c6751492a9bd472a f4f34f0861cb6856 5eeae6260df2b503 8122d26c000726c6 \
+    7c
+MAC: 445e218e00b99100 9e37409c041b05ed
+Test: Verify
+#
+Comment: Test Case 198
+Key: c7b5529db9d6c508 70aa64bd6753b786 d62901022ce49b01 908bad02545b3c0e
+IV: d58216b1b7f8ba08 556e6833e3c53860
+Message: \
+    2b4b70eb82d3957a 8f9cf483046f9352 4ed549956e88613f 1893f828cdc9ddf8 \
+    144ee396217910b1 1505341974c76cc2 9cb5570a3db84955 4b417d180a5b111f \
+    a9f4b5ca6dc67b82 cbaf9c3f77080113 bd581efa10674f5c a9cc74b32785d2d0 \
+    7a889be74e166a19 c606583d0e5950cb b16ec5c1d6141d7f e09232081705d891 \
+    8d7379db8ae3f450 e94c8df7a5ddc256 4c8717229b35a17b c7d383ded85c7065 \
+    cfe94059cc34a9b5 8036ac25146e7b60 f5938290c8230b8f f68f6dcfebdd34ba \
+    c6751492a9bd472a f4f34f0861cb6856 5eeae6260df2b503 8122d26c000726c6 \
+    7c
+MAC: 445f218e00b99100 9e37409c041b05ed
+Test: NotVerify
+#
+Comment: Test Case 199
+Key: 1fe68765e564ddde 15003869ba901fd1 807d2b0e94cc6a08 64c06d00c492a604
+IV: 838a887a1da87799 878f6fb77771112d
+Message: \
+    d333def5838c7103 ebfe2798bf828edb 71edf669b2338efc b31df0c7a2999975 \
+    cd776a5004db53ef d97a8798fc16736d 0369d7b59d65b150 82a117243bb09908 \
+    2803582cdeab1bb7 25a34f21b9c38fbc 2c6671c9cb22194e c43072ffe10c0709 \
+    0f5f35ee0a50a52f f3f550acb8df68e4 45d9ae11fcc75fc0 f8d1bfd9ddc6e2ed \
+    2517db2f67805e5b 75ae072d8e7012d3 49c0e4458743057f 15c458f28a3adfaf \
+    51badeb93b3c14b0 eb1bde798bf04cd5 b0311a377420b789 e40f7c6f4a5b1e9b \
+    16fd545139680124 84df9d0fcfeae47f 1bffb78f1f6e1903 7d9572c7f0916306 \
+    8eb757c72059
+MAC: 0777612c85b6fa67 536e086ef3cfa95c
+Test: Verify
+#
+Comment: Test Case 200
+Key: 1fe68765e564ddde 15003869ba901fd1 807d2b0e94cc6a08 64c06d00c492a604
+IV: 838a887a1da87799 878f6fb77771112d
+Message: \
+    d333def5838c7103 ebfe2798bf828edb 71edf669b2338efc b31df0c7a2999975 \
+    cd776a5004db53ef d97a8798fc16736d 0369d7b59d65b150 82a117243bb09908 \
+    2803582cdeab1bb7 25a34f21b9c38fbc 2c6671c9cb22194e c43072ffe10c0709 \
+    0f5f35ee0a50a52f f3f550acb8df68e4 45d9ae11fcc75fc0 f8d1bfd9ddc6e2ed \
+    2517db2f67805e5b 75ae072d8e7012d3 49c0e4458743057f 15c458f28a3adfaf \
+    51badeb93b3c14b0 eb1bde798bf04cd5 b0311a377420b789 e40f7c6f4a5b1e9b \
+    16fd545139680124 84df9d0fcfeae47f 1bffb78f1f6e1903 7d9572c7f0916306 \
+    8eb757c72059
+MAC: 0777612c85b6fb67 536e086ef3cfa95c
+Test: NotVerify
+#
+Comment: Test Case 201
+Key: 1512e29d43c1539c 716f92c2cd4f8dd5 de344a0460a8720c 08ba7301ec036104
+IV: c020c1d3ecaf6b8f a0d28c2c49be74f9
+Message: \
+    dfa64ba0e4ce036a ee0a77f5ccef88be beae755ac797e576 33705077af50448f \
+    f68f2fda5d32454c 3cbc4109abc9c769 773cc33ed3a8b406 19047dc854c2574a \
+    518725afb96afbf6 263cffd205c63b7c 02ffbad6a76edcc0 725a89c71ce0116d \
+    67361c21a01717c7 53169958dcd4d4de d38eb47bfc913b6f ebc43607a547740c \
+    7e912d1ea844e5fc 5a7e543653291526 b7c9a1b45add2345 a1594c46a0c1531e \
+    52803dfac522f61f a14b56f4746b1a2b 34bcdf8f9902d43a 5b2181fce2d41a34 \
+    54572e197a25391b 708f0fe4fa290f2e e5efbd7ef192b94d b33a49950e63c962 \
+    bbf77c351cb5508c
+MAC: da48eb3848403194 b0d75bab8960f483
+Test: Verify
+#
+Comment: Test Case 202
+Key: 1512e29d43c1539c 716f92c2cd4f8dd5 de344a0460a8720c 08ba7301ec036104
+IV: c020c1d3ecaf6b8f a0d28c2c49be74f9
+Message: \
+    dfa64ba0e4ce036a ee0a77f5ccef88be beae755ac797e576 33705077af50448f \
+    f68f2fda5d32454c 3cbc4109abc9c769 773cc33ed3a8b406 19047dc854c2574a \
+    518725afb96afbf6 263cffd205c63b7c 02ffbad6a76edcc0 725a89c71ce0116d \
+    67361c21a01717c7 53169958dcd4d4de d38eb47bfc913b6f ebc43607a547740c \
+    7e912d1ea844e5fc 5a7e543653291526 b7c9a1b45add2345 a1594c46a0c1531e \
+    52803dfac522f61f a14b56f4746b1a2b 34bcdf8f9902d43a 5b2181fce2d41a34 \
+    54572e197a25391b 708f0fe4fa290f2e e5efbd7ef192b94d b33a49950e63c962 \
+    bbf77c351cb5508c
+MAC: da48eb3848403194 b1d75bab8960f483
+Test: NotVerify
+#
+Comment: Test Case 203
+Key: a1ff28d32eaa60c9 a4e09cd29b2ec080 1e1acd03907b1c03 68f67406fcba4800
+IV: 511442747ac79689 0df27b8edd7f12d6
+Message: \
+    df124b84a1ba5bfa c0c55b92c6b545ee 7d8cb54146beabcf 13cc668873cbd452 \
+    de20d67fda32799b f7d42dbe8972ac07 fe6148441ff31332 bf7aba32458f8523 \
+    af5ba2898d1b2485 ef514379c3ef80c1 50c8066fbb19a17b 935badd9ea32fc99 \
+    8e9f231bba47a0aa 99e3235cd2a31e22 6b2491263d32a1d1 8e4faa7881a6120f \
+    45352b007ccbaa15 afcd72817090a4db b43501f168a3c2f6 f26c6e7313808358 \
+    b5ae583279024728 cfb9aa3f494e1afd 831cefebbfb1e1b1 1e502431d0a78986 \
+    55e2b8cfe4fff7b4 b9a1f302ef0e0073 2aef5ee9a0409abe 90beef606679e6bb \
+    5b9e8a3f9e82f357 23e7
+MAC: 4720a0cd32a02454 303a67ed171794dc
+Test: Verify
+#
+Comment: Test Case 204
+Key: a1ff28d32eaa60c9 a4e09cd29b2ec080 1e1acd03907b1c03 68f67406fcba4800
+IV: 511442747ac79689 0df27b8edd7f12d6
+Message: \
+    df124b84a1ba5bfa c0c55b92c6b545ee 7d8cb54146beabcf 13cc668873cbd452 \
+    de20d67fda32799b f7d42dbe8972ac07 fe6148441ff31332 bf7aba32458f8523 \
+    af5ba2898d1b2485 ef514379c3ef80c1 50c8066fbb19a17b 935badd9ea32fc99 \
+    8e9f231bba47a0aa 99e3235cd2a31e22 6b2491263d32a1d1 8e4faa7881a6120f \
+    45352b007ccbaa15 afcd72817090a4db b43501f168a3c2f6 f26c6e7313808358 \
+    b5ae583279024728 cfb9aa3f494e1afd 831cefebbfb1e1b1 1e502431d0a78986 \
+    55e2b8cfe4fff7b4 b9a1f302ef0e0073 2aef5ee9a0409abe 90beef606679e6bb \
+    5b9e8a3f9e82f357 23e7
+MAC: 4720a0cd32a02454 303a66ed171794dc
+Test: NotVerify
+#
+Comment: Test Case 205
+Key: 92bf50bee4d5774e f644bc8511512bfe 1bc1c80c00b4c904 dc5ac10e64320e09
+IV: fe29492a70b56caf 21e5d0fdc11ae0a7
+Message: \
+    7aa1b42c743d9b1b 5d56fe2509c5670d 570d550908bb174a a0873dfad234364c \
+    d5ea784a27136585 6963aa7229117f80 1fd5892790a17131 28ae2bfae26146b8 \
+    4bbe0273d167f83b cba2adf4b32d74d2 02fef9929f6ac3c7 19efc2fb5008b39c \
+    c7b50f981d07d3e8 a981dc5cae502fb0 4e2842ed9306b5ac f577a7457f5be146 \
+    10f0df2df7b215a0 33f1fde1422c9190 54d47ee7da3393cf aa3b142996f670a6 \
+    e64fd4de01e97e35 db7b161da7a8adfc 7c2be3565e772508 b23932482fa2ee16 \
+    f1c2f4f2ac722787 ee3ea495e6519162 7d75b8dbecdde49e 1616e646b8d45ca9 \
+    97509b43c2c3cab0 016e46e7bfd7
+MAC: 4ea6a0924c36f236 06893070aaa647c0
+Test: Verify
+#
+Comment: Test Case 206
+Key: 92bf50bee4d5774e f644bc8511512bfe 1bc1c80c00b4c904 dc5ac10e64320e09
+IV: fe29492a70b56caf 21e5d0fdc11ae0a7
+Message: \
+    7aa1b42c743d9b1b 5d56fe2509c5670d 570d550908bb174a a0873dfad234364c \
+    d5ea784a27136585 6963aa7229117f80 1fd5892790a17131 28ae2bfae26146b8 \
+    4bbe0273d167f83b cba2adf4b32d74d2 02fef9929f6ac3c7 19efc2fb5008b39c \
+    c7b50f981d07d3e8 a981dc5cae502fb0 4e2842ed9306b5ac f577a7457f5be146 \
+    10f0df2df7b215a0 33f1fde1422c9190 54d47ee7da3393cf aa3b142996f670a6 \
+    e64fd4de01e97e35 db7b161da7a8adfc 7c2be3565e772508 b23932482fa2ee16 \
+    f1c2f4f2ac722787 ee3ea495e6519162 7d75b8dbecdde49e 1616e646b8d45ca9 \
+    97509b43c2c3cab0 016e46e7bfd7
+MAC: 4ea6a0924c36f236 06893070aaa646c0
+Test: NotVerify
+#
+Comment: Test Case 207
+Key: 8b1495c37204d8e4 fa81fdab59bc2ce6 1fd8650594c0ae06 9c3f61031cc81f0a
+IV: ac1ae9d2bcac7194 096d96587b9a40fe
+Message: \
+    cca12e7929802ddb 5c7fc725907166ad e23be7d82f429fc5 7af934693d25a209 \
+    c6d082f050afcbac 2f92d2bf03386ce6 7454bea3965e6810 579d7994c21b9d89 \
+    ec20793ccf44e9fe d6bbbddaf32ac067 7e7e0a14dc732434 109dc8d2b9665ba5 \
+    86d4e15518ca54ef 8511c9793b89e0b9 07ebcde45ef1186e 8fe04048469cedcc \
+    70ce22899976781e 874197c3ca787cd1 634ab5c13bcd2fca ae6f12f40bffc17c \
+    cee30567597d85e0 be1da388952059f8 6a0fb9a5dce8708a 57827f638240df50 \
+    23e4b77c613c5c1f 5900a7ee2000e68a 0f9f2fec879f76df 22f542a43521f458 \
+    05abd466e7318541 312c2f512c16db3c
+MAC: 40950bb5d6411bb2 1871cf367ccba2a9
+Test: Verify
+#
+Comment: Test Case 208
+Key: 8b1495c37204d8e4 fa81fdab59bc2ce6 1fd8650594c0ae06 9c3f61031cc81f0a
+IV: ac1ae9d2bcac7194 096d96587b9a40fe
+Message: \
+    cca12e7929802ddb 5c7fc725907166ad e23be7d82f429fc5 7af934693d25a209 \
+    c6d082f050afcbac 2f92d2bf03386ce6 7454bea3965e6810 579d7994c21b9d89 \
+    ec20793ccf44e9fe d6bbbddaf32ac067 7e7e0a14dc732434 109dc8d2b9665ba5 \
+    86d4e15518ca54ef 8511c9793b89e0b9 07ebcde45ef1186e 8fe04048469cedcc \
+    70ce22899976781e 874197c3ca787cd1 634ab5c13bcd2fca ae6f12f40bffc17c \
+    cee30567597d85e0 be1da388952059f8 6a0fb9a5dce8708a 57827f638240df50 \
+    23e4b77c613c5c1f 5900a7ee2000e68a 0f9f2fec879f76df 22f542a43521f458 \
+    05abd466e7318541 312c2f512c16db3c
+MAC: 41950bb5d6411bb2 1871cf367ccba2a9
+Test: NotVerify
+#
+Comment: Test Case 209
+Key: bf713b19f673b427 6b3f4360fb04b1f9 d1b94d0b3c2ad30e 48805c0a6862c709
+IV: 48414eb790774ea0 abb9d514a31011e9
+Message: \
+    11f0eea630c17e1d ce8cb673f347ad0b b90bab12ce486c55 4edd5b943b6a0b4d \
+    5afaf38abb71a78a fd5efdf0a5abfc5f b6a77184efddd93d ba34d1f59edd42f8 \
+    d7368292a72a1ca5 881a952dc5918c7b 38fdff27dad86494 0d368aab13cca4ea \
+    02267caa50994fd8 b3e406787692f3ae 90f2d66aca3affd7 7089838355276d58 \
+    4dea029e83517636 357caeab0fa15a9f 9330095d6a0835db 91b85ee7dfcc3f2c \
+    b641ca3992416fc7 bd1d73ccbecd6b51 fd75ae677de3420f 9ba1f67a6d35a723 \
+    76715c08b2cbcf70 e8423ca60fa8f70c 1da5749a89b6a924 579f9fc4d446e74a \
+    b743526a0e22daf6 64169c74be9380db 39f476
+MAC: 5fc348e2859e32c2 3aef10585b5a27bd
+Test: Verify
+#
+Comment: Test Case 210
+Key: bf713b19f673b427 6b3f4360fb04b1f9 d1b94d0b3c2ad30e 48805c0a6862c709
+IV: 48414eb790774ea0 abb9d514a31011e9
+Message: \
+    11f0eea630c17e1d ce8cb673f347ad0b b90bab12ce486c55 4edd5b943b6a0b4d \
+    5afaf38abb71a78a fd5efdf0a5abfc5f b6a77184efddd93d ba34d1f59edd42f8 \
+    d7368292a72a1ca5 881a952dc5918c7b 38fdff27dad86494 0d368aab13cca4ea \
+    02267caa50994fd8 b3e406787692f3ae 90f2d66aca3affd7 7089838355276d58 \
+    4dea029e83517636 357caeab0fa15a9f 9330095d6a0835db 91b85ee7dfcc3f2c \
+    b641ca3992416fc7 bd1d73ccbecd6b51 fd75ae677de3420f 9ba1f67a6d35a723 \
+    76715c08b2cbcf70 e8423ca60fa8f70c 1da5749a89b6a924 579f9fc4d446e74a \
+    b743526a0e22daf6 64169c74be9380db 39f476
+MAC: 5fc348e3859e32c2 3aef10585b5a27bd
+Test: NotVerify
+#
+Comment: Test Case 211
+Key: 0ac9c0f64f9a693a 49ede50bfa326d2b e05a1106acc7e80a b858330e6081310d
+IV: 95e5418e89292980 5427165c55669335
+Message: \
+    1e8c78424df439fe 5349e48fe8db5a76 9c1d9221becadf45 f49e9b1d09f9e227 \
+    855a69d34ea3d1a1 ecb530d4918b4a2d a8dc4e67a62dac9b cc47b8d5419afdc6 \
+    f4669943096be4f5 2015c9b1a013de48 f02caf965a5c3126 a3e9fbe483f8ab78 \
+    5f44bb68af9f5ed0 b42781543b609d2b 8c4cc1e6a8f30c4c dc08306000dbd85f \
+    2093c8cf32269fe7 4d213b8881d8b30d 2575f4cd68001944 084aa409257c6845 \
+    0f30154256b429a4 d5642c563de06462 55582fbd58490161 93a66ab822d2fe32 \
+    03137459c79dfd9d 012af33e0a57a05f afd01c08191d69ac c3d364e6a56218a8 \
+    758c023d29ffda2a 29cd6933250992d4 d9aedcf2cc
+MAC: 4528b079eaf6a04b 766b8bb81baec978
+Test: Verify
+#
+Comment: Test Case 212
+Key: 0ac9c0f64f9a693a 49ede50bfa326d2b e05a1106acc7e80a b858330e6081310d
+IV: 95e5418e89292980 5427165c55669335
+Message: \
+    1e8c78424df439fe 5349e48fe8db5a76 9c1d9221becadf45 f49e9b1d09f9e227 \
+    855a69d34ea3d1a1 ecb530d4918b4a2d a8dc4e67a62dac9b cc47b8d5419afdc6 \
+    f4669943096be4f5 2015c9b1a013de48 f02caf965a5c3126 a3e9fbe483f8ab78 \
+    5f44bb68af9f5ed0 b42781543b609d2b 8c4cc1e6a8f30c4c dc08306000dbd85f \
+    2093c8cf32269fe7 4d213b8881d8b30d 2575f4cd68001944 084aa409257c6845 \
+    0f30154256b429a4 d5642c563de06462 55582fbd58490161 93a66ab822d2fe32 \
+    03137459c79dfd9d 012af33e0a57a05f afd01c08191d69ac c3d364e6a56218a8 \
+    758c023d29ffda2a 29cd6933250992d4 d9aedcf2cc
+MAC: 4528b079eaf7a04b 766b8bb81baec978
+Test: NotVerify
+#
+Comment: Test Case 213
+Key: b17655c6d67fbebb c600fd7ba6df5c95 8836cb0158248b03 1007960844150108
+IV: e2f962e47d497822 aa38d49e68c82c2e
+Message: \
+    a4ccd7b459941d39 0e77bcef1d894435 fc6bc05557207ad8 080b529cfc7a93a0 \
+    466a559fff72d80d e995fc061e413b1a acfb70031ceadb24 f62ec0f2a85392ee \
+    bee78dbd5a66ca43 fbc64a19078534b3 81a4b69d8e92c184 c0817668d4095692 \
+    f0e34f4a49198e44 e0d85ee75d929bde 36517bc4e33c49a3 bdbf0b92c86124b9 \
+    4574038e8d91d36d 693155c7c3f0a5f9 4121bd255d06c81b c6d4ad8e35d1477a \
+    454b09d3dcdc4046 0d950dd085b2c9c7 d386ec318db44c53 88f9e1beca293810 \
+    7441e3501d23962a b9a3fa3e56c30529 4af15ad7a6a62a2e 9f0bec6a34257aa8 \
+    665df984808fae39 33a978896c7db2b6 6f0d8d15b3b74353
+MAC: 322da556114e6c30 9d8a5593d3d4ce42
+Test: Verify
+#
+Comment: Test Case 214
+Key: b17655c6d67fbebb c600fd7ba6df5c95 8836cb0158248b03 1007960844150108
+IV: e2f962e47d497822 aa38d49e68c82c2e
+Message: \
+    a4ccd7b459941d39 0e77bcef1d894435 fc6bc05557207ad8 080b529cfc7a93a0 \
+    466a559fff72d80d e995fc061e413b1a acfb70031ceadb24 f62ec0f2a85392ee \
+    bee78dbd5a66ca43 fbc64a19078534b3 81a4b69d8e92c184 c0817668d4095692 \
+    f0e34f4a49198e44 e0d85ee75d929bde 36517bc4e33c49a3 bdbf0b92c86124b9 \
+    4574038e8d91d36d 693155c7c3f0a5f9 4121bd255d06c81b c6d4ad8e35d1477a \
+    454b09d3dcdc4046 0d950dd085b2c9c7 d386ec318db44c53 88f9e1beca293810 \
+    7441e3501d23962a b9a3fa3e56c30529 4af15ad7a6a62a2e 9f0bec6a34257aa8 \
+    665df984808fae39 33a978896c7db2b6 6f0d8d15b3b74353
+MAC: 322da556114e6c30 9c8a5593d3d4ce42
+Test: NotVerify
+#
+Comment: Test Case 215
+Key: 11a4f554a13614a2 5115604db9297800 7d4c7207e808d403 88eb9a05d8c9350a
+IV: cdf0e807f8a57dd8 7beeec6a6b6acc2a
+Message: \
+    8688911d00341c00 43b91b79d4616ae0 2abd214b36ca00cb 6be10e0f79f2e9ff \
+    7a7b1c7aaf387af3 f2956cc6f7d6a621 93c76cc9926d94fd 4ea30cc795f5c610 \
+    70e28a201a05130c 9a7fd2915579b3e8 401fb2d28c46cfda e9dba17fd1678f41 \
+    491961641e7470b9 f3434a48bcfd31fc 1de3cfa9299e8413 7a25924b8d218cd6 \
+    3aee3a5962ab1256 ee5c9eaa5acfa677 b27520dc14a4ef8e ca81d957a2652ddc \
+    536835b613470c01 a4aaabfe7a51752c c79508db3af76904 78425b1aa788f7fb \
+    f02cb10374bd0418 67af16e1018b0ec8 2016a35a0e0c5e86 4eb9a1f54298f032 \
+    c4a136385e3a50c6 ea66a7ebf1b5b312 cc566cda62cb60b0 8401a5
+MAC: 748fc4831d52360f 663d3697c26f6931
+Test: Verify
+#
+Comment: Test Case 216
+Key: 11a4f554a13614a2 5115604db9297800 7d4c7207e808d403 88eb9a05d8c9350a
+IV: cdf0e807f8a57dd8 7beeec6a6b6acc2a
+Message: \
+    8688911d00341c00 43b91b79d4616ae0 2abd214b36ca00cb 6be10e0f79f2e9ff \
+    7a7b1c7aaf387af3 f2956cc6f7d6a621 93c76cc9926d94fd 4ea30cc795f5c610 \
+    70e28a201a05130c 9a7fd2915579b3e8 401fb2d28c46cfda e9dba17fd1678f41 \
+    491961641e7470b9 f3434a48bcfd31fc 1de3cfa9299e8413 7a25924b8d218cd6 \
+    3aee3a5962ab1256 ee5c9eaa5acfa677 b27520dc14a4ef8e ca81d957a2652ddc \
+    536835b613470c01 a4aaabfe7a51752c c79508db3af76904 78425b1aa788f7fb \
+    f02cb10374bd0418 67af16e1018b0ec8 2016a35a0e0c5e86 4eb9a1f54298f032 \
+    c4a136385e3a50c6 ea66a7ebf1b5b312 cc566cda62cb60b0 8401a5
+MAC: 748fc4831d52360f 663d3696c26f6931
+Test: NotVerify
