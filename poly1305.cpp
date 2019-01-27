@@ -322,7 +322,10 @@ void Poly1305TLS_Base::UncheckedSetKey(const byte *key, unsigned int length, con
 	m_r[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key + 12) & 0x0ffffffc;
 
 	key += 16;
-	std::memcpy(m_n, key, 16);
+	m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  0);
+	m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  4);
+	m_n[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  8);
+	m_n[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key + 12);
 
 	Restart();
 }
