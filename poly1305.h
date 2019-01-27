@@ -189,7 +189,7 @@ protected:
 ///   <pre>  SecByteBlock key(32);
 ///   prng.GenerateBlock(key, key.size());
 ///
-///   Poly1305<AES> poly1305(key, key.size());
+///   Poly1305TLS poly1305(key, key.size());
 ///   poly1305.Update(...);
 ///   poly1305.Final(...);</pre>
 ///
@@ -200,7 +200,7 @@ protected:
 ///   prng.GenerateBlock(key, key.size());
 ///
 ///   // First message
-///   Poly1305<AES> poly1305(key, key.size());
+///   Poly1305TLS poly1305(key, key.size());
 ///   poly1305.Update(...);
 ///   poly1305.Final(...);
 ///
