@@ -163,14 +163,14 @@ NAMESPACE_BEGIN(CryptoPP)
 
 ////////////////////////////// Bernstein Poly1305 //////////////////////////////
 
-// No longer needed. Remove at next major version bump
+// TODO: No longer needed. Remove at next major version bump
 template <class T>
 void Poly1305_Base<T>::HashBlocks(const byte *input, size_t length, word32 padbit) {
 	CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(padbit);
 	CRYPTOPP_ASSERT(0);
 }
 
-// No longer needed. Remove at next major version bump
+// TODO: No longer needed. Remove at next major version bump
 template <class T>
 void Poly1305_Base<T>::HashFinal(byte *mac, size_t length) {
 	CRYPTOPP_UNUSED(mac); CRYPTOPP_UNUSED(length);
@@ -188,7 +188,7 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 {
 	CRYPTOPP_ASSERT(key && length >= 32);
 
-	// key is {k,r} pair. k is AES key, r is 16 bytes
+	// key is {k,r} pair. k is AES key, r is the additional key that gets clamped
 	length = SaturatingSubtract(length, (unsigned)BLOCKSIZE);
 	m_cipher.SetKey(key, length);
 	key += length;
@@ -310,15 +310,12 @@ void Poly1305_Base<T>::Restart()
 
 ////////////////////////////// IETF Poly1305 //////////////////////////////
 
-//void Poly1305TLS_Base::Resynchronize (const byte *iv, int ivLength) {}
-//void Poly1305TLS_Base::GetNextIV (RandomNumberGenerator &rng, byte *iv) {}
-
 void Poly1305TLS_Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
 	CRYPTOPP_UNUSED(params);
 	CRYPTOPP_ASSERT(key && length >= 32);
 
-	// key is {r,s} pair. s is nonce, r is 16 bytes
+	// key is {r,s} pair. r is the additional key that gets clamped, s is the nonce.
 	m_r[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  0) & 0x0fffffff;
 	m_r[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  4) & 0x0ffffffc;
 	m_r[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  8) & 0x0ffffffc;
