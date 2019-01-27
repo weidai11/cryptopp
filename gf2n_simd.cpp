@@ -495,7 +495,7 @@ GF2NT_233_Square_Reduce_CLMUL(const word* pA, word* pC)
     _mm_storeu_si128(pCC+1, c1);
 }
 
-#elif defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+#elif (CRYPTOPP_ARM_PMULL_AVAILABLE)
 
 void
 GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word* pC)
