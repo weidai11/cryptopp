@@ -230,8 +230,7 @@ void Poly1305_Base<T>::Update(const byte *input, size_t length)
 			// Process
 			memcpy_s(m_acc + num, BLOCKSIZE - num, input, rem);
 			Poly1305_HashBlocks(m_h, m_r, m_acc, BLOCKSIZE, 1);
-			input += rem;
-			length -= rem;
+			input += rem; length -= rem;
 		}
 		else
 		{
@@ -286,8 +285,8 @@ void Poly1305_Base<T>::Resynchronize(const byte *nonce, int nonceLength)
 	CRYPTOPP_ASSERT(nonceLength == -1 || nonceLength == (int)BLOCKSIZE);
 	nonceLength == -1 ? nonceLength = BLOCKSIZE : nonceLength;
 
-	std::memcpy(m_nk.begin(), nonce, nonceLength);
-	m_cipher.ProcessBlock(m_nk.begin());
+	// Encrypt the nonce, stash in m_nk
+	m_cipher.ProcessBlock(nonce, m_nk.begin());
 
 	m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  0);
 	m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  4);
