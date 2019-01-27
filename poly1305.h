@@ -95,8 +95,8 @@ protected:
 /// \details The key is 32 bytes and a concatenation <tt>key = {k,s}</tt>, where
 ///   <tt>k</tt> is the AES key and <tt>r</tt> is additional key that gets clamped.
 ///   The key is clamped internally so there is no need to perform the operation
-///   defore setting the key.
-/// \details Each message must use a unique security context, which means either the key or nonce
+///   before setting the key.
+/// \details Each message must have a unique security context, which means either the key or nonce
 ///   must be changed after each message. It can be accomplished in one of two ways. First, you
 ///   can create a new Poly1305 object each time its needed.
 ///   <pre>  SecByteBlock key(32), nonce(16);
@@ -125,8 +125,9 @@ protected:
 ///   poly1305.Update(...);
 ///   poly1305.Final(...);
 ///   ...</pre>
-/// \warning The Poly1305 class does not enforce a fresh nonce for each message. The source code
-///   will assert in debug builds to alert of nonce reuse. No action is taken in release builds.
+/// \warning Each message must have a unique security context. The Poly1305 class does not
+///   enforce a fresh key or nonce for each message. The source code will assert in debug
+///   builds to alert of nonce reuse. No action is taken in release builds.
 /// \sa Daniel J. Bernstein <A HREF="http://cr.yp.to/mac/poly1305-20050329.pdf">The Poly1305-AES
 ///   Message-Authentication Code (20050329)</A> and Andy Polyakov <A
 ///   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>
@@ -148,7 +149,7 @@ public:
 	/// \details The key is 32 bytes and a concatenation <tt>key = {k,s}</tt>, where
 	///   <tt>k</tt> is the AES key and <tt>r</tt> is additional key that gets clamped.
 	///   The key is clamped internally so there is no need to perform the operation
-	///   defore setting the key.
+	///   before setting the key.
 	/// \details Each message requires a unique security context. You can use GetNextIV()
 	///   and Resynchronize() to set a new nonce under a key for a message.
 	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULLPTR, size_t nonceLength=0)
@@ -200,8 +201,8 @@ protected:
 /// \details The key is 32 bytes and a concatenation <tt>key = {r,s}</tt>, where
 ///   <tt>r</tt> is additional key that gets clamped and <tt>s</tt> is the nonce.
 ///   The key is clamped internally so there is no need to perform the operation
-///   defore setting the key.
-/// \details Each message must use a unique security context, which means the key
+///   before setting the key.
+/// \details Each message must have a unique security context, which means the key
 ///   must be changed after each message. It can be accomplished in one of two ways.
 ///   First, you can create a new Poly1305 object with a new key each time its needed.
 ///   <pre>  SecByteBlock key(32);
@@ -228,6 +229,8 @@ protected:
 ///   poly1305.Update(...);
 ///   poly1305.Final(...);
 ///   ...</pre>
+/// \warning Each message must have a unique security context. The Poly1305-TLS class
+///   does not enforce a fresh key or nonce for each message.
 /// \since Crypto++ 8.1
 /// \sa MessageAuthenticationCode(), <a href="http://tools.ietf.org/html/rfc8439">RFC
 ///   8439, ChaCha20 and Poly1305 for IETF Protocols</a>
