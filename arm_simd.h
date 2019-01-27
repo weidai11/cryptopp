@@ -18,7 +18,7 @@
 # include <arm_acle.h>
 #endif
 
-#if CRYPTOPP_ARM_PMULL_AVAILABLE
+#if (CRYPTOPP_ARM_PMULL_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Polynomial multiplication
 /// \param a the first term
