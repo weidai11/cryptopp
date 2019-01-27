@@ -346,8 +346,7 @@ void Poly1305TLS_Base::Update(const byte *input, size_t length)
 			// Process
 			memcpy_s(m_acc + num, BLOCKSIZE - num, input, rem);
 			Poly1305_HashBlocks(m_h, m_r, m_acc, BLOCKSIZE, 1);
-			input += rem;
-			length -= rem;
+			input += rem; length -= rem;
 		}
 		else
 		{

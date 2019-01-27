@@ -12,9 +12,10 @@
 
 /// \file chacha.h
 /// \brief Classes for ChaCha8, ChaCha12 and ChaCha20 stream ciphers
-/// \details Crypto++ provides Bernstein and ECRYPT's ChaCha from <a href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha,
-///   a variant of Salsa20</a> (2008.01.28). Crypto++ also provides the IETF
-///   implementation of ChaCha using the ChaChaTLS name. Bernstein's
+/// \details Crypto++ provides Bernstein and ECRYPT's ChaCha from <a
+///   href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha, a
+///   variant of Salsa20</a> (2008.01.28). Crypto++ also provides the
+///   IETF implementation of ChaCha using the ChaChaTLS name. Bernstein's
 ///   implementation is _slightly_ different from the TLS working group's
 ///   implementation for cipher suites
 ///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,

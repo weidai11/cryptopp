@@ -20,7 +20,7 @@
 ///   Message-Authentication Code (20050329)</A>, <a href="http://tools.ietf.org/html/rfc8439">RFC
 ///   8439, ChaCha20 and Poly1305 for IETF Protocols</a> and Andy Polyakov <A
 ///   HREF="http://www.openssl.org/blog/blog/2016/02/15/poly1305-revised/">Poly1305 Revised</A>
-/// \since Crypto++ 6.0
+/// \since Poly1305 since Crypto++ 6.0, Poly1305TLS since Crypto++ 8.1
 
 #ifndef CRYPTOPP_POLY1305_H
 #define CRYPTOPP_POLY1305_H
@@ -36,7 +36,7 @@ NAMESPACE_BEGIN(CryptoPP)
 ////////////////////////////// Bernstein Poly1305 //////////////////////////////
 
 /// \brief Poly1305 message authentication code base class
-/// \tparam T class derived from BlockCipherDocumentation with 16-byte key and 16-byte blocksize
+/// \tparam T BlockCipherDocumentation derived class with 16-byte key and 16-byte blocksize
 /// \details Poly1305_Base is the base class of Bernstein's Poly1305 algorithm.
 /// \since Crypto++ 6.0
 template <class T>
@@ -94,9 +94,11 @@ protected:
 ///   message, using a 16-byte AES key, a 16-byte additional key, and a 16-byte nonce.
 /// \details The key is 32 bytes and a concatenation <tt>key = {k,s}</tt>, where
 ///   <tt>k</tt> is the AES key and <tt>r</tt> is additional key that gets clamped.
+///   The key is clamped internally so there is no need to perform the operation
+///   defore setting the key.
 /// \details Each message must use a unique security context, which means either the key or nonce
 ///   must be changed after each message. It can be accomplished in one of two ways. First, you
-///   can create a new Poly1305 object with a key and nonce each time its needed.
+///   can create a new Poly1305 object each time its needed.
 ///   <pre>  SecByteBlock key(32), nonce(16);
 ///   prng.GenerateBlock(key, key.size());
 ///   prng.GenerateBlock(nonce, nonce.size());
@@ -106,8 +108,7 @@ protected:
 ///   poly1305.Final(...);</pre>
 ///
 /// \details Second, you can create a Poly1305 object, reuse the key, and set a fresh nonce
-///   for each message. The second and subsequent nonces can be generated directly using a
-///   RandomNumberGenerator() derived class; or it can be generated using GetNextIV().
+///   for each message. The second and subsequent nonces can be generated using GetNextIV().
 ///   <pre>  SecByteBlock key(32), nonce(16);
 ///   prng.GenerateBlock(key, key.size());
 ///   prng.GenerateBlock(nonce, nonce.size());
@@ -144,10 +145,12 @@ public:
 	/// \param keyLength the size of the byte array, in bytes
 	/// \param nonce a byte array used to key the cipher
 	/// \param nonceLength the size of the byte array, in bytes
-	/// \details key is the 32-byte key composed of the 16-byte AES key and the 16 additional key
-	///   bytes used for <tt>r</tt>.
-	/// \details Each message requires a unique security context. You can use GetNextIV() and
-	///   Resynchronize() to set a new nonce under a key for a message.
+	/// \details The key is 32 bytes and a concatenation <tt>key = {k,s}</tt>, where
+	///   <tt>k</tt> is the AES key and <tt>r</tt> is additional key that gets clamped.
+	///   The key is clamped internally so there is no need to perform the operation
+	///   defore setting the key.
+	/// \details Each message requires a unique security context. You can use GetNextIV()
+	///   and Resynchronize() to set a new nonce under a key for a message.
 	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULLPTR, size_t nonceLength=0)
 		{this->SetKey(key, keyLength, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));}
 };
@@ -187,10 +190,17 @@ protected:
 };
 
 /// \brief Poly1305-TLS message authentication code
-/// \details Poly1305-TLS is the IETF's version of Poly1305. It is a slightly
-///   different algorithm than Bernstein's version.
+/// \details This is the IETF's variant of Bernstein's Poly1305 from RFC 8439.
+///   IETF Poly1305 is called Poly1305TLS in the Crypto++ library. It is
+///   _slightly_ different from the Bernstein implementation. Poly1305-TLS
+///   can be used for cipher suites
+///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and
+///   <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
 /// \details The key is 32 bytes and a concatenation <tt>key = {r,s}</tt>, where
 ///   <tt>r</tt> is additional key that gets clamped and <tt>s</tt> is the nonce.
+///   The key is clamped internally so there is no need to perform the operation
+///   defore setting the key.
 /// \details Each message must use a unique security context, which means the key
 ///   must be changed after each message. It can be accomplished in one of two ways.
 ///   First, you can create a new Poly1305 object with a new key each time its needed.
