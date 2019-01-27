@@ -30,7 +30,11 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 using namespace CryptoPP;
-#define CONSTANT_TIME_CARRY(a,b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
+
+inline word32 CONSTANT_TIME_CARRY(word32 a, word32 b)
+{
+	return ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1));
+}
 
 void Poly1305_HashBlocks(word32 h[5], word32 r[4], const byte *input, size_t length, word32 padbit)
 {
