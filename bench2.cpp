@@ -125,6 +125,7 @@ void Benchmark2(double t, double hertz)
 		BenchMarkByName<MessageAuthenticationCode>("CMAC(AES)");
 		BenchMarkByName<MessageAuthenticationCode>("DMAC(AES)");
 		BenchMarkByName<MessageAuthenticationCode>("Poly1305(AES)");
+		BenchMarkByName<MessageAuthenticationCode>("Poly1305TLS");
 		BenchMarkByName<MessageAuthenticationCode>("BLAKE2s");
 		BenchMarkByName<MessageAuthenticationCode>("BLAKE2b");
 		BenchMarkByName<MessageAuthenticationCode>("SipHash-2-4");

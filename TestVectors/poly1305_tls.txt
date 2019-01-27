@@ -1,0 +1,1687 @@
+AlgorithmType: MAC
+Name: Poly1305TLS
+Source: https://cr.yp.to/mac/test.html, poly1305_gmpxx.cpp
+#
+Comment: Test Case 1
+Key: 6c00560680ef0904 40e60d02a4c2d505 caa6ec6adc3623e2 fac947d7daaa2947
+Message: ""
+MAC: caa6ec6adc3623e2 fac947d7daaa2947
+Test: Verify
+#
+Comment: Test Case 2 (tamper key)
+Key: 6c00560680ef0904 40e60d02a4c2d505 60a6ec6adc3623e2 fac947d7daaa2947
+Message: ""
+MAC: caa6ec6adc3623e2 fac947d7daaa2947
+Test: NotVerify
+#
+Comment: Test Case 3
+Key: 9eb94b002440e809 681d270c1c17b70f e5cbcce30640bea3 5dd7477ffb940f6f
+Message: 81
+MAC: 9cf2ae552bb6068a d4101bc629566911
+Test: Verify
+#
+Comment: Test Case 4 (tamper key)
+Key: 9eb94b002440e809 681d270c1c17b70f e561cce30640bea3 5dd7477ffb940f6f
+Message: 81
+MAC: 9cf2ae552bb6068a d4101bc629566911
+Test: NotVerify
+#
+Comment: Test Case 5
+Key: f8358407749b0a08 301625027cbe1501 39aa164045cbdbd0 0d0b3853ca94715c
+Message: 8f0a
+MAC: 298104d3e4304f54 3d58fd0e4ad6838f
+Test: Verify
+#
+Comment: Test Case 6 (tamper key)
+Key: f8358407749b0a08 301625027cbe1501 39aabc4045cbdbd0 0d0b3853ca94715c
+Message: 8f0a
+MAC: 298104d3e4304f54 3d58fd0e4ad6838f
+Test: NotVerify
+#
+Comment: Test Case 7
+Key: 5d0d4602d0b06209 d082f00a4c0d4b02 4880f81277346352 bf1d132266d7c82b
+Message: 8fa01d
+MAC: f649000111829816 b1a8c83178f9ac29
+Test: Verify
+#
+Comment: Test Case 8 (tamper key)
+Key: 5d0d4602d0b06209 d082f00a4c0d4b02 4880f8b877346352 bf1d132266d7c82b
+Message: 8fa01d
+MAC: f649000111829816 b1a8c83178f9ac29
+Test: NotVerify
+#
+Comment: Test Case 9
+Key: d3505b02f4d6f208 78bb6b04c0db7e00 53d667629b5507f0 535afb742f0959c7
+Message: e7b3460f
+MAC: ca56abd3f638abe4 d8f5911a74d7a748
+Test: Verify
+#
+Comment: Test Case 10 (tamper key)
+Key: d3505b02f4d6f208 78bb6b04c0db7e00 53d66762315507f0 535afb742f0959c7
+Message: e7b3460f
+MAC: ca56abd3f638abe4 d8f5911a74d7a748
+Test: NotVerify
+#
+Comment: Test Case 11
+Key: 7db7f20fe8a9cb00 84bd2706ecd61008 700b6ff274eb7442 a11c3bdacd605c9a
+Message: 097e80f3bc
+MAC: 0501e0e3dbb65f6b 4125e410d6978359
+Test: Verify
+#
+Comment: Test Case 12 (tamper key)
+Key: 7db7f20fe8a9cb00 84bd2706ecd61008 700b6ff274417442 a11c3bdacd605c9a
+Message: 097e80f3bc
+MAC: 0501e0e3dbb65f6b 4125e410d6978359
+Test: NotVerify
+#
+Comment: Test Case 13
+Key: eed5fd0fa8540e0c d4be6a0af0fc160c ea49669cbadb6dc7 4fe528dd98f9adb0
+Message: 9ad4ecfccff8
+MAC: 9a384bc9e83b410c c7d60125125e850b
+Test: Verify
+#
+Comment: Test Case 14 (tamper key)
+Key: eed5fd0fa8540e0c d4be6a0af0fc160c ea49669cbadbc7c7 4fe528dd98f9adb0
+Message: 9ad4ecfccff8
+MAC: 9a384bc9e83b410c c7d60125125e850b
+Test: NotVerify
+#
+Comment: Test Case 15
+Key: 69a76a0d8c4e5601 2892500670882a03 fd4d32897c6e782f c1af9717578dfd85
+Message: 066344ca348a36
+MAC: 5007c2e9ba8fbbe8 f1bc26b37e321662
+Test: Verify
+#
+Comment: Test Case 16 (tamper key)
+Key: 69a76a0d8c4e56ab 2892500670882a03 fd4d32897c6e782f c1af9717578dfd85
+Message: 066344ca348a36
+MAC: 5007c2e9ba8fbbe8 f1bc26b37e321662
+Test: NotVerify
+#
+Comment: Test Case 17
+Key: c74d1f0da4d9540f 449b3e0354ad610c bea3dab01ce60716 aa07a6f931d43a26
+Message: f6a185ac7a362223
+MAC: 2ccb1cabe7f5d7ef 88a82a7325cffab5
+Test: Verify
+#
+Comment: Test Case 18 (tamper key)
+Key: c74d1f0da4d9540f 449b3e0354ad610c bea3dab01ce60716 0007a6f931d43a26
+Message: f6a185ac7a362223
+MAC: 2ccb1cabe7f5d7ef 88a82a7325cffab5
+Test: NotVerify
+#
+Comment: Test Case 19
+Key: f3994406bc73da00 7caf790efcc79702 e05f8b1860ab3f82 a2e36b869cc8b237
+Message: 2203215c53bb9655 a2
+MAC: 653d4cee9d320f00 83f48f6245602aac
+Test: Verify
+#
+Comment: Test Case 20 (tamper key)
+Key: f3994406bc73da00 7c05790efcc79702 e05f8b1860ab3f82 a2e36b869cc8b237
+Message: 2203215c53bb9655 a2
+MAC: 653d4cee9d320f00 83f48f6245602aac
+Test: NotVerify
+#
+Comment: Test Case 21
+Key: af0237025068f500 a02d8a0954009504 8e64f1ec769402c2 a7aa4d06a8a06f31
+Message: 0b377ab864b44639 d26c
+MAC: f7dc1b7c50319083 d4c3802a3f1e77ab
+Test: Verify
+#
+Comment: Test Case 22 (tamper key)
+Key: af0237025068f500 a02d200954009504 8e64f1ec769402c2 a7aa4d06a8a06f31
+Message: 0b377ab864b44639 d26c
+MAC: f7dc1b7c50319083 d4c3802a3f1e77ab
+Test: NotVerify
+#
+Comment: Test Case 23
+Key: 5b345c0e30f39f08 a817740af4cb7609 189d1bb937e07a37 72eccfd90d0c211f
+Message: 82fbe065eaa9a096 bb9192
+MAC: ab43877f9d122f93 bcbe9088ebe9ef5b
+Test: Verify
+#
+Comment: Test Case 24 (tamper key)
+Key: 5b345c0e30f39f08 a817740af4cb7609 189d1bb937e07a37 72eccf730d0c211f
+Message: 82fbe065eaa9a096 bb9192
+MAC: ab43877f9d122f93 bcbe9088ebe9ef5b
+Test: NotVerify
+#
+Comment: Test Case 25
+Key: 977ce00ef8b9b80e f0fd090f144b730a fd8f80c109dad8b6 7e189c36062d3746
+Message: 7be95987475ce92f eeb313e9
+MAC: e9fd5bd4f3bfbb95 a2ce4d418b43ab59
+Test: Verify
+#
+Comment: Test Case 26 (tamper key)
+Key: 977ce00ef8b9b80e f0fd090fbe4b730a fd8f80c109dad8b6 7e189c36062d3746
+Message: 7be95987475ce92f eeb313e9
+MAC: e9fd5bd4f3bfbb95 a2ce4d418b43ab59
+Test: NotVerify
+#
+Comment: Test Case 27
+Key: f10d70073459a600 d0181f0d7c386008 8fc51518cfbaf0d2 64ed6545a4db5705
+Message: 8910ee70ca4356b5 daf6318fb1
+MAC: d45a7fb47f3eb7ee fc6cd523400cd250
+Test: Verify
+#
+Comment: Test Case 28 (tamper key)
+Key: f10d70073459a600 d0181f0d7c926008 8fc51518cfbaf0d2 64ed6545a4db5705
+Message: 8910ee70ca4356b5 daf6318fb1
+MAC: d45a7fb47f3eb7ee fc6cd523400cd250
+Test: NotVerify
+#
+Comment: Test Case 29
+Key: 0962f60104410106 eca05808ec50320a 231f6a898daf2c9b d7f1033458b3a6ec
+Message: 0e7b99bf4e2e3ee8 953b44feacee
+MAC: ce063142e7450102 9e3108d3afc08a40
+Test: Verify
+#
+Comment: Test Case 30 (tamper key)
+Key: 0962f60104410106 eca05808ec50980a 231f6a898daf2c9b d7f1033458b3a6ec
+Message: 0e7b99bf4e2e3ee8 953b44feacee
+MAC: ce063142e7450102 9e3108d3afc08a40
+Test: NotVerify
+#
+Comment: Test Case 31
+Key: c9449c0fa8b83d0a d068ea0610d71906 d8c16ad216f3d782 3b929ee55ecad434
+Message: 3e8a1220219f69a8 f19ce3dc4d0028
+MAC: cbfcd497d2a9e8c0 c98ed6ca749fe361
+Test: Verify
+#
+Comment: Test Case 32 (tamper key)
+Key: c9449c0fa8b83d0a d068ea0610d719ac d8c16ad216f3d782 3b929ee55ecad434
+Message: 3e8a1220219f69a8 f19ce3dc4d0028
+MAC: cbfcd497d2a9e8c0 c98ed6ca749fe361
+Test: NotVerify
+#
+Comment: Test Case 33
+Key: 4ace1206586fc501 f0f70209701b8e0c 5cb648f132ce06f4 0d5419fdd7db9dab
+Message: ca948e548793a84c a86bc048cd67e521
+MAC: c13134bdefb14796 6674eb0ed4db88a6
+Test: Verify
+#
+Comment: Test Case 34 (tamper key)
+Key: 4ace1206586fc501 f0f70209701b8e0c f6b648f132ce06f4 0d5419fdd7db9dab
+Message: ca948e548793a84c a86bc048cd67e521
+MAC: c13134bdefb14796 6674eb0ed4db88a6
+Test: NotVerify
+#
+Comment: Test Case 35
+Key: c359190f74d8f504 5c019906a0690d08 84b3a1b42f104ea6 25ead0aff647cbc2
+Message: f8ffa1d5c7d36fc6 287ea99f8b014b63 9f
+MAC: 39d1eb8bd8ae1d41 3c21bf119cad3b24
+Test: Verify
+#
+Comment: Test Case 36 (tamper key)
+Key: c359190f74d8f504 5c019906a0690d08 8419a1b42f104ea6 25ead0aff647cbc2
+Message: f8ffa1d5c7d36fc6 287ea99f8b014b63 9f
+MAC: 39d1eb8bd8ae1d41 3c21bf119cad3b24
+Test: NotVerify
+#
+Comment: Test Case 37
+Key: e1ff050f4852e406 f8a4c607b4485805 1d65a6a9506ced1e b242352988e782dd
+Message: 53b6cd8b40d0718c 15372a1b8ccb4b98 729b
+MAC: 7e354f379ddf8e2b f55461e6c00bccfb
+Test: Verify
+#
+Comment: Test Case 38 (tamper key)
+Key: e1ffaf0f4852e406 f8a4c607b4485805 1d65a6a9506ced1e b242352988e782dd
+Message: 53b6cd8b40d0718c 15372a1b8ccb4b98 729b
+MAC: 7e354f379ddf8e2b f55461e6c00bccfb
+Test: NotVerify
+#
+Comment: Test Case 39
+Key: 44a9ac03b086b20c 24f171028875ce03 064fb77a3614166f 5664b216966c3765
+Message: 5562a19759ec7f53 be3cba7623a34c32 7491ee
+MAC: e7cbb593a39eb458 79629d77fe81514c
+Test: Verify
+#
+Comment: Test Case 40 (tamper key)
+Key: 44a9aca9b086b20c 24f171028875ce03 064fb77a3614166f 5664b216966c3765
+Message: 5562a19759ec7f53 be3cba7623a34c32 7491ee
+MAC: e7cbb593a39eb458 79629d77fe81514c
+Test: NotVerify
+#
+Comment: Test Case 41
+Key: 6989f80470166d06 78acf60f2c5c8a07 7d1bf975b5dcc2a2 8f8976bbe194aade
+Message: 33392af00196f3bd 844d182ec960af42 60aa1807
+MAC: fa3d316cda7cace4 a2ec7a111a81854a
+Test: Verify
+#
+Comment: Test Case 42 (tamper key)
+Key: 6989f804da166d06 78acf60f2c5c8a07 7d1bf975b5dcc2a2 8f8976bbe194aade
+Message: 33392af00196f3bd 844d182ec960af42 60aa1807
+MAC: fa3d316cda7cace4 a2ec7a111a81854a
+Test: NotVerify
+#
+Comment: Test Case 43
+Key: f1409609d05f640e 402b870e3cb8bb06 c8821c9b30333b6f ff8a7b866e6b3409
+Message: df2b8ec69dbbc2dc 87557434dbfbd7fc 8df003aa1c
+MAC: 5ca38bb7a9d4280a 45885baa53d20da9
+Test: Verify
+#
+Comment: Test Case 44 (tamper key)
+Key: f1409609d05f640e 402b870e3cb8bb06 c8821c9b30993b6f ff8a7b866e6b3409
+Message: df2b8ec69dbbc2dc 87557434dbfbd7fc 8df003aa1c
+MAC: 5ca38bb7a9d4280a 45885baa53d20da9
+Test: NotVerify
+#
+Comment: Test Case 45
+Key: df2e700f38173305 e455c9015479bb02 7a2015c6a63602ad 67139e9af18155b5
+Message: 7bba160780c3db5a 4ce9c57e0fa7f798 66649ae28ff2
+MAC: c913c2fd791cecd1 1ac05efb2871ea39
+Test: Verify
+#
+Comment: Test Case 46 (tamper key)
+Key: df2e700f38179905 e455c9015479bb02 7a2015c6a63602ad 67139e9af18155b5
+Message: 7bba160780c3db5a 4ce9c57e0fa7f798 66649ae28ff2
+MAC: c913c2fd791cecd1 1ac05efb2871ea39
+Test: NotVerify
+#
+Comment: Test Case 47
+Key: 0f9f60012807f505 ac89d90b549c1a02 806c0da093ba89b1 6414899089fd6479
+Message: 2a472b6ce98423cd 0403481f40773d70 830dbc7813b59e
+MAC: d070a23d1cfe379c c7c9690990d5d1e9
+Test: Verify
+#
+Comment: Test Case 48 (tamper key)
+Key: 0f9f60012807f5af ac89d90b549c1a02 806c0da093ba89b1 6414899089fd6479
+Message: 2a472b6ce98423cd 0403481f40773d70 830dbc7813b59e
+MAC: d070a23d1cfe379c c7c9690990d5d1e9
+Test: NotVerify
+#
+Comment: Test Case 49
+Key: 8bf0300cbc104203 689c460c945c5c0d cd51d5524c637f4d 1e77ce7ca787a8a4
+Message: 663e30b944011c57 0cff89722f04e6b0 255555a1fa86a42e
+MAC: 0e5e822e268785a0 1658dda538e010e9
+Test: Verify
+#
+Comment: Test Case 50 (tamper key)
+Key: 8bf0300cbc104203 c29c460c945c5c0d cd51d5524c637f4d 1e77ce7ca787a8a4
+Message: 663e30b944011c57 0cff89722f04e6b0 255555a1fa86a42e
+MAC: 0e5e822e268785a0 1658dda538e010e9
+Test: NotVerify
+#
+Comment: Test Case 51
+Key: 2fc60e02b4c45908 90a5790df4bcdd02 da3418a3f0127faa ddf52e52c9ff0429
+Message: 4bad6a09e7156b84 41be3784b4b62328 4e63086f4551ad1a ea
+MAC: 28768d05961b9450 df7cbbc6d9288b19
+Test: Verify
+#
+Comment: Test Case 52 (tamper key)
+Key: 2fc60e02b4c45908 900f790df4bcdd02 da3418a3f0127faa ddf52e52c9ff0429
+Message: 4bad6a09e7156b84 41be3784b4b62328 4e63086f4551ad1a ea
+MAC: 28768d05961b9450 df7cbbc6d9288b19
+Test: NotVerify
+#
+Comment: Test Case 53
+Key: 77df66080ce73b0b 1c0a8d088411bf09 a35bb9ceecf0a47d eb12ae11a13ef598
+Message: 355cbaa4bc588708 e901a6e10efd9f66 e66bf146f61e1e43 5f96
+MAC: 05d6ed5db3112042 9b405025d432baa9
+Test: Verify
+#
+Comment: Test Case 54 (tamper key)
+Key: 77df66080ce73b0b 1c0a27088411bf09 a35bb9ceecf0a47d eb12ae11a13ef598
+Message: 355cbaa4bc588708 e901a6e10efd9f66 e66bf146f61e1e43 5f96
+MAC: 05d6ed5db3112042 9b405025d432baa9
+Test: NotVerify
+#
+Comment: Test Case 55
+Key: 76ef0403b8c87502 849db00790cdb708 d3385d038f4bc30a b090b12e2c1c55ca
+Message: 00988a1e18b26c5d 5d0457e1f6edc116 a6db9a02adfe1cb2 fc4d66
+MAC: 02b6c692648e79e2 73e85d0b79374c6f
+Test: Verify
+#
+Comment: Test Case 56 (tamper key)
+Key: 76ef0403b8c87502 849db0ad90cdb708 d3385d038f4bc30a b090b12e2c1c55ca
+Message: 00988a1e18b26c5d 5d0457e1f6edc116 a6db9a02adfe1cb2 fc4d66
+MAC: 02b6c692648e79e2 73e85d0b79374c6f
+Test: NotVerify
+#
+Comment: Test Case 57
+Key: f2c64709f8b86d05 fcf5f00338381e04 a029d6a32b3b419e 415d51ef6502233e
+Message: e42763dfe30d8810 18205b2f5435c7db da79221281a2fb5a 86b9ce1c
+MAC: 551144a8eda2bf14 d010f1dc21ea13ee
+Test: Verify
+#
+Comment: Test Case 58 (tamper key)
+Key: f2c64709f8b86d05 fcf5f00392381e04 a029d6a32b3b419e 415d51ef6502233e
+Message: e42763dfe30d8810 18205b2f5435c7db da79221281a2fb5a 86b9ce1c
+MAC: 551144a8eda2bf14 d010f1dc21ea13ee
+Test: NotVerify
+#
+Comment: Test Case 59
+Key: 0d2092073cd01e09 e4764b09e0d1e707 c9819dabb1e94b28 3fc0ee5740c9cf6a
+Message: f67cdcdd1a4c26bc 4b1cbf537d350ab4 bc3532a8ec72625e a364ccafd4
+MAC: 13c4e52eba92f6a5 287db127c8e5ae6b
+Test: Verify
+#
+Comment: Test Case 60 (tamper key)
+Key: 0d2092073cd01e09 e4764b09e07be707 c9819dabb1e94b28 3fc0ee5740c9cf6a
+Message: f67cdcdd1a4c26bc 4b1cbf537d350ab4 bc3532a8ec72625e a364ccafd4
+MAC: 13c4e52eba92f6a5 287db127c8e5ae6b
+Test: NotVerify
+#
+Comment: Test Case 61
+Key: a3660f0dec674e05 0c60460d04a93102 fe2678de8c4d1cc7 36684b740687f8ae
+Message: 5fd3d04591e7bc88 a69d9237ce3e8675 8de19ddc98c500f4 85628595545c
+MAC: a9899643077a347e 127e6368ff12a928
+Test: Verify
+#
+Comment: Test Case 62 (tamper key)
+Key: a3660f0dec674e05 0c60460d04a93102 fe2678de8c4d1cc7 36684b74068752ae
+Message: 5fd3d04591e7bc88 a69d9237ce3e8675 8de19ddc98c500f4 85628595545c
+MAC: a9899643077a347e 127e6368ff12a928
+Test: NotVerify
+#
+Comment: Test Case 63
+Key: ee50a10a04a6dc0a c41b5406f48aff0c 030467ac5a15c1e6 94c09815175a2e45
+Message: 2ba591c44f0d5c91 7ce644481b8eb788 fce6e8eb4f860c1b b58f15c896ce35
+MAC: 439058fc79b0e793 66bab10ace80f001
+Test: Verify
+#
+Comment: Test Case 64 (tamper key)
+Key: ee50a10a04a6dc0a c41b5406f48aff0c 030467ac5a15c1e6 94c09815175a2eef
+Message: 2ba591c44f0d5c91 7ce644481b8eb788 fce6e8eb4f860c1b b58f15c896ce35
+MAC: 439058fc79b0e793 66bab10ace80f001
+Test: NotVerify
+#
+Comment: Test Case 65
+Key: 8b5a130ddc6b960b 88bcc0047479cd0b 828b16263294e1c2 8d25df023db16cce
+Message: 297bf4cc4c212784 97066c764e3fa1f9 10eb2dd5f6d0de53 76700372cf5b71f8
+MAC: 309869a019de2fc0 0c99c3d0f1cbe98a
+Test: Verify
+#
+Comment: Test Case 66 (tamper key)
+Key: 8b5a130ddc6b960b 88bcc0047479cd0b 288b16263294e1c2 8d25df023db16cce
+Message: 297bf4cc4c212784 97066c764e3fa1f9 10eb2dd5f6d0de53 76700372cf5b71f8
+MAC: 309869a019de2fc0 0c99c3d0f1cbe98a
+Test: NotVerify
+#
+Comment: Test Case 67
+Key: 22ae9c06b0870f07 48f0940fcc3cd707 d08c54bb7bae3331 2aa689108eb305c3
+Message: \
+    bfeb68402beeb14f 4005c52136e71410 c055835aee52d97d 69753343a976d468 \
+    61
+MAC: d17a17251f33db4f 80ff296d69ee0904
+Test: Verify
+#
+Comment: Test Case 68
+Key: dd5165050c2ac601 d005250a887ad50b d05fec8ce14ab38c d130e3bc80287396
+Message: \
+    9e58ab8da53a45e2 a688497367554b91 3d5dd90961eb604b ff0aa2ccf2041b90 \
+    5cc71d01
+MAC: 19d6f019c462a9c7 90c6849020171b09
+Test: Verify
+#
+Comment: Test Case 69
+Key: 4bc9ea0c5c88770a 9cce0c07d49b230c 1111ae9c20bb8bf0 ed3a58d4a263909c
+Message: \
+    b728e3d96a708ec8 f580f933acd2b3a0 4c26224e42160f64 5b921e9392590249 \
+    81e522ec56b0
+MAC: fe907e0dc0e0e0a6 4502757e67513746
+Test: Verify
+#
+Comment: Test Case 70
+Key: c2707b0510afcb04 e0f7cd06848fe80f 00dfe6d843a8af02 a5402028cbd91ea8
+Message: \
+    fb9dc805868a879b 65ce27f64dfb32d4 ab67394fb66e8f44 426f8f10bef5efb9 \
+    92b7be184245b3a7 14
+MAC: 100727aa6d98b8dc ae6192dccdf430f9
+Test: Verify
+#
+Comment: Test Case 71
+Key: dc9eae00105d050c 1466010e809b870a ff8e964bd432091b b4197e1a365ce647
+Message: \
+    dc78593fb2f712ed c08e30d5afc4a2b3 34be93252cf421df f643e71e8caead68 \
+    2607a7d8feb9c5be 47f593
+MAC: 762881a58666f7f4 90a2098b988dfbab
+Test: Verify
+#
+Comment: Test Case 72
+Key: 217d070fa8a0f707 5c0c3c0c6cfd7b00 d795415916552133 bbff0158b3f3715b
+Message: \
+    990b172ca693a1ca 82389ff823ce1981 81c147f0ff981d09 057f7c078c9f5b25 \
+    ab72515105f21c87 2abb7f4d89
+MAC: f9d2218715ec2042 be9511eb10612e45
+Test: Verify
+#
+Comment: Test Case 73
+Key: 00a03603ac04ab05 d4bab20644cceb09 1d9247859928af51 c0f6756ac391c199
+Message: \
+    8567e96d59245ba6 f681831314ebe44b 6b758c60e5f443fe 6f72f942258c3eab \
+    f427184d4b73f341 f4765408623953
+MAC: cecdbd7cf312b5dd d4176164f240f63c
+Test: Verify
+#
+Comment: Test Case 74
+Key: 232eca048865c409 fcf13b05dc34cc03 4ae5a9cb6a9d7811 402dacde7a2a3549
+Message: \
+    fccb42575bccdf0c a9a73603b6a61235 80deed32e3a0871c 650dda8105ded202 \
+    aa145905e038118a df488d95ee9fca6f 7e
+MAC: 4a88054fcf301354 d79ae487efa4f2a1
+Test: Verify
+#
+Comment: Test Case 75
+Key: 1c4b7501a4c08006 b0669805089c5e04 e3aeb945d7df07eb d6f64fa8d6a3fe8e
+Message: \
+    95bce24595eeb7c2 8cd5664eb275c1b9 7277211b99d22f8e e06d4e70426bc1d7 \
+    27a31dbc92d47f1e aae56c5c5a2d15cc a536e8
+MAC: 91fa3b0013b40bdb 48bde0fbeb67dd3e
+Test: Verify
+#
+Comment: Test Case 76
+Key: 0fa9890df83a5709 0c57120a90fc3a06 472545db9471d177 4c40f5bd69c4d382
+Message: \
+    e52cef7130ca4681 02ad94fa49121a61 29244b25f150ffbd b2e282a88a38736f \
+    6562e1952d27162f d4ab291ebd437fe6 67ca0b581b
+MAC: 41543518a6bbae1d d85c933f642a5cd2
+Test: Verify
+#
+Comment: Test Case 77
+Key: ab7a8109d465cb03 00cac50198744c0d 6dd3dfa7670cc263 8f9051b5734aa454
+Message: \
+    0fde2210dc04bd3f 429fe6e8b2b957bd 3beb31589efd1c2c f28628a69a5311a9 \
+    3234b90e38764d7a 153362c7ecb98428 a4b58042b29c6ea5
+MAC: 974d51748d5b3710 7a98edf22398908a
+Test: Verify
+#
+Comment: Test Case 78
+Key: 2b13e0074469bc01 f0cc7b0c8c59ec09 960d2c1dc2c83958 17ae24b97cc33b2a
+Message: \
+    3f7bc44d295a2e93 26c04edab2208503 9cc9b5b188b26f5f a912e37fd4f11313 \
+    6cd76195318f2957 4f77310197b60433 7fb9e4076b536714 664a
+MAC: 4f00c4ce7827d5c7 70fad723216e0310
+Test: Verify
+#
+Comment: Test Case 79
+Key: d4d1fb07282a0d00 542d71011415aa0b 7d9de02190f125e3 0d0bf17c1c7eb027
+Message: \
+    1dbd779ad1eb943d ad394ca41e4d1ada 56c96023a1f533f4 a97a80bdc8616ce6 \
+    1ee380efce152d7b 4e791f6cc639461d 03a740a49c739845 ed1902b67a
+MAC: 6c09a39376fda312 f3c198402e351aed
+Test: Verify
+#
+Comment: Test Case 80
+Key: fa77320b28d40601 d4e5bd0c4053c107 9c088b13d041b0b4 46914404513e9b85
+Message: \
+    8d6b9aea354a873f 07fea61debf0b3d1 5256a369a45ea395 00205ad539d8e2c6 \
+    437cb178c638b7cd 365eea214e9ef2a0 f4950998f3ac2df4 cc87c9055fabcc
+MAC: 60ab5f852b952e30 99e2335e431b3d47
+Test: Verify
+#
+Comment: Test Case 81
+Key: e560c90b1051a60b 08166b0ec4cf0e0f af6a5f2671614310 55a4cd4410dfb7c0
+Message: \
+    49379a730f74db6b 6379ba01c8c0bde5 2403cef809107bdb fc3fafe2f6f4803f \
+    2b1ab33a8f8ea6f2 0760f3d021b0b545 b3833dbc93b89890 f84772ee3bf32e66 \
+    0d
+MAC: a1ac73607a59abea 9d01cdc6516f30d8
+Test: Verify
+#
+Comment: Test Case 82
+Key: 6ca28904b0e8a408 0c16000daceedf0d 5fad032ae13b6cc7 532f176645c328a2
+Message: \
+    e3f439de4d80ff30 f57167d0848488b0 b403e196d3d6b407 90524f9cf11ccad4 \
+    1003b25e84b28e79 23f549a779d1582d d439c4a70f78ae9f cafd3cbb1906902a \
+    0a42888e
+MAC: 23fcd1f799308819 90685698043de47f
+Test: Verify
+#
+Comment: Test Case 83
+Key: be0ebe02546eb90c 3c14cb03d874ea08 abb567483c791d4c b19195b07a60609b
+Message: \
+    743e66910aa33980 c4b3cc9747fb9518 78eaf700bcd4f840 8a3537ddcb3ba53f \
+    790bd084ae0a0472 bdd00904cc9e1d44 88144444e83c8572 71bc4f3df7f57c71 \
+    004df5af57f921
+MAC: c3c52c61cb9ded67 cdf55a95424b6c39
+Test: Verify
+#
+Comment: Test Case 84
+Key: eb12200d2c7d6504 50d6bb09e85ce80b c601e32c4de211a8 d44d2c17f10829e9
+Message: \
+    0f747345bf913ab5 0ee50756314f63bd 4738b072cad38932 bf15232dde0f81ed \
+    83f53342866df894 52ffea844e4e4195 86f10750c4918284 a6a5b184b4327137 \
+    27a479ae12714264 702d
+MAC: 41e89ec7f4537430 0306072fcbb1018b
+Test: Verify
+#
+Comment: Test Case 85
+Key: 8447b00168468f04 5c31490ff0a47b0c 989b62da6bf1eb89 965c4bac2a3e87be
+Message: \
+    0ff08bf671f864bf 61df6d68b0156456 75e8e17714149208 42828931d0821ddf \
+    72a9d5e3a139a302 18106ac925ce1f9b b60012ca15a4d357 265c89f7dea6d651 \
+    4fac34f0e5d7f2fe e75cc70d2b
+MAC: 95ee8127f435a416 99993325da147e1c
+Test: Verify
+#
+Comment: Test Case 86
+Key: a539390498f79704 402f2b03e00c250e b460d19c0a1a111a a7d714c733b69663
+Message: \
+    8752b8468f349933 2f4d523c70754751 dd827e25c7746967 2ee2e718d2d4a659 \
+    265ea0b59239e8c2 863bfef6b045488e c7c6b38f3a1cf668 fedd80d1b2262ad8 \
+    85ca8e170376d989 b1d780621dc8f0e4
+MAC: d56f8545a2424124 1e708111bdf26822
+Test: Verify
+#
+Comment: Test Case 87
+Key: 83bc450fe88c0c0c c84522028094460a 798610e6b0c7c40a 66e2641f9b25df80
+Message: \
+    54b4bcc3e04c3258 d77cddca030e0625 3125ac1fb9303557 1e5271ff9274cfe7 \
+    288baa09d8dd61af 593e7a5c4d80817e a52e9d5e5ed2b57c 24267cb79a4b9ec3 \
+    d748ccaf252d5e7e 6cd8dab9585c37fd 8ad5
+MAC: 0dd6c3e7242745b3 9cf8852a536bdd6e
+Test: Verify
+#
+Comment: Test Case 88
+Key: f4db15052c9d6002 90ef2804247ec700 ec22ba8d1010c6d3 054554eee9ddfbfc
+Message: \
+    ac4ba787aa9924ec e9b5cf481374b849 b282681e4427ab65 16320eb543da52f0 \
+    26fa77d0939bbd7c 508cc464007dadb2 ff16d0433d7ca853 aeb709f2915be2b7 \
+    555988e8f4456444 d129a8d1a65684a5 6c54e8a9d0
+MAC: 3b7b96075c39d676 cc6eb4275fa90065
+Test: Verify
+#
+Comment: Test Case 89
+Key: 58dc5b0efc725009 48dcad04c4bcb604 95a48d3933730bbb bb2ebe985a05069b
+Message: \
+    c37604de5c6f8b56 9e62b20b67026011 49954238fe92dba5 7946a18856b47d19 \
+    2a81f786f083dc8f e58f9a4c91fa5eda 8fa0128e32ee33ab 34d4338a88b0a3b3 \
+    329a39221d16b103 a54c4f3646ad10d6 4d23647f11972b45
+MAC: 9d0c7e007ca4fab5 4fdf1f17ff434189
+Test: Verify
+#
+Comment: Test Case 90
+Key: d17b0c02dc81cb0c d0f02c03b4f42e01 50fd95614dc7a893 549fa20ef0bcbf68
+Message: \
+    d89144b29649c6d4 a4296cdbb045df46 062b56b4d47e6012 5842e1ce66a8753f \
+    39baf1d003b7a4a7 e11082915662d85c 8d2e1062ac707404 b356d219fe485838 \
+    0249080501acace2 bd2e7313904b6f1e 797f8026eff42aa2 4afd
+MAC: 2e639bedc506ef1a 958e2ca494eb7690
+Test: Verify
+#
+Comment: Test Case 91
+Key: edda9c017094c00a e0c61f06b058280d d1a3baecf36bd492 733755a195835409
+Message: \
+    f3cbca5b8a12bf7c ce408d6943c4eb53 b9e8f8b7961dafcb df0a37f87814b86b \
+    e082c66a9586e763 c674cc0938b75cf1 9f54a83571570051 623749da4c01452c \
+    840c9619927d7c58 f249612a00bd1ca0 11c4d5831cd6d47e 0d1d58591e
+MAC: 046fc9410c4517e1 1a51aab2ef07dc87
+Test: Verify
+#
+Comment: Test Case 92
+Key: 7bdd8c0da4342c02 1c5ce60684c6c40d 90e1ce9d222d2d28 584139f30ad8c4e6
+Message: \
+    9fe3c76e7a6dbc81 3e2a0e0330924f7e 15e10183ceefdc7b 34a62c3ec84bcb67 \
+    2e92d5a80091293e bb3841ecca906ae0 726b63405a3fbb8f e5e8cdad33981462 \
+    2bea0a2b7b346937 6cab23363b8d16ad f879ed52b8a9e19d 91af4ac4475f2672
+MAC: f393e130dbec54b3 a0e8f196cf7e9e79
+Test: Verify
+#
+Comment: Test Case 93
+Key: 86660202cc57050e 6427d204b82f4e03 b99faffb8f841b11 dd42eccb03e6282a
+Message: \
+    7a86d760f01773d4 2da3d2863c5f7d91 49918a13d9f06064 d66ba951ec247166 \
+    ab49c69b60396f8d dc411418a091a9e9 2233fdfb245d5ffa c8084bb42dbd1ad8 \
+    06e073661ae2f3f6 24070fc499b8aebb ecabb71008160ad0 1f56854c139f2419 \
+    8097
+MAC: 123b536a06cf5c95 459f2b397d23b1d4
+Test: Verify
+#
+Comment: Test Case 94
+Key: 8779d50ea4d3d70a bc0f7a0e94870c08 7db7cdd351845de8 1458ac1e42456cfc
+Message: \
+    6c9bccb11c7898d8 10a918a28cadaedc f45ee64dd9cd03d1 a619c45231ea2c9d \
+    85f84ea270e67a81 8f92231c40d1f834 2fdf8108ac84da52 9e9ea5cf88d16c0e \
+    c9bab03aa02abb30 bdde4cfdb04431df 23b3e8d037c222d5 60c7a4e89810f662 \
+    caa69c6bd1
+MAC: 831635b0a96e4cbf e04584354818e070
+Test: Verify
+#
+Comment: Test Case 95
+Key: 1cf4200b4c6b8402 4403ee0b60b97f02 29c370b9dcd9e12e 51b86c1124cdd0d9
+Message: \
+    84cbdd86ae0d1d8c 4cb6c40c4366a147 4b89039b51ea7a92 220bd22cfbd69c80 \
+    a179064f8623dbd3 d99fdf1d05806451 0967ec5b5166ed74 71bfa06d953ced36 \
+    b5f3853c16600fef ffee0c056e705678 d842d329a9c09d1a 7f3e87147a744a30 \
+    67cf6c7d2f7b6d2e
+MAC: 9b6205ec70428736 6ac3cc2683dbe48e
+Test: Verify
+#
+Comment: Test Case 96
+Key: a86f5c09a4d6e80f 1024630ce0639e04 043d1e2cd3814fd5 821f5081811f35c9
+Message: \
+    1394e252457a265e 82a51c502c1e24e7 2087a0afd089ce1d 67a53677ba69c7cd \
+    fda91f432445a1a6 ebbdf717db1bfefb a39faa732878918f 1dc706d730cea42e \
+    77c4719b091242f4 cf390cab540aa6f7 a9516bd1c9fc61e7 c367bef3356321ad \
+    27924830a48a2574 c3311f
+MAC: f66ec92aafae081d 9cfca198d2cf3766
+Test: Verify
+#
+Comment: Test Case 97
+Key: 14643d02b4a71100 0813930dcc40ea0e 97b9dd034307720a 0c4e2a54d9cff874
+Message: \
+    004ed86fe260a5ae 56697912177cf1a4 042acdf6b963c6f0 e8a301a1507b4d50 \
+    c925bfab86645adc cdd3eee54fe08953 0a564ac3b910b3a1 b3b443032f9054f8 \
+    b613a43c78fe1845 d1062a21e6b474f0 0abeb3c4ce666581 1aa8854939d942ef \
+    ece62b64e443aab5 49d4d63088
+MAC: e817b9c67fcd70ed 1c614ed8e0f45b11
+Test: Verify
+#
+Comment: Test Case 98
+Key: ba76150a30180f0d ac684d0a641de10f 5d9e33e8ab943769 7dec8b26c42ba818
+Message: \
+    698af15ee8c1e252 550d059e7e624130 b763e4e7075a1ac1 6c944a10436683ac \
+    f0750ad936ec2b8b fa302978936ba84a ce8c31d5e64c9652 e0e0632446e6d037 \
+    5bdb1091c73b1dc1 6b4639feb1e2487f 6e7a5455c6eba7a6 cb0aca12f19b494c \
+    7659de3d94fbffff 4138fef31a467289
+MAC: 25b09247a1f77037 4c96d867adde75d8
+Test: Verify
+#
+Comment: Test Case 99
+Key: 0e5f370360490908 a05e2b0744030c0f 8cb1bdc9d2a59c27 ba90d55f48a112cf
+Message: \
+    4ee155a56f1065e2 dea7a4ec345b14f0 d01ab13e5bb8ad00 4adb914b92654be0 \
+    47a085b6b0ea988f 913c7bc69790b668 aa67a6051f54056a 2f97b5c1fc00a243 \
+    a027fa511292e0a3 cf5b6966eb1fce95 87759aa6c9a010f8 37c6b933c65b7767 \
+    8371b895039838d2 f3a239dfc1077448 7c0f
+MAC: 18dbc8eca952df78 1f510ead329010c4
+Test: Verify
+#
+Comment: Test Case 100
+Key: fd21ed0da4a1160d c8bc770844cb4d0c d57178462020fe1f 67b51670422b4a5d
+Message: \
+    9cd7265436f26822 3481d1ec069da31e d429f7e0250c1634 9704764feb43d187 \
+    1bf8dc51ea44731e c5450bcbe2aee9b6 d7e196fcedad3084 b1a6d39ceaa52405 \
+    9d00568744c9a509 0eb0d5f05ebea636 9f3d328dea63119b 09e538f38a5cf827 \
+    5c4eaea01853a926 047e17623dbd98dc facb69e42e
+MAC: b56b3a9bd4e6a2f9 55309b8852c327df
+Test: Verify
+#
+Comment: Test Case 101
+Key: aea7d4001c210001 1482960b3cd07e02 3de8adc9052a49b0 704455149b3d6aff
+Message: \
+    ee3164821122584f f2712fea1b56ec50 f7cb5b9404f8bca1 56a9adb4079703f5 \
+    c96877da8acf297c 4058665bae52aca5 1e073a2200f6c356 9f700aa6070d9bd0 \
+    7512aa00e1d47c21 2ce37ddb35298053 30ba7530b1388650 a890f7b09e928013 \
+    a52b1386ff90a82b 732506a84e87fc7e 4171aff2aa354352
+MAC: a285cfcf4c306f5c 898acc06be4c0598
+Test: Verify
+#
+Comment: Test Case 102
+Key: a12a2d0504b33006 2ca69b042c29c50f 4fa62438cda2af9b bd8a6d26d8bb8cd6
+Message: \
+    e216ae8f304f8638 b592ca3ef53b0ee3 d07c61b61710bbf9 254749df01fe0ee4 \
+    14bc73440bf97dc1 8c47ff81820d6552 8ac608a1d6c39afb 0ae3da0be1e8eff5 \
+    a5623ab05cb771e8 fe7169807eced208 94daaa6a9d4466a7 2840b20929a2ffce \
+    04397e60f0f048ee 61b26edf8040e815 1a927fb7d6e55efe 2610
+MAC: 39027735547ab026 d1fb8b26cbf5e49d
+Test: Verify
+#
+Comment: Test Case 103
+Key: 13e3190d5059980d f8c19801f0d64a0b 1f56d6d5804dd54a c34feda5b18ce0e3
+Message: \
+    fe049fd206fe1058 f347a5116b57b507 6d506885954eabf5 88257d5d50f2734e \
+    f61220fc11305404 77fa15e251cae9bf 1b5144b09ff0a627 1523856516f8b30c \
+    0ad3091b035d1f7a 57355ca9ff45681a 96accb369c715db1 94e216aadac9b7e5 \
+    9cc0009f1d201975 55751e54ba866f51 323a87cfabe4803f c797eaa1
+MAC: d170f3ccf6536d0e 43bb3da0135d8065
+Test: Verify
+#
+Comment: Test Case 104
+Key: e165e406c8b2a409 84ee860ee8b6280b a392f1dce9508c1d de22dc5a7b5a3bb3
+Message: \
+    fd409a981eec7e02 1bd3a1f93e349c13 2491f346d7a09579 4236ab161e7d581b \
+    bdf2b3dbde31def9 047ff343b48f56d8 204a1ef7eab4702c ea1b4208989a2455 \
+    8dd7316b090f650d 8e585042e7a71a07 f139fedbed6e07d7 8949df22e4037771 \
+    dba8dce4b741f146 99428880e9a387da dc85b5c9f3bca07d 057f9fe98316
+MAC: 0e92a43062cff675 b25d8dce1b0f38d6
+Test: Verify
+#
+Comment: Test Case 105
+Key: bb17ef05a4223e02 0851560d105ff403 bd4d9e03f0f25734 4e2a72420abba27f
+Message: \
+    c0c87600e469f138 d977e6fc96027d1f 1a3226e62836c6ba 1679971e9bdc445c \
+    a4bb5c89244dc1fd c4a7fa5ba9777ac3 aaa0aad2d7708ced e9240b850050e1a5 \
+    0b3d2e2f8aef2c4e 9626a93f9e240248 c4ac1a9b1ca78806 cb948bcbe46c70ef \
+    a99e1e338d4a8123 712b620f4f655713 1171af2e183734e3 cbbfafaf2b1f9ed4 \
+    be
+MAC: 58376a2e1b4f4d98 6b596e13bf670346
+Test: Verify
+#
+Comment: Test Case 106 (tamper mac)
+Key: bb17ef05a4223e02 0851560d105ff403 bd4d9e03f0f25734 4e2a72420abba27f
+Message: \
+    c0c87600e469f138 d977e6fc96027d1f 1a3226e62836c6ba 1679971e9bdc445c \
+    a4bb5c89244dc1fd c4a7fa5ba9777ac3 aaa0aad2d7708ced e9240b850050e1a5 \
+    0b3d2e2f8aef2c4e 9626a93f9e240248 c4ac1a9b1ca78806 cb948bcbe46c70ef \
+    a99e1e338d4a8123 712b620f4f655713 1171af2e183734e3 cbbfafaf2b1f9ed4 \
+    be
+MAC: 589d6a2e1b4f4d98 6b596e13bf670346
+Test: NotVerify
+#
+Comment: Test Case 107
+Key: 64ef1404bc1a6b0a 4871de0324c6ff0a 0bc77d921682da42 1b5f322cb33a94f4
+Message: \
+    b4050e4bf098dba5 88bab4d7a7efee16 b5877abc1a32a867 3a80ed2a636b2217 \
+    70306260c83d0650 f7ba279faa15b55f 9d2f1bb761c31e9b 430bc6a677e8bee7 \
+    192048e15e4e3255 0859f4b26fa9110c d82dc339f0e2d534 ed9bda6483984c9c \
+    b9947e17e2b06cea 09619d780aae84e3 db481ccc2af10017 8cda7c1073c8ac2c \
+    5c2a433edaaf
+MAC: 581f86045c623ede ce9af5cb083d7b24
+Test: Verify
+#
+Comment: Test Case 108 (tamper mac)
+Key: 64ef1404bc1a6b0a 4871de0324c6ff0a 0bc77d921682da42 1b5f322cb33a94f4
+Message: \
+    b4050e4bf098dba5 88bab4d7a7efee16 b5877abc1a32a867 3a80ed2a636b2217 \
+    70306260c83d0650 f7ba279faa15b55f 9d2f1bb761c31e9b 430bc6a677e8bee7 \
+    192048e15e4e3255 0859f4b26fa9110c d82dc339f0e2d534 ed9bda6483984c9c \
+    b9947e17e2b06cea 09619d780aae84e3 db481ccc2af10017 8cda7c1073c8ac2c \
+    5c2a433edaaf
+MAC: 581f86045c6294de ce9af5cb083d7b24
+Test: NotVerify
+#
+Comment: Test Case 109
+Key: fcbb7c0908116905 304b9f05440cda0f a27d8f87e212f955 9dee1be9a17ca3d1
+Message: \
+    df14c5dcd2bd861c 59d25a2d999af84b 5dea9649e161711e 66396657c77a28a6 \
+    8eed8260ab087d04 dbd73274712abfcf 145518f5b68a141d c37a748af59c3183 \
+    89b3e434bc613997 386b0baa95ca79a9 1f919fd61bb3f3df 2d676922039aa68c \
+    4e8ac10aebfaa123 65accdfa7646a395 d8426bf3f55ed223 c53c45c8d6eb5524 \
+    75162e6010cf8475 7b51
+MAC: da9afd769d738490 4ad5b790550bd921
+Test: Verify
+#
+Comment: Test Case 110 (tamper mac)
+Key: fcbb7c0908116905 304b9f05440cda0f a27d8f87e212f955 9dee1be9a17ca3d1
+Message: \
+    df14c5dcd2bd861c 59d25a2d999af84b 5dea9649e161711e 66396657c77a28a6 \
+    8eed8260ab087d04 dbd73274712abfcf 145518f5b68a141d c37a748af59c3183 \
+    89b3e434bc613997 386b0baa95ca79a9 1f919fd61bb3f3df 2d676922039aa68c \
+    4e8ac10aebfaa123 65accdfa7646a395 d8426bf3f55ed223 c53c45c8d6eb5524 \
+    75162e6010cf8475 7b51
+MAC: da9afd769d738490 4ad51d90550bd921
+Test: NotVerify
+#
+Comment: Test Case 111
+Key: 724e8d0008a4c703 5058560514aac50c 42d54ceabd57cbe3 596c1dbe2eb78661
+Message: \
+    b75a876f437d9956 01c769d641111bda 9183823bea97a478 d616e43ed43c238b \
+    96abfbd928942f29 5b99009caa1b763b 9ef87788901b0166 32e5a50621c891b7 \
+    738c919c21c0c57c 59c51904e08f3f7f 88b60718d2087e04 ed230a0eec9bc65f \
+    2857fb4917c1c571 86de75676eb4e6f6 6bed0e3df68c41e3 b04bf29ce6b8fb0e \
+    0ff75726b81d973e fb0ca569
+MAC: ce103a046cfa78b3 82ea20aaa0ceed60
+Test: Verify
+#
+Comment: Test Case 112 (tamper mac)
+Key: 724e8d0008a4c703 5058560514aac50c 42d54ceabd57cbe3 596c1dbe2eb78661
+Message: \
+    b75a876f437d9956 01c769d641111bda 9183823bea97a478 d616e43ed43c238b \
+    96abfbd928942f29 5b99009caa1b763b 9ef87788901b0166 32e5a50621c891b7 \
+    738c919c21c0c57c 59c51904e08f3f7f 88b60718d2087e04 ed230a0eec9bc65f \
+    2857fb4917c1c571 86de75676eb4e6f6 6bed0e3df68c41e3 b04bf29ce6b8fb0e \
+    0ff75726b81d973e fb0ca569
+MAC: ce103a046cfa78b3 82ea20aa0aceed60
+Test: NotVerify
+#
+Comment: Test Case 113
+Key: 06496108d4167706 147fbf05ec1d9000 12a2ab1739e1e5e0 49154be49da17534
+Message: \
+    42dd14ba19346654 cd182c596b6ca9a6 f548fb60b7b37324 982f6fa80db2974f \
+    8fab09a8df70fcad 882806f394b09989 f894e9af475dd3df 8c428799f41ee983 \
+    c9f22ba9622756ea 4f5cdde30c766c04 0a56b351b386313f c9b8d9bdd7c241a0 \
+    b46c4917949f01e3 fcdfc70855330d60 89c0b13c47e27c10 9b55cd72170e12cb \
+    7b5ce20ffbe4f2f7 c3b90018ed0d7876 cd
+MAC: 203b268e7613797f 1a649a3848daf41c
+Test: Verify
+#
+Comment: Test Case 114 (tamper mac)
+Key: 06496108d4167706 147fbf05ec1d9000 12a2ab1739e1e5e0 49154be49da17534
+Message: \
+    42dd14ba19346654 cd182c596b6ca9a6 f548fb60b7b37324 982f6fa80db2974f \
+    8fab09a8df70fcad 882806f394b09989 f894e9af475dd3df 8c428799f41ee983 \
+    c9f22ba9622756ea 4f5cdde30c766c04 0a56b351b386313f c9b8d9bdd7c241a0 \
+    b46c4917949f01e3 fcdfc70855330d60 89c0b13c47e27c10 9b55cd72170e12cb \
+    7b5ce20ffbe4f2f7 c3b90018ed0d7876 cd
+MAC: 2091268e7613797f 1a649a3848daf41c
+Test: NotVerify
+#
+Comment: Test Case 115
+Key: a7728a0130dffd01 58136e0e74ce580d c8de15e067c5f35b 438f3c0a3bf35b4a
+Message: \
+    864fb50ac2456ecc 7e97e27c2a2e28d0 2f75c2c8b347ff19 91e871a0ec625672 \
+    b20b7c7450ea40cf 81224bab50737b7f e93d489c8447b516 2f26b61c880c8e3a \
+    180bae68f5ee3777 10822260f69ee0df db287b606f30769e 562cbade39491951 \
+    54c7b949b6f1c0c6 73e327698107485c 2fc3bc9ef3323c49 5ff728984041e994 \
+    08a2ddbe939e8507 81ac7002b3b95ee2 7c1b8070
+MAC: d45cff5b6b737437 94eabd3dbf520833
+Test: Verify
+#
+Comment: Test Case 116 (tamper mac)
+Key: a7728a0130dffd01 58136e0e74ce580d c8de15e067c5f35b 438f3c0a3bf35b4a
+Message: \
+    864fb50ac2456ecc 7e97e27c2a2e28d0 2f75c2c8b347ff19 91e871a0ec625672 \
+    b20b7c7450ea40cf 81224bab50737b7f e93d489c8447b516 2f26b61c880c8e3a \
+    180bae68f5ee3777 10822260f69ee0df db287b606f30769e 562cbade39491951 \
+    54c7b949b6f1c0c6 73e327698107485c 2fc3bc9ef3323c49 5ff728984041e994 \
+    08a2ddbe939e8507 81ac7002b3b95ee2 7c1b8070
+MAC: d45cff5bc1737437 94eabd3dbf520833
+Test: NotVerify
+#
+Comment: Test Case 117
+Key: c1361a0f046da804 38c3f60e809dbe09 394615d76d405fcd 3ffd4cba0ed63692
+Message: \
+    3304ad00e7812883 d72fa0ea98c39734 11884f637a9c8a5a 55eafbb9a0aa45d3 \
+    aff3d39674fb1a4b 2aba35c27dcdf68e 5545f2cfe27c2937 6624f006cf36d97e \
+    29ad149da82ee9d3 e81e9565eb8cf440 d1e60fb36238eac8 5ddbce2c11a7aa3a \
+    54bed7fdedc0d0d5 df653bcaf12f0bc3 151a767753613fb0 3c0ddc4db4868709 \
+    445e06311fd607fe 3b42c82d71d3f086 ee66fd41c73c
+MAC: 4608f740f536fa6c a445d7f23e88106f
+Test: Verify
+#
+Comment: Test Case 118 (tamper mac)
+Key: c1361a0f046da804 38c3f60e809dbe09 394615d76d405fcd 3ffd4cba0ed63692
+Message: \
+    3304ad00e7812883 d72fa0ea98c39734 11884f637a9c8a5a 55eafbb9a0aa45d3 \
+    aff3d39674fb1a4b 2aba35c27dcdf68e 5545f2cfe27c2937 6624f006cf36d97e \
+    29ad149da82ee9d3 e81e9565eb8cf440 d1e60fb36238eac8 5ddbce2c11a7aa3a \
+    54bed7fdedc0d0d5 df653bcaf12f0bc3 151a767753613fb0 3c0ddc4db4868709 \
+    445e06311fd607fe 3b42c82d71d3f086 ee66fd41c73c
+MAC: 4608f740f536506c a445d7f23e88106f
+Test: NotVerify
+#
+Comment: Test Case 119
+Key: 28f8bc0c70eefb00 b46b2f03cce44803 117777980f1105d2 2f8f5ac22bea0b30
+Message: \
+    88bd0af075abdb8f 5f28d5fed89ba458 9ce21134fca31638 c1b6946974f41afd \
+    b125ed27d0c8b62f f08b2dc826d121c3 b332f7afd50de896 c47cff38701a3522 \
+    3f22490feaff3eda 8a6ba3b03cc473ef f66a9ecb7886613c 036174737baa95ba \
+    ccdec9b7dd079167 723418aef88b9dee f63bb96ec21baac5 7c1e38f7c8ceb195 \
+    ac7a4c8a81ddf1f3 1209a10a953ef98b 79b2f93bcda30049 c13940
+MAC: 24b5a741b735872f fe298625947a5b1f
+Test: Verify
+#
+Comment: Test Case 120 (tamper mac)
+Key: 28f8bc0c70eefb00 b46b2f03cce44803 117777980f1105d2 2f8f5ac22bea0b30
+Message: \
+    88bd0af075abdb8f 5f28d5fed89ba458 9ce21134fca31638 c1b6946974f41afd \
+    b125ed27d0c8b62f f08b2dc826d121c3 b332f7afd50de896 c47cff38701a3522 \
+    3f22490feaff3eda 8a6ba3b03cc473ef f66a9ecb7886613c 036174737baa95ba \
+    ccdec9b7dd079167 723418aef88b9dee f63bb96ec21baac5 7c1e38f7c8ceb195 \
+    ac7a4c8a81ddf1f3 1209a10a953ef98b 79b2f93bcda30049 c13940
+MAC: 24b5a741b735872f fe29868f947a5b1f
+Test: NotVerify
+#
+Comment: Test Case 121
+Key: 127bf80edc293001 80eed60bd8e86a04 fe168cdfcc789d3b 0148bf96caaa0908
+Message: \
+    3c687e1a261fbf01 0f4fbe4c795cb7ab 7250d6df7a808152 505b18b4348d5a71 \
+    f5d88b1bf84a1c07 99da5313370abea9 5a9488d415092665 653f1999cc740ac2 \
+    4c96dd44e0fa4b7a d49e8d0ba94bb503 e03dd8f547fe5aac 3d73450ae750cc34 \
+    e6a978c6a3c44078 62cd830b19380ff9 76e7eebde5486923 bbae2da3fef9d7e4 \
+    a24fab4613ebbe76 b94181d27a90cbf0 77b9ad5d011680bc c4ad5fc3a636
+MAC: 7c7f31fc2b767357 e909ab2d54b81b22
+Test: Verify
+#
+Comment: Test Case 122 (tamper mac)
+Key: 127bf80edc293001 80eed60bd8e86a04 fe168cdfcc789d3b 0148bf96caaa0908
+Message: \
+    3c687e1a261fbf01 0f4fbe4c795cb7ab 7250d6df7a808152 505b18b4348d5a71 \
+    f5d88b1bf84a1c07 99da5313370abea9 5a9488d415092665 653f1999cc740ac2 \
+    4c96dd44e0fa4b7a d49e8d0ba94bb503 e03dd8f547fe5aac 3d73450ae750cc34 \
+    e6a978c6a3c44078 62cd830b19380ff9 76e7eebde5486923 bbae2da3fef9d7e4 \
+    a24fab4613ebbe76 b94181d27a90cbf0 77b9ad5d011680bc c4ad5fc3a636
+MAC: 7c7f31fc2b767357 e909ab2d54b8b122
+Test: NotVerify
+#
+Comment: Test Case 123
+Key: fe1ee80c68c60e02 8caf2a09942ebd0d d8fbe46346740f1e b6156d42ccc8f277
+Message: \
+    529d51be2853a6fa c59603a0195d4c82 8c647ae8ceef2eb5 7b258eb5861715d8 \
+    b56696ddb93dd77f d3db1fec386c6fc4 d0e9ac9ed8da5353 ffe10985f91e5dae \
+    84f48b3e3163bd04 3edcf17648603a18 49e7b621c10975c1 eb7e46e49ca49220 \
+    981d5ec9801bcdbe f8be34401e6f5967 560f891719fed804 7c1fe818c37a385b \
+    97972418b2f1d6aa b00bebce7a4436d0 53bfe76cbdc07039 df5851a2d289fd6a
+MAC: 2e7a6852d6e22874 7c5e070cbd2f2a50
+Test: Verify
+#
+Comment: Test Case 124 (tamper mac)
+Key: fe1ee80c68c60e02 8caf2a09942ebd0d d8fbe46346740f1e b6156d42ccc8f277
+Message: \
+    529d51be2853a6fa c59603a0195d4c82 8c647ae8ceef2eb5 7b258eb5861715d8 \
+    b56696ddb93dd77f d3db1fec386c6fc4 d0e9ac9ed8da5353 ffe10985f91e5dae \
+    84f48b3e3163bd04 3edcf17648603a18 49e7b621c10975c1 eb7e46e49ca49220 \
+    981d5ec9801bcdbe f8be34401e6f5967 560f891719fed804 7c1fe818c37a385b \
+    97972418b2f1d6aa b00bebce7a4436d0 53bfe76cbdc07039 df5851a2d289fd6a
+MAC: 847a6852d6e22874 7c5e070cbd2f2a50
+Test: NotVerify
+#
+Comment: Test Case 125
+Key: a7c9aa07d412c100 2c36f30c0062550f 87fb80da5bc8703d 59247f942615521c
+Message: \
+    b8af8646669799f3 2f0035f970ff7347 2875402f58cab580 c090bc1d221c8dda \
+    cc132032abb926da ba5bd32a5a467183 bbb2b2137c67943d f7505a196ce7f338 \
+    fa146ba5cd917f87 ec53b2479923ca55 d57c6852e3fc8fda 4ce9f3b9d0e6f1ca \
+    fa5c70c8edef4fda 420121dc25eb31fa 67994c4a96db24e2 c4179b94fd8d5ff8 \
+    e9cfc0d7be0fb101 11d2dd36bd0e3024 a77d6e3d5892201d a9bbb1a648109e32 \
+    df5e
+MAC: db56ec63b7902dc1 5bb40ea81066d9b2
+Test: Verify
+#
+Comment: Test Case 126 (tamper mac)
+Key: a7c9aa07d412c100 2c36f30c0062550f 87fb80da5bc8703d 59247f942615521c
+Message: \
+    b8af8646669799f3 2f0035f970ff7347 2875402f58cab580 c090bc1d221c8dda \
+    cc132032abb926da ba5bd32a5a467183 bbb2b2137c67943d f7505a196ce7f338 \
+    fa146ba5cd917f87 ec53b2479923ca55 d57c6852e3fc8fda 4ce9f3b9d0e6f1ca \
+    fa5c70c8edef4fda 420121dc25eb31fa 67994c4a96db24e2 c4179b94fd8d5ff8 \
+    e9cfc0d7be0fb101 11d2dd36bd0e3024 a77d6e3d5892201d a9bbb1a648109e32 \
+    df5e
+MAC: db564663b7902dc1 5bb40ea81066d9b2
+Test: NotVerify
+#
+Comment: Test Case 127
+Key: 5ab5530fa087080e 10f393011002a30c 0ac8e3015b63a35c 3d014fdd07847911
+Message: \
+    757bae80b7ca5e4e 5ba2aca3d7899ca6 da19a98051789b48 2769e874fe1fdd74 \
+    9b8bf4525552a0b0 f54c54ccd5f072af 091c2f5b94caa3bb 348b2f32ab0ca646 \
+    979a98eced389ce2 84f0ae59e12008ea 3c3745d001e88b35 74ba681fc60e655d \
+    a9fd499635e678b9 d62612b7461aa283 51e75352d0df8844 99f06360fec8bda7 \
+    c5073dfaedb5b3c3 dbc57b22df1da530 04f882d4d70a1871 fa7bd1f9438ea008 \
+    95de0282
+MAC: 13d248a0bb45413f 2f88f330fc0dd267
+Test: Verify
+#
+Comment: Test Case 128 (tamper mac)
+Key: 5ab5530fa087080e 10f393011002a30c 0ac8e3015b63a35c 3d014fdd07847911
+Message: \
+    757bae80b7ca5e4e 5ba2aca3d7899ca6 da19a98051789b48 2769e874fe1fdd74 \
+    9b8bf4525552a0b0 f54c54ccd5f072af 091c2f5b94caa3bb 348b2f32ab0ca646 \
+    979a98eced389ce2 84f0ae59e12008ea 3c3745d001e88b35 74ba681fc60e655d \
+    a9fd499635e678b9 d62612b7461aa283 51e75352d0df8844 99f06360fec8bda7 \
+    c5073dfaedb5b3c3 dbc57b22df1da530 04f882d4d70a1871 fa7bd1f9438ea008 \
+    95de0282
+MAC: 13d248a01145413f 2f88f330fc0dd267
+Test: NotVerify
+#
+Comment: Test Case 129
+Key: b63fb802a4680204 bcd2df07a45d5c0d f38c9c01facd7ea5 a6bdb3b883c0b5c9
+Message: \
+    f8759e44875b47fb 67e71e90adaf3d8b d3144b4fbb588699 363e9df82cfaff24 \
+    709d68f7f8aff25f 9610ef44bf2dcf93 411ae2fc726995a9 a732a1d32da0f79d \
+    3e5f94360e8796a5 9785e957b2b8eaf4 d2ccf0453586eedc b88fafe530a6826e \
+    0517a4149e3ab935 c0a28c725a76662c 43577178dd5f5595 ef047b1fabfd8db0 \
+    1431c4b26c7de82c 1f749e79eb05a62e 5c17a63977fbce66 004985ab47125b5b \
+    43200eaf9df6db
+MAC: 8e54eb39a15d7e74 57f7613423650a1f
+Test: Verify
+#
+Comment: Test Case 130 (tamper mac)
+Key: b63fb802a4680204 bcd2df07a45d5c0d f38c9c01facd7ea5 a6bdb3b883c0b5c9
+Message: \
+    f8759e44875b47fb 67e71e90adaf3d8b d3144b4fbb588699 363e9df82cfaff24 \
+    709d68f7f8aff25f 9610ef44bf2dcf93 411ae2fc726995a9 a732a1d32da0f79d \
+    3e5f94360e8796a5 9785e957b2b8eaf4 d2ccf0453586eedc b88fafe530a6826e \
+    0517a4149e3ab935 c0a28c725a76662c 43577178dd5f5595 ef047b1fabfd8db0 \
+    1431c4b26c7de82c 1f749e79eb05a62e 5c17a63977fbce66 004985ab47125b5b \
+    43200eaf9df6db
+MAC: 8e54eb39a15d7ede 57f7613423650a1f
+Test: NotVerify
+#
+Comment: Test Case 131
+Key: 706f1f0788489c05 6c81ce0cf8d74e0d 81e877c3b62ebf51 16c4290448548755
+Message: \
+    041aba1fdd42900d 850c015bd7c1abb8 7b1958e6f2587477 33453383eef946f2 \
+    130112f143a2fec8 aeff2386c1ce3e3c e89622daee965121 dc84a5ca7debbd91 \
+    eccf822f7180f820 801ba641eae47dd2 7a9fac6835fd8911 812edcfe1a998f06 \
+    681136d9922ef912 499f533383d005fd 6fb165a4aeefb62f 1d922e372bbd3e93 \
+    cf746c61a26673eb 05c61f8996248605 d6eca984db5fb4f8 f1e2301c9f6eaf6e \
+    e21ccf8482426f87 088e10
+MAC: 0edbed7219b610d1 a19c9cbf7fa18000
+Test: Verify
+#
+Comment: Test Case 132 (tamper mac)
+Key: 706f1f0788489c05 6c81ce0cf8d74e0d 81e877c3b62ebf51 16c4290448548755
+Message: \
+    041aba1fdd42900d 850c015bd7c1abb8 7b1958e6f2587477 33453383eef946f2 \
+    130112f143a2fec8 aeff2386c1ce3e3c e89622daee965121 dc84a5ca7debbd91 \
+    eccf822f7180f820 801ba641eae47dd2 7a9fac6835fd8911 812edcfe1a998f06 \
+    681136d9922ef912 499f533383d005fd 6fb165a4aeefb62f 1d922e372bbd3e93 \
+    cf746c61a26673eb 05c61f8996248605 d6eca984db5fb4f8 f1e2301c9f6eaf6e \
+    e21ccf8482426f87 088e10
+MAC: 0edbed7219b610d1 a19c9c157fa18000
+Test: NotVerify
+#
+Comment: Test Case 133
+Key: d3fe9e0058c76a03 e0495408bc448105 9053b83e4f101276 1d5a06fb5cb70899
+Message: \
+    893d8dd682d35fac 10f15239bc5e136b cac6342cd55ec1f6 7ee6a429278f49b1 \
+    ccd6874fa9e6fbb9 d74ef293ac05ff76 cb33a3a191649710 4a3b3972cb822397 \
+    58aae60190e2ba67 30adfadcb2f9537e 2df61fbe5ab6cea5 f20817bd8a3a54e3 \
+    e43be4741d9fdb4d 4cd529fecf7c7cfc 729bbacd52897244 9189011bc355fea7 \
+    90e31bad82f6face cb24cc9aa0499613 e451e036da527a6b db7b869ed1854561 \
+    68600fea5609b821 2d84bccecd52e1
+MAC: 0b6a9ef2ec6c8deb ae16d9da2fee2d88
+Test: Verify
+#
+Comment: Test Case 134 (tamper mac)
+Key: d3fe9e0058c76a03 e0495408bc448105 9053b83e4f101276 1d5a06fb5cb70899
+Message: \
+    893d8dd682d35fac 10f15239bc5e136b cac6342cd55ec1f6 7ee6a429278f49b1 \
+    ccd6874fa9e6fbb9 d74ef293ac05ff76 cb33a3a191649710 4a3b3972cb822397 \
+    58aae60190e2ba67 30adfadcb2f9537e 2df61fbe5ab6cea5 f20817bd8a3a54e3 \
+    e43be4741d9fdb4d 4cd529fecf7c7cfc 729bbacd52897244 9189011bc355fea7 \
+    90e31bad82f6face cb24cc9aa0499613 e451e036da527a6b db7b869ed1854561 \
+    68600fea5609b821 2d84bccecd52e1
+MAC: 0b6a9ef2ec6c8deb ae16d9da2fee2d22
+Test: NotVerify
+#
+Comment: Test Case 135
+Key: 0cecf50b786b140c 00b739084461040a cb0e6054b96fa31d b4c404cda2b3763c
+Message: \
+    dda23e58c01664c2 93133c7106f10f5a 0a7ae84b960f7b0d 311407dcd5d800b2 \
+    7a3f0a3a556ffde8 823959882b68e235 e3cb8179dafc860c 108de8e565e998e0 \
+    28a21a7d11176694 51bf1c7c28ffb10b ca3284a42e0bb03e 989924fe82bcdeaa \
+    5ef82770108d0461 4d20dd751f8e80e9 c1048eef0f3e2ea8 d752a6590e84036c \
+    7c2bdc8cb8e0ed05 01ca7a2059fa0a1a ff98090ed637b6ae 895c0797e00b045d \
+    36e0e9eec1d7f4c2 a16ee2fa69ec1468 841e76
+MAC: df43e8d1c62771a5 2a7717678ae2bf7a
+Test: Verify
+#
+Comment: Test Case 136 (tamper mac)
+Key: 0cecf50b786b140c 00b739084461040a cb0e6054b96fa31d b4c404cda2b3763c
+Message: \
+    dda23e58c01664c2 93133c7106f10f5a 0a7ae84b960f7b0d 311407dcd5d800b2 \
+    7a3f0a3a556ffde8 823959882b68e235 e3cb8179dafc860c 108de8e565e998e0 \
+    28a21a7d11176694 51bf1c7c28ffb10b ca3284a42e0bb03e 989924fe82bcdeaa \
+    5ef82770108d0461 4d20dd751f8e80e9 c1048eef0f3e2ea8 d752a6590e84036c \
+    7c2bdc8cb8e0ed05 01ca7a2059fa0a1a ff98090ed637b6ae 895c0797e00b045d \
+    36e0e9eec1d7f4c2 a16ee2fa69ec1468 841e76
+MAC: df43e87bc62771a5 2a7717678ae2bf7a
+Test: NotVerify
+#
+Comment: Test Case 137
+Key: a8cd970fe873260f b42e5a080c431b00 2d22298ef85e1264 f7067237809adaba
+Message: \
+    7bd3f94e20871cdb bd9d53bfe00458a4 705f610bbafc237d 139d499fc1d79e3c \
+    ab978bcb1fa7a6dc 45f99b25fdf3ca6d 532b780d289b8a3b 39d3dafaaa783755 \
+    0fc2202e69c60aae bfa5d4bc999e29ec c9a1f9f13d832c76 560670007ea7568e \
+    6976bcd33dc781fc 6c55b905f3e2f1bd 84eaaec16ddb37c3 e1a7c4604f1aeeb8 \
+    90aa8bcd710dcade 6283e35665d513e9 bfc1aa2d9ce1f07e 89b4ded8cecc905f \
+    761c2ce829f6c68b 79a9e1df7ef4c83e b6736b52545bd0
+MAC: 4afd774c466a7076 2c7a094bf0a328c0
+Test: Verify
+#
+Comment: Test Case 138 (tamper mac)
+Key: a8cd970fe873260f b42e5a080c431b00 2d22298ef85e1264 f7067237809adaba
+Message: \
+    7bd3f94e20871cdb bd9d53bfe00458a4 705f610bbafc237d 139d499fc1d79e3c \
+    ab978bcb1fa7a6dc 45f99b25fdf3ca6d 532b780d289b8a3b 39d3dafaaa783755 \
+    0fc2202e69c60aae bfa5d4bc999e29ec c9a1f9f13d832c76 560670007ea7568e \
+    6976bcd33dc781fc 6c55b905f3e2f1bd 84eaaec16ddb37c3 e1a7c4604f1aeeb8 \
+    90aa8bcd710dcade 6283e35665d513e9 bfc1aa2d9ce1f07e 89b4ded8cecc905f \
+    761c2ce829f6c68b 79a9e1df7ef4c83e b6736b52545bd0
+MAC: 4afd774c466a70dc 2c7a094bf0a328c0
+Test: NotVerify
+#
+Comment: Test Case 139
+Key: 87bba80554ae3f0f 2466bc0118dbd705 ccf52cb680438be0 2cea0f7cc7193a9b
+Message: \
+    f524d5d3cde3f483 59761f23484aec8a c91b335b92ddba9a 45a499d96a12e35f \
+    36b933049c2787f5 9ea718e6f10570ba 20a316b281d04dc6 74e69fdff8823e2e \
+    3b7132d799bacd37 61e51d52ea8d0c0a 3022bdb1f30a7767 f01646e8998516d4 \
+    f649ac8f0379c664 5ee3b64970c253a1 e51052d81aca3f0a e086f2790b094e01 \
+    52fa91557357b9d1 3b6f1aab316e4c16 7e9fee99692ea349 b496c3bf9f11c0f1 \
+    0b51467ea9ff4fe4 6e6a8f9fd8dcb656 7ba4efe4d2932d86 29
+MAC: edc90b786b874c7d 8301e8e18e5e414d
+Test: Verify
+#
+Comment: Test Case 140 (tamper mac)
+Key: 87bba80554ae3f0f 2466bc0118dbd705 ccf52cb680438be0 2cea0f7cc7193a9b
+Message: \
+    f524d5d3cde3f483 59761f23484aec8a c91b335b92ddba9a 45a499d96a12e35f \
+    36b933049c2787f5 9ea718e6f10570ba 20a316b281d04dc6 74e69fdff8823e2e \
+    3b7132d799bacd37 61e51d52ea8d0c0a 3022bdb1f30a7767 f01646e8998516d4 \
+    f649ac8f0379c664 5ee3b64970c253a1 e51052d81aca3f0a e086f2790b094e01 \
+    52fa91557357b9d1 3b6f1aab316e4c16 7e9fee99692ea349 b496c3bf9f11c0f1 \
+    0b51467ea9ff4fe4 6e6a8f9fd8dcb656 7ba4efe4d2932d86 29
+MAC: edc90b786b874c7d 83abe8e18e5e414d
+Test: NotVerify
+#
+Comment: Test Case 141
+Key: d0d5f007701d4f05 fc3d010efccecd08 9e7a843a6f9d86a9 d303380f9a1d8b6c
+Message: \
+    d3f2d645ceddf4d1 5505220c903b6954 ca85e16c4889a11a 3e0b3d4a02f557d6 \
+    e72d1bb50b108660 15a86ca5e3d5f9ad 5bda19a364babda2 c5faedc8ef449ed6 \
+    72b98b7dc911dddf b94a849c1f7e497a 58621dbc1dda5fe2 d54caac490489b02 \
+    02267fcb385daaf1 a72f8ec6add74105 3a5ec2573921390e 6de4d2fd2c6d002e \
+    947ffaccdca4bd83 d34b4a80238b865d e948b42269ed30d6 d103d3fe70d32c04 \
+    5326d02fcb8eb39e d9fd1ffc88a55971 ed0d9456fbc42ccc c7ffca38d3f7
+MAC: 8a1e6f4f92a5ec26 522e24a5b9bcb706
+Test: Verify
+#
+Comment: Test Case 142 (tamper mac)
+Key: d0d5f007701d4f05 fc3d010efccecd08 9e7a843a6f9d86a9 d303380f9a1d8b6c
+Message: \
+    d3f2d645ceddf4d1 5505220c903b6954 ca85e16c4889a11a 3e0b3d4a02f557d6 \
+    e72d1bb50b108660 15a86ca5e3d5f9ad 5bda19a364babda2 c5faedc8ef449ed6 \
+    72b98b7dc911dddf b94a849c1f7e497a 58621dbc1dda5fe2 d54caac490489b02 \
+    02267fcb385daaf1 a72f8ec6add74105 3a5ec2573921390e 6de4d2fd2c6d002e \
+    947ffaccdca4bd83 d34b4a80238b865d e948b42269ed30d6 d103d3fe70d32c04 \
+    5326d02fcb8eb39e d9fd1ffc88a55971 ed0d9456fbc42ccc c7ffca38d3f7
+MAC: 8a1e6f4f92a5ec26 522e24a5b9bc1d06
+Test: NotVerify
+#
+Comment: Test Case 143
+Key: a86a140eb84d3b06 f076a50a74a73502 fc1f7398b4a407b0 8c9ad286a2cdaaa1
+Message: \
+    da77294a4ec26b0c cd2bfe8e30e990a2 bdc9970d17528784 47fba7d95c2feb36 \
+    a61480f4d6ec00a3 17fe3147e7c2e9a4 8b81b2a2d339271a 34cef490fddfc6a3 \
+    f34797c933976d4a 959e917c607a21ec fbd38ece0cb5e941 83ddd180bc9823af \
+    dfba781251e55ce6 84ed63e46784d063 575f3163141aa498 f77618b30e3c62ed \
+    f6dbff48c05b2e44 489129af15f9126c 5844d06d5e740556 ea1d09f8596ce550 \
+    47e498073fc64c87 5875376d6e49dac7 8daa34ec1e394209 564b01b0b7e700fe \
+    cb
+MAC: 9238b8d0dc9a0a7b db9f0ab241a18e19
+Test: Verify
+#
+Comment: Test Case 144 (tamper mac)
+Key: a86a140eb84d3b06 f076a50a74a73502 fc1f7398b4a407b0 8c9ad286a2cdaaa1
+Message: \
+    da77294a4ec26b0c cd2bfe8e30e990a2 bdc9970d17528784 47fba7d95c2feb36 \
+    a61480f4d6ec00a3 17fe3147e7c2e9a4 8b81b2a2d339271a 34cef490fddfc6a3 \
+    f34797c933976d4a 959e917c607a21ec fbd38ece0cb5e941 83ddd180bc9823af \
+    dfba781251e55ce6 84ed63e46784d063 575f3163141aa498 f77618b30e3c62ed \
+    f6dbff48c05b2e44 489129af15f9126c 5844d06d5e740556 ea1d09f8596ce550 \
+    47e498073fc64c87 5875376d6e49dac7 8daa34ec1e394209 564b01b0b7e700fe \
+    cb
+MAC: 9292b8d0dc9a0a7b db9f0ab241a18e19
+Test: NotVerify
+#
+Comment: Test Case 145
+Key: 3a8edf0b109a000d 544c7f0e2049dd05 6f1c3fd0793c3db7 60ced5543f1fc5f1
+Message: \
+    a9ff857e907110f9 8a793fbaacaaec14 701af8ced60ddecd 19809d2a1875a0c1 \
+    742640049750fd21 c93cdc75e6c88a57 e38225b9900386a9 8323d49c98745d0c \
+    9a9d1031ed0d53b7 4a2f2c30f7b687da 39ac93c9b0197233 3c46cfd4bb2de055 \
+    caf087b8feda6f48 099b78005200db8b ac6e545c88c690c4 0d5f99c88c791d57 \
+    6aa40f687e7eb087 1928886b2863f6d5 d14a315911c11e1e 21b7e6ad3003049a \
+    a813022691b2aeab db361603990dd86a 570ac468cbe286ec 996c9ac9709e6418 \
+    b2663e43
+MAC: ed780112874fd889 510d621e7c220006
+Test: Verify
+#
+Comment: Test Case 146 (tamper mac)
+Key: 3a8edf0b109a000d 544c7f0e2049dd05 6f1c3fd0793c3db7 60ced5543f1fc5f1
+Message: \
+    a9ff857e907110f9 8a793fbaacaaec14 701af8ced60ddecd 19809d2a1875a0c1 \
+    742640049750fd21 c93cdc75e6c88a57 e38225b9900386a9 8323d49c98745d0c \
+    9a9d1031ed0d53b7 4a2f2c30f7b687da 39ac93c9b0197233 3c46cfd4bb2de055 \
+    caf087b8feda6f48 099b78005200db8b ac6e545c88c690c4 0d5f99c88c791d57 \
+    6aa40f687e7eb087 1928886b2863f6d5 d14a315911c11e1e 21b7e6ad3003049a \
+    a813022691b2aeab db361603990dd86a 570ac468cbe286ec 996c9ac9709e6418 \
+    b2663e43
+MAC: ed7801122d4fd889 510d621e7c220006
+Test: NotVerify
+#
+Comment: Test Case 147
+Key: 2841b106987a4107 ecb08f09d8e3070a e352479e2c446bd6 0e480b189f227188
+Message: \
+    854460db530ea7b6 237b422180eeaa1b f89ea475bd496a92 c46bf1ff24cbe3aa \
+    0f438562512c1974 a85b96284a404442 dee8b79b32212df6 8c1ef6b1e9d95bf9 \
+    1ce05b6d0d74e2b5 d078dd1ab8215c96 0a13313c345e32c1 7d28726601cd5f1d \
+    adbb8bba2f6d6fff e54d199d6e753378 8864b4bdc2e77e3f 0ff0a611bd052e6a \
+    c0b925f02694ef0b e109a8507edbc807 3f7dc40264424173 32e784efedb359ad \
+    6c7e9d93138d9ef4 96474414220d1b62 8adf64ee21a56153 8de6427a999c2705 \
+    1ac5982d5237
+MAC: 03d12ad17c721af9 4d89c554be7fefca
+Test: Verify
+#
+Comment: Test Case 148 (tamper mac)
+Key: 2841b106987a4107 ecb08f09d8e3070a e352479e2c446bd6 0e480b189f227188
+Message: \
+    854460db530ea7b6 237b422180eeaa1b f89ea475bd496a92 c46bf1ff24cbe3aa \
+    0f438562512c1974 a85b96284a404442 dee8b79b32212df6 8c1ef6b1e9d95bf9 \
+    1ce05b6d0d74e2b5 d078dd1ab8215c96 0a13313c345e32c1 7d28726601cd5f1d \
+    adbb8bba2f6d6fff e54d199d6e753378 8864b4bdc2e77e3f 0ff0a611bd052e6a \
+    c0b925f02694ef0b e109a8507edbc807 3f7dc40264424173 32e784efedb359ad \
+    6c7e9d93138d9ef4 96474414220d1b62 8adf64ee21a56153 8de6427a999c2705 \
+    1ac5982d5237
+MAC: 03d12ad17c72b0f9 4d89c554be7fefca
+Test: NotVerify
+#
+Comment: Test Case 149
+Key: ed00000ce0f4970a b0a82e09ac6d950b 5b3c3d1ad77e433f 08ec4745e8006a5f
+Message: \
+    7a9a44b2573c2209 985eaac949daed80 5201ee5bc8f9d715 baaa9e1ddded4b57 \
+    878f09dfcb2ce863 8a922cd36c1953bf 1a421ae33bf2f8f5 9c96127a835dd10b \
+    eddbeab807d21c91 644865d162b8907c faaa5f359c572a39 ed3cb3719a847c87 \
+    5f663f66385bf89c a45d6d0615fd8210 a8e2454439707d27 ac309846b514cd14 \
+    7a0d7bb268734e0c d0bc12e5b995f561 773ba6b0ab23d757 546f9e09836b1dfd \
+    7898afe10bfeeddb ba00c17395b6d50c f17bbc9c9e94f4f2 0392fb87fd198476 \
+    b13457bd324498ec 44
+MAC: cbba6dda1f1a5166 78f7c61a53fe914e
+Test: Verify
+#
+Comment: Test Case 150 (tamper mac)
+Key: ed00000ce0f4970a b0a82e09ac6d950b 5b3c3d1ad77e433f 08ec4745e8006a5f
+Message: \
+    7a9a44b2573c2209 985eaac949daed80 5201ee5bc8f9d715 baaa9e1ddded4b57 \
+    878f09dfcb2ce863 8a922cd36c1953bf 1a421ae33bf2f8f5 9c96127a835dd10b \
+    eddbeab807d21c91 644865d162b8907c faaa5f359c572a39 ed3cb3719a847c87 \
+    5f663f66385bf89c a45d6d0615fd8210 a8e2454439707d27 ac309846b514cd14 \
+    7a0d7bb268734e0c d0bc12e5b995f561 773ba6b0ab23d757 546f9e09836b1dfd \
+    7898afe10bfeeddb ba00c17395b6d50c f17bbc9c9e94f4f2 0392fb87fd198476 \
+    b13457bd324498ec 44
+MAC: cbba6dda1f1a5166 785dc61a53fe914e
+Test: NotVerify
+#
+Comment: Test Case 151
+Key: 7cbfe70cf4f80b03 185b9d0c080e360f b74202582eab6590 ff37ce87a7e8d1af
+Message: \
+    1a6f0d3976d514a1 65d470d275da7977 992e61dc6b3692fd a9b5aa1f91e786ab \
+    5794e4cd69f86ecf ccdfa141b91ab952 491a2eb451c1b1fa 765b1a0743a0b39a \
+    3497679e90d66d5c b50e9e6e2957c172 71ef26c2b0d8bd27 33d72e7677e110ac \
+    79784a094eb76503 c50371ee5a3260cc 22878ed25f4bf992 2228099a09194682 \
+    91908bdf47f1e20c f454fb4f865b1ba8 e2a97b41f574d417 9cddb1a6f6f72888 \
+    87b467cea54adb99 9ed6e8243103cd14 ad4855a2bc29b959 066bfffd622785ea \
+    dbecb88036931ad4 6902f9
+MAC: 3da439b721b51263 012ea67b3b90b2e7
+Test: Verify
+#
+Comment: Test Case 152 (tamper mac)
+Key: 7cbfe70cf4f80b03 185b9d0c080e360f b74202582eab6590 ff37ce87a7e8d1af
+Message: \
+    1a6f0d3976d514a1 65d470d275da7977 992e61dc6b3692fd a9b5aa1f91e786ab \
+    5794e4cd69f86ecf ccdfa141b91ab952 491a2eb451c1b1fa 765b1a0743a0b39a \
+    3497679e90d66d5c b50e9e6e2957c172 71ef26c2b0d8bd27 33d72e7677e110ac \
+    79784a094eb76503 c50371ee5a3260cc 22878ed25f4bf992 2228099a09194682 \
+    91908bdf47f1e20c f454fb4f865b1ba8 e2a97b41f574d417 9cddb1a6f6f72888 \
+    87b467cea54adb99 9ed6e8243103cd14 ad4855a2bc29b959 066bfffd622785ea \
+    dbecb88036931ad4 6902f9
+MAC: 3da439b721b51263 012ea6d13b90b2e7
+Test: NotVerify
+#
+Comment: Test Case 153
+Key: b6d98b0514241b06 9007090698bd9b0d 26dd7e7a36275521 096c4b29c94fee8f
+Message: \
+    b711314c5e69cd01 d5d2610afd5db57b ee7f0db55150fc1d 42188809ba496072 \
+    5a91beb8fa8cbacf 5e1bda5b788fd666 0ee31b5f33187c75 30047feb4edf5da8 \
+    701b616aa71b3905 361360aea23714b0 1a2f0f4e478bc378 904263de21c08691 \
+    dbe7fb8302358838 48e9e6eb20fa9b3a 2aab8871364ce9c6 8e4ca4b00c2b41e8 \
+    123d6b1572f34dba dc34a5fc2e413758 ecbfca220bb3e99a 008d4a0cb88bf4cb \
+    c85fe03a532df52f 619a2c90db63e8c7 22b2ea2e66d3c866 601272199d67e466 \
+    c6c4a019f1954953 3075e30bd8cbd3fa
+MAC: 9685c1cbeda21ed5 9252bbe791818d11
+Test: Verify
+#
+Comment: Test Case 154 (tamper mac)
+Key: b6d98b0514241b06 9007090698bd9b0d 26dd7e7a36275521 096c4b29c94fee8f
+Message: \
+    b711314c5e69cd01 d5d2610afd5db57b ee7f0db55150fc1d 42188809ba496072 \
+    5a91beb8fa8cbacf 5e1bda5b788fd666 0ee31b5f33187c75 30047feb4edf5da8 \
+    701b616aa71b3905 361360aea23714b0 1a2f0f4e478bc378 904263de21c08691 \
+    dbe7fb8302358838 48e9e6eb20fa9b3a 2aab8871364ce9c6 8e4ca4b00c2b41e8 \
+    123d6b1572f34dba dc34a5fc2e413758 ecbfca220bb3e99a 008d4a0cb88bf4cb \
+    c85fe03a532df52f 619a2c90db63e8c7 22b2ea2e66d3c866 601272199d67e466 \
+    c6c4a019f1954953 3075e30bd8cbd3fa
+MAC: 3c85c1cbeda21ed5 9252bbe791818d11
+Test: NotVerify
+#
+Comment: Test Case 155
+Key: 7ebdfe0f24c69500 ec1483094c6b6703 2a8014cdcb35cd10 ca5253f878b9c636
+Message: \
+    c3432e60ad7d4b10 11a41d08509af969 aed8736b67553cfa 729a236c92d4e055 \
+    170fb6c48c01d59d a6f2a5f68c9f603a 77d3a5de28e1d99a 7cfc060ed0e763e8 \
+    f619ac821b8120c1 73c5b70064173adc eae0ba12c193ad3d 90b34b609aaf4890 \
+    c8f513e37633a4ea f85cea5d7324395e 04f370c6871d0317 d14f776bfec0fcc6 \
+    b50faa2b424e153a aaff971e24d07c28 c4ecee4b0af262db 41d9463f9942054e \
+    51af7a93fe8fcea8 8f65c6b33642dbfa 2fca4539bca714fd 805a3c1a9d4168ee \
+    f1e282ef72509701 b55eb4eba08fe5cf 592a
+MAC: ab61070ee551fbe1 d70402ebb7cdde1a
+Test: Verify
+#
+Comment: Test Case 156 (tamper mac)
+Key: 7ebdfe0f24c69500 ec1483094c6b6703 2a8014cdcb35cd10 ca5253f878b9c636
+Message: \
+    c3432e60ad7d4b10 11a41d08509af969 aed8736b67553cfa 729a236c92d4e055 \
+    170fb6c48c01d59d a6f2a5f68c9f603a 77d3a5de28e1d99a 7cfc060ed0e763e8 \
+    f619ac821b8120c1 73c5b70064173adc eae0ba12c193ad3d 90b34b609aaf4890 \
+    c8f513e37633a4ea f85cea5d7324395e 04f370c6871d0317 d14f776bfec0fcc6 \
+    b50faa2b424e153a aaff971e24d07c28 c4ecee4b0af262db 41d9463f9942054e \
+    51af7a93fe8fcea8 8f65c6b33642dbfa 2fca4539bca714fd 805a3c1a9d4168ee \
+    f1e282ef72509701 b55eb4eba08fe5cf 592a
+MAC: ab61ad0ee551fbe1 d70402ebb7cdde1a
+Test: NotVerify
+#
+Comment: Test Case 157
+Key: b995b90f58facd00 d4d0a40148026d0b c0d998aacd2c169e ce65181e07a98d1e
+Message: \
+    9efed86f74cc8606 b658f15d4b1eea63 1294b837234cc72f e907d35d1164dcaf \
+    62b41fd680a5dc37 fdce9449ec7eacff 12643635b0fd6499 0438f6159cd3c5ff \
+    87e4d50889b23f86 80d3cf6c517b6b63 dfa1988f9efd29a3 351fb8d1f27dd07a \
+    61a682ea58c171d8 944044e5bcb0489b 51e02bf0dd549312 734be466c9b4e02a \
+    5a6215b223868ab7 c6cf9c827fe41ed0 c449c0a29d53b410 9f9876684d5692a7 \
+    b8a75adb2de492f4 b32e7632129403d7 ddc3797a172d8bb6 c6011e1358b0ba10 \
+    5814ec85f97e79ac adf0dfbf84e29662 a50fdcbc3d67
+MAC: 0c5eef52d96f5c98 88e48e09779fa34c
+Test: Verify
+#
+Comment: Test Case 158 (tamper mac)
+Key: b995b90f58facd00 d4d0a40148026d0b c0d998aacd2c169e ce65181e07a98d1e
+Message: \
+    9efed86f74cc8606 b658f15d4b1eea63 1294b837234cc72f e907d35d1164dcaf \
+    62b41fd680a5dc37 fdce9449ec7eacff 12643635b0fd6499 0438f6159cd3c5ff \
+    87e4d50889b23f86 80d3cf6c517b6b63 dfa1988f9efd29a3 351fb8d1f27dd07a \
+    61a682ea58c171d8 944044e5bcb0489b 51e02bf0dd549312 734be466c9b4e02a \
+    5a6215b223868ab7 c6cf9c827fe41ed0 c449c0a29d53b410 9f9876684d5692a7 \
+    b8a75adb2de492f4 b32e7632129403d7 ddc3797a172d8bb6 c6011e1358b0ba10 \
+    5814ec85f97e79ac adf0dfbf84e29662 a50fdcbc3d67
+MAC: 0c5eef52d96ff698 88e48e09779fa34c
+Test: NotVerify
+#
+Comment: Test Case 159
+Key: dec0c20f9c6ad604 f0d4f00b104f5605 5adcf8778eef00e2 fae50f39eb546e05
+Message: \
+    0ad1efdc37160f51 934630ba6745584f 048347a2512a412f 72bc2aa8f31c20fe \
+    ed10da2526e976b9 30a67497ebcce6ef 4f2d92a158d3d0ca 8ffa728317938104 \
+    a35b29c9449f8374 45f70c30c3f22012 20b2b37885834215 7eb59895481999eb \
+    74c3b4b862372da8 2e39d8f12bf8044b aab7c3303b0645b9 bbdd4e03f6e7ee6a \
+    aaa2220dda4fb508 888dfab486feff30 b5c360f0c9a5a984 82f78778df75e289 \
+    170596f1544bfadd d9f4915ff2908fa7 53f0981c9541a018 392790189c73a1b4 \
+    7838a5cc839fa95c 933abb85cb4b2d1e 3bc53bd006dbe83f 03
+MAC: 7f429a4d7773b18b 1cc5926f21d7a62f
+Test: Verify
+#
+Comment: Test Case 160 (tamper mac)
+Key: dec0c20f9c6ad604 f0d4f00b104f5605 5adcf8778eef00e2 fae50f39eb546e05
+Message: \
+    0ad1efdc37160f51 934630ba6745584f 048347a2512a412f 72bc2aa8f31c20fe \
+    ed10da2526e976b9 30a67497ebcce6ef 4f2d92a158d3d0ca 8ffa728317938104 \
+    a35b29c9449f8374 45f70c30c3f22012 20b2b37885834215 7eb59895481999eb \
+    74c3b4b862372da8 2e39d8f12bf8044b aab7c3303b0645b9 bbdd4e03f6e7ee6a \
+    aaa2220dda4fb508 888dfab486feff30 b5c360f0c9a5a984 82f78778df75e289 \
+    170596f1544bfadd d9f4915ff2908fa7 53f0981c9541a018 392790189c73a1b4 \
+    7838a5cc839fa95c 933abb85cb4b2d1e 3bc53bd006dbe83f 03
+MAC: 7f429a4d7773b18b 1c6f926f21d7a62f
+Test: NotVerify
+#
+Comment: Test Case 161
+Key: 208b2f0f5c9bea0f 8075af015036060e 06ac66d512851062 3faea2bde106f10b
+Message: \
+    a58dedd3930b0633 85166a1d247ec210 bdf122c8cd6d24d8 8f0087b3975e183c \
+    ec050f7f1116b296 2c1cb4519a766158 68832035f1440d80 449434dcf34c18df \
+    52285e633e11f96a 2dadbbc8241d208c a040c19184ce12c9 6246a55592bd34e4 \
+    e5934723a4418ed1 ee49991266b99e07 f95f987e2daa4790 f0ece583a91a678f \
+    adafb251f04022de 8abcf1f0758ff76f ef90ed1c3a34ac2b 2092aec9ac155859 \
+    c40baab44bcc93d5 8884c6fe13bd6d02 4d5a1f888ecbb3ae 5d61770976d0623b \
+    db0cef26d982fc61 06c25f1a7fcc1ccd 263b55b407086264 69da6edfaa
+MAC: ddfb200b9e91366f 1fc55b798f69f3ac
+Test: Verify
+#
+Comment: Test Case 162 (tamper mac)
+Key: 208b2f0f5c9bea0f 8075af015036060e 06ac66d512851062 3faea2bde106f10b
+Message: \
+    a58dedd3930b0633 85166a1d247ec210 bdf122c8cd6d24d8 8f0087b3975e183c \
+    ec050f7f1116b296 2c1cb4519a766158 68832035f1440d80 449434dcf34c18df \
+    52285e633e11f96a 2dadbbc8241d208c a040c19184ce12c9 6246a55592bd34e4 \
+    e5934723a4418ed1 ee49991266b99e07 f95f987e2daa4790 f0ece583a91a678f \
+    adafb251f04022de 8abcf1f0758ff76f ef90ed1c3a34ac2b 2092aec9ac155859 \
+    c40baab44bcc93d5 8884c6fe13bd6d02 4d5a1f888ecbb3ae 5d61770976d0623b \
+    db0cef26d982fc61 06c25f1a7fcc1ccd 263b55b407086264 69da6edfaa
+MAC: ddfb200b9e91366f 1fc55b798fc3f3ac
+Test: NotVerify
+#
+Comment: Test Case 163
+Key: 4d6994002868460c e81e2c0398363c01 656fd58cfb45f32a 71f9961244fb1c4a
+Message: \
+    a6a9fea630a9cceb a83777b65f2cde67 93ec9d340fc00b4d ca3c9440438e99e9 \
+    37978f67415b52e9 92c99ff2f67d5989 69f6bd79b7c9c681 055ac149e85a3220 \
+    f2c287331dda1cb0 a3bba29938fb23a1 f2e01aa9a9e02aaf 3aecf823462a4338 \
+    ecca6b0aa487ba48 425ce17a57041c49 e536f28e171d3d51 0935744f60b7884c \
+    82f356267b106ebd 6c5038c454540d39 8a00c8a11d05f326 3b67759b1ffde7a1 \
+    f13ec76c4e3629bb 86617fdab58c1440 8cdce1a9e1d4cf1c 3c45b75b429ffc33 \
+    ddc39f2bf9c9e67f 2a655ae0f26e207e 4a01282bd6f74812 3cff6d7f9e69b27b \
+    2c
+MAC: a6fc6154ef5ec8c7 871d0576c2e9752b
+Test: Verify
+#
+Comment: Test Case 164 (tamper mac)
+Key: 4d6994002868460c e81e2c0398363c01 656fd58cfb45f32a 71f9961244fb1c4a
+Message: \
+    a6a9fea630a9cceb a83777b65f2cde67 93ec9d340fc00b4d ca3c9440438e99e9 \
+    37978f67415b52e9 92c99ff2f67d5989 69f6bd79b7c9c681 055ac149e85a3220 \
+    f2c287331dda1cb0 a3bba29938fb23a1 f2e01aa9a9e02aaf 3aecf823462a4338 \
+    ecca6b0aa487ba48 425ce17a57041c49 e536f28e171d3d51 0935744f60b7884c \
+    82f356267b106ebd 6c5038c454540d39 8a00c8a11d05f326 3b67759b1ffde7a1 \
+    f13ec76c4e3629bb 86617fdab58c1440 8cdce1a9e1d4cf1c 3c45b75b429ffc33 \
+    ddc39f2bf9c9e67f 2a655ae0f26e207e 4a01282bd6f74812 3cff6d7f9e69b27b \
+    2c
+MAC: a6566154ef5ec8c7 871d0576c2e9752b
+Test: NotVerify
+#
+Comment: Test Case 165
+Key: cb91e00ef49d9903 90dec50bbc9d9706 f7f6d715b39aff1d e62289ef2ce0a31d
+Message: \
+    5276d724926e09b9 8298c4c9bda59db9 b5dd2a685a6bf53b 7287f7a976a76dc8 \
+    1d44ecafb3f56935 8d2dfe4ad29c0487 792ef0d39ae50e0c 6c06b5e2ad22aaca \
+    67967a1a8be34f18 104d62e2e9666962 9559362f3e443baa 4af08cf71236c279 \
+    cc3c93571fe26f2f 30d21119387a7ccd d4b2fc12f637bd41 2749383a80fab34c \
+    3647a45529138459 e595731e10efebe4 a1e8f6971fb3d847 fd11817d0b34c942 \
+    7b6d97a5811cfe66 b17184c16070a501 589c99774f71be4c 823fc98e7493d0ef \
+    006794818393e835 046cf665dc9c6634 38ffac87716ad4f3 aa9d811e30510d31 \
+    b9a2b23c35
+MAC: 32792e7bd7473a0c 21d1aaeeff747277
+Test: Verify
+#
+Comment: Test Case 166 (tamper mac)
+Key: cb91e00ef49d9903 90dec50bbc9d9706 f7f6d715b39aff1d e62289ef2ce0a31d
+Message: \
+    5276d724926e09b9 8298c4c9bda59db9 b5dd2a685a6bf53b 7287f7a976a76dc8 \
+    1d44ecafb3f56935 8d2dfe4ad29c0487 792ef0d39ae50e0c 6c06b5e2ad22aaca \
+    67967a1a8be34f18 104d62e2e9666962 9559362f3e443baa 4af08cf71236c279 \
+    cc3c93571fe26f2f 30d21119387a7ccd d4b2fc12f637bd41 2749383a80fab34c \
+    3647a45529138459 e595731e10efebe4 a1e8f6971fb3d847 fd11817d0b34c942 \
+    7b6d97a5811cfe66 b17184c16070a501 589c99774f71be4c 823fc98e7493d0ef \
+    006794818393e835 046cf665dc9c6634 38ffac87716ad4f3 aa9d811e30510d31 \
+    b9a2b23c35
+MAC: 32792e7bd7ed3a0c 21d1aaeeff747277
+Test: NotVerify
+#
+Comment: Test Case 167
+Key: b24916016094330b 58345e0ae4220b06 a24abc525494afe6 2a7aa34b4a6da504
+Message: \
+    4dfe0ac535a4f9af 58f851d5fdebcc80 a1bc1bc2044ebc71 0d47cdb95834e1a6 \
+    33eb6b68906417e8 5c69bd5a5489daf5 46f5b74a4474bb51 bb890a14bdebbaf0 \
+    d725586789704fe5 d90d3f2d961922dc 0fda27534ee2a409 6bae1d299ad71971 \
+    fc72d885e2276bbb 34aae8cbc40aa7d3 e4ce2632b1ca3c1c 78594512315f832d \
+    d15bb3b3831e6eb7 c856828c602a5f45 f88577a94fb3c6c8 0d0bda3e6a5e6b3b \
+    b91eee3c3c5cf405 b2769113a0f15899 76cf42c683088e90 1468ce7ec639ba80 \
+    58a8bc9405b099b7 272bcac71c226092 f2a35875abe605bf 4fd33e150cf89564 \
+    a052f9a502925d29
+MAC: aa0460f4bcd60bf2 8c62a209ee90a5ae
+Test: Verify
+#
+Comment: Test Case 168 (tamper mac)
+Key: b24916016094330b 58345e0ae4220b06 a24abc525494afe6 2a7aa34b4a6da504
+Message: \
+    4dfe0ac535a4f9af 58f851d5fdebcc80 a1bc1bc2044ebc71 0d47cdb95834e1a6 \
+    33eb6b68906417e8 5c69bd5a5489daf5 46f5b74a4474bb51 bb890a14bdebbaf0 \
+    d725586789704fe5 d90d3f2d961922dc 0fda27534ee2a409 6bae1d299ad71971 \
+    fc72d885e2276bbb 34aae8cbc40aa7d3 e4ce2632b1ca3c1c 78594512315f832d \
+    d15bb3b3831e6eb7 c856828c602a5f45 f88577a94fb3c6c8 0d0bda3e6a5e6b3b \
+    b91eee3c3c5cf405 b2769113a0f15899 76cf42c683088e90 1468ce7ec639ba80 \
+    58a8bc9405b099b7 272bcac71c226092 f2a35875abe605bf 4fd33e150cf89564 \
+    a052f9a502925d29
+MAC: aa0460f4bcd60bf2 2662a209ee90a5ae
+Test: NotVerify
+#
+Comment: Test Case 169
+Key: d45cb106a83b4106 587ab80940a27204 82e232216d11af05 c73d83c36bcf785e
+Message: \
+    21da5b75497339bc a688631e32e86364 dd83c83d993d39e0 5c28a882b60aa9d8 \
+    e4044d2e7886ea1e 0f4e3c4136a0a613 236e51bcab8a9c08 b2448a684f334033 \
+    388d61b0144cce23 9a0a64d0aa0ae3cd 79348924be262c70 6ab6d9b9ea19ed22 \
+    a74ed2bb9aa0de34 aa4204554de822c6 1caceadbd2174b3c cd24f6b73ee3d9e5 \
+    31aba0cc4b7e00f6 c0054b0ded6dd309 19bee4ebd53028a2 541e5a9201337732 \
+    df17fe2a95ff2056 046b63f1d937faf2 f5dfdeca0f066c63 24c6f625fa6d57d9 \
+    8556031a55247059 8fd44a680b445b00 2339ca323f369663 fd8c88f7f9dfd07e \
+    35d3998af709e387 dd2defe8
+MAC: ab3335c86e7c2f15 91ae89a300e0e06c
+Test: Verify
+#
+Comment: Test Case 170 (tamper mac)
+Key: d45cb106a83b4106 587ab80940a27204 82e232216d11af05 c73d83c36bcf785e
+Message: \
+    21da5b75497339bc a688631e32e86364 dd83c83d993d39e0 5c28a882b60aa9d8 \
+    e4044d2e7886ea1e 0f4e3c4136a0a613 236e51bcab8a9c08 b2448a684f334033 \
+    388d61b0144cce23 9a0a64d0aa0ae3cd 79348924be262c70 6ab6d9b9ea19ed22 \
+    a74ed2bb9aa0de34 aa4204554de822c6 1caceadbd2174b3c cd24f6b73ee3d9e5 \
+    31aba0cc4b7e00f6 c0054b0ded6dd309 19bee4ebd53028a2 541e5a9201337732 \
+    df17fe2a95ff2056 046b63f1d937faf2 f5dfdeca0f066c63 24c6f625fa6d57d9 \
+    8556031a55247059 8fd44a680b445b00 2339ca323f369663 fd8c88f7f9dfd07e \
+    35d3998af709e387 dd2defe8
+MAC: ab3335c86e7c2f15 91ae89a3aae0e06c
+Test: NotVerify
+#
+Comment: Test Case 171
+Key: fee3b70e50587904 10be260bb08bfe0b 7150a4b8b9399be3 9f66ebda877a2131
+Message: \
+    36d4e788646b7984 a7e84f64fd048743 648493765d66747a b8e95b72d409540b \
+    dd3b9341a70cc64e f515b2f21939367d bdc9f41a2f6894e7 52ef5926f8ad31d6 \
+    e9c41790d1dddec6 f290b80cc9ee8986 b77da0e6e635cd38 24265e1dd490f3bd \
+    540a4d25e82bebda bba4e68492700a4a edaa30d3dffe0b04 246a21f8fa14b54e \
+    1e0274062d5fe1e8 03c76c963776e025 2110f8000e040433 6e252b6839e1b658 \
+    e32a5e118a3ff98d 0766233edc0363fd 145cfe22600255ce 2881366162ecb945 \
+    171856a157502e5e b6529d9255009069 5c8e8cbc90e18ab8 62c01ac4add30ac4 \
+    eb606543b093a166 e53ef93b3f89
+MAC: 774ee12589d3bb0a 4cc856f547ed44ca
+Test: Verify
+#
+Comment: Test Case 172 (tamper mac)
+Key: fee3b70e50587904 10be260bb08bfe0b 7150a4b8b9399be3 9f66ebda877a2131
+Message: \
+    36d4e788646b7984 a7e84f64fd048743 648493765d66747a b8e95b72d409540b \
+    dd3b9341a70cc64e f515b2f21939367d bdc9f41a2f6894e7 52ef5926f8ad31d6 \
+    e9c41790d1dddec6 f290b80cc9ee8986 b77da0e6e635cd38 24265e1dd490f3bd \
+    540a4d25e82bebda bba4e68492700a4a edaa30d3dffe0b04 246a21f8fa14b54e \
+    1e0274062d5fe1e8 03c76c963776e025 2110f8000e040433 6e252b6839e1b658 \
+    e32a5e118a3ff98d 0766233edc0363fd 145cfe22600255ce 2881366162ecb945 \
+    171856a157502e5e b6529d9255009069 5c8e8cbc90e18ab8 62c01ac4add30ac4 \
+    eb606543b093a166 e53ef93b3f89
+MAC: 774ee12589d3bb0a 4cc856f547edeeca
+Test: NotVerify
+#
+Comment: Test Case 173
+Key: 105ef702ece7f10b 98565d0328aa250c dce4fab050eac772 f4993650fec4682d
+Message: \
+    fe9b4a6d7ebad835 6a916dbff5e4c193 e08ea1a31b596955 53649bf3b45518b2 \
+    f1621f6f1df7a487 8811467df50711d5 95b279b10ce2065f 46a152faf66aace7 \
+    cdcb57eac3fb714b 0db7c902bedad854 8c510598330bf779 ac4974a2b4208a81 \
+    ece16bafdcdcfae9 93c3ec519dc4a52a 15aac248b5bac161 033504b7568e3842 \
+    6fa3f14b7feb3512 af21644ce50976fa b4394269f303cbf6 39cfae8f5de6d1cc \
+    8ac21709ad4c1c5c 6d80a952891f4c3d 588ea74b927242cb 41f05a9ed62b6a60 \
+    ed816a9ace86f73b 06a08e8fbfdacd18 697463fbe6a5c627 9520c56c4b2fcc38 \
+    b036d27ebcc9bac2 69485229221f418b 93a4
+MAC: d93f144fd5a7d8a0 4e17d06503d13e04
+Test: Verify
+#
+Comment: Test Case 174 (tamper mac)
+Key: 105ef702ece7f10b 98565d0328aa250c dce4fab050eac772 f4993650fec4682d
+Message: \
+    fe9b4a6d7ebad835 6a916dbff5e4c193 e08ea1a31b596955 53649bf3b45518b2 \
+    f1621f6f1df7a487 8811467df50711d5 95b279b10ce2065f 46a152faf66aace7 \
+    cdcb57eac3fb714b 0db7c902bedad854 8c510598330bf779 ac4974a2b4208a81 \
+    ece16bafdcdcfae9 93c3ec519dc4a52a 15aac248b5bac161 033504b7568e3842 \
+    6fa3f14b7feb3512 af21644ce50976fa b4394269f303cbf6 39cfae8f5de6d1cc \
+    8ac21709ad4c1c5c 6d80a952891f4c3d 588ea74b927242cb 41f05a9ed62b6a60 \
+    ed816a9ace86f73b 06a08e8fbfdacd18 697463fbe6a5c627 9520c56c4b2fcc38 \
+    b036d27ebcc9bac2 69485229221f418b 93a4
+MAC: d93fbe4fd5a7d8a0 4e17d06503d13e04
+Test: NotVerify
+#
+Comment: Test Case 175
+Key: 66fb910fa8634104 087ebe00ac094805 dd0b50e518a7e747 f225bd21efa71a1d
+Message: \
+    733b4184e05b37a2 84373cb8a17239dd 20d6b245eb18ab84 60bf9576d8cdfb4b \
+    083dcfe998068b1d 3ec7d5df390ebc59 e46e9fcf864a53e6 09e85ce1b5582cbd \
+    95fba62d02314a40 f91f1f322ddb8c11 4a2be0d07533b77e 1b1360d06b8c8e00 \
+    88342e8a6678ca5f 98e991c5c41dd70e 48b7dfbdeb963c06 a99cd715286515b0 \
+    99433affbc045e54 edf019b20df0c056 a89f1393354f99df eb70f414d509c46f \
+    4dff6e0903cd5df1 bd76a3ca6763200f 0334a238833b176f ac0b83811547f062 \
+    465f6b4a2cc83be9 3edeb3a541d4b444 08567d8b9294fa3e a07dbfb5c5b0170b \
+    0f82553b4a902488 6ed72eb0abe2f4b3 39713fcb06
+MAC: efef7d9b410373ef d05dd602ca7dc479
+Test: Verify
+#
+Comment: Test Case 176 (tamper mac)
+Key: 66fb910fa8634104 087ebe00ac094805 dd0b50e518a7e747 f225bd21efa71a1d
+Message: \
+    733b4184e05b37a2 84373cb8a17239dd 20d6b245eb18ab84 60bf9576d8cdfb4b \
+    083dcfe998068b1d 3ec7d5df390ebc59 e46e9fcf864a53e6 09e85ce1b5582cbd \
+    95fba62d02314a40 f91f1f322ddb8c11 4a2be0d07533b77e 1b1360d06b8c8e00 \
+    88342e8a6678ca5f 98e991c5c41dd70e 48b7dfbdeb963c06 a99cd715286515b0 \
+    99433affbc045e54 edf019b20df0c056 a89f1393354f99df eb70f414d509c46f \
+    4dff6e0903cd5df1 bd76a3ca6763200f 0334a238833b176f ac0b83811547f062 \
+    465f6b4a2cc83be9 3edeb3a541d4b444 08567d8b9294fa3e a07dbfb5c5b0170b \
+    0f82553b4a902488 6ed72eb0abe2f4b3 39713fcb06
+MAC: efef7d9b41a973ef d05dd602ca7dc479
+Test: NotVerify
+#
+Comment: Test Case 177
+Key: e2d20f0eb8b79305 e0779209e4c8b803 ece6605d0006390e 511b030aac71fff6
+Message: \
+    34ccaaade3ed8a8f 5725ee7781a025c9 52cfd4ce37841f3b 5e57ce706bac6fa0 \
+    78194d5b06d7eb5d fcd9d47d79fa47cb c91b99009fb83cfe 0f0a6e7bb6dd1b2e \
+    f6688afc3f75593b 4e2db9c8270093f0 1b2df1bae52db8f5 372670ee038b1cf9 \
+    f3a6f5321b4e6d6a 7c2632a326c59441 f285fcd8b2b4cde9 db3dd7dec8f4d8bb \
+    9acdedb61c5a2098 81523ba717cfe90a 54e5e20699aff074 ecc753b4bb2b6f56 \
+    f85c0c14b62cac37 7ee8df95b7c89f0c ad8112463002bb1c ca0ed085393fdb31 \
+    9be7465213f28991 da68279230c69edd 48b02478b3df957d ed650226a5de5740 \
+    c59d92d9901c6a6a 8491fcb5589a92a0 4bb618fe95ad7b82 137d
+MAC: 5c69c2ada5275137 ce21d7af0a9179df
+Test: Verify
+#
+Comment: Test Case 178 (tamper mac)
+Key: e2d20f0eb8b79305 e0779209e4c8b803 ece6605d0006390e 511b030aac71fff6
+Message: \
+    34ccaaade3ed8a8f 5725ee7781a025c9 52cfd4ce37841f3b 5e57ce706bac6fa0 \
+    78194d5b06d7eb5d fcd9d47d79fa47cb c91b99009fb83cfe 0f0a6e7bb6dd1b2e \
+    f6688afc3f75593b 4e2db9c8270093f0 1b2df1bae52db8f5 372670ee038b1cf9 \
+    f3a6f5321b4e6d6a 7c2632a326c59441 f285fcd8b2b4cde9 db3dd7dec8f4d8bb \
+    9acdedb61c5a2098 81523ba717cfe90a 54e5e20699aff074 ecc753b4bb2b6f56 \
+    f85c0c14b62cac37 7ee8df95b7c89f0c ad8112463002bb1c ca0ed085393fdb31 \
+    9be7465213f28991 da68279230c69edd 48b02478b3df957d ed650226a5de5740 \
+    c59d92d9901c6a6a 8491fcb5589a92a0 4bb618fe95ad7b82 137d
+MAC: 5c69c2ada5275137 ce217daf0a9179df
+Test: NotVerify
+#
+Comment: Test Case 179
+Key: d17b7102407e4502 c8537106c0a1370d c1b7290b07e49593 bc1c44d6de84e4d5
+Message: \
+    f10847eeec597cd3 a0d7aa5a293ddae6 f7532c2df71e89aa 494c546ed7d2e3c8 \
+    da2bb6c684329a24 0a447e3382581979 ab45a7a264304cad 7da01b5472ff1d4c \
+    2ad313ae06add210 f1504373a85ded53 a294f506c442b341 e2cf9655ceb3a1f8 \
+    86b4a68c61789c53 c8e0c6703db3c3df 47b8e60cfa994ddd 68e3323696d32e1d \
+    88d4a9e94c463c14 26038463b64742fe 00280afac257d72a 3b0961d1dd8fee65 \
+    64984eb0de8bc504 8e49674491a94291 d24c8b94a463bedf 6c1fb049af9fae13 \
+    37fdc31588881916 d2805a63299df4fb e97f8f8de24e6c4f 6d1d981cbc472ff3 \
+    44f308cc7b21e24d a13cb0cad9a4c6c3 24555006a3bd5511 daee2d96
+MAC: 937f51b2aeedb64e 6b578c3fd8766374
+Test: Verify
+#
+Comment: Test Case 180 (tamper mac)
+Key: d17b7102407e4502 c8537106c0a1370d c1b7290b07e49593 bc1c44d6de84e4d5
+Message: \
+    f10847eeec597cd3 a0d7aa5a293ddae6 f7532c2df71e89aa 494c546ed7d2e3c8 \
+    da2bb6c684329a24 0a447e3382581979 ab45a7a264304cad 7da01b5472ff1d4c \
+    2ad313ae06add210 f1504373a85ded53 a294f506c442b341 e2cf9655ceb3a1f8 \
+    86b4a68c61789c53 c8e0c6703db3c3df 47b8e60cfa994ddd 68e3323696d32e1d \
+    88d4a9e94c463c14 26038463b64742fe 00280afac257d72a 3b0961d1dd8fee65 \
+    64984eb0de8bc504 8e49674491a94291 d24c8b94a463bedf 6c1fb049af9fae13 \
+    37fdc31588881916 d2805a63299df4fb e97f8f8de24e6c4f 6d1d981cbc472ff3 \
+    44f308cc7b21e24d a13cb0cad9a4c6c3 24555006a3bd5511 daee2d96
+MAC: 937f51b2aeedb64e 6b578c3f72766374
+Test: NotVerify

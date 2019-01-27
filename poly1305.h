@@ -52,6 +52,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+////////////////////////////// Bernstein Poly1305 //////////////////////////////
+
 /// \brief Poly1305 message authentication code base class
 /// \tparam T class derived from BlockCipherDocumentation with 16-byte key and 16-byte blocksize
 /// \since Crypto++ 6.0
@@ -67,6 +69,7 @@ public:
 	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
 	CRYPTOPP_CONSTANT(BLOCKSIZE=T::BLOCKSIZE)
 
+	virtual ~Poly1305_Base() {}
 	Poly1305_Base() : m_idx(0), m_used(true) {}
 
 	void Resynchronize (const byte *iv, int ivLength=-1);
@@ -83,7 +86,7 @@ public:
 	std::string AlgorithmProvider() const;
 
 protected:
-	// No longer needed. Remove at next major version bump
+	// TODO: No longer needed. Remove at next major version bump
 	void HashBlocks(const byte *input, size_t length, word32 padbit);
 	void HashFinal(byte *mac, size_t length);
 
@@ -164,6 +167,48 @@ public:
 	Poly1305(const byte *key, size_t keyLength=DEFAULT_KEYLENGTH, const byte *nonce=NULLPTR, size_t nonceLength=0)
 		{this->SetKey(key, keyLength, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));}
 };
+
+////////////////////////////// IETF Poly1305 //////////////////////////////
+
+class Poly1305TLS_Base : public FixedKeyLength<32>, public MessageAuthenticationCode
+{
+public:
+	static std::string StaticAlgorithmName() {return std::string("Poly1305TLS");}
+	CRYPTOPP_CONSTANT(DIGESTSIZE=16)
+	CRYPTOPP_CONSTANT(BLOCKSIZE=16)
+
+	virtual ~Poly1305TLS_Base() {}
+	Poly1305TLS_Base() {}
+
+	//void Resynchronize (const byte *iv, int ivLength=-1);
+	//void GetNextIV (RandomNumberGenerator &rng, byte *iv);
+
+	void UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params);
+	void Update(const byte *input, size_t length);
+	void TruncatedFinal(byte *mac, size_t size);
+	void Restart();
+
+	unsigned int BlockSize() const {return BLOCKSIZE;}
+	unsigned int DigestSize() const {return DIGESTSIZE;}
+
+	// std::string AlgorithmProvider() const;
+
+protected:
+	// Accumulated hash, clamped r-key, and encrypted nonce
+	FixedSizeAlignedSecBlock<word32, 5> m_h;
+	FixedSizeAlignedSecBlock<word32, 4> m_r;
+	FixedSizeAlignedSecBlock<word32, 4> m_n;
+
+	// Accumulated message bytes and index
+	FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m_acc;
+	size_t m_idx;
+};
+
+/// \brief Poly1305 TLS message authentication code
+/// \tparam T HashTransformation class
+/// \details 160-bit MAC with 160-bit key
+/// \sa MessageAuthenticationCode()
+DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<Poly1305TLS_Base>, Poly1305TLS)
 
 NAMESPACE_END
 

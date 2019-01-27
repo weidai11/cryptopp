@@ -29,6 +29,7 @@ Test: TestVectors/mars.txt
 Test: TestVectors/nr.txt
 Test: TestVectors/panama.txt
 Test: TestVectors/poly1305aes.txt
+Test: TestVectors/poly1305_tls.txt
 Test: TestVectors/rabbit.txt
 Test: TestVectors/rsa_oaep.txt
 Test: TestVectors/rsa_pkcs1_1_5.txt

@@ -506,6 +506,7 @@ TestVectors/mars.txt
 TestVectors/nr.txt
 TestVectors/panama.txt
 TestVectors/poly1305aes.txt
+TestVectors/poly1305_tls.txt
 TestVectors/rabbit.txt
 TestVectors/Readme.txt
 TestVectors/rsa_oaep.txt

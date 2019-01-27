@@ -72,6 +72,7 @@ void RegisterFactories2()
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, DMAC<AES> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, Poly1305<AES> >();
+	RegisterDefaultFactoryFor<MessageAuthenticationCode, Poly1305TLS>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, CMAC<DES_EDE3> >();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2s>();
 	RegisterDefaultFactoryFor<MessageAuthenticationCode, BLAKE2b>();

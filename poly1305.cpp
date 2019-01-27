@@ -25,12 +25,13 @@
 #include "aes.h"
 #include "cpu.h"
 
+////////////////////////////// Common Poly1305 //////////////////////////////
+
 #define CONSTANT_TIME_CARRY(a,b) ((a ^ ((a ^ b) | ((a - b) ^ b))) >> (sizeof(a) * 8 - 1))
 
 ANONYMOUS_NAMESPACE_BEGIN
 
 using namespace CryptoPP;
-enum {BLOCKSIZE=16};
 
 void Poly1305_HashBlocks(word32 h[5], word32 r[4], const byte *input, size_t length, word32 padbit)
 {
@@ -49,7 +50,7 @@ void Poly1305_HashBlocks(word32 h[5], word32 r[4], const byte *input, size_t len
 	h0 = h[0]; h1 = h[1]; h2 = h[2];
 	h3 = h[3]; h4 = h[4];
 
-	while (length >= BLOCKSIZE)
+	while (length >= 16)
 	{
 		// h += m[i]
 		h0 = (word32)(d0 = (word64)h0 +	             GetWord<word32>(false, LITTLE_ENDIAN_ORDER, input +  0));
@@ -96,8 +97,8 @@ void Poly1305_HashBlocks(word32 h[5], word32 r[4], const byte *input, size_t len
 		h3 += (c = CONSTANT_TIME_CARRY(h2,c));
 		h4 +=      CONSTANT_TIME_CARRY(h3,c);
 
-		input += BLOCKSIZE;
-		length -= BLOCKSIZE;
+		input += 16;
+		length -= 16;
 	}
 
 	h[0] = h0; h[1] = h1; h[2] = h2;
@@ -138,7 +139,7 @@ void Poly1305_HashFinal(word32 h[5], word32 n[4], byte *mac, size_t size)
 	h2 = (word32)(t = (word64)h2 + (t >> 32) + n[2]);
 	h3 = (word32)(t = (word64)h3 + (t >> 32) + n[3]);
 
-	if (size >= BLOCKSIZE)
+	if (size >= 16)
 	{
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  0, h0);
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, mac +  4, h1);
@@ -147,18 +148,20 @@ void Poly1305_HashFinal(word32 h[5], word32 n[4], byte *mac, size_t size)
 	}
 	else
 	{
-		FixedSizeAlignedSecBlock<byte, BLOCKSIZE> m;
+		FixedSizeAlignedSecBlock<byte, 16> m;
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  0, h0);
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  4, h1);
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m +  8, h2);
 		PutWord<word32>(false, LITTLE_ENDIAN_ORDER, m + 12, h3);
-		memcpy(mac, m, size);
+		std::memcpy(mac, m, size);
 	}
 }
 
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
+
+////////////////////////////// Bernstein Poly1305 //////////////////////////////
 
 // No longer needed. Remove at next major version bump
 template <class T>
@@ -183,36 +186,27 @@ std::string Poly1305_Base<T>::AlgorithmProvider() const
 template <class T>
 void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
-	if (key && length)
-	{
-		// key is {k,r} pair, r is 16 bytes
-		length = SaturatingSubtract(length, (unsigned)BLOCKSIZE);
-		m_cipher.SetKey(key, length);
-		key += length;
+	CRYPTOPP_ASSERT(key && length >= 32);
 
-		// Rbar is clamped and little endian
-		m_r[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  0) & 0x0fffffff;
-		m_r[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  4) & 0x0ffffffc;
-		m_r[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  8) & 0x0ffffffc;
-		m_r[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key + 12) & 0x0ffffffc;
+	// key is {k,r} pair. k is AES key, r is 16 bytes
+	length = SaturatingSubtract(length, (unsigned)BLOCKSIZE);
+	m_cipher.SetKey(key, length);
+	key += length;
 
-		m_used = false;
-	}
+	// Rbar is clamped and little endian
+	m_r[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  0) & 0x0fffffff;
+	m_r[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  4) & 0x0ffffffc;
+	m_r[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  8) & 0x0ffffffc;
+	m_r[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key + 12) & 0x0ffffffc;
+
+	// Mark the nonce as dirty, meaning we need a new one
+	m_used = true;
 
 	ConstByteArrayParameter t;
 	if (params.GetValue(Name::IV(), t) && t.begin() && t.size())
 	{
-		// Nonce key is a class member to avoid the zeroizer on a temporary
 		CRYPTOPP_ASSERT(t.size() == m_nk.size());
-		std::memcpy(m_nk.begin(), t.begin(), m_nk.size());
-		m_cipher.ProcessBlock(m_nk.begin());
-
-		m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  0);
-		m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  4);
-		m_n[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  8);
-		m_n[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk + 12);
-
-		m_used = false;
+		Resynchronize(t.begin(), t.size());
 	}
 
 	Restart();
@@ -288,7 +282,17 @@ void Poly1305_Base<T>::Resynchronize(const byte *nonce, int nonceLength)
 {
 	CRYPTOPP_ASSERT(nonceLength == -1 || nonceLength == (int)BLOCKSIZE);
 	nonceLength == -1 ? nonceLength = BLOCKSIZE : nonceLength;
-	this->UncheckedSetKey(NULLPTR, 0, MakeParameters(Name::IV(), ConstByteArrayParameter(nonce, nonceLength)));
+
+	std::memcpy(m_nk.begin(), nonce, nonceLength);
+	m_cipher.ProcessBlock(m_nk.begin());
+
+	m_n[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  0);
+	m_n[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  4);
+	m_n[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk +  8);
+	m_n[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, m_nk + 12);
+
+	// Mark nonce as unused, meaning it is fresh
+	m_used = false;
 }
 
 template <class T>
@@ -301,7 +305,94 @@ template <class T>
 void Poly1305_Base<T>::Restart()
 {
 	m_h[0] = m_h[1] = m_h[2] = m_h[3] = m_h[4] = 0;
-	// m_r[0] = m_r[1] = m_r[2] = m_r[3] = 0;
+	m_idx = 0;
+}
+
+////////////////////////////// IETF Poly1305 //////////////////////////////
+
+//void Poly1305TLS_Base::Resynchronize (const byte *iv, int ivLength) {}
+//void Poly1305TLS_Base::GetNextIV (RandomNumberGenerator &rng, byte *iv) {}
+
+void Poly1305TLS_Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
+{
+	CRYPTOPP_UNUSED(params);
+	CRYPTOPP_ASSERT(key && length >= 32);
+
+	// key is {r,s} pair. s is nonce, r is 16 bytes
+	m_r[0] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  0) & 0x0fffffff;
+	m_r[1] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  4) & 0x0ffffffc;
+	m_r[2] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key +  8) & 0x0ffffffc;
+	m_r[3] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, key + 12) & 0x0ffffffc;
+
+	key += 16;
+	std::memcpy(m_n, key, 16);
+
+	Restart();
+}
+
+void Poly1305TLS_Base::Update(const byte *input, size_t length)
+{
+	CRYPTOPP_ASSERT((input && length) || !length);
+	if (!length) return;
+
+	size_t rem, num = m_idx;
+	if (num)
+	{
+		rem = BLOCKSIZE - num;
+		if (length >= rem)
+		{
+			// Process
+			memcpy_s(m_acc + num, BLOCKSIZE - num, input, rem);
+			Poly1305_HashBlocks(m_h, m_r, m_acc, BLOCKSIZE, 1);
+			input += rem;
+			length -= rem;
+		}
+		else
+		{
+			// Accumulate
+			memcpy_s(m_acc + num, BLOCKSIZE - num, input, length);
+			m_idx = num + length;
+			return;
+		}
+	}
+
+	rem = length % BLOCKSIZE;
+	length -= rem;
+
+	if (length >= BLOCKSIZE) {
+		Poly1305_HashBlocks(m_h, m_r, input, length, 1);
+		input += length;
+	}
+
+	if (rem)
+		memcpy(m_acc, input, rem);
+
+	m_idx = rem;
+}
+
+void Poly1305TLS_Base::TruncatedFinal(byte *mac, size_t size)
+{
+	CRYPTOPP_ASSERT(mac);      // Pointer is valid
+
+	ThrowIfInvalidTruncatedSize(size);
+
+	size_t num = m_idx;
+	if (num)
+	{
+		m_acc[num++] = 1;   /* pad bit */
+		while (num < BLOCKSIZE)
+			m_acc[num++] = 0;
+		Poly1305_HashBlocks(m_h, m_r, m_acc, BLOCKSIZE, 0);
+	}
+
+	Poly1305_HashFinal(m_h, m_n, mac, size);
+
+	Restart();
+}
+
+void Poly1305TLS_Base::Restart()
+{
+	m_h[0] = m_h[1] = m_h[2] = m_h[3] = m_h[4] = 0;
 	m_idx = 0;
 }
 
