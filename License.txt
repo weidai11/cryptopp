@@ -1,4 +1,4 @@
-Compilation Copyright (c) 1995-2016 by Wei Dai.  All rights reserved.
+Compilation Copyright (c) 1995-2019 by Wei Dai.  All rights reserved.
 This copyright applies only to this software distribution package
 as a compilation, and does not imply a copyright on any particular
 file in the package.
@@ -23,6 +23,7 @@ Matthew Skala - twofish.cpp
 Kevin Springle - camellia.cpp, shacal2.cpp, ttmac.cpp, whrlpool.cpp, ripemd.cpp
 Ronny Van Keer - sha3.cpp
 Daniel J. Bernstein - chacha.cpp
+Andrew Moon - ed25519, x25519, donna_32.cpp, donna_64.cpp, donna_sse.cpp
 
 The Crypto++ Library uses portions of Andy Polyakov's CRYPTOGAMS for Poly1305
 scalar multiplication and aes_armv4.S. CRYPTOGAMS is dual licensed with a
