@@ -1,5 +1,13 @@
 // poly1305.h - written and placed in the public domain by Jeffrey Walton and Jean-Pierre Munch
-//              Based on Andy Polyakov's Base-2^26 scalar multiplication implementation for OpenSSL.
+//              Based on Andy Polyakov's Base-2^26 scalar multiplication implementation.
+//              For more information, see https://www.openssl.org/~appro/cryptogams/.
+
+// The library added Bernstein's Poly1305 classses at Crypto++ 5.6.4. The IETF
+// uses a slightly different implementation than Bernstein, and the IETF
+// classes were added at Crypto++ 8.1. We wanted to maintain ABI compatibility
+// at the 8.1 release so the original Poly1305 classes were not disturbed.
+// Instead new classes were added for IETF Poly1305. The back-end implementation
+// shares code as expected, however.
 
 /// \file poly1305.h
 /// \brief Classes for Poly1305 message authentication code
