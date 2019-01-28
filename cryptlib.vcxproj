@@ -198,6 +198,7 @@
       <ExcludedFromBuild Condition=" '$(PlatformToolset)' == 'v100' Or '$(PlatformToolset)' == 'v110' ">true</ExcludedFromBuild>
       <EnableEnhancedInstructionSet>AdvancedVectorExtensions2</EnableEnhancedInstructionSet>
     </ClCompile>
+    <ClCompile Include="chachapoly.cpp" />
     <ClCompile Include="cham.cpp" />
     <ClCompile Include="cham_simd.cpp" />
     <ClCompile Include="channels.cpp" />
@@ -404,6 +405,7 @@
     <ClInclude Include="cbcmac.h" />
     <ClInclude Include="ccm.h" />
     <ClInclude Include="chacha.h" />
+    <ClInclude Include="chachapoly.h" />
     <ClInclude Include="cham.h" />
     <ClInclude Include="channels.h" />
     <ClInclude Include="cmac.h" />

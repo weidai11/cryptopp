@@ -95,6 +95,9 @@
     <ClCompile Include="chacha_avx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="chachapoly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="cham.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1017,9 +1020,18 @@
     <ClInclude Include="chacha.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="chachapoly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="rdrand.asm">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="x64dll.asm">
+      <Filter>Source Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="x64masm.asm">
       <Filter>Source Files</Filter>
     </CustomBuild>
     <CustomBuild Include="adhoc.cpp.proto">
