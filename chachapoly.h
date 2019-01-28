@@ -70,7 +70,7 @@ public:
 	/// \brief Encrypts and calculates a MAC in one call
 	/// \param ciphertext the encryption buffer
 	/// \param mac the mac buffer
-	/// \param macLength the size of the MAC buffer, in bytes
+	/// \param macSize the size of the MAC buffer, in bytes
 	/// \param iv the iv buffer
 	/// \param ivLength the size of the IV buffer, in bytes
 	/// \param aad the AAD buffer
@@ -84,19 +84,19 @@ public:
 	/// \brief Decrypts and verifies a MAC in one call
 	/// \param message the decryption buffer
 	/// \param mac the mac buffer
-	/// \param macLength the size of the MAC buffer, in bytes
+	/// \param macSize the size of the MAC buffer, in bytes
 	/// \param iv the iv buffer
 	/// \param ivLength the size of the IV buffer, in bytes
 	/// \param aad the AAD buffer
 	/// \param aadLength the size of the AAD buffer, in bytes
-	/// \param cipher the cipher buffer
-	/// \param cipherLength the size of the ciphertext buffer, in bytes
+	/// \param ciphertext the cipher buffer
+	/// \param ciphertextLength the size of the ciphertext buffer, in bytes
 	/// \return true if the MAC is valid and the decoding succeeded, false otherwise
 	/// \details DecryptAndVerify() decrypts and verifies the MAC in one call.
 	/// <tt>message</tt> is a decryption buffer and should be at least as large as the ciphertext buffer.
 	/// \details The function returns true iff MAC is valid. DecryptAndVerify() assumes the MAC
 	///  is truncated if <tt>macLength < TagSize()</tt>.
-	virtual bool DecryptAndVerify(byte *message, const byte *mac, size_t macLength, const byte *iv, int ivLength, const byte *aad, size_t aadLength, const byte *ciphertext, size_t ciphertextLength);
+	virtual bool DecryptAndVerify(byte *message, const byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *aad, size_t aadLength, const byte *ciphertext, size_t ciphertextLength);
 
 protected:
 	// AuthenticatedSymmetricCipherBase
