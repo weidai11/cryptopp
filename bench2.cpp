@@ -247,6 +247,7 @@ void Benchmark2(double t, double hertz)
 		}
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/CCM");
 		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("AES/EAX");
+		BenchMarkByName2<AuthenticatedSymmetricCipher, AuthenticatedSymmetricCipher>("ChaCha20/Poly1305");
 	}
 
 	std::cout << "\n</TABLE>" << std::endl;
