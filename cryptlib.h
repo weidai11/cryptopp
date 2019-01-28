@@ -1301,30 +1301,62 @@ public:
 	/// \brief Provides the maximum length of AAD that can be input
 	/// \return the maximum length of AAD that can be input before the encrypted data
 	virtual lword MaxHeaderLength() const =0;
+
 	/// \brief Provides the maximum length of encrypted data
 	/// \return the maximum length of encrypted data
 	virtual lword MaxMessageLength() const =0;
+
 	/// \brief Provides the the maximum length of AAD
 	/// \return the maximum length of AAD that can be input after the encrypted data
 	virtual lword MaxFooterLength() const {return 0;}
+
 	/// \brief Determines if data lengths must be specified prior to inputting data
 	/// \return true if the data lengths are required before inputting data, false otherwise
 	/// \details if this function returns true, SpecifyDataLengths() must be called before attempting to input data.
 	///   This is the case for some schemes, such as CCM.
 	/// \sa SpecifyDataLengths()
 	virtual bool NeedsPrespecifiedDataLengths() const {return false;}
-	/// \brief Prespecifies the data lengths
-	/// \details this function only needs to be called if NeedsPrespecifiedDataLengths() returns true
+
+	/// \brief Prescribes the data lengths
+	/// \param headerLength size of data before message is input, in bytes
+	/// \param messageLength size of the message, in bytes
+	/// \param footerLength size of data after message is input, in bytes
+	/// \details SpecifyDataLengths() only needs to be called if NeedsPrespecifiedDataLengths() returns <tt>true</tt>.
+	///   If <tt>true</tt>, then <tt>headerLength</tt> will be validated against <tt>MaxHeaderLength()</tt>,
+	///   <tt>messageLength</tt> will be validated against <tt>MaxMessageLength()</tt>, and
+	///   <tt>footerLength</tt> will be validated against <tt>MaxFooterLength()</tt>.
 	/// \sa NeedsPrespecifiedDataLengths()
 	void SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength=0);
+
 	/// \brief Encrypts and calculates a MAC in one call
-	/// \details EncryptAndAuthenticate() encrypts and generates the MAC in one call. The function will truncate MAC if
-	///   <tt>macSize < TagSize()</tt>.
+	/// \param ciphertext the encryption buffer
+	/// \param mac the mac buffer
+	/// \param macLength the size of the MAC buffer, in bytes
+	/// \param iv the iv buffer
+	/// \param ivLength the size of the IV buffer, in bytes
+	/// \param header the AAD buffer
+	/// \param headerLength the size of the AAD buffer, in bytes
+	/// \param message the message buffer
+	/// \param messageLength the size of the messagetext buffer, in bytes
+	/// \details EncryptAndAuthenticate() encrypts and generates the MAC in one call. The function
+	///   truncates the MAC if <tt>macSize < TagSize()</tt>.
 	virtual void EncryptAndAuthenticate(byte *ciphertext, byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *message, size_t messageLength);
+
 	/// \brief Decrypts and verifies a MAC in one call
+	/// \param message the decryption buffer
+	/// \param mac the mac buffer
+	/// \param macLength the size of the MAC buffer, in bytes
+	/// \param iv the iv buffer
+	/// \param ivLength the size of the IV buffer, in bytes
+	/// \param header the AAD buffer
+	/// \param headerLength the size of the AAD buffer, in bytes
+	/// \param cipher the cipher buffer
+	/// \param cipherLength the size of the ciphertext buffer, in bytes
 	/// \return true if the MAC is valid and the decoding succeeded, false otherwise
-	/// \details DecryptAndVerify() decrypts and verifies the MAC in one call. The function returns true iff MAC is valid.
-	///   DecryptAndVerify() will assume MAC is truncated if <tt>macLength < TagSize()</tt>.
+	/// \details DecryptAndVerify() decrypts and verifies the MAC in one call.
+	/// <tt>message</tt> is a decryption buffer and should be at least as large as the ciphertext buffer.
+	/// \details The function returns true iff MAC is valid. DecryptAndVerify() assumes the MAC
+	///  is truncated if <tt>macLength < TagSize()</tt>.
 	virtual bool DecryptAndVerify(byte *message, const byte *mac, size_t macLength, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *ciphertext, size_t ciphertextLength);
 
 	/// \brief Provides the name of this algorithm
