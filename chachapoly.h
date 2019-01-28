@@ -53,7 +53,7 @@ public:
 	IV_Requirement IVRequirement() const
 		{return UNIQUE_IV;}
 	unsigned int IVSize() const
-		{return 16;}
+		{return 12;}
 	unsigned int MinIVLength() const
 		{return 12;}
 	unsigned int MaxIVLength() const
@@ -128,6 +128,10 @@ protected:
 /// \since Crypto++ 8.1
 class ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
 {
+public:
+	static std::string StaticAlgorithmName()
+		{return std::string("ChaCha20/Poly1305");}
+
 protected:
 	const SymmetricCipher & GetSymmetricCipher()
 		{return const_cast<ChaCha20Poly1305_Final *>(this)->AccessSymmetricCipher();}

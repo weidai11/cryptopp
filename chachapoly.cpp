@@ -19,7 +19,7 @@ void ChaCha20Poly1305_Base::RekeyCipherAndMac(const byte *userKey, size_t keylen
 	AccessSymmetricCipher().ProcessString(derived, derived.size());
 
 	// Set the Poly1305 key
-	AccessMAC().SetKey(derived, 32, params);
+	AccessMAC().SetKey(derived, derived.size(), params);
 
 	// Key Cipher for bulk encryption
 	AlgorithmParameters block1 = MakeParameters("InitialBlock", (word64)1, true);
