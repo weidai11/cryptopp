@@ -14,14 +14,14 @@ void ChaCha20Poly1305_Base::RekeyCipherAndMac(const byte *userKey, size_t keylen
 	AlgorithmParameters block0 = MakeParameters("InitialBlock", (word64)0, true);
 	AccessSymmetricCipher().SetKey(userKey, keylength, CombinedNameValuePairs(params, block0));
 
-	// Only the head 256-bits are used to key the MAC
+	// Only the first 256-bits are used to key the MAC
 	SecByteBlock derived(NULLPTR, 32);
 	AccessSymmetricCipher().ProcessString(derived, derived.size());
 
-	// Set the Poly1305 key
+	// Key the Poly1305 MAC
 	AccessMAC().SetKey(derived, derived.size(), params);
 
-	// Key Cipher for bulk encryption
+	// Key the ChaCha20 cipher
 	AlgorithmParameters block1 = MakeParameters("InitialBlock", (word64)1, true);
 	AccessSymmetricCipher().SetKey(userKey, keylength, CombinedNameValuePairs(params, block1));
 }
@@ -30,14 +30,12 @@ void ChaCha20Poly1305_Base::SetKeyWithoutResync(const byte *userKey, size_t user
 {
 	CRYPTOPP_ASSERT(userKey && userKeyLength == 32);
 	m_userKey.Assign(userKey, userKeyLength);
-
 	RekeyCipherAndMac(userKey, userKeyLength, params);
 }
 
 void ChaCha20Poly1305_Base::Resync(const byte *iv, size_t len)
 {
 	CRYPTOPP_ASSERT(iv && len == 12);
-
 	RekeyCipherAndMac(m_userKey, m_userKey.SizeInBytes(),
 		MakeParameters(Name::IV(), ConstByteArrayParameter(iv,len)));
 }
@@ -52,8 +50,7 @@ void ChaCha20Poly1305_Base::AuthenticateLastHeaderBlock()
 {
 	// Pad to a multiple of 16 or 0
 	const byte zero[16] = {0};
-	size_t rem = m_totalHeaderLength % 16;
-	size_t pad = rem ? 16 - rem : 0;
+	size_t pad = (16 - (m_totalHeaderLength % 16)) % 16;
 	AccessMAC().Update(zero, pad);
 }
 
@@ -61,8 +58,7 @@ void ChaCha20Poly1305_Base::AuthenticateLastConfidentialBlock()
 {
 	// Pad to a multiple of 16 or 0
 	const byte zero[16] = {0};
-	size_t rem = m_totalMessageLength % 16;
-	size_t pad = rem ? 16 - rem : 0;
+	size_t pad = (16 - (m_totalMessageLength % 16)) % 16;
 	AccessMAC().Update(zero, pad);
 }
 
@@ -72,7 +68,6 @@ void ChaCha20Poly1305_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSiz
 	PutWord(true, LITTLE_ENDIAN_ORDER, length+0, m_totalHeaderLength);
 	PutWord(true, LITTLE_ENDIAN_ORDER, length+8, m_totalMessageLength);
 	AccessMAC().Update(length, sizeof(length));
-
 	AccessMAC().TruncatedFinal(mac, macSize);
 }
 

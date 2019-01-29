@@ -3,12 +3,13 @@
 
 /// \file chachapoly.h
 /// \brief ChaCha20/Poly1305-TLS AEAD cipher
-/// \details ChaCha20Poly1305 is an authenticated encryption cipher that combines
-///  ChaCha20TLS and Poly1305TLS. The cipher uses the IETF versions of ChaCha and
-///  Poly1305 because it is defined in RFC 8439, section 2.8, AEAD_CHACHA20_POLY1305
-///  construction.
+/// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
+///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
+/// \since Crypto++ 8.1
 
 #ifndef CRYPTOPP_CHACHA_POLY1305_H
 #define CRYPTOPP_CHACHA_POLY1305_H
@@ -119,10 +120,10 @@ protected:
 };
 
 /// \brief ChaCha20Poly1305 cipher final implementation
-/// \details ChaCha20Poly1305 is an authenticated encryption cipher that combines
-///  ChaCha20TLS and Poly1305TLS. The cipher uses the IETF versions of ChaCha and
-///  Poly1305 because it is defined in RFC 8439, section 2.8, AEAD_CHACHA20_POLY1305
-///  construction.
+/// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
+///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
@@ -151,10 +152,10 @@ private:
 };
 
 /// \brief ChaCha20Poly1305-TLS cipher mode of operation
-/// \details ChaCha20Poly1305 is an authenticated encryption cipher that combines
-///  ChaCha20TLS and Poly1305TLS. The cipher uses the IETF versions of ChaCha and
-///  Poly1305 because it is defined in RFC 8439, section 2.8, AEAD_CHACHA20_POLY1305
-///  construction.
+/// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
+///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
