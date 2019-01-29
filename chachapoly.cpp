@@ -50,15 +50,19 @@ size_t ChaCha20Poly1305_Base::AuthenticateBlocks(const byte *data, size_t len)
 
 void ChaCha20Poly1305_Base::AuthenticateLastHeaderBlock()
 {
+	// Pad to a multiple of 16 or 0
 	const byte zero[16] = {0};
-	size_t pad = 16 - (m_totalHeaderLength % 16);
+	size_t rem = m_totalHeaderLength % 16;
+	size_t pad = rem ? 16 - rem : 0;
 	AccessMAC().Update(zero, pad);
 }
 
 void ChaCha20Poly1305_Base::AuthenticateLastConfidentialBlock()
 {
+	// Pad to a multiple of 16 or 0
 	const byte zero[16] = {0};
-	size_t pad = 16 - (m_totalMessageLength % 16);
+	size_t rem = m_totalMessageLength % 16;
+	size_t pad = rem ? 16 - rem : 0;
 	AccessMAC().Update(zero, pad);
 }
 
