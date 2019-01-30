@@ -66,7 +66,7 @@ public:
 	lword MaxMessageLength() const
 		{return LWORD_MAX;}
 	lword MaxFooterLength() const
-		{return 16;}
+		{return 0;}
 
 	/// \brief Encrypts and calculates a MAC in one call
 	/// \param ciphertext the encryption buffer
@@ -127,6 +127,7 @@ protected:
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
+template <bool T_ForwardTransform>
 class ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
 {
 public:
@@ -139,7 +140,7 @@ protected:
 	SymmetricCipher & AccessSymmetricCipher()
 		{return m_cipher;}
 	bool IsForwardTransformation() const
-		{return m_cipher.IsForwardTransformation();}
+		{return T_ForwardTransform;}
 
 	const MessageAuthenticationCode & GetMAC() const
 		{return const_cast<ChaCha20Poly1305_Final *>(this)->AccessMAC();}
@@ -161,10 +162,9 @@ private:
 /// \since Crypto++ 8.1
 struct ChaCha20Poly1305 : public AuthenticatedSymmetricCipherDocumentation
 {
-	typedef ChaCha20Poly1305_Final Encryption;
-	typedef Encryption Decryption;
+	typedef ChaCha20Poly1305_Final<true> Encryption;
+	typedef ChaCha20Poly1305_Final<false> Decryption;
 };
-
 
 NAMESPACE_END
 

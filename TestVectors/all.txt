@@ -7,6 +7,7 @@ Test: TestVectors/blake2s.txt
 Test: TestVectors/camellia.txt
 Test: TestVectors/ccm.txt
 Test: TestVectors/chacha_tls.txt
+Test: TestVectors/chacha20poly1305.txt
 Test: TestVectors/chacha.txt
 Test: TestVectors/cham.txt
 Test: TestVectors/cmac.txt

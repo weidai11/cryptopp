@@ -1,0 +1,6 @@
+AlgorithmType: FileList
+Name: aead.txt collection
+Test: TestVectors/ccm.txt
+Test: TestVectors/eax.txt
+Test: TestVectors/gcm.txt
+Test: TestVectors/chacha20poly1305.txt

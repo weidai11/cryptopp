@@ -477,6 +477,7 @@ TestData/x25519v0.dat
 TestData/x25519v1.dat
 TestData/xtrdh171.dat
 TestData/xtrdh342.dat
+TestVectors/aead.txt
 TestVectors/aes.txt
 TestVectors/all.txt
 TestVectors/aria.txt
@@ -487,6 +488,7 @@ TestVectors/camellia.txt
 TestVectors/ccm.txt
 TestVectors/chacha.txt
 TestVectors/chacha_tls.txt
+TestVectors/chacha20poly1305.txt
 TestVectors/cham.txt
 TestVectors/cmac.txt
 TestVectors/dlies.txt
