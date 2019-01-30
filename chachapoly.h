@@ -111,9 +111,7 @@ protected:
 	void AuthenticateLastFooterBlock(byte *mac, size_t macSize);
 
 protected:
-	// ChaCha20 does not stash away the user key. There's no way to restart
-	// ChaCha once an encryption or decryption is performed. In fact, we
-	// cannot even Resynchronize it correctly. Compensate here.
+	// See comments in chachapoly.cpp
 	void RekeyCipherAndMac(const byte *userKey, size_t userKeyLength, const NameValuePairs &params);
 
 	SecByteBlock m_userKey;
