@@ -10,9 +10,17 @@ NAMESPACE_BEGIN(CryptoPP)
 
 void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_t len)
 {
+	// UBsan finding with -std=c++03 using memcpy
+	CRYPTOPP_ASSERT(input && len);
+	if(!input || !len) return;
+
 	unsigned int blockSize = AuthenticationBlockSize();
 	unsigned int &num = m_bufferedDataLength;
 	byte* data = m_buffer.begin();
+
+	// UBsan finding with -std=c++03 using memcpy
+	CRYPTOPP_ASSERT(data);
+	if(!data) return;
 
 	if (num != 0)	// process left over data
 	{
