@@ -79,6 +79,7 @@ void AuthenticatedSymmetricCipherBase::Resynchronize(const byte *iv, int length)
 
 void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 {
+	// Part of original authenc.cpp code. Don't remove it.
 	if (length == 0) {return;}
 
 	switch (m_state)
@@ -107,9 +108,9 @@ void AuthenticatedSymmetricCipherBase::Update(const byte *input, size_t length)
 
 void AuthenticatedSymmetricCipherBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-	m_totalMessageLength += length;
-	if (m_state >= State_IVSet && m_totalMessageLength > MaxMessageLength())
+	if (m_state >= State_IVSet && length > MaxMessageLength()-m_totalMessageLength)
 		throw InvalidArgument(AlgorithmName() + ": message length exceeds maximum");
+	m_totalMessageLength += length;
 
 reswitch:
 	switch (m_state)
