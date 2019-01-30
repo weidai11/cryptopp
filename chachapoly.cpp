@@ -9,11 +9,11 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 // RekeyCipherAndMac is heavier-weight than we like. The Authenc framework was
-// predicated on BlcokCiphers, where the key and key schedule could be
+// predicated on BlockCiphers, where the key and key schedule could be
 // calculated independent of the IV being used. However, the ChaCha and
-// ChaCha20Poly1305 construction cannot disgorge key setup and IV. Even a
-// simple Resync() forces us to regenerate the initial state for both
-// ChaCha20 and Poly1305.
+// ChaCha20Poly1305 construction conflates key setup and IV. That is, both are
+// needed to key or rekey the cipher. Even a simple Resync() forces us to
+// regenerate the initial state for both ChaCha20 and Poly1305.
 void ChaCha20Poly1305_Base::RekeyCipherAndMac(const byte *userKey, size_t keylength, const NameValuePairs &params)
 {
 	// Derive MAC key
