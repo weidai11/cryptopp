@@ -22,7 +22,9 @@ Richard De Moliner - safer.cpp
 Matthew Skala - twofish.cpp
 Kevin Springle - camellia.cpp, shacal2.cpp, ttmac.cpp, whrlpool.cpp, ripemd.cpp
 Ronny Van Keer - sha3.cpp
-Daniel J. Bernstein - chacha.cpp
+Aumasson, Neves, Wilcox-O'Hearn and Winnerlein - blake2.cpp, blake2b_simd.cpp, blake2s_simd.cpp
+Han Lulu, Markku-Juhani O. Saarinen - sm4.cpp sm4_simd.cpp
+Daniel J. Bernstein, Jack Lloyd - chacha.cpp, chacha_simd.cpp, chacha_avx.cpp
 Andrew Moon - ed25519, x25519, donna_32.cpp, donna_64.cpp, donna_sse.cpp
 
 The Crypto++ Library uses portions of Andy Polyakov's CRYPTOGAMS for Poly1305
