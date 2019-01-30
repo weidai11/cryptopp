@@ -62,7 +62,7 @@ public:
 	unsigned int DigestSize() const
 		{return 16;}
 	lword MaxHeaderLength() const
-		{return W64LIT(18446744073709551615);}  // 2^64-1 bytes
+		{return LWORD_MAX;}  // 2^64-1 bytes
 	lword MaxMessageLength() const
 		{return W64LIT(274877906880);}  // 2^38-1 blocks
 	lword MaxFooterLength() const
@@ -118,7 +118,7 @@ protected:
 };
 
 /// \brief ChaCha20Poly1305 cipher final implementation
-/// \tparam T_ForwardTransform flag indicating cipher direction
+/// \tparam T_IsEncryption flag indicating cipher direction
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
 ///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
@@ -126,7 +126,7 @@ protected:
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
-template <bool T_ForwardTransform>
+template <bool T_IsEncryption>
 class ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
 {
 public:
@@ -139,7 +139,7 @@ protected:
 	SymmetricCipher & AccessSymmetricCipher()
 		{return m_cipher;}
 	bool IsForwardTransformation() const
-		{return T_ForwardTransform;}
+		{return T_IsEncryption;}
 
 	const MessageAuthenticationCode & GetMAC() const
 		{return const_cast<ChaCha20Poly1305_Final *>(this)->AccessMAC();}
