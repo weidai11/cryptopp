@@ -18,7 +18,7 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 	unsigned int &num = m_bufferedDataLength;
 	byte* data = m_buffer.begin();
 
-	if (num != 0)	// process left over data
+	if (data && num)	// process left over data
 	{
 		if (num+len >= blockSize)
 		{
@@ -45,7 +45,7 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 		len = leftOver;
 	}
 
-	if (data)
+	if (data && len)
 		memcpy(data, input, len);
 	num = (unsigned int)len;
 }
