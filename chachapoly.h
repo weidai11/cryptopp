@@ -62,9 +62,9 @@ public:
 	unsigned int DigestSize() const
 		{return 16;}
 	lword MaxHeaderLength() const
-		{return LWORD_MAX;}
+		{return W64LIT(18446744073709551615);}  // 2^64-1 bytes
 	lword MaxMessageLength() const
-		{return LWORD_MAX;}
+		{return W64LIT(274877906880);}  // 2^38-1 blocks
 	lword MaxFooterLength() const
 		{return 0;}
 
