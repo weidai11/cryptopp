@@ -316,6 +316,7 @@ std::string ChaCha_Policy::AlgorithmProvider() const
 void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 16 || length == 32);
+    CRYPTOPP_UNUSED(key); CRYPTOPP_UNUSED(length);
 
     m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
     if (m_rounds != 20 && m_rounds != 12 && m_rounds != 8)
@@ -337,7 +338,7 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
 void ChaCha_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
 {
     CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
-    CRYPTOPP_ASSERT(length==8);
+    CRYPTOPP_ASSERT(length==8); CRYPTOPP_UNUSED(length);
 
     GetBlock<word32, LittleEndian> get(IV);
     m_state[12] = m_state[13] = 0;

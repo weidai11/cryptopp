@@ -120,6 +120,7 @@ protected:
 };
 
 /// \brief ChaCha20Poly1305 cipher final implementation
+/// \tparam T_ForwardTransform flag indicating cipher direction
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
 ///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
