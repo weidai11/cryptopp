@@ -18,10 +18,6 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 	unsigned int &num = m_bufferedDataLength;
 	byte* data = m_buffer.begin();
 
-	// UBsan finding with -std=c++03 using memcpy
-	CRYPTOPP_ASSERT(data);
-	if(!data) return;
-
 	if (num != 0)	// process left over data
 	{
 		if (num+len >= blockSize)
@@ -49,7 +45,8 @@ void AuthenticatedSymmetricCipherBase::AuthenticateData(const byte *input, size_
 		len = leftOver;
 	}
 
-	memcpy(data, input, len);
+	if (data)
+		memcpy(data, input, len);
 	num = (unsigned int)len;
 }
 
