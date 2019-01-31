@@ -18,7 +18,7 @@
 # endif
 #endif
 
-// Issue 340
+// Issue 340 and Issue 793
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wconversion"
@@ -101,35 +101,6 @@
 #endif
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
-
-// NumericLimitsMin and NumericLimitsMax added for word128 types,
-//   see http://github.com/weidai11/cryptopp/issues/364
-ANONYMOUS_NAMESPACE_BEGIN
-template<class T>
-T NumericLimitsMin()
-{
-	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
-	return (std::numeric_limits<T>::min)();
-}
-template<class T>
-T NumericLimitsMax()
-{
-	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
-	return (std::numeric_limits<T>::max)();
-}
-#if defined(CRYPTOPP_WORD128_AVAILABLE)
-template<>
-CryptoPP::word128 NumericLimitsMin()
-{
-	return 0;
-}
-template<>
-CryptoPP::word128 NumericLimitsMax()
-{
-	return (((CryptoPP::word128)W64LIT(0xffffffffffffffff)) << 64U) | (CryptoPP::word128)W64LIT(0xffffffffffffffff);
-}
-#endif
-ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -900,18 +871,20 @@ CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byt
 /// \param buf1 the first buffer
 /// \param buf2 the second buffer
 /// \param count the size of the buffers, in bytes
-/// \details The function effectively performs an XOR of the elements in two equally sized buffers
-///   and retruns a result based on the XOR operation. The function is near constant-time because
-///   CPU micro-code timings could affect the "constant-ness". Calling code is responsible for
-///   mitigating timing attacks if the buffers are not equally sized.
+/// \details The function effectively performs an XOR of the elements in two equally sized
+///   buffers and retruns a result based on the XOR operation. The function is near
+///   constant-time because CPU micro-code timings could affect the "constant-ness".
+///   Calling code is responsible for mitigating timing attacks if the buffers are not
+///   equally sized.
 /// \sa ModPowerOf2
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf2, size_t count);
 
 /// \brief Tests whether a value is a power of 2
 /// \param value the value to test
 /// \returns true if value is a power of 2, false otherwise
-/// \details The function creates a mask of <tt>value - 1</tt> and returns the result of
-///   an AND operation compared to 0. If value is 0 or less than 0, then the function returns false.
+/// \details The function creates a mask of <tt>value - 1</tt> and returns the result
+///   of an AND operation compared to 0. If value is 0 or less than 0, then the function
+///   returns false.
 template <class T>
 inline bool IsPowerOf2(const T &value)
 {
@@ -934,13 +907,65 @@ inline bool IsPowerOf2<word64>(const word64 &value)
 # endif  // __x86_64__
 #endif   // __BMI__
 
+/// \brief Provide the minimum value for a type
+/// \tparam T type of class
+/// \returns the minimum value of the type or class
+/// \details NumericLimitsMin() was introduced for Clang at <A
+///  HREF="http://github.com/weidai11/cryptopp/issues/364">Issue 364,
+///  Apple Clang 6.0 and numeric_limits<word128>::max() returns 0</A>.
+/// \detials NumericLimitsMin() requires a specialization for <tt>T</tt>,
+///  meaning <tt>std::numeric_limits<T>::is_specialized</tt> must return
+///  <tt>true</tt>. In the case of <tt>word128</tt> Clang did not specialize
+///  <tt>numeric_limits</tt> for the type.
+/// \since Crypto++ 8.1
+template<class T>
+inline T NumericLimitsMin()
+{
+	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
+	return (std::numeric_limits<T>::min)();
+}
+
+/// \brief Provide the maximum value for a type
+/// \tparam T type of class
+/// \returns the maximum value of the type or class
+/// \details NumericLimitsMax() was introduced for Clang at <A
+///  HREF="http://github.com/weidai11/cryptopp/issues/364">Issue 364,
+///  Apple Clang 6.0 and numeric_limits<word128>::max() returns 0</A>.
+/// \detials NumericLimitsMax() requires a specialization for <tt>T</tt>,
+///  meaning <tt>std::numeric_limits<T>::is_specialized</tt> must return
+///  <tt>true</tt>. In the case of <tt>word128</tt> Clang did not specialize
+///  <tt>numeric_limits</tt> for the type.
+/// \since Crypto++ 8.1
+template<class T>
+inline T NumericLimitsMax()
+{
+	CRYPTOPP_ASSERT(std::numeric_limits<T>::is_specialized);
+	return (std::numeric_limits<T>::max)();
+}
+
+// NumericLimitsMin and NumericLimitsMax added for word128 types,
+//   see http://github.com/weidai11/cryptopp/issues/364
+#if defined(CRYPTOPP_WORD128_AVAILABLE)
+template<>
+inline word128 NumericLimitsMin()
+{
+	return 0;
+}
+template<>
+inline word128 NumericLimitsMax()
+{
+	return (static_cast<word128>(LWORD_MAX) << 64U) | LWORD_MAX;
+}
+#endif
+
 /// \brief Performs a saturating subtract clamped at 0
 /// \tparam T1 class or type
 /// \tparam T2 class or type
 /// \param a the minuend
 /// \param b the subtrahend
 /// \returns the difference produced by the saturating subtract
-/// \details Saturating arithmetic restricts results to a fixed range. Results that are less than 0 are clamped at 0.
+/// \details Saturating arithmetic restricts results to a fixed range. Results that are
+///   less than 0 are clamped at 0.
 /// \details Use of saturating arithmetic in places can be advantageous because it can
 ///   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
 template <class T1, class T2>
@@ -956,8 +981,8 @@ inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
 /// \param a the minuend
 /// \param b the subtrahend
 /// \returns the difference produced by the saturating subtract
-/// \details Saturating arithmetic restricts results to a fixed range. Results that are less than
-///   1 are clamped at 1.
+/// \details Saturating arithmetic restricts results to a fixed range. Results that are
+///   less than 1 are clamped at 1.
 /// \details Use of saturating arithmetic in places can be advantageous because it can
 ///   avoid a branch by using an instruction like a conditional move (<tt>CMOVE</tt>).
 template <class T1, class T2>
