@@ -913,7 +913,7 @@ inline bool IsPowerOf2<word64>(const word64 &value)
 /// \details NumericLimitsMin() was introduced for Clang at <A
 ///  HREF="http://github.com/weidai11/cryptopp/issues/364">Issue 364,
 ///  Apple Clang 6.0 and numeric_limits<word128>::max() returns 0</A>.
-/// \detials NumericLimitsMin() requires a specialization for <tt>T</tt>,
+/// \details NumericLimitsMin() requires a specialization for <tt>T</tt>,
 ///  meaning <tt>std::numeric_limits<T>::is_specialized</tt> must return
 ///  <tt>true</tt>. In the case of <tt>word128</tt> Clang did not specialize
 ///  <tt>numeric_limits</tt> for the type.
@@ -931,7 +931,7 @@ inline T NumericLimitsMin()
 /// \details NumericLimitsMax() was introduced for Clang at <A
 ///  HREF="http://github.com/weidai11/cryptopp/issues/364">Issue 364,
 ///  Apple Clang 6.0 and numeric_limits<word128>::max() returns 0</A>.
-/// \detials NumericLimitsMax() requires a specialization for <tt>T</tt>,
+/// \details NumericLimitsMax() requires a specialization for <tt>T</tt>,
 ///  meaning <tt>std::numeric_limits<T>::is_specialized</tt> must return
 ///  <tt>true</tt>. In the case of <tt>word128</tt> Clang did not specialize
 ///  <tt>numeric_limits</tt> for the type.
