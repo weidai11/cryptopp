@@ -16,6 +16,7 @@
 
 #include "cryptlib.h"
 #include "authenc.h"
+#include "seckey.h"
 #include "chacha.h"
 #include "poly1305.h"
 
