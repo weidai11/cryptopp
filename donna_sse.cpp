@@ -24,6 +24,7 @@
 // and not the actual alignment of the variable and data.
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic ignored "-Wcast-align"
+# pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
 // Squash MS LNK4221 and libtool warnings

@@ -27,6 +27,10 @@
 #include "misc.h"
 #include "cpu.h"
 
+#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
+# pragma GCC diagnostic ignored "-Wunused-function"
+#endif
+
 // Squash MS LNK4221 and libtool warnings
 extern const char DONNA64_FNAME[] = __FILE__;
 
