@@ -16,7 +16,6 @@
 
 #include "cryptlib.h"
 #include "authenc.h"
-#include "seckey.h"
 #include "chacha.h"
 #include "poly1305.h"
 
@@ -25,8 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief ChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
-class ChaCha20Poly1305_Base
-	: public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 12>, public AuthenticatedSymmetricCipherBase
+class ChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
 	virtual ~ChaCha20Poly1305_Base() {}
