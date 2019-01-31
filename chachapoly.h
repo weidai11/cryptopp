@@ -38,7 +38,7 @@ public:
 	std::string AlgorithmName() const
 		{return std::string("ChaCha20/Poly1305");}
 	std::string AlgorithmProvider() const
-		{return "C++";}
+		{return GetSymmetricCipher().AlgorithmProvider();}
 	size_t MinKeyLength() const
 		{return 32;}
 	size_t MaxKeyLength() const
