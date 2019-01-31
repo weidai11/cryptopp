@@ -2,14 +2,18 @@
 
 /// \file trap.h
 /// \brief Debugging and diagnostic assertions
-/// \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
-///   is enabled by <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
-/// \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>__debugbreak()</tt> (Windows).
-///   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user requests a debug configuration. Unlike Posix assert,
+/// \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic
+///   assertion. <tt>CRYPTOPP_ASSERT</tt> is enabled by <tt>CRYPTOPP_DEBUG</tt>,
+///   <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
+/// \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls
+///   <tt>__debugbreak()</tt> (Windows). <tt>CRYPTOPP_ASSERT</tt> is only in
+///   effect when the user requests a debug configuration. Unlike Posix assert,
 ///   <tt>NDEBUG</tt> (or failure to define it) does not affect the library.
-/// The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt> or DebugTrapHandler.
+///   The traditional Posix define <tt>NDEBUG</tt> has no effect on
+///   <tt>CRYPTOPP_DEBUG</tt> or DebugTrapHandler.
 /// \since Crypto++ 5.6.5
-/// \sa DebugTrapHandler, <A HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
+/// \sa DebugTrapHandler, <A
+///   HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
 ///   <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
 
 #ifndef CRYPTOPP_TRAP_H
@@ -32,17 +36,21 @@
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Debugging and diagnostic assertion
-/// \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic assertion. <tt>CRYPTOPP_ASSERT</tt>
-///   is enabled by the preprocessor macros <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
-/// \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls <tt>DebugBreak()</tt> (Windows).
-///   <tt>CRYPTOPP_ASSERT</tt> is only in effect when the user explicitly requests a debug configuration.
-/// \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do not</em> define
-///   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
-///   is preprocessed into an empty string.
-/// \details The traditional Posix define <tt>NDEBUG</tt> has no effect on <tt>CRYPTOPP_DEBUG</tt>, <tt>CRYPTOPP_ASSERT</tt>
-///   or DebugTrapHandler.
-/// \details An example of using \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT" and DebugTrapHandler is shown below. The library's
-///   test program, <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
+/// \details <tt>CRYPTOPP_ASSERT</tt> is the library's debugging and diagnostic
+///   assertion. <tt>CRYPTOPP_ASSERT</tt> is enabled by the preprocessor macros
+///   <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
+/// \details <tt>CRYPTOPP_ASSERT</tt> raises a <tt>SIGTRAP</tt> (Unix) or calls
+///   <tt>DebugBreak()</tt> (Windows). <tt>CRYPTOPP_ASSERT</tt> is only in effect
+///   when the user explicitly requests a debug configuration.
+/// \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then <em>do
+///   not</em> define <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or <tt>_DEBUG</tt>.
+///   Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt> is preprocessed into an
+///   empty string.
+/// \details The traditional Posix define <tt>NDEBUG</tt> has no effect on
+///   <tt>CRYPTOPP_DEBUG</tt>, <tt>CRYPTOPP_ASSERT</tt> or DebugTrapHandler.
+/// \details An example of using CRYPTOPP_ASSERT and DebugTrapHandler is shown
+///   below. The library's test program, <tt>cryptest.exe</tt> (from test.cpp),
+///   exercises the structure:
 ///  <pre>
 ///    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
 ///    static const DebugTrapHandler g_dummyHandler;
@@ -55,7 +63,8 @@
 ///    }
 ///  </pre>
 /// \since Crypto++ 5.6.5
-/// \sa DebugTrapHandler, SignalHandler, <A HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
+/// \sa DebugTrapHandler, SignalHandler, <A
+///   HREF="http://github.com/weidai11/cryptopp/issues/277">Issue 277</A>,
 ///   <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
 #  define CRYPTOPP_ASSERT(exp) { ... }
 #endif
