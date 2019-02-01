@@ -52,9 +52,9 @@
 ///   below. The library's test program, <tt>cryptest.exe</tt> (from test.cpp),
 ///   exercises the structure:
 ///  <pre>
-///    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
+///    \#if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
 ///    static const DebugTrapHandler g_dummyHandler;
-///    #endif
+///    \#endif
 ///
 ///    int main(int argc, char* argv[])
 ///    {
@@ -133,9 +133,9 @@ NAMESPACE_BEGIN(CryptoPP)
 ///   DebugTrapHandler is shown below. The library's test program,
 ///   <tt>cryptest.exe</tt> (from test.cpp), exercises the structure:
 ///  <pre>
-///    #if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
+///    \#if defined(CRYPTOPP_DEBUG) && defined(UNIX_SIGNALS_AVAILABLE)
 ///    static const DebugTrapHandler g_dummyHandler;
-///    #endif
+///    \#endif
 ///
 ///    int main(int argc, char* argv[])
 ///    {
