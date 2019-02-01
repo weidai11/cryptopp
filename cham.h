@@ -95,7 +95,7 @@ public:
 #endif
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 8.0
@@ -109,11 +109,15 @@ public:
 #endif
     };
 
+    /// \brief CHAM64 encryption
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+    /// \brief CHAM64 decryption
     typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
+/// \brief CHAM64 encryption
 typedef CHAM64::Encryption CHAM64Encryption;
+/// \brief CHAM64 decryption
 typedef CHAM64::Decryption CHAM64Decryption;
 
 /// \brief CHAM 128-bit block cipher
@@ -154,7 +158,7 @@ public:
 #endif
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 8.0
@@ -168,11 +172,15 @@ public:
 #endif
     };
 
+    /// \brief CHAM128 encryption
     typedef BlockCipherFinal<ENCRYPTION, Enc> Encryption;
+    /// \brief CHAM128 decryption
     typedef BlockCipherFinal<DECRYPTION, Dec> Decryption;
 };
 
+/// \brief CHAM128 encryption
 typedef CHAM128::Encryption CHAM128Encryption;
+/// \brief CHAM128 decryption
 typedef CHAM128::Decryption CHAM128Decryption;
 
 NAMESPACE_END
