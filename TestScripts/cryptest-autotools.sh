@@ -141,13 +141,13 @@ if ! "$MAKE" -j2 -f Makefile; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! ./cryptestcwd v; then
-	echo "cryptestcwd v failed."
+if ! ./cryptest v; then
+	echo "cryptest v failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if ! ./cryptestcwd tv all; then
-	echo "cryptestcwd tv all failed."
+if ! ./cryptest tv all; then
+	echo "cryptest tv all failed."
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
