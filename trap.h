@@ -106,22 +106,23 @@ NAMESPACE_BEGIN(CryptoPP)
 #if (CRYPTOPP_DEBUG && defined(UNIX_SIGNALS_AVAILABLE)) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Default SIGTRAP handler
 /// \details DebugTrapHandler() can be used by a program to install an empty
-///   SIGTRAP handler. If present, the handler ensures there is a signal handler
-///   in place for <tt>SIGTRAP</tt> raised by <tt>CRYPTOPP_ASSERT</tt>. If
-///   <tt>CRYPTOPP_ASSERT</tt> raises <tt>SIGTRAP</tt> <em>without</em>
-///   a handler, then one of two things can occur. First, the OS might allow the
-///   program to continue. Second, the OS might terminate the program. OS X allows
-///   the program to continue, while some Linuxes terminate the program.
-/// \details If DebugTrapHandler detects another handler in place, then it will not
-///   install a handler. This ensures a debugger can gain control of the
+///   SIGTRAP handler. If present, the handler ensures there is a signal
+///   handler in place for <tt>SIGTRAP</tt> raised by
+///   <tt>CRYPTOPP_ASSERT</tt>. If <tt>CRYPTOPP_ASSERT</tt> raises
+///   <tt>SIGTRAP</tt> <em>without</em> a handler, then one of two things can
+///   occur. First, the OS might allow the program to continue. Second, the OS
+///   might terminate the program. OS X allows the program to continue, while
+///   some Linuxes terminate the program.
+/// \details If DebugTrapHandler detects another handler in place, then it will
+///   not install a handler. This ensures a debugger can gain control of the
 ///   <tt>SIGTRAP</tt> signal without contention. It also allows multiple
 ///   DebugTrapHandler to be created without contentious or unusual behavior.
-///   Though multiple DebugTrapHandler can be created, a program should only create
-///   one, if needed.
-/// \details A DebugTrapHandler is subject to C++ static initialization [dis]order.
-///   If you need to install a handler and it must be installed early, then
-///   reference the code associated with <tt>CRYPTOPP_INIT_PRIORITY</tt> in
-///   cryptlib.cpp and cpu.cpp.
+///   Though multiple DebugTrapHandler can be created, a program should only
+///   create one, if needed.
+/// \details A DebugTrapHandler is subject to C++ static initialization
+///   [dis]order. If you need to install a handler and it must be installed
+///   early, then reference the code associated with
+///   <tt>CRYPTOPP_INIT_PRIORITY</tt> in cryptlib.cpp and cpu.cpp.
 /// \details If you want to ensure <tt>CRYPTOPP_ASSERT</tt> is inert, then
 ///   <em>do not</em> define <tt>CRYPTOPP_DEBUG</tt>, <tt>DEBUG</tt> or
 ///   <tt>_DEBUG</tt>. Avoiding the defines means <tt>CRYPTOPP_ASSERT</tt>
