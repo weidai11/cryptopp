@@ -2,7 +2,7 @@
 //                RFC 8439, Section 2.8, AEAD Construction, http://tools.ietf.org/html/rfc8439
 
 /// \file chachapoly.h
-/// \brief ChaCha20/Poly1305-TLS AEAD cipher
+/// \brief ChaCha20/Poly1305-TLS AEAD scheme
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
 ///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
@@ -150,7 +150,7 @@ private:
 	Poly1305TLS m_mac;
 };
 
-/// \brief ChaCha20Poly1305-TLS cipher mode of operation
+/// \brief ChaCha20/Poly1305-TLS AEAD scheme
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
 ///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
@@ -160,7 +160,9 @@ private:
 /// \since Crypto++ 8.1
 struct ChaCha20Poly1305 : public AuthenticatedSymmetricCipherDocumentation
 {
+	/// \brief ChaCha20Poly1305 encryption
 	typedef ChaCha20Poly1305_Final<true> Encryption;
+	/// \brief ChaCha20Poly1305 decryption
 	typedef ChaCha20Poly1305_Final<false> Decryption;
 };
 
