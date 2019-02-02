@@ -434,17 +434,17 @@ void Benchmark1(double t, double hertz)
 		BenchMarkByNameKeyLess<RandomNumberGenerator>("AutoSeededX917RNG(AES)");
 #endif
 		BenchMarkByNameKeyLess<RandomNumberGenerator>("MT19937");
-#if (CRYPTOPP_BOOL_X86)
+#if (CRYPTOPP_BOOL_X86) && !defined(CRYPTOPP_DISABLE_ASM)
 		if (HasPadlockRNG())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("PadlockRNG");
 #endif
-#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64) && !defined(CRYPTOPP_DISABLE_ASM)
 		if (HasRDRAND())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDRAND");
 		if (HasRDSEED())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("RDSEED");
 #endif
-#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
+#if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64) && !defined(CRYPTOPP_DISABLE_ASM)
 		if (HasDARN())
 			BenchMarkByNameKeyLess<RandomNumberGenerator>("DARN");
 #endif
