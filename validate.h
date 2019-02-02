@@ -266,23 +266,31 @@ inline std::string AddSeparator(std::string str)
 	return str;
 }
 
+// Use CRYPTOPP_DATA_DIR last. The problem this sidesteps is, finding an
+// old version of Crypto++ library in CRYPTOPP_DATA_DIR when the library
+// has been staged in DESTDIR. Using CRYPTOPP_DATA_DIR first only works
+// as expected when CRYPTOPP_DATA_DIR is empty before an install. We
+// encountered this problem rather quickly during testing of Crypto++ 8.1
+// when Crypto++ 8.0 was installed locally. It took some time to realize
+// where the old test data was coming from.
 static std::string GetDataDir()
 {
 	std::ifstream file;
 	std::string name, filename = "TestData/usage.dat";
 
 #ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
-	name = AddSeparator(g_argvPathHint) + filename;
-	file.open(name.c_str());
-	if (file.is_open())
-		return AddSeparator(g_argvPathHint);
-#endif
-#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
 	// Look in $ORIGIN/../share/. This is likely a Linux install directory.
 	name = AddSeparator(g_argvPathHint) + std::string("../share/cryptopp/") + filename;
 	file.open(name.c_str());
 	if (file.is_open())
 		return AddSeparator(g_argvPathHint) + std::string("../share/cryptopp/");
+#endif
+#ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
+	// Look in current working directory
+	name = AddSeparator(g_argvPathHint) + filename;
+	file.open(name.c_str());
+	if (file.is_open())
+		return AddSeparator(g_argvPathHint);
 #endif
 #ifdef CRYPTOPP_DATA_DIR
 	// Honor CRYPTOPP_DATA_DIR. This is likely an install directory if it is not "./".
