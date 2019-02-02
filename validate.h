@@ -259,7 +259,8 @@ inline int StringToValue<int, true>(const std::string& str)
 
 inline std::string AddSeparator(std::string str)
 {
-	const char last = (str.empty() ? '\0' : str[str.length()-1]);
+	if (str.empty()) return "";
+	const char last = str[str.length()-1];
 	if (last != '/' && last != '\\')
 		return str + "/";
 	return str;
@@ -283,6 +284,13 @@ static std::string GetDataDir()
 	if (file.is_open())
 		return AddSeparator(g_argvPathHint) + std::string("../share/cryptopp/");
 #endif
+#ifdef CRYPTOPP_DATA_DIR
+	// Honor CRYPTOPP_DATA_DIR. This is likely an install directory if it is not "./".
+	name = AddSeparator(CRYPTOPP_DATA_DIR) + filename;
+	file.open(name.c_str());
+	if (file.is_open())
+		return AddSeparator(CRYPTOPP_DATA_DIR);
+#endif
 	return "./";
 }
 
@@ -290,14 +298,6 @@ inline std::string DataDir(const std::string& filename)
 {
 	std::string name;
 	std::ifstream file;
-
-#ifdef CRYPTOPP_DATA_DIR
-	// Honor CRYPTOPP_DATA_DIR. This is likely an install directory if it is not "./".
-	name = AddSeparator(CRYPTOPP_DATA_DIR) + filename;
-	file.open(name.c_str());
-	if (file.is_open())
-		return name;
-#endif
 
 #if CRYPTOPP_CXX11_DYNAMIC_INIT
 	static std::string path = AddSeparator(GetDataDir());
