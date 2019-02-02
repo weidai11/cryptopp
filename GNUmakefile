@@ -1127,9 +1127,13 @@ lcov coverage: cryptest.exe
 	lcov --base-directory . --directory . --zerocounters -q
 	./cryptest.exe v
 	./cryptest.exe tv all
+	./cryptest.exe b 0.25
 	lcov --base-directory . --directory . -c -o cryptest.info
-	lcov --remove cryptest.info "adhoc.*" "fips140.*" "*test.*" "bench*.*" "validat*.*" "/usr/*" -o cryptest.info
-	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
+	lcov --remove cryptest.info "adhoc.*" -o cryptest.info
+	lcov --remove cryptest.info "fips140.*" -o cryptest.info
+	lcov --remove cryptest.info "*test.*" -o cryptest.info
+	lcov --remove cryptest.info "/usr/*" -o cryptest.info
+	genhtml -o ./TestCoverage/ -t "Crypto++ test coverage" --num-spaces 4 cryptest.info
 
 # Travis CI and CodeCov rule
 .PHONY: gcov codecov
