@@ -61,7 +61,7 @@ ifeq ($(SYSTEMX),)
   SYSTEMX := $(shell uname -s 2>/dev/null)
 endif
 
-IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Linux")
+IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c -E "Linux|GNU|Hurd")
 IS_MINGW := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "MinGW")
 IS_CYGWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Cygwin")
 IS_DARWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Darwin")
