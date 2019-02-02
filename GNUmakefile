@@ -1128,7 +1128,7 @@ lcov coverage: cryptest.exe
 	./cryptest.exe v
 	./cryptest.exe tv all
 	lcov --base-directory . --directory . -c -o cryptest.info
-	lcov --remove cryptest.info "adhoc.cpp" "wait.*" "network.*" "socketft.*" "fips140.*" "*test.*" "bench*.cpp" "validat*.*" "/usr/*" -o cryptest.info
+	lcov --remove cryptest.info "adhoc.*" "fips140.*" "*test.*" "bench*.*" "validat*.*" "/usr/*" -o cryptest.info
 	genhtml -o ./TestCoverage/ -t "cryptest.exe test coverage" --num-spaces 4 cryptest.info
 
 # Travis CI and CodeCov rule
