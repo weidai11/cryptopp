@@ -61,7 +61,8 @@ ifeq ($(SYSTEMX),)
   SYSTEMX := $(shell uname -s 2>/dev/null)
 endif
 
-IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c -E "Linux|GNU|Hurd")
+IS_LINUX := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Linux")
+IS_HURD := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c -E "GNU|Hurd")
 IS_MINGW := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "MinGW")
 IS_CYGWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Cygwin")
 IS_DARWIN := $(shell echo "$(SYSTEMX)" | $(GREP) -i -c "Darwin")
@@ -86,7 +87,7 @@ endif
 
 # Enable shared object versioning for Linux and Solaris
 HAS_SOLIB_VERSION ?= 0
-ifneq ($(IS_LINUX)$(IS_SUN),00)
+ifneq ($(IS_LINUX)$(IS_HURD)$(IS_SUN),000)
   HAS_SOLIB_VERSION := 1
 endif
 
@@ -822,13 +823,13 @@ endif  # SunOS
 #  LDLIBS += -lnsl -lsocket
 #endif
 
-ifeq ($(IS_LINUX),1)
+ifneq ($(IS_LINUX)$(IS_HURD),00)
   ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
     ifeq ($(findstring -lgomp,$(LDLIBS)),)
       LDLIBS += -lgomp
     endif # LDLIBS
   endif # OpenMP
-endif # IS_LINUX
+endif # IS_LINUX or IS_HURD
 
 # Add -errtags=yes to get the name for a warning suppression
 ifneq ($(SUN_COMPILER),0)	# override flags for CC Sun C++ compiler
@@ -1012,7 +1013,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 # Different patchlevels and minors are compatible since 6.1
 SOLIB_COMPAT_SUFFIX=.$(LIB_MAJOR)
 # Linux uses -Wl,-soname
-ifeq ($(IS_LINUX),1)
+ifneq ($(IS_LINUX)$(IS_HURD),00)
 # Linux uses full version suffix for shared library
 SOLIB_VERSION_SUFFIX=.$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)
 SOLIB_FLAGS=-Wl,-soname,libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
@@ -1397,7 +1398,7 @@ ifneq ($(IS_DARWIN),0)
 	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	hdiutil makehybrid -iso -joliet -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)
 	@-$(RM) -r $(PWD)/cryptopp$(LIB_VER)
-else ifneq ($(IS_LINUX),0)
+else ifneq ($(IS_LINUX)$(IS_HURD),00)
 	$(MKDIR) $(PWD)/cryptopp$(LIB_VER)
 	$(CP) cryptopp$(LIB_VER).zip $(PWD)/cryptopp$(LIB_VER)
 	genisoimage -q -o cryptopp$(LIB_VER).iso $(PWD)/cryptopp$(LIB_VER)

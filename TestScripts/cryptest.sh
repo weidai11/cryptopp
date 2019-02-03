@@ -108,6 +108,7 @@ fi
 THIS_SYSTEM=$(uname -s 2>&1)
 IS_AIX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c aix)
 IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
+IS_HURD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c gnu)
 IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
 IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
 IS_MINGW=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c mingw)
@@ -155,6 +156,8 @@ if [[ ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(grep Features /var/run/dmesg.boot)
 	elif [[ ("$IS_DRAGONFLY" -ne "0") ]]; then
 		X86_CPU_FLAGS=$(dmesg | grep Features)
+	elif [[ ("$IS_HURD" -ne "0") ]]; then
+		: # Do nothing... cpuid is not helpful at the moment
 	else
 		X86_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "flags"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
 	fi
