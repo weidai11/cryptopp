@@ -11,8 +11,8 @@ NAMESPACE_BEGIN(CryptoPP)
 // RekeyCipherAndMac is heavier-weight than we like. The Authenc framework was
 // predicated on BlockCiphers, where the key and key schedule could be
 // calculated independent of the IV being used. However, the ChaCha and
-// ChaCha20Poly1305 construction conflates key setup and IV. That is, both are
-// needed to key or rekey the cipher. Even a simple Resync() forces us to
+// ChaCha20Poly1305 construction combines key setup and IV. That is, both are
+// needed to key or rekey the cipher. Even a simple Resync() requires us to
 // regenerate the initial state for both ChaCha20 and Poly1305.
 void ChaCha20Poly1305_Base::RekeyCipherAndMac(const byte *userKey, size_t keylength, const NameValuePairs &params)
 {
@@ -36,7 +36,16 @@ void ChaCha20Poly1305_Base::SetKeyWithoutResync(const byte *userKey, size_t user
 {
 	CRYPTOPP_ASSERT(userKey && userKeyLength == 32);
 	m_userKey.Assign(userKey, userKeyLength);
-	RekeyCipherAndMac(userKey, userKeyLength, params);
+
+	// ChaCha/Poly1305 initial state depends on both the key and IV. The
+	// IV may or may not be present during the call to SetKeyWithoutResync.
+	// If the IV is present, the framework will call SetKeyWithoutResync
+	// followed by Resynchronize which calls Resync. In this case we defer
+	// calculating the initial state until the call to Resynchronize.
+	// If the IV is not present, it avoids calling ChaCha's SetKey without
+	// an IV, which results in an exception. In this case the user will need
+	// to call Resynchronize to key ChaCha and Poly1305.
+	// RekeyCipherAndMac(userKey, userKeyLength, params);
 }
 
 void ChaCha20Poly1305_Base::Resync(const byte *iv, size_t len)
@@ -75,6 +84,7 @@ void ChaCha20Poly1305_Base::AuthenticateLastFooterBlock(byte *mac, size_t macSiz
 	PutWord(true, LITTLE_ENDIAN_ORDER, length+8, m_totalMessageLength);
 	AccessMAC().Update(length, sizeof(length));
 	AccessMAC().TruncatedFinal(mac, macSize);
+	m_state = State_KeySet;
 }
 
 void ChaCha20Poly1305_Base::EncryptAndAuthenticate(byte *ciphertext, byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *aad, size_t aadLength, const byte *message, size_t messageLength)
