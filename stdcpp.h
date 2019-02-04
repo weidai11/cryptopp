@@ -60,10 +60,17 @@ namespace std {
 #endif
 
 #include <cstdlib>
-#include <cstddef>
 #include <cstring>
 #include <climits>
 #include <cmath>
+
+// It is 2019 and VS2017/Win10 still can't compile a
+// program that includes <cstddef> without making users
+// do something special. "Epic fail" comes to mind.
+// Also see https://github.com/weidai11/cryptopp/issues/781
+#ifndef _MSC_VER
+# include <cstddef>
+#endif
 
 // uintptr_t and ptrdiff_t
 #if defined(__SUNPRO_CC)
