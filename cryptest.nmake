@@ -247,31 +247,31 @@ cryptopp.dll cryptopp.lib cryptopp.exp: $(LIB_OBJS) cryptopp.def
 	$(LD) $(LDFLAGS) /DLL /DEF:cryptopp.def /IGNORE:4102 $(LIB_OBJS) $(LDLIBS) /out:cryptopp.dll
 
 clean ::
-	$(RM) /F /Q cryptest.exe cryptest.lib cryptest.exp pch.pch 2>null
+	$(RM) /F /Q cryptest.exe cryptest.lib cryptest.exp pch.pch 2>nul
 clean ::
-	$(RM) /F /Q cryptlib.lib cryptlib.exp cryptlib.dll 2>null
+	$(RM) /F /Q cryptlib.lib cryptlib.exp cryptlib.dll 2>nul
 clean ::
-	$(RM) /F /Q cryptopp.dll cryptopp.lib cryptopp.exp cryptopp.def 2>null
+	$(RM) /F /Q cryptopp.dll cryptopp.lib cryptopp.exp cryptopp.def 2>nul
 clean ::
-	$(RM) /F /Q pch.obj $(LIB_OBJS) $(ASM_OBJS) $(TEST_OBJS) *.pdb 2>null
+	$(RM) /F /Q pch.obj $(LIB_OBJS) $(ASM_OBJS) $(TEST_OBJS) *.pdb 2>nul
 
 distclean :: clean
 !IF EXIST ($(USERNAME).sdf)
-	attrib -r -a -s -h $(USERNAME).sdf 2>null
-	$(RM) /F /Q $(USERNAME).sdf 2>null
+	attrib -r -a -s -h $(USERNAME).sdf 2>nul
+	$(RM) /F /Q $(USERNAME).sdf 2>nul
 !ENDIF
 !IF EXIST ($(USERNAME).suo)
-	attrib -r -a -s -h $(USERNAME).suo 2>null
-	$(RM) /F /Q $(USERNAME).suo 2>null
+	attrib -r -a -s -h $(USERNAME).suo 2>nul
+	$(RM) /F /Q $(USERNAME).suo 2>nul
 !ENDIF
 !IF EXIST (Win32\)
-	$(RMDIR) Win32\ /q /s 2>null
+	$(RMDIR) Win32\ /q /s 2>nul
 !ENDIF
 !IF EXIST (x64\)
-	$(RMDIR) x64\ /q /s 2>null
+	$(RMDIR) x64\ /q /s 2>nul
 !ENDIF
 !IF EXIST (ipch\)
-	$(RMDIR) ipch\ /q /s 2>null
+	$(RMDIR) ipch\ /q /s 2>nul
 !ENDIF
 
 # Precompiled header
