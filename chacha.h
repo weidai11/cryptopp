@@ -176,7 +176,7 @@ protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
     void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
     void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
-    bool CipherIsRandomAccess() const {return true;}
+    bool CipherIsRandomAccess() const {return false;}
     void SeekToIteration(lword iterationCount);
     unsigned int GetAlignment() const;
     unsigned int GetOptimalBlockSize() const;
