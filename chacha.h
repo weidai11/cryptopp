@@ -184,9 +184,9 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
-    FixedSizeAlignedSecBlock<word32, 16+8> m_state;
+    FixedSizeAlignedSecBlock<word32, 16+8+1> m_state;
     CRYPTOPP_CONSTANT(ROUNDS = XChaCha20_Info::ROUNDS)
-    CRYPTOPP_CONSTANT(KEY = 16)   // Index into m_state
+    CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
 };
 
 /// \brief XChaCha stream cipher

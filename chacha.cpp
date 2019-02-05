@@ -508,6 +508,12 @@ void XChaCha20_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     if (rounds != 20)
         throw InvalidRounds(XChaCha20::StaticAlgorithmName(), rounds);
 
+    word64 block;
+    if (params.GetValue("InitialBlock", block))
+        m_state[24] = static_cast<word32>(block);
+    else
+        m_state[24] = 1;
+
     // Stash key away for use in CipherResynchronize
     GetBlock<word32, LittleEndian> get(key);
     get(m_state[KEY+0])(m_state[KEY+1])(m_state[KEY+2])(m_state[KEY+3])
@@ -539,7 +545,8 @@ void XChaCha20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv
     m_state[2] = 0x79622d32; m_state[3] = 0x6b206574;
 
     // Setup new IV
-    m_state[12] = 1; m_state[13] = 0;
+    m_state[12] = m_state[24];
+    m_state[13] = 0;
     m_state[14] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, iv+16);
     m_state[15] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, iv+20);
 }
