@@ -4244,7 +4244,9 @@ void Integer::Divide(word &remainder, Integer &quotient, const Integer &dividend
 	if (!divisor)
 		throw Integer::DivideByZero();
 
-	if ((divisor & (divisor-1)) == 0)	// divisor is a power of 2
+	// IsPowerOf2 uses BMI on x86 if available. There is a small
+	// but measurable improvement during decryption and signing.
+	if (IsPowerOf2(divisor))
 	{
 		quotient = dividend >> (BitPrecision(divisor)-1);
 		remainder = dividend.reg[0] & (divisor-1);
