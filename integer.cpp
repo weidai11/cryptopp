@@ -503,8 +503,9 @@ S DivideThreeWordsByTwo(S *A, S B0, S B1, D *dummy=NULLPTR)
 template <class S, class D>
 inline D DivideFourWordsByTwo(S *T, const D &Al, const D &Ah, const D &B)
 {
-	// Profiling tells us the original second case was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original second case was dominant, so it was
+	// promoted to the first If statement. The code change occurred at
+	// Commit dc99266599a0e72d.
 
 	if (!!B)
 	{
@@ -2437,8 +2438,9 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 
 	if (NA==2 && !A[1])
 	{
-		// Profiling tells us the original Default case was dominant, so it was promoted to the first Case statement.
-		// The code change occurred at Commit dc99266599a0e72d.
+		// Profiling tells us the original Default case was dominant, so it was
+		// promoted to the first Case statement. The code change occurred at
+		// Commit dc99266599a0e72d.
 		switch (A[0])
 		{
 		default:
@@ -2484,8 +2486,9 @@ void AsymmetricMultiply(word *R, word *T, const word *A, size_t NA, const word *
 
 void RecursiveInverseModPower2(word *R, word *T, const word *A, size_t N)
 {
-	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original Else was dominant, so it was
+	// promoted to the first If statement. The code change occurred
+	// at Commit dc99266599a0e72d.
 	if (N!=2)
 	{
 		const size_t N2 = N/2;
@@ -3099,8 +3102,9 @@ Integer& Integer::operator=(const Integer& t)
 
 bool Integer::GetBit(size_t n) const
 {
-	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original Else was dominant, so it was
+	// promoted to the first If statement. The code change occurred
+	// at Commit dc99266599a0e72d.
 	if (n/WORD_BITS < reg.size())
 		return bool((reg[n/WORD_BITS] >> (n % WORD_BITS)) & 1);
 	else
@@ -3123,8 +3127,9 @@ void Integer::SetBit(size_t n, bool value)
 
 byte Integer::GetByte(size_t n) const
 {
-	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original Else was dominant, so it was
+	// promoted to the first If statement. The code change occurred
+	// at Commit dc99266599a0e72d.
 	if (n/WORD_SIZE < reg.size())
 		return byte(reg[n/WORD_SIZE] >> ((n%WORD_SIZE)*8));
 	else
@@ -3227,7 +3232,7 @@ static Integer StringToInteger(const T *str, ByteOrder order)
 		{
 			int digit, ch = static_cast<int>(str[i]);
 
-			//  Profiling showd the second and third Else needed to be swapped
+			// Profiling showd the second and third Else needed to be swapped
 			// The code change occurred at Commit dc99266599a0e72d.
 			if (ch >= '0' && ch <= '9')
 				digit = ch - '0';
@@ -3387,8 +3392,9 @@ void Integer::Decode(BufferedTransformation &bt, size_t inputLen, Signedness s)
 
 size_t Integer::MinEncodedSize(Signedness signedness) const
 {
-	// Profiling tells us the original second If was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original second If was dominant, so it
+	// was promoted to the first If statement. The code change occurred
+	// at Commit dc99266599a0e72d.
 	unsigned int outputLen = STDMAX(1U, ByteCount());
 	const bool pre = (signedness == UNSIGNED);
 	if (!pre && NotNegative() && (GetByte(outputLen-1) & 0x80))
@@ -3523,7 +3529,8 @@ void Integer::Randomize(RandomNumberGenerator &rng, const Integer &min, const In
 
 bool Integer::Randomize(RandomNumberGenerator &rng, const Integer &min, const Integer &max, RandomNumberType rnType, const Integer &equiv, const Integer &mod)
 {
-	return GenerateRandomNoThrow(rng, MakeParameters("Min", min)("Max", max)("RandomNumberType", rnType)("EquivalentTo", equiv)("Mod", mod));
+	return GenerateRandomNoThrow(rng, MakeParameters("Min", min)("Max", max)
+		("RandomNumberType", rnType)("EquivalentTo", equiv)("Mod", mod));
 }
 
 class KDF2_RNG : public RandomNumberGenerator
@@ -3842,8 +3849,9 @@ Integer Integer::Xor(const Integer& t) const
 
 void PositiveAdd(Integer &sum, const Integer &a, const Integer& b)
 {
-	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original second Else If was dominant, so it
+	// was promoted to the first If statement. The code change occurred at
+	// Commit dc99266599a0e72d.
 	int carry; const bool pre = (a.reg.size() == b.reg.size());
 	if (!pre && a.reg.size() > b.reg.size())
 	{
@@ -3877,8 +3885,9 @@ void PositiveSubtract(Integer &diff, const Integer &a, const Integer& b)
 	unsigned bSize = b.WordCount();
 	bSize += bSize%2;
 
-	// Profiling tells us the original second Else If was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original second Else If was dominant, so it
+	// was promoted to the first If statement. The code change occurred at
+	// Commit dc99266599a0e72d.
 	if (aSize > bSize)
 	{
 		word borrow = Subtract(diff.reg, a.reg, b.reg, bSize);
@@ -4279,12 +4288,14 @@ word Integer::Modulo(word divisor) const
 
 	word remainder;
 
-	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original Else was dominant, so it was
+	// promoted to the first If statement. The code change occurred
+	// at Commit dc99266599a0e72d.
 	if ((divisor & (divisor-1)) != 0)	// divisor is not a power of 2
 	{
-		// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
-		// The code change occurred at Commit dc99266599a0e72d.
+		// Profiling tells us the original Else was dominant, so it
+		// was promoted to the first If statement. The code change
+		// occurred at Commit dc99266599a0e72d.
 		unsigned int i = WordCount();
 		if (divisor > 5)
 		{
@@ -4319,8 +4330,9 @@ void Integer::Negate()
 
 int Integer::PositiveCompare(const Integer& t) const
 {
-	// Profiling tells us the original Else was dominant, so it was promoted to the first If statement.
-	// The code change occurred at Commit dc99266599a0e72d.
+	// Profiling tells us the original Else was dominant, so it
+	// was promoted to the first If statement. The code change
+	// occurred at Commit dc99266599a0e72d.
 	const unsigned size = WordCount(), tSize = t.WordCount();
 	if (size != tSize)
 		return size > tSize ? 1 : -1;
