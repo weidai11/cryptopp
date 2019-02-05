@@ -21,7 +21,7 @@
 ///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
 ///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
 ///   and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
-/// \since ChaCha since Crypto++ 5.6.4, ChaChaTLS since Crypto++ 8.1
+/// \since ChaCha since Crypto++ 5.6.4, ChaChaTLS and XChaCha20 since Crypto++ 8.1
 
 #ifndef CRYPTOPP_CHACHA_H
 #define CRYPTOPP_CHACHA_H
@@ -136,7 +136,8 @@ protected:
 ///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and
 ///   <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
 /// \sa <a href="https://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and
-///   Poly1305 for IETF Protocols</a>, <A HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
+///   Poly1305 for IETF Protocols</a>, <A
+///   HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
 ///   to handle block counter wrap in IETF's ChaCha algorithm?</A> and
 ///   <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
 ///   790, ChaChaTLS results when counter block wraps</A>.
@@ -144,6 +145,62 @@ protected:
 struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 {
     typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaChaTLS_Policy, AdditiveCipherTemplate<> >, ChaChaTLS_Info > Encryption;
+    typedef Encryption Decryption;
+};
+
+////////////////////////////// IETF XChaCha20 draft //////////////////////////////
+
+/// \brief XChaCha stream cipher information
+/// \since Crypto++ 8.1
+struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>, FixedRounds<20>
+{
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
+    /// \details This is the IETF's XChaCha from draft-arciszewski-xchacha.
+    static const char* StaticAlgorithmName() {
+        return "XChaCha20";
+    }
+};
+
+/// \brief XChaCha stream cipher implementation
+/// \since Crypto++ 8.1
+class CRYPTOPP_NO_VTABLE XChaCha20_Policy : public AdditiveCipherConcretePolicy<word32, 16>
+{
+public:
+    virtual ~XChaCha20_Policy() {}
+    XChaCha20_Policy() {}
+
+protected:
+    void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
+    void OperateKeystream(KeystreamOperation operation, byte *output, const byte *input, size_t iterationCount);
+    void CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length);
+    bool CipherIsRandomAccess() const {return true;}
+    void SeekToIteration(lword iterationCount);
+    unsigned int GetAlignment() const;
+    unsigned int GetOptimalBlockSize() const;
+
+    std::string AlgorithmName() const;
+    std::string AlgorithmProvider() const;
+
+    FixedSizeAlignedSecBlock<word32, 16+8> m_state;
+    CRYPTOPP_CONSTANT(ROUNDS = XChaCha20_Info::ROUNDS)
+    CRYPTOPP_CONSTANT(KEY = 16)   // Index into m_state
+};
+
+/// \brief XChaCha stream cipher
+/// \details This is the IETF's XChaCha from draft-arciszewski-xchacha.
+/// \sa <a href="https://tools.ietf.org/html/draft-arciszewski-xchacha">XChaCha:
+///   eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>, <A
+///   HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
+///   to handle block counter wrap in IETF's ChaCha algorithm?</A> and
+///   <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
+///   790, ChaCha20 results when counter block wraps</A>.
+/// \since Crypto++ 8.1
+struct XChaCha20 : public XChaCha20_Info, public SymmetricCipherDocumentation
+{
+    typedef SymmetricCipherFinal<ConcretePolicyHolder<XChaCha20_Policy, AdditiveCipherTemplate<> >, XChaCha20_Info > Encryption;
     typedef Encryption Decryption;
 };
 

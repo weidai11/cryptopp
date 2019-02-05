@@ -1,0 +1,75 @@
+AlgorithmType: SymmetricCipher
+Name: XChaCha20
+Source: https://tools.ietf.org/html/draft-arciszewski-xchacha
+#
+Comment: A.2. Example and Test Vector for XChaCha20
+Key: 80 81 82 83 84 85 86 87 88 89 8a 8b 8c 8d 8e 8f \
+     90 91 92 93 94 95 96 97 98 99 9a 9b 9c 9d 9e 9f
+IV: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f \
+    50 51 52 53 54 55 56 58
+Plaintext: r304 00
+Ciphertext: 29 62 4b 4b 1b 14 0a ce 53 74 0e 40 5b 21 68 54 \
+            0f d7 d6 30 c1 f5 36 fe cd 72 2f c3 cd db a7 f4 \
+            cc a9 8c f9 e4 7e 5e 64 d1 15 45 0f 9b 12 5b 54 \
+            44 9f f7 61 41 ca 62 0a 1f 9c fc ab 2a 1a 8a 25 \
+            5e 76 6a 52 66 b8 78 84 61 20 ea 64 ad 99 aa 47 \
+            94 71 e6 3b ef cb d3 7c d1 c2 2a 22 1f e4 62 21 \
+            5c f3 2c 74 89 5b f5 05 86 3c cd dd 48 f6 29 16 \
+            dc 65 21 f1 ec 50 a5 ae 08 90 3a a2 59 d9 bf 60 \
+            7c d8 02 6f ba 54 86 04 f1 b6 07 2d 91 bc 91 24 \
+            3a 5b 84 5f 7f d1 71 b0 2e dc 5a 0a 84 cf 28 dd \
+            24 11 46 bc 37 6e 3f 48 df 5e 7f ee 1d 11 04 8c \
+            19 0a 3d 3d eb 0f eb 64 b4 2d 9c 6f de ee 29 0f \
+            a0 e6 ae 2c 26 c0 24 9e a8 c1 81 f7 e2 ff d1 00 \
+            cb e5 fd 3c 4f 82 71 d6 2b 15 33 0c b8 fd cf 00 \
+            b3 df 50 7c a8 c9 24 f7 01 7b 7e 71 2d 15 a2 eb \
+            5c 50 48 44 51 e5 4e 1b 4b 99 5b d8 fd d9 45 97 \
+            bb 94 d7 af 0b 2c 04 df 10 ba 08 90 89 9e d9 29 \
+            3a 0f 55 b8 ba fa 99 92 64 03 5f 1d 4f be 7f e0 \
+            aa fa 10 9a 62 37 20 27 e5 0e 10 cd fe cc a1 27
+Test: Encrypt
+#
+Comment: A.2. Example and Test Vector for XChaCha20
+Key: 80 81 82 83 84 85 86 87 88 89 8a 8b 8c 8d 8e 8f \
+     90 91 92 93 94 95 96 97 98 99 9a 9b 9c 9d 9e 9f
+IV: 40 41 42 43 44 45 46 47 48 49 4a 4b 4c 4d 4e 4f \
+    50 51 52 53 54 55 56 58
+Plaintext: 54 68 65 20 64 68 6f 6c 65 20 28 70 72 6f 6e 6f \
+           75 6e 63 65 64 20 22 64 6f 6c 65 22 29 20 69 73 \
+           20 61 6c 73 6f 20 6b 6e 6f 77 6e 20 61 73 20 74 \
+           68 65 20 41 73 69 61 74 69 63 20 77 69 6c 64 20 \
+           64 6f 67 2c 20 72 65 64 20 64 6f 67 2c 20 61 6e \
+           64 20 77 68 69 73 74 6c 69 6e 67 20 64 6f 67 2e \
+           20 49 74 20 69 73 20 61 62 6f 75 74 20 74 68 65 \
+           20 73 69 7a 65 20 6f 66 20 61 20 47 65 72 6d 61 \
+           6e 20 73 68 65 70 68 65 72 64 20 62 75 74 20 6c \
+           6f 6f 6b 73 20 6d 6f 72 65 20 6c 69 6b 65 20 61 \
+           20 6c 6f 6e 67 2d 6c 65 67 67 65 64 20 66 6f 78 \
+           2e 20 54 68 69 73 20 68 69 67 68 6c 79 20 65 6c \
+           75 73 69 76 65 20 61 6e 64 20 73 6b 69 6c 6c 65 \
+           64 20 6a 75 6d 70 65 72 20 69 73 20 63 6c 61 73 \
+           73 69 66 69 65 64 20 77 69 74 68 20 77 6f 6c 76 \
+           65 73 2c 20 63 6f 79 6f 74 65 73 2c 20 6a 61 63 \
+           6b 61 6c 73 2c 20 61 6e 64 20 66 6f 78 65 73 20 \
+           69 6e 20 74 68 65 20 74 61 78 6f 6e 6f 6d 69 63 \
+           20 66 61 6d 69 6c 79 20 43 61 6e 69 64 61 65 2e
+Ciphertext: 7d 0a 2e 6b 7f 7c 65 a2 36 54 26 30 29 4e 06 3b \
+            7a b9 b5 55 a5 d5 14 9a a2 1e 4a e1 e4 fb ce 87 \
+            ec c8 e0 8a 8b 5e 35 0a be 62 2b 2f fa 61 7b 20 \
+            2c fa d7 20 32 a3 03 7e 76 ff dc dc 43 76 ee 05 \
+            3a 19 0d 7e 46 ca 1d e0 41 44 85 03 81 b9 cb 29 \
+            f0 51 91 53 86 b8 a7 10 b8 ac 4d 02 7b 8b 05 0f \
+            7c ba 58 54 e0 28 d5 64 e4 53 b8 a9 68 82 41 73 \
+            fc 16 48 8b 89 70 ca c8 28 f1 1a e5 3c ab d2 01 \
+            12 f8 71 07 df 24 ee 61 83 d2 27 4f e4 c8 b1 48 \
+            55 34 ef 2c 5f bc 1e c2 4b fc 36 63 ef aa 08 bc \
+            04 7d 29 d2 50 43 53 2d b8 39 1a 8a 3d 77 6b f4 \
+            37 2a 69 55 82 7c cb 0c dd 4a f4 03 a7 ce 4c 63 \
+            d5 95 c7 5a 43 e0 45 f0 cc e1 f2 9c 8b 93 bd 65 \
+            af c5 97 49 22 f2 14 a4 0b 7c 40 2c db 91 ae 73 \
+            c0 b6 36 15 cd ad 04 80 68 0f 16 51 5a 7a ce 9d \
+            39 23 64 64 32 8a 37 74 3f fc 28 f4 dd b3 24 f4 \
+            d0 f5 bb dc 27 0c 65 b1 74 9a 6e ff f1 fb aa 09 \
+            53 61 75 cc d2 9f b9 e6 05 7b 30 73 20 d3 16 83 \
+            8a 9c 71 f7 0b 5b 59 07 a6 6f 7e a4 9a ad c4 09
+Test: Encrypt

@@ -549,6 +549,7 @@ TestVectors/ttmac.txt
 TestVectors/vmac.txt
 TestVectors/wake.txt
 TestVectors/whrlpool.txt
+TestVectors/xchacha.txt
 TestPrograms/test_32bit.cxx
 TestPrograms/test_64bit.cxx
 TestPrograms/test_arm_acle.cxx
