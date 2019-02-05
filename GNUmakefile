@@ -392,8 +392,8 @@ ifeq ($(DETECT_FEATURES),1)
     endif
   endif
 
-  # Drop to SSSE2 if available
-  ifeq ($(SSSE3_FLAG),)
+  # Drop to SSE2 if available
+  ifeq ($(GCM_FLAG),)
     ifneq ($(SSE2_FLAG),)
       GCM_FLAG = $(SSE2_FLAG)
     endif
