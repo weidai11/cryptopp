@@ -546,12 +546,9 @@ void XChaCha20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv
 
 void XChaCha20_Policy::SeekToIteration(lword iterationCount)
 {
-    // Should we throw here??? If the initial block counter is
-    // large then we can wrap and process more data as long as
-    // data processed in the security context does not exceed
-    // 2^32 blocks or approximately 256 GB of data.
-    CRYPTOPP_ASSERT(iterationCount <= std::numeric_limits<word32>::max());
-    m_state[12] = (word32)iterationCount;  // low word
+    // Should we throw here??? XChaCha does not have a block
+    // counter, so I'm not sure how to seek on it.
+    CRYPTOPP_ASSERT(0);
 }
 
 unsigned int XChaCha20_Policy::GetAlignment() const
