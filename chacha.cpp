@@ -558,7 +558,7 @@ void XChaCha20_Policy::SeekToIteration(lword iterationCount)
 {
     // Should we throw here??? XChaCha does not have a block
     // counter, so I'm not sure how to seek on it.
-    CRYPTOPP_ASSERT(0);
+    CRYPTOPP_ASSERT(0); CRYPTOPP_UNUSED(iterationCount);
 }
 
 unsigned int XChaCha20_Policy::GetAlignment() const

@@ -72,6 +72,7 @@ void RegisterFactories4()
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<EAX<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<ChaCha20Poly1305>();
+	RegisterAuthenticatedSymmetricCipherDefaultFactories<XChaCha20Poly1305>();
 
 	RegisterSymmetricCipherDefaultFactories<CBC_Mode<ARIA> >();  // For test vectors
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<ARIA> >();
