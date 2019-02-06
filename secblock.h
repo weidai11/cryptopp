@@ -254,7 +254,7 @@ public:
 		return StandardReallocate(*this, oldPtr, oldSize, newSize, preserve);
 	}
 
-	/// \brief Template class memeber Rebind
+	/// \brief Template class member Rebind
 	/// \tparam V bound class or type
 	/// \details Rebind allows a container class to allocate a different type of object
 	///   to store elements. For example, a std::list will allocate std::list_node to
