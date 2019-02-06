@@ -5,10 +5,10 @@
 
 // The library added Bernstein's ChaCha classses at Crypto++ 5.6.4. The IETF
 // uses a slightly different implementation than Bernstein, and the IETF
-// classes were added at Crypto++ 8.1. We wanted to maintain ABI compatibility
-// at the 8.1 release so the original ChaCha classes were not disturbed.
-// Instead new classes were added for IETF ChaCha. The back-end implementation
-// shares code as expected, however.
+// ChaCha and XChaCha classes were added at Crypto++ 8.1. We wanted to maintain
+// ABI compatibility at the 8.1 release so the original ChaCha classes were not
+// disturbed. Instead new classes were added for IETF ChaCha. The back-end
+// implementation shares code as expected, however.
 
 /// \file chacha.h
 /// \brief Classes for ChaCha8, ChaCha12 and ChaCha20 stream ciphers
@@ -20,7 +20,10 @@
 ///   implementation for cipher suites
 ///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
 ///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
-///   and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
+///   and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>. Finally,
+///   the library provides <a
+///   href="https://tools.ietf.org/html/draft-arciszewski-xchacha">XChaCha:
+///   eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>.
 /// \since ChaCha since Crypto++ 5.6.4, ChaChaTLS and XChaCha20 since Crypto++ 8.1
 
 #ifndef CRYPTOPP_CHACHA_H
@@ -125,8 +128,10 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
-    FixedSizeAlignedSecBlock<word32, 16+1> m_state;
+    FixedSizeAlignedSecBlock<word32, 16+8+1> m_state;
     CRYPTOPP_CONSTANT(ROUNDS = ChaChaTLS_Info::ROUNDS)
+    CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
+    CRYPTOPP_CONSTANT(CTR = 24)  // Index into m_state
 };
 
 /// \brief ChaCha-TLS stream cipher
@@ -191,6 +196,7 @@ protected:
     FixedSizeAlignedSecBlock<word32, 16+8+1> m_state;
     CRYPTOPP_CONSTANT(ROUNDS = XChaCha20_Info::ROUNDS)
     CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
+    CRYPTOPP_CONSTANT(CTR = 24)  // Index into m_state
 };
 
 /// \brief XChaCha stream cipher

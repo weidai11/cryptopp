@@ -39,6 +39,7 @@ void ChaCha_TestInstantiations()
 {
     ChaCha::Encryption x;
     ChaChaTLS::Encryption y;
+    XChaCha20::Encryption z;
 }
 #endif
 
@@ -424,19 +425,14 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     // the function, so we have to use the heavier-weight SetKey to change it.
     word64 block;
     if (params.GetValue("InitialBlock", block))
-        m_state[16] = static_cast<word32>(block);
+        m_state[CTR] = static_cast<word32>(block);
     else
-        m_state[16] = 0;
-
-    // State words are defined in RFC 8439, Section 2.3.
-    m_state[0] = 0x61707865;
-    m_state[1] = 0x3320646e;
-    m_state[2] = 0x79622d32;
-    m_state[3] = 0x6b206574;
+        m_state[CTR] = 0;
 
     // State words are defined in RFC 8439, Section 2.3. Key is 32-bytes.
     GetBlock<word32, LittleEndian> get(key);
-    get(m_state[4])(m_state[5])(m_state[6])(m_state[7])(m_state[8])(m_state[9])(m_state[10])(m_state[11]);
+    get(m_state[KEY+0])(m_state[KEY+1])(m_state[KEY+2])(m_state[KEY+3])
+        (m_state[KEY+4])(m_state[KEY+5])(m_state[KEY+6])(m_state[KEY+7]);
 }
 
 void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV, size_t length)
@@ -444,9 +440,16 @@ void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV
     CRYPTOPP_UNUSED(keystreamBuffer), CRYPTOPP_UNUSED(length);
     CRYPTOPP_ASSERT(length==12);
 
+    // State words are defined in RFC 8439, Section 2.3.
+    m_state[0] = 0x61707865; m_state[1] = 0x3320646e;
+    m_state[2] = 0x79622d32; m_state[3] = 0x6b206574;
+
+    // Copy saved key into state
+    std::memcpy(m_state+4, m_state+KEY, 8*sizeof(word32));
+
     // State words are defined in RFC 8439, Section 2.3
     GetBlock<word32, LittleEndian> get(IV);
-    m_state[12] = m_state[16];
+    m_state[12] = m_state[CTR];
     get(m_state[13])(m_state[14])(m_state[15]);
 }
 
@@ -510,9 +513,9 @@ void XChaCha20_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
 
     word64 block;
     if (params.GetValue("InitialBlock", block))
-        m_state[24] = static_cast<word32>(block);
+        m_state[CTR] = static_cast<word32>(block);
     else
-        m_state[24] = 1;
+        m_state[CTR] = 1;
 
     // Stash key away for use in CipherResynchronize
     GetBlock<word32, LittleEndian> get(key);
@@ -545,7 +548,7 @@ void XChaCha20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv
     m_state[2] = 0x79622d32; m_state[3] = 0x6b206574;
 
     // Setup new IV
-    m_state[12] = m_state[24];
+    m_state[12] = m_state[CTR];
     m_state[13] = 0;
     m_state[14] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, iv+16);
     m_state[15] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, iv+20);
