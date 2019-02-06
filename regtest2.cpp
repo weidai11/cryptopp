@@ -23,6 +23,7 @@
 #include "sha3.h"
 #include "blake2.h"
 #include "ripemd.h"
+#include "chacha.h"
 #include "poly1305.h"
 #include "siphash.h"
 #include "panama.h"
@@ -95,6 +96,7 @@ void RegisterFactories3()
 	RegisterSymmetricCipherDefaultFactories<XSalsa20>();
 	RegisterSymmetricCipherDefaultFactories<ChaCha>();
 	RegisterSymmetricCipherDefaultFactories<ChaChaTLS>();
+	RegisterSymmetricCipherDefaultFactories<XChaCha20>();
 	RegisterSymmetricCipherDefaultFactories<Sosemanuk>();
 	RegisterSymmetricCipherDefaultFactories<Rabbit>();
 	RegisterSymmetricCipherDefaultFactories<RabbitWithIV>();
