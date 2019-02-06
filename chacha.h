@@ -81,7 +81,9 @@ protected:
 /// \since Crypto++ 5.6.4
 struct ChaCha : public ChaCha_Info, public SymmetricCipherDocumentation
 {
+    /// \brief ChaCha Encryption
     typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaCha_Policy, AdditiveCipherTemplate<> >, ChaCha_Info > Encryption;
+    /// \brief ChaCha Decryption
     typedef Encryption Decryption;
 };
 
@@ -144,7 +146,9 @@ protected:
 /// \since Crypto++ 8.1
 struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 {
+    /// \brief ChaCha-TLS Encryption
     typedef SymmetricCipherFinal<ConcretePolicyHolder<ChaChaTLS_Policy, AdditiveCipherTemplate<> >, ChaChaTLS_Info > Encryption;
+    /// \brief ChaCha-TLS Decryption
     typedef Encryption Decryption;
 };
 
@@ -200,7 +204,9 @@ protected:
 /// \since Crypto++ 8.1
 struct XChaCha20 : public XChaCha20_Info, public SymmetricCipherDocumentation
 {
+    /// \brief XChaCha Encryption
     typedef SymmetricCipherFinal<ConcretePolicyHolder<XChaCha20_Policy, AdditiveCipherTemplate<> >, XChaCha20_Info > Encryption;
+    /// \brief XChaCha Decryption
     typedef Encryption Decryption;
 };
 
