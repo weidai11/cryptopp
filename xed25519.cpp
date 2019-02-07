@@ -116,8 +116,8 @@ x25519::x25519(const Integer &x)
 x25519::x25519(RandomNumberGenerator &rng)
 {
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
-    Donna::curve25519_mult(m_pk, m_sk);
+    ClampKey(m_sk);
+    SecretToPublicKey(m_pk, m_sk);
 }
 
 x25519::x25519(BufferedTransformation &params)
@@ -125,10 +125,9 @@ x25519::x25519(BufferedTransformation &params)
     Load(params);
 }
 
-void x25519::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
+void x25519::ClampKey(byte x[SECRET_KEYLENGTH]) const
 {
     x[0] &= 248; x[31] &= 127; x[31] |= 64;
-    Donna::curve25519_mult(y, x);
 }
 
 bool x25519::IsClamped(const byte x[SECRET_KEYLENGTH]) const
@@ -139,6 +138,11 @@ bool x25519::IsClamped(const byte x[SECRET_KEYLENGTH]) const
 bool x25519::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
 {
     return HasSmallOrder(y);
+}
+
+void x25519::SecretToPublicKey(byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH]) const
+{
+    Donna::curve25519_mult(y, x);
 }
 
 void x25519::BERDecodeAndCheckAlgorithmID(BufferedTransformation &bt)
@@ -269,10 +273,10 @@ bool x25519::Validate(RandomNumberGenerator &rng, unsigned int level) const
         return false;
     if (level >= 3)
     {
-        SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
-        ClampKeys(pk, sk);
+        // Verify m_pk is pairwise consistent with m_sk
+        SecByteBlock pk(PUBLIC_KEYLENGTH);
+        SecretToPublicKey(pk, m_sk);
 
-        // Secret key is already clamped, bufs are equal
         if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false)
             return false;
     }
@@ -327,6 +331,10 @@ void x25519::AssignFrom(const NameValuePairs &source)
     {
         m_oid = oid;
     }
+
+    bool derive = false;
+    if (source.GetValue("DerivePublicKey", derive) && derive == true)
+        SecretToPublicKey(m_pk, m_sk);
 }
 
 void x25519::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params)
@@ -336,20 +344,20 @@ void x25519::GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &pa
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
-    Donna::curve25519_mult(m_pk, m_sk);
+    ClampKey(m_sk);
+    SecretToPublicKey(m_pk, m_sk);
 }
 
 void x25519::GeneratePrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
 {
     rng.GenerateBlock(privateKey, SECRET_KEYLENGTH);
-    privateKey[0] &= 248; privateKey[31] &= 127; privateKey[31] |= 64;
+    ClampKey(privateKey);
 }
 
 void x25519::GeneratePublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
 {
     CRYPTOPP_UNUSED(rng);
-    Donna::curve25519_mult(publicKey, privateKey);
+    SecretToPublicKey(publicKey, privateKey);
 }
 
 bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherPublicKey, bool validateOtherPublicKey) const
