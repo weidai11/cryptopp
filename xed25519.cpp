@@ -385,10 +385,10 @@ bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level)
         return false;
     if (level >= 3)
     {
-        SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
-        SecretToPublicKey(pk, sk);
+        // Verify m_pk is pairwise consistent with m_sk
+        SecByteBlock pk(PUBLIC_KEYLENGTH);
+        SecretToPublicKey(pk, m_sk);
 
-        // Secret key is already clamped, bufs are equal
         if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false)
             return false;
     }
