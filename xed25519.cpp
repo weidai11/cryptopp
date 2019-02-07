@@ -365,16 +365,10 @@ bool x25519::Agree(byte *agreedValue, const byte *privateKey, const byte *otherP
 
 // ******************** ed25519 Signer ************************* //
 
-void ed25519PrivateKey::ClampKeys(byte y[PUBLIC_KEYLENGTH], byte x[SECRET_KEYLENGTH]) const
+void ed25519PrivateKey::SecretToPublicKey(byte y[PUBLIC_KEYLENGTH], const byte x[SECRET_KEYLENGTH]) const
 {
-    x[0] &= 248; x[31] &= 127; x[31] |= 64;
     int ret = Donna::ed25519_publickey(y, x);
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
-}
-
-bool ed25519PrivateKey::IsClamped(const byte x[SECRET_KEYLENGTH]) const
-{
-    return (x[0] & 248) == x[0] && (x[31] & 127) == x[31] && (x[31] | 64) == x[31];
 }
 
 bool ed25519PrivateKey::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
@@ -385,17 +379,14 @@ bool ed25519PrivateKey::IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const
 bool ed25519PrivateKey::Validate(RandomNumberGenerator &rng, unsigned int level) const
 {
     CRYPTOPP_UNUSED(rng);
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 
-    if (level >= 1 && IsClamped(m_sk) == false)
-        return false;
-    if (level >= 2 && IsSmallOrder(m_pk) == true)
+    if (level >= 1 && IsSmallOrder(m_pk) == true)
         return false;
     if (level >= 3)
     {
         SecByteBlock sk(m_sk, SECRET_KEYLENGTH), pk(PUBLIC_KEYLENGTH);
-        ClampKeys(pk, sk);
+        SecretToPublicKey(pk, sk);
 
         // Secret key is already clamped, bufs are equal
         if (VerifyBufsEqual(pk, m_pk, PUBLIC_KEYLENGTH) == false)
@@ -454,11 +445,10 @@ void ed25519PrivateKey::AssignFrom(const NameValuePairs &source)
         m_oid = oid;
     }
 
-    bool clamp = false;
-    if (source.GetValue("Clamp", clamp) && clamp == true)
-        ClampKeys(m_pk, m_sk);
+    bool derive = false;
+    if (source.GetValue("DerivePublicKey", derive) && derive == true)
+        SecretToPublicKey(m_pk, m_sk);
 
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
@@ -469,7 +459,6 @@ void ed25519PrivateKey::GenerateRandom(RandomNumberGenerator &rng, const NameVal
         rng.IncorporateEntropy(seed.begin(), seed.size());
 
     rng.GenerateBlock(m_sk, SECRET_KEYLENGTH);
-    m_sk[0] &= 248; m_sk[31] &= 127; m_sk[31] |= 64;
     int ret = Donna::ed25519_publickey(m_pk, m_sk);
     CRYPTOPP_ASSERT(ret == 0); CRYPTOPP_UNUSED(ret);
 }
@@ -537,7 +526,6 @@ void ed25519PrivateKey::BERDecode(BufferedTransformation &bt)
     if (generatePublicKey)
         Donna::ed25519_publickey(m_pk, m_sk);
 
-    CRYPTOPP_ASSERT(IsClamped(m_sk) == true);
     CRYPTOPP_ASSERT(IsSmallOrder(m_pk) == false);
 }
 
@@ -601,7 +589,7 @@ void ed25519PrivateKey::SetPrivateExponent (const byte x[SECRET_KEYLENGTH])
 {
     AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH))
-        ("Clamp", true));
+        ("DerivePublicKey", true));
 }
 
 void ed25519PrivateKey::SetPrivateExponent (const Integer &x)
@@ -613,7 +601,7 @@ void ed25519PrivateKey::SetPrivateExponent (const Integer &x)
 
     AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false))
-        ("Clamp", true));
+        ("DerivePublicKey", true));
 }
 
 const Integer& ed25519PrivateKey::GetPrivateExponent() const
@@ -635,7 +623,7 @@ ed25519Signer::ed25519Signer(const byte x[SECRET_KEYLENGTH])
 {
     AccessPrivateKey().AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(x, SECRET_KEYLENGTH, false))
-        ("Clamp", true));
+        ("DerivePublicKey", true));
 }
 
 ed25519Signer::ed25519Signer(const Integer &y, const Integer &x)
@@ -661,7 +649,7 @@ ed25519Signer::ed25519Signer(const Integer &x)
 
     AccessPrivateKey().AssignFrom(MakeParameters
         (Name::PrivateExponent(), ConstByteArrayParameter(bx, SECRET_KEYLENGTH, false))
-        ("Clamp", true));
+        ("DerivePublicKey", true));
 }
 
 ed25519Signer::ed25519Signer(RandomNumberGenerator &rng)

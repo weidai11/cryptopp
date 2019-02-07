@@ -1739,7 +1739,7 @@ int curve25519_mult_CXX(byte sharedKey[32], const byte secretKey[32], const byte
     using namespace CryptoPP::Donna::X25519;
 
     FixedSizeSecBlock<byte, 32> e;
-    for (size_t i = 0;i < 32;++i)
+    for (size_t i = 0; i < 32; ++i)
         e[i] = secretKey[i];
     e[0] &= 0xf8; e[31] &= 0x7f; e[31] |= 0x40;
 
