@@ -6,19 +6,20 @@ Currently the library contains the following algorithms:
 
                    algorithm type  name
 
- authenticated encryption schemes  GCM, CCM, EAX
+ authenticated encryption schemes  GCM, CCM, EAX, ChaCha20Poly1305 and
+                                   XChaCha20Poly1305
 
-        high speed stream ciphers  ChaCha (8/12/20), Panama, Sosemanuk, Salsa20,
-                                   XSalsa20
+        high speed stream ciphers  ChaCha (8/12/20), ChaCha (IETF), Panama, Salsa20,
+                                   Sosemanuk, XSalsa20 XChaCha20
 
            AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
                                    CAST-256
 
                                    ARIA, IDEA, Blowfish, Triple-DES (DES-EDE2 and
                                    DES-EDE3), Camellia, SEED, Kalyna (128/256/512),
-              other block ciphers  RC5, SIMON-64, SIMON-128, SPECK-64, SPECK-128,
-                                   Skipjack, SHACAL-2, SM4, Threefish (256/512/1024),
-                                   TEA, XTEA
+              other block ciphers  RC5, SIMON (64/128), SPECK (64/128), Skipjack,
+                                   SHACAL-2, SM4, Threefish (256/512/1024), TEA,
+                                   XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
@@ -206,15 +207,22 @@ library in your programs to help avoid unwanted redirections.
 *** Side Channel Attacks ***
 
 Crypto++ attempts to resist side channel attacks using various remediations. We
-believe the library is hardened but the remdiations may be incomplete. The first
-line of defense uses hardware instructions when possible. The library also uses
-cache-aware algoirthms and access patterns to minimize leakage. If you suspect
-or find an information leak then please report it.
+believe the library is mostly hardened but the remdiations may be incomplete. The
+first line of defense uses hardware instructions when possible for block ciphers,
+hashes and other primitives. Hardware acceleration remediates many timing attacks.
+The library also uses cache-aware algoirthms and access patterns to minimize leakage.
+
+Some of the public key algorithms have branches and some of the branches depend on
+data that can be private or secret. The branching occurs in some field operations
+like exponentiation over integers and elliptic curves. The branching has been
+minimized but not completely eliminated.
 
 Crypto++ does not enagage Specter remediations at this time. The GCC options for
 Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the library
 uses them during testing. If you want the Specter workarounds then add the GCC
 options to your CXXFLAGS when building the library.
+
+If you suspect or find an information leak then please report it.
 
 *** Documentation and Support ***
 
