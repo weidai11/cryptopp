@@ -70,8 +70,6 @@ Other features include:
       + 32-bit CRC, CRC-C and Adler32 checksum
   * class wrappers for these platform and operating system features (optional):
       + high resolution timers on Windows, Unix, and Mac OS
-      + Berkeley and Windows style sockets
-      + Windows named pipes
       + /dev/random, /dev/urandom, /dev/srandom
       + Microsoft's CryptGenRandom or BCryptGenRandom on Windows
   * A high level interface for most of the above, using a filter/pipeline
