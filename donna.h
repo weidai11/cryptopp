@@ -81,6 +81,23 @@ int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
 ///   SHA512.
 int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
 
+/// \brief Creates a signature on a message
+/// \param stream std::istream derived class
+/// \param publicKey byte array with the public key
+/// \param secretKey byte array with the private key
+/// \param signature byte array for the signature
+/// \returns 0 on success, non-0 otherwise
+/// \details ed25519_sign() generates a signature on a message using
+///   the public and private keys. The various buffers can be exact
+///   sizes, and do not require extra space like when using the
+///   NaCl library functions.
+/// \details This ed25519_sign() overload handles large streams. It
+///   was added for signing and verifying files that are too large
+///   for a memory allocation.
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
+int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publicKey[32], byte signature[64]);
+
 /// \brief Verifies a signature on a message
 /// \param message byte array with the message
 /// \param messageLength size of the message, in bytes
@@ -88,12 +105,28 @@ int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey
 /// \param signature byte array with the signature
 /// \returns 0 on success, non-0 otherwise
 /// \details ed25519_sign_open() verifies a signature on a message using
-///   the public. The various buffers can be exact sizes, and do not
+///   the public key. The various buffers can be exact sizes, and do not
 ///   require extra space like when using the NaCl library functions.
 /// \details At the moment the hash function for signing is fixed at
 ///   SHA512.
 int
 ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKey[32], const byte signature[64]);
+
+/// \brief Verifies a signature on a message
+/// \param stream std::istream derived class
+/// \param publicKey byte array with the public key
+/// \param signature byte array with the signature
+/// \returns 0 on success, non-0 otherwise
+/// \details ed25519_sign_open() verifies a signature on a message using
+///   the public key. The various buffers can be exact sizes, and do not
+///   require extra space like when using the NaCl library functions.
+/// \details This ed25519_sign_open() overload handles large streams. It
+///   was added for signing and verifying files that are too large
+///   for a memory allocation.
+/// \details At the moment the hash function for signing is fixed at
+///   SHA512.
+int
+ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte signature[64]);
 
 //****************************** Internal ******************************//
 

@@ -537,6 +537,59 @@ bool TestEd25519()
 	else
 		std::cout << "FAILED:";
 	std::cout << "  " << SIGN_COUNT << " verifications" << std::endl;
+
+	// Test signature verification using streams
+	for (unsigned int i = 0; i<SIGN_COUNT; ++i)
+	{
+		// Fresh keypair
+		(void)NaCl::crypto_sign_keypair(pk1, sk1);
+		std::memcpy(sk2, sk1, 32);
+		std::memcpy(pk2, pk1, 32);
+
+		// Message and signatures
+		byte msg1[MSG_SIZE+NACL_EXTRA], msg2[MSG_SIZE];
+		byte sig1[MSG_SIZE+NACL_EXTRA], sig2[64];
+		GlobalRNG().GenerateBlock(msg1, MSG_SIZE);
+		size_t len = GlobalRNG().GenerateWord32(0, MSG_SIZE);
+		std::memcpy(msg2, msg1, len);
+
+		// Spike the signatures
+		sig1[1] = 1; sig2[2] = 2;
+
+		// Create a stream
+		std::string str2((const char*)msg2, len);
+		std::istringstream iss(str2);
+
+		word64 smlen = sizeof(sig1);
+		int ret1 = NaCl::crypto_sign(sig1, &smlen, msg1, len, sk1);
+		int ret2 = Donna::ed25519_sign(iss, sk2, pk2, sig2);
+		int ret3 = std::memcmp(sig1, sig2, 64);
+
+		bool tamper = !!GlobalRNG().GenerateBit();
+		if (tamper)
+		{
+			sig1[1] ^= 1;
+			sig2[1] ^= 1;
+		}
+
+		// Reset stream
+		iss.clear();
+		iss.seekg(0);
+
+		// Verify the other's signature using the other's key
+		word64 mlen = len+NACL_EXTRA;
+		int ret4 = NaCl::crypto_sign_open(msg1, &mlen, sig1, smlen, pk2);
+		int ret5 = Donna::ed25519_sign_open(iss, pk1, sig2);
+
+		bool fail = ret1 != 0 || ret2 != 0 || ret3 != 0 || ((ret4 != 0) ^ tamper) || ((ret5 != 0) ^ tamper);
+		pass = pass && !fail;
+	}
+
+	if (pass)
+		std::cout << "passed:";
+	else
+		std::cout << "FAILED:";
+	std::cout << "  " << SIGN_COUNT << " streams" << std::endl;
 #endif
 
 	// RFC 8032 test vector

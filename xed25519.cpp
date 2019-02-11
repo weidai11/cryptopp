@@ -685,6 +685,17 @@ size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccum
     return ret == 0 ? SIGNATURE_LENGTH : 0;
 }
 
+size_t ed25519Signer::SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const
+{
+    CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
+
+    const ed25519PrivateKey& pk = static_cast<const ed25519PrivateKey&>(GetPrivateKey());
+    int ret = Donna::ed25519_sign(stream, pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature);
+    CRYPTOPP_ASSERT(ret == 0);
+
+    return ret == 0 ? SIGNATURE_LENGTH : 0;
+}
+
 // ******************** ed25519 Verifier ************************* //
 
 bool ed25519PublicKey::GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
@@ -852,6 +863,16 @@ bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator
     const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
     int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature());
     accum.Restart();
+
+    return ret == 0;
+}
+
+bool ed25519Verifier::VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const
+{
+    CRYPTOPP_ASSERT(signatureLen == SIGNATURE_LENGTH);
+
+    const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
+    int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature);
 
     return ret == 0;
 }
