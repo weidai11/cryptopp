@@ -793,10 +793,12 @@ UpdateFromStream(HashTransformation& hash, std::istream& stream)
     std::streamsize rem = stream.gcount();
     if (rem)
         hash.Update(block, rem);
+
+    block.SetMark(0);
 }
 
 void
-ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const unsigned char *m, size_t mlen) {
+ed25519_hram(hash_512bits hram, const byte RS[64], const byte pk[32], const byte *m, size_t mlen) {
     SHA512 hash;
     hash.Update(RS, 32);
     hash.Update(pk, 32);
@@ -1295,7 +1297,7 @@ ge25519_pack(byte r[32], const ge25519 *p) {
 }
 
 int
-ed25519_verify(const unsigned char *x, const unsigned char *y, size_t len) {
+ed25519_verify(const byte *x, const byte *y, size_t len) {
     size_t differentbits = 0;
     while (len--)
         differentbits |= (*x++ ^ *y++);
@@ -1704,7 +1706,7 @@ ed25519_sign_open_CXX(const byte *m, size_t mlen, const byte pk[32], const byte 
     ALIGN(16) ge25519 R, A;
     hash_512bits hash;
     bignum256modm hram, S;
-    unsigned char checkR[32];
+    byte checkR[32];
 
     if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
         return -1;
@@ -1732,7 +1734,7 @@ ed25519_sign_open_CXX(std::istream& stream, const byte pk[32], const byte RS[64]
     ALIGN(16) ge25519 R, A;
     hash_512bits hash;
     bignum256modm hram, S;
-    unsigned char checkR[32];
+    byte checkR[32];
 
     if ((RS[63] & 224) || !ge25519_unpack_negative_vartime(&A, pk))
         return -1;
