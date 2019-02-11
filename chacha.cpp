@@ -487,7 +487,7 @@ void ChaChaTLS_Policy::OperateKeystream(KeystreamOperation operation,
     // know what we should do.
     // Also see https://github.com/weidai11/cryptopp/issues/790 and
     // https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU
-    CRYPTOPP_ASSERT(discard==0);
+    // CRYPTOPP_ASSERT(discard==0);
 }
 
 ////////////////////////////// IETF XChaCha20 //////////////////////////////
