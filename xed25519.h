@@ -545,9 +545,13 @@ struct ed25519Signer : public PK_Signer
     ed25519Signer(BufferedTransformation &params);
 
     // DL_ObjectImplBase
+    /// \brief Retrieves a reference to a Private Key
+    /// \details AccessKey() retrieves a non-const reference to a private key.
     PrivateKey& AccessKey() { return m_key; }
     PrivateKey& AccessPrivateKey() { return m_key; }
 
+    /// \brief Retrieves a reference to a Private Key
+    /// \details AccessKey() retrieves a const reference to a private key.
     const PrivateKey& GetKey() const { return m_key; }
     const PrivateKey& GetPrivateKey() const { return m_key; }
 
@@ -584,6 +588,7 @@ struct ed25519Signer : public PK_Signer
     /// \details ed25519 is a determinsitic signature scheme. <tt>IsProbabilistic()</tt>
     ///  returns false and the random number generator can be <tt>NullRNG()</tt>.
     /// \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
+    /// \since Crypto++ 8.1
     size_t SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const;
 
 protected:
@@ -723,9 +728,13 @@ struct ed25519Verifier : public PK_Verifier
     ed25519Verifier(const ed25519Signer& signer);
 
     // DL_ObjectImplBase
+    /// \brief Retrieves a reference to a Public Key
+    /// \details AccessKey() retrieves a non-const reference to a public key.
     PublicKey& AccessKey() { return m_key; }
     PublicKey& AccessPublicKey() { return m_key; }
 
+    /// \brief Retrieves a reference to a Public Key
+    /// \details GetKey() retrieves a const reference to a public key.
     const PublicKey& GetKey() const { return m_key; }
     const PublicKey& GetPublicKey() const { return m_key; }
 
@@ -761,6 +770,7 @@ struct ed25519Verifier : public PK_Verifier
     /// \return true if the signature is valid, false otherwise
     /// \details VerifyStream() handles large streams. It was added for signing and verifying
     ///  files that are too large for a memory allocation.
+    /// \since Crypto++ 8.1
     bool VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const;
 
     DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
@@ -776,7 +786,9 @@ protected:
 /// \since Crypto++ 8.0
 struct ed25519
 {
+    /// \brief ed25519 Signer
     typedef ed25519Signer Signer;
+    /// \brief ed25519 Verifier
     typedef ed25519Verifier Verifier;
 };
 
