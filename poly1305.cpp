@@ -209,7 +209,7 @@ void Poly1305_Base<T>::UncheckedSetKey(const byte *key, unsigned int length, con
 	if (params.GetValue(Name::IV(), t) && t.begin() && t.size())
 	{
 		CRYPTOPP_ASSERT(t.size() == m_nk.size());
-		Resynchronize(t.begin(), t.size());
+		Resynchronize(t.begin(), (int)t.size());
 	}
 
 	Restart();

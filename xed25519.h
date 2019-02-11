@@ -574,6 +574,18 @@ struct ed25519Signer : public PK_Signer
 
     size_t SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccumulator &messageAccumulator, byte *signature, bool restart) const;
 
+    /// \brief Sign a stream
+    /// \param rng a RandomNumberGenerator derived class
+    /// \param stream an std::istream derived class
+    /// \param signature a block of bytes for the signature
+    /// \return actual signature length
+    /// \details SignStream() handles large streams. It was added for signing and verifying
+    ///  files that are too large for a memory allocation.
+    /// \details ed25519 is a determinsitic signature scheme. <tt>IsProbabilistic()</tt>
+    ///  returns false and the random number generator can be <tt>NullRNG()</tt>.
+    /// \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
+    size_t SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const;
+
 protected:
     ed25519PrivateKey m_key;
 };
@@ -741,6 +753,15 @@ struct ed25519Verifier : public PK_Verifier
     }
 
     bool VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const;
+
+    /// \brief Check whether input signature is a valid signature for input message
+    /// \param stream an std::istream derived class
+    /// \param signature a pointer to the signature over the message
+    /// \param signatureLen the size of the signature
+    /// \return true if the signature is valid, false otherwise
+    /// \details VerifyStream() handles large streams. It was added for signing and verifying
+    ///  files that are too large for a memory allocation.
+    bool VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const;
 
     DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
         CRYPTOPP_UNUSED(recoveredMessage); CRYPTOPP_UNUSED(messageAccumulator);
