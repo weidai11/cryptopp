@@ -31,8 +31,6 @@
 #include "validate.h"
 #include "bench.h"
 
-#include "shake.h"
-
 #include <iostream>
 #include <sstream>
 #include <locale>
@@ -186,26 +184,6 @@ int scoped_main(int argc, char *argv[])
 		SymmetricCipher& cipher = dynamic_cast<SymmetricCipher&>(GlobalRNG());
 		cipher.SetKeyWithIV((byte *)s_globalSeed.data(), 16, (byte *)s_globalSeed.data());
 #endif
-
-		{
-			SHAKE128 hash;
-			byte digest[32];
-			hash.Final(digest);
-
-			std::cout << "SHAKE128 Digest:\n";
-			StringSource(digest, sizeof(digest), true, new HexEncoder(new FileSink(std::cout)));
-			std::cout << "\n" << std::endl;
-		}
-
-		{
-			SHAKE256 hash;
-			byte digest[64];
-			hash.Final(digest);
-
-			std::cout << "SHAKE256 Digest:\n";
-			StringSource(digest, sizeof(digest), true, new HexEncoder(new FileSink(std::cout)));
-			std::cout << "\n" << std::endl;
-		}
 
 		std::string command, executableName, macFilename;
 
