@@ -58,7 +58,7 @@ class CRYPTOPP_NO_VTABLE ChaCha_Policy : public AdditiveCipherConcretePolicy<wor
 {
 public:
     virtual ~ChaCha_Policy() {}
-    ChaCha_Policy() : m_rounds(0) {}
+    ChaCha_Policy() : m_rounds(20) {}
 
 protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);

@@ -112,8 +112,7 @@ std::string Salsa20_Policy::AlgorithmProvider() const
 
 void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
-	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
-
+	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
 	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
 		throw InvalidRounds(Salsa20::StaticAlgorithmName(), m_rounds);
 
@@ -692,8 +691,7 @@ Salsa20_OperateKeystream ENDP
 
 void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
-	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
-
+	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
 	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
 		throw InvalidRounds(XSalsa20::StaticAlgorithmName(), m_rounds);
 

@@ -345,7 +345,7 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 16 || length == 32);
     CRYPTOPP_UNUSED(key); CRYPTOPP_UNUSED(length);
 
-    m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
+    m_rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
     if (m_rounds != 20 && m_rounds != 12 && m_rounds != 8)
         throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
 
