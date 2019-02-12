@@ -50,6 +50,7 @@ public:
 	unsigned int DigestSize() const {return DIGESTSIZE;}
 	void TruncatedFinal(byte *hash, size_t size);
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return B::ToEnum() == BIG_ENDIAN_ORDER ? "Panama-BE" : "Panama-LE";}
+	std::string AlgorithmProvider() const {return Panama<B>::AlgorithmProvider();} // Fix https://github.com/weidai11/cryptopp/issues/801
 
 protected:
 	void Init() {Panama<B>::Reset();}
