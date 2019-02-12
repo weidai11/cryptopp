@@ -40,29 +40,27 @@ NAMESPACE_BEGIN(CryptoPP)
 class Keccak : public HashTransformation
 {
 public:
-	/// \brief Construct a Keccak
-	/// \param digestSize the digest size, in bytes
-	/// \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
-	///   Library users should instantiate a derived class, and only use Keccak
-	///   as a base class reference or pointer.
-	/// \since Crypto++ 5.6.4
-	Keccak(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
-	unsigned int DigestSize() const {return m_digestSize;}
-	std::string AlgorithmName() const {return "Keccak-" + IntToString(m_digestSize*8);}
-	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "Keccak"; }
-	unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
+    /// \brief Construct a Keccak
+    /// \param digestSize the digest size, in bytes
+    /// \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
+    ///   Library users should instantiate a derived class, and only use Keccak
+    ///   as a base class reference or pointer.
+    /// \since Crypto++ 5.6.4
+    Keccak(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
+    unsigned int DigestSize() const {return m_digestSize;}
+    std::string AlgorithmName() const {return "Keccak-" + IntToString(m_digestSize*8);}
+    CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() { return "Keccak"; }
+    unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
 
-	void Update(const byte *input, size_t length);
-	void Restart();
-	void TruncatedFinal(byte *hash, size_t size);
-
-	//unsigned int BlockSize() const { return r(); } // that's the idea behind it
+    void Update(const byte *input, size_t length);
+    void Restart();
+    void TruncatedFinal(byte *hash, size_t size);
 
 protected:
-	inline unsigned int r() const {return 200 - 2 * m_digestSize;}
+    inline unsigned int r() const {return 200 - 2 * m_digestSize;}
 
-	FixedSizeSecBlock<word64, 25> m_state;
-	unsigned int m_digestSize, m_counter;
+    FixedSizeSecBlock<word64, 25> m_state;
+    unsigned int m_digestSize, m_counter;
 };
 
 /// \brief Keccak message digest template
@@ -72,16 +70,16 @@ template<unsigned int T_DigestSize>
 class Keccak_Final : public Keccak
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize)
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
+    CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize)
+    CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
 
-		/// \brief Construct a Keccak-X message digest
-	Keccak_Final() : Keccak(DIGESTSIZE) {}
-	static std::string StaticAlgorithmName() { return "Keccak-" + IntToString(DIGESTSIZE * 8); }
-	unsigned int BlockSize() const { return BLOCKSIZE; }
+    /// \brief Construct a Keccak-X message digest
+    Keccak_Final() : Keccak(DIGESTSIZE) {}
+    static std::string StaticAlgorithmName() { return "Keccak-" + IntToString(DIGESTSIZE * 8); }
+    unsigned int BlockSize() const { return BLOCKSIZE; }
 private:
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-	CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
+    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
+    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
 };
 
 /// \brief Keccak-224 message digest

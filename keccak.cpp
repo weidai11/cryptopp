@@ -19,9 +19,11 @@ http://creativecommons.org/publicdomain/zero/1.0/
 
 #include "pch.h"
 #include "keccak.h"
-#include "keccakc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
+
+// The Keccak core function
+extern void KeccakF1600(word64 *state);
 
 void Keccak::Update(const byte *input, size_t length)
 {
@@ -52,13 +54,13 @@ void Keccak::Restart()
 
 void Keccak::TruncatedFinal(byte *hash, size_t size)
 {
-	CRYPTOPP_ASSERT(hash != NULLPTR);
+    CRYPTOPP_ASSERT(hash != NULLPTR);
     ThrowIfInvalidTruncatedSize(size);
 
-    m_state.BytePtr()[m_counter] ^= 1;
+    m_state.BytePtr()[m_counter] ^= 0x01;
     m_state.BytePtr()[r()-1] ^= 0x80;
     KeccakF1600(m_state);
-    memcpy(hash, m_state, size);
+    std::memcpy(hash, m_state, size);
     Restart();
 }
 

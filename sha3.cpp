@@ -19,7 +19,13 @@ http://creativecommons.org/publicdomain/zero/1.0/
 
 #include "pch.h"
 #include "sha3.h"
-#include "keccakc.h"
+
+NAMESPACE_BEGIN(CryptoPP)
+
+// The Keccak core function
+extern void KeccakF1600(word64 *state);
+
+NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -58,7 +64,7 @@ void SHA3::TruncatedFinal(byte *hash, size_t size)
     m_state.BytePtr()[m_counter] ^= 0x06;
     m_state.BytePtr()[r()-1] ^= 0x80;
     KeccakF1600(m_state);
-    memcpy(hash, m_state, size);
+    std::memcpy(hash, m_state, size);
     Restart();
 }
 
