@@ -20,7 +20,8 @@
 
 #include "sha.h"
 #include "sha3.h"
-#include "pssr.h"
+#include "shake.h"
+#include "keccak.h"
 #include "tiger.h"
 #include "blake2.h"
 #include "ripemd.h"
@@ -28,6 +29,7 @@
 #include "poly1305.h"
 #include "whrlpool.h"
 
+#include "pssr.h"
 #include "hkdf.h"
 #include "scrypt.h"
 #include "pwdbased.h"
@@ -223,10 +225,146 @@ bool ValidateSHA2()
 	return RunTestDataFile("TestVectors/sha2.txt");
 }
 
+bool ValidateKeccak()
+{
+	std::cout << "\nKeccak validation suite running...\n";
+	return RunTestDataFile("TestVectors/keccak.txt");
+}
+
 bool ValidateSHA3()
 {
 	std::cout << "\nSHA-3 validation suite running...\n";
 	return RunTestDataFile("TestVectors/sha3.txt");
+}
+
+bool ValidateSHAKE()
+{
+	std::cout << "\nSHAKE validation suite running...\n";
+	return RunTestDataFile("TestVectors/shake.txt");
+}
+
+// We needed to hand craft the SHAKE tests because SHAKE128 and SHAKE256
+// use digestSize 'd' as an input parameter for the hash. When 'd > r',
+// where 'r' is rate and acts like a blockSize, then TruncatedFinal acts
+// like a traditional KDF and applies KeccakF1600 core function multiple
+// times on state to create the stream. Regarding the NIST test vectors,
+// the SHAKE128 KATs do not engage 'd > r'. However, the SHAKE256 KATs
+// do engage it.
+bool ValidateSHAKE_XOF()
+{
+	std::cout << "\nSHAKE XOF validation suite running...\n";
+	bool pass = true, fail;
+
+	////// NIST test vectors SHAKE128VariableOut.rsp //////
+
+	// SHAKE128, COUNT = 0 (first test)
+	{
+		std::string m, msg = "84e950051876050dc851fbd99e6247b8";
+		std::string o, out = "8599bd89f63a848c49ca593ec37a12c6";
+		std::string r;
+
+		StringSource(msg, true, new HexDecoder(new StringSink(m)));
+		StringSource(out, true, new HexDecoder(new StringSink(o)));
+		r.reserve(o.size());
+
+		SHAKE128 hash((unsigned int)r.size());
+		hash.Update((const byte*)&m[0], m.size());
+		hash.TruncatedFinal((byte*)&o[0], o.size());
+
+		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		pass = pass & !fail;
+
+		if (fail)
+			std::cout << "FAILED   " << "SHAKE128 test COUNT=0" << std::endl;
+
+		pass = pass && !fail;
+	}
+
+	// SHAKE128, COUNT = 1125 (last test)
+	{
+		std::string m, msg = "0a13ad2c7a239b4ba73ea6592ae84ea9";
+		std::string o, out = "5feaf99c15f48851943ff9baa6e5055d 8377f0dd347aa4dbece51ad3a6d9ce0c"
+		                     "01aee9fe2260b80a4673a909b532adcd d1e421c32d6460535b5fe392a58d2634"
+		                     "979a5a104d6c470aa3306c400b061db9 1c463b2848297bca2bc26d1864ba49d7"
+		                     "ff949ebca50fbf79a5e63716dc82b600 bd52ca7437ed774d169f6bf02e464879"
+		                     "56fba2230f34cd2a0485484d";
+		std::string r;
+
+		StringSource(msg, true, new HexDecoder(new StringSink(m)));
+		StringSource(out, true, new HexDecoder(new StringSink(o)));
+		r.reserve(o.size());
+
+		SHAKE128 hash((unsigned int)r.size());
+		hash.Update((const byte*)&m[0], m.size());
+		hash.TruncatedFinal((byte*)&o[0], o.size());
+
+		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		pass = pass & !fail;
+
+		if (fail)
+			std::cout << "FAILED   " << "SHAKE128 test COUNT=1125" << std::endl;
+
+		pass = pass && !fail;
+	}
+
+	////// NIST test vectors SHAKE256VariableOut.rsp //////
+
+	// SHAKE256, COUNT = 0 (first test)
+	{
+		std::string m, msg = "c61a9188812ae73994bc0d6d4021e31b f124dc72669749111232da7ac29e61c4";
+		std::string o, out = "23ce";
+		std::string r;
+
+		StringSource(msg, true, new HexDecoder(new StringSink(m)));
+		StringSource(out, true, new HexDecoder(new StringSink(o)));
+		r.reserve(o.size());
+
+		SHAKE256 hash((unsigned int)r.size());
+		hash.Update((const byte*)&m[0], m.size());
+		hash.TruncatedFinal((byte*)&o[0], o.size());
+
+		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		pass = pass & !fail;
+
+		if (fail)
+			std::cout << "FAILED   " << "SHAKE256 test COUNT=0" << std::endl;
+
+		pass = pass && !fail;
+	}
+
+	// SHAKE256, COUNT = 1245 (last test)
+	{
+		std::string m, msg = "8d8001e2c096f1b88e7c9224a086efd4 797fbf74a8033a2d422a2b6b8f6747e4";
+		std::string o, out = "2e975f6a8a14f0704d51b13667d8195c 219f71e6345696c49fa4b9d08e9225d3"
+		                     "d39393425152c97e71dd24601c11abcf a0f12f53c680bd3ae757b8134a9c10d4"
+		                     "29615869217fdd5885c4db174985703a 6d6de94a667eac3023443a8337ae1bc6"
+		                     "01b76d7d38ec3c34463105f0d3949d78 e562a039e4469548b609395de5a4fd43"
+		                     "c46ca9fd6ee29ada5efc07d84d553249 450dab4a49c483ded250c9338f85cd93"
+		                     "7ae66bb436f3b4026e859fda1ca57143 2f3bfc09e7c03ca4d183b741111ca048"
+		                     "3d0edabc03feb23b17ee48e844ba2408 d9dcfd0139d2e8c7310125aee801c61a"
+		                     "b7900d1efc47c078281766f361c5e611 1346235e1dc38325666c";
+		std::string r;
+
+		StringSource(msg, true, new HexDecoder(new StringSink(m)));
+		StringSource(out, true, new HexDecoder(new StringSink(o)));
+		r.reserve(o.size());
+
+		SHAKE256 hash((unsigned int)r.size());
+		hash.Update((const byte*)&m[0], m.size());
+		hash.TruncatedFinal((byte*)&o[0], o.size());
+
+		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		pass = pass & !fail;
+
+		if (fail)
+			std::cout << "FAILED   " << "SHAKE256 test COUNT=0" << std::endl;
+
+		pass = pass && !fail;
+	}
+
+	std::cout << (!pass ? "FAILED   " : "passed   ") << " SHAKE XOF message digests" << std::endl;
+
+	return pass;
 }
 
 bool ValidateTiger()

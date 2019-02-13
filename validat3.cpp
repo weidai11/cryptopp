@@ -101,8 +101,10 @@ bool ValidateAll(bool thorough)
 	pass=ValidateMD5() && pass;
 	pass=ValidateSHA() && pass;
 
-	pass=RunTestDataFile("TestVectors/keccak.txt") && pass;
-	pass=RunTestDataFile("TestVectors/sha3.txt") && pass;
+	pass=ValidateKeccak() && pass;
+	pass=ValidateSHA3() && pass;
+	pass=ValidateSHAKE() && pass;
+	pass=ValidateSHAKE_XOF() && pass;
 
 	pass=ValidateHashDRBG() && pass;
 	pass=ValidateHmacDRBG() && pass;

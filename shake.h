@@ -47,6 +47,11 @@ public:
 protected:
     inline unsigned int r() const {return BlockSize();}
 
+    // SHAKE-128 and SHAKE-256 effectively allow unlimited
+    // output length. However, we use an unsigned int so
+    // we are limited in practice to UINT_MAX.
+    void ThrowIfInvalidTruncatedSize(size_t size) const;
+
     FixedSizeSecBlock<word64, 25> m_state;
     unsigned int m_digestSize, m_counter;
 };
@@ -64,7 +69,7 @@ public:
         { return "SHAKE-" + IntToString(T_Strength); }
 
     /// \brief Construct a SHAKE-X message digest
-    SHAKE_Final() : SHAKE(DIGESTSIZE) {}
+    SHAKE_Final(unsigned int outputSize=DIGESTSIZE) : SHAKE(outputSize) {}
 
     /// \brief Provides the block size of the compression function
     /// \return block size of the compression function, in bytes
@@ -79,17 +84,41 @@ private:
     // ensure there was no underflow in the math
     CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200);
     // this is a general expectation by HMAC
-    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)DIGESTSIZE);
+    CRYPTOPP_COMPILE_ASSERT((int)BLOCKSIZE > (int)DIGESTSIZE);
 #endif
 };
 
 /// \brief SHAKE128 message digest
 /// \since Crypto++ 8.1
-class SHAKE128 : public SHAKE_Final<128> {};
+class SHAKE128 : public SHAKE_Final<128>
+{
+public:
+    /// \details Construct a SHAKE128 message digest
+    /// \details SHAKE128() uses the default output digest size
+    /// \since Crypto++ 8.1
+    SHAKE128() {}
+
+    /// \details Construct a SHAKE128 message digest
+    /// \details SHAKE128() uses <tt>outputSize</tt> digest size
+    /// \since Crypto++ 8.1
+    SHAKE128(unsigned int outputSize) : SHAKE_Final(outputSize) {}
+};
 
 /// \brief SHAKE256 message digest
 /// \since Crypto++ 8.1
-class SHAKE256 : public SHAKE_Final<256> {};
+class SHAKE256 : public SHAKE_Final<256>
+{
+public:
+    /// \details Construct a SHAKE256 message digest
+    /// \details SHAKE256() uses the default output digest size
+    /// \since Crypto++ 8.1
+    SHAKE256() {}
+
+    /// \details Construct a SHAKE256 message digest
+    /// \details SHAKE256() uses <tt>outputSize</tt> digest size
+    /// \since Crypto++ 8.1
+    SHAKE256(unsigned int outputSize) : SHAKE_Final(outputSize) {}
+};
 
 NAMESPACE_END
 

@@ -52,6 +52,10 @@ bool ValidateMD4();
 bool ValidateMD5();
 bool ValidateSHA();
 bool ValidateSHA2();
+bool ValidateSHA3();
+bool ValidateSHAKE();      // output <= r, where r is blocksize
+bool ValidateSHAKE_XOF();  // output > r, needs hand crafted tests
+bool ValidateKeccak();
 bool ValidateTiger();
 bool ValidateRIPEMD();
 bool ValidatePanama();

@@ -80,7 +80,7 @@ private:
     // ensure there was no underflow in the math
     CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200);
     // this is a general expectation by HMAC
-    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize);
+    CRYPTOPP_COMPILE_ASSERT((int)BLOCKSIZE > (int)DIGESTSIZE);
 #endif
 };
 

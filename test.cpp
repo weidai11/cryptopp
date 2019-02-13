@@ -909,6 +909,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	g_testBegin = ::time(NULLPTR);
 	PrintSeedAndThreads();
 
+	// TODO: we need to group these tests like benchmarks...
 	switch (alg)
 	{
 	case 0: result = ValidateAll(thorough); break;
@@ -1004,6 +1005,10 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 101: result = ValidateSIMECK(); break;
 	case 102: result = ValidateSIMON(); break;
 	case 103: result = ValidateSPECK(); break;
+
+	case 110: result = ValidateSHA3(); break;
+	case 111: result = ValidateSHAKE(); break;
+	case 112: result = ValidateSHAKE_XOF(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92

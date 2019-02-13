@@ -52,6 +52,13 @@ void SHAKE::Restart()
     m_counter = 0;
 }
 
+void SHAKE::ThrowIfInvalidTruncatedSize(size_t size) const
+{
+	if (size > UINT_MAX)
+		throw InvalidArgument(std::string("HashTransformation: can't truncate a ") +
+		    IntToString(UINT_MAX) + " byte digest to " + IntToString(size) + " bytes");
+}
+
 void SHAKE::TruncatedFinal(byte *hash, size_t size)
 {
     CRYPTOPP_ASSERT(hash != NULLPTR);
@@ -59,8 +66,19 @@ void SHAKE::TruncatedFinal(byte *hash, size_t size)
 
     m_state.BytePtr()[m_counter] ^= 0x1F;
     m_state.BytePtr()[r()-1] ^= 0x80;
-    KeccakF1600(m_state);
-    std::memcpy(hash, m_state, size);
+
+    // FIPS 202, Algorithm 8, pp 18-19.
+    while (size > 0)
+    {
+        KeccakF1600(m_state);
+
+        const size_t segmentLen = STDMIN(size, (size_t)BlockSize());
+        std::memcpy(hash, m_state, segmentLen);
+
+        hash += segmentLen;
+        size -= segmentLen;
+    }
+
     Restart();
 }
 
