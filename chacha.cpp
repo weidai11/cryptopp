@@ -345,9 +345,13 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 16 || length == 32);
     CRYPTOPP_UNUSED(key); CRYPTOPP_UNUSED(length);
 
-    m_rounds = params.GetIntValueWithDefault(Name::Rounds(), 20);
-    if (m_rounds != 20 && m_rounds != 12 && m_rounds != 8)
-        throw InvalidRounds(ChaCha::StaticAlgorithmName(), m_rounds);
+    // Use previous rounds as the default value
+    int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
+    if (rounds != 20 && rounds != 12 && rounds != 8)
+        throw InvalidRounds(ChaCha::StaticAlgorithmName(), rounds);
+
+    // Latch a good value
+    m_rounds = rounds;
 
     // "expand 16-byte k" or "expand 32-byte k"
     m_state[0] = 0x61707865;
@@ -425,9 +429,9 @@ void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
     // the function, so we have to use the heavier-weight SetKey to change it.
     word64 block;
     if (params.GetValue("InitialBlock", block))
-        m_state[CTR] = static_cast<word32>(block);
+        m_counter = static_cast<word32>(block);
     else
-        m_state[CTR] = 0;
+        m_counter = 0;
 
     // State words are defined in RFC 8439, Section 2.3. Key is 32-bytes.
     GetBlock<word32, LittleEndian> get(key);
@@ -449,7 +453,7 @@ void ChaChaTLS_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *IV
 
     // State words are defined in RFC 8439, Section 2.3
     GetBlock<word32, LittleEndian> get(IV);
-    m_state[12] = m_state[CTR];
+    m_state[12] = m_counter;
     get(m_state[13])(m_state[14])(m_state[15]);
 }
 
@@ -506,16 +510,19 @@ void XChaCha20_Policy::CipherSetKey(const NameValuePairs &params, const byte *ke
 {
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 32);
 
-    // XChaCha20 is always 20 rounds. Fetch Rounds() to avoid a spurious failure.
-    int rounds = params.GetIntValueWithDefault(Name::Rounds(), ROUNDS);
-    if (rounds != 20)
-        throw InvalidRounds(XChaCha20::StaticAlgorithmName(), rounds);
+    // Use previous rounds as the default value
+    int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
+    if (rounds != 20 && rounds != 12)
+        throw InvalidRounds(ChaCha::StaticAlgorithmName(), rounds);
+
+    // Latch a good value
+    m_rounds = rounds;
 
     word64 block;
     if (params.GetValue("InitialBlock", block))
-        m_state[CTR] = static_cast<word32>(block);
+        m_counter = static_cast<word32>(block);
     else
-        m_state[CTR] = 1;
+        m_counter = 1;
 
     // Stash key away for use in CipherResynchronize
     GetBlock<word32, LittleEndian> get(key);
@@ -548,7 +555,7 @@ void XChaCha20_Policy::CipherResynchronize(byte *keystreamBuffer, const byte *iv
     m_state[2] = 0x79622d32; m_state[3] = 0x6b206574;
 
     // Setup new IV
-    m_state[12] = m_state[CTR];
+    m_state[12] = m_counter;
     m_state[13] = 0;
     m_state[14] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, iv+16);
     m_state[15] = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, iv+20);
@@ -575,7 +582,7 @@ void XChaCha20_Policy::OperateKeystream(KeystreamOperation operation,
         byte *output, const byte *input, size_t iterationCount)
 {
     ChaCha_OperateKeystream(operation, m_state, m_state[12], m_state[13],
-            ROUNDS, output, input, iterationCount);
+            m_rounds, output, input, iterationCount);
 }
 
 NAMESPACE_END

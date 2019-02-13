@@ -58,7 +58,7 @@ class CRYPTOPP_NO_VTABLE ChaCha_Policy : public AdditiveCipherConcretePolicy<wor
 {
 public:
     virtual ~ChaCha_Policy() {}
-    ChaCha_Policy() : m_rounds(0) {}
+    ChaCha_Policy() : m_rounds(ROUNDS) {}
 
 protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
@@ -72,6 +72,7 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
+    CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds
     FixedSizeAlignedSecBlock<word32, 16> m_state;
     unsigned int m_rounds;
 };
@@ -114,7 +115,7 @@ class CRYPTOPP_NO_VTABLE ChaChaTLS_Policy : public AdditiveCipherConcretePolicy<
 {
 public:
     virtual ~ChaChaTLS_Policy() {}
-    ChaChaTLS_Policy() {}
+    ChaChaTLS_Policy() : m_counter(0) {}
 
 protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
@@ -128,7 +129,8 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
-    FixedSizeAlignedSecBlock<word32, 16+8+1> m_state;
+    FixedSizeAlignedSecBlock<word32, 16+8> m_state;
+    unsigned int m_counter;
     CRYPTOPP_CONSTANT(ROUNDS = ChaChaTLS_Info::ROUNDS)
     CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
     CRYPTOPP_CONSTANT(CTR = 24)  // Index into m_state
@@ -161,7 +163,7 @@ struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 
 /// \brief XChaCha stream cipher information
 /// \since Crypto++ 8.1
-struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>, FixedRounds<20>
+struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
     /// \brief The algorithm name
     /// \returns the algorithm name
@@ -179,7 +181,7 @@ class CRYPTOPP_NO_VTABLE XChaCha20_Policy : public AdditiveCipherConcretePolicy<
 {
 public:
     virtual ~XChaCha20_Policy() {}
-    XChaCha20_Policy() {}
+    XChaCha20_Policy() : m_counter(0), m_rounds(ROUNDS) {}
 
 protected:
     void CipherSetKey(const NameValuePairs &params, const byte *key, size_t length);
@@ -193,10 +195,10 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
-    FixedSizeAlignedSecBlock<word32, 16+8+1> m_state;
-    CRYPTOPP_CONSTANT(ROUNDS = XChaCha20_Info::ROUNDS)
+    FixedSizeAlignedSecBlock<word32, 16+8> m_state;
+    unsigned int m_counter, m_rounds;
+    CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds
     CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
-    CRYPTOPP_CONSTANT(CTR = 24)  // Index into m_state
 };
 
 /// \brief XChaCha stream cipher

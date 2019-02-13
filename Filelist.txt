@@ -537,6 +537,7 @@ TestVectors/sha3_256_fips_202.txt
 TestVectors/sha3_384_fips_202.txt
 TestVectors/sha3_512_fips_202.txt
 TestVectors/sha3_fips_202.txt
+TestVectors/shake.txt
 TestVectors/shacal2.txt
 TestVectors/simeck.txt
 TestVectors/simon.txt

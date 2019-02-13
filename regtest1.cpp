@@ -15,6 +15,7 @@
 #include "md5.h"
 #include "keccak.h"
 #include "sha3.h"
+#include "shake.h"
 #include "blake2.h"
 #include "sha.h"
 #include "sha3.h"
@@ -109,6 +110,8 @@ void RegisterFactories1()
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_256>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_384>();
 	RegisterDefaultFactoryFor<HashTransformation, SHA3_512>();
+	RegisterDefaultFactoryFor<HashTransformation, SHAKE128>();
+	RegisterDefaultFactoryFor<HashTransformation, SHAKE256>();
 	RegisterDefaultFactoryFor<HashTransformation, SM3>();
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2s>();
 	RegisterDefaultFactoryFor<HashTransformation, BLAKE2b>();
