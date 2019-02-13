@@ -31,6 +31,8 @@ protected:
     /// \details SHAKE is the base class for SHAKE128 and SHAKE256.
     ///   Library users should instantiate a derived class, and only use SHAKE
     ///   as a base class reference or pointer.
+    /// \details This constructor was moved to protected at Crypto++ 8.1
+    ///   because users were attempting to create Keccak objects with it.
     /// \since Crypto++ 8.1
     SHAKE(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 

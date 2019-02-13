@@ -45,6 +45,8 @@ protected:
     /// \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
     ///   Library users should instantiate a derived class, and only use Keccak
     ///   as a base class reference or pointer.
+    /// \details This constructor was moved to protected at Crypto++ 8.1
+    ///   because users were attempting to create Keccak objects with it.
     /// \since Crypto++ 5.6.4
     Keccak(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 

@@ -32,6 +32,9 @@ protected:
     /// \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
     ///   Library users should instantiate a derived class, and only use SHA3
     ///   as a base class reference or pointer.
+    /// \details This constructor was moved to protected at Crypto++ 8.1
+    ///   because users were attempting to create Keccak objects with it.
+    /// \since Crypto++ 5.6.2
     SHA3(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
 
 public:
