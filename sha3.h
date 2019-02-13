@@ -13,6 +13,7 @@
 
 #include "cryptlib.h"
 #include "secblock.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -74,6 +75,8 @@ public:
     ///   and SHA-3 do not have a block size, but they do have an equivalent
     ///   block size called rate expressed as <tt>r</tt>.
     unsigned int BlockSize() const { return BLOCKSIZE; }
+
+    std::string AlgorithmName() const { return StaticAlgorithmName(); }
 
 private:
 #if !defined(__BORLANDC__)

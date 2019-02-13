@@ -82,6 +82,8 @@ public:
     ///   to block size called rate expressed as <tt>r</tt>.
     unsigned int BlockSize() const { return BLOCKSIZE; }
 
+    std::string AlgorithmName() const { return StaticAlgorithmName(); }
+
 private:
 #if !defined(__BORLANDC__)
     // ensure there was no underflow in the math
