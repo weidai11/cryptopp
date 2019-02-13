@@ -39,7 +39,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 5.6.4
 class Keccak : public HashTransformation
 {
-public:
+protected:
     /// \brief Construct a Keccak
     /// \param digestSize the digest size, in bytes
     /// \details Keccak is the base class for Keccak_224, Keccak_256, Keccak_384 and Keccak_512.
@@ -47,6 +47,8 @@ public:
     ///   as a base class reference or pointer.
     /// \since Crypto++ 5.6.4
     Keccak(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
+
+public:
     unsigned int DigestSize() const {return m_digestSize;}
     unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
 

@@ -25,7 +25,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 8.1
 class SHAKE : public HashTransformation
 {
-public:
+protected:
     /// \brief Construct a SHAKE
     /// \param digestSize the digest size, in bytes
     /// \details SHAKE is the base class for SHAKE128 and SHAKE256.
@@ -33,6 +33,8 @@ public:
     ///   as a base class reference or pointer.
     /// \since Crypto++ 8.1
     SHAKE(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
+
+public:
     unsigned int DigestSize() const {return m_digestSize;}
     unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
 

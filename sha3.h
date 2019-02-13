@@ -26,13 +26,15 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 5.6.2
 class SHA3 : public HashTransformation
 {
-public:
+protected:
     /// \brief Construct a SHA3
     /// \param digestSize the digest size, in bytes
     /// \details SHA3 is the base class for SHA3_224, SHA3_256, SHA3_384 and SHA3_512.
     ///   Library users should instantiate a derived class, and only use SHA3
     ///   as a base class reference or pointer.
     SHA3(unsigned int digestSize) : m_digestSize(digestSize) {Restart();}
+
+public:
     unsigned int DigestSize() const {return m_digestSize;}
     unsigned int OptimalDataAlignment() const {return GetAlignmentOf<word64>();}
 
