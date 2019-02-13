@@ -1,8 +1,8 @@
 // xed25519.h - written and placed in public domain by Jeffrey Walton
 //              Crypto++ specific implementation wrapped around Andrew
 //              Moon's public domain curve25519-donna and ed25519-donna,
-//              https://github.com/floodyberry/curve25519-donna and
-//              https://github.com/floodyberry/ed25519-donna.
+//              http://github.com/floodyberry/curve25519-donna and
+//              http://github.com/floodyberry/ed25519-donna.
 
 // Typically the key agreement classes encapsulate their data more
 // than x25519 does below. They are a little more accessible
@@ -23,15 +23,15 @@
 ///   clamed with 248. That is my_arr[0] &= 248 to mask the lower 3 bits.
 /// \details PKCS8 and X509 keys encoded using ASN.1 follow little endian
 ///   arrays. The format is specified in <A HREF=
-///   "https:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>.
+///   "http:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>.
 /// \details If you have a little endian array and you want to wrap it in
 ///   an Integer using big endian then you can perform the following:
 /// <pre>Integer x(my_arr, SECRET_KEYLENGTH, UNSIGNED, LITTLE_ENDIAN_ORDER);</pre>
 /// \sa Andrew Moon's x22519 GitHub <A
-///   HREF="https://github.com/floodyberry/curve25519-donna">curve25519-donna</A>,
+///   HREF="http://github.com/floodyberry/curve25519-donna">curve25519-donna</A>,
 ///   ed22519 GitHub <A
-///   HREF="https://github.com/floodyberry/ed25519-donna">ed25519-donna</A>, and
-///   <A HREF="https:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>
+///   HREF="http://github.com/floodyberry/ed25519-donna">ed25519-donna</A>, and
+///   <A HREF="http:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>
 /// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_XED25519_H
@@ -155,7 +155,7 @@ public:
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
@@ -174,7 +174,7 @@ public:
     ///   the best interop, and keys will work with OpenSSL. The other
     ///   option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
     ///   which is the new format.
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Save(BufferedTransformation &bt, bool v1) const {
         DEREncode(bt, v1 ? 0 : 1);
@@ -182,7 +182,7 @@ public:
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
@@ -378,7 +378,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   The default private key format is RFC 5208, which is the old format.
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
@@ -397,7 +397,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     ///   the best interop, and keys will work with OpenSSL. The other
     ///   option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
     ///   which is the new format.
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Save(BufferedTransformation &bt, bool v1) const {
         DEREncode(bt, v1 ? 0 : 1);
@@ -405,7 +405,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
@@ -545,9 +545,13 @@ struct ed25519Signer : public PK_Signer
     ed25519Signer(BufferedTransformation &params);
 
     // DL_ObjectImplBase
+    /// \brief Retrieves a reference to a Private Key
+    /// \details AccessKey() retrieves a non-const reference to a private key.
     PrivateKey& AccessKey() { return m_key; }
     PrivateKey& AccessPrivateKey() { return m_key; }
 
+    /// \brief Retrieves a reference to a Private Key
+    /// \details AccessKey() retrieves a const reference to a private key.
     const PrivateKey& GetKey() const { return m_key; }
     const PrivateKey& GetPrivateKey() const { return m_key; }
 
@@ -579,11 +583,13 @@ struct ed25519Signer : public PK_Signer
     /// \param stream an std::istream derived class
     /// \param signature a block of bytes for the signature
     /// \return actual signature length
-    /// \details SignStream() handles large streams. It was added for signing and verifying
-    ///  files that are too large for a memory allocation.
+    /// \details SignStream() handles large streams. The Stream functions were added to
+    ///  ed25519 for signing and verifying files that are too large for a memory allocation.
+    ///  The functions are not present in other library signers and verifiers.
     /// \details ed25519 is a determinsitic signature scheme. <tt>IsProbabilistic()</tt>
     ///  returns false and the random number generator can be <tt>NullRNG()</tt>.
     /// \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
+    /// \since Crypto++ 8.1
     size_t SignStream (RandomNumberGenerator &rng, std::istream& stream, byte *signature) const;
 
 protected:
@@ -635,7 +641,7 @@ struct ed25519PublicKey : public X509PublicKey
 
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
-    /// \sa <A HREF="https://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
+    /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
     ///   Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
@@ -723,9 +729,13 @@ struct ed25519Verifier : public PK_Verifier
     ed25519Verifier(const ed25519Signer& signer);
 
     // DL_ObjectImplBase
+    /// \brief Retrieves a reference to a Public Key
+    /// \details AccessKey() retrieves a non-const reference to a public key.
     PublicKey& AccessKey() { return m_key; }
     PublicKey& AccessPublicKey() { return m_key; }
 
+    /// \brief Retrieves a reference to a Public Key
+    /// \details GetKey() retrieves a const reference to a public key.
     const PublicKey& GetKey() const { return m_key; }
     const PublicKey& GetPublicKey() const { return m_key; }
 
@@ -759,8 +769,10 @@ struct ed25519Verifier : public PK_Verifier
     /// \param signature a pointer to the signature over the message
     /// \param signatureLen the size of the signature
     /// \return true if the signature is valid, false otherwise
-    /// \details VerifyStream() handles large streams. It was added for signing and verifying
-    ///  files that are too large for a memory allocation.
+    /// \details VerifyStream() handles large streams. The Stream functions were added to
+    ///  ed25519 for signing and verifying files that are too large for a memory allocation.
+    ///  The functions are not present in other library signers and verifiers.
+    /// \since Crypto++ 8.1
     bool VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const;
 
     DecodingResult RecoverAndRestart(byte *recoveredMessage, PK_MessageAccumulator &messageAccumulator) const {
@@ -773,10 +785,13 @@ protected:
 };
 
 /// \brief Ed25519 signature scheme
+/// \sa <A HREF="http://cryptopp.com/wiki/Ed25519">Ed25519</A> on the Crypto++ wiki.
 /// \since Crypto++ 8.0
 struct ed25519
 {
+    /// \brief ed25519 Signer
     typedef ed25519Signer Signer;
+    /// \brief ed25519 Verifier
     typedef ed25519Verifier Verifier;
 };
 
