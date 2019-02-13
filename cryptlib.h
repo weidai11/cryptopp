@@ -1129,9 +1129,11 @@ public:
 	unsigned int TagSize() const {return DigestSize();}
 
 	/// \brief Provides the block size of the compression function
-	/// \return the block size of the compression function, in bytes
-	/// \details BlockSize() will return 0 if the hash is not block based. For example,
-	///   SHA3 is a recursive hash (not an iterative hash), and it does not have a block size.
+	/// \return block size of the compression function, in bytes
+	/// \details BlockSize() will return 0 if the hash is not block based
+	///   or does not have an equivalent block size. For example, Keccak
+	///   and SHA-3 do not have a block size, but they do have an equivalent
+	///   block size called rate expressed as <tt>r</tt>.
 	virtual unsigned int BlockSize() const {return 0;}
 
 	/// \brief Provides the input block size most efficient for this hash.

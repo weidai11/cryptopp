@@ -70,15 +70,27 @@ class Keccak_Final : public Keccak
 public:
     CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize)
     CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
+    static std::string StaticAlgorithmName()
+        { return "Keccak-" + IntToString(DIGESTSIZE * 8); }
 
     /// \brief Construct a Keccak-X message digest
     Keccak_Final() : Keccak(DIGESTSIZE) {}
-    static std::string StaticAlgorithmName() { return "Keccak-" + IntToString(DIGESTSIZE * 8); }
+
+    /// \brief Provides the block size of the compression function
+    /// \return block size of the compression function, in bytes
+    /// \details BlockSize() will return 0 if the hash is not block based
+    ///   or does not have an equivalent block size. For example, Keccak
+    ///   and SHA-3 do not have a block size, but they do have an equivalent
+    ///   block size called rate expressed as <tt>r</tt>.
     unsigned int BlockSize() const { return BLOCKSIZE; }
 
 private:
-    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
-    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize); // this is a general expectation by HMAC
+#if !defined(__BORLANDC__)
+    // ensure there was no underflow in the math
+    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200);
+    // this is a general expectation by HMAC
+    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)T_DigestSize);
+#endif
 };
 
 /// \brief Keccak-224 message digest

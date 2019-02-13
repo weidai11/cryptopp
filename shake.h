@@ -56,15 +56,27 @@ class SHAKE_Final : public SHAKE
 public:
     CRYPTOPP_CONSTANT(DIGESTSIZE = (T_Strength == 128 ? 32 : 64))
     CRYPTOPP_CONSTANT(BLOCKSIZE = (T_Strength == 128 ? 1344/8 : 1088/8))
-    static std::string StaticAlgorithmName() { return "SHAKE-" + IntToString(T_Strength); }
+    static std::string StaticAlgorithmName()
+        { return "SHAKE-" + IntToString(T_Strength); }
 
     /// \brief Construct a SHAKE-X message digest
     SHAKE_Final() : SHAKE(DIGESTSIZE) {}
+
+    /// \brief Provides the block size of the compression function
+    /// \return block size of the compression function, in bytes
+    /// \details BlockSize() will return 0 if the hash is not block based
+    ///   or does not have an equivalent block size. For example, Keccak
+    ///   and SHA-3 do not have a block size, but they do have an equivalent
+    ///   block size called rate expressed as <tt>r</tt>.
     unsigned int BlockSize() const { return BLOCKSIZE; }
 
 private:
-    CRYPTOPP_COMPILE_ASSERT(T_Strength == 128 || T_Strength == 256);
-    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200); // ensure there was no underflow in the math
+#if !defined(__BORLANDC__)
+    // ensure there was no underflow in the math
+    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE < 200);
+    // this is a general expectation by HMAC
+    CRYPTOPP_COMPILE_ASSERT(BLOCKSIZE > (int)DIGESTSIZE);
+#endif
 };
 
 /// \brief SHAKE128 message digest
