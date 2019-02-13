@@ -1,8 +1,11 @@
-// shake.h - originally written and placed in the public domain by Jeffrey Walton
+// shake.h - written and placed in the public domain by Jeffrey Walton
 
 /// \file shake.h
 /// \brief Classes for SHAKE message digests
-/// \sa SHA3, SHAKE128, SHAKE256,
+/// \details The library provides byte oriented SHAKE128 and SHAKE256 using F1600.
+///   FIPS 202 allows nearly unlimited output sizes, but Crypto++ limits the output
+///   size to <tt>UINT_MAX</tt> due underlying data types.
+/// \sa Keccak, SHA3, SHAKE128, SHAKE256,
 ///   <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">FIPS 202,
 ///   SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</a>
 /// \since Crypto++ 8.1
@@ -19,7 +22,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \details SHAKE is the base class for SHAKE128 and SHAKE258.
 ///   Library users should instantiate a derived class, and only use SHAKE
 ///   as a base class reference or pointer.
-/// \sa SHA3, SHAKE128, SHAKE256,
+/// \sa Keccak, SHA3, SHAKE128, SHAKE256,
 ///   <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">FIPS 202,
 ///   SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</a>
 /// \since Crypto++ 8.1
@@ -76,7 +79,7 @@ public:
     /// \details BlockSize() will return 0 if the hash is not block based
     ///   or does not have an equivalent block size. For example, Keccak
     ///   and SHA-3 do not have a block size, but they do have an equivalent
-    ///   block size called rate expressed as <tt>r</tt>.
+    ///   to block size called rate expressed as <tt>r</tt>.
     unsigned int BlockSize() const { return BLOCKSIZE; }
 
 private:
@@ -89,6 +92,12 @@ private:
 };
 
 /// \brief SHAKE128 message digest
+/// \details The library provides byte oriented SHAKE128 using F1600.
+///   FIPS 202 allows nearly unlimited output sizes, but Crypto++ limits
+///   the output size to <tt>UINT_MAX</tt> due underlying data types.
+/// \sa Keccak, SHA3, SHAKE256,
+///   <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">FIPS 202,
+///   SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</a>
 /// \since Crypto++ 8.1
 class SHAKE128 : public SHAKE_Final<128>
 {
@@ -105,6 +114,12 @@ public:
 };
 
 /// \brief SHAKE256 message digest
+/// \details The library provides byte oriented SHAKE256 using F1600.
+///   FIPS 202 allows nearly unlimited output sizes, but Crypto++ limits
+///   the output size to <tt>UINT_MAX</tt> due underlying data types.
+/// \sa Keccak, SHA3, SHAKE128,
+///   <a href="https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.202.pdf">FIPS 202,
+///   SHA-3 Standard: Permutation-Based Hash and Extendable-Output Functions</a>
 /// \since Crypto++ 8.1
 class SHAKE256 : public SHAKE_Final<256>
 {
