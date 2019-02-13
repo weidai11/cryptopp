@@ -49,7 +49,7 @@ protected:
 
 /// \brief SHAKE message digest template
 /// \tparam T_Strength the strength of the digest
-/// \since Crypto++ 6.0
+/// \since Crypto++ 8.1
 template<unsigned int T_Strength>
 class SHAKE_Final : public SHAKE
 {
