@@ -56,7 +56,7 @@ class SHAKE_Final : public SHAKE
 public:
     CRYPTOPP_CONSTANT(DIGESTSIZE = (T_Strength == 128 ? 32 : 64))
     CRYPTOPP_CONSTANT(BLOCKSIZE = (T_Strength == 128 ? 1344/8 : 1088/8))
-    static std::string StaticAlgorithmName() { return "SHAKE" + IntToString(T_Strength); }
+    static std::string StaticAlgorithmName() { return "SHAKE-" + IntToString(T_Strength); }
 
     /// \brief Construct a SHAKE-X message digest
     SHAKE_Final() : SHAKE(DIGESTSIZE) {}
