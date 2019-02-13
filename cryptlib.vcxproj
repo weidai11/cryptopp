@@ -257,7 +257,8 @@
     <ClCompile Include="kalyna.cpp" />
     <ClCompile Include="kalynatab.cpp" />
     <ClCompile Include="keccak.cpp" />
-    <ClCompile Include="keccakc.cpp" />
+    <ClCompile Include="keccak_core.cpp" />
+    <ClCompile Include="keccak_simd.cpp" />
     <ClCompile Include="lea.cpp" />
     <ClCompile Include="lea_simd.cpp" />
     <ClCompile Include="luc.cpp" />
@@ -309,6 +310,7 @@
     <ClCompile Include="sha3.cpp" />
     <ClCompile Include="shacal2.cpp" />
     <ClCompile Include="shacal2_simd.cpp" />
+    <ClCompile Include="shake.cpp" />
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
     <ClCompile Include="simeck.cpp" />
@@ -460,7 +462,6 @@
     <ClInclude Include="iterhash.h" />
     <ClInclude Include="kalyna.h" />
     <ClInclude Include="keccak.h" />
-    <ClInclude Include="keccakc.h" />
     <ClInclude Include="lubyrack.h" />
     <ClInclude Include="lea.h" />
     <ClInclude Include="luc.h" />
@@ -514,6 +515,7 @@
     <ClInclude Include="sha.h" />
     <ClInclude Include="sha3.h" />
     <ClInclude Include="shacal2.h" />
+    <ClInclude Include="shake.h" />
     <ClInclude Include="shark.h" />
     <ClInclude Include="simple.h" />
     <ClInclude Include="simeck.h" />

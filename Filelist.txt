@@ -186,9 +186,9 @@ kalynatab.cpp
 kalyna.cpp
 kalyna.h
 keccak.cpp
+keccak_core.cpp
+keccak_simd.cpp
 keccak.h
-keccakc.cpp
-keccakc.h
 lubyrack.h
 lea.cpp
 lea_simd.cpp
@@ -309,6 +309,8 @@ sha3.h
 shacal2.cpp
 shacal2_simd.cpp
 shacal2.h
+shake.cpp
+shake.h
 shark.cpp
 shark.h
 sharkbox.cpp
@@ -535,6 +537,7 @@ TestVectors/sha3_256_fips_202.txt
 TestVectors/sha3_384_fips_202.txt
 TestVectors/sha3_512_fips_202.txt
 TestVectors/sha3_fips_202.txt
+TestVectors/shake.txt
 TestVectors/shacal2.txt
 TestVectors/simeck.txt
 TestVectors/simon.txt

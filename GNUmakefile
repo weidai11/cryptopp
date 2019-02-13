@@ -270,6 +270,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(SSSE3_FLAG)
     CHAM_FLAG = $(SSSE3_FLAG)
+    KECCAK_FLAG = $(SSSE3_FLAG)
     LEA_FLAG = $(SSSE3_FLAG)
     SIMECK_FLAG = $(SSSE3_FLAG)
     SIMON64_FLAG = $(SSSE3_FLAG)
@@ -1474,6 +1475,10 @@ gcm_simd.o : gcm_simd.cpp
 # Carryless multiply
 gf2n_simd.o : gf2n_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GF2N_FLAG) -c) $<
+
+# SSSE3 available
+keccak_simd.o : keccak_simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(KECCAK_FLAG) -c) $<
 
 # SSSE3 available
 lea_simd.o : lea_simd.cpp

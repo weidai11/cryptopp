@@ -43,6 +43,7 @@ Test: TestVectors/seed.txt
 Test: TestVectors/sha1_fips_180.txt
 Test: TestVectors/sha2_fips_180.txt
 Test: TestVectors/sha3_fips_202.txt
+Test: TestVectors/shake.txt
 Test: TestVectors/shacal2.txt
 Test: TestVectors/sha.txt
 Test: TestVectors/simeck.txt
