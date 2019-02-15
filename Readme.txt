@@ -25,12 +25,13 @@ Currently the library contains the following algorithms:
                                    CFB, OFB, counter mode (CTR)
 
      message authentication codes  BLAKE2s, BLAKE2b, CMAC, CBC-MAC, DMAC, GMAC, HMAC,
-                                   Poly1305, SipHash, Two-Track-MAC, VMAC,
+                                   Poly1305, Poly1305 (IETF), SipHash, Two-Track-MAC,
+                                   VMAC
 
                                    BLAKE2s, BLAKE2b, Keccack (F1600), SHA-1,
                    hash functions  SHA-2 (224/256/384/512), SHA-3 (224/256/384/512),
-                                   SipHash, SM3, Tiger, RIPEMD-128, RIPEMD-160,
-                                   RIPEMD-256, RIPEMD-320, WHIRLPOOL
+                                   SHAKE (128/256), SipHash, SM3, Tiger,
+                                   RIPEMD (128/160/256/320), WHIRLPOOL
 
                                    RSA, DSA, Determinsitic DSA, ElGamal,
           public-key cryptography  Nyberg-Rueppel (NR), Rabin-Williams (RW), LUC,
