@@ -72,6 +72,11 @@ public:
         { return "SHAKE-" + IntToString(T_Strength); }
 
     /// \brief Construct a SHAKE-X message digest
+    /// \details SHAKE128 and SHAKE256 don't need the output size in advance
+    ///   because the output size does not affect the digest. TruncatedFinal
+    ///   produces the correct digest for any output size. However, cSHAKE
+    ///   requires the output size in advance because the algoirthm uses
+    ///   output size as a parameter to the hash function.
     SHAKE_Final(unsigned int outputSize=DIGESTSIZE) : SHAKE(outputSize) {}
 
     /// \brief Provides the block size of the compression function
@@ -104,13 +109,21 @@ private:
 class SHAKE128 : public SHAKE_Final<128>
 {
 public:
-    /// \details Construct a SHAKE128 message digest
-    /// \details SHAKE128() uses the default output digest size
+    /// \brief Construct a SHAKE128 message digest
+    /// \details SHAKE128 and SHAKE256 don't need the output size in advance
+    ///   because the output size does not affect the digest. TruncatedFinal
+    ///   produces the correct digest for any output size. However, cSHAKE
+    ///   requires the output size in advance because the algoirthm uses
+    ///   output size as a parameter to the hash function.
     /// \since Crypto++ 8.1
     SHAKE128() {}
 
-    /// \details Construct a SHAKE128 message digest
-    /// \details SHAKE128() uses <tt>outputSize</tt> digest size
+    /// \brief Construct a SHAKE128 message digest
+    /// \details SHAKE128 and SHAKE256 don't need the output size in advance
+    ///   because the output size does not affect the digest. TruncatedFinal
+    ///   produces the correct digest for any output size. However, cSHAKE
+    ///   requires the output size in advance because the algoirthm uses
+    ///   output size as a parameter to the hash function.
     /// \since Crypto++ 8.1
     SHAKE128(unsigned int outputSize) : SHAKE_Final(outputSize) {}
 };
@@ -126,13 +139,21 @@ public:
 class SHAKE256 : public SHAKE_Final<256>
 {
 public:
-    /// \details Construct a SHAKE256 message digest
-    /// \details SHAKE256() uses the default output digest size
+    /// \brief Construct a SHAKE256 message digest
+    /// \details SHAKE128 and SHAKE256 don't need the output size in advance
+    ///   because the output size does not affect the digest. TruncatedFinal
+    ///   produces the correct digest for any output size. However, cSHAKE
+    ///   requires the output size in advance because the algoirthm uses
+    ///   output size as a parameter to the hash function.
     /// \since Crypto++ 8.1
     SHAKE256() {}
 
-    /// \details Construct a SHAKE256 message digest
-    /// \details SHAKE256() uses <tt>outputSize</tt> digest size
+    /// \brief Construct a SHAKE256 message digest
+    /// \details SHAKE128 and SHAKE256 don't need the output size in advance
+    ///   because the output size does not affect the digest. TruncatedFinal
+    ///   produces the correct digest for any output size. However, cSHAKE
+    ///   requires the output size in advance because the algoirthm uses
+    ///   output size as a parameter to the hash function.
     /// \since Crypto++ 8.1
     SHAKE256(unsigned int outputSize) : SHAKE_Final(outputSize) {}
 };
