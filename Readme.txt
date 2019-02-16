@@ -10,16 +10,16 @@ Currently the library contains the following algorithms:
                                    XChaCha20Poly1305
 
         high speed stream ciphers  ChaCha (8/12/20), ChaCha (IETF), Panama, Salsa20,
-                                   Sosemanuk, XSalsa20 XChaCha20
+                                   Sosemanuk, XSalsa20, XChaCha20
 
            AES and AES candidates  AES (Rijndael), RC6, MARS, Twofish, Serpent,
                                    CAST-256
 
-                                   ARIA, IDEA, Blowfish, Triple-DES (DES-EDE2 and
-                                   DES-EDE3), Camellia, SEED, Kalyna (128/256/512),
-              other block ciphers  RC5, SIMON (64/128), SPECK (64/128), Skipjack,
-                                   SHACAL-2, SM4, Threefish (256/512/1024), TEA,
-                                   XTEA
+                                   ARIA, Blowfish, Camellia, CHAM, HIGHT, IDEA,
+                                   Kalyna (128/256/512), LEA, SEED, RC5, SHACAL-2,
+              other block ciphers  SIMON (64/128), Skipjack, SPECK (64/128),
+                                   Simeck, SM4, Threefish (256/512/1024),
+                                   Triple-DES (DES-EDE2 and DES-EDE3), TEA, XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
                                    CFB, OFB, counter mode (CTR)
