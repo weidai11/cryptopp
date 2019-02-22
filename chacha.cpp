@@ -414,6 +414,7 @@ std::string ChaChaTLS_Policy::AlgorithmProvider() const
 void ChaChaTLS_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 32);
+    CRYPTOPP_UNUSED(length);
 
     // ChaChaTLS is always 20 rounds. Fetch Rounds() to avoid a spurious failure.
     int rounds = params.GetIntValueWithDefault(Name::Rounds(), ROUNDS);
@@ -509,6 +510,7 @@ std::string XChaCha20_Policy::AlgorithmProvider() const
 void XChaCha20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, size_t length)
 {
     CRYPTOPP_ASSERT(key); CRYPTOPP_ASSERT(length == 32);
+    CRYPTOPP_UNUSED(length);
 
     // Use previous rounds as the default value
     int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);

@@ -314,7 +314,7 @@ void Poly1305_Base<T>::Restart()
 
 void Poly1305TLS_Base::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
 {
-	CRYPTOPP_UNUSED(params);
+	CRYPTOPP_UNUSED(params); CRYPTOPP_UNUSED(length);
 	CRYPTOPP_ASSERT(key && length >= 32);
 
 	// key is {r,s} pair. r is the additional key that gets clamped, s is the nonce.

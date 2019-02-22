@@ -870,6 +870,7 @@ bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator
 bool ed25519Verifier::VerifyStream(std::istream& stream, const byte *signature, size_t signatureLen) const
 {
     CRYPTOPP_ASSERT(signatureLen == SIGNATURE_LENGTH);
+    CRYPTOPP_UNUSED(signatureLen);
 
     const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
     int ret = Donna::ed25519_sign_open(stream, pk.GetPublicKeyBytePtr(), signature);
