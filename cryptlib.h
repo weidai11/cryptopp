@@ -500,9 +500,9 @@ const std::string AAD_CHANNEL;
 const NameValuePairs& g_nullNameValuePairs;
 
 #else
-extern const std::string DEFAULT_CHANNEL;
-extern const std::string AAD_CHANNEL;
-extern const NameValuePairs& g_nullNameValuePairs;
+extern CRYPTOPP_DLL const std::string DEFAULT_CHANNEL;
+extern CRYPTOPP_DLL const std::string AAD_CHANNEL;
+extern CRYPTOPP_DLL const NameValuePairs& g_nullNameValuePairs;
 #endif
 
 // Document additional name spaces which show up elsewhere in the sources.

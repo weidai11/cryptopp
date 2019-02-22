@@ -43,8 +43,8 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_CLMUL_AVAILABLE)
-extern void GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC);
-extern void GF2NT_233_Square_Reduce_CLMUL(const word* pA, word* pC);
+extern CRYPTOPP_DLL void GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC);
+extern CRYPTOPP_DLL void GF2NT_233_Square_Reduce_CLMUL(const word* pA, word* pC);
 #endif
 
 #if (CRYPTOPP_ARM_PMULL_AVAILABLE)
