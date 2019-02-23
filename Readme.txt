@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 8.0 - DEC/28/2018
+Version 8.1 - FEB/22/2019
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -290,8 +290,23 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
-8.0.0 - December 28, 2018
+8.1.0 - February 22, 2019
+      - minor release, no recompile of programs required
+      - expanded community input and support
+        * 56 unique contributors as of this release
+      - fix OS X PowerPC builds with Clang
+      - add Microsoft ARM64 support
+      - fix iPhone Simulator build due to missign symbols
+      - add CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE
+      - add carryless multiplies for NIST b233 and k233 curves
+      - fix OpenMP build due to use of OpenMP 4 with down-level compilers
+      - add SignStream and VerifyStream for ed25519 and large files
+      - fix missing AlgorithmProvider in PanamaHash
+      - add SHAKE-128 and SHAKE-256
+      - fix AVX2 build due to _mm256_broadcastsi128_si256
+      - add IETF ChaCha, XChaCha, ChaChaPoly1305 and XChaChaPoly1305
 
+8.0.0 - December 28, 2018
       - major release, recompile of programs required
       - expanded community input and support
          * 54 unique contributors as of this release
