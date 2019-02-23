@@ -278,6 +278,7 @@ public:
     /// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
     std::string AlgorithmName() const {return std::string(BLAKE2s_Info::StaticAlgorithmName()) + "-" + IntToString(DigestSize()*8);}
 
+    unsigned int BlockSize() const {return BLOCKSIZE;}
     unsigned int DigestSize() const {return m_digestSize;}
     unsigned int OptimalDataAlignment() const;
 
@@ -376,6 +377,7 @@ public:
     /// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
     std::string AlgorithmName() const {return std::string(BLAKE2b_Info::StaticAlgorithmName()) + "-" + IntToString(DigestSize()*8);}
 
+    unsigned int BlockSize() const {return BLOCKSIZE;}
     unsigned int DigestSize() const {return m_digestSize;}
     unsigned int OptimalDataAlignment() const;
 
