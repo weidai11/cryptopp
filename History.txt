@@ -435,7 +435,6 @@ last several releases.
         MacPorts GCC 7.0, Clang 4.0, Intel C++ 17.00, IBM XL C/C++ 13.1
 
 8.0.0 - December 28, 2018
-
       - major release, recompile of programs required
       - expanded community input and support
          * 54 unique contributors as of this release
@@ -452,3 +451,19 @@ last several releases.
       - fix SPARC alignment problems due to GetAlignmentOf<T>() on word64
       - add ARM AES asm implementation from Cryptogams
       - remove CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS support
+
+8.1.0 - February 22, 2019
+      - minor release, no recompile of programs required
+      - expanded community input and support
+        56 unique contributors as of this release
+      - fix OS X PowerPC builds with Clang
+      - add Microsoft ARM64 support
+      - fix iPhone Simulator build due to missign symbols
+      - add CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE
+      - add carryless multiplies for NIST b233 and k233 curves
+      - fix OpenMP build due to use of OpenMP 4 with down-level compilers
+      - add SignStream and VerifyStream for ed25519 and large files
+      - fix missing AlgorithmProvider in PanamaHash
+      - add SHAKE-128 and SHAKE-256
+      - fix AVX2 build due to _mm256_broadcastsi128_si256
+      - add IETF ChaCha, XChaCha, ChaChaPoly1305 and XChaChaPoly1305
