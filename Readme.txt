@@ -296,7 +296,7 @@ for the record back to Crypto++ 1.0.
         * 56 unique contributors as of this release
       - fix OS X PowerPC builds with Clang
       - add Microsoft ARM64 support
-      - fix iPhone Simulator build due to missign symbols
+      - fix iPhone Simulator build due to missing symbols
       - add CRYPTOPP_BUGGY_SIMD_LOAD_AND_STORE
       - add carryless multiplies for NIST b233 and k233 curves
       - fix OpenMP build due to use of OpenMP 4 with down-level compilers
