@@ -270,7 +270,7 @@ public:
     /// \param keyLength the size of the byte array
     /// \param salt a byte array used as salt
     /// \param saltLength the size of the byte array
-    /// \param personalization a byte array used as prsonalization string
+    /// \param personalization a byte array used as personalization string
     /// \param personalizationLength the size of the byte array
     /// \param treeMode flag indicating tree mode
     /// \param digestSize the digest size, in bytes
@@ -377,7 +377,7 @@ public:
     /// \param keyLength the size of the byte array
     /// \param salt a byte array used as salt
     /// \param saltLength the size of the byte array
-    /// \param personalization a byte array used as prsonalization string
+    /// \param personalization a byte array used as personalization string
     /// \param personalizationLength the size of the byte array
     /// \param treeMode flag indicating tree mode
     /// \param digestSize the digest size, in bytes
