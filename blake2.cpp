@@ -343,6 +343,26 @@ BLAKE2b::BLAKE2b(bool treeMode, unsigned int digestSize)
         (Name::TreeMode(), treeMode));
 }
 
+BLAKE2s::BLAKE2s(unsigned int digestSize)
+    : m_digestSize(digestSize), m_keyLength(0), m_treeMode(false)
+{
+    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
+
+    UncheckedSetKey(NULLPTR, 0, MakeParameters
+        (Name::DigestSize(), (int)digestSize)
+        (Name::TreeMode(), false));
+}
+
+BLAKE2b::BLAKE2b(unsigned int digestSize)
+    : m_digestSize(digestSize), m_keyLength(0), m_treeMode(false)
+{
+    CRYPTOPP_ASSERT(digestSize <= DIGESTSIZE);
+
+    UncheckedSetKey(NULLPTR, 0, MakeParameters
+        (Name::DigestSize(), (int)digestSize)
+        (Name::TreeMode(), false));
+}
+
 BLAKE2s::BLAKE2s(const byte *key, size_t keyLength, const byte* salt, size_t saltLength,
     const byte* personalization, size_t personalizationLength, bool treeMode, unsigned int digestSize)
     : m_digestSize(digestSize), m_keyLength(static_cast<unsigned int>(keyLength)), m_treeMode(treeMode)
