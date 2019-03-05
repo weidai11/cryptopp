@@ -67,6 +67,13 @@ public:
     virtual ~x25519() {}
 
     /// \brief Create a x25519 object
+    /// \details This constructor creates an empty x25519 object. It is
+    ///   intended for use in loading existing parameters, like CryptoBox
+    ///   parameters. If you are perfoming key agreement you should use a
+    ///    constructor that generates random parameters on construction.
+    x25519() {}
+
+    /// \brief Create a x25519 object
     /// \param y public key
     /// \param x private key
     /// \details This constructor creates a x25519 object using existing parameters.
