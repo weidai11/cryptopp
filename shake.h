@@ -125,7 +125,7 @@ public:
     ///   requires the output size in advance because the algoirthm uses
     ///   output size as a parameter to the hash function.
     /// \since Crypto++ 8.1
-    SHAKE128(unsigned int outputSize) : SHAKE_Final(outputSize) {}
+    SHAKE128(unsigned int outputSize) : SHAKE_Final<128>(outputSize) {}
 };
 
 /// \brief SHAKE256 message digest
@@ -155,7 +155,7 @@ public:
     ///   requires the output size in advance because the algoirthm uses
     ///   output size as a parameter to the hash function.
     /// \since Crypto++ 8.1
-    SHAKE256(unsigned int outputSize) : SHAKE_Final(outputSize) {}
+    SHAKE256(unsigned int outputSize) : SHAKE_Final<256>(outputSize) {}
 };
 
 NAMESPACE_END
