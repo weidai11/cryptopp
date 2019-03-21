@@ -212,6 +212,7 @@
     <ClCompile Include="gcm.cpp" />
     <ClCompile Include="gcm_simd.cpp" />
     <ClCompile Include="gf2n.cpp" />
+    <ClCompile Include="gf2n_simd.cpp" />
     <ClCompile Include="gfpcrypt.cpp" />
     <ClCompile Include="hex.cpp" />
     <ClCompile Include="hmac.cpp" />

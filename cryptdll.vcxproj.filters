@@ -98,6 +98,9 @@
     <ClCompile Include="gf2n.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="gf2n_simd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="gfpcrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

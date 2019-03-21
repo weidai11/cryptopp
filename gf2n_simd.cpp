@@ -21,6 +21,8 @@
 #include "pch.h"
 #include "config.h"
 
+#ifndef CRYPTOPP_IMPORTS
+
 #include "gf2n.h"
 
 #if (CRYPTOPP_CLMUL_AVAILABLE)
@@ -608,3 +610,5 @@ GF2NT_233_Square_Reduce_POWER8(const word* pA, word* pC)
 #endif
 
 NAMESPACE_END
+
+#endif  // CRYPTOPP_IMPORTS
