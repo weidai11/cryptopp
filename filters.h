@@ -474,7 +474,7 @@ struct BlockPaddingSchemeDef
 		/// \brief 0's padding added to a block
 		/// \since Crypto++ 5.0
 		ZEROS_PADDING,
-		/// \brief PKCS #5 padding added to a block
+		/// \brief PKCS padding added to a block
 		/// \since Crypto++ 5.0
 		PKCS_PADDING,
 		/// \brief 1 and 0's padding added to a block
