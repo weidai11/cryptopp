@@ -49,6 +49,7 @@ Test: TestVectors/sha.txt
 Test: TestVectors/simeck.txt
 Test: TestVectors/simon.txt
 Test: TestVectors/siphash.txt
+Test: TestVectors/skipjack.txt
 Test: TestVectors/sm3.txt
 Test: TestVectors/sm4.txt
 Test: TestVectors/sosemanuk.txt
