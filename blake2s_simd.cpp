@@ -838,7 +838,7 @@ inline uint32x4_p VectorSet32(const uint32x4_p a, const uint32x4_p b,
     const uint32x4_p t0 = VectorSet32<W,X>(a, b);
     const uint32x4_p t1 = VectorSet32<Y,Z>(c, d);
 
-    // Power7 follows SSE2's implementation, and this is _mm_set_epi32.
+    // PowerPC follows SSE2's implementation, and this is _mm_set_epi32.
     const uint8x16_p mask = {20,21,22,23, 16,17,18,19, 4,5,6,7, 0,1,2,3};
     return VecPermute(t0, t1, mask);
 }

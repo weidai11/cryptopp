@@ -259,7 +259,7 @@ std::string BLAKE2s::AlgorithmProvider() const
 #endif
 #if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
-        return "Power7";
+        return "Power8";
     else
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
