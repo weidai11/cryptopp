@@ -10,8 +10,6 @@ SHELL = /bin/sh
 
 # If needed
 TMPDIR ?= /tmp
-# Used for ARMv7 and NEON.
-FP_ABI ?= hard
 # Used for feature tests
 TOUT ?= a.out
 TOUT := $(strip $(TOUT))
