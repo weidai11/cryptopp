@@ -618,15 +618,19 @@ ifeq ($(DETECT_FEATURES),1)
   TOPT = $(POWER8_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
+    AES_FLAG = $(POWER8_FLAG)
+    ARIA_FLAG = $(POWER7_FLAG)
     BLAKE2B_FLAG = $(POWER8_FLAG)
     BLAKE2S_FLAG = $(POWER8_FLAG)
     CHACHA_FLAG = $(POWER8_FLAG)
+    CHAM_FLAG = $(POWER7_FLAG)
     CRC_FLAG = $(POWER8_FLAG)
     GCM_FLAG = $(POWER8_FLAG)
     GF2N_FLAG = $(POWER8_FLAG)
-    AES_FLAG = $(POWER8_FLAG)
+    LEA_FLAG = $(POWER7_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
     SHACAL2_FLAG = $(POWER8_FLAG)
+    SIMECK_FLAG = $(POWER7_FLAG)
     SIMON64_FLAG = $(POWER8_FLAG)
     SPECK64_FLAG = $(POWER8_FLAG)
     SIMON128_FLAG = $(POWER8_FLAG)
@@ -641,12 +645,7 @@ ifeq ($(DETECT_FEATURES),1)
   TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = $(POWER7_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    ARIA_FLAG = $(POWER7_FLAG)
-    CHAM_FLAG = $(POWER7_FLAG)
-    LEA_FLAG = $(POWER7_FLAG)
-    SIMECK_FLAG = $(POWER7_FLAG)
-  else
+  ifneq ($(strip $(HAVE_OPT)),0)
     POWER7_FLAG =
   endif
 
@@ -689,18 +688,12 @@ ifeq ($(DETECT_FEATURES),1)
   #####################################################################
   # Fixups for algorithms that can drop to a lower ISA, if needed
 
-  # Drop to Power7 if Power8 is not available.
-  ifeq ($(POWER8_FLAG),)
-    ifneq ($(POWER7_FLAG),)
-      GCM_FLAG = $(POWER7_FLAG)
-    endif
-  endif
-
   # Drop to Power4 if Power8 not available
   ifeq ($(POWER8_FLAG),)
     ifneq ($(ALTIVEC_FLAG),)
       BLAKE2S_FLAG = $(ALTIVEC_FLAG)
       CHACHA_FLAG = $(ALTIVEC_FLAG)
+      GCM_FLAG = $(ALTIVEC_FLAG)
       SIMON64_FLAG = $(ALTIVEC_FLAG)
       SPECK64_FLAG = $(ALTIVEC_FLAG)
     endif
