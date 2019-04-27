@@ -2,6 +2,12 @@
 
 /// \file skipjack.h
 /// \brief Classes for the SKIPJACK block cipher
+/// \details The Crypto++ implementation conforms to SKIPJACK and KEA
+///  Algorithm Specifications published by NIST in May 1998. The library passes
+///  known answer tests available in NIST SP800-17, Table 6, pp. 140-42.
+/// \sa <a href ="http://csrc.nist.gov/encryption/skipjack/skipjack.pdf">SKIPJACK
+///  and KEA Algorithm Specifications</a> (May 1998), <a
+///  href="http://www.cryptopp.com/wiki/SKIPJACK">SKIPJACK</a> on the Crypto++ wiki
 
 #ifndef CRYPTOPP_SKIPJACK_H
 #define CRYPTOPP_SKIPJACK_H
@@ -18,7 +24,12 @@ struct SKIPJACK_Info : public FixedBlockSize<8>, public FixedKeyLength<10>
 };
 
 /// \brief SKIPJACK block cipher
-/// \sa <a href="http://www.cryptopp.com/wiki/SKIPJACK">SKIPJACK</a>
+/// \details The Crypto++ implementation conforms to SKIPJACK and KEA
+///  Algorithm Specifications published by NIST in May 1998. The library passes
+///  known answer tests available in NIST SP800-17, Table 6, pp. 140-42.
+/// \sa <a href ="http://csrc.nist.gov/encryption/skipjack/skipjack.pdf">SKIPJACK
+///  and KEA Algorithm Specifications</a> (May 1998), <a
+///  href="http://www.cryptopp.com/wiki/SKIPJACK">SKIPJACK</a> on the Crypto++ wiki
 class SKIPJACK : public SKIPJACK_Info, public BlockCipherDocumentation
 {
 	/// \brief SKIPJACK block cipher default operation
