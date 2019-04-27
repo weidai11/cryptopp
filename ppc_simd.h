@@ -57,7 +57,7 @@
 //
 //   inline uint32x4_p VecLoad(const byte src[16])
 //   {
-//   #if defined(_ARCH_PWR7)
+//   #if defined(_ARCH_PWR8)
 //       return (uint32x4_p) *(uint8x16_p*)((byte*)src);
 //   #else
 //       return VecLoad_ALTIVEC(src);
@@ -128,7 +128,7 @@ typedef __vector unsigned short  uint16x8_p;
 /// \since Crypto++ 6.0
 typedef __vector unsigned int    uint32x4_p;
 
-#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
 /// \details uint64x2_p is available on POWER7 and above. Some supporting
 ///   functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>), did not
@@ -137,7 +137,7 @@ typedef __vector unsigned int    uint32x4_p;
 ///   __vector unsigned long long
 /// \since Crypto++ 6.0
 typedef __vector unsigned long long uint64x2_p;
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 
 /// \brief The 0 vector
 /// \returns a 32-bit vector of 0's
@@ -252,7 +252,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -280,7 +280,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -328,7 +328,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     return VecLoad(off, (const byte*)src);
 }
 
-#if defined(_ARCH_PWR7) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Loads a vector from a word array
 /// \param src the word array
@@ -367,7 +367,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     return (uint64x2_p)VecLoad(off, (const byte*)src);
 }
 
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
@@ -382,7 +382,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -390,10 +390,10 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 #  else
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
     CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
     return (uint32x4_p)vec_ld(0, (byte*)src);
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from an aligned byte array
@@ -410,7 +410,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -418,10 +418,10 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 #  else
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
     CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
     return (uint32x4_p)vec_ld(off, (byte*)src);
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -439,7 +439,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(0, (byte*)src);
@@ -455,13 +455,13 @@ inline uint32x4_p VecLoadBE(const byte src[16])
        return (uint32x4_p)VecReverse(vec_vsx_ld(0, (byte*)src));
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad((const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad((const byte*)src));
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -480,7 +480,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(off, (byte*)src);
@@ -496,13 +496,13 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
        return (uint32x4_p)VecReverse(vec_vsx_ld(off, (byte*)src));
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad(off, (const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 //@}
@@ -604,7 +604,7 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -635,7 +635,7 @@ inline void VecStore(const T data, byte dest[16])
 template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
@@ -750,7 +750,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
 template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
@@ -766,13 +766,13 @@ inline void VecStoreBE(const T data, byte dest[16])
        vec_vsx_st((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a byte array
@@ -794,7 +794,7 @@ inline void VecStoreBE(const T data, byte dest[16])
 template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
-#if defined(_ARCH_PWR7)
+#if defined(_ARCH_PWR8)
 #  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, off, (byte*)dest);
@@ -810,13 +810,13 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
        vec_vsx_st((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #    endif
 #  endif
-#else  // _ARCH_PWR7
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #  endif
-#endif  // _ARCH_PWR7
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a word array
