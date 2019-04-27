@@ -255,8 +255,8 @@ std::string SIMON64::Base::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 # endif
-# if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
+# if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
         return "Power7";
 # endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)

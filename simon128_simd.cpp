@@ -44,7 +44,7 @@
 # include <arm_acle.h>
 #endif
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
 # include "adv_simd.h"
 # include "ppc_simd.h"
 #endif

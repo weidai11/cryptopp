@@ -209,7 +209,7 @@ inline __m128i RotateLeft<16>(const __m128i val)
 
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
-// ChaCha_OperateKeystream_POWER7 is optimized for POWER7. However, Altivec
+// ChaCha_OperateKeystream_POWER8 is optimized for POWER7. However, Altivec
 // is supported by using vec_ld and vec_st, and using a composite VecAdd
 // that supports 64-bit element adds. vec_ld and vec_st add significant
 // overhead when memory is not aligned. Despite the drawbacks Altivec
@@ -827,7 +827,7 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
 
 #endif  // CRYPTOPP_SSE2_INTRIN_AVAILABLE
 
-#if (CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
 
 // ChaCha_OperateKeystream_CORE will use either POWER7 or ALTIVEC,
 // depending on the flags used to compile this source file. The
@@ -1096,11 +1096,11 @@ inline void ChaCha_OperateKeystream_CORE(const word32 *state, const byte* input,
     VecStore32LE(output + 15*16, r3_3);
 }
 
-#endif  // CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER8_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE)
 
-void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds)
+void ChaCha_OperateKeystream_POWER8(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
     ChaCha_OperateKeystream_CORE(state, input, output, rounds);
 }
