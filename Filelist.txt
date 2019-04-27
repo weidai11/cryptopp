@@ -542,6 +542,7 @@ TestVectors/shacal2.txt
 TestVectors/simeck.txt
 TestVectors/simon.txt
 TestVectors/siphash.txt
+TestVectors/skipjack.txt
 TestVectors/sm3.txt
 TestVectors/sm4.txt
 TestVectors/sosemanuk.txt

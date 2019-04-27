@@ -1,0 +1,483 @@
+AlgorithmType: SymmetricCipher
+Name: SKIPJACK/ECB
+Source: SP800-17, Table 6, pp. 140-42
+#
+Comment: Round 0 known answer
+Key: 80000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 7A00E49441461F5A
+Test: Encrypt
+#
+Comment: Round 1 known answer
+Key: 40000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: A14FF8BCD1BC9EF9
+Test: Encrypt
+#
+Comment: Round 2 known answer
+Key: 20000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: D7E810385A42AAEA
+Test: Encrypt
+#
+Comment: Round 3 known answer
+Key: 10000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 28FE2C3332AABD35
+Test: Encrypt
+#
+Comment: Round 4 known answer
+Key: 08000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 3FC0F05EE6CE788A
+Test: Encrypt
+#
+Comment: Round 5 known answer
+Key: 04000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 443DD0CB7526F74B
+Test: Encrypt
+#
+Comment: Round 6 known answer
+Key: 02000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: AD819E677CF90305
+Test: Encrypt
+#
+Comment: Round 7 known answer
+Key: 01000000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 9891755E5EBA5B1D
+Test: Encrypt
+#
+Comment: Round 8 known answer
+Key: 00800000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 0E64B494633BF2CB
+Test: Encrypt
+#
+Comment: Round 9 known answer
+Key: 00400000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 63381A08A47FC48D
+Test: Encrypt
+#
+Comment: Round 10 known answer
+Key: 00200000000000000000
+Plaintext: 0000000000000000
+Ciphertext: F4108B099B047040
+Test: Encrypt
+#
+Comment: Round 11 known answer
+Key: 00100000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 740216614ED0E25B
+Test: Encrypt
+#
+Comment: Round 12 known answer
+Key: 00080000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 8000917B2E16B92A
+Test: Encrypt
+#
+Comment: Round 13 known answer
+Key: 00040000000000000000
+Plaintext: 0000000000000000
+Ciphertext: A9769B62B3A0BE4E
+Test: Encrypt
+#
+Comment: Round 14 known answer
+Key: 00020000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 42FDB872EA314121
+Test: Encrypt
+#
+Comment: Round 15 known answer
+Key: 00010000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 1D672BA0156AB39D
+Test: Encrypt
+#
+Comment: Round 16 known answer
+Key: 00008000000000000000
+Plaintext: 0000000000000000
+Ciphertext: F44441D7C777F057
+Test: Encrypt
+#
+Comment: Round 17 known answer
+Key: 00004000000000000000
+Plaintext: 0000000000000000
+Ciphertext: EA487DDC360D1594
+Test: Encrypt
+#
+Comment: Round 18 known answer
+Key: 00002000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 324B0E785FF2B908
+Test: Encrypt
+#
+Comment: Round 19 known answer
+Key: 00001000000000000000
+Plaintext: 0000000000000000
+Ciphertext: 1AF59EC2B9D64C4F
+Test: Encrypt
+#
+Comment: Round 20 known answer
+Key: 00000800000000000000
+Plaintext: 0000000000000000
+Ciphertext: 819B7E102E76A0EE
+Test: Encrypt
+#
+Comment: Round 21 known answer
+Key: 00000400000000000000
+Plaintext: 0000000000000000
+Ciphertext: 0B0BFE0D4A37AA9E
+Test: Encrypt
+#
+Comment: Round 22 known answer
+Key: 00000200000000000000
+Plaintext: 0000000000000000
+Ciphertext: 12B43E3760D30DA6
+Test: Encrypt
+#
+Comment: Round 23 known answer
+Key: 00000100000000000000
+Plaintext: 0000000000000000
+Ciphertext: 3177256C461541EE
+Test: Encrypt
+#
+Comment: Round 24 known answer
+Key: 00000080000000000000
+Plaintext: 0000000000000000
+Ciphertext: 3600EB92836CA026
+Test: Encrypt
+#
+Comment: Round 25 known answer
+Key: 00000040000000000000
+Plaintext: 0000000000000000
+Ciphertext: 75A435AD22ECF793
+Test: Encrypt
+#
+Comment: Round 26 known answer
+Key: 00000020000000000000
+Plaintext: 0000000000000000
+Ciphertext: 7190AA9913C1F9EC
+Test: Encrypt
+#
+Comment: Round 27 known answer
+Key: 00000010000000000000
+Plaintext: 0000000000000000
+Ciphertext: ABA718B185A11DD0
+Test: Encrypt
+#
+Comment: Round 28 known answer
+Key: 00000008000000000000
+Plaintext: 0000000000000000
+Ciphertext: 40F67ABFCC3B873C
+Test: Encrypt
+#
+Comment: Round 29 known answer
+Key: 00000004000000000000
+Plaintext: 0000000000000000
+Ciphertext: 38A0A58FB09728F2
+Test: Encrypt
+#
+Comment: Round 30 known answer
+Key: 00000002000000000000
+Plaintext: 0000000000000000
+Ciphertext: CA702E49BF6FA645
+Test: Encrypt
+#
+Comment: Round 31 known answer
+Key: 00000001000000000000
+Plaintext: 0000000000000000
+Ciphertext: 455D93F039EA0860
+Test: Encrypt
+#
+Comment: Round 32 known answer
+Key: 00000000800000000000
+Plaintext: 0000000000000000
+Ciphertext: 5347643FE803883F
+Test: Encrypt
+#
+Comment: Round 33 known answer
+Key: 00000000400000000000
+Plaintext: 0000000000000000
+Ciphertext: F40FF1DCBA2BC1E5
+Test: Encrypt
+#
+Comment: Round 34 known answer
+Key: 00000000200000000000
+Plaintext: 0000000000000000
+Ciphertext: 574A4848369D412E
+Test: Encrypt
+#
+Comment: Round 35 known answer
+Key: 00000000100000000000
+Plaintext: 0000000000000000
+Ciphertext: B2BE936E36670636
+Test: Encrypt
+#
+Comment: Round 36 known answer
+Key: 00000000080000000000
+Plaintext: 0000000000000000
+Ciphertext: 5C88517D2742E619
+Test: Encrypt
+#
+Comment: Round 37 known answer
+Key: 00000000040000000000
+Plaintext: 0000000000000000
+Ciphertext: 993C89D09A2FE556
+Test: Encrypt
+#
+Comment: Round 38 known answer
+Key: 00000000020000000000
+Plaintext: 0000000000000000
+Ciphertext: 1A3F72DA694C9FC7
+Test: Encrypt
+#
+Comment: Round 39 known answer
+Key: 00000000010000000000
+Plaintext: 0000000000000000
+Ciphertext: 9659D5228F4CB151
+Test: Encrypt
+#
+Comment: Round 40 known answer
+Key: 00000000008000000000
+Plaintext: 0000000000000000
+Ciphertext: 7C13F49E750F5C30
+Test: Encrypt
+#
+Comment: Round 41 known answer
+Key: 00000000004000000000
+Plaintext: 0000000000000000
+Ciphertext: 3500BD407BCD01F6
+Test: Encrypt
+#
+Comment: Round 42 known answer
+Key: 00000000002000000000
+Plaintext: 0000000000000000
+Ciphertext: 85C58E3C49442028
+Test: Encrypt
+#
+Comment: Round 43 known answer
+Key: 00000000001000000000
+Plaintext: 0000000000000000
+Ciphertext: 8413840A2D48ABEA
+Test: Encrypt
+#
+Comment: Round 44 known answer
+Key: 00000000000800000000
+Plaintext: 0000000000000000
+Ciphertext: 832850E6E5C4AE5A
+Test: Encrypt
+#
+Comment: Round 45 known answer
+Key: 00000000000400000000
+Plaintext: 0000000000000000
+Ciphertext: 29E97F0D9F0FDC5F
+Test: Encrypt
+#
+Comment: Round 46 known answer
+Key: 00000000000200000000
+Plaintext: 0000000000000000
+Ciphertext: 2C45230437FF2E04
+Test: Encrypt
+#
+Comment: Round 47 known answer
+Key: 00000000000100000000
+Plaintext: 0000000000000000
+Ciphertext: 10C409FB872A984F
+Test: Encrypt
+#
+Comment: Round 48 known answer
+Key: 00000000000080000000
+Plaintext: 0000000000000000
+Ciphertext: 14693B30C3AF7470
+Test: Encrypt
+#
+Comment: Round 49 known answer
+Key: 00000000000040000000
+Plaintext: 0000000000000000
+Ciphertext: 913A9050D585BAB9
+Test: Encrypt
+#
+Comment: Round 50 known answer
+Key: 00000000000020000000
+Plaintext: 0000000000000000
+Ciphertext: 5BFB0F83AB0C6EEA
+Test: Encrypt
+#
+Comment: Round 51 known answer
+Key: 00000000000010000000
+Plaintext: 0000000000000000
+Ciphertext: 6C0CA7284D836AAE
+Test: Encrypt
+#
+Comment: Round 52 known answer
+Key: 00000000000008000000
+Plaintext: 0000000000000000
+Ciphertext: AC5727D612E185E8
+Test: Encrypt
+#
+Comment: Round 53 known answer
+Key: 00000000000004000000
+Plaintext: 0000000000000000
+Ciphertext: 38D7D596A3D29D90
+Test: Encrypt
+#
+Comment: Round 54 known answer
+Key: 00000000000002000000
+Plaintext: 0000000000000000
+Ciphertext: 78BADAD3BC436CA2
+Test: Encrypt
+#
+Comment: Round 55 known answer
+Key: 00000000000001000000
+Plaintext: 0000000000000000
+Ciphertext: E405778741B04BA0
+Test: Encrypt
+#
+Comment: Round 56 known answer
+Key: 00000000000000800000
+Plaintext: 0000000000000000
+Ciphertext: 72FFE43DEA02AFA5
+Test: Encrypt
+#
+Comment: Round 57 known answer
+Key: 00000000000000400000
+Plaintext: 0000000000000000
+Ciphertext: 52E931DF248CE4C7
+Test: Encrypt
+#
+Comment: Round 58 known answer
+Key: 00000000000000200000
+Plaintext: 0000000000000000
+Ciphertext: 4BB165FDB3BFF65C
+Test: Encrypt
+#
+Comment: Round 59 known answer
+Key: 00000000000000100000
+Plaintext: 0000000000000000
+Ciphertext: 7CFAFA6861D7B47D
+Test: Encrypt
+#
+Comment: Round 60 known answer
+Key: 00000000000000080000
+Plaintext: 0000000000000000
+Ciphertext: 48D1755231F87A2A
+Test: Encrypt
+#
+Comment: Round 61 known answer
+Key: 00000000000000040000
+Plaintext: 0000000000000000
+Ciphertext: 413207DA1C9B6AB5
+Test: Encrypt
+#
+Comment: Round 62 known answer
+Key: 00000000000000020000
+Plaintext: 0000000000000000
+Ciphertext: 63F818E9382A2778
+Test: Encrypt
+#
+Comment: Round 63 known answer
+Key: 00000000000000010000
+Plaintext: 0000000000000000
+Ciphertext: EDAF2B85FC30EB09
+Test: Encrypt
+#
+Comment: Round 64 known answer
+Key: 00000000000000008000
+Plaintext: 0000000000000000
+Ciphertext: 11FC5993820763F7
+Test: Encrypt
+#
+Comment: Round 65 known answer
+Key: 00000000000000004000
+Plaintext: 0000000000000000
+Ciphertext: E539C3969915092F
+Test: Encrypt
+#
+Comment: Round 66 known answer
+Key: 00000000000000002000
+Plaintext: 0000000000000000
+Ciphertext: 506F6A1E834AD8F7
+Test: Encrypt
+#
+Comment: Round 67 known answer
+Key: 00000000000000001000
+Plaintext: 0000000000000000
+Ciphertext: 8B15BA3047FA3195
+Test: Encrypt
+#
+Comment: Round 68 known answer
+Key: 00000000000000000800
+Plaintext: 0000000000000000
+Ciphertext: 130BE15C393E4B7A
+Test: Encrypt
+#
+Comment: Round 69 known answer
+Key: 00000000000000000400
+Plaintext: 0000000000000000
+Ciphertext: 8895EC3104CA1041
+Test: Encrypt
+#
+Comment: Round 70 known answer
+Key: 00000000000000000200
+Plaintext: 0000000000000000
+Ciphertext: E440ACDF4B64C9C9
+Test: Encrypt
+#
+Comment: Round 71 known answer
+Key: 00000000000000000100
+Plaintext: 0000000000000000
+Ciphertext: C23280EBE093F002
+Test: Encrypt
+#
+Comment: Round 72 known answer
+Key: 00000000000000000080
+Plaintext: 0000000000000000
+Ciphertext: 5264A65741FE78E3
+Test: Encrypt
+#
+Comment: Round 73 known answer
+Key: 00000000000000000040
+Plaintext: 0000000000000000
+Ciphertext: 80892E768547CE61
+Test: Encrypt
+#
+Comment: Round 74 known answer
+Key: 00000000000000000020
+Plaintext: 0000000000000000
+Ciphertext: 0911412D72093475
+Test: Encrypt
+#
+Comment: Round 75 known answer
+Key: 00000000000000000010
+Plaintext: 0000000000000000
+Ciphertext: 9F21AA764783E649
+Test: Encrypt
+#
+Comment: Round 76 known answer
+Key: 00000000000000000008
+Plaintext: 0000000000000000
+Ciphertext: 4CA9FABEAD2C02C6
+Test: Encrypt
+#
+Comment: Round 77 known answer
+Key: 00000000000000000004
+Plaintext: 0000000000000000
+Ciphertext: 59CE10973A7B1FD5
+Test: Encrypt
+#
+Comment: Round 78 known answer
+Key: 00000000000000000002
+Plaintext: 0000000000000000
+Ciphertext: 683B2934E0CCBEAA
+Test: Encrypt
+#
+Comment: Round 79 known answer
+Key: 00000000000000000001
+Plaintext: 0000000000000000
+Ciphertext: 74D0E7C2E3B450A8
+Test: Encrypt

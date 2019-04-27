@@ -92,7 +92,9 @@ void RegisterFactories4()
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<TEA> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<XTEA> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<CAST128> >();
+	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SKIPJACK> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SKIPJACK> >();
+	RegisterSymmetricCipherDefaultFactories<CBC_Mode<SKIPJACK> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<Blowfish> >();
 	RegisterSymmetricCipherDefaultFactories<ECB_Mode<SEED> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<SEED> >();
