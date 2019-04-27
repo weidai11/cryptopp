@@ -237,7 +237,7 @@ std::string SPECK64::Base::AlgorithmProvider() const
 # endif
 # if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
-        return "Power7";
+        return "Power8";
 # endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
