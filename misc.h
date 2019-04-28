@@ -390,6 +390,7 @@ inline size_t PtrByteDiff(const PTR pointer1, const PTR pointer2)
 
 /// \brief Pointer to the first element of a string
 /// \param str std::string
+/// \details BytePtr returns NULL pointer for an empty string.
 /// \return Pointer to the first element of a string
 inline byte* BytePtr(std::string& str)
 {
@@ -401,15 +402,14 @@ inline byte* BytePtr(std::string& str)
 	return reinterpret_cast<byte*>(&str[0]);
 }
 
-/// \brief Pointer to the first element of a string
+/// \brief Const pointer to the first element of a string
 /// \param str std::string
-/// \details Use ConstBytePtr if Microsoft compilers match the wrong function.
+/// \details ConstBytePtr returns non-NULL pointer for an empty string.
 /// \return Pointer to the first element of a string
 inline const byte* ConstBytePtr(const std::string& str)
 {
-	if (str.empty())
-		return NULLPTR;
-	return reinterpret_cast<const byte*>(&str[0]);
+	// Use c_str() so a pointer is always available
+	return reinterpret_cast<const byte*>(str.c_str());
 }
 
 /// \brief Size of a string
