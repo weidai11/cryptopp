@@ -26,7 +26,7 @@ trap cleanup EXIT
 ############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_8_0_0
+OLD_VERSION_TAG=CRYPTOPP_8_1_0
 NEW_VERSION_TAG=master
 
 ############################################
