@@ -39,8 +39,8 @@ extern void KeccakF1600x2_SSE(word64 *state);
 // The F1600 round constants
 extern const word64 KeccakF1600Constants[24];
 
-const word64 rho8[2] = {0x0605040302010007, 0x0E0D0C0B0A09080F};
-const word64 rho56[2] = {0x0007060504030201, 0x080F0E0D0C0B0A09};
+const word64 rho8[2] = {W64LIT(0x0605040302010007), W64LIT(0x0E0D0C0B0A09080F)};
+const word64 rho56[2] = {W64LIT(0x0007060504030201), W64LIT(0x080F0E0D0C0B0A09)};
 
 #define V128 __m128i
 #define CV128 const __m128i
