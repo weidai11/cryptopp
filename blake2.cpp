@@ -38,8 +38,8 @@
 // https://github.com/weidai11/cryptopp/issues/743
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
 # define CRYPTOPP_DISABLE_ALTIVEC 1
-# define CRYPTOPP_POWER7_ALTIVEC 1
 # undef CRYPTOPP_POWER7_AVAILABLE
+# undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
@@ -171,8 +171,8 @@ extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state);
 #endif
 
-#if CRYPTOPP_POWER7_AVAILABLE
-extern void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state);
+#if CRYPTOPP_POWER8_AVAILABLE
+extern void BLAKE2_Compress32_POWER8(const byte* input, BLAKE2s_State& state);
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
 extern void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state);
 #endif
@@ -233,8 +233,8 @@ unsigned int BLAKE2s::OptimalDataAlignment() const
         return 4;
     else
 #endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
         return 16;
     else
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
@@ -257,9 +257,9 @@ std::string BLAKE2s::AlgorithmProvider() const
         return "NEON";
     else
 #endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
-        return "Power7";
+#if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+        return "Power8";
     else
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
@@ -690,10 +690,10 @@ void BLAKE2s::Compress(const byte *input)
         return BLAKE2_Compress32_NEON(input, m_state);
     }
 #endif
-#if CRYPTOPP_POWER7_AVAILABLE
-    if(HasPower7())
+#if CRYPTOPP_POWER8_AVAILABLE
+    if(HasPower8())
     {
-        return BLAKE2_Compress32_POWER7(input, m_state);
+        return BLAKE2_Compress32_POWER8(input, m_state);
     }
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
     if(HasAltivec())
