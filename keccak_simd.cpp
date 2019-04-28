@@ -12,8 +12,8 @@
 // KeccakF1600x2_SSE is ParallelHash128. The SSE2 ParallelHash128
 // implementation was extracted from XKCP using the following command.
 //
-// gcc -I lib/common -I lib/low/KeccakP-1600/Optimized \
-//   -I lib/low/KeccakP-1600-times2/SIMD128/SSE2ufull \
+// gcc -I lib/common -I lib/low/KeccakP-1600/Optimized
+//   -I lib/low/KeccakP-1600-times2/SIMD128/SSE2ufull
 //   lib/low/KeccakP-1600-times2/SIMD128/KeccakP-1600-times2-SIMD128.c -E
 
 #include "pch.h"
