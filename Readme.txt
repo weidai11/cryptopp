@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 8.1 - FEB/22/2019
+Version 8.2 - APR/28/2019
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -289,6 +289,19 @@ documentation is one of the highest returns on investment.
 
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
+
+8.2.0 - April 28, 2019
+      - minor release, no recompile of programs required
+      - expanded community input and support
+        * 56 unique contributors as of this release
+      - use PowerPC unaligned loads and stores with Power8
+      - add SKIPJACK test vectors
+      - fix SHAKE-128 and SHAKE-256 compile
+      - removed IS_NEON from Makefile
+      - fix Aarch64 build on Fedora 29
+      - fix missing GF2NT_233_Multiply_Reduce_CLMUL in FIPS DLL
+      - add missing BLAKE2 constructors
+      - fix missing BlockSize() in BLAKE2 classes
 
 8.1.0 - February 22, 2019
       - minor release, no recompile of programs required

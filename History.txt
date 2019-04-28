@@ -467,3 +467,16 @@ last several releases.
       - add SHAKE-128 and SHAKE-256
       - fix AVX2 build due to _mm256_broadcastsi128_si256
       - add IETF ChaCha, XChaCha, ChaChaPoly1305 and XChaChaPoly1305
+
+8.2.0 - April 28, 2019
+      - minor release, no recompile of programs required
+      - expanded community input and support
+        * 56 unique contributors as of this release
+      - use PowerPC unaligned loads and stores with Power8
+      - add SKIPJACK test vectors
+      - fix SHAKE-128 and SHAKE-256 compile
+      - removed IS_NEON from Makefile
+      - fix Aarch64 build on Fedora 29
+      - fix missing GF2NT_233_Multiply_Reduce_CLMUL in FIPS DLL
+      - add missing BLAKE2 constructors
+      - fix missing BlockSize() in BLAKE2 classes
