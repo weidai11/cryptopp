@@ -3537,9 +3537,9 @@ class KDF2_RNG : public RandomNumberGenerator
 {
 public:
 	KDF2_RNG(const byte *seed, size_t seedSize)
-		: m_counter(0), m_counterAndSeed(seedSize + 4)
+		: m_counter(0), m_counterAndSeed(ClampSize(seedSize) + 4)
 	{
-		memcpy(m_counterAndSeed + 4, seed, seedSize);
+		memcpy(m_counterAndSeed + 4, seed, ClampSize(seedSize));
 	}
 
 	void GenerateBlock(byte *output, size_t size)
@@ -3548,6 +3548,15 @@ public:
 		PutWord(false, BIG_ENDIAN_ORDER, m_counterAndSeed, m_counter);
 		++m_counter;
 		P1363_KDF2<SHA1>::DeriveKey(output, size, m_counterAndSeed, m_counterAndSeed.size(), NULLPTR, 0);
+	}
+
+	// UBsan finding, -Wstringop-overflow
+	inline size_t ClampSize(size_t req) const
+	{
+		// Clamp at 16 MB
+		if (req > 16U*1024*1024)
+			return 16U*1024*1024;
+		return req;
 	}
 
 private:
