@@ -108,13 +108,8 @@ inline uint64x2_t RotateRight64(const uint64x2_t& val)
 template <>
 inline uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
-    const uint8_t maskb[16] = { 14,13,12,11, 10,9,8,15, 6,5,4,3, 2,1,0,7 };
-    const uint8x16_t mask = vld1q_u8(maskb);
-#else
     const uint8_t maskb[16] = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
     const uint8x16_t mask = vld1q_u8(maskb);
-#endif
 
     return vreinterpretq_u64_u8(
         vqtbl1q_u8(vreinterpretq_u8_u64(val), mask));
@@ -124,13 +119,8 @@ inline uint64x2_t RotateLeft64<8>(const uint64x2_t& val)
 template <>
 inline uint64x2_t RotateRight64<8>(const uint64x2_t& val)
 {
-#if (CRYPTOPP_BIG_ENDIAN)
-    const uint8_t maskb[16] = { 8,15,14,13, 12,11,10,9, 0,7,6,5, 4,3,2,1 };
-    const uint8x16_t mask = vld1q_u8(maskb);
-#else
     const uint8_t maskb[16] = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
     const uint8x16_t mask = vld1q_u8(maskb);
-#endif
 
     return vreinterpretq_u64_u8(
         vqtbl1q_u8(vreinterpretq_u8_u64(val), mask));
