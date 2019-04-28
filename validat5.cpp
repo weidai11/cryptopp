@@ -265,13 +265,13 @@ bool ValidateSHAKE_XOF()
 
 		StringSource(msg, true, new HexDecoder(new StringSink(m)));
 		StringSource(out, true, new HexDecoder(new StringSink(o)));
-		r.reserve(o.size());
+		r.resize(o.size());
 
-		SHAKE128 hash((unsigned int)r.size());
-		hash.Update((const byte*)&m[0], m.size());
-		hash.TruncatedFinal((byte*)&o[0], o.size());
+		SHAKE128 hash((unsigned int)o.size());
+		hash.Update(ConstBytePtr(m), BytePtrSize(m));
+		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
 		pass = pass & !fail;
 
 		if (fail)
@@ -292,13 +292,13 @@ bool ValidateSHAKE_XOF()
 
 		StringSource(msg, true, new HexDecoder(new StringSink(m)));
 		StringSource(out, true, new HexDecoder(new StringSink(o)));
-		r.reserve(o.size());
+		r.resize(o.size());
 
-		SHAKE128 hash((unsigned int)r.size());
-		hash.Update((const byte*)&m[0], m.size());
-		hash.TruncatedFinal((byte*)&o[0], o.size());
+		SHAKE128 hash((unsigned int)o.size());
+		hash.Update(ConstBytePtr(m), BytePtrSize(m));
+		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
 		pass = pass & !fail;
 
 		if (fail)
@@ -317,13 +317,13 @@ bool ValidateSHAKE_XOF()
 
 		StringSource(msg, true, new HexDecoder(new StringSink(m)));
 		StringSource(out, true, new HexDecoder(new StringSink(o)));
-		r.reserve(o.size());
+		r.resize(o.size());
 
-		SHAKE256 hash((unsigned int)r.size());
-		hash.Update((const byte*)&m[0], m.size());
-		hash.TruncatedFinal((byte*)&o[0], o.size());
+		SHAKE256 hash((unsigned int)o.size());
+		hash.Update(ConstBytePtr(m), BytePtrSize(m));
+		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
 		pass = pass & !fail;
 
 		if (fail)
@@ -347,13 +347,13 @@ bool ValidateSHAKE_XOF()
 
 		StringSource(msg, true, new HexDecoder(new StringSink(m)));
 		StringSource(out, true, new HexDecoder(new StringSink(o)));
-		r.reserve(o.size());
+		r.resize(o.size());
 
-		SHAKE256 hash((unsigned int)r.size());
-		hash.Update((const byte*)&m[0], m.size());
-		hash.TruncatedFinal((byte*)&o[0], o.size());
+		SHAKE256 hash((unsigned int)o.size());
+		hash.Update(ConstBytePtr(m), BytePtrSize(m));
+		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), r.data(), o.size()) != 0);
+		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
 		pass = pass & !fail;
 
 		if (fail)
@@ -362,7 +362,7 @@ bool ValidateSHAKE_XOF()
 		pass = pass && !fail;
 	}
 
-	std::cout << (!pass ? "FAILED   " : "passed   ") << " SHAKE XOF message digests" << std::endl;
+	std::cout << (!pass ? "FAILED   " : "passed   ") << "SHAKE XOF message digests" << std::endl;
 
 	return pass;
 }
@@ -729,11 +729,11 @@ bool TestPBKDF(KeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, uns
 
 		double timeInSeconds = 0.0f;
 		AlgorithmParameters params = MakeParameters("Purpose", (int)tuple.purpose)
-		    (Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()))
+		    (Name::Salt(), ConstByteArrayParameter(ConstBytePtr(salt), BytePtrSize(salt)))
 		    ("Iterations", (int)tuple.iterations)("TimeInSeconds", timeInSeconds);
 
 		SecByteBlock derived(derivedKey.size());
-		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);
+		pbkdf.DeriveKey(derived, derived.size(), ConstBytePtr(password), BytePtrSize(password), params);
 		bool fail = !!memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
@@ -815,13 +815,13 @@ bool TestHKDF(KeyDerivationFunction &kdf, const HKDF_TestTuple *testSet, unsigne
 
 		AlgorithmParameters params;
 		if (tuple.hexSalt)
-			params(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
+			params(Name::Salt(), ConstByteArrayParameter(ConstBytePtr(salt), BytePtrSize(salt)));
 		if (tuple.hexSalt)
-			params("Info", ConstByteArrayParameter((const byte*)&info[0], info.size()));
+			params("Info", ConstByteArrayParameter(ConstBytePtr(info), BytePtrSize(info)));
 
-		kdf.DeriveKey((byte*)&derived[0], derived.size(), (const byte*)&secret[0], secret.size(), params);
+		kdf.DeriveKey(derived, derived.size(), ConstBytePtr(secret), BytePtrSize(secret), params);
 
-		bool fail = !VerifyBufsEqual(derived, (const byte*)&expected[0], derived.size());
+		bool fail = !VerifyBufsEqual(derived, ConstBytePtr(expected), BytePtrSize(expected));
 		pass = pass && !fail;
 
 		HexEncoder enc(new FileSink(std::cout));
@@ -946,10 +946,10 @@ bool TestScrypt(KeyDerivationFunction &pbkdf, const Scrypt_TestTuple *testSet, u
 
 		AlgorithmParameters params = MakeParameters("Cost", (word64)tuple.n)
 			("BlockSize", (word64)tuple.r)("Parallelization", (word64)tuple.p)
-			(Name::Salt(), ConstByteArrayParameter((const byte*)&salt[0], salt.size()));
+			(Name::Salt(), ConstByteArrayParameter(ConstBytePtr(salt), BytePtrSize(salt)));
 
 		SecByteBlock derived(expect.size());
-		pbkdf.DeriveKey(derived, derived.size(), (const byte *)password.data(), password.size(), params);
+		pbkdf.DeriveKey(derived, derived.size(), ConstBytePtr(password), BytePtrSize(password), params);
 		bool fail = !!memcmp(derived, expect.data(), expect.size()) != 0;
 		pass = pass && !fail;
 

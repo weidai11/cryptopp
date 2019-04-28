@@ -388,6 +388,38 @@ inline size_t PtrByteDiff(const PTR pointer1, const PTR pointer2)
 	return (size_t)(reinterpret_cast<uintptr_t>(pointer1) - reinterpret_cast<uintptr_t>(pointer2));
 }
 
+/// \brief Pointer to the first element of a string
+/// \param str std::string
+/// \return Pointer to the first element of a string
+inline byte* BytePtr(std::string& str)
+{
+	// Caller wants a writeable pointer
+	CRYPTOPP_ASSERT(str.empty() == false);
+
+	if (str.empty())
+		return NULLPTR;
+	return reinterpret_cast<byte*>(&str[0]);
+}
+
+/// \brief Pointer to the first element of a string
+/// \param str std::string
+/// \details Use ConstBytePtr if Microsoft compilers match the wrong function.
+/// \return Pointer to the first element of a string
+inline const byte* ConstBytePtr(const std::string& str)
+{
+	if (str.empty())
+		return NULLPTR;
+	return reinterpret_cast<const byte*>(&str[0]);
+}
+
+/// \brief Size of a string
+/// \param str std::string
+/// \return size of a string
+inline size_t BytePtrSize(const std::string& str)
+{
+	return str.size();
+}
+
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 
 /// \brief Bounds checking replacement for memcpy()

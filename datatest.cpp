@@ -8,7 +8,6 @@
 #include "factory.h"
 #include "integer.h"
 #include "filters.h"
-#include "hex.h"
 #include "randpool.h"
 #include "files.h"
 #include "trunhash.h"
@@ -16,6 +15,8 @@
 #include "smartptr.h"
 #include "validate.h"
 #include "stdcpp.h"
+#include "misc.h"
+#include "hex.h"
 #include "trap.h"
 
 #include <iostream>
@@ -77,24 +78,6 @@ std::string TrimComment(std::string str)
 		return TrimSpace(str.substr(0, first));
 	else
 		return TrimSpace(str);
-}
-
-inline const byte* BytePtr(const std::string& str)
-{
-	// Need c_str() here to ensure valid pointer.
-	// An empty string will have a trailing NULL.
-	return reinterpret_cast<const byte*>(str.c_str());
-}
-
-inline byte* BytePtr(std::string& str)
-{
-	CRYPTOPP_ASSERT(str.size() > 0);
-	return reinterpret_cast<byte*>(&str[0]);
-}
-
-inline size_t BytePtrSize(const std::string& str)
-{
-	return str.size();
 }
 
 static void OutputTestData(const TestData &v)
@@ -226,7 +209,7 @@ void PutDecodedDatumInto(const TestData &data, const char *name, BufferedTransfo
 
 		while (repeat--)
 		{
-			q.Put(BytePtr(s2), BytePtrSize(s2));
+			q.Put(ConstBytePtr(s2), BytePtrSize(s2));
 			RandomizedTransfer(q, target, false);
 		}
 	}
@@ -515,8 +498,8 @@ void TestSymmetricCipher(TestData &v, const NameValuePairs &overrideParameters)
 		}
 		else
 		{
-			encryptor->SetKey(BytePtr(key), BytePtrSize(key), pairs);
-			decryptor->SetKey(BytePtr(key), BytePtrSize(key), pairs);
+			encryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
+			decryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
 		}
 
 		word64 seek64 = pairs.GetWord64ValueWithDefault("Seek64", 0);
@@ -660,8 +643,8 @@ void TestAuthenticatedSymmetricCipher(TestData &v, const NameValuePairs &overrid
 		member_ptr<AuthenticatedSymmetricCipher> encryptor, decryptor;
 		encryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, ENCRYPTION>::Registry().CreateObject(name.c_str()));
 		decryptor.reset(ObjectFactoryRegistry<AuthenticatedSymmetricCipher, DECRYPTION>::Registry().CreateObject(name.c_str()));
-		encryptor->SetKey(BytePtr(key), BytePtrSize(key), pairs);
-		decryptor->SetKey(BytePtr(key), BytePtrSize(key), pairs);
+		encryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
+		decryptor->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
 
 		// Code coverage
 		(void)encryptor->AlgorithmName();
@@ -755,7 +738,7 @@ void TestDigestOrMAC(TestData &v, bool testDigest)
 		mac.reset(ObjectFactoryRegistry<MessageAuthenticationCode>::Registry().CreateObject(name.c_str()));
 		pHash = mac.get();
 		std::string key = GetDecodedDatum(v, "Key");
-		mac->SetKey(BytePtr(key), BytePtrSize(key), pairs);
+		mac->SetKey(ConstBytePtr(key), BytePtrSize(key), pairs);
 
 		// Code coverage
 		(void)mac->AlgorithmName();
