@@ -23,7 +23,7 @@
 
 #if (CRYPTOPP_SSSE3_AVAILABLE)
 # include <emmintrin.h>
-# include <immintrin.h>
+# include <tmmintrin.h>
 #endif
 
 // Squash MS LNK4221 and libtool warnings
