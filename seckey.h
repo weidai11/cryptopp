@@ -14,7 +14,7 @@
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
-# pragma warning(disable: 4189)
+# pragma warning(disable: 4189 4296)
 #endif
 
 // Issue 340
