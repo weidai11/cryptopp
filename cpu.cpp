@@ -341,8 +341,8 @@ void DetectX86Features()
 		word64 xcr0 = a | static_cast<word64>(d) << 32;
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
-// Visual Studio 2008 and below lack xgetbv
-#elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_IX86)
+// Visual Studio 2010 and below lack xgetbv
+#elif defined(_MSC_VER) && _MSC_VER <= 1600 && defined(_M_IX86)
 		word32 a=0, d=0;
 		__asm {
 			push eax
