@@ -27,6 +27,7 @@ case $1 in
     on*|de*)    governor="ondemand";;
     po*|pw*)    governor="powersave";;
     pe*)        governor="performance";;
+    co*)        governor="conservative";;
     us*)        governor="userspace";;
     \?)         ;;
     *)          echo "$1: unrecognized governor";;
