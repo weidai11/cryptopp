@@ -99,9 +99,9 @@
 //   necessarily the version of the library built as a shared object if
 //   versions are inadvertently mixed and matched.
 #define CRYPTOPP_MAJOR 8
-#define CRYPTOPP_MINOR 2
+#define CRYPTOPP_MINOR 3
 #define CRYPTOPP_REVISION 0
-#define CRYPTOPP_VERSION 820
+#define CRYPTOPP_VERSION 830
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
 //   Be sure to add the trailing slash since its simple concatenation.
