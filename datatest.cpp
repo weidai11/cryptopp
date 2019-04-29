@@ -281,7 +281,7 @@ public:
 		{
 			m_temp.clear();
 			PutDecodedDatumInto(m_data, name, StringSink(m_temp).Ref());
-			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign(BytePtr(m_temp), BytePtrSize(m_temp), false);
+			reinterpret_cast<ConstByteArrayParameter *>(pValue)->Assign(ConstBytePtr(m_temp), BytePtrSize(m_temp), false);
 		}
 		else
 			throw ValueTypeMismatch(name, typeid(std::string), valueType);
