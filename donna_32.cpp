@@ -39,13 +39,14 @@ extern const char DONNA32_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+// Can't use GetAlignmentOf<word32>() because of C++11 and constexpr
+// Can use 'const unsigned int' because of MSVC
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-static const unsigned int ALIGN_SPEC=16;
+# define ALIGN_SPEC 16
 #elif (CRYPTOPP_CXX11_ALIGNOF)
-static const unsigned int ALIGN_SPEC=alignof(CryptoPP::word32);
+# define ALIGN_SPEC alignof(CryptoPP::word32)
 #else
-// Can't use GetAlignmentOf<word32>() because of C++11 constexpr
-static const unsigned int ALIGN_SPEC=4;
+# define ALIGN_SPEC 4
 #endif
 
 ANONYMOUS_NAMESPACE_END
@@ -927,6 +928,28 @@ curve25519_contract(byte out[32], const bignum25519 in) {
 /* out = (flag) ? in : out */
 inline void
 curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag) {
+#if defined(__GNUC__) && defined(__i686__)
+    const word32 iter = 96/sizeof(word32);
+    word32* outl = reinterpret_cast<word32*>(out);
+    const word32* inl = reinterpret_cast<const word32*>(in);
+    word32 idx=0, val;
+
+    __asm__ __volatile__ (
+        ".att_syntax                         ;\n"
+        "cmpl     $0, %[flag]                ;\n"  // compare, set ZERO flag
+        "movl     %[iter], %%ecx             ;\n"  // load iteration count
+        "1:                                  ;\n"
+        "  movl     (%[idx],%[out]), %[val]  ;\n"  // val = out[idx]
+        "  cmovnzl  (%[idx],%[in]), %[val]   ;\n"  // copy in[idx] to val if NZ
+        "  movl     %[val], (%[idx],%[out])  ;\n"  // out[idx] = val
+        "  leal     4(%[idx]), %[idx]        ;\n"  // increment index
+        "  loopnz   1b                       ;\n"  // does not affect flags
+        : [out] "+S" (outl), [in] "+D" (inl),
+          [idx] "+b" (idx), [val] "=r" (val)
+        : [flag] "g" (flag), [iter] "I" (iter)
+        : "ecx", "memory", "cc"
+    );
+#else
     const word32 nb = flag - 1, b = ~nb;
     const word32 *inl = (const word32 *)in;
     word32 *outl = (word32 *)out;
@@ -954,6 +977,7 @@ curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag) 
     outl[21] = (outl[21] & nb) | (inl[21] & b);
     outl[22] = (outl[22] & nb) | (inl[22] & b);
     outl[23] = (outl[23] & nb) | (inl[23] & b);
+#endif
 }
 
 /* if (iswap) swap(a, b) */
