@@ -43,16 +43,17 @@
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
+// Can't use GetAlignmentOf<word64>() because of C++11 and constexpr
+// Can use 'const unsigned int' because of MSVC
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-const unsigned int ALIGN_SPEC32=16;
-const unsigned int ALIGN_SPEC64=16;
+# define ALIGN_SPEC32 16
+# define ALIGN_SPEC64 16
 #elif (CRYPTOPP_CXX11_ALIGNOF)
-const unsigned int ALIGN_SPEC32=alignof(CryptoPP::word32);
-const unsigned int ALIGN_SPEC64=alignof(CryptoPP::word64);
+# define ALIGN_SPEC32 alignof(CryptoPP::word32)
+# define ALIGN_SPEC64 alignof(CryptoPP::word64)
 #else
-// Can't use GetAlignmentOf<word64>() because of C++11 constexpr
-const unsigned int ALIGN_SPEC32=4;
-const unsigned int ALIGN_SPEC64=8;
+# define ALIGN_SPEC32 4
+# define ALIGN_SPEC64 8
 #endif
 
 NAMESPACE_BEGIN(CryptoPP)

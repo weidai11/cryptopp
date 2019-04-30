@@ -39,13 +39,14 @@ extern const char DONNA64_FNAME[] = __FILE__;
 
 ANONYMOUS_NAMESPACE_BEGIN
 
+// Can't use GetAlignmentOf<word64>() because of C++11 and constexpr
+// Can use 'const unsigned int' because of MSVC
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-const unsigned int ALIGN_SPEC=16;
+# define ALIGN_SPEC 16
 #elif (CRYPTOPP_CXX11_ALIGNOF)
-const unsigned int ALIGN_SPEC=alignof(CryptoPP::word64);
+# define ALIGN_SPEC alignof(CryptoPP::word64)
 #else
-// Can't use GetAlignmentOf<word64>() because of C++11 constexpr
-const unsigned int ALIGN_SPEC=8;
+# define ALIGN_SPEC 8
 #endif
 
 ANONYMOUS_NAMESPACE_END
@@ -748,7 +749,33 @@ curve25519_contract(byte *out, const bignum25519 input) {
 
 /* out = (flag) ? in : out */
 inline void
-curve25519_move_conditional_bytes(byte out[96], const byte in[96], word64 flag) {
+curve25519_move_conditional_bytes(byte out[96], const byte in[96], word64 flag)
+{
+    // TODO: enable this code path once we can test and benchmark it.
+    // It is about 24 insns shorter, it avoids punning which may be UB,
+    // and it is guaranteed constant time.
+#if defined(__GNUC__) && defined(__x86_64__) && 0
+    const word32 iter = 96/sizeof(word64);
+    word64* outq = reinterpret_cast<word64*>(out);
+    const word64* inq = reinterpret_cast<const word64*>(in);
+    word64 idx=0, val;
+
+    __asm__ __volatile__ (
+        ".att_syntax                         ;\n"
+        "cmpq     $0, %[flag]                ;\n"  // compare, set ZERO flag
+        "movq     %[iter], %%rcx             ;\n"  // load iteration count
+        "1:                                  ;\n"
+        "  movq     (%[idx],%[out]), %[val]  ;\n"  // val = out[idx]
+        "  cmovnzq  (%[idx],%[in]), %[val]   ;\n"  // copy in[idx] to val if NZ
+        "  movq     %[val], (%[idx],%[out])  ;\n"  // out[idx] = val
+        "  leaq     8(%[idx]), %[idx]        ;\n"  // increment index
+        "  loopnz   1b                       ;\n"  // does not affect flags
+        : [out] "+S" (outq), [in] "+D" (inq),
+          [idx] "+b" (idx), [val] "=r" (val)
+        : [flag] "g" (flag), [iter] "I" (iter)
+        : "rcx", "memory", "cc"
+    );
+#else
     const word64 nb = flag - 1, b = ~nb;
     const word64 *inq = (const word64 *)in;
     word64 *outq = (word64 *)out;
@@ -764,6 +791,7 @@ curve25519_move_conditional_bytes(byte out[96], const byte in[96], word64 flag) 
     outq[9] = (outq[9] & nb) | (inq[9] & b);
     outq[10] = (outq[10] & nb) | (inq[10] & b);
     outq[11] = (outq[11] & nb) | (inq[11] & b);
+#endif
 }
 
 /* if (iswap) swap(a, b) */
