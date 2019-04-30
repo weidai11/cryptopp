@@ -43,19 +43,31 @@
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+const unsigned int ALIGN_SPEC32=16;
+const unsigned int ALIGN_SPEC64=16;
+#elif (CRYPTOPP_CXX11_ALIGNOF)
+const unsigned int ALIGN_SPEC32=alignof(CryptoPP::word32);
+const unsigned int ALIGN_SPEC64=alignof(CryptoPP::word64);
+#else
+// Can't use GetAlignmentOf<word64>() because of C++11 constexpr
+const unsigned int ALIGN_SPEC32=4;
+const unsigned int ALIGN_SPEC64=8;
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // Export the tables to the SIMD files
 extern const word32 BLAKE2S_IV[8];
 extern const word64 BLAKE2B_IV[8];
 
-CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_ALIGN_DATA(ALIGN_SPEC32)
 const word32 BLAKE2S_IV[8] = {
     0x6A09E667UL, 0xBB67AE85UL, 0x3C6EF372UL, 0xA54FF53AUL,
     0x510E527FUL, 0x9B05688CUL, 0x1F83D9ABUL, 0x5BE0CD19UL
 };
 
-CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_ALIGN_DATA(ALIGN_SPEC64)
 const word64 BLAKE2B_IV[8] = {
     W64LIT(0x6a09e667f3bcc908), W64LIT(0xbb67ae8584caa73b),
     W64LIT(0x3c6ef372fe94f82b), W64LIT(0xa54ff53a5f1d36f1),
@@ -72,7 +84,7 @@ using CryptoPP::word32;
 using CryptoPP::word64;
 using CryptoPP::rotrConstant;
 
-CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_ALIGN_DATA(ALIGN_SPEC32)
 const byte BLAKE2S_SIGMA[10][16] = {
     {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
     { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
@@ -86,7 +98,7 @@ const byte BLAKE2S_SIGMA[10][16] = {
     { 10,  2,  8,  4,  7,  6,  1,  5, 15, 11,  9, 14,  3, 12, 13 , 0 },
 };
 
-CRYPTOPP_ALIGN_DATA(16)
+CRYPTOPP_ALIGN_DATA(ALIGN_SPEC32)
 const byte BLAKE2B_SIGMA[12][16] = {
     {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15 },
     { 14, 10,  4,  8,  9, 15, 13,  6,  1, 12,  0,  2, 11,  7,  5,  3 },
