@@ -29,12 +29,12 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
-const unsigned int ALIGN_SPEC=16;
+static const unsigned int ALIGN_SPEC=16;
 #elif (CRYPTOPP_CXX11_ALIGNOF)
-const unsigned int ALIGN_SPEC=alignof(CryptoPP::word32);
+static const unsigned int ALIGN_SPEC=alignof(CryptoPP::word32);
 #else
 // Can't use GetAlignmentOf<word32>() because of C++11 constexpr
-const unsigned int ALIGN_SPEC=4;
+static const unsigned int ALIGN_SPEC=4;
 #endif
 
 ANONYMOUS_NAMESPACE_END
