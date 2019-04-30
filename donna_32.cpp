@@ -927,8 +927,12 @@ curve25519_contract(byte out[32], const bignum25519 in) {
 
 /* out = (flag) ? in : out */
 inline void
-curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag) {
-#if defined(__GNUC__) && defined(__i686__)
+curve25519_move_conditional_bytes(byte out[96], const byte in[96], word32 flag)
+{
+    // TODO: enable this code path once we can test and benchmark it.
+    // It is about 48 insns shorter, it avoids punning which may be UB,
+    // and it is guaranteed constant time.
+#if defined(__GNUC__) && defined(__i686__) && 0
     const word32 iter = 96/sizeof(word32);
     word32* outl = reinterpret_cast<word32*>(out);
     const word32* inl = reinterpret_cast<const word32*>(in);
