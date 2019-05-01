@@ -106,14 +106,6 @@ if ! autoreconf 2>/dev/null; then
 	fi
 fi
 
-# Sparc need +w
-if [[ -e config.sub ]]; then
-	chmod +w config.sub
-fi
-if [[ -e config.guess ]]; then
-	chmod +w config.guess
-fi
-
 # Update config.sub config.guess. GNU recommends using the latest for all projects.
 echo "Updating config.sub"
 wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub' -O config.sub
