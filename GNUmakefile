@@ -38,6 +38,12 @@ endif
 #   The target machine is the one the package runs on. Most people
 #   call this the "target", but not Autotools.
 HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
+# Yet another Clang hack. I think the LLVM devs are making the shit up
+# as they go. Also see https://github.com/weidai11/cryptopp/issues/831.
+ifeq ($(HOSTX),armv8l-unknown-linux-gnueabihf)
+  HOSTX := arm-unknown-linux-gnueabihf
+endif
+# Fallback
 ifeq ($(HOSTX),)
   HOSTX := $(shell uname -m 2>/dev/null)
 endif
