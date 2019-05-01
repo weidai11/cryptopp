@@ -44,13 +44,10 @@
 #endif
 
 // Can't use GetAlignmentOf<word64>() because of C++11 and constexpr
-// Can use 'const unsigned int' because of MSVC
+// Can use 'const unsigned int' because of MSVC 2013
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 # define ALIGN_SPEC32 16
 # define ALIGN_SPEC64 16
-#elif (CRYPTOPP_CXX11_ALIGNOF)
-# define ALIGN_SPEC32 alignof(CryptoPP::word32)
-# define ALIGN_SPEC64 alignof(CryptoPP::word64)
 #else
 # define ALIGN_SPEC32 4
 # define ALIGN_SPEC64 8
