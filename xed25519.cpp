@@ -674,8 +674,8 @@ size_t ed25519Signer::SignAndRestart(RandomNumberGenerator &rng, PK_MessageAccum
 {
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
-    ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    const ed25519PrivateKey& pk = static_cast<const ed25519PrivateKey&>(GetPrivateKey());
+    ed25519_MessageAccumulator& accum = dynamic_cast<ed25519_MessageAccumulator&>(messageAccumulator);
+    const ed25519PrivateKey& pk = dynamic_cast<const ed25519PrivateKey&>(GetPrivateKey());
     int ret = Donna::ed25519_sign(accum.data(), accum.size(), pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature);
     CRYPTOPP_ASSERT(ret == 0);
 
@@ -689,7 +689,7 @@ size_t ed25519Signer::SignStream (RandomNumberGenerator &rng, std::istream& stre
 {
     CRYPTOPP_ASSERT(signature != NULLPTR); CRYPTOPP_UNUSED(rng);
 
-    const ed25519PrivateKey& pk = static_cast<const ed25519PrivateKey&>(GetPrivateKey());
+    const ed25519PrivateKey& pk = dynamic_cast<const ed25519PrivateKey&>(GetPrivateKey());
     int ret = Donna::ed25519_sign(stream, pk.GetPrivateKeyBytePtr(), pk.GetPublicKeyBytePtr(), signature);
     CRYPTOPP_ASSERT(ret == 0);
 
@@ -853,14 +853,14 @@ ed25519Verifier::ed25519Verifier(BufferedTransformation &params)
 
 ed25519Verifier::ed25519Verifier(const ed25519Signer& signer)
 {
-    const ed25519PrivateKey& priv = static_cast<const ed25519PrivateKey&>(signer.GetPrivateKey());
+    const ed25519PrivateKey& priv = dynamic_cast<const ed25519PrivateKey&>(signer.GetPrivateKey());
     priv.MakePublicKey(AccessPublicKey());
 }
 
 bool ed25519Verifier::VerifyAndRestart(PK_MessageAccumulator &messageAccumulator) const
 {
     ed25519_MessageAccumulator& accum = static_cast<ed25519_MessageAccumulator&>(messageAccumulator);
-    const ed25519PublicKey& pk = static_cast<const ed25519PublicKey&>(GetPublicKey());
+    const ed25519PublicKey& pk = dynamic_cast<const ed25519PublicKey&>(GetPublicKey());
     int ret = Donna::ed25519_sign_open(accum.data(), accum.size(), pk.GetPublicKeyBytePtr(), accum.signature());
     accum.Restart();
 
