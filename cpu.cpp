@@ -458,15 +458,15 @@ void DetectX86Features()
 			CpuId(0xC0000005, 0, cpuid2);
 			g_cacheLineSize = GETBYTE(cpuid2[2] /*ECX*/, 0);
 		}
-#if defined(_SC_LEVEL1_DCACHE_LINESIZE)
-		else
-		{
-			int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
-			if (cacheLineSize > 0)
-				g_cacheLineSize = cacheLineSize;
-		}
-#endif
 	}
+
+#if defined(_SC_LEVEL1_DCACHE_LINESIZE)
+	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
+	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
+	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+	if (cacheLineSize > 0)
+		g_cacheLineSize = cacheLineSize;
+#endif
 
 	if (g_cacheLineSize == 0)
 		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
@@ -849,13 +849,16 @@ void DetectArmFeatures()
 	g_hasSM3 = CPU_QuerySM3(); // || CPU_ProbeSM3();
 	g_hasSM4 = CPU_QuerySM4(); // || CPU_ProbeSM4();
 
-#if defined(__linux__) && defined(_SC_LEVEL1_DCACHE_LINESIZE)
+#if defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
 	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
 	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 	if (cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
 #endif
+
+	if (g_cacheLineSize == 0)
+		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 	*const_cast<volatile bool*>(&g_ArmDetectionDone) = true;
 }
@@ -1066,13 +1069,16 @@ void DetectPowerpcFeatures()
 	int cacheLineSize = getsystemcfg(SC_L1C_DLS);
 	if (cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
-#elif defined(__linux__) && defined(_SC_LEVEL1_DCACHE_LINESIZE)
+#elif defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
 	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
 	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 	if (cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
 #endif
+
+	if (g_cacheLineSize == 0)
+		g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 	*const_cast<volatile bool*>(&g_PowerpcDetectionDone) = true;
 }
