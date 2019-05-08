@@ -143,7 +143,7 @@ bool CPU_ProbeSHA1()
 #endif  // CRYPTOPP_ARM_SHA1_AVAILABLE
 }
 
-bool CPU_ProbeSHA2()
+bool CPU_ProbeSHA256()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;

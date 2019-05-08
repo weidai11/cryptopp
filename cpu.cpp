@@ -502,7 +502,7 @@ extern bool CPU_ProbeNEON();
 extern bool CPU_ProbeCRC32();
 extern bool CPU_ProbeAES();
 extern bool CPU_ProbeSHA1();
-extern bool CPU_ProbeSHA2();
+extern bool CPU_ProbeSHA256();
 extern bool CPU_ProbeSHA512();
 extern bool CPU_ProbeSHA3();
 extern bool CPU_ProbeSM3();
@@ -701,7 +701,7 @@ inline bool CPU_QuerySHA1()
 	return false;
 }
 
-inline bool CPU_QuerySHA2()
+inline bool CPU_QuerySHA256()
 {
 #if defined(__ANDROID__) && defined(__aarch64__)
 	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM64) != 0) &&
@@ -835,7 +835,7 @@ void DetectArmFeatures()
 	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
 	g_hasSHA1 = CPU_QuerySHA1() || CPU_ProbeSHA1();
-	g_hasSHA2 = CPU_QuerySHA2() || CPU_ProbeSHA2();
+	g_hasSHA2 = CPU_QuerySHA256() || CPU_ProbeSHA256();
 	g_hasSHA512 = CPU_QuerySHA512(); // || CPU_ProbeSHA512();
 	g_hasSHA3 = CPU_QuerySHA3(); // || CPU_ProbeSHA3();
 	g_hasSM3 = CPU_QuerySM3(); // || CPU_ProbeSM3();
