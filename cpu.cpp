@@ -274,10 +274,14 @@ static inline bool IsIntel(const word32 output[4])
 
 static inline bool IsAMD(const word32 output[4])
 {
-	// This is the "AuthenticAMD" string. Some early K5's can return "AMDisbetter!"
-	return (output[1] /*EBX*/ == 0x68747541) &&
+	// This is the "AuthenticAMD" string.
+	return ((output[1] /*EBX*/ == 0x68747541) &&
 		(output[2] /*ECX*/ == 0x444D4163) &&
-		(output[3] /*EDX*/ == 0x69746E65);
+		(output[3] /*EDX*/ == 0x69746E65)) ||
+		// Some early K5's can return "AMDisbetter!"
+		((output[1] /*EBX*/ == 0x69444d41) &&
+		(output[2] /*ECX*/ == 0x74656273) &&
+		(output[3] /*EDX*/ == 0x21726574));
 }
 
 static inline bool IsHygon(const word32 output[4])
