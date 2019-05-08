@@ -486,7 +486,7 @@ word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 //   then *Probe* the cpu executing an instruction and an observe a SIGILL if unsupported.
 // The probes are in source files where compilation options like -march=armv8-a+crc make
 //   intrinsics available. They are expensive when compared to a standard OS feature query.
-//   Always perform the feature quesry first. For Linux see
+//   Always perform the feature query first. For Linux see
 //   http://sourceware.org/ml/libc-help/2017-08/msg00012.html
 // Avoid probes on Apple platforms because Apple's signal handling for SIGILLs appears broken.
 //   We are trying to figure out a way to feature test without probes. Also see
