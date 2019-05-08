@@ -458,6 +458,14 @@ void DetectX86Features()
 			CpuId(0xC0000005, 0, cpuid2);
 			g_cacheLineSize = GETBYTE(cpuid2[2] /*ECX*/, 0);
 		}
+#if defined(_SC_LEVEL1_DCACHE_LINESIZE)
+		else
+		{
+			int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+			if (cacheLineSize > 0)
+				g_cacheLineSize = cacheLineSize;
+		}
+#endif
 	}
 
 	if (g_cacheLineSize == 0)
