@@ -464,7 +464,7 @@ void DetectX86Features()
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
 	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
 	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
-	if (cacheLineSize > 0)
+	if (g_cacheLineSize == 0 && cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
 #endif
 
