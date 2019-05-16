@@ -33,7 +33,7 @@ NAMESPACE_BEGIN(CryptoPP)
 ///   Power8 AES since Crypto++ 6.0, ARMv7 AES since Crypto++ 8.0
 struct Rijndael_Info : public FixedBlockSize<16>, public VariableKeyLength<16, 16, 32, 8>
 {
-	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return CRYPTOPP_RIJNDAEL_NAME;}
+	CRYPTOPP_DLL static const char * CRYPTOPP_API StaticAlgorithmName() {return "AES";}
 };
 
 /// \brief Rijndael block cipher
