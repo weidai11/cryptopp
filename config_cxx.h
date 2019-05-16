@@ -179,7 +179,7 @@
 
 #ifndef CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 # define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-#endifss
+#endif
 
 // OK to comment the following out, but please report it so we can fix it.
 // C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.
