@@ -16,23 +16,15 @@
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if (CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 # include "adv_simd.h"
 # include <pmmintrin.h>
 # include <tmmintrin.h>
-#endif
-
-#if (CRYPTOPP_SSE41_AVAILABLE)
 # include <smmintrin.h>
 #endif
 
 #if defined(__XOP__)
 # include <ammintrin.h>
-#endif
-
-#if defined(__AVX512F__)
-# define CRYPTOPP_AVX512_ROTATE 1
-# include <immintrin.h>
 #endif
 
 // C1189: error: This header is specific to ARM targets
