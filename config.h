@@ -23,10 +23,10 @@
 // Sanity checks. Some processors have more than big, little and bi-endian modes. PDP mode, where order results in "4312", should
 // raise red flags immediately. Additionally, mis-classified machines, like (previosuly) S/390, should raise red flags immediately.
 #if (CRYPTOPP_BIG_ENDIAN) && defined(__GNUC__) && defined(__BYTE_ORDER__) && (__BYTE_ORDER__ != __ORDER_BIG_ENDIAN__)
-# error "(CRYPTOPP_BIG_ENDIAN) is set, but __BYTE_ORDER__ is not __ORDER_BIG_ENDIAN__"
+# error "CRYPTOPP_BIG_ENDIAN is set, but __BYTE_ORDER__ is not __ORDER_BIG_ENDIAN__"
 #endif
 #if (CRYPTOPP_LITTLE_ENDIAN) && defined(__GNUC__) && defined(__BYTE_ORDER__) && (__BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__)
-# error "(CRYPTOPP_LITTLE_ENDIAN) is set, but __BYTE_ORDER__ is not __ORDER_LITTLE_ENDIAN__"
+# error "CRYPTOPP_LITTLE_ENDIAN is set, but __BYTE_ORDER__ is not __ORDER_LITTLE_ENDIAN__"
 #endif
 
 // Define this if you want to disable all OS-dependent features,
@@ -70,7 +70,7 @@
 
 // Some Clang and SunCC cannot handle mixed asm with positional arguments,
 // where the body is Intel style with no prefix and the templates are
-// AT&T style. Define this is the Makefile misdetects the configuration.
+// AT&T style. Define this if the Makefile misdetects the configuration.
 // Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
 // #define CRYPTOPP_DISABLE_MIXED_ASM 1
 
@@ -95,40 +95,40 @@
 // ***************** Less Important Settings ***************
 
 // Library version macro. Since this macro is in a header, it reflects
-//   the version of the library the headers came from. It is not
-//   necessarily the version of the library built as a shared object if
-//   versions are inadvertently mixed and matched.
+// the version of the library the headers came from. It is not
+// necessarily the version of the library built as a shared object if
+// versions are inadvertently mixed and matched.
 #define CRYPTOPP_MAJOR 8
 #define CRYPTOPP_MINOR 3
 #define CRYPTOPP_REVISION 0
 #define CRYPTOPP_VERSION 830
 
 // Define this if you want to set a prefix for TestData/ and TestVectors/
-//   Be sure to add the trailing slash since its simple concatenation.
-//   After https://github.com/weidai11/cryptopp/issues/760 the library
-//   should find the test vectors and data without much effort. It
-//   will search in "./" and "$ORIGIN/../share/cryptopp" automatically.
+// Be sure to add the trailing slash since its simple concatenation.
+// After https://github.com/weidai11/cryptopp/issues/760 the library
+// should find the test vectors and data without much effort. It
+// will search in "./" and "$ORIGIN/../share/cryptopp" automatically.
 #ifndef CRYPTOPP_DATA_DIR
 # define CRYPTOPP_DATA_DIR ""
 #endif
 
 // Define this to disable the test suite from searching for test
-//   vectors and data in "./" and "$ORIGIN/../share/cryptopp". The
-//   library will still search in CRYPTOPP_DATA_DIR, regardless.
-//   Some distros may want to disable this feature. Also see
-//   https://github.com/weidai11/cryptopp/issues/760
+// vectors and data in "./" and "$ORIGIN/../share/cryptopp". The
+// library will still search in CRYPTOPP_DATA_DIR, regardless.
+// Some distros may want to disable this feature. Also see
+// https://github.com/weidai11/cryptopp/issues/760
 // #ifndef CRYPTOPP_DISABLE_DATA_DIR_SEARCH
 // # define CRYPTOPP_DISABLE_DATA_DIR_SEARCH
 // #endif
 
 // Define this if you want or need the library's memcpy_s and memmove_s.
-//   See http://github.com/weidai11/cryptopp/issues/28.
+// See http://github.com/weidai11/cryptopp/issues/28.
 // #if !defined(CRYPTOPP_WANT_SECURE_LIB)
 // # define CRYPTOPP_WANT_SECURE_LIB
 // #endif
 
 // File system code to write to GZIP archive.
-//   http://www.gzip.org/format.txt
+// http://www.gzip.org/format.txt
 #if !defined(GZIP_OS_CODE)
 # if defined(__macintosh__)
 #  define GZIP_OS_CODE 7
@@ -173,11 +173,11 @@
 #define CRYPTOPP_RIJNDAEL_NAME "AES"
 
 // CRYPTOPP_DEBUG enables the library's CRYPTOPP_ASSERT. CRYPTOPP_ASSERT
-//   raises a SIGTRAP (Unix) or calls DebugBreak() (Windows). CRYPTOPP_ASSERT
-//   is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
-//   Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
-//   define it).
-//   Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420
+// raises a SIGTRAP (Unix) or calls DebugBreak() (Windows). CRYPTOPP_ASSERT
+// is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
+// Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
+// define it).
+// Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420
 #if (defined(DEBUG) || defined(_DEBUG)) && !defined(CRYPTOPP_DEBUG)
 # define CRYPTOPP_DEBUG 1
 #endif
@@ -195,7 +195,7 @@
 /// \namespace CryptoPP
 /// \brief Crypto++ library namespace
 /// \details Nearly all classes are located in the CryptoPP namespace. Within
-///   the namespace, there are two additional namespaces.
+/// the namespace, there are two additional namespaces.
 ///   <ul>
 ///     <li>Name - namespace for names used with \p NameValuePairs and documented in argnames.h
 ///     <li>NaCl - namespace for NaCl library functions like crypto_box, crypto_box_open, crypto_sign, and crypto_sign_open
@@ -235,7 +235,7 @@ namespace CryptoPP { }
 NAMESPACE_BEGIN(CryptoPP)
 
 // Signed words added at Issue 609 for early versions of and Visual Studio and
-//   the NaCl gear.  Also see https://github.com/weidai11/cryptopp/issues/609.
+// the NaCl gear.  Also see https://github.com/weidai11/cryptopp/issues/609.
 
 typedef unsigned char byte;
 typedef unsigned short word16;
@@ -267,11 +267,11 @@ typedef word64 lword;
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 // It is OK to remove the hard stop below, but you are on your own.
-//   After building the library be sure to run self tests described
-//   https://www.cryptopp.com/wiki/Release_Process#Self_Tests
+// After building the library be sure to run self tests described
+// https://www.cryptopp.com/wiki/Release_Process#Self_Tests
 // Some relevant bug reports can be found at:
-//   * Clang: http://github.com/weidai11/cryptopp/issues/147
-//   * Native Client: https://github.com/weidai11/cryptopp/issues/719
+// * Clang: http://github.com/weidai11/cryptopp/issues/147
+// * Native Client: https://github.com/weidai11/cryptopp/issues/719
 #if (defined(_MSC_VER) && defined(__clang__))
 # error: "Unsupported configuration"
 #endif
@@ -527,8 +527,8 @@ NAMESPACE_END
 #endif
 
 // Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
-//   MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
-//   SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
+// MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
+// SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
 #if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \
 	(defined(__SSE4_1__) || (CRYPTOPP_MSC_VERSION >= 1500) || \
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || (__SUNPRO_CC >= 0x5110) || \
@@ -582,7 +582,7 @@ NAMESPACE_END
 #endif
 
 // Guessing at SHA for SunCC. Its not in Sun Studio 12.6. Also see
-//   http://stackoverflow.com/questions/45872180/which-xarch-for-sha-extensions-on-solaris
+// http://stackoverflow.com/questions/45872180/which-xarch-for-sha-extensions-on-solaris
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHANI) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
 	(defined(__SHA__) || (CRYPTOPP_MSC_VERSION >= 1900) || (__SUNPRO_CC >= 0x5160) || \
 	(CRYPTOPP_GCC_VERSION >= 40900) || (__INTEL_COMPILER >= 1300) || \
@@ -612,7 +612,7 @@ NAMESPACE_END
 #endif
 
 // Fixup for SunCC 12.1-12.6. Compiler crash on GCM_Reduce_CLMUL and friends.
-//   http://github.com/weidai11/cryptopp/issues/226
+// http://github.com/weidai11/cryptopp/issues/226
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5150)
 # undef CRYPTOPP_CLMUL_AVAILABLE
 #endif
@@ -1038,7 +1038,7 @@ NAMESPACE_END
 // ************** Unused variable ***************
 
 // Portable way to suppress warnings.
-//   Moved from misc.h due to circular depenedencies.
+// Moved from misc.h due to circular depenedencies.
 #define CRYPTOPP_UNUSED(x) ((void)(x))
 
 // ************** Deprecated ***************
@@ -1054,7 +1054,7 @@ NAMESPACE_END
 // ***************** C++11 related ********************
 
 // Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx
-//   and https://docs.microsoft.com/en-us/cpp/visual-cpp-language-conformance .
+// and https://docs.microsoft.com/en-us/cpp/visual-cpp-language-conformance .
 // Intel, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
 // GCC, http://gcc.gnu.org/projects/cxx0x.html
 // Clang, http://clang.llvm.org/cxx_status.html
@@ -1071,9 +1071,9 @@ NAMESPACE_END
 #endif
 
 // Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
-//   test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
-//   way. However, modern standard libraries have <forward_list>, so we test for it instead.
-//   Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
+// test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
+// way. However, modern standard libraries have <forward_list>, so we test for it instead.
+// Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
 // TODO: test under Xcode 3, where g++ is really g++.
 #if defined(__APPLE__) && defined(__clang__)
 #  if !(defined(__has_include) && __has_include(<forward_list>))
@@ -1154,7 +1154,7 @@ NAMESPACE_END
 #endif // constexpr compilers
 
 // strong typed enums: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.3; Intel 14.0; SunCC 5.12.
-//   Mircorosft and Intel had partial support earlier, but we require full support.
+// Mircorosft and Intel had partial support earlier, but we require full support.
 #if (CRYPTOPP_MSC_VERSION >= 1700) || __has_feature(cxx_strong_enums) || \
 	(__INTEL_COMPILER >= 1400) || (CRYPTOPP_GCC_VERSION >= 40400) || (__SUNPRO_CC >= 0x5120)
 # define CRYPTOPP_CXX11_ENUM 1
