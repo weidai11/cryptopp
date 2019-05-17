@@ -19,20 +19,6 @@
 #include "config_cpu.h"
 #include "config_ver.h"
 
-// ***************** Important Settings ********************
-
-// define this if running on a big-endian CPU
-// big endian will be assumed if CRYPTOPP_LITTLE_ENDIAN is not non-0
-#if !defined(CRYPTOPP_LITTLE_ENDIAN) && !defined(CRYPTOPP_BIG_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
-#	define CRYPTOPP_BIG_ENDIAN 1
-#endif
-
-// define this if running on a little-endian CPU
-// big endian will be assumed if CRYPTOPP_LITTLE_ENDIAN is not non-0
-#if !defined(CRYPTOPP_BIG_ENDIAN) && !defined(CRYPTOPP_LITTLE_ENDIAN)
-#	define CRYPTOPP_LITTLE_ENDIAN 1
-#endif
-
 // Define this to disable ASM, intrinsics and built-ins. The library will be
 // compiled using C++ only. The library code will not include SSE2 (and
 // above), NEON, Aarch32, Aarch64, or Altivec (and above). Note the compiler

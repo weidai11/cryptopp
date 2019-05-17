@@ -20,6 +20,18 @@
 #include "config_os.h"
 #include "config_ver.h"
 
+// Define this if running on a big-endian CPU
+// big endian will be assumed if CRYPTOPP_LITTLE_ENDIAN is not non-0
+#if !defined(CRYPTOPP_LITTLE_ENDIAN) && !defined(CRYPTOPP_BIG_ENDIAN) && (defined(__BIG_ENDIAN__) || (defined(__s390__) || defined(__s390x__) || defined(__zarch__)) || (defined(__m68k__) || defined(__MC68K__)) || defined(__sparc) || defined(__sparc__) || defined(__hppa__) || defined(__MIPSEB__) || defined(__ARMEB__) || (defined(__MWERKS__) && !defined(__INTEL__)))
+#	define CRYPTOPP_BIG_ENDIAN 1
+#endif
+
+// Define this if running on a little-endian CPU
+// big endian will be assumed if CRYPTOPP_LITTLE_ENDIAN is not non-0
+#if !defined(CRYPTOPP_BIG_ENDIAN) && !defined(CRYPTOPP_LITTLE_ENDIAN)
+#	define CRYPTOPP_LITTLE_ENDIAN 1
+#endif
+
 // Define this if you want to set a prefix for TestData/ and TestVectors/
 // Be sure to add the trailing slash since its simple concatenation.
 // After https://github.com/weidai11/cryptopp/issues/760 the library
