@@ -13,7 +13,7 @@
 /// \since Crypto++ 8.3
 
 // Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx
-//   and https://docs.microsoft.com/en-us/cpp/visual-cpp-language-conformance .
+//   and https://docs.microsoft.com/en-us/cpp/visual-cpp-language-conformance
 // Intel, http://software.intel.com/en-us/articles/c0x-features-supported-by-intel-c-compiler
 // GCC, http://gcc.gnu.org/projects/cxx0x.html
 // Clang, http://clang.llvm.org/cxx_status.html
@@ -24,6 +24,11 @@
 #include "config_os.h"
 #include "config_cpu.h"
 #include "config_ver.h"
+
+// Ancient Crypto++ define, dating back to C++98 and C++03.
+#ifndef CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
+# define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1
+#endif
 
 // Compatibility with non-clang compilers.
 #ifndef __has_feature
@@ -158,7 +163,8 @@
 #   define CRYPTOPP_CXX17_EXCEPTIONS 1
 #  endif
 # endif
-#elif (CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1800) || (CRYPTOPP_GCC_VERSION >= 60000) || (__cpp_lib_uncaught_exceptions)
+#elif (CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1800) || \
+      (CRYPTOPP_GCC_VERSION >= 60000) || (__cpp_lib_uncaught_exceptions)
 # define CRYPTOPP_CXX17_EXCEPTIONS 1
 #endif // uncaught_exceptions compilers
 
@@ -180,15 +186,5 @@
 #elif !defined(NULLPTR)
 # define NULLPTR NULL
 #endif // CRYPTOPP_CXX11_NULLPTR
-
-#ifndef CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
-# define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE
-#endif
-
-// OK to comment the following out, but please report it so we can fix it.
-// C++17 value taken from http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2015/n4567.pdf.
-#if (defined(__cplusplus) && (__cplusplus >= 199711L) && (__cplusplus < 201402L)) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
-# error "std::uncaught_exception is not available. This is likely a configuration error."
-#endif
 
 #endif  // CRYPTOPP_CONFIG_CXX_H
