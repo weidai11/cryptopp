@@ -12,8 +12,8 @@
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835</A>
 /// \since Crypto++ 8.3
 
-#ifndef CRYPTOPP_CONFIG_BASE_H
-#define CRYPTOPP_CONFIG_BASE_H
+#ifndef CRYPTOPP_CONFIG_ASM_H
+#define CRYPTOPP_CONFIG_ASM_H
 
 #include "config_os.h"
 #include "config_cpu.h"
@@ -428,4 +428,4 @@
 
 #endif  // PPC32, PPC64
 
-#endif  // CRYPTOPP_CONFIG_BASE_H
+#endif  // CRYPTOPP_CONFIG_ASM_H
