@@ -30,20 +30,29 @@
 # define __has_feature(x) 0
 #endif
 
+// C++11 macro version, https://stackoverflow.com/q/7223991/608639
 #if !defined(CRYPTOPP_NO_CXX11)
 #  if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
 #    define CRYPTOPP_CXX11 1
 #  endif
 #endif
 
-// Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11. We can't
-// test for unique_ptr directly because some of the non-Apple Clangs on OS X fail the same
-// way. However, modern standard libraries have <forward_list>, so we test for it instead.
-// Thanks to Jonathan Wakely for devising the clever test for modern/ancient versions.
-// TODO: test under Xcode 3, where g++ is really g++.
+// Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11.
+// We can't test for unique_ptr directly because some of the non-Apple Clangs
+// on OS X fail the same way. However, modern standard libraries have
+// <forward_list>, so we test for it instead. Thanks to Jonathan Wakely for
+// devising the clever test for modern/ancient versions. TODO: test under
+// Xcode 3, where g++ is really g++.
 #if defined(__APPLE__) && defined(__clang__)
 #  if !(defined(__has_include) && __has_include(<forward_list>))
 #    undef CRYPTOPP_CXX11
+#  endif
+#endif
+
+// C++17 macro version, https://stackoverflow.com/q/38456127/608639
+#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX17)
+#  if ((_MSC_VER >= 1900) || (__cplusplus >= 201703L)) && !defined(_STLPORT_VERSION)
+#    define CRYPTOPP_CXX17 1
 #  endif
 #endif
 
@@ -137,13 +146,6 @@
 #endif // CRYPTOPP_CXX11
 
 // ***************** C++17 and above ********************
-
-// C++17 macro version, https://stackoverflow.com/q/38456127/608639
-#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX17)
-#  if ((_MSC_VER >= 1900) || (__cplusplus >= 201703L)) && !defined(_STLPORT_VERSION)
-#    define CRYPTOPP_CXX17 1
-#  endif
-#endif
 
 // C++17 is available
 #if defined(CRYPTOPP_CXX17)
