@@ -39,16 +39,17 @@ extern void KeccakF1600x2_SSE(word64 *state);
 // The F1600 round constants
 extern const word64 KeccakF1600Constants[24];
 
-const word64 rho8[2] = {W64LIT(0x0605040302010007), W64LIT(0x0E0D0C0B0A09080F)};
-const word64 rho56[2] = {W64LIT(0x0007060504030201), W64LIT(0x080F0E0D0C0B0A09)};
+CRYPTOPP_ALIGN_DATA(16)
+const word64
+rho8[2] = {W64LIT(0x0605040302010007), W64LIT(0x0E0D0C0B0A09080F)};
 
-#define V128 __m128i
-#define CV128 const __m128i
+CRYPTOPP_ALIGN_DATA(16)
+const word64
+rho56[2] = {W64LIT(0x0007060504030201), W64LIT(0x080F0E0D0C0B0A09)};
 
-#define CONST128(a)         _mm_load_si128((CV128 *)&(a))
-#define XOREQ128(a, b)      a = _mm_xor_si128((a), (b))
-#define UNPACKL(a, b)       _mm_unpacklo_epi64((a), (b))
-#define UNPACKH(a, b)       _mm_unpackhi_epi64((a), (b))
+// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
 #if defined(__XOP__)
 # define ROL64in128(a, o)    _mm_roti_epi64((a), (o))
@@ -56,8 +57,8 @@ const word64 rho56[2] = {W64LIT(0x0007060504030201), W64LIT(0x080F0E0D0C0B0A09)}
 # define ROL64in128_56(a)    ROL64in128((a), 56)
 #else
 # define ROL64in128(a, o)    _mm_or_si128(_mm_slli_epi64((a), (o)), _mm_srli_epi64(a, 64-(o)))
-# define ROL64in128_8(a)     _mm_shuffle_epi8((a), CONST128(rho8))
-# define ROL64in128_56(a)    _mm_shuffle_epi8((a), CONST128(rho56))
+# define ROL64in128_8(a)     _mm_shuffle_epi8((a), _mm_load_si128(CONST_M128_CAST(rho8)))
+# define ROL64in128_56(a)    _mm_shuffle_epi8((a), _mm_load_si128(CONST_M128_CAST(rho56)))
 #endif
 
 // Damn Visual Studio is missing too many intrinsics...
@@ -74,51 +75,50 @@ inline __m128i SPLAT64(const word64 a)
 // The Keccak ParallelHash128 core function
 void KeccakF1600x2_SSE(word64 *state)
 {
-    V128 *statesAsLanes = (V128 *)state;
+    __m128i Aba, Abe, Abi, Abo, Abu;
+    __m128i Aga, Age, Agi, Ago, Agu;
+    __m128i Aka, Ake, Aki, Ako, Aku;
+    __m128i Ama, Ame, Ami, Amo, Amu;
+    __m128i Asa, Ase, Asi, Aso, Asu;
+    __m128i Bba, Bbe, Bbi, Bbo, Bbu;
+    __m128i Bga, Bge, Bgi, Bgo, Bgu;
+    __m128i Bka, Bke, Bki, Bko, Bku;
+    __m128i Bma, Bme, Bmi, Bmo, Bmu;
+    __m128i Bsa, Bse, Bsi, Bso, Bsu;
+    __m128i Ca, Ce, Ci, Co, Cu;
+    __m128i Da, De, Di, Do, Du;
+    __m128i Eba, Ebe, Ebi, Ebo, Ebu;
+    __m128i Ega, Ege, Egi, Ego, Egu;
+    __m128i Eka, Eke, Eki, Eko, Eku;
+    __m128i Ema, Eme, Emi, Emo, Emu;
+    __m128i Esa, Ese, Esi, Eso, Esu;
 
-    V128 Aba, Abe, Abi, Abo, Abu;
-    V128 Aga, Age, Agi, Ago, Agu;
-    V128 Aka, Ake, Aki, Ako, Aku;
-    V128 Ama, Ame, Ami, Amo, Amu;
-    V128 Asa, Ase, Asi, Aso, Asu;
-    V128 Bba, Bbe, Bbi, Bbo, Bbu;
-    V128 Bga, Bge, Bgi, Bgo, Bgu;
-    V128 Bka, Bke, Bki, Bko, Bku;
-    V128 Bma, Bme, Bmi, Bmo, Bmu;
-    V128 Bsa, Bse, Bsi, Bso, Bsu;
-    V128 Ca, Ce, Ci, Co, Cu;
-    V128 Da, De, Di, Do, Du;
-    V128 Eba, Ebe, Ebi, Ebo, Ebu;
-    V128 Ega, Ege, Egi, Ego, Egu;
-    V128 Eka, Eke, Eki, Eko, Eku;
-    V128 Ema, Eme, Emi, Emo, Emu;
-    V128 Esa, Ese, Esi, Eso, Esu;
-
-    Aba = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 0]));
-    Abe = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 1]));
-    Abi = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 2]));
-    Abo = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 3]));
-    Abu = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 4]));
-    Aga = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 5]));
-    Age = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 6]));
-    Agi = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 7]));
-    Ago = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 8]));
-    Agu = _mm_loadu_si128((CV128 *)&(statesAsLanes[ 9]));
-    Aka = _mm_loadu_si128((CV128 *)&(statesAsLanes[10]));
-    Ake = _mm_loadu_si128((CV128 *)&(statesAsLanes[11]));
-    Aki = _mm_loadu_si128((CV128 *)&(statesAsLanes[12]));
-    Ako = _mm_loadu_si128((CV128 *)&(statesAsLanes[13]));
-    Aku = _mm_loadu_si128((CV128 *)&(statesAsLanes[14]));
-    Ama = _mm_loadu_si128((CV128 *)&(statesAsLanes[15]));
-    Ame = _mm_loadu_si128((CV128 *)&(statesAsLanes[16]));
-    Ami = _mm_loadu_si128((CV128 *)&(statesAsLanes[17]));
-    Amo = _mm_loadu_si128((CV128 *)&(statesAsLanes[18]));
-    Amu = _mm_loadu_si128((CV128 *)&(statesAsLanes[19]));
-    Asa = _mm_loadu_si128((CV128 *)&(statesAsLanes[20]));
-    Ase = _mm_loadu_si128((CV128 *)&(statesAsLanes[21]));
-    Asi = _mm_loadu_si128((CV128 *)&(statesAsLanes[22]));
-    Aso = _mm_loadu_si128((CV128 *)&(statesAsLanes[23]));
-    Asu = _mm_loadu_si128((CV128 *)&(statesAsLanes[24]));
+    __m128i* lanes = reinterpret_cast<__m128i*>(state);
+    Aba = _mm_loadu_si128(CONST_M128_CAST(lanes+ 0));
+    Abe = _mm_loadu_si128(CONST_M128_CAST(lanes+ 1));
+    Abi = _mm_loadu_si128(CONST_M128_CAST(lanes+ 2));
+    Abo = _mm_loadu_si128(CONST_M128_CAST(lanes+ 3));
+    Abu = _mm_loadu_si128(CONST_M128_CAST(lanes+ 4));
+    Aga = _mm_loadu_si128(CONST_M128_CAST(lanes+ 5));
+    Age = _mm_loadu_si128(CONST_M128_CAST(lanes+ 6));
+    Agi = _mm_loadu_si128(CONST_M128_CAST(lanes+ 7));
+    Ago = _mm_loadu_si128(CONST_M128_CAST(lanes+ 8));
+    Agu = _mm_loadu_si128(CONST_M128_CAST(lanes+ 9));
+    Aka = _mm_loadu_si128(CONST_M128_CAST(lanes+10));
+    Ake = _mm_loadu_si128(CONST_M128_CAST(lanes+11));
+    Aki = _mm_loadu_si128(CONST_M128_CAST(lanes+12));
+    Ako = _mm_loadu_si128(CONST_M128_CAST(lanes+13));
+    Aku = _mm_loadu_si128(CONST_M128_CAST(lanes+14));
+    Ama = _mm_loadu_si128(CONST_M128_CAST(lanes+15));
+    Ame = _mm_loadu_si128(CONST_M128_CAST(lanes+16));
+    Ami = _mm_loadu_si128(CONST_M128_CAST(lanes+17));
+    Amo = _mm_loadu_si128(CONST_M128_CAST(lanes+18));
+    Amu = _mm_loadu_si128(CONST_M128_CAST(lanes+19));
+    Asa = _mm_loadu_si128(CONST_M128_CAST(lanes+20));
+    Ase = _mm_loadu_si128(CONST_M128_CAST(lanes+21));
+    Asi = _mm_loadu_si128(CONST_M128_CAST(lanes+22));
+    Aso = _mm_loadu_si128(CONST_M128_CAST(lanes+23));
+    Asu = _mm_loadu_si128(CONST_M128_CAST(lanes+24));
 
     Ca = _mm_xor_si128(Aba, _mm_xor_si128(Aga, _mm_xor_si128(Aka, _mm_xor_si128(Ama, Asa))));
     Ce = _mm_xor_si128(Abe, _mm_xor_si128(Age, _mm_xor_si128(Ake, _mm_xor_si128(Ame, Ase))));
@@ -2646,31 +2646,31 @@ void KeccakF1600x2_SSE(word64 *state)
     Aso = _mm_xor_si128(Bso, _mm_andnot_si128(Bsu, Bsa));
     Asu = _mm_xor_si128(Bsu, _mm_andnot_si128(Bsa, Bse));
 
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 0]), Aba);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 1]), Abe);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 2]), Abi);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 3]), Abo);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 4]), Abu);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 5]), Aga);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 6]), Age);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 7]), Agi);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 8]), Ago);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[ 9]), Agu);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[10]), Aka);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[11]), Ake);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[12]), Aki);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[13]), Ako);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[14]), Aku);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[15]), Ama);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[16]), Ame);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[17]), Ami);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[18]), Amo);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[19]), Amu);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[20]), Asa);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[21]), Ase);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[22]), Asi);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[23]), Aso);
-    _mm_storeu_si128((V128 *)&(statesAsLanes[24]), Asu);
+    _mm_storeu_si128(M128_CAST(lanes+ 0), Aba);
+    _mm_storeu_si128(M128_CAST(lanes+ 1), Abe);
+    _mm_storeu_si128(M128_CAST(lanes+ 2), Abi);
+    _mm_storeu_si128(M128_CAST(lanes+ 3), Abo);
+    _mm_storeu_si128(M128_CAST(lanes+ 4), Abu);
+    _mm_storeu_si128(M128_CAST(lanes+ 5), Aga);
+    _mm_storeu_si128(M128_CAST(lanes+ 6), Age);
+    _mm_storeu_si128(M128_CAST(lanes+ 7), Agi);
+    _mm_storeu_si128(M128_CAST(lanes+ 8), Ago);
+    _mm_storeu_si128(M128_CAST(lanes+ 9), Agu);
+    _mm_storeu_si128(M128_CAST(lanes+10), Aka);
+    _mm_storeu_si128(M128_CAST(lanes+11), Ake);
+    _mm_storeu_si128(M128_CAST(lanes+12), Aki);
+    _mm_storeu_si128(M128_CAST(lanes+13), Ako);
+    _mm_storeu_si128(M128_CAST(lanes+14), Aku);
+    _mm_storeu_si128(M128_CAST(lanes+15), Ama);
+    _mm_storeu_si128(M128_CAST(lanes+16), Ame);
+    _mm_storeu_si128(M128_CAST(lanes+17), Ami);
+    _mm_storeu_si128(M128_CAST(lanes+18), Amo);
+    _mm_storeu_si128(M128_CAST(lanes+19), Amu);
+    _mm_storeu_si128(M128_CAST(lanes+20), Asa);
+    _mm_storeu_si128(M128_CAST(lanes+21), Ase);
+    _mm_storeu_si128(M128_CAST(lanes+22), Asi);
+    _mm_storeu_si128(M128_CAST(lanes+23), Aso);
+    _mm_storeu_si128(M128_CAST(lanes+24), Asu);
 }
 
 #endif

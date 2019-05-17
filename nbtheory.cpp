@@ -646,6 +646,8 @@ bool SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, c
 Integer ModularRoot(const Integer &a, const Integer &dp, const Integer &dq,
 					const Integer &p, const Integer &q, const Integer &u)
 {
+	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
+#ifdef _OPENMP
 	Integer p2, q2;
 	#pragma omp parallel
 		#pragma omp sections
@@ -655,6 +657,11 @@ Integer ModularRoot(const Integer &a, const Integer &dp, const Integer &dq,
 			#pragma omp section
 				q2 = ModularExponentiation((a % q), dq, q);
 		}
+#else
+	const Integer p2 = ModularExponentiation((a % p), dp, p);
+	const Integer q2 = ModularExponentiation((a % q), dq, q);
+#endif
+
 	return CRT(p2, p, q2, q, u);
 }
 
@@ -997,8 +1004,10 @@ Integer Lucas(const Integer &n, const Integer &P, const Integer &modulus)
 
 Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u)
 {
-	Integer d = (m*m-4);
-	Integer p2, q2;
+
+	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
+#ifdef _OPENMP
+	Integer d = (m*m-4), p2, q2;
 	#pragma omp parallel
 		#pragma omp sections
 		{
@@ -1013,6 +1022,15 @@ Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const
 				q2 = Lucas(EuclideanMultiplicativeInverse(e,q2), m, q);
 			}
 		}
+#else
+	const Integer d = (m*m-4);
+	const Integer t1 = p-Jacobi(d,p);
+	const Integer p2 = Lucas(EuclideanMultiplicativeInverse(e,t1), m, p);
+
+	const Integer t2 = q-Jacobi(d,q);
+	const Integer q2 = Lucas(EuclideanMultiplicativeInverse(e,t2), m, q);
+#endif
+
 	return CRT(p2, p, q2, q, u);
 }
 

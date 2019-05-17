@@ -997,7 +997,7 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
 endif # Dead code stripping
 
 # For Shared Objects, Diff, Dist/Zip rules
-LIB_VER := $(shell $(GREP) "define CRYPTOPP_VERSION" config.h | cut -d" " -f 3)
+LIB_VER := $(shell $(GREP) "define CRYPTOPP_VERSION" config_ver.h | cut -d" " -f 3)
 LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)

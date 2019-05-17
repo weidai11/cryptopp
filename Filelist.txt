@@ -66,6 +66,16 @@ channels.h
 cmac.cpp
 cmac.h
 config.h
+config_align.h
+config_asm.h
+config_cpu.h
+config_cxx.h
+config_dll.h
+config_int.h
+config_misc.h
+config_ns.h
+config_os.h
+config_ver.h
 cpu.cpp
 cpu.h
 crc.cpp

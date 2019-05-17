@@ -355,9 +355,7 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
     const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
-    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
     const uint32x4_t s_one = vld1q_u32(w_one);
-    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
@@ -511,9 +509,7 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     CRYPTOPP_ASSERT(length >= 16);
 
     const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
-    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
     const uint32x4_t s_one = vld1q_u32(w_one);
-    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
@@ -647,9 +643,7 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     CRYPTOPP_ASSERT(length >= 16);
 
     const unsigned int w_one[] = {0, 0<<24, 0, 1<<24};
-    const unsigned int w_two[] = {0, 2<<24, 0, 2<<24};
     const uint32x4_t s_one = vld1q_u32(w_one);
-    const uint32x4_t s_two = vld1q_u32(w_two);
 
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;

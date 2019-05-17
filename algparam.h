@@ -320,10 +320,12 @@ public:
 			if (m_throwIfNotUsed && !m_used)
 				throw ParameterNotUsed(m_name);
 		}
-#if !defined(CRYPTOPP_CXX17_EXCEPTIONS) && !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+#if !defined(CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE)
+# if !defined(CRYPTOPP_CXX17_EXCEPTIONS)
 		catch(const Exception&)
 		{
 		}
+# endif
 #endif
 	}
 

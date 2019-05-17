@@ -615,6 +615,36 @@
     <ClInclude Include="config.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="config_align.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_asm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_cpu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_cxx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_dll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_ns.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_os.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="config_ver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="cpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>

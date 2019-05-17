@@ -126,6 +126,8 @@ void InvertibleRWFunction::PrecomputeTweakedRoots() const
 {
 	ModularArithmetic modp(m_p), modq(m_q);
 
+	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
+#ifdef _OPENMP
 	#pragma omp parallel sections if(CRYPTOPP_RW_USE_OMP)
 	{
 		#pragma omp section
@@ -135,6 +137,11 @@ void InvertibleRWFunction::PrecomputeTweakedRoots() const
 		#pragma omp section
 			m_pre_q_p = modp.Exponentiate(m_q, m_p - 2);
 	}
+#else
+	m_pre_2_9p = modp.Exponentiate(2, (9 * m_p - 11)/8);
+	m_pre_2_3q = modq.Exponentiate(2, (3 * m_q - 5)/8);
+	m_pre_q_p = modp.Exponentiate(m_q, m_p - 2);
+#endif
 
 	m_precompute = true;
 }
@@ -223,6 +230,7 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 	else
 		f = 2;
 
+#ifdef _OPENMP
 	Integer W, X;
 	#pragma omp parallel sections if(CRYPTOPP_RW_USE_OMP)
 	{
@@ -236,6 +244,12 @@ Integer InvertibleRWFunction::CalculateInverse(RandomNumberGenerator &rng, const
 			X = (f.IsUnit() ? t : modp.Multiply(m_pre_2_9p, t));
 		}
 	}
+#else
+	const Integer W = (f.IsUnit() ? U : modq.Multiply(m_pre_2_3q, U));
+	const Integer t = modp.Multiply(modp.Exponentiate(V, 3), eh);
+	const Integer X = (f.IsUnit() ? t : modp.Multiply(m_pre_2_9p, t));
+#endif
+
 	const Integer Y = W + q * modp.Multiply(m_pre_q_p, (X - W));
 
 	// Signature

@@ -412,6 +412,16 @@
     <ClInclude Include="channels.h" />
     <ClInclude Include="cmac.h" />
     <ClInclude Include="config.h" />
+    <ClInclude Include="config_align.h" />
+    <ClInclude Include="config_asm.h" />
+    <ClInclude Include="config_cpu.h" />
+    <ClInclude Include="config_cxx.h" />
+    <ClInclude Include="config_dll.h" />
+    <ClInclude Include="config_int.h" />
+    <ClInclude Include="config_misc.h" />
+    <ClInclude Include="config_ns.h" />
+    <ClInclude Include="config_os.h" />
+    <ClInclude Include="config_ver.h" />
     <ClInclude Include="cpu.h" />
     <ClInclude Include="crc.h" />
     <ClInclude Include="cryptlib.h" />
