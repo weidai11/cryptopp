@@ -618,7 +618,7 @@
     <ClInclude Include="config_align.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="config_base.h">
+    <ClInclude Include="config_asm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="config_cpu.h">

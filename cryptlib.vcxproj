@@ -413,7 +413,7 @@
     <ClInclude Include="cmac.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="config_align.h" />
-    <ClInclude Include="config_base.h" />
+    <ClInclude Include="config_asm.h" />
     <ClInclude Include="config_cpu.h" />
     <ClInclude Include="config_cxx.h" />
     <ClInclude Include="config_dll.h" />

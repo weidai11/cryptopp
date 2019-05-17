@@ -67,7 +67,7 @@ cmac.cpp
 cmac.h
 config.h
 config_align.h
-config_base.h
+config_asm.h
 config_cpu.h
 config_cxx.h
 config_dll.h
