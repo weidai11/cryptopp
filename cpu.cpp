@@ -109,6 +109,8 @@ bool IsAppleMachineARMv8(unsigned int device, unsigned int version)
 
 bool IsAppleMachineARMv84(unsigned int device, unsigned int version)
 {
+    CRYPTOPP_UNUSED(device);
+    CRYPTOPP_UNUSED(version);
 	return false;
 }
 #endif  // __APPLE__
