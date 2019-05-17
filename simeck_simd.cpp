@@ -26,13 +26,12 @@
 # include <ammintrin.h>
 #endif
 
-#if defined(__AVX512F__)
-# define CRYPTOPP_AVX512_ROTATE 1
-# include <immintrin.h>
-#endif
-
 // Squash MS LNK4221 and libtool warnings
 extern const char SIMECK_SIMD_FNAME[] = __FILE__;
+
+// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -46,9 +45,7 @@ using CryptoPP::word32;
 template <unsigned int R>
 inline __m128i RotateLeft32(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_rol_epi32(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi32(val, R);
 #else
     return _mm_or_si128(
@@ -59,9 +56,7 @@ inline __m128i RotateLeft32(const __m128i& val)
 template <unsigned int R>
 inline __m128i RotateRight32(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_ror_epi32(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi32(val, 32-R);
 #else
     return _mm_or_si128(
@@ -218,7 +213,7 @@ inline void SIMECK64_Enc_Block(__m128i &block0, const word32 *subkeys, unsigned 
     const unsigned int rounds = 44;
     for (int i = 0; i < static_cast<int>(rounds); i += 4)
     {
-        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i));
+        const __m128i key = _mm_loadu_si128(CONST_M128_CAST(subkeys + i));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(0, 0, 0, 0)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
@@ -243,7 +238,7 @@ inline void SIMECK64_Dec_Block(__m128i &block0, const word32 *subkeys, unsigned 
     const unsigned int rounds = 44;
     for (int i = static_cast<int>(rounds)-1; i >= 0; i -= 4)
     {
-        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i - 3));
+        const __m128i key = _mm_loadu_si128(CONST_M128_CAST(subkeys + i - 3));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(3, 3, 3, 3)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
@@ -268,7 +263,7 @@ inline void SIMECK64_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     const unsigned int rounds = 44;
     for (int i = 0; i < static_cast<int>(rounds); i += 4)
     {
-        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i));
+        const __m128i key = _mm_loadu_si128(CONST_M128_CAST(subkeys + i));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(0, 0, 0, 0)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
@@ -300,7 +295,7 @@ inline void SIMECK64_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     const unsigned int rounds = 44;
     for (int i = static_cast<int>(rounds)-1; i >= 0; i -= 4)
     {
-        const __m128i key = _mm_loadu_si128((const __m128i*)(subkeys + i - 3));
+        const __m128i key = _mm_loadu_si128(CONST_M128_CAST(subkeys + i - 3));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(3, 3, 3, 3)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(2, 2, 2, 2)));
         SIMECK64_Encrypt(a, b, c, d, _mm_shuffle_epi32(key, _MM_SHUFFLE(1, 1, 1, 1)));
