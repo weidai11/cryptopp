@@ -47,7 +47,8 @@
 #  endif
 #endif
 
-// C++11 or C++14 is available
+// ***************** C++11 and above ********************
+
 #if defined(CRYPTOPP_CXX11)
 
 // atomics: MS at VS2012 (17.00); GCC at 4.4; Clang at 3.1/3.2; Intel 13.0; SunCC 5.14.
@@ -135,7 +136,7 @@
 
 #endif // CRYPTOPP_CXX11
 
-// ***************** C++17 related ********************
+// ***************** C++17 and above ********************
 
 // C++17 macro version, https://stackoverflow.com/q/38456127/608639
 #if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX17)
