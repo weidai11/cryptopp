@@ -34,7 +34,7 @@
 	#define CRYPTOPP_BOOL_ARM32 1
 #endif
 
-// AltiVec and Power8 crypto
+// And PowerPC.
 #if defined(__ppc64__) || defined(__powerpc64__) || defined(__PPC64__) || defined(_ARCH_PPC64)
 	#define CRYPTOPP_BOOL_PPC64 1
 #elif defined(__powerpc__) || defined(__ppc__) || defined(__PPC__) || defined(_ARCH_PPC)
@@ -58,9 +58,8 @@
 // This should be a lower bound on the L1 cache line size.
 // It's used for defense against timing attacks.
 #ifndef CRYPTOPP_L1_CACHE_LINE_SIZE
-	#if defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64) || \
-	    defined(CRYPTOPP_BOOL_ARMV8) || defined(CRYPTOPP_BOOL_PPC64) || \
-	    defined(CRYPTOPP_BOOL_MIPS64) || defined(CRYPTOPP_BOOL_SPARC64)
+	#if defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64) || defined(CRYPTOPP_BOOL_ARMV8) || \
+	    defined(CRYPTOPP_BOOL_PPC64) || defined(CRYPTOPP_BOOL_MIPS64) || defined(CRYPTOPP_BOOL_SPARC64)
 		#define CRYPTOPP_L1_CACHE_LINE_SIZE 64
 	#else
 		// L1 cache line size is 32 on Pentium III and earlier
@@ -91,6 +90,7 @@
 	#define CRYPTOPP_NO_CPU_FEATURE_PROBES 1
 #endif
 
+// Flavor of inline assembly language
 #if defined(_MSC_VER) || defined(__BORLANDC__)
 	#define CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY 1
 #else
