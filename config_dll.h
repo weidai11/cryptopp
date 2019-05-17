@@ -7,7 +7,8 @@
 /// \details <tt>config.h</tt> was split into components in May 2019 to better
 ///  integrate with Autoconf and its feature tests. The splitting occured so
 ///  users could continue to include <tt>config.h</tt> while allowing Autoconf
-///  to write a new <tt>config_base.h</tt> using its feature tests.
+///  to write new <tt>config_base.h</tt> and new <tt>config_cxx.h</tt> using
+///  its feature tests.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835</A>
 /// \since Crypto++ 8.3
 
