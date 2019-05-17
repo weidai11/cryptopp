@@ -646,6 +646,7 @@ bool SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, c
 Integer ModularRoot(const Integer &a, const Integer &dp, const Integer &dq,
 					const Integer &p, const Integer &q, const Integer &u)
 {
+	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
 #ifdef _OPENMP
 	Integer p2, q2;
 	#pragma omp parallel
@@ -1003,10 +1004,10 @@ Integer Lucas(const Integer &n, const Integer &P, const Integer &modulus)
 
 Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u)
 {
-	const Integer d = (m*m-4);
 
+	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
 #ifdef _OPENMP
-	Integer p2, q2;
+	Integer d = (m*m-4), p2, q2;
 	#pragma omp parallel
 		#pragma omp sections
 		{
@@ -1022,6 +1023,7 @@ Integer InverseLucas(const Integer &e, const Integer &m, const Integer &p, const
 			}
 		}
 #else
+	const Integer d = (m*m-4);
 	const Integer t1 = p-Jacobi(d,p);
 	const Integer p2 = Lucas(EuclideanMultiplicativeInverse(e,t1), m, p);
 

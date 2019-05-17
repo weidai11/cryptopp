@@ -126,6 +126,7 @@ void InvertibleRWFunction::PrecomputeTweakedRoots() const
 {
 	ModularArithmetic modp(m_p), modq(m_q);
 
+	// GCC warning bug, https://stackoverflow.com/q/12842306/608639
 #ifdef _OPENMP
 	#pragma omp parallel sections if(CRYPTOPP_RW_USE_OMP)
 	{
