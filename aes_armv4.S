@@ -7,31 +7,6 @@
 @ details see http://www.openssl.org/~appro/cryptogams/.
 @ ====================================================================
 
-@ AES for ARMv4
-
-@ January 2007.
-@
-@ Code uses single 1K S-box and is >2 times faster than code generated
-@ by gcc-3.4.1. This is thanks to unique feature of ARMv4 ISA, which
-@ allows to merge logical or arithmetic operation with shift or rotate
-@ in one instruction and emit combined result every cycle. The module
-@ is endian-neutral. The performance is ~42 cycles/byte for 128-bit
-@ key [on single-issue Xscale PXA250 core].
-
-@ May 2007.
-@
-@ AES_set_[en|de]crypt_key is added.
-
-@ July 2010.
-@
-@ Rescheduling for dual-issue pipeline resulted in 12% improvement on
-@ Cortex A8 core and ~25 cycles per byte processed with 128-bit key.
-
-@ February 2011.
-@
-@ Profiler-assisted and platform-specific optimization resulted in 16%
-@ improvement on Cortex A8 core and ~21.5 cycles per byte.
-
 @ JW, JUL 2018: Begin defines from taken from arm_arch.h
 @               The defines were included through the header.
 
@@ -92,7 +67,6 @@
 @ JW, JUL 2018: End defines from taken from arm_arch.h
 @               Back to original Cryptogams code
 
-.text
 #if defined(__thumb2__) && !defined(__APPLE__)
 .syntax	unified
 .thumb
@@ -100,6 +74,8 @@
 .code	32
 #undef __thumb2__
 #endif
+
+.text
 
 .type	AES_Te,%object
 .align	5
