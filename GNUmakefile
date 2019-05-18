@@ -534,7 +534,7 @@ ifeq ($(IS_ARMV8),1)
       CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
     endif
 
-    TPROG = TestPrograms/test_arm_sha.cxx
+    TPROG = TestPrograms/test_arm_sha1.cxx
     TOPT = -march=armv8-a+crypto
     HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
