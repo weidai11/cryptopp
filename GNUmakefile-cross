@@ -592,9 +592,9 @@ INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 # Avoid iOS. It cannot consume the assembly.
 ifeq ($(IS_ARM32),1)
   ifneq ($(IS_IOS),1)
-    CRYPTOGAMS_AES_FLAG = -march=armv7-a
-    CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
-    SRCS += aes_armv4.S
+    CRYPTOGAMS_ARCH_FLAG = -march=armv7-a
+    CRYPTOGAMS_ARCH_FLAG += -Wa,--noexecstack
+    SRCS += aes_armv4.S sha1_armv4.S
   endif
 endif
 
@@ -800,7 +800,7 @@ endif # Dependencies
 
 # Cryptogams ARM asm implementation.
 aes_armv4.o : aes_armv4.S
-	$(CXX) $(strip $(CXXFLAGS) -fpermissive $(CRYPTOGAMS_AES_FLAG) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) -fpermissive $(CRYPTOGAMS_ARCH_FLAG) -c) $<
 
 cpu-features.o: cpu-features.h cpu-features.c
 	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
