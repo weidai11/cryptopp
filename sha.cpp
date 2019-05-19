@@ -170,13 +170,13 @@ const word32 SHA256_K[64] = {
 ANONYMOUS_NAMESPACE_BEGIN
 
 #if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-bool CryptogamsArmCaps()
+inline bool CryptogamsArmCaps()
 {
     // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
     // for capabilities like ARMv7 and NEON. Storage is allocated in the
     // module. We still need to set CRYPTOGAMS_armcaps accordingly.
     // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
-    *reinterpret_cast<volatile unsigned int*>(&CRYPTOGAMS_armcaps) = CryptoPP::HasNEON() ? (1<<0) : 0;
+    *const_cast<volatile unsigned int*>(&CRYPTOGAMS_armcaps) = CryptoPP::HasNEON() ? (1<<0) : 0;
 
     return true;
 }
@@ -310,10 +310,6 @@ void SHA1::Transform(word32 *state, const word32 *data)
 #if CRYPTOGAMS_ARM_SHA1
     if (HasARMv7())
     {
-        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-        // for capabilities like ARMv7 and NEON. Storage is allocated in the
-        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
         static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
@@ -353,10 +349,6 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA1
     if (HasARMv7())
     {
-        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-        // for capabilities like ARMv7 and NEON. Storage is allocated in the
-        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
         static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
@@ -869,10 +861,6 @@ void SHA256::Transform(word32 *state, const word32 *data)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-        // for capabilities like ARMv7 and NEON. Storage is allocated in the
-        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
         static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
@@ -927,10 +915,6 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-        // for capabilities like ARMv7 and NEON. Storage is allocated in the
-        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
         static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
@@ -997,10 +981,6 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-        // for capabilities like ARMv7 and NEON. Storage is allocated in the
-        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
         static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
@@ -1367,10 +1347,6 @@ void SHA512::Transform(word64 *state, const word64 *data)
 #if CRYPTOGAMS_ARM_SHA512
     if (HasARMv7())
     {
-        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-        // for capabilities like ARMv7 and NEON. Storage is allocated in the
-        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
         static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
