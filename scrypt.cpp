@@ -184,6 +184,12 @@ size_t Scrypt::GetValidDerivedLength(size_t keylength) const
 
 void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize, word64 parallelization) const
 {
+    // https://github.com/weidai11/cryptopp/issues/842
+    CRYPTOPP_ASSERT(derivedLen != 0);
+    CRYPTOPP_ASSERT(cost != 0);
+    CRYPTOPP_ASSERT(blockSize != 0);
+    CRYPTOPP_ASSERT(parallelization != 0);
+
     // Optimizer should remove this on 32-bit platforms
     if (std::numeric_limits<size_t>::max() > std::numeric_limits<word32>::max())
     {
@@ -274,7 +280,7 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
     ThrowIfInvalidDerivedLength(derivedLen);
     ValidateParameters(derivedLen, cost, blockSize, parallel);
 
-    AlignedSecByteBlock  B(static_cast<size_t>(blockSize * parallel * 128U));
+    AlignedSecByteBlock B(static_cast<size_t>(blockSize * parallel * 128U));
 
     // 1: (B_0 ... B_{p-1}) <-- PBKDF2(P, S, 1, p * MFLen)
     PBKDF2_SHA256(B, B.size(), secret, secretLen, salt, saltLen, 1);
