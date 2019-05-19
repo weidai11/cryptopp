@@ -170,7 +170,7 @@ const word32 SHA256_K[64] = {
 ANONYMOUS_NAMESPACE_BEGIN
 
 #if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-inline bool CryptogamsArmCaps()
+inline unsigned int CryptogamsArmCaps()
 {
     // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
     // for capabilities like ARMv7 and NEON. Storage is allocated in the
@@ -178,7 +178,7 @@ inline bool CryptogamsArmCaps()
     // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
     *const_cast<volatile unsigned int*>(&CRYPTOGAMS_armcaps) = CryptoPP::HasNEON() ? (1<<0) : 0;
 
-    return true;
+    return CRYPTOGAMS_armcaps;
 }
 #endif
 
@@ -310,8 +310,8 @@ void SHA1::Transform(word32 *state, const word32 *data)
 #if CRYPTOGAMS_ARM_SHA1 && 0
     if (HasARMv7())
     {
-        static const bool unused = CryptogamsArmCaps();
-        CRYPTOPP_UNUSED(unused);
+        static const unsigned int caps = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(caps);
 
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
@@ -349,8 +349,8 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA1
     if (HasARMv7())
     {
-        static const bool unused = CryptogamsArmCaps();
-        CRYPTOPP_UNUSED(unused);
+        static const unsigned int caps = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(caps);
 
         sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE);
         return length & (SHA1::BLOCKSIZE - 1);
@@ -861,8 +861,8 @@ void SHA256::Transform(word32 *state, const word32 *data)
 #if CRYPTOGAMS_ARM_SHA256 && 0
     if (HasARMv7())
     {
-        static const bool unused = CryptogamsArmCaps();
-        CRYPTOPP_UNUSED(unused);
+        static const unsigned int caps = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(caps);
 
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
@@ -915,8 +915,8 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        static const bool unused = CryptogamsArmCaps();
-        CRYPTOPP_UNUSED(unused);
+        static const unsigned int caps = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(caps);
 
         sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
         return length & (SHA256::BLOCKSIZE - 1);
@@ -981,8 +981,8 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        static const bool unused = CryptogamsArmCaps();
-        CRYPTOPP_UNUSED(unused);
+        static const unsigned int caps = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(caps);
 
         sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
         return length & (SHA256::BLOCKSIZE - 1);
@@ -1347,8 +1347,8 @@ void SHA512::Transform(word64 *state, const word64 *data)
 #if CRYPTOGAMS_ARM_SHA512 && 0
     if (HasARMv7())
     {
-        static const bool unused = CryptogamsArmCaps();
-        CRYPTOPP_UNUSED(unused);
+        static const unsigned int caps = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(caps);
 
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word64 dataBuf[16];
