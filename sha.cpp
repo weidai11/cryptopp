@@ -65,7 +65,7 @@ extern void SHA1_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, siz
 extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
-#if (CRYPTOGAMS_ARM_SHA1)
+#if CRYPTOGAMS_ARM_SHA1
 extern "C" unsigned int CRYPTOGAMS_armcaps;
 extern "C" int sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
@@ -78,7 +78,7 @@ extern void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, siz
 extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
-#if (CRYPTOGAMS_ARM_SHA256)
+#if CRYPTOGAMS_ARM_SHA256
 extern "C" unsigned int CRYPTOGAMS_armcaps;
 extern "C" int sha256_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
@@ -92,7 +92,7 @@ extern void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, 
 extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t length, ByteOrder order);
 #endif
 
-#if (CRYPTOGAMS_ARM_SHA512)
+#if CRYPTOGAMS_ARM_SHA512
 extern "C" unsigned int CRYPTOGAMS_armcaps;
 extern "C" int sha512_block_data_order(word64* state, const word64 *data, size_t blocks);
 #endif
@@ -166,6 +166,23 @@ const word32 SHA256_K[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+#if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
+bool CryptogamsArmCaps()
+{
+    // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+    // for capabilities like ARMv7 and NEON. Storage is allocated in the
+    // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+    // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+    *reinterpret_cast<volatile unsigned int*>(&CRYPTOGAMS_armcaps) = CryptoPP::HasNEON() ? (1<<0) : 0;
+
+    return true;
+}
+#endif
+
+ANONYMOUS_NAMESPACE_END
 
 ////////////////////////////////
 // start of Steve Reid's code //
@@ -290,11 +307,23 @@ void SHA1::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
-#if CRYPTOGAMS_ARM_SHA1 && 0
-    // TODO: convert LE to BE and use Cryptogams code
+#if CRYPTOGAMS_ARM_SHA1
     if (HasARMv7())
     {
+        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+        // for capabilities like ARMv7 and NEON. Storage is allocated in the
+        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+        static const bool unused = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(unused);
+
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
+        word32 dataBuf[16];
+        ByteReverse(dataBuf, data, SHA1::BLOCKSIZE);
         sha1_block_data_order(state, data, 1);
+# else
+        sha1_block_data_order(state, data, 1);
+# endif
         return;
     }
 #endif
@@ -328,7 +357,7 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
         // for capabilities like ARMv7 and NEON. Storage is allocated in the
         // module. We still need to set CRYPTOGAMS_armcaps accordingly.
         // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
-        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
         sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE);
@@ -837,11 +866,23 @@ void SHA256::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
-#if CRYPTOGAMS_ARM_SHA256 && 0
-    // TODO: convert LE to BE and use Cryptogams code
+#if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
+        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+        // for capabilities like ARMv7 and NEON. Storage is allocated in the
+        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+        static const bool unused = CryptogamsArmCaps();
+        CRYPTOPP_UNUSED(unused);
+
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
+        word32 dataBuf[16];
+        ByteReverse(dataBuf, data, SHA256::BLOCKSIZE);
         sha256_block_data_order(state, data, 1);
+# else
+        sha256_block_data_order(state, data, 1);
+# endif
         return;
     }
 #endif
@@ -890,7 +931,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
         // for capabilities like ARMv7 and NEON. Storage is allocated in the
         // module. We still need to set CRYPTOGAMS_armcaps accordingly.
         // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
-        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
         sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
@@ -960,7 +1001,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
         // for capabilities like ARMv7 and NEON. Storage is allocated in the
         // module. We still need to set CRYPTOGAMS_armcaps accordingly.
         // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
-        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
         sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
@@ -1330,13 +1371,16 @@ void SHA512::Transform(word64 *state, const word64 *data)
         // for capabilities like ARMv7 and NEON. Storage is allocated in the
         // module. We still need to set CRYPTOGAMS_armcaps accordingly.
         // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
-        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        static const bool unused = CryptogamsArmCaps();
         CRYPTOPP_UNUSED(unused);
 
+# if defined(CRYPTOPP_LITTLE_ENDIAN)
         word64 dataBuf[16];
         ByteReverse(dataBuf, data, SHA512::BLOCKSIZE);
         sha512_block_data_order(state, dataBuf, 1);
-
+# else
+        sha512_block_data_order(state, data, 1);
+# endif
         return;
     }
 #endif
