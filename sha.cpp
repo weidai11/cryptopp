@@ -307,7 +307,7 @@ void SHA1::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
-#if CRYPTOGAMS_ARM_SHA1
+#if CRYPTOGAMS_ARM_SHA1 && 0
     if (HasARMv7())
     {
         static const bool unused = CryptogamsArmCaps();
@@ -858,7 +858,7 @@ void SHA256::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
-#if CRYPTOGAMS_ARM_SHA256
+#if CRYPTOGAMS_ARM_SHA256 && 0
     if (HasARMv7())
     {
         static const bool unused = CryptogamsArmCaps();
@@ -1344,7 +1344,7 @@ void SHA512::Transform(word64 *state, const word64 *data)
         return;
     }
 #endif
-#if CRYPTOGAMS_ARM_SHA512
+#if CRYPTOGAMS_ARM_SHA512 && 0
     if (HasARMv7())
     {
         static const bool unused = CryptogamsArmCaps();
