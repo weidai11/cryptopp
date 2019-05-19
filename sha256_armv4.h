@@ -2,8 +2,8 @@
 /* Also see http://www.openssl.org/~appro/cryptogams/  */
 /* https://wiki.openssl.org/index.php/Cryptogams_SHA.  */
 
-#ifndef CRYPTOGAMS_SHA1_ARMV4_H
-#define CRYPTOGAMS_SHA1_ARMV4_H
+#ifndef CRYPTOGAMS_SHA256_ARMV4_H
+#define CRYPTOGAMS_SHA256_ARMV4_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,4 +18,4 @@ void sha256_block_data_order(void *state, const void *data, size_t blocks);
 }
 #endif
 
-#endif  /* CRYPTOGAMS_SHA1_ARMV4_H */
+#endif  /* CRYPTOGAMS_SHA256_ARMV4_H */
