@@ -316,6 +316,8 @@ sha_simd.cpp
 sha.h
 sha1_armv4.h
 sha1_armv4.S
+sha256_armv4.h
+sha256_armv4.S
 sha3.cpp
 sha3.h
 shacal2.cpp

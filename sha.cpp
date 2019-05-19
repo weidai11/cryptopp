@@ -69,6 +69,11 @@ extern void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, siz
 extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
+#if (CRYPTOGAMS_ARM_SHA256)
+extern "C" unsigned int CRYPTOGAMS_armcaps;
+extern "C" int sha256_block_data_order(word32* state, const word32 *data, size_t blocks);
+#endif
+
 #if CRYPTOPP_ARM_SHA512_AVAILABLE
 extern void SHA512_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
@@ -309,7 +314,8 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
         // for capabilities like ARMv7 and NEON. Storage is allocated in the
         // module. We still need to set CRYPTOGAMS_armcaps accordingly.
         // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
-        static unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        CRYPTOPP_UNUSED(unused);
 
         sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE);
         return length & (SHA1::BLOCKSIZE - 1);
@@ -427,6 +433,12 @@ std::string SHA256_AlgorithmProvider()
 #if CRYPTOPP_SSE2_ASM_AVAILABLE
     if (HasSSE2())
         return "SSE2";
+#endif
+#if CRYPTOGAMS_ARM_SHA256
+    if (HasNEON())
+        return "NEON";
+    if (HasARMv7())
+        return "ARMv7";
 #endif
 #if CRYPTOPP_ARM_SHA2_AVAILABLE
     if (HasSHA2())
@@ -811,6 +823,14 @@ void SHA256::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
+#if CRYPTOGAMS_ARM_SHA256 && 0
+    // TODO: convert LE to BE and use Cryptogams code
+    if (HasARMv7())
+    {
+        sha256_block_data_order(state, data, 1);
+        return;
+    }
+#endif
 #if CRYPTOPP_ARM_SHA2_AVAILABLE
     if (HasSHA2())
     {
@@ -847,6 +867,20 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
         const size_t res = length & (SHA256::BLOCKSIZE - 1);
         SHA256_HashMultipleBlocks_SSE2(m_state, input, length-res);
         return res;
+    }
+#endif
+#if CRYPTOGAMS_ARM_SHA256
+    if (HasARMv7())
+    {
+        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+        // for capabilities like ARMv7 and NEON. Storage is allocated in the
+        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        CRYPTOPP_UNUSED(unused);
+
+        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
+        return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
 #if CRYPTOPP_ARM_SHA2_AVAILABLE
@@ -903,6 +937,20 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
         const size_t res = length & (SHA256::BLOCKSIZE - 1);
         SHA256_HashMultipleBlocks_SSE2(m_state, input, length-res);
         return res;
+    }
+#endif
+#if CRYPTOGAMS_ARM_SHA256
+    if (HasARMv7())
+    {
+        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+        // for capabilities like ARMv7 and NEON. Storage is allocated in the
+        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        CRYPTOPP_UNUSED(unused);
+
+        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
+        return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
 #if CRYPTOPP_ARM_SHA2_AVAILABLE
