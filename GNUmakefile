@@ -1059,7 +1059,7 @@ endif
 ifeq ($(IS_ARM32),1)
   CRYPTOGAMS_ARCH_FLAG = -march=armv7-a
   CRYPTOGAMS_ARCH_FLAG += -Wa,--noexecstack
-  SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S
+  SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S sha512_armv4.S
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -1511,6 +1511,10 @@ sha1_armv4.o : sha1_armv4.S
 
 # Cryptogams ARM asm implementation.
 sha256_armv4.o : sha256_armv4.S
+	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARCH_FLAG) -c) $<
+
+# Cryptogams ARM asm implementation.
+sha512_armv4.o : sha512_armv4.S
 	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARCH_FLAG) -c) $<
 
 sha3_simd.o : sha3_simd.cpp

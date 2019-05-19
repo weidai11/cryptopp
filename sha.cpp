@@ -83,6 +83,11 @@ extern void SHA256_HashMultipleBlocks_POWER8(word32 *state, const word32 *data, 
 extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, size_t length, ByteOrder order);
 #endif
 
+#if (CRYPTOGAMS_ARM_SHA512)
+extern "C" unsigned int CRYPTOGAMS_armcaps;
+extern "C" int sha512_block_data_order(word64* state, const word64 *data, size_t blocks);
+#endif
+
 // We add extern to export table to sha_simd.cpp, but it
 //  cleared http://github.com/weidai11/cryptopp/issues/502
 extern const word32 SHA256_K[64];
@@ -997,6 +1002,12 @@ std::string SHA512_AlgorithmProvider()
     if (HasSSE2())
         return "SSE2";
 #endif
+#if CRYPTOGAMS_ARM_SHA512
+    if (HasNEON())
+        return "NEON";
+    if (HasARMv7())
+        return "ARMv7";
+#endif
 #if (CRYPTOPP_POWER8_SHA_AVAILABLE)
     if (HasSHA512())
         return "Power8";
@@ -1300,6 +1311,23 @@ void SHA512::Transform(word64 *state, const word64 *data)
     if (HasSSE2())
     {
         SHA512_HashBlock_SSE2(state, data);
+        return;
+    }
+#endif
+#if CRYPTOGAMS_ARM_SHA512
+    if (HasARMv7())
+    {
+        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+        // for capabilities like ARMv7 and NEON. Storage is allocated in the
+        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+        static const unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+        CRYPTOPP_UNUSED(unused);
+
+        word64 dataBuf[16];
+        ByteReverse(dataBuf, data, SHA512::BLOCKSIZE);
+        sha512_block_data_order(state, dataBuf, 1);
+
         return;
     }
 #endif
