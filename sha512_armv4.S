@@ -137,7 +137,7 @@ K512:
 	WORD64(0x4cc5d4be,0xcb3e42b6,	0x597f299c,0xfc657e2a)
 	WORD64(0x5fcb6fab,0x3ad6faec,	0x6c44198c,0x4a475817)
 .size	K512,.-K512
-#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+#if __ARM_MAX_ARCH__>=7
 .LCRYPTOGAMS_armcap:
 # ifdef	_WIN32
 .word	CRYPTOGAMS_armcap_P
@@ -158,7 +158,7 @@ sha512_block_data_order:
 #else
 	adr	r3,.Lsha512_block_data_order
 #endif
-#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+#if __ARM_MAX_ARCH__>=7
 	ldr	r12,.LCRYPTOGAMS_armcap
 # if !defined(_WIN32)
 	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap_P
