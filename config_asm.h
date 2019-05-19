@@ -366,6 +366,7 @@
 #  define CRYPTOGAMS_ARM_AES      1
 #  define CRYPTOGAMS_ARM_SHA1     1
 #  define CRYPTOGAMS_ARM_SHA256   1
+#  define CRYPTOGAMS_ARM_SHA512   1
 # endif
 #endif
 
