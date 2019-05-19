@@ -96,7 +96,7 @@ if ! "$LIBTOOLIZE" 2>/dev/null; then
 fi
 
 echo "Running automake"
-automake
+automake automake --add-missing
 
 # Run autoreconf twice on failure. Also see
 # https://github.com/tracebox/tracebox/issues/57
