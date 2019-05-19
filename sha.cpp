@@ -1033,7 +1033,7 @@ std::string SHA512_AlgorithmProvider()
     if (HasSSE2())
         return "SSE2";
 #endif
-#if CRYPTOGAMS_ARM_SHA512
+#if CRYPTOGAMS_ARM_SHA512 && 0
     if (HasNEON())
         return "NEON";
     if (HasARMv7())
