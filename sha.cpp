@@ -2,9 +2,10 @@
 
 //    Steve Reid implemented SHA-1. Wei Dai implemented SHA-2. Jeffrey
 //    Walton implemented Intel SHA extensions based on Intel articles and code
-//    by Sean Gulley. Jeffrey Walton implemented ARM SHA based on ARM code and
-//    code from Johannes Schneiders, Skip Hovsmith and Barry O'Rourke. All
-//    code is in the public domain.
+//    by Sean Gulley. Jeffrey Walton implemented ARM SHA-1 and SHA-256 based
+//    on ARM code and code from Johannes Schneiders, Skip Hovsmith and
+//    Barry O'Rourke. Jeffrey Walton and Bill Schmidt implemented Power8
+//    SHA-256 and SHA-512. All code is in the public domain.
 
 //    In August 2017 JW reworked the internals to align all the
 //    implementations. Formerly all hashes were software based, IterHashBase
