@@ -95,6 +95,9 @@ if ! "$LIBTOOLIZE" 2>/dev/null; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+echo "Running automake"
+automake
+
 # Run autoreconf twice on failure. Also see
 # https://github.com/tracebox/tracebox/issues/57
 echo "Running autoreconf"
