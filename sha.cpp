@@ -1,29 +1,38 @@
 // sha.cpp - modified by Wei Dai from Steve Reid's public domain sha1.c
 
-//    Steve Reid implemented SHA-1. Wei Dai implemented SHA-2. Jeffrey Walton
-//    implemented Intel SHA extensions based on Intel articles and code by
-//    Sean Gulley. Jeffrey Walton implemented ARM SHA based on ARM code and
-//    code from Johannes Schneiders, Skip Hovsmith and Barry O'Rourke.
-//    All code is in the public domain.
+//    Steve Reid implemented SHA-1. Wei Dai implemented SHA-2. Jeffrey
+//    Walton implemented Intel SHA extensions based on Intel articles and code
+//    by Sean Gulley. Jeffrey Walton implemented ARM SHA based on ARM code and
+//    code from Johannes Schneiders, Skip Hovsmith and Barry O'Rourke. All
+//    code is in the public domain.
 
-//     In August 2017 JW reworked the internals to align all the implementations.
-//    Formerly all hashes were software based, IterHashBase handled endian conversions,
-//    and IterHashBase dispatched a single to block SHA{N}::Transform. SHA{N}::Transform
-//    then performed the single block hashing. It was repeated for multiple blocks.
+//    In August 2017 JW reworked the internals to align all the
+//    implementations. Formerly all hashes were software based, IterHashBase
+//    handled endian conversions, and IterHashBase dispatched a single to
+//    block SHA{N}::Transform. SHA{N}::Transform then performed the single
+//    block hashing. It was repeated for multiple blocks.
 //
-//    The rework added SHA{N}::HashMultipleBlocks (class) and SHA{N}_HashMultipleBlocks
-//    (free standing). There are also hardware accelerated variations. Callers enter
-//    SHA{N}::HashMultipleBlocks (class), and the function calls SHA{N}_HashMultipleBlocks
-//    (free standing) or SHA{N}_HashBlock (free standing) as a fallback.
+//    The rework added SHA{N}::HashMultipleBlocks (class) and
+//    SHA{N}_HashMultipleBlocks (free standing). There are also hardware
+//    accelerated variations. Callers enter SHA{N}::HashMultipleBlocks (class)
+//    and the function calls SHA{N}_HashMultipleBlocks (free standing) or
+//    SHA{N}_HashBlock (free standing) as a fallback.
 //
-//    An added wrinkle is hardware is little endian, C++ is big endian, and callers use
-//    big endian, so SHA{N}_HashMultipleBlock accepts a ByteOrder for the incoming data
-//    arrangement. Hardware based SHA{N}_HashMultipleBlock can often perform the endian
-//    swap much easier by setting an EPI mask. Endian swap incurs no penalty on Intel SHA,
-//    and 4-instruction penalty on ARM SHA. Under C++ the full software based swap penalty
-//    is incurred due to use of ReverseBytes().
+//    An added wrinkle is hardware is little endian, C++ is big endian, and
+//    callers use big endian, so SHA{N}_HashMultipleBlock accepts a ByteOrder
+//    for the incoming data arrangement. Hardware based SHA{N}_HashMultipleBlock
+//    can often perform the endian swap much easier by setting an EPI mask.
+//    Endian swap incurs no penalty on Intel SHA, and 4-instruction penalty on
+//    ARM SHA. Under C++ the full software based swap penalty is incurred due
+//    to use of ReverseBytes().
 //
-//    The rework also removed the hacked-in pointers to implementations.
+//    In May 2019 JW added Cryptogams ARMv7 and NEON implementations for SHA1,
+//    SHA256 and SHA512. The Cryptogams code closed a performance gap on modern
+//    32-bit ARM devices. Cryptogams is Andy Polyakov's project used to create
+//    high speed crypto algorithms and share them with other developers. Andy's
+//    code runs 30% to 50% faster than C/C++ code. The Cryptogams code can be
+//    disabled in config_asm.h. An example of integrating Andy's code is at
+//    https://wiki.openssl.org/index.php/Cryptogams_SHA.
 
 // use "cl /EP /P /DCRYPTOPP_GENERATE_X64_MASM sha.cpp" to generate MASM code
 
