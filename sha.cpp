@@ -56,6 +56,11 @@ extern void SHA1_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, siz
 extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
 
+#if (CRYPTOGAMS_ARM_SHA1)
+extern "C" unsigned int CRYPTOGAMS_armcaps;
+extern "C" int sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
+#endif
+
 #if CRYPTOPP_ARM_SHA1_AVAILABLE
 extern void SHA1_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, size_t length, ByteOrder order);
 #endif
@@ -232,6 +237,12 @@ std::string SHA1::AlgorithmProvider() const
     if (HasSSE2())
         return "SSE2";
 #endif
+#if CRYPTOGAMS_ARM_SHA1
+    if (HasNEON())
+        return "NEON";
+    if (HasARMv7())
+        return "ARMv7";
+#endif
 #if CRYPTOPP_ARM_SHA1_AVAILABLE
     if (HasSHA1())
         return "ARMv8";
@@ -260,6 +271,14 @@ void SHA1::Transform(word32 *state, const word32 *data)
         return;
     }
 #endif
+#if CRYPTOGAMS_ARM_SHA1 && 0
+    // TODO: convert LE to BE and use Cryptogams code
+    if (HasARMv7())
+    {
+        sha1_block_data_order(state, data, 1);
+        return;
+    }
+#endif
 #if CRYPTOPP_ARM_SHA1_AVAILABLE
     if (HasSHA1())
     {
@@ -280,6 +299,19 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
     if (HasSHA())
     {
         SHA1_HashMultipleBlocks_SHANI(m_state, input, length, BIG_ENDIAN_ORDER);
+        return length & (SHA1::BLOCKSIZE - 1);
+    }
+#endif
+#if CRYPTOGAMS_ARM_SHA1
+    if (HasARMv7())
+    {
+        // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+        // for capabilities like ARMv7 and NEON. Storage is allocated in the
+        // module. We still need to set CRYPTOGAMS_armcaps accordingly.
+        // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+        static unsigned int unused = CRYPTOGAMS_armcaps = HasNEON() ? (1<<0) : 0;
+
+        sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE);
         return length & (SHA1::BLOCKSIZE - 1);
     }
 #endif

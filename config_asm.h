@@ -354,15 +354,18 @@
 # undef CRYPTOPP_ARM_SHA2_AVAILABLE
 #endif
 
-// Cryptogams offers an ARM asm AES implementation. Crypto++ does
-// not provide an asm implementation. The Cryptogams implementation
-// is about 2x faster than C/C++. Define this to use the Cryptogams
-// AES implementation on GNU Linux systems. When defined, Crypto++
-// will use aes_armv4.S. LLVM miscompiles aes_armv4.S so disable
-// under Clang. See https://bugs.llvm.org/show_bug.cgi?id=38133.
+// Cryptogams offers an ARM asm implementations for AES and SHA. Crypto++ does
+// not provide an asm implementation. The Cryptogams AES implementation is
+// about 50% faster than C/C++, and SHA implementation is about 30% faster
+// than C/C++. Define this to use the Cryptogams AES and SHA implementations
+// on GNU Linux systems. When defined, Crypto++ will use aes_armv4.S and
+// sha1_armv4.S. LLVM miscompiles aes_armv4.S so disable under Clang. Also see
+// https://bugs.llvm.org/show_bug.cgi?id=38133.
 #if !defined(CRYPTOPP_DISABLE_ASM) && defined(__arm__)
 # if defined(__GNUC__) && !defined(__clang__)
-#  define CRYPTOGAMS_ARM_AES 1
+#  define CRYPTOGAMS_ARM_AES      1
+#  define CRYPTOGAMS_ARM_SHA1     1
+#  define CRYPTOGAMS_ARM_SHA256   1
 # endif
 #endif
 

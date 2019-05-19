@@ -1057,9 +1057,9 @@ endif
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
 # Avoid iOS. It cannot consume the assembly.
 ifeq ($(IS_ARM32),1)
-  CRYPTOGAMS_AES_FLAG = -march=armv7-a
-  CRYPTOGAMS_AES_FLAG += -Wa,--noexecstack
-  SRCS += aes_armv4.S
+  CRYPTOGAMS_ARCH_FLAG = -march=armv7-a
+  CRYPTOGAMS_ARCH_FLAG += -Wa,--noexecstack
+  SRCS += aes_armv4.S sha1_armv4.S
 endif
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
@@ -1423,7 +1423,7 @@ endif # Dependencies
 
 # Cryptogams ARM asm implementation.
 aes_armv4.o : aes_armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_AES_FLAG) -c) $<
+	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARCH_FLAG) -c) $<
 
 # SSSE3 or NEON available
 aria_simd.o : aria_simd.cpp
@@ -1504,6 +1504,10 @@ rijndael_simd.o : rijndael_simd.cpp
 # SSE4.2/SHA-NI or ARMv8a available
 sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+
+# Cryptogams ARM asm implementation.
+sha1_armv4.o : sha1_armv4.S
+	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARCH_FLAG) -c) $<
 
 sha3_simd.o : sha3_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA3_FLAG) -c) $<
