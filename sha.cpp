@@ -176,9 +176,10 @@ ANONYMOUS_NAMESPACE_BEGIN
 inline unsigned int CryptogamsArmCaps()
 {
     // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-    // for capabilities like ARMv7 and NEON. Storage is allocated in the
-    // module. We still need to set CRYPTOGAMS_armcaps accordingly.
-    // The Cryptogams code defines NEON as 1<<0; see ARMV7_NEON.
+    // for capabilities like ARMv7 and NEON. We allocate storage for
+    // CRYPTOGAMS_armcaps, and the Cryptogams modules use our symbol.
+    // The Cryptogams code defines ARMV7_NEON as 1<<0, so we need to
+    // set the bits accordingly in CRYPTOGAMS_armcaps.
     *const_cast<volatile unsigned int*>(&CRYPTOGAMS_armcaps) = CryptoPP::HasNEON() ? (1<<0) : 0;
 
     return CRYPTOGAMS_armcaps;
