@@ -59,6 +59,11 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
+#if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
+extern "C" unsigned int CRYPTOGAMS_armcaps;
+unsigned int CRYPTOGAMS_armcaps = 0;
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 #if CRYPTOPP_SHANI_AVAILABLE
@@ -67,7 +72,6 @@ extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA1
-extern "C" unsigned int CRYPTOGAMS_armcaps;
 extern "C" int sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
 
@@ -80,7 +84,6 @@ extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA256
-extern "C" unsigned int CRYPTOGAMS_armcaps;
 extern "C" int sha256_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
 
@@ -94,7 +97,6 @@ extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, 
 #endif
 
 #if CRYPTOGAMS_ARM_SHA512
-extern "C" unsigned int CRYPTOGAMS_armcaps;
 extern "C" int sha512_block_data_order(word64* state, const word64 *data, size_t blocks);
 #endif
 
