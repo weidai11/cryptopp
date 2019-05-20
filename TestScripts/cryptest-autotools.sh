@@ -99,9 +99,6 @@ if ! "$LIBTOOLIZE" 2>/dev/null; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-echo "Running automake"
-automake automake --add-missing
-
 # Run autoreconf twice on failure. Also see
 # https://github.com/tracebox/tracebox/issues/57
 echo "Running autoreconf"
@@ -115,18 +112,20 @@ fi
 
 # Update config.sub config.guess. GNU recommends using the latest for all projects.
 echo "Updating config.sub"
-wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub' -O config.sub
+wget -O config.sub.new --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub'
 
-if [[ -e config.sub ]]; then
-	chmod +x config.sub
-fi
+# Solaris removes +w, can't overwrite
+chmod +w config.sub
+mv config.sub.new config.sub
+chmod +x config.sub
 
 echo "Updating config.guess"
-wget --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess' -O config.guess
+wget -O config.guess.new --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess'
 
-if [[ -e config.guess ]]; then
-	chmod +x config.guess
-fi
+# Solaris removes +w, can't overwrite
+chmod +w config.guess
+mv config.guess.new config.guess
+chmod +x config.guess
 
 if ! ./configure; then
 	echo "configure failed."
