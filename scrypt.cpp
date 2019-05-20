@@ -190,6 +190,15 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     CRYPTOPP_ASSERT(blockSize != 0);
     CRYPTOPP_ASSERT(parallelization != 0);
 
+    if (cost == 0)
+        throw InvalidArgument("Scrypt: cost cannot be 0");
+
+    if (blockSize == 0)
+        throw InvalidArgument("Scrypt: block size cannot be 0");
+
+    if (parallelization == 0)
+        throw InvalidArgument("Scrypt: parallelization cannot be 0");
+
     // Optimizer should remove this on 32-bit platforms
     if (std::numeric_limits<size_t>::max() > std::numeric_limits<word32>::max())
     {
