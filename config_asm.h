@@ -365,7 +365,7 @@
 # if defined(__GNUC__) && !defined(__clang__)
 #  define CRYPTOGAMS_ARM_AES      1
 # endif
-# if defined(__GNUC__)
+# if defined(__GNUC__) || defined(__clang__)
 #  define CRYPTOGAMS_ARM_SHA1     1
 #  define CRYPTOGAMS_ARM_SHA256   1
 #  define CRYPTOGAMS_ARM_SHA512   1
