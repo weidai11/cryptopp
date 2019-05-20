@@ -79,6 +79,10 @@ if [[ -z "$LIBTOOLIZE" ]]; then
 	echo "Cannot find libtoolize. Things may fail."
 fi
 
+if [[ -z $(command -v automake) ]]; then
+	echo "Cannot find automake. Things may fail."
+fi
+
 if [[ -z $(command -v autoreconf) ]]; then
 	echo "Cannot find autoreconf. Things may fail."
 fi
