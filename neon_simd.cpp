@@ -50,7 +50,9 @@ extern "C" {
 
 bool CPU_ProbeARMv7()
 {
-#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+    return false;
+#elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
 #elif CRYPTOPP_ARM_NEON_AVAILABLE
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
