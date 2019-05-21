@@ -22,6 +22,7 @@ MV ?= mv
 CHMOD ?= chmod
 MKDIR ?= mkdir -p
 GREP ?= grep
+SED ?= sed
 
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
@@ -31,9 +32,18 @@ IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
 IS_NEON ?= 0
 
-# Include Cryptogams AES and SHA on Linux, but not iOS. TODO: check Android.
-HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
-IS_LINUX := $(shell echo "$(HOSTX)" | $(GREP) -i -c "Linux")
+# Yet another Clang hack. I think the LLVM devs are making the shit up
+# as they go. Also see https://github.com/weidai11/cryptopp/issues/831.
+MACHINEX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
+ifeq ($(MACHINEX),armv8l-unknown-linux-gnueabihf)
+  MACHINEX := armv7l-unknown-linux-gnueabihf
+endif
+HOSTX := $(shell echo $(MACHINEX) | cut -f 1 -d '-')
+ifeq ($(HOSTX),)
+  HOSTX := $(shell uname -m 2>/dev/null)
+endif
+
+IS_LINUX := $(shell echo $(MACHINEX) | $(GREP) -i -c "Linux")
 
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
 #   Android and embedded users typically don't run this configuration.
