@@ -18,6 +18,11 @@
 
 # set -eu
 
+# Sanity check
+if [ "$0" != "${BASH_SOURCE[0]}" ]; then
+    echo "Please source this setenv script"
+fi
+
 unset IS_CROSS_COMPILE
 
 unset IS_IOS
@@ -39,7 +44,7 @@ unset CPP CC CXX LD AS AR RANLIB STRIP
 # Similar to a "make clean"
 if [ x"${1-}" = "xunset" ]; then
 	echo "Unsetting script variables. PATH may remain tainted"
-	[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 0 || return 0
 fi
 
 # Set AOSP_TOOLCHAIN_SUFFIX to your preference of tools and STL library.
@@ -71,7 +76,7 @@ if [ -z "${AOSP_API-}" ]; then
 else
 	echo "WARNING: Using AOSP_API has been deprecated. Please use AOSP_API_VERSION instead."
 	echo "If you set for example AOSP_API=android-23 then now instead set AOSP_API_VERSION=23"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 #####################################################################
@@ -98,7 +103,7 @@ fi
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT/toolchains" ]; then
 	echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 #####################################################################
@@ -127,7 +132,7 @@ case "$THE_ARCH" in
 	;;
   hard|armv7a-hard|armeabi-v7a-hard)
 	echo hard, armv7a-hard and armeabi-v7a-hard are not supported, as android uses softfloats
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 	#TOOLCHAIN_ARCH="arm-linux-androideabi"
 	#TOOLCHAIN_NAME="arm-linux-androideabi"
 	#AOSP_ABI="armeabi-v7a"
@@ -178,7 +183,7 @@ case "$THE_ARCH" in
 	;;
   *)
 	echo "ERROR: Unknown architecture $1"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 	;;
 esac
 
@@ -218,48 +223,48 @@ done
 # Error checking
 if [ -z "$AOSP_TOOLCHAIN_PATH" ] || [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
 	echo "ERROR: AOSP_TOOLCHAIN_PATH is not valid. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CPP" ]; then
 	echo "ERROR: Failed to find Android cpp. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CC" ]; then
 	echo "ERROR: Failed to find Android gcc. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CXX" ]; then
 	echo "ERROR: Failed to find Android g++. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$RANLIB" ]; then
 	echo "ERROR: Failed to find Android ranlib. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$AR" ]; then
 	echo "ERROR: Failed to find Android ar. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$AS" ]; then
 	echo "ERROR: Failed to find Android as. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$LD" ]; then
 	echo "ERROR: Failed to find Android ld. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Only modify/export PATH if AOSP_TOOLCHAIN_PATH good
@@ -278,10 +283,10 @@ fi
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT/platforms/$AOSP_API" ]; then
 	echo "ERROR: AOSP_API is not valid. Does the NDK support the API? Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 elif [ ! -d "$ANDROID_NDK_ROOT/platforms/$AOSP_API/$AOSP_ARCH" ]; then
 	echo "ERROR: AOSP_ARCH is not valid. Does the NDK support the architecture? Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Android SYSROOT. It will be used on the command line with --sysroot
@@ -328,7 +333,7 @@ case "$THE_STL" in
 	echo WARNING: llvm is still in experimental state and migth not work as expected
 	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
 		echo "ERROR: Unable to locate include LLVM directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
-		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+		[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 	fi
 	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_static.a"
@@ -337,26 +342,26 @@ case "$THE_STL" in
 	echo WARNING: llvm is still in experimental state and migth not work as expected
 	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
 		echo "ERROR: Unable to locate LLVM include directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
-		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+		[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 	fi
 	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
 	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_shared.so"
 	;;
   *)
 	echo "ERROR: Unknown STL library $2"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 esac
 
 # Error checking
 if [ ! -d "$AOSP_STL_INC" ] || [ ! -e "$AOSP_STL_INC/memory" ]; then
 	echo "ERROR: AOSP_STL_INC is not valid. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_STL_LIB" ]; then
 	echo "ERROR: AOSP_STL_LIB is not valid. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 export AOSP_STL_INC
@@ -372,13 +377,13 @@ fi
 
 if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; then
 	echo "ERROR: Unable to locate cpu-features.h"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
 
 if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
 	echo "ERROR: Unable to locate cpu-features.c"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+	[ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
 
@@ -446,4 +451,4 @@ echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo
 
-[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
+[ "$0" = "${BASH_SOURCE[0]}" ] && exit 0 || return 0

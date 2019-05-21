@@ -20,6 +20,11 @@
 
 # set -eu
 
+# Sanity check
+if [ "$0" != "${BASH_SOURCE[0]}" ]; then
+    echo "Please source this setenv script"
+fi
+
 unset IS_CROSS_COMPILE
 
 unset IS_IOS
@@ -38,8 +43,8 @@ unset CPP CC CXX LD AS AR RANLIB STRIP
 
 # Similar to a "make clean"
 if [ x"${1-}" = "xunset" ]; then
-	echo "Unsetting script variables. PATH may remain tainted"
-	[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
+    echo "Unsetting script variables. PATH may remain tainted"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 0 || return 0
 fi
 
 # Set AOSP_TOOLCHAIN_SUFFIX to your preference of tools and STL library.
@@ -47,7 +52,7 @@ fi
 # AOSP_TOOLCHAIN_SUFFIX=4.8
 # AOSP_TOOLCHAIN_SUFFIX=4.9
 if [ -z "${AOSP_TOOLCHAIN_SUFFIX-}" ]; then
-	AOSP_TOOLCHAIN_SUFFIX=4.9
+    AOSP_TOOLCHAIN_SUFFIX=4.9
 fi
 
 # Set AOSP_API to the API you want to use. 'armeabi' and 'armeabi-v7a' need
@@ -63,7 +68,7 @@ fi
 # AOSP_API="android-21"    # Android 5.0 and above
 # AOSP_API="android-23"    # Android 6.0 and above
 if [ -z "${AOSP_API-}" ]; then
-	AOSP_API="android-21"
+    AOSP_API="android-21"
 fi
 
 #####################################################################
@@ -74,102 +79,102 @@ fi
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
 if [ -z "${ANDROID_NDK_ROOT-}" ]; then
-	ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
+    ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
 
-	if [ -z "$ANDROID_NDK_ROOT" ]; then
-		ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
-	fi
-	if [ -z "$ANDROID_NDK_ROOT" ]; then
-		ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
-	fi
-	if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
-		ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
-	fi
+    if [ -z "$ANDROID_NDK_ROOT" ]; then
+        ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
+    fi
+    if [ -z "$ANDROID_NDK_ROOT" ]; then
+        ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
+    fi
+    if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
+        ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
+    fi
 fi
 
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT/toolchains" ]; then
-	echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 #####################################################################
 
 if [ "$#" -lt 1 ]; then
-	THE_ARCH=armv7a-neon
+    THE_ARCH=armv7a-neon
 else
-	THE_ARCH=$(tr [A-Z] [a-z] <<< "$1")
+    THE_ARCH=$(tr [A-Z] [a-z] <<< "$1")
 fi
 
 # https://developer.android.com/ndk/guides/abis.html
 case "$THE_ARCH" in
   arm|armv5|armv6|armv7|armeabi)
-	TOOLCHAIN_ARCH="arm-linux-androideabi"
-	TOOLCHAIN_NAME="arm-linux-androideabi"
-	AOSP_ABI="armeabi"
-	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-march=armv5te -mtune=xscale -mthumb -msoft-float -DCRYPTOPP_DISABLE_ASM -funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="arm-linux-androideabi"
+    TOOLCHAIN_NAME="arm-linux-androideabi"
+    AOSP_ABI="armeabi"
+    AOSP_ARCH="arch-arm"
+    AOSP_FLAGS="-march=armv5te -mtune=xscale -mthumb -msoft-float -DCRYPTOPP_DISABLE_ASM -funwind-tables -fexceptions -frtti"
+    ;;
   armv7a|armv7-a|armeabi-v7a)
-	TOOLCHAIN_ARCH="arm-linux-androideabi"
-	TOOLCHAIN_NAME="arm-linux-androideabi"
-	AOSP_ABI="armeabi-v7a"
-	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -DCRYPTOPP_DISABLE_ASM -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="arm-linux-androideabi"
+    TOOLCHAIN_NAME="arm-linux-androideabi"
+    AOSP_ABI="armeabi-v7a"
+    AOSP_ARCH="arch-arm"
+    AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -DCRYPTOPP_DISABLE_ASM -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
+    ;;
   hard|armv7a-hard|armeabi-v7a-hard)
-	TOOLCHAIN_ARCH="arm-linux-androideabi"
-	TOOLCHAIN_NAME="arm-linux-androideabi"
-	AOSP_ABI="armeabi-v7a"
-	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1 -march=armv7-a -mfpu=vfpv3-d16 -DCRYPTOPP_DISABLE_ASM -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti -Wl,--no-warn-mismatch -Wl,-lm_hard"
-	;;
+    TOOLCHAIN_ARCH="arm-linux-androideabi"
+    TOOLCHAIN_NAME="arm-linux-androideabi"
+    AOSP_ABI="armeabi-v7a"
+    AOSP_ARCH="arch-arm"
+    AOSP_FLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1 -march=armv7-a -mfpu=vfpv3-d16 -DCRYPTOPP_DISABLE_ASM -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti -Wl,--no-warn-mismatch -Wl,-lm_hard"
+    ;;
   neon|armv7a-neon)
-	TOOLCHAIN_ARCH="arm-linux-androideabi"
-	TOOLCHAIN_NAME="arm-linux-androideabi"
-	AOSP_ABI="armeabi-v7a"
-	AOSP_ARCH="arch-arm"
-	AOSP_FLAGS="-march=armv7-a -mfpu=neon -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="arm-linux-androideabi"
+    TOOLCHAIN_NAME="arm-linux-androideabi"
+    AOSP_ABI="armeabi-v7a"
+    AOSP_ARCH="arch-arm"
+    AOSP_FLAGS="-march=armv7-a -mfpu=neon -mfloat-abi=softfp -Wl,--fix-cortex-a8 -funwind-tables -fexceptions -frtti"
+    ;;
   armv8|armv8a|aarch64|arm64|arm64-v8a)
-	TOOLCHAIN_ARCH="aarch64-linux-android"
-	TOOLCHAIN_NAME="aarch64-linux-android"
-	AOSP_ABI="arm64-v8a"
-	AOSP_ARCH="arch-arm64"
-	AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="aarch64-linux-android"
+    TOOLCHAIN_NAME="aarch64-linux-android"
+    AOSP_ABI="arm64-v8a"
+    AOSP_ARCH="arch-arm64"
+    AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
+    ;;
   mips|mipsel)
-	TOOLCHAIN_ARCH="mipsel-linux-android"
-	TOOLCHAIN_NAME="mipsel-linux-android"
-	AOSP_ABI="mips"
-	AOSP_ARCH="arch-mips"
-	AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="mipsel-linux-android"
+    TOOLCHAIN_NAME="mipsel-linux-android"
+    AOSP_ABI="mips"
+    AOSP_ARCH="arch-mips"
+    AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
+    ;;
   mips64|mipsel64|mips64el)
-	TOOLCHAIN_ARCH="mips64el-linux-android"
-	TOOLCHAIN_NAME="mips64el-linux-android"
-	AOSP_ABI="mips64"
-	AOSP_ARCH="arch-mips64"
-	AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="mips64el-linux-android"
+    TOOLCHAIN_NAME="mips64el-linux-android"
+    AOSP_ABI="mips64"
+    AOSP_ARCH="arch-mips64"
+    AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
+    ;;
   x86)
-	TOOLCHAIN_ARCH="x86"
-	TOOLCHAIN_NAME="i686-linux-android"
-	AOSP_ABI="x86"
-	AOSP_ARCH="arch-x86"
-	AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="x86"
+    TOOLCHAIN_NAME="i686-linux-android"
+    AOSP_ABI="x86"
+    AOSP_ARCH="arch-x86"
+    AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
+    ;;
   x86_64|x64)
-	TOOLCHAIN_ARCH="x86_64"
-	TOOLCHAIN_NAME="x86_64-linux-android"
-	AOSP_ABI="x86_64"
-	AOSP_ARCH="arch-x86_64"
-	AOSP_FLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -fexceptions -frtti"
-	;;
+    TOOLCHAIN_ARCH="x86_64"
+    TOOLCHAIN_NAME="x86_64-linux-android"
+    AOSP_ABI="x86_64"
+    AOSP_ARCH="arch-x86_64"
+    AOSP_FLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -fexceptions -frtti"
+    ;;
   *)
-	echo "ERROR: Unknown architecture $1"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
-	;;
+    echo "ERROR: Unknown architecture $1"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+    ;;
 esac
 
 #####################################################################
@@ -195,79 +200,79 @@ export STRIP="$TOOLCHAIN_NAME-strip"
 AOSP_TOOLCHAIN_PATH=""
 for host in "linux-x86_64" "darwin-x86_64" "linux-x86" "darwin-x86"
 do
-	if [ -d "$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_ARCH-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin" ]; then
-		AOSP_TOOLCHAIN_PATH="$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_ARCH-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin"
-		break
-	fi
+    if [ -d "$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_ARCH-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin" ]; then
+        AOSP_TOOLCHAIN_PATH="$ANDROID_NDK_ROOT/toolchains/$TOOLCHAIN_ARCH-$AOSP_TOOLCHAIN_SUFFIX/prebuilt/$host/bin"
+        break
+    fi
 done
 
 # Error checking
 if [ -z "$AOSP_TOOLCHAIN_PATH" ] || [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
-	echo "ERROR: AOSP_TOOLCHAIN_PATH is not valid. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: AOSP_TOOLCHAIN_PATH is not valid. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CPP" ]; then
-	echo "ERROR: Failed to find Android cpp. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android cpp. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CC" ]; then
-	echo "ERROR: Failed to find Android gcc. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android gcc. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CXX" ]; then
-	echo "ERROR: Failed to find Android g++. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android g++. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$RANLIB" ]; then
-	echo "ERROR: Failed to find Android ranlib. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android ranlib. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$AR" ]; then
-	echo "ERROR: Failed to find Android ar. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android ar. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$AS" ]; then
-	echo "ERROR: Failed to find Android as. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android as. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$LD" ]; then
-	echo "ERROR: Failed to find Android ld. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Failed to find Android ld. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Only modify/export PATH if AOSP_TOOLCHAIN_PATH good
 if [ -d "$AOSP_TOOLCHAIN_PATH" ]; then
 
-	# And only modify PATH if AOSP_TOOLCHAIN_PATH is not present
-	LEN=${#AOSP_TOOLCHAIN_PATH}
-	SUBSTR=${PATH:0:$LEN}
-	if [ "$SUBSTR" != "$AOSP_TOOLCHAIN_PATH" ]; then
-		export PATH="$AOSP_TOOLCHAIN_PATH":"$PATH"
-	fi
+    # And only modify PATH if AOSP_TOOLCHAIN_PATH is not present
+    LEN=${#AOSP_TOOLCHAIN_PATH}
+    SUBSTR=${PATH:0:$LEN}
+    if [ "$SUBSTR" != "$AOSP_TOOLCHAIN_PATH" ]; then
+        export PATH="$AOSP_TOOLCHAIN_PATH":"$PATH"
+    fi
 fi
 
 #####################################################################
 
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT/platforms/$AOSP_API" ]; then
-	echo "ERROR: AOSP_API is not valid. Does the NDK support the API? Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: AOSP_API is not valid. Does the NDK support the API? Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 elif [ ! -d "$ANDROID_NDK_ROOT/platforms/$AOSP_API/$AOSP_ARCH" ]; then
-	echo "ERROR: AOSP_ARCH is not valid. Does the NDK support the architecture? Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: AOSP_ARCH is not valid. Does the NDK support the architecture? Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Android SYSROOT. It will be used on the command line with --sysroot
@@ -279,74 +284,74 @@ export AOSP_SYSROOT="$ANDROID_NDK_ROOT/platforms/$AOSP_API/$AOSP_ARCH"
 # Android STL. We support GNU, LLVM and STLport out of the box.
 
 if [ "$#" -lt 2 ]; then
-	THE_STL=gnu-shared
+    THE_STL=gnu-shared
 else
-	THE_STL=$(tr [A-Z] [a-z] <<< "$2")
+    THE_STL=$(tr [A-Z] [a-z] <<< "$2")
 fi
 
 # LLVM include directory may be different depending on NDK version. Default to new location (latest NDK checked: r16beta1).
 LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/include"
 if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
-	LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
+    LLVM_INCLUDE_DIR="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libcxx/include"
 fi
 
 case "$THE_STL" in
   stlport-static)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/stlport/"
-	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/$AOSP_ABI/libstlport_static.a"
-	;;
+    AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/stlport/"
+    AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/$AOSP_ABI/libstlport_static.a"
+    ;;
   stlport|stlport-shared)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/stlport/"
-	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/$AOSP_ABI/libstlport_shared.so"
-	;;
+    AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/stlport/"
+    AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/stlport/libs/$AOSP_ABI/libstlport_shared.so"
+    ;;
   gabi++-static|gnu-static)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/include"
-	AOSP_BITS_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/include"
-	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/libgnustl_static.a"
-	;;
+    AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/include"
+    AOSP_BITS_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/include"
+    AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/libgnustl_static.a"
+    ;;
   gnu|gabi++|gnu-shared|gabi++-shared)
-	AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/include"
-	AOSP_BITS_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/include"
-	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/libgnustl_shared.so"
-	;;
+    AOSP_STL_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/include"
+    AOSP_BITS_INC="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/include"
+    AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/gnu-libstdc++/$AOSP_TOOLCHAIN_SUFFIX/libs/$AOSP_ABI/libgnustl_shared.so"
+    ;;
   llvm-static)
-  	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
-		echo "ERROR: Unable to locate include LLVM directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
-		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
-	fi
-	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
-	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_static.a"
-	;;
+      if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+        echo "ERROR: Unable to locate include LLVM directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
+        [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+    fi
+    AOSP_STL_INC="$LLVM_INCLUDE_DIR"
+    AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_static.a"
+    ;;
   llvm|llvm-shared)
-  	if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
-		echo "ERROR: Unable to locate LLVM include directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
-		[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
-	fi
-	AOSP_STL_INC="$LLVM_INCLUDE_DIR"
-	AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_shared.so"
-	;;
+      if [ ! -d "$LLVM_INCLUDE_DIR" ]; then
+        echo "ERROR: Unable to locate LLVM include directory at $LLVM_INCLUDE_DIR -- has it moved since NDK r16beta1?"
+        [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+    fi
+    AOSP_STL_INC="$LLVM_INCLUDE_DIR"
+    AOSP_STL_LIB="$ANDROID_NDK_ROOT/sources/cxx-stl/llvm-libc++/libs/$AOSP_ABI/libc++_shared.so"
+    ;;
   *)
-	echo "ERROR: Unknown STL library $2"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Unknown STL library $2"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 esac
 
 # Error checking
 if [ ! -d "$AOSP_STL_INC" ] || [ ! -e "$AOSP_STL_INC/memory" ]; then
-	echo "ERROR: AOSP_STL_INC is not valid. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: AOSP_STL_INC is not valid. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -e "$AOSP_STL_LIB" ]; then
-	echo "ERROR: AOSP_STL_LIB is not valid. Please edit this script."
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: AOSP_STL_LIB is not valid. Please edit this script."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 export AOSP_STL_INC
 export AOSP_STL_LIB
 
 if [ ! -z "$AOSP_BITS_INC" ]; then
-	export AOSP_BITS_INC
+    export AOSP_BITS_INC
 fi
 
 # Now that we are using cpu-features from Android rather than CPU probing, we
@@ -354,14 +359,14 @@ fi
 # directory and then build it.
 
 if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; then
-	echo "ERROR: Unable to locate cpu-features.h"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Unable to locate cpu-features.h"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
 
 if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
-	echo "ERROR: Unable to locate cpu-features.c"
-	[ "$0" = "$BASH_SOURCE" ] && exit 1 || return 1
+    echo "ERROR: Unable to locate cpu-features.c"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
 
@@ -390,33 +395,33 @@ fi
 
 COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libstdc\+\+')
 if [[ ("$COUNT" -ne "0") ]]; then
-	echo
-	echo "*******************************************************************************"
-	echo "You are using GNU's runtime and STL library. Please ensure the resulting"
-	echo "binary meets licensing requirements. If you can't use GNU's runtime"
-	echo "and STL library, then reconfigure with stlport or llvm. Also see"
-	echo "http://code.google.com/p/android/issues/detail?id=216331"
-	echo "*******************************************************************************"
+    echo
+    echo "*******************************************************************************"
+    echo "You are using GNU's runtime and STL library. Please ensure the resulting"
+    echo "binary meets licensing requirements. If you can't use GNU's runtime"
+    echo "and STL library, then reconfigure with stlport or llvm. Also see"
+    echo "http://code.google.com/p/android/issues/detail?id=216331"
+    echo "*******************************************************************************"
 fi
 
 COUNT=$(echo -n "$AOSP_STL_LIB" | grep -i -c 'libstlport')
 if [[ ("$COUNT" -ne "0") ]]; then
-	echo
-	echo "*******************************************************************************"
-	echo "You are using STLport's runtime and STL library. STLport could cause problems"
-	echo "if the resulting binary is used in other environments, like a QT project."
-	echo "Also see http://code.google.com/p/android/issues/detail?id=216331"
-	echo "*******************************************************************************"
+    echo
+    echo "*******************************************************************************"
+    echo "You are using STLport's runtime and STL library. STLport could cause problems"
+    echo "if the resulting binary is used in other environments, like a QT project."
+    echo "Also see http://code.google.com/p/android/issues/detail?id=216331"
+    echo "*******************************************************************************"
 fi
 
 COUNT=$(echo -n "$AOSP_STL_LIB" | egrep -i -c 'libc\+\+')
 if [[ ("$COUNT" -ne "0") ]]; then
-	echo
-	echo "*******************************************************************************"
-	echo "You are using LLVM's runtime and STL library. LLVM could cause problems"
-	echo "if the resulting binary is used in other environments, like a QT project."
-	echo "Also see http://code.google.com/p/android/issues/detail?id=216331"
-	echo "*******************************************************************************"
+    echo
+    echo "*******************************************************************************"
+    echo "You are using LLVM's runtime and STL library. LLVM could cause problems"
+    echo "if the resulting binary is used in other environments, like a QT project."
+    echo "Also see http://code.google.com/p/android/issues/detail?id=216331"
+    echo "*******************************************************************************"
 fi
 
 echo
@@ -427,4 +432,4 @@ echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
 echo "*******************************************************************************"
 echo
 
-[ "$0" = "$BASH_SOURCE" ] && exit 0 || return 0
+[ "$0" = "${BASH_SOURCE[0]}" ] && exit 0 || return 0
