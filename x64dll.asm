@@ -1965,7 +1965,7 @@ ret
 SHA256_HashMultipleBlocks_SSE2 ENDP
 
     ALIGN   8
-ExtendedControlRegister	PROC
+XGETBV	PROC
 ;; First paramter is RCX, and xgetbv expects the CTRL in ECX
 ;; http://www.agner.org/optimize/vectorclass/read.php?i=65
 DB  	0fh, 01h, 0d0h
@@ -1974,7 +1974,7 @@ and 	rax, 0ffffffffh
 shl 	rdx, 32
 or  	rax, rdx
 ret
-ExtendedControlRegister	ENDP
+XGETBV	ENDP
 
 _TEXT ENDS
 END

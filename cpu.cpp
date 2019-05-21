@@ -58,7 +58,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 
 // Visual Studio 2008 and below is missing _xgetbv. See x64dll.asm for the body.
 #if defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
-extern "C" unsigned long long __fastcall ExtendedControlRegister(unsigned int);
+extern "C" unsigned long long __fastcall XGETBV(unsigned int);
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -373,7 +373,7 @@ void DetectX86Features()
 
 // Visual Studio 2008 and below lack xgetbv
 #elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
-		word64 xcr0 = ExtendedControlRegister(0);
+		word64 xcr0 = XGETBV(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
 // Downlevel SunCC
