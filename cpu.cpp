@@ -575,10 +575,7 @@ extern bool CPU_ProbePMULL();
 
 inline bool CPU_QueryARMv7()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
-	// ARMv7 or above
-	return true;
-#elif defined(__ANDROID__) && defined(__arm__)
+#if defined(__ANDROID__) && defined(__arm__)
 	if (((android_getCpuFamily() & ANDROID_CPU_FAMILY_ARM) != 0) &&
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_ARMv7) != 0))
 		return true;
