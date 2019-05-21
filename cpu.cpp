@@ -519,6 +519,7 @@ extern bool CPU_ProbeSM3();
 extern bool CPU_ProbeSM4();
 extern bool CPU_ProbePMULL();
 
+// https://github.com/torvalds/linux/blob/master/arch/arm/include/uapi/asm/hwcap.h
 // https://github.com/torvalds/linux/blob/master/arch/arm64/include/uapi/asm/hwcap.h
 #ifndef HWCAP_ARMv7
 # define HWCAP_ARMv7 (1 << 29)
@@ -526,8 +527,8 @@ extern bool CPU_ProbePMULL();
 #ifndef HWCAP_ASIMD
 # define HWCAP_ASIMD (1 << 1)
 #endif
-#ifndef HWCAP_ARM_NEON
-# define HWCAP_ARM_NEON 4096
+#ifndef HWCAP_NEON
+# define HWCAP_NEON (1 << 12)
 #endif
 #ifndef HWCAP_CRC32
 # define HWCAP_CRC32 (1 << 7)
@@ -582,7 +583,8 @@ inline bool CPU_QueryARMv7()
 		((android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_ARMv7) != 0))
 		return true;
 #elif defined(__linux__) && defined(__arm__)
-	if ((getauxval(AT_HWCAP) & HWCAP_ARMv7) != 0)
+	if ((getauxval(AT_HWCAP) & HWCAP_ARMv7) != 0 ||
+	    (getauxval(AT_HWCAP) & HWCAP_NEON) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__arm__)
 	// Apple hardware is ARMv7 or above.
@@ -608,7 +610,7 @@ inline bool CPU_QueryNEON()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_ASIMD) != 0)
 		return true;
 #elif defined(__linux__) && defined(__arm__)
-	if ((getauxval(AT_HWCAP) & HWCAP_ARM_NEON) != 0)
+	if ((getauxval(AT_HWCAP) & HWCAP_NEON) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// Core feature set for Aarch32 and Aarch64.
