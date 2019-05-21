@@ -21,7 +21,7 @@
 # set -eu
 
 # Sanity check
-if [ "$0" != "${BASH_SOURCE[0]}" ]; then
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     echo "Please source this setenv script"
 fi
 
