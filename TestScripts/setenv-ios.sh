@@ -242,7 +242,7 @@ fi
 # https://stackoverflow.com/q/24841283/608639
 # -tvos_simulator_version_min does not work though it is in LLVM sources.
 if [ "$APPLE_SDK" == "AppleTVSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -tvos_simulator_version_min -DCRYPTOPP_DISABLE_ASM"
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
