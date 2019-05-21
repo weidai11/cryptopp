@@ -230,7 +230,7 @@
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__arm__) || defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(_M_ARM)
-#  if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_CLANG_VERSION >= 20800) || \
+#  if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || \
       (CRYPTOPP_MSC_VERSION >= 1700)
 #   define CRYPTOPP_ARM_NEON_AVAILABLE 1
 #  endif  // Compilers
@@ -243,7 +243,7 @@
 #if !defined(CRYPTOPP_ARM_ASIMD_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
-      (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_CLANG_VERSION >= 30300) || \
+      (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || \
       (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_NEON_AVAILABLE 1
 #   define CRYPTOPP_ARM_ASIMD_AVAILABLE 1
@@ -257,7 +257,7 @@
 #if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_CRC32_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -269,7 +269,7 @@
 #if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -281,7 +281,7 @@
 #if !defined(CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1910)
+      (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_AES_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -293,7 +293,7 @@
 #if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_SHA1_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA2_AVAILABLE 1
 #  endif  // Compilers
@@ -301,12 +301,11 @@
 #endif
 
 // ARMv8 and SHA-512, SHA-3. -march=armv8.4-a+crypto or above must be present
-// Requires GCC 8.0, Clang 6.0 or Visual Studio 2021???
+// Requires GCC 8.0, Clang ??? or Visual Studio 20??
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_SHA3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
-      (CRYPTOPP_MSC_VERSION >= 5000)
+#  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000)
 #   define CRYPTOPP_ARM_SHA512_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA3_AVAILABLE 1
 #  endif  // Compilers
@@ -314,12 +313,11 @@
 #endif
 
 // ARMv8 and SM3, SM4. -march=armv8.4-a+crypto or above must be present
-// Requires GCC 8.0, Clang 6.0 or Visual Studio 2021???
+// Requires GCC 8.0, Clang ??? or Visual Studio 20??
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_SM3) || (CRYPTOPP_GCC_VERSION >= 80000) || \
-      (CRYPTOPP_MSC_VERSION >= 5000)
+#  if defined(__ARM_FEATURE_SM3) || (CRYPTOPP_GCC_VERSION >= 80000)
 #   define CRYPTOPP_ARM_SM3_AVAILABLE 1
 #   define CRYPTOPP_ARM_SM4_AVAILABLE 1
 #  endif  // Compilers
@@ -390,7 +388,7 @@
 #if !defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
 # if defined(_ARCH_PWR4) || defined(__ALTIVEC__) || \
 	(CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40001) || \
-    (CRYPTOPP_CLANG_VERSION >= 20900)
+    (CRYPTOPP_LLVM_CLANG_VERSION >= 20900)
 #  define CRYPTOPP_ALTIVEC_AVAILABLE 1
 # endif
 #endif
@@ -398,7 +396,7 @@
 // We need Power7 for unaligned loads and stores
 #if !defined(CRYPTOPP_POWER7_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER7) && defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(_ARCH_PWR7) || (CRYPTOPP_XLC_VERSION >= 100000) || \
-    (CRYPTOPP_GCC_VERSION >= 40100) || (CRYPTOPP_CLANG_VERSION >= 30100)
+    (CRYPTOPP_GCC_VERSION >= 40100) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30100)
 #  define CRYPTOPP_POWER7_AVAILABLE 1
 # endif
 #endif
@@ -406,7 +404,7 @@
 // We need Power8 for in-core crypto and 64-bit vector types
 #if !defined(CRYPTOPP_POWER8_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER8) && defined(CRYPTOPP_POWER7_AVAILABLE)
 # if defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || \
-    (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_CLANG_VERSION >= 70000)
+    (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 70000)
 #  define CRYPTOPP_POWER8_AVAILABLE 1
 # endif
 #endif
@@ -414,14 +412,14 @@
 // Power9 for random numbers
 #if !defined(CRYPTOPP_POWER9_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER9) && defined(CRYPTOPP_POWER8_AVAILABLE)
 # if defined(_ARCH_PWR9) || (CRYPTOPP_XLC_VERSION >= 130200) || \
-    (CRYPTOPP_GCC_VERSION >= 70000) || (CRYPTOPP_CLANG_VERSION >= 80000)
+    (CRYPTOPP_GCC_VERSION >= 70000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 80000)
 #  define CRYPTOPP_POWER9_AVAILABLE 1
 # endif
 #endif
 
 #if !defined(CRYPTOPP_POWER8_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER8_AES) && defined(CRYPTOPP_POWER8_AVAILABLE)
 # if defined(__CRYPTO__) || defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || \
-    (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_CLANG_VERSION >= 70000)
+    (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 70000)
 //#  define CRYPTOPP_POWER8_CRC_AVAILABLE 1
 #  define CRYPTOPP_POWER8_AES_AVAILABLE 1
 #  define CRYPTOPP_POWER8_VMULL_AVAILABLE 1

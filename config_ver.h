@@ -39,9 +39,6 @@
 # define CRYPTOPP_LLVM_CLANG_VERSION  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
 #endif
 
-// ARM uses CRYPTOPP_CLANG_VERSION. TODO: fix ARM defines to use Apple and LLVM version info.
-# define CRYPTOPP_CLANG_VERSION  (__clang_major__ * 10000 + __clang_minor__ * 100 + __clang_patchlevel__)
-
 #ifdef _MSC_VER
 # define CRYPTOPP_MSC_VERSION (_MSC_VER)
 #endif
