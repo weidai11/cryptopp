@@ -21,7 +21,7 @@ CP ?= cp
 MV ?= mv
 CHMOD ?= chmod
 MKDIR ?= mkdir -p
-EGREP ?= egrep
+GREP ?= grep
 
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
@@ -30,6 +30,10 @@ IS_IOS ?= 0
 IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
 IS_NEON ?= 0
+
+# Include Cryptogams AES and SHA on Linux, but not iOS. TODO: check Android.
+HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
+IS_LINUX := $(shell echo "$(HOSTX)" | $(GREP) -i -c "Linux")
 
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
 #   Android and embedded users typically don't run this configuration.
@@ -136,8 +140,8 @@ endif
 
 # Wait until CXXFLAGS have been set by setenv scripts.
 
-GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -v -E 'llvm|clang' | $(EGREP) -i -c -E '(gcc|g\+\+)')
-CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(EGREP) -i -c -E 'llvm|clang')
+GCC_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -v -E 'llvm|clang' | $(GREP) -i -c -E '(gcc|g\+\+)')
+CLANG_COMPILER := $(shell $(CXX) --version 2>/dev/null | $(GREP) -i -c -E 'llvm|clang')
 
 HOSTX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null | cut -f 1 -d '-')
 ifeq ($(HOSTX),)
@@ -149,15 +153,15 @@ endif
 # -arch arm64 yields x86_64 instead of aarch64 or arm64.
 
 ifeq ($(CLANG_COMPILER),1)
-  IS_X86 := $(shell echo $(CXXFLAGS) | $(EGREP) -v 64 | $(EGREP) -i -c -E 'i.86')
-  IS_X64 := $(shell echo $(CXXFLAGS) | $(EGREP) -i -c -E 'x86_64|amd64')
-  IS_ARM32 := $(shell echo $(CXXFLAGS) | $(EGREP) -v 64 | $(EGREP) -i -c -E 'arm|armhf|arm7l|eabihf')
-  IS_ARMV8 := $(shell echo $(CXXFLAGS) | $(EGREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
+  IS_X86 := $(shell echo $(CXXFLAGS) | $(GREP) -v 64 | $(GREP) -i -c -E 'i.86')
+  IS_X64 := $(shell echo $(CXXFLAGS) | $(GREP) -i -c -E 'x86_64|amd64')
+  IS_ARM32 := $(shell echo $(CXXFLAGS) | $(GREP) -v 64 | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
+  IS_ARMV8 := $(shell echo $(CXXFLAGS) | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 else
-  IS_X86 := $(shell echo $(HOSTX) | $(EGREP) -v 64 | $(EGREP) -i -c -E 'i.86')
-  IS_X64 := $(shell echo $(HOSTX) | $(EGREP) -i -c -E 'x86_64|amd64')
-  IS_ARM32 := $(shell echo $(HOSTX) | $(EGREP) -v 64 | $(EGREP) -i -c -E 'arm|armhf|arm7l|eabihf')
-  IS_ARMV8 := $(shell echo $(HOSTX) | $(EGREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
+  IS_X86 := $(shell echo $(HOSTX) | $(GREP) -v 64 | $(GREP) -i -c -E 'i.86')
+  IS_X64 := $(shell echo $(HOSTX) | $(GREP) -i -c -E 'x86_64|amd64')
+  IS_ARM32 := $(shell echo $(HOSTX) | $(GREP) -v 64 | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
+  IS_ARMV8 := $(shell echo $(HOSTX) | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 endif
 
 $(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
@@ -529,7 +533,7 @@ endif # Asan
 # LD gold linker testing. Triggered by 'LD=ld.gold'.
 ifeq ($(findstring ld.gold,$(LD)),ld.gold)
   ifeq ($(findstring -fuse-ld=gold,$(CXXFLAGS)),)
-    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(EGREP) -i -c "elf")
+    ELF_FORMAT := $(shell file `which ld.gold` 2>&1 | cut -d":" -f 2 | $(GREP) -i -c "elf")
     ifneq ($(ELF_FORMAT),0)
       LDFLAGS += -fuse-ld=gold
     endif # ELF/ELF64
@@ -550,7 +554,7 @@ endif # Valgrind
 # Debug testing on GNU systems. Triggered by -DDEBUG.
 #   Newlib test due to http://sourceware.org/bugzilla/show_bug.cgi?id=20268
 ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
-  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -E pch.cpp 2>&1 | $(EGREP) -i -c "__GLIBCXX__")
+  USING_GLIBCXX := $(shell $(CXX) $(CXXFLAGS) -E pch.cpp 2>&1 | $(GREP) -i -c "__GLIBCXX__")
   ifneq ($(USING_GLIBCXX),0)
     ifeq ($(HAS_NEWLIB),0)
       ifeq ($(findstring -D_GLIBCXX_DEBUG,$(CXXFLAGS)),)
@@ -589,7 +593,8 @@ SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integ
 INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
-ifeq ($(IS_ARM32),1)
+# Limit to Linux. The source files target the GNU assembler.
+ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(CLANG_COMPILER),1)
     CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a -Wa,--noexecstack
     CRYPTOGAMS_ARMV7_THUMB_FLAG = -march=armv7-a -mthumb -Wa,--noexecstack
@@ -613,7 +618,7 @@ TESTOBJS := $(TESTSRCS:.cpp=.o)
 LIBOBJS := $(filter-out $(TESTOBJS),$(OBJS))
 
 # For Shared Objects, Diff, Dist/Zip rules
-LIB_VER := $(shell $(EGREP) "define CRYPTOPP_VERSION" config_ver.h | cut -d" " -f 3)
+LIB_VER := $(shell $(GREP) "define CRYPTOPP_VERSION" config_ver.h | cut -d" " -f 3)
 LIB_MAJOR := $(shell echo $(LIB_VER) | cut -c 1)
 LIB_MINOR := $(shell echo $(LIB_VER) | cut -c 2)
 LIB_PATCH := $(shell echo $(LIB_VER) | cut -c 3)

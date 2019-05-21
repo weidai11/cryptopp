@@ -1055,8 +1055,8 @@ INCL += resource.h
 endif
 
 # Cryptogams AES for ARMv4 and above. We couple to ARMv7.
-# Avoid iOS. It cannot consume the assembly.
-ifeq ($(IS_ARM32),1)
+# Limit to Linux. The source files target the GNU assembler.
+ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(CLANG_COMPILER),1)
     CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a -Wa,--noexecstack
     CRYPTOGAMS_ARMV7_THUMB_FLAG = -march=armv7-a -mthumb -Wa,--noexecstack
