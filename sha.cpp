@@ -72,7 +72,7 @@ extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA1
-extern "C" int sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
+extern "C" void sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
 
 #if CRYPTOPP_ARM_SHA1_AVAILABLE
@@ -84,7 +84,7 @@ extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA256
-extern "C" int sha256_block_data_order(word32* state, const word32 *data, size_t blocks);
+extern "C" void sha256_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
 
 #if CRYPTOPP_ARM_SHA512_AVAILABLE
@@ -97,7 +97,7 @@ extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, 
 #endif
 
 #if CRYPTOGAMS_ARM_SHA512
-extern "C" int sha512_block_data_order(word64* state, const word64 *data, size_t blocks);
+extern "C" void sha512_block_data_order(word64* state, const word64 *data, size_t blocks);
 #endif
 
 // We add extern to export table to sha_simd.cpp, but it
