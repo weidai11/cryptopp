@@ -114,11 +114,10 @@ bool CPU_ProbeARMv7()
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
-# else
-	return false;
 # endif
+#else
 	return false;
-#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
+#endif  // CRYPTOPP_BOOL_ARM32
 }
 
 bool CPU_ProbeNEON()
