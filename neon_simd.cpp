@@ -52,7 +52,7 @@ bool CPU_ProbeARMv7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif CRYPTOPP_BOOL_ARM32
+#elif CRYPTOPP_ARM_NEON_AVAILABLE
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
@@ -118,7 +118,7 @@ bool CPU_ProbeARMv7()
 # endif
 #else
     return false;
-#endif  // CRYPTOPP_BOOL_ARM32
+#endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 }
 
 bool CPU_ProbeNEON()
@@ -127,7 +127,7 @@ bool CPU_ProbeNEON()
     return true;
 #elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif CRYPTOPP_BOOL_ARM32
+#elif CRYPTOPP_ARM_NEON_AVAILABLE
 # if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
     volatile bool result = true;
     __try
