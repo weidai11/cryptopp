@@ -49,12 +49,9 @@ extern "C" {
 
 bool CPU_ProbeARMv7()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
-	return true;
-#elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
+#if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
 	return false;
-#elif (CRYPTOPP_ARM_NEON_AVAILABLE)
-# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+#elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
 	{
@@ -66,7 +63,7 @@ bool CPU_ProbeARMv7()
 		return false;
 	}
 	return result;
-# elif defined(__arm__) && (__ARM_ARCH >= 7)
+#elif defined(__GNUC__) || defined(__clang__)
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
@@ -83,20 +80,39 @@ bool CPU_ProbeARMv7()
 		result = false;
 	else
 	{
+
+#if 0
 		// ARMv7 added movt and movw
 		int a;
 		asm volatile("movw %0,%1 \n"
-					 "movt %0,%1 \n"
-					 : "=r"(a) : "i"(0x1234));
+		             "movt %0,%1 \n"
+		             : "=r"(a) : "i"(0x1234));
+
+00000010 <_Z5test2v>:  // ARM
+  10:   e3010234        movw    r0, #4660       ; 0x1234
+  14:   e3410234        movt    r0, #4660       ; 0x1234
+  18:   e12fff1e        bx      lr
+
+0000001c <_Z5test3v>:  // Thumb
+  1c:   f241 2034       movw    r0, #4660       ; 0x1234
+  20:   f2c1 2034       movt    r0, #4660       ; 0x1234
+  24:   e12fff1e        bx      lr
+#endif
+
+		int a;
+		asm volatile (
+		    ".arm              \n\t"
+		    ".inst 0xe3010234  \n\t"   // movw r0, 0x1234
+		    ".inst 0xe3410234  \n\t"   // movt r0, 0x1234
+		    "mov %0, r0        \n\t"   // mov [a], r0
+		    : "=r" (a) : : "r0");
+
 		result = (a == 0x12341234);
 	}
 
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
-# else
-	return false;
-# endif
 #else
 	return false;
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
