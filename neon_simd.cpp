@@ -123,7 +123,7 @@ bool CPU_ProbeARMv7()
 
 bool CPU_ProbeNEON()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
     return true;
 #elif defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
@@ -132,9 +132,11 @@ bool CPU_ProbeNEON()
     volatile bool result = true;
     __try
     {
-        volatile uint32x4_t x = vdupq_n_u32(1);
-        volatile uint32x4_t y = vshlq_n_u32(x, 4);
-        return (y[0] & y[1] & y[2] & y[3]) == 16;
+        uint32x4_t x = vdupq_n_u32(1);
+        uint32x4_t y = vshlq_n_u32(x, 4);
+
+        word32 z[4]; vst1q_u32(z, y);
+        return (z[0] & z[1] & z[2] & z[3]) == 16;
     }
     __except (EXCEPTION_EXECUTE_HANDLER)
     {
@@ -166,7 +168,9 @@ bool CPU_ProbeNEON()
         // may escape the try block with the SIGILL guard.
         uint32x4_t x = vdupq_n_u32(1);
         uint32x4_t y = vshlq_n_u32(x, 4);
-        return (y[0] & y[1] & y[2] & y[3]) == 16;
+
+        word32 z[4]; vst1q_u32(z, y);
+        return (z[0] & z[1] & z[2] & z[3]) == 16;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
