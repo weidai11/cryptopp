@@ -51,7 +51,8 @@ bool CPU_ProbeARMv7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
 	return false;
-#elif defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
+#elif CRYPTOPP_BOOL_ARM32
+# if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY)
 	volatile bool result = true;
 	__try
 	{
@@ -63,7 +64,7 @@ bool CPU_ProbeARMv7()
 		return false;
 	}
 	return result;
-#elif defined(__GNUC__) || defined(__clang__)
+# elif defined(__GNUC__) || defined(__clang__)
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
@@ -113,7 +114,9 @@ bool CPU_ProbeARMv7()
 	sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
 	signal(SIGILL, oldHandler);
 	return result;
-#else
+# else
+	return false;
+# endif
 	return false;
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 }
