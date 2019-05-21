@@ -225,7 +225,7 @@
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
-// Requires ARMv7 and ACLE 1.0. -march=armv7-a or above must be present
+// Requires ACLE 1.0. -mfpu=neon or above must be present
 // Requires GCC 4.3, Clang 2.8 or Visual Studio 2012
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
