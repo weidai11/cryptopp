@@ -10,8 +10,8 @@ mv cryptlib.h.new cryptlib.h
 sed 's|= 8.3|= 8.2|g' Doxyfile > Doxyfile.new
 mv Doxyfile.new Doxyfile
 
-sed 's|CRYPTOPP_MINOR 3|CRYPTOPP_MINOR 2|g' config.h > config.h.new
-mv config.h.new config.h
+sed 's|CRYPTOPP_MINOR 3|CRYPTOPP_MINOR 2|g' config_ver.h > config_ver.h.new
+mv config_ver.h.new config_ver.h
 
-sed 's|CRYPTOPP_VERSION 830|CRYPTOPP_VERSION 820|g' config.h > config.h.new
-mv config.h.new config.h
+sed 's|CRYPTOPP_VERSION 830|CRYPTOPP_VERSION 820|g' config_ver.h > config_ver.h.new
+mv config_ver.h.new config_ver.h
