@@ -64,10 +64,6 @@
 #  endif
 # endif
 
-# ifndef __ASSEMBLER__
-extern unsigned int CRYPTOGAMS_armcaps;
-# endif
-
 # define ARMV7_NEON      (1<<0)
 
 @ JW, MAY 2019: End defines from taken from arm_arch.h
@@ -138,12 +134,6 @@ K512:
 	WORD64(0x5fcb6fab,0x3ad6faec,	0x6c44198c,0x4a475817)
 .size	K512,.-K512
 #if __ARM_MAX_ARCH__>=7
-.LCRYPTOGAMS_armcap_loc:
-# ifdef	_WIN32
-.word	CRYPTOGAMS_armcaps
-# else
-.word	CRYPTOGAMS_armcaps-.Lsha512_block_data_order
-# endif
 .skip	32-4
 #else
 .skip	32
@@ -154,18 +144,13 @@ K512:
 sha512_block_data_order:
 .Lsha512_block_data_order:
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
+	mov	r12,r3
 	sub	r3,pc,#8		@ sha512_block_data_order
 #else
+	mov	r12,r3
 	adr	r3,.Lsha512_block_data_order
 #endif
 #if __ARM_MAX_ARCH__>=7
-	ldr	r12,.LCRYPTOGAMS_armcap_loc
-# if !defined(_WIN32)
-	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcaps
-# endif
-# if defined(__APPLE__) || defined(_WIN32)
-	ldr	r12,[r12]
-# endif
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
@@ -1874,8 +1859,4 @@ sha512_block_data_order_neon:
 	bne	.Loop_neon
 	bx	lr				@ .word	0xe12fff1e
 .size	sha512_block_data_order_neon,.-sha512_block_data_order_neon
-#endif
-
-#if __ARM_MAX_ARCH__>=7
-.comm	CRYPTOGAMS_armcaps,4,4
 #endif

@@ -64,10 +64,6 @@
 #  endif
 # endif
 
-# ifndef __ASSEMBLER__
-extern unsigned int CRYPTOGAMS_armcaps;
-# endif
-
 # define ARMV7_NEON      (1<<0)
 
 @ JW, MAY 2019: End defines from taken from arm_arch.h
@@ -103,33 +99,20 @@ K256:
 .word	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 .size	K256,.-K256
 .word	0				@ terminator
-#if __ARM_MAX_ARCH__>=7
-.LCRYPTOGAMS_armcap_loc:
-# ifdef	_WIN32
-.word	CRYPTOGAMS_armcaps
-# else
-.word	CRYPTOGAMS_armcaps-.Lsha256_block_data_order
-# endif
-#endif
-.align	5
 
+.align	5
 .globl	sha256_block_data_order
 .type	sha256_block_data_order,%function
 sha256_block_data_order:
 .Lsha256_block_data_order:
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
+	mov	r12,r3
 	sub	r3,pc,#8		@ sha256_block_data_order
 #else
+	mov	r12,r3
 	adr	r3,.Lsha256_block_data_order
 #endif
 #if __ARM_MAX_ARCH__>=7
-	ldr	r12,.LCRYPTOGAMS_armcap_loc
-# if !defined(_WIN32)
-	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcaps
-# endif
-# if defined(__APPLE__) || defined(_WIN32)
-	ldr	r12,[r12]
-# endif
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
@@ -2685,8 +2668,4 @@ sha256_block_data_order_neon:
 
 	ldmia	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,pc}
 .size	sha256_block_data_order_neon,.-sha256_block_data_order_neon
-#endif
-
-#if __ARM_MAX_ARCH__>=7
-.comm	CRYPTOGAMS_armcaps,4,4
 #endif

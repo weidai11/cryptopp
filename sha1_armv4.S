@@ -64,10 +64,6 @@
 #  endif
 # endif
 
-# ifndef __ASSEMBLER__
-extern unsigned int CRYPTOGAMS_armcaps;
-# endif
-
 # define ARMV7_NEON      (1<<0)
 
 @ JW, MAY 2019: End defines from taken from arm_arch.h
@@ -88,15 +84,7 @@ extern unsigned int CRYPTOGAMS_armcaps;
 .align	5
 sha1_block_data_order:
 #if __ARM_MAX_ARCH__>=7
-.Lsha1_block:
-	ldr	r12,.LCRYPTOGAMS_armcap_loc
-# if !defined(_WIN32)
-	adr	r3,.Lsha1_block
-	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcaps
-# endif
-# if defined(__APPLE__) || defined(_WIN32)
-	ldr	r12,[r12]
-# endif
+	mov	r12,r3
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
@@ -557,14 +545,6 @@ sha1_block_data_order:
 .LK_20_39:.word	0x6ed9eba1
 .LK_40_59:.word	0x8f1bbcdc
 .LK_60_79:.word	0xca62c1d6
-#if __ARM_MAX_ARCH__>=7
-.LCRYPTOGAMS_armcap_loc:
-# ifdef	_WIN32
-.word	CRYPTOGAMS_armcaps
-# else
-.word	CRYPTOGAMS_armcaps-.Lsha1_block
-# endif
-#endif
 
 .align	5
 #if __ARM_MAX_ARCH__>=7
@@ -1421,8 +1401,4 @@ sha1_block_data_order_neon:
 	@ vldmia	sp!,{d8-d15}
 	ldmia	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,pc}
 .size	sha1_block_data_order_neon,.-sha1_block_data_order_neon
-#endif
-
-#if __ARM_MAX_ARCH__>=7
-.comm	CRYPTOGAMS_armcaps,4,4
 #endif
