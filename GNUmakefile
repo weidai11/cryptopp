@@ -164,6 +164,11 @@ else
   ZOPT = -O0
 endif
 
+# Fix CXX on Cygwin 1.1.4
+ifeq ($(CXX),gcc)
+CXX := g++
+endif
+
 # On ARM we may compile aes_armv4.S though the CC compiler
 ifeq ($(GCC_COMPILER),1)
   CC=gcc
@@ -190,18 +195,10 @@ ifeq ($(INCLUDEDIR),)
 INCLUDEDIR := $(PREFIX)/include
 endif
 
-# Fix CXX on Cygwin 1.1.4
-ifeq ($(CXX),gcc)
-CXX := g++
-endif
-
 # We honor ARFLAGS, but the "v" option used by default causes a noisy make
 ifeq ($(ARFLAGS),rv)
 ARFLAGS = r
 endif
-
-# Clang integrated assembler will be used with -Wa,-q
-CLANG_INTEGRATED_ASSEMBLER ?= 0
 
 # Original MinGW targets Win2k by default, but lacks proper Win2k support
 # if target Windows version is not specified, use Windows XP instead
