@@ -140,9 +140,9 @@ K512:
 #if __ARM_MAX_ARCH__>=7
 .LCRYPTOGAMS_armcap:
 # ifdef	_WIN32
-.word	CRYPTOGAMS_armcap_P
+.word	CRYPTOGAMS_armcap
 # else
-.word	CRYPTOGAMS_armcap_P-.Lsha512_block_data_order
+.word	CRYPTOGAMS_armcap-.Lsha512_block_data_order
 # endif
 .skip	32-4
 #else
@@ -161,7 +161,7 @@ sha512_block_data_order:
 #if __ARM_MAX_ARCH__>=7
 	ldr	r12,.LCRYPTOGAMS_armcap
 # if !defined(_WIN32)
-	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap_P
+	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap
 # endif
 # if defined(__APPLE__) || defined(_WIN32)
 	ldr	r12,[r12]
@@ -1877,5 +1877,5 @@ sha512_block_data_order_neon:
 #endif
 
 #if __ARM_MAX_ARCH__>=7
-.comm	CRYPTOGAMS_armcap_P,4,4
+.comm	CRYPTOGAMS_armcap,4,4
 #endif
