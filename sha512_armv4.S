@@ -138,7 +138,7 @@ K512:
 	WORD64(0x5fcb6fab,0x3ad6faec,	0x6c44198c,0x4a475817)
 .size	K512,.-K512
 #if __ARM_MAX_ARCH__>=7
-.LCRYPTOGAMS_armcaps:
+.LCRYPTOGAMS_armcap_loc:
 # ifdef	_WIN32
 .word	CRYPTOGAMS_armcaps
 # else
@@ -159,7 +159,7 @@ sha512_block_data_order:
 	adr	r3,.Lsha512_block_data_order
 #endif
 #if __ARM_MAX_ARCH__>=7
-	ldr	r12,.LCRYPTOGAMS_armcaps
+	ldr	r12,.LCRYPTOGAMS_armcap_loc
 # if !defined(_WIN32)
 	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcaps
 # endif

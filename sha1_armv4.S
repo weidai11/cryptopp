@@ -89,7 +89,7 @@ extern unsigned int CRYPTOGAMS_armcaps;
 sha1_block_data_order:
 #if __ARM_MAX_ARCH__>=7
 .Lsha1_block:
-	ldr	r12,.LCRYPTOGAMS_armcaps
+	ldr	r12,.LCRYPTOGAMS_armcap_loc
 # if !defined(_WIN32)
 	adr	r3,.Lsha1_block
 	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcaps
@@ -558,7 +558,7 @@ sha1_block_data_order:
 .LK_40_59:.word	0x8f1bbcdc
 .LK_60_79:.word	0xca62c1d6
 #if __ARM_MAX_ARCH__>=7
-.LCRYPTOGAMS_armcaps:
+.LCRYPTOGAMS_armcap_loc:
 # ifdef	_WIN32
 .word	CRYPTOGAMS_armcaps
 # else
