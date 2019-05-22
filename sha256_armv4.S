@@ -103,7 +103,7 @@ K256:
 .word	0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 .size	K256,.-K256
 .word	0				@ terminator
-#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+#if __ARM_MAX_ARCH__>=7
 .LCRYPTOGAMS_armcap:
 # ifdef	_WIN32
 .word	CRYPTOGAMS_armcap
@@ -122,7 +122,7 @@ sha256_block_data_order:
 #else
 	adr	r3,.Lsha256_block_data_order
 #endif
-#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+#if __ARM_MAX_ARCH__>=7
 	ldr	r12,.LCRYPTOGAMS_armcap
 # if !defined(_WIN32)
 	ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap
@@ -2687,6 +2687,6 @@ sha256_block_data_order_neon:
 .size	sha256_block_data_order_neon,.-sha256_block_data_order_neon
 #endif
 
-#if __ARM_MAX_ARCH__>=7 && !defined(__KERNEL__)
+#if __ARM_MAX_ARCH__>=7
 .comm	CRYPTOGAMS_armcap,4,4
 #endif
