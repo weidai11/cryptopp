@@ -5,7 +5,7 @@
 
 // The Tweet API was added to the Crypto++ library to cross-validate results.
 // We debated over putting it in the Test namespace, but settled for the NaCl
-// namespace to segreate it from other parts of the library.
+// namespace to segregate it from other parts of the library.
 
 /// \file naclite.h
 /// \brief Crypto++ interface to TweetNaCl library (20140917)
