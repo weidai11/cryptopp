@@ -1052,8 +1052,9 @@ ifneq ($(IS_MINGW),0)
 INCL += resource.h
 endif
 
-# Cryptogams AES for ARMv4 and above. We couple to ARMv7.
+# Cryptogams source files. We couple to ARMv7.
 # Limit to Linux. The source files target the GNU assembler.
+# Also see https://www.cryptopp.com/wiki/Cryptogams.
 ifeq ($(IS_ARM32)$(IS_LINUX),11)
   ifeq ($(CLANG_COMPILER),1)
     CRYPTOGAMS_ARMV7_FLAG = -march=armv7-a -Wa,--noexecstack
@@ -1426,7 +1427,7 @@ endif # Dependencies
 
 # Cryptogams ARM asm implementation. AES needs -mthumb for Clang
 aes_armv4.o : aes_armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_THUMB_FLAG) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_THUMB_FLAG) -c) $<
 
 # SSSE3 or NEON available
 aria_simd.o : aria_simd.cpp
@@ -1508,17 +1509,17 @@ rijndael_simd.o : rijndael_simd.cpp
 sha_simd.o : sha_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
-# Cryptogams ARM asm implementation.
+# Cryptogams SHA1 asm implementation.
 sha1_armv4.o : sha1_armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_FLAG) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_FLAG) -c) $<
 
-# Cryptogams ARM asm implementation.
+# Cryptogams SHA256 asm implementation.
 sha256_armv4.o : sha256_armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_FLAG) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_FLAG) -c) $<
 
-# Cryptogams ARM asm implementation.
+# Cryptogams SHA512 asm implementation.
 sha512_armv4.o : sha512_armv4.S
-	$(CC) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_FLAG) -c) $<
+	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_FLAG) -c) $<
 
 sha3_simd.o : sha3_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA3_FLAG) -c) $<
