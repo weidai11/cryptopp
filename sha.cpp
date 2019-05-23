@@ -179,9 +179,7 @@ inline unsigned int CryptogamsArmCaps()
     // CRYPTOGAMS_armcaps, and the Cryptogams modules use our symbol.
     // The Cryptogams code defines ARMV7_NEON as 1<<0, so we need to
     // set the bits accordingly in CRYPTOGAMS_armcaps.
-    *const_cast<volatile unsigned int*>(&CRYPTOGAMS_armcaps) = CryptoPP::HasNEON() ? (1<<0) : 0;
-
-    return CRYPTOGAMS_armcaps;
+    return CryptoPP::HasNEON() ? (1<<0) : 0;
 }
 #endif
 
@@ -313,14 +311,12 @@ void SHA1::Transform(word32 *state, const word32 *data)
 #if CRYPTOGAMS_ARM_SHA1 && 0
     if (HasARMv7())
     {
-        static const unsigned int caps = CryptogamsArmCaps();
-
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
         ByteReverse(dataBuf, data, SHA1::BLOCKSIZE);
-        sha1_block_data_order(state, data, 1, caps);
+        sha1_block_data_order(state, data, 1, CryptogamsArmCaps());
 # else
-        sha1_block_data_order(state, data, 1, caps);
+        sha1_block_data_order(state, data, 1, CryptogamsArmCaps());
 # endif
         return;
     }
@@ -351,8 +347,7 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA1
     if (HasARMv7())
     {
-        const unsigned int caps = CryptogamsArmCaps();
-        sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE, caps);
+        sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE, CryptogamsArmCaps());
         return length & (SHA1::BLOCKSIZE - 1);
     }
 #endif
@@ -861,14 +856,12 @@ void SHA256::Transform(word32 *state, const word32 *data)
 #if CRYPTOGAMS_ARM_SHA256 && 0
     if (HasARMv7())
     {
-        static const unsigned int caps = CryptogamsArmCaps();
-
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
         ByteReverse(dataBuf, data, SHA256::BLOCKSIZE);
-        sha256_block_data_order(state, data, 1, caps);
+        sha256_block_data_order(state, data, 1, CryptogamsArmCaps());
 # else
-        sha256_block_data_order(state, data, 1, caps);
+        sha256_block_data_order(state, data, 1, CryptogamsArmCaps());
 # endif
         return;
     }
@@ -914,8 +907,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        const unsigned int caps = CryptogamsArmCaps();
-        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE, caps);
+        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE, CryptogamsArmCaps());
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
@@ -978,9 +970,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        static const unsigned int caps = CryptogamsArmCaps();
-
-        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE, caps);;
+        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE, CryptogamsArmCaps());;
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
@@ -1343,15 +1333,7 @@ void SHA512::Transform(word64 *state, const word64 *data)
 #if CRYPTOGAMS_ARM_SHA512 && 0
     if (HasARMv7())
     {
-        static const unsigned int caps = CryptogamsArmCaps();
-
-# if defined(CRYPTOPP_LITTLE_ENDIAN)
-        word64 dataBuf[16];
-        ByteReverse(dataBuf, data, SHA512::BLOCKSIZE);
-        sha512_block_data_order(state, dataBuf, 1, caps);
-# else
-        sha512_block_data_order(state, data, 1, caps);
-# endif
+        sha512_block_data_order(state, data, 1, CryptogamsArmCaps());
         return;
     }
 #endif
