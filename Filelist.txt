@@ -601,6 +601,8 @@ TestPrograms/test_x86_avx2.cxx
 TestPrograms/test_x86_avx512.cxx
 TestPrograms/test_x86_clmul.cxx
 TestPrograms/test_x86_cpuid.cxx
+TestPrograms/test_x86_rdrand.cxx
+TestPrograms/test_x86_rdseed.cxx
 TestPrograms/test_x86_sha.cxx
 TestPrograms/test_x86_sse2.cxx
 TestPrograms/test_x86_sse3.cxx
