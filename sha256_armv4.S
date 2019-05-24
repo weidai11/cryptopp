@@ -1,4 +1,4 @@
-@ Copyright 2007-2018 The OpenSSL Project Authors. All Rights Reserved.
+@ Copyright 2007-2019 The OpenSSL Project Authors. All Rights Reserved.
 @
 @ ====================================================================
 @ Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
@@ -76,6 +76,8 @@
 .code	32
 #endif
 
+.extern CRYPTOGAMS_armcap_P
+
 .text
 
 .type	K256,%object
@@ -101,18 +103,26 @@ K256:
 .word	0				@ terminator
 
 .align	5
+
 .globl	sha256_block_data_order
 .type	sha256_block_data_order,%function
 sha256_block_data_order:
 .Lsha256_block_data_order:
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
-	mov	r12,r3
 	sub	r3,pc,#8		@ sha256_block_data_order
 #else
-	mov	r12,r3
 	adr	r3,.Lsha256_block_data_order
 #endif
 #if __ARM_MAX_ARCH__>=7
+	@ldr	r12,.LCRYPTOGAMS_armcap
+	ldr	r12,=CRYPTOGAMS_armcap_P
+# if !defined(_WIN32)
+	@ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap_P
+	ldr	r12,[r12]		@ CRYPTOGAMS_armcap_P
+# endif
+# if defined(__APPLE__) || defined(_WIN32)
+	ldr	r12,[r12]
+# endif
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
@@ -1882,6 +1892,10 @@ sha256_block_data_order:
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
 .size	sha256_block_data_order,.-sha256_block_data_order
+
+@ CRYPTOGAMS_armcap_P
+.ltorg
+
 #if __ARM_MAX_ARCH__>=7
 .arch	armv7-a
 .fpu	neon

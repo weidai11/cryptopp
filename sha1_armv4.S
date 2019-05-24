@@ -1,4 +1,4 @@
-@ Copyright 2007-2018 The OpenSSL Project Authors. All Rights Reserved.
+@ Copyright 2007-2019 The OpenSSL Project Authors. All Rights Reserved.
 @
 @ ====================================================================
 @ Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
@@ -76,6 +76,8 @@
 .code	32
 #endif
 
+.extern CRYPTOGAMS_armcap_P
+
 .text
 
 .globl	sha1_block_data_order
@@ -84,7 +86,17 @@
 .align	5
 sha1_block_data_order:
 #if __ARM_MAX_ARCH__>=7
-	mov	r12,r3
+.Lsha1_block:
+	@ldr	r12,.LCRYPTOGAMS_armcap
+	ldr	r12,=CRYPTOGAMS_armcap_P
+# if !defined(_WIN32)
+	adr	r3,.Lsha1_block
+	@ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap_P
+	ldr	r12,[r12]
+# endif
+# if defined(__APPLE__) || defined(_WIN32)
+	ldr	r12,[r12]
+# endif
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
@@ -539,6 +551,9 @@ sha1_block_data_order:
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
 .size	sha1_block_data_order,.-sha1_block_data_order
+
+@ CRYPTOGAMS_armcap_P
+.ltorg
 
 .align	5
 .LK_00_19:.word	0x5a827999

@@ -9,9 +9,9 @@
 extern "C" {
 #endif
 
-/* Crypto++ modifed sha256_block_data_order to pass caps as a parameter. */
+/* Crypto++ modifed sha512_block_data_order to pass caps as a parameter. */
 /* Also see https://github.com/weidai11/cryptopp/issues/846.             */
-void sha512_block_data_order(void *state, const void *data, size_t blocks, unsigned int caps);
+void sha512_block_data_order(void *state, const void *data, size_t blocks);
 
 /* Cryptogams arm caps */
 #define ARMV7_NEON (1<<0)

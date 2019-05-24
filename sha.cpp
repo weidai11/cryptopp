@@ -59,10 +59,6 @@
 # undef CRYPTOPP_SSE2_ASM_AVAILABLE
 #endif
 
-#if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-unsigned int CRYPTOGAMS_armcaps = 0;
-#endif
-
 NAMESPACE_BEGIN(CryptoPP)
 
 #if CRYPTOPP_SHANI_AVAILABLE
@@ -71,7 +67,7 @@ extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA1
-extern "C" void sha1_block_data_order(word32* state, const word32 *data, size_t blocks, unsigned int caps);
+extern "C" void sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
 
 #if CRYPTOPP_ARM_SHA1_AVAILABLE
@@ -83,7 +79,7 @@ extern void SHA256_HashMultipleBlocks_ARMV8(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA256
-extern "C" void sha256_block_data_order(word32* state, const word32 *data, size_t blocks, unsigned int caps);
+extern "C" void sha256_block_data_order(word32* state, const word32 *data, size_t blocks);
 #endif
 
 #if CRYPTOPP_ARM_SHA512_AVAILABLE
@@ -96,7 +92,7 @@ extern void SHA512_HashMultipleBlocks_POWER8(word64 *state, const word64 *data, 
 #endif
 
 #if CRYPTOGAMS_ARM_SHA512
-extern "C" void sha512_block_data_order(word64* state, const word64 *data, size_t blocks, unsigned int caps);
+extern "C" void sha512_block_data_order(word64* state, const word64 *data, size_t blocks);
 #endif
 
 // We add extern to export table to sha_simd.cpp, but it
@@ -168,22 +164,6 @@ const word32 SHA256_K[64] = {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208,
     0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
 };
-
-ANONYMOUS_NAMESPACE_BEGIN
-
-#if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-inline unsigned int CryptogamsArmCaps()
-{
-    // The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
-    // for capabilities like ARMv7 and NEON. We allocate storage for
-    // CRYPTOGAMS_armcaps, and the Cryptogams modules use our symbol.
-    // The Cryptogams code defines ARMV7_NEON as 1<<0, so we need to
-    // set the bits accordingly in CRYPTOGAMS_armcaps.
-    return CryptoPP::HasNEON() ? (1<<0) : 0;
-}
-#endif
-
-ANONYMOUS_NAMESPACE_END
 
 ////////////////////////////////
 // start of Steve Reid's code //
@@ -314,9 +294,9 @@ void SHA1::Transform(word32 *state, const word32 *data)
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
         ByteReverse(dataBuf, data, SHA1::BLOCKSIZE);
-        sha1_block_data_order(state, data, 1, CryptogamsArmCaps());
+        sha1_block_data_order(state, data, 1);
 # else
-        sha1_block_data_order(state, data, 1, CryptogamsArmCaps());
+        sha1_block_data_order(state, data, 1);
 # endif
         return;
     }
@@ -347,7 +327,7 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA1
     if (HasARMv7())
     {
-        sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE, CryptogamsArmCaps());
+        sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE);
         return length & (SHA1::BLOCKSIZE - 1);
     }
 #endif
@@ -859,9 +839,9 @@ void SHA256::Transform(word32 *state, const word32 *data)
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
         ByteReverse(dataBuf, data, SHA256::BLOCKSIZE);
-        sha256_block_data_order(state, data, 1, CryptogamsArmCaps());
+        sha256_block_data_order(state, data, 1);
 # else
-        sha256_block_data_order(state, data, 1, CryptogamsArmCaps());
+        sha256_block_data_order(state, data, 1);
 # endif
         return;
     }
@@ -907,7 +887,7 @@ size_t SHA256::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE, CryptogamsArmCaps());
+        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
@@ -970,7 +950,7 @@ size_t SHA224::HashMultipleBlocks(const word32 *input, size_t length)
 #if CRYPTOGAMS_ARM_SHA256
     if (HasARMv7())
     {
-        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE, CryptogamsArmCaps());;
+        sha256_block_data_order(m_state, input, length / SHA256::BLOCKSIZE);
         return length & (SHA256::BLOCKSIZE - 1);
     }
 #endif
@@ -1333,7 +1313,13 @@ void SHA512::Transform(word64 *state, const word64 *data)
 #if CRYPTOGAMS_ARM_SHA512 && 0
     if (HasARMv7())
     {
-        sha512_block_data_order(state, data, 1, CryptogamsArmCaps());
+# if (CRYPTOPP_LITTLE_ENDIAN)
+        word64 dataBuf[16];
+        ByteReverse(dataBuf, data, SHA512::BLOCKSIZE);
+        sha512_block_data_order(state, dataBuf, 1);
+# else
+        sha512_block_data_order(state, data, 1);
+# endif
         return;
     }
 #endif

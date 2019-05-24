@@ -1,4 +1,4 @@
-@ Copyright 2007-2018 The OpenSSL Project Authors. All Rights Reserved.
+@ Copyright 2007-2019 The OpenSSL Project Authors. All Rights Reserved.
 @
 @ ====================================================================
 @ Written by Andy Polyakov <appro@openssl.org> for the OpenSSL
@@ -87,6 +87,8 @@
 .code	32
 #endif
 
+.extern CRYPTOGAMS_armcap_P
+
 .text
 
 .type	K512,%object
@@ -133,6 +135,7 @@ K512:
 	WORD64(0x4cc5d4be,0xcb3e42b6,	0x597f299c,0xfc657e2a)
 	WORD64(0x5fcb6fab,0x3ad6faec,	0x6c44198c,0x4a475817)
 .size	K512,.-K512
+
 .skip	32
 
 .globl	sha512_block_data_order
@@ -140,13 +143,20 @@ K512:
 sha512_block_data_order:
 .Lsha512_block_data_order:
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
-	mov	r12,r3
 	sub	r3,pc,#8		@ sha512_block_data_order
 #else
-	mov	r12,r3
 	adr	r3,.Lsha512_block_data_order
 #endif
 #if __ARM_MAX_ARCH__>=7
+	@ldr	r12,.LCRYPTOGAMS_armcap
+	ldr	r12,=CRYPTOGAMS_armcap_P
+# if !defined(_WIN32)
+	@ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap_P
+	ldr	r12,[r12]		@ CRYPTOGAMS_armcap_P
+# endif
+# if defined(__APPLE__) || defined(_WIN32)
+	ldr	r12,[r12]
+# endif
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
@@ -528,6 +538,10 @@ sha512_block_data_order:
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
 .size	sha512_block_data_order,.-sha512_block_data_order
+
+@ CRYPTOGAMS_armcap_P
+.ltorg
+
 #if __ARM_MAX_ARCH__>=7
 .arch	armv7-a
 .fpu	neon
@@ -540,6 +554,7 @@ sha512_block_data_order_neon:
 	dmb	@ errata #451034 on early Cortex A8
 	add	r2,r1,r2,lsl#7	@ len to point at the end of inp
 	adr	r3,K512
+	@VFP_ABI_PUSH
 	vldmia	r0,{d16,d17,d18,d19,d20,d21,d22,d23}		@ load context
 .Loop_neon:
 	vshr.u64	d24,d20,#14	@ 0
@@ -1853,6 +1868,7 @@ sha512_block_data_order_neon:
 	teq	r1,r2
 	sub	r3,#640	@ rewind K512
 	bne	.Loop_neon
+	@VFP_ABI_POP
 	bx	lr				@ .word	0xe12fff1e
 .size	sha512_block_data_order_neon,.-sha512_block_data_order_neon
 #endif
