@@ -1225,10 +1225,12 @@ CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 /// \note The function is not constant time because it stops processing when the carry is 0.
 inline void IncrementCounterByOne(byte *inout, unsigned int size)
 {
+	CRYPTOPP_ASSERT(inout != NULLPTR);
+
 	unsigned int carry=1;
 	while (carry && size != 0)
 	{
-		// On wrap inout[n] equals 0
+		// On carry inout[n] equals 0
 		carry = ! ++inout[size-1];
 		size--;
 	}
@@ -1243,12 +1245,22 @@ inline void IncrementCounterByOne(byte *inout, unsigned int size)
 /// \details The function is close to near-constant time because it operates on all the bytes in the blocks.
 inline void IncrementCounterByOne(byte *output, const byte *input, unsigned int size)
 {
-	CRYPTOPP_ASSERT(output != NULLPTR); CRYPTOPP_ASSERT(input != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
+	CRYPTOPP_ASSERT(output != NULLPTR);
+	CRYPTOPP_ASSERT(input != NULLPTR);
 
-	int i, carry;
-	for (i=int(size-1), carry=1; i>=0 && carry; i--)
-		carry = ((output[i] = input[i]+1) == 0);
-	memcpy_s(output, size, input, size_t(i)+1);
+	unsigned int carry=1;
+	while (carry && size != 0)
+	{
+		// On carry output[n] equals 0
+		carry = ! (output[size-1] = input[size-1] + 1);
+		size--;
+	}
+
+	while (size != 0)
+	{
+		output[size-1] = input[size-1];
+		size--;
+	}
 }
 
 /// \brief Performs a branchless swap of values a and b if condition c is true
