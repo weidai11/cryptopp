@@ -1225,9 +1225,16 @@ CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 /// \note The function is not constant time because it stops processing when the carry is 0.
 inline void IncrementCounterByOne(byte *inout, unsigned int size)
 {
-	CRYPTOPP_ASSERT(inout != NULLPTR); CRYPTOPP_ASSERT(size < INT_MAX);
-	for (int i=int(size-1), carry=1; i>=0 && carry; i--)
-		carry = !++inout[i];
+	unsigned int carry=1;
+	while (carry && size != 0)
+	{
+		// On wrap inout[n] equals 0
+		carry = ! ++inout[size-1];
+		size--;
+	}
+
+	if (carry && size == 0)
+		inout[0]++;
 }
 
 /// \brief Performs an addition with carry on a block of bytes
