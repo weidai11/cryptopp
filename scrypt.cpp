@@ -211,7 +211,7 @@ void Scrypt::ValidateParameters(size_t derivedLen, word64 cost, word64 blockSize
     }
 
     // https://github.com/weidai11/cryptopp/issues/787
-    CRYPTOPP_ASSERT(parallelization <= std::numeric_limits<int>::max());
+    CRYPTOPP_ASSERT(parallelization <= static_cast<word64>(std::numeric_limits<int>::max()));
     if (parallelization > static_cast<word64>(std::numeric_limits<int>::max()))
     {
         std::ostringstream oss;
