@@ -62,11 +62,11 @@ extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
 #endif
 
 #if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-// The Cryptogams code uses a global variable named CRYPTOGAMS_armcaps
+// The Cryptogams code uses a global variable named CRYPTOGAMS_armcap_P
 // for capabilities like ARMv7 and NEON. We allocate storage for
-// CRYPTOGAMS_armcaps, and the Cryptogams modules use our symbol.
-// The Cryptogams code defines ARMV7_NEON as 1<<0, so we need to
-// set the bits accordingly in CRYPTOGAMS_armcaps.
+// CRYPTOGAMS_armcap_P, and the Cryptogams object files use our symbol.
+// The Cryptogams code defines ARMV7_NEON as 1<<0, so we need to set
+// the bits accordingly in CRYPTOGAMS_armcap_P.
 extern "C" unsigned int CRYPTOGAMS_armcap_P;
 unsigned int CRYPTOGAMS_armcap_P = 0;
 #endif
