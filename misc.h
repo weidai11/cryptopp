@@ -1232,9 +1232,6 @@ inline void IncrementCounterByOne(byte *inout, unsigned int size)
 		carry = ! ++inout[size-1];
 		size--;
 	}
-
-	if (carry && size == 0)
-		inout[0]++;
 }
 
 /// \brief Performs an addition with carry on a block of bytes
