@@ -85,21 +85,21 @@
 
 .align	5
 sha1_block_data_order:
+.Lsha1_block_data_order:
+#if __ARM_ARCH__<7 && !defined(__thumb2__)
+	sub	r3,pc,#8		@ sha1_block_data_order
+#else
+	adr	r3,.Lsha1_block_data_order
+#endif
+
 #if __ARM_MAX_ARCH__>=7
-.Lsha1_block:
-	@ldr	r12,.LCRYPTOGAMS_armcap
 	ldr	r12,=CRYPTOGAMS_armcap_P
-# if !defined(_WIN32)
-	adr	r3,.Lsha1_block
-	@ldr	r12,[r3,r12]		@ CRYPTOGAMS_armcap_P
-	ldr	r12,[r12]
-# endif
-# if defined(__APPLE__) || defined(_WIN32)
-	ldr	r12,[r12]
-# endif
+	ldr	r12,[r12]		@ CRYPTOGAMS_armcap_P
+
 	tst	r12,#ARMV7_NEON
 	bne	.LNEON
 #endif
+
 	stmdb	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 	add	r2,r1,r2,lsl#6	@ r2 to point at the end of r1
 	ldmia	r0,{r3,r4,r5,r6,r7}

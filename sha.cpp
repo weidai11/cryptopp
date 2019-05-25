@@ -998,7 +998,7 @@ std::string SHA512_AlgorithmProvider()
     if (HasSSE2())
         return "SSE2";
 #endif
-#if CRYPTOGAMS_ARM_SHA512 && 0
+#if CRYPTOGAMS_ARM_SHA512
     if (HasNEON())
         return "NEON";
     if (HasARMv7())
@@ -1310,7 +1310,7 @@ void SHA512::Transform(word64 *state, const word64 *data)
         return;
     }
 #endif
-#if CRYPTOGAMS_ARM_SHA512 && 0
+#if CRYPTOGAMS_ARM_SHA512
     if (HasARMv7())
     {
 # if (CRYPTOPP_LITTLE_ENDIAN)
