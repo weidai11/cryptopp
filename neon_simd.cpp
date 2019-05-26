@@ -103,12 +103,17 @@ bool CPU_ProbeARMv7()
   24:   e12fff1e        bx      lr
 #endif
 
-        volatile int a;
+        unsigned int a;
         asm volatile (
-            ".arm              \n\t"
+#if defined(__thumb__)
+            ".inst.n 0xf241, 0x2034  \n\t"   // movw r0, 0x1234
+            ".inst.n 0xf2c1, 0x2034  \n\t"   // movt r0, 0x1234
+            "mov %0, r0              \n\t"   // mov [a], r0
+#else
             ".inst 0xe3010234  \n\t"   // movw r0, 0x1234
             ".inst 0xe3410234  \n\t"   // movt r0, 0x1234
             "mov %0, r0        \n\t"   // mov [a], r0
+#endif
             : "=r" (a) : : "r0");
 
         result = (a == 0x12341234);
