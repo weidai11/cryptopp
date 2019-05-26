@@ -79,9 +79,6 @@
 # define WORD64(hi0,lo0,hi1,lo1)	.word	hi0,lo0, hi1,lo1
 #endif
 
-#define VFP_ABI_PUSH   vstmdb  sp!,{d8-d15}
-#define VFP_ABI_POP    vldmia  sp!,{d8-d15}
-
 #if defined(__thumb2__)
 .syntax	unified
 .thumb
@@ -553,7 +550,7 @@ sha512_block_data_order_neon:
 	dmb	@ errata #451034 on early Cortex A8
 	add	r2,r1,r2,lsl#7	@ len to point at the end of inp
 	adr	r3,K512
-	VFP_ABI_PUSH
+	vstmdb  sp!,{d8-d15}
 	vldmia	r0,{d16,d17,d18,d19,d20,d21,d22,d23}		@ load context
 .Loop_neon:
 	vshr.u64	d24,d20,#14	@ 0
@@ -1867,7 +1864,7 @@ sha512_block_data_order_neon:
 	teq	r1,r2
 	sub	r3,#640	@ rewind K512
 	bne	.Loop_neon
-	VFP_ABI_POP
+	vldmia  sp!,{d8-d15}
 	bx	lr				@ .word	0xe12fff1e
 .size	sha512_block_data_order_neon,.-sha512_block_data_order_neon
 #endif
