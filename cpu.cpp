@@ -61,16 +61,6 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
 #endif
 
-#if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-// The Cryptogams code uses a global variable named CRYPTOGAMS_armcap_P
-// for capabilities like ARMv7 and NEON. We allocate storage for
-// CRYPTOGAMS_armcap_P, and the Cryptogams object files use our symbol.
-// The Cryptogams code defines ARMV7_NEON as 1<<0, so we need to set
-// the bits accordingly in CRYPTOGAMS_armcap_P.
-extern "C" unsigned int CRYPTOGAMS_armcap_P;
-unsigned int CRYPTOGAMS_armcap_P = 0;
-#endif
-
 ANONYMOUS_NAMESPACE_BEGIN
 
 #if defined(__APPLE__)
@@ -859,10 +849,6 @@ void DetectArmFeatures()
 	g_hasSHA3 = CPU_QuerySHA3(); // || CPU_ProbeSHA3();
 	g_hasSM3 = CPU_QuerySM3(); // || CPU_ProbeSM3();
 	g_hasSM4 = CPU_QuerySM4(); // || CPU_ProbeSM4();
-
-# if CRYPTOGAMS_ARM_SHA1 || CRYPTOGAMS_ARM_SHA256 || CRYPTOGAMS_ARM_SHA512
-	CRYPTOGAMS_armcap_P = g_hasNEON ? (1<<0) : 0;
-# endif
 
 #if defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.

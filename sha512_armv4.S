@@ -87,8 +87,6 @@
 .code	32
 #endif
 
-.extern CRYPTOGAMS_armcap_P
-
 .text
 
 .type	K512,%object
@@ -138,22 +136,17 @@ K512:
 
 .skip	32
 
+.align	5
 .globl	sha512_block_data_order
 .type	sha512_block_data_order,%function
+
 sha512_block_data_order:
 .Lsha512_block_data_order:
+
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
 	sub	r3,pc,#8		@ sha512_block_data_order
 #else
 	adr	r3,.Lsha512_block_data_order
-#endif
-
-#if __ARM_MAX_ARCH__>=7
-	ldr	r12,=CRYPTOGAMS_armcap_P
-	ldr	r12,[r12]		@ CRYPTOGAMS_armcap_P
-
-	tst	r12,#ARMV7_NEON
-	bne	.LNEON
 #endif
 
 	add	r2,r1,r2,lsl#7	@ len to point at the end of inp
@@ -535,18 +528,16 @@ sha512_block_data_order:
 #endif
 .size	sha512_block_data_order,.-sha512_block_data_order
 
-@ CRYPTOGAMS_armcap_P
-.ltorg
-
 #if __ARM_MAX_ARCH__>=7
 .arch	armv7-a
 .fpu	neon
 
+.align	4
 .globl	sha512_block_data_order_neon
 .type	sha512_block_data_order_neon,%function
-.align	4
+
 sha512_block_data_order_neon:
-.LNEON:
+
 	dmb	@ errata #451034 on early Cortex A8
 	add	r2,r1,r2,lsl#7	@ len to point at the end of inp
 	adr	r3,K512
