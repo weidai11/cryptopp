@@ -63,8 +63,16 @@
 #endif
 
 #if defined(__GNUC__) && defined(__linux__)
-#define CRYPTOPP_BYTESWAP_AVAILABLE
+#define CRYPTOPP_BYTESWAP_AVAILABLE 1
 #include <byteswap.h>
+#endif
+
+#if (defined(__GNUC__) || defined(__clang__)) && (__ARM_ARCH >= 6)
+#define CRYPTOPP_ARM_BYTEREV_AVAILABLE 1
+#endif
+
+#if (defined(__GNUC__) || defined(__clang__)) && (__ARM_ARCH >= 7)
+#define CRYPTOPP_ARM_BITREV_AVAILABLE 1
 #endif
 
 #if defined(__BMI__)
@@ -1984,7 +1992,8 @@ inline unsigned int GetByte(ByteOrder order, T value, unsigned int index)
 
 /// \brief Reverses bytes in a 8-bit value
 /// \param value the 8-bit value to reverse
-/// \note ByteReverse returns the value passed to it since there is nothing to reverse
+/// \note ByteReverse returns the value passed to it since there is nothing to
+///  reverse.
 inline byte ByteReverse(byte value)
 {
 	return value;
@@ -1992,7 +2001,8 @@ inline byte ByteReverse(byte value)
 
 /// \brief Reverses bytes in a 16-bit value
 /// \param value the 16-bit value to reverse
-/// \details ByteReverse calls bswap if available. Otherwise the function performs a 8-bit rotate on the word16
+/// \details ByteReverse calls bswap if available. Otherwise the function
+///  performs a 8-bit rotate on the word16.
 inline word16 ByteReverse(word16 value)
 {
 #if defined(CRYPTOPP_BYTESWAP_AVAILABLE)
@@ -2006,12 +2016,17 @@ inline word16 ByteReverse(word16 value)
 
 /// \brief Reverses bytes in a 32-bit value
 /// \param value the 32-bit value to reverse
-/// \details ByteReverse calls bswap if available. Otherwise the function uses a combination of rotates on the word32
+/// \details ByteReverse calls bswap if available. Otherwise the function uses
+///  a combination of rotates on the word32.
 inline word32 ByteReverse(word32 value)
 {
 #if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE)
 	__asm__ ("bswap %0" : "=r" (value) : "0" (value));
 	return value;
+#elif defined(CRYPTOPP_ARM_BYTEREV_AVAILABLE)
+	word32 rvalue;
+	__asm__ ("rev %0, %1" : "=r" (rvalue) : "r" (value));
+	return rvalue;
 #elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
 	return bswap_32(value);
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
@@ -2030,7 +2045,8 @@ inline word32 ByteReverse(word32 value)
 
 /// \brief Reverses bytes in a 64-bit value
 /// \param value the 64-bit value to reverse
-/// \details ByteReverse calls bswap if available. Otherwise the function uses a combination of rotates on the word64
+/// \details ByteReverse calls bswap if available. Otherwise the function uses
+///  a combination of rotates on the word64.
 inline word64 ByteReverse(word64 value)
 {
 #if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__x86_64__)
@@ -2051,7 +2067,7 @@ inline word64 ByteReverse(word64 value)
 
 /// \brief Reverses bits in a 8-bit value
 /// \param value the 8-bit value to reverse
-/// \details BitReverse performs a combination of shifts on the byte
+/// \details BitReverse performs a combination of shifts on the byte.
 inline byte BitReverse(byte value)
 {
 	value = byte((value & 0xAA) >> 1) | byte((value & 0x55) << 1);
@@ -2061,29 +2077,41 @@ inline byte BitReverse(byte value)
 
 /// \brief Reverses bits in a 16-bit value
 /// \param value the 16-bit value to reverse
-/// \details BitReverse performs a combination of shifts on the word16
+/// \details BitReverse performs a combination of shifts on the word16.
 inline word16 BitReverse(word16 value)
 {
+#if defined(CRYPTOPP_ARM_BITREV_AVAILABLE)
+	word32 rvalue;
+	__asm__ ("rbit %0, %1" : "=r" (rvalue) : "r" (word32(value)));
+	return word16(rvalue >> 16);
+#else
 	value = word16((value & 0xAAAA) >> 1) | word16((value & 0x5555) << 1);
 	value = word16((value & 0xCCCC) >> 2) | word16((value & 0x3333) << 2);
 	value = word16((value & 0xF0F0) >> 4) | word16((value & 0x0F0F) << 4);
 	return ByteReverse(value);
+#endif
 }
 
 /// \brief Reverses bits in a 32-bit value
 /// \param value the 32-bit value to reverse
-/// \details BitReverse performs a combination of shifts on the word32
+/// \details BitReverse performs a combination of shifts on the word32.
 inline word32 BitReverse(word32 value)
 {
+#if defined(CRYPTOPP_ARM_BITREV_AVAILABLE)
+	word32 rvalue;
+	__asm__ ("rbit %0, %1" : "=r" (rvalue) : "r" (value));
+	return rvalue;
+#else
 	value = word32((value & 0xAAAAAAAA) >> 1) | word32((value & 0x55555555) << 1);
 	value = word32((value & 0xCCCCCCCC) >> 2) | word32((value & 0x33333333) << 2);
 	value = word32((value & 0xF0F0F0F0) >> 4) | word32((value & 0x0F0F0F0F) << 4);
 	return ByteReverse(value);
+#endif
 }
 
 /// \brief Reverses bits in a 64-bit value
 /// \param value the 64-bit value to reverse
-/// \details BitReverse performs a combination of shifts on the word64
+/// \details BitReverse performs a combination of shifts on the word64.
 inline word64 BitReverse(word64 value)
 {
 #if CRYPTOPP_BOOL_SLOW_WORD64
@@ -2111,10 +2139,12 @@ inline T BitReverse(T value)
 		return (T)BitReverse((word16)value);
 	else if (sizeof(T) == 4)
 		return (T)BitReverse((word32)value);
+	else if (sizeof(T) == 8)
+		return (T)BitReverse((word64)value);
 	else
 	{
-		CRYPTOPP_ASSERT(sizeof(T) == 8);
-		return (T)BitReverse((word64)value);
+		CRYPTOPP_ASSERT(0);
+		return 0;
 	}
 }
 
