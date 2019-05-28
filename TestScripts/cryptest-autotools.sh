@@ -96,8 +96,8 @@ fi
 
 echo "Running libtoolize"
 if ! "$LIBTOOLIZE" --force --install &>/dev/null; then
-	echo "libtoolize failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	echo "libtoolize failed... skipping."
+	# [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 # Run autoreconf twice on failure. Also see
