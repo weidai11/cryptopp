@@ -2005,7 +2005,11 @@ inline byte ByteReverse(byte value)
 ///  performs a 8-bit rotate on the word16.
 inline word16 ByteReverse(word16 value)
 {
-#if defined(CRYPTOPP_BYTESWAP_AVAILABLE)
+#if defined(CRYPTOPP_ARM_BYTEREV_AVAILABLE)
+	word16 rvalue;
+	__asm__ ("rev16 %0, %1" : "=r" (rvalue) : "r" (value));
+	return rvalue;
+#elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
 	return bswap_16(value);
 #elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_ushort(value);
@@ -2081,10 +2085,12 @@ inline byte BitReverse(byte value)
 inline word16 BitReverse(word16 value)
 {
 #if defined(CRYPTOPP_ARM_BITREV_AVAILABLE)
+	// 4 instructions on ARM.
 	word32 rvalue;
-	__asm__ ("rbit %0, %1" : "=r" (rvalue) : "r" (word32(value)));
+	__asm__ ("rbit %0, %1" : "=r" (rvalue) : "r" (value));
 	return word16(rvalue >> 16);
 #else
+	// 15 instructions on ARM.
 	value = word16((value & 0xAAAA) >> 1) | word16((value & 0x5555) << 1);
 	value = word16((value & 0xCCCC) >> 2) | word16((value & 0x3333) << 2);
 	value = word16((value & 0xF0F0) >> 4) | word16((value & 0x0F0F) << 4);
@@ -2098,10 +2104,12 @@ inline word16 BitReverse(word16 value)
 inline word32 BitReverse(word32 value)
 {
 #if defined(CRYPTOPP_ARM_BITREV_AVAILABLE)
+	// 2 instructions on ARM.
 	word32 rvalue;
 	__asm__ ("rbit %0, %1" : "=r" (rvalue) : "r" (value));
 	return rvalue;
 #else
+	// 19 instructions on ARM.
 	value = word32((value & 0xAAAAAAAA) >> 1) | word32((value & 0x55555555) << 1);
 	value = word32((value & 0xCCCCCCCC) >> 2) | word32((value & 0x33333333) << 2);
 	value = word32((value & 0xF0F0F0F0) >> 4) | word32((value & 0x0F0F0F0F) << 4);
@@ -2144,7 +2152,7 @@ inline T BitReverse(T value)
 	else
 	{
 		CRYPTOPP_ASSERT(0);
-		return 0;
+		return (T)BitReverse((word64)value);
 	}
 }
 
