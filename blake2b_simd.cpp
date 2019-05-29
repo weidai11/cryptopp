@@ -28,7 +28,6 @@
 // https://github.com/weidai11/cryptopp/issues/743
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
 # define CRYPTOPP_DISABLE_ALTIVEC 1
-# undef CRYPTOPP_POWER7_AVAILABLE
 # undef CRYPTOPP_POWER8_AVAILABLE
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
