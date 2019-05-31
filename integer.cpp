@@ -211,6 +211,13 @@ static word AtomicInverseModPower2(word A)
 		#if defined(__SUNPRO_CC) && __SUNPRO_CC < 0x5100
 			// Sun Studio's gcc-style inline assembly is heavily bugged as of version 5.9 Patch 124864-09 2008/12/16, but this one works
 			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulq %3" : "=a"(p0), "=d"(p1) : "a"(a), "r"(b) : "cc");
+		#elif defined(__BMI2__)
+			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulxq %3, %0, %1" : "=r"(p0), "=r"(p1) : "d"(a), "r"(b));
+			#define MulAcc(c, d, a, b)		asm ("mulxq %6, %3, %4; addq %3, %0; adcq %4, %1; adcq $0, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1), "=r"(p0), "=r"(p1) : "d"(a), "r"(b) : "cc");
+			#define Double3Words(c, d)		asm ("addq %0, %0; adcxq %1, %1; adcxq %2, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1) : : "cc");
+			#define Acc2WordsBy1(a, b)		asm ("addq %2, %0; adcxq %3, %1;" : "+r"(a##0), "+r"(a##1) : "r"(b), "r"(W64LIT(0)) : "cc");
+			#define Acc2WordsBy2(a, b)		asm ("addq %2, %0; adcxq %3, %1;" : "+r"(a##0), "+r"(a##1) : "r"(b##0), "r"(b##1) : "cc");
+			#define Acc3WordsBy2(c, d, e)	asm ("addq %5, %0; adcxq %6, %1; adcxq %7, %2;" : "+r"(c), "=r"(e##0), "=r"(e##1) : "1"(d##0), "2"(d##1), "r"(e##0), "r"(e##1), "r"(W64LIT(0)) : "cc");
 		#else
 			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulq %3" : "=a"(p0), "=d"(p1) : "a"(a), "g"(b) : "cc");
 			#define MulAcc(c, d, a, b)		asm ("mulq %6; addq %3, %0; adcq %4, %1; adcq $0, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1), "=a"(p0), "=d"(p1) : "a"(a), "g"(b) : "cc");
