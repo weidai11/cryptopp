@@ -1,3 +1,8 @@
+// zlib.h - originally written and placed in the public domain by Wei Dai
+
+/// \file zlib.h
+/// \brief ZLIB compression and decompression (RFC 1950)
+
 #ifndef CRYPTOPP_ZLIB_H
 #define CRYPTOPP_ZLIB_H
 

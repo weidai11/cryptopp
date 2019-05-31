@@ -1,3 +1,8 @@
+// words.h - originally written and placed in the public domain by Wei Dai
+
+/// \file words.h
+/// \brief Support functions for word operations
+
 #ifndef CRYPTOPP_WORDS_H
 #define CRYPTOPP_WORDS_H
 
