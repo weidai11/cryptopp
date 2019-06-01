@@ -80,12 +80,21 @@
 # include <immintrin.h>
 #endif  // GCC and BMI
 
-// More LLVM bullshit
+// More LLVM bullshit. Apple Clang 6.0 does not define them.
+// Later version of Clang defines them and results in warnings.
 #if defined(__clang__)
-# define _blsr_u32 __blsr_u32
-# define _blsr_u64 __blsr_u64
-# define _tzcnt_u32 __tzcnt_u32
-# define _tzcnt_u64 __tzcnt_u64
+# ifndef _blsr_u32
+#  define _blsr_u32 __blsr_u32
+# endif
+# ifndef _blsr_u64
+#  define _blsr_u64 __blsr_u64
+# endif
+# ifndef _tzcnt_u32
+#  define _tzcnt_u32 __tzcnt_u32
+# endif
+# ifndef _tzcnt_u64
+#  define _tzcnt_u64 __tzcnt_u64
+# endif
 #endif
 
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
