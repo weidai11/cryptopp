@@ -45,6 +45,12 @@
 //  thousands of times during the life of a program. Each load produces a
 //  memory leak and they can add up quickly. If they library is being used in
 //  Java or .Net then Singleton must be avoided at all costs.
+//
+// The code below has a path cut-in for BMI2 using mulx and adcx instructions.
+//  There was a modest speedup of approximately 0.03 ms in Integer operations.
+//  We had to disable BMI2 for the moment because some OS X machines were
+//  advertising BMI/BMI2 support but caused SIGILL's at runtime. Also see
+//  https://github.com/weidai11/cryptopp/issues/850.
 
 #include "pch.h"
 #include "config.h"
@@ -212,7 +218,7 @@ static word AtomicInverseModPower2(word A)
 		#if defined(__SUNPRO_CC) && __SUNPRO_CC < 0x5100
 			// Sun Studio's gcc-style inline assembly is heavily bugged as of version 5.9 Patch 124864-09 2008/12/16, but this one works
 			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulq %3" : "=a"(p0), "=d"(p1) : "a"(a), "r"(b) : "cc");
-		#elif defined(__BMI2__)
+		#elif defined(__BMI2__) && 0
 			#define MultiplyWordsLoHi(p0, p1, a, b)		asm ("mulxq %3, %0, %1" : "=r"(p0), "=r"(p1) : "d"(a), "r"(b));
 			#define MulAcc(c, d, a, b)		asm ("mulxq %6, %3, %4; addq %3, %0; adcxq %4, %1; adcxq %7, %2;" : "+&r"(c), "+&r"(d##0), "+&r"(d##1), "=&r"(p0), "=&r"(p1) : "d"(a), "r"(b), "r"(W64LIT(0)) : "cc");
 			#define Double3Words(c, d)		asm ("addq %0, %0; adcxq %1, %1; adcxq %2, %2;" : "+r"(c), "+r"(d##0), "+r"(d##1) : : "cc");
