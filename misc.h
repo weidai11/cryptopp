@@ -77,7 +77,16 @@
 
 #if defined(__BMI__)
 # include <x86intrin.h>
+# include <immintrin.h>
 #endif  // GCC and BMI
+
+// More LLVM bullshit
+#if defined(__clang__)
+# define _blsr_u32 __blsr_u32
+# define _blsr_u64 __blsr_u64
+# define _tzcnt_u32 __tzcnt_u32
+# define _tzcnt_u64 __tzcnt_u64
+#endif
 
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
