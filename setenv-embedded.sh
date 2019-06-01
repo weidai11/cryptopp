@@ -18,6 +18,7 @@
 # Sanity check
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     echo "Please source this setenv script"
+    exit 0
 fi
 
 # Unset old options
