@@ -67,11 +67,13 @@
 #include <byteswap.h>
 #endif
 
-#if (defined(__GNUC__) || defined(__clang__)) && (__ARM_ARCH >= 6)
+// Apple Clang does not consume the GCC inline assembly as expected
+#if (defined(__GNUC__) && !defined(__clang__)) && (__ARM_ARCH >= 6)
 #define CRYPTOPP_ARM_BYTEREV_AVAILABLE 1
 #endif
 
-#if (defined(__GNUC__) || defined(__clang__)) && (__ARM_ARCH >= 7)
+// Apple Clang does not consume the GCC inline assembly as expected
+#if (defined(__GNUC__) && !defined(__clang__)) && (__ARM_ARCH >= 7)
 #define CRYPTOPP_ARM_BITREV_AVAILABLE 1
 #endif
 
