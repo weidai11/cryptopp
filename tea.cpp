@@ -4,6 +4,13 @@
 #include "tea.h"
 #include "misc.h"
 
+// http://github.com/weidai11/cryptopp/issues/503
+#if defined(__xlC__) || defined(__SUNPRO_CC)
+# define MAYBE_VOLATILE(x) (*const_cast<volatile word32*>(&x))
+#else
+# define MAYBE_VOLATILE(x) (x)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 static const word32 DELTA = 0x9e3779b9;
@@ -26,7 +33,7 @@ void TEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 	Block::Get(inBlock)(y)(z);
 
 	// http://github.com/weidai11/cryptopp/issues/503
-	while (*const_cast<volatile word32*>(&sum) != m_limit)
+	while (MAYBE_VOLATILE(sum) != m_limit)
 	{
 		sum += DELTA;
 		y += ((z << 4) + m_k[0]) ^ (z + sum) ^ ((z >> 5) + m_k[1]);
@@ -42,7 +49,7 @@ void TEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byt
 	Block::Get(inBlock)(y)(z);
 
 	// http://github.com/weidai11/cryptopp/issues/503
-	while (*const_cast<volatile word32*>(&sum) != 0)
+	while (MAYBE_VOLATILE(sum) != 0)
 	{
 		z -= ((y << 4) + m_k[2]) ^ (y + sum) ^ ((y >> 5) + m_k[3]);
 		y -= ((z << 4) + m_k[0]) ^ (z + sum) ^ ((z >> 5) + m_k[1]);
@@ -66,7 +73,7 @@ void XTEA::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Get(inBlock)(y)(z);
 
 	// http://github.com/weidai11/cryptopp/issues/503
-	while (*const_cast<volatile word32*>(&sum) != m_limit)
+	while (MAYBE_VOLATILE(sum) != m_limit)
 	{
 		y += ((z<<4 ^ z>>5) + z) ^ (sum + m_k[sum&3]);
 		sum += DELTA;
@@ -82,7 +89,7 @@ void XTEA::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, by
 	Block::Get(inBlock)(y)(z);
 
 	// http://github.com/weidai11/cryptopp/issues/503
-	while (*const_cast<volatile word32*>(&sum) != 0)
+	while (MAYBE_VOLATILE(sum) != 0)
 	{
 		z -= ((y<<4 ^ y>>5) + y) ^ (sum + m_k[sum>>11 & 3]);
 		sum -= DELTA;
