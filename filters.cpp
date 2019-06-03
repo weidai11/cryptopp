@@ -595,7 +595,7 @@ StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, 
 	m_isSpecial = m_cipher.IsLastBlockSpecial() && m_mandatoryBlockSize > 1;
 	m_reservedBufferSize = STDMAX(2*m_mandatoryBlockSize, m_optimalBufferSize);
 
-	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
+	FilterWithBufferedInput::IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
 }
 
 StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool authenticated)
