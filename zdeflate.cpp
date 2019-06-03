@@ -239,7 +239,7 @@ Deflator::Deflator(BufferedTransformation *attachment, int deflateLevel, int log
 	, m_deflateLevel(-1)
 {
 	InitializeStaticEncoders();
-	IsolatedInitialize(MakeParameters("DeflateLevel", deflateLevel)("Log2WindowSize", log2WindowSize)("DetectUncompressible", detectUncompressible));
+	Deflator::IsolatedInitialize(MakeParameters("DeflateLevel", deflateLevel)("Log2WindowSize", log2WindowSize)("DetectUncompressible", detectUncompressible));
 }
 
 Deflator::Deflator(const NameValuePairs &parameters, BufferedTransformation *attachment)
@@ -247,7 +247,7 @@ Deflator::Deflator(const NameValuePairs &parameters, BufferedTransformation *att
 	, m_deflateLevel(-1)
 {
 	InitializeStaticEncoders();
-	IsolatedInitialize(parameters);
+	Deflator::IsolatedInitialize(parameters);
 }
 
 void Deflator::InitializeStaticEncoders()
