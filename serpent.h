@@ -54,4 +54,4 @@ typedef Serpent::Decryption SerpentDecryption;
 
 NAMESPACE_END
 
-#endif
+#endif  // CRYPTOPP_SERPENT_H

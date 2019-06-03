@@ -1,5 +1,8 @@
 // private header for Serpent and Sosemanuk
 
+#ifndef CRYPTOPP_SERPENTP_H
+#define CRYPTOPP_SERPENTP_H
+
 NAMESPACE_BEGIN(CryptoPP)
 
 // linear transformation
@@ -432,3 +435,5 @@ NAMESPACE_BEGIN(CryptoPP)
 void Serpent_KeySchedule(word32 *k, unsigned int rounds, const byte *userKey, size_t keylen);
 
 NAMESPACE_END
+
+#endif  // CRYPTOPP_SERPENTP_H
