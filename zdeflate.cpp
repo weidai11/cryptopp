@@ -98,11 +98,17 @@ HuffmanEncoder::HuffmanEncoder(const unsigned int *codeBits, unsigned int nCodes
 
 struct HuffmanNode
 {
-	// Coverity finding on uninitialized 'symbol' member
 	HuffmanNode()
 		: symbol(0), parent(0) {}
 	HuffmanNode(const HuffmanNode& rhs)
 		: symbol(rhs.symbol), parent(rhs.parent) {}
+	HuffmanNode& operator=(const HuffmanNode& rhs)
+	{
+		// No this guard
+		symbol = rhs.symbol;
+		parent = rhs.parent;
+		return *this;
+	}
 
 	size_t symbol;
 	union {size_t parent; unsigned depth, freq;};
