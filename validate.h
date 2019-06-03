@@ -209,9 +209,15 @@ inline std::string TimeToString(const time_t& t)
 	err = ::asctime_s(timeBuf, sizeof(timeBuf), &localTime);
 	CRYPTOPP_ASSERT(err == 0);
 
-	std::string str(timeBuf);
+	std::string str(err == 0 ? timeBuf : "");
+#elif (_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _BSD_SOURCE || _SVID_SOURCE || _POSIX_SOURCE)
+	tm localTime = {};
+	char timeBuf[64];
+	char* timeString = ::asctime_r(::localtime_r(&t, &localTime), timeBuf);
+	std::string str(timeString ? timeString : "");
 #else
-	std::string str(::asctime(::localtime(&t)));
+	char* timeString = ::asctime(::localtime(&t));
+	std::string str(timeString ? timeString : "");
 #endif
 
 	// Cleanup whitespace
