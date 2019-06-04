@@ -2035,7 +2035,7 @@ public:
 		/// \param channel the channel on which the transfer should occur
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain in the transfer block (i.e., bytes not transferred)
-		/// \details TransferTo() removes bytes from this object and moves them to the destination.
+		/// \details TransferTo2() removes bytes from this object and moves them to the destination.
 		///   Transfer begins at the index position in the current stream, and not from an absolute
 		///   position in the stream.
 		/// \details byteCount is an \a IN and \a OUT parameter. When the call is made,
