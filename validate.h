@@ -210,7 +210,7 @@ inline std::string TimeToString(const time_t& t)
 	CRYPTOPP_ASSERT(err == 0);
 
 	std::string str(err == 0 ? timeBuf : "");
-#elif (_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _BSD_SOURCE || _SVID_SOURCE || _POSIX_SOURCE)
+#elif (_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE >= 1 || _BSD_SOURCE >= 1 || _SVID_SOURCE >= 1 || _POSIX_SOURCE >= 1)
 	tm localTime = {};
 	char timeBuf[64];
 	char* timeString = ::asctime_r(::localtime_r(&t, &localTime), timeBuf);
