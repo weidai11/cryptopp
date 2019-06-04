@@ -258,8 +258,9 @@ public:
 	static const RandomizationParameter DefaultRandomizationParameter;
 
 private:
+	// TODO: Clang on OS X needs a real operator=.
 	// Squash warning on missing assignment operator.
-	ModularArithmetic& operator=(const ModularArithmetic &ma);
+	// ModularArithmetic& operator=(const ModularArithmetic &ma);
 
 protected:
 	Integer m_modulus;
