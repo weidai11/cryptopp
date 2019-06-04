@@ -595,7 +595,9 @@ StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, 
 	m_isSpecial = m_cipher.IsLastBlockSpecial() && m_mandatoryBlockSize > 1;
 	m_reservedBufferSize = STDMAX(2*m_mandatoryBlockSize, m_optimalBufferSize);
 
-	FilterWithBufferedInput::IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
+	FilterWithBufferedInput::IsolatedInitialize(
+		MakeParameters
+			(Name::BlockPaddingScheme(), padding));
 }
 
 StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, BufferedTransformation *attachment, BlockPaddingScheme padding, bool authenticated)
@@ -616,7 +618,9 @@ StreamTransformationFilter::StreamTransformationFilter(StreamTransformation &c, 
 	m_isSpecial = m_cipher.IsLastBlockSpecial() && m_mandatoryBlockSize > 1;
 	m_reservedBufferSize = STDMAX(2*m_mandatoryBlockSize, m_optimalBufferSize);
 
-	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding));
+	FilterWithBufferedInput::IsolatedInitialize(
+		MakeParameters
+			(Name::BlockPaddingScheme(), padding));
 }
 
 size_t StreamTransformationFilter::LastBlockSize(StreamTransformation &c, BlockPaddingScheme padding)
@@ -889,7 +893,10 @@ HashVerificationFilter::HashVerificationFilter(HashTransformation &hm, BufferedT
 	: FilterWithBufferedInput(attachment)
 	, m_hashModule(hm), m_flags(0), m_digestSize(0), m_verified(false)
 {
-	IsolatedInitialize(MakeParameters(Name::HashVerificationFilterFlags(), flags)(Name::TruncatedDigestSize(), truncatedDigestSize));
+	FilterWithBufferedInput::IsolatedInitialize(
+		MakeParameters
+			(Name::HashVerificationFilterFlags(), flags)
+			(Name::TruncatedDigestSize(), truncatedDigestSize));
 }
 
 void HashVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
@@ -994,7 +1001,11 @@ AuthenticatedDecryptionFilter::AuthenticatedDecryptionFilter(AuthenticatedSymmet
 	, m_streamFilter(c, new OutputProxy(*this, false), padding, true)
 {
 	CRYPTOPP_ASSERT(!c.IsForwardTransformation() || c.IsSelfInverting());
-	IsolatedInitialize(MakeParameters(Name::BlockPaddingScheme(), padding)(Name::AuthenticatedDecryptionFilterFlags(), flags)(Name::TruncatedDigestSize(), truncatedDigestSize));
+	FilterWithBufferedInput::IsolatedInitialize(
+		MakeParameters
+			(Name::BlockPaddingScheme(), padding)
+			(Name::AuthenticatedDecryptionFilterFlags(), flags)
+			(Name::TruncatedDigestSize(), truncatedDigestSize));
 }
 
 void AuthenticatedDecryptionFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
@@ -1079,7 +1090,9 @@ SignatureVerificationFilter::SignatureVerificationFilter(const PK_Verifier &veri
 	: FilterWithBufferedInput(attachment)
 	, m_verifier(verifier), m_flags(0), m_verified(0)
 {
-	IsolatedInitialize(MakeParameters(Name::SignatureVerificationFilterFlags(), flags));
+	FilterWithBufferedInput::IsolatedInitialize(
+		MakeParameters
+			(Name::SignatureVerificationFilterFlags(), flags));
 }
 
 void SignatureVerificationFilter::InitializeDerivedAndReturnNewSizes(const NameValuePairs &parameters, size_t &firstSize, size_t &blockSize, size_t &lastSize)
