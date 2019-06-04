@@ -285,11 +285,18 @@ public:
 
 	/// \brief Determine length encoding
 	/// \returns true if the ASN.1 object is definite length encoded, false otherwise
-	bool IsDefiniteLength() const {return m_definiteLength;}
+	bool IsDefiniteLength() const {
+		return m_definiteLength;
+	}
 
 	/// \brief Determine remaining length
 	/// \returns number of octets that remain to be consumed
-	lword RemainingLength() const {return m_length;}
+	/// \details RemainingLength() is only valid if IsDefiniteLength()
+	///  returns true.
+	lword RemainingLength() const {
+		CRYPTOPP_ASSERT(m_definiteLength);
+		return IsDefiniteLength() ? m_length : 0;
+	}
 
 	/// \brief Determine end of stream
 	/// \returns true if all octets have been consumed, false otherwise
