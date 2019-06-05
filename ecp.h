@@ -35,11 +35,15 @@ public:
 	/// \brief Construct an ECP
 	ECP() {}
 
-	/// \brief Copy construct an ECP
+	/// \brief Construct an ECP
 	/// \param ecp the other ECP object
-	/// \param convertToMontgomeryRepresentation flag indicating if the curve should be converted to a MontgomeryRepresentation
+	/// \param convertToMontgomeryRepresentation flag indicating if the curve
+	///  should be converted to a MontgomeryRepresentation.
+	/// \details Prior to Crypto++ 8.3 the default value for
+	///  convertToMontgomeryRepresentation was false. it was changed due to
+	///  two audit tools finding, "Signature-compatible with a copy constructor".
 	/// \sa ModularArithmetic, MontgomeryRepresentation
-	ECP(const ECP &ecp, bool convertToMontgomeryRepresentation = false);
+	ECP(const ECP &ecp, bool convertToMontgomeryRepresentation);
 
 	/// \brief Construct an ECP
 	/// \param modulus the prime modulus
@@ -50,14 +54,22 @@ public:
 
 	/// \brief Construct an ECP from BER encoded parameters
 	/// \param bt BufferedTransformation derived object
-	/// \details This constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
+	/// \details This constructor will decode and extract the the fields
+	///  fieldID and curve of the sequence ECParameters
 	ECP(BufferedTransformation &bt);
 
-	/// \brief Encode the fields fieldID and curve of the sequence ECParameters
+	/// \brief DER Encode
 	/// \param bt BufferedTransformation derived object
+	/// \details DEREncode encode the fields fieldID and curve of the sequence
+	///  ECParameters
 	void DEREncode(BufferedTransformation &bt) const;
 
+	/// \brief Compare two points
+	/// \param P the first point
+	/// \param Q the second point
+	/// \returns true if equal, false otherwise
 	bool Equal(const Point &P, const Point &Q) const;
+
 	const Point& Identity() const;
 	const Point& Inverse(const Point &P) const;
 	bool InversionIsFast() const {return true;}
