@@ -62,18 +62,18 @@
 #include <stdlib.h>
 #endif
 
-#if defined(__GNUC__) && defined(__linux__)
+#if (defined(__GNUC__) || defined(__clang__)) && defined(__linux__)
 #define CRYPTOPP_BYTESWAP_AVAILABLE 1
 #include <byteswap.h>
 #endif
 
-// Apple Clang does not consume the GCC inline assembly as expected
-#if (defined(__GNUC__) && !defined(__clang__)) && (__ARM_ARCH >= 6)
+// Limit to ARM A-32. Aarch64 is failing self tests.
+#if defined(__arm__) && (defined(__GNUC__) || defined(__clang__)) && (__ARM_ARCH >= 6)
 #define CRYPTOPP_ARM_BYTEREV_AVAILABLE 1
 #endif
 
-// Apple Clang does not consume the GCC inline assembly as expected
-#if (defined(__GNUC__) && !defined(__clang__)) && (__ARM_ARCH >= 7)
+// Limit to ARM A-32. Aarch64 is failing self tests.
+#if defined(__arm__) && (defined(__GNUC__) || defined(__clang__)) && (__ARM_ARCH >= 7)
 #define CRYPTOPP_ARM_BITREV_AVAILABLE 1
 #endif
 
@@ -109,12 +109,12 @@
 ///   defined, then SIZE_T_MAX is tried. If neither __SIZE_MAX__ nor SIZE_T_MAX is
 ///   is defined, the library uses std::numeric_limits<size_t>::max(). The library
 ///   prefers __SIZE_MAX__ because its a constexpr that is optimized well
-///   by all compilers. std::numeric_limits<size_t>::max() is not a constexpr,
+///   by all compilers. std::numeric_limits<size_t>::max() is not always a constexpr,
 ///   and it is not always optimized well.
 #  define SIZE_MAX ...
 #else
 // Its amazing portability problems still plague this simple concept in 2015.
-//   http://stackoverflow.com/questions/30472731/which-c-standard-header-defines-size-max
+// http://stackoverflow.com/questions/30472731/which-c-standard-header-defines-size-max
 // Avoid NOMINMAX macro on Windows. http://support.microsoft.com/en-us/kb/143208
 #ifndef SIZE_MAX
 # if defined(__SIZE_MAX__) && (__SIZE_MAX__ > 0)
@@ -2025,11 +2025,7 @@ inline byte ByteReverse(byte value)
 ///  performs a 8-bit rotate on the word16.
 inline word16 ByteReverse(word16 value)
 {
-#if defined(CRYPTOPP_ARM_BYTEREV_AVAILABLE)
-	word16 rvalue;
-	__asm__ ("rev16 %0, %1" : "=r" (rvalue) : "r" (value));
-	return rvalue;
-#elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
+#if defined(CRYPTOPP_BYTESWAP_AVAILABLE)
 	return bswap_16(value);
 #elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_ushort(value);
@@ -2044,15 +2040,15 @@ inline word16 ByteReverse(word16 value)
 ///  a combination of rotates on the word32.
 inline word32 ByteReverse(word32 value)
 {
-#if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE)
-	__asm__ ("bswap %0" : "=r" (value) : "0" (value));
-	return value;
+#if defined(CRYPTOPP_BYTESWAP_AVAILABLE)
+	return bswap_32(value);
 #elif defined(CRYPTOPP_ARM_BYTEREV_AVAILABLE)
 	word32 rvalue;
 	__asm__ ("rev %0, %1" : "=r" (rvalue) : "r" (value));
 	return rvalue;
-#elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
-	return bswap_32(value);
+#elif defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE)
+	__asm__ ("bswap %0" : "=r" (value) : "0" (value));
+	return value;
 #elif defined(__MWERKS__) && TARGET_CPU_PPC
 	return (word32)__lwbrx(&value,0);
 #elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
@@ -2073,11 +2069,11 @@ inline word32 ByteReverse(word32 value)
 ///  a combination of rotates on the word64.
 inline word64 ByteReverse(word64 value)
 {
-#if defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__x86_64__)
+#if defined(CRYPTOPP_BYTESWAP_AVAILABLE)
+	return bswap_64(value);
+#elif defined(__GNUC__) && defined(CRYPTOPP_X86_ASM_AVAILABLE) && defined(__x86_64__)
 	__asm__ ("bswap %0" : "=r" (value) : "0" (value));
 	return value;
-#elif defined(CRYPTOPP_BYTESWAP_AVAILABLE)
-	return bswap_64(value);
 #elif (_MSC_VER >= 1400) || (defined(_MSC_VER) && !defined(_DLL))
 	return _byteswap_uint64(value);
 #elif CRYPTOPP_BOOL_SLOW_WORD64
