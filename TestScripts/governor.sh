@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 # This scripts queries and modifies CPU scaling frequencies to produce more
-# accurate benchmark results. To move from a low energy state C-state to a
-# higher one, run 'governor.sh performance'. To move back to a low power state
-# run 'governor.sh powersave' or reboot. The script is based on code by
-# Andy Polyakov, http://www.openssl.org/~appro/cryptogams/.
+# accurate benchmark results. To move from a low energy state to a higher
+# one, run 'governor.sh performance'. To move back to a low power state
+# run 'governor.sh powersave' or 'governor.sh ondemand' or reboot. The script
+# is based on code by Andy Polyakov, http://www.openssl.org/~appro/cryptogams/.
 
 # Fixup ancient Bash
 # https://unix.stackexchange.com/q/468579/56041
