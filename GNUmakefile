@@ -860,6 +860,15 @@ ifeq ($(findstring native,$(MAKECMDGOALS)),native)
     NATIVE_OPT = -march=native
   endif # NATIVE_OPT
 
+  # And tune
+  ifeq ($(NATIVE_OPT),)
+    TOPT = -mtune=native
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      NATIVE_OPT = -mtune=native
+    endif # NATIVE_OPT
+  endif
+
   # Try SunCC next
   ifeq ($(NATIVE_OPT),)
     TOPT = -native
