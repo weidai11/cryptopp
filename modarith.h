@@ -54,7 +54,7 @@ public:
 	/// \brief Copy construct a ModularArithmetic
 	/// \param ma other ModularArithmetic
 	ModularArithmetic(const ModularArithmetic &ma)
-		: m_modulus(ma.m_modulus), m_result(static_cast<word>(0), ma.m_modulus.reg.size()) {}
+        : AbstractRing<Integer>(ma), m_modulus(ma.m_modulus), m_result(static_cast<word>(0), ma.m_modulus.reg.size()) {}
 
 	/// \brief Construct a ModularArithmetic
 	/// \param bt BER encoded ModularArithmetic
