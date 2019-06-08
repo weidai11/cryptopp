@@ -358,6 +358,7 @@ square.cpp
 square.h
 squaretb.cpp
 sse_simd.cpp
+sse_simd.h
 stdcpp.h
 strciphr.cpp
 strciphr.h

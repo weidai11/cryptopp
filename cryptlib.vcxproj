@@ -538,6 +538,7 @@
     <ClInclude Include="sosemanuk.h" />
     <ClInclude Include="speck.h" />
     <ClInclude Include="square.h" />
+    <ClInclude Include="sse_simd.h" />
     <ClInclude Include="stdcpp.h" />
     <ClInclude Include="strciphr.h" />
     <ClInclude Include="tea.h" />
