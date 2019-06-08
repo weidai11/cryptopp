@@ -20,6 +20,27 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 
+template <class T>
+inline __m128i load_m128i(T* ptr)
+{
+    return _mm_loadu_si128(
+        reinterpret_cast<__m128i*>(ptr));
+}
+
+template <class T>
+inline __m128i load_m128i(const T* ptr)
+{
+    return _mm_loadu_si128(
+        reinterpret_cast<const __m128i*>(ptr));
+}
+
+template <class T>
+inline void store_m128i(T* ptr, __m128i val)
+{
+    return _mm_storeu_si128(
+        reinterpret_cast<__m128i*>(ptr), val);
+}
+
 // N specifies the nth 128-bit element
 template <unsigned int N, class T>
 inline __m128i load_m128i(T* ptr)
@@ -46,9 +67,31 @@ inline void store_m128i(T* ptr, __m128i val)
     return _mm_storeu_si128(
         reinterpret_cast<__m128i*>(ptr+SCALE*N), val);
 }
+
 #endif
 
 #if (CRYPTOPP_AVX2_AVAILABLE)
+
+template <class T>
+inline __m256i load_m256i(T* ptr)
+{
+    return _mm256_loadu_si256(
+        reinterpret_cast<__m256i*>(ptr));
+}
+
+template <class T>
+inline __m256i load_m256i(const T* ptr)
+{
+    return _mm256_loadu_si256(
+        reinterpret_cast<const __m256i*>(ptr));
+}
+
+template <class T>
+inline void store_m256i(T* ptr, __m256i val)
+{
+    return _mm256_storeu_si256(
+        reinterpret_cast<__m256i*>(ptr), val);
+}
 
 // N specifies the nth 256-bit element
 template <unsigned int N, class T>
