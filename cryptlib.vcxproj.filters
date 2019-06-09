@@ -993,9 +993,6 @@
     <ClInclude Include="square.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sse_simd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdcpp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
