@@ -35,6 +35,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<Integer>;
 ///  <pre>    abcd = group.Add(a, group.Add(b, group.Add(c,d));</pre>
 ///  The following code will produce incorrect results:
 ///  <pre>    abcd = group.Add(group.Add(a,b), group.Add(c,d));</pre>
+/// \details If a ModularArithmetic is copied or assigned the modulus
+///  is copied, but not the internal data members. The internal data
+///  members are undefined after copy or assignment.
 /// \sa <A HREF="https://cryptopp.com/wiki/Integer">Integer</A> on the
 ///  Crypto++ wiki.
 class CRYPTOPP_DLL ModularArithmetic : public AbstractRing<Integer>
@@ -54,7 +57,18 @@ public:
 	/// \brief Copy construct a ModularArithmetic
 	/// \param ma other ModularArithmetic
 	ModularArithmetic(const ModularArithmetic &ma)
-		: m_modulus(ma.m_modulus), m_result(static_cast<word>(0), ma.m_modulus.reg.size()) {}
+		: m_modulus(ma.m_modulus), m_result(static_cast<word>(0), m_modulus.reg.size()) {}
+
+	/// \brief Assign a ModularArithmetic
+	/// \param ma other ModularArithmetic
+	ModularArithmetic& operator=(const ModularArithmetic &ma) {
+		if (this != &ma)
+		{
+			m_modulus = ma.m_modulus;
+			m_result = Integer(static_cast<word>(0), m_modulus.reg.size());
+		}
+		return *this;
+	}
 
 	/// \brief Construct a ModularArithmetic
 	/// \param bt BER encoded ModularArithmetic
