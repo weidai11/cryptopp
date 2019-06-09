@@ -20,43 +20,40 @@ NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 
-template <class T>
-inline __m128i load_m128i(T* ptr)
+template <unsigned int N>
+inline __m128i load_m128i(const byte* ptr)
 {
+    enum { SCALE=sizeof(__m128i)/sizeof(byte) };
     return _mm_loadu_si128(
-        reinterpret_cast<__m128i*>(ptr));
+        const_cast<__m128i*>(  // SunCC workaround
+        reinterpret_cast<const __m128i*>(ptr+SCALE*N)));
 }
 
-template <class T>
-inline __m128i load_m128i(const T* ptr)
+template <unsigned int N>
+inline __m128i load_m128i(const word16* ptr)
 {
+    enum { SCALE=sizeof(__m128i)/sizeof(word16) };
     return _mm_loadu_si128(
-        reinterpret_cast<const __m128i*>(ptr));
+        const_cast<__m128i*>(  // SunCC workaround
+        reinterpret_cast<const __m128i*>(ptr+SCALE*N)));
 }
 
-template <class T>
-inline void store_m128i(T* ptr, __m128i val)
+template <unsigned int N>
+inline __m128i load_m128i(const word32* ptr)
 {
-    return _mm_storeu_si128(
-        reinterpret_cast<__m128i*>(ptr), val);
+    enum { SCALE=sizeof(__m128i)/sizeof(word32) };
+    return _mm_loadu_si128(
+        const_cast<__m128i*>(  // SunCC workaround
+        reinterpret_cast<const __m128i*>(ptr+SCALE*N)));
 }
 
-// N specifies the nth 128-bit element
-template <unsigned int N, class T>
-inline __m128i load_m128i(T* ptr)
+template <unsigned int N>
+inline __m128i load_m128i(const word64* ptr)
 {
-    enum { SCALE=sizeof(__m128i)/sizeof(T) };
+    enum { SCALE=sizeof(__m128i)/sizeof(word64) };
     return _mm_loadu_si128(
-        reinterpret_cast<__m128i*>(ptr+SCALE*N));
-}
-
-// N specifies the nth 128-bit element
-template <unsigned int N, class T>
-inline __m128i load_m128i(const T* ptr)
-{
-    enum { SCALE=sizeof(__m128i)/sizeof(T) };
-    return _mm_loadu_si128(
-        reinterpret_cast<const __m128i*>(ptr+SCALE*N));
+        const_cast<__m128i*>(  // SunCC workaround
+        reinterpret_cast<const __m128i*>(ptr+SCALE*N)));
 }
 
 // N specifies the nth 128-bit element
@@ -72,43 +69,40 @@ inline void store_m128i(T* ptr, __m128i val)
 
 #if (CRYPTOPP_AVX2_AVAILABLE)
 
-template <class T>
-inline __m256i load_m256i(T* ptr)
+template <unsigned int N>
+inline __m256i load_m256i(const byte* ptr)
 {
+    enum { SCALE=sizeof(__m256i)/sizeof(byte) };
     return _mm256_loadu_si256(
-        reinterpret_cast<__m256i*>(ptr));
+        const_cast<__m256i*>(  // SunCC workaround
+        reinterpret_cast<const __m256i*>(ptr+SCALE*N)));
 }
 
-template <class T>
-inline __m256i load_m256i(const T* ptr)
+template <unsigned int N>
+inline __m256i load_m256i(const word16* ptr)
 {
+    enum { SCALE=sizeof(__m256i)/sizeof(word16) };
     return _mm256_loadu_si256(
-        reinterpret_cast<const __m256i*>(ptr));
+        const_cast<__m256i*>(  // SunCC workaround
+        reinterpret_cast<const __m256i*>(ptr+SCALE*N)));
 }
 
-template <class T>
-inline void store_m256i(T* ptr, __m256i val)
+template <unsigned int N>
+inline __m256i load_m256i(const word32* ptr)
 {
-    return _mm256_storeu_si256(
-        reinterpret_cast<__m256i*>(ptr), val);
+    enum { SCALE=sizeof(__m256i)/sizeof(word32) };
+    return _mm256_loadu_si256(
+        const_cast<__m256i*>(  // SunCC workaround
+        reinterpret_cast<const __m256i*>(ptr+SCALE*N)));
 }
 
-// N specifies the nth 256-bit element
-template <unsigned int N, class T>
-inline __m256i load_m256i(T* ptr)
+template <unsigned int N>
+inline __m256i load_m256i(const word64* ptr)
 {
-    enum { SCALE=sizeof(__m256i)/sizeof(T) };
+    enum { SCALE=sizeof(__m256i)/sizeof(word64) };
     return _mm256_loadu_si256(
-        reinterpret_cast<__m256i*>(ptr+SCALE*N));
-}
-
-// N specifies the nth 256-bit element
-template <unsigned int N, class T>
-inline __m256i load_m256i(const T* ptr)
-{
-    enum { SCALE=sizeof(__m256i)/sizeof(T) };
-    return _mm256_loadu_si256(
-        reinterpret_cast<const __m256i*>(ptr+SCALE*N));
+        const_cast<__m256i*>(  // SunCC workaround
+        reinterpret_cast<const __m256i*>(ptr+SCALE*N)));
 }
 
 // N specifies the nth 256-bit element

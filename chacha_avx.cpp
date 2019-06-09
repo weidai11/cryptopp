@@ -30,13 +30,6 @@
 // Squash MS LNK4221 and libtool warnings
 extern const char CHACHA_AVX_FNAME[] = __FILE__;
 
-// Sun Studio 12.4 OK, 12.5 and 12.6 compile error.
-#if (__SUNPRO_CC >= 0x5140) && (__SUNPRO_CC <= 0x5150)
-# define MAYBE_CONST
-#else
-# define MAYBE_CONST const
-#endif
-
 // VS2017 and global optimization bug. TODO, figure out when
 // we can re-enable full optimizations for VS2017. Also see
 // https://github.com/weidai11/cryptopp/issues/649 and
