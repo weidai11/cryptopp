@@ -395,25 +395,25 @@ void EncodedObjectFilter::Put(const byte *inString, size_t length)
 }
 
 BERGeneralDecoder::BERGeneralDecoder(BufferedTransformation &inQueue)
-	: m_inQueue(inQueue), m_finished(false)
+	: m_inQueue(inQueue), m_length(0), m_finished(false)
 {
 	Init(DefaultTag);
 }
 
 BERGeneralDecoder::BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTag)
-	: m_inQueue(inQueue), m_finished(false)
+	: m_inQueue(inQueue), m_length(0), m_finished(false)
 {
 	Init(asnTag);
 }
 
 BERGeneralDecoder::BERGeneralDecoder(BERGeneralDecoder &inQueue)
-	: m_inQueue(inQueue), m_finished(false)
+	: m_inQueue(inQueue), m_length(0), m_finished(false)
 {
 	Init(DefaultTag);
 }
 
 BERGeneralDecoder::BERGeneralDecoder(BERGeneralDecoder &inQueue, byte asnTag)
-	: m_inQueue(inQueue), m_finished(false)
+	: m_inQueue(inQueue), m_length(0), m_finished(false)
 {
 	Init(asnTag);
 }
@@ -514,22 +514,22 @@ lword BERGeneralDecoder::ReduceLength(lword delta)
 }
 
 DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue)
-	: ByteQueue(), m_outQueue(outQueue), m_asnTag(DefaultTag), m_finished(false)
+	: m_outQueue(outQueue), m_asnTag(DefaultTag), m_finished(false)
 {
 }
 
 DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag)
-	: ByteQueue(), m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
+	: m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
 {
 }
 
 DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue)
-	: ByteQueue(), m_outQueue(outQueue), m_asnTag(DefaultTag), m_finished(false)
+	: m_outQueue(outQueue), m_asnTag(DefaultTag), m_finished(false)
 {
 }
 
 DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue, byte asnTag)
-	: ByteQueue(), m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
+	: m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
 {
 }
 

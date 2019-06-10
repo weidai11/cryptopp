@@ -465,36 +465,33 @@ NAMESPACE_BEGIN(CryptoPP)
 void
 GF2NT_233_Multiply_Reduce_CLMUL(const word* pA, const word* pB, word* pC)
 {
-    const __m128i* pAA = reinterpret_cast<const __m128i*>(pA);
-    const __m128i* pBB = reinterpret_cast<const __m128i*>(pB);
-    __m128i a0 = _mm_loadu_si128(pAA+0);
-    __m128i a1 = _mm_loadu_si128(pAA+1);
-    __m128i b0 = _mm_loadu_si128(pBB+0);
-    __m128i b1 = _mm_loadu_si128(pBB+1);
+    enum {S=sizeof(__m128i)/sizeof(word)};
+    __m128i a0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pA+0*S));
+    __m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pA+1*S));
+    __m128i b0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pB+0*S));
+    __m128i b1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pB+1*S));
 
     __m128i c0, c1, c2, c3;
     F2N_Multiply_256x256_CLMUL(c3, c2, c1, c0, a1, a0, b1, b0);
     GF2NT_233_Reduce_CLMUL(c3, c2, c1, c0);
 
-    __m128i* pCC = reinterpret_cast<__m128i*>(pC);
-    _mm_storeu_si128(pCC+0, c0);
-    _mm_storeu_si128(pCC+1, c1);
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(pC+0*S), c0);
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(pC+1*S), c1);
 }
 
 void
 GF2NT_233_Square_Reduce_CLMUL(const word* pA, word* pC)
 {
-    const __m128i* pAA = reinterpret_cast<const __m128i*>(pA);
-    __m128i a0 = _mm_loadu_si128(pAA+0);
-    __m128i a1 = _mm_loadu_si128(pAA+1);
+    enum {S=sizeof(__m128i)/sizeof(word)};
+    __m128i a0 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pA+0*S));
+    __m128i a1 = _mm_loadu_si128(reinterpret_cast<const __m128i*>(pA+1*S));
 
     __m128i c0, c1, c2, c3;
     F2N_Square_256_CLMUL(c3, c2, c1, c0, a1, a0);
     GF2NT_233_Reduce_CLMUL(c3, c2, c1, c0);
 
-    __m128i* pCC = reinterpret_cast<__m128i*>(pC);
-    _mm_storeu_si128(pCC+0, c0);
-    _mm_storeu_si128(pCC+1, c1);
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(pC+0*S), c0);
+    _mm_storeu_si128(reinterpret_cast<__m128i*>(pC+1*S), c1);
 }
 
 #elif (CRYPTOPP_ARM_PMULL_AVAILABLE)

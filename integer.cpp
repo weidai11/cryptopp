@@ -18,13 +18,13 @@
 // For Integer::Zero(), Integer::One() and Integer::Two(), we use one of three
 //  strategies. First, if initialization priorities are available then we use
 //  them. Initialization priorities are init_priority() on Linux and init_seg()
-//  on Windows. AIX, OS X and several other platforms lack them. Initialization
+//  on Windows. OS X and several other platforms lack them. Initialization
 //  priorities are platform specific but they are also the most trouble free
 //  with determisitic destruction.
 // Second, if C++11 dynamic initialization is available, then we use it. After
-//  the std::call_once fiasco we dropped the priority dynamic initialization
-//  to avoid unknown troubles platforms that are tested less frequently. In
-//  addition Microsoft platforms mostly do not provide dynamic initialization.
+//  the std::call_once fiasco we moved to dynamic initialization to avoid
+//  unknown troubles platforms that are tested less frequently. In addition
+//  Microsoft platforms mostly do not provide dynamic initialization.
 //  The MSDN docs claim they do but they don't in practice because we need
 //  Visual Studio 2017 and Windows 10 or above.
 // Third, we fall back to Wei's original code of a Singleton. Wei's original
@@ -47,9 +47,9 @@
 //  Java or .Net then Singleton must be avoided at all costs.
 //
 // The code below has a path cut-in for BMI2 using mulx and adcx instructions.
-//  There was a modest speedup of approximately 0.03 ms in Integer operations.
-//  We had to disable BMI2 for the moment because some OS X machines were
-//  advertising BMI/BMI2 support but caused SIGILL's at runtime. Also see
+//  There was a modest speedup of approximately 0.03 ms in public key Integer
+//  operations. We had to disable BMI2 for the moment because some OS X machines
+//  were advertising BMI/BMI2 support but caused SIGILL's at runtime. Also see
 //  https://github.com/weidai11/cryptopp/issues/850.
 
 #include "pch.h"
