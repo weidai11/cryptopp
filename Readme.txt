@@ -208,7 +208,8 @@ library in your programs to help avoid unwanted redirections.
 Crypto++ attempts to resist side channel attacks using various remediations.
 The remdiations are applied as a best effort but are probably incomplete. They
 are incomplete due to cpu speculation bugs like Spectre, Meltdown, Foreshadow.
-Intel generally refers to them as "Microarchitectural Data Sampling" (MDS).
+The attacks target both cpu caches and internal buffers. Intel generally refers
+to internal buffer attacks as "Microarchitectural Data Sampling" (MDS).
 
 The library uses hardware instructions when possible for block ciphers, hashes
 and other operations. The hardware acceleration remediates some timing
@@ -225,7 +226,8 @@ for Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the
 library uses them during testing. If you want the Specter workarounds then add
 the GCC options to your CXXFLAGS when building the library.
 
-If you suspect or find an information leak then please report it.
+To help resist attacks you should disable hyperthreading on cpus. If you
+suspect or find an information leak then please report it.
 
 *** Documentation and Support ***
 
