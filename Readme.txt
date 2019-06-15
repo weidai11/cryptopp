@@ -205,21 +205,25 @@ library in your programs to help avoid unwanted redirections.
 
 *** Side Channel Attacks ***
 
-Crypto++ attempts to resist side channel attacks using various remediations. We
-believe the library is mostly hardened but the remdiations may be incomplete. The
-first line of defense uses hardware instructions when possible for block ciphers,
-hashes and other primitives. Hardware acceleration remediates many timing attacks.
-The library also uses cache-aware algoirthms and access patterns to minimize leakage.
+Crypto++ attempts to resist side channel attacks using various remediations.
+The remdiations are applied as a best effort but are probably incomplete. They
+are incomplete due to cpu speculation bugs like Spectre, Meltdown, Foreshadow.
+Intel generally refers to them as "Microarchitectural Data Sampling" (MDS).
 
-Some of the public key algorithms have branches and some of the branches depend on
-data that can be private or secret. The branching occurs in some field operations
-like exponentiation over integers and elliptic curves. The branching has been
-minimized but not completely eliminated.
+The library uses hardware instructions when possible for block ciphers, hashes
+and other operations. The hardware acceleration remediates some timing
+attacks. The library also uses cache-aware algoirthms and access patterns
+to minimize leakage cache evictions.
 
-Crypto++ does not enagage Specter remediations at this time. The GCC options for
-Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the library
-uses them during testing. If you want the Specter workarounds then add the GCC
-options to your CXXFLAGS when building the library.
+Some of the public key algorithms have branches and some of the branches depend
+on data that can be private or secret. The branching occurs in some field
+operations like exponentiation over integers and elliptic curves. The branching
+has been minimized but not completely eliminated.
+
+Crypto++ does not enagage Specter remediations at this time. The GCC options
+for Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the
+library uses them during testing. If you want the Specter workarounds then add
+the GCC options to your CXXFLAGS when building the library.
 
 If you suspect or find an information leak then please report it.
 
