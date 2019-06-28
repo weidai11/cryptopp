@@ -245,7 +245,11 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte pu
 	// Business logic
 	if (!iterations) { iterations = 1; }
 
+	// DigestSize check due to https://github.com/weidai11/cryptopp/issues/855
 	HMAC<T> hmac(secret, secretLen);
+	if (hmac.DigestSize() == 0)
+		throw InvalidArgument("PKCS5_PBKDF2_HMAC: DigestSize cannot be 0");
+
 	SecByteBlock buffer(hmac.DigestSize());
 	ThreadUserTimer timer;
 
