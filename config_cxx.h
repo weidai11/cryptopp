@@ -97,6 +97,13 @@
 # define CRYPTOPP_CXX11_DYNAMIC_INIT 1
 #endif // Dynamic Initialization compilers
 
+// deleted functions: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; Intel 12.1; SunCC 5.13.
+#if (CRYPTOPP_MSC_VERSION >= 1800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || \
+	(CRYPTOPP_APPLE_CLANG_VERSION >= 40000) || (__INTEL_COMPILER >= 1210) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_GCC_VERSION >= 40300) || (__SUNPRO_CC >= 0x5130)
+# define CRYPTOPP_CXX11_DELETED_FUNCTIONS 1
+#endif // deleted functions
+
 // alignof/alignas: MS at VS2015 (19.00); GCC at 4.8; Clang at 3.0; Intel 15.0; SunCC 5.13.
 #if (CRYPTOPP_MSC_VERSION >= 1900) || __has_feature(cxx_alignas) || \
 	(__INTEL_COMPILER >= 1500) || (CRYPTOPP_GCC_VERSION >= 40800) || (__SUNPRO_CC >= 0x5130)
