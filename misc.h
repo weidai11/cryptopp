@@ -222,16 +222,21 @@ protected:
 
 /// \brief Ensures an object is not copyable
 /// \details NotCopyable ensures an object is not copyable by making the
-///   copy constructor and assignment operator private. Deleters are not
-///   used under C++11.
+///   copy constructor and assignment operator private. Deleters are used
+///   under C++11.
 /// \sa Clonable class
 class NotCopyable
 {
 public:
 	NotCopyable() {}
+#if CRYPTOPP_CXX11_DELETED_FUNCTIONS
+	NotCopyable(const NotCopyable &) = delete;
+	void operator=(const NotCopyable &) = delete;
+#else
 private:
-    NotCopyable(const NotCopyable &);
-    void operator=(const NotCopyable &);
+	NotCopyable(const NotCopyable &);
+	void operator=(const NotCopyable &);
+#endif
 };
 
 /// \brief An object factory function
