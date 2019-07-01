@@ -406,12 +406,6 @@ BERGeneralDecoder::BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTa
 	Init(asnTag);
 }
 
-BERGeneralDecoder::BERGeneralDecoder(BERGeneralDecoder &inQueue)
-	: m_inQueue(inQueue), m_length(0), m_finished(false)
-{
-	Init(DefaultTag);
-}
-
 BERGeneralDecoder::BERGeneralDecoder(BERGeneralDecoder &inQueue, byte asnTag)
 	: m_inQueue(inQueue), m_length(0), m_finished(false)
 {
@@ -520,11 +514,6 @@ DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue)
 
 DERGeneralEncoder::DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag)
 	: m_outQueue(outQueue), m_asnTag(asnTag), m_finished(false)
-{
-}
-
-DERGeneralEncoder::DERGeneralEncoder(DERGeneralEncoder &outQueue)
-	: m_outQueue(outQueue), m_asnTag(DefaultTag), m_finished(false)
 {
 }
 

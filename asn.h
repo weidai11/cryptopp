@@ -255,7 +255,7 @@ private:
 };
 
 /// \brief BER General Decoder
-class CRYPTOPP_DLL BERGeneralDecoder : public Store, NotCopyable
+class CRYPTOPP_DLL BERGeneralDecoder : public Store
 {
 public:
 	/// \brief Default ASN.1 tag
@@ -272,11 +272,6 @@ public:
 	/// \param inQueue input byte queue
 	/// \param asnTag ASN.1 tag
 	explicit BERGeneralDecoder(BufferedTransformation &inQueue, byte asnTag);
-
-	/// \brief Construct an ASN.1 decoder
-	/// \param inQueue input byte queue
-	/// \details BERGeneralDecoder uses DefaultTag
-	explicit BERGeneralDecoder(BERGeneralDecoder &inQueue);
 
 	/// \brief Construct an ASN.1 decoder
 	/// \param inQueue input byte queue
@@ -371,7 +366,7 @@ private:
 };
 
 /// \brief DER General Encoder
-class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue, NotCopyable
+class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
 	/// \brief Default ASN.1 tag
@@ -388,11 +383,6 @@ public:
 	/// \param outQueue output byte queue
 	/// \param asnTag ASN.1 tag
 	explicit DERGeneralEncoder(BufferedTransformation &outQueue, byte asnTag);
-
-	/// \brief Construct an ASN.1 encoder
-	/// \param outQueue output byte queue
-	/// \details DERGeneralEncoder uses DefaultTag
-	explicit DERGeneralEncoder(DERGeneralEncoder &outQueue);
 
 	/// \brief Construct an ASN.1 encoder
 	/// \param outQueue output byte queue
