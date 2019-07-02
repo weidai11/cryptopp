@@ -254,7 +254,7 @@ bool ValidateECP()
 	}
 
 	std::cout << "\nECP validation suite running...\n\n";
-	return ValidateECP_Agreement() && ValidateECP_Encrypt() && ValidateECP_Sign() && pass;
+	return ValidateECP_Agreement() && ValidateECP_Encrypt() && ValidateECP_NULLDigest_Encrypt() && ValidateECP_Sign() && pass;
 }
 
 bool ValidateEC2N()

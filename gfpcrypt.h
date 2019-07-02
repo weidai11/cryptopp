@@ -716,7 +716,7 @@ public:
         if (DHAES_MODE)
         {
             macKey = key;
-            cipherKey = key + MAC::DEFAULT_KEYLENGTH;
+            cipherKey = key + MAC::DIGESTSIZE;
         }
         else
         {
@@ -748,7 +748,7 @@ public:
         if (DHAES_MODE)
         {
             macKey = key;
-            cipherKey = key + MAC::DEFAULT_KEYLENGTH;
+            cipherKey = key + MAC::DIGESTSIZE;
         }
         else
         {

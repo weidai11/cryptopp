@@ -139,6 +139,49 @@ bool ValidateECP_Encrypt()
 	return pass;
 }
 
+class NULLHash : public CryptoPP::IteratedHashWithStaticTransform
+    <CryptoPP::word32, CryptoPP::BigEndian, 32, 0, NULLHash, 0>
+{
+public:
+    static void InitState(HashWordType *state) {}
+    static void Transform(CryptoPP::word32 *digest, const CryptoPP::word32 *data) {}
+    static const char *StaticAlgorithmName() {return "NULL HASH";}
+};
+
+template <class EC, class HASH = SHA1, class COFACTOR_OPTION = NoCofactorMultiplication, bool DHAES_MODE = true, bool LABEL_OCTETS = false>
+struct ECIES_NULLDigest
+	: public DL_ES<
+		DL_Keys_EC<EC>,
+		DL_KeyAgreementAlgorithm_DH<typename EC::Point, COFACTOR_OPTION>,
+		DL_KeyDerivationAlgorithm_P1363<typename EC::Point, DHAES_MODE, P1363_KDF2<HASH> >,
+		DL_EncryptionAlgorithm_Xor<HMAC<NULLHash>, DHAES_MODE, LABEL_OCTETS>,
+		ECIES<EC> >
+{
+	// TODO: fix this after name is standardized
+	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "ECIES NULLDigest";}
+};
+
+bool ValidateECP_NULLDigest_Encrypt()
+{
+	ECIES_NULLDigest<ECP>::Decryptor cpriv(GlobalRNG(), ASN1::secp256k1());
+	ECIES_NULLDigest<ECP>::Encryptor cpub(cpriv);
+	ByteQueue bq;
+	cpriv.GetKey().DEREncode(bq);
+	cpub.AccessKey().AccessGroupParameters().SetEncodeAsOID(true);
+	cpub.GetKey().DEREncode(bq);
+
+	cpub.AccessKey().Precompute();
+	cpriv.AccessKey().Precompute();
+	bool pass = CryptoSystemValidate(cpriv, cpub);
+
+	std::cout << "Turning on point compression..." << std::endl;
+	cpriv.AccessKey().AccessGroupParameters().SetPointCompression(true);
+	cpub.AccessKey().AccessGroupParameters().SetPointCompression(true);
+	pass = CryptoSystemValidate(cpriv, cpub) && pass;
+
+	return pass;
+}
+
 bool ValidateEC2N_Encrypt()
 {
 	// DEREncode() changed to Save() at Issue 569.
