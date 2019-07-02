@@ -27,8 +27,10 @@
 #endif
 
 #if defined(__XOP__)
-# include <immintrin.h>
 # include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
 #endif
 
 // Squash MS LNK4221 and libtool warnings

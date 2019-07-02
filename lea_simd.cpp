@@ -24,6 +24,9 @@
 
 #if defined(__XOP__)
 # include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
 #endif
 
 #if defined(__AVX512F__)

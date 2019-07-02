@@ -46,6 +46,9 @@
 
 #if defined(__XOP__)
 # include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
 #endif
 
 // C1189: error: This header is specific to ARM targets

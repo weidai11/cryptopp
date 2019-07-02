@@ -33,8 +33,10 @@
 #endif
 
 #if defined(__XOP__)
-# include <immintrin.h>
 # include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
 #endif
 
 #if (CRYPTOPP_SSE41_AVAILABLE)

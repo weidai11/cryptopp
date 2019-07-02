@@ -23,8 +23,10 @@
 #endif
 
 #if defined(__XOP__)
-# include <immintrin.h>
 # include <ammintrin.h>
+# if defined(__GNUC__)
+#  include <x86intrin.h>
+# endif
 #endif
 
 #if defined(__AVX512F__)
