@@ -32,6 +32,11 @@
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
+#if defined(__XOP__)
+# include <immintrin.h>
+# include <ammintrin.h>
+#endif
+
 #if (CRYPTOPP_SSE41_AVAILABLE)
 # include <emmintrin.h>
 # include <tmmintrin.h>

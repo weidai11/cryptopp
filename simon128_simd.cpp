@@ -23,6 +23,7 @@
 #endif
 
 #if defined(__XOP__)
+# include <immintrin.h>
 # include <ammintrin.h>
 #endif
 

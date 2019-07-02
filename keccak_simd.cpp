@@ -26,6 +26,11 @@
 # include <tmmintrin.h>
 #endif
 
+#if defined(__XOP__)
+# include <immintrin.h>
+# include <ammintrin.h>
+#endif
+
 // Squash MS LNK4221 and libtool warnings
 extern const char KECCAK_SIMD_FNAME[] = __FILE__;
 
