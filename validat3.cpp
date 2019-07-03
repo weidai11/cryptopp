@@ -193,6 +193,7 @@ bool ValidateAll(bool thorough)
 	pass=ValidateECP() && pass;
 	pass=ValidateEC2N() && pass;
 	pass=ValidateECP_Legacy_Encrypt() && pass;
+	pass=ValidateEC2N_Legacy_Encrypt() && pass;
 	pass=ValidateECDSA() && pass;
 	pass=ValidateECDSA_RFC6979() && pass;
 	pass=ValidateECGDSA(thorough) && pass;
