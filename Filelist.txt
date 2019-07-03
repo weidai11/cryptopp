@@ -437,6 +437,7 @@ TestData/dlie2048.dat
 TestData/dsa1024.dat
 TestData/dsa1024b.dat
 TestData/dsa512.dat
+TestData/ecies_p160.dat
 TestData/ed25519.dat
 TestData/ed25519_ver.dat
 TestData/ed25519v0.dat

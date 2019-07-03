@@ -372,6 +372,7 @@ bool ValidateECP_Agreement();
 bool ValidateECP_Encrypt();
 bool ValidateECP_Sign();
 
+bool ValidateECP_Legacy_Encrypt();
 bool ValidateECP_NULLDigest_Encrypt();
 
 bool ValidateEC2N();
