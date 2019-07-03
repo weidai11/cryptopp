@@ -148,13 +148,20 @@ bool ValidateECP_Encrypt()
 }
 
 // https://github.com/weidai11/cryptopp/issues/856
-class NULLHash : public CryptoPP::IteratedHashWithStaticTransform
-    <CryptoPP::word32, CryptoPP::BigEndian, 32, 0, NULLHash, 0>
+// Not to be confused with NullHash in trunhash.h.
+class NULL_Hash : public CryptoPP::IteratedHashWithStaticTransform
+    <CryptoPP::word32, CryptoPP::BigEndian, 32, 0, NULL_Hash, 0>
 {
 public:
-    static void InitState(HashWordType *state) {}
-    static void Transform(CryptoPP::word32 *digest, const CryptoPP::word32 *data) {}
-    static const char *StaticAlgorithmName() {return "NULL HASH";}
+    static void InitState(HashWordType *state) {
+        CRYPTOPP_UNUSED(state);
+    }
+    static void Transform(CryptoPP::word32 *digest, const CryptoPP::word32 *data) {
+        CRYPTOPP_UNUSED(digest); CRYPTOPP_UNUSED(data);
+    }
+    static const char *StaticAlgorithmName() {
+        return "NULL_Hash";
+    }
 };
 
 // https://github.com/weidai11/cryptopp/issues/856
@@ -164,7 +171,7 @@ struct ECIES_NULLDigest
 		DL_Keys_EC<EC>,
 		DL_KeyAgreementAlgorithm_DH<typename EC::Point, COFACTOR_OPTION>,
 		DL_KeyDerivationAlgorithm_P1363<typename EC::Point, DHAES_MODE, P1363_KDF2<HASH> >,
-		DL_EncryptionAlgorithm_Xor<HMAC<NULLHash>, DHAES_MODE, LABEL_OCTETS>,
+		DL_EncryptionAlgorithm_Xor<HMAC<NULL_Hash>, DHAES_MODE, LABEL_OCTETS>,
 		ECIES<EC> >
 {
 	// TODO: fix this after name is standardized
