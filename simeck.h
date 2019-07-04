@@ -92,7 +92,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 8.0
@@ -146,7 +146,7 @@ public:
 #endif
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key and block
     ///   sizes are supported.
     /// \since Crypto++ 8.0

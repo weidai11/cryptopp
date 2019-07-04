@@ -60,7 +60,7 @@ public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation.
     /// \since Crypto++ 8.0
     class CRYPTOPP_NO_VTABLE Dec : public Base

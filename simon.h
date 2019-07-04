@@ -126,7 +126,7 @@ public:
 #endif
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \since Crypto++ 6.0
@@ -189,7 +189,7 @@ public:
 #endif
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \since Crypto++ 6.0

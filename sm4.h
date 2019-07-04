@@ -74,7 +74,7 @@ public:
 #endif
     };
 
-    /// \brief Encryption transformation
+    /// \brief Decryption transformation
     /// \details Dec provides implementation for decryption transformation. All key
     ///   sizes are supported.
     /// \details SM4 encryption is accelerated on machines with AES-NI. Decryption is
