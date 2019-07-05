@@ -556,9 +556,9 @@ ifneq ($(filter valgrind,$(MAKECMDGOALS)),)
   CXXFLAGS := $(CXXFLAGS:-g%=-g3)
   CXXFLAGS := $(CXXFLAGS:-O%=-O1)
   CXXFLAGS := $(CXXFLAGS:-xO%=-xO1)
-  ifeq ($(findstring -DCRYPTOPP_VALGRIND,$(CXXFLAGS)),)
-    CXXFLAGS += -DCRYPTOPP_VALGRIND
-  endif # -DCRYPTOPP_VALGRIND
+  ifeq ($(findstring -DCRYPTOPP_COVERAGE,$(CXXFLAGS)),)
+    CXXFLAGS += -DCRYPTOPP_COVERAGE
+  endif # -DCRYPTOPP_COVERAGE
 endif # Valgrind
 
 # Debug testing on GNU systems. Triggered by -DDEBUG.
