@@ -194,11 +194,12 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	CRYPTOPP_UNUSED(blocksRemainingInWord64);
 
 #ifdef __GNUC__
-
+	word32 temp;
 	__asm__ __volatile__
 	(
-	AS1(	push	%%ebx)
-	AS2(	mov		%0, %%ebx)
+	AS2(	mov		%%ebx, %0)
+	// AS1(	push	%%ebx)
+	AS2(	mov		%1, %%ebx)
 	INTEL_NOPREFIX
 #else
 	#if defined(__INTEL_COMPILER)
@@ -417,9 +418,10 @@ VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWord64,
 	AS_POP_IF86(	bp)
 	AS1(	emms)
 #ifdef __GNUC__
-	AS1(	pop		%%ebx)
 	ATT_PREFIX
-		:
+	// AS1(	pop		%%ebx)
+	AS2(	mov	%0, %%ebx)
+		: "=m" (temp)
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data),
 		  "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
 		: "memory", "cc"
