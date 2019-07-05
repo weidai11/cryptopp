@@ -12,6 +12,12 @@
 #include "smartptr.h"
 #include "stdcpp.h"
 
+#include "vmac.h"
+#include "hmac.h"
+#include "ttmac.h"
+#include "cmac.h"
+#include "dmac.h"
+
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(disable: 4355)
 #endif

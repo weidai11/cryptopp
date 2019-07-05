@@ -47,6 +47,8 @@
 #include "cmac.h"
 #include "dmac.h"
 #include "hmac.h"
+#include "vmac.h"
+#include "ttmac.h"
 
 #include "drbg.h"
 
