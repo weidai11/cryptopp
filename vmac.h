@@ -52,10 +52,10 @@ protected:
 		void VHASH_Update_Template(const word64 *data, size_t blockRemainingInWord128);
 	void VHASH_Update(const word64 *data, size_t blocksRemainingInWord128);
 
-	CRYPTOPP_BLOCK_1(polyState, word64, 4*(m_is128+1))
+	CRYPTOPP_BLOCK_1(polyState, word64, (m_is128 ? 8 : 4))
 	CRYPTOPP_BLOCK_2(nhKey, word64, m_L1KeyLength/sizeof(word64) + 2*m_is128)
 	CRYPTOPP_BLOCK_3(data, byte, m_L1KeyLength)
-	CRYPTOPP_BLOCK_4(l3Key, word64, 2*(m_is128+1))
+	CRYPTOPP_BLOCK_4(l3Key, word64, (m_is128 ? 4 : 2))
 	CRYPTOPP_BLOCK_5(nonce, byte, IVSize())
 	CRYPTOPP_BLOCK_6(pad, byte, IVSize())
 	CRYPTOPP_BLOCKS_END(6)
