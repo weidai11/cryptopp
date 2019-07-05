@@ -46,13 +46,14 @@ const word64 mpoly = W64LIT(0x1fffffff1fffffff);  /* Poly key mask     */
 #ifdef __BORLANDC__
 #undef const
 #endif
+
 #if VMAC_BOOL_WORD128
-#ifdef __powerpc__
 // workaround GCC Bug 31690: ICE with const __uint128_t and C++ front-end
-#define m126				((word128(m62)<<64)|m64)
-#else
+# if defined(__powerpc__) && defined (CRYPTOPP_GCC_VERSION) && (CRYPTOPP_GCC_VERSION < 50300)
+#  define m126				((word128(m62)<<64)|m64)
+# else
 const word128 m126 = (word128(m62)<<64)|m64;		 /* 126-bit mask      */
-#endif
+# endif
 #endif
 
 ANONYMOUS_NAMESPACE_END
