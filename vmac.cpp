@@ -204,14 +204,11 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	// GCC that ESP is dirty. The problems with GCC are the reason for the
 	// pushes and pops rather than the original moves.
 #ifdef __GNUC__
-	// word32 temp;
 	__asm__ __volatile__
 	(
-	// AS2(	mov		%%ebx, %0)
-	// AS2(	mov		%1, %%ebx)  // L1KeyLength
 	AS1(	push	%%ebx)
 	AS1(	push	%0)         // L1KeyLength
-	AS1(	pop		%%ebx)
+	AS1(	pop 	%%ebx)
 	INTEL_NOPREFIX
 #else
 	#if defined(__INTEL_COMPILER)
@@ -431,9 +428,8 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS1(	emms)
 #ifdef __GNUC__
 	ATT_PREFIX
-	AS1(	pop		%%ebx)
-	// AS2(	mov	%0, %%ebx)
-		: // "=m" (temp)
+	AS1(	pop 	%%ebx)
+		:
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data),
 		  "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
 		: "esp", "memory", "cc"
