@@ -101,12 +101,12 @@ bool VerifyBufsEqual(const byte *buf, const byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(buf != NULLPTR);
 	CRYPTOPP_ASSERT(mask != NULLPTR);
-	CRYPTOPP_ASSERT(count > 0);
+	// CRYPTOPP_ASSERT(count > 0);
 
 	size_t i=0;
 	byte acc8 = 0;
 
-	if (IsAligned<word32>(buf) && IsAligned<word32>(mask))
+	if (IsAligned<word32>(buf) && IsAligned<word32>(mask) && count)
 	{
 		word32 acc32 = 0;
 		if (!CRYPTOPP_BOOL_SLOW_WORD64 && IsAligned<word64>(buf) && IsAligned<word64>(mask))

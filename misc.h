@@ -936,11 +936,12 @@ CRYPTOPP_DLL void CRYPTOPP_API xorbuf(byte *output, const byte *input, const byt
 /// \param buf1 the first buffer
 /// \param buf2 the second buffer
 /// \param count the size of the buffers, in bytes
-/// \details The function effectively performs an XOR of the elements in two equally sized
-///   buffers and retruns a result based on the XOR operation. The function is near
-///   constant-time because CPU micro-code timings could affect the "constant-ness".
-///   Calling code is responsible for mitigating timing attacks if the buffers are not
-///   equally sized.
+/// \details VerifyBufsEqual performs an XOR of the elements in two equally sized
+///   buffers and retruns a result based on the XOR operation. A count of 0 returns
+///   true because two empty buffers are considered equal.
+/// \details The function is near constant-time because CPU micro-code timings could
+///   affect the "constant-ness". Calling code is responsible for mitigating timing
+///   attacks if the buffers are not equally sized.
 /// \sa ModPowerOf2
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf2, size_t count);
 
