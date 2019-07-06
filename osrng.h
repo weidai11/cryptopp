@@ -14,6 +14,7 @@
 #include "randpool.h"
 #include "smartptr.h"
 #include "fips140.h"
+#include "hkdf.h"
 #include "rng.h"
 #include "aes.h"
 #include "sha.h"
@@ -185,7 +186,9 @@ template <class BLOCK_CIPHER>
 class AutoSeededX917RNG : public RandomNumberGenerator, public NotCopyable
 {
 public:
-	static std::string StaticAlgorithmName() { return std::string("AutoSeededX917RNG(") + BLOCK_CIPHER::StaticAlgorithmName() + std::string(")"); }
+	static std::string StaticAlgorithmName() {
+		return std::string("AutoSeededX917RNG(") + BLOCK_CIPHER::StaticAlgorithmName() + std::string(")");
+	}
 
 	~AutoSeededX917RNG() {}
 
@@ -236,23 +239,31 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(const byte *key, size_t keylength, 
 template <class BLOCK_CIPHER>
 void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, size_t length)
 {
-	SecByteBlock seed(BLOCK_CIPHER::BLOCKSIZE + BLOCK_CIPHER::DEFAULT_KEYLENGTH);
-	const byte *key;
+	enum {BlockSize=BLOCK_CIPHER::BLOCKSIZE};
+	enum {KeyLength=BLOCK_CIPHER::DEFAULT_KEYLENGTH};
+	enum {SeedSize=BlockSize + KeyLength};
+
+	SecByteBlock seed(SeedSize), temp(SeedSize);
+	const byte label[] = "X9.17 key generation";
+	const byte *key=NULLPTR;
+
 	do
 	{
-		OS_GenerateRandomBlock(blocking, seed, seed.size());
-		if (length > 0)
-		{
-			SHA256 hash;
-			hash.Update(seed, seed.size());
-			hash.Update(input, length);
-			hash.TruncatedFinal(seed, UnsignedMin(hash.DigestSize(), seed.size()));
-		}
-		key = seed + BLOCK_CIPHER::BLOCKSIZE;
-	}	// check that seed and key don't have same value
-	while (memcmp(key, seed, STDMIN((unsigned int)BLOCK_CIPHER::BLOCKSIZE, (unsigned int)BLOCK_CIPHER::DEFAULT_KEYLENGTH)) == 0);
+		OS_GenerateRandomBlock(blocking, temp, temp.size());
 
-	Reseed(key, BLOCK_CIPHER::DEFAULT_KEYLENGTH, seed, NULLPTR);
+		HKDF<SHA256> hkdf;
+		hkdf.DeriveKey(
+			seed, seed.size(),  // derived secret
+			temp, temp.size(),  // instance secret
+			input, length,      // user secret
+			label, 20           // unique label
+		);
+
+		key = seed + BlockSize;
+	}	// check that seed and key don't have same value
+	while (memcmp(key, seed, STDMIN((size_t)BlockSize, (size_t)KeyLength)) == 0);
+
+	Reseed(key, KeyLength, seed, NULLPTR);
 }
 
 template <class BLOCK_CIPHER>
