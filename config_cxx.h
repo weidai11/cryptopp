@@ -91,7 +91,8 @@
 // MS at VS2015 with Vista (19.00); GCC at 4.3; LLVM Clang at 2.9; Apple Clang at 4.0; Intel 11.1; SunCC 5.13.
 // Microsoft's implementation only works for Vista and above, so its further
 // limited. http://connect.microsoft.com/VisualStudio/feedback/details/1789709
-#if (CRYPTOPP_MSC_VERSION >= 1900) && ((WINVER >= 0x0600) || (_WIN32_WINNT >= 0x0600)) || \
+#if (__cpp_threadsafe_static_init >= 200806) || \
+	(CRYPTOPP_MSC_VERSION >= 1900) && ((WINVER >= 0x0600) || (_WIN32_WINNT >= 0x0600)) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 20900) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000)  || \
 	(__INTEL_COMPILER >= 1110) || (CRYPTOPP_GCC_VERSION >= 40300) || (__SUNPRO_CC >= 0x5130)
 # define CRYPTOPP_CXX11_DYNAMIC_INIT 1
@@ -129,15 +130,17 @@
 #endif // noexcept compilers
 
 // variadic templates: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; Intel 12.1; SunCC 5.13.
-#if (CRYPTOPP_MSC_VERSION >= 1800) || __has_feature(cxx_variadic_templates) || \
-	(__INTEL_COMPILER >= 1210) || (CRYPTOPP_GCC_VERSION >= 40300) || (__SUNPRO_CC >= 0x5130)
+#if (__cpp_variadic_templates >= 200704) || __has_feature(cxx_variadic_templates) \
+	(CRYPTOPP_MSC_VERSION >= 1800) || (__INTEL_COMPILER >= 1210) || \
+	(CRYPTOPP_GCC_VERSION >= 40300) || (__SUNPRO_CC >= 0x5130)
 # define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
 #endif // variadic templates
 
 // constexpr: MS at VS2015 (19.00); GCC at 4.6; Clang at 3.1; Intel 16.0; SunCC 5.13.
 // Intel has mis-supported the feature since at least ICPC 13.00
-#if (CRYPTOPP_MSC_VERSION >= 1900) || __has_feature(cxx_constexpr) || \
-	(__INTEL_COMPILER >= 1600) || (CRYPTOPP_GCC_VERSION >= 40600) || (__SUNPRO_CC >= 0x5130)
+#if (__cpp_constexpr >= 200704) || __has_feature(cxx_constexpr) || \
+	(CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1600) || \
+	(CRYPTOPP_GCC_VERSION >= 40600) || (__SUNPRO_CC >= 0x5130)
 # define CRYPTOPP_CXX11_CONSTEXPR 1
 #endif // constexpr compilers
 
