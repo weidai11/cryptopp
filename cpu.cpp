@@ -890,24 +890,6 @@ extern bool CPU_ProbeSHA256();
 extern bool CPU_ProbeSHA512();
 extern bool CPU_ProbeDARN();
 
-// Linux define values from 64-Bit ELF V2 ABI Specification.
-// http://openpowerfoundation.org/wp-content/uploads/resources/leabi/content/ch_preface.html
-#ifndef PPC_FEATURE_HAS_ALTIVEC
-# define PPC_FEATURE_HAS_ALTIVEC  0x10000000
-#endif
-#ifndef PPC_FEATURE_ARCH_2_06
-# define PPC_FEATURE_ARCH_2_06    0x00000100
-#endif
-#ifndef PPC_FEATURE2_ARCH_2_07
-# define PPC_FEATURE2_ARCH_2_07   0x80000000
-#endif
-#ifndef PPC_FEATURE2_ARCH_3_00
-# define PPC_FEATURE2_ARCH_3_00   0x00800000
-#endif
-#ifndef PPC_FEATURE2_VEC_CRYPTO
-# define PPC_FEATURE2_VEC_CRYPTO  0x02000000
-#endif
-
 // AIX defines. We used to just call __power_7_andup()
 // and friends but at Power9, too many compilers were
 // missing __power_9_andup(). Instead we switched to
@@ -929,7 +911,7 @@ extern bool CPU_ProbeDARN();
 // was available much earlier for other vendors.
 inline bool CPU_QueryAltivec()
 {
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE_HAS_ALTIVEC)
 	if ((getauxval(AT_HWCAP) & PPC_FEATURE_HAS_ALTIVEC) != 0)
 		return true;
 #elif defined(_AIX)
@@ -946,7 +928,7 @@ inline bool CPU_QueryAltivec()
 inline bool CPU_QueryPower7()
 {
 	// Power7 and ISA 2.06
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE_ARCH_2_06)
 	if ((getauxval(AT_HWCAP) & PPC_FEATURE_ARCH_2_06) != 0)
 		return true;
 #elif defined(_AIX)
@@ -959,7 +941,7 @@ inline bool CPU_QueryPower7()
 inline bool CPU_QueryPower8()
 {
 	// Power8 and ISA 2.07 provide in-core crypto.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_ARCH_2_07)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_2_07) != 0)
 		return true;
 #elif defined(_AIX)
@@ -972,7 +954,7 @@ inline bool CPU_QueryPower8()
 inline bool CPU_QueryPower9()
 {
 	// Power9 and ISA 3.0.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_ARCH_3_00)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_3_00) != 0)
 		return true;
 #elif defined(_AIX)
@@ -986,7 +968,7 @@ inline bool CPU_QueryAES()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_VEC_CRYPTO)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO) != 0)
 		return true;
 #elif defined(_AIX)
@@ -1000,7 +982,7 @@ inline bool CPU_QueryPMULL()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_VEC_CRYPTO)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO) != 0)
 		return true;
 #elif defined(_AIX)
@@ -1014,7 +996,7 @@ inline bool CPU_QuerySHA256()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_VEC_CRYPTO)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO) != 0)
 		return true;
 #elif defined(_AIX)
@@ -1027,7 +1009,7 @@ inline bool CPU_QuerySHA512()
 {
 	// Power8 and ISA 2.07 provide in-core crypto. Glibc
 	// 2.24 or higher is required for PPC_FEATURE2_VEC_CRYPTO.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_VEC_CRYPTO)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_VEC_CRYPTO) != 0)
 		return true;
 #elif defined(_AIX)
@@ -1041,7 +1023,7 @@ inline bool CPU_QuerySHA512()
 inline bool CPU_QueryDARN()
 {
 	// Power9 and ISA 3.0 provide DARN.
-#if defined(__linux__)
+#if defined(__linux__) && defined(PPC_FEATURE2_ARCH_3_00)
 	if ((getauxval(AT_HWCAP2) & PPC_FEATURE2_ARCH_3_00) != 0)
 		return true;
 #elif defined(_AIX)
