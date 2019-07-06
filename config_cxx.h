@@ -130,7 +130,7 @@
 #endif // noexcept compilers
 
 // variadic templates: MS at VS2013 (18.00); GCC at 4.3; Clang at 2.9; Intel 12.1; SunCC 5.13.
-#if (__cpp_variadic_templates >= 200704) || __has_feature(cxx_variadic_templates) \
+#if (__cpp_variadic_templates >= 200704) || __has_feature(cxx_variadic_templates) || \
 	(CRYPTOPP_MSC_VERSION >= 1800) || (__INTEL_COMPILER >= 1210) || \
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__SUNPRO_CC >= 0x5130)
 # define CRYPTOPP_CXX11_VARIADIC_TEMPLATES 1
