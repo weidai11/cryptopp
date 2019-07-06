@@ -41,7 +41,7 @@ bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough)
 	std::cout << (fail ? "FAILED    " : "passed    ");
 	std::cout << "cryptosystem key validation\n";
 
-	const byte *message = (byte *)"test message";
+	const byte message[] = "test message";
 	const int messageLen = 12;
 	SecByteBlock ciphertext(priv.CiphertextLength(messageLen));
 	SecByteBlock plaintext(priv.MaxPlaintextLength(ciphertext.size()));

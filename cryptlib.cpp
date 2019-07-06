@@ -405,8 +405,9 @@ RandomNumberGenerator & NullRNG()
 
 bool HashTransformation::TruncatedVerify(const byte *digest, size_t digestLength)
 {
+	// Allocate at least 1 for calculated to avoid triggering diagnostics
 	ThrowIfInvalidTruncatedSize(digestLength);
-	SecByteBlock calculated(digestLength);
+	SecByteBlock calculated(digestLength ? digestLength : 1);
 	TruncatedFinal(calculated, digestLength);
 	return VerifyBufsEqual(calculated, digest, digestLength);
 }
