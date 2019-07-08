@@ -306,13 +306,16 @@ public:
 		signed long ConvertToLong() const;
 
 		/// \brief Determines the number of bits required to represent the Integer
-		/// \returns number of significant bits = floor(log2(abs(*this))) + 1
+		/// \returns number of significant bits
+		/// \details BitCount is calculated as <tt>floor(log2(abs(*this))) + 1</tt>.
 		unsigned int BitCount() const;
 		/// \brief Determines the number of bytes required to represent the Integer
-		/// \returns number of significant bytes = ceiling(BitCount()/8)
+		/// \returns number of significant bytes
+		/// \details ByteCount is calculated as <tt>ceiling(BitCount()/8)</tt>.
 		unsigned int ByteCount() const;
 		/// \brief Determines the number of words required to represent the Integer
-		/// \returns number of significant words = ceiling(ByteCount()/sizeof(word))
+		/// \returns number of significant words
+		/// \details WordCount is calculated as <tt>ceiling(ByteCount()/sizeof(word))</tt>.
 		unsigned int WordCount() const;
 
 		/// \brief Provides the i-th bit of the Integer
@@ -354,29 +357,48 @@ public:
 	/// \name MANIPULATORS
 	//@{
 		/// \brief Assignment
+		/// \param t the other Integer
+		/// \returns the result of assignment
 		Integer&  operator=(const Integer& t);
-
 		/// \brief Addition Assignment
+		/// \param t the other Integer
+		/// \returns the result of <tt>*this + t</tt>
 		Integer&  operator+=(const Integer& t);
 		/// \brief Subtraction Assignment
+		/// \param t the other Integer
+		/// \returns the result of <tt>*this - t</tt>
 		Integer&  operator-=(const Integer& t);
 		/// \brief Multiplication Assignment
+		/// \param t the other Integer
+		/// \returns the result of <tt>*this * t</tt>
 		/// \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer&  operator*=(const Integer& t)	{return *this = Times(t);}
 		/// \brief Division Assignment
+		/// \param t the other Integer
+		/// \returns the result of <tt>*this / t</tt>
 		Integer&  operator/=(const Integer& t)	{return *this = DividedBy(t);}
 		/// \brief Remainder Assignment
+		/// \param t the other Integer
+		/// \returns the result of <tt>*this % t</tt>
 		/// \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer&  operator%=(const Integer& t)	{return *this = Modulo(t);}
 		/// \brief Division Assignment
+		/// \param t the other word
+		/// \returns the result of <tt>*this / t</tt>
 		Integer&  operator/=(word t)  {return *this = DividedBy(t);}
 		/// \brief Remainder Assignment
+		/// \param t the other word
+		/// \returns the result of <tt>*this % t</tt>
 		/// \sa a_times_b_mod_c() and a_exp_b_mod_c()
 		Integer&  operator%=(word t)  {return *this = Integer(POSITIVE, 0, Modulo(t));}
 
 		/// \brief Left-shift Assignment
+		/// \param n number of bits to shift
+		/// \returns reference to this Integer
 		Integer&  operator<<=(size_t n);
 		/// \brief Right-shift Assignment
+		/// \param n number of bits to shift
+		/// \returns reference to this Integer
 		Integer&  operator>>=(size_t n);
 
 		/// \brief Bitwise AND Assignment
