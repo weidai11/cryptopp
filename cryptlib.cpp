@@ -743,6 +743,12 @@ size_t BufferedTransformation::ChannelPutWord32(const std::string &channel, word
 	return ChannelPut(channel, m_buf, 4, blocking);
 }
 
+size_t BufferedTransformation::ChannelPutWord64(const std::string &channel, word64 value, ByteOrder order, bool blocking)
+{
+	PutWord(false, order, m_buf, value);
+	return ChannelPut(channel, m_buf, 8, blocking);
+}
+
 size_t BufferedTransformation::PutWord16(word16 value, ByteOrder order, bool blocking)
 {
 	return ChannelPutWord16(DEFAULT_CHANNEL, value, order, blocking);
@@ -751,6 +757,11 @@ size_t BufferedTransformation::PutWord16(word16 value, ByteOrder order, bool blo
 size_t BufferedTransformation::PutWord32(word32 value, ByteOrder order, bool blocking)
 {
 	return ChannelPutWord32(DEFAULT_CHANNEL, value, order, blocking);
+}
+
+size_t BufferedTransformation::PutWord64(word64 value, ByteOrder order, bool blocking)
+{
+	return ChannelPutWord64(DEFAULT_CHANNEL, value, order, blocking);
 }
 
 // Issue 340
@@ -765,7 +776,7 @@ size_t BufferedTransformation::PeekWord16(word16 &value, ByteOrder order) const
 	byte buf[2] = {0, 0};
 	size_t len = Peek(buf, 2);
 
-	if (order)
+	if (order == BIG_ENDIAN_ORDER)
 		value = (buf[0] << 8) | buf[1];
 	else
 		value = (buf[1] << 8) | buf[0];
@@ -778,10 +789,27 @@ size_t BufferedTransformation::PeekWord32(word32 &value, ByteOrder order) const
 	byte buf[4] = {0, 0, 0, 0};
 	size_t len = Peek(buf, 4);
 
-	if (order)
+	if (order == BIG_ENDIAN_ORDER)
 		value = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf [3];
 	else
 		value = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf [0];
+
+	return len;
+}
+
+size_t BufferedTransformation::PeekWord64(word64 &value, ByteOrder order) const
+{
+	byte buf[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+	size_t len = Peek(buf, 8);
+
+	if (order == BIG_ENDIAN_ORDER)
+		value = ((word64)buf[0] << 56) | ((word64)buf[1] << 48) | ((word64)buf[2] << 40) |
+		        ((word64)buf[3] << 32) | ((word64)buf[4] << 24) | ((word64)buf[5] << 16) |
+		        ((word64)buf[6] << 8)  |  (word64)buf[7];
+	else
+		value = ((word64)buf[7] << 56) | ((word64)buf[6] << 48) | ((word64)buf[5] << 40) |
+		        ((word64)buf[4] << 32) | ((word64)buf[3] << 24) | ((word64)buf[2] << 16) |
+		        ((word64)buf[1] << 8)  |  (word64)buf[0];
 
 	return len;
 }
@@ -799,6 +827,11 @@ size_t BufferedTransformation::GetWord16(word16 &value, ByteOrder order)
 size_t BufferedTransformation::GetWord32(word32 &value, ByteOrder order)
 {
 	return (size_t)Skip(PeekWord32(value, order));
+}
+
+size_t BufferedTransformation::GetWord64(word64 &value, ByteOrder order)
+{
+	return (size_t)Skip(PeekWord64(value, order));
 }
 
 void BufferedTransformation::Attach(BufferedTransformation *newAttachment)

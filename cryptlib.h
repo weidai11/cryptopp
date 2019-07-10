@@ -1614,8 +1614,8 @@ public:
 		/// \brief Input a byte for processing
 		/// \param inByte the 8-bit byte (octet) to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		///   0 indicates all bytes were processed.
 		/// \details <tt>Put(byte)</tt> calls <tt>Put(byte*, size_t)</tt>.
 		size_t Put(byte inByte, bool blocking=true)
 			{return Put(&inByte, 1, blocking);}
@@ -1624,8 +1624,8 @@ public:
 		/// \param inString the byte buffer to process
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		///   0 indicates all bytes were processed.
 		/// \details Internally, Put() calls Put2().
 		size_t Put(const byte *inString, size_t length, bool blocking=true)
 			{return Put2(inString, length, 0, blocking);}
@@ -1634,17 +1634,25 @@ public:
 		/// \param value the 16-bit value to be processed
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		///   0 indicates all bytes were processed.
 		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// Input a 32-bit word for processing.
 		/// \param value the 32-bit value to be processed.
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		///   0 indicates all bytes were processed.
 		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
+
+		/// Input a 64-bit word for processing.
+		/// \param value the 64-bit value to be processed.
+		/// \param order the ByteOrder of the value to be processed.
+		/// \param blocking specifies whether the object should block when processing input.
+		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		///   0 indicates all bytes were processed.
+		size_t PutWord64(word64 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// \brief Request space which can be written into by the caller
 		/// \param size the requested size of the buffer
@@ -1856,7 +1864,7 @@ public:
 		/// \param peekMax the number of bytes to Peek
 		/// \return the number of bytes read during the call.
 		/// \details Peek does not remove bytes from the object. Use the return value of
-		///     Get() to detect short reads.
+		///     Peek() to detect short reads.
 		virtual size_t Peek(byte *outString, size_t peekMax) const;
 
 		/// \brief Retrieve a 16-bit word
@@ -1870,15 +1878,23 @@ public:
 		/// \param value the 32-bit value to be retrieved
 		/// \param order the ByteOrder of the value to be processed.
 		/// \return the number of bytes consumed during the call.
-		/// \details Use the return value of GetWord16() to detect short reads.
+		/// \details Use the return value of GetWord32() to detect short reads.
 		size_t GetWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER);
+
+		/// \brief Retrieve a 64-bit word
+		/// \param value the 64-bit value to be retrieved
+		/// \param order the ByteOrder of the value to be processed.
+		/// \return the number of bytes consumed during the call.
+		/// \details Use the return value of GetWord64() to detect short reads.
+		/// \since Crypto++ 8.3
+		size_t GetWord64(word64 &value, ByteOrder order=BIG_ENDIAN_ORDER);
 
 		/// \brief Peek a 16-bit word
 		/// \param value the 16-bit value to be retrieved
 		/// \param order the ByteOrder of the value to be processed.
 		/// \return the number of bytes consumed during the call.
 		/// \details Peek does not consume bytes in the stream. Use the return value
-		///    of GetWord16() to detect short reads.
+		///    of PeekWord16() to detect short reads.
 		size_t PeekWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		/// \brief Peek a 32-bit word
@@ -1886,8 +1902,17 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \return the number of bytes consumed during the call.
 		/// \details Peek does not consume bytes in the stream. Use the return value
-		///    of GetWord16() to detect short reads.
+		///    of PeekWord32() to detect short reads.
 		size_t PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
+
+		/// \brief Peek a 64-bit word
+		/// \param value the 64-bit value to be retrieved
+		/// \param order the ByteOrder of the value to be processed.
+		/// \return the number of bytes consumed during the call.
+		/// \details Peek does not consume bytes in the stream. Use the return value
+		///    of PeekWord64() to detect short reads.
+		/// \since Crypto++ 8.3
+		size_t PeekWord64(word64 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		/// move transferMax bytes of the buffered output to target as input
 
@@ -2143,6 +2168,15 @@ public:
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
 		///   number of bytes that were not processed.
 		size_t ChannelPutWord32(const std::string &channel, word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
+
+		/// \brief Input a 64-bit word for processing on a channel.
+		/// \param channel the channel to process the data.
+		/// \param value the 64-bit value to be processed.
+		/// \param order the ByteOrder of the value to be processed.
+		/// \param blocking specifies whether the object should block when processing input.
+		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
+		///   number of bytes that were not processed.
+		size_t ChannelPutWord64(const std::string &channel, word64 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// \brief Signal the end of a message
 		/// \param channel the channel to process the data.
