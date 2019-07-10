@@ -1100,6 +1100,7 @@ CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
 /// \brief Append input to a std::vector<byte> object
 /// \details VectorSink is a typedef for StringSinkTemplate<std::vector<byte> >.
+/// \since Crypto++ 8.0
 DOCUMENTED_TYPEDEF(StringSinkTemplate<std::vector<byte> >, VectorSink)
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::vector<byte> >;
 
