@@ -2306,7 +2306,10 @@ protected:
 		{return propagation != 0 ? propagation - 1 : 0;}
 
 private:
-	byte m_buf[4];	// for ChannelPutWord16 and ChannelPutWord32, to ensure buffer isn't deallocated before non-blocking operation completes
+	// for ChannelPutWord16, ChannelPutWord32 and ChannelPutWord64,
+	// to ensure the buffer isn't deallocated before non-blocking
+	// operation completes
+	byte m_buf[8];
 };
 
 /// \brief An input discarding BufferedTransformation

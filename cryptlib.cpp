@@ -764,22 +764,15 @@ size_t BufferedTransformation::PutWord64(word64 value, ByteOrder order, bool blo
 	return ChannelPutWord64(DEFAULT_CHANNEL, value, order, blocking);
 }
 
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic push
-# pragma GCC diagnostic ignored "-Wconversion"
-# pragma GCC diagnostic ignored "-Wsign-conversion"
-#endif
-
 size_t BufferedTransformation::PeekWord16(word16 &value, ByteOrder order) const
 {
 	byte buf[2] = {0, 0};
 	size_t len = Peek(buf, 2);
 
 	if (order == BIG_ENDIAN_ORDER)
-		value = (buf[0] << 8) | buf[1];
+		value = ((word16)buf[0] << 8) | (word16)buf[1];
 	else
-		value = (buf[1] << 8) | buf[0];
+		value = ((word16)buf[1] << 8) | (word16)buf[0];
 
 	return len;
 }
@@ -790,9 +783,11 @@ size_t BufferedTransformation::PeekWord32(word32 &value, ByteOrder order) const
 	size_t len = Peek(buf, 4);
 
 	if (order == BIG_ENDIAN_ORDER)
-		value = (buf[0] << 24) | (buf[1] << 16) | (buf[2] << 8) | buf [3];
+		value = ((word32)buf[0] << 24) | ((word32)buf[1] << 16) |
+		        ((word32)buf[2] << 8)  |  (word32)buf[3];
 	else
-		value = (buf[3] << 24) | (buf[2] << 16) | (buf[1] << 8) | buf [0];
+		value = ((word32)buf[3] << 24) | ((word32)buf[2] << 16) |
+		        ((word32)buf[1] << 8)  |  (word32)buf[0];
 
 	return len;
 }
@@ -813,11 +808,6 @@ size_t BufferedTransformation::PeekWord64(word64 &value, ByteOrder order) const
 
 	return len;
 }
-
-// Issue 340
-#if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
-# pragma GCC diagnostic pop
-#endif
 
 size_t BufferedTransformation::GetWord16(word16 &value, ByteOrder order)
 {
