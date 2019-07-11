@@ -35,13 +35,6 @@
 # define __has_feature(x) 0
 #endif
 
-// C++11 macro version, https://stackoverflow.com/q/7223991/608639
-#if !defined(CRYPTOPP_NO_CXX11)
-#  if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
-#    define CRYPTOPP_CXX11 1
-#  endif
-#endif
-
 // Define CRYPTOPP_NO_CXX11 to avoid C++11 related features shown at the
 // end of this file. Some compilers and standard C++ headers advertise C++11
 // but they are really just C++03 with some additional C++11 headers and
@@ -55,6 +48,13 @@
 // Define CRYPTOPP_NO_CXX17 to avoid C++17 related features shown at the end of
 // this file. At the moment it should only affect std::uncaught_exceptions.
 // #define CRYPTOPP_NO_CXX17 1
+
+// C++11 macro version, https://stackoverflow.com/q/7223991/608639
+#if !defined(CRYPTOPP_NO_CXX11)
+#  if ((_MSC_VER >= 1600) || (__cplusplus >= 201103L)) && !defined(_STLPORT_VERSION)
+#    define CRYPTOPP_CXX11 1
+#  endif
+#endif
 
 // Hack ahead. Apple's standard library does not have C++'s unique_ptr in C++11.
 // We can't test for unique_ptr directly because some of the non-Apple Clangs
