@@ -156,8 +156,9 @@ struct CompileAssert
 	static char dummy[2*b-1];
 };
 
-#define CRYPTOPP_COMPILE_ASSERT(assertion) \
-    CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, (__LINE__-1))
+#define CRYPTOPP_COMPILE_ASSERT(assertion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, __LINE__)
+#define CRYPTOPP_ASSERT_JOIN(X, Y) CRYPTOPP_DO_ASSERT_JOIN(X, Y)
+#define CRYPTOPP_DO_ASSERT_JOIN(X, Y) X##Y
 
 #if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
 # define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance)
@@ -172,9 +173,6 @@ struct CompileAssert
        CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance)
 # endif // GCC or Clang
 #endif
-
-#define CRYPTOPP_ASSERT_JOIN(X, Y) CRYPTOPP_DO_ASSERT_JOIN(X, Y)
-#define CRYPTOPP_DO_ASSERT_JOIN(X, Y) X##Y
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
