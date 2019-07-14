@@ -103,14 +103,16 @@
 
 #if CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief The maximum value of a machine word
-/// \details SIZE_MAX provides the maximum value of a machine word. The value is
-///   0xffffffff on 32-bit machines, and 0xffffffffffffffff on 64-bit machines.
-/// Internally, SIZE_MAX is defined as __SIZE_MAX__ if __SIZE_MAX__ is defined. If not
-///   defined, then SIZE_T_MAX is tried. If neither __SIZE_MAX__ nor SIZE_T_MAX is
-///   is defined, the library uses std::numeric_limits<size_t>::max(). The library
-///   prefers __SIZE_MAX__ because its a constexpr that is optimized well
-///   by all compilers. std::numeric_limits<size_t>::max() is not always a constexpr,
-///   and it is not always optimized well.
+/// \details <tt>SIZE_MAX</tt> provides the maximum value of a machine word. The value
+///  is <tt>0xffffffff</tt> on 32-bit targets, and <tt>0xffffffffffffffff</tt> on 64-bit
+///  targets.
+/// \details If <tt>SIZE_MAX</tt> is not defined, then <tt>__SIZE_MAX__</tt> is used if 
+///  defined. If not defined, then <tt>SIZE_T_MAX</tt> is used if defined. If not defined,
+///  then the library uses <tt>std::numeric_limits<size_t>::max()</tt>.
+/// \details The library prefers <tt>__SIZE_MAX__</tt> or <tt>__SIZE_T_MAX__</tt> because
+///  they are effectively <tt>constexpr</tt> that is optimized well by all compilers.
+///  <tt>std::numeric_limits<size_t>::max()</tt> is not always a <tt>constexpr</tt>, and
+///  it is not always optimized well.
 #  define SIZE_MAX ...
 #else
 // Its amazing portability problems still plague this simple concept in 2015.
