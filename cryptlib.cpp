@@ -16,7 +16,6 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "cryptlib.h"
-#include "misc.h"
 #include "filters.h"
 #include "algparam.h"
 #include "fips140.h"
@@ -26,9 +25,11 @@
 #include "secblock.h"
 #include "smartptr.h"
 #include "stdcpp.h"
+#include "misc.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
+CRYPTOPP_COMPILE_ASSERT(SIZE_MAX > 0);
 CRYPTOPP_COMPILE_ASSERT(sizeof(byte) == 1);
 CRYPTOPP_COMPILE_ASSERT(sizeof(word16) == 2);
 CRYPTOPP_COMPILE_ASSERT(sizeof(word32) == 4);
