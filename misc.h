@@ -147,7 +147,7 @@ class Integer;
 ///  a <tt>CompileAssert</tt> structure is used. When the structure is used
 ///  a negative-sized array triggers the assert at compile time.
 # define CRYPTOPP_COMPILE_ASSERT(expr) { ... }
-#elif defined(CRYPTOPP_CXX11_STATIC_ASSERT)
+#elif defined(CRYPTOPP_CXX14_STATIC_ASSERT)
 # define CRYPTOPP_COMPILE_ASSERT(expr) static_assert(expr)
 #else // CRYPTOPP_DOXYGEN_PROCESSING
 template <bool b>
