@@ -142,8 +142,13 @@ class Integer;
 #if CRYPTOPP_DOXYGEN_PROCESSING
 /// \brief Compile time assertion
 /// \param expr the expression to evaluate
-/// \details Asserts the expression expr though a dummy struct.
-#define CRYPTOPP_COMPILE_ASSERT(expr) { ... }
+/// \details Asserts the expression <tt>expr</tt> during compile. If C++14 and
+///  N3928 are available, then C++14 <tt>static_assert</tt> is used. Otherwise,
+///  a <tt>CompileAssert</tt> structure is used. When the structure is used
+///  a negative-sized array triggers the assert at compile time.
+# define CRYPTOPP_COMPILE_ASSERT(expr) { ... }
+#elif defined(CRYPTOPP_CXX11_STATIC_ASSERT)
+# define CRYPTOPP_COMPILE_ASSERT(expr) static_assert(expr)
 #else // CRYPTOPP_DOXYGEN_PROCESSING
 template <bool b>
 struct CompileAssert
@@ -151,22 +156,24 @@ struct CompileAssert
 	static char dummy[2*b-1];
 };
 
-#define CRYPTOPP_COMPILE_ASSERT(assertion) CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, __LINE__)
-#if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
-#define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance)
-#else
-# if defined(__GNUC__)
-#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
-		static CompileAssert<(assertion)> \
-		CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance) __attribute__ ((unused))
-# else
-#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
-		static CompileAssert<(assertion)> \
-		CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance)
-# endif // __GNUC__
-#endif
+#define CRYPTOPP_COMPILE_ASSERT(assertion) \
+    CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, (__LINE__-1))
 #define CRYPTOPP_ASSERT_JOIN(X, Y) CRYPTOPP_DO_ASSERT_JOIN(X, Y)
 #define CRYPTOPP_DO_ASSERT_JOIN(X, Y) X##Y
+
+#if defined(CRYPTOPP_EXPORTS) || defined(CRYPTOPP_IMPORTS)
+# define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance)
+#else
+# if defined(__GNUC__) || defined(__clang__)
+#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
+       static CompileAssert<(assertion)> \
+       CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance) __attribute__ ((unused))
+# else
+#  define CRYPTOPP_COMPILE_ASSERT_INSTANCE(assertion, instance) \
+       static CompileAssert<(assertion)> \
+       CRYPTOPP_ASSERT_JOIN(cryptopp_CRYPTOPP_ASSERT_, instance)
+# endif // GCC or Clang
+#endif
 
 #endif // CRYPTOPP_DOXYGEN_PROCESSING
 
