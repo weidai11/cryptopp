@@ -1054,15 +1054,15 @@ if true; then
 	TEST_LIST+=("No Posix NDEBUG or assert")
 	FAILED=0
 
-	# Filter out C++ and Doxygen comments.
+	# Search for headers. Filter out C++ abd Doxygen comments.
 	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c -E '(assert.h|cassert)')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found Posix assert headers" | tee -a "$TEST_RESULTS"
 	fi
 
-	# Filter out C++ and Doxygen comments.
-	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v '//' | "$GREP" -c -E 'assert[[:space:]]*\(')
+	# Search for asserts. Filter out C++, Doxygen comments and static_assert.
+	COUNT=$(cat ./*.h ./*.cpp | "$GREP" -v -E '//|_assert' | "$GREP" -c -E 'assert[[:space:]]*\(')
 	if [[ "$COUNT" -ne "0" ]]; then
 		FAILED=1
 		echo "FAILED: found use of Posix assert" | tee -a "$TEST_RESULTS"
