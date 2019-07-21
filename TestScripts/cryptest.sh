@@ -2016,9 +2016,8 @@ if [[ "$HAVE_LD_LIBRARY_PATH" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LINK_LIBRARY=libcryptopp.so \
-		"$MAKE" "${DYN_MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXX="$CXX" CXXFLAGS="$DEBUG_CXXFLAGS" LINK_LIBRARY=libcryptopp.so \
+		"$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2045,9 +2044,8 @@ if [[ "$HAVE_LD_LIBRARY_PATH" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LINK_LIBRARY=libcryptopp.so \
-		"$MAKE" "${DYN_MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" LINK_LIBRARY=libcryptopp.so \
+		"$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2062,8 +2060,6 @@ if [[ "$HAVE_LD_LIBRARY_PATH" -ne "0" ]]; then
 		fi
 		echo
 	fi
-
-	rm -f GNUmakefile.shared > /dev/null 2>&1
 fi
 
 ############################################
@@ -2081,9 +2077,8 @@ if [[ "$HAVE_DYLD_LIBRARY_PATH" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LINK_LIBRARY=libcryptopp.dylib \
-		"$MAKE" "${DYN_MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXX="$CXX" CXXFLAGS="$DEBUG_CXXFLAGS" LINK_LIBRARY=libcryptopp.dylib \
+		"$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2110,9 +2105,8 @@ if [[ "$HAVE_DYLD_LIBRARY_PATH" -ne "0" ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS"
-	CXX="$CXX" CXXFLAGS="$CXXFLAGS" LINK_LIBRARY=libcryptopp.dylib \
-		"$MAKE" "${DYN_MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+	CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" LINK_LIBRARY=libcryptopp.dylib \
+		"$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
@@ -2127,8 +2121,6 @@ if [[ "$HAVE_DYLD_LIBRARY_PATH" -ne "0" ]]; then
 		fi
 		echo
 	fi
-
-	rm -f GNUmakefile.shared > /dev/null 2>&1
 fi
 
 ############################################
