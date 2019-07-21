@@ -18,7 +18,7 @@ fi
 
 PWD_DIR=$(pwd)
 function cleanup {
-    rm -f adhoc.cpp *.a *.o *.so *.dylib GNUmakefile-symbols
+    rm -f adhoc.cpp *.a *.o *.so *.dylib
     cd "$PWD_DIR"
 }
 trap cleanup EXIT
@@ -26,7 +26,7 @@ trap cleanup EXIT
 ############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_8_3_0
+OLD_VERSION_TAG=CRYPTOPP_8_2_0
 NEW_VERSION_TAG=master
 
 ############################################
@@ -40,7 +40,7 @@ if [[ ! (-z "$DIRTY") ]]; then
 	read -p "Type 'Y' to proceed or 'N' to exit. Proceed? " -n 1 -r
 	echo # (optional) move to a new line
 	if [[ !($REPLY =~ ^[Yy]$) ]]; then
-		[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
+		exit 0
 	fi
 else
 	echo
@@ -222,29 +222,13 @@ fi
 
 "$MAKE" distclean &>/dev/null
 
-rm -f GNUmakefile-symbols
-
 git checkout master -f &>/dev/null
-cp GNUmakefile GNUmakefile-symbols
 
 git checkout "$OLD_VERSION_TAG" -f &>/dev/null
 
 if [[ "$?" -ne "0" ]]; then
 	echo "Failed to checkout $OLD_VERSION_TAG"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
-fi
-
-echo
-echo "****************************************************************"
-echo "Patching makefile for dynamic linking by cryptest.exe"
-echo "****************************************************************"
-
-if [[ "$IS_DARWIN" -ne "0" ]]; then
-	"$SED" "$SED_OPTS" -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.dylib $(TESTOBJS)|g' GNUmakefile-symbols
-	"$SED" "$SED_OPTS" -e 's|$(TESTOBJS) ./libcryptopp.a |$(TESTOBJS) ./libcryptopp.dylib |g' GNUmakefile-symbols
-else
-	"$SED" "$SED_OPTS" -e 's|libcryptopp.a $(TESTOBJS)|libcryptopp.so $(TESTOBJS)|g' GNUmakefile-symbols
-	"$SED" "$SED_OPTS" -e 's|$(TESTOBJS) ./libcryptopp.a |$(TESTOBJS) ./libcryptopp.so |g' GNUmakefile-symbols
+	exit 1
 fi
 
 echo
@@ -253,17 +237,17 @@ echo "Building dynamic library for $OLD_VERSION_TAG"
 echo "****************************************************************"
 echo
 
-"$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
-
 if [[ "$IS_DARWIN" -ne "0" ]]; then
-	LIBNAME=libcryptopp.dylib
+	LINK_LIBRARY=libcryptopp.dylib
 else
-	LIBNAME=libcryptopp.so
+	LINK_LIBRARY=libcryptopp.so
 fi
 
-if [[ ! -f "$LIBNAME" ]]; then
+LINK_LIBRARY="$LINK_LIBRARY" "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile dynamic
+
+if [[ ! -f "$LINK_LIBRARY" ]]; then
 	echo "Failed to make $OLD_VERSION_TAG library"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	exit 1
 fi
 
 echo
@@ -272,11 +256,11 @@ echo "Building cryptest.exe for $OLD_VERSION_TAG"
 echo "****************************************************************"
 echo
 
-"$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols cryptest.exe
+"$MAKE" "${MAKEARGS[@]}" -f GNUmakefile cryptest.exe
 
 if [[ ! -f "cryptest.exe" ]]; then
 	echo "Failed to make cryptest.exe"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	exit 1
 fi
 
 echo
@@ -304,7 +288,7 @@ git checkout "$NEW_VERSION_TAG" -f &>/dev/null
 
 if [[ "$?" -ne "0" ]]; then
 	echo "Failed to checkout $OLD_VERSION_TAG"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	exit 1
 fi
 
 echo
@@ -313,11 +297,11 @@ echo "Building dynamic library for $NEW_VERSION_TAG"
 echo "****************************************************************"
 echo
 
-"$MAKE" "${MAKEARGS[@]}" -f GNUmakefile-symbols dynamic
+LINK_LIBRARY="$LINK_LIBRARY" "$MAKE" "${MAKEARGS[@]}" -f GNUmakefile dynamic
 
-if [[ ! -f "$LIBNAME" ]]; then
+if [[ ! -f "$LINK_LIBRARY" ]]; then
 	echo "Failed to make $NEW_VERSION_TAG library"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	exit 1
 fi
 
 echo
@@ -338,7 +322,7 @@ git checkout master -f &>/dev/null
 
 if [[ "$?" -ne "0" ]]; then
 	echo "Failed to checkout Master"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	exit 1
 fi
 
-[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
+exit 0
