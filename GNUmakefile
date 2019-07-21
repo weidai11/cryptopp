@@ -14,6 +14,11 @@ TMPDIR ?= /tmp
 TOUT ?= a.out
 TOUT := $(strip $(TOUT))
 
+# Allow override for the cryptest.exe recipe. Change to
+# ./libcryptopp.so or ./libcryptopp.dylib to suit your
+# taste. https://github.com/weidai11/cryptopp/issues/866
+LINK_LIBRARY ?= ./libcryptopp.a
+
 # Command and arguments
 AR ?= ar
 ARFLAGS ?= -cr # ar needs the dash on OpenBSD
@@ -1320,8 +1325,8 @@ endif
 libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
-cryptest.exe:libcryptopp.a $(TESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) ./libcryptopp.a $(LDFLAGS) $(LDLIBS)
+cryptest.exe: $(LINK_LIBRARY) $(TESTOBJS)
+	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
 nolib: $(OBJS)
