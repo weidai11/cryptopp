@@ -17,7 +17,8 @@ TOUT := $(strip $(TOUT))
 # Allow override for the cryptest.exe recipe. Change to
 # ./libcryptopp.so or ./libcryptopp.dylib to suit your
 # taste. https://github.com/weidai11/cryptopp/issues/866
-LINK_LIBRARY ?= ./libcryptopp.a
+LINK_LIBRARY ?= libcryptopp.a
+LINK_LIBRARY_PATH ?= ./
 
 # Command and arguments
 AR ?= ar
@@ -1293,10 +1294,14 @@ remove uninstall:
 	-$(RM) -r $(DESTDIR)$(INCLUDEDIR)/cryptopp
 	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.a
 	-$(RM) $(DESTDIR)$(BINDIR)/cryptest.exe
-	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
+ifneq ($(wildcard $(DESTDIR)$(LIBDIR)/libcryptopp.dylib),)
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.dylib
+endif
+ifneq ($(wildcard $(DESTDIR)$(LIBDIR)/libcryptopp.so),)
+	-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
+endif
 	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
-	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 	@-$(RM) $(DESTDIR)$(LIBDIR)/pkgconfig/libcryptopp.pc
 	@-$(RM) -r $(DESTDIR)$(DATADIR)/cryptopp
 
@@ -1326,7 +1331,7 @@ libcryptopp.dylib: $(LIBOBJS)
 	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: $(LINK_LIBRARY) $(TESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY_PATH)$(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
 
 # Makes it faster to test changes
 nolib: $(OBJS)

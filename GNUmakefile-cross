@@ -15,6 +15,7 @@ TOUT := $(strip $(TOUT))
 # ./libcryptopp.so or ./libcryptopp.dylib to suit your
 # taste. https://github.com/weidai11/cryptopp/issues/866
 LINK_LIBRARY ?= ./libcryptopp.a
+LINK_LIBRARY_PATH ?= ./
 
 # Default CXXFLAGS if none were provided
 CXXFLAGS ?= -DNDEBUG -g2 -O3 -fPIC -pipe
@@ -793,7 +794,7 @@ libcryptopp.dylib: $(LIBOBJS) $(AOSP_CPU_OBJ)
 	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS) $(AOSP_CPU_OBJ)
 
 cryptest.exe: $(LINK_LIBRARY) $(TESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY_PATH)$(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
 
 # Used to generate list of source files for Autotools, CMakeList and Android.mk
 .PHONY: sources
