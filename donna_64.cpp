@@ -775,8 +775,8 @@ curve25519_move_conditional_bytes(byte out[96], const byte in[96], word64 flag)
     );
 #else
     const word64 nb = flag - 1, b = ~nb;
-    const word64 *inq = (const word64 *)in;
-    word64 *outq = (word64 *)out;
+    const word64 *inq = (const word64 *)(const void*)in;
+    word64 *outq = (word64 *)(void *)out;
     outq[0] = (outq[0] & nb) | (inq[0] & b);
     outq[1] = (outq[1] & nb) | (inq[1] & b);
     outq[2] = (outq[2] & nb) | (inq[2] & b);

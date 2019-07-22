@@ -34,6 +34,10 @@
 # include <immintrin.h>
 #endif
 
+// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+#define DOUBLE_CAST(x) ((double*)(void*)(x))
+#define CONST_DOUBLE_CAST(x) ((const double*)(const void*)(x))
+
 // Squash MS LNK4221 and libtool warnings
 extern const char CHAM_SIMD_FNAME[] = __FILE__;
 
@@ -358,7 +362,7 @@ inline void CHAM64_Enc_Block(__m128i &block0,
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i+0) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i+0) & MASK])));
 
         // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0));
@@ -431,7 +435,7 @@ inline void CHAM64_Dec_Block(__m128i &block0,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-3) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i-3) & MASK])));
 
         // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,7,6, 7,6,7,6, 7,6,7,6, 7,6,7,6));
@@ -508,7 +512,7 @@ inline void CHAM64_Enc_2_Blocks(__m128i &block0,
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[i & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i+0) & MASK])));
 
         // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(1,0,1,0, 1,0,1,0, 1,0,1,0, 1,0,1,0));
@@ -582,7 +586,7 @@ inline void CHAM64_Dec_2_Blocks(__m128i &block0,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, kr, t1, t2, t3, t4;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-3) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i-3) & MASK])));
 
         // Shuffle out key
         kr = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,7,6, 7,6,7,6, 7,6,7,6, 7,6,7,6));
@@ -817,7 +821,7 @@ inline void CHAM128_Enc_Block(__m128i &block0,
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, k1, k2, t1, t2;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i+0) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i+0) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
@@ -834,8 +838,7 @@ inline void CHAM128_Enc_Block(__m128i &block0,
         b = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i+2) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i+2) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
@@ -877,7 +880,7 @@ inline void CHAM128_Dec_Block(__m128i &block0,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, k1, k2, t1, t2;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-1) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i-1) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
@@ -896,7 +899,7 @@ inline void CHAM128_Dec_Block(__m128i &block0,
         c = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-3) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i-3) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
@@ -940,7 +943,7 @@ inline void CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
     for (int i=0; i<static_cast<int>(rounds); i+=4)
     {
         __m128i k, k1, k2, t1, t2;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i+0) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i+0) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
@@ -957,7 +960,7 @@ inline void CHAM128_Enc_4_Blocks(__m128i &block0, __m128i &block1,
         b = RotateLeft32<1>(_mm_add_epi32(t1, t2));
 
         counter = _mm_add_epi32(counter, increment);
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i+2) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i+2) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(3,2,1,0, 3,2,1,0, 3,2,1,0, 3,2,1,0));
@@ -1002,7 +1005,7 @@ inline void CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
     for (int i = static_cast<int>(rounds)-1; i >= 0; i-=4)
     {
         __m128i k, k1, k2, t1, t2;
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-1) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i-1) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
@@ -1021,7 +1024,7 @@ inline void CHAM128_Dec_4_Blocks(__m128i &block0, __m128i &block1,
         c = _mm_xor_si128(_mm_sub_epi32(t1, t2), counter);
 
         counter = _mm_sub_epi32(counter, decrement);
-        k = _mm_castpd_si128(_mm_load_sd((const double*)(&subkeys[(i-3) & MASK])));
+        k = _mm_castpd_si128(_mm_load_sd(CONST_DOUBLE_CAST(&subkeys[(i-3) & MASK])));
 
         // Shuffle out two subkeys
         k1 = _mm_shuffle_epi8(k, _mm_set_epi8(7,6,5,4, 7,6,5,4, 7,6,5,4, 7,6,5,4));
