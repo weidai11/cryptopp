@@ -68,8 +68,15 @@
 #  endif
 #endif
 
+// C++14 macro version, https://stackoverflow.com/q/26089319/608639
+#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX14)
+#  if ((_MSC_VER >= 1900) || (__cplusplus >= 201402L)) && !defined(_STLPORT_VERSION)
+#    define CRYPTOPP_CXX14 1
+#  endif
+#endif
+
 // C++17 macro version, https://stackoverflow.com/q/38456127/608639
-#if defined(CRYPTOPP_CXX11) && !defined(CRYPTOPP_NO_CXX17)
+#if defined(CRYPTOPP_CXX14) && !defined(CRYPTOPP_NO_CXX17)
 #  if ((_MSC_VER >= 1900) || (__cplusplus >= 201703L)) && !defined(_STLPORT_VERSION)
 #    define CRYPTOPP_CXX17 1
 #  endif
@@ -176,10 +183,15 @@
 
 // ***************** C++14 and above ********************
 
+#if defined(CRYPTOPP_CXX14)
+
 // Extended static_assert with one argument
+// Microsoft cannot handle the single argument static_assert as of VS2019 (cl.exe 19.00)
 #if (__cpp_static_assert >= 201411)
 # define CRYPTOPP_CXX14_STATIC_ASSERT 1
 #endif // static_assert
+
+#endif
 
 // ***************** C++17 and above ********************
 
