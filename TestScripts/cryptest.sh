@@ -2216,7 +2216,7 @@ if [[ ("$IS_SUSE" -ne "0") ]]; then
 	# Flags taken from openSUSE's build logs
 	# http://susepaste.org/view//9613298
 
-	SUSE_FLAGS=("-g" "-O2"
+	SUSE_FLAGS=("-DNDEBUG" "-g" "-O2"
 		"-D_FORTIFY_SOURCE=2"
 		"-funwind-tables"
 		"-fpic" "-fPIC"
