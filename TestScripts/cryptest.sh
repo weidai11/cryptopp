@@ -122,6 +122,7 @@ IS_BSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c bsd)
 IS_DEBIAN=$(lsb_release -a 2>&1 | "$GREP" -i -c debian)
 IS_FEDORA=$(lsb_release -a 2>&1 | "$GREP" -i -c fedora)
 IS_UBUNTU=$(lsb_release -a 2>&1 | "$GREP" -i -c ubuntu)
+IS_SUSE=$(lsb_release -a 2>&1 | "$GREP" -i -c opensuse)
 
 THIS_MACHINE=$(uname -m 2>&1)
 IS_X86=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(i386|i486|i686|i686)")
@@ -2204,6 +2205,69 @@ if [[ ("$IS_FEDORA" -ne "0") ]]; then
 			if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
 				echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 			fi
+		fi
+	fi
+fi
+
+############################################
+# openSUSE specific.
+if [[ ("$IS_SUSE" -ne "0") ]]; then
+
+	# Flags taken from openSUSE's build logs
+	# http://susepaste.org/view//9613298
+
+	SUSE_FLAGS=("-g" "-O2"
+		"-D_FORTIFY_SOURCE=2"
+		"-funwind-tables"
+		"-fpic" "-fPIC"
+		"-pthread" "-fopenmp")
+
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fstack-protector-strong adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		SUSE_FLAGS+=("-fstack-protector-strong")
+	fi
+
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fasynchronous-unwind-tables adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		SUSE_FLAGS+=("-fasynchronous-unwind-tables")
+	fi
+
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fstack-clash-protection adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		SUSE_FLAGS+=("-fstack-clash-protection")
+	fi
+
+	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -flto=6 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	if [[ "$?" -eq "0" ]]; then
+		SUSE_FLAGS+=("-flto=6")
+	fi
+
+	echo
+	echo "************************************" | tee -a "$TEST_RESULTS"
+	echo "Testing: openSUSE standard build" | tee -a "$TEST_RESULTS"
+	echo
+
+	TEST_LIST+=("openSUSE standard build")
+
+	"$MAKE" clean > /dev/null 2>&1
+	rm -f adhoc.cpp > /dev/null 2>&1
+
+	CXX="g++" "$MAKE" "${MAKEARGS[@]}" CXXFLAGS="${SUSE_FLAGS[*]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+	if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+		echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+	else
+		./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+		fi
+		./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+		if [[ ("${PIPESTATUS[0]}" -ne "0") ]]; then
+			echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
 		fi
 	fi
 fi
