@@ -44,7 +44,7 @@ NAMESPACE_BEGIN(CryptoPP)
 #endif
 #endif  // CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 
-// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 

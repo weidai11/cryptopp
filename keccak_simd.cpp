@@ -54,7 +54,7 @@ CRYPTOPP_ALIGN_DATA(16)
 const word64
 rho56[2] = {W64LIT(0x0007060504030201), W64LIT(0x080F0E0D0C0B0A09)};
 
-// Clang __m128i casts, http://bugs.llvm.org/show_bug.cgi?id=20670
+// Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
