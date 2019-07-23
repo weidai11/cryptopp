@@ -43,7 +43,7 @@ void LC_RNG::GenerateBlock(byte *output, size_t size)
 		word32 hi = seed/q;
 		word32 lo = seed%q;
 
-		long test = a*lo - r*hi;
+		sword64 test = a*lo - r*hi;
 
 		if (test > 0)
 			seed = test;
