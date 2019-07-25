@@ -40,15 +40,14 @@ void LC_RNG::GenerateBlock(byte *output, size_t size)
 {
 	while (size--)
 	{
-		word32 hi = seed/q;
-		word32 lo = seed%q;
-
-		sword64 test = a*lo - r*hi;
+		const word32 hi = seed/q;
+		const word32 lo = seed%q;
+		const sword64 test = a*lo - r*hi;
 
 		if (test > 0)
-			seed = test;
+			seed = static_cast<word32>(test);
 		else
-			seed = test+ m;
+			seed = static_cast<word32>(test + m);
 
 		*output++ = byte((GETBYTE(seed, 0) ^ GETBYTE(seed, 1) ^ GETBYTE(seed, 2) ^ GETBYTE(seed, 3)));
 	}
