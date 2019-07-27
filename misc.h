@@ -106,7 +106,7 @@
 /// \details <tt>SIZE_MAX</tt> provides the maximum value of a machine word. The value
 ///  is <tt>0xffffffff</tt> on 32-bit targets, and <tt>0xffffffffffffffff</tt> on 64-bit
 ///  targets.
-/// \details If <tt>SIZE_MAX</tt> is not defined, then <tt>__SIZE_MAX__</tt> is used if 
+/// \details If <tt>SIZE_MAX</tt> is not defined, then <tt>__SIZE_MAX__</tt> is used if
 ///  defined. If not defined, then <tt>SIZE_T_MAX</tt> is used if defined. If not defined,
 ///  then the library uses <tt>std::numeric_limits<size_t>::max()</tt>.
 /// \details The library prefers <tt>__SIZE_MAX__</tt> or <tt>__SIZE_T_MAX__</tt> because
