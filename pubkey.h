@@ -1604,10 +1604,10 @@ public:
 		if (rng.CanIncorporateEntropy())
 			rng.IncorporateEntropy(representative, representative.size());
 
+		const Integer& q = params.GetSubgroupOrder();
 		Integer k;
 		if (alg.IsDeterministic())
 		{
-			const Integer& q = params.GetSubgroupOrder();
 			const Integer& x = key.GetPrivateExponent();
 			const DeterministicSignatureAlgorithm& det = dynamic_cast<const DeterministicSignatureAlgorithm&>(alg);
 			k = det.GenerateRandom(x, q, e);
@@ -1617,8 +1617,13 @@ public:
 			k.Randomize(rng, 1, params.GetSubgroupOrder()-1);
 		}
 
+		Integer ks = k + q;
+		if (ks.BitCount() == q.BitCount()) {
+			ks += q;
+		}
+
 		Integer r, s;
-		r = params.ConvertElementToInteger(params.ExponentiateBase(k));
+		r = params.ConvertElementToInteger(params.ExponentiateBase(ks));
 		alg.Sign(params, key.GetPrivateExponent(), k, e, r, s);
 
 		/*
