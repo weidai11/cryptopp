@@ -886,7 +886,7 @@ public:
 	/// \brief Retrieves the encoded element's size
 	/// \param reversible flag indicating the encoding format
 	/// \return encoded element's size, in bytes
-	/// \details The format of the encoded element varies by the underlyinhg type of the element and the
+	/// \details The format of the encoded element varies by the underlying type of the element and the
 	///   reversible flag. GetEncodedElementSize() must be implemented in a derived class.
 	/// \sa GetEncodedElementSize(), EncodeElement(), DecodeElement()
 	virtual unsigned int GetEncodedElementSize(bool reversible) const =0;
