@@ -243,33 +243,15 @@ const ECP::Point& ECP::Inverse(const Point &P) const
 
 const ECP::Point& ECP::Add(const Point &P, const Point &Q) const
 {
-	if (P.identity) return Q;
-	if (Q.identity) return P;
-	if (GetField().Equal(P.x, Q.x))
-		return GetField().Equal(P.y, Q.y) ? Double(P) : Identity();
-
-	FieldElement t = GetField().Subtract(Q.y, P.y);
-	t = GetField().Divide(t, GetField().Subtract(Q.x, P.x));
-	FieldElement x = GetField().Subtract(GetField().Subtract(GetField().Square(t), P.x), Q.x);
-	m_R.y = GetField().Subtract(GetField().Multiply(t, GetField().Subtract(P.x, x)), P.y);
-
-	m_R.x.swap(x);
-	m_R.identity = false;
+	AdditionFunction add(*this);
+	m_R = add(P, Q);
 	return m_R;
 }
 
 const ECP::Point& ECP::Double(const Point &P) const
 {
-	if (P.identity || P.y==GetField().Identity()) return Identity();
-
-	FieldElement t = GetField().Square(P.x);
-	t = GetField().Add(GetField().Add(GetField().Double(t), t), m_a);
-	t = GetField().Divide(t, GetField().Double(P.y));
-	FieldElement x = GetField().Subtract(GetField().Subtract(GetField().Square(t), P.x), P.x);
-	m_R.y = GetField().Subtract(GetField().Multiply(t, GetField().Subtract(P.x, x)), P.y);
-
-	m_R.x.swap(x);
-	m_R.identity = false;
+	AdditionFunction add(*this);
+	m_R = add(P);
 	return m_R;
 }
 
@@ -494,6 +476,430 @@ ECP::Point ECP::CascadeScalarMultiply(const Point &P, const Integer &k1, const P
 	else
 		return AbstractGroup<Point>::CascadeScalarMultiply(P, k1, Q, k2);
 }
+
+#define X p.x
+#define Y p.y
+#define Z p.z
+
+#define X1 p.x
+#define Y1 p.y
+#define Z1 p.z
+
+#define X2 q.x
+#define Y2 q.y
+#define Z2 q.z
+
+#define X3 r.x
+#define Y3 r.y
+#define Z3 r.z
+
+ECP::AdditionFunction::AdditionFunction(const ECP& ecp)
+	: m_ecp(ecp), m_alpha(static_cast<Alpha>(0))
+{
+	if (ecp.GetField().IsMontgomeryRepresentation())
+	{
+		// std::cerr << "Montgomery, skipping" << std::endl;
+		m_alpha = A_Montgomery;
+	}
+	else
+	{
+		// std::cerr << "non-Montgomery, continuing" << std::endl;
+		if (m_ecp.m_a == 0)
+		{
+			m_alpha = A_0;
+		}
+		else if (m_ecp.m_a == -3 || (m_ecp.m_a - m_ecp.GetField().GetModulus()) == -3)
+		{
+			m_alpha = A_3;
+		}
+		else
+		{
+			m_alpha = A_Star;
+		}
+	}
+}
+
+ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
+{
+	if (m_alpha == A_3)
+	{
+		// Gyrations attempt to maintain constant-timeness
+		// We need either (P.x, P.y, 1) or (0, 1, 0).
+		const Integer x = P.x * !P.identity;
+		const Integer y = P.y * !P.identity + 1 * P.identity;
+		const Integer z = 1 * !P.identity;
+
+		ProjectivePoint p(x, y, z), r;
+		const ECP::Field& field = m_ecp.GetField();
+
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement& b = m_ecp.m_b;
+
+		FieldElement t0 = field.Square(X);
+		FieldElement t1 = field.Square(Y);
+		FieldElement t2 = field.Square(Z);
+		FieldElement t3 = field.Multiply(X,Y);
+		t3 = field.Add(t3,t3);
+		Z3 = field.Multiply(X,Z);
+		Z3 = field.Add(Z3,Z3);
+		Y3 = field.Multiply(b,t2);
+		Y3 = field.Subtract(Y3,Z3);
+		X3 = field.Add(Y3,Y3);
+		Y3 = field.Add(X3,Y3);
+		X3 = field.Subtract(t1,Y3);
+		Y3 = field.Add(t1,Y3);
+		Y3 = field.Multiply(X3,Y3);
+		X3 = field.Multiply(X3,t3);
+		t3 = field.Add(t2,t2);
+		t2 = field.Add(t2,t3);
+		Z3 = field.Multiply(b,Z3);
+		Z3 = field.Subtract(Z3,t2);
+		Z3 = field.Subtract(Z3,t0);
+		t3 = field.Add(Z3,Z3);
+		Z3 = field.Add(Z3,t3);
+		t3 = field.Add(t0,t0);
+		t0 = field.Add(t3,t0);
+		t0 = field.Subtract(t0,t2);
+		t0 = field.Multiply(t0,Z3);
+		Y3 = field.Add(Y3,t0);
+		t0 = field.Multiply(Y,Z);
+		t0 = field.Add(t0,t0);
+		Z3 = field.Multiply(t0,Z3);
+		X3 = field.Subtract(X3,Z3);
+		Z3 = field.Multiply(t0,t1);
+		Z3 = field.Add(Z3,Z3);
+		Z3 = field.Add(Z3,Z3);
+
+		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
+		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+
+		if (Z3.IsZero())
+			return m_ecp.Identity();
+		else
+			return ret;
+	}
+	else if (m_alpha == A_0)
+	{
+		// Gyrations attempt to maintain constant-timeness
+		// We need either (P.x, P.y, 1) or (0, 1, 0).
+		const Integer x = P.x * !P.identity;
+		const Integer y = P.y * !P.identity + 1 * P.identity;
+		const Integer z = 1 * !P.identity;
+
+		ProjectivePoint p(x, y, z), r;
+		const ECP::Field& field = m_ecp.GetField();
+
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
+		FieldElement t0 = field.Square(Y);
+		Z3 = field.Add(t0,t0);
+		Z3 = field.Add(Z3,Z3);
+		Z3 = field.Add(Z3,Z3);
+		FieldElement t1 = field.Add(Y,Z);
+		FieldElement t2 = field.Square(Z);
+		t2 = field.Multiply(b3,t2);
+		X3 = field.Multiply(t2,Z3);
+		Y3 = field.Add(t0,t2);
+		Z3 = field.Multiply(t1,Z3);
+		t1 = field.Add(t2,t2);
+		t2 = field.Add(t1,t2);
+		t0 = field.Subtract(t0,t2);
+		Y3 = field.Multiply(t0,Y3);
+		Y3 = field.Add(X3,Y3);
+		t1 = field.Multiply(X,Y);
+		X3 = field.Multiply(t0,t1);
+		X3 = field.Add(X3,X3);
+
+		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
+		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+
+		if (Z3.IsZero())
+			return m_ecp.Identity();
+		else
+			return ret;
+	}
+	else if (m_alpha == A_Star)
+	{
+		// Gyrations attempt to maintain constant-timeness
+		// We need either (P.x, P.y, 1) or (0, 1, 0).
+		const Integer x = P.x * !P.identity;
+		const Integer y = P.y * !P.identity + 1 * P.identity;
+		const Integer z = 1 * !P.identity;
+
+		ProjectivePoint p(x, y, z), r;
+		const ECP::Field& field = m_ecp.GetField();
+
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
+		FieldElement t0 = field.Square(Y);
+		Z3 = field.Add(t0,t0);
+		Z3 = field.Add(Z3,Z3);
+		Z3 = field.Add(Z3,Z3);
+		FieldElement t1 = field.Add(Y,Z);
+		FieldElement t2 = field.Square(Z);
+		t2 = field.Multiply(b3,t2);
+		X3 = field.Multiply(t2,Z3);
+		Y3 = field.Add(t0,t2);
+		Z3 = field.Multiply(t1,Z3);
+		t1 = field.Add(t2,t2);
+		t2 = field.Add(t1,t2);
+		t0 = field.Subtract(t0,t2);
+		Y3 = field.Multiply(t0,Y3);
+		Y3 = field.Add(X3,Y3);
+		t1 = field.Multiply(X,Y);
+		X3 = field.Multiply(t0,t1);
+		X3 = field.Add(X3,X3);
+
+		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
+		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+
+		if (Z3.IsZero())
+			return m_ecp.Identity();
+		else
+			return ret;
+	}
+	else  // A_Montgomery
+	{
+		ECP::Point& m_R = m_ecp.m_R;
+		const ECP::Field& field = m_ecp.GetField();
+
+		if (P.identity || P.y==field.Identity()) return m_ecp.Identity();
+
+		FieldElement t = field.Square(P.x);
+		t = field.Add(field.Add(field.Double(t), t),  m_ecp.m_a);
+		t = field.Divide(t, field.Double(P.y));
+		FieldElement x = field.Subtract(field.Subtract(field.Square(t), P.x), P.x);
+		m_R.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+
+		m_R.x.swap(x);
+		m_R.identity = false;
+		return m_R;
+	}
+}
+
+ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) const
+{
+	// Disabled at the moment due to HMQV and FHMQV failures
+	if (m_alpha == A_3 && false)
+	{
+		// Gyrations attempt to maintain constant-timeness
+		// We need either (P.x, P.y, 1) or (0, 1, 0).
+		const Integer x1 = P.x * !P.identity;
+		const Integer y1 = P.y * !P.identity + 1 * P.identity;
+		const Integer z1 =   1 * !P.identity;
+
+		const Integer x2 = Q.x * !Q.identity;
+		const Integer y2 = Q.y * !Q.identity + 1 * Q.identity;
+		const Integer z2 =   1 * !Q.identity;
+
+		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
+		const ECP::Field& field = m_ecp.GetField();
+
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement& b = m_ecp.m_b;
+
+		FieldElement t0 = field.Multiply(X1,X2);
+		FieldElement t1 = field.Multiply(Y1,Y2);
+		FieldElement t2 = field.Multiply(Z1,Z2);
+		FieldElement t3 = field.Add(X1,Y1);
+		FieldElement t4 = field.Add(X2,Y2);
+		t3 = field.Multiply(t3,t4);
+		t4 = field.Add(t0,t1);
+		t3 = field.Subtract(t3,t4);
+		t4 = field.Add(Y1,Z1);
+		X3 = field.Add(Y2,Z2);
+		t4 = field.Multiply(t4,X3);
+		X3 = field.Add(t1,t2);
+		t4 = field.Subtract(t4,X3);
+		X3 = field.Add(X1,Z1);
+		Y3 = field.Add(X2,Z2);
+		X3 = field.Multiply(X3,Y3);
+		Y3 = field.Add(t0,t2);
+		Y3 = field.Subtract(X3,Y3);
+		Z3 = field.Multiply(b,t2);
+		X3 = field.Subtract(Y3,Z3);
+		Z3 = field.Add(X3,X3);
+		X3 = field.Add(X3,Z3);
+		Z3 = field.Subtract(t1,X3);
+		X3 = field.Add(t1,X3);
+		Y3 = field.Multiply(b,Y3);
+		t1 = field.Add(t2,t2);
+		t2 = field.Add(t1,t2);
+		Y3 = field.Subtract(Y3,t2);
+		Y3 = field.Subtract(Y3,t0);
+		t1 = field.Add(Y3,Y3);
+		Y3 = field.Add(t1,Y3);
+		t1 = field.Add(t0,t0);
+		t0 = field.Add(t1,t0);
+		t0 = field.Subtract(t0,t2);
+		t1 = field.Multiply(t4,Y3);
+		t2 = field.Multiply(t0,Y3);
+		Y3 = field.Multiply(X3,Z3);
+		Y3 = field.Add(Y3,t2);
+		X3 = field.Multiply(t3,X3);
+		X3 = field.Subtract(X3,t1);
+		Z3 = field.Multiply(t4,Z3);
+		t1 = field.Multiply(t3,t0);
+		Z3 = field.Add(Z3,t1);
+
+		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
+		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+
+		if (Z3.IsZero())
+			return m_ecp.Identity();
+		else
+			return ret;
+	}
+	else if (m_alpha == A_0)
+	{
+		// Gyrations attempt to maintain constant-timeness
+		// We need either (P.x, P.y, 1) or (0, 1, 0).
+		const Integer x1 = P.x * !P.identity;
+		const Integer y1 = P.y * !P.identity + 1 * P.identity;
+		const Integer z1 =   1 * !P.identity;
+
+		const Integer x2 = Q.x * !Q.identity;
+		const Integer y2 = Q.y * !Q.identity + 1 * Q.identity;
+		const Integer z2 =   1 * !Q.identity;
+
+		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
+		const ECP::Field& field = m_ecp.GetField();
+
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
+		FieldElement t0 = field.Square(Y);
+		Z3 = field.Add(t0,t0);
+		Z3 = field.Add(Z3,Z3);
+		Z3 = field.Add(Z3,Z3);
+		FieldElement t1 = field.Add(Y,Z);
+		FieldElement t2 = field.Square(Z);
+		t2 = field.Multiply(b3,t2);
+		X3 = field.Multiply(t2,Z3);
+		Y3 = field.Add(t0,t2);
+		Z3 = field.Multiply(t1,Z3);
+		t1 = field.Add(t2,t2);
+		t2 = field.Add(t1,t2);
+		t0 = field.Subtract(t0,t2);
+		Y3 = field.Multiply(t0,Y3);
+		Y3 = field.Add(X3,Y3);
+		t1 = field.Multiply(X,Y);
+		X3 = field.Multiply(t0,t1);
+		X3 = field.Add(X3,X3);
+
+		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
+		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+
+		if (Z3.IsZero())
+			return m_ecp.Identity();
+		else
+			return ret;
+	}
+	else if (m_alpha == A_Star)
+	{
+		// Gyrations attempt to maintain constant-timeness
+		// We need either (P.x, P.y, 1) or (0, 1, 0).
+		const Integer x1 = P.x * !P.identity;
+		const Integer y1 = P.y * !P.identity + 1 * P.identity;
+		const Integer z1 =   1 * !P.identity;
+
+		const Integer x2 = Q.x * !Q.identity;
+		const Integer y2 = Q.y * !Q.identity + 1 * Q.identity;
+		const Integer z2 =   1 * !Q.identity;
+
+		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
+		const ECP::Field& field = m_ecp.GetField();
+
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
+		FieldElement t0 = field.Multiply(X1,X2);
+		FieldElement t1 = field.Multiply(Y1,Y2);
+		FieldElement t2 = field.Multiply(Z1,Z2);
+		FieldElement t3 = field.Add(X1,Y1);
+		FieldElement t4 = field.Add(X2,Y2);
+		t3 = field.Multiply(t3,t4);
+		t4 = field.Add(t0,t1);
+		t3 = field.Subtract(t3,t4);
+		t4 = field.Add(X1,Z1);
+		FieldElement t5 = field.Add(X2,Z2);
+		t4 = field.Multiply(t4,t5);
+		t5 = field.Add(t0,t2);
+		t4 = field.Subtract(t4,t5);
+		t5 = field.Add(Y1,Z1);
+		X3 = field.Add(Y2,Z2);
+		t5 = field.Multiply(t5,X3);
+		X3 = field.Add(t1,t2);
+		t5 = field.Subtract(t5,X3);
+		Z3 = field.Multiply(a,t4);
+		X3 = field.Multiply(b3,t2);
+		Z3 = field.Add(X3,Z3);
+		X3 = field.Subtract(t1,Z3);
+		Z3 = field.Add(t1,Z3);
+		Y3 = field.Multiply(X3,Z3);
+		t1 = field.Add(t0,t0);
+		t1 = field.Add(t1,t0);
+		t2 = field.Multiply(a,t2);
+		t4 = field.Multiply(b3,t4);
+		t1 = field.Add(t1,t2);
+		t2 = field.Subtract(t0,t2);
+		t2 = field.Multiply(a,t2);
+		t4 = field.Add(t4,t2);
+		t0 = field.Multiply(t1,t4);
+		Y3 = field.Add(Y3,t0);
+		t0 = field.Multiply(t5,t4);
+		X3 = field.Multiply(t3,X3);
+		X3 = field.Subtract(X3,t0);
+		t0 = field.Multiply(t3,t1);
+		Z3 = field.Multiply(t5,Z3);
+		Z3 = field.Add(Z3,t0);
+
+		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
+		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+
+		if (Z3.IsZero())
+			return m_ecp.Identity();
+		else
+			return ret;
+	}
+	else  // A_Montgomery
+	{
+		ECP::Point& m_R = m_ecp.m_R;
+		const ECP::Field& field = m_ecp.GetField();
+
+		if (P.identity) return Q;
+		if (Q.identity) return P;
+		if (field.Equal(P.x, Q.x))
+			return field.Equal(P.y, Q.y) ? m_ecp.Double(P) : m_ecp.Identity();
+
+		FieldElement t =  field.Subtract(Q.y, P.y);
+		t =  field.Divide(t,  field.Subtract(Q.x, P.x));
+		FieldElement x =  field.Subtract(field.Subtract(field.Square(t), P.x), Q.x);
+		m_R.y =  field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+
+		m_R.x.swap(x);
+		m_R.identity = false;
+		return m_R;
+	}
+}
+
+#undef X
+#undef Y
+#undef Z
+
+#undef X1
+#undef Y1
+#undef Z1
+
+#undef X2
+#undef Y2
+#undef Z2
+
+#undef X3
+#undef Y3
+#undef Z3
 
 NAMESPACE_END
 
