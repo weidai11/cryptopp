@@ -344,7 +344,7 @@ bool RunTestDataFile(const char *filename, const NameValuePairs &overrideParamet
 // Definitions in validat6.cpp
 bool CryptoSystemValidate(PK_Decryptor &priv, PK_Encryptor &pub, bool thorough = false);
 bool SimpleKeyAgreementValidate(SimpleKeyAgreementDomain &d);
-bool AuthenticatedKeyAgreementValidateWithRoles(AuthenticatedKeyAgreementDomain &initiator, AuthenticatedKeyAgreementDomain &responder);
+bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain &initiator, AuthenticatedKeyAgreementDomain &responder);
 bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d);
 bool SignatureValidate(PK_Signer &priv, PK_Verifier &pub, bool thorough = false);
 
