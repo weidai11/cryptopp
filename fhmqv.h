@@ -126,7 +126,7 @@ public:
     const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
     bool validateStaticOtherPublicKey=true) const
   {
-    byte *XX = NULLPTR, *YY = NULLPTR, *AA = NULLPTR, *BB = NULLPTR;
+    const byte *XX = NULLPTR, *YY = NULLPTR, *AA = NULLPTR, *BB = NULLPTR;
     size_t xxs = 0, yys = 0, aas = 0, bbs = 0;
 
     // Depending on the role, this will hold either A's or B's static
@@ -144,11 +144,11 @@ public:
         Element B = params.ExponentiateBase(b);
         params.EncodeElement(true, B, tt);
 
-        XX = const_cast<byte*>(ephemeralOtherPublicKey);
+        XX = ephemeralOtherPublicKey;
         xxs = EphemeralPublicKeyLength();
-        YY = const_cast<byte*>(ephemeralPrivateKey) + StaticPrivateKeyLength();
+        YY = ephemeralPrivateKey + StaticPrivateKeyLength();
         yys = EphemeralPublicKeyLength();
-        AA = const_cast<byte*>(staticOtherPublicKey);
+        AA = staticOtherPublicKey;
         aas = StaticPublicKeyLength();
         BB = tt.BytePtr();
         bbs = tt.SizeInBytes();
@@ -159,13 +159,13 @@ public:
         Element A = params.ExponentiateBase(a);
         params.EncodeElement(true, A, tt);
 
-        XX = const_cast<byte*>(ephemeralPrivateKey) + StaticPrivateKeyLength();
+        XX = ephemeralPrivateKey + StaticPrivateKeyLength();
         xxs = EphemeralPublicKeyLength();
-        YY = const_cast<byte*>(ephemeralOtherPublicKey);
+        YY = ephemeralOtherPublicKey;
         yys = EphemeralPublicKeyLength();
         AA = tt.BytePtr();
         aas = tt.SizeInBytes();
-        BB = const_cast<byte*>(staticOtherPublicKey);
+        BB = staticOtherPublicKey;
         bbs = StaticPublicKeyLength();
       }
       else
