@@ -133,7 +133,7 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 	return true;
 }
 
-bool AuthenticatedKeyAgreementValidateWithRoles(AuthenticatedKeyAgreementDomain &initiator, AuthenticatedKeyAgreementDomain &responder)
+bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain &initiator, AuthenticatedKeyAgreementDomain &responder)
 {
 	if (initiator.GetCryptoParameters().Validate(GlobalRNG(), 3))
 		std::cout << "passed    authenticated key agreement domain parameters validation (initiator)" << std::endl;
@@ -157,12 +157,12 @@ bool AuthenticatedKeyAgreementValidateWithRoles(AuthenticatedKeyAgreementDomain 
 	    initiator.EphemeralPublicKeyLength() != responder.EphemeralPublicKeyLength() ||
 	    initiator.AgreedValueLength() != responder.AgreedValueLength())
 	{
-		std::cout << "passed    authenticated key agreement domain parameter consistency" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameter consistency" << std::endl;
+		return false;
 	}
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameter consistency" << std::endl;
-		return false;
+		std::cout << "passed    authenticated key agreement domain parameter consistency" << std::endl;
 	}
 
 	SecByteBlock spriv1(initiator.StaticPrivateKeyLength()), spriv2(responder.StaticPrivateKeyLength());
