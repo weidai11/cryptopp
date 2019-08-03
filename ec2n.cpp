@@ -16,7 +16,8 @@ ANONYMOUS_NAMESPACE_BEGIN
 using CryptoPP::EC2N;
 
 #if defined(HAVE_GCC_INIT_PRIORITY)
-  const EC2N::Point g_identity __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 50))) = EC2N::Point();
+  #define INIT_ATTRIBUTE __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 51)))
+  const EC2N::Point g_identity INIT_ATTRIBUTE = EC2N::Point();
 #elif defined(HAVE_MSC_INIT_PRIORITY)
   #pragma warning(disable: 4075)
   #pragma init_seg(".CRT$XCU")
@@ -51,8 +52,8 @@ void EC2N::DEREncode(BufferedTransformation &bt) const
 {
 	m_field->DEREncode(bt);
 	DERSequenceEncoder seq(bt);
-	m_field->DEREncodeElement(seq, m_a);
-	m_field->DEREncodeElement(seq, m_b);
+	   m_field->DEREncodeElement(seq, m_a);
+	   m_field->DEREncodeElement(seq, m_b);
 	seq.MessageEnd();
 }
 
@@ -260,7 +261,7 @@ const EC2N::Point& EC2N::Double(const Point &P) const
 
 // ********************************************************
 
-/*
+#if 0
 EcPrecomputation<EC2N>& EcPrecomputation<EC2N>::operator=(const EcPrecomputation<EC2N> &rhs)
 {
 	m_ec = rhs.m_ec;
@@ -312,7 +313,7 @@ EC2N::Point EcPrecomputation<EC2N>::CascadeExponentiate(const Integer &exponent,
 {
 	return m_ep.CascadeExponentiate(exponent, static_cast<const EcPrecomputation<EC2N> &>(pc2).m_ep, exponent2);
 }
-*/
+#endif
 
 NAMESPACE_END
 

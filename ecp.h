@@ -120,12 +120,10 @@ protected:
 		Point operator()(const Point& P, const Point& Q) const;
 
 	protected:
-		const ECP& m_ecp;
-
 		/// \brief Parameters and representation for Addition
 		/// \details Addition and Doubling will use different algorithms,
 		///  depending on the <tt>A</tt> coefficient and the representation
-		///  (Affine or Montgomery).
+		///  (Affine or Montgomery with precomputation).
 		enum Alpha {
 			/// \brief Coefficient A is 0
 			A_0=1,
@@ -137,6 +135,7 @@ protected:
 			A_Montgomery=8
 		};
 
+		const ECP& m_ecp;
 		Alpha m_alpha;
 	};
 

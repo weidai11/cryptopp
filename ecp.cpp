@@ -18,7 +18,8 @@ using CryptoPP::ECP;
 using CryptoPP::ModularArithmetic;
 
 #if defined(HAVE_GCC_INIT_PRIORITY)
-  const ECP::Point g_identity __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 51))) = ECP::Point();
+  #define INIT_ATTRIBUTE __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 50)))
+  const ECP::Point g_identity INIT_ATTRIBUTE = ECP::Point();
 #elif defined(HAVE_MSC_INIT_PRIORITY)
   #pragma warning(disable: 4075)
   #pragma init_seg(".CRT$XCU")
@@ -244,15 +245,13 @@ const ECP::Point& ECP::Inverse(const Point &P) const
 const ECP::Point& ECP::Add(const Point &P, const Point &Q) const
 {
 	AdditionFunction add(*this);
-	m_R = add(P, Q);
-	return m_R;
+	return (m_R = add(P, Q));
 }
 
 const ECP::Point& ECP::Double(const Point &P) const
 {
 	AdditionFunction add(*this);
-	m_R = add(P);
-	return m_R;
+	return (m_R = add(P));
 }
 
 template <class T, class Iterator> void ParallelInvert(const AbstractRing<T> &ring, Iterator begin, Iterator end)
@@ -305,7 +304,7 @@ class ProjectiveDoubling
 {
 public:
 	ProjectiveDoubling(const ModularArithmetic &m_mr, const Integer &m_a, const Integer &m_b, const ECPPoint &Q)
-		: mr(m_mr), firstDoubling(true), negated(false)
+		: mr(m_mr)
 	{
 		CRYPTOPP_UNUSED(m_b);
 		if (Q.identity)
@@ -342,7 +341,6 @@ public:
 
 	const ModularArithmetic &mr;
 	ProjectivePoint P;
-	bool firstDoubling, negated;
 	Integer sixteenY4, aZ4, twoY, fourY2, S, M;
 };
 
@@ -523,6 +521,10 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 {
 	if (m_alpha == A_3)
 	{
+		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement& b = m_ecp.m_b;
+
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x = P.x * !P.identity;
@@ -530,10 +532,6 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		const Integer z = 1 * !P.identity;
 
 		ProjectivePoint p(x, y, z), r;
-		const ECP::Field& field = m_ecp.GetField();
-
-		const FieldElement& a = m_ecp.m_a;
-		const FieldElement& b = m_ecp.m_b;
 
 		FieldElement t0 = field.Square(X);
 		FieldElement t1 = field.Square(Y);
@@ -580,6 +578,10 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	}
 	else if (m_alpha == A_0)
 	{
+		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x = P.x * !P.identity;
@@ -587,10 +589,6 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		const Integer z = 1 * !P.identity;
 
 		ProjectivePoint p(x, y, z), r;
-		const ECP::Field& field = m_ecp.GetField();
-
-		const FieldElement& a = m_ecp.m_a;
-		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		FieldElement t0 = field.Square(Y);
 		Z3 = field.Add(t0,t0);
@@ -621,6 +619,10 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	}
 	else if (m_alpha == A_Star)
 	{
+		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x = P.x * !P.identity;
@@ -628,10 +630,6 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		const Integer z = 1 * !P.identity;
 
 		ProjectivePoint p(x, y, z), r;
-		const ECP::Field& field = m_ecp.GetField();
-
-		const FieldElement& a = m_ecp.m_a;
-		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		FieldElement t0 = field.Square(Y);
 		Z3 = field.Add(t0,t0);
@@ -684,6 +682,10 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	// Disabled at the moment due to HMQV and FHMQV failures
 	if (m_alpha == A_3 && false)
 	{
+		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement& b = m_ecp.m_b;
+
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x1 = P.x * !P.identity;
@@ -695,10 +697,6 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		const Integer z2 =   1 * !Q.identity;
 
 		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
-		const ECP::Field& field = m_ecp.GetField();
-
-		const FieldElement& a = m_ecp.m_a;
-		const FieldElement& b = m_ecp.m_b;
 
 		FieldElement t0 = field.Multiply(X1,X2);
 		FieldElement t1 = field.Multiply(Y1,Y2);
@@ -754,6 +752,10 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	}
 	else if (m_alpha == A_0)
 	{
+		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x1 = P.x * !P.identity;
@@ -765,10 +767,6 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		const Integer z2 =   1 * !Q.identity;
 
 		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
-		const ECP::Field& field = m_ecp.GetField();
-
-		const FieldElement& a = m_ecp.m_a;
-		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		FieldElement t0 = field.Square(Y);
 		Z3 = field.Add(t0,t0);
@@ -799,6 +797,10 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	}
 	else if (m_alpha == A_Star)
 	{
+		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x1 = P.x * !P.identity;
@@ -810,10 +812,6 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		const Integer z2 =   1 * !Q.identity;
 
 		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
-		const ECP::Field& field = m_ecp.GetField();
-
-		const FieldElement& a = m_ecp.m_a;
-		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		FieldElement t0 = field.Multiply(X1,X2);
 		FieldElement t1 = field.Multiply(Y1,Y2);
