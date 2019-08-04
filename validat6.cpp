@@ -143,12 +143,12 @@ bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain 
 		std::cout << "passed    authenticated key agreement domain parameters validation (initiator)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (recipient)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (initiator)" << std::endl;
 		return false;
 	}
 
 	if (recipient.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (initiator)" << std::endl;
+		std::cout << "passed    authenticated key agreement domain parameters validation (recipient)" << std::endl;
 	else
 	{
 		std::cout << "FAILED    authenticated key agreement domain parameters invalid (recipient)" << std::endl;
