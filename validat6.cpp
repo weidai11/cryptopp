@@ -196,6 +196,15 @@ bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain 
 	if (memcmp(val1.begin(), val2.begin(), initiator.AgreedValueLength()))
 	{
 		std::cout << "FAILED    authenticated agreed values not equal" << std::endl;
+
+		std::cout << "Initiator: ";
+		StringSource(val1.begin(), val1.size(), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << "\n";
+
+		std::cout << "Recipient: ";
+		StringSource(val2.begin(), val2.size(), true, new HexEncoder(new FileSink(std::cout)));
+		std::cout << "\n";
+
 		return false;
 	}
 
