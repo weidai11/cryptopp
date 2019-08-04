@@ -56,11 +56,9 @@ public:
 
   /// \brief Construct a FHMQV domain
   /// \tparam T1 template parameter used as a constructor parameter
-  /// \tparam T2 template parameter used as a constructor parameter
   /// \param v1 first parameter
-  /// \param v2 second parameter
   /// \param clientRole flag indicating initiator or recipient
-  /// \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
+  /// \details v1 is passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   template <class T1>
