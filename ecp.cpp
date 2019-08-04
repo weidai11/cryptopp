@@ -501,7 +501,7 @@ ECP::Point ECP::CascadeScalarMultiply(const Point &P, const Integer &k1, const P
 ECP::AdditionFunction::AdditionFunction(const ECP& ecp)
 	: m_ecp(ecp), m_alpha(static_cast<Alpha>(0))
 {
-	if (ecp.GetField().IsMontgomeryRepresentation())
+	if (m_ecp.GetField().IsMontgomeryRepresentation())
 	{
 		// std::cerr << "Montgomery, skipping" << std::endl;
 		m_alpha = A_Montgomery;
