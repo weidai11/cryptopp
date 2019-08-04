@@ -180,10 +180,22 @@ public:
     params.EncodeElement(true, y, publicKey);
   }
 
+  /// \brief Provides the size of the ephemeral private key
+  /// \return size of ephemeral private keys in this domain
+  /// \details An ephemeral private key is a private key and public key.
+  ///  The serialized size is different than a static private key.
   unsigned int EphemeralPrivateKeyLength() const {return StaticPrivateKeyLength() + StaticPublicKeyLength();}
+
+  /// \brief Provides the size of the ephemeral public key
+  /// \return size of ephemeral public keys in this domain
+  /// \details An ephemeral public key is a public key.
+  ///  The serialized size is the same as a static public key.
   unsigned int EphemeralPublicKeyLength() const{return StaticPublicKeyLength();}
 
-  /// return length of ephemeral private keys in this domain
+  /// \brief Generate ephemeral private key in this domain
+  /// \param rng a RandomNumberGenerator derived class
+  /// \param privateKey a byte buffer for the generated private key in this domain
+  /// \pre <tt>COUNTOF(privateKey) == EphemeralPrivateKeyLength()</tt>
   void GenerateEphemeralPrivateKey(RandomNumberGenerator &rng, byte *privateKey) const
   {
     const DL_GroupParameters<Element> &params = GetAbstractGroupParameters();
@@ -193,22 +205,29 @@ public:
     params.EncodeElement(true, y, privateKey+StaticPrivateKeyLength());
   }
 
-  /// return length of ephemeral public keys in this domain
+  /// \brief Generate ephemeral public key from a private key in this domain
+  /// \param rng a RandomNumberGenerator derived class
+  /// \param privateKey a byte buffer with the previously generated private key
+  /// \param publicKey a byte buffer for the generated public key in this domain
+  /// \pre <tt>COUNTOF(publicKey) == EphemeralPublicKeyLength()</tt>
   void GenerateEphemeralPublicKey(RandomNumberGenerator &rng, const byte *privateKey, byte *publicKey) const
   {
     CRYPTOPP_UNUSED(rng);
     memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
   }
 
-  /// \brief Derive shared secret from your private keys and couterparty's public keys
+  /// \brief Derive agreed value or shared secret
   /// \param agreedValue the shared secret
   /// \param staticPrivateKey your long term private key
   /// \param ephemeralPrivateKey your ephemeral private key
   /// \param staticOtherPublicKey couterparty's long term public key
   /// \param ephemeralOtherPublicKey couterparty's ephemeral public key
   /// \param validateStaticOtherPublicKey flag indicating validation
-  /// \details Agree() performs the authenticated key agreement. Each instance
-  ///  or run of the protocol should use a new ephemeral key pair.
+  /// \return true upon success, false in case of failure
+  /// \details Agree() performs the authenticated key agreement. Agree()
+  ///  derives a shared secret from your private keys and couterparty's
+  ///  public keys. Each instance or run of the protocol should use a new
+  ///  ephemeral key pair.
   /// \details The other's ephemeral public key will always be validated at
   ///  Level 1 to ensure it is a point on the curve.
   ///  <tt>validateStaticOtherPublicKey</tt> determines how thoroughly other's
