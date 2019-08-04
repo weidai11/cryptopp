@@ -31,7 +31,7 @@ public:
   virtual ~FHMQV_Domain() {}
 
   /// \brief Construct a FHMQV domain
-  /// \params clientRole flag indicating initiator or recipient
+  /// \param clientRole flag indicating initiator or recipient
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   FHMQV_Domain(bool clientRole = true)
@@ -39,6 +39,7 @@ public:
 
   /// \brief Construct a FHMQV domain
   /// \param params group parameters and options
+  /// \param clientRole flag indicating initiator or recipient
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   FHMQV_Domain(const GroupParameters &params, bool clientRole = true)
@@ -46,6 +47,7 @@ public:
 
   /// \brief Construct a FHMQV domain
   /// \param bt BufferedTransformation with group parameters and options
+  /// \param clientRole flag indicating initiator or recipient
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   FHMQV_Domain(BufferedTransformation &bt, bool clientRole = true)
@@ -54,10 +56,9 @@ public:
 
   /// \brief Construct a FHMQV domain
   /// \tparam T1 template parameter used as a constructor parameter
-  /// \tparam T2 template parameter used as a constructor parameter
   /// \param v1 first parameter
-  /// \param v2 second parameter
-  /// \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
+  /// \param clientRole flag indicating initiator or recipient
+  /// \details v1 is passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   template <class T1>
@@ -70,6 +71,7 @@ public:
   /// \tparam T2 template parameter used as a constructor parameter
   /// \param v1 first parameter
   /// \param v2 second parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -85,6 +87,7 @@ public:
   /// \param v1 first parameter
   /// \param v2 second parameter
   /// \param v3 third parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1, v2 and v3 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -102,6 +105,7 @@ public:
   /// \param v2 second parameter
   /// \param v3 third parameter
   /// \param v4 third parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1, v2, v3 and v4 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -202,7 +206,7 @@ public:
   /// \param staticPrivateKey your long term private key
   /// \param ephemeralPrivateKey your ephemeral private key
   /// \param staticOtherPublicKey couterparty's long term public key
-  /// \param ephemeralOtherPublicKey your ephemeral public key
+  /// \param ephemeralOtherPublicKey couterparty's ephemeral public key
   /// \param validateStaticOtherPublicKey flag indicating validation
   /// \details Agree() performs the authenticated key agreement. Each instance
   ///  or run of the protocol should use a new ephemeral key pair.
