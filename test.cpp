@@ -128,7 +128,7 @@ void HexDecode(const char *infile, const char *outfile);
 void FIPS140_GenerateRandomFiles();
 
 bool Validate(int, bool);
-bool GetGlobalSeed(int argc, char* argv[], std::string& seed);
+bool SetGlobalSeed(int argc, char* argv[], std::string& seed);
 void SetArgvPathHint(const char* argv0, std::string& pathHint);
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -169,17 +169,19 @@ int scoped_main(int argc, char *argv[])
 	cin.set_safe_flag(stream_MT::unsafe_object);
 #endif
 
-	// A hint to help locate TestData/ and TestVectors/ after install.
-	SetArgvPathHint(argv[0], g_argvPathHint);
-
 	try
 	{
 		RegisterFactories(All);
 
-		// Set a seed for reproducible results. It can be set on the command line or
-		// in the environment. The command line takes precedent. For example:
+		// A hint to help locate TestData/ and TestVectors/ after install.
+		SetArgvPathHint(argv[0], g_argvPathHint);
+
+		// Set a seed for reproducible results. It can be set on the command line.
+		// If the seed is short then it is padded with spaces. If the seed is
+		// missing then time() is used.
+		// For example:
 		//   ./cryptest.exe v seed=abcdefg
-		GetGlobalSeed(argc, argv, s_globalSeed);
+		SetGlobalSeed(argc, argv, s_globalSeed);
 
 #if (CRYPTOPP_USE_AES_GENERATOR)
 		// Fetch the SymmetricCipher interface, not the RandomNumberGenerator
@@ -450,7 +452,7 @@ int scoped_main(int argc, char *argv[])
 	}
 } // main()
 
-bool GetGlobalSeed(int argc, char* argv[], std::string& seed)
+bool SetGlobalSeed(int argc, char* argv[], std::string& seed)
 {
 	bool ret = false;
 
@@ -461,7 +463,7 @@ bool GetGlobalSeed(int argc, char* argv[], std::string& seed)
 
 		if (pos != std::string::npos)
 		{
-			// length  of "seed=" is 5
+			// length of "seed=" is 5
 			seed = arg.substr(pos+5);
 			ret = true; goto finish;
 		}
@@ -474,8 +476,7 @@ bool GetGlobalSeed(int argc, char* argv[], std::string& seed)
 finish:
 
 	// Some editors have problems with '\0' fill characters when redirecting output.
-	if (s_globalSeed.size() < GLOBAL_SEED_LENGTH)
-		s_globalSeed.resize(GLOBAL_SEED_LENGTH, ' ');
+	s_globalSeed.resize(GLOBAL_SEED_LENGTH, ' ');
 
 	return ret;
 }
