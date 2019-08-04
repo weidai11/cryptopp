@@ -30,7 +30,7 @@ public:
   virtual ~HMQV_Domain() {}
 
   /// \brief Construct a HMQV domain
-  /// \params clientRole flag indicating initiator or recipient
+  /// \param clientRole flag indicating initiator or recipient
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   HMQV_Domain(bool clientRole = true)
@@ -38,6 +38,7 @@ public:
 
   /// \brief Construct a HMQV domain
   /// \param params group parameters and options
+  /// \param clientRole flag indicating initiator or recipient
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   HMQV_Domain(const GroupParameters &params, bool clientRole = true)
@@ -45,6 +46,7 @@ public:
 
   /// \brief Construct a HMQV domain
   /// \param bt BufferedTransformation with group parameters and options
+  /// \param clientRole flag indicating initiator or recipient
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
   HMQV_Domain(BufferedTransformation &bt, bool clientRole = true)
@@ -56,6 +58,7 @@ public:
   /// \tparam T2 template parameter used as a constructor parameter
   /// \param v1 first parameter
   /// \param v2 second parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -69,6 +72,7 @@ public:
   /// \tparam T2 template parameter used as a constructor parameter
   /// \param v1 first parameter
   /// \param v2 second parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1 and v2 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -84,6 +88,7 @@ public:
   /// \param v1 first parameter
   /// \param v2 second parameter
   /// \param v3 third parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1, v2 and v3 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -101,6 +106,7 @@ public:
   /// \param v2 second parameter
   /// \param v3 third parameter
   /// \param v4 third parameter
+  /// \param clientRole flag indicating initiator or recipient
   /// \details v1, v2, v3 and v4 are passed directly to the GROUP_PARAMETERS object.
   /// \details <tt>clientRole = true</tt> indicates initiator, and
   ///  <tt>clientRole = false</tt> indicates recipient or server.
@@ -248,7 +254,7 @@ public:
         BB = tt.BytePtr();
         bbs = tt.SizeInBytes();
       }
-      else if(m_role == RoleClient)
+      else
       {
         Integer a(staticPrivateKey, StaticPrivateKeyLength());
         Element A = params.ExponentiateBase(a);
@@ -262,11 +268,6 @@ public:
         aas = tt.SizeInBytes();
         BB = staticOtherPublicKey;
         bbs = StaticPublicKeyLength();
-      }
-      else
-      {
-        CRYPTOPP_ASSERT(0);
-        return false;
       }
 
       // DecodeElement calls ValidateElement at level 1. Level 1 only calls
