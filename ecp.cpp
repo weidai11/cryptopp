@@ -15,6 +15,7 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::ECP;
+using CryptoPP::Integer;
 using CryptoPP::ModularArithmetic;
 
 #if defined(HAVE_GCC_INIT_PRIORITY)
@@ -38,6 +39,12 @@ inline ECP::Point ToMontgomery(const ModularArithmetic &mr, const ECP::Point &P)
 inline ECP::Point FromMontgomery(const ModularArithmetic &mr, const ECP::Point &P)
 {
 	return P.identity ? P : ECP::Point(mr.ConvertOut(P.x), mr.ConvertOut(P.y));
+}
+
+template <typename T>
+inline Integer ToInteger(const T& val)
+{
+	return !!val ? Integer::One() : Integer::Zero();
 }
 
 ANONYMOUS_NAMESPACE_END
@@ -522,14 +529,13 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	if (m_alpha == A_3)
 	{
 		const ECP::Field& field = m_ecp.GetField();
-		const FieldElement& a = m_ecp.m_a;
 		const FieldElement& b = m_ecp.m_b;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
-		const Integer x = P.x * !P.identity;
-		const Integer y = P.y * !P.identity + 1 * P.identity;
-		const Integer z = 1 * !P.identity;
+		const Integer x = P.x * ToInteger(!P.identity);
+		const Integer y = P.y * ToInteger(!P.identity) + 1 * ToInteger(P.identity);
+		const Integer z =   1 * ToInteger(!P.identity);
 
 		ProjectivePoint p(x, y, z), r;
 
@@ -579,14 +585,13 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	else if (m_alpha == A_0)
 	{
 		const ECP::Field& field = m_ecp.GetField();
-		const FieldElement& a = m_ecp.m_a;
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
-		const Integer x = P.x * !P.identity;
-		const Integer y = P.y * !P.identity + 1 * P.identity;
-		const Integer z = 1 * !P.identity;
+		const Integer x = P.x * ToInteger(!P.identity);
+		const Integer y = P.y * ToInteger(!P.identity) + 1 * ToInteger(P.identity);
+		const Integer z =   1 * ToInteger(!P.identity);
 
 		ProjectivePoint p(x, y, z), r;
 
@@ -620,14 +625,13 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	else if (m_alpha == A_Star)
 	{
 		const ECP::Field& field = m_ecp.GetField();
-		const FieldElement& a = m_ecp.m_a;
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
-		const Integer x = P.x * !P.identity;
-		const Integer y = P.y * !P.identity + 1 * P.identity;
-		const Integer z = 1 * !P.identity;
+		const Integer x = P.x * ToInteger(!P.identity);
+		const Integer y = P.y * ToInteger(!P.identity) + 1 * ToInteger(P.identity);
+		const Integer z =   1 * ToInteger(!P.identity);
 
 		ProjectivePoint p(x, y, z), r;
 
@@ -683,18 +687,17 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	if (m_alpha == A_3 && false)
 	{
 		const ECP::Field& field = m_ecp.GetField();
-		const FieldElement& a = m_ecp.m_a;
 		const FieldElement& b = m_ecp.m_b;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
-		const Integer x1 = P.x * !P.identity;
-		const Integer y1 = P.y * !P.identity + 1 * P.identity;
-		const Integer z1 =   1 * !P.identity;
+		const Integer x1 = P.x * ToInteger(!P.identity);
+		const Integer y1 = P.y * ToInteger(!P.identity) + 1 * ToInteger(P.identity);
+		const Integer z1 =   1 * ToInteger(!P.identity);
 
-		const Integer x2 = Q.x * !Q.identity;
-		const Integer y2 = Q.y * !Q.identity + 1 * Q.identity;
-		const Integer z2 =   1 * !Q.identity;
+		const Integer x2 = Q.x * ToInteger(!Q.identity);
+		const Integer y2 = Q.y * ToInteger(!Q.identity) + 1 * ToInteger(Q.identity);
+		const Integer z2 =   1 * ToInteger(!Q.identity);
 
 		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
 
@@ -753,18 +756,17 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	else if (m_alpha == A_0)
 	{
 		const ECP::Field& field = m_ecp.GetField();
-		const FieldElement& a = m_ecp.m_a;
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
-		const Integer x1 = P.x * !P.identity;
-		const Integer y1 = P.y * !P.identity + 1 * P.identity;
-		const Integer z1 =   1 * !P.identity;
+		const Integer x1 = P.x * ToInteger(!P.identity);
+		const Integer y1 = P.y * ToInteger(!P.identity) + 1 * ToInteger(P.identity);
+		const Integer z1 =   1 * ToInteger(!P.identity);
 
-		const Integer x2 = Q.x * !Q.identity;
-		const Integer y2 = Q.y * !Q.identity + 1 * Q.identity;
-		const Integer z2 =   1 * !Q.identity;
+		const Integer x2 = Q.x * ToInteger(!Q.identity);
+		const Integer y2 = Q.y * ToInteger(!Q.identity) + 1 * ToInteger(Q.identity);
+		const Integer z2 =   1 * ToInteger(!Q.identity);
 
 		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
 
@@ -798,18 +800,18 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	else if (m_alpha == A_Star)
 	{
 		const ECP::Field& field = m_ecp.GetField();
-		const FieldElement& a = m_ecp.m_a;
+		const FieldElement &a = m_ecp.m_a;
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
-		const Integer x1 = P.x * !P.identity;
-		const Integer y1 = P.y * !P.identity + 1 * P.identity;
-		const Integer z1 =   1 * !P.identity;
+		const Integer x1 = P.x * ToInteger(!P.identity);
+		const Integer y1 = P.y * ToInteger(!P.identity) + 1 * ToInteger(P.identity);
+		const Integer z1 =   1 * ToInteger(!P.identity);
 
-		const Integer x2 = Q.x * !Q.identity;
-		const Integer y2 = Q.y * !Q.identity + 1 * Q.identity;
-		const Integer z2 =   1 * !Q.identity;
+		const Integer x2 = Q.x * ToInteger(!Q.identity);
+		const Integer y2 = Q.y * ToInteger(!Q.identity) + 1 * ToInteger(Q.identity);
+		const Integer z2 =   1 * ToInteger(!Q.identity);
 
 		ProjectivePoint p(x1, y1, z1), q(x2, y2, z2), r;
 

@@ -894,7 +894,7 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	//   seedInput is argv[3] when issuing 'cryptest.exe v all <seed>'
 	if (seedInput != NULLPTR)
 	{
-		s_globalSeed = seedInput;
+		// s_globalSeed = seedInput;
 		s_globalSeed.resize(16, ' ');
 	}
 
@@ -1009,6 +1009,10 @@ bool Validate(int alg, bool thorough, const char *seedInput)
 	case 110: result = ValidateSHA3(); break;
 	case 111: result = ValidateSHAKE(); break;
 	case 112: result = ValidateSHAKE_XOF(); break;
+
+	case 120: result = ValidateMQV(); break;
+	case 121: result = ValidateHMQV(); break;
+	case 122: result = ValidateFHMQV(); break;
 
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// http://github.com/weidai11/cryptopp/issues/92

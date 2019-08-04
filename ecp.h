@@ -137,6 +137,9 @@ protected:
 
 		const ECP& m_ecp;
 		Alpha m_alpha;
+
+	private:
+		AdditionFunction(const AdditionFunction&);
 	};
 
 private:
