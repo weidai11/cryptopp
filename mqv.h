@@ -161,7 +161,7 @@ public:
 		memcpy(publicKey, privateKey+StaticPrivateKeyLength(), EphemeralPublicKeyLength());
 	}
 
-	/// \brief Derive shared secre from your private keys and couterparty's public keys
+	/// \brief Derive shared secret from your private keys and couterparty's public keys
 	/// \param agreedValue the shared secret
 	/// \param staticPrivateKey your long term private key
 	/// \param ephemeralPrivateKey your ephemeral private key
@@ -176,11 +176,11 @@ public:
 	///  static public key is validated. If you have previously validated the
 	///  couterparty's static public key, then use
 	///  <tt>validateStaticOtherPublicKey=false</tt> to save time.
-	/// \pre size of agreedValue == AgreedValueLength()
-	/// \pre length of staticPrivateKey == StaticPrivateKeyLength()
-	/// \pre length of ephemeralPrivateKey == EphemeralPrivateKeyLength()
-	/// \pre length of staticOtherPublicKey == StaticPublicKeyLength()
-	/// \pre length of ephemeralOtherPublicKey == EphemeralPublicKeyLength()
+	/// \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()
+	/// \pre <tt>COUNTOF(staticPrivateKey) == StaticPrivateKeyLength()</tt>
+	/// \pre <tt>COUNTOF(ephemeralPrivateKey) == EphemeralPrivateKeyLength()</tt>
+	/// \pre <tt>COUNTOF(staticOtherPublicKey) == StaticPublicKeyLength()</tt>
+	/// \pre <tt>COUNTOF(ephemeralOtherPublicKey) == EphemeralPublicKeyLength()</tt>
 	bool Agree(byte *agreedValue,
 		const byte *staticPrivateKey, const byte *ephemeralPrivateKey,
 		const byte *staticOtherPublicKey, const byte *ephemeralOtherPublicKey,
