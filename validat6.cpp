@@ -117,9 +117,13 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 	memset(val1.begin(), 0x10, val1.size());
 	memset(val2.begin(), 0x11, val2.size());
 
-	if (!(d.Agree(val1, spriv1, epriv1, spub2, epub2) && d.Agree(val2, spriv2, epriv2, spub1, epub1)))
+	if (d.Agree(val1, spriv1, epriv1, spub2, epub2) && d.Agree(val2, spriv2, epriv2, spub1, epub1))
 	{
-		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
+		std::cout << "passed    authenticated key agreement protocol execution" << std::endl;
+	}
+	else
+	{
+		std::cout << "FAILED    authenticated key agreement protocol execution" << std::endl;
 		return false;
 	}
 
@@ -133,29 +137,29 @@ bool AuthenticatedKeyAgreementValidate(AuthenticatedKeyAgreementDomain &d)
 	return true;
 }
 
-bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain &initiator, AuthenticatedKeyAgreementDomain &responder)
+bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain &initiator, AuthenticatedKeyAgreementDomain &recipient)
 {
 	if (initiator.GetCryptoParameters().Validate(GlobalRNG(), 3))
 		std::cout << "passed    authenticated key agreement domain parameters validation (initiator)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (initiator)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (recipient)" << std::endl;
 		return false;
 	}
 
-	if (responder.GetCryptoParameters().Validate(GlobalRNG(), 3))
-		std::cout << "passed    authenticated key agreement domain parameters validation (responder)" << std::endl;
+	if (recipient.GetCryptoParameters().Validate(GlobalRNG(), 3))
+		std::cout << "passed    authenticated key agreement domain parameters validation (initiator)" << std::endl;
 	else
 	{
-		std::cout << "FAILED    authenticated key agreement domain parameters invalid (responder)" << std::endl;
+		std::cout << "FAILED    authenticated key agreement domain parameters invalid (recipient)" << std::endl;
 		return false;
 	}
 
-	if (initiator.StaticPrivateKeyLength() != responder.StaticPrivateKeyLength() ||
-	    initiator.EphemeralPrivateKeyLength() != responder.EphemeralPrivateKeyLength() ||
-	    initiator.StaticPublicKeyLength() != responder.StaticPublicKeyLength() ||
-	    initiator.EphemeralPublicKeyLength() != responder.EphemeralPublicKeyLength() ||
-	    initiator.AgreedValueLength() != responder.AgreedValueLength())
+	if (initiator.StaticPrivateKeyLength() != recipient.StaticPrivateKeyLength() ||
+	    initiator.EphemeralPrivateKeyLength() != recipient.EphemeralPrivateKeyLength() ||
+	    initiator.StaticPublicKeyLength() != recipient.StaticPublicKeyLength() ||
+	    initiator.EphemeralPublicKeyLength() != recipient.EphemeralPublicKeyLength() ||
+	    initiator.AgreedValueLength() != recipient.AgreedValueLength())
 	{
 		std::cout << "FAILED    authenticated key agreement domain parameter consistency" << std::endl;
 		return false;
@@ -165,23 +169,27 @@ bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain 
 		std::cout << "passed    authenticated key agreement domain parameter consistency" << std::endl;
 	}
 
-	SecByteBlock spriv1(initiator.StaticPrivateKeyLength()), spriv2(responder.StaticPrivateKeyLength());
-	SecByteBlock epriv1(initiator.EphemeralPrivateKeyLength()), epriv2(responder.EphemeralPrivateKeyLength());
-	SecByteBlock spub1(initiator.StaticPublicKeyLength()), spub2(responder.StaticPublicKeyLength());
-	SecByteBlock epub1(initiator.EphemeralPublicKeyLength()), epub2(responder.EphemeralPublicKeyLength());
-	SecByteBlock val1(initiator.AgreedValueLength()), val2(responder.AgreedValueLength());
+	SecByteBlock spriv1(initiator.StaticPrivateKeyLength()), spriv2(recipient.StaticPrivateKeyLength());
+	SecByteBlock epriv1(initiator.EphemeralPrivateKeyLength()), epriv2(recipient.EphemeralPrivateKeyLength());
+	SecByteBlock spub1(initiator.StaticPublicKeyLength()), spub2(recipient.StaticPublicKeyLength());
+	SecByteBlock epub1(initiator.EphemeralPublicKeyLength()), epub2(recipient.EphemeralPublicKeyLength());
+	SecByteBlock val1(initiator.AgreedValueLength()), val2(recipient.AgreedValueLength());
 
 	initiator.GenerateStaticKeyPair(GlobalRNG(), spriv1, spub1);
-	responder.GenerateStaticKeyPair(GlobalRNG(), spriv2, spub2);
+	recipient.GenerateStaticKeyPair(GlobalRNG(), spriv2, spub2);
 	initiator.GenerateEphemeralKeyPair(GlobalRNG(), epriv1, epub1);
-	responder.GenerateEphemeralKeyPair(GlobalRNG(), epriv2, epub2);
+	recipient.GenerateEphemeralKeyPair(GlobalRNG(), epriv2, epub2);
 
 	memset(val1.begin(), 0x10, val1.size());
 	memset(val2.begin(), 0x11, val2.size());
 
-	if (!(initiator.Agree(val1, spriv1, epriv1, spub2, epub2) && responder.Agree(val2, spriv2, epriv2, spub1, epub1)))
+	if (initiator.Agree(val1, spriv1, epriv1, spub2, epub2) && recipient.Agree(val2, spriv2, epriv2, spub1, epub1))
 	{
-		std::cout << "FAILED    authenticated key agreement failed" << std::endl;
+		std::cout << "passed    authenticated key agreement protocol execution" << std::endl;
+	}
+	else
+	{
+		std::cout << "FAILED    authenticated key agreement protocol execution" << std::endl;
 		return false;
 	}
 
