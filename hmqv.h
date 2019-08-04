@@ -205,7 +205,7 @@ public:
   /// \param staticPrivateKey your long term private key
   /// \param ephemeralPrivateKey your ephemeral private key
   /// \param staticOtherPublicKey couterparty's long term public key
-  /// \param ephemeralOtherPublicKey your ephemeral public key
+  /// \param ephemeralOtherPublicKey couterparty's ephemeral public key
   /// \param validateStaticOtherPublicKey flag indicating validation
   /// \details Agree() performs the authenticated key agreement. Each instance
   ///  or run of the protocol should use a new ephemeral key pair.
