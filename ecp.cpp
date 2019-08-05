@@ -575,12 +575,12 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		Z3 = field.Add(Z3,Z3);
 
 		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
-		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		if (Z3.IsZero())
 			return m_ecp.Identity();
 		else
-			return ret;
+			return ECP::Point(X3, Y3);
 	}
 	else if (m_alpha == A_0)
 	{
@@ -615,12 +615,12 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		X3 = field.Add(X3,X3);
 
 		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
-		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		if (Z3.IsZero())
 			return m_ecp.Identity();
 		else
-			return ret;
+			return ECP::Point(X3, Y3);
 	}
 	else if (m_alpha == A_Star)
 	{
@@ -655,12 +655,12 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		X3 = field.Add(X3,X3);
 
 		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
-		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		if (Z3.IsZero())
 			return m_ecp.Identity();
 		else
-			return ret;
+			return ECP::Point(X3, Y3);
 	}
 	else  // A_Montgomery
 	{
@@ -683,8 +683,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 
 ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) const
 {
-	// Disabled at the moment due to HMQV and FHMQV failures
-	if (m_alpha == A_3 && false)
+	if (m_alpha == A_3)
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement& b = m_ecp.m_b;
@@ -746,12 +745,12 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		Z3 = field.Add(Z3,t1);
 
 		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
-		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		if (Z3.IsZero())
 			return m_ecp.Identity();
 		else
-			return ret;
+			return ECP::Point(X3, Y3);
 	}
 	else if (m_alpha == A_0)
 	{
@@ -790,12 +789,12 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		X3 = field.Add(X3,X3);
 
 		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
-		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		if (Z3.IsZero())
 			return m_ecp.Identity();
 		else
-			return ret;
+			return ECP::Point(X3, Y3);
 	}
 	else if (m_alpha == A_Star)
 	{
@@ -857,12 +856,12 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		Z3 = field.Add(Z3,t0);
 
 		const FieldElement inv = field.MultiplicativeInverse(Z3.IsZero() ? Integer::One() : Z3);
-		const ECP::Point ret(field.Multiply(X3, inv), field.Multiply(Y3, inv));
+		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		if (Z3.IsZero())
 			return m_ecp.Identity();
 		else
-			return ret;
+			return ECP::Point(X3, Y3);
 	}
 	else  // A_Montgomery
 	{
