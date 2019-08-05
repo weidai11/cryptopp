@@ -3,7 +3,6 @@
 /// \file ec2n.h
 /// \brief Classes for Elliptic Curves over binary fields
 
-
 #ifndef CRYPTOPP_EC2N_H
 #define CRYPTOPP_EC2N_H
 

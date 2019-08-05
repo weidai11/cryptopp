@@ -28,6 +28,9 @@
 #include "ec2n.h"
 #include "misc.h"
 
+#include <iostream>
+#include <sstream>
+
 // Squash MS LNK4221 and libtool warnings
 #ifndef CRYPTOPP_MANUALLY_INSTANTIATE_TEMPLATES
 extern const char ECCRYPTO_FNAME[] = __FILE__;
@@ -681,6 +684,13 @@ template <class EC>
 OID DL_GroupParameters_EC<EC>::GetAlgorithmID() const
 {
 	return ASN1::id_ecPublicKey();
+}
+
+std::ostream& operator<<(std::ostream& os, const DL_GroupParameters_EC<ECP>::Element& obj)
+{
+	std::ostringstream oss;
+	oss << "(" << std::hex << obj.x << ", " << std::hex  << obj.y << ")";
+	return os << oss.str();
 }
 
 // ******************************************************************

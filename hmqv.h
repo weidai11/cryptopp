@@ -287,38 +287,20 @@ public:
         bbs = StaticPublicKeyLength();
       }
 
-      // DecodeElement calls ValidateElement at level 1. Level 1 only calls
-      // VerifyPoint to ensure the element is in G*. If the other's PublicKey is
-      // requested to be validated, we manually call ValidateElement at level 3.
-      Element VV1 = params.DecodeElement(staticOtherPublicKey, false);
-      if(!params.ValidateElement(validateStaticOtherPublicKey ? 3 : 1, VV1, NULLPTR))
-      {
-        CRYPTOPP_ASSERT(0);
-        return false;
-      }
-
-      // DecodeElement calls ValidateElement at level 1. Level 1 only calls
-      // VerifyPoint to ensure the element is in G*. Crank it up.
-      Element VV2 = params.DecodeElement(ephemeralOtherPublicKey, false);
-      if(!params.ValidateElement(3, VV2, NULLPTR))
-      {
-        CRYPTOPP_ASSERT(0);
-        return false;
-      }
+      Element VV1 = params.DecodeElement(staticOtherPublicKey, validateStaticOtherPublicKey);
+      Element VV2 = params.DecodeElement(ephemeralOtherPublicKey, true);
 
       const Integer& q = params.GetSubgroupOrder();
       const unsigned int len /*bytes*/ = (((q.BitCount()+1)/2 +7)/8);
-
-      Integer d, e;
       SecByteBlock dd(len), ee(len);
 
       // Compute $d = \hat{H}(X, \hat{B})$
       Hash(NULLPTR, XX, xxs, BB, bbs, dd.BytePtr(), dd.SizeInBytes());
-      d.Decode(dd.BytePtr(), dd.SizeInBytes());
+      Integer d(dd.BytePtr(), dd.SizeInBytes());
 
       // Compute $e = \hat{H}(Y, \hat{A})$
       Hash(NULLPTR, YY, yys, AA, aas, ee.BytePtr(), ee.SizeInBytes());
-      e.Decode(ee.BytePtr(), ee.SizeInBytes());
+      Integer e(ee.BytePtr(), ee.SizeInBytes());
 
       Element sigma;
       if(m_role == RoleServer)
@@ -345,11 +327,11 @@ public:
         Element B = params.DecodeElement(BB, false);
         Element Y = params.DecodeElement(YY, false);
 
-        Element t1 = params.ExponentiateElement(B, e);
-        Element t2 = m_groupParameters.MultiplyElements(Y, t1);
+        Element t3 = params.ExponentiateElement(B, e);
+        Element t4 = m_groupParameters.MultiplyElements(Y, t3);
 
         // $\sigma_A}=(Y \cdot B^{e})^{s_A}
-        sigma = params.ExponentiateElement(t2, s_A);
+        sigma = params.ExponentiateElement(t4, s_A);
       }
       Hash(&sigma, NULLPTR, 0, NULLPTR, 0, agreedValue, AgreedValueLength());
     }
@@ -379,11 +361,11 @@ protected:
       if (e1len != 0 || s1len != 0) {
         CRYPTOPP_ASSERT(0);
       }
-      //SecByteBlock sbb(GetAbstractGroupParameters().GetEncodedElementSize(false));
-      //GetAbstractGroupParameters().EncodeElement(false, *sigma, sbb);
-      Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
-      SecByteBlock sbb(x.MinEncodedSize());
-      x.Encode(sbb.BytePtr(), sbb.SizeInBytes());
+      //Integer x = GetAbstractGroupParameters().ConvertElementToInteger(*sigma);
+      //SecByteBlock sbb(x.MinEncodedSize());
+      //x.Encode(sbb.BytePtr(), sbb.SizeInBytes());
+      SecByteBlock sbb(GetAbstractGroupParameters().GetEncodedElementSize(false));
+      GetAbstractGroupParameters().EncodeElement(false, *sigma, sbb);
       hash.Update(sbb.BytePtr(), sbb.SizeInBytes());
     } else {
       if (e1len == 0 || s1len == 0) {
@@ -412,7 +394,7 @@ protected:
 private:
 
   // The paper uses Initiator and Recipient - make it classical.
-  enum KeyAgreementRole{ RoleServer = 1, RoleClient };
+  enum KeyAgreementRole { RoleServer = 1, RoleClient };
 
   DL_GroupParameters<Element> & AccessAbstractGroupParameters()
     {return m_groupParameters;}

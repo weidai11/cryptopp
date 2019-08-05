@@ -76,7 +76,7 @@ bool ValidateMQV()
 bool ValidateHMQV()
 {
 	std::cout << "\nHMQV validation suite running...\n\n";
-	bool success = true;
+	bool success = true, fail;
 
 	FileSource f256(DataDir("TestData/hmqv256.dat").c_str(), true, new HexDecoder);
 	FileSource f384(DataDir("TestData/hmqv384.dat").c_str(), true, new HexDecoder);
@@ -91,7 +91,12 @@ bool ValidateHMQV()
 	const OID oid = ASN1::secp256r1();
 	ECHMQV< ECP >::Domain hmqvA256(oid, true /*client*/);
 
-	success = AuthenticatedKeyAgreementWithRolesValidate(hmqvA256, hmqvB256) && success;
+	fail = !AuthenticatedKeyAgreementWithRolesValidate(hmqvA256, hmqvB256);
+	success = !fail && success;
+	if (fail == false)
+		std::cout << "passed    authenticated key agreement" << std::endl;
+	else
+		std::cout << "FAILED    authenticated key agreement" << std::endl;
 
 	/////////////////////////
 
@@ -102,7 +107,12 @@ bool ValidateHMQV()
 	const OID oid384 = ASN1::secp384r1();
 	ECHMQV384 hmqvA384(oid384, true /*client*/);
 
-	success = AuthenticatedKeyAgreementWithRolesValidate(hmqvA384, hmqvB384) && success;
+	fail = !AuthenticatedKeyAgreementWithRolesValidate(hmqvA384, hmqvB384);
+	success = !fail && success;
+	if (fail == false)
+		std::cout << "passed    authenticated key agreement" << std::endl;
+	else
+		std::cout << "FAILED    authenticated key agreement" << std::endl;
 
 	/////////////////////////
 
@@ -113,7 +123,12 @@ bool ValidateHMQV()
 	const OID oid521 = ASN1::secp521r1();
 	ECHMQV512 hmqvA521(oid521, true /*client*/);
 
-	success = AuthenticatedKeyAgreementWithRolesValidate(hmqvA521, hmqvB521) && success;
+	fail = !AuthenticatedKeyAgreementWithRolesValidate(hmqvA521, hmqvB521);
+	success = !fail && success;
+	if (fail == false)
+		std::cout << "passed    authenticated key agreement" << std::endl;
+	else
+		std::cout << "FAILED    authenticated key agreement" << std::endl;
 
 	return success;
 }
@@ -121,7 +136,7 @@ bool ValidateHMQV()
 bool ValidateFHMQV()
 {
 	std::cout << "\nFHMQV validation suite running...\n\n";
-	bool success = true;
+	bool success = true, fail;
 
 	FileSource f256(DataDir("TestData/fhmqv256.dat").c_str(), true, new HexDecoder);
 	FileSource f384(DataDir("TestData/fhmqv384.dat").c_str(), true, new HexDecoder);
@@ -136,7 +151,12 @@ bool ValidateFHMQV()
 	const OID oid = ASN1::secp256r1();
 	ECFHMQV< ECP >::Domain fhmqvA256(oid, true /*client*/);
 
-	success = AuthenticatedKeyAgreementWithRolesValidate(fhmqvA256, fhmqvB256) && success;
+	fail = !AuthenticatedKeyAgreementWithRolesValidate(fhmqvA256, fhmqvB256);
+	success = !fail && success;
+	if (fail == false)
+		std::cout << "passed    authenticated key agreement" << std::endl;
+	else
+		std::cout << "FAILED    authenticated key agreement" << std::endl;
 
 	/////////////////////////
 
@@ -147,7 +167,12 @@ bool ValidateFHMQV()
 	const OID oid384 = ASN1::secp384r1();
 	ECHMQV384 fhmqvA384(oid384, true /*client*/);
 
-	success = AuthenticatedKeyAgreementWithRolesValidate(fhmqvA384, fhmqvB384) && success;
+	fail = !AuthenticatedKeyAgreementWithRolesValidate(fhmqvA384, fhmqvB384);
+	success = !fail && success;
+	if (fail == false)
+		std::cout << "passed    authenticated key agreement" << std::endl;
+	else
+		std::cout << "FAILED    authenticated key agreement" << std::endl;
 
 	/////////////////////////
 
@@ -158,7 +183,12 @@ bool ValidateFHMQV()
 	const OID oid521 = ASN1::secp521r1();
 	ECHMQV512 fhmqvA521(oid521, true /*client*/);
 
-	success = AuthenticatedKeyAgreementWithRolesValidate(fhmqvA521, fhmqvB521) && success;
+	fail = !AuthenticatedKeyAgreementWithRolesValidate(fhmqvA521, fhmqvB521);
+	success = !fail && success;
+	if (fail == false)
+		std::cout << "passed    authenticated key agreement" << std::endl;
+	else
+		std::cout << "FAILED    authenticated key agreement" << std::endl;
 
 	return success;
 }

@@ -199,7 +199,7 @@ bool AuthenticatedKeyAgreementWithRolesValidate(AuthenticatedKeyAgreementDomain 
 		return false;
 	}
 
-	std::cout << "passed    authenticated key agreement" << std::endl;
+	std::cout << "passed    authenticated key agreement shared secret" << std::endl;
 	return true;
 }
 
