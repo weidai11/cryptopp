@@ -170,7 +170,7 @@ protected:
 	mutable bool m_compress, m_encodeAsOID;		// presentation details
 };
 
-std::ostream& operator<<(std::ostream& os, const DL_GroupParameters_EC<ECP>::Element& obj);
+inline std::ostream& operator<<(std::ostream& os, const DL_GroupParameters_EC<ECP>::Element& obj);
 
 /// \brief Elliptic Curve Discrete Log (DL) public key
 /// \tparam EC elliptic curve field
