@@ -153,12 +153,14 @@ LDFLAGS = /nologo /SUBSYSTEM:CONSOLE /DEBUG
 ARFLAGS = /nologo
 LDLIBS =
 
-# Debug build.
+# Compiler debug build.
 # CXXFLAGS = $(CXXFLAGS) /DDEBUG /D_DEBUG /Oi /Oy- /Od /MTd
-# Release build. Add /OPT:REF to linker
+# Compiler release build.
 CXXFLAGS = $(CXXFLAGS) /DNDEBUG /D_NDEBUG /Oi /Oy /O2 /MT
-# Linker flags.
-LDFLAGS = $(LDFLAGS) /OPT:REF
+# Linker debug build.
+# LDFLAGS = $(LDFLAGS) /DEBUG
+# Linker release build.
+LDFLAGS = $(LDFLAGS) /DEBUG /OPT:REF
 
 # Attempt to detect when <sdkddkver.h> and <winapifamily.h> are available
 #   http://stackoverflow.com/q/40577415 ?
