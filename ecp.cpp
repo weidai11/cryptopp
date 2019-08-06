@@ -661,7 +661,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	}
 	else  // A_Montgomery
 	{
-		ECP::Point& m_R = m_ecp.m_R;
+		ECP::Point& R = m_ecp.m_R;
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement& a = m_ecp.m_a;
 
@@ -672,15 +672,15 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		t = field.Add(field.Add(field.Double(t), t), a);
 		t = field.Divide(t, field.Double(P.y));
 		FieldElement x = field.Subtract(field.Subtract(field.Square(t), P.x), P.x);
-		m_R.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
-		m_R.x.swap(x);
+		R.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+		R.x.swap(x);
 
 		// More gyrations
-		m_R.x *= IdentityToInteger(!identity);
-		m_R.y *= IdentityToInteger(!identity);
-		m_R.identity = identity;
+		R.x *= IdentityToInteger(!identity);
+		R.y *= IdentityToInteger(!identity);
+		R.identity = identity;
 
-		return m_R;
+		return R;
 	}
 }
 
@@ -870,7 +870,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement& a = m_ecp.m_a;
-		ECP::Point& R = m_ecp.m_R, S = m_ecp.m_R, T;
+		ECP::Point& R = m_ecp.m_R, S = m_ecp.m_R;
 
 		// More gyrations
 		bool return_Q = P.identity;
@@ -888,8 +888,8 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 			t = field.Add(field.Add(field.Double(t), t), a);
 			t = field.Divide(t, field.Double(P.y));
 			FieldElement x = field.Subtract(field.Subtract(field.Square(t), P.x), P.x);
-			T.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
-			T.x.swap(x);
+			R.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+			R.x.swap(x);
 		}
 		else
 		{
@@ -910,10 +910,8 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 			return (R = S), Q;
 		else if (return_P)
 			return (R = S), P;
-		else if (double_P)
-			return (T = R), R;
 		else
-			return (T = R), R;
+			return (S = R), R;
 	}
 }
 
