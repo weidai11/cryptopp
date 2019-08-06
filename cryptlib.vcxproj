@@ -373,6 +373,16 @@
       <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdrand-x64.obj" "%(FullPath)"</Command>
       <Outputs>$(IntDir)\rdrand-x64.obj;%(Outputs)</Outputs>
     </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='Win32'" Include="rdseed.asm">
+      <Message>Building and assembling rdseed.asm</Message>
+      <Command>ml.exe /c /nologo /D_M_X86 /W3 /Cx /Zi /safeseh /Fo"$(IntDir)rdseed-x86.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdseed-x86.obj;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Condition="'$(Platform)'=='x64'" Include="rdseed.asm">
+      <Message>Building and assembling rdseed.asm</Message>
+      <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Cx /Zi /Fo"$(IntDir)rdseed-x64.obj" "%(FullPath)"</Command>
+      <Outputs>$(IntDir)\rdseed-x64.obj;%(Outputs)</Outputs>
+    </CustomBuild>
     <CustomBuild Condition="'$(Platform)'=='x64' AND ('$(Configuration)'=='Debug' Or '$(Configuration)'=='Release')" Include="x64dll.asm">
       <Message>Building and assembling x64dll.asm</Message>
       <Command>ml64.exe /c /nologo /D_M_X64 /W3 /Zi /Fo"$(IntDir)x64dll.obj" "%(FullPath)"</Command>
