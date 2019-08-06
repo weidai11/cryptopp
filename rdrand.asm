@@ -63,13 +63,13 @@ MASM_RDRAND_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD
     bsize  EQU edx
 
             ;; Top of While loop
-GenerateBlock_Top:
+RDRAND_GenerateBlock_Top:
 
             ;; Check remaining size
     cmp     bsize, 0
-    je      GenerateBlock_Return
+    je      RDRAND_GenerateBlock_Return
 
-Call_RDRAND_EAX:
+RDRAND_Call_EAX:
             ;; RDRAND is not available prior to VS2012. Just emit
             ;;   the byte codes using DB. This is `rdrand eax`.
     DB      0Fh, 0C7h, 0F0h
@@ -78,46 +78,46 @@ Call_RDRAND_EAX:
             ;; If CF=0, a random number was not available.
 
             ;; Retry immediately
-    jnc     Call_RDRAND_EAX
+    jnc     RDRAND_Call_EAX
 
 RDRAND_succeeded:
 
     cmp     bsize, MWSIZE
-    jb      Partial_Machine_Word
+    jb      RDRAND_Partial_Machine_Word
 
-Full_Machine_Word:
+RDRAND_Full_Machine_Word:
 
     mov     DWORD PTR [buffer], eax
     add     buffer, MWSIZE        ;; No need for Intel Core 2 slow workarounds, like
     sub     bsize, MWSIZE         ;;   `lea buffer,[buffer+MWSIZE]` for faster adds
 
             ;; Continue
-    jmp     GenerateBlock_Top
+    jmp     RDRAND_GenerateBlock_Top
 
             ;; 1,2,3 bytes remain
-Partial_Machine_Word:
+RDRAND_Partial_Machine_Word:
 
             ;; Test bit 1 to see if size is at least 2
     test    bsize, 2
-    jz      Bit_1_Not_Set
+    jz      RDRAND_Bit_1_Not_Set
 
     mov     WORD PTR [buffer], ax
     shr     eax, 16
     add     buffer, 2
 
-Bit_1_Not_Set:
+RDRAND_Bit_1_Not_Set:
 
             ;; Test bit 0 to see if size is at least 1
     test    bsize, 1
-    jz      Bit_0_Not_Set
+    jz      RDRAND_Bit_0_Not_Set
 
     mov     BYTE PTR [buffer], al
 
-Bit_0_Not_Set:
+RDRAND_Bit_0_Not_Set:
 
             ;; We've hit all the bits
 
-GenerateBlock_Return:
+RDRAND_GenerateBlock_Return:
 
             ;; Clear artifacts
     xor     eax, eax
@@ -151,13 +151,13 @@ MASM_RDRAND_GenerateBlock PROC   ;; arg1:QWORD, arg2:QWORD
     bsize  EQU rdx
 
             ;; Top of While loop
-GenerateBlock_Top:
+RDRAND_GenerateBlock_Top:
 
             ;; Check remaining size
     cmp     bsize, 0
-    je      GenerateBlock_Return
+    je      RDRAND_GenerateBlock_Return
 
-Call_RDRAND_RAX:
+RDRAND_Call_RAX:
             ;; RDRAND is not available prior to VS2012. Just emit
             ;;   the byte codes using DB. This is `rdrand rax`.
     DB      048h, 0Fh, 0C7h, 0F0h
@@ -166,60 +166,60 @@ Call_RDRAND_RAX:
             ;; If CF=0, a random number was not available.
 
             ;; Retry immediately
-    jnc     Call_RDRAND_RAX
+    jnc     RDRAND_Call_RAX
 
 RDRAND_succeeded:
 
     cmp     bsize, MWSIZE
-    jb      Partial_Machine_Word
+    jb      RDRAND_Partial_Machine_Word
 
-Full_Machine_Word:
+RDRAND_Full_Machine_Word:
 
     mov     QWORD PTR [buffer], rax
     add     buffer, MWSIZE
     sub     bsize, MWSIZE
 
             ;; Continue
-    jmp     GenerateBlock_Top
+    jmp     RDRAND_GenerateBlock_Top
 
             ;; 1,2,3,4,5,6,7 bytes remain
-Partial_Machine_Word:
+RDRAND_Partial_Machine_Word:
 
             ;; Test bit 2 to see if size is at least 4
     test    bsize, 4
-    jz      Bit_2_Not_Set
+    jz      RDRAND_Bit_2_Not_Set
 
     mov     DWORD PTR [buffer], eax
     shr     rax, 32
     add     buffer, 4
 
-Bit_2_Not_Set:
+RDRAND_Bit_2_Not_Set:
 
             ;; Test bit 1 to see if size is at least 2
     test    bsize, 2
-    jz      Bit_1_Not_Set
+    jz      RDRAND_Bit_1_Not_Set
 
     mov     WORD PTR [buffer], ax
     shr     eax, 16
     add     buffer, 2
 
-Bit_1_Not_Set:
+RDRAND_Bit_1_Not_Set:
 
             ;; Test bit 0 to see if size is at least 1
     test    bsize, 1
-    jz      Bit_0_Not_Set
+    jz      RDRAND_Bit_0_Not_Set
 
     mov     BYTE PTR [buffer], al
 
-Bit_0_Not_Set:
+RDRAND_Bit_0_Not_Set:
 
             ;; We've hit all the bits
 
-GenerateBlock_Return:
+RDRAND_GenerateBlock_Return:
 
             ;; Clear artifacts
     xor     rax, rax
-	ret
+    ret
 
 MASM_RDRAND_GenerateBlock ENDP
 
@@ -249,13 +249,13 @@ MASM_RDSEED_GenerateBlock PROC   ;; arg1:DWORD, arg2:DWORD
     bsize  EQU edx
 
             ;; Top of While loop
-GenerateBlock_Top:
+RDSEED_GenerateBlock_Top:
 
             ;; Check remaining size
     cmp     bsize, 0
-    je      GenerateBlock_Return
+    je      RDSEED_GenerateBlock_Return
 
-Call_RDSEED_EAX:
+RDSEED_Call_EAX:
             ;; RDSEED is not available prior to VS2012. Just emit
             ;;   the byte codes using DB. This is `rdseed eax`.
     DB      0Fh, 0C7h, 0F8h
@@ -264,50 +264,50 @@ Call_RDSEED_EAX:
             ;; If CF=0, a random number was not available.
 
             ;; Retry immediately
-    jnc     Call_RDSEED_EAX
+    jnc     RDSEED_Call_EAX
 
 RDSEED_succeeded:
 
     cmp     bsize, MWSIZE
-    jb      Partial_Machine_Word
+    jb      RDSEED_Partial_Machine_Word
 
-Full_Machine_Word:
+RDSEED_Full_Machine_Word:
 
     mov     DWORD PTR [buffer], eax
     add     buffer, MWSIZE        ;; No need for Intel Core 2 slow workarounds, like
     sub     bsize, MWSIZE         ;;   `lea buffer,[buffer+MWSIZE]` for faster adds
 
             ;; Continue
-    jmp     GenerateBlock_Top
+    jmp     RDSEED_GenerateBlock_Top
 
             ;; 1,2,3 bytes remain
-Partial_Machine_Word:
+RDSEED_Partial_Machine_Word:
 
             ;; Test bit 1 to see if size is at least 2
     test    bsize, 2
-    jz      Bit_1_Not_Set
+    jz      RDSEED_Bit_1_Not_Set
 
     mov     WORD PTR [buffer], ax
     shr     eax, 16
     add     buffer, 2
 
-Bit_1_Not_Set:
+RDSEED_Bit_1_Not_Set:
 
             ;; Test bit 0 to see if size is at least 1
     test    bsize, 1
-    jz      Bit_0_Not_Set
+    jz      RDSEED_Bit_0_Not_Set
 
     mov     BYTE PTR [buffer], al
 
-Bit_0_Not_Set:
+RDSEED_Bit_0_Not_Set:
 
             ;; We've hit all the bits
 
-GenerateBlock_Return:
+RDSEED_GenerateBlock_Return:
 
             ;; Clear artifacts
     xor     eax, eax
-	ret
+    ret
 
 MASM_RDSEED_GenerateBlock ENDP
 
@@ -337,13 +337,13 @@ MASM_RDSEED_GenerateBlock PROC   ;; arg1:QWORD, arg2:QWORD
     bsize  EQU rdx
 
             ;; Top of While loop
-GenerateBlock_Top:
+RDSEED_GenerateBlock_Top:
 
             ;; Check remaining size
     cmp     bsize, 0
-    je      GenerateBlock_Return
+    je      RDSEED_GenerateBlock_Return
 
-Call_RDSEED_RAX:
+RDSEED_Call_RAX:
             ;; RDSEED is not available prior to VS2012. Just emit
             ;;   the byte codes using DB. This is `rdseed rax`.
     DB      048h, 0Fh, 0C7h, 0F8h
@@ -352,56 +352,56 @@ Call_RDSEED_RAX:
             ;; If CF=0, a random number was not available.
 
             ;; Retry immediately
-    jnc     Call_RDSEED_RAX
+    jnc     RDSEED_Call_RAX
 
 RDSEED_succeeded:
 
     cmp     bsize, MWSIZE
-    jb      Partial_Machine_Word
+    jb      RDSEED_Partial_Machine_Word
 
-Full_Machine_Word:
+RDSEED_Full_Machine_Word:
 
     mov     QWORD PTR [buffer], rax
     add     buffer, MWSIZE
     sub     bsize, MWSIZE
 
             ;; Continue
-    jmp     GenerateBlock_Top
+    jmp     RDSEED_GenerateBlock_Top
 
             ;; 1,2,3,4,5,6,7 bytes remain
-Partial_Machine_Word:
+RDSEED_Partial_Machine_Word:
 
             ;; Test bit 2 to see if size is at least 4
     test    bsize, 4
-    jz      Bit_2_Not_Set
+    jz      RDSEED_Bit_2_Not_Set
 
     mov     DWORD PTR [buffer], eax
     shr     rax, 32
     add     buffer, 4
 
-Bit_2_Not_Set:
+RDSEED_Bit_2_Not_Set:
 
             ;; Test bit 1 to see if size is at least 2
     test    bsize, 2
-    jz      Bit_1_Not_Set
+    jz      RDSEED_Bit_1_Not_Set
 
     mov     WORD PTR [buffer], ax
     shr     eax, 16
     add     buffer, 2
 
-Bit_1_Not_Set:
+RDSEED_Bit_1_Not_Set:
 
             ;; Test bit 0 to see if size is at least 1
     test    bsize, 1
-    jz      Bit_0_Not_Set
+    jz      RDSEED_Bit_0_Not_Set
 
     mov     BYTE PTR [buffer], al
 
-Bit_0_Not_Set:
+RDSEED_Bit_0_Not_Set:
 
             ;; We've hit all the bits
 
-GenerateBlock_Return:
+RDSEED_GenerateBlock_Return:
 
             ;; Clear artifacts
     xor     rax, rax
