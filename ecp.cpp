@@ -868,22 +868,52 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	}
 	else  // A_Montgomery
 	{
-		ECP::Point& m_R = m_ecp.m_R;
 		const ECP::Field& field = m_ecp.GetField();
+		const FieldElement& a = m_ecp.m_a;
+		ECP::Point& R = m_ecp.m_R, S = m_ecp.m_R, T;
 
-		if (P.identity) return Q;
-		if (Q.identity) return P;
-		if (field.Equal(P.x, Q.x))
-			return field.Equal(P.y, Q.y) ? m_ecp.Double(P) : m_ecp.Identity();
+		// More gyrations
+		bool return_Q = P.identity;
+		bool return_P = Q.identity;
+		bool double_P = field.Equal(P.x, Q.x) && field.Equal(P.y, Q.y);
+		bool identity = field.Equal(P.x, Q.x) && !field.Equal(P.y, Q.y);
 
-		FieldElement t =  field.Subtract(Q.y, P.y);
-		t =  field.Divide(t,  field.Subtract(Q.x, P.x));
-		FieldElement x =  field.Subtract(field.Subtract(field.Square(t), P.x), Q.x);
-		m_R.y =  field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+		// This code taken from Double(P)
+		identity |= double_P * (P.identity | P.y==field.Identity());
 
-		m_R.x.swap(x);
-		m_R.identity = false;
-		return m_R;
+		if (double_P)
+		{
+			// This code taken from Double(P)
+			FieldElement t = field.Square(P.x);
+			t = field.Add(field.Add(field.Double(t), t), a);
+			t = field.Divide(t, field.Double(P.y));
+			FieldElement x = field.Subtract(field.Subtract(field.Square(t), P.x), P.x);
+			T.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+			T.x.swap(x);
+		}
+		else
+		{
+			// Original Double (P,Q) code
+			FieldElement t = field.Subtract(Q.y, P.y);
+			t = field.Divide(t, field.Subtract(Q.x, P.x));
+			FieldElement x = field.Subtract(field.Subtract(field.Square(t), P.x), Q.x);
+			R.y = field.Subtract(field.Multiply(t, field.Subtract(P.x, x)), P.y);
+			R.x.swap(x);
+		}
+
+		// More gyrations
+		R.x = R.x * IdentityToInteger(!identity);
+		R.y = R.y * IdentityToInteger(!identity);
+		R.identity = identity;
+
+		if (return_Q)
+			return (R = S), Q;
+		else if (return_P)
+			return (R = S), P;
+		else if (double_P)
+			return (T = R), R;
+		else
+			return (T = R), R;
 	}
 }
 
