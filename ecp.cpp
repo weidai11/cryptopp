@@ -527,6 +527,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement& b = m_ecp.m_b;
+		ECP::Point& R = m_ecp.m_R;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
@@ -575,14 +576,17 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		// More gyrations
-		ECP::Point result(X3*Z3.NotZero(), Y3*Z3.NotZero());
-		result.identity = Z3.IsZero();
-		return result;
+		R.x = X3*Z3.NotZero();
+		R.y = Y3*Z3.NotZero();
+		R.identity = Z3.IsZero();
+
+		return R;
 	}
 	else if (m_alpha == A_0)
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+		ECP::Point& R = m_ecp.m_R;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
@@ -615,14 +619,17 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		// More gyrations
-		ECP::Point result(X3*Z3.NotZero(), Y3*Z3.NotZero());
-		result.identity = Z3.IsZero();
-		return result;
+		R.x = X3*Z3.NotZero();
+		R.y = Y3*Z3.NotZero();
+		R.identity = Z3.IsZero();
+
+		return R;
 	}
 	else if (m_alpha == A_Star)
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+		ECP::Point& R = m_ecp.m_R;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
@@ -655,9 +662,11 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		// More gyrations
-		ECP::Point result(X3*Z3.NotZero(), Y3*Z3.NotZero());
-		result.identity = Z3.IsZero();
-		return result;
+		R.x = X3*Z3.NotZero();
+		R.y = Y3*Z3.NotZero();
+		R.identity = Z3.IsZero();
+
+		return R;
 	}
 	else  // A_Montgomery
 	{
@@ -690,6 +699,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement& b = m_ecp.m_b;
+		ECP::Point& R = m_ecp.m_R;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
@@ -751,14 +761,17 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		// More gyrations
-		ECP::Point result(X3*Z3.NotZero(), Y3*Z3.NotZero());
-		result.identity = Z3.IsZero();
-		return result;
+		R.x = X3*Z3.NotZero();
+		R.y = Y3*Z3.NotZero();
+		R.identity = Z3.IsZero();
+
+		return R;
 	}
 	else if (m_alpha == A_0)
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+		ECP::Point& R = m_ecp.m_R;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
@@ -795,15 +808,18 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		// More gyrations
-		ECP::Point result(X3*Z3.NotZero(), Y3*Z3.NotZero());
-		result.identity = Z3.IsZero();
-		return result;
+		R.x = X3*Z3.NotZero();
+		R.y = Y3*Z3.NotZero();
+		R.identity = Z3.IsZero();
+
+		return R;
 	}
 	else if (m_alpha == A_Star)
 	{
 		const ECP::Field& field = m_ecp.GetField();
 		const FieldElement &a = m_ecp.m_a;
 		const FieldElement b3 = field.Multiply(m_ecp.m_b, 3);
+		ECP::Point& R = m_ecp.m_R;
 
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
@@ -862,9 +878,11 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		X3 = field.Multiply(X3, inv); Y3 = field.Multiply(Y3, inv);
 
 		// More gyrations
-		ECP::Point result(X3*Z3.NotZero(), Y3*Z3.NotZero());
-		result.identity = Z3.IsZero();
-		return result;
+		R.x = X3*Z3.NotZero();
+		R.y = Y3*Z3.NotZero();
+		R.identity = Z3.IsZero();
+
+		return R;
 	}
 	else  // A_Montgomery
 	{
