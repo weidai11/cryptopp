@@ -279,6 +279,7 @@ rdrand.s
 rdrand.asm
 rdrand.cpp
 rdrand.h
+rdseed.asm
 rdtables.cpp
 regtest1.cpp
 regtest2.cpp
