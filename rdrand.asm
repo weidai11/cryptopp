@@ -110,6 +110,8 @@ RDRAND_Bit_1_Not_Set:
     jz      RDRAND_Bit_0_Not_Set
 
     mov     BYTE PTR [buffer], al
+    ;; shr     ax, 8
+    ;; add     buffer, 1
 
 RDRAND_Bit_0_Not_Set:
 
@@ -122,9 +124,6 @@ RDRAND_GenerateBlock_Return:
     ret
 
 MASM_RDRAND_GenerateBlock ENDP
-
-;; OPTION PROLOGUE:PrologueDef
-;; OPTION EPILOGUE:EpilogueDef
 
 ENDIF    ;; _M_X86
 
@@ -208,6 +207,8 @@ RDRAND_Bit_1_Not_Set:
     jz      RDRAND_Bit_0_Not_Set
 
     mov     BYTE PTR [buffer], al
+    ;; shr     ax, 8
+    ;; add     buffer, 1
 
 RDRAND_Bit_0_Not_Set:
 
@@ -220,9 +221,6 @@ RDRAND_GenerateBlock_Return:
     ret
 
 MASM_RDRAND_GenerateBlock ENDP
-
-;; OPTION PROLOGUE:PrologueDef
-;; OPTION EPILOGUE:EpilogueDef
 
 ENDIF    ;; _M_X64
 
