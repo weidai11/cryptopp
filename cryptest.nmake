@@ -291,10 +291,8 @@ iterhash.obj: iterhash.h iterhash.cpp
 	$(CXX) $(CXXFLAGS) /Y- /c iterhash.cpp
 dll.obj: dll.h dll.cpp
 	$(CXX) $(CXXFLAGS) /Y- /c dll.cpp
-rdrand.obj: rdrand.cpp $(RDRAND_OBJ)
+rdrand.obj: rdrand.h rdrand.cpp
 	$(CXX) $(CXXFLAGS) /c rdrand.cpp
-rdseed.obj: rdseed.cpp $(RDSEED_OBJ)
-	$(CXX) $(CXXFLAGS) /c rdseed.cpp
 
 # Built for x86/x64
 rdrand-x86.obj: rdrand.asm
