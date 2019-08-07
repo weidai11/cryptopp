@@ -176,9 +176,8 @@ int scoped_main(int argc, char *argv[])
 		// A hint to help locate TestData/ and TestVectors/ after install.
 		SetArgvPathHint(argv[0], g_argvPathHint);
 
-		// Set a seed for reproducible results. It can be set on the command line.
-		// If the seed is short then it is padded with spaces. If the seed is
-		// missing then time() is used.
+		// Set a seed for reproducible results. If the seed is too short then
+		// it is padded with spaces. If the seed is missing then time() is used.
 		// For example:
 		//   ./cryptest.exe v seed=abcdefg
 		SetGlobalSeed(argc, argv, s_globalSeed);

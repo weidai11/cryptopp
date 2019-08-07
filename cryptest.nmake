@@ -118,7 +118,7 @@ LIB_OBJS = \
     zdeflate.obj zinflate.obj zlib.obj
 
 ASM_OBJS = \
-    rdrand-x86.obj rdrand-x64.obj x64masm.obj x64dll.obj
+    rdrand-x86.obj rdrand-x64.obj rdseed-x86.obj rdseed-x64.obj x64masm.obj x64dll.obj
 
 TEST_SRCS = \
     test.cpp bench1.cpp bench2.cpp bench3.cpp datatest.cpp \
@@ -196,10 +196,12 @@ PLATFORM = x64
 # CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_APP
 AS = ml.exe
 ASFLAGS = /nologo /D_M_X86 /W3 /Cx /Zi /safeseh
-LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm
-LIB_OBJS = $(LIB_OBJS) rdrand-x86.obj
+LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm rdseed.asm
+LIB_OBJS = $(LIB_OBJS) rdrand-x86.obj rdseed-x86.obj
 LDFLAGS = $(LDFLAGS) /MACHINE:X86
 LDLIBS = $(LDLIBS) kernel32.lib
+RDRAND_OBJ = rdrand-x86.obj
+RDSEED_OBJ = rdseed-x86.obj
 !ENDIF
 
 # May need $(VCINSTALLDIR)\bin\amd64\ml64.exe
@@ -209,10 +211,12 @@ LDLIBS = $(LDLIBS) kernel32.lib
 # CXXFLAGS = $(CXXFLAGS) /DWINAPI_FAMILY=WINAPI_FAMILY_APP
 AS = ml64.exe
 ASFLAGS = /nologo /D_M_X64 /W3 /Cx /Zi
-LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm
-LIB_OBJS = $(LIB_OBJS) rdrand-x64.obj x64masm.obj x64dll.obj
+LIB_SRCS = $(LIB_SRCS) rdrand.cpp rdrand.asm rdseed.asm
+LIB_OBJS = $(LIB_OBJS) rdrand-x64.obj rdseed-x64.obj x64masm.obj x64dll.obj
 LDFLAGS = $(LDFLAGS) /MACHINE:X64
 LDLIBS = $(LDLIBS) kernel32.lib
+RDRAND_OBJ = rdrand-x64.obj
+RDSEED_OBJ = rdseed-x64.obj
 !ENDIF
 
 !IF "$(PLATFORM)" == "ARM" || "$(PLATFORM)" == "arm" || "$(PLATFORM)" == "ARM64" || "$(PLATFORM)" == "arm64"
@@ -283,21 +287,25 @@ pch.pch: pch.h pch.cpp
 	$(CXX) $(CXXFLAGS) /Yc"pch.h" /Fp"pch.pch" /c pch.cpp
 
 # No precompiled headers
-iterhash.obj:
+iterhash.obj: iterhash.h iterhash.cpp
 	$(CXX) $(CXXFLAGS) /Y- /c iterhash.cpp
-dll.obj:
+dll.obj: dll.h dll.cpp
 	$(CXX) $(CXXFLAGS) /Y- /c dll.cpp
-rdrand.obj:
+rdrand.obj: rdrand.h rdrand.cpp
 	$(CXX) $(CXXFLAGS) /c rdrand.cpp
 
 # Built for x86/x64
-rdrand-x86.obj:
+rdrand-x86.obj: rdrand.asm
 	$(AS) $(ASFLAGS) /Fo rdrand-x86.obj /c rdrand.asm
-rdrand-x64.obj:
+rdrand-x64.obj: rdrand.asm
 	$(AS) $(ASFLAGS) /Fo rdrand-x64.obj /c rdrand.asm
-x64masm.obj:
+rdseed-x86.obj: rdseed.asm
+	$(AS) $(ASFLAGS) /Fo rdseed-x86.obj /c rdseed.asm
+rdseed-x64.obj: rdseed.asm
+	$(AS) $(ASFLAGS) /Fo rdseed-x64.obj /c rdseed.asm
+x64masm.obj: x64masm.asm
 	$(AS) $(ASFLAGS) /Fo x64masm.obj /c x64masm.asm
-x64dll.obj:
+x64dll.obj: x64dll.asm
 	$(AS) $(ASFLAGS) /Fo x64dll.obj /c x64dll.asm
 
 # You may need to delete this on early versions of Visual Studio.
