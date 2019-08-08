@@ -896,6 +896,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		bool double_P = field.Equal(P.x, Q.x) && field.Equal(P.y, Q.y);
 		bool identity = field.Equal(P.x, Q.x) && !field.Equal(P.y, Q.y);
 
+		// This code taken from Double(P) for below
 		identity = static_cast<bool>((double_P * (P.identity + (P.y == field.Identity()))) + identity);
 
 		if (double_P)
@@ -910,7 +911,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		}
 		else
 		{
-			// Original Double (P,Q) code
+			// Original Add(P,Q) code
 			FieldElement t = field.Subtract(Q.y, P.y);
 			t = field.Divide(t, field.Subtract(Q.x, P.x));
 			FieldElement x = field.Subtract(field.Subtract(field.Square(t), P.x), Q.x);
