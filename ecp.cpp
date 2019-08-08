@@ -675,7 +675,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P) const
 		const FieldElement& a = m_ecp.m_a;
 
 		// More gyrations
-		bool identity = (P.identity | (P.y==field.Identity()));
+		bool identity = static_cast<bool>(P.identity + (P.y==field.Identity()));
 
 		FieldElement t = field.Square(P.x);
 		t = field.Add(field.Add(field.Double(t), t), a);
@@ -896,8 +896,7 @@ ECP::Point ECP::AdditionFunction::operator()(const Point& P, const Point& Q) con
 		bool double_P = field.Equal(P.x, Q.x) && field.Equal(P.y, Q.y);
 		bool identity = field.Equal(P.x, Q.x) && !field.Equal(P.y, Q.y);
 
-		// This code taken from Double(P)
-		identity |= (double_P * (P.identity | (P.y==field.Identity())));
+		identity = static_cast<bool>((double_P * (P.identity + (P.y == field.Identity()))) + identity);
 
 		if (double_P)
 		{
