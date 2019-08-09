@@ -228,7 +228,7 @@ MACPORTS_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "MacPorts")
 CLANG_COMPILER=$("$CXX" --version 2>&1 | "$GREP" -i -c "clang")
 GNU_LINKER=$(ld --version 2>&1 | "$GREP" -i -c "GNU ld")
 
-if [[ ("$SUN_COMPILER" -eq "0") ]]; then
+if [[ ("$SUN_COMPILER" -eq 0) ]]; then
 	AMD64=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$GREP" -i -c -E "(__x64_64__|__amd64__)")
 	ILP32=$("$CXX" -dM -E - </dev/null 2>/dev/null | "$GREP" -i -c -E "(__ILP32__|__ILP32)")
 	if [[ ("$AMD64" -ne "0") && ("$ILP32" -ne "0") ]]; then
@@ -274,7 +274,7 @@ if [[ (-z "$HAVE_CXX17") ]]; then
 	HAVE_CXX17=0
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++17 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_CXX17=1
 	fi
 fi
@@ -283,7 +283,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU17") ]]; then
 	HAVE_GNU17=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++17 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_GNU17=1
 	fi
 fi
@@ -293,7 +293,7 @@ if [[ (-z "$HAVE_CXX20") ]]; then
 	HAVE_CXX20=0
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++20 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_CXX20=1
 	fi
 fi
@@ -302,7 +302,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU20") ]]; then
 	HAVE_GNU20=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++20 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_GNU20=1
 	fi
 fi
@@ -311,7 +311,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX14") ]]; then
 	HAVE_CXX14=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++14 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_CXX14=1
 	fi
 fi
@@ -320,7 +320,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU14") ]]; then
 	HAVE_GNU14=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++14 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_GNU14=1
 	fi
 fi
@@ -329,7 +329,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX11") ]]; then
 	HAVE_CXX11=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++11 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_CXX11=1
 	fi
 fi
@@ -338,7 +338,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU11") ]]; then
 	HAVE_GNU11=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++11 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_GNU11=1
 	fi
 fi
@@ -347,7 +347,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CXX03") ]]; then
 	HAVE_CXX03=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=c++03 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_CXX03=1
 	fi
 fi
@@ -356,7 +356,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_GNU03") ]]; then
 	HAVE_GNU03=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -std=gnu++03 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		HAVE_GNU03=1
 	fi
 fi
@@ -365,12 +365,12 @@ fi
 OPT_O0=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O0 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
+if [[ ("$?" -eq 0) ]]; then
 	OPT_O0=-O0
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO0 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		OPT_O0=-xO0
 	fi
 fi
@@ -379,13 +379,13 @@ fi
 OPT_O1=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O1 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
+if [[ ("$?" -eq 0) ]]; then
 	HAVE_O1=1
 	OPT_O1=-O1
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO1 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_O1=1
 		OPT_O1=-xO1
 	fi
@@ -395,13 +395,13 @@ fi
 OPT_O2=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
+if [[ ("$?" -eq 0) ]]; then
 	HAVE_O2=1
 	OPT_O2=-O2
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_O2=1
 		OPT_O2=-xO2
 	fi
@@ -411,31 +411,31 @@ fi
 OPT_O3=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
+if [[ ("$?" -eq 0) ]]; then
 	HAVE_O3=1
 	OPT_O3=-O3
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_O3=1
 		OPT_O3=-xO3
 	fi
 fi
 
 # Hit or miss, mostly hit
-if [[ ( (-z "$HAVE_O5") && ("$CLANG_COMPILER" -eq "0") ) ]]; then
+if [[ ( (-z "$HAVE_O5") && ("$CLANG_COMPILER" -eq 0) ) ]]; then
 	HAVE_O5=0
 	OPT_O5=
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -O5 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_O5=1
 		OPT_O5=-O5
 	else
 		rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xO5 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
+		if [[ ("$?" -eq 0) ]]; then
 			HAVE_O5=1
 			OPT_O5=-xO5
 		fi
@@ -448,7 +448,7 @@ if [[ (-z "$HAVE_OS") ]]; then
 	OPT_OS=
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Os adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_OS=1
 		OPT_OS=-Os
 	fi
@@ -460,7 +460,7 @@ if [[ (-z "$HAVE_OFAST") ]]; then
 	OPT_OFAST=
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -Ofast adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_OFAST=1
 		OPT_OFAST=-Ofast
 	fi
@@ -470,12 +470,12 @@ fi
 OPT_G2=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -g2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
+if [[ ("$?" -eq 0) ]]; then
 	OPT_G2=-g2
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		OPT_G2=-g
 	fi
 fi
@@ -484,12 +484,12 @@ fi
 OPT_G3=
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 "$CXX" -DCRYPTOPP_ADHOC_MAIN -g3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-if [[ ("$?" -eq "0") ]]; then
+if [[ ("$?" -eq 0) ]]; then
 	OPT_G3=-g3
 else
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -g adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		OPT_G3=-g
 	fi
 fi
@@ -500,7 +500,7 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_PIC") ]]; then
 	HAVE_PIC=0
 	PIC_PROBLEMS=$("$CXX" -DCRYPTOPP_ADHOC_MAIN -fPIC adhoc.cpp -o "$TMPDIR/adhoc.exe" 2>&1 | "$GREP" -i -c -E  '(warning|error)')
-	if [[ "$PIC_PROBLEMS" -eq "0" ]]; then
+	if [[ "$PIC_PROBLEMS" -eq 0 ]]; then
 		HAVE_PIC=1
 		OPT_PIC=-fPIC
 		if [[ ("$XLC_COMPILER" -eq "1") ]]; then
@@ -514,9 +514,9 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_UBSAN") ]]; then
 	HAVE_UBSAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=undefined adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
+		if [[ ("$?" -eq 0) ]]; then
 			HAVE_UBSAN=1
 		fi
 	fi
@@ -527,9 +527,9 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_ASAN") ]]; then
 	HAVE_ASAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=address adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
+		if [[ ("$?" -eq 0) ]]; then
 			HAVE_ASAN=1
 		fi
 	fi
@@ -540,9 +540,9 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_BSAN") ]]; then
 	HAVE_BSAN=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fsanitize=bounds-strict adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
+		if [[ ("$?" -eq 0) ]]; then
 			HAVE_BSAN=1
 		fi
 	fi
@@ -553,9 +553,9 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_CET") ]]; then
 	HAVE_CET=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fcf-protection=full -mcet adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
+		if [[ ("$?" -eq 0) ]]; then
 			HAVE_CET=1
 		fi
 	fi
@@ -566,9 +566,9 @@ rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_REPTOLINE") ]]; then
 	HAVE_REPTOLINE=0
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mfunction-return=thunk -mindirect-branch=thunk adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ ("$?" -eq "0") ]]; then
+		if [[ ("$?" -eq 0) ]]; then
 			HAVE_REPTOLINE=1
 		fi
 	fi
@@ -579,25 +579,25 @@ if [[ (-z "$HAVE_OMP") ]]; then
 	HAVE_OMP=0
 	if [[ "$GCC_COMPILER" -ne "0" ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-fopenmp -O3)
 		fi
 	elif [[ "$INTEL_COMPILER" -ne "0" ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -openmp -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-openmp -O3)
 		fi
 	elif [[ "$CLANG_COMPILER" -ne "0" ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -fopenmp=libomp -O3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-fopenmp=libomp -O3)
 		fi
 	elif [[ "$SUN_COMPILER" -ne "0" ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -xopenmp=parallel -xO3 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_OMP=1
 			OMP_FLAGS=(-xopenmp=parallel -xO3)
 		fi
@@ -609,7 +609,7 @@ if [[ (-z "$HAVE_INTEL_MULTIARCH") ]]; then
 	HAVE_INTEL_MULTIARCH=0
 	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch i386 -arch x86_64 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_INTEL_MULTIARCH=1
 		fi
 	fi
@@ -620,7 +620,7 @@ if [[ (-z "$HAVE_PPC_MULTIARCH") ]]; then
 	HAVE_PPC_MULTIARCH=0
 	if [[ ("$IS_DARWIN" -ne "0") && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0") ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -arch ppc -arch ppc64 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_PPC_MULTIARCH=1
 		fi
 	fi
@@ -631,7 +631,7 @@ if [[ (-z "$HAVE_X32") ]]; then
 	HAVE_X32=0
 	if [[ "$IS_X32" -ne "0" ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mx32 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_X32=1
 		fi
 	fi
@@ -642,7 +642,7 @@ if [[ (-z "$HAVE_NATIVE_ARCH") ]]; then
 	HAVE_NATIVE_ARCH=0
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=native adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ ("$?" -eq "0") ]]; then
+	if [[ ("$?" -eq 0) ]]; then
 		HAVE_NATIVE_ARCH=1
 	fi
 fi
@@ -656,7 +656,7 @@ if [[ (-z "$HAVE_LDGOLD") ]]; then
 		LD_GOLD=$(file "$LD_GOLD" | cut -d":" -f 2 | "$GREP" -i -c "elf")
 		if [[ ("$LD_GOLD" -ne "0") ]]; then
 			"$CXX" -DCRYPTOPP_ADHOC_MAIN -fuse-ld=gold adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-			if [[ "$?" -eq "0" ]]; then
+			if [[ "$?" -eq 0 ]]; then
 				HAVE_LDGOLD=1
 			fi
 		fi
@@ -745,9 +745,9 @@ fi
 if [[ (-z "$HAVE_DISASS") ]]; then
 	echo "int main(int argc, char* argv[]) {return 0;}" > "$TMPDIR/test.cc"
 	"$CXX" "$TMPDIR/test.cc" -o "$TMPDIR/test.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		"$DISASS" "${DISASSARGS[@]}" "$TMPDIR/test.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			HAVE_DISASS=1
 		else
 			HAVE_DISASS=0
@@ -957,13 +957,16 @@ fi
 #  An 8-core Cubietruck Plus with 2GB RAM experiences OOM kills with '-j 2'.
 HAVE_SWAP=1
 if [[ "$IS_LINUX" -ne "0" ]]; then
-	if [[ (-e "/proc/meminfo") ]]; then
-		SWAP_SIZE="$($GREP 'SwapTotal' < /proc/meminfo | "$AWK" '{print $2}')"
-		if [[ "$SWAP_SIZE" -eq "0" ]]; then
+	# If memory is small, then ensure swap space exists
+	if [[ "$MEM_SIZE" -lt 4096 ]]; then
+		if [[ (-e "/proc/meminfo") ]]; then
+			SWAP_SIZE="$($GREP 'SwapTotal' < /proc/meminfo | "$AWK" '{print $2}')"
+			if [[ "$SWAP_SIZE" -eq 0 ]]; then
+				HAVE_SWAP=0
+			fi
+		else
 			HAVE_SWAP=0
 		fi
-	else
-		HAVE_SWAP=0
 	fi
 fi
 
@@ -1076,7 +1079,7 @@ if true; then
 		echo "FAILED: found use of Posix NDEBUG" | tee -a "$TEST_RESULTS"
 	fi
 
-	if [[ ("$FAILED" -eq "0") ]]; then
+	if [[ ("$FAILED" -eq 0) ]]; then
 		echo "Verified no Posix NDEBUG or assert" | tee -a "$TEST_RESULTS"
 	fi
 fi
@@ -1108,7 +1111,7 @@ if true; then
 		echo "FAILED: found std::max" | tee -a "$TEST_RESULTS"
 	fi
 
-	if [[ ("$FAILED" -eq "0") ]]; then
+	if [[ ("$FAILED" -eq 0) ]]; then
 		echo "Verified std::min and std::max" | tee -a "$TEST_RESULTS"
 	fi
 fi
@@ -1150,13 +1153,13 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 			fi
 		fi
 
-		if [[ ("$X86_SSE2" -ne "0" && "$X86_SHA256_HASH_BLOCKS" -eq "0") ]]; then
+		if [[ ("$X86_SSE2" -ne "0" && "$X86_SHA256_HASH_BLOCKS" -eq 0) ]]; then
 			echo "ERROR: failed to use SHA256_HashMultipleBlocks_SSE2" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0" && "$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
+		if [[ ("$FAILED" -eq 0 && "$X86_SHA256_HASH_BLOCKS" -ne "0") ]]; then
 			echo "Verified rotate immediate machine instructions (SHA256_HashMultipleBlocks_SSE2)" | tee -a "$TEST_RESULTS"
-		elif [[ ("$FAILED" -eq "0") ]]; then
+		elif [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified rotate immediate machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1165,7 +1168,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	# Test CRC-32C code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msse4.2 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		X86_CRC32=1
 	fi
 
@@ -1185,18 +1188,18 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32b)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32l)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32l instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified crc32b and crc32l machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1205,7 +1208,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	# Test AES-NI code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -maes adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		X86_AESNI=1
 	fi
 
@@ -1225,42 +1228,42 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesenc)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesenc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesenclast)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesenclast instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesdec)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesdec instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesdeclast)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesdeclast instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesimc)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aeskeygenassist)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aeskeygenassist instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified aesenc, aesenclast, aesdec, aesdeclast, aesimc, aeskeygenassist machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1269,7 +1272,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	# X86 carryless multiply code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mpclmul adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		X86_PCLMUL=1
 	fi
 
@@ -1289,18 +1292,18 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E '(pclmulqdq|pclmullqhq|vpclmulqdq)')
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pclmullqhq instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E '(pclmulqdq|pclmullqlq|vpclmulqdq)')
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pclmullqlq instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified pclmullqhq and pclmullqlq machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1309,11 +1312,11 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	# Test RDRAND and RDSEED code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdrnd adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		X86_RDRAND=1
 	fi
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -mrdseed adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		X86_RDSEED=1
 	fi
 
@@ -1334,7 +1337,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ "$X86_RDRAND" -ne "0" ]]; then
 			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c rdrand)
-			if [[ ("$COUNT" -eq "0") ]]; then
+			if [[ ("$COUNT" -eq 0) ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rdrand instruction" | tee -a "$TEST_RESULTS"
 			fi
@@ -1342,13 +1345,13 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 
 		if [[ "$X86_RDSEED" -ne "0" ]]; then
 			COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c rdseed)
-			if [[ ("$COUNT" -eq "0") ]]; then
+			if [[ ("$COUNT" -eq 0) ]]; then
 				FAILED=1
 				echo "ERROR: failed to generate rdseed instruction" | tee -a "$TEST_RESULTS"
 			fi
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified rdrand and rdseed machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1357,7 +1360,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 	# X86 SHA code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -msha adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		X86_SHA=1
 	fi
 
@@ -1377,48 +1380,48 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_X86" -ne "0" || "$IS_X64" -ne "0")) ]]; t
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1rnds4)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1rnds4 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1nexte)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1nexte instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1msg1)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1msg1 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1msg2)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1msg2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256rnds2)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256rnds2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256msg1)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256msg1 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256msg2)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256msg2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified sha1rnds4, sha1nexte, sha1msg1, sha1msg2, sha256rnds2, sha256msg1 and sha256msg2 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1527,7 +1530,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 			echo "ERROR: failed to generate NEON xor instructions" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified NEON load, store, shfit left, shift right, xor machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1536,7 +1539,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 	# ARM CRC32 code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crc adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		ARM_CRC32=1
 	fi
 
@@ -1556,30 +1559,30 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32cb)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32cb instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32cw)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32cw instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32b)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32b instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c crc32w)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate crc32w instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified crc32cb, crc32cw, crc32b and crc32w machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1588,7 +1591,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 	# ARM carryless multiply code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		ARM_PMULL=1
 	fi
 
@@ -1608,18 +1611,18 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -v pmull2 | "$GREP" -i -c pmull)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pmull instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c pmull2)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate pmull2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified pmull and pmull2 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1628,7 +1631,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 	# ARM AES code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		ARM_AES=1
 	fi
 
@@ -1648,30 +1651,30 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aese)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aese instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesmc)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesmc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesd)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesd instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c aesimc)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate aesimc instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified aese, aesd, aesmc, aesimc machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1680,7 +1683,7 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 	# ARM SHA code generation
 
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -march=armv8-a+crypto adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		ARM_SHA=1
 	fi
 
@@ -1700,66 +1703,66 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_ARM32" -ne "0" || "$IS_ARM64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1c)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1c instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1m)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1m instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1p)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1p instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1h)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1h instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1su0)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1su0 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha1su1)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha1su1 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -v sha256h2 | "$GREP" -i -c sha256h)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256h instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256h2)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256h2 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256su0)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256su0 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c sha256su1)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate sha256su1 instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified sha1c, sha1m, sha1p, sha1su0, sha1su1, sha256h, sha256h2, sha256su0, sha256su1 machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1773,16 +1776,16 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 	# Power8 AES
 
 	PPC_AES=0
-	if [[ ("$PPC_AES" -eq "0") ]]; then
+	if [[ ("$PPC_AES" -eq 0) ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mcpu=power8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			PPC_AES=1
 			PPC_AES_FLAGS="-mcpu=power8"
 		fi
 	fi
-	if [[ ("$PPC_AES" -eq "0") ]]; then
+	if [[ ("$PPC_AES" -eq 0) ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -qarch=pwr8 -qaltivec adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			PPC_AES=1
 			PPC_AES_FLAGS="-qarch=pwr8 -qaltivec"
 		fi
@@ -1804,30 +1807,30 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -v vcipherlast | "$GREP" -i -c vcipher)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vcipher instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vcipherlast)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vcipherlast instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -v vncipherlast | "$GREP" -i -c vncipher)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vncipher instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vncipherlast)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vncipherlast instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified vcipher, vcipherlast,vncipher, vncipherlast machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1836,16 +1839,16 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 	# Power8 SHA
 
 	PPC_SHA=0
-	if [[ ("$PPC_SHA" -eq "0") ]]; then
+	if [[ ("$PPC_SHA" -eq 0) ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mcpu=power8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			PPC_SHA=1
 			PPC_SHA_FLAGS="-mcpu=power8"
 		fi
 	fi
-	if [[ ("$PPC_SHA" -eq "0") ]]; then
+	if [[ ("$PPC_SHA" -eq 0) ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -qarch=pwr8 -qaltivec adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			PPC_SHA=1
 			PPC_SHA_FLAGS="-qarch=pwr8 -qaltivec"
 		fi
@@ -1867,18 +1870,18 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vshasigmaw)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vshasigmaw instruction" | tee -a "$TEST_RESULTS"
 		fi
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vshasigmad)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vshasigmad instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified vshasigmaw and vshasigmad machine instructions" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -1887,16 +1890,16 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 	# Power8 VMULL
 
 	PPC_VMULL=0
-	if [[ ("$PPC_VMULL" -eq "0") ]]; then
+	if [[ ("$PPC_VMULL" -eq 0) ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -mcpu=power8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			PPC_VMULL=1
 			PPC_VMULL_FLAGS="-mcpu=power8"
 		fi
 	fi
-	if [[ ("$PPC_VMULL" -eq "0") ]]; then
+	if [[ ("$PPC_VMULL" -eq 0) ]]; then
 		"$CXX" -DCRYPTOPP_ADHOC_MAIN -qarch=pwr8 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 			PPC_VMULL=1
 			PPC_VMULL_FLAGS="-qarch=pwr8"
 		fi
@@ -1918,12 +1921,12 @@ if [[ ("$HAVE_DISASS" -ne "0" && ("$IS_PPC32" -ne "0" || "$IS_PPC64" -ne "0")) ]
 		DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
 		COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c vpmsum)
-		if [[ ("$COUNT" -eq "0") ]]; then
+		if [[ ("$COUNT" -eq 0) ]]; then
 			FAILED=1
 			echo "ERROR: failed to generate vpmsum instruction" | tee -a "$TEST_RESULTS"
 		fi
 
-		if [[ ("$FAILED" -eq "0") ]]; then
+		if [[ ("$FAILED" -eq 0) ]]; then
 			echo "Verified vpmsum machine instruction" | tee -a "$TEST_RESULTS"
 		fi
 	fi
@@ -2224,25 +2227,25 @@ if [[ ("$IS_SUSE" -ne "0") ]]; then
 
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fstack-protector-strong adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		SUSE_FLAGS+=("-fstack-protector-strong")
 	fi
 
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fasynchronous-unwind-tables adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		SUSE_FLAGS+=("-fasynchronous-unwind-tables")
 	fi
 
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fstack-clash-protection adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		SUSE_FLAGS+=("-fstack-clash-protection")
 	fi
 
 	rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	"$CXX" -DCRYPTOPP_ADHOC_MAIN -flto=6 adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 		SUSE_FLAGS+=("-flto=6")
 	fi
 
@@ -6606,11 +6609,11 @@ fi
 ############################################
 # Perform a quick check with Clang, if available.
 #   This check was added after testing on Ubuntu 14.04 with Clang 3.4.
-if [[ ("$CLANG_COMPILER" -eq "0") ]]; then
+if [[ ("$CLANG_COMPILER" -eq 0) ]]; then
 
 	CLANG_CXX=$(command -v clang++ 2>/dev/null)
 	"$CLANG_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 
 		############################################
 		# Clang build
@@ -6643,11 +6646,11 @@ fi
 
 ############################################
 # Perform a quick check with GCC, if available.
-if [[ ("$GCC_COMPILER" -eq "0") ]]; then
+if [[ ("$GCC_COMPILER" -eq 0) ]]; then
 
 	GCC_CXX=$(command -v g++ 2>/dev/null)
 	"$GCC_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 
 		############################################
 		# GCC build
@@ -6680,14 +6683,14 @@ fi
 
 ############################################
 # Perform a quick check with Intel ICPC, if available.
-if [[ ("$INTEL_COMPILER" -eq "0") ]]; then
+if [[ ("$INTEL_COMPILER" -eq 0) ]]; then
 
 	INTEL_CXX=$(command -v icpc 2>/dev/null)
 	if [[ (-z "$INTEL_CXX") ]]; then
 		INTEL_CXX=$(find /opt/intel -name icpc 2>/dev/null | "$GREP" -iv composer | head -1)
 	fi
 	"$INTEL_CXX" -x c++ -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-	if [[ "$?" -eq "0" ]]; then
+	if [[ "$?" -eq 0 ]]; then
 
 		############################################
 		# Intel build
@@ -6720,12 +6723,12 @@ fi
 
 ############################################
 # Perform a quick check with MacPorts compilers, if available.
-if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
+if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq 0) ]]; then
 
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-4*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts GCC 4.x build
@@ -6760,7 +6763,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-5*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts GCC 5.x build
@@ -6795,7 +6798,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-6*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts GCC 6.x build
@@ -6830,7 +6833,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'g++-mp-7*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts GCC 7.x build
@@ -6865,7 +6868,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3.7*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts 3.7 Clang build
@@ -6899,7 +6902,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3.8*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts 3.8 Clang build
@@ -6933,7 +6936,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-3.9*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts 3.9 Clang build
@@ -6967,7 +6970,7 @@ if [[ ("$IS_DARWIN" -ne "0" && "$MACPORTS_COMPILER" -eq "0") ]]; then
 	MACPORTS_CXX=$(find /opt/local/bin -name 'clang++-mp-4*' 2>/dev/null | head -1)
 	if [[ (! -z "$MACPORTS_CXX") ]]; then
 		"$MACPORTS_CXX" -x c++ -std=c++11 -DCRYPTOPP_ADHOC_MAIN adhoc.cpp.proto -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
-		if [[ "$?" -eq "0" ]]; then
+		if [[ "$?" -eq 0 ]]; then
 
 			############################################
 			# MacPorts 4.x Clang build
@@ -7038,7 +7041,7 @@ fi
 
 ############################################
 # Test an install with CRYPTOPP_DATA_DIR
-if [[ ("$IS_CYGWIN" -eq "0") && ("$IS_MINGW" -eq "0") ]]; then
+if [[ ("$IS_CYGWIN" -eq 0) && ("$IS_MINGW" -eq 0) ]]; then
 
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
@@ -7108,7 +7111,7 @@ fi
 
 ############################################
 # Test a remove with CRYPTOPP_DATA_DIR
-if [[ ("$IS_CYGWIN" -eq "0" && "$IS_MINGW" -eq "0") ]]; then
+if [[ ("$IS_CYGWIN" -eq 0 && "$IS_MINGW" -eq 0) ]]; then
 
 	echo
 	echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
