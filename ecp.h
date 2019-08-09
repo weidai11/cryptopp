@@ -106,42 +106,6 @@ public:
 	bool operator==(const ECP &rhs) const
 		{return GetField() == rhs.GetField() && m_a == rhs.m_a && m_b == rhs.m_b;}
 
-protected:
-	/// \brief Addition and Double functions
-	/// \sa <A HREF="https://eprint.iacr.org/2015/1060.pdf">Complete
-	///  addition formulas for prime order elliptic curves</A>
-	class AdditionFunction
-	{
-	public:
-		explicit AdditionFunction(const ECP& ecp);
-		// Double(P)
-		Point operator()(const Point& P) const;
-		// Add(P, Q)
-		Point operator()(const Point& P, const Point& Q) const;
-
-	protected:
-		/// \brief Parameters and representation for Addition
-		/// \details Addition and Doubling will use different algorithms,
-		///  depending on the <tt>A</tt> coefficient and the representation
-		///  (Affine or Montgomery with precomputation).
-		enum Alpha {
-			/// \brief Coefficient A is 0
-			A_0=1,
-			/// \brief Coefficient A is -3
-			A_3=2,
-			/// \brief Coefficient A is arbitrary
-			A_Star=4,
-			/// \brief Representation is Montgomery
-			A_Montgomery=8
-		};
-
-		const ECP& m_ecp;
-		Alpha m_alpha;
-
-	private:
-		AdditionFunction(const AdditionFunction&);
-	};
-
 private:
 	clonable_ptr<Field> m_fieldPtr;
 	FieldElement m_a, m_b;
