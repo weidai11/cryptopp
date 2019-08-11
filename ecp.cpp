@@ -230,7 +230,7 @@ ECP::Point AdditionFunction::operator()(const ECP::Point& P) const
 		return R;
 	}
 	else if (m_alpha == A_Star)
-	{		
+	{
 		// Gyrations attempt to maintain constant-timeness
 		// We need either (P.x, P.y, 1) or (0, 1, 0).
 		const Integer x = P.x * IdentityToInteger(!P.identity);
