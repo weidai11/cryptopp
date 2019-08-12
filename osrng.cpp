@@ -134,6 +134,9 @@ NonblockingRng::NonblockingRng()
 	m_fd = open("/dev/urandom",O_RDONLY);
 	if (m_fd == -1)
 		throw OS_RNG_Err("open /dev/urandom");
+
+	// Do some OSes return -NNN instead of -1?
+	CRYPTOPP_ASSERT(m_fd >= 0);
 #endif
 }
 
@@ -203,6 +206,9 @@ BlockingRng::BlockingRng()
 	m_fd = open(CRYPTOPP_BLOCKING_RNG_FILENAME,O_RDONLY);
 	if (m_fd == -1)
 		throw OS_RNG_Err("open " CRYPTOPP_BLOCKING_RNG_FILENAME);
+
+	// Do some OSes return -NNN instead of -1?
+	CRYPTOPP_ASSERT(m_fd >= 0);
 }
 
 BlockingRng::~BlockingRng()
