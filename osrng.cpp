@@ -148,7 +148,11 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 {
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 	// Acquiring a provider is expensive. Do it once and retain the reference.
+# if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+	static const MicrosoftCryptoProvider hProvider = MicrosoftCryptoProvider();
+# else
 	const MicrosoftCryptoProvider &hProvider = Singleton<MicrosoftCryptoProvider>().Ref();
+# endif
 # if defined(USE_MS_CRYPTOAPI)
 	if (!CryptGenRandom(hProvider.GetProviderHandle(), (DWORD)size, output))
 		throw OS_RNG_Err("CryptGenRandom");
