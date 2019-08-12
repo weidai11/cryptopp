@@ -1680,7 +1680,7 @@ public:
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = this->GetSignatureAlgorithm();
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 
-		size_t rLen = alg.RLen(params);
+		const size_t rLen = alg.RLen(params);
 		ma.m_semisignature.Assign(signature, rLen);
 		ma.m_s.Decode(signature+rLen, alg.SLen(params));
 

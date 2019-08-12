@@ -33,9 +33,9 @@ CRYPTOPP_DLL_TEMPLATE_CLASS AbstractEuclideanDomain<Integer>;
 ///  only one such data member for holding results, you should use the
 ///  class like this:
 ///  <pre>    abcd = group.Add(a, group.Add(b, group.Add(c,d));</pre>
-///  The following code will produce incorrect results:
+///  The following code will produce <i>incorrect</i> results:
 ///  <pre>    abcd = group.Add(group.Add(a,b), group.Add(c,d));</pre>
-/// \details If a ModularArithmetic is copied or assigned the modulus
+/// \details If a ModularArithmetic() is copied or assigned the modulus
 ///  is copied, but not the internal data members. The internal data
 ///  members are undefined after copy or assignment.
 /// \sa <A HREF="https://cryptopp.com/wiki/Integer">Integer</A> on the
