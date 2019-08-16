@@ -334,12 +334,12 @@ void RandomNumberGenerator::GenerateIntoBufferedTransformation(BufferedTransform
 	}
 }
 
-size_t KeyDerivationFunction::MinDerivedLength() const
+size_t KeyDerivationFunction::MinDerivedKeyLength() const
 {
 	return 0;
 }
 
-size_t KeyDerivationFunction::MaxDerivedLength() const
+size_t KeyDerivationFunction::MaxDerivedKeyLength() const
 {
 	return static_cast<size_t>(-1);
 }

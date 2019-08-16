@@ -1477,11 +1477,11 @@ public:
 
 	/// \brief Determine minimum number of bytes
 	/// \returns Minimum number of bytes which can be derived
-	virtual size_t MinDerivedLength() const;
+	virtual size_t MinDerivedKeyLength() const;
 
 	/// \brief Determine maximum number of bytes
 	/// \returns Maximum number of bytes which can be derived
-	virtual size_t MaxDerivedLength() const;
+	virtual size_t MaxDerivedKeyLength() const;
 
 	/// \brief Returns a valid key length for the derivation function
 	/// \param keylength the size of the derived key, in bytes
