@@ -70,10 +70,10 @@ public:
 };
 
 /// \brief Exception thrown when an invalid derived key length is encountered
-class CRYPTOPP_DLL InvalidDerivedLength : public InvalidArgument
+class CRYPTOPP_DLL InvalidDerivedKeyLength : public InvalidArgument
 {
 public:
-	explicit InvalidDerivedLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid derived key length") {}
+	explicit InvalidDerivedKeyLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid derived key length") {}
 };
 
 /// \brief Exception thrown when an invalid personalization string length is encountered

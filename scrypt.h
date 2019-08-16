@@ -45,8 +45,8 @@ public:
     }
 
     // KeyDerivationFunction interface
-    size_t MaxDerivedLength() const {
-        return static_cast<size_t>(-1);
+    size_t MaxDerivedKeyLength() const {
+        return static_cast<size_t>(0)-1;
     }
 
     // KeyDerivationFunction interface
@@ -67,7 +67,7 @@ public:
     /// \param blockSize the block size
     /// \param parallelization the parallelization factor
     /// \returns the number of iterations performed
-    /// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+    /// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
     /// \details DeriveKey() provides a standard interface to derive a key from
     ///   a seed and other parameters. Each class that derives from KeyDerivationFunction
     ///   provides an overload that accepts most parameters used by the derivation function.

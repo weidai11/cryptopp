@@ -39,7 +39,7 @@ public:
 	}
 
 	// KeyDerivationFunction interface
-	size_t MaxDerivedLength() const {
+	size_t MaxDerivedKeyLength() const {
 		return static_cast<size_t>(T::DIGESTSIZE) * 255;
 	}
 
@@ -60,7 +60,7 @@ public:
 	/// \param info the additional input buffer
 	/// \param infoLen the size of the info buffer, in bytes
 	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
@@ -92,8 +92,8 @@ protected:
 template <class T>
 size_t HKDF<T>::GetValidDerivedLength(size_t keylength) const
 {
-	if (keylength > MaxDerivedLength())
-		return MaxDerivedLength();
+	if (keylength > MaxDerivedKeyLength())
+		return MaxDerivedKeyLength();
 	return keylength;
 }
 
@@ -103,7 +103,7 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen,
 {
 	CRYPTOPP_ASSERT(secret && secretLen);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 
 	ConstByteArrayParameter p;
 	SecByteBlock salt, info;
@@ -127,9 +127,9 @@ size_t HKDF<T>::DeriveKey(byte *derived, size_t derivedLen, const byte *secret, 
 {
 	CRYPTOPP_ASSERT(secret && secretLen);
 	CRYPTOPP_ASSERT(derived && derivedLen);
-	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 
-	ThrowIfInvalidDerivedLength(derivedLen);
+	ThrowIfInvalidDerivedKeyLength(derivedLen);
 
 	// HKDF business logic. NULL is different than empty.
 	if (salt == NULLPTR)

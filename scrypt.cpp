@@ -177,8 +177,8 @@ NAMESPACE_BEGIN(CryptoPP)
 
 size_t Scrypt::GetValidDerivedLength(size_t keylength) const
 {
-    if (keylength > MaxDerivedLength())
-        return MaxDerivedLength();
+    if (keylength > MaxDerivedKeyLength())
+        return MaxDerivedKeyLength();
     return keylength;
 }
 
@@ -261,7 +261,7 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen,
 {
     CRYPTOPP_ASSERT(secret /*&& secretLen*/);
     CRYPTOPP_ASSERT(derived && derivedLen);
-    CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+    CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 
     word64 cost=0, blockSize=0, parallelization=0;
     if(params.GetValue("Cost", cost) == false)
@@ -284,9 +284,9 @@ size_t Scrypt::DeriveKey(byte*derived, size_t derivedLen, const byte*secret, siz
 {
     CRYPTOPP_ASSERT(secret /*&& secretLen*/);
     CRYPTOPP_ASSERT(derived && derivedLen);
-    CRYPTOPP_ASSERT(derivedLen <= MaxDerivedLength());
+    CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 
-    ThrowIfInvalidDerivedLength(derivedLen);
+    ThrowIfInvalidDerivedKeyLength(derivedLen);
     ValidateParameters(derivedLen, cost, blockSize, parallel);
 
     AlignedSecByteBlock B(static_cast<size_t>(blockSize * parallel * 128U));

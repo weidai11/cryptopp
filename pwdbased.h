@@ -61,7 +61,7 @@ public:
 	/// \param iterations the number of iterations
 	/// \param timeInSeconds the in seconds
 	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
@@ -116,7 +116,7 @@ size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
 
-	ThrowIfInvalidDerivedLength(derivedLen);
+	ThrowIfInvalidDerivedKeyLength(derivedLen);
 
 	// Business logic
 	if (!iterations) { iterations = 1; }
@@ -187,7 +187,7 @@ public:
 	/// \param iterations the number of iterations
 	/// \param timeInSeconds the in seconds
 	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
@@ -241,7 +241,7 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte pu
 	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 	CRYPTOPP_UNUSED(purpose);
 
-	ThrowIfInvalidDerivedLength(derivedLen);
+	ThrowIfInvalidDerivedKeyLength(derivedLen);
 
 	// Business logic
 	if (!iterations) { iterations = 1; }
@@ -344,7 +344,7 @@ public:
 	/// \param iterations the number of iterations
 	/// \param timeInSeconds the in seconds
 	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
@@ -398,7 +398,7 @@ size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 	CRYPTOPP_ASSERT(derivedLen <= MaxDerivedKeyLength());
 	CRYPTOPP_ASSERT(iterations > 0 || timeInSeconds > 0);
 
-	ThrowIfInvalidDerivedLength(derivedLen);
+	ThrowIfInvalidDerivedKeyLength(derivedLen);
 
 	// Business logic
 	if (!iterations) { iterations = 1; }
