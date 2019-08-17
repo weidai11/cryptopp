@@ -202,6 +202,9 @@ private:
 class CRYPTOPP_DLL InvalidArgument : public Exception
 {
 public:
+	/// \brief Construct an InvalidArgument
+	/// \param s the message for the exception
+	/// \details The member function <tt>what()</tt> returns <tt>s</tt>.
 	explicit InvalidArgument(const std::string &s) : Exception(INVALID_ARGUMENT, s) {}
 };
 
@@ -209,6 +212,9 @@ public:
 class CRYPTOPP_DLL InvalidDataFormat : public Exception
 {
 public:
+	/// \brief Construct an InvalidDataFormat
+	/// \param s the message for the exception
+	/// \details The member function <tt>what()</tt> returns <tt>s</tt>.
 	explicit InvalidDataFormat(const std::string &s) : Exception(INVALID_DATA_FORMAT, s) {}
 };
 
@@ -216,6 +222,9 @@ public:
 class CRYPTOPP_DLL InvalidCiphertext : public InvalidDataFormat
 {
 public:
+	/// \brief Construct an InvalidCiphertext
+	/// \param s the message for the exception
+	/// \details The member function <tt>what()</tt> returns <tt>s</tt>.
 	explicit InvalidCiphertext(const std::string &s) : InvalidDataFormat(s) {}
 };
 
@@ -223,6 +232,9 @@ public:
 class CRYPTOPP_DLL NotImplemented : public Exception
 {
 public:
+	/// \brief Construct an NotImplemented
+	/// \param s the message for the exception
+	/// \details The member function <tt>what()</tt> returns <tt>s</tt>.
 	explicit NotImplemented(const std::string &s) : Exception(NOT_IMPLEMENTED, s) {}
 };
 
@@ -230,6 +242,9 @@ public:
 class CRYPTOPP_DLL CannotFlush : public Exception
 {
 public:
+	/// \brief Construct an CannotFlush
+	/// \param s the message for the exception
+	/// \details The member function <tt>what()</tt> returns <tt>s</tt>.
 	explicit CannotFlush(const std::string &s) : Exception(CANNOT_FLUSH, s) {}
 };
 
@@ -238,6 +253,13 @@ class CRYPTOPP_DLL OS_Error : public Exception
 {
 public:
 	virtual ~OS_Error() throw() {}
+
+	/// \brief Construct an OS_Error
+	/// \param errorType the error type
+	/// \param s the message for the exception
+	/// \param operation the operation for the exception
+	/// \param errorCode the error code
+	/// \details The member function <tt>what()</tt> returns <tt>s</tt>.
 	OS_Error(ErrorType errorType, const std::string &s, const std::string& operation, int errorCode)
 		: Exception(errorType, s), m_operation(operation), m_errorCode(errorCode) {}
 
@@ -255,7 +277,8 @@ protected:
 struct CRYPTOPP_DLL DecodingResult
 {
 	/// \brief Constructs a DecodingResult
-	/// \details isValidCoding is initialized to false and messageLength is initialized to 0.
+	/// \details isValidCoding is initialized to false and messageLength is
+	///  initialized to 0.
 	explicit DecodingResult() : isValidCoding(false), messageLength(0) {}
 	/// \brief Constructs a DecodingResult
 	/// \param len the message length
@@ -264,11 +287,13 @@ struct CRYPTOPP_DLL DecodingResult
 
 	/// \brief Compare two DecodingResult
 	/// \param rhs the other DecodingResult
-	/// \return true if both isValidCoding and messageLength are equal, false otherwise
+	/// \return true if either isValidCoding or messageLength is \a not equal,
+	///  false otherwise
 	bool operator==(const DecodingResult &rhs) const {return isValidCoding == rhs.isValidCoding && messageLength == rhs.messageLength;}
 	/// \brief Compare two DecodingResult
 	/// \param rhs the other DecodingResult
-	/// \return true if either isValidCoding or messageLength is \a not equal, false otherwise
+	/// \return true if either isValidCoding or messageLength is \a not equal,
+	///  false otherwise
 	/// \details Returns <tt>!operator==(rhs)</tt>.
 	bool operator!=(const DecodingResult &rhs) const {return !operator==(rhs);}
 
@@ -279,24 +304,28 @@ struct CRYPTOPP_DLL DecodingResult
 };
 
 /// \brief Interface for retrieving values given their names
-/// \details This class is used to safely pass a variable number of arbitrarily typed arguments to functions
-///   and to read values from keys and crypto parameters.
-/// \details To obtain an object that implements NameValuePairs for the purpose of parameter
-///   passing, use the MakeParameters() function.
-/// \details To get a value from NameValuePairs, you need to know the name and the type of the value.
-///   Call GetValueNames() on a NameValuePairs object to obtain a list of value names that it supports.
-///   then look at the Name namespace documentation to see what the type of each value is, or
-///   alternatively, call GetIntValue() with the value name, and if the type is not int, a
-///   ValueTypeMismatch exception will be thrown and you can get the actual type from the exception object.
+/// \details This class is used to safely pass a variable number of arbitrarily
+///  typed arguments to functions and to read values from keys and crypto parameters.
+/// \details To obtain an object that implements NameValuePairs for the purpose of
+///  parameter passing, use the MakeParameters() function.
+/// \details To get a value from NameValuePairs, you need to know the name and the
+///  type of the value. Call GetValueNames() on a NameValuePairs object to obtain a
+///  list of value names that it supports. then look at the Name namespace
+///  documentation to see what the type of each value is, or alternatively, call
+///  GetIntValue() with the value name, and if the type is not int, a
+///  ValueTypeMismatch exception will be thrown and you can get the actual type from
+///  the exception object.
 /// \sa NullNameValuePairs, g_nullNameValuePairs,
-///   <A HREF="http://www.cryptopp.com/wiki/NameValuePairs">NameValuePairs</A> on the Crypto++ wiki
+///  <A HREF="http://www.cryptopp.com/wiki/NameValuePairs">NameValuePairs</A> on the
+///  Crypto++ wiki
 class NameValuePairs
 {
 public:
 	virtual ~NameValuePairs() {}
 
 	/// \brief Thrown when an unexpected type is encountered
-	/// \details Exception thrown when trying to retrieve a value using a different type than expected
+	/// \details Exception thrown when trying to retrieve a value using a different
+	///  type than expected
 	class CRYPTOPP_DLL ValueTypeMismatch : public InvalidArgument
 	{
 	public:
@@ -1789,18 +1818,23 @@ public:
 
 		/// \brief Flush buffered input and/or output, with signal propagation
 		/// \param hardFlush is used to indicate whether all data should be flushed
-		/// \param propagation the number of attached transformations the Flush() signal should be passed
-		/// \param blocking specifies whether the object should block when processing input
-		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
-		/// \note Hard flushes must be used with care. It means try to process and output everything, even if
-		///   there may not be enough data to complete the action. For example, hard flushing a HexDecoder
-		///   would cause an error if you do it after inputing an odd number of hex encoded characters.
-		/// \note For some types of filters, like  ZlibDecompressor, hard flushes can only
-		///   be done at "synchronization points". These synchronization points are positions in the data
-		///   stream that are created by hard flushes on the corresponding reverse filters, in this
-		///   example ZlibCompressor. This is useful when zlib compressed data is moved across a
-		///   network in packets and compression state is preserved across packets, as in the SSH2 protocol.
+		/// \param propagation the number of attached transformations the Flush()
+		///  signal should be passed
+		/// \param blocking specifies whether the object should block when processing
+		///  input
+		/// \details propagation count includes this object. Setting propagation to
+		///  <tt>1</tt> means this object only. Setting propagation to <tt>-1</tt>
+		///  means unlimited propagation.
+		/// \note Hard flushes must be used with care. It means try to process and
+		///  output everything, even if there may not be enough data to complete the
+		///  action. For example, hard flushing a HexDecoder would cause an error if
+		///  you do it after inputing an odd number of hex encoded characters.
+		/// \note For some types of filters, like  ZlibDecompressor, hard flushes can
+		///  only be done at "synchronization points". These synchronization points
+		///  are positions in the data stream that are created by hard flushes on the
+		///  corresponding reverse filters, in this example ZlibCompressor. This is
+		///  useful when zlib compressed data is moved across a network in packets
+		///  and compression state is preserved across packets, as in the SSH2 protocol.
 		virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true);
 
 		/// \brief Marks the end of a series of messages, with signal propagation

@@ -25,6 +25,9 @@ template <class DERIVED, class BASE>
 class CRYPTOPP_NO_VTABLE ClonableImpl : public BASE
 {
 public:
+	/// \brief Create a copy of this object
+	/// \returns a copy of this object
+	/// \details The caller is responsible for freeing the object.
 	Clonable * Clone() const {return new DERIVED(*static_cast<const DERIVED *>(this));}
 };
 
@@ -52,6 +55,9 @@ public:
 class CRYPTOPP_DLL InvalidKeyLength : public InvalidArgument
 {
 public:
+	/// \brief Construct an InvalidKeyLength
+	/// \param algorithm the Algorithm associated with the exception
+	/// \param length the key size associated with the exception
 	explicit InvalidKeyLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid key length") {}
 };
 
@@ -59,6 +65,9 @@ public:
 class CRYPTOPP_DLL InvalidRounds : public InvalidArgument
 {
 public:
+	/// \brief Construct an InvalidRounds
+	/// \param algorithm the Algorithm associated with the exception
+	/// \param rounds the number of rounds associated with the exception
 	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
 };
 
@@ -66,6 +75,9 @@ public:
 class CRYPTOPP_DLL InvalidBlockSize : public InvalidArgument
 {
 public:
+	/// \brief Construct an InvalidBlockSize
+	/// \param algorithm the Algorithm associated with the exception
+	/// \param length the block size associated with the exception
 	explicit InvalidBlockSize(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid block size") {}
 };
 
@@ -73,6 +85,9 @@ public:
 class CRYPTOPP_DLL InvalidDerivedKeyLength : public InvalidArgument
 {
 public:
+	/// \brief Construct an InvalidDerivedKeyLength
+	/// \param algorithm the Algorithm associated with the exception
+	/// \param length the size associated with the exception
 	explicit InvalidDerivedKeyLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid derived key length") {}
 };
 
@@ -80,6 +95,9 @@ public:
 class CRYPTOPP_DLL InvalidPersonalizationLength : public InvalidArgument
 {
 public:
+	/// \brief Construct an InvalidPersonalizationLength
+	/// \param algorithm the Algorithm associated with the exception
+	/// \param length the personalization size associated with the exception
 	explicit InvalidPersonalizationLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid salt length") {}
 };
 
@@ -87,6 +105,9 @@ public:
 class CRYPTOPP_DLL InvalidSaltLength : public InvalidArgument
 {
 public:
+	/// \brief Construct an InvalidSaltLength
+	/// \param algorithm the Algorithm associated with the exception
+	/// \param length the salt size associated with the exception
 	explicit InvalidSaltLength(const std::string &algorithm, size_t length) : InvalidArgument(algorithm + ": " + IntToString(length) + " is not a valid salt length") {}
 };
 
@@ -98,6 +119,10 @@ template <class T>
 class CRYPTOPP_NO_VTABLE Bufferless : public T
 {
 public:
+	/// \brief Flushes data buffered by this object, without signal propagation
+	/// \param hardFlush indicates whether all data should be flushed
+	/// \param blocking specifies whether the object should block when processing input
+	/// \note hardFlush must be used with care
 	bool IsolatedFlush(bool hardFlush, bool blocking)
 		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); return false;}
 };
@@ -108,10 +133,45 @@ template <class T>
 class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
 public:
+	/// \brief Flush buffered input and/or output, with signal propagation
+	/// \param hardFlush is used to indicate whether all data should be flushed
+	/// \param propagation the number of attached transformations the Flush()
+	///  signal should be passed
+	/// \param blocking specifies whether the object should block when processing
+	///  input
+	/// \details propagation count includes this object. Setting propagation to
+	///  <tt>1</tt> means this object only. Setting propagation to <tt>-1</tt>
+	///  means unlimited propagation.
+	/// \note Hard flushes must be used with care. It means try to process and
+	///  output everything, even if there may not be enough data to complete the
+	///  action. For example, hard flushing a HexDecoder would cause an error if
+	///  you do it after inputing an odd number of hex encoded characters.
+	/// \note For some types of filters, like  ZlibDecompressor, hard flushes can
+	///  only be done at "synchronization points". These synchronization points
+	///  are positions in the data stream that are created by hard flushes on the
+	///  corresponding reverse filters, in this example ZlibCompressor. This is
+	///  useful when zlib compressed data is moved across a network in packets
+	///  and compression state is preserved across packets, as in the SSH2 protocol.
 	bool Flush(bool completeFlush, int propagation=-1, bool blocking=true)
 		{return ChannelFlush(DEFAULT_CHANNEL, completeFlush, propagation, blocking);}
+
+	/// \brief Flushes data buffered by this object, without signal propagation
+	/// \param hardFlush indicates whether all data should be flushed
+	/// \param blocking specifies whether the object should block when processing input
+	/// \note hardFlush must be used with care
 	bool IsolatedFlush(bool hardFlush, bool blocking)
 		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); CRYPTOPP_ASSERT(false); return false;}
+
+	/// \brief Flush buffered input and/or output on a channel
+	/// \param channel the channel to flush the data
+	/// \param hardFlush is used to indicate whether all data should be flushed
+	/// \param propagation the number of attached transformations the ChannelFlush()
+	///  signal should be passed
+	/// \param blocking specifies whether the object should block when processing input
+	/// \return true of the Flush was successful
+	/// \details propagation count includes this object. Setting propagation to
+	///  <tt>1</tt> means this object only. Setting propagation to <tt>-1</tt> means
+	///  unlimited propagation.
 	bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true)
 	{
 		if (hardFlush && !InputBufferIsEmpty())
