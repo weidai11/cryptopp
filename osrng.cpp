@@ -157,10 +157,27 @@ void NonblockingRng::GenerateBlock(byte *output, size_t size)
 	const MicrosoftCryptoProvider &hProvider = Singleton<MicrosoftCryptoProvider>().Ref();
 # endif
 # if defined(USE_MS_CRYPTOAPI)
-	if (!CryptGenRandom(hProvider.GetProviderHandle(), (DWORD)size, output))
+	DWORD dwSize;
+	CRYPTOPP_ASSERT(SafeConvert(size, dwSize));
+	if (!SafeConvert(size, dwSize))
+	{
+		SetLastError(ERROR_INCORRECT_SIZE);
+		throw OS_RNG_Err("GenerateBlock size");
+	}
+	BOOL ret = CryptGenRandom(hProvider.GetProviderHandle(), dwSize, output);
+	CRYPTOPP_ASSERT(ret != FALSE);
+	if (ret == FALSE)
 		throw OS_RNG_Err("CryptGenRandom");
 # elif defined(USE_MS_CNGAPI)
-	NTSTATUS ret = BCryptGenRandom(hProvider.GetProviderHandle(), output, (ULONG)size, 0);
+	ULONG ulSize;
+	CRYPTOPP_ASSERT(SafeConvert(size, ulSize));
+	if (!SafeConvert(size, ulSize))
+	{
+		SetLastError(ERROR_INCORRECT_SIZE);
+		throw OS_RNG_Err("GenerateBlock size");
+	}
+	NTSTATUS ret = BCryptGenRandom(hProvider.GetProviderHandle(), output, ulSize, 0);
+	CRYPTOPP_ASSERT(BCRYPT_SUCCESS(ret));
 	if (!(BCRYPT_SUCCESS(ret)))
 	{
 		// Hack... OS_RNG_Err calls GetLastError()
