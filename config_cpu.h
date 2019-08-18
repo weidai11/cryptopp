@@ -30,6 +30,9 @@
 // Microsoft added ARM64 define December 2017.
 #if defined(__arm64__) || defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 	#define CRYPTOPP_BOOL_ARMV8 1
+#endif
+#if defined(__arm64__) || defined(__aarch64__) || defined(_M_ARM64)
+	#define CRYPTOPP_BOOL_ARM64 1
 #elif defined(__arm__) || defined(_M_ARM)
 	#define CRYPTOPP_BOOL_ARM32 1
 #endif
