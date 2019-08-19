@@ -2,11 +2,12 @@
 //          DARN requires POWER9/ISA 3.0.
 
 // At the moment only GCC 7.0 (and above) seems to support __builtin_darn()
-// and __builtin_darn_32(). Clang 7.0 does not provide them, but it does
-// support assembly instructions. XLC is unknown, but there are no hits when
-// searching IBM's site. To cover more platforms we provide GCC inline
-// assembly like we do with RDRAND and RDSEED. Platforms that don't support
-// GCC inline assembly or the builtin will fail the compile. Also see
+// and __builtin_darn_32(). However, GCC generates incorrect code. Clang 7.0
+// does not provide them, but it does support assembly instructions. XLC is
+// unknown, but there are no hits when searching IBM's site. To cover more
+// platforms we provide GCC inline assembly like we do with RDRAND and RDSEED.
+// Platforms that don't support GCC inline assembly or the builtin will fail
+// to compile. Also see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=91481 and
 // https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions-Available-on-ISA-3_002e0.html
 
 /// \file darn.h
