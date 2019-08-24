@@ -133,22 +133,27 @@ void DL_SignatureMessageEncodingMethod_NR::ComputeMessageRepresentative(RandomNu
 bool DL_GroupParameters_IntegerBased::ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const
 {
 	const Integer &p = GetModulus(), &q = GetSubgroupOrder();
-
 	bool pass = true;
+
+	CRYPTOPP_ASSERT(p > Integer::One() && p.IsOdd());
 	pass = pass && p > Integer::One() && p.IsOdd();
-	CRYPTOPP_ASSERT(pass);
+
+	CRYPTOPP_ASSERT(q > Integer::One() && q.IsOdd());
 	pass = pass && q > Integer::One() && q.IsOdd();
-	CRYPTOPP_ASSERT(pass);
 
 	if (level >= 1)
 	{
+		CRYPTOPP_ASSERT(GetCofactor() > Integer::One());
+		CRYPTOPP_ASSERT(GetGroupOrder() % q == Integer::Zero());
+
 		pass = pass && GetCofactor() > Integer::One() && GetGroupOrder() % q == Integer::Zero();
-		CRYPTOPP_ASSERT(pass);
 	}
 	if (level >= 2)
 	{
+		CRYPTOPP_ASSERT(VerifyPrime(rng, q, level-2));
+		CRYPTOPP_ASSERT(VerifyPrime(rng, p, level-2));
+
 		pass = pass && VerifyPrime(rng, q, level-2) && VerifyPrime(rng, p, level-2);
-		CRYPTOPP_ASSERT(pass);
 	}
 
 	return pass;
@@ -157,28 +162,28 @@ bool DL_GroupParameters_IntegerBased::ValidateGroup(RandomNumberGenerator &rng, 
 bool DL_GroupParameters_IntegerBased::ValidateElement(unsigned int level, const Integer &g, const DL_FixedBasePrecomputation<Integer> *gpc) const
 {
 	const Integer &p = GetModulus(), &q = GetSubgroupOrder();
-
 	bool pass = true;
-	pass = pass && GetFieldType() == 1 ? g.IsPositive() : g.NotNegative();
-	CRYPTOPP_ASSERT(pass);
 
+	CRYPTOPP_ASSERT(GetFieldType() == 1 ? g.IsPositive() : g.NotNegative());
+	pass = pass && GetFieldType() == 1 ? g.IsPositive() : g.NotNegative();
+
+	CRYPTOPP_ASSERT(g < p && !IsIdentity(g));
 	pass = pass && g < p && !IsIdentity(g);
-	CRYPTOPP_ASSERT(pass);
 
 	if (level >= 1)
 	{
 		if (gpc)
 		{
+			CRYPTOPP_ASSERT(gpc->Exponentiate(GetGroupPrecomputation(), Integer::One()) == g);
 			pass = pass && gpc->Exponentiate(GetGroupPrecomputation(), Integer::One()) == g;
-			CRYPTOPP_ASSERT(pass);
 		}
 	}
 	if (level >= 2)
 	{
 		if (GetFieldType() == 2)
 		{
+			CRYPTOPP_ASSERT(Jacobi(g*g-4, p)==-1);
 			pass = pass && Jacobi(g*g-4, p)==-1;
-			CRYPTOPP_ASSERT(pass);
 		}
 
 		// verifying that Lucas((p+1)/2, w, p)==2 is omitted because it's too costly
@@ -188,13 +193,13 @@ bool DL_GroupParameters_IntegerBased::ValidateElement(unsigned int level, const 
 		if (fullValidate && pass)
 		{
 			Integer gp = gpc ? gpc->Exponentiate(GetGroupPrecomputation(), q) : ExponentiateElement(g, q);
+			CRYPTOPP_ASSERT(IsIdentity(gp));
 			pass = pass && IsIdentity(gp);
-			CRYPTOPP_ASSERT(pass);
 		}
 		else if (GetFieldType() == 1)
 		{
+			CRYPTOPP_ASSERT(Jacobi(g, p) == 1);
 			pass = pass && Jacobi(g, p) == 1;
-			CRYPTOPP_ASSERT(pass);
 		}
 	}
 
