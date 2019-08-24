@@ -12,7 +12,9 @@
 #include "gfpcrypt.h"
 #include "pubkey.h"
 #include "misc.h"
+#include "oids.h"
 #include "dsa.h"
+#include "asn.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -114,6 +116,24 @@ protected:
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const {return *this;}
 };
 
+template <class BASE>
+struct DL_PublicKey_ElGamal : public BASE
+{
+	virtual ~DL_PublicKey_ElGamal() {}
+	virtual OID GetAlgorithmID() const {
+		return ASN1::elGamal();
+	}
+};
+
+template <class BASE>
+struct DL_PrivateKey_ElGamal : public BASE
+{
+	virtual ~DL_PrivateKey_ElGamal() {}
+	virtual OID GetAlgorithmID() const {
+		return ASN1::elGamal();
+	}
+};
+
 /// \brief ElGamal key agreement and encryption schemes keys
 /// \details The ElGamalKeys class used DL_PrivateKey_GFP_OldFormat and DL_PublicKey_GFP_OldFormat
 ///   for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
@@ -122,8 +142,8 @@ protected:
 struct ElGamalKeys
 {
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
-	typedef DL_CryptoKeys_GFP::PrivateKey PrivateKey;
-	typedef DL_CryptoKeys_GFP::PublicKey PublicKey;
+	typedef DL_PrivateKey_ElGamal<DL_CryptoKeys_GFP::PrivateKey> PrivateKey;
+	typedef DL_PublicKey_ElGamal<DL_CryptoKeys_GFP::PublicKey> PublicKey;
 };
 
 /// \brief ElGamal encryption scheme with non-standard padding
