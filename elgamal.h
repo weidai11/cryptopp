@@ -131,6 +131,8 @@ struct ElGamalKeys
 struct ElGamal
 {
 	typedef DL_CryptoSchemeOptions<ElGamal, ElGamalKeys, int, int, int> SchemeOptions;
+	typedef typename SchemeOptions::PrivateKey PrivateKey;
+	typedef typename SchemeOptions::PublicKey PublicKey;
 
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
