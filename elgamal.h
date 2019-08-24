@@ -51,6 +51,8 @@ public:
 	size_t GetMaxSymmetricPlaintextLength(size_t cipherTextLength) const
 	{
 		unsigned int len = GetGroupParameters().GetModulus().ByteCount();
+		CRYPTOPP_ASSERT(len >= 3);
+
 		if (cipherTextLength == len)
 			return STDMIN(255U, len-3);
 		else
@@ -95,6 +97,9 @@ public:
 };
 
 /// \brief ElGamal key agreement and encryption schemes default implementation
+/// \tparam BASE Base class implementation
+/// \tparam SCHEME_OPTIONS Scheme options
+/// \tparam Key ElGamal key classes
 /// \since Crypto++ 1.0
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
@@ -116,6 +121,14 @@ protected:
 	const DL_SymmetricEncryptionAlgorithm & GetSymmetricEncryptionAlgorithm() const {return *this;}
 };
 
+/// \brief ElGamal Public Key adapter
+/// \tparam BASE PublicKey derived class
+/// \details DL_PublicKey_ElGamal provides an override for GetAlgorithmID()
+///  to utilize 1.3.14.7.2.1.1. Prior to DL_PublicKey_ElGamal, the ElGamal
+///  keys used the OID from DSA due to DL_GroupParmaters_GFP().
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
+/// \since Crypto++ 8.3
 template <class BASE>
 struct DL_PublicKey_ElGamal : public BASE
 {
@@ -125,6 +138,14 @@ struct DL_PublicKey_ElGamal : public BASE
 	}
 };
 
+/// \brief ElGamal Private Key adapter
+/// \tparam BASE PrivateKey derived class
+/// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
+///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
+///  keys used the OID from DSA due to DL_GroupParmaters_GFP().
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
+/// \since Crypto++ 8.3
 template <class BASE>
 struct DL_PrivateKey_ElGamal : public BASE
 {
@@ -136,9 +157,11 @@ struct DL_PrivateKey_ElGamal : public BASE
 
 /// \brief ElGamal key agreement and encryption schemes keys
 /// \details The ElGamalKeys class used DL_PrivateKey_GFP_OldFormat and DL_PublicKey_GFP_OldFormat
-///   for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
-///   At Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and X509 encodings.
-/// \sa <A HREF="https://github.com/weidai11/cryptopp/commit/a5a684d92986e8e2">Commit a5a684d92986e8e2</A>
+///  for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
+///  At Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and X509 encodings.
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
+/// \since Crypto++ 1.0
 struct ElGamalKeys
 {
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
