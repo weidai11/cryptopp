@@ -6,9 +6,10 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylength, const NameValuePairs &)
+template<class Info, class ByteOrder>
+void Blowfish_Base<Info, ByteOrder>::UncheckedSetKey(const byte *key_string, unsigned int keylength, const NameValuePairs &)
 {
-	AssertValidKeyLength(keylength);
+	this->AssertValidKeyLength(keylength);
 
 	unsigned i, j=0, k;
 	word32 data, dspace[2] = {0, 0};
@@ -17,7 +18,7 @@ void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylen
 	memcpy(sbox, s_init, sizeof(s_init));
 
 	// Xor key string into encryption key vector
-	for (i=0 ; i<ROUNDS+2 ; ++i)
+	for (i=0 ; i<Info::ROUNDS+2 ; ++i)
 	{
 		data = 0 ;
 		for (k=0 ; k<4 ; ++k )
@@ -27,21 +28,22 @@ void Blowfish::Base::UncheckedSetKey(const byte *key_string, unsigned int keylen
 
 	crypt_block(dspace, pbox);
 
-	for (i=0; i<ROUNDS; i+=2)
+	for (i=0; i<Info::ROUNDS; i+=2)
 		crypt_block(pbox+i, pbox+i+2);
 
-	crypt_block(pbox+ROUNDS, sbox);
+	crypt_block(pbox+Info::ROUNDS, sbox);
 
 	for (i=0; i<4*256-2; i+=2)
 		crypt_block(sbox+i, sbox+i+2);
 
-	if (!IsForwardTransformation())
-		for (i=0; i<(ROUNDS+2)/2; i++)
-			std::swap(pbox[i], pbox[ROUNDS+1-i]);
+	if (!this->IsForwardTransformation())
+		for (i=0; i<(Info::ROUNDS+2)/2; i++)
+			std::swap(pbox[i], pbox[Info::ROUNDS+1-i]);
 }
 
 // this version is only used to make pbox and sbox
-void Blowfish::Base::crypt_block(const word32 in[2], word32 out[2]) const
+template<class Info, class ByteOrder>
+void Blowfish_Base<Info, ByteOrder>::crypt_block(const word32 in[2], word32 out[2]) const
 {
 	word32 left = in[0];
 	word32 right = in[1];
@@ -51,7 +53,7 @@ void Blowfish::Base::crypt_block(const word32 in[2], word32 out[2]) const
 
 	left ^= p[0];
 
-	for (unsigned i=0; i<ROUNDS/2; i++)
+	for (unsigned i=0; i<Info::ROUNDS/2; i++)
 	{
 		right ^= (((s[GETBYTE(left,3)] + s[256+GETBYTE(left,2)])
 			  ^ s[2*256+GETBYTE(left,1)]) + s[3*256+GETBYTE(left,0)])
@@ -62,15 +64,16 @@ void Blowfish::Base::crypt_block(const word32 in[2], word32 out[2]) const
 			 ^ p[2*i+2];
 	}
 
-	right ^= p[ROUNDS+1];
+	right ^= p[Info::ROUNDS+1];
 
 	out[0] = right;
 	out[1] = left;
 }
 
-void Blowfish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
+template<class Info, class ByteOrder>
+void Blowfish_Base<Info, ByteOrder>::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
 {
-	typedef BlockGetAndPut<word32, BigEndian> Block;
+	typedef BlockGetAndPut<word32, ByteOrder> Block;
 
 	word32 left, right;
 	Block::Get(inBlock)(left)(right);
@@ -80,7 +83,7 @@ void Blowfish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 
 	left ^= p[0];
 
-	for (unsigned i=0; i<ROUNDS/2; i++)
+	for (unsigned i=0; i<Info::ROUNDS/2; i++)
 	{
 		right ^= (((s[GETBYTE(left,3)] + s[256+GETBYTE(left,2)])
 			  ^ s[2*256+GETBYTE(left,1)]) + s[3*256+GETBYTE(left,0)])
@@ -91,9 +94,12 @@ void Blowfish::Base::ProcessAndXorBlock(const byte *inBlock, const byte *xorBloc
 			 ^ p[2*i+2];
 	}
 
-	right ^= p[ROUNDS+1];
+	right ^= p[Info::ROUNDS+1];
 
-	Block::Put(xorBlock, outBlock)(right)(left);
+	typename Block::Put(xorBlock, outBlock)(right)(left);
 }
+
+template class Blowfish_Base<Blowfish_Info, BigEndian>;
+template class Blowfish_Base<BlowfishCompat_Info, LittleEndian>;
 
 NAMESPACE_END
