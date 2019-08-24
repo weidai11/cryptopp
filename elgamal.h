@@ -11,8 +11,8 @@
 #include "integer.h"
 #include "gfpcrypt.h"
 #include "pubkey.h"
-#include "dsa.h"
 #include "misc.h"
+#include "dsa.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -131,8 +131,8 @@ struct ElGamalKeys
 struct ElGamal
 {
 	typedef DL_CryptoSchemeOptions<ElGamal, ElGamalKeys, int, int, int> SchemeOptions;
-	typedef typename SchemeOptions::PrivateKey PrivateKey;
-	typedef typename SchemeOptions::PublicKey PublicKey;
+	typedef SchemeOptions::PrivateKey PrivateKey;
+	typedef SchemeOptions::PublicKey PublicKey;
 
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
