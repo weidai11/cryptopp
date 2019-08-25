@@ -20,9 +20,10 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief ElGamal key agreement and encryption schemes base class
 /// \since Crypto++ 1.0
-class CRYPTOPP_NO_VTABLE ElGamalBase : public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>,
-					public DL_KeyDerivationAlgorithm<Integer>,
-					public DL_SymmetricEncryptionAlgorithm
+class CRYPTOPP_NO_VTABLE ElGamalBase :
+	public DL_KeyAgreementAlgorithm_DH<Integer, NoCofactorMultiplication>,
+	public DL_KeyDerivationAlgorithm<Integer>,
+	public DL_SymmetricEncryptionAlgorithm
 {
 public:
 	virtual ~ElGamalBase() {}
@@ -102,7 +103,9 @@ public:
 /// \tparam Key ElGamal key classes
 /// \since Crypto++ 1.0
 template <class BASE, class SCHEME_OPTIONS, class KEY>
-class ElGamalObjectImpl : public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>, public ElGamalBase
+class ElGamalObjectImpl :
+	public DL_ObjectImplBase<BASE, SCHEME_OPTIONS, KEY>,
+	public ElGamalBase
 {
 public:
 	virtual ~ElGamalObjectImpl() {}
@@ -125,7 +128,10 @@ protected:
 /// \tparam BASE PublicKey derived class
 /// \details DL_PublicKey_ElGamal provides an override for GetAlgorithmID()
 ///  to utilize 1.3.14.7.2.1.1. Prior to DL_PublicKey_ElGamal, the ElGamal
-///  keys used the OID from DSA due to DL_GroupParmaters_GFP().
+///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
+/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
+///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 /// \since Crypto++ 8.3
@@ -142,7 +148,10 @@ struct DL_PublicKey_ElGamal : public BASE
 /// \tparam BASE PrivateKey derived class
 /// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
 ///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
-///  keys used the OID from DSA due to DL_GroupParmaters_GFP().
+///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
+/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
+///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 /// \since Crypto++ 8.3
@@ -156,9 +165,19 @@ struct DL_PrivateKey_ElGamal : public BASE
 };
 
 /// \brief ElGamal key agreement and encryption schemes keys
-/// \details The ElGamalKeys class used DL_PrivateKey_GFP_OldFormat and DL_PublicKey_GFP_OldFormat
-///  for the PrivateKey and PublicKey typedef from about Crypto++ 1.0 through Crypto++ 5.6.5.
-///  At Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and X509 encodings.
+/// \details ElGamalKeys provide the algorithm implementation ElGamal key
+///  agreement and encryption schemes.
+/// \details The ElGamalKeys class used <tt>DL_PrivateKey_GFP_OldFormat</tt>
+///  and <tt>DL_PublicKey_GFP_OldFormat</tt> for the <tt>PrivateKey</tt> and
+///  <tt>PublicKey</tt> from about Crypto++ 1.0 through Crypto++ 5.6.5. At
+///  Crypto++ 6.0 the serialization format was cutover to standard PKCS8 and
+///  X509 encodings.
+/// \details The ElGamalKeys class [mistakenly] used the OID for DSA from
+///  about Crypto++ 1.0 through Crypto++ 8.2. At Crypto++ 8.3 the OID was
+///  fixed and now uses ElGamal encryption, which is 1.3.14.7.2.1.1.
+/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
+///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 /// \since Crypto++ 1.0
@@ -170,6 +189,16 @@ struct ElGamalKeys
 };
 
 /// \brief ElGamal encryption scheme with non-standard padding
+/// \details ElGamal provide the algorithm implementation ElGamal key
+///  agreement and encryption schemes.
+/// \details The ElGamal class [mistakenly] used the OID for DSA from about
+///  Crypto++ 1.0 through Crypto++ 8.2. At Crypto++ 8.3 the OID was fixed
+///  and now uses ElGamal encryption, which is 1.3.14.7.2.1.1.
+/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
+///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  the Crypto++ wiki.
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 /// \since Crypto++ 1.0
 struct ElGamal
 {
@@ -177,12 +206,17 @@ struct ElGamal
 	typedef SchemeOptions::PrivateKey PrivateKey;
 	typedef SchemeOptions::PublicKey PublicKey;
 
+	/// \brief The algorithm name
+	/// \returns the algorithm name
+	/// \details StaticAlgorithmName returns the algorithm's name as a static
+	///  member function.
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
 
+	/// \brief Implements DL_GroupParameters interface
 	typedef SchemeOptions::GroupParameters GroupParameters;
-	/// implements PK_Encryptor interface
+	/// \brief Implements PK_Encryptor interface
 	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_EncryptorBase<Integer>, SchemeOptions, SchemeOptions::PublicKey> > Encryptor;
-	/// implements PK_Decryptor interface
+	/// \brief Implements PK_Encryptor interface
 	typedef PK_FinalTemplate<ElGamalObjectImpl<DL_DecryptorBase<Integer>, SchemeOptions, SchemeOptions::PrivateKey> > Decryptor;
 };
 
