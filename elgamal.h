@@ -129,8 +129,8 @@ protected:
 /// \details DL_PublicKey_ElGamal provides an override for GetAlgorithmID()
 ///  to utilize 1.3.14.7.2.1.1. Prior to DL_PublicKey_ElGamal, the ElGamal
 ///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
-/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
-///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  If you need to <tt>Load</tt> an ElGamal key with the wrong OID then
+///  see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
 ///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
@@ -149,8 +149,8 @@ struct DL_PublicKey_ElGamal : public BASE
 /// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
 ///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
 ///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
-/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
-///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  If you need to <tt>Load</tt> an ElGamal key with the wrong OID then
+///  see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
 ///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
@@ -175,16 +175,19 @@ struct DL_PrivateKey_ElGamal : public BASE
 /// \details The ElGamalKeys class [mistakenly] used the OID for DSA from
 ///  about Crypto++ 1.0 through Crypto++ 8.2. At Crypto++ 8.3 the OID was
 ///  fixed and now uses ElGamal encryption, which is 1.3.14.7.2.1.1.
-/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
-///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  If you need to <tt>Load</tt> an ElGamal key with the wrong OID then
+///  see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
 ///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 /// \since Crypto++ 1.0
 struct ElGamalKeys
 {
+	/// \brief Implements DL_GroupParameters interface
 	typedef DL_CryptoKeys_GFP::GroupParameters GroupParameters;
+	/// \brief Implements DL_PrivateKey interface
 	typedef DL_PrivateKey_ElGamal<DL_CryptoKeys_GFP::PrivateKey> PrivateKey;
+	/// \brief Implements DL_PublicKey interface
 	typedef DL_PublicKey_ElGamal<DL_CryptoKeys_GFP::PublicKey> PublicKey;
 };
 
@@ -194,8 +197,8 @@ struct ElGamalKeys
 /// \details The ElGamal class [mistakenly] used the OID for DSA from about
 ///  Crypto++ 1.0 through Crypto++ 8.2. At Crypto++ 8.3 the OID was fixed
 ///  and now uses ElGamal encryption, which is 1.3.14.7.2.1.1.
-/// \details If you need to <tt>Load</tt> an ElGamal key with the wrong OID
-///  then see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+///  If you need to <tt>Load</tt> an ElGamal key with the wrong OID then
+///  see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
 ///  the Crypto++ wiki.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
 ///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
