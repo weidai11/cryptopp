@@ -229,6 +229,8 @@ ECP::Point AdditionFunction::operator()(const ECP::Point& P) const
 
 		return R;
 	}
+#if 0
+	// Code path disabled at the moment due to https://github.com/weidai11/cryptopp/issues/878
 	else if (m_alpha == A_Star)
 	{
 		// Gyrations attempt to maintain constant-timeness
@@ -269,6 +271,7 @@ ECP::Point AdditionFunction::operator()(const ECP::Point& P) const
 
 		return R;
 	}
+#endif
 	else  // A_Montgomery
 	{
 		// More gyrations
@@ -404,6 +407,8 @@ ECP::Point AdditionFunction::operator()(const ECP::Point& P, const ECP::Point& Q
 
 		return R;
 	}
+#if 0
+	// Code path disabled at the moment due to https://github.com/weidai11/cryptopp/issues/878
 	else if (m_alpha == A_Star)
 	{
 		// Gyrations attempt to maintain constant-timeness
@@ -470,6 +475,7 @@ ECP::Point AdditionFunction::operator()(const ECP::Point& P, const ECP::Point& Q
 
 		return R;
 	}
+#endif
 	else  // A_Montgomery
 	{
 		// More gyrations
