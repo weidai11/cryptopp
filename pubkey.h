@@ -770,7 +770,9 @@ public:
 		if (m_validationLevel > level)
 			return true;
 
+		CRYPTOPP_ASSERT(ValidateGroup(rng, level));
 		bool pass = ValidateGroup(rng, level);
+		CRYPTOPP_ASSERT(ValidateElement(level, GetSubgroupGenerator(), &GetBasePrecomputation()));
 		pass = pass && ValidateElement(level, GetSubgroupGenerator(), &GetBasePrecomputation());
 
 		m_validationLevel = pass ? level+1 : 0;
@@ -1215,14 +1217,21 @@ public:
 	// GeneratableCryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
 	{
+		CRYPTOPP_ASSERT(GetAbstractGroupParameters().Validate(rng, level));
 		bool pass = GetAbstractGroupParameters().Validate(rng, level);
 
 		const Integer &q = GetAbstractGroupParameters().GetSubgroupOrder();
 		const Integer &x = GetPrivateExponent();
 
+		CRYPTOPP_ASSERT(x.IsPositive());
+		CRYPTOPP_ASSERT(x < q);
 		pass = pass && x.IsPositive() && x < q;
+
 		if (level >= 1)
+		{
+			CRYPTOPP_ASSERT(Integer::Gcd(x, q) == Integer::One());
 			pass = pass && Integer::Gcd(x, q) == Integer::One();
+		}
 		return pass;
 	}
 
@@ -1305,7 +1314,9 @@ public:
 	// CryptoMaterial
 	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
 	{
+		CRYPTOPP_ASSERT(GetAbstractGroupParameters().Validate(rng, level));
 		bool pass = GetAbstractGroupParameters().Validate(rng, level);
+		CRYPTOPP_ASSERT(GetAbstractGroupParameters().ValidateElement(level, this->GetPublicElement(), &GetPublicPrecomputation()));
 		pass = pass && GetAbstractGroupParameters().ValidateElement(level, this->GetPublicElement(), &GetPublicPrecomputation());
 		return pass;
 	}
