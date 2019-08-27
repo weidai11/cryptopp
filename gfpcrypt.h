@@ -69,8 +69,13 @@ public:
     void BERDecode(BufferedTransformation &bt);
     void DEREncode(BufferedTransformation &bt) const;
 
-    // GeneratibleCryptoMaterial interface
-    /*! parameters: (ModulusSize, SubgroupOrderSize (optional)) */
+    /// \brief Generate a random key
+    /// \param rng a RandomNumberGenerator to produce keying material
+    /// \param params additional initialization parameters
+    /// \details Recognised NameValuePairs are ModulusSize and
+    ///  SubgroupOrderSize (optional)
+    /// \throws KeyingErr if a key can't be generated or algorithm parameters
+    ///  are invalid
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
     void AssignFrom(const NameValuePairs &source);
@@ -80,25 +85,67 @@ public:
     Integer GetGroupOrder() const {return GetFieldType() == 1 ? GetModulus()-Integer::One() : GetModulus()+Integer::One();}
     bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const;
     bool ValidateElement(unsigned int level, const Integer &element, const DL_FixedBasePrecomputation<Integer> *precomp) const;
+
+    /// \brief Determine if subgroup membership check is fast
+    /// \returns true or false
     bool FastSubgroupCheckAvailable() const {return GetCofactor() == 2;}
 
-    // Cygwin i386 crash at -O3; see http://github.com/weidai11/cryptopp/issues/40.
+    /// \brief Encodes the element
+    /// \param reversible flag indicating the encoding format
+    /// \param element reference to the element to encode
+    /// \param encoded destination byte array for the encoded element
+    /// \details EncodeElement() must be implemented in a derived class.
+    /// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
+    /// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/40">Cygwin
+    ///  i386 crash at -O3</A>
     void EncodeElement(bool reversible, const Element &element, byte *encoded) const;
+
+    /// \brief Retrieve the encoded element's size
+    /// \param reversible flag indicating the encoding format
+    /// \return encoded element's size, in bytes
+    /// \details The format of the encoded element varies by the underlying
+    ///  type of the element and the reversible flag.
+    /// \sa GetEncodedElementSize(), EncodeElement(), DecodeElement()
     unsigned int GetEncodedElementSize(bool reversible) const;
 
+    /// \brief Decodes the element
+    /// \param encoded byte array with the encoded element
+    /// \param checkForGroupMembership flag indicating if the element should be validated
+    /// \return Element after decoding
+    /// \details DecodeElement() must be implemented in a derived class.
+    /// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
     Integer DecodeElement(const byte *encoded, bool checkForGroupMembership) const;
+
+    /// \brief Converts an element to an Integer
+    /// \param element the element to convert to an Integer
+    /// \return Element after converting to an Integer
+    /// \details ConvertElementToInteger() must be implemented in a derived class.
     Integer ConvertElementToInteger(const Element &element) const
         {return element;}
-    Integer GetMaxExponent() const;
-    static std::string CRYPTOPP_API StaticAlgorithmNamePrefix() {return "";}
 
+    /// \brief Retrieve the maximum exponent for the group
+    /// \return the maximum exponent for the group
+    Integer GetMaxExponent() const;
+
+    /// \brief Retrieve the OID of the algorithm
+    /// \returns OID of the algorithm
     OID GetAlgorithmID() const;
 
+    /// \brief Retrieve the modulus for the group
+    /// \return the modulus for the group
     virtual const Integer & GetModulus() const =0;
+
+    /// \brief Set group parameters
+    /// \param p the prime modulus
+    /// \param g the group generator
     virtual void SetModulusAndSubgroupGenerator(const Integer &p, const Integer &g) =0;
 
+    /// \brief Set subgroup order
+    /// \param q the subgroup order
     void SetSubgroupOrder(const Integer &q)
         {m_q = q; ParametersChanged();}
+
+    static std::string CRYPTOPP_API StaticAlgorithmNamePrefix() {return "";}
 
 protected:
     Integer ComputeGroupOrder(const Integer &modulus) const
