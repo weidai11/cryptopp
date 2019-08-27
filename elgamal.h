@@ -203,7 +203,7 @@ struct DL_PrivateKey_ElGamal : public BASE
 	/// \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can
 	///  be used for level 0. Level 1 may not check for weak keys and such.
 	///  Levels 2 and 3 are recommended.
-	virtual bool Validate(RandomNumberGenerator &rng, unsigned int level) const
+	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
 	{
 		// Validate() formerly used DL_PrivateKey_GFP implementation through
 		// inheritance. However, it would reject keys from other libraries
@@ -215,12 +215,12 @@ struct DL_PrivateKey_ElGamal : public BASE
 		// in [1,p-1]. Thanks to JPM for finding the reference. Also see
 		// https://github.com/weidai11/cryptopp/commit/a5a684d92986.
 
-		CRYPTOPP_ASSERT(GetAbstractGroupParameters().Validate(rng, level));
-		bool pass = GetAbstractGroupParameters().Validate(rng, level);
+		CRYPTOPP_ASSERT(this->GetAbstractGroupParameters().Validate(rng, level));
+		bool pass = this->GetAbstractGroupParameters().Validate(rng, level);
 
-		const Integer &p = GetGroupParameters().GetModulus();
-		const Integer &q = GetAbstractGroupParameters().GetSubgroupOrder();
-		const Integer &x = GetPrivateExponent();
+		const Integer &p = this->GetGroupParameters().GetModulus();
+		const Integer &q = this->GetAbstractGroupParameters().GetSubgroupOrder();
+		const Integer &x = this->GetPrivateExponent();
 
 		// Changed to x < p-1 based on ElGamal's paper and the HAC.
 		CRYPTOPP_ASSERT(x.IsPositive());
