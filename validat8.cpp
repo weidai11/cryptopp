@@ -307,8 +307,6 @@ bool ValidateElGamal()
 	bool pass = true;
 	{
 		// Data from https://github.com/weidai11/cryptopp/issues/876.
-		// The interesting thing about this data is, the public key
-		// has 3 ASN.1 Integer types, and not 4 Integer types.
 		const std::string encodedPublicKey =
 			"MHYwTwYGKw4HAgEBMEUCIQDebUvQDd9UPMmD27BJ ovZSIgWfexL0SWkfJQPMLsJvMwIgDy/kEthwO6Q+"
 			"L8XHnzumnEKs+txH8QkQD+M/8u82ql0DIwACIAY6 rfW+BTcRZ9QAJovgoB8DgNLJ8ocqOeF4nEBB0DHH";
@@ -316,8 +314,19 @@ bool ValidateElGamal()
 
 		ElGamal::PublicKey publicKey;
 		publicKey.Load(decodedPublicKey);
-
 		pass = publicKey.Validate(GlobalRNG(), 3) && pass;
+	}
+	{
+		// Data from https://github.com/weidai11/cryptopp/issues/876.
+		const std::string encodedPrivateKey =
+			"MHkCAQAwTwYGKw4HAgEBMEUCIQDebUvQDd9UPMmD 27BJovZSIgWfexL0SWkfJQPMLsJvMwIgDy/kEthw"
+			"O6Q+L8XHnzumnEKs+txH8QkQD+M/8u82ql0EIwIh AJb0S4TZLvApTVjXZyocPJ5tUgWgRqScXm5vNqu2"
+			"YqdM";
+		StringSource decodedPrivateKey(encodedPrivateKey, true, new Base64Decoder);
+
+		ElGamal::PrivateKey privateKey;
+		privateKey.Load(decodedPrivateKey);
+		pass = privateKey.Validate(GlobalRNG(), 3) && pass;
 	}
 	{
 		FileSource fc(DataDir("TestData/elgc1024.dat").c_str(), true, new HexDecoder);
