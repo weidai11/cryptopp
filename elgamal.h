@@ -203,24 +203,24 @@ struct DL_PrivateKey_ElGamal : public BASE
 	/// \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can
 	///  be used for level 0. Level 1 may not check for weak keys and such.
 	///  Levels 2 and 3 are recommended.
-	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
+	virtual bool Validate(RandomNumberGenerator &rng, unsigned int level) const
 	{
 		// Validate() formerly used DL_PrivateKey_GFP implementation through
 		// inheritance. However, it would reject keys from other libraries
-		// like BouncyCastle. The failure was x < q. To avoid the failure
-		// Crypto++ would perform a reduction on x when loaded using
-		// DL_PublicKey_GFP_OldFormat. Also see
+		// like BouncyCastle. The failure was x < q. According to ElGamal's
+		// paper and the HAC, the private key is selected in over [1,p-1],
+		// Later Tsiounis and Yung showed the lower limit as [1,q-1] in
+		// "On the Security of EIGamal Based Encryption". As such, Crypto++
+		// will generate a key in the range [1,q-1], but accept a key
+		// in [1,p-1]. Thanks to JPM for finding the reference. Also see
 		// https://github.com/weidai11/cryptopp/commit/a5a684d92986.
-		// According to ElGamal's paper and the HAC, the private key is
-		// selected in over [1,p-1], and not [1,q-1] as with some of the
-		// later GFP algorithms.
 
-		CRYPTOPP_ASSERT(this->GetAbstractGroupParameters().Validate(rng, level));
-		bool pass = this->GetAbstractGroupParameters().Validate(rng, level);
+		CRYPTOPP_ASSERT(GetAbstractGroupParameters().Validate(rng, level));
+		bool pass = GetAbstractGroupParameters().Validate(rng, level);
 
-		const Integer &p = this->GetGroupParameters().GetModulus();
-		const Integer &q = this->GetAbstractGroupParameters().GetSubgroupOrder();
-		const Integer &x = this->GetPrivateExponent();
+		const Integer &p = GetGroupParameters().GetModulus();
+		const Integer &q = GetAbstractGroupParameters().GetSubgroupOrder();
+		const Integer &x = GetPrivateExponent();
 
 		// Changed to x < p-1 based on ElGamal's paper and the HAC.
 		CRYPTOPP_ASSERT(x.IsPositive());
@@ -229,6 +229,7 @@ struct DL_PrivateKey_ElGamal : public BASE
 
 		if (level >= 1)
 		{
+			// Minimum security level due to Tsiounis and Yung.
 			CRYPTOPP_ASSERT(Integer::Gcd(x, q) == Integer::One());
 			pass = pass && Integer::Gcd(x, q) == Integer::One();
 		}
