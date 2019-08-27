@@ -1059,13 +1059,13 @@ int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byt
     packed32bignum25519 qx, qz, pqz, pqx;
     packed64bignum25519 nq, sq, sqscalar, prime, primex, primez, nqpq;
     bignum25519mulprecomp preq;
-    size_t i=0, bit=0, lastbit=0;
+    size_t bit=0, lastbit=0;
 
     curve25519_expand(nqpqx, othersKey);
     curve25519_mul_precompute(&preq, nqpqx);
 
     /* do bits 254..3 */
-    for (i = 254, lastbit=0; i >= 3; i--) {
+    for (size_t i = 254, lastbit=0; i >= 3; i--) {
         bit = (e[i/8] >> (i & 7)) & 1;
         curve25519_swap_conditional(nqx, nqpqx, (word32)(bit ^ lastbit));
         curve25519_swap_conditional(nqz, nqpqz, (word32)(bit ^ lastbit));
@@ -1098,7 +1098,7 @@ int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byt
     curve25519_swap_conditional(nqz, nqpqz, (word32)bit);
 
     /* do bits 2..0 */
-    for (i = 0; i < 3; i++) {
+    for (size_t i = 0; i < 3; i++) {
         curve25519_compute_nq(nq, nqx, nqz);
         curve25519_square_packed64(sq, nq); /* sq = nq^2 */
         curve25519_121665_packed64(sqscalar, sq); /* sqscalar = sq * [121666,121665] */

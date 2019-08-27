@@ -24,6 +24,9 @@
 #ifdef CRYPTOPP_WIN32_AVAILABLE
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#ifndef ERROR_INCORRECT_SIZE
+# define ERROR_INCORRECT_SIZE 0x000005B6
+#endif
 #if defined(USE_MS_CRYPTOAPI)
 #include <wincrypt.h>
 #ifndef CRYPT_NEWKEYSET
@@ -44,7 +47,7 @@
 # define STATUS_INVALID_HANDLE 0xC0000008
 #endif
 #endif
-#endif
+#endif  // Win32
 
 #ifdef CRYPTOPP_UNIX_AVAILABLE
 #include <errno.h>

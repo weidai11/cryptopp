@@ -264,13 +264,13 @@ clean ::
 	$(RM) /F /Q pch.obj $(LIB_OBJS) $(ASM_OBJS) $(TEST_OBJS) *.pdb 2>nul
 
 distclean :: clean
-!IF EXIST ($(USERNAME).sdf)
-	attrib -r -a -s -h $(USERNAME).sdf 2>nul
-	$(RM) /F /Q $(USERNAME).sdf 2>nul
+!IF EXIST ("$(USERNAME).sdf")
+	attrib -r -a -s -h "$(USERNAME).sdf" 2>nul
+	$(RM) /F /Q "$(USERNAME).sdf" 2>nul
 !ENDIF
-!IF EXIST ($(USERNAME).suo)
-	attrib -r -a -s -h $(USERNAME).suo 2>nul
-	$(RM) /F /Q $(USERNAME).suo 2>nul
+!IF EXIST ("$(USERNAME).suo")
+	attrib -r -a -s -h $(USERNAME).suo" 2>nul
+	$(RM) /F /Q $(USERNAME).suo" 2>nul
 !ENDIF
 !IF EXIST (Win32\)
 	$(RMDIR) Win32\ /q /s 2>nul
