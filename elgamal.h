@@ -215,12 +215,12 @@ struct DL_PrivateKey_ElGamal : public BASE
 		// selected in over [1,p-1], and not [1,q-1] as with some of the
 		// later GFP algorithms.
 
-		CRYPTOPP_ASSERT(GetAbstractGroupParameters().Validate(rng, level));
-		bool pass = GetAbstractGroupParameters().Validate(rng, level);
+		CRYPTOPP_ASSERT(this->GetAbstractGroupParameters().Validate(rng, level));
+		bool pass = this->GetAbstractGroupParameters().Validate(rng, level);
 
-		const Integer &p = GetGroupParameters().GetModulus();
-		const Integer &q = GetAbstractGroupParameters().GetSubgroupOrder();
-		const Integer &x = GetPrivateExponent();
+		const Integer &p = this->GetGroupParameters().GetModulus();
+		const Integer &q = this->GetAbstractGroupParameters().GetSubgroupOrder();
+		const Integer &x = this->GetPrivateExponent();
 
 		// Changed to x < p-1 based on ElGamal's paper and the HAC.
 		CRYPTOPP_ASSERT(x.IsPositive());
