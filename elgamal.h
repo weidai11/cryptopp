@@ -30,7 +30,8 @@ public:
 
 	void Derive(const DL_GroupParameters<Integer> &groupParams, byte *derivedKey, size_t derivedLength, const Integer &agreedElement, const Integer &ephemeralPublicKey, const NameValuePairs &derivationParams) const
 	{
-		CRYPTOPP_UNUSED(groupParams), CRYPTOPP_UNUSED(ephemeralPublicKey), CRYPTOPP_UNUSED(derivationParams);
+		CRYPTOPP_UNUSED(groupParams); CRYPTOPP_UNUSED(ephemeralPublicKey);
+		CRYPTOPP_UNUSED(derivationParams);
 		agreedElement.Encode(derivedKey, derivedLength);
 	}
 
@@ -139,6 +140,17 @@ template <class BASE>
 struct DL_PublicKey_ElGamal : public BASE
 {
 	virtual ~DL_PublicKey_ElGamal() {}
+
+	/// \brief Retrieves the OID of the algorithm
+	/// \returns OID of the algorithm
+	/// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
+	///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
+	///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
+	///  If you need to <tt>Load</tt> an ElGamal key with the wrong OID then
+	///  see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+	///  the Crypto++ wiki.
+	/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
+	///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 	virtual OID GetAlgorithmID() const {
 		return ASN1::elGamal();
 	}
@@ -159,8 +171,68 @@ template <class BASE>
 struct DL_PrivateKey_ElGamal : public BASE
 {
 	virtual ~DL_PrivateKey_ElGamal() {}
+
+	/// \brief Retrieves the OID of the algorithm
+	/// \returns OID of the algorithm
+	/// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
+	///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
+	///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
+	///  If you need to <tt>Load</tt> an ElGamal key with the wrong OID then
+	///  see <A HREF="https://www.cryptopp.com/wiki/ElGamal">ElGamal</A> on
+	///  the Crypto++ wiki.
+	/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/876">Issue 876</A>,
+	///  <A HREF="https://github.com/weidai11/cryptopp/issues/567">Issue 567</A>
 	virtual OID GetAlgorithmID() const {
 		return ASN1::elGamal();
+	}
+
+	/// \brief Check the key for errors
+	/// \param rng RandomNumberGenerator for objects which use randomized testing
+	/// \param level level of thoroughness
+	/// \return true if the tests succeed, false otherwise
+	/// \details There are four levels of thoroughness:
+	///   <ul>
+	///   <li>0 - using this object won't cause a crash or exception
+	///   <li>1 - this object will probably function, and encrypt, sign, other
+	///           operations correctly
+	///   <li>2 - ensure this object will function correctly, and perform
+	///           reasonable security checks
+	///   <li>3 - perform reasonable security checks, and do checks that may
+	///           take a long time
+	///   </ul>
+	/// \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can
+	///  be used for level 0. Level 1 may not check for weak keys and such.
+	///  Levels 2 and 3 are recommended.
+	bool Validate(RandomNumberGenerator &rng, unsigned int level) const
+	{
+		// Validate() formerly used DL_PrivateKey_GFP implementation through
+		// inheritance. However, it would reject keys from other libraries
+		// like BouncyCastle. The failure was x < q. To avoid the failure
+		// Crypto++ would perform a reduction on x when loaded using
+		// DL_PublicKey_GFP_OldFormat. Also see
+		// https://github.com/weidai11/cryptopp/commit/a5a684d92986.
+		// According to ElGamal's paper and the HAC, the private key is
+		// selected in over [1,p-1], and not [1,q-1] as with some of the
+		// later GFP algorithms.
+
+		CRYPTOPP_ASSERT(GetAbstractGroupParameters().Validate(rng, level));
+		bool pass = GetAbstractGroupParameters().Validate(rng, level);
+
+		const Integer &p = GetGroupParameters().GetModulus();
+		const Integer &q = GetAbstractGroupParameters().GetSubgroupOrder();
+		const Integer &x = GetPrivateExponent();
+
+		// Changed to x < p-1 based on ElGamal's paper and the HAC.
+		CRYPTOPP_ASSERT(x.IsPositive());
+		CRYPTOPP_ASSERT(x < p-1);
+		pass = pass && x.IsPositive() && x < p-1;
+
+		if (level >= 1)
+		{
+			CRYPTOPP_ASSERT(Integer::Gcd(x, q) == Integer::One());
+			pass = pass && Integer::Gcd(x, q) == Integer::One();
+		}
+		return pass;
 	}
 };
 
