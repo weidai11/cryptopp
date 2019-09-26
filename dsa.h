@@ -13,11 +13,14 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief DSA Signature Format
 /// \details The DSA signature format used by Crypto++ is as defined by IEEE P1363.
-///   Java and .Net use the DER format, and OpenPGP uses the OpenPGP format.
+///  OpenSSL, Java and .Net use the DER format, and OpenPGP uses the OpenPGP format.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/DSAConvertSignatureFormat">DSAConvertSignatureFormat</A>
+///  on the Crypto++ wiki.
+/// \since Crypto++ 1.0
 enum DSASignatureFormat {
 	/// \brief Crypto++ native signature encoding format
 	DSA_P1363,
-	/// \brief signature encoding format used by Java and .Net
+	/// \brief signature encoding format used by OpenSSL, Java and .Net
 	DSA_DER,
 	/// \brief OpenPGP signature encoding format
 	DSA_OPENPGP
@@ -31,12 +34,15 @@ enum DSASignatureFormat {
 /// \param signatureLen the length of the existing signature encoding buffer
 /// \param fromFormat the source signature format
 /// \details This function converts between these formats, and returns length
-///   of signature in the target format. If <tt>toFormat == DSA_P1363</tt>, then
-///   <tt>bufferSize</tt> must equal <tt>publicKey.SignatureLength()</tt>
+///  of signature in the target format. If <tt>toFormat == DSA_P1363</tt>, then
+///  <tt>bufferSize</tt> must equal <tt>publicKey.SignatureLength()</tt>
+/// \sa <A HREF="http://www.cryptopp.com/wiki/DSAConvertSignatureFormat">DSAConvertSignatureFormat</A>
+///  on the Crypto++ wiki.
 /// \since Crypto++ 1.0
 size_t DSAConvertSignatureFormat(byte *buffer, size_t bufferSize, DSASignatureFormat toFormat,
 	const byte *signature, size_t signatureLen, DSASignatureFormat fromFormat);
 
 NAMESPACE_END
 
-#endif
+#endif  // CRYPTOPP_DSA_H
+
