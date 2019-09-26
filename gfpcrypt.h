@@ -90,8 +90,8 @@ public:
     ///   GetRequiredParameter() and GetRequiredIntParameter()
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
 
-	/// \brief Initialize or reinitialize this key
-	/// \param source NameValuePairs to assign
+    /// \brief Initialize or reinitialize this key
+    /// \param source NameValuePairs to assign
     void AssignFrom(const NameValuePairs &source);
 
     // DL_GroupParameters
@@ -117,7 +117,7 @@ public:
 
     /// \brief Retrieve the encoded element's size
     /// \param reversible flag indicating the encoding format
-    /// \return encoded element's size, in bytes
+    /// \returns encoded element's size, in bytes
     /// \details The format of the encoded element varies by the underlying
     ///  type of the element and the reversible flag.
     /// \sa EncodeElement(), DecodeElement()
@@ -126,7 +126,7 @@ public:
     /// \brief Decodes the element
     /// \param encoded byte array with the encoded element
     /// \param checkForGroupMembership flag indicating if the element should be validated
-    /// \return Element after decoding
+    /// \returns Element after decoding
     /// \details DecodeElement() must be implemented in a derived class.
     /// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
     /// \sa GetEncodedElementSize(), EncodeElement()
@@ -134,13 +134,13 @@ public:
 
     /// \brief Converts an element to an Integer
     /// \param element the element to convert to an Integer
-    /// \return Element after converting to an Integer
+    /// \returns Element after converting to an Integer
     /// \details ConvertElementToInteger() must be implemented in a derived class.
     Integer ConvertElementToInteger(const Element &element) const
         {return element;}
 
     /// \brief Retrieve the maximum exponent for the group
-    /// \return the maximum exponent for the group
+    /// \returns the maximum exponent for the group
     Integer GetMaxExponent() const;
 
     /// \brief Retrieve the OID of the algorithm
@@ -148,7 +148,7 @@ public:
     OID GetAlgorithmID() const;
 
     /// \brief Retrieve the modulus for the group
-    /// \return the modulus for the group
+    /// \returns the modulus for the group
     virtual const Integer & GetModulus() const =0;
 
     /// \brief Set group parameters
@@ -201,11 +201,11 @@ public:
 
     // IntegerGroupParameters
     /// \brief Retrieve the modulus for the group
-    /// \return the modulus for the group
+    /// \returns the modulus for the group
     const Integer & GetModulus() const {return this->m_groupPrecomputation.GetModulus();}
 
-	/// \brief Retrieves a reference to the group generator
-	/// \returns const reference to the group generator
+    /// \brief Retrieves a reference to the group generator
+    /// \returns const reference to the group generator
     const Integer & GetGenerator() const {return this->m_gpc.GetBase(this->GetGroupPrecomputation());}
 
     void SetModulusAndSubgroupGenerator(const Integer &p, const Integer &g)        // these have to be set together
@@ -228,7 +228,7 @@ public:
 
     /// \brief Determines if an element is an identity
     /// \param element element to check
-    /// \return true if the element is an identity, false otherwise
+    /// \returns true if the element is an identity, false otherwise
     /// \details The identity element or or neutral element is a special element
     ///  in a group that leaves other elements unchanged when combined with it.
     /// \details IsIdentity() must be implemented in a derived class.
@@ -692,21 +692,61 @@ struct NR : public DL_SS<
 /// \brief DSA group parameters
 /// \details These are GF(p) group parameters that are allowed by the DSA standard
 /// \sa DL_Keys_DSA
+/// \since Crypto++ 1.0
 class CRYPTOPP_DLL DL_GroupParameters_DSA : public DL_GroupParameters_GFP
 {
 public:
     virtual ~DL_GroupParameters_DSA() {}
 
-    /*! also checks that the lengths of p and q are allowed by the DSA standard */
+    /// \brief Check the group for errors
+    /// \param rng RandomNumberGenerator for objects which use randomized testing
+    /// \param level level of thoroughness
+    /// \returns true if the tests succeed, false otherwise
+    /// \details ValidateGroup() also checks that the lengths of p and q are allowed
+    ///  by the DSA standard.
+    /// \details There are four levels of thoroughness:
+    ///   <ul>
+    ///   <li>0 - using this object won't cause a crash or exception
+    ///   <li>1 - this object will probably function, and encrypt, sign, other operations correctly
+    ///   <li>2 - ensure this object will function correctly, and perform reasonable security checks
+    ///   <li>3 - perform reasonable security checks, and do checks that may take a long time
+    ///   </ul>
+    /// \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can be used for level 0.
+    ///  Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
     bool ValidateGroup(RandomNumberGenerator &rng, unsigned int level) const;
-    /*! parameters: (ModulusSize), or (Modulus, SubgroupOrder, SubgroupGenerator) */
-    /*! ModulusSize must be between DSA::MIN_PRIME_LENGTH and DSA::MAX_PRIME_LENGTH, and divisible by DSA::PRIME_LENGTH_MULTIPLE */
+
+    /// \brief Generate a random key or crypto parameters
+    /// \param rng a RandomNumberGenerator to produce keying material
+    /// \param alg additional initialization parameters
+    /// \details NameValuePairs can be ModulusSize alone; or Modulus, SubgroupOrder, and
+    ///  SubgroupGenerator. ModulusSize must be between <tt>DSA::MIN_PRIME_LENGTH</tt> and
+    ///  <tt>DSA::MAX_PRIME_LENGTH</tt>, and divisible by <tt>DSA::PRIME_LENGTH_MULTIPLE</tt>.
+    /// \details An example of changing the modulus size using NameValuePairs is shown below.
+    /// <pre>
+    ///   AlgorithmParameters params = MakeParameters
+    ///     (Name::ModulusSize(), 2048);
+    ///
+    ///   DL_GroupParameters_DSA groupParams;
+    ///   groupParams.GenerateRandom(prng, params);
+    /// </pre>
+    /// \throws KeyingErr if a key can't be generated or algorithm parameters are invalid.
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 
+    /// \brief Check the prime length for errors
+    /// \param pbits number of bits in the prime number
+    /// \returns true if the tests succeed, false otherwise
     static bool CRYPTOPP_API IsValidPrimeLength(unsigned int pbits)
         {return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
 
-    enum {MIN_PRIME_LENGTH = 1024, MAX_PRIME_LENGTH = 3072, PRIME_LENGTH_MULTIPLE = 1024};
+    /// \brief DSA prime length
+    enum {
+        /// \brief Minimum prime length
+        MIN_PRIME_LENGTH = 1024,
+        /// \brief Maximum prime length
+        MAX_PRIME_LENGTH = 3072,
+        /// \brief Prime length multiple
+        PRIME_LENGTH_MULTIPLE = 1024
+    };
 };
 
 template <class H>
@@ -714,6 +754,7 @@ class DSA2;
 
 /// \brief DSA keys
 /// \sa DL_GroupParameters_DSA
+/// \since Crypto++ 1.0
 struct DL_Keys_DSA
 {
     typedef DL_PublicKey_GFP<DL_GroupParameters_DSA> PublicKey;
