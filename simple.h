@@ -134,7 +134,7 @@ class CRYPTOPP_NO_VTABLE Unflushable : public T
 {
 public:
 	/// \brief Flush buffered input and/or output, with signal propagation
-	/// \param hardFlush is used to indicate whether all data should be flushed
+	/// \param completeFlush is used to indicate whether all data should be flushed
 	/// \param propagation the number of attached transformations the Flush()
 	///  signal should be passed
 	/// \param blocking specifies whether the object should block when processing

@@ -234,7 +234,7 @@ public:
   ///  static public key is validated. If you have previously validated the
   ///  couterparty's static public key, then use
   ///  <tt>validateStaticOtherPublicKey=false</tt> to save time.
-  /// \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()
+  /// \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()</tt>
   /// \pre <tt>COUNTOF(staticPrivateKey) == StaticPrivateKeyLength()</tt>
   /// \pre <tt>COUNTOF(ephemeralPrivateKey) == EphemeralPrivateKeyLength()</tt>
   /// \pre <tt>COUNTOF(staticOtherPublicKey) == StaticPublicKeyLength()</tt>

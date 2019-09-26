@@ -71,13 +71,27 @@ public:
 
     /// \brief Generate a random key
     /// \param rng a RandomNumberGenerator to produce keying material
-    /// \param params additional initialization parameters
+    /// \param alg additional initialization parameters
     /// \details Recognised NameValuePairs are ModulusSize and
     ///  SubgroupOrderSize (optional)
     /// \throws KeyingErr if a key can't be generated or algorithm parameters
     ///  are invalid
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
+
+    /// \brief Get a named value
+    /// \param name the name of the object or value to retrieve
+    /// \param valueType reference to a variable that receives the value
+    /// \param pValue void pointer to a variable that receives the value
+    /// \returns true if the value was retrieved, false otherwise
+    /// \details GetVoidValue() retrieves the value of name if it exists.
+    /// \note GetVoidValue() is an internal function and should be implemented
+    ///   by derived classes. Users should use one of the other functions instead.
+    /// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
+    ///   GetRequiredParameter() and GetRequiredIntParameter()
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const;
+
+	/// \brief Initialize or reinitialize this key
+	/// \param source NameValuePairs to assign
     void AssignFrom(const NameValuePairs &source);
 
     // DL_GroupParameters
@@ -96,7 +110,8 @@ public:
     /// \param encoded destination byte array for the encoded element
     /// \details EncodeElement() must be implemented in a derived class.
     /// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
-    /// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/40">Cygwin
+    /// \sa GetEncodedElementSize(), DecodeElement(), <A
+    ///  HREF="http://github.com/weidai11/cryptopp/issues/40">Cygwin
     ///  i386 crash at -O3</A>
     void EncodeElement(bool reversible, const Element &element, byte *encoded) const;
 
@@ -105,7 +120,7 @@ public:
     /// \return encoded element's size, in bytes
     /// \details The format of the encoded element varies by the underlying
     ///  type of the element and the reversible flag.
-    /// \sa GetEncodedElementSize(), EncodeElement(), DecodeElement()
+    /// \sa EncodeElement(), DecodeElement()
     unsigned int GetEncodedElementSize(bool reversible) const;
 
     /// \brief Decodes the element
@@ -114,6 +129,7 @@ public:
     /// \return Element after decoding
     /// \details DecodeElement() must be implemented in a derived class.
     /// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
+    /// \sa GetEncodedElementSize(), EncodeElement()
     Integer DecodeElement(const byte *encoded, bool checkForGroupMembership) const;
 
     /// \brief Converts an element to an Integer
@@ -184,7 +200,12 @@ public:
     DL_FixedBasePrecomputation<Element> & AccessBasePrecomputation() {return this->m_gpc;}
 
     // IntegerGroupParameters
+    /// \brief Retrieve the modulus for the group
+    /// \return the modulus for the group
     const Integer & GetModulus() const {return this->m_groupPrecomputation.GetModulus();}
+
+	/// \brief Retrieves a reference to the group generator
+	/// \returns const reference to the group generator
     const Integer & GetGenerator() const {return this->m_gpc.GetBase(this->GetGroupPrecomputation());}
 
     void SetModulusAndSubgroupGenerator(const Integer &p, const Integer &g)        // these have to be set together
@@ -205,11 +226,37 @@ class CRYPTOPP_DLL DL_GroupParameters_GFP : public DL_GroupParameters_IntegerBas
 public:
     virtual ~DL_GroupParameters_GFP() {}
 
-    // DL_GroupParameters
+    /// \brief Determines if an element is an identity
+    /// \param element element to check
+    /// \return true if the element is an identity, false otherwise
+    /// \details The identity element or or neutral element is a special element
+    ///  in a group that leaves other elements unchanged when combined with it.
+    /// \details IsIdentity() must be implemented in a derived class.
     bool IsIdentity(const Integer &element) const {return element == Integer::One();}
+
+    /// \brief Exponentiates a base to multiple exponents
+    /// \param results an array of Elements
+    /// \param base the base to raise to the exponents
+    /// \param exponents an array of exponents
+    /// \param exponentsCount the number of exponents in the array
+    /// \details SimultaneousExponentiate() raises the base to each exponent in
+    ///  the exponents array and stores the result at the respective position in
+    ///  the results array.
+    /// \details SimultaneousExponentiate() must be implemented in a derived class.
+    /// \pre <tt>COUNTOF(results) == exponentsCount</tt>
+    /// \pre <tt>COUNTOF(exponents) == exponentsCount</tt>
     void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
 
-    // NameValuePairs interface
+    /// \brief Get a named value
+    /// \param name the name of the object or value to retrieve
+    /// \param valueType reference to a variable that receives the value
+    /// \param pValue void pointer to a variable that receives the value
+    /// \returns true if the value was retrieved, false otherwise
+    /// \details GetVoidValue() retrieves the value of name if it exists.
+    /// \note GetVoidValue() is an internal function and should be implemented
+    ///   by derived classes. Users should use one of the other functions instead.
+    /// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
+    ///   GetRequiredParameter() and GetRequiredIntParameter()
     bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
     {
         return GetValueHelper<DL_GroupParameters_IntegerBased>(this, name, valueType, pValue).Assignable();

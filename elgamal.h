@@ -101,7 +101,7 @@ public:
 /// \brief ElGamal key agreement and encryption schemes default implementation
 /// \tparam BASE Base class implementation
 /// \tparam SCHEME_OPTIONS Scheme options
-/// \tparam Key ElGamal key classes
+/// \tparam KEY ElGamal key classes
 /// \since Crypto++ 1.0
 template <class BASE, class SCHEME_OPTIONS, class KEY>
 class ElGamalObjectImpl :
