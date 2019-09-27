@@ -2350,7 +2350,12 @@ private:
 /// \return a reference to a BufferedTransformation object that discards all input
 CRYPTOPP_DLL BufferedTransformation & TheBitBucket();
 
-/// \brief Interface for crypto material, such as public and private keys, and crypto parameters
+/// \brief Interface for crypto material
+/// \details CryptoMaterial() is an interface for crypto material, such as
+///  public keys, private keys and crypto parameters. Derived classes generally
+///  do not offer public methods such as GenerateRandom() and
+///  GenerateRandomWithKeySize().
+/// \sa GeneratableCryptoMaterial()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoMaterial : public NameValuePairs
 {
 public:
@@ -2466,7 +2471,11 @@ public:
 #endif
 };
 
-/// \brief Interface for generatable crypto material, such as private keys and crypto parameters
+/// \brief Interface for crypto material
+/// \details GeneratableCryptoMaterial() is an interface for crypto material,
+///  such as private keys and crypto parameters. Derived classes offer public
+///  methods such as GenerateRandom() and GenerateRandomWithKeySize().
+/// \sa CryptoMaterial()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE GeneratableCryptoMaterial : virtual public CryptoMaterial
 {
 public:
