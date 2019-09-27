@@ -187,12 +187,11 @@ public:
 	/// \returns a memory block
 	/// \throws InvalidArgument
 	/// \details allocate() first checks the size of the request. If it is non-0
-	///  and less than max_size(), then an attempt is made to fulfill the request using either
-	///  AlignedAllocate() or UnalignedAllocate().
-	/// \details AlignedAllocate() is used if T_Align16 is true.
-	///  UnalignedAllocate() used if T_Align16 is false.
-	/// \details This is the C++ *Placement New* operator. ptr is not used, and the function
-	///  CRYPTOPP_ASSERTs in Debug builds if ptr is non-NULL.
+	///  and less than max_size(), then an attempt is made to fulfill the request
+	///  using either AlignedAllocate() or UnalignedAllocate(). AlignedAllocate() is
+	///  used if T_Align16 is true. UnalignedAllocate() used if T_Align16 is false.
+	/// \details This is the C++ *Placement New* operator. ptr is not used, and the
+	///  function asserts in Debug builds if ptr is non-NULL.
 	/// \sa CallNewHandler() for the methods used to recover from a failed
 	///  allocation attempt.
 	/// \note size is the count of elements, and not the number of bytes
@@ -215,9 +214,9 @@ public:
 	/// \brief Deallocates a block of memory
 	/// \param ptr the pointer for the allocation
 	/// \param size the size of the allocation, in elements
-	/// \details Internally, SecureWipeArray() is called before deallocating the memory.
-	///  Once the memory block is wiped or zeroized, AlignedDeallocate() or
-	///  UnalignedDeallocate() is called.
+	/// \details Internally, SecureWipeArray() is called before deallocating the
+	///  memory. Once the memory block is wiped or zeroized, AlignedDeallocate()
+	///  or UnalignedDeallocate() is called.
 	/// \details AlignedDeallocate() is used if T_Align16 is true.
 	///  UnalignedDeallocate() used if T_Align16 is false.
 	void deallocate(void *ptr, size_type size)
@@ -228,7 +227,7 @@ public:
 		SecureWipeArray(reinterpret_cast<pointer>(ptr), size);
 
 #if CRYPTOPP_BOOL_ALIGN16
-		if (T_Align16 && size)
+		if (T_Align16)
 			return AlignedDeallocate(ptr);
 #endif
 
