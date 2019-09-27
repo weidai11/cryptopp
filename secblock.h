@@ -204,8 +204,8 @@ public:
 			return NULLPTR;
 
 #if CRYPTOPP_BOOL_ALIGN16
-		// TODO: Does this need the test 'size*sizeof(T) >= 16'?
-		if (T_Align16 && size)
+		// TODO: Does this need to test 'size*sizeof(T) >= 16'?
+		if (T_Align16)
 			return reinterpret_cast<pointer>(AlignedAllocate(size*sizeof(T)));
 #endif
 
