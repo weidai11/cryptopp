@@ -588,14 +588,37 @@ public:
 	/// \brief Retrieves the OID of the algorithm
 	/// \returns OID of the algorithm
 	virtual OID GetAlgorithmID() const =0;
+
+	/// \brief Decode algorithm parameters
+	/// \param bt BufferedTransformation object
+	/// \sa BERDecodePublicKey, <A HREF="http://www.ietf.org/rfc/rfc2459.txt">RFC
+	///  2459, section 7.3.1</A>
 	virtual bool BERDecodeAlgorithmParameters(BufferedTransformation &bt)
 		{BERDecodeNull(bt); return false;}
-	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
-		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
 
-	/// decode subjectPublicKey part of subjectPublicKeyInfo, without the BIT STRING header
+	/// \brief Encode algorithm parameters
+	/// \param bt BufferedTransformation object
+	/// \sa DEREncodePublicKey, <A HREF="http://www.ietf.org/rfc/rfc2459.txt">RFC
+	///  2459, section 7.3.1</A>
+	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
+		{DEREncodeNull(bt); return false;}
+
+	/// \brief Decode subjectPublicKey part of subjectPublicKeyInfo
+	/// \param bt BufferedTransformation object
+	/// \param parametersPresent flag indicating if algorithm parameters are present
+	/// \param size number of octets to read for the parameters, in bytes
+	/// \details BERDecodePublicKey() the decodes subjectPublicKey part of
+	///  subjectPublicKeyInfo, without the BIT STRING header.
+	/// \details When <tt>parametersPresent = true</tt> then BERDecodePublicKey() calls
+	///  BERDecodeAlgorithmParameters() to parse algorithm parameters.
+	/// \sa BERDecodeAlgorithmParameters
 	virtual void BERDecodePublicKey(BufferedTransformation &bt, bool parametersPresent, size_t size) =0;
-	/// encode subjectPublicKey part of subjectPublicKeyInfo, without the BIT STRING header
+
+	/// \brief Encode subjectPublicKey part of subjectPublicKeyInfo
+	/// \param bt BufferedTransformation object
+	/// \details DEREncodePublicKey() encodes the subjectPublicKey part of
+	///  subjectPublicKeyInfo, without the BIT STRING header.
+	/// \sa DEREncodeAlgorithmParameters
 	virtual void DEREncodePublicKey(BufferedTransformation &bt) const =0;
 };
 
@@ -611,20 +634,53 @@ public:
 	/// \brief Retrieves the OID of the algorithm
 	/// \returns OID of the algorithm
 	virtual OID GetAlgorithmID() const =0;
+
+	/// \brief Decode optional parameters
+	/// \param bt BufferedTransformation object
+	/// \sa BERDecodePrivateKey, <A HREF="http://www.ietf.org/rfc/rfc2459.txt">RFC
+	///  2459, section 7.3.1</A>
 	virtual bool BERDecodeAlgorithmParameters(BufferedTransformation &bt)
 		{BERDecodeNull(bt); return false;}
-	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
-		{DEREncodeNull(bt); return false;}	// see RFC 2459, section 7.3.1
 
-	/// decode privateKey part of privateKeyInfo, without the OCTET STRING header
+	/// \brief Encode optional parameters
+	/// \param bt BufferedTransformation object
+	/// \sa DEREncodePrivateKey, <A HREF="http://www.ietf.org/rfc/rfc2459.txt">RFC
+	///  2459, section 7.3.1</A>
+	virtual bool DEREncodeAlgorithmParameters(BufferedTransformation &bt) const
+		{DEREncodeNull(bt); return false;}
+
+	/// \brief Decode privateKey part of privateKeyInfo
+	/// \param bt BufferedTransformation object
+	/// \param parametersPresent flag indicating if algorithm parameters are present
+	/// \param size number of octets to read for the parameters, in bytes
+	/// \details BERDecodePrivateKey() the decodes privateKey part of privateKeyInfo,
+	///  without the OCTET STRING header.
+	/// \details When <tt>parametersPresent = true</tt> then BERDecodePrivateKey() calls
+	///  BERDecodeAlgorithmParameters() to parse algorithm parameters.
+	/// \sa BERDecodeAlgorithmParameters
 	virtual void BERDecodePrivateKey(BufferedTransformation &bt, bool parametersPresent, size_t size) =0;
-	/// encode privateKey part of privateKeyInfo, without the OCTET STRING header
+
+	/// \brief Encode privateKey part of privateKeyInfo
+	/// \param bt BufferedTransformation object
+	/// \details DEREncodePrivateKey() encodes the privateKey part of privateKeyInfo,
+	///  without the OCTET STRING header.
+	/// \sa DEREncodeAlgorithmParameters
 	virtual void DEREncodePrivateKey(BufferedTransformation &bt) const =0;
 
-	/// decode optional attributes including context-specific tag
-	/*! /note default implementation stores attributes to be output in DEREncodeOptionalAttributes */
+	/// \brief Decode optional attributes
+	/// \param bt BufferedTransformation object
+	/// \details BERDecodeOptionalAttributes() decodes optional attributes including
+	///  context-specific tag.
+	/// \sa BERDecodeAlgorithmParameters, DEREncodeOptionalAttributes
+	/// \note default implementation stores attributes to be output using
+	///  DEREncodeOptionalAttributes
 	virtual void BERDecodeOptionalAttributes(BufferedTransformation &bt);
-	/// encode optional attributes including context-specific tag
+
+	/// \brief Encode optional attributes
+	/// \param bt BufferedTransformation object
+	/// \details DEREncodeOptionalAttributes() encodes optional attributes including
+	///  context-specific tag.
+	/// \sa BERDecodeAlgorithmParameters
 	virtual void DEREncodeOptionalAttributes(BufferedTransformation &bt) const;
 
 protected:
