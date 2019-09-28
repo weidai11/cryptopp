@@ -2516,6 +2516,11 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE CryptoParameters : public GeneratableCrypt
 {
 };
 
+/// \brief Interface for certificates
+class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Certificate : virtual public CryptoMaterial
+{
+};
+
 /// \brief Interface for asymmetric algorithms
 /// \details BERDecode() and DEREncode() were removed under Issue 569
 ///  and Commit 9b174e84de7a. Programs should use <tt>AccessMaterial().Load(bt)</tt>
