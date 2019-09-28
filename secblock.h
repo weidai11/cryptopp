@@ -7,8 +7,9 @@
 #define CRYPTOPP_SECBLOCK_H
 
 #include "config.h"
-#include "stdcpp.h"
+#include "allocate.h"
 #include "misc.h"
+#include "stdcpp.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)

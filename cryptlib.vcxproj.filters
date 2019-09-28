@@ -26,6 +26,9 @@
     <ClCompile Include="algparam.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="allocate.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="arc4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -556,6 +559,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="algparam.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="allocate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="arc4.h">

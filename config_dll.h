@@ -21,7 +21,7 @@
 
 #if defined(CRYPTOPP_WIN32_AVAILABLE)
 
-#ifdef CRYPTOPP_EXPORTS
+#if defined(CRYPTOPP_EXPORTS)
 #  define CRYPTOPP_IS_DLL
 #  define CRYPTOPP_DLL __declspec(dllexport)
 #elif defined(CRYPTOPP_IMPORTS)

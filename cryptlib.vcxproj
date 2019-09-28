@@ -171,6 +171,7 @@
     <ClCompile Include="adler32.cpp" />
     <ClCompile Include="algebra.cpp" />
     <ClCompile Include="algparam.cpp" />
+    <ClCompile Include="allocate.cpp" />
     <ClCompile Include="arc4.cpp" />
     <ClCompile Include="aria.cpp" />
     <ClCompile Include="aria_simd.cpp" />
@@ -401,6 +402,7 @@
     <ClInclude Include="aes.h" />
     <ClInclude Include="algebra.h" />
     <ClInclude Include="algparam.h" />
+    <ClInclude Include="allocate.h" />
     <ClInclude Include="arc4.h" />
     <ClInclude Include="aria.h" />
     <ClInclude Include="argnames.h" />

@@ -6,7 +6,10 @@
 #ifndef CRYPTOPP_MISC_H
 #define CRYPTOPP_MISC_H
 
-#include "config.h"
+#include "cryptlib.h"
+#include "smartptr.h"
+#include "stdcpp.h"
+#include "trap.h"
 
 #if !defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
@@ -25,10 +28,6 @@
 # pragma GCC diagnostic ignored "-Wsign-conversion"
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
-
-#include "cryptlib.h"
-#include "stdcpp.h"
-#include "smartptr.h"
 
 #ifdef _MSC_VER
 	#if _MSC_VER >= 1400
@@ -1248,17 +1247,6 @@ inline CipherDir GetCipherDir(const T &obj)
 	return obj.IsForwardTransformation() ? ENCRYPTION : DECRYPTION;
 }
 
-/// \brief Attempts to reclaim unused memory
-/// \throws bad_alloc
-/// \details In the normal course of running a program, a request for memory normally succeeds. If a
-///   call to AlignedAllocate or UnalignedAllocate fails, then CallNewHandler is called in
-///   an effort to recover. Internally, CallNewHandler calls set_new_handler(NULLPTR) in an effort
-///   to free memory. There is no guarantee CallNewHandler will be able to procure more memory so
-///   an allocation succeeds. If the call to set_new_handler fails, then CallNewHandler throws
-///   a bad_alloc exception.
-/// \sa AlignedAllocate, AlignedDeallocate, UnalignedAllocate, UnalignedDeallocate
-CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
-
 /// \brief Performs an addition with carry on a block of bytes
 /// \param inout the byte block
 /// \param size the size of the block, in bytes
@@ -1496,46 +1484,6 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
 ///   to UTF-16 (0x9AA8), then you must ensure the locale is available. If the locale is not available,
 ///   then a 0x21 error is returned on Windows which eventually results in an InvalidArgument() exception.
 std::wstring StringWiden(const char *str, bool throwOnError = true);
-
-/// \brief Allocates a buffer on 16-byte boundary
-/// \param size the size of the buffer
-/// \details AlignedAllocate is primarily used when the data will be
-///   proccessed by SSE, NEON, ARMv8 or PowerPC instructions. The assembly
-///   language routines rely on the alignment. If the alignment is not
-///   respected, then a SIGBUS could be generated on Unix and Linux, and an
-///   EXCEPTION_DATATYPE_MISALIGNMENT could be generated on Windows.
-/// \details Formerly, AlignedAllocate and AlignedDeallocate were only
-///   available on certain platforms when CRYTPOPP_DISABLE_ASM was not in
-///   effect. However, Android and iOS debug simulator builds got into a
-///   state where the aligned allocator was not available and caused link
-///   failures.
-/// \since AlignedAllocate for SIMD since Crypto++ 1.0, AlignedAllocate
-///   for all builds since Crypto++ 8.1
-/// \sa AlignedDeallocate, UnalignedAllocate, UnalignedDeallocate, CallNewHandler,
-///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
-CRYPTOPP_DLL void* CRYPTOPP_API AlignedAllocate(size_t size);
-
-/// \brief Frees a buffer allocated with AlignedAllocate
-/// \param ptr the buffer to free
-/// \since AlignedDeallocate for SIMD since Crypto++ 1.0, AlignedAllocate
-///   for all builds since Crypto++ 8.1
-/// \sa AlignedAllocate, UnalignedAllocate, UnalignedDeallocate, CallNewHandler,
-///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
-CRYPTOPP_DLL void CRYPTOPP_API AlignedDeallocate(void *ptr);
-
-/// \brief Allocates a buffer
-/// \param size the size of the buffer
-/// \since Crypto++ 1.0
-/// \sa AlignedAllocate, AlignedDeallocate, UnalignedDeallocate, CallNewHandler,
-///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
-CRYPTOPP_DLL void * CRYPTOPP_API UnalignedAllocate(size_t size);
-
-/// \brief Frees a buffer allocated with UnalignedAllocate
-/// \param ptr the buffer to free
-/// \since Crypto++ 1.0
-/// \sa AlignedAllocate, AlignedDeallocate, UnalignedAllocate, CallNewHandler,
-///   <A HREF="http://github.com/weidai11/cryptopp/issues/779">Issue 779</A>
-CRYPTOPP_DLL void CRYPTOPP_API UnalignedDeallocate(void *ptr);
 
 // ************** rotate functions ***************
 

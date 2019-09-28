@@ -187,6 +187,7 @@
     </ClCompile>
     <ClCompile Include="algebra.cpp" />
     <ClCompile Include="algparam.cpp" />
+    <ClCompile Include="allocate.cpp" />
     <ClCompile Include="asn.cpp" />
     <ClCompile Include="authenc.cpp" />
     <ClCompile Include="basecode.cpp" />
@@ -247,6 +248,7 @@
     <ClInclude Include="aes.h" />
     <ClInclude Include="algebra.h" />
     <ClInclude Include="algparam.h" />
+    <ClInclude Include="allocate.h" />
     <ClInclude Include="argnames.h" />
     <ClInclude Include="asn.h" />
     <ClInclude Include="authenc.h" />

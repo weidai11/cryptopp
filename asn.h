@@ -79,8 +79,6 @@ public:
 	UnknownOID(const char *err) : BERDecodeErr(err) {}
 };
 
-// unsigned int DERLengthEncode(unsigned int length, byte *output=0);
-
 /// \brief DER encode a length
 /// \param bt BufferedTransformation object for writing
 /// \param length the size to encode

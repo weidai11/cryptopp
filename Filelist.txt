@@ -11,6 +11,8 @@ algebra.cpp
 algebra.h
 algparam.cpp
 algparam.h
+allocate.cpp
+allocate.h
 arc4.cpp
 arc4.h
 ariatab.cpp
