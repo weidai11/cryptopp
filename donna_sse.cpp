@@ -1059,7 +1059,7 @@ int curve25519_mult_SSE2(byte sharedKey[32], const byte secretKey[32], const byt
     packed32bignum25519 qx, qz, pqz, pqx;
     packed64bignum25519 nq, sq, sqscalar, prime, primex, primez, nqpq;
     bignum25519mulprecomp preq;
-    size_t bit=0, lastbit=0;
+    size_t bit=0;
 
     curve25519_expand(nqpqx, othersKey);
     curve25519_mul_precompute(&preq, nqpqx);
