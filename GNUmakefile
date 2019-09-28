@@ -1125,10 +1125,6 @@ static: libcryptopp.a
 shared dynamic: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
-.PHONY: dep deps depend
-dep deps depend GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DISABLE_ASM) -MM *.cpp > GNUmakefile.deps
-
 # CXXFLAGS are tuned earlier.
 .PHONY: native no-asm asan ubsan
 native no-asm asan ubsan: cryptest.exe
@@ -1636,3 +1632,8 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 	$(info WARNING: to run 'ldconfig' to update the shared-object library cache.)
 	$(info )
 endif
+
+.PHONY: dep deps depend
+dep deps depend GNUmakefile.deps:
+	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
+

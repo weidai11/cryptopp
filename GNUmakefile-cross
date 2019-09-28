@@ -939,4 +939,5 @@ sm4_simd.o : sm4_simd.cpp
 
 .PHONY: dep deps depend
 dep deps depend GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS) -DCRYPTOPP_DISABLE_ASM) -MM *.cpp > GNUmakefile.deps
+	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
+
