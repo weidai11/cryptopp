@@ -172,6 +172,34 @@
 	#define CRYPTOPP_SHANI_AVAILABLE 1
 #endif
 
+// RDRAND uses byte codes. All we need is x86 ASM for it.
+// However tie it to AES-NI since SecureKey was available with it.
+#if !defined(CRYPTOPP_DISABLE_RDRAND) && defined(CRYPTOPP_AESNI_AVAILABLE) && \
+	!(defined(__ANDROID__) || defined(ANDROID)) && \
+	defined(CRYPTOPP_X86_ASM_AVAILABLE)
+	#define CRYPTOPP_RDRAND_AVAILABLE 1
+#endif
+
+// RDSEED uses byte codes. All we need is x86 ASM for it.
+// However tie it to AES-NI since SecureKey was available with it.
+#if !defined(CRYPTOPP_DISABLE_RDSEED) && defined(CRYPTOPP_AESNI_AVAILABLE) && \
+	!(defined(__ANDROID__) || defined(ANDROID)) && \
+	defined(CRYPTOPP_X86_ASM_AVAILABLE)
+	#define CRYPTOPP_RDSEED_AVAILABLE 1
+#endif
+
+// PadlockRNG uses byte codes. All we need is x86 ASM for it.
+#if !defined(CRYPTOPP_DISABLE_PADLOCK) && \
+	!(defined(__ANDROID__) || defined(ANDROID) || defined(__APPLE__)) && \
+	defined(CRYPTOPP_X86_ASM_AVAILABLE)
+	#define CRYPTOPP_PADLOCK_AVAILABLE 1
+	#define CRYPTOPP_PADLOCK_RNG_AVAILABLE 1
+	#define CRYPTOPP_PADLOCK_ACE_AVAILABLE 1
+	#define CRYPTOPP_PADLOCK_ACE2_AVAILABLE 1
+	#define CRYPTOPP_PADLOCK_PHE_AVAILABLE 1
+	#define CRYPTOPP_PADLOCK_PMM_AVAILABLE 1
+#endif
+
 // Fixup Android and SSE, Crypto. It may be enabled based on compiler version.
 #if (defined(__ANDROID__) || defined(ANDROID))
 # if (CRYPTOPP_BOOL_X86)

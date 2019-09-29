@@ -24,20 +24,25 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
-#if defined(CRYPTOPP_CPUID_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
-
+#if defined(CRYPTOPP_RDRAND_AVAILABLE)
 # if defined(CRYPTOPP_MSC_VERSION)
 #   define MASM_RDRAND_ASM_AVAILABLE 1
-#   define MASM_RDSEED_ASM_AVAILABLE 1
 # endif
-
 # if (__SUNPRO_CC >= 0x5100) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000) || \
      (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_GCC_VERSION >= 30200)
 #   define GCC_RDRAND_ASM_AVAILABLE 1
+# endif
+#endif  // CRYPTOPP_RDRAND_AVAILABLE
+
+#if defined(CRYPTOPP_RDSEED_AVAILABLE)
+# if defined(CRYPTOPP_MSC_VERSION)
+#   define MASM_RDSEED_ASM_AVAILABLE 1
+# endif
+# if (__SUNPRO_CC >= 0x5100) || (CRYPTOPP_APPLE_CLANG_VERSION >= 30000) || \
+     (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || (CRYPTOPP_GCC_VERSION >= 30200)
 #   define GCC_RDSEED_ASM_AVAILABLE 1
 # endif
-
-#endif  // CRYPTOPP_CPUID_AVAILABLE
+#endif  // CRYPTOPP_RDSEED_AVAILABLE
 
 typedef unsigned char byte;
 
@@ -54,7 +59,7 @@ extern "C" void CRYPTOPP_FASTCALL MASM_RDSEED_GenerateBlock(byte*, size_t);
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if defined(CRYPTOPP_CPUID_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if defined(CRYPTOPP_RDRAND_AVAILABLE)
 
 // Fills 4 bytes
 inline void RDRAND32(void* output)
@@ -159,8 +164,12 @@ void RDRAND::DiscardBytes(size_t n)
     }
 }
 
+#endif  // CRYPTOPP_RDRAND_AVAILABLE
+
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
+
+#if defined(CRYPTOPP_RDSEED_AVAILABLE)
 
 // Fills 4 bytes
 inline void RDSEED32(void* output)
