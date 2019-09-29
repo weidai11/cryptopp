@@ -465,7 +465,7 @@ void DetectX86Features()
 #if defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
 	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
-	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+	int cacheLineSize = (int)sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 	if (g_cacheLineSize == 0 && cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
 #endif
@@ -853,7 +853,7 @@ void DetectArmFeatures()
 #if defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
 	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
-	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+	int cacheLineSize = (int)sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 	if (cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
 #endif
@@ -1055,7 +1055,7 @@ void DetectPowerpcFeatures()
 #elif defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.
 	// https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/posix/sysconf.c
-	int cacheLineSize = sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
+	int cacheLineSize = (int)sysconf(_SC_LEVEL1_DCACHE_LINESIZE);
 	if (cacheLineSize > 0)
 		g_cacheLineSize = cacheLineSize;
 #endif
