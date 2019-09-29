@@ -168,13 +168,10 @@ size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte as
 	if (bc > bt.MaxRetrievable()) // Issue 346
 		BERDecodeError();
 
-	SecByteBlock temp(bc);
-	if (bc != bt.Get(temp, bc))
+	str.resize(bc);
+	if (bc != bt.Get(BytePtr(str), BytePtrSize(str)))
 		BERDecodeError();
-	if (bc)
-		str.assign((char *)temp.begin(), bc);
-	else
-		str.clear();
+
 	return bc;
 }
 
@@ -302,6 +299,17 @@ void OID::BERDecodeAndCheck(BufferedTransformation &bt) const
 	OID oid(bt);
 	if (*this != oid)
 		BERDecodeError();
+}
+
+std::ostream& OID::Print(std::ostream& out) const
+{
+	for (size_t i = 0; i < m_values.size(); ++i)
+	{
+		out << m_values[i];
+		if (i+1 < m_values.size())
+			out << ".";
+	}
+	return out;
 }
 
 inline BufferedTransformation & EncodedObjectFilter::CurrentTarget()

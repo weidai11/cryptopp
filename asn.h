@@ -13,6 +13,8 @@
 #include "queue.h"
 #include "misc.h"
 
+#include <iosfwd>
+
 // Issue 340
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
@@ -138,7 +140,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \param bt BufferedTransformation object for reading
 /// \param str the string to encode
 /// \param asnTag the ASN.1 type
-/// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+/// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag);
 
 /// \brief DER encode bit string
@@ -206,6 +208,8 @@ public:
 	const std::vector<word32>& GetValues() const {
 		return m_values;
 	}
+
+	std::ostream& Print(std::ostream& out) const;
 
 protected:
 	friend bool operator==(const OID &lhs, const OID &rhs);
@@ -805,6 +809,8 @@ inline bool operator<(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return std::lexicographical_compare(lhs.m_values.begin(), lhs.m_values.end(), rhs.m_values.begin(), rhs.m_values.end());}
 inline ::CryptoPP::OID operator+(const ::CryptoPP::OID &lhs, unsigned long rhs)
 	{return ::CryptoPP::OID(lhs)+=rhs;}
+inline std::ostream& operator<<(std::ostream& out, const OID &oid)
+	{ return oid.Print(out); }
 #endif
 
 NAMESPACE_END
