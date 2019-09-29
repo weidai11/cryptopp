@@ -770,9 +770,9 @@ size_t BufferedTransformation::PeekWord16(word16 &value, ByteOrder order) const
 	size_t len = Peek(buf, 2);
 
 	if (order == BIG_ENDIAN_ORDER)
-		value = ((word16)buf[0] << 8) | (word16)buf[1];
+		value = word16((buf[0] << 8) | buf[1]);
 	else
-		value = ((word16)buf[1] << 8) | (word16)buf[0];
+		value = word16((buf[1] << 8) | buf[0]);
 
 	return len;
 }
@@ -783,11 +783,11 @@ size_t BufferedTransformation::PeekWord32(word32 &value, ByteOrder order) const
 	size_t len = Peek(buf, 4);
 
 	if (order == BIG_ENDIAN_ORDER)
-		value = ((word32)buf[0] << 24) | ((word32)buf[1] << 16) |
-		        ((word32)buf[2] << 8)  |  (word32)buf[3];
+		value = word32((buf[0] << 24) | (buf[1] << 16) |
+		               (buf[2] << 8)  | (buf[3] << 0));
 	else
-		value = ((word32)buf[3] << 24) | ((word32)buf[2] << 16) |
-		        ((word32)buf[1] << 8)  |  (word32)buf[0];
+		value = word32((buf[3] << 24) | (buf[2] << 16) |
+		               (buf[1] << 8)  | (buf[0] << 0));
 
 	return len;
 }
