@@ -148,12 +148,22 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &
 	return bc;
 }
 
-size_t DEREncodeTextString(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag)
+size_t DEREncodeTextString(BufferedTransformation &bt, const byte* str, size_t strLen, byte asnTag)
 {
 	bt.Put(asnTag);
-	size_t lengthBytes = DERLengthEncode(bt, str.size());
-	bt.Put(ConstBytePtr(str), BytePtrSize(str));
-	return 1+lengthBytes+str.size();
+	size_t lengthBytes = DERLengthEncode(bt, strLen);
+	bt.Put(str, strLen);
+	return 1+lengthBytes+strLen;
+}
+
+size_t DEREncodeTextString(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag)
+{
+	return DEREncodeTextString(bt, ConstBytePtr(str), BytePtrSize(str), asnTag);
+}
+
+size_t DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag)
+{
+	return DEREncodeTextString(bt, ConstBytePtr(str), BytePtrSize(str), asnTag);
 }
 
 size_t BERDecodeTextString(BufferedTransformation &bt, SecByteBlock &str, byte asnTag)
@@ -276,11 +286,13 @@ void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
 size_t BERDecodePeekLength(BufferedTransformation &bt)
 {
 	ByteQueue tagAndLength;
-	bt.CopyTo(tagAndLength, 9);
+	lword count = (std::min)(bt.MaxRetrievable(), static_cast<lword>(16));
+	bt.CopyTo(tagAndLength, count);
 
 	// Skip tag
 	tagAndLength.Skip(1);
 
+	// BERLengthDecode fails for indefinite length.
 	size_t length;
 	if (!BERLengthDecode(tagAndLength, length))
 		return 0;
