@@ -134,6 +134,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &bt
 /// \param asnTag the ASN.1 type
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+/// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt, const byte* str, size_t strLen, byte asnTag);
 
 /// \brief DER encode text string
@@ -142,6 +143,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \param asnTag the ASN.1 type
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+/// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag);
 
 /// \brief DER encode text string
@@ -150,6 +152,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \param asnTag the ASN.1 type
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+/// \since Crypto++ 6.0
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag);
 
 /// \brief BER decode text string
@@ -157,6 +160,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \param str the string to decode
 /// \param asnTag the ASN.1 type
 /// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+/// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, SecByteBlock &str, byte asnTag);
 
 /// \brief BER decode text string
@@ -164,6 +168,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt,
 /// \param str the string to decode
 /// \param asnTag the ASN.1 type
 /// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+/// \since Crypto++ 6.0
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag);
 
 /// \brief DER encode date
@@ -172,6 +177,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt,
 /// \param asnTag the ASN.1 type
 /// \returns the number of octets used for the encoding
 /// \details BERDecodeDate() can be used for UTC_TIME and GENERALIZED_TIME
+/// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeDate(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag);
 
 /// \brief BER decode date
@@ -179,6 +185,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeDate(BufferedTransformation &bt, const
 /// \param str the date to decode
 /// \param asnTag the ASN.1 type
 /// \details BERDecodeDate() can be used for UTC_TIME and GENERALIZED_TIME
+/// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeDate(BufferedTransformation &bt, SecByteBlock &str, byte asnTag);
 
 /// \brief DER encode bit string
@@ -203,6 +210,7 @@ CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedT
 /// \brief BER decode size
 /// \param bt BufferedTransformation object for writing
 /// \param dest BufferedTransformation object
+/// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(BufferedTransformation &bt);
 
 /// \brief Object Identifier
