@@ -8,7 +8,9 @@
 
 #include "asn.h"
 
+#include <iostream>
 #include <iomanip>
+#include <sstream>
 #include <time.h>
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -285,8 +287,10 @@ void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
 
 size_t BERDecodePeekLength(BufferedTransformation &bt)
 {
-	ByteQueue tagAndLength;
 	lword count = (std::min)(bt.MaxRetrievable(), static_cast<lword>(16));
+	if (count == 0) return 0;
+
+	ByteQueue tagAndLength;
 	bt.CopyTo(tagAndLength, count);
 
 	// Skip tag
@@ -376,13 +380,14 @@ void OID::BERDecodeAndCheck(BufferedTransformation &bt) const
 
 std::ostream& OID::Print(std::ostream& out) const
 {
+	std::ostringstream oss;
 	for (size_t i = 0; i < m_values.size(); ++i)
 	{
-		out << m_values[i];
+		oss << m_values[i];
 		if (i+1 < m_values.size())
-			out << ".";
+			oss << ".";
 	}
-	return out;
+	return out << oss.str();
 }
 
 inline BufferedTransformation & EncodedObjectFilter::CurrentTarget()

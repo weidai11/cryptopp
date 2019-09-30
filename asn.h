@@ -208,7 +208,11 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &bt, 
 CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedTransformation &dest);
 
 /// \brief BER decode size
-/// \param bt BufferedTransformation object for writing
+/// \param bt BufferedTransformation object for reading
+/// \returns the length of the ASN.1 value, in bytes
+/// \details BERDecodePeekLength() determines the length of a value without
+///  consuming octets in the stream. The stream must use definite length encoding.
+///  If indefinite length encoding is used or an error occurs, then 0 is returned.
 /// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(BufferedTransformation &bt);
 
