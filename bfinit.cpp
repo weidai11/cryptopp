@@ -3,16 +3,18 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-const word32 Blowfish::Base::p_init[Blowfish::ROUNDS+2] =
+template<class Info, class ByteOrder>
+const word32 Blowfish_Base<Info, ByteOrder>::p_init[Info::ROUNDS+2] =
 {
   608135816U, 2242054355U,  320440878U,   57701188U,
  2752067618U,  698298832U,  137296536U, 3964562569U,
  1160258022U,  953160567U, 3193202383U,  887688300U,
  3232508343U, 3380367581U, 1065670069U, 3041331479U,
  2450970073U, 2306472731U
-} ;
+};
 
-const word32 Blowfish::Base::s_init[4*256] = {
+template<class Info, class ByteOrder>
+const word32 Blowfish_Base<Info, ByteOrder>::s_init[4*256] = {
  3509652390U, 2564797868U,  805139163U, 3491422135U,
  3101798381U, 1780907670U, 3128725573U, 4046225305U,
   614570311U, 3012652279U,  134345442U, 2240740374U,
@@ -273,5 +275,11 @@ const word32 Blowfish::Base::s_init[4*256] = {
  2429876329U, 2791104160U, 1057563949U, 3255363231U,
  3075367218U, 3463963227U, 1469046755U,  985887462U
 };
+
+template const word32 Blowfish_Base<Blowfish_Info, BigEndian>::p_init[Blowfish_Info::ROUNDS+2];
+template const word32 Blowfish_Base<Blowfish_Info, BigEndian>::s_init[4*256];
+
+template const word32 Blowfish_Base<BlowfishCompat_Info, LittleEndian>::p_init[BlowfishCompat_Info::ROUNDS+2];
+template const word32 Blowfish_Base<BlowfishCompat_Info, LittleEndian>::s_init[4*256];
 
 NAMESPACE_END

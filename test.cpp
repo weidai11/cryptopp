@@ -1023,6 +1023,7 @@ bool Validate(int alg, bool thorough)
 	case 101: result = ValidateSIMECK(); break;
 	case 102: result = ValidateSIMON(); break;
 	case 103: result = ValidateSPECK(); break;
+	case 104: result = ValidateBlowfishCompat(); break;
 
 	case 110: result = ValidateSHA3(); break;
 	case 111: result = ValidateSHAKE(); break;
