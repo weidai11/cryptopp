@@ -134,14 +134,36 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &bt
 /// \param asnTag the ASN.1 type
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
-CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag);
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag);
 
 /// \brief BER decode text string
 /// \param bt BufferedTransformation object for reading
-/// \param str the string to encode
+/// \param str the string to decode
+/// \param asnTag the ASN.1 type
+/// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, SecByteBlock &str, byte asnTag);
+
+/// \brief BER decode text string
+/// \param bt BufferedTransformation object for reading
+/// \param str the string to decode
 /// \param asnTag the ASN.1 type
 /// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag);
+
+/// \brief DER encode date
+/// \param bt BufferedTransformation object for writing
+/// \param str the date to encode
+/// \param asnTag the ASN.1 type
+/// \returns the number of octets used for the encoding
+/// \details BERDecodeDate() can be used for UTC_TIME and GENERALIZED_TIME
+CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeDate(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag);
+
+/// \brief BER decode date
+/// \param bt BufferedTransformation object for reading
+/// \param str the date to decode
+/// \param asnTag the ASN.1 type
+/// \details BERDecodeDate() can be used for UTC_TIME and GENERALIZED_TIME
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeDate(BufferedTransformation &bt, SecByteBlock &str, byte asnTag);
 
 /// \brief DER encode bit string
 /// \param bt BufferedTransformation object for writing
@@ -161,6 +183,11 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &bt, 
 /// \param bt BufferedTransformation object for writing
 /// \param dest BufferedTransformation object
 CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedTransformation &dest);
+
+/// \brief BER decode size
+/// \param bt BufferedTransformation object for writing
+/// \param dest BufferedTransformation object
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(BufferedTransformation &bt);
 
 /// \brief Object Identifier
 class CRYPTOPP_DLL OID
@@ -800,6 +827,11 @@ inline bool operator<(const OID &lhs, const OID &rhs);
 /// \param lhs the OID
 /// \param rhs the value to append
 inline OID operator+(const OID &lhs, unsigned long rhs);
+/// \brief Print a OID value
+/// \param out the output stream
+/// \param oid the OID
+inline std::ostream& operator<<(std::ostream& out, const OID &oid)
+	{ return oid.Print(out); }
 #else
 inline bool operator==(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return lhs.m_values == rhs.m_values;}

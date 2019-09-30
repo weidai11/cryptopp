@@ -148,15 +148,61 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, BufferedTransformation &
 	return bc;
 }
 
-size_t DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag)
+size_t DEREncodeTextString(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag)
 {
 	bt.Put(asnTag);
 	size_t lengthBytes = DERLengthEncode(bt, str.size());
-	bt.Put((const byte *)str.data(), str.size());
+	bt.Put(ConstBytePtr(str), BytePtrSize(str));
 	return 1+lengthBytes+str.size();
 }
 
+size_t BERDecodeTextString(BufferedTransformation &bt, SecByteBlock &str, byte asnTag)
+{
+	byte b;
+	if (!bt.Get(b) || b != asnTag)
+		BERDecodeError();
+
+	size_t bc;
+	if (!BERLengthDecode(bt, bc))
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable()) // Issue 346
+		BERDecodeError();
+
+	str.resize(bc);
+	if (bc != bt.Get(BytePtr(str), BytePtrSize(str)))
+		BERDecodeError();
+
+	return bc;
+}
+
 size_t BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag)
+{
+	byte b;
+	if (!bt.Get(b) || b != asnTag)
+		BERDecodeError();
+
+	size_t bc;
+	if (!BERLengthDecode(bt, bc))
+		BERDecodeError();
+	if (bc > bt.MaxRetrievable()) // Issue 346
+		BERDecodeError();
+
+	str.resize(bc);
+	if (bc != bt.Get(BytePtr(str), BytePtrSize(str)))
+		BERDecodeError();
+
+	return bc;
+}
+
+size_t DEREncodeDate(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag)
+{
+	bt.Put(asnTag);
+	size_t lengthBytes = DERLengthEncode(bt, str.size());
+	bt.Put(ConstBytePtr(str), BytePtrSize(str));
+	return 1+lengthBytes+str.size();
+}
+
+size_t BERDecodeDate(BufferedTransformation &bt, SecByteBlock &str, byte asnTag)
 {
 	byte b;
 	if (!bt.Get(b) || b != asnTag)
@@ -225,6 +271,21 @@ void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
 	}
 	decoder.MessageEnd();
 	encoder.MessageEnd();
+}
+
+size_t BERDecodePeekLength(BufferedTransformation &bt)
+{
+	ByteQueue tagAndLength;
+	bt.CopyTo(tagAndLength, 9);
+
+	// Skip tag
+	tagAndLength.Skip(1);
+
+	size_t length;
+	if (!BERLengthDecode(tagAndLength, length))
+		return 0;
+
+	return length;
 }
 
 void OID::EncodeValue(BufferedTransformation &bt, word32 v)
