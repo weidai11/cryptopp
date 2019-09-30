@@ -209,7 +209,6 @@ CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedT
 
 /// \brief BER decode size
 /// \param bt BufferedTransformation object for writing
-/// \param dest BufferedTransformation object
 /// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(BufferedTransformation &bt);
 
