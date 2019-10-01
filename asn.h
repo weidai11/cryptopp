@@ -227,16 +227,22 @@ public:
 
 	/// \brief Construct an OID
 	OID() {}
+
 	/// \brief Construct an OID
 	/// \param v value to initialize the OID
 	OID(word32 v) : m_values(1, v) {}
+
 	/// \brief Construct an OID
 	/// \param bt BufferedTransformation object
-	OID(BufferedTransformation &bt) {BERDecode(bt);}
+	OID(BufferedTransformation &bt) {
+		BERDecode(bt);
+	}
 
 	/// \brief Append a value to an OID
 	/// \param rhs the value to append
-	inline OID & operator+=(word32 rhs) {m_values.push_back(rhs); return *this;}
+	inline OID & operator+=(word32 rhs) {
+		m_values.push_back(rhs); return *this;
+	}
 
 	/// \brief DER encode this OID
 	/// \param bt BufferedTransformation object
@@ -258,20 +264,35 @@ public:
 	/// </pre>
 	void BERDecodeAndCheck(BufferedTransformation &bt) const;
 
+	/// \brief Determine if OID is empty
+	/// \returns true if OID has 0 elements, false otherwise
+	/// \since Crypto++ 8.0
 	bool Empty() const {
 		return m_values.empty();
 	}
 
+	/// \brief Retrieve OID value array
+	/// \returns OID value vector
+	/// \since Crypto++ 8.0
 	const std::vector<word32>& GetValues() const {
 		return m_values;
 	}
 
+	/// \brief Print an OID
+	/// \param out ostream object
+	/// \returns ostream reference
+	/// \details Print() writes the OID in a customary format, like
+	///  1.2.840.113549.1.1.11. The caller is reposnsible to convert the
+	///  OID to a friemdly name, like sha256WithRSAEncryption.
+	/// \since Crypto++ 8.3
 	std::ostream& Print(std::ostream& out) const;
 
 protected:
 	friend bool operator==(const OID &lhs, const OID &rhs);
 	friend bool operator!=(const OID &lhs, const OID &rhs);
 	friend bool operator<(const OID &lhs, const OID &rhs);
+	friend bool operator<=(const OID &lhs, const OID &rhs);
+	friend bool operator>=(const OID &lhs, const OID &rhs);
 
 	std::vector<word32> m_values;
 
@@ -858,12 +879,14 @@ inline bool operator<(const OID &lhs, const OID &rhs);
 /// \param rhs the second OID
 /// \returns true if the first OID is less than or equal to the second OID, false otherwise
 /// \details operator<=() is implemented in terms of operator==() and operator<().
+/// \since Crypto++ 8.3
 inline bool operator<=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs);
 /// \brief Compare two OIDs for ordering
 /// \param lhs the first OID
 /// \param rhs the second OID
 /// \returns true if the first OID is greater than or equal to the second OID, false otherwise
 /// \details operator>=() is implemented in terms of operator<().
+/// \since Crypto++ 8.3
 inline bool operator>=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs);
 /// \brief Append a value to an OID
 /// \param lhs the OID
