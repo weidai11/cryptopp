@@ -133,6 +133,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &bt
 /// \brief DER encode text string
 /// \param bt BufferedTransformation object for writing
 /// \param str the string to encode
+/// \param strLen the length of the string, in bytes
 /// \param asnTag the ASN.1 type
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
@@ -857,13 +858,13 @@ inline bool operator<(const OID &lhs, const OID &rhs);
 /// \param rhs the second OID
 /// \returns true if the first OID is less than or equal to the second OID, false otherwise
 /// \details operator<=() is implemented in terms of operator==() and operator<().
-inline bool operator<=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
+inline bool operator<=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs);
 /// \brief Compare two OIDs for ordering
 /// \param lhs the first OID
 /// \param rhs the second OID
 /// \returns true if the first OID is greater than or equal to the second OID, false otherwise
 /// \details operator>=() is implemented in terms of operator<().
-inline bool operator>=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
+inline bool operator>=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs);
 /// \brief Append a value to an OID
 /// \param lhs the OID
 /// \param rhs the value to append
