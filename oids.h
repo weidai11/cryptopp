@@ -48,8 +48,14 @@ DEFINE_OID(1, iso)
 					DEFINE_OID(id_publicKeyType()+1, id_ecPublicKey)
 				DEFINE_OID(ansi_x9_62()+3, ansi_x9_62_curves)
 					DEFINE_OID(ansi_x9_62_curves()+1, ansi_x9_62_curves_prime)
-						DEFINE_OID(ansi_x9_62_curves_prime()+1, secp192r1)
-						DEFINE_OID(ansi_x9_62_curves_prime()+7, secp256r1)
+						// ANSI X9.62
+						DEFINE_OID(ansi_x9_62_curves_prime()+1, secp192r1)  // secp192v1
+						//DEFINE_OID(ansi_x9_62_curves_prime()+2, secp192v2)
+						//DEFINE_OID(ansi_x9_62_curves_prime()+3, secp192v3)
+						//DEFINE_OID(ansi_x9_62_curves_prime()+4, secp239v1)
+						//DEFINE_OID(ansi_x9_62_curves_prime()+5, secp239v2)
+						//DEFINE_OID(ansi_x9_62_curves_prime()+6, secp239v3)
+						DEFINE_OID(ansi_x9_62_curves_prime()+7, secp256r1)  // secp256v1
 			DEFINE_OID(iso_us()+113549, rsadsi)
 				DEFINE_OID(rsadsi()+1, pkcs)
 					DEFINE_OID(pkcs()+1, pkcs_1)
