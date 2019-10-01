@@ -868,6 +868,10 @@ inline bool operator!=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return lhs.m_values != rhs.m_values;}
 inline bool operator<(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
 	{return std::lexicographical_compare(lhs.m_values.begin(), lhs.m_values.end(), rhs.m_values.begin(), rhs.m_values.end());}
+inline bool operator<=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
+	{return lhs<rhs || lhs==rhs;}
+inline bool operator>=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs)
+	{return ! (lhs<rhs);}
 inline ::CryptoPP::OID operator+(const ::CryptoPP::OID &lhs, unsigned long rhs)
 	{return ::CryptoPP::OID(lhs)+=rhs;}
 inline std::ostream& operator<<(std::ostream& out, const OID &oid)
