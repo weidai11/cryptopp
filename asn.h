@@ -283,7 +283,7 @@ public:
 	/// \returns ostream reference
 	/// \details Print() writes the OID in a customary format, like
 	///  1.2.840.113549.1.1.11. The caller is reposnsible to convert the
-	///  OID to a friemdly name, like sha256WithRSAEncryption.
+	///  OID to a friendly name, like sha256WithRSAEncryption.
 	/// \since Crypto++ 8.3
 	std::ostream& Print(std::ostream& out) const;
 
@@ -880,14 +880,14 @@ inline bool operator<(const OID &lhs, const OID &rhs);
 /// \returns true if the first OID is less than or equal to the second OID, false otherwise
 /// \details operator<=() is implemented in terms of operator==() and operator<().
 /// \since Crypto++ 8.3
-inline bool operator<=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs);
+inline bool operator<=(const OID &lhs, const OID &rhs);
 /// \brief Compare two OIDs for ordering
 /// \param lhs the first OID
 /// \param rhs the second OID
 /// \returns true if the first OID is greater than or equal to the second OID, false otherwise
 /// \details operator>=() is implemented in terms of operator<().
 /// \since Crypto++ 8.3
-inline bool operator>=(const ::CryptoPP::OID &lhs, const ::CryptoPP::OID &rhs);
+inline bool operator>=(const OID &lhs, const OID &rhs);
 /// \brief Append a value to an OID
 /// \param lhs the OID
 /// \param rhs the value to append
