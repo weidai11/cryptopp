@@ -6,6 +6,10 @@
 #include "algparam.h"
 #include "misc.h"
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4244)
+#endif
+
 NAMESPACE_BEGIN(CryptoPP)
 
 ////////////////////////////// IETF ChaChaTLS //////////////////////////////
@@ -68,7 +72,7 @@ void ChaCha20Poly1305_Base::AuthenticateLastHeaderBlock()
 {
 	// Pad to a multiple of 16 or 0
 	const byte zero[16] = {0};
-	size_t pad = (16 - (m_totalHeaderLength % 16)) % 16;
+	size_t pad = (16U - (m_totalHeaderLength % 16)) % 16;
 	AccessMAC().Update(zero, pad);
 }
 
@@ -76,7 +80,7 @@ void ChaCha20Poly1305_Base::AuthenticateLastConfidentialBlock()
 {
 	// Pad to a multiple of 16 or 0
 	const byte zero[16] = {0};
-	size_t pad = (16 - (m_totalMessageLength % 16)) % 16;
+	size_t pad = (16U - (m_totalMessageLength % 16)) % 16;
 	AccessMAC().Update(zero, pad);
 }
 
