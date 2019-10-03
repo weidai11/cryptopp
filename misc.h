@@ -7,6 +7,7 @@
 #define CRYPTOPP_MISC_H
 
 #include "cryptlib.h"
+#include "secblockfwd.h"
 #include "smartptr.h"
 #include "stdcpp.h"
 #include "trap.h"
@@ -432,6 +433,7 @@ inline size_t PtrByteDiff(const PTR pointer1, const PTR pointer2)
 /// \param str std::string
 /// \details BytePtr returns NULL pointer for an empty string.
 /// \return Pointer to the first element of a string
+/// \since Crypto++ 8.0
 inline byte* BytePtr(std::string& str)
 {
 	// Caller wants a writeable pointer
@@ -442,15 +444,31 @@ inline byte* BytePtr(std::string& str)
 	return reinterpret_cast<byte*>(&str[0]);
 }
 
+/// \brief Pointer to the first element of a string
+/// \param str SecByteBlock
+/// \details BytePtr returns NULL pointer for an empty string.
+/// \return Pointer to the first element of a string
+/// \since Crypto++ 8.3
+byte* BytePtr(SecByteBlock& str);
+
 /// \brief Const pointer to the first element of a string
 /// \param str std::string
 /// \details ConstBytePtr returns non-NULL pointer for an empty string.
 /// \return Pointer to the first element of a string
+/// \since Crypto++ 8.0
 inline const byte* ConstBytePtr(const std::string& str)
 {
-	// Use c_str() so a pointer is always available
-	return reinterpret_cast<const byte*>(str.c_str());
+	if (str.empty())
+		return NULLPTR;
+	return reinterpret_cast<const byte*>(&str[0]);
 }
+
+/// \brief Const pointer to the first element of a string
+/// \param str SecByteBlock
+/// \details ConstBytePtr returns non-NULL pointer for an empty string.
+/// \return Pointer to the first element of a string
+/// \since Crypto++ 8.3
+const byte* ConstBytePtr(const SecByteBlock& str);
 
 /// \brief Size of a string
 /// \param str std::string
@@ -459,6 +477,11 @@ inline size_t BytePtrSize(const std::string& str)
 {
 	return str.size();
 }
+
+/// \brief Size of a string
+/// \param str SecByteBlock
+/// \return size of a string
+size_t BytePtrSize(const SecByteBlock& str);
 
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 

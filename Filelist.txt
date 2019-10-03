@@ -308,6 +308,7 @@ scrypt.h
 seal.cpp
 seal.h
 secblock.h
+secblockfwd.h
 seckey.h
 seed.cpp
 seed.h

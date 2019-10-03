@@ -531,6 +531,7 @@
     <ClInclude Include="scrypt.h" />
     <ClInclude Include="seal.h" />
     <ClInclude Include="secblock.h" />
+    <ClInclude Include="secblockfwd.h" />
     <ClInclude Include="seckey.h" />
     <ClInclude Include="seed.h" />
     <ClInclude Include="serpent.h" />

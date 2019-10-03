@@ -942,6 +942,9 @@
     <ClInclude Include="secblock.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="secblockfwd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="seckey.h">
       <Filter>Header Files</Filter>
     </ClInclude>

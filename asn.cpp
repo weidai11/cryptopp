@@ -6,7 +6,9 @@
 
 #ifndef CRYPTOPP_IMPORTS
 
+#include "cryptlib.h"
 #include "asn.h"
+#include "misc.h"
 
 #include <iostream>
 #include <iomanip>
@@ -15,7 +17,6 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
-/// DER Length
 size_t DERLengthEncode(BufferedTransformation &bt, lword length)
 {
 	size_t i=0;
@@ -129,7 +130,7 @@ size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
 		BERDecodeError();
 
 	str.New(bc);
-	if (bc != bt.Get(str, bc))
+	if (bc != bt.Get(BytePtr(str), bc))
 		BERDecodeError();
 	return bc;
 }
@@ -181,7 +182,7 @@ size_t BERDecodeTextString(BufferedTransformation &bt, SecByteBlock &str, byte a
 		BERDecodeError();
 
 	str.resize(bc);
-	if (bc != bt.Get(str, str.size()))
+	if (bc != bt.Get(BytePtr(str), BytePtrSize(str)))
 		BERDecodeError();
 
 	return bc;
@@ -227,7 +228,7 @@ size_t BERDecodeDate(BufferedTransformation &bt, SecByteBlock &str, byte asnTag)
 		BERDecodeError();
 
 	str.resize(bc);
-	if (bc != bt.Get(str, str.size()))
+	if (bc != bt.Get(BytePtr(str), BytePtrSize(str)))
 		BERDecodeError();
 
 	return bc;
@@ -263,7 +264,7 @@ size_t BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigne
 		BERDecodeError();
 	unusedBits = unused;
 	str.resize(bc-1);
-	if ((bc-1) != bt.Get(str, bc-1))
+	if ((bc-1) != bt.Get(BytePtr(str), bc-1))
 		BERDecodeError();
 	return bc-1;
 }

@@ -20,6 +20,28 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+byte* BytePtr(SecByteBlock& str)
+{
+	// Caller wants a writeable pointer
+	CRYPTOPP_ASSERT(str.empty() == false);
+
+	if (str.empty())
+		return NULLPTR;
+	return reinterpret_cast<byte*>(str.data());
+}
+
+const byte* ConstBytePtr(const SecByteBlock& str)
+{
+	if (str.empty())
+		return NULLPTR;
+	return reinterpret_cast<const byte*>(str.data());
+}
+
+size_t BytePtrSize(const SecByteBlock& str)
+{
+	return str.size();
+}
+
 void xorbuf(byte *buf, const byte *mask, size_t count)
 {
 	CRYPTOPP_ASSERT(buf != NULLPTR);
