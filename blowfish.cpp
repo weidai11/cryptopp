@@ -6,6 +6,12 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+extern template const word32 Blowfish_Base<Blowfish_Info, BigEndian>::p_init[Blowfish_Info::ROUNDS+2];
+extern template const word32 Blowfish_Base<Blowfish_Info, BigEndian>::s_init[4*256];
+
+extern template const word32 Blowfish_Base<BlowfishCompat_Info, LittleEndian>::p_init[BlowfishCompat_Info::ROUNDS+2];
+extern template const word32 Blowfish_Base<BlowfishCompat_Info, LittleEndian>::s_init[4*256];
+
 template<class Info, class ByteOrder>
 void Blowfish_Base<Info, ByteOrder>::UncheckedSetKey(const byte *key_string, unsigned int keylength, const NameValuePairs &)
 {
