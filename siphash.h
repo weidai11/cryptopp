@@ -39,7 +39,7 @@ class SipHash_Info : public FixedKeyLength<16>
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "SipHash";}
-	CRYPTOPP_CONSTANT(DIGESTSIZE = (T_128bit ? 16 : 8))
+	CRYPTOPP_CONSTANT(DIGESTSIZE = (T_128bit ? 16 : 8));
 };
 
 /// \brief SipHash message authentication code base class

@@ -56,13 +56,13 @@ class x25519 : public SimpleKeyAgreementDomain, public CryptoParameters, public 
 public:
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
-    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32);
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
-    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     /// \brief Size of the shared key
     /// \details SHARED_KEYLENGTH is the size of the shared key, in bytes.
-    CRYPTOPP_CONSTANT(SHARED_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(SHARED_KEYLENGTH = 32);
 
     virtual ~x25519() {}
 
@@ -277,8 +277,8 @@ protected:
 ///   message digest supplied by an attacker.
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
-    CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64)
-    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH=64)
+    CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64);
+    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH=64);
 
     /// \brief Create a message accumulator
     ed25519_MessageAccumulator() {
@@ -356,15 +356,15 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
 {
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
-    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32);
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
-    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     /// \brief Size of the siganture
     /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
     ///   ed25519 is a DL-based signature scheme. The signature is the
     ///   concatenation of <tt>r || s</tt>.
-    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
+    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
 
     // CryptoMaterial
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
@@ -497,15 +497,15 @@ struct ed25519Signer : public PK_Signer
 {
     /// \brief Size of the private key
     /// \details SECRET_KEYLENGTH is the size of the private key, in bytes.
-    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(SECRET_KEYLENGTH = 32);
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
-    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     /// \brief Size of the siganture
     /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
     ///   ed25519 is a DL-based signature scheme. The signature is the
     ///   concatenation of <tt>r || s</tt>.
-    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
+    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
     typedef Integer Element;
 
     virtual ~ed25519Signer() {}
@@ -626,7 +626,7 @@ struct ed25519PublicKey : public X509PublicKey
 {
     /// \brief Size of the public key
     /// \details PUBLIC_KEYLENGTH is the size of the public key, in bytes.
-    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     typedef Integer Element;
 
     OID GetAlgorithmID() const {
@@ -700,8 +700,8 @@ protected:
 /// \since Crypto++ 8.0
 struct ed25519Verifier : public PK_Verifier
 {
-    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32)
-    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64)
+    CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
+    CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
     typedef Integer Element;
 
     virtual ~ed25519Verifier() {}

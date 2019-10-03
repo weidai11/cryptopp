@@ -1531,8 +1531,8 @@ template <unsigned int R, class T> inline T rotlConstant(T x)
 	// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
 	// http://software.intel.com/en-us/forums/topic/580884
 	// and http://llvm.org/bugs/show_bug.cgi?id=24226
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	CRYPTOPP_ASSERT(R < THIS_SIZE);
 	return T((x<<R)|(x>>(-R&MASK)));
 }
@@ -1557,8 +1557,8 @@ template <unsigned int R, class T> inline T rotrConstant(T x)
 	// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
 	// http://software.intel.com/en-us/forums/topic/580884
 	// and http://llvm.org/bugs/show_bug.cgi?id=24226
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	CRYPTOPP_ASSERT(R < THIS_SIZE);
 	return T((x >> R)|(x<<(-R&MASK)));
 }
@@ -1582,8 +1582,8 @@ template <class T> inline T rotlFixed(T x, unsigned int y)
 	// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
 	// http://software.intel.com/en-us/forums/topic/580884
 	// and http://llvm.org/bugs/show_bug.cgi?id=24226
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	CRYPTOPP_ASSERT(y < THIS_SIZE);
 	return T((x<<y)|(x>>(-y&MASK)));
 }
@@ -1607,8 +1607,8 @@ template <class T> inline T rotrFixed(T x, unsigned int y)
 	// http://gcc.gnu.org/bugzilla/show_bug.cgi?id=57157,
 	// http://software.intel.com/en-us/forums/topic/580884
 	// and http://llvm.org/bugs/show_bug.cgi?id=24226
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	CRYPTOPP_ASSERT(y < THIS_SIZE);
 	return T((x >> y)|(x<<(-y&MASK)));
 }
@@ -1627,8 +1627,8 @@ template <class T> inline T rotrFixed(T x, unsigned int y)
 /// \since Crypto++ 3.0
 template <class T> inline T rotlVariable(T x, unsigned int y)
 {
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	CRYPTOPP_ASSERT(y < THIS_SIZE);
 	return T((x<<y)|(x>>(-y&MASK)));
 }
@@ -1647,8 +1647,8 @@ template <class T> inline T rotlVariable(T x, unsigned int y)
 /// \since Crypto++ 3.0
 template <class T> inline T rotrVariable(T x, unsigned int y)
 {
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	CRYPTOPP_ASSERT(y < THIS_SIZE);
 	return T((x>>y)|(x<<(-y&MASK)));
 }
@@ -1664,8 +1664,8 @@ template <class T> inline T rotrVariable(T x, unsigned int y)
 /// \since Crypto++ 3.0
 template <class T> inline T rotlMod(T x, unsigned int y)
 {
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	return T((x<<(y&MASK))|(x>>(-y&MASK)));
 }
 
@@ -1680,8 +1680,8 @@ template <class T> inline T rotlMod(T x, unsigned int y)
 /// \since Crypto++ 3.0
 template <class T> inline T rotrMod(T x, unsigned int y)
 {
-	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8)
-	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1)
+	CRYPTOPP_CONSTANT(THIS_SIZE = sizeof(T)*8);
+	CRYPTOPP_CONSTANT(MASK = THIS_SIZE-1);
 	return T((x>>(y&MASK))|(x<<(-y&MASK)));
 }
 

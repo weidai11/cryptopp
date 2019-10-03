@@ -1095,13 +1095,13 @@ private:
 /// \details StringSink is a typedef for StringSinkTemplate<std::string>.
 /// \sa ArraySink, ArrayXorSink
 /// \since Crypto++ 4.0
-DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink)
+DOCUMENTED_TYPEDEF(StringSinkTemplate<std::string>, StringSink);
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::string>;
 
 /// \brief Append input to a std::vector<byte> object
 /// \details VectorSink is a typedef for StringSinkTemplate<std::vector<byte> >.
 /// \since Crypto++ 8.0
-DOCUMENTED_TYPEDEF(StringSinkTemplate<std::vector<byte> >, VectorSink)
+DOCUMENTED_TYPEDEF(StringSinkTemplate<std::vector<byte> >, VectorSink);
 CRYPTOPP_DLL_TEMPLATE_CLASS StringSinkTemplate<std::vector<byte> >;
 
 /// \brief Incorporates input into RNG as additional entropy
@@ -1425,7 +1425,7 @@ public:
 /// \details ArraySource is a typedef for StringSource. Use the third constructor for an array source.
 ///   The third constructor takes a pointer and length.
 /// \since Crypto++ 5.6.0
-DOCUMENTED_TYPEDEF(StringSource, ArraySource)
+DOCUMENTED_TYPEDEF(StringSource, ArraySource);
 
 /// \brief std::vector-based implementation of the Source interface
 /// \since Crypto++ 8.0

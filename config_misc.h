@@ -145,13 +145,13 @@
 #endif // CRYPTOPP_CXX11_CONSTEXPR
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
-# define CRYPTOPP_CONSTANT(x) static const int x;
+# define CRYPTOPP_CONSTANT(x) static const int x;
 #elif defined(CRYPTOPP_CXX11_ENUM)
-# define CRYPTOPP_CONSTANT(x) enum : int { x };
+# define CRYPTOPP_CONSTANT(x) enum : int { x };
 #elif defined(CRYPTOPP_CXX11_CONSTEXPR)
-# define CRYPTOPP_CONSTANT(x) constexpr static int x;
+# define CRYPTOPP_CONSTANT(x) constexpr static int x;
 #else
-# define CRYPTOPP_CONSTANT(x) static const int x;
+# define CRYPTOPP_CONSTANT(x) static const int x;
 #endif
 
 // Warnings

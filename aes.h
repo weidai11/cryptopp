@@ -20,7 +20,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \sa <a href="http://www.cryptolounge.org/wiki/AES">AES</a> winner, announced on 10/2/2000
 /// \since Rijndael since Crypto++ 3.1, Intel AES-NI since Crypto++ 5.6.1, ARMv8 AES since Crypto++ 6.0,
 ///   Power8 AES since Crypto++ 6.0
-DOCUMENTED_TYPEDEF(Rijndael, AES)
+DOCUMENTED_TYPEDEF(Rijndael, AES);
 
 typedef RijndaelEncryption AESEncryption;
 typedef RijndaelDecryption AESDecryption;

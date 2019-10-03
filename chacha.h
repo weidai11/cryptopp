@@ -72,7 +72,7 @@ protected:
     std::string AlgorithmName() const;
     std::string AlgorithmProvider() const;
 
-    CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds
+    CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds;
     FixedSizeAlignedSecBlock<word32, 16> m_state;
     unsigned int m_rounds;
 };
@@ -131,9 +131,9 @@ protected:
 
     FixedSizeAlignedSecBlock<word32, 16+8> m_state;
     unsigned int m_counter;
-    CRYPTOPP_CONSTANT(ROUNDS = ChaChaTLS_Info::ROUNDS)
-    CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
-    CRYPTOPP_CONSTANT(CTR = 24)  // Index into m_state
+    CRYPTOPP_CONSTANT(ROUNDS = ChaChaTLS_Info::ROUNDS);
+    CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state;
+    CRYPTOPP_CONSTANT(CTR = 24)  // Index into m_state;
 };
 
 /// \brief ChaCha-TLS stream cipher
@@ -197,8 +197,8 @@ protected:
 
     FixedSizeAlignedSecBlock<word32, 16+8> m_state;
     unsigned int m_counter, m_rounds;
-    CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds
-    CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state
+    CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds;
+    CRYPTOPP_CONSTANT(KEY = 16)  // Index into m_state;
 };
 
 /// \brief XChaCha stream cipher

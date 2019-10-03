@@ -17,7 +17,7 @@ template <class T>
 class CRYPTOPP_NO_VTABLE DMAC_Base : public SameKeyLengthAs<T>, public MessageAuthenticationCode
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
+	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE);
 	static std::string StaticAlgorithmName() {return std::string("DMAC(") + T::StaticAlgorithmName() + ")";}
 
 	virtual~DMAC_Base() {}

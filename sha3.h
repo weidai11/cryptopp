@@ -60,8 +60,8 @@ template<unsigned int T_DigestSize>
 class SHA3_Final : public SHA3
 {
 public:
-    CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize)
-    CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE)
+    CRYPTOPP_CONSTANT(DIGESTSIZE = T_DigestSize);
+    CRYPTOPP_CONSTANT(BLOCKSIZE = 200 - 2 * DIGESTSIZE);
     static std::string StaticAlgorithmName()
         { return "SHA3-" + IntToString(DIGESTSIZE * 8); }
 

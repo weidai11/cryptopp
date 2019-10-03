@@ -17,7 +17,7 @@ class CRYPTOPP_NO_VTABLE TTMAC_Base : public FixedKeyLength<20>, public Iterated
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("Two-Track-MAC");}
-	CRYPTOPP_CONSTANT(DIGESTSIZE=20)
+	CRYPTOPP_CONSTANT(DIGESTSIZE=20);
 
 	unsigned int DigestSize() const {return DIGESTSIZE;};
 	void UncheckedSetKey(const byte *userKey, unsigned int keylength, const NameValuePairs &params);
@@ -37,7 +37,7 @@ protected:
 /// \tparam T HashTransformation class
 /// \details 160-bit MAC with 160-bit key
 /// \sa MessageAuthenticationCode(), <a href="http://www.weidai.com/scan-mirror/mac.html#TTMAC">Two-Track-MAC</a>
-DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<TTMAC_Base>, TTMAC)
+DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<TTMAC_Base>, TTMAC);
 
 NAMESPACE_END
 

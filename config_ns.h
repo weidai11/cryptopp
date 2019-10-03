@@ -47,7 +47,7 @@ namespace CryptoPP { }
 #define NAMESPACE_BEGIN(x)
 #define NAMESPACE_END
 // Get Doxygen to generate better documentation for these typedefs
-#define DOCUMENTED_TYPEDEF(x, y) class y : public x {};
+#define DOCUMENTED_TYPEDEF(x, y) class y : public x {}
 // Make "protected" "private" so the functions and members are not documented
 #define protected private
 
@@ -55,7 +55,8 @@ namespace CryptoPP { }
 // Not Doxygen
 #define NAMESPACE_BEGIN(x) namespace x {
 #define NAMESPACE_END }
-#define DOCUMENTED_TYPEDEF(x, y) typedef x y;
+#define DOCUMENTED_TYPEDEF(x, y) typedef x y
+;
 
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 

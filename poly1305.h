@@ -48,8 +48,8 @@ class CRYPTOPP_NO_VTABLE Poly1305_Base : public FixedKeyLength<32, SimpleKeyingI
 public:
 	static std::string StaticAlgorithmName() {return std::string("Poly1305(") + T::StaticAlgorithmName() + ")";}
 
-	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE)
-	CRYPTOPP_CONSTANT(BLOCKSIZE=T::BLOCKSIZE)
+	CRYPTOPP_CONSTANT(DIGESTSIZE=T::BLOCKSIZE);
+	CRYPTOPP_CONSTANT(BLOCKSIZE=T::BLOCKSIZE);
 
 	virtual ~Poly1305_Base() {}
 	Poly1305_Base() : m_idx(0), m_used(true) {}
@@ -136,7 +136,7 @@ template <class T>
 class Poly1305 : public MessageAuthenticationCodeFinal<Poly1305_Base<T> >
 {
 public:
-	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=Poly1305_Base<T>::DEFAULT_KEYLENGTH)
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=Poly1305_Base<T>::DEFAULT_KEYLENGTH);
 
 	/// \brief Construct a Poly1305
 	Poly1305() {}
@@ -165,8 +165,8 @@ class Poly1305TLS_Base : public FixedKeyLength<32>, public MessageAuthentication
 {
 public:
 	static std::string StaticAlgorithmName() {return std::string("Poly1305TLS");}
-	CRYPTOPP_CONSTANT(DIGESTSIZE=16)
-	CRYPTOPP_CONSTANT(BLOCKSIZE=16)
+	CRYPTOPP_CONSTANT(DIGESTSIZE=16);
+	CRYPTOPP_CONSTANT(BLOCKSIZE=16);
 
 	virtual ~Poly1305TLS_Base() {}
 	Poly1305TLS_Base() {}
@@ -234,7 +234,7 @@ protected:
 /// \since Crypto++ 8.1
 /// \sa MessageAuthenticationCode(), <a href="http://tools.ietf.org/html/rfc8439">RFC
 ///   8439, ChaCha20 and Poly1305 for IETF Protocols</a>
-DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<Poly1305TLS_Base>, Poly1305TLS)
+DOCUMENTED_TYPEDEF(MessageAuthenticationCodeFinal<Poly1305TLS_Base>, Poly1305TLS);
 
 NAMESPACE_END
 

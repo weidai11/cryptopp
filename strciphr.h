@@ -208,7 +208,7 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	///  For example, ChaCha uses 16 each <tt>word32</tt>, and the value of
 	///  BYTES_PER_ITERATION is 64. Each invocation of the ChaCha block function
 	///  produces 64 bytes of keystream.
-	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W)
+	CRYPTOPP_CONSTANT(BYTES_PER_ITERATION = sizeof(WordType) * W);
 
 	virtual ~AdditiveCipherConcretePolicy() {}
 

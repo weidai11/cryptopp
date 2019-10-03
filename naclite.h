@@ -64,85 +64,85 @@ NAMESPACE_BEGIN(NaCl)
 
 /// \brief Hash size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/hash.html">NaCl crypto_hash documentation</A>
-CRYPTOPP_CONSTANT(crypto_hash_BYTES = 64)
+CRYPTOPP_CONSTANT(crypto_hash_BYTES = 64);
 
 /// \brief Key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/stream.html">NaCl crypto_stream documentation</A>
-CRYPTOPP_CONSTANT(crypto_stream_KEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_stream_KEYBYTES = 32);
 /// \brief Nonce size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/stream.html">NaCl crypto_stream documentation</A>
-CRYPTOPP_CONSTANT(crypto_stream_NONCEBYTES = 24)
+CRYPTOPP_CONSTANT(crypto_stream_NONCEBYTES = 24);
 
 /// \brief Key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/auth.html">NaCl crypto_auth documentation</A>
-CRYPTOPP_CONSTANT(crypto_auth_KEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_auth_KEYBYTES = 32);
 /// \brief Tag size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/auth.html">NaCl crypto_auth documentation</A>
-CRYPTOPP_CONSTANT(crypto_auth_BYTES = 16)
+CRYPTOPP_CONSTANT(crypto_auth_BYTES = 16);
 
 /// \brief Key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/onetimeauth.html">NaCl crypto_onetimeauth documentation</A>
-CRYPTOPP_CONSTANT(crypto_onetimeauth_KEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_onetimeauth_KEYBYTES = 32);
 /// \brief Tag size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/onetimeauth.html">NaCl crypto_onetimeauth documentation</A>
-CRYPTOPP_CONSTANT(crypto_onetimeauth_BYTES = 16)
+CRYPTOPP_CONSTANT(crypto_onetimeauth_BYTES = 16);
 
 /// \brief Key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/secretbox.html">NaCl crypto_secretbox documentation</A>
-CRYPTOPP_CONSTANT(crypto_secretbox_KEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_secretbox_KEYBYTES = 32);
 /// \brief Nonce size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/secretbox.html">NaCl crypto_secretbox documentation</A>
-CRYPTOPP_CONSTANT(crypto_secretbox_NONCEBYTES = 24)
+CRYPTOPP_CONSTANT(crypto_secretbox_NONCEBYTES = 24);
 /// \brief Zero-padded message prefix in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/secretbox.html">NaCl crypto_secretbox documentation</A>
-CRYPTOPP_CONSTANT(crypto_secretbox_ZEROBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_secretbox_ZEROBYTES = 32);
 /// \brief Zero-padded message prefix in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/secretbox.html">NaCl crypto_secretbox documentation</A>
-CRYPTOPP_CONSTANT(crypto_secretbox_BOXZEROBYTES = 16)
+CRYPTOPP_CONSTANT(crypto_secretbox_BOXZEROBYTES = 16);
 
 /// \brief Private key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_SECRETKEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_box_SECRETKEYBYTES = 32);
 /// \brief Public key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_PUBLICKEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_box_PUBLICKEYBYTES = 32);
 /// \brief Nonce size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_NONCEBYTES = 24)
+CRYPTOPP_CONSTANT(crypto_box_NONCEBYTES = 24);
 /// \brief Message 0-byte prefix in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_ZEROBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_box_ZEROBYTES = 32);
 /// \brief Open box 0-byte prefix in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_BOXZEROBYTES = 16)
+CRYPTOPP_CONSTANT(crypto_box_BOXZEROBYTES = 16);
 /// \brief Precomputation 0-byte prefix in bytes in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/box.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_BEFORENMBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_box_BEFORENMBYTES = 32);
 /// \brief MAC size in bytes
 /// \details crypto_box_MACBYTES was missing from tweetnacl.h. Its is defined as
 ///   crypto_box_curve25519xsalsa20poly1305_MACBYTES, which is defined as 16U.
 /// \sa <A HREF="https://nacl.cr.yp.to/hash.html">NaCl crypto_box documentation</A>
-CRYPTOPP_CONSTANT(crypto_box_MACBYTES = 16)
+CRYPTOPP_CONSTANT(crypto_box_MACBYTES = 16);
 
 /// \brief Private key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
-CRYPTOPP_CONSTANT(crypto_sign_SECRETKEYBYTES = 64)
+CRYPTOPP_CONSTANT(crypto_sign_SECRETKEYBYTES = 64);
 /// \brief Public key size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
-CRYPTOPP_CONSTANT(crypto_sign_PUBLICKEYBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_sign_PUBLICKEYBYTES = 32);
 /// \brief Seed size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
-CRYPTOPP_CONSTANT(crypto_sign_SEEDBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_sign_SEEDBYTES = 32);
 /// \brief Signature size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/sign.html">NaCl crypto_sign documentation</A>
-CRYPTOPP_CONSTANT(crypto_sign_BYTES = 64)
+CRYPTOPP_CONSTANT(crypto_sign_BYTES = 64);
 
 /// \brief Group element size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/scalarmult.html">NaCl crypto_scalarmult documentation</A>
-CRYPTOPP_CONSTANT(crypto_scalarmult_BYTES = 32)
+CRYPTOPP_CONSTANT(crypto_scalarmult_BYTES = 32);
 /// \brief Integer size in bytes
 /// \sa <A HREF="https://nacl.cr.yp.to/scalarmult.html">NaCl crypto_scalarmult documentation</A>
-CRYPTOPP_CONSTANT(crypto_scalarmult_SCALARBYTES = 32)
+CRYPTOPP_CONSTANT(crypto_scalarmult_SCALARBYTES = 32);
 
 /// \brief Encrypt and authenticate a message
 /// \param c output byte buffer
