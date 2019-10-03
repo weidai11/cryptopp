@@ -34,6 +34,10 @@
 # pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4244)
+#endif
+
 // Squash MS LNK4221 and libtool warnings
 extern const char DONNA64_FNAME[] = __FILE__;
 

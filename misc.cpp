@@ -17,6 +17,7 @@
 #include "words.h"
 #include "stdcpp.h"
 #include "integer.h"
+#include "secblock.h"
 
 NAMESPACE_BEGIN(CryptoPP)
 

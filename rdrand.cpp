@@ -24,6 +24,10 @@
 /////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////
 
+#if CRYPTOPP_MSC_VERSION
+# pragma warning(disable: 4702)
+#endif
+
 #if defined(CRYPTOPP_RDRAND_AVAILABLE)
 # if defined(CRYPTOPP_MSC_VERSION)
 #   define MASM_RDRAND_ASM_AVAILABLE 1

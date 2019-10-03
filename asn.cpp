@@ -114,7 +114,7 @@ size_t DEREncodeOctetString(BufferedTransformation &bt, const byte *str, size_t 
 
 size_t DEREncodeOctetString(BufferedTransformation &bt, const SecByteBlock &str)
 {
-	return DEREncodeOctetString(bt, str.begin(), str.size());
+	return DEREncodeOctetString(bt, ConstBytePtr(str), BytePtrSize(str));
 }
 
 size_t BERDecodeOctetString(BufferedTransformation &bt, SecByteBlock &str)
@@ -161,7 +161,7 @@ size_t DEREncodeTextString(BufferedTransformation &bt, const byte* str, size_t s
 
 size_t DEREncodeTextString(BufferedTransformation &bt, const SecByteBlock &str, byte asnTag)
 {
-	return DEREncodeTextString(bt, str, str.size(), asnTag);
+	return DEREncodeTextString(bt, ConstBytePtr(str), BytePtrSize(str), asnTag);
 }
 
 size_t DEREncodeTextString(BufferedTransformation &bt, const std::string &str, byte asnTag)
@@ -211,7 +211,7 @@ size_t DEREncodeDate(BufferedTransformation &bt, const SecByteBlock &str, byte a
 {
 	bt.Put(asnTag);
 	size_t lengthBytes = DERLengthEncode(bt, str.size());
-	bt.Put(str, str.size());
+	bt.Put(ConstBytePtr(str), BytePtrSize(str));
 	return 1+lengthBytes+str.size();
 }
 
