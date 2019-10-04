@@ -72,7 +72,7 @@ void Adler32::TruncatedFinal(byte *hash, size_t size)
 		hash[0] = byte(m_s2 >> 8);
 		// fall through
 	case 0:
-		;;
+		;
 		// fall through
 	}
 

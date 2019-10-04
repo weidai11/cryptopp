@@ -616,7 +616,7 @@ void LEA::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, con
         break;
     }
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 }
 

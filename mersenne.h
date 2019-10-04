@@ -92,7 +92,7 @@ public:
 			case 2: output[1] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 2); /* fall through */
 			case 1: output[0] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 3); break;
 
-			default: CRYPTOPP_ASSERT(0); ;;
+			default: CRYPTOPP_ASSERT(0); ;
 		}
 
 		// Wipe temp

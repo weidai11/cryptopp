@@ -294,7 +294,7 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         SIMON64_ExpandKey_4W(m_rkeys, m_wspace);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Altivec loads the current subkey as a 16-byte vector
@@ -319,7 +319,7 @@ void SIMON64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         SIMON_Encrypt<word32, 44>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers
@@ -342,7 +342,7 @@ void SIMON64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         SIMON_Decrypt<word32, 44>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers
@@ -403,7 +403,7 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         SIMON128_ExpandKey_4W(m_rkeys, m_wspace);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 }
 
@@ -425,7 +425,7 @@ void SIMON128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
         SIMON_Encrypt<word64, 72>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers
@@ -451,7 +451,7 @@ void SIMON128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
         SIMON_Decrypt<word64, 72>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers

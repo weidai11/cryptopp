@@ -181,7 +181,7 @@ template <unsigned int IDX>
 inline uint32x4_t UnpackNEON(const uint32x4_t& a, const uint32x4_t& b, const uint32x4_t& c, const uint32x4_t& d)
 {
     // Should not be instantiated
-    CRYPTOPP_ASSERT(0);;
+    CRYPTOPP_ASSERT(0);
     return vmovq_n_u32(0);
 }
 
@@ -221,7 +221,7 @@ template <unsigned int IDX>
 inline uint32x4_t UnpackNEON(const uint32x4_t& v)
 {
     // Should not be instantiated
-    CRYPTOPP_ASSERT(0);;
+    CRYPTOPP_ASSERT(0);
     return vmovq_n_u32(0);
 }
 

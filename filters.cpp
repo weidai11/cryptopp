@@ -87,7 +87,7 @@ bool Filter::Flush(bool hardFlush, int propagation, bool blocking)
 		if (OutputFlush(1, hardFlush, propagation, blocking))
 			return true;
 		// fall through
-	default: ;;
+	default: ;
 	}
 	return false;
 }
@@ -104,7 +104,7 @@ bool Filter::MessageSeriesEnd(int propagation, bool blocking)
 		if (ShouldPropagateMessageSeriesEnd() && OutputMessageSeriesEnd(1, propagation, blocking))
 			return true;
 		// fall through
-	default: ;;
+	default: ;
 	}
 	return false;
 }

@@ -274,7 +274,7 @@ void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         SPECK_ExpandKey_4W<word32, 27>(m_rkeys, m_wspace);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Altivec loads the current subkey as a 16-byte vector
@@ -299,7 +299,7 @@ void SPECK64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         SPECK_Encrypt<word32, 27>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers
@@ -322,7 +322,7 @@ void SPECK64::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         SPECK_Decrypt<word32, 27>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers
@@ -383,7 +383,7 @@ void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         SPECK_ExpandKey_4W<word64, 34>(m_rkeys, m_wspace);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 }
 
@@ -405,7 +405,7 @@ void SPECK128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
         SPECK_Encrypt<word64, 34>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers
@@ -431,7 +431,7 @@ void SPECK128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
         SPECK_Decrypt<word64, 34>(m_wspace+2, m_wspace+0, m_rkeys);
         break;
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     // Do the endian gyrations from the paper and align pointers

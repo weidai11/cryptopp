@@ -299,7 +299,7 @@ void Rijndael::Base::FillDecTable()
 		word32 y = word32(fd(x))<<8 | word32(f9(x))<<16 | word32(fe(x))<<24;
 		Td[i] = word64(y | fb(x))<<32 | y | x;
 #else
-		word32 y = fb(x) | word32(fd(x))<<8 | word32(f9(x))<<16 | word32(fe(x))<<24;;
+		word32 y = fb(x) | word32(fd(x))<<8 | word32(f9(x))<<16 | word32(fe(x))<<24;
 		for (int j=0; j<4; j++)
 		{
 			Td[i+j*256] = y;

@@ -273,7 +273,7 @@ void CHAM128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         break;
     }
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);
@@ -329,7 +329,7 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
         break;
     }
     default:
-        CRYPTOPP_ASSERT(0);;
+        CRYPTOPP_ASSERT(0);
     }
 
     PutBlock<word32, BigEndian> oblock(xorBlock, outBlock);

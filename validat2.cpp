@@ -998,7 +998,7 @@ bool TestIntegerOps()
         case 11:
             a = (m<<256)+1; break;
         default:
-            ;;
+            ;
         }
 
         Integer x = a.InverseMod(m);
