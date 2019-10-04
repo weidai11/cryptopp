@@ -56,7 +56,6 @@ namespace CryptoPP { }
 #define NAMESPACE_BEGIN(x) namespace x {
 #define NAMESPACE_END }
 #define DOCUMENTED_TYPEDEF(x, y) typedef x y
-;
 
 #endif  // CRYPTOPP_DOXYGEN_PROCESSING
 
