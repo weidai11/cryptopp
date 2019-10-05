@@ -234,7 +234,6 @@ size_t BERDecodeDate(BufferedTransformation &bt, SecByteBlock &str, byte asnTag)
 	return bc;
 }
 
-/// ASN BitString
 size_t DEREncodeBitString(BufferedTransformation &bt, const byte *str, size_t strLen, unsigned int unusedBits)
 {
 	bt.Put(BIT_STRING);

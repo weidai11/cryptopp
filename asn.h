@@ -197,12 +197,22 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeDate(BufferedTransformation &bt, SecBy
 /// \param strLen the length of the string
 /// \param unusedBits the number of unused bits
 /// \returns the number of octets used for the encoding
+/// \details The caller is responsible for shifting octets if unusedBits is
+///  not 0. For example, to DER encode a web server X.509 key usage, the 101b
+///  bit mask is often used (digitalSignature and keyEncipherment). In this
+///  case <tt>str</tt> is one octet with a value=0xa0 and unusedBits=5. The
+///  value 0xa0 is <tt>101b << 5</tt>.
 CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeBitString(BufferedTransformation &bt, const byte *str, size_t strLen, unsigned int unusedBits=0);
 
 /// \brief DER decode bit string
 /// \param bt BufferedTransformation object for reading
 /// \param str the decoded string
 /// \param unusedBits the number of unused bits
+/// \details The caller is responsible for shifting octets if unusedBits is
+///  not 0. For example, to DER encode a web server X.509 key usage, the 101b
+///  bit mask is often used (digitalSignature and keyEncipherment). In this
+///  case <tt>str</tt> is one octet with a value=0xa0 and unusedBits=5. The
+///  value 0xa0 is <tt>101b << 5</tt>.
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeBitString(BufferedTransformation &bt, SecByteBlock &str, unsigned int &unusedBits);
 
 /// \brief BER decode and DER re-encode
