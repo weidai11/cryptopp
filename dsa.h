@@ -35,7 +35,8 @@ enum DSASignatureFormat {
 /// \param fromFormat the source signature format
 /// \details This function converts between these formats, and returns length
 ///  of signature in the target format. If <tt>toFormat == DSA_P1363</tt>, then
-///  <tt>bufferSize</tt> must equal <tt>publicKey.SignatureLength()</tt>
+///  <tt>bufferSize</tt> must equal <tt>publicKey.SignatureLength()</tt> or
+///  <tt>verifier.SignatureLength()</tt>.
 /// \sa <A HREF="http://www.cryptopp.com/wiki/DSAConvertSignatureFormat">DSAConvertSignatureFormat</A>
 ///  on the Crypto++ wiki.
 /// \since Crypto++ 1.0

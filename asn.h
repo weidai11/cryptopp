@@ -25,7 +25,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief ASN.1 types
-/// \note These tags and flags are not complete
+/// \note These tags are not complete
 enum ASNTag
 {
 	BOOLEAN 			= 0x01,
@@ -56,7 +56,7 @@ enum ASNTag
 };
 
 /// \brief ASN.1 flags
-/// \note These tags and flags are not complete
+/// \note These flags are not complete
 enum ASNIdFlag
 {
 	UNIVERSAL           = 0x00,
