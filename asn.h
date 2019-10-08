@@ -227,7 +227,7 @@ CRYPTOPP_DLL void CRYPTOPP_API DERReencode(BufferedTransformation &bt, BufferedT
 ///  consuming octets in the stream. The stream must use definite length encoding.
 ///  If indefinite length encoding is used or an error occurs, then 0 is returned.
 /// \since Crypto++ 8.3
-CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(BufferedTransformation &bt);
+CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodePeekLength(const BufferedTransformation &bt);
 
 /// \brief Object Identifier
 class CRYPTOPP_DLL OID

@@ -285,7 +285,7 @@ void DERReencode(BufferedTransformation &source, BufferedTransformation &dest)
 	encoder.MessageEnd();
 }
 
-size_t BERDecodePeekLength(BufferedTransformation &bt)
+size_t BERDecodePeekLength(const BufferedTransformation &bt)
 {
 	lword count = (std::min)(bt.MaxRetrievable(), static_cast<lword>(16));
 	if (count == 0) return 0;
