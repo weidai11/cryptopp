@@ -61,9 +61,9 @@ public:
     size_t DefaultKeyLength() const
         {return GetEncryptionCipher().DefaultKeyLength()*2;}
     size_t GetValidKeyLength(size_t n) const
-        {return GetEncryptionCipher().GetValidKeyLength(n/2);}
-    bool IsValidKeyLength(size_t n) const
-        {return GetEncryptionCipher().IsValidKeyLength(n/2);}
+        {return GetEncryptionCipher().GetValidKeyLength((n+1)/2);}
+    bool IsValidKeyLength(size_t keylength) const
+        {return keylength == GetValidKeyLength(keylength);}
 
     unsigned int BlockSize() const
         {return GetEncryptionCipher().BlockSize();}

@@ -167,15 +167,17 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
     for (size_t i=0; i<length; i+=blockSize)
     {
         // merge the tweak into the input block
-        for (size_t j=0; j<blockSize; j++)
-            m_workspace[j] = inString[i+j] ^ m_register[j];
+        //for (size_t j=0; j<blockSize; j++)
+        //    m_workspace[j] = inString[i+j] ^ m_register[j];
+        xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
         GetEncryptionCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        for (size_t j=0; j<blockSize; j++)
-            outString[i+j] = m_workspace[j] ^ m_register[j];
+        //for (size_t j=0; j<blockSize; j++)
+        //    outString[i+j] = m_workspace[j] ^ m_register[j];
+        xorbuf(outString+i, m_workspace, m_register, blockSize);
 
         // Multiply T by alpha
         GF_Multiply(m_register, m_register.size());
@@ -200,15 +202,17 @@ size_t XTS_ModeBase::ProcessLastBlock(byte *outString, size_t outLength, const b
     for (i=0; i+blockSize<=inLength; i+=blockSize)
     {
         // merge the tweak into the input block
-        for (j=0; j<blockSize; j++)
-            m_workspace[j] = inString[i+j] ^ m_register[j];
+        //for (j=0; j<blockSize; j++)
+        //    m_workspace[j] = inString[i+j] ^ m_register[j];
+        xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
         GetEncryptionCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        for (j=0; j<blockSize; j++)
-            outString[i+j] = m_workspace[j] ^ m_register[j];
+        //for (j=0; j<blockSize; j++)
+        //    outString[i+j] = m_workspace[j] ^ m_register[j];
+        xorbuf(outString+i, m_workspace, m_register, blockSize);
 
         // Multiply T by alpha
         GF_Multiply(m_register, m_register.size());
@@ -233,8 +237,9 @@ size_t XTS_ModeBase::ProcessLastBlock(byte *outString, size_t outLength, const b
         GetEncryptionCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        for (j=0; j<blockSize; j++)
-            outString[i+j-blockSize] = m_workspace[j] ^ m_register[j];
+        //for (j=0; j<blockSize; j++)
+        //    outString[i+j-blockSize] = m_workspace[j] ^ m_register[j];
+        xorbuf(outString+i-blockSize, m_workspace, m_register, blockSize);
     }
 
     return inLength;
