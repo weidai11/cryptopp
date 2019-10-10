@@ -26,15 +26,8 @@ inline void GF_Multiply(byte *k, unsigned int len)
         Cin  =  Cout;
     }
 
-#ifndef CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
-    CRYPTOPP_ASSERT(len == 16);
+#if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
 
-    if (Cout)
-    {
-        k[0] ^= 0x87;
-        return;
-    }
-#else
     CRYPTOPP_ASSERT(IsPower2(len));
     CRYPTOPP_ASSERT(len >= 8);
     CRYPTOPP_ASSERT(len <= 128);
@@ -94,6 +87,14 @@ inline void GF_Multiply(byte *k, unsigned int len)
             CRYPTOPP_ASSERT(0);
         }
     }
+#else
+    CRYPTOPP_ASSERT(len == 16);
+
+    if (Cout)
+    {
+        k[0] ^= 0x87;
+        return;
+    }
 #endif  // CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
 
 }
@@ -110,7 +111,7 @@ void Modes_TestInstantiations()
     XTS_Mode<AES>::Encryption m2;
     XTS_Mode<AES>::Decryption m3;
 
-#ifdef CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
+#if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
     XTS_Mode<Threefish512>::Encryption m4;
     XTS_Mode<Threefish512>::Decryption m5;
 #endif

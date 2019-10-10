@@ -2,6 +2,18 @@
 
 /// \file xts.h
 /// \brief Classes for XTS block cipher mode of operation
+/// \details XTS mode is defined by IEEE P1619-2008. NIST SP-800-38E approves
+///  the mode for storage devices citing IEEE 1619-2007. IEEE 1619-2007
+///  provides both a reference implementation and test vectors. The IEEE
+///  reference implementation fails to arrive at the expected result for some
+///  test vectors.
+/// \sa <A
+///  HREF="https://csrc.nist.gov/publications/detail/sp/800-38e/final">Recommendation
+///  for Block Cipher Modes of Operation: The XTS-AES Mode for Confidentiality
+///  on Storage Devices</A> and <A
+///  HREF="https://crypto.stackexchange.com/q/74925/10496">IEEE P1619/XTS,
+///  inconsistent reference implementation and test vectors</A>.
+/// \since Crypto++ 8.3
 
 #ifndef CRYPTOPP_XTS_MODE_H
 #define CRYPTOPP_XTS_MODE_H
@@ -11,11 +23,19 @@
 #include "modes.h"
 #include "misc.h"
 
-/// \brief Enable XTS and wide block ciphers
+/// \brief Enable XTS for wide block ciphers
 /// \details XTS is only defined for AES. The library can support wide
 ///  block ciphers like Kaylna and Threefish since we know the polynomials.
+///  To enable wide block ciphers define <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt>
+///  to non-zero. Note this is a library compile time define.
+// \details There is risk involved with using XTS with wider block ciphers.
+///  According to Phillip Rogaway, "The narrow width of the underlying PRP and
+///  the poor treatment of fractional final blocks are problems."
+/// \sa <A HREF="https://web.cs.ucdavis.edu/~rogaway/papers/modes.pdf">Evaluation
+///  of Some Blockcipher Modes of Operation</A>
+/// \since Crypto++ 8.3
 #ifndef CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
-# define CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS 1
+# define CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS 0
 #endif  // CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -68,8 +88,7 @@ protected:
 };
 
 /// \brief XTS block cipher mode of operation implementation details
-/// tparam CIPHER, 128-bit BlockCipher derived class or type
-/// tparam DATA_UNIT data unit size, in bytes
+/// \tparam CIPHER BlockCipher derived class or type
 /// \since Crypto++ 8.3
 template <class CIPHER>
 class CRYPTOPP_NO_VTABLE XTS_Final : public XTS_ModeBase
@@ -89,19 +108,36 @@ protected:
 };
 
 /// \brief XTS block cipher mode of operation
-/// tparam CIPHER, 128-bit BlockCipher derived class or type
-/// tparam DATA_UNIT data unit size, in bytes
-/// \since Crypto++ 8.3
-/// \details The data unit size shall be at least 128 bits. Data unit should be divided
-///  into 128-bit blocks... The number of 128-bit blocks should not exceed 2^20.
+/// \tparam CIPHER BlockCipher derived class or type
+/// \details XTS mode is defined by IEEE P1619-2008. NIST SP-800-38E approves
+///  the mode for storage devices citing IEEE 1619-2007. IEEE 1619-2007
+///  provides both a reference implementation and test vectors. The IEEE
+///  reference implementation fails to arrive at the expected result for some
+///  test vectors.
+/// \details XTS is only defined for AES. The library can support wide
+///  block ciphers like Kaylna and Threefish since we know the polynomials.
+///  There is risk involved with using XTS with wider block ciphers.
+///  According to Phillip Rogaway, "The narrow width of the underlying PRP and
+///  the poor treatment of fractional final blocks are problems." To enable
+///  wide block cipher support define <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt>.
 /// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of Operation</A>
-///   on the Crypto++ wiki.
+///  on the Crypto++ wiki, <A HREF="https://web.cs.ucdavis.edu/~rogaway/papers/modes.pdf">
+///  Evaluation of Some Blockcipher Modes of Operation</A>, <A
+///  HREF="https://csrc.nist.gov/publications/detail/sp/800-38e/final">Recommendation
+///  for Block Cipher Modes of Operation: The XTS-AES Mode for Confidentiality
+///  on Storage Devices</A> and <A
+///  HREF="https://crypto.stackexchange.com/q/74925/10496">IEEE P1619/XTS,
+///  inconsistent reference implementation and test vectors</A>.
+/// \since Crypto++ 8.3
 template <class CIPHER>
 struct XTS : public CipherModeDocumentation
 {
     typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Encryption, XTS_Final<CIPHER> > Encryption;
     typedef CipherModeFinalTemplate_CipherHolder<typename CIPHER::Decryption, XTS_Final<CIPHER> > Decryption;
 };
+
+// C++03 lacks the mechainics to typedef a template
+#define XTS_Mode XTS
 
 NAMESPACE_END
 
