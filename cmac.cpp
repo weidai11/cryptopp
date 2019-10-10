@@ -5,10 +5,12 @@
 #ifndef CRYPTOPP_IMPORTS
 
 #include "cmac.h"
+#include "misc.h"
 
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
+using CryptoPP::IsPowerOf2;
 
 void MulU(byte *k, unsigned int len)
 {
@@ -30,7 +32,7 @@ void MulU(byte *k, unsigned int len)
 		return;
 	}
 #else
-	CRYPTOPP_ASSERT(IsPower2(len));
+	CRYPTOPP_ASSERT(IsPowerOf2(len));
 	CRYPTOPP_ASSERT(len >= 8);
 	CRYPTOPP_ASSERT(len <= 128);
 
