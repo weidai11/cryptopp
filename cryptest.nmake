@@ -83,7 +83,7 @@ LIB_SRCS = \
     sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp speck64_simd.cpp \
     square.cpp squaretb.cpp sse_simd.cpp strciphr.cpp tea.cpp tftables.cpp \
     threefish.cpp tiger.cpp tigertab.cpp ttmac.cpp tweetnacl.cpp twofish.cpp \
-    vmac.cpp wake.cpp whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp \
+    vmac.cpp wake.cpp whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp xts.cpp \
     zdeflate.cpp zinflate.cpp zlib.cpp
 
 LIB_OBJS = \
@@ -114,7 +114,7 @@ LIB_OBJS = \
     sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj speck64_simd.obj \
     square.obj squaretb.obj sse_simd.obj strciphr.obj tea.obj tftables.obj \
     threefish.obj tiger.obj tigertab.obj ttmac.obj tweetnacl.obj twofish.obj \
-    vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj \
+    vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj xts.obj \
     zdeflate.obj zinflate.obj zlib.obj
 
 ASM_OBJS = \
