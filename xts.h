@@ -74,6 +74,7 @@ public:
 
     void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
     IV_Requirement IVRequirement() const {return UNIQUE_IV;}
+    void Resynchronize(const byte *iv, int ivLength=-1);
     void ProcessData(byte *outString, const byte *inString, size_t length);
     size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 

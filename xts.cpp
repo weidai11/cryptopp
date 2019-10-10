@@ -5,15 +5,17 @@
 #include "xts.h"
 #include "misc.h"
 #include "modes.h"
+#include "argnames.h"
 
 #if defined(CRYPTOPP_DEBUG)
-#include "rijndael.h"
+#include "aes.h"
 #include "threefish.h"
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
+using CryptoPP::IsPowerOf2;
 
 // Borrowed from CMAC, but little-endian representation
 inline void GF_Multiply(byte *k, unsigned int len)
@@ -28,7 +30,7 @@ inline void GF_Multiply(byte *k, unsigned int len)
 
 #if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
 
-    CRYPTOPP_ASSERT(IsPower2(len));
+    CRYPTOPP_ASSERT(IsPowerOf2(len));
     CRYPTOPP_ASSERT(len >= 8);
     CRYPTOPP_ASSERT(len <= 128);
 
@@ -96,14 +98,14 @@ inline void GF_Multiply(byte *k, unsigned int len)
         return;
     }
 #endif  // CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
-
 }
 
-ANONYMOUS_NAMESPACE_END
-
-NAMESPACE_BEGIN(CryptoPP)
-
 #if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+using CryptoPP::AES;
+using CryptoPP::XTS_Mode;
+using CryptoPP::Threefish512;
+
 void Modes_TestInstantiations()
 {
     XTS_Mode<AES>::Encryption m0;
@@ -117,6 +119,10 @@ void Modes_TestInstantiations()
 #endif
 }
 #endif
+
+ANONYMOUS_NAMESPACE_END
+
+NAMESPACE_BEGIN(CryptoPP)
 
 #if 0
 void XTS_ModeBase::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
@@ -147,6 +153,12 @@ void XTS_ModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &
     Resynchronize(iv, (int)ivLength);
 }
 
+void XTS_ModeBase::Resynchronize(const byte *iv, int ivLength)
+{
+    BlockOrientedCipherModeBase::Resynchronize(iv, ivLength);
+    GetTweakCipher().ProcessBlock(m_register);
+}
+
 void XTS_ModeBase::ResizeBuffers()
 {
     BlockOrientedCipherModeBase::ResizeBuffers();
@@ -161,7 +173,7 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
     CRYPTOPP_ASSERT(length % blockSize == 0);
 
     // encrypt the tweak
-    GetTweakCipher().ProcessBlock(m_register);
+    // GetTweakCipher().ProcessBlock(m_register);
 
     // now encrypt the data unit, AES_BLK_BYTES at a time
     for (size_t i=0; i<length; i+=blockSize)
@@ -196,7 +208,7 @@ size_t XTS_ModeBase::ProcessLastBlock(byte *outString, size_t outLength, const b
     CRYPTOPP_ASSERT(inLength >= BlockSize());
 
     // encrypt the tweak
-    GetTweakCipher().ProcessBlock(m_register);
+    // GetTweakCipher().ProcessBlock(m_register);
 
     // now encrypt the data unit, AES_BLK_BYTES at a time
     for (i=0; i+blockSize<=inLength; i+=blockSize)
