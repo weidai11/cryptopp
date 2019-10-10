@@ -2,11 +2,11 @@
 
 /// \file xts.h
 /// \brief Classes for XTS block cipher mode of operation
-/// \details XTS mode is defined by IEEE P1619-2008. NIST SP-800-38E approves
-///  the mode for storage devices citing IEEE 1619-2007. IEEE 1619-2007
-///  provides both a reference implementation and test vectors. The IEEE
-///  reference implementation fails to arrive at the expected result for some
-///  test vectors.
+/// \details XTS mode is a wide block mode defined by IEEE P1619-2008. NIST
+///  SP-800-38E approves the mode for storage devices citing IEEE 1619-2007.
+///  IEEE 1619-2007 provides both a reference implementation and test vectors.
+///  The IEEE reference implementation fails to arrive at the expected result
+///  for some test vectors.
 /// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of
 ///  Operation</A> on the Crypto++ wiki, <A
 ///  HREF="https://web.cs.ucdavis.edu/~rogaway/papers/modes.pdf"> Evaluation of Some
@@ -113,11 +113,11 @@ protected:
 
 /// \brief XTS block cipher mode of operation
 /// \tparam CIPHER BlockCipher derived class or type
-/// \details XTS mode is defined by IEEE P1619-2008. NIST SP-800-38E approves
-///  the mode for storage devices citing IEEE 1619-2007. IEEE 1619-2007
-///  provides both a reference implementation and test vectors. The IEEE
-///  reference implementation fails to arrive at the expected result for some
-///  test vectors.
+/// \details XTS mode is a wide block mode defined by IEEE P1619-2008. NIST
+///  SP-800-38E approves the mode for storage devices citing IEEE 1619-2007.
+///  IEEE 1619-2007 provides both a reference implementation and test vectors.
+///  The IEEE reference implementation fails to arrive at the expected result
+///  for some test vectors.
 /// \details XTS is only defined for AES. The library can support wide
 ///  block ciphers like Kaylna and Threefish since we know the polynomials.
 ///  There is risk involved with using XTS with wider block ciphers.
