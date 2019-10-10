@@ -255,8 +255,10 @@ public:
 	unsigned int MandatoryBlockSize() const {return BlockSize();}
 	bool IsRandomAccess() const {return false;}
 	bool IsSelfInverting() const {return false;}
-	bool IsForwardTransformation() const {return m_cipher->IsForwardTransformation();}
-	void Resynchronize(const byte *iv, int length=-1) {memcpy_s(m_register, m_register.size(), iv, ThrowIfInvalidIVLength(length));}
+	bool IsForwardTransformation() const
+		{return m_cipher->IsForwardTransformation();}
+	void Resynchronize(const byte *iv, int length=-1)
+		{memcpy_s(m_register, m_register.size(), iv, ThrowIfInvalidIVLength(length));}
 
 protected:
 	bool RequireAlignedInput() const {return true;}
