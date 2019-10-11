@@ -147,7 +147,7 @@ void XTS_ModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &
     CRYPTOPP_ASSERT(length % 2 == 0);
 
     const size_t klen = length/2;
-    AccessEncryptionCipher().SetKey(key+0, klen, params);
+    AccessBlockCipher().SetKey(key+0, klen, params);
     AccessTweakCipher().SetKey(key+klen, klen, params);
 
     ResizeBuffers();
@@ -166,12 +166,12 @@ void XTS_ModeBase::Resynchronize(const byte *iv, int ivLength)
 void XTS_ModeBase::ResizeBuffers()
 {
     BlockOrientedCipherModeBase::ResizeBuffers();
-    m_workspace.New(GetEncryptionCipher().BlockSize());
+    m_workspace.New(GetBlockCipher().BlockSize());
 }
 
 void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
-    const unsigned int blockSize = GetEncryptionCipher().BlockSize();
+    const unsigned int blockSize = GetBlockCipher().BlockSize();
 
     // data unit is multiple of 16 bytes
     CRYPTOPP_ASSERT(length % blockSize == 0);
@@ -186,7 +186,7 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
         xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
-        GetEncryptionCipher().ProcessBlock(m_workspace);
+        GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
         xorbuf(outString+i, m_workspace, m_register, blockSize);
@@ -209,7 +209,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     // ensure output buffer is large enough
     CRYPTOPP_ASSERT(outLength >= inLength);
 
-    const unsigned int blockSize = GetEncryptionCipher().BlockSize();
+    const unsigned int blockSize = GetBlockCipher().BlockSize();
     size_t i, j;
 
     // need at least a full AES block
@@ -225,7 +225,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
-        GetEncryptionCipher().ProcessBlock(m_workspace);
+        GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
         xorbuf(outString+i, m_workspace, m_register, blockSize);
@@ -252,7 +252,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         xorbuf(m_workspace, m_register, blockSize);
 
         // encrypt the final block
-        GetEncryptionCipher().ProcessBlock(m_workspace);
+        GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
         xorbuf(outString+i-blockSize, m_workspace, m_register, blockSize);
@@ -266,7 +266,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     // ensure output buffer is large enough
     CRYPTOPP_ASSERT(outLength >= inLength);
 
-    const unsigned int blockSize = GetEncryptionCipher().BlockSize();
+    const unsigned int blockSize = GetBlockCipher().BlockSize();
     size_t i, j;
 
     // need at least a full AES block
@@ -282,7 +282,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
         xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
-        GetEncryptionCipher().ProcessBlock(m_workspace);
+        GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
         xorbuf(outString+i, m_workspace, m_register, blockSize);
@@ -307,7 +307,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
             m_workspace[j] = outString[i+j-blockSize] ^ m_register[j];
 
         // encrypt the final block
-        GetEncryptionCipher().ProcessBlock(m_workspace);
+        GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
         xorbuf(outString+i-blockSize, m_workspace, m_register, blockSize);

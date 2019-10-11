@@ -50,27 +50,27 @@ class CRYPTOPP_NO_VTABLE XTS_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
     std::string AlgorithmName() const
-        {return GetEncryptionCipher().AlgorithmName() + "/XTS";}
+        {return GetBlockCipher().AlgorithmName() + "/XTS";}
     std::string AlgorithmProvider() const
-        {return GetEncryptionCipher().AlgorithmProvider();}
+        {return GetBlockCipher().AlgorithmProvider();}
 
     size_t MinKeyLength() const
-        {return GetEncryptionCipher().MinKeyLength()*2;}
+        {return GetBlockCipher().MinKeyLength()*2;}
     size_t MaxKeyLength() const
-        {return GetEncryptionCipher().MaxKeyLength()*2;}
+        {return GetBlockCipher().MaxKeyLength()*2;}
     size_t DefaultKeyLength() const
-        {return GetEncryptionCipher().DefaultKeyLength()*2;}
+        {return GetBlockCipher().DefaultKeyLength()*2;}
     size_t GetValidKeyLength(size_t n) const
-        {return GetEncryptionCipher().GetValidKeyLength((n+1)/2);}
+        {return GetBlockCipher().GetValidKeyLength((n+1)/2);}
     bool IsValidKeyLength(size_t keylength) const
         {return keylength == GetValidKeyLength(keylength);}
 
     unsigned int BlockSize() const
-        {return GetEncryptionCipher().BlockSize();}
+        {return GetBlockCipher().BlockSize();}
     unsigned int MinLastBlockSize() const
-        {return GetEncryptionCipher().BlockSize()+1;}
+        {return GetBlockCipher().BlockSize()+1;}
     unsigned int OptimalDataAlignment() const
-        {return GetEncryptionCipher().OptimalDataAlignment();}
+        {return GetBlockCipher().OptimalDataAlignment();}
 
     void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
     IV_Requirement IVRequirement() const {return UNIQUE_IV;}
@@ -84,11 +84,11 @@ protected:
     inline size_t ProcessLastPlainBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
     inline size_t ProcessLastCipherBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 
-    virtual BlockCipher& AccessEncryptionCipher() = 0;
+    virtual BlockCipher& AccessBlockCipher() = 0;
     virtual BlockCipher& AccessTweakCipher() = 0;
 
-    const BlockCipher& GetEncryptionCipher() const
-        {return const_cast<XTS_ModeBase*>(this)->AccessEncryptionCipher();}
+    const BlockCipher& GetBlockCipher() const
+        {return const_cast<XTS_ModeBase*>(this)->AccessBlockCipher();}
     const BlockCipher& GetTweakCipher() const
         {return const_cast<XTS_ModeBase*>(this)->AccessTweakCipher();}
 
@@ -106,7 +106,7 @@ public:
         {return std::string(CIPHER::StaticAlgorithmName()) + "/XTS";}
 
 protected:
-    BlockCipher& AccessEncryptionCipher()
+    BlockCipher& AccessBlockCipher()
         {return *m_cipher;}
     BlockCipher& AccessTweakCipher()
         {return m_tweaker;}
