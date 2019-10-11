@@ -194,6 +194,69 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
 
 size_t XTS_ModeBase::ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
 {
+    if (IsForwardTransformation())
+        return ProcessLastPlainBlock(outString, outLength, inString, inLength);
+    else
+        return ProcessLastCipherBlock(outString, outLength, inString, inLength);
+}
+
+size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
+{
+    // ensure output buffer is large enough
+    CRYPTOPP_ASSERT(outLength >= inLength);
+
+    const unsigned int blockSize = GetEncryptionCipher().BlockSize();
+    size_t i, j;
+
+    // need at least a full AES block
+    CRYPTOPP_ASSERT(inLength >= BlockSize());
+
+    // encrypt the tweak
+    // GetTweakCipher().ProcessBlock(m_register);
+
+    // now encrypt the data unit, AES_BLK_BYTES at a time
+    for (i=0; i+blockSize<=inLength; i+=blockSize)
+    {
+        // merge the tweak into the input block
+        xorbuf(m_workspace, inString+i, m_register, blockSize);
+
+        // encrypt one block
+        GetEncryptionCipher().ProcessBlock(m_workspace);
+
+        // merge the tweak into the output block
+        xorbuf(outString+i, m_workspace, m_register, blockSize);
+
+        // Multiply T by alpha
+        GF_Multiply(m_register, m_register.size());
+    }
+
+    // is there a final partial block to handle?
+    if (i < inLength)
+    {
+        for (j=0; i+j<inLength; j++)
+        {
+            // copy in the final plaintext bytes
+            m_workspace[j] = inString[i+j] ^ m_register[j];
+            // and copy out the final ciphertext bytes
+            outString[i+j] = outString[i+j-blockSize];
+        }
+
+        // "steal" ciphertext to complete the block
+        for (; j<blockSize; j++)
+            m_workspace[j] = outString[i+j-blockSize] ^ m_register[j];
+
+        // encrypt the final block
+        GetEncryptionCipher().ProcessBlock(m_workspace);
+
+        // merge the tweak into the output block
+        xorbuf(outString+i-blockSize, m_workspace, m_register, blockSize);
+    }
+
+    return inLength;
+}
+
+size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
+{
     // ensure output buffer is large enough
     CRYPTOPP_ASSERT(outLength >= inLength);
 

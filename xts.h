@@ -81,6 +81,9 @@ public:
 protected:
     virtual void ResizeBuffers();
 
+    inline size_t ProcessLastPlainBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
+    inline size_t ProcessLastCipherBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
+
     virtual BlockCipher& AccessEncryptionCipher() = 0;
     virtual BlockCipher& AccessTweakCipher() = 0;
 
