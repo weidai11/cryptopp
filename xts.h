@@ -32,7 +32,7 @@
 ///  block ciphers like Kaylna and Threefish since we know the polynomials.
 ///  To enable wide block ciphers define <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt>
 ///  to non-zero. Note this is a library compile time define.
-// \details There is risk involved with using XTS with wider block ciphers.
+/// \details There is risk involved with using XTS with wider block ciphers.
 ///  According to Phillip Rogaway, "The narrow width of the underlying PRP and
 ///  the poor treatment of fractional final blocks are problems."
 /// \sa <A HREF="https://web.cs.ucdavis.edu/~rogaway/papers/modes.pdf">Evaluation
