@@ -163,6 +163,16 @@ void XTS_ModeBase::Resynchronize(const byte *iv, int ivLength)
     GetTweakCipher().ProcessBlock(m_register);
 }
 
+void XTS_ModeBase::Resynchronize(word64 sector, ByteOrder order)
+{
+    SecByteBlock iv(GetTweakCipher().BlockSize());
+    PutWord<word64>(false, order, iv, sector);
+    std::memset(iv+8, 0x00, iv.size()-8);
+
+    BlockOrientedCipherModeBase::Resynchronize(iv, iv.size());
+    GetTweakCipher().ProcessBlock(m_register);
+}
+
 void XTS_ModeBase::ResizeBuffers()
 {
     BlockOrientedCipherModeBase::ResizeBuffers();
@@ -178,6 +188,7 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
 
     // encrypt the tweak
     // GetTweakCipher().ProcessBlock(m_register);
+    // Encrypted when the IV was set
 
     // now encrypt the data unit, AES_BLK_BYTES at a time
     for (size_t i=0; i<length; i+=blockSize)
@@ -186,10 +197,12 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
         xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
-        GetBlockCipher().ProcessBlock(m_workspace);
+        // GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        xorbuf(outString+i, m_workspace, m_register, blockSize);
+        //xorbuf(outString+i, m_workspace, m_register, blockSize);
+
+        GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i, blockSize, 0);
 
         // Multiply T by alpha
         GF_Double(m_register, m_register.size());
@@ -217,6 +230,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
 
     // encrypt the tweak
     // GetTweakCipher().ProcessBlock(m_register);
+    // Encrypted when the IV was set
 
     // now encrypt the data unit, AES_BLK_BYTES at a time
     for (i=0; i+blockSize<=inLength; i+=blockSize)
@@ -225,10 +239,12 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
-        GetBlockCipher().ProcessBlock(m_workspace);
+        //GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        xorbuf(outString+i, m_workspace, m_register, blockSize);
+        //xorbuf(outString+i, m_workspace, m_register, blockSize);
+
+        GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i, blockSize, 0);
 
         // Multiply T by alpha
         GF_Double(m_register, m_register.size());
@@ -252,10 +268,12 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         xorbuf(m_workspace, m_register, blockSize);
 
         // encrypt the final block
-        GetBlockCipher().ProcessBlock(m_workspace);
+        //GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        xorbuf(outString+i-blockSize, m_workspace, m_register, blockSize);
+        //xorbuf(outString+i-blockSize, m_workspace, m_register, blockSize);
+
+        GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i-blockSize, blockSize, 0);
     }
 
     return inLength;
@@ -274,6 +292,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
 
     // encrypt the tweak
     // GetTweakCipher().ProcessBlock(m_register);
+    // Encrypted when the IV was set
 
     // now encrypt the data unit, AES_BLK_BYTES at a time
     for (i=0; i+blockSize<=inLength; i+=blockSize)
@@ -282,10 +301,12 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
         xorbuf(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block
-        GetBlockCipher().ProcessBlock(m_workspace);
+        //GetBlockCipher().ProcessBlock(m_workspace);
 
         // merge the tweak into the output block
-        xorbuf(outString+i, m_workspace, m_register, blockSize);
+        //xorbuf(outString+i, m_workspace, m_register, blockSize);
+
+        GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i, blockSize, 0);
 
         // Multiply T by alpha
         GF_Double(m_register, m_register.size());
