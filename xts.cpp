@@ -15,18 +15,36 @@
 ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::byte;
+using CryptoPP::word32;
+using CryptoPP::word64;
+using CryptoPP::GetWord;
+using CryptoPP::PutWord;
 using CryptoPP::IsPowerOf2;
+using CryptoPP::BIG_ENDIAN_ORDER;
+using CryptoPP::LITTLE_ENDIAN_ORDER;
 
 // Borrowed from CMAC, but little-endian representation
 inline void GF_Multiply(byte *k, unsigned int len)
 {
-    byte Cin = 0, Cout;
-    for (unsigned int j=0; j<len; j++)
+#if defined(_LP64) || defined(__LP64__)
+    word64 carry = 0, x;
+    for (size_t i=0, idx=0; i<len/8; ++i, idx+=8)
     {
-        Cout =  (k[j] >> 7) & 1;
-        k[j] = ((k[j] << 1) + Cin) & 0xFF;
-        Cin  =  Cout;
+        x = GetWord<word64>(false, LITTLE_ENDIAN_ORDER, k+idx);
+        word64 y = (x >> 63); x = (x << 1) + carry;
+        PutWord<word64>(false, LITTLE_ENDIAN_ORDER, k+idx, x);
+        carry = y;
     }
+#else
+    word32 carry = 0, x;
+    for (size_t i=0, idx=0; i<len/4; ++i, idx+=4)
+    {
+        x = GetWord<word32>(false, LITTLE_ENDIAN_ORDER, k+idx);
+        word32 y = (x >> 31); x = (x << 1) + carry;
+        PutWord<word32>(false, LITTLE_ENDIAN_ORDER, k+idx, x);
+        carry = y;
+    }
+#endif
 
 #if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
 
@@ -35,13 +53,13 @@ inline void GF_Multiply(byte *k, unsigned int len)
     CRYPTOPP_ASSERT(len <= 128);
 
     // Special case the dominant case
-    if (Cout && len == 16)
+    if (carry && len == 16)
     {
         k[0] ^= 0x87;
         return;
     }
 
-    if (Cout)
+    if (carry)
     {
         switch (len)
         {
@@ -92,7 +110,7 @@ inline void GF_Multiply(byte *k, unsigned int len)
 #else
     CRYPTOPP_ASSERT(len == 16);
 
-    if (Cout)
+    if (carry)
     {
         k[0] ^= 0x87;
         return;
