@@ -8,8 +8,8 @@
 #include "argnames.h"
 
 #if defined(CRYPTOPP_DEBUG)
-#include "aes.h"
-#include "threefish.h"
+# include "aes.h"
+# include "threefish.h"
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -24,7 +24,7 @@ using CryptoPP::BIG_ENDIAN_ORDER;
 using CryptoPP::LITTLE_ENDIAN_ORDER;
 
 // Borrowed from CMAC, but little-endian representation
-inline void GF_Multiply(byte *k, unsigned int len)
+inline void GF_Double(byte *k, unsigned int len)
 {
 #if defined(_LP64) || defined(__LP64__)
     word64 carry = 0, x;
@@ -142,20 +142,6 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if 0
-void XTS_ModeBase::UncheckedSetKey(const byte *key, unsigned int length, const NameValuePairs &params)
-{
-    SetKey(key, length, params);
-    ResizeBuffers();
-    if (IsResynchronizable())
-    {
-        size_t ivLength;
-        const byte *iv = GetIVAndThrowIfInvalid(params, ivLength);
-        Resynchronize(iv, (int)ivLength);
-    }
-}
-#endif
-
 void XTS_ModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(length % 2 == 0);
@@ -206,7 +192,7 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
         xorbuf(outString+i, m_workspace, m_register, blockSize);
 
         // Multiply T by alpha
-        GF_Multiply(m_register, m_register.size());
+        GF_Double(m_register, m_register.size());
     }
 }
 
@@ -245,7 +231,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         xorbuf(outString+i, m_workspace, m_register, blockSize);
 
         // Multiply T by alpha
-        GF_Multiply(m_register, m_register.size());
+        GF_Double(m_register, m_register.size());
     }
 
     // is there a final partial block to handle?
@@ -254,14 +240,16 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         for (j=0; i+j<inLength; j++)
         {
             // copy in the final plaintext bytes
-            m_workspace[j] = inString[i+j] ^ m_register[j];
+            m_workspace[j] = inString[i+j];
             // and copy out the final ciphertext bytes
             outString[i+j] = outString[i+j-blockSize];
         }
 
         // "steal" ciphertext to complete the block
         for (; j<blockSize; j++)
-            m_workspace[j] = outString[i+j-blockSize] ^ m_register[j];
+            m_workspace[j] = outString[i+j-blockSize];
+
+        xorbuf(m_workspace, m_register, blockSize);
 
         // encrypt the final block
         GetEncryptionCipher().ProcessBlock(m_workspace);
@@ -300,7 +288,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
         xorbuf(outString+i, m_workspace, m_register, blockSize);
 
         // Multiply T by alpha
-        GF_Multiply(m_register, m_register.size());
+        GF_Double(m_register, m_register.size());
     }
 
     // is there a final partial block to handle?
