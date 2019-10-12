@@ -237,7 +237,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         const size_t head = (blocks-1)*blockSize;
         ProcessData(outString, inString, inLength-head);
 
-        outString += head; outLength -= head;
+        outString += head;
         inString  += head; inLength  -= head;
     }
 
@@ -298,7 +298,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
         const size_t head = (blocks-1)*blockSize;
         ProcessData(outString, inString, inLength-head);
 
-        outString += head; outLength -= head;
+        outString += head;
         inString  += head; inLength  -= head;
     }
 
