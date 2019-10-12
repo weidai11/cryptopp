@@ -65,6 +65,8 @@ public:
     bool IsValidKeyLength(size_t keylength) const
         {return keylength == GetValidKeyLength(keylength);}
 
+    /// Provides the block size of the cipher
+    /// \return the block size of the cipher, in bytes
     unsigned int BlockSize() const
         {return GetBlockCipher().BlockSize();}
     unsigned int MinLastBlockSize() const
