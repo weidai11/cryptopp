@@ -50,7 +50,7 @@ protected:
 
 	std::string AlgorithmProvider() const;
 
-	CRYPTOPP_CONSTANT(ROUNDS = 20)  // Default rounds;
+	CRYPTOPP_CONSTANT(ROUNDS = 20);  // Default rounds
 	FixedSizeAlignedSecBlock<word32, 16> m_state;
 	int m_rounds;
 };
