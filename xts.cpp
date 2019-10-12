@@ -223,7 +223,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const unsigned int blocks = inLength / blockSize;
     const unsigned int tail = inLength % blockSize;
-    const size_t length = inLength;
+    outLength = inLength;
 
     if (tail == 0)
     {
@@ -271,7 +271,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     // encrypt the final block, merge the tweak into the output block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString-blockSize, blockSize, 0);
 
-    return length;
+    return outLength;
 }
 
 size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
@@ -284,7 +284,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const unsigned int blocks = inLength / blockSize;
     const unsigned int tail = inLength % blockSize;
-    const size_t length = inLength;
+    outLength = inLength;
 
     if (tail == 0)
     {
@@ -336,7 +336,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     // encrypt one block, merge the tweak into the input block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly1, outString, blockSize, 0);
 
-    return length;
+    return outLength;
 }
 
 NAMESPACE_END
