@@ -346,6 +346,7 @@
     <ClCompile Include="xed25519.cpp" />
     <ClCompile Include="xtr.cpp" />
     <ClCompile Include="xtrcrypt.cpp" />
+    <ClCompile Include="xts.cpp" />
     <ClCompile Include="zdeflate.cpp" />
     <ClCompile Include="zinflate.cpp" />
     <ClCompile Include="zlib.cpp" />
@@ -568,6 +569,7 @@
     <ClInclude Include="xed25519.h" />
     <ClInclude Include="xtr.h" />
     <ClInclude Include="xtrcrypt.h" />
+    <ClInclude Include="xts.h" />
     <ClInclude Include="zdeflate.h" />
     <ClInclude Include="zinflate.h" />
     <ClInclude Include="zlib.h" />

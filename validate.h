@@ -117,6 +117,7 @@ bool ValidateSosemanuk();
 bool ValidateVMAC();
 bool ValidateCCM();
 bool ValidateGCM();
+bool ValidateXTS();
 bool ValidateCMAC();
 
 bool ValidateBBS();

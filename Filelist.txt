@@ -410,6 +410,8 @@ xtr.cpp
 xtr.h
 xtrcrypt.cpp
 xtrcrypt.h
+xts.cpp
+xts.h
 zdeflate.cpp
 zdeflate.h
 zinflate.cpp
@@ -576,6 +578,7 @@ TestVectors/vmac.txt
 TestVectors/wake.txt
 TestVectors/whrlpool.txt
 TestVectors/xchacha.txt
+TestVectors/xts.txt
 TestPrograms/test_32bit.cxx
 TestPrograms/test_64bit.cxx
 TestPrograms/test_arm_acle.cxx

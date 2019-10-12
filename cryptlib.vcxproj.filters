@@ -518,6 +518,9 @@
     <ClCompile Include="xtrcrypt.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="xts.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="zdeflate.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -1051,6 +1054,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="xtrcrypt.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="xts.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zdeflate.h">

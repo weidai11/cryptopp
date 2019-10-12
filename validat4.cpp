@@ -1860,6 +1860,12 @@ bool ValidateGCM()
 	return RunTestDataFile("TestVectors/gcm.txt", MakeParameters(Name::TableSize(), (int)64*1024)) && pass;
 }
 
+bool ValidateXTS()
+{
+	std::cout << "\nAES/XTS validation suite running...\n";
+	return RunTestDataFile("TestVectors/xts.txt");
+}
+
 bool ValidateCMAC()
 {
 	std::cout << "\nCMAC validation suite running...\n";

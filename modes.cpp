@@ -213,7 +213,7 @@ size_t CBC_CTS_Encryption::ProcessLastBlock(byte *outString, size_t outLength, c
 	const size_t used = inLength;
 	const unsigned int blockSize = BlockSize();
 
-	if (inLength <= BlockSize())
+	if (inLength <= blockSize)
 	{
 		if (!m_stolenIV)
 			throw InvalidArgument("CBC_Encryption: message is too short for ciphertext stealing");
