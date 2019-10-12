@@ -75,9 +75,15 @@ public:
     void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
     IV_Requirement IVRequirement() const {return UNIQUE_IV;}
     void Resynchronize(const byte *iv, int ivLength=-1);
-    void Resynchronize(word64 sector, ByteOrder order=BIG_ENDIAN_ORDER);
     void ProcessData(byte *outString, const byte *inString, size_t length);
     size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
+
+    /// \brief Resynchronize the cipher
+    /// \param sector a 64-bit sector number
+    /// \param order the endian order the word should be written
+    /// \details The Resynchronize() overload was provided for API
+    ///  compatibility with the IEEE P1619 paper.
+    void Resynchronize(word64 sector, ByteOrder order=BIG_ENDIAN_ORDER);
 
 protected:
     virtual void ResizeBuffers();
