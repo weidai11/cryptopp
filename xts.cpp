@@ -5,7 +5,6 @@
 #include "xts.h"
 #include "misc.h"
 #include "modes.h"
-#include "argnames.h"
 
 #if defined(CRYPTOPP_DEBUG)
 # include "aes.h"
