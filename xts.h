@@ -109,7 +109,7 @@ template <class CIPHER>
 class CRYPTOPP_NO_VTABLE XTS_Final : public XTS_ModeBase
 {
 public:
-    CRYPTOPP_STATIC_CONSTEXPR std::string CRYPTOPP_API StaticAlgorithmName()
+    std::string CRYPTOPP_API StaticAlgorithmName()
         {return std::string(CIPHER::StaticAlgorithmName()) + "/XTS";}
 
 protected:
