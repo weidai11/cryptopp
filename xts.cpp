@@ -218,7 +218,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const unsigned int blocks = inLength / blockSize;
     const unsigned int tail = inLength % blockSize;
-    size_t i=0, j=0, length = inLength;
+    const size_t length = inLength;
 
     if (tail == 0)
     {
@@ -236,35 +236,35 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
         inString  += head; inLength  -= head;
     }
 
+    ///// handle the full block /////
+
     // merge the tweak into the input block
-    xorbuf(m_workspace, inString+i, m_register, blockSize);
+    xorbuf(m_workspace, inString, m_register, blockSize);
 
     // encrypt one block, merge the tweak into the output block
-    GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i, blockSize, 0);
+    GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString, blockSize, 0);
 
     // Multiply T by alpha
     GF_Double(m_register, m_register.size());
 
-    i+=blockSize;
+    ///// handle final partial block /////
 
-    // handle final partial block
+    inString += blockSize;
+    outString += blockSize;
+    const size_t len = inLength-blockSize;
 
-    for (j=0; i+j<inLength; j++)
-    {
-        // copy in the final plaintext bytes
-        m_workspace[j] = inString[i+j];
-        // and copy out the final ciphertext bytes
-        outString[i+j] = outString[i+j-blockSize];
-    }
-
+    // copy in the final plaintext bytes
+    std::memcpy(m_workspace, inString, len);
+    // and copy out the final ciphertext bytes
+    std::memcpy(outString, outString-blockSize, len);
     // "steal" ciphertext to complete the block
-    for (; j<blockSize; j++)
-        m_workspace[j] = outString[i+j-blockSize];
+    std::memcpy(m_workspace+len, outString-blockSize+len, blockSize-len);
 
+    // merge the tweak into the input block
     xorbuf(m_workspace, m_register, blockSize);
 
     // encrypt the final block, merge the tweak into the output block
-    GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i-blockSize, blockSize, 0);
+    GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString-blockSize, blockSize, 0);
 
     return length;
 }
@@ -279,7 +279,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const unsigned int blocks = inLength / blockSize;
     const unsigned int tail = inLength % blockSize;
-    size_t i=0, j=0, length = inLength;
+    const size_t length = inLength;
 
     if (tail == 0)
     {
@@ -301,35 +301,35 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     SecByteBlock poly2(m_register);
     GF_Double(poly2, poly2.size());
 
-    i+=blockSize;
+    ///// handle final partial block /////
 
-    // handle final partial block
+    inString += blockSize;
+    outString += blockSize;
+    const size_t len = inLength-blockSize;
 
     // merge the tweak into the input block
-    xorbuf(m_workspace, inString+i-blockSize, poly2, blockSize);
+    xorbuf(m_workspace, inString-blockSize, poly2, blockSize);
 
     // encrypt one block, merge the tweak into the output block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly2, m_workspace, blockSize, 0);
 
-    for (j=0; i+j<inLength; j++)
-    {
-        // copy in the final plaintext bytes
-        outString[i+j-blockSize] = inString[i+j];
-        // and copy out the final ciphertext bytes
-        outString[i+j] = m_workspace[j];
-    }
-
+    // copy in the final plaintext bytes
+    std::memcpy(outString-blockSize, inString, len);
+    // and copy out the final ciphertext bytes
+    std::memcpy(outString, m_workspace, len);
     // "steal" ciphertext to complete the block
-    for (; j<blockSize; j++)
-        outString[i+j-blockSize] = m_workspace[j];
+    std::memcpy(outString-blockSize+len, m_workspace+len, blockSize-len);
 
-    // handle the full previous block
+    ///// handle the full previous block /////
+
+    inString -= blockSize;
+    outString -= blockSize;
 
     // merge the tweak into the output block
-    xorbuf(m_workspace, outString+i-blockSize, poly1, blockSize);
+    xorbuf(m_workspace, outString, poly1, blockSize);
 
     // encrypt one block, merge the tweak into the input block
-    GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly1, outString+i-blockSize, blockSize, 0);
+    GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly1, outString, blockSize, 0);
 
     return length;
 }
