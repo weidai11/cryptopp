@@ -145,6 +145,12 @@ void XTS_ModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &
 {
     CRYPTOPP_ASSERT(length % 2 == 0);
 
+#if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS == 0)
+    CRYPTOPP_ASSERT(BlockSize() == 16);
+    if (BlockSize() != 16)
+        throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
+#endif
+
     const size_t klen = length/2;
     AccessBlockCipher().SetKey(key+0, klen, params);
     AccessTweakCipher().SetKey(key+klen, klen, params);
