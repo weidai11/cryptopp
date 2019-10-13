@@ -11,16 +11,94 @@
 # include "threefish.h"
 #endif
 
+// 0.3 to 0.4 cpb profit
+#if defined(__SSE2__)
+# include <immintrin.h>
+#endif
+
+// C1189: error: This header is specific to ARM targets
+#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+# include "adv_simd.h"
+# ifndef _M_ARM64
+#  include <arm_neon.h>
+# endif
+#endif
+
+// Clang intrinsic casts
+#define M128_CAST(x) ((__m128i *)(void *)(x))
+#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+
 ANONYMOUS_NAMESPACE_BEGIN
 
-using CryptoPP::byte;
-using CryptoPP::word32;
-using CryptoPP::word64;
-using CryptoPP::GetWord;
-using CryptoPP::PutWord;
-using CryptoPP::IsPowerOf2;
-using CryptoPP::BIG_ENDIAN_ORDER;
-using CryptoPP::LITTLE_ENDIAN_ORDER;
+using namespace CryptoPP;
+
+// Aarch32, Aarch64, Altivec and X86_64 include SIMD as part of the
+// base architecture. We can use the SIMD code below without an
+// architecture option. No runtime tests are required. Unfortunately,
+// we can't use it on Altivec because an architecture switch is required.
+// The updated XorBuffer gains 0.3 to 1.5 cpb on the architectures for
+// 16-byte block sizes. count must be a multiple of 16 since SIMD words
+// are used.
+inline void XorBuffer(byte *buf, const byte *mask, size_t count)
+{
+    CRYPTOPP_ASSERT(count >= 0 && (count % 16 == 0));
+
+#if defined(__SSE2__) || defined(_M_X64)
+    #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS)
+    for (size_t i=0; i<count; i+=16)
+        _mm_storeu_si128(M128_CAST(buf+i), _mm_xor_si128(
+            _mm_loadu_si128(CONST_M128_CAST(mask+i)), _mm_loadu_si128(CONST_M128_CAST(buf+i))));
+    #else
+        _mm_storeu_si128(M128_CAST(buf), _mm_xor_si128(
+            _mm_loadu_si128(CONST_M128_CAST(mask)), _mm_loadu_si128(CONST_M128_CAST(buf))));
+    #endif
+
+#elif defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+    #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS)
+    for (size_t i=0; i<count; i+=16)
+        vst1q_u8(buf+i, veorq_u8(vld1q_u8(mask+i), vld1q_u8(buf+i)));
+    #else
+        vst1q_u8(buf, veorq_u8(vld1q_u8(mask), vld1q_u8(buf)));
+    #endif
+
+#else
+    xorbuf(buf, mask, count);
+#endif
+}
+
+// Aarch32, Aarch64, Altivec and X86_64 include SIMD as part of the
+// base architecture. We can use the SIMD code below without an
+// architecture option. No runtime tests are required. Unfortunately,
+// we can't use it on Altivec because an architecture switch is required.
+// The updated XorBuffer gains 0.3 to 1.5 cpb on the architectures for
+// 16-byte block sizes. count must be a multiple of 16 since SIMD words
+// are used.
+inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t count)
+{
+    CRYPTOPP_ASSERT(count >= 0 && (count % 16 == 0));
+
+#if defined(__SSE2__) || defined(_M_X64)
+    #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS)
+    for (size_t i=0; i<count; i+=16)
+        _mm_storeu_si128(M128_CAST(output+i), _mm_xor_si128(
+            _mm_loadu_si128(CONST_M128_CAST(input+i)), _mm_loadu_si128(CONST_M128_CAST(mask+i))));
+    #else
+        _mm_storeu_si128(M128_CAST(output), _mm_xor_si128(
+            _mm_loadu_si128(CONST_M128_CAST(input)), _mm_loadu_si128(CONST_M128_CAST(mask))));
+    #endif
+
+#elif defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+    #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS)
+    for (size_t i=0; i<count; i+=16)
+        vst1q_u8(output+i, veorq_u8(vld1q_u8(input+i), vld1q_u8(mask+i)));
+    #else
+        vst1q_u8(buoutputf, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
+    #endif
+
+#else
+    xorbuf(output, input, mask, count);
+#endif
+}
 
 // Borrowed from CMAC, but little-endian representation
 inline void GF_Double(byte *k, unsigned int len)
@@ -48,26 +126,13 @@ inline void GF_Double(byte *k, unsigned int len)
 #if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
 
     CRYPTOPP_ASSERT(IsPowerOf2(len));
-    CRYPTOPP_ASSERT(len >= 8);
+    CRYPTOPP_ASSERT(len >= 16);
     CRYPTOPP_ASSERT(len <= 128);
-
-    // Special case the dominant case
-    if (carry && len == 16)
-    {
-        k[0] ^= 0x87;
-        return;
-    }
 
     if (carry)
     {
         switch (len)
         {
-        case 8:
-        {
-            const size_t LEIDX = 8-1;
-            k[LEIDX-7] ^= 0x1b;
-            break;
-        }
         case 16:
         {
             const size_t LEIDX = 16-1;
@@ -195,7 +260,7 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
     for (size_t i=0; i<length; i+=blockSize)
     {
         // merge the tweak into the input block
-        xorbuf(m_workspace, inString+i, m_register, blockSize);
+        XorBuffer(m_workspace, inString+i, m_register, blockSize);
 
         // encrypt one block, merge the tweak into the output block
         GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString+i, blockSize, 0);
@@ -244,7 +309,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     ///// handle the full block /////
 
     // merge the tweak into the input block
-    xorbuf(m_workspace, inString, m_register, blockSize);
+    XorBuffer(m_workspace, inString, m_register, blockSize);
 
     // encrypt one block, merge the tweak into the output block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString, blockSize, 0);
@@ -266,7 +331,7 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     std::memcpy(m_workspace+len, outString-blockSize+len, blockSize-len);
 
     // merge the tweak into the input block
-    xorbuf(m_workspace, m_register, blockSize);
+    XorBuffer(m_workspace, m_register, blockSize);
 
     // encrypt the final block, merge the tweak into the output block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString-blockSize, blockSize, 0);
@@ -313,7 +378,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     const size_t len = inLength-blockSize;
 
     // merge the tweak into the input block
-    xorbuf(m_workspace, inString-blockSize, poly2, blockSize);
+    XorBuffer(m_workspace, inString-blockSize, poly2, blockSize);
 
     // encrypt one block, merge the tweak into the output block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly2, m_workspace, blockSize, 0);
@@ -331,7 +396,7 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     outString -= blockSize;
 
     // merge the tweak into the output block
-    xorbuf(m_workspace, outString, poly1, blockSize);
+    XorBuffer(m_workspace, outString, poly1, blockSize);
 
     // encrypt one block, merge the tweak into the input block
     GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly1, outString, blockSize, 0);
