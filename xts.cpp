@@ -1,4 +1,12 @@
 // xts.cpp - written and placed in the public domain by Jeffrey Walton
+//
+// The best performance is achieved on machines with AES hardware acceleration.
+// However, 64-bit machines without hardware acceleration profit the most with
+// separate calls to ProcessBlock followed by XorBuffer rather than a single
+// call to AdvancedProcessBlocks. That's because we did not parallelize, and
+// XorBuffer uses SSE2 and ASIMD when available. Parallelizing slowed things
+// down due to copying m_register for GF_Double. XorBuffer profits without
+// AESNI and friends since XorBuffer only uses load, store and xor.
 
 #include "pch.h"
 
@@ -327,12 +335,10 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     // merge the tweak into the input block
     XorBuffer(m_workspace, inString, m_register, blockSize);
 
-    // encrypt one block, merge the tweak into the output block
-    // GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString, blockSize, 0);
-
+    // encrypt one block
     GetBlockCipher().ProcessBlock(m_workspace);
 
-    // merge the tweak into the input block
+    // merge the tweak into the output block
     XorBuffer(outString, m_workspace, m_register, blockSize);
 
     // Multiply T by alpha
@@ -354,8 +360,11 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
     // merge the tweak into the input block
     XorBuffer(m_workspace, m_register, blockSize);
 
-    // encrypt the final block, merge the tweak into the output block
-    GetBlockCipher().AdvancedProcessBlocks(m_workspace, m_register, outString-blockSize, blockSize, 0);
+    // encrypt one block
+    GetBlockCipher().ProcessBlock(m_workspace);
+
+    // merge the tweak into the previous output block
+    XorBuffer(outString-blockSize, m_workspace, m_register, blockSize);
 
     return outLength;
 }
@@ -399,9 +408,6 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     // merge the tweak into the input block
     XorBuffer(m_workspace, inString-blockSize, poly2, blockSize);
 
-    // encrypt one block, merge the tweak into the output block
-    // GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly2, m_workspace, blockSize, 0);
-
     // encrypt one block
     GetBlockCipher().ProcessBlock(m_workspace);
 
@@ -420,11 +426,8 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
     inString -= blockSize;
     outString -= blockSize;
 
-    // merge the tweak into the output block
+    // merge the tweak into the input block
     XorBuffer(m_workspace, outString, poly1, blockSize);
-
-    // encrypt one block, merge the tweak into the input block
-    // GetBlockCipher().AdvancedProcessBlocks(m_workspace, poly1, outString, blockSize, 0);
 
     // encrypt one block
     GetBlockCipher().ProcessBlock(m_workspace);
