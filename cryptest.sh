@@ -252,6 +252,7 @@ fi
 if [[ (-z "$TMPDIR") ]]; then
 	if [[ (-d "/tmp") ]] && [[ $(touch "/tmp/ok-to-delete" &>/dev/null) ]]; then
 		TMPDIR=/tmp
+		rm -f "/tmp/ok-to-delete"
 	elif [[ (-d "/temp") ]]; then
 		TMPDIR=/temp
 	elif [[ (-d "$HOME/tmp") ]]; then
