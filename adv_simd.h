@@ -81,11 +81,11 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using CryptoPP::BlockTransformation;
 
-CRYPTOPP_CONSTANT(BT_XorInput = BlockTransformation::BT_XorInput);
-CRYPTOPP_CONSTANT(BT_AllowParallel = BlockTransformation::BT_AllowParallel);
-CRYPTOPP_CONSTANT(BT_InBlockIsCounter = BlockTransformation::BT_InBlockIsCounter);
-CRYPTOPP_CONSTANT(BT_ReverseDirection = BlockTransformation::BT_ReverseDirection);
-CRYPTOPP_CONSTANT(BT_DontIncrementInOutPointers = BlockTransformation::BT_DontIncrementInOutPointers);
+CRYPTOPP_CONSTANT(BT_XorInput = BlockTransformation::BT_XorInput);
+CRYPTOPP_CONSTANT(BT_AllowParallel = BlockTransformation::BT_AllowParallel);
+CRYPTOPP_CONSTANT(BT_InBlockIsCounter = BlockTransformation::BT_InBlockIsCounter);
+CRYPTOPP_CONSTANT(BT_ReverseDirection = BlockTransformation::BT_ReverseDirection);
+CRYPTOPP_CONSTANT(BT_DontIncrementInOutPointers = BlockTransformation::BT_DontIncrementInOutPointers);
 
 ANONYMOUS_NAMESPACE_END
 
