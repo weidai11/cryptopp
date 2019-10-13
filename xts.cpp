@@ -279,6 +279,12 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
 
 size_t XTS_ModeBase::ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
 {
+    // need at least a full AES block
+    CRYPTOPP_ASSERT(inLength >= BlockSize());
+
+    if (inLength < BlockSize())
+        throw InvalidArgument("XTS: message is too short for ciphertext stealing");
+
     if (IsForwardTransformation())
         return ProcessLastPlainBlock(outString, outLength, inString, inLength);
     else
@@ -289,8 +295,6 @@ size_t XTS_ModeBase::ProcessLastPlainBlock(byte *outString, size_t outLength, co
 {
     // ensure output buffer is large enough
     CRYPTOPP_ASSERT(outLength >= inLength);
-    // need at least a full AES block
-    CRYPTOPP_ASSERT(inLength >= BlockSize());
 
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const unsigned int blocks = inLength / blockSize;
@@ -350,8 +354,6 @@ size_t XTS_ModeBase::ProcessLastCipherBlock(byte *outString, size_t outLength, c
 {
     // ensure output buffer is large enough
     CRYPTOPP_ASSERT(outLength >= inLength);
-    // need at least a full AES block
-    CRYPTOPP_ASSERT(inLength >= BlockSize());
 
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const unsigned int blocks = inLength / blockSize;
