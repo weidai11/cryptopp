@@ -92,7 +92,7 @@ inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t 
     for (size_t i=0; i<count; i+=16)
         vst1q_u8(output+i, veorq_u8(vld1q_u8(input+i), vld1q_u8(mask+i)));
     #else
-        vst1q_u8(buoutputf, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
+        vst1q_u8(output, veorq_u8(vld1q_u8(input), vld1q_u8(mask)));
     #endif
 
 #else
