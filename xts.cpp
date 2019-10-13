@@ -206,9 +206,16 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
+void XTS_ModeBase::ThrowIfInvalidKeyLength(size_t length)
+{
+    if (!AccessBlockCipher().IsValidKeyLength((length+1)/2))
+        throw InvalidKeyLength(AlgorithmName(), length);
+}
+
 void XTS_ModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(length % 2 == 0);
+    ThrowIfInvalidKeyLength(length);
 
 #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS == 0)
     CRYPTOPP_ASSERT(BlockSize() == 16);

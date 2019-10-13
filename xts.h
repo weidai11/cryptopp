@@ -61,9 +61,10 @@ public:
     size_t DefaultKeyLength() const
         {return GetBlockCipher().DefaultKeyLength()*2;}
     size_t GetValidKeyLength(size_t n) const
-        {return GetBlockCipher().GetValidKeyLength((n+1)/2);}
+        {return 2*GetBlockCipher().GetValidKeyLength((n+1)/2);}
     bool IsValidKeyLength(size_t keylength) const
         {return keylength == GetValidKeyLength(keylength);}
+    void ThrowIfInvalidKeyLength(size_t length);
 
     /// Provides the block size of the cipher
     /// \return the block size of the cipher, in bytes
@@ -111,8 +112,8 @@ template <class CIPHER>
 class CRYPTOPP_NO_VTABLE XTS_Final : public XTS_ModeBase
 {
 public:
-    static std::string CRYPTOPP_API StaticAlgorithmName()
-        {return std::string(CIPHER::StaticAlgorithmName()) + "/XTS";}
+    static const char* CRYPTOPP_API StaticAlgorithmName()
+        {return "XTS";}
 
 protected:
     BlockCipher& AccessBlockCipher()
