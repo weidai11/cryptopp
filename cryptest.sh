@@ -925,6 +925,12 @@ elif [[ (-e "/proc/cpuinfo") && (-e "/proc/meminfo") ]]; then
 elif [[ "$IS_DARWIN" -ne 0 ]]; then
 	CPU_COUNT="$(sysctl -a 2>&1 | $GREP "hw.availcpu" | $AWK '{print $3; exit}')"
 	MEM_SIZE="$(sysctl -a 2>&1 | $GREP "hw.memsize" | $AWK '{print int($3/1024/1024); exit;}')"
+	if [[ -z "$CPU_COUNT" ]]; then
+		CPU_COUNT="$(sysctl -a 2>&1 | $GREP "hw.activecpu" | $AWK '{print $2; exit}')"
+	fi
+	if [[ (-z "$MEM_SIZE") || ("$MEM_SIZE" -eq 0) ]]; then
+		MEM_SIZE="$(sysctl -a 2>&1 | $GREP "hw.memsize" | $AWK '{print int($2/1024/1024); exit;}')"
+	fi
 elif [[ "$IS_SOLARIS" -ne 0 ]]; then
 	CPU_COUNT="$(psrinfo 2>/dev/null | wc -l | $AWK '{print $1}')"
 	MEM_SIZE="$(prtconf 2>/dev/null | $GREP "Memory" | $AWK '{print int($3)}')"
@@ -945,6 +951,10 @@ elif [[ (-e "/proc/cpuinfo") ]]; then
 elif [[ "$IS_DARWIN" -ne 0 ]]; then
 	CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print ($3); exit;}')"
 	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
+	if [[ (-z "$CPU_FREQ") || ("$CPU_FREQ" -eq 0) ]]; then
+		CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print ($2); exit;}')"
+		CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
+	fi
 elif [[ "$IS_SOLARIS" -ne 0 ]]; then
 	CPU_FREQ="$(psrinfo -v 2>/dev/null | $GREP "MHz" | $AWK '{print $6; exit;}')"
 	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024}')"
