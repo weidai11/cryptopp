@@ -950,10 +950,10 @@ elif [[ (-e "/proc/cpuinfo") ]]; then
 	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024}')"
 elif [[ "$IS_DARWIN" -ne 0 ]]; then
 	CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print int($3); exit;}')"
-	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
+	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print int($0/1024/1024/1024)}')"
 	if [[ (-z "$CPU_FREQ") || ("$CPU_FREQ" -eq 0) ]]; then
 		CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print int($2); exit;}')"
-		CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
+		CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print int($0/1024/1024/1024)}')"
 	fi
 elif [[ "$IS_SOLARIS" -ne 0 ]]; then
 	CPU_FREQ="$(psrinfo -v 2>/dev/null | $GREP "MHz" | $AWK '{print $6; exit;}')"
