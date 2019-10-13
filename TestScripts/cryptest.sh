@@ -949,10 +949,10 @@ elif [[ (-e "/proc/cpuinfo") ]]; then
 	if [[ -z "$CPU_FREQ" ]]; then CPU_FREQ=512; fi
 	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024}')"
 elif [[ "$IS_DARWIN" -ne 0 ]]; then
-	CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print ($3); exit;}')"
+	CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print int($3); exit;}')"
 	CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
 	if [[ (-z "$CPU_FREQ") || ("$CPU_FREQ" -eq 0) ]]; then
-		CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print ($2); exit;}')"
+		CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print int($2); exit;}')"
 		CPU_FREQ="$(echo $CPU_FREQ | $AWK '{print $0/1024/1024/1024}')"
 	fi
 elif [[ "$IS_SOLARIS" -ne 0 ]]; then
