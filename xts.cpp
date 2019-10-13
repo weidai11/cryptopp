@@ -42,6 +42,7 @@ using namespace CryptoPP;
 inline void XorBuffer(byte *buf, const byte *mask, size_t count)
 {
     CRYPTOPP_ASSERT(count >= 16 && (count % 16 == 0));
+    CRYPTOPP_UNUSED(count);
 
 #if defined(__SSE2__) || defined(_M_X64)
     #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS)
@@ -76,6 +77,7 @@ inline void XorBuffer(byte *buf, const byte *mask, size_t count)
 inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t count)
 {
     CRYPTOPP_ASSERT(count >= 16 && (count % 16 == 0));
+    CRYPTOPP_UNUSED(count);
 
 #if defined(__SSE2__) || defined(_M_X64)
     #if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS)
