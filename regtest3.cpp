@@ -68,7 +68,7 @@ void RegisterFactories4()
 	RegisterSymmetricCipherDefaultFactories<CFB_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<OFB_Mode<AES> >();
 	RegisterSymmetricCipherDefaultFactories<CTR_Mode<AES> >();
-	RegisterSymmetricCipherDefaultFactories<XTS_Mode<AES> >("AES/XTS");
+	RegisterSymmetricCipherDefaultFactories<XTS_Mode<AES> >();
 
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<CCM<AES> >();
 	RegisterAuthenticatedSymmetricCipherDefaultFactories<GCM<AES> >();
