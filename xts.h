@@ -49,6 +49,8 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_NO_VTABLE XTS_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
+    virtual ~XTS_ModeBase() {}
+
     std::string AlgorithmName() const
         {return GetBlockCipher().AlgorithmName() + "/XTS";}
     std::string AlgorithmProvider() const
@@ -70,6 +72,8 @@ public:
     /// \return the block size of the cipher, in bytes
     unsigned int BlockSize() const
         {return GetBlockCipher().BlockSize();}
+    unsigned int GetOptimalBlockSize() const
+        {return GetBlockCipher().BlockSize()*ParallelBlocks;}
     unsigned int MinLastBlockSize() const
         {return GetBlockCipher().BlockSize()+1;}
     unsigned int OptimalDataAlignment() const
@@ -102,7 +106,10 @@ protected:
     const BlockCipher& GetTweakCipher() const
         {return const_cast<XTS_ModeBase*>(this)->AccessTweakCipher();}
 
-    SecByteBlock m_workspace;
+    SecByteBlock m_xregister;
+    SecByteBlock m_xworkspace;
+
+    enum {ParallelBlocks = 4};
 };
 
 /// \brief XTS block cipher mode of operation implementation details
@@ -112,7 +119,7 @@ template <class CIPHER>
 class CRYPTOPP_NO_VTABLE XTS_Final : public XTS_ModeBase
 {
 public:
-    static const char* CRYPTOPP_API StaticAlgorithmName()
+    CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
         {return "XTS";}
 
 protected:
