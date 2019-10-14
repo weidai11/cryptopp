@@ -78,6 +78,7 @@ public:
         {return GetBlockCipher().BlockSize()+1;}
     unsigned int OptimalDataAlignment() const
         {return GetBlockCipher().OptimalDataAlignment();}
+    void ThrowIfInvalidBlockSize(size_t length);
 
     void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
     IV_Requirement IVRequirement() const {return UNIQUE_IV;}
@@ -106,13 +107,14 @@ protected:
     const BlockCipher& GetTweakCipher() const
         {return const_cast<XTS_ModeBase*>(this)->AccessTweakCipher();}
 
+    // Buffers are sized based on ParallelBlocks
     SecByteBlock m_xregister;
     SecByteBlock m_xworkspace;
 
     enum {ParallelBlocks = 4};
 };
 
-/// \brief XTS block cipher mode of operation implementation details
+/// \brief XTS block cipher mode of operation implementation
 /// \tparam CIPHER BlockCipher derived class or type
 /// \since Crypto++ 8.3
 template <class CIPHER>

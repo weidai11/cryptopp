@@ -1,5 +1,12 @@
 // xts.cpp - written and placed in the public domain by Jeffrey Walton
 
+// Aarch32, Aarch64, Altivec and X86_64 include SIMD as part of the
+// base architecture. We can use the SIMD code below without an
+// architecture option. No runtime tests are required. Unfortunately,
+// we can't use it on Altivec because an architecture switch is required.
+// The updated XorBuffer gains 0.3 to 1.5 cpb on the architectures for
+// 16-byte block sizes.
+
 #include "pch.h"
 
 #include "xts.h"
@@ -33,13 +40,26 @@ ANONYMOUS_NAMESPACE_BEGIN
 
 using namespace CryptoPP;
 
-// Aarch32, Aarch64, Altivec and X86_64 include SIMD as part of the
-// base architecture. We can use the SIMD code below without an
-// architecture option. No runtime tests are required. Unfortunately,
-// we can't use it on Altivec because an architecture switch is required.
-// The updated XorBuffer gains 0.3 to 1.5 cpb on the architectures for
-// 16-byte block sizes. count must be a multiple of 16 since SIMD words
-// are used.
+#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+using CryptoPP::AES;
+using CryptoPP::XTS_Mode;
+using CryptoPP::Threefish512;
+
+void Modes_TestInstantiations()
+{
+    XTS_Mode<AES>::Encryption m0;
+    XTS_Mode<AES>::Decryption m1;
+    XTS_Mode<AES>::Encryption m2;
+    XTS_Mode<AES>::Decryption m3;
+
+#if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
+    XTS_Mode<Threefish512>::Encryption m4;
+    XTS_Mode<Threefish512>::Decryption m5;
+#endif
+}
+#endif  // CRYPTOPP_DEBUG
+
 inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t count)
 {
     CRYPTOPP_ASSERT(count >= 16 && (count % 16 == 0));
@@ -154,46 +174,34 @@ inline void GF_Double(byte *inout, unsigned int len)
     GF_Double(inout, inout, len);
 }
 
-#if defined(CRYPTOPP_DEBUG) && !defined(CRYPTOPP_DOXYGEN_PROCESSING)
-
-using CryptoPP::AES;
-using CryptoPP::XTS_Mode;
-using CryptoPP::Threefish512;
-
-void Modes_TestInstantiations()
-{
-    XTS_Mode<AES>::Encryption m0;
-    XTS_Mode<AES>::Decryption m1;
-    XTS_Mode<AES>::Encryption m2;
-    XTS_Mode<AES>::Decryption m3;
-
-#if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
-    XTS_Mode<Threefish512>::Encryption m4;
-    XTS_Mode<Threefish512>::Decryption m5;
-#endif
-}
-#endif
-
 ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
+void XTS_ModeBase::ThrowIfInvalidBlockSize(size_t length)
+{
+#if CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS
+    CRYPTOPP_ASSERT(length >= 16 && length <= 128 && IsPowerOf2(length));
+    if (length < 16 || length > 128 || !IsPowerOf2(length))
+        throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not valid");
+#else
+    CRYPTOPP_ASSERT(length == 16);
+    if (length != 16)
+        throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
+#endif
+}
+
 void XTS_ModeBase::ThrowIfInvalidKeyLength(size_t length)
 {
-    if (!AccessBlockCipher().IsValidKeyLength((length+1)/2))
+    CRYPTOPP_ASSERT(length % 2 == 0);
+    if (!GetBlockCipher().IsValidKeyLength((length+1)/2))
         throw InvalidKeyLength(AlgorithmName(), length);
 }
 
 void XTS_ModeBase::SetKey(const byte *key, size_t length, const NameValuePairs &params)
 {
-    CRYPTOPP_ASSERT(length % 2 == 0);
     ThrowIfInvalidKeyLength(length);
-
-#if (CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS == 0)
-    CRYPTOPP_ASSERT(BlockSize() == 16);
-    if (BlockSize() != 16)
-        throw InvalidArgument(AlgorithmName() + ": block size of underlying block cipher is not 16");
-#endif
+    ThrowIfInvalidBlockSize(BlockSize());
 
     const size_t klen = length/2;
     AccessBlockCipher().SetKey(key+0, klen, params);
@@ -233,16 +241,19 @@ void XTS_ModeBase::ResizeBuffers()
 
 void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
+    // data unit is multiple of 16 bytes
+    CRYPTOPP_ASSERT(length % BlockSize() == 0);
+
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const size_t parallelSize = blockSize*ParallelBlocks;
     size_t i = 0;
 
-    // data unit is multiple of 16 bytes
-    CRYPTOPP_ASSERT(length % blockSize == 0);
-
     // encrypt the data unit, optimal size at a time
     for ( ; i+parallelSize<=length; i+=parallelSize)
     {
+        // If this fires the GF_Double'ing below is not in sync
+        CRYPTOPP_ASSERT(ParallelBlocks == 4);
+
         // m_xregister[0] always points to the next tweak.
         GF_Double(m_xregister+1*blockSize, m_xregister+0*blockSize, blockSize);
         GF_Double(m_xregister+2*blockSize, m_xregister+1*blockSize, blockSize);
@@ -254,8 +265,8 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
         // encrypt one block, merge the tweak into the output block
         GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister, outString+i, parallelSize, BlockTransformation::BT_AllowParallel);
 
-        // Multiply T by alpha. m_xregister[0] always points to the next tweak.
-        GF_Double(m_xregister+0, m_xregister+3*blockSize, blockSize);
+        // m_xregister[0] always points to the next tweak.
+        GF_Double(m_xregister+0, m_xregister+(ParallelBlocks-1)*blockSize, blockSize);
     }
 
     // encrypt the data unit, blocksize at a time
@@ -273,8 +284,6 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
         // Multiply T by alpha
         GF_Double(m_xregister, blockSize);
     }
-
-    CRYPTOPP_ASSERT(i == length);
 }
 
 size_t XTS_ModeBase::ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength)
