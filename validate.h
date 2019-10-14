@@ -202,7 +202,7 @@ private:
 inline std::string TimeToString(const time_t& t)
 {
 #if (CRYPTOPP_MSC_VERSION >= 1400)
-	tm localTime = {};
+	tm localTime;
 	char timeBuf[64];
 	errno_t err;
 
@@ -213,7 +213,7 @@ inline std::string TimeToString(const time_t& t)
 
 	std::string str(err == 0 ? timeBuf : "");
 #elif (_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _BSD_SOURCE || _SVID_SOURCE || defined(_POSIX_SOURCE))
-	tm localTime = {};
+	tm localTime;
 	char timeBuf[64];
 	char* timeString = ::asctime_r(::localtime_r(&t, &localTime), timeBuf);
 	std::string str(timeString ? timeString : "");
