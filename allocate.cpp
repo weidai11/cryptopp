@@ -74,6 +74,8 @@ void AlignedDeallocate(void *p)
 	// Guard pointer due to crash on AIX when CRYPTOPP_NO_ALIGNED_ALLOC
 	// is in effect. The guard was previously in place in SecBlock,
 	// but it was removed at f4d68353ca7c as part of GH #875.
+	CRYPTOPP_ASSERT(p);
+
 	if (p != NULLPTR)
 	{
 #ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
