@@ -71,14 +71,20 @@ void * AlignedAllocate(size_t size)
 
 void AlignedDeallocate(void *p)
 {
+	// Guard pointer due to crash on AIX when CRYPTOPP_NO_ALIGNED_ALLOC
+	// is in effect. The guard was previously in place in SecBlock,
+	// but it was removed at f4d68353ca7c as part of GH #875.
+	if (p != NULLPTR)
+	{
 #ifdef CRYPTOPP_MM_MALLOC_AVAILABLE
-	_mm_free(p);
+		_mm_free(p);
 #elif defined(CRYPTOPP_NO_ALIGNED_ALLOC)
-	p = (byte *)p - ((byte *)p)[-1];
-	free(p);
+		p = (byte *)p - ((byte *)p)[-1];
+		free(p);
 #else
-	free(p);
+		free(p);
 #endif
+	}
 }
 
 void * UnalignedAllocate(size_t size)
