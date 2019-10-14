@@ -153,24 +153,26 @@ typename A::pointer StandardReallocate(A& alloc, T *oldPtr, typename A::size_typ
 	if (oldSize == newSize)
 		return oldPtr;
 
-	typename A::pointer newPointer = NULLPTR;
 	if (preserve)
 	{
-		newPointer = alloc.allocate(newSize, NULLPTR);
-		const size_t copySize = STDMIN(oldSize, newSize) * sizeof(T);
+		typename A::pointer newPointer = alloc.allocate(newSize, NULLPTR);
+		const typename A::size_type copySize = STDMIN(oldSize, newSize) * sizeof(T);
 
 		if (oldPtr && newPointer)
 			memcpy_s(newPointer, copySize, oldPtr, copySize);
+
+		if (oldPtr)
+			alloc.deallocate(oldPtr, oldSize);
+
+		return newPointer;
 	}
 	else
 	{
-		newPointer = alloc.allocate(newSize, NULLPTR);
+		if (oldPtr)
+			alloc.deallocate(oldPtr, oldSize);
+
+		return alloc.allocate(newSize, NULLPTR);
 	}
-
-	if (oldPtr)
-		alloc.deallocate(oldPtr, oldSize);
-
-	return newPointer;
 }
 
 /// \brief Allocates a block of memory with cleanup
@@ -469,7 +471,7 @@ public:
 		pointer newPointer = allocate(newSize, NULLPTR);
 		if (preserve && newSize)
 		{
-			const size_t copySize = STDMIN(oldSize, newSize);
+			const size_type copySize = STDMIN(oldSize, newSize);
 			memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
 		}
 		deallocate(oldPtr, oldSize);
@@ -672,7 +674,7 @@ public:
 		pointer newPointer = allocate(newSize, NULLPTR);
 		if (preserve && newSize)
 		{
-			const size_t copySize = STDMIN(oldSize, newSize);
+			const size_type copySize = STDMIN(oldSize, newSize);
 			memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
 		}
 		deallocate(oldPtr, oldSize);
