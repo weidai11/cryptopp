@@ -121,6 +121,10 @@ template <class CIPHER>
 class CRYPTOPP_NO_VTABLE XTS_Final : public XTS_ModeBase
 {
 public:
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
     CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
         {return "XTS";}
 
