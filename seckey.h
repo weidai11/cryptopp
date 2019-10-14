@@ -41,7 +41,7 @@ class FixedBlockSize
 {
 public:
 	/// \brief The block size of the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(BLOCKSIZE = N);
+	CRYPTOPP_CONSTANT(BLOCKSIZE = N);
 };
 
 // ************** rounds ***************
@@ -53,7 +53,7 @@ class FixedRounds
 {
 public:
 	/// \brief The number of rounds for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(ROUNDS = R);
+	CRYPTOPP_CONSTANT(ROUNDS = R);
 };
 
 /// \brief Inherited by algorithms with variable number of rounds
@@ -65,11 +65,11 @@ class VariableRounds
 {
 public:
 	/// \brief The default number of rounds for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(DEFAULT_ROUNDS = D);
+	CRYPTOPP_CONSTANT(DEFAULT_ROUNDS = D);
 	/// \brief The minimum number of rounds for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(MIN_ROUNDS = N);
+	CRYPTOPP_CONSTANT(MIN_ROUNDS = N);
 	/// \brief The maximum number of rounds for the algorithm provided as a constant.
-	CRYPTOPP_CONSTANT(MAX_ROUNDS = M);
+	CRYPTOPP_CONSTANT(MAX_ROUNDS = M);
 	/// \brief The default number of rounds for the algorithm based on key length
 	///   provided by a static function.
 	/// \param keylength the size of the key, in bytes
@@ -126,23 +126,23 @@ class FixedKeyLength
 public:
 	/// \brief The default key length used by the algorithm provided as a constant
 	/// \details KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(KEYLENGTH=N);
+	CRYPTOPP_CONSTANT(KEYLENGTH=N);
 	/// \brief The minimum key length used by the algorithm provided as a constant
 	/// \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N);
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N);
 	/// \brief The maximum key length used by the algorithm provided as a constant
 	/// \details MAX_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=N);
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=N);
 	/// \brief The default key length used by the algorithm provided as a constant
 	/// \details DEFAULT_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=N);
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=N);
 	/// \brief The default IV requirements for the algorithm provided as a constant
 	/// \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	///  in cryptlib.h for allowed values.
-	CRYPTOPP_CONSTANT(IV_REQUIREMENT = IV_REQ);
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT = IV_REQ);
 	/// \brief The default IV length used by the algorithm provided as a constant
 	/// \details IV_LENGTH is provided in bytes, not bits. The default implementation uses 0.
-	CRYPTOPP_CONSTANT(IV_LENGTH = IV_L);
+	CRYPTOPP_CONSTANT(IV_LENGTH = IV_L);
 	/// \brief The default key length for the algorithm provided by a static function.
 	/// \param keylength the size of the key, in bytes
 	/// \details The default implementation returns KEYLENGTH. keylength is unused
@@ -175,23 +175,23 @@ class VariableKeyLength
 public:
 	/// \brief The minimum key length used by the algorithm provided as a constant
 	/// \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N);
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=N);
 	/// \brief The maximum key length used by the algorithm provided as a constant
 	/// \details MAX_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=M);
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=M);
 	/// \brief The default key length used by the algorithm provided as a constant
 	/// \details DEFAULT_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=D);
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=D);
 	/// \brief The key length multiple used by the algorithm provided as a constant
 	/// \details MAX_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(KEYLENGTH_MULTIPLE=Q);
+	CRYPTOPP_CONSTANT(KEYLENGTH_MULTIPLE=Q);
 	/// \brief The default IV requirements for the algorithm provided as a constant
 	/// \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	///  in cryptlib.h for allowed values.
-	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ);
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ);
 	/// \brief The default initialization vector length for the algorithm provided as a constant
 	/// \details IV_LENGTH is provided in bytes, not bits. The default implementation uses 0.
-	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L);
+	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L);
 	/// \brief Provides a valid key length for the algorithm provided by a static function.
 	/// \param keylength the size of the key, in bytes
 	/// \details If keylength is less than MIN_KEYLENGTH, then the function returns
@@ -219,20 +219,20 @@ class SameKeyLengthAs
 public:
 	/// \brief The minimum key length used by the algorithm provided as a constant
 	/// \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=T::MIN_KEYLENGTH);
+	CRYPTOPP_CONSTANT(MIN_KEYLENGTH=T::MIN_KEYLENGTH);
 	/// \brief The maximum key length used by the algorithm provided as a constant
 	/// \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=T::MAX_KEYLENGTH);
+	CRYPTOPP_CONSTANT(MAX_KEYLENGTH=T::MAX_KEYLENGTH);
 	/// \brief The default key length used by the algorithm provided as a constant
 	/// \details MIN_KEYLENGTH is provided in bytes, not bits
-	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH);
+	CRYPTOPP_CONSTANT(DEFAULT_KEYLENGTH=T::DEFAULT_KEYLENGTH);
 	/// \brief The default IV requirements for the algorithm provided as a constant
 	/// \details The default value is NOT_RESYNCHRONIZABLE. See IV_Requirement
 	///  in cryptlib.h for allowed values.
-	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ);
+	CRYPTOPP_CONSTANT(IV_REQUIREMENT=IV_REQ);
 	/// \brief The default initialization vector length for the algorithm provided as a constant
 	/// \details IV_LENGTH is provided in bytes, not bits. The default implementation uses 0.
-	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L);
+	CRYPTOPP_CONSTANT(IV_LENGTH=IV_L);
 	/// \brief Provides a valid key length for the algorithm provided by a static function.
 	/// \param keylength the size of the key, in bytes
 	/// \details If keylength is less than MIN_KEYLENGTH, then the function returns

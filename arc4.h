@@ -49,7 +49,7 @@ protected:
 /// \brief Alleged RC4
 /// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
 /// \since Crypto++ 3.1
-DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4);
+DOCUMENTED_TYPEDEF(SymmetricCipherFinal<ARC4_Base>, ARC4);
 
 /// \brief MARC4 base class
 /// \details Implementations and overrides in \p Base apply to both \p ENCRYPTION and \p DECRYPTION directions
@@ -70,7 +70,7 @@ protected:
 /// \brief Modified Alleged RC4
 /// \sa <a href="http://www.cryptopp.com/wiki/RC4">Alleged RC4</a>
 /// \since Crypto++ 3.1
-DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4);
+DOCUMENTED_TYPEDEF(SymmetricCipherFinal<MARC4_Base>, MARC4);
 
 }
 #if CRYPTOPP_ENABLE_NAMESPACE_WEAK >= 1

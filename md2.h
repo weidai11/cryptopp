@@ -27,8 +27,8 @@ public:
 	unsigned int BlockSize() const {return BLOCKSIZE;}
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "MD2";}
 
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 16);
-	CRYPTOPP_CONSTANT(BLOCKSIZE = 16);
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 16);
+	CRYPTOPP_CONSTANT(BLOCKSIZE = 16);
 
 private:
 	void Transform();

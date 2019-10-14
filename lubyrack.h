@@ -37,7 +37,7 @@ class LR : public LR_Info<T>, public BlockCipherDocumentation
 		}
 
 	protected:
-		CRYPTOPP_CONSTANT(S=T::DIGESTSIZE);
+		CRYPTOPP_CONSTANT(S=T::DIGESTSIZE);
 		unsigned int L;	// key length / 2
 		SecByteBlock key;
 

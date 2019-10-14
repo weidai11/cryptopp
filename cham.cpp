@@ -45,11 +45,11 @@ using CryptoPP::rotrConstant;
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 {
-    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4);
-    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4);
-    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4);
-    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 1 : 8);
-    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1);
+    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4);
+    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4);
+    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4);
+    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 1 : 8);
+    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 8 : 1);
 
     // Follows conventions in the ref impl
     const T kk = k[i % KW];
@@ -79,11 +79,11 @@ inline void CHAM_EncRound(T x[4], const T k[KW], unsigned int i)
 template <unsigned int RR, unsigned int KW, class T>
 inline void CHAM_DecRound(T x[4], const T k[KW], unsigned int i)
 {
-    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4);
-    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4);
-    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4);
-    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 8 : 1);
-    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 1 : 8);
+    CRYPTOPP_CONSTANT(IDX0 = (RR+0) % 4);
+    CRYPTOPP_CONSTANT(IDX1 = (RR+1) % 4);
+    CRYPTOPP_CONSTANT(IDX3 = (RR+3+1) % 4);
+    CRYPTOPP_CONSTANT(R1 = (RR % 2 == 0) ? 8 : 1);
+    CRYPTOPP_CONSTANT(R2 = (RR % 2 == 0) ? 1 : 8);
 
     // Follows conventions in the ref impl
     const T kk = k[i % KW];

@@ -46,4 +46,3 @@ size_t DSAConvertSignatureFormat(byte *buffer, size_t bufferSize, DSASignatureFo
 NAMESPACE_END
 
 #endif  // CRYPTOPP_DSA_H
-

@@ -17,8 +17,8 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \since Crypto++ 3.0
 struct RC2_Info : public FixedBlockSize<8>, public VariableKeyLength<16, 1, 128>
 {
-	CRYPTOPP_CONSTANT(DEFAULT_EFFECTIVE_KEYLENGTH = 1024);
-	CRYPTOPP_CONSTANT(MAX_EFFECTIVE_KEYLENGTH = 1024);
+	CRYPTOPP_CONSTANT(DEFAULT_EFFECTIVE_KEYLENGTH = 1024);
+	CRYPTOPP_CONSTANT(MAX_EFFECTIVE_KEYLENGTH = 1024);
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "RC2";}
 };
 
@@ -88,4 +88,3 @@ typedef RC2::Decryption RC2Decryption;
 NAMESPACE_END
 
 #endif
-

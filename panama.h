@@ -32,7 +32,7 @@ public:
 
 protected:
 	typedef word32 Stage[8];
-	CRYPTOPP_CONSTANT(STAGES = 32);
+	CRYPTOPP_CONSTANT(STAGES = 32);
 
 	FixedSizeAlignedSecBlock<word32, 20 + 8*32> m_state;
 };
@@ -44,7 +44,7 @@ template <class B = LittleEndian>
 class PanamaHash : protected Panama<B>, public AlgorithmImpl<IteratedHash<word32, NativeByteOrder, 32>, PanamaHash<B> >
 {
 public:
-	CRYPTOPP_CONSTANT(DIGESTSIZE = 32);
+	CRYPTOPP_CONSTANT(DIGESTSIZE = 32);
 	virtual ~PanamaHash() {}
 	PanamaHash() {Panama<B>::Reset();}
 	unsigned int DigestSize() const {return DIGESTSIZE;}
