@@ -20,7 +20,7 @@ fi
 
 echo "Unpacking SDK to $ANDROID_SDK"
 mkdir -p "$ANDROID_SDK"
-if ! unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK";
+if ! unzip -qq /tmp/android-sdk.zip -d "android-sdk";
 then
 	echo "Failed to unpack SDK"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
@@ -28,7 +28,7 @@ fi
 
 echo "Unpacking NDK to $ANDROID_NDK"
 mkdir -p "$ANDROID_NDK"
-if ! unzip -qq /tmp/android-ndk.zip -d "ndk";
+if ! unzip -qq /tmp/android-ndk.zip -d "android-ndk";
 then
 	echo "Failed to unpack NDK"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1

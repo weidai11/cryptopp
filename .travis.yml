@@ -20,8 +20,8 @@ env:
   global:
     - BUILD_JOBS=2
     - ANDROID_HOME="$HOME/.android"
-    - ANDROID_SDK="$HOME/android/sdk/"
-    - ANDROID_NDK="$HOME/android/sdk/ndk-bundle"
+    - ANDROID_SDK="$HOME/android-sdk/"
+    - ANDROID_NDK="$HOME/android-ndk"
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
