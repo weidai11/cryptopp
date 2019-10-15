@@ -18,11 +18,11 @@
 
 # set -eu
 
-# Sanity check
-if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    echo "Please source this setenv script"
-    exit 0
-fi
+# cryptest-android.sh may run this script without sourcing.
+#if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+#    echo "Please source this setenv script"
+#    exit 0
+#fi
 
 unset IS_CROSS_COMPILE
 
@@ -63,7 +63,7 @@ fi
 # AOSP_API="28"    # Android N.N and above
 # AOSP_API="29"    # Android N.N and above
 if [ -z "${AOSP_API-}" ]; then
-    AOSP_API="27"
+    AOSP_API="23"
 fi
 
 #####################################################################
@@ -86,6 +86,8 @@ if [ -z "${ANDROID_NDK_ROOT-}" ]; then
         ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
     fi
 fi
+
+echo "*** Using ANDROID_NDK_ROOT = $ANDROID_NDK_ROOT"
 
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT" ]; then
@@ -112,6 +114,9 @@ fi
 
 AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST_TAG/"
 AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
+
+echo "*** Using AOSP_TOOLCHAIN_ROOT = $AOSP_TOOLCHAIN_ROOT"
+echo "*** Using AOSP_TOOLCHAIN_PATH = $AOSP_TOOLCHAIN_PATH"
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
