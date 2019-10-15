@@ -49,6 +49,13 @@ NAMESPACE_BEGIN(CryptoPP)
 class CRYPTOPP_NO_VTABLE XTS_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
+    /// \brief The algorithm name
+    /// \returns the algorithm name
+    /// \details StaticAlgorithmName returns the algorithm's name as a static
+    ///   member function.
+    CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
+        {return "XTS";}
+
     virtual ~XTS_ModeBase() {}
 
     std::string AlgorithmName() const
@@ -116,18 +123,32 @@ protected:
 
 /// \brief XTS block cipher mode of operation implementation
 /// \tparam CIPHER BlockCipher derived class or type
+/// \details XTS_Final() provides access to CIPHER in base class XTS_ModeBase()
+///  through an interface. AccessBlockCipher() and AccessTweakCipher() allow
+///  the XTS_ModeBase() base class to access the user's block cipher without
+///  recompiling the library.
+/// \details If <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> is 0, then CIPHER must
+///  be a 16-byte block cipher. If <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> is
+///  non-zero then CIPHER can be 16, 32, 64, or 128-byte block cipher.
+///  There is risk involved with using XTS with wider block ciphers.
+///  According to Phillip Rogaway, "The narrow width of the underlying PRP and
+///  the poor treatment of fractional final blocks are problems." To enable
+///  wide block cipher support define <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> to
+///  non-zero.
+/// \sa <A HREF="http://www.cryptopp.com/wiki/Modes_of_Operation">Modes of
+///  Operation</A> on the Crypto++ wiki, <A
+///  HREF="https://web.cs.ucdavis.edu/~rogaway/papers/modes.pdf"> Evaluation of Some
+///  Blockcipher Modes of Operation</A>, <A
+///  HREF="https://csrc.nist.gov/publications/detail/sp/800-38e/final">Recommendation
+///  for Block Cipher Modes of Operation: The XTS-AES Mode for Confidentiality on
+///  Storage Devices</A>, <A
+///  HREF="http://libeccio.di.unisa.it/Crypto14/Lab/p1619.pdf">IEEE P1619-2007</A>
+///  and <A HREF="https://crypto.stackexchange.com/q/74925/10496">IEEE P1619/XTS,
+///  inconsistent reference implementation and test vectors</A>.
 /// \since Crypto++ 8.3
 template <class CIPHER>
 class CRYPTOPP_NO_VTABLE XTS_Final : public XTS_ModeBase
 {
-public:
-    /// \brief The algorithm name
-    /// \returns the algorithm name
-    /// \details StaticAlgorithmName returns the algorithm's name as a static
-    ///   member function.
-    CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
-        {return "XTS";}
-
 protected:
     BlockCipher& AccessBlockCipher()
         {return *m_cipher;}
