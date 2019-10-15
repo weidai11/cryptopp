@@ -9,20 +9,24 @@
 #
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
-set +e
 
-if [ -z $(command -v ./setenv-android-gcc.sh) ]; then
-	echo "Failed to locate setenv-android-gcc.sh"
+# set -x
+
+if [ -z $(command -v ./setenv-android.sh) ]; then
+	echo "Failed to locate setenv-android.sh"
 	ls -Al *.sh
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if [ -z "${PLATFORM-}" ]; then
-	PLATFORMS=(armeabi armeabi-v7a armv7a-neon aarch64 mipsel mipsel64 x86 x86_64)
-else
+if [ -n "${PLATFORM-}" ]; then
 	PLATFORMS=(${PLATFORM})
+else
+	PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 fi
-RUNTIMES=(gnu-static gnu-shared stlport-static stlport-shared) #llvm-static llvm-shared
+
+# Thank god... two runtimes (and one compiler)
+RUNTIMES=(libc++ system)
+MAKE_JOBS=2
 
 for platform in ${PLATFORMS[@]}
 do
@@ -35,9 +39,7 @@ do
 		echo "Testing for Android support of $platform using $runtime"
 
 		# Test if we can set the environment for the platform
-		./setenv-android-gcc.sh "$platform" "$runtime"
-
-		if [ "$?" -ne "0" ];
+		if ! ./setenv-android.sh "$platform" "$runtime";
 		then
 			echo
 			echo "There were problems testing $platform with $runtime"
@@ -53,9 +55,9 @@ do
 
 		# run in subshell to not keep any env vars
 		(
-			source ./setenv-android-gcc.sh "$platform" "$runtime" > /dev/null 2>&1
-			make -f GNUmakefile-cross static dynamic cryptest.exe
-			if [ "$?" -eq "0" ]; then
+			source ./setenv-android.sh "$platform" "$runtime" # > /dev/null 2>&1
+			if make -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
+			then
 				echo "$platform:$runtime ==> SUCCESS" >> /tmp/build.log
 			else
 				echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
@@ -65,6 +67,9 @@ do
 	done
 done
 
+echo ""
+echo "===================================================================="
+echo "Dumping build results"
 cat /tmp/build.log
 
 # let the script fail if any of the builds failed
