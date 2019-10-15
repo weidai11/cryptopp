@@ -44,9 +44,4 @@ rm -f /tmp/android-ndk.zip
 
 echo "Finished preparing SDK and NDK"
 
-echo "Dumping toolchain locations"
-
-find -L "$ANDROID_NDK" -name 'clang++'
-
-
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0

@@ -66,21 +66,12 @@ if [ -z "${AOSP_API-}" ]; then
     AOSP_API="23"
 fi
 
-echo "*** Home directory for setenv-android.sh"
-ls -Al "$HOME"
-
-echo "*** SDK directory for setenv-android.sh"
-ls -Al "$ANDROID_SDK_ROOT"
-
-echo "*** NDK directory for setenv-android.sh"
-ls -Al "$ANDROID_NDK_ROOT"
-
 #####################################################################
 
 # ANDROID_NDK_ROOT should always be set by the user (even when not running this script)
-#   http://groups.google.com/group/android-ndk/browse_thread/thread/a998e139aca71d77.
-# If the user did not specify the NDK location, try and pick it up. We expect something
-#   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
+# http://groups.google.com/group/android-ndk/browse_thread/thread/a998e139aca71d77.
+# If the user did not specify the NDK location, try and pick it up. Something like
+# ANDROID_NDK_ROOT=/opt/android-ndk-r19c or ANDROID_NDK_ROOT=/usr/local/android-ndk-r20.
 
 if [ -n "${ANDROID_NDK_ROOT}" ]; then
     echo "ANDROID_NDK_ROOT is $ANDROID_NDK_ROOT"
@@ -130,8 +121,6 @@ AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_ROOT is not a valid path. Please set it."
     echo "Root is $AOSP_TOOLCHAIN_ROOT"    
-    echo "Looking for Clang..."
-    find -L "$HOME" -name 'clang++' | head -n 1
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -139,8 +128,6 @@ fi
 if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_PATH is not a valid path. Please set it."
     echo "Path is $AOSP_TOOLCHAIN_PATH"
-    echo "Looking for Clang..."
-    find -L "$HOME" -name 'clang++' | head -n 1
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -318,8 +305,6 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   echo "AOSP_API: $AOSP_API"
   echo "AOSP_RUNTIME: $AOSP_RUNTIME"
   echo "AOSP_SYSROOT: $AOSP_SYSROOT"
-  #echo "AOSP_SYSROOT_INC: $AOSP_SYSROOT_INC"
-  #echo "AOSP_SYSROOT_LD: $AOSP_SYSROOT_LD"
   echo "AOSP_FLAGS: $AOSP_FLAGS"
   if [ -e "cpu-features.h" ] && [ -e "cpu-features.c" ]; then
     echo "CPU FEATURES: cpu-features.h and cpu-features.c are present"
