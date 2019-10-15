@@ -121,8 +121,9 @@ endif
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-android.sh'
-  CXXFLAGS += $(AOSP_FLAGS) -DANDROID -D__ANDROID_API__=$(AOSP_API)
-  CXXFLAGS += --sysroot=$(AOSP_SYSROOT) -Wa,--noexecstack
+  CXXFLAGS += $(AOSP_FLAGS) -stdlib=$(AOSP_RUNTIME) -DANDROID
+  CXXFLAGS += -D__ANDROID_API__=$(AOSP_API) --sysroot=$(AOSP_SYSROOT)
+  CXXFLAGS += -Wa,--noexecstack
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.

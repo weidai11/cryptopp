@@ -280,9 +280,9 @@ fi
 # Android C++ runtime
 
 if [ "$#" -lt 2 ]; then
-    THE_STL=libc++
+    AOSP_RUNTIME=libc++
 else
-    THE_STL=$(tr [A-Z] [a-z] <<< "$2")
+    AOSP_RUNTIME=$(tr [A-Z] [a-z] <<< "$2")
 fi
 
 # Now that we are using cpu-features from Android rather than CPU probing, we
@@ -308,6 +308,7 @@ if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
   echo "ANDROID_NDK_ROOT: $ANDROID_NDK_ROOT"
   echo "AOSP_TOOLCHAIN_PATH: $AOSP_TOOLCHAIN_PATH"
   echo "AOSP_API: $AOSP_API"
+  echo "AOSP_RUNTIME: $AOSP_RUNTIME"
   echo "AOSP_SYSROOT: $AOSP_SYSROOT"
   #echo "AOSP_SYSROOT_INC: $AOSP_SYSROOT_INC"
   #echo "AOSP_SYSROOT_LD: $AOSP_SYSROOT_LD"
