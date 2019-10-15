@@ -119,8 +119,10 @@ if [[ -e "$AOSP_TOOLCHAIN_ROOT/bin/clang++" ]]; then
     # Works on Debian
     AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 elif [[ -e "$AOSP_TOOLCHAIN_ROOT/clang++" ]]; then
-    # Works on Travis
     AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/"
+elif [[ -e "/home/travis/android/sdk/ndk-bundle/android-ndk-r19c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" ]]; then
+    # Works on Travis
+    AOSP_TOOLCHAIN_PATH="/home/travis/android/sdk/ndk-bundle/android-ndk-r19c/toolchains/llvm/prebuilt/linux-x86_64/bin/"
 fi
 
 # Error checking
