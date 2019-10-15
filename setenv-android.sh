@@ -114,7 +114,7 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST_TAG/"
+AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/"
 AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 
 # Error checking
@@ -164,13 +164,13 @@ case "$THE_ARCH" in
     AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
     ;;
   x86)
-    CC="x86-linux-android$AOSP_API-clang"
-    CXX="x86-linux-android$AOSP_API-clang++"
-    LD="x86-linux-android-ld"
-    AS="x86-linux-android-as"
-    AR="x86-linux-android-ar"
-    RANLIB="x86-linux-android-ranlib"
-    STRIP="x86-linux-android-strip"
+    CC="i686-linux-android$AOSP_API-clang"
+    CXX="i686-linux-android$AOSP_API-clang++"
+    LD="i686-linux-android-ld"
+    AS="i686-linux-android-as"
+    AR="i686-linux-android-ar"
+    RANLIB="i686-linux-android-ranlib"
+    STRIP="i686-linux-android-strip"
 
     AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
     ;;
