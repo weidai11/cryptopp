@@ -25,6 +25,9 @@ env:
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
+  matrix:
+    - BUILD_MODE="all"
+
 matrix:
 
   exclude:
