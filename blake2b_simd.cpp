@@ -836,7 +836,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 #endif
 
     const uint8x16_p HL_MASK = { 0,1,2,3,4,5,6,7,       24,25,26,27,28,29,30,31 };
-    const uint8x16_p LH_MASK = { 8,9,10,11,12,13,14,15, 16,17,18,19,20,21,22,23 };
+    //const uint8x16_p LH_MASK = { 8,9,10,11,12,13,14,15, 16,17,18,19,20,21,22,23 };
 
     #define BLAKE2B_LOAD_MSG_0_1(b0, b1) \
     do { \
