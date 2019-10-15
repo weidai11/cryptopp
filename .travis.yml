@@ -50,6 +50,10 @@ matrix:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
+    - os: linux
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
     - os: osx
       env:
         - BUILD_OS=osx
@@ -58,11 +62,11 @@ matrix:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=cmake
-    - os: linux
-    - os: linux
+    - os: osx
       env:
-        - BUILD_OS=linux
+        - BUILD_OS=osx
         - BUILD_MODE=pem
+    - os: linux
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
@@ -221,13 +225,13 @@ script:
     elif [[ "$BUILD_MODE" == "cmake" ]]; then
         cp TestScripts/cryptest-cmake.sh .
         bash cryptest-cmake.sh
+    elif [[ "$BUILD_MODE" == "pem" ]]; then
+        cp TestScripts/cryptest-pem.sh .
+        bash cryptest-pem.sh
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j "$BUILD_JOBS"
         ./cryptest.exe v
         ./cryptest.exe tv all
-    elif [[ "$BUILD_MODE" == "pem" ]]; then
-        cp TestScripts/cryptest-pem.sh .
-        bash cryptest-pem.sh
     else
         make "$BUILD_MODE" -j "$BUILD_JOBS"
         ./cryptest.exe v
