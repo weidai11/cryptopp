@@ -148,9 +148,12 @@ if ! ./configure; then
 	exit 1
 fi
 
+#############################################################################
+
 "$MAKE" clean 2>/dev/null
 
-#############################################################################
+echo "Building test artifacts"
+echo ""
 
 if ! "$MAKE" -j2 -f Makefile; then
 	echo "make failed."

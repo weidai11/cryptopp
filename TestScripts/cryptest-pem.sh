@@ -75,6 +75,11 @@ fi
 
 #############################################################################
 
+"$MAKE" clean 2>/dev/null
+
+echo "Building test artifacts"
+echo ""
+
 if ! "$MAKE" -j 2; then
 	echo "make failed."
 	exit 1

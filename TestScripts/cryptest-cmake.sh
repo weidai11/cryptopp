@@ -52,6 +52,9 @@ cd "$PWD_DIR/cmake_build"
 
 #############################################################################
 
+echo "Building test artifacts"
+echo ""
+
 if [[ ! -z "$CXX" ]];
 then
 	if ! CXX="$CXX" "$CMAKE" -DCMAKE_CXX_COMPILER="$CXX" ../; then
