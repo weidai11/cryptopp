@@ -201,12 +201,23 @@ esac
 
 #####################################################################
 
+# Android C++ runtime
+
+if [ "$#" -lt 2 ]; then
+    AOSP_RUNTIME=libc++
+else
+    AOSP_RUNTIME=$(tr [A-Z] [a-z] <<< "$2")
+
+#####################################################################
+
 # GNUmakefile-cross expects these to be set. They are also used in the tests below.
 export IS_ANDROID=1
 
 export AOSP_FLAGS AOSP_API
 
 export CPP CC CXX LD AS AR RANLIB STRIP
+
+export AOSP_RUNTIME
 
 export AOSP_SYSROOT="$AOSP_TOOLCHAIN_ROOT/sysroot"
 
