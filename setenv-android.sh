@@ -122,7 +122,7 @@ if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_ROOT is not a valid path. Please set it."
     echo "Root is $AOSP_TOOLCHAIN_ROOT"    
     echo "Looking for Clang..."
-    find -L "$ANDROID_NDK" -name 'clang++' | head -n 1
+    find -L "$HOME" -name 'clang++' | head -n 1
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -131,7 +131,7 @@ if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_PATH is not a valid path. Please set it."
     echo "Path is $AOSP_TOOLCHAIN_PATH"
     echo "Looking for Clang..."
-    find -L "$ANDROID_NDK" -name 'clang++' | head -n 1
+    find -L "$HOME" -name 'clang++' | head -n 1
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
