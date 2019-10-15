@@ -34,7 +34,9 @@ then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-cp -rlf "$HOME/android-ndk-r19c" "$ANDROID_NDK"
+# The NDK unzipped to $HOME/android-ndk-r19c, which is /home/travis/android-ndk-r19c
+# The cp command moves it to /home/travis/android-ndk, which is $ANDROID_NDK.
+cp -rlf "$HOME/android-ndk-r19c/*" "$ANDROID_NDK"
 
 rm -rf "$HOME/android-ndk-r19c"
 rm -f /tmp/android-sdk.zip
