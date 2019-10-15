@@ -87,11 +87,10 @@ if [ -z "${ANDROID_NDK_ROOT-}" ]; then
     fi
 fi
 
-echo "*** Using ANDROID_NDK_ROOT = $ANDROID_NDK_ROOT"
-
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT" ]; then
     echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
+    echo "Root is $ANDROID_NDK_ROOT"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -114,26 +113,19 @@ fi
 
 # This seems to work on both Travis and Debian
 AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST_TAG/"
-
-if [[ -e "$AOSP_TOOLCHAIN_ROOT/bin/clang++" ]]; then
-    # Works on Debian
-    AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
-elif [[ -e "$AOSP_TOOLCHAIN_ROOT/clang++" ]]; then
-    AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/"
-elif [[ -e "/home/travis/android/sdk/ndk-bundle/android-ndk-r19c/toolchains/llvm/prebuilt/linux-x86_64/bin/clang++" ]]; then
-    # Works on Travis
-    AOSP_TOOLCHAIN_PATH="/home/travis/android/sdk/ndk-bundle/android-ndk-r19c/toolchains/llvm/prebuilt/linux-x86_64/bin/"
-fi
+AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_ROOT is not a valid path. Please set it."
+    echo "Root is $AOSP_TOOLCHAIN_ROOT"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_PATH is not a valid path. Please set it."
+    echo "Path is $AOSP_TOOLCHAIN_PATH"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
