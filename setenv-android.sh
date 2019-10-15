@@ -74,13 +74,13 @@ fi
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
 if [ -z "${ANDROID_NDK_ROOT-}" ]; then
-    ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
+    ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -n -1)
 
     if [ -z "$ANDROID_NDK_ROOT" ]; then
-        ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
+        ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -n -1)
     fi
     if [ -z "$ANDROID_NDK_ROOT" ]; then
-        ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -1)
+        ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -n -1)
     fi
     if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
         ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
@@ -117,6 +117,12 @@ AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 
 echo "*** Using AOSP_TOOLCHAIN_ROOT = $AOSP_TOOLCHAIN_ROOT"
 echo "*** Using AOSP_TOOLCHAIN_PATH = $AOSP_TOOLCHAIN_PATH"
+
+# Error checking
+if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
+    echo "ERROR: AOSP_TOOLCHAIN_ROOT is not a valid path. Please set it."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
