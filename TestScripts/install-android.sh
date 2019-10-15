@@ -11,5 +11,5 @@ unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK"
 rm -f /tmp/android-sdk.zip
 
 curl -L -k -o /tmp/android-ndk.zip https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip
-unzip -qq /tmp/android-sdk.zip -d "$ANDROID_NDK"
+unzip -qq /tmp/android-ndk.zip -d "$ANDROID_NDK"
 rm -f /tmp/android-ndk.zip
