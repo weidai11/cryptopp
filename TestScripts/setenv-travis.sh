@@ -2,6 +2,8 @@
 
 # This file should be source'd when required.
 
+echo "Setting Travis environment"
+
 export ANDROID_HOME="$HOME/.android"
 export ANDROID_SDK="$HOME/android/sdk/"
 export ANDROID_NDK="$HOME/android/sdk/ndk-bundle"
@@ -14,5 +16,7 @@ mkdir -p "$ANDROID_NDK_ROOT"
 
 # https://stackoverflow.com/a/47028911/608639
 touch "$ANDROID_HOME/repositories.cfg"
+
+echo "Finished setting environment"
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
