@@ -73,7 +73,10 @@ fi
 # If the user did not specify the NDK location, try and pick it up. We expect something
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
-if [ -z "${ANDROID_NDK_ROOT-}" ]; then
+if [ -n "${ANDROID_NDK_ROOT}" ]; then
+    echo "ANDROID_NDK_ROOT is $ANDROID_NDK_ROOT"
+else
+    echo "ANDROID_NDK_ROOT is empty. Searching for the NDK"
     ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
 
     if [ -z "$ANDROID_NDK_ROOT" ]; then
@@ -119,7 +122,7 @@ if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_ROOT is not a valid path. Please set it."
     echo "Root is $AOSP_TOOLCHAIN_ROOT"    
     echo "Looking for Clang..."
-    find -L "ANDROID_NDK" -name 'clang++' | head -n 1
+    find -L "$ANDROID_NDK" -name 'clang++' | head -n 1
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -128,7 +131,7 @@ if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_PATH is not a valid path. Please set it."
     echo "Path is $AOSP_TOOLCHAIN_PATH"
     echo "Looking for Clang..."
-    find -L "ANDROID_NDK" -name 'clang++' | head -n 1
+    find -L "$ANDROID_NDK" -name 'clang++' | head -n 1
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
