@@ -73,7 +73,7 @@ fi
 # If the user did not specify the NDK location, try and pick it up. We expect something
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
-if [ -n "${ANDROID_NDK_ROOT-}" ]; then
+if [ -n "${ANDROID_NDK_ROOT}" ]; then
     echo "ANDROID_NDK_ROOT is $ANDROID_NDK_ROOT"
 else
     echo "ANDROID_NDK_ROOT is empty. Searching for the NDK"
