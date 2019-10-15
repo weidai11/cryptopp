@@ -50,23 +50,15 @@ fi
 
 #############################################################################
 
-echo "Downloading configure.ac"
-if ! wget -O configure.ac -q --no-check-certificate 'https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/configure.ac'; then
-	echo "configure.ac download failed"
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
+files=(configure.ac Makefile.am libcryptopp.pc.in)
 
-echo "Downloading Makefile.am"
-if ! wget -O Makefile.am -q --no-check-certificate 'https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/Makefile.am'; then
-	echo "Makefile.am download failed"
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
-
-echo "Downloading libcryptopp.pc.in"
-if ! wget -O libcryptopp.pc.in -q --no-check-certificate 'https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/libcryptopp.pc.in'; then
-	echo "libcryptopp.pc.in download failed"
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
+for file in "${files[@]}"; do
+	echo "Downloading $file"
+	if ! wget -O "$file" -q --no-check-certificate "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
+		echo "$file download failed"
+		exit 1
+	fi
+done
 
 mkdir -p m4/
 
@@ -91,13 +83,13 @@ fi
 echo "Running autoupdate"
 if ! autoupdate &>/dev/null; then
 	echo "autoupdate failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	exit 1
 fi
 
 echo "Running libtoolize"
 if ! "$LIBTOOLIZE" --force --install &>/dev/null; then
 	echo "libtoolize failed... skipping."
-	# [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	# exit 1
 fi
 
 # Run autoreconf twice on failure. Also see
@@ -107,7 +99,7 @@ if ! autoreconf --force --install &>/dev/null; then
 	echo "autoreconf failed, running again."
 	if ! autoreconf --force --install; then
 		echo "autoreconf failed, again."
-		[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+		exit 1
 	fi
 fi
 
@@ -147,7 +139,7 @@ echo ""
 
 if ! ./configure; then
 	echo "configure failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	exit 1
 fi
 
 "$MAKE" clean 2>/dev/null
@@ -156,17 +148,17 @@ fi
 
 if ! "$MAKE" -j2 -f Makefile; then
 	echo "make failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	exit 1
 fi
 
 if ! ./cryptest v; then
 	echo "cryptest v failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	exit 1
 fi
 
 if ! ./cryptest tv all; then
 	echo "cryptest tv all failed."
-	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+	exit 1
 fi
 
 # Return success
