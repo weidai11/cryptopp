@@ -120,7 +120,7 @@ AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_ROOT is not a valid path. Please set it."
-    echo "Root is $AOSP_TOOLCHAIN_ROOT"    
+    echo "Root is $AOSP_TOOLCHAIN_ROOT"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
