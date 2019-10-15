@@ -19,7 +19,6 @@ then
 fi
 
 echo "Unpacking SDK to $ANDROID_SDK"
-mkdir -p "$ANDROID_SDK"
 if ! unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK";
 then
 	echo "Failed to unpack SDK"
@@ -33,6 +32,7 @@ then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+rm -rf "$ANDROID_NDK"
 if ! mv -r "$HOME/android-ndk-r19c" "$ANDROID_NDK";
 then
 	echo "Failed to move $HOME/android-ndk-r19c to $ANDROID_NDK"
