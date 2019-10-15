@@ -24,8 +24,8 @@ else
 	PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 fi
 
-# Thank god... two runtimes (and one compiler)
-RUNTIMES=(libc++ system)
+# Thank god... one runtime and one compiler
+RUNTIMES=(libc++)
 MAKE_JOBS=2
 
 if [[ -z "$TMPDIR" ]]; then

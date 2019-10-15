@@ -38,7 +38,7 @@ then
 	echo "Failed to move $HOME/android-ndk-r19c to $ANDROID_NDK"
 fi
 
-echo "After move:"
+echo "Home directory after move:"
 ls -Al "$HOME"
 
 rm -f /tmp/android-sdk.zip
