@@ -28,6 +28,14 @@ fi
 RUNTIMES=(libc++ system)
 MAKE_JOBS=2
 
+if [[ -z "$TMPDIR" ]]; then
+	TMPDIR="$HOME/tmp"
+	mkdir "$TMPDIR"
+fi
+
+rm -rf "$TMPDIR/build.failed" 2>/dev/null
+rm -rf "$TMPDIR/build.log" 2>/dev/null
+
 for platform in ${PLATFORMS[@]}
 do
 	for runtime in ${RUNTIMES[@]}
@@ -43,9 +51,9 @@ do
 		then
 			echo
 			echo "There were problems testing $platform with $runtime"
-			echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
+			echo "$platform:$runtime ==> FAILURE" >> "$TMPDIR/build.log"
 
-			touch /tmp/build.failed
+			touch "$TMPDIR/build.failed"
 			continue
 		fi
 
@@ -58,10 +66,10 @@ do
 			source ./setenv-android.sh "$platform" "$runtime" # > /dev/null 2>&1
 			if make -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
 			then
-				echo "$platform:$runtime ==> SUCCESS" >> /tmp/build.log
+				echo "$platform:$runtime ==> SUCCESS" >> "$TMPDIR/build.log"
 			else
-				echo "$platform:$runtime ==> FAILURE" >> /tmp/build.log
-				touch /tmp/build.failed
+				echo "$platform:$runtime ==> FAILURE" >> "$TMPDIR/build.log"
+				touch "$TMPDIR/build.failed"
 			fi
 		)
 	done
@@ -70,10 +78,10 @@ done
 echo ""
 echo "===================================================================="
 echo "Dumping build results"
-cat /tmp/build.log
+cat "$TMPDIR/build.log"
 
 # let the script fail if any of the builds failed
-if [ -f /tmp/build.failed ]; then
+if [ -f "$TMPDIR/build.failed" ]; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
