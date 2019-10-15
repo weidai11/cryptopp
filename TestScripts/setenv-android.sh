@@ -66,6 +66,9 @@ if [ -z "${AOSP_API-}" ]; then
     AOSP_API="23"
 fi
 
+echo "Home directory for setenc-android.sh"
+ls -Al "$HOME"
+
 #####################################################################
 
 # ANDROID_NDK_ROOT should always be set by the user (even when not running this script)
