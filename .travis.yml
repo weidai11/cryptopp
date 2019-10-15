@@ -19,7 +19,7 @@ compiler:
 env:
   global:
     - BUILD_JOBS=2
-    - ANDROID_HOME="$HOME/.android"
+    - ANDROID_HOME="$HOME/android-sdk/"
     - ANDROID_SDK="$HOME/android-sdk/"
     - ANDROID_NDK="$HOME/android-ndk"
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
