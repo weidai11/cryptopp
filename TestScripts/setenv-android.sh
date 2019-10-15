@@ -74,13 +74,13 @@ fi
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
 if [ -z "${ANDROID_NDK_ROOT-}" ]; then
-    ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -n -1)
+    ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
 
     if [ -z "$ANDROID_NDK_ROOT" ]; then
-        ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -n -1)
+        ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
     fi
     if [ -z "$ANDROID_NDK_ROOT" ]; then
-        ANDROID_NDK_ROOT=$(find $HOME -maxdepth 1 -type d -name android-ndk* 2>/dev/null | tail -n -1)
+        ANDROID_NDK_ROOT=$(find "$HOME" -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
     fi
     if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
         ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
@@ -135,7 +135,7 @@ fi
 if [ "$#" -lt 1 ]; then
     THE_ARCH=armeabi-v7a
 else
-    THE_ARCH=$(tr [A-Z] [a-z] <<< "$1")
+    THE_ARCH=$(tr '[:upper:]' '[:upper:]' <<< "$1")
 fi
 
 # https://developer.android.com/ndk/guides/abis.html
@@ -149,8 +149,6 @@ case "$THE_ARCH" in
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
 
-    AOSP_ABI="armeabi-v7a"
-    AOSP_ARCH="arch-arm"
     AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -DCRYPTOPP_DISABLE_ASM -funwind-tables -fexceptions -frtti"
     ;;
   armv8|armv8a|aarch64|arm64|arm64-v8a)
@@ -162,8 +160,6 @@ case "$THE_ARCH" in
     RANLIB="aarch64-linux-android-ranlib"
     STRIP="aarch64-linux-android-strip"
 
-    AOSP_ABI="arm64-v8a"
-    AOSP_ARCH="arch-arm64"
     AOSP_FLAGS="-funwind-tables -fexceptions -frtti"
     ;;
   x86)
@@ -175,8 +171,6 @@ case "$THE_ARCH" in
     RANLIB="x86-linux-android-ranlib"
     STRIP="x86-linux-android-strip"
 
-    AOSP_ABI="x86"
-    AOSP_ARCH="arch-x86"
     AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
     ;;
   x86_64|x64)
@@ -189,8 +183,6 @@ case "$THE_ARCH" in
     RANLIB="x86_64-linux-android-ranlib"
     STRIP="x86_64-linux-android-strip"
 
-    AOSP_ABI="x86_64"
-    AOSP_ARCH="arch-x86_64"
     AOSP_FLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -fexceptions -frtti"
     ;;
   *)
@@ -206,7 +198,8 @@ esac
 if [ "$#" -lt 2 ]; then
     AOSP_RUNTIME=libc++
 else
-    AOSP_RUNTIME=$(tr [A-Z] [a-z] <<< "$2")
+    AOSP_RUNTIME=$(tr '[:upper:]' '[:lower:]' <<< "$2")
+fi
 
 #####################################################################
 
@@ -284,16 +277,6 @@ if [ -d "$AOSP_TOOLCHAIN_PATH" ]; then
     if [ "$SUBSTR" != "$AOSP_TOOLCHAIN_PATH" ]; then
         export PATH="$AOSP_TOOLCHAIN_PATH:$PATH"
     fi
-fi
-
-#####################################################################
-
-# Android C++ runtime
-
-if [ "$#" -lt 2 ]; then
-    AOSP_RUNTIME=libc++
-else
-    AOSP_RUNTIME=$(tr [A-Z] [a-z] <<< "$2")
 fi
 
 # Now that we are using cpu-features from Android rather than CPU probing, we
