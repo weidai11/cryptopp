@@ -26,11 +26,21 @@ fi
 
 #############################################################################
 
+if [[ -z $(command -v "$CMAKE") ]]; then
+	echo "Cannot find $CMAKE. Things may fail."
+fi
+
+if [[ -z $(command -v curl) ]]; then
+	echo "Cannot find cURL. Things may fail."
+fi
+
+#############################################################################
+
 files=(CMakeLists.txt cryptopp-config.cmake)
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
-	if ! wget -O "$file" -q --no-check-certificate "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
+	if ! curl -o "$file" --silent --insecure "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
 		echo "$file download failed"
 		exit 1
 	fi

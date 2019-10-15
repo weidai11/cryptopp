@@ -50,20 +50,6 @@ fi
 
 #############################################################################
 
-files=(configure.ac Makefile.am libcryptopp.pc.in)
-
-for file in "${files[@]}"; do
-	echo "Downloading $file"
-	if ! wget -O "$file" -q --no-check-certificate "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
-		echo "$file download failed"
-		exit 1
-	fi
-done
-
-mkdir -p m4/
-
-#############################################################################
-
 if [[ -z $(command -v autoupdate) ]]; then
 	echo "Cannot find autoupdate. Things may fail."
 fi
@@ -79,6 +65,26 @@ fi
 if [[ -z $(command -v autoreconf) ]]; then
 	echo "Cannot find autoreconf. Things may fail."
 fi
+
+if [[ -z $(command -v curl) ]]; then
+	echo "Cannot find cURL. Things may fail."
+fi
+
+#############################################################################
+
+files=(configure.ac Makefile.am libcryptopp.pc.in)
+
+for file in "${files[@]}"; do
+	echo "Downloading $file"
+	if ! curl -o "$file" --silent --insecure "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
+		echo "$file download failed"
+		exit 1
+	fi
+done
+
+mkdir -p m4/
+
+#############################################################################
 
 echo "Running autoupdate"
 if ! autoupdate &>/dev/null; then
@@ -107,7 +113,7 @@ fi
 
 # Update config.sub config.guess. GNU recommends using the latest for all projects.
 echo "Updating config.sub"
-wget -O config.sub.new -q --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub'
+curl -o config.sub.new --silent --insecure 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub'
 
 # Solaris removes +w, can't overwrite
 chmod +w config.sub
@@ -120,7 +126,7 @@ if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr) ]]; then
 fi
 
 echo "Updating config.guess"
-wget -O config.guess.new -q --no-check-certificate 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess'
+curl -o config.guess.new --silent --insecure 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess'
 
 # Solaris removes +w, can't overwrite
 chmod +w config.guess

@@ -47,6 +47,10 @@ if [[ -z $(command -v cmake) ]]; then
 	echo "Cannot find cmake. Things may fail."
 fi
 
+if [[ -z $(command -v curl) ]]; then
+	echo "Cannot find cURL. Things may fail."
+fi
+
 #############################################################################
 
 files=(pem_create.sh pem_verify.sh pem_test.cxx
@@ -55,7 +59,7 @@ files=(pem_create.sh pem_verify.sh pem_test.cxx
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
-	if ! wget -O "$file" -q --no-check-certificate "https://raw.githubusercontent.com/noloader/cryptopp-pem/master/$file"; then
+	if ! curl -o "$file" --silent --insecure "https://raw.githubusercontent.com/noloader/cryptopp-pem/master/$file"; then
 		echo "$file download failed"
 		exit 1
 	fi
@@ -63,6 +67,11 @@ done
 
 # Add execute to scripts
 chmod +x *.sh
+
+if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr) ]]; then
+	echo "Removing pem_create.sh pem_verify.sh quarantine"
+	xattr -d "com.apple.quarantine" pem_create.sh pem_verify.sh &>/dev/null
+fi
 
 #############################################################################
 
