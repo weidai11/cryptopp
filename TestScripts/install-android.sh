@@ -27,16 +27,14 @@ then
 fi
 
 echo "Unpacking NDK to $ANDROID_NDK"
-mkdir -p "$ANDROID_NDK"
-if ! unzip -qq /tmp/android-ndk.zip -d "$HOME";
+rm -rf "$ANDROID_NDK"
+if ! unzip -v /tmp/android-ndk.zip -d "$HOME";
 then
 	echo "Failed to unpack NDK"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-# The NDK unzipped to $HOME/android-ndk-r19c, which is /home/travis/android-ndk-r19c
-# The ln command makes it available to /home/travis/android-ndk, which is $ANDROID_NDK.
-(cd "$HOME" && rm -rf "android-ndk" && ln -s "android-ndk" "android-ndk-r19c")
+mv -r "$HOME/android-ndk-r19c" "$ANDROID_NDK"
 
 rm -f /tmp/android-sdk.zip
 rm -f /tmp/android-ndk.zip
