@@ -216,7 +216,7 @@ script:
         cp TestScripts/cryptest-ios.sh .
         bash cryptest-ios.sh
     elif [[ "$BUILD_MODE" == "android" ]]; then
-        cp TestScripts/setenv-android-gcc.sh .
+        cp TestScripts/setenv-android.sh .
         cp TestScripts/cryptest-android.sh .
         bash cryptest-android.sh
     elif [[ "$BUILD_MODE" == "autotools" ]]; then
