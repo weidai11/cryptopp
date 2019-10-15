@@ -19,14 +19,20 @@ compiler:
 env:
   global:
     - BUILD_JOBS=2
-    - ANDROID_HOME="$HOME/android-sdk/"
-    - ANDROID_SDK="$HOME/android-sdk/"
+    - ANDROID_HOME="$HOME/android-sdk"
+    - ANDROID_SDK="$HOME/android-sdk"
     - ANDROID_NDK="$HOME/android-ndk"
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
   matrix:
     - BUILD_MODE="all"
+    - BUILD_MODE="native"
+    - BUILD_MODE="no-asm"
+    - BUILD_MODE="debug"
+    - BUILD_MODE="asan"
+    - BUILD_MODE="ubsan"
+    - BUILD_MODE="pem"
 
 matrix:
 
@@ -36,6 +42,30 @@ matrix:
       compiler: gcc
 
   include:
+    - os: linux
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+    - os: linux
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+    - os: linux
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=autotools
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=cmake
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=pem
     - os: linux
       env:
         - BUILD_OS=linux
@@ -56,6 +86,36 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=x86_64
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=iPhoneOS
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=Arm64
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=WatchOS
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVOS
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=WatchSimulator
+    - os: osx
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - PLATFORM=AppleTVSimulator
 
   allow_failures:
     - os: osx
@@ -78,31 +138,6 @@ matrix:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=AppleTVSimulator
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=armeabi
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=aarch64
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=armeabi-v7a
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=x86
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=x86_64
 
 before_install:
   - |
