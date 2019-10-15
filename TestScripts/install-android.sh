@@ -5,14 +5,14 @@ sudo apt-get -qq update
 sudo apt-get -qq install --no-install-recommends openjdk-8-jdk unzip
 
 echo "Downloading SDK"
-if ! curl -L -k -o /tmp/android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip;
+if ! curl -L -k -s -o /tmp/android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip;
 then
 	echo "Failed to download SDK"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
 echo "Downloading NDK"
-if ! curl -L -k -o /tmp/android-ndk.zip https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip;
+if ! curl -L -k -s -o /tmp/android-ndk.zip https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip;
 then
 	echo "Failed to download NDK"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1

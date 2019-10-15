@@ -112,11 +112,16 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+# This seems to work on both Travis and Debian
 AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST_TAG/"
-AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 
-echo "*** Using AOSP_TOOLCHAIN_ROOT = $AOSP_TOOLCHAIN_ROOT"
-echo "*** Using AOSP_TOOLCHAIN_PATH = $AOSP_TOOLCHAIN_PATH"
+if [[ -e "$AOSP_TOOLCHAIN_ROOT/bin/clang++" ]]; then
+    # Works on Debian
+    AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
+elif [[ -e "$AOSP_TOOLCHAIN_ROOT/clang++" ]]; then
+    # Works on Travis
+    AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/"
+fi
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
