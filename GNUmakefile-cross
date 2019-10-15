@@ -122,16 +122,8 @@ endif
 ifeq ($(IS_ANDROID),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-android.sh'
   CXXFLAGS += $(AOSP_FLAGS) -DANDROID --sysroot=$(AOSP_SYSROOT)
-  CXXFLAGS += -Wa,--noexecstack -I$(AOSP_STL_INC) -I$(AOSP_SYS_ARCH_INC)
-  LDFLAGS += --sysroot=$(AOSP_LD_SYSROOT)
-
-  # c++config.h shows up in odd places at times.
-  ifneq ($(AOSP_BITS_INC),)
-    CXXFLAGS += -I$(AOSP_BITS_INC)
-  endif
-
-  # STL headers
-  LDLIBS += $(AOSP_STL_LIB)
+  CXXFLAGS += -Wa,--noexecstack -I$(AOSP_SYSROOT_INC)
+  # LDFLAGS += --sysroot=$(AOSP_SYSROOT_LD)
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.
@@ -828,7 +820,7 @@ aes_armv4.o : aes_armv4.S
 	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV7_THUMB_FLAG) -c) $<
 
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CXX) $(strip $(CXXFLAGS) -fpermissive -c) cpu-features.c
+	$(CXX) -x c $(strip $(CXXFLAGS) -c) cpu-features.c
 
 # SSSE3 or NEON available
 aria_simd.o : aria_simd.cpp
