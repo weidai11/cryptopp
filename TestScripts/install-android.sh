@@ -35,10 +35,9 @@ then
 fi
 
 # The NDK unzipped to $HOME/android-ndk-r19c, which is /home/travis/android-ndk-r19c
-# The cp command moves it to /home/travis/android-ndk, which is $ANDROID_NDK.
-cp -rlf "$HOME/android-ndk-r19c/*" "$ANDROID_NDK"
+# The ln command makes it available to /home/travis/android-ndk, which is $ANDROID_NDK.
+rm -rf "$ANDROID_NDK" && ln -s "$ANDROID_NDK" "$HOME/android-ndk-r19c/"
 
-rm -rf "$HOME/android-ndk-r19c"
 rm -f /tmp/android-sdk.zip
 rm -f /tmp/android-ndk.zip
 
