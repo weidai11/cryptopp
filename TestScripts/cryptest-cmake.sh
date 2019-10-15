@@ -40,7 +40,7 @@ files=(CMakeLists.txt cryptopp-config.cmake)
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
-	if ! curl -o "$file" --silent --insecure "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
+	if ! curl -o "$file" --silent --insecure "https://raw.githubusercontent.com/noloader/cryptopp-cmake/master/$file"; then
 		echo "$file download failed"
 		exit 1
 	fi
