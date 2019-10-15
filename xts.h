@@ -73,18 +73,37 @@ public:
         {return 2*GetBlockCipher().GetValidKeyLength((n+1)/2);}
     bool IsValidKeyLength(size_t keylength) const
         {return keylength == GetValidKeyLength(keylength);}
+
+    /// \brief Validates the key length
+    /// \param length the size of the keying material, in bytes
+    /// \throws InvalidKeyLength if the key length is invalid
     void ThrowIfInvalidKeyLength(size_t length);
 
     /// Provides the block size of the cipher
     /// \return the block size of the cipher, in bytes
     unsigned int BlockSize() const
         {return GetBlockCipher().BlockSize();}
+
+    /// \brief Provides the input block size most efficient for this cipher
+    /// \return The input block size that is most efficient for the cipher
+    /// \details The base class implementation returns MandatoryBlockSize().
+    /// \note Optimal input length is
+    ///  <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for
+    ///  any <tt>n \> 0</tt>.
     unsigned int GetOptimalBlockSize() const
         {return GetBlockCipher().BlockSize()*ParallelBlocks;}
     unsigned int MinLastBlockSize() const
         {return GetBlockCipher().BlockSize()+1;}
     unsigned int OptimalDataAlignment() const
         {return GetBlockCipher().OptimalDataAlignment();}
+
+    /// \brief Validates the block size
+    /// \param length the block size of the cipher, in bytes
+    /// \throws InvalidArgument if the block size is invalid
+    /// \details If <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> is 0,
+    ///  then CIPHER must be a 16-byte block cipher. If
+    ///  <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> is non-zero then
+    ///  CIPHER can be 16, 32, 64, or 128-byte block cipher.
     void ThrowIfInvalidBlockSize(size_t length);
 
     void SetKey(const byte *key, size_t length, const NameValuePairs &params = g_nullNameValuePairs);
