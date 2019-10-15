@@ -33,8 +33,13 @@ then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-rm -rf "$ANDROID_NDK"
-mv -r "$HOME/android-ndk-r19c" "$ANDROID_NDK"
+if ! mv -r "$HOME/android-ndk-r19c" "$ANDROID_NDK";
+then
+	echo "Failed to move $HOME/android-ndk-r19c to $ANDROID_NDK"
+fi
+
+echo "After move:"
+ls -Al "$HOME"
 
 rm -f /tmp/android-sdk.zip
 rm -f /tmp/android-ndk.zip
