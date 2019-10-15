@@ -43,12 +43,12 @@ if [[ -z $(command -v "$MAKE") ]]; then
 	echo "Cannot find $MAKE. Things may fail."
 fi
 
-if [[ -z $(command -v cmake) ]]; then
-	echo "Cannot find cmake. Things may fail."
-fi
-
 if [[ -z $(command -v curl) ]]; then
 	echo "Cannot find cURL. Things may fail."
+fi
+
+if [[ -z $(command -v openssl) ]]; then
+	echo "Cannot find openssl. Things may fail."
 fi
 
 #############################################################################
@@ -75,10 +75,11 @@ fi
 
 #############################################################################
 
-"$MAKE" clean 2>/dev/null
-
+echo ""
 echo "Building test artifacts"
 echo ""
+
+"$MAKE" clean &>/dev/null
 
 if ! "$MAKE" -j 2; then
 	echo "make failed."

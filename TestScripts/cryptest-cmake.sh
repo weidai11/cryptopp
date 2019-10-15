@@ -52,6 +52,7 @@ cd "$PWD_DIR/cmake_build"
 
 #############################################################################
 
+echo ""
 echo "Building test artifacts"
 echo ""
 
@@ -68,7 +69,7 @@ else
 	fi
 fi
 
-"$MAKE" clean 2>/dev/null
+"$MAKE" clean &>/dev/null
 
 if ! "$MAKE" -j2 -f Makefile VERBOSE=1; then
 	echo "make failed"

@@ -150,10 +150,11 @@ fi
 
 #############################################################################
 
-"$MAKE" clean 2>/dev/null
-
+echo ""
 echo "Building test artifacts"
 echo ""
+
+"$MAKE" clean &>/dev/null
 
 if ! "$MAKE" -j2 -f Makefile; then
 	echo "make failed."
