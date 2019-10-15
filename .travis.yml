@@ -85,16 +85,6 @@ matrix:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
-        - PLATFORM=mipsel
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=mipsel64
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
         - PLATFORM=x86
     - os: linux
       env:
@@ -158,16 +148,6 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=armeabi
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=mipsel
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=mipsel64
     - os: linux
       env:
         - BUILD_OS=linux
