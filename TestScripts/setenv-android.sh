@@ -87,6 +87,9 @@ if [ -z "${ANDROID_NDK_ROOT-}" ]; then
     fi
 fi
 
+# Export these so they are available in subshells
+export ANDROID_NDK_ROOT
+
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT" ]; then
     echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
