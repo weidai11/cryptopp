@@ -28,12 +28,15 @@ fi
 
 echo "Unpacking NDK to $ANDROID_NDK"
 mkdir -p "$ANDROID_NDK"
-if ! unzip -qq /tmp/android-ndk.zip -d "$ANDROID_NDK";
+if ! unzip -qq /tmp/android-ndk.zip -d "$HOME";
 then
 	echo "Failed to unpack NDK"
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+cp -rlf "$HOME/android-ndk-r19c" "$ANDROID_NDK"
+
+rm -rf "$HOME/android-ndk-r19c"
 rm -f /tmp/android-sdk.zip
 rm -f /tmp/android-ndk.zip
 
