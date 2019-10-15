@@ -45,11 +45,6 @@ matrix:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
-        - PLATFORM=armv7a-neon
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
         - PLATFORM=aarch64
     - os: linux
       env:
@@ -98,11 +93,6 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=armeabi-v7a
-    - os: linux
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=android
-        - PLATFORM=armv7a-neon
     - os: linux
       env:
         - BUILD_OS=linux

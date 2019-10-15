@@ -1,22 +1,40 @@
 #!/usr/bin/env bash
-set -e
 
 # install android deps
 sudo apt-get -qq update
 sudo apt-get -qq install --no-install-recommends openjdk-8-jdk unzip
 
 echo "Downloading SDK"
-curl -L -k -o /tmp/android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
+if ! curl -L -k -o /tmp/android-sdk.zip https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip;
+then
+	echo "Failed to download SDK"
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
 
-echo "Downloading SDK"
-curl -L -k -o /tmp/android-ndk.zip https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip
+echo "Downloading NDK"
+if ! curl -L -k -o /tmp/android-ndk.zip https://dl.google.com/android/repository/android-ndk-r19c-linux-x86_64.zip;
+then
+	echo "Failed to download NDK"
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
 
 echo "Unpacking SDK"
-unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK"
-rm -f /tmp/android-sdk.zip
+if ! unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK";
+then
+	echo "Failed to unpack SDK"
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
 
 echo "Unpacking NDK"
-unzip -qq /tmp/android-ndk.zip -d "$ANDROID_NDK"
+if ! unzip -qq /tmp/android-ndk.zip -d "$ANDROID_NDK";
+then
+	echo "Failed to unpack NDK"
+	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+fi
+
+rm -f /tmp/android-sdk.zip
 rm -f /tmp/android-ndk.zip
 
 echo "Finished preparing SDK and NDK"
+
+[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
