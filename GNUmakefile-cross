@@ -121,9 +121,9 @@ endif
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
   # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-android.sh'
-  CXXFLAGS += $(AOSP_FLAGS) -DANDROID --sysroot=$(AOSP_SYSROOT)
-  CXXFLAGS += -Wa,--noexecstack -I$(AOSP_SYSROOT_INC)
-  # LDFLAGS += --sysroot=$(AOSP_SYSROOT_LD)
+  CXXFLAGS += $(AOSP_FLAGS) -stdlib=$(AOSP_RUNTIME) -DANDROID
+  CXXFLAGS += -D__ANDROID_API__=$(AOSP_API) --sysroot=$(AOSP_SYSROOT)
+  CXXFLAGS += -Wa,--noexecstack
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.
@@ -350,6 +350,15 @@ ifeq ($(DETECT_FEATURES),1)
     ifneq ($(SSE2_FLAG),)
       GCM_FLAG = $(SSE2_FLAG)
     endif
+  endif
+
+  # Most Clang cannot handle mixed asm with positional arguments, where the
+  # body is Intel style with no prefix and the templates are AT&T style.
+  # Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+  TPROG = TestPrograms/test_mixed_asm.cxx
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifneq ($(strip $(HAVE_OPT)),0)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
   endif
 
 # DETECT_FEATURES

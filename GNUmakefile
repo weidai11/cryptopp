@@ -405,6 +405,15 @@ ifeq ($(DETECT_FEATURES),1)
     endif
   endif
 
+  # Most Clang cannot handle mixed asm with positional arguments, where the
+  # body is Intel style with no prefix and the templates are AT&T style.
+  # Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
+  TPROG = TestPrograms/test_mixed_asm.cxx
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifneq ($(strip $(HAVE_OPT)),0)
+    CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
+  endif
+
 # DETECT_FEATURES
 endif
 
@@ -426,15 +435,6 @@ ifeq ($(findstring -DCRYPTOPP_DISABLE_ASM,$(CXXFLAGS)),)
   ifeq ($(IS_SUN)$(GCC_COMPILER),11)
     CXXFLAGS += -Wa,--divide
   endif
-endif
-
-# Most Clang cannot handle mixed asm with positional arguments, where the
-# body is Intel style with no prefix and the templates are AT&T style.
-# Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
-TPROG = TestPrograms/test_mixed_asm.cxx
-HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-ifneq ($(strip $(HAVE_OPT)),0)
-  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
 endif
 
 # IS_X86, IS_X32 and IS_X64
