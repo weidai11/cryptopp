@@ -66,8 +66,14 @@ if [ -z "${AOSP_API-}" ]; then
     AOSP_API="23"
 fi
 
-echo "Home directory for setenc-android.sh"
+echo "Home directory for setenv-android.sh"
 ls -Al "$HOME"
+
+echo "SDK directory for setenv-android.sh"
+ls -Al "$ANDROID_SDK_ROOT"
+
+echo "NDK directory for setenv-android.sh"
+ls -Al "$ANDROID_NDK_ROOT"
 
 #####################################################################
 
