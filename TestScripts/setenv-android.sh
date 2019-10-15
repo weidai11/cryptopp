@@ -73,7 +73,10 @@ fi
 # If the user did not specify the NDK location, try and pick it up. We expect something
 #   like ANDROID_NDK_ROOT=/opt/android-ndk-r10e or ANDROID_NDK_ROOT=/usr/local/android-ndk-r10e.
 
-if [ -z "${ANDROID_NDK_ROOT-}" ]; then
+if [ -n "${ANDROID_NDK_ROOT-}" ]; then
+    echo "ANDROID_NDK_ROOT is $ANDROID_NDK_ROOT"
+else
+    echo "ANDROID_NDK_ROOT is empty. Searching for the NDK"
     ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
 
     if [ -z "$ANDROID_NDK_ROOT" ]; then
@@ -86,9 +89,6 @@ if [ -z "${ANDROID_NDK_ROOT-}" ]; then
         ANDROID_NDK_ROOT="$HOME/Library/Android/sdk/ndk-bundle"
     fi
 fi
-
-# Export these so they are available in subshells
-export ANDROID_NDK_ROOT
 
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT" ]; then
@@ -114,9 +114,8 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-# Export these so they are available in subshells
-export AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST_TAG/"
-export AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
+AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK/toolchains/llvm/prebuilt/$HOST_TAG/"
+AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
