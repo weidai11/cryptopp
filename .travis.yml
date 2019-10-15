@@ -25,15 +25,6 @@ env:
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
-  matrix:
-    - BUILD_MODE="all"
-    - BUILD_MODE="native"
-    - BUILD_MODE="no-asm"
-    - BUILD_MODE="debug"
-    - BUILD_MODE="asan"
-    - BUILD_MODE="ubsan"
-    - BUILD_MODE="pem"
-
 matrix:
 
   exclude:
