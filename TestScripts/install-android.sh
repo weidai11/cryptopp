@@ -19,6 +19,7 @@ then
 fi
 
 echo "Unpacking SDK"
+mkdir -p "$ANDROID_SDK"
 if ! unzip -qq /tmp/android-sdk.zip -d "$ANDROID_SDK";
 then
 	echo "Failed to unpack SDK"
@@ -26,6 +27,7 @@ then
 fi
 
 echo "Unpacking NDK"
+mkdir -p "$ANDROID_NDK"
 if ! unzip -qq /tmp/android-ndk.zip -d "$ANDROID_NDK";
 then
 	echo "Failed to unpack NDK"
