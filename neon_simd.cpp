@@ -12,12 +12,11 @@
 #include "config.h"
 #include "stdcpp.h"
 
-// C1189: error: This header is specific to ARM targets
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(_M_ARM64)
+#if (CRYPTOPP_ARM_NEON_HEADER)
 # include <arm_neon.h>
 #endif
 
-#if (CRYPTOPP_ARM_ACLE_AVAILABLE)
+#if (CRYPTOPP_ARM_ACLE_HEADER)
 # include <stdint.h>
 # include <arm_acle.h>
 #endif

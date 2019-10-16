@@ -483,9 +483,9 @@ ifeq ($(IS_ARMV8),1)
   TOPT = -march=armv8-a
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-	ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_AVAILABLE=1
+	ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_HEADER=1
   else
-	CXXFLAGS += -DCRYPTOPP_ARM_ACLE_AVAILABLE=0
+	CXXFLAGS += -DCRYPTOPP_ARM_ACLE_HEADER=0
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cxx
