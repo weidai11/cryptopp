@@ -5,7 +5,7 @@ SHELL = /bin/sh
 
 # If needed
 TMPDIR ?= /tmp
-# Used for ARMv7 and NEON.
+# Used for ARMv7a and NEON. Android hard codes softfp
 FP_ABI ?= hard
 # Used for feature tests
 TOUT ?= a.out
@@ -49,11 +49,6 @@ ifeq ($(HOSTX),)
 endif
 
 IS_LINUX := $(shell echo $(MACHINEX) | $(GREP) -i -c "Linux")
-
-# Android fixup
-ifeq ($(IS_ANDROID),1)
-  FP_ABI := softfp
-endif
 
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
 #   Android and embedded users typically don't run this configuration.
