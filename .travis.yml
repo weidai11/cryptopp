@@ -191,11 +191,6 @@ branches:
 addons:
   sonarcloud: false
 
-  coverity_scan:
-    project:
-      name: "cryptopp"
-    build_command: "make -j 2"
-
 notifications:
   email:
     recipients:
