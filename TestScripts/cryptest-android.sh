@@ -12,11 +12,20 @@
 
 # set -x
 
-if [ -z $(command -v ./setenv-android.sh) ]; then
+if [ -z "$(command -v ./setenv-android.sh)" ]; then
 	echo "Failed to locate setenv-android.sh"
-	ls -Al *.sh
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
+
+# Temp directory
+if [[ -z "$TMPDIR" ]]; then
+	TMPDIR="$HOME/tmp"
+	mkdir "$TMPDIR"
+fi
+
+# Cleanup old artifacts
+rm -rf "$TMPDIR/build.failed" 2>/dev/null
+rm -rf "$TMPDIR/build.log" 2>/dev/null
 
 # Accept user supplied platforms
 if [ "$#" -gt 0 ]; then
@@ -29,17 +38,9 @@ fi
 RUNTIMES=(libc++)
 MAKE_JOBS=2
 
-if [[ -z "$TMPDIR" ]]; then
-	TMPDIR="$HOME/tmp"
-	mkdir "$TMPDIR"
-fi
-
-rm -rf "$TMPDIR/build.failed" 2>/dev/null
-rm -rf "$TMPDIR/build.log" 2>/dev/null
-
-for platform in ${PLATFORMS[@]}
+for platform in "${PLATFORMS[@]}"
 do
-	for runtime in ${RUNTIMES[@]}
+	for runtime in "${RUNTIMES[@]}"
 	do
 		make -f GNUmakefile-cross distclean > /dev/null 2>&1
 

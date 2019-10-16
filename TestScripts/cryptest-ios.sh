@@ -10,11 +10,20 @@
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
-if [ -z $(command -v ./setenv-ios.sh) ]; then
+if [ -z "$(command -v ./setenv-ios.sh)" ]; then
 	echo "Failed to locate setenv-ios.sh"
-	ls -Al *.sh
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
+
+# Temp directory
+if [[ -z "$TMPDIR" ]]; then
+	TMPDIR="$HOME/tmp"
+	mkdir "$TMPDIR"
+fi
+
+# Cleanup old artifacts
+rm -rf "$TMPDIR/build.failed" 2>/dev/null
+rm -rf "$TMPDIR/build.log" 2>/dev/null
 
 # Accept user supplied platforms
 if [ "$#" -gt 0 ]; then
@@ -23,7 +32,7 @@ else
 	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
 fi
 
-for platform in ${PLATFORMS[@]}
+for platform in "${PLATFORMS[@]}"
 do
 	make -f GNUmakefile-cross distclean > /dev/null 2>&1
 
@@ -32,39 +41,37 @@ do
 	echo "Testing for iOS support of $platform"
 
 	# Test if we can set the environment for the platform
-	./setenv-ios.sh "$platform"
-
-	if [ "$?" -ne "0" ];
+	if ! ./setenv-ios.sh "$platform";
 	then
 		echo
 		echo "$platform not supported by Xcode"
-		echo "$platform ==> FAILURE" >> /tmp/build.log
+		echo "$platform ==> FAILURE" >> "$TMPDIR/build.log"
 
-		touch /tmp/build.failed
+		touch "$TMPDIR/build.failed"
 		continue
 	fi
 
 	echo
-	echo "Building for $platform using $runtime..."
+	echo "Building for $platform..."
 	echo
 
 	# run in subshell to not keep any env vars
 	(
 		source ./setenv-ios.sh "$platform" > /dev/null 2>&1
-		make -f GNUmakefile-cross static dynamic cryptest.exe
-		if [ "$?" -eq "0" ]; then
-			echo "$platform ==> SUCCESS" >> /tmp/build.log
+		if make -f GNUmakefile-cross static dynamic cryptest.exe;
+		then
+			echo "$platform ==> SUCCESS" >> "$TMPDIR/build.log"
 		else
-			echo "$platform ==> FAILURE" >> /tmp/build.log
-			touch /tmp/build.failed
+			echo "$platform ==> FAILURE" >> "$TMPDIR/build.log"
+			touch "$TMPDIR/build.failed"
 		fi
 	)
 done
 
-cat /tmp/build.log
+cat "$TMPDIR/build.log"
 
 # let the script fail if any of the builds failed
-if [ -f /tmp/build.failed ]; then
+if [ -f "$TMPDIR/build.failed" ]; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
