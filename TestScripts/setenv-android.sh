@@ -156,7 +156,7 @@ case "$THE_ARCH" in
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
 
-    AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -DCRYPTOPP_DISABLE_ASM -funwind-tables -fexceptions -frtti"
+    AOSP_FLAGS="-march=armv7-a -mthumb -mfpu=vfpv3-d16 -mfloat-abi=softfp -funwind-tables -fexceptions -frtti"
     ;;
   armv8|armv8a|aarch64|arm64|arm64-v8a)
     CC="aarch64-linux-android$AOSP_API-clang"

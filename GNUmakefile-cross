@@ -36,7 +36,6 @@ LDCONF ?= /sbin/ldconfig -n
 IS_IOS ?= 0
 IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
-IS_NEON ?= 0
 
 # Yet another Clang hack. I think the LLVM devs are making the shit up
 # as they go. Also see https://github.com/weidai11/cryptopp/issues/831.
@@ -376,15 +375,12 @@ ifeq ($(DETECT_FEATURES),1)
 
 ifeq ($(IS_ARM32),1)
 
-  ifneq ($(IS_IOS)$(IS_ANDROID),00)
-    NEON_FLAG =
-  else
-    NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
-  endif
+  # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
+  NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) -c $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(NEON_FLAG)
     AES_FLAG = $(NEON_FLAG)
@@ -511,7 +507,7 @@ endif
 # DETECT_FEATURES
 endif
 
-# IS_ARM32, IS_ARMV8, IS_NEON
+# IS_ARM32, IS_ARMV8
 endif
 
 ###########################################################
