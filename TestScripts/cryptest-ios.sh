@@ -16,10 +16,11 @@ if [ -z $(command -v ./setenv-ios.sh) ]; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if [ -z "${PLATFORM-}" ]; then
-	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
+# Accept user supplied platforms
+if [ "$#" ]; then
+	PLATFORMS=("$@")
 else
-	PLATFORMS=(${PLATFORM})
+	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
 fi
 
 for platform in ${PLATFORMS[@]}

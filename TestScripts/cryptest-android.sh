@@ -18,6 +18,7 @@ if [ -z $(command -v ./setenv-android.sh) ]; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
+# Accept user supplied platforms
 if [ "$#" ]; then
 	PLATFORMS=("$@")
 else
