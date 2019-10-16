@@ -17,7 +17,7 @@ if [ -z $(command -v ./setenv-ios.sh) ]; then
 fi
 
 # Accept user supplied platforms
-if [ "$#" ]; then
+if [ "$#" -gt 0 ]; then
 	PLATFORMS=("$@")
 else
 	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)

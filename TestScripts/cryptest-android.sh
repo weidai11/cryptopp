@@ -19,7 +19,7 @@ if [ -z $(command -v ./setenv-android.sh) ]; then
 fi
 
 # Accept user supplied platforms
-if [ "$#" ]; then
+if [ "$#" -gt 0 ]; then
 	PLATFORMS=("$@")
 else
 	PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
