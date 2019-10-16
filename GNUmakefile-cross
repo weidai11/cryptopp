@@ -381,9 +381,9 @@ ifeq ($(IS_ARM32),1)
 
   # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
   ifeq ($(IS_ANDROID),1)
-    NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=$(FP_ABI) -mfpu=neon
+    NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp -mfpu=neon
   else
-    NEON_FLAG = -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+    NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
   endif
 
   TPROG = TestPrograms/test_arm_neon.cxx
@@ -604,11 +604,6 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
     endif # LDFLAGS
   endif # MAKECMDGOALS
 endif # Dead code stripping
-
-# Andoid linker needs the NEON flags added.
-ifeq ($(IS_ANDROID),1)
-  LDFLAGS += $(NEON_FLAG)
-endif
 
 ###########################################################
 #####              Source and object files            #####
