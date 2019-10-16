@@ -381,11 +381,15 @@ ifeq ($(DETECT_FEATURES),1)
 ifeq ($(IS_ARM32),1)
 
   # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
-  NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=$(FP_ABI) -mfpu=neon
+  ifeq ($(IS_ANDROID),1)
+    NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=$(FP_ABI) -mfpu=neon
+  else
+    NEON_FLAG = -march=armv7-a -mfloat-abi=softfp -mfpu=neon
+  endif
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) -c $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(NEON_FLAG)
     AES_FLAG = $(NEON_FLAG)
