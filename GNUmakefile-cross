@@ -171,6 +171,10 @@ else
   IS_ARMV8 := $(shell echo $(HOSTX) | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 endif
 
+ifeq ($(IS_ARMV8),1)
+  IS_ARM32 = 0
+endif
+
 $(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
 
 ###########################################################
