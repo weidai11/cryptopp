@@ -341,7 +341,7 @@
 // Limit the <arm_neon.h> include.
 #if !defined(CRYPTOPP_ARM_NEON_HEADER)
 # if defined(CRYPTOPP_ARM_NEON_AVAILABLE) || defined (CRYPTOPP_ARM_ASIMD_AVAILABLE)
-#  if !defined(_M_ARM64) && (!CRYPTOPP_BOOL_ARM32 || !defined(__ANDROID__))
+#  if !defined(_M_ARM64)
 #   define CRYPTOPP_ARM_NEON_HEADER 1
 #  endif
 # endif
