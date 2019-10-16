@@ -18,8 +18,8 @@ if [ -z $(command -v ./setenv-android.sh) ]; then
 	[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
 fi
 
-if [ -n "${PLATFORM-}" ]; then
-	PLATFORMS=(${PLATFORM})
+if [ "$#" ]; then
+	PLATFORMS=("$@")
 else
 	PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 fi
