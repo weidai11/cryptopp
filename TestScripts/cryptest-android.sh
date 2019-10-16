@@ -29,11 +29,14 @@ MAKE_JOBS=2
 rm -rf "$TMPDIR/build.failed" 2>/dev/null
 rm -rf "$TMPDIR/build.log" 2>/dev/null
 
-# Accept user supplied platforms
 if [ "$#" -gt 0 ]; then
+	# Accept platforms on the command line
 	PLATFORMS=("$@")
-	echo "User specified platforms $@."
+elif [ -n "$PLATFORM" ]; then
+	# Accept platforms in the environment
+	PLATFORMS=("$PLATFORM")
 else
+	# Use all platforms
 	PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 fi
 
@@ -90,4 +93,3 @@ if [ -f "$TMPDIR/build.failed" ]; then
 fi
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
-
