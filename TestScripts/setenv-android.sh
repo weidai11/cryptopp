@@ -18,7 +18,7 @@
 
 # cryptest-android.sh may run this script without sourcing.
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    echo "This script is usually sourced, but not this time."
+    echo "setenv-android.sh is usually sourced, but not this time."
 fi
 
 unset IS_CROSS_COMPILE

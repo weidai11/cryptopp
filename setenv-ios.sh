@@ -11,12 +11,11 @@
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
-# set -eu
+# set -x
 
-# Sanity check
+# cryptest-ios.sh may run this script without sourcing.
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    echo "Please source this setenv script"
-    exit 0
+    echo "setenv-ios.sh is usually sourced, but not this time."
 fi
 
 #########################################

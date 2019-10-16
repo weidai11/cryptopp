@@ -13,12 +13,9 @@
 # See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line) for details.
 # ====================================================================
 
-# set -eu
-
-# Sanity check
+# cryptest-embedded.sh may run this script without sourcing.
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    echo "Please source this setenv script"
-    exit 0
+    echo "setenv-embedded.sh is usually sourced, but not this time."
 fi
 
 # Unset old options
