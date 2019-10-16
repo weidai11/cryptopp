@@ -35,6 +35,7 @@
 #endif
 
 #if (CRYPTOPP_ARM_NEON_HEADER)
+# include "adv_simd.h"
 # include <arm_neon.h>
 #endif
 
