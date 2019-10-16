@@ -16,13 +16,10 @@
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
-# set -eu
-
 # cryptest-android.sh may run this script without sourcing.
-#if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-#    echo "Please source this setenv script"
-#    exit 0
-#fi
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+    echo "This script is usually sourced, but not this time."
+fi
 
 unset IS_CROSS_COMPILE
 
@@ -46,6 +43,7 @@ fi
 
 # Set AOSP_API to the API you want to use. Most are listed for
 # historical reference. Use API 23 or above.
+# https://source.android.com/setup/start/build-numbers
 # AOSP_API="3"     # Android 1.5 and above
 # AOSP_API="4"     # Android 1.6 and above
 # AOSP_API="5"     # Android 2.0 and above
@@ -56,11 +54,12 @@ fi
 # AOSP_API="19"    # Android 4.4 and above
 # AOSP_API="21"    # Android 5.0 and above
 # AOSP_API="23"    # Android 6.0 and above
-# AOSP_API="25"    # Android N.N and above
-# AOSP_API="26"    # Android N.N and above
-# AOSP_API="27"    # Android N.N and above
-# AOSP_API="28"    # Android N.N and above
-# AOSP_API="29"    # Android N.N and above
+# AOSP_API="24"    # Android 7.0 and above
+# AOSP_API="25"    # Android 7.1 and above
+# AOSP_API="26"    # Android 8.0 and above
+# AOSP_API="27"    # Android 8.1 and above
+# AOSP_API="28"    # Android 9.0 and above
+# AOSP_API="29"    # Android 10.0 and above
 if [ -z "${AOSP_API-}" ]; then
     AOSP_API="23"
 fi
