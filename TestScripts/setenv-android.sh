@@ -33,8 +33,7 @@ unset IS_ARM_EMBEDDED
 # Variables used in GNUmakefile-cross
 unset AOSP_FLAGS
 unset AOSP_SYSROOT
-unset AOSP_SYSROOT_LD
-unset AOSP_SYSROOT_INC
+unset AOSP_RUNTIME
 
 # Tools set by this script
 unset CPP CC CXX LD AS AR RANLIB STRIP
@@ -116,6 +115,7 @@ fi
 
 AOSP_TOOLCHAIN_ROOT="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/"
 AOSP_TOOLCHAIN_PATH="$AOSP_TOOLCHAIN_ROOT/bin/"
+AOSP_SYSROOT="$AOSP_TOOLCHAIN_ROOT/sysroot"
 
 # Error checking
 if [ ! -d "$AOSP_TOOLCHAIN_ROOT" ]; then
@@ -128,6 +128,13 @@ fi
 if [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
     echo "ERROR: AOSP_TOOLCHAIN_PATH is not a valid path. Please set it."
     echo "Path is $AOSP_TOOLCHAIN_PATH"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
+
+# Error checking
+if [ ! -d "$AOSP_SYSROOT" ]; then
+    echo "ERROR: AOSP_SYSROOT is not a valid path. Please set it."
+    echo "Path is $AOSP_SYSROOT"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -211,28 +218,12 @@ export AOSP_FLAGS AOSP_API
 
 export CPP CC CXX LD AS AR RANLIB STRIP
 
-export AOSP_RUNTIME
-
-export AOSP_SYSROOT="$AOSP_TOOLCHAIN_ROOT/sysroot"
+export AOSP_RUNTIME AOSP_SYSROOT
 
 # Do NOT use AOSP_SYSROOT_INC or AOSP_SYSROOT_LD
 # https://github.com/android/ndk/issues/894#issuecomment-470837964
-#export AOSP_SYSROOT_INC="$AOSP_SYSROOT/usr/include"
-#export AOSP_SYSROOT_LD=
 
 #####################################################################
-
-# Error checking
-if [ -z "$AOSP_TOOLCHAIN_PATH" ] || [ ! -d "$AOSP_TOOLCHAIN_PATH" ]; then
-    echo "ERROR: AOSP_TOOLCHAIN_PATH is not valid. Please edit this script."
-    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
-fi
-
-# Error checking
-if [ -z "$AOSP_SYSROOT" ] || [ ! -d "$AOSP_SYSROOT" ]; then
-    echo "ERROR: AOSP_SYSROOT is not valid. Please edit this script."
-    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
-fi
 
 # Error checking
 if [ ! -e "$AOSP_TOOLCHAIN_PATH/$CC" ]; then
