@@ -26,7 +26,7 @@
 
 // C1189: error: This header is specific to ARM targets
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-# ifndef _M_ARM64
+# if !defined(_M_ARM64) && (!CRYPTOPP_BOOL_ARM32 || !defined(__ANDROID__))
 #  include <stdint.h>
 #  include <arm_neon.h>
 # endif

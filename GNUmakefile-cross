@@ -5,7 +5,7 @@ SHELL = /bin/sh
 
 # If needed
 TMPDIR ?= /tmp
-# Used for ARMv7 and NEON.
+# Used for ARMv7a and NEON. Android hard codes softfp
 FP_ABI ?= hard
 # Used for feature tests
 TOUT ?= a.out
@@ -36,7 +36,6 @@ LDCONF ?= /sbin/ldconfig -n
 IS_IOS ?= 0
 IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
-IS_NEON ?= 0
 
 # Yet another Clang hack. I think the LLVM devs are making the shit up
 # as they go. Also see https://github.com/weidai11/cryptopp/issues/831.
@@ -376,10 +375,11 @@ ifeq ($(DETECT_FEATURES),1)
 
 ifeq ($(IS_ARM32),1)
 
-  ifneq ($(IS_IOS)$(IS_ANDROID),00)
-    NEON_FLAG =
+  # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
+  ifeq ($(IS_ANDROID),1)
+    NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=$(FP_ABI) -mfpu=neon
   else
-    NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    NEON_FLAG = -march=armv7-a -mfloat-abi=softfp -mfpu=neon
   endif
 
   TPROG = TestPrograms/test_arm_neon.cxx
@@ -511,7 +511,7 @@ endif
 # DETECT_FEATURES
 endif
 
-# IS_ARM32, IS_ARMV8, IS_NEON
+# IS_ARM32, IS_ARMV8
 endif
 
 ###########################################################
@@ -600,6 +600,11 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
     endif # LDFLAGS
   endif # MAKECMDGOALS
 endif # Dead code stripping
+
+# Andoid linker needs the NEON flags added.
+ifeq ($(IS_ANDROID),1)
+  LDFLAGS += $(NEON_FLAG)
+endif
 
 ###########################################################
 #####              Source and object files            #####
