@@ -441,13 +441,11 @@ endif
 endif
 
 ###########################################################
-#####            ARM A-32, Aach64 and NEON            #####
+#####                ARM A-32 and NEON                #####
 ###########################################################
 
-ifneq ($(IS_ARM32)$(IS_ARMV8),00)
-ifeq ($(DETECT_FEATURES),1)
-
 ifneq ($(IS_ARM32),0)
+ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = -march=armv7-a -mfpu=neon
@@ -474,10 +472,17 @@ ifneq ($(IS_ARM32),0)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
+# DETECT_FEATURES
+endif
 # IS_ARM32
 endif
 
-ifeq ($(IS_ARMV8),1)
+###########################################################
+#####                Aach32 and Aarch64               #####
+###########################################################
+
+ifneq ($(IS_ARMV8),0)
+ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_acle.cxx
   TOPT = -march=armv8-a
@@ -566,13 +571,9 @@ ifeq ($(IS_ARMV8),1)
   # ASIMD_FLAG
   endif
 
-# IS_ARMV8
-endif
-
 # DETECT_FEATURES
 endif
-
-# IS_ARM32, IS_ARMV8
+# IS_ARMV8
 endif
 
 ###########################################################
