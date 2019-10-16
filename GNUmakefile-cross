@@ -50,6 +50,11 @@ endif
 
 IS_LINUX := $(shell echo $(MACHINEX) | $(GREP) -i -c "Linux")
 
+# Android fixup
+ifeq ($(IS_ANDROID),1)
+  FP_ABI := softfp
+endif
+
 # Can be used by Android and Embeeded cross-compiles. Disable by default because
 #   Android and embedded users typically don't run this configuration.
 HAS_SOLIB_VERSION ?= 0
@@ -376,7 +381,7 @@ ifeq ($(DETECT_FEATURES),1)
 ifeq ($(IS_ARM32),1)
 
   # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
-  NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+  NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=$(FP_ABI) -mfpu=neon
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = $(NEON_FLAG)
@@ -596,6 +601,11 @@ ifeq ($(findstring lean,$(MAKECMDGOALS)),lean)
     endif # LDFLAGS
   endif # MAKECMDGOALS
 endif # Dead code stripping
+
+# Andoid linker needs the NEON flags added.
+ifeq ($(IS_ANDROID),1)
+  LDFLAGS += $(NEON_FLAG)
+endif
 
 ###########################################################
 #####              Source and object files            #####

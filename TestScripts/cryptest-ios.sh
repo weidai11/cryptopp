@@ -21,6 +21,8 @@ if [[ -z "$TMPDIR" ]]; then
 	mkdir "$TMPDIR"
 fi
 
+MAKE_JOBS=2
+
 # Cleanup old artifacts
 rm -rf "$TMPDIR/build.failed" 2>/dev/null
 rm -rf "$TMPDIR/build.log" 2>/dev/null
@@ -28,6 +30,7 @@ rm -rf "$TMPDIR/build.log" 2>/dev/null
 # Accept user supplied platforms
 if [ "$#" -gt 0 ]; then
 	PLATFORMS=("$@")
+	echo "User specified platforms $@."
 else
 	PLATFORMS=(iPhoneOS iPhoneSimulator Arm64 WatchOS WatchSimulator AppleTVOS AppleTVSimulator)
 fi
@@ -55,10 +58,10 @@ do
 	echo "Building for $platform..."
 	echo
 
-	# run in subshell to not keep any env vars
+	# run in subshell to not keep any envars
 	(
 		source ./setenv-ios.sh "$platform" > /dev/null 2>&1
-		if make -f GNUmakefile-cross static dynamic cryptest.exe;
+		if make -k -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
 		then
 			echo "$platform ==> SUCCESS" >> "$TMPDIR/build.log"
 		else
@@ -76,3 +79,4 @@ if [ -f "$TMPDIR/build.failed" ]; then
 fi
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
+
