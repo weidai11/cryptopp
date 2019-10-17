@@ -48,7 +48,7 @@
 // Some relevant bug reports can be found at:
 // * Clang: http://github.com/weidai11/cryptopp/issues/147
 // * Native Client: https://github.com/weidai11/cryptopp/issues/719
-#if (defined(_MSC_VER) && defined(__clang__))
+#if (defined(_MSC_VER) && defined(__clang__) && !(defined( __clang_analyzer__)))
 # error: "Unsupported configuration"
 #endif
 
