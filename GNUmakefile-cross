@@ -371,13 +371,11 @@ endif
 endif
 
 ###########################################################
-#####            ARM A-32, Aach64 and NEON            #####
+#####                ARM A-32 and NEON                #####
 ###########################################################
 
-ifneq ($(IS_ARM32)$(IS_ARMV8),00)
+ifneq ($(IS_ARM32),0)
 ifeq ($(DETECT_FEATURES),1)
-
-ifeq ($(IS_ARM32),1)
 
   # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
   ifeq ($(IS_ANDROID),1)
@@ -411,10 +409,17 @@ ifeq ($(IS_ARM32),1)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ASM
   endif
 
+# DETECT_FEATURES
+endif
 # IS_ARM32
 endif
 
-ifeq ($(IS_ARMV8),1)
+###########################################################
+#####                Aach32 and Aarch64               #####
+###########################################################
+
+ifneq ($(IS_ARMV8),0)
+ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(IS_IOS),1)
     ASIMD_FLAG =
@@ -434,9 +439,9 @@ ifeq ($(IS_ARMV8),1)
   TOPT = $(ASIMD_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-    ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_AVAILABLE=1
+    ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_HEADER=1
   else
-    CXXFLAGS += -DCRYPTOPP_ARM_ACLE_AVAILABLE=0
+    CXXFLAGS += -DCRYPTOPP_ARM_ACLE_HEADER=0
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cxx
@@ -509,13 +514,9 @@ ifeq ($(IS_ARMV8),1)
       SHA512_FLAG = -march=armv8.4-a+crypto
     endif
 
-# IS_ARMV8
-endif
-
 # DETECT_FEATURES
 endif
-
-# IS_ARM32, IS_ARMV8
+# IS_ARMV8
 endif
 
 ###########################################################
