@@ -38,6 +38,12 @@
 // Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
 // #define CRYPTOPP_DISABLE_MIXED_ASM 1
 
+#ifndef CRYPTOPP_DISABLE_MIXED_ASM
+# if defined(__clang__)
+#  define CRYPTOPP_DISABLE_MIXED_ASM 1
+# endif
+#endif
+
 // CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is no longer honored. It
 // was removed at https://github.com/weidai11/cryptopp/issues/682
 // #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS 1
