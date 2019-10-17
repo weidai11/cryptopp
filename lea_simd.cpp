@@ -44,6 +44,10 @@
 # include <arm_acle.h>
 #endif
 
+#if defined(_M_ARM64)
+# include "adv_simd.h"
+#endif
+
 // Do not port this to POWER architecture. Naively we hoped
 // for a 2x to 3x speedup. The result was a 5x slow down.
 // The table below shows MiB/s and cpb.
