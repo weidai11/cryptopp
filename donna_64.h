@@ -64,7 +64,7 @@ struct word128 { word64 lo, hi; };
 # define lo128(a) (a.lo)
 # define hi128(a) (a.hi)
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && (defined(__amd64__) || defined(__x86_64__))
 struct word128 { word64 lo, hi; };
 # define mul64x64_128(out,a,b) __asm__ ("mulq %3" : "=a" (out.lo), "=d" (out.hi) : "a" (a), "rm" (b));
 # define shr128_pair(out,hi,lo,shift) __asm__ ("shrdq %2,%1,%0" : "+r" (lo) : "r" (hi), "J" (shift)); out = lo;
