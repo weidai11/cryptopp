@@ -21,6 +21,10 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief PBKDF1 from PKCS #5
 /// \tparam T a HashTransformation class
+/// \sa PasswordBasedKeyDerivationFunction, <A
+///  HREF="https://www.cryptopp.com/wiki/PKCS5_PBKDF1">PKCS5_PBKDF1</A>
+///  on the Crypto++ wiki
+/// \since Crypto++ 2.0
 template <class T>
 class PKCS5_PBKDF1 : public PasswordBasedKeyDerivationFunction
 {
@@ -146,6 +150,10 @@ size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 
 /// \brief PBKDF2 from PKCS #5
 /// \tparam T a HashTransformation class
+/// \sa PasswordBasedKeyDerivationFunction, <A
+///  HREF="https://www.cryptopp.com/wiki/PKCS5_PBKDF2_HMAC">PKCS5_PBKDF2_HMAC</A>
+///  on the Crypto++ wiki
+/// \since Crypto++ 2.0
 template <class T>
 class PKCS5_PBKDF2_HMAC : public PasswordBasedKeyDerivationFunction
 {
@@ -304,6 +312,10 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte pu
 
 /// \brief PBKDF from PKCS #12, appendix B
 /// \tparam T a HashTransformation class
+/// \sa PasswordBasedKeyDerivationFunction, <A
+///  HREF="https://www.cryptopp.com/wiki/PKCS12_PBKDF">PKCS12_PBKDF</A>
+///  on the Crypto++ wiki
+/// \since Crypto++ 2.0
 template <class T>
 class PKCS12_PBKDF : public PasswordBasedKeyDerivationFunction
 {

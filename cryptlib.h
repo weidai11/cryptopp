@@ -1409,6 +1409,8 @@ protected:
 ///   to hardware based generators.
 /// \details All generated values are uniformly distributed over the range specified.
 /// \since Crypto++ 3.1
+/// \sa <A HREF="https://www.cryptopp.com/wiki/RandomNumberGenerator">RandomNumberGenerator</A>
+///  on the Crypto++ wiki
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE RandomNumberGenerator : public Algorithm
 {
 public:
@@ -1495,6 +1497,8 @@ public:
 
 /// \brief Interface for key derivation functions
 /// \since Crypto++ 7.0
+/// \sa <A HREF="https://www.cryptopp.com/wiki/KeyDerivationFunction">KeyDerivationFunction</A>
+///  on the Crypto++ wiki
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE KeyDerivationFunction : public Algorithm
 {
 public:

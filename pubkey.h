@@ -682,6 +682,8 @@ class TF_VerifierImpl : public TF_ObjectImpl<TF_VerifierBase, SCHEME_OPTIONS, ty
 // ********************************************************
 
 /// \brief Mask generation function interface
+/// \sa P1363_KDF2, P1363_MGF1
+/// \since Crypto++ 2.0
 class CRYPTOPP_NO_VTABLE MaskGeneratingFunction
 {
 public:
@@ -711,6 +713,8 @@ public:
 CRYPTOPP_DLL void CRYPTOPP_API P1363_MGF1KDF2_Common(HashTransformation &hash, byte *output, size_t outputLength, const byte *input, size_t inputLength, const byte *derivationParams, size_t derivationParamsLength, bool mask, unsigned int counterStart);
 
 /// \brief P1363 mask generation function
+/// \sa P1363_KDF2, MaskGeneratingFunction
+/// \since Crypto++ 2.0
 class P1363_MGF1 : public MaskGeneratingFunction
 {
 public:
@@ -725,6 +729,10 @@ public:
 
 /// \brief P1363 key derivation function
 /// \tparam H hash function used in the derivation
+/// \sa P1363_MGF1, KeyDerivationFunction, <A
+///  HREF="https://www.cryptopp.com/wiki/P1363_KDF2">P1363_KDF2</A>
+///  on the Crypto++ wiki
+/// \since Crypto++ 2.0
 template <class H>
 class P1363_KDF2
 {
