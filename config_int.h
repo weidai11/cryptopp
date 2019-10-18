@@ -66,7 +66,7 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 	typedef word64 word;
 #else
 	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE 1
-	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__)
+	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__) || defined(__aarch64__)
 		#if ((CRYPTOPP_GCC_VERSION >= 30400) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30000) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300)) && (__SIZEOF_INT128__ >= 16)
 			// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
 			// GCC 4.8.3 and bad uint128_t ops on PPC64/POWER7 (Issue 421)

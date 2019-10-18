@@ -200,7 +200,7 @@ static word AtomicInverseModPower2(word A)
 
 // ********************************************************
 
-#if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || (defined(__x86_64__) && defined(CRYPTOPP_WORD128_AVAILABLE))
+#if !defined(CRYPTOPP_NATIVE_DWORD_AVAILABLE) || ((defined(__aarch64__) || defined(__x86_64__)) && defined(CRYPTOPP_WORD128_AVAILABLE))
 	#define TWO_64_BIT_WORDS 1
 	#define Declare2Words(x)			word x##0, x##1;
 	#define AssignWord(a, b)			a##0 = b; a##1 = 0;
@@ -212,6 +212,8 @@ static word AtomicInverseModPower2(word A)
 		#ifndef __INTEL_COMPILER
 			#define Double3Words(c, d)		d##1 = __shiftleft128(d##0, d##1, 1); d##0 = __shiftleft128(c, d##0, 1); c *= 2;
 		#endif
+	#elif defined(__aarch32__) || defined(__aarch64__)
+		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = a*b; asm ("umulh %0,%1,%2" : "=r"(p1) : "r"(a), "r"(b));
 	#elif defined(__DECCXX)
 		#define MultiplyWordsLoHi(p0, p1, a, b)		p0 = a*b; p1 = asm("umulh %a0, %a1, %v0", a, b);
 	#elif defined(__x86_64__)
