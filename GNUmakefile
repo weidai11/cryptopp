@@ -1230,8 +1230,13 @@ cmake-clean:
 	@-$(RM) -f cryptopp-config.cmake CMakeLists.txt
 	@-$(RM) -rf cmake_build/
 
+.PHONY: android-clean
+android-clean:
+	@-$(RM) -f $(patsubst %_simd.cpp,%_simd.cpp.neon,$(wildcard *_simd.cpp))
+	@-$(RM) -rf obj/
+
 .PHONY: distclean
-distclean: clean autotools-clean cmake-clean
+distclean: clean autotools-clean cmake-clean android-clean
 	-$(RM) adhoc.cpp adhoc.cpp.copied GNUmakefile.deps benchmarks.html cryptest.txt
 	@-$(RM) cryptest-*.txt cryptopp.tgz libcryptopp.pc *.o *.bc *.ii *~
 	@-$(RM) -r cryptlib.lib cryptest.exe *.suo *.sdf *.pdb Win32/ x64/ ipch/
