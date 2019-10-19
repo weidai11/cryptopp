@@ -1845,8 +1845,8 @@ int curve25519_mult_CXX(byte sharedKey[32], const byte secretKey[32], const byte
         curve25519_mul(nqz, nqz, zzz);
 
         bit = (e[i/8] >> (i & 7)) & 1;
-        curve25519_swap_conditional(nqx, nqpqx, bit ^ lastbit);
-        curve25519_swap_conditional(nqz, nqpqz, bit ^ lastbit);
+        curve25519_swap_conditional(nqx, nqpqx, (word32)(bit ^ lastbit));
+        curve25519_swap_conditional(nqz, nqpqz, (word32)(bit ^ lastbit));
         lastbit = bit;
     }
 

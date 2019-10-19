@@ -226,7 +226,7 @@ void XTS_ModeBase::Resynchronize(word64 sector, ByteOrder order)
     PutWord<word64>(false, order, iv, sector);
     std::memset(iv+8, 0x00, iv.size()-8);
 
-    BlockOrientedCipherModeBase::Resynchronize(iv, iv.size());
+    BlockOrientedCipherModeBase::Resynchronize(iv, (int)iv.size());
     std::memcpy(m_xregister, iv, iv.size());
     GetTweakCipher().ProcessBlock(m_xregister);
 }
