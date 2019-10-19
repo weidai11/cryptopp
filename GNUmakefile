@@ -1086,11 +1086,13 @@ ifeq ($(IS_ARM32)$(IS_LINUX),11)
   SRCS += aes_armv4.S sha1_armv4.S sha256_armv4.S sha512_armv4.S
 endif
 
+# Remove unneeded arch specific files to speed build time.
 ifeq ($(IS_PPC32)$(IS_PPC64),00)
   SRCS := $(filter-out ppc_%,$(SRCS))
 endif
 ifeq ($(IS_ARM32)$(IS_ARMV8),00)
   SRCS := $(filter-out arm_%,$(SRCS))
+  SRCS := $(filter-out neon_%,$(SRCS))
 endif
 ifeq ($(IS_X86)$(IS_X32)$(IS_X64),000)
   SRCS := $(filter-out sse_%,$(SRCS))
