@@ -408,7 +408,7 @@ ifeq ($(DETECT_FEATURES),1)
   # Most Clang cannot handle mixed asm with positional arguments, where the
   # body is Intel style with no prefix and the templates are AT&T style.
   # Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
-  
+
   # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
   # Clang compilers. This test will need to be re-enabled if Clang fixes it.
   #TPROG = TestPrograms/test_mixed_asm.cxx
