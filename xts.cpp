@@ -22,6 +22,9 @@
 // 0.3 to 0.4 cpb profit
 #if defined(__SSE2__) || defined(_M_X64)
 # include <immintrin.h>
+// Clang intrinsic casts
+# define M128_CAST(x) ((__m128i *)(void *)(x))
+# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 #endif
 
 
@@ -30,10 +33,6 @@
 #  include <arm_neon.h>
 # endif
 #endif
-
-// Clang intrinsic casts
-#define M128_CAST(x) ((__m128i *)(void *)(x))
-#define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -63,7 +62,10 @@ inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t 
 {
     CRYPTOPP_ASSERT(count >= 16 && (count % 16 == 0));
 
-#if defined(__SSE2__) || defined(_M_X64)
+#if defined(CRYPTOPP_DISABLE_ASM)
+	xorbuf(output, input, mask, count);
+
+#elif defined(__SSE2__) || defined(_M_X64)
     for (size_t i=0; i<count; i+=16)
         _mm_storeu_si128(M128_CAST(output+i),
             _mm_xor_si128(
