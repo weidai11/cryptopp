@@ -26,7 +26,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief ChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
-class CRYPTOPP_NO_VTABLE ChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
+class ChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
@@ -130,7 +130,7 @@ private:
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
 template <bool T_IsEncryption>
-class CRYPTOPP_NO_VTABLE ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
+class ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
 {
 public:
 	virtual ~ChaCha20Poly1305_Final() {}
@@ -174,7 +174,7 @@ struct ChaCha20Poly1305 : public AuthenticatedSymmetricCipherDocumentation
 /// \brief XChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
-class CRYPTOPP_NO_VTABLE XChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
+class XChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
@@ -258,11 +258,11 @@ protected:
 	void AuthenticateLastConfidentialBlock();
 	void AuthenticateLastFooterBlock(byte *mac, size_t macSize);
 
-	virtual const MessageAuthenticationCode & GetMAC() const = 0;
-	virtual MessageAuthenticationCode & AccessMAC() = 0;
-
 	// See comments in chachapoly.cpp
 	void RekeyCipherAndMac(const byte *userKey, size_t userKeyLength, const NameValuePairs &params);
+
+	virtual const MessageAuthenticationCode & GetMAC() const = 0;
+	virtual MessageAuthenticationCode & AccessMAC() = 0;
 
 private:
 	SecByteBlock m_userKey;
@@ -278,7 +278,7 @@ private:
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
 template <bool T_IsEncryption>
-class CRYPTOPP_NO_VTABLE XChaCha20Poly1305_Final : public XChaCha20Poly1305_Base
+class XChaCha20Poly1305_Final : public XChaCha20Poly1305_Base
 {
 public:
 	virtual ~XChaCha20Poly1305_Final() {}
