@@ -140,8 +140,7 @@ ed25519_sign_open(std::istream& stream, const byte publicKey[32], const byte sig
 // error "The operand ___LCM cannot be assigned to".
 
 #if defined(CRYPTOPP_WORD128_AVAILABLE) || \
-   (defined(_MSC_VER) && defined(_M_X64)) || \
-   (defined(__GNUC__) && (defined(__amd64__) || defined(__x86_64__)))
+   (defined(_MSC_VER) && defined(_M_X64))
 # define CRYPTOPP_CURVE25519_64BIT 1
 #else
 # define CRYPTOPP_CURVE25519_32BIT 1
