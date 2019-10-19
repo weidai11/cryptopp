@@ -26,15 +26,14 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief ChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
-class ChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
+class CRYPTOPP_NO_VTABLE ChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
+		{return "ChaCha20/Poly1305";}
+
 	virtual ~ChaCha20Poly1305_Base() {}
 
-	virtual const MessageAuthenticationCode & GetMAC() const = 0;
-	virtual MessageAuthenticationCode & AccessMAC() = 0;
-
-public:
 	// AuthenticatedSymmetricCipher
 	std::string AlgorithmName() const
 		{return std::string("ChaCha20/Poly1305");}
@@ -111,10 +110,13 @@ protected:
 	void AuthenticateLastConfidentialBlock();
 	void AuthenticateLastFooterBlock(byte *mac, size_t macSize);
 
-protected:
 	// See comments in chachapoly.cpp
 	void RekeyCipherAndMac(const byte *userKey, size_t userKeyLength, const NameValuePairs &params);
 
+	virtual const MessageAuthenticationCode & GetMAC() const = 0;
+	virtual MessageAuthenticationCode & AccessMAC() = 0;
+
+private:
 	SecByteBlock m_userKey;
 };
 
@@ -128,11 +130,10 @@ protected:
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
 template <bool T_IsEncryption>
-class ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
+class CRYPTOPP_NO_VTABLE ChaCha20Poly1305_Final : public ChaCha20Poly1305_Base
 {
 public:
-	static std::string StaticAlgorithmName()
-		{return std::string("ChaCha20/Poly1305");}
+	virtual ~ChaCha20Poly1305_Final() {}
 
 protected:
 	const SymmetricCipher & GetSymmetricCipher()
@@ -173,15 +174,14 @@ struct ChaCha20Poly1305 : public AuthenticatedSymmetricCipherDocumentation
 /// \brief XChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
-class XChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
+class CRYPTOPP_NO_VTABLE XChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
 {
 public:
+	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
+		{return "XChaCha20/Poly1305";}
+
 	virtual ~XChaCha20Poly1305_Base() {}
 
-	virtual const MessageAuthenticationCode & GetMAC() const = 0;
-	virtual MessageAuthenticationCode & AccessMAC() = 0;
-
-public:
 	// AuthenticatedSymmetricCipher
 	std::string AlgorithmName() const
 		{return std::string("XChaCha20/Poly1305");}
@@ -258,10 +258,13 @@ protected:
 	void AuthenticateLastConfidentialBlock();
 	void AuthenticateLastFooterBlock(byte *mac, size_t macSize);
 
-protected:
+	virtual const MessageAuthenticationCode & GetMAC() const = 0;
+	virtual MessageAuthenticationCode & AccessMAC() = 0;
+
 	// See comments in chachapoly.cpp
 	void RekeyCipherAndMac(const byte *userKey, size_t userKeyLength, const NameValuePairs &params);
 
+private:
 	SecByteBlock m_userKey;
 };
 
@@ -275,11 +278,10 @@ protected:
 ///  for IETF Protocols</A>.
 /// \since Crypto++ 8.1
 template <bool T_IsEncryption>
-class XChaCha20Poly1305_Final : public XChaCha20Poly1305_Base
+class CRYPTOPP_NO_VTABLE XChaCha20Poly1305_Final : public XChaCha20Poly1305_Base
 {
 public:
-	static std::string StaticAlgorithmName()
-		{return std::string("XChaCha20/Poly1305");}
+	virtual ~XChaCha20Poly1305_Final() {}
 
 protected:
 	const SymmetricCipher & GetSymmetricCipher()
