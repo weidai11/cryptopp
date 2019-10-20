@@ -25,6 +25,12 @@
 #include "config_cpu.h"
 #include "config_ver.h"
 
+// You may need to force include a C++ header on Android when using STLPort
+// to ensure _STLPORT_VERSION is defined
+#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
+#define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
+#endif
+
 // Ancient Crypto++ define, dating back to C++98 and C++03.
 #ifndef CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 # define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1
