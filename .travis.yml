@@ -25,6 +25,8 @@ compiler:
 env:
   global:
     - BUILD_JOBS=2
+    - BUILD_OS=none
+    - BUILD_MODE=none
     - ANDROID_HOME="$HOME/android-sdk"
     - ANDROID_SDK="$HOME/android-sdk"
     - ANDROID_NDK="$HOME/android-ndk"
@@ -34,6 +36,9 @@ env:
 # Use jobs rather than matrix since we are precisely
 # specifiying our test cases.
 jobs:
+
+  exclude:
+    - os: none
 
   include:
     - os: linux
