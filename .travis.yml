@@ -38,6 +38,12 @@ env:
 # specifiying our test cases.
 jobs:
 
+  exclude:
+    - os: linux
+      osx_image: *
+    - os: osx
+      osx_image: *
+
   include:
     - os: linux
       name: Linux with GCC (all)
