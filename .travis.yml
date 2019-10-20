@@ -10,13 +10,8 @@ sudo: required
 git:
   depth: 5
 
-# Environment variables
-Env:
-  - BUILD_JOBS=2
-
 # Use jobs rather than matrix since we are precisely
 # specifiying our test cases.
-
 jobs:
   include:
     - os: linux
@@ -26,6 +21,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (native)
       arch: amd64
@@ -33,6 +29,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (no-asm)
       arch: amd64
@@ -40,6 +37,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (debug)
       arch: amd64
@@ -47,6 +45,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (asan)
       arch: amd64
@@ -54,6 +53,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (ubsan)
       arch: amd64
@@ -61,6 +61,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (pem)
       arch: amd64
@@ -68,6 +69,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (autotools)
       arch: amd64
@@ -75,6 +77,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with GCC (cmake)
       arch: amd64
@@ -82,6 +85,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (all)
       arch: amd64
@@ -89,6 +93,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (native)
       arch: amd64
@@ -96,6 +101,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (no-asm)
       arch: amd64
@@ -103,6 +109,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (debug)
       arch: amd64
@@ -110,6 +117,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (asan)
       arch: amd64
@@ -117,6 +125,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (ubsan)
       arch: amd64
@@ -124,6 +133,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (pem)
       arch: amd64
@@ -131,6 +141,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (autotools)
       arch: amd64
@@ -138,6 +149,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
+        - BUILD_JOBS=4
     - os: linux
       name: Linux with Clang (cmake)
       arch: amd64
@@ -145,6 +157,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
+        - BUILD_JOBS=4
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (all)
@@ -153,6 +166,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=all
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (native)
@@ -161,6 +175,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=native
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (no-asm)
@@ -169,6 +184,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (debug)
@@ -177,6 +193,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=debug
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (asan)
@@ -185,6 +202,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=asan
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (ubsan)
@@ -193,6 +211,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (pem)
@@ -201,6 +220,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=pem
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (autotools)
@@ -209,6 +229,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=autotools
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (cmake)
@@ -217,6 +238,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=cmake
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (all)
       arch: arm64
@@ -224,6 +246,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (native)
       arch: arm64
@@ -231,6 +254,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (no-asm)
       arch: arm64
@@ -238,6 +262,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (debug)
       arch: arm64
@@ -245,6 +270,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (asan)
       arch: arm64
@@ -252,6 +278,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (ubsan)
       arch: arm64
@@ -259,6 +286,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (pem)
       arch: arm64
@@ -266,6 +294,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (autotools)
       arch: arm64
@@ -273,6 +302,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (cmake)
       arch: arm64
@@ -280,6 +310,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (all)
       arch: arm64
@@ -287,6 +318,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (native)
       arch: arm64
@@ -294,6 +326,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (no-asm)
       arch: arm64
@@ -301,6 +334,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (debug)
       arch: arm64
@@ -308,6 +342,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (asan)
       arch: arm64
@@ -315,6 +350,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (ubsan)
       arch: arm64
@@ -322,6 +358,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (pem)
       arch: arm64
@@ -329,6 +366,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (autotools)
       arch: arm64
@@ -336,6 +374,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (cmake)
       arch: arm64
@@ -343,12 +382,14 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
+        - BUILD_JOBS=2
     - os: linux
       name: Android on Linux (armeabi-v7a)
       arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
+        - BUILD_JOBS=2
         - PLATFORM=armeabi-v7a
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
@@ -361,6 +402,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
+        - BUILD_JOBS=2
         - PLATFORM=aarch64
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
@@ -373,6 +415,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
+        - BUILD_JOBS=2
         - PLATFORM=x86
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
@@ -385,6 +428,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
+        - BUILD_JOBS=2
         - PLATFORM=x86_64
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
@@ -398,6 +442,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=iPhoneOS
     - os: osx
       osx_image: xcode10.1
@@ -406,6 +451,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=Arm64
     - os: osx
       osx_image: xcode10.1
@@ -414,6 +460,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=WatchOS
     - os: osx
       osx_image: xcode10.1
@@ -422,6 +469,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=AppleTVOS
     - os: osx
       osx_image: xcode10.1
@@ -430,6 +478,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=iPhoneSimulator
     - os: osx
       osx_image: xcode10.1
@@ -438,6 +487,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=WatchSimulator
     - os: osx
       osx_image: xcode10.1
@@ -446,6 +496,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=AppleTVSimulator
 
   allow_failures:
@@ -455,6 +506,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=WatchOS
     - os: osx
       osx_image: xcode10.1
@@ -462,6 +514,7 @@ jobs:
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
+        - BUILD_JOBS=2
         - PLATFORM=iPhoneSimulator
 
 before_install:
