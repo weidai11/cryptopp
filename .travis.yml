@@ -40,9 +40,9 @@ jobs:
 
   exclude:
     - os: linux
-      osx_image: *
+      env:
     - os: osx
-      osx_image: *
+      env:
 
   include:
     - os: linux
