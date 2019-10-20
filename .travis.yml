@@ -1,6 +1,7 @@
 # See https://docs.travis-ci.com/user/reference/overview/ and
 # https://docs.travis-ci.com/user/multi-cpu-architectures
 # https://docs.travis-ci.com/user/multi-cpu-architectures
+# https://github.com/travis-ci/travis-yml/blob/master/schema.json
 
 language: cpp
 dist: xenial
@@ -12,7 +13,7 @@ git:
 # Environment variables
 Env:
   - BUILD_JOBS=2
-  
+
 # Use jobs rather than matrix since we are precisely
 # specifiying our test cases.
 
