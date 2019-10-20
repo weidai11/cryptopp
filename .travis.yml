@@ -9,6 +9,10 @@ sudo: required
 git:
   depth: 5
 
+# Environment variables
+Env:
+  - BUILD_JOBS=2
+  
 # Use jobs rather than matrix since we are precisely
 # specifiying our test cases.
 
@@ -21,7 +25,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (native)
       arch: amd64
@@ -29,7 +32,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (no-asm)
       arch: amd64
@@ -37,7 +39,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (debug)
       arch: amd64
@@ -45,7 +46,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (asan)
       arch: amd64
@@ -53,7 +53,6 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (ubsan)
       arch: amd64
@@ -508,7 +507,7 @@ script:
         ./cryptest.exe tv all
     fi
 
-# whitelist branches to avoid testing feature branches twice
+# Whitelist branches to avoid testing feature branches twice
 branches:
   only:
     - master
