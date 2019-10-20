@@ -12,10 +12,11 @@ os:
   - linux
   - osx
 
+osx_image:
+  - xcode10.1
+
 dist: xenial
 sudo: required
-
-osx_image: xcode10.1
 
 git:
   depth: 5
@@ -431,11 +432,13 @@ matrix:
 
   allow_failures:
     - os: osx
+      name: iOS on OS X (WatchOS)
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=WatchOS
     - os: osx
+      name: iOS on OS X (iPhoneSimulator)
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
