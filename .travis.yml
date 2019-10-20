@@ -35,8 +35,8 @@ env:
 
 matrix:
 
-  # Linux with GCC (amd64)
   include:
+  # Linux with GCC (amd64)
     - os: linux
       arch: amd64
       compiler: gcc
@@ -92,7 +92,6 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
   # Linux with Clang (amd64)
-  include:
     - os: linux
       arch: amd64
       compiler: clang
@@ -148,7 +147,6 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
   # OS X with Clang (amd64)
-  include:
     - os: osx
       arch: amd64
       compiler: clang
@@ -204,7 +202,6 @@ matrix:
         - BUILD_OS=osx
         - BUILD_MODE=cmake
   # Linux with GCC (arm64)
-  include:
     - os: linux
       arch: arm64
       compiler: gcc
@@ -260,7 +257,6 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
   # Linux with Clang (arm64)
-  include:
     - os: linux
       arch: arm64
       compiler: clang
@@ -316,7 +312,6 @@ matrix:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
   # Android on Linux (amd64)
-  include:
     - os: linux
       arch: amd64
       env:
@@ -342,7 +337,6 @@ matrix:
         - BUILD_MODE=android
         - PLATFORM=x86_64
   # iOS on OS X (amd64)
-  include:
     - os: osx
       arch: amd64
       env:
