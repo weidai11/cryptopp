@@ -39,10 +39,8 @@ env:
 jobs:
 
   exclude:
-    - os: linux
-      env:
-    - os: osx
-      env:
+    - env: linux
+      BUILD_MODE=""
 
   include:
     - os: linux
