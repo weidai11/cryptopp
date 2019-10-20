@@ -35,6 +35,9 @@ env:
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
 matrix:
+
+  exclude:
+
   include:
     - os: linux
       name: Linux with GCC (all)
@@ -491,6 +494,7 @@ script:
 branches:
   only:
     - master
+    - /\/ci$/
 
 addons:
   sonarcloud: false
