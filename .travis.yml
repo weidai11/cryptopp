@@ -1,5 +1,10 @@
 language: cpp
 
+# https://docs.travis-ci.com/user/multi-cpu-architectures
+arch:
+  - amd64
+  - arm64
+
 os:
   - linux
   - osx
