@@ -30,98 +30,348 @@ env:
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
-  matrix:
-    - BUILD_MODE="all"
-    - BUILD_MODE="native"
-    - BUILD_MODE="no-asm"
-    - BUILD_MODE="debug"
-    - BUILD_MODE="asan"
-    - BUILD_MODE="ubsan"
-    - BUILD_MODE="pem"
-
 matrix:
 
-  exclude:
-    # Skip GCC on OS X entirely
-    - os: osx
-      compiler: gcc
-
   include:
+    # Linux with GCC (amd64)
     - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+    - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+    - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+    - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+    - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+    - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+    - os: linux
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+    - os: linux
+      arch: amd64
+      compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
     - os: linux
+      arch: amd64
+      compiler: gcc
       env:
         - BUILD_OS=linux
-        - BUILD_MODE=cmake
+        - BUILD_MODE=cmake		
+    # Linux with Clang (amd64)
     - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+    - os: linux
+      arch: amd64
+      compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+    - os: linux
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+    # OS X with Clang (amd64)
     - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=all
+    - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=native
+    - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=no-asm
+    - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=debug
+    - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=asan
+    - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ubsan
+    - os: osx
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=pem
+    - os: osx
+      arch: amd64
+      compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=autotools
     - os: osx
+      arch: amd64
+      compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=cmake
-    - os: osx
+    # Linux with GCC (arm64)
+    - os: linux
+      arch: arm64
+      compiler: gcc
       env:
-        - BUILD_OS=osx
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
         - BUILD_MODE=pem
     - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+    - os: linux
+      arch: arm64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake		
+    # Linux with Clang (arm64)
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+    - os: linux
+      arch: arm64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+    # Android on Linux (amd64)
+    - os: linux
+      arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=armeabi-v7a
     - os: linux
+      arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=aarch64
     - os: linux
+      arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=x86
     - os: linux
+      arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=x86_64
+    # iOS on OS X (amd64)
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=iPhoneOS
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=Arm64
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=WatchOS
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=AppleTVOS
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=iPhoneSimulator
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=WatchSimulator
     - os: osx
+      arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
