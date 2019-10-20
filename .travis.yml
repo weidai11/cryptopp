@@ -34,9 +34,9 @@ env:
     - ANDROID_SDK_ROOT="$ANDROID_SDK"
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
-matrix:
-
-  exclude:
+# Use jobs rather than matrix since we are precisely
+# specifiying our test cases.
+jobs:
 
   include:
     - os: linux
