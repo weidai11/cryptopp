@@ -37,392 +37,392 @@ matrix:
 
   include:
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (all)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (native)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (no-asm)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (debug)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (asan)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (ubsan)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (pem)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (autotools)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
     - os: linux
-      name: Linux with GCC (amd64)
+      name: Linux with GCC (cmake)
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (all)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (native)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (no-asm)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (debug)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (asan)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (ubsan)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (pem)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (autotools)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
     - os: linux
-      name: Linux with Clang (amd64)
+      name: Linux with Clang (cmake)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (all)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=all
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (native)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=native
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (no-asm)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=no-asm
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (debug)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=debug
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (asan)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=asan
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (ubsan)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ubsan
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (pem)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=pem
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (autotools)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=autotools
     - os: osx
-      name: OS X with Clang (amd64)
+      name: OS X with Clang (cmake)
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=cmake
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (all)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (native)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (no-asm)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (debug)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (asan)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (ubsan)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (pem)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (autotools)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
     - os: linux
-      name: Linux with GCC (arm64)
+      name: Linux with GCC (cmake)
       arch: arm64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (all)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (native)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (no-asm)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (debug)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (asan)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (ubsan)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (pem)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (autotools)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
     - os: linux
-      name: Linux with Clang (arm64)
+      name: Linux with Clang (cmake)
       arch: arm64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
     - os: linux
-      name: Android on Linux (amd64)
+      name: Android on Linux (armeabi-v7a)
       arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=armeabi-v7a
     - os: linux
-      name: Android on Linux (amd64)
+      name: Android on Linux (aarch64)
       arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=aarch64
     - os: linux
-      name: Android on Linux (amd64)
+      name: Android on Linux (x86)
       arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=x86
     - os: linux
-      name: Android on Linux (amd64)
+      name: Android on Linux (x86_64)
       arch: amd64
       env:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - PLATFORM=x86_64
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (iPhoneOS)
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=iPhoneOS
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (Arm64)
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=Arm64
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (WatchOS)
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=WatchOS
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (AppleTVOS)
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=AppleTVOS
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (iPhoneSimulator)
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=iPhoneSimulator
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (WatchSimulator)
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - PLATFORM=WatchSimulator
     - os: osx
-      name: iOS on OS X (amd64)
+      name: iOS on OS X (AppleTVSimulator)
       arch: amd64
       env:
         - BUILD_OS=osx
