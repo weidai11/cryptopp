@@ -35,7 +35,6 @@ env:
     - ANDROID_NDK_ROOT="$ANDROID_NDK"
 
 matrix:
-
   include:
     - os: linux
       name: Linux with GCC (all)
