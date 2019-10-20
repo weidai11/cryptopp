@@ -1,26 +1,13 @@
 # See https://docs.travis-ci.com/user/reference/overview/ and
 # https://docs.travis-ci.com/user/multi-cpu-architectures
+# https://docs.travis-ci.com/user/multi-cpu-architectures
 
 language: cpp
-
-# https://docs.travis-ci.com/user/multi-cpu-architectures
-arch:
-  - amd64
-  - arm64
-
-os:
-  - linux
-  - osx
-
 dist: xenial
 sudo: required
 
 git:
   depth: 5
-
-compiler:
-  - clang
-  - gcc
 
 # Use jobs rather than matrix since we are precisely
 # specifiying our test cases.
