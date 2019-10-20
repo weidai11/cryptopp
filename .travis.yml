@@ -11,7 +11,9 @@ git:
   depth: 5
 
 # Use jobs rather than matrix since we are precisely
-# specifiying our test cases.
+# specifiying our test cases. Do not move any of the
+# keys (env, os, arch, compiler, etc) into global.
+# Putting them in global invokes the matrix expansion.
 jobs:
   include:
     - os: linux
@@ -21,7 +23,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (native)
       arch: amd64
@@ -29,7 +31,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (no-asm)
       arch: amd64
@@ -37,7 +39,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (debug)
       arch: amd64
@@ -45,7 +47,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (asan)
       arch: amd64
@@ -53,7 +55,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (ubsan)
       arch: amd64
@@ -61,7 +63,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (pem)
       arch: amd64
@@ -69,7 +71,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (autotools)
       arch: amd64
@@ -77,7 +79,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (cmake)
       arch: amd64
@@ -85,7 +87,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (all)
       arch: amd64
@@ -93,7 +95,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (native)
       arch: amd64
@@ -101,7 +103,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (no-asm)
       arch: amd64
@@ -109,7 +111,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (debug)
       arch: amd64
@@ -117,7 +119,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (asan)
       arch: amd64
@@ -125,7 +127,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (ubsan)
       arch: amd64
@@ -133,7 +135,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (pem)
       arch: amd64
@@ -141,7 +143,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (autotools)
       arch: amd64
@@ -149,7 +151,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: linux
       name: Linux with Clang (cmake)
       arch: amd64
@@ -157,7 +159,7 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
-        - BUILD_JOBS=4
+        - BUILD_JOBS=2
     - os: osx
       osx_image: xcode10.1
       name: OS X with Clang (all)
