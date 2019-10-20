@@ -12,9 +12,6 @@ os:
   - linux
   - osx
 
-osx_image:
-  - xcode10.1
-
 dist: xenial
 sudo: required
 
@@ -166,6 +163,7 @@ matrix:
     - os: osx
       name: OS X with Clang (all)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -173,6 +171,7 @@ matrix:
     - os: osx
       name: OS X with Clang (native)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -180,6 +179,7 @@ matrix:
     - os: osx
       name: OS X with Clang (no-asm)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -187,6 +187,7 @@ matrix:
     - os: osx
       name: OS X with Clang (debug)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -194,6 +195,7 @@ matrix:
     - os: osx
       name: OS X with Clang (asan)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -201,6 +203,7 @@ matrix:
     - os: osx
       name: OS X with Clang (ubsan)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -208,6 +211,7 @@ matrix:
     - os: osx
       name: OS X with Clang (pem)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -215,6 +219,7 @@ matrix:
     - os: osx
       name: OS X with Clang (autotools)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -222,6 +227,7 @@ matrix:
     - os: osx
       name: OS X with Clang (cmake)
       arch: amd64
+      osx_image: xcode10.1
       compiler: clang
       env:
         - BUILD_OS=osx
@@ -383,6 +389,7 @@ matrix:
     - os: osx
       name: iOS on OS X (iPhoneOS)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
@@ -390,6 +397,7 @@ matrix:
     - os: osx
       name: iOS on OS X (Arm64)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
@@ -397,6 +405,7 @@ matrix:
     - os: osx
       name: iOS on OS X (WatchOS)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
@@ -404,6 +413,7 @@ matrix:
     - os: osx
       name: iOS on OS X (AppleTVOS)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
@@ -411,6 +421,7 @@ matrix:
     - os: osx
       name: iOS on OS X (iPhoneSimulator)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
@@ -418,6 +429,7 @@ matrix:
     - os: osx
       name: iOS on OS X (WatchSimulator)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
@@ -425,6 +437,7 @@ matrix:
     - os: osx
       name: iOS on OS X (AppleTVSimulator)
       arch: amd64
+      osx_image: xcode10.1
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
