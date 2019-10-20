@@ -39,7 +39,7 @@ env:
 jobs:
 
   exclude:
-    - env: linux
+    - env:
       BUILD_MODE=""
 
   include:
