@@ -38,10 +38,6 @@ env:
 # specifiying our test cases.
 jobs:
 
-  exclude:
-    - env:
-      BUILD_MODE=""
-
   include:
     - os: linux
       name: Linux with GCC (all)
