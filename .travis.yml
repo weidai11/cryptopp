@@ -1,6 +1,19 @@
-# See https://docs.travis-ci.com/user/reference/overview/ and
-# https://docs.travis-ci.com/user/multi-cpu-architectures
-# https://github.com/travis-ci/travis-yml/blob/master/schema.json
+# In the YML below each job gets an environment that includes
+# BUILD_OS and BUILD_MODE. The variables are used in the driver
+# scripts and is used to select a test. For example, BUILD_OS=linux
+# and BUILD_MODE=all means run 'make all' on Linux. Travis supplies
+# Linux based on 'os: linux' key so BUILD_OS is effectively ignored.
+# The Android and iOS tests specify a BUILD_ARCH. BUILD_ARCH is passed
+# to the underlying setenv-*.sh scripts. For example, testing on iOS,
+# BUILD_ARCH=arm64 means 'setenv-ios.sh arm64' is called before
+# 'make GNUmakefile-cross' is called.
+
+# DO NOT create top level (global) keys like env, arch, os, compiler.
+# The top level/global keys invoke [unwanted] matrix expansion. Also
+# see https://stackoverflow.com/q/58473000/608639 and
+# https://docs.travis-ci.com/user/reference/overview/ and
+# https://docs.travis-ci.com/user/multi-cpu-architectures and
+# https://github.com/travis-ci/travis-yml/blob/master/schema.json.
 
 language: cpp
 dist: xenial
@@ -391,7 +404,7 @@ jobs:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - BUILD_JOBS=2
-        - PLATFORM=armeabi-v7a
+        - BUILD_ARCH=armeabi-v7a
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
         - ANDROID_NDK="$HOME/android-ndk"
@@ -404,7 +417,7 @@ jobs:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - BUILD_JOBS=2
-        - PLATFORM=aarch64
+        - BUILD_ARCH=aarch64
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
         - ANDROID_NDK="$HOME/android-ndk"
@@ -417,7 +430,7 @@ jobs:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - BUILD_JOBS=2
-        - PLATFORM=x86
+        - BUILD_ARCH=x86
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
         - ANDROID_NDK="$HOME/android-ndk"
@@ -430,7 +443,7 @@ jobs:
         - BUILD_OS=linux
         - BUILD_MODE=android
         - BUILD_JOBS=2
-        - PLATFORM=x86_64
+        - BUILD_ARCH=x86_64
         - ANDROID_HOME="$HOME/android-sdk"
         - ANDROID_SDK="$HOME/android-sdk"
         - ANDROID_NDK="$HOME/android-ndk"
@@ -444,7 +457,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=iPhoneOS
+        - BUILD_ARCH=iPhoneOS
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (Arm64)
@@ -453,7 +466,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=Arm64
+        - BUILD_ARCH=Arm64
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (WatchOS)
@@ -462,7 +475,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=WatchOS
+        - BUILD_ARCH=WatchOS
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (AppleTVOS)
@@ -471,7 +484,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=AppleTVOS
+        - BUILD_ARCH=AppleTVOS
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (iPhoneSimulator)
@@ -480,7 +493,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=iPhoneSimulator
+        - BUILD_ARCH=iPhoneSimulator
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (WatchSimulator)
@@ -489,7 +502,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=WatchSimulator
+        - BUILD_ARCH=WatchSimulator
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (AppleTVSimulator)
@@ -498,7 +511,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=AppleTVSimulator
+        - BUILD_ARCH=AppleTVSimulator
 
   allow_failures:
     - os: osx
@@ -508,7 +521,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=WatchOS
+        - BUILD_ARCH=WatchOS
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (iPhoneSimulator)
@@ -516,7 +529,7 @@ jobs:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - BUILD_JOBS=2
-        - PLATFORM=iPhoneSimulator
+        - BUILD_ARCH=iPhoneSimulator
 
 before_install:
   - |
@@ -538,11 +551,11 @@ script:
     if [[ "$BUILD_MODE" == "ios" ]]; then
         cp TestScripts/setenv-ios.sh .
         cp TestScripts/cryptest-ios.sh .
-        bash cryptest-ios.sh
+        bash cryptest-ios.sh "$BUILD_ARCH"
     elif [[ "$BUILD_MODE" == "android" ]]; then
         cp TestScripts/setenv-android.sh .
         cp TestScripts/cryptest-android.sh .
-        bash cryptest-android.sh
+        bash cryptest-android.sh "$BUILD_ARCH"
     elif [[ "$BUILD_MODE" == "autotools" ]]; then
         cp TestScripts/cryptest-autotools.sh .
         bash cryptest-autotools.sh
