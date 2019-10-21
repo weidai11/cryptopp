@@ -1,7 +1,7 @@
 #include <string>
 int main(int argc, char* argv[])
 {
-#ifndef __NEWLIB__
+#ifndef __GLIBCXX__
 	int x[-1];
 #endif
 	return 0;
