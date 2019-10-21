@@ -17,6 +17,15 @@
 
 #include "config_ver.h"
 
+// It is OK to remove the hard stop below, but you are on your own.
+// After building the library be sure to run self tests described
+// https://www.cryptopp.com/wiki/Release_Process#Self_Tests
+// Some relevant bug reports can be found at:
+// * Clang: http://github.com/weidai11/cryptopp/issues/147
+#if (defined(_MSC_VER) && defined(__clang__) && !(defined( __clang_analyzer__)))
+# error: "Unsupported configuration"
+#endif
+
 // Windows platform
 #if defined(_WIN32) || defined(_WIN64) || defined(__CYGWIN__)
 #define CRYPTOPP_WIN32_AVAILABLE

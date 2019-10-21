@@ -28,7 +28,8 @@
 // #define CRYPTOPP_DISABLE_ASM 1
 
 // https://github.com/weidai11/cryptopp/issues/719
-#if defined(__native_client__) && !defined(CRYPTOPP_DISABLE_ASM)
+#if defined(__native_client__)
+# undef CRYPTOPP_DISABLE_ASM
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
@@ -38,49 +39,34 @@
 // Also see https://bugs.llvm.org/show_bug.cgi?id=39895 .
 // #define CRYPTOPP_DISABLE_MIXED_ASM 1
 
-#ifndef CRYPTOPP_DISABLE_MIXED_ASM
-# if defined(__clang__)
-#  define CRYPTOPP_DISABLE_MIXED_ASM 1
-# endif
+#if defined(__clang__)
+# undef CRYPTOPP_DISABLE_MIXED_ASM
+# define CRYPTOPP_DISABLE_MIXED_ASM 1
 #endif
 
 // CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is no longer honored. It
 // was removed at https://github.com/weidai11/cryptopp/issues/682
 // #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS 1
 
-// It is OK to remove the hard stop below, but you are on your own.
-// After building the library be sure to run self tests described
-// https://www.cryptopp.com/wiki/Release_Process#Self_Tests
-// Some relevant bug reports can be found at:
-// * Clang: http://github.com/weidai11/cryptopp/issues/147
-// * Native Client: https://github.com/weidai11/cryptopp/issues/719
-#if (defined(_MSC_VER) && defined(__clang__) && !(defined( __clang_analyzer__)))
-# error: "Unsupported configuration"
-#endif
-
-// You may need to force include a C++ header on Android when using STLPort to ensure
-// _STLPORT_VERSION is defined: CXXFLAGS="-DNDEBUG -g2 -O2 -std=c++11 -include iosfwd"
-// TODO: Figure out C++17 and lack of std::uncaught_exception
-#if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
-#define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
-#endif
-
 // ***************** IA32 CPU features ********************
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 
 // Apple Clang prior to 5.0 cannot handle SSE2
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
+#if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 50000)
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
 // Sun Studio 12.1 provides GCC inline assembly
 // http://blogs.oracle.com/x86be/entry/gcc_style_asm_inlining_support
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5100)
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC < 0x5100)
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && ((defined(_MSC_VER) && defined(_M_IX86)) || (defined(__GNUC__) && (defined(__i386__) || defined(__x86_64__))))
+// Guard everything in CRYPTOPP_DISABLE_ASM
+#if !defined(CRYPTOPP_DISABLE_ASM)
+
+#if (defined(_MSC_VER) && defined(_M_IX86)) || ((defined(__GNUC__) && (defined(__i386__)) || defined(__x86_64__)))
 	// C++Builder 2010 does not allow "call label" where label is defined within inline assembly
 	#define CRYPTOPP_X86_ASM_AVAILABLE 1
 
@@ -93,20 +79,20 @@
 	#endif
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(_MSC_VER) && defined(_M_X64)
+#if defined(_MSC_VER) && defined(_M_X64)
 	#define CRYPTOPP_X64_MASM_AVAILABLE 1
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__GNUC__) && defined(__x86_64__)
+#if defined(__GNUC__) && defined(__x86_64__)
 	#define CRYPTOPP_X64_ASM_AVAILABLE 1
 #endif
 
 // 32-bit SunCC does not enable SSE2 by default.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__) || (__SUNPRO_CC >= 0x5100))
+#if !defined(CRYPTOPP_DISABLE_SSE2) && (defined(_MSC_VER) || CRYPTOPP_GCC_VERSION >= 30300 || defined(__SSE2__) || (__SUNPRO_CC >= 0x5100))
 	#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1
 #endif
 
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SSSE3)
+#if !defined(CRYPTOPP_DISABLE_SSSE3)
 # if defined(__SSSE3__) || (_MSC_VER >= 1500) || \
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1000) || (__SUNPRO_CC >= 0x5110) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 20300) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40000)
@@ -138,7 +124,7 @@
 #endif
 
 // Requires Sun Studio 12.3 (SunCC 0x5120) in theory.
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_CLMUL) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
+#if !defined(CRYPTOPP_DISABLE_CLMUL) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
 	(defined(__PCLMUL__) || (_MSC_FULL_VER >= 150030729) || (__SUNPRO_CC >= 0x5120) || \
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
@@ -146,7 +132,7 @@
 #endif
 
 // Requires Sun Studio 12.3 (SunCC 0x5120)
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_AESNI) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
+#if !defined(CRYPTOPP_DISABLE_AESNI) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
 	(defined(__AES__) || (_MSC_FULL_VER >= 150030729) || (__SUNPRO_CC >= 0x5120) || \
 	(CRYPTOPP_GCC_VERSION >= 40300) || (__INTEL_COMPILER >= 1110) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 30200) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300))
@@ -171,7 +157,7 @@
 
 // Guessing at SHA for SunCC. Its not in Sun Studio 12.6. Also see
 // http://stackoverflow.com/questions/45872180/which-xarch-for-sha-extensions-on-solaris
-#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_SHANI) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
+#if !defined(CRYPTOPP_DISABLE_SHANI) && defined(CRYPTOPP_SSE42_AVAILABLE) && \
 	(defined(__SHA__) || (CRYPTOPP_MSC_VERSION >= 1900) || (__SUNPRO_CC >= 0x5160) || \
 	(CRYPTOPP_GCC_VERSION >= 40900) || (__INTEL_COMPILER >= 1300) || \
 	(CRYPTOPP_LLVM_CLANG_VERSION >= 30400) || (CRYPTOPP_APPLE_CLANG_VERSION >= 50100))
@@ -207,7 +193,7 @@
 #endif
 
 // Fixup Android and SSE, Crypto. It may be enabled based on compiler version.
-#if (defined(__ANDROID__) || defined(ANDROID))
+#if defined(__ANDROID__) || defined(ANDROID)
 # if (CRYPTOPP_BOOL_X86)
 #  undef CRYPTOPP_SSE41_AVAILABLE
 #  undef CRYPTOPP_SSE42_AVAILABLE
@@ -237,6 +223,8 @@
 # undef CRYPTOPP_CLMUL_AVAILABLE
 #endif
 
+#endif  // CRYPTOPP_DISABLE_ASM
+
 #endif  // X86, X32, X64
 
 // ***************** ARM CPU features ********************
@@ -249,10 +237,13 @@
 # define CRYPTOPP_DISABLE_ASM 1
 #endif
 
+// Guard everything in CRYPTOPP_DISABLE_ASM
+#if !defined(CRYPTOPP_DISABLE_ASM)
+
 // Requires ACLE 1.0. -mfpu=neon or above must be present
 // Requires GCC 4.3, Clang 2.8 or Visual Studio 2012
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_NEON)
 # if defined(__arm__) || defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(_M_ARM)
 #  if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || \
       (CRYPTOPP_MSC_VERSION >= 1700)
@@ -264,7 +255,7 @@
 // ARMv8 and ASIMD. -march=armv8-a or above must be present
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_ASIMD_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_ASIMD_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_ASIMD)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
       (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || \
@@ -278,7 +269,7 @@
 // ARMv8 and ASIMD. -march=armv8-a+crc or above must be present
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_CRC32_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_CRC32)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRC32) || (CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
@@ -290,7 +281,7 @@
 // ARMv8 and ASIMD. -march=armv8-a+crypto or above must be present
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_PMULL)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
@@ -302,7 +293,7 @@
 // ARMv8 and AES. -march=armv8-a+crypto or above must be present
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_AES_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_AES)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
@@ -314,7 +305,7 @@
 // ARMv8 and SHA-1, SHA-256. -march=armv8-a+crypto or above must be present
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_SHA_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SHA)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
@@ -327,7 +318,7 @@
 // ARMv8 and SHA-512, SHA-3. -march=armv8.4-a+crypto or above must be present
 // Requires GCC 8.0, Clang ??? or Visual Studio 20??
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_SHA3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_SHA3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SHA)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000)
 #   define CRYPTOPP_ARM_SHA512_AVAILABLE 1
@@ -339,7 +330,7 @@
 // ARMv8 and SM3, SM4. -march=armv8.4-a+crypto or above must be present
 // Requires GCC 8.0, Clang ??? or Visual Studio 20??
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ASM)
+#if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SM3)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_FEATURE_SM3) || (CRYPTOPP_GCC_VERSION >= 80000)
 #   define CRYPTOPP_ARM_SM3_AVAILABLE 1
@@ -372,18 +363,17 @@
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
 #endif
 
-// Fixup Android and CRC32. It may be enabled based on compiler version.
-#if (defined(__ANDROID__) || defined(ANDROID)) && !defined(__ARM_FEATURE_CRC32)
-# undef CRYPTOPP_ARM_CRC32_AVAILABLE
-#endif
-
-// Fixup Android and Crypto. It may be enabled based on compiler version.
-#if (defined(__ANDROID__) || defined(ANDROID)) && !defined(__ARM_FEATURE_CRYPTO)
+// Disable for Android
+#if defined(__ANDROID__) || defined(ANDROID)
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
 # undef CRYPTOPP_ARM_AES_AVAILABLE
 # undef CRYPTOPP_ARM_SHA1_AVAILABLE
 # undef CRYPTOPP_ARM_SHA2_AVAILABLE
+# undef CRYPTOPP_ARM_SHA3_AVAILABLE
+# undef CRYPTOPP_ARM_SHA512_AVAILABLE
+# undef CRYPTOPP_ARM_SM3_AVAILABLE
+# undef CRYPTOPP_ARM_SM4_AVAILABLE
 #endif
 
 // Cryptogams offers an ARM asm implementations for AES and SHA. Crypto++ does
@@ -392,7 +382,7 @@
 // than C/C++. Define this to use the Cryptogams AES and SHA implementations
 // on GNU Linux systems. When defined, Crypto++ will use aes_armv4.S,
 // sha1_armv4.S and sha256_armv4.S. https://www.cryptopp.com/wiki/Cryptogams.
-#if !defined(CRYPTOPP_DISABLE_ASM) && defined(__arm__) && defined(__linux__)
+#if defined(__arm__) && defined(__linux__)
 # if defined(__GNUC__) || defined(__clang__)
 #  define CRYPTOGAMS_ARM_AES      1
 #  define CRYPTOGAMS_ARM_SHA1     1
@@ -401,22 +391,16 @@
 # endif
 #endif
 
+#endif  // CRYPTOPP_DISABLE_ASM
+
 #endif  // ARM32, ARM64
 
 // ***************** AltiVec and Power8 ********************
 
 #if (CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 
-#if defined(CRYPTOPP_DISABLE_ALTIVEC) || defined(CRYPTOPP_DISABLE_ASM)
-# undef CRYPTOPP_DISABLE_ALTIVEC
-# undef CRYPTOPP_DISABLE_POWER7
-# undef CRYPTOPP_DISABLE_POWER8
-# undef CRYPTOPP_DISABLE_POWER9
-# define CRYPTOPP_DISABLE_ALTIVEC 1
-# define CRYPTOPP_DISABLE_POWER7 1
-# define CRYPTOPP_DISABLE_POWER8 1
-# define CRYPTOPP_DISABLE_POWER9 1
-#endif
+// Guard everything in CRYPTOPP_DISABLE_ASM
+#if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
 
 // An old Apple G5 with GCC 4.01 has AltiVec, but its only Power4 or so.
 #if !defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
@@ -460,6 +444,8 @@
 #  define CRYPTOPP_POWER8_SHA_AVAILABLE 1
 # endif
 #endif
+
+#endif  // CRYPTOPP_DISABLE_ASM
 
 #endif  // PPC32, PPC64
 
