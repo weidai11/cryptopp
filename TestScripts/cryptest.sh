@@ -238,7 +238,8 @@ fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
 GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (5\.[1-9]|[6-9])')
-GCC_48_COMPILER=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.8')
+GCC_48=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.8')
+GCC_48_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (4\.[8-9]|[5-9]\.[0-9])')
 SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
 SUNCC_511_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)")
 
@@ -765,7 +766,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup... GCC 4.8 ASAN produces false positives under ARM
-if [[ ( ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) && "$GCC_48_COMPILER" -ne 0) ]]; then
+if [[ ( ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) && "$GCC_48" -ne 0) ]]; then
 	HAVE_ASAN=0
 fi
 
@@ -1785,7 +1786,7 @@ fi
 
 ############################################
 # Power8 code generation tests
-if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0)) ]]; then
+if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_48_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0)) ]]; then
 
 	############################################
 	# Power8 AES
