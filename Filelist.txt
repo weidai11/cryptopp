@@ -85,7 +85,6 @@ crc_simd.cpp
 crc.h
 cryptdll.vcxproj
 cryptdll.vcxproj.filters
-cryptest.sh
 cryptest.sln
 cryptest.vcxproj
 cryptest.vcxproj.user
@@ -275,9 +274,6 @@ rc5.cpp
 rc5.h
 rc6.cpp
 rc6.h
-rdrand-masm.cmd
-rdrand-nasm.sh
-rdrand.s
 rdrand.asm
 rdrand.cpp
 rdrand.h
