@@ -399,7 +399,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (all)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -407,7 +407,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (native)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -415,7 +415,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (no-asm)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -423,7 +423,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (debug)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -431,7 +431,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (asan)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -439,7 +439,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (ubsan)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -447,7 +447,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (pem)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -455,7 +455,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (autotools)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
@@ -463,7 +463,7 @@ jobs:
         - BUILD_JOBS=2
     - os: linux
       name: Linux with GCC (cmake)
-      arch: ppc64le
+      arch: ppc64
       compiler: gcc
       env:
         - BUILD_OS=linux
