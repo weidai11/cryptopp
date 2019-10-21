@@ -411,7 +411,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
   # Clang compilers. This test will need to be re-enabled if Clang fixes it.
-  #TPROG = TestPrograms/test_mixed_asm.cxx
+  #TPROG = TestPrograms/test_asm_mixed.cxx
   #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   #ifneq ($(strip $(HAVE_OPT)),0)
   #  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
