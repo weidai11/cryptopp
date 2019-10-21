@@ -398,6 +398,78 @@ jobs:
         - BUILD_MODE=cmake
         - BUILD_JOBS=2
     - os: linux
+      name: Linux with GCC (all)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (native)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (no-asm)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (debug)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (asan)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (ubsan)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (pem)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (autotools)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (cmake)
+      arch: ppc64le
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+        - BUILD_JOBS=2
+    - os: linux
       name: Android on Linux (armeabi-v7a)
       arch: amd64
       env:
