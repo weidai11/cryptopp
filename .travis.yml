@@ -16,7 +16,7 @@
 # https://github.com/travis-ci/travis-yml/blob/master/schema.json.
 
 language: cpp
-dist: xenial
+dist: bionic
 sudo: required
 
 git:
@@ -398,6 +398,24 @@ jobs:
         - BUILD_MODE=cmake
         - BUILD_JOBS=2
     - os: linux
+      name: Linux with GCC (all)
+      arch: ppc64le
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (all)
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
       name: Android on Linux (armeabi-v7a)
       arch: amd64
       env:
@@ -579,9 +597,6 @@ branches:
   only:
     - master
     - /\/ci$/
-
-addons:
-  sonarcloud: false
 
 notifications:
   email:
