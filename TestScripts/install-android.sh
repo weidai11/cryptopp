@@ -42,6 +42,9 @@ fi
 rm -f /tmp/android-sdk.zip
 rm -f /tmp/android-ndk.zip
 
+# https://stackoverflow.com/a/47028911/608639
+touch "$ANDROID_HOME/repositories.cfg"
+
 echo "Finished preparing SDK and NDK"
 
 [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
