@@ -95,10 +95,18 @@
 // https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
 
 #if defined(__xlc__) && (__xlc__ < 0x0d01)
-# define __early_xlc__ 1
+# define early_xlc 1
 #endif
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
-# define __early_xlC__ 1
+# define early_xlC 1
+#endif
+
+// Clang did not add vec_xl for little endian until November 2016
+// via https://reviews.llvm.org/D26519 . The release coincides
+// with roughly Clang 4.0 released March 2017. There is an earlier
+// Clang 3.9.1 release, but it is not clear if vec_xl made it.
+#if defined(__clang__) && (__clang_major__ >= 4)
+# define later_clang 1
 #endif
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
@@ -253,7 +261,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 inline uint32x4_p VecLoad(const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
@@ -281,7 +289,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
@@ -383,7 +391,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
@@ -411,7 +419,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
@@ -440,7 +448,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #    else
@@ -481,7 +489,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #    else
@@ -605,7 +613,7 @@ template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, 0, (byte*)dest);
@@ -636,7 +644,7 @@ template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
     vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, off, (byte*)dest);
@@ -751,7 +759,7 @@ template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #    else
@@ -795,7 +803,7 @@ template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(__early_xlc__) || defined(__early_xlC__)
+#  if defined(early_xlc) || defined(early_xlC)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #    else
