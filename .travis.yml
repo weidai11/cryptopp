@@ -549,11 +549,15 @@ jobs:
 
 before_install:
   - |
+    # Unexplained Linux failures
+    if [[ "$BUILD_OS" == "linux" ]]; then
+        sudo apt-get update
+        sudo apt-get -y dist-update
+    fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "android" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        sudo apt-get update
-        source TestScripts/setenv-travis.sh
+        # source TestScripts/setenv-travis.sh
         bash TestScripts/install-android.sh
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then
