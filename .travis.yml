@@ -16,7 +16,7 @@
 # https://github.com/travis-ci/travis-yml/blob/master/schema.json.
 
 language: cpp
-# dist: xenial
+dist: xenial
 sudo: required
 
 git:
@@ -398,22 +398,6 @@ jobs:
         - BUILD_MODE=cmake
         - BUILD_JOBS=2
     - os: linux
-      name: Linux with GCC (all)
-      arch: ppc64le
-      compiler: gcc
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=all
-        - BUILD_JOBS=2
-    - os: linux
-      name: Linux with Clang (all)
-      arch: ppc64le
-      compiler: clang
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=all
-        - BUILD_JOBS=2
-    - os: linux
       name: Android on Linux (armeabi-v7a)
       arch: amd64
       env:
@@ -549,21 +533,16 @@ jobs:
 
 before_install:
   - |
-    # Unexplained Linux ARM64 failures
-    if [[ "$BUILD_OS" == "linux" ]]; then
-        sudo apt-get update
-        sudo apt-get -qq upgrade
-    fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "android" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        # source TestScripts/setenv-travis.sh
+        sudo apt-get update
         bash TestScripts/install-android.sh
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        sudo apt-get -qq install autoconf automake libtool
+        sudo apt-get install -y autoconf automake libtool
     fi
 
 script:

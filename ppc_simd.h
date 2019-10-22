@@ -95,18 +95,10 @@
 // https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
 
 #if defined(__xlc__) && (__xlc__ < 0x0d01)
-# define early_xlc 1
+# define __early_xlc__ 1
 #endif
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
-# define early_xlC 1
-#endif
-
-// Clang did not add vec_xl for little endian until November 2016
-// via https://reviews.llvm.org/D26519 . The release coincides
-// with roughly Clang 4.0 released March 2017. There is a
-// Clang 3.9.1 release, but it is not clear of vec_xl made it.
-#if defined(__clang__) && (__clang_major__ >= 4)
-# define later_clang 1
+# define __early_xlC__ 1
 #endif
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
@@ -261,15 +253,16 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 inline uint32x4_p VecLoad(const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #  endif
-#endif
+#else
     return VecLoad_ALTIVEC(src);
+#endif
 }
 
 /// \brief Loads a vector from a byte array
@@ -288,15 +281,16 @@ inline uint32x4_p VecLoad(const byte src[16])
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #  endif
-#endif
+#else
     return VecLoad_ALTIVEC(off, src);
+#endif
 }
 
 /// \brief Loads a vector from a word array
@@ -389,16 +383,17 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #  endif
-#endif  // _ARCH_PWR8
+#else  // _ARCH_PWR8
     CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
     return (uint32x4_p)vec_ld(0, (byte*)src);
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from an aligned byte array
@@ -416,16 +411,17 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #  endif
-#endif  // _ARCH_PWR8
+#else  // _ARCH_PWR8
     CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
     return (uint32x4_p)vec_ld(off, (byte*)src);
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -444,27 +440,28 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_xlw4(0, (byte*)src));
 #    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
        return (uint32x4_p)vec_xl_be(0, (byte*)src);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_vsx_ld(0, (byte*)src));
 #    endif
 #  endif
-#endif  // _ARCH_PWR8
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad((const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad((const byte*)src));
 #  endif
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -484,27 +481,28 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_xlw4(off, (byte*)src));
 #    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
        return (uint32x4_p)vec_xl_be(off, (byte*)src);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_vsx_ld(off, (byte*)src));
 #    endif
 #  endif
-#endif  // _ARCH_PWR8
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad(off, (const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
 #  endif
+#endif  // _ARCH_PWR8
 }
 
 //@}
@@ -607,15 +605,16 @@ template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, 0, (byte*)dest);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
     vec_vsx_st((uint8x16_p)data, 0, (byte*)dest);
 #  endif
-#endif
+#else
     VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
+#endif
 }
 
 /// \brief Stores a vector to a byte array
@@ -637,15 +636,16 @@ template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
     vec_xstw4((uint8x16_p)data, off, (byte*)dest);
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     vec_xst((uint8x16_p)data, off, (byte*)dest);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
     vec_vsx_st((uint8x16_p)data, off, (byte*)dest);
 #  endif
-#endif
+#else
     VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
+#endif
 }
 
 /// \brief Stores a vector to a word array
@@ -751,27 +751,28 @@ template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #    else
        vec_xstw4((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
        vec_xst_be((uint8x16_p)data, 0, (byte*)dest);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_vsx_st((uint8x16_p)data, 0, (byte*)dest);
 #    else
        vec_vsx_st((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #    endif
 #  endif
-#endif  // _ARCH_PWR8
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #  endif
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a byte array
@@ -794,27 +795,28 @@ template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
+#  if defined(__early_xlc__) || defined(__early_xlC__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #    else
        vec_xstw4((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
+#  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
      vec_xst_be((uint8x16_p)data, off, (byte*)dest);
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  else
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_vsx_st((uint8x16_p)data, off, (byte*)dest);
 #    else
        vec_vsx_st((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #    endif
 #  endif
-#endif  // _ARCH_PWR8
+#else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #  endif
+#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a word array
