@@ -552,7 +552,7 @@ before_install:
     # Unexplained Linux ARM64 failures
     if [[ "$BUILD_OS" == "linux" ]]; then
         sudo apt-get update
-        sudo apt-get -y dist-update
+        sudo apt-get -qq dist-update
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "android" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
@@ -563,7 +563,7 @@ before_install:
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        sudo apt-get -y install autoconf automake libtool
+        sudo apt-get -qq install autoconf automake libtool
     fi
 
 script:
