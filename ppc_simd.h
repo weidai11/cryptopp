@@ -265,12 +265,11 @@ inline uint32x4_p VecLoad(const byte src[16])
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
     return (uint32x4_p)vec_xl(0, (byte*)src);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #  endif
-#else
-    return VecLoad_ALTIVEC(src);
 #endif
+    return VecLoad_ALTIVEC(src);
 }
 
 /// \brief Loads a vector from a byte array
@@ -293,12 +292,11 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
     return (uint32x4_p)vec_xl(off, (byte*)src);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #  endif
-#else
-    return VecLoad_ALTIVEC(off, src);
 #endif
+    return VecLoad_ALTIVEC(off, src);
 }
 
 /// \brief Loads a vector from a word array
@@ -395,13 +393,12 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     return (uint32x4_p)vec_xlw4(0, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
     return (uint32x4_p)vec_xl(0, (byte*)src);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
     return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #  endif
-#else  // _ARCH_PWR8
+#endif  // _ARCH_PWR8
     CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
     return (uint32x4_p)vec_ld(0, (byte*)src);
-#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from an aligned byte array
@@ -423,13 +420,12 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     return (uint32x4_p)vec_xlw4(off, (byte*)src);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
     return (uint32x4_p)vec_xl(off, (byte*)src);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
     return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #  endif
-#else  // _ARCH_PWR8
+#endif  // _ARCH_PWR8
     CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
     return (uint32x4_p)vec_ld(off, (byte*)src);
-#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -456,20 +452,19 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 #    endif
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
        return (uint32x4_p)vec_xl_be(0, (byte*)src);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_vsx_ld(0, (byte*)src));
 #    endif
 #  endif
-#else  // _ARCH_PWR8
+#endif  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad((const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad((const byte*)src));
 #  endif
-#endif  // _ARCH_PWR8
 }
 
 /// \brief Loads a vector from a byte array
@@ -497,20 +492,19 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
 #    endif
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
        return (uint32x4_p)vec_xl_be(off, (byte*)src);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_vsx_ld(off, (byte*)src));
 #    endif
 #  endif
-#else  // _ARCH_PWR8
+#endif  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad(off, (const byte*)src);
 #  else
      return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
 #  endif
-#endif  // _ARCH_PWR8
 }
 
 //@}
@@ -617,12 +611,11 @@ inline void VecStore(const T data, byte dest[16])
     vec_xstw4((uint8x16_p)data, 0, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
     vec_xst((uint8x16_p)data, 0, (byte*)dest);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
     vec_vsx_st((uint8x16_p)data, 0, (byte*)dest);
 #  endif
-#else
-    VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #endif
+    VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 }
 
 /// \brief Stores a vector to a byte array
@@ -648,12 +641,11 @@ inline void VecStore(const T data, int off, byte dest[16])
     vec_xstw4((uint8x16_p)data, off, (byte*)dest);
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
     vec_xst((uint8x16_p)data, off, (byte*)dest);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
     vec_vsx_st((uint8x16_p)data, off, (byte*)dest);
 #  endif
-#else
-    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #endif
+    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 }
 
 /// \brief Stores a vector to a word array
@@ -767,20 +759,19 @@ inline void VecStoreBE(const T data, byte dest[16])
 #    endif
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
        vec_xst_be((uint8x16_p)data, 0, (byte*)dest);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_vsx_st((uint8x16_p)data, 0, (byte*)dest);
 #    else
        vec_vsx_st((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #    endif
 #  endif
-#else  // _ARCH_PWR8
+#endif  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
 #  endif
-#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a byte array
@@ -811,20 +802,19 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 #    endif
 #  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
      vec_xst_be((uint8x16_p)data, off, (byte*)dest);
-#  else
+#  elif defined(__GNUC__) && !defined(__clang__)
 #    if (CRYPTOPP_BIG_ENDIAN)
        vec_vsx_st((uint8x16_p)data, off, (byte*)dest);
 #    else
        vec_vsx_st((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #    endif
 #  endif
-#else  // _ARCH_PWR8
+#endif  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #  else
      VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
 #  endif
-#endif  // _ARCH_PWR8
 }
 
 /// \brief Stores a vector to a word array

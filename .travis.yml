@@ -16,7 +16,7 @@
 # https://github.com/travis-ci/travis-yml/blob/master/schema.json.
 
 language: cpp
-dist: xenial
+# dist: xenial
 sudo: required
 
 git:
