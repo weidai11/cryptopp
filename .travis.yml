@@ -552,7 +552,7 @@ before_install:
     # Unexplained Linux failures
     if [[ "$BUILD_OS" == "linux" ]]; then
         sudo apt-get update
-        sudo apt-get -y dist-update
+        sudo apt-get dist-update -y
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "android" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
