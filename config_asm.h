@@ -403,7 +403,7 @@
 #if !defined(CRYPTOPP_DISABLE_ASM) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
 
 // An old Apple G5 with GCC 4.01 has AltiVec, but its only Power4 or so.
-#if !defined(CRYPTOPP_ALTIVEC_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ALTIVEC)
+#if !defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # if defined(_ARCH_PWR4) || defined(__ALTIVEC__) || \
 	(CRYPTOPP_XLC_VERSION >= 100000) || (CRYPTOPP_GCC_VERSION >= 40001) || \
     (CRYPTOPP_LLVM_CLANG_VERSION >= 20900)
@@ -412,7 +412,7 @@
 #endif
 
 // We need Power7 for unaligned loads and stores
-#if !defined(CRYPTOPP_POWER7_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER7) && defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if !defined(CRYPTOPP_POWER7_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER7)
 # if defined(_ARCH_PWR7) || (CRYPTOPP_XLC_VERSION >= 100000) || \
     (CRYPTOPP_GCC_VERSION >= 40100) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30100)
 #  define CRYPTOPP_POWER7_AVAILABLE 1
@@ -420,7 +420,7 @@
 #endif
 
 // We need Power8 for in-core crypto and 64-bit vector types
-#if !defined(CRYPTOPP_POWER8_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER8) && defined(CRYPTOPP_POWER7_AVAILABLE)
+#if !defined(CRYPTOPP_POWER8_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER8)
 # if defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || \
     (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 70000)
 #  define CRYPTOPP_POWER8_AVAILABLE 1
@@ -428,7 +428,7 @@
 #endif
 
 // Power9 for random numbers
-#if !defined(CRYPTOPP_POWER9_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER9) && defined(CRYPTOPP_POWER8_AVAILABLE)
+#if !defined(CRYPTOPP_POWER9_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER9)
 # if defined(_ARCH_PWR9) || (CRYPTOPP_XLC_VERSION >= 130200) || \
     (CRYPTOPP_GCC_VERSION >= 70000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 80000)
 #  define CRYPTOPP_POWER9_AVAILABLE 1
