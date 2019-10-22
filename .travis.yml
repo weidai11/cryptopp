@@ -549,7 +549,7 @@ jobs:
 
 before_install:
   - |
-    # Unexplained Linux failures
+    # Unexplained Linux ARM64 failures
     if [[ "$BUILD_OS" == "linux" ]]; then
         sudo apt-get update
         sudo apt-get dist-update -y
