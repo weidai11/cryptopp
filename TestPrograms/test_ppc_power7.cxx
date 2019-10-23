@@ -7,7 +7,7 @@ int main(int argc, char* argv[])
 #  if defined(__VSX__)
 	__vector unsigned long long xx = (__vector unsigned long long)x;
 	__vector unsigned long long yy = (__vector unsigned long long)y;
-	__vector unsigned long long zz = vec_add(xx, yy);
+	__vector unsigned long long zz = vec_xor(xx, yy);
 #  endif
 #else
     int x[-1];
