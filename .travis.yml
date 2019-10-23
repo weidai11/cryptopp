@@ -64,12 +64,12 @@ jobs:
         - BUILD_MODE=ios
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
+    # Clang 7.1 and below will fail on PPC64 due to
+    # https://bugs.llvm.org/show_bug.cgi?id=39704
     - os: linux
-      name: Linux with GCC (all)
       arch: ppc64le
       compiler: gcc
     - os: linux
-      name: Linux with Clang (all)
       arch: ppc64le
       compiler: clang
 
