@@ -593,7 +593,9 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(XLC_COMPILER),1)
     POWER9_FLAG = -qarch=pwr9 -qaltivec
     POWER8_FLAG = -qarch=pwr8 -qaltivec
-    POWER7_FLAG = -qarch=pwr7 -qaltivec
+    POWER7_VSX_FLAG = -qarch=pwr7 -mvsx -qaltivec
+    POWER7_PWR_FLAG = -qarch=pwr7 -qaltivec
+    POWER7_NO_FLAG = -qaltivec
     POWER6_FLAG = -qarch=pwr6 -qaltivec
     POWER5_FLAG = -qarch=pwr5 -qaltivec
     POWER4_FLAG = -qarch=pwr4 -qaltivec
@@ -601,7 +603,9 @@ ifeq ($(DETECT_FEATURES),1)
   else
     POWER9_FLAG = -mcpu=power9 -maltivec
     POWER8_FLAG = -mcpu=power8 -maltivec
-    POWER7_FLAG = -mcpu=power7 -maltivec
+    POWER7_VSX_FLAG = -mcpu=power7 -mvsx -maltivec
+    POWER7_PWR_FLAG = -mcpu=power7 -maltivec
+    POWER7_NO_FLAG = -maltivec
     ALTIVEC_FLAG = -maltivec
   endif
 
@@ -655,11 +659,30 @@ ifeq ($(DETECT_FEATURES),1)
   #####################################################################
   # Looking for a POWER7 option
 
+  # GCC needs -mvsx for Power7 to enable 64-bit vector elements.
+  # XLC provides 64-bit vector elements without an option.
+
   TPROG = TestPrograms/test_ppc_power7.cxx
-  TOPT = $(POWER7_FLAG)
+  TOPT = $(POWER7_VSX_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-  ifneq ($(strip $(HAVE_OPT)),0)
-    POWER7_FLAG =
+  ifeq ($(strip $(HAVE_OPT)),0)
+    POWER7_FLAG = $(POWER7_VSX_FLAG)
+  else
+    TPROG = TestPrograms/test_ppc_power7.cxx
+    TOPT = $(POWER7_PWR_FLAG)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      POWER7_FLAG = $(POWER7_PWR_FLAG)
+	else
+      TPROG = TestPrograms/test_ppc_power7.cxx
+      TOPT = $(POWER7_NO_FLAG)
+      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+      ifeq ($(strip $(HAVE_OPT)),0)
+        POWER7_FLAG = $(POWER7_NO_FLAG)
+      else
+        POWER7_FLAG =
+      endif
+    endif
   endif
 
   #####################################################################
@@ -717,7 +740,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(ALTIVEC_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_ALTIVEC
-  else ifeq ($(POWER8_FLAG)$(POWER7_FLAG),)
+  else ifeq ($(POWER7_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER7
   else ifeq ($(POWER8_FLAG),)
     CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8

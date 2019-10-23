@@ -77,36 +77,20 @@
 # undef bool
 #endif
 
-// IBM XLC on AIX does not define __CRYPTO__ like it should with -qarch=pwr8.
-// Crypto is available in XLC 13.1 and above. More LLVM front-end goodness.
+// IBM XLC on AIX does not define __VSX__ with -qarch=pwr7
+// or with -qarch=pwr8. The manual says it is available with
+// the architectures; see XL C: Compiler Reference p. 104.
+#if defined(_AIX) && (defined(_ARCH_PWR7) || defined(_ARCH_PWR8)) && defined(__xlC__)
+# undef __VSX__
+# define __VSX__ 1
+#endif
+
+// IBM XLC on AIX does not define __CRYPTO__ like it should
+// with -qarch=pwr8. Crypto is available in XLC 13.1 and above.
+// More LLVM front-end goodness.
 #if defined(_AIX) && defined(_ARCH_PWR8) && (__xlC__ >= 0xd01)
 # undef __CRYPTO__
 # define __CRYPTO__ 1
-#endif
-
-// Hack to detect early XLC compilers. XLC compilers for POWER7 use
-// vec_xlw4 and vec_xstw4 (and ld2 variants); not vec_xl and vec_st.
-// Some XLC compilers for POWER7 and above use vec_xl and vec_xst.
-// The way to tell the difference is, XLC compilers version 13.0 and
-// earlier use vec_xlw4 and vec_xstw4. XLC compilers 13.1 and later
-// are use vec_xl and vec_xst. The open question is, how to handle
-// early Clang compilers for POWER7. We know the latest Clang
-// compilers support vec_xl and vec_xst. Also see
-// https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
-
-#if defined(__xlc__) && (__xlc__ < 0x0d01)
-# define early_xlc 1
-#endif
-#if defined(__xlC__) && (__xlC__ < 0x0d01)
-# define early_xlC 1
-#endif
-
-// Clang did not add vec_xl for little endian until November 2016
-// via https://reviews.llvm.org/D26519 . The release coincides
-// with roughly Clang 4.0 released March 2017. There is an earlier
-// Clang 3.9.1 release, but it is not clear if vec_xl made it.
-#if defined(__clang__) && (__clang_major__ >= 4)
-# define later_clang 1
 #endif
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
@@ -116,14 +100,11 @@
 # pragma GCC diagnostic ignored "-Wdeprecated"
 #endif
 
-// For Clang, which can't seem to match a signature
-#if defined(__clang__)
-# define CONST_VECTOR_CAST(x) ((const __vector unsigned int*)(x))
-# define VECTOR_CAST(x) ((__vector unsigned int*)(x))
-#else
-# define CONST_VECTOR_CAST(x) ((const __vector unsigned char*)(x))
-# define VECTOR_CAST(x) ((__vector unsigned char*)(x))
-#endif
+#define CONST_VECTOR8_CAST(x) ((const __vector unsigned char*)(x))
+#define VECTOR8_CAST(x) ((__vector unsigned char*)(x))
+
+#define CONST_VECTOR32_CAST(x) ((const __vector unsigned int*)(x))
+#define VECTOR32_CAST(x) ((__vector unsigned int*)(x))
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -145,7 +126,7 @@ typedef __vector unsigned short  uint16x8_p;
 /// \since Crypto++ 6.0
 typedef __vector unsigned int    uint32x4_p;
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
 /// \details uint64x2_p is available on POWER7 and above. Some supporting
 ///   functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>), did not
@@ -154,7 +135,7 @@ typedef __vector unsigned int    uint32x4_p;
 ///   __vector unsigned long long
 /// \since Crypto++ 6.0
 typedef __vector unsigned long long uint64x2_p;
-#endif  // _ARCH_PWR8
+#endif  // VSX or ARCH_PWR8
 
 /// \brief The 0 vector
 /// \returns a 32-bit vector of 0's
@@ -269,18 +250,20 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(const byte src[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-    return (uint32x4_p)vec_xlw4(0, CONST_VECTOR_CAST(src));
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-    return (uint32x4_p)vec_xl(0, CONST_VECTOR_CAST(src));
-#  elif defined(__VSX__)
-    return (uint32x4_p)vec_vsx_ld(0, CONST_VECTOR_CAST(src));
-#  else  // Early Clang that claims to support Power8
-    return (uint32x4_p)VecLoad_ALTIVEC(src);
-#  endif
+    const int off = 0;
+#if defined(_ARCH_PWR9)
+    // ISA 3.0 provides vec_xl for short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
+#elif defined(__VSX__) && !defined(__xlC__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+#elif defined(_ARCH_PWR7)
+    // ISA 2.06 provides vec_xl, but it lacks short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(src);
+    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
 }
 
@@ -299,16 +282,17 @@ inline uint32x4_p VecLoad(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-    return (uint32x4_p)vec_xlw4(off, CONST_VECTOR_CAST(src));
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR_CAST(src));
-#  elif defined(__VSX__)
-    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR_CAST(src));
-#  else  // Early Clang that claims to support Power8
-    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
-#  endif
+#if defined(_ARCH_PWR9)
+    // ISA 3.0 provides vec_xl for short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
+#elif defined(__VSX__) && !defined(__xlC__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+#elif defined(_ARCH_PWR7)
+    // ISA 2.06 provides vec_xl, but it lacks short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -349,7 +333,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     return (uint32x4_p)VecLoad(off, (const byte*)src);
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Loads a vector from a word array
 /// \param src the word array
@@ -388,7 +372,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     return (uint64x2_p)VecLoad(off, (const byte*)src);
 }
 
-#endif  // _ARCH_PWR8
+#endif  // VSX or ARCH_PWR8
 
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
@@ -403,21 +387,21 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-    return (uint32x4_p)vec_xlw4(0, CONST_VECTOR_CAST(src));
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-    return (uint32x4_p)vec_xl(0, CONST_VECTOR_CAST(src));
-#  elif defined(__VSX__)
-    return (uint32x4_p)vec_vsx_ld(0, CONST_VECTOR_CAST(src));
-#  else  // Early Clang that claims to support Power8
-    CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
-    return (uint32x4_p)vec_ld(0, (byte*)src);
-#  endif
-#else  // _ARCH_PWR8
-    CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
-    return (uint32x4_p)vec_ld(0, (byte*)src);
-#endif  // _ARCH_PWR8
+    const int off = 0;
+#if defined(_ARCH_PWR9)
+    // ISA 3.0 provides vec_xl for short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
+#elif defined(__VSX__) && !defined(__xlC__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+#elif defined(_ARCH_PWR7)
+    // ISA 2.06 provides vec_xl, but it lacks short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
+#else
+    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
+#endif
 }
 
 /// \brief Loads a vector from an aligned byte array
@@ -434,21 +418,20 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-    return (uint32x4_p)vec_xlw4(off, CONST_VECTOR_CAST(src));
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clangs)
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR_CAST(src));
-#  elif defined(__VSX__)
-    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR_CAST(src));
-#  else  // Early Clang that claims to support Power8
-    CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
-    return (uint32x4_p)vec_ld(off, (byte*)src);
-#  endif
-#else  // _ARCH_PWR8
-    CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
-    return (uint32x4_p)vec_ld(off, (byte*)src);
-#endif  // _ARCH_PWR8
+#if defined(_ARCH_PWR9)
+    // ISA 3.0 provides vec_xl for short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
+#elif defined(__VSX__) && !defined(__xlC__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+#elif defined(_ARCH_PWR7)
+    // ISA 2.06 provides vec_xl, but it lacks short* and char*
+    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
+#else
+    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
+#endif
 }
 
 /// \brief Loads a vector from a byte array
@@ -466,35 +449,13 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)vec_xlw4(0, CONST_VECTOR_CAST(src));
-#    else
-       return (uint32x4_p)VecReverse(vec_xlw4(0, CONST_VECTOR_CAST(src));
-#    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-       return (uint32x4_p)vec_xl_be(0, CONST_VECTOR_CAST(src));
-#  elif defined(__VSX__)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)vec_vsx_ld(0, CONST_VECTOR_CAST(src));
-#    else
-       return (uint32x4_p)VecReverse(vec_vsx_ld(0, CONST_VECTOR_CAST(src)));
-#    endif
-#  else  // Early Clang that claims to support Power8
-#    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)VecLoad((const byte*)src);
-#    else
-       return (uint32x4_p)VecReverse(VecLoad((const byte*)src));
-#    endif
-#  endif
-#else  // _ARCH_PWR8
-#  if (CRYPTOPP_BIG_ENDIAN)
-     return (uint32x4_p)VecLoad((const byte*)src);
-#  else
-     return (uint32x4_p)VecReverse(VecLoad((const byte*)src));
-#  endif
-#endif  // _ARCH_PWR8
+#if defined(_ARCH_PWR9)
+    return (uint32x4_p)vec_xl_be(0, CONST_VECTOR8_CAST(src));
+#elif (CRYPTOPP_BIG_ENDIAN)
+    return (uint32x4_p)VecLoad(src);
+#else
+    return (uint32x4_p)VecReverse(VecLoad(src));
+#endif
 }
 
 /// \brief Loads a vector from a byte array
@@ -513,35 +474,13 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)vec_xlw4(off, CONST_VECTOR_CAST(src));
-#    else
-       return (uint32x4_p)VecReverse(vec_xlw4(off, CONST_VECTOR_CAST(src));
-#    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clangs)
-       return (uint32x4_p)vec_xl_be(off, CONST_VECTOR_CAST(src));
-#  elif defined(__VSX__)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR_CAST(src));
-#    else
-       return (uint32x4_p)VecReverse(vec_vsx_ld(off, CONST_VECTOR_CAST(src)));
-#    endif
-#  else  // Early Clang that claims to support Power8
-#    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)VecLoad(off, (const byte*)src);
-#    else
-       return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
-#    endif
-#  endif
-#else  // _ARCH_PWR8
-#  if (CRYPTOPP_BIG_ENDIAN)
-     return (uint32x4_p)VecLoad(off, (const byte*)src);
-#  else
-     return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
-#  endif
-#endif  // _ARCH_PWR8
+#if defined(_ARCH_PWR9)
+    return (uint32x4_p)vec_xl_be(off, CONST_VECTOR8_CAST(src));
+#elif (CRYPTOPP_BIG_ENDIAN)
+    return (uint32x4_p)VecLoad(off, src);
+#else
+    return (uint32x4_p)VecReverse(VecLoad(off, src));
+#endif
 }
 
 //@}
@@ -643,18 +582,17 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-    vec_xstw4((uint8x16_p)data, 0, VECTOR_CAST(dest));
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-    vec_xst((uint8x16_p)data, 0, VECTOR_CAST(dest));
-#  elif defined(__VSX__)
-    vec_vsx_st((uint8x16_p)data, 0, VECTOR_CAST(dest));
-#  else  // Early Clang that claims to support Power8
-    VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
-#  endif
+    const int off = 0;
+#if defined(_ARCH_PWR9)
+    // ISA 3.0 provides vec_xl for short* and char*
+    vec_xst((uint8x16_p)data, off, VECTOR8_CAST(dest));
+#elif defined(__VSX__) && !defined(__xlC__)
+    vec_vsx_st((uint32x4_p)data, off, VECTOR32_CAST(dest));
+#elif defined(_ARCH_PWR7)
+    // ISA 2.06 provides vec_xl, but it lacks short* and char*
+    vec_xst((uint32x4_p)data, off, VECTOR32_CAST(dest));
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
+    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #endif
 }
 
@@ -676,16 +614,14 @@ inline void VecStore(const T data, byte dest[16])
 template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-    vec_xstw4((uint8x16_p)data, off, VECTOR_CAST(dest));
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-    vec_xst((uint8x16_p)data, off, VECTOR_CAST(dest));
-#  elif defined(__VSX__)
-    vec_vsx_st((uint8x16_p)data, off, VECTOR_CAST(dest));
-#  else  // Early Clang that claims to support Power8
-    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
-#  endif
+#if defined(_ARCH_PWR9)
+    // ISA 3.0 provides vec_xl for short* and char*
+    vec_xst((uint8x16_p)data, off, VECTOR8_CAST(dest));
+#elif defined(__VSX__) && !defined(__xlC__)
+    vec_vsx_st((uint32x4_p)data, off, VECTOR32_CAST(dest));
+#elif defined(_ARCH_PWR7)
+    // ISA 2.06 provides vec_xl, but it lacks short* and char*
+    vec_xst((uint32x4_p)data, off, VECTOR32_CAST(dest));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
 #endif
@@ -793,35 +729,12 @@ inline void VecStore(const T data, int off, word64 dest[2])
 template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       vec_xstw4((uint8x16_p)data, 0, VECTOR_CAST(dest));
-#    else
-       vec_xstw4((uint8x16_p)VecReverse(data), 0, VECTOR_CAST(dest));
-#    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-       vec_xst_be((uint8x16_p)data, 0, VECTOR_CAST(dest));
-#  elif defined(__VSX__)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       vec_vsx_st((uint8x16_p)data, 0, VECTOR_CAST(dest));
-#    else
-       vec_vsx_st((uint8x16_p)VecReverse(data), 0, VECTOR_CAST(dest));
-#    endif
-#  else  // Early Clang that claims to support Power8
-#    if (CRYPTOPP_BIG_ENDIAN)
-       VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
-#    else
-       VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
-#    endif
-#  endif
-#else  // _ARCH_PWR8
-#  if (CRYPTOPP_BIG_ENDIAN)
-     VecStore_ALTIVEC((uint8x16_p)data, 0, (byte*)dest);
-#  else
-     VecStore_ALTIVEC((uint8x16_p)VecReverse(data), 0, (byte*)dest);
-#  endif
-#endif  // _ARCH_PWR8
+    const int off = 0;
+#if (CRYPTOPP_BIG_ENDIAN)
+    VecStore((uint8x16_p)data, off, (byte*)dest);
+#else
+    VecStore((uint8x16_p)VecReverse(data), off, (byte*)dest);
+#endif
 }
 
 /// \brief Stores a vector to a byte array
@@ -843,35 +756,11 @@ inline void VecStoreBE(const T data, byte dest[16])
 template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
-#if defined(_ARCH_PWR8)
-#  if defined(early_xlc) || defined(early_xlC)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       vec_xstw4((uint8x16_p)data, off, VECTOR_CAST(dest));
-#    else
-       vec_xstw4((uint8x16_p)VecReverse(data), off, VECTOR_CAST(dest));
-#    endif
-#  elif defined(__xlc__) || defined(__xlC__) || defined(later_clang)
-     vec_xst_be((uint8x16_p)data, off, VECTOR_CAST(dest));
-#  elif defined(__VSX__)
-#    if (CRYPTOPP_BIG_ENDIAN)
-       vec_vsx_st((uint8x16_p)data, off, VECTOR_CAST(dest));
-#    else
-       vec_vsx_st((uint8x16_p)VecReverse(data), off, VECTOR_CAST(dest));
-#    endif
-#  else  // Early Clang that claims to support Power8
-#    if (CRYPTOPP_BIG_ENDIAN)
-       VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
-#    else
-       VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
-#    endif
-#  endif
-#else  // _ARCH_PWR8
-#  if (CRYPTOPP_BIG_ENDIAN)
-     VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
-#  else
-     VecStore_ALTIVEC((uint8x16_p)VecReverse(data), off, (byte*)dest);
-#  endif
-#endif  // _ARCH_PWR8
+#if (CRYPTOPP_BIG_ENDIAN)
+    VecStore((uint8x16_p)data, off, (byte*)dest);
+#else
+    VecStore((uint8x16_p)VecReverse(data), off, (byte*)dest);
+#endif
 }
 
 /// \brief Stores a vector to a word array
@@ -1028,7 +917,7 @@ inline T1 VecSub(const T1 vec1, const T2 vec2)
 /// \since Crypto++ 8.0
 inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 {
-    // 64-bit elements available at POWER7, but addudm requires POWER8
+    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
 #if defined(_ARCH_PWR8)
     return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
@@ -1288,7 +1177,7 @@ inline T VecMergeLow(const T vec1, const T vec2)
     return vec_mergel(vec1, vec2);
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
 /// \tparam C shift bit count
@@ -1322,7 +1211,7 @@ inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
     return vec_sl(vec, m);
 }
 
-#endif
+#endif  // VSX or ARCH_PWR8
 
 /// \brief Rotate a packed vector right
 /// \tparam C shift bit count
@@ -1354,7 +1243,7 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
     return vec_sr(vec, m);
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector right
 /// \tparam C shift bit count
@@ -1388,7 +1277,7 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
     return vec_sr(vec, m);
 }
 
-#endif
+#endif  // VSX or ARCH_PWR8
 
 /// \brief Exchange high and low double words
 /// \tparam T vector type
@@ -1417,7 +1306,7 @@ inline T VecSwapWords(const T vec)
 template <class T>
 inline T VecGetLow(const T val)
 {
-#if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
+#if (CRYPTOPP_BIG_ENDIAN) && (defined(__VSX__) || defined(_ARCH_PWR8))
     const T zero = {0};
     return (T)VecMergeLow((uint64x2_p)zero, (uint64x2_p)val);
 #else
@@ -1439,7 +1328,7 @@ inline T VecGetLow(const T val)
 template <class T>
 inline T VecGetHigh(const T val)
 {
-#if (CRYPTOPP_BIG_ENDIAN) && (_ARCH_PWR8)
+#if (CRYPTOPP_BIG_ENDIAN) && (defined(__VSX__) || defined(_ARCH_PWR8))
     const T zero = {0};
     return (T)VecMergeHigh((uint64x2_p)zero, (uint64x2_p)val);
 #else

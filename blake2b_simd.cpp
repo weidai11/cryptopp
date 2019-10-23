@@ -767,7 +767,8 @@ inline uint64x2_p VecLoad64LE(const void* p)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    return (uint64x2_p)VecPermute(VecLoad64(p), m, m);
+	const uint64x2_p v = VecLoad64(p);
+    return (uint64x2_p)VecPermute(v, v, m);
 #else
     return (uint64x2_p)VecLoad64(p);
 #endif
@@ -782,7 +783,7 @@ inline void VecStore64LE(void* p, const uint64x2_p x)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    VecStore64(p, VecPermute(x, m, m));
+    VecStore64(p, VecPermute(x, x, m));
 #else
     VecStore64(p, x);
 #endif

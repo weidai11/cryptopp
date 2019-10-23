@@ -679,9 +679,13 @@ void CRYPTOPP_API DetectPowerpcFeatures();
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasAltivec()
 {
+#if CRYPTOPP_ALTIVEC_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasAltivec;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has Power7 available
@@ -692,9 +696,13 @@ inline bool HasAltivec()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPower7()
 {
+#if CRYPTOPP_POWER7_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasPower7;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has Power8 available
@@ -705,9 +713,13 @@ inline bool HasPower7()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPower8()
 {
+#if CRYPTOPP_POWER8_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasPower8;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has Power9 available
@@ -718,9 +730,13 @@ inline bool HasPower8()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPower9()
 {
+#if CRYPTOPP_POWER9_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasPower9;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has AES available
@@ -732,9 +748,13 @@ inline bool HasPower9()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasAES()
 {
+#if CRYPTOPP_POWER8_AES_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasAES;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has Polynomial Multiply available
@@ -746,9 +766,13 @@ inline bool HasAES()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasPMULL()
 {
+#if CRYPTOPP_POWER8_VMULL_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasPMULL;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has SHA256 available
@@ -760,9 +784,13 @@ inline bool HasPMULL()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasSHA256()
 {
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasSHA256;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has SHA512 available
@@ -774,9 +802,13 @@ inline bool HasSHA256()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasSHA512()
 {
+#if CRYPTOPP_POWER8_SHA_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
 	return g_hasSHA512;
+#else
+	return false;
+#endif
 }
 
 /// \brief Determine if a PowerPC processor has DARN available
@@ -787,14 +819,17 @@ inline bool HasSHA512()
 /// \note This function is only available on PowerPC and PowerPC-64 platforms
 inline bool HasDARN()
 {
+#if CRYPTOPP_POWER9_AVAILABLE
 	if (!g_PowerpcDetectionDone)
 		DetectPowerpcFeatures();
-
 	// see comments in cpu.cpp
-#if defined(__ibmxl__) && defined(__linux__)
+#  if defined(__ibmxl__) && defined(__linux__)
 	return false;
-#else
+#  else
 	return g_hasDARN;
+#  endif
+#else
+	return false;
 #endif
 }
 

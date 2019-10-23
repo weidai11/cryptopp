@@ -411,6 +411,8 @@
 # endif
 #endif
 
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+
 // We need Power7 for unaligned loads and stores
 #if !defined(CRYPTOPP_POWER7_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER7)
 # if defined(_ARCH_PWR7) || (CRYPTOPP_XLC_VERSION >= 100000) || \
@@ -419,19 +421,13 @@
 # endif
 #endif
 
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
+
 // We need Power8 for in-core crypto and 64-bit vector types
 #if !defined(CRYPTOPP_POWER8_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER8)
 # if defined(_ARCH_PWR8) || (CRYPTOPP_XLC_VERSION >= 130000) || \
     (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 70000)
 #  define CRYPTOPP_POWER8_AVAILABLE 1
-# endif
-#endif
-
-// Power9 for random numbers
-#if !defined(CRYPTOPP_POWER9_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER9)
-# if defined(_ARCH_PWR9) || (CRYPTOPP_XLC_VERSION >= 130200) || \
-    (CRYPTOPP_GCC_VERSION >= 70000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 80000)
-#  define CRYPTOPP_POWER9_AVAILABLE 1
 # endif
 #endif
 
@@ -445,8 +441,20 @@
 # endif
 #endif
 
-#endif  // CRYPTOPP_DISABLE_ASM
+#if defined(CRYPTOPP_POWER8_AVAILABLE)
 
+// Power9 for random numbers
+#if !defined(CRYPTOPP_POWER9_AVAILABLE) && !defined(CRYPTOPP_DISABLE_POWER9)
+# if defined(_ARCH_PWR9) || (CRYPTOPP_XLC_VERSION >= 130200) || \
+    (CRYPTOPP_GCC_VERSION >= 70000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 80000)
+#  define CRYPTOPP_POWER9_AVAILABLE 1
+# endif
+#endif
+
+#endif  // CRYPTOPP_POWER8_AVAILABLE
+#endif  // CRYPTOPP_POWER7_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_DISABLE_ASM
 #endif  // PPC32, PPC64
 
 #endif  // CRYPTOPP_CONFIG_ASM_H
