@@ -525,7 +525,7 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
 #    else
        return (uint32x4_p)VecReverse(VecLoad(off, (const byte*)src));
 #    endif
-#  endifs
+#  endif
 #else  // _ARCH_PWR8
 #  if (CRYPTOPP_BIG_ENDIAN)
      return (uint32x4_p)VecLoad(off, (const byte*)src);
