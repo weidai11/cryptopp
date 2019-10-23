@@ -760,45 +760,36 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 
 inline uint64x2_p VecLoad64(const void* p)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    return (uint64x2_p)vec_xl(0, (uint8_t*)p);
-#else
-    return (uint64x2_p)vec_vsx_ld(0, (uint8_t*)p);
-#endif
+    return (uint64x2_p)VecLoad((const byte*)p);
 }
 
 inline uint64x2_p VecLoad64LE(const void* p)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    const uint64x2_p v = VecLoad64(p);
-    return VecPermute(v, v, m);
+    return (uint64x2_p)VecPermute(VecLoad64(p), m, m);
 #else
-    return VecLoad64(p);
+    return (uint64x2_p)VecLoad64(p);
 #endif
 }
 
 inline void VecStore64(void* p, const uint64x2_p x)
 {
-#if defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-    vec_xst((uint8x16_p)x,0,(uint8_t*)p);
-#else
-    vec_vsx_st((uint8x16_p)x,0,(uint8_t*)p);
-#endif
+    VecStore((uint8x16_p)x, (byte*)p);
 }
 
 inline void VecStore64LE(void* p, const uint64x2_p x)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    VecStore64(p, VecPermute(x, x, m));
+    VecStore64(p, VecPermute(x, m, m));
 #else
     VecStore64(p, x);
 #endif
 }
 
 template <unsigned int C>
-inline uint64x2_p VecShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
+inline uint64x2_p ShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 {
 #if __BIG_ENDIAN__
     return (uint64x2_p)vec_sld((uint8x16_p)a, (uint8x16_p)b, C);
@@ -807,7 +798,7 @@ inline uint64x2_p VecShiftLeftOctet(const uint64x2_p a, const uint64x2_p b)
 #endif
 }
 
-#define vec_shl_octet(a,b,c) VecShiftLeftOctet<c*8>(a, b)
+#define vec_shl_octet(a,b,c) ShiftLeftOctet<c*8>(a, b)
 
 // vec_mergeh(a,b) is equivalent to VecPermute(a,b,HH_MASK); and
 // vec_mergel(a,b) is equivalent VecPermute(a,b,LL_MASK). Benchmarks
