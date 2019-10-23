@@ -566,6 +566,14 @@ jobs:
         - BUILD_MODE=ios
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
+    # We should be OK with PPC64 and GCC until Travis disallows
+    # access to the build machines. Clang is a differnt story.
+    # The LLVM devs have their heads so far up their ass I don't
+    # think we can un-fuck the mess they created on PowerPC. The
+    # LLVM devs appear to have given up and define everything
+    # from all the compilers to all the features. It does not
+    # seem to matter to them the compiler does not actually
+    # support what LLVM is advertising in the preprocessor.
     - os: linux
       name: Linux with GCC (all)
       arch: ppc64le
