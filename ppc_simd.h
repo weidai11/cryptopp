@@ -77,8 +77,17 @@
 # undef bool
 #endif
 
-// IBM XLC on AIX does not define __CRYPTO__ like it should with -qarch=pwr8.
-// Crypto is available in XLC 13.1 and above. More LLVM front-end goodness.
+// IBM XLC on AIX does not define __VSX__ with -qarch=pwr7
+// or with -qarch=pwr8. The manual says it is available with
+// the architectures; see XL C: Compiler Reference p. 104.
+#if defined(_AIX) && (defined(_ARCH_PWR7) || defined(_ARCH_PWR8)) && defined(__xlC__)
+# undef __VSX__
+# define __VSX__ 1
+#endif
+
+// IBM XLC on AIX does not define __CRYPTO__ like it should
+// with -qarch=pwr8. Crypto is available in XLC 13.1 and above.
+// More LLVM front-end goodness.
 #if defined(_AIX) && defined(_ARCH_PWR8) && (__xlC__ >= 0xd01)
 # undef __CRYPTO__
 # define __CRYPTO__ 1
@@ -245,7 +254,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__)
+#elif defined(__VSX__) && !defined(__xlC__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__xlC__)
     // Workaround XL C++ bug
@@ -276,7 +285,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__)
+#elif defined(__VSX__) && !defined(__xlC__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__xlC__)
     // Workaround XL C++ bug
@@ -382,7 +391,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__)
+#elif defined(__VSX__) && !defined(__xlC__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__xlC__)
     // Workaround XL C++ bug
@@ -412,7 +421,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__)
+#elif defined(__VSX__) && !defined(__xlC__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__xlC__)
     // Workaround XL C++ bug
@@ -577,7 +586,7 @@ inline void VecStore(const T data, byte dest[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     vec_xst((uint8x16_p)data, off, VECTOR8_CAST(dest));
-#elif defined(__VSX__)
+#elif defined(__VSX__) && !defined(__xlC__)
     vec_vsx_st((uint32x4_p)data, off, VECTOR32_CAST(dest));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
@@ -608,7 +617,7 @@ inline void VecStore(const T data, int off, byte dest[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     vec_xst((uint8x16_p)data, off, VECTOR8_CAST(dest));
-#elif defined(__VSX__)
+#elif defined(__VSX__) && !defined(__xlC__)
     vec_vsx_st((uint32x4_p)data, off, VECTOR32_CAST(dest));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
