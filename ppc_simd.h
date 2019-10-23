@@ -117,8 +117,13 @@
 #endif
 
 // For Clang, which can't seem to match a signature
-#define CONST_VECTOR_CAST(x) ((const __vector unsigned char*)(x))
-#define VECTOR_CAST(x) ((__vector unsigned char*)(x))
+#if defined(__clang__)
+# define CONST_VECTOR_CAST(x) ((const __vector unsigned int*)(x))
+# define VECTOR_CAST(x) ((__vector unsigned int*)(x))
+#else
+# define CONST_VECTOR_CAST(x) ((const __vector unsigned char*)(x))
+# define VECTOR_CAST(x) ((__vector unsigned char*)(x))
+#endif
 
 NAMESPACE_BEGIN(CryptoPP)
 
