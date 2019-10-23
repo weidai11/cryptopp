@@ -30,6 +30,393 @@ jobs:
   include:
     - os: linux
       name: Linux with GCC (all)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (native)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (no-asm)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (debug)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (asan)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (ubsan)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (pem)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (autotools)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (cmake)
+      arch: amd64
+      compiler: gcc
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (all)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (native)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (no-asm)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (debug)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (asan)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (ubsan)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (pem)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (autotools)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (cmake)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (all)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (native)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=native
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (no-asm)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (debug)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (asan)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=asan
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (ubsan)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (pem)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=pem
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (autotools)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=autotools
+        - BUILD_JOBS=2
+    - os: osx
+      osx_image: xcode10.1
+      name: OS X with Clang (cmake)
+      arch: amd64
+      compiler: clang
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=cmake
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (all)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (native)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (no-asm)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (debug)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (asan)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (ubsan)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (pem)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (autotools)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (cmake)
+      arch: arm64
+      compiler: gcc
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (all)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (native)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=native
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (no-asm)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=no-asm
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (debug)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (asan)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=asan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (ubsan)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=ubsan
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (pem)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=pem
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (autotools)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=autotools
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (cmake)
+      arch: arm64
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=cmake
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with GCC (all)
       arch: ppc64le
       compiler: gcc
       dist: bionic
@@ -46,6 +433,121 @@ jobs:
         - BUILD_OS=linux
         - BUILD_MODE=all
         - BUILD_JOBS=2
+    - os: linux
+      name: Android on Linux (armeabi-v7a)
+      arch: amd64
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=android
+        - BUILD_JOBS=2
+        - BUILD_ARCH=armeabi-v7a
+        - ANDROID_HOME="$HOME/android-sdk"
+        - ANDROID_SDK="$HOME/android-sdk"
+        - ANDROID_NDK="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="$ANDROID_SDK"
+        - ANDROID_NDK_ROOT="$ANDROID_NDK"
+    - os: linux
+      name: Android on Linux (aarch64)
+      arch: amd64
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=android
+        - BUILD_JOBS=2
+        - BUILD_ARCH=aarch64
+        - ANDROID_HOME="$HOME/android-sdk"
+        - ANDROID_SDK="$HOME/android-sdk"
+        - ANDROID_NDK="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="$ANDROID_SDK"
+        - ANDROID_NDK_ROOT="$ANDROID_NDK"
+    - os: linux
+      name: Android on Linux (x86)
+      arch: amd64
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=android
+        - BUILD_JOBS=2
+        - BUILD_ARCH=x86
+        - ANDROID_HOME="$HOME/android-sdk"
+        - ANDROID_SDK="$HOME/android-sdk"
+        - ANDROID_NDK="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="$ANDROID_SDK"
+        - ANDROID_NDK_ROOT="$ANDROID_NDK"
+    - os: linux
+      name: Android on Linux (x86_64)
+      arch: amd64
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=android
+        - BUILD_JOBS=2
+        - BUILD_ARCH=x86_64
+        - ANDROID_HOME="$HOME/android-sdk"
+        - ANDROID_SDK="$HOME/android-sdk"
+        - ANDROID_NDK="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="$ANDROID_SDK"
+        - ANDROID_NDK_ROOT="$ANDROID_NDK"
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (iPhoneOS)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=iPhoneOS
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (Arm64)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=Arm64
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (WatchOS)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=WatchOS
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (AppleTVOS)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=AppleTVOS
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (iPhoneSimulator)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=iPhoneSimulator
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (WatchSimulator)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=WatchSimulator
+    - os: osx
+      osx_image: xcode10.1
+      name: iOS on OS X (AppleTVSimulator)
+      arch: amd64
+      env:
+        - BUILD_OS=osx
+        - BUILD_MODE=ios
+        - BUILD_JOBS=2
+        - BUILD_ARCH=AppleTVSimulator
 
   allow_failures:
     - os: osx
@@ -64,12 +566,12 @@ jobs:
         - BUILD_MODE=ios
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
-    # Clang 7.1 and below will fail on PPC64 due to
-    # https://bugs.llvm.org/show_bug.cgi?id=39704
     - os: linux
+      name: Linux with GCC (all)
       arch: ppc64le
       compiler: gcc
     - os: linux
+      name: Linux with Clang (all)
       arch: ppc64le
       compiler: clang
 
