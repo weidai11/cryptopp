@@ -455,7 +455,9 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
-#if (CRYPTOPP_BIG_ENDIAN)
+#if defined(_ARCH_PWR9)
+    return (uint32x4_p)vec_xl_be(off, CONST_VECTOR8_CAST(src));
+#elif (CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VecLoad(off, src);
 #else
     return (uint32x4_p)VecReverse(VecLoad(off, src));
