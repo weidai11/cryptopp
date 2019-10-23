@@ -618,7 +618,7 @@ endif # Dead code stripping
 ###########################################################
 
 # List cryptlib.cpp first, then cpu.cpp, then integer.cpp to tame C++ static initialization problems.
-SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp cryptlib_bds.cpp,$(sort $(wildcard *.cpp)))
+SRCS := cryptlib.cpp cpu.cpp integer.cpp $(filter-out cryptlib.cpp cpu.cpp integer.cpp pch.cpp simple.cpp,$(sort $(wildcard *.cpp)))
 # For Makefile.am; resource.h is Windows
 INCL := $(filter-out resource.h,$(sort $(wildcard *.h)))
 
