@@ -257,6 +257,7 @@ jobs:
       name: Linux with GCC (all)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
@@ -265,6 +266,7 @@ jobs:
       name: Linux with GCC (native)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
@@ -273,6 +275,7 @@ jobs:
       name: Linux with GCC (no-asm)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
@@ -281,6 +284,7 @@ jobs:
       name: Linux with GCC (debug)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
@@ -289,6 +293,7 @@ jobs:
       name: Linux with GCC (asan)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
@@ -297,6 +302,7 @@ jobs:
       name: Linux with GCC (ubsan)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
@@ -305,6 +311,7 @@ jobs:
       name: Linux with GCC (pem)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
@@ -313,6 +320,7 @@ jobs:
       name: Linux with GCC (autotools)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
@@ -321,6 +329,7 @@ jobs:
       name: Linux with GCC (cmake)
       arch: arm64
       compiler: gcc
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
@@ -329,6 +338,7 @@ jobs:
       name: Linux with Clang (all)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
@@ -337,6 +347,7 @@ jobs:
       name: Linux with Clang (native)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
@@ -345,6 +356,7 @@ jobs:
       name: Linux with Clang (no-asm)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
@@ -353,6 +365,7 @@ jobs:
       name: Linux with Clang (debug)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
@@ -361,6 +374,7 @@ jobs:
       name: Linux with Clang (asan)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
@@ -369,6 +383,7 @@ jobs:
       name: Linux with Clang (ubsan)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
@@ -377,6 +392,7 @@ jobs:
       name: Linux with Clang (pem)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
@@ -385,6 +401,7 @@ jobs:
       name: Linux with Clang (autotools)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
@@ -393,6 +410,7 @@ jobs:
       name: Linux with Clang (cmake)
       arch: arm64
       compiler: clang
+      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
