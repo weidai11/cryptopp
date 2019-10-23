@@ -1480,7 +1480,9 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 
 //////////////////////// Power8 Crypto ////////////////////////
 
-#if defined(__CRYPTO__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+// __CRYPTO__ alone is not enough. Clang will define __CRYPTO__
+// when it is not available, like with Power7. Sigh...
+#if (defined(_ARCH_PWR8) && defined(__CRYPTO__)) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \name POLYNOMIAL MULTIPLICATION
 //@{
