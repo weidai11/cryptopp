@@ -84,31 +84,6 @@
 # define __CRYPTO__ 1
 #endif
 
-// Hack to detect early XLC compilers. XLC compilers for POWER7 use
-// vec_xlw4 and vec_xstw4 (and ld2 variants); not vec_xl and vec_st.
-// Some XLC compilers for POWER7 and above use vec_xl and vec_xst.
-// The way to tell the difference is, XLC compilers version 13.0 and
-// earlier use vec_xlw4 and vec_xstw4. XLC compilers 13.1 and later
-// are use vec_xl and vec_xst. The open question is, how to handle
-// early Clang compilers for POWER7. We know the latest Clang
-// compilers support vec_xl and vec_xst. Also see
-// https://www-01.ibm.com/support/docview.wss?uid=swg21683541.
-
-#if defined(__xlc__) && (__xlc__ < 0x0d01)
-# define early_xlc 1
-#endif
-#if defined(__xlC__) && (__xlC__ < 0x0d01)
-# define early_xlC 1
-#endif
-
-// Clang did not add vec_xl for little endian until November 2016
-// via https://reviews.llvm.org/D26519 . The release coincides
-// with roughly Clang 4.0 released March 2017. There is an earlier
-// Clang 3.9.1 release, but it is not clear if vec_xl made it.
-#if defined(__clang__) && (__clang_major__ >= 4)
-# define later_clang 1
-#endif
-
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
 // too noisy on modern compilers
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
