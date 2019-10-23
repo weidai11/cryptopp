@@ -566,6 +566,14 @@ jobs:
         - BUILD_MODE=ios
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
+    - os: linux
+      name: Linux with GCC (all)
+      arch: ppc64le
+      compiler: gcc
+    - os: linux
+      name: Linux with Clang (all)
+      arch: ppc64le
+      compiler: clang
 
 before_install:
   - |
@@ -578,7 +586,7 @@ before_install:
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        sudo apt-get install -y autoconf automake libtool
+        sudo apt-get -y install autoconf automake libtool
     fi
 
 script:
