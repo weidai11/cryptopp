@@ -665,7 +665,7 @@ ifeq ($(DETECT_FEATURES),1)
   else
     TPROG = TestPrograms/test_ppc_power7.cxx
     TOPT = $(POWER7_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifneq ($(strip $(HAVE_OPT)),0)
       POWER7_FLAG =
     endif
