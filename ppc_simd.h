@@ -126,7 +126,7 @@ typedef __vector unsigned int    uint32x4_p;
 ///   __vector unsigned long long
 /// \since Crypto++ 6.0
 typedef __vector unsigned long long uint64x2_p;
-#endif  // _ARCH_PWR8
+#endif  // VSX or ARCH_PWR8
 
 /// \brief The 0 vector
 /// \returns a 32-bit vector of 0's
@@ -1192,7 +1192,7 @@ inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
     return vec_sl(vec, m);
 }
 
-#endif
+#endif  // VSX or ARCH_PWR8
 
 /// \brief Rotate a packed vector right
 /// \tparam C shift bit count
@@ -1258,7 +1258,7 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
     return vec_sr(vec, m);
 }
 
-#endif
+#endif  // VSX or ARCH_PWR8
 
 /// \brief Exchange high and low double words
 /// \tparam T vector type
