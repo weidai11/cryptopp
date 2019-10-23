@@ -567,6 +567,10 @@ jobs:
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
     - os: linux
+      name: Linux with GCC (all)
+      arch: ppc64le
+      compiler: gcc
+    - os: linux
       name: Linux with Clang (all)
       arch: ppc64le
       compiler: clang
