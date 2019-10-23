@@ -247,6 +247,9 @@ inline uint32x4_p VecLoad(const byte src[16])
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
 #elif defined(__VSX__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
@@ -275,6 +278,9 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
 #elif defined(__VSX__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
@@ -378,12 +384,14 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
 #elif defined(__VSX__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
 #else
-    CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
-    return (uint32x4_p)vec_ld(off, (byte*)src);
+    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
 }
 
@@ -406,12 +414,14 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
 #elif defined(__VSX__)
     return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(__xlC__)
+    // Workaround XL C++ bug
+    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
 #else
-    CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
-    return (uint32x4_p)vec_ld(off, (byte*)src);
+    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
 }
 
