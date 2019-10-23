@@ -566,6 +566,10 @@ jobs:
         - BUILD_MODE=ios
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
+    - os: linux
+      name: Linux with Clang (all)
+      arch: ppc64le
+      compiler: clang
 
 before_install:
   - |

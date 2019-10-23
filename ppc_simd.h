@@ -266,10 +266,10 @@ inline uint32x4_p VecLoad(const byte src[16])
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
 #  else
-    return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
+    return (uint32x4_p)vec_vsx_ld(0, (const byte*)src);
 #  endif
 #else
-    return VecLoad_ALTIVEC(src);
+    return (uint32x4_p)VecLoad_ALTIVEC(src);
 #endif
 }
 
@@ -294,10 +294,10 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
 #  else
-    return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
+    return (uint32x4_p)vec_vsx_ld(off, (const byte*)src);
 #  endif
 #else
-    return VecLoad_ALTIVEC(off, src);
+    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
 }
 
@@ -315,7 +315,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(const word32 src[4])
 {
-    return VecLoad((const byte*)src);
+    return (uint32x4_p)VecLoad((const byte*)src);
 }
 
 /// \brief Loads a vector from a word array
@@ -333,7 +333,7 @@ inline uint32x4_p VecLoad(const word32 src[4])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(int off, const word32 src[4])
 {
-    return VecLoad(off, (const byte*)src);
+    return (uint32x4_p)VecLoad(off, (const byte*)src);
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
@@ -396,7 +396,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(0, (byte*)src);
 #  else
-    return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
+    return (uint32x4_p)vec_vsx_ld(0, (const byte*)src);
 #  endif
 #else  // _ARCH_PWR8
     CRYPTOPP_ASSERT(((uintptr_t)src) % 16 == 0);
@@ -424,7 +424,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 #  elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
     return (uint32x4_p)vec_xl(off, (byte*)src);
 #  else
-    return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
+    return (uint32x4_p)vec_vsx_ld(off, (const byte*)src);
 #  endif
 #else  // _ARCH_PWR8
     CRYPTOPP_ASSERT((((uintptr_t)src)+off) % 16 == 0);
@@ -458,7 +458,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
        return (uint32x4_p)vec_xl_be(0, (byte*)src);
 #  else
 #    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)vec_vsx_ld(0, (byte*)src);
+       return (uint32x4_p)vec_vsx_ld(0, (const byte*)src);
 #    else
        return (uint32x4_p)VecReverse(vec_vsx_ld(0, (byte*)src));
 #    endif
@@ -499,9 +499,9 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
        return (uint32x4_p)vec_xl_be(off, (byte*)src);
 #  else
 #    if (CRYPTOPP_BIG_ENDIAN)
-       return (uint32x4_p)vec_vsx_ld(off, (byte*)src);
+       return (uint32x4_p)vec_vsx_ld(off, (const byte*)src);
 #    else
-       return (uint32x4_p)VecReverse(vec_vsx_ld(off, (byte*)src));
+       return (uint32x4_p)VecReverse(vec_vsx_ld(off, (const byte*)src));
 #    endif
 #  endif
 #else  // _ARCH_PWR8
