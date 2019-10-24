@@ -1177,7 +1177,7 @@ inline T VecMergeLow(const T vec1, const T vec2)
     return vec_mergel(vec1, vec2);
 }
 
-#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
 /// \tparam C shift bit count
@@ -1191,14 +1191,8 @@ inline T VecMergeLow(const T vec1, const T vec2)
 template<unsigned int C>
 inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
 {
-#if defined(__clang__) && (__clang_major__ < 4)
-    const uint64x2_p ml = {C, C};
-    const uint64x2_p mr = {64-C, 64-C};
-    return vec_or(vec_sl(vec, ml), vec_sr(vec, mr));
-#else
     const uint64x2_p m = {C, C};
     return vec_rl(vec, m);
-#endif
 }
 
 /// \brief Shift a packed vector left
@@ -1249,7 +1243,7 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
     return vec_sr(vec, m);
 }
 
-#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector right
 /// \tparam C shift bit count
@@ -1263,14 +1257,8 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
 template<unsigned int C>
 inline uint64x2_p VecRotateRight(const uint64x2_p vec)
 {
-#if defined(__clang__) && (__clang_major__ < 4)
-    const uint64x2_p ml = {64-C, 64-C};
-    const uint64x2_p mr = {C, C};
-    return vec_or(vec_sl(vec, ml), vec_sr(vec, mr));
-#else
     const uint64x2_p m = {64-C, 64-C};
     return vec_rl(vec, m);
-#endif
 }
 
 /// \brief Shift a packed vector right
