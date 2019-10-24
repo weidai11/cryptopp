@@ -8,7 +8,6 @@ int main(int argc, char* argv[])
 {
 #if defined(_ARCH_PWR8)
     __vector unsigned long long w = {1, 2};
-    // Only GCC provides the 64-bit vec_xl
     __vector unsigned int x = vec_xl(0, (unsigned int*)argv[0]);
     __vector unsigned long long y = (__vector unsigned long long)x;
     __vector unsigned long long z = vec_add(w, y);
