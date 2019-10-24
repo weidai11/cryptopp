@@ -66,9 +66,9 @@ bool CPU_ProbePower7()
 
         #if defined(_ARCH_PWR7) && defined(__xlC__)
             // Workaround XL C++ bug
-            vec_vsx_st(vec_xl(0, (unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
+            vec_xst(vec_xl(0, (unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
         #elif defined(_ARCH_PWR7)
-            vec_vsx_st(vec_xl(0, (__vector unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
+            vec_xst(vec_xl(0, (__vector unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
         #else
             std::memset(b2, 0x00, sizeof(b2));
         #endif
