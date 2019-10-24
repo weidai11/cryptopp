@@ -11,10 +11,10 @@ int main(int argc, char* argv[])
     __vector unsigned int b = vec_ld(0, (unsigned int*)argv[0]);
     __vector unsigned int c = vec_xor(a, b);
 
+#  if defined(__VSX__)
     __vector unsigned int x = {5,6,7,8};
     __vector unsigned int y = vec_xl(0, (unsigned int*)argv[0]);
     __vector unsigned int z = vec_xor(x, y);
-#  if defined(__VSX__)
     __vector unsigned long long xx = {1,2};
     __vector unsigned long long yy = (__vector unsigned long long)y;
 #  endif
