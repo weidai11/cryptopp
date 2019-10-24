@@ -64,13 +64,13 @@ bool CPU_ProbePower7()
         // POWER7 added unaligned loads and store operations
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
-        // Specifically call the VSX loads and stores
-        #if defined(__early_xlc__) || defined(__early_xlC__)
-            vec_xstw4(vec_xlw4(0, b1+3), 0, b2+1);
-        #elif defined(__xlc__) || defined(__xlC__) || defined(__clang__)
-            vec_xst(vec_xl(0, b1+3), 0, b2+1);
+        #if defined(_ARCH_PWR7) && defined(__xlC__)
+            // Workaround XL C++ bug
+            vec_vsx_st(vec_xl(0, (unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
+        #elif defined(_ARCH_PWR7)
+            vec_vsx_st(vec_xl(0, (__vector unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
         #else
-            vec_vsx_st(vec_vsx_ld(0, b1+3), 0, b2+1);
+            std::memset(b2, 0x00, sizeof(b2));
         #endif
 
         result = (0 == std::memcmp(b1+3, b2+1, 16));
