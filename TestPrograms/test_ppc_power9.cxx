@@ -1,15 +1,7 @@
-// The problem we have here is, it appears only GCC 7.0 and above
-// support Power9 builtins. Clang 7.0 has support for some (all?)
-// assembly instructions but we don't see builtin support. We can't
-// determine the state of XLC. Searching IBM's website for
-// terms like 'darn' 'random number' is returning irrelevant hits.
-// Searching with Google from the outside returns 0 hits.
-//
-// The support disconnect means we may report Power9 as unavailable
-// and support DARN at the same time. We get into that state because
-// we use inline asm to detect DARN availablity in the compiler.
-// Also see cpu.cpp and the two query functions; and ppc_power9.cpp
-// and the two probe functions.
+#define GNUC_VERSION (__GNUC__*1000 + __GNUC_MAJOR__*10)
+#if (GNUC_VERSION >= 4060) || defined(__clang__)
+# pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
 
 #include <altivec.h>
 int main(int argc, char* argv[])
