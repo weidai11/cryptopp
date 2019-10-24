@@ -50,6 +50,12 @@
 // preprocessor macros depend on compiler options like -maltivec; and
 // not compiler versions.
 
+// For GCC see https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions.html
+// For XLC see the Compiler Reference manual. For Clang you have to experiment.
+// Clang does not document the compiler options, does not reject options it does
+// not understand, and pretends to be other compilers even though it cannot
+// process the builtins and intrinsics. Clang will waste hours of your time.
+
 // DO NOT USE this pattern in VecLoad and VecStore. We have to use the
 // spaghetti code tangled in preprocessor macros because XLC 12 generates
 // bad code in some places. To verify the bad code generation test on
@@ -93,18 +99,19 @@
 # define __CRYPTO__ 1
 #endif
 
+// The Power ABI says source arrays are non-const. XLC++
+// will fail to compile if the source array is const.
+#define CONST_V8_CAST(x) ((unsigned char*)(x))
+#define NCONST_V8_CAST(x) ((unsigned char*)(x))
+#define CONST_V32_CAST(x) ((unsigned int*)(x))
+#define NCONST_V32_CAST(x) ((unsigned int*)(x))
+
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
 // too noisy on modern compilers
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic push
 # pragma GCC diagnostic ignored "-Wdeprecated"
 #endif
-
-#define CONST_VECTOR8_CAST(x) ((const __vector unsigned char*)(x))
-#define VECTOR8_CAST(x) ((__vector unsigned char*)(x))
-
-#define CONST_VECTOR32_CAST(x) ((const __vector unsigned int*)(x))
-#define VECTOR32_CAST(x) ((__vector unsigned int*)(x))
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -130,7 +137,8 @@ typedef __vector unsigned int    uint32x4_p;
 /// \brief Vector of 64-bit elements
 /// \details uint64x2_p is available on POWER7 and above. Some supporting
 ///   functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>), did not
-///   arrive until POWER8.
+///   arrive until POWER8. GCC supports <tt>vec_xl</tt> and <tt>vec_xst</tt>
+///   for 64-bit elements, but other compilers do not.
 /// \par Wraps
 ///   __vector unsigned long long
 /// \since Crypto++ 6.0
@@ -253,15 +261,12 @@ inline uint32x4_p VecLoad(const byte src[16])
     const int off = 0;
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__) && !defined(__xlC__)
-    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__xlC__)
-    // Workaround XL C++ bug
-    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(__VSX__) && defined(__GNUC__) && !defined(__clang__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -284,15 +289,12 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__) && !defined(__xlC__)
-    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__xlC__)
-    // Workaround XL C++ bug
-    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(__VSX__) && defined(__GNUC__) && !defined(__clang__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -312,7 +314,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(const word32 src[4])
 {
-    return (uint32x4_p)VecLoad((const byte*)src);
+    return (uint32x4_p)VecLoad(CONST_V8_CAST(src));
 }
 
 /// \brief Loads a vector from a word array
@@ -330,7 +332,7 @@ inline uint32x4_p VecLoad(const word32 src[4])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(int off, const word32 src[4])
 {
-    return (uint32x4_p)VecLoad(off, (const byte*)src);
+    return (uint32x4_p)VecLoad(off, CONST_V8_CAST(src));
 }
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
@@ -350,7 +352,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(const word64 src[2])
 {
-    return (uint64x2_p)VecLoad((const byte*)src);
+    return (uint64x2_p)VecLoad(CONST_V8_CAST(src));
 }
 
 /// \brief Loads a vector from a word array
@@ -369,7 +371,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(int off, const word64 src[2])
 {
-    return (uint64x2_p)VecLoad(off, (const byte*)src);
+    return (uint64x2_p)VecLoad(off, CONST_V8_CAST(src));
 }
 
 #endif  // VSX or ARCH_PWR8
@@ -390,15 +392,12 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     const int off = 0;
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__) && !defined(__xlC__)
-    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__xlC__)
-    // Workaround XL C++ bug
-    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(__VSX__) && defined(__GNUC__) && !defined(__clang__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -420,15 +419,12 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR8_CAST(src));
-#elif defined(__VSX__) && !defined(__xlC__)
-    return (uint32x4_p)vec_vsx_ld(off, CONST_VECTOR32_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__xlC__)
-    // Workaround XL C++ bug
-    return (uint32x4_p)vec_xl(off, (unsigned int*)src);
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(__VSX__) && defined(__GNUC__) && !defined(__clang__)
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_VECTOR32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -450,7 +446,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
 #if defined(_ARCH_PWR9)
-    return (uint32x4_p)vec_xl_be(0, CONST_VECTOR8_CAST(src));
+    return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VecLoad(src);
 #else
@@ -475,7 +471,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
 #if defined(_ARCH_PWR9)
-    return (uint32x4_p)vec_xl_be(off, CONST_VECTOR8_CAST(src));
+    return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VecLoad(off, src);
 #else
@@ -585,14 +581,14 @@ inline void VecStore(const T data, byte dest[16])
     const int off = 0;
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
-    vec_xst((uint8x16_p)data, off, VECTOR8_CAST(dest));
-#elif defined(__VSX__) && !defined(__xlC__)
-    vec_vsx_st((uint32x4_p)data, off, VECTOR32_CAST(dest));
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif defined(__VSX__) && defined(__GNUC__) && !defined(__clang__)
+    vec_vsx_st((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    vec_xst((uint32x4_p)data, off, VECTOR32_CAST(dest));
+    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
+    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -616,14 +612,14 @@ inline void VecStore(const T data, int off, byte dest[16])
 {
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
-    vec_xst((uint8x16_p)data, off, VECTOR8_CAST(dest));
-#elif defined(__VSX__) && !defined(__xlC__)
-    vec_vsx_st((uint32x4_p)data, off, VECTOR32_CAST(dest));
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif defined(__VSX__) && defined(__GNUC__) && !defined(__clang__)
+    vec_vsx_st((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #elif defined(_ARCH_PWR7)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    vec_xst((uint32x4_p)data, off, VECTOR32_CAST(dest));
+    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, off, (byte*)dest);
+    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -644,7 +640,7 @@ inline void VecStore(const T data, int off, byte dest[16])
 template<class T>
 inline void VecStore(const T data, word32 dest[4])
 {
-    VecStore((uint8x16_p)data, 0, (byte*)dest);
+    VecStore((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 }
 
 /// \brief Stores a vector to a word array
@@ -665,7 +661,7 @@ inline void VecStore(const T data, word32 dest[4])
 template<class T>
 inline void VecStore(const T data, int off, word32 dest[4])
 {
-    VecStore((uint8x16_p)data, off, (byte*)dest);
+    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 }
 
 /// \brief Stores a vector to a word array
@@ -686,7 +682,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
 template<class T>
 inline void VecStore(const T data, word64 dest[2])
 {
-    VecStore((uint8x16_p)data, 0, (byte*)dest);
+    VecStore((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 }
 
 /// \brief Stores a vector to a word array
@@ -708,7 +704,7 @@ inline void VecStore(const T data, word64 dest[2])
 template<class T>
 inline void VecStore(const T data, int off, word64 dest[2])
 {
-    VecStore((uint8x16_p)data, off, (byte*)dest);
+    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 }
 
 /// \brief Stores a vector to a byte array
@@ -731,9 +727,9 @@ inline void VecStoreBE(const T data, byte dest[16])
 {
     const int off = 0;
 #if (CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint8x16_p)data, off, (byte*)dest);
+    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
-    VecStore((uint8x16_p)VecReverse(data), off, (byte*)dest);
+    VecStore((uint8x16_p)VecReverse(data), off, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -757,9 +753,9 @@ template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
 {
 #if (CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint8x16_p)data, off, (byte*)dest);
+    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
-    VecStore((uint8x16_p)VecReverse(data), off, (byte*)dest);
+    VecStore((uint8x16_p)VecReverse(data), off, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -781,7 +777,7 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 template <class T>
 inline void VecStoreBE(const T data, word32 dest[4])
 {
-    return VecStoreBE((uint8x16_p)data, (byte*)dest);
+    return VecStoreBE((uint8x16_p)data, NCONST_V8_CAST(dest));
 }
 
 /// \brief Stores a vector to a word array
@@ -803,7 +799,7 @@ inline void VecStoreBE(const T data, word32 dest[4])
 template <class T>
 inline void VecStoreBE(const T data, int off, word32 dest[4])
 {
-    return VecStoreBE((uint8x16_p)data, off, (byte*)dest);
+    return VecStoreBE((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 }
 
 //@}
@@ -1690,5 +1686,10 @@ NAMESPACE_END
 #if CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE
 # pragma GCC diagnostic pop
 #endif
+
+#undef CONST_V8_CAST
+#undef NCONST_V8_CAST
+#undef CONST_V32_CAST
+#undef NCONST_V32_CAST
 
 #endif  // CRYPTOPP_PPC_CRYPTO_H
