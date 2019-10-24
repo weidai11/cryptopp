@@ -593,9 +593,9 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(XLC_COMPILER),1)
     POWER9_FLAG = -qarch=pwr9 -qaltivec
     POWER8_FLAG = -qarch=pwr8 -qaltivec
-    POWER7_VSX_FLAG = -qarch=pwr7 -mvsx -qaltivec
+    POWER7_VSX_FLAG = -qarch=pwr7 -qvsx -qaltivec
     POWER7_PWR_FLAG = -qarch=pwr7 -qaltivec
-    POWER7_NO_FLAG = -qaltivec
+    POWER7_ALT_FLAG = -qaltivec
     POWER6_FLAG = -qarch=pwr6 -qaltivec
     POWER5_FLAG = -qarch=pwr5 -qaltivec
     POWER4_FLAG = -qarch=pwr4 -qaltivec
@@ -605,7 +605,7 @@ ifeq ($(DETECT_FEATURES),1)
     POWER8_FLAG = -mcpu=power8 -maltivec
     POWER7_VSX_FLAG = -mcpu=power7 -mvsx -maltivec
     POWER7_PWR_FLAG = -mcpu=power7 -maltivec
-    POWER7_NO_FLAG = -maltivec
+    POWER7_ALT_FLAG = -maltivec
     ALTIVEC_FLAG = -maltivec
   endif
 
@@ -620,7 +620,7 @@ ifeq ($(DETECT_FEATURES),1)
   #endif
 
   #####################################################################
-  # Looking for a POWER8 option
+  # Looking for a POWER9 option
 
   TPROG = TestPrograms/test_ppc_power9.cxx
   TOPT = $(POWER9_FLAG)
@@ -630,6 +630,9 @@ ifeq ($(DETECT_FEATURES),1)
   else
     POWER9_FLAG =
   endif
+
+  #####################################################################
+  # Looking for a POWER8 option
 
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = $(POWER8_FLAG)
@@ -675,10 +678,10 @@ ifeq ($(DETECT_FEATURES),1)
       POWER7_FLAG = $(POWER7_PWR_FLAG)
 	else
       TPROG = TestPrograms/test_ppc_power7.cxx
-      TOPT = $(POWER7_NO_FLAG)
+      TOPT = $(POWER7_ALT_FLAG)
       HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
       ifeq ($(strip $(HAVE_OPT)),0)
-        POWER7_FLAG = $(POWER7_NO_FLAG)
+        POWER7_FLAG = $(POWER7_ALT_FLAG)
       else
         POWER7_FLAG =
       endif
