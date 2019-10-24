@@ -17,11 +17,6 @@ int main(int argc, char* argv[])
 #  if defined(__VSX__)
     __vector unsigned long long xx = {1,2};
     __vector unsigned long long yy = (__vector unsigned long long)y;
-    __vector unsigned long long zz = vec_xor(xx, yy);
-#  endif
-#  if defined(__VSX__) && defined(__GNUC__)
-    __vector unsigned int       aa = vec_vsx_ld(0, (unsigned int*)argv[0]);
-    __vector unsigned long long bb = (__vector unsigned long long)aa;
 #  endif
 #else
     int x[-1];
