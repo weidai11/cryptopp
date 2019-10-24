@@ -45,9 +45,9 @@
 ///   slightly different implementations.
 /// \since Crypto++ 6.0, LLVM Clang compiler support since Crypto++ 8.0
 
-// Use __ALTIVEC__, _ARCH_PWR7 and _ARCH_PWR8 when detecting actual
-// availaibility of the feature for the source file being compiled. The
-// preprocessor macros depend on compiler options like -maltivec; and
+// Use __ALTIVEC__, _ARCH_PWR7, __VSX__, and _ARCH_PWR8 when detecting
+// actual availaibility of the feature for the source file being compiled.
+// The preprocessor macros depend on compiler options like -maltivec; and
 // not compiler versions.
 
 // For GCC see https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions.html
