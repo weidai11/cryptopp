@@ -52,9 +52,9 @@
 
 // For GCC see https://gcc.gnu.org/onlinedocs/gcc/Basic-PowerPC-Built-in-Functions.html
 // For XLC see the Compiler Reference manual. For Clang you have to experiment.
-// Clang does not reject options it does not understand, and pretends to be
-// other compilers even though it can process the builtins and intrinsics. Clang
-// will waste hours of your time.
+// Clang does not document the compiler options, does not reject options it does
+// not understand, and pretends to be other compilers even though it can process
+// the builtins and intrinsics. Clang will waste hours of your time.
 
 // DO NOT USE this pattern in VecLoad and VecStore. We have to use the
 // spaghetti code tangled in preprocessor macros because XLC 12 generates
