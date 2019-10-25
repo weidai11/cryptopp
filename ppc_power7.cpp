@@ -65,7 +65,7 @@ bool CPU_ProbePower7()
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
         #if defined(_ARCH_PWR7) && defined(__VSX__)
-            vec_xst(vec_xl(0, (__vector unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
+            vec_xst(vec_xl(0, (unsigned int*)(b1+3)), 0, (unsigned int*)(b2+1));
             result = (0 == std::memcmp(b1+3, b2+1, 16));
         #else
             result = false;
