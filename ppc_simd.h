@@ -83,6 +83,22 @@
 # undef bool
 #endif
 
+// XL C++ on AIX does not define VSX and does not
+// provide an option to set it. We have to set it
+// for the code below. This define must stay in
+// sync with the define in test_ppc_power7.cxx
+#if defined(_AIX) && defined(_ARCH_PWR7) && defined(__xlC__)
+# define __VSX__ 1
+#endif
+
+// XL C++ on AIX does not define CRYPTO and does not
+// provide an option to set it. We have to set it
+// for the code below. This define must stay in
+// sync with the define in test_ppc_power8.cxx
+#if defined(_AIX) && defined(_ARCH_PWR8) && defined(__xlC__)
+# define __CRYPTO__ 1
+#endif
+
 // The Power ABI says source arrays are non-const. XLC++
 // will fail to compile if the source array is const.
 #define CONST_V8_CAST(x) ((unsigned char*)(x))
@@ -249,7 +265,7 @@ inline uint32x4_p VecLoad(const byte src[16])
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
+    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
 }
 
@@ -274,7 +290,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(off, src);
+    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
 }
 
@@ -369,7 +385,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
-    return (uint32x4_p)vec_ld(off, src);
+    return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
 }
 
@@ -392,7 +408,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
-    return (uint32x4_p)vec_ld(off, src);
+    return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
 }
 
@@ -437,7 +453,7 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad(off, src);
+    return (uint32x4_p)VecLoad(off, CONST_V8_CAST(src));
 #else
     return (uint32x4_p)VecReverse(VecLoad(off, src));
 #endif
@@ -469,7 +485,7 @@ inline void VecStore_ALTIVEC(const T data, byte dest[16])
     uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+0;
     if (eff % 16 == 0)
     {
-        vec_st((uint8x16_p)data, 0,  dest);
+        vec_st((uint8x16_p)data, 0, dest);
     }
     else
     {
@@ -508,7 +524,7 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
     uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     if (eff % 16 == 0)
     {
-        vec_st((uint8x16_p)data, off,  dest);
+        vec_st((uint8x16_p)data, off, dest);
     }
     else
     {
