@@ -66,11 +66,10 @@ bool CPU_ProbePower7()
 
         #if defined(_ARCH_PWR7) && defined(__VSX__)
             vec_xst(vec_xl(0, (__vector unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
+            result = (0 == std::memcmp(b1+3, b2+1, 16));
         #else
-            std::memset(b2, 0x00, sizeof(b2));
-        #endif
-
-        result = (0 == std::memcmp(b1+3, b2+1, 16));
+            result = false;
+        #endif        
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
