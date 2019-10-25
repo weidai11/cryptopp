@@ -7,7 +7,7 @@
 ///  for accessing vector intructions.
 /// \details The abstractions are necesssary to support back to GCC 4.8 and
 ///  XLC 11 and 12. GCC 4.8 and 4.9 are still popular, and they are the
-///  default compiler for GCC112, GCC118 and others on the compile farm.
+///  default compiler for GCC112, GCC119 and others on the compile farm.
 ///  Older IBM XL C/C++ compilers also experience it due to lack of
 ///  <tt>vec_xl</tt> and <tt>vec_xst</tt> support on some platforms. Modern
 ///  compilers provide best support and don't need many of the hacks
@@ -28,12 +28,13 @@
 ///  - GCC119, AIX, POWER8, XLC 13.01
 ///  - GCC135, Linux, POWER9, GCC 7.0
 /// \details 12 machines are used for testing because the three compilers form
-///  five profiles. The profiles are listed below.
+///  five or size profiles. The profiles are listed below.
 ///  - GCC (Linux GCC, Macports GCC, etc. Consistent across machines)
 ///  - XLC 13.0 and earlier (all IBM components)
 ///  - XLC 13.1 and later on Linux (LLVM front-end, no compatibility macros)
 ///  - XLC 13.1 and later on Linux (LLVM front-end, -qxlcompatmacros option)
-///  - LLVM Clang (traditional Clang compiler)
+///  - early LLVM Clang (traditional Clang compiler)
+///  - late LLVM Clang (traditional Clang compiler)
 /// \details The LLVM front-end makes it tricky to write portable code because
 ///  LLVM pretends to be other compilers but cannot consume other compiler's
 ///  builtins. When using XLC with -qxlcompatmacros the compiler pretends to
@@ -395,7 +396,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \details VecLoadAligned() loads a vector in from an aligned byte array.
 /// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  <tt>vec_ld</tt> is used if POWER7 is not available. The effective
-///  address of <tt>src</tt> must be aligned.
+///  address of <tt>src+off</tt> must be aligned.
 /// \par Wraps
 ///  vec_ld, vec_xl
 /// \since Crypto++ 8.0
