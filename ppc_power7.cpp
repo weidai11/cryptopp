@@ -14,7 +14,7 @@
 # include <setjmp.h>
 #endif
 
-#if defined(_ARCH_PWR7)
+#if defined(__ALTIVEC__) || defined(_ARCH_PWR7)
 # include "ppc_simd.h"
 #endif
 
@@ -42,7 +42,7 @@ bool CPU_ProbePower7()
 {
 #if defined(CRYPTOPP_NO_CPU_FEATURE_PROBES)
     return false;
-#elif (_ARCH_PWR7) && defined(CRYPTOPP_POWER7_AVAILABLE)
+#elif defined(CRYPTOPP_POWER7_AVAILABLE)
 # if defined(CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY)
 
     // longjmp and clobber warnings. Volatile is required.
@@ -64,16 +64,12 @@ bool CPU_ProbePower7()
         // POWER7 added unaligned loads and store operations
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
-        #if defined(_ARCH_PWR7) && defined(__xlC__)
-            // Workaround XL C++ bug
-            vec_xst(vec_xl(0, (unsigned int*)(b1+3)), 0, (unsigned int*)(b2+1));
-        #elif defined(_ARCH_PWR7)
+        #if defined(_ARCH_PWR7) && defined(__VSX__)
             vec_xst(vec_xl(0, (__vector unsigned int*)(b1+3)), 0, (__vector unsigned int*)(b2+1));
+            result = (0 == std::memcmp(b1+3, b2+1, 16));
         #else
-            std::memset(b2, 0x00, sizeof(b2));
-        #endif
-
-        result = (0 == std::memcmp(b1+3, b2+1, 16));
+            result = false;
+        #endif        
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
