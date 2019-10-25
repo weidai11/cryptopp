@@ -256,6 +256,8 @@ inline uint32x4_p VecLoad(const byte src[16])
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+#elif defined(__VSX__) // will this ever be taken?
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -281,6 +283,8 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+#elif defined(__VSX__) // will this ever be taken?
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, src);
 #endif
@@ -376,6 +380,8 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+#elif defined(__VSX__) // will this ever be taken?
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)vec_ld(off, src);
 #endif
@@ -399,6 +405,8 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+#elif defined(__VSX__) // will this ever be taken?
+    return (uint32x4_p)vec_vsx_ld(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)vec_ld(off, src);
 #endif
@@ -556,6 +564,8 @@ inline void VecStore(const T data, byte dest[16])
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+#elif defined(__VSX__) // will this ever be taken?
+    vec_vsx_st((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
@@ -584,6 +594,8 @@ inline void VecStore(const T data, int off, byte dest[16])
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+#elif defined(__VSX__) // will this ever be taken?
+    vec_vsx_st((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
