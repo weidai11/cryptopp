@@ -83,14 +83,6 @@
 # undef bool
 #endif
 
-// IBM XLC on AIX does not define __VSX__ with -qarch=pwr7
-// or -qarch=pwr8. The manual says it is available with the
-// architectures; see XL C: Compiler Reference p. 104.
-#if defined(_AIX) && (defined(_ARCH_PWR7) || defined(_ARCH_PWR8)) && defined(__xlC__)
-# undef __VSX__
-# define __VSX__ 1
-#endif
-
 // IBM XLC on AIX does not define __CRYPTO__ like it should
 // with -qarch=pwr8. Crypto is available in XLC 13.1 and above.
 // More LLVM front-end goodness.
