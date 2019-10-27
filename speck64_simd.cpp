@@ -44,7 +44,7 @@
 # include "adv_simd.h"
 #endif
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
@@ -254,7 +254,7 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 
 template <unsigned int R>
 inline __m128i RotateLeft32(const __m128i& val)
@@ -460,7 +460,7 @@ inline void SPECK64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 // ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
 
@@ -503,7 +503,7 @@ void SPECK64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[i]);
 #else
         // subkeys has extra elements so memory backs the last subkey
@@ -550,7 +550,7 @@ void SPECK64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[i]);
 #else
         // subkeys has extra elements so memory backs the last subkey
@@ -602,7 +602,7 @@ void SPECK64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[i]);
 #else
         // subkeys has extra elements so memory backs the last subkey
@@ -671,7 +671,7 @@ void SPECK64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[i]);
 #else
         // subkeys has extra elements so memory backs the last subkey
@@ -746,7 +746,7 @@ size_t SPECK64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t roun
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 size_t SPECK64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -764,7 +764,21 @@ size_t SPECK64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 
 // ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_POWER7_AVAILABLE)
+size_t SPECK64_Enc_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks64_6x2_ALTIVEC(SPECK64_Enc_Block, SPECK64_Enc_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SPECK64_Dec_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks64_6x2_ALTIVEC(SPECK64_Dec_Block, SPECK64_Dec_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
 size_t SPECK64_Enc_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
