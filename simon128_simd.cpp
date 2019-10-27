@@ -29,11 +29,6 @@
 # endif
 #endif
 
-#if defined(__AVX512F__)
-# define CRYPTOPP_AVX512_ROTATE 1
-# include <immintrin.h>
-#endif
-
 #if (CRYPTOPP_ARM_NEON_HEADER)
 # include "adv_simd.h"
 # include <arm_neon.h>
@@ -48,7 +43,7 @@
 # include "adv_simd.h"
 #endif
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE)
 # include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
@@ -289,7 +284,7 @@ inline void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSSE3_AVAILABLE)
 
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #ifndef M128_CAST
@@ -321,9 +316,7 @@ inline void Swap128(__m128i& a,__m128i& b)
 template <unsigned int R>
 inline __m128i RotateLeft64(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_rol_epi64(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi64(val, R);
 #else
     return _mm_or_si128(
@@ -334,9 +327,7 @@ inline __m128i RotateLeft64(const __m128i& val)
 template <unsigned int R>
 inline __m128i RotateRight64(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_ror_epi64(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi64(val, 64-R);
 #else
     return _mm_or_si128(
@@ -537,7 +528,7 @@ inline void SIMON128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 // ***************************** Power8 ***************************** //
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE)
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
@@ -801,7 +792,7 @@ size_t SIMON128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rou
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSSE3_AVAILABLE)
 size_t SIMON128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -819,7 +810,7 @@ size_t SIMON128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t ro
 
 // ***************************** Power8 ***************************** //
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if (CRYPTOPP_POWER8_AVAILABLE)
 size_t SIMON128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
