@@ -641,8 +641,6 @@ ifeq ($(DETECT_FEATURES),1)
     AES_FLAG = $(POWER8_FLAG)
     ARIA_FLAG = $(POWER8_FLAG)
     BLAKE2B_FLAG = $(POWER8_FLAG)
-    BLAKE2S_FLAG = $(POWER8_FLAG)
-    CHACHA_FLAG = $(POWER8_FLAG)
     CHAM_FLAG = $(POWER8_FLAG)
     CRC_FLAG = $(POWER8_FLAG)
     GCM_FLAG = $(POWER8_FLAG)
@@ -688,6 +686,11 @@ ifeq ($(DETECT_FEATURES),1)
     endif
   endif
 
+  ifneq ($(POWER7_FLAG),)
+    BLAKE2S_FLAG = $(POWER7_FLAG)
+    CHACHA_FLAG = $(POWER7_FLAG)
+  endif
+
   #####################################################################
   # Looking for an Altivec option
 
@@ -727,13 +730,21 @@ ifeq ($(DETECT_FEATURES),1)
   #####################################################################
   # Fixups for algorithms that can drop to a lower ISA, if needed
 
-  # Drop to Power4 if Power8 not available
-  ifeq ($(POWER8_FLAG),)
-    ifneq ($(ALTIVEC_FLAG),)
+  # Drop to Altivec if higher Power is not available
+  ifneq ($(ALTIVEC_FLAG),)
+    ifeq ($(BLAKE2S_FLAG),)
       BLAKE2S_FLAG = $(ALTIVEC_FLAG)
+    endif
+    ifeq ($(CHACHA_FLAG),)
       CHACHA_FLAG = $(ALTIVEC_FLAG)
+    endif
+    ifeq ($(GCM_FLAG),)
       GCM_FLAG = $(ALTIVEC_FLAG)
+    endif
+    ifeq ($(SIMON64_FLAG),)
       SIMON64_FLAG = $(ALTIVEC_FLAG)
+    endif
+    ifeq ($(SPECK64_FLAG),)
       SPECK64_FLAG = $(ALTIVEC_FLAG)
     endif
   endif

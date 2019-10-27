@@ -64,7 +64,11 @@ bool CPU_ProbePower7()
         // POWER7 added unaligned loads and store operations
         byte b1[19] = {255, 255, 255, 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1}, b2[17];
 
-        #if defined(_ARCH_PWR7) && defined(__VSX__)
+        // See comments in ppc_simd.h for some of these defines.
+        #if defined(_AIX) && defined(_ARCH_PWR7) && ((__xlC__ & 0xff00) == 0x0c00)
+            vec_xstw4(vec_xlw4(0, (unsigned int*)(b1+3)), 0, (unsigned int*)(b2+1));
+            result = (0 == std::memcmp(b1+3, b2+1, 16));
+        #elif defined(_ARCH_PWR7) && defined(__VSX__)
             vec_xst(vec_xl(0, (unsigned int*)(b1+3)), 0, (unsigned int*)(b2+1));
             result = (0 == std::memcmp(b1+3, b2+1, 16));
         #else

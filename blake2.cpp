@@ -5,7 +5,7 @@
 //
 // The BLAKE2b and BLAKE2s numbers are consistent with the BLAKE2 team's
 // numbers. However, we have an Altivec/POWER7 implementation of BLAKE2s,
-// and a POWER8 implementation of BLAKE2b (BLAKE2 is missing them). The
+// and a POWER8 implementation of BLAKE2b (BLAKE2 team is missing them).
 // Altivec/POWER7 code is about 2x faster than C++ when using GCC 5.0 or
 // above. The POWER8 code is about 2.5x faster than C++ when using GCC 5.0
 // or above. If you use GCC 4.0 (PowerMac) or GCC 4.8 (GCC Compile Farm)
@@ -181,8 +181,8 @@ extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state);
 #endif
 
-#if CRYPTOPP_POWER8_AVAILABLE
-extern void BLAKE2_Compress32_POWER8(const byte* input, BLAKE2s_State& state);
+#if CRYPTOPP_POWER7_AVAILABLE
+extern void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state);
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
 extern void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state);
 #endif
@@ -243,9 +243,9 @@ unsigned int BLAKE2s::OptimalDataAlignment() const
         return 4;
     else
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return 16;
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return 4;
     else
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
@@ -267,9 +267,9 @@ std::string BLAKE2s::AlgorithmProvider() const
         return "NEON";
     else
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return "Power8";
+#if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return "Power7";
     else
 #elif (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
@@ -700,10 +700,10 @@ void BLAKE2s::Compress(const byte *input)
         return BLAKE2_Compress32_NEON(input, m_state);
     }
 #endif
-#if CRYPTOPP_POWER8_AVAILABLE
-    if(HasPower8())
+#if CRYPTOPP_POWER7_AVAILABLE
+    if(HasPower7())
     {
-        return BLAKE2_Compress32_POWER8(input, m_state);
+        return BLAKE2_Compress32_POWER7(input, m_state);
     }
 #elif CRYPTOPP_ALTIVEC_AVAILABLE
     if(HasAltivec())

@@ -8,10 +8,10 @@
 //    appropriate instructions sets in some build configurations.
 
 // The BLAKE2b and BLAKE2s numbers are consistent with the BLAKE2 team's
-// numbers. However, we have an Altivec/POWER8 implementation of BLAKE2s,
-// and a POWER8 implementation of BLAKE2b (BLAKE2 is missing them). The
-// Altivec/POWER8 code is about 2x faster than C++ when using GCC 5.0 or
-// above. The POWER8 code is about 2.5x faster than C++ when using GCC 5.0
+// numbers. However, we have an Altivec/POWER7 implementation of BLAKE2s,
+// and a POWER7 implementation of BLAKE2b (BLAKE2 is missing them). The
+// Altivec/POWER7 code is about 2x faster than C++ when using GCC 5.0 or
+// above. The POWER7 code is about 2.5x faster than C++ when using GCC 5.0
 // or above. If you use GCC 4.0 (PowerMac) or GCC 4.8 (GCC Compile Farm)
 // then the PowerPC code will be slower than C++. Be sure to use GCC 5.0
 // or above for PowerPC builds or disable Altivec for BLAKE2b and BLAKE2s
@@ -38,7 +38,7 @@
 // https://github.com/weidai11/cryptopp/issues/743
 #if defined(__xlC__) && (__xlC__ < 0x0d01)
 # define CRYPTOPP_DISABLE_ALTIVEC 1
-# undef CRYPTOPP_POWER8_AVAILABLE
+# undef CRYPTOPP_POWER7_AVAILABLE
 # undef CRYPTOPP_ALTIVEC_AVAILABLE
 #endif
 
@@ -697,7 +697,7 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 }
 #endif  // CRYPTOPP_ARM_NEON_AVAILABLE
 
-#if (CRYPTOPP_POWER8_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE)
 
 inline uint32x4_p VecLoad32(const void* p)
 {
@@ -868,10 +868,10 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
     return VecPermute(a, c, mask);
 }
 
-// BLAKE2_Compress32_CORE will use either POWER8 or ALTIVEC,
+// BLAKE2_Compress32_CORE will use either POWER7 or ALTIVEC,
 // depending on the flags used to compile this source file. The
 // abstractions are handled in VecLoad, VecStore and friends. In
-// the future we may provide both POWER8 or ALTIVEC at the same
+// the future we may provide both POWER7 or ALTIVEC at the same
 // time to better support distros.
 void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
 {
@@ -1020,11 +1020,11 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
     VecStore32LE(state.h()+0, VecXor(ff0, VecXor(row1, row3)));
     VecStore32LE(state.h()+4, VecXor(ff1, VecXor(row2, row4)));
 }
-#endif  // CRYPTOPP_POWER8_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
+#endif  // CRYPTOPP_POWER7_AVAILABLE || CRYPTOPP_ALTIVEC_AVAILABLE
 
-#if (CRYPTOPP_POWER8_AVAILABLE)
+#if (CRYPTOPP_POWER7_AVAILABLE)
 
-void BLAKE2_Compress32_POWER8(const byte* input, BLAKE2s_State& state)
+void BLAKE2_Compress32_POWER7(const byte* input, BLAKE2s_State& state)
 {
     BLAKE2_Compress32_CORE(input, state);
 }
