@@ -592,6 +592,7 @@ TestPrograms/test_arm_sm4.cxx
 TestPrograms/test_asm_mixed.cxx
 TestPrograms/test_cxx.cxx
 TestPrograms/test_cxx11.cxx
+TestPrograms/test_cxx17.cxx
 TestPrograms/test_glibc.cxx
 TestPrograms/test_newlib.cxx
 TestPrograms/test_ppc_aes.cxx
