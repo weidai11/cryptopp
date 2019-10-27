@@ -87,9 +87,17 @@
 // XL C++ on AIX does not define VSX and does not
 // provide an option to set it. We have to set it
 // for the code below. This define must stay in
-// sync with the define in test_ppc_power7.cxx
+// sync with the define in test_ppc_power7.cxx.
 #if defined(_AIX) && defined(_ARCH_PWR7) && defined(__xlC__)
 # define __VSX__ 1
+#endif
+
+// XL C++ v12 on AIX uses vec_xlw4 and vec_xstw4.
+// This define must stay in sync with the define
+// in test_ppc_power7.cxx.
+#if defined(_AIX) && defined(_ARCH_PWR7) && ((__xlC__ & 0xff00) == 0x0c00)
+# define XLC_VEC_XLW4 1
+# define XLC_VEC_XSTW4 1
 #endif
 
 // XL C++ on AIX does not define CRYPTO and does not
@@ -280,6 +288,8 @@ inline uint32x4_p VecLoad(const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
+    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
@@ -305,6 +315,8 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
+    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
@@ -400,6 +412,8 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
+    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
@@ -423,6 +437,8 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
+    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
@@ -580,6 +596,8 @@ inline void VecStore(const T data, byte dest[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XSTW4)
+    vec_xstw4((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
@@ -608,6 +626,8 @@ inline void VecStore(const T data, int off, byte dest[16])
 #if defined(_ARCH_PWR9)
     // ISA 3.0 provides vec_xl for short* and char*
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XSTW4)
+    vec_xstw4((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
