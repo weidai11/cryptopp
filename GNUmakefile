@@ -649,8 +649,6 @@ ifeq ($(DETECT_FEATURES),1)
     SHA_FLAG = $(POWER8_FLAG)
     SHACAL2_FLAG = $(POWER8_FLAG)
     SIMECK_FLAG = $(POWER8_FLAG)
-    SIMON64_FLAG = $(POWER8_FLAG)
-    SPECK64_FLAG = $(POWER8_FLAG)
     SIMON128_FLAG = $(POWER8_FLAG)
     SPECK128_FLAG = $(POWER8_FLAG)
   else
@@ -689,6 +687,8 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(POWER7_FLAG),)
     BLAKE2S_FLAG = $(POWER7_FLAG)
     CHACHA_FLAG = $(POWER7_FLAG)
+    SIMON64_FLAG = $(POWER7_FLAG)
+    SPECK64_FLAG = $(POWER7_FLAG)
   endif
 
   #####################################################################

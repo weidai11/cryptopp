@@ -562,7 +562,7 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk1 = vec_splats(subkeys[i]);
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
 #else
@@ -578,7 +578,7 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     if (rounds & 1)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
@@ -620,7 +620,7 @@ inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         std::swap(x1, y1);
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
@@ -633,7 +633,7 @@ inline void SIMON64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk1 = vec_splats(subkeys[i+1]);
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
@@ -682,7 +682,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk1 = vec_splats(subkeys[i]);
         const uint32x4_p rk2 = vec_splats(subkeys[i+1]);
 #else
@@ -703,7 +703,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     if (rounds & 1)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
@@ -756,8 +756,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
-
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk = vec_splats(subkeys[rounds-1]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
@@ -772,7 +771,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
-#if CRYPTOPP_POWER8_AVAILABLE
+#if (CRYPTOPP_POWER7_AVAILABLE)
         const uint32x4_p rk1 = vec_splats(subkeys[i+1]);
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
@@ -854,7 +853,21 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 
 // ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if defined(CRYPTOPP_POWER7_AVAILABLE)
+size_t SIMON64_Enc_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Enc_Block, SIMON64_Enc_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+
+size_t SIMON64_Dec_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
+    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
+{
+    return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
+        subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
+}
+#elif defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 size_t SIMON64_Enc_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
