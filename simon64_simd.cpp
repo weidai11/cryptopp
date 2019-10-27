@@ -44,7 +44,7 @@
 # include "adv_simd.h"
 #endif
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
@@ -279,7 +279,7 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 
 inline void Swap128(__m128i& a,__m128i& b)
 {
@@ -512,7 +512,7 @@ inline void SIMON64_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 // ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
@@ -835,7 +835,7 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t roun
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 size_t SIMON64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -853,7 +853,7 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rou
 
 // ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_POWER7_AVAILABLE)
+#if (CRYPTOPP_POWER7_AVAILABLE)
 size_t SIMON64_Enc_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -867,7 +867,7 @@ size_t SIMON64_Dec_AdvancedProcessBlocks_POWER7(const word32* subKeys, size_t ro
     return AdvancedProcessBlocks64_6x2_ALTIVEC(SIMON64_Dec_Block, SIMON64_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
-#elif defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
 size_t SIMON64_Enc_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {

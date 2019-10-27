@@ -212,7 +212,7 @@ extern size_t SIMON128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, siz
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
 extern size_t SIMON64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
@@ -220,7 +220,7 @@ extern size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, siz
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSSE3_AVAILABLE)
 extern size_t SIMON128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
@@ -465,11 +465,11 @@ void SIMON128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2]);
 }
 
-#if defined(CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
+#if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
 size_t SIMON64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
         return SIMON64_Enc_AdvancedProcessBlocks_SSE41(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
@@ -494,7 +494,7 @@ size_t SIMON64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
 size_t SIMON64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
-#if defined(CRYPTOPP_SSE41_AVAILABLE)
+#if (CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
         return SIMON64_Dec_AdvancedProcessBlocks_SSE41(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
@@ -517,11 +517,11 @@ size_t SIMON64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
 }
 #endif  // CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
 
-#if defined(CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS)
+#if (CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS)
 size_t SIMON128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
         return SIMON128_Enc_AdvancedProcessBlocks_SSSE3(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
@@ -542,7 +542,7 @@ size_t SIMON128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
 size_t SIMON128::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
         return SIMON128_Dec_AdvancedProcessBlocks_SSSE3(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
