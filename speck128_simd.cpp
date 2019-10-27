@@ -29,11 +29,6 @@
 # endif
 #endif
 
-#if defined(__AVX512F__)
-# define CRYPTOPP_AVX512_ROTATE 1
-# include <immintrin.h>
-#endif
-
 #if (CRYPTOPP_ARM_NEON_HEADER)
 # include "adv_simd.h"
 # include <arm_neon.h>
@@ -285,9 +280,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
 template <unsigned int R>
 inline __m128i RotateLeft64(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_rol_epi64(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi64(val, R);
 #else
     return _mm_or_si128(
@@ -298,9 +291,7 @@ inline __m128i RotateLeft64(const __m128i& val)
 template <unsigned int R>
 inline __m128i RotateRight64(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_ror_epi64(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi64(val, 64-R);
 #else
     return _mm_or_si128(
