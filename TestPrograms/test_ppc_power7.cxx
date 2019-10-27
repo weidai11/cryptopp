@@ -11,7 +11,8 @@
 # define __VSX__ 1
 #endif
 
-// XL C++ v12 on AIX uses vec_xlw4 and vec_xstw4.
+// XL C++ v12 on AIX uses vec_xlw4 and vec_xstw4,
+// http://www.ibm.com/support/docview.wss?uid=swg27024210.
 // This define must stay in sync with the define
 // in ppc_simd.h.
 #if defined(_AIX) && defined(_ARCH_PWR7) && ((__xlC__ & 0xff00) == 0x0c00)
