@@ -109,6 +109,11 @@ public:
 
         std::string AlgorithmProvider() const;
 
+        /// \brief Provides input and output data alignment for optimal performance.
+        /// \return the input data alignment that provides optimal performance
+        /// \sa GetAlignment() and OptimalBlockSize()
+        unsigned int OptimalDataAlignment() const;
+
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
@@ -171,6 +176,11 @@ public:
         }
 
         std::string AlgorithmProvider() const;
+
+        /// \brief Provides input and output data alignment for optimal performance.
+        /// \return the input data alignment that provides optimal performance
+        /// \sa GetAlignment() and OptimalBlockSize()
+        unsigned int OptimalDataAlignment() const;
 
     protected:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);

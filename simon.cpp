@@ -273,6 +273,29 @@ std::string SIMON64::Base::AlgorithmProvider() const
     return "C++";
 }
 
+unsigned int SIMON64::Base::OptimalDataAlignment() const
+{
+#if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
+# if (CRYPTOPP_SSE41_AVAILABLE)
+    if (HasSSE41())
+        return 16;
+# endif
+# if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return 4;
+# endif
+# if (CRYPTOPP_POWER7_AVAILABLE)
+    if (HasPower7())
+        return 4;
+# endif
+# if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 16;
+# endif
+#endif
+    return GetAlignmentOf<word32>();
+}
+
 void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
 {
     CRYPTOPP_ASSERT(keyLength == 12 || keyLength == 16);
@@ -375,6 +398,25 @@ std::string SIMON128::Base::AlgorithmProvider() const
 # endif
 #endif
     return "C++";
+}
+
+unsigned int SIMON128::Base::OptimalDataAlignment() const
+{
+#if (CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS)
+# if (CRYPTOPP_SSSE3_AVAILABLE)
+    if (HasSSSE3())
+        return 16;
+# endif
+# if (CRYPTOPP_ARM_NEON_AVAILABLE)
+    if (HasNEON())
+        return 8;
+# endif
+# if (CRYPTOPP_POWER8_AVAILABLE)
+    if (HasPower8())
+        return 8;
+# endif
+#endif
+    return GetAlignmentOf<word64>();
 }
 
 void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params)
