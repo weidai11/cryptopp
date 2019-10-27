@@ -325,8 +325,8 @@ using CryptoPP::VecMergeHigh;
 using CryptoPP::VecShiftLeft;
 using CryptoPP::VecShiftRight;
 
-using CryptoPP::VecPolyMultiply00LE;
-using CryptoPP::VecPolyMultiply11LE;
+using CryptoPP::VecIntelMultiply00;
+using CryptoPP::VecIntelMultiply11;
 
 // c1c0 = a * b
 inline void
@@ -335,13 +335,13 @@ F2N_Multiply_128x128_POWER8(uint64x2_p& c1, uint64x2_p& c0, const uint64x2_p& a,
     uint64x2_p t1, t2;
     const uint64x2_p z0={0};
 
-    c0 = VecPolyMultiply00LE(a, b);
-    c1 = VecPolyMultiply11LE(a, b);
+    c0 = VecIntelMultiply00(a, b);
+    c1 = VecIntelMultiply11(a, b);
     t1 = VecMergeLow(a, a);
     t1 = VecXor(a, t1);
     t2 = VecMergeLow(b, b);
     t2 = VecXor(b, t2);
-    t1 = VecPolyMultiply00LE(t1, t2);
+    t1 = VecIntelMultiply00(t1, t2);
     t1 = VecXor(c0, t1);
     t1 = VecXor(c1, t1);
     t2 = t1;
@@ -380,10 +380,10 @@ inline void
 F2N_Square_256_POWER8(uint64x2_p& c3, uint64x2_p& c2, uint64x2_p& c1,
     uint64x2_p& c0, const uint64x2_p& a1, const uint64x2_p& a0)
 {
-    c0 = VecPolyMultiply00LE(a0, a0);
-    c1 = VecPolyMultiply11LE(a0, a0);
-    c2 = VecPolyMultiply00LE(a1, a1);
-    c3 = VecPolyMultiply11LE(a1, a1);
+    c0 = VecIntelMultiply00(a0, a0);
+    c1 = VecIntelMultiply11(a0, a0);
+    c2 = VecIntelMultiply00(a1, a1);
+    c3 = VecIntelMultiply11(a1, a1);
 }
 
 // x = (x << n), z = 0

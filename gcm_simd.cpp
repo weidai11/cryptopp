@@ -190,8 +190,8 @@ bool CPU_ProbePMULL()
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
         const uint32x4_p a2=VecLoad(wa2), b2=VecLoad(wb2);
 
-        const uint64x2_p r1 = VecPolyMultiply00LE(a1, b1);
-        const uint64x2_p r2 = VecPolyMultiply11LE((uint64x2_p)a2, (uint64x2_p)b2);
+        const uint64x2_p r1 = VecIntelMultiply00(a1, b1);
+        const uint64x2_p r2 = VecIntelMultiply11((uint64x2_p)a2, (uint64x2_p)b2);
 
         const uint64_t wc1[]={W64LIT(0x5300530053005300), W64LIT(0x5300530053005300)},
                        wc2[]={W64LIT(0x6c006c006c006c00), W64LIT(0x6c006c006c006c00)};
@@ -575,9 +575,9 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
     const uint64x2_p m1 = {1,1}, m63 = {63,63};
 
     c1 = VecXor(c1, VecShiftRightOctet<8>(c0));
-    c1 = VecXor(c1, VecPolyMultiply10LE(c0, r));
+    c1 = VecXor(c1, VecIntelMultiply10(c0, r));
     c0 = VecXor(c1, VecShiftLeftOctet<8>(c0));
-    c0 = VecPolyMultiply00LE(vec_sl(c0, m1), r);
+    c0 = VecIntelMultiply00(vec_sl(c0, m1), r);
     c2 = VecXor(c2, c0);
     c2 = VecXor(c2, VecShiftLeftOctet<8>(c1));
     c1 = vec_sr(vec_mergeh(c1, c2), m63);
@@ -588,9 +588,9 @@ uint64x2_p GCM_Reduce_VMULL(uint64x2_p c0, uint64x2_p c1, uint64x2_p c2, uint64x
 
 inline uint64x2_p GCM_Multiply_VMULL(uint64x2_p x, uint64x2_p h, uint64x2_p r)
 {
-    const uint64x2_p c0 = VecPolyMultiply00LE(x, h);
-    const uint64x2_p c1 = VecXor(VecPolyMultiply01LE(x, h), VecPolyMultiply10LE(x, h));
-    const uint64x2_p c2 = VecPolyMultiply11LE(x, h);
+    const uint64x2_p c0 = VecIntelMultiply00(x, h);
+    const uint64x2_p c1 = VecXor(VecIntelMultiply01(x, h), VecIntelMultiply10(x, h));
+    const uint64x2_p c2 = VecIntelMultiply11(x, h);
 
     return GCM_Reduce_VMULL(c0, c1, c2, r);
 }
@@ -685,35 +685,35 @@ size_t GCM_AuthenticateBlocks_VMULL(const byte *data, size_t len, const byte *mt
             {
                 d1 = LoadBuffer2(data);
                 d1 = VecXor(d1, x);
-                c0 = VecXor(c0, VecPolyMultiply00LE(d1, h0));
-                c2 = VecXor(c2, VecPolyMultiply01LE(d1, h1));
+                c0 = VecXor(c0, VecIntelMultiply00(d1, h0));
+                c2 = VecXor(c2, VecIntelMultiply01(d1, h1));
                 d1 = VecXor(d1, SwapWords(d1));
-                c1 = VecXor(c1, VecPolyMultiply00LE(d1, h2));
+                c1 = VecXor(c1, VecIntelMultiply00(d1, h2));
                 break;
             }
 
             d1 = LoadBuffer1(data+(s-i)*16-8);
-            c0 = VecXor(c0, VecPolyMultiply01LE(d2, h0));
-            c2 = VecXor(c2, VecPolyMultiply01LE(d1, h1));
+            c0 = VecXor(c0, VecIntelMultiply01(d2, h0));
+            c2 = VecXor(c2, VecIntelMultiply01(d1, h1));
             d2 = VecXor(d2, d1);
-            c1 = VecXor(c1, VecPolyMultiply01LE(d2, h2));
+            c1 = VecXor(c1, VecIntelMultiply01(d2, h2));
 
             if (++i == s)
             {
                 d1 = LoadBuffer2(data);
                 d1 = VecXor(d1, x);
-                c0 = VecXor(c0, VecPolyMultiply10LE(d1, h0));
-                c2 = VecXor(c2, VecPolyMultiply11LE(d1, h1));
+                c0 = VecXor(c0, VecIntelMultiply10(d1, h0));
+                c2 = VecXor(c2, VecIntelMultiply11(d1, h1));
                 d1 = VecXor(d1, SwapWords(d1));
-                c1 = VecXor(c1, VecPolyMultiply10LE(d1, h2));
+                c1 = VecXor(c1, VecIntelMultiply10(d1, h2));
                 break;
             }
 
             d2 = LoadBuffer2(data+(s-i)*16-8);
-            c0 = VecXor(c0, VecPolyMultiply10LE(d1, h0));
-            c2 = VecXor(c2, VecPolyMultiply10LE(d2, h1));
+            c0 = VecXor(c0, VecIntelMultiply10(d1, h0));
+            c2 = VecXor(c2, VecIntelMultiply10(d2, h1));
             d1 = VecXor(d1, d2);
-            c1 = VecXor(c1, VecPolyMultiply10LE(d1, h2));
+            c1 = VecXor(c1, VecIntelMultiply10(d1, h2));
         }
         data += s*16;
         len -= s*16;

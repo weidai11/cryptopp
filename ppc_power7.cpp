@@ -73,7 +73,7 @@ bool CPU_ProbePower7()
             result = (0 == std::memcmp(b1+3, b2+1, 16));
         #else
             result = false;
-        #endif        
+        #endif
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);
