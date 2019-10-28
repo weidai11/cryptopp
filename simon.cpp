@@ -326,10 +326,15 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         CRYPTOPP_ASSERT(0);
     }
 
-    // Altivec loads the current subkey as a 16-byte vector
-    // The extra elements ensure memory backs the last subkey.
+    // Pre-splat the round keys for Altivec forward transformation
 #if CRYPTOPP_ALTIVEC_AVAILABLE
-    m_rkeys.Grow(m_rkeys.size()+4);
+    if (IsForwardTransformation() && HasAltivec())
+    {
+        AlignedSecBlock presplat(m_rkeys.size()*4);
+        for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=4)
+            presplat[j+0] = presplat[j+1] = presplat[j+2] = presplat[j+3] = m_rkeys[i];
+        m_rkeys.swap(presplat);
+    }
 #endif
 }
 
@@ -453,6 +458,17 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     default:
         CRYPTOPP_ASSERT(0);
     }
+
+    // Pre-splat the round keys for Power8 forward transformation
+#if CRYPTOPP_POWER8_AVAILABLE
+    if (IsForwardTransformation() && HasPower8())
+    {
+        AlignedSecBlock presplat(m_rkeys.size()*2);
+        for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=2)
+            presplat[j+0] = presplat[j+1] = m_rkeys[i];
+        m_rkeys.swap(presplat);
+    }
+#endif
 }
 
 void SIMON128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
