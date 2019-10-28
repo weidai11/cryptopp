@@ -28,30 +28,55 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \note These tags are not complete
 enum ASNTag
 {
+	/// \brief ASN.1 Boolean
 	BOOLEAN 			= 0x01,
+	/// \brief ASN.1 Integer
 	INTEGER 			= 0x02,
+	/// \brief ASN.1 Bit string
 	BIT_STRING			= 0x03,
+	/// \brief ASN.1 Octet string
 	OCTET_STRING		= 0x04,
+	/// \brief ASN.1 Null
 	TAG_NULL			= 0x05,
+	/// \brief ASN.1 Object identifier
 	OBJECT_IDENTIFIER	= 0x06,
+	/// \brief ASN.1 Object descriptor
 	OBJECT_DESCRIPTOR	= 0x07,
+	/// \brief ASN.1 External reference
 	EXTERNAL			= 0x08,
+	/// \brief ASN.1 Real integer
 	REAL				= 0x09,
+	/// \brief ASN.1 Enumerated value
 	ENUMERATED			= 0x0a,
+	/// \brief ASN.1 UTF-8 string
 	UTF8_STRING			= 0x0c,
+	/// \brief ASN.1 Sequence
 	SEQUENCE			= 0x10,
+	/// \brief ASN.1 Set
 	SET 				= 0x11,
+	/// \brief ASN.1 Numeric string
 	NUMERIC_STRING		= 0x12,
+	/// \brief ASN.1 Printable string
 	PRINTABLE_STRING 	= 0x13,
+	/// \brief ASN.1 T61 string
 	T61_STRING			= 0x14,
+	/// \brief ASN.1 Videotext string
 	VIDEOTEXT_STRING 	= 0x15,
+	/// \brief ASN.1 IA5 string
 	IA5_STRING			= 0x16,
+	/// \brief ASN.1 UTC time
 	UTC_TIME 			= 0x17,
+	/// \brief ASN.1 Generalized time
 	GENERALIZED_TIME 	= 0x18,
+	/// \brief ASN.1 Graphic string
 	GRAPHIC_STRING		= 0x19,
+	/// \brief ASN.1 Visible string
 	VISIBLE_STRING		= 0x1a,
+	/// \brief ASN.1 General string
 	GENERAL_STRING		= 0x1b,
+	/// \brief ASN.1 Universal string
 	UNIVERSAL_STRING	= 0x1c,
+	/// \brief ASN.1 BMP string
 	BMP_STRING  		= 0x1e
 };
 
@@ -59,13 +84,19 @@ enum ASNTag
 /// \note These flags are not complete
 enum ASNIdFlag
 {
+	/// \brief ASN.1 Universal class
 	UNIVERSAL           = 0x00,
-//	DATA                = 0x01,
-//	HEADER              = 0x02,
+	// DATA           = 0x01,
+	// HEADER           = 0x02,
+	/// \brief ASN.1 Primitive flag
 	PRIMITIVE           = 0x00,
+	/// \brief ASN.1 Constructed flag
 	CONSTRUCTED         = 0x20,
+	/// \brief ASN.1 Application class
 	APPLICATION         = 0x40,
+	/// \brief ASN.1 Context specific class
 	CONTEXT_SPECIFIC    = 0x80,
+	/// \brief ASN.1 Private class
 	PRIVATE             = 0xc0
 };
 
@@ -134,7 +165,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeOctetString(BufferedTransformation &bt
 /// \param bt BufferedTransformation object for writing
 /// \param str the string to encode
 /// \param strLen the length of the string, in bytes
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 /// \since Crypto++ 8.3
@@ -143,7 +174,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \brief DER encode text string
 /// \param bt BufferedTransformation object for writing
 /// \param str the string to encode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 /// \since Crypto++ 8.3
@@ -152,7 +183,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \brief DER encode text string
 /// \param bt BufferedTransformation object for writing
 /// \param str the string to encode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \returns the number of octets used for the encoding
 /// \details DEREncodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 /// \since Crypto++ 6.0
@@ -161,7 +192,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeTextString(BufferedTransformation &bt,
 /// \brief BER decode text string
 /// \param bt BufferedTransformation object for reading
 /// \param str the string to decode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 /// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, SecByteBlock &str, byte asnTag);
@@ -169,7 +200,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt,
 /// \brief BER decode text string
 /// \param bt BufferedTransformation object for reading
 /// \param str the string to decode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \details BERDecodeTextString() can be used for UTF8_STRING, PRINTABLE_STRING, and IA5_STRING
 /// \since Crypto++ 6.0
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt, std::string &str, byte asnTag);
@@ -177,7 +208,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeTextString(BufferedTransformation &bt,
 /// \brief DER encode date
 /// \param bt BufferedTransformation object for writing
 /// \param str the date to encode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \returns the number of octets used for the encoding
 /// \details BERDecodeDate() can be used for UTC_TIME and GENERALIZED_TIME
 /// \since Crypto++ 8.3
@@ -186,7 +217,7 @@ CRYPTOPP_DLL size_t CRYPTOPP_API DEREncodeDate(BufferedTransformation &bt, const
 /// \brief BER decode date
 /// \param bt BufferedTransformation object for reading
 /// \param str the date to decode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \details BERDecodeDate() can be used for UTC_TIME and GENERALIZED_TIME
 /// \since Crypto++ 8.3
 CRYPTOPP_DLL size_t CRYPTOPP_API BERDecodeDate(BufferedTransformation &bt, SecByteBlock &str, byte asnTag);
@@ -783,7 +814,7 @@ protected:
 /// \tparam T class or type
 /// \param out BufferedTransformation object
 /// \param w unsigned value to encode
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \details DEREncodeUnsigned() can be used with INTEGER, BOOLEAN, and ENUM
 template <class T>
 size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER)
@@ -816,7 +847,7 @@ size_t DEREncodeUnsigned(BufferedTransformation &out, T w, byte asnTag = INTEGER
 /// \tparam T fundamental C++ type
 /// \param in BufferedTransformation object
 /// \param w the decoded value
-/// \param asnTag the ASN.1 type
+/// \param asnTag the ASN.1 identifier
 /// \param minValue the minimum expected value
 /// \param maxValue the maximum expected value
 /// \throws BERDecodeErr() if the value cannot be parsed or the decoded value is not within range.
