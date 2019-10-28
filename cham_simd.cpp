@@ -29,11 +29,6 @@
 # endif
 #endif
 
-#if defined(__AVX512F__)
-# define CRYPTOPP_AVX512_ROTATE 1
-# include <immintrin.h>
-#endif
-
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define DOUBLE_CAST(x) ((double*)(void*)(x))
 #define CONST_DOUBLE_CAST(x) ((const double*)(const void*)(x))
@@ -649,9 +644,7 @@ NAMESPACE_BEGIN(W32)  // CHAM128, 32-bit word size
 template <unsigned int R>
 inline __m128i RotateLeft32(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_rol_epi32(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi32(val, R);
 #else
     return _mm_or_si128(
@@ -662,9 +655,7 @@ inline __m128i RotateLeft32(const __m128i& val)
 template <unsigned int R>
 inline __m128i RotateRight32(const __m128i& val)
 {
-#if defined(CRYPTOPP_AVX512_ROTATE)
-    return _mm_ror_epi32(val, R);
-#elif defined(__XOP__)
+#if defined(__XOP__)
     return _mm_roti_epi32(val, 32-R);
 #else
     return _mm_or_si128(

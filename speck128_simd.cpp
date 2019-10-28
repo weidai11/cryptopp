@@ -65,7 +65,7 @@ using CryptoPP::word64;
 #if defined(_MSC_VER) && !defined(_M_ARM64)
 inline uint64x2_t vld1q_dup_u64(const uint64_t* ptr)
 {
-	return vmovq_n_u64(*ptr);
+    return vmovq_n_u64(*ptr);
 }
 #endif
 
@@ -470,6 +470,7 @@ using CryptoPP::uint64x2_p;
 using CryptoPP::VecAdd;
 using CryptoPP::VecSub;
 using CryptoPP::VecXor;
+using CryptoPP::VecLoad;
 using CryptoPP::VecPermute;
 
 // Rotate left by bit count
@@ -504,7 +505,8 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+        // Round keys are pre-splated in forward direction
+        const uint64x2_p rk = VecLoad(subkeys+i*2);
 
         x1 = RotateRight64<8>(x1);
         x1 = VecAdd(x1, y1);
@@ -585,7 +587,8 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+        // Round keys are pre-splated in forward direction
+        const uint64x2_p rk = VecLoad(subkeys+i*2);
 
         x1 = RotateRight64<8>(x1);
         x2 = RotateRight64<8>(x2);

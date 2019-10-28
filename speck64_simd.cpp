@@ -503,14 +503,8 @@ void SPECK64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-#if (CRYPTOPP_POWER7_AVAILABLE)
-        const uint32x4_p rk = vec_splats(subkeys[i]);
-#else
-        // subkeys has extra elements so memory backs the last subkey
-        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VecLoad(subkeys+i);
-        rk = VecPermute(rk, rk, m);
-#endif
+        // Round keys are pre-splated in forward direction
+        const uint32x4_p rk = VecLoad(subkeys+i*4);
 
         x1 = RotateRight32<8>(x1);
         x1 = VecAdd(x1, y1);
@@ -602,14 +596,8 @@ void SPECK64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-#if (CRYPTOPP_POWER7_AVAILABLE)
-        const uint32x4_p rk = vec_splats(subkeys[i]);
-#else
-        // subkeys has extra elements so memory backs the last subkey
-        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk = VecLoad(subkeys+i);
-        rk = VecPermute(rk, rk, m);
-#endif
+        // Round keys are pre-splated in forward direction
+        const uint32x4_p rk = VecLoad(subkeys+i*4);
 
         x1 = RotateRight32<8>(x1);
         x2 = RotateRight32<8>(x2);
