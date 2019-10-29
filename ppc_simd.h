@@ -937,7 +937,7 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 
 //@}
 
-/// \name OTHER OPERATIONS
+/// \name PERMUTE
 //@{
 
 /// \brief Permutes a vector
@@ -976,6 +976,11 @@ inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
 {
     return (T1)vec_perm(vec1, (T1)vec2, (uint8x16_p)mask);
 }
+
+//@}
+
+/// \name SHIFT AND ROTATE
+//@{
 
 /// \brief Shift a vector left
 /// \tparam C shift byte count
@@ -1151,34 +1156,6 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
     return vec_sl(vec, m);
 }
 
-/// \brief Merge two vectors
-/// \tparam T vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns vector
-/// \par Wraps
-///  vec_mergeh
-/// \since Crypto++ 8.1
-template <class T>
-inline T VecMergeHigh(const T vec1, const T vec2)
-{
-    return vec_mergeh(vec1, vec2);
-}
-
-/// \brief Merge two vectors
-/// \tparam T vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns vector
-/// \par Wraps
-///  vec_mergel
-/// \since Crypto++ 8.1
-template <class T>
-inline T VecMergeLow(const T vec1, const T vec2)
-{
-    return vec_mergel(vec1, vec2);
-}
-
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
@@ -1281,6 +1258,39 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
 
 #endif  // VSX or ARCH_PWR8
 
+//@}
+
+/// \name OTHER OPERATIONS
+//@{
+
+/// \brief Merge two vectors
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \par Wraps
+///  vec_mergeh
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeHigh(const T vec1, const T vec2)
+{
+    return vec_mergeh(vec1, vec2);
+}
+
+/// \brief Merge two vectors
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \par Wraps
+///  vec_mergel
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeLow(const T vec1, const T vec2)
+{
+    return vec_mergel(vec1, vec2);
+}
+
 /// \brief Exchange high and low double words
 /// \tparam T vector type
 /// \param vec the vector
@@ -1337,6 +1347,11 @@ inline T VecGetHigh(const T val)
     return VecShiftRightOctet<8>(val);
 #endif
 }
+
+//@}
+
+/// \name COMPARISON
+//@{
 
 /// \brief Compare two vectors
 /// \tparam T1 vector type
