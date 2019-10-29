@@ -90,7 +90,7 @@ ANONYMOUS_NAMESPACE_END
 
 // *************************** ARM NEON ************************** //
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -827,7 +827,7 @@ NAMESPACE_END  // CryptoPP
 
 // *************************** Intel SSE ************************** //
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if defined(CRYPTOPP_SSSE3_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 // Hack for SunCC, http://github.com/weidai11/cryptopp/issues/224
 #if (__SUNPRO_CC >= 0x5130)
@@ -1757,9 +1757,9 @@ NAMESPACE_END  // CryptoPP
 
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
 
-// *********************** Altivec/Power 4 ********************** //
+// ************************** Altivec/Power 4 ************************** //
 
-#if defined(__ALTIVEC__)
+#if defined(__ALTIVEC__) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 NAMESPACE_BEGIN(CryptoPP)
 
