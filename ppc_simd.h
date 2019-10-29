@@ -937,7 +937,7 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 
 //@}
 
-/// \name PERMUTE
+/// \name PERMUTE OPERATIONS
 //@{
 
 /// \brief Permutes a vector
@@ -979,7 +979,7 @@ inline T1 VecPermute(const T1 vec1, const T1 vec2, const T2 mask)
 
 //@}
 
-/// \name SHIFT AND ROTATE
+/// \name SHIFT AND ROTATE OPERATIONS
 //@{
 
 /// \brief Shift a vector left
@@ -1156,6 +1156,36 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
     return vec_sl(vec, m);
 }
 
+/// \brief Rotate a packed vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateRight() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 7.0
+template<unsigned int C>
+inline uint32x4_p VecRotateRight(const uint32x4_p vec)
+{
+    const uint32x4_p m = {32-C, 32-C, 32-C, 32-C};
+    return vec_rl(vec, m);
+}
+
+/// \brief Shift a packed vector right
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftRight() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint32x4_p VecShiftRight(const uint32x4_p vec)
+{
+    const uint32x4_p m = {C, C, C, C};
+    return vec_sr(vec, m);
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
@@ -1190,40 +1220,6 @@ inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
     return vec_sl(vec, m);
 }
 
-#endif  // VSX or ARCH_PWR8
-
-/// \brief Rotate a packed vector right
-/// \tparam C shift bit count
-/// \param vec the vector
-/// \returns vector
-/// \details VecRotateRight() rotates each element in a packed vector by bit count.
-/// \par Wraps
-///  vec_rl
-/// \since Crypto++ 7.0
-template<unsigned int C>
-inline uint32x4_p VecRotateRight(const uint32x4_p vec)
-{
-    const uint32x4_p m = {32-C, 32-C, 32-C, 32-C};
-    return vec_rl(vec, m);
-}
-
-/// \brief Shift a packed vector right
-/// \tparam C shift bit count
-/// \param vec the vector
-/// \returns vector
-/// \details VecShiftRight() rotates each element in a packed vector by bit count.
-/// \par Wraps
-///  vec_rl
-/// \since Crypto++ 8.1
-template<unsigned int C>
-inline uint32x4_p VecShiftRight(const uint32x4_p vec)
-{
-    const uint32x4_p m = {C, C, C, C};
-    return vec_sr(vec, m);
-}
-
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-
 /// \brief Rotate a packed vector right
 /// \tparam C shift bit count
 /// \param vec the vector
@@ -1256,26 +1252,12 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
     return vec_sr(vec, m);
 }
 
-#endif  // VSX or ARCH_PWR8
+#endif  // ARCH_PWR8
 
 //@}
 
 /// \name OTHER OPERATIONS
 //@{
-
-/// \brief Merge two vectors
-/// \tparam T vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns vector
-/// \par Wraps
-///  vec_mergeh
-/// \since Crypto++ 8.1
-template <class T>
-inline T VecMergeHigh(const T vec1, const T vec2)
-{
-    return vec_mergeh(vec1, vec2);
-}
 
 /// \brief Merge two vectors
 /// \tparam T vector type
@@ -1291,17 +1273,18 @@ inline T VecMergeLow(const T vec1, const T vec2)
     return vec_mergel(vec1, vec2);
 }
 
-/// \brief Exchange high and low double words
+/// \brief Merge two vectors
 /// \tparam T vector type
-/// \param vec the vector
+/// \param vec1 the first vector
+/// \param vec2 the second vector
 /// \returns vector
 /// \par Wraps
-///  vec_sld
-/// \since Crypto++ 7.0
+///  vec_mergeh
+/// \since Crypto++ 8.1
 template <class T>
-inline T VecSwapWords(const T vec)
+inline T VecMergeHigh(const T vec1, const T vec2)
 {
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 8);
+    return vec_mergeh(vec1, vec2);
 }
 
 /// \brief Extract a dword from a vector
@@ -1346,6 +1329,19 @@ inline T VecGetHigh(const T val)
 #else
     return VecShiftRightOctet<8>(val);
 #endif
+}
+
+/// \brief Exchange high and low double words
+/// \tparam T vector type
+/// \param vec the vector
+/// \returns vector
+/// \par Wraps
+///  vec_sld
+/// \since Crypto++ 7.0
+template <class T>
+inline T VecSwapWords(const T vec)
+{
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 8);
 }
 
 //@}
