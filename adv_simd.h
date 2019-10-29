@@ -1792,12 +1792,12 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 #endif
 
     const size_t blockSize = 8;
-    const size_t vsxBlockSize = 16;
+    const size_t simdBlockSize = 16;
     CRYPTOPP_ALIGN_DATA(16) uint8_t temp[16];
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : vsxBlockSize;
-    size_t xorIncrement = (xorBlocks != NULLPTR) ? vsxBlockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : vsxBlockSize;
+    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : simdBlockSize;
+    size_t xorIncrement = (xorBlocks != NULLPTR) ? simdBlockSize : 0;
+    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : simdBlockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
     const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
@@ -1805,9 +1805,9 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 
     if (flags & BT_ReverseDirection)
     {
-        inBlocks = PtrAdd(inBlocks, length - vsxBlockSize);
-        xorBlocks = PtrAdd(xorBlocks, length - vsxBlockSize);
-        outBlocks = PtrAdd(outBlocks, length - vsxBlockSize);
+        inBlocks = PtrAdd(inBlocks, length - simdBlockSize);
+        xorBlocks = PtrAdd(xorBlocks, length - simdBlockSize);
+        outBlocks = PtrAdd(outBlocks, length - simdBlockSize);
         inIncrement = 0-inIncrement;
         xorIncrement = 0-xorIncrement;
         outIncrement = 0-outIncrement;
@@ -1815,7 +1815,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
 
     if (flags & BT_AllowParallel)
     {
-        while (length >= 6*vsxBlockSize)
+        while (length >= 6*simdBlockSize)
         {
             uint32x4_p block0, block1, block2, block3, block4, block5;
             if (flags & BT_InBlockIsCounter)
@@ -1906,10 +1906,10 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
             VecStoreBE(block5, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
-            length -= 6*vsxBlockSize;
+            length -= 6*simdBlockSize;
         }
 
-        while (length >= 2*vsxBlockSize)
+        while (length >= 2*simdBlockSize)
         {
             uint32x4_p block0, block1;
             if (flags & BT_InBlockIsCounter)
@@ -1964,7 +1964,7 @@ inline size_t AdvancedProcessBlocks64_6x2_ALTIVEC(F2 func2, F6 func6,
             VecStoreBE(block1, outBlocks);
             outBlocks = PtrAdd(outBlocks, outIncrement);
 
-            length -= 2*vsxBlockSize;
+            length -= 2*simdBlockSize;
         }
     }
 
@@ -2059,7 +2059,7 @@ inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
 #endif
 
     const size_t blockSize = 16;
-    // const size_t vsxBlockSize = 16;
+    // const size_t simdBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
@@ -2204,7 +2204,7 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
 #endif
 
     const size_t blockSize = 16;
-    // const size_t vsxBlockSize = 16;
+    // const size_t simdBlockSize = 16;
 
     size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
