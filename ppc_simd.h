@@ -121,18 +121,6 @@
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
 #define NCONST_V8_CAST(x) ((unsigned char*)(x))
-/// \brief Cast array to vector pointer
-/// \details CONST_V32_CAST casts a const array to a vector
-///  pointer for a byte array. The Power ABI says source arrays
-///  are non-const, so this define removes the const. XLC++ will
-///  fail the compile if the source array is const.
-#define CONST_V32_CAST(x) ((unsigned char*)(x))
-/// \brief Cast array to vector pointer
-/// \details NCONST_V32_CAST casts an array to a vector
-///  pointer for a byte array. The Power ABI says source arrays
-///  are non-const, so this define removes the const. XLC++ will
-///  fail the compile if the source array is const.
-#define NCONST_V32_CAST(x) ((unsigned char*)(x))
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
 // too noisy on modern compilers
@@ -290,10 +278,10 @@ inline uint32x4_p VecLoad(const byte src[16])
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
@@ -317,10 +305,10 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
@@ -414,10 +402,10 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #else
     return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
@@ -439,10 +427,10 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #else
     return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
@@ -598,10 +586,10 @@ inline void VecStore(const T data, byte dest[16])
     // ISA 3.0 provides vec_xl for short* and char*
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif defined(_ARCH_PWR7) && defined(XLC_VEC_XSTW4)
-    vec_xstw4((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+    vec_xstw4((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
@@ -628,10 +616,10 @@ inline void VecStore(const T data, int off, byte dest[16])
     // ISA 3.0 provides vec_xl for short* and char*
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif defined(_ARCH_PWR7) && defined(XLC_VEC_XSTW4)
-    vec_xstw4((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+    vec_xstw4((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif defined(_ARCH_PWR7) && defined(__VSX__)
     // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
@@ -1706,7 +1694,7 @@ NAMESPACE_END
 
 #undef CONST_V8_CAST
 #undef NCONST_V8_CAST
-#undef CONST_V32_CAST
-#undef NCONST_V32_CAST
+#undef CONST_V8_CAST
+#undef NCONST_V8_CAST
 
 #endif  // CRYPTOPP_PPC_CRYPTO_H
