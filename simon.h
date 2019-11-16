@@ -17,9 +17,11 @@
 #include "seckey.h"
 #include "secblock.h"
 
+// Cannot include PPC and PPC64 here. GCC8 on Power9 (and one other
+// Debian platform) produce incorrect results for Simon64. Play it
+// safe and disable CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS.
 #if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86 || \
-    CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8 || \
-    CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64
+    CRYPTOPP_BOOL_ARM32 || CRYPTOPP_BOOL_ARMV8
 # ifndef CRYPTOPP_DISABLE_SIMON_SIMD
 #  define CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS 1
 # endif
