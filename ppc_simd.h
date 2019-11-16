@@ -450,12 +450,13 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
+    const int off = 0;
 #if defined(_ARCH_PWR9)
-    return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
+    return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad(src);
+    return (uint32x4_p)VecLoad(off, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecReverse(VecLoad(src));
+    return (uint32x4_p)VecReverse(VecLoad(off, src));
 #endif
 }
 
