@@ -122,17 +122,17 @@
 ///  fail the compile if the source array is const.
 #define NCONST_V8_CAST(x) ((unsigned char*)(x))
 /// \brief Cast array to vector pointer
-/// \details CONST_V32_CAST casts a const word array to a vector
-///  pointer for a word array. The Power ABI says source arrays
+/// \details CONST_V32_CAST casts a const array to a vector
+///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
-#define CONST_V32_CAST(x) ((unsigned int*)(x))
+#define CONST_V32_CAST(x) ((unsigned char*)(x))
 /// \brief Cast array to vector pointer
 /// \details NCONST_V32_CAST casts an array to a vector
-///  pointer for a word array. The Power ABI says source arrays
+///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
-#define NCONST_V32_CAST(x) ((unsigned int*)(x))
+#define NCONST_V32_CAST(x) ((unsigned char*)(x))
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
 // too noisy on modern compilers
