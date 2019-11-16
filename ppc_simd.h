@@ -114,12 +114,18 @@
 ///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
+/// \details CONST_V8_CAST serves a second purpose. It casts to a
+///  byte pointer to avoid undefined behavior due to alignment
+///  requirements. Byte pointers have an alignment requirement of 1.
 #define CONST_V8_CAST(x) ((unsigned char*)(x))
 /// \brief Cast array to vector pointer
 /// \details NCONST_V8_CAST casts an array to a vector
 ///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
+/// \details NCONST_V8_CAST serves a second purpose. It casts to a
+///  byte pointer to avoid undefined behavior due to alignment
+///  requirements. Byte pointers have an alignment requirement of 1.
 #define NCONST_V8_CAST(x) ((unsigned char*)(x))
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
