@@ -433,24 +433,6 @@ jobs:
         - BUILD_MODE=debug
         - BUILD_JOBS=2
     - os: linux
-      name: Linux with Clang (all)
-      arch: ppc64le
-      compiler: clang
-      dist: bionic
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=all
-        - BUILD_JOBS=2
-    - os: linux
-      name: Linux with Clang (debug)
-      arch: ppc64le
-      compiler: clang
-      dist: bionic
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=debug
-        - BUILD_JOBS=2
-    - os: linux
       name: Linux with GCC (all)
       arch: s390x
       compiler: gcc
@@ -463,24 +445,6 @@ jobs:
       name: Linux with GCC (debug)
       arch: s390x
       compiler: gcc
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=debug
-        - BUILD_JOBS=2
-    - os: linux
-      name: Linux with Clang (all)
-      arch: s390x
-      compiler: clang
-      dist: bionic
-      env:
-        - BUILD_OS=linux
-        - BUILD_MODE=all
-        - BUILD_JOBS=2
-    - os: linux
-      name: Linux with Clang (debug)
-      arch: s390x
-      compiler: clang
-      dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
@@ -601,7 +565,48 @@ jobs:
         - BUILD_JOBS=2
         - BUILD_ARCH=AppleTVSimulator
 
+  # Clang has a fair amount of trouble
+  # on platforms Apple does not support
   allow_failures:
+    - os: linux
+      name: Linux with Clang (all)
+      arch: s390x
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (debug)
+      arch: s390x
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    # Clang 7.0 and below will likely have trouble due to
+    # https://bugs.llvm.org/show_bug.cgi?id=39704
+    - os: linux
+      name: Linux with Clang (all)
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=all
+        - BUILD_JOBS=2
+    - os: linux
+      name: Linux with Clang (debug)
+      arch: ppc64le
+      compiler: clang
+      dist: bionic
+      env:
+        - BUILD_OS=linux
+        - BUILD_MODE=debug
+        - BUILD_JOBS=2
+    # Apple device linker problems
     - os: osx
       osx_image: xcode10.1
       name: iOS on OS X (WatchOS)
@@ -618,18 +623,6 @@ jobs:
         - BUILD_MODE=ios
         - BUILD_JOBS=2
         - BUILD_ARCH=iPhoneSimulator
-    # We should be OK with PPC64 and GCC until Travis disallows
-    # access to the build machines. Clang is a differnt story.
-    # Clang 7.0 and below will likely have trouble due to
-    # https://bugs.llvm.org/show_bug.cgi?id=39704
-    - os: linux
-      name: Linux with GCC (all)
-      arch: ppc64le
-      compiler: gcc
-    - os: linux
-      name: Linux with Clang (all)
-      arch: ppc64le
-      compiler: clang
 
 before_install:
   - |
