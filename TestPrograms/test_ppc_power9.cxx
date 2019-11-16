@@ -18,6 +18,12 @@ int main(int argc, char* argv[])
 #endif
 #endif
 
+#if defined(_ARCH_PWR9)
+    __vector unsigned int v = vec_xl_be(0, (unsigned int*)argv[0]);
+#else
+	int XXX[-1];
+#endif
+
 #if defined(__GNUC__) || defined(__IBM_GCC_ASM)
 	unsigned int y = __builtin_darn_32();
 #else
