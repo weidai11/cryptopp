@@ -2,6 +2,9 @@
 
 /// \file tiger.h
 /// \brief Classes for the Tiger message digest
+/// \details Crypto++ provides the original Tiger hash that was
+///  submitted to the NESSIE project. The implementation is different
+///  from the revised Tiger2 hash.
 /// \sa <a href="https://www.cryptopp.com/wiki/Tiger">Tiger</a> and
 ///  <a href="http://www.cs.technion.ac.il/~biham/Reports/Tiger/">Tiger:
 ///  A Fast New Cryptographic Hash Function</a>
@@ -22,6 +25,9 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Tiger message digest
+/// \details Crypto++ provides the original Tiger hash that was
+///  submitted to the NESSIE project. The implementation is different
+///  from the revised Tiger2 hash.
 /// \sa <a href="https://www.cryptopp.com/wiki/Tiger">Tiger</a> and
 ///  <a href="http://www.cs.technion.ac.il/~biham/Reports/Tiger/">Tiger:
 ///  A Fast New Cryptographic Hash Function</a>
