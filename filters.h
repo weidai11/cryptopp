@@ -715,6 +715,8 @@ public:
 	std::string AlgorithmName() const {return m_hashVerifier.AlgorithmName();}
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
+	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
+		{ return ChannelPut2(channel, begin, length, messageEnd, blocking); }
 	bool GetLastResult() const {return m_hashVerifier.GetLastResult();}
 
 protected:
