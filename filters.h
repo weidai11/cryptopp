@@ -644,7 +644,9 @@ private:
 ///  was OK. Also see <A HREF=
 ///  "https://github.com/weidai11/cryptopp/issues/817">Issue 817</A> and <A HREF=
 ///  "https://github.com/weidai11/cryptopp/commit/ff110c6e183e">Commit ff110c6e183e</A>.
-/// \sa AuthenticatedDecryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
+/// \sa AuthenticatedSymmetricCipher, AuthenticatedDecryptionFilter, EAX, CCM, GCM,
+///  and <A HREF="https://www.cryptopp.com/wiki/AadSource">AadSource</A> on the
+///  Crypto++ wiki.
 /// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
 {
@@ -691,7 +693,9 @@ protected:
 ///  was OK. Also see <A HREF=
 ///  "https://github.com/weidai11/cryptopp/issues/817">Issue 817</A> and <A HREF=
 ///  "https://github.com/weidai11/cryptopp/commit/ff110c6e183e">Commit ff110c6e183e</A>.
-/// \sa AuthenticatedEncryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
+/// \sa AuthenticatedSymmetricCipher, AuthenticatedEncryptionFilter, EAX, CCM, GCM,
+///  and <A HREF="https://www.cryptopp.com/wiki/AadSource">AadSource</A> on the
+///  Crypto++ wiki.
 /// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL AuthenticatedDecryptionFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef
 {
