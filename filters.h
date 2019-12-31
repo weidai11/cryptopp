@@ -42,26 +42,26 @@ public:
 
 	/// \brief Construct a Filter
 	/// \param attachment an optional attached transformation
-	/// \details attachment can be \p NULL.
+	/// \details attachment can be NULL.
 	Filter(BufferedTransformation *attachment = NULLPTR);
 
 	/// \brief Determine if attachable
-	/// \returns \p true if the object allows attached transformations, \p false otherwise.
+	/// \returns true if the object allows attached transformations, false otherwise.
 	/// \note Source and Filter offer attached transformations; while Sink does not.
 	bool Attachable() {return true;}
 
 	/// \brief Retrieve attached transformation
-	/// \returns pointer to a BufferedTransformation if there is an attached transformation, \p NULL otherwise.
+	/// \returns pointer to a BufferedTransformation if there is an attached transformation, NULL otherwise.
 	BufferedTransformation *AttachedTransformation();
 
 	/// \brief Retrieve attached transformation
-	/// \returns pointer to a BufferedTransformation if there is an attached transformation, \p NULL otherwise.
+	/// \returns pointer to a BufferedTransformation if there is an attached transformation, NULL otherwise.
 	const BufferedTransformation *AttachedTransformation() const;
 
 	/// \brief Replace an attached transformation
 	/// \param newAttachment an optional attached transformation
-	/// \details newAttachment can be a single filter, a chain of filters or \p NULL.
-	///    Pass \p NULL to remove an existing BufferedTransformation or chain of filters
+	/// \details newAttachment can be a single filter, a chain of filters or NULL.
+	///    Pass NULL to remove an existing BufferedTransformation or chain of filters
 	void Detach(BufferedTransformation *newAttachment = NULLPTR);
 
 	//@}
@@ -166,12 +166,12 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	/// \param desiredSize preferred size of the allocation, in bytes
 	/// \param bufferSize actual size of the allocation, in bytes
 	/// \pre <tt>desiredSize >= minSize</tt> and <tt>bufferSize >= minSize</tt>.
-	/// \details \p bufferSize is an IN and OUT parameter. If HelpCreatePutSpace() returns a non-NULL value, then
+	/// \details bufferSize is an IN and OUT parameter. If HelpCreatePutSpace() returns a non-NULL value, then
 	///    bufferSize is valid and provides the size of the working space created for the caller.
 	/// \details Internally, HelpCreatePutSpace() calls \ref BufferedTransformation::ChannelCreatePutSpace
-	///   "ChannelCreatePutSpace()" using \p desiredSize. If the target returns \p desiredSize with a size less
-	///   than \p minSize (i.e., the request could not be fulfilled), then an internal SecByteBlock
-	///   called \p m_tempSpace is resized and used for the caller.
+	///   "ChannelCreatePutSpace()" using desiredSize. If the target returns desiredSize with a size less
+	///   than minSize (i.e., the request could not be fulfilled), then an internal SecByteBlock
+	///   called m_tempSpace is resized and used for the caller.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize)
 	{
 		CRYPTOPP_ASSERT(desiredSize >= minSize && bufferSize >= minSize);
@@ -194,7 +194,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	/// \param target the BufferedTransformation for the working space
 	/// \param channel channel for the working space
 	/// \param minSize minimum size of the allocation, in bytes
-	/// \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using \p minSize for missing arguments.
+	/// \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using minSize for missing arguments.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, minSize);}
 
@@ -203,7 +203,7 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	/// \param channel channel for the working space
 	/// \param minSize minimum size of the allocation, in bytes
 	/// \param bufferSize the actual size of the allocation, in bytes
-	/// \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using \p minSize for missing arguments.
+	/// \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using minSize for missing arguments.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t bufferSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, bufferSize);}
 
@@ -222,7 +222,7 @@ public:
 	/// \brief Construct a MeterFilter
 	/// \param attachment an optional attached transformation
 	/// \param transparent flag indicating if the filter should function transparently
-	/// \details \p attachment can be \p NULL. The filter is transparent by default. If the filter is
+	/// \details attachment can be NULL. The filter is transparent by default. If the filter is
 	///   transparent, then PutMaybeModifiable() does not process a request and always returns 0.
 	MeterFilter(BufferedTransformation *attachment=NULLPTR, bool transparent=true)
 		: m_transparent(transparent), m_currentMessageBytes(0), m_totalBytes(0)
@@ -322,7 +322,7 @@ public:
 	/// \param blockSize the size of middle blocks
 	/// \param lastSize the size of the last block
 	/// \param attachment an attached transformation
-	/// \details \p firstSize and \p lastSize may be 0. \p blockSize must be at least 1.
+	/// \details firstSize and lastSize may be 0. blockSize must be at least 1.
 	FilterWithBufferedInput(size_t firstSize, size_t blockSize, size_t lastSize, BufferedTransformation *attachment);
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -605,7 +605,7 @@ public:
 		PUT_RESULT=8,
 		/// \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
 		THROW_EXCEPTION=16,
-		/// \brief Default flags using \p HASH_AT_BEGIN and \p PUT_RESULT
+		/// \brief Default flags using HASH_AT_BEGIN and PUT_RESULT
 		DEFAULT_FLAGS = HASH_AT_BEGIN | PUT_RESULT
 	};
 
@@ -637,8 +637,13 @@ private:
 };
 
 /// \brief Filter wrapper for encrypting with AuthenticatedSymmetricCipher
-/// \details AuthenticatedEncryptionFilter() is a wrapper for encrypting with AuthenticatedSymmetricCipher(),
-///   optionally handling padding/unpadding when needed.
+/// \details AuthenticatedEncryptionFilter() is a wrapper for encrypting with
+///  AuthenticatedSymmetricCipher(), optionally handling padding/unpadding when needed.
+/// \details AuthenticatedDecryptionFilter() for Crypto++ 8.2 and earlier
+///  had a bug where a FileSource() would cause an exception, but a StringSource()
+///  was OK. Also see <A HREF=
+///  "https://github.com/weidai11/cryptopp/issues/817">Issue 817</A> and <A HREF=
+///  "https://github.com/weidai11/cryptopp/commit/ff110c6e183e">Commit ff110c6e183e</A>.
 /// \sa AuthenticatedDecryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
 /// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL AuthenticatedEncryptionFilter : public StreamTransformationFilter
@@ -678,8 +683,14 @@ protected:
 };
 
 /// \brief Filter wrapper for decrypting with AuthenticatedSymmetricCipher
-/// \details AuthenticatedDecryptionFilter() is a wrapper for decrypting with AuthenticatedSymmetricCipher(),
-///   optionally handling padding/unpadding when needed.
+/// \details AuthenticatedDecryptionFilter() is a wrapper for decrypting with
+///  AuthenticatedSymmetricCipher(), optionally handling padding/unpadding when
+///  needed.
+/// \details AuthenticatedDecryptionFilter() for Crypto++ 8.2 and earlier
+///  had a bug where a FileSource() would cause an exception, but a StringSource()
+///  was OK. Also see <A HREF=
+///  "https://github.com/weidai11/cryptopp/issues/817">Issue 817</A> and <A HREF=
+///  "https://github.com/weidai11/cryptopp/commit/ff110c6e183e">Commit ff110c6e183e</A>.
 /// \sa AuthenticatedEncryptionFilter, EAX, CCM, GCM, AuthenticatedSymmetricCipher
 /// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL AuthenticatedDecryptionFilter : public FilterWithBufferedInput, public BlockPaddingSchemeDef
@@ -695,7 +706,7 @@ public:
 		MAC_AT_BEGIN=1,
 		/// \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
 		THROW_EXCEPTION=16,
-		/// \brief Default flags using \p THROW_EXCEPTION
+		/// \brief Default flags using THROW_EXCEPTION
 		DEFAULT_FLAGS = THROW_EXCEPTION
 	};
 
@@ -798,7 +809,7 @@ public:
 		PUT_RESULT=8,
 		/// \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
 		THROW_EXCEPTION=16,
-		/// \brief Default flags using \p SIGNATURE_AT_BEGIN and \p PUT_RESULT
+		/// \brief Default flags using SIGNATURE_AT_BEGIN and PUT_RESULT
 		DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT
 	};
 
