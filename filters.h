@@ -91,7 +91,7 @@ protected:
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
 	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 	/// \brief Output multiple bytes that may be modified by callee.
@@ -101,7 +101,7 @@ protected:
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
 	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 	/// \brief Signals the end of messages to the object
@@ -1311,7 +1311,7 @@ public:
 
 	/// \brief Pump data to attached transformation
 	/// \param pumpMax the maximum number of bytes to pump
-	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Internally, Pump() calls Pump2().
 	/// \note pumpMax is a <tt>lword</tt>, which is a 64-bit value that typically uses
 	///   <tt>LWORD_MAX</tt>. The default argument is <tt>SIZE_MAX</tt>, and it can be
@@ -1339,7 +1339,7 @@ public:
 	/// \brief Pump data to attached transformation
 	/// \param byteCount the maximum number of bytes to pump
 	/// \param blocking specifies whether the object should block when processing input
-	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details byteCount is an \a IN and \a OUT parameter. When the call is made, byteCount is the
 	///   requested size of the pump. When the call returns, byteCount is the number of bytes that
 	///   were pumped.
@@ -1354,7 +1354,7 @@ public:
 
 	/// \brief Pump all data to attached transformation
 	/// \param blocking specifies whether the object should block when processing input
-	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \sa Pump, Pump2, AnyRetrievable, MaxRetrievable
 	virtual size_t PumpAll2(bool blocking=true);
 

@@ -206,7 +206,7 @@ public:
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
 	/// \throws InputRejected
-	/// \returns the number of bytes that remain in the block (i.e., bytes not processed)
+	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Internally, the default implementation throws InputRejected.
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}

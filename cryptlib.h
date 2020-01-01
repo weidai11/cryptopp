@@ -1647,7 +1647,7 @@ public:
 		/// \brief Input a byte for processing
 		/// \param inByte the 8-bit byte (octet) to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
 		///   0 indicates all bytes were processed.
 		/// \details <tt>Put(byte)</tt> calls <tt>Put(byte*, size_t)</tt>.
 		size_t Put(byte inByte, bool blocking=true)
@@ -1657,7 +1657,7 @@ public:
 		/// \param inString the byte buffer to process
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
 		///   0 indicates all bytes were processed.
 		/// \details Internally, Put() calls Put2().
 		size_t Put(const byte *inString, size_t length, bool blocking=true)
@@ -1667,7 +1667,7 @@ public:
 		/// \param value the 16-bit value to be processed
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
 		///   0 indicates all bytes were processed.
 		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
@@ -1675,7 +1675,7 @@ public:
 		/// \param value the 32-bit value to be processed.
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
 		///   0 indicates all bytes were processed.
 		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
@@ -1683,7 +1683,7 @@ public:
 		/// \param value the 64-bit value to be processed.
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed).
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
 		///   0 indicates all bytes were processed.
 		size_t PutWord64(word64 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
@@ -1710,7 +1710,7 @@ public:
 		/// \param inString the byte buffer to process
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
 		///   bytes were processed.
 		size_t PutModifiable(byte *inString, size_t length, bool blocking=true)
 			{return PutModifiable2(inString, length, 0, blocking);}
@@ -1728,7 +1728,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param propagation the number of attached transformations the MessageEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
 		///   bytes were processed.
 		/// \details Internally, PutMessageEnd() calls Put2() with a modified propagation to
 		///    ensure all attached transformations finish processing the message.
@@ -1742,7 +1742,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
 		///   bytes were processed.
 		/// \details Derived classes must implement Put2().
 		virtual size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking) =0;
@@ -1752,7 +1752,7 @@ public:
 		/// \param length the size of the string, in bytes.
 		/// \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed). 0 indicates all
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
 		///   bytes were processed.
 		/// \details Internally, PutModifiable2() calls Put2().
 		virtual size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
@@ -2233,7 +2233,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param propagation the number of attached transformations the ChannelPutMessageEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed)
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
 		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		size_t ChannelPutMessageEnd(const std::string &channel, const byte *inString, size_t length, int propagation=-1, bool blocking=true)
@@ -2258,7 +2258,7 @@ public:
 		/// \param length the size of the string, in bytes.
 		/// \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 		/// \param blocking specifies whether the object should block when processing input.
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed)
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 		virtual size_t ChannelPut2(const std::string &channel, const byte *inString, size_t length, int messageEnd, bool blocking);
 
 		/// \brief Input multiple bytes that may be modified by callee on a channel
@@ -2267,7 +2267,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 		/// \param blocking specifies whether the object should block when processing input
-		/// \return the number of bytes that remain in the block (i.e., bytes not processed)
+		/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 		virtual size_t ChannelPutModifiable2(const std::string &channel, byte *inString, size_t length, int messageEnd, bool blocking);
 
 		/// \brief Flush buffered input and/or output on a channel
