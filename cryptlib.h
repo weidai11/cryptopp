@@ -139,7 +139,7 @@ struct EnumToType
 
 /// \brief Provides the byte ordering
 /// \details Big-endian and little-endian modes are supported. Bi-endian and PDP-endian modes
-///   are not supported.
+///  are not supported.
 enum ByteOrder {
 	/// \brief byte order is little-endian
 	LITTLE_ENDIAN_ORDER = 0,
@@ -153,8 +153,8 @@ typedef EnumToType<ByteOrder, BIG_ENDIAN_ORDER> BigEndian;
 
 /// \brief Base class for all exceptions thrown by the library
 /// \details All library exceptions directly or indirectly inherit from the Exception class.
-///   The Exception class itself inherits from std::exception. The library does not use
-///   std::runtime_error derived classes.
+///  The Exception class itself inherits from std::exception. The library does not use
+///  std::runtime_error derived classes.
 class CRYPTOPP_DLL Exception : public std::exception
 {
 public:
@@ -374,7 +374,7 @@ public:
 	/// \param value reference to a variable that receives the value
 	/// \return true if the value was retrieved, false otherwise
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	template <class T>
 	bool GetValue(const char *name, T &value) const
 	{
@@ -387,7 +387,7 @@ public:
 	/// \param defaultValue the default value of the class or type if it does not exist
 	/// \return the object or value
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	template <class T>
 	T GetValueWithDefault(const char *name, T defaultValue) const
 	{
@@ -409,9 +409,9 @@ public:
 	/// \param value the value retrieved upon success
 	/// \return true if an int value was retrieved, false otherwise
 	/// \details GetIntValue() is used to ensure we don't accidentally try to get an
-	///   unsigned int or some other type when we mean int (which is the most common case)
+	///  unsigned int or some other type when we mean int (which is the most common case)
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL bool GetIntValue(const char *name, int &value) const
 		{return GetValue(name, value);}
 
@@ -420,7 +420,7 @@ public:
 	/// \param defaultValue the default value if the name does not exist
 	/// \return the value retrieved on success or the default value
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL int GetIntValueWithDefault(const char *name, int defaultValue) const
 		{return GetValueWithDefault(name, defaultValue);}
 
@@ -429,7 +429,7 @@ public:
 	/// \param value the value retrieved upon success
 	/// \return true if an word64 value was retrieved, false otherwise
 	/// \sa GetValue(), GetValueWithDefault(), GetWord64ValueWithDefault(), GetIntValue(),
-	///   GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL bool GetWord64Value(const char *name, word64 &value) const
 		{return GetValue(name, value);}
 
@@ -438,7 +438,7 @@ public:
 	/// \param defaultValue the default value if the name does not exist
 	/// \return the value retrieved on success or the default value
 	/// \sa GetValue(), GetValueWithDefault(), GetWord64Value(), GetIntValue(),
-	///   GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredWord64Parameter()
+	///  GetIntValueWithDefault(), GetRequiredParameter() and GetRequiredWord64Parameter()
 	CRYPTOPP_DLL word64 GetWord64ValueWithDefault(const char *name, word64 defaultValue) const
 		{return GetValueWithDefault(name, defaultValue);}
 
@@ -448,9 +448,9 @@ public:
 	/// \param retrieving the type that is being retrieved for the name
 	/// \throws ValueTypeMismatch
 	/// \details ThrowIfTypeMismatch() effectively performs a type safety check.
-	///    stored and retrieving are C++ mangled names for the type.
+	///  stored and retrieving are C++ mangled names for the type.
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL static void CRYPTOPP_API ThrowIfTypeMismatch(const char *name, const std::type_info &stored, const std::type_info &retrieving)
 		{if (stored != retrieving) throw ValueTypeMismatch(name, stored, retrieving);}
 
@@ -461,9 +461,9 @@ public:
 	/// \param value reference to a variable to receive the value
 	/// \throws InvalidArgument
 	/// \details GetRequiredParameter() throws InvalidArgument if the name
-	///   is not present or not of the expected type T.
+	///  is not present or not of the expected type T.
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	template <class T>
 	void GetRequiredParameter(const char *className, const char *name, T &value) const
 	{
@@ -477,9 +477,9 @@ public:
 	/// \param value reference to a variable to receive the value
 	/// \throws InvalidArgument
 	/// \details GetRequiredParameter() throws InvalidArgument if the name
-	///   is not present or not of the expected type T.
+	///  is not present or not of the expected type T.
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL void GetRequiredIntParameter(const char *className, const char *name, int &value) const
 	{
 		if (!GetIntValue(name, value))
@@ -493,9 +493,9 @@ public:
 	/// \return true if the value was retrieved, false otherwise
 	/// \details GetVoidValue() retrieves the value of name if it exists.
 	/// \note GetVoidValue() is an internal function and should be implemented
-	///   by derived classes. Users should use one of the other functions instead.
+	///  by derived classes. Users should use one of the other functions instead.
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
-	///   GetRequiredParameter() and GetRequiredIntParameter()
+	///  GetRequiredParameter() and GetRequiredIntParameter()
 	CRYPTOPP_DLL virtual bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const =0;
 };
 
@@ -504,28 +504,28 @@ public:
 /// \brief Default channel for BufferedTransformation
 /// \details DEFAULT_CHANNEL is equal to an empty string
 /// \details The definition for DEFAULT_CHANNEL is in <tt>cryptlib.cpp</tt>.
-///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
-///   Initialization Order Fiasco</A>. If you experience a crash in
-///   DEFAULT_CHANNEL where the string object is NULL, then you probably have
-///   a global object using DEFAULT_CHANNEL before it has been constructed.
+///  It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///  Initialization Order Fiasco</A>. If you experience a crash in
+///  DEFAULT_CHANNEL where the string object is NULL, then you probably have
+///  a global object using DEFAULT_CHANNEL before it has been constructed.
 const std::string DEFAULT_CHANNEL;
 
 /// \brief Channel for additional authenticated data
 /// \details AAD_CHANNEL is equal to "AAD"
 /// \details The definition for AAD_CHANNEL is in <tt>cryptlib.cpp</tt>.
-///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
-///   Initialization Order Fiasco</A>. If you experience a crash in
-///   AAD_CHANNEL where the string object is NULL, then you probably have a
-///   global object using AAD_CHANNEL before it has been constructed.
+///  It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///  Initialization Order Fiasco</A>. If you experience a crash in
+///  AAD_CHANNEL where the string object is NULL, then you probably have a
+///  global object using AAD_CHANNEL before it has been constructed.
 const std::string AAD_CHANNEL;
 
 /// \brief An empty set of name-value pairs
 /// \details The definition for g_nullNameValuePairs is in <tt>cryptlib.cpp</tt>.
-///   It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
-///   Initialization Order Fiasco</A>. If you experience a crash in
-///   g_nullNameValuePairs where the string object is NULL, then you probably
-///   have a global object using g_nullNameValuePairs before it has been
-///   constructed.
+///  It can be subject to <A HREF="https://isocpp.org/wiki/faq/ctors">Static
+///  Initialization Order Fiasco</A>. If you experience a crash in
+///  g_nullNameValuePairs where the string object is NULL, then you probably
+///  have a global object using g_nullNameValuePairs before it has been
+///  constructed.
 const NameValuePairs& g_nullNameValuePairs;
 
 #else
@@ -549,15 +549,14 @@ DOCUMENTED_NAMESPACE_END
 
 /// \brief Namespace containing weak and wounded algorithms.
 /// \details Weak is part of the CryptoPP namespace. Schemes and algorithms are moved into Weak
-///   when their security level is reduced to an unacceptable level by contemporary standards.
+///  when their security level is reduced to an unacceptable level by contemporary standards.
 /// \details To use an algorithm in the Weak namespace, you must <tt>\c \#define
-///   CRYPTOPP_ENABLE_NAMESPACE_WEAK 1</tt> before including a header for a weak or wounded
-///   algorithm. For example:
-///   <pre>
-///     \c \#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
-///     \c \#include <md5.h>
-///     ...
-///     CryptoPP::Weak::MD5 md5;
+///  CRYPTOPP_ENABLE_NAMESPACE_WEAK 1</tt> before including a header for a weak or wounded
+///  algorithm. For example:
+///  <pre>  \c \#define CRYPTOPP_ENABLE_NAMESPACE_WEAK 1
+///   \c \#include <md5.h>
+///   ...
+///   CryptoPP::Weak::MD5 md5;
 ///   </pre>
 DOCUMENTED_NAMESPACE_BEGIN(Weak)
 // weak and wounded algorithms
@@ -572,7 +571,7 @@ DOCUMENTED_NAMESPACE_END
 
 /// \brief Namespace containing testing and benchmark classes.
 /// \details Source files for classes in the Test namespaces include
-///   <tt>test.cpp</tt>, <tt>validat#.cpp</tt> and <tt>bench#.cpp</tt>.
+///  <tt>test.cpp</tt>, <tt>validat#.cpp</tt> and <tt>bench#.cpp</tt>.
 DOCUMENTED_NAMESPACE_BEGIN(Test)
 // testing and benchmark classes
 DOCUMENTED_NAMESPACE_END
@@ -603,35 +602,35 @@ public:
 
 	/// \brief Interface for all crypto algorithms
 	/// \param checkSelfTestStatus determines whether the object can proceed if the self
-	///   tests have not been run or failed.
+	///  tests have not been run or failed.
 	/// \details When FIPS 140-2 compliance is enabled and checkSelfTestStatus == true,
-	///   this constructor throws SelfTestFailure if the self test hasn't been run or fails.
+	///  this constructor throws SelfTestFailure if the self test hasn't been run or fails.
 	/// \details FIPS 140-2 compliance is disabled by default. It is only used by certain
-	///   versions of the library when the library is built as a DLL on Windows. Also see
-	///    CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 in config.h.
+	///  versions of the library when the library is built as a DLL on Windows. Also see
+	///  CRYPTOPP_ENABLE_COMPLIANCE_WITH_FIPS_140_2 in config.h.
 	Algorithm(bool checkSelfTestStatus = true);
 
 	/// \brief Provides the name of this algorithm
 	/// \return the standard algorithm name
 	/// \details The standard algorithm name can be a name like <tt>AES</tt> or <tt>AES/GCM</tt>.
-	///   Some algorithms do not have standard names yet. For example, there is no standard
-	///   algorithm name for Shoup's ECIES.
+	///  Some algorithms do not have standard names yet. For example, there is no standard
+	///  algorithm name for Shoup's ECIES.
 	/// \note AlgorithmName is not universally implemented yet.
 	virtual std::string AlgorithmName() const {return "unknown";}
 
 	/// \brief Retrieve the provider of this algorithm
 	/// \return the algorithm provider
 	/// \details The algorithm provider can be a name like "C++", "SSE", "NEON", "AESNI",
-	///    "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
-	///    usually indicate a specialized implementation using instructions from a higher
-	///    instruction set architecture (ISA). Future labels may include external hardware
-	///    like a hardware security module (HSM).
+	///  "ARMv8" and "Power8". C++ is standard C++ code. Other labels, like SSE,
+	///  usually indicate a specialized implementation using instructions from a higher
+	///  instruction set architecture (ISA). Future labels may include external hardware
+	///  like a hardware security module (HSM).
 	/// \details Generally speaking Wei Dai's original IA-32 ASM code falls under "SSE2".
-	///    Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
-	///    instead of ASM.
+	///  Labels like "SSSE3" and "SSE4.1" follow after Wei's code and use intrinsics
+	///  instead of ASM.
 	/// \details Algorithms which combine different instructions or ISAs provide the
-	///    dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
-	///    "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
+	///  dominant one. For example on x86 <tt>AES/GCM</tt> returns "AESNI" rather than
+	///  "CLMUL" or "AES+SSE4.1" or "AES+CLMUL" or "AES+SSE4.1+CLMUL".
 	/// \note Provider is not universally implemented yet.
 	/// \since Crypto++ 8.0
 	virtual std::string AlgorithmProvider() const {return "C++";}
@@ -660,10 +659,10 @@ public:
 	/// \param keylength the size of the key, in bytes
 	/// \return the valid key length, in bytes
 	/// \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
-	///   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
-	///   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
-	///   then keylength is returned. Otherwise, the function returns a \a lower multiple of
-	///   KEYLENGTH_MULTIPLE.
+	///  then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
+	///  then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
+	///  then keylength is returned. Otherwise, the function returns a \a lower multiple of
+	///  KEYLENGTH_MULTIPLE.
 	virtual size_t GetValidKeyLength(size_t keylength) const =0;
 
 	/// \brief Returns whether keylength is a valid key length
@@ -683,10 +682,10 @@ public:
 	/// \param key the key to use when keying the object
 	/// \param length the size of the key, in bytes
 	/// \param rounds the number of rounds to apply the transformation function,
-	///   if applicable
+	///  if applicable
 	/// \details SetKeyWithRounds() calls SetKey() with a NameValuePairs
-	///   object that only specifies rounds. rounds is an integer parameter,
-	///   and <tt>-1</tt> means use the default number of rounds.
+	///  object that only specifies rounds. rounds is an integer parameter,
+	///  and <tt>-1</tt> means use the default number of rounds.
 	void SetKeyWithRounds(const byte *key, size_t length, int rounds);
 
 	/// \brief Sets or reset the key of this object
@@ -695,8 +694,8 @@ public:
 	/// \param iv the initialization vector to use when keying the object
 	/// \param ivLength the size of the iv, in bytes
 	/// \details SetKeyWithIV() calls SetKey() with a NameValuePairs
-	///   that only specifies IV. The IV is a byte buffer with size ivLength.
-	///   ivLength is an integer parameter, and <tt>-1</tt> means use IVSize().
+	///  that only specifies IV. The IV is a byte buffer with size ivLength.
+	///  ivLength is an integer parameter, and <tt>-1</tt> means use IVSize().
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv, size_t ivLength);
 
 	/// \brief Sets or reset the key of this object
@@ -704,18 +703,18 @@ public:
 	/// \param length the size of the key, in bytes
 	/// \param iv the initialization vector to use when keying the object
 	/// \details SetKeyWithIV() calls SetKey() with a NameValuePairs() object
-	///   that only specifies iv. iv is a byte buffer, and it must have
-	///   a size IVSize().
+	///  that only specifies iv. iv is a byte buffer, and it must have
+	///  a size IVSize().
 	void SetKeyWithIV(const byte *key, size_t length, const byte *iv)
 		{SetKeyWithIV(key, length, iv, IVSize());}
 
 	/// \brief Secure IVs requirements as enumerated values.
 	/// \details Provides secure IV requirements as a monotonically increasing enumerated values.
-	///   Requirements can be compared using less than (&lt;) and greater than (&gt;). For example,
-	///   <tt>UNIQUE_IV &lt; RANDOM_IV</tt> and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
+	///  Requirements can be compared using less than (&lt;) and greater than (&gt;). For example,
+	///  <tt>UNIQUE_IV &lt; RANDOM_IV</tt> and <tt>UNPREDICTABLE_RANDOM_IV &gt; RANDOM_IV</tt>.
 	/// \details Objects that use SimpleKeyingInterface do not support an optional IV. That is,
-	///	  an IV must be present or it must be absent. If you wish to support an optional IV then
-	///   provide two classes - one with an IV and one without an IV.
+	///	 an IV must be present or it must be absent. If you wish to support an optional IV then
+	///  provide two classes - one with an IV and one without an IV.
 	/// \sa IsResynchronizable(), CanUseRandomIVs(), CanUsePredictableIVs(), CanUseStructuredIVs()
 	enum IV_Requirement {
 		/// \brief The IV must be unique
@@ -737,7 +736,7 @@ public:
 	/// \brief Determines if the object can be resynchronized
 	/// \return true if the object can be resynchronized (i.e. supports initialization vectors), false otherwise
 	/// \note If this function returns true, and no IV is passed to SetKey() and <tt>CanUseStructuredIVs()==true</tt>,
-	///   an IV of all 0's will be assumed.
+	///  an IV of all 0's will be assumed.
 	bool IsResynchronizable() const {return IVRequirement() < NOT_RESYNCHRONIZABLE;}
 
 	/// \brief Determines if the object can use random IVs
@@ -746,13 +745,13 @@ public:
 
 	/// \brief Determines if the object can use random but possibly predictable IVs
 	/// \return true if the object can use random but possibly predictable IVs (in addition to ones returned by
-	///    GetNextIV), false otherwise
+	///  GetNextIV), false otherwise
 	bool CanUsePredictableIVs() const {return IVRequirement() <= RANDOM_IV;}
 
 	/// \brief Determines if the object can use structured IVs
 	/// \return true if the object can use structured IVs, false otherwise
 	/// \details CanUseStructuredIVs() indicates whether the object can use structured IVs; for example a counter
-	///    (in addition to ones returned by GetNextIV).
+	///  (in addition to ones returned by GetNextIV).
 	bool CanUseStructuredIVs() const {return IVRequirement() <= UNIQUE_IV;}
 
 	/// \brief Returns length of the IV accepted by this object
@@ -791,8 +790,8 @@ public:
 	/// \param iv a block of bytes to receive the IV
 	/// \details The IV must be at least IVSize() in length.
 	/// \details This method should be called after you finish encrypting one message and are ready
-	///    to start the next one. After calling it, you must call SetKey() or Resynchronize().
-	///    before using this object again.
+	///  to start the next one. After calling it, you must call SetKey() or Resynchronize().
+	///  before using this object again.
 	/// \details Internally, the base class implementation calls RandomNumberGenerator's GenerateBlock()
 	/// \note This method is not implemented on decryption objects.
 	virtual void GetNextIV(RandomNumberGenerator &rng, byte *iv);
@@ -817,7 +816,7 @@ protected:
 	/// \brief Validates the object
 	/// \throws InvalidArgument if the IV is present
 	/// \details Internally, the default implementation calls IsResynchronizable() and throws
-	///    InvalidArgument if the function returns  true.
+	///  InvalidArgument if the function returns  true.
 	/// \note called when no IV is passed
 	void ThrowIfResynchronizable();
 
@@ -825,9 +824,9 @@ protected:
 	/// \param iv the IV with a length of IVSize, in bytes
 	/// \throws InvalidArgument on failure
 	/// \details Internally, the default implementation checks the iv. If iv is not NULL or nullptr,
-	///   then the function succeeds. If iv is NULL, then IVRequirement is checked against
-	///    UNPREDICTABLE_RANDOM_IV. If IVRequirement is UNPREDICTABLE_RANDOM_IV, then
-	///   then the function succeeds. Otherwise, an exception is thrown.
+	///  then the function succeeds. If iv is NULL, then IVRequirement is checked against
+	///  UNPREDICTABLE_RANDOM_IV. If IVRequirement is UNPREDICTABLE_RANDOM_IV, then
+	///  then the function succeeds. Otherwise, an exception is thrown.
 	void ThrowIfInvalidIV(const byte *iv);
 
 	/// \brief Validates the IV length
@@ -850,9 +849,9 @@ protected:
 
 /// \brief Interface for the data processing part of block ciphers
 /// \details Classes derived from BlockTransformation are block ciphers
-///   in ECB mode (for example the DES::Encryption class), which are stateless.
-///   These classes should not be used directly, but only in combination with
-///   a mode class (see CipherModeDocumentation in modes.h).
+///  in ECB mode (for example the DES::Encryption class), which are stateless.
+///  These classes should not be used directly, but only in combination with
+///  a mode class (see CipherModeDocumentation in modes.h).
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BlockTransformation : public Algorithm
 {
 public:
@@ -864,7 +863,7 @@ public:
 	/// \param xorBlock an optional XOR mask
 	/// \details ProcessAndXorBlock encrypts or decrypts inBlock, xor with xorBlock, and write to outBlock.
 	/// \details The size of the block is determined by the block cipher and its documentation. Use
-	///     BLOCKSIZE at compile time, or BlockSize() at runtime.
+	///  BLOCKSIZE at compile time, or BlockSize() at runtime.
 	/// \note The message can be transformed in-place, or the buffers must \a not overlap
 	/// \sa FixedBlockSize, BlockCipherFinal from seckey.h and BlockSize()
 	virtual void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const =0;
@@ -874,7 +873,7 @@ public:
 	/// \param outBlock the output message after processing
 	/// \details ProcessBlock encrypts or decrypts inBlock and write to outBlock.
 	/// \details The size of the block is determined by the block cipher and its documentation.
-	///    Use BLOCKSIZE at compile time, or BlockSize() at runtime.
+	///  Use BLOCKSIZE at compile time, or BlockSize() at runtime.
 	/// \sa FixedBlockSize, BlockCipherFinal from seckey.h and BlockSize()
 	/// \note The message can be transformed in-place, or the buffers must \a not overlap
 	void ProcessBlock(const byte *inBlock, byte *outBlock) const
@@ -884,7 +883,7 @@ public:
 	/// \param inoutBlock the input message before processing
 	/// \details ProcessBlock encrypts or decrypts inoutBlock in-place.
 	/// \details The size of the block is determined by the block cipher and its documentation.
-	///    Use BLOCKSIZE at compile time, or BlockSize() at runtime.
+	///  Use BLOCKSIZE at compile time, or BlockSize() at runtime.
 	/// \sa FixedBlockSize, BlockCipherFinal from seckey.h and BlockSize()
 	void ProcessBlock(byte *inoutBlock) const
 		{ProcessAndXorBlock(inoutBlock, NULLPTR, inoutBlock);}
@@ -956,12 +955,12 @@ public:
 	/// \brief Provides the mandatory block size of the cipher
 	/// \return The block size of the cipher if input must be processed in blocks, 1 otherwise
 	/// \details Stream ciphers and some block ciphers modes of operation return 1. Modes that
-	///   return 1 must be able to process a single byte at a time, like counter mode. If a
-	///   mode of operation or block cipher cannot stream then it must not return 1.
+	///  return 1 must be able to process a single byte at a time, like counter mode. If a
+	///  mode of operation or block cipher cannot stream then it must not return 1.
 	/// \details When filters operate the mode or cipher, ProcessData will be called with a
-	///   string of bytes that is determined by MandatoryBlockSize and OptimalBlockSize. When a
-	///   policy is set, like 16-byte strings for a 16-byte block cipher, the filter will buffer
-	///   bytes until the specified number of bytes is available to the object.
+	///  string of bytes that is determined by MandatoryBlockSize and OptimalBlockSize. When a
+	///  policy is set, like 16-byte strings for a 16-byte block cipher, the filter will buffer
+	///  bytes until the specified number of bytes is available to the object.
 	/// \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual unsigned int MandatoryBlockSize() const {return 1;}
 
@@ -969,7 +968,7 @@ public:
 	/// \return The input block size that is most efficient for the cipher
 	/// \details The base class implementation returns MandatoryBlockSize().
 	/// \note Optimal input length is
-	///   <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
+	///  <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
 	virtual unsigned int OptimalBlockSize() const {return MandatoryBlockSize();}
 
 	/// \brief Provides the number of bytes used in the current block when processing at optimal block size.
@@ -986,7 +985,7 @@ public:
 	/// \param inString the input byte buffer
 	/// \param length the size of the input and output byte buffers, in bytes
 	/// \details ProcessData is called with a string of bytes whose size depends on MandatoryBlockSize.
-	///   Either <tt>inString == outString</tt>, or they must not overlap.
+	///  Either <tt>inString == outString</tt>, or they must not overlap.
 	/// \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual void ProcessData(byte *outString, const byte *inString, size_t length) =0;
 
@@ -997,9 +996,9 @@ public:
 	/// \param inLength the size of the input byte buffer, in bytes
 	/// \return the number of bytes used in outString
 	/// \details ProcessLastBlock is used when the last block of data is special and requires handling
-	///   by the cipher. The current implementation provides an output buffer with a size
-	///   <tt>inLength+2*MandatoryBlockSize()</tt>. The return value allows the cipher to expand cipher
-	///   text during encryption or shrink plain text during decryption.
+	///  by the cipher. The current implementation provides an output buffer with a size
+	///  <tt>inLength+2*MandatoryBlockSize()</tt>. The return value allows the cipher to expand cipher
+	///  text during encryption or shrink plain text during decryption.
 	/// \details This member function is used by CBC-CTS and OCB modes.
 	/// \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
@@ -1007,41 +1006,41 @@ public:
 	/// \brief Provides the size of the last block
 	/// \return the minimum size of the last block
 	/// \details MinLastBlockSize() returns the minimum size of the last block. 0 indicates the last
-	///   block is not special.
+	///  block is not special.
 	/// \details MandatoryBlockSize() enlists one of two behaviors. First, if MandatoryBlockSize()
-	///   returns 1, then the cipher can be streamed and ProcessData() is called with the tail bytes.
-	///   Second, if MandatoryBlockSize() returns non-0, then the string of bytes is padded to
-	///   MandatoryBlockSize() according to the padding mode. Then, ProcessData() is called with the
-	///   padded string of bytes.
+	///  returns 1, then the cipher can be streamed and ProcessData() is called with the tail bytes.
+	///  Second, if MandatoryBlockSize() returns non-0, then the string of bytes is padded to
+	///  MandatoryBlockSize() according to the padding mode. Then, ProcessData() is called with the
+	///  padded string of bytes.
 	/// \details Some authenticated encryption modes are not expressed well with MandatoryBlockSize()
-	///   and MinLastBlockSize(). For example, AES/OCB uses 16-byte blocks (MandatoryBlockSize = 16)
-	///   and the last block requires special processing (MinLastBlockSize = 0). However, 0 is a valid
-	///   last block size for OCB and the special processing is custom padding, and not standard PKCS
-	///   padding. In response an unambiguous IsLastBlockSpecial() was added.
+	///  and MinLastBlockSize(). For example, AES/OCB uses 16-byte blocks (MandatoryBlockSize = 16)
+	///  and the last block requires special processing (MinLastBlockSize = 0). However, 0 is a valid
+	///  last block size for OCB and the special processing is custom padding, and not standard PKCS
+	///  padding. In response an unambiguous IsLastBlockSpecial() was added.
 	/// \sa ProcessData, ProcessLastBlock, MandatoryBlockSize, MinLastBlockSize, BlockPaddingSchemeDef, IsLastBlockSpecial
 	virtual unsigned int MinLastBlockSize() const {return 0;}
 
 	/// \brief Determines if the last block receives special processing
 	/// \return true if the last block reveives special processing, false otherwise.
 	/// \details Some authenticated encryption modes are not expressed well with
-	///   MandatoryBlockSize() and MinLastBlockSize(). For example, AES/OCB uses
-	///   16-byte blocks (MandatoryBlockSize = 16) and the last block requires special processing
-	///   (MinLastBlockSize = 0). However, 0 is a valid last block size for OCB and the special
-	///   processing is custom padding, and not standard PKCS padding. In response an
-	///   unambiguous IsLastBlockSpecial() was added.
-	///  \details When IsLastBlockSpecial() returns false nothing special happens. All the former
-	///   rules and behaviors apply. This is the default behavior of IsLastBlockSpecial().
-	///  \details When IsLastBlockSpecial() returns true four things happen. First, MinLastBlockSize = 0
-	///   means 0 is a valid block size that should be processed. Second, standard block cipher padding is
-	///   \a not \a applied. Third, the caller supplies an outString is larger than inString by
-	///   <tt>2*MandatoryBlockSize()</tt>. That is, there's a reserve available when processing the last block.
-	///   Fourth, the cipher is responsible for finalization like custom padding. The cipher will tell
-	///   the library how many bytes were processed or used by returning the appropriate value from
-	///   ProcessLastBlock().
+	///  MandatoryBlockSize() and MinLastBlockSize(). For example, AES/OCB uses
+	///  16-byte blocks (MandatoryBlockSize = 16) and the last block requires special processing
+	///  (MinLastBlockSize = 0). However, 0 is a valid last block size for OCB and the special
+	///  processing is custom padding, and not standard PKCS padding. In response an
+	///  unambiguous IsLastBlockSpecial() was added.
+	/// \details When IsLastBlockSpecial() returns false nothing special happens. All the former
+	///  rules and behaviors apply. This is the default behavior of IsLastBlockSpecial().
+	/// \details When IsLastBlockSpecial() returns true four things happen. First, MinLastBlockSize = 0
+	///  means 0 is a valid block size that should be processed. Second, standard block cipher padding is
+	///  \a not \a applied. Third, the caller supplies an outString is larger than inString by
+	///  <tt>2*MandatoryBlockSize()</tt>. That is, there's a reserve available when processing the last block.
+	///  Fourth, the cipher is responsible for finalization like custom padding. The cipher will tell
+	///  the library how many bytes were processed or used by returning the appropriate value from
+	///  ProcessLastBlock().
 	/// \details The return value of ProcessLastBlock() indicates how many bytes were written to
-	///   <tt>outString</tt>. A filter pipelining data will send <tt>outString</tt> and up to <tt>outLength</tt>
-	///   to an <tt>AttachedTransformation()</tt> for additional processing. Below is an example of the code
-	///   used in <tt>StreamTransformationFilter::LastPut</tt>.
+	///  <tt>outString</tt>. A filter pipelining data will send <tt>outString</tt> and up to <tt>outLength</tt>
+	///  to an <tt>AttachedTransformation()</tt> for additional processing. Below is an example of the code
+	///  used in <tt>StreamTransformationFilter::LastPut</tt>.
 	/// <pre>  if (m_cipher.IsLastBlockSpecial())
 	///   {
 	///     size_t reserve = 2*m_cipher.MandatoryBlockSize();
@@ -1083,7 +1082,7 @@ public:
 	/// \param pos position to seek
 	/// \throws NotImplemented
 	/// \details The base class implementation throws NotImplemented. The function
-	///   \ref CRYPTOPP_ASSERT "asserts" IsRandomAccess() in debug builds.
+	///  \ref CRYPTOPP_ASSERT "asserts" IsRandomAccess() in debug builds.
 	virtual void Seek(lword pos)
 	{
 		CRYPTOPP_UNUSED(pos);
@@ -1094,7 +1093,7 @@ public:
 	/// \brief Determines whether the cipher is self-inverting
 	/// \return true if the cipher is self-inverting, false otherwise
 	/// \details IsSelfInverting determines whether this transformation is
-	///   self-inverting (e.g. xor with a keystream).
+	///  self-inverting (e.g. xor with a keystream).
 	virtual bool IsSelfInverting() const =0;
 
 	/// \brief Determines if the cipher is being operated in its forward direction
@@ -1105,10 +1104,10 @@ public:
 
 /// \brief Interface for hash functions and data processing part of MACs
 /// \details HashTransformation objects are stateful. They are created in an initial state,
-///   change state as Update() is called, and return to the initial
-///   state when Final() is called. This interface allows a large message to
-///   be hashed in pieces by calling Update() on each piece followed by
-///   calling Final().
+///  change state as Update() is called, and return to the initial
+///  state when Final() is called. This interface allows a large message to
+///  be hashed in pieces by calling Update() on each piece followed by
+///  calling Final().
 /// \sa HashFilter(), HashVerificationFilter()
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE HashTransformation : public Algorithm
 {
@@ -1129,8 +1128,8 @@ public:
 	/// \param size the requested size of the buffer
 	/// \details The purpose of this method is to help avoid extra memory allocations.
 	/// \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
-	///   size is the requested size of the buffer. When the call returns, size is the size of
-	///   the array returned to the caller.
+	///  size is the requested size of the buffer. When the call returns, size is the size of
+	///  the array returned to the caller.
 	/// \details The base class implementation sets size to 0 and returns NULL or nullptr.
 	/// \note Some objects, like ArraySink, cannot create a space because its fixed.
 	virtual byte * CreateUpdateSpace(size_t &size) {size=0; return NULLPTR;}
@@ -1139,7 +1138,7 @@ public:
 	/// \param digest a pointer to the buffer to receive the hash
 	/// \details Final() restarts the hash for a new message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///   the output byte buffer is large enough for the digest.
+	///  the output byte buffer is large enough for the digest.
 	virtual void Final(byte *digest)
 		{TruncatedFinal(digest, DigestSize());}
 
@@ -1160,16 +1159,16 @@ public:
 	/// \brief Provides the block size of the compression function
 	/// \return block size of the compression function, in bytes
 	/// \details BlockSize() will return 0 if the hash is not block based
-	///   or does not have an equivalent block size. For example, Keccak
-	///   and SHA-3 do not have a block size, but they do have an equivalent
-	///   block size called rate expressed as <tt>r</tt>.
+	///  or does not have an equivalent block size. For example, Keccak
+	///  and SHA-3 do not have a block size, but they do have an equivalent
+	///  block size called rate expressed as <tt>r</tt>.
 	virtual unsigned int BlockSize() const {return 0;}
 
 	/// \brief Provides the input block size most efficient for this hash.
 	/// \return The input block size that is most efficient for the cipher
 	/// \details The base class implementation returns MandatoryBlockSize().
 	/// \details Optimal input length is
-	///   <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
+	///  <tt>n * OptimalBlockSize() - GetOptimalBlockSizeUsed()</tt> for any <tt>n \> 0</tt>.
 	virtual unsigned int OptimalBlockSize() const {return 1;}
 
 	/// \brief Provides input and output data alignment for optimal performance
@@ -1182,10 +1181,10 @@ public:
 	/// \param input the additional input as a buffer
 	/// \param length the size of the buffer, in bytes
 	/// \details Use this if your input is in one piece and you don't want to call Update()
-	///   and Final() separately
+	///  and Final() separately
 	/// \details CalculateDigest() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///   the output byte buffer is large enough for the digest.
+	///  the output byte buffer is large enough for the digest.
 	virtual void CalculateDigest(byte *digest, const byte *input, size_t length)
 		{Update(input, length); Final(digest);}
 
@@ -1194,10 +1193,10 @@ public:
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
 	/// \throws ThrowIfInvalidTruncatedSize() if the existing hash's size exceeds DigestSize()
 	/// \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
-	///   a constant time comparison function. digestLength cannot exceed DigestSize().
+	///  a constant time comparison function. digestLength cannot exceed DigestSize().
 	/// \details Verify() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///   the output byte buffer is large enough for the digest.
+	///  the output byte buffer is large enough for the digest.
 	virtual bool Verify(const byte *digest)
 		{return TruncatedVerify(digest, DigestSize());}
 
@@ -1208,12 +1207,12 @@ public:
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
 	/// \throws ThrowIfInvalidTruncatedSize() if the existing hash's size exceeds DigestSize()
 	/// \details Use this if your input is in one piece and you don't want to call Update()
-	///   and Verify() separately
+	///  and Verify() separately
 	/// \details VerifyDigest() performs a bitwise compare on the buffers using VerifyBufsEqual(),
-	///   which is a constant time comparison function. digestLength cannot exceed DigestSize().
+	///  which is a constant time comparison function. digestLength cannot exceed DigestSize().
 	/// \details VerifyDigest() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///   the output byte buffer is large enough for the digest.
+	///  the output byte buffer is large enough for the digest.
 	virtual bool VerifyDigest(const byte *digest, const byte *input, size_t length)
 		{Update(input, length); return Verify(digest);}
 
@@ -1221,7 +1220,7 @@ public:
 	/// \param digest a pointer to the buffer to receive the hash
 	/// \param digestSize the size of the truncated digest, in bytes
 	/// \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
-	///   The hash is restarted the hash for the next message.
+	///  The hash is restarted the hash for the next message.
 	virtual void TruncatedFinal(byte *digest, size_t digestSize) =0;
 
 	/// \brief Updates the hash with additional input and computes the hash of the current message
@@ -1230,10 +1229,10 @@ public:
 	/// \param input the additional input as a buffer
 	/// \param length the size of the buffer, in bytes
 	/// \details Use this if your input is in one piece and you don't want to call Update()
-	///   and CalculateDigest() separately.
+	///  and CalculateDigest() separately.
 	/// \details CalculateTruncatedDigest() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///   the output byte buffer is large enough for the digest.
+	///  the output byte buffer is large enough for the digest.
 	virtual void CalculateTruncatedDigest(byte *digest, size_t digestSize, const byte *input, size_t length)
 		{Update(input, length); TruncatedFinal(digest, digestSize);}
 
@@ -1243,9 +1242,9 @@ public:
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
 	/// \throws ThrowIfInvalidTruncatedSize() if digestLength exceeds DigestSize()
 	/// \details TruncatedVerify() is a truncated version of Verify(). It can operate on a
-	///   buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
+	///  buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
 	/// \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
-	///   a constant time comparison function. digestLength cannot exceed DigestSize().
+	///  a constant time comparison function. digestLength cannot exceed DigestSize().
 	/// \details TruncatedVerify() restarts the hash for the next message.
 	virtual bool TruncatedVerify(const byte *digest, size_t digestLength);
 
@@ -1257,12 +1256,12 @@ public:
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
 	/// \throws ThrowIfInvalidTruncatedSize() if digestLength exceeds DigestSize()
 	/// \details Use this if your input is in one piece and you don't want to call Update()
-	///   and TruncatedVerify() separately.
+	///  and TruncatedVerify() separately.
 	/// \details VerifyTruncatedDigest() is a truncated version of VerifyDigest(). It can operate
-	///   on a buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
+	///  on a buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
 	/// \details VerifyTruncatedDigest() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///   the output byte buffer is large enough for the digest.
+	///  the output byte buffer is large enough for the digest.
 	virtual bool VerifyTruncatedDigest(const byte *digest, size_t digestLength, const byte *input, size_t length)
 		{Update(input, length); return TruncatedVerify(digest, digestLength);}
 
@@ -1300,19 +1299,19 @@ protected:
 
 /// \brief Interface for authenticated encryption modes of operation
 /// \details AuthenticatedSymmetricCipher() provides the interface for one direction
-///   (encryption or decryption) of a stream cipher or block cipher mode with authentication. The
-///   StreamTransformation() part of this interface is used to encrypt or decrypt the data. The
-///   MessageAuthenticationCode() part of the interface is used to input additional authenticated
-///   data (AAD), which is MAC'ed but not encrypted. The MessageAuthenticationCode() part is also
-///   used to generate and verify the MAC.
+///  (encryption or decryption) of a stream cipher or block cipher mode with authentication. The
+///  StreamTransformation() part of this interface is used to encrypt or decrypt the data. The
+///  MessageAuthenticationCode() part of the interface is used to input additional authenticated
+///  data (AAD), which is MAC'ed but not encrypted. The MessageAuthenticationCode() part is also
+///  used to generate and verify the MAC.
 /// \details Crypto++ provides four authenticated encryption modes of operation - CCM, EAX, GCM
-///   and OCB mode. All modes implement AuthenticatedSymmetricCipher() and the motivation for
-///   the API, like calling AAD a &quot;header&quot;, can be found in Bellare, Rogaway and
-///   Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX Mode of
-///   Operation</A>. The EAX paper suggested a basic API to help standardize AEAD schemes in
-///   software and promote adoption of the modes.
+///  and OCB mode. All modes implement AuthenticatedSymmetricCipher() and the motivation for
+///  the API, like calling AAD a &quot;header&quot;, can be found in Bellare, Rogaway and
+///  Wagner's <A HREF="http://web.cs.ucdavis.edu/~rogaway/papers/eax.pdf">The EAX Mode of
+///  Operation</A>. The EAX paper suggested a basic API to help standardize AEAD schemes in
+///  software and promote adoption of the modes.
 /// \sa <A HREF="http://www.cryptopp.com/wiki/Authenticated_Encryption">Authenticated
-///   Encryption</A> on the Crypto++ wiki.
+///  Encryption</A> on the Crypto++ wiki.
 /// \since Crypto++ 5.6.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedSymmetricCipher : public MessageAuthenticationCode, public StreamTransformation
 {
@@ -1321,7 +1320,7 @@ public:
 
 	/// \brief Exception thrown when the object is in the wrong state for the operation
 	/// \details this indicates that a member function was called in the wrong state, for example trying to encrypt
-	///   a message before having set the key or IV
+	///  a message before having set the key or IV
 	class BadState : public Exception
 	{
 	public:
@@ -1344,7 +1343,7 @@ public:
 	/// \brief Determines if data lengths must be specified prior to inputting data
 	/// \return true if the data lengths are required before inputting data, false otherwise
 	/// \details if this function returns true, SpecifyDataLengths() must be called before attempting to input data.
-	///   This is the case for some schemes, such as CCM.
+	///  This is the case for some schemes, such as CCM.
 	/// \sa SpecifyDataLengths()
 	virtual bool NeedsPrespecifiedDataLengths() const {return false;}
 
@@ -1353,9 +1352,9 @@ public:
 	/// \param messageLength size of the message, in bytes
 	/// \param footerLength size of data after message is input, in bytes
 	/// \details SpecifyDataLengths() only needs to be called if NeedsPrespecifiedDataLengths() returns <tt>true</tt>.
-	///   If <tt>true</tt>, then <tt>headerLength</tt> will be validated against <tt>MaxHeaderLength()</tt>,
-	///   <tt>messageLength</tt> will be validated against <tt>MaxMessageLength()</tt>, and
-	///   <tt>footerLength</tt> will be validated against <tt>MaxFooterLength()</tt>.
+	///  If <tt>true</tt>, then <tt>headerLength</tt> will be validated against <tt>MaxHeaderLength()</tt>,
+	///  <tt>messageLength</tt> will be validated against <tt>MaxMessageLength()</tt>, and
+	///  <tt>footerLength</tt> will be validated against <tt>MaxFooterLength()</tt>.
 	/// \sa NeedsPrespecifiedDataLengths()
 	void SpecifyDataLengths(lword headerLength, lword messageLength, lword footerLength=0);
 
@@ -1370,7 +1369,7 @@ public:
 	/// \param message the message buffer
 	/// \param messageLength the size of the messagetext buffer, in bytes
 	/// \details EncryptAndAuthenticate() encrypts and generates the MAC in one call. The function
-	///   truncates the MAC if <tt>macSize < TagSize()</tt>.
+	///  truncates the MAC if <tt>macSize < TagSize()</tt>.
 	virtual void EncryptAndAuthenticate(byte *ciphertext, byte *mac, size_t macSize, const byte *iv, int ivLength, const byte *header, size_t headerLength, const byte *message, size_t messageLength);
 
 	/// \brief Decrypts and verifies a MAC in one call
@@ -1393,8 +1392,8 @@ public:
 	/// \brief Provides the name of this algorithm
 	/// \return the standard algorithm name
 	/// \details The standard algorithm name can be a name like \a AES or \a AES/GCM. Some algorithms
-	///   do not have standard names yet. For example, there is no standard algorithm name for
-	///   Shoup's ECIES.
+	///  do not have standard names yet. For example, there is no standard algorithm name for
+	///  Shoup's ECIES.
 	virtual std::string AlgorithmName() const;
 
 protected:
@@ -1406,7 +1405,7 @@ protected:
 
 /// \brief Interface for random number generators
 /// \details The library provides a number of random number generators, from software based
-///   to hardware based generators.
+///  to hardware based generators.
 /// \details All generated values are uniformly distributed over the range specified.
 /// \since Crypto++ 3.1
 /// \sa <A HREF="https://www.cryptopp.com/wiki/RandomNumberGenerator">RandomNumberGenerator</A>
@@ -1905,7 +1904,7 @@ public:
 		/// \param peekMax the number of bytes to Peek
 		/// \return the number of bytes read during the call.
 		/// \details Peek does not remove bytes from the object. Use the return value of
-		///     Peek() to detect short reads.
+		///  Peek() to detect short reads.
 		virtual size_t Peek(byte *outString, size_t peekMax) const;
 
 		/// \brief Retrieve a 16-bit word
@@ -1943,7 +1942,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \return the number of bytes consumed during the call.
 		/// \details Peek does not consume bytes in the stream. Use the return value
-		///    of PeekWord32() to detect short reads.
+		///  of PeekWord32() to detect short reads.
 		size_t PeekWord32(word32 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		/// \brief Peek a 64-bit word
@@ -1972,15 +1971,12 @@ public:
 		/// \details Skip() discards bytes from the output buffer, which is the AttachedTransformation(), if present.
 		///  The function always returns the parameter <tt>skipMax</tt>.
 		/// \details If you want to skip bytes from a Source, then perform the following.
-		/// <pre>
-		///     StringSource ss(str, false, new Redirector(TheBitBucket()));
-		///     ss.Pump(10);    // Skip 10 bytes from Source
-		///     ss.Detach(new FilterChain(...));
-		///     ss.PumpAll();
+		/// <pre>  StringSource ss(str, false, new Redirector(TheBitBucket()));
+		///   ss.Pump(10);    // Skip 10 bytes from Source
+		///   ss.Detach(new FilterChain(...));
+		///   ss.PumpAll();
 		/// </pre>
 		virtual lword Skip(lword skipMax=LWORD_MAX);
-
-		/// copy copyMax bytes of the buffered output to target as input
 
 		/// \brief Copy bytes from this object to another BufferedTransformation
 		/// \param target the destination BufferedTransformation
@@ -2178,7 +2174,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		size_t ChannelPut(const std::string &channel, const byte *inString, size_t length, bool blocking=true)
 			{return ChannelPut2(channel, inString, length, 0, blocking);}
 
@@ -2303,8 +2299,8 @@ public:
 
 	///	\name ATTACHMENT
 	/// \details Some BufferedTransformation objects (e.g. Filter objects) allow other BufferedTransformation objects to be
-	///   attached. When this is done, the first object instead of buffering its output, sends that output to the attached
-	///   object as input. The entire attachment chain is deleted when the anchor object is destructed.
+	///  attached. When this is done, the first object instead of buffering its output, sends that output to the attached
+	///  object as input. The entire attachment chain is deleted when the anchor object is destructed.
 
 	//@{
 		/// \brief Determines whether the object allows attachment
@@ -2392,7 +2388,7 @@ public:
 	///   <li>3 - perform reasonable security checks, and do checks that may take a long time
 	///   </ul>
 	/// \details Level 0 does not require a RandomNumberGenerator. A NullRNG() can be used for level 0.
-	///   Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
+	///  Level 1 may not check for weak keys and such. Levels 2 and 3 are recommended.
 	/// \sa ThrowIfInvalid()
 	virtual bool Validate(RandomNumberGenerator &rng, unsigned int level) const =0;
 
@@ -2410,10 +2406,10 @@ public:
 	/// \throws NotImplemented
 	/// \details Save() writes the material to a BufferedTransformation.
 	/// \details If the material is a key, then the key is written with ASN.1 DER encoding. The key
-	///   includes an object identifier with an algorthm id, like a subjectPublicKeyInfo.
+	///  includes an object identifier with an algorthm id, like a subjectPublicKeyInfo.
 	/// \details A "raw" key without the "key info" can be saved using a key's DEREncode() method.
 	/// \details If a derived class does not override Save(), then the base class throws
-	///   NotImplemented().
+	///  NotImplemented().
 	virtual void Save(BufferedTransformation &bt) const
 		{CRYPTOPP_UNUSED(bt); throw NotImplemented("CryptoMaterial: this object does not support saving");}
 
@@ -2421,14 +2417,14 @@ public:
 	/// \param bt the source BufferedTransformation
 	/// \throws KeyingErr
 	/// \details Load() attempts to read material from a BufferedTransformation. If the
-	///   material is a key that was generated outside the library, then the following
-	///   usually applies:
+	///  material is a key that was generated outside the library, then the following
+	///  usually applies:
 	///   <ul>
 	///   <li>the key should be ASN.1 BER encoded
 	///   <li>the key should be a "key info"
 	///   </ul>
 	/// \details "key info" means the key should have an object identifier with an algorthm id,
-	///   like a subjectPublicKeyInfo.
+	///  like a subjectPublicKeyInfo.
 	/// \details To read a "raw" key without the "key info", then call the key's BERDecode() method.
 	/// \note Load() generally does not check that the key is valid. Call Validate(), if needed.
 	virtual void Load(BufferedTransformation &bt)
@@ -2443,9 +2439,9 @@ public:
 	/// \param precomputationStorage the suggested number of objects for the precompute table
 	/// \throws NotImplemented
 	/// \details The exact semantics of Precompute() varies, but it typically means calculate
-	///   a table of n objects that can be used later to speed up computation.
+	///  a table of n objects that can be used later to speed up computation.
 	/// \details If a derived class does not override Precompute(), then the base class throws
-	///   NotImplemented.
+	///  NotImplemented.
 	/// \sa SupportsPrecomputation(), LoadPrecomputation(), SavePrecomputation()
 	virtual void Precompute(unsigned int precomputationStorage) {
 		CRYPTOPP_UNUSED(precomputationStorage); CRYPTOPP_ASSERT(!SupportsPrecomputation());
@@ -2494,7 +2490,7 @@ public:
 	/// \param params additional initialization parameters
 	/// \throws KeyingErr if a key can't be generated or algorithm parameters are invalid
 	/// \details If a derived class does not override GenerateRandom(), then the base class throws
-	///    NotImplemented.
+	///  NotImplemented.
 	virtual void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &params = g_nullNameValuePairs) {
 		CRYPTOPP_UNUSED(rng); CRYPTOPP_UNUSED(params);
 		throw NotImplemented("GeneratableCryptoMaterial: this object does not support key/parameter generation");
@@ -2505,7 +2501,7 @@ public:
 	/// \param keySize the size of the key, in bits
 	/// \throws KeyingErr if a key can't be generated or algorithm parameters are invalid
 	/// \details GenerateRandomWithKeySize calls GenerateRandom() with a NameValuePairs
-	///    object with only "KeySize"
+	///  object with only "KeySize"
 	void GenerateRandomWithKeySize(RandomNumberGenerator &rng, unsigned int keySize);
 };
 
@@ -2634,7 +2630,7 @@ public:
 
 /// \brief Interface for public-key encryptors and decryptors
 /// \details This class provides an interface common to encryptors and decryptors
-///   for querying their plaintext and ciphertext lengths.
+///  for querying their plaintext and ciphertext lengths.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_CryptoSystem
 {
 public:
@@ -2654,20 +2650,20 @@ public:
 	/// \param name the name of the parameter
 	/// \return true if the parameter name is supported, false otherwise
 	/// \details Some possible parameter names: EncodingParameters(), KeyDerivationParameters()
-	///   and others Parameters listed in argnames.h
+	///  and others Parameters listed in argnames.h
 	virtual bool ParameterSupported(const char *name) const =0;
 
 	/// \brief Provides the fixed ciphertext length, if one exists
 	/// \return the fixed ciphertext length if one exists, otherwise 0
 	/// \details "Fixed" here means length of ciphertext does not depend on length of plaintext.
-	///   In this case, it usually does depend on the key length.
+	///  In this case, it usually does depend on the key length.
 	virtual size_t FixedCiphertextLength() const {return 0;}
 
 	/// \brief Provides the maximum plaintext length given a fixed ciphertext length
 	/// \return maximum plaintext length given the fixed ciphertext length, if one exists,
-	///   otherwise return 0.
+	///  otherwise return 0.
 	/// \details FixedMaxPlaintextLength(0 returns the maximum plaintext length given the fixed ciphertext
-	///   length, if one exists, otherwise return 0.
+	///  length, if one exists, otherwise return 0.
 	virtual size_t FixedMaxPlaintextLength() const {return 0;}
 };
 
@@ -2690,7 +2686,7 @@ public:
 	/// \param parameters a set of NameValuePairs to initialize this object
 	/// \pre <tt>CiphertextLength(plaintextLength) != 0</tt> ensures the plaintext isn't too large
 	/// \pre <tt>COUNTOF(ciphertext) == CiphertextLength(plaintextLength)</tt> ensures the output
-	///   byte buffer is large enough.
+	///  byte buffer is large enough.
 	/// \sa PK_Decryptor
 	virtual void Encrypt(RandomNumberGenerator &rng,
 		const byte *plaintext, size_t plaintextLength,
@@ -2701,7 +2697,7 @@ public:
 	/// \param attachment an attached transformation
 	/// \param parameters a set of NameValuePairs to initialize this object
 	/// \details \p attachment can be \p NULL. The caller is responsible for deleting the returned pointer.
-	///   Encoding parameters should be passed in the "EP" channel.
+	///  Encoding parameters should be passed in the "EP" channel.
 	virtual BufferedTransformation * CreateEncryptionFilter(RandomNumberGenerator &rng,
 		BufferedTransformation *attachment=NULLPTR, const NameValuePairs &parameters = g_nullNameValuePairs) const;
 };
@@ -2720,11 +2716,11 @@ public:
 	/// \param parameters a set of NameValuePairs to initialize this object
 	/// \return the result of the decryption operation
 	/// \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
-	///   is valid and holds the the actual length of the plaintext recovered. The result is undefined
-	///   if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
-	///   is undefined.
+	///  is valid and holds the the actual length of the plaintext recovered. The result is undefined
+	///  if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
+	///  is undefined.
 	/// \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
-	///   byte buffer is large enough
+	///  byte buffer is large enough
 	/// \sa PK_Encryptor
 	virtual DecodingResult Decrypt(RandomNumberGenerator &rng,
 		const byte *ciphertext, size_t ciphertextLength,
@@ -2746,11 +2742,11 @@ public:
 	/// \param parameters a set of NameValuePairs to initialize this object
 	/// \return the result of the decryption operation
 	/// \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
-	///   is valid and holds the the actual length of the plaintext recovered. The result is undefined
-	///   if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
-	///   is undefined.
+	///  is valid and holds the the actual length of the plaintext recovered. The result is undefined
+	///  if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
+	///  is undefined.
 	/// \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
-	///   byte buffer is large enough
+	///  byte buffer is large enough
 	/// \sa PK_Encryptor
 	DecodingResult FixedLengthDecrypt(RandomNumberGenerator &rng, const byte *ciphertext, byte *plaintext, const NameValuePairs &parameters = g_nullNameValuePairs) const
 		{return Decrypt(rng, ciphertext, FixedCiphertextLength(), plaintext, parameters);}
@@ -2764,7 +2760,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_SignatureScheme
 public:
 	/// \brief Exception throw when the private or public key has a length that can't be used
 	/// \details InvalidKeyLength() may be thrown by any function in this class if the private
-	///   or public key has a length that can't be used
+	///  or public key has a length that can't be used
 	class CRYPTOPP_DLL InvalidKeyLength : public Exception
 	{
 	public:
@@ -2773,7 +2769,7 @@ public:
 
 	/// \brief Exception throw when the private or public key is too short to sign or verify
 	/// \details KeyTooShort() may be thrown by any function in this class if the private or public
-	///   key is too short to sign or verify anything
+	///  key is too short to sign or verify anything
 	class CRYPTOPP_DLL KeyTooShort : public InvalidKeyLength
 	{
 	public:
@@ -2791,28 +2787,28 @@ public:
 	/// \param recoverablePartLength the length of the recoverable message part, in bytes
 	/// \return the maximum signature length produced for a given length of recoverable message part, in bytes
 	/// \details MaxSignatureLength() returns the maximum signature length produced given the length of the
-	///   recoverable message part.
+	///  recoverable message part.
 	virtual size_t MaxSignatureLength(size_t recoverablePartLength = 0) const
 	{CRYPTOPP_UNUSED(recoverablePartLength); return SignatureLength();}
 
 	/// \brief Provides the length of longest message that can be recovered
 	/// \return the length of longest message that can be recovered, in bytes
 	/// \details MaxRecoverableLength() returns the length of longest message that can be recovered, or 0 if
-	///   this signature scheme does not support message recovery.
+	///  this signature scheme does not support message recovery.
 	virtual size_t MaxRecoverableLength() const =0;
 
 	/// \brief Provides the length of longest message that can be recovered from a signature of given length
 	/// \param signatureLength the length of the signature, in bytes
 	/// \return the length of longest message that can be recovered from a signature of given length, in bytes
 	/// \details MaxRecoverableLengthFromSignatureLength() returns the length of longest message that can be
-	///   recovered from a signature of given length, or 0 if this signature scheme does not support message
-	///   recovery.
+	///  recovered from a signature of given length, or 0 if this signature scheme does not support message
+	///  recovery.
 	virtual size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const =0;
 
 	/// \brief Determines whether a signature scheme requires a random number generator
 	/// \return true if the signature scheme requires a RandomNumberGenerator() to sign
 	/// \details if IsProbabilistic() returns false, then NullRNG() can be passed to functions that take
-	///   RandomNumberGenerator().
+	///  RandomNumberGenerator().
 	virtual bool IsProbabilistic() const =0;
 
 	/// \brief Determines whether the non-recoverable message part can be signed
@@ -2822,19 +2818,19 @@ public:
 	/// \brief Determines whether the signature must be input before the message
 	/// \return true if the signature must be input before the message during verifcation
 	/// \details if SignatureUpfront() returns true, then you must input the signature before the message
-	///   during verification. Otherwise you can input the signature at anytime.
+	///  during verification. Otherwise you can input the signature at anytime.
 	virtual bool SignatureUpfront() const {return false;}
 
 	/// \brief Determines whether the recoverable part must be input before the non-recoverable part
 	/// \return true if the recoverable part must be input before the non-recoverable part during signing
 	/// \details RecoverablePartFirst() determines whether you must input the recoverable part before the
-	///   non-recoverable part during signing
+	///  non-recoverable part during signing
 	virtual bool RecoverablePartFirst() const =0;
 };
 
 /// \brief Interface for accumulating messages to be signed or verified
 /// \details Only Update() should be called from the PK_MessageAccumulator() class. No other functions
-///   inherited from HashTransformation, like DigestSize() and TruncatedFinal(), should be called.
+///  inherited from HashTransformation, like DigestSize() and TruncatedFinal(), should be called.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_MessageAccumulator : public HashTransformation
 {
 public:
@@ -2860,7 +2856,7 @@ public:
 	/// \param rng a RandomNumberGenerator derived class
 	/// \return a pointer to a PK_MessageAccumulator
 	/// \details NewSignatureAccumulator() can be used with all signing methods. Sign() will autimatically delete the
-	///   accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
+	///  accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const =0;
 
 	/// \brief Input a recoverable message to an accumulator
@@ -2911,10 +2907,10 @@ public:
 
 /// \brief Interface for public-key signature verifiers
 /// \details The Recover* functions throw NotImplemented if the signature scheme does not support
-///   message recovery.
+///  message recovery.
 /// \details The Verify* functions throw InvalidDataFormat if the scheme does support message
-///   recovery and the signature contains a non-empty recoverable message part. The
-///   Recover* functions should be used in that case.
+///  recovery and the signature contains a non-empty recoverable message part. The
+///  Recover* functions should be used in that case.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE PK_Verifier : public PK_SignatureScheme, public PublicKeyAlgorithm
 {
 public:
@@ -2923,7 +2919,7 @@ public:
 	/// \brief Create a new HashTransformation to accumulate the message to be verified
 	/// \return a pointer to a PK_MessageAccumulator
 	/// \details NewVerificationAccumulator() can be used with all verification methods. Verify() will autimatically delete
-	///   the accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
+	///  the accumulator pointer. The caller is responsible for deletion if a method is called that takes a reference.
 	virtual PK_MessageAccumulator * NewVerificationAccumulator() const =0;
 
 	/// \brief Input signature into a message accumulator
@@ -2984,8 +2980,8 @@ public:
 
 /// \brief Interface for domains of simple key agreement protocols
 /// \details A key agreement domain is a set of parameters that must be shared
-///   by two parties in a key agreement protocol, along with the algorithms
-///   for generating key pairs and deriving agreed values.
+///  by two parties in a key agreement protocol, along with the algorithms
+///  for generating key pairs and deriving agreed values.
 /// \since Crypto++ 3.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE SimpleKeyAgreementDomain : public KeyAgreementAlgorithm
 {
@@ -3034,7 +3030,7 @@ public:
 	/// \return true upon success, false in case of failure
 	/// \details Agree() derives an agreed value from your private keys and couterparty's public keys.
 	/// \details The other party's public key is validated by default. If you have previously validated the
-	///   static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
+	///  static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
 	/// \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()</tt>
 	/// \pre <tt>COUNTOF(privateKey) == PrivateKeyLength()</tt>
 	/// \pre <tt>COUNTOF(otherPublicKey) == PublicKeyLength()</tt>
@@ -3043,8 +3039,8 @@ public:
 
 /// \brief Interface for domains of authenticated key agreement protocols
 /// \details In an authenticated key agreement protocol, each party has two
-///   key pairs. The long-lived key pair is called the static key pair,
-///   and the short-lived key pair is called the ephemeral key pair.
+///  key pairs. The long-lived key pair is called the static key pair,
+///  and the short-lived key pair is called the ephemeral key pair.
 /// \since Crypto++ 3.0
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AuthenticatedKeyAgreementDomain : public KeyAgreementAlgorithm
 {
@@ -3123,7 +3119,7 @@ public:
 	/// \return true upon success, false in case of failure
 	/// \details Agree() derives an agreed value from your private keys and couterparty's public keys.
 	/// \details The other party's ephemeral public key is validated by default. If you have previously validated
-	///   the static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
+	///  the static public key, use <tt>validateStaticOtherPublicKey=false</tt> to save time.
 	/// \pre <tt>COUNTOF(agreedValue) == AgreedValueLength()</tt>
 	/// \pre <tt>COUNTOF(staticPrivateKey) == StaticPrivateKeyLength()</tt>
 	/// \pre <tt>COUNTOF(ephemeralPrivateKey) == EphemeralPrivateKeyLength()</tt>
@@ -3256,8 +3252,8 @@ public:
 
 /// \brief Interface for encoding and decoding ASN1 objects
 /// \details Each class that derives from ASN1Object should provide a serialization format
-///   that controls subobject layout. Most of the time the serialization format is
-///   taken from a standard, like P1363 or an RFC.
+///  that controls subobject layout. Most of the time the serialization format is
+///  taken from a standard, like P1363 or an RFC.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE ASN1Object
 {
 public:
@@ -3283,31 +3279,30 @@ public:
 /// \brief Specifies the build-time version of the library
 /// \return integer representing the build-time version
 /// \details LibraryVersion can help detect inadvertent mixing and matching of library
-///   versions. When using Crypto++ distributed by a third party, LibraryVersion()
-///   records the version of the shared object that was built by the third party.
-///   The LibraryVersion() record resides in <tt>cryptlib.o</tt> on Unix compatibles
-///   and <tt>cryptlib.obj</tt> on Windows. It does not change when an app links
-///   to the library.
+///  versions. When using Crypto++ distributed by a third party, LibraryVersion()
+///  records the version of the shared object that was built by the third party.
+///  The LibraryVersion() record resides in <tt>cryptlib.o</tt> on Unix compatibles
+///  and <tt>cryptlib.obj</tt> on Windows. It does not change when an app links
+///  to the library.
 /// \details LibraryVersion() is declared with C linkage (<tt>extern "C"</tt>) within the
-///   CryptoPP namespace to help programs locate the symbol. If the symbol is present, then
-///   the library version is 5.7 or above. If it is missing, then the library version is
-///   5.6.5 or below.
+///  CryptoPP namespace to help programs locate the symbol. If the symbol is present, then
+///  the library version is 5.7 or above. If it is missing, then the library version is
+///  5.6.5 or below.
 /// \details The function could be used as shown below.
-/// <pre>
-///     if (LibraryVersion() != HeaderVersion())
-///     {
-///         cout << "Potential version mismatch" << endl;
+/// <pre>  if (LibraryVersion() != HeaderVersion())
+///   {
+///      cout << "Potential version mismatch" << endl;
 ///
-///         const int lmaj = (LibraryVersion() / 100U) % 10;
-///         const int lmin = (LibraryVersion() / 10U) % 10;
-///         const int hmaj = (HeaderVersion() / 100U) % 10;
-///         const int hmin = (HeaderVersion() / 10U) % 10;
+///      const int lmaj = (LibraryVersion() / 100U) % 10;
+///      const int lmin = (LibraryVersion() / 10U) % 10;
+///      const int hmaj = (HeaderVersion() / 100U) % 10;
+///      const int hmin = (HeaderVersion() / 10U) % 10;
 ///
-///         if(lmaj != hmaj)
-///             cout << "Major version mismatch" << endl;
-///         else if(lmin != hmin)
-///             cout << "Minor version mismatch" << endl;
-///      }
+///      if(lmaj != hmaj)
+///         cout << "Major version mismatch" << endl;
+///      else if(lmin != hmin)
+///         cout << "Minor version mismatch" << endl;
+///   }
 /// </pre>
 /// \sa HeaderVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
 /// \since Crypto++ 6.0
@@ -3318,28 +3313,27 @@ extern "C" {
 /// \brief Specifies the runtime version of the library
 /// \return integer representing the runtime version
 /// \details HeaderVersion() can help detect inadvertent mixing and matching of library
-///   versions. When using Crypto++ distributed by a third party, HeaderVersion()
-///   records the version of the headers used by the app when the app is compiled.
+///  versions. When using Crypto++ distributed by a third party, HeaderVersion()
+///  records the version of the headers used by the app when the app is compiled.
 /// \details HeaderVersion() is declared with C linkage (<tt>extern "C"</tt>) within the
-///   CryptoPP namespace to help programs locate the symbol. If the symbol is present, then
-///   the library version is 5.7 or above. If it is missing, then the library version is
-///   5.6.5 or below.
+///  CryptoPP namespace to help programs locate the symbol. If the symbol is present, then
+///  the library version is 5.7 or above. If it is missing, then the library version is
+///  5.6.5 or below.
 /// \details The function could be used as shown below.
-/// <pre>
-///     if (LibraryVersion() != HeaderVersion())
-///     {
-///         cout << "Potential version mismatch" << endl;
+/// <pre>  if (LibraryVersion() != HeaderVersion())
+///   {
+///      cout << "Potential version mismatch" << endl;
 ///
-///         const int lmaj = (LibraryVersion() / 100U) % 10;
-///         const int lmin = (LibraryVersion() / 10U) % 10;
-///         const int hmaj = (HeaderVersion() / 100U) % 10;
-///         const int hmin = (HeaderVersion() / 10U) % 10;
+///      const int lmaj = (LibraryVersion() / 100U) % 10;
+///      const int lmin = (LibraryVersion() / 10U) % 10;
+///      const int hmaj = (HeaderVersion() / 100U) % 10;
+///      const int hmin = (HeaderVersion() / 10U) % 10;
 ///
-///         if(lmaj != hmaj)
-///             cout << "Major version mismatch" << endl;
-///         else if(lmin != hmin)
-///             cout << "Minor version mismatch" << endl;
-///      }
+///      if(lmaj != hmaj)
+///         cout << "Major version mismatch" << endl;
+///      else if(lmin != hmin)
+///         cout << "Minor version mismatch" << endl;
+///   }
 /// </pre>
 /// \sa LibraryVersion(), <A HREF="http://github.com/weidai11/cryptopp/issues/371">GitHub Issue 371</A>.
 /// \since Crypto++ 6.0
