@@ -266,8 +266,8 @@ public:
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{CRYPTOPP_UNUSED(parameters); ResetMeter();}
 
-	/// \brief Number of bytes in the messages
-	/// \return GetCurrentMessageBytes() returns the number of bytes in the messages
+	/// \brief Number of bytes in the current message
+	/// \return GetCurrentMessageBytes() returns the number of bytes in the current message
 	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
 
 	/// \brief Number of bytes processed by the filter
