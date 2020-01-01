@@ -42,12 +42,12 @@ public:
 	/// \brief The algorithm name
 	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static member function.
-	///    The name is taken from information provided by BASE.
+	///  The name is taken from information provided by BASE.
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return ALGORITHM_INFO::StaticAlgorithmName();}
 	/// \brief The algorithm name
 	/// \return the algorithm name
 	/// \details AlgorithmName returns the algorithm's name as a member function.
-	///    The name is is acquired by calling StaticAlgorithmName.
+	///  The name is is acquired by calling StaticAlgorithmName.
 	std::string AlgorithmName() const {return ALGORITHM_INFO::StaticAlgorithmName();}
 };
 
@@ -468,13 +468,13 @@ protected:
 
 /// \brief Implementation of BufferedTransformation's attachment interface
 /// \details Sink is a cornerstone of the Pipeline trinitiy. Data flows from
-///   Sources, through Filters, and then terminates in Sinks. The difference
-///   between a Source and Filter is a Source \a pumps data, while a Filter does
-///   not. The difference between a Filter and a Sink is a Filter allows an
-///   attached transformation, while a Sink does not.
+///  Sources, through Filters, and then terminates in Sinks. The difference
+///  between a Source and Filter is a Source \a pumps data, while a Filter does
+///  not. The difference between a Filter and a Sink is a Filter allows an
+///  attached transformation, while a Sink does not.
 /// \details A Sink doesnot produce any retrievable output.
 /// \details See the discussion of BufferedTransformation in cryptlib.h for
-///   more details.
+///  more details.
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Sink : public BufferedTransformation
 {
 public:
@@ -486,7 +486,7 @@ public:
 
 /// \brief Acts as an input discarding Filter or Sink
 /// \details The BitBucket discards all input and returns 0 to the caller
-///   to indicate all data was processed.
+///  to indicate all data was processed.
 class CRYPTOPP_DLL BitBucket : public Bufferless<Sink>
 {
 public:
