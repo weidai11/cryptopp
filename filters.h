@@ -6,7 +6,7 @@
 #ifndef CRYPTOPP_FILTERS_H
 #define CRYPTOPP_FILTERS_H
 
-#include "cryptlib.h"
+#include "config.h"
 
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(push)
@@ -66,14 +66,24 @@ public:
 
 	//@}
 
-	// See the documentation for BufferedTransformation in cryptlib.h
+	///	\name RETRIEVAL OF ONE MESSAGE
+	//@{
+
+	// BufferedTransformation in cryptlib.h
 	size_t TransferTo2(BufferedTransformation &target, lword &transferBytes, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 	size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const;
 
-	// See the documentation for BufferedTransformation in cryptlib.h
+	//@}
+
+	///	\name SIGNALS
+	//@{
+
+	// BufferedTransformation in cryptlib.h
 	void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 	bool Flush(bool hardFlush, int propagation=-1, bool blocking=true);
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
+
+	//@}
 
 protected:
 	virtual BufferedTransformation * NewDefaultAttachment() const;
@@ -250,17 +260,32 @@ public:
 	///  skip ranges.
 	void ResetMeter();
 
+	// BufferedTransformation in cryptlib.h
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{CRYPTOPP_UNUSED(parameters); ResetMeter();}
 
+	/// \brief Number of bytes in the messages
+	/// \return GetCurrentMessageBytes() returns the number of bytes in the messages
 	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
+
+	/// \brief Number of bytes processed by the filter
+	/// \return GetTotalBytes() returns the number of bytes processed by the filter
 	lword GetTotalBytes() const {return m_totalBytes;}
+
+	/// \brief Message number in the series
+	/// \return GetCurrentSeriesMessages() returns the message number in the series
 	unsigned int GetCurrentSeriesMessages() const {return m_currentSeriesMessages;}
+
+	/// \brief Number of messages in the message series
+	/// \return GetTotalMessages() returns the number of messages in the message series
 	unsigned int GetTotalMessages() const {return m_totalMessages;}
+
+	/// \brief Number of messages processed by the filter
+	/// \return GetTotalMessageSeries() returns the number of messages processed by the filter
 	unsigned int GetTotalMessageSeries() const {return m_totalMessageSeries;}
 
-	byte * CreatePutSpace(size_t &size)
-		{return AttachedTransformation()->CreatePutSpace(size);}
+	// BufferedTransformation in cryptlib.h
+	byte * CreatePutSpace(size_t &size) {return AttachedTransformation()->CreatePutSpace(size);}
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking);
 	bool IsolatedMessageSeriesEnd(bool blocking);
