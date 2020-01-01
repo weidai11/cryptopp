@@ -26,7 +26,7 @@ class CRYPTOPP_NO_VTABLE ClonableImpl : public BASE
 {
 public:
 	/// \brief Create a copy of this object
-	/// \returns a copy of this object
+	/// \return a copy of this object
 	/// \details The caller is responsible for freeing the object.
 	Clonable * Clone() const {return new DERIVED(*static_cast<const DERIVED *>(this));}
 };
@@ -40,12 +40,12 @@ class CRYPTOPP_NO_VTABLE AlgorithmImpl : public BASE
 {
 public:
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static member function.
 	///    The name is taken from information provided by BASE.
 	static std::string CRYPTOPP_API StaticAlgorithmName() {return ALGORITHM_INFO::StaticAlgorithmName();}
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details AlgorithmName returns the algorithm's name as a member function.
 	///    The name is is acquired by calling StaticAlgorithmName.
 	std::string AlgorithmName() const {return ALGORITHM_INFO::StaticAlgorithmName();}
@@ -206,7 +206,7 @@ public:
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
 	/// \throws InputRejected
-	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Internally, the default implementation throws InputRejected.
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
@@ -346,6 +346,7 @@ public:
 	/// \param length the size of the string, in bytes
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Derived classes must implement Put2().
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPut2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
@@ -355,6 +356,7 @@ public:
 	/// \param length the size of the string, in bytes.
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 	/// \param blocking specifies whether the object should block when processing input.
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Internally, PutModifiable2() calls Put2().
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPutModifiable2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
