@@ -214,12 +214,42 @@ public:
 
 	///	\name SIGNALS
 	//@{
+
+	/// \brief Flushes data buffered by this object, without signal propagation
+	/// \param hardFlush indicates whether all data should be flushed
+	/// \param blocking specifies whether the object should block when processing input
+	/// \note hardFlush must be used with care
 	bool IsolatedFlush(bool hardFlush, bool blocking)
 		{CRYPTOPP_UNUSED(hardFlush); CRYPTOPP_UNUSED(blocking); return false;}
+
+	/// \brief Marks the end of a series of messages, without signal propagation
+	/// \param blocking specifies whether the object should block when completing the processing on
+	///  the current series of messages
+	/// \return true if the message was successful, false otherwise
 	bool IsolatedMessageSeriesEnd(bool blocking)
 		{CRYPTOPP_UNUSED(blocking); throw InputRejected();}
+
+	/// \brief Input multiple bytes for processing on a channel.
+	/// \param channel the channel to process the data.
+	/// \param inString the byte buffer to process.
+	/// \param length the size of the string, in bytes.
+	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one.
+	/// \param blocking specifies whether the object should block when processing input.
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	size_t ChannelPut2(const std::string &channel, const byte *inString, size_t length, int messageEnd, bool blocking)
-		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
+		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(inString); CRYPTOPP_UNUSED(length);
+		 CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
+
+	/// \brief Marks the end of a series of messages on a channel
+	/// \param channel the channel to signal the end of a series of messages
+	/// \param messageEnd the number of attached transformations the ChannelMessageSeriesEnd() signal should be passed
+	/// \param blocking specifies whether the object should block when processing input
+	/// \return true if the message was successful, false otherwise
+	/// \details Each object that receives the signal will perform its processing, decrement
+	///  propagation, and then pass the signal on to attached transformations if the value is not 0.
+	/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
+	///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+	/// \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 	bool ChannelMessageSeriesEnd(const std::string& channel, int messageEnd, bool blocking)
 		{CRYPTOPP_UNUSED(channel); CRYPTOPP_UNUSED(messageEnd); CRYPTOPP_UNUSED(blocking); throw InputRejected();}
 	//@}
@@ -239,15 +269,15 @@ public:
 	/// \param propagation the number of attached transformations the  Flush() signal should be passed
 	/// \param blocking specifies whether the object should block when processing input
 	/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-	///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+	///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	/// \note Hard flushes must be used with care. It means try to process and output everything, even if
-	///   there may not be enough data to complete the action. For example, hard flushing a HexDecoder
-	///   would cause an error if you do it after inputing an odd number of hex encoded characters.
+	///  there may not be enough data to complete the action. For example, hard flushing a HexDecoder
+	///  would cause an error if you do it after inputing an odd number of hex encoded characters.
 	/// \note For some types of filters, like  ZlibDecompressor, hard flushes can only
-	///   be done at "synchronization points". These synchronization points are positions in the data
-	///   stream that are created by hard flushes on the corresponding reverse filters, in this
-	///   example ZlibCompressor. This is useful when zlib compressed data is moved across a
-	///   network in packets and compression state is preserved across packets, as in the SSH2 protocol.
+	///  be done at "synchronization points". These synchronization points are positions in the data
+	///  stream that are created by hard flushes on the corresponding reverse filters, in this
+	///  example ZlibCompressor. This is useful when zlib compressed data is moved across a
+	///  network in packets and compression state is preserved across packets, as in the SSH2 protocol.
 	virtual bool Flush(bool hardFlush, int propagation=-1, bool blocking=true) =0;
 
 	//@}
@@ -267,10 +297,10 @@ public:
 	/// \param parameters a set of NameValuePairs to initialize or reinitialize this object
 	/// \param propagation the number of attached transformations the Initialize() signal should be passed
 	/// \details Initialize() is used to initialize or reinitialize an object using a variable number of
-	///   arbitrarily typed arguments. The function avoids the need for multiple constructors providing
-	///   all possible combintations of configurable parameters.
+	///  arbitrarily typed arguments. The function avoids the need for multiple constructors providing
+	///  all possible combintations of configurable parameters.
 	/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-	///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+	///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1) =0;
 
 private:
@@ -292,9 +322,9 @@ public:
 	/// \param propagation the number of attached transformations the  MessageSeriesEnd() signal should be passed
 	/// \param blocking specifies whether the object should block when processing input
 	/// \details Each object that receives the signal will perform its processing, decrement
-	///    propagation, and then pass the signal on to attached transformations if the value is not 0.
+	///  propagation, and then pass the signal on to attached transformations if the value is not 0.
 	/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-	///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+	///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	/// \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 	bool MessageSeriesEnd(int propagation=-1, bool blocking=true)
 		{return this->ChannelMessageSeriesEnd(DEFAULT_CHANNEL, propagation, blocking);}
@@ -303,11 +333,11 @@ public:
 	/// \param size the requested size of the buffer
 	/// \details The purpose of this method is to help avoid extra memory allocations.
 	/// \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
-	///    size is the requested size of the buffer. When the call returns,  size is the size of
-	///   the array returned to the caller.
+	///  size is the requested size of the buffer. When the call returns,  size is the size of
+	///  the array returned to the caller.
 	/// \details The base class implementation sets  size to 0 and returns  NULL.
 	/// \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
-	/// an ArraySink, the pointer to the array is returned and the  size is remaining size.
+	///  an ArraySink, the pointer to the array is returned and the  size is remaining size.
 	byte * CreatePutSpace(size_t &size)
 		{return this->ChannelCreatePutSpace(DEFAULT_CHANNEL, size);}
 
@@ -329,17 +359,58 @@ public:
 	size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 		{return this->ChannelPutModifiable2(DEFAULT_CHANNEL, inString, length, messageEnd, blocking);}
 
-//	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
-//		{PropagateMessageSeriesEnd(propagation, channel);}
+	//	void ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1)
+	//		{PropagateMessageSeriesEnd(propagation, channel);}
+
+	/// \brief Request space which can be written into by the caller
+	/// \param channel the channel to process the data
+	/// \param size the requested size of the buffer
+	/// \return a pointer to a memory block with length size
+	/// \details The purpose of this method is to help avoid extra memory allocations.
+	/// \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
+	///  size is the requested size of the buffer. When the call returns, size is the size of
+	///  the array returned to the caller.
+	/// \details The base class implementation sets size to 0 and returns NULL.
+	/// \note Some objects, like ArraySink(), cannot create a space because its fixed. In the case of
+	///  an ArraySink(), the pointer to the array is returned and the size is remaining size.
 	byte * ChannelCreatePutSpace(const std::string &channel, size_t &size)
 		{CRYPTOPP_UNUSED(channel); size = 0; return NULLPTR;}
+
+	/// \brief Input multiple bytes that may be modified by callee on a channel
+	/// \param channel the channel to process the data.
+	/// \param inString the byte buffer to process
+	/// \param length the size of the string, in bytes
+	/// \return true if all bytes were processed, false otherwise.
 	bool ChannelPutModifiable(const std::string &channel, byte *inString, size_t length)
 		{this->ChannelPut(channel, inString, length); return false;}
 
+	/// \brief Input multiple bytes for processing on a channel.
+	/// \param channel the channel to process the data.
+	/// \param begin the byte buffer to process.
+	/// \param length the size of the string, in bytes.
+	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one.
+	/// \param blocking specifies whether the object should block when processing input.
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	virtual size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking) =0;
+
+	/// \brief Input multiple bytes that may be modified by callee on a channel
+	/// \param channel the channel to process the data
+	/// \param begin the byte buffer to process
+	/// \param length the size of the string, in bytes
+	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
+	/// \param blocking specifies whether the object should block when processing input
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
 		{return ChannelPut2(channel, begin, length, messageEnd, blocking);}
 
+	/// \brief Flush buffered input and/or output on a channel
+	/// \param channel the channel to flush the data
+	/// \param hardFlush is used to indicate whether all data should be flushed
+	/// \param propagation the number of attached transformations the ChannelFlush() signal should be passed
+	/// \param blocking specifies whether the object should block when processing input
+	/// \return true of the Flush was successful
+	/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
+	///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true) =0;
 };
 
@@ -353,8 +424,16 @@ public:
 	/// \param propagation the propagation count
 	AutoSignaling(int propagation=-1) : m_autoSignalPropagation(propagation) {}
 
+	/// \brief Set propagation of automatically generated and transferred signals
+	/// \param propagation then new value
+	/// \details Setting propagation to <tt>0</tt> means do not automatically generate signals. Setting
+	///  propagation to <tt>-1</tt> means unlimited propagation.
 	void SetAutoSignalPropagation(int propagation)
 		{m_autoSignalPropagation = propagation;}
+
+	/// \brief Retrieve automatic signal propagation value
+	/// \return the number of attached transformations the signal is propagated to. 0 indicates
+	///  the signal is only witnessed by this object
 	int GetAutoSignalPropagation() const
 		{return m_autoSignalPropagation;}
 
