@@ -372,7 +372,7 @@ public:
 	/// \tparam T class or type
 	/// \param name the name of the object or value to retrieve
 	/// \param value reference to a variable that receives the value
-	/// \returns true if the value was retrieved, false otherwise
+	/// \return true if the value was retrieved, false otherwise
 	/// \sa GetValue(), GetValueWithDefault(), GetIntValue(), GetIntValueWithDefault(),
 	///   GetRequiredParameter() and GetRequiredIntParameter()
 	template <class T>
@@ -490,7 +490,7 @@ public:
 	/// \param name the name of the object or value to retrieve
 	/// \param valueType reference to a variable that receives the value
 	/// \param pValue void pointer to a variable that receives the value
-	/// \returns true if the value was retrieved, false otherwise
+	/// \return true if the value was retrieved, false otherwise
 	/// \details GetVoidValue() retrieves the value of name if it exists.
 	/// \note GetVoidValue() is an internal function and should be implemented
 	///   by derived classes. Users should use one of the other functions instead.
@@ -645,20 +645,20 @@ public:
 	virtual ~SimpleKeyingInterface() {}
 
 	/// \brief Returns smallest valid key length
-	/// \returns the minimum key length, in bytes
+	/// \return the minimum key length, in bytes
 	virtual size_t MinKeyLength() const =0;
 
 	/// \brief Returns largest valid key length
-	/// \returns the maximum key length, in bytes
+	/// \return the maximum key length, in bytes
 	virtual size_t MaxKeyLength() const =0;
 
 	/// \brief Returns default key length
-	/// \returns the default key length, in bytes
+	/// \return the default key length, in bytes
 	virtual size_t DefaultKeyLength() const =0;
 
 	/// \brief Returns a valid key length for the algorithm
 	/// \param keylength the size of the key, in bytes
-	/// \returns the valid key length, in bytes
+	/// \return the valid key length, in bytes
 	/// \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
 	///   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
 	///   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
@@ -750,7 +750,7 @@ public:
 	bool CanUsePredictableIVs() const {return IVRequirement() <= RANDOM_IV;}
 
 	/// \brief Determines if the object can use structured IVs
-	/// \returns true if the object can use structured IVs, false otherwise
+	/// \return true if the object can use structured IVs, false otherwise
 	/// \details CanUseStructuredIVs() indicates whether the object can use structured IVs; for example a counter
 	///    (in addition to ones returned by GetNextIV).
 	bool CanUseStructuredIVs() const {return IVRequirement() <= UNIQUE_IV;}
@@ -899,11 +899,11 @@ public:
 	virtual unsigned int OptimalDataAlignment() const;
 
 	/// \brief Determines if the transformation is a permutation
-	/// \returns true if this is a permutation (i.e. there is an inverse transformation)
+	/// \return true if this is a permutation (i.e. there is an inverse transformation)
 	virtual bool IsPermutation() const {return true;}
 
 	/// \brief Determines if the cipher is being operated in its forward direction
-	/// \returns true if DIR is ENCRYPTION, false otherwise
+	/// \return true if DIR is ENCRYPTION, false otherwise
 	/// \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	virtual bool IsForwardTransformation() const =0;
 
@@ -995,7 +995,7 @@ public:
 	/// \param outLength the size of the output byte buffer, in bytes
 	/// \param inString the input byte buffer
 	/// \param inLength the size of the input byte buffer, in bytes
-	/// \returns the number of bytes used in outString
+	/// \return the number of bytes used in outString
 	/// \details ProcessLastBlock is used when the last block of data is special and requires handling
 	///   by the cipher. The current implementation provides an output buffer with a size
 	///   <tt>inLength+2*MandatoryBlockSize()</tt>. The return value allows the cipher to expand cipher
@@ -1005,7 +1005,7 @@ public:
 	virtual size_t ProcessLastBlock(byte *outString, size_t outLength, const byte *inString, size_t inLength);
 
 	/// \brief Provides the size of the last block
-	/// \returns the minimum size of the last block
+	/// \return the minimum size of the last block
 	/// \details MinLastBlockSize() returns the minimum size of the last block. 0 indicates the last
 	///   block is not special.
 	/// \details MandatoryBlockSize() enlists one of two behaviors. First, if MandatoryBlockSize()
@@ -1022,7 +1022,7 @@ public:
 	virtual unsigned int MinLastBlockSize() const {return 0;}
 
 	/// \brief Determines if the last block receives special processing
-	/// \returns true if the last block reveives special processing, false otherwise.
+	/// \return true if the last block reveives special processing, false otherwise.
 	/// \details Some authenticated encryption modes are not expressed well with
 	///   MandatoryBlockSize() and MinLastBlockSize(). For example, AES/OCB uses
 	///   16-byte blocks (MandatoryBlockSize = 16) and the last block requires special processing
@@ -1076,7 +1076,7 @@ public:
 		{ProcessData(&input, &input, 1); return input;}
 
 	/// \brief Determines whether the cipher supports random access
-	/// \returns true if the cipher supports random access, false otherwise
+	/// \return true if the cipher supports random access, false otherwise
 	virtual bool IsRandomAccess() const =0;
 
 	/// \brief Seek to an absolute position
@@ -1092,13 +1092,13 @@ public:
 	}
 
 	/// \brief Determines whether the cipher is self-inverting
-	/// \returns true if the cipher is self-inverting, false otherwise
+	/// \return true if the cipher is self-inverting, false otherwise
 	/// \details IsSelfInverting determines whether this transformation is
 	///   self-inverting (e.g. xor with a keystream).
 	virtual bool IsSelfInverting() const =0;
 
 	/// \brief Determines if the cipher is being operated in its forward direction
-	/// \returns true if DIR is ENCRYPTION, false otherwise
+	/// \return true if DIR is ENCRYPTION, false otherwise
 	/// \sa IsForwardTransformation(), IsPermutation(), GetCipherDirection()
 	virtual bool IsForwardTransformation() const =0;
 };
@@ -1509,16 +1509,16 @@ public:
 	virtual std::string AlgorithmName() const =0;
 
 	/// \brief Determine minimum number of bytes
-	/// \returns Minimum number of bytes which can be derived
+	/// \return Minimum number of bytes which can be derived
 	virtual size_t MinDerivedKeyLength() const;
 
 	/// \brief Determine maximum number of bytes
-	/// \returns Maximum number of bytes which can be derived
+	/// \return Maximum number of bytes which can be derived
 	virtual size_t MaxDerivedKeyLength() const;
 
 	/// \brief Returns a valid key length for the derivation function
 	/// \param keylength the size of the derived key, in bytes
-	/// \returns the valid key length, in bytes
+	/// \return the valid key length, in bytes
 	virtual size_t GetValidDerivedLength(size_t keylength) const =0;
 
 	/// \brief Returns whether keylength is a valid key length
@@ -1535,7 +1535,7 @@ public:
 	/// \param secret the seed input buffer
 	/// \param secretLen the size of the secret buffer, in bytes
 	/// \param params additional initialization parameters to configure this object
-	/// \returns the number of iterations performed
+	/// \return the number of iterations performed
 	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a secret seed and other parameters. Each class that derives from KeyDerivationFunction
@@ -1801,12 +1801,14 @@ public:
 		/// \brief Flushes data buffered by this object, without signal propagation
 		/// \param hardFlush indicates whether all data should be flushed
 		/// \param blocking specifies whether the object should block when processing input
+		/// \return true if the flush was successful, false otherwise
 		/// \note hardFlush must be used with care
 		virtual bool IsolatedFlush(bool hardFlush, bool blocking) =0;
 
 		/// \brief Marks the end of a series of messages, without signal propagation
 		/// \param blocking specifies whether the object should block when completing the processing on
 		///    the current series of messages
+		/// \return true if the message was successful, false otherwise
 		virtual bool IsolatedMessageSeriesEnd(bool blocking)
 			{CRYPTOPP_UNUSED(blocking); return false;}
 
@@ -1824,8 +1826,8 @@ public:
 		/// \param hardFlush is used to indicate whether all data should be flushed
 		/// \param propagation the number of attached transformations the Flush()
 		///  signal should be passed
-		/// \param blocking specifies whether the object should block when processing
-		///  input
+		/// \param blocking specifies whether the object should block when processing input
+		/// \return true if the flush was successful, false otherwise
 		/// \details propagation count includes this object. Setting propagation to
 		///  <tt>1</tt> means this object only. Setting propagation to <tt>-1</tt>
 		///  means unlimited propagation.
@@ -1844,6 +1846,7 @@ public:
 		/// \brief Marks the end of a series of messages, with signal propagation
 		/// \param propagation the number of attached transformations the MessageSeriesEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
+		/// \return true if the message was successful, false otherwise
 		/// \details Each object that receives the signal will perform its processing, decrement
 		///    propagation, and then pass the signal on to attached transformations if the value is not 0.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
@@ -1874,7 +1877,7 @@ public:
 		virtual lword MaxRetrievable() const;
 
 		/// \brief Determines whether bytes are ready for retrieval
-		/// \returns true if bytes are available for retrieval, false otherwise
+		/// \return true if bytes are available for retrieval, false otherwise
 		virtual bool AnyRetrievable() const;
 
 		/// \brief Retrieve a 8-bit byte
@@ -2017,7 +2020,7 @@ public:
 		virtual unsigned int NumberOfMessages() const;
 
 		/// \brief Determines if any messages are available for retrieval
-		/// \returns true if <tt>NumberOfMessages() &gt; 0</tt>, false otherwise
+		/// \return true if <tt>NumberOfMessages() &gt; 0</tt>, false otherwise
 		/// \details AnyMessages returns true if <tt>NumberOfMessages() &gt; 0</tt>
 		virtual bool AnyMessages() const;
 
@@ -2284,6 +2287,7 @@ public:
 		/// \param channel the channel to signal the end of a series of messages
 		/// \param propagation the number of attached transformations the ChannelMessageSeriesEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
+		/// \return true if the message was successful, false otherwise
 		/// \details Each object that receives the signal will perform its processing, decrement
 		///   propagation, and then pass the signal on to attached transformations if the value is not 0.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
@@ -2379,7 +2383,7 @@ public:
 	/// \brief Check this object for errors
 	/// \param rng a RandomNumberGenerator for objects which use randomized testing
 	/// \param level the level of thoroughness
-	/// \returns true if the tests succeed, false otherwise
+	/// \return true if the tests succeed, false otherwise
 	/// \details There are four levels of thoroughness:
 	///   <ul>
 	///   <li>0 - using this object won't cause a crash or exception
@@ -3277,7 +3281,7 @@ public:
 };
 
 /// \brief Specifies the build-time version of the library
-/// \returns integer representing the build-time version
+/// \return integer representing the build-time version
 /// \details LibraryVersion can help detect inadvertent mixing and matching of library
 ///   versions. When using Crypto++ distributed by a third party, LibraryVersion()
 ///   records the version of the shared object that was built by the third party.
@@ -3312,7 +3316,7 @@ extern "C" {
 } // C linkage
 
 /// \brief Specifies the runtime version of the library
-/// \returns integer representing the runtime version
+/// \return integer representing the runtime version
 /// \details HeaderVersion() can help detect inadvertent mixing and matching of library
 ///   versions. When using Crypto++ distributed by a third party, HeaderVersion()
 ///   records the version of the headers used by the app when the app is compiled.

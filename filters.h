@@ -46,16 +46,16 @@ public:
 	Filter(BufferedTransformation *attachment = NULLPTR);
 
 	/// \brief Determine if attachable
-	/// \returns true if the object allows attached transformations, false otherwise.
+	/// \return true if the object allows attached transformations, false otherwise.
 	/// \note Source and Filter offer attached transformations; while Sink does not.
 	bool Attachable() {return true;}
 
 	/// \brief Retrieve attached transformation
-	/// \returns pointer to a BufferedTransformation if there is an attached transformation, NULL otherwise.
+	/// \return pointer to a BufferedTransformation if there is an attached transformation, NULL otherwise.
 	BufferedTransformation *AttachedTransformation();
 
 	/// \brief Retrieve attached transformation
-	/// \returns pointer to a BufferedTransformation if there is an attached transformation, NULL otherwise.
+	/// \return pointer to a BufferedTransformation if there is an attached transformation, NULL otherwise.
 	const BufferedTransformation *AttachedTransformation() const;
 
 	/// \brief Replace an attached transformation
@@ -91,7 +91,7 @@ protected:
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	size_t Output(int outputSite, const byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 	/// \brief Output multiple bytes that may be modified by callee.
@@ -101,7 +101,7 @@ protected:
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	size_t OutputModifiable(int outputSite, byte *inString, size_t length, int messageEnd, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
 
 	/// \brief Signals the end of messages to the object
@@ -109,7 +109,7 @@ protected:
 	/// \param propagation the number of attached transformations the  MessageEnd() signal should be passed
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns TODO
+	/// \return TODO
 	/// \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
 	///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 	bool OutputMessageEnd(int outputSite, int propagation, bool blocking, const std::string &channel=DEFAULT_CHANNEL);
@@ -120,7 +120,7 @@ protected:
 	/// \param propagation the number of attached transformations the  Flush() signal should be passed
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns TODO
+	/// \return TODO
 	/// \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
 	///   object only. Setting  propagation to <tt>-1</tt> means unlimited propagation.
 	/// \note Hard flushes must be used with care. It means try to process and output everything, even if
@@ -138,7 +138,7 @@ protected:
 	/// \param propagation the number of attached transformations the  MessageSeriesEnd() signal should be passed
 	/// \param blocking specifies whether the object should block when processing input
 	/// \param channel the channel to process the data
-	/// \returns TODO
+	/// \return TODO
 	/// \details Each object that receives the signal will perform its processing, decrement
 	///    propagation, and then pass the signal on to attached transformations if the value is not 0.
 	/// \details propagation count includes this object. Setting  propagation to <tt>1</tt> means this
@@ -194,7 +194,9 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	/// \param target the BufferedTransformation for the working space
 	/// \param channel channel for the working space
 	/// \param minSize minimum size of the allocation, in bytes
-	/// \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using minSize for missing arguments.
+	/// \return pointer to the created space
+	/// \details Internally, the overload calls HelpCreatePutSpace() using minSize for missing arguments.
+	/// \details The filter will delete the space. The caller does not need to delete the space.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, minSize);}
 
@@ -203,7 +205,8 @@ struct CRYPTOPP_DLL FilterPutSpaceHelper
 	/// \param channel channel for the working space
 	/// \param minSize minimum size of the allocation, in bytes
 	/// \param bufferSize the actual size of the allocation, in bytes
-	/// \details Internally, the overload calls HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t desiredSize, size_t &bufferSize) using minSize for missing arguments.
+	/// \details Internally, the overload calls HelpCreatePutSpace() using minSize for missing arguments.
+	/// \details The filter will delete the space. The caller does not need to delete the space.
 	byte *HelpCreatePutSpace(BufferedTransformation &target, const std::string &channel, size_t minSize, size_t bufferSize)
 		{return HelpCreatePutSpace(target, channel, minSize, minSize, bufferSize);}
 
@@ -339,6 +342,7 @@ public:
 	/// \brief Flushes data buffered by this object, without signal propagation
 	/// \param hardFlush indicates whether all data should be flushed
 	/// \param blocking specifies whether the object should block when processing input
+	/// \return true if the flush was successful, false otherwise
 	/// \details IsolatedFlush() calls ForceNextPut() if hardFlush is true
 	/// \note  hardFlush must be used with care
 	bool IsolatedFlush(bool hardFlush, bool blocking);
@@ -593,17 +597,17 @@ public:
 	/// \brief Flags controlling filter behavior.
 	/// \details The flags are a bitmask and can be OR'd together.
 	enum Flags {
-		/// \brief Indicates the hash is at the end of the message (i.e., concatenation of message+hash)
+		/// \brief The hash is at the end of the message (i.e., concatenation of message+hash)
 		HASH_AT_END=0,
-		/// \brief Indicates the hash is at the beginning of the message (i.e., concatenation of hash+message)
+		/// \brief The hash is at the beginning of the message (i.e., concatenation of hash+message)
 		HASH_AT_BEGIN=1,
-		/// \brief Indicates the message should be passed to an attached transformation
+		/// \brief The message should be passed to an attached transformation
 		PUT_MESSAGE=2,
-		/// \brief Indicates the hash should be passed to an attached transformation
+		/// \brief The hash should be passed to an attached transformation
 		PUT_HASH=4,
-		/// \brief Indicates the result of the verification should be passed to an attached transformation
+		/// \brief The result of the verification should be passed to an attached transformation
 		PUT_RESULT=8,
-		/// \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
+		/// \brief The filter should throw a HashVerificationFailed if a failure is encountered
 		THROW_EXCEPTION=16,
 		/// \brief Default flags using HASH_AT_BEGIN and PUT_RESULT
 		DEFAULT_FLAGS = HASH_AT_BEGIN | PUT_RESULT
@@ -704,11 +708,11 @@ public:
 	/// \brief Flags controlling filter behavior.
 	/// \details The flags are a bitmask and can be OR'd together.
 	enum Flags {
-		/// \brief Indicates the MAC is at the end of the message (i.e., concatenation of message+mac)
+		/// \brief The MAC is at the end of the message (i.e., concatenation of message+mac)
 		MAC_AT_END=0,
-		/// \brief Indicates the MAC is at the beginning of the message (i.e., concatenation of mac+message)
+		/// \brief The MAC is at the beginning of the message (i.e., concatenation of mac+message)
 		MAC_AT_BEGIN=1,
-		/// \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
+		/// \brief The filter should throw a HashVerificationFailed if a failure is encountered
 		THROW_EXCEPTION=16,
 		/// \brief Default flags using THROW_EXCEPTION
 		DEFAULT_FLAGS = THROW_EXCEPTION
@@ -732,6 +736,8 @@ public:
 	size_t ChannelPut2(const std::string &channel, const byte *begin, size_t length, int messageEnd, bool blocking);
 	size_t ChannelPutModifiable2(const std::string &channel, byte *begin, size_t length, int messageEnd, bool blocking)
 		{ return ChannelPut2(channel, begin, length, messageEnd, blocking); }
+	/// \brief Get verifier result
+	/// \return the hash verifier result
 	bool GetLastResult() const {return m_hashVerifier.GetLastResult();}
 
 protected:
@@ -801,17 +807,17 @@ public:
 	/// \brief Flags controlling filter behavior.
 	/// \details The flags are a bitmask and can be OR'd together.
 	enum Flags {
-		/// \brief Indicates the signature is at the end of the message (i.e., concatenation of message+signature)
+		/// \brief The signature is at the end of the message (i.e., concatenation of message+signature)
 		SIGNATURE_AT_END=0,
-		/// \brief Indicates the signature is at the beginning of the message (i.e., concatenation of signature+message)
+		/// \brief The signature is at the beginning of the message (i.e., concatenation of signature+message)
 		SIGNATURE_AT_BEGIN=1,
-		/// \brief Indicates the message should be passed to an attached transformation
+		/// \brief The message should be passed to an attached transformation
 		PUT_MESSAGE=2,
-		/// \brief Indicates the signature should be passed to an attached transformation
+		/// \brief The signature should be passed to an attached transformation
 		PUT_SIGNATURE=4,
-		/// \brief Indicates the result of the verification should be passed to an attached transformation
+		/// \brief The result of the verification should be passed to an attached transformation
 		PUT_RESULT=8,
-		/// \brief Indicates the filter should throw a HashVerificationFailed if a failure is encountered
+		/// \brief The filter should throw a HashVerificationFailed if a failure is encountered
 		THROW_EXCEPTION=16,
 		/// \brief Default flags using SIGNATURE_AT_BEGIN and PUT_RESULT
 		DEFAULT_FLAGS = SIGNATURE_AT_BEGIN | PUT_RESULT
@@ -828,7 +834,7 @@ public:
 	std::string AlgorithmName() const {return m_verifier.AlgorithmName();}
 
 	/// \brief Retrieves the result of the last verification
-	/// \returns true if the signature on the previosus message was valid, false otherwise
+	/// \return true if the signature on the previosus message was valid, false otherwise
 	bool GetLastResult() const {return m_verified;}
 
 protected:
@@ -953,7 +959,7 @@ public:
 	OutputProxy(BufferedTransformation &owner, bool passSignal) : m_owner(owner), m_passSignal(passSignal) {}
 
 	/// \brief Retrieve passSignal flag
-	/// \returns flag indicating if signals should be passed
+	/// \return flag indicating if signals should be passed
 	bool GetPassSignal() const {return m_passSignal;}
 	/// \brief Set passSignal flag
 	/// \param passSignal flag indicating if signals should be passed
@@ -1169,11 +1175,11 @@ public:
 		: m_buf(buf), m_size(size), m_total(0) {}
 
 	/// \brief Provides the size remaining in the Sink
-	/// \returns size remaining in the Sink, in bytes
+	/// \return size remaining in the Sink, in bytes
 	size_t AvailableSize() {return SaturatingSubtract(m_size, m_total);}
 
 	/// \brief Provides the number of bytes written to the Sink
-	/// \returns number of bytes written to the Sink, in bytes
+	/// \return number of bytes written to the Sink, in bytes
 	lword TotalPutLength() {return m_total;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);
@@ -1311,7 +1317,7 @@ public:
 
 	/// \brief Pump data to attached transformation
 	/// \param pumpMax the maximum number of bytes to pump
-	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Internally, Pump() calls Pump2().
 	/// \note pumpMax is a <tt>lword</tt>, which is a 64-bit value that typically uses
 	///   <tt>LWORD_MAX</tt>. The default argument is <tt>SIZE_MAX</tt>, and it can be
@@ -1322,7 +1328,7 @@ public:
 
 	/// \brief Pump messages to attached transformation
 	/// \param count the maximum number of messages to pump
-	/// \returns TODO
+	/// \return TODO
 	/// \details Internally, PumpMessages() calls PumpMessages2().
 	unsigned int PumpMessages(unsigned int count=UINT_MAX)
 		{PumpMessages2(count); return count;}
@@ -1339,7 +1345,7 @@ public:
 	/// \brief Pump data to attached transformation
 	/// \param byteCount the maximum number of bytes to pump
 	/// \param blocking specifies whether the object should block when processing input
-	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details byteCount is an \a IN and \a OUT parameter. When the call is made, byteCount is the
 	///   requested size of the pump. When the call returns, byteCount is the number of bytes that
 	///   were pumped.
@@ -1354,12 +1360,12 @@ public:
 
 	/// \brief Pump all data to attached transformation
 	/// \param blocking specifies whether the object should block when processing input
-	/// \returns the number of bytes that remain to be processed (i.e., bytes not processed)
+	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \sa Pump, Pump2, AnyRetrievable, MaxRetrievable
 	virtual size_t PumpAll2(bool blocking=true);
 
 	/// \brief Determines if the Source is exhausted
-	/// \returns true if the source has been exhausted
+	/// \return true if the source has been exhausted
 	virtual bool SourceExhausted() const =0;
 
 	//@}
