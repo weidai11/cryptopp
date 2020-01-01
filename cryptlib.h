@@ -1421,9 +1421,9 @@ public:
 	/// \param length the size of the input buffer
 	/// \throws NotImplemented
 	/// \details A generator may or may not accept additional entropy. Call CanIncorporateEntropy()
-	///   to test for the ability to use additional entropy.
+	///  to test for the ability to use additional entropy.
 	/// \details If a derived class does not override IncorporateEntropy(), then the base class
-	///   throws NotImplemented.
+	///  throws NotImplemented.
 	virtual void IncorporateEntropy(const byte *input, size_t length)
 	{
 		CRYPTOPP_UNUSED(input); CRYPTOPP_UNUSED(length);
@@ -1438,14 +1438,14 @@ public:
 	/// \return a random 8-bit byte
 	/// \details Default implementation calls GenerateBlock() with one byte.
 	/// \details All generated values are uniformly distributed over the range specified within the
-	///   the constraints of a particular generator.
+	///  the constraints of a particular generator.
 	virtual byte GenerateByte();
 
 	/// \brief Generate new random bit and return it
 	/// \return a random bit
 	/// \details The default implementation calls GenerateByte() and return its lowest bit.
 	/// \details All generated values are uniformly distributed over the range specified within the
-	///   the constraints of a particular generator.
+	///  the constraints of a particular generator.
 	virtual unsigned int GenerateBit();
 
 	/// \brief Generate a random 32 bit word in the range min to max, inclusive
@@ -1453,18 +1453,18 @@ public:
 	/// \param max the upper bound of the range
 	/// \return a random 32-bit word
 	/// \details The default implementation calls Crop() on the difference between max and
-	///    min, and then returns the result added to min.
+	///  min, and then returns the result added to min.
 	/// \details All generated values are uniformly distributed over the range specified within the
-	///   the constraints of a particular generator.
+	///  the constraints of a particular generator.
 	virtual word32 GenerateWord32(word32 min=0, word32 max=0xffffffffUL);
 
 	/// \brief Generate random array of bytes
 	/// \param output the byte buffer
 	/// \param size the length of the buffer, in bytes
 	/// \details All generated values are uniformly distributed over the range specified within the
-	///   the constraints of a particular generator.
+	///  the constraints of a particular generator.
 	/// \note A derived generator \a must override either GenerateBlock() or
-	///   GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
+	///  GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateBlock(byte *output, size_t size);
 
 	/// \brief Generate random bytes into a BufferedTransformation
@@ -1472,11 +1472,11 @@ public:
 	/// \param channel the channel on which the bytes should be pumped
 	/// \param length the number of bytes to generate
 	/// \details The default implementation calls GenerateBlock() and pumps the result into
-	///   the DEFAULT_CHANNEL of the target.
+	///  the DEFAULT_CHANNEL of the target.
 	/// \details All generated values are uniformly distributed over the range specified within the
-	///   the constraints of a particular generator.
+	///  the constraints of a particular generator.
 	/// \note A derived generator \a must override either GenerateBlock() or
-	///    GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
+	///  GenerateIntoBufferedTransformation(). They can override both, or have one call the other.
 	virtual void GenerateIntoBufferedTransformation(BufferedTransformation &target, const std::string &channel, lword length);
 
 	/// \brief Generate and discard n bytes
@@ -1538,16 +1538,16 @@ public:
 	/// \return the number of iterations performed
 	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
-	///   a secret seed and other parameters. Each class that derives from KeyDerivationFunction
-	///   provides an overload that accepts most parameters used by the derivation function.
+	///  a secret seed and other parameters. Each class that derives from KeyDerivationFunction
+	///  provides an overload that accepts most parameters used by the derivation function.
 	/// \details the number of iterations performed by DeriveKey() may be 1. For example, a
-	///   scheme like HKDF does not use the iteration count so it returns 1.
+	///  scheme like HKDF does not use the iteration count so it returns 1.
 	virtual size_t DeriveKey(byte *derived, size_t derivedLen, const byte *secret, size_t secretLen, const NameValuePairs& params = g_nullNameValuePairs) const =0;
 
 	/// \brief Set or change parameters
 	/// \param params additional initialization parameters to configure this object
 	/// \details SetParameters() is useful for setting common parameters when an object is
-	///   reused. Some derivation function classes may choose to implement it.
+	///  reused. Some derivation function classes may choose to implement it.
 	virtual void SetParameters(const NameValuePairs& params);
 
 protected:
@@ -1570,8 +1570,8 @@ struct PasswordBasedKeyDerivationFunction : public KeyDerivationFunction
 /// \brief Random Number Generator that does not produce random numbers
 /// \return reference that can be passed to functions that require a RandomNumberGenerator
 /// \details NullRNG() returns a reference that can be passed to functions that require a
-///   RandomNumberGenerator but don't actually use it. The NullRNG() throws NotImplemented
-///   when a generation function is called.
+///  RandomNumberGenerator but don't actually use it. The NullRNG() throws NotImplemented
+///  when a generation function is called.
 /// \sa ClassNullRNG, PK_SignatureScheme::IsProbabilistic()
 CRYPTOPP_DLL RandomNumberGenerator & CRYPTOPP_API NullRNG();
 
@@ -1592,41 +1592,41 @@ public:
 	/// \param container the wait container to receive the references to the objects.
 	/// \param callStack CallStack() object used to select waitable objects
 	/// \details GetWaitObjects() is usually called in one of two ways. First, it can
-	///   be called like <tt>something.GetWaitObjects(c, CallStack("my func after X", 0));</tt>.
-	///   Second, if in an outer GetWaitObjects() method that itself takes a callStack
-	///   parameter, it can be called like
-	///   <tt>innerThing.GetWaitObjects(c, CallStack("MyClass::GetWaitObjects at X", &callStack));</tt>.
+	///  be called like <tt>something.GetWaitObjects(c, CallStack("my func after X", 0));</tt>.
+	///  Second, if in an outer GetWaitObjects() method that itself takes a callStack
+	///  parameter, it can be called like
+	///  <tt>innerThing.GetWaitObjects(c, CallStack("MyClass::GetWaitObjects at X", &callStack));</tt>.
 	virtual void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack) =0;
 
 	/// \brief Wait on this object
 	/// \return true if the wait succeeded, false otherwise
 	/// \details Wait() is the same as creating an empty container, calling GetWaitObjects(), and then calling
-	///   Wait() on the container.
+	///  Wait() on the container.
 	bool Wait(unsigned long milliseconds, CallStack const& callStack);
 };
 
 /// \brief Interface for buffered transformations
 /// \details BufferedTransformation is a generalization of BlockTransformation,
-///   StreamTransformation and HashTransformation.
+///  StreamTransformation and HashTransformation.
 /// \details A buffered transformation is an object that takes a stream of bytes as input (this may
-///   be done in stages), does some computation on them, and then places the result into an internal
-///   buffer for later retrieval. Any partial result already in the output buffer is not modified
-///   by further input.
+///  be done in stages), does some computation on them, and then places the result into an internal
+///  buffer for later retrieval. Any partial result already in the output buffer is not modified
+///  by further input.
 /// \details If a method takes a "blocking" parameter, and you pass false for it, then the method
-///   will return before all input has been processed if the input cannot be processed without waiting
-///   (for network buffers to become available, for example). In this case the method will return true
-///   or a non-zero integer value. When this happens you must continue to call the method with the same
-///   parameters until it returns false or zero, before calling any other method on it or attached
-///   /p BufferedTransformation. The integer return value in this case is approximately
-///   the number of bytes left to be processed, and can be used to implement a progress bar.
+///  will return before all input has been processed if the input cannot be processed without waiting
+///  (for network buffers to become available, for example). In this case the method will return true
+///  or a non-zero integer value. When this happens you must continue to call the method with the same
+///  parameters until it returns false or zero, before calling any other method on it or attached
+///  BufferedTransformation. The integer return value in this case is approximately
+///  the number of bytes left to be processed, and can be used to implement a progress bar.
 /// \details For functions that take a "propagation" parameter, <tt>propagation != 0</tt> means pass on
-///   the signal to attached BufferedTransformation objects, with propagation decremented at each
-///   step until it reaches <tt>0</tt>. <tt>-1</tt> means unlimited propagation.
+///  the signal to attached BufferedTransformation objects, with propagation decremented at each
+///  step until it reaches <tt>0</tt>. <tt>-1</tt> means unlimited propagation.
 /// \details \a All of the retrieval functions, like Get() and GetWord32(), return the actual
-///   number of bytes retrieved, which is the lesser of the request number and MaxRetrievable().
+///  number of bytes retrieved, which is the lesser of the request number and MaxRetrievable().
 /// \details \a Most of the input functions, like Put() and PutWord32(), return the number of
-///   bytes remaining to be processed. A 0 value means all bytes were processed, and a non-0 value
-///   means bytes remain to be processed.
+///  bytes remaining to be processed. A 0 value means all bytes were processed, and a non-0 value
+///  means bytes remain to be processed.
 /// \nosubgrouping
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE BufferedTransformation : public Algorithm, public Waitable
 {
@@ -1648,7 +1648,7 @@ public:
 		/// \param inByte the 8-bit byte (octet) to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
-		///   0 indicates all bytes were processed.
+		///  0 indicates all bytes were processed.
 		/// \details <tt>Put(byte)</tt> calls <tt>Put(byte*, size_t)</tt>.
 		size_t Put(byte inByte, bool blocking=true)
 			{return Put(&inByte, 1, blocking);}
@@ -1658,7 +1658,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
-		///   0 indicates all bytes were processed.
+		///  0 indicates all bytes were processed.
 		/// \details Internally, Put() calls Put2().
 		size_t Put(const byte *inString, size_t length, bool blocking=true)
 			{return Put2(inString, length, 0, blocking);}
@@ -1668,7 +1668,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
-		///   0 indicates all bytes were processed.
+		///  0 indicates all bytes were processed.
 		size_t PutWord16(word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// Input a 32-bit word for processing.
@@ -1676,7 +1676,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
-		///   0 indicates all bytes were processed.
+		///  0 indicates all bytes were processed.
 		size_t PutWord32(word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// Input a 64-bit word for processing.
@@ -1684,7 +1684,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed).
-		///   0 indicates all bytes were processed.
+		///  0 indicates all bytes were processed.
 		size_t PutWord64(word64 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// \brief Request space which can be written into by the caller
@@ -1692,8 +1692,8 @@ public:
 		/// \return byte pointer to the space to input data
 		/// \details The purpose of this method is to help avoid extra memory allocations.
 		/// \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
-		///   size is the requested size of the buffer. When the call returns, size is the size of
-		///   the array returned to the caller.
+		///  size is the requested size of the buffer. When the call returns, size is the size of
+		///  the array returned to the caller.
 		/// \details The base class implementation sets size to 0 and returns NULL.
 		/// \note Some objects, like ArraySink, cannot create a space because its fixed. In the case of
 		/// an ArraySink, the pointer to the array is returned and the size is remaining size.
@@ -1711,7 +1711,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		///  bytes were processed.
 		size_t PutModifiable(byte *inString, size_t length, bool blocking=true)
 			{return PutModifiable2(inString, length, 0, blocking);}
 
@@ -1719,7 +1719,7 @@ public:
 		/// \param propagation the number of attached transformations the MessageEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		bool MessageEnd(int propagation=-1, bool blocking=true)
 			{return !!Put2(NULLPTR, 0, propagation < 0 ? -1 : propagation+1, blocking);}
 
@@ -1729,11 +1729,11 @@ public:
 		/// \param propagation the number of attached transformations the MessageEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		///  bytes were processed.
 		/// \details Internally, PutMessageEnd() calls Put2() with a modified propagation to
-		///    ensure all attached transformations finish processing the message.
+		///  ensure all attached transformations finish processing the message.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		size_t PutMessageEnd(const byte *inString, size_t length, int propagation=-1, bool blocking=true)
 			{return Put2(inString, length, propagation < 0 ? -1 : propagation+1, blocking);}
 
@@ -1743,7 +1743,7 @@ public:
 		/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		///  bytes were processed.
 		/// \details Derived classes must implement Put2().
 		virtual size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking) =0;
 
@@ -1753,7 +1753,7 @@ public:
 		/// \param messageEnd means how many filters to signal MessageEnd() to, including this one.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed). 0 indicates all
-		///   bytes were processed.
+		///  bytes were processed.
 		/// \details Internally, PutModifiable2() calls Put2().
 		virtual size_t PutModifiable2(byte *inString, size_t length, int messageEnd, bool blocking)
 			{return Put2(inString, length, messageEnd, blocking);}
@@ -1773,10 +1773,10 @@ public:
 		/// \param container the wait container to receive the references to the objects
 		/// \param callStack CallStack() object used to select waitable objects
 		/// \details GetWaitObjects is usually called in one of two ways. First, it can
-		///    be called like <tt>something.GetWaitObjects(c, CallStack("my func after X", 0));</tt>.
-		///    Second, if in an outer GetWaitObjects() method that itself takes a callStack
-		///    parameter, it can be called like
-		///    <tt>innerThing.GetWaitObjects(c, CallStack("MyClass::GetWaitObjects at X", &callStack));</tt>.
+		///  be called like <tt>something.GetWaitObjects(c, CallStack("my func after X", 0));</tt>.
+		///  Second, if in an outer GetWaitObjects() method that itself takes a callStack
+		///  parameter, it can be called like
+		///  <tt>innerThing.GetWaitObjects(c, CallStack("MyClass::GetWaitObjects at X", &callStack));</tt>.
 		void GetWaitObjects(WaitObjectContainer &container, CallStack const& callStack);
 	//@} // WAITING
 
@@ -1787,12 +1787,12 @@ public:
 		/// \param parameters a set of NameValuePairs to initialize this object
 		/// \throws NotImplemented
 		/// \details IsolatedInitialize() is used to initialize or reinitialize an object using a variable
-		///   number of arbitrarily typed arguments. The function avoids the need for multiple constructors providing
-		///   all possible combintations of configurable parameters.
+		///  number of arbitrarily typed arguments. The function avoids the need for multiple constructors providing
+		///  all possible combintations of configurable parameters.
 		/// \details IsolatedInitialize() does not call Initialize() on attached transformations. If initialization
-		///   should be propagated, then use the Initialize() function.
+		///  should be propagated, then use the Initialize() function.
 		/// \details If a derived class does not override IsolatedInitialize(), then the base class throws
-		///   NotImplemented.
+		///  NotImplemented.
 		virtual void IsolatedInitialize(const NameValuePairs &parameters) {
 			CRYPTOPP_UNUSED(parameters);
 			throw NotImplemented("BufferedTransformation: this object can't be reinitialized");
@@ -1807,7 +1807,7 @@ public:
 
 		/// \brief Marks the end of a series of messages, without signal propagation
 		/// \param blocking specifies whether the object should block when completing the processing on
-		///    the current series of messages
+		///  the current series of messages
 		/// \return true if the message was successful, false otherwise
 		virtual bool IsolatedMessageSeriesEnd(bool blocking)
 			{CRYPTOPP_UNUSED(blocking); return false;}
@@ -1816,10 +1816,10 @@ public:
 		/// \param parameters a set of NameValuePairs to initialize or reinitialize this object
 		/// \param propagation the number of attached transformations the Initialize() signal should be passed
 		/// \details Initialize() is used to initialize or reinitialize an object using a variable number of
-		///   arbitrarily typed arguments. The function avoids the need for multiple constructors providing
-		///   all possible combintations of configurable parameters.
+		///  arbitrarily typed arguments. The function avoids the need for multiple constructors providing
+		///  all possible combintations of configurable parameters.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		virtual void Initialize(const NameValuePairs &parameters=g_nullNameValuePairs, int propagation=-1);
 
 		/// \brief Flush buffered input and/or output, with signal propagation
@@ -1848,22 +1848,22 @@ public:
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return true if the message was successful, false otherwise
 		/// \details Each object that receives the signal will perform its processing, decrement
-		///    propagation, and then pass the signal on to attached transformations if the value is not 0.
+		///  propagation, and then pass the signal on to attached transformations if the value is not 0.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		/// \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 		virtual bool MessageSeriesEnd(int propagation=-1, bool blocking=true);
 
 		/// \brief Set propagation of automatically generated and transferred signals
 		/// \param propagation then new value
 		/// \details Setting propagation to <tt>0</tt> means do not automatically generate signals. Setting
-		///    propagation to <tt>-1</tt> means unlimited propagation.
+		///  propagation to <tt>-1</tt> means unlimited propagation.
 		virtual void SetAutoSignalPropagation(int propagation)
 			{CRYPTOPP_UNUSED(propagation);}
 
 		/// \brief Retrieve automatic signal propagation value
 		/// \return the number of attached transformations the signal is propagated to. 0 indicates
-		///   the signal is only witnessed by this object
+		///  the signal is only witnessed by this object
 		virtual int GetAutoSignalPropagation() const {return 0;}
 public:
 
@@ -1873,7 +1873,7 @@ public:
 		/// \brief Provides the number of bytes ready for retrieval
 		/// \return the number of bytes ready for retrieval
 		/// \details All retrieval functions return the actual number of bytes retrieved, which is
-		///   the lesser of the request number and  MaxRetrievable()
+		///  the lesser of the request number and  MaxRetrievable()
 		virtual lword MaxRetrievable() const;
 
 		/// \brief Determines whether bytes are ready for retrieval
@@ -1897,7 +1897,7 @@ public:
 		/// \param outByte the 8-bit value to be retrieved
 		/// \return the number of bytes read during the call.
 		/// \details Peek does not remove bytes from the object. Use the return value of
-		///     Get() to detect short reads.
+		///  Get() to detect short reads.
 		virtual size_t Peek(byte &outByte) const;
 
 		/// \brief Peek a block of bytes
@@ -1935,7 +1935,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \return the number of bytes consumed during the call.
 		/// \details Peek does not consume bytes in the stream. Use the return value
-		///    of PeekWord16() to detect short reads.
+		///  of PeekWord16() to detect short reads.
 		size_t PeekWord16(word16 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
 		/// \brief Peek a 32-bit word
@@ -1951,7 +1951,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \return the number of bytes consumed during the call.
 		/// \details Peek does not consume bytes in the stream. Use the return value
-		///    of PeekWord64() to detect short reads.
+		///  of PeekWord64() to detect short reads.
 		/// \since Crypto++ 8.3
 		size_t PeekWord64(word64 &value, ByteOrder order=BIG_ENDIAN_ORDER) const;
 
@@ -1970,7 +1970,7 @@ public:
 		/// \brief Discard skipMax bytes from the output buffer
 		/// \param skipMax the number of bytes to discard
 		/// \details Skip() discards bytes from the output buffer, which is the AttachedTransformation(), if present.
-		///   The function always returns the parameter <tt>skipMax</tt>.
+		///  The function always returns the parameter <tt>skipMax</tt>.
 		/// \details If you want to skip bytes from a Source, then perform the following.
 		/// <pre>
 		///     StringSource ss(str, false, new Redirector(TheBitBucket()));
@@ -1999,8 +1999,8 @@ public:
 		/// \param channel the channel on which the transfer should occur
 		/// \return the number of bytes copied during the call.
 		/// \details CopyTo copies bytes from this object to the destination. The bytes remain in this
-		///   object. Copying begins at the index position in the current stream, and not from an absolute
-		///   position in the stream.
+		///  object. Copying begins at the index position in the current stream, and not from an absolute
+		///  position in the stream.
 		/// \details The function returns the new position in the stream after transferring the bytes starting at the index.
 		lword CopyRangeTo(BufferedTransformation &target, lword position, lword copyMax=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL) const
 			{lword i = position; CopyRangeTo2(target, i, i+copyMax, channel); return i-position;}
@@ -2016,7 +2016,7 @@ public:
 		/// \brief Provides the number of meesages processed by this object
 		/// \return the number of meesages processed by this object
 		/// \details NumberOfMessages returns number of times MessageEnd() has been
-		///    received minus messages retrieved or skipped
+		///  received minus messages retrieved or skipped
 		virtual unsigned int NumberOfMessages() const;
 
 		/// \brief Determines if any messages are available for retrieval
@@ -2027,14 +2027,14 @@ public:
 		/// \brief Start retrieving the next message
 		/// \return true if a message is ready for retrieval
 		/// \details GetNextMessage() returns true if a message is ready for retrieval; false
-		///   if no more messages exist or this message is not completely retrieved.
+		///  if no more messages exist or this message is not completely retrieved.
 		virtual bool GetNextMessage();
 
 		/// \brief Skip a number of meessages
 		/// \return 0 if the requested number of messages was skipped, non-0 otherwise
 		/// \details SkipMessages() skips count number of messages. If there is an AttachedTransformation()
-		///   then SkipMessages() is called on the attached transformation. If there is no attached
-		///   transformation, then count number of messages are sent to TheBitBucket() using TransferMessagesTo().
+		///  then SkipMessages() is called on the attached transformation. If there is no attached
+		///  transformation, then count number of messages are sent to TheBitBucket() using TransferMessagesTo().
 		virtual unsigned int SkipMessages(unsigned int count=UINT_MAX);
 
 		/// \brief Transfer messages from this object to another BufferedTransformation
@@ -2043,8 +2043,8 @@ public:
 		/// \param channel the channel on which the transfer should occur
 		/// \return the number of bytes that remain in the current transfer block (i.e., bytes not transferred)
 		/// \details TransferMessagesTo2() removes messages from this object and moves them to the destination.
-		///   If all bytes are not transferred for a message, then processing stops and the number of remaining
-		///   bytes is returned. TransferMessagesTo() does not proceed to the next message.
+		///  If all bytes are not transferred for a message, then processing stops and the number of remaining
+		///  bytes is returned. TransferMessagesTo() does not proceed to the next message.
 		/// \details A return value of 0 indicates all messages were successfully transferred.
 		unsigned int TransferMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL)
 			{TransferMessagesTo2(target, count, channel); return count;}
@@ -2055,8 +2055,8 @@ public:
 		/// \param channel the channel on which the transfer should occur
 		/// \return the number of bytes that remain in the current transfer block (i.e., bytes not transferred)
 		/// \details CopyMessagesTo copies messages from this object and copies them to the destination.
-		///   If all bytes are not transferred for a message, then processing stops and the number of remaining
-		///   bytes is returned. CopyMessagesTo() does not proceed to the next message.
+		///  If all bytes are not transferred for a message, then processing stops and the number of remaining
+		///  bytes is returned. CopyMessagesTo() does not proceed to the next message.
 		/// \details A return value of 0 indicates all messages were successfully copied.
 		unsigned int CopyMessagesTo(BufferedTransformation &target, unsigned int count=UINT_MAX, const std::string &channel=DEFAULT_CHANNEL) const;
 
@@ -2067,7 +2067,7 @@ public:
 		/// \param target the destination BufferedTransformation
 		/// \param channel the channel on which the transfer should occur
 		/// \details TransferMessagesTo2() removes messages from this object and moves them to the destination.
-		///   Internally TransferAllTo() calls TransferAllTo2().
+		///  Internally TransferAllTo() calls TransferAllTo2().
 		void TransferAllTo(BufferedTransformation &target, const std::string &channel=DEFAULT_CHANNEL)
 			{TransferAllTo2(target, channel);}
 
@@ -2102,11 +2102,11 @@ public:
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain in the transfer block (i.e., bytes not transferred)
 		/// \details TransferTo2() removes bytes from this object and moves them to the destination.
-		///   Transfer begins at the index position in the current stream, and not from an absolute
-		///   position in the stream.
+		///  Transfer begins at the index position in the current stream, and not from an absolute
+		///  position in the stream.
 		/// \details byteCount is an \a IN and \a OUT parameter. When the call is made,
-		///   byteCount is the requested size of the transfer. When the call returns, byteCount is
-		///   the number of bytes that were transferred.
+		///  byteCount is the requested size of the transfer. When the call returns, byteCount is
+		///  the number of bytes that were transferred.
 		virtual size_t TransferTo2(BufferedTransformation &target, lword &byteCount, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) =0;
 
 		// upon return, begin contains the start position of data yet to be finished copying,
@@ -2120,12 +2120,12 @@ public:
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain in the copy block (i.e., bytes not copied)
 		/// \details CopyRangeTo2 copies bytes from this object to the destination. The bytes are not
-		///   removed from this object. Copying begins at the index position in the current stream, and
-		///   not from an absolute position in the stream.
+		///  removed from this object. Copying begins at the index position in the current stream, and
+		///  not from an absolute position in the stream.
 		/// \details begin is an \a IN and \a OUT parameter. When the call is made, begin is the
-		///   starting position of the copy. When the call returns, begin is the position of the first
-		///   byte that was \a not copied (which may be different than end). begin can be used for
-		///   subsequent calls to CopyRangeTo2().
+		///  starting position of the copy. When the call returns, begin is the position of the first
+		///  byte that was \a not copied (which may be different than end). begin can be used for
+		///  subsequent calls to CopyRangeTo2().
 		virtual size_t CopyRangeTo2(BufferedTransformation &target, lword &begin, lword end=LWORD_MAX, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true) const =0;
 
 		// upon return, messageCount contains number of messages that have finished being transferred,
@@ -2139,8 +2139,8 @@ public:
 		/// \return the number of bytes that remain in the current transfer block (i.e., bytes not transferred)
 		/// \details TransferMessagesTo2() removes messages from this object and moves them to the destination.
 		/// \details messageCount is an \a IN and \a OUT parameter. When the call is made, messageCount is the
-		///   the number of messages requested to be transferred. When the call returns, messageCount is the
-		///   number of messages actually transferred.
+		///  the number of messages requested to be transferred. When the call returns, messageCount is the
+		///  number of messages actually transferred.
 		size_t TransferMessagesTo2(BufferedTransformation &target, unsigned int &messageCount, const std::string &channel=DEFAULT_CHANNEL, bool blocking=true);
 
 		// returns the number of bytes left in the current transfer block
@@ -2168,7 +2168,7 @@ public:
 		/// \param inByte the 8-bit byte (octet) to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		size_t ChannelPut(const std::string &channel, byte inByte, bool blocking=true)
 			{return ChannelPut(channel, &inByte, 1, blocking);}
 
@@ -2188,7 +2188,7 @@ public:
 		/// \param length the size of the string, in bytes
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		size_t ChannelPutModifiable(const std::string &channel, byte *inString, size_t length, bool blocking=true)
 			{return ChannelPutModifiable2(channel, inString, length, 0, blocking);}
 
@@ -2198,7 +2198,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		size_t ChannelPutWord16(const std::string &channel, word16 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// \brief Input a 32-bit word for processing on a channel.
@@ -2207,7 +2207,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		size_t ChannelPutWord32(const std::string &channel, word32 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// \brief Input a 64-bit word for processing on a channel.
@@ -2216,7 +2216,7 @@ public:
 		/// \param order the ByteOrder of the value to be processed.
 		/// \param blocking specifies whether the object should block when processing input.
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		size_t ChannelPutWord64(const std::string &channel, word64 value, ByteOrder order=BIG_ENDIAN_ORDER, bool blocking=true);
 
 		/// \brief Signal the end of a message
@@ -2224,9 +2224,9 @@ public:
 		/// \param propagation the number of attached transformations the ChannelMessageEnd() signal should be passed
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return 0 indicates all bytes were processed during the call. Non-0 indicates the
-		///   number of bytes that were not processed.
+		///  number of bytes that were not processed.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		bool ChannelMessageEnd(const std::string &channel, int propagation=-1, bool blocking=true)
 			{return !!ChannelPut2(channel, NULLPTR, 0, propagation < 0 ? -1 : propagation+1, blocking);}
 
@@ -2238,7 +2238,7 @@ public:
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		size_t ChannelPutMessageEnd(const std::string &channel, const byte *inString, size_t length, int propagation=-1, bool blocking=true)
 			{return ChannelPut2(channel, inString, length, propagation < 0 ? -1 : propagation+1, blocking);}
 
@@ -2248,11 +2248,11 @@ public:
 		/// \return a pointer to a memory block with length size
 		/// \details The purpose of this method is to help avoid extra memory allocations.
 		/// \details size is an \a IN and \a OUT parameter and used as a hint. When the call is made,
-		///   size is the requested size of the buffer. When the call returns, size is the size of
-		///   the array returned to the caller.
+		///  size is the requested size of the buffer. When the call returns, size is the size of
+		///  the array returned to the caller.
 		/// \details The base class implementation sets size to 0 and returns NULL.
 		/// \note Some objects, like ArraySink(), cannot create a space because its fixed. In the case of
-		/// an ArraySink(), the pointer to the array is returned and the size is remaining size.
+		///  an ArraySink(), the pointer to the array is returned and the size is remaining size.
 		virtual byte * ChannelCreatePutSpace(const std::string &channel, size_t &size);
 
 		/// \brief Input multiple bytes for processing on a channel.
@@ -2280,7 +2280,7 @@ public:
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return true of the Flush was successful
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		virtual bool ChannelFlush(const std::string &channel, bool hardFlush, int propagation=-1, bool blocking=true);
 
 		/// \brief Marks the end of a series of messages on a channel
@@ -2289,9 +2289,9 @@ public:
 		/// \param blocking specifies whether the object should block when processing input
 		/// \return true if the message was successful, false otherwise
 		/// \details Each object that receives the signal will perform its processing, decrement
-		///   propagation, and then pass the signal on to attached transformations if the value is not 0.
+		///  propagation, and then pass the signal on to attached transformations if the value is not 0.
 		/// \details propagation count includes this object. Setting propagation to <tt>1</tt> means this
-		///   object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
+		///  object only. Setting propagation to <tt>-1</tt> means unlimited propagation.
 		/// \note There should be a MessageEnd() immediately before MessageSeriesEnd().
 		virtual bool ChannelMessageSeriesEnd(const std::string &channel, int propagation=-1, bool blocking=true);
 
@@ -2315,13 +2315,13 @@ public:
 		/// \brief Returns the object immediately attached to this object
 		/// \return the attached transformation
 		/// \details AttachedTransformation() returns NULL if there is no attachment. The non-const
-		///   version of AttachedTransformation() always returns NULL.
+		///  version of AttachedTransformation() always returns NULL.
 		virtual BufferedTransformation *AttachedTransformation() {CRYPTOPP_ASSERT(!Attachable()); return NULLPTR;}
 
 		/// \brief Returns the object immediately attached to this object
 		/// \return the attached transformation
 		/// \details AttachedTransformation() returns NULL if there is no attachment. The non-const
-		///   version of AttachedTransformation() always returns NULL.
+		///  version of AttachedTransformation() always returns NULL.
 		virtual const BufferedTransformation *AttachedTransformation() const
 			{return const_cast<BufferedTransformation *>(this)->AttachedTransformation();}
 
@@ -2330,7 +2330,7 @@ public:
 		/// \throws NotImplemented
 		/// \details Detach() deletes the current attachment chain and replace it with an optional newAttachment
 		/// \details If a derived class does not override Detach(), then the base class throws
-		///   NotImplemented.
+		///  NotImplemented.
 		virtual void Detach(BufferedTransformation *newAttachment = NULLPTR) {
 			CRYPTOPP_UNUSED(newAttachment); CRYPTOPP_ASSERT(!Attachable());
 			throw NotImplemented("BufferedTransformation: this object is not attachable");
