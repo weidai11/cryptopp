@@ -915,11 +915,23 @@ public:
 	/// \brief Stop redirecting input
 	void StopRedirection() {m_target = NULLPTR;}
 
+	/// \brief Retrieve signal propagation behavior
+	/// \return the current signal propagation behavior
 	Behavior GetBehavior() {return static_cast<Behavior>(m_behavior);}
+	/// \brief Set signal propagation behavior
+	/// \param behavior the new signal propagation behavior
 	void SetBehavior(Behavior behavior) {m_behavior=behavior;}
+	/// \brief Retrieve signal propagation behavior
+	/// \return true if the Redirector passes signals, false otherwise.
 	bool GetPassSignals() const {return (m_behavior & PASS_SIGNALS) != 0;}
+	/// \brief Set signal propagation behavior
+	/// \param pass flag indicating if the Redirector should pass signals
 	void SetPassSignals(bool pass) { if (pass) m_behavior |= PASS_SIGNALS; else m_behavior &= ~static_cast<word32>(PASS_SIGNALS); }
+	/// \brief Retrieve signal propagation behavior
+	/// \return true if the Redirector passes wait objects, false otherwise.
 	bool GetPassWaitObjects() const {return (m_behavior & PASS_WAIT_OBJECTS) != 0;}
+	/// \brief Set signal propagation behavior
+	/// \param pass flag indicating if the Redirector should pass wait objects
 	void SetPassWaitObjects(bool pass) { if (pass) m_behavior |= PASS_WAIT_OBJECTS; else m_behavior &= ~static_cast<word32>(PASS_WAIT_OBJECTS); }
 
 	bool CanModifyInput() const
