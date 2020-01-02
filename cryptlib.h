@@ -2027,6 +2027,7 @@ public:
 		virtual bool GetNextMessage();
 
 		/// \brief Skip a number of meessages
+		/// \param count number of messages to skip
 		/// \return 0 if the requested number of messages was skipped, non-0 otherwise
 		/// \details SkipMessages() skips count number of messages. If there is an AttachedTransformation()
 		///  then SkipMessages() is called on the attached transformation. If there is no attached
@@ -2047,10 +2048,10 @@ public:
 
 		/// \brief Copy messages from this object to another BufferedTransformation
 		/// \param target the destination BufferedTransformation
-		/// \param count the number of messages to transfer
-		/// \param channel the channel on which the transfer should occur
+		/// \param count the number of messages to copy
+		/// \param channel the channel on which the copy should occur
 		/// \return the number of bytes that remain in the current transfer block (i.e., bytes not transferred)
-		/// \details CopyMessagesTo copies messages from this object and copies them to the destination.
+		/// \details CopyMessagesTo copies messages from this object to the destination.
 		///  If all bytes are not transferred for a message, then processing stops and the number of remaining
 		///  bytes is returned. CopyMessagesTo() does not proceed to the next message.
 		/// \details A return value of 0 indicates all messages were successfully copied.

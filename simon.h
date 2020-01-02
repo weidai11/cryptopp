@@ -3,11 +3,11 @@
 /// \file simon.h
 /// \brief Classes for the Simon block cipher
 /// \details Simon is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
-///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
+///  Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
 /// \sa <A HREF="http://eprint.iacr.org/2013/404">The SIMON and SPECK Families of
-///   Lightweight Block Ciphers</A>, <A HREF="http://iadgov.github.io/simon-speck/">
-///   The Simon and Speck GitHub</A> and <A HREF="https://www.cryptopp.com/wiki/SIMON">
-///   SIMON</A> on the Crypto++ wiki.
+///  Lightweight Block Ciphers</A>, <A HREF="http://iadgov.github.io/simon-speck/">
+///  The Simon and Speck GitHub</A> and <A HREF="https://www.cryptopp.com/wiki/SIMON">
+///  SIMON</A> on the Crypto++ wiki.
 /// \since Crypto++ 6.0
 
 #ifndef CRYPTOPP_SIMON_H
@@ -54,7 +54,7 @@ struct SIMON_Info : public FixedBlockSize<L>, VariableKeyLength<D, N, M>
 	/// \brief The algorithm name
 	/// \returns the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static
-	///   member function.
+	///  member function.
     static const std::string StaticAlgorithmName()
     {
         // Format is Cipher-Blocksize(Keylength)
@@ -82,17 +82,17 @@ struct SIMON_Base
 
 /// \brief SIMON 64-bit block cipher
 /// \details Simon is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
-///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
+///  Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
 /// \details SIMON64 provides 64-bit block size. The valid key sizes are 96-bit and 128-bit.
 /// \sa SIMON64, SIMON128,  <A HREF="http://eprint.iacr.org/2013/404">The SIMON and SIMON
-///   Families of Lightweight Block Ciphers</A>, <A HREF="http://iadgov.github.io/simon-speck/">
-///   The Simon and Speck GitHub</A>, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the
-///   Crypto++ wiki
+///  Families of Lightweight Block Ciphers</A>, <A HREF="http://iadgov.github.io/simon-speck/">
+///  The Simon and Speck GitHub</A>, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the
+///  Crypto++ wiki
 /// \since Crypto++ 6.0
 class CRYPTOPP_NO_VTABLE SIMON64 : public SIMON_Info<8, 12, 12, 16>, public BlockCipherDocumentation
 {
 public:
-    /// \brief SIMON block cipher transformation functions
+    /// \brief SIMON64 block cipher base implementation
     /// \details Provides implementation common to encryption and decryption
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Base : protected SIMON_Base<word32>, public BlockCipherImpl<SIMON_Info<8, 12, 12, 16> >
@@ -101,7 +101,7 @@ public:
         /// \brief The algorithm name
         /// \returns the algorithm name
         /// \details AlgorithmName returns the algorithm's name as a
-        ///   member function.
+        ///  member function.
         std::string AlgorithmName() const {
             return StaticAlgorithmName() + (m_kwords == 0 ? "" :
                 "(" + IntToString(m_kwords*sizeof(word32)*8) + ")");
@@ -118,9 +118,9 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Encryption transformation
-    /// \details Enc provides implementation for encryption transformation. All key
-    ///   sizes are supported.
+    /// \brief SIMON64 encryption transformation
+    /// \details Enc provides the encryption transformation.
+    ///  All key sizes are supported.
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
@@ -131,9 +131,9 @@ public:
 #endif
     };
 
-    /// \brief Decryption transformation
-    /// \details Dec provides implementation for decryption transformation. All key
-    ///   sizes are supported.
+    /// \brief SIMON64 decryption transformation
+    /// \details Dec provides the decryption transformation.
+    ///  All key sizes are supported.
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
@@ -150,17 +150,17 @@ public:
 
 /// \brief SIMON 128-bit block cipher
 /// \details Simon is a block cipher designed by Ray Beaulieu, Douglas Shors, Jason Smith,
-///   Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
+///  Stefan Treatman-Clark, Bryan Weeks and Louis Wingers.
 /// \details SIMON128 provides 128-bit block size. The valid key sizes are 128-bit, 192-bit and 256-bit.
 /// \sa SIMON64, SIMON128,  <A HREF="http://eprint.iacr.org/2013/404">The SIMON and SIMON
-///   Families of Lightweight Block Ciphers</A>, <A HREF="http://iadgov.github.io/simon-speck/">
-///   The Simon and Speck GitHub</A>, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the
-///   Crypto++ wiki
+///  Families of Lightweight Block Ciphers</A>, <A HREF="http://iadgov.github.io/simon-speck/">
+///  The Simon and Speck GitHub</A>, <a href="http://www.cryptopp.com/wiki/SIMON">SIMON</a> on the
+///  Crypto++ wiki
 /// \since Crypto++ 6.0
 class CRYPTOPP_NO_VTABLE SIMON128 : public SIMON_Info<16, 16, 16, 32>, public BlockCipherDocumentation
 {
 public:
-    /// \brief SIMON block cipher transformation functions
+    /// \brief SIMON128 block cipher base implementation
     /// \details Provides implementation common to encryption and decryption
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Base : protected SIMON_Base<word64>, public BlockCipherImpl<SIMON_Info<16, 16, 16, 32> >
@@ -169,7 +169,7 @@ public:
         /// \brief The algorithm name
         /// \returns the algorithm name
         /// \details AlgorithmName returns the algorithm's name as a
-        ///   member function.
+        ///  member function.
         std::string AlgorithmName() const {
             return StaticAlgorithmName() + (m_kwords == 0 ? "" :
                 "(" + IntToString(m_kwords*sizeof(word64)*8) + ")");
@@ -186,9 +186,9 @@ public:
         void UncheckedSetKey(const byte *userKey, unsigned int keyLength, const NameValuePairs &params);
     };
 
-    /// \brief Encryption transformation
-    /// \details Enc provides implementation for encryption transformation. All key
-    ///   sizes are supported.
+    /// \brief SIMON128 encryption transformation
+    /// \details Enc provides the encryption transformation.
+    ///  All key sizes are supported.
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Enc : public Base
     {
@@ -199,9 +199,9 @@ public:
 #endif
     };
 
-    /// \brief Decryption transformation
-    /// \details Dec provides implementation for decryption transformation. All key
-    ///   sizes are supported.
+    /// \brief SIMON128 decryption transformation
+    /// \details Dec provides the decryption transformation.
+    ///  All key sizes are supported.
     /// \since Crypto++ 6.0
     class CRYPTOPP_NO_VTABLE Dec : public Base
     {
