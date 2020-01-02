@@ -612,6 +612,11 @@ jobs:
     - os: linux
       arch: ppc64le
       compiler: clang
+    # Unkown Travis failure for GCC
+    # "Automatic restarts limited: Please try restarting this job later"
+    - os: linux
+      arch: ppc64le
+      compiler: gcc
     # Apple device linker problems
     - os: osx
       osx_image: xcode10.1
