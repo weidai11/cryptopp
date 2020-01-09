@@ -91,7 +91,7 @@ for any purpose without paying anyone, but see License.txt for the fine print.
 The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
-  * Visual Studio 2003 - 2017
+  * Visual Studio 2003 - 2019
   * GCC 3.3 - 9.0
   * Apple Clang 4.3 - 9.3
   * LLVM Clang 2.9 - 7.0
