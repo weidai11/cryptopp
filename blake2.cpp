@@ -494,14 +494,12 @@ void BLAKE2s::Restart(const BLAKE2s_ParameterBlock& block, const word32 counter[
 
     // We take a parameter block as a parameter to allow customized state.
     // Avoid the copy of the parameter block when we are passing our own block.
-    if (block.data() == m_block.data())
-        m_block.Reset(m_digestSize, m_keyLength);
-    else
-    {
+    if (block.data() != m_block.data()) {
         std::memcpy(m_block.data(), block.data(), m_block.size());
-        m_block.m_data[BLAKE2s_ParameterBlock::DigestOff] = (byte)m_digestSize;
-        m_block.m_data[BLAKE2s_ParameterBlock::KeyOff] = (byte)m_keyLength;
     }
+
+    m_block.m_data[BLAKE2s_ParameterBlock::DigestOff] = (byte)m_digestSize;
+    m_block.m_data[BLAKE2s_ParameterBlock::KeyOff] = (byte)m_keyLength;
 
     const word32* iv = BLAKE2S_IV;
     PutBlock<word32, LittleEndian, true> put(m_block.data(), m_state.h());
@@ -527,14 +525,12 @@ void BLAKE2b::Restart(const BLAKE2b_ParameterBlock& block, const word64 counter[
 
     // We take a parameter block as a parameter to allow customized state.
     // Avoid the copy of the parameter block when we are passing our own block.
-    if (block.data() == m_block.data())
-        m_block.Reset(m_digestSize, m_keyLength);
-    else
-    {
+    if (block.data() != m_block.data()) {
         std::memcpy(m_block.data(), block.data(), m_block.size());
-        m_block.m_data[BLAKE2b_ParameterBlock::DigestOff] = (byte)m_digestSize;
-        m_block.m_data[BLAKE2b_ParameterBlock::KeyOff] = (byte)m_keyLength;
     }
+
+    m_block.m_data[BLAKE2b_ParameterBlock::DigestOff] = (byte)m_digestSize;
+    m_block.m_data[BLAKE2b_ParameterBlock::KeyOff] = (byte)m_keyLength;
 
     const word64* iv = BLAKE2B_IV;
     PutBlock<word64, LittleEndian, true> put(m_block.data(), m_state.h());
