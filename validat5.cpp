@@ -1727,7 +1727,8 @@ bool ValidateBLAKE2s()
 
 	{
 		// One test with salt and personalization for GH #921
-		// Test vector generate with modified BLAKE2 implementation
+		// Test vector generated with modified BLAKE2 ref implementation
+		// https://github.com/noloader/cryptopp-test/tree/master/BLAKE2
 		const std::string key = "\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x41\x42\x43\x44\x45\x46";
 		const std::string salt = "\x41\x42\x43\x44";
 		const std::string personalization = "\x41\x42\x43\x44";
@@ -2178,7 +2179,8 @@ bool ValidateBLAKE2b()
 
 	{
 		// One test with salt and personalization for GH #921
-		// Test vector generate with modified BLAKE2 implementation
+		// Test vector generated with modified BLAKE2 ref implementation
+		// https://github.com/noloader/cryptopp-test/tree/master/BLAKE2
 		const std::string key = "\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c\x4d\x4e\x4f\x50\x51\x52\x53\x54\x55\x56\x57\x58\x59\x5a\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c";
 		const std::string salt = "\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c";
 		const std::string personalization = "\x41\x42\x43\x44\x45\x46\x47\x48\x49\x4a\x4b\x4c";
