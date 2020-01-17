@@ -432,6 +432,24 @@ void DetectX86Features()
 				g_hasAVX2 = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
 			}
 		}
+
+		// Unconditionally disable RDRAND and RDSEED on AMD cpu's with family 15h or 16h.
+		// See Crypto++ Issue 924, https://github.com/weidai11/cryptopp/issues/924,
+		// Clear RDRAND CPUID bit on AMD family 15h/16h, https://lore.kernel.org/patchwork/patch/1115413/,
+		// and AMD CPUID Specification, https://www.amd.com/system/files/TechDocs/25481.pdf
+		{
+			CRYPTOPP_CONSTANT(FAMILY_BASE_FLAG = (0x0f << 8));
+			CRYPTOPP_CONSTANT(FAMILY_EXT_FLAG = (0xff << 20));
+
+			word32 family = (cpuid1[0] & FAMILY_BASE_FLAG) >> 8;
+			if (family == 0xf)
+				family += (cpuid1[0] & FAMILY_EXT_FLAG) >> 20;
+			if (family == 0x15 || family == 0x16)
+			{
+				g_hasRDRAND = false;
+				g_hasRDSEED = false;
+			}
+		}
 	}
 	else if (IsVIA(cpuid0))
 	{
