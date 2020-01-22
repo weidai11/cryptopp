@@ -82,6 +82,19 @@ Crypto++ does not enagage Specter remediations at this time. You can build with 
 
     CXXFLAGS="-DNDEBUG -g2 -O3 -mfunction-return=thunk -mindirect-branch=thunk" make
 
+BUILDING WITH VCPKG
+-------------------
+
+You can download and install cryptopp using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+
+    git clone https://github.com/Microsoft/vcpkg.git
+    cd vcpkg
+    ./bootstrap-vcpkg.sh
+    ./vcpkg integrate install
+    ./vcpkg install cryptopp
+
+The cryptopp port in vcpkg is kept up to date by Microsoft team members and community contributors.
+If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
 
 ALTERNATE BUILD SYSTEMS
 -----------------------
