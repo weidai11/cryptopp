@@ -308,23 +308,33 @@ static inline bool IsVIA(const word32 output[4])
 
 void DetectX86Features()
 {
-	// Coverity finding CID 171239...
+	// Coverity finding CID 171239. Initialize arrays.
 	word32 cpuid0[4]={0}, cpuid1[4]={0}, cpuid2[4]={0};
-	if (!CpuId(0, 0, cpuid0))
-		return;
-	if (!CpuId(1, 0, cpuid1))
-		return;
 
-	// cpuid1[2] & (1 << 27) is XSAVE/XRESTORE and signals OS support for SSE; use it to avoid probes.
-	// See http://github.com/weidai11/cryptopp/issues/511 and http://stackoverflow.com/a/22521619/608639
+#if defined(CRYPTOPP_DISABLE_ASM)
+	// Not available
+	goto done;
+#else
+	if (!CpuId(0, 0, cpuid0))
+		goto done;
+	if (!CpuId(1, 0, cpuid1))
+		goto done;
+#endif
+
+	// cpuid1[2] & (1 << 27) is XSAVE/XRESTORE and signals OS support for SSE;
+	// use it to avoid probes. See http://stackoverflow.com/a/22521619/608639
+	// and http://github.com/weidai11/cryptopp/issues/511.
 	if ((cpuid1[3] & (1 << 26)) != 0)
 		g_hasSSE2 = ((cpuid1[2] & (1 << 27)) != 0) || CPU_ProbeSSE2();
 
-	g_hasSSSE3 = g_hasSSE2 && ((cpuid1[2] & (1<< 9)) != 0);
-	g_hasSSE41 = g_hasSSE2 && ((cpuid1[2] & (1<<19)) != 0);
-	g_hasSSE42 = g_hasSSE2 && ((cpuid1[2] & (1<<20)) != 0);
-	g_hasAESNI = g_hasSSE2 && ((cpuid1[2] & (1<<25)) != 0);
-	g_hasCLMUL = g_hasSSE2 && ((cpuid1[2] & (1<< 1)) != 0);
+	if (g_hasSSE2 == false)
+		goto done;
+
+	g_hasSSSE3 = (cpuid1[2] & (1<< 9)) != 0;
+	g_hasSSE41 = (cpuid1[2] & (1<<19)) != 0;
+	g_hasSSE42 = (cpuid1[2] & (1<<20)) != 0;
+	g_hasAESNI = (cpuid1[2] & (1<<25)) != 0;
+	g_hasCLMUL = (cpuid1[2] & (1<< 1)) != 0;
 
 	// AVX is similar to SSE, but check both bits 27 (SSE) and 28 (AVX).
 	// https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled
@@ -333,12 +343,8 @@ void DetectX86Features()
 	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
 	{
 
-// Unable to perform the necessary tests
-#if defined(CRYPTOPP_DISABLE_ASM)
-		g_hasAVX = false;
-
 // GCC 4.1/Binutils 2.17 cannot consume xgetbv
-#elif defined(__GNUC__) || (__SUNPRO_CC >= 0x5100) || defined(__BORLANDC__)
+#if defined(__GNUC__) || (__SUNPRO_CC >= 0x5100) || defined(__BORLANDC__)
 		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 		// http://www.agner.org/optimize/vectorclass/read.php?i=65
 		word32 a=0, d=0;
@@ -479,6 +485,8 @@ void DetectX86Features()
 			g_cacheLineSize = GETBYTE(cpuid2[2] /*ECX*/, 0);
 		}
 	}
+
+done:
 
 #if defined(_SC_LEVEL1_DCACHE_LINESIZE)
 	// Glibc does not implement on some platforms. The runtime returns 0 instead of error.

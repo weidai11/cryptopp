@@ -165,10 +165,10 @@ endif
 # Base CXXFLAGS used if the user did not specify them
 ifeq ($(CXXFLAGS),)
   ifeq ($(SUN_COMPILER),1)
-    CRYPTOPP_CXXFLAGS = -DNDEBUG -g -xO3
+    CRYPTOPP_CXXFLAGS += -DNDEBUG -g -xO3
     ZOPT = -xO0
   else
-    CRYPTOPP_CXXFLAGS = -DNDEBUG -g2 -O3
+    CRYPTOPP_CXXFLAGS += -DNDEBUG -g2 -O3
     ZOPT = -O0
   endif
 endif

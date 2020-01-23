@@ -115,9 +115,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE2()
 {
-#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
-	return true;
-#elif (CRYPTOPP_SSE2_ASM_AVAILABLE || CRYPTOPP_SSE2_INTRIN_AVAILABLE)
+#if (CRYPTOPP_SSE2_ASM_AVAILABLE || CRYPTOPP_SSE2_INTRIN_AVAILABLE)
 	if (!g_x86DetectionDone)
 		DetectX86Features();
 	return g_hasSSE2;
