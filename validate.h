@@ -212,6 +212,9 @@ inline std::string TimeToString(const time_t& t)
 	CRYPTOPP_ASSERT(err == 0);
 
 	std::string str(err == 0 ? timeBuf : "");
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+	char* timeString = ::asctime(::localtime(&t));
+	std::string str(timeString ? timeString : "");
 #elif (_POSIX_C_SOURCE >= 1 || _XOPEN_SOURCE || _BSD_SOURCE || _SVID_SOURCE || defined(_POSIX_SOURCE))
 	tm localTime;
 	char timeBuf[64];
