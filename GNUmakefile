@@ -236,7 +236,7 @@ endif
 #####               X86/X32/X64 Options               #####
 ###########################################################
 
-ifneq ($(IS_X86)$(IS_X64),00)
+ifneq ($(IS_X86)$(IS_X64)$(IS_MINGW),000)
 ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(SUN_COMPILER),1)
