@@ -512,6 +512,13 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 	errno_t err = _get_pgmptr(&pgmptr);
 	if (err == 0 && pgmptr != NULLPTR)
 		pathHint = pgmptr;
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+	std::string t(path_max, (char)0);
+	if (_fullpath(&t[0], pathHint.c_str(), path_max))
+	{
+		t.resize(strlen(t.c_str()));
+		std::swap(pathHint, t);
+	}
 #elif defined(CRYPTOPP_OSX_AVAILABLE)
 	std::string t(path_max, (char)0);
 	unsigned int len = (unsigned int)t.size();
@@ -525,7 +532,10 @@ void SetArgvPathHint(const char* argv0, std::string& pathHint)
 		pathHint = getexecname();
 #endif
 
-#if (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
+#if defined(__MINGW32__) || defined(__MINGW64__)
+	// This path exists to stay out of the Posix paths that follow
+	;;
+#elif (_POSIX_C_SOURCE >= 200809L) || (_XOPEN_SOURCE >= 700)
 	char* resolved = realpath (pathHint.c_str(), NULLPTR);
 	if (resolved != NULLPTR)
 	{
