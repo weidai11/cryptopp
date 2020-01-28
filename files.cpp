@@ -23,7 +23,7 @@ void FileStore::StoreInitialize(const NameValuePairs &parameters)
 {
 	m_waiting = false;
 	m_stream = NULLPTR;
-	m_file.release();
+	m_file.reset(nullptr);
 
 	const char *fileName = NULLPTR;
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
@@ -179,7 +179,7 @@ lword FileStore::Skip(lword skipMax)
 void FileSink::IsolatedInitialize(const NameValuePairs &parameters)
 {
 	m_stream = NULLPTR;
-	m_file.release();
+	m_file.reset(nullptr);
 
 	const char *fileName = NULLPTR;
 #if defined(CRYPTOPP_UNIX_AVAILABLE) || _MSC_VER >= 1400
