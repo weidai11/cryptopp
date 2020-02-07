@@ -172,6 +172,23 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 		// Borland/Embarcadero and Issue 500
 		// Local variables for cpuid output
 		word32 a, b, c, d;
+#if defined(_WIN64)
+		__asm
+		{
+			push rdi
+			push rbx
+			mov eax, func
+			mov ecx, subfunc
+			cpuid
+			mov edi, ebx
+			pop rbx
+			mov b, edi
+			mov a, eax
+			mov c, ecx
+			mov d, edx
+			pop rdi
+		}
+#else
 		__asm
 		{
 			mov eax, func
@@ -182,13 +199,19 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 			mov [c], ecx
 			mov [d], edx
 		}
+#endif
 		output[0] = a;
 		output[1] = b;
 		output[2] = c;
 		output[3] = d;
 	}
 	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
+
+#if defined(_WIN64) || defined(_WIN32)
 	__except (EXCEPTION_EXECUTE_HANDLER)
+#else // for MACOSX
+ catch(...)
+#endif
 	{
 		return false;
 	}
@@ -199,7 +222,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	if(func == 0)
 		return output[0] != 0;
 
-	return true;
+	return true; // end of _BORLANDC_
 #else
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
