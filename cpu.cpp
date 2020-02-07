@@ -144,30 +144,26 @@ extern "C"
 
 extern bool CPU_ProbeSSE2();
 
-#if _MSC_VER >= 1600
-
-inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
-{
-	__cpuidex((int *)output, func, subfunc);
-	return true;
-}
-
-#elif defined(_MSC_VER) && _MSC_VER < 1600 && defined(_M_X64)
-
-inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
-{
-	CPUID64(func, subfunc, output);
-	return true;
-}
-
-#else
-
-// Borland/Embarcadero and Issue 498
+// No inline due to Borland/Embarcadero and Issue 498
 // cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
 bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-#if defined(CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY) || defined(__BORLANDC__)
-    __try
+// Visual Studio 2010 and above, all Intels
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+
+	__cpuidex((int *)output, func, subfunc);
+	return true;
+
+// Visual Studio 2008 and below, 64-bit
+#elif defined(_MSC_VER) && defined(_M_X64)
+
+	CPUID64(func, subfunc, output);
+	return true;
+
+// Visual Studio 2008 and below, 32-bit
+#elif (defined(_MSC_VER) && defined(_M_IX86)) || defined(__BORLANDC__)
+
+	__try
 	{
 		// Borland/Embarcadero and Issue 500
 		// Local variables for cpuid output
@@ -187,14 +183,16 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 		output[2] = c;
 		output[3] = d;
 	}
-	// GetExceptionCode() == EXCEPTION_ILLEGAL_INSTRUCTION
 	__except (EXCEPTION_EXECUTE_HANDLER)
 	{
 		return false;
 	}
 
 	return true;
+
+// Linux, Unix, OS X, Cygwin, MinGW
 #else
+
 	// longjmp and clobber warnings. Volatile is required.
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
@@ -236,8 +234,6 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	return result;
 #endif
 }
-
-#endif
 
 bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSE2 = false;
