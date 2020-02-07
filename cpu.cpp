@@ -64,7 +64,68 @@ extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
 extern "C" unsigned long long __fastcall CPUID64(unsigned int, unsigned int, unsigned int*);
 #endif
 
+#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+extern "C" {
+    typedef void (*SigHandler)(int);
+}
+
+extern "C"
+{
+	static jmp_buf s_jmpNoCPUID;
+	static void SigIllHandlerCPUID(int unused)
+	{
+		CRYPTOPP_UNUSED(unused);
+		longjmp(s_jmpNoCPUID, 1);
+	}
+}
+#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+
 ANONYMOUS_NAMESPACE_BEGIN
+
+#if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+using CryptoPP::word32;
+
+inline bool IsIntel(const word32 output[4])
+{
+	// This is the "GenuineIntel" string
+	return (output[1] /*EBX*/ == 0x756e6547) &&
+		(output[2] /*ECX*/ == 0x6c65746e) &&
+		(output[3] /*EDX*/ == 0x49656e69);
+}
+
+inline bool IsAMD(const word32 output[4])
+{
+	// This is the "AuthenticAMD" string.
+	return ((output[1] /*EBX*/ == 0x68747541) &&
+		(output[2] /*ECX*/ == 0x444D4163) &&
+		(output[3] /*EDX*/ == 0x69746E65)) ||
+		// Some early K5's can return "AMDisbetter!"
+		((output[1] /*EBX*/ == 0x69444d41) &&
+		(output[2] /*ECX*/ == 0x74656273) &&
+		(output[3] /*EDX*/ == 0x21726574));
+}
+
+inline bool IsHygon(const word32 output[4])
+{
+	// This is the "HygonGenuine" string.
+	return (output[1] /*EBX*/ == 0x6f677948) &&
+		(output[2] /*ECX*/ == 0x656e6975) &&
+		(output[3] /*EDX*/ == 0x6e65476e);
+}
+
+inline bool IsVIA(const word32 output[4])
+{
+	// This is the "CentaurHauls" string.
+	return ((output[1] /*EBX*/ == 0x746e6543) &&
+		(output[2] /*ECX*/ == 0x736c7561) &&
+		(output[3] /*EDX*/ == 0x48727561)) ||
+		// Some non-PadLock's return "VIA VIA VIA "
+		((output[1] /*EBX*/ == 0x32414956) &&
+		(output[2] /*ECX*/ == 0x32414956) &&
+		(output[3] /*EDX*/ == 0x32414956));
+}
+
+#endif  // X86, X32 and X64
 
 #if defined(__APPLE__)
 enum {PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch};
@@ -122,25 +183,30 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-extern "C" {
-    typedef void (*SigHandler)(int);
-}
-
-extern "C"
-{
-	static jmp_buf s_jmpNoCPUID;
-	static void SigIllHandlerCPUID(int unused)
-	{
-		CRYPTOPP_UNUSED(unused);
-		longjmp(s_jmpNoCPUID, 1);
-	}
-}
-#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
-
 // *************************** IA-32 CPUs ***************************
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+
+bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false;
+bool CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAVX = false;
+bool CRYPTOPP_SECTION_INIT g_hasAVX2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasAESNI = false;
+bool CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
+bool CRYPTOPP_SECTION_INIT g_hasADX = false;
+bool CRYPTOPP_SECTION_INIT g_hasSHA = false;
+bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false;
+bool CRYPTOPP_SECTION_INIT g_hasRDSEED = false;
+bool CRYPTOPP_SECTION_INIT g_isP4 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockACE = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false;
+bool CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
+word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
 extern bool CPU_ProbeSSE2();
 
@@ -233,67 +299,6 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	signal(SIGILL, oldHandler);
 	return result;
 #endif
-}
-
-bool CRYPTOPP_SECTION_INIT g_x86DetectionDone = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE2 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false;
-bool CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAVX = false;
-bool CRYPTOPP_SECTION_INIT g_hasAVX2 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAESNI = false;
-bool CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
-bool CRYPTOPP_SECTION_INIT g_hasADX = false;
-bool CRYPTOPP_SECTION_INIT g_hasSHA = false;
-bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false;
-bool CRYPTOPP_SECTION_INIT g_hasRDSEED = false;
-bool CRYPTOPP_SECTION_INIT g_isP4 = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockRNG = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockACE = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockACE2 = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false;
-bool CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
-word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
-
-static inline bool IsIntel(const word32 output[4])
-{
-	// This is the "GenuineIntel" string
-	return (output[1] /*EBX*/ == 0x756e6547) &&
-		(output[2] /*ECX*/ == 0x6c65746e) &&
-		(output[3] /*EDX*/ == 0x49656e69);
-}
-
-static inline bool IsAMD(const word32 output[4])
-{
-	// This is the "AuthenticAMD" string.
-	return ((output[1] /*EBX*/ == 0x68747541) &&
-		(output[2] /*ECX*/ == 0x444D4163) &&
-		(output[3] /*EDX*/ == 0x69746E65)) ||
-		// Some early K5's can return "AMDisbetter!"
-		((output[1] /*EBX*/ == 0x69444d41) &&
-		(output[2] /*ECX*/ == 0x74656273) &&
-		(output[3] /*EDX*/ == 0x21726574));
-}
-
-static inline bool IsHygon(const word32 output[4])
-{
-	// This is the "HygonGenuine" string.
-	return (output[1] /*EBX*/ == 0x6f677948) &&
-		(output[2] /*ECX*/ == 0x656e6975) &&
-		(output[3] /*EDX*/ == 0x6e65476e);
-}
-
-static inline bool IsVIA(const word32 output[4])
-{
-	// This is the "CentaurHauls" string.
-	return ((output[1] /*EBX*/ == 0x746e6543) &&
-		(output[2] /*ECX*/ == 0x736c7561) &&
-		(output[3] /*EDX*/ == 0x48727561)) ||
-		// Some non-PadLock's return "VIA VIA VIA "
-		((output[1] /*EBX*/ == 0x32414956) &&
-		(output[2] /*ECX*/ == 0x32414956) &&
-		(output[3] /*EDX*/ == 0x32414956));
 }
 
 void DetectX86Features()
