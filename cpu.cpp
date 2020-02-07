@@ -56,9 +56,12 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <setjmp.h>
 #endif
 
-// Visual Studio 2008 and below is missing _xgetbv. See x64dll.asm for the body.
-#if defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
+// Visual Studio 2008 and below is missing _xgetbv.
+// Visual Studio 2008 and below is missing _cpuidex.
+// See x64dll.asm for the bodies.
+#if defined(_MSC_VER) && defined(_M_X64)
 extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
+extern "C" unsigned long long __fastcall CPUID64(unsigned int, unsigned int, unsigned int*);
 #endif
 
 ANONYMOUS_NAMESPACE_BEGIN
@@ -149,14 +152,11 @@ inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	return true;
 }
 
-#elif _MSC_VER >= 1400 && CRYPTOPP_BOOL_X64
+#elif defined(_MSC_VER) && _MSC_VER < 1600 && defined(_M_X64)
 
 inline bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-	if (subfunc != 0)
-		return false;
-
-	__cpuid((int *)output, func);
+	CPUID64(func, subfunc, output);
 	return true;
 }
 
@@ -192,12 +192,6 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	{
 		return false;
 	}
-
-	// func = 0 returns the highest basic function understood in EAX. If the CPU does
-	// not return non-0, then it is mostly useless. The code below converts basic
-	// function value to a true/false return value.
-	if(func == 0)
-		return output[0] != 0;
 
 	return true;
 #else
@@ -410,9 +404,9 @@ void DetectX86Features()
 			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
-				g_hasADX = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
-				g_hasSHA = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
-				g_hasAVX2 = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
+				g_hasADX    = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
+				g_hasSHA    = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
+				g_hasAVX2   = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
 			}
 		}
 	}
@@ -433,9 +427,9 @@ void DetectX86Features()
 			if (CpuId(7, 0, cpuid2))
 			{
 				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
-				g_hasADX = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
-				g_hasSHA = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
-				g_hasAVX2 = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
+				g_hasADX    = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
+				g_hasSHA    = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
+				g_hasAVX2   = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
 			}
 		}
 

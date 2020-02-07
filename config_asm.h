@@ -166,17 +166,13 @@
 
 // RDRAND uses byte codes. All we need is x86 ASM for it.
 // However tie it to AES-NI since SecureKey was available with it.
-#if !defined(CRYPTOPP_DISABLE_RDRAND) && defined(CRYPTOPP_AESNI_AVAILABLE) && \
-	!(defined(__ANDROID__) || defined(ANDROID)) && \
-	defined(CRYPTOPP_X86_ASM_AVAILABLE)
+#if !defined(CRYPTOPP_DISABLE_RDRAND) && defined(CRYPTOPP_AESNI_AVAILABLE)
 	#define CRYPTOPP_RDRAND_AVAILABLE 1
 #endif
 
 // RDSEED uses byte codes. All we need is x86 ASM for it.
 // However tie it to AES-NI since SecureKey was available with it.
-#if !defined(CRYPTOPP_DISABLE_RDSEED) && defined(CRYPTOPP_AESNI_AVAILABLE) && \
-	!(defined(__ANDROID__) || defined(ANDROID)) && \
-	defined(CRYPTOPP_X86_ASM_AVAILABLE)
+#if !defined(CRYPTOPP_DISABLE_RDSEED) && defined(CRYPTOPP_AESNI_AVAILABLE)
 	#define CRYPTOPP_RDSEED_AVAILABLE 1
 #endif
 
@@ -200,6 +196,8 @@
 #  undef CRYPTOPP_CLMUL_AVAILABLE
 #  undef CRYPTOPP_AESNI_AVAILABLE
 #  undef CRYPTOPP_SHANI_AVAILABLE
+#  undef CRYPTOPP_RDRAND_AVAILABLE
+#  undef CRYPTOPP_RDSEED_AVAILABLE
 #  undef CRYPTOPP_AVX_AVAILABLE
 #  undef CRYPTOPP_AVX2_AVAILABLE
 # endif
@@ -207,6 +205,8 @@
 #  undef CRYPTOPP_CLMUL_AVAILABLE
 #  undef CRYPTOPP_AESNI_AVAILABLE
 #  undef CRYPTOPP_SHANI_AVAILABLE
+#  undef CRYPTOPP_RDRAND_AVAILABLE
+#  undef CRYPTOPP_RDSEED_AVAILABLE
 #  undef CRYPTOPP_AVX_AVAILABLE
 #  undef CRYPTOPP_AVX2_AVAILABLE
 # endif
