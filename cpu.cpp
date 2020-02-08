@@ -83,6 +83,7 @@ extern "C"
 ANONYMOUS_NAMESPACE_BEGIN
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+
 using CryptoPP::word32;
 
 inline bool IsIntel(const word32 output[4])
@@ -99,7 +100,7 @@ inline bool IsAMD(const word32 output[4])
 	return ((output[1] /*EBX*/ == 0x68747541) &&
 		(output[2] /*ECX*/ == 0x444D4163) &&
 		(output[3] /*EDX*/ == 0x69746E65)) ||
-		// Some early K5's can return "AMDisbetter!"
+		// Early K5's can return "AMDisbetter!"
 		((output[1] /*EBX*/ == 0x69444d41) &&
 		(output[2] /*ECX*/ == 0x74656273) &&
 		(output[3] /*EDX*/ == 0x21726574));
@@ -163,8 +164,10 @@ void GetAppleMachineInfo(unsigned int& device, unsigned int& version)
 // http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
 bool IsAppleMachineARMv8(unsigned int device, unsigned int version)
 {
-	if ((device == iPhone && version >= 6) ||
-	    (device == iPad && version >= 4))
+	if ((device == iPhone && version >= 6) ||    // iPhone 6, A8 processor
+	    (device == iPad && version >= 5) ||      // iPad 5, A8 processor
+	    (device == AppleTV && version >= 4) ||   // AppleTV 4th gen, A8 processor
+	    (device == AppleWatch && version >= 4))  // AppleWatch 4th gen, S4 processor
 	{
 		return true;
 	}
@@ -280,7 +283,6 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 		asm volatile
 		(
 			// save ebx in case -fPIC is being used
-			// TODO: this might need an early clobber on EDI.
 # if CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64
 			"pushq %%rbx; cpuid; mov %%ebx, %%edi; popq %%rbx"
 # else
@@ -331,14 +333,15 @@ void DetectX86Features()
 	g_hasAESNI = (cpuid1[2] & (1<<25)) != 0;
 	g_hasCLMUL = (cpuid1[2] & (1<< 1)) != 0;
 
-	// AVX is similar to SSE, but check both bits 27 (SSE) and 28 (AVX).
+	// AVX is similar to SSE. Check if AVX is available on the cpu, then
+	// check if the OS enabled XSAVE/XRESTORE for the extended registers.
 	// https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled
-	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));
 	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27));
+	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));
 	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
 	{
 
-// GCC 4.1/Binutils 2.17 cannot consume xgetbv
+// GCC 4.1/Binutils 2.17 and below cannot consume xgetbv
 #if defined(__GNUC__) || (__SUNPRO_CC >= 0x5100) || defined(__BORLANDC__)
 		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 		// http://www.agner.org/optimize/vectorclass/read.php?i=65
@@ -377,7 +380,7 @@ void DetectX86Features()
 		word64 xcr0 = XGETBV64(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
 
-// Downlevel SunCC
+// Downlevel SunCC. SunCC v12.1 was checked earlier.
 #elif defined(__SUNPRO_CC)
 		g_hasAVX = false;
 
