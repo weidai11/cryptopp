@@ -19,16 +19,16 @@ using CryptoPP::Integer;
 using CryptoPP::ModularArithmetic;
 
 #if defined(HAVE_GCC_INIT_PRIORITY)
-  #define INIT_ATTRIBUTE __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 50)))
-  const ECP::Point g_identity INIT_ATTRIBUTE = ECP::Point();
+	#define INIT_ATTRIBUTE __attribute__ ((init_priority (CRYPTOPP_INIT_PRIORITY + 50)))
+	const ECP::Point g_identity INIT_ATTRIBUTE = ECP::Point();
 #elif defined(HAVE_MSC_INIT_PRIORITY)
-  #pragma warning(disable: 4075)
-  #pragma init_seg(".CRT$XCU")
-  const ECP::Point g_identity;
-  #pragma warning(default: 4075)
+	#pragma warning(disable: 4075)
+	#pragma init_seg(".CRT$XCU")
+	const ECP::Point g_identity;
+	#pragma warning(default: 4075)
 #elif defined(HAVE_XLC_INIT_PRIORITY)
-  #pragma priority(290)
-  const ECP::Point g_identity;
+	#pragma priority(290)
+	const ECP::Point g_identity;
 #endif
 
 inline ECP::Point ToMontgomery(const ModularArithmetic &mr, const ECP::Point &P)
