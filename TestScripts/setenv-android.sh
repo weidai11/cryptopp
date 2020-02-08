@@ -286,6 +286,21 @@ if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; th
 fi
 cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
 
+# Cleanup the sources for the C++ compiler
+# https://github.com/weidai11/cryptopp/issues/926
+
+sed -i 's/p = memmem/p = (const char*)memmem/g' cpu-features.c
+sed -i 's/p  = memmem/p  = (const char*)memmem/g' cpu-features.c
+sed -i 's/p = memchr/p = (const char*)memchr/g' cpu-features.c
+sed -i 's/p  = memchr/p  = (const char*)memchr/g' cpu-features.c
+
+sed -i 's/q = memmem/q = (const char*)memmem/g' cpu-features.c
+sed -i 's/q  = memmem/q  = (const char*)memmem/g' cpu-features.c
+sed -i 's/q = memchr/q = (const char*)memchr/g' cpu-features.c
+sed -i 's/q  = memchr/q  = (const char*)memchr/g' cpu-features.c
+
+sed -i 's/cpuinfo = malloc/cpuinfo = (char*)malloc/g' cpu-features.c
+
 #####################################################################
 
 VERBOSE=1

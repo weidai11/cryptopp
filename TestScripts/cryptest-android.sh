@@ -20,7 +20,7 @@ fi
 # Temp directory
 if [[ -z "$TMPDIR" ]]; then
 	TMPDIR="$HOME/tmp"
-	mkdir "$TMPDIR"
+	mkdir -p "$TMPDIR"
 fi
 
 MAKE_JOBS=2
