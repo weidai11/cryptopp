@@ -1,4 +1,5 @@
 // cpu.cpp - originally written and placed in the public domain by Wei Dai
+//           modified by Jeffrey Walton and the community over the years.
 
 #include "pch.h"
 #include "config.h"
@@ -56,15 +57,14 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 # include <setjmp.h>
 #endif
 
-// Visual Studio 2008 and below is missing _xgetbv.
-// Visual Studio 2008 and below is missing _cpuidex.
-// See x64dll.asm for the bodies.
+// Visual Studio 2008 and below are missing _xgetbv and _cpuidex.
+// See x64dll.asm for the function bodies.
 #if defined(_MSC_VER) && defined(_M_X64)
 extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
 extern "C" unsigned long long __fastcall CPUID64(unsigned int, unsigned int, unsigned int*);
 #endif
 
-#ifndef CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+#ifdef CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 extern "C" {
     typedef void (*SigHandler)(int);
 }
@@ -78,7 +78,7 @@ extern "C"
 		longjmp(s_jmpNoCPUID, 1);
 	}
 }
-#endif  // Not CRYPTOPP_MS_STYLE_INLINE_ASSEMBLY
+#endif  // CRYPTOPP_GNU_STYLE_INLINE_ASSEMBLY
 
 ANONYMOUS_NAMESPACE_BEGIN
 
@@ -129,6 +129,7 @@ inline bool IsVIA(const word32 output[4])
 #endif  // X86, X32 and X64
 
 #if defined(__APPLE__)
+
 enum {PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch};
 void GetAppleMachineInfo(unsigned int& device, unsigned int& version)
 {
@@ -139,18 +140,18 @@ void GetAppleMachineInfo(unsigned int& device, unsigned int& version)
 	uname(&systemInfo);
 
 	std::string machine(systemInfo.machine);
-	if (machine.find("PowerMac") != std::string::npos ||
-	    machine.find("Power Macintosh") != std::string::npos)
-		device = PowerMac;
-	else if (machine.find("Mac") != std::string::npos ||
-	         machine.find("Macintosh") != std::string::npos)
-		device = Mac;
-	else if (machine.find("iPhone") != std::string::npos)
+	if (machine.find("iPhone") != std::string::npos)
 		device = iPhone;
 	else if (machine.find("iPod") != std::string::npos)
 		device = iPod;
 	else if (machine.find("iPad") != std::string::npos)
 		device = iPad;
+	else if (machine.find("PowerMac") != std::string::npos ||
+	         machine.find("Power Macintosh") != std::string::npos)
+		device = PowerMac;
+	else if (machine.find("Mac") != std::string::npos ||
+	         machine.find("Macintosh") != std::string::npos)
+		device = Mac;
 	else if (machine.find("AppleTV") != std::string::npos)
 		device = AppleTV;
 	else if (machine.find("AppleWatch") != std::string::npos)
@@ -166,6 +167,7 @@ bool IsAppleMachineARMv8(unsigned int device, unsigned int version)
 {
 	if ((device == iPhone && version >= 6) ||    // iPhone 6, A8 processor
 	    (device == iPad && version >= 5) ||      // iPad 5, A8 processor
+	    (device == iPod && version >= 6) ||      // iPod 6, A8 processor
 	    (device == AppleTV && version >= 4) ||   // AppleTV 4th gen, A8 processor
 	    (device == AppleWatch && version >= 4))  // AppleWatch 4th gen, S4 processor
 	{
@@ -176,8 +178,8 @@ bool IsAppleMachineARMv8(unsigned int device, unsigned int version)
 
 bool IsAppleMachineARMv84(unsigned int device, unsigned int version)
 {
-    CRYPTOPP_UNUSED(device);
-    CRYPTOPP_UNUSED(version);
+	CRYPTOPP_UNUSED(device);
+	CRYPTOPP_UNUSED(version);
 	return false;
 }
 #endif  // __APPLE__
@@ -239,6 +241,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 		word32 a, b, c, d;
 		__asm
 		{
+			push ebx
 			mov eax, func
 			mov ecx, subfunc
 			cpuid
@@ -246,6 +249,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 			mov [b], ebx
 			mov [c], ecx
 			mov [d], edx
+			pop ebx
 		}
 		output[0] = a;
 		output[1] = b;
@@ -259,7 +263,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 
 	return true;
 
-// Linux, Unix, OS X, Cygwin, MinGW
+// Linux, Unix, OS X, Solaris, Cygwin, MinGW
 #else
 
 	// longjmp and clobber warnings. Volatile is required.
