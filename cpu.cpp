@@ -130,57 +130,141 @@ inline bool IsVIA(const word32 output[4])
 
 #if defined(__APPLE__)
 
-enum {PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch};
-void GetAppleMachineInfo(unsigned int& device, unsigned int& version)
-{
-	device = version = 0;
-
-	struct utsname systemInfo;
-	systemInfo.machine[0] = '\0';
-	uname(&systemInfo);
-
-	std::string machine(systemInfo.machine);
-	if (machine.find("iPhone") != std::string::npos)
-		device = iPhone;
-	else if (machine.find("iPod") != std::string::npos)
-		device = iPod;
-	else if (machine.find("iPad") != std::string::npos)
-		device = iPad;
-	else if (machine.find("PowerMac") != std::string::npos ||
-	         machine.find("Power Macintosh") != std::string::npos)
-		device = PowerMac;
-	else if (machine.find("Mac") != std::string::npos ||
-	         machine.find("Macintosh") != std::string::npos)
-		device = Mac;
-	else if (machine.find("AppleTV") != std::string::npos)
-		device = AppleTV;
-	else if (machine.find("AppleWatch") != std::string::npos)
-		device = AppleWatch;
-
-	std::string::size_type pos = machine.find_first_of("0123456789");
-	if (pos != std::string::npos)
-		version = std::atoi(machine.substr(pos).c_str());
-}
-
 // http://stackoverflow.com/questions/45637888/how-to-determine-armv8-features-at-runtime-on-ios
-bool IsAppleMachineARMv8(unsigned int device, unsigned int version)
+class AppleMachineInfo
 {
-	if ((device == iPhone && version >= 6) ||    // iPhone 6, A8 processor
-	    (device == iPad && version >= 5) ||      // iPad 5, A8 processor
-	    (device == iPod && version >= 6) ||      // iPod 6, A8 processor
-	    (device == AppleTV && version >= 4) ||   // AppleTV 4th gen, A8 processor
-	    (device == AppleWatch && version >= 4))  // AppleWatch 4th gen, S4 processor
+public:
+	enum { PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch };
+	enum { PowerPC=1, i386, i686, x86_64, ARM32, ARMv8, ARMv84 };
+
+	AppleMachineInfo() : m_device(0), m_version(0), m_arch(0)
 	{
-		return true;
+		struct utsname systemInfo;
+		systemInfo.machine[0] = '\0';
+		uname(&systemInfo);
+
+		std::string machine(systemInfo.machine);
+
+		std::string::size_type pos = machine.find_first_of("0123456789");
+		if (pos != std::string::npos)
+			m_version = std::atoi(machine.substr(pos).c_str());
+
+		if (machine.find("iPhone") != std::string::npos)
+		{
+			m_device = iPhone;
+			if (m_version >= 6) { m_arch = ARMv8; }
+			else { m_arch = ARM32; }
+		}
+		else if (machine.find("iPod") != std::string::npos)
+		{
+			m_device = iPod;
+			if (m_version >= 6) { m_arch = ARMv8; }
+			else { m_arch = ARM32; }
+		}
+		else if (machine.find("iPad") != std::string::npos)
+		{
+			m_device = iPad;
+			if (m_version >= 5) { m_arch = ARMv8; }
+			else { m_arch = ARM32; }
+		}
+		else if (machine.find("PowerMac") != std::string::npos ||
+			 machine.find("Power Macintosh") != std::string::npos)
+		{
+			m_device = PowerMac;
+			m_arch = PowerPC;
+		}
+		else if (machine.find("Mac") != std::string::npos ||
+			 machine.find("Macintosh") != std::string::npos)
+		{
+#if defined(__x86_64) || defined(__amd64)
+			m_device = Mac;
+			m_arch = x86_64;
+#elif defined(__i386)
+			m_device = Mac;
+			m_arch = i386;
+#elif defined(__i686)
+			m_device = Mac;
+			m_arch = i686;
+#else
+			// Should never get here
+			m_device = Mac;
+			m_arch = 0;
+#endif
+		}
+		else if (machine.find("AppleTV") != std::string::npos)
+		{
+			m_device = AppleTV;
+			if (m_version >= 4) { m_arch = ARMv8; }
+			else { m_arch = ARM32; }
+		}
+		else if (machine.find("AppleWatch") != std::string::npos)
+		{
+			m_device = AppleWatch;
+			if (m_version >= 4) { m_arch = ARMv8; }
+			else { m_arch = ARM32; }
+		}
 	}
-	return false;
+
+	unsigned int Device() const {
+		return m_device;
+	}
+
+	unsigned int Version() const {
+		return m_version;
+	}
+
+	unsigned int Arch() const {
+		return m_arch;
+	}
+
+	bool IsARM32() const {
+		return m_arch == ARM32;
+	}
+
+	bool IsARMv8() const {
+		return m_arch == ARMv8;
+	}
+
+	bool IsARMv84() const {
+		return m_arch == ARMv84;
+	}
+
+private:
+	unsigned int m_device, m_version, m_arch;
+};
+
+void GetAppleMachineInfo(unsigned int& device, unsigned int& version, unsigned int& arch)
+{
+#if CRYPTOPP_CXX11_DYNAMIC_INIT
+	static const AppleMachineInfo info;
+#else
+	const AppleMachineInfo info;
+#endif
+
+	device = info.Device();
+	version = info.Version();
+	arch = info.Arch();
 }
 
-bool IsAppleMachineARMv84(unsigned int device, unsigned int version)
+inline bool IsAppleMachineARM32()
 {
-	CRYPTOPP_UNUSED(device);
-	CRYPTOPP_UNUSED(version);
-	return false;
+	unsigned int unused, arch;
+	GetAppleMachineInfo(unused, unused, arch);
+	return arch == AppleMachineInfo::ARM32;
+}
+
+inline bool IsAppleMachineARMv8()
+{
+	unsigned int unused, arch;
+	GetAppleMachineInfo(unused, unused, arch);
+	return arch == AppleMachineInfo::ARMv8;
+}
+
+inline bool IsAppleMachineARMv84()
+{
+	unsigned int unused, arch;
+	GetAppleMachineInfo(unused, unused, arch);
+	return arch == AppleMachineInfo::ARMv84;
 }
 #endif  // __APPLE__
 
@@ -707,9 +791,7 @@ inline bool CPU_QueryAES()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_AES) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv8(device, version);
+	return IsAppleMachineARMv8();
 #endif
 	return false;
 }
@@ -731,9 +813,7 @@ inline bool CPU_QuerySHA1()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA1) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv8(device, version);
+	return IsAppleMachineARMv8();
 #endif
 	return false;
 }
@@ -755,9 +835,7 @@ inline bool CPU_QuerySHA256()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA2) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv8(device, version);
+	return IsAppleMachineARMv8();
 #endif
 	return false;
 }
@@ -780,9 +858,7 @@ inline bool CPU_QuerySHA512()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA512) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv84(device, version);
+	return IsAppleMachineARMv84();
 #endif
 	return false;
 }
@@ -805,9 +881,7 @@ inline bool CPU_QuerySHA3()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA3) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv84(device, version);
+	return IsAppleMachineARMv84();
 #endif
 	return false;
 }
@@ -830,9 +904,7 @@ inline bool CPU_QuerySM3()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM3) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv84(device, version);
+	return IsAppleMachineARMv84();
 #endif
 	return false;
 }
@@ -855,9 +927,7 @@ inline bool CPU_QuerySM4()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM4) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return IsAppleMachineARMv84(device, version);
+	return IsAppleMachineARMv84();
 #endif
 	return false;
 }
@@ -946,9 +1016,9 @@ inline bool CPU_QueryAltivec()
 	if (__power_6_andup() != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__POWERPC__)
-	unsigned int device, version;
-	GetAppleMachineInfo(device, version);
-	return device == PowerMac;
+	unsigned int unused, arch;
+	GetAppleMachineInfo(unused, unused, arch);
+	return arch == AppleMachineInfo::PowerMac;
 #endif
 	return false;
 }
