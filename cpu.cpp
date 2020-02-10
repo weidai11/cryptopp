@@ -285,6 +285,7 @@ bool CRYPTOPP_SECTION_INIT g_hasAVX = false;
 bool CRYPTOPP_SECTION_INIT g_hasAVX2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAESNI = false;
 bool CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
+bool CRYPTOPP_SECTION_INIT g_hasMOVBE = false;
 bool CRYPTOPP_SECTION_INIT g_hasADX = false;
 bool CRYPTOPP_SECTION_INIT g_hasSHA = false;
 bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false;
@@ -407,6 +408,11 @@ void DetectX86Features()
 		goto done;
 #endif
 
+	CRYPTOPP_CONSTANT(EAX_REG = 0);
+	CRYPTOPP_CONSTANT(EBX_REG = 1);
+	CRYPTOPP_CONSTANT(ECX_REG = 2);
+	CRYPTOPP_CONSTANT(EDX_REG = 3);
+
 	CRYPTOPP_CONSTANT(MMX_FLAG   = (1 << 24));   // EDX
 	CRYPTOPP_CONSTANT(SSE_FLAG   = (1 << 25));   // EDX
 	CRYPTOPP_CONSTANT(SSE2_FLAG  = (1 << 26));   // EDX
@@ -419,31 +425,39 @@ void DetectX86Features()
 	CRYPTOPP_CONSTANT(AESNI_FLAG = (1 << 25));   // ECX
 	CRYPTOPP_CONSTANT(CLMUL_FLAG = (1 <<  1));   // ECX
 
-	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27));     // ECX
-	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));     // CR0
-
 	CRYPTOPP_CONSTANT(XSAVE_FLAG   = (1 << 26)); // ECX
 	CRYPTOPP_CONSTANT(OSXSAVE_FLAG = (1 << 27)); // ECX
 
-	// Use OSXSAVE to signal OS support for SSE to avoid probes.
-	// See http://stackoverflow.com/a/22521619/608639
+	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27));     // ECX
+	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));     // CR0
+
+#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+	// 64-bit core instruction set includes SSE2. Just check
+	// the OS enabled SSE2 support using OSXSAVE.
+	g_hasSSE2 = ((cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0);
+#else
+	// Check the processor supports SSE2. Then use OSXSAVE to
+	// signal OS support for SSE2 to avoid probes.
+	// Also see http://stackoverflow.com/a/22521619/608639
 	// and http://github.com/weidai11/cryptopp/issues/511.
-	if ((cpuid1[3] & SSE2_FLAG) == SSE2_FLAG)
-		g_hasSSE2 = ((cpuid1[2] & OSXSAVE_FLAG) != 0) || CPU_ProbeSSE2();
+	if ((cpuid1[EDX_REG] & SSE2_FLAG) == SSE2_FLAG)
+		g_hasSSE2 = ((cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0);
+#endif
 
 	if (g_hasSSE2 == false)
 		goto done;
 
-	g_hasSSSE3 = (cpuid1[2] & SSSE3_FLAG) != 0;
-	g_hasSSE41 = (cpuid1[2] & SSE41_FLAG) != 0;
-	g_hasSSE42 = (cpuid1[2] & SSE42_FLAG) != 0;
-	g_hasAESNI = (cpuid1[2] & AESNI_FLAG) != 0;
-	g_hasCLMUL = (cpuid1[2] & CLMUL_FLAG) != 0;
+	g_hasSSSE3 = (cpuid1[ECX_REG] & SSSE3_FLAG) != 0;
+	g_hasSSE41 = (cpuid1[ECX_REG] & SSE41_FLAG) != 0;
+	g_hasSSE42 = (cpuid1[ECX_REG] & SSE42_FLAG) != 0;
+	g_hasMOVBE = (cpuid1[ECX_REG] & MOVBE_FLAG) != 0;
+	g_hasAESNI = (cpuid1[ECX_REG] & AESNI_FLAG) != 0;
+	g_hasCLMUL = (cpuid1[ECX_REG] & CLMUL_FLAG) != 0;
 
 	// AVX is similar to SSE. Check if AVX is available on the cpu, then
 	// check if the OS enabled XSAVE/XRESTORE for the extended registers.
 	// https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled
-	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
+	if ((cpuid1[ECX_REG] & AVX_FLAG) == AVX_FLAG)
 	{
 
 // GCC 4.1/Binutils 2.17 and below cannot consume xgetbv
@@ -506,16 +520,16 @@ void DetectX86Features()
 
 		g_isP4 = ((cpuid1[0] >> 8) & 0xf) == 0xf;
 		g_cacheLineSize = 8 * GETBYTE(cpuid1[1], 1);
-		g_hasRDRAND = (cpuid1[2] /*ECX*/ & RDRAND_FLAG) != 0;
+		g_hasRDRAND = (cpuid1[ECX_REG] & RDRAND_FLAG) != 0;
 
-		if (cpuid0[0] /*EAX*/ >= 7)
+		if (cpuid0[EAX_REG] >= 7)
 		{
 			if (CpuId(7, 0, cpuid2))
 			{
-				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
-				g_hasADX    = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
-				g_hasSHA    = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
-				g_hasAVX2   = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
+				g_hasRDSEED = (cpuid2[EBX_REG] & RDSEED_FLAG) != 0;
+				g_hasADX    = (cpuid2[EBX_REG] & ADX_FLAG) != 0;
+				g_hasSHA    = (cpuid2[EBX_REG] & SHA_FLAG) != 0;
+				g_hasAVX2   = (cpuid2[EBX_REG] & AVX2_FLAG) != 0;
 			}
 		}
 	}
@@ -528,17 +542,17 @@ void DetectX86Features()
 		CRYPTOPP_CONSTANT(  AVX2_FLAG = (1 <<  5));
 
 		CpuId(0x80000005, 0, cpuid2);
-		g_cacheLineSize = GETBYTE(cpuid2[2], 0);
-		g_hasRDRAND = (cpuid1[2] /*ECX*/ & RDRAND_FLAG) != 0;
+		g_cacheLineSize = GETBYTE(cpuid2[ECX_REG], 0);
+		g_hasRDRAND = (cpuid1[ECX_REG] & RDRAND_FLAG) != 0;
 
-		if (cpuid0[0] /*EAX*/ >= 7)
+		if (cpuid0[EAX_REG] >= 7)
 		{
 			if (CpuId(7, 0, cpuid2))
 			{
-				g_hasRDSEED = (cpuid2[1] /*EBX*/ & RDSEED_FLAG) != 0;
-				g_hasADX    = (cpuid2[1] /*EBX*/ & ADX_FLAG) != 0;
-				g_hasSHA    = (cpuid2[1] /*EBX*/ & SHA_FLAG) != 0;
-				g_hasAVX2   = (cpuid2[1] /*EBX*/ & AVX2_FLAG) != 0;
+				g_hasRDSEED = (cpuid2[EBX_REG] & RDSEED_FLAG) != 0;
+				g_hasADX    = (cpuid2[EBX_REG] & ADX_FLAG) != 0;
+				g_hasSHA    = (cpuid2[EBX_REG] & SHA_FLAG) != 0;
+				g_hasAVX2   = (cpuid2[EBX_REG] & AVX2_FLAG) != 0;
 			}
 		}
 
@@ -575,17 +589,17 @@ void DetectX86Features()
 		if (extendedFeatures >= 0xC0000001)
 		{
 			CpuId(0xC0000001, 0, cpuid2);
-			g_hasPadlockRNG  = (cpuid2[3] /*EDX*/ & RNG_FLAGS) == RNG_FLAGS;
-			g_hasPadlockACE  = (cpuid2[3] /*EDX*/ & ACE_FLAGS) == ACE_FLAGS;
-			g_hasPadlockACE2 = (cpuid2[3] /*EDX*/ & ACE2_FLAGS) == ACE2_FLAGS;
-			g_hasPadlockPHE  = (cpuid2[3] /*EDX*/ & PHE_FLAGS) == PHE_FLAGS;
-			g_hasPadlockPMM  = (cpuid2[3] /*EDX*/ & PMM_FLAGS) == PMM_FLAGS;
+			g_hasPadlockRNG  = (cpuid2[EDX_REG] & RNG_FLAGS) != 0;
+			g_hasPadlockACE  = (cpuid2[EDX_REG] & ACE_FLAGS) != 0;
+			g_hasPadlockACE2 = (cpuid2[EDX_REG] & ACE2_FLAGS) != 0;
+			g_hasPadlockPHE  = (cpuid2[EDX_REG] & PHE_FLAGS) != 0;
+			g_hasPadlockPMM  = (cpuid2[EDX_REG] & PMM_FLAGS) != 0;
 		}
 
 		if (extendedFeatures >= 0xC0000005)
 		{
 			CpuId(0xC0000005, 0, cpuid2);
-			g_cacheLineSize = GETBYTE(cpuid2[2] /*ECX*/, 0);
+			g_cacheLineSize = GETBYTE(cpuid2[ECX_REG], 0);
 		}
 	}
 
