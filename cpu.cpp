@@ -238,7 +238,7 @@ void GetAppleMachineInfo(unsigned int& device, unsigned int& version, unsigned i
 #if CRYPTOPP_CXX11_DYNAMIC_INIT
 	static const AppleMachineInfo info;
 #else
-	const AppleMachineInfo info;
+	const AppleMachineInfo& info = Singleton<AppleMachineInfo>().Ref();
 #endif
 
 	device = info.Device();
@@ -394,6 +394,7 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 void DetectX86Features()
 {
 	// Coverity finding CID 171239. Initialize arrays.
+	// Indexes: EAX=0, EBX=1, ECX=2, EDX=3
 	word32 cpuid0[4]={0}, cpuid1[4]={0}, cpuid2[4]={0};
 
 #if defined(CRYPTOPP_DISABLE_ASM)
@@ -406,26 +407,42 @@ void DetectX86Features()
 		goto done;
 #endif
 
-	// cpuid1[2] & (1 << 27) is XSAVE/XRESTORE and signals OS support for SSE;
-	// use it to avoid probes. See http://stackoverflow.com/a/22521619/608639
+	CRYPTOPP_CONSTANT(MMX_FLAG   = (1 << 24));   // EDX
+	CRYPTOPP_CONSTANT(SSE_FLAG   = (1 << 25));   // EDX
+	CRYPTOPP_CONSTANT(SSE2_FLAG  = (1 << 26));   // EDX
+
+	CRYPTOPP_CONSTANT(SSE3_FLAG  = (1 <<  0));   // ECX
+	CRYPTOPP_CONSTANT(SSSE3_FLAG = (1 <<  9));   // ECX
+	CRYPTOPP_CONSTANT(SSE41_FLAG = (1 << 19));   // ECX
+	CRYPTOPP_CONSTANT(SSE42_FLAG = (1 << 20));   // ECX
+	CRYPTOPP_CONSTANT(MOVBE_FLAG = (1 << 22));   // ECX
+	CRYPTOPP_CONSTANT(AESNI_FLAG = (1 << 25));   // ECX
+	CRYPTOPP_CONSTANT(CLMUL_FLAG = (1 <<  1));   // ECX
+
+	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27));     // ECX
+	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));     // CR0
+
+	CRYPTOPP_CONSTANT(XSAVE_FLAG   = (1 << 26)); // ECX
+	CRYPTOPP_CONSTANT(OSXSAVE_FLAG = (1 << 27)); // ECX
+
+	// Use OSXSAVE to signal OS support for SSE to avoid probes.
+	// See http://stackoverflow.com/a/22521619/608639
 	// and http://github.com/weidai11/cryptopp/issues/511.
-	if ((cpuid1[3] & (1 << 26)) != 0)
-		g_hasSSE2 = ((cpuid1[2] & (1 << 27)) != 0) || CPU_ProbeSSE2();
+	if ((cpuid1[3] & SSE2_FLAG) == SSE2_FLAG)
+		g_hasSSE2 = ((cpuid1[2] & OSXSAVE_FLAG) != 0) || CPU_ProbeSSE2();
 
 	if (g_hasSSE2 == false)
 		goto done;
 
-	g_hasSSSE3 = (cpuid1[2] & (1<< 9)) != 0;
-	g_hasSSE41 = (cpuid1[2] & (1<<19)) != 0;
-	g_hasSSE42 = (cpuid1[2] & (1<<20)) != 0;
-	g_hasAESNI = (cpuid1[2] & (1<<25)) != 0;
-	g_hasCLMUL = (cpuid1[2] & (1<< 1)) != 0;
+	g_hasSSSE3 = (cpuid1[2] & SSSE3_FLAG) != 0;
+	g_hasSSE41 = (cpuid1[2] & SSE41_FLAG) != 0;
+	g_hasSSE42 = (cpuid1[2] & SSE42_FLAG) != 0;
+	g_hasAESNI = (cpuid1[2] & AESNI_FLAG) != 0;
+	g_hasCLMUL = (cpuid1[2] & CLMUL_FLAG) != 0;
 
 	// AVX is similar to SSE. Check if AVX is available on the cpu, then
 	// check if the OS enabled XSAVE/XRESTORE for the extended registers.
 	// https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled
-	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27));
-	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));
 	if ((cpuid1[2] & AVX_FLAG) == AVX_FLAG)
 	{
 
