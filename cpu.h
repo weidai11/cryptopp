@@ -108,10 +108,11 @@ CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[
 /// \name IA-32 CPU FEATURES
 //@{
 
-/// \brief Determines SSE2 availability
+/// \brief Determine SSE2 availability
 /// \returns true if SSE2 is determined to be available, false otherwise
 /// \details MMX, SSE and SSE2 are core processor features for x86_64, and
-///  the function always returns true for the platform.
+///  the function return value is based on OSXSAVE. On i386 both
+///  SSE2 and OSXSAVE are used for the return value.
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE2()
 {
@@ -124,7 +125,7 @@ inline bool HasSSE2()
 #endif
 }
 
-/// \brief Determines SSSE3 availability
+/// \brief Determine SSSE3 availability
 /// \returns true if SSSE3 is determined to be available, false otherwise
 /// \details HasSSSE3() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -139,7 +140,7 @@ inline bool HasSSSE3()
 #endif
 }
 
-/// \brief Determines SSE4.1 availability
+/// \brief Determine SSE4.1 availability
 /// \returns true if SSE4.1 is determined to be available, false otherwise
 /// \details HasSSE41() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -154,7 +155,7 @@ inline bool HasSSE41()
 #endif
 }
 
-/// \brief Determines SSE4.2 availability
+/// \brief Determine SSE4.2 availability
 /// \returns true if SSE4.2 is determined to be available, false otherwise
 /// \details HasSSE42() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -169,7 +170,23 @@ inline bool HasSSE42()
 #endif
 }
 
-/// \brief Determines AES-NI availability
+/// \brief Determine MOVBE availability
+/// \returns true if MOVBE is determined to be available, false otherwise
+/// \details HasMOVBE() is a runtime check performed using CPUID
+/// \since Crypto++ 8.3
+/// \note This function is only available on Intel IA-32 platforms
+inline bool HasMOVBE()
+{
+#if CRYPTOPP_SSE42_AVAILABLE
+	if (!g_x86DetectionDone)
+		DetectX86Features();
+	return g_hasMOVBE;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine AES-NI availability
 /// \returns true if AES-NI is determined to be available, false otherwise
 /// \details HasAESNI() is a runtime check performed using CPUID
 /// \since Crypto++ 5.6.1
@@ -185,7 +202,7 @@ inline bool HasAESNI()
 #endif
 }
 
-/// \brief Determines Carryless Multiply availability
+/// \brief Determine Carryless Multiply availability
 /// \returns true if pclmulqdq is determined to be available, false otherwise
 /// \details HasCLMUL() is a runtime check performed using CPUID
 /// \since Crypto++ 5.6.1
@@ -201,7 +218,7 @@ inline bool HasCLMUL()
 #endif
 }
 
-/// \brief Determines SHA availability
+/// \brief Determine SHA availability
 /// \returns true if SHA is determined to be available, false otherwise
 /// \details HasSHA() is a runtime check performed using CPUID
 /// \since Crypto++ 6.0
@@ -217,7 +234,7 @@ inline bool HasSHA()
 #endif
 }
 
-/// \brief Determines ADX availability
+/// \brief Determine ADX availability
 /// \returns true if ADX is determined to be available, false otherwise
 /// \details HasADX() is a runtime check performed using CPUID
 /// \since Crypto++ 7.0
@@ -233,7 +250,7 @@ inline bool HasADX()
 #endif
 }
 
-/// \brief Determines AVX availability
+/// \brief Determine AVX availability
 /// \returns true if AVX is determined to be available, false otherwise
 /// \details HasAVX() is a runtime check performed using CPUID
 /// \since Crypto++ 8.0
@@ -249,7 +266,7 @@ inline bool HasAVX()
 #endif
 }
 
-/// \brief Determines AVX2 availability
+/// \brief Determine AVX2 availability
 /// \returns true if AVX2 is determined to be available, false otherwise
 /// \details HasAVX2() is a runtime check performed using CPUID
 /// \since Crypto++ 8.0
@@ -265,7 +282,7 @@ inline bool HasAVX2()
 #endif
 }
 
-/// \brief Determines RDRAND availability
+/// \brief Determine RDRAND availability
 /// \returns true if RDRAND is determined to be available, false otherwise
 /// \details HasRDRAND() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -280,7 +297,7 @@ inline bool HasRDRAND()
 #endif
 }
 
-/// \brief Determines RDSEED availability
+/// \brief Determine RDSEED availability
 /// \returns true if RDSEED is determined to be available, false otherwise
 /// \details HasRDSEED() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -295,7 +312,7 @@ inline bool HasRDSEED()
 #endif
 }
 
-/// \brief Determines Padlock RNG availability
+/// \brief Determine Padlock RNG availability
 /// \returns true if VIA Padlock RNG is determined to be available, false otherwise
 /// \details HasPadlockRNG() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -310,7 +327,7 @@ inline bool HasPadlockRNG()
 #endif
 }
 
-/// \brief Determines Padlock ACE availability
+/// \brief Determine Padlock ACE availability
 /// \returns true if VIA Padlock ACE is determined to be available, false otherwise
 /// \details HasPadlockACE() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -325,7 +342,7 @@ inline bool HasPadlockACE()
 #endif
 }
 
-/// \brief Determines Padlock ACE2 availability
+/// \brief Determine Padlock ACE2 availability
 /// \returns true if VIA Padlock ACE2 is determined to be available, false otherwise
 /// \details HasPadlockACE2() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -340,7 +357,7 @@ inline bool HasPadlockACE2()
 #endif
 }
 
-/// \brief Determines Padlock PHE availability
+/// \brief Determine Padlock PHE availability
 /// \returns true if VIA Padlock PHE is determined to be available, false otherwise
 /// \details HasPadlockPHE() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -355,7 +372,7 @@ inline bool HasPadlockPHE()
 #endif
 }
 
-/// \brief Determines Padlock PMM availability
+/// \brief Determine Padlock PMM availability
 /// \returns true if VIA Padlock PMM is determined to be available, false otherwise
 /// \details HasPadlockPMM() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
@@ -370,7 +387,7 @@ inline bool HasPadlockPMM()
 #endif
 }
 
-/// \brief Determines if the CPU is an Intel P4
+/// \brief Determine if the CPU is an Intel P4
 /// \returns true if the CPU is a P4, false otherwise
 /// \details IsP4() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
