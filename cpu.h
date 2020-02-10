@@ -87,6 +87,7 @@ extern CRYPTOPP_DLL bool g_hasSSE41;
 extern CRYPTOPP_DLL bool g_hasSSE42;
 extern CRYPTOPP_DLL bool g_hasAVX;
 extern CRYPTOPP_DLL bool g_hasAVX2;
+extern CRYPTOPP_DLL bool g_hasMOVBE;
 extern CRYPTOPP_DLL bool g_hasAESNI;
 extern CRYPTOPP_DLL bool g_hasCLMUL;
 extern CRYPTOPP_DLL bool g_hasSHA;
