@@ -238,6 +238,7 @@ void GetAppleMachineInfo(unsigned int& device, unsigned int& version, unsigned i
 #if CRYPTOPP_CXX11_DYNAMIC_INIT
 	static const AppleMachineInfo info;
 #else
+	using CryptoPP::Singleton;
 	const AppleMachineInfo& info = Singleton<AppleMachineInfo>().Ref();
 #endif
 
