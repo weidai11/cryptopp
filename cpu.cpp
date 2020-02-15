@@ -58,7 +58,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 #endif
 
 // Visual Studio 2008 and below are missing _xgetbv and _cpuidex.
-// See x64dll.asm for the function bodies.
+// The 32-bit versions use inline ASM below. The 64-bit versions are in x64dll.asm.
 #if defined(_MSC_VER) && defined(_M_X64)
 extern "C" unsigned long long __fastcall XGETBV64(unsigned int);
 extern "C" unsigned long long __fastcall CPUID64(unsigned int, unsigned int, unsigned int*);
