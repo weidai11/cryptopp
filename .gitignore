@@ -97,7 +97,10 @@ local.properties
 
 [Dd]ebug/
 [Rr]elease/
+Win32/
 x64/
+Arm/
+Arm64/
 build/
 [Bb]in/
 [Oo]bj/
