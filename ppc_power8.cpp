@@ -56,7 +56,10 @@ bool CPU_ProbePower8()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;
@@ -109,7 +112,10 @@ bool CPU_ProbeAES()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;
@@ -158,7 +164,10 @@ bool CPU_ProbeSHA256()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;
@@ -202,7 +211,10 @@ bool CPU_ProbeSHA512()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;

@@ -77,7 +77,10 @@ bool CPU_ProbeARMv7()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;
@@ -160,7 +163,10 @@ bool CPU_ProbeNEON()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;
@@ -176,7 +182,7 @@ bool CPU_ProbeNEON()
         uint32x4_t y = vshlq_n_u32(x, 4);
 
         word32 z[4]; vst1q_u32(z, y);
-        return (z[0] & z[1] & z[2] & z[3]) == 16;
+        result = (z[0] & z[1] & z[2] & z[3]) == 16;
     }
 
     sigprocmask(SIG_SETMASK, (sigset_t*)&oldMask, NULLPTR);

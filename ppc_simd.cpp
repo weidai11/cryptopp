@@ -58,7 +58,10 @@ bool CPU_ProbeAltivec()
 
     volatile sigset_t oldMask;
     if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask))
+    {
+        signal(SIGILL, oldHandler);
         return false;
+    }
 
     if (setjmp(s_jmpSIGILL))
         result = false;

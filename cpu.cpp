@@ -72,9 +72,8 @@ extern "C" {
 extern "C"
 {
 	static jmp_buf s_jmpNoCPUID;
-	static void SigIllHandlerCPUID(int unused)
+	static void SigIllHandler(int)
 	{
-		CRYPTOPP_UNUSED(unused);
 		longjmp(s_jmpNoCPUID, 1);
 	}
 }
@@ -358,14 +357,17 @@ bool CpuId(word32 func, word32 subfunc, word32 output[4])
 	// http://github.com/weidai11/cryptopp/issues/24 and http://stackoverflow.com/q/7721854
 	volatile bool result = true;
 
-	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandlerCPUID);
+	volatile SigHandler oldHandler = signal(SIGILL, SigIllHandler);
 	if (oldHandler == SIG_ERR)
 		return false;
 
 # ifndef __MINGW32__
 	volatile sigset_t oldMask;
 	if (sigprocmask(0, NULLPTR, (sigset_t*)&oldMask) != 0)
+	{
+		signal(SIGILL, oldHandler);
 		return false;
+	}
 # endif
 
 	if (setjmp(s_jmpNoCPUID))
