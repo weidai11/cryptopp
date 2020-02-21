@@ -304,6 +304,8 @@ word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 extern bool CPU_ProbeSSE2();
 
 // xcr0 is available when xgetbv is present.
+// The intrinsic is broke on GCC 8.1 and earlier. Also see
+// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85684.
 word64 XGetBV(word32 num)
 {
 // Visual Studio 2010 and above, 32 and 64-bit
@@ -354,7 +356,7 @@ word64 XGetBV(word32 num)
 	word32 a=0, d=0;
 	__asm__
 	(
-		".byte 0x0f, 0x01, 0xd0"   "\n\t"
+		".byte 0x0f, 0x01, 0xd0"      "\n\t"
 		: "=a"(a), "=d"(d) : "c"(num) : "cc"
 	);
 	return (static_cast<word64>(d) << 32) | a;
