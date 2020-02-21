@@ -283,11 +283,11 @@ bool CRYPTOPP_SECTION_INIT g_hasSSE2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSSE3 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSE41 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSSE42 = false;
-bool CRYPTOPP_SECTION_INIT g_hasAVX = false;
-bool CRYPTOPP_SECTION_INIT g_hasAVX2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasAESNI = false;
 bool CRYPTOPP_SECTION_INIT g_hasCLMUL = false;
 bool CRYPTOPP_SECTION_INIT g_hasMOVBE = false;
+bool CRYPTOPP_SECTION_INIT g_hasAVX = false;
+bool CRYPTOPP_SECTION_INIT g_hasAVX2 = false;
 bool CRYPTOPP_SECTION_INIT g_hasADX = false;
 bool CRYPTOPP_SECTION_INIT g_hasSHA = false;
 bool CRYPTOPP_SECTION_INIT g_hasRDRAND = false;
@@ -300,13 +300,72 @@ bool CRYPTOPP_SECTION_INIT g_hasPadlockPHE = false;
 bool CRYPTOPP_SECTION_INIT g_hasPadlockPMM = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
+// For Solaris 11
 extern bool CPU_ProbeSSE2();
+
+// xcr0 is available when xgetbv is present.
+word64 XGetBV(word32 num)
+{
+// Visual Studio 2010 and above, 32 and 64-bit
+#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+
+	return _xgetbv(num);
+
+// Visual Studio 2008 and below, 64-bit
+#elif defined(_MSC_VER) && defined(_M_X64)
+
+	return XGETBV64(num);
+
+// Visual Studio 2008 and below, 32-bit
+#elif defined(_MSC_VER) && defined(_M_IX86)
+
+	word32 a=0, d=0;
+	__asm {
+		push eax
+		push edx
+		push ecx
+		mov ecx, num
+		_emit 0x0f
+		_emit 0x01
+		_emit 0xd0
+		mov a, eax
+		mov d, edx
+		pop ecx
+		pop edx
+		pop eax
+	}
+	return (static_cast<word64>(d) << 32) | a;
+
+// GCC 4.4 and above
+#elif (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 4))
+
+	word32 a=0, d=0;
+	__asm__
+	(
+		"xgetbv" : "=a"(a), "=d"(d) : "c"(num) : "cc"
+	);
+	return (static_cast<word64>(d) << 32) | a;
+
+// Remainder of GCC and compatibles.
+#else
+
+	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
+	// http://www.agner.org/optimize/vectorclass/read.php?i=65
+	word32 a=0, d=0;
+	__asm__
+	(
+		".byte 0x0f, 0x01, 0xd0"   "\n\t"
+		: "=a"(a), "=d"(d) : "c"(num) : "cc"
+	);
+	return (static_cast<word64>(d) << 32) | a;
+#endif
+}
 
 // No inline due to Borland/Embarcadero and Issue 498
 // cpu.cpp (131): E2211 Inline assembly not allowed in inline and template functions
 bool CpuId(word32 func, word32 subfunc, word32 output[4])
 {
-// Visual Studio 2010 and above, all Intels
+// Visual Studio 2010 and above, 32 and 64-bit
 #if defined(_MSC_VER) && (_MSC_VER >= 1600)
 
 	__cpuidex((int *)output, func, subfunc);
@@ -439,15 +498,20 @@ void DetectX86Features()
 #if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	// 64-bit core instruction set includes SSE2. Just check
 	// the OS enabled SSE2 support using OSXSAVE.
-	g_hasSSE2 = ((cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0);
+	g_hasSSE2 = (cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0;
 #else
 	// Check the processor supports SSE2. Then use OSXSAVE to
 	// signal OS support for SSE2 to avoid probes.
 	// Also see http://stackoverflow.com/a/22521619/608639
 	// and http://github.com/weidai11/cryptopp/issues/511.
 	if ((cpuid1[EDX_REG] & SSE2_FLAG) == SSE2_FLAG)
-		g_hasSSE2 = ((cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0);
+		g_hasSSE2 = (cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0;
 #endif
+
+	// Solaris 11 i86pc does not signal SSE support using
+	// OSXSAVE. We need to probe for SSE support. CR4 and
+	// bit 18 is not available to userland.
+	// TODO: cut something in when testing is available.
 
 	if (g_hasSSE2 == false)
 		goto done;
@@ -464,55 +528,8 @@ void DetectX86Features()
 	// https://software.intel.com/en-us/blogs/2011/04/14/is-avx-enabled
 	if ((cpuid1[ECX_REG] & AVX_FLAG) == AVX_FLAG)
 	{
-
-// GCC 4.1/Binutils 2.17 and below cannot consume xgetbv
-#if defined(__GNUC__) || (__SUNPRO_CC >= 0x5100) || defined(__BORLANDC__)
-		// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
-		// http://www.agner.org/optimize/vectorclass/read.php?i=65
-		word32 a=0, d=0;
-		__asm __volatile
-		(
-			// "xgetbv" : "=a"(a), "=d"(d) : "c"(0) :
-			".byte 0x0f, 0x01, 0xd0"   "\n\t"
-			: "=a"(a), "=d"(d) : "c"(0) : "cc"
-		);
-		word64 xcr0 = a | static_cast<word64>(d) << 32;
+		word64 xcr0 = XGetBV(0);
 		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
-
-// Visual Studio 2010 and below lack xgetbv
-#elif defined(_MSC_VER) && _MSC_VER <= 1600 && defined(_M_IX86)
-		word32 a=0, d=0;
-		__asm {
-			push eax
-			push edx
-			push ecx
-			mov ecx, 0
-			_emit 0x0f
-			_emit 0x01
-			_emit 0xd0
-			mov a, eax
-			mov d, edx
-			pop ecx
-			pop edx
-			pop eax
-		}
-		word64 xcr0 = a | static_cast<word64>(d) << 32;
-		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
-
-// Visual Studio 2008 and below lack xgetbv
-#elif defined(_MSC_VER) && _MSC_VER <= 1500 && defined(_M_X64)
-		word64 xcr0 = XGETBV64(0);
-		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
-
-// Downlevel SunCC. SunCC v12.1 was checked earlier.
-#elif defined(__SUNPRO_CC)
-		g_hasAVX = false;
-
-// _xgetbv is available
-#else
-		word64 xcr0 = _xgetbv(0);
-		g_hasAVX = (xcr0 & YMM_FLAG) == YMM_FLAG;
-#endif
 	}
 
 	if (IsIntel(cpuid0))
@@ -607,6 +624,10 @@ void DetectX86Features()
 			g_cacheLineSize = GETBYTE(cpuid2[ECX_REG], 0);
 		}
 	}
+
+	// Keep AVX2 in sync with OS support for AVX. AVX tests both
+	// cpu support and OS support, while AVX2 only tests cpu support.
+	g_hasAVX2 &= g_hasAVX;
 
 done:
 
