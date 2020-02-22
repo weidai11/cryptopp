@@ -207,7 +207,6 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
-	AS1(	push	%%ebx)
 	AS1(	push	%0)         // L1KeyLength
 	AS1(	pop 	%%ebx)
 	INTEL_NOPREFIX
@@ -429,11 +428,10 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS1(	emms)
 #ifdef __GNUC__
 	ATT_PREFIX
-	AS1(	pop 	%%ebx)
 		:
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data),
 		  "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
-		: "esp", "memory", "cc"
+		: "ebx", "memory", "cc"
 	);
 #endif
 }

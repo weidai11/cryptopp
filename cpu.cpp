@@ -511,9 +511,9 @@ void DetectX86Features()
 #endif
 
 	// Solaris 11 i86pc does not signal SSE support using
-	// OSXSAVE. We need to probe for SSE support. CR4 and
-	// bit 18 is not available to userland.
-	// TODO: cut something in when testing is available.
+	// OSXSAVE. We need to probe for SSE support.
+	if (g_hasSSE2 == false)
+		g_hasSSE2 = CPU_ProbeSSE2();
 
 	if (g_hasSSE2 == false)
 		goto done;
