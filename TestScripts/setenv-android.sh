@@ -181,7 +181,6 @@ case "$THE_ARCH" in
     AOSP_FLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
     ;;
   x86_64|x64)
-    CPP="x86_64-linux-android-cpp"
     CC="x86_64-linux-android$AOSP_API-clang"
     CXX="x86_64-linux-android$AOSP_API-clang++"
     LD="x86_64-linux-android-ld"
