@@ -54,37 +54,37 @@ do
   CL=$(echo "$ARG" | tr '[:upper:]' '[:lower:]')
 
   # i386 (simulator)
-  if [ "$CL" == "i386" ]; then
+  if [ "$CL" = "i386" ]; then
     BACK_ARCH=i386
     APPLE_SDK=iPhoneSimulator
   fi
 
   # x86_64 (simulator)
-  if [ "$CL" == "x86_64" ]; then
+  if [ "$CL" = "x86_64" ]; then
     BACK_ARCH=x86_64
     APPLE_SDK=iPhoneSimulator
   fi
 
   # ARMv5
-  if [ "$CL" == "armv5" ]; then
+  if [ "$CL" = "armv5" ]; then
     BACK_ARCH=armv5
     APPLE_SDK=iPhoneOS
   fi
 
   # ARMv6
-  if [ "$CL" == "armv6" ]; then
+  if [ "$CL" = "armv6" ]; then
     BACK_ARCH=armv6
     APPLE_SDK=iPhoneOS
   fi
 
   # ARMv7
-  if [ "$CL" == "armv7" ]; then
+  if [ "$CL" = "armv7" ]; then
     BACK_ARCH=armv7
     APPLE_SDK=iPhoneOS
   fi
 
   # ARMv7s
-  if [ "$CL" == "armv7s" ]; then
+  if [ "$CL" = "armv7s" ]; then
     BACK_ARCH=armv7s
     APPLE_SDK=iPhoneOS
   fi
@@ -102,7 +102,7 @@ do
   fi
 
   # iPhone Simulator
-  if [[ ("$CL" == "simulator" || "$CL" == "iphonesimulator") ]]; then
+  if [[ ("$CL" == "iphonesimulator" || "$CL" == "iphoneossimulator") ]]; then
     BACK_ARCH=i386
     APPLE_SDK=iPhoneSimulator
   fi
@@ -114,7 +114,7 @@ do
   fi
 
   # Watch Simulator
-  if [ "$CL" == "watchsimulator" ]; then
+  if [[ "$CL" == "watchsimulator" || "$CL" == "watchossimulator" ]]; then
     BACK_ARCH=i386
     APPLE_SDK=WatchSimulator
   fi
@@ -126,7 +126,7 @@ do
   fi
 
   # Apple TV Simulator
-  if [[ ("$CL" == "tvsimulator" || "$CL" == "appletvsimulator") ]]; then
+  if [[ ("$CL" == "tvsimulator" || "$CL" == "appletvsimulator" || "$CL" == "appletvossimulator") ]]; then
     BACK_ARCH=x86_64
     APPLE_SDK=AppleTVSimulator
   fi
@@ -205,27 +205,27 @@ if [ -z "$XCODE_SDK" ]; then
 fi
 
 # https://github.com/weidai11/cryptopp/issues/635
-if [ "$APPLE_SDK" == "iPhoneSimulator" ]; then
+if [ "$APPLE_SDK" = "iPhoneSimulator" ]; then
   IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator fixup. LD fails to link dylib.
-if [ "$APPLE_SDK" == "iPhoneSimulator" ] && [ "$IOS_ARCH" == "i386" ]; then
+if [ "$APPLE_SDK" = "iPhoneSimulator" ] && [ "$IOS_ARCH" = "i386" ]; then
   IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=5"
 fi
 
 # ARMv7s fixup. Xcode 4/iOS 6
-if [ "$IOS_ARCH" == "armv7s" ]; then
+if [ "$IOS_ARCH" = "armv7s" ]; then
   IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=6"
 fi
 
 # ARM64 fixup. Xcode 5/iOS 7
-if [ "$IOS_ARCH" == "arm64" ]; then
+if [ "$IOS_ARCH" = "arm64" ]; then
   IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=7"
 fi
 
 # Yet another ARM64 fixup.
-if [ "$APPLE_SDK" == "AppleTVOS" ]; then
+if [ "$APPLE_SDK" = "AppleTVOS" ]; then
   IOS_FLAGS="-mios-version-min=6"
 fi
 
@@ -246,7 +246,7 @@ export IOS_SYSROOT="$XCODE_DEVELOPER_TOP/SDKs/$XCODE_SDK"
 #####          Verbose           #####
 #######################################
 
-if [ "$SETENV_VERBOSE" == "1" ]; then
+if [ "$SETENV_VERBOSE" = "1" ]; then
 
   echo "XCODE_SDK: $XCODE_SDK"
   echo "XCODE_DEVELOPER: $XCODE_DEVELOPER"
