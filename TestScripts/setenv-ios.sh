@@ -194,7 +194,7 @@ for i in $(seq -f "%.1f" 20.0 -0.1 1.0)
 do
     if [ -d "$XCODE_DEVELOPER/Platforms/$APPLE_SDK.platform/Developer/SDKs/$APPLE_SDK$i.sdk" ]; then
         XCODE_SDK="$APPLE_SDK$i.sdk"
-          break
+        break
     fi
 done
 
@@ -226,7 +226,7 @@ fi
 
 # Yet another ARM64 fixup.
 if [ "$APPLE_SDK" == "AppleTVOS" ]; then
-  IOS_FLAGS=""
+  IOS_FLAGS="-mios-version-min=6"
 fi
 
 # Disable ASM for simulator. We are failing on Travis due to missing _start.
@@ -278,19 +278,11 @@ fi
 #####     Path with Toolchains     #####
 ########################################
 
-# Only modify/export PATH if IOS_TOOLCHAIN good
-if [ ! -z "$IOS_TOOLCHAIN" ] && [ ! -z "$XCODE_TOOLCHAIN" ]; then
-
-    # And only modify PATH if IOS_TOOLCHAIN is not present
-    TOOL_PATH="$IOS_TOOLCHAIN:$XCODE_TOOLCHAIN"
-    LEN=${#TOOL_PATH}
-    SUBSTR=${PATH:0:$LEN}
-    if [ "$SUBSTR" != "$TOOL_PATH" ]; then
-        export PATH="$TOOL_PATH":"$PATH"
-    fi
-else
-    echo "ERROR: unable to set new PATH."
-    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+TOOL_PATH="$IOS_TOOLCHAIN:$XCODE_TOOLCHAIN"
+LENGTH=${#TOOL_PATH}
+SUBSTR=${PATH:0:$LENGTH}
+if [ "$SUBSTR" != "$TOOL_PATH" ]; then
+    export PATH="$TOOL_PATH":"$PATH"
 fi
 
 ########################################
