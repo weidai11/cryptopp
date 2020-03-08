@@ -497,6 +497,11 @@ void DetectX86Features()
 	CRYPTOPP_CONSTANT(AVX_FLAG = (3 << 27));     // ECX
 	CRYPTOPP_CONSTANT(YMM_FLAG = (3 <<  1));     // CR0
 
+    // x86_64 machines don't check some flags because SSE2
+    // is part of the core instruction set architecture
+    CRYPTOPP_UNUSED(MMX_FLAG); CRYPTOPP_UNUSED(SSE_FLAG);
+    CRYPTOPP_UNUSED(SSE3_FLAG); CRYPTOPP_UNUSED(XSAVE_FLAG);
+
 #if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	// 64-bit core instruction set includes SSE2. Just check
 	// the OS enabled SSE2 support using OSXSAVE.
@@ -507,7 +512,8 @@ void DetectX86Features()
 	// Also see http://stackoverflow.com/a/22521619/608639
 	// and http://github.com/weidai11/cryptopp/issues/511.
 	if ((cpuid1[EDX_REG] & SSE2_FLAG) == SSE2_FLAG)
-		g_hasSSE2 = (cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0;
+		g_hasSSE2 = (cpuid1[ECX_REG] & XSAVE_FLAG) != 0 &&
+		            (cpuid1[ECX_REG] & OSXSAVE_FLAG) != 0;
 #endif
 
 	// Solaris 11 i86pc does not signal SSE support using
