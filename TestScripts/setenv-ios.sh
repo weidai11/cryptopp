@@ -204,11 +204,6 @@ if [ -z "$XCODE_SDK" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-# https://github.com/weidai11/cryptopp/issues/635
-if [ "$APPLE_SDK" = "iPhoneSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
-fi
-
 # Simulator fixup. LD fails to link dylib.
 if [ "$APPLE_SDK" = "iPhoneSimulator" ] && [ "$IOS_ARCH" = "i386" ]; then
   IOS_FLAGS="$IOS_FLAGS -miphoneos-version-min=5"
@@ -227,6 +222,12 @@ fi
 # Yet another ARM64 fixup.
 if [ "$APPLE_SDK" = "AppleTVOS" ]; then
   IOS_FLAGS="-mios-version-min=6"
+fi
+
+# The simulators need to disable ASM. They don't receive arch flags.
+# https://github.com/weidai11/cryptopp/issues/635
+if [[ ("$APPLE_SDK" == "iPhoneSimulator" || "$APPLE_SDK" == "AppleTVSimulator" || "$APPLE_SDK" == "WatchSimulator") ]]; then
+  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
