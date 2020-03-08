@@ -229,22 +229,6 @@ if [ "$APPLE_SDK" == "AppleTVOS" ]; then
   IOS_FLAGS="-mios-version-min=6"
 fi
 
-# Disable ASM for simulator. We are failing on Travis due to missing _start.
-# We may need to link against crt1.o for simulator builds. Also see
-# https://stackoverflow.com/q/24841283/608639
-# -watchos_simulator_version_min does not work though it is in LLVM sources.
-if [ "$APPLE_SDK" == "WatchSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
-fi
-
-# Disable ASM for simulator. We are failing on Travis due to missing _start.
-# We may need to link against crt1.o for simulator builds. Also see
-# https://stackoverflow.com/q/24841283/608639
-# -tvos_simulator_version_min does not work though it is in LLVM sources.
-if [ "$APPLE_SDK" == "AppleTVSimulator" ]; then
-  IOS_FLAGS="$IOS_FLAGS -DCRYPTOPP_DISABLE_ASM"
-fi
-
 # Simulator uses i386 or x86_64, Device uses ARMv5, ARMv6, ARMv7, ARMv7s or ARMv8
 #
 # Apple deprecated ARMv5 at iOS 4.0, and ARMv6 at iOS 5.0
