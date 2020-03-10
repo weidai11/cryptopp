@@ -13,9 +13,9 @@
 #####        Some validation        #####
 #########################################
 
-# In the past we could infer arch or cpu from the SDK (and mostly
-# vice-versa). Nowadays we need it set for us because Apple platforms
-# can be either 32-bit or 64-bit.
+# In the past we could mostly infer arch or cpu from the SDK (and mostly
+# vice-versa). Nowadays we need the user to set it for us because Apple
+# platforms have both 32-bit or 64-bit variations.
 
 if [ -z "$IOS_SDK" ]; then
     echo "IOS_SDK is not set. Please set it"
