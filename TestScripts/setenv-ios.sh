@@ -139,14 +139,18 @@ fi
 # Fix it so the simulator will compile as expected. This trick
 # may work on other platforms, but it was not tested.
 
-if [ -n "($command -v xcodebuild 2>/dev/null)" ]; then
+if [ -n "$(command -v xcodebuild 2>/dev/null)" ]; then
     # Output of xcodebuild is similar to "Xcode 6.2". The first cut gets
     # the dotted decimal value. The second cut gets the major version.
     XCODE_VERSION=$(xcodebuild -version 2>/dev/null | head -n 1 | cut -f2 -d" " | cut -f1 -d".")
     if [ -z "$XCODE_VERSION" ]; then XCODE_VERSION=100; fi
 
     if [ "$XCODE_VERSION" -le 6 ]; then
-        MIN_VER=$(echo "$MIN_VER" | sed 's/iphonesimulator/iphoneos/g')
+        MIN_VER="${MIN_VER//iphonesimulator/iphoneos}"
+    fi
+
+    if [ "$XCODE_VERSION" -eq 6 ]; then
+        MIN_VER="${MIN_VER//iphoneos-version-min=6/iphoneos-version-min=5}"
     fi
 fi
 
