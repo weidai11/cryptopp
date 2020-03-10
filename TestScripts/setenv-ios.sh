@@ -148,10 +148,6 @@ if [ -n "$(command -v xcodebuild 2>/dev/null)" ]; then
     if [ "$XCODE_VERSION" -le 6 ]; then
         MIN_VER="${MIN_VER//iphonesimulator/iphoneos}"
     fi
-
-    if [ "$XCODE_VERSION" -eq 6 ]; then
-        MIN_VER="${MIN_VER//iphoneos-version-min=6/iphoneos-version-min=5}"
-    fi
 fi
 
 #####################################################################
