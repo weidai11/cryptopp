@@ -256,11 +256,13 @@ if [ ! -e "$XCODE_TOOLCHAIN/$LD" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-TOOL_PATH="$XCODE_TOOLCHAIN"
-LENGTH=${#TOOL_PATH}
+#####################################################################
+
+# Add tools to head of path, if not present already
+LENGTH=${#XCODE_TOOLCHAIN}
 SUBSTR=${PATH:0:$LENGTH}
-if [ "$SUBSTR" != "$TOOL_PATH" ]; then
-    export PATH="$TOOL_PATH":"$PATH"
+if [ "$SUBSTR" != "$XCODE_TOOLCHAIN" ]; then
+    export PATH="$XCODE_TOOLCHAIN:$PATH"
 fi
 
 #####################################################################

@@ -212,6 +212,9 @@ if [ ! -e "$ANDROID_TOOLCHAIN/$LD" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+#####################################################################
+
+# Add tools to head of path, if not present already
 LENGTH=${#ANDROID_TOOLCHAIN}
 SUBSTR=${PATH:0:$LENGTH}
 if [ "$SUBSTR" != "$ANDROID_TOOLCHAIN" ]; then
