@@ -102,14 +102,11 @@ endif
 # iOS cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/iOS_(Command_Line).
 ifeq ($(IS_IOS),1)
-  CXX = clang++
-
-  CXXFLAGS += $(IOS_FLAGS) -arch $(IOS_ARCH)
-  CXXFLAGS += -isysroot "$(IOS_SYSROOT)" -stdlib=libc++
+  CXXFLAGS += $(IOS_CXXFLAGS) -stdlib=libc++
+  CXXFLAGS += --sysroot "$(IOS_SYSROOT)"
 
   AR = libtool
   ARFLAGS = -static -o
-  RANLIB = ranlib
 endif
 
 ###########################################################
@@ -119,14 +116,13 @@ endif
 # Android cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
-  # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-android.sh'
-  CXXFLAGS += $(AOSP_FLAGS) -stdlib=$(AOSP_RUNTIME) -DANDROID
-  CXXFLAGS += -D__ANDROID_API__=$(AOSP_API) --sysroot=$(AOSP_SYSROOT)
+  CXXFLAGS += $(ANDROID_CXXFLAGS) -D__ANDROID_API__=$(ANDROID_API)
+  CXXFLAGS += --sysroot=$(ANDROID_SYSROOT)
   CXXFLAGS += -Wa,--noexecstack
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.
-  AOSP_CPU_OBJ = cpu-features.o
+  ANDROID_CPU_OBJ = cpu-features.o
 endif
 
 ###########################################################
@@ -194,6 +190,8 @@ else ifeq ($(findstring clean,$(MAKECMDGOALS)),clean)
 else ifeq ($(findstring distclean,$(MAKECMDGOALS)),distclean)
   DETECT_FEATURES := 0
 else ifeq ($(findstring distclean,$(MAKECMDGOALS)),trim)
+  DETECT_FEATURES := 0
+else ifeq ($(IS_IOS),1)
   DETECT_FEATURES := 0
 endif
 
@@ -708,7 +706,7 @@ lean: static dynamic cryptest.exe
 
 .PHONY: clean
 clean:
-	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(AOSP_CPU_OBJ) rdrand-*.o $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
+	-$(RM) adhoc.cpp.o adhoc.cpp.proto.o $(LIBOBJS) $(ANDROID_CPU_OBJ) rdrand-*.o $(TESTOBJS) $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTIMPORTOBJS) $(DLLTESTOBJS)
 	@-$(RM) libcryptopp.a libcryptopp.dylib cryptopp.dll libcryptopp.dll.a libcryptopp.import.a
 	@-$(RM) libcryptopp.so libcryptopp.so$(SOLIB_COMPAT_SUFFIX) libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 	@-$(RM) cryptest.exe dlltest.exe cryptest.import.exe cryptest.info ct et
@@ -804,8 +802,8 @@ remove uninstall:
 	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 	@-$(RM) $(DESTDIR)$(LIBDIR)/libcryptopp.so
 
-libcryptopp.a: $(LIBOBJS) $(AOSP_CPU_OBJ)
-	$(AR) $(ARFLAGS) $@ $(LIBOBJS) $(AOSP_CPU_OBJ)
+libcryptopp.a: $(LIBOBJS) $(ANDROID_CPU_OBJ)
+	$(AR) $(ARFLAGS) $@ $(LIBOBJS) $(ANDROID_CPU_OBJ)
 	$(RANLIB) $@
 
 ifeq ($(HAS_SOLIB_VERSION),1)
@@ -813,15 +811,15 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
-libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) $(AOSP_CPU_OBJ)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(AOSP_CPU_OBJ) $(LDFLAGS) $(LDLIBS)
+libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) $(ANDROID_CPU_OBJ)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(ANDROID_CPU_OBJ) $(LDFLAGS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
-libcryptopp.dylib: $(LIBOBJS) $(AOSP_CPU_OBJ)
-	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS) $(AOSP_CPU_OBJ)
+libcryptopp.dylib: $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: $(LINK_LIBRARY) $(TESTOBJS)
 	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY_PATH)$(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
