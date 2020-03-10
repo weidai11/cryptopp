@@ -5,7 +5,7 @@
 #
 # Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.
-# Updated by Skycoder42 based on the current recommendations for Android.
+# Modified by Skycoder42 Android NDK-r19 and above.
 #
 # Also see:
 #   https://android.googlesource.com/platform/ndk.git/+/HEAD/docs/UnifiedHeaders.md
