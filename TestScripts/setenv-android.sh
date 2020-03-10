@@ -108,7 +108,7 @@ fi
 
 #####################################################################
 
-THE_ARCH=$(tr '[:upper:]' '[:upper:]' <<< "$ANDROID_CPU")
+THE_ARCH=$(tr '[:upper:]' '[:lower:]' <<< "$ANDROID_CPU")
 
 # https://developer.android.com/ndk/guides/abis.html
 case "$THE_ARCH" in
