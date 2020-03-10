@@ -52,18 +52,15 @@ do
     echo "====================================================="
     echo "Testing for iOS support of $platform"
 
-    # run in subshell to not keep any envars
-    (
-        # Test if we can set the environment for the platform
-        if ! ./setenv-ios.sh > /dev/null 2>&1;
-        then
-            echo
-            echo "$platform not supported by Xcode"
-            echo "$platform ==> SKIPPED" >> "$TMPDIR/build.log"
+    # Test if we can set the environment for the platform
+    if ! ./setenv-ios.sh > /dev/null 2>&1;
+    then
+        echo
+        echo "$platform not supported by Xcode"
+        echo "$platform ==> SKIPPED" >> "$TMPDIR/build.log"
 
-            continue
-        fi
-    )
+        continue
+    fi
 
     echo
     echo "Building for $platform..."

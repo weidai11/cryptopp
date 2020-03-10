@@ -187,7 +187,7 @@ fi
 # XCODE_SDK is the SDK name/version being used - adjust the list as appropriate.
 # For example, remove 4.3, 6.2, and 6.1 if they are not installed. We go back to
 # the 1.0 SDKs because Apple WatchOS uses low numbers, like 2.0 and 2.1.
-unset XCODE_SDK
+XCODE_SDK=""
 for i in $(seq -f "%.1f" 30.0 -0.1 1.0)
 do
     if [ -d "$XCODE_DEVELOPER_SDK/Developer/SDKs/$IOS_SDK$i.sdk" ]; then
