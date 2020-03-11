@@ -27,6 +27,10 @@ PLATFORMS=(armv7a aarch64 x86 x86_64)
 
 for platform in "${PLATFORMS[@]}"
 do
+    # setenv-ioandroids.sh reads these two variables for configuration info.
+    export ANDROID_API="23"
+    export ANDROID_CPU="$platform"
+
     make -f GNUmakefile-cross distclean > /dev/null 2>&1
 
     echo
@@ -49,7 +53,7 @@ do
 
     # run in subshell to not keep any envars
     (
-        source ./setenv-ios.sh
+        source ./setenv-android.sh
         if make -k -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
         then
             echo "$platform ==> SUCCESS" >> "$TMPDIR/build.log"
