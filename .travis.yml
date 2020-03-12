@@ -3,10 +3,12 @@
 # scripts and is used to select a test. For example, BUILD_OS=linux
 # and BUILD_MODE=all means run 'make all' on Linux. Travis supplies
 # Linux based on 'os: linux' key so BUILD_OS is effectively ignored.
-# The Android and iOS tests specify a BUILD_ARCH. BUILD_ARCH is passed
-# to the underlying setenv-*.sh scripts. For example, testing on iOS,
-# BUILD_ARCH=arm64 means 'setenv-ios.sh arm64' is called before
-# 'make GNUmakefile-cross' is called.
+# The Android and iOS tests specify a ANDROID_API, ANDROID_CPU,
+# IOS_SDK and IOS_CPU. They are exported for the underlying
+# setenv-*.sh scripts. For example, testing on iOS, IOS_SDK=iPhoneOS
+# and IOS_CPU=arm64 means 'export IOS_SDK=iPhoneOS;
+# export IOS_CPU=arm64;' before sourcing 'setenv-ios.sh' and then
+# making with 'make -f GNUmakefile-cross'.
 
 # DO NOT create top level (global) keys like env, arch, os, compiler.
 # The top level/global keys invoke [unwanted] matrix expansion. Also
@@ -392,6 +394,8 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
+        - CC=clang-8
+        - CXX=clang++-8
     - os: linux
       name: Debug build, Clang, Linux, ppc64le
       arch: ppc64le
@@ -400,6 +404,8 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
+        - CC=clang-8
+        - CXX=clang++-8
     - os: linux
       name: Standard build, GCC, Linux, s390x
       arch: s390x
@@ -423,6 +429,8 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
+        - CC=clang-8
+        - CXX=clang++-8
     - os: linux
       name: Debug build, Clang, Linux, s390x
       arch: s390x
@@ -431,6 +439,8 @@ jobs:
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
+        - CC=clang-8
+        - CXX=clang++-8
     - os: linux
       name: Android, armv7a, Linux
       arch: amd64
@@ -550,24 +560,29 @@ jobs:
     - os: linux
       arch: s390x
       compiler: clang
-    # Clang 7.0 and below will likely have trouble due to
-    # https://bugs.llvm.org/show_bug.cgi?id=39704
-    - os: linux
-      arch: ppc64le
-      compiler: clang
+    # Clang 7.0 and below will likely have trouble on ppc64le
+    # due to https://bugs.llvm.org/show_bug.cgi?id=39704.
 
 before_install:
   - |
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "android" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        sudo apt-get update
+        sudo apt-get -qq -y update
         bash TestScripts/install-ndk.sh
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
-        sudo apt-get -y install autoconf automake libtool
+        sudo apt-get -qq -y install autoconf automake libtool
+    fi
+    # Clang 7 compiler is completely broken on PPC64 and s390x
+    if [[ "$TRAVIS_CPU_ARCH" == "ppc64le" ]] || [[ "$TRAVIS_CPU_ARCH" == "s390x" ]]; then
+        if [[ "$BUILD_OS" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
+            # https://github.com/travis-ci/travis-ci/issues/9037
+            sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
+            sudo apt-get -qq -y install --no-install-recommends clang-8
+        fi
     fi
 
 script:
