@@ -27,7 +27,7 @@ PLATFORMS=(armv7a aarch64 x86 x86_64)
 
 for platform in "${PLATFORMS[@]}"
 do
-    # setenv-ioandroids.sh reads these two variables for configuration info.
+    # setenv-android.sh reads these two variables for configuration info.
     export ANDROID_API="23"
     export ANDROID_CPU="$platform"
 
