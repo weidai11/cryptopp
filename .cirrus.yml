@@ -4,15 +4,14 @@
 env:
   CIRRUS_CLONE_DEPTH: 5
 
-pkginstall_script:
-  - pkg update -f
-  - pkg install -y gmake
-
 task:
   matrix:
     - name: Debug build, FreeBSD 12.1
       freebsd_instance:
         image_family: freebsd-12-1
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
       configure_script:
       compile_script:
         - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
@@ -22,6 +21,9 @@ task:
     - name: Release build, FreeBSD 12.1
       freebsd_instance:
         image_family: freebsd-12-1
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
       configure_script:
       compile_script:
         - gmake -j 3
@@ -31,6 +33,9 @@ task:
     - name: Debug build, FreeBSD 13.0 (snap)
       freebsd_instance:
         image_family: freebsd-13-0-snap
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
       configure_script:
       compile_script:
         - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
@@ -40,6 +45,9 @@ task:
     - name: Release build, FreeBSD 13.0 (snap)
       freebsd_instance:
         image_family: freebsd-13-0-snap
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
       configure_script:
       compile_script:
         - gmake -j 3
