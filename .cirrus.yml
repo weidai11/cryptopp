@@ -1,0 +1,56 @@
+# https://cirrus-ci.org/examples/
+# https://github.com/curl/curl/blob/master/.cirrus.yml
+
+env:
+  CIRRUS_CLONE_DEPTH: 5
+
+task:
+  matrix:
+    - name: Debug build, FreeBSD 12.1
+      freebsd_instance:
+        image_family: freebsd-12-1
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
+      configure_script:
+      compile_script:
+        - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
+    - name: Release build, FreeBSD 12.1
+      freebsd_instance:
+        image_family: freebsd-12-1
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
+      configure_script:
+      compile_script:
+        - gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
+    - name: Debug build, FreeBSD 13.0 (snap)
+      freebsd_instance:
+        image_family: freebsd-13-0-snap
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
+      configure_script:
+      compile_script:
+        - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
+    - name: Release build, FreeBSD 13.0 (snap)
+      freebsd_instance:
+        image_family: freebsd-13-0-snap
+      pkginstall_script:
+        - pkg update -f
+        - pkg install -y gmake
+      configure_script:
+      compile_script:
+        - gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
