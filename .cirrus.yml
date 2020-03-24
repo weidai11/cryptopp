@@ -13,7 +13,7 @@ task:
 
   pkginstall_script:
     - pkg update -f
-    - pkg install gmake
+    - pkg install -y gmake
 
   configure_script:
 
