@@ -9,39 +9,40 @@ pkginstall_script:
   - pkg install -y gmake
 
 task:
-  name: FreeBSD 12.1, Debug build
-    freebsd_instance:
-      image_family: freebsd-12-1
-    configure_script:
-    compile_script:
-      - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
-    test_script:
-      - ./cryptest.exe v
-      - ./cryptest.exe tv all
-  name: FreeBSD 12.1, Release build
-    freebsd_instance:
-      image_family: freebsd-12-1
-    configure_script:
-    compile_script:
-      - gmake -j 3
-    test_script:
-      - ./cryptest.exe v
-      - ./cryptest.exe tv all
-  name: FreeBSD 13.0 (snap), Debug build
-    freebsd_instance:
-      image_family: freebsd-13-0-snap
-    configure_script:
-    compile_script:
-      - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
-    test_script:
-      - ./cryptest.exe v
-      - ./cryptest.exe tv all
-  name: FreeBSD 13.0 (snap), Release build
-    freebsd_instance:
-      image_family: freebsd-13-0-snap
-    configure_script:
-    compile_script:
-      - gmake -j 3
-    test_script:
-      - ./cryptest.exe v
-      - ./cryptest.exe tv all
+  matrix:
+    - name: FreeBSD 12.1, Debug build
+      freebsd_instance:
+        image_family: freebsd-12-1
+      configure_script:
+      compile_script:
+        - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
+    - name: FreeBSD 12.1, Release build
+      freebsd_instance:
+        image_family: freebsd-12-1
+      configure_script:
+      compile_script:
+        - gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
+    - name: FreeBSD 13.0 (snap), Debug build
+      freebsd_instance:
+        image_family: freebsd-13-0-snap
+      configure_script:
+      compile_script:
+        - CXXFLAGS="-DDEBUG -g3 -O0" gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
+    - name: FreeBSD 13.0 (snap), Release build
+      freebsd_instance:
+        image_family: freebsd-13-0-snap
+      configure_script:
+      compile_script:
+        - gmake -j 3
+      test_script:
+        - ./cryptest.exe v
+        - ./cryptest.exe tv all
