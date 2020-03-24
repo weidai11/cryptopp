@@ -2,7 +2,7 @@
 # https://github.com/curl/curl/blob/master/.cirrus.yml
 
 env:
-  CIRRUS_CLONE_DEPTH: 10
+  CIRRUS_CLONE_DEPTH: 5
 
 pkginstall_script:
   - pkg update -f
@@ -10,7 +10,7 @@ pkginstall_script:
 
 task:
   matrix:
-    - name: FreeBSD 12.1, Debug build
+    - name: Debug build, FreeBSD 12.1
       freebsd_instance:
         image_family: freebsd-12-1
       configure_script:
@@ -19,7 +19,7 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: FreeBSD 12.1, Release build
+    - name: Release build, FreeBSD 12.1
       freebsd_instance:
         image_family: freebsd-12-1
       configure_script:
@@ -28,7 +28,7 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: FreeBSD 13.0 (snap), Debug build
+    - name: Debug build, FreeBSD 13.0 (snap)
       freebsd_instance:
         image_family: freebsd-13-0-snap
       configure_script:
@@ -37,7 +37,7 @@ task:
       test_script:
         - ./cryptest.exe v
         - ./cryptest.exe tv all
-    - name: FreeBSD 13.0 (snap), Release build
+    - name: Release build, FreeBSD 13.0 (snap)
       freebsd_instance:
         image_family: freebsd-13-0-snap
       configure_script:
