@@ -1,0 +1,25 @@
+# https://cirrus-ci.org/examples/
+# https://github.com/curl/curl/blob/master/.cirrus.yml
+
+task:
+  name: FreeBSD
+  freebsd_instance:
+    matrix:
+      image_family: freebsd-12-1
+      image_family: freebsd-13-0-snap
+
+  env:
+    CIRRUS_CLONE_DEPTH: 10
+
+  pkginstall_script:
+    - pkg update -f
+    - pkg install gmake
+
+  configure_script:
+
+  compile_script:
+    - gmake -j 3
+
+  test_script:
+    - ./cryptest.exe v
+    - ./cryptest.exe tv all
