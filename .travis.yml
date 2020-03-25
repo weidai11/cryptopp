@@ -1,14 +1,10 @@
 # In the YML below each job gets an environment that includes
 # BUILD_OS and BUILD_MODE. The variables are used in the driver
 # scripts and is used to select a test. For example, BUILD_OS=linux
-# and BUILD_MODE=all means run 'make all' on Linux. Travis supplies
-# Linux based on 'os: linux' key so BUILD_OS is effectively ignored.
-# The Android and iOS tests specify a ANDROID_API, ANDROID_CPU,
-# IOS_SDK and IOS_CPU. They are exported for the underlying
-# setenv-*.sh scripts. For example, testing on iOS, IOS_SDK=iPhoneOS
-# and IOS_CPU=arm64 means 'export IOS_SDK=iPhoneOS;
-# export IOS_CPU=arm64;' before sourcing 'setenv-ios.sh' and then
-# making with 'make -f GNUmakefile-cross'.
+# and BUILD_MODE=all means run 'make all' on Linux. The Android
+# tests specify a ANDROID_API, ANDROID_CPU; and the iOS tests
+# specify IOS_SDK and IOS_CPU. They are exported for the underlying
+# setenv-*.sh scripts.
 
 # DO NOT create top level (global) keys like env, arch, os, compiler.
 # The top level/global keys invoke [unwanted] matrix expansion. Also
@@ -29,365 +25,392 @@ git:
 # Putting them in global invokes the matrix expansion.
 jobs:
   include:
-    - os: linux
-      name: Standard build, GCC, Linux, amd64
+    - name: Standard build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-    - os: linux
-      name: Native build, GCC, Linux, amd64
+    - name: Native build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-    - os: linux
-      name: No-asm build, GCC, Linux, amd64
+    - name: No-asm build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-    - os: linux
-      name: Debug build, GCC, Linux, amd64
+    - name: Debug build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-    - os: linux
-      name: Asan build, GCC, Linux, amd64
+    - name: Asan build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-    - os: linux
-      name: UBsan build, GCC, Linux, amd64
+    - name: UBsan build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
-    - os: linux
-      name: PEM build, GCC, Linux, amd64
+    - name: PEM build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
-    - os: linux
-      name: Autotools build, GCC, Linux, amd64
+    - name: Autotools build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - os: linux
-      name: CMake build, GCC, Linux, amd64
+    - name: CMake build, GCC, Linux, amd64
+      os: linux
       arch: amd64
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
-    - os: linux
-      name: Standard build, Clang, Linux, amd64
+    - name: Standard build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-    - os: linux
-      name: Native build, Clang, Linux, amd64
+    - name: Native build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-    - os: linux
-      name: No-asm build, Clang, Linux, amd64
+    - name: No-asm build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-    - os: linux
-      name: Debug build, Clang, Linux, amd64
+    - name: Debug build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-    - os: linux
-      name: Asan build, Clang, Linux, amd64
+    - name: Asan build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-    - os: linux
-      name: UBsan build, Clang, Linux, amd64
+    - name: UBsan build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
-    - os: linux
-      name: PEM build, Clang, Linux, amd64
+    - name: PEM build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
-    - os: linux
-      name: Autotools build, Clang, Linux, amd64
+    - name: Autotools build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - os: linux
-      name: CMake build, Clang, Linux, amd64
+    - name: CMake build, Clang, Linux, amd64
+      os: linux
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
-    - os: osx
+    - name: Standard build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: Standard build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=all
-    - os: osx
+    - name: Standard build (64-bit), Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: Native build, Clang, OS X, amd64
+      arch: amd64
+      compiler: clang
+      env:
+        - CXXFLAGS="-DNDEBUG -g2 -O3 -arch x86_64"
+        - BUILD_OS=osx
+        - BUILD_MODE=all
+    - name: Standard build (32-bit), Clang, OS X, amd64
+      os: osx
+      osx_image: xcode10.1
+      arch: amd64
+      compiler: clang
+      env:
+        - CXXFLAGS="-DNDEBUG -g2 -O3 -arch i386"
+        - BUILD_OS=osx
+        - BUILD_MODE=all
+    - name: Standard build (fat), Clang, OS X, amd64
+      os: osx
+      osx_image: xcode10.1
+      arch: amd64
+      compiler: clang
+      env:
+        - CXXFLAGS="-DNDEBUG -g2 -O3 -arch i386 -arch x86_64"
+        - BUILD_OS=osx
+        - BUILD_MODE=osx-fat
+    - name: Native build, Clang, OS X, amd64
+      os: osx
+      osx_image: xcode10.1
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=native
-    - os: osx
+    - name: No-asm build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: No-asm build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=no-asm
-    - os: osx
+    - name: Debug build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: Debug build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=debug
-    - os: osx
+    - name: Asan build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: Asan build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=asan
-    - os: osx
+    - name: UBsan build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: UBsan build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ubsan
-    - os: osx
+    - name: PEM build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: PEM build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=pem
-    - os: osx
+    - name: Autotools build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: Autotools build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=autotools
-    - os: osx
+    - name: CMake build, Clang, OS X, amd64
+      os: osx
       osx_image: xcode10.1
-      name: CMake build, Clang, OS X, amd64
       arch: amd64
       compiler: clang
       env:
         - BUILD_OS=osx
         - BUILD_MODE=cmake
-    - os: linux
-      name: Standard build, GCC, Linux, arm64
+    - name: Standard build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-    - os: linux
-      name: Native build, GCC, Linux, arm64
+    - name: Native build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-    - os: linux
-      name: No-asm build, GCC, Linux, arm64
+    - name: No-asm build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-    - os: linux
-      name: Debug build, GCC, Linux, arm64
+    - name: Debug build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-    - os: linux
-      name: Asan build, GCC, Linux, arm64
+    - name: Asan build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-    - os: linux
-      name: UBsan build, GCC, Linux, arm64
+    - name: UBsan build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
-    - os: linux
-      name: PEM build, GCC, Linux, arm64
+    - name: PEM build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
-    - os: linux
-      name: Autotools build, GCC, Linux, arm64
+    - name: Autotools build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - os: linux
-      name: CMake build, GCC, Linux, arm64
+    - name: CMake build, GCC, Linux, arm64
+      os: linux
       arch: arm64
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
-    - os: linux
-      name: Standard build, Clang, Linux, arm64
+    - name: Standard build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-    - os: linux
-      name: Native build, Clang, Linux, arm64
+    - name: Native build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=native
-    - os: linux
-      name: No-asm build, Clang, Linux, arm64
+    - name: No-asm build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=no-asm
-    - os: linux
-      name: Debug build, Clang, Linux, arm64
+    - name: Debug build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-    - os: linux
-      name: Asan build, Clang, Linux, arm64
+    - name: Asan build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=asan
-    - os: linux
-      name: UBsan build, Clang, Linux, arm64
+    - name: UBsan build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=ubsan
-    - os: linux
-      name: PEM build, Clang, Linux, arm64
+    - name: PEM build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=pem
-    - os: linux
-      name: Autotools build, Clang, Linux, arm64
+    - name: Autotools build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=autotools
-    - os: linux
-      name: CMake build, Clang, Linux, arm64
+    - name: CMake build, Clang, Linux, arm64
+      os: linux
       arch: arm64
       compiler: clang
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=cmake
-    - os: linux
-      name: Standard build, GCC, Linux, ppc64le
+    - name: Standard build, GCC, Linux, ppc64le
+      os: linux
       arch: ppc64le
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-    - os: linux
-      name: Debug build, GCC, Linux, ppc64le
+    - name: Debug build, GCC, Linux, ppc64le
+      os: linux
       arch: ppc64le
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-    - os: linux
-      name: Standard build, Clang, Linux, ppc64le
+    - name: Standard build, Clang, Linux, ppc64le
+      os: linux
       arch: ppc64le
       compiler: clang
       dist: bionic
@@ -396,8 +419,8 @@ jobs:
         - BUILD_MODE=all
         - CC=clang-8
         - CXX=clang++-8
-    - os: linux
-      name: Debug build, Clang, Linux, ppc64le
+    - name: Debug build, Clang, Linux, ppc64le
+      os: linux
       arch: ppc64le
       compiler: clang
       dist: bionic
@@ -406,23 +429,23 @@ jobs:
         - BUILD_MODE=debug
         - CC=clang-8
         - CXX=clang++-8
-    - os: linux
-      name: Standard build, GCC, Linux, s390x
+    - name: Standard build, GCC, Linux, s390x
+      os: linux
       arch: s390x
       compiler: gcc
       dist: bionic
       env:
         - BUILD_OS=linux
         - BUILD_MODE=all
-    - os: linux
-      name: Debug build, GCC, Linux, s390x
+    - name: Debug build, GCC, Linux, s390x
+      os: linux
       arch: s390x
       compiler: gcc
       env:
         - BUILD_OS=linux
         - BUILD_MODE=debug
-    - os: linux
-      name: Standard build, Clang, Linux, s390x
+    - name: Standard build, Clang, Linux, s390x
+      os: linux
       arch: s390x
       compiler: clang
       dist: bionic
@@ -431,8 +454,8 @@ jobs:
         - BUILD_MODE=all
         - CC=clang-8
         - CXX=clang++-8
-    - os: linux
-      name: Debug build, Clang, Linux, s390x
+    - name: Debug build, Clang, Linux, s390x
+      os: linux
       arch: s390x
       compiler: clang
       dist: bionic
@@ -441,8 +464,8 @@ jobs:
         - BUILD_MODE=debug
         - CC=clang-8
         - CXX=clang++-8
-    - os: linux
-      name: Android, armv7a, Linux
+    - name: Android, armv7a, Linux
+      os: linux
       arch: amd64
       env:
         - BUILD_OS=linux
@@ -451,8 +474,8 @@ jobs:
         - ANDROID_API=23
         - ANDROID_SDK_ROOT="$HOME/android-sdk"
         - ANDROID_NDK_ROOT="$HOME/android-ndk"
-    - os: linux
-      name: Android, aarch64, Linux
+    - name: Android, aarch64, Linux
+      os: linux
       arch: amd64
       env:
         - BUILD_OS=linux
@@ -461,8 +484,8 @@ jobs:
         - ANDROID_API=23
         - ANDROID_SDK_ROOT="$HOME/android-sdk"
         - ANDROID_NDK_ROOT="$HOME/android-ndk"
-    - os: linux
-      name: Android, x86, Linux
+    - name: Android, x86, Linux
+      os: linux
       arch: amd64
       env:
         - BUILD_OS=linux
@@ -471,8 +494,8 @@ jobs:
         - ANDROID_API=23
         - ANDROID_SDK_ROOT="$HOME/android-sdk"
         - ANDROID_NDK_ROOT="$HOME/android-ndk"
-    - os: linux
-      name: Android, x86_64, Linux
+    - name: Android, x86_64, Linux
+      os: linux
       arch: amd64
       env:
         - BUILD_OS=linux
@@ -481,72 +504,72 @@ jobs:
         - ANDROID_API=23
         - ANDROID_SDK_ROOT="$HOME/android-sdk"
         - ANDROID_NDK_ROOT="$HOME/android-ndk"
-    - os: osx
+    - name: iPhoneOS, armv7, iOS
+      os: osx
       osx_image: xcode10.1
-      name: iPhoneOS, armv7, iOS
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=armv7s
         - IOS_SDK=iPhoneOS
-    - os: osx
+    - name: iPhoneOS, arm64, iOS
+      os: osx
       osx_image: xcode10.1
-      name: iPhoneOS, arm64, iOS
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=arm64
         - IOS_SDK=iPhoneOS
-    - os: osx
+    - name: AppleTVOS, arm64, iOS
+      os: osx
       osx_image: xcode10.1
-      name: AppleTVOS, arm64, iOS
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=arm64
         - IOS_SDK=AppleTVOS
-    - os: osx
+    - name: WatchOS, armv7, iOS
+      os: osx
       osx_image: xcode10.1
-      name: WatchOS, armv7, iOS
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=armv7k
         - IOS_SDK=WatchOS
-    - os: osx
+    - name: iPhoneSimulator, i386, OS X
+      os: osx
       osx_image: xcode10.1
-      name: iPhoneSimulator, i386, OS X
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=i386
         - IOS_SDK=iPhoneSimulator
-    - os: osx
+    - name: iPhoneSimulator, x86_64, OS X
+      os: osx
       osx_image: xcode10.1
-      name: iPhoneSimulator, x86_64, OS X
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=x86_64
         - IOS_SDK=iPhoneSimulator
-    - os: osx
+    - name: AppleTVSimulator, x86_64, OS X
+      os: osx
       osx_image: xcode10.1
-      name: AppleTVSimulator, x86_64, OS X
       arch: amd64
       env:
         - BUILD_OS=osx
         - BUILD_MODE=ios
         - IOS_CPU=x86_64
         - IOS_SDK=AppleTVSimulator
-    - os: osx
+    - name: WatchSimulator, i386, OS X
+      os: osx
       osx_image: xcode10.1
-      name: WatchSimulator, i386, OS X
       arch: amd64
       env:
         - BUILD_OS=osx
@@ -599,6 +622,12 @@ script:
         bash TestScripts/cryptest-cmake.sh
     elif [[ "$BUILD_MODE" == "pem" ]]; then
         bash TestScripts/cryptest-pem.sh
+    elif [[ "$BUILD_MODE" == "osx-fat" ]]; then
+        CXXFLAGS="-DNDEBUG -g2 -O3 -arch i386 -arch x86_64" make -j 2
+        arch -i386 ./cryptest.exe v
+        arch -i386 ./cryptest.exe tv all
+        arch -x86_64 ./cryptest.exe v
+        arch -x86_64 ./cryptest.exe tv all
     elif [[ "$BUILD_MODE" == "debug" ]]; then
         CXXFLAGS="-DDEBUG -g2 -O1" make -j 2
         ./cryptest.exe v
