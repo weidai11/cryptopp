@@ -123,7 +123,7 @@ case "$THE_ARCH" in
 
     ANDROID_CXXFLAGS="-march=armv7-a -mthumb -mfloat-abi=softfp -funwind-tables -fexceptions -frtti"
     ;;
-  armv8*|aarch64|arm64)
+  armv8*|aarch64|arm64*)
     CC="aarch64-linux-android$ANDROID_API-clang"
     CXX="aarch64-linux-android$ANDROID_API-clang++"
     LD="aarch64-linux-android-ld"

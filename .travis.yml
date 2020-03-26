@@ -601,7 +601,7 @@ before_install:
     fi
     # Clang 7 compiler is completely broken on PPC64 and s390x
     if [[ "$TRAVIS_CPU_ARCH" == "ppc64le" ]] || [[ "$TRAVIS_CPU_ARCH" == "s390x" ]]; then
-        if [[ "$BUILD_OS" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
+        if [[ "$TRAVIS_OS_NAME" == "linux" ]] && [[ "$TRAVIS_COMPILER" == "clang" ]]; then
             # https://github.com/travis-ci/travis-ci/issues/9037
             sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
             sudo apt-get -qq -y install --no-install-recommends clang-8
