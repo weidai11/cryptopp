@@ -99,19 +99,19 @@ private:
 
 /// \brief Keccak-224 message digest
 /// \since Crypto++ 5.6.4
-DOCUMENTED_TYPEDEF(Keccak_Final<28>, Keccak_224);;
+DOCUMENTED_TYPEDEF(Keccak_Final<28>, Keccak_224);
 
 /// \brief Keccak-256 message digest
 /// \since Crypto++ 5.6.4
-DOCUMENTED_TYPEDEF(Keccak_Final<32>, Keccak_256);;
+DOCUMENTED_TYPEDEF(Keccak_Final<32>, Keccak_256);
 
 /// \brief Keccak-384 message digest
 /// \since Crypto++ 5.6.4
-DOCUMENTED_TYPEDEF(Keccak_Final<48>, Keccak_384);;
+DOCUMENTED_TYPEDEF(Keccak_Final<48>, Keccak_384);
 
 /// \brief Keccak-512 message digest
 /// \since Crypto++ 5.6.4
-DOCUMENTED_TYPEDEF(Keccak_Final<64>, Keccak_512);;
+DOCUMENTED_TYPEDEF(Keccak_Final<64>, Keccak_512);
 
 NAMESPACE_END
 
