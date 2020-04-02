@@ -4,15 +4,15 @@
 /// \file randpool.h
 /// \brief Class file for Randomness Pool
 /// \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
-///   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
-///   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
+///  after seeding the pool with IncorporateEntropy(). Internally, the generator uses
+///  AES-256 to produce the stream. Entropy is stirred in using SHA-256.
 /// \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
-///   RandomPool was redesigned to reduce the risk of reusing random numbers after state
-///   rollback (which may occur when running in a virtual machine like VMware or a hosted
-///   environment).
+///  RandomPool was redesigned to reduce the risk of reusing random numbers after state
+///  rollback (which may occur when running in a virtual machine like VMware or a hosted
+///  environment).
 /// \details If you need the pre-Crypto++ 5.5 generator then use OldRandomPool class. You
-///   should migrate away from OldRandomPool at the earliest opportunity. Use RandomPool
-///   or AutoSeededRandomPool instead.
+///  should migrate away from OldRandomPool at the earliest opportunity. Use RandomPool
+///  or AutoSeededRandomPool instead.
 /// \since Crypto++ 4.0 (PGP 2.6.x style), Crypto++ 5.5 (AES-256 based)
 
 #ifndef CRYPTOPP_RANDPOOL_H
@@ -28,14 +28,16 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Randomness Pool based on AES-256
 /// \details RandomPool can be used to generate cryptographic quality pseudorandom bytes
-///   after seeding the pool with IncorporateEntropy(). Internally, the generator uses
-///   AES-256 to produce the stream. Entropy is stirred in using SHA-256.
+///  after seeding the pool with IncorporateEntropy(). Internally, the generator uses
+///  AES-256 to produce the stream. Entropy is stirred in using SHA-256.
 /// \details RandomPool used to follow the design of randpool in PGP 2.6.x. At version 5.5
-///   RandomPool was redesigned to reduce the risk of reusing random numbers after state
-///   rollback, which may occur when running in a virtual machine like VMware or a hosted
-///   environment.
+///  RandomPool was redesigned to reduce the risk of reusing random numbers after state
+///  rollback, which may occur when running in a virtual machine like VMware or a hosted
+///  environment.
+/// \details You should reseed the generator after a fork() to avoid multiple generators
+///  with the same internal state.
 /// \details If you need the pre-Crypto++ 5.5 generator then use OldRandomPool class. You
-///   should migrate away from OldRandomPool at the earliest opportunity.
+///  should migrate away from OldRandomPool at the earliest opportunity.
 /// \sa OldRandomPool
 /// \since Crypto++ 4.0 (PGP 2.6.x style), Crypto++ 5.5 (AES-256 based)
 class CRYPTOPP_DLL RandomPool : public RandomNumberGenerator, public NotCopyable
@@ -57,16 +59,16 @@ private:
 
 /// \brief Randomness Pool based on PGP 2.6.x with MDC
 /// \details If you need the pre-Crypto++ 5.5 generator then use OldRandomPool class. The
-///   OldRandomPool class is always available so you dont need to define
-///   CRYPTOPP_MAINTAIN_BACKWARDS_COMPATIBILITY. OldRandomPool also provides the modern
-///   interface, including <tt>CanIncorporateEntropy</tt>, <tt>IncorporateEntropy</tt> and
-///   <tt>GenerateIntoBufferedTransformation</tt>.
+///  OldRandomPool also provides the modern nterface, including <tt>CanIncorporateEntropy</tt>,
+///  <tt>IncorporateEntropy</tt> and <tt>GenerateIntoBufferedTransformation</tt>.
+/// \details You should reseed the generator after a fork() to avoid multiple generators
+///  with the same internal state.
 /// \details You should migrate away from OldRandomPool at the earliest opportunity. Use a
-///   modern random number generator or key derivation function, like AutoSeededRandomPool or
-///   HKDF.
+///  modern random number generator or key derivation function, like AutoSeededRandomPool or
+///  HKDF.
 /// \warning This class uses an old style PGP 2.6.x with MDC. The generator risks reusing
-///   random random numbers after state rollback. You should migrate away from OldRandomPool
-///   at the earliest opportunity.
+///  random numbers after state rollback. You should migrate away from OldRandomPool at
+///  the earliest opportunity.
 /// \sa RandomPool, AutoSeededRandomPool, HKDF, P1363_KDF2, PKCS12_PBKDF, PKCS5_PBKDF2_HMAC
 /// \since Crypto++ 6.0 (PGP 2.6.x style)
 class CRYPTOPP_DLL OldRandomPool : public RandomNumberGenerator

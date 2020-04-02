@@ -3,7 +3,7 @@
 /// \file rng.h
 /// \brief Miscellaneous classes for RNGs
 /// \details This file contains miscellaneous classes for RNGs, including LC_RNG(),
-///   X917RNG() and MaurerRandomnessTest()
+///  X917RNG() and MaurerRandomnessTest()
 /// \sa osrng.h, randpool.h
 
 #ifndef CRYPTOPP_RNG_H
@@ -18,7 +18,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief Linear Congruential Generator (LCG)
 /// \details Originally propsed by William S. England.
 /// \warning LC_RNG is suitable for simulations, where uniformaly distrubuted numbers are
-///   required quickly. It should not be used for cryptographic purposes.
+///  required quickly. It should not be used for cryptographic purposes.
 class LC_RNG : public RandomNumberGenerator
 {
 public:
@@ -42,7 +42,9 @@ private:
 
 /// \brief ANSI X9.17 RNG
 /// \details X917RNG is from ANSI X9.17 Appendix C, and it uses a 64-bit block cipher, like TripleDES.
-///   If you use a 128-bit block cipher, like AES, then you are effectively using an ANSI X9.31 generator.
+///  If you use a 128-bit block cipher, like AES, then you are effectively using an ANSI X9.31 generator.
+/// \details You should reseed the generator after a fork() to avoid multiple generators
+///  with the same internal state.
 /// \sa AutoSeededX917RNG, DefaultAutoSeededRNG
 class CRYPTOPP_DLL X917RNG : public RandomNumberGenerator, public NotCopyable
 {
@@ -52,16 +54,16 @@ public:
 	/// \param seed a byte buffer to use as a seed
 	/// \param deterministicTimeVector additional entropy
 	/// \details <tt>cipher</tt> will be deleted by the destructor. <tt>seed</tt> must be at least
-	///   BlockSize() in length. <tt>deterministicTimeVector = 0</tt> means obtain time vector
-	///   from the system.
+	///  BlockSize() in length. <tt>deterministicTimeVector = 0</tt> means obtain time vector
+	///  from the system.
 	/// \details When constructing a X917RNG, the generator must be keyed or an access
-	///   violation will occur because the time vector is encrypted using the block cipher.
-	///   To key the generator during constructions, perform the following:
+	///  violation will occur because the time vector is encrypted using the block cipher.
+	///  To key the generator during constructions, perform the following:
 	/// <pre>
-	///   SecByteBlock key(AES::DEFAULT_KEYLENGTH), seed(AES::BLOCKSIZE);
-	///   OS_GenerateRandomBlock(false, key, key.size());
-	///   OS_GenerateRandomBlock(false, seed, seed.size());
-	///   X917RNG prng(new AES::Encryption(key, AES::DEFAULT_KEYLENGTH), seed, NULLPTR);</pre>
+	///  SecByteBlock key(AES::DEFAULT_KEYLENGTH), seed(AES::BLOCKSIZE);
+	///  OS_GenerateRandomBlock(false, key, key.size());
+	///  OS_GenerateRandomBlock(false, seed, seed.size());
+	///  X917RNG prng(new AES::Encryption(key, AES::DEFAULT_KEYLENGTH), seed, NULLPTR);</pre>
 	/// \sa AutoSeededX917RNG
 	X917RNG(BlockTransformation *cipher, const byte *seed, const byte *deterministicTimeVector = NULLPTR);
 
@@ -76,8 +78,8 @@ private:
 
 /// \brief  Maurer's Universal Statistical Test for Random Bit Generators
 /// \details This class implements Maurer's Universal Statistical Test for
-///   Random Bit Generators. It is intended for measuring the randomness of
-///   *PHYSICAL* RNGs.
+///  Random Bit Generators. It is intended for measuring the randomness of
+///  *PHYSICAL* RNGs.
 /// \details For more details see Maurer's paper in Journal of Cryptology, 1992.
 class MaurerRandomnessTest : public Bufferless<Sink>
 {
