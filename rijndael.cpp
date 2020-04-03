@@ -250,19 +250,19 @@ unsigned int Rijndael::Base::OptimalDataAlignment() const
 {
 #if (CRYPTOPP_AESNI_AVAILABLE)
 	if (HasAESNI())
-		return 1;
+		return GetAlignmentOf<word32>();
 #endif
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 	if (HasAES())
-		return 1;
+		return GetAlignmentOf<word32>();
 #endif
 #if (CRYPTOGAMS_ARM_AES)
 	if (HasARMv7())
-		return 1;
+		return GetAlignmentOf<word32>();
 #endif
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
-		return 1;
+		return GetAlignmentOf<word32>();
 #endif
 	return BlockTransformation::OptimalDataAlignment();
 }
