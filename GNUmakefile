@@ -593,21 +593,19 @@ ifneq ($(IS_PPC32)$(IS_PPC64),00)
 ifeq ($(DETECT_FEATURES),1)
 
   ifeq ($(XLC_COMPILER),1)
-    POWER9_FLAG = -qarch=pwr9 -qaltivec
-    POWER8_FLAG = -qarch=pwr8 -qaltivec
-    POWER7_VSX_FLAG = -qarch=pwr7 -qvsx -qaltivec
-    POWER7_PWR_FLAG = -qarch=pwr7 -qaltivec
-    POWER7_ALT_FLAG = -qaltivec
-    POWER6_FLAG = -qarch=pwr6 -qaltivec
-    POWER5_FLAG = -qarch=pwr5 -qaltivec
-    POWER4_FLAG = -qarch=pwr4 -qaltivec
+    POWER9_FLAG = -qarch=pwr9
+    POWER8_FLAG = -qarch=pwr8
+    POWER7_VSX_FLAG = -qarch=pwr7 -qvsx
+    POWER7_PWR_FLAG = -qarch=pwr7
+    POWER6_FLAG = -qarch=pwr6
+    POWER5_FLAG = -qarch=pwr5
+    POWER4_FLAG = -qarch=pwr4
     ALTIVEC_FLAG = -qaltivec
   else
-    POWER9_FLAG = -mcpu=power9 -maltivec
-    POWER8_FLAG = -mcpu=power8 -maltivec
-    POWER7_VSX_FLAG = -mcpu=power7 -mvsx -maltivec
-    POWER7_PWR_FLAG = -mcpu=power7 -maltivec
-    POWER7_ALT_FLAG = -maltivec
+    POWER9_FLAG = -mcpu=power9
+    POWER8_FLAG = -mcpu=power8
+    POWER7_VSX_FLAG = -mcpu=power7 -mvsx
+    POWER7_PWR_FLAG = -mcpu=power7
     ALTIVEC_FLAG = -maltivec
   endif
 
@@ -673,14 +671,7 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       POWER7_FLAG = $(POWER7_PWR_FLAG)
 	else
-      TPROG = TestPrograms/test_ppc_power7.cxx
-      TOPT = $(POWER7_ALT_FLAG)
-      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-      ifeq ($(strip $(HAVE_OPT)),0)
-        POWER7_FLAG = $(POWER7_ALT_FLAG)
-      else
-        POWER7_FLAG =
-      endif
+      POWER7_FLAG =
     endif
   endif
 
