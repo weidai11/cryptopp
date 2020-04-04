@@ -287,7 +287,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \details VecLoad() loads a vector in from a byte array.
+/// \details VecLoad() loads a vector from a byte array.
 /// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER9 is not available.
@@ -309,7 +309,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \details VecLoad() loads a vector in from a byte array.
+/// \details VecLoad() loads a vector from a byte array.
 /// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER9 is not available.
@@ -331,7 +331,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 
 /// \brief Loads a vector from a word array
 /// \param src the word array
-/// \details VecLoad() loads a vector in from a word array.
+/// \details VecLoad() loads a vector from a word array.
 /// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER7 is not available.
@@ -359,7 +359,7 @@ inline uint32x4_p VecLoad(const word32 src[4])
 /// \brief Loads a vector from a word array
 /// \param src the word array
 /// \param off offset into the word array
-/// \details VecLoad() loads a vector in from a word array.
+/// \details VecLoad() loads a vector from a word array.
 /// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER7 is not available.
@@ -388,7 +388,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 
 /// \brief Loads a vector from a double word array
 /// \param src the double word array
-/// \details VecLoad() loads a vector in from a double word array.
+/// \details VecLoad() loads a vector from a double word array.
 /// \details VecLoad() uses POWER8's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER8 or VSX are not available.
@@ -418,7 +418,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
 /// \brief Loads a vector from a double word array
 /// \param src the double word array
 /// \param off offset into the double word array
-/// \details VecLoad() loads a vector in from a double word array.
+/// \details VecLoad() loads a vector from a double word array.
 /// \details VecLoad() uses POWER8's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER8 or VSX are not available.
@@ -449,7 +449,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
-/// \details VecLoadAligned() loads a vector in from an aligned byte array.
+/// \details VecLoadAligned() loads a vector from an aligned byte array.
 /// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  <tt>vec_ld</tt> is used if POWER7 is not available. The effective
 ///  address of <tt>src</tt> must be aligned.
@@ -474,7 +474,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
 /// \param off offset into the byte array
-/// \details VecLoadAligned() loads a vector in from an aligned byte array.
+/// \details VecLoadAligned() loads a vector from an aligned byte array.
 /// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  <tt>vec_ld</tt> is used if POWER7 or VSX are not available. The effective
 ///  address of <tt>src+off</tt> must be aligned.
@@ -498,7 +498,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \details VecLoadBE() loads a vector in from a byte array. VecLoadBE
+/// \details VecLoadBE() loads a vector from a byte array. VecLoadBE
 ///  will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
@@ -523,7 +523,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \param off offset into the src byte array
-/// \details VecLoadBE() loads a vector in from a byte array. VecLoadBE
+/// \details VecLoadBE() loads a vector from a byte array. VecLoadBE
 ///  will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
