@@ -352,7 +352,7 @@ inline uint32x4_p VecLoad(const word32 src[4])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(eff));
 # else
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
@@ -386,7 +386,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(eff));
 # else
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
@@ -422,7 +422,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     return (uint64x2_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(eff));
 # else
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
@@ -457,7 +457,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     return (uint64x2_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(eff));
 # else
     // 32-bit cast is not a typo. Compiler workaround.
@@ -728,7 +728,7 @@ inline void VecStore(const T data, word32 dest[4])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(eff));
 # else
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
@@ -765,7 +765,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(eff));
 # else
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
@@ -802,7 +802,7 @@ inline void VecStore(const T data, word64 dest[2])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 # else
     // 32-bit cast is not a typo. Compiler workaround.
@@ -841,7 +841,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
 # if defined(__clang__)
     // GCC and XLC use integer math for the effective address.
-	// LLVM uses pointer math for the effective address.
+    // LLVM uses pointer math for the effective address.
     VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(eff));
 # else
     // 32-bit cast is not a typo. Compiler workaround.
