@@ -476,7 +476,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \param off offset into the byte array
 /// \details VecLoadAligned() loads a vector in from an aligned byte array.
 /// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
-///  <tt>vec_ld</tt> is used if POWER7 is not available. The effective
+///  <tt>vec_ld</tt> is used if POWER7 or VSX are not available. The effective
 ///  address of <tt>src+off</tt> must be aligned.
 /// \par Wraps
 ///  vec_ld, vec_xl
@@ -499,7 +499,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 ///  will reverse all bytes in the array on a little endian system.
 /// \details VecLoadBE() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecLoad_ALTIVEC() is used if POWER7 is not available.
+///  VecLoad_ALTIVEC() is used if POWER7 or VSX are not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -511,7 +511,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad(off, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)VecReverse(VecLoad(off, src));
 #endif
