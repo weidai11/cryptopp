@@ -439,7 +439,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
     // 32-bit cast is not a typo. Workaround compiler.
-    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
+    return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
 #else
     return (uint64x2_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
