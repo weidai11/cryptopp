@@ -483,6 +483,9 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
     CRYPTOPP_ASSERT(IsAlignedOn(src+off,16));
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
@@ -507,13 +510,13 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
-    const int off = 0;
+    // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
-    return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
+    return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad(off, CONST_V32_CAST(src));
+    return (uint32x4_p)VecLoad(0, CONST_V32_CAST(src));
 #else
-    return (uint32x4_p)VecReverse(VecLoad(off, src));
+    return (uint32x4_p)VecReverse(VecLoad(0, src));
 #endif
 }
 
@@ -532,6 +535,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
+    // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif (CRYPTOPP_BIG_ENDIAN)
