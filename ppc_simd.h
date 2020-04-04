@@ -350,7 +350,13 @@ inline uint32x4_p VecLoad(const word32 src[4])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+# else
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
+# endif
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
 #endif
@@ -378,7 +384,13 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+# else
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+# endif
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
@@ -408,8 +420,13 @@ inline uint64x2_p VecLoad(const word64 src[2])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
-    // 32-bit cast is not a typo. Compiler workaround.
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    return (uint64x2_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+# else
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
+# endif
 #else
     return (uint64x2_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
 #endif
@@ -438,8 +455,14 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    return (uint64x2_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+# else
     // 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
+# endif
 #else
     return (uint64x2_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #endif
@@ -703,7 +726,13 @@ inline void VecStore(const T data, word32 dest[4])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+# else
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
+# endif
 #else
     VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #endif
@@ -734,8 +763,13 @@ inline void VecStore(const T data, int off, word32 dest[4])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    // 32-bit cast is not a typo. Compiler workaround.
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+# else
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+# endif
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
@@ -766,8 +800,14 @@ inline void VecStore(const T data, word64 dest[2])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+# else
     // 32-bit cast is not a typo. Compiler workaround.
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
+# endif
 #else
     VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #endif
@@ -799,7 +839,14 @@ inline void VecStore(const T data, int off, word64 dest[2])
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+# if defined(__clang__)
+    // Unknown LLVM issue. Sometimes the alignment assert fires.
+    // The issue affects Clang 7.0, 7.1 and 8.0. GCC and XLC are OK.
+    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+# else
+    // 32-bit cast is not a typo. Compiler workaround.
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+# endif
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #endif
