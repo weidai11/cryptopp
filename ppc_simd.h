@@ -122,6 +122,12 @@
 ///  fail the compile if the source array is const.
 #define CONST_V32_CAST(x) ((unsigned int*)(x))
 /// \brief Cast array to vector pointer
+/// \details CONST_V64_CAST casts a const array to a vector
+///  pointer for a double word array. The Power ABI says source arrays
+///  are non-const, so this define removes the const. XLC++ will
+///  fail the compile if the source array is const.
+#define CONST_V64_CAST(x) ((unsigned long long*)(x))
+/// \brief Cast array to vector pointer
 /// \details NCONST_V8_CAST casts an array to a vector
 ///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
@@ -133,6 +139,12 @@
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
 #define NCONST_V32_CAST(x) ((unsigned int*)(x))
+/// \brief Cast array to vector pointer
+/// \details NCONST_V64_CAST casts an array to a vector
+///  pointer for a double word array. The Power ABI says source arrays
+///  are non-const, so this define removes the const. XLC++ will
+///  fail the compile if the source array is const.
+#define NCONST_V64_CAST(x) ((unsigned long long*)(x))
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
 // too noisy on modern compilers
@@ -163,21 +175,15 @@ typedef __vector unsigned int    uint32x4_p;
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
-/// \details uint64x2_p is available on POWER7 and above. Some supporting
+/// \details uint64x2_p is available on POWER7 with VSX and above. Some supporting
 ///  functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>), did not
 ///  arrive until POWER8. GCC supports <tt>vec_xl</tt> and <tt>vec_xst</tt>
 ///  for 64-bit elements, but other compilers do not.
 /// \par Wraps
 ///  __vector unsigned long long
 /// \since Crypto++ 6.0
-#if defined(_LP64) || defined(__LP64__)
-#define CONST_V64_CAST(x) ((unsigned long*)(x))
-#define NCONST_V64_CAST(x) ((unsigned long*)(x))
-typedef __vector unsigned long uint64x2_p;
-#else
-#define CONST_V64_CAST(x) ((unsigned long long*)(x))
-#define NCONST_V64_CAST(x) ((unsigned long long*)(x))
 typedef __vector unsigned long long uint64x2_p;
+
 #endif
 #endif  // VSX or ARCH_PWR8
 
