@@ -114,19 +114,25 @@
 ///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
-/// \details CONST_V8_CAST serves a second purpose. It casts to a
-///  byte pointer to avoid undefined behavior due to alignment
-///  requirements. Byte pointers have an alignment requirement of 1.
-#define CONST_V8_CAST(x) ((unsigned char*)(x))
+#define CONST_V8_CAST(x)  ((unsigned char*)(x))
+/// \brief Cast array to vector pointer
+/// \details CONST_V32_CAST casts a const array to a vector
+///  pointer for a word array. The Power ABI says source arrays
+///  are non-const, so this define removes the const. XLC++ will
+///  fail the compile if the source array is const.
+#define CONST_V32_CAST(x) ((unsigned int*)(x))
 /// \brief Cast array to vector pointer
 /// \details NCONST_V8_CAST casts an array to a vector
 ///  pointer for a byte array. The Power ABI says source arrays
 ///  are non-const, so this define removes the const. XLC++ will
 ///  fail the compile if the source array is const.
-/// \details NCONST_V8_CAST serves a second purpose. It casts to a
-///  byte pointer to avoid undefined behavior due to alignment
-///  requirements. Byte pointers have an alignment requirement of 1.
-#define NCONST_V8_CAST(x) ((unsigned char*)(x))
+#define NCONST_V8_CAST(x)  ((unsigned char*)(x))
+/// \brief Cast array to vector pointer
+/// \details NCONST_V32_CAST casts an array to a vector
+///  pointer for a word array. The Power ABI says source arrays
+///  are non-const, so this define removes the const. XLC++ will
+///  fail the compile if the source array is const.
+#define NCONST_V32_CAST(x) ((unsigned int*)(x))
 
 // VecLoad_ALTIVEC and VecStore_ALTIVEC are
 // too noisy on modern compilers
@@ -164,7 +170,15 @@ typedef __vector unsigned int    uint32x4_p;
 /// \par Wraps
 ///  __vector unsigned long long
 /// \since Crypto++ 6.0
+#if defined(_LP64) || defined(__LP64__)
+#define CONST_V64_CAST(x) ((unsigned long*)(x))
+#define NCONST_V64_CAST(x) ((unsigned long*)(x))
+typedef __vector unsigned long uint64x2_p;
+#else
+#define CONST_V64_CAST(x) ((unsigned long long*)(x))
+#define NCONST_V64_CAST(x) ((unsigned long long*)(x))
 typedef __vector unsigned long long uint64x2_p;
+#endif
 #endif  // VSX or ARCH_PWR8
 
 /// \brief The 0 vector
@@ -221,7 +235,7 @@ inline T VecReverse(const T data)
 inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 {
     // Avoid IsAlignedOn for convenience.
-    uintptr_t eff = reinterpret_cast<uintptr_t>(src)+0;
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+0;
     if (eff % 16 == 0)
     {
         return (uint32x4_p)vec_ld(0, src);
@@ -251,7 +265,7 @@ inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 {
     // Avoid IsAlignedOn for convenience.
-    uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     if (eff % 16 == 0)
     {
         return (uint32x4_p)vec_ld(off, src);
@@ -269,9 +283,9 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
 /// \details VecLoad() loads a vector in from a byte array.
-/// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
+/// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecLoad_ALTIVEC() is used if POWER7 is not available.
+///  VecLoad_ALTIVEC() is used if POWER9 is not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -279,27 +293,21 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(const byte src[16])
 {
-    const int off = 0;
+    // Power9/ISA 3.0 provides vec_xl for all datatypes,
+    // including short* and char*.
 #if defined(_ARCH_PWR9)
-    // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__VSX__)
-    // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+    return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
 #endif
 }
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
-/// \param off offset into the byte array
 /// \details VecLoad() loads a vector in from a byte array.
-/// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
+/// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecLoad_ALTIVEC() is used if POWER7 is not available.
+///  VecLoad_ALTIVEC() is used if POWER9 is not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -307,13 +315,9 @@ inline uint32x4_p VecLoad(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
+    // Power9/ISA 3.0 provides vec_xl for all datatypes,
+    // including short* and char*.
 #if defined(_ARCH_PWR9)
-    // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__VSX__)
-    // ISA 2.06 provides vec_xl, but it lacks short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
@@ -333,7 +337,18 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(const word32 src[4])
 {
-    return (uint32x4_p)VecLoad(CONST_V8_CAST(src));
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+#if defined(_ARCH_PWR9)
+    return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
+#else
+    return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+#endif
 }
 
 /// \brief Loads a vector from a word array
@@ -350,17 +365,28 @@ inline uint32x4_p VecLoad(const word32 src[4])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(int off, const word32 src[4])
 {
-    return (uint32x4_p)VecLoad(off, CONST_V8_CAST(src));
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+#if defined(_ARCH_PWR9)
+    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
+#else
+    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+#endif
 }
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-/// \brief Loads a vector from a word array
-/// \param src the word array
-/// \details VecLoad() loads a vector in from a word array.
-/// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
+/// \brief Loads a vector from a double word array
+/// \param src the double word array
+/// \details VecLoad() loads a vector in from a double word array.
+/// \details VecLoad() uses POWER8's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecLoad_ALTIVEC() is used if POWER7 is not available.
+///  VecLoad_ALTIVEC() is used if POWER8 or VSX are not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \details VecLoad() with 64-bit elements is available on POWER7 and above.
@@ -369,16 +395,27 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(const word64 src[2])
 {
-    return (uint64x2_p)VecLoad(CONST_V8_CAST(src));
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+#if defined(_ARCH_PWR9)
+    return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    return (uint64x2_p)vec_xl(0, CONST_V64_CAST(src));
+#else
+    return (uint64x2_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+#endif
 }
 
-/// \brief Loads a vector from a word array
-/// \param src the word array
-/// \param off offset into the word array
-/// \details VecLoad() loads a vector in from a word array.
-/// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
+/// \brief Loads a vector from a double word array
+/// \param src the double word array
+/// \param off offset into the double word array
+/// \details VecLoad() loads a vector in from a double word array.
+/// \details VecLoad() uses POWER8's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecLoad_ALTIVEC() is used if POWER7 is not available.
+///  VecLoad_ALTIVEC() is used if POWER8 or VSX are not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \details VecLoad() with 64-bit elements is available on POWER8 and above.
@@ -387,7 +424,18 @@ inline uint64x2_p VecLoad(const word64 src[2])
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(int off, const word64 src[2])
 {
-    return (uint64x2_p)VecLoad(off, CONST_V8_CAST(src));
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+#if defined(_ARCH_PWR9)
+    return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    return (uint64x2_p)vec_xl(off, CONST_V64_CAST(src));
+#else
+    return (uint64x2_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+#endif
 }
 
 #endif  // VSX or ARCH_PWR8
@@ -403,17 +451,16 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
-    const int off = 0;
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+    CRYPTOPP_ASSERT(IsAlignedOn(src,16));
 #if defined(_ARCH_PWR9)
-    // ISA 3.0 provides vec_xl for short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__VSX__)
-    // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+    return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
 #else
-    return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
+    return (uint32x4_p)vec_ld(0, CONST_V8_CAST(src));
 #endif
 }
 
@@ -429,14 +476,11 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
+    CRYPTOPP_ASSERT(IsAlignedOn(src+off,16));
 #if defined(_ARCH_PWR9)
-    // ISA 3.0 provides vec_xl for short* and char*
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XLW4)
-    return (uint32x4_p)vec_xlw4(off, CONST_V8_CAST(src));
-#elif defined(_ARCH_PWR7) && defined(__VSX__)
-    // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
@@ -577,9 +621,9 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 /// \param data the vector
 /// \param dest the byte array
 /// \details VecStore() stores a vector to a byte array.
-/// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
+/// \details VecStore() uses POWER9's <tt>vec_xst</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecStore_ALTIVEC() is used if POWER7 is not available.
+///  VecStore_ALTIVEC() is used if POWER9 is not available.
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -588,17 +632,12 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 template<class T>
 inline void VecStore(const T data, byte dest[16])
 {
-    const int off = 0;
+    // Power9/ISA 3.0 provides vec_xst for all datatypes,
+    // including short* and char*.
 #if defined(_ARCH_PWR9)
-    // ISA 3.0 provides vec_xl for short* and char*
-    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XSTW4)
-    vec_xstw4((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif defined(_ARCH_PWR7) && defined(__VSX__)
-    // ISA 2.06 provides vec_xl, but it lacks short* and char*
-    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -608,9 +647,9 @@ inline void VecStore(const T data, byte dest[16])
 /// \param off the byte offset into the array
 /// \param dest the byte array
 /// \details VecStore() stores a vector to a byte array.
-/// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
+/// \details VecStore() uses POWER9's <tt>vec_xst</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecStore_ALTIVEC() is used if POWER7 is not available.
+///  VecStore_ALTIVEC() is used if POWER9 is not available.
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -619,13 +658,10 @@ inline void VecStore(const T data, byte dest[16])
 template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
 {
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
 #if defined(_ARCH_PWR9)
-    // ISA 3.0 provides vec_xl for short* and char*
-    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif defined(_ARCH_PWR7) && defined(XLC_VEC_XSTW4)
-    vec_xstw4((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif defined(_ARCH_PWR7) && defined(__VSX__)
-    // ISA 2.06 provides vec_xl, but it lacks short* and char*
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -639,7 +675,7 @@ inline void VecStore(const T data, int off, byte dest[16])
 /// \details VecStore() stores a vector to a word array.
 /// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecStore_ALTIVEC() is used if POWER7 is not available.
+///  VecStore_ALTIVEC() is used if POWER7 or VSX are not available.
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -648,7 +684,18 @@ inline void VecStore(const T data, int off, byte dest[16])
 template<class T>
 inline void VecStore(const T data, word32 dest[4])
 {
-    VecStore((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
+#else
+    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+#endif
 }
 
 /// \brief Stores a vector to a word array
@@ -659,7 +706,7 @@ inline void VecStore(const T data, word32 dest[4])
 /// \details VecStore() stores a vector to a word array.
 /// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecStore_ALTIVEC() is used if POWER7 is not available.
+///  VecStore_ALTIVEC() is used if POWER7 or VSX are not available.
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
@@ -668,7 +715,19 @@ inline void VecStore(const T data, word32 dest[4])
 template<class T>
 inline void VecStore(const T data, int off, word32 dest[4])
 {
-    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    // 32-bit casts are not a typo. Workaround compiler.
+    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+#else
+    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#endif
 }
 
 /// \brief Stores a vector to a word array
@@ -678,7 +737,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
 /// \details VecStore() stores a vector to a word array.
 /// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecStore_ALTIVEC() is used if POWER7 is not available.
+///  VecStore_ALTIVEC() is used if POWER7 or VSX are not available.
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \details VecStore() with 64-bit elements is available on POWER8 and above.
@@ -688,7 +747,19 @@ inline void VecStore(const T data, int off, word32 dest[4])
 template<class T>
 inline void VecStore(const T data, word64 dest[2])
 {
-    VecStore((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    // 32-bit casts are not a typo. Workaround compiler.
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
+#else
+    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+#endif
 }
 
 /// \brief Stores a vector to a word array
@@ -699,7 +770,7 @@ inline void VecStore(const T data, word64 dest[2])
 /// \details VecStore() stores a vector to a word array.
 /// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
-///  VecStore_ALTIVEC() is used if POWER7 is not available.
+///  VecStore_ALTIVEC() is used if POWER7 or VSX are not available.
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \details VecStore() with 64-bit elements is available on POWER8 and above.
@@ -709,7 +780,18 @@ inline void VecStore(const T data, word64 dest[2])
 template<class T>
 inline void VecStore(const T data, int off, word64 dest[2])
 {
-    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+#else
+    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#endif
 }
 
 /// \brief Stores a vector to a byte array
@@ -729,11 +811,10 @@ inline void VecStore(const T data, int off, word64 dest[2])
 template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
 {
-    const int off = 0;
 #if (CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    VecStore((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #else
-    VecStore((uint8x16_p)VecReverse(data), off, NCONST_V8_CAST(dest));
+    VecStore((uint8x16_p)VecReverse(data), 0, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -779,7 +860,7 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 template <class T>
 inline void VecStoreBE(const T data, word32 dest[4])
 {
-    return VecStoreBE((uint8x16_p)data, NCONST_V8_CAST(dest));
+    return VecStoreBE(data, 0, dest);
 }
 
 /// \brief Stores a vector to a word array
