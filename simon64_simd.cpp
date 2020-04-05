@@ -520,7 +520,7 @@ using CryptoPP::uint32x4_p;
 using CryptoPP::VecAnd;
 using CryptoPP::VecXor;
 using CryptoPP::VecLoad;
-using CryptoPP::VecLoadBE;
+using CryptoPP::VecLoadAligned;
 using CryptoPP::VecPermute;
 
 // Rotate left by bit count
@@ -563,8 +563,8 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
         // Round keys are pre-splated in forward direction
-        const uint32x4_p rk1 = VecLoad(subkeys+i*4);
-        const uint32x4_p rk2 = VecLoad(subkeys+i*4+4);
+        const uint32x4_p rk1 = VecLoadAligned(subkeys+i*4);
+        const uint32x4_p rk2 = VecLoadAligned(subkeys+i*4+4);
 
         y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk1);
         x1 = VecXor(VecXor(x1, SIMON64_f(y1)), rk2);
@@ -573,7 +573,7 @@ inline void SIMON64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         // Round keys are pre-splated in forward direction
-        const uint32x4_p rk = VecLoad(subkeys+rounds*4-4);
+        const uint32x4_p rk = VecLoadAligned(subkeys+rounds*4-4);
 
         y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk);
         std::swap(x1, y1);
@@ -673,8 +673,8 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     for (int i = 0; i < static_cast<int>(rounds & ~1)-1; i += 2)
     {
         // Round keys are pre-splated in forward direction
-        const uint32x4_p rk1 = VecLoad(subkeys+i*4);
-        const uint32x4_p rk2 = VecLoad(subkeys+i*4+4);
+        const uint32x4_p rk1 = VecLoadAligned(subkeys+i*4);
+        const uint32x4_p rk2 = VecLoadAligned(subkeys+i*4+4);
 
         y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk1);
         y2 = VecXor(VecXor(y2, SIMON64_f(x2)), rk1);
@@ -688,7 +688,7 @@ inline void SIMON64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         // Round keys are pre-splated in forward direction
-        const uint32x4_p rk = VecLoad(subkeys+rounds*4-4);
+        const uint32x4_p rk = VecLoadAligned(subkeys+rounds*4-4);
 
         y1 = VecXor(VecXor(y1, SIMON64_f(x1)), rk);
         y2 = VecXor(VecXor(y2, SIMON64_f(x2)), rk);
@@ -756,8 +756,8 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VecLoad(subkeys+i+1);
-        uint32x4_p rk2 = VecLoad(subkeys+i);
+        uint32x4_p rk1 = VecLoadAligned(subkeys+i+1);
+        uint32x4_p rk2 = VecLoadAligned(subkeys+i);
         rk1 = VecPermute(rk1, rk1, m);
         rk2 = VecPermute(rk2, rk2, m);
 #endif
