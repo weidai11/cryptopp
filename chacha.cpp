@@ -28,9 +28,7 @@ extern void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input,
 extern void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
-extern void ChaCha_OperateKeystream_POWER7(const word32 *state, const byte* input, byte *output, unsigned int rounds);
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 extern void ChaCha_OperateKeystream_ALTIVEC(const word32 *state, const byte* input, byte *output, unsigned int rounds);
 #endif
 
@@ -153,23 +151,7 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
         }
 #endif
 
-#if (CRYPTOPP_POWER7_AVAILABLE)
-        if (HasPower7())
-        {
-            while (iterationCount >= 4 && MultiBlockSafe(state[12], 4))
-            {
-                const bool xorInput = (operation & INPUT_NULL) != INPUT_NULL;
-                ChaCha_OperateKeystream_POWER7(state, xorInput ? input : NULLPTR, output, rounds);
-
-                // MultiBlockSafe avoids overflow on the counter words
-                state[12] += 4;
-
-                input += (!!xorInput)*4*BYTES_PER_ITERATION;
-                output += 4*BYTES_PER_ITERATION;
-                iterationCount -= 4;
-            }
-        }
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
         if (HasAltivec())
         {
             while (iterationCount >= 4 && MultiBlockSafe(state[12], 4))
@@ -267,11 +249,7 @@ std::string ChaCha_AlgorithmProvider()
         return "NEON";
     else
 #endif
-#if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
-        return "Power7";
-    else
-#elif (CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
         return "Altivec";
     else

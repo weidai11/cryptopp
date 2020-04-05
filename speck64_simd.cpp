@@ -545,7 +545,7 @@ void SPECK64_Dec_Block(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if defined(_ARCH_PWR7)
         const uint32x4_p rk = vec_splats(subkeys[i]);
 #else
         // subkeys has extra elements so memory backs the last subkey
@@ -660,7 +660,7 @@ void SPECK64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
-#if (CRYPTOPP_POWER7_AVAILABLE)
+#if defined(_ARCH_PWR7)
         const uint32x4_p rk = vec_splats(subkeys[i]);
 #else
         // subkeys has extra elements so memory backs the last subkey
