@@ -756,8 +756,8 @@ inline void SIMON64_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const uint32x4_p rk2 = vec_splats(subkeys[i]);
 #else
         const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        uint32x4_p rk1 = VecLoadAligned(subkeys+i+1);
-        uint32x4_p rk2 = VecLoadAligned(subkeys+i);
+        uint32x4_p rk1 = VecLoad(subkeys+i+1);
+        uint32x4_p rk2 = VecLoad(subkeys+i);
         rk1 = VecPermute(rk1, rk1, m);
         rk2 = VecPermute(rk2, rk2, m);
 #endif
