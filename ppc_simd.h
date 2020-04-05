@@ -547,8 +547,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 /// \param src the word array
 /// \details VecLoadAligned() loads a vector from an aligned word array.
 /// \details VecLoadAligned() uses POWER7's and VSX's <tt>vec_xl</tt> if
-///  available. The instruction does not require aligned effective memory
-///  addresses. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
+///  available. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
 ///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
@@ -577,8 +576,7 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
 /// \param src the word array
 /// \details VecLoadAligned() loads a vector from an aligned word array.
 /// \details VecLoadAligned() uses POWER7's and VSX's <tt>vec_xl</tt> if
-///  available. The instruction does not require aligned effective memory
-///  addresses. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
+///  available. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
 ///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
