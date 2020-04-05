@@ -255,10 +255,6 @@ std::string SIMON64::Base::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 # endif
-# if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
-        return "Power7";
-# endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
         return "Altivec";
@@ -276,10 +272,6 @@ unsigned int SIMON64::Base::OptimalDataAlignment() const
 # endif
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 4;
-# endif
-# if (CRYPTOPP_POWER7_AVAILABLE)
-    if (HasPower7())
         return 4;
 # endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
