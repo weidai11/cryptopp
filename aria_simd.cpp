@@ -27,6 +27,9 @@
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
 
+// Squash MS LNK4221 and libtool warnings
+extern const char ARIA_SIMD_FNAME[] = __FILE__;
+
 NAMESPACE_BEGIN(CryptoPP)
 NAMESPACE_BEGIN(ARIATab)
 

@@ -38,6 +38,9 @@
 # include "ppc_simd.h"
 #endif
 
+// Squash MS LNK4221 and libtool warnings
+extern const char GF2N_SIMD_FNAME[] = __FILE__;
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 // ************************** ARMv8 ************************** //
