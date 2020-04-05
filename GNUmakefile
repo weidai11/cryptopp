@@ -592,14 +592,15 @@ endif
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
 ifeq ($(DETECT_FEATURES),1)
 
+  # XLC requires -qaltivec in addition to Arch or CPU option
   ifeq ($(XLC_COMPILER),1)
-    POWER9_FLAG = -qarch=pwr9
-    POWER8_FLAG = -qarch=pwr8
-    POWER7_VSX_FLAG = -qarch=pwr7 -qvsx
-    POWER7_PWR_FLAG = -qarch=pwr7
-    POWER6_FLAG = -qarch=pwr6
-    POWER5_FLAG = -qarch=pwr5
-    POWER4_FLAG = -qarch=pwr4
+    POWER9_FLAG = -qarch=pwr9 -qaltivec
+    POWER8_FLAG = -qarch=pwr8 -qaltivec
+    POWER7_VSX_FLAG = -qarch=pwr7 -qvsx -qaltivec
+    POWER7_PWR_FLAG = -qarch=pwr7 -qaltivec
+    POWER6_FLAG = -qarch=pwr6 -qaltivec
+    POWER5_FLAG = -qarch=pwr5 -qaltivec
+    POWER4_FLAG = -qarch=pwr4 -qaltivec
     ALTIVEC_FLAG = -qaltivec
   else
     POWER9_FLAG = -mcpu=power9
