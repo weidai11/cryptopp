@@ -413,7 +413,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 /// \brief Loads a vector from a double word array
 /// \param src the double word array
 /// \details VecLoad() loads a vector from a double word array.
-/// \details VecLoad() uses POWER8's and VSX's <tt>vec_xl</tt> if available.
+/// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER8 or VSX are not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
@@ -452,7 +452,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
 /// \param src the double word array
 /// \param off offset into the double word array
 /// \details VecLoad() loads a vector from a double word array.
-/// \details VecLoad() uses POWER8's and VSX's <tt>vec_xl</tt> if available.
+/// \details VecLoad() uses POWER7's and VSX's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
 ///  VecLoad_ALTIVEC() is used if POWER8 or VSX are not available.
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
@@ -604,6 +604,74 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
     return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
 }
+
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+/// \brief Loads a vector from an aligned double word array
+/// \param src the double word array
+/// \details VecLoadAligned() loads a vector from an aligned double word array.
+/// \details VecLoadAligned() uses POWER7's and VSX's <tt>vec_xl</tt> if
+///  available. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
+///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
+/// \par Wraps
+///  vec_ld, vec_xl
+/// \since Crypto++ 8.0
+inline uint64x2_p VecLoadAligned(const word64 src[4])
+{
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % 16 == 0);
+
+#if defined(_ARCH_PWR9)
+    return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+    // The 32-bit cast is not a typo. Compiler workaround.
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
+#else
+    return (uint64x2_p)vec_ld(0, CONST_V8_CAST(src));
+#endif
+}
+
+/// \brief Loads a vector from an aligned double word array
+/// \param src the double word array
+/// \details VecLoadAligned() loads a vector from an aligned double word array.
+/// \details VecLoadAligned() uses POWER7's and VSX's <tt>vec_xl</tt> if
+///  available. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
+///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
+/// \par Wraps
+///  vec_ld, vec_xl
+/// \since Crypto++ 8.0
+inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
+{
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % 16 == 0);
+
+#if defined(_ARCH_PWR9)
+    return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+# if defined(__clang__)
+    // The 32-bit cast is not a typo. Compiler workaround.
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(eff));
+# else
+    return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
+# endif
+#else
+    return (uint64x2_p)vec_ld(off, CONST_V8_CAST(src));
+#endif
+}
+
+#endif
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array

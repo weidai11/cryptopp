@@ -223,6 +223,7 @@ inline __m128i RotateLeft<16>(const __m128i val)
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
 using CryptoPP::VecLoad;
+using CryptoPP::VecLoadAligned;
 using CryptoPP::VecStore;
 using CryptoPP::VecPermute;
 
@@ -834,10 +835,10 @@ void ChaCha_OperateKeystream_SSE2(const word32 *state, const byte* input, byte *
 // time to better support distros.
 inline void ChaCha_OperateKeystream_CORE(const word32 *state, const byte* input, byte *output, unsigned int rounds)
 {
-    const uint32x4_p state0 = VecLoad(state + 0*4);
-    const uint32x4_p state1 = VecLoad(state + 1*4);
-    const uint32x4_p state2 = VecLoad(state + 2*4);
-    const uint32x4_p state3 = VecLoad(state + 3*4);
+    const uint32x4_p state0 = VecLoadAligned(state + 0*4);
+    const uint32x4_p state1 = VecLoadAligned(state + 1*4);
+    const uint32x4_p state2 = VecLoadAligned(state + 2*4);
+    const uint32x4_p state3 = VecLoadAligned(state + 3*4);
 
     const uint32x4_p CTRS[3] = {
         {1,0,0,0}, {2,0,0,0}, {3,0,0,0}
