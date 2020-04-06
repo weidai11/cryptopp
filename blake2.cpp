@@ -181,6 +181,10 @@ extern void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state);
 extern void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state);
 #endif
 
+#if CRYPTOPP_ALTIVEC_AVAILABLE
+extern void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state);
+#endif
+
 #if CRYPTOPP_POWER8_AVAILABLE
 extern void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state);
 #endif
