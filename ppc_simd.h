@@ -1989,7 +1989,7 @@ inline uint64x2_p VecIntelMultiply11(const uint64x2_p& a, const uint64x2_p& b)
 /// \param state the state vector
 /// \param key the subkey vector
 /// \details VecEncrypt() performs one round of AES encryption of state
-///  using subkey key. The return vector is the same type as vec1.
+///  using subkey key. The return vector is the same type as state.
 /// \details VecEncrypt() is available on POWER8 and above.
 /// \par Wraps
 ///  __vcipher, __builtin_altivec_crypto_vcipher, __builtin_crypto_vcipher
@@ -2014,7 +2014,7 @@ inline T1 VecEncrypt(const T1 state, const T2 key)
 /// \param state the state vector
 /// \param key the subkey vector
 /// \details VecEncryptLast() performs the final round of AES encryption
-///  of state using subkey key. The return vector is the same type as vec1.
+///  of state using subkey key. The return vector is the same type as state.
 /// \details VecEncryptLast() is available on POWER8 and above.
 /// \par Wraps
 ///  __vcipherlast, __builtin_altivec_crypto_vcipherlast, __builtin_crypto_vcipherlast
@@ -2039,7 +2039,7 @@ inline T1 VecEncryptLast(const T1 state, const T2 key)
 /// \param state the state vector
 /// \param key the subkey vector
 /// \details VecDecrypt() performs one round of AES decryption of state
-///  using subkey key. The return vector is the same type as vec1.
+///  using subkey key. The return vector is the same type as state.
 /// \details VecDecrypt() is available on POWER8 and above.
 /// \par Wraps
 ///  __vncipher, __builtin_altivec_crypto_vncipher, __builtin_crypto_vncipher
@@ -2064,7 +2064,7 @@ inline T1 VecDecrypt(const T1 state, const T2 key)
 /// \param state the state vector
 /// \param key the subkey vector
 /// \details VecDecryptLast() performs the final round of AES decryption
-///  of state using subkey key. The return vector is the same type as vec1.
+///  of state using subkey key. The return vector is the same type as state.
 /// \details VecDecryptLast() is available on POWER8 and above.
 /// \par Wraps
 ///  __vncipherlast, __builtin_altivec_crypto_vncipherlast, __builtin_crypto_vncipherlast
@@ -2092,22 +2092,22 @@ inline T1 VecDecryptLast(const T1 state, const T2 key)
 /// \tparam func function
 /// \tparam fmask function mask
 /// \tparam T vector type
-/// \param vec the block to transform
+/// \param data the block to transform
 /// \details VecSHA256() selects sigma0, sigma1, Sigma0, Sigma1 based on
-///  func and fmask. The return vector is the same type as vec.
+///  func and fmask. The return vector is the same type as data.
 /// \details VecSHA256() is available on POWER8 and above.
 /// \par Wraps
 ///  __vshasigmaw, __builtin_altivec_crypto_vshasigmaw, __builtin_crypto_vshasigmaw
 /// \since GCC and XLC since Crypto++ 6.0, LLVM Clang since Crypto++ 8.0
 template <int func, int fmask, class T>
-inline T VecSHA256(const T vec)
+inline T VecSHA256(const T data)
 {
 #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return (T)__vshasigmaw((uint32x4_p)vec, func, fmask);
+    return (T)__vshasigmaw((uint32x4_p)data, func, fmask);
 #elif defined(__clang__)
-    return (T)__builtin_altivec_crypto_vshasigmaw((uint32x4_p)vec, func, fmask);
+    return (T)__builtin_altivec_crypto_vshasigmaw((uint32x4_p)data, func, fmask);
 #elif defined(__GNUC__)
-    return (T)__builtin_crypto_vshasigmaw((uint32x4_p)vec, func, fmask);
+    return (T)__builtin_crypto_vshasigmaw((uint32x4_p)data, func, fmask);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
@@ -2117,22 +2117,22 @@ inline T VecSHA256(const T vec)
 /// \tparam func function
 /// \tparam fmask function mask
 /// \tparam T vector type
-/// \param vec the block to transform
+/// \param data the block to transform
 /// \details VecSHA512() selects sigma0, sigma1, Sigma0, Sigma1 based on
-///  func and fmask. The return vector is the same type as vec.
+///  func and fmask. The return vector is the same type as data.
 /// \details VecSHA512() is available on POWER8 and above.
 /// \par Wraps
 ///  __vshasigmad, __builtin_altivec_crypto_vshasigmad, __builtin_crypto_vshasigmad
 /// \since GCC and XLC since Crypto++ 6.0, LLVM Clang since Crypto++ 8.0
 template <int func, int fmask, class T>
-inline T VecSHA512(const T vec)
+inline T VecSHA512(const T data)
 {
 #if defined(__ibmxl__) || (defined(_AIX) && defined(__xlC__))
-    return (T)__vshasigmad((uint64x2_p)vec, func, fmask);
+    return (T)__vshasigmad((uint64x2_p)data, func, fmask);
 #elif defined(__clang__)
-    return (T)__builtin_altivec_crypto_vshasigmad((uint64x2_p)vec, func, fmask);
+    return (T)__builtin_altivec_crypto_vshasigmad((uint64x2_p)data, func, fmask);
 #elif defined(__GNUC__)
-    return (T)__builtin_crypto_vshasigmad((uint64x2_p)vec, func, fmask);
+    return (T)__builtin_crypto_vshasigmad((uint64x2_p)data, func, fmask);
 #else
     CRYPTOPP_ASSERT(0);
 #endif
