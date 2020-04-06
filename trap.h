@@ -76,6 +76,7 @@
       oss << "Assertion failed: " << __FILE__ << "("              \
           << __LINE__ << "): " << __func__                        \
           << std::endl;                                           \
+      std::cout << std::flush;                                    \
       std::cerr << oss.str();                                     \
       raise(SIGTRAP);                                             \
     }                                                             \
@@ -87,6 +88,7 @@
       oss << "Assertion failed: " << __FILE__ << "("              \
           << __LINE__ << "): " << __FUNCTION__                    \
           << std::endl;                                           \
+      std::cout << std::flush;                                    \
       std::cerr << oss.str();                                     \
       if (IsDebuggerPresent()) {DebugBreak();}                    \
     }                                                             \
