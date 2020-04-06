@@ -699,34 +699,38 @@ void BLAKE2_Compress32_NEON(const byte* input, BLAKE2s_State& state)
 
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
 
-inline uint32x4_p VecLoad32(const void* p)
+template <class T>
+inline uint32x4_p VecLoad32(const T* p)
 {
-    return VecLoad((const word32*)p);
+    return VecLoad(p);
 }
 
-inline uint32x4_p VecLoad32LE(const void* p)
+template <class T>
+inline uint32x4_p VecLoad32LE(const T* p)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    const uint32x4_p v = VecLoad((const word32*)p);
+    const uint32x4_p v = VecLoad(p);
     return VecPermute(v, v, m);
 #else
-    return VecLoad((const word32*)p);
+    return VecLoad(p);
 #endif
 }
 
-inline void VecStore32(void* p, const uint32x4_p x)
+template <class T>
+inline void VecStore32(T* p, const uint32x4_p x)
 {
-    VecStore(x, (word32*)p);
+    VecStore(x, p);
 }
 
-inline void VecStore32LE(void* p, const uint32x4_p x)
+template <class T>
+inline void VecStore32LE(T* p, const uint32x4_p x)
 {
 #if __BIG_ENDIAN__
     const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    VecStore(VecPermute(x, x, m), (word32*)p);
+    VecStore(VecPermute(x, x, m), p);
 #else
-    VecStore(x, (word32*)p);
+    VecStore(x, p);
 #endif
 }
 
