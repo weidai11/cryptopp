@@ -74,9 +74,10 @@
 // We should be able to perform the load using inline asm on Power7 with
 // VSX or Power8. The inline asm will avoid C undefined behavior due to
 // casting from byte* to word32*. We are safe because our byte* are
-// 16-byte aligned for Altivec. Below is the big endian load.
+// 16-byte aligned for Altivec. Below is the big endian load. Little
+// endian would need to follow with xxpermdi for the reversal.
 //
-//   __asm__ ("lxvw4x %x0, %1, %2" : "=wa"(v) : "r"(src), "r"(0) : );
+//   __asm__ ("lxvw4x %x0, %1, %2" : "=wa"(v) : "r"(0), "r"(src) : );
 
 #ifndef CRYPTOPP_PPC_CRYPTO_H
 #define CRYPTOPP_PPC_CRYPTO_H
