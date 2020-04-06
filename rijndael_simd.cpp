@@ -558,17 +558,17 @@ static inline void POWER8_Enc_Block(uint32x4_p &block, const word32 *subkeys, un
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VecLoad(keys);
+    uint32x4_p k = VecLoadAligned(keys);
     block = VecXor(block, k);
 
     for (size_t i=1; i<rounds-1; i+=2)
     {
-        block = VecEncrypt(block, VecLoad(  i*16,   keys));
-        block = VecEncrypt(block, VecLoad((i+1)*16, keys));
+        block = VecEncrypt(block, VecLoadAligned(  i*16,   keys));
+        block = VecEncrypt(block, VecLoadAligned((i+1)*16, keys));
     }
 
-    block = VecEncrypt(block, VecLoad((rounds-1)*16, keys));
-    block = VecEncryptLast(block, VecLoad(rounds*16, keys));
+    block = VecEncrypt(block, VecLoadAligned((rounds-1)*16, keys));
+    block = VecEncryptLast(block, VecLoadAligned(rounds*16, keys));
 }
 
 static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -578,7 +578,7 @@ static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VecLoad(keys);
+    uint32x4_p k = VecLoadAligned(keys);
     block0 = VecXor(block0, k);
     block1 = VecXor(block1, k);
     block2 = VecXor(block2, k);
@@ -588,7 +588,7 @@ static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (size_t i=1; i<rounds; ++i)
     {
-        k = VecLoad(i*16, keys);
+        k = VecLoadAligned(i*16, keys);
         block0 = VecEncrypt(block0, k);
         block1 = VecEncrypt(block1, k);
         block2 = VecEncrypt(block2, k);
@@ -597,7 +597,7 @@ static inline void POWER8_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         block5 = VecEncrypt(block5, k);
     }
 
-    k = VecLoad(rounds*16, keys);
+    k = VecLoadAligned(rounds*16, keys);
     block0 = VecEncryptLast(block0, k);
     block1 = VecEncryptLast(block1, k);
     block2 = VecEncryptLast(block2, k);
@@ -611,17 +611,17 @@ static inline void POWER8_Dec_Block(uint32x4_p &block, const word32 *subkeys, un
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VecLoad(rounds*16, keys);
+    uint32x4_p k = VecLoadAligned(rounds*16, keys);
     block = VecXor(block, k);
 
     for (size_t i=rounds-1; i>1; i-=2)
     {
-        block = VecDecrypt(block, VecLoad(  i*16,   keys));
-        block = VecDecrypt(block, VecLoad((i-1)*16, keys));
+        block = VecDecrypt(block, VecLoadAligned(  i*16,   keys));
+        block = VecDecrypt(block, VecLoadAligned((i-1)*16, keys));
     }
 
-    block = VecDecrypt(block, VecLoad(16, keys));
-    block = VecDecryptLast(block, VecLoad(0, keys));
+    block = VecDecrypt(block, VecLoadAligned(16, keys));
+    block = VecDecryptLast(block, VecLoadAligned(0, keys));
 }
 
 static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
@@ -631,7 +631,7 @@ static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     CRYPTOPP_ASSERT(IsAlignedOn(subkeys, 16));
     const byte *keys = reinterpret_cast<const byte*>(subkeys);
 
-    uint32x4_p k = VecLoad(rounds*16, keys);
+    uint32x4_p k = VecLoadAligned(rounds*16, keys);
     block0 = VecXor(block0, k);
     block1 = VecXor(block1, k);
     block2 = VecXor(block2, k);
@@ -641,7 +641,7 @@ static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (size_t i=rounds-1; i>0; --i)
     {
-        k = VecLoad(i*16, keys);
+        k = VecLoadAligned(i*16, keys);
         block0 = VecDecrypt(block0, k);
         block1 = VecDecrypt(block1, k);
         block2 = VecDecrypt(block2, k);
@@ -650,7 +650,7 @@ static inline void POWER8_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         block5 = VecDecrypt(block5, k);
     }
 
-    k = VecLoad(0, keys);
+    k = VecLoadAligned(0, keys);
     block0 = VecDecryptLast(block0, k);
     block1 = VecDecryptLast(block1, k);
     block2 = VecDecryptLast(block2, k);
