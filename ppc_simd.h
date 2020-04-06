@@ -303,6 +303,8 @@ inline uint32x4_p VecLoad(const byte src[16])
     // GCC and XLC use integer math for the effective address.
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
@@ -327,6 +329,12 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
@@ -355,15 +363,15 @@ inline uint32x4_p VecLoad(const word32 src[4])
     // GCC and XLC use integer math for the effective address.
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(eff));
 # else
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
 # endif
 #else
@@ -392,15 +400,15 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     // GCC and XLC use integer math for the effective address.
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(eff));
 # else
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 # endif
 #else
@@ -431,16 +439,16 @@ inline uint64x2_p VecLoad(const word64 src[2])
     // GCC and XLC use integer math for the effective address.
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(eff));
 # else
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
 # endif
 #else
@@ -470,16 +478,16 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     // GCC and XLC use integer math for the effective address.
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(eff));
 # else
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
     return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
 # endif
 #else
@@ -508,6 +516,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(eff % 16 == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
@@ -535,6 +544,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(eff % 16 == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
@@ -562,6 +572,7 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(eff % 16 == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
@@ -591,6 +602,7 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(eff % 16 == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
@@ -626,6 +638,7 @@ inline uint64x2_p VecLoadAligned(const word64 src[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(eff % 16 == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
@@ -656,6 +669,7 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(eff % 16 == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
@@ -687,6 +701,12 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
     // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
@@ -712,6 +732,12 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
     // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
@@ -824,6 +850,12 @@ inline void VecStore(const T data, byte dest[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #else
@@ -851,6 +883,12 @@ inline void VecStore(const T data, int off, byte dest[16])
     // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
+    // GCC and XLC use integer math for the effective address.
+    // LLVM uses pointer math for the effective address.
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -883,6 +921,7 @@ inline void VecStore(const T data, word32 dest[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -922,6 +961,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -961,6 +1001,7 @@ inline void VecStore(const T data, word64 dest[2])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -1002,6 +1043,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -1042,6 +1084,7 @@ inline void VecStoreBE(const T data, byte dest[16])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -1078,6 +1121,7 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -1113,6 +1157,7 @@ inline void VecStoreBE(const T data, word32 dest[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -1149,6 +1194,7 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
     // LLVM uses pointer math for the effective address.
     const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, off, NCONST_V8_CAST(dest));
