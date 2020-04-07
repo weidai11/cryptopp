@@ -1673,7 +1673,7 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
 
 //@}
 
-/// \name 64-BIT elements on 32-BIT
+/// \name 32-BIT ENVIRONMENTS
 //@{
 
 /// \brief Add two 64-bit vectors
