@@ -196,7 +196,7 @@ bool CPU_ProbePMULL()
                              0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0,0xe0};
         const uint32x4_p a2=VecLoad(wa2), b2=VecLoad(wb2);
 
-        const uint64x2_p r1 = VecIntelMultiply00(a1, b1);
+        const uint64x2_p r1 = VecIntelMultiply11(a1, b1);
         const uint64x2_p r2 = VecIntelMultiply11((uint64x2_p)a2, (uint64x2_p)b2);
 
         const uint64_t wc1[]={W64LIT(0x5300530053005300), W64LIT(0x5300530053005300)},
