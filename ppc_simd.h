@@ -1734,7 +1734,7 @@ inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 {
 #if defined(_ARCH_PWR8)
-    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
+    // 64-bit elements available at POWER7 with VSX, but subudm requires POWER8
     return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
     // The borrow mask selects borrows for elements 1 and 3 and sets remaining
@@ -1764,7 +1764,7 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 /// \since Crypto++ 8.3
 inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 {
-    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
+    // 64-bit elements available at POWER7 with VSX, but subudm requires POWER8
     return vec_sub(vec1, vec2);
 }
 #endif
