@@ -193,17 +193,17 @@ unsigned int BLAKE2b::OptimalDataAlignment() const
 {
 #if defined(CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
-        return 16;
+        return 16;  // load __m128i
     else
 #endif
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 4;
+        return 8;  // load uint64x2_t
     else
 #endif
 #if (CRYPTOPP_POWER8_AVAILABLE)
     if (HasPower8())
-        return 16;
+        return 16;  // load vector long long
     else
 #endif
     return GetAlignmentOf<word64>();
@@ -233,17 +233,17 @@ unsigned int BLAKE2s::OptimalDataAlignment() const
 {
 #if defined(CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
-        return 16;
+        return 16;  // load __m128i
     else
 #endif
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 4;
+        return 4;  // load uint32x4_t
     else
 #endif
 #if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
-        return 16;
+        return 16;  // load vector unsigned int
     else
 #endif
     return GetAlignmentOf<word32>();
