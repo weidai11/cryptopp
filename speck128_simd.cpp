@@ -43,7 +43,7 @@
 # include "adv_simd.h"
 #endif
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
 # include "adv_simd.h"
 # include "ppc_simd.h"
 #endif
@@ -132,7 +132,7 @@ inline void SPECK128_Enc_Block(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -160,7 +160,7 @@ inline void SPECK128_Enc_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t x3 = UnpackHigh64(block4, block5);
     uint64x2_t y3 = UnpackLow64(block4, block5);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -197,7 +197,7 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
 
-    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -225,7 +225,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t x3 = UnpackHigh64(block4, block5);
     uint64x2_t y3 = UnpackLow64(block4, block5);
 
-    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -330,7 +330,7 @@ inline void SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
@@ -359,7 +359,7 @@ inline void SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i x3 = _mm_unpackhi_epi64(block4, block5);
     __m128i y3 = _mm_unpacklo_epi64(block4, block5);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
@@ -397,7 +397,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
 
-    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
@@ -426,7 +426,7 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i x3 = _mm_unpackhi_epi64(block4, block5);
     __m128i y3 = _mm_unpacklo_epi64(block4, block5);
 
-    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
@@ -459,36 +459,45 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
 
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
 
-// ***************************** Power8 ***************************** //
+// ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+
+// Altivec uses native 64-bit types on 64-bit environments, or 32-bit types
+// in 32-bit environments. Speck128 will use the appropriate type for the
+// environment. Functions like VecAdd64 have two overloads, one for each
+// environment. The 32-bit overload treats uint32x4_p like a 64-bit type,
+// and does things like perform a add with carry or subtract with borrow.
+
+// Speck128 on Power8 performed as expected because of 64-bit environment.
+// Performance sucked on old PowerPC machines because of 32-bit environments.
+// At Crypto++ 8.3 we added an implementation that operated on 32-bit words.
+// Native 64-bit Speck128 performance dropped from about 4.1 to 6.3 cpb, but
+// 32-bit Speck128 improved from 66.5 cpb to 10.4 cpb. Overall it was a
+// good win even though we lost some performance in 64-bit environments.
 
 using CryptoPP::uint8x16_p;
 using CryptoPP::uint32x4_p;
+#if defined(_ARCH_PWR8)
 using CryptoPP::uint64x2_p;
+#endif
 
-using CryptoPP::VecAdd;
-using CryptoPP::VecSub;
-using CryptoPP::VecXor;
+using CryptoPP::VecAdd64;
+using CryptoPP::VecSub64;
+using CryptoPP::VecAnd64;
+using CryptoPP::VecOr64;
+using CryptoPP::VecXor64;
+using CryptoPP::VecRotateLeft64;
+using CryptoPP::VecRotateRight64;
 using CryptoPP::VecLoad;
 using CryptoPP::VecLoadAligned;
 using CryptoPP::VecPermute;
 
-// Rotate left by bit count
-template<unsigned int C>
-inline uint64x2_p RotateLeft64(const uint64x2_p val)
-{
-    const uint64x2_p m = {C, C};
-    return vec_rl(val, m);
-}
-
-// Rotate right by bit count
-template<unsigned int C>
-inline uint64x2_p RotateRight64(const uint64x2_p val)
-{
-    const uint64x2_p m = {64-C, 64-C};
-    return vec_rl(val, m);
-}
+#if defined(_ARCH_PWR8)
+#define speck128_t uint64x2_p
+#else
+#define speck128_t uint32x4_p
+#endif
 
 void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int rounds)
 {
@@ -501,20 +510,21 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)VecPermute(block, block, m1);
-    uint64x2_p y1 = (uint64x2_p)VecPermute(block, block, m2);
+    speck128_t x1 = (speck128_t)VecPermute(block, block, m1);
+    speck128_t y1 = (speck128_t)VecPermute(block, block, m2);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const uint64x2_p rk = VecLoadAligned(subkeys+i*2);
+        const word64* temp = subkeys+i*2;  // Altivec lacks a load for 64-bit types
+        const speck128_t rk = (speck128_t)VecLoadAligned((const word32*)temp);
 
-        x1 = RotateRight64<8>(x1);
-        x1 = VecAdd(x1, y1);
-        x1 = VecXor(x1, rk);
+        x1 = (speck128_t)VecRotateRight64<8>(x1);
+        x1 = (speck128_t)VecAdd64(x1, y1);
+        x1 = (speck128_t)VecXor64(x1, rk);
 
-        y1 = RotateLeft64<3>(y1);
-        y1 = VecXor(y1, x1);
+        y1 = (speck128_t)VecRotateLeft64<3>(y1);
+        y1 = (speck128_t)VecXor64(y1, x1);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -534,24 +544,31 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {31,30,29,28,27,26,25,24, 15,14,13,12,11,10,9,8};
     const uint8x16_p m2 = {23,22,21,20,19,18,17,16, 7,6,5,4,3,2,1,0};
+    const uint8x16_p km = {7,6,5,4, 3,2,1,0, 7,6,5,4, 3,2,1,0};
 #else
     const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
     const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
+    const uint8x16_p km = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)VecPermute(block, block, m1);
-    uint64x2_p y1 = (uint64x2_p)VecPermute(block, block, m2);
+    speck128_t x1 = (speck128_t)VecPermute(block, block, m1);
+    speck128_t y1 = (speck128_t)VecPermute(block, block, m2);
 
-    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
-        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+#if defined(_ARCH_PWR8)
+        const speck128_t rk = (speck128_t)vec_splats((unsigned long long)subkeys[i]);
+#else
+        const word64 temp[2] = {subkeys[i], subkeys[i]};
+        const speck128_t rk = (speck128_t)VecLoad((const word32*)temp);
+#endif
 
-        y1 = VecXor(y1, x1);
-        y1 = RotateRight64<3>(y1);
-        x1 = VecXor(x1, rk);
-        x1 = VecSub(x1, y1);
-        x1 = RotateLeft64<8>(x1);
+        y1 = (speck128_t)VecXor64(y1, x1);
+        y1 = (speck128_t)VecRotateRight64<3>(y1);
+        x1 = (speck128_t)VecXor64(x1, rk);
+        x1 = (speck128_t)VecSub64(x1, y1);
+        x1 = (speck128_t)VecRotateLeft64<8>(x1);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -579,34 +596,35 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)VecPermute(block0, block1, m1);
-    uint64x2_p y1 = (uint64x2_p)VecPermute(block0, block1, m2);
-    uint64x2_p x2 = (uint64x2_p)VecPermute(block2, block3, m1);
-    uint64x2_p y2 = (uint64x2_p)VecPermute(block2, block3, m2);
-    uint64x2_p x3 = (uint64x2_p)VecPermute(block4, block5, m1);
-    uint64x2_p y3 = (uint64x2_p)VecPermute(block4, block5, m2);
+    speck128_t x1 = (speck128_t)VecPermute(block0, block1, m1);
+    speck128_t y1 = (speck128_t)VecPermute(block0, block1, m2);
+    speck128_t x2 = (speck128_t)VecPermute(block2, block3, m1);
+    speck128_t y2 = (speck128_t)VecPermute(block2, block3, m2);
+    speck128_t x3 = (speck128_t)VecPermute(block4, block5, m1);
+    speck128_t y3 = (speck128_t)VecPermute(block4, block5, m2);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const uint64x2_p rk = VecLoadAligned(subkeys+i*2);
+        const word64* temp = subkeys+i*2;  // Altivec lacks a load for 64-bit types
+        const speck128_t rk = (speck128_t)VecLoadAligned((const word32*)temp);
 
-        x1 = RotateRight64<8>(x1);
-        x2 = RotateRight64<8>(x2);
-        x3 = RotateRight64<8>(x3);
-        x1 = VecAdd(x1, y1);
-        x2 = VecAdd(x2, y2);
-        x3 = VecAdd(x3, y3);
-        x1 = VecXor(x1, rk);
-        x2 = VecXor(x2, rk);
-        x3 = VecXor(x3, rk);
+        x1 = (speck128_t)VecRotateRight64<8>(x1);
+        x2 = (speck128_t)VecRotateRight64<8>(x2);
+        x3 = (speck128_t)VecRotateRight64<8>(x3);
+        x1 = (speck128_t)VecAdd64(x1, y1);
+        x2 = (speck128_t)VecAdd64(x2, y2);
+        x3 = (speck128_t)VecAdd64(x3, y3);
+        x1 = (speck128_t)VecXor64(x1, rk);
+        x2 = (speck128_t)VecXor64(x2, rk);
+        x3 = (speck128_t)VecXor64(x3, rk);
 
-        y1 = RotateLeft64<3>(y1);
-        y2 = RotateLeft64<3>(y2);
-        y3 = RotateLeft64<3>(y3);
-        y1 = VecXor(y1, x1);
-        y2 = VecXor(y2, x2);
-        y3 = VecXor(y3, x3);
+        y1 = (speck128_t)VecRotateLeft64<3>(y1);
+        y2 = (speck128_t)VecRotateLeft64<3>(y2);
+        y3 = (speck128_t)VecRotateLeft64<3>(y3);
+        y1 = (speck128_t)VecXor64(y1, x1);
+        y2 = (speck128_t)VecXor64(y2, x2);
+        y3 = (speck128_t)VecXor64(y3, x3);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -639,33 +657,38 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
-    uint64x2_p x1 = (uint64x2_p)VecPermute(block0, block1, m1);
-    uint64x2_p y1 = (uint64x2_p)VecPermute(block0, block1, m2);
-    uint64x2_p x2 = (uint64x2_p)VecPermute(block2, block3, m1);
-    uint64x2_p y2 = (uint64x2_p)VecPermute(block2, block3, m2);
-    uint64x2_p x3 = (uint64x2_p)VecPermute(block4, block5, m1);
-    uint64x2_p y3 = (uint64x2_p)VecPermute(block4, block5, m2);
+    speck128_t x1 = (speck128_t)VecPermute(block0, block1, m1);
+    speck128_t y1 = (speck128_t)VecPermute(block0, block1, m2);
+    speck128_t x2 = (speck128_t)VecPermute(block2, block3, m1);
+    speck128_t y2 = (speck128_t)VecPermute(block2, block3, m2);
+    speck128_t x3 = (speck128_t)VecPermute(block4, block5, m1);
+    speck128_t y3 = (speck128_t)VecPermute(block4, block5, m2);
 
-    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
+    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
-        const uint64x2_p rk = vec_splats((unsigned long long)subkeys[i]);
+#if defined(_ARCH_PWR8)
+        const speck128_t rk = (speck128_t)vec_splats((unsigned long long)subkeys[i]);
+#else
+        const word64 temp[2] = {subkeys[i], subkeys[i]};
+        const speck128_t rk = (speck128_t)VecLoad((const word32*)temp);
+#endif
 
-        y1 = VecXor(y1, x1);
-        y2 = VecXor(y2, x2);
-        y3 = VecXor(y3, x3);
-        y1 = RotateRight64<3>(y1);
-        y2 = RotateRight64<3>(y2);
-        y3 = RotateRight64<3>(y3);
+        y1 = (speck128_t)VecXor64(y1, x1);
+        y2 = (speck128_t)VecXor64(y2, x2);
+        y3 = (speck128_t)VecXor64(y3, x3);
+        y1 = (speck128_t)VecRotateRight64<3>(y1);
+        y2 = (speck128_t)VecRotateRight64<3>(y2);
+        y3 = (speck128_t)VecRotateRight64<3>(y3);
 
-        x1 = VecXor(x1, rk);
-        x2 = VecXor(x2, rk);
-        x3 = VecXor(x3, rk);
-        x1 = VecSub(x1, y1);
-        x2 = VecSub(x2, y2);
-        x3 = VecSub(x3, y3);
-        x1 = RotateLeft64<8>(x1);
-        x2 = RotateLeft64<8>(x2);
-        x3 = RotateLeft64<8>(x3);
+        x1 = (speck128_t)VecXor64(x1, rk);
+        x2 = (speck128_t)VecXor64(x2, rk);
+        x3 = (speck128_t)VecXor64(x3, rk);
+        x1 = (speck128_t)VecSub64(x1, y1);
+        x2 = (speck128_t)VecSub64(x2, y2);
+        x3 = (speck128_t)VecSub64(x3, y3);
+        x1 = (speck128_t)VecRotateLeft64<8>(x1);
+        x2 = (speck128_t)VecRotateLeft64<8>(x2);
+        x3 = (speck128_t)VecRotateLeft64<8>(x3);
     }
 
 #if (CRYPTOPP_BIG_ENDIAN)
@@ -685,7 +708,7 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     block5 = (uint32x4_p)VecPermute(x3, y3, m4);
 }
 
-#endif  // CRYPTOPP_POWER8_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 ANONYMOUS_NAMESPACE_END
 
@@ -729,22 +752,22 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t ro
 }
 #endif  // CRYPTOPP_SSSE3_AVAILABLE
 
-// ***************************** Power8 ***************************** //
+// ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_POWER8_AVAILABLE)
-size_t SPECK128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+size_t SPECK128_Enc_AdvancedProcessBlocks_ALTIVEC(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     return AdvancedProcessBlocks128_6x1_ALTIVEC(SPECK128_Enc_Block, SPECK128_Enc_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
 
-size_t SPECK128_Dec_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+size_t SPECK128_Dec_AdvancedProcessBlocks_ALTIVEC(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
     return AdvancedProcessBlocks128_6x1_ALTIVEC(SPECK128_Dec_Block, SPECK128_Dec_6_Blocks,
         subKeys, rounds, inBlocks, xorBlocks, outBlocks, length, flags);
 }
-#endif  // CRYPTOPP_POWER8_AVAILABLE
+#endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
 NAMESPACE_END
