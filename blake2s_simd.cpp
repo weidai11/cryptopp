@@ -872,7 +872,7 @@ uint32x4_p VectorSet32<3,1,3,1>(const uint32x4_p a, const uint32x4_p b,
     return VecPermute(a, c, mask);
 }
 
-void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
+void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state)
 {
     # define m1 m0
     # define m2 m0
@@ -1020,14 +1020,5 @@ void BLAKE2_Compress32_CORE(const byte* input, BLAKE2s_State& state)
     VecStore32LE(state.h()+4, VecXor(ff1, VecXor(row2, row4)));
 }
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
-
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-
-void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state)
-{
-    BLAKE2_Compress32_CORE(input, state);
-}
-
-#endif
 
 NAMESPACE_END
