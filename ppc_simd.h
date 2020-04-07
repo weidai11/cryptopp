@@ -1544,7 +1544,7 @@ inline T VecRotateRightOctet(const T vec)
 }
 
 /// \brief Rotate a packed vector left
-/// \tparam C shift bit count
+/// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateLeft() rotates each element in a packed vector by bit count.
@@ -1574,7 +1574,7 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
 }
 
 /// \brief Rotate a packed vector right
-/// \tparam C shift bit count
+/// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateRight() rotates each element in a packed vector by bit count.
@@ -1606,7 +1606,7 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a packed vector left
-/// \tparam C shift bit count
+/// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateLeft() rotates each element in a packed vector by bit count.
@@ -1638,7 +1638,7 @@ inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
 }
 
 /// \brief Rotate a packed vector right
-/// \tparam C shift bit count
+/// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateRight() rotates each element in a packed vector by bit count.
@@ -1673,7 +1673,7 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
 
 //@}
 
-/// \name 64-BIT on 32-BIT
+/// \name 64-BIT elements on 32-BIT
 //@{
 
 /// \brief Add two 64-bit vectors
@@ -1713,7 +1713,7 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 ///  vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
 ///  and below VecAdd64() manages the carries from the elements.
 /// \par Wraps
-///  vec_add for POWER8, vec_addc, vec_perm, vec_add for Altivec
+///  vec_add for POWER8
 /// \since Crypto++ 8.3
 inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 {
@@ -1744,7 +1744,7 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     const uint32x4_p amask = {1, 1, 1, 1};
     const uint32x4_p zero = {0, 0, 0, 0};
 
-    // subc sets the compliment of borrow, so we have to andc to un-compliment it.
+    // subc sets the compliment of borrow, so we have to un-compliment it using andc.
     uint32x4_p bw = vec_subc(vec1, vec2);
     bw = vec_andc(amask, bw);
     bw = vec_perm(bw, zero, bmask);
@@ -1760,12 +1760,157 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 ///  vec1 and vec2 are subtracted as if uint64x2_p vectors. On POWER7
 ///  and below VecSub64() manages the borrows from the elements.
 /// \par Wraps
-///  vec_sub for POWER8, vec_addc, vec_perm, vec_sub for Altivec
+///  vec_sub for POWER8
 /// \since Crypto++ 8.3
 inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 {
     // 64-bit elements available at POWER7 with VSX, but subudm requires POWER8
     return vec_sub(vec1, vec2);
+}
+#endif
+
+/// \brief Rotate a 64-bit packed vector left
+/// \tparam C rotate bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateLeft() rotates each element in a packed vector by bit count.
+/// \details val is rotated as if uint64x2_p.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.3
+template<unsigned int C>
+inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
+{
+#if defined(_ARCH_PWR8)
+    return (uint32x4_p)VecRotateLeft<C>((uint64x2_p)val);
+#else
+    // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
+    enum {BR=(C>=32), S64=C&63, S32=C&31};
+
+    // Get the low bits, shift them to high bits
+    uint32x4_p t1 = VecShiftLeft<S32>(val);
+    // Get the high bits, shift them to low bits
+    uint32x4_p t2 = VecShiftRight<32-S32>(val);
+
+    if (S64 == 0)
+    {
+        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
+        return VecPermute(val, m);
+    }
+    else if (S64 == 32)
+    {
+        const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+        return VecPermute(val, m);
+    }
+    else if (BR)  // Big rotate amount?
+    {
+        const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+        t1 = VecPermute(t1, m);
+    }
+    else
+    {
+        const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+        t2 = VecPermute(t2, m);
+    }
+
+    return vec_or(t1, t2);
+#endif
+}
+
+// Specializations. C=8 is used by Speck128.
+template<>
+inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
+{
+    const uint8x16_p m = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
+    return VecPermute(val, m);
+}
+
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Rotate a 64-bit packed vector left
+/// \tparam C rotate bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateLeft64() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.3
+template<unsigned int C>
+inline uint64x2_p VecRotateLeft64(const uint64x2_p val)
+{
+    return VecRotateLeft<C>(val);
+}
+#endif
+
+
+/// \brief Rotate a 64-bit packed vector right
+/// \tparam C rotate bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateRight64() rotates each element in a packed vector by bit count.
+/// \details val is rotated as if uint64x2_p.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.3
+template<unsigned int C>
+inline uint32x4_p VecRotateRight64(const uint32x4_p val)
+{
+#if defined(_ARCH_PWR8)
+    return (uint32x4_p)VecRotateRight<C>((uint64x2_p)val);
+#else
+    // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
+    enum {BR=(C>=32), S64=C&63, S32=C&31};
+
+    // Get the low bits, shift them to high bits
+    uint32x4_p t1 = VecShiftRight<S32>(val);
+    // Get the high bits, shift them to low bits
+    uint32x4_p t2 = VecShiftLeft<32-S32>(val);
+
+    if (S64 == 0)
+    {
+        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
+        return VecPermute(val, m);
+    }
+    else if (S64 == 32)
+    {
+        const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+        return VecPermute(val, m);
+    }
+    else if (BR)  // Big rotate amount?
+    {
+        const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+        t1 = VecPermute(t1, m);
+    }
+    else
+    {
+        const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
+        t2 = VecPermute(t2, m);
+    }
+
+    return vec_or(t1, t2);
+#endif
+}
+
+// Specializations. C=8 is used by Speck128.
+template<>
+inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
+{
+    const uint8x16_p m = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
+    return VecPermute(val, m);
+}
+
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Rotate a 64-bit packed vector right
+/// \tparam C rotate bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateRight64() rotates each element in a packed vector by bit count.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.3
+template<unsigned int C>
+inline uint64x2_p VecRotateRight64(const uint64x2_p val)
+{
+    return VecRotateRight<C>(val);
 }
 #endif
 
