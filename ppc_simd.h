@@ -731,16 +731,17 @@ inline uint32x4_p VecLoadBE(const byte src[16])
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    // CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(eff);
 
     // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad(0, CONST_V32_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecReverse(VecLoad(0, CONST_V8_CAST(src)));
+    return (uint32x4_p)VecReverse(VecLoad_ALTIVEC(0, CONST_V8_CAST(src)));
 #endif
 }
 
@@ -764,16 +765,17 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
     const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    // CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(eff);
 
     // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad(off, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecReverse(VecLoad(off, CONST_V8_CAST(src)));
+    return (uint32x4_p)VecReverse(VecLoad_ALTIVEC(off, CONST_V8_CAST(src)));
 #endif
 }
 
@@ -1350,37 +1352,6 @@ inline T1 VecSub(const T1 vec1, const T2 vec2)
     return (T1)vec_sub(vec1, (T1)vec2);
 }
 
-/// \brief Add two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns vector
-/// \details VecAdd64() returns a new vector from vec1 and vec2.
-///  vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
-///  and below VecAdd64() manages the carries from two elements in
-///  a uint32x4_p vector.
-/// \par Wraps
-///  vec_add for POWER8, vec_addc, vec_perm, vec_add for Altivec
-/// \since Crypto++ 8.0
-inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
-{
-    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
-#if defined(_ARCH_PWR8)
-    return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
-#else
-    // The carry mask selects carries from elements 1 and 3 and sets remaining
-    // elements to 0. The mask also shifts the carried values left by 4 bytes
-    // so the carries are added to elements 0 and 2.
-    const uint8x16_p cmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
-    const uint32x4_p zero = {0, 0, 0, 0};
-
-    uint32x4_p cy = vec_addc(vec1, vec2);
-    cy = vec_perm(cy, zero, cmask);
-    return vec_add(vec_add(vec1, vec2), cy);
-#endif
-}
-
 //@}
 
 /// \name PERMUTE OPERATIONS
@@ -1699,6 +1670,158 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
 }
 
 #endif  // ARCH_PWR8
+
+//@}
+
+/// \name 64-BIT on 32-BIT
+//@{
+
+/// \brief Add two 64-bit vectors
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \details VecAdd64() returns a new vector from vec1 and vec2.
+///  vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
+///  and below VecAdd64() manages the carries from the elements.
+/// \par Wraps
+///  vec_add for POWER8, vec_addc, vec_perm, vec_add for Altivec
+/// \since Crypto++ 8.3
+inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
+{
+    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
+#if defined(_ARCH_PWR8)
+    return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
+#else
+    // The carry mask selects carries for elements 1 and 3 and sets remaining
+    // elements to 0. The mask also shifts the carried values left by 4 bytes
+    // so the carries are added to elements 0 and 2.
+    const uint8x16_p cmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
+    const uint32x4_p zero = {0, 0, 0, 0};
+
+    uint32x4_p cy = vec_addc(vec1, vec2);
+    cy = vec_perm(cy, zero, cmask);
+    return vec_add(vec_add(vec1, vec2), cy);
+#endif
+}
+
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Add two 64-bit vectors
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \details VecAdd64() returns a new vector from vec1 and vec2.
+///  vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
+///  and below VecAdd64() manages the carries from the elements.
+/// \par Wraps
+///  vec_add for POWER8, vec_addc, vec_perm, vec_add for Altivec
+/// \since Crypto++ 8.3
+inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
+{
+    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
+    return vec_add(vec1, vec2);
+}
+#endif
+
+/// \brief Subtract two 64-bit vectors
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VecSub64() returns a new vector from vec1 and vec2.
+///  vec1 and vec2 are subtracted as if uint64x2_p vectors. On POWER7
+///  and below VecSub64() manages the borrows from the elements.
+/// \par Wraps
+///  vec_sub for POWER8, vec_subc, vec_andc, vec_perm, vec_sub for Altivec
+/// \since Crypto++ 8.3
+inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
+{
+#if defined(_ARCH_PWR8)
+    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
+    return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
+#else
+    // The borrow mask selects borrows for elements 1 and 3 and sets remaining
+    // elements to 0. The mask also shifts the borrowed values left by 4 bytes
+    // so the borrows are subtracted from elements 0 and 2.
+    const uint8x16_p bmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
+    const uint32x4_p amask = {1, 1, 1, 1};
+    const uint32x4_p zero = {0, 0, 0, 0};
+
+    // subc sets the compliment of borrow, so we have to andc to un-compliment it.
+    uint32x4_p bw = vec_subc(vec1, vec2);
+    bw = vec_andc(amask, bw);
+    bw = vec_perm(bw, zero, bmask);
+    return vec_sub(vec_sub(vec1, vec2), bw);
+#endif
+}
+
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Subtract two 64-bit vectors
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \details VecSub64() returns a new vector from vec1 and vec2.
+///  vec1 and vec2 are subtracted as if uint64x2_p vectors. On POWER7
+///  and below VecSub64() manages the borrows from the elements.
+/// \par Wraps
+///  vec_sub for POWER8, vec_addc, vec_perm, vec_sub for Altivec
+/// \since Crypto++ 8.3
+inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
+{
+    // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
+    return vec_sub(vec1, vec2);
+}
+#endif
+
+/// \brief AND two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \details VecAnd64() returns a new vector from vec1 and vec2. The return vector
+///  is the same type as vec1.
+/// \details VecAnd64() is a convenience function that simply performs a VecXor().
+/// \par Wraps
+///  vec_and
+/// \since Crypto++ 8.3
+template <class T1, class T2>
+inline T1 VecAnd64(const T1 vec1, const T2 vec2)
+{
+    return (T1)vec_and(vec1, (T1)vec2);
+}
+
+/// \brief OR two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \details VecOr64() returns a new vector from vec1 and vec2. The return vector
+///  is the same type as vec1.
+/// \details VecOr64() is a convenience function that simply performs a VecXor().
+/// \par Wraps
+///  vec_or
+/// \since Crypto++ 8.3
+template <class T1, class T2>
+inline T1 VecOr64(const T1 vec1, const T2 vec2)
+{
+    return (T1)vec_or(vec1, (T1)vec2);
+}
+
+/// \brief XOR two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \details VecXor64() returns a new vector from vec1 and vec2. The return vector
+///  is the same type as vec1.
+/// \details VecXor64() is a convenience function that simply performs a VecXor().
+/// \par Wraps
+///  vec_xor
+/// \since Crypto++ 8.3
+template <class T1, class T2>
+inline T1 VecXor64(const T1 vec1, const T2 vec2)
+{
+    return (T1)vec_xor(vec1, (T1)vec2);
+}
 
 //@}
 
