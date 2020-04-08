@@ -1874,7 +1874,164 @@ inline uint64x2_p VecShiftRight(const uint64x2_p vec)
 
 //@}
 
-/// \name 32-BIT ENVIRONMENTS
+/// \name OTHER OPERATIONS
+//@{
+
+/// \brief Merge two vectors
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \par Wraps
+///  vec_mergel
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeLow(const T vec1, const T vec2)
+{
+    return vec_mergel(vec1, vec2);
+}
+
+/// \brief Merge two vectors
+/// \tparam T vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns vector
+/// \par Wraps
+///  vec_mergeh
+/// \since Crypto++ 8.1
+template <class T>
+inline T VecMergeHigh(const T vec1, const T vec2)
+{
+    return vec_mergeh(vec1, vec2);
+}
+
+/// \brief Broadcast 32-bit word to a vector
+/// \param val the 32-bit value
+/// \returns vector
+/// \since Crypto++ 8.3
+inline uint32x4_p VecSplats(word32 val)
+{
+#if defined(_ARCH_PWR8)
+    return vec_splats(val);
+#else
+    const word32 x[4] = {val,val,val,val};
+    return VecLoad(x);
+#endif
+}
+
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Broadcast 64-bit double word to a vector
+/// \param val the 64-bit value
+/// \returns vector
+/// \since Crypto++ 8.3
+inline uint64x2_p VecSplats(word64 val)
+{
+    // The PPC64 ABI says so.
+    return vec_splats((unsigned long long)val);
+}
+#endif
+
+/// \brief Extract a dword from a vector
+/// \tparam T vector type
+/// \param val the vector
+/// \returns vector created from low dword
+/// \details VecGetLow() extracts the low dword from a vector. The low dword
+///  is composed of the least significant bits and occupies bytes 8 through 15
+///  when viewed as a big endian array. The return vector is the same type as
+///  the original vector and padded with 0's in the most significant bit positions.
+/// \par Wraps
+///  vec_sld
+/// \since Crypto++ 7.0
+template <class T>
+inline T VecGetLow(const T val)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN) && (defined(__VSX__) || defined(_ARCH_PWR8))
+    const T zero = {0};
+    return (T)VecMergeLow((uint64x2_p)zero, (uint64x2_p)val);
+#else
+    return VecShiftRightOctet<8>(VecShiftLeftOctet<8>(val));
+#endif
+}
+
+/// \brief Extract a dword from a vector
+/// \tparam T vector type
+/// \param val the vector
+/// \returns vector created from high dword
+/// \details VecGetHigh() extracts the high dword from a vector. The high dword
+///  is composed of the most significant bits and occupies bytes 0 through 7
+///  when viewed as a big endian array. The return vector is the same type as
+///  the original vector and padded with 0's in the most significant bit positions.
+/// \par Wraps
+///  vec_sld
+/// \since Crypto++ 7.0
+template <class T>
+inline T VecGetHigh(const T val)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN) && (defined(__VSX__) || defined(_ARCH_PWR8))
+    const T zero = {0};
+    return (T)VecMergeHigh((uint64x2_p)zero, (uint64x2_p)val);
+#else
+    return VecShiftRightOctet<8>(val);
+#endif
+}
+
+/// \brief Exchange high and low double words
+/// \tparam T vector type
+/// \param vec the vector
+/// \returns vector
+/// \par Wraps
+///  vec_sld
+/// \since Crypto++ 7.0
+template <class T>
+inline T VecSwapWords(const T vec)
+{
+    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 8);
+}
+
+//@}
+
+/// \name COMPARISON
+//@{
+
+/// \brief Compare two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns true if vec1 equals vec2, false otherwise
+/// \details VecEqual() performs a bitwise compare. The vector element types do
+///  not matter.
+/// \par Wraps
+///  vec_all_eq
+/// \since Crypto++ 8.0
+template <class T1, class T2>
+inline bool VecEqual(const T1 vec1, const T2 vec2)
+{
+    return 1 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
+}
+
+/// \brief Compare two vectors
+/// \tparam T1 vector type
+/// \tparam T2 vector type
+/// \param vec1 the first vector
+/// \param vec2 the second vector
+/// \returns true if vec1 does not equal vec2, false otherwise
+/// \details VecNotEqual() performs a bitwise compare. The vector element types do
+///  not matter.
+/// \par Wraps
+///  vec_all_eq
+/// \since Crypto++ 8.0
+template <class T1, class T2>
+inline bool VecNotEqual(const T1 vec1, const T2 vec2)
+{
+    return 0 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
+}
+
+//@}
+
+////////////////// 32-bit Altivec /////////////////
+
+/// \name 32-BIT ALTIVEC
 //@{
 
 /// \brief Add two 64-bit vectors
@@ -2056,7 +2213,6 @@ inline uint64x2_p VecRotateLeft64(const uint64x2_p val)
 }
 #endif
 
-
 /// \brief Rotate a 64-bit packed vector right
 /// \tparam C rotate bit count
 /// \param vec the vector
@@ -2191,133 +2347,19 @@ inline T1 VecXor64(const T1 vec1, const T2 vec2)
     return (T1)vec_xor(vec1, (T1)vec2);
 }
 
-//@}
-
-/// \name OTHER OPERATIONS
-//@{
-
-/// \brief Merge two vectors
-/// \tparam T vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
+/// \brief Broadcast 64-bit double word to a vector
+/// \param val the 64-bit value
 /// \returns vector
-/// \par Wraps
-///  vec_mergel
-/// \since Crypto++ 8.1
-template <class T>
-inline T VecMergeLow(const T vec1, const T vec2)
+/// \since Crypto++ 8.3
+inline uint32x4_p VecSplats64(word64 val)
 {
-    return vec_mergel(vec1, vec2);
-}
-
-/// \brief Merge two vectors
-/// \tparam T vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns vector
-/// \par Wraps
-///  vec_mergeh
-/// \since Crypto++ 8.1
-template <class T>
-inline T VecMergeHigh(const T vec1, const T vec2)
-{
-    return vec_mergeh(vec1, vec2);
-}
-
-/// \brief Extract a dword from a vector
-/// \tparam T vector type
-/// \param val the vector
-/// \returns vector created from low dword
-/// \details VecGetLow() extracts the low dword from a vector. The low dword
-///  is composed of the least significant bits and occupies bytes 8 through 15
-///  when viewed as a big endian array. The return vector is the same type as
-///  the original vector and padded with 0's in the most significant bit positions.
-/// \par Wraps
-///  vec_sld
-/// \since Crypto++ 7.0
-template <class T>
-inline T VecGetLow(const T val)
-{
-#if defined(CRYPTOPP_BIG_ENDIAN) && (defined(__VSX__) || defined(_ARCH_PWR8))
-    const T zero = {0};
-    return (T)VecMergeLow((uint64x2_p)zero, (uint64x2_p)val);
+#if defined(_ARCH_PWR8)
+    // The PPC64 ABI says so.
+    return (uint32x4_p)vec_splats((unsigned long long)val);
 #else
-    return VecShiftRightOctet<8>(VecShiftLeftOctet<8>(val));
+    const word64 x[2] = {val,val};
+    return (uint32x4_p)VecLoad((const word32*)x);
 #endif
-}
-
-/// \brief Extract a dword from a vector
-/// \tparam T vector type
-/// \param val the vector
-/// \returns vector created from high dword
-/// \details VecGetHigh() extracts the high dword from a vector. The high dword
-///  is composed of the most significant bits and occupies bytes 0 through 7
-///  when viewed as a big endian array. The return vector is the same type as
-///  the original vector and padded with 0's in the most significant bit positions.
-/// \par Wraps
-///  vec_sld
-/// \since Crypto++ 7.0
-template <class T>
-inline T VecGetHigh(const T val)
-{
-#if defined(CRYPTOPP_BIG_ENDIAN) && (defined(__VSX__) || defined(_ARCH_PWR8))
-    const T zero = {0};
-    return (T)VecMergeHigh((uint64x2_p)zero, (uint64x2_p)val);
-#else
-    return VecShiftRightOctet<8>(val);
-#endif
-}
-
-/// \brief Exchange high and low double words
-/// \tparam T vector type
-/// \param vec the vector
-/// \returns vector
-/// \par Wraps
-///  vec_sld
-/// \since Crypto++ 7.0
-template <class T>
-inline T VecSwapWords(const T vec)
-{
-    return (T)vec_sld((uint8x16_p)vec, (uint8x16_p)vec, 8);
-}
-
-//@}
-
-/// \name COMPARISON
-//@{
-
-/// \brief Compare two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns true if vec1 equals vec2, false otherwise
-/// \details VecEqual() performs a bitwise compare. The vector element types do
-///  not matter.
-/// \par Wraps
-///  vec_all_eq
-/// \since Crypto++ 8.0
-template <class T1, class T2>
-inline bool VecEqual(const T1 vec1, const T2 vec2)
-{
-    return 1 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
-}
-
-/// \brief Compare two vectors
-/// \tparam T1 vector type
-/// \tparam T2 vector type
-/// \param vec1 the first vector
-/// \param vec2 the second vector
-/// \returns true if vec1 does not equal vec2, false otherwise
-/// \details VecNotEqual() performs a bitwise compare. The vector element types do
-///  not matter.
-/// \par Wraps
-///  vec_all_eq
-/// \since Crypto++ 8.0
-template <class T1, class T2>
-inline bool VecNotEqual(const T1 vec1, const T2 vec2)
-{
-    return 0 == vec_all_eq((uint32x4_p)vec1, (uint32x4_p)vec2);
 }
 
 //@}
