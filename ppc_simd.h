@@ -1156,7 +1156,7 @@ inline void VecStoreAligned(const T data, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #else
-    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -1232,7 +1232,7 @@ inline void VecStoreAligned(const T data, word32 dest[4])
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
 # endif
 #else
-    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #endif
 }
 
