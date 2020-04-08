@@ -1,7 +1,7 @@
 // speck128_simd.cpp - written and placed in the public domain by Jeffrey Walton
 //
 //    This source file uses intrinsics and built-ins to gain access to
-//    SSSE3, ARM NEON and ARMv8a, and Power7 Altivec instructions. A separate
+//    SSSE3, ARM NEON and ARMv8a, and Altivec instructions. A separate
 //    source file is needed because additional CXXFLAGS are required to enable
 //    the appropriate instructions sets in some build configurations.
 
@@ -516,7 +516,7 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const word64* temp = subkeys+i*2;  // Altivec lacks a load for 64-bit types
+        const word64* temp = subkeys+i*2;
         const speck128_t rk = (speck128_t)VecLoadAligned((const word32*)temp);
 
         x1 = (speck128_t)VecRotateRight64<8>(x1);
@@ -606,7 +606,7 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const word64* temp = subkeys+i*2;  // Altivec lacks a load for 64-bit types
+        const word64* temp = subkeys+i*2;
         const speck128_t rk = (speck128_t)VecLoadAligned((const word32*)temp);
 
         x1 = (speck128_t)VecRotateRight64<8>(x1);
