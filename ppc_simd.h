@@ -243,14 +243,14 @@ inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     if (addr % 16 == 0)
     {
-        return (uint32x4_p)vec_ld(0, addr);
+        return (uint32x4_p)vec_ld(0, CONST_V8_CAST(addr));
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p perm = vec_lvsl(0, addr);
-        const uint8x16_p low = vec_ld(0, addr);
-        const uint8x16_p high = vec_ld(15, addr);
+        const uint8x16_p perm = vec_lvsl(0, CONST_V8_CAST(addr));
+        const uint8x16_p low = vec_ld(0, CONST_V8_CAST(addr));
+        const uint8x16_p high = vec_ld(15, CONST_V8_CAST(addr));
         return (uint32x4_p)vec_perm(low, high, perm);
     }
 }
@@ -274,14 +274,14 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     if (addr % 16 == 0)
     {
-        return (uint32x4_p)vec_ld(0, addr);
+        return (uint32x4_p)vec_ld(0, CONST_V8_CAST(addr));
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p perm = vec_lvsl(0, addr);
-        const uint8x16_p low = vec_ld(0, addr);
-        const uint8x16_p high = vec_ld(15, addr);
+        const uint8x16_p perm = vec_lvsl(0, CONST_V8_CAST(addr));
+        const uint8x16_p low = vec_ld(0, CONST_V8_CAST(addr));
+        const uint8x16_p high = vec_ld(15, CONST_V8_CAST(addr));
         return (uint32x4_p)vec_perm(low, high, perm);
     }
 }
@@ -822,20 +822,20 @@ inline void VecStore_ALTIVEC(const T data, byte dest[16])
     uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+0;
     if (addr % 16 == 0)
     {
-        vec_st((uint8x16_p)data, 0, addr);
+        vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, addr));
-        vec_ste((uint8x16_p) perm,  0, (unsigned char*) addr);
-        vec_ste((uint16x8_p) perm,  1, (unsigned short*)addr);
-        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  addr);
-        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  addr);
-        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  addr);
-        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  addr);
-        vec_ste((uint16x8_p) perm, 14, (unsigned short*)addr);
-        vec_ste((uint8x16_p) perm, 15, (unsigned char*) addr);
+        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, NCONST_V8_CAST(addr)));
+        vec_ste((uint8x16_p) perm,  0, (unsigned char*) NCONST_V8_CAST(addr));
+        vec_ste((uint16x8_p) perm,  1, (unsigned short*)NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint16x8_p) perm, 14, (unsigned short*)NCONST_V8_CAST(addr));
+        vec_ste((uint8x16_p) perm, 15, (unsigned char*) NCONST_V8_CAST(addr));
     }
 }
 
@@ -862,20 +862,20 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
     uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     if (addr % 16 == 0)
     {
-        vec_st((uint8x16_p)data, 0, addr);
+        vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, addr));
-        vec_ste((uint8x16_p) perm,  0, (unsigned char*) addr);
-        vec_ste((uint16x8_p) perm,  1, (unsigned short*)addr);
-        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  addr);
-        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  addr);
-        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  addr);
-        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  addr);
-        vec_ste((uint16x8_p) perm, 14, (unsigned short*)addr);
-        vec_ste((uint8x16_p) perm, 15, (unsigned char*) addr);
+        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, NCONST_V8_CAST(addr)));
+        vec_ste((uint8x16_p) perm,  0, (unsigned char*) NCONST_V8_CAST(addr));
+        vec_ste((uint16x8_p) perm,  1, (unsigned short*)NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  NCONST_V8_CAST(addr));
+        vec_ste((uint16x8_p) perm, 14, (unsigned short*)NCONST_V8_CAST(addr));
+        vec_ste((uint8x16_p) perm, 15, (unsigned char*) NCONST_V8_CAST(addr));
     }
 }
 
