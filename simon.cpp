@@ -236,11 +236,11 @@ extern size_t SIMON64_Dec_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, s
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
-#if (CRYPTOPP_POWER8_AVAILABLE)
-extern size_t SIMON128_Enc_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+extern size_t SIMON128_Enc_AdvancedProcessBlocks_ALTIVEC(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
-extern size_t SIMON128_Dec_AdvancedProcessBlocks_POWER8(const word64* subKeys, size_t rounds,
+extern size_t SIMON128_Dec_AdvancedProcessBlocks_ALTIVEC(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
@@ -268,15 +268,15 @@ unsigned int SIMON64::Base::OptimalDataAlignment() const
 #if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
 # if (CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
-        return 16;
+        return 16;  // load __m128i
 # endif
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 4;
+        return 4;  // load uint32x4_t
 # endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
-        return 16;
+        return 16;  // load uint32x4_p
 # endif
 #endif
     return GetAlignmentOf<word32>();
@@ -383,9 +383,9 @@ std::string SIMON128::Base::AlgorithmProvider() const
     if (HasNEON())
         return "NEON";
 # endif
-# if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return "Power8";
+# if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return "Altivec";
 # endif
 #endif
     return "C++";
@@ -396,15 +396,15 @@ unsigned int SIMON128::Base::OptimalDataAlignment() const
 #if (CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS)
 # if (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
-        return 16;
+        return 16;  // load __m128i
 # endif
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 8;
+        return 8;  // load uint64x2_t
 # endif
-# if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return 8;
+# if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return 16;  // load uint64x2_p
 # endif
 #endif
     return GetAlignmentOf<word64>();
@@ -445,9 +445,9 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         CRYPTOPP_ASSERT(0);
     }
 
-    // Pre-splat the round keys for Power8 forward transformation
-#if CRYPTOPP_POWER8_AVAILABLE
-    if (IsForwardTransformation() && HasPower8())
+    // Pre-splat the round keys for Altivec forward transformation
+#if CRYPTOPP_ALTIVEC_AVAILABLE
+    if (IsForwardTransformation() && HasAltivec())
     {
         AlignedSecBlock presplat(m_rkeys.size()*2);
         for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=2)
@@ -567,9 +567,9 @@ size_t SIMON128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
         return SIMON128_Enc_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return SIMON128_Enc_AdvancedProcessBlocks_POWER8(m_rkeys, (size_t)m_rounds,
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return SIMON128_Enc_AdvancedProcessBlocks_ALTIVEC(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
@@ -588,9 +588,9 @@ size_t SIMON128::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xo
         return SIMON128_Dec_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
-#if (CRYPTOPP_POWER8_AVAILABLE)
-    if (HasPower8())
-        return SIMON128_Dec_AdvancedProcessBlocks_POWER8(m_rkeys, (size_t)m_rounds,
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
+    if (HasAltivec())
+        return SIMON128_Dec_AdvancedProcessBlocks_ALTIVEC(m_rkeys, (size_t)m_rounds,
             inBlocks, xorBlocks, outBlocks, length, flags);
 #endif
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
