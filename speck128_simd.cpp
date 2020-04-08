@@ -517,8 +517,8 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const word32* temp = reinterpret_cast<const word32*>(subkeys+i*2);
-        const speck128_t rk = (speck128_t)VecLoadAligned(temp);
+        const word32* ptr = reinterpret_cast<const word32*>(subkeys+i*2);
+        const speck128_t rk = (speck128_t)VecLoadAligned(ptr);
 
         x1 = (speck128_t)VecRotateRight64<8>(x1);
         x1 = (speck128_t)VecAdd64(x1, y1);
@@ -602,8 +602,8 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const word32* temp = reinterpret_cast<const word32*>(subkeys+i*2);
-        const speck128_t rk = (speck128_t)VecLoadAligned(temp);
+        const word32* ptr = reinterpret_cast<const word32*>(subkeys+i*2);
+        const speck128_t rk = (speck128_t)VecLoadAligned(ptr);
 
         x1 = (speck128_t)VecRotateRight64<8>(x1);
         x2 = (speck128_t)VecRotateRight64<8>(x2);
@@ -727,7 +727,7 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rou
 
 // ***************************** IA-32 ***************************** //
 
-#if defined(CRYPTOPP_SSSE3_AVAILABLE)
+#if (CRYPTOPP_SSSE3_AVAILABLE)
 size_t SPECK128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {
@@ -745,7 +745,7 @@ size_t SPECK128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t ro
 
 // ***************************** Altivec ***************************** //
 
-#if defined(CRYPTOPP_ALTIVEC_AVAILABLE)
+#if (CRYPTOPP_ALTIVEC_AVAILABLE)
 size_t SPECK128_Enc_AdvancedProcessBlocks_ALTIVEC(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags)
 {

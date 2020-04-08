@@ -79,6 +79,12 @@
 //
 //   __asm__ ("lxvw4x %x0, %1, %2" : "=wa"(v) : "r"(0), "r"(src) : );
 
+// GCC and XLC use integer math for the address (D-form or byte-offset
+// in the ISA manual). LLVM uses pointer math for the address (DS-form
+// or indexed in the ISA manual). To keep them consistent we calculate
+// the address from the offset and pass to a load or store function
+// using a 0 offset.
+
 #ifndef CRYPTOPP_PPC_CRYPTO_H
 #define CRYPTOPP_PPC_CRYPTO_H
 
@@ -304,10 +310,6 @@ inline uint32x4_p VecLoad(const byte src[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -315,7 +317,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #endif
 }
 
@@ -337,10 +339,6 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -348,7 +346,7 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #endif
 }
 
@@ -370,10 +368,6 @@ inline uint32x4_p VecLoad(const word32 src[4])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -381,13 +375,9 @@ inline uint32x4_p VecLoad(const word32 src[4])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
-# else
-    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
-# endif
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #endif
 }
 
@@ -410,10 +400,6 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -421,13 +407,9 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
-# else
-    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
-# endif
 #else
-    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #endif
 }
 
@@ -452,10 +434,6 @@ inline uint64x2_p VecLoad(const word64 src[2])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -463,14 +441,10 @@ inline uint64x2_p VecLoad(const word64 src[2])
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
-# else
-    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
-# endif
 #else
-    return (uint64x2_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
+    return (uint64x2_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #endif
 }
 
@@ -494,10 +468,6 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -505,14 +475,10 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
-# else
-    return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
-# endif
 #else
-    return (uint64x2_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+    return (uint64x2_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #endif
 }
 
@@ -534,10 +500,6 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(addr % 16 == 0);
     CRYPTOPP_UNUSED(addr);
@@ -565,10 +527,6 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(addr % 16 == 0);
     CRYPTOPP_UNUSED(addr);
@@ -596,10 +554,6 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(addr % 16 == 0);
     CRYPTOPP_UNUSED(addr);
@@ -629,10 +583,6 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(addr % 16 == 0);
     CRYPTOPP_UNUSED(addr);
@@ -640,11 +590,7 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
-# else
-    return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
-# endif
 #else
     return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
@@ -668,10 +614,6 @@ inline uint64x2_p VecLoadAligned(const word64 src[4])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     CRYPTOPP_ASSERT(addr % 16 == 0);
     CRYPTOPP_UNUSED(addr);
@@ -702,10 +644,6 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     CRYPTOPP_ASSERT(addr % 16 == 0);
     CRYPTOPP_UNUSED(addr);
@@ -713,12 +651,8 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
-# else
-    return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
-# endif
 #else
     return (uint64x2_p)vec_ld(off, CONST_V8_CAST(src));
 #endif
@@ -741,10 +675,10 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
     // CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -756,7 +690,7 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 #elif defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
 #else
-    return (uint32x4_p)VecReverse(VecLoad_ALTIVEC(0, CONST_V8_CAST(src)));
+    return (uint32x4_p)VecReverse(VecLoad_ALTIVEC(CONST_V8_CAST(src)));
 #endif
 }
 
@@ -776,10 +710,10 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
     const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
     // CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -789,9 +723,9 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
+    return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
 #else
-    return (uint32x4_p)VecReverse(VecLoad_ALTIVEC(off, CONST_V8_CAST(src)));
+    return (uint32x4_p)VecReverse(VecLoad_ALTIVEC(CONST_V8_CAST(addr)));
 #endif
 }
 
@@ -900,10 +834,6 @@ inline void VecStore(const T data, byte dest[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -911,7 +841,7 @@ inline void VecStore(const T data, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(dest));
 #endif
 }
 
@@ -937,10 +867,6 @@ inline void VecStore(const T data, int off, byte dest[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -948,7 +874,7 @@ inline void VecStore(const T data, int off, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -973,10 +899,6 @@ inline void VecStore(const T data, word32 dest[4])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -984,13 +906,9 @@ inline void VecStore(const T data, word32 dest[4])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
-# else
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
-# endif
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1016,10 +934,6 @@ inline void VecStore(const T data, int off, word32 dest[4])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1027,13 +941,9 @@ inline void VecStore(const T data, int off, word32 dest[4])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
-# else
-    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
-# endif
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1059,10 +969,6 @@ inline void VecStore(const T data, word64 dest[2])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1070,14 +976,10 @@ inline void VecStore(const T data, word64 dest[2])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     // 32-bit cast is not a typo. Compiler workaround.
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
-# else
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
-# endif
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1104,10 +1006,6 @@ inline void VecStore(const T data, int off, word64 dest[2])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1115,14 +1013,10 @@ inline void VecStore(const T data, int off, word64 dest[2])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     // 32-bit cast is not a typo. Compiler workaround.
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
-# else
-    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
-# endif
 #else
-    VecStore_ALTIVEC((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1145,10 +1039,6 @@ inline void VecStoreAligned(const T data, byte dest[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1156,7 +1046,7 @@ inline void VecStoreAligned(const T data, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #else
-    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1180,10 +1070,6 @@ inline void VecStoreAligned(const T data, int off, byte dest[16])
     // word pointers. The ISA lacks loads for short* and char*.
     // Power9/ISA 3.0 provides vec_xl for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1191,7 +1077,7 @@ inline void VecStoreAligned(const T data, int off, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #else
-    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1215,10 +1101,6 @@ inline void VecStoreAligned(const T data, word32 dest[4])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1226,13 +1108,9 @@ inline void VecStoreAligned(const T data, word32 dest[4])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
-# else
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
-# endif
 #else
-    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1257,10 +1135,6 @@ inline void VecStoreAligned(const T data, int off, word32 dest[4])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1268,13 +1142,9 @@ inline void VecStoreAligned(const T data, int off, word32 dest[4])
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
-# if defined(__clang__)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
-# else
-    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
-# endif
 #else
-    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1300,10 +1170,6 @@ inline void VecStoreBE(const T data, byte dest[16])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1311,9 +1177,9 @@ inline void VecStoreBE(const T data, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+    VecStore((uint8x16_p)data, NCONST_V8_CAST(addr));
 #else
-    VecStore((uint8x16_p)VecReverse(data), 0, NCONST_V8_CAST(dest));
+    VecStore((uint8x16_p)VecReverse(data), NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1340,10 +1206,6 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1351,9 +1213,9 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+    VecStore((uint8x16_p)data, NCONST_V8_CAST(addr));
 #else
-    VecStore((uint8x16_p)VecReverse(data), off, NCONST_V8_CAST(dest));
+    VecStore((uint8x16_p)VecReverse(data), NCONST_V8_CAST(addr));
 #endif
 }
 
@@ -1379,10 +1241,6 @@ inline void VecStoreBE(const T data, word32 dest[4])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1390,9 +1248,9 @@ inline void VecStoreBE(const T data, word32 dest[4])
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
+    VecStore((uint32x4_p)data, NCONST_V32_CAST(addr));
 #else
-    VecStore((uint32x4_p)VecReverse(data), 0, NCONST_V32_CAST(dest));
+    VecStore((uint32x4_p)VecReverse(data), NCONST_V32_CAST(addr));
 #endif
 }
 
@@ -1419,10 +1277,6 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
     // word pointers. The ISA lacks stores for short* and char*.
     // Power9/ISA 3.0 provides vec_xst for all datatypes.
 
-    // GCC and XLC use integer math for the effective address
-    // (D-form or byte-offset in the ISA manual). LLVM uses
-    // pointer math for the effective address (DS-form or
-    // indexed in the ISA manual).
     const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
     CRYPTOPP_UNUSED(addr);
@@ -1430,9 +1284,9 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
-    VecStore((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+    VecStore((uint32x4_p)data, NCONST_V32_CAST(addr));
 #else
-    VecStore((uint32x4_p)VecReverse(data), off, NCONST_V32_CAST(dest));
+    VecStore((uint32x4_p)VecReverse(data), NCONST_V32_CAST(addr));
 #endif
 }
 
@@ -2684,6 +2538,10 @@ NAMESPACE_END
 #endif
 
 #undef CONST_V8_CAST
+#undef CONST_V32_CAST
+#undef CONST_V64_CAST
 #undef NCONST_V8_CAST
+#undef NCONST_V32_CAST
+#undef NCONST_V64_CAST
 
 #endif  // CRYPTOPP_PPC_CRYPTO_H
