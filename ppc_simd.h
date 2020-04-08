@@ -240,17 +240,17 @@ inline T VecReverse(const T data)
 inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 {
     // Avoid IsAlignedOn for convenience.
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    if (eff % 16 == 0)
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    if (addr % 16 == 0)
     {
-        return (uint32x4_p)vec_ld(0, src);
+        return (uint32x4_p)vec_ld(0, addr);
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p perm = vec_lvsl(0, src);
-        const uint8x16_p low = vec_ld(0, src);
-        const uint8x16_p high = vec_ld(15, src);
+        const uint8x16_p perm = vec_lvsl(0, addr);
+        const uint8x16_p low = vec_ld(0, addr);
+        const uint8x16_p high = vec_ld(15, addr);
         return (uint32x4_p)vec_perm(low, high, perm);
     }
 }
@@ -271,17 +271,17 @@ inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 {
     // Avoid IsAlignedOn for convenience.
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    if (eff % 16 == 0)
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    if (addr % 16 == 0)
     {
-        return (uint32x4_p)vec_ld(off, src);
+        return (uint32x4_p)vec_ld(0, addr);
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        const uint8x16_p perm = vec_lvsl(off, src);
-        const uint8x16_p low = vec_ld(off, src);
-        const uint8x16_p high = vec_ld(off+15, src);
+        const uint8x16_p perm = vec_lvsl(0, addr);
+        const uint8x16_p low = vec_ld(0, addr);
+        const uint8x16_p high = vec_ld(15, addr);
         return (uint32x4_p)vec_perm(low, high, perm);
     }
 }
@@ -308,9 +308,9 @@ inline uint32x4_p VecLoad(const byte src[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
@@ -341,9 +341,9 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
@@ -374,15 +374,15 @@ inline uint32x4_p VecLoad(const word32 src[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(eff));
+    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
 # else
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
 # endif
@@ -414,15 +414,15 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(eff));
+    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
 # else
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 # endif
@@ -456,16 +456,16 @@ inline uint64x2_p VecLoad(const word64 src[2])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
-    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(eff));
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
 # else
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
 # endif
@@ -498,16 +498,16 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
-    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(eff));
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
 # else
     return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
 # endif
@@ -538,9 +538,9 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % 16 == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(addr % 16 == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
@@ -569,9 +569,9 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % 16 == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(addr % 16 == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
@@ -600,9 +600,9 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % 16 == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(addr % 16 == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
@@ -633,15 +633,15 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % 16 == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(addr % 16 == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(eff));
+    return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
 # else
     return (uint32x4_p)vec_xl(off, CONST_V32_CAST(src));
 # endif
@@ -672,9 +672,9 @@ inline uint64x2_p VecLoadAligned(const word64 src[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    CRYPTOPP_ASSERT(eff % 16 == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    CRYPTOPP_ASSERT(addr % 16 == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
@@ -706,16 +706,16 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    CRYPTOPP_ASSERT(eff % 16 == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    CRYPTOPP_ASSERT(addr % 16 == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // The 32-bit cast is not a typo. Compiler workaround.
-    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(eff));
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
 # else
     return (uint64x2_p)vec_xl(off, CONST_V32_CAST(src));
 # endif
@@ -745,13 +745,13 @@ inline uint32x4_p VecLoadBE(const byte src[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src);
-    // CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src);
+    // CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
     // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VecLoad_ALTIVEC(0, CONST_V8_CAST(src));
@@ -780,13 +780,13 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(src)+off;
-    // CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(src)+off;
+    // CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
     // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
 #elif defined(CRYPTOPP_BIG_ENDIAN)
     return (uint32x4_p)VecLoad_ALTIVEC(off, CONST_V8_CAST(src));
@@ -819,23 +819,23 @@ template<class T>
 inline void VecStore_ALTIVEC(const T data, byte dest[16])
 {
     // Avoid IsAlignedOn for convenience.
-    uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+0;
-    if (eff % 16 == 0)
+    uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+0;
+    if (addr % 16 == 0)
     {
-        vec_st((uint8x16_p)data, 0, dest);
+        vec_st((uint8x16_p)data, 0, addr);
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, dest));
-        vec_ste((uint8x16_p) perm,  0, (unsigned char*) dest);
-        vec_ste((uint16x8_p) perm,  1, (unsigned short*)dest);
-        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  dest);
-        vec_ste((uint16x8_p) perm, 14, (unsigned short*)dest);
-        vec_ste((uint8x16_p) perm, 15, (unsigned char*) dest);
+        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, addr));
+        vec_ste((uint8x16_p) perm,  0, (unsigned char*) addr);
+        vec_ste((uint16x8_p) perm,  1, (unsigned short*)addr);
+        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  addr);
+        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  addr);
+        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  addr);
+        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  addr);
+        vec_ste((uint16x8_p) perm, 14, (unsigned short*)addr);
+        vec_ste((uint8x16_p) perm, 15, (unsigned char*) addr);
     }
 }
 
@@ -859,23 +859,23 @@ template<class T>
 inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 {
     // Avoid IsAlignedOn for convenience.
-    uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    if (eff % 16 == 0)
+    uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    if (addr % 16 == 0)
     {
-        vec_st((uint8x16_p)data, off, dest);
+        vec_st((uint8x16_p)data, 0, addr);
     }
     else
     {
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
-        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(off, dest));
-        vec_ste((uint8x16_p) perm,  0, (unsigned char*) dest);
-        vec_ste((uint16x8_p) perm,  1, (unsigned short*)dest);
-        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  dest);
-        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  dest);
-        vec_ste((uint16x8_p) perm, 14, (unsigned short*)dest);
-        vec_ste((uint8x16_p) perm, 15, (unsigned char*) dest);
+        uint8x16_p perm = (uint8x16_p)vec_perm(data, data, vec_lvsr(0, addr));
+        vec_ste((uint8x16_p) perm,  0, (unsigned char*) addr);
+        vec_ste((uint16x8_p) perm,  1, (unsigned short*)addr);
+        vec_ste((uint32x4_p) perm,  3, (unsigned int*)  addr);
+        vec_ste((uint32x4_p) perm,  4, (unsigned int*)  addr);
+        vec_ste((uint32x4_p) perm,  8, (unsigned int*)  addr);
+        vec_ste((uint32x4_p) perm, 12, (unsigned int*)  addr);
+        vec_ste((uint16x8_p) perm, 14, (unsigned short*)addr);
+        vec_ste((uint8x16_p) perm, 15, (unsigned char*) addr);
     }
 }
 
@@ -904,9 +904,9 @@ inline void VecStore(const T data, byte dest[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -941,9 +941,9 @@ inline void VecStore(const T data, int off, byte dest[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -977,15 +977,15 @@ inline void VecStore(const T data, word32 dest[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 # else
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
 # endif
@@ -1020,15 +1020,15 @@ inline void VecStore(const T data, int off, word32 dest[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 # else
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 # endif
@@ -1063,16 +1063,16 @@ inline void VecStore(const T data, word64 dest[2])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // 32-bit cast is not a typo. Compiler workaround.
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 # else
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
 # endif
@@ -1108,16 +1108,16 @@ inline void VecStore(const T data, int off, word64 dest[2])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word64>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word64>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
     // 32-bit cast is not a typo. Compiler workaround.
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 # else
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 # endif
@@ -1149,9 +1149,9 @@ inline void VecStoreAligned(const T data, byte dest[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -1184,9 +1184,9 @@ inline void VecStoreAligned(const T data, int off, byte dest[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -1219,15 +1219,15 @@ inline void VecStoreAligned(const T data, word32 dest[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 # else
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
 # endif
@@ -1261,15 +1261,15 @@ inline void VecStoreAligned(const T data, int off, word32 dest[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
 #elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
 # if defined(__clang__)
-    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 # else
     vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
 # endif
@@ -1304,9 +1304,9 @@ inline void VecStoreBE(const T data, byte dest[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -1344,9 +1344,9 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, off, NCONST_V8_CAST(dest));
@@ -1383,9 +1383,9 @@ inline void VecStoreBE(const T data, word32 dest[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
@@ -1423,9 +1423,9 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
     // (D-form or byte-offset in the ISA manual). LLVM uses
     // pointer math for the effective address (DS-form or
     // indexed in the ISA manual).
-    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
-    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
-    CRYPTOPP_UNUSED(eff);
+    const uintptr_t addr = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(addr % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(addr);
 
 #if defined(_ARCH_PWR9)
     vec_xst_be((uint8x16_p)data, off, NCONST_V8_CAST(dest));
