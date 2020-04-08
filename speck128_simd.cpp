@@ -487,6 +487,7 @@ using CryptoPP::VecSub64;
 using CryptoPP::VecAnd64;
 using CryptoPP::VecOr64;
 using CryptoPP::VecXor64;
+using CryptoPP::VecSplats64;
 using CryptoPP::VecRotateLeft64;
 using CryptoPP::VecRotateRight64;
 using CryptoPP::VecLoad;
@@ -516,8 +517,8 @@ void SPECK128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const word64* temp = subkeys+i*2;
-        const speck128_t rk = (speck128_t)VecLoadAligned((const word32*)temp);
+        const word32* temp = reinterpret_cast<const word32*>(subkeys+i*2);
+        const speck128_t rk = (speck128_t)VecLoadAligned(temp);
 
         x1 = (speck128_t)VecRotateRight64<8>(x1);
         x1 = (speck128_t)VecAdd64(x1, y1);
@@ -557,12 +558,7 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 
     for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
-#if defined(_ARCH_PWR8)
-        const speck128_t rk = (speck128_t)vec_splats((unsigned long long)subkeys[i]);
-#else
-        const word64 temp[2] = {subkeys[i], subkeys[i]};
-        const speck128_t rk = (speck128_t)VecLoad((const word32*)temp);
-#endif
+        const speck128_t rk = (speck128_t)VecSplats64(subkeys[i]);
 
         y1 = (speck128_t)VecXor64(y1, x1);
         y1 = (speck128_t)VecRotateRight64<3>(y1);
@@ -606,8 +602,8 @@ void SPECK128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
-        const word64* temp = subkeys+i*2;
-        const speck128_t rk = (speck128_t)VecLoadAligned((const word32*)temp);
+        const word32* temp = reinterpret_cast<const word32*>(subkeys+i*2);
+        const speck128_t rk = (speck128_t)VecLoadAligned(temp);
 
         x1 = (speck128_t)VecRotateRight64<8>(x1);
         x2 = (speck128_t)VecRotateRight64<8>(x2);
@@ -666,12 +662,7 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
     {
-#if defined(_ARCH_PWR8)
-        const speck128_t rk = (speck128_t)vec_splats((unsigned long long)subkeys[i]);
-#else
-        const word64 temp[2] = {subkeys[i], subkeys[i]};
-        const speck128_t rk = (speck128_t)VecLoad((const word32*)temp);
-#endif
+        const speck128_t rk = (speck128_t)VecSplats64(subkeys[i]);
 
         y1 = (speck128_t)VecXor64(y1, x1);
         y2 = (speck128_t)VecXor64(y2, x2);
