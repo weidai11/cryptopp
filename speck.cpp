@@ -240,15 +240,15 @@ unsigned int SPECK64::Base::OptimalDataAlignment() const
 #if (CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS)
 # if (CRYPTOPP_SSE41_AVAILABLE)
     if (HasSSE41())
-        return 16;
+        return 16;  // load __m128i
 # endif
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 4;
+        return 4;  // load uint32x4_t
 # endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
-        return 16;
+        return 16;  // load uint32x4_p
 # endif
 #endif
     return GetAlignmentOf<word32>();
@@ -368,15 +368,15 @@ unsigned int SPECK128::Base::OptimalDataAlignment() const
 #if (CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS)
 # if (CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
-        return 16;
+        return 16;  // load __m128i
 # endif
 # if (CRYPTOPP_ARM_NEON_AVAILABLE)
     if (HasNEON())
-        return 8;
+        return 8;  // load uint64x2_t
 # endif
 # if (CRYPTOPP_ALTIVEC_AVAILABLE)
     if (HasAltivec())
-        return 8;
+        return 16;  // load uint64x2_p
 # endif
 #endif
     return GetAlignmentOf<word64>();

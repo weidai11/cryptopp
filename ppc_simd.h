@@ -281,7 +281,7 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
         // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
         const uint8x16_p perm = vec_lvsl(off, src);
         const uint8x16_p low = vec_ld(off, src);
-        const uint8x16_p high = vec_ld(15, src);
+        const uint8x16_p high = vec_ld(off+15, src);
         return (uint32x4_p)vec_perm(low, high, perm);
     }
 }
