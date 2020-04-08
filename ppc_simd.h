@@ -1893,14 +1893,17 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 #if defined(_ARCH_PWR8)
     return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
-    // The carry mask selects carries for elements 1 and 3 and sets remaining
-    // elements to 0. The mask also shifts the carried values left by 4 bytes
-    // so the carries are added to elements 0 and 2.
-    const uint8x16_p cmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
-    const uint32x4_p zero = {0, 0, 0, 0};
+    // The carry mask selects carries for elements 1 and 3 and sets
+    // remaining elements to 0. The mask also shifts the carried values
+    // left by 4 bytes so the carries are added to elements 0 and 2.
+
+    // Small optimization to avoid the load of a 'zero' value: only bytes
+    // 3, 7, 11 or 15 have a 1 set due to carry. Other bytes will be zero,
+    // so we don't need a separate zero value to draw from.
+    const uint8x16_p cmask = {4,5,6,7, 0,0,0,0, 12,13,14,15, 0,0,0,0};
 
     uint32x4_p cy = vec_addc(vec1, vec2);
-    cy = vec_perm(cy, zero, cmask);
+    cy = vec_perm(cy, cy, cmask);
     return vec_add(vec_add(vec1, vec2), cy);
 #endif
 }
@@ -1938,17 +1941,20 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     // 64-bit elements available at POWER7 with VSX, but subudm requires POWER8
     return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
-    // The borrow mask selects borrows for elements 1 and 3 and sets remaining
-    // elements to 0. The mask also shifts the borrowed values left by 4 bytes
-    // so the borrows are subtracted from elements 0 and 2.
-    const uint8x16_p bmask = {4,5,6,7, 16,16,16,16, 12,13,14,15, 16,16,16,16};
+    // The borrow mask selects borrows for elements 1 and 3 and sets
+    // remaining elements to 0. The mask also shifts the borrowed values
+    // left by 4 bytes so the borrows are subtracted from elements 0 and 2.
+
+    // Small optimization to avoid the load of a 'zero' value: only bytes
+    // 3, 7, 11 or 15 have a 1 set due to borrow. Other bytes will be zero,
+    // so we don't need a separate zero value to draw from.
+    const uint8x16_p bmask = {4,5,6,7, 0,0,0,0, 12,13,14,15, 0,0,0,0};
     const uint32x4_p amask = {1, 1, 1, 1};
-    const uint32x4_p zero = {0, 0, 0, 0};
 
     // subc sets the compliment of borrow, so we have to un-compliment it using andc.
     uint32x4_p bw = vec_subc(vec1, vec2);
     bw = vec_andc(amask, bw);
-    bw = vec_perm(bw, zero, bmask);
+    bw = vec_perm(bw, bw, bmask);
     return vec_sub(vec_sub(vec1, vec2), bw);
 #endif
 }
