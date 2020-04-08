@@ -221,7 +221,7 @@ inline void SIMON128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
         rounds--;
     }
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-2); i >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint64x2_t rk1 = vld1q_dup_u64(subkeys+i+1);
         x1 = veorq_u64(veorq_u64(x1, SIMON128_f(y1)), rk1);
@@ -258,7 +258,7 @@ inline void SIMON128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
         rounds--;
     }
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-2); i >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint64x2_t rk1 = vld1q_dup_u64(subkeys + i + 1);
         x1 = veorq_u64(veorq_u64(x1, SIMON128_f(y1)), rk1);
@@ -460,7 +460,7 @@ inline void SIMON128_Dec_Block(__m128i &block0, __m128i &block1,
         rounds--;
     }
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-2); i >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const __m128i rk1 = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i+1)));
@@ -500,7 +500,7 @@ inline void SIMON128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
         rounds--;
     }
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-2); i >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const __m128i rk1 = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys + i + 1)));
@@ -648,7 +648,7 @@ inline void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigne
         rounds--;
     }
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-2); i >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint8x16_p m1 = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
         const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
@@ -774,7 +774,7 @@ inline void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         rounds--;
     }
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-2); i >= 0; i -= 2)
+    for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
         const uint8x16_p m1 = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
         const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};

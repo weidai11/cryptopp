@@ -197,7 +197,7 @@ inline void SPECK128_Dec_Block(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t x1 = UnpackHigh64(block0, block1);
     uint64x2_t y1 = UnpackLow64(block0, block1);
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -225,7 +225,7 @@ inline void SPECK128_Dec_6_Blocks(uint64x2_t &block0, uint64x2_t &block1,
     uint64x2_t x3 = UnpackHigh64(block4, block5);
     uint64x2_t y3 = UnpackLow64(block4, block5);
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const uint64x2_t rk = vld1q_dup_u64(subkeys+i);
 
@@ -397,7 +397,7 @@ inline void SPECK128_Dec_Block(__m128i &block0, __m128i &block1,
     __m128i x1 = _mm_unpackhi_epi64(block0, block1);
     __m128i y1 = _mm_unpacklo_epi64(block0, block1);
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
@@ -426,7 +426,7 @@ inline void SPECK128_Dec_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i x3 = _mm_unpackhi_epi64(block4, block5);
     __m128i y3 = _mm_unpacklo_epi64(block4, block5);
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const __m128i rk = _mm_castpd_si128(
             _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
@@ -556,7 +556,7 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
     speck128_t x1 = (speck128_t)VecPermute(block, block, m1);
     speck128_t y1 = (speck128_t)VecPermute(block, block, m2);
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const speck128_t rk = (speck128_t)VecSplats64(subkeys[i]);
 
@@ -660,7 +660,7 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     speck128_t x3 = (speck128_t)VecPermute(block4, block5, m1);
     speck128_t y3 = (speck128_t)VecPermute(block4, block5, m2);
 
-    for (ssize_t i = static_cast<ssize_t>(rounds-1); i >= 0; --i)
+    for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
         const speck128_t rk = (speck128_t)VecSplats64(subkeys[i]);
 
