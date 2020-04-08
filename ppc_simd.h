@@ -235,6 +235,7 @@ inline T VecReverse(const T data)
 ///  you should provide aligned memory adresses.
 /// \par Wraps
 ///  vec_ld, vec_lvsl, vec_perm
+/// \sa VecLoad, VecLoadAligned
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 {
@@ -265,6 +266,7 @@ inline uint32x4_p VecLoad_ALTIVEC(const byte src[16])
 ///  relatively expensive so you should provide aligned memory adresses.
 /// \par Wraps
 ///  vec_ld, vec_lvsl, vec_perm
+/// \sa VecLoad, VecLoadAligned
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 {
@@ -293,7 +295,8 @@ inline uint32x4_p VecLoad_ALTIVEC(int off, const byte src[16])
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoadAligned
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(const byte src[16])
 {
@@ -325,7 +328,8 @@ inline uint32x4_p VecLoad(const byte src[16])
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoadAligned
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoad(int off, const byte src[16])
 {
@@ -357,7 +361,8 @@ inline uint32x4_p VecLoad(int off, const byte src[16])
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoadAligned
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(const word32 src[4])
 {
@@ -396,7 +401,8 @@ inline uint32x4_p VecLoad(const word32 src[4])
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoadAligned
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoad(int off, const word32 src[4])
 {
@@ -437,7 +443,8 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 ///  are required to fix up unaligned memory addresses.
 /// \details VecLoad() with 64-bit elements is available on POWER7 and above.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoadAligned
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(const word64 src[2])
 {
@@ -478,7 +485,8 @@ inline uint64x2_p VecLoad(const word64 src[2])
 ///  are required to fix up unaligned memory addresses.
 /// \details VecLoad() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoadAligned
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoad(int off, const word64 src[2])
 {
@@ -513,11 +521,12 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
 /// \details VecLoadAligned() loads a vector from an aligned byte array.
-/// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
+/// \details VecLoadAligned() uses POWER9's <tt>vec_xl</tt> if available.
 ///  <tt>vec_ld</tt> is used if POWER9 is not available. The effective
 ///  address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(const byte src[16])
 {
@@ -543,11 +552,12 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
 /// \details VecLoadAligned() loads a vector from an aligned byte array.
-/// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
+/// \details VecLoadAligned() uses POWER9's <tt>vec_xl</tt> if available.
 ///  <tt>vec_ld</tt> is used if POWER9 is not available. The effective
 ///  address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 {
@@ -578,6 +588,7 @@ inline uint32x4_p VecLoadAligned(int off, const byte src[16])
 ///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(const word32 src[4])
 {
@@ -610,6 +621,7 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
 ///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad
 /// \since Crypto++ 8.0
 inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
 {
@@ -648,6 +660,7 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
 ///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoadAligned(const word64 src[4])
 {
@@ -681,6 +694,7 @@ inline uint64x2_p VecLoadAligned(const word64 src[4])
 ///  The effective address of <tt>src</tt> must be 16-byte aligned for Altivec.
 /// \par Wraps
 ///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad
 /// \since Crypto++ 8.0
 inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
 {
@@ -722,7 +736,8 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad, VecLoadAligned
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(const byte src[16])
 {
@@ -756,7 +771,8 @@ inline uint32x4_p VecLoadBE(const byte src[16])
 ///  VecLoad_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_ld, vec_xl (and Altivec load)
+///  vec_ld, vec_xl
+/// \sa VecLoad_ALTIVEC, VecLoad, VecLoadAligned
 /// \since Crypto++ 6.0
 inline uint32x4_p VecLoadBE(int off, const byte src[16])
 {
@@ -797,6 +813,7 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
 ///  and unaligned loads is not available.
 /// \par Wraps
 ///  vec_st, vec_ste, vec_lvsr, vec_perm
+/// \sa VecStore, VecStoreAligned
 /// \since Crypto++ 8.0
 template<class T>
 inline void VecStore_ALTIVEC(const T data, byte dest[16])
@@ -836,6 +853,7 @@ inline void VecStore_ALTIVEC(const T data, byte dest[16])
 ///  and unaligned loads is not available.
 /// \par Wraps
 ///  vec_st, vec_ste, vec_lvsr, vec_perm
+/// \sa VecStore, VecStoreAligned
 /// \since Crypto++ 8.0
 template<class T>
 inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
@@ -872,7 +890,8 @@ inline void VecStore_ALTIVEC(const T data, int off, byte dest[16])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 6.0
 template<class T>
 inline void VecStore(const T data, byte dest[16])
@@ -908,7 +927,8 @@ inline void VecStore(const T data, byte dest[16])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 6.0
 template<class T>
 inline void VecStore(const T data, int off, byte dest[16])
@@ -943,7 +963,8 @@ inline void VecStore(const T data, int off, byte dest[16])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 8.0
 template<class T>
 inline void VecStore(const T data, word32 dest[4])
@@ -985,7 +1006,8 @@ inline void VecStore(const T data, word32 dest[4])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 8.0
 template<class T>
 inline void VecStore(const T data, int off, word32 dest[4])
@@ -1027,7 +1049,8 @@ inline void VecStore(const T data, int off, word32 dest[4])
 ///  are required to fix up unaligned memory addresses.
 /// \details VecStore() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 8.0
 template<class T>
 inline void VecStore(const T data, word64 dest[2])
@@ -1071,7 +1094,8 @@ inline void VecStore(const T data, word64 dest[2])
 ///  are required to fix up unaligned memory addresses.
 /// \details VecStore() with 64-bit elements is available on POWER8 and above.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 8.0
 template<class T>
 inline void VecStore(const T data, int off, word64 dest[2])
@@ -1106,6 +1130,158 @@ inline void VecStore(const T data, int off, word64 dest[2])
 /// \tparam T vector type
 /// \param data the vector
 /// \param dest the byte array
+/// \details VecStoreAligned() stores a vector from an aligned byte array.
+/// \details VecStoreAligned() uses POWER9's <tt>vec_xl</tt> if available.
+///  <tt>vec_st</tt> is used if POWER9 is not available. The effective
+///  address of <tt>dest</tt> must be 16-byte aligned for Altivec.
+/// \par Wraps
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStore
+/// \since Crypto++ 8.0
+template<class T>
+inline void VecStoreAligned(const T data, byte dest[16])
+{
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
+    // GCC and XLC use integer math for the effective address
+    // (D-form or byte-offset in the ISA manual). LLVM uses
+    // pointer math for the effective address (DS-form or
+    // indexed in the ISA manual).
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+#else
+    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#endif
+}
+
+/// \brief Stores a vector to a byte array
+/// \tparam T vector type
+/// \param data the vector
+/// \param off the byte offset into the array
+/// \param dest the byte array
+/// \details VecStoreAligned() stores a vector from an aligned byte array.
+/// \details VecStoreAligned() uses POWER9's <tt>vec_xl</tt> if available.
+///  <tt>vec_st</tt> is used if POWER9 is not available. The effective
+///  address of <tt>dest</tt> must be 16-byte aligned for Altivec.
+/// \par Wraps
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStore
+/// \since Crypto++ 8.0
+template<class T>
+inline void VecStoreAligned(const T data, int off, byte dest[16])
+{
+    // Power7/ISA 2.06 provides vec_xl, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks loads for short* and char*.
+    // Power9/ISA 3.0 provides vec_xl for all datatypes.
+
+    // GCC and XLC use integer math for the effective address
+    // (D-form or byte-offset in the ISA manual). LLVM uses
+    // pointer math for the effective address (DS-form or
+    // indexed in the ISA manual).
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<byte>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#else
+    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#endif
+}
+
+/// \brief Stores a vector to a word array
+/// \tparam T vector type
+/// \param data the vector
+/// \param dest the word array
+/// \details VecStoreAligned() stores a vector from an aligned word array.
+/// \details VecStoreAligned() uses POWER9's <tt>vec_xl</tt> if available.
+///  POWER7 <tt>vec_xst</tt> is used if POWER9 is not available. <tt>vec_st</tt>
+///  is used if POWER7 is not available. The effective address of <tt>dest</tt>
+///  must be 16-byte aligned for Altivec.
+/// \par Wraps
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStore
+/// \since Crypto++ 8.0
+template<class T>
+inline void VecStoreAligned(const T data, word32 dest[4])
+{
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
+
+    // GCC and XLC use integer math for the effective address
+    // (D-form or byte-offset in the ISA manual). LLVM uses
+    // pointer math for the effective address (DS-form or
+    // indexed in the ISA manual).
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest);
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+# if defined(__clang__)
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+# else
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(dest));
+# endif
+#else
+    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#endif
+}
+
+/// \brief Stores a vector to a word array
+/// \tparam T vector type
+/// \param data the vector
+/// \param off the word offset into the array
+/// \param dest the word array
+/// \details VecStoreAligned() stores a vector from an aligned word array.
+/// \details VecStoreAligned() uses POWER9's <tt>vec_xl</tt> if available.
+///  POWER7 <tt>vec_xst</tt> is used if POWER9 is not available. <tt>vec_st</tt>
+///  is used if POWER7 is not available. The effective address of <tt>dest</tt>
+///  must be 16-byte aligned for Altivec.
+/// \par Wraps
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStore
+/// \since Crypto++ 8.0
+template<class T>
+inline void VecStoreAligned(const T data, int off, word32 dest[4])
+{
+    // Power7/ISA 2.06 provides vec_xst, but only for 32-bit and 64-bit
+    // word pointers. The ISA lacks stores for short* and char*.
+    // Power9/ISA 3.0 provides vec_xst for all datatypes.
+
+    // GCC and XLC use integer math for the effective address
+    // (D-form or byte-offset in the ISA manual). LLVM uses
+    // pointer math for the effective address (DS-form or
+    // indexed in the ISA manual).
+    const uintptr_t eff = reinterpret_cast<uintptr_t>(dest)+off;
+    CRYPTOPP_ASSERT(eff % GetAlignmentOf<word32>() == 0);
+    CRYPTOPP_UNUSED(eff);
+
+#if defined(_ARCH_PWR9)
+    vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+# if defined(__clang__)
+    vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(eff));
+# else
+    vec_xst((uint32x4_p)data, off, NCONST_V32_CAST(dest));
+# endif
+#else
+    vec_st((uint8x16_p)data, off, NCONST_V8_CAST(dest));
+#endif
+}
+
+/// \brief Stores a vector to a byte array
+/// \tparam T vector type
+/// \param data the vector
+/// \param dest the byte array
 /// \details VecStoreBE() stores a vector to a byte array. VecStoreBE
 ///  will reverse all bytes in the array on a little endian system.
 /// \details VecStoreBE() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
@@ -1114,7 +1290,8 @@ inline void VecStore(const T data, int off, word64 dest[2])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 6.0
 template <class T>
 inline void VecStoreBE(const T data, byte dest[16])
@@ -1153,7 +1330,8 @@ inline void VecStoreBE(const T data, byte dest[16])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 6.0
 template <class T>
 inline void VecStoreBE(const T data, int off, byte dest[16])
@@ -1191,7 +1369,8 @@ inline void VecStoreBE(const T data, int off, byte dest[16])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 8.0
 template <class T>
 inline void VecStoreBE(const T data, word32 dest[4])
@@ -1230,7 +1409,8 @@ inline void VecStoreBE(const T data, word32 dest[4])
 ///  VecStore_ALTIVEC() can be relatively expensive if extra instructions
 ///  are required to fix up unaligned memory addresses.
 /// \par Wraps
-///  vec_st, vec_xst (and Altivec store)
+///  vec_st, vec_xst
+/// \sa VecStore_ALTIVEC, VecStoreAligned
 /// \since Crypto++ 8.0
 template <class T>
 inline void VecStoreBE(const T data, int off, word32 dest[4])
@@ -1267,10 +1447,12 @@ inline void VecStoreBE(const T data, int off, word32 dest[4])
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecAnd() returns a new vector from vec1 and vec2. The return
-///  vector is the same type as vec1.
+/// \details VecAnd() returns a new vector from vec1 and vec2.
+///  vec2 is cast to the same type as vec1. The return vector
+///  is the same type as vec1.
 /// \par Wraps
 ///  vec_and
+/// \sa VecAnd64
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecAnd(const T1 vec1, const T2 vec2)
@@ -1284,10 +1466,12 @@ inline T1 VecAnd(const T1 vec1, const T2 vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecOr() returns a new vector from vec1 and vec2. The return
-///  vector is the same type as vec1.
+/// \details VecOr() returns a new vector from vec1 and vec2.
+///  vec2 is cast to the same type as vec1. The return vector
+///  is the same type as vec1.
 /// \par Wraps
 ///  vec_or
+/// \sa VecOr64
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecOr(const T1 vec1, const T2 vec2)
@@ -1301,10 +1485,12 @@ inline T1 VecOr(const T1 vec1, const T2 vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecXor() returns a new vector from vec1 and vec2. The return
-///  vector is the same type as vec1.
+/// \details VecXor() returns a new vector from vec1 and vec2.
+///  vec2 is cast to the same type as vec1. The return vector
+///  is the same type as vec1.
 /// \par Wraps
 ///  vec_xor
+/// \sa VecXor64
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecXor(const T1 vec1, const T2 vec2)
@@ -1328,6 +1514,7 @@ inline T1 VecXor(const T1 vec1, const T2 vec2)
 ///  is the same type as vec1.
 /// \par Wraps
 ///  vec_add
+/// \sa VecAdd64
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecAdd(const T1 vec1, const T2 vec2)
@@ -1345,6 +1532,7 @@ inline T1 VecAdd(const T1 vec1, const T2 vec2)
 ///  is the same type as vec1.
 /// \par Wraps
 ///  vec_sub
+/// \sa VecSub64
 /// \since Crypto++ 6.0
 template <class T1, class T2>
 inline T1 VecSub(const T1 vec1, const T2 vec2)
@@ -1383,8 +1571,9 @@ inline T1 VecPermute(const T1 vec, const T2 mask)
 /// \param mask vector mask
 /// \returns vector
 /// \details VecPermute() returns a new vector from vec1 and vec2
-///  based on mask. mask is an uint8x16_p type vector. The return
-///  vector is the same type as vec1.
+///  based on mask. mask is an uint8x16_p type vector. vec2 is cast
+///  to the same type as vec1. The return vector is the same type
+///  as vec1.
 /// \par Wraps
 ///  vec_perm
 /// \since Crypto++ 6.0
@@ -1547,7 +1736,8 @@ inline T VecRotateRightOctet(const T vec)
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft() rotates each element in a packed vector by bit count.
+/// \details VecRotateLeft() rotates each element in a packed vector by
+///  bit count.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 7.0
@@ -1558,26 +1748,12 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
-/// \brief Shift a packed vector left
-/// \tparam C shift bit count
-/// \param vec the vector
-/// \returns vector
-/// \details VecShiftLeft() rotates each element in a packed vector by bit count.
-/// \par Wraps
-///  vec_sl
-/// \since Crypto++ 8.1
-template<unsigned int C>
-inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
-{
-    const uint32x4_p m = {C, C, C, C};
-    return vec_sl(vec, m);
-}
-
 /// \brief Rotate a packed vector right
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight() rotates each element in a packed vector by bit count.
+/// \details VecRotateRight() rotates each element in a packed vector
+///  by bit count.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 7.0
@@ -1588,11 +1764,28 @@ inline uint32x4_p VecRotateRight(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
+/// \brief Shift a packed vector left
+/// \tparam C shift bit count
+/// \param vec the vector
+/// \returns vector
+/// \details VecShiftLeft() rotates each element in a packed vector
+///  by bit count.
+/// \par Wraps
+///  vec_sl
+/// \since Crypto++ 8.1
+template<unsigned int C>
+inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
+{
+    const uint32x4_p m = {C, C, C, C};
+    return vec_sl(vec, m);
+}
+
 /// \brief Shift a packed vector right
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftRight() rotates each element in a packed vector by bit count.
+/// \details VecShiftRight() rotates each element in a packed vector
+///  by bit count.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.1
@@ -1609,8 +1802,10 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft() rotates each element in a packed vector by bit count.
-/// \details VecRotateLeft() with 64-bit elements is available on POWER8 and above.
+/// \details VecRotateLeft() rotates each element in a packed vector
+///  by bit count.
+/// \details VecRotateLeft() with 64-bit elements is available on
+///  POWER8 and above.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.0
@@ -1625,8 +1820,10 @@ inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftLeft() rotates each element in a packed vector by bit count.
-/// \details VecShiftLeft() with 64-bit elements is available on POWER8 and above.
+/// \details VecShiftLeft() rotates each element in a packed vector
+///  by bit count.
+/// \details VecShiftLeft() with 64-bit elements is available on
+///  POWER8 and above.
 /// \par Wraps
 ///  vec_sl
 /// \since Crypto++ 8.1
@@ -1641,8 +1838,10 @@ inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight() rotates each element in a packed vector by bit count.
-/// \details VecRotateRight() with 64-bit elements is available on POWER8 and above.
+/// \details VecRotateRight() rotates each element in a packed vector
+///  by bit count.
+/// \details VecRotateRight() with 64-bit elements is available on
+///  POWER8 and above.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.0
@@ -1657,8 +1856,10 @@ inline uint64x2_p VecRotateRight(const uint64x2_p vec)
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftRight() rotates each element in a packed vector by bit count.
-/// \details VecShiftRight() with 64-bit elements is available on POWER8 and above.
+/// \details VecShiftRight() rotates each element in a packed vector
+///  by bit count.
+/// \details VecShiftRight() with 64-bit elements is available on
+///  POWER8 and above.
 /// \par Wraps
 ///  vec_sr
 /// \since Crypto++ 8.1
@@ -1817,7 +2018,15 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
 #endif
 }
 
-// Specializations. C=8 is used by Speck128.
+/// \brief Rotate a 64-bit packed vector left
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateLeft<8>() rotates each element in a packed vector
+///  by 8-bits. This specialization is used by algorithms like Speck128.
+/// \details val is rotated as if uint64x2_p.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.3
 template<>
 inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
 {
@@ -1890,7 +2099,15 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p val)
 #endif
 }
 
-// Specializations. C=8 is used by Speck128.
+/// \brief Rotate a 64-bit packed vector right
+/// \param vec the vector
+/// \returns vector
+/// \details VecRotateRight64<8>() rotates each element in a packed vector
+///  by 8-bits. This specialization is used by algorithms like Speck128.
+/// \details val is rotated as if uint64x2_p.
+/// \par Wraps
+///  vec_rl
+/// \since Crypto++ 8.3
 template<>
 inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
 {
