@@ -321,6 +321,7 @@ inline uint32x4_p VecLoad(const byte src[16])
 
 /// \brief Loads a vector from a byte array
 /// \param src the byte array
+/// \param off offset into the src byte array
 /// \details VecLoad() loads a vector from a byte array.
 /// \details VecLoad() uses POWER9's <tt>vec_xl</tt> if available.
 ///  The instruction does not require aligned effective memory addresses.
@@ -511,6 +512,7 @@ inline uint32x4_p VecLoadAligned(const byte src[16])
 
 /// \brief Loads a vector from an aligned byte array
 /// \param src the byte array
+/// \param off offset into the src byte array
 /// \details VecLoadAligned() loads a vector from an aligned byte array.
 /// \details VecLoadAligned() uses POWER9's <tt>vec_xl</tt> if available.
 ///  <tt>vec_ld</tt> is used if POWER9 is not available. The effective
@@ -567,6 +569,7 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
 
 /// \brief Loads a vector from an aligned word array
 /// \param src the word array
+/// \param off offset into the src word array
 /// \details VecLoadAligned() loads a vector from an aligned word array.
 /// \details VecLoadAligned() uses POWER7's and VSX's <tt>vec_xl</tt> if
 ///  available. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
@@ -628,6 +631,7 @@ inline uint64x2_p VecLoadAligned(const word64 src[4])
 
 /// \brief Loads a vector from an aligned double word array
 /// \param src the double word array
+/// \param off offset into the src double word array
 /// \details VecLoadAligned() loads a vector from an aligned double word array.
 /// \details VecLoadAligned() uses POWER7's and VSX's <tt>vec_xl</tt> if
 ///  available. <tt>vec_ld</tt> is used if POWER7 or VSX are not available.
@@ -774,7 +778,7 @@ inline void VecStore_ALTIVEC(const T data, byte dest[16])
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the byte offset into the array
+/// \param off offset into the dest byte array
 /// \param dest the byte array
 /// \details VecStore_ALTIVEC() stores a vector to a byte array.
 /// \details VecStore_ALTIVEC() uses <tt>vec_st</tt> if the effective address
@@ -846,7 +850,7 @@ inline void VecStore(const T data, byte dest[16])
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the byte offset into the array
+/// \param off offset into the dest byte array
 /// \param dest the byte array
 /// \details VecStore() stores a vector to a byte array.
 /// \details VecStore() uses POWER9's <tt>vec_xst</tt> if available.
@@ -913,7 +917,7 @@ inline void VecStore(const T data, word32 dest[4])
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the byte offset into the array
+/// \param off offset into the dest word array
 /// \param dest the word array
 /// \details VecStore() stores a vector to a word array.
 /// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
@@ -984,7 +988,7 @@ inline void VecStore(const T data, word64 dest[2])
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the byte offset into the array
+/// \param off offset into the dest word array
 /// \param dest the word array
 /// \details VecStore() stores a vector to a word array.
 /// \details VecStore() uses POWER7's and VSX's <tt>vec_xst</tt> if available.
@@ -1051,7 +1055,7 @@ inline void VecStoreAligned(const T data, byte dest[16])
 /// \brief Stores a vector to a byte array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the byte offset into the array
+/// \param off offset into the dest byte array
 /// \param dest the byte array
 /// \details VecStoreAligned() stores a vector from an aligned byte array.
 /// \details VecStoreAligned() uses POWER9's <tt>vec_xl</tt> if available.
@@ -1115,7 +1119,7 @@ inline void VecStoreAligned(const T data, word32 dest[4])
 /// \brief Stores a vector to a word array
 /// \tparam T vector type
 /// \param data the vector
-/// \param off the word offset into the array
+/// \param off offset into the dest word array
 /// \param dest the word array
 /// \details VecStoreAligned() stores a vector from an aligned word array.
 /// \details VecStoreAligned() uses POWER9's <tt>vec_xl</tt> if available.
@@ -2035,34 +2039,34 @@ inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateLeft() rotates each element in a vector by bit count.
-///  val is rotated as if uint64x2_p.
+///  vec is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
 template<unsigned int C>
-inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
+inline uint32x4_p VecRotateLeft64(const uint32x4_p vec)
 {
 #if defined(_ARCH_PWR8)
     // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
-    return (uint32x4_p)VecRotateLeft<C>((uint64x2_p)val);
+    return (uint32x4_p)VecRotateLeft<C>((uint64x2_p)vec);
 #else
     // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
     enum {BR=(C>=32), S64=C&63, S32=C&31};
 
     // Get the low bits, shift them to high bits
-    uint32x4_p t1 = VecShiftLeft<S32>(val);
+    uint32x4_p t1 = VecShiftLeft<S32>(vec);
     // Get the high bits, shift them to low bits
-    uint32x4_p t2 = VecShiftRight<32-S32>(val);
+    uint32x4_p t2 = VecShiftRight<32-S32>(vec);
 
     if (S64 == 0)
     {
         const uint8x16_p m = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
-        return VecPermute(val, m);
+        return VecPermute(vec, m);
     }
     else if (S64 == 32)
     {
         const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
-        return VecPermute(val, m);
+        return VecPermute(vec, m);
     }
     else if (BR)  // Big rotate amount?
     {
@@ -2085,20 +2089,20 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateLeft<8>() rotates each element in a vector
-///  by 8-bits. val is rotated as if uint64x2_p. This specialization
+///  by 8-bits. vec is rotated as if uint64x2_p. This specialization
 ///  is used by algorithms like Speck128.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
 template<>
-inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
+inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p vec)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
-    return VecPermute(val, m);
+    return VecPermute(vec, m);
 #else
     const uint8x16_p m = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
-    return VecPermute(val, m);
+    return VecPermute(vec, m);
 #endif
 }
 #endif
@@ -2110,14 +2114,14 @@ inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateLeft64() rotates each element in a vector by
-///  bit count. val is rotated as if uint64x2_p.
+///  bit count. vec is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
 template<unsigned int C>
-inline uint64x2_p VecRotateLeft64(const uint64x2_p val)
+inline uint64x2_p VecRotateLeft64(const uint64x2_p vec)
 {
-    return VecRotateLeft<C>(val);
+    return VecRotateLeft<C>(vec);
 }
 #endif
 
@@ -2126,34 +2130,34 @@ inline uint64x2_p VecRotateLeft64(const uint64x2_p val)
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateRight64() rotates each element in a vector by
-///  bit count. val is rotated as if uint64x2_p.
+///  bit count. vec is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
 template<unsigned int C>
-inline uint32x4_p VecRotateRight64(const uint32x4_p val)
+inline uint32x4_p VecRotateRight64(const uint32x4_p vec)
 {
 #if defined(_ARCH_PWR8)
     // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
-    return (uint32x4_p)VecRotateRight<C>((uint64x2_p)val);
+    return (uint32x4_p)VecRotateRight<C>((uint64x2_p)vec);
 #else
     // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
     enum {BR=(C>=32), S64=C&63, S32=C&31};
 
     // Get the low bits, shift them to high bits
-    uint32x4_p t1 = VecShiftRight<S32>(val);
+    uint32x4_p t1 = VecShiftRight<S32>(vec);
     // Get the high bits, shift them to low bits
-    uint32x4_p t2 = VecShiftLeft<32-S32>(val);
+    uint32x4_p t2 = VecShiftLeft<32-S32>(vec);
 
     if (S64 == 0)
     {
         const uint8x16_p m = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
-        return VecPermute(val, m);
+        return VecPermute(vec, m);
     }
     else if (S64 == 32)
     {
         const uint8x16_p m = {4,5,6,7, 0,1,2,3, 12,13,14,15, 8,9,10,11};
-        return VecPermute(val, m);
+        return VecPermute(vec, m);
     }
     else if (BR)  // Big rotate amount?
     {
@@ -2176,21 +2180,21 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p val)
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateRight64<8>() rotates each element in a vector
-///  by 8-bits. val is rotated as if uint64x2_p. This specialization
+///  by 8-bits. vec is rotated as if uint64x2_p. This specialization
 ///  is used by algorithms like Speck128.
-/// \details val is rotated as if uint64x2_p.
+/// \details vec is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
 template<>
-inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
+inline uint32x4_p VecRotateRight64<8>(const uint32x4_p vec)
 {
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
-    return VecPermute(val, m);
+    return VecPermute(vec, m);
 #else
     const uint8x16_p m = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
-    return VecPermute(val, m);
+    return VecPermute(vec, m);
 #endif
 }
 #endif
@@ -2201,14 +2205,14 @@ inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
 /// \param vec the vector
 /// \returns vector
 /// \details VecRotateRight64() rotates each element in a vector by
-///  bit count. val is rotated as if uint64x2_p.
+///  bit count. vec is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
 template<unsigned int C>
-inline uint64x2_p VecRotateRight64(const uint64x2_p val)
+inline uint64x2_p VecRotateRight64(const uint64x2_p vec)
 {
-    return VecRotateRight<C>(val);
+    return VecRotateRight<C>(vec);
 }
 #endif
 

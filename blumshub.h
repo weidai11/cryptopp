@@ -24,7 +24,7 @@ public:
 	/// \brief Construct a PublicBlumBlumShub
 	/// \param n the modulus
 	/// \param seed the seed for the generator
-	/// \detials seed is the secret key and should be about as large as n.
+	/// \details seed is the secret key and should be about as large as n.
 	PublicBlumBlumShub(const Integer &n, const Integer &seed);
 
 	unsigned int GenerateBit();
