@@ -1322,7 +1322,7 @@ inline T1 VecAnd(const T1 vec1, const T2 vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecAdd() performs <tt>vec1 | vec2</tt>.
+/// \details VecOr() performs <tt>vec1 | vec2</tt>.
 ///  vec2 is cast to the same type as vec1. The return vector
 ///  is the same type as vec1.
 /// \par Wraps
@@ -1383,7 +1383,7 @@ inline T1 VecAdd(const T1 vec1, const T2 vec2)
 /// \tparam T2 vector type
 /// \param vec1 the first vector
 /// \param vec2 the second vector
-/// \details VecXor() performs <tt>vec1 - vec2</tt>.
+/// \details VecSub() performs <tt>vec1 - vec2</tt>.
 ///  vec2 is cast to the same type as vec1. The return vector
 ///  is the same type as vec1.
 /// \par Wraps
@@ -1939,9 +1939,9 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecAdd64() returns a new vector from vec1 and vec2.
-///  vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
-///  and below VecAdd64() manages the carries from the elements.
+/// \details VecAdd64() performs <tt>vec1 + vec2</tt>. VecAdd64() performs as
+///  if adding two uint64x2_p vectors. On POWER7 and below VecAdd64() manages
+///  the carries from the elements.
 /// \par Wraps
 ///  vec_add for POWER8, vec_addc, vec_perm, vec_add for Altivec
 /// \since Crypto++ 8.3
@@ -1971,9 +1971,9 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecAdd64() returns a new vector from vec1 and vec2.
-///  vec1 and vec2 are added as if uint64x2_p vectors. On POWER7
-///  and below VecAdd64() manages the carries from the elements.
+/// \details VecAdd64() performs <tt>vec1 + vec2</tt>. VecAdd64() performs as
+///  if adding two uint64x2_p vectors. On POWER7 and below VecAdd64() manages
+///  the carries from the elements.
 /// \par Wraps
 ///  vec_add for POWER8
 /// \since Crypto++ 8.3
@@ -1987,9 +1987,9 @@ inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 /// \brief Subtract two vectors as if uint64x2_p
 /// \param vec1 the first vector
 /// \param vec2 the second vector
-/// \details VecSub64() returns a new vector from vec1 and vec2.
-///  vec1 and vec2 are subtracted as if uint64x2_p vectors. On POWER7
-///  and below VecSub64() manages the borrows from the elements.
+/// \details VecSub64() performs <tt>vec1 - vec2</tt>. VecSub64() performs as
+///  if subtracting two uint64x2_p vectors. On POWER7 and below VecSub64()
+///  manages the borrows from the elements.
 /// \par Wraps
 ///  vec_sub for POWER8, vec_subc, vec_andc, vec_perm, vec_sub for Altivec
 /// \since Crypto++ 8.3
@@ -2021,9 +2021,9 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 /// \brief Subtract two vectors as if uint64x2_p
 /// \param vec1 the first vector
 /// \param vec2 the second vector
-/// \details VecSub64() returns a new vector from vec1 and vec2.
-///  vec1 and vec2 are subtracted as if uint64x2_p vectors. On POWER7
-///  and below VecSub64() manages the borrows from the elements.
+/// \details VecSub64() performs <tt>vec1 - vec2</tt>. VecSub64() performs as
+///  if subtracting two uint64x2_p vectors. On POWER7 and below VecSub64()
+///  manages the borrows from the elements.
 /// \par Wraps
 ///  vec_sub for POWER8
 /// \since Crypto++ 8.3
@@ -2222,9 +2222,10 @@ inline uint64x2_p VecRotateRight64(const uint64x2_p vec)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecAnd64() returns a new vector from vec1 and vec2. The return vector
+/// \details VecAnd64() performs <tt>vec1 & vec2</tt>.
+///  vec2 is cast to the same type as vec1. The return vector
 ///  is the same type as vec1.
-/// \details VecAnd64() is a convenience function that simply performs a VecXor().
+/// \details VecAnd64() is a convenience function that simply performs a VecAnd().
 /// \par Wraps
 ///  vec_and
 /// \since Crypto++ 8.3
@@ -2240,9 +2241,10 @@ inline T1 VecAnd64(const T1 vec1, const T2 vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecOr64() returns a new vector from vec1 and vec2. The return vector
+/// \details VecOr64() performs <tt>vec1 | vec2</tt>.
+///  vec2 is cast to the same type as vec1. The return vector
 ///  is the same type as vec1.
-/// \details VecOr64() is a convenience function that simply performs a VecXor().
+/// \details VecOr64() is a convenience function that simply performs a VecOr().
 /// \par Wraps
 ///  vec_or
 /// \since Crypto++ 8.3
@@ -2258,7 +2260,8 @@ inline T1 VecOr64(const T1 vec1, const T2 vec2)
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
-/// \details VecXor64() returns a new vector from vec1 and vec2. The return vector
+/// \details VecXor64() performs <tt>vec1 ^ vec2</tt>.
+///  vec2 is cast to the same type as vec1. The return vector
 ///  is the same type as vec1.
 /// \details VecXor64() is a convenience function that simply performs a VecXor().
 /// \par Wraps
