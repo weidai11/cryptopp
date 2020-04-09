@@ -64,7 +64,7 @@
 //
 //   inline uint32x4_p VecLoad(const byte src[16])
 //   {
-//   #if defined(_ARCH_PWR8)
+//   #if defined(__VSX__) || defined(_ARCH_PWR8)
 //       return (uint32x4_p) *(uint8x16_p*)((byte*)src);
 //   #else
 //       return VecLoad_ALTIVEC(src);
@@ -180,15 +180,13 @@ typedef __vector unsigned int    uint32x4_p;
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Vector of 64-bit elements
-/// \details uint64x2_p is available on POWER7 with VSX and above. Some supporting
-///  functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>), did not
-///  arrive until POWER8. GCC supports <tt>vec_xl</tt> and <tt>vec_xst</tt>
-///  for 64-bit elements, but other compilers do not.
+/// \details uint64x2_p is available on POWER7 with VSX and above. Most
+///  supporting functions, like 64-bit <tt>vec_add</tt> (<tt>vaddudm</tt>)
+///  and <tt>vec_sub</tt> (<tt>vsubudm</tt>), did not arrive until POWER8.
 /// \par Wraps
 ///  __vector unsigned long long
 /// \since Crypto++ 6.0
 typedef __vector unsigned long long uint64x2_p;
-
 #endif  // VSX or ARCH_PWR8
 
 /// \brief The 0 vector
@@ -374,7 +372,7 @@ inline uint32x4_p VecLoad(const word32 src[4])
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
@@ -406,7 +404,7 @@ inline uint32x4_p VecLoad(int off, const word32 src[4])
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
 #else
     return (uint32x4_p)VecLoad_ALTIVEC(CONST_V8_CAST(addr));
@@ -440,7 +438,7 @@ inline uint64x2_p VecLoad(const word64 src[2])
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
 #else
@@ -474,7 +472,7 @@ inline uint64x2_p VecLoad(int off, const word64 src[2])
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
 #else
@@ -560,7 +558,7 @@ inline uint32x4_p VecLoadAligned(const word32 src[4])
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(0, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(src));
 #else
     return (uint32x4_p)vec_ld(0, CONST_V8_CAST(src));
@@ -589,7 +587,7 @@ inline uint32x4_p VecLoadAligned(int off, const word32 src[4])
 
 #if defined(_ARCH_PWR9)
     return (uint32x4_p)vec_xl(off, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     return (uint32x4_p)vec_xl(0, CONST_V32_CAST(addr));
 #else
     return (uint32x4_p)vec_ld(off, CONST_V8_CAST(src));
@@ -620,7 +618,7 @@ inline uint64x2_p VecLoadAligned(const word64 src[4])
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(0, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(src));
 #else
@@ -650,7 +648,7 @@ inline uint64x2_p VecLoadAligned(int off, const word64 src[4])
 
 #if defined(_ARCH_PWR9)
     return (uint64x2_p)vec_xl(off, CONST_V8_CAST(src));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     // The 32-bit cast is not a typo. Compiler workaround.
     return (uint64x2_p)vec_xl(0, CONST_V32_CAST(addr));
 #else
@@ -905,7 +903,7 @@ inline void VecStore(const T data, word32 dest[4])
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
@@ -940,7 +938,7 @@ inline void VecStore(const T data, int off, word32 dest[4])
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 #else
     VecStore_ALTIVEC((uint8x16_p)data, NCONST_V8_CAST(addr));
@@ -975,7 +973,7 @@ inline void VecStore(const T data, word64 dest[2])
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     // 32-bit cast is not a typo. Compiler workaround.
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 #else
@@ -1012,7 +1010,7 @@ inline void VecStore(const T data, int off, word64 dest[2])
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     // 32-bit cast is not a typo. Compiler workaround.
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 #else
@@ -1107,7 +1105,7 @@ inline void VecStoreAligned(const T data, word32 dest[4])
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, 0, NCONST_V8_CAST(dest));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 #else
     vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
@@ -1141,7 +1139,7 @@ inline void VecStoreAligned(const T data, int off, word32 dest[4])
 
 #if defined(_ARCH_PWR9)
     vec_xst((uint8x16_p)data, off, NCONST_V8_CAST(dest));
-#elif (defined(_ARCH_PWR7) && defined(__VSX__)) || defined(_ARCH_PWR8)
+#elif defined(__VSX__) || defined(_ARCH_PWR8)
     vec_xst((uint32x4_p)data, 0, NCONST_V32_CAST(addr));
 #else
     vec_st((uint8x16_p)data, 0, NCONST_V8_CAST(addr));
@@ -1650,6 +1648,7 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
     return vec_sr(vec, m);
 }
 
+// 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
 /// \brief Rotate a vector left
@@ -1762,10 +1761,15 @@ inline T VecMergeHigh(const T vec1, const T vec2)
 /// \brief Broadcast 32-bit word to a vector
 /// \param val the 32-bit value
 /// \returns vector
+/// \par Wraps
+///  vec_splats
 /// \since Crypto++ 8.3
 inline uint32x4_p VecSplatWord(word32 val)
 {
-#if defined(_ARCH_PWR8)
+    // Apple Altivec does not offer vec_splats. GCC offers
+    // vec_splats back to -mcpu=power4. We can't test
+    // further back because -mcpu=power3 is not supported.
+#if defined(_ARCH_PWR4)
     return vec_splats(val);
 #else
     const word32 x[4] = {val,val,val,val};
@@ -1777,41 +1781,21 @@ inline uint32x4_p VecSplatWord(word32 val)
 /// \tparam the element number
 /// \param val the 32-bit value
 /// \returns vector
+/// \par Wraps
+///  vec_splat
 /// \since Crypto++ 8.3
 template <unsigned int N>
 inline uint32x4_p VecSplatElement(const uint32x4_p val)
 {
-#if defined(_ARCH_PWR8)
     return vec_splat(val, N);
-#else
-    enum {E=N&3};
-    if (E == 0)
-    {
-        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
-        return vec_perm(val, val, m);
-    }
-    else if (E == 1)
-    {
-        const uint8x16_p m = {4,5,6,7, 4,5,6,7, 4,5,6,7, 4,5,6,7};
-        return vec_perm(val, val, m);
-    }
-    else if (E == 2)
-    {
-        const uint8x16_p m = {8,9,10,11, 8,9,10,11, 8,9,10,11, 8,9,10,11};
-        return vec_perm(val, val, m);
-    }
-    else // (E == 3)
-    {
-        const uint8x16_p m = {12,13,14,15, 12,13,14,15, 12,13,14,15, 12,13,14,15};
-        return vec_perm(val, val, m);
-    }
-#endif
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Broadcast 64-bit double word to a vector
 /// \param val the 64-bit value
 /// \returns vector
+/// \par Wraps
+///  vec_splats
 /// \since Crypto++ 8.3
 inline uint64x2_p VecSplatWord(word64 val)
 {
@@ -1823,11 +1807,13 @@ inline uint64x2_p VecSplatWord(word64 val)
 /// \tparam the element number
 /// \param val the 64-bit value
 /// \returns vector
+/// \par Wraps
+///  vec_splat
 /// \since Crypto++ 8.3
 template <unsigned int N>
 inline uint64x2_p VecSplatElement(const uint64x2_p val)
 {
-#if defined(_ARCH_PWR8)
+#if defined(__VSX__) || defined(_ARCH_PWR8)
     return vec_splat(val, N);
 #else
     enum {E=N&1};
@@ -2060,6 +2046,7 @@ template<unsigned int C>
 inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
 {
 #if defined(_ARCH_PWR8)
+    // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
     return (uint32x4_p)VecRotateLeft<C>((uint64x2_p)val);
 #else
     // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
@@ -2111,6 +2098,7 @@ inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
     return VecPermute(val, m);
 }
 
+// 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Rotate a vector left as if uint64x2_p
 /// \tparam C rotate bit count
@@ -2141,6 +2129,7 @@ template<unsigned int C>
 inline uint32x4_p VecRotateRight64(const uint32x4_p val)
 {
 #if defined(_ARCH_PWR8)
+    // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
     return (uint32x4_p)VecRotateRight<C>((uint64x2_p)val);
 #else
     // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
@@ -2193,7 +2182,7 @@ inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
     return VecPermute(val, m);
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Rotate a vector right as if uint64x2_p
 /// \tparam C rotate bit count
 /// \param vec the vector
@@ -2267,6 +2256,8 @@ inline T1 VecXor64(const T1 vec1, const T2 vec2)
 /// \brief Broadcast 64-bit double word to a vector
 /// \param val the 64-bit value
 /// \returns vector
+/// \par Wraps
+///  vec_splats
 /// \since Crypto++ 8.3
 inline uint32x4_p VecSplatWord64(word64 val)
 {
@@ -2283,11 +2274,13 @@ inline uint32x4_p VecSplatWord64(word64 val)
 /// \tparam the element number
 /// \param val the 64-bit value
 /// \returns vector
+/// \par Wraps
+///  vec_splat
 /// \since Crypto++ 8.3
 template <unsigned int N>
 inline uint32x4_p VecSplatElement64(const uint32x4_p val)
 {
-#if defined(_ARCH_PWR8)
+#if defined(__VSX__) && defined(_ARCH_PWR8)
     return vec_splat((uint64x2_p)val, N);
 #else
     enum {E=N&1};
@@ -2304,7 +2297,7 @@ inline uint32x4_p VecSplatElement64(const uint32x4_p val)
 #endif
 }
 
-#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+#if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Broadcast 64-bit element to a vector
 /// \tparam the element number
 /// \param val the 64-bit value
