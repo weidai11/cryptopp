@@ -1773,6 +1773,41 @@ inline uint32x4_p VecSplatWord(word32 val)
 #endif
 }
 
+/// \brief Broadcast 32-bit word to a vector
+/// \tparam the element number
+/// \param val the 32-bit value
+/// \returns vector
+/// \since Crypto++ 8.3
+template <unsigned int N>
+inline uint32x4_p VecSplatElement(const uint32x4_p val)
+{
+#if defined(_ARCH_PWR8)
+    return vec_splat(val, N);
+#else
+    enum {E=N&3};
+    if (E == 0)
+    {
+        const uint8x16_p m = {0,1,2,3, 0,1,2,3, 0,1,2,3, 0,1,2,3};
+        return vec_perm(val, val, m);
+    }
+    else if (E == 1)
+    {
+        const uint8x16_p m = {4,5,6,7, 4,5,6,7, 4,5,6,7, 4,5,6,7};
+        return vec_perm(val, val, m);
+    }
+    else if (E == 2)
+    {
+        const uint8x16_p m = {8,9,10,11, 8,9,10,11, 8,9,10,11, 8,9,10,11};
+        return vec_perm(val, val, m);
+    }
+    else // (E == 3)
+    {
+        const uint8x16_p m = {12,13,14,15, 12,13,14,15, 12,13,14,15, 12,13,14,15};
+        return vec_perm(val, val, m);
+    }
+#endif
+}
+
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Broadcast 64-bit double word to a vector
 /// \param val the 64-bit value
@@ -1782,6 +1817,31 @@ inline uint64x2_p VecSplatWord(word64 val)
 {
     // The PPC64 ABI says so.
     return vec_splats((unsigned long long)val);
+}
+
+/// \brief Broadcast 64-bit word to a vector
+/// \tparam the element number
+/// \param val the 64-bit value
+/// \returns vector
+/// \since Crypto++ 8.3
+template <unsigned int N>
+inline uint64x2_p VecSplatElement(const uint64x2_p val)
+{
+#if defined(_ARCH_PWR8)
+    return vec_splat(val, N);
+#else
+    enum {E=N&1};
+    if (E == 0)
+    {
+        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
+        return vec_perm(val, val, m);
+    }
+    else // (E == 1)
+    {
+        const uint8x16_p m = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
+        return vec_perm(val, val, m);
+    }
+#endif
 }
 #endif
 
@@ -2218,6 +2278,44 @@ inline uint32x4_p VecSplatWord64(word64 val)
     return (uint32x4_p)VecLoad((const word32*)x);
 #endif
 }
+
+/// \brief Broadcast 64-bit word to a vector
+/// \tparam the element number
+/// \param val the 64-bit value
+/// \returns vector
+/// \since Crypto++ 8.3
+template <unsigned int N>
+inline uint32x4_p VecSplatElement64(const uint32x4_p val)
+{
+#if defined(_ARCH_PWR8)
+    return vec_splat((uint64x2_p)val, N);
+#else
+    enum {E=N&1};
+    if (E == 0)
+    {
+        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
+        return vec_perm(val, val, m);
+    }
+    else // (E == 1)
+    {
+        const uint8x16_p m = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
+        return vec_perm(val, val, m);
+    }
+#endif
+}
+
+#if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
+/// \brief Broadcast 64-bit word to a vector
+/// \tparam the element number
+/// \param val the 64-bit value
+/// \returns vector
+/// \since Crypto++ 8.3
+template <unsigned int N>
+inline uint64x2_p VecSplatElement64(const uint64x2_p val)
+{
+    return vec_splat(val, N);
+}
+#endif
 
 //@}
 
