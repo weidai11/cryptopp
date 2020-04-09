@@ -1586,11 +1586,11 @@ inline T VecRotateRightOctet(const T vec)
 #endif
 }
 
-/// \brief Rotate a packed vector left
+/// \brief Rotate a vector left
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft() rotates each element in a packed vector by
+/// \details VecRotateLeft() rotates each element in a vector by
 ///  bit count.
 /// \par Wraps
 ///  vec_rl
@@ -1602,11 +1602,11 @@ inline uint32x4_p VecRotateLeft(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
-/// \brief Rotate a packed vector right
+/// \brief Rotate a vector right
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight() rotates each element in a packed vector
+/// \details VecRotateRight() rotates each element in a vector
 ///  by bit count.
 /// \par Wraps
 ///  vec_rl
@@ -1618,11 +1618,11 @@ inline uint32x4_p VecRotateRight(const uint32x4_p vec)
     return vec_rl(vec, m);
 }
 
-/// \brief Shift a packed vector left
+/// \brief Shift a vector left
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftLeft() rotates each element in a packed vector
+/// \details VecShiftLeft() rotates each element in a vector
 ///  by bit count.
 /// \par Wraps
 ///  vec_sl
@@ -1634,11 +1634,11 @@ inline uint32x4_p VecShiftLeft(const uint32x4_p vec)
     return vec_sl(vec, m);
 }
 
-/// \brief Shift a packed vector right
+/// \brief Shift a vector right
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftRight() rotates each element in a packed vector
+/// \details VecShiftRight() rotates each element in a vector
 ///  by bit count.
 /// \par Wraps
 ///  vec_rl
@@ -1652,11 +1652,11 @@ inline uint32x4_p VecShiftRight(const uint32x4_p vec)
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-/// \brief Rotate a packed vector left
+/// \brief Rotate a vector left
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft() rotates each element in a packed vector
+/// \details VecRotateLeft() rotates each element in a vector
 ///  by bit count.
 /// \details VecRotateLeft() with 64-bit elements is available on
 ///  POWER8 and above.
@@ -1670,11 +1670,11 @@ inline uint64x2_p VecRotateLeft(const uint64x2_p vec)
     return vec_rl(vec, m);
 }
 
-/// \brief Shift a packed vector left
+/// \brief Shift a vector left
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftLeft() rotates each element in a packed vector
+/// \details VecShiftLeft() rotates each element in a vector
 ///  by bit count.
 /// \details VecShiftLeft() with 64-bit elements is available on
 ///  POWER8 and above.
@@ -1688,11 +1688,11 @@ inline uint64x2_p VecShiftLeft(const uint64x2_p vec)
     return vec_sl(vec, m);
 }
 
-/// \brief Rotate a packed vector right
+/// \brief Rotate a vector right
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight() rotates each element in a packed vector
+/// \details VecRotateRight() rotates each element in a vector
 ///  by bit count.
 /// \details VecRotateRight() with 64-bit elements is available on
 ///  POWER8 and above.
@@ -1706,11 +1706,11 @@ inline uint64x2_p VecRotateRight(const uint64x2_p vec)
     return vec_rl(vec, m);
 }
 
-/// \brief Shift a packed vector right
+/// \brief Shift a vector right
 /// \tparam C shift bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecShiftRight() rotates each element in a packed vector
+/// \details VecShiftRight() rotates each element in a vector
 ///  by bit count.
 /// \details VecShiftRight() with 64-bit elements is available on
 ///  POWER8 and above.
@@ -1888,7 +1888,7 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 /// \name 32-BIT ALTIVEC
 //@{
 
-/// \brief Add two 64-bit vectors
+/// \brief Add two vectors as if uint64x2_p
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
@@ -1920,7 +1920,7 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-/// \brief Add two 64-bit vectors
+/// \brief Add two vectors as if uint64x2_p
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \returns vector
@@ -1937,7 +1937,7 @@ inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 }
 #endif
 
-/// \brief Subtract two 64-bit vectors
+/// \brief Subtract two vectors as if uint64x2_p
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \details VecSub64() returns a new vector from vec1 and vec2.
@@ -1971,7 +1971,7 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-/// \brief Subtract two 64-bit vectors
+/// \brief Subtract two vectors as if uint64x2_p
 /// \param vec1 the first vector
 /// \param vec2 the second vector
 /// \details VecSub64() returns a new vector from vec1 and vec2.
@@ -1987,12 +1987,12 @@ inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 }
 #endif
 
-/// \brief Rotate a 64-bit packed vector left
+/// \brief Rotate a vector left as if uint64x2_p
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft() rotates each element in a packed vector by bit count.
-/// \details val is rotated as if uint64x2_p.
+/// \details VecRotateLeft() rotates each element in a vector by bit count.
+///  val is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
@@ -2035,12 +2035,12 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
 #endif
 }
 
-/// \brief Rotate a 64-bit packed vector left
+/// \brief Rotate a vector left as if uint64x2_p
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft<8>() rotates each element in a packed vector
-///  by 8-bits. This specialization is used by algorithms like Speck128.
-/// \details val is rotated as if uint64x2_p.
+/// \details VecRotateLeft<8>() rotates each element in a vector
+///  by 8-bits. val is rotated as if uint64x2_p. This specialization
+///  is used by algorithms like Speck128.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
@@ -2052,11 +2052,12 @@ inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-/// \brief Rotate a 64-bit packed vector left
+/// \brief Rotate a vector left as if uint64x2_p
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateLeft64() rotates each element in a packed vector by bit count.
+/// \details VecRotateLeft64() rotates each element in a vector by
+///  bit count. val is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
@@ -2067,12 +2068,12 @@ inline uint64x2_p VecRotateLeft64(const uint64x2_p val)
 }
 #endif
 
-/// \brief Rotate a 64-bit packed vector right
+/// \brief Rotate a vector right as if uint64x2_p
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight64() rotates each element in a packed vector by bit count.
-/// \details val is rotated as if uint64x2_p.
+/// \details VecRotateRight64() rotates each element in a vector by
+///  bit count. val is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
@@ -2115,11 +2116,12 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p val)
 #endif
 }
 
-/// \brief Rotate a 64-bit packed vector right
+/// \brief Rotate a vector right as if uint64x2_p
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight64<8>() rotates each element in a packed vector
-///  by 8-bits. This specialization is used by algorithms like Speck128.
+/// \details VecRotateRight64<8>() rotates each element in a vector
+///  by 8-bits. val is rotated as if uint64x2_p. This specialization
+///  is used by algorithms like Speck128.
 /// \details val is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
@@ -2132,11 +2134,12 @@ inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-/// \brief Rotate a 64-bit packed vector right
+/// \brief Rotate a vector right as if uint64x2_p
 /// \tparam C rotate bit count
 /// \param vec the vector
 /// \returns vector
-/// \details VecRotateRight64() rotates each element in a packed vector by bit count.
+/// \details VecRotateRight64() rotates each element in a vector by
+///  bit count. val is rotated as if uint64x2_p.
 /// \par Wraps
 ///  vec_rl
 /// \since Crypto++ 8.3
