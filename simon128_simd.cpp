@@ -640,23 +640,36 @@ inline void SIMON128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigne
     {
         std::swap(x1, y1);
 
-        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
         const word32* ptr = reinterpret_cast<const word32*>(subkeys+rounds-1);
-        const simon128_t rk = (simon128_t)VecPermute(VecLoad(ptr), m);
+        const simon128_t rk = (simon128_t)VecLoad(ptr);
 
-        y1 = VecXor64(VecXor64(y1, rk), SIMON128_f(x1));
+#if defined(_ARCH_PWR8)
+        const simon128_t rk1 = vec_splat(rk, 0);
+#else
+        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
+        const simon128_t rk1 = VecPermute(rk, m);
+#endif
+
+        y1 = VecXor64(VecXor64(y1, rk1), SIMON128_f(x1));
         rounds--;
     }
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
-        const uint8x16_p m1 = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
-        const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
         const word32* ptr = reinterpret_cast<const word32*>(subkeys+i);
         const simon128_t rk = (simon128_t)VecLoad(ptr);
 
+#if defined(_ARCH_PWR8)
+        const simon128_t rk1 = vec_splat(rk, 1);
+        const simon128_t rk2 = vec_splat(rk, 0);
+#else
+        const uint8x16_p m1 = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
+        const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
+
         const simon128_t rk1 = VecPermute(rk, m1);
         const simon128_t rk2 = VecPermute(rk, m2);
+#endif
+
         x1 = VecXor64(VecXor64(x1, SIMON128_f(y1)), rk1);
         y1 = VecXor64(VecXor64(y1, SIMON128_f(x1)), rk2);
     }
@@ -698,6 +711,7 @@ inline void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         // Round keys are pre-splated in forward direction
         const word32* ptr1 = reinterpret_cast<const word32*>(subkeys+i*2);
         const simon128_t rk1 = (simon128_t)VecLoadAligned(ptr1);
+
         const word32* ptr2 = reinterpret_cast<const word32*>(subkeys+i*2+2);
         const simon128_t rk2 = (simon128_t)VecLoadAligned(ptr2);
 
@@ -764,25 +778,37 @@ inline void SIMON128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     {
         std::swap(x1, y1); std::swap(x2, y2); std::swap(x3, y3);
 
-        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
         const word32* ptr = reinterpret_cast<const word32*>(subkeys+rounds-1);
-        const simon128_t rk = (simon128_t)VecPermute(VecLoad(ptr), m);
+        const simon128_t rk = (simon128_t)VecLoad(ptr);
 
-        y1 = VecXor64(VecXor64(y1, rk), SIMON128_f(x1));
-        y2 = VecXor64(VecXor64(y2, rk), SIMON128_f(x2));
-        y3 = VecXor64(VecXor64(y3, rk), SIMON128_f(x3));
+#if defined(_ARCH_PWR8)
+        const simon128_t rk1 = vec_splat(rk, 0);
+#else
+        const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
+        const simon128_t rk1 = VecPermute(rk, m);
+#endif
+
+        y1 = VecXor64(VecXor64(y1, rk1), SIMON128_f(x1));
+        y2 = VecXor64(VecXor64(y2, rk1), SIMON128_f(x2));
+        y3 = VecXor64(VecXor64(y3, rk1), SIMON128_f(x3));
         rounds--;
     }
 
     for (int i = static_cast<int>(rounds-2); i >= 0; i -= 2)
     {
-        const uint8x16_p m1 = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
-        const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
         const word32* ptr = reinterpret_cast<const word32*>(subkeys+i);
         const simon128_t rk = (simon128_t)VecLoad(ptr);
 
+#if defined(_ARCH_PWR8)
+        const simon128_t rk1 = vec_splat(rk, 1);
+        const simon128_t rk2 = vec_splat(rk, 0);
+#else
+        const uint8x16_p m1 = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
+        const uint8x16_p m2 = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
+
         const simon128_t rk1 = VecPermute(rk, m1);
         const simon128_t rk2 = VecPermute(rk, m2);
+#endif
 
         x1 = VecXor64(VecXor64(x1, SIMON128_f(y1)), rk1);
         x2 = VecXor64(VecXor64(x2, SIMON128_f(y2)), rk1);

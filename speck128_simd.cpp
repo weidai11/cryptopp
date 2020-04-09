@@ -545,11 +545,9 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 #if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m1 = {31,30,29,28,27,26,25,24, 15,14,13,12,11,10,9,8};
     const uint8x16_p m2 = {23,22,21,20,19,18,17,16, 7,6,5,4,3,2,1,0};
-    const uint8x16_p km = {7,6,5,4, 3,2,1,0, 7,6,5,4, 3,2,1,0};
 #else
     const uint8x16_p m1 = {7,6,5,4,3,2,1,0, 23,22,21,20,19,18,17,16};
     const uint8x16_p m2 = {15,14,13,12,11,10,9,8, 31,30,29,28,27,26,25,24};
-    const uint8x16_p km = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
 #endif
 
     // [A1 A2][B1 B2] ... => [A1 B1][A2 B2] ...
