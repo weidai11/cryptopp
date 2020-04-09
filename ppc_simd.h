@@ -2079,6 +2079,8 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
 #endif
 }
 
+// Disable during testing
+#if 0
 /// \brief Rotate a vector left as if uint64x2_p
 /// \param vec the vector
 /// \returns vector
@@ -2099,6 +2101,7 @@ inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
     return VecPermute(val, m);
 #endif
 }
+#endif
 
 // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
@@ -2167,6 +2170,8 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p val)
 #endif
 }
 
+// Disable during testing
+#if 0
 /// \brief Rotate a vector right as if uint64x2_p
 /// \param vec the vector
 /// \returns vector
@@ -2188,6 +2193,7 @@ inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
     return VecPermute(val, m);
 #endif
 }
+#endif
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Rotate a vector right as if uint64x2_p
