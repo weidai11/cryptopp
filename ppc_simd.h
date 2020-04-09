@@ -2300,7 +2300,7 @@ inline uint32x4_p VecSplatWord64(word64 val)
 template <unsigned int N>
 inline uint32x4_p VecSplatElement64(const uint32x4_p val)
 {
-#if defined(__VSX__) && defined(_ARCH_PWR8)
+#if defined(__VSX__) || defined(_ARCH_PWR8)
     return vec_splat((uint64x2_p)val, N);
 #else
     enum {E=N&1};
