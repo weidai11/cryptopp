@@ -1763,7 +1763,7 @@ inline T VecMergeHigh(const T vec1, const T vec2)
 /// \param val the 32-bit value
 /// \returns vector
 /// \since Crypto++ 8.3
-inline uint32x4_p VecSplats(word32 val)
+inline uint32x4_p VecSplatWord(word32 val)
 {
 #if defined(_ARCH_PWR8)
     return vec_splats(val);
@@ -1778,7 +1778,7 @@ inline uint32x4_p VecSplats(word32 val)
 /// \param val the 64-bit value
 /// \returns vector
 /// \since Crypto++ 8.3
-inline uint64x2_p VecSplats(word64 val)
+inline uint64x2_p VecSplatWord(word64 val)
 {
     // The PPC64 ABI says so.
     return vec_splats((unsigned long long)val);
@@ -2208,7 +2208,7 @@ inline T1 VecXor64(const T1 vec1, const T2 vec2)
 /// \param val the 64-bit value
 /// \returns vector
 /// \since Crypto++ 8.3
-inline uint32x4_p VecSplats64(word64 val)
+inline uint32x4_p VecSplatWord64(word64 val)
 {
 #if defined(_ARCH_PWR8)
     // The PPC64 ABI says so.

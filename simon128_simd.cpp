@@ -554,7 +554,7 @@ using CryptoPP::VecSub64;
 using CryptoPP::VecAnd64;
 using CryptoPP::VecOr64;
 using CryptoPP::VecXor64;
-using CryptoPP::VecSplats64;
+using CryptoPP::VecSplatWord64;
 using CryptoPP::VecRotateLeft64;
 using CryptoPP::VecRotateRight64;
 using CryptoPP::VecLoad;

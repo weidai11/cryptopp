@@ -487,7 +487,7 @@ using CryptoPP::VecSub64;
 using CryptoPP::VecAnd64;
 using CryptoPP::VecOr64;
 using CryptoPP::VecXor64;
-using CryptoPP::VecSplats64;
+using CryptoPP::VecSplatWord64;
 using CryptoPP::VecRotateLeft64;
 using CryptoPP::VecRotateRight64;
 using CryptoPP::VecLoad;
@@ -556,7 +556,7 @@ void SPECK128_Dec_Block(uint32x4_p &block, const word64 *subkeys, unsigned int r
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
-        const speck128_t rk = (speck128_t)VecSplats64(subkeys[i]);
+        const speck128_t rk = (speck128_t)VecSplatWord64(subkeys[i]);
 
         y1 = (speck128_t)VecXor64(y1, x1);
         y1 = (speck128_t)VecRotateRight64<3>(y1);
@@ -660,7 +660,7 @@ void SPECK128_Dec_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
 
     for (int i = static_cast<int>(rounds-1); i >= 0; --i)
     {
-        const speck128_t rk = (speck128_t)VecSplats64(subkeys[i]);
+        const speck128_t rk = (speck128_t)VecSplatWord64(subkeys[i]);
 
         y1 = (speck128_t)VecXor64(y1, x1);
         y2 = (speck128_t)VecXor64(y2, x2);
