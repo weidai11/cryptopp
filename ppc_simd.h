@@ -2051,7 +2051,7 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p vec)
     return (uint32x4_p)VecRotateLeft<C>((uint64x2_p)vec);
 #else
     // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
-    enum {BR=(C>=32), S64=C&63, S32=C&31};
+    enum {S64=C&63, S32=C&31, BR=(S64>=32)};
 
     // Get the low bits, shift them to high bits
     uint32x4_p t1 = VecShiftLeft<S32>(vec);
@@ -2142,7 +2142,7 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p vec)
     return (uint32x4_p)VecRotateRight<C>((uint64x2_p)vec);
 #else
     // C=0, 32, or 64 needs special handling. That is S32 and S64 below.
-    enum {BR=(C>=32), S64=C&63, S32=C&31};
+    enum {S64=C&63, S32=C&31, BR=(S64>=32)};
 
     // Get the low bits, shift them to high bits
     uint32x4_p t1 = VecShiftRight<S32>(vec);
