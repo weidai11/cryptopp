@@ -1773,7 +1773,7 @@ inline uint32x4_p VecSplatWord(word32 val)
 #endif
 }
 
-/// \brief Broadcast 32-bit word to a vector
+/// \brief Broadcast 32-bit element to a vector
 /// \tparam the element number
 /// \param val the 32-bit value
 /// \returns vector
@@ -1819,7 +1819,7 @@ inline uint64x2_p VecSplatWord(word64 val)
     return vec_splats((unsigned long long)val);
 }
 
-/// \brief Broadcast 64-bit word to a vector
+/// \brief Broadcast 64-bit element to a vector
 /// \tparam the element number
 /// \param val the 64-bit value
 /// \returns vector
@@ -2210,7 +2210,7 @@ inline uint64x2_p VecRotateRight64(const uint64x2_p val)
 }
 #endif
 
-/// \brief AND two vectors
+/// \brief AND two vectors as if uint64x2_p
 /// \tparam T1 vector type
 /// \tparam T2 vector type
 /// \param vec1 the first vector
@@ -2228,7 +2228,7 @@ inline T1 VecAnd64(const T1 vec1, const T2 vec2)
     return (T1)vec_and(vec1, (T1)vec2);
 }
 
-/// \brief OR two vectors
+/// \brief OR two vectors as if uint64x2_p
 /// \tparam T1 vector type
 /// \tparam T2 vector type
 /// \param vec1 the first vector
@@ -2246,7 +2246,7 @@ inline T1 VecOr64(const T1 vec1, const T2 vec2)
     return (T1)vec_or(vec1, (T1)vec2);
 }
 
-/// \brief XOR two vectors
+/// \brief XOR two vectors as if uint64x2_p
 /// \tparam T1 vector type
 /// \tparam T2 vector type
 /// \param vec1 the first vector
@@ -2279,7 +2279,7 @@ inline uint32x4_p VecSplatWord64(word64 val)
 #endif
 }
 
-/// \brief Broadcast 64-bit word to a vector
+/// \brief Broadcast 64-bit element to a vector as if uint64x2_p
 /// \tparam the element number
 /// \param val the 64-bit value
 /// \returns vector
@@ -2305,7 +2305,7 @@ inline uint32x4_p VecSplatElement64(const uint32x4_p val)
 }
 
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-/// \brief Broadcast 64-bit word to a vector
+/// \brief Broadcast 64-bit element to a vector
 /// \tparam the element number
 /// \param val the 64-bit value
 /// \returns vector
