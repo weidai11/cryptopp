@@ -2091,8 +2091,13 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p val)
 template<>
 inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p val)
 {
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
     return VecPermute(val, m);
+#else
+    const uint8x16_p m = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
+    return VecPermute(val, m);
+#endif
 }
 
 // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
@@ -2175,8 +2180,13 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p val)
 template<>
 inline uint32x4_p VecRotateRight64<8>(const uint32x4_p val)
 {
+#if (CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p m = { 7,0,1,2, 3,4,5,6, 15,8,9,10, 11,12,13,14 };
     return VecPermute(val, m);
+#else
+    const uint8x16_p m = { 1,2,3,4, 5,6,7,0, 9,10,11,12, 13,14,15,8 };
+    return VecPermute(val, m);
+#endif
 }
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
