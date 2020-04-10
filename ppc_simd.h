@@ -2371,18 +2371,18 @@ template <unsigned int N>
 inline uint32x4_p VecSplatElement64(const uint32x4_p val)
 {
 #if defined(__VSX__) || defined(_ARCH_PWR8)
-    return vec_splat((uint64x2_p)val, N);
+    return (uint32x4_p)vec_splat((uint64x2_p)val, N);
 #else
     enum {E=N&1};
     if (E == 0)
     {
         const uint8x16_p m = {0,1,2,3, 4,5,6,7, 0,1,2,3, 4,5,6,7};
-        return vec_perm(val, val, m);
+        return (uint32x4_p)vec_perm(val, val, m);
     }
     else // (E == 1)
     {
         const uint8x16_p m = {8,9,10,11, 12,13,14,15, 8,9,10,11, 12,13,14,15};
-        return vec_perm(val, val, m);
+        return (uint32x4_p)vec_perm(val, val, m);
     }
 #endif
 }
