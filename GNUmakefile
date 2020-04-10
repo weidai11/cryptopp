@@ -754,6 +754,9 @@ ifeq ($(XLC_COMPILER),1)
   ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
     CRYPTOPP_CXXFLAGS += -qrtti
   endif
+  # Disable "1500-036: (I) The NOSTRICT option (default at OPT(3))
+  # has the potential to alter the semantics of a program."
+  CRYPTOPP_CXXFLAGS += -qsuppress=1500-036
 endif
 
 # IS_PPC32, IS_PPC64
