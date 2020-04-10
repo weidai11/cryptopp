@@ -8,7 +8,7 @@
 /// \details The abstractions are necesssary to support back to GCC 4.8 and
 ///  XLC 11 and 12. GCC 4.8 and 4.9 are still popular, and they are the
 ///  default compiler for GCC112, GCC119 and others on the compile farm.
-///  Older IBM XL C/C++ compilers also experience it due to lack of
+///  Older IBM XL C/C++ compilers also have the need due to lack of
 ///  <tt>vec_xl</tt> and <tt>vec_xst</tt> support on some platforms. Modern
 ///  compilers provide best support and don't need many of the hacks
 ///  below.
@@ -44,6 +44,25 @@
 ///  renamed to <tt>Vec{FuncName}</tt>. For example, <tt>VectorAnd</tt> was
 ///  changed to <tt>VecAnd</tt>. The name change helped consolidate two
 ///  slightly different implementations.
+/// \details At Crypto++ 8.3 the library added select 64-bit functions for
+///  32-bit Altivec. For example, <tt>VecAdd64</tt> and <tt>VecSub64</tt>
+///  take 32-bit vectors and adds or subtracts them as if there were vectors
+///  with two 64-bit elements. The functions dramtically improve performance
+///  for some algorithms on some platforms, like SIMON128 and SPECK128 on
+///  Power6 and earlier. For example, SPECK128 improved from 70 cpb to
+///  10 cpb on an old PowerMac. Use the functions like shown below.
+///  <pre>
+///    \#if defined(_ARCH_PWR8)
+///    \#  define speck128_t uint64x2_p
+///    \#else
+///    \#  define speck128_t uint32x4_p
+///    \#endif
+///
+///    speck128_t rk, x1, x2, y1, y2;
+///    rk = (speck128_t)VecLoadAligned(ptr);
+///    x1 = VecRotateRight64<8>(x1);
+///    x1 = VecAdd64(x1, y1);
+///    ...</pre>
 /// \since Crypto++ 6.0, LLVM Clang compiler support since Crypto++ 8.0
 
 // Use __ALTIVEC__, _ARCH_PWR7, __VSX__, and _ARCH_PWR8 when detecting
