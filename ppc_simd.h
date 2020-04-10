@@ -1958,7 +1958,7 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     // Small optimization... We can avoid a zero vector {0,0,0,0} and the
     // load by using an element that will always be 0. Bytes 1,2, 5,6, 9,10,
     // 13,14 are zero because we are using a vector unsigned int. There are
-    // no borrows from those bytes using a vector unsigned int. The
+    // no carries into those bytes using a vector unsigned int. The
     // code below uses byte 2 for the 0 value.
 #if defined(CRYPTOPP_BIG_ENDIAN)
     const uint8x16_p cmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
