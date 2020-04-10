@@ -2013,7 +2013,7 @@ inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
     const uint32x4_p y = (uint32x4_p)vec2;
     const uint32x4_p r = VecAdd64(x, y);
 
-    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+    CRYPTOPP_ASSERT(vec_all_eq((uint32x4_p)res, r) == 1);
 #endif
 
     return res;
@@ -2082,7 +2082,7 @@ inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
     const uint32x4_p y = (uint32x4_p)vec2;
     const uint32x4_p r = VecSub64(x, y);
 
-    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+    CRYPTOPP_ASSERT(vec_all_eq((uint32x4_p)res, r) == 1);
 #endif
 
     return res;
@@ -2180,7 +2180,7 @@ inline uint64x2_p VecRotateLeft64(const uint64x2_p vec)
     const uint32x4_p x = (uint32x4_p)vec;
     const uint32x4_p r = VecRotateLeft64<C>(x);
 
-    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+    CRYPTOPP_ASSERT(vec_all_eq((uint32x4_p)res, r) == 1);
 #endif
 
     return res;
@@ -2279,7 +2279,7 @@ inline uint64x2_p VecRotateRight64(const uint64x2_p vec)
     const uint32x4_p x = (uint32x4_p)vec;
     const uint32x4_p r = VecRotateRight64<C>(x);
 
-    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+    CRYPTOPP_ASSERT(vec_all_eq((uint32x4_p)res, r) == 1);
 #endif
 
     return res;
