@@ -52,7 +52,7 @@ extern void GF2NT_233_Multiply_Reduce_ARMv8(const word* pA, const word* pB, word
 extern void GF2NT_233_Square_Reduce_ARMv8(const word* pA, word* pC);
 #endif
 
-#if (CRYPTOPP_POWER8_VMULL_AVAILABLE)
+#if (CRYPTOPP_POWER8_VMULL_AVAILABLE) && 0
 extern void GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC);
 extern void GF2NT_233_Square_Reduce_POWER8(const word* pA, word* pC);
 #endif
@@ -999,7 +999,7 @@ const GF2NT::Element& GF2NT233::Multiply(const Element &a, const Element &b) con
 		return result;
 	}
 	else
-#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE)
+#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE) && 0
 	if (HasPMULL())
 	{
 		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);
@@ -1047,7 +1047,7 @@ const GF2NT::Element& GF2NT233::Square(const Element &a) const
 		return result;
 	}
 	else
-#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE)
+#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE) && 0
 	if (HasPMULL())
 	{
 		CRYPTOPP_ASSERT(a.reg.size()*WORD_BITS == 256);

@@ -308,7 +308,7 @@ GF2NT_233_Reduce_CLMUL(__m128i& c3, __m128i& c2, __m128i& c1, __m128i& c0)
 
 // ************************* Power8 ************************* //
 
-#if (CRYPTOPP_POWER8_VMULL_AVAILABLE)
+#if (CRYPTOPP_POWER8_VMULL_AVAILABLE) && 0
 
 using CryptoPP::byte;
 using CryptoPP::word;
@@ -539,7 +539,7 @@ GF2NT_233_Square_Reduce_ARMv8(const word* pA, word* pC)
     vst1q_u32(pCC+4, vreinterpretq_u32_u64(c1));
 }
 
-#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE)
+#elif (CRYPTOPP_POWER8_VMULL_AVAILABLE) && 0
 
 void
 GF2NT_233_Multiply_Reduce_POWER8(const word* pA, const word* pB, word* pC)
