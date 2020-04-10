@@ -705,22 +705,16 @@ void Rijndael_UncheckedSetKey_POWER8(const byte* userKey, size_t keyLen, word32*
 #if (CRYPTOPP_LITTLE_ENDIAN)
     rkey = rk;
     const uint8x16_p mask = {12,13,14,15, 8,9,10,11, 4,5,6,7, 0,1,2,3};
-    const uint32x4_p zero = {0,0,0,0};
 
     unsigned int i=0;
     for (i=0; i<rounds; i+=2, rkey+=8)
     {
-        const uint32x4_p d1 = vec_xl( 0, rkey);
-        const uint32x4_p d2 = vec_xl(16, rkey);
-        vec_xst(VecPermute(d1, zero, mask),  0, rkey);
-        vec_xst(VecPermute(d2, zero, mask), 16, rkey);
+        VecStore(VecPermute(VecLoad(rkey+0), mask), rkey+0);
+        VecStore(VecPermute(VecLoad(rkey+4), mask), rkey+4);
     }
 
     for ( ; i<rounds+1; i++, rkey+=4)
-    {
-        const uint32x4_p d = vec_xl( 0, rkey);
-        vec_xst(VecPermute(d, zero, mask),  0, rkey);
-    }
+        VecStore(VecPermute(VecLoad(rkey), mask), rkey);
 #endif
 }
 
