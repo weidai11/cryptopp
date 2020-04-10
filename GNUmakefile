@@ -839,16 +839,6 @@ ifeq ($(IS_SUN)$(SUN_COMPILER),11)
   endif  # X86/X32/X64
 endif  # SunOS
 
-# TODO: can we remove this since removing sockets?
-#ifneq ($(IS_MINGW),0)
-#  LDLIBS += -lws2_32
-#endif
-
-# TODO: can we remove this since removing sockets?
-#ifneq ($(IS_SUN),0)
-#  LDLIBS += -lnsl -lsocket
-#endif
-
 ifneq ($(IS_LINUX)$(IS_HURD),00)
   ifeq ($(findstring -fopenmp,$(CXXFLAGS)),-fopenmp)
     ifeq ($(findstring -lgomp,$(LDLIBS)),)
