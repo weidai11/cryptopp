@@ -745,7 +745,7 @@ ifeq ($(DETECT_FEATURES),1)
 # DETECT_FEATURES
 endif
 
-# IBM XL C/C++ compiler
+# IBM XL C++ compiler
 ifeq ($(XLC_COMPILER),1)
   ifeq ($(findstring -qmaxmem,$(CXXFLAGS)),)
     CRYPTOPP_CXXFLAGS += -qmaxmem=-1
@@ -754,9 +754,6 @@ ifeq ($(XLC_COMPILER),1)
   ifeq ($(findstring -qrtti,$(CXXFLAGS)),)
     CRYPTOPP_CXXFLAGS += -qrtti
   endif
-  # Disable "1500-036: (I) The NOSTRICT option (default at OPT(3))
-  # has the potential to alter the semantics of a program."
-  CRYPTOPP_CXXFLAGS += -qsuppress=1500-036
 endif
 
 # IS_PPC32, IS_PPC64
@@ -804,11 +801,22 @@ ifeq ($(SUN_COMPILER),1)
   CRYPTOPP_CXXFLAGS := $(subst -fpic,-KPIC,$(CRYPTOPP_CXXFLAGS))
 endif
 
-# Remove -fPIC if present. IBM XL C/C++ use -qpic
+# Remove -fPIC if present. IBM XL C++ uses -qpic
 ifeq ($(XLC_COMPILER),1)
   CRYPTOPP_CXXFLAGS := $(subst -fPIC,-qpic,$(CRYPTOPP_CXXFLAGS))
   CRYPTOPP_CXXFLAGS := $(subst -fpic,-qpic,$(CRYPTOPP_CXXFLAGS))
 endif
+
+# Disable IBM XL C++ "1500-036: (I) The NOSTRICT option (default at OPT(3))
+# has the potential to alter the semantics of a program."
+ifeq ($(XLC_COMPILER),1)
+  TPROG = TestPrograms/test_cxx.cxx
+  TOPT = -qsuppress=1500-036
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    CRYPTOPP_CXXFLAGS += -qsuppress=1500-036
+  endif  # -qsuppress
+endif  # IBM XL C++ compiler
 
 # Add -xregs=no%appl SPARC. SunCC should not use certain registers in library code.
 # https://docs.oracle.com/cd/E18659_01/html/821-1383/bkamt.html
@@ -820,7 +828,7 @@ ifeq ($(IS_SUN)$(SUN_COMPILER),11)
   endif  # Sparc
 endif  # SunOS
 
-# Add -pipe for everything except IBM XL C/C++, SunCC and ARM.
+# Add -pipe for everything except IBM XL C++, SunCC and ARM.
 # Allow ARM-64 because they seems to have >1 GB of memory
 ifeq ($(XLC_COMPILER)$(SUN_COMPILER)$(IS_ARM32),000)
   ifeq ($(findstring -save-temps,$(CXXFLAGS)),)
