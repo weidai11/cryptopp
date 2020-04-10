@@ -1948,17 +1948,23 @@ inline bool VecNotEqual(const T1 vec1, const T2 vec2)
 inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 {
     // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) && !defined(CRYPTOPP_DEBUG)
     return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
     // The carry mask selects carries for elements 1 and 3 and sets
     // remaining elements to 0. The mask also shifts the carried values
     // left by 4 bytes so the carries are added to elements 0 and 2.
 
-    // Small optimization to avoid the load of a 'zero' value: only bytes
-    // 3, 7, 11 or 15 have a 1 set due to carry. Other bytes will be zero,
-    // so we don't need a separate zero value to draw from.
-    const uint8x16_p cmask = {4,5,6,7, 0,0,0,0, 12,13,14,15, 0,0,0,0};
+    // Small optimization... We can avoid a zero vector {0,0,0,0} and the
+    // load by using an element that will always be 0. Bytes 1,2, 5,6, 9,10,
+    // 13,14 are zero because we are using a vector unsigned int. There are
+    // no borrows from those bytes using a vector unsigned int. The
+    // code below uses byte 2 for the 0 value.
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p cmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
+#else
+    const uint8x16_p cmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
+#endif
 
     uint32x4_p cy = vec_addc(vec1, vec2);
     cy = vec_perm(cy, cy, cmask);
@@ -1980,7 +1986,18 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 {
     // 64-bit elements available at POWER7 with VSX, but addudm requires POWER8
-    return vec_add(vec1, vec2);
+    const uint64x2_p res = vec_add(vec1, vec2);
+
+#if defined(CRYPTOPP_DEBUG)
+    // Test 32-bit add in debug builds while we are here.
+    const uint32x4_p x = (uint32x4_p)vec1;
+    const uint32x4_p y = (uint32x4_p)vec2;
+    const uint32x4_p r = VecAdd64(x, y);
+
+    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+#endif
+
+    return res;
 }
 #endif
 
@@ -1995,7 +2012,7 @@ inline uint64x2_p VecAdd64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 /// \since Crypto++ 8.3
 inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 {
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) && !defined(CRYPTOPP_DEBUG)
     // 64-bit elements available at POWER7 with VSX, but subudm requires POWER8
     return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
@@ -2003,13 +2020,21 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     // remaining elements to 0. The mask also shifts the borrowed values
     // left by 4 bytes so the borrows are subtracted from elements 0 and 2.
 
-    // Small optimization to avoid the load of a 'zero' value: only bytes
-    // 3, 7, 11 or 15 have a 1 set due to borrow. Other bytes will be zero,
-    // so we don't need a separate zero value to draw from.
-    const uint8x16_p bmask = {4,5,6,7, 0,0,0,0, 12,13,14,15, 0,0,0,0};
+    // Small optimization... We can avoid a zero vector {0,0,0,0} and the
+    // load by using an element that will always be 0. Bytes 1,2, 5,6, 9,10,
+    // 13,14 are zero because we are using a vector unsigned int. There are
+    // no borrows from those bytes using a vector unsigned int. The
+    // code below uses byte 2 for the 0 value.
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p bmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
     const uint32x4_p amask = {1, 1, 1, 1};
+#else
+    const uint8x16_p bmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
+    const uint32x4_p amask = {1, 1, 1, 1};
+#endif
 
-    // subc sets the compliment of borrow, so we have to un-compliment it using andc.
+    // subc sets the compliment of borrow, so we have to un-compliment it
+    // using andc.
     uint32x4_p bw = vec_subc(vec1, vec2);
     bw = vec_andc(amask, bw);
     bw = vec_perm(bw, bw, bmask);
@@ -2030,7 +2055,18 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 {
     // 64-bit elements available at POWER7 with VSX, but subudm requires POWER8
-    return vec_sub(vec1, vec2);
+    const uint64x2_p res = vec_sub(vec1, vec2);
+
+#if defined(CRYPTOPP_DEBUG)
+    // Test 32-bit sub in debug builds while we are here.
+    const uint32x4_p x = (uint32x4_p)vec1;
+    const uint32x4_p y = (uint32x4_p)vec2;
+    const uint32x4_p r = VecSub64(x, y);
+
+    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+#endif
+
+    return res;
 }
 #endif
 
@@ -2046,7 +2082,7 @@ inline uint64x2_p VecSub64(const uint64x2_p& vec1, const uint64x2_p& vec2)
 template<unsigned int C>
 inline uint32x4_p VecRotateLeft64(const uint32x4_p vec)
 {
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) && !defined(CRYPTOPP_DEBUG)
     // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
     return (uint32x4_p)VecRotateLeft<C>((uint64x2_p)vec);
 #else
@@ -2083,8 +2119,6 @@ inline uint32x4_p VecRotateLeft64(const uint32x4_p vec)
 #endif
 }
 
-// Disable during testing
-#if 0
 /// \brief Rotate a vector left as if uint64x2_p
 /// \param vec the vector
 /// \returns vector
@@ -2105,9 +2139,7 @@ inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p vec)
     return VecPermute(vec, m);
 #endif
 }
-#endif
 
-// 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
 #if defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Rotate a vector left as if uint64x2_p
 /// \tparam C rotate bit count
@@ -2121,7 +2153,18 @@ inline uint32x4_p VecRotateLeft64<8>(const uint32x4_p vec)
 template<unsigned int C>
 inline uint64x2_p VecRotateLeft64(const uint64x2_p vec)
 {
-    return VecRotateLeft<C>(vec);
+    // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
+    const uint64x2_p res = VecRotateLeft<C>(vec);
+
+#if defined(CRYPTOPP_DEBUG)
+    // Test 32-bit rotate in debug builds while we are here.
+    const uint32x4_p x = (uint32x4_p)vec;
+    const uint32x4_p r = VecRotateLeft64<C>(x);
+
+    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+#endif
+
+    return res;
 }
 #endif
 
@@ -2137,7 +2180,7 @@ inline uint64x2_p VecRotateLeft64(const uint64x2_p vec)
 template<unsigned int C>
 inline uint32x4_p VecRotateRight64(const uint32x4_p vec)
 {
-#if defined(_ARCH_PWR8)
+#if defined(_ARCH_PWR8) && !defined(CRYPTOPP_DEBUG)
     // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
     return (uint32x4_p)VecRotateRight<C>((uint64x2_p)vec);
 #else
@@ -2174,8 +2217,6 @@ inline uint32x4_p VecRotateRight64(const uint32x4_p vec)
 #endif
 }
 
-// Disable during testing
-#if 0
 /// \brief Rotate a vector right as if uint64x2_p
 /// \param vec the vector
 /// \returns vector
@@ -2197,7 +2238,6 @@ inline uint32x4_p VecRotateRight64<8>(const uint32x4_p vec)
     return VecPermute(vec, m);
 #endif
 }
-#endif
 
 #if defined(__VSX__) || defined(_ARCH_PWR8) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
 /// \brief Rotate a vector right as if uint64x2_p
@@ -2212,7 +2252,18 @@ inline uint32x4_p VecRotateRight64<8>(const uint32x4_p vec)
 template<unsigned int C>
 inline uint64x2_p VecRotateRight64(const uint64x2_p vec)
 {
-    return VecRotateRight<C>(vec);
+    // 64-bit elements available at POWER7 with VSX, but vec_rl and vec_sl require POWER8
+    const uint64x2_p res = VecRotateRight<C>(vec);
+
+#if defined(CRYPTOPP_DEBUG)
+    // Test 32-bit rotate in debug builds while we are here.
+    const uint32x4_p x = (uint32x4_p)vec;
+    const uint32x4_p r = VecRotateRight64<C>(x);
+
+    CRYPTOPP_ASSERT(vec_all_eq(res, (uint64x2_p)r) == 1);
+#endif
+
+    return res;
 }
 #endif
 
