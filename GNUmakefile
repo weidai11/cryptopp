@@ -185,23 +185,33 @@ else ifeq ($(CLANG_COMPILER),1)
   CC=clang
 endif
 
-# Default prefix for make install
+# http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
 ifeq ($(PREFIX),)
 PREFIX = /usr/local
-endif
-
-# http://www.gnu.org/prep/standards/html_node/Directory-Variables.html
-ifeq ($(DATADIR),)
-DATADIR := $(PREFIX)/share
+PC_PREFIX = /usr/local
+else
+PC_PREFIX = $(PREFIX)
 endif
 ifeq ($(LIBDIR),)
 LIBDIR := $(PREFIX)/lib
+PC_LIBDIR = $${prefix}/lib
+else
+PC_LIBDIR = $(LIBDIR)
 endif
-ifeq ($(BINDIR),)
-BINDIR := $(PREFIX)/bin
+ifeq ($(DATADIR),)
+DATADIR := $(PREFIX)/share
+PC_DATADIR = $${prefix}/share
+else
+PC_DATADIR = $(DATADIR)
 endif
 ifeq ($(INCLUDEDIR),)
 INCLUDEDIR := $(PREFIX)/include
+PC_INCLUDEDIR = $${prefix}/include
+else
+PC_INCLUDEDIR = $(INCLUDEDIR)
+endif
+ifeq ($(BINDIR),)
+BINDIR := $(PREFIX)/bin
 endif
 
 # We honor ARFLAGS, but the "v" option used by default causes a noisy make
@@ -1407,9 +1417,10 @@ dlltest.exe: cryptopp.dll $(DLLTESTOBJS)
 libcryptopp.pc:
 	@echo '# Crypto++ package configuration file' > libcryptopp.pc
 	@echo '' >> libcryptopp.pc
-	@echo 'prefix=$(PREFIX)' >> libcryptopp.pc
-	@echo 'libdir=$(LIBDIR)' >> libcryptopp.pc
-	@echo 'includedir=$${prefix}/include' >> libcryptopp.pc
+	@echo 'prefix=$(PC_PREFIX)' >> libcryptopp.pc
+	@echo 'libdir=$(PC_LIBDIR)' >> libcryptopp.pc
+	@echo 'includedir=$(PC_INCLUDEDIR)' >> libcryptopp.pc
+	@echo 'datadir=$(PC_DATADIR)' >> libcryptopp.pc
 	@echo '' >> libcryptopp.pc
 	@echo 'Name: Crypto++' >> libcryptopp.pc
 	@echo 'Description: Crypto++ cryptographic library' >> libcryptopp.pc
