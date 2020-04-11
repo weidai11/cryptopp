@@ -127,7 +127,7 @@ inline void SPECK64_Enc_Block(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t x1 = vuzpq_u32(block0, block1).val[1];
     uint32x4_t y1 = vuzpq_u32(block0, block1).val[0];
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
@@ -178,7 +178,7 @@ inline void SPECK64_Enc_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
     uint32x4_t x3 = vuzpq_u32(block4, block5).val[1];
     uint32x4_t y3 = vuzpq_u32(block4, block5).val[0];
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         const uint32x4_t rk = vdupq_n_u32(subkeys[i]);
 
@@ -318,7 +318,7 @@ inline void SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
     __m128i x1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(3,1,3,1)));
     __m128i y1 = _mm_castps_si128(_mm_shuffle_ps(t0, t1, _MM_SHUFFLE(2,0,2,0)));
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
         const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+i*4));
@@ -382,7 +382,7 @@ inline void SPECK64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
     __m128i x3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(3,1,3,1)));
     __m128i y3 = _mm_castps_si128(_mm_shuffle_ps(t4, t5, _MM_SHUFFLE(2,0,2,0)));
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
         const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+i*4));
@@ -511,7 +511,7 @@ void SPECK64_Enc_Block(uint32x4_p &block0, uint32x4_p &block1,
     uint32x4_p x1 = VecPermute(block0, block1, m1);
     uint32x4_p y1 = VecPermute(block0, block1, m2);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
         const uint32x4_p rk = VecLoadAligned(subkeys+i*4);
@@ -604,7 +604,7 @@ void SPECK64_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     uint32x4_p x3 = (uint32x4_p)VecPermute(block4, block5, m1);
     uint32x4_p y3 = (uint32x4_p)VecPermute(block4, block5, m2);
 
-    for (int i=0; i < static_cast<int>(rounds); ++i)
+    for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
         // Round keys are pre-splated in forward direction
         const uint32x4_p rk = VecLoadAligned(subkeys+i*4);
