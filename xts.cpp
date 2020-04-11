@@ -34,6 +34,10 @@
 # endif
 #endif
 
+#if defined(__ALTIVEC__)
+# include "ppc_simd.h"
+#endif
+
 ANONYMOUS_NAMESPACE_BEGIN
 
 using namespace CryptoPP;
@@ -75,6 +79,10 @@ inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t 
 #elif defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
     for (size_t i=0; i<count; i+=16)
         vst1q_u8(output+i, veorq_u8(vld1q_u8(input+i), vld1q_u8(mask+i)));
+
+#elif defined(__ALTIVEC__)
+    for (size_t i=0; i<count; i+=16)
+        VecStore(VecXor(VecLoad(input+i), VecLoad(mask+i)), output+i);
 
 #else
     xorbuf(output, input, mask, count);
