@@ -12,7 +12,7 @@
 #include "misc.h"
 
 // Uncomment for benchmarking C++ against SSE or NEON.
-// Do so in both simon.cpp and simon-simd.cpp.
+// Do so in both simon.cpp and simon_simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 

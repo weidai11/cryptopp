@@ -17,7 +17,7 @@
 #include "misc.h"
 
 // Uncomment for benchmarking C++ against SSE.
-// Do so in both simon.cpp and simon-simd.cpp.
+// Do so in both simon.cpp and simon_simd.cpp.
 // #undef CRYPTOPP_AESNI_AVAILABLE
 
 #if (CRYPTOPP_AESNI_AVAILABLE)

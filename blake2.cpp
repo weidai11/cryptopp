@@ -22,7 +22,7 @@
 #include "cpu.h"
 
 // Uncomment for benchmarking C++ against SSE2 or NEON.
-// Do so in both blake2.cpp and blake2-simd.cpp.
+// Do so in both blake2.cpp and blake2_simd.cpp.
 // #undef CRYPTOPP_SSE41_AVAILABLE
 // #undef CRYPTOPP_ARM_NEON_AVAILABLE
 // #undef CRYPTOPP_ALTIVEC_AVAILABLE
