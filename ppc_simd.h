@@ -704,7 +704,6 @@ inline uint32x4_p VecLoadBE(const byte src[16])
     // CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
 
-    // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(0, CONST_V8_CAST(src));
@@ -739,7 +738,6 @@ inline uint32x4_p VecLoadBE(int off, const byte src[16])
     // CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     CRYPTOPP_UNUSED(addr);
 
-    // Power9/ISA 3.0 provides vec_xl_be for all datatypes.
 #if defined(_ARCH_PWR9)
     CRYPTOPP_ASSERT(addr % GetAlignmentOf<byte>() == 0);
     return (uint32x4_p)vec_xl_be(off, CONST_V8_CAST(src));
