@@ -1,4 +1,4 @@
-// shacla2-simd.cpp - written and placed in the public domain by
+// shacla2_simd.cpp - written and placed in the public domain by
 //                    Jeffrey Walton and Jack Lloyd
 //
 //    Jack Lloyd and the Botan team allowed Crypto++ to use parts of

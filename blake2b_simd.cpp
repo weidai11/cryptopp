@@ -1,4 +1,4 @@
-// blake2-simd.cpp - written and placed in the public domain by
+// blake2_simd.cpp - written and placed in the public domain by
 //                   Samuel Neves, Jeffrey Walton, Uri Blumenthal
 //                   and Marcel Raad.
 //
