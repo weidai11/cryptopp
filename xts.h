@@ -134,10 +134,16 @@ protected:
         {return const_cast<XTS_ModeBase*>(this)->AccessTweakCipher();}
 
     // Buffers are sized based on ParallelBlocks
-    SecByteBlock m_xregister;
-    SecByteBlock m_xworkspace;
+    AlignedSecByteBlock m_xregister;
+    AlignedSecByteBlock m_xworkspace;
 
+    // Intel lacks the SSE registers to run 8 or 12 parallel blocks.
+    // Do not change this value after compiling. It has no effect.
+#if CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86
     enum {ParallelBlocks = 4};
+#else
+    enum {ParallelBlocks = 12};
+#endif
 };
 
 /// \brief XTS block cipher mode of operation implementation

@@ -248,37 +248,100 @@ void XTS_ModeBase::ResizeBuffers()
     m_xregister.New(GetBlockCipher().BlockSize()*ParallelBlocks);
 }
 
+// ProcessData runs either 12-4-1 blocks, 8-2-1 or 4-1 blocks. Which is
+// selected depends on ParallelBlocks in the header file. 12-4-1 or 8-2-1
+// can be used on Aarch64 and PowerPC. Intel should use 4-1 due to lack
+// of registers. The unneeded code paths should be removed by optimizer.
+// The extra gyrations save us 1.8 cpb on Aarch64 and 2.1 cpb on PowerPC.
 void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t length)
 {
     // data unit is multiple of 16 bytes
     CRYPTOPP_ASSERT(length % BlockSize() == 0);
 
+    enum { lastParallelBlock = ParallelBlocks-1 };
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const size_t parallelSize = blockSize*ParallelBlocks;
 
     // encrypt the data unit, optimal size at a time
     while (length >= parallelSize)
     {
-        // If this fires the GF_Double'ing below is not in sync
-        CRYPTOPP_ASSERT(ParallelBlocks == 4);
+        // m_xregister[0] always points to the next tweak.
+        GF_Double(m_xregister+1*blockSize, m_xregister+0*blockSize, blockSize);
+        GF_Double(m_xregister+2*blockSize, m_xregister+1*blockSize, blockSize);
+        GF_Double(m_xregister+3*blockSize, m_xregister+2*blockSize, blockSize);
 
+        if (ParallelBlocks > 4)
+        {
+            GF_Double(m_xregister+4*blockSize, m_xregister+3*blockSize, blockSize);
+            GF_Double(m_xregister+5*blockSize, m_xregister+4*blockSize, blockSize);
+            GF_Double(m_xregister+6*blockSize, m_xregister+5*blockSize, blockSize);
+            GF_Double(m_xregister+7*blockSize, m_xregister+6*blockSize, blockSize);
+        }
+        if (ParallelBlocks > 8)
+        {
+            GF_Double(m_xregister+8*blockSize, m_xregister+7*blockSize, blockSize);
+            GF_Double(m_xregister+9*blockSize, m_xregister+8*blockSize, blockSize);
+            GF_Double(m_xregister+10*blockSize, m_xregister+9*blockSize, blockSize);
+            GF_Double(m_xregister+11*blockSize, m_xregister+10*blockSize, blockSize);
+        }
+
+        // merge the tweak into the input block
+        XorBuffer(m_xworkspace, inString, m_xregister, parallelSize);
+
+        // encrypt one block, merge the tweak into the output block
+        GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister,
+            outString, parallelSize, BlockTransformation::BT_AllowParallel);
+
+        // m_xregister[0] always points to the next tweak.
+        GF_Double(m_xregister+0, m_xregister+lastParallelBlock*blockSize, blockSize);
+
+        inString += parallelSize;
+        outString += parallelSize;
+        length -= parallelSize;
+    }
+
+    // encrypt the data unit, 4 blocks at a time
+    while (ParallelBlocks == 12 && length >= blockSize*4)
+    {
         // m_xregister[0] always points to the next tweak.
         GF_Double(m_xregister+1*blockSize, m_xregister+0*blockSize, blockSize);
         GF_Double(m_xregister+2*blockSize, m_xregister+1*blockSize, blockSize);
         GF_Double(m_xregister+3*blockSize, m_xregister+2*blockSize, blockSize);
 
         // merge the tweak into the input block
-        XorBuffer(m_xworkspace, inString, m_xregister, parallelSize);
+        XorBuffer(m_xworkspace, inString, m_xregister, blockSize*4);
 
         // encrypt one block, merge the tweak into the output block
-        GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister, outString, parallelSize, BlockTransformation::BT_AllowParallel);
+        GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister,
+            outString, blockSize*4, BlockTransformation::BT_AllowParallel);
 
         // m_xregister[0] always points to the next tweak.
         GF_Double(m_xregister+0, m_xregister+3*blockSize, blockSize);
 
-        inString += parallelSize;
-        outString += parallelSize;
-        length -= parallelSize;
+        inString += blockSize*4;
+        outString += blockSize*4;
+        length -= blockSize*4;
+    }
+
+    // encrypt the data unit, 2 blocks at a time
+    while (ParallelBlocks == 8 && length >= blockSize*2)
+    {
+        // m_xregister[0] always points to the next tweak.
+        GF_Double(m_xregister+1*blockSize, m_xregister+0*blockSize, blockSize);
+
+        // merge the tweak into the input block
+        XorBuffer(m_xworkspace, inString, m_xregister, blockSize*2);
+
+        // encrypt one block, merge the tweak into the output block
+        GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister,
+            outString, blockSize*2, BlockTransformation::BT_AllowParallel);
+
+        // m_xregister[0] always points to the next tweak.
+        GF_Double(m_xregister+0, m_xregister+1*blockSize, blockSize);
+
+        inString += blockSize*2;
+        outString += blockSize*2;
+        length -= blockSize*2;
     }
 
     // encrypt the data unit, blocksize at a time
