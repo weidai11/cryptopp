@@ -63,7 +63,7 @@ inline void XorBuffer(byte *output, const byte *input, const byte *mask, size_t 
     CRYPTOPP_ASSERT(count >= 16 && (count % 16 == 0));
 
 #if defined(CRYPTOPP_DISABLE_ASM)
-	xorbuf(output, input, mask, count);
+    xorbuf(output, input, mask, count);
 
 #elif defined(__SSE2__) || defined(_M_X64)
     for (size_t i=0; i<count; i+=16)
@@ -247,10 +247,9 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
 
     const unsigned int blockSize = GetBlockCipher().BlockSize();
     const size_t parallelSize = blockSize*ParallelBlocks;
-    size_t i = 0;
 
     // encrypt the data unit, optimal size at a time
-    for ( ; i+parallelSize<=length; i+=parallelSize)
+    while (length >= parallelSize)
     {
         // If this fires the GF_Double'ing below is not in sync
         CRYPTOPP_ASSERT(ParallelBlocks == 4);
@@ -261,29 +260,37 @@ void XTS_ModeBase::ProcessData(byte *outString, const byte *inString, size_t len
         GF_Double(m_xregister+3*blockSize, m_xregister+2*blockSize, blockSize);
 
         // merge the tweak into the input block
-        XorBuffer(m_xworkspace, inString+i, m_xregister, parallelSize);
+        XorBuffer(m_xworkspace, inString, m_xregister, parallelSize);
 
         // encrypt one block, merge the tweak into the output block
-        GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister, outString+i, parallelSize, BlockTransformation::BT_AllowParallel);
+        GetBlockCipher().AdvancedProcessBlocks(m_xworkspace, m_xregister, outString, parallelSize, BlockTransformation::BT_AllowParallel);
 
         // m_xregister[0] always points to the next tweak.
-        GF_Double(m_xregister+0, m_xregister+(ParallelBlocks-1)*blockSize, blockSize);
+        GF_Double(m_xregister+0, m_xregister+3*blockSize, blockSize);
+
+        inString += parallelSize;
+        outString += parallelSize;
+        length -= parallelSize;
     }
 
     // encrypt the data unit, blocksize at a time
-    for ( ; i<length; i+=blockSize)
+    while (length)
     {
         // merge the tweak into the input block
-        XorBuffer(m_xworkspace, inString+i, m_xregister, blockSize);
+        XorBuffer(m_xworkspace, inString, m_xregister, blockSize);
 
         // encrypt one block
         GetBlockCipher().ProcessBlock(m_xworkspace);
 
         // merge the tweak into the output block
-        XorBuffer(outString+i, m_xworkspace, m_xregister, blockSize);
+        XorBuffer(outString, m_xworkspace, m_xregister, blockSize);
 
         // Multiply T by alpha
         GF_Double(m_xregister, blockSize);
+
+        inString += blockSize;
+        outString += blockSize;
+        length -= blockSize;
     }
 }
 
