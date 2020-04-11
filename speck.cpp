@@ -293,6 +293,14 @@ void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
             presplat[j+0] = presplat[j+1] = presplat[j+2] = presplat[j+3] = m_rkeys[i];
         m_rkeys.swap(presplat);
     }
+#elif CRYPTOPP_SSE41_AVAILABLE
+    if (IsForwardTransformation() && HasSSE41())
+    {
+        AlignedSecBlock presplat(m_rkeys.size()*4);
+        for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=4)
+            presplat[j+0] = presplat[j+1] = presplat[j+2] = presplat[j+3] = m_rkeys[i];
+        m_rkeys.swap(presplat);
+    }
 #endif
 }
 
@@ -420,6 +428,14 @@ void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     // Pre-splat the round keys for Altivec forward transformation
 #if CRYPTOPP_ALTIVEC_AVAILABLE
     if (IsForwardTransformation() && HasAltivec())
+    {
+        AlignedSecBlock presplat(m_rkeys.size()*2);
+        for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=2)
+            presplat[j+0] = presplat[j+1] = m_rkeys[i];
+        m_rkeys.swap(presplat);
+    }
+#elif CRYPTOPP_SSSE3_AVAILABLE
+    if (IsForwardTransformation() && HasSSSE3())
     {
         AlignedSecBlock presplat(m_rkeys.size()*2);
         for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=2)

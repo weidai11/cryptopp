@@ -374,19 +374,18 @@ inline void SIMON128_Enc_Block(__m128i &block0, __m128i &block1,
 
     for (size_t i = 0; i < static_cast<size_t>(rounds & ~1)-1; i += 2)
     {
-        const __m128i rk1 = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk1 = _mm_load_si128(CONST_M128_CAST(subkeys+i*2));
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON128_f(x1)), rk1);
 
-        const __m128i rk2 = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i+1)));
+        const __m128i rk2 = _mm_load_si128(CONST_M128_CAST(subkeys+(i+1)*2));
         x1 = _mm_xor_si128(_mm_xor_si128(x1, SIMON128_f(y1)), rk2);
     }
 
     if (rounds & 1)
     {
-        const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+rounds-1)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+(rounds-1)*2));
 
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON128_f(x1)), rk);
         Swap128(x1, y1);
@@ -411,14 +410,14 @@ inline void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 
     for (size_t i = 0; i < static_cast<size_t>(rounds & ~1) - 1; i += 2)
     {
-        const __m128i rk1 = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys + i)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk1 = _mm_load_si128(CONST_M128_CAST(subkeys+i*2));
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON128_f(x1)), rk1);
         y2 = _mm_xor_si128(_mm_xor_si128(y2, SIMON128_f(x2)), rk1);
         y3 = _mm_xor_si128(_mm_xor_si128(y3, SIMON128_f(x3)), rk1);
 
-        const __m128i rk2 = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys + i + 1)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk2 = _mm_load_si128(CONST_M128_CAST(subkeys+(i+1)*2));
         x1 = _mm_xor_si128(_mm_xor_si128(x1, SIMON128_f(y1)), rk2);
         x2 = _mm_xor_si128(_mm_xor_si128(x2, SIMON128_f(y2)), rk2);
         x3 = _mm_xor_si128(_mm_xor_si128(x3, SIMON128_f(y3)), rk2);
@@ -426,8 +425,8 @@ inline void SIMON128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 
     if (rounds & 1)
     {
-        const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys + rounds - 1)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+(rounds-1)*2));
         y1 = _mm_xor_si128(_mm_xor_si128(y1, SIMON128_f(x1)), rk);
         y2 = _mm_xor_si128(_mm_xor_si128(y2, SIMON128_f(x2)), rk);
         y3 = _mm_xor_si128(_mm_xor_si128(y3, SIMON128_f(x3)), rk);
@@ -554,9 +553,9 @@ using CryptoPP::VecSub64;
 using CryptoPP::VecAnd64;
 using CryptoPP::VecOr64;
 using CryptoPP::VecXor64;
-using CryptoPP::VecSplatElement64;
 using CryptoPP::VecRotateLeft64;
 using CryptoPP::VecRotateRight64;
+using CryptoPP::VecSplatElement64;
 using CryptoPP::VecLoad;
 using CryptoPP::VecLoadAligned;
 using CryptoPP::VecPermute;
@@ -592,7 +591,7 @@ inline void SIMON128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigne
         // Round keys are pre-splated in forward direction
         const word32* ptr1 = reinterpret_cast<const word32*>(subkeys+i*2);
         const simon128_t rk1 = (simon128_t)VecLoadAligned(ptr1);
-        const word32* ptr2 = reinterpret_cast<const word32*>(subkeys+i*2+2);
+        const word32* ptr2 = reinterpret_cast<const word32*>(subkeys+(i+1)*2);
         const simon128_t rk2 = (simon128_t)VecLoadAligned(ptr2);
 
         y1 = VecXor64(VecXor64(y1, SIMON128_f(x1)), rk1);
@@ -602,7 +601,7 @@ inline void SIMON128_Enc_Block(uint32x4_p &block, const word64 *subkeys, unsigne
     if (rounds & 1)
     {
         // Round keys are pre-splated in forward direction
-        const word32* ptr = reinterpret_cast<const word32*>(subkeys+rounds*2-2);
+        const word32* ptr = reinterpret_cast<const word32*>(subkeys+(rounds-1)*2);
         const simon128_t rk = (simon128_t)VecLoadAligned(ptr);
 
         y1 = VecXor64(VecXor64(y1, SIMON128_f(x1)), rk);
@@ -697,7 +696,7 @@ inline void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
         const word32* ptr1 = reinterpret_cast<const word32*>(subkeys+i*2);
         const simon128_t rk1 = (simon128_t)VecLoadAligned(ptr1);
 
-        const word32* ptr2 = reinterpret_cast<const word32*>(subkeys+i*2+2);
+        const word32* ptr2 = reinterpret_cast<const word32*>(subkeys+(i+1)*2);
         const simon128_t rk2 = (simon128_t)VecLoadAligned(ptr2);
 
         y1 = VecXor64(VecXor64(y1, SIMON128_f(x1)), rk1);
@@ -712,7 +711,7 @@ inline void SIMON128_Enc_6_Blocks(uint32x4_p &block0, uint32x4_p &block1,
     if (rounds & 1)
     {
         // Round keys are pre-splated in forward direction
-        const word32* ptr = reinterpret_cast<const word32*>(subkeys+rounds*2-2);
+        const word32* ptr = reinterpret_cast<const word32*>(subkeys+(rounds-1)*2);
         const simon128_t rk = (simon128_t)VecLoadAligned(ptr);
 
         y1 = VecXor64(VecXor64(y1, SIMON128_f(x1)), rk);

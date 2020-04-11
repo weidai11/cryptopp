@@ -332,8 +332,8 @@ inline void SPECK128_Enc_Block(__m128i &block0, __m128i &block1,
 
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
-        const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+i*2));
 
         x1 = RotateRight64<8>(x1);
         x1 = _mm_add_epi64(x1, y1);
@@ -361,8 +361,8 @@ inline void SPECK128_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 
     for (size_t i=0; i < static_cast<size_t>(rounds); ++i)
     {
-        const __m128i rk = _mm_castpd_si128(
-            _mm_loaddup_pd(CONST_DOUBLE_CAST(subkeys+i)));
+        // Round keys are pre-splated in forward direction
+        const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+i*2));
 
         x1 = RotateRight64<8>(x1);
         x2 = RotateRight64<8>(x2);

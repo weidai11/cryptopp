@@ -256,6 +256,13 @@ inline void SPECK64_Dec_6_Blocks(uint32x4_t &block0, uint32x4_t &block1,
 
 #if (CRYPTOPP_SSE41_AVAILABLE)
 
+#ifndef M128_CAST
+# define M128_CAST(x) ((__m128i *)(void *)(x))
+#endif
+#ifndef CONST_M128_CAST
+# define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+#endif
+
 template <unsigned int R>
 inline __m128i RotateLeft32(const __m128i& val)
 {
@@ -313,7 +320,8 @@ inline void SPECK64_Enc_Block(__m128i &block0, __m128i &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-        const __m128i rk = _mm_set1_epi32(subkeys[i]);
+        // Round keys are pre-splated in forward direction
+        const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+i*4));
 
         x1 = RotateRight32<8>(x1);
         x1 = _mm_add_epi32(x1, y1);
@@ -376,7 +384,8 @@ inline void SPECK64_Enc_6_Blocks(__m128i &block0, __m128i &block1,
 
     for (int i=0; i < static_cast<int>(rounds); ++i)
     {
-        const __m128i rk = _mm_set1_epi32(subkeys[i]);
+        // Round keys are pre-splated in forward direction
+        const __m128i rk = _mm_load_si128(CONST_M128_CAST(subkeys+i*4));
 
         x1 = RotateRight32<8>(x1);
         x2 = RotateRight32<8>(x2);
