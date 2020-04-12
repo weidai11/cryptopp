@@ -44,12 +44,9 @@ ifneq ($(wildcard /usr/xpg4/bin/sed),)
   SED := /usr/xpg4/bin/sed
 endif
 
-# Yet another Clang hack. I think the LLVM devs are making the shit up
-# as they go. Also see https://github.com/weidai11/cryptopp/issues/831.
+# Clang is reporting armv8l-unknown-linux-gnueabihf
+# for ARMv7 images on Aarch64 hardware.
 MACHINEX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
-ifeq ($(MACHINEX),armv8l-unknown-linux-gnueabihf)
-  MACHINEX := armv7l-unknown-linux-gnueabihf
-endif
 HOSTX := $(shell echo $(MACHINEX) | cut -f 1 -d '-')
 ifeq ($(HOSTX),)
   HOSTX := $(shell uname -m 2>/dev/null)
@@ -61,7 +58,7 @@ IS_PPC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'ppc|po
 IS_PPC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'ppc64|powerpc64|power64')
 IS_SPARC32 := $(shell echo "$(HOSTX)" | $(GREP) -v "64" | $(GREP) -i -c -E 'sun|sparc')
 IS_SPARC64 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'sun|sparc64')
-IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
+IS_ARM32 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf|arm8l')
 IS_ARMV8 := $(shell echo "$(HOSTX)" | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 
 # Attempt to determine platform

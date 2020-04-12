@@ -37,12 +37,9 @@ IS_IOS ?= 0
 IS_ANDROID ?= 0
 IS_ARM_EMBEDDED ?= 0
 
-# Yet another Clang hack. I think the LLVM devs are making the shit up
-# as they go. Also see https://github.com/weidai11/cryptopp/issues/831.
+# Clang is reporting armv8l-unknown-linux-gnueabihf
+# for ARMv7 images on Aarch64 hardware.
 MACHINEX := $(shell $(CXX) $(CXXFLAGS) -dumpmachine 2>/dev/null)
-ifeq ($(MACHINEX),armv8l-unknown-linux-gnueabihf)
-  MACHINEX := armv7l-unknown-linux-gnueabihf
-endif
 HOSTX := $(shell echo $(MACHINEX) | cut -f 1 -d '-')
 ifeq ($(HOSTX),)
   HOSTX := $(shell uname -m 2>/dev/null)
