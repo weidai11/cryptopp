@@ -385,7 +385,7 @@ bool TestSettings()
 	bool hasSM3 = HasSM3();
 	bool hasSM4 = HasSM4();
 
-	std::cout << "passed:  ";
+	std::cout << "passed:  hasASIMD == 1";
 	std::cout << ", hasCRC32 == " << hasCRC32 << ", hasAES == " << hasAES;
 	std::cout << ", hasPMULL == " << hasPMULL << ", hasSHA1 == " << hasSHA1;
 	std::cout << ", hasSHA2 == " << hasSHA2 << ", hasSHA512 == " << hasSHA512;
