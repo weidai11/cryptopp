@@ -250,19 +250,19 @@ unsigned int Rijndael::Base::OptimalDataAlignment() const
 {
 #if (CRYPTOPP_AESNI_AVAILABLE)
 	if (HasAESNI())
-		return GetAlignmentOf<word32>();
+		return 16;  // load __m128i
 #endif
 #if (CRYPTOPP_ARM_AES_AVAILABLE)
 	if (HasAES())
-		return GetAlignmentOf<word32>();
+		return 4;  // load uint32x4_t
 #endif
 #if (CRYPTOGAMS_ARM_AES)
 	if (HasARMv7())
-		return GetAlignmentOf<word32>();
+		return 1;  // CFB mode error without 1
 #endif
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
-		return GetAlignmentOf<word32>();
+		return 16;  // load uint32x4_p
 #endif
 	return BlockTransformation::OptimalDataAlignment();
 }
