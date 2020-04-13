@@ -257,8 +257,10 @@ unsigned int Rijndael::Base::OptimalDataAlignment() const
 		return 4;  // load uint32x4_t
 #endif
 #if (CRYPTOGAMS_ARM_AES)
+	// Must use 1 here for Cryptogams AES. Also see
+	// https://github.com/weidai11/cryptopp/issues/683
 	if (HasARMv7())
-		return 1;  // CFB mode error without 1
+		return 1;
 #endif
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
 	if (HasAES())
@@ -330,8 +332,8 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #if (CRYPTOGAMS_ARM_AES)
 extern "C" int AES_set_encrypt_key(const unsigned char *userKey, const int bitLen, word32 *rkey);
 extern "C" int AES_set_decrypt_key(const unsigned char *userKey, const int bitLen, word32 *rkey);
-extern "C" void AES_encrypt(const unsigned char in[16], unsigned char out[16], const word32 *rkey);
-extern "C" void AES_decrypt(const unsigned char in[16], unsigned char out[16], const word32 *rkey);
+extern "C" void AES_encrypt_block(const unsigned char *in, unsigned char *out, const word32 *rkey);
+extern "C" void AES_decrypt_block(const unsigned char *in, unsigned char *out, const word32 *rkey);
 #endif
 
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
@@ -355,13 +357,13 @@ int CRYPTOGAMS_set_decrypt_key(const byte *userKey, const int bitLen, word32 *rk
 }
 void CRYPTOGAMS_encrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
 {
-	AES_encrypt(inBlock, outBlock, rkey);
+	AES_encrypt_block(inBlock, outBlock, rkey);
 	if (xorBlock)
 		xorbuf (outBlock, xorBlock, 16);
 }
 void CRYPTOGAMS_decrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
 {
-	AES_decrypt(inBlock, outBlock, rkey);
+	AES_decrypt_block(inBlock, outBlock, rkey);
 	if (xorBlock)
 		xorbuf (outBlock, xorBlock, 16);
 }
@@ -400,7 +402,7 @@ void Rijndael::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLen, c
 	if (HasARMv7())
 	{
 		m_rounds = keyLen/4 + 6;
-		m_key.New(4*(15+1)+4);
+		m_key.New(4*(14+1)+4);
 
 		if (IsForwardTransformation())
 			CRYPTOGAMS_set_encrypt_key(userKey, keyLen*8, m_key.begin());

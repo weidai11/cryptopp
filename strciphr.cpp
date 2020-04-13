@@ -36,7 +36,7 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 	if (m_leftOver > 0)
 	{
 		const size_t len = STDMIN(m_leftOver, length);
-		memcpy(outString, PtrSub(KeystreamBufferEnd(), m_leftOver), len);
+		std::memcpy(outString, PtrSub(KeystreamBufferEnd(), m_leftOver), len);
 
 		length -= len; m_leftOver -= len;
 		outString = PtrAdd(outString, len);
@@ -60,7 +60,7 @@ void AdditiveCipherTemplate<S>::GenerateBlock(byte *outString, size_t length)
 		size_t bufferIterations = bufferByteSize / bytesPerIteration;
 
 		policy.WriteKeystream(PtrSub(KeystreamBufferEnd(), bufferByteSize), bufferIterations);
-		memcpy(outString, PtrSub(KeystreamBufferEnd(), bufferByteSize), length);
+		std::memcpy(outString, PtrSub(KeystreamBufferEnd(), bufferByteSize), length);
 		m_leftOver = bufferByteSize - length;
 	}
 }
@@ -71,11 +71,13 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	if (m_leftOver > 0)
 	{
 		const size_t len = STDMIN(m_leftOver, length);
-		xorbuf(outString, inString, KeystreamBufferEnd()-m_leftOver, len);
+		xorbuf(outString, inString, PtrSub(KeystreamBufferEnd(), m_leftOver), len);
 
 		length -= len; m_leftOver -= len;
 		inString = PtrAdd(inString, len);
 		outString = PtrAdd(outString, len);
+
+		if (!length) {return;}
 	}
 
 	PolicyInterface &policy = this->AccessPolicy();
@@ -85,12 +87,17 @@ void AdditiveCipherTemplate<S>::ProcessData(byte *outString, const byte *inStrin
 	{
 		const size_t iterations = length / bytesPerIteration;
 		unsigned int alignment = policy.GetAlignment();
-		KeystreamOperation operation = KeystreamOperation((IsAlignedOn(inString, alignment) * 2) | (int)IsAlignedOn(outString, alignment));
+		volatile int inAligned = IsAlignedOn(inString, alignment) << 1;
+		volatile int outAligned = IsAlignedOn(outString, alignment) << 0;
+
+		KeystreamOperation operation = KeystreamOperation(inAligned | outAligned);
 		policy.OperateKeystream(operation, outString, inString, iterations);
 
 		inString = PtrAdd(inString, iterations * bytesPerIteration);
 		outString = PtrAdd(outString, iterations * bytesPerIteration);
 		length -= iterations * bytesPerIteration;
+
+		if (!length) {return;}
 	}
 
 	size_t bufferByteSize = m_buffer.size();
@@ -188,6 +195,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 		outString = PtrAdd(outString, len);
 	}
 
+	if (!length) {return;}
+
 	// TODO: Figure out what is happening on ARM A-32. x86, Aarch64 and PowerPC are OK.
 	//       The issue surfaced for CFB mode when we cut-in Cryptogams AES ARMv7 asm.
 	//       Using 'outString' for both input and output leads to incorrect results.
@@ -196,23 +205,19 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 	//       below costs about 9 cpb for CFB mode on ARM.
 	//
 	//       Also see https://github.com/weidai11/cryptopp/issues/683.
-	//
-	// UPDATE: It appears the issue is related to alignment checks. When we made
-	//       the alignment check result volatile GCC and Clang stopped short-
-	//       circuiting the transform, which is what we wanted. I suspect
-	//       there's a little more to the issue, but we can enable the block again.
 
 	const unsigned int alignment = policy.GetAlignment();
-	volatile bool isAligned = IsAlignedOn(outString, alignment);
-	if (policy.CanIterate() && length >= bytesPerIteration && isAligned)
+	volatile bool inAligned = IsAlignedOn(inString, alignment);
+	volatile bool outAligned = IsAlignedOn(outString, alignment);
+
+	if (policy.CanIterate() && length >= bytesPerIteration && outAligned)
 	{
-		isAligned &= IsAlignedOn(inString, alignment);
-		const CipherDir cipherDir = GetCipherDir(*this);
-		if (isAligned)
+		CipherDir cipherDir = GetCipherDir(*this);
+		if (inAligned)
 			policy.Iterate(outString, inString, cipherDir, length / bytesPerIteration);
 		else
 		{
-			// GCC and Clang does not like this on ARM. The incorrect result is a string
+			// GCC and Clang do not like this on ARM. The incorrect result is a string
 			// of 0's instead of ciphertext (or plaintext if decrypting). The 0's trace
 			// back to the allocation for the std::string in datatest.cpp. Elements in the
 			// string are initialized to their default value, which is 0.
@@ -231,8 +236,8 @@ void CFB_CipherTemplate<BASE>::ProcessData(byte *outString, const byte *inString
 			//
 			//   std::string temp(inString, length);
 			//   policy.Iterate(outString, &temp[0], cipherDir, length / bytesPerIteration);
-			//
-			memcpy(outString, inString, length);
+
+			std::memcpy(outString, inString, length);
 			policy.Iterate(outString, outString, cipherDir, length / bytesPerIteration);
 		}
 		const size_t remainder = length % bytesPerIteration;
@@ -262,7 +267,7 @@ template <class BASE>
 void CFB_EncryptionTemplate<BASE>::CombineMessageAndShiftRegister(byte *output, byte *reg, const byte *message, size_t length)
 {
 	xorbuf(reg, message, length);
-	memcpy(output, reg, length);
+	std::memcpy(output, reg, length);
 }
 
 template <class BASE>
