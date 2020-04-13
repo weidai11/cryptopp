@@ -106,8 +106,8 @@ public:
     protected:
         void SetKey_22(const word64 key[2]);
         void SetKey_24(const word64 key[4]);
-        void ProcessBlock_22(const word64 inBlock[2], const word64 xorBlock[2], word64 outBlock[2]) const;
-        void ProcessBlock_24(const word64 inBlock[2], const word64 xorBlock[2] ,word64 outBlock[2]) const;
+        void ProcessBlock_22(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessBlock_24(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
@@ -152,8 +152,8 @@ public:
     protected:
         void SetKey_44(const word64 key[4]);
         void SetKey_48(const word64 key[8]);
-        void ProcessBlock_44(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const;
-        void ProcessBlock_48(const word64 inBlock[4], const word64 xorBlock[4], word64 outBlock[4]) const;
+        void ProcessBlock_44(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
+        void ProcessBlock_48(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
@@ -197,7 +197,7 @@ public:
 
     protected:
         void SetKey_88(const word64 key[8]);
-        void ProcessBlock_88(const word64 inBlock[8], const word64 xorBlock[8], word64 outBlock[8]) const;
+        void ProcessBlock_88(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
     };
 
     typedef BlockCipherFinal<ENCRYPTION, Base> Encryption;
