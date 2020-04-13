@@ -1558,7 +1558,7 @@ bool ValidateEncoder()
 	decoder.IsolatedInitialize(dparams);
 
 	decoder.Detach(new StringSink(str2));
-	decoder.Put((const byte*) str1.data(), str1.size());
+	decoder.Put(ConstBytePtr(str1), BytePtrSize(str1));
 	decoder.MessageEnd();
 
 	pass = (str1 == std::string(expected)) && pass;

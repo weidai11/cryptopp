@@ -271,7 +271,7 @@ bool ValidateSHAKE_XOF()
 		hash.Update(ConstBytePtr(m), BytePtrSize(m));
 		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
+		fail = r != o;
 		pass = pass & !fail;
 
 		if (fail)
@@ -298,7 +298,7 @@ bool ValidateSHAKE_XOF()
 		hash.Update(ConstBytePtr(m), BytePtrSize(m));
 		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
+		fail = r != o;
 		pass = pass & !fail;
 
 		if (fail)
@@ -323,7 +323,7 @@ bool ValidateSHAKE_XOF()
 		hash.Update(ConstBytePtr(m), BytePtrSize(m));
 		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
+		fail = r != o;
 		pass = pass & !fail;
 
 		if (fail)
@@ -353,7 +353,7 @@ bool ValidateSHAKE_XOF()
 		hash.Update(ConstBytePtr(m), BytePtrSize(m));
 		hash.TruncatedFinal(BytePtr(r), BytePtrSize(r));
 
-		fail = (std::memcmp(r.data(), o.data(), o.size()) != 0);
+		fail = r != o;
 		pass = pass & !fail;
 
 		if (fail)
