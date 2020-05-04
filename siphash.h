@@ -148,7 +148,8 @@ public:
 	/// \param key a byte array used to key the cipher
 	/// \param length the size of the byte array, in bytes
 	SipHash(const byte *key, unsigned int length)
-		{this->UncheckedSetKey(key, length, g_nullNameValuePairs);}
+		{this->ThrowIfInvalidKeyLength(length);
+		 this->UncheckedSetKey(key, length, g_nullNameValuePairs);}
 };
 
 template <unsigned int C, unsigned int D, bool T_128bit>
