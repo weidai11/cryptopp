@@ -22,7 +22,7 @@ Currently the library contains the following algorithms:
                                    Triple-DES (DES-EDE2 and DES-EDE3), TEA, XTEA
 
   block cipher modes of operation  ECB, CBC, CBC ciphertext stealing (CTS),
-                                   CFB, OFB, counter mode (CTR)
+                                   CFB, OFB, counter mode (CTR), XTS
 
      message authentication codes  BLAKE2s, BLAKE2b, CMAC, CBC-MAC, DMAC, GMAC, HMAC,
                                    Poly1305, Poly1305 (IETF), SipHash, Two-Track-MAC,
@@ -92,10 +92,10 @@ The following compilers are supported for this release. Please visit
 http://www.cryptopp.com the most up to date build instructions and porting notes.
 
   * Visual Studio 2003 - 2019
-  * GCC 3.3 - 9.0
+  * GCC 3.3 - 10.1
   * Apple Clang 4.3 - 9.3
-  * LLVM Clang 2.9 - 7.0
-  * C++Builder 2015
+  * LLVM Clang 2.9 - 10.0
+  * C++ Builder 2015
   * Intel C++ Compiler 9 - 16.0
   * Sun Studio 12u1 - 12.6
   * IBM XL C/C++ 10.0 - 13.3
