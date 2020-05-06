@@ -36,12 +36,16 @@ MKDIR ?= mkdir -p
 LN ?= ln -sf
 LDCONF ?= /sbin/ldconfig -n
 
-# Solaris provides a non-Posix grep at /usr/bin
+# Solaris provides a non-Posix sed and grep at /usr/bin
+# Solaris 10 is missing AR in /usr/bin
 ifneq ($(wildcard /usr/xpg4/bin/grep),)
   GREP := /usr/xpg4/bin/grep
 endif
 ifneq ($(wildcard /usr/xpg4/bin/sed),)
   SED := /usr/xpg4/bin/sed
+endif
+ifneq ($(wildcard /usr/xpg4/bin/ar),)
+  AR := /usr/xpg4/bin/ar
 endif
 
 # Clang is reporting armv8l-unknown-linux-gnueabihf
