@@ -827,13 +827,18 @@ endif  # IBM XL C++ compiler
 
 # Add -xregs=no%appl SPARC. SunCC should not use certain registers in library code.
 # https://docs.oracle.com/cd/E18659_01/html/821-1383/bkamt.html
-ifeq ($(IS_SUN)$(SUN_COMPILER),11)
-  ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
+ifneq ($(IS_SPARC32)$(IS_SPARC64),00)
+  ifeq ($(SUN_COMPILER),1)
     ifeq ($(findstring -xregs=no%appl,$(CXXFLAGS)),)
       CRYPTOPP_CXXFLAGS += -xregs=no%appl
     endif  # -xregs
-  endif  # Sparc
-endif  # SunOS
+  endif  # SunCC
+  ifeq ($(GCC_COMPILER),1)
+    ifeq ($(findstring -mno-app-regs,$(CXXFLAGS)),)
+      CRYPTOPP_CXXFLAGS += -mno-app-regs
+    endif  # no-app-regs
+  endif  # GCC
+endif  # Sparc
 
 # Add -pipe for everything except IBM XL C++, SunCC and ARM.
 # Allow ARM-64 because they seems to have >1 GB of memory
