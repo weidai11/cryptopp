@@ -537,7 +537,7 @@ fi
 rm -f "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 if [[ (-z "$HAVE_ANALYZE") ]]; then
 	HAVE_ANALYZE=0
-	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fanalyze adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
+	"$CXX" -DCRYPTOPP_ADHOC_MAIN -fanalyzer adhoc.cpp -o "$TMPDIR/adhoc.exe" > /dev/null 2>&1
 	if [[ ("$?" -eq 0) ]]; then
 		"$TMPDIR/adhoc.exe" > /dev/null 2>&1
 		if [[ ("$?" -eq 0) ]]; then
@@ -5154,7 +5154,7 @@ if [[ "$HAVE_ANALYZE" -ne 0 ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$DEBUG_CXXFLAGS -fanalyze $USER_CXXFLAGS"
+	CXXFLAGS="$DEBUG_CXXFLAGS -fanalyzer $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
@@ -5182,7 +5182,7 @@ if [[ "$HAVE_ANALYZE" -ne 0 ]]; then
 	"$MAKE" clean > /dev/null 2>&1
 	rm -f adhoc.cpp > /dev/null 2>&1
 
-	CXXFLAGS="$RELEASE_CXXFLAGS -fanalyze $USER_CXXFLAGS"
+	CXXFLAGS="$RELEASE_CXXFLAGS -fanalyzer $USER_CXXFLAGS"
 	CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
 	if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
