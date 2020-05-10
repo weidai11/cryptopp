@@ -260,7 +260,7 @@ void AbstractGroup<T>::SimultaneousMultiply(T *results, const T &base, const Int
 	exponents.reserve(expCount);
 	unsigned int i;
 
-	for (i=0; i<expCount; i++)
+	for (i=0; expBegin && i<expCount; i++)
 	{
 		CRYPTOPP_ASSERT(expBegin->NotNegative());
 		exponents.push_back(WindowSlider(*expBegin++, InversionIsFast(), 0));

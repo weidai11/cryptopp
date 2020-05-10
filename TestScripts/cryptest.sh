@@ -558,6 +558,10 @@ if [[ (-z "$HAVE_ANALYZE") ]]; then
     fi
 fi
 
+# Disable Analyzer for the time being. We are catching a compile crash.
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95031.
+HAVE_ANALYZE=0
+
 # GCC 8.0; maybe Clang?
 rm -f "$TMPDIR/test.exe" &>/dev/null
 if [[ (-z "$HAVE_CET") ]]; then
