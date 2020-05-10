@@ -112,34 +112,45 @@ else
 fi
 
 THIS_SYSTEM=$(uname -s 2>&1)
-IS_AIX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c aix)
-IS_DARWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c darwin)
-IS_HURD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c gnu)
-IS_LINUX=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c linux)
-IS_CYGWIN=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c cygwin)
-IS_MINGW=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c mingw)
-IS_OPENBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c openbsd)
-IS_DRAGONFLY=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c dragonfly)
-IS_FREEBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c freebsd)
-IS_NETBSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c netbsd)
-IS_SOLARIS=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c sunos)
-IS_BSD=$(echo -n "$THIS_SYSTEM" | "$GREP" -i -c bsd)
+IS_AIX=$("$GREP" -i -c aix <<< "$THIS_SYSTEM")
+IS_DARWIN=$("$GREP" -i -c darwin <<< "$THIS_SYSTEM")
+IS_HURD=$("$GREP" -i -c gnu <<< "$THIS_SYSTEM")
+IS_LINUX=$("$GREP" -i -c linux <<< "$THIS_SYSTEM")
+IS_CYGWIN=$("$GREP" -i -c cygwin <<< "$THIS_SYSTEM")
+IS_MINGW=$("$GREP" -i -c mingw <<< "$THIS_SYSTEM")
+IS_OPENBSD=$("$GREP" -i -c openbsd <<< "$THIS_SYSTEM")
+IS_DRAGONFLY=$("$GREP" -i -c dragonfly <<< "$THIS_SYSTEM")
+IS_FREEBSD=$("$GREP" -i -c freebsd <<< "$THIS_SYSTEM")
+IS_NETBSD=$("$GREP" -i -c netbsd <<< "$THIS_SYSTEM")
+IS_SOLARIS=$("$GREP" -i -c sunos <<< "$THIS_SYSTEM")
+IS_BSD=$("$GREP" -i -c bsd <<< "$THIS_SYSTEM")
 
-IS_DEBIAN=$(lsb_release -a 2>&1 | "$GREP" -i -c debian)
-IS_FEDORA=$(lsb_release -a 2>&1 | "$GREP" -i -c fedora)
-IS_UBUNTU=$(lsb_release -a 2>&1 | "$GREP" -i -c ubuntu)
-IS_SUSE=$(lsb_release -a 2>&1 | "$GREP" -i -c opensuse)
+THIS_RELEASE=$(lsb_release -a 2>&1)
+IS_DEBIAN=$("$GREP" -i -c debian <<< "$THIS_RELEASE")
+IS_FEDORA=$("$GREP" -i -c fedora <<< "$THIS_RELEASE")
+IS_UBUNTU=$("$GREP" -i -c ubuntu <<< "$THIS_RELEASE")
+IS_SUSE=$("$GREP" -i -c opensuse <<< "$THIS_RELEASE")
 
 THIS_MACHINE=$(uname -m 2>&1)
-IS_X86=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(i386|i486|i686|i686)")
-IS_X64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(amd64|x86_64)")
-IS_PPC32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$GREP" -i -c -E "(Power|PPC)")
-IS_PPC64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E "(Power64|PPC64)")
-IS_ARM32=$(echo -n "$THIS_MACHINE" | "$GREP" -v "64" | "$GREP" -i -c -E "(arm|aarch32)")
-IS_ARM64=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c -E  "(arm64|aarch64)")
-IS_S390=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c "s390")
-IS_SPARC=$(echo -n "$THIS_MACHINE" | "$GREP" -i -c "sparc")
+IS_X86=$("$GREP" -i -c -E "(i386|i486|i686|i686)" <<< "$THIS_MACHINE")
+IS_X64=$("$GREP" -i -c -E "(amd64|x86_64)" <<< "$THIS_MACHINE")
+IS_PPC32=$("$GREP" -i -c -E "(Power|PPC)" <<< "$THIS_MACHINE")
+IS_PPC64=$("$GREP" -i -c -E "(Power64|PPC64)" <<< "$THIS_MACHINE")
+IS_ARM32=$("$GREP" -i -c -E "(arm|aarch32)" <<< "$THIS_MACHINE")
+IS_ARM64=$("$GREP" -i -c -E  "(arm64|aarch64)" <<< "$THIS_MACHINE")
+IS_S390=$("$GREP" -i -c "s390" <<< "$THIS_MACHINE")
+IS_SPARC=$("$GREP" -i -c "sparc" <<< "$THIS_MACHINE")
 IS_X32=0
+
+# Fixup
+if [[ "$IS_PPC64" -ne 0 ]]; then
+    IS_PPC32=0
+fi
+
+# Fixup
+if [[ "$IS_ARM64" -ne 0 ]]; then
+    IS_ARM32=0
+fi
 
 # Fixup
 if [[ "$IS_SOLARIS" -ne 0 ]]; then
