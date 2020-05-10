@@ -568,7 +568,8 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 #  pragma warning(disable: 6386)
 # endif
 #endif
-	memmove(dest, src, count);
+	if (src && dest)
+		memmove(dest, src, count);
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif
