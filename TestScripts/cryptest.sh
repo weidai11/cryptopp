@@ -886,9 +886,6 @@ fi
 if [[ "$HAVE_LDGOLD" -ne 0 ]]; then
     echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
 fi
-if [[ "$HAVE_UNIFIED_ASM" -ne 0 ]]; then
-    echo "HAVE_UNIFIED_ASM: $HAVE_UNIFIED_ASM" | tee -a "$TEST_RESULTS"
-fi
 
 # -O2, -O3, -Os and -Ofast
 echo | tee -a "$TEST_RESULTS"
