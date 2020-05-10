@@ -248,11 +248,14 @@ if [[ ("$SUN_COMPILER" -eq 0) ]]; then
 fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
-GCC_51_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (5\.[1-9]|[6-9])')
-GCC_48=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version 4\.8')
-GCC_48_OR_ABOVE=$("$CXX" -v 2>&1 | "$GREP" -i -c -E 'gcc version (4\.[8-9]|[5-9]\.[0-9])')
-SUNCC_510_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)")
-SUNCC_511_OR_ABOVE=$("$CXX" -V 2>&1 | "$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)")
+CXX_VERSION=$("$CXX" -v 2>&1)
+GCC_51_OR_ABOVE=$("$GREP" -i -c -E 'gcc version (5\.[1-9]|[6-9])' <<< "$CXX_VERSION")
+GCC_48=$("$GREP" -i -c -E 'gcc version 4\.8' <<< "$CXX_VERSION")
+GCC_48_OR_ABOVE=$("$GREP" -i -c -E 'gcc version (4\.[8-9]|[5-9]\.[0-9])' <<< "$CXX_VERSION")
+
+CXX_VERSION=$("$CXX" -V 2>&1)
+SUNCC_510_OR_ABOVE=$("$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)" <<< "$CXX_VERSION")
+SUNCC_511_OR_ABOVE=$("$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)" <<< "$CXX_VERSION")
 
 # Fixup, bad code generation
 if [[ ("$SUNCC_510_OR_ABOVE" -ne 0) ]]; then
