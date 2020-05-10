@@ -205,7 +205,11 @@ if [[ ((-z "$CXX") || ("$CXX" == "gcc")) ]]; then
     elif [[ "$IS_DARWIN" -ne 0 ]]; then
         CXX="c++"
     elif [[ "$IS_SOLARIS" -ne 0 ]]; then
-        if [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
+        if [[ (-e "/opt/developerstudio12.7/bin/CC") ]]; then
+            CXX="/opt/developerstudio12.7/bin/CC"
+        elif [[ (-e "/opt/developerstudio12.6/bin/CC") ]]; then
+            CXX="/opt/developerstudio12.6/bin/CC"
+        elif [[ (-e "/opt/developerstudio12.5/bin/CC") ]]; then
             CXX="/opt/developerstudio12.5/bin/CC"
         elif [[ (-e "/opt/solarisstudio12.4/bin/CC") ]]; then
             CXX="/opt/solarisstudio12.4/bin/CC"
