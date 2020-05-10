@@ -1971,7 +1971,7 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 #else
     // The carry mask selects carrys for elements 1 and 3 and sets
     // remaining elements to 0. The results is then shifted so the
-    // carried values are subtracted from elements 0 and 2.
+    // carried values are added to elements 0 and 2.
 #if defined(CRYPTOPP_BIG_ENDIAN)
     const uint32x4_p zero = {0, 0, 0, 0};
     const uint32x4_p mask = {0, 1, 0, 1};
@@ -1980,8 +1980,6 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     const uint32x4_p mask = {1, 0, 1, 0};
 #endif
 
-    // subc sets the compliment of borrow, so we have to un-compliment it
-    // using andc.
     uint32x4_p cy = vec_addc(vec1, vec2);
     uint32x4_p res = vec_add(vec1, vec2);
     cy = vec_and(mask, cy);
