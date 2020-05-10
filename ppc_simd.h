@@ -1969,24 +1969,24 @@ inline uint32x4_p VecAdd64(const uint32x4_p& vec1, const uint32x4_p& vec2)
 #if defined(_ARCH_PWR8) && !defined(CRYPTOPP_DEBUG)
     return (uint32x4_p)vec_add((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
-    // The carry mask selects carries for elements 1 and 3 and sets
-    // remaining elements to 0. The mask also shifts the carried values
-    // left by 4 bytes so the carries are added to elements 0 and 2.
-
-    // Small optimization... We can avoid a zero vector {0,0,0,0} and the
-    // load by using an element that will always be 0. Bytes 1,2, 5,6, 9,10,
-    // 13,14 are zero because we are using a vector unsigned int. There are
-    // no carries into those bytes using a vector unsigned int. The
-    // code below uses byte 2 for the 0 value.
+    // The carry mask selects carrys for elements 1 and 3 and sets
+    // remaining elements to 0. The results is then shifted so the
+    // carried values are subtracted from elements 0 and 2.
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    const uint8x16_p cmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {0, 1, 0, 1};
 #else
-    const uint8x16_p cmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {1, 0, 1, 0};
 #endif
 
+    // subc sets the compliment of borrow, so we have to un-compliment it
+    // using andc.
     uint32x4_p cy = vec_addc(vec1, vec2);
-    cy = vec_perm(cy, cy, cmask);
-    return vec_add(vec_add(vec1, vec2), cy);
+    uint32x4_p res = vec_add(vec1, vec2);
+    cy = vec_and(mask, cy);
+    cy = vec_sld (cy, zero, 4);
+    return vec_add(res, cy);
 #endif
 }
 
@@ -2035,28 +2035,23 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     return (uint32x4_p)vec_sub((uint64x2_p)vec1, (uint64x2_p)vec2);
 #else
     // The borrow mask selects borrows for elements 1 and 3 and sets
-    // remaining elements to 0. The mask also shifts the borrowed values
-    // left by 4 bytes so the borrows are subtracted from elements 0 and 2.
-
-    // Small optimization... We can avoid a zero vector {0,0,0,0} and the
-    // load by using an element that will always be 0. Bytes 1,2, 5,6, 9,10,
-    // 13,14 are zero because we are using a vector unsigned int. There are
-    // no borrows from those bytes using a vector unsigned int. The
-    // code below uses byte 2 for the 0 value.
+    // remaining elements to 0. The results is then shifted so the
+    // borrowed values are subtracted from elements 0 and 2.
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    const uint8x16_p bmask = {4,5,6,7, 2,2,2,2, 12,13,14,15, 2,2,2,2};
-    const uint32x4_p amask = {1, 1, 1, 1};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {0, 1, 0, 1};
 #else
-    const uint8x16_p bmask = {2,2,2,2, 0,1,2,3, 2,2,2,2, 8,9,10,11};
-    const uint32x4_p amask = {1, 1, 1, 1};
+    const uint32x4_p zero = {0, 0, 0, 0};
+    const uint32x4_p mask = {1, 0, 1, 0};
 #endif
 
     // subc sets the compliment of borrow, so we have to un-compliment it
     // using andc.
     uint32x4_p bw = vec_subc(vec1, vec2);
-    bw = vec_andc(amask, bw);
-    bw = vec_perm(bw, bw, bmask);
-    return vec_sub(vec_sub(vec1, vec2), bw);
+    uint32x4_p res = vec_sub(vec1, vec2);
+    bw = vec_andc(mask, bw);
+    bw = vec_sld (bw, zero, 4);
+    return vec_sub(res, bw);
 #endif
 }
 
