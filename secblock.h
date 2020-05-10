@@ -748,7 +748,8 @@ public:
 	SecBlock(const SecBlock<T, A> &t)
 		: m_mark(t.m_mark), m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULLPTR)) {
 			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
-			if (t.m_ptr) {memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));}
+			if (m_ptr && t.m_ptr)
+				memcpy_s(m_ptr, m_size*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 		}
 
 	/// \brief Construct a SecBlock from an array of elements.
@@ -764,7 +765,7 @@ public:
 			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
 			if (ptr && m_ptr)
 				memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
-			else if (m_size)
+			else if (m_ptr && m_size)
 				memset(m_ptr, 0, m_size*sizeof(T));
 		}
 

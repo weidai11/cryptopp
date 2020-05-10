@@ -524,7 +524,8 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 #  pragma warning(disable: 6386)
 # endif
 #endif
-	memcpy(dest, src, count);
+	if (src && dest)
+		memcpy(dest, src, count);
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif

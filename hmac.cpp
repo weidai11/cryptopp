@@ -25,7 +25,7 @@ void HMAC_Base::UncheckedSetKey(const byte *userKey, unsigned int keylength, con
 	if (keylength <= blockSize)
 	{
 		// hmac.cpp:26:9: runtime error: null pointer passed as argument 2
-		if (userKey && keylength)
+		if (AccessIpad() && userKey && keylength)
 			memcpy(AccessIpad(), userKey, keylength);
 	}
 	else
