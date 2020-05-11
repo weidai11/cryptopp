@@ -253,17 +253,21 @@ fi
 
 # Now that the compiler is fixed, determine the compiler version for fixups
 CXX_VERSION=$("$CXX" -v 2>&1)
-GCC_51_OR_ABOVE=$("$GREP" -i -c -E 'gcc version (5\.[1-9]|[6-9])' <<< "$CXX_VERSION")
-GCC_48=$("$GREP" -i -c -E 'gcc version 4\.8' <<< "$CXX_VERSION")
-GCC_48_OR_ABOVE=$("$GREP" -i -c -E 'gcc version (4\.[8-9]|[5-9]\.[0-9])' <<< "$CXX_VERSION")
+GCC_4_8=$("$GREP" -i -c -E 'gcc version 4\.8' <<< "$CXX_VERSION")
+GCC_4_8_OR_ABOVE=$("$GREP" -i -c -E 'gcc version (4\.[8-9]|[5-9]\.[0-9])' <<< "$CXX_VERSION")
+GCC_11_0_OR_ABOVE=$("$GREP" -i -c -E 'gcc \(GCC\) (1[1-9]\.|[2-9][0-9]\.)' <<< "$CXX_VERSION")
 
 CXX_VERSION=$("$CXX" -V 2>&1)
-SUNCC_510_OR_ABOVE=$("$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)" <<< "$CXX_VERSION")
-SUNCC_511_OR_ABOVE=$("$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[1-9]|5\.[2-9]|[6-9]\.)" <<< "$CXX_VERSION")
+SUNCC_5_10_OR_ABOVE=$("$GREP" -c -E "CC: (Sun|Studio) .* (5\.1[0-9]|5\.[2-9]|[6-9]\.)" <<< "$CXX_VERSION")
 
 # Fixup, bad code generation
-if [[ ("$SUNCC_510_OR_ABOVE" -ne 0) ]]; then
+if [[ ("$SUNCC_5_10_OR_ABOVE" -ne 0) ]]; then
     HAVE_OFAST=0
+fi
+
+# Fixup, Analyzer available in GCC 10.0, but C++ is not planned until GCC 11.
+if [[ ("$GCC_COMPILER" -ne 0) && ("$GCC_11_0_OR_ABOVE" -ne 0) ]]; then
+    HAVE_ANALYZER=0
 fi
 
 # GCC compile farm is mounted RO
@@ -544,23 +548,20 @@ if [[ (-z "$HAVE_BSAN") ]]; then
     fi
 fi
 
-# GCC 10.0; maybe Clang
+# Analyzer available in GCC 10.0, but C++ is not planned until GCC 11.
 # https://developers.redhat.com/blog/2020/03/26/static-analysis-in-gcc-10/
+# and https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95031#c2.
 rm -f "$TMPDIR/test.exe" &>/dev/null
-if [[ (-z "$HAVE_ANALYZE") ]]; then
-    HAVE_ANALYZE=0
+if [[ (-z "$HAVE_ANALYZER") ]]; then
+    HAVE_ANALYZER=0
     "$CXX" -fanalyzer "$test_prog" -o "$TMPDIR/test.exe" &>/dev/null
     if [[ ("$?" -eq 0) ]]; then
         "$TMPDIR/test.exe" &>/dev/null
         if [[ ("$?" -eq 0) ]]; then
-            HAVE_ANALYZE=1
+            HAVE_ANALYZER=1
         fi
     fi
 fi
-
-# Disable Analyzer for the time being. We are catching a compile crash.
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=95031.
-HAVE_ANALYZE=0
 
 # GCC 8.0; maybe Clang?
 rm -f "$TMPDIR/test.exe" &>/dev/null
@@ -778,7 +779,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup... GCC 4.8 ASAN produces false positives under ARM
-if [[ ( ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) && "$GCC_48" -ne 0) ]]; then
+if [[ ( ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) && "$GCC_4_8" -ne 0) ]]; then
     HAVE_ASAN=0
 fi
 
@@ -805,7 +806,7 @@ if [[ "$XLC_COMPILER" -ne 0 ]]; then
     HAVE_ASAN=0
     HAVE_BSAN=0
     HAVE_UBSAN=0
-    HAVE_ANALYZE=0
+    HAVE_ANALYZER=0
     HAVE_LDGOLD=0
 fi
 
@@ -908,7 +909,7 @@ if [[ ("$HAVE_ASAN" -ne 0) && (-n "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLI
 echo "HAVE_UBSAN: $HAVE_UBSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_BSAN: $HAVE_BSAN" | tee -a "$TEST_RESULTS"
 echo "HAVE_CET: $HAVE_CET" | tee -a "$TEST_RESULTS"
-echo "HAVE_ANALYZE: $HAVE_ANALYZE" | tee -a "$TEST_RESULTS"
+echo "HAVE_ANALYZER: $HAVE_ANALYZER" | tee -a "$TEST_RESULTS"
 echo "HAVE_REPTOLINE: $HAVE_REPTOLINE" | tee -a "$TEST_RESULTS"
 echo "HAVE_VALGRIND: $HAVE_VALGRIND" | tee -a "$TEST_RESULTS"
 # HAVE_REPTOLINE is for Meltdown and Spectre option testing, called Reptoline (play on trampoline)
@@ -1796,7 +1797,7 @@ fi
 
 ############################################
 # Power8 code generation tests
-if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_48_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0)) ]]; then
+if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0)) ]]; then
 
     ############################################
     # Power8 AES
@@ -5153,7 +5154,7 @@ fi
 
 ############################################
 # Analyze debug and release build
-if [[ "$HAVE_ANALYZE" -ne 0 ]]; then
+if [[ "$HAVE_ANALYZER" -ne 0 ]]; then
 
     ############################################
     # Debug build
