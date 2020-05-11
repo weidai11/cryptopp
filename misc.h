@@ -525,7 +525,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 # endif
 #endif
 	if (src && dest)
-		memcpy(dest, src, count);
+		std::memcpy(dest, src, count);
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif
@@ -569,7 +569,7 @@ inline void memmove_s(void *dest, size_t sizeInBytes, const void *src, size_t co
 # endif
 #endif
 	if (src && dest)
-		memmove(dest, src, count);
+		std::memmove(dest, src, count);
 #if CRYPTOPP_MSC_VERSION
 # pragma warning(pop)
 #endif
@@ -2444,8 +2444,8 @@ inline T GetWord(bool assumeAligned, ByteOrder order, const byte *block)
 {
 	CRYPTOPP_UNUSED(assumeAligned);
 
-	T temp;
-	memcpy(&temp, block, sizeof(T));
+	T temp = 0;
+	if (block) {std::memcpy(&temp, block, sizeof(T));}
 	return ConditionalByteReverse(order, temp);
 }
 
@@ -2488,8 +2488,8 @@ inline void PutWord(bool assumeAligned, ByteOrder order, byte *block, T value, c
 
 	T t1, t2;
 	t1 = ConditionalByteReverse(order, value);
-	if (xorBlock) {memcpy(&t2, xorBlock, sizeof(T)); t1 ^= t2;}
-	memcpy(block, &t1, sizeof(T));
+	if (xorBlock) {std::memcpy(&t2, xorBlock, sizeof(T)); t1 ^= t2;}
+	if (block) {std::memcpy(block, &t1, sizeof(T));}
 }
 
 /// \brief Access a block of memory
