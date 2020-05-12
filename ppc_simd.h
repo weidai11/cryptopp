@@ -230,6 +230,26 @@ inline uint32x4_p VecOne()
 /// \tparam T vector type
 /// \param data the vector
 /// \returns vector
+/// \details VecReverseLE() reverses the bytes in a vector
+/// \par Wraps
+///  vec_perm
+/// \since Crypto++ 6.0
+template <class T>
+inline T VecReverse(const T data)
+{
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint8x16_p mask = {15,14,13,12, 11,10,9,8, 7,6,5,4, 3,2,1,0};
+    return (T)vec_perm(data, data, mask);
+#else
+    const uint8x16_p mask = {0,1,2,3, 4,5,6,7, 8,9,10,11, 12,13,14,15};
+    return (T)vec_perm(data, data, mask);
+#endif
+}
+
+/// \brief Reverse bytes in a vector
+/// \tparam T vector type
+/// \param data the vector
+/// \returns vector
 /// \details VecReverseLE() reverses the bytes in a vector on
 ///  little-endian systems.
 /// \par Wraps
