@@ -1,4 +1,4 @@
-# Doxyfile 1.8.9
+# Doxyfile 1.8.13
 
 # This file describes the settings to be used by the documentation system
 # doxygen (www.doxygen.org) for a project.
@@ -12,9 +12,6 @@
 # For lists, items can also be appended using:
 # TAG += value [value, ...]
 # Values that contain spaces should be placed between quotes (\" \").
-#
-# The file can be upgraded to the latest version of Doxygen with `doxygen -u <file`
-#
 
 #---------------------------------------------------------------------------
 # Project related configuration options
@@ -47,8 +44,7 @@ PROJECT_NUMBER         = 8.3
 # for a project that appears at the top of each page and should give viewer a
 # quick idea about the purpose of the project. Keep the description short.
 
-# Without the HTML escape characters, Doxygen concatenates the string below...
-PROJECT_BRIEF          = Free&nbsp;C&#43;&#43;&nbsp;class&nbsp;library&nbsp;of&nbsp;cryptographic&nbsp;schemes
+PROJECT_BRIEF          = "Free&nbsp;C&#43;&#43;&nbsp;class&nbsp;library&nbsp;of&nbsp;cryptographic&nbsp;schemes"
 
 # With the PROJECT_LOGO tag one can specify a logo or an icon that is included
 # in the documentation. The maximum height of the logo should not exceed 55
@@ -298,6 +294,15 @@ EXTENSION_MAPPING      =
 
 MARKDOWN_SUPPORT       = NO
 
+# When the TOC_INCLUDE_HEADINGS tag is set to a non-zero value, all headings up
+# to that level are automatically included in the table of contents, even if
+# they do not have an id attribute.
+# Note: This feature currently applies only to Markdown headings.
+# Minimum value: 0, maximum value: 99, default value: 0.
+# This tag requires that the tag MARKDOWN_SUPPORT is set to YES.
+
+TOC_INCLUDE_HEADINGS   = 0
+
 # When enabled doxygen tries to link words that correspond to documented
 # classes, or namespaces to their corresponding documentation. Such a link can
 # be prevented in individual cases by putting a % sign in front of the word or
@@ -347,6 +352,13 @@ IDL_PROPERTY_SUPPORT   = NO
 # The default value is: NO.
 
 DISTRIBUTE_GROUP_DOC   = NO
+
+# If one adds a struct or class to a group and this option is enabled, then also
+# any nested class or struct is added to the same group. By default this option
+# is disabled and one has to add nested compounds explicitly via \ingroup.
+# The default value is: NO.
+
+GROUP_NESTED_COMPOUNDS = NO
 
 # Set the SUBGROUPING tag to YES to allow class member groups of the same type
 # (for instance a group of public functions) to be put as a subgroup of that
@@ -737,6 +749,12 @@ WARN_IF_DOC_ERROR      = YES
 
 WARN_NO_PARAMDOC       = NO
 
+# If the WARN_AS_ERROR tag is set to YES then doxygen will immediately stop when
+# a warning is encountered.
+# The default value is: NO.
+
+WARN_AS_ERROR          = NO
+
 # The WARN_FORMAT tag determines the format of the warning messages that doxygen
 # can produce. The string should contain the $file, $line, and $text tags, which
 # will be replaced by the file and line number from which the warning originated
@@ -760,7 +778,7 @@ WARN_LOGFILE           =
 # The INPUT tag is used to specify the files and/or directories that contain
 # documented source files. You may enter file names like myfile.cpp or
 # directories like /usr/src/myproject. Separate the files or directories with
-# spaces.
+# spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = . \
@@ -779,12 +797,17 @@ INPUT_ENCODING         = UTF-8
 
 # If the value of the INPUT tag contains directories, you can use the
 # FILE_PATTERNS tag to specify one or more wildcard patterns (like *.cpp and
-# *.h) to filter out the source-files in the directories. If left blank the
-# following patterns are tested:*.c, *.cc, *.cxx, *.cpp, *.c++, *.java, *.ii,
-# *.ixx, *.ipp, *.i++, *.inl, *.idl, *.ddl, *.odl, *.h, *.hh, *.hxx, *.hpp,
-# *.h++, *.cs, *.d, *.php, *.php4, *.php5, *.phtml, *.inc, *.m, *.markdown,
-# *.md, *.mm, *.dox, *.py, *.f90, *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf,
-# *.qsf, *.as and *.js.
+# *.h) to filter out the source-files in the directories.
+#
+# Note that for custom extensions or not directly supported extensions you also
+# need to set EXTENSION_MAPPING for the extension otherwise the files are not
+# read by doxygen.
+#
+# If left blank the following patterns are tested:*.c, *.cc, *.cxx, *.cpp,
+# *.c++, *.java, *.ii, *.ixx, *.ipp, *.i++, *.inl, *.idl, *.ddl, *.odl, *.h,
+# *.hh, *.hxx, *.hpp, *.h++, *.cs, *.d, *.php, *.php4, *.php5, *.phtml, *.inc,
+# *.m, *.markdown, *.md, *.mm, *.dox, *.py, *.pyw, *.f90, *.f95, *.f03, *.f08,
+# *.f, *.for, *.tcl, *.vhd, *.vhdl, *.ucf and *.qsf.
 
 FILE_PATTERNS          = *.h \
                          *.cpp
@@ -802,7 +825,8 @@ RECURSIVE              = NO
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = adhoc.cpp cryptlib_bds.cpp
+EXCLUDE                = adhoc.cpp \
+                         cryptlib_bds.cpp
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -818,7 +842,8 @@ EXCLUDE_SYMLINKS       = NO
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories for example use the pattern */test/*
 
-EXCLUDE_PATTERNS       =  *test* *validat*
+EXCLUDE_PATTERNS       = *test* \
+                         *validat*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -871,6 +896,10 @@ IMAGE_PATH             =
 # Note that the filter must not add or remove lines; it is applied before the
 # code is scanned, but not when the output code is generated. If lines are added
 # or removed, the anchors will not be placed correctly.
+#
+# Note that for custom extensions or not directly supported extensions you also
+# need to set EXTENSION_MAPPING for the extension otherwise the files are not
+# properly processed by doxygen.
 
 INPUT_FILTER           =
 
@@ -880,6 +909,10 @@ INPUT_FILTER           =
 # (like *.cpp=my_cpp_filter). See INPUT_FILTER for further information on how
 # filters are used. If the FILTER_PATTERNS tag is empty or if none of the
 # patterns match the file name, INPUT_FILTER is applied.
+#
+# Note that for custom extensions or not directly supported extensions you also
+# need to set EXTENSION_MAPPING for the extension otherwise the files are not
+# properly processed by doxygen.
 
 FILTER_PATTERNS        =
 
@@ -990,6 +1023,25 @@ USE_HTAGS              = NO
 # The default value is: YES.
 
 VERBATIM_HEADERS       = YES
+
+# If the CLANG_ASSISTED_PARSING tag is set to YES then doxygen will use the
+# clang parser (see: http://clang.llvm.org/) for more accurate parsing at the
+# cost of reduced performance. This can be particularly helpful with template
+# rich C++ code for which doxygen's built-in parser lacks the necessary type
+# information.
+# Note: The availability of this option depends on whether or not doxygen was
+# generated with the -Duse-libclang=ON option for CMake.
+# The default value is: NO.
+
+CLANG_ASSISTED_PARSING = NO
+
+# If clang assisted parsing is enabled you can provide the compiler with command
+# line options that you would normally use when invoking the compiler. Note that
+# the include paths will already be set by doxygen for the files and directories
+# specified with INPUT and INCLUDE_PATH.
+# This tag requires that the tag CLANG_ASSISTED_PARSING is set to YES.
+
+CLANG_OPTIONS          =
 
 #---------------------------------------------------------------------------
 # Configuration options related to the alphabetical class index
@@ -1138,8 +1190,9 @@ HTML_COLORSTYLE_GAMMA  = 80
 
 # If the HTML_TIMESTAMP tag is set to YES then the footer of each generated HTML
 # page will contain the date and time when the page was generated. Setting this
-# to NO can help when comparing the output of multiple runs.
-# The default value is: YES.
+# to YES can help to show when doxygen was last run and thus if the
+# documentation is up to date.
+# The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
 HTML_TIMESTAMP         = YES
@@ -1224,6 +1277,7 @@ DOCSET_PUBLISHER_NAME  = Crypto++
 # compressed HTML files.
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
+
 GENERATE_HTMLHELP      = NO
 
 # The CHM_FILE tag can be used to specify the file name of the resulting .chm
@@ -1492,10 +1546,7 @@ MATHJAX_CODEFILE       =
 # The default value is: YES.
 # This tag requires that the tag GENERATE_HTML is set to YES.
 
-# JW: Do _not_ enable server-side search. It consumes too many resources
-# and results in OOM Kills on MySQL, which corrupts the database.
-# https://github.com/weidai11/cryptopp/issues/720
-SEARCHENGINE		 = NO
+SEARCHENGINE           = NO
 
 # When the SERVER_BASED_SEARCH tag is enabled the search engine will be
 # implemented using a web server instead of a web client using Javascript. There
@@ -1507,10 +1558,7 @@ SEARCHENGINE		 = NO
 # The default value is: NO.
 # This tag requires that the tag SEARCHENGINE is set to YES.
 
-# JW: Do _not_ enable server-side search. It consumes too many resources
-# and results in OOM Kills on MySQL, which corrupts the database.
-# https://github.com/weidai11/cryptopp/issues/720
-SERVER_BASED_SEARCH	 = NO
+SERVER_BASED_SEARCH    = NO
 
 # When EXTERNAL_SEARCH tag is enabled doxygen will no longer generate the PHP
 # script for searching. Instead the search results are written to an XML file
@@ -1618,9 +1666,12 @@ COMPACT_LATEX          = NO
 PAPER_TYPE             = a4
 
 # The EXTRA_PACKAGES tag can be used to specify one or more LaTeX package names
-# that should be included in the LaTeX output. To get the times font for
-# instance you can specify
-# EXTRA_PACKAGES=times
+# that should be included in the LaTeX output. The package can be specified just
+# by its name or with the correct syntax as to be used with the LaTeX
+# \usepackage command. To get the times font for instance you can specify :
+# EXTRA_PACKAGES=times or EXTRA_PACKAGES={times}
+# To use the option intlimits with the amsmath package you can specify:
+# EXTRA_PACKAGES=[intlimits]{amsmath}
 # If left blank no extra packages will be included.
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
@@ -1722,6 +1773,14 @@ LATEX_SOURCE_CODE      = NO
 # This tag requires that the tag GENERATE_LATEX is set to YES.
 
 LATEX_BIB_STYLE        = plain
+
+# If the LATEX_TIMESTAMP tag is set to YES then the footer of each generated
+# page will contain the date and time when the page was generated. Setting this
+# to NO can help when comparing the output of multiple runs.
+# The default value is: NO.
+# This tag requires that the tag GENERATE_LATEX is set to YES.
+
+LATEX_TIMESTAMP        = NO
 
 #---------------------------------------------------------------------------
 # Configuration options related to the RTF output
@@ -2110,7 +2169,7 @@ HIDE_UNDOC_RELATIONS   = YES
 # http://www.graphviz.org/), a graph visualization toolkit from AT&T and Lucent
 # Bell Labs. The other options in this section have no effect if this option is
 # set to NO
-# The default value is: NO.
+# The default value is: YES.
 
 HAVE_DOT               = NO
 
@@ -2132,7 +2191,7 @@ DOT_NUM_THREADS        = 0
 # The default value is: Helvetica.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
-# DOT_FONTNAME           = FreeSans.ttf
+DOT_FONTNAME           = Helvetica
 
 # The DOT_FONTSIZE tag can be used to set the size (in points) of the font of
 # dot graphs.
@@ -2224,7 +2283,8 @@ INCLUDED_BY_GRAPH      = YES
 #
 # Note that enabling this option will significantly increase the time of a run.
 # So in most cases it will be better to enable call graphs for selected
-# functions only using the \callgraph command.
+# functions only using the \callgraph command. Disabling a call graph can be
+# accomplished by means of the command \hidecallgraph.
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
@@ -2235,7 +2295,8 @@ CALL_GRAPH             = NO
 #
 # Note that enabling this option will significantly increase the time of a run.
 # So in most cases it will be better to enable caller graphs for selected
-# functions only using the \callergraph command.
+# functions only using the \callergraph command. Disabling a caller graph can be
+# accomplished by means of the command \hidecallergraph.
 # The default value is: NO.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
@@ -2258,11 +2319,17 @@ GRAPHICAL_HIERARCHY    = YES
 DIRECTORY_GRAPH        = YES
 
 # The DOT_IMAGE_FORMAT tag can be used to set the image format of the images
-# generated by dot.
+# generated by dot. For an explanation of the image formats see the section
+# output formats in the documentation of the dot tool (Graphviz (see:
+# http://www.graphviz.org/)).
 # Note: If you choose svg you need to set HTML_FILE_EXTENSION to xhtml in order
 # to make the SVG files visible in IE 9+ (other browsers do not have this
 # requirement).
-# Possible values are: png, jpg, gif and svg.
+# Possible values are: png, png:cairo, png:cairo:cairo, png:cairo:gd, png:gd,
+# png:gd:gd, jpg, jpg:cairo, jpg:cairo:gd, jpg:gd, jpg:gd:gd, gif, gif:cairo,
+# gif:cairo:gd, gif:gd, gif:gd:gd, svg, png:gd, png:gd:gd, png:cairo,
+# png:cairo:gd, png:cairo:cairo, png:cairo:gdiplus, png:gdiplus and
+# png:gdiplus:gdiplus.
 # The default value is: png.
 # This tag requires that the tag HAVE_DOT is set to YES.
 
@@ -2312,6 +2379,11 @@ DIAFILE_DIRS           =
 # will not generate output for the diagram.
 
 PLANTUML_JAR_PATH      =
+
+# When using plantuml, the PLANTUML_CFG_FILE tag can be used to specify a
+# configuration file for plantuml.
+
+PLANTUML_CFG_FILE      =
 
 # When using plantuml, the specified paths are searched for files specified by
 # the !include statement in a plantuml block.
