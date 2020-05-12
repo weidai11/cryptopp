@@ -230,7 +230,7 @@ inline uint32x4_p VecOne()
 /// \tparam T vector type
 /// \param data the vector
 /// \returns vector
-/// \details VecReverseLE() reverses the bytes in a vector
+/// \details VecReverse() reverses the bytes in a vector
 /// \par Wraps
 ///  vec_perm
 /// \since Crypto++ 6.0
@@ -270,7 +270,7 @@ inline T VecReverseLE(const T data)
 /// \tparam T vector type
 /// \param data the vector
 /// \returns vector
-/// \details VecReverseLE() reverses the bytes in a vector on
+/// \details VecReverseBE() reverses the bytes in a vector on
 ///  big-endian systems.
 /// \par Wraps
 ///  vec_perm
