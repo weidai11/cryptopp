@@ -124,8 +124,8 @@ if [ -z "$ARM_EMBEDDED_FLAGS" ]; then
 fi
 
 # And print stuff to wow the user...
-VERBOSE=1
-if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" -ne 0 ]; then
+VERBOSE=${VERBOSE:-1}
+if [ "$VERBOSE" -gt 0 ]; then
   echo "CPP: $CPP"
   echo "CXX: $CXX"
   echo "AR: $AR"

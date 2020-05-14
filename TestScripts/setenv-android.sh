@@ -22,6 +22,11 @@
 #####        Some validation        #####
 #########################################
 
+# cryptest-android.sh may run this script without sourcing.
+if [ "$0" = "${BASH_SOURCE[0]}" ]; then
+    echo "setenv-android.sh is usually sourced, but not this time."
+fi
+
 # This supports 'source setenv-android.sh 23 arm64' and friends
 if [[ -z "$ANDROID_API" && -n "$1" ]]; then
     printf "Using positional arg, ANDROID_API=%s\n" "$1"
@@ -36,17 +41,12 @@ fi
 
 if [ -z "$ANDROID_API" ]; then
     echo "ANDROID_API is not set. Please set it"
-    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 if [ -z "$ANDROID_CPU" ]; then
     echo "ANDROID_CPU is not set. Please set it"
-    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
-fi
-
-# cryptest-android.sh may run this script without sourcing.
-if [ "$0" = "${BASH_SOURCE[0]}" ]; then
-    echo "setenv-android.sh is usually sourced, but not this time."
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 #########################################
@@ -272,8 +272,8 @@ sed -i 's/cpuinfo = malloc/cpuinfo = (char*)malloc/g' cpu-features.c
 
 #####################################################################
 
-VERBOSE=1
-if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
+VERBOSE=${VERBOSE:-1}
+if [ "$VERBOSE" -gt 0 ]; then
   echo "ANDROID_TOOLCHAIN: $ANDROID_TOOLCHAIN"
   echo "ANDROID_API: $ANDROID_API"
   echo "ANDROID_CPU: $ANDROID_CPU"
