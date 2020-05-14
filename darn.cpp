@@ -176,11 +176,12 @@ void DARN::GenerateBlock(byte *output, size_t size)
         size -= i;
     }
 
+    // Output is aligned
     for (i = 0; i < size/4; i++)
         DARN32(output+i*4);
 
-    output += 4;
-    size -= 4;
+    output += i*4;
+    size -= i*4;
 
     if (size)
     {
