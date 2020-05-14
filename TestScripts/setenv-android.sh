@@ -7,6 +7,10 @@
 # Heavily modified by JWW for Crypto++.
 # Modified by Skycoder42 Android NDK-r19 and above.
 #
+# Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
+# licensed under the Boost Software License 1.0, while the individual files
+# in the compilation are all public domain.
+#
 # Also see:
 #   https://android.googlesource.com/platform/ndk.git/+/HEAD/docs/UnifiedHeaders.md
 #   https://android.googlesource.com/platform/ndk/+/master/docs/PlatformApis.md
@@ -17,6 +21,18 @@
 #########################################
 #####        Some validation        #####
 #########################################
+
+# This supports 'source setenv-android.sh 23 arm64' and friends
+if [[ -z "$ANDROID_API" && -n "$1" ]]; then
+    printf "Using positional arg, ANDROID_API=%s\n" "$1"
+    ANDROID_API="$1"
+fi
+
+# This supports 'source setenv-android.sh 23 arm64' and friends
+if [[ -z "$ANDROID_CPU" && -n "$2" ]]; then
+    printf "Using positional arg, ANDROID_CPU=%s\n" "$2"
+    ANDROID_CPU="$2"
+fi
 
 if [ -z "$ANDROID_API" ]; then
     echo "ANDROID_API is not set. Please set it"

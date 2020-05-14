@@ -6,6 +6,10 @@
 # Based upon OpenSSL's setenv-ios.sh  by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.
 #
+# Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
+# licensed under the Boost Software License 1.0, while the individual files
+# in the compilation are all public domain.
+#
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
 # ====================================================================
 
@@ -16,6 +20,18 @@
 # In the past we could mostly infer arch or cpu from the SDK (and mostly
 # vice-versa). Nowadays we need the user to set it for us because Apple
 # platforms have both 32-bit or 64-bit variations.
+
+# This supports 'source setenv-ios.sh iPhone arm64' and friends
+if [[ -z "$IOS_SDK" && -n "$1" ]]; then
+    printf "Using positional arg, IOS_SDK=%s\n" "$1"
+    IOS_SDK="$1"
+fi
+
+# This supports 'source setenv-ios.sh iPhone arm64' and friends
+if [[ -z "$IOS_CPU" && -n "$2" ]]; then
+    printf "Using positional arg, IOS_CPU=%s\n" "$2"
+    IOS_CPU="$2"
+fi
 
 if [ -z "$IOS_SDK" ]; then
     echo "IOS_SDK is not set. Please set it"
