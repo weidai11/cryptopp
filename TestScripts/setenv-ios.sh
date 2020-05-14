@@ -47,23 +47,23 @@ unset IOS_SYSROOT
 #####    Small Fixups, if needed    #####
 #########################################
 
-if [[ "$IOS_SDK" == "iPhone" ]]; then
+if [[ "$IOS_SDK" = "iPhone" ]]; then
     IOS_SDK=iPhoneOS
 fi
 
-if [[ "$IOS_SDK" == "iPhoneOSSimulator" ]]; then
+if [[ "$IOS_SDK" = "iPhoneOSSimulator" ]]; then
     IOS_SDK=iPhoneSimulator
 fi
 
-if [[ "$IOS_SDK" == "TV" || "$IOS_SDK" == "AppleTV" ]]; then
+if [[ "$IOS_SDK" = "TV" || "$IOS_SDK" = "AppleTV" ]]; then
     IOS_SDK=AppleTVOS
 fi
 
-if [[ "$IOS_SDK" == "Watch" || "$IOS_SDK" == "AppleWatch" ]]; then
+if [[ "$IOS_SDK" = "Watch" || "$IOS_SDK" = "AppleWatch" ]]; then
     IOS_SDK=WatchOS
 fi
 
-if [[ "$IOS_CPU" == "aarch64" || "$IOS_CPU" == "armv8"* ]] ; then
+if [[ "$IOS_CPU" = "aarch64" || "$IOS_CPU" = "armv8"* ]] ; then
     IOS_CPU=arm64
 fi
 
@@ -78,53 +78,53 @@ fi
 # AppleTVOS and WatchOS support.
 
 # iPhones can be either 32-bit or 64-bit
-if [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "armv7"* ]]; then
+if [[ "$IOS_SDK" = "iPhoneOS" && "$IOS_CPU" = "armv7"* ]]; then
     MIN_VER=-miphoneos-version-min=6
-elif [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "arm64" ]]; then
+elif [[ "$IOS_SDK" = "iPhoneOS" && "$IOS_CPU" = "arm64" ]]; then
     MIN_VER=-miphoneos-version-min=6
 
 # Fixups for convenience
-elif [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "$IOS_SDK" = "iPhoneOS" && "$IOS_CPU" = "i386" ]]; then
     IOS_SDK=iPhoneSimulator
     # MIN_VER=-miphoneos-version-min=6
     MIN_VER=-miphonesimulator-version-min=6
-elif [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "$IOS_SDK" = "iPhoneOS" && "$IOS_CPU" = "x86_64" ]]; then
     IOS_SDK=iPhoneSimulator
     # MIN_VER=-miphoneos-version-min=6
     MIN_VER=-miphonesimulator-version-min=6
 
 # Simulator builds
-elif [[ "$IOS_SDK" == "iPhoneSimulator" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "$IOS_SDK" = "iPhoneSimulator" && "$IOS_CPU" = "i386" ]]; then
     MIN_VER=-miphonesimulator-version-min=6
-elif [[ "$IOS_SDK" == "iPhoneSimulator" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "$IOS_SDK" = "iPhoneSimulator" && "$IOS_CPU" = "x86_64" ]]; then
     MIN_VER=-miphonesimulator-version-min=6
 
 # Apple TV can be 32-bit Intel (1st gen), 32-bit ARM (2nd, 3rd gen) or 64-bit ARM (4th gen)
-elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "$IOS_SDK" = "AppleTVOS" && "$IOS_CPU" = "i386" ]]; then
     MIN_VER=-mappletvos-version-min=6
-elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "armv7"* ]]; then
+elif [[ "$IOS_SDK" = "AppleTVOS" && "$IOS_CPU" = "armv7"* ]]; then
     MIN_VER=-mappletvos-version-min=6
-elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "arm64" ]]; then
+elif [[ "$IOS_SDK" = "AppleTVOS" && "$IOS_CPU" = "arm64" ]]; then
     MIN_VER=-mappletvos-version-min=6
 
 # Simulator builds
-elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "$IOS_SDK" = "AppleTVSimulator" && "$IOS_CPU" = "i386" ]]; then
     MIN_VER=-mappletvsimulator-version-min=6
-elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "$IOS_SDK" = "AppleTVSimulator" && "$IOS_CPU" = "x86_64" ]]; then
     MIN_VER=-mappletvsimulator-version-min=6
 
 # Watch can be either 32-bit or 64-bit ARM. TODO: figure out which
 # -mwatchos-version-min=n is needed for arm64. 9 is not enough.
-elif [[ "$IOS_SDK" == "WatchOS" && "$IOS_CPU" == "armv7"* ]]; then
+elif [[ "$IOS_SDK" = "WatchOS" && "$IOS_CPU" = "armv7"* ]]; then
     MIN_VER=-mwatchos-version-min=6
-elif [[ "$IOS_SDK" == "WatchOS" && "$IOS_CPU" == "arm64" ]]; then
+elif [[ "$IOS_SDK" = "WatchOS" && "$IOS_CPU" = "arm64" ]]; then
     MIN_VER=-mwatchos-version-min=10
 
 # Simulator builds. TODO: figure out which -watchos-version-min=n
 # is needed for arm64. 6 compiles and links, but is it correct?
-elif [[ "$IOS_SDK" == "WatchSimulator" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "$IOS_SDK" = "WatchSimulator" && "$IOS_CPU" = "i386" ]]; then
     MIN_VER=-mwatchsimulator-version-min=6
-elif [[ "$IOS_SDK" == "WatchSimulator" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "$IOS_SDK" = "WatchSimulator" && "$IOS_CPU" = "x86_64" ]]; then
     MIN_VER=-mwatchsimulator-version-min=6
 
 # And the final catch-all
@@ -206,7 +206,7 @@ IOS_CXXFLAGS="-arch $IOS_CPU $MIN_VER"
 
 # The simulators need to disable ASM. They don't receive arch flags.
 # https://github.com/weidai11/cryptopp/issues/635
-if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "AppleTVSimulator" || "$IOS_SDK" == "WatchSimulator" ]]; then
+if [[ "$IOS_SDK" = "iPhoneSimulator" || "$IOS_SDK" = "AppleTVSimulator" || "$IOS_SDK" = "WatchSimulator" ]]; then
     IOS_CXXFLAGS="$IOS_CXXFLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
