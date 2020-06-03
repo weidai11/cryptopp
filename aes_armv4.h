@@ -18,8 +18,8 @@ extern "C" {
 // Instead of AES_KEY we use a 'word32 rkey[4*15+4]'. It has space for
 // both the AES_MAXNR round keys and the number of rounds in the tail.
 
-int AES_set_encrypt_key(const unsigned char *userKey, const int bits, unsigned int *rkey);
-int AES_set_decrypt_key(const unsigned char *userKey, const int bits, unsigned int *rkey);
+int AES_set_encrypt_key_ARM(const unsigned char *userKey, const int bits, unsigned int *rkey);
+int AES_set_decrypt_key_ARM(const unsigned char *userKey, const int bits, unsigned int *rkey);
 void AES_encrypt_block(const unsigned char *in, unsigned char *out, const unsigned int *rkey);
 void AES_decrypt_block(const unsigned char *in, unsigned char *out, const unsigned int *rkey);
 

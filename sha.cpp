@@ -67,7 +67,7 @@ extern void SHA256_HashMultipleBlocks_SHANI(word32 *state, const word32 *data, s
 #endif
 
 #if CRYPTOGAMS_ARM_SHA1
-extern "C" void sha1_block_data_order(word32* state, const word32 *data, size_t blocks);
+extern "C" void sha1_block_data_order_ARM(word32* state, const word32 *data, size_t blocks);
 extern "C" void sha1_block_data_order_neon(word32* state, const word32 *data, size_t blocks);
 #endif
 
@@ -308,9 +308,9 @@ void SHA1::Transform(word32 *state, const word32 *data)
 # if defined(CRYPTOPP_LITTLE_ENDIAN)
         word32 dataBuf[16];
         ByteReverse(dataBuf, data, SHA1::BLOCKSIZE);
-        sha1_block_data_order(state, data, 1);
+        sha1_block_data_order_ARM(state, data, 1);
 # else
-        sha1_block_data_order(state, data, 1);
+        sha1_block_data_order_ARM(state, data, 1);
 # endif
         return;
     }
@@ -346,7 +346,7 @@ size_t SHA1::HashMultipleBlocks(const word32 *input, size_t length)
     }
     if (HasARMv7())
     {
-        sha1_block_data_order(m_state, input, length / SHA1::BLOCKSIZE);
+        sha1_block_data_order_ARM(m_state, input, length / SHA1::BLOCKSIZE);
         return length & (SHA1::BLOCKSIZE - 1);
     }
 #endif
