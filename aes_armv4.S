@@ -434,10 +434,10 @@ _armv4_AES_encrypt_block:
 	ldr	pc,[sp],#4		@ pop and return
 .size	_armv4_AES_encrypt_block,.-_armv4_AES_encrypt_block
 
-.globl	AES_set_encrypt_key
-.type	AES_set_encrypt_key,%function
+.globl	AES_set_encrypt_key_ARM
+.type	AES_set_encrypt_key_ARM,%function
 .align	5
-AES_set_encrypt_key:
+AES_set_encrypt_key_ARM:
 _armv4_AES_set_encrypt_key:
 #ifndef	__thumb2__
 	sub	r3,pc,#8		@ AES_set_encrypt_key
@@ -738,12 +738,12 @@ _armv4_AES_set_encrypt_key:
 	moveq	pc,lr			@ be binary compatible with V4, yet
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
-.size	AES_set_encrypt_key,.-AES_set_encrypt_key
+.size	AES_set_encrypt_key_ARM,.-AES_set_encrypt_key_ARM
 
-.globl	AES_set_decrypt_key
-.type	AES_set_decrypt_key,%function
+.globl	AES_set_decrypt_key_ARM
+.type	AES_set_decrypt_key_ARM,%function
 .align	5
-AES_set_decrypt_key:
+AES_set_decrypt_key_ARM:
 	str	lr,[sp,#-4]!            @ push lr
 	bl	_armv4_AES_set_encrypt_key
 	teq	r0,#0
@@ -753,13 +753,13 @@ AES_set_decrypt_key:
 	mov	r0,r2			@ AES_set_encrypt_key preserves r2,
 	mov	r1,r2			@ which is AES_KEY *key
 	b	_armv4_AES_set_enc2dec_key
-.size	AES_set_decrypt_key,.-AES_set_decrypt_key
+.size	AES_set_decrypt_key_ARM,.-AES_set_decrypt_key_ARM
 
-@ void AES_set_enc2dec_key(const AES_KEY *inp,AES_KEY *out)
-.globl	AES_set_enc2dec_key
-.type	AES_set_enc2dec_key,%function
+@ void AES_set_enc2dec_key_ARM(const AES_KEY *inp,AES_KEY *out)
+.globl	AES_set_enc2dec_key_ARM
+.type	AES_set_enc2dec_key_ARM,%function
 .align	5
-AES_set_enc2dec_key:
+AES_set_enc2dec_key_ARM:
 _armv4_AES_set_enc2dec_key:
 	stmdb	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 
@@ -850,7 +850,7 @@ _armv4_AES_set_enc2dec_key:
 	moveq	pc,lr			@ be binary compatible with V4, yet
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
-.size	AES_set_enc2dec_key,.-AES_set_enc2dec_key
+.size	AES_set_enc2dec_key_ARM,.-AES_set_enc2dec_key_ARM
 
 .type	AES_Td,%object
 .align	5
