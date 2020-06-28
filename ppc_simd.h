@@ -2754,11 +2754,4 @@ NAMESPACE_END
 # pragma GCC diagnostic pop
 #endif
 
-#undef CONST_V8_CAST
-#undef CONST_V32_CAST
-#undef CONST_V64_CAST
-#undef NCONST_V8_CAST
-#undef NCONST_V32_CAST
-#undef NCONST_V64_CAST
-
 #endif  // CRYPTOPP_PPC_CRYPTO_H

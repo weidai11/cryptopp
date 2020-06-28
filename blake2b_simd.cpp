@@ -763,13 +763,13 @@ inline uint64x2_p VecLoad64(const void* p)
     return (uint64x2_p)VecLoad((const byte*)p);
 }
 
-inline uint64x2_p VecLoad64LE(const void* p)
+inline uint64x2_p VecLoad64LE(const void* p, const uint8x16_p le_mask)
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
     const uint64x2_p v = VecLoad64(p);
-    return (uint64x2_p)VecPermute(v, v, m);
+    return (uint64x2_p)VecPermute(v, v, le_mask);
 #else
+    CRYPTOPP_UNUSED(le_mask);
     return (uint64x2_p)VecLoad64(p);
 #endif
 }
@@ -779,12 +779,12 @@ inline void VecStore64(void* p, const uint64x2_p x)
     VecStore((uint8x16_p)x, (byte*)p);
 }
 
-inline void VecStore64LE(void* p, const uint64x2_p x)
+inline void VecStore64LE(void* p, const uint64x2_p x, const uint8x16_p le_mask)
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    const uint8x16_p m = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
-    VecStore64(p, VecPermute(x, x, m));
+    VecStore64(p, VecPermute(x, x, le_mask));
 #else
+    CRYPTOPP_UNUSED(le_mask);
     VecStore64(p, x);
 #endif
 }
@@ -1155,22 +1155,24 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
       BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     } while(0)
 
-    const uint64x2_p m0 = VecLoad64LE(input +  00);
-    const uint64x2_p m1 = VecLoad64LE(input +  16);
-    const uint64x2_p m2 = VecLoad64LE(input +  32);
-    const uint64x2_p m3 = VecLoad64LE(input +  48);
-    const uint64x2_p m4 = VecLoad64LE(input +  64);
-    const uint64x2_p m5 = VecLoad64LE(input +  80);
-    const uint64x2_p m6 = VecLoad64LE(input +  96);
-    const uint64x2_p m7 = VecLoad64LE(input + 112);
+    const uint8x16_p le_mask = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
+
+    const uint64x2_p m0 = VecLoad64LE(input +  00, le_mask);
+    const uint64x2_p m1 = VecLoad64LE(input +  16, le_mask);
+    const uint64x2_p m2 = VecLoad64LE(input +  32, le_mask);
+    const uint64x2_p m3 = VecLoad64LE(input +  48, le_mask);
+    const uint64x2_p m4 = VecLoad64LE(input +  64, le_mask);
+    const uint64x2_p m5 = VecLoad64LE(input +  80, le_mask);
+    const uint64x2_p m6 = VecLoad64LE(input +  96, le_mask);
+    const uint64x2_p m7 = VecLoad64LE(input + 112, le_mask);
 
     uint64x2_p row1l, row1h, row2l, row2h;
     uint64x2_p row3l, row3h, row4l, row4h;
 
-    const uint64x2_p h0 = row1l = VecLoad64LE(state.h()+0);
-    const uint64x2_p h1 = row1h = VecLoad64LE(state.h()+2);
-    const uint64x2_p h2 = row2l = VecLoad64LE(state.h()+4);
-    const uint64x2_p h3 = row2h = VecLoad64LE(state.h()+6);
+    const uint64x2_p h0 = row1l = VecLoad64LE(state.h()+0, le_mask);
+    const uint64x2_p h1 = row1h = VecLoad64LE(state.h()+2, le_mask);
+    const uint64x2_p h2 = row2l = VecLoad64LE(state.h()+4, le_mask);
+    const uint64x2_p h3 = row2h = VecLoad64LE(state.h()+6, le_mask);
 
     row3l = VecLoad64(BLAKE2B_IV+0);
     row3h = VecLoad64(BLAKE2B_IV+2);
@@ -1190,10 +1192,10 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     BLAKE2B_ROUND(10);
     BLAKE2B_ROUND(11);
 
-    VecStore64LE(state.h()+0, VecXor(h0, VecXor(row1l, row3l)));
-    VecStore64LE(state.h()+2, VecXor(h1, VecXor(row1h, row3h)));
-    VecStore64LE(state.h()+4, VecXor(h2, VecXor(row2l, row4l)));
-    VecStore64LE(state.h()+6, VecXor(h3, VecXor(row2h, row4h)));
+    VecStore64LE(state.h()+0, VecXor(h0, VecXor(row1l, row3l)), le_mask);
+    VecStore64LE(state.h()+2, VecXor(h1, VecXor(row1h, row3h)), le_mask);
+    VecStore64LE(state.h()+4, VecXor(h2, VecXor(row2l, row4l)), le_mask);
+    VecStore64LE(state.h()+6, VecXor(h3, VecXor(row2h, row4h)), le_mask);
 }
 #endif  // CRYPTOPP_POWER8_AVAILABLE
 

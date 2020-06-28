@@ -706,13 +706,13 @@ inline uint32x4_p VecLoad32(const T* p)
 }
 
 template <class T>
-inline uint32x4_p VecLoad32LE(const T* p)
+inline uint32x4_p VecLoad32LE(const T* p, const uint8x16_p le_mask)
 {
-#if __BIG_ENDIAN__
-    const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
+#if defined(CRYPTOPP_BIG_ENDIAN)
     const uint32x4_p v = VecLoad(p);
-    return VecPermute(v, v, m);
+    return VecPermute(v, v, le_mask);
 #else
+    CRYPTOPP_UNUSED(le_mask);
     return VecLoad(p);
 #endif
 }
@@ -724,12 +724,13 @@ inline void VecStore32(T* p, const uint32x4_p x)
 }
 
 template <class T>
-inline void VecStore32LE(T* p, const uint32x4_p x)
+inline void VecStore32LE(T* p, const uint32x4_p x, const uint8x16_p le_mask)
 {
-#if __BIG_ENDIAN__
-    const uint8x16_p m = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
-    VecStore(VecPermute(x, x, m), p);
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    const uint32x4_p v = VecPermute(x, x, le_mask);
+    VecStore(v, p);
 #else
+    CRYPTOPP_UNUSED(le_mask);
     VecStore(x, p);
 #endif
 }
@@ -991,17 +992,19 @@ void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state)
       BLAKE2S_G2(row1,row2,row3,row4,buf4); \
       BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4);
 
+    const uint8x16_p le_mask = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
+
+    const uint32x4_p  m0 = VecLoad32LE(input +  0, le_mask);
+    const uint32x4_p  m4 = VecLoad32LE(input + 16, le_mask);
+    const uint32x4_p  m8 = VecLoad32LE(input + 32, le_mask);
+    const uint32x4_p m12 = VecLoad32LE(input + 48, le_mask);
+
     uint32x4_p row1, row2, row3, row4;
     uint32x4_p buf1, buf2, buf3, buf4;
     uint32x4_p  ff0,  ff1;
 
-    const uint32x4_p  m0 = VecLoad32LE(input +  0);
-    const uint32x4_p  m4 = VecLoad32LE(input + 16);
-    const uint32x4_p  m8 = VecLoad32LE(input + 32);
-    const uint32x4_p m12 = VecLoad32LE(input + 48);
-
-    row1 = ff0 = VecLoad32LE(state.h()+0);
-    row2 = ff1 = VecLoad32LE(state.h()+4);
+    row1 = ff0 = VecLoad32LE(state.h()+0, le_mask);
+    row2 = ff1 = VecLoad32LE(state.h()+4, le_mask);
     row3 = VecLoad32(BLAKE2S_IV+0);
     row4 = VecXor(VecLoad32(BLAKE2S_IV+4), VecLoad32(state.t()+0));
 
@@ -1016,8 +1019,8 @@ void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state)
     BLAKE2S_ROUND(8);
     BLAKE2S_ROUND(9);
 
-    VecStore32LE(state.h()+0, VecXor(ff0, VecXor(row1, row3)));
-    VecStore32LE(state.h()+4, VecXor(ff1, VecXor(row2, row4)));
+    VecStore32LE(state.h()+0, VecXor(ff0, VecXor(row1, row3)), le_mask);
+    VecStore32LE(state.h()+4, VecXor(ff1, VecXor(row2, row4)), le_mask);
 }
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 
