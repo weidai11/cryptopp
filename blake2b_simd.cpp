@@ -1170,6 +1170,17 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     m5 = (uint64x2_p) vec_xl( 80, CONST_V8_CAST( input ));
     m6 = (uint64x2_p) vec_xl( 96, CONST_V8_CAST( input ));
     m7 = (uint64x2_p) vec_xl(112, CONST_V8_CAST( input ));
+
+# if defined(CRYPTOPP_BIG_ENDIAN)
+    m0 = vec_perm(m0, m0, le_mask);
+    m1 = vec_perm(m1, m1, le_mask);
+    m2 = vec_perm(m2, m2, le_mask);
+    m3 = vec_perm(m3, m3, le_mask);
+    m4 = vec_perm(m4, m4, le_mask);
+    m5 = vec_perm(m5, m5, le_mask);
+    m6 = vec_perm(m6, m6, le_mask);
+    m7 = vec_perm(m7, m7, le_mask);
+# endif
 #else
     /* Altivec only provides 16-byte aligned loads */
     /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf, Section 3.16 */
@@ -1184,13 +1195,33 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     /* Alignment check for load of the message buffer */
     const uintptr_t addr = (uintptr_t)input;
-    if (addr%16 != 0 /*not aligned*/)
+    if (addr%16 == 0)
     {
+        /* Already aligned. Perform a little-endian swap as required */
+# if defined(CRYPTOPP_BIG_ENDIAN)
+        m0 = vec_perm(m0, m0, le_mask);
+        m1 = vec_perm(m1, m1, le_mask);
+        m2 = vec_perm(m2, m2, le_mask);
+        m3 = vec_perm(m3, m3, le_mask);
+        m4 = vec_perm(m4, m4, le_mask);
+        m5 = vec_perm(m5, m5, le_mask);
+        m6 = vec_perm(m6, m6, le_mask);
+        m7 = vec_perm(m7, m7, le_mask);
+# endif
+    }
+    else
+    {
+        /* Not aligned. Fix vectors and perform a little-endian swap as required */
         // http://mirror.informatimago.com/next/developer.apple.com/
         //        hardwaredrivers/ve/code_optimization.html
         uint64x2_p ex; uint8x16_p perm;
         ex = (uint64x2_p) vec_ld(112+15, CONST_V8_CAST( input ));
         perm = vec_lvsl(0, CONST_V8_CAST( addr ));
+
+# if defined(CRYPTOPP_BIG_ENDIAN)
+        /* Combine the vector permute with the little-endian swap */
+        perm = vec_perm(perm, perm, le_mask);
+# endif
 
         m0 = vec_perm(m0, m1, perm);
         m1 = vec_perm(m1, m2, perm);
@@ -1201,17 +1232,6 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
         m6 = vec_perm(m6, m7, perm);
         m7 = vec_perm(m7, ex, perm);
     }
-#endif
-
-#if defined(CRYPTOPP_BIG_ENDIAN)
-    m0 = vec_perm(m0, m0, le_mask);
-    m1 = vec_perm(m1, m1, le_mask);
-    m2 = vec_perm(m2, m2, le_mask);
-    m3 = vec_perm(m3, m3, le_mask);
-    m4 = vec_perm(m4, m4, le_mask);
-    m5 = vec_perm(m5, m5, le_mask);
-    m6 = vec_perm(m6, m6, le_mask);
-    m7 = vec_perm(m7, m7, le_mask);
 #endif
 
     uint64x2_p row1l, row1h, row2l, row2h;
