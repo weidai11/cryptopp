@@ -992,7 +992,7 @@ void BLAKE2_Compress32_ALTIVEC(const byte* input, BLAKE2s_State& state)
       BLAKE2S_G2(row1,row2,row3,row4,buf4); \
       BLAKE2S_UNDIAGONALIZE(row1,row2,row3,row4);
 
-    const uint8x16_p le_mask = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
+    const uint8x16_p le_mask = {3,2,1,0, 7,6,5,4, 11,10,9,8, 15,14,13,12};
 
     const uint32x4_p  m0 = VecLoad32LE(input +  0, le_mask);
     const uint32x4_p  m4 = VecLoad32LE(input + 16, le_mask);
