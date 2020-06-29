@@ -1158,6 +1158,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 
     /* Possibly unaligned user messages */
     uint64x2_p m0, m1, m2, m3, m4, m5, m6, m7;
+    /* Endian conversion mask */
     const uint8x16_p le_mask = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
 
 #if defined(_ARCH_PWR9)
@@ -1183,7 +1184,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 # endif
 #else
     /* Altivec only provides 16-byte aligned loads */
-    /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf */
+    /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf, Section 3.16 */
     m0 = (uint64x2_p) vec_ld(  0, CONST_V8_CAST( input ));
     m1 = (uint64x2_p) vec_ld( 16, CONST_V8_CAST( input ));
     m2 = (uint64x2_p) vec_ld( 32, CONST_V8_CAST( input ));
