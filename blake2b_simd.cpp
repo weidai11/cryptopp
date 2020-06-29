@@ -1156,13 +1156,13 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
       BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     } while(0)
 
-    /* Possibly unaligned user messages */
+    // Possibly unaligned user messages
     uint64x2_p m0, m1, m2, m3, m4, m5, m6, m7;
-    /* Endian conversion mask */
+    // Endian conversion mask
     const uint8x16_p le_mask = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
 
 #if defined(_ARCH_PWR9)
-    /* POWER9 provides loads for char's and short's */
+    // POWER9 provides loads for char's and short's
     m0 = (uint64x2_p) vec_xl(  0, CONST_V8_CAST( input ));
     m1 = (uint64x2_p) vec_xl( 16, CONST_V8_CAST( input ));
     m2 = (uint64x2_p) vec_xl( 32, CONST_V8_CAST( input ));
@@ -1183,8 +1183,8 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     m7 = vec_perm(m7, m7, le_mask);
 # endif
 #else
-    /* Altivec only provides 16-byte aligned loads */
-    /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf, Section 3.16 */
+    // Altivec only provides 16-byte aligned loads
+    // http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf
     m0 = (uint64x2_p) vec_ld(  0, CONST_V8_CAST( input ));
     m1 = (uint64x2_p) vec_ld( 16, CONST_V8_CAST( input ));
     m2 = (uint64x2_p) vec_ld( 32, CONST_V8_CAST( input ));
@@ -1194,11 +1194,11 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     m6 = (uint64x2_p) vec_ld( 96, CONST_V8_CAST( input ));
     m7 = (uint64x2_p) vec_ld(112, CONST_V8_CAST( input ));
 
-    /* Alignment check for load of the message buffer */
+    // Alignment check for load of the message buffer
     const uintptr_t addr = (uintptr_t)input;
     if (addr%16 == 0)
     {
-        /* Already aligned. Perform a little-endian swap as required */
+        // Already aligned. Perform a little-endian swap as required
 # if defined(CRYPTOPP_BIG_ENDIAN)
         m0 = vec_perm(m0, m0, le_mask);
         m1 = vec_perm(m1, m1, le_mask);
@@ -1212,7 +1212,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
     }
     else
     {
-        /* Not aligned. Fix vectors and perform a little-endian swap as required */
+        // Not aligned. Fix vectors and perform a little-endian swap as required
         // http://mirror.informatimago.com/next/developer.apple.com/
         //        hardwaredrivers/ve/code_optimization.html
         uint64x2_p ex; uint8x16_p perm;
@@ -1220,7 +1220,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
         perm = vec_lvsl(0, CONST_V8_CAST( addr ));
 
 # if defined(CRYPTOPP_BIG_ENDIAN)
-        /* Combine the vector permute with the little-endian swap */
+        // Combine the vector permute with the little-endian swap
         perm = vec_perm(perm, perm, le_mask);
 # endif
 
