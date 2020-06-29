@@ -760,32 +760,33 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 
 inline uint64x2_p VecLoad64(const void* p)
 {
-    return (uint64x2_p)VecLoad((const byte*)p);
+    return (uint64x2_p)vec_xl(0, (const word32*)p);
 }
 
 inline uint64x2_p VecLoad64LE(const void* p, const uint8x16_p le_mask)
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    const uint64x2_p v = VecLoad64(p);
+    const uint32x4_p v = vec_xl(0, (const word32*)p);
     return (uint64x2_p)VecPermute(v, v, le_mask);
 #else
     CRYPTOPP_UNUSED(le_mask);
-    return (uint64x2_p)VecLoad64(p);
+    return (uint64x2_p)vec_xl(0, (const word32*)p);
 #endif
 }
 
 inline void VecStore64(void* p, const uint64x2_p x)
 {
-    VecStore((uint8x16_p)x, (byte*)p);
+    vec_xst((uint32x4_p)x, 0, (word32*)p);
 }
 
 inline void VecStore64LE(void* p, const uint64x2_p x, const uint8x16_p le_mask)
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    VecStore64(p, VecPermute(x, x, le_mask));
+    const uint64x2_p v = VecPermute(x, x, le_mask);
+    vec_xst((uint32x4_p)v, 0, (word32*)p);
 #else
     CRYPTOPP_UNUSED(le_mask);
-    VecStore64(p, x);
+    vec_xst((uint32x4_p)x, 0, (word32*)p);
 #endif
 }
 
@@ -1155,16 +1156,63 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
       BLAKE2B_UNDIAGONALIZE(row1l,row2l,row3l,row4l,row1h,row2h,row3h,row4h); \
     } while(0)
 
+    /* Possibly unaligned user messages */
+    uint64x2_p m0, m1, m2, m3, m4, m5, m6, m7;
     const uint8x16_p le_mask = {7,6,5,4, 3,2,1,0, 15,14,13,12, 11,10,9,8};
 
-    const uint64x2_p m0 = VecLoad64LE(input +  00, le_mask);
-    const uint64x2_p m1 = VecLoad64LE(input +  16, le_mask);
-    const uint64x2_p m2 = VecLoad64LE(input +  32, le_mask);
-    const uint64x2_p m3 = VecLoad64LE(input +  48, le_mask);
-    const uint64x2_p m4 = VecLoad64LE(input +  64, le_mask);
-    const uint64x2_p m5 = VecLoad64LE(input +  80, le_mask);
-    const uint64x2_p m6 = VecLoad64LE(input +  96, le_mask);
-    const uint64x2_p m7 = VecLoad64LE(input + 112, le_mask);
+#if defined(_ARCH_PWR9)
+    /* POWER9 provides loads for char's and short's */
+    m0 = (uint64x2_p) vec_xl(  0, CONST_V8_CAST( input ));
+    m1 = (uint64x2_p) vec_xl( 16, CONST_V8_CAST( input ));
+    m2 = (uint64x2_p) vec_xl( 32, CONST_V8_CAST( input ));
+    m3 = (uint64x2_p) vec_xl( 48, CONST_V8_CAST( input ));
+    m4 = (uint64x2_p) vec_xl( 64, CONST_V8_CAST( input ));
+    m5 = (uint64x2_p) vec_xl( 80, CONST_V8_CAST( input ));
+    m6 = (uint64x2_p) vec_xl( 96, CONST_V8_CAST( input ));
+    m7 = (uint64x2_p) vec_xl(112, CONST_V8_CAST( input ));
+#else
+    /* Altivec only provides 16-byte aligned loads */
+    /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf, Section 3.16 */
+    m0 = (uint64x2_p) vec_ld(  0, CONST_V8_CAST( input ));
+    m1 = (uint64x2_p) vec_ld( 16, CONST_V8_CAST( input ));
+    m2 = (uint64x2_p) vec_ld( 32, CONST_V8_CAST( input ));
+    m3 = (uint64x2_p) vec_ld( 48, CONST_V8_CAST( input ));
+    m4 = (uint64x2_p) vec_ld( 64, CONST_V8_CAST( input ));
+    m5 = (uint64x2_p) vec_ld( 80, CONST_V8_CAST( input ));
+    m6 = (uint64x2_p) vec_ld( 96, CONST_V8_CAST( input ));
+    m7 = (uint64x2_p) vec_ld(112, CONST_V8_CAST( input ));
+
+    /* Alignment check for load of the message buffer */
+    const uintptr_t addr = (uintptr_t)input;
+    if (addr%16 != 0 /*not aligned*/)
+    {
+        // http://mirror.informatimago.com/next/developer.apple.com/
+        //        hardwaredrivers/ve/code_optimization.html
+        uint64x2_p ex; uint8x16_p perm;
+        ex = (uint64x2_p) vec_ld(112+15, CONST_V8_CAST( input ));
+        perm = vec_lvsl(0, CONST_V8_CAST( addr ));
+
+        m0 = vec_perm(m0, m1, perm);
+        m1 = vec_perm(m1, m2, perm);
+        m2 = vec_perm(m2, m3, perm);
+        m3 = vec_perm(m3, m4, perm);
+        m4 = vec_perm(m4, m5, perm);
+        m5 = vec_perm(m5, m6, perm);
+        m6 = vec_perm(m6, m7, perm);
+        m7 = vec_perm(m7, ex, perm);
+    }
+#endif
+
+#if defined(CRYPTOPP_BIG_ENDIAN)
+    m0 = vec_perm(m0, m0, le_mask);
+    m1 = vec_perm(m1, m1, le_mask);
+    m2 = vec_perm(m2, m2, le_mask);
+    m3 = vec_perm(m3, m3, le_mask);
+    m4 = vec_perm(m4, m4, le_mask);
+    m5 = vec_perm(m5, m5, le_mask);
+    m6 = vec_perm(m6, m6, le_mask);
+    m7 = vec_perm(m7, m7, le_mask);
+#endif
 
     uint64x2_p row1l, row1h, row2l, row2h;
     uint64x2_p row3l, row3h, row4l, row4h;
