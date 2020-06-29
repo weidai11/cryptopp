@@ -1183,7 +1183,7 @@ void BLAKE2_Compress64_POWER8(const byte* input, BLAKE2b_State& state)
 # endif
 #else
     /* Altivec only provides 16-byte aligned loads */
-    /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf, Section 3.16 */
+    /* http://www.nxp.com/docs/en/reference-manual/ALTIVECPEM.pdf */
     m0 = (uint64x2_p) vec_ld(  0, CONST_V8_CAST( input ));
     m1 = (uint64x2_p) vec_ld( 16, CONST_V8_CAST( input ));
     m2 = (uint64x2_p) vec_ld( 32, CONST_V8_CAST( input ));
