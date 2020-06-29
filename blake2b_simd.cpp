@@ -58,6 +58,11 @@
 # include "ppc_simd.h"
 #endif
 
+#if defined(CRYPTOPP_GCC_DIAGNOSTIC_AVAILABLE)
+/* Ignore "warning: vec_lvsl is deprecated..." */
+# pragma GCC diagnostic ignored "-Wdeprecated"
+#endif
+
 // Squash MS LNK4221 and libtool warnings
 extern const char BLAKE2B_SIMD_FNAME[] = __FILE__;
 
