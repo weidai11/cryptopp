@@ -765,33 +765,33 @@ void BLAKE2_Compress64_NEON(const byte* input, BLAKE2b_State& state)
 
 inline uint64x2_p VecLoad64(const void* p)
 {
-    return (uint64x2_p)vec_xl(0, (const word32*)p);
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(p));
 }
 
 inline uint64x2_p VecLoad64LE(const void* p, const uint8x16_p le_mask)
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
-    const uint32x4_p v = vec_xl(0, (const word32*)p);
+    const uint32x4_p v = vec_xl(0, CONST_V32_CAST(p));
     return (uint64x2_p)VecPermute(v, v, le_mask);
 #else
     CRYPTOPP_UNUSED(le_mask);
-    return (uint64x2_p)vec_xl(0, (const word32*)p);
+    return (uint64x2_p)vec_xl(0, CONST_V32_CAST(p));
 #endif
 }
 
 inline void VecStore64(void* p, const uint64x2_p x)
 {
-    vec_xst((uint32x4_p)x, 0, (word32*)p);
+    vec_xst((uint32x4_p)x, 0, NCONST_V32_CAST(p));
 }
 
 inline void VecStore64LE(void* p, const uint64x2_p x, const uint8x16_p le_mask)
 {
 #if defined(CRYPTOPP_BIG_ENDIAN)
     const uint64x2_p v = VecPermute(x, x, le_mask);
-    vec_xst((uint32x4_p)v, 0, (word32*)p);
+    vec_xst((uint32x4_p)v, 0, NCONST_V32_CAST(p));
 #else
     CRYPTOPP_UNUSED(le_mask);
-    vec_xst((uint32x4_p)x, 0, (word32*)p);
+    vec_xst((uint32x4_p)x, 0, NCONST_V32_CAST(p));
 #endif
 }
 
