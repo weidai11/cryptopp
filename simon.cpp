@@ -312,6 +312,8 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         CRYPTOPP_ASSERT(0);
     }
 
+#if CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
+
     // Pre-splat the round keys for Altivec forward transformation
 #if CRYPTOPP_ALTIVEC_AVAILABLE
     if (IsForwardTransformation() && HasAltivec())
@@ -330,6 +332,8 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         m_rkeys.swap(presplat);
     }
 #endif
+
+#endif  // CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
 }
 
 void SIMON64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -453,6 +457,8 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         CRYPTOPP_ASSERT(0);
     }
 
+#if CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS
+
     // Pre-splat the round keys for Altivec forward transformation
 #if CRYPTOPP_ALTIVEC_AVAILABLE
     if (IsForwardTransformation() && HasAltivec())
@@ -471,6 +477,8 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         m_rkeys.swap(presplat);
     }
 #endif
+
+#endif  // CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
 }
 
 void SIMON128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const

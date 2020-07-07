@@ -284,6 +284,8 @@ void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         CRYPTOPP_ASSERT(0);
     }
 
+#if CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
+
     // Pre-splat the round keys for Altivec forward transformation
 #if CRYPTOPP_ALTIVEC_AVAILABLE
     if (IsForwardTransformation() && HasAltivec())
@@ -302,6 +304,8 @@ void SPECK64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
         m_rkeys.swap(presplat);
     }
 #endif
+
+#endif  // CRYPTOPP_SPECK64_ADVANCED_PROCESS_BLOCKS
 }
 
 void SPECK64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -425,6 +429,8 @@ void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         CRYPTOPP_ASSERT(0);
     }
 
+#if CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
+
     // Pre-splat the round keys for Altivec forward transformation
 #if CRYPTOPP_ALTIVEC_AVAILABLE
     if (IsForwardTransformation() && HasAltivec())
@@ -443,6 +449,8 @@ void SPECK128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
         m_rkeys.swap(presplat);
     }
 #endif
+
+#endif  // CRYPTOPP_SPECK128_ADVANCED_PROCESS_BLOCKS
 }
 
 void SPECK128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
