@@ -92,16 +92,6 @@ if ! autoupdate &>/dev/null; then
 	exit 1
 fi
 
-if false; then
-
-echo "Running libtoolize"
-if ! "$LIBTOOLIZE" --force --install &>/dev/null; then
-	echo "libtoolize failed... skipping."
-	# exit 1
-fi
-
-fi
-
 # Run autoreconf twice on failure. Also see
 # https://github.com/tracebox/tracebox/issues/57
 echo "Running autoreconf"
