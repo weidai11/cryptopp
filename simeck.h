@@ -27,6 +27,9 @@
 # undef CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
 #endif
 
+// https://github.com/weidai11/cryptopp/issues/945
+#undef CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SIMECK block cipher information

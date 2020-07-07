@@ -25,6 +25,9 @@
 # undef CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
 #endif
 
+// https://github.com/weidai11/cryptopp/issues/945
+#undef CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief CHAM block cipher information

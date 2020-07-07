@@ -40,6 +40,9 @@
 # undef CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS
 #endif
 
+// https://github.com/weidai11/cryptopp/issues/945
+#undef CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
+
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SIMON block cipher information
