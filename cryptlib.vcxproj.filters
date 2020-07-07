@@ -425,13 +425,7 @@
     <ClCompile Include="simeck.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="simeck_simd.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="simon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="simon64_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="simon128_simd.cpp">
@@ -453,9 +447,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="speck.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="speck64_simd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="speck128_simd.cpp">

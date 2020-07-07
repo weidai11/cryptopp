@@ -197,26 +197,10 @@ ANONYMOUS_NAMESPACE_END
 NAMESPACE_BEGIN(CryptoPP)
 
 #if (CRYPTOPP_ARM_NEON_AVAILABLE)
-extern size_t SIMON64_Enc_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-
-extern size_t SIMON64_Dec_AdvancedProcessBlocks_NEON(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-#endif
-
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
 extern size_t SIMON128_Enc_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
 extern size_t SIMON128_Dec_AdvancedProcessBlocks_NEON(const word64* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-#endif
-
-#if (CRYPTOPP_SSE41_AVAILABLE)
-extern size_t SIMON64_Enc_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-
-extern size_t SIMON64_Dec_AdvancedProcessBlocks_SSE41(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
@@ -225,14 +209,6 @@ extern size_t SIMON128_Enc_AdvancedProcessBlocks_SSSE3(const word64* subKeys, si
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 
 extern size_t SIMON128_Dec_AdvancedProcessBlocks_SSSE3(const word64* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-#endif
-
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-extern size_t SIMON64_Enc_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
-    const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
-
-extern size_t SIMON64_Dec_AdvancedProcessBlocks_ALTIVEC(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 #endif
 
@@ -246,39 +222,11 @@ extern size_t SIMON128_Dec_AdvancedProcessBlocks_ALTIVEC(const word64* subKeys, 
 
 std::string SIMON64::Base::AlgorithmProvider() const
 {
-#if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
-# if (CRYPTOPP_SSE41_AVAILABLE)
-    if (HasSSE41())
-        return "SSE4.1";
-# endif
-# if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return "NEON";
-# endif
-# if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return "Altivec";
-# endif
-#endif
     return "C++";
 }
 
 unsigned int SIMON64::Base::OptimalDataAlignment() const
 {
-#if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
-# if (CRYPTOPP_SSE41_AVAILABLE)
-    if (HasSSE41())
-        return 16;  // load __m128i
-# endif
-# if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return 4;  // load uint32x4_t
-# endif
-# if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return 16;  // load uint32x4_p
-# endif
-#endif
     return GetAlignmentOf<word32>();
 }
 
@@ -311,29 +259,6 @@ void SIMON64::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength,
     default:
         CRYPTOPP_ASSERT(0);
     }
-
-#if CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
-
-    // Pre-splat the round keys for Altivec forward transformation
-#if CRYPTOPP_ALTIVEC_AVAILABLE
-    if (IsForwardTransformation() && HasAltivec())
-    {
-        AlignedSecBlock presplat(m_rkeys.size()*4);
-        for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=4)
-            presplat[j+0] = presplat[j+1] = presplat[j+2] = presplat[j+3] = m_rkeys[i];
-        m_rkeys.swap(presplat);
-    }
-#elif CRYPTOPP_SSE41_AVAILABLE
-    if (IsForwardTransformation() && HasSSE41())
-    {
-        AlignedSecBlock presplat(m_rkeys.size()*4);
-        for (size_t i=0, j=0; i<m_rkeys.size(); i++, j+=4)
-            presplat[j+0] = presplat[j+1] = presplat[j+2] = presplat[j+3] = m_rkeys[i];
-        m_rkeys.swap(presplat);
-    }
-#endif
-
-#endif  // CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
 }
 
 void SIMON64::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -478,7 +403,7 @@ void SIMON128::Base::UncheckedSetKey(const byte *userKey, unsigned int keyLength
     }
 #endif
 
-#endif  // CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
+#endif  // CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS
 }
 
 void SIMON128::Enc::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const
@@ -532,50 +457,6 @@ void SIMON128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock
     typedef PutBlock<word64, LittleEndian> OutBlock;
     OutBlock oblk(xorBlock, outBlock); oblk(m_wspace[3])(m_wspace[2]);
 }
-
-#if (CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS)
-size_t SIMON64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
-        byte *outBlocks, size_t length, word32 flags) const
-{
-#if (CRYPTOPP_SSE41_AVAILABLE)
-    if (HasSSE41())
-        return SIMON64_Enc_AdvancedProcessBlocks_SSE41(m_rkeys, (size_t)m_rounds,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return SIMON64_Enc_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-#endif
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return SIMON64_Enc_AdvancedProcessBlocks_ALTIVEC(m_rkeys, (size_t)m_rounds,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-#endif
-    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
-}
-
-size_t SIMON64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
-        byte *outBlocks, size_t length, word32 flags) const
-{
-#if (CRYPTOPP_SSE41_AVAILABLE)
-    if (HasSSE41())
-        return SIMON64_Dec_AdvancedProcessBlocks_SSE41(m_rkeys, (size_t)m_rounds,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-#endif
-#if (CRYPTOPP_ARM_NEON_AVAILABLE)
-    if (HasNEON())
-        return SIMON64_Dec_AdvancedProcessBlocks_NEON(m_rkeys, (size_t)m_rounds,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-#endif
-#if (CRYPTOPP_ALTIVEC_AVAILABLE)
-    if (HasAltivec())
-        return SIMON64_Dec_AdvancedProcessBlocks_ALTIVEC(m_rkeys, (size_t)m_rounds,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-#endif
-    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
-}
-#endif  // CRYPTOPP_SIMON64_ADVANCED_PROCESS_BLOCKS
 
 #if (CRYPTOPP_SIMON128_ADVANCED_PROCESS_BLOCKS)
 size_t SIMON128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,

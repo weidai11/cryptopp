@@ -292,7 +292,6 @@ ifeq ($(DETECT_FEATURES),1)
     CHAM_FLAG = $(SSSE3_FLAG)
     KECCAK_FLAG = $(SSSE3_FLAG)
     LEA_FLAG = $(SSSE3_FLAG)
-    SIMECK_FLAG = $(SSSE3_FLAG)
     SIMON128_FLAG = $(SSSE3_FLAG)
     SPECK128_FLAG = $(SSSE3_FLAG)
     SUN_LDFLAGS += $(SSSE3_FLAG)
@@ -306,8 +305,6 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(strip $(HAVE_OPT)),0)
     BLAKE2B_FLAG = $(SSE41_FLAG)
     BLAKE2S_FLAG = $(SSE41_FLAG)
-    SIMON64_FLAG = $(SSE41_FLAG)
-    SPECK64_FLAG = $(SSE41_FLAG)
     SUN_LDFLAGS += $(SSE41_FLAG)
   else
     SSE41_FLAG =
@@ -478,10 +475,7 @@ ifeq ($(DETECT_FEATURES),1)
     CHAM_FLAG = -march=armv7-a -mfpu=neon
     LEA_FLAG = -march=armv7-a -mfpu=neon
     SHA_FLAG = -march=armv7-a -mfpu=neon
-    SIMECK_FLAG = -march=armv7-a -mfpu=neon
-    SIMON64_FLAG = -march=armv7-a -mfpu=neon
     SIMON128_FLAG = -march=armv7-a -mfpu=neon
-    SPECK64_FLAG = -march=armv7-a -mfpu=neon
     SPECK128_FLAG = -march=armv7-a -mfpu=neon
     SM4_FLAG = -march=armv7-a -mfpu=neon
   else
@@ -521,10 +515,7 @@ ifeq ($(DETECT_FEATURES),1)
     CHAM_FLAG = -march=armv8-a
     LEA_FLAG = -march=armv8-a
     NEON_FLAG = -march=armv8-a
-    SIMECK_FLAG = -march=armv8-a
-    SIMON64_FLAG = -march=armv8-a
     SIMON128_FLAG = -march=armv8-a
-    SPECK64_FLAG = -march=armv8-a
     SPECK128_FLAG = -march=armv8-a
     SM4_FLAG = -march=armv8-a
   else
@@ -658,7 +649,6 @@ ifeq ($(DETECT_FEATURES),1)
     LEA_FLAG = $(POWER8_FLAG)
     SHA_FLAG = $(POWER8_FLAG)
     SHACAL2_FLAG = $(POWER8_FLAG)
-    SIMECK_FLAG = $(POWER8_FLAG)
   else
     POWER8_FLAG =
   endif
@@ -724,8 +714,6 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(ALTIVEC_FLAG),)
     BLAKE2S_FLAG = $(ALTIVEC_FLAG)
     CHACHA_FLAG = $(ALTIVEC_FLAG)
-    SIMON64_FLAG = $(ALTIVEC_FLAG)
-    SPECK64_FLAG = $(ALTIVEC_FLAG)
     SPECK128_FLAG = $(ALTIVEC_FLAG)
     SIMON128_FLAG = $(ALTIVEC_FLAG)
   endif
@@ -1612,21 +1600,9 @@ sha3_simd.o : sha3_simd.cpp
 shacal2_simd.o : shacal2_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
-# SSSE3 or NEON available
-simeck_simd.o : simeck_simd.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SIMECK_FLAG) -c) $<
-
-# SSE4.1, NEON or POWER7 available
-simon64_simd.o : simon64_simd.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SIMON64_FLAG) -c) $<
-
 # SSSE3, NEON or POWER8 available
 simon128_simd.o : simon128_simd.cpp
 	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
-
-# SSE4.1, NEON or POWER7 available
-speck64_simd.o : speck64_simd.cpp
-	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SPECK64_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
 speck128_simd.o : speck128_simd.cpp

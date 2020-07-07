@@ -241,7 +241,6 @@ ifeq ($(DETECT_FEATURES),1)
     ARIA_FLAG = $(SSSE3_FLAG)
     CHAM_FLAG = $(SSSE3_FLAG)
     LEA_FLAG = $(SSSE3_FLAG)
-    SIMECK_FLAG = $(SSSE3_FLAG)
     SIMON128_FLAG = $(SSSE3_FLAG)
     SPECK128_FLAG = $(SSSE3_FLAG)
   else
@@ -254,8 +253,6 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(strip $(HAVE_OPT)),0)
     BLAKE2B_FLAG = $(SSE41_FLAG)
     BLAKE2S_FLAG = $(SSE41_FLAG)
-    SIMON64_FLAG = $(SSE41_FLAG)
-    SPECK64_FLAG = $(SSE41_FLAG)
   else
     SSE41_FLAG =
   endif
@@ -400,10 +397,7 @@ ifeq ($(DETECT_FEATURES),1)
     CHAM_FLAG = $(NEON_FLAG)
     LEA_FLAG = $(NEON_FLAG)
     SHA_FLAG = $(NEON_FLAG)
-    SIMECK_FLAG = $(NEON_FLAG)
-    SIMON64_FLAG = $(NEON_FLAG)
     SIMON128_FLAG = $(NEON_FLAG)
-    SPECK64_FLAG = $(NEON_FLAG)
     SPECK128_FLAG = $(NEON_FLAG)
     SM4_FLAG = $(NEON_FLAG)
   else
@@ -457,10 +451,7 @@ ifeq ($(DETECT_FEATURES),1)
     CHAM_FLAG = $(ASIMD_FLAG)
     LEA_FLAG = $(ASIMD_FLAG)
     NEON_FLAG = $(ASIMD_FLAG)
-    SIMECK_FLAG = $(ASIMD_FLAG)
-    SIMON64_FLAG = $(ASIMD_FLAG)
     SIMON128_FLAG = $(ASIMD_FLAG)
-    SPECK64_FLAG = $(ASIMD_FLAG)
     SPECK128_FLAG = $(ASIMD_FLAG)
     SM4_FLAG = $(ASIMD_FLAG)
   else
@@ -933,21 +924,9 @@ sha512_armv4.o : sha512_armv4.S
 shacal2_simd.o : shacal2_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
-# SSSE3 or NEON available
-simeck_simd.o : simeck_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SIMECK_FLAG) -c) $<
-
-# SSE4.1, NEON or POWER7 available
-simon64_simd.o : simon64_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SIMON64_FLAG) -c) $<
-
 # SSSE3, NEON or POWER8 available
 simon128_simd.o : simon128_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
-
-# SSE4.1, NEON or POWER7 available
-speck64_simd.o : speck64_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SPECK64_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
 speck128_simd.o : speck128_simd.cpp

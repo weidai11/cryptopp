@@ -17,19 +17,6 @@
 #include "secblock.h"
 #include "algparam.h"
 
-#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
-# define CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS 1
-#endif
-
-// Yet another SunStudio/SunCC workaround. Failed self tests
-// in SSE code paths on i386 for SunStudio 12.3 and below.
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
-# undef CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
-#endif
-
-// https://github.com/weidai11/cryptopp/issues/945
-#undef CRYPTOPP_SIMECK_ADVANCED_PROCESS_BLOCKS
-
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief SIMECK block cipher information

@@ -16,17 +16,14 @@
 #include "algparam.h"
 
 #if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X86)
-# define CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS 1
+# define CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS 1
 #endif
 
 // Yet another SunStudio/SunCC workaround. Failed self tests
 // in SSE code paths on i386 for SunStudio 12.3 and below.
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5120)
-# undef CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+# undef CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
 #endif
-
-// https://github.com/weidai11/cryptopp/issues/945
-#undef CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -92,10 +89,6 @@ public:
     {
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-
-#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
-        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
-#endif
     };
 
     /// \brief Decryption transformation
@@ -106,10 +99,6 @@ public:
     {
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
-
-#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
-        size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
-#endif
     };
 
     /// \brief CHAM64 encryption
@@ -156,7 +145,7 @@ public:
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
     };
@@ -170,7 +159,7 @@ public:
     public:
         void ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock, byte *outBlock) const;
 
-#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
         size_t AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags) const;
 #endif
     };

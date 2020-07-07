@@ -96,7 +96,7 @@ ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
-#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
 # if (CRYPTOPP_SSSE3_AVAILABLE)
 extern size_t CHAM64_Enc_AdvancedProcessBlocks_SSSE3(const word16* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
@@ -110,11 +110,11 @@ extern size_t CHAM128_Enc_AdvancedProcessBlocks_SSSE3(const word32* subKeys, siz
 extern size_t CHAM128_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, size_t rounds,
     const byte *inBlocks, const byte *xorBlocks, byte *outBlocks, size_t length, word32 flags);
 # endif  // CRYPTOPP_SSSE3_AVAILABLE
-#endif  // CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+#endif  // CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
 
 std::string CHAM64::Base::AlgorithmProvider() const
 {
-#if (CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS)
+#if (CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS)
 # if defined(CRYPTOPP_SSSE3_AVAILABLE)
     if (HasSSSE3())
         return "SSSE3";
@@ -336,31 +336,7 @@ void CHAM128::Dec::ProcessAndXorBlock(const byte *inBlock, const byte *xorBlock,
     oblock(m_x[0])(m_x[1])(m_x[2])(m_x[3]);
 }
 
-#if CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
-size_t CHAM64::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
-        byte *outBlocks, size_t length, word32 flags) const
-{
-# if (CRYPTOPP_SSSE3_AVAILABLE)
-    if (HasSSSE3()) {
-        return CHAM64_Enc_AdvancedProcessBlocks_SSSE3(m_rk, 80,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-    }
-# endif  // CRYPTOPP_SSSE3_AVAILABLE
-    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
-}
-
-size_t CHAM64::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
-        byte *outBlocks, size_t length, word32 flags) const
-{
-# if (CRYPTOPP_SSSE3_AVAILABLE)
-    if (HasSSSE3()) {
-        return CHAM64_Dec_AdvancedProcessBlocks_SSSE3(m_rk, 80,
-            inBlocks, xorBlocks, outBlocks, length, flags);
-    }
-# endif  // CRYPTOPP_SSSE3_AVAILABLE
-    return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
-}
-
+#if CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
 size_t CHAM128::Enc::AdvancedProcessBlocks(const byte *inBlocks, const byte *xorBlocks,
         byte *outBlocks, size_t length, word32 flags) const
 {
@@ -386,6 +362,6 @@ size_t CHAM128::Dec::AdvancedProcessBlocks(const byte *inBlocks, const byte *xor
 # endif  // CRYPTOPP_SSSE3_AVAILABLE
     return BlockTransformation::AdvancedProcessBlocks(inBlocks, xorBlocks, outBlocks, length, flags);
 }
-#endif  // CRYPTOPP_CHAM_ADVANCED_PROCESS_BLOCKS
+#endif  // CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS
 
 NAMESPACE_END

@@ -334,10 +334,8 @@ simple.cpp
 simple.h
 siphash.h
 simeck.cpp
-simeck_simd.cpp
 simeck.h
 simon.cpp
-simon64_simd.cpp
 simon128_simd.cpp
 simon.h
 skipjack.cpp
@@ -351,7 +349,6 @@ smartptr.h
 sosemanuk.cpp
 sosemanuk.h
 speck.cpp
-speck64_simd.cpp
 speck128_simd.cpp
 speck.h
 square.cpp

@@ -315,9 +315,7 @@
     <ClCompile Include="shark.cpp" />
     <ClCompile Include="sharkbox.cpp" />
     <ClCompile Include="simeck.cpp" />
-    <ClCompile Include="simeck_simd.cpp" />
     <ClCompile Include="simon.cpp" />
-    <ClCompile Include="simon64_simd.cpp" />
     <ClCompile Include="simon128_simd.cpp" />
     <ClCompile Include="simple.cpp" />
     <ClCompile Include="skipjack.cpp" />
@@ -326,7 +324,6 @@
     <ClCompile Include="sm4_simd.cpp" />
     <ClCompile Include="sosemanuk.cpp" />
     <ClCompile Include="speck.cpp" />
-    <ClCompile Include="speck64_simd.cpp" />
     <ClCompile Include="speck128_simd.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="squaretb.cpp" />

@@ -78,9 +78,9 @@ LIB_SRCS = \
     rdtables.cpp rijndael.cpp rijndael_simd.cpp ripemd.cpp rng.cpp rsa.cpp \
     rw.cpp safer.cpp salsa.cpp scrypt.cpp seal.cpp seed.cpp serpent.cpp \
     sha.cpp sha3.cpp sha_simd.cpp shacal2.cpp shacal2_simd.cpp shake.cpp \
-    shark.cpp sharkbox.cpp simeck.cpp simeck_simd.cpp simon.cpp \
-    simon128_simd.cpp simon64_simd.cpp skipjack.cpp sm3.cpp sm4.cpp \
-    sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp speck64_simd.cpp \
+    shark.cpp sharkbox.cpp simeck.cpp simon.cpp \
+    simon128_simd.cpp skipjack.cpp sm3.cpp sm4.cpp \
+    sm4_simd.cpp sosemanuk.cpp speck.cpp speck128_simd.cpp \
     square.cpp squaretb.cpp sse_simd.cpp strciphr.cpp tea.cpp tftables.cpp \
     threefish.cpp tiger.cpp tigertab.cpp ttmac.cpp tweetnacl.cpp twofish.cpp \
     vmac.cpp wake.cpp whrlpool.cpp xed25519.cpp xtr.cpp xtrcrypt.cpp xts.cpp \
@@ -109,9 +109,9 @@ LIB_OBJS = \
     rdtables.obj rijndael.obj rijndael_simd.obj ripemd.obj rng.obj rsa.obj \
     rw.obj safer.obj salsa.obj scrypt.obj seal.obj seed.obj serpent.obj \
     sha.obj sha3.obj sha_simd.obj shacal2.obj shacal2_simd.obj shake.obj \
-    shark.obj sharkbox.obj simeck.obj simeck_simd.obj simon.obj \
-    simon128_simd.obj simon64_simd.obj skipjack.obj sm3.obj sm4.obj \
-    sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj speck64_simd.obj \
+    shark.obj sharkbox.obj simeck.obj simon.obj \
+    simon128_simd.obj skipjack.obj sm3.obj sm4.obj \
+    sm4_simd.obj sosemanuk.obj speck.obj speck128_simd.obj \
     square.obj squaretb.obj sse_simd.obj strciphr.obj tea.obj tftables.obj \
     threefish.obj tiger.obj tigertab.obj ttmac.obj tweetnacl.obj twofish.obj \
     vmac.obj wake.obj whrlpool.obj xed25519.obj xtr.obj xtrcrypt.obj xts.obj \
