@@ -140,6 +140,9 @@ reswitch:
 
 void AuthenticatedSymmetricCipherBase::TruncatedFinal(byte *mac, size_t macSize)
 {
+	// https://github.com/weidai11/cryptopp/issues/954
+	this->ThrowIfInvalidTruncatedSize(macSize);
+
 	if (m_totalHeaderLength > MaxHeaderLength())
 		throw InvalidArgument(AlgorithmName() + ": header length of " + IntToString(m_totalHeaderLength) + " exceeds the maximum of " + IntToString(MaxHeaderLength()));
 
