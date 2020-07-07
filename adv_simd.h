@@ -33,7 +33,7 @@
 //
 //    In July 2020 the library stopped using 64-bit block version of
 //    AdvancedProcessBlocks. Testing showed unreliable results and failed
-//    self tests on occassion. Also see
+//    self tests on occasion. Also see Issue 945 and
 //    https://github.com/weidai11/cryptopp/commit/dd7598e638bb.
 
 #ifndef CRYPTOPP_ADVANCED_SIMD_TEMPLATES
