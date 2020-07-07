@@ -39,13 +39,13 @@ fi
 
 # Fixup for missing libtool
 if [[ ! -z $(command -v libtoolize) ]]; then
-	LIBTOOLIZE=$(command -v libtoolize)
+	export LIBTOOLIZE=$(command -v libtoolize)
 elif [[ ! -z $(command -v glibtoolize) ]]; then
-	LIBTOOLIZE=$(command -v glibtoolize)
+	export LIBTOOLIZE=$(command -v glibtoolize)
 elif [[ ! -z $(command -v libtool) ]]; then
-	LIBTOOLIZE=$(command -v libtool)
+	export LIBTOOLIZE=$(command -v libtool)
 elif [[ ! -z $(command -v glibtool) ]]; then
-	LIBTOOLIZE=$(command -v glibtool)
+	export LIBTOOLIZE=$(command -v glibtool)
 fi
 
 #############################################################################
@@ -92,10 +92,14 @@ if ! autoupdate &>/dev/null; then
 	exit 1
 fi
 
+if false; then
+
 echo "Running libtoolize"
 if ! "$LIBTOOLIZE" --force --install &>/dev/null; then
 	echo "libtoolize failed... skipping."
 	# exit 1
+fi
+
 fi
 
 # Run autoreconf twice on failure. Also see
