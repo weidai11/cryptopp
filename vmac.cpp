@@ -193,22 +193,24 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	CRYPTOPP_UNUSED(blocksRemainingInWord64);
 
 	// This inline ASM is tricky, and down right difficult when PIC is
-	// in effect. The ASM uses all the general purpose registers. When
-	// PIC is in effect, GCC uses EBX as a base register. Saving EBX with
+	// in effect. The ASM uses all the general purpose registers and all
+	// the XMM registers on 32-bit machines. When PIC is in effect on a
+	// 32-bit machine, GCC uses EBX as a base register. Saving EBX with
 	// 'mov %%ebx, %0' and restoring EBX with 'mov %0, %%ebx' causes GCC
 	// to generate 'mov -0x40(%ebx), %ebx' for the restore. That obviously
-	// won't work. We can push and pop EBX, but then we have to be careful
-	// because GCC references %1 (L1KeyLength) relative to ESP, which is
-	// also used in the function and no longer accurate. Attempting to
-	// sidestep the issues with clobber lists results in "error: ‘asm’
-	// operand has impossible constraints", though we were able to tell
-	// GCC that ESP is dirty. The problems with GCC are the reason for the
-	// pushes and pops rather than the original moves.
+	// won't work because EBX is no longer accurate. We can push and pop
+	// EBX, but that breaks stack-based references. Attempting to sidestep
+	// the issues with clobber lists results in "error: ‘asm’ operand has
+	// impossible constraints". Eventually, we found we could save EBX to
+	// ESP-20, which is one word below our stack in the frame.
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
-	AS1(	push	%0)         // L1KeyLength
-	AS1(	pop 	%%ebx)
+# if defined(__i386__) || defined(__i686__)
+    // Save EBX for PIC
+	AS2(	mov 	%%ebx, -20(%%esp))
+# endif
+	AS2(	mov 	%0, %%ebx)  // L1KeyLength
 	INTEL_NOPREFIX
 #else
 	#if defined(__INTEL_COMPILER)
@@ -427,11 +429,18 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS_POP_IF86(	bp)
 	AS1(	emms)
 #ifdef __GNUC__
+
 	ATT_PREFIX
+
+# if defined(__i386__) || defined(__i686__)
+	// Restore EBX for PIC
+	AS2(	mov 	-20(%%esp), %%ebx)
+# endif
+
 		:
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data),
 		  "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
-		: "ebx", "memory", "cc"
+		: "memory", "cc"
 	);
 #endif
 }
