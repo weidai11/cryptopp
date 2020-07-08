@@ -1,8 +1,11 @@
 # https://cirrus-ci.org/examples/
 # https://github.com/curl/curl/blob/master/.cirrus.yml
 
+# FreeBSD seems to have constant version problems, which requires IGNORE_OSVERSION.
+
 env:
   CIRRUS_CLONE_DEPTH: 5
+  IGNORE_OSVERSION: yes
 
 task:
   matrix:
