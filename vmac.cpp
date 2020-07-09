@@ -206,7 +206,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
-# if defined(__i386__) || defined(__i686__)
+# if CRYPTOPP_BOOL_X86
 	// Save EBX for PIC
 	AS2(	mov 	%%ebx, -20(%%esp))
 # endif
@@ -327,7 +327,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 #define k3 [eax+2*8+1*4]
 
 	AS2(	test	dl, dl)
-	ASJ(	jz,		2, f)
+	ASJ(	jz,  	2, f)
 	AS2(	movd	mm1, k0)
 	AS2(	movd	mm0, [esp])
 	AS2(	paddq	mm0, mm1)
@@ -342,7 +342,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	paddq	mm5, k2)
 	AS2(	paddq	mm0, mm5)
 	AS2(	movq	a2, mm0)
-	AS2(	xor		edx, edx)
+	AS2(	xor 	edx, edx)
 	ASJ(	jmp,	3, f)
 	ASL(2)
 	AS2(	movd	mm0, a3)
@@ -411,7 +411,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	psrlq	mm4, 1)
 	AS2(	movd	a1, mm0)
 	AS2(	psrlq	mm0, 32)
-	AS2(	por		mm4, mm7)
+	AS2(	por 	mm4, mm7)
 	AS2(	paddq	mm0, mm4)
 	AS2(	movq	a2, mm0)
 
@@ -432,7 +432,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS1(	emms)
 #ifdef __GNUC__
 	ATT_PREFIX
-# if defined(__i386__) || defined(__i686__)
+# if CRYPTOPP_BOOL_X86
 	// Restore EBX for PIC
 	AS2(	mov 	-20(%%esp), %%ebx)
 # endif
