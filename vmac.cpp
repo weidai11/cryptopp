@@ -186,31 +186,32 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	const word64 *nhK = m_nhKey();
 	word64 *polyS = (word64*)(void*)m_polyState();
 	word32 L1KeyLength = m_L1KeyLength;
+	word32 temp;
 
 	// These are used in the ASM, but some analysis services miss it.
 	CRYPTOPP_UNUSED(data); CRYPTOPP_UNUSED(tagPart);
-	CRYPTOPP_UNUSED(L1KeyLength);
+	CRYPTOPP_UNUSED(L1KeyLength); CRYPTOPP_UNUSED(temp);
 	CRYPTOPP_UNUSED(blocksRemainingInWord64);
 
-	// This inline ASM is tricky, and down right difficult when PIC is
-	// in effect. The ASM uses all the general purpose registers and all
-	// the XMM registers on 32-bit machines. When PIC is in effect on a
-	// 32-bit machine, GCC uses EBX as a base register. Saving EBX with
-	// 'mov %%ebx, %0' and restoring EBX with 'mov %0, %%ebx' causes GCC
-	// to generate 'mov -0x40(%ebx), %ebx' for the restore. That obviously
-	// won't work because EBX is no longer accurate. We can push and pop
-	// EBX, but that breaks stack-based references. Attempting to sidestep
-	// the issues with clobber lists results in "error: ‘asm’ operand has
+	// This inline ASM is tricky, and down right difficult on 32-bit when
+	// PIC is in effect. The ASM uses all the general purpose registers
+	// and all the XMM registers on 32-bit machines. When PIC is in effect
+	// on a 32-bit machine, GCC uses EBX as a base register for PLT. Saving
+	// EBX with 'mov %%ebx, %0' and restoring EBX with 'mov %0, %%ebx'
+	// causes GCC to generate 'mov -0x40(%ebx), %ebx' for the restore. That
+	// obviously won't work because EBX is no longer valid. We can push and
+	// pop EBX, but that breaks the stack-based references. Attempting to
+	// sidestep with clobber lists results in "error: ‘asm’ operand has
 	// impossible constraints". Eventually, we found we could save EBX to
 	// ESP-20, which is one word below our stack in the frame.
 #ifdef __GNUC__
 	__asm__ __volatile__
 	(
 # if defined(__i386__) || defined(__i686__)
-    // Save EBX for PIC
+	// Save EBX for PIC
 	AS2(	mov 	%%ebx, -20(%%esp))
 # endif
-	AS2(	mov 	%0, %%ebx)  // L1KeyLength
+	AS2(	mov 	%0, %%ebx)  // L1KeyLength into EBX
 	INTEL_NOPREFIX
 #else
 	#if defined(__INTEL_COMPILER)
@@ -325,6 +326,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 #define k1 [eax+2*8+3*4]
 #define k2 [eax+2*8+0*4]
 #define k3 [eax+2*8+1*4]
+
 	AS2(	test	dl, dl)
 	ASJ(	jz,		2, f)
 	AS2(	movd	mm1, k0)
@@ -413,6 +415,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	por		mm4, mm7)
 	AS2(	paddq	mm0, mm4)
 	AS2(	movq	a2, mm0)
+
 #undef a0
 #undef a1
 #undef a2
@@ -429,14 +432,11 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS_POP_IF86(	bp)
 	AS1(	emms)
 #ifdef __GNUC__
-
 	ATT_PREFIX
-
 # if defined(__i386__) || defined(__i686__)
 	// Restore EBX for PIC
 	AS2(	mov 	-20(%%esp), %%ebx)
 # endif
-
 		:
 		: "m" (L1KeyLength), "c" (blocksRemainingInWord64), "S" (data),
 		  "D" (nhK+tagPart*2), "d" (m_isFirstBlock), "a" (polyS+tagPart*4)
