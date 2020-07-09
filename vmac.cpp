@@ -186,11 +186,10 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	const word64 *nhK = m_nhKey();
 	word64 *polyS = (word64*)(void*)m_polyState();
 	word32 L1KeyLength = m_L1KeyLength;
-	word32 temp;
 
 	// These are used in the ASM, but some analysis services miss it.
 	CRYPTOPP_UNUSED(data); CRYPTOPP_UNUSED(tagPart);
-	CRYPTOPP_UNUSED(L1KeyLength); CRYPTOPP_UNUSED(temp);
+	CRYPTOPP_UNUSED(L1KeyLength);
 	CRYPTOPP_UNUSED(blocksRemainingInWord64);
 
 	// This inline ASM is tricky, and down right difficult on 32-bit when
