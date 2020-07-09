@@ -207,10 +207,14 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	__asm__ __volatile__
 	(
 # if CRYPTOPP_BOOL_X86
-	// Save EBX for PIC
+	// Hack. Save EBX for PIC. Do NOT 'push EBX' here.
+	// GCC issues 'mov ESP+8, EBX' to load L1KeyLength.
+	// A push breaks the reference to L1KeyLength.
 	AS2(	mov 	%%ebx, -20(%%esp))
 # endif
-	AS2(	mov 	%0, %%ebx)  // L1KeyLength into EBX
+	// L1KeyLength into EBX.
+	// GCC generates 'mov ESP+8, EBX'.
+	AS2(	mov 	%0, %%ebx)
 	INTEL_NOPREFIX
 #else
 	#if defined(__INTEL_COMPILER)
@@ -223,7 +227,7 @@ void VMAC_Base::VHASH_Update_SSE2(const word64 *data, size_t blocksRemainingInWo
 	AS2(	mov 	dl, [ecx+m_isFirstBlock])
 	#endif
 	AS2(	mov 	eax, tagPart)
-	AS2(	shl		eax, 4)
+	AS2(	shl 	eax, 4)
 	AS2(	mov 	edi, nhK)
 	AS2(	add 	edi, eax)
 	AS2(	add 	eax, eax)
