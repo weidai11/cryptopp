@@ -155,6 +155,12 @@ if ! "$MAKE" -j2 -f Makefile; then
 	exit 1
 fi
 
+#############################################################################
+
+echo ""
+echo "Testing library"
+echo ""
+
 if ! ./cryptest v; then
 	echo "cryptest v failed."
 	exit 1
