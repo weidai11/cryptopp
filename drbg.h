@@ -211,8 +211,10 @@ public:
         size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_c(SEEDLENGTH), m_v(SEEDLENGTH), m_reseed(0)
     {
-        std::memset(m_c, 0x00, m_c.size());
-        std::memset(m_v, 0x00, m_v.size());
+        if (m_c.data())  // GCC analyzer warning
+            std::memset(m_c.data(), 0x00, m_c.size());
+        if (m_v.data())  // GCC analyzer warning
+            std::memset(m_v.data(), 0x00, m_v.size());
 
         if (entropy != NULLPTR && entropyLength != 0)
             DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
@@ -333,8 +335,10 @@ public:
         size_t nonceLength=0, const byte* personalization=NULLPTR, size_t personalizationLength=0)
         : NIST_DRBG(), m_k(HASH::DIGESTSIZE), m_v(HASH::DIGESTSIZE), m_reseed(0)
     {
-        std::memset(m_k, 0x00, m_k.size());
-        std::memset(m_v, 0x00, m_v.size());
+        if (m_k.data())  // GCC analyzer warning
+            std::memset(m_k, 0x00, m_k.size());
+        if (m_v.data())  // GCC analyzer warning
+            std::memset(m_v, 0x00, m_v.size());
 
         if (entropy != NULLPTR && entropyLength != 0)
             DRBG_Instantiate(entropy, entropyLength, nonce, nonceLength, personalization, personalizationLength);
