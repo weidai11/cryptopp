@@ -142,7 +142,7 @@ size_t PKCS5_PBKDF1<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 		hash.CalculateDigest(buffer, buffer, buffer.size());
 
 	if (derived)
-		memcpy(derived, buffer, derivedLen);
+		std::memcpy(derived, buffer, derivedLen);
 	return i;
 }
 
@@ -279,7 +279,7 @@ size_t PKCS5_PBKDF2_HMAC<T>::DeriveKey(byte *derived, size_t derivedLen, byte pu
 		memcpy_s(derived, segmentLen, buffer, segmentLen);
 #else
 		const size_t segmentLen = STDMIN(derivedLen, buffer.size());
-		memcpy(derived, buffer, segmentLen);
+		std::memcpy(derived, buffer, segmentLen);
 #endif
 
 		if (timeInSeconds)
@@ -421,7 +421,9 @@ size_t PKCS12_PBKDF<T>::DeriveKey(byte *derived, size_t derivedLen, byte purpose
 	SecByteBlock buffer(DLen + SLen + PLen);
 	byte *D = buffer, *S = buffer+DLen, *P = buffer+DLen+SLen, *I = S;
 
-	memset(D, purpose, DLen);
+	if (D)  // GCC analyzer
+		std::memset(D, purpose, DLen);
+
 	size_t i;
 	for (i=0; i<SLen; i++)
 		S[i] = salt[i % saltLen];
