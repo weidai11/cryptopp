@@ -472,7 +472,8 @@ public:
 		if (preserve && newSize)
 		{
 			const size_type copySize = STDMIN(oldSize, newSize);
-			memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
+			if (newPointer && oldPtr)  // GCC analyzer warning
+				memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
 		}
 		deallocate(oldPtr, oldSize);
 		return newPointer;
@@ -675,7 +676,8 @@ public:
 		if (preserve && newSize)
 		{
 			const size_type copySize = STDMIN(oldSize, newSize);
-			memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
+			if (newPointer && oldPtr)  // GCC analyzer warning
+				memcpy_s(newPointer, sizeof(T)*newSize, oldPtr, sizeof(T)*copySize);
 		}
 		deallocate(oldPtr, oldSize);
 		return newPointer;
@@ -763,7 +765,7 @@ public:
 	SecBlock(const T *ptr, size_type len)
 		: m_mark(ELEMS_MAX), m_size(len), m_ptr(m_alloc.allocate(len, NULLPTR)) {
 			CRYPTOPP_ASSERT((!m_ptr && !m_size) || (m_ptr && m_size));
-			if (ptr && m_ptr)
+			if (m_ptr && ptr)
 				memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
 			else if (m_ptr && m_size)
 				memset(m_ptr, 0, m_size*sizeof(T));
@@ -873,8 +875,8 @@ public:
 	void Assign(const T *ptr, size_type len)
 	{
 		New(len);
-		if (m_ptr && ptr)
-			{memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));}
+		if (m_ptr && ptr)  // GCC analyzer warning
+			memcpy_s(m_ptr, m_size*sizeof(T), ptr, len*sizeof(T));
 		m_mark = ELEMS_MAX;
 	}
 
@@ -903,8 +905,8 @@ public:
 		if (this != &t)
 		{
 			New(t.m_size);
-			if (m_ptr && t.m_ptr)
-				{memcpy_s(m_ptr, m_size*sizeof(T), t, t.m_size*sizeof(T));}
+			if (m_ptr && t.m_ptr)  // GCC analyzer warning
+				memcpy_s(m_ptr, m_size*sizeof(T), t, t.m_size*sizeof(T));
 		}
 		m_mark = ELEMS_MAX;
 	}
@@ -934,12 +936,14 @@ public:
 			if (this != &t)  // s += t
 			{
 				Grow(m_size+t.m_size);
-				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+				if (m_ptr && t.m_ptr)  // GCC analyzer warning
+					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 			}
 			else            // t += t
 			{
 				Grow(m_size*2);
-				memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
+				if (m_ptr && t.m_ptr)  // GCC analyzer warning
+					memcpy_s(m_ptr+oldSize, (m_size-oldSize)*sizeof(T), m_ptr, oldSize*sizeof(T));
 			}
 		}
 		m_mark = ELEMS_MAX;
@@ -957,8 +961,10 @@ public:
 		if(!t.m_size) return SecBlock(*this);
 
 		SecBlock<T, A> result(m_size+t.m_size);
-		if (m_size) {memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));}
-		memcpy_s(result.m_ptr+m_size, (result.m_size-m_size)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
+		if (m_size)
+			memcpy_s(result.m_ptr, result.m_size*sizeof(T), m_ptr, m_size*sizeof(T));
+		if (result.m_ptr && t.m_ptr)  // GCC analyzer warning
+			memcpy_s(result.m_ptr+m_size, (result.m_size-m_size)*sizeof(T), t.m_ptr, t.m_size*sizeof(T));
 		return result;
 	}
 
