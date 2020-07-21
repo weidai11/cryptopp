@@ -25,6 +25,10 @@
 #include "config_cpu.h"
 #include "config_ver.h"
 
+// https://github.com/weidai11/cryptopp/issues/960
+#include <string>
+#include <exception>
+
 // You may need to force include a C++ header on Android when using STLPort
 // to ensure _STLPORT_VERSION is defined
 #if (defined(_MSC_VER) && _MSC_VER <= 1300) || defined(__MWERKS__) || (defined(_STLPORT_VERSION) && ((_STLPORT_VERSION < 0x450) || defined(_STLP_NO_UNCAUGHT_EXCEPT_SUPPORT)))
