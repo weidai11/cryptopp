@@ -6,10 +6,6 @@
 #ifndef CRYPTOPP_ALGPARAM_H
 #define CRYPTOPP_ALGPARAM_H
 
-#include <string>
-#include <typeinfo>
-#include <exception>
-
 #include "config.h"
 #include "cryptlib.h"
 
@@ -17,6 +13,10 @@
 #include "secblock.h"
 #include "integer.h"
 #include "misc.h"
+
+#include <string>
+#include <typeinfo>
+#include <exception>
 
 NAMESPACE_BEGIN(CryptoPP)
 

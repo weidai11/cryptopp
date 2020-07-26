@@ -5840,7 +5840,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX03" -ne 0
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
+    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++03 $USER_CXXFLAGS"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
@@ -5881,7 +5881,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX11" -ne 0
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
+    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++11 $USER_CXXFLAGS"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
@@ -5922,7 +5922,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX14" -ne 0
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
+    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++14 $USER_CXXFLAGS"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
@@ -5963,7 +5963,7 @@ if [[ "$IS_DARWIN" -ne 0 && "$HAVE_INTEL_MULTIARCH" -ne 0 && "$HAVE_CXX17" -ne 0
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
+    CXXFLAGS="$RELEASE_CXXFLAGS -arch i386 -arch x86_64 -std=c++17 $USER_CXXFLAGS"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
@@ -6004,7 +6004,7 @@ if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_PPC_MULTIARCH" -ne 0) ]]; then
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 -DCRYPTOPP_DISABLE_ASM $USER_CXXFLAGS"
+    CXXFLAGS="$RELEASE_CXXFLAGS -arch ppc -arch ppc64 $USER_CXXFLAGS"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
