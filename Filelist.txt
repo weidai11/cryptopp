@@ -614,3 +614,6 @@ TestPrograms/test_x86_sse3.cxx
 TestPrograms/test_x86_sse41.cxx
 TestPrograms/test_x86_sse42.cxx
 TestPrograms/test_x86_ssse3.cxx
+TestPrograms/test_x86_via_aes.cxx
+TestPrograms/test_x86_via_rng.cxx
+TestPrograms/test_x86_via_sha.cxx
