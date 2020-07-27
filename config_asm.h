@@ -217,7 +217,7 @@
 # undef CRYPTOPP_AESNI_AVAILABLE
 #endif
 
-// Fixup for SunCC 12.1-12.6. Compiler crash on GCM_Reduce_CLMUL and friends.
+// Fixup for SunCC 12.1-12.6. Compiler crash on GCM_Reduce_CLMUL.
 // http://github.com/weidai11/cryptopp/issues/226
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5150)
 # undef CRYPTOPP_CLMUL_AVAILABLE

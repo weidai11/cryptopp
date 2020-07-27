@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 
 	__asm__ __volatile__
 	(
-#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#if defined(__x86_64__) || defined(__amd64__)
 		"mov  %1, %%rdi          ;\n"
 		"movl %2, %%edx          ;\n"
 #else
@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 		// xstore-rng
 		".byte 0x0f, 0xa7, 0xc0  ;\n"
 
-#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#if defined(__x86_64__) || defined(__amd64__)
 		"andq %%rax, 0x1f        ;\n"
 		"movl %%eax, %0          ;\n"
 #else
@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 #endif
 
 		: "=g" (msr) : "g" (buffer), "g" (divisor)
-#if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
+#if defined(__x86_64__) || defined(__amd64__)
 		: "rax", "rdx", "rdi", "cc"
 #else
 		: "eax", "edx", "edi", "cc"
