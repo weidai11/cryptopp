@@ -1,26 +1,27 @@
 #!/usr/bin/env bash
 
 # Written and placed in public domain by Jeffrey Walton
-# This script attempts to update various config_xxx.h files
-# based on the current toolchain. It fills a gap where some
-# features are enabled based on compiler vendor and version,
-# but the feature is not proesent. For example, modern
-# Android toolchains should be AES-NI and AVX capable, but
-# the project removes the compiler support.
 #
-# To use the script, copy the script to the root of the Crypto++
-# directory. Set the environment, and then run the tool:
+# This script attempts to update various config_xxx.h files based on the
+# current toolchain. It fills a gap where some features are enabled based on
+# compiler vendor and version, but the feature is not proesent. For example,
+# modern Android toolchains should be AES-NI and AVX capable, but the project
+# removes the compiler support.
+#
+# To use the script, copy the script to the root of the Crypto++ directory.
+# Set the environment, and then run the tool:
 #
 #     export CXX="..."
 #     export CXXFLAGS="..."
 #     export LDFLAGS="..."
 #     ./configure.sh
 #
-# The environment used for configure should be used to run
-# the makefile.
+# Use the same compiler and environment to run configure and the makefile.
 #
-# This script was added at Crypto++ 8.3. It should work with
-# earlier versions of the library.
+# This script was added at Crypto++ 8.3. Please verify the earlier version of
+# the library has the config_xxx.h files. The monolithic config.h was split
+# into config_xxx.h in May 2019 at Crypto++ 8.3. See GH #835, PR #836.
+
 
 # shellcheck disable=SC2086
 
