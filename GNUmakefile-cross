@@ -427,7 +427,8 @@ ifeq ($(DETECT_FEATURES),1)
     ASIMD_FLAG = -march=armv8-a
     CRC_FLAG = -march=armv8-a+crc
     AES_FLAG = -march=armv8-a+crypto
-    PMULL_FLAG = -march=armv8-a+crypto
+    GCM_FLAG = -march=armv8-a+crypto
+    GF2N_FLAG = -march=armv8-a+crypto
     SHA_FLAG = -march=armv8-a+crypto
   endif
 
@@ -479,10 +480,8 @@ ifeq ($(DETECT_FEATURES),1)
     TOPT = $(PMULL_FLAG)
     HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
-      GCM_FLAG = $(PMULL_FLAG)
-      GF2N_FLAG = $(PMULL_FLAG)
-    else
-      PMULL_FLAG =
+      GCM_FLAG =
+      GF2N_FLAG =
       CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
     endif
 
