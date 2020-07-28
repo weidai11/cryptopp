@@ -478,7 +478,10 @@ ifeq ($(DETECT_FEATURES),1)
     TPROG = TestPrograms/test_arm_pmull.cxx
     TOPT = $(PMULL_FLAG)
     HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-    ifneq ($(strip $(HAVE_OPT)),0)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      GCM_FLAG = $(PMULL_FLAG)
+      GF2N_FLAG = $(PMULL_FLAG)
+    else
       PMULL_FLAG =
       CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
     endif
