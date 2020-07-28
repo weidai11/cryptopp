@@ -79,6 +79,9 @@ rm -f config_asm.h.new
   echo '#ifndef CRYPTOPP_CONFIG_ASM_H'
   echo '#define CRYPTOPP_CONFIG_ASM_H'
   echo ''
+  echo '// config_asm.h rewritten by configure.sh script'
+  echo '//' "$(date)"
+  echo ''
 } >> config_asm.h.new
 
 #############################################################################
