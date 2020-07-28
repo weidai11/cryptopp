@@ -22,6 +22,8 @@
 # This script was added at Crypto++ 8.3. It should work with
 # earlier versions of the library.
 
+# shellcheck disable=SC2086
+
 TMPDIR="${TMPDIR:-/tmp}"
 TOUT="${TOUT:-a.out}"
 
@@ -114,134 +116,134 @@ if [[ "$IS_IA32" -ne 0 ]]; then
   # Shell redirection
   {
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_x86_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -ne 0 ]]; then
-	  echo '#define CRYPTOPP_DISABLE_ASM 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_x86_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -ne 0 ]]; then
+    echo '#define CRYPTOPP_DISABLE_ASM 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_asm_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_X86_ASM_AVAILABLE 1'
-	  if [[ "${IS_X64}" -ne 0 ]]; then
-	    echo '#define CRYPTOPP_X64_ASM_AVAILABLE 1'
-	    echo '#define CRYPTOPP_SSE2_ASM_AVAILABLE 1'
-	  fi
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_asm_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_X86_ASM_AVAILABLE 1'
+    if [[ "${IS_X64}" -ne 0 ]]; then
+      echo '#define CRYPTOPP_X64_ASM_AVAILABLE 1'
+      echo '#define CRYPTOPP_SSE2_ASM_AVAILABLE 1'
+    fi
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_x86_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_x86_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE3_FLAG} TestPrograms/test_x86_sse3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_SSE3_AVAILABLE 1'
-    else
-	  echo '#define CRYPTOPP_DISABLE_SSE3 1'
-	fi
-
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSSE3_FLAG} TestPrograms/test_x86_ssse3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_SSSE3_ASM_AVAILABLE 1'
-	  echo '#define CRYPTOPP_SSSE3_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE3_FLAG} TestPrograms/test_x86_sse3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_SSE3_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_SSSE3 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_SSE3 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE41_FLAG} TestPrograms/test_x86_sse41.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_SSE41_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSSE3_FLAG} TestPrograms/test_x86_ssse3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_SSSE3_ASM_AVAILABLE 1'
+    echo '#define CRYPTOPP_SSSE3_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_SSE4 1'
-	  echo '#define CRYPTOPP_DISABLE_SSE41 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_SSSE3 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE42_FLAG} TestPrograms/test_x86_sse42.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_SSE42_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE41_FLAG} TestPrograms/test_x86_sse41.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_SSE41_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_SSE4 1'
-	  echo '#define CRYPTOPP_DISABLE_SSE42 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_SSE4 1'
+    echo '#define CRYPTOPP_DISABLE_SSE41 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${CLMUL_FLAG} TestPrograms/test_x86_clmul.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_CLMUL_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE42_FLAG} TestPrograms/test_x86_sse42.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_SSE42_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_CLMUL 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_SSE4 1'
+    echo '#define CRYPTOPP_DISABLE_SSE42 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AESNI_FLAG} TestPrograms/test_x86_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_AESNI_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${CLMUL_FLAG} TestPrograms/test_x86_clmul.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_CLMUL_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_AESNI 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_CLMUL 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${RDRAND_FLAG} TestPrograms/test_x86_rdrand.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_RDRAND_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AESNI_FLAG} TestPrograms/test_x86_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_AESNI_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_RDRAND 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_AESNI 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${RDSEED_FLAG} TestPrograms/test_x86_rdseed.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${RDRAND_FLAG} TestPrograms/test_x86_rdrand.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_RDRAND_AVAILABLE 1'
+  else
+    echo '#define CRYPTOPP_DISABLE_RDRAND 1'
+  fi
+
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${RDSEED_FLAG} TestPrograms/test_x86_rdseed.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_RDSEED_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_RDSEED 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_RDSEED 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SHANI_FLAG} TestPrograms/test_x86_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_SHANI_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SHANI_FLAG} TestPrograms/test_x86_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_SHANI_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_SHANI 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_SHANI 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AVX_FLAG} TestPrograms/test_x86_avx.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_AVX_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AVX_FLAG} TestPrograms/test_x86_avx.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_AVX_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_AVX 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_AVX 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AVX2_FLAG} TestPrograms/test_x86_avx2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_AVX2_AVAILABLE 1'
-  eq
-	  echo '#define CRYPTOPP_DISABLE_AVX2 1'
-	fi
-
-    # No flags, requires inline ASM
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_x86_via_rng.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_PADLOCK_RNG_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AVX2_FLAG} TestPrograms/test_x86_avx2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_AVX2_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_PADLOCK_RNG 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_AVX2 1'
+  fi
 
-    # No flags, requires inline ASM
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_x86_via_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_PADLOCK_AES_AVAILABLE 1'
+  # No flags, requires inline ASM
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_x86_via_rng.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_PADLOCK_RNG_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_PADLOCK_AES 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_PADLOCK_RNG 1'
+  fi
 
-    # No flags, requires inline ASM
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_x86_via_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_PADLOCK_SHA_AVAILABLE 1'
+  # No flags, requires inline ASM
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_x86_via_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_PADLOCK_AES_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_PADLOCK_SHA 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_PADLOCK_AES 1'
+  fi
 
-    # Clang workaround
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_asm_mixed.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -ne 0 ]]; then
-	  echo '#define CRYPTOPP_DISABLE_MIXED_ASM 1'
-	fi
+  # No flags, requires inline ASM
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_x86_via_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_PADLOCK_SHA_AVAILABLE 1'
+  else
+    echo '#define CRYPTOPP_DISABLE_PADLOCK_SHA 1'
+  fi
+
+  # Clang workaround
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_asm_mixed.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -ne 0 ]]; then
+    echo '#define CRYPTOPP_DISABLE_MIXED_ASM 1'
+  fi
 
   if [[ "${SUN_COMPILER}" -ne 0 ]]; then
 
@@ -271,44 +273,44 @@ if [[ "$IS_ARM32" -ne 0 ]]; then
   {
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_NEON_HEADER 1'
-	fi
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_NEON_HEADER 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv7 TestPrograms/test_cxx.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_ARMV7_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv7 TestPrograms/test_cxx.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_ARMV7_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_ARMV7 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_ARMV7 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_NEON_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_NEON_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_NEON 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_NEON 1'
+  fi
 
   # Cryptogams is special. Attempt to compile the actual source files
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} aes_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOGAMS_AES_AVAILABLE 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} aes_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOGAMS_AES_AVAILABLE 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} sha1_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOGAMS_SHA1_AVAILABLE 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} sha1_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOGAMS_SHA1_AVAILABLE 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} sha256_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOGAMS_SHA256_AVAILABLE 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} sha256_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOGAMS_SHA256_AVAILABLE 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} sha512_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOGAMS_SHA512_AVAILABLE 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} sha512_armv4.S -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOGAMS_SHA512_AVAILABLE 1'
+  fi
 
   } >> config_asm.h.new
 
@@ -322,82 +324,82 @@ if [[ "$IS_ARMV8" -ne 0 ]]; then
   # Shell redirection
   {
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_acle.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_ACLE_HEADER 1'
-	fi
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_acle.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_ACLE_HEADER 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_asimd.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_ASIMD_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_asimd.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_ASIMD_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_ASIMD 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_ASIMD 1'
+  fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crc TestPrograms/test_arm_crc.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_CRC32_AVAILABLE 1'
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_CRC32_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_CRC32 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_CRC32 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_AES_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_AES_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_AES 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_AES 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_pmull.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_PMULL_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_pmull.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_PMULL_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_PMULL 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_PMULL 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_sha1.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_SHA_AVAILABLE 1'
-	  echo '#define CRYPTOPP_ARM_SHA1_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_sha1.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_SHA_AVAILABLE 1'
+    echo '#define CRYPTOPP_ARM_SHA1_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_SHA 1'
-	  echo '#define CRYPTOPP_DISABLE_ARM_SHA1 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_SHA 1'
+    echo '#define CRYPTOPP_DISABLE_ARM_SHA1 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_sha256.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_SHA2_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a+crypto TestPrograms/test_arm_sha256.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_SHA2_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_SHA2 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_SHA2 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sha3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_SHA3_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sha3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_SHA3_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_SHA3 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_SHA3 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sha512.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_SHA512_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sha512.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_SHA512_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_SHA512 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_SHA512 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sm3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_SM3_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sm3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_SM3_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_SM3 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_SM3 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sm4.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ARM_SM4_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8.4-a+crypto TestPrograms/test_arm_sm4.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_SM4_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ARM_SM4 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ARM_SM4 1'
+  fi
 
   } >> config_asm.h.new
 
@@ -425,54 +427,54 @@ if [[ "$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0 ]]; then
   # Shell redirection
   {
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${ALTIVEC_FLAG} TestPrograms/test_ppc_altivec.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_ALTIVEC_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${ALTIVEC_FLAG} TestPrograms/test_ppc_altivec.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ALTIVEC_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_ALTIVEC 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_ALTIVEC 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER7_PWR_FLAG} TestPrograms/test_ppc_power7.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_POWER7_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER7_PWR_FLAG} TestPrograms/test_ppc_power7.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_POWER7_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_POWER7 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_POWER7 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_PWR_FLAG} TestPrograms/test_ppc_power8.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_POWER8_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_power8.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_POWER8_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_POWER8 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_POWER8 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER9_PWR_FLAG} TestPrograms/test_ppc_power9.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -ne 0 ]]; then
-	  echo '#define CRYPTOPP_POWER9_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER9_FLAG} TestPrograms/test_ppc_power9.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -ne 0 ]]; then
+    echo '#define CRYPTOPP_POWER9_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_POWER9 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_POWER9 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_PWR_FLAG} TestPrograms/test_ppc_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_POWER8_AES_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_POWER8_AES_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_POWER8_AES 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_POWER8_AES 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_PWR_FLAG} TestPrograms/test_ppc_vmull.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_POWER8_VMULL_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_vmull.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_POWER8_VMULL_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_POWER8_VMULL 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_POWER8_VMULL 1'
+  fi
 
-	CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_PWR_FLAG} TestPrograms/test_ppc_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-	if [[ "${CXX_RESULT}" -eq 0 ]]; then
-	  echo '#define CRYPTOPP_POWER8_SHA_AVAILABLE 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_POWER8_SHA_AVAILABLE 1'
   else
-	  echo '#define CRYPTOPP_DISABLE_POWER8_SHA 1'
-	fi
+    echo '#define CRYPTOPP_DISABLE_POWER8_SHA 1'
+  fi
 
   } >> config_asm.h.new
 
