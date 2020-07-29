@@ -29,6 +29,7 @@ TMPDIR="${TMPDIR:-/tmp}"
 TOUT="${TOUT:-a.out}"
 
 CXX="${CXX:-g++}"
+LD="${LD:-ld}"
 CXXFLAGS="${CXXFLAGS:--DNDEBUG -g2 -O3}"
 GREP="${GREP:-grep}"
 
@@ -67,6 +68,19 @@ else
   IS_PPC=$(${CXX} -dumpmachine 2>&1 | ${GREP} -v 64 | ${GREP} -c -E 'ppc|powerpc')
   IS_PPC64=$(${CXX} -dumpmachine 2>&1 | ${GREP} -c -E 'ppc64|powerpc64')
 fi
+
+# ===========================================================================
+# =================================== Info ==================================
+# ===========================================================================
+
+if [[ "${IS_X86}" -ne 0 ]]; then echo "Configuring for x86"; fi
+if [[ "${IS_X64}" -ne 0 ]]; then echo "Configuring for x86_64"; fi
+if [[ "${IS_ARM32}" -ne 0 ]]; then echo "Configuring for ARM32"; fi
+if [[ "${IS_ARMV8}" -ne 0 ]]; then echo "Configuring for Aarch64"; fi
+if [[ "${IS_PPC}" -ne 0 ]]; then echo "Configuring for PowerPC"; fi
+if [[ "${IS_PPC64}" -ne 0 ]]; then echo "Configuring for PowerPC64"; fi
+echo "Compiler: ${CXX}"
+echo "Linker: ${LD}"
 
 # ===========================================================================
 # =============================== config_asm.h ==============================
