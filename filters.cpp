@@ -772,9 +772,9 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 				if (minLastBlockSize == 0)
 				{
 					if (isForwardTransformation)
-						throw InvalidDataFormat("StreamTransformationFilter: plaintext length is not a multiple of block size and NO_PADDING is specified");
+						throw InvalidDataFormat("StreamTransformationFilter: plaintext length is not a multiple of block size(=" + std::to_string(m_mandatoryBlockSize) + ") and NO_PADDING is specified");
 					else
-						throw InvalidCiphertext("StreamTransformationFilter: ciphertext length is not a multiple of block size");
+						throw InvalidCiphertext("StreamTransformationFilter: ciphertext length is not a multiple of block size(=" + std::to_string(m_mandatoryBlockSize) + ")");
 				}
 
 				byte* space = HelpCreatePutSpace(*AttachedTransformation(), DEFAULT_CHANNEL, length, m_optimalBufferSize);

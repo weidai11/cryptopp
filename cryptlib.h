@@ -670,7 +670,40 @@ public:
 	/// \return true if keylength is valid, false otherwise
 	/// \details Internally the function calls GetValidKeyLength()
 	virtual bool IsValidKeyLength(size_t keylength) const
-		{return keylength == GetValidKeyLength(keylength);}
+	{		
+		size_t validKeyLength = GetValidKeyLength(keylength);
+		bool isvalid = (keylength == validKeyLength);
+		auto z = DefaultKeyLength();
+		if (!isvalid) {
+			if (MinKeyLength() == MaxKeyLength()) {
+				throw InvalidArgument(
+					std::to_string(keylength) + " bytes is invalid key length for " + GetAlgorithm().AlgorithmName() + "\n" +
+					"Valid key length for " + GetAlgorithm().AlgorithmName() + " is: " + std::to_string(MinKeyLength()) + " bytes\n");
+			}
+			else {
+				size_t count{ 0 };
+				std::string nums = "";
+				for (size_t i{ MinKeyLength()}; i <= MaxKeyLength(); i++) {
+					if (i == GetValidKeyLength(i)) {
+						++count;
+						nums += std::to_string(i) + ", ";
+					}
+				}
+				if (count == MaxKeyLength() - MinKeyLength() + 1) {
+					throw InvalidArgument(
+						std::to_string(keylength) + " bytes is invalid key length for " + GetAlgorithm().AlgorithmName() + "\n" +
+						"Minimum key length: " + std::to_string(MinKeyLength()) + " bytes\n" +
+						"Maximum key length: " + std::to_string(MaxKeyLength()) + " bytes");
+				}
+				else {
+					throw InvalidArgument(
+						std::to_string(keylength) + " bytes is invalid key length for " + GetAlgorithm().AlgorithmName() + "\n" +
+						"valid key length for " + GetAlgorithm().AlgorithmName() + " are:\n " + nums + " bytes");
+				}
+			}
+		}
+		return isvalid;
+	}
 
 	/// \brief Sets or reset the key of this object
 	/// \param key the key to use when keying the object

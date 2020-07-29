@@ -326,7 +326,7 @@ void ChaCha_Policy::CipherSetKey(const NameValuePairs &params, const byte *key, 
     // Use previous rounds as the default value
     int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
     if (rounds != 20 && rounds != 12 && rounds != 8)
-        throw InvalidRounds(ChaCha::StaticAlgorithmName(), rounds);
+        throw InvalidRounds(ChaCha::StaticAlgorithmName(), rounds, "only 8, 12 and 20 are valid for number of rounds");
 
     // Latch a good value
     m_rounds = rounds;

@@ -68,7 +68,8 @@ public:
 	/// \brief Construct an InvalidRounds
 	/// \param algorithm the Algorithm associated with the exception
 	/// \param rounds the number of rounds associated with the exception
-	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds) : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds") {}
+	/// \param hint hint to choose a correct value for the number of rounds
+	explicit InvalidRounds(const std::string &algorithm, unsigned int rounds, const std::string& hint="") : InvalidArgument(algorithm + ": " + IntToString(rounds) + " is not a valid number of rounds" + (hint.empty() ? "" : std::string(", ") + hint)) {}
 };
 
 /// \brief Exception thrown when an invalid block size is encountered

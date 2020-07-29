@@ -73,8 +73,7 @@ void SimpleKeyingInterface::SetKeyWithIV(const byte *key, size_t length, const b
 
 void SimpleKeyingInterface::ThrowIfInvalidKeyLength(size_t length)
 {
-	if (!IsValidKeyLength(length))
-		throw InvalidKeyLength(GetAlgorithm().AlgorithmName(), length);
+	IsValidKeyLength(length);	
 }
 
 void SimpleKeyingInterface::ThrowIfResynchronizable()

@@ -127,7 +127,7 @@ void Salsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key,
 	// Use previous rounds as the default value
 	int rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
 	if (rounds != 20 && rounds != 12 && rounds != 8)
-		throw InvalidRounds(Salsa20::StaticAlgorithmName(), rounds);
+		throw InvalidRounds(Salsa20::StaticAlgorithmName(), rounds, "only 8, 12 and 20 are valid for number of rounds");
 
 	// Latch a good value
 	m_rounds = rounds;
@@ -709,7 +709,7 @@ void XSalsa20_Policy::CipherSetKey(const NameValuePairs &params, const byte *key
 {
 	m_rounds = params.GetIntValueWithDefault(Name::Rounds(), m_rounds);
 	if (!(m_rounds == 8 || m_rounds == 12 || m_rounds == 20))
-		throw InvalidRounds(XSalsa20::StaticAlgorithmName(), m_rounds);
+		throw InvalidRounds(XSalsa20::StaticAlgorithmName(), m_rounds, "only 8, 12 and 20 are valid for number of rounds");
 
 	GetUserKey(LITTLE_ENDIAN_ORDER, m_key.begin(), m_key.size(), key, length);
 	if (length == 16)
