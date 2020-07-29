@@ -4,7 +4,7 @@
 #
 # This script attempts to update various config_xxx.h files based on the
 # current toolchain. It fills a gap where some features are enabled based on
-# compiler vendor and version, but the feature is not proesent. For example,
+# compiler vendor and version, but the feature is not present. For example,
 # modern Android toolchains should be AES-NI and AVX capable, but the project
 # removes the compiler support.
 #
@@ -327,6 +327,11 @@ if [[ "$IS_ARMV8" -ne 0 ]]; then
 
   # Shell redirection
   {
+
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_NEON_HEADER 1'
+  fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_acle.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
