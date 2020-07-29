@@ -328,7 +328,7 @@ if [[ "$IS_ARMV8" -ne 0 ]]; then
   # Shell redirection
   {
 
-  CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_ARM_NEON_HEADER 1'
   fi
