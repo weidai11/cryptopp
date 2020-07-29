@@ -479,7 +479,7 @@ ifeq ($(DETECT_FEATURES),1)
     TPROG = TestPrograms/test_arm_pmull.cxx
     TOPT = $(PMULL_FLAG)
     HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
-    ifeq ($(strip $(HAVE_OPT)),0)
+    ifneq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG =
       GF2N_FLAG =
       CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
@@ -893,6 +893,10 @@ crc_simd.o : crc_simd.cpp
 # PCLMUL or ARMv7a/ARMv8a available
 gcm_simd.o : gcm_simd.cpp
 	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+
+# Carryless multiply
+gf2n_simd.o : gf2n_simd.cpp
+	$(CXX) $(strip $(CXXFLAGS) $(GF2N_FLAG) -c) $<
 
 # SSSE3 available
 lea_simd.o : lea_simd.cpp
