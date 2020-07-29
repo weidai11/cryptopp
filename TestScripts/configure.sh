@@ -18,6 +18,10 @@
 #
 # Use the same compiler and environment to run configure and the makefile.
 #
+# Do not use this script for a multiarch environment unless the cpu features
+# are the same for each arch. For example, -arch i386 -arch x86_64 could
+# cause problems if x86 only included SSE4.2, while x64 included AVX.
+#
 # This script was added at Crypto++ 8.3. Please verify the earlier version of
 # the library has the config_xxx.h files. The monolithic config.h was split
 # into config_xxx.h in May 2019 at Crypto++ 8.3. See GH #835, PR #836.
