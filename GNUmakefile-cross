@@ -271,6 +271,7 @@ ifeq ($(DETECT_FEATURES),1)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
     GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
+    GF2N_FLAG = $(CLMUL_FLAG)
   else
     CLMUL_FLAG =
   endif
