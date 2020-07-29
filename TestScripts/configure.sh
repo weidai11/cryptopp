@@ -276,7 +276,7 @@ if [[ "$IS_ARM32" -ne 0 ]]; then
   # Shell redirection
   {
 
-  CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -mfpu=neon TestPrograms/test_arm_neon_header.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_ARM_NEON_HEADER 1'
   fi
@@ -328,17 +328,25 @@ if [[ "$IS_ARMV8" -ne 0 ]]; then
   # Shell redirection
   {
 
-  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_arm_neon_header.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_ARM_NEON_HEADER 1'
   fi
 
-  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_acle.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_acle_header.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_ARM_ACLE_HEADER 1'
   fi
 
-  CXX_RESULT=$(${CXX} ${CXXFLAGS} -march=armv8-a TestPrograms/test_arm_asimd.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_arm_neon.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_ARM_NEON_AVAILABLE 1'
+  else
+    echo '#define CRYPTOPP_DISABLE_ARM_NEON 1'
+  fi
+
+  # This should be an unneeded test. ASIMD on Aarch64 is NEON on A32 and T32
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_arm_asimd.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_ARM_ASIMD_AVAILABLE 1'
   else
@@ -493,6 +501,7 @@ fi
 {
   echo ''
   echo '#endif'
+  echo ''
 } >> config_asm.h.new
 
 if [[ -e config_asm.h ]]; then

@@ -494,13 +494,18 @@ endif
 ifneq ($(IS_ARMV8),0)
 ifeq ($(DETECT_FEATURES),1)
 
-  TPROG = TestPrograms/test_arm_acle.cxx
+  TPROG = TestPrograms/test_arm_neon_header.cxx
+  TOPT =
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    ACLE_FLAG += -DCRYPTOPP_ARM_NEON_HEADER=1
+  endif
+
+  TPROG = TestPrograms/test_arm_acle_header.cxx
   TOPT = -march=armv8-a
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
   ifeq ($(strip $(HAVE_OPT)),0)
-	ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_HEADER=1
-  else
-	CRYPTOPP_CXXFLAGS += -DCRYPTOPP_ARM_ACLE_HEADER=0
+    ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cxx
@@ -529,7 +534,7 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG = -march=armv8-a+crc
     else
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_ARM_CRC32_AVAILABLE=0
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_CRC32
     endif
 
     TPROG = TestPrograms/test_arm_aes.cxx
@@ -538,7 +543,7 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       AES_FLAG = -march=armv8-a+crypto
     else
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_ARM_AES_AVAILABLE=0
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_AES
     endif
 
     TPROG = TestPrograms/test_arm_pmull.cxx
@@ -548,7 +553,7 @@ ifeq ($(DETECT_FEATURES),1)
       GCM_FLAG = -march=armv8-a+crypto
       GF2N_FLAG = -march=armv8-a+crypto
     else
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_ARM_PMULL_AVAILABLE=0
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_PMULL
     endif
 
     TPROG = TestPrograms/test_arm_sha1.cxx
@@ -557,7 +562,16 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG = -march=armv8-a+crypto
     else
-      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_ARM_SHA_AVAILABLE=0
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA1
+    endif
+
+    TPROG = TestPrograms/test_arm_sha256.cxx
+    TOPT = -march=armv8-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SHA_FLAG = -march=armv8-a+crypto
+    else
+      CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA2
     endif
 
     TPROG = TestPrograms/test_arm_sm3.cxx
@@ -566,6 +580,9 @@ ifeq ($(DETECT_FEATURES),1)
     ifeq ($(strip $(HAVE_OPT)),0)
       SM3_FLAG = -march=armv8.4-a+crypto
       SM4_FLAG = -march=armv8.4-a+crypto
+    else
+      #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM3
+      #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SM4
     endif
 
     TPROG = TestPrograms/test_arm_sha3.cxx
@@ -573,6 +590,17 @@ ifeq ($(DETECT_FEATURES),1)
     HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+crypto
+    else
+      #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA3
+    endif
+
+    TPROG = TestPrograms/test_arm_sha512.cxx
+    TOPT = -march=armv8.4-a+crypto
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    ifeq ($(strip $(HAVE_OPT)),0)
+      SHA512_FLAG = -march=armv8.4-a+crypto
+    else
+      #CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA512
     endif
 
   # ASIMD_FLAG
