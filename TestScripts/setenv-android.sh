@@ -150,7 +150,7 @@ case "$THE_ARCH" in
 
     ANDROID_CXXFLAGS="-funwind-tables -fexceptions -frtti"
     ;;
-  x86)
+  i686|x86)
     CC="i686-linux-android$ANDROID_API-clang"
     CXX="i686-linux-android$ANDROID_API-clang++"
     LD="i686-linux-android-ld"
