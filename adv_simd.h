@@ -18,7 +18,7 @@
 //      * AdvancedProcessBlocks128_4x1_SSE
 //      * AdvancedProcessBlocks128_6x2_SSE
 //      * AdvancedProcessBlocks128_4x1_NEON
-//      * AdvancedProcessBlocks128_6x2_NEON
+//      * AdvancedProcessBlocks128_6x1_NEON
 //      * AdvancedProcessBlocks128_4x1_ALTIVEC
 //      * AdvancedProcessBlocks128_6x1_ALTIVEC
 //
@@ -84,8 +84,8 @@ ANONYMOUS_NAMESPACE_END
 
 // *************************** ARM NEON ************************** //
 
-#if (CRYPTOPP_ARM_NEON_AVAILABLE) || defined(CRYPTOPP_DOXYGEN_PROCESSING)
-
+#if (CRYPTOPP_ARM_NEON_AVAILABLE) || (CRYPTOPP_ARM_ASIMD_AVAILABLE) || \
+    defined(CRYPTOPP_DOXYGEN_PROCESSING)
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief AdvancedProcessBlocks for 1 and 6 blocks

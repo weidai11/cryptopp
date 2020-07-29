@@ -37,6 +37,7 @@
 #endif
 
 #if (CRYPTOPP_ARM_ACLE_HEADER)
+# include "adv_simd.h"
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
