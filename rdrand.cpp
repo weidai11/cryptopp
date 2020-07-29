@@ -69,7 +69,7 @@ NAMESPACE_BEGIN(CryptoPP)
 inline void RDRAND32(void* output)
 {
     CRYPTOPP_UNUSED(output);  // MSC warning
-#if defined(GCC_RDRAND_ASM_AVAILABLE)
+# if defined(GCC_RDRAND_ASM_AVAILABLE)
     __asm__ __volatile__
     (
         "1:\n"
@@ -78,15 +78,15 @@ inline void RDRAND32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#endif
+# endif
 }
 
-#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
+# if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
 // Fills 8 bytes
 inline void RDRAND64(void* output)
 {
     CRYPTOPP_UNUSED(output);  // MSC warning
-#if defined(GCC_RDRAND_ASM_AVAILABLE)
+# if defined(GCC_RDRAND_ASM_AVAILABLE)
     __asm__ __volatile__
     (
         "1:\n"
@@ -95,9 +95,9 @@ inline void RDRAND64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#endif
+# endif
 }
-#endif  // RDRAND64
+# endif  // RDRAND64
 
 RDRAND::RDRAND()
 {
@@ -110,11 +110,11 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
     CRYPTOPP_ASSERT((output && size) || !(output || size));
     if (size == 0) return;
 
-#if defined(MASM_RDRAND_ASM_AVAILABLE)
+# if defined(MASM_RDRAND_ASM_AVAILABLE)
 
     MASM_RDRAND_GenerateBlock(output, size);
 
-#elif defined(GCC_RDRAND_ASM_AVAILABLE)
+# elif defined(GCC_RDRAND_ASM_AVAILABLE)
 
 #   if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
     size_t i = 0;
@@ -145,11 +145,11 @@ void RDRAND::GenerateBlock(byte *output, size_t size)
         std::memcpy(output, &val, size);
     }
 #   endif
-#else
+# else
     // No suitable compiler found
     CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDRAND: failed to find a suitable implementation");
-#endif
+# endif
 }
 
 void RDRAND::DiscardBytes(size_t n)
@@ -179,7 +179,7 @@ void RDRAND::DiscardBytes(size_t n)
 inline void RDSEED32(void* output)
 {
     CRYPTOPP_UNUSED(output);  // MSC warning
-#if defined(GCC_RDSEED_ASM_AVAILABLE)
+# if defined(GCC_RDSEED_ASM_AVAILABLE)
     __asm__ __volatile__
     (
         "1:\n"
@@ -188,15 +188,15 @@ inline void RDSEED32(void* output)
         : "=a" (*reinterpret_cast<word32*>(output))
         : : "cc"
     );
-#endif
+# endif
 }
 
-#if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
+# if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
 // Fills 8 bytes
 inline void RDSEED64(void* output)
 {
     CRYPTOPP_UNUSED(output);  // MSC warning
-#if defined(GCC_RDSEED_ASM_AVAILABLE)
+# if defined(GCC_RDSEED_ASM_AVAILABLE)
     __asm__ __volatile__
     (
         "1:\n"
@@ -205,9 +205,9 @@ inline void RDSEED64(void* output)
         : "=a" (*reinterpret_cast<word64*>(output))
         : : "cc"
     );
-#endif
+# endif
 }
-#endif  // RDSEED64
+# endif  // RDSEED64
 
 RDSEED::RDSEED()
 {
@@ -220,11 +220,11 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
     CRYPTOPP_ASSERT((output && size) || !(output || size));
     if (size == 0) return;
 
-#if defined(MASM_RDSEED_ASM_AVAILABLE)
+# if defined(MASM_RDSEED_ASM_AVAILABLE)
 
     MASM_RDSEED_GenerateBlock(output, size);
 
-#elif defined(GCC_RDSEED_ASM_AVAILABLE)
+# elif defined(GCC_RDSEED_ASM_AVAILABLE)
 #   if (CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_X32)
     size_t i = 0;
     for (i = 0; i < size/8; i++)
@@ -254,11 +254,11 @@ void RDSEED::GenerateBlock(byte *output, size_t size)
         std::memcpy(output, &val, size);
     }
 #   endif
-#else
+# else
     // No suitable compiler found
     CRYPTOPP_UNUSED(output);
     throw NotImplemented("RDSEED: failed to find a suitable implementation");
-#endif  // RDSEED64
+# endif  // RDSEED64
 }
 
 void RDSEED::DiscardBytes(size_t n)
@@ -277,7 +277,12 @@ void RDSEED::DiscardBytes(size_t n)
     }
 }
 
-#else  // not CRYPTOPP_CPUID_AVAILABLE
+#endif  // CRYPTOPP_RDSEED_AVAILABLE
+
+/////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+
+#if !defined(CRYPTOPP_RDRAND_AVAILABLE)
 
 RDRAND::RDRAND()
 {
@@ -296,6 +301,10 @@ void RDRAND::DiscardBytes(size_t n)
     CRYPTOPP_UNUSED(n);
 }
 
+#endif  // CRYPTOPP_RDRAND_AVAILABLE
+
+#if !defined(CRYPTOPP_RDSEED_AVAILABLE)
+
 RDSEED::RDSEED()
 {
     throw RDSEED_Err("HasRDSEED");
@@ -313,6 +322,6 @@ void RDSEED::DiscardBytes(size_t n)
     CRYPTOPP_UNUSED(n);
 }
 
-#endif  // CRYPTOPP_CPUID_AVAILABLE
+#endif  // CRYPTOPP_RDSEED_AVAILABLE
 
 NAMESPACE_END
