@@ -14,7 +14,7 @@ TOUT := $(strip $(TOUT))
 # Allow override for the cryptest.exe recipe. Change to
 # ./libcryptopp.so or ./libcryptopp.dylib to suit your
 # taste. https://github.com/weidai11/cryptopp/issues/866
-LINK_LIBRARY ?= ./libcryptopp.a
+LINK_LIBRARY ?= libcryptopp.a
 LINK_LIBRARY_PATH ?= ./
 
 # Default CXXFLAGS if none were provided
