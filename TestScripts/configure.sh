@@ -63,16 +63,16 @@ then
   IS_IA32=0
   IS_ARM32=0
   IS_ARMV8=0
-  IS_PPC=$(uname -m 2>&1 | ${GREP} -c -E 'ppc|powerpc')
+  IS_PPC=$(uname -m 2>&1 | ${GREP} -c -E 'ppc|powerpc|powermac')
   IS_PPC64=$(uname -m 2>&1 | ${GREP} -c -E 'ppc64|powerpc64')
 elif [[ "$CLANG_COMPILER" -ne 0 ]]
 then
-  IS_X86=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -c -E 'i386|i486|i585|i686')
-  IS_X64=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -c -E 'i86pc|x86_64|amd64')
-  IS_IA32=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
+  IS_X86=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'i386|i486|i585|i686')
+  IS_X64=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'i86pc|x86_64|amd64')
+  IS_IA32=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
   IS_ARM32=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
   IS_ARMV8=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
-  IS_PPC=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'ppc|powerpc')
+  IS_PPC=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -i -c -E 'ppc|powerpc|powermac')
   IS_PPC64=$(${CXX} ${CXXFLAGS} -dM -E - </dev/null | ${GREP} -c -E 'ppc64|powerpc64')
 else
   IS_X86=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i386|i486|i585|i686')
@@ -80,7 +80,7 @@ else
   IS_IA32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
   IS_ARM32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
   IS_ARMV8=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
-  IS_PPC=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc|powerpc')
+  IS_PPC=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc|powerpc|powermac')
   IS_PPC64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc64|powerpc64')
 fi
 
