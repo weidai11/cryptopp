@@ -65,13 +65,13 @@ then
   IS_PPC=$(uname -m 2>&1 | ${GREP} -v 64 | ${GREP} -c -E 'ppc|powerpc')
   IS_PPC64=$(uname -m 2>&1 | ${GREP} -c -E 'ppc64|powerpc64')
 else
-  IS_X86=$(${CXX} -dumpmachine 2>&1 | ${GREP} -c -E 'i386|i486|i585|i686')
-  IS_X64=$(${CXX} -dumpmachine 2>&1 | ${GREP} -c -E 'i86pc|x86_64|amd64')
-  IS_IA32=$(${CXX} -dumpmachine 2>&1 | ${GREP} -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
-  IS_ARM32=$(${CXX} -dumpmachine 2>&1 | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
-  IS_ARMV8=$(${CXX} -dumpmachine 2>&1 | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
-  IS_PPC=$(${CXX} -dumpmachine 2>&1 | ${GREP} -v 64 | ${GREP} -c -E 'ppc|powerpc')
-  IS_PPC64=$(${CXX} -dumpmachine 2>&1 | ${GREP} -c -E 'ppc64|powerpc64')
+  IS_X86=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -c -E 'i386|i486|i585|i686')
+  IS_X64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -c -E 'i86pc|x86_64|amd64')
+  IS_IA32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
+  IS_ARM32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
+  IS_ARMV8=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
+  IS_PPC=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -v 64 | ${GREP} -c -E 'ppc|powerpc')
+  IS_PPC64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -c -E 'ppc64|powerpc64')
 fi
 
 # ===========================================================================
