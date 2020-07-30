@@ -84,8 +84,8 @@ if [[ "${IS_ARM32}" -ne 0 ]]; then echo "Configuring for ARM32"; fi
 if [[ "${IS_ARMV8}" -ne 0 ]]; then echo "Configuring for Aarch64"; fi
 if [[ "${IS_PPC}" -ne 0 ]]; then echo "Configuring for PowerPC"; fi
 if [[ "${IS_PPC64}" -ne 0 ]]; then echo "Configuring for PowerPC64"; fi
-echo "Compiler: ${CXX}"
-echo "Linker: ${LD}"
+echo "Compiler: $(command -v ${CXX})"
+echo "Linker: $(command -v ${LD})"
 
 # ===========================================================================
 # =============================== config_asm.h ==============================
