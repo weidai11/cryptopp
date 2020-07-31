@@ -8,15 +8,22 @@
 # modern Android toolchains should be AES-NI and AVX capable, but the project
 # removes the compiler support.
 #
+# Use the same compiler and environment to run configure and the makefile.
+#
 # To use the script, copy the script to the root of the Crypto++ directory.
 # Set the environment, and then run the tool:
 #
-#     export CXX="..."
-#     export CXXFLAGS="..."
-#     export LDFLAGS="..."
-#     ./configure.sh
+#   export CXX="..."
+#   export CXXFLAGS="..."
+#   export LDFLAGS="..."
+#   ./configure.sh
 #
-# Use the same compiler and environment to run configure and the makefile.
+# Android and iOS would use the following if you are using setenv-android.sh
+# or setenv-ios.sh to set the environment:
+#
+#   export CXXFLAGS="$IOS_CXXFLAGS --sysroot=$IOS_SYSROOT"
+# or
+#   export CXXFLAGS="$ANDROID_CXXFLAGS --sysroot=$ANDROID_SYSROOT"
 #
 # Do not use this script for a multiarch environment unless the cpu features
 # are the same for each arch. For example, -arch i386 -arch x86_64 could
