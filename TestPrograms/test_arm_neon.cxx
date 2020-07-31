@@ -1,5 +1,7 @@
-#include <arm_neon.h>
 #include <stdint.h>
+#ifdef CRYPTOPP_ARM_NEON_HEADER
+# include <arm_neon.h>
+#endif
 
 int main(int argc, char* argv[])
 {
