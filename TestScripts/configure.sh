@@ -41,7 +41,8 @@
 
 # shellcheck disable=SC2086
 
-if [[ ! -r ./config_asm.h ]]; then
+# Verify the file exists and is writeable.
+if [[ ! -w ./config_asm.h ]]; then
     echo "Crypto++ is too old. Unable to locate config_asm.h"
     exit 1
 fi
@@ -142,9 +143,23 @@ rm -f config_asm.h.new
 } >> config_asm.h.new
 
 #############################################################################
+# Pickup CRYPTOPP_DISABLE_ASM
+
+disable_asm=$($GREP -c '\-DCRYPTOPP_DISABLE_ASM' <<< "${CPPFLAGS} ${CXXFLAGS}")
+if [[ "$disable_asm" -ne 0 ]]; then
+
+  # Shell redirection
+  {
+    echo '// Set in CPPFLAGS or CXXFLAGS'
+    echo '#define CRYPTOPP_DISABLE_ASM 1'
+  } >> config_asm.h.new
+
+fi
+
+#############################################################################
 # Intel x86-based machines
 
-if [[ "$IS_IA32" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 && "$IS_IA32" -ne 0 ]]; then
 
   if [[ "${SUN_COMPILER}" -ne 0 ]]; then
     SSE2_FLAG=-xarch=sse2
@@ -328,7 +343,7 @@ fi
 #############################################################################
 # ARM 32-bit machines
 
-if [[ "$IS_ARM32" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 && "$IS_ARM32" -ne 0 ]]; then
 
   # IS_IOS is set when ./setenv-ios is run
   if [[ "$IS_IOS" -ne 0 ]]; then
@@ -391,7 +406,7 @@ fi
 #############################################################################
 # ARM 64-bit machines
 
-if [[ "$IS_ARMV8" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 && "$IS_ARMV8" -ne 0 ]]; then
 
   # IS_IOS is set when ./setenv-ios is run
   if [[ "$IS_IOS" -ne 0 ]]; then
@@ -508,7 +523,7 @@ fi
 #############################################################################
 # PowerPC machines
 
-if [[ "$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
 
   if [[ "${XLC_COMPILER}" -ne 0 ]]; then
     POWER9_FLAG="-qarch=pwr9 -qaltivec"
