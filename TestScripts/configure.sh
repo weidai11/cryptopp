@@ -3,10 +3,10 @@
 # Written and placed in public domain by Jeffrey Walton
 #
 # This script attempts to update various config_xxx.h files based on the
-# current toolchain. It fills a gap where some features are enabled based on
-# compiler vendor and version, but the feature is not present. For example,
-# modern Android toolchains should be AES-NI and AVX capable, but the project
-# removes the compiler support.
+# current toolchain. It fills a gap where some features are misdetected based
+# on compiler version and associated macros, but the feature is (or is not)
+# present. For example, modern Android toolchains should be AES-NI and AVX
+# capable, but the project removes the feature support.
 #
 # Use the same compiler and environment to run configure and the makefile.
 #
@@ -19,7 +19,8 @@
 #   ./configure.sh
 #
 # Android and iOS would use the following if you are using setenv-android.sh
-# or setenv-ios.sh to set the environment:
+# or setenv-ios.sh to set the environment. Otherwise the script expects
+# CXX and CXXFLAGS to be set properly for Android or iOS.
 #
 #   export CXXFLAGS="$IOS_CXXFLAGS --sysroot=$IOS_SYSROOT"
 # or
@@ -28,6 +29,9 @@
 # Do not use this script for a multiarch environment unless the cpu features
 # are the same for each arch. For example, -arch i386 -arch x86_64 could
 # cause problems if x86 only included SSE4.2, while x64 included AVX.
+#
+# A wiki page is available for this script at
+# https://www.cryptopp.com/wiki/Configure.sh
 #
 # This script was added at Crypto++ 8.3. Also see GH #850. This script will
 # work with earlier versions of the library that use config_xxx.h files.
