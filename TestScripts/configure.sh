@@ -37,6 +37,11 @@
 
 # shellcheck disable=SC2086
 
+if [[ ! -r ./config_asm.h ]]; then
+    echo "Crypto++ is too old. Unable to locate config_asm.h"
+    exit 1
+fi
+
 TMPDIR="${TMPDIR:-/tmp}"
 TOUT="${TOUT:-a.out}"
 
