@@ -109,6 +109,7 @@ IS_ANDROID="${IS_ANDROID:-0}"
 # ================================== Fixups =================================
 # ===========================================================================
 
+# A 64-bit platform often matches the 32-bit variant due to appending '64'
 if [[ "${IS_X64}" -ne 0 ]]; then IS_X86=0; fi
 if [[ "${IS_ARMV8}" -ne 0 ]]; then IS_ARM32=0; fi
 if [[ "${IS_PPC64}" -ne 0 ]]; then IS_PPC=0; fi
@@ -123,6 +124,7 @@ if [[ "${IS_ARM32}" -ne 0 ]]; then echo "Configuring for ARM32"; fi
 if [[ "${IS_ARMV8}" -ne 0 ]]; then echo "Configuring for Aarch64"; fi
 if [[ "${IS_PPC}" -ne 0 ]]; then echo "Configuring for PowerPC"; fi
 if [[ "${IS_PPC64}" -ne 0 ]]; then echo "Configuring for PowerPC64"; fi
+
 echo "Compiler: $(command -v ${CXX})"
 echo "Linker: $(command -v ${LD})"
 
