@@ -794,9 +794,9 @@ rm -f config_cxx.h.new
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx17_exceptions.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOPP_CXX17_EXCEPTIONS 1'
+    echo '#define CRYPTOPP_CXX17_UNCAUGHT_EXCEPTIONS 1'
   else
-    echo '// #define CRYPTOPP_CXX17_EXCEPTIONS 1'
+    echo '// #define CRYPTOPP_CXX17_UNCAUGHT_EXCEPTIONS 1'
   fi
 
   echo ''
