@@ -735,7 +735,7 @@ rm -f config_cxx.h.new
     echo '// #define CRYPTOPP_CXX11_NULLPTR 1'
   fi
 
-  # 0-argument static assert
+  # 2-argument static assert
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_assert.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_CXX11_ASSERT 1'
