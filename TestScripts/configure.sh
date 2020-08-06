@@ -761,7 +761,7 @@ rm -f config_cxx.h.new
   echo '// C++14 is available'
   echo '#if defined(CRYPTOPP_CXX14)'
   echo ''
-
+  echo '// No dead bodies here. Move on...'
   echo ''
   echo '#endif  // CRYPTOPP_CXX14'
 
