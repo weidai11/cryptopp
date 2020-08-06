@@ -138,11 +138,11 @@ rm -f config_asm.h.new
 
 # Common header
 {
-  echo '#ifndef CRYPTOPP_CONFIG_ASM_H'
-  echo '#define CRYPTOPP_CONFIG_ASM_H'
-  echo ''
   echo '// config_asm.h rewritten by configure.sh script'
   echo '//' "${TIMESTAMP}"
+  echo ''
+  echo '#ifndef CRYPTOPP_CONFIG_ASM_H'
+  echo '#define CRYPTOPP_CONFIG_ASM_H'
   echo ''
 } >> config_asm.h.new
 
@@ -154,6 +154,7 @@ if [[ "$disable_asm" -ne 0 ]]; then
 
   # Shell redirection
   {
+    echo ''
     echo '// Set in CPPFLAGS or CXXFLAGS'
     echo '#define CRYPTOPP_DISABLE_ASM 1'
   } >> config_asm.h.new
@@ -619,11 +620,11 @@ rm -f config_cxx.h.new
 
 # Common header
 {
-  echo '#ifndef CRYPTOPP_CONFIG_CXX_H'
-  echo '#define CRYPTOPP_CONFIG_CXX_H'
-  echo ''
   echo '// config_cxx.h rewritten by configure.sh script'
   echo '//' "${TIMESTAMP}"
+  echo ''
+  echo '#ifndef CRYPTOPP_CONFIG_CXX_H'
+  echo '#define CRYPTOPP_CONFIG_CXX_H'
 } >> config_cxx.h.new
 
 # Shell redirection
