@@ -214,86 +214,105 @@ if [[ "$disable_asm" -eq 0 && "$IS_IA32" -ne 0 ]]; then
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE2_FLAG} TestPrograms/test_x86_sse2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    have_sse2=1
     echo '#define CRYPTOPP_SSE2_INTRIN_AVAILABLE 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE3_FLAG} TestPrograms/test_x86_sse3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    have_sse3=1
     echo '#define CRYPTOPP_SSE3_AVAILABLE 1'
   else
+    have_sse3=0
     echo '#define CRYPTOPP_DISABLE_SSE3 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSSE3_FLAG} TestPrograms/test_x86_ssse3.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse3" -ne 0 ]]; then
+    have_ssse3=1
     echo '#define CRYPTOPP_SSSE3_ASM_AVAILABLE 1'
     echo '#define CRYPTOPP_SSSE3_AVAILABLE 1'
   else
+    have_ssse3=0
     echo '#define CRYPTOPP_DISABLE_SSSE3 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE41_FLAG} TestPrograms/test_x86_sse41.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_ssse3" -ne 0 ]]; then
+    have_sse41=1
     echo '#define CRYPTOPP_SSE41_AVAILABLE 1'
   else
+    have_sse41=0
     echo '#define CRYPTOPP_DISABLE_SSE4 1'
     echo '#define CRYPTOPP_DISABLE_SSE41 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SSE42_FLAG} TestPrograms/test_x86_sse42.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse41" -ne 0 ]]; then
+    have_sse42=1
     echo '#define CRYPTOPP_SSE42_AVAILABLE 1'
   else
+    have_sse42=0
     echo '#define CRYPTOPP_DISABLE_SSE4 1'
     echo '#define CRYPTOPP_DISABLE_SSE42 1'
   fi
 
+  ########################################################
+  # AES, CLMUL, RDRAND, RDSEED, SHA and AVX tied to SSE4.2
+
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${CLMUL_FLAG} TestPrograms/test_x86_clmul.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse42" -ne 0 ]]; then
     echo '#define CRYPTOPP_CLMUL_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_CLMUL 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AESNI_FLAG} TestPrograms/test_x86_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse42" -ne 0 ]]; then
     echo '#define CRYPTOPP_AESNI_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_AESNI 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${RDRAND_FLAG} TestPrograms/test_x86_rdrand.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse42" -ne 0 ]]; then
     echo '#define CRYPTOPP_RDRAND_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_RDRAND 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${RDSEED_FLAG} TestPrograms/test_x86_rdseed.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse42" -ne 0 ]]; then
     echo '#define CRYPTOPP_RDSEED_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_RDSEED 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${SHANI_FLAG} TestPrograms/test_x86_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse42" -ne 0 ]]; then
     echo '#define CRYPTOPP_SHANI_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_SHANI 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AVX_FLAG} TestPrograms/test_x86_avx.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_sse42" -ne 0 ]]; then
+    have_avx=1
     echo '#define CRYPTOPP_AVX_AVAILABLE 1'
   else
+    have_avx=0
     echo '#define CRYPTOPP_DISABLE_AVX 1'
   fi
 
+  #####################
+  # AVX2 depends on AVX
+
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${AVX2_FLAG} TestPrograms/test_x86_avx2.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_avx" -ne 0 ]]; then
+    have_avx2=1
     echo '#define CRYPTOPP_AVX2_AVAILABLE 1'
   else
+    have_avx2=0
     echo '#define CRYPTOPP_DISABLE_AVX2 1'
   fi
 
@@ -550,48 +569,56 @@ if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${ALTIVEC_FLAG} TestPrograms/test_ppc_altivec.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    have_altivec=1
     echo '#define CRYPTOPP_ALTIVEC_AVAILABLE 1'
   else
+    have_altivec=0
     echo '#define CRYPTOPP_DISABLE_ALTIVEC 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER7_PWR_FLAG} TestPrograms/test_ppc_power7.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_altivec" -ne 0 ]]; then
+    have_power7=1
     echo '#define CRYPTOPP_POWER7_AVAILABLE 1'
   else
+    have_power7=0
     echo '#define CRYPTOPP_DISABLE_POWER7 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_power8.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_power7" -ne 0 ]]; then
+    have_power8=1
     echo '#define CRYPTOPP_POWER8_AVAILABLE 1'
   else
+    have_power8=0
     echo '#define CRYPTOPP_DISABLE_POWER8 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER9_FLAG} TestPrograms/test_ppc_power9.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -ne 0 ]]; then
+  if [[ "${CXX_RESULT}" -ne 0 && "$have_power8" -ne 0 ]]; then
+    have_power9=1
     echo '#define CRYPTOPP_POWER9_AVAILABLE 1'
   else
+    have_power9=0
     echo '#define CRYPTOPP_DISABLE_POWER9 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_aes.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_power8" -ne 0 ]]; then
     echo '#define CRYPTOPP_POWER8_AES_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_POWER8_AES 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_vmull.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_power8" -ne 0 ]]; then
     echo '#define CRYPTOPP_POWER8_VMULL_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_POWER8_VMULL 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER8_FLAG} TestPrograms/test_ppc_sha.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
-  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_power8" -ne 0 ]]; then
     echo '#define CRYPTOPP_POWER8_SHA_AVAILABLE 1'
   else
     echo '#define CRYPTOPP_DISABLE_POWER8_SHA 1'
