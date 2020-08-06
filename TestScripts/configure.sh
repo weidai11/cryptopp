@@ -104,6 +104,7 @@ fi
 # Default values for setenv-*.sh scripts
 IS_IOS="${IS_IOS:-0}"
 IS_ANDROID="${IS_ANDROID:-0}"
+TIMESTAMP=$(date "+%A, %B %d %Y, %I:%M %p")
 
 # ===========================================================================
 # ================================== Fixups =================================
@@ -140,7 +141,7 @@ rm -f config_asm.h.new
   echo '#define CRYPTOPP_CONFIG_ASM_H'
   echo ''
   echo '// config_asm.h rewritten by configure.sh script'
-  echo '//' "$(date)"
+  echo '//' "${TIMESTAMP}"
   echo ''
 } >> config_asm.h.new
 
@@ -621,7 +622,7 @@ rm -f config_cxx.h.new
   echo '#define CRYPTOPP_CONFIG_CXX_H'
   echo ''
   echo '// config_cxx.h rewritten by configure.sh script'
-  echo '//' "$(date)"
+  echo '//' "${TIMESTAMP}"
 } >> config_cxx.h.new
 
 # Shell redirection
