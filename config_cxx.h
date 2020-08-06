@@ -149,6 +149,13 @@
 #  define CRYPTOPP_CXX11_ALIGNOF 1
 #endif // alignof
 
+// initializer lists: MS at VS2013 (18.00); GCC at 4.4; Clang at 3.1; Intel 14.0; SunCC 5.13.
+#if (CRYPTOPP_MSC_VERSION >= 1800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30100) || \
+	(CRYPTOPP_APPLE_CLANG_VERSION >= 40000) || (__INTEL_COMPILER >= 1400) || \
+	(CRYPTOPP_GCC_VERSION >= 40400) || (__SUNPRO_CC >= 0x5130)
+#  define CRYPTOPP_CXX11_INITIALIZER_LIST 1
+#endif // alignas
+
 // lambdas: MS at VS2012 (17.00); GCC at 4.9; Clang at 3.3; Intel 12.0; SunCC 5.14.
 #if (CRYPTOPP_MSC_VERSION >= 1700) || __has_feature(cxx_lambdas) || \
 	(__INTEL_COMPILER >= 1200) || (CRYPTOPP_GCC_VERSION >= 40900) || (__SUNPRO_CC >= 0x5140)

@@ -709,6 +709,13 @@ rm -f config_cxx.h.new
     echo '// #define CRYPTOPP_CXX11_ALIGNOF 1'
   fi
 
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_initializer.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_CXX11_INITIALIZER_LIST 1'
+  else
+    echo '// #define CRYPTOPP_CXX11_INITIALIZER_LIST 1'
+  fi
+
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_lambda.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_CXX11_LAMBDA 1'
