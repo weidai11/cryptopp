@@ -632,9 +632,16 @@ rm -f config_cxx.h.new
   echo '// ***************** C++98 and C++03 ********************'
   echo ''
 
-  echo '// Ancient Crypto++ define, dating back to C++98.'
-  echo '#define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1'
-  echo '#define CRYPTOPP_CXX98_UNCAUGHT_EXCEPTION 1'
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx98_exception.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '// Ancient Crypto++ define, dating back to C++98.'
+    echo '#define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1'
+    echo '#define CRYPTOPP_CXX98_UNCAUGHT_EXCEPTION 1'
+  else
+    echo '// Ancient Crypto++ define, dating back to C++98.'
+    echo '// #define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1'
+    echo '// #define CRYPTOPP_CXX98_UNCAUGHT_EXCEPTION 1'
+  fi
 
   echo ''
   echo '// ***************** C++11 and above ********************'
@@ -658,6 +665,13 @@ rm -f config_cxx.h.new
     echo '#define CRYPTOPP_CXX11_ATOMIC 1'
   else
     echo '// #define CRYPTOPP_CXX11_ATOMIC 1'
+  fi
+
+  CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_auto.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
+  if [[ "${CXX_RESULT}" -eq 0 ]]; then
+    echo '#define CRYPTOPP_CXX11_AUTO 1'
+  else
+    echo '// #define CRYPTOPP_CXX11_AUTO 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_sync.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
