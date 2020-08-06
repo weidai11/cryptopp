@@ -632,8 +632,9 @@ rm -f config_cxx.h.new
   echo '// ***************** C++98 and C++03 ********************'
   echo ''
 
-  echo '// Ancient Crypto++ define, dating back to C++98 and C++03.'
+  echo '// Ancient Crypto++ define, dating back to C++98.'
   echo '#define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1'
+  echo '#define CRYPTOPP_CXX98_UNCAUGHT_EXCEPTION 1'
 
   echo ''
   echo '// ***************** C++11 and above ********************'

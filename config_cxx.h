@@ -35,9 +35,10 @@
 #define CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 #endif
 
-// Ancient Crypto++ define, dating back to C++98 and C++03.
+// Ancient Crypto++ define, dating back to C++98.
 #ifndef CRYPTOPP_DISABLE_UNCAUGHT_EXCEPTION
 # define CRYPTOPP_UNCAUGHT_EXCEPTION_AVAILABLE 1
+# define CRYPTOPP_CXX98_UNCAUGHT_EXCEPTION 1
 #endif
 
 // Compatibility with non-clang compilers.
