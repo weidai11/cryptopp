@@ -140,6 +140,7 @@ rm -f config_asm.h.new
 {
   echo '// config_asm.h rewritten by configure.sh script'
   echo '//' "${TIMESTAMP}"
+  echo '// Also see https://www.cryptopp.com/wiki/configure.sh'
   echo ''
   echo '#ifndef CRYPTOPP_CONFIG_ASM_H'
   echo '#define CRYPTOPP_CONFIG_ASM_H'
@@ -622,6 +623,7 @@ rm -f config_cxx.h.new
 {
   echo '// config_cxx.h rewritten by configure.sh script'
   echo '//' "${TIMESTAMP}"
+  echo '// Also see https://www.cryptopp.com/wiki/configure.sh'
   echo ''
   echo '#ifndef CRYPTOPP_CONFIG_CXX_H'
   echo '#define CRYPTOPP_CONFIG_CXX_H'
