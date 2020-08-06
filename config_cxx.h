@@ -184,7 +184,7 @@
 // Mircorosft and Intel had partial support earlier, but we require full support.
 #if (CRYPTOPP_MSC_VERSION >= 1700) || __has_feature(cxx_strong_enums) || \
 	(__INTEL_COMPILER >= 1400) || (CRYPTOPP_GCC_VERSION >= 40400) || (__SUNPRO_CC >= 0x5120)
-# define CRYPTOPP_CXX11_ENUM 1
+# define CRYPTOPP_CXX11_STRONG_ENUM 1
 #endif // constexpr compilers
 
 // nullptr_t: MS at VS2010 (16.00); GCC at 4.6; Clang at 3.3; Intel 10.0; SunCC 5.13.

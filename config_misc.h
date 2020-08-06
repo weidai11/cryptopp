@@ -146,7 +146,7 @@
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 # define CRYPTOPP_CONSTANT(x) static const int x
-#elif defined(CRYPTOPP_CXX11_ENUM)
+#elif defined(CRYPTOPP_CXX11_STRONG_ENUM)
 # define CRYPTOPP_CONSTANT(x) enum : int { x }
 #elif defined(CRYPTOPP_CXX11_CONSTEXPR)
 # define CRYPTOPP_CONSTANT(x) constexpr static int x

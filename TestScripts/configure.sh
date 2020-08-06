@@ -749,9 +749,9 @@ rm -f config_cxx.h.new
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_enumtype.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOPP_CXX11_ENUM 1'
+    echo '#define CRYPTOPP_CXX11_STRONG_ENUM 1'
   else
-    echo '// #define CRYPTOPP_CXX11_ENUM 1'
+    echo '// #define CRYPTOPP_CXX11_STRONG_ENUM 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_nullptr.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
