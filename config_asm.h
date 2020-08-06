@@ -363,7 +363,8 @@
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
 #endif
 
-// Disable for Android
+// Disable for Android. Android only offers the base Aarch64 architecture.
+// https://developer.android.com/ndk/guides/abis
 #if defined(__ANDROID__) || defined(ANDROID)
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
