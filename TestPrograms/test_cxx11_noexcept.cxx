@@ -1,8 +1,10 @@
-#define GNUC_VERSION (__GNUC__*1000 + __GNUC_MAJOR__*10)
+#if defined(__GNUC_MAJOR__)
+# define GNUC_VERSION (__GNUC__*1000 + __GNUC_MAJOR__*10)
+#endif
 
-#if defined(__apple_build_version__)
+#if defined(__clang_major__) && defined(__apple_build_version__)
 # define APPLE_VERSION (__clang_major__*1000 + __clang_minor__*10)
-#else
+#elif defined(__clang_major__)
 # define LLVM_VERSION (__clang_major__*1000 + __clang_minor__*10)
 #endif
 
