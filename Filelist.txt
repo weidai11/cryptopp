@@ -588,8 +588,14 @@ TestPrograms/test_arm_sha512.cxx
 TestPrograms/test_arm_sm3.cxx
 TestPrograms/test_arm_sm4.cxx
 TestPrograms/test_asm_mixed.cxx
-TestPrograms/test_asm_sse2.cxx
+TestPrograms/test_cxx11_alignas.cxx
+TestPrograms/test_cxx11_alignof.cxx
+TestPrograms/test_cxx11_atomic.cxx
 TestPrograms/test_cxx11.cxx
+TestPrograms/test_cxx11_deletefn.cxx
+TestPrograms/test_cxx11_dyninit.cxx
+TestPrograms/test_cxx11_lambda.cxx
+TestPrograms/test_cxx11_sync.cxx
 TestPrograms/test_cxx17.cxx
 TestPrograms/test_cxx.cxx
 TestPrograms/test_glibc.cxx
