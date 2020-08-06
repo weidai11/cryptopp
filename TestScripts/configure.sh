@@ -812,7 +812,7 @@ rm -f config_cxx.h.new
   echo '#  define CRYPTOPP_NO_THROW'
   echo '#endif // CRYPTOPP_CXX11_NOEXCEPT'
   echo ''
-  echo '// Hack... C++11 nullptr_t type safety and analysis'
+  echo '// C++11 nullptr_t type safety and analysis'
   echo '#if defined(CRYPTOPP_CXX11_NULLPTR) && !defined(NULLPTR)'
   echo '#  define NULLPTR nullptr'
   echo '#elif !defined(NULLPTR)'
