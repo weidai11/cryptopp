@@ -198,7 +198,7 @@
 // Extended static_assert with one argument
 // Microsoft cannot handle the single argument static_assert as of VS2019 (cl.exe 19.00)
 #if (__cpp_static_assert >= 201411)
-# define CRYPTOPP_CXX14_STATIC_ASSERT 1
+# define CRYPTOPP_CXX17_STATIC_ASSERT 1
 #endif // static_assert
 
 #endif
