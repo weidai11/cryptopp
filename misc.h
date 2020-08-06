@@ -1189,11 +1189,6 @@ inline unsigned int GetAlignmentOf()
 #elif CRYPTOPP_BOOL_SLOW_WORD64
 	return UnsignedMin(4U, sizeof(T));
 #else
-# if __BIGGEST_ALIGNMENT__
-	if (__BIGGEST_ALIGNMENT__ < sizeof(T))
-		return __BIGGEST_ALIGNMENT__;
-	else
-# endif
 	return sizeof(T);
 #endif
 }
