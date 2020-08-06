@@ -8,9 +8,9 @@
 
 int main(int argc, char* argv[])
 {
-	// SM4 block cipher
-	uint32x4_t x;
-	x=vsm4ekeyq_u32(x,x);
-	x=vsm4eq_u32(x,x);
-	return 0;
+    // SM4 block cipher
+    uint32x4_t x;
+    x=vsm4ekeyq_u32(x,x);
+    x=vsm4eq_u32(x,x);
+    return 0;
 }
