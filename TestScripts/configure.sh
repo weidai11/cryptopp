@@ -47,7 +47,7 @@ if [[ ! -w ./config_asm.h ]]; then
     exit 1
 fi
 
-TMPDIR="${TMPDIR:-/tmp}"
+TMPDIR="${TMPDIR:-$HOME/tmp}"
 TPROG="${TOUT:-TestPrograms/test_cxx.cxx}"
 TOUT="${TOUT:-a.out}"
 
