@@ -659,7 +659,6 @@ rm -f config_cxx.h.new
   fi
 
   echo ''
-  echo '// C++11 is available'
   echo '#if defined(CRYPTOPP_CXX11)'
   echo ''
 
@@ -785,7 +784,6 @@ rm -f config_cxx.h.new
   fi
 
   echo ''
-  echo '// C++14 is available'
   echo '#if defined(CRYPTOPP_CXX14)'
   echo ''
   echo '// No dead bodies here. Move on...'
@@ -805,7 +803,6 @@ rm -f config_cxx.h.new
   fi
 
   echo ''
-  echo '// C++17 is available'
   echo '#if defined(CRYPTOPP_CXX17)'
   echo ''
 
