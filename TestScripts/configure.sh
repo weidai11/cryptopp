@@ -654,9 +654,9 @@ rm -f config_cxx.h.new
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_atomic.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOPP_CXX11_ATOMICS 1'
+    echo '#define CRYPTOPP_CXX11_ATOMIC 1'
   else
-    echo '// #define CRYPTOPP_CXX11_ATOMICS 1'
+    echo '// #define CRYPTOPP_CXX11_ATOMIC 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_sync.cxx -o ${TOUT} 2>&1 | tr ' ' '\n' | wc -l)

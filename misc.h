@@ -267,7 +267,7 @@ struct NewObject
 ///  <tt>_ReadWriteBarrier()</tt> or <tt>__asm__("" ::: "memory")</tt> is used.
 #define MEMORY_BARRIER ...
 #else
-#if defined(CRYPTOPP_CXX11_ATOMICS)
+#if defined(CRYPTOPP_CXX11_ATOMIC)
 # define MEMORY_BARRIER() std::atomic_thread_fence(std::memory_order_acq_rel)
 #elif (_MSC_VER >= 1400)
 # pragma intrinsic(_ReadWriteBarrier)
@@ -324,7 +324,7 @@ private:
 template <class T, class F, int instance>
   const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
-#if defined(CRYPTOPP_CXX11_ATOMICS) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#if defined(CRYPTOPP_CXX11_ATOMIC) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
 	static std::mutex s_mutex;
 	static std::atomic<T*> s_pObject;
 

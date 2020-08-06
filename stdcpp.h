@@ -47,7 +47,7 @@ namespace std {
 #include <iterator>
 #endif
 
-#if defined(CRYPTOPP_CXX11_ATOMICS)
+#if defined(CRYPTOPP_CXX11_ATOMIC)
 #include <atomic>
 #endif
 
