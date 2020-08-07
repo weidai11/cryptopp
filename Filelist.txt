@@ -596,7 +596,7 @@ TestPrograms/test_cxx11_auto.cxx
 TestPrograms/test_cxx11_constexpr.cxx
 TestPrograms/test_cxx11.cxx
 TestPrograms/test_cxx11_deletefn.cxx
-TestPrograms/test_cxx11_dyninit.cxx
+TestPrograms/test_cxx11_staticinit.cxx
 TestPrograms/test_cxx11_enumtype.cxx
 TestPrograms/test_cxx11_initializer.cxx
 TestPrograms/test_cxx11_lambda.cxx
