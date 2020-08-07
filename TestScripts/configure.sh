@@ -631,7 +631,7 @@ fi
 # Common footer
 {
   echo ''
-  echo '#endif'
+  echo '#endif  // CRYPTOPP_CONFIG_ASM_H'
   echo ''
 } >> config_asm.h.new
 
@@ -875,7 +875,7 @@ rm -f config_cxx.h.new
 # Common footer
 {
   echo ''
-  echo '#endif'
+  echo '#endif  // CRYPTOPP_CONFIG_CXX_H'
   echo ''
 } >> config_cxx.h.new
 
