@@ -416,22 +416,22 @@ if [[ "$disable_asm" -eq 0 && "$IS_ARM32" -ne 0 ]]; then
   # TestPrograms/test_cxx.cxx is needed for main().
   CXX_RESULT=$(${CXX} ${CXXFLAGS} aes_armv4.S TestPrograms/test_cxx.cxx -o ${TOUT} 2>&1 | wc -w)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOGAMS_AES_AVAILABLE 1'
+    echo '#define CRYPTOGAMS_ARM_AES 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} sha1_armv4.S TestPrograms/test_cxx.cxx -o ${TOUT} 2>&1 | wc -w)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOGAMS_SHA1_AVAILABLE 1'
+    echo '#define CRYPTOGAMS_ARM_SHA1 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} sha256_armv4.S TestPrograms/test_cxx.cxx -o ${TOUT} 2>&1 | wc -w)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOGAMS_SHA256_AVAILABLE 1'
+    echo '#define CRYPTOGAMS_ARM_SHA256 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} sha512_armv4.S TestPrograms/test_cxx.cxx -o ${TOUT} 2>&1 | wc -w)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
-    echo '#define CRYPTOGAMS_SHA512_AVAILABLE 1'
+    echo '#define CRYPTOGAMS_ARM_SHA512 1'
   fi
 
   } >> config_asm.h.new
