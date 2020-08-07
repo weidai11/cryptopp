@@ -10,7 +10,7 @@
 # define LLVM_VERSION (__clang_major__*1000 + __clang_minor__*10)
 #endif
 
-#if (GNUC_VERSION >= 4060) || (LLVM_VERSION >= 1070) || (APPLE_VERSION >= 10000)
+#if (GNUC_VERSION >= 4060) || (LLVM_VERSION >= 9000) || (APPLE_VERSION >= 10000)
 # pragma GCC diagnostic ignored "-Wterminate"
 #endif
 
