@@ -51,7 +51,7 @@ TMPDIR="${TMPDIR:-$HOME/tmp}"
 TPROG="${TOUT:-TestPrograms/test_cxx.cxx}"
 TOUT="${TOUT:-a.out}"
 
-CXX="${CXX:-g++}"
+CXX="${CXX:-c++}"
 LD="${LD:-ld}"
 CXXFLAGS="${CXXFLAGS:--DNDEBUG -g2 -O3}"
 GREP="${GREP:-grep}"
