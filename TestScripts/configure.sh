@@ -48,7 +48,7 @@ if [[ ! -w ./config_asm.h ]]; then
 fi
 
 TMPDIR="${TMPDIR:-$HOME/tmp}"
-TPROG="${TOUT:-TestPrograms/test_cxx.cxx}"
+TPROG="${TPROG:-TestPrograms/test_cxx.cxx}"
 TOUT="${TOUT:-a.out}"
 
 CXX="${CXX:-c++}"
