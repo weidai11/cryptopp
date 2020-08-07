@@ -324,7 +324,7 @@ private:
 template <class T, class F, int instance>
   const T & Singleton<T, F, instance>::Ref(CRYPTOPP_NOINLINE_DOTDOTDOT) const
 {
-#if defined(CRYPTOPP_CXX11_ATOMIC) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#if defined(CRYPTOPP_CXX11_ATOMIC) && defined(CRYPTOPP_CXX11_SYNCHRONIZATION) && defined(CRYPTOPP_CXX11_STATIC_INIT)
 	static std::mutex s_mutex;
 	static std::atomic<T*> s_pObject;
 

@@ -166,7 +166,7 @@ const PolynomialMod2 &PolynomialMod2::Zero()
 {
 #if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_zero;
-#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#elif defined(CRYPTOPP_CXX11_STATIC_INIT)
 	static const PolynomialMod2 g_zero;
 	return g_zero;
 #else
@@ -178,7 +178,7 @@ const PolynomialMod2 &PolynomialMod2::One()
 {
 #if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_one;
-#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#elif defined(CRYPTOPP_CXX11_STATIC_INIT)
 	static const PolynomialMod2 g_one(1);
 	return g_one;
 #else

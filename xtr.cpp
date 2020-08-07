@@ -13,7 +13,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 const GFP2Element & GFP2Element::Zero()
 {
-#if defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#if defined(CRYPTOPP_CXX11_STATIC_INIT)
 	static const GFP2Element s_zero;
 	return s_zero;
 #else

@@ -198,7 +198,7 @@ const EC2N::Point& EC2N::Identity() const
 {
 #if defined(HAVE_GCC_INIT_PRIORITY) || defined(HAVE_MSC_INIT_PRIORITY) || defined(HAVE_XLC_INIT_PRIORITY)
 	return g_identity;
-#elif defined(CRYPTOPP_CXX11_DYNAMIC_INIT)
+#elif defined(CRYPTOPP_CXX11_STATIC_INIT)
 	static const EC2N::Point g_identity;
 	return g_identity;
 #else

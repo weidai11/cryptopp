@@ -234,7 +234,7 @@ private:
 
 void GetAppleMachineInfo(unsigned int& device, unsigned int& version, unsigned int& arch)
 {
-#if CRYPTOPP_CXX11_DYNAMIC_INIT
+#if CRYPTOPP_CXX11_STATIC_INIT
 	static const AppleMachineInfo info;
 #else
 	using CryptoPP::Singleton;
