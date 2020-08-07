@@ -56,6 +56,16 @@ LD="${LD:-ld}"
 CXXFLAGS="${CXXFLAGS:--DNDEBUG -g2 -O3}"
 GREP="${GREP:-grep}"
 
+if [[ -z "$(command -v ${CXX} 2>/dev/null)" ]]; then
+  echo "Compiler is not valid. Please install a compiler"
+  exit 1
+fi
+
+if [[ -z "$(command -v ${LD} 2>/dev/null)" ]]; then
+  echo "Linker is not valid. Please install a linker"
+  exit 1
+fi
+
 # Solaris fixup
 if [[ -d /usr/gnu/bin ]]; then
   GREP=/usr/gnu/bin/grep
