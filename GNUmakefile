@@ -141,7 +141,7 @@ endif
 # Fixup AIX
 ifeq ($(IS_AIX),1)
   TPROG = TestPrograms/test_64bit.cxx
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     IS_PPC64=1
   else
@@ -236,7 +236,7 @@ endif # IS_MINGW
 
 # Newlib needs _XOPEN_SOURCE=600 for signals
 TPROG = TestPrograms/test_newlib.cxx
-HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
 ifeq ($(strip $(HAVE_OPT)),0)
   ifeq ($(findstring -D_XOPEN_SOURCE,$(CXXFLAGS)),)
     CRYPTOPP_CXXFLAGS += -D_XOPEN_SOURCE=600
@@ -276,7 +276,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse2.cxx
   TOPT = $(SSE2_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
     SUN_LDFLAGS += $(SSE2_FLAG)
@@ -286,7 +286,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_ssse3.cxx
   TOPT = $(SSSE3_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(SSSE3_FLAG)
     CHAM_FLAG = $(SSSE3_FLAG)
@@ -301,7 +301,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse41.cxx
   TOPT = $(SSE41_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     BLAKE2B_FLAG = $(SSE41_FLAG)
     BLAKE2S_FLAG = $(SSE41_FLAG)
@@ -312,7 +312,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse42.cxx
   TOPT = $(SSE42_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CRC_FLAG = $(SSE42_FLAG)
     SUN_LDFLAGS += $(SSE42_FLAG)
@@ -322,7 +322,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_clmul.cxx
   TOPT = $(CLMUL_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
     GF2N_FLAG = $(CLMUL_FLAG)
@@ -333,7 +333,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_aes.cxx
   TOPT = $(AESNI_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
     SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
@@ -344,7 +344,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_avx.cxx
   TOPT = $(AVX_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     # XXX_FLAG = $(AVX_FLAG)
     SUN_LDFLAGS += $(AVX_FLAG)
@@ -354,7 +354,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_avx2.cxx
   TOPT = $(AVX2_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_AVX2_FLAG = $(AVX2_FLAG)
     SUN_LDFLAGS += $(AVX2_FLAG)
@@ -364,7 +364,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sha.cxx
   TOPT = $(SHANI_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
     SUN_LDFLAGS += $(SHANI_FLAG)
@@ -422,7 +422,7 @@ ifeq ($(DETECT_FEATURES),1)
   # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
   # Clang compilers. This test will need to be re-enabled if Clang fixes it.
   #TPROG = TestPrograms/test_asm_mixed.cxx
-  #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   #ifneq ($(strip $(HAVE_OPT)),0)
   #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
   #endif
@@ -462,7 +462,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = -march=armv7-a -mfpu=neon
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     NEON_FLAG = -march=armv7-a -mfpu=neon
     ARIA_FLAG = -march=armv7-a -mfpu=neon
@@ -496,21 +496,21 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon_header.cxx
   TOPT =
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ACLE_FLAG += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cxx
   TOPT = -march=armv8-a
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ASIMD_FLAG = -march=armv8-a
     ARIA_FLAG = -march=armv8-a
@@ -530,7 +530,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifneq ($(ASIMD_FLAG),)
     TPROG = TestPrograms/test_arm_crc.cxx
     TOPT = -march=armv8-a+crc
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG = -march=armv8-a+crc
     else
@@ -539,7 +539,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_aes.cxx
     TOPT = -march=armv8-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       AES_FLAG = -march=armv8-a+crypto
     else
@@ -548,7 +548,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_pmull.cxx
     TOPT = -march=armv8-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG = -march=armv8-a+crypto
       GF2N_FLAG = -march=armv8-a+crypto
@@ -558,7 +558,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha1.cxx
     TOPT = -march=armv8-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG = -march=armv8-a+crypto
     else
@@ -567,7 +567,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha256.cxx
     TOPT = -march=armv8-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG = -march=armv8-a+crypto
     else
@@ -576,7 +576,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sm3.cxx
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SM3_FLAG = -march=armv8.4-a+crypto
       SM4_FLAG = -march=armv8.4-a+crypto
@@ -587,7 +587,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha3.cxx
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+crypto
     else
@@ -596,7 +596,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha512.cxx
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA512_FLAG = -march=armv8.4-a+crypto
     else
@@ -644,7 +644,7 @@ ifeq ($(DETECT_FEATURES),1)
   #ifeq ($(findstring -qxlcompatmacros,$(CXXFLAGS)),)
   #  TPROG = TestPrograms/test_ppc_altivec.cxx
   #  TOPT = -qxlcompatmacros
-  #  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  #  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   #  ifeq ($(strip $(HAVE_OPT)),0)
   #    CRYPTOPP_CXXFLAGS += -qxlcompatmacros
   #  endif
@@ -655,7 +655,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_power9.cxx
   TOPT = $(POWER9_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     # DARN_FLAG = $(POWER9_FLAG)
   else
@@ -667,7 +667,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_power8.cxx
   TOPT = $(POWER8_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     AES_FLAG = $(POWER8_FLAG)
     BLAKE2B_FLAG = $(POWER8_FLAG)
@@ -689,13 +689,13 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_power7.cxx
   TOPT = $(POWER7_VSX_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     POWER7_FLAG = $(POWER7_VSX_FLAG)
   else
     TPROG = TestPrograms/test_ppc_power7.cxx
     TOPT = $(POWER7_PWR_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       POWER7_FLAG = $(POWER7_PWR_FLAG)
 	else
@@ -708,7 +708,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = $(ALTIVEC_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifneq ($(strip $(HAVE_OPT)),0)
     ALTIVEC_FLAG =
   endif
@@ -717,19 +717,19 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(XLC_COMPILER)$(ALTIVEC_FLAG),1)
     TPROG = TestPrograms/test_ppc_altivec.cxx
     TOPT = $(POWER4_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       ALTIVEC_FLAG = $(POWER4_FLAG)
     else
       TPROG = TestPrograms/test_ppc_altivec.cxx
       TOPT = $(POWER5_FLAG)
-      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+      HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
       ifeq ($(strip $(HAVE_OPT)),0)
         ALTIVEC_FLAG = $(POWER5_FLAG)
       else
         TPROG = TestPrograms/test_ppc_altivec.cxx
         TOPT = $(POWER6_FLAG)
-        HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+        HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
         ifeq ($(strip $(HAVE_OPT)),0)
           ALTIVEC_FLAG = $(POWER6_FLAG)
         else
@@ -804,7 +804,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(findstring -qthreaded,$(CXXFLAGS)),)
    TPROG = TestPrograms/test_pthreads.cxx
    TOPT = -qthreaded
-   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
    ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -qthreaded
    endif # CRYPTOPP_CXXFLAGS
@@ -813,7 +813,7 @@ ifeq ($(DETECT_FEATURES),1)
   ifeq ($(findstring -pthread,$(CXXFLAGS)),)
    TPROG = TestPrograms/test_pthreads.cxx
    TOPT = -pthread
-   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
    ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -pthread
    endif  # CRYPTOPP_CXXFLAGS
@@ -839,7 +839,7 @@ endif
 ifeq ($(XLC_COMPILER),1)
   TPROG = TestPrograms/test_cxx.cxx
   TOPT = -qsuppress=1500-036
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -qsuppress=1500-036
   endif  # -qsuppress
@@ -916,7 +916,7 @@ ifeq ($(findstring native,$(MAKECMDGOALS)),native)
   # Try GCC and compatibles first
   TPROG = TestPrograms/test_cxx.cxx
   TOPT = -march=native
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     NATIVE_OPT = -march=native
   endif # NATIVE_OPT
@@ -924,7 +924,7 @@ ifeq ($(findstring native,$(MAKECMDGOALS)),native)
   # And tune
   ifeq ($(NATIVE_OPT),)
     TOPT = -mtune=native
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       NATIVE_OPT = -mtune=native
     endif # NATIVE_OPT
@@ -933,7 +933,7 @@ ifeq ($(findstring native,$(MAKECMDGOALS)),native)
   # Try SunCC next
   ifeq ($(NATIVE_OPT),)
     TOPT = -native
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       NATIVE_OPT = -native
     endif # NATIVE_OPT
@@ -1038,7 +1038,7 @@ ifneq ($(filter -DDEBUG -DDEBUG=1,$(CXXFLAGS)),)
   ifeq ($(XLC_COMPILER),1)
    TPROG = TestPrograms/test_cxx.cxx
    TOPT = -qheapdebug -qro
-   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
    ifeq ($(strip $(HAVE_OPT)),0)
     CRYPTOPP_CXXFLAGS += -qheapdebug -qro
    endif  # CRYPTOPP_CXXFLAGS

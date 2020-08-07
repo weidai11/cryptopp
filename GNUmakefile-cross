@@ -227,7 +227,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse2.cxx
   TOPT = $(SSE2_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_FLAG = $(SSE2_FLAG)
   else
@@ -236,7 +236,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_ssse3.cxx
   TOPT = $(SSSE3_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(SSSE3_FLAG)
     CHAM_FLAG = $(SSSE3_FLAG)
@@ -249,7 +249,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse41.cxx
   TOPT = $(SSE41_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     BLAKE2B_FLAG = $(SSE41_FLAG)
     BLAKE2S_FLAG = $(SSE41_FLAG)
@@ -259,7 +259,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sse42.cxx
   TOPT = $(SSE42_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CRC_FLAG = $(SSE42_FLAG)
   else
@@ -268,7 +268,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_clmul.cxx
   TOPT = $(CLMUL_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     GCM_FLAG = $(SSSE3_FLAG) $(CLMUL_FLAG)
     GF2N_FLAG = $(CLMUL_FLAG)
@@ -278,7 +278,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_aes.cxx
   TOPT = $(AESNI_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     AES_FLAG = $(SSE41_FLAG) $(AESNI_FLAG)
     SM4_FLAG = $(SSSE3_FLAG) $(AESNI_FLAG)
@@ -288,7 +288,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_avx.cxx
   TOPT = $(AVX_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     # XXX_FLAG = $(AVX_FLAG)
   else
@@ -297,7 +297,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_avx2.cxx
   TOPT = $(AVX2_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     CHACHA_AVX2_FLAG = $(AVX2_FLAG)
   else
@@ -306,7 +306,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_x86_sha.cxx
   TOPT = $(SHANI_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     SHA_FLAG = $(SSE42_FLAG) $(SHANI_FLAG)
   else
@@ -359,7 +359,7 @@ ifeq ($(DETECT_FEATURES),1)
   # CRYPTOPP_DISABLE_MIXED_ASM is now being added in config_asm.h for all
   # Clang compilers. This test will need to be re-enabled if Clang fixes it.
   #TPROG = TestPrograms/test_asm_mixed.cxx
-  #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   #ifneq ($(strip $(HAVE_OPT)),0)
   #  CXXFLAGS += -DCRYPTOPP_DISABLE_MIXED_ASM
   #endif
@@ -386,7 +386,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon.cxx
   TOPT = $(NEON_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(NEON_FLAG)
     AES_FLAG = $(NEON_FLAG)
@@ -435,21 +435,21 @@ ifeq ($(DETECT_FEATURES),1)
 
   TPROG = TestPrograms/test_arm_neon_header.cxx
   TOPT =
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ACLE_FLAG += -DCRYPTOPP_ARM_NEON_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_acle_header.cxx
   TOPT = $(ASIMD_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ACLE_FLAG += -DCRYPTOPP_ARM_ACLE_HEADER=1
   endif
 
   TPROG = TestPrograms/test_arm_asimd.cxx
   TOPT = $(ASIMD_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     ARIA_FLAG = $(ASIMD_FLAG)
     BLAKE2B_FLAG = $(ASIMD_FLAG)
@@ -468,7 +468,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_crc.cxx
     TOPT = $(CRC_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       CRC_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_CRC32
@@ -476,7 +476,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_aes.cxx
     TOPT = $(AES_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       AES_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_AES
@@ -484,7 +484,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_pmull.cxx
     TOPT = $(PMULL_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       GCM_FLAG =
       GF2N_FLAG =
@@ -493,7 +493,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha1.cxx
     TOPT = $(SHA_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA1
@@ -501,7 +501,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha256.cxx
     TOPT = $(SHA_FLAG)
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifneq ($(strip $(HAVE_OPT)),0)
       SHA_FLAG =
       CXXFLAGS += -DCRYPTOPP_DISABLE_ARM_SHA2
@@ -509,7 +509,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sm3.cxx
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SM3_FLAG = -march=armv8.4-a+crypto
       SM4_FLAG = -march=armv8.4-a+crypto
@@ -520,7 +520,7 @@ ifeq ($(DETECT_FEATURES),1)
 
     TPROG = TestPrograms/test_arm_sha3.cxx
     TOPT = -march=armv8.4-a+crypto
-    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | tr ' ' '\n' | wc -l)
+    HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ACLE_FLAG) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
     ifeq ($(strip $(HAVE_OPT)),0)
       SHA3_FLAG = -march=armv8.4-a+crypto
       SHA512_FLAG = -march=armv8.4-a+crypto
