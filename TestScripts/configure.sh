@@ -720,11 +720,14 @@ rm -f config_cxx.h.new
     echo '// #define CRYPTOPP_CXX11_SYNCHRONIZATION 1'
   fi
 
+  # CRYPTOPP_CXX11_DYNAMIC_INIT is old name
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_staticinit.cxx -o ${TOUT} 2>&1 | wc -w)
   if [[ "${CXX_RESULT}" -eq 0 ]]; then
     echo '#define CRYPTOPP_CXX11_STATIC_INIT 1'
+    echo '#define CRYPTOPP_CXX11_DYNAMIC_INIT 1'
   else
     echo '// #define CRYPTOPP_CXX11_STATIC_INIT 1'
+    echo '// #define CRYPTOPP_CXX11_DYNAMIC_INIT 1'
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} TestPrograms/test_cxx11_deletefn.cxx -o ${TOUT} 2>&1 | wc -w)
