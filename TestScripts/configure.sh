@@ -384,6 +384,9 @@ if [[ "$disable_asm" -eq 0 && "$IS_ARM32" -ne 0 ]]; then
   if [[ "$IS_IOS" -ne 0 ]]; then
     ARMV7_FLAG="-arch arm"
     NEON_FLAG="-arch arm"
+  elif [[ "$CLANG_COMPILER" -ne 0 ]]; then
+    ARMV7_FLAG="-march=armv7"
+    NEON_FLAG="-march=armv7 -mfpu=neon"
   else
     ARMV7_FLAG="-march=armv7"
     NEON_FLAG="-mfpu=neon"

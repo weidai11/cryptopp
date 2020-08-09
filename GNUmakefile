@@ -460,8 +460,9 @@ endif
 ifneq ($(IS_ARM32),0)
 ifeq ($(DETECT_FEATURES),1)
 
+  # Clang needs an option to include <arm_neon.h>
   TPROG = TestPrograms/test_arm_neon_header.cxx
-  TOPT =
+  TOPT = -march=armv7-a -mfpu=neon
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
   ifeq ($(strip $(HAVE_OPT)),0)
     THEADER += -DCRYPTOPP_ARM_NEON_HEADER=1
