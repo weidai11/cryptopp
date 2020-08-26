@@ -53,7 +53,7 @@ fi
 
 #############################################################################
 
-files=(pem_create.sh pem_verify.sh pem_test.cxx rfc1421_eol.cxx
+files=(pem_create.sh pem_verify.sh pem_test.cxx pem_eol.cxx
        pem.h pem_common.cpp pem_common.h pem_read.cpp pem_write.cpp
        x509cert.h x509cert.cpp)
 
