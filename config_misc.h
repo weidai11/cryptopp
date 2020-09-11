@@ -161,6 +161,11 @@
 	// 4661: no suitable definition provided for explicit template instantiation request
 	// 4910: '__declspec(dllexport)' and 'extern' are incompatible on an explicit instantiation
 #	pragma warning(disable: 4127 4512 4661 4910)
+	// _MSC_VER 1920 is VS2019
+#	if _MSC_VER >= 1920
+		// 5054: operator '|': deprecated between enumerations of different types
+#		pragma warning(disable: 5054)
+#	endif
 	// Security related, possible defects
 	// http://blogs.msdn.com/b/vcblog/archive/2010/12/14/off-by-default-compiler-warnings-in-visual-c.aspx
 #	pragma warning(once: 4191 4242 4263 4264 4266 4302 4826 4905 4906 4928)
