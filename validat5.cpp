@@ -81,7 +81,7 @@ bool HashModuleTest(HashTransformation &md, const HashTestTuple *testSet, unsign
 		for (j=0; j<testSet[i].repeatTimes; j++)
 			md.Update(testSet[i].input, testSet[i].inputLen);
 		md.Final(digest);
-		fail = !!memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
+		fail = memcmp(digest, testSet[i].output, md.DigestSize()) != 0;
 		pass = pass && !fail;
 
 		oss << (fail ? "FAILED   " : "passed   ");
@@ -571,7 +571,7 @@ bool ValidateMD5MAC()
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = !!memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
+			fail = memcmp(digest, output[k][i], MD5MAC::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
 			oss << (fail ? "FAILED   " : "passed   ");
@@ -646,7 +646,7 @@ bool ValidateXMACC()
 		{
 			mac.Update((byte *)TestVals[i], strlen(TestVals[i]));
 			mac.Final(digest);
-			fail = !!memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
+			fail = memcmp(digest, output[k][i], XMACC_MD5::DIGESTSIZE)
 				 || !mac.VerifyDigest(output[k][i], (byte *)TestVals[i], strlen(TestVals[i]));
 			pass = pass && !fail;
 			std::cout << (fail ? "FAILED   " : "passed   ");
@@ -697,7 +697,7 @@ bool ValidateTTMAC()
 	{
 		mac.Update((byte *)TestVals[k], strlen(TestVals[k]));
 		mac.Final(digest);
-		fail = !!memcmp(digest, output[k], TTMAC::DIGESTSIZE)
+		fail = memcmp(digest, output[k], TTMAC::DIGESTSIZE)
 			|| !mac.VerifyDigest(output[k], (byte *)TestVals[k], strlen(TestVals[k]));
 		pass = pass && !fail;
 		oss << (fail ? "FAILED   " : "passed   ");
@@ -737,7 +737,7 @@ bool TestPBKDF(KeyDerivationFunction &pbkdf, const PBKDF_TestTuple *testSet, uns
 
 		SecByteBlock derived(derivedKey.size());
 		pbkdf.DeriveKey(derived, derived.size(), ConstBytePtr(password), BytePtrSize(password), params);
-		bool fail = !!memcmp(derived, derivedKey.data(), derived.size()) != 0;
+		bool fail = memcmp(derived, derivedKey.data(), derived.size()) != 0;
 		pass = pass && !fail;
 
 		HexEncoder enc(new FileSink(std::cout));
@@ -953,7 +953,7 @@ bool TestScrypt(KeyDerivationFunction &pbkdf, const Scrypt_TestTuple *testSet, u
 
 		SecByteBlock derived(expect.size());
 		pbkdf.DeriveKey(derived, derived.size(), ConstBytePtr(password), BytePtrSize(password), params);
-		bool fail = !!memcmp(derived, expect.data(), expect.size()) != 0;
+		bool fail = memcmp(derived, expect.data(), expect.size()) != 0;
 		pass = pass && !fail;
 
 		if (password.empty()) {password="\"\"";}
@@ -1068,7 +1068,7 @@ bool ValidatePoly1305()
 		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
 		poly1305.Final(digest);
 
-		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
+		fail = memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
 			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
@@ -1085,7 +1085,7 @@ bool ValidatePoly1305()
 		poly1305.Update((const byte*)tests[i].message, tests[i].mlen);
 		poly1305.Final(digest);
 
-		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
+		fail = memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
 		if (fail)
 		{
 			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
@@ -1104,7 +1104,7 @@ bool ValidatePoly1305()
 		poly1305.Final(digest);
 
 		unsigned int next = (i+1) % COUNTOF(tests);
-		fail = !!memcmp(digest, tests[next].digest, tests[next].dlen) == 0;
+		fail = memcmp(digest, tests[next].digest, tests[next].dlen) == 0;
 		if (fail)
 		{
 			std::cout << "FAILED   " << "Poly1305 test set " << count << std::endl;
@@ -1158,27 +1158,27 @@ bool ValidateSipHash()
 
 		hash.Update((const byte*)"", 0);
 		hash.Final(digest);
-		fail = !!memcmp("\x31\x0E\x0E\xDD\x47\xDB\x6F\x72", digest, COUNTOF(digest));
+		fail = memcmp("\x31\x0E\x0E\xDD\x47\xDB\x6F\x72", digest, COUNTOF(digest));
 		pass1 = !fail && pass1;
 
 		hash.Update((const byte*)"\x00", 1);
 		hash.Final(digest);
-		fail = !!memcmp("\xFD\x67\xDC\x93\xC5\x39\xF8\x74", digest, COUNTOF(digest));
+		fail = memcmp("\xFD\x67\xDC\x93\xC5\x39\xF8\x74", digest, COUNTOF(digest));
 		pass1 = !fail && pass1;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
 		hash.Final(digest);
-		fail = !!memcmp("\x37\xD1\x01\x8B\xF5\x00\x02\xAB", digest, COUNTOF(digest));
+		fail = memcmp("\x37\xD1\x01\x8B\xF5\x00\x02\xAB", digest, COUNTOF(digest));
 		pass1 = !fail && pass1;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
 		hash.Final(digest);
-		fail = !!memcmp("\x62\x24\x93\x9A\x79\xF5\xF5\x93", digest, COUNTOF(digest));
+		fail = memcmp("\x62\x24\x93\x9A\x79\xF5\xF5\x93", digest, COUNTOF(digest));
 		pass1 = !fail && pass1;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
 		hash.Final(digest);
-		fail = !!memcmp("\xB0\xE4\xA9\x0B\xDF\x82\x00\x9E", digest, COUNTOF(digest));
+		fail = memcmp("\xB0\xE4\xA9\x0B\xDF\x82\x00\x9E", digest, COUNTOF(digest));
 		pass1 = !fail && pass1;
 
 		std::cout << (pass1 ? "passed   " : "FAILED   ") << "SipHash-2-4 64-bit MAC\n";
@@ -1193,27 +1193,27 @@ bool ValidateSipHash()
 
 		hash.Update((const byte*)"", 0);
 		hash.Final(digest);
-		fail = !!memcmp("\xA3\x81\x7F\x04\xBA\x25\xA8\xE6\x6D\xF6\x72\x14\xC7\x55\x02\x93", digest, COUNTOF(digest));
+		fail = memcmp("\xA3\x81\x7F\x04\xBA\x25\xA8\xE6\x6D\xF6\x72\x14\xC7\x55\x02\x93", digest, COUNTOF(digest));
 		pass3 = !fail && pass3;
 
 		hash.Update((const byte*)"\x00", 1);
 		hash.Final(digest);
-		fail = !!memcmp("\xDA\x87\xC1\xD8\x6B\x99\xAF\x44\x34\x76\x59\x11\x9B\x22\xFC\x45", digest, COUNTOF(digest));
+		fail = memcmp("\xDA\x87\xC1\xD8\x6B\x99\xAF\x44\x34\x76\x59\x11\x9B\x22\xFC\x45", digest, COUNTOF(digest));
 		pass3 = !fail && pass3;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
 		hash.Final(digest);
-		fail = !!memcmp("\xA1\xF1\xEB\xBE\xD8\xDB\xC1\x53\xC0\xB8\x4A\xA6\x1F\xF0\x82\x39", digest, COUNTOF(digest));
+		fail = memcmp("\xA1\xF1\xEB\xBE\xD8\xDB\xC1\x53\xC0\xB8\x4A\xA6\x1F\xF0\x82\x39", digest, COUNTOF(digest));
 		pass3 = !fail && pass3;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
 		hash.Final(digest);
-		fail = !!memcmp("\x3B\x62\xA9\xBA\x62\x58\xF5\x61\x0F\x83\xE2\x64\xF3\x14\x97\xB4", digest, COUNTOF(digest));
+		fail = memcmp("\x3B\x62\xA9\xBA\x62\x58\xF5\x61\x0F\x83\xE2\x64\xF3\x14\x97\xB4", digest, COUNTOF(digest));
 		pass3 = !fail && pass3;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
 		hash.Final(digest);
-		fail = !!memcmp("\x26\x44\x99\x06\x0A\xD9\xBA\xAB\xC4\x7F\x8B\x02\xBB\x6D\x71\xED", digest, COUNTOF(digest));
+		fail = memcmp("\x26\x44\x99\x06\x0A\xD9\xBA\xAB\xC4\x7F\x8B\x02\xBB\x6D\x71\xED", digest, COUNTOF(digest));
 		pass3 = !fail && pass3;
 
 		std::cout << (pass3 ? "passed   " : "FAILED   ") << "SipHash-2-4 128-bit MAC\n";
@@ -1228,27 +1228,27 @@ bool ValidateSipHash()
 
 		hash.Update((const byte*)"", 0);
 		hash.Final(digest);
-		fail = !!memcmp("\x41\xDA\x38\x99\x2B\x05\x79\xC8", digest, COUNTOF(digest));
+		fail = memcmp("\x41\xDA\x38\x99\x2B\x05\x79\xC8", digest, COUNTOF(digest));
 		pass2 = !fail && pass2;
 
 		hash.Update((const byte*)"\x00", 1);
 		hash.Final(digest);
-		fail = !!memcmp("\x51\xB8\x95\x52\xF9\x14\x59\xC8", digest, COUNTOF(digest));
+		fail = memcmp("\x51\xB8\x95\x52\xF9\x14\x59\xC8", digest, COUNTOF(digest));
 		pass2 = !fail && pass2;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
 		hash.Final(digest);
-		fail = !!memcmp("\x47\xD7\x3F\x71\x5A\xBE\xFD\x4E", digest, COUNTOF(digest));
+		fail = memcmp("\x47\xD7\x3F\x71\x5A\xBE\xFD\x4E", digest, COUNTOF(digest));
 		pass2 = !fail && pass2;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
 		hash.Final(digest);
-		fail = !!memcmp("\x20\xB5\x8B\x9C\x07\x2F\xDB\x50", digest, COUNTOF(digest));
+		fail = memcmp("\x20\xB5\x8B\x9C\x07\x2F\xDB\x50", digest, COUNTOF(digest));
 		pass2 = !fail && pass2;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
 		hash.Final(digest);
-		fail = !!memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
+		fail = memcmp("\x36\x31\x9A\xF3\x5E\xE1\x12\x53", digest, COUNTOF(digest));
 		pass2 = !fail && pass2;
 
 		std::cout << (pass2 ? "passed   " : "FAILED   ") << "SipHash-4-8 64-bit MAC\n";
@@ -1263,27 +1263,27 @@ bool ValidateSipHash()
 
 		hash.Update((const byte*)"", 0);
 		hash.Final(digest);
-		fail = !!memcmp("\x1F\x64\xCE\x58\x6D\xA9\x04\xE9\xCF\xEC\xE8\x54\x83\xA7\x0A\x6C", digest, COUNTOF(digest));
+		fail = memcmp("\x1F\x64\xCE\x58\x6D\xA9\x04\xE9\xCF\xEC\xE8\x54\x83\xA7\x0A\x6C", digest, COUNTOF(digest));
 		pass4 = !fail && pass4;
 
 		hash.Update((const byte*)"\x00", 1);
 		hash.Final(digest);
-		fail = !!memcmp("\x47\x34\x5D\xA8\xEF\x4C\x79\x47\x6A\xF2\x7C\xA7\x91\xC7\xA2\x80", digest, COUNTOF(digest));
+		fail = memcmp("\x47\x34\x5D\xA8\xEF\x4C\x79\x47\x6A\xF2\x7C\xA7\x91\xC7\xA2\x80", digest, COUNTOF(digest));
 		pass4 = !fail && pass4;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06", 7);
 		hash.Final(digest);
-		fail = !!memcmp("\xED\x00\xE1\x3B\x18\x4B\xF1\xC2\x72\x6B\x8B\x54\xFF\xD2\xEE\xE0", digest, COUNTOF(digest));
+		fail = memcmp("\xED\x00\xE1\x3B\x18\x4B\xF1\xC2\x72\x6B\x8B\x54\xFF\xD2\xEE\xE0", digest, COUNTOF(digest));
 		pass4 = !fail && pass4;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07", 8);
 		hash.Final(digest);
-		fail = !!memcmp("\xA7\xD9\x46\x13\x8F\xF9\xED\xF5\x36\x4A\x5A\x23\xAF\xCA\xE0\x63", digest, COUNTOF(digest));
+		fail = memcmp("\xA7\xD9\x46\x13\x8F\xF9\xED\xF5\x36\x4A\x5A\x23\xAF\xCA\xE0\x63", digest, COUNTOF(digest));
 		pass4 = !fail && pass4;
 
 		hash.Update((const byte*)"\x00\x01\x02\x03\x04\x05\x06\x07\x08", 9);
 		hash.Final(digest);
-		fail = !!memcmp("\x9E\x73\x14\xB7\x54\x5C\xEC\xA3\x8B\x9A\x55\x49\xE4\xFB\x0B\xE8", digest, COUNTOF(digest));
+		fail = memcmp("\x9E\x73\x14\xB7\x54\x5C\xEC\xA3\x8B\x9A\x55\x49\xE4\xFB\x0B\xE8", digest, COUNTOF(digest));
 		pass4 = !fail && pass4;
 
 		std::cout << (pass4 ? "passed   " : "FAILED   ") << "SipHash-4-8 128-bit MAC\n";
@@ -1697,32 +1697,34 @@ bool ValidateBLAKE2s()
 	    }
 	};
 
-	byte digest[BLAKE2s::DIGESTSIZE];
-	for (unsigned int i=0; i<COUNTOF(tests); ++i)
 	{
-		// the condition is written in a way which for non-default digest sizes
-		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
-		// See https://github.com/weidai11/cryptopp/issues/415
-		if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULLPTR)
+		byte digest[BLAKE2s::DIGESTSIZE];
+		for (unsigned int i=0; i<COUNTOF(tests); ++i)
 		{
-			BLAKE2s blake2s(false, (unsigned int)tests[i].dlen);
-			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
-			blake2s.Final(digest);
-		}
-		else
-		{
-			BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
-			blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
-			blake2s.Final(digest);
-		}
+			// the condition is written in a way which for non-default digest sizes
+			// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
+			// See https://github.com/weidai11/cryptopp/issues/415
+			if (tests[i].dlen < BLAKE2s::DIGESTSIZE && tests[i].key == NULLPTR)
+			{
+				BLAKE2s blake2s(false, (unsigned int)tests[i].dlen);
+				blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
+				blake2s.Final(digest);
+			}
+			else
+			{
+				BLAKE2s blake2s((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
+				blake2s.Update((const byte*)tests[i].message, tests[i].mlen);
+				blake2s.Final(digest);
+			}
 
-		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
-		if (fail)
-		{
-			std::cout << "FAILED   " << "BLAKE2s test set " << i << std::endl;
-		}
+			fail = memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
+			if (fail)
+			{
+				std::cout << "FAILED   " << "BLAKE2s test set " << i << std::endl;
+			}
 
-		pass = pass && !fail;
+			pass = pass && !fail;
+		}
 	}
 
 	{
@@ -2149,32 +2151,34 @@ bool ValidateBLAKE2b()
 	    }
 	};
 
-	byte digest[BLAKE2b::DIGESTSIZE];
-	for (unsigned int i=0; i<COUNTOF(tests); ++i)
 	{
-		// the condition is written in a way which for non-default digest sizes
-		// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
-		// See https://github.com/weidai11/cryptopp/issues/415
-		if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULLPTR)
+		byte digest[BLAKE2b::DIGESTSIZE];
+		for (unsigned int i=0; i<COUNTOF(tests); ++i)
 		{
-			BLAKE2b blake2b(false, (unsigned int)tests[i].dlen);
-			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
-			blake2b.Final(digest);
-		}
-		else
-		{
-			BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
-			blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
-			blake2b.Final(digest);
-		}
+			// the condition is written in a way which for non-default digest sizes
+			// tests the BLAKE2_Base(bool treeMode, unsigned int digestSize) constructor.
+			// See https://github.com/weidai11/cryptopp/issues/415
+			if (tests[i].dlen < BLAKE2b::DIGESTSIZE && tests[i].key == NULLPTR)
+			{
+				BLAKE2b blake2b(false, (unsigned int)tests[i].dlen);
+				blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
+				blake2b.Final(digest);
+			}
+			else
+			{
+				BLAKE2b blake2b((const byte*)tests[i].key, tests[i].klen, NULLPTR, 0, NULLPTR, 0, false, (unsigned int)tests[i].dlen);
+				blake2b.Update((const byte*)tests[i].message, tests[i].mlen);
+				blake2b.Final(digest);
+			}
 
-		fail = !!memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
-		if (fail)
-		{
-			std::cout << "FAILED   " << "BLAKE2b test set " << i << std::endl;
-		}
+			fail = memcmp(digest, tests[i].digest, tests[i].dlen) != 0;
+			if (fail)
+			{
+				std::cout << "FAILED   " << "BLAKE2b test set " << i << std::endl;
+			}
 
-		pass = pass && !fail;
+			pass = pass && !fail;
+		}
 	}
 
 	{
