@@ -647,7 +647,7 @@ size_t BufferedTransformation::TransferMessagesTo2(BufferedTransformation &targe
 
 			while (AnyRetrievable())
 			{
-				transferredBytes = LWORD_MAX;
+				transferredBytes = (std::min)(LWORD_MAX, MaxRetrievable());
 				blockedBytes = TransferTo2(target, transferredBytes, channel, blocking);
 				if (blockedBytes > 0)
 					return blockedBytes;
