@@ -647,7 +647,12 @@ size_t BufferedTransformation::TransferMessagesTo2(BufferedTransformation &targe
 
 			while (AnyRetrievable())
 			{
-				transferredBytes = (std::min)(LWORD_MAX, MaxRetrievable());
+				// MaxRetrievable() instead of LWORD_MAX due to GH #962. If
+				// the target calls CreatePutSpace(), then the allocation
+				// size will be LWORD_MAX. That happens when target is a
+				// ByteQueue. Maybe ByteQueue should check the size, and if
+				// it is LWORD_MAX or -1, then use a default like 4096.
+				transferredBytes = MaxRetrievable();
 				blockedBytes = TransferTo2(target, transferredBytes, channel, blocking);
 				if (blockedBytes > 0)
 					return blockedBytes;
