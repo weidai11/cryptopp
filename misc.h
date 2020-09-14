@@ -610,8 +610,8 @@ inline void vec_swap(T& a, T& b)
 /// \param ptr pointer to the memory block being written
 /// \param value the integer value to write for each byte
 /// \param num the size of the source memory block, in bytes
-/// \details Internally the function calls memset with the value value, and receives the
-///  return value from memset as a <tt>volatile</tt> pointer.
+/// \details Internally the function loops through the block, setting each byte
+///  to the given value using indirection by way of a <tt>volatile</tt> pointer.
 inline void * memset_z(void *ptr, int value, size_t num)
 {
 // avoid extranous warning on GCC 4.3.2 Ubuntu 8.10
@@ -619,8 +619,10 @@ inline void * memset_z(void *ptr, int value, size_t num)
 	if (__builtin_constant_p(num) && num==0)
 		return ptr;
 #endif
-	volatile void* x = memset(ptr, value, num);
-	return const_cast<void*>(x);
+	volatile char* ptr_vol = const_cast<volatile char*>(static_cast<char*>(ptr)) + num;
+	while(num--)
+		*(--ptr_vol) = value;
+	return ptr;
 }
 
 /// \brief Replacement function for std::min
