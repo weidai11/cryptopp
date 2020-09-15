@@ -618,8 +618,8 @@ inline void vec_swap(T& a, T& b)
 inline void * memset_z(void *ptr, int val, size_t num)
 {
 // avoid extranous warning on GCC 4.3.2 Ubuntu 8.10
-#if CRYPTOPP_GCC_VERSION >= 30001 || CRYPTOPP_LLVM_CLANG_VERSION >= 28000 || \
-    CRYPTOPP_APPLE_CLANG_VERSION >= 28000
+#if CRYPTOPP_GCC_VERSION >= 30001 || CRYPTOPP_LLVM_CLANG_VERSION >= 20800 || \
+    CRYPTOPP_APPLE_CLANG_VERSION >= 30000
 	if (__builtin_constant_p(num) && num==0)
 		return ptr;
 #endif
