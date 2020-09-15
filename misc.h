@@ -606,21 +606,24 @@ inline void vec_swap(T& a, T& b)
 #endif
 }
 
-/// \brief Memory block initializer and eraser that attempts to survive optimizations
+/// \brief Memory block initializer
 /// \param ptr pointer to the memory block being written
-/// \param value the integer value to write for each byte
+/// \param val the integer value to write for each byte
 /// \param num the size of the source memory block, in bytes
-/// \details Internally the function calls memset with the value value, and receives the
-///  return value from memset as a <tt>volatile</tt> pointer.
-inline void * memset_z(void *ptr, int value, size_t num)
+/// \details Internally the function calls memset with the value <tt>val</tt>.
+///  memset_z can be used to initialize a freshly allocated memory block.
+///  To zeroize a memory block on destruction use <tt>SecureWipeBuffer</tt>.
+/// \returns the pointer to the memory block
+/// \sa SecureWipeBuffer
+inline void * memset_z(void *ptr, int val, size_t num)
 {
 // avoid extranous warning on GCC 4.3.2 Ubuntu 8.10
-#if CRYPTOPP_GCC_VERSION >= 30001
+#if CRYPTOPP_GCC_VERSION >= 30001 || CRYPTOPP_LLVM_CLANG_VERSION >= 28000 || \
+    CRYPTOPP_APPLE_CLANG_VERSION >= 28000
 	if (__builtin_constant_p(num) && num==0)
 		return ptr;
 #endif
-	volatile void* x = memset(ptr, value, num);
-	return const_cast<void*>(x);
+	return std::memset(ptr, val, num);
 }
 
 /// \brief Replacement function for std::min
