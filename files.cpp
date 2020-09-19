@@ -67,6 +67,7 @@ lword FileStore::MaxRetrievable() const
 
 	std::streampos current = m_stream->tellg();
 	std::streampos end = m_stream->seekg(0, std::ios::end).tellg();
+	m_stream->clear();
 	m_stream->seekg(current);
 	return end-current;
 }
