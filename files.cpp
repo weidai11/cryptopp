@@ -6,7 +6,38 @@
 
 #include "files.h"
 
+#include <iostream>
+#include <fstream>
 #include <limits>
+
+ANONYMOUS_NAMESPACE_BEGIN
+
+/// \brief Disable badbit, failbit and eof exceptions
+/// \sa https://github.com/weidai11/cryptopp/pull/968 and
+///  https://www.cplusplus.com/reference/ios/ios/exceptions
+class IosExceptionMask
+{
+public:
+	IosExceptionMask(std::istream& stream) : m_stream(stream) {
+		m_mask = m_stream.exceptions();
+		m_stream.exceptions(static_cast<std::ios::iostate>(0));
+	}
+
+	IosExceptionMask(std::istream& stream, std::ios::iostate newMask) : m_stream(stream) {
+		m_mask = m_stream.exceptions();
+		m_stream.exceptions(newMask);
+	}
+
+	~IosExceptionMask() {
+		m_stream.exceptions(m_mask);
+	}
+
+private:
+	std::istream& m_stream;
+	std::ios::iostate m_mask;
+};
+
+ANONYMOUS_NAMESPACE_END
 
 NAMESPACE_BEGIN(CryptoPP)
 
@@ -65,6 +96,9 @@ lword FileStore::MaxRetrievable() const
 	if (!m_stream)
 		return 0;
 
+	// Disable badbit, failbit and eof exceptions
+	IosExceptionMask guard(*m_stream);
+
 	// Clear error bits due to seekg(). Also see
 	// https://github.com/weidai11/cryptopp/pull/968
 	std::streampos current = m_stream->tellg();
@@ -74,7 +108,7 @@ lword FileStore::MaxRetrievable() const
 	m_stream->clear();
 
 	// Return max for a non-seekable stream
-	// https://www.cplusplus.com/reference/istream/istream/tellg/
+	// https://www.cplusplus.com/reference/istream/istream/tellg
 	if (end == static_cast<std::streampos>(-1))
 		return LWORD_MAX;
 
