@@ -1871,8 +1871,12 @@ public:
 
 		/// \brief Provides the number of bytes ready for retrieval
 		/// \return the number of bytes ready for retrieval
-		/// \details All retrieval functions return the actual number of bytes retrieved, which is
-		///  the lesser of the request number and  MaxRetrievable()
+		/// \details The number of bytes available are dependent on the source. If an exact value is
+		///  available, then the exact value is returned. The exact value can include 0 if the source
+		///  is exhausted.
+		/// \details Some stream-based sources do not allow seeking() on the underlying stream, such
+		///  as some FileSource(). If the stream does not allow seeking() then MaxRetrievable()
+		///  returns LWORD_MAX to indicate there are still bytes to be retrieved.
 		virtual lword MaxRetrievable() const;
 
 		/// \brief Determines whether bytes are ready for retrieval
