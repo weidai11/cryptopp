@@ -65,10 +65,19 @@ lword FileStore::MaxRetrievable() const
 	if (!m_stream)
 		return 0;
 
+	// Clear error bits due to seekg(). Also see
+	// https://github.com/weidai11/cryptopp/pull/968
 	std::streampos current = m_stream->tellg();
 	std::streampos end = m_stream->seekg(0, std::ios::end).tellg();
 	m_stream->clear();
 	m_stream->seekg(current);
+	m_stream->clear();
+
+	// Return max for a non-seekable stream
+	// https://www.cplusplus.com/reference/istream/istream/tellg/
+	if (end == static_cast<std::streampos>(-1))
+		return LWORD_MAX;
+
 	return end-current;
 }
 
