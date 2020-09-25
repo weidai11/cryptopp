@@ -2084,8 +2084,8 @@ inline uint32x4_p VecSub64(const uint32x4_p& vec1, const uint32x4_p& vec2)
     const uint32x4_p mask = {1, 0, 1, 0};
 #endif
 
-    // subc sets the compliment of borrow, so we have to un-compliment it
-    // using andc.
+    // subc sets the complement of borrow, so we have to
+    // un-complement it using andc.
     uint32x4_p bw = vec_subc(vec1, vec2);
     uint32x4_p res = vec_sub(vec1, vec2);
     bw = vec_andc(mask, bw);
