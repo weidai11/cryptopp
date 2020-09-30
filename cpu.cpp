@@ -14,6 +14,12 @@
 #include "misc.h"
 #include "stdcpp.h"
 
+// For _xgetbv on Microsoft 32-bit and 64-bit platforms
+// https://github.com/weidai11/cryptopp/issues/972
+#if _MSC_VER >= 1600
+# include <immintrin.h>
+#endif
+
 #ifdef _AIX
 # include <sys/systemcfg.h>
 #endif
@@ -308,8 +314,9 @@ extern bool CPU_ProbeSSE2();
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=85684.
 word64 XGetBV(word32 num)
 {
-// Visual Studio 2010 and above, 32 and 64-bit
-#if defined(_MSC_VER) && (_MSC_VER >= 1600)
+// Visual Studio 2010 SP1 and above, 32 and 64-bit
+// https://github.com/weidai11/cryptopp/issues/972
+#if defined(_MSC_VER) && (_MSC_FULL_VER >= 160040219)
 
 	return _xgetbv(num);
 
@@ -349,7 +356,7 @@ word64 XGetBV(word32 num)
 	return (static_cast<word64>(d) << 32) | a;
 
 // Remainder of GCC and compatibles.
-#else
+#elif
 
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 	// http://www.agner.org/optimize/vectorclass/read.php?i=65
@@ -360,6 +367,8 @@ word64 XGetBV(word32 num)
 		: "=a"(a), "=d"(d) : "c"(num) : "cc"
 	);
 	return (static_cast<word64>(d) << 32) | a;
+#else
+	# error "Need an xgetbv function"
 #endif
 }
 
