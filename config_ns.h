@@ -25,7 +25,7 @@
 /// \namespace CryptoPP
 /// \brief Crypto++ library namespace
 /// \details Nearly all classes are located in the CryptoPP namespace. Within
-/// the namespace, there are two additional namespaces.
+///  the namespace, there are four additional namespaces.
 ///   <ul>
 ///     <li>Name - namespace for names used with NameValuePairs and documented
 ///         in argnames.h
@@ -37,6 +37,7 @@
 ///     <li>Weak - namespace for weak and wounded algorithms, like ARC4, MD5
 ///         and Pananma
 ///   </ul>
+/// \since Crypto++ 3.0
 namespace CryptoPP { }
 
 // Bring in the symbols found in the weak namespace; and fold Weak1 into Weak
