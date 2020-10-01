@@ -1432,7 +1432,7 @@ public:
 
 	/// \brief Construct a SourceTemplate
 	/// \param attachment an attached transformation
-	SourceTemplate<T>(BufferedTransformation *attachment)
+	SourceTemplate(BufferedTransformation *attachment)
 		: Source(attachment) {}
 	void IsolatedInitialize(const NameValuePairs &parameters)
 		{m_store.IsolatedInitialize(parameters);}
