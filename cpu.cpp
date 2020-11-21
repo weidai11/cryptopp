@@ -14,9 +14,9 @@
 #include "misc.h"
 #include "stdcpp.h"
 
-// For _xgetbv on Microsoft 32-bit and 64-bit platforms
+// For _xgetbv on Microsoft 32-bit and 64-bit Intel platforms
 // https://github.com/weidai11/cryptopp/issues/972
-#if _MSC_VER >= 1600
+#if _MSC_VER >= 1600 && (defined(_M_IX86) || defined(_M_X64))
 # include <immintrin.h>
 #endif
 
