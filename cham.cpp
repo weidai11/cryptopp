@@ -114,12 +114,6 @@ extern size_t CHAM128_Dec_AdvancedProcessBlocks_SSSE3(const word32* subKeys, siz
 
 std::string CHAM64::Base::AlgorithmProvider() const
 {
-#if (CRYPTOPP_CHAM128_ADVANCED_PROCESS_BLOCKS)
-# if defined(CRYPTOPP_SSSE3_AVAILABLE)
-    if (HasSSSE3())
-        return "SSSE3";
-# endif
-#endif
     return "C++";
 }
 
