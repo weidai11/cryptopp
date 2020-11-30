@@ -215,14 +215,17 @@
 
 // C++17 uncaught_exceptions: MS at VS2015 (19.00); GCC at 6.0; Clang at 3.5; Intel 18.0.
 // Clang and __EXCEPTIONS see http://releases.llvm.org/3.6.0/tools/clang/docs/ReleaseNotes.html
+// Also see https://github.com/weidai11/cryptopp/issues/980. I'm not sure what
+// to do when the compiler defines __cpp_lib_uncaught_exceptions but the platform
+// does not support std::uncaught_exceptions. What was Apple thinking???
 #if defined(__clang__)
 # if __EXCEPTIONS && __has_feature(cxx_exceptions)
-#  if __cpp_lib_uncaught_exceptions
+#  if __cpp_lib_uncaught_exceptions >= 201411L
 #   define CRYPTOPP_CXX17_UNCAUGHT_EXCEPTIONS 1
 #  endif
 # endif
 #elif (CRYPTOPP_MSC_VERSION >= 1900) || (__INTEL_COMPILER >= 1800) || \
-      (CRYPTOPP_GCC_VERSION >= 60000) || (__cpp_lib_uncaught_exceptions)
+      (CRYPTOPP_GCC_VERSION >= 60000) || (__cpp_lib_uncaught_exceptions >= 201411L)
 # define CRYPTOPP_CXX17_UNCAUGHT_EXCEPTIONS 1
 #endif // uncaught_exceptions compilers
 
