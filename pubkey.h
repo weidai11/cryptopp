@@ -1719,8 +1719,8 @@ public:
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 
 		// Validation due to https://github.com/weidai11/cryptopp/issues/981
-		// We allow a caller to provide R and S in oversized buffer. R and S are
-		// read based on the field element size, and not the buffer size.
+		// We allow a caller to provide R and S in oversized buffer. R and S
+		// are read based on the field element size, and not the buffer size.
 		const size_t rLen = alg.RLen(params);
 		const size_t sLen = alg.SLen(params);
 		CRYPTOPP_ASSERT(signatureLength >= rLen + sLen);
