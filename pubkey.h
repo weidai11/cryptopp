@@ -1714,14 +1714,21 @@ public:
 
 	void InputSignature(PK_MessageAccumulator &messageAccumulator, const byte *signature, size_t signatureLength) const
 	{
-		CRYPTOPP_UNUSED(signature); CRYPTOPP_UNUSED(signatureLength);
 		PK_MessageAccumulatorBase &ma = static_cast<PK_MessageAccumulatorBase &>(messageAccumulator);
 		const DL_ElgamalLikeSignatureAlgorithm<T> &alg = this->GetSignatureAlgorithm();
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
 
+		// Validation due to https://github.com/weidai11/cryptopp/issues/981
+		// We allow a caller to provide R and S in oversized buffer. R and S are
+		// read based on the field element size, and not the buffer size.
 		const size_t rLen = alg.RLen(params);
+		const size_t sLen = alg.SLen(params);
+		CRYPTOPP_ASSERT(signatureLength >= rLen + sLen);
+		if (signatureLength < rLen + sLen)
+			throw InvalidDataFormat("DL_VerifierBase: signature length is not valid.");
+
 		ma.m_semisignature.Assign(signature, rLen);
-		ma.m_s.Decode(signature+rLen, alg.SLen(params));
+		ma.m_s.Decode(signature+rLen, sLen);
 
 		this->GetMessageEncodingInterface().ProcessSemisignature(ma.AccessHash(), ma.m_semisignature, ma.m_semisignature.size());
 	}
