@@ -29,8 +29,8 @@ extern "C" {
 /// \brief Null signal handler function
 /// \param unused the signal number
 /// \details NullSignalHandler is provided as a stand alone function with external "C" linkage
-///   and not a static member function due to the the member function's implicit
-///   external "C++" linkage.
+///  and not a static member function due to the the member function's implicit
+///  external "C++" linkage.
 /// \sa SignalHandler, SignalHandlerFn
 extern "C" {
     inline void NullSignalHandler(int unused) {CRYPTOPP_UNUSED(unused);}
@@ -38,20 +38,20 @@ extern "C" {
 
 /// Signal handler for Linux and Unix compatibles
 /// \tparam S Signal number
-/// \tparam O Flag indicating if an existing handler should be overwriiten
+/// \tparam O Flag indicating if an existing handler should be overwritten
 /// \details SignalHandler() can be used to install a signal handler with the signature
-///   <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
-///   the sigaction is set to the function and the sigaction flags is set to the flags.
-///   If <tt>SignalHandlerFn</tt> is <tt>NULL</tt>, then a default handler is installed
-///   using sigaction flags set to 0. The default handler only returns from the call.
+///  <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
+///  the sigaction is set to the function and the sigaction flags is set to the flags.
+///  If <tt>SignalHandlerFn</tt> is <tt>NULL</tt>, then a default handler is installed
+///  using sigaction flags set to 0. The default handler only returns from the call.
 /// \details Upon destruction the previous signal handler is restored if the former signal handler
-///   was replaced.
+///  was replaced.
 /// \details On Cygwin systems using Newlib, you should define <tt>_XOPEN_SOURCE=700</tt> or
-///   <tt>_GNU_SOURCE</tt>; or use <tt>-std=gnu++03</tt>, <tt>-std=gnu++11</tt>, or similar. If
-///   you compile with <tt>-std=c++03</tt>, <tt>-std=c++11</tt> or similar, then define
-///   <tt>_XOPEN_SOURCE=700</tt>.
+///  <tt>_GNU_SOURCE</tt>; or use <tt>-std=gnu++03</tt>, <tt>-std=gnu++11</tt>, or similar. If
+///  you compile with <tt>-std=c++03</tt>, <tt>-std=c++11</tt> or similar, then define
+///  <tt>_XOPEN_SOURCE=700</tt>.
 /// \warning Do not use SignalHandler in a code block that uses <tt>setjmp</tt> or <tt>longjmp</tt>
-///   because the destructor may not run.
+///  because the destructor may not run.
 /// \since Crypto++ 5.6.5
 /// \sa NullSignalHandler, SignalHandlerFn, \ref CRYPTOPP_ASSERT "CRYPTOPP_ASSERT", DebugTrapHandler
 template <int S, bool O=false>
@@ -61,19 +61,19 @@ struct SignalHandler
     /// \param pfn Pointer to a signal handler function
     /// \param flags Flags to use with the signal handler
     /// \details SignalHandler() installs a signal handler with the signature
-    ///   <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
-    ///   the sigaction is set to the function and the sigaction flags is set to the flags.
-    ///   If <tt>SignalHandlerFn</tt> is <tt>NULL</tt>, then a default handler is installed
-    ///   using sigaction flags set to 0. The default handler only returns from the call.
+    ///  <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
+    ///  the sigaction is set to the function and the sigaction flags is set to the flags.
+    ///  If <tt>SignalHandlerFn</tt> is <tt>NULL</tt>, then a default handler is installed
+    ///  using sigaction flags set to 0. The default handler only returns from the call.
     /// \details Upon destruction the previous signal handler is restored if the former signal handler
-    ///   was overwritten.
+    ///  was overwritten.
     /// \details On Cygwin systems using Newlib, you should define <tt>_XOPEN_SOURCE=700</tt> or
-    ///   <tt>_GNU_SOURCE</tt>; or use <tt>-std=gnu++03</tt>, <tt>-std=gnu++11</tt>, or similar. If
-    ///   you compile with <tt>-std=c++03</tt>, <tt>-std=c++11</tt> or similar, then define
-    ///   <tt>_XOPEN_SOURCE=700</tt>.
+    ///  <tt>_GNU_SOURCE</tt>; or use <tt>-std=gnu++03</tt>, <tt>-std=gnu++11</tt>, or similar. If
+    ///  you compile with <tt>-std=c++03</tt>, <tt>-std=c++11</tt> or similar, then define
+    ///  <tt>_XOPEN_SOURCE=700</tt>.
     /// \warning Do not use SignalHandler in a code block that uses <tt>setjmp</tt> or <tt>longjmp</tt>
-    ///   because the destructor may not run. <tt>setjmp</tt> is why cpu.cpp does not use SignalHandler
-    ///   during CPU feature testing.
+    ///  because the destructor may not run. <tt>setjmp</tt> is why cpu.cpp does not use SignalHandler
+    ///  during CPU feature testing.
     /// \since Crypto++ 5.6.5
     SignalHandler(SignalHandlerFn pfn = NULLPTR, int flags = 0) : m_installed(false)
     {
