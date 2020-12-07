@@ -151,9 +151,9 @@ NAMESPACE_BEGIN(CryptoPP)
 ///  <A HREF="http://seclists.org/oss-sec/2016/q3/520">CVE-2016-7420</A>
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
-class DebugTrapHandler : public SignalHandler<SIGILL, false> { };
+class DebugTrapHandler : public SignalHandler<SIGTRAP, false> { };
 #else
-typedef SignalHandler<SIGILL, false> DebugTrapHandler;
+typedef SignalHandler<SIGTRAP, false> DebugTrapHandler;
 #endif
 
 #endif  // Linux, Unix and Documentation
