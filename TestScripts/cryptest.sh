@@ -2702,7 +2702,7 @@ if [[ "$HAVE_CXX11" -ne 0 ]] || [[ "$HAVE_GNU11" -ne 0 ]]; then
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_CRYPTOPP_NO_CXX11=1"
+    CXXFLAGS="$DEBUG_CXXFLAGS -DCRYPTOPP_NO_CXX11=1"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
@@ -2730,7 +2730,7 @@ if [[ "$HAVE_CXX11" -ne 0 ]] || [[ "$HAVE_GNU11" -ne 0 ]]; then
     "$MAKE" clean &>/dev/null
     rm -f "$TMPDIR/test.exe" &>/dev/null
 
-    CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_CRYPTOPP_NO_CXX11=1"
+    CXXFLAGS="$RELEASE_CXXFLAGS -DCRYPTOPP_NO_CXX11=1"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
