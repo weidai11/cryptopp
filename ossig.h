@@ -38,7 +38,7 @@ extern "C" {
 
 /// Signal handler for Linux and Unix compatibles
 /// \tparam S Signal number
-/// \tparam O Flag indicating exsting handler should be overwriiten
+/// \tparam O Flag indicating if an existing handler should be overwriiten
 /// \details SignalHandler() can be used to install a signal handler with the signature
 ///   <tt>void handler_fn(int)</tt>. If <tt>SignalHandlerFn</tt> is not <tt>NULL</tt>, then
 ///   the sigaction is set to the function and the sigaction flags is set to the flags.
