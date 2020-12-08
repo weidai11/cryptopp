@@ -65,7 +65,7 @@ public:
 #endif
 
 	/// \brief Returns the maximum number of elements the allocator can provide
-	/// \returns the maximum number of elements the allocator can provide
+	/// \return the maximum number of elements the allocator can provide
 	/// \details Internally, preprocessor macros are used rather than std::numeric_limits
 	///  because the latter is not a constexpr. Some compilers, like Clang, do not
 	///  optimize it well under all circumstances. Compilers like GCC, ICC and MSVC appear
@@ -103,7 +103,7 @@ protected:
 
 	/// \brief Verifies the allocator can satisfy a request based on size
 	/// \param size the size of the allocation, in elements
-	/// \throws InvalidArgument
+	/// \throw InvalidArgument
 	/// \details CheckSize verifies the number of elements requested is valid.
 	/// \details If size is greater than max_size(), then InvalidArgument is thrown.
 	///  The library throws InvalidArgument if the size is too large to satisfy.
@@ -192,8 +192,8 @@ public:
 	/// \brief Allocates a block of memory
 	/// \param ptr the size of the allocation
 	/// \param size the size of the allocation, in elements
-	/// \returns a memory block
-	/// \throws InvalidArgument
+	/// \return a memory block
+	/// \throw InvalidArgument
 	/// \details allocate() first checks the size of the request. If it is non-0
 	///  and less than max_size(), then an attempt is made to fulfill the request
 	///  using either AlignedAllocate() or UnalignedAllocate(). AlignedAllocate() is
@@ -248,7 +248,7 @@ public:
 	/// \param oldSize the size of the previous allocation
 	/// \param newSize the new, requested size
 	/// \param preserve flag that indicates if the old allocation should be preserved
-	/// \returns pointer to the new memory block
+	/// \return pointer to the new memory block
 	/// \details Internally, reallocate() calls StandardReallocate().
 	/// \details If preserve is true, then index 0 is used to begin copying the
 	///  old memory block to the new one. If the block grows, then the old array
@@ -446,7 +446,7 @@ public:
 	/// \param newSize the new, requested size
 	/// \param preserve flag that indicates if the old allocation should
 	///  be preserved
-	/// \returns pointer to the new memory block
+	/// \return pointer to the new memory block
 	/// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 	///  based allocation at compile time. If size is less than or equal to
 	///  S, then a pointer to the static array is returned.
@@ -650,7 +650,7 @@ public:
 	/// \param newSize the new, requested size
 	/// \param preserve flag that indicates if the old allocation should
 	///  be preserved
-	/// \returns pointer to the new memory block
+	/// \return pointer to the new memory block
 	/// \details FixedSizeAllocatorWithCleanup provides a fixed-size, stack-
 	///  based allocation at compile time. If size is less than or equal to
 	///  S, then a pointer to the static array is returned.
@@ -738,7 +738,7 @@ public:
 
 	/// \brief Construct a SecBlock with space for size elements.
 	/// \param size the size of the allocation, in elements
-	/// \throws std::bad_alloc
+	/// \throw std::bad_alloc
 	/// \details The elements are not initialized.
 	/// \note size is the count of elements, and not the number of bytes
 	explicit SecBlock(size_type size=0)
@@ -746,7 +746,7 @@ public:
 
 	/// \brief Copy construct a SecBlock from another SecBlock
 	/// \param t the other SecBlock
-	/// \throws std::bad_alloc
+	/// \throw std::bad_alloc
 	SecBlock(const SecBlock<T, A> &t)
 		: m_mark(t.m_mark), m_size(t.m_size), m_ptr(m_alloc.allocate(t.m_size, NULLPTR)) {
 			CRYPTOPP_ASSERT((!t.m_ptr && !m_size) || (t.m_ptr && m_size));
@@ -757,7 +757,7 @@ public:
 	/// \brief Construct a SecBlock from an array of elements.
 	/// \param ptr a pointer to an array of T
 	/// \param len the number of elements in the memory block
-	/// \throws std::bad_alloc
+	/// \throw std::bad_alloc
 	/// \details If <tt>ptr!=NULL</tt> and <tt>len!=0</tt>, then the block is initialized from the pointer
 	///  <tt>ptr</tt>. If <tt>ptr==NULL</tt> and <tt>len!=0</tt>, then the block is initialized to 0.
 	///  Otherwise, the block is empty and not initialized.
@@ -776,68 +776,68 @@ public:
 
 #ifdef __BORLANDC__
 	/// \brief Cast operator
-        /// \returns block pointer cast to non-const <tt>T *</tt>
+        /// \return block pointer cast to non-const <tt>T *</tt>
 	operator T *() const
 		{return (T*)m_ptr;}
 #else
 	/// \brief Cast operator
-        /// \returns block pointer cast to <tt>const void *</tt>
+        /// \return block pointer cast to <tt>const void *</tt>
 	operator const void *() const
 		{return m_ptr;}
 
 	/// \brief Cast operator
-        /// \returns block pointer cast to non-const <tt>void *</tt>
+        /// \return block pointer cast to non-const <tt>void *</tt>
 	operator void *()
 		{return m_ptr;}
 
 	/// \brief Cast operator
-        /// \returns block pointer cast to <tt>const T *</tt>
+        /// \return block pointer cast to <tt>const T *</tt>
 	operator const T *() const
 		{return m_ptr;}
 
 	/// \brief Cast operator
-        /// \returns block pointer cast to non-const <tt>T *</tt>
+        /// \return block pointer cast to non-const <tt>T *</tt>
 	operator T *()
 		{return m_ptr;}
 #endif
 
 	/// \brief Provides an iterator pointing to the first element in the memory block
-	/// \returns iterator pointing to the first element in the memory block
+	/// \return iterator pointing to the first element in the memory block
 	iterator begin()
 		{return m_ptr;}
 	/// \brief Provides a constant iterator pointing to the first element in the memory block
-	/// \returns constant iterator pointing to the first element in the memory block
+	/// \return constant iterator pointing to the first element in the memory block
 	const_iterator begin() const
 		{return m_ptr;}
 	/// \brief Provides an iterator pointing beyond the last element in the memory block
-	/// \returns iterator pointing beyond the last element in the memory block
+	/// \return iterator pointing beyond the last element in the memory block
 	iterator end()
 		{return m_ptr+m_size;}
 	/// \brief Provides a constant iterator pointing beyond the last element in the memory block
-	/// \returns constant iterator pointing beyond the last element in the memory block
+	/// \return constant iterator pointing beyond the last element in the memory block
 	const_iterator end() const
 		{return m_ptr+m_size;}
 
 	/// \brief Provides a pointer to the first element in the memory block
-	/// \returns pointer to the first element in the memory block
+	/// \return pointer to the first element in the memory block
 	typename A::pointer data() {return m_ptr;}
 	/// \brief Provides a pointer to the first element in the memory block
-	/// \returns constant pointer to the first element in the memory block
+	/// \return constant pointer to the first element in the memory block
 	typename A::const_pointer data() const {return m_ptr;}
 
 	/// \brief Provides the count of elements in the SecBlock
-	/// \returns number of elements in the memory block
+	/// \return number of elements in the memory block
 	/// \note the return value is the count of elements, and not the number of bytes
 	size_type size() const {return m_size;}
 	/// \brief Determines if the SecBlock is empty
-	/// \returns true if number of elements in the memory block is 0, false otherwise
+	/// \return true if number of elements in the memory block is 0, false otherwise
 	bool empty() const {return m_size == 0;}
 
 	/// \brief Provides a byte pointer to the first element in the memory block
-	/// \returns byte pointer to the first element in the memory block
+	/// \return byte pointer to the first element in the memory block
 	byte * BytePtr() {return (byte *)m_ptr;}
 	/// \brief Return a byte pointer to the first element in the memory block
-	/// \returns constant byte pointer to the first element in the memory block
+	/// \return constant byte pointer to the first element in the memory block
 	const byte * BytePtr() const {return (const byte *)m_ptr;}
 	/// \brief Provides the number of bytes in the SecBlock
 	/// \return the number of bytes in the memory block
@@ -952,7 +952,7 @@ public:
 
 	/// \brief Construct a SecBlock from this and another SecBlock
 	/// \param t the other SecBlock
-	/// \returns a newly constructed SecBlock that is a conacentation of this and t
+	/// \return a newly constructed SecBlock that is a conacentation of this and t
 	/// \details Internally, a new SecBlock is created from this and a concatenation of t.
 	SecBlock<T, A> operator+(const SecBlock<T, A> &t)
 	{
@@ -970,7 +970,7 @@ public:
 
 	/// \brief Bitwise compare two SecBlocks
 	/// \param t the other SecBlock
-	/// \returns true if the size and bits are equal, false otherwise
+	/// \return true if the size and bits are equal, false otherwise
 	/// \details Uses a constant time compare if the arrays are equal size. The constant time
 	///  compare is VerifyBufsEqual() found in misc.h.
 	/// \sa operator!=()
@@ -983,7 +983,7 @@ public:
 
 	/// \brief Bitwise compare two SecBlocks
 	/// \param t the other SecBlock
-	/// \returns true if the size and bits are equal, false otherwise
+	/// \return true if the size and bits are equal, false otherwise
 	/// \details Uses a constant time compare if the arrays are equal size. The constant time
 	///  compare is VerifyBufsEqual() found in misc.h.
 	/// \details Internally, operator!=() returns the inverse of operator==().

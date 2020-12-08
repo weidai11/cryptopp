@@ -56,7 +56,7 @@ public:
     /// \details According to DJ of Intel, the Intel RDRAND circuit does not underflow.
     ///   If it did hypothetically underflow, then it would return 0 for the random value.
     ///   AMD's RDRAND implementation appears to provide the same behavior.
-     /// \throws RDRAND_Err if the random number generator is not available
+     /// \throw RDRAND_Err if the random number generator is not available
     RDRAND();
 
     /// \brief Generate random array of bytes
@@ -110,7 +110,7 @@ public:
     /// \details Empirical testing under a 6th generaton i7 (6200U) shows RDSEED fails
     ///   to fulfill requests at about once every for every 256 bytes requested.
     ///   The generator runs about 4 times slower than RDRAND.
-     /// \throws RDSEED_Err if the random number generator is not available
+     /// \throw RDSEED_Err if the random number generator is not available
     RDSEED();
 
     /// \brief Generate random array of bytes

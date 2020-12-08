@@ -37,7 +37,7 @@ NAMESPACE_BEGIN(Donna)
 /// \brief Generate a public key
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details curve25519_mult() generates a public key from an existing
 ///   secret key. Internally curve25519_mult() performs a scalar
 ///   multiplication using the base point and writes the result to
@@ -48,7 +48,7 @@ int curve25519_mult(byte publicKey[32], const byte secretKey[32]);
 /// \param sharedKey byte array for the shared secret
 /// \param secretKey byte array with the private key
 /// \param othersKey byte array with the peer's public key
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details curve25519_mult() generates a shared key from an existing
 ///   secret key and the other party's public key. Internally
 ///   curve25519_mult() performs a scalar multiplication using the two keys
@@ -60,7 +60,7 @@ int curve25519_mult(byte sharedKey[32], const byte secretKey[32], const byte oth
 /// \brief Creates a public key from a secret key
 /// \param publicKey byte array for the public key
 /// \param secretKey byte array with the private key
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details ed25519_publickey() generates a public key from a secret key.
 ///   Internally ed25519_publickey() performs a scalar multiplication
 ///   using the secret key and then writes the result to <tt>publicKey</tt>.
@@ -72,7 +72,7 @@ int ed25519_publickey(byte publicKey[32], const byte secretKey[32]);
 /// \param publicKey byte array with the public key
 /// \param secretKey byte array with the private key
 /// \param signature byte array for the signature
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign() generates a signature on a message using
 ///   the public and private keys. The various buffers can be exact
 ///   sizes, and do not require extra space like when using the
@@ -86,7 +86,7 @@ int ed25519_sign(const byte* message, size_t messageLength, const byte secretKey
 /// \param publicKey byte array with the public key
 /// \param secretKey byte array with the private key
 /// \param signature byte array for the signature
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign() generates a signature on a message using
 ///   the public and private keys. The various buffers can be exact
 ///   sizes, and do not require extra space like when using the
@@ -103,7 +103,7 @@ int ed25519_sign(std::istream& stream, const byte secretKey[32], const byte publ
 /// \param messageLength size of the message, in bytes
 /// \param publicKey byte array with the public key
 /// \param signature byte array with the signature
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign_open() verifies a signature on a message using
 ///   the public key. The various buffers can be exact sizes, and do not
 ///   require extra space like when using the NaCl library functions.
@@ -116,7 +116,7 @@ ed25519_sign_open(const byte *message, size_t messageLength, const byte publicKe
 /// \param stream std::istream derived class
 /// \param publicKey byte array with the public key
 /// \param signature byte array with the signature
-/// \returns 0 on success, non-0 otherwise
+/// \return 0 on success, non-0 otherwise
 /// \details ed25519_sign_open() verifies a signature on a message using
 ///   the public key. The various buffers can be exact sizes, and do not
 ///   require extra space like when using the NaCl library functions.

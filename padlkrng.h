@@ -100,7 +100,7 @@ public:
 
 	/// \brief Set the XSTORE divisor
 	/// \param divisor the XSTORE divisor
-	/// \returns the old XSTORE divisor
+	/// \return the old XSTORE divisor
 	word32 SetDivisor(word32 divisor)
 	{
 		word32 old = m_divisor;
@@ -109,14 +109,14 @@ public:
 	}
 
 	/// \brief Get the XSTORE divisor
-	/// \returns the current XSTORE divisor
+	/// \return the current XSTORE divisor
 	word32 GetDivisor() const
 	{
 		return m_divisor;
 	}
 
 	/// \brief Get the MSR for the last operation
-	/// \returns the MSR for the last read operation
+	/// \return the MSR for the last read operation
 	word32 GetMSR() const
 	{
 		return m_msr;

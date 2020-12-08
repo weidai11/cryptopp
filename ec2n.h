@@ -119,7 +119,7 @@ public:
 	void SetCurve(const EC2N &ec) {m_ec = ec;}
 
 	/// \brief Get the elliptic curve
-	/// \returns EC2N curve
+	/// \return EC2N curve
 	/// \details GetCurve() is not inherited
 	const EC2N & GetCurve() const {return m_ec;}
 

@@ -490,7 +490,7 @@ size_t BytePtrSize(const SecByteBlock& str);
 /// \param sizeInBytes size of the desination memory block, in bytes
 /// \param src pointer to the source memory block
 /// \param count the number of bytes to copy
-/// \throws InvalidArgument
+/// \throw InvalidArgument
 /// \details ISO/IEC TR-24772 provides bounds checking interfaces for potentially
 ///  unsafe functions like memcpy(), strcpy() and memmove(). However,
 ///  not all standard libraries provides them, like Glibc. The library's
@@ -536,7 +536,7 @@ inline void memcpy_s(void *dest, size_t sizeInBytes, const void *src, size_t cou
 /// \param sizeInBytes size of the desination memory block, in bytes
 /// \param src pointer to the source memory block
 /// \param count the number of bytes to copy
-/// \throws InvalidArgument
+/// \throw InvalidArgument
 /// \details ISO/IEC TR-24772 provides bounds checking interfaces for potentially
 ///  unsafe functions like memcpy(), strcpy() and memmove(). However,
 ///  not all standard libraries provides them, like Glibc. The library's
@@ -613,7 +613,7 @@ inline void vec_swap(T& a, T& b)
 /// \details Internally the function calls memset with the value <tt>val</tt>.
 ///  memset_z can be used to initialize a freshly allocated memory block.
 ///  To zeroize a memory block on destruction use <tt>SecureWipeBuffer</tt>.
-/// \returns the pointer to the memory block
+/// \return the pointer to the memory block
 /// \sa SecureWipeBuffer
 inline void * memset_z(void *ptr, int val, size_t num)
 {
@@ -630,7 +630,7 @@ inline void * memset_z(void *ptr, int val, size_t num)
 /// \tparam T class or type
 /// \param a the first value
 /// \param b the second value
-/// \returns the minimum value based on a comparison of <tt>b \< a</tt> using <tt>operator\<</tt>
+/// \return the minimum value based on a comparison of <tt>b \< a</tt> using <tt>operator\<</tt>
 /// \details STDMIN was provided because the library could not easily use std::min or std::max in Windows or Cygwin 1.1.0
 template <class T> inline const T& STDMIN(const T& a, const T& b)
 {
@@ -641,7 +641,7 @@ template <class T> inline const T& STDMIN(const T& a, const T& b)
 /// \tparam T class or type
 /// \param a the first value
 /// \param b the second value
-/// \returns the minimum value based on a comparison of <tt>a \< b</tt> using <tt>operator\<</tt>
+/// \return the minimum value based on a comparison of <tt>a \< b</tt> using <tt>operator\<</tt>
 /// \details STDMAX was provided because the library could not easily use std::min or std::max in Windows or Cygwin 1.1.0
 template <class T> inline const T& STDMAX(const T& a, const T& b)
 {
@@ -669,7 +669,7 @@ template <class T> inline const T& STDMAX(const T& a, const T& b)
 /// \tparam T2 class or type
 /// \param a the first value
 /// \param b the second value
-/// \returns the minimum value based on a comparison a and b using <tt>operator&lt;</tt>.
+/// \return the minimum value based on a comparison a and b using <tt>operator&lt;</tt>.
 /// \details The comparison <tt>b \< a</tt> is performed and the value returned is a's type T1.
 template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2& b)
 {
@@ -685,7 +685,7 @@ template <class T1, class T2> inline const T1 UnsignedMin(const T1& a, const T2&
 /// \tparam T2 class or type
 /// \param from the first value
 /// \param to the second value
-/// \returns true if its safe to convert from into to, false otherwise.
+/// \return true if its safe to convert from into to, false otherwise.
 template <class T1, class T2>
 inline bool SafeConvert(T1 from, T2 &to)
 {
@@ -699,7 +699,7 @@ inline bool SafeConvert(T1 from, T2 &to)
 /// \tparam T class or type
 /// \param value the value to convert
 /// \param base the base to use during the conversion
-/// \returns the string representation of value in base.
+/// \return the string representation of value in base.
 template <class T>
 std::string IntToString(T value, unsigned int base = 10)
 {
@@ -733,7 +733,7 @@ std::string IntToString(T value, unsigned int base = 10)
 /// \brief Converts an unsigned value to a string
 /// \param value the value to convert
 /// \param base the base to use during the conversion
-/// \returns the string representation of value in base.
+/// \return the string representation of value in base.
 /// \details this template function specialization was added to suppress
 ///   Coverity findings on IntToString() with unsigned types.
 template <> CRYPTOPP_DLL
@@ -742,7 +742,7 @@ std::string IntToString<word64>(word64 value, unsigned int base);
 /// \brief Converts an Integer to a string
 /// \param value the Integer to convert
 /// \param base the base to use during the conversion
-/// \returns the string representation of value in base.
+/// \return the string representation of value in base.
 /// \details This is a template specialization of IntToString(). Use it
 ///  like IntToString():
 /// <pre>
@@ -782,7 +782,7 @@ std::string IntToString<Integer>(Integer value, unsigned int base);
 /// \brief Returns the parity of a value
 /// \tparam T class or type
 /// \param value the value to provide the parity
-/// \returns 1 if the number 1-bits in the value is odd, 0 otherwise
+/// \return 1 if the number 1-bits in the value is odd, 0 otherwise
 template <class T>
 unsigned int Parity(T value)
 {
@@ -794,7 +794,7 @@ unsigned int Parity(T value)
 /// \brief Returns the number of 8-bit bytes or octets required for a value
 /// \tparam T class or type
 /// \param value the value to test
-/// \returns the minimum number of 8-bit bytes or octets required to represent a value
+/// \return the minimum number of 8-bit bytes or octets required to represent a value
 template <class T>
 unsigned int BytePrecision(const T &value)
 {
@@ -817,7 +817,7 @@ unsigned int BytePrecision(const T &value)
 /// \brief Returns the number of bits required for a value
 /// \tparam T class or type
 /// \param value the value to test
-/// \returns the maximum number of bits required to represent a value.
+/// \return the maximum number of bits required to represent a value.
 template <class T>
 unsigned int BitPrecision(const T &value)
 {
@@ -840,7 +840,7 @@ unsigned int BitPrecision(const T &value)
 
 /// Determines the number of trailing 0-bits in a value
 /// \param v the 32-bit value to test
-/// \returns the number of trailing 0-bits in v, starting at the least significant bit position
+/// \return the number of trailing 0-bits in v, starting at the least significant bit position
 /// \details TrailingZeros returns the number of trailing 0-bits in v, starting at the least
 ///  significant bit position. The return value is undefined if there are no 1-bits set in the value v.
 /// \note The function does not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
@@ -871,7 +871,7 @@ inline unsigned int TrailingZeros(word32 v)
 
 /// Determines the number of trailing 0-bits in a value
 /// \param v the 64-bit value to test
-/// \returns the number of trailing 0-bits in v, starting at the least significant bit position
+/// \return the number of trailing 0-bits in v, starting at the least significant bit position
 /// \details TrailingZeros returns the number of trailing 0-bits in v, starting at the least
 ///  significant bit position. The return value is undefined if there are no 1-bits set in the value v.
 /// \note The function does not return 0 if no 1-bits are set because 0 collides with a 1-bit at the 0-th position.
@@ -898,7 +898,7 @@ inline unsigned int TrailingZeros(word64 v)
 /// \tparam T class or type
 /// \param value the value to truncate or mask
 /// \param bits the number of bits to truncate or mask
-/// \returns the value truncated to the specified number of bits, starting at the least
+/// \return the value truncated to the specified number of bits, starting at the least
 ///  significant bit position
 /// \details This function masks the low-order bits of value and returns the result. The
 ///  mask is created with <tt>(1 << bits) - 1</tt>.
@@ -913,7 +913,7 @@ inline T Crop(T value, size_t bits)
 
 /// \brief Returns the number of 8-bit bytes or octets required for the specified number of bits
 /// \param bitCount the number of bits
-/// \returns the minimum number of 8-bit bytes or octets required by bitCount
+/// \return the minimum number of 8-bit bytes or octets required by bitCount
 /// \details BitsToBytes is effectively a ceiling function based on 8-bit bytes.
 inline size_t BitsToBytes(size_t bitCount)
 {
@@ -922,7 +922,7 @@ inline size_t BitsToBytes(size_t bitCount)
 
 /// \brief Returns the number of words required for the specified number of bytes
 /// \param byteCount the number of bytes
-/// \returns the minimum number of words required by byteCount
+/// \return the minimum number of words required by byteCount
 /// \details BytesToWords is effectively a ceiling function based on <tt>WORD_SIZE</tt>.
 ///  <tt>WORD_SIZE</tt> is defined in config.h
 inline size_t BytesToWords(size_t byteCount)
@@ -932,7 +932,7 @@ inline size_t BytesToWords(size_t byteCount)
 
 /// \brief Returns the number of words required for the specified number of bits
 /// \param bitCount the number of bits
-/// \returns the minimum number of words required by bitCount
+/// \return the minimum number of words required by bitCount
 /// \details BitsToWords is effectively a ceiling function based on <tt>WORD_BITS</tt>.
 ///  <tt>WORD_BITS</tt> is defined in config.h
 inline size_t BitsToWords(size_t bitCount)
@@ -942,7 +942,7 @@ inline size_t BitsToWords(size_t bitCount)
 
 /// \brief Returns the number of double words required for the specified number of bits
 /// \param bitCount the number of bits
-/// \returns the minimum number of double words required by bitCount
+/// \return the minimum number of double words required by bitCount
 /// \details BitsToDwords is effectively a ceiling function based on <tt>2*WORD_BITS</tt>.
 ///  <tt>WORD_BITS</tt> is defined in config.h
 inline size_t BitsToDwords(size_t bitCount)
@@ -982,7 +982,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API VerifyBufsEqual(const byte *buf1, const byte *buf
 
 /// \brief Tests whether a value is a power of 2
 /// \param value the value to test
-/// \returns true if value is a power of 2, false otherwise
+/// \return true if value is a power of 2, false otherwise
 /// \details The function creates a mask of <tt>value - 1</tt> and returns the result
 ///  of an AND operation compared to 0. If value is 0 or less than 0, then the function
 ///  returns false.
@@ -1010,7 +1010,7 @@ inline bool IsPowerOf2<word64>(const word64 &value)
 
 /// \brief Provide the minimum value for a type
 /// \tparam T type of class
-/// \returns the minimum value of the type or class
+/// \return the minimum value of the type or class
 /// \details NumericLimitsMin() was introduced for Clang at <A
 ///  HREF="http://github.com/weidai11/cryptopp/issues/364">Issue 364,
 ///  Apple Clang 6.0 and numeric_limits<word128>::max() returns 0</A>.
@@ -1028,7 +1028,7 @@ inline T NumericLimitsMin()
 
 /// \brief Provide the maximum value for a type
 /// \tparam T type of class
-/// \returns the maximum value of the type or class
+/// \return the maximum value of the type or class
 /// \details NumericLimitsMax() was introduced for Clang at <A
 ///  HREF="http://github.com/weidai11/cryptopp/issues/364">Issue 364,
 ///  Apple Clang 6.0 and numeric_limits<word128>::max() returns 0</A>.
@@ -1064,7 +1064,7 @@ inline word128 NumericLimitsMax()
 /// \tparam T2 class or type
 /// \param a the minuend
 /// \param b the subtrahend
-/// \returns the difference produced by the saturating subtract
+/// \return the difference produced by the saturating subtract
 /// \details Saturating arithmetic restricts results to a fixed range. Results that are
 ///  less than 0 are clamped at 0.
 /// \details Use of saturating arithmetic in places can be advantageous because it can
@@ -1081,7 +1081,7 @@ inline T1 SaturatingSubtract(const T1 &a, const T2 &b)
 /// \tparam T2 class or type
 /// \param a the minuend
 /// \param b the subtrahend
-/// \returns the difference produced by the saturating subtract
+/// \return the difference produced by the saturating subtract
 /// \details Saturating arithmetic restricts results to a fixed range. Results that are
 ///  less than 1 are clamped at 1.
 /// \details Use of saturating arithmetic in places can be advantageous because it can
@@ -1098,7 +1098,7 @@ inline T1 SaturatingSubtract1(const T1 &a, const T2 &b)
 /// \tparam T2 class or type
 /// \param a the first value
 /// \param b the second value
-/// \returns ModPowerOf2() returns <tt>a & (b-1)</tt>. <tt>b</tt> must be a power of 2.
+/// \return ModPowerOf2() returns <tt>a & (b-1)</tt>. <tt>b</tt> must be a power of 2.
 ///  Use IsPowerOf2() to determine if <tt>b</tt> is a suitable candidate.
 /// \sa IsPowerOf2
 template <class T1, class T2>
@@ -1114,7 +1114,7 @@ inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 /// \tparam T2 class or type
 /// \param n the value to reduce
 /// \param m the value to reduce \n to to a multiple
-/// \returns the possibly unmodified value \n
+/// \return the possibly unmodified value \n
 /// \details RoundDownToMultipleOf is effectively a floor function based on m. The function returns
 ///  the value <tt>n - n\%m</tt>. If n is a multiple of m, then the original value is returned.
 /// \note <tt>T1</tt> and <tt>T2</tt> should be usigned arithmetic types. If <tt>T1</tt> or
@@ -1143,7 +1143,7 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 /// \tparam T2 class or type
 /// \param n the value to reduce
 /// \param m the value to reduce \n to to a multiple
-/// \returns the possibly unmodified value \n
+/// \return the possibly unmodified value \n
 /// \details RoundUpToMultipleOf is effectively a ceiling function based on m. The function
 ///  returns the value <tt>n + n\%m</tt>. If n is a multiple of m, then the original value is
 ///  returned. If the value n would overflow, then an InvalidArgument exception is thrown.
@@ -1169,7 +1169,7 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 
 /// \brief Returns the minimum alignment requirements of a type
 /// \tparam T class or type
-/// \returns the minimum alignment requirements of <tt>T</tt>, in bytes
+/// \return the minimum alignment requirements of <tt>T</tt>, in bytes
 /// \details Internally the function calls C++11's <tt>alignof</tt> if available. If not
 ///  available, then the function uses compiler specific extensions such as
 ///  <tt>__alignof</tt> and <tt>_alignof_</tt>. If an extension is not available, then
@@ -1199,7 +1199,7 @@ inline unsigned int GetAlignmentOf()
 /// \brief Determines whether ptr is aligned to a minimum value
 /// \param ptr the pointer being checked for alignment
 /// \param alignment the alignment value to test the pointer against
-/// \returns true if <tt>ptr</tt> is aligned on at least <tt>alignment</tt>
+/// \return true if <tt>ptr</tt> is aligned on at least <tt>alignment</tt>
 ///  boundary, false otherwise
 /// \details Internally the function tests whether alignment is 1. If so,
 ///  the function returns true. If not, then the function effectively
@@ -1213,7 +1213,7 @@ inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 /// \brief Determines whether ptr is minimally aligned
 /// \tparam T class or type
 /// \param ptr the pointer to check for alignment
-/// \returns true if <tt>ptr</tt> is aligned to at least <tt>T</tt>
+/// \return true if <tt>ptr</tt> is aligned to at least <tt>T</tt>
 ///  boundary, false otherwise
 /// \details Internally the function calls IsAlignedOn with a second
 ///  parameter of GetAlignmentOf<T>.
@@ -1232,7 +1232,7 @@ typedef BigEndian NativeByteOrder;
 #endif
 
 /// \brief Returns NativeByteOrder as an enumerated ByteOrder value
-/// \returns LittleEndian if the native byte order is little-endian,
+/// \return LittleEndian if the native byte order is little-endian,
 ///  and BigEndian if the native byte order is big-endian
 /// \details NativeByteOrder is a typedef depending on the platform.
 ///  If CRYPTOPP_LITTLE_ENDIAN is set in config.h, then
@@ -1248,7 +1248,7 @@ inline ByteOrder GetNativeByteOrder()
 
 /// \brief Determines whether order follows native byte ordering
 /// \param order the ordering being tested against native byte ordering
-/// \returns true if order follows native byte ordering, false otherwise
+/// \return true if order follows native byte ordering, false otherwise
 inline bool NativeByteOrderIs(ByteOrder order)
 {
 	return order == GetNativeByteOrder();
@@ -1257,7 +1257,7 @@ inline bool NativeByteOrderIs(ByteOrder order)
 /// \brief Returns the direction the cipher is being operated
 /// \tparam T class or type
 /// \param obj the cipher object being queried
-/// \returns ENCRYPTION if the cipher obj is being operated in its forward direction,
+/// \return ENCRYPTION if the cipher obj is being operated in its forward direction,
 ///  DECRYPTION otherwise
 /// \details A cipher can be operated in a "forward" direction (encryption) or a "reverse"
 ///  direction (decryption). The operations do not have to be symmetric, meaning a second
@@ -1483,7 +1483,7 @@ inline void SecureWipeArray(T *buf, size_t n)
 /// \brief Converts a wide character C-string to a multibyte string
 /// \param str C-string consisting of wide characters
 /// \param throwOnError flag indicating the function should throw on error
-/// \returns str converted to a multibyte string or an empty string.
+/// \return str converted to a multibyte string or an empty string.
 /// \details StringNarrow() converts a wide string to a narrow string using C++ std::wcstombs() under
 ///  the executing thread's locale. A locale must be set before using this function, and it can be
 ///  set with std::setlocale() if needed. Upon success, the converted string is returned.
@@ -1497,7 +1497,7 @@ std::string StringNarrow(const wchar_t *str, bool throwOnError = true);
 /// \brief Converts a multibyte C-string to a wide character string
 /// \param str C-string consisting of wide characters
 /// \param throwOnError flag indicating the function should throw on error
-/// \returns str converted to a multibyte string or an empty string.
+/// \return str converted to a multibyte string or an empty string.
 /// \details StringWiden() converts a narrow string to a wide string using C++ std::mbstowcs() under
 ///  the executing thread's locale. A locale must be set before using this function, and it can be
 ///  set with std::setlocale() if needed. Upon success, the converted string is returned.
@@ -2426,7 +2426,7 @@ inline void UnalignedbyteNonTemplate(ByteOrder order, byte *block, word64 value,
 /// \param assumeAligned flag indicating alignment
 /// \param order the ByteOrder of the data
 /// \param block the byte buffer to be processed
-/// \returns the word in the specified byte order
+/// \return the word in the specified byte order
 /// \details GetWord() provides alternate read access to a block of memory. The flag assumeAligned indicates
 ///  if the memory block is aligned for class or type T. The enumeration ByteOrder is BIG_ENDIAN_ORDER or
 ///  LITTLE_ENDIAN_ORDER.
@@ -2517,7 +2517,7 @@ public:
 	/// \brief Access a block of memory
 	/// \tparam U class or type
 	/// \param x the value to read
-	/// \returns pointer to the remainder of the block after reading x
+	/// \return pointer to the remainder of the block after reading x
 	template <class U>
 	inline GetBlock<T, B, A> & operator()(U &x)
 	{
@@ -2559,7 +2559,7 @@ public:
 	/// \brief Access a block of memory
 	/// \tparam U class or type
 	/// \param x the value to write
-	/// \returns pointer to the remainder of the block after writing x
+	/// \return pointer to the remainder of the block after writing x
 	template <class U>
 	inline PutBlock<T, B, A> & operator()(U x)
 	{
@@ -2595,7 +2595,7 @@ struct BlockGetAndPut
 /// \tparam T class or type
 /// \param value the word to convert
 /// \param order byte order
-/// \returns a string representing the value of the word
+/// \return a string representing the value of the word
 template <class T>
 std::string WordToString(T value, ByteOrder order = BIG_ENDIAN_ORDER)
 {
@@ -2609,7 +2609,7 @@ std::string WordToString(T value, ByteOrder order = BIG_ENDIAN_ORDER)
 /// \tparam T class or type
 /// \param str the string to convert
 /// \param order byte order
-/// \returns a word representing the value of the string
+/// \return a word representing the value of the string
 template <class T>
 T StringToWord(const std::string &str, ByteOrder order = BIG_ENDIAN_ORDER)
 {
@@ -2720,7 +2720,7 @@ inline T SafeLeftShift(T value)
 /// \param first iterator to first element
 /// \param last iterator to last element
 /// \param value the value used as a predicate
-/// \returns iterator to the first element in the range that is not value
+/// \return iterator to the first element in the range that is not value
 template<typename InputIt, typename T>
 inline InputIt FindIfNot(InputIt first, InputIt last, const T &value) {
 #ifdef CRYPTOPP_CXX11_LAMBDA

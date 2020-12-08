@@ -138,7 +138,7 @@ public:
 	unsigned int BlockSize() const {return T_BlockSize;}
 
 	/// \brief Provides the byte order of the hash
-	/// \returns the byte order of the hash as an enumeration
+	/// \return the byte order of the hash as an enumeration
 	/// \details GetByteOrder() returns <tt>T_Endianness::ToEnum()</tt>.
 	/// \sa ByteOrder()
 	ByteOrder GetByteOrder() const {return T_Endianness::ToEnum();}

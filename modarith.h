@@ -75,7 +75,7 @@ public:
 	ModularArithmetic(BufferedTransformation &bt);	// construct from BER encoded parameters
 
 	/// \brief Clone a ModularArithmetic
-	/// \returns pointer to a new ModularArithmetic
+	/// \return pointer to a new ModularArithmetic
 	/// \details Clone effectively copy constructs a new ModularArithmetic. The caller is
 	///   responsible for deleting the pointer returned from this method.
 	virtual ModularArithmetic * Clone() const {return new ModularArithmetic(*this);}
@@ -95,7 +95,7 @@ public:
 	void BERDecodeElement(BufferedTransformation &in, Element &a) const;
 
 	/// \brief Retrieves the modulus
-	/// \returns the modulus
+	/// \return the modulus
 	const Integer& GetModulus() const {return m_modulus;}
 
 	/// \brief Sets the modulus
@@ -104,12 +104,12 @@ public:
 		{m_modulus = newModulus; m_result.reg.resize(m_modulus.reg.size());}
 
 	/// \brief Retrieves the representation
-	/// \returns true if the if the modulus is in Montgomery form for multiplication, false otherwise
+	/// \return true if the if the modulus is in Montgomery form for multiplication, false otherwise
 	virtual bool IsMontgomeryRepresentation() const {return false;}
 
 	/// \brief Reduces an element in the congruence class
 	/// \param a element to convert
-	/// \returns the reduced element
+	/// \return the reduced element
 	/// \details ConvertIn is useful for derived classes, like MontgomeryRepresentation, which
 	///   must convert between representations.
 	virtual Integer ConvertIn(const Integer &a) const
@@ -117,7 +117,7 @@ public:
 
 	/// \brief Reduces an element in the congruence class
 	/// \param a element to convert
-	/// \returns the reduced element
+	/// \return the reduced element
 	/// \details ConvertOut is useful for derived classes, like MontgomeryRepresentation, which
 	///   must convert between representations.
 	virtual Integer ConvertOut(const Integer &a) const
@@ -130,54 +130,54 @@ public:
 	/// \brief Compare two elements for equality
 	/// \param a first element
 	/// \param b second element
-	/// \returns true if the elements are equal, false otherwise
+	/// \return true if the elements are equal, false otherwise
 	/// \details Equal() tests the elements for equality using <tt>a==b</tt>
 	bool Equal(const Integer &a, const Integer &b) const
 		{return a==b;}
 
 	/// \brief Provides the Identity element
-	/// \returns the Identity element
+	/// \return the Identity element
 	const Integer& Identity() const
 		{return Integer::Zero();}
 
 	/// \brief Adds elements in the ring
 	/// \param a first element
 	/// \param b second element
-	/// \returns the sum of <tt>a</tt> and <tt>b</tt>
+	/// \return the sum of <tt>a</tt> and <tt>b</tt>
 	const Integer& Add(const Integer &a, const Integer &b) const;
 
 	/// \brief TODO
 	/// \param a first element
 	/// \param b second element
-	/// \returns TODO
+	/// \return TODO
 	Integer& Accumulate(Integer &a, const Integer &b) const;
 
 	/// \brief Inverts the element in the ring
 	/// \param a first element
-	/// \returns the inverse of the element
+	/// \return the inverse of the element
 	const Integer& Inverse(const Integer &a) const;
 
 	/// \brief Subtracts elements in the ring
 	/// \param a first element
 	/// \param b second element
-	/// \returns the difference of <tt>a</tt> and <tt>b</tt>. The element <tt>a</tt> must provide a Subtract member function.
+	/// \return the difference of <tt>a</tt> and <tt>b</tt>. The element <tt>a</tt> must provide a Subtract member function.
 	const Integer& Subtract(const Integer &a, const Integer &b) const;
 
 	/// \brief TODO
 	/// \param a first element
 	/// \param b second element
-	/// \returns TODO
+	/// \return TODO
 	Integer& Reduce(Integer &a, const Integer &b) const;
 
 	/// \brief Doubles an element in the ring
 	/// \param a the element
-	/// \returns the element doubled
+	/// \return the element doubled
 	/// \details Double returns <tt>Add(a, a)</tt>. The element <tt>a</tt> must provide an Add member function.
 	const Integer& Double(const Integer &a) const
 		{return Add(a, a);}
 
 	/// \brief Retrieves the multiplicative identity
-	/// \returns the multiplicative identity
+	/// \return the multiplicative identity
 	/// \details the base class implementations returns 1.
 	const Integer& MultiplicativeIdentity() const
 		{return Integer::One();}
@@ -185,21 +185,21 @@ public:
 	/// \brief Multiplies elements in the ring
 	/// \param a the multiplicand
 	/// \param b the multiplier
-	/// \returns the product of a and b
+	/// \return the product of a and b
 	/// \details Multiply returns <tt>a*b\%n</tt>.
 	const Integer& Multiply(const Integer &a, const Integer &b) const
 		{return m_result1 = a*b%m_modulus;}
 
 	/// \brief Square an element in the ring
 	/// \param a the element
-	/// \returns the element squared
+	/// \return the element squared
 	/// \details Square returns <tt>a*a\%n</tt>. The element <tt>a</tt> must provide a Square member function.
 	const Integer& Square(const Integer &a) const
 		{return m_result1 = a.Squared()%m_modulus;}
 
 	/// \brief Determines whether an element is a unit in the ring
 	/// \param a the element
-	/// \returns true if the element is a unit after reduction, false otherwise.
+	/// \return true if the element is a unit after reduction, false otherwise.
 	bool IsUnit(const Integer &a) const
 		{return Integer::Gcd(a, m_modulus).IsUnit();}
 
@@ -213,7 +213,7 @@ public:
 	/// \brief Divides elements in the ring
 	/// \param a the dividend
 	/// \param b the divisor
-	/// \returns the quotient
+	/// \return the quotient
 	/// \details Divide returns <tt>a*b<sup>-1</sup>\%n</tt>.
 	const Integer& Divide(const Integer &a, const Integer &b) const
 		{return Multiply(a, MultiplicativeInverse(b));}
@@ -223,7 +223,7 @@ public:
 	/// \param e1 first exponent
 	/// \param y second element
 	/// \param e2 second exponent
-	/// \returns TODO
+	/// \return TODO
 	Integer CascadeExponentiate(const Integer &x, const Integer &e1, const Integer &y, const Integer &e2) const;
 
 	/// \brief Exponentiates a base to multiple exponents in the ring
@@ -239,19 +239,19 @@ public:
 	void SimultaneousExponentiate(Element *results, const Element &base, const Integer *exponents, unsigned int exponentsCount) const;
 
 	/// \brief Provides the maximum bit size of an element in the ring
-	/// \returns maximum bit size of an element
+	/// \return maximum bit size of an element
 	unsigned int MaxElementBitLength() const
 		{return (m_modulus-1).BitCount();}
 
 	/// \brief Provides the maximum byte size of an element in the ring
-	/// \returns maximum byte size of an element
+	/// \return maximum byte size of an element
 	unsigned int MaxElementByteLength() const
 		{return (m_modulus-1).ByteCount();}
 
 	/// \brief Provides a random element in the ring
 	/// \param rng RandomNumberGenerator used to generate material
 	/// \param ignore_for_now unused
-	/// \returns a random element that is uniformly distributed
+	/// \return a random element that is uniformly distributed
 	/// \details RandomElement constructs a new element in the range <tt>[0,n-1]</tt>, inclusive.
 	///   The element's class must provide a constructor with the signature <tt>Element(RandomNumberGenerator rng,
 	///   Element min, Element max)</tt>.
@@ -264,7 +264,7 @@ public:
 
 	/// \brief Compares two ModularArithmetic for equality
 	/// \param rhs other ModularArithmetic
-	/// \returns true if this is equal to the other, false otherwise
+	/// \return true if this is equal to the other, false otherwise
 	/// \details The operator tests for equality using <tt>this.m_modulus == rhs.m_modulus</tt>.
 	bool operator==(const ModularArithmetic &rhs) const
 		{return m_modulus == rhs.m_modulus;}
@@ -303,7 +303,7 @@ public:
 	MontgomeryRepresentation(const Integer &modulus);
 
 	/// \brief Clone a MontgomeryRepresentation
-	/// \returns pointer to a new MontgomeryRepresentation
+	/// \return pointer to a new MontgomeryRepresentation
 	/// \details Clone effectively copy constructs a new MontgomeryRepresentation. The caller is
 	///   responsible for deleting the pointer returned from this method.
 	virtual ModularArithmetic * Clone() const {return new MontgomeryRepresentation(*this);}

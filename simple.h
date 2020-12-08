@@ -205,7 +205,7 @@ public:
 	/// \param length the size of the string, in bytes
 	/// \param messageEnd means how many filters to signal MessageEnd() to, including this one
 	/// \param blocking specifies whether the object should block when processing input
-	/// \throws InputRejected
+	/// \throw InputRejected
 	/// \return the number of bytes that remain to be processed (i.e., bytes not processed)
 	/// \details Internally, the default implementation throws InputRejected.
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking)

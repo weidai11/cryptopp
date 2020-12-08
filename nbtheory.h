@@ -21,33 +21,33 @@ CRYPTOPP_DLL const word16 * CRYPTOPP_API GetPrimeTable(unsigned int &size);
 /// \brief Generates a provable prime
 /// \param rng a RandomNumberGenerator to produce random material
 /// \param bits the number of bits in the prime number
-/// \returns Integer() meeting Maurer's tests for primality
+/// \return Integer() meeting Maurer's tests for primality
 CRYPTOPP_DLL Integer CRYPTOPP_API MaurerProvablePrime(RandomNumberGenerator &rng, unsigned int bits);
 
 /// \brief Generates a provable prime
 /// \param rng a RandomNumberGenerator to produce random material
 /// \param bits the number of bits in the prime number
-/// \returns Integer() meeting Mihailescu's tests for primality
+/// \return Integer() meeting Mihailescu's tests for primality
 /// \details Mihailescu's methods performs a search using algorithmic progressions.
 CRYPTOPP_DLL Integer CRYPTOPP_API MihailescuProvablePrime(RandomNumberGenerator &rng, unsigned int bits);
 
 /// \brief Tests whether a number is a small prime
 /// \param p a candidate prime to test
-/// \returns true if p is a small prime, false otherwise
+/// \return true if p is a small prime, false otherwise
 /// \details Internally, the library maintains a table of the first 32719 prime numbers
 ///   in sorted order. IsSmallPrime searches the table and returns true if p is
 ///   in the table.
 CRYPTOPP_DLL bool CRYPTOPP_API IsSmallPrime(const Integer &p);
 
 /// \brief Tests whether a number is divisible by a small prime
-/// \returns true if p is divisible by some prime less than bound.
+/// \return true if p is divisible by some prime less than bound.
 /// \details TrialDivision() returns <tt>true</tt> if <tt>p</tt> is divisible by some prime less
 ///   than <tt>bound</tt>. <tt>bound</tt> should not be greater than the largest entry in the
 ///   prime table, which is 32719.
 CRYPTOPP_DLL bool CRYPTOPP_API TrialDivision(const Integer &p, unsigned bound);
 
 /// \brief Tests whether a number is divisible by a small prime
-/// \returns true if p is NOT divisible by small primes.
+/// \return true if p is NOT divisible by small primes.
 /// \details SmallDivisorsTest() returns <tt>true</tt> if <tt>p</tt> is NOT divisible by some
 ///   prime less than 32719.
 CRYPTOPP_DLL bool CRYPTOPP_API SmallDivisorsTest(const Integer &p);
@@ -55,7 +55,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API SmallDivisorsTest(const Integer &p);
 /// \brief Determine if a number is probably prime
 /// \param n the number to test
 /// \param b the base to exponentiate
-/// \returns true if the number n is probably prime, false otherwise.
+/// \return true if the number n is probably prime, false otherwise.
 /// \details IsFermatProbablePrime raises <tt>b</tt> to the <tt>n-1</tt> power and checks if
 ///   the result is congruent to 1 modulo <tt>n</tt>.
 /// \details These is no reason to use IsFermatProbablePrime, use IsStrongProbablePrime or
@@ -65,7 +65,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsFermatProbablePrime(const Integer &n, const Int
 
 /// \brief Determine if a number is probably prime
 /// \param n the number to test
-/// \returns true if the number n is probably prime, false otherwise.
+/// \return true if the number n is probably prime, false otherwise.
 /// \details These is no reason to use IsLucasProbablePrime, use IsStrongProbablePrime or
 ///   IsStrongLucasProbablePrime instead.
 /// \sa IsStrongProbablePrime, IsStrongLucasProbablePrime
@@ -74,12 +74,12 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsLucasProbablePrime(const Integer &n);
 /// \brief Determine if a number is probably prime
 /// \param n the number to test
 /// \param b the base to exponentiate
-/// \returns true if the number n is probably prime, false otherwise.
+/// \return true if the number n is probably prime, false otherwise.
 CRYPTOPP_DLL bool CRYPTOPP_API IsStrongProbablePrime(const Integer &n, const Integer &b);
 
 /// \brief Determine if a number is probably prime
 /// \param n the number to test
-/// \returns true if the number n is probably prime, false otherwise.
+/// \return true if the number n is probably prime, false otherwise.
 CRYPTOPP_DLL bool CRYPTOPP_API IsStrongLucasProbablePrime(const Integer &n);
 
 /// \brief Determine if a number is probably prime
@@ -94,7 +94,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API RabinMillerTest(RandomNumberGenerator &rng, const
 
 /// \brief Verifies a number is probably prime
 /// \param p a candidate prime to test
-/// \returns true if p is a probable prime, false otherwise
+/// \return true if p is a probable prime, false otherwise
 /// \details IsPrime() is suitable for testing candidate primes when creating them. Internally,
 ///   IsPrime() utilizes SmallDivisorsTest(), IsStrongProbablePrime() and IsStrongLucasProbablePrime().
 CRYPTOPP_DLL bool CRYPTOPP_API IsPrime(const Integer &p);
@@ -103,7 +103,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsPrime(const Integer &p);
 /// \param rng a RandomNumberGenerator for randomized testing
 /// \param p a candidate prime to test
 /// \param level the level of thoroughness of testing
-/// \returns true if p is a strong probable prime, false otherwise
+/// \return true if p is a strong probable prime, false otherwise
 /// \details VerifyPrime() is suitable for testing candidate primes created by others. Internally,
 ///   VerifyPrime() utilizes IsPrime() and one-round RabinMillerTest(). If the candiate passes and
 ///   level is greater than 1, then 10 round RabinMillerTest() primality testing is performed.
@@ -124,7 +124,7 @@ public:
 /// \param equiv the equivalence class based on the parameter mod
 /// \param mod the modulus used to reduce the equivalence class
 /// \param pSelector pointer to a PrimeSelector function for the application to signal suitability
-/// \returns true if and only if FirstPrime() finds a prime and returns the prime through p. If FirstPrime()
+/// \return true if and only if FirstPrime() finds a prime and returns the prime through p. If FirstPrime()
 ///   returns false, then no such prime exists and the value of p is undefined
 /// \details FirstPrime() uses a fast sieve to find the first probable prime
 ///   in <tt>{x | p<=x<=max and x%mod==equiv}</tt>
@@ -139,28 +139,28 @@ CRYPTOPP_DLL AlgorithmParameters CRYPTOPP_API MakeParametersForTwoPrimesOfEqualS
 /// \brief Calculate the greatest common divisor
 /// \param a the first term
 /// \param b the second term
-/// \returns the greatest common divisor if one exists, 0 otherwise.
+/// \return the greatest common divisor if one exists, 0 otherwise.
 inline Integer GCD(const Integer &a, const Integer &b)
 	{return Integer::Gcd(a,b);}
 
 /// \brief Determine relative primality
 /// \param a the first term
 /// \param b the second term
-/// \returns true if <tt>a</tt> and <tt>b</tt> are relatively prime, false otherwise.
+/// \return true if <tt>a</tt> and <tt>b</tt> are relatively prime, false otherwise.
 inline bool RelativelyPrime(const Integer &a, const Integer &b)
 	{return Integer::Gcd(a,b) == Integer::One();}
 
 /// \brief Calculate the least common multiple
 /// \param a the first term
 /// \param b the second term
-/// \returns the least common multiple of <tt>a</tt> and <tt>b</tt>.
+/// \return the least common multiple of <tt>a</tt> and <tt>b</tt>.
 inline Integer LCM(const Integer &a, const Integer &b)
 	{return a/Integer::Gcd(a,b)*b;}
 
 /// \brief Calculate multiplicative inverse
 /// \param a the number to test
 /// \param b the modulus
-/// \returns an Integer <tt>(a ^ -1) % n</tt> or 0 if none exists.
+/// \return an Integer <tt>(a ^ -1) % n</tt> or 0 if none exists.
 /// \details EuclideanMultiplicativeInverse returns the multiplicative inverse of the Integer
 ///   <tt>*a</tt> modulo the Integer <tt>b</tt>. If no Integer exists then Integer 0 is returned.
 inline Integer EuclideanMultiplicativeInverse(const Integer &a, const Integer &b)
@@ -173,7 +173,7 @@ inline Integer EuclideanMultiplicativeInverse(const Integer &a, const Integer &b
 /// \param xq the second number, mod q
 /// \param q the second prime modulus
 /// \param u inverse of p mod q
-/// \returns the CRT value of the parameters
+/// \return the CRT value of the parameters
 /// \details CRT uses the Chinese Remainder Theorem to calculate <tt>x</tt> given
 ///   <tt>x mod p</tt> and <tt>x mod q</tt>, and <tt>u</tt> the inverse of <tt>p mod q</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const Integer &xq, const Integer &q, const Integer &u);
@@ -181,7 +181,7 @@ CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const
 /// \brief Calculate the Jacobi symbol
 /// \param a the first term
 /// \param b the second term
-/// \returns the the Jacobi symbol.
+/// \return the the Jacobi symbol.
 /// \details Jacobi symbols are calculated using the following rules:
 ///  -# if <tt>b</tt> is prime, then <tt>Jacobi(a, b)</tt>, then return 0
 ///  -# if <tt>a%b</tt>==0 AND <tt>a</tt> is quadratic residue <tt>mod b</tt>, then return 1
@@ -190,12 +190,12 @@ CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const
 CRYPTOPP_DLL int CRYPTOPP_API Jacobi(const Integer &a, const Integer &b);
 
 /// \brief Calculate the Lucas value
-/// \returns the Lucas value
+/// \return the Lucas value
 /// \details Lucas() calculates the Lucas function <tt>V_e(p, 1) mod n</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API Lucas(const Integer &e, const Integer &p, const Integer &n);
 
 /// \brief Calculate the inverse Lucas value
-/// \returns the inverse Lucas value
+/// \return the inverse Lucas value
 /// \details InverseLucas() calculates <tt>x</tt> such that <tt>m==Lucas(e, x, p*q)</tt>,
 ///   <tt>p q</tt> primes, <tt>u</tt> is inverse of <tt>p mod q</tt>.
 CRYPTOPP_DLL Integer CRYPTOPP_API InverseLucas(const Integer &e, const Integer &m, const Integer &p, const Integer &q, const Integer &u);
@@ -204,7 +204,7 @@ CRYPTOPP_DLL Integer CRYPTOPP_API InverseLucas(const Integer &e, const Integer &
 /// \param x the first term
 /// \param y the second term
 /// \param m the modulus
-/// \returns an Integer <tt>(x * y) % m</tt>.
+/// \return an Integer <tt>(x * y) % m</tt>.
 inline Integer ModularMultiplication(const Integer &x, const Integer &y, const Integer &m)
 	{return a_times_b_mod_c(x, y, m);}
 
@@ -212,19 +212,19 @@ inline Integer ModularMultiplication(const Integer &x, const Integer &y, const I
 /// \param x the base
 /// \param e the exponent
 /// \param m the modulus
-/// \returns an Integer <tt>(a ^ b) % m</tt>.
+/// \return an Integer <tt>(a ^ b) % m</tt>.
 inline Integer ModularExponentiation(const Integer &x, const Integer &e, const Integer &m)
 	{return a_exp_b_mod_c(x, e, m);}
 
 /// \brief Extract a modular square root
 /// \param a the number to extract square root
 /// \param p the prime modulus
-/// \returns the modular square root if it exists
+/// \return the modular square root if it exists
 /// \details ModularSquareRoot returns <tt>x</tt> such that <tt>x*x%p == a</tt>, <tt>p</tt> prime
 CRYPTOPP_DLL Integer CRYPTOPP_API ModularSquareRoot(const Integer &a, const Integer &p);
 
 /// \brief Extract a modular root
-/// \returns a modular root if it exists
+/// \return a modular root if it exists
 /// \details ModularRoot returns <tt>x</tt> such that <tt>a==ModularExponentiation(x, e, p*q)</tt>,
 ///   <tt>p</tt> <tt>q</tt> primes, and <tt>e</tt> relatively prime to <tt>(p-1)*(q-1)</tt>,
 ///   <tt>dp=d%(p-1)</tt>, <tt>dq=d%(q-1)</tt>, (d is inverse of <tt>e mod (p-1)*(q-1)</tt>)
@@ -238,21 +238,21 @@ CRYPTOPP_DLL Integer CRYPTOPP_API ModularRoot(const Integer &a, const Integer &d
 /// \param b the second coefficient
 /// \param c the third constant
 /// \param p the prime modulus
-/// \returns true if solutions exist
+/// \return true if solutions exist
 /// \details SolveModularQuadraticEquation() finds <tt>r1</tt> and <tt>r2</tt> such that <tt>ax^2 +
 ///   bx + c == 0 (mod p)</tt> for x in <tt>{r1, r2}</tt>, <tt>p</tt> prime.
 CRYPTOPP_DLL bool CRYPTOPP_API SolveModularQuadraticEquation(Integer &r1, Integer &r2, const Integer &a, const Integer &b, const Integer &c, const Integer &p);
 
 /// \brief Estimate work factor
 /// \param bitlength the size of the number, in bits
-/// \returns the estimated work factor, in operations
+/// \return the estimated work factor, in operations
 /// \details DiscreteLogWorkFactor returns log base 2 of estimated number of operations to
 ///   calculate discrete log or factor a number.
 CRYPTOPP_DLL unsigned int CRYPTOPP_API DiscreteLogWorkFactor(unsigned int bitlength);
 
 /// \brief Estimate work factor
 /// \param bitlength the size of the number, in bits
-/// \returns the estimated work factor, in operations
+/// \return the estimated work factor, in operations
 /// \details FactoringWorkFactor returns log base 2 of estimated number of operations to
 ///   calculate discrete log or factor a number.
 CRYPTOPP_DLL unsigned int CRYPTOPP_API FactoringWorkFactor(unsigned int bitlength);
@@ -297,15 +297,15 @@ public:
 	void Generate(signed int delta, RandomNumberGenerator &rng, unsigned int pbits, unsigned qbits);
 
 	/// \brief Retrieve first prime
-	/// \returns Prime() returns the prime p.
+	/// \return Prime() returns the prime p.
 	const Integer& Prime() const {return p;}
 
 	/// \brief Retrieve second prime
-	/// \returns SubPrime() returns the prime q.
+	/// \return SubPrime() returns the prime q.
 	const Integer& SubPrime() const {return q;}
 
 	/// \brief Retrieve the generator
-	/// \returns Generator() returns the the generator g.
+	/// \return Generator() returns the the generator g.
 	const Integer& Generator() const {return g;}
 
 private:

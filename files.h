@@ -55,11 +55,11 @@ public:
 #endif
 
 	/// \brief Retrieves the internal stream
-	/// \returns the internal stream pointer
+	/// \return the internal stream pointer
 	std::istream* GetStream() {return m_stream;}
 
 	/// \brief Retrieves the internal stream
-	/// \returns the internal stream pointer
+	/// \return the internal stream pointer
 	const std::istream* GetStream() const {return m_stream;}
 
 	/// \brief Provides the number of bytes ready for retrieval
@@ -121,7 +121,7 @@ public:
 #endif
 
 	/// \brief Retrieves the internal stream
-	/// \returns the internal stream pointer
+	/// \return the internal stream pointer
 	std::istream* GetStream() {return m_store.GetStream();}
 };
 
@@ -164,7 +164,7 @@ public:
 #endif
 
 	/// \brief Retrieves the internal stream
-	/// \returns the internal stream pointer
+	/// \return the internal stream pointer
 	std::ostream* GetStream() {return m_stream;}
 
 	void IsolatedInitialize(const NameValuePairs &parameters);

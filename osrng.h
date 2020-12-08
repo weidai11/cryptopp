@@ -57,7 +57,7 @@ public:
 #endif // USE_MS_CRYPTOAPI or USE_MS_CNGAPI
 
 	/// \brief Retrieves the provider handle
-	/// \returns CryptoAPI provider handle
+	/// \return CryptoAPI provider handle
 	/// \details If USE_MS_CRYPTOAPI is in effect, then CryptAcquireContext()
 	///  acquires then handle and CryptReleaseContext() releases the handle
 	///  upon destruction. If USE_MS_CNGAPI is in effect, then

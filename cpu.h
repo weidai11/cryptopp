@@ -110,7 +110,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API CpuId(word32 func, word32 subfunc, word32 output[
 //@{
 
 /// \brief Determine SSE2 availability
-/// \returns true if SSE2 is determined to be available, false otherwise
+/// \return true if SSE2 is determined to be available, false otherwise
 /// \details MMX, SSE and SSE2 are core processor features for x86_64, and
 ///  the function return value is based on OSXSAVE. On i386 both
 ///  SSE2 and OSXSAVE are used for the return value.
@@ -127,7 +127,7 @@ inline bool HasSSE2()
 }
 
 /// \brief Determine SSSE3 availability
-/// \returns true if SSSE3 is determined to be available, false otherwise
+/// \return true if SSSE3 is determined to be available, false otherwise
 /// \details HasSSSE3() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasSSSE3()
@@ -142,7 +142,7 @@ inline bool HasSSSE3()
 }
 
 /// \brief Determine SSE4.1 availability
-/// \returns true if SSE4.1 is determined to be available, false otherwise
+/// \return true if SSE4.1 is determined to be available, false otherwise
 /// \details HasSSE41() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE41()
@@ -157,7 +157,7 @@ inline bool HasSSE41()
 }
 
 /// \brief Determine SSE4.2 availability
-/// \returns true if SSE4.2 is determined to be available, false otherwise
+/// \return true if SSE4.2 is determined to be available, false otherwise
 /// \details HasSSE42() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasSSE42()
@@ -172,7 +172,7 @@ inline bool HasSSE42()
 }
 
 /// \brief Determine MOVBE availability
-/// \returns true if MOVBE is determined to be available, false otherwise
+/// \return true if MOVBE is determined to be available, false otherwise
 /// \details HasMOVBE() is a runtime check performed using CPUID
 /// \since Crypto++ 8.3
 /// \note This function is only available on Intel IA-32 platforms
@@ -188,7 +188,7 @@ inline bool HasMOVBE()
 }
 
 /// \brief Determine AES-NI availability
-/// \returns true if AES-NI is determined to be available, false otherwise
+/// \return true if AES-NI is determined to be available, false otherwise
 /// \details HasAESNI() is a runtime check performed using CPUID
 /// \since Crypto++ 5.6.1
 /// \note This function is only available on Intel IA-32 platforms
@@ -204,7 +204,7 @@ inline bool HasAESNI()
 }
 
 /// \brief Determine Carryless Multiply availability
-/// \returns true if pclmulqdq is determined to be available, false otherwise
+/// \return true if pclmulqdq is determined to be available, false otherwise
 /// \details HasCLMUL() is a runtime check performed using CPUID
 /// \since Crypto++ 5.6.1
 /// \note This function is only available on Intel IA-32 platforms
@@ -220,7 +220,7 @@ inline bool HasCLMUL()
 }
 
 /// \brief Determine SHA availability
-/// \returns true if SHA is determined to be available, false otherwise
+/// \return true if SHA is determined to be available, false otherwise
 /// \details HasSHA() is a runtime check performed using CPUID
 /// \since Crypto++ 6.0
 /// \note This function is only available on Intel IA-32 platforms
@@ -236,7 +236,7 @@ inline bool HasSHA()
 }
 
 /// \brief Determine ADX availability
-/// \returns true if ADX is determined to be available, false otherwise
+/// \return true if ADX is determined to be available, false otherwise
 /// \details HasADX() is a runtime check performed using CPUID
 /// \since Crypto++ 7.0
 /// \note This function is only available on Intel IA-32 platforms
@@ -252,7 +252,7 @@ inline bool HasADX()
 }
 
 /// \brief Determine AVX availability
-/// \returns true if AVX is determined to be available, false otherwise
+/// \return true if AVX is determined to be available, false otherwise
 /// \details HasAVX() is a runtime check performed using CPUID
 /// \since Crypto++ 8.0
 /// \note This function is only available on Intel IA-32 platforms
@@ -268,7 +268,7 @@ inline bool HasAVX()
 }
 
 /// \brief Determine AVX2 availability
-/// \returns true if AVX2 is determined to be available, false otherwise
+/// \return true if AVX2 is determined to be available, false otherwise
 /// \details HasAVX2() is a runtime check performed using CPUID
 /// \since Crypto++ 8.0
 /// \note This function is only available on Intel IA-32 platforms
@@ -284,7 +284,7 @@ inline bool HasAVX2()
 }
 
 /// \brief Determine RDRAND availability
-/// \returns true if RDRAND is determined to be available, false otherwise
+/// \return true if RDRAND is determined to be available, false otherwise
 /// \details HasRDRAND() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasRDRAND()
@@ -299,7 +299,7 @@ inline bool HasRDRAND()
 }
 
 /// \brief Determine RDSEED availability
-/// \returns true if RDSEED is determined to be available, false otherwise
+/// \return true if RDSEED is determined to be available, false otherwise
 /// \details HasRDSEED() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasRDSEED()
@@ -314,7 +314,7 @@ inline bool HasRDSEED()
 }
 
 /// \brief Determine Padlock RNG availability
-/// \returns true if VIA Padlock RNG is determined to be available, false otherwise
+/// \return true if VIA Padlock RNG is determined to be available, false otherwise
 /// \details HasPadlockRNG() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockRNG()
@@ -329,7 +329,7 @@ inline bool HasPadlockRNG()
 }
 
 /// \brief Determine Padlock ACE availability
-/// \returns true if VIA Padlock ACE is determined to be available, false otherwise
+/// \return true if VIA Padlock ACE is determined to be available, false otherwise
 /// \details HasPadlockACE() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockACE()
@@ -344,7 +344,7 @@ inline bool HasPadlockACE()
 }
 
 /// \brief Determine Padlock ACE2 availability
-/// \returns true if VIA Padlock ACE2 is determined to be available, false otherwise
+/// \return true if VIA Padlock ACE2 is determined to be available, false otherwise
 /// \details HasPadlockACE2() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockACE2()
@@ -359,7 +359,7 @@ inline bool HasPadlockACE2()
 }
 
 /// \brief Determine Padlock PHE availability
-/// \returns true if VIA Padlock PHE is determined to be available, false otherwise
+/// \return true if VIA Padlock PHE is determined to be available, false otherwise
 /// \details HasPadlockPHE() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockPHE()
@@ -374,7 +374,7 @@ inline bool HasPadlockPHE()
 }
 
 /// \brief Determine Padlock PMM availability
-/// \returns true if VIA Padlock PMM is determined to be available, false otherwise
+/// \return true if VIA Padlock PMM is determined to be available, false otherwise
 /// \details HasPadlockPMM() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool HasPadlockPMM()
@@ -389,7 +389,7 @@ inline bool HasPadlockPMM()
 }
 
 /// \brief Determine if the CPU is an Intel P4
-/// \returns true if the CPU is a P4, false otherwise
+/// \return true if the CPU is a P4, false otherwise
 /// \details IsP4() is a runtime check performed using CPUID
 /// \note This function is only available on Intel IA-32 platforms
 inline bool IsP4()
@@ -400,7 +400,7 @@ inline bool IsP4()
 }
 
 /// \brief Provides the cache line size
-/// \returns lower bound on the size of a cache line in bytes, if available
+/// \return lower bound on the size of a cache line in bytes, if available
 /// \details GetCacheLineSize() returns the lower bound on the size of a cache line, if it
 ///  is available. If the value is not available at runtime, then 32 is returned for a 32-bit
 ///  processor and 64 is returned for a 64-bit processor.
@@ -442,7 +442,7 @@ void CRYPTOPP_API DetectArmFeatures();
 //@{
 
 /// \brief Determine if an ARM processor is ARMv7 or above
-/// \returns true if the hardware is ARMv7 or above, false otherwise.
+/// \return true if the hardware is ARMv7 or above, false otherwise.
 /// \details Some AES code requires ARMv7 or above
 /// \since Crypto++ 8.0
 /// \note This function is only available on ARM-32, Aarch32 and Aarch64 platforms
@@ -459,7 +459,7 @@ inline bool HasARMv7()
 }
 
 /// \brief Determine if an ARM processor has Advanced SIMD available
-/// \returns true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
+/// \return true if the hardware is capable of Advanced SIMD at runtime, false otherwise.
 /// \details Advanced SIMD instructions are available under most ARMv7, Aarch32 and Aarch64.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mfpu=neon</tt> (32-bit) or <tt>-march=armv8-a</tt>
@@ -479,7 +479,7 @@ inline bool HasNEON()
 }
 
 /// \brief Determine if an ARM processor provides Polynomial Multiplication
-/// \returns true if the hardware is capable of polynomial multiplications at runtime,
+/// \return true if the hardware is capable of polynomial multiplications at runtime,
 ///  false otherwise.
 /// \details The multiplication instructions are available under Aarch32 and Aarch64.
 /// \details Runtime support requires compile time support. When compiling with GCC,
@@ -499,7 +499,7 @@ inline bool HasPMULL()
 }
 
 /// \brief Determine if an ARM processor has CRC32 available
-/// \returns true if the hardware is capable of CRC32 at runtime, false otherwise.
+/// \return true if the hardware is capable of CRC32 at runtime, false otherwise.
 /// \details CRC32 instructions provide access to the processor's CRC-32 and CRC-32C
 ///  instructions. They are provided by ARM C Language Extensions 2.0 (ACLE 2.0) and
 ///  available under Aarch32 and Aarch64.
@@ -520,7 +520,7 @@ inline bool HasCRC32()
 }
 
 /// \brief Determine if an ARM processor has AES available
-/// \returns true if the hardware is capable of AES at runtime, false otherwise.
+/// \return true if the hardware is capable of AES at runtime, false otherwise.
 /// \details AES is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
 ///  accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
@@ -540,7 +540,7 @@ inline bool HasAES()
 }
 
 /// \brief Determine if an ARM processor has SHA1 available
-/// \returns true if the hardware is capable of SHA1 at runtime, false otherwise.
+/// \return true if the hardware is capable of SHA1 at runtime, false otherwise.
 /// \details SHA1 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
 ///  accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
@@ -560,7 +560,7 @@ inline bool HasSHA1()
 }
 
 /// \brief Determine if an ARM processor has SHA256 available
-/// \returns true if the hardware is capable of SHA256 at runtime, false otherwise.
+/// \return true if the hardware is capable of SHA256 at runtime, false otherwise.
 /// \details SHA256 is part of the optional Crypto extensions on Aarch32 and Aarch64. They are
 ///  accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
@@ -580,7 +580,7 @@ inline bool HasSHA2()
 }
 
 /// \brief Determine if an ARM processor has SHA512 available
-/// \returns true if the hardware is capable of SHA512 at runtime, false otherwise.
+/// \return true if the hardware is capable of SHA512 at runtime, false otherwise.
 /// \details SHA512 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
@@ -600,7 +600,7 @@ inline bool HasSHA512()
 }
 
 /// \brief Determine if an ARM processor has SHA3 available
-/// \returns true if the hardware is capable of SHA3 at runtime, false otherwise.
+/// \return true if the hardware is capable of SHA3 at runtime, false otherwise.
 /// \details SHA3 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
@@ -620,7 +620,7 @@ inline bool HasSHA3()
 }
 
 /// \brief Determine if an ARM processor has SM3 available
-/// \returns true if the hardware is capable of SM3 at runtime, false otherwise.
+/// \return true if the hardware is capable of SM3 at runtime, false otherwise.
 /// \details SM3 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
@@ -640,7 +640,7 @@ inline bool HasSM3()
 }
 
 /// \brief Determine if an ARM processor has SM4 available
-/// \returns true if the hardware is capable of SM4 at runtime, false otherwise.
+/// \return true if the hardware is capable of SM4 at runtime, false otherwise.
 /// \details SM4 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
@@ -687,7 +687,7 @@ void CRYPTOPP_API DetectPowerpcFeatures();
 //@{
 
 /// \brief Determine if a PowerPC processor has Altivec available
-/// \returns true if the hardware is capable of Altivec at runtime, false otherwise.
+/// \return true if the hardware is capable of Altivec at runtime, false otherwise.
 /// \details Altivec instructions are available on modern PowerPCs.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power4</tt>; while IBM XL C/C++ compilers require
@@ -705,7 +705,7 @@ inline bool HasAltivec()
 }
 
 /// \brief Determine if a PowerPC processor has Power7 available
-/// \returns true if the hardware is capable of Power7 at runtime, false otherwise.
+/// \return true if the hardware is capable of Power7 at runtime, false otherwise.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power7</tt>; while IBM XL C/C++ compilers require
 ///  <tt>-qarch=pwr7 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
@@ -722,7 +722,7 @@ inline bool HasPower7()
 }
 
 /// \brief Determine if a PowerPC processor has Power8 available
-/// \returns true if the hardware is capable of Power8 at runtime, false otherwise.
+/// \return true if the hardware is capable of Power8 at runtime, false otherwise.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
 ///  <tt>-qarch=pwr8 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
@@ -739,7 +739,7 @@ inline bool HasPower8()
 }
 
 /// \brief Determine if a PowerPC processor has Power9 available
-/// \returns true if the hardware is capable of Power9 at runtime, false otherwise.
+/// \return true if the hardware is capable of Power9 at runtime, false otherwise.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power9</tt>; while IBM XL C/C++ compilers require
 ///  <tt>-qarch=pwr9 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
@@ -756,7 +756,7 @@ inline bool HasPower9()
 }
 
 /// \brief Determine if a PowerPC processor has AES available
-/// \returns true if the hardware is capable of AES at runtime, false otherwise.
+/// \return true if the hardware is capable of AES at runtime, false otherwise.
 /// \details AES is part of the in-crypto extensions on Power8 and Power9.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
@@ -774,7 +774,7 @@ inline bool HasAES()
 }
 
 /// \brief Determine if a PowerPC processor has Polynomial Multiply available
-/// \returns true if the hardware is capable of PMULL at runtime, false otherwise.
+/// \return true if the hardware is capable of PMULL at runtime, false otherwise.
 /// \details PMULL is part of the in-crypto extensions on Power8 and Power9.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
@@ -792,7 +792,7 @@ inline bool HasPMULL()
 }
 
 /// \brief Determine if a PowerPC processor has SHA256 available
-/// \returns true if the hardware is capable of SHA256 at runtime, false otherwise.
+/// \return true if the hardware is capable of SHA256 at runtime, false otherwise.
 /// \details SHA is part of the in-crypto extensions on Power8 and Power9.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
@@ -810,7 +810,7 @@ inline bool HasSHA256()
 }
 
 /// \brief Determine if a PowerPC processor has SHA512 available
-/// \returns true if the hardware is capable of SHA512 at runtime, false otherwise.
+/// \return true if the hardware is capable of SHA512 at runtime, false otherwise.
 /// \details SHA is part of the in-crypto extensions on Power8 and Power9.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power8</tt>; while IBM XL C/C++ compilers require
@@ -828,7 +828,7 @@ inline bool HasSHA512()
 }
 
 /// \brief Determine if a PowerPC processor has DARN available
-/// \returns true if the hardware is capable of DARN at runtime, false otherwise.
+/// \return true if the hardware is capable of DARN at runtime, false otherwise.
 /// \details Runtime support requires compile time support. When compiling with GCC, you may
 ///  need to compile with <tt>-mcpu=power9</tt>; while IBM XL C/C++ compilers require
 ///  <tt>-qarch=pwr9 -qaltivec</tt>. Also see PowerPC's <tt>_ALTIVEC_</tt> preprocessor macro.
@@ -850,7 +850,7 @@ inline bool HasDARN()
 }
 
 /// \brief Provides the cache line size
-/// \returns lower bound on the size of a cache line in bytes, if available
+/// \return lower bound on the size of a cache line in bytes, if available
 /// \details GetCacheLineSize() returns the lower bound on the size of a cache line, if it
 ///  is available. If the value is not available at runtime, then 32 is returned for a 32-bit
 ///  processor and 64 is returned for a 64-bit processor.
@@ -873,7 +873,7 @@ inline int GetCacheLineSize()
 // Non-Intel systems
 #if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64 || CRYPTOPP_BOOL_PPC32 || CRYPTOPP_BOOL_PPC64)
 /// \brief Provides the cache line size
-/// \returns lower bound on the size of a cache line in bytes, if available
+/// \return lower bound on the size of a cache line in bytes, if available
 /// \details GetCacheLineSize() returns the lower bound on the size of a cache line, if it
 ///  is available. If the value is not available at runtime, then 32 is returned for a 32-bit
 ///  processor and 64 is returned for a 64-bit processor.

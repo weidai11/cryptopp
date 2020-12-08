@@ -64,8 +64,8 @@ public:
 	/// \param saltLen the size of the salt buffer, in bytes
 	/// \param iterations the number of iterations
 	/// \param timeInSeconds the in seconds
-	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \return the number of iterations performed
+	/// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
@@ -194,8 +194,8 @@ public:
 	/// \param saltLen the size of the salt buffer, in bytes
 	/// \param iterations the number of iterations
 	/// \param timeInSeconds the in seconds
-	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \return the number of iterations performed
+	/// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.
@@ -355,8 +355,8 @@ public:
 	/// \param saltLen the size of the salt buffer, in bytes
 	/// \param iterations the number of iterations
 	/// \param timeInSeconds the in seconds
-	/// \returns the number of iterations performed
-	/// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+	/// \return the number of iterations performed
+	/// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
 	/// \details DeriveKey() provides a standard interface to derive a key from
 	///   a seed and other parameters. Each class that derives from KeyDerivationFunction
 	///   provides an overload that accepts most parameters used by the derivation function.

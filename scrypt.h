@@ -66,8 +66,8 @@ public:
     /// \param cost the CPU/memory cost factor
     /// \param blockSize the block size
     /// \param parallelization the parallelization factor
-    /// \returns the number of iterations performed
-    /// \throws InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
+    /// \return the number of iterations performed
+    /// \throw InvalidDerivedKeyLength if <tt>derivedLen</tt> is invalid for the scheme
     /// \details DeriveKey() provides a standard interface to derive a key from
     ///   a seed and other parameters. Each class that derives from KeyDerivationFunction
     ///   provides an overload that accepts most parameters used by the derivation function.

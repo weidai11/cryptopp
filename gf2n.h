@@ -65,23 +65,23 @@ public:
 			{Randomize(rng, bitcount);}
 
 		/// \brief Provides x^i
-		/// \returns x^i
+		/// \return x^i
 		static PolynomialMod2 CRYPTOPP_API Monomial(size_t i);
 		/// \brief Provides x^t0 + x^t1 + x^t2
-		/// \returns x^t0 + x^t1 + x^t2
+		/// \return x^t0 + x^t1 + x^t2
 		static PolynomialMod2 CRYPTOPP_API Trinomial(size_t t0, size_t t1, size_t t2);
 		/// \brief Provides x^t0 + x^t1 + x^t2 + x^t3 + x^t4
-		/// \returns x^t0 + x^t1 + x^t2 + x^t3 + x^t4
+		/// \return x^t0 + x^t1 + x^t2 + x^t3 + x^t4
 		static PolynomialMod2 CRYPTOPP_API Pentanomial(size_t t0, size_t t1, size_t t2, size_t t3, size_t t4);
 		/// \brief Provides x^(n-1) + ... + x + 1
-		/// \returns x^(n-1) + ... + x + 1
+		/// \return x^(n-1) + ... + x + 1
 		static PolynomialMod2 CRYPTOPP_API AllOnes(size_t n);
 
 		/// \brief The Zero polinomial
-		/// \returns the zero polynomial
+		/// \return the zero polynomial
 		static const PolynomialMod2 & CRYPTOPP_API Zero();
 		/// \brief The One polinomial
-		/// \returns the one polynomial
+		/// \return the one polynomial
 		static const PolynomialMod2 & CRYPTOPP_API One();
 	//@}
 

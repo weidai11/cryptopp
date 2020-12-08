@@ -41,7 +41,7 @@ NAMESPACE_BEGIN(CryptoPP)
 struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterface::UNIQUE_IV, 8>
 {
     /// \brief The algorithm name
-    /// \returns the algorithm name
+    /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
     ///   member function.
     /// \details Bernstein named the cipher variants ChaCha8, ChaCha12 and
@@ -98,7 +98,7 @@ struct ChaCha : public ChaCha_Info, public SymmetricCipherDocumentation
 struct ChaChaTLS_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 12>, FixedRounds<20>
 {
     /// \brief The algorithm name
-    /// \returns the algorithm name
+    /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
     ///   member function.
     /// \details This is the IETF's variant of Bernstein's ChaCha from RFC
@@ -166,7 +166,7 @@ struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
     /// \brief The algorithm name
-    /// \returns the algorithm name
+    /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
     ///   member function.
     /// \details This is the IETF's XChaCha from draft-arciszewski-xchacha.

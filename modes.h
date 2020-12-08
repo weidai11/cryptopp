@@ -57,20 +57,20 @@ public:
 	}
 
 	/// \brief Returns smallest valid key length
-	/// \returns the minimum key length, in bytes
+	/// \return the minimum key length, in bytes
 	size_t MinKeyLength() const {return m_cipher->MinKeyLength();}
 
 	/// \brief Returns largest valid key length
-	/// \returns the maximum key length, in bytes
+	/// \return the maximum key length, in bytes
 	size_t MaxKeyLength() const {return m_cipher->MaxKeyLength();}
 
 	/// \brief Returns default key length
-	/// \returns the default key length, in bytes
+	/// \return the default key length, in bytes
 	size_t DefaultKeyLength() const {return m_cipher->DefaultKeyLength();}
 
 	/// \brief Returns a valid key length for the algorithm
 	/// \param keylength the size of the key, in bytes
-	/// \returns the valid key length, in bytes
+	/// \return the valid key length, in bytes
 	/// \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
 	///   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
 	///   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
@@ -91,7 +91,7 @@ public:
 
 	/// \brief Returns length of the IV accepted by this object
 	/// \return the size of an IV, in bytes
-	/// \throws NotImplemented() if the object does not support resynchronization
+	/// \throw NotImplemented() if the object does not support resynchronization
 	/// \details The default implementation throws NotImplemented
 	unsigned int IVSize() const {return BlockSize();}
 

@@ -16,7 +16,7 @@ NAMESPACE_BEGIN(CryptoPP)
 struct TEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<32>
 {
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static
 	///   member function.
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "TEA";}
@@ -63,7 +63,7 @@ typedef TEA::Decryption TEADecryption;
 struct XTEA_Info : public FixedBlockSize<8>, public FixedKeyLength<16>, public VariableRounds<32>
 {
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static
 	///   member function.
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "XTEA";}
@@ -107,7 +107,7 @@ public:
 struct BTEA_Info : public FixedKeyLength<16>
 {
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static
 	///   member function.
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "BTEA";}

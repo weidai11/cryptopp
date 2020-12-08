@@ -67,7 +67,7 @@ public:
 	/// \brief Compare two points
 	/// \param P the first point
 	/// \param Q the second point
-	/// \returns true if equal, false otherwise
+	/// \return true if equal, false otherwise
 	bool Equal(const Point &P, const Point &Q) const;
 
 	const Point& Identity() const;
@@ -150,7 +150,7 @@ public:
 	}
 
 	/// \brief Get the elliptic curve
-	/// \returns ECP curve
+	/// \return ECP curve
 	/// \details GetCurve() is not inherited
 	const ECP & GetCurve() const {return *m_ecOriginal;}
 

@@ -16,7 +16,7 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Attempts to reclaim unused memory
-/// \throws bad_alloc
+/// \throw bad_alloc
 /// \details In the normal course of running a program, a request for memory
 ///  normally succeeds. If a call to AlignedAllocate or UnalignedAllocate fails,
 ///  then CallNewHandler is called in n effort to recover. Internally,
@@ -24,7 +24,7 @@ NAMESPACE_BEGIN(CryptoPP)
 ///  There is no guarantee CallNewHandler will be able to obtain more memory so
 ///  an allocation succeeds. If the call to set_new_handler fails, then CallNewHandler
 ///  throws a bad_alloc exception.
-/// \throws bad_alloc on failure
+/// \throw bad_alloc on failure
 /// \since Crypto++ 5.0
 /// \sa AlignedAllocate, AlignedDeallocate, UnalignedAllocate, UnalignedDeallocate
 CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();

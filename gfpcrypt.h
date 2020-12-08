@@ -74,7 +74,7 @@ public:
     /// \param alg additional initialization parameters
     /// \details Recognised NameValuePairs are ModulusSize and
     ///  SubgroupOrderSize (optional)
-    /// \throws KeyingErr if a key can't be generated or algorithm parameters
+    /// \throw KeyingErr if a key can't be generated or algorithm parameters
     ///  are invalid
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 
@@ -82,7 +82,7 @@ public:
     /// \param name the name of the object or value to retrieve
     /// \param valueType reference to a variable that receives the value
     /// \param pValue void pointer to a variable that receives the value
-    /// \returns true if the value was retrieved, false otherwise
+    /// \return true if the value was retrieved, false otherwise
     /// \details GetVoidValue() retrieves the value of name if it exists.
     /// \note GetVoidValue() is an internal function and should be implemented
     ///   by derived classes. Users should use one of the other functions instead.
@@ -101,7 +101,7 @@ public:
     bool ValidateElement(unsigned int level, const Integer &element, const DL_FixedBasePrecomputation<Integer> *precomp) const;
 
     /// \brief Determine if subgroup membership check is fast
-    /// \returns true or false
+    /// \return true or false
     bool FastSubgroupCheckAvailable() const {return GetCofactor() == 2;}
 
     /// \brief Encodes the element
@@ -117,7 +117,7 @@ public:
 
     /// \brief Retrieve the encoded element's size
     /// \param reversible flag indicating the encoding format
-    /// \returns encoded element's size, in bytes
+    /// \return encoded element's size, in bytes
     /// \details The format of the encoded element varies by the underlying
     ///  type of the element and the reversible flag.
     /// \sa EncodeElement(), DecodeElement()
@@ -126,7 +126,7 @@ public:
     /// \brief Decodes the element
     /// \param encoded byte array with the encoded element
     /// \param checkForGroupMembership flag indicating if the element should be validated
-    /// \returns Element after decoding
+    /// \return Element after decoding
     /// \details DecodeElement() must be implemented in a derived class.
     /// \pre <tt>COUNTOF(encoded) == GetEncodedElementSize()</tt>
     /// \sa GetEncodedElementSize(), EncodeElement()
@@ -134,21 +134,21 @@ public:
 
     /// \brief Converts an element to an Integer
     /// \param element the element to convert to an Integer
-    /// \returns Element after converting to an Integer
+    /// \return Element after converting to an Integer
     /// \details ConvertElementToInteger() must be implemented in a derived class.
     Integer ConvertElementToInteger(const Element &element) const
         {return element;}
 
     /// \brief Retrieve the maximum exponent for the group
-    /// \returns the maximum exponent for the group
+    /// \return the maximum exponent for the group
     Integer GetMaxExponent() const;
 
     /// \brief Retrieve the OID of the algorithm
-    /// \returns OID of the algorithm
+    /// \return OID of the algorithm
     OID GetAlgorithmID() const;
 
     /// \brief Retrieve the modulus for the group
-    /// \returns the modulus for the group
+    /// \return the modulus for the group
     virtual const Integer & GetModulus() const =0;
 
     /// \brief Set group parameters
@@ -201,11 +201,11 @@ public:
 
     // IntegerGroupParameters
     /// \brief Retrieve the modulus for the group
-    /// \returns the modulus for the group
+    /// \return the modulus for the group
     const Integer & GetModulus() const {return this->m_groupPrecomputation.GetModulus();}
 
     /// \brief Retrieves a reference to the group generator
-    /// \returns const reference to the group generator
+    /// \return const reference to the group generator
     const Integer & GetGenerator() const {return this->m_gpc.GetBase(this->GetGroupPrecomputation());}
 
     void SetModulusAndSubgroupGenerator(const Integer &p, const Integer &g)        // these have to be set together
@@ -228,7 +228,7 @@ public:
 
     /// \brief Determines if an element is an identity
     /// \param element element to check
-    /// \returns true if the element is an identity, false otherwise
+    /// \return true if the element is an identity, false otherwise
     /// \details The identity element or or neutral element is a special element
     ///  in a group that leaves other elements unchanged when combined with it.
     /// \details IsIdentity() must be implemented in a derived class.
@@ -251,7 +251,7 @@ public:
     /// \param name the name of the object or value to retrieve
     /// \param valueType reference to a variable that receives the value
     /// \param pValue void pointer to a variable that receives the value
-    /// \returns true if the value was retrieved, false otherwise
+    /// \return true if the value was retrieved, false otherwise
     /// \details GetVoidValue() retrieves the value of name if it exists.
     /// \note GetVoidValue() is an internal function and should be implemented
     ///   by derived classes. Users should use one of the other functions instead.
@@ -701,7 +701,7 @@ public:
     /// \brief Check the group for errors
     /// \param rng RandomNumberGenerator for objects which use randomized testing
     /// \param level level of thoroughness
-    /// \returns true if the tests succeed, false otherwise
+    /// \return true if the tests succeed, false otherwise
     /// \details ValidateGroup() also checks that the lengths of p and q are allowed
     ///  by the DSA standard.
     /// \details There are four levels of thoroughness:
@@ -729,12 +729,12 @@ public:
     ///   DL_GroupParameters_DSA groupParams;
     ///   groupParams.GenerateRandom(prng, params);
     /// </pre>
-    /// \throws KeyingErr if a key can't be generated or algorithm parameters are invalid.
+    /// \throw KeyingErr if a key can't be generated or algorithm parameters are invalid.
     void GenerateRandom(RandomNumberGenerator &rng, const NameValuePairs &alg);
 
     /// \brief Check the prime length for errors
     /// \param pbits number of bits in the prime number
-    /// \returns true if the tests succeed, false otherwise
+    /// \return true if the tests succeed, false otherwise
     static bool CRYPTOPP_API IsValidPrimeLength(unsigned int pbits)
         {return pbits >= MIN_PRIME_LENGTH && pbits <= MAX_PRIME_LENGTH && pbits % PRIME_LENGTH_MULTIPLE == 0;}
 

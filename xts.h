@@ -50,7 +50,7 @@ class CRYPTOPP_NO_VTABLE XTS_ModeBase : public BlockOrientedCipherModeBase
 {
 public:
     /// \brief The algorithm name
-    /// \returns the algorithm name
+    /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
     ///   member function.
     CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName()
@@ -76,7 +76,7 @@ public:
 
     /// \brief Validates the key length
     /// \param length the size of the keying material, in bytes
-    /// \throws InvalidKeyLength if the key length is invalid
+    /// \throw InvalidKeyLength if the key length is invalid
     void ThrowIfInvalidKeyLength(size_t length);
 
     /// Provides the block size of the cipher
@@ -99,7 +99,7 @@ public:
 
     /// \brief Validates the block size
     /// \param length the block size of the cipher, in bytes
-    /// \throws InvalidArgument if the block size is invalid
+    /// \throw InvalidArgument if the block size is invalid
     /// \details If <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> is 0,
     ///  then CIPHER must be a 16-byte block cipher. If
     ///  <tt>CRYPTOPP_XTS_WIDE_BLOCK_CIPHERS</tt> is non-zero then

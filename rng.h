@@ -90,7 +90,7 @@ public:
 	size_t Put2(const byte *inString, size_t length, int messageEnd, bool blocking);
 
 	/// \brief Provides the number of bytes of input is needed by the test
-	/// \returns how many more bytes of input is needed by the test
+	/// \return how many more bytes of input is needed by the test
 	// BytesNeeded() returns how many more bytes of input is needed by the test
 	// GetTestValue() should not be called before BytesNeeded()==0
 	unsigned int BytesNeeded() const {return n >= (Q+K) ? 0 : Q+K-n;}

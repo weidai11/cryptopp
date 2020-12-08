@@ -24,28 +24,28 @@ public:
 	virtual ~DL_GroupPrecomputation() {}
 
 	/// \brief Determines if elements needs conversion
-	/// \returns true if the element needs conversion, false otherwise
+	/// \return true if the element needs conversion, false otherwise
 	/// \details NeedConversions determines if an element must convert between representations.
 	virtual bool NeedConversions() const {return false;}
 
 	/// \brief Converts an element between representations
 	/// \param v element to convert
-	/// \returns an element converted to an alternate representation for internal use
+	/// \return an element converted to an alternate representation for internal use
 	/// \details ConvertIn is used when an element must convert between representations.
 	virtual Element ConvertIn(const Element &v) const {return v;}
 
 	/// \brief Converts an element between representations
 	/// \param v element to convert
-	/// \returns an element converted from an alternate representation
+	/// \return an element converted from an alternate representation
 	virtual Element ConvertOut(const Element &v) const {return v;}
 
 	/// \brief Retrieves AbstractGroup interface
-	/// \returns GetGroup() returns the AbstractGroup interface
+	/// \return GetGroup() returns the AbstractGroup interface
 	virtual const AbstractGroup<Element> & GetGroup() const =0;
 
 	/// \brief Decodes element in DER format
 	/// \param bt BufferedTransformation object
-	/// \returns element in the group
+	/// \return element in the group
 	virtual Element BERDecodeElement(BufferedTransformation &bt) const =0;
 
 	/// \brief Encodes element in DER format
@@ -65,7 +65,7 @@ public:
 	virtual ~DL_FixedBasePrecomputation() {}
 
 	/// \brief Determines whether this object is initialized
-	/// \returns true if this object is initialized, false otherwise
+	/// \return true if this object is initialized, false otherwise
 	virtual bool IsInitialized() const =0;
 
 	/// \brief Set the base element
@@ -75,7 +75,7 @@ public:
 
 	/// \brief Get the base element
 	/// \param group the group
-	/// \returns base element in the group
+	/// \return base element in the group
 	virtual const Element & GetBase(const DL_GroupPrecomputation<Element> &group) const =0;
 
 	/// \brief Perform precomputation
@@ -92,14 +92,14 @@ public:
 	/// \brief Retrieve previously saved precomputation
 	/// \param group the the group
 	/// \param storedPrecomputation BufferedTransformation with the saved precomputation
-	/// \throws NotImplemented
+	/// \throw NotImplemented
 	/// \sa SupportsPrecomputation(), Precompute()
 	virtual void Load(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) =0;
 
 	/// \brief Save precomputation for later use
 	/// \param group the the group
 	/// \param storedPrecomputation BufferedTransformation to write the precomputation
-	/// \throws NotImplemented
+	/// \throw NotImplemented
 	/// \sa SupportsPrecomputation(), Precompute()
 	virtual void Save(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) const =0;
 
@@ -114,7 +114,7 @@ public:
 	/// \param exponent1 the first exponent
 	/// \param pc2 the second the group precomputation
 	/// \param exponent2 the first exponent2
-	/// \returns the public element raised to the exponent
+	/// \return the public element raised to the exponent
 	/// \details CascadeExponentiateBaseAndPublicElement raises the public element to
 	///   the base element and precomputation.
 	virtual Element CascadeExponentiate(const DL_GroupPrecomputation<Element> &pc1, const Integer &exponent1, const DL_FixedBasePrecomputation<Element> &pc2, const Integer &exponent2) const =0;

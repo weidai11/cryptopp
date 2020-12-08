@@ -48,7 +48,7 @@ public:
 	/// \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(HashWordType *digest, const HashWordType *data);
 	/// \brief The algorithm name
-	/// \returns C-style string "SHA-1"
+	/// \return C-style string "SHA-1"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-1";}
 	// Algorithm class
 	std::string AlgorithmProvider() const;
@@ -86,7 +86,7 @@ public:
 	/// \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(HashWordType *digest, const HashWordType *data);
 	/// \brief The algorithm name
-	/// \returns C-style string "SHA-256"
+	/// \return C-style string "SHA-256"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-256";}
 
 	// Algorithm class
@@ -125,7 +125,7 @@ public:
 	/// \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(HashWordType *digest, const HashWordType *data) {SHA256::Transform(digest, data);}
 	/// \brief The algorithm name
-	/// \returns C-style string "SHA-224"
+	/// \return C-style string "SHA-224"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-224";}
 
 	// Algorithm class
@@ -163,7 +163,7 @@ public:
 	/// \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(HashWordType *digest, const HashWordType *data);
 	/// \brief The algorithm name
-	/// \returns C-style string "SHA-512"
+	/// \return C-style string "SHA-512"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-512";}
 
 	// Algorithm class
@@ -198,7 +198,7 @@ public:
 	/// \note On Intel platforms the state array and data must be 16-byte aligned for SSE2.
 	static void CRYPTOPP_API Transform(HashWordType *digest, const HashWordType *data) {SHA512::Transform(digest, data);}
 	/// \brief The algorithm name
-	/// \returns C-style string "SHA-384"
+	/// \return C-style string "SHA-384"
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "SHA-384";}
 
 	// Algorithm class

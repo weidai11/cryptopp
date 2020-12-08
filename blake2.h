@@ -280,7 +280,7 @@ public:
         bool treeMode=false, unsigned int digestSize = DIGESTSIZE);
 
     /// \brief Retrieve the object's name
-    /// \returns the object's algorithm name following RFC 7693
+    /// \return the object's algorithm name following RFC 7693
     /// \details Object algorithm name follows the naming described in
     ///   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
     /// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
@@ -308,7 +308,7 @@ public:
     void SetTreeMode(bool mode) {m_treeMode=mode;}
 
     /// \brief Get tree mode
-    /// \returns the current tree mode
+    /// \return the current tree mode
     /// \details Tree mode is persisted across calls to Restart().
     bool GetTreeMode() const {return m_treeMode;}
 
@@ -387,7 +387,7 @@ public:
         bool treeMode=false, unsigned int digestSize = DIGESTSIZE);
 
     /// \brief Retrieve the object's name
-    /// \returns the object's algorithm name following RFC 7693
+    /// \return the object's algorithm name following RFC 7693
     /// \details Object algorithm name follows the naming described in
     ///   <A HREF="http://tools.ietf.org/html/rfc7693#section-4">RFC 7693, The BLAKE2 Cryptographic Hash and
     /// Message Authentication Code (MAC)</A>. For example, "BLAKE2b-512" and "BLAKE2s-256".
@@ -415,7 +415,7 @@ public:
     void SetTreeMode(bool mode) {m_treeMode=mode;}
 
     /// \brief Get tree mode
-    /// \returns the current tree mode
+    /// \return the current tree mode
     /// \details Tree mode is persisted across calls to Restart().
     bool GetTreeMode() const {return m_treeMode;}
 

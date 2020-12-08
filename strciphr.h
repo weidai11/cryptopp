@@ -106,24 +106,24 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 	virtual ~AdditiveCipherAbstractPolicy() {}
 
 	/// \brief Provides data alignment requirements
-	/// \returns data alignment requirements, in bytes
+	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
 	///   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
 	virtual unsigned int GetAlignment() const {return 1;}
 
 	/// \brief Provides number of bytes operated upon during an iteration
-	/// \returns bytes operated upon during an iteration, in bytes
+	/// \return bytes operated upon during an iteration, in bytes
 	/// \sa GetOptimalBlockSize()
 	virtual unsigned int GetBytesPerIteration() const =0;
 
 	/// \brief Provides number of ideal bytes to process
-	/// \returns the ideal number of bytes to process
+	/// \return the ideal number of bytes to process
 	/// \details Internally, the default implementation returns GetBytesPerIteration()
 	/// \sa GetBytesPerIteration()
 	virtual unsigned int GetOptimalBlockSize() const {return GetBytesPerIteration();}
 
 	/// \brief Provides buffer size based on iterations
-	/// \returns the buffer size based on iterations, in bytes
+	/// \return the buffer size based on iterations, in bytes
 	virtual unsigned int GetIterationsToBuffer() const =0;
 
 	/// \brief Generate the keystream
@@ -134,7 +134,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 		{OperateKeystream(KeystreamOperation(INPUT_NULL | static_cast<KeystreamOperationFlags>(IsAlignedOn(keystream, GetAlignment()))), keystream, NULLPTR, iterationCount);}
 
 	/// \brief Flag indicating
-	/// \returns true if the stream can be generated independent of the transformation input, false otherwise
+	/// \return true if the stream can be generated independent of the transformation input, false otherwise
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream()
 	virtual bool CanOperateKeystream() const {return false;}
 
@@ -165,7 +165,7 @@ struct CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AdditiveCipherAbstractPolicy
 		throw NotImplemented("SimpleKeyingInterface: this object doesn't support resynchronization");}
 
 	/// \brief Flag indicating random access
-	/// \returns true if the cipher is seekable, false otherwise
+	/// \return true if the cipher is seekable, false otherwise
 	/// \sa SeekToIteration()
 	virtual bool CipherIsRandomAccess() const =0;
 
@@ -214,7 +214,7 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 
 #if !(CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X64)
 	/// \brief Provides data alignment requirements
-	/// \returns data alignment requirements, in bytes
+	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream
 	///  cipher is implemented using an SSE2 ASM or intrinsics, then the value
 	///  returned is usually 16.
@@ -222,16 +222,16 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 #endif
 
 	/// \brief Provides number of bytes operated upon during an iteration
-	/// \returns bytes operated upon during an iteration, in bytes
+	/// \return bytes operated upon during an iteration, in bytes
 	/// \sa GetOptimalBlockSize()
 	unsigned int GetBytesPerIteration() const {return BYTES_PER_ITERATION;}
 
 	/// \brief Provides buffer size based on iterations
-	/// \returns the buffer size based on iterations, in bytes
+	/// \return the buffer size based on iterations, in bytes
 	unsigned int GetIterationsToBuffer() const {return X;}
 
 	/// \brief Flag indicating
-	/// \returns true if the stream can be generated independent of the
+	/// \return true if the stream can be generated independent of the
 	///  transformation input, false otherwise
 	/// \sa CanOperateKeystream(), OperateKeystream(), WriteKeystream()
 	bool CanOperateKeystream() const {return true;}
@@ -330,32 +330,32 @@ public:
 	void Resynchronize(const byte *iv, int length=-1);
 
 	/// \brief Provides number of ideal bytes to process
-	/// \returns the ideal number of bytes to process
+	/// \return the ideal number of bytes to process
 	/// \details Internally, the default implementation returns GetBytesPerIteration()
 	/// \sa GetBytesPerIteration() and GetOptimalNextBlockSize()
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetOptimalBlockSize();}
 
 	/// \brief Provides number of ideal bytes to process
-	/// \returns the ideal number of bytes to process
+	/// \return the ideal number of bytes to process
 	/// \details Internally, the default implementation returns remaining unprocessed bytes
 	/// \sa GetBytesPerIteration() and OptimalBlockSize()
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)this->m_leftOver;}
 
 	/// \brief Provides number of ideal data alignment
-	/// \returns the ideal data alignment, in bytes
+	/// \return the ideal data alignment, in bytes
 	/// \sa GetAlignment() and OptimalBlockSize()
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 
 	/// \brief Determines if the cipher is self inverting
-	/// \returns true if the stream cipher is self inverting, false otherwise
+	/// \return true if the stream cipher is self inverting, false otherwise
 	bool IsSelfInverting() const {return true;}
 
 	/// \brief Determines if the cipher is a forward transformation
-	/// \returns true if the stream cipher is a forward transformation, false otherwise
+	/// \return true if the stream cipher is a forward transformation, false otherwise
 	bool IsForwardTransformation() const {return true;}
 
 	/// \brief Flag indicating random access
-	/// \returns true if the cipher is seekable, false otherwise
+	/// \return true if the cipher is seekable, false otherwise
 	/// \sa Seek()
 	bool IsRandomAccess() const {return this->GetPolicy().CipherIsRandomAccess();}
 
@@ -401,25 +401,25 @@ public:
 	virtual ~CFB_CipherAbstractPolicy() {}
 
 	/// \brief Provides data alignment requirements
-	/// \returns data alignment requirements, in bytes
+	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
 	///   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
 	virtual unsigned int GetAlignment() const =0;
 
 	/// \brief Provides number of bytes operated upon during an iteration
-	/// \returns bytes operated upon during an iteration, in bytes
+	/// \return bytes operated upon during an iteration, in bytes
 	/// \sa GetOptimalBlockSize()
 	virtual unsigned int GetBytesPerIteration() const =0;
 
 	/// \brief Access the feedback register
-	/// \returns pointer to the first byte of the feedback register
+	/// \return pointer to the first byte of the feedback register
 	virtual byte * GetRegisterBegin() =0;
 
 	/// \brief TODO
 	virtual void TransformRegister() =0;
 
 	/// \brief Flag indicating iteration support
-	/// \returns true if the cipher supports iteration, false otherwise
+	/// \return true if the cipher supports iteration, false otherwise
 	virtual bool CanIterate() const {return false;}
 
 	/// \brief Iterate the cipher
@@ -475,18 +475,18 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 	virtual ~CFB_CipherConcretePolicy() {}
 
 	/// \brief Provides data alignment requirements
-	/// \returns data alignment requirements, in bytes
+	/// \return data alignment requirements, in bytes
 	/// \details Internally, the default implementation returns 1. If the stream cipher is implemented
 	///   using an SSE2 ASM or intrinsics, then the value returned is usually 16.
 	unsigned int GetAlignment() const {return sizeof(WordType);}
 
 	/// \brief Provides number of bytes operated upon during an iteration
-	/// \returns bytes operated upon during an iteration, in bytes
+	/// \return bytes operated upon during an iteration, in bytes
 	/// \sa GetOptimalBlockSize()
 	unsigned int GetBytesPerIteration() const {return sizeof(WordType) * W;}
 
 	/// \brief Flag indicating iteration support
-	/// \returns true if the cipher supports iteration, false otherwise
+	/// \return true if the cipher supports iteration, false otherwise
 	bool CanIterate() const {return true;}
 
 	/// \brief Perform one iteration in the forward direction
@@ -505,7 +505,7 @@ struct CRYPTOPP_NO_VTABLE CFB_CipherConcretePolicy : public BASE
 
 		/// \brief XOR feedback register with data
 		/// \param registerWord data represented as a word type
-		/// \returns reference to the next feedback register word
+		/// \return reference to the next feedback register word
 		inline RegisterOutput& operator()(WordType &registerWord)
 		{
 			//CRYPTOPP_ASSERT(IsAligned<WordType>(m_output));
@@ -587,29 +587,29 @@ public:
 	void Resynchronize(const byte *iv, int length=-1);
 
 	/// \brief Provides number of ideal bytes to process
-	/// \returns the ideal number of bytes to process
+	/// \return the ideal number of bytes to process
 	/// \details Internally, the default implementation returns GetBytesPerIteration()
 	/// \sa GetBytesPerIteration() and GetOptimalNextBlockSize()
 	unsigned int OptimalBlockSize() const {return this->GetPolicy().GetBytesPerIteration();}
 
 	/// \brief Provides number of ideal bytes to process
-	/// \returns the ideal number of bytes to process
+	/// \return the ideal number of bytes to process
 	/// \details Internally, the default implementation returns remaining unprocessed bytes
 	/// \sa GetBytesPerIteration() and OptimalBlockSize()
 	unsigned int GetOptimalNextBlockSize() const {return (unsigned int)m_leftOver;}
 
 	/// \brief Provides number of ideal data alignment
-	/// \returns the ideal data alignment, in bytes
+	/// \return the ideal data alignment, in bytes
 	/// \sa GetAlignment() and OptimalBlockSize()
 	unsigned int OptimalDataAlignment() const {return this->GetPolicy().GetAlignment();}
 
 	/// \brief Flag indicating random access
-	/// \returns true if the cipher is seekable, false otherwise
+	/// \return true if the cipher is seekable, false otherwise
 	/// \sa Seek()
 	bool IsRandomAccess() const {return false;}
 
 	/// \brief Determines if the cipher is self inverting
-	/// \returns true if the stream cipher is self inverting, false otherwise
+	/// \return true if the stream cipher is self inverting, false otherwise
 	bool IsSelfInverting() const {return false;}
 
 	/// \brief Retrieve the provider of this algorithm
@@ -698,7 +698,7 @@ public:
 		{this->SetKeyWithIV(key, length, iv);}
 
 	/// \brief Clone a SymmetricCipher
-	/// \returns a new SymmetricCipher based on this object
+	/// \return a new SymmetricCipher based on this object
 	Clonable * Clone() const {return static_cast<SymmetricCipher *>(new SymmetricCipherFinal<BASE, INFO>(*this));}
 };
 

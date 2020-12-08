@@ -102,7 +102,7 @@ public:
 	}
 
 	/// \brief Generate a random 32-bit word in the range min to max, inclusive
-	/// \returns random 32-bit word in the range min to max, inclusive
+	/// \return random 32-bit word in the range min to max, inclusive
 	/// \details If the 32-bit candidate is not within the range, then it is discarded
 	///  and a new candidate is used.
 	word32 GenerateWord32(word32 min=0, word32 max=0xffffffffL)
@@ -146,7 +146,7 @@ protected:
 	}
 
 	/// \brief Returns the next 32-bit word from the state array
-	/// \returns the next 32-bit word from the state array
+	/// \return the next 32-bit word from the state array
 	/// \details fetches the next word frm the state array, performs bit operations on
 	///  it, and then returns the value to the caller.
 	word32 NextMersenneWord()

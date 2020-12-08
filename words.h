@@ -14,7 +14,7 @@ NAMESPACE_BEGIN(CryptoPP)
 /// \brief Count the number of words
 /// \param x word array
 /// \param n size of the word array, in elements
-/// \returns number of words used in the array.
+/// \return number of words used in the array.
 /// \details CountWords counts the number of words in a word array.
 ///  Leading 0-words are not included in the count.
 /// \since Crypto++ 1.0
@@ -140,7 +140,7 @@ inline void OrWords(word *r, const word *a, size_t n)
 /// \param r word array
 /// \param n size of the word array, in elements
 /// \param shiftBits number of bits to shift
-/// \returns word shifted out
+/// \return word shifted out
 /// \details ShiftWordsLeftByBits shifts the word array left by
 ///  shiftBits. ShiftWordsLeftByBits shifts bits out on the left;
 ///  it does not extend the array.
@@ -164,7 +164,7 @@ inline word ShiftWordsLeftByBits(word *r, size_t n, unsigned int shiftBits)
 /// \param r word array
 /// \param n size of the word array, in elements
 /// \param shiftBits number of bits to shift
-/// \returns word shifted out
+/// \return word shifted out
 /// \details ShiftWordsRightByBits shifts the word array shight by
 ///  shiftBits. ShiftWordsRightByBits shifts bits out on the right.
 /// \note shiftBits must be less than WORD_BITS.

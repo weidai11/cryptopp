@@ -22,7 +22,7 @@
 /// \brief Polynomial multiplication
 /// \param a the first term
 /// \param b the second term
-/// \returns vector product
+/// \return vector product
 /// \details PMULL_00() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x00)</tt>.
 ///  The <tt>0x00</tt> indicates the low 64-bits of <tt>a</tt> and <tt>b</tt>
@@ -52,7 +52,7 @@ inline uint64x2_t PMULL_00(const uint64x2_t a, const uint64x2_t b)
 /// \brief Polynomial multiplication
 /// \param a the first term
 /// \param b the second term
-/// \returns vector product
+/// \return vector product
 /// \details PMULL_01 performs() polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x01)</tt>.
 ///  The <tt>0x01</tt> indicates the low 64-bits of <tt>a</tt> and high
@@ -82,7 +82,7 @@ inline uint64x2_t PMULL_01(const uint64x2_t a, const uint64x2_t b)
 /// \brief Polynomial multiplication
 /// \param a the first term
 /// \param b the second term
-/// \returns vector product
+/// \return vector product
 /// \details PMULL_10() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x10)</tt>.
 ///  The <tt>0x10</tt> indicates the high 64-bits of <tt>a</tt> and low
@@ -112,7 +112,7 @@ inline uint64x2_t PMULL_10(const uint64x2_t a, const uint64x2_t b)
 /// \brief Polynomial multiplication
 /// \param a the first term
 /// \param b the second term
-/// \returns vector product
+/// \return vector product
 /// \details PMULL_11() performs polynomial multiplication and presents
 ///  the result like Intel's <tt>c = _mm_clmulepi64_si128(a, b, 0x11)</tt>.
 ///  The <tt>0x11</tt> indicates the high 64-bits of <tt>a</tt> and <tt>b</tt>
@@ -143,7 +143,7 @@ inline uint64x2_t PMULL_11(const uint64x2_t a, const uint64x2_t b)
 /// \param a the first term
 /// \param b the second term
 /// \param c the byte count
-/// \returns vector
+/// \return vector
 /// \details VEXT_U8() extracts the first <tt>c</tt> bytes of vector
 ///  <tt>a</tt> and the remaining bytes in <tt>b</tt>.
 /// \since Crypto++ 8.0
@@ -164,7 +164,7 @@ inline uint64x2_t VEXT_U8(uint64x2_t a, uint64x2_t b, unsigned int c)
 /// \tparam C the byte count
 /// \param a the first term
 /// \param b the second term
-/// \returns vector
+/// \return vector
 /// \details VEXT_U8() extracts the first <tt>C</tt> bytes of vector
 ///  <tt>a</tt> and the remaining bytes in <tt>b</tt>.
 /// \since Crypto++ 8.0

@@ -57,7 +57,7 @@ public:
     virtual ~DARN() {}
 
     /// \brief Construct a DARN generator
-     /// \throws DARN_Err if the random number generator is not available
+     /// \throw DARN_Err if the random number generator is not available
     DARN();
 
     /// \brief Generate random array of bytes

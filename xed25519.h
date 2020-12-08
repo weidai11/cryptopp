@@ -132,7 +132,7 @@ public:
     bool IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const;
 
     /// \brief Get the Object Identifier
-    /// \returns the Object Identifier
+    /// \return the Object Identifier
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
     ///   The default private key format is RFC 5208.
     OID GetAlgorithmID() const {
@@ -307,25 +307,25 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
     }
 
     /// \brief Retrieve pointer to signature buffer
-    /// \returns pointer to signature buffer
+    /// \return pointer to signature buffer
     byte* signature() {
         return &m_msg[0];
     }
 
     /// \brief Retrieve pointer to signature buffer
-    /// \returns pointer to signature buffer
+    /// \return pointer to signature buffer
     const byte* signature() const {
         return &m_msg[0];
     }
 
     /// \brief Retrieve pointer to data buffer
-    /// \returns pointer to data buffer
+    /// \return pointer to data buffer
     const byte* data() const {
         return &m_msg[0]+SIGNATURE_LENGTH;
     }
 
     /// \brief Retrieve size of data buffer
-    /// \returns size of the data buffer, in bytes
+    /// \return size of the data buffer, in bytes
     size_t size() const {
         return m_msg.size()-SIGNATURE_LENGTH;
     }
@@ -467,14 +467,14 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     bool IsSmallOrder(const byte y[PUBLIC_KEYLENGTH]) const;
 
     /// \brief Retrieve private key byte array
-    /// \returns the private key byte array
+    /// \return the private key byte array
     /// \details GetPrivateKeyBytePtr() is used by signing code to call ed25519_sign.
     const byte* GetPrivateKeyBytePtr() const {
         return m_sk.begin();
     }
 
     /// \brief Retrieve public key byte array
-    /// \returns the public key byte array
+    /// \return the public key byte array
     /// \details GetPublicKeyBytePtr() is used by signing code to call ed25519_sign.
     const byte* GetPublicKeyBytePtr() const {
         return m_pk.begin();
@@ -684,7 +684,7 @@ struct ed25519PublicKey : public X509PublicKey
     const Element& GetPublicElement() const;
 
     /// \brief Retrieve public key byte array
-    /// \returns the public key byte array
+    /// \return the public key byte array
     /// \details GetPublicKeyBytePtr() is used by signing code to call ed25519_sign.
     const byte* GetPublicKeyBytePtr() const {
         return m_pk.begin();

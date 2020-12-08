@@ -28,7 +28,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief Inverts the cipher's direction
 /// \param dir the cipher's direction
-/// \returns DECRYPTION if \ref CipherDir "dir" is ENCRYPTION, DECRYPTION otherwise
+/// \return DECRYPTION if \ref CipherDir "dir" is ENCRYPTION, DECRYPTION otherwise
 inline CipherDir ReverseCipherDir(CipherDir dir)
 {
 	return (dir == ENCRYPTION) ? DECRYPTION : ENCRYPTION;
@@ -83,7 +83,7 @@ protected:
 	/// \brief Validates the number of rounds for an algorithm.
 	/// \param rounds the candidate number of rounds
 	/// \param alg an Algorithm object used if the number of rounds are invalid
-	/// \throws InvalidRounds if the number of rounds are invalid
+	/// \throw InvalidRounds if the number of rounds are invalid
 	/// \details ThrowIfInvalidRounds() validates the number of rounds and throws if invalid.
 	inline void ThrowIfInvalidRounds(int rounds, const Algorithm *alg)
 	{
@@ -102,8 +102,8 @@ protected:
 	/// \brief Validates the number of rounds for an algorithm
 	/// \param param the candidate number of rounds
 	/// \param alg an Algorithm object used if the number of rounds are invalid
-	/// \returns the number of rounds for the algorithm
-	/// \throws InvalidRounds if the number of rounds are invalid
+	/// \return the number of rounds for the algorithm
+	/// \throw InvalidRounds if the number of rounds are invalid
 	/// \details GetRoundsAndThrowIfInvalid() validates the number of rounds and throws if invalid.
 	inline unsigned int GetRoundsAndThrowIfInvalid(const NameValuePairs &param, const Algorithm *alg)
 	{
@@ -258,23 +258,23 @@ class CRYPTOPP_NO_VTABLE SimpleKeyingInterfaceImpl : public BASE
 {
 public:
 	/// \brief The minimum key length used by the algorithm
-	/// \returns minimum key length used by the algorithm, in bytes
+	/// \return minimum key length used by the algorithm, in bytes
 	size_t MinKeyLength() const
 		{return INFO::MIN_KEYLENGTH;}
 
 	/// \brief The maximum key length used by the algorithm
-	/// \returns maximum key length used by the algorithm, in bytes
+	/// \return maximum key length used by the algorithm, in bytes
 	size_t MaxKeyLength() const
 		{return static_cast<size_t>(INFO::MAX_KEYLENGTH);}
 
 	/// \brief The default key length used by the algorithm
-	/// \returns default key length used by the algorithm, in bytes
+	/// \return default key length used by the algorithm, in bytes
 	size_t DefaultKeyLength() const
 		{return INFO::DEFAULT_KEYLENGTH;}
 
 	/// \brief Provides a valid key length for the algorithm
 	/// \param keylength the size of the key, in bytes
-	/// \returns the valid key length, in bytes
+	/// \return the valid key length, in bytes
 	/// \details keylength is provided in bytes, not bits. If keylength is less than MIN_KEYLENGTH,
 	///   then the function returns MIN_KEYLENGTH. If keylength is greater than MAX_KEYLENGTH,
 	///   then the function returns MAX_KEYLENGTH. if If keylength is a multiple of KEYLENGTH_MULTIPLE,
@@ -306,7 +306,7 @@ class CRYPTOPP_NO_VTABLE BlockCipherImpl : public AlgorithmImpl<SimpleKeyingInte
 {
 public:
 	/// Provides the block size of the algorithm
-	/// \returns the block size of the algorithm, in bytes
+	/// \return the block size of the algorithm, in bytes
 	unsigned int BlockSize() const {return this->BLOCKSIZE;}
 };
 
@@ -346,7 +346,7 @@ public:
 		{this->SetKeyWithRounds(key, length, rounds);}
 
 	/// \brief Provides the direction of the cipher
-	/// \returns true if DIR is ENCRYPTION, false otherwise
+	/// \return true if DIR is ENCRYPTION, false otherwise
 	/// \sa GetCipherDirection(), IsPermutation()
 	bool IsForwardTransformation() const {return DIR == ENCRYPTION;}
 };

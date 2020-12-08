@@ -32,13 +32,13 @@ struct CRYPTOPP_DLL ECPPoint
 
 	/// \brief Tests points for equality
 	/// \param t the other point
-	/// \returns true if the points are equal, false otherwise
+	/// \return true if the points are equal, false otherwise
 	bool operator==(const ECPPoint &t) const
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 
 	/// \brief Tests points for ordering
 	/// \param t the other point
-	/// \returns true if this point is less than other, false otherwise
+	/// \return true if this point is less than other, false otherwise
 	bool operator< (const ECPPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
 
@@ -65,13 +65,13 @@ struct CRYPTOPP_DLL EC2NPoint
 
 	/// \brief Tests points for equality
 	/// \param t the other point
-	/// \returns true if the points are equal, false otherwise
+	/// \return true if the points are equal, false otherwise
 	bool operator==(const EC2NPoint &t) const
 		{return (identity && t.identity) || (!identity && !t.identity && x==t.x && y==t.y);}
 
 	/// \brief Tests points for ordering
 	/// \param t the other point
-	/// \returns true if this point is less than other, false otherwise
+	/// \return true if this point is less than other, false otherwise
 	bool operator< (const EC2NPoint &t) const
 		{return identity ? !t.identity : (!t.identity && (x<t.x || (x==t.x && y<t.y)));}
 
@@ -96,24 +96,24 @@ public:
 	/// \param P point which is decoded
 	/// \param bt source BufferedTransformation
 	/// \param len number of bytes to read from the BufferedTransformation
-	/// \returns true if a point was decoded, false otherwise
+	/// \return true if a point was decoded, false otherwise
 	virtual bool DecodePoint(Point &P, BufferedTransformation &bt, size_t len) const =0;
 
 	/// \brief Decodes an elliptic curve point
 	/// \param P point which is decoded
 	/// \param encodedPoint byte array with the encoded point
 	/// \param len the size of the array
-	/// \returns true if a point was decoded, false otherwise
+	/// \return true if a point was decoded, false otherwise
 	virtual bool DecodePoint(Point &P, const byte *encodedPoint, size_t len) const =0;
 
 	/// \brief Verifies points on elliptic curve
 	/// \param P point to verify
-	/// \returns true if the point is valid, false otherwise
+	/// \return true if the point is valid, false otherwise
 	virtual bool VerifyPoint(const Point &P) const =0;
 
 	/// \brief Determines encoded point size
 	/// \param compressed flag indicating if the point is compressed
-	/// \returns the minimum number of bytes required to encode the point
+	/// \return the minimum number of bytes required to encode the point
 	virtual unsigned int EncodedPointSize(bool compressed = false) const =0;
 
 	/// \brief Encodes an elliptic curve point
@@ -131,7 +131,7 @@ public:
 
 	/// \brief BER Decodes an elliptic curve point
 	/// \param bt source BufferedTransformation
-	/// \returns the decoded elliptic curve point
+	/// \return the decoded elliptic curve point
 	virtual Point BERDecodePoint(BufferedTransformation &bt) const =0;
 
 	/// \brief DER Encodes an elliptic curve point

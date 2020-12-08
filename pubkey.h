@@ -75,19 +75,19 @@ public:
 	virtual ~TrapdoorFunctionBounds() {}
 
 	/// \brief Returns the maximum size of a message before the trapdoor function is applied
-	/// \returns the maximum size of a message before the trapdoor function is applied
+	/// \return the maximum size of a message before the trapdoor function is applied
 	/// \details Derived classes must implement PreimageBound().
 	virtual Integer PreimageBound() const =0;
 	/// \brief Returns the maximum size of a message after the trapdoor function is applied
-	/// \returns the maximum size of a message after the trapdoor function is applied
+	/// \return the maximum size of a message after the trapdoor function is applied
 	/// \details Derived classes must implement ImageBound().
 	virtual Integer ImageBound() const =0;
 	/// \brief Returns the maximum size of a message before the trapdoor function is applied bound to a public key
-	/// \returns the maximum size of a message before the trapdoor function is applied bound to a public key
+	/// \return the maximum size of a message before the trapdoor function is applied bound to a public key
 	/// \details The default implementation returns <tt>PreimageBound() - 1</tt>.
 	virtual Integer MaxPreimage() const {return --PreimageBound();}
 	/// \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
-	/// \returns the the maximum size of a message after the trapdoor function is applied bound to a public key
+	/// \return the the maximum size of a message after the trapdoor function is applied bound to a public key
 	/// \details The default implementation returns <tt>ImageBound() - 1</tt>.
 	virtual Integer MaxImage() const {return --ImageBound();}
 };
@@ -105,14 +105,14 @@ public:
 	/// \brief Applies the trapdoor function, using random data if required
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param x the message on which the encryption function is applied
-	/// \returns the message x encrypted under the public key
+	/// \return the message x encrypted under the public key
 	/// \details ApplyRandomizedFunction is a generalization of encryption under a public key
 	///    cryptosystem. The RandomNumberGenerator may (or may not) be required.
 	///    Derived classes must implement it.
 	virtual Integer ApplyRandomizedFunction(RandomNumberGenerator &rng, const Integer &x) const =0;
 
 	/// \brief Determines if the encryption algorithm is randomized
-	/// \returns true if the encryption algorithm is randomized, false otherwise
+	/// \return true if the encryption algorithm is randomized, false otherwise
 	/// \details If IsRandomized() returns false, then NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 };
@@ -140,7 +140,7 @@ public:
 
 	/// \brief Applies the trapdoor
 	/// \param x the message on which the encryption function is applied
-	/// \returns the message x encrypted under the public key
+	/// \return the message x encrypted under the public key
 	/// \details ApplyFunction is a generalization of encryption under a public key
 	///    cryptosystem. Derived classes must implement it.
 	virtual Integer ApplyFunction(const Integer &x) const =0;
@@ -159,13 +159,13 @@ public:
 	/// \brief Applies the inverse of the trapdoor function, using random data if required
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param x the message on which the decryption function is applied
-	/// \returns the message x decrypted under the private key
+	/// \return the message x decrypted under the private key
 	/// \details CalculateRandomizedInverse is a generalization of decryption using the private key
 	///    The RandomNumberGenerator may (or may not) be required. Derived classes must implement it.
 	virtual Integer CalculateRandomizedInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 
 	/// \brief Determines if the decryption algorithm is randomized
-	/// \returns true if the decryption algorithm is randomized, false otherwise
+	/// \return true if the decryption algorithm is randomized, false otherwise
 	/// \details If IsRandomized() returns false, then NullRNG() can be used.
 	virtual bool IsRandomized() const {return true;}
 };
@@ -183,7 +183,7 @@ public:
 	/// \brief Applies the inverse of the trapdoor function
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param x the message on which the decryption function is applied
-	/// \returns the message x decrypted under the private key
+	/// \return the message x decrypted under the private key
 	/// \details CalculateRandomizedInverse is a generalization of decryption using the private key
 	/// \details Internally, CalculateRandomizedInverse() calls CalculateInverse() \a
 	///   without the RandomNumberGenerator.
@@ -191,14 +191,14 @@ public:
 		{return CalculateInverse(rng, x);}
 
 	/// \brief Determines if the decryption algorithm is randomized
-	/// \returns true if the decryption algorithm is randomized, false otherwise
+	/// \return true if the decryption algorithm is randomized, false otherwise
 	/// \details If IsRandomized() returns false, then NullRNG() can be used.
 	bool IsRandomized() const {return false;}
 
 	/// \brief Calculates the inverse of an element
 	/// \param rng a RandomNumberGenerator derived class
 	/// \param x the element
-	/// \returns the inverse of the element in the group
+	/// \return the inverse of the element in the group
 	virtual Integer CalculateInverse(RandomNumberGenerator &rng, const Integer &x) const =0;
 };
 
@@ -719,7 +719,7 @@ class P1363_MGF1 : public MaskGeneratingFunction
 {
 public:
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static
 	///   member function.
 	CRYPTOPP_STATIC_CONSTEXPR const char* CRYPTOPP_API StaticAlgorithmName() {return "MGF1";}
@@ -823,7 +823,7 @@ public:
 
 	/// \brief Perform precomputation
 	/// \param precomputationStorage the suggested number of objects for the precompute table
-	/// \throws NotImplemented
+	/// \throw NotImplemented
 	/// \details The exact semantics of Precompute() varies, but it typically means calculate
 	///   a table of n objects that can be used later to speed up computation.
 	/// \details If a derived class does not override Precompute(), then the base class throws
@@ -836,7 +836,7 @@ public:
 
 	/// \brief Retrieve previously saved precomputation
 	/// \param storedPrecomputation BufferedTransformation with the saved precomputation
-	/// \throws NotImplemented
+	/// \throw NotImplemented
 	/// \sa SupportsPrecomputation(), Precompute()
 	void LoadPrecomputation(BufferedTransformation &storedPrecomputation)
 	{
@@ -846,7 +846,7 @@ public:
 
 	/// \brief Save precomputation for later use
 	/// \param storedPrecomputation BufferedTransformation to write the precomputation
-	/// \throws NotImplemented
+	/// \throw NotImplemented
 	/// \sa SupportsPrecomputation(), Precompute()
 	void SavePrecomputation(BufferedTransformation &storedPrecomputation) const
 	{
@@ -1068,7 +1068,7 @@ public:
 	/// \param name the name of the object or value to retrieve
 	/// \param valueType reference to a variable that receives the value
 	/// \param pValue void pointer to a variable that receives the value
-	/// \returns true if the value was retrieved, false otherwise
+	/// \return true if the value was retrieved, false otherwise
 	/// \details GetVoidValue() retrieves the value of name if it exists.
 	/// \note GetVoidValue() is an internal function and should be implemented
 	///   by derived classes. Users should use one of the other functions instead.
@@ -1085,7 +1085,7 @@ public:
 	void AssignFrom(const NameValuePairs &source);
 
 	/// \brief Retrieves the public element
-	/// \returns the public element
+	/// \return the public element
 	virtual const Element & GetPublicElement() const {return GetPublicPrecomputation().GetBase(this->GetAbstractGroupParameters().GetGroupPrecomputation());}
 
 	/// \brief Sets the public element
@@ -1094,7 +1094,7 @@ public:
 
 	/// \brief Exponentiates this element
 	/// \param exponent the exponent to raise the base
-	/// \returns the public element raised to the exponent
+	/// \return the public element raised to the exponent
 	virtual Element ExponentiatePublicElement(const Integer &exponent) const
 	{
 		const DL_GroupParameters<T> &params = this->GetAbstractGroupParameters();
@@ -1104,7 +1104,7 @@ public:
 	/// \brief Exponentiates an element
 	/// \param baseExp the first exponent
 	/// \param publicExp the second exponent
-	/// \returns the public element raised to the exponent
+	/// \return the public element raised to the exponent
 	/// \details CascadeExponentiateBaseAndPublicElement raises the public element to
 	///   the base element and precomputation.
 	virtual Element CascadeExponentiateBaseAndPublicElement(const Integer &baseExp, const Integer &publicExp) const
@@ -1153,7 +1153,7 @@ public:
 	/// \param name the name of the object or value to retrieve
 	/// \param valueType reference to a variable that receives the value
 	/// \param pValue void pointer to a variable that receives the value
-	/// \returns true if the value was retrieved, false otherwise
+	/// \return true if the value was retrieved, false otherwise
 	/// \details GetVoidValue() retrieves the value of name if it exists.
 	/// \note GetVoidValue() is an internal function and should be implemented
 	///   by derived classes. Users should use one of the other functions instead.
@@ -1175,7 +1175,7 @@ public:
 	}
 
 	/// \brief Retrieves the private exponent
-	/// \returns the private exponent
+	/// \return the private exponent
 	/// \details Must be overridden in derived classes.
 	virtual const Integer & GetPrivateExponent() const =0;
 	/// \brief Sets the private exponent
@@ -1447,7 +1447,7 @@ public:
 		{return params.GetSubgroupOrder().ByteCount();}
 
 	/// \brief Signature scheme flag
-	/// \returns true if the signature scheme is deterministic, false otherwise
+	/// \return true if the signature scheme is deterministic, false otherwise
 	/// \details IsDeterministic() is provided for DL signers. It is used by RFC 6979 signature schemes.
 	virtual bool IsDeterministic() const
 		{return false;}
@@ -1539,7 +1539,7 @@ public:
 	virtual ~DL_SignatureSchemeBase() {}
 
 	/// \brief Provides the signature length
-	/// \returns signature length, in bytes
+	/// \return signature length, in bytes
 	/// \details SignatureLength returns the size required for <tt>r+s</tt>.
 	size_t SignatureLength() const
 	{
@@ -1548,29 +1548,29 @@ public:
 	}
 
 	/// \brief Provides the maximum recoverable length
-	/// \returns maximum recoverable length, in bytes
+	/// \return maximum recoverable length, in bytes
 	size_t MaxRecoverableLength() const
 		{return GetMessageEncodingInterface().MaxRecoverableLength(0, GetHashIdentifier().second, GetDigestSize());}
 
 	/// \brief Provides the maximum recoverable length
 	/// \param signatureLength the size fo the signature
-	/// \returns maximum recoverable length based on signature length, in bytes
+	/// \return maximum recoverable length based on signature length, in bytes
 	/// \details this function is not implemented and always returns 0.
 	size_t MaxRecoverableLengthFromSignatureLength(size_t signatureLength) const
 		{CRYPTOPP_UNUSED(signatureLength); CRYPTOPP_ASSERT(false); return 0;}	// TODO
 
 	/// \brief Determines if the scheme is probabilistic
-	/// \returns true if the scheme is probabilistic, false otherwise
+	/// \return true if the scheme is probabilistic, false otherwise
 	bool IsProbabilistic() const
 		{return true;}
 
 	/// \brief Determines if the scheme has non-recoverable part
-	/// \returns true if the message encoding has a non-recoverable part, false otherwise.
+	/// \return true if the message encoding has a non-recoverable part, false otherwise.
 	bool AllowNonrecoverablePart() const
 		{return GetMessageEncodingInterface().AllowNonrecoverablePart();}
 
 	/// \brief Determines if the scheme allows recoverable part first
-	/// \returns true if the message encoding allows the recoverable part, false otherwise.
+	/// \return true if the message encoding allows the recoverable part, false otherwise.
 	bool RecoverablePartFirst() const
 		{return GetMessageEncodingInterface().RecoverablePartFirst();}
 
@@ -2097,7 +2097,7 @@ public:
 	}
 
 	/// \brief Retrieves a reference to the group generator
-	/// \returns const reference to the group generator
+	/// \return const reference to the group generator
 	const Element &GetGenerator() const {return GetAbstractGroupParameters().GetSubgroupGenerator();}
 
 protected:

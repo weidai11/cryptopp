@@ -142,7 +142,7 @@ struct DL_PublicKey_ElGamal : public BASE
 	virtual ~DL_PublicKey_ElGamal() {}
 
 	/// \brief Retrieves the OID of the algorithm
-	/// \returns OID of the algorithm
+	/// \return OID of the algorithm
 	/// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
 	///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
 	///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
@@ -173,7 +173,7 @@ struct DL_PrivateKey_ElGamal : public BASE
 	virtual ~DL_PrivateKey_ElGamal() {}
 
 	/// \brief Retrieves the OID of the algorithm
-	/// \returns OID of the algorithm
+	/// \return OID of the algorithm
 	/// \details DL_PrivateKey_ElGamal provides an override for GetAlgorithmID()
 	///  to utilize 1.3.14.7.2.1.1. Prior to DL_PrivateKey_ElGamal, the ElGamal
 	///  keys [mistakenly] used the OID from DSA due to DL_GroupParmaters_GFP().
@@ -283,7 +283,7 @@ struct ElGamal
 	typedef SchemeOptions::PublicKey PublicKey;
 
 	/// \brief The algorithm name
-	/// \returns the algorithm name
+	/// \return the algorithm name
 	/// \details StaticAlgorithmName returns the algorithm's name as a static
 	///  member function.
 	CRYPTOPP_STATIC_CONSTEXPR const char* StaticAlgorithmName() {return "ElgamalEnc/Crypto++Padding";}
