@@ -33,10 +33,15 @@ enum DSASignatureFormat {
 /// \param signature byte buffer for the existing signature encoding
 /// \param signatureLen the length of the existing signature encoding buffer
 /// \param fromFormat the source signature format
+/// \return the number of bytes written during encoding
 /// \details This function converts between these formats, and returns length
 ///  of signature in the target format. If <tt>toFormat == DSA_P1363</tt>, then
 ///  <tt>bufferSize</tt> must equal <tt>publicKey.SignatureLength()</tt> or
 ///  <tt>verifier.SignatureLength()</tt>.
+/// \details If the destination buffer is too small then the output of the
+///  encoded <tt>r</tt> and <tt>s</tt> will be truncated. Be sure to provide
+///  an adequately sized buffer and check the return value for the number of
+///  bytes written.
 /// \sa <A HREF="http://www.cryptopp.com/wiki/DSAConvertSignatureFormat">DSAConvertSignatureFormat</A>
 ///  on the Crypto++ wiki.
 /// \since Crypto++ 1.0
