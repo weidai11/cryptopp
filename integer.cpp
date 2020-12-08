@@ -3471,8 +3471,8 @@ void Integer::BERDecodeAsOctetString(BufferedTransformation &bt, size_t length)
 
 size_t Integer::OpenPGPEncode(byte *output, size_t bufferSize) const
 {
-	CRYPTOPP_ASSERT(output && bufferSize);            // NULL buffer
-	CRYPTOPP_ASSERT(bufferSize >= MinEncodedSize());  // Undersized buffer
+	CRYPTOPP_ASSERT(output && bufferSize);         // NULL buffer
+	CRYPTOPP_ASSERT(bufferSize >= 2+ByteCount());  // Undersized buffer
 	ArraySink sink(output, bufferSize);
 	return OpenPGPEncode(sink);
 }
