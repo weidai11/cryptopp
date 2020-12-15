@@ -1,5 +1,8 @@
 // iterhash.h - originally written and placed in the public domain by Wei Dai
 
+/// \file iterhash.h
+/// \brief Base classes for iterated hashes
+
 #ifndef CRYPTOPP_ITERHASH_H
 #define CRYPTOPP_ITERHASH_H
 

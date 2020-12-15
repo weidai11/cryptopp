@@ -1,3 +1,8 @@
+// trunhash.h - originally written and placed in the public domain by Wei Dai
+
+/// \file trunhash.h
+/// \brief Classes for truncated hashes
+
 #ifndef CRYPTOPP_TRUNHASH_H
 #define CRYPTOPP_TRUNHASH_H
 
@@ -5,6 +10,8 @@
 
 NAMESPACE_BEGIN(CryptoPP)
 
+/// \brief Null hash
+/// \details A null hash that conforms to HashTransformation interface
 class NullHash : public HashTransformation
 {
 public:
@@ -18,15 +25,19 @@ public:
 		{CRYPTOPP_UNUSED(digest);CRYPTOPP_UNUSED(digestLength);return true;}
 };
 
-/// construct new HashModule with smaller DigestSize() from existing one
+/// \brief Construct new HashModule with smaller digest size from an existing one
+/// \tparam T HashTransformation derived class
 template <class T>
 class TruncatedHashTemplate : public HashTransformation
 {
 public:
+	/// \brief Construct a TruncatedHashTemplate
 	TruncatedHashTemplate(T hm, unsigned int digestSize)
 		: m_hm(hm), m_digestSize(digestSize) {}
+	/// \brief Construct a TruncatedHashTemplate
 	TruncatedHashTemplate(const byte *key, size_t keyLength, unsigned int digestSize)
 		: m_hm(key, keyLength), m_digestSize(digestSize) {}
+	/// \brief Construct a TruncatedHashTemplate
 	TruncatedHashTemplate(size_t digestSize)
 		: m_digestSize(digestSize) {}
 
