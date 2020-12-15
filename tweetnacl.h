@@ -1,3 +1,12 @@
+// tweetnacl.h - written and placed in the public domain by Jeffrey Walton
+
+/// \file nr.h
+/// \brief Declarations for Bernstein's TweetNaCL
+/// \details TweetNaCL is used to cross-validate the library's implementations.
+///  The implementation itself is not optimized and kind of amusing. However
+///  it serves a valuable purpose for cross-validation.
+/// \details Don't use this in production.
+
 #ifndef TWEETNACL_H
 #define TWEETNACL_H
 #define crypto_auth_PRIMITIVE "hmacsha512256"
