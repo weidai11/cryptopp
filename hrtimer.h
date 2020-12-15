@@ -64,7 +64,6 @@ public:
 	virtual TimerWord TicksPerSecond() =0;
 
 	/// \brief Start the timer
-	/// \return the current timer value
 	void StartTimer();
 
 	/// \brief Retrieve the elapsed time

@@ -207,12 +207,12 @@ public:
 
 	/// \brief Reseed an AutoSeededX917RNG
 	/// \param blocking controls seeding with BlockingRng or NonblockingRng
-	/// \param additionalEntropy additional entropy to add to the generator
+	/// \param input additional entropy to add to the generator
 	/// \param length the size of the additional entropy, in bytes
 	/// \details Internally, the generator uses SHA256 to extract the entropy from
 	///  from the seed and then stretch the material for the block cipher's key
 	///  and initialization vector.
-	void Reseed(bool blocking = false, const byte *additionalEntropy = NULLPTR, size_t length = 0);
+	void Reseed(bool blocking = false, const byte *input = NULLPTR, size_t length = 0);
 
 	/// \brief Deterministically reseed an AutoSeededX917RNG for testing
 	/// \param key the key to use for the deterministic reseeding
