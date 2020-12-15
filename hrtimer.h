@@ -15,8 +15,10 @@
 NAMESPACE_BEGIN(CryptoPP)
 
 #ifdef HIGHRES_TIMER_AVAILABLE
+	/// \brief TimerWord is a 64-bit word
 	typedef word64 TimerWord;
 #else
+	/// \brief TimerWord is a clock_t
 	typedef clock_t TimerWord;
 #endif
 
@@ -26,7 +28,23 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE TimerBase
 {
 public:
 	/// \brief Unit of measure
-	enum Unit {SECONDS = 0, MILLISECONDS, MICROSECONDS, NANOSECONDS};
+	/// \details Unit selects the unit of measure as returned by functions
+	///  ElapsedTimeAsDouble() and ElapsedTime().
+	/// \sa ElapsedTimeAsDouble, ElapsedTime
+	enum Unit {
+		/// \brief Timer unit is seconds
+		/// \details All timers support seconds
+		SECONDS = 0,
+		/// \brief Timer unit is milliseconds
+		/// \details All timers support milliseconds
+		MILLISECONDS,
+		/// \brief Timer unit is microseconds
+		/// \details The timer requires hardware support microseconds
+		MICROSECONDS,
+		/// \brief Timer unit is nanoseconds
+		/// \details The timer requires hardware support nanoseconds
+		NANOSECONDS
+	};
 
 	/// \brief Construct a TimerBase
 	/// \param unit the unit of measure
@@ -51,12 +69,24 @@ public:
 
 	/// \brief Retrieve the elapsed time
 	/// \return the elapsed time as a double
-	/// \sa ElapsedTime
+	/// \details The return value of ElapsedTimeAsDouble() depends upon
+	///  the Unit selected during construction of the timer. For example,
+	///  if <tt>Unit = SECONDS</tt> and ElapsedTimeAsDouble() returns 3,
+	///  then the timer has run for 3 seconds. If
+	///  <tt>Unit = MILLISECONDS</tt> and ElapsedTimeAsDouble() returns
+	///  3000, then the timer has run for 3 seconds.
+	/// \sa Unit, ElapsedTime
 	double ElapsedTimeAsDouble();
 
 	/// \brief Retrieve the elapsed time
 	/// \return the elapsed time as an unsigned long
-	/// \sa ElapsedTimeAsDouble
+	/// \details The return value of ElapsedTime() depends upon the
+	///  Unit selected during construction of the timer. For example, if
+	///  <tt>Unit = SECONDS</tt> and ElapsedTime() returns 3, then
+	///  the timer has run for 3 seconds. If <tt>Unit = MILLISECONDS</tt>
+	///  and ElapsedTime() returns 3000, then the timer has run for 3
+	///  seconds.
+	/// \sa Unit, ElapsedTimeAsDouble
 	unsigned long ElapsedTime();
 
 private:
