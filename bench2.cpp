@@ -80,7 +80,7 @@ void BenchMarkByName(const char *factoryName, size_t keyLength=0, const char *di
 	BenchMarkByName2<T_FactoryOutput,T_FactoryOutput>(factoryName, keyLength, displayName, params);
 }
 
-void Benchmark2(double t, double hertz)
+void BenchmarkSharedKeyedAlgorithms(double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;

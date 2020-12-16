@@ -76,13 +76,13 @@ void BenchmarkWithCommand(int argc, const char* const argv[]);
 // Top level, prints preamble and postamble
 void Benchmark(Test::TestClass suites, double t, double hertz);
 // Unkeyed systems
-void Benchmark1(double t, double hertz);
+void BenchmarkUnkeyedAlgorithms(double t, double hertz);
 // Shared key systems
-void Benchmark2(double t, double hertz);
+void BenchmarkSharedKeyedAlgorithms(double t, double hertz);
 // Public key systems over integers
-void Benchmark3(double t, double hertz);
+void BenchmarkPublicKeyAlgorithms(double t, double hertz);
 // Public key systems over elliptic curves
-void Benchmark4(double t, double hertz);
+void BenchmarkEllipticCurveAlgorithms(double t, double hertz);
 
 // These are defined in bench1.cpp
 extern void OutputResultKeying(double iterations, double timeTaken);

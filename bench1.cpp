@@ -387,7 +387,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 			std::cout << "\n<BR>";
 		count_breaks++;
 
-		Benchmark1(t, hertz);
+		BenchmarkUnkeyedAlgorithms(t, hertz);
 	}
 
 	// Shared key algorithms
@@ -397,7 +397,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 			std::cout << "\n<BR>";
 		count_breaks++;
 
-		Benchmark2(t, hertz);
+		BenchmarkSharedKeyedAlgorithms(t, hertz);
 	}
 
 	// Public key algorithms
@@ -407,7 +407,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 			std::cout << "\n<BR>";
 		count_breaks++;
 
-		Benchmark3(t, hertz);
+		BenchmarkPublicKeyAlgorithms(t, hertz);
 	}
 
 	// Public key algorithms over EC
@@ -417,7 +417,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 			std::cout << "\n<BR>";
 		count_breaks++;
 
-		Benchmark4(t, hertz);
+		BenchmarkEllipticCurveAlgorithms(t, hertz);
 	}
 
 	g_testEnd = ::time(NULLPTR);
@@ -434,7 +434,7 @@ void Benchmark(Test::TestClass suites, double t, double hertz)
 	AddHtmlFooter();
 }
 
-void Benchmark1(double t, double hertz)
+void BenchmarkUnkeyedAlgorithms(double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;

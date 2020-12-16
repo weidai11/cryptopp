@@ -300,7 +300,7 @@ void BenchMarkKeyAgreement(const char *filename, const char *name, double timeTo
 	BenchMarkAgreement(name, d, timeTotal);
 }
 
-void Benchmark3(double t, double hertz)
+void BenchmarkPublicKeyAlgorithms(double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;
@@ -370,7 +370,7 @@ void Benchmark3(double t, double hertz)
 	std::cout << "\n</TABLE>" << std::endl;
 }
 
-void Benchmark4(double t, double hertz)
+void BenchmarkEllipticCurveAlgorithms(double t, double hertz)
 {
 	g_allocatedTime = t;
 	g_hertz = hertz;
