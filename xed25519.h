@@ -643,7 +643,7 @@ struct ed25519PublicKey : public X509PublicKey
     ///   The old format provides the best interop, and keys will work
     ///   with OpenSSL.
     void Save(BufferedTransformation &bt) const {
-        BEREncode(bt);
+        DEREncode(bt);
     }
 
     /// \brief BER decode ASN.1 object
