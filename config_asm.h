@@ -5,7 +5,7 @@
 /// \file config_asm.h
 /// \brief Library configuration file
 /// \details <tt>config.h</tt> was split into components in May 2019 to better
-///  integrate with Autoconf and its feature tests. The splitting occured so
+///  integrate with Autoconf and its feature tests. The splitting occurred so
 ///  users could continue to include <tt>config.h</tt> while allowing Autoconf
 ///  to write new <tt>config_asm.h</tt> and new <tt>config_cxx.h</tt> using
 ///  its feature tests.
