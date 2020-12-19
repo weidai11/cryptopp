@@ -20,7 +20,7 @@
 #include "config_cxx.h"  // CRYPTOPP_CXX11_ALIGNAS
 #include "config_ver.h"  // Compiler versions
 
-// Nearly all Intel's and AMD's have SSE. Enable it independent of SSE ASM and intrinscs.
+// Nearly all Intel's and AMD's have SSE. Enable it independent of SSE ASM and intrinsics.
 // ARM NEON and ARMv8 ASIMD only need natural alignment of an element in the vector.
 // Altivec through POWER7 need vector alignment. POWER8 and POWER9 relax the requirement.
 #if defined(CRYPTOPP_DISABLE_ASM)
