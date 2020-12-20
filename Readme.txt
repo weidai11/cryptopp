@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 8.3 - TBD
+Version 8.3 - 12/20/2020
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -216,10 +216,9 @@ and other operations. The hardware acceleration remediates some timing
 attacks. The library also uses cache-aware algoirthms and access patterns
 to minimize leakage cache evictions.
 
-Some of the public key algorithms have branches and some of the branches depend
-on data that can be private or secret. The branching occurs in some field
-operations like exponentiation over integers and elliptic curves. The branching
-has been minimized but not completely eliminated.
+Elliptic curves over binary fields are believed to leak information. The task is a
+work in progress. We don't believe binary fields are used in production, so we feel it
+is a low risk at the moment.
 
 Crypto++ does not enagage Specter remediations at this time. The GCC options
 for Specter are -mfunction-return=thunk and -mindirect-branch=thunk, and the
@@ -295,6 +294,48 @@ documentation is one of the highest returns on investment.
 
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
+
+8.3.0 - December 20, 2020
+      - fix use of macro CRYPTOPP_ALIGN_DATA
+      - fix potential out-of-bounds read in ECDSA
+      - fix std::bad_alloc when using ByteQueue in pipeline
+      - fix missing CRYPTOPP_CXX17_EXCEPTIONS with Clang
+      - fix potential out-of-bounds read in GCM mode
+      - add configure.sh when preprocessor macros fail
+      - fix potential out-of-bounds read in SipHash
+      - fix compile error on POWER9 due to vec_xl_be
+      - fix K233 curve on POWER8
+      - add Cirrus CI testing
+      - fix broken encryption for some 64-bit ciphers
+      - fix Android cpu-features.c using C++ compiler
+      - disable RDRAND and RDSEED for some AMD processors
+      - fix BLAKE2 hash calculation using Salt and Personalization
+      - refresh Android and iOS build scripts
+      - add XTS mode
+      - fix circular dependency between misc.h and secblock.h
+      - add Certificate interface
+      - fix recursion in AES::Encryption without AESNI
+      - add missing OID for ElGamal encryption
+      - fix missing override in KeyDerivationFunction-derived classes
+      - fix RDSEED assemble under MSVC
+      - fix elliptic curve timing leaks (CVE-2019-14318)
+      - add link-library variable to Makefiles
+      - fix SIZE_MAX definition in misc.h
+      - add GetWord64 and PutWord64 to BufferedTransformation
+      - use HKDF in AutoSeededX917RNG::Reseed
+      - fix Asan finding in VMAC on i686 in inline asm
+      - fix undeclared identifier _mm_roti_epi64 on Gentoo
+      - fix ECIES and GetSymmetricKeyLength
+      - fix possible divide by zero in PKCS5_PBKDF2_HMAC
+      - refine ASN.1 encoders and decoders
+      - disable BMI2 code paths in Integer class
+      - fix use of CRYPTOPP_CLANG_VERSION
+      - add NEON SHA1, SHA256 and SHA512 from Cryptogams
+      - add ARM SHA1, SHA256 and SHA512 from Cryptogams
+      - make config.h more autoconf friendly
+      - handle Clang triplet armv8l-unknown-linux-gnueabihf
+      - fix reference binding to misaligned address in xed25519
+      - clear asserts in TestDataNameValuePairs
 
 8.2.0 - April 28, 2019
       - minor release, no recompile of programs required
