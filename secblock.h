@@ -486,7 +486,7 @@ public:
 
 private:
 
-#if defined(CRYPTOPP_BOOL_ALIGN16) && (defined(_M_X64) || defined(__x86_64__))
+#if CRYPTOPP_BOOL_ALIGN16 && (defined(_M_X64) || defined(__x86_64__))
 	// Before we can add additional platforms we need to check the
 	// linker documentation for alignment behavior for stack variables.
 	// CRYPTOPP_ALIGN_DATA(16) is known OK on Linux, OS X, Solaris.
@@ -497,7 +497,7 @@ private:
 	}
 	CRYPTOPP_ALIGN_DATA(16) T m_array[S];
 
-#elif defined(CRYPTOPP_BOOL_ALIGN16)
+#elif CRYPTOPP_BOOL_ALIGN16
 
 	// There be demons here... We cannot use CRYPTOPP_ALIGN_DATA(16)
 	// because linkers on 32-bit machines (and some 64-bit machines)
@@ -539,7 +539,7 @@ private:
 
 	// CRYPTOPP_BOOL_ALIGN16 is 0. Use natural alignment of T.
 	T* GetAlignedArray() {return m_array;}
-	CRYPTOPP_ALIGN_DATA(4) T m_array[S];
+	T m_array[S];
 
 #endif
 
