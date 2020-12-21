@@ -608,7 +608,7 @@ if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
   fi
 
   CXX_RESULT=$(${CXX} ${CXXFLAGS} ${POWER9_FLAG} TestPrograms/test_ppc_power9.cxx -o ${TOUT} 2>&1 | wc -w)
-  if [[ "${CXX_RESULT}" -ne 0 && "$have_power8" -ne 0 ]]; then
+  if [[ "${CXX_RESULT}" -eq 0 && "$have_power8" -ne 0 ]]; then
     have_power9=1
     echo '#define CRYPTOPP_POWER9_AVAILABLE 1'
   else
