@@ -71,28 +71,31 @@ if [[ -d /usr/gnu/bin ]]; then
   GREP=/usr/gnu/bin/grep
 fi
 
-SUN_COMPILER=$(${CXX} -V 2>/dev/null | ${GREP} -i -c -E 'CC: (Sun|Studio)')
-XLC_COMPILER=$(${CXX} -qversion 2>/dev/null | ${GREP} -i -c "IBM XL")
+# Initialize these once
+IS_X86=0
+IS_X64=0
+IS_IA32=0
+IS_ARM32=0
+IS_ARMV8=0
+IS_PPC=0
+IS_PPC64=0
+
+# Determine compiler
+GCC_COMPILER=$(${CXX} --version 2>/dev/null | ${GREP}-i -c -E '^g++')
+SUN_COMPILER=$(${CXX} -V 2>/dev/null | ${GREP} -i -c -E 'CC: (Sun|Oracle) Studio')
+XLC_COMPILER=$(${CXX} -qversion 2>/dev/null | ${GREP} -i -c "IBM XL C/C++")
 CLANG_COMPILER=$(${CXX} --version 2>/dev/null | ${GREP} -i -c -E 'clang|llvm')
 
 if [[ "$SUN_COMPILER" -ne 0 ]]
 then
+  # TODO: fix use of uname for SunCC
   IS_X86=$(uname -m 2>&1 | ${GREP} -c -E 'i386|i486|i585|i686')
   IS_X64=$(uname -m 2>&1 | ${GREP} -c -E 'i86pc|x86_64|amd64')
   IS_IA32=$(uname -m 2>&1 | ${GREP} -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
-  IS_ARM32=0
-  IS_ARMV8=0
-  IS_PPC=0
-  IS_PPC64=0
 elif [[ "$XLC_COMPILER" -ne 0 ]]
 then
-  IS_X86=0
-  IS_X64=0
-  IS_IA32=0
-  IS_ARM32=0
-  IS_ARMV8=0
-  IS_PPC=$(uname -m 2>&1 | ${GREP} -c -E 'ppc|powerpc')
-  IS_PPC64=$(uname -m 2>&1 | ${GREP} -c -E 'ppc64|powerpc64')
+  IS_PPC=$(${CXX} ${CXXFLAGS} -qshowmacros -E ${TPROG} | ${GREP} -i -c -E '__PPC__|__POWERPC__')
+  IS_PPC64=$(${CXX} ${CXXFLAGS} -qshowmacros -E ${TPROG} | ${GREP} -i -c -E '__PPC64__|__POWERPC64__')
 elif [[ "$CLANG_COMPILER" -ne 0 ]]
 then
   IS_X86=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'i386|i486|i585|i686')
@@ -104,27 +107,23 @@ then
   IS_PPC64=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -c -E 'ppc64|powerpc64')
 else
   IS_X86=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i386|i486|i585|i686')
-  IS_X64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i86pc|x86_64|amd64')
-  IS_IA32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
+  IS_X64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'x86_64|amd64')
+  IS_IA32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i386|i486|i585|i686|x86_64|amd64')
   IS_ARM32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
   IS_ARMV8=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
   IS_PPC=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc|powerpc')
   IS_PPC64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc64|powerpc64')
 fi
 
-# Default values for setenv-*.sh scripts
-IS_IOS="${IS_IOS:-0}"
-IS_ANDROID="${IS_ANDROID:-0}"
-TIMESTAMP=$(date "+%A, %B %d %Y, %I:%M %p")
-
-# ===========================================================================
-# ================================== Fixups =================================
-# ===========================================================================
-
 # A 64-bit platform often matches the 32-bit variant due to appending '64'
 if [[ "${IS_X64}" -ne 0 ]]; then IS_X86=0; fi
 if [[ "${IS_ARMV8}" -ne 0 ]]; then IS_ARM32=0; fi
 if [[ "${IS_PPC64}" -ne 0 ]]; then IS_PPC=0; fi
+
+# Default values for setenv-*.sh scripts
+IS_IOS="${IS_IOS:-0}"
+IS_ANDROID="${IS_ANDROID:-0}"
+TIMESTAMP=$(date "+%A, %B %d %Y, %I:%M %p")
 
 # ===========================================================================
 # =================================== Info ==================================
