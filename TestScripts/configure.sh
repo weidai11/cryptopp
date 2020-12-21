@@ -81,7 +81,7 @@ IS_PPC=0
 IS_PPC64=0
 
 # Determine compiler
-GCC_COMPILER=$(${CXX} --version 2>/dev/null | ${GREP}-i -c -E '^g++')
+GCC_COMPILER=$(${CXX} --version 2>/dev/null | ${GREP} -i -c -E '^g++')
 SUN_COMPILER=$(${CXX} -V 2>/dev/null | ${GREP} -i -c -E 'CC: (Sun|Oracle) Studio')
 XLC_COMPILER=$(${CXX} -qversion 2>/dev/null | ${GREP} -i -c "IBM XL C/C++")
 CLANG_COMPILER=$(${CXX} --version 2>/dev/null | ${GREP} -i -c -E 'clang|llvm')
