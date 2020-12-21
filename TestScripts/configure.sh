@@ -91,7 +91,6 @@ then
   # TODO: fix use of uname for SunCC
   IS_X86=$(uname -m 2>&1 | ${GREP} -c -E 'i386|i486|i585|i686')
   IS_X64=$(uname -m 2>&1 | ${GREP} -c -E 'i86pc|x86_64|amd64')
-  IS_IA32=$(uname -m 2>&1 | ${GREP} -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
 elif [[ "$XLC_COMPILER" -ne 0 ]]
 then
   IS_PPC=$(${CXX} ${CXXFLAGS} -qshowmacros -E ${TPROG} | ${GREP} -i -c -E '__PPC__|__POWERPC__')
@@ -100,7 +99,6 @@ elif [[ "$CLANG_COMPILER" -ne 0 ]]
 then
   IS_X86=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'i386|i486|i585|i686')
   IS_X64=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'i86pc|x86_64|amd64')
-  IS_IA32=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'i86pc|i386|i486|i585|i686|x86_64|amd64')
   IS_ARM32=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
   IS_ARMV8=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
   IS_PPC=$(${CXX} ${CXXFLAGS} -dM -E ${TPROG} | ${GREP} -i -c -E 'ppc|powerpc')
@@ -108,12 +106,14 @@ then
 else
   IS_X86=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i386|i486|i585|i686')
   IS_X64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'x86_64|amd64')
-  IS_IA32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'i386|i486|i585|i686|x86_64|amd64')
   IS_ARM32=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'arm|armhf|armv7|eabihf|armv8')
   IS_ARMV8=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'aarch32|aarch64|arm64')
   IS_PPC=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc|powerpc')
   IS_PPC64=$(${CXX} ${CXXFLAGS} -dumpmachine 2>&1 | ${GREP} -i -c -E 'ppc64|powerpc64')
 fi
+
+# One check for intel compatibles
+if [[ "${IS_X86}" -ne 0 || "${IS_X64}" -ne 0 ]]; then IS_IA32=1; fi
 
 # A 64-bit platform often matches the 32-bit variant due to appending '64'
 if [[ "${IS_X64}" -ne 0 ]]; then IS_X86=0; fi
@@ -145,7 +145,9 @@ echo "Linker: $(command -v ${LD})"
 
 rm -f config_asm.h.new
 
-# Common header
+# ====================================================
+# =================== common header ==================
+# ====================================================
 {
   echo '// config_asm.h rewritten by configure.sh script'
   echo '//' "${TIMESTAMP}"
@@ -160,7 +162,8 @@ rm -f config_asm.h.new
 # Pickup CRYPTOPP_DISABLE_ASM
 
 disable_asm=$($GREP -c '\-DCRYPTOPP_DISABLE_ASM' <<< "${CPPFLAGS} ${CXXFLAGS}")
-if [[ "$disable_asm" -ne 0 ]]; then
+if [[ "$disable_asm" -ne 0 ]];
+then
 
   # Shell redirection
   {
@@ -174,7 +177,8 @@ fi
 #############################################################################
 # Intel x86-based machines
 
-if [[ "$disable_asm" -eq 0 && "$IS_IA32" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 && "$IS_IA32" -ne 0 ]];
+then
 
   if [[ "${SUN_COMPILER}" -ne 0 ]]; then
     SSE2_FLAG=-xarch=sse2
@@ -377,7 +381,8 @@ fi
 #############################################################################
 # ARM 32-bit machines
 
-if [[ "$disable_asm" -eq 0 && "$IS_ARM32" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 && "$IS_ARM32" -ne 0 ]];
+then
 
   # IS_IOS is set when ./setenv-ios is run
   if [[ "$IS_IOS" -ne 0 ]]; then
@@ -443,7 +448,8 @@ fi
 #############################################################################
 # ARM 64-bit machines
 
-if [[ "$disable_asm" -eq 0 && "$IS_ARMV8" -ne 0 ]]; then
+if [[ "$disable_asm" -eq 0 && "$IS_ARMV8" -ne 0 ]];
+then
 
   # IS_IOS is set when ./setenv-ios is run
   if [[ "$IS_IOS" -ne 0 ]]; then
@@ -560,7 +566,8 @@ fi
 #############################################################################
 # PowerPC machines
 
-if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
+if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]];
+then
 
   if [[ "${XLC_COMPILER}" -ne 0 ]]; then
     POWER9_FLAG="-qarch=pwr9 -qaltivec"
@@ -640,7 +647,9 @@ if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
 
 fi
 
-# Common footer
+# ====================================================
+# =================== common footer ==================
+# ====================================================
 {
   echo ''
   echo '#endif  // CRYPTOPP_CONFIG_ASM_H'
@@ -658,7 +667,9 @@ fi
 
 rm -f config_cxx.h.new
 
-# Common header
+# ====================================================
+# =================== common header ==================
+# ====================================================
 {
   echo '// config_cxx.h rewritten by configure.sh script'
   echo '//' "${TIMESTAMP}"
@@ -887,7 +898,9 @@ rm -f config_cxx.h.new
 
 } >> config_cxx.h.new
 
-# Common footer
+# ====================================================
+# =================== common footer ==================
+# ====================================================
 {
   echo ''
   echo '#endif  // CRYPTOPP_CONFIG_CXX_H'
