@@ -32,7 +32,7 @@ CRYPTOPP_DLL void CRYPTOPP_API CallNewHandler();
 /// \brief Allocates a buffer on 16-byte boundary
 /// \param size the size of the buffer
 /// \details AlignedAllocate is primarily used when the data will be
-///  proccessed by SSE, NEON, ARMv8 or PowerPC instructions. The assembly
+///  processed by SSE, NEON, ARMv8 or PowerPC instructions. The assembly
 ///  language routines rely on the alignment. If the alignment is not
 ///  respected, then a SIGBUS could be generated on Unix and Linux, and an
 ///  EXCEPTION_DATATYPE_MISALIGNMENT could be generated on Windows.
