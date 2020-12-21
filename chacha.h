@@ -161,7 +161,7 @@ struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 
 ////////////////////////////// IETF XChaCha20 draft //////////////////////////////
 
-/// \brief IETF XChaCha stream cipher information
+/// \brief IETF XChaCha20 stream cipher information
 /// \since Crypto++ 8.1
 struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
@@ -175,7 +175,7 @@ struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_
     }
 };
 
-/// \brief IETF XChaCha stream cipher implementation
+/// \brief IETF XChaCha20 stream cipher implementation
 /// \since Crypto++ 8.1
 class CRYPTOPP_NO_VTABLE XChaCha20_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
@@ -201,7 +201,7 @@ protected:
     CRYPTOPP_CONSTANT(KEY = 16);  // Index into m_state
 };
 
-/// \brief IETF XChaCha stream cipher
+/// \brief IETF XChaCha20 stream cipher
 /// \details This is the IETF's XChaCha from draft-arciszewski-xchacha.
 /// \sa <a href="https://tools.ietf.org/html/draft-arciszewski-xchacha">XChaCha:
 ///  eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>, <A
