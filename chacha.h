@@ -13,17 +13,17 @@
 /// \file chacha.h
 /// \brief Classes for ChaCha8, ChaCha12 and ChaCha20 stream ciphers
 /// \details Crypto++ provides Bernstein and ECRYPT's ChaCha from <a
-///   href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha, a
-///   variant of Salsa20</a> (2008.01.28). Crypto++ also provides the
-///   IETF implementation of ChaCha using the ChaChaTLS name. Bernstein's
-///   implementation is _slightly_ different from the TLS working group's
-///   implementation for cipher suites
-///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
-///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
-///   and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>. Finally,
-///   the library provides <a
-///   href="https://tools.ietf.org/html/draft-arciszewski-xchacha">XChaCha:
-///   eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>.
+///  href="http://cr.yp.to/chacha/chacha-20080128.pdf">ChaCha, a
+///  variant of Salsa20</a> (2008.01.28). Crypto++ also provides the
+///  IETF implementation of ChaCha using the ChaChaTLS name. Bernstein's
+///  implementation is _slightly_ different from the TLS working group's
+///  implementation for cipher suites
+///  <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+///  <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+///  and <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>. Finally,
+///  the library provides <a
+///  href="https://tools.ietf.org/html/draft-arciszewski-xchacha">XChaCha:
+///  eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>.
 /// \since ChaCha since Crypto++ 5.6.4, ChaChaTLS and XChaCha20 since Crypto++ 8.1
 
 #ifndef CRYPTOPP_CHACHA_H
@@ -43,10 +43,10 @@ struct ChaCha_Info : public VariableKeyLength<32, 16, 32, 16, SimpleKeyingInterf
     /// \brief The algorithm name
     /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
-    ///   member function.
+    ///  member function.
     /// \details Bernstein named the cipher variants ChaCha8, ChaCha12 and
-    ///   ChaCha20. More generally, Bernstein called the family ChaCha{r}.
-    ///   AlgorithmName() provides the exact name once rounds are set.
+    ///  ChaCha20. More generally, Bernstein called the family ChaCha{r}.
+    ///  AlgorithmName() provides the exact name once rounds are set.
     static const char* StaticAlgorithmName() {
         return "ChaCha";
     }
@@ -79,9 +79,9 @@ protected:
 
 /// \brief ChaCha stream cipher
 /// \details This is Bernstein and ECRYPT's ChaCha. It is _slightly_ different
-///   from the IETF's version of ChaCha called ChaChaTLS.
+///  from the IETF's version of ChaCha called ChaChaTLS.
 /// \sa <a href="http://cr.yp.to/chacha/chacha-20080208.pdf">ChaCha, a variant
-///   of Salsa20</a> (2008.01.28).
+///  of Salsa20</a> (2008.01.28).
 /// \since Crypto++ 5.6.4
 struct ChaCha : public ChaCha_Info, public SymmetricCipherDocumentation
 {
@@ -93,23 +93,23 @@ struct ChaCha : public ChaCha_Info, public SymmetricCipherDocumentation
 
 ////////////////////////////// IETF ChaChaTLS //////////////////////////////
 
-/// \brief ChaCha-TLS stream cipher information
+/// \brief IETF ChaCha20 stream cipher information
 /// \since Crypto++ 8.1
 struct ChaChaTLS_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 12>, FixedRounds<20>
 {
     /// \brief The algorithm name
     /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
-    ///   member function.
+    ///  member function.
     /// \details This is the IETF's variant of Bernstein's ChaCha from RFC
-    ///   8439. IETF ChaCha is called ChaChaTLS in the Crypto++ library. It
-    ///   is _slightly_ different from Bernstein's implementation.
+    ///  8439. IETF ChaCha is called ChaChaTLS in the Crypto++ library. It
+    ///  is _slightly_ different from Bernstein's implementation.
     static const char* StaticAlgorithmName() {
         return "ChaChaTLS";
     }
 };
 
-/// \brief ChaCha-TLS stream cipher implementation
+/// \brief IETF ChaCha20 stream cipher implementation
 /// \since Crypto++ 8.1
 class CRYPTOPP_NO_VTABLE ChaChaTLS_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
@@ -136,20 +136,20 @@ protected:
     CRYPTOPP_CONSTANT(CTR = 24);  // Index into m_state
 };
 
-/// \brief ChaCha-TLS stream cipher
+/// \brief IETF ChaCha20 stream cipher
 /// \details This is the IETF's variant of Bernstein's ChaCha from RFC 8439.
-///   IETF ChaCha is called ChaChaTLS in the Crypto++ library. It is
-///   _slightly_ different from the Bernstein implementation. ChaCha-TLS
-///   can be used for cipher suites
-///   <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
-///   <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and
-///   <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
+///  IETF ChaCha is called ChaChaTLS in the Crypto++ library. It is
+///  _slightly_ different from the Bernstein implementation. ChaCha-TLS
+///  can be used for cipher suites
+///  <tt>TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>,
+///  <tt>TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256</tt>, and
+///  <tt>TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256</tt>.
 /// \sa <a href="https://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and
-///   Poly1305 for IETF Protocols</a>, <A
-///   HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
-///   to handle block counter wrap in IETF's ChaCha algorithm?</A> and
-///   <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
-///   790, ChaChaTLS results when counter block wraps</A>.
+///  Poly1305 for IETF Protocols</a>, <A
+///  HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
+///  to handle block counter wrap in IETF's ChaCha algorithm?</A> and
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
+///  790, ChaChaTLS results when counter block wraps</A>.
 /// \since Crypto++ 8.1
 struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 {
@@ -161,21 +161,21 @@ struct ChaChaTLS : public ChaChaTLS_Info, public SymmetricCipherDocumentation
 
 ////////////////////////////// IETF XChaCha20 draft //////////////////////////////
 
-/// \brief XChaCha stream cipher information
+/// \brief IETF XChaCha stream cipher information
 /// \since Crypto++ 8.1
 struct XChaCha20_Info : public FixedKeyLength<32, SimpleKeyingInterface::UNIQUE_IV, 24>
 {
     /// \brief The algorithm name
     /// \return the algorithm name
     /// \details StaticAlgorithmName returns the algorithm's name as a static
-    ///   member function.
+    ///  member function.
     /// \details This is the IETF's XChaCha from draft-arciszewski-xchacha.
     static const char* StaticAlgorithmName() {
         return "XChaCha20";
     }
 };
 
-/// \brief XChaCha stream cipher implementation
+/// \brief IETF XChaCha stream cipher implementation
 /// \since Crypto++ 8.1
 class CRYPTOPP_NO_VTABLE XChaCha20_Policy : public AdditiveCipherConcretePolicy<word32, 16>
 {
@@ -201,14 +201,14 @@ protected:
     CRYPTOPP_CONSTANT(KEY = 16);  // Index into m_state
 };
 
-/// \brief XChaCha stream cipher
+/// \brief IETF XChaCha stream cipher
 /// \details This is the IETF's XChaCha from draft-arciszewski-xchacha.
 /// \sa <a href="https://tools.ietf.org/html/draft-arciszewski-xchacha">XChaCha:
-///   eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>, <A
-///   HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
-///   to handle block counter wrap in IETF's ChaCha algorithm?</A> and
-///   <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
-///   790, ChaCha20 results when counter block wraps</A>.
+///  eXtended-nonce ChaCha and AEAD_XChaCha20_Poly1305 (rev. 03)</a>, <A
+///  HREF="https://mailarchive.ietf.org/arch/msg/cfrg/gsOnTJzcbgG6OqD8Sc0GO5aR_tU">How
+///  to handle block counter wrap in IETF's ChaCha algorithm?</A> and
+///  <A HREF="https://github.com/weidai11/cryptopp/issues/790">Issue
+///  790, ChaCha20 results when counter block wraps</A>.
 /// \since Crypto++ 8.1
 struct XChaCha20 : public XChaCha20_Info, public SymmetricCipherDocumentation
 {
