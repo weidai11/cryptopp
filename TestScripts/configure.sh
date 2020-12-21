@@ -574,7 +574,7 @@ then
     POWER8_FLAG="-qarch=pwr8 -qaltivec"
     POWER7_VSX_FLAG="-qarch=pwr7 -qvsx -qaltivec"
     POWER7_PWR_FLAG="-qarch=pwr7 -qaltivec"
-    ALTIVEC_FLAG="-qaltivec"
+    ALTIVEC_FLAG="-qarch=ppc64v -qaltivec"
   else
     POWER9_FLAG="-mcpu=power9"
     POWER8_FLAG="-mcpu=power8"
