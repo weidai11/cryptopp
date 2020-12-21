@@ -12,4 +12,4 @@ You can report a security related bug in the [GitHub bug tracker](https://github
 
 If we receive a report of a security related bug then we will ensure a Github issue is opened and we will make an announcement on the mailing list. If you corresponded by private email then we will open the Github issue and make the announcement.
 
-All information will be made public. We do not withold information from users because stake holders need accurate information to access risk and place controls to remediate the risk.
+All information will be made public. We do not withhold information from users because stake holders need accurate information to access risk and place controls to remediate the risk.
