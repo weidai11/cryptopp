@@ -1191,7 +1191,7 @@ public:
 	/// \brief Verifies the hash of the current message
 	/// \param digest a pointer to the buffer of an \a existing hash
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
-	/// \throw ThrowIfInvalidTruncatedSize() if the existing hash's size exceeds DigestSize()
+	/// \throw InvalidArgument() if the existing hash's size exceeds DigestSize()
 	/// \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
 	///  a constant time comparison function. digestLength cannot exceed DigestSize().
 	/// \details Verify() restarts the hash for the next message.
@@ -1205,7 +1205,7 @@ public:
 	/// \param input the additional input as a buffer
 	/// \param length the size of the buffer, in bytes
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
-	/// \throw ThrowIfInvalidTruncatedSize() if the existing hash's size exceeds DigestSize()
+	/// \throw InvalidArgument() if the existing hash's size exceeds DigestSize()
 	/// \details Use this if your input is in one piece and you don't want to call Update()
 	///  and Verify() separately
 	/// \details VerifyDigest() performs a bitwise compare on the buffers using VerifyBufsEqual(),
@@ -1240,7 +1240,7 @@ public:
 	/// \param digest a pointer to the buffer of an \a existing hash
 	/// \param digestLength the size of the truncated hash, in bytes
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
-	/// \throw ThrowIfInvalidTruncatedSize() if digestLength exceeds DigestSize()
+	/// \throw InvalidArgument() if digestLength exceeds DigestSize()
 	/// \details TruncatedVerify() is a truncated version of Verify(). It can operate on a
 	///  buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
 	/// \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
@@ -1254,7 +1254,7 @@ public:
 	/// \param input the additional input as a buffer
 	/// \param length the size of the buffer, in bytes
 	/// \return \p true if the existing hash matches the computed hash, \p false otherwise
-	/// \throw ThrowIfInvalidTruncatedSize() if digestLength exceeds DigestSize()
+	/// \throw InvalidArgument() if digestLength exceeds DigestSize()
 	/// \details Use this if your input is in one piece and you don't want to call Update()
 	///  and TruncatedVerify() separately.
 	/// \details VerifyTruncatedDigest() is a truncated version of VerifyDigest(). It can operate
