@@ -5,7 +5,7 @@
 /// \brief ChaCha20/Poly1305-TLS AEAD scheme
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
-///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha20
 ///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
@@ -23,7 +23,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 ////////////////////////////// IETF ChaChaTLS //////////////////////////////
 
-/// \brief ChaCha20Poly1305 cipher base implementation
+/// \brief IETF ChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
 class ChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
@@ -120,11 +120,11 @@ private:
 	SecByteBlock m_userKey;
 };
 
-/// \brief ChaCha20Poly1305 cipher final implementation
+/// \brief IETF ChaCha20Poly1305 cipher final implementation
 /// \tparam T_IsEncryption flag indicating cipher direction
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
-///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha20
 ///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
@@ -153,10 +153,10 @@ private:
 	Poly1305TLS m_mac;
 };
 
-/// \brief ChaCha20/Poly1305-TLS AEAD scheme
+/// \brief IETF ChaCha20/Poly1305 AEAD scheme
 /// \details ChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  ChaCha20TLS and Poly1305TLS. The scheme is defined in RFC 8439, section 2.8,
-///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha20
 ///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
@@ -171,7 +171,7 @@ struct ChaCha20Poly1305 : public AuthenticatedSymmetricCipherDocumentation
 
 ////////////////////////////// IETF XChaCha20 draft //////////////////////////////
 
-/// \brief XChaCha20Poly1305 cipher base implementation
+/// \brief IETF XChaCha20Poly1305 cipher base implementation
 /// \details Base implementation of the AuthenticatedSymmetricCipher interface
 /// \since Crypto++ 8.1
 class XChaCha20Poly1305_Base : public AuthenticatedSymmetricCipherBase
@@ -268,11 +268,11 @@ private:
 	SecByteBlock m_userKey;
 };
 
-/// \brief XChaCha20Poly1305 cipher final implementation
+/// \brief IETF XChaCha20Poly1305 cipher final implementation
 /// \tparam T_IsEncryption flag indicating cipher direction
 /// \details XChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  XChaCha20 and Poly1305-TLS. The scheme is defined in RFC 8439, section 2.8,
-///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  AEAD_CHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha20
 ///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
@@ -301,10 +301,10 @@ private:
 	Poly1305TLS m_mac;
 };
 
-/// \brief XChaCha20/Poly1305-TLS AEAD scheme
+/// \brief IETF XChaCha20/Poly1305 AEAD scheme
 /// \details XChaCha20Poly1305 is an authenticated encryption scheme that combines
 ///  XChaCha20 and Poly1305-TLS. The scheme is defined in RFC 8439, section 2.8,
-///  AEAD_XCHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha
+///  AEAD_XCHACHA20_POLY1305 construction, and uses the IETF versions of ChaCha20
 ///  and Poly1305.
 /// \sa <A HREF="http://tools.ietf.org/html/rfc8439">RFC 8439, ChaCha20 and Poly1305
 ///  for IETF Protocols</A>.
