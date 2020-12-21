@@ -569,14 +569,16 @@ fi
 if [[ "$disable_asm" -eq 0 &&  ("$IS_PPC" -ne 0 || "$IS_PPC64" -ne 0) ]];
 then
 
-  # According to the IBM XL C/C++ for AIX manual, p. 108, '-qppc -qaltivec'
-  # and '-qppc64 -qaltivec' are silently upgraded to '-qarch=pwr4 -qaltivec'
+  # IBM XL C/C++ has the -qaltivec flag really screwed up. We can't seem
+  # to get it enabled without an -qarch= option. And -qarch= produces an
+  # error on later versions of the compiler. The only thing that seems
+  # to work consistently is -qarch=auto.
   if [[ "${XLC_COMPILER}" -ne 0 ]]; then
     POWER9_FLAG="-qarch=pwr9 -qaltivec"
     POWER8_FLAG="-qarch=pwr8 -qaltivec"
     POWER7_VSX_FLAG="-qarch=pwr7 -qvsx -qaltivec"
     POWER7_PWR_FLAG="-qarch=pwr7 -qaltivec"
-    ALTIVEC_FLAG="-qarch=pwr4 -qaltivec"
+    ALTIVEC_FLAG="-qarch=auto -qaltivec"
   else
     POWER9_FLAG="-mcpu=power9"
     POWER8_FLAG="-mcpu=power8"

@@ -630,8 +630,10 @@ endif
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
 ifeq ($(DETECT_FEATURES),1)
 
-  # According to the IBM XL C/C++ for AIX manual, p. 108, '-qppc -qaltivec'
-  # and '-qppc64 -qaltivec' are silently upgraded to '-qarch=pwr4 -qaltivec'
+  # IBM XL C/C++ has the -qaltivec flag really screwed up. We can't seem
+  # to get it enabled without an -qarch= option. And -qarch= produces an
+  # error on later versions of the compiler. The only thing that seems
+  # to work consistently is -qarch=auto.
 
   # XLC requires -qaltivec in addition to Arch or CPU option
   ifeq ($(XLC_COMPILER),1)
@@ -639,7 +641,7 @@ ifeq ($(DETECT_FEATURES),1)
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     POWER7_VSX_FLAG = -qarch=pwr7 -qvsx -qaltivec
     POWER7_PWR_FLAG = -qarch=pwr7 -qaltivec
-    ALTIVEC_FLAG = -qarch=pwr4 -qaltivec
+    ALTIVEC_FLAG = -qarch=auto -qaltivec
   else
     POWER9_FLAG = -mcpu=power9
     POWER8_FLAG = -mcpu=power8
@@ -717,7 +719,9 @@ ifeq ($(DETECT_FEATURES),1)
   TPROG = TestPrograms/test_ppc_altivec.cxx
   TOPT = $(ALTIVEC_FLAG)
   HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifneq ($(strip $(HAVE_OPT)),0)
+  ifeq ($(strip $(HAVE_OPT)),0)
+    ALTIVEC_FLAG := $(ALTIVEC_FLAG)
+  else
     ALTIVEC_FLAG =
   endif
 
