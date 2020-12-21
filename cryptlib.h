@@ -1137,7 +1137,7 @@ public:
 	/// \brief Computes the hash of the current message
 	/// \param digest a pointer to the buffer to receive the hash
 	/// \details Final() restarts the hash for a new message.
-	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
+	/// \pre <tt>COUNTOF(digest) <= DigestSize()</tt> or <tt>COUNTOF(digest) <= HASH::DIGESTSIZE</tt> ensures
 	///  the output byte buffer is large enough for the digest.
 	virtual void Final(byte *digest)
 		{TruncatedFinal(digest, DigestSize());}
@@ -1184,7 +1184,7 @@ public:
 	///  and Final() separately
 	/// \details CalculateDigest() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///  the output byte buffer is large enough for the digest.
+	///  the output byte buffer is a valid size.
 	virtual void CalculateDigest(byte *digest, const byte *input, size_t length)
 		{Update(input, length); Final(digest);}
 
@@ -1196,7 +1196,7 @@ public:
 	///  a constant time comparison function. digestLength cannot exceed DigestSize().
 	/// \details Verify() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///  the output byte buffer is large enough for the digest.
+	///  the input byte buffer is a valid size.
 	virtual bool Verify(const byte *digest)
 		{return TruncatedVerify(digest, DigestSize());}
 
@@ -1209,10 +1209,10 @@ public:
 	/// \details Use this if your input is in one piece and you don't want to call Update()
 	///  and Verify() separately
 	/// \details VerifyDigest() performs a bitwise compare on the buffers using VerifyBufsEqual(),
-	///  which is a constant time comparison function. digestLength cannot exceed DigestSize().
+	///  which is a constant time comparison function.
 	/// \details VerifyDigest() restarts the hash for the next message.
 	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///  the output byte buffer is large enough for the digest.
+	///  the output byte buffer is a valid size.
 	virtual bool VerifyDigest(const byte *digest, const byte *input, size_t length)
 		{Update(input, length); return Verify(digest);}
 
@@ -1221,6 +1221,8 @@ public:
 	/// \param digestSize the size of the truncated digest, in bytes
 	/// \details TruncatedFinal() call Final() and then copies digestSize bytes to digest.
 	///  The hash is restarted the hash for the next message.
+	/// \pre <tt>COUNTOF(digest) <= DigestSize()</tt> or <tt>COUNTOF(digest) <= HASH::DIGESTSIZE</tt> ensures
+	///  the output byte buffer is a valid size.
 	virtual void TruncatedFinal(byte *digest, size_t digestSize) =0;
 
 	/// \brief Updates the hash with additional input and computes the hash of the current message
@@ -1231,8 +1233,8 @@ public:
 	/// \details Use this if your input is in one piece and you don't want to call Update()
 	///  and CalculateDigest() separately.
 	/// \details CalculateTruncatedDigest() restarts the hash for the next message.
-	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///  the output byte buffer is large enough for the digest.
+	/// \pre <tt>digestSize <= DigestSize()</tt> or <tt>digestSize <= HASH::DIGESTSIZE</tt> ensures
+	///  the output byte buffer is a valid size.
 	virtual void CalculateTruncatedDigest(byte *digest, size_t digestSize, const byte *input, size_t length)
 		{Update(input, length); TruncatedFinal(digest, digestSize);}
 
@@ -1246,6 +1248,8 @@ public:
 	/// \details Verify() performs a bitwise compare on the buffers using VerifyBufsEqual(), which is
 	///  a constant time comparison function. digestLength cannot exceed DigestSize().
 	/// \details TruncatedVerify() restarts the hash for the next message.
+	/// \pre <tt>digestLength <= DigestSize()</tt> or <tt>digestLength <= HASH::DIGESTSIZE</tt> ensures
+	///  the input byte buffer is a valid size.
 	virtual bool TruncatedVerify(const byte *digest, size_t digestLength);
 
 	/// \brief Updates the hash with additional input and verifies the hash of the current message
@@ -1260,8 +1264,8 @@ public:
 	/// \details VerifyTruncatedDigest() is a truncated version of VerifyDigest(). It can operate
 	///  on a buffer smaller than DigestSize(). However, digestLength cannot exceed DigestSize().
 	/// \details VerifyTruncatedDigest() restarts the hash for the next message.
-	/// \pre <tt>COUNTOF(digest) == DigestSize()</tt> or <tt>COUNTOF(digest) == HASH::DIGESTSIZE</tt> ensures
-	///  the output byte buffer is large enough for the digest.
+	/// \pre <tt>digestLength <= DigestSize()</tt> or <tt>digestLength <= HASH::DIGESTSIZE</tt> ensures
+	///  the input byte buffer is a valid size.
 	virtual bool VerifyTruncatedDigest(const byte *digest, size_t digestLength, const byte *input, size_t length)
 		{Update(input, length); return TruncatedVerify(digest, digestLength);}
 
