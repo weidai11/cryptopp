@@ -630,8 +630,8 @@ endif
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
 ifeq ($(DETECT_FEATURES),1)
 
-  # According to the IBM XL C/C++ for AIX manual p. 108, '-qppc -qaltivec' and
-  # '-qppc64 -qaltivec' are silently upgraded to '-qarch=pwr4 -qaltivec'
+  # According to the IBM XL C/C++ for AIX manual, p. 108, '-qppc -qaltivec'
+  # and '-qppc64 -qaltivec' are silently upgraded to '-qarch=pwr4 -qaltivec'
 
   # XLC requires -qaltivec in addition to Arch or CPU option
   ifeq ($(XLC_COMPILER),1)
