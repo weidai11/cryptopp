@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 8.3 - 12/20/2020
+Version 8.4 - TBD
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -294,6 +294,9 @@ documentation is one of the highest returns on investment.
 
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
+
+8.4.0 - TDB
+      - fix SIGILL on POWER8 when compiling with GCC 10
 
 8.3.0 - December 20, 2020
       - fix use of macro CRYPTOPP_ALIGN_DATA

@@ -20,9 +20,9 @@
 // necessarily the version of the library built as a shared object if
 // versions are inadvertently mixed and matched.
 #define CRYPTOPP_MAJOR 8
-#define CRYPTOPP_MINOR 3
+#define CRYPTOPP_MINOR 4
 #define CRYPTOPP_REVISION 0
-#define CRYPTOPP_VERSION 830
+#define CRYPTOPP_VERSION 840
 
 // Compiler version macros
 
