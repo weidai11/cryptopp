@@ -20,8 +20,8 @@ trap cleanup EXIT
 ############################################
 # Tags to test
 
-OLD_VERSION_TAG=CRYPTOPP_8_2_0
-NEW_VERSION_TAG=CRYPTOPP_8_3_0
+OLD_VERSION_TAG=CRYPTOPP_8_3_0
+NEW_VERSION_TAG=master
 
 ############################################
 # If local repo is dirty, then promt first
