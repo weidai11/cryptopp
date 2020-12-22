@@ -64,8 +64,8 @@ bool CPU_ProbePower9()
         result = false;
     else
     {
-        // This is "darn r3, 0". It provides a conditioned 32-bit
-        // word. It is available on both 32-bit and 64-bit.
+        // This is "darn r3, 0" from POWER9. We cannot use __builtin_darn
+        // and friends because Clang and IBM XL C/C++ does not offer them.
 #if CRYPTOPP_BIG_ENDIAN
         __asm__ __volatile__ (".byte 0x7c, 0x60, 0x05, 0xe6  \n" : : : "r3");
 #else
@@ -114,8 +114,8 @@ bool CPU_ProbeDARN()
         result = false;
     else
     {
-        // This is "darn r3, 0". It provides a conditioned 32-bit
-        // word. It is available on both 32-bit and 64-bit.
+        // This is "darn r3, 0" from POWER9. We cannot use __builtin_darn
+        // and friends because Clang and IBM XL C/C++ does not offer them.
 #if CRYPTOPP_BIG_ENDIAN
         __asm__ __volatile__ (".byte 0x7c, 0x60, 0x05, 0xe6  \n" : : : "r3");
 #else
