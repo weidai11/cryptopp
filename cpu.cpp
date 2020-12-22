@@ -1219,7 +1219,7 @@ void DetectPowerpcFeatures()
 	// can't tolerate SIGILL-based probes, like Apple
 	g_hasAltivec  = CPU_QueryAltivec() || CPU_ProbeAltivec();
 	g_hasPower7 = CPU_QueryPower7() || CPU_ProbePower7();
-	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();	
+	g_hasPower8 = CPU_QueryPower8() || CPU_ProbePower8();
 	g_hasPower9 = CPU_QueryPower9() || CPU_ProbePower9();
 	g_hasPMULL = CPU_QueryPMULL() || CPU_ProbePMULL();
 	g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();

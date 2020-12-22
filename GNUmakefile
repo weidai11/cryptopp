@@ -623,10 +623,11 @@ endif
 #####                     PowerPC                     #####
 ###########################################################
 
-# PowerPC and PowerPC-64. Altivec is available with POWER4 with GCC and
+# PowerPC and PowerPC64. Altivec is available with POWER4 with GCC and
 # POWER6 with XLC. The tests below are crafted for IBM XLC and the LLVM
 # front-end. XLC/LLVM only supplies POWER8 so we have to set the flags for
 # XLC/LLVM to POWER8. I've got a feeling LLVM is going to cause trouble.
+
 ifneq ($(IS_PPC32)$(IS_PPC64),00)
 ifeq ($(DETECT_FEATURES),1)
 
@@ -637,18 +638,26 @@ ifeq ($(DETECT_FEATURES),1)
 
   # XLC requires -qaltivec in addition to Arch or CPU option
   ifeq ($(XLC_COMPILER),1)
-    POWER9_FLAG = -qarch=pwr9 -qaltivec
+    # POWER9_FLAG = -qarch=pwr9 -qaltivec
     POWER8_FLAG = -qarch=pwr8 -qaltivec
     POWER7_VSX_FLAG = -qarch=pwr7 -qvsx -qaltivec
     POWER7_PWR_FLAG = -qarch=pwr7 -qaltivec
     ALTIVEC_FLAG = -qarch=auto -qaltivec
   else
-    POWER9_FLAG = -mcpu=power9
+    # POWER9_FLAG = -mcpu=power9
     POWER8_FLAG = -mcpu=power8
     POWER7_VSX_FLAG = -mcpu=power7 -mvsx
     POWER7_PWR_FLAG = -mcpu=power7
     ALTIVEC_FLAG = -maltivec
   endif
+
+  # GCC 10 is giving us trouble in CPU_ProbePower9() and
+  # CPU_ProbeDARN(). GCC is generating POWER9 instructions
+  # on POWER8 for ppc_power9.cpp. The compiler idiots did
+  # not think through the consequences of requiring us to
+  # use -mcpu=power9 to unlock the ISA. Epic fail.
+  # https:#github.com/weidai11/cryptopp/issues/986
+  POWER9_FLAG =
 
   # XLC with LLVM front-ends failed to define XLC defines.
   #ifeq ($(findstring -qxlcompatmacros,$(CXXFLAGS)),)
@@ -663,14 +672,14 @@ ifeq ($(DETECT_FEATURES),1)
   #####################################################################
   # Looking for a POWER9 option
 
-  TPROG = TestPrograms/test_ppc_power9.cxx
-  TOPT = $(POWER9_FLAG)
-  HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
-  ifeq ($(strip $(HAVE_OPT)),0)
-    # DARN_FLAG = $(POWER9_FLAG)
-  else
-    POWER9_FLAG =
-  endif
+  #TPROG = TestPrograms/test_ppc_power9.cxx
+  #TOPT = $(POWER9_FLAG)
+  #HAVE_OPT = $(shell $(CXX) $(TCXXFLAGS) $(ZOPT) $(TOPT) $(TPROG) -o $(TOUT) 2>&1 | wc -w)
+  #ifeq ($(strip $(HAVE_OPT)),0)
+  #  DARN_FLAG = $(POWER9_FLAG)
+  #else
+  #  POWER9_FLAG =
+  #endif
 
   #####################################################################
   # Looking for a POWER8 option
@@ -751,8 +760,8 @@ ifeq ($(DETECT_FEATURES),1)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_POWER7
   else ifeq ($(POWER8_FLAG),)
     CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_POWER8
-  else ifeq ($(POWER9_FLAG),)
-    CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_POWER9
+  #else ifeq ($(POWER9_FLAG),)
+  #  CRYPTOPP_CXXFLAGS += -DCRYPTOPP_DISABLE_POWER9
   endif
 
 # DETECT_FEATURES
