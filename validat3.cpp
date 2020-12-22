@@ -402,12 +402,14 @@ bool TestSettings()
 	const bool hasAES = HasAES();
 	const bool hasSHA256 = HasSHA256();
 	const bool hasSHA512 = HasSHA512();
+	const bool hasDARN = HasDARN();
 
 	std::cout << "passed:  ";
 	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7;
 	std::cout << ", hasPower8 == " << hasPower8 << ", hasPower9 == " << hasPower9;
 	std::cout << ", hasPMULL == " << hasPMULL << ", hasAES == " << hasAES;
-	std::cout << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512 << "\n";
+	std::cout << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512;
+	std::cout << ", hasDARN == " << hasDARN << "\n";
 
 #endif
 
