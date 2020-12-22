@@ -680,7 +680,7 @@ bool CRYPTOPP_SECTION_INIT g_hasSM3 = false;
 bool CRYPTOPP_SECTION_INIT g_hasSM4 = false;
 word32 CRYPTOPP_SECTION_INIT g_cacheLineSize = CRYPTOPP_L1_CACHE_LINE_SIZE;
 
-// ARM does not have an unprivliged equivalent to CPUID on IA-32. We have to
+// ARM does not have an unprivileged equivalent to CPUID on IA-32. We have to
 // jump through some hoops to detect features on a wide array of platforms.
 // Our strategy is two part. First, attempt to *Query* the OS for a feature,
 // like using getauxval on Linux. If that fails, then *Probe* the cpu
