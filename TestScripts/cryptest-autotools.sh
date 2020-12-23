@@ -1,17 +1,11 @@
 #!/usr/bin/env bash
 
-PWD_DIR=$(pwd)
-function cleanup {
-	cd "$PWD_DIR"
-}
-trap cleanup EXIT
-
-#############################################################################
-
 GREP=grep
 SED=sed
 AWK=awk
 MAKE=make
+
+#############################################################################
 
 # Fixup, Solaris and friends
 if [[ -d /usr/xpg4/bin ]]; then
@@ -31,7 +25,7 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
 fi
 
 # Fixup for Solaris and BSDs
-if [[ ! -z $(command -v gmake 2>/dev/null) ]]; then
+if [[ -n "$(command -v gmake 2>/dev/null)" ]]; then
 	MAKE=gmake
 else
 	MAKE=make
@@ -171,5 +165,16 @@ if ! ./cryptest tv all; then
 	exit 1
 fi
 
+#############################################################################
+
+echo ""
+echo "Making tarball"
+echo ""
+
+if ! make dist; then
+	echo "make dist failed."
+	exit 1
+fi
+
 # Return success
-[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
+exit 0
