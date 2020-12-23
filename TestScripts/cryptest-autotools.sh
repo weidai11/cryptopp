@@ -80,6 +80,12 @@ mkdir -p m4/
 
 #############################################################################
 
+echo "Running aclocal"
+if ! aclocal &>/dev/null; then
+	echo "aclocal failed."
+	exit 1
+fi
+
 echo "Running autoupdate"
 if ! autoupdate &>/dev/null; then
 	echo "autoupdate failed."
