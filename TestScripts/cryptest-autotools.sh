@@ -168,7 +168,7 @@ fi
 #############################################################################
 
 echo ""
-echo "Making tarball"
+echo "Building tarball"
 echo ""
 
 if ! make dist; then
