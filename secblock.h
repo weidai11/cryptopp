@@ -532,7 +532,7 @@ private:
 		CRYPTOPP_ASSERT(IsAlignedOn(ptr, 16));
 		// Verify the lower bound. This is Issue 982/988.
 		CRYPTOPP_ASSERT(
-			reinterpret_cast<uintptr_t>(ptr >=
+			reinterpret_cast<uintptr_t>(ptr) >=
 			  reinterpret_cast<uintptr_t>(m_array)
 		);
 		// Verify the upper bound. Allocated array with
