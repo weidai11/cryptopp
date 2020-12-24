@@ -517,23 +517,34 @@ private:
 	// The library is OK but users may hit it. So we need to guard
 	// for a large T, and that is what PAD achieves.
 	T* GetAlignedArray() {
-		T* p_array = reinterpret_cast<T*>(static_cast<void*>((reinterpret_cast<byte*>(m_array)) + (0-reinterpret_cast<size_t>(m_array))%16));
+
+		// m_array is aligned on 8 byte boundaries due to
+		// CRYPTOPP_ALIGN_DATA(8). If m_array%16 is 0, then
+		// the buffer is 16-byte aligned and nothing needs
+		// to be done. if m_array%16 is 8, then the buffer
+		// is not 16-byte aligned and we need to add 8.
+		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 8));
+		int off = reinterpret_cast<uintptr_t>(m_array) % 8;
+		byte* ptr = reinterpret_cast<byte*>(m_array) + off;
+
 		// Verify the 16-byte alignment
-		CRYPTOPP_ASSERT(IsAlignedOn(p_array, 16));
+		CRYPTOPP_ASSERT(IsAlignedOn(ptr, 16));
 		// Verify allocated array with pad is large enough.
-		CRYPTOPP_ASSERT(p_array+S*sizeof(T) <= m_array+(S+PAD));
-		return p_array;
+		CRYPTOPP_ASSERT(
+			reinterpret_cast<uintptr_t>(ptr+S*sizeof(T)) <=
+			  reinterpret_cast<uintptr_t>(m_array+(S+PAD))
+		);
+
+		// void* to silence Clang warnings
+		return reinterpret_cast<T*>(
+		  static_cast<void*>(ptr)
+		);
 	}
 
-#   if defined(_AIX)
-	// PAD is elements, not bytes, and rounded up to ensure no overflow.
-	enum { Q = sizeof(T), PAD = (Q >= 16) ? 1 : (Q >= 8) ? 2 : (Q >= 4) ? 4 : (Q >= 2) ? 8 : 16 };
-	CRYPTOPP_ALIGN_DATA(8) T m_array[S+PAD];
-#   else
 	// PAD is elements, not bytes, and rounded up to ensure no overflow.
 	enum { Q = sizeof(T), PAD = (Q >= 8) ? 1 : (Q >= 4) ? 2 : (Q >= 2) ? 4 : 8 };
+	// enum { Q = sizeof(T), PAD = (Q >= 16) ? 1 : (Q >= 8) ? 2 : (Q >= 4) ? 4 : (Q >= 2) ? 8 : 16 };
 	CRYPTOPP_ALIGN_DATA(8) T m_array[S+PAD];
-#   endif
 
 #else
 
