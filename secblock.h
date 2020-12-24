@@ -527,9 +527,16 @@ private:
 		int off = reinterpret_cast<uintptr_t>(m_array) % 8;
 		byte* ptr = reinterpret_cast<byte*>(m_array) + off;
 
-		// Verify the 16-byte alignment
+		// Verify the 16-byte alignment. This is the point
+		// of these extra gyrations.
 		CRYPTOPP_ASSERT(IsAlignedOn(ptr, 16));
-		// Verify allocated array with pad is large enough.
+		// Verify the lower bound. This is Issue 982/988.
+		CRYPTOPP_ASSERT(
+			reinterpret_cast<uintptr_t>(ptr >=
+			  reinterpret_cast<uintptr_t>(m_array)
+		);
+		// Verify the upper bound. Allocated array with
+		// pad is large enough.
 		CRYPTOPP_ASSERT(
 			reinterpret_cast<uintptr_t>(ptr+S*sizeof(T)) <=
 			  reinterpret_cast<uintptr_t>(m_array+(S+PAD))
