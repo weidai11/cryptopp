@@ -255,11 +255,11 @@ bool TestSettings()
 
 	if (sizeof(void*) == 8)
 	{
-		std::cout << "Your machine is 64-bit.\n";
+		std::cout << "passed:  Your machine is 64-bit.\n";
 	}
 	else if (sizeof(void*) == 4)
 	{
-		std::cout << "Your machine is 32-bit.\n";
+		std::cout << "passed:  Your machine is 32-bit.\n";
 	}
 	else
 	{
