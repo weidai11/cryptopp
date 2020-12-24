@@ -708,13 +708,9 @@ public:
 
 private:
 
-	// The 8-byte alignments follows convention of Linux and Windows.
-	// Linux and Windows receives most testing. Duplicate it here for
-	// other platforms like AIX and Solaris. AIX and Solaris often use
-	// alignments smaller than expected. In fact AIX caught us by
-	// surprise with word16 and word32.
+	// T_Align16 is false. Use natural alignment of T.
 	T* GetAlignedArray() {return m_array;}
-	CRYPTOPP_ALIGN_DATA(8) T m_array[S];
+	T m_array[S];
 
 	A m_fallbackAllocator;
 	bool m_allocated;
