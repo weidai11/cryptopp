@@ -521,7 +521,7 @@ private:
 		// Verify the 16-byte alignment
 		CRYPTOPP_ASSERT(IsAlignedOn(p_array, 16));
 		// Verify allocated array with pad is large enough.
-		CRYPTOPP_ASSERT(p_array+S <= m_array+(S+PAD));
+		CRYPTOPP_ASSERT(p_array+S*sizeof(T) <= m_array+(S+PAD));
 		return p_array;
 	}
 
