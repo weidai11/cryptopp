@@ -524,7 +524,7 @@ private:
 		// to be done. if m_array%16 is 8, then the buffer
 		// is not 16-byte aligned and we need to add 8.
 		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 8));
-		int off = reinterpret_cast<uintptr_t>(m_array) % 8;
+		int off = reinterpret_cast<uintptr_t>(m_array) % 16;
 		byte* ptr = reinterpret_cast<byte*>(m_array) + off;
 
 		// Verify the 16-byte alignment. This is the point
