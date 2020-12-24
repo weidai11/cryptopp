@@ -253,6 +253,20 @@ bool TestSettings()
 		pass = false;
 	}
 
+	if (sizeof(void*) == 8)
+	{
+		std::cout << "Your machine is 64-bit.\n";
+	}
+	else if (sizeof(void*) == 4)
+	{
+		std::cout << "Your machine is 32-bit.\n";
+	}
+	else
+	{
+		std::cout << "FAILED:  Your machine is neither 32-bit nor 64-bit.\n";
+		pass = false;
+	}
+
 #if defined(CRYPTOPP_EXTENDED_VALIDATION)
 	// App and library versions, http://github.com/weidai11/cryptopp/issues/371
 	const int v1 = LibraryVersion();
@@ -266,9 +280,6 @@ bool TestSettings()
 	}
 	std::cout << "Library version (library): " << v1 << ", header version (app): " << v2 << "\n";
 #endif
-
-	// CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS removed at Issue 682.
-	std::cout << "passed:  Aligned data access.\n";
 
 	if (sizeof(byte) == 1)
 		std::cout << "passed:  ";
