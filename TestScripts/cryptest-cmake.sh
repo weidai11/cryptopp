@@ -40,9 +40,9 @@ for file in "${files[@]}"; do
 	fi
 done
 
-rm -rf "$PWD_DIR/cmake_build"
-mkdir -p "$PWD_DIR/cmake_build"
-cd "$PWD_DIR/cmake_build"
+rm -rf "$(pwd)/cmake_build"
+mkdir -p "$(pwd)/cmake_build"
+cd "$(pwd)/cmake_build" || exit 1
 
 #############################################################################
 
