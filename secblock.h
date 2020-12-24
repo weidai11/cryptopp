@@ -509,13 +509,13 @@ private:
 	//
 	// The 16-byte alignment is achieved by padding the requested
 	// size with extra elements so we have at least 16-bytes of slack
-	// to work with. Then the pointer is moved down to achieve a
-	// 16-byte alignment (stacks grow down).
+	// to work with. Then the array pointer is moved to achieve a
+	// 16-byte alignment.
 	//
 	// The additional 16-bytes introduces a small secondary issue.
 	// The secondary issue is, a large T results in 0 = 8/sizeof(T).
 	// The library is OK but users may hit it. So we need to guard
-	// for a large T, and that is what PAD achieves.
+	// for a large T, and that is what the enum and PAD achieves.
 	T* GetAlignedArray() {
 
 		// m_array is aligned on 8 byte boundaries due to
