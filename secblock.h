@@ -336,7 +336,7 @@ template <class T, size_t S, class A = NullAllocator<T>, bool T_Align16 = false>
 class FixedSizeAllocatorWithCleanup : public AllocatorBase<T>
 {
 	// The body of FixedSizeAllocatorWithCleanup is provided in the two
-	// partial specializations that follow. The two specialiations
+	// partial specializations that follow. The two specializations
 	// pivot on the boolean template parameter T_Align16. AIX, Solaris,
 	// IBM XLC and SunCC receive a little extra help. We managed to
 	// clear most of the warnings.
