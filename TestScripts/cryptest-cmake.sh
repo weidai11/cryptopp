@@ -1,11 +1,5 @@
 #!/usr/bin/env bash
 
-PWD_DIR=$(pwd)
-function cleanup {
-    cd "$PWD_DIR"
-}
-trap cleanup EXIT
-
 # Fixup ancient Bash
 # https://unix.stackexchange.com/q/468579/56041
 if [[ -z "$BASH_SOURCE" ]]; then
@@ -56,7 +50,7 @@ echo ""
 echo "Building test artifacts"
 echo ""
 
-if [[ ! -z "$CXX" ]];
+if [[ -n "$CXX" ]];
 then
 	if ! CXX="$CXX" "$CMAKE" -DCMAKE_CXX_COMPILER="$CXX" ../; then
 		echo "cmake failed"
