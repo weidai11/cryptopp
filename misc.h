@@ -1113,7 +1113,7 @@ inline T2 ModPowerOf2(const T1 &a, const T2 &b)
 /// \tparam T1 class or type
 /// \tparam T2 class or type
 /// \param n the value to reduce
-/// \param m the value to reduce \n to to a multiple
+/// \param m the value to reduce \n to a multiple
 /// \return the possibly unmodified value \n
 /// \details RoundDownToMultipleOf is effectively a floor function based on m. The function returns
 ///  the value <tt>n - n\%m</tt>. If n is a multiple of m, then the original value is returned.
@@ -1142,7 +1142,7 @@ inline T1 RoundDownToMultipleOf(const T1 &n, const T2 &m)
 /// \tparam T1 class or type
 /// \tparam T2 class or type
 /// \param n the value to reduce
-/// \param m the value to reduce \n to to a multiple
+/// \param m the value to reduce \n to a multiple
 /// \return the possibly unmodified value \n
 /// \details RoundUpToMultipleOf is effectively a ceiling function based on m. The function
 ///  returns the value <tt>n + n\%m</tt>. If n is a multiple of m, then the original value is
