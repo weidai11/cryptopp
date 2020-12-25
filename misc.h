@@ -1170,12 +1170,11 @@ inline T1 RoundUpToMultipleOf(const T1 &n, const T2 &m)
 /// \brief Returns the minimum alignment requirements of a type
 /// \tparam T class or type
 /// \return the minimum alignment requirements of <tt>T</tt>, in bytes
-/// \details Internally the function calls C++11's <tt>alignof</tt> if available. If not
-///  available, then the function uses compiler specific extensions such as
-///  <tt>__alignof</tt> and <tt>_alignof_</tt>. If an extension is not available, then
-///  the function uses <tt>__BIGGEST_ALIGNMENT__</tt> if <tt>__BIGGEST_ALIGNMENT__</tt>
-///  is smaller than <tt>sizeof(T)</tt>. <tt>sizeof(T)</tt> is used if all others are
-///  not available.
+/// \details Internally the function calls C++11's <tt>alignof</tt> if
+///  available. If not available, then the function uses compiler
+///  specific extensions such as <tt>__alignof</tt> and <tt>_alignof_</tt>.
+///  If an extension is not available, then the function uses
+///  <tt>sizeof(T)</tt>.
 template <class T>
 inline unsigned int GetAlignmentOf()
 {
