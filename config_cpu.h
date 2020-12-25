@@ -132,6 +132,10 @@
 	/// \brief L1 data cache line size
 	/// \details CRYPTOPP_L1_CACHE_LINE_SIZE should be a lower bound on the L1
 	///  data cache line size. It is used for defense against some timing attacks.
+	/// \details CRYPTOPP_L1_CACHE_LINE_SIZE default value on 32-bit platforms
+	///  is 32, and the default value on 64-bit platforms is 64. On PowerPC the
+	///  default value is 128 since all PowerPC cpu's starting at PPC 970 provide
+	///  it.
 	/// \note The runtime library on some PowerPC platforms misreport the size
 	///  of the cache line size. The runtime library reports 64, while the cpu
 	///  has a cache line size of 128.
@@ -142,8 +146,11 @@
 #else
 	#ifndef CRYPTOPP_L1_CACHE_LINE_SIZE
 		#if defined(CRYPTOPP_BOOL_X32) || defined(CRYPTOPP_BOOL_X64) || defined(CRYPTOPP_BOOL_ARMV8) || \
-			defined(CRYPTOPP_BOOL_PPC64) || defined(CRYPTOPP_BOOL_MIPS64) || defined(CRYPTOPP_BOOL_SPARC64)
+		    defined(CRYPTOPP_BOOL_MIPS64) || defined(CRYPTOPP_BOOL_SPARC64)
 			#define CRYPTOPP_L1_CACHE_LINE_SIZE 64
+		#elif defined(CRYPTOPP_BOOL_PPC32) || defined(CRYPTOPP_BOOL_PPC64)
+			// http://lists.llvm.org/pipermail/llvm-dev/2017-March/110982.html
+			#define CRYPTOPP_L1_CACHE_LINE_SIZE 128
 		#else
 			// L1 cache line size is 32 on Pentium III and earlier
 			#define CRYPTOPP_L1_CACHE_LINE_SIZE 32
