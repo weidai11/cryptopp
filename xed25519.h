@@ -11,27 +11,27 @@
 /// \file xed25519.h
 /// \brief Classes for x25519 and ed25519 operations
 /// \details This implementation integrates Andrew Moon's public domain code
-///   for curve25519-donna and ed25519-donna.
+///  for curve25519-donna and ed25519-donna.
 /// \details Moving keys into and out of the library proceeds as follows.
-///   If an Integer class is accepted or returned, then the data is in big
-///   endian format. That is, the MSB is at byte position 0, and the LSB
-///   is at byte position 31. The Integer will work as expected, just like
-///   an int or a long.
+///  If an Integer class is accepted or returned, then the data is in big
+///  endian format. That is, the MSB is at byte position 0, and the LSB
+///  is at byte position 31. The Integer will work as expected, just like
+///  an int or a long.
 /// \details If a byte array is accepted, then the byte array is in little
-///   endian format. That is, the LSB is at byte position 0, and the MSB is
-///   at byte position 31. This follows the implementation where byte 0 is
-///   clamed with 248. That is my_arr[0] &= 248 to mask the lower 3 bits.
+///  endian format. That is, the LSB is at byte position 0, and the MSB is
+///  at byte position 31. This follows the implementation where byte 0 is
+///  clamed with 248. That is my_arr[0] &= 248 to mask the lower 3 bits.
 /// \details PKCS8 and X509 keys encoded using ASN.1 follow little endian
-///   arrays. The format is specified in <A HREF=
-///   "http:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>.
+///  arrays. The format is specified in <A HREF=
+///  "http:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>.
 /// \details If you have a little endian array and you want to wrap it in
-///   an Integer using big endian then you can perform the following:
+///  an Integer using big endian then you can perform the following:
 /// <pre>Integer x(my_arr, SECRET_KEYLENGTH, UNSIGNED, LITTLE_ENDIAN_ORDER);</pre>
 /// \sa Andrew Moon's x22519 GitHub <A
-///   HREF="http://github.com/floodyberry/curve25519-donna">curve25519-donna</A>,
-///   ed22519 GitHub <A
-///   HREF="http://github.com/floodyberry/ed25519-donna">ed25519-donna</A>, and
-///   <A HREF="http:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>
+///  HREF="http://github.com/floodyberry/curve25519-donna">curve25519-donna</A>,
+///  ed22519 GitHub <A
+///  HREF="http://github.com/floodyberry/ed25519-donna">ed25519-donna</A>, and
+///  <A HREF="http:///tools.ietf.org/html/draft-ietf-curdle-pkix">draft-ietf-curdle-pkix</A>
 /// \since Crypto++ 8.0
 
 #ifndef CRYPTOPP_XED25519_H
@@ -68,9 +68,9 @@ public:
 
     /// \brief Create a x25519 object
     /// \details This constructor creates an empty x25519 object. It is
-    ///   intended for use in loading existing parameters, like CryptoBox
-    ///   parameters. If you are perfoming key agreement you should use a
-    ///    constructor that generates random parameters on construction.
+    ///  intended for use in loading existing parameters, like CryptoBox
+    ///  parameters. If you are perfoming key agreement you should use a
+    ///   constructor that generates random parameters on construction.
     x25519() {}
 
     /// \brief Create a x25519 object
@@ -83,7 +83,7 @@ public:
     /// \brief Create a x25519 object
     /// \param x private key
     /// \details This constructor creates a x25519 object using existing parameters.
-    ///   The public key is calculated from the private key.
+    ///  The public key is calculated from the private key.
     x25519(const byte x[SECRET_KEYLENGTH]);
 
     /// \brief Create a x25519 object
@@ -96,7 +96,7 @@ public:
     /// \brief Create a x25519 object
     /// \param x private key
     /// \details This constructor creates a x25519 object using existing parameters.
-    ///   The public key is calculated from the private key.
+    ///  The public key is calculated from the private key.
     x25519(const Integer &x);
 
     /// \brief Create a x25519 object
@@ -107,20 +107,20 @@ public:
     /// \brief Create a x25519 object
     /// \param params public and private key
     /// \details This constructor creates a x25519 object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
+    ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     x25519(BufferedTransformation &params);
 
     /// \brief Create a x25519 object
     /// \param oid an object identifier
     /// \details This constructor creates a new x25519 using the specified OID. The public
-    ///   and private points are uninitialized.
+    ///  and private points are uninitialized.
     x25519(const OID &oid);
 
     /// \brief Clamp a private key
     /// \param x private key
     /// \details ClampKeys() clamps a private key and then regenerates the
-    ///   public key from the private key.
+    ///  public key from the private key.
     void ClampKey(byte x[SECRET_KEYLENGTH]) const;
 
     /// \brief Determine if private key is clamped
@@ -134,7 +134,7 @@ public:
     /// \brief Get the Object Identifier
     /// \return the Object Identifier
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
-    ///   The default private key format is RFC 5208.
+    ///  The default private key format is RFC 5208.
     OID GetAlgorithmID() const {
         return m_oid.Empty() ? ASN1::X25519() : m_oid;
     }
@@ -156,14 +156,14 @@ public:
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \details Save() will write the OID associated with algorithm or scheme.
-    ///   In the case of public and private keys, this function writes the
-    ///   subjectPubicKeyInfo parts.
+    ///  In the case of public and private keys, this function writes the
+    ///  subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
-    ///   The default private key format is RFC 5208, which is the old format.
-    ///   The old format provides the best interop, and keys will work
-    ///   with OpenSSL.
+    ///  The default private key format is RFC 5208, which is the old format.
+    ///  The old format provides the best interop, and keys will work
+    ///  with OpenSSL.
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
     }
@@ -172,17 +172,17 @@ public:
     /// \param bt BufferedTransformation object
     /// \param v1 flag indicating v1
     /// \details Save() will write the OID associated with algorithm or scheme.
-    ///   In the case of public and private keys, this function writes the
-    ///   subjectPubicKeyInfo parts.
+    ///  In the case of public and private keys, this function writes the
+    ///  subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
-    ///   The default private key format is RFC 5208.
+    ///  The default private key format is RFC 5208.
     /// \details v1 means INTEGER 0 is written. INTEGER 0 means
-    ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The other
-    ///   option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
-    ///   which is the new format.
+    ///  RFC 5208 format, which is the old format. The old format provides
+    ///  the best interop, and keys will work with OpenSSL. The other
+    ///  option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
+    ///  which is the new format.
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Save(BufferedTransformation &bt, bool v1) const {
         DEREncode(bt, v1 ? 0 : 1);
     }
@@ -190,7 +190,7 @@ public:
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
     }
@@ -205,28 +205,28 @@ public:
     /// \param bt BufferedTransformation object
     /// \param version indicates version
     /// \details DEREncode() will write the OID associated with algorithm or
-    ///   scheme. In the case of public and private keys, this function writes
-    ///   the subjectPubicKeyInfo parts.
+    ///  scheme. In the case of public and private keys, this function writes
+    ///  the subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
-    ///   The default private key format is RFC 5208.
+    ///  The default private key format is RFC 5208.
     /// \details The value of version is written as the INTEGER. INTEGER 0 means
-    ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The INTEGER 1
-    ///   means RFC 5958 format, which is the new format.
+    ///  RFC 5208 format, which is the old format. The old format provides
+    ///  the best interop, and keys will work with OpenSSL. The INTEGER 1
+    ///  means RFC 5958 format, which is the new format.
     void DEREncode(BufferedTransformation &bt, int version) const;
 
     /// \brief Determine if OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
-    ///   <tt>bt</tt> and determines if it valid for this object. The
-    ///   problem in practice is there are multiple OIDs available to
-    ///   denote curve25519 operations. The OIDs include an old GNU
-    ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
-    ///   and OIDs specified in draft-ietf-curdle-pkix.
+    ///  <tt>bt</tt> and determines if it valid for this object. The
+    ///  problem in practice is there are multiple OIDs available to
+    ///  denote curve25519 operations. The OIDs include an old GNU
+    ///  OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
+    ///  and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
-    ///   OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::X25519()</tt>.
-    ///   <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
-    ///   curve25519 operations". <tt>ASN1::X25519()</tt> is specific and says
-    ///   "this key is valid for x25519 key exchange."
+    ///  OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::X25519()</tt>.
+    ///  <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
+    ///  curve25519 operations". <tt>ASN1::X25519()</tt> is specific and says
+    ///  "this key is valid for x25519 key exchange."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // DL_PrivateKey
@@ -256,25 +256,25 @@ protected:
 
 /// \brief ed25519 message accumulator
 /// \details ed25519 buffers the entire message, and does not
-///   digest the message incrementally. You should be careful with
-///   large messages like files on-disk. The behavior is by design
-///   because Bernstein feels small messages should be authenticated;
-///   and larger messages will be digested by the application.
+///  digest the message incrementally. You should be careful with
+///  large messages like files on-disk. The behavior is by design
+///  because Bernstein feels small messages should be authenticated;
+///  and larger messages will be digested by the application.
 /// \details The accumulator is used for signing and verification.
-///   The first 64-bytes of storage is reserved for the signature.
-///   During signing the signature storage is unused. During
-///   verification the first 64 bytes holds the signature. The
-///   signature is provided by the PK_Verifier framework and the
-///   call to PK_Signer::InputSignature. Member functions data()
-///   and size() refer to the accumulated message. Member function
-///   signature() refers to the signature with an implicit size of
-///   SIGNATURE_LENGTH bytes.
+///  The first 64-bytes of storage is reserved for the signature.
+///  During signing the signature storage is unused. During
+///  verification the first 64 bytes holds the signature. The
+///  signature is provided by the PK_Verifier framework and the
+///  call to PK_Signer::InputSignature. Member functions data()
+///  and size() refer to the accumulated message. Member function
+///  signature() refers to the signature with an implicit size of
+///  SIGNATURE_LENGTH bytes.
 /// \details Applications which digest large messages, like an ISO
-///   disk file, should take care because the design effectively
-///   disgorges the format operation from the signing operation.
-///   Put another way, be careful to ensure what you are signing is
-///   is in fact a digest of the intended message, and not a different
-///   message digest supplied by an attacker.
+///  disk file, should take care because the design effectively
+///  disgorges the format operation from the signing operation.
+///  Put another way, be careful to ensure what you are signing is
+///  is in fact a digest of the intended message, and not a different
+///  message digest supplied by an attacker.
 struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 {
     CRYPTOPP_CONSTANT(RESERVE_SIZE=2048+64);
@@ -287,7 +287,7 @@ struct ed25519_MessageAccumulator : public PK_MessageAccumulator
 
     /// \brief Create a message accumulator
     /// \details ed25519 does not use a RNG. You can safely use
-    ///   NullRNG() because IsProbablistic returns false.
+    ///  NullRNG() because IsProbablistic returns false.
     ed25519_MessageAccumulator(RandomNumberGenerator &rng) {
         CRYPTOPP_UNUSED(rng); Restart();
     }
@@ -337,20 +337,20 @@ protected:
 
 /// \brief Ed25519 private key
 /// \details ed25519PrivateKey is somewhat of a hack. It needed to
-///   provide DL_PrivateKey interface to fit into the existing
-///   framework, but it lacks a lot of the internals of a true
-///   DL_PrivateKey. The missing pieces include GroupParameters
-///   and Point, which provide the low level field operations
-///   found in traditional implementations like NIST curves over
-///   prime and binary fields.
+///  provide DL_PrivateKey interface to fit into the existing
+///  framework, but it lacks a lot of the internals of a true
+///  DL_PrivateKey. The missing pieces include GroupParameters
+///  and Point, which provide the low level field operations
+///  found in traditional implementations like NIST curves over
+///  prime and binary fields.
 /// \details ed25519PrivateKey is also unusual because the
-///   class members of interest are byte arrays and not Integers.
-///   In addition, the byte arrays are little-endian meaning
-///   LSB is at element 0 and the MSB is at element 31.
-///   If you call GetPrivateExponent() then the little-endian byte
-///   array is converted to a big-endian Integer() so it can be
-///   returned the way a caller expects. And calling
-///   SetPrivateExponent perfoms a similar internal conversion.
+///  class members of interest are byte arrays and not Integers.
+///  In addition, the byte arrays are little-endian meaning
+///  LSB is at element 0 and the MSB is at element 31.
+///  If you call GetPrivateExponent() then the little-endian byte
+///  array is converted to a big-endian Integer() so it can be
+///  returned the way a caller expects. And calling
+///  SetPrivateExponent perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PrivateKey : public PKCS8PrivateKey
 {
@@ -362,8 +362,8 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     /// \brief Size of the siganture
     /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
-    ///   ed25519 is a DL-based signature scheme. The signature is the
-    ///   concatenation of <tt>r || s</tt>.
+    ///  ed25519 is a DL-based signature scheme. The signature is the
+    ///  concatenation of <tt>r || s</tt>.
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
 
     // CryptoMaterial
@@ -379,14 +379,14 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \details Save() will write the OID associated with algorithm or scheme.
-    ///   In the case of public and private keys, this function writes the
-    ///   subjectPubicKeyInfo parts.
+    ///  In the case of public and private keys, this function writes the
+    ///  subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-Ed25519</tt>.
-    ///   The default private key format is RFC 5208, which is the old format.
-    ///   The old format provides the best interop, and keys will work
-    ///   with OpenSSL.
+    ///  The default private key format is RFC 5208, which is the old format.
+    ///  The old format provides the best interop, and keys will work
+    ///  with OpenSSL.
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt, 0);
     }
@@ -395,17 +395,17 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param bt BufferedTransformation object
     /// \param v1 flag indicating v1
     /// \details Save() will write the OID associated with algorithm or scheme.
-    ///   In the case of public and private keys, this function writes the
-    ///   subjectPubicKeyInfo parts.
+    ///  In the case of public and private keys, this function writes the
+    ///  subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-Ed25519</tt>.
-    ///   The default private key format is RFC 5208.
+    ///  The default private key format is RFC 5208.
     /// \details v1 means INTEGER 0 is written. INTEGER 0 means
-    ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The other
-    ///   option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
-    ///   which is the new format.
+    ///  RFC 5208 format, which is the old format. The old format provides
+    ///  the best interop, and keys will work with OpenSSL. The other
+    ///  option uses INTEGER 1. INTEGER 1 means RFC 5958 format,
+    ///  which is the new format.
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Save(BufferedTransformation &bt, bool v1) const {
         DEREncode(bt, v1 ? 0 : 1);
     }
@@ -413,7 +413,7 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
     }
@@ -432,28 +432,28 @@ struct ed25519PrivateKey : public PKCS8PrivateKey
     /// \param bt BufferedTransformation object
     /// \param version indicates version
     /// \details DEREncode() will write the OID associated with algorithm or
-    ///   scheme. In the case of public and private keys, this function writes
-    ///   the subjectPubicKeyInfo parts.
+    ///  scheme. In the case of public and private keys, this function writes
+    ///  the subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
-    ///   The default private key format is RFC 5208.
+    ///  The default private key format is RFC 5208.
     /// \details The value of version is written as the INTEGER. INTEGER 0 means
-    ///   RFC 5208 format, which is the old format. The old format provides
-    ///   the best interop, and keys will work with OpenSSL. The INTEGER 1
-    ///   means RFC 5958 format, which is the new format.
+    ///  RFC 5208 format, which is the old format. The old format provides
+    ///  the best interop, and keys will work with OpenSSL. The INTEGER 1
+    ///  means RFC 5958 format, which is the new format.
     void DEREncode(BufferedTransformation &bt, int version) const;
 
     /// \brief Determine if OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
-    ///   <tt>bt</tt> and determines if it valid for this object. The
-    ///   problem in practice is there are multiple OIDs available to
-    ///   denote curve25519 operations. The OIDs include an old GNU
-    ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
-    ///   and OIDs specified in draft-ietf-curdle-pkix.
+    ///  <tt>bt</tt> and determines if it valid for this object. The
+    ///  problem in practice is there are multiple OIDs available to
+    ///  denote curve25519 operations. The OIDs include an old GNU
+    ///  OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
+    ///  and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
-    ///   OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::Ed25519()</tt>.
-    ///   <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
-    ///   curve25519 operations". <tt>ASN1::Ed25519()</tt> is specific and says
-    ///   "this key is valid for ed25519 signing."
+    ///  OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::Ed25519()</tt>.
+    ///  <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
+    ///  curve25519 operations". <tt>ASN1::Ed25519()</tt> is specific and says
+    ///  "this key is valid for ed25519 signing."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     // PKCS8PrivateKey
@@ -503,8 +503,8 @@ struct ed25519Signer : public PK_Signer
     CRYPTOPP_CONSTANT(PUBLIC_KEYLENGTH = 32);
     /// \brief Size of the siganture
     /// \details SIGNATURE_LENGTH is the size of the signature, in bytes.
-    ///   ed25519 is a DL-based signature scheme. The signature is the
-    ///   concatenation of <tt>r || s</tt>.
+    ///  ed25519 is a DL-based signature scheme. The signature is the
+    ///  concatenation of <tt>r || s</tt>.
     CRYPTOPP_CONSTANT(SIGNATURE_LENGTH = 64);
     typedef Integer Element;
 
@@ -523,7 +523,7 @@ struct ed25519Signer : public PK_Signer
     /// \brief Create a ed25519Signer object
     /// \param x private key
     /// \details This constructor creates a ed25519Signer object using existing parameters.
-    ///   The public key is calculated from the private key.
+    ///  The public key is calculated from the private key.
     ed25519Signer(const byte x[SECRET_KEYLENGTH]);
 
     /// \brief Create a ed25519Signer object
@@ -536,7 +536,7 @@ struct ed25519Signer : public PK_Signer
     /// \brief Create a ed25519Signer object
     /// \param x private key
     /// \details This constructor creates a ed25519Signer object using existing parameters.
-    ///   The public key is calculated from the private key.
+    ///  The public key is calculated from the private key.
     ed25519Signer(const Integer &x);
 
     /// \brief Create a ed25519Signer object
@@ -547,7 +547,7 @@ struct ed25519Signer : public PK_Signer
     /// \brief Create a ed25519Signer object
     /// \param params public and private key
     /// \details This constructor creates a ed25519Signer object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
+    ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Signer(BufferedTransformation &params);
 
@@ -593,7 +593,7 @@ struct ed25519Signer : public PK_Signer
     /// \details SignStream() handles large streams. The Stream functions were added to
     ///  ed25519 for signing and verifying files that are too large for a memory allocation.
     ///  The functions are not present in other library signers and verifiers.
-    /// \details ed25519 is a determinsitic signature scheme. <tt>IsProbabilistic()</tt>
+    /// \details ed25519 is a deterministic signature scheme. <tt>IsProbabilistic()</tt>
     ///  returns false and the random number generator can be <tt>NullRNG()</tt>.
     /// \pre <tt>COUNTOF(signature) == MaxSignatureLength()</tt>
     /// \since Crypto++ 8.1
@@ -607,20 +607,20 @@ protected:
 
 /// \brief Ed25519 public key
 /// \details ed25519PublicKey is somewhat of a hack. It needed to
-///   provide DL_PublicKey interface to fit into the existing
-///   framework, but it lacks a lot of the internals of a true
-///   DL_PublicKey. The missing pieces include GroupParameters
-///   and Point, which provide the low level field operations
-///   found in traditional implementations like NIST curves over
-///   prime and binary fields.
+///  provide DL_PublicKey interface to fit into the existing
+///  framework, but it lacks a lot of the internals of a true
+///  DL_PublicKey. The missing pieces include GroupParameters
+///  and Point, which provide the low level field operations
+///  found in traditional implementations like NIST curves over
+///  prime and binary fields.
 /// \details ed25519PublicKey is also unusual because the
-///   class members of interest are byte arrays and not Integers.
-///   In addition, the byte arrays are little-endian meaning
-///   LSB is at element 0 and the MSB is at element 31.
-///   If you call GetPublicElement() then the little-endian byte
-///   array is converted to a big-endian Integer() so it can be
-///   returned the way a caller expects. And calling
-///   SetPublicElement() perfoms a similar internal conversion.
+///  class members of interest are byte arrays and not Integers.
+///  In addition, the byte arrays are little-endian meaning
+///  LSB is at element 0 and the MSB is at element 31.
+///  If you call GetPublicElement() then the little-endian byte
+///  array is converted to a big-endian Integer() so it can be
+///  returned the way a caller expects. And calling
+///  SetPublicElement() perfoms a similar internal conversion.
 /// \since Crypto++ 8.0
 struct ed25519PublicKey : public X509PublicKey
 {
@@ -636,12 +636,12 @@ struct ed25519PublicKey : public X509PublicKey
     /// \brief DER encode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \details Save() will write the OID associated with algorithm or scheme.
-    ///   In the case of public and private keys, this function writes the
-    ///   subjectPubicKeyInfo parts.
+    ///  In the case of public and private keys, this function writes the
+    ///  subjectPubicKeyInfo parts.
     /// \details The default OID is from RFC 8410 using <tt>id-X25519</tt>.
-    ///   The default private key format is RFC 5208, which is the old format.
-    ///   The old format provides the best interop, and keys will work
-    ///   with OpenSSL.
+    ///  The default private key format is RFC 5208, which is the old format.
+    ///  The old format provides the best interop, and keys will work
+    ///  with OpenSSL.
     void Save(BufferedTransformation &bt) const {
         DEREncode(bt);
     }
@@ -649,7 +649,7 @@ struct ed25519PublicKey : public X509PublicKey
     /// \brief BER decode ASN.1 object
     /// \param bt BufferedTransformation object
     /// \sa <A HREF="http://tools.ietf.org/rfc/rfc5958.txt">RFC 5958, Asymmetric
-    ///   Key Packages</A>
+    ///  Key Packages</A>
     void Load(BufferedTransformation &bt) {
         BERDecode(bt);
     }
@@ -662,16 +662,16 @@ struct ed25519PublicKey : public X509PublicKey
 
     /// \brief Determine if OID is valid for this object
     /// \details BERDecodeAndCheckAlgorithmID() parses the OID from
-    ///   <tt>bt</tt> and determines if it valid for this object. The
-    ///   problem in practice is there are multiple OIDs available to
-    ///   denote curve25519 operations. The OIDs include an old GNU
-    ///   OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
-    ///   and OIDs specified in draft-ietf-curdle-pkix.
+    ///  <tt>bt</tt> and determines if it valid for this object. The
+    ///  problem in practice is there are multiple OIDs available to
+    ///  denote curve25519 operations. The OIDs include an old GNU
+    ///  OID used by SSH, OIDs specified in draft-josefsson-pkix-newcurves,
+    ///  and OIDs specified in draft-ietf-curdle-pkix.
     /// \details By default BERDecodeAndCheckAlgorithmID() accepts an
-    ///   OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::Ed25519()</tt>.
-    ///   <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
-    ///   curve25519 operations". <tt>ASN1::Ed25519()</tt> is specific and says
-    ///   "this key is valid for ed25519 signing."
+    ///  OID set by the user, <tt>ASN1::curve25519()</tt> and <tt>ASN1::Ed25519()</tt>.
+    ///  <tt>ASN1::curve25519()</tt> is generic and says "this key is valid for
+    ///  curve25519 operations". <tt>ASN1::Ed25519()</tt> is specific and says
+    ///  "this key is valid for ed25519 signing."
     void BERDecodeAndCheckAlgorithmID(BufferedTransformation& bt);
 
     bool Validate(RandomNumberGenerator &rng, unsigned int level) const;
@@ -724,14 +724,14 @@ struct ed25519Verifier : public PK_Verifier
     /// \brief Create a ed25519Verifier object
     /// \param params public and private key
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
+    ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Verifier(BufferedTransformation &params);
 
     /// \brief Create a ed25519Verifier object
     /// \param signer ed25519 signer object
     /// \details This constructor creates a ed25519Verifier object using existing parameters.
-    ///   The <tt>params</tt> can be created with <tt>Save</tt>.
+    ///  The <tt>params</tt> can be created with <tt>Save</tt>.
     /// \note The public key is not validated.
     ed25519Verifier(const ed25519Signer& signer);
 

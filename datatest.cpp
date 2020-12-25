@@ -380,7 +380,7 @@ void TestSignatureScheme(TestData &v)
 	{
 		// This test is specialized for RFC 6979. The RFC is a drop-in replacement
 		// for DSA and ECDSA, and access to the seed or secret is not needed. If
-		// additional determinsitic signatures are added, then the test harness will
+		// additional deterministic signatures are added, then the test harness will
 		// likely need to be extended.
 		std::string signature;
 		SignerFilter f(Test::GlobalRNG(), *signer, new StringSink(signature));
