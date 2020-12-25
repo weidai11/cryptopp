@@ -4,11 +4,14 @@
 
 /// \file config_int.h
 /// \brief Library configuration file
+/// \details <tt>config_int.h</tt> provides defines and typedefs for integers.
 /// \details <tt>config.h</tt> was split into components in May 2019 to better
 ///  integrate with Autoconf and its feature tests. The splitting occurred so
 ///  users could continue to include <tt>config.h</tt> while allowing Autoconf
 ///  to write new <tt>config_asm.h</tt> and new <tt>config_cxx.h</tt> using
 ///  its feature tests.
+/// \note You should include <tt>config.h</tt> rather than <tt>config_int.h</tt>
+///  directly.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835</A>
 /// \since Crypto++ 8.3
 
