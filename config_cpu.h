@@ -13,7 +13,8 @@
 ///  its feature tests.
 /// \note You should include <tt>config.h</tt> rather than <tt>config_cpu.h</tt>
 ///  directly.
-/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835</A>
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835:
+///  Make config.h more autoconf friendly</A>,
 ///  <A HREF="https://sourceforge.net/p/predef/wiki/Architectures/">Sourceforge
 ///  Pre-defined Compiler Macros</A>
 /// \since Crypto++ 8.3
@@ -131,7 +132,7 @@
 	/// \brief L1 data cache line size
 	/// \details CRYPTOPP_L1_CACHE_LINE_SIZE should be a lower bound on the L1
 	///  data cache line size. It is used for defense against some timing attacks.
-	/// \note: The runtime library on some PowerPC platforms misreport the size
+	/// \note The runtime library on some PowerPC platforms misreport the size
 	///  of the cache line size. The runtime library reports 64, while the cpu
 	///  has a cache line size of 128.
 	/// \sa <A HREF="https://bugs.centos.org/view.php?id=14599">CentOS Issue
