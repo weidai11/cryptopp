@@ -634,7 +634,8 @@ ifeq ($(DETECT_FEATURES),1)
   # IBM XL C/C++ has the -qaltivec flag really screwed up. We can't seem
   # to get it enabled without an -qarch= option. And -qarch= produces an
   # error on later versions of the compiler. The only thing that seems
-  # to work consistently is -qarch=auto.
+  # to work consistently is -qarch=auto. -qarch=auto is equivalent to
+  # GCC's -march=native, which we don't really want.
 
   # XLC requires -qaltivec in addition to Arch or CPU option
   ifeq ($(XLC_COMPILER),1)
@@ -653,7 +654,7 @@ ifeq ($(DETECT_FEATURES),1)
 
   # GCC 10 is giving us trouble in CPU_ProbePower9() and
   # CPU_ProbeDARN(). GCC is generating POWER9 instructions
-  # on POWER8 for ppc_power9.cpp. The compiler idiots did
+  # on POWER8 for ppc_power9.cpp. The compiler folks did
   # not think through the consequences of requiring us to
   # use -mcpu=power9 to unlock the ISA. Epic fail.
   # https:#github.com/weidai11/cryptopp/issues/986
