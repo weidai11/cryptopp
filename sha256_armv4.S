@@ -64,7 +64,7 @@
 #  endif
 # endif
 
-# define ARMV7_NEON      (1<<0)
+# define CRYPTOGAMS_ARMV7_NEON      (1<<0)
 
 @ JW, MAY 2019: End defines from taken from arm_arch.h
 @               Back to original Cryptogams code
@@ -101,16 +101,16 @@ K256:
 .word	0				@ terminator
 
 .align	5
-.globl	sha256_block_data_order
-.type	sha256_block_data_order,%function
+.globl	cryptogams_sha256_block_data_order
+.type	cryptogams_sha256_block_data_order,%function
 
-sha256_block_data_order:
-.Lsha256_block_data_order:
+cryptogams_sha256_block_data_order:
+.Lcryptogams_sha256_block_data_order:
 
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
-	sub	r3,pc,#8		@ sha256_block_data_order
+	sub	r3,pc,#8		@ cryptogams_sha256_block_data_order
 #else
-	adr	r3,.Lsha256_block_data_order
+	adr	r3,.Lcryptogams_sha256_block_data_order
 #endif
 
 	add	r2,r1,r2,lsl#6	@ len to point at the end of inp
@@ -1879,17 +1879,17 @@ sha256_block_data_order:
 	moveq	pc,lr			@ be binary compatible with V4, yet
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
-.size	sha256_block_data_order,.-sha256_block_data_order
+.size	cryptogams_sha256_block_data_order,.-cryptogams_sha256_block_data_order
 
 #if __ARM_MAX_ARCH__>=7
 .arch	armv7-a
 .fpu	neon
 
-.globl	sha256_block_data_order_neon
-.type	sha256_block_data_order_neon,%function
+.globl	cryptogams_sha256_block_data_order_neon
+.type	cryptogams_sha256_block_data_order_neon,%function
 .align	5
 .skip	16
-sha256_block_data_order_neon:
+cryptogams_sha256_block_data_order_neon:
 
 	stmdb	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 
@@ -2666,5 +2666,5 @@ sha256_block_data_order_neon:
 	bne	.L_00_48
 
 	ldmia	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,pc}
-.size	sha256_block_data_order_neon,.-sha256_block_data_order_neon
+.size	cryptogams_sha256_block_data_order_neon,.-cryptogams_sha256_block_data_order_neon
 #endif

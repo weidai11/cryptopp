@@ -330,10 +330,10 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks_ARMV8(const word32 *subkeys, si
 #endif
 
 #if (CRYPTOGAMS_ARM_AES)
-extern "C" int AES_set_encrypt_key_ARM(const unsigned char *userKey, const int bitLen, word32 *rkey);
-extern "C" int AES_set_decrypt_key_ARM(const unsigned char *userKey, const int bitLen, word32 *rkey);
-extern "C" void AES_encrypt_block(const unsigned char *in, unsigned char *out, const word32 *rkey);
-extern "C" void AES_decrypt_block(const unsigned char *in, unsigned char *out, const word32 *rkey);
+extern "C" int cryptogams_AES_set_encrypt_key(const unsigned char *userKey, const int bitLen, word32 *rkey);
+extern "C" int cryptogams_AES_set_decrypt_key(const unsigned char *userKey, const int bitLen, word32 *rkey);
+extern "C" void cryptogams_AES_encrypt_block(const unsigned char *in, unsigned char *out, const word32 *rkey);
+extern "C" void cryptogams_AES_decrypt_block(const unsigned char *in, unsigned char *out, const word32 *rkey);
 #endif
 
 #if (CRYPTOPP_POWER8_AES_AVAILABLE)
@@ -349,21 +349,21 @@ extern size_t Rijndael_Dec_AdvancedProcessBlocks128_6x1_ALTIVEC(const word32 *su
 #if (CRYPTOGAMS_ARM_AES)
 int CRYPTOGAMS_set_encrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
 {
-	return AES_set_encrypt_key_ARM(userKey, bitLen, rkey);
+	return cryptogams_AES_set_encrypt_key(userKey, bitLen, rkey);
 }
 int CRYPTOGAMS_set_decrypt_key(const byte *userKey, const int bitLen, word32 *rkey)
 {
-	return AES_set_decrypt_key_ARM(userKey, bitLen, rkey);
+	return cryptogams_AES_set_decrypt_key(userKey, bitLen, rkey);
 }
 void CRYPTOGAMS_encrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
 {
-	AES_encrypt_block(inBlock, outBlock, rkey);
+	cryptogams_AES_encrypt_block(inBlock, outBlock, rkey);
 	if (xorBlock)
 		xorbuf (outBlock, xorBlock, 16);
 }
 void CRYPTOGAMS_decrypt(const byte *inBlock, const byte *xorBlock, byte *outBlock, const word32 *rkey)
 {
-	AES_decrypt_block(inBlock, outBlock, rkey);
+	cryptogams_AES_decrypt_block(inBlock, outBlock, rkey);
 	if (xorBlock)
 		xorbuf (outBlock, xorBlock, 16);
 }

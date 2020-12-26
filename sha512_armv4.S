@@ -64,7 +64,7 @@
 #  endif
 # endif
 
-# define ARMV7_NEON      (1<<0)
+# define CRYPTOGAMS_ARMV7_NEON      (1<<0)
 
 @ JW, MAY 2019: End defines from taken from arm_arch.h
 @               Back to original Cryptogams code
@@ -137,16 +137,16 @@ K512:
 .skip	32
 
 .align	5
-.globl	sha512_block_data_order
-.type	sha512_block_data_order,%function
+.globl	cryptogams_sha512_block_data_order
+.type	cryptogams_sha512_block_data_order,%function
 
-sha512_block_data_order:
-.Lsha512_block_data_order:
+cryptogams_sha512_block_data_order:
+.Lcryptogams_sha512_block_data_order:
 
 #if __ARM_ARCH__<7 && !defined(__thumb2__)
-	sub	r3,pc,#8		@ sha512_block_data_order
+	sub	r3,pc,#8		@ cryptogams_sha512_block_data_order
 #else
-	adr	r3,.Lsha512_block_data_order
+	adr	r3,.Lcryptogams_sha512_block_data_order
 #endif
 
 	add	r2,r1,r2,lsl#7	@ len to point at the end of inp
@@ -526,17 +526,17 @@ sha512_block_data_order:
 	moveq	pc,lr			@ be binary compatible with V4, yet
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
-.size	sha512_block_data_order,.-sha512_block_data_order
+.size	cryptogams_sha512_block_data_order,.-cryptogams_sha512_block_data_order
 
 #if __ARM_MAX_ARCH__>=7
 .arch	armv7-a
 .fpu	neon
 
 .align	4
-.globl	sha512_block_data_order_neon
-.type	sha512_block_data_order_neon,%function
+.globl	cryptogams_sha512_block_data_order_neon
+.type	cryptogams_sha512_block_data_order_neon,%function
 
-sha512_block_data_order_neon:
+cryptogams_sha512_block_data_order_neon:
 
 	dmb	@ errata #451034 on early Cortex A8
 	add	r2,r1,r2,lsl#7	@ len to point at the end of inp
@@ -1857,5 +1857,5 @@ sha512_block_data_order_neon:
 	bne	.Loop_neon
 	vldmia  sp!,{d8-d15}
 	bx	lr				@ .word	0xe12fff1e
-.size	sha512_block_data_order_neon,.-sha512_block_data_order_neon
+.size	cryptogams_sha512_block_data_order_neon,.-cryptogams_sha512_block_data_order_neon
 #endif
