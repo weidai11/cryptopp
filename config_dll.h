@@ -7,6 +7,8 @@
 /// \details <tt>config_dll.h</tt> provides defines for shared objects and
 ///  dynamic libraries. Generally speaking the macros are used to export
 ///  classes and template classes from the Win32 dynamic link library.
+///  When not building the Win32 dynamic link library they are mostly an extern
+///  template declaration.
 /// \detail In practice they are a furball coughed up by a cat and then peed
 ///  on by a dog. They are awful to get just right because of inconsistent
 ///  compiler supprt for extern templates, manual instantiation and the FIPS DLL.
@@ -78,6 +80,26 @@
 	///  and <A HREF="https://www.cryptopp.com/wiki/FIPS_DLL">FIPS DLL</A>
 	///  on the Crypto++ wiki
 	#define CRYPTOPP_EXTERN_DLL_TEMPLATE_CLASS ...
+
+	/// \brief Instantiate templates in a dynamic library
+	/// \details CRYPTOPP_STATIC_TEMPLATE_CLASS decoration should be used
+	///  for template classes intended to be exported from dynamic link libraries.
+	/// \details This macro is primarily used on Win32, but sees some
+	///  action on Unix &amp; Linux due to the source file <tt>dll.cpp</tt>.
+	/// \sa <A HREF="https://www.cryptopp.com/wiki/Visual_Studio">Visual Studio</A>,
+	///  and <A HREF="https://www.cryptopp.com/wiki/FIPS_DLL">FIPS DLL</A>
+	///  on the Crypto++ wiki
+	#define CRYPTOPP_STATIC_TEMPLATE_CLASS ...
+
+	/// \brief Instantiate templates in a dynamic library
+	/// \details CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS decoration should be used
+	///  for template classes intended to be exported from dynamic link libraries.
+	/// \details This macro is primarily used on Win32, but sees some
+	///  action on Unix &amp; Linux due to the source file <tt>dll.cpp</tt>.
+	/// \sa <A HREF="https://www.cryptopp.com/wiki/Visual_Studio">Visual Studio</A>,
+	///  and <A HREF="https://www.cryptopp.com/wiki/FIPS_DLL">FIPS DLL</A>
+	///  on the Crypto++ wiki
+	#define CRYPTOPP_EXTERN_STATIC_TEMPLATE_CLASS ...
 
 	/// \brief Override for internal linkage
 	/// \details CRYPTOPP_TABLE can be used to override internal linkage
