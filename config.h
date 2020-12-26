@@ -7,7 +7,10 @@
 ///  users could continue to include <tt>config.h</tt> while allowing Autoconf
 ///  to write new <tt>config_asm.h</tt> and new <tt>config_cxx.h</tt> using
 ///  its feature tests.
-/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835</A>
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835,
+///  Make config.h more autoconf friendly</A>,
+///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">Configure.sh script</A>
+///  on the Crypto++ wiki
 /// \since Crypto++ 8.3
 
 /// \file config.h

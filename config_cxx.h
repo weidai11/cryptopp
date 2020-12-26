@@ -14,7 +14,10 @@
 ///  its feature tests.
 /// \note You should include <tt>config.h</tt> rather than <tt>config_cxx.h</tt>
 ///  directly.
-/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835</A>
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835,
+///  Make config.h more autoconf friendly</A>,
+///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">Configure.sh script</A>
+///  on the Crypto++ wiki
 /// \since Crypto++ 8.3
 
 // Visual Studio began at VS2010, http://msdn.microsoft.com/en-us/library/hh567368%28v=vs.110%29.aspx

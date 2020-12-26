@@ -13,8 +13,10 @@
 ///  its feature tests.
 /// \note You should include <tt>config.h</tt> rather than <tt>config_cpu.h</tt>
 ///  directly.
-/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835:
+/// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/835">Issue 835,
 ///  Make config.h more autoconf friendly</A>,
+///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">Configure.sh script</A>
+///  on the Crypto++ wiki,
 ///  <A HREF="https://sourceforge.net/p/predef/wiki/Architectures/">Sourceforge
 ///  Pre-defined Compiler Macros</A>
 /// \since Crypto++ 8.3
