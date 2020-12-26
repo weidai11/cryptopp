@@ -1825,6 +1825,9 @@ inline T VecMergeHigh(const T vec1, const T vec2)
 /// \since Crypto++ 8.3
 inline uint32x4_p VecSplatWord(word32 val)
 {
+    // Fix spurious GCC warning???
+    CRYPTOPP_UNUSED(val);
+
     // Apple Altivec and XL C++ do not offer vec_splats.
     // GCC offers vec_splats back to -mcpu=power4.
 #if defined(_ARCH_PWR4) && defined(__GNUC__)
