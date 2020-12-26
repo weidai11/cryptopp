@@ -42,6 +42,11 @@ elif [[ ! -z $(command -v libtool 2>/dev/null) ]]; then
 	export LIBTOOLIZE=$(command -v libtool)
 fi
 
+# In case libtool is located in /opt, like under MacPorts or Compile Farm
+if [[ -z $(command -v glibtoolize 2>/dev/null) ]]; then
+	export LIBTOOLIZE=$(find /opt -name libtool 2>/dev/null | head -n 1)
+fi
+
 #############################################################################
 
 if [[ -z $(command -v aclocal 2>/dev/null) ]]; then
