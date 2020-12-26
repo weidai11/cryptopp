@@ -44,6 +44,10 @@ fi
 
 #############################################################################
 
+if [[ -z $(command -v aclocal 2>/dev/null) ]]; then
+	echo "Cannot find aclocal. Things may fail."
+fi
+
 if [[ -z $(command -v autoupdate 2>/dev/null) ]]; then
 	echo "Cannot find autoupdate. Things may fail."
 fi
