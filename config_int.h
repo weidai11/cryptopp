@@ -137,21 +137,27 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 	/// \brief Half word used for multiprecision integer arithmetic
-	/// \details The typedef for <tt>hword</tt> varies depending on the platform.
-	///  On 32-bit platforms it is usually <tt>word16</tt>. On 64-bit platforms it
-	///  is usually <tt>word32</tt>.
+	/// \details hword is used for multiprecision integer arithmetic.
+	///  The typedef for <tt>hword</tt> varies depending on the platform.
+	///  On 32-bit platforms it is usually <tt>word16</tt>. On 64-bit platforms
+	///  it is usually <tt>word32</tt>.
+	/// \details Library users typically use byte, word16, word32 and word64.
 	/// \since Crypto++ 2.0
 	typedef word32 hword;
 	/// \brief Full word used for multiprecision integer arithmetic
-	/// \details The typedef for <tt>word</tt> varies depending on the platform.
-	///  On 32-bit platforms it is usually <tt>word32</tt>. On 64-bit platforms it
-	///  is usually <tt>word64</tt>.
+	/// \details word is used for multiprecision integer arithmetic.
+	///  The typedef for <tt>word</tt> varies depending on the platform.
+	///  On 32-bit platforms it is usually <tt>word32</tt>. On 64-bit platforms
+	///  it is usually <tt>word64</tt>.
+	/// \details Library users typically use byte, word16, word32 and word64.
 	/// \since Crypto++ 2.0
 	typedef word64 word;
 	/// \brief Double word used for multiprecision integer arithmetic
-	/// \details The typedef for <tt>dword</tt> varies depending on the platform.
-	///  On 32-bit platforms it is usually <tt>word64</tt>. On 64-bit platforms it
-	///  is usually <tt>word128</tt>.
+	/// \details dword is used for multiprecision integer arithmetic.
+	///  The typedef for <tt>dword</tt> varies depending on the platform.
+	///  On 32-bit platforms it is usually <tt>word64</tt>. On 64-bit platforms
+	///  it is usually <tt>word128</tt>.
+	/// \details Library users typically use byte, word16, word32 and word64.
 	/// \sa CRYPTOPP_WORD128_AVAILABLE
 	/// \since Crypto++ 2.0
 	typedef word128 dword;
