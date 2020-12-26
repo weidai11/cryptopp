@@ -128,11 +128,12 @@ typedef signed int sword32;
 #endif
 
 /// \brief Large word type
-/// \details a typedef for large word types, used for file offsets and such.
+/// \details lword is a typedef for large word types. It is used for file
+///  offsets and such.
 typedef word64 lword;
 
 /// \brief Large word type max value
-/// \details the maximum value for large word types.
+/// \details LWORD_MAX is the maximum value for large word types.
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
