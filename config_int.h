@@ -4,7 +4,11 @@
 
 /// \file config_int.h
 /// \brief Library configuration file
-/// \details <tt>config_int.h</tt> provides defines and typedefs for integers.
+/// \details <tt>config_int.h</tt> provides defines and typedefs for fixed
+///  size integers. The library's choices for fixed size integers predates other
+///  standard-based integers by about 5 years. After fixed sizes were
+///  made standard, the library continued to use its own definitions for
+///  compatibility with previous versions of the library.
 /// \details <tt>config.h</tt> was split into components in May 2019 to better
 ///  integrate with Autoconf and its feature tests. The splitting occurred so
 ///  users could continue to include <tt>config.h</tt> while allowing Autoconf
@@ -24,11 +28,16 @@
 #include "config_ns.h"
 #include "config_ver.h"
 
-// Originally in global namespace to avoid ambiguity with other byte typedefs.
-// Moved to Crypto++ namespace due to C++17, std::byte and potential compile
-// problems. Also see http://www.cryptopp.com/wiki/std::byte and
-// http://github.com/weidai11/cryptopp/issues/442.
-// typedef unsigned char byte;
+/// \brief Library byte guard
+/// \details CRYPTOPP_NO_GLOBAL_BYTE indicates <tt>byte</tt> is in the Crypto++
+///  namespace.
+/// \details The Crypto++ <tt>byte</tt> was originally in global namespace to avoid
+///  ambiguity with other byte typedefs. <tt>byte</tt> was moved to Crypto++ namespace
+///  due to C++17, <tt>std::byte</tt> and potential compile problems.
+/// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/442">Issue 442</A>,
+///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">std::byte</A> on the
+///  Crypto++ wiki
+/// \since Crypto++ 6.0
 #define CRYPTOPP_NO_GLOBAL_BYTE 1
 
 NAMESPACE_BEGIN(CryptoPP)
@@ -36,15 +45,72 @@ NAMESPACE_BEGIN(CryptoPP)
 // Signed words added at Issue 609 for early versions of and Visual Studio and
 // the NaCl gear. Also see https://github.com/weidai11/cryptopp/issues/609.
 
+/// \brief A 8-bit unsigned datatype
+/// \since Crypto++ 1.0
 typedef unsigned char byte;
+/// \brief A 16-bit unsigned datatype
+/// \since Crypto++ 1.0
 typedef unsigned short word16;
+/// \brief A 32-bit unsigned datatype
+/// \since Crypto++ 1.0
 typedef unsigned int word32;
 
+/// \brief A 8-bit signed datatype
+/// \details The 8-bit signed datatype was added to support constant time
+///  implementations for curve25519, X25519 key agreement and ed25519
+///  signatures.
+/// \since Crypto++ 8.0
 typedef signed char sbyte;
+/// \brief A 16-bit signed datatype
+/// \details The 32-bit signed datatype was added to support constant time
+///  implementations for curve25519, X25519 key agreement and ed25519
+///  signatures.
+/// \since Crypto++ 8.0
 typedef signed short sword16;
+/// \brief A 32-bit signed datatype
+/// \details The 32-bit signed datatype was added to support constant time
+///  implementations for curve25519, X25519 key agreement and ed25519
+///  signatures.
+/// \since Crypto++ 8.0
 typedef signed int sword32;
 
-#if defined(_MSC_VER) || defined(__BORLANDC__)
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+
+	/// \brief A 64-bit unsigned datatype
+	/// \details The typedef for <tt>word64</tt> varies depending on the platform.
+	///  On Microsoft platforms it is <tt>unsigned __int64</tt>. On Unix &amp; Linux
+	///  with LP64 data model it is <tt>unsigned long</tt>. On Unix & Linux with ILP32
+	///  data model it is <tt>unsigned long long</tt>.
+	/// \since Crypto++ 1.0
+	typedef unsigned long long word64;
+
+	/// \brief A 64-bit signed datatype
+	/// \details The typedef for <tt>sword64</tt> varies depending on the platform.
+	///  On Microsoft platforms it is <tt>signed __int64</tt>. On Unix &amp; Linux
+	///  with LP64 data model it is <tt>signed long</tt>. On Unix & Linux with ILP32
+	///  data model it is <tt>signed long long</tt>.
+	/// \since Crypto++ 8.0
+	typedef signed long long sword64;
+
+	/// \brief How to declare an unsigned word64
+	/// \details W64LIT is used to portability declare or assign 64-bit literal values.
+	///  Use the macro like shown below.
+	///  <pre>
+	///    word64 x = W64LIT(0xffffffffffffffff);
+	///  </pre>
+	/// \since Crypto++ 1.0
+	#define W64LIT(x) ...
+
+	/// \brief How to declare a signed word64
+	/// \details SW64LIT is used to portability declare or assign 64-bit literal values.
+	///  Use the macro like shown below.
+	///  <pre>
+	///    sword64 x = SW64LIT(0xffffffffffffffff);
+	///  </pre>
+	/// \since Crypto++ 8.0
+	#define SW64LIT(x) ...
+
+#elif defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef signed __int64 sword64;
 	typedef unsigned __int64 word64;
 	#define SW64LIT(x) x##i64
@@ -61,39 +127,76 @@ typedef signed int sword32;
 	#define W64LIT(x) x##ULL
 #endif
 
-// define large word type, used for file offsets and such
+/// \brief Large word type
+/// \details a typedef for large word types, used for file offsets and such.
 typedef word64 lword;
+
+/// \brief Large word type max value
+/// \details the maximum value for large word types.
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
-// define hword, word, and dword. these are used for multiprecision integer arithmetic
-// Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
-#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
+#if defined(CRYPTOPP_DOXYGEN_PROCESSING)
+	/// \brief Half word used for multiprecision integer arithmetic
+	/// \details The typedef for <tt>hword</tt> varies depending on the platform.
+	///  On 32-bit platforms it is usually <tt>word16</tt>. On 64-bit platforms it
+	///  is usually <tt>word32</tt>.
+	/// \since Crypto++ 2.0
 	typedef word32 hword;
+	/// \brief Full word used for multiprecision integer arithmetic
+	/// \details The typedef for <tt>word</tt> varies depending on the platform.
+	///  On 32-bit platforms it is usually <tt>word32</tt>. On 64-bit platforms it
+	///  is usually <tt>word64</tt>.
+	/// \since Crypto++ 2.0
 	typedef word64 word;
+	/// \brief Double word used for multiprecision integer arithmetic
+	/// \details The typedef for <tt>dword</tt> varies depending on the platform.
+	///  On 32-bit platforms it is usually <tt>word64</tt>. On 64-bit platforms it
+	///  is usually <tt>word128</tt>.
+	/// \sa CRYPTOPP_WORD128_AVAILABLE
+	/// \since Crypto++ 2.0
+	typedef word128 dword;
+
+	/// \brief 128-bit word availability
+	/// \details CRYPTOPP_WORD128_AVAILABLE indicates a 128-bit word is
+	///  available from the platform. 128-bit words are usually available on
+	///  64-bit platforms, but not available 32-bit platforms.
+	/// \details If CRYPTOPP_WORD128_AVAILABLE is not defined, then 128-bit
+	///  words are not available.
+	/// \details GCC and compatible compilers signal 128-bit word availability
+	///  with the preporcessor macro <tt>__SIZEOF_INT128__ >= 16</tt>.
+	/// \since Crypto++ 2.0
+	#define CRYPTOPP_WORD128_AVAILABLE ...
 #else
-	#define CRYPTOPP_NATIVE_DWORD_AVAILABLE 1
-	#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__) || defined(__aarch64__)
-		#if ((CRYPTOPP_GCC_VERSION >= 30400) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30000) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300)) && (__SIZEOF_INT128__ >= 16)
-			// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
-			// GCC 4.8.3 and bad uint128_t ops on PPC64/POWER7 (Issue 421)
-			// mode(TI) division broken on amd64 with GCC earlier than GCC 3.4
-			typedef word32 hword;
-			typedef word64 word;
-			typedef __uint128_t dword;
-			typedef __uint128_t word128;
-			#define CRYPTOPP_WORD128_AVAILABLE 1
+	// define hword, word, and dword. these are used for multiprecision integer arithmetic
+	// Intel compiler won't have _umul128 until version 10.0. See http://softwarecommunity.intel.com/isn/Community/en-US/forums/thread/30231625.aspx
+	#if (defined(_MSC_VER) && (!defined(__INTEL_COMPILER) || __INTEL_COMPILER >= 1000) && (defined(_M_X64) || defined(_M_IA64))) || (defined(__DECCXX) && defined(__alpha__)) || (defined(__INTEL_COMPILER) && defined(__x86_64__)) || (defined(__SUNPRO_CC) && defined(__x86_64__))
+		typedef word32 hword;
+		typedef word64 word;
+	#else
+		#define CRYPTOPP_NATIVE_DWORD_AVAILABLE 1
+		#if defined(__alpha__) || defined(__ia64__) || defined(_ARCH_PPC64) || defined(__x86_64__) || defined(__mips64) || defined(__sparc64__) || defined(__aarch64__)
+			#if ((CRYPTOPP_GCC_VERSION >= 30400) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30000) || (CRYPTOPP_APPLE_CLANG_VERSION >= 40300)) && (__SIZEOF_INT128__ >= 16)
+				// GCC 4.0.1 on MacOS X is missing __umodti3 and __udivti3
+				// GCC 4.8.3 and bad uint128_t ops on PPC64/POWER7 (Issue 421)
+				// mode(TI) division broken on amd64 with GCC earlier than GCC 3.4
+				typedef word32 hword;
+				typedef word64 word;
+				typedef __uint128_t dword;
+				typedef __uint128_t word128;
+				#define CRYPTOPP_WORD128_AVAILABLE 1
+			#else
+				// if we're here, it means we're on a 64-bit CPU but we don't have a way to obtain 128-bit multiplication results
+				typedef word16 hword;
+				typedef word32 word;
+				typedef word64 dword;
+			#endif
 		#else
-			// if we're here, it means we're on a 64-bit CPU but we don't have a way to obtain 128-bit multiplication results
+			// being here means the native register size is probably 32 bits or less
+			#define CRYPTOPP_BOOL_SLOW_WORD64 1
 			typedef word16 hword;
 			typedef word32 word;
 			typedef word64 dword;
 		#endif
-	#else
-		// being here means the native register size is probably 32 bits or less
-		#define CRYPTOPP_BOOL_SLOW_WORD64 1
-		typedef word16 hword;
-		typedef word32 word;
-		typedef word64 dword;
 	#endif
 #endif
 
@@ -101,7 +204,12 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 # define CRYPTOPP_BOOL_SLOW_WORD64 0
 #endif
 
+/// \brief Size of a platform word in bytes
+/// \details The size of a platform word, in bytes
 const unsigned int WORD_SIZE = sizeof(word);
+
+/// \brief Size of a platform word in bits
+/// \details The size of a platform word, in bits
 const unsigned int WORD_BITS = WORD_SIZE * 8;
 
 NAMESPACE_END
