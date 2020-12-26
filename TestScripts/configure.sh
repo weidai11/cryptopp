@@ -670,6 +670,8 @@ if [[ -e config_asm.h ]]; then
   mv config_asm.h.new config_asm.h
 fi
 
+echo 'Done writing config_asm.h'
+
 # ===========================================================================
 # =============================== config_cxx.h ==============================
 # ===========================================================================
@@ -920,6 +922,8 @@ if [[ -e config_cxx.h ]]; then
   cp config_cxx.h config_cxx.h.old
   mv config_cxx.h.new config_cxx.h
 fi
+
+echo 'Done writing config_cxx.h'
 
 rm -f "${TOUT}"
 
