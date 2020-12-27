@@ -308,16 +308,16 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+0*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X0_0, X0_1, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+0*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+0*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+1*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X0_2, X0_3, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+1*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+1*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+2*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X1_0, X1_1, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+2*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+2*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+3*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X1_2, X1_3, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+3*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+3*32)))));
     }
     else
     {
@@ -335,16 +335,16 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+4*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X2_0, X2_1, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+4*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+4*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+5*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X2_2, X2_3, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+5*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+5*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+6*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X3_0, X3_1, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+6*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+6*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+7*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X3_2, X3_3, 1 + (3 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+7*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+7*32)))));
     }
     else
     {
@@ -362,16 +362,16 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+ 8*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X0_0, X0_1, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+8*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+8*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+ 9*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X0_2, X0_3, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+9*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+9*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+10*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X1_0, X1_1, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+10*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+10*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+11*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X1_2, X1_3, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+11*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+11*32)))));
     }
     else
     {
@@ -389,16 +389,16 @@ void ChaCha_OperateKeystream_AVX2(const word32 *state, const byte* input, byte *
     {
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+12*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X2_0, X2_1, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+12*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+12*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+13*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X2_2, X2_3, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+13*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+13*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+14*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X3_0, X3_1, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+14*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+14*32)))));
         _mm256_storeu_si256(reinterpret_cast<__m256i*>(output+15*32),
             _mm256_xor_si256(_mm256_permute2x128_si256(X3_2, X3_3, 0 + (2 << 4)),
-            _mm256_loadu_si256(reinterpret_cast<const __m256i*>(input+15*32))));
+            _mm256_loadu_si256(const_cast<MAYBE_CONST __m256i*>(reinterpret_cast<const __m256i*>(input+15*32)))));
     }
     else
     {

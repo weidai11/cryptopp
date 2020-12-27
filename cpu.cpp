@@ -356,7 +356,7 @@ word64 XGetBV(word32 num)
 	return (static_cast<word64>(d) << 32) | a;
 
 // Remainder of GCC and compatibles.
-#elif defined(__GNUC__) || defined(__clang__)
+#elif defined(__GNUC__) || defined(__clang__) || defined(__SUNPRO_CC)
 
 	// https://gcc.gnu.org/bugzilla/show_bug.cgi?id=71659 and
 	// http://www.agner.org/optimize/vectorclass/read.php?i=65
