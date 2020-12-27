@@ -45,29 +45,29 @@ NAMESPACE_BEGIN(CryptoPP)
 // Signed words added at Issue 609 for early versions of and Visual Studio and
 // the NaCl gear. Also see https://github.com/weidai11/cryptopp/issues/609.
 
-/// \brief A 8-bit unsigned datatype
+/// \brief 8-bit unsigned datatype
 /// \since Crypto++ 1.0
 typedef unsigned char byte;
-/// \brief A 16-bit unsigned datatype
+/// \brief 16-bit unsigned datatype
 /// \since Crypto++ 1.0
 typedef unsigned short word16;
-/// \brief A 32-bit unsigned datatype
+/// \brief 32-bit unsigned datatype
 /// \since Crypto++ 1.0
 typedef unsigned int word32;
 
-/// \brief A 8-bit signed datatype
+/// \brief 8-bit signed datatype
 /// \details The 8-bit signed datatype was added to support constant time
 ///  implementations for curve25519, X25519 key agreement and ed25519
 ///  signatures.
 /// \since Crypto++ 8.0
 typedef signed char sbyte;
-/// \brief A 16-bit signed datatype
+/// \brief 16-bit signed datatype
 /// \details The 32-bit signed datatype was added to support constant time
 ///  implementations for curve25519, X25519 key agreement and ed25519
 ///  signatures.
 /// \since Crypto++ 8.0
 typedef signed short sword16;
-/// \brief A 32-bit signed datatype
+/// \brief 32-bit signed datatype
 /// \details The 32-bit signed datatype was added to support constant time
 ///  implementations for curve25519, X25519 key agreement and ed25519
 ///  signatures.
@@ -76,7 +76,7 @@ typedef signed int sword32;
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
 
-	/// \brief A 64-bit unsigned datatype
+	/// \brief 64-bit unsigned datatype
 	/// \details The typedef for <tt>word64</tt> varies depending on the platform.
 	///  On Microsoft platforms it is <tt>unsigned __int64</tt>. On Unix &amp; Linux
 	///  with LP64 data model it is <tt>unsigned long</tt>. On Unix &amp; Linux with ILP32
@@ -84,7 +84,7 @@ typedef signed int sword32;
 	/// \since Crypto++ 1.0
 	typedef unsigned long long word64;
 
-	/// \brief A 64-bit signed datatype
+	/// \brief 64-bit signed datatype
 	/// \details The typedef for <tt>sword64</tt> varies depending on the platform.
 	///  On Microsoft platforms it is <tt>signed __int64</tt>. On Unix &amp; Linux
 	///  with LP64 data model it is <tt>signed long</tt>. On Unix &amp; Linux with ILP32
@@ -92,7 +92,7 @@ typedef signed int sword32;
 	/// \since Crypto++ 8.0
 	typedef signed long long sword64;
 
-	/// \brief A 128-bit unsigned datatype
+	/// \brief 128-bit unsigned datatype
 	/// \details The typedef for <tt>word128</tt> varies depending on the platform.
 	///  <tt>word128</tt> is only available on 64-bit machines when
 	///  <tt>CRYPTOPP_WORD128_AVAILABLE</tt> is defined.
@@ -102,7 +102,7 @@ typedef signed int sword32;
 	/// \since Crypto++ 5.6
 	typedef __uint128_t word128;
 
-	/// \brief How to declare an unsigned word64
+	/// \brief Declare an unsigned word64
 	/// \details W64LIT is used to portability declare or assign 64-bit literal values.
 	///  Use the macro like shown below.
 	///  <pre>
@@ -111,7 +111,7 @@ typedef signed int sword32;
 	/// \since Crypto++ 1.0
 	#define W64LIT(x) ...
 
-	/// \brief How to declare a signed word64
+	/// \brief Declare a signed word64
 	/// \details SW64LIT is used to portability declare or assign 64-bit literal values.
 	///  Use the macro like shown below.
 	///  <pre>
@@ -119,6 +119,13 @@ typedef signed int sword32;
 	///  </pre>
 	/// \since Crypto++ 8.0
 	#define SW64LIT(x) ...
+
+	/// \brief Declare ops on word64 are slow
+	/// \details CRYPTOPP_BOOL_SLOW_WORD64 is typically defined to 1 on platforms
+	///  that have a machine word smaller than 64-bits. That is, the define
+	///  is present on 32-bit platforms. The define is also present on platforms
+	///  where the cpu is slow even with a 64-bit cpu.
+	#define CRYPTOPP_BOOL_SLOW_WORD64 ...
 
 #elif defined(_MSC_VER) || defined(__BORLANDC__)
 	typedef signed __int64 sword64;
