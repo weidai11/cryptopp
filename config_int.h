@@ -32,8 +32,8 @@
 /// \details CRYPTOPP_NO_GLOBAL_BYTE indicates <tt>byte</tt> is in the Crypto++
 ///  namespace.
 /// \details The Crypto++ <tt>byte</tt> was originally in global namespace to avoid
-///  ambiguity with other byte typedefs. <tt>byte</tt> was moved to Crypto++ namespace
-///  due to C++17, <tt>std::byte</tt> and potential compile problems.
+///  ambiguity with other byte typedefs. <tt>byte</tt> was moved to CryptoPP namespace
+///  at Crypto++ 6.0 due to C++17, <tt>std::byte</tt> and potential compile problems.
 /// \sa <A HREF="http://github.com/weidai11/cryptopp/issues/442">Issue 442</A>,
 ///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">std::byte</A> on the
 ///  Crypto++ wiki
@@ -47,7 +47,7 @@ NAMESPACE_BEGIN(CryptoPP)
 
 /// \brief 8-bit unsigned datatype
 /// \details The Crypto++ <tt>byte</tt> was originally in global namespace to avoid
-///  ambiguity with other byte typedefs. <tt>byte</tt> was moved to Crypto++ namespace
+///  ambiguity with other byte typedefs. <tt>byte</tt> was moved to CryptoPP namespace
 ///  at Crypto++ 6.0 due to C++17, <tt>std::byte</tt> and potential compile problems.
 /// \sa CRYPTOPP_NO_GLOBAL_BYTE, <A HREF="http://github.com/weidai11/cryptopp/issues/442">Issue 442</A>,
 ///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">std::byte</A> on the
