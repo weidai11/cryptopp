@@ -104,7 +104,8 @@ typedef signed int sword32;
 
 	/// \brief Declare an unsigned word64
 	/// \details W64LIT is used to portability declare or assign 64-bit literal values.
-	///  Use the macro like shown below.
+	///  W64LIT will append the proper suffix to ensure the compiler accepts the literal.
+	/// \details Use the macro like shown below.
 	///  <pre>
 	///    word64 x = W64LIT(0xffffffffffffffff);
 	///  </pre>
@@ -113,7 +114,8 @@ typedef signed int sword32;
 
 	/// \brief Declare a signed word64
 	/// \details SW64LIT is used to portability declare or assign 64-bit literal values.
-	///  Use the macro like shown below.
+	///  SW64LIT will append the proper suffix to ensure the compiler accepts the literal.
+	/// \details Use the macro like shown below.
 	///  <pre>
 	///    sword64 x = SW64LIT(0xffffffffffffffff);
 	///  </pre>
@@ -151,6 +153,8 @@ typedef word64 lword;
 
 /// \brief Large word type max value
 /// \details LWORD_MAX is the maximum value for large word types.
+///  Since an <tt>lword</tt> is an unsigned type, the value is
+///  <tt>0xffffffffffffffff</tt>. W64LIT will append the proper suffix.
 const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 
 #if defined(CRYPTOPP_DOXYGEN_PROCESSING)
