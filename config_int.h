@@ -99,7 +99,7 @@ typedef signed int sword32;
 	///  On Unix &amp; Linux with LP64 data model it is <tt>__uint128_t</tt>.
 	///  Microsoft platforms do not provide a 128-bit integer type. 32-bit platforms
 	///  do not provide a 128-bit integer type.
-	/// \since Crypto++ 1.0
+	/// \since Crypto++ 5.6
 	typedef __uint128_t word128;
 
 	/// \brief How to declare an unsigned word64
