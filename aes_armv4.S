@@ -755,11 +755,11 @@ cryptogams_AES_set_decrypt_key:
 	b	_armv4_AES_set_enc2dec_key
 .size	cryptogams_AES_set_decrypt_key,.-cryptogams_AES_set_decrypt_key
 
-@ void cryptogams_AES_set_enc2dec_key_ARM(const AES_KEY *inp,AES_KEY *out)
-.globl	cryptogams_AES_set_enc2dec_key_ARM
-.type	cryptogams_AES_set_enc2dec_key_ARM,%function
+@ void cryptogams_AES_set_enc2dec_key(const AES_KEY *inp,AES_KEY *out)
+.globl	cryptogams_AES_set_enc2dec_key
+.type	cryptogams_AES_set_enc2dec_key,%function
 .align	5
-cryptogams_AES_set_enc2dec_key_ARM:
+cryptogams_AES_set_enc2dec_key:
 _armv4_AES_set_enc2dec_key:
 	stmdb	sp!,{r4,r5,r6,r7,r8,r9,r10,r11,r12,lr}
 
@@ -850,7 +850,7 @@ _armv4_AES_set_enc2dec_key:
 	moveq	pc,lr			@ be binary compatible with V4, yet
 .word	0xe12fff1e			@ interoperable with Thumb ISA:-)
 #endif
-.size	cryptogams_AES_set_enc2dec_key_ARM,.-cryptogams_AES_set_enc2dec_key_ARM
+.size	cryptogams_AES_set_enc2dec_key,.-cryptogams_AES_set_enc2dec_key
 
 .type	AES_Td,%object
 .align	5
