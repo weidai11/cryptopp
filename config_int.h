@@ -97,7 +97,8 @@ typedef signed int sword32;
 	///  <tt>word128</tt> is only available on 64-bit machines when
 	///  <tt>CRYPTOPP_WORD128_AVAILABLE</tt> is defined.
 	///  On Unix &amp; Linux with LP64 data model it is <tt>__uint128_t</tt>.
-	///  Microsoft platforms do not provide a 128-bit integer type.
+	///  Microsoft platforms do not provide a 128-bit integer type. 32-bit platforms
+	///  do not provide a 128-bit integer type.
 	/// \since Crypto++ 1.0
 	typedef __uint128_t word128;
 
