@@ -9,7 +9,7 @@
 extern "C" {
 #endif
 
-/* Crypto++ modifed cryptogams_sha512_block_data_order to pass caps as a parameter. */
+/* Crypto++ modified cryptogams_sha512_block_data_order to pass caps as a parameter. */
 /* Also see https://github.com/weidai11/cryptopp/issues/846.             */
 void cryptogams_sha512_block_data_order(void *state, const void *data, size_t blocks);
 
