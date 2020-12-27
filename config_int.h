@@ -79,7 +79,7 @@ typedef signed int sword32;
 	/// \brief A 64-bit unsigned datatype
 	/// \details The typedef for <tt>word64</tt> varies depending on the platform.
 	///  On Microsoft platforms it is <tt>unsigned __int64</tt>. On Unix &amp; Linux
-	///  with LP64 data model it is <tt>unsigned long</tt>. On Unix & Linux with ILP32
+	///  with LP64 data model it is <tt>unsigned long</tt>. On Unix &amp; Linux with ILP32
 	///  data model it is <tt>unsigned long long</tt>.
 	/// \since Crypto++ 1.0
 	typedef unsigned long long word64;
@@ -87,10 +87,19 @@ typedef signed int sword32;
 	/// \brief A 64-bit signed datatype
 	/// \details The typedef for <tt>sword64</tt> varies depending on the platform.
 	///  On Microsoft platforms it is <tt>signed __int64</tt>. On Unix &amp; Linux
-	///  with LP64 data model it is <tt>signed long</tt>. On Unix & Linux with ILP32
+	///  with LP64 data model it is <tt>signed long</tt>. On Unix &amp; Linux with ILP32
 	///  data model it is <tt>signed long long</tt>.
 	/// \since Crypto++ 8.0
 	typedef signed long long sword64;
+
+	/// \brief A 128-bit unsigned datatype
+	/// \details The typedef for <tt>word128</tt> varies depending on the platform.
+	///  <tt>word128</tt> is only available on 64-bit machines when
+	///  <tt>CRYPTOPP_WORD128_AVAILABLE</tt> is defined.
+	///  On Unix &amp; Linux with LP64 data model it is <tt>__uint128_t</tt>.
+	///  Microsoft platforms do not provide a 128-bit integer type.
+	/// \since Crypto++ 1.0
+	typedef __uint128_t word128;
 
 	/// \brief How to declare an unsigned word64
 	/// \details W64LIT is used to portability declare or assign 64-bit literal values.
@@ -156,8 +165,10 @@ const lword LWORD_MAX = W64LIT(0xffffffffffffffff);
 	/// \brief Double word used for multiprecision integer arithmetic
 	/// \details dword is used for multiprecision integer arithmetic.
 	///  The typedef for <tt>dword</tt> varies depending on the platform.
-	///  On 32-bit platforms it is usually <tt>word64</tt>. On 64-bit platforms
-	///  it is usually <tt>word128</tt>.
+	///  On 32-bit platforms it is usually <tt>word64</tt>. On 64-bit Unix &amp;
+	///  Linux platforms it is usually <tt>word128</tt>. <tt>word128</tt> is
+	///  not available on Microsoft platforms. <tt>word128</tt> is only available
+	///  when <tt>CRYPTOPP_WORD128_AVAILABLE</tt> is defined.
 	/// \details Library users typically use byte, word16, word32 and word64.
 	/// \sa CRYPTOPP_WORD128_AVAILABLE
 	/// \since Crypto++ 2.0
