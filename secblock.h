@@ -486,43 +486,35 @@ public:
 
 private:
 
-#if CRYPTOPP_BOOL_ALIGN16 && (defined(_M_X64) || defined(__x86_64__))
-	// Before we can add additional platforms we need to check the
-	// linker documentation for alignment behavior for stack variables.
-	// CRYPTOPP_ALIGN_DATA(16) is known OK on Linux, OS X, Solaris.
-	// Also see http://stackoverflow.com/a/1468656/608639.
-	T* GetAlignedArray() {
-		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 16));
-		return m_array;
-	}
-	CRYPTOPP_ALIGN_DATA(16) T m_array[S];
-
-#elif CRYPTOPP_BOOL_ALIGN16
+#if CRYPTOPP_BOOL_ALIGN16
 
 	// There be demons here... We cannot use CRYPTOPP_ALIGN_DATA(16)
-	// because linkers on 32-bit machines (and some 64-bit machines)
-	// align the stack to 8-bytes or less by default, not 16-bytes as
-	// requested. Additionally, the AIX linker seems to use 4-bytes
-	// by default. However, all linkers tested appear to honor
-	// CRYPTOPP_ALIGN_DATA(8). Also see
-	// http://stackoverflow.com/a/1468656/608639.
+	// because linkers on 32-bit machines and some 64-bit machines
+	// align the stack to 8-bytes or less, and not 16-bytes as
+	// requested. We can only count on a smaller alignment. All
+	// toolchains tested appear to honor CRYPTOPP_ALIGN_DATA(8). Also
+	// see http://stackoverflow.com/a/1468656/608639.
 	//
 	// The 16-byte alignment is achieved by padding the requested
-	// size with extra elements so we have at least 16-bytes of slack
+	// size with extra elements so we have at least 8-bytes of slack
 	// to work with. Then the array pointer is moved to achieve a
 	// 16-byte alignment.
 	//
-	// The additional 16-bytes introduces a small secondary issue.
+	// The additional 8-bytes introduces a small secondary issue.
 	// The secondary issue is, a large T results in 0 = 8/sizeof(T).
 	// The library is OK but users may hit it. So we need to guard
 	// for a large T, and that is what the enum and PAD achieves.
 	T* GetAlignedArray() {
 
 		// m_array is aligned on 8 byte boundaries due to
-		// CRYPTOPP_ALIGN_DATA(8). If m_array%16 is 0, then
-		// the buffer is 16-byte aligned and nothing needs
-		// to be done. if m_array%16 is 8, then the buffer
-		// is not 16-byte aligned and we need to add 8.
+		// CRYPTOPP_ALIGN_DATA(8). If m_array%16 is 0, then the buffer
+		// is 16-byte aligned and nothing needs to be done. if
+		// m_array%16 is 8, then the buffer is not 16-byte aligned and
+		// we need to add 8. 8 has that nice symmetric property.
+		//
+		// If we needed to use CRYPTOPP_ALIGN_DATA(4) due to toolchain
+		// limitations, then the calculation would be slightly more
+		// costly: ptr = m_array + (16 - (m_array % 16)) % 16;
 		CRYPTOPP_ASSERT(IsAlignedOn(m_array, 8));
 		int off = reinterpret_cast<uintptr_t>(m_array) % 16;
 		byte* ptr = reinterpret_cast<byte*>(m_array) + off;
