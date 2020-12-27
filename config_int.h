@@ -46,6 +46,12 @@ NAMESPACE_BEGIN(CryptoPP)
 // the NaCl gear. Also see https://github.com/weidai11/cryptopp/issues/609.
 
 /// \brief 8-bit unsigned datatype
+/// \details The Crypto++ <tt>byte</tt> was originally in global namespace to avoid
+///  ambiguity with other byte typedefs. <tt>byte</tt> was moved to Crypto++ namespace
+///  due to C++17, <tt>std::byte</tt> and potential compile problems.
+/// \sa CRYPTOPP_NO_GLOBAL_BYTE <A HREF="http://github.com/weidai11/cryptopp/issues/442">Issue 442</A>,
+///  <A HREF="https://www.cryptopp.com/wiki/Configure.sh">std::byte</A> on the
+///  Crypto++ wiki
 /// \since Crypto++ 1.0
 typedef unsigned char byte;
 /// \brief 16-bit unsigned datatype
