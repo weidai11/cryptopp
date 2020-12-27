@@ -297,6 +297,9 @@ for the record back to Crypto++ 1.0.
 
 8.4.0 - TDB
       - fix SIGILL on POWER8 when compiling with GCC 10
+      - fix potential out-of-bounds write in FixedSizeAllocatorWithCleanup
+      - fix compile on AIX POWER7 with IBM XLC 12.01
+      - fix compile on Solaris with SunCC 12.6
 
 8.3.0 - December 20, 2020
       - fix use of macro CRYPTOPP_ALIGN_DATA
