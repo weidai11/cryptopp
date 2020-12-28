@@ -197,6 +197,7 @@
 #endif
 
 // Fixup Android and SSE, Crypto. It may be enabled based on compiler version.
+// Also see https://developer.android.com/ndk/guides/abis
 #if defined(__ANDROID__) || defined(ANDROID)
 # if (CRYPTOPP_BOOL_X86)
 #  undef CRYPTOPP_SSE41_AVAILABLE
@@ -372,7 +373,7 @@
 #endif
 
 // Disable for Android. Android only offers the base Aarch64 architecture.
-// https://developer.android.com/ndk/guides/abis
+// Also see https://developer.android.com/ndk/guides/abis
 #if defined(__ANDROID__) || defined(ANDROID)
 # undef CRYPTOPP_ARM_CRC32_AVAILABLE
 # undef CRYPTOPP_ARM_PMULL_AVAILABLE
