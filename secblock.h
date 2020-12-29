@@ -547,12 +547,13 @@ private:
 
 #else
 
-	// CRYPTOPP_BOOL_ALIGN16 is 0. The user likely compiled with
-	// CRYPTOPP_DISABLE_ASM. Normally we would use the natural
-	// alignment of T. The problem we are having is, some toolchains
-	// are changing the boundary for 64-bit arrays. 64-bit elements
-	// require 8-byte alignment, but the toolchain is laying the array
-	// out on a 4 byte boundary. See GH #992 for mystery alignment:
+	// CRYPTOPP_BOOL_ALIGN16 is 0. If we are here then the user
+	// probably compiled with CRYPTOPP_DISABLE_ASM. Normally we
+	// would use the natural alignment of T. The problem we are
+	// having is, some toolchains are changing the boundary for
+	// 64-bit arrays. 64-bit elements require 8-byte alignment,
+	// but the toolchain is laying the array out on a 4 byte
+	// boundary. See GH #992 for mystery alignment,
 	// https://github.com/weidai11/cryptopp/issues/992
 	T* GetAlignedArray() {return m_array;}
 	CRYPTOPP_ALIGN_DATA(8) T m_array[S];
@@ -710,7 +711,7 @@ private:
 	// alignment of T. The problem we are having is, some toolchains
 	// are changing the boundary for 64-bit arrays. 64-bit elements
 	// require 8-byte alignment, but the toolchain is laying the array
-	// out on a 4 byte boundary. See GH #992 for mystery alignment:
+	// out on a 4 byte boundary. See GH #992 for mystery alignment,
 	// https://github.com/weidai11/cryptopp/issues/992
 	T* GetAlignedArray() {return m_array;}
 	CRYPTOPP_ALIGN_DATA(8) T m_array[S];
