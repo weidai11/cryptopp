@@ -1212,15 +1212,14 @@ inline bool IsAlignedOn(const void *ptr, unsigned int alignment)
 /// \brief Determines whether ptr is minimally aligned
 /// \tparam T class or type
 /// \param ptr the pointer to check for alignment
-/// \return true if <tt>ptr</tt> is aligned to at least a pointer to <tt>T</tt>
+/// \return true if <tt>ptr</tt> is aligned to at least <tt>T</tt>
 ///  boundary, false otherwise
 /// \details Internally the function calls IsAlignedOn with a second
-///  parameter of GetAlignmentOf<T*>.
+///  parameter of GetAlignmentOf<T>.
 template <class T>
 inline bool IsAligned(const void *ptr)
 {
-	// Switch to T* due to https://github.com/weidai11/cryptopp/issues/992
-	return IsAlignedOn(ptr, GetAlignmentOf<T*>());
+	return IsAlignedOn(ptr, GetAlignmentOf<T>());
 }
 
 #if (CRYPTOPP_LITTLE_ENDIAN)
