@@ -547,9 +547,14 @@ private:
 
 #else
 
-	// CRYPTOPP_BOOL_ALIGN16 is 0. Use natural alignment of T.
+	// CRYPTOPP_BOOL_ALIGN16 is 0. Normally we would use the natural
+	// alignment of T. The problem we are having is, some toolchains
+	// are changing the boundary for 64-bit arrays. 64-bit elements
+	// require 8-byte alignment, but the toolchain is laying the array
+	// out on a 4 byte boundary. See GH #992 for mystery alignment:
+	// https://github.com/weidai11/cryptopp/issues/992
 	T* GetAlignedArray() {return m_array;}
-	T m_array[S];
+	CRYPTOPP_ALIGN_DATA(8) T m_array[S];
 
 #endif
 
@@ -700,9 +705,14 @@ public:
 
 private:
 
-	// T_Align16 is false. Use natural alignment of T.
+	// T_Align16 is false. Normally we would use the natural
+	// alignment of T. The problem we are having is, some toolchains
+	// are changing the boundary for 64-bit arrays. 64-bit elements
+	// require 8-byte alignment, but the toolchain is laying the array
+	// out on a 4 byte boundary. See GH #992 for mystery alignment:
+	// https://github.com/weidai11/cryptopp/issues/992
 	T* GetAlignedArray() {return m_array;}
-	T m_array[S];
+	CRYPTOPP_ALIGN_DATA(8) T m_array[S];
 
 	A m_fallbackAllocator;
 	bool m_allocated;
