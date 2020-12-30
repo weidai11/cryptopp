@@ -126,14 +126,14 @@ protected:
 	}
 };
 
-#define CRYPTOPP_INHERIT_ALLOCATOR_TYPES	\
-typedef typename AllocatorBase<T>::value_type value_type;\
-typedef typename AllocatorBase<T>::size_type size_type;\
-typedef typename AllocatorBase<T>::difference_type difference_type;\
-typedef typename AllocatorBase<T>::pointer pointer;\
-typedef typename AllocatorBase<T>::const_pointer const_pointer;\
-typedef typename AllocatorBase<T>::reference reference;\
-typedef typename AllocatorBase<T>::const_reference const_reference;
+#define CRYPTOPP_INHERIT_ALLOCATOR_TYPES(T_type)	\
+	typedef typename AllocatorBase<T_type>::value_type value_type;\
+	typedef typename AllocatorBase<T_type>::size_type size_type;\
+	typedef typename AllocatorBase<T_type>::difference_type difference_type;\
+	typedef typename AllocatorBase<T_type>::pointer pointer;\
+	typedef typename AllocatorBase<T_type>::const_pointer const_pointer;\
+	typedef typename AllocatorBase<T_type>::reference reference;\
+	typedef typename AllocatorBase<T_type>::const_reference const_reference;
 
 /// \brief Reallocation function
 /// \tparam T the class or type
@@ -187,7 +187,7 @@ template <class T, bool T_Align16 = false>
 class AllocatorWithCleanup : public AllocatorBase<T>
 {
 public:
-	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
+	CRYPTOPP_INHERIT_ALLOCATOR_TYPES(T)
 
 	/// \brief Allocates a block of memory
 	/// \param ptr the size of the allocation
@@ -299,7 +299,7 @@ class NullAllocator : public AllocatorBase<T>
 {
 public:
 	//LCOV_EXCL_START
-	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
+	CRYPTOPP_INHERIT_ALLOCATOR_TYPES(T)
 
 	// TODO: should this return NULL or throw bad_alloc? Non-Windows C++ standard
 	// libraries always throw. And late mode Windows throws. Early model Windows
@@ -354,7 +354,7 @@ template <class T, size_t S, class A>
 class FixedSizeAllocatorWithCleanup<T, S, A, true> : public AllocatorBase<T>
 {
 public:
-	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
+	CRYPTOPP_INHERIT_ALLOCATOR_TYPES(T)
 
 	/// \brief Constructs a FixedSizeAllocatorWithCleanup
 	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
@@ -578,7 +578,7 @@ template <class T, size_t S, class A>
 class FixedSizeAllocatorWithCleanup<T, S, A, false> : public AllocatorBase<T>
 {
 public:
-	CRYPTOPP_INHERIT_ALLOCATOR_TYPES
+	CRYPTOPP_INHERIT_ALLOCATOR_TYPES(T)
 
 	/// \brief Constructs a FixedSizeAllocatorWithCleanup
 	FixedSizeAllocatorWithCleanup() : m_allocated(false) {}
