@@ -319,6 +319,23 @@ bool ValidateECP()
 	{
 		DL_GroupParameters_EC<ECP> params(oid);
 		bool fail = !params.Validate(GlobalRNG(), 2);
+
+		// Test addition of identity element
+		DL_GroupParameters_EC<ECP>::Element e1;
+		e1 = params.GetCurve().Add(e1, e1);
+		fail = !params.IsIdentity(e1) & fail;
+
+		// Test doubling of identity element
+		DL_GroupParameters_EC<ECP>::Element e2;
+		e2 = params.GetCurve().Double(e2);
+		fail = !params.IsIdentity(e2) & fail;
+
+		// Test multiplication of identity element
+		DL_GroupParameters_EC<ECP>::Element e3;
+		Integer two = Integer::Two();
+		e3 = params.GetCurve().Multiply(two, e3);
+		fail = !params.IsIdentity(e3) & fail;
+
 		std::cout << (fail ? "FAILED" : "passed") << "    " << std::dec << params.GetCurve().GetField().MaxElementBitLength() << " bits\n";
 		pass = pass && !fail;
 	}
@@ -339,6 +356,23 @@ bool ValidateEC2N()
 	{
 		DL_GroupParameters_EC<EC2N> params(oid);
 		bool fail = !params.Validate(GlobalRNG(), 2);
+
+		// Test addition of identity element
+		DL_GroupParameters_EC<EC2N>::Element e1;
+		e1 = params.GetCurve().Add(e1, e1);
+		fail = !params.IsIdentity(e1) & fail;
+
+		// Test doubling of identity element
+		DL_GroupParameters_EC<EC2N>::Element e2;
+		e2 = params.GetCurve().Double(e2);
+		fail = !params.IsIdentity(e2) & fail;
+
+		// Test multiplication of identity element
+		DL_GroupParameters_EC<EC2N>::Element e3;
+		Integer two = Integer::Two();
+		e3 = params.GetCurve().Multiply(two, e3);
+		fail = !params.IsIdentity(e3) & fail;
+
 		std::cout << (fail ? "FAILED" : "passed") << "    " << params.GetCurve().GetField().MaxElementBitLength() << " bits\n";
 		pass = pass && !fail;
 	}
