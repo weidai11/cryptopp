@@ -427,7 +427,7 @@ public:
 			// If the m_allocated assert fires then the bit twiddling for
 			// GetAlignedArray() is probably incorrect for the platform.
 			// Be sure to check CRYPTOPP_ALIGN_DATA(8). The platform may
-			// not have a way to declaritively align data to 8.
+			// not have a way to declaratively align data to 8.
 			CRYPTOPP_ASSERT(size <= S);
 			CRYPTOPP_ASSERT(m_allocated);
 			m_allocated = false;
