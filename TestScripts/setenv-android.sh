@@ -258,17 +258,17 @@ cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
 # Cleanup the sources for the C++ compiler
 # https://github.com/weidai11/cryptopp/issues/926
 
-sed -i 's/p = memmem/p = (const char*)memmem/g' cpu-features.c
-sed -i 's/p  = memmem/p  = (const char*)memmem/g' cpu-features.c
-sed -i 's/p = memchr/p = (const char*)memchr/g' cpu-features.c
-sed -i 's/p  = memchr/p  = (const char*)memchr/g' cpu-features.c
-
-sed -i 's/q = memmem/q = (const char*)memmem/g' cpu-features.c
-sed -i 's/q  = memmem/q  = (const char*)memmem/g' cpu-features.c
-sed -i 's/q = memchr/q = (const char*)memchr/g' cpu-features.c
-sed -i 's/q  = memchr/q  = (const char*)memchr/g' cpu-features.c
-
-sed -i 's/cpuinfo = malloc/cpuinfo = (char*)malloc/g' cpu-features.c
+sed -e 's/p = memmem/p = (const char*)memmem/g' \
+    -e 's/p  = memmem/p  = (const char*)memmem/g' \
+    -e 's/p = memchr/p = (const char*)memchr/g' \
+    -e 's/p  = memchr/p  = (const char*)memchr/g' \
+    -e 's/q = memmem/q = (const char*)memmem/g' \
+    -e 's/q  = memmem/q  = (const char*)memmem/g' \
+    -e 's/q = memchr/q = (const char*)memchr/g' \
+    -e 's/q  = memchr/q  = (const char*)memchr/g' \
+    -e 's/cpuinfo = malloc/cpuinfo = (char*)malloc/g' \
+    cpu-features.c > cpu-features.c.fixed
+mv cpu-features.c.fixed cpu-features.c
 
 #####################################################################
 
