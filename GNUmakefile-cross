@@ -830,17 +830,17 @@ libcryptopp.so: libcryptopp.so$(SOLIB_VERSION_SUFFIX)
 endif
 
 libcryptopp.so$(SOLIB_VERSION_SUFFIX): $(LIBOBJS) $(ANDROID_CPU_OBJ)
-	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(ANDROID_CPU_OBJ) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -shared $(SOLIB_FLAGS) -o $@ $(strip $(CPPFLAGS) $(CXXFLAGS)) -Wl,--exclude-libs,ALL $(LIBOBJS) $(ANDROID_CPU_OBJ) $(LDFLAGS) $(LDLIBS)
 ifeq ($(HAS_SOLIB_VERSION),1)
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so
 	-$(LN) libcryptopp.so$(SOLIB_VERSION_SUFFIX) libcryptopp.so$(SOLIB_COMPAT_SUFFIX)
 endif
 
 libcryptopp.dylib: $(LIBOBJS)
-	$(CXX) -dynamiclib -o $@ $(strip $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
+	$(CXX) -dynamiclib -o $@ $(strip $(CPPFLAGS) $(CXXFLAGS)) -install_name "$@" -current_version "$(LIB_MAJOR).$(LIB_MINOR).$(LIB_PATCH)" -compatibility_version "$(LIB_MAJOR).$(LIB_MINOR)" -headerpad_max_install_names $(LDFLAGS) $(LIBOBJS)
 
 cryptest.exe: $(LINK_LIBRARY) $(TESTOBJS)
-	$(CXX) -o $@ $(strip $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY_PATH)$(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
+	$(CXX) -o $@ $(strip $(CPPFLAGS) $(CXXFLAGS)) $(TESTOBJS) $(LINK_LIBRARY_PATH)$(LINK_LIBRARY) $(LDFLAGS) $(LDLIBS)
 
 # Used to generate list of source files for Autotools, CMakeList and Android.mk
 .PHONY: sources
@@ -871,113 +871,112 @@ endif # Dependencies
 
 # Cryptogams ARM asm implementation. AES needs -mthumb for Clang
 aes_armv4.o : aes_armv4.S
-	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_THUMB_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_THUMB_FLAG) -c) $<
 
 # Use C++ compiler on C source after patching.
 # https://github.com/weidai11/cryptopp/issues/926
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CXX) -x c $(strip $(CXXFLAGS) -c) cpu-features.c
+	$(CXX) -x c $(strip $(CPPFLAGS) $(CXXFLAGS) -c) cpu-features.c
 
 # SSSE3 or NEON available
 aria_simd.o : aria_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(ARIA_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(ARIA_FLAG) -c) $<
 
 # SSE, NEON or POWER7 available
 blake2s_simd.o : blake2s_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2S_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(BLAKE2S_FLAG) -c) $<
 
 # SSE, NEON or POWER8 available
 blake2b_simd.o : blake2b_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(BLAKE2B_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(BLAKE2B_FLAG) -c) $<
 
 # SSE2 or NEON available
 chacha_simd.o : chacha_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CHACHA_FLAG) -c) $<
 
 # AVX2 available
 chacha_avx.o : chacha_avx.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(CHACHA_AVX2_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CHACHA_AVX2_FLAG) -c) $<
 
 # SSSE3 available
 cham_simd.o : cham_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(CHAM_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CHAM_FLAG) -c) $<
 
 # Power9 available
 darn.o : darn.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(DARN_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(DARN_FLAG) -c) $<
 
 # SSE2 on i686
 donna_sse.o : donna_sse.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SSE2_FLAG) -c) $<
 
 # SSE2 on i686
 sse_simd.o : sse_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SSE2_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SSE2_FLAG) -c) $<
 
 # SSE4.2 or ARMv8a available
 crc_simd.o : crc_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(CRC_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CRC_FLAG) -c) $<
 
 # PCLMUL or ARMv7a/ARMv8a available
 gcm_simd.o : gcm_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(GCM_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(GCM_FLAG) -c) $<
 
 # Carryless multiply
 gf2n_simd.o : gf2n_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(GF2N_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(GF2N_FLAG) -c) $<
 
 # SSSE3 available
 lea_simd.o : lea_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(LEA_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(LEA_FLAG) -c) $<
 
 # NEON available
 neon_simd.o : neon_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(NEON_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(NEON_FLAG) -c) $<
 
 # AESNI or ARMv7a/ARMv8a available
 rijndael_simd.o : rijndael_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(AES_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(AES_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 sha_simd.o : sha_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # Cryptogams SHA1 asm implementation.
 sha1_armv4.o : sha1_armv4.S
-	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
 
 # Cryptogams SHA256 asm implementation.
 sha256_armv4.o : sha256_armv4.S
-	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
 
 # Cryptogams SHA512 asm implementation.
 sha512_armv4.o : sha512_armv4.S
-	$(CXX) $(strip $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(CRYPTOGAMS_ARMV4_FLAG) -c) $<
 
 # SSE4.2/SHA-NI or ARMv8a available
 shacal2_simd.o : shacal2_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SHA_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SHA_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
 simon128_simd.o : simon128_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SIMON128_FLAG) -c) $<
 
 # SSSE3, NEON or POWER8 available
 speck128_simd.o : speck128_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SPECK128_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SPECK128_FLAG) -c) $<
 
 # ARMv8.4 available
 sm3_simd.o : sm3_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SM3_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SM3_FLAG) -c) $<
 
 # AESNI available
 sm4_simd.o : sm4_simd.cpp
-	$(CXX) $(strip $(CXXFLAGS) $(SM4_FLAG) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) $(SM4_FLAG) -c) $<
 
 %.o : %.cpp
-	$(CXX) $(strip $(CXXFLAGS) -c) $<
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) -c) $<
 
 .PHONY: dep deps depend
 dep deps depend GNUmakefile.deps:
-	$(CXX) $(strip $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
-
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS)) -MM *.cpp > GNUmakefile.deps
