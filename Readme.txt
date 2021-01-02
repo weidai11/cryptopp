@@ -295,13 +295,21 @@ documentation is one of the highest returns on investment.
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
 
-8.4.0 - TDB
+8.4.0 - January 2, 2021
+      - minor release, recompile of programs required
+      - expanded community input and support
+        * 67 unique contributors as of this release
       - fix SIGILL on POWER8 when compiling with GCC 10
       - fix potential out-of-bounds write in FixedSizeAllocatorWithCleanup
       - fix compile on AIX POWER7 with IBM XLC 12.01
       - fix compile on Solaris with SunCC 12.6
+      - revert changes for constant-time elliptic curve algorithms
+      - fix makefile clean and distclean recipes
 
 8.3.0 - December 20, 2020
+      - minor release, recompile of programs required
+      - expanded community input and support
+        * 66 unique contributors as of this release
       - fix use of macro CRYPTOPP_ALIGN_DATA
       - fix potential out-of-bounds read in ECDSA
       - fix std::bad_alloc when using ByteQueue in pipeline

@@ -482,7 +482,7 @@ last several releases.
       - fix missing BlockSize() in BLAKE2 classes
 
 8.3.0 - December 20, 2020
-      - minor release, no recompile of programs required
+      - minor release, recompile of programs required
       - expanded community input and support
         * 66 unique contributors as of this release
       - fix use of macro CRYPTOPP_ALIGN_DATA
@@ -525,3 +525,14 @@ last several releases.
       - handle Clang triplet armv8l-unknown-linux-gnueabihf
       - fix reference binding to misaligned address in xed25519
       - clear asserts in TestDataNameValuePairs
+
+8.4.0 - January 2, 2021
+      - minor release, recompile of programs required
+      - expanded community input and support
+        * 67 unique contributors as of this release
+      - fix SIGILL on POWER8 when compiling with GCC 10
+      - fix potential out-of-bounds write in FixedSizeAllocatorWithCleanup
+      - fix compile on AIX POWER7 with IBM XLC 12.01
+      - fix compile on Solaris with SunCC 12.6
+      - revert changes for constant-time elliptic curve algorithms
+      - fix makefile clean and distclean recipes
