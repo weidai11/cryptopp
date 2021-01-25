@@ -33,7 +33,7 @@ Currently the library contains the following algorithms:
                                    SHAKE (128/256), SipHash, SM3, Tiger,
                                    RIPEMD (128/160/256/320), WHIRLPOOL
 
-                                   RSA, DSA, Determinsitic DSA, ElGamal,
+                                   RSA, DSA, Deterministic DSA, ElGamal,
           public-key cryptography  Nyberg-Rueppel (NR), Rabin-Williams (RW), LUC,
                                    LUCELG, EC-based German Digital Signature (ECGDSA),
                                    DLIES (variants of DHAES), ESIGN
@@ -45,7 +45,7 @@ Currently the library contains the following algorithms:
             key agreement schemes  Menezes-Qu-Vanstone (MQV), Hashed MQV (HMQV),
                                    Fully Hashed MQV (FHMQV), LUCDIF, XTR-DH
 
-      elliptic curve cryptography  ECDSA, Determinsitic ECDSA, ed25519, ECNR, ECIES,
+      elliptic curve cryptography  ECDSA, Deterministic ECDSA, ed25519, ECNR, ECIES,
                                    ECDH, ECMQV, x25519
 
           insecure or obsolescent  MD2, MD4, MD5, Panama Hash, DES, ARC4, SEAL
