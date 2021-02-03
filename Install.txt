@@ -202,18 +202,18 @@ Fifth, the test harness provides a "validation" option which performs basic syst
     ./cryptest.exe v
     ...
 
-    All tests passed!
-    Test ended at Sun Jul 26 02:10:57 2015
-    Seed used was: 1437891055
+    Seed used was 1612313449
+    Test started at Tue Feb 2 19:50:49 2021
+    Test ended at Tue Feb 2 19:50:52 2021
 
 Sixth, the test harness provides a "test vector" option which uses many known test vectors, even those published by other people (like Brian Gladman for AES). You run the test vectors as shown below. The tail of the output should indicate 0 failed tests.
 
     ./cryptest.exe tv all
     ...
 
-    Testing SymmetricCipher algorithm MARS/ECB.
-    .................
-    Tests complete. Total tests = 4094. Failed tests = 0.
+    Testing SymmetricCipher algorithm AES/XTS.
+    .....................
+    Tests complete. Total tests = 11260. Failed tests = 0.
 
 The library also offers its test script for those who want to use it. The test script is names cryptest.sh, and it repeatedly builds the library and exectues the tests under various configurations. It takes 2 to 4 hours to run on a semi-modern desktop or server; and days to run on an IoT gadget. Also see http://github.com/weidai11/cryptopp/blob/master/cryptest.sh and http://cryptopp.com/wiki/Cryptest.sh.
 
