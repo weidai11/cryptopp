@@ -26,6 +26,7 @@ Crypto++ does not depend upon other tools or libraries. The library only needs G
 
 Autotools and CMake projects are not officially supported. The build systems take too much time and effort. Unofficial projects are available at https://github.com/noloader/cryptopp-autotools and https://github.com/noloader/cryptopp-cmake. The projects provide a central location to support Autotools and CMake. Collaborators for Autotools and CMake are welcomed.
 
+
 BUILDING THE LIBRARY
 --------------------
 
@@ -83,6 +84,7 @@ Crypto++ does not enagage Specter remediations at this time. You can build with 
 
 The library does not support out-of-tree builds. You must cd to the Crypto++ directory before building. `make distclean` will return the Crypto++ directory to a pristine state.
 
+
 BUILDING WITH VCPKG
 -------------------
 
@@ -96,6 +98,7 @@ You can download and install cryptopp using the [vcpkg](https://github.com/Micro
 
 The cryptopp port in vcpkg is kept up to date by Microsoft team members and community contributors.
 If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg) on the vcpkg repository.
+
 
 ALTERNATE BUILD SYSTEMS
 -----------------------

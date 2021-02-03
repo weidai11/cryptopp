@@ -1169,7 +1169,7 @@ TESTIMPORTOBJS := $(TESTOBJS:.o=.import.o)
 DLLTESTOBJS := dlltest.dllonly.o
 
 # Clean recipe, Issue 998. Don't filter-out some artifacts from the list of objects
-# The *.S is a hack. It makes the ASM appear like C++ so the object files make the CLEAN_OBJS list 
+# The *.S is a hack. It makes the ASM appear like C++ so the object files make the CLEAN_OBJS list
 CLEAN_SRCS := $(wildcard *.cpp) $(patsubst %.S,%.cpp,$(wildcard *.S))
 CLEAN_OBJS := $(CLEAN_SRCS:.cpp=.o) $(CLEAN_SRCS:.cpp=.import.o) $(CLEAN_SRCS:.cpp=.export.o)
 
