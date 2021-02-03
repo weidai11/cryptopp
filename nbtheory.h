@@ -181,7 +181,7 @@ CRYPTOPP_DLL Integer CRYPTOPP_API CRT(const Integer &xp, const Integer &p, const
 /// \brief Calculate the Jacobi symbol
 /// \param a the first term
 /// \param b the second term
-/// \return the the Jacobi symbol.
+/// \return the Jacobi symbol.
 /// \details Jacobi symbols are calculated using the following rules:
 ///  -# if <tt>b</tt> is prime, then <tt>Jacobi(a, b)</tt>, then return 0
 ///  -# if <tt>a%b</tt>==0 AND <tt>a</tt> is quadratic residue <tt>mod b</tt>, then return 1
@@ -305,7 +305,7 @@ public:
 	const Integer& SubPrime() const {return q;}
 
 	/// \brief Retrieve the generator
-	/// \return Generator() returns the the generator g.
+	/// \return Generator() returns the generator g.
 	const Integer& Generator() const {return g;}
 
 private:

@@ -1340,7 +1340,7 @@ public:
 	/// \return the maximum length of encrypted data
 	virtual lword MaxMessageLength() const =0;
 
-	/// \brief Provides the the maximum length of AAD
+	/// \brief Provides the maximum length of AAD
 	/// \return the maximum length of AAD that can be input after the encrypted data
 	virtual lword MaxFooterLength() const {return 0;}
 
@@ -2725,7 +2725,7 @@ public:
 	/// \param parameters a set of NameValuePairs to initialize this object
 	/// \return the result of the decryption operation
 	/// \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
-	///  is valid and holds the the actual length of the plaintext recovered. The result is undefined
+	///  is valid and holds the actual length of the plaintext recovered. The result is undefined
 	///  if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
 	///  is undefined.
 	/// \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output
@@ -2751,7 +2751,7 @@ public:
 	/// \param parameters a set of NameValuePairs to initialize this object
 	/// \return the result of the decryption operation
 	/// \details If DecodingResult::isValidCoding is true, then DecodingResult::messageLength
-	///  is valid and holds the the actual length of the plaintext recovered. The result is undefined
+	///  is valid and holds the actual length of the plaintext recovered. The result is undefined
 	///  if decryption failed. If DecodingResult::isValidCoding is false, then DecodingResult::messageLength
 	///  is undefined.
 	/// \pre <tt>COUNTOF(plaintext) == MaxPlaintextLength(ciphertextLength)</tt> ensures the output

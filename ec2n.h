@@ -44,7 +44,7 @@ public:
 
 	/// \brief Construct an EC2N from BER encoded parameters
 	/// \param bt BufferedTransformation derived object
-	/// \details This constructor will decode and extract the the fields fieldID and curve of the sequence ECParameters
+	/// \details This constructor will decode and extract the fields fieldID and curve of the sequence ECParameters
 	EC2N(BufferedTransformation &bt);
 
 	/// \brief Encode the fields fieldID and curve of the sequence ECParameters

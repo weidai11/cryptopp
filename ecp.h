@@ -54,7 +54,7 @@ public:
 
 	/// \brief Construct an ECP from BER encoded parameters
 	/// \param bt BufferedTransformation derived object
-	/// \details This constructor will decode and extract the the fields
+	/// \details This constructor will decode and extract the fields
 	///  fieldID and curve of the sequence ECParameters
 	ECP(BufferedTransformation &bt);
 

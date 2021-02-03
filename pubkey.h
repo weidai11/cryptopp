@@ -87,7 +87,7 @@ public:
 	/// \details The default implementation returns <tt>PreimageBound() - 1</tt>.
 	virtual Integer MaxPreimage() const {return --PreimageBound();}
 	/// \brief Returns the maximum size of a message after the trapdoor function is applied bound to a public key
-	/// \return the the maximum size of a message after the trapdoor function is applied bound to a public key
+	/// \return the maximum size of a message after the trapdoor function is applied bound to a public key
 	/// \details The default implementation returns <tt>ImageBound() - 1</tt>.
 	virtual Integer MaxImage() const {return --ImageBound();}
 };
@@ -692,7 +692,7 @@ public:
 	/// \brief Generate and apply mask
 	/// \param hash HashTransformation derived class
 	/// \param output the destination byte array
-	/// \param outputLength the size fo the the destination byte array
+	/// \param outputLength the size fo the destination byte array
 	/// \param input the message to hash
 	/// \param inputLength the size of the message
 	/// \param mask flag indicating whether to apply the mask
@@ -703,7 +703,7 @@ public:
 /// \brief P1363 mask generation function
 /// \param hash HashTransformation derived class
 /// \param output the destination byte array
-/// \param outputLength the size fo the the destination byte array
+/// \param outputLength the size fo the destination byte array
 /// \param input the message to hash
 /// \param inputLength the size of the message
 /// \param derivationParams additional derivation parameters
@@ -727,7 +727,7 @@ public:
 	/// \brief P1363 mask generation function
 	/// \param hash HashTransformation derived class
 	/// \param output the destination byte array
-	/// \param outputLength the size fo the the destination byte array
+	/// \param outputLength the size fo the destination byte array
 	/// \param input the message to hash
 	/// \param inputLength the size of the message
 	/// \param mask flag indicating whether to apply the mask
@@ -751,7 +751,7 @@ class P1363_KDF2
 public:
 	/// \brief P1363 key derivation function
 	/// \param output the destination byte array
-	/// \param outputLength the size fo the the destination byte array
+	/// \param outputLength the size fo the destination byte array
 	/// \param input the message to hash
 	/// \param inputLength the size of the message
 	/// \param derivationParams additional derivation parameters

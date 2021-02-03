@@ -2510,7 +2510,7 @@ inline uint64x2_p VecPolyMultiply(const uint64x2_p& a, const uint64x2_p& b)
 ///  The <tt>0x00</tt> indicates the low 64-bits of <tt>a</tt> and <tt>b</tt>
 ///  are multiplied.
 /// \note An Intel XMM register is composed of 128-bits. The leftmost bit
-///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+///  is MSB and numbered 127, while the rightmost bit is LSB and numbered 0.
 /// \par Wraps
 ///  __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
 /// \since Crypto++ 8.0
@@ -2532,7 +2532,7 @@ inline uint64x2_p VecIntelMultiply00(const uint64x2_p& a, const uint64x2_p& b)
 ///  The <tt>0x01</tt> indicates the low 64-bits of <tt>a</tt> and high
 ///  64-bits of <tt>b</tt> are multiplied.
 /// \note An Intel XMM register is composed of 128-bits. The leftmost bit
-///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+///  is MSB and numbered 127, while the rightmost bit is LSB and numbered 0.
 /// \par Wraps
 ///  __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
 /// \since Crypto++ 8.0
@@ -2554,7 +2554,7 @@ inline uint64x2_p VecIntelMultiply01(const uint64x2_p& a, const uint64x2_p& b)
 ///  The <tt>0x10</tt> indicates the high 64-bits of <tt>a</tt> and low
 ///  64-bits of <tt>b</tt> are multiplied.
 /// \note An Intel XMM register is composed of 128-bits. The leftmost bit
-///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+///  is MSB and numbered 127, while the rightmost bit is LSB and numbered 0.
 /// \par Wraps
 ///  __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
 /// \since Crypto++ 8.0
@@ -2576,7 +2576,7 @@ inline uint64x2_p VecIntelMultiply10(const uint64x2_p& a, const uint64x2_p& b)
 ///  The <tt>0x11</tt> indicates the high 64-bits of <tt>a</tt> and <tt>b</tt>
 ///  are multiplied.
 /// \note An Intel XMM register is composed of 128-bits. The leftmost bit
-///  is MSB and numbered 127, while the the rightmost bit is LSB and numbered 0.
+///  is MSB and numbered 127, while the rightmost bit is LSB and numbered 0.
 /// \par Wraps
 ///  __vpmsumd, __builtin_altivec_crypto_vpmsumd and __builtin_crypto_vpmsumd.
 /// \since Crypto++ 8.0

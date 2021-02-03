@@ -90,14 +90,14 @@ public:
 	virtual void Precompute(const DL_GroupPrecomputation<Element> &group, unsigned int maxExpBits, unsigned int storage) =0;
 
 	/// \brief Retrieve previously saved precomputation
-	/// \param group the the group
+	/// \param group the group
 	/// \param storedPrecomputation BufferedTransformation with the saved precomputation
 	/// \throw NotImplemented
 	/// \sa SupportsPrecomputation(), Precompute()
 	virtual void Load(const DL_GroupPrecomputation<Element> &group, BufferedTransformation &storedPrecomputation) =0;
 
 	/// \brief Save precomputation for later use
-	/// \param group the the group
+	/// \param group the group
 	/// \param storedPrecomputation BufferedTransformation to write the precomputation
 	/// \throw NotImplemented
 	/// \sa SupportsPrecomputation(), Precompute()

@@ -29,7 +29,7 @@ extern "C" {
 /// \brief Null signal handler function
 /// \param unused the signal number
 /// \details NullSignalHandler is provided as a stand alone function with external "C" linkage
-///  and not a static member function due to the the member function's implicit
+///  and not a static member function due to the member function's implicit
 ///  external "C++" linkage.
 /// \sa SignalHandler, SignalHandlerFn
 extern "C" {

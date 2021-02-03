@@ -66,8 +66,8 @@ template<> class PSSR_MEM_BaseWithHashId<false> : public PSSR_MEM_Base {};
 /// \tparam SALT_LEN length of the salt
 /// \tparam MIN_PAD_LEN minimum length of the pad
 /// \tparam USE_HASH_ID flag indicating whether the HashId is used
-/// \details If ALLOW_RECOVERY is true, the the signature scheme provides message recovery. If
-///  ALLOW_RECOVERY is false, the the signature scheme is appendix, and the message must be
+/// \details If ALLOW_RECOVERY is true, the signature scheme provides message recovery. If
+///  ALLOW_RECOVERY is false, the signature scheme is appendix, and the message must be
 ///  provided during verification.
 /// \since Crypto++ 2.1
 template <bool ALLOW_RECOVERY, class MGF=P1363_MGF1, int SALT_LEN=-1, int MIN_PAD_LEN=0, bool USE_HASH_ID=false>
