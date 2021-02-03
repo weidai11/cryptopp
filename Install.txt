@@ -141,7 +141,7 @@ The following are some of the targets provided by the GNU makefile.
 
 `make cryptest.exe` builds the library test harness.
 
-`make test` and `make check` are the same recipe and invoke the test harness with the the validation option. That is, it executes `cryptest.exe v`.
+`make test` and `make check` are the same recipe and invoke the test harness with the validation option. That is, it executes `cryptest.exe v`.
 
 `make install` installs the library. By default, the makefile copies into `/usr/local` by default.
 
@@ -164,18 +164,16 @@ The Crypto++ embraces tools like Undefined Behavior sanitizer (UBsan), Address s
 UBsan and Asan are mutually exclusive options, so you can perform only one of these at a time:
 
     make ubsan
-    ./cryptest.exe v 2>&1 | egrep "(error|FAILED)"
-    ./cryptest.exe tv all 2>&1 | egrep "(error|FAILED)"
+    ./cryptest.exe v 2>&1 | grep -E "(error:|FAILED)"
+    ./cryptest.exe tv all 2>&1 | grep -E "(error:|FAILED)"
 
 Or:
 
     make asan
-    ./cryptest.exe v 2>&1 | egrep "(error|FAILED)"
-    ./cryptest.exe tv all 2>&1 | egrep "(error|FAILED)"
+    ./cryptest.exe v 2>&1 | grep -E "(error:|FAILED)"
+    ./cryptest.exe tv all 2>&1 | grep -E "(error:|FAILED)"
 
-If you experience self test failures or see reports of undefined behavior, then you should ensure CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is defined in config.h. CRYPTOPP_NO_UNALIGNED_DATA_ACCESS is not defined due to historical purposes.
-
-If you experience failures under Asan, then gather more information with:
+If you experience failures under Asan, then gather more information with asan_symbolize. You may not need asan_symbolize nowadays:
 
     ./cryptest.exe v 2>&1 | asan_symbolize
 
@@ -215,7 +213,7 @@ Sixth, the test harness provides a "test vector" option which uses many known te
     .....................
     Tests complete. Total tests = 11260. Failed tests = 0.
 
-The library also offers its test script for those who want to use it. The test script is names cryptest.sh, and it repeatedly builds the library and exectues the tests under various configurations. It takes 2 to 4 hours to run on a semi-modern desktop or server; and days to run on an IoT gadget. Also see http://github.com/weidai11/cryptopp/blob/master/cryptest.sh and http://cryptopp.com/wiki/Cryptest.sh.
+The library also offers its test script for those who want to use it. The test script is names cryptest.sh, and it repeatedly builds the library and exectues the tests under various configurations. It takes about 4 hours to run on a semi-modern desktop or server; and several days to run on an IoT gadget. Also see http://github.com/weidai11/cryptopp/blob/master/cryptest.sh and http://cryptopp.com/wiki/Cryptest.sh.
 
 
 REPORTING PROBLEMS
