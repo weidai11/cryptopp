@@ -2,6 +2,7 @@ CONTENTS OF THIS FILE
 ---------------------
 
 * Introduction
+* Prerequisites
 * Building the Library
 * Alternate Build Systems
 * Installing the Library
@@ -26,6 +27,13 @@ Crypto++ does not depend upon other tools or libraries. The library only needs G
 
 Autotools and CMake projects are not officially supported. The build systems take too much time and effort. Unofficial projects are available at https://github.com/noloader/cryptopp-autotools and https://github.com/noloader/cryptopp-cmake. The projects provide a central location to support Autotools and CMake. Collaborators for Autotools and CMake are welcomed.
 
+
+PREREQUISITES
+-------------
+
+The library requires a semi-modern C++ compiler and GNU Make 3.81 or above. The compiler must support 64-bit words, C++03, namespaces, RTTI and exceptions.
+
+The library does not depend on other build systems, like Autotools or CMake. The library does not depend on other libraries, like Boost.
 
 BUILDING THE LIBRARY
 --------------------
