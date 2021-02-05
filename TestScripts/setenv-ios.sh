@@ -2,7 +2,7 @@
 
 #############################################################################
 #
-# This script sets the cross compile environment for Xcode/iOS.
+# This script sets the cross-compile environment for Xcode/iOS.
 #
 # Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.

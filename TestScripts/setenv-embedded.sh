@@ -2,7 +2,7 @@
 
 #############################################################################
 #
-# This script sets the cross compile environment for ARM embedded.
+# This script sets the cross-compile environment for ARM embedded.
 #
 # Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.
