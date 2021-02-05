@@ -63,14 +63,14 @@ if [ -n "$(command -v apt-get)" ]; then
 fi
 
 echo "Downloading SDK"
-if ! curl -k -s -o android-sdk.zip "$SDK_URL";
+if ! curl -s -o android-sdk.zip "$SDK_URL";
 then
     echo "Failed to download SDK"
     exit 1
 fi
 
 echo "Downloading NDK"
-if ! curl -k -s -o android-ndk.zip "$NDK_URL";
+if ! curl -s -o android-ndk.zip "$NDK_URL";
 then
     echo "Failed to download NDK"
     exit 1
