@@ -248,7 +248,6 @@ if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; th
     echo "ERROR: Unable to locate cpu-features.h"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
-chmod ugo+r,ugo-x cpu-features.h
 
 if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
     echo "ERROR: Unable to locate cpu-features.c"
@@ -273,7 +272,7 @@ sed -e 's/p = memmem/p = (const char*)memmem/g' \
     cpu-features.c > cpu-features.c.fixed
 mv cpu-features.c.fixed cpu-features.c
 
-# Fix permissions
+# Fix permissions. For some reason cpu-features.h is +x.
 chmod ugo+r,ugo-x cpu-features.h cpu-features.c
 
 #####################################################################
