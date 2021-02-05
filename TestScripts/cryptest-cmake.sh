@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# ====================================================================
+# Tests CMake builds
+#
+# See https://www.cryptopp.com/wiki/CMake for more details
+# ====================================================================
+
+#############################################################################
+
 # Fixup ancient Bash
 # https://unix.stackexchange.com/q/468579/56041
 if [[ -z "$BASH_SOURCE" ]]; then

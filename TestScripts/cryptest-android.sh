@@ -6,6 +6,8 @@
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 # ====================================================================
 
+#############################################################################
+
 if [ -z "$(command -v ./setenv-android.sh)" ]; then
     echo "Failed to locate setenv-android.sh"
     [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
