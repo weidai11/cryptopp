@@ -248,12 +248,14 @@ if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; th
     echo "ERROR: Unable to locate cpu-features.h"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
-cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
+chmod ugo+r,ugo-x cpu-features.h
 
 if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
     echo "ERROR: Unable to locate cpu-features.c"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
+
+cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
 cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
 
 # Cleanup the sources for the C++ compiler
@@ -270,6 +272,9 @@ sed -e 's/p = memmem/p = (const char*)memmem/g' \
     -e 's/cpuinfo = malloc/cpuinfo = (char*)malloc/g' \
     cpu-features.c > cpu-features.c.fixed
 mv cpu-features.c.fixed cpu-features.c
+
+# Fix permissions
+chmod ugo+r,ugo-x cpu-features.h cpu-features.c
 
 #####################################################################
 
