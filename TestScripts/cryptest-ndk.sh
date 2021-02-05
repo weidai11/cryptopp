@@ -63,7 +63,7 @@ if [[ "${IS_DARWIN}" -ne 0 ]] && [[ $(command -v xattr 2>/dev/null) ]]; then
 fi
 
 # Fix missing *neon files
-echo "Adding missing NEON files for armeabi-v7a"
+echo "Adding NEON files for armeabi-v7a"
 bash make_neon.sh
 
 #############################################################################
