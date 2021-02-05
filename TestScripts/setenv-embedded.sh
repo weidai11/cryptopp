@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 
-# ====================================================================
-# Sets the cross compile environment for ARM Embedded
+#############################################################################
 #
-# Written by Jeffrey Walton, noloader gmail account
+# This script sets the cross compile environment for ARM embedded.
+#
+# Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
+# Heavily modified by JWW for Crypto++.
 #
 # Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
 # licensed under the Boost Software License 1.0, while the individual files
 # in the compilation are all public domain.
 #
-# This script only supports Ubuntu at the moment. It does not support Fedora.
 # See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line) for details.
-# ====================================================================
+#############################################################################
 
 # cryptest-embedded.sh may run this script without sourcing.
 if [ "$0" = "${BASH_SOURCE[0]}" ]; then

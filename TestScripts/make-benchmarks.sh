@@ -1,14 +1,21 @@
 #!/usr/bin/env bash
 
-# make-benchmarks - Scan build submission instructions for Unix and Linux.
-#                   Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
-#                   Copyright assigned to Crypto++ project.
+#############################################################################
 #
-# The following builds the benchmarks under 5.6.2, 5.6.4 and Master. The results can then be
-#  compared to ensure an speed penalty is not inadvertently taken. Crypto++ 5.6.2 is significant
-#  because its the last version Wei worked on before turning the library over to the community.
-
-###############################################################################
+# The following builds the benchmarks under 5.6.2, 5.6.4 and Master. The
+# results can then be compared to ensure an speed penalty is not inadvertently
+# taken. Crypto++ 5.6.2 is significant because its the last version Wei worked
+# on before turning the library over to the community.
+#
+# Written and placed in public domain by Jeffrey Walton.
+#
+# Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
+# licensed under the Boost Software License 1.0, while the individual files
+# in the compilation are all public domain.
+#
+# See https://www.cryptopp.com/wiki/Benchmarks for more details
+#
+#############################################################################
 
 # Set to suite your taste. Speed is in GiHz
 
@@ -25,16 +32,16 @@ echo "Using CPU frequency of $CPU_FREQ GiHz."
 echo "Please modify this script if its not correct"
 echo
 
-###############################################################################
+#############################################################################
 
 current=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
 git fetch --all &>/dev/null &>/dev/null
 if [[ "$?" -ne "0" ]]; then
 	echo "$PWD does not appear to be a Git repository"
-	[[ "$0" = "$BASH_SOURCE" ]] && exit 1 || return 1
+	exit 1
 fi
 
-###############################################################################
+#############################################################################
 # Try to find a fast option
 
 OPT=
@@ -79,7 +86,7 @@ if [[ -z "$OPT" ]]; then
 	fi
 fi
 
-##################################################################
+#############################################################################
 
 echo "***************************************************"
 echo "**************** Crypto++ 5.6.2 *******************"
@@ -105,7 +112,7 @@ else
 	fi
 fi
 
-##################################################################
+#############################################################################
 
 echo "***************************************************"
 echo "**************** Crypto++ 5.6.4 *******************"
@@ -131,7 +138,7 @@ else
 	fi
 fi
 
-##################################################################
+#############################################################################
 
 echo "***************************************************"
 echo "*************** Crypto++ Master *******************"
@@ -157,10 +164,10 @@ else
 	fi
 fi
 
-##################################################################
+#############################################################################
 
 if [[ ! -z "$current" ]]; then
 	git checkout -f "$current"
 fi
 
-[[ "$0" = "$BASH_SOURCE" ]] && exit 0 || return 0
+exit 0

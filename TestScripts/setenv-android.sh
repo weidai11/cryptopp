@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
-# ====================================================================
-# Sets the cross compile environment for Android
+#############################################################################
+#
+# This script sets the cross compile environment for Android.
 #
 # Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.
@@ -16,7 +17,7 @@
 #   https://android.googlesource.com/platform/ndk/+/master/docs/PlatformApis.md
 #
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
-# ====================================================================
+#############################################################################
 
 #########################################
 #####        Some validation        #####

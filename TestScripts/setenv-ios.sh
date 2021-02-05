@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
-# ====================================================================
-# Sets the cross compile environment for Xcode/iOS
+#############################################################################
 #
-# Based upon OpenSSL's setenv-ios.sh  by TH, JW, and SM.
+# This script sets the cross compile environment for Xcode/iOS.
+#
+# Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.
 #
 # Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
@@ -11,7 +12,7 @@
 # in the compilation are all public domain.
 #
 # See http://www.cryptopp.com/wiki/iOS_(Command_Line) for more details
-# ====================================================================
+#############################################################################
 
 #########################################
 #####        Some validation        #####
