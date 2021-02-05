@@ -113,9 +113,13 @@ endif
 # Android cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
-  CXXFLAGS += $(ANDROID_CXXFLAGS) -D__ANDROID_API__=$(ANDROID_API)
+  CPPFLAGS += -DANDROID -D__ANDROID_API__=$(ANDROID_API)
+  CXXFLAGS += $(ANDROID_CXXFLAGS)
   CXXFLAGS += --sysroot=$(ANDROID_SYSROOT)
   CXXFLAGS += -Wa,--noexecstack
+
+  LDFLAGS += -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
+  LDFLAGS += -Wl,--warn-shared-textrel -Wl,--fatal-warnings
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.
