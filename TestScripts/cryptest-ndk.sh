@@ -75,9 +75,9 @@ PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 
 for platform in "${PLATFORMS[@]}"
 do
-    echo
+    echo "===================================================================="
     echo "Building for ${platform}..."
-    echo
+    echo "===================================================================="
 
     ndk-build NDK_PROJECT_PATH="$PWD" NDK_APPLICATION_MK="$PWD/Application.mk" distclean &>/dev/null
 
@@ -89,8 +89,8 @@ do
 
 done
 
-echo
+echo "===================================================================="
 echo "Builds for ${PLATFORMS[@]} successful"
-echo
+echo "===================================================================="
 
 exit 0
