@@ -119,7 +119,9 @@ ifeq ($(IS_ANDROID),1)
   CXXFLAGS += -Wa,--noexecstack
 
   LDFLAGS += -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
-  LDFLAGS += -Wl,--warn-shared-textrel -Wl,--fatal-warnings
+  LDFLAGS += -Wl,--warn-shared-textrel -Wl,--warn-common
+  LDFLAGS += -Wl,--warn-execstack -Wl,--warn-unresolved-symbols
+  LDFLAGS += -Wl,--gc-sections -Wl,--fatal-warnings
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.
