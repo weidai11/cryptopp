@@ -26,6 +26,10 @@
 # SDK for r21: https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
 # SDK for Mac: https://dl.google.com/android/repository/commandlinetools-mac-6200805_latest.zip
 
+# NDK-r22: https://dl.google.com/android/repository/android-ndk-r22-linux-x86_64.zip
+# SDK for r22: https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
+# SDK for Mac: https://dl.google.com/android/repository/commandlinetools-mac-6858069_latest.zip
+
 if [ -z "$ANDROID_SDK_ROOT" ]; then
     echo "ERROR: ANDROID_SDK_ROOT is not set. Please set it."
     echo "SDK root is $ANDROID_SDK_ROOT"
