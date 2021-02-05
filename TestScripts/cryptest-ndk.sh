@@ -28,12 +28,16 @@ if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
     exit 1
 fi
 
+# Temp directory
+if [[ -z "$TMPDIR" ]]; then
+    TMPDIR="$HOME/tmp"
+    mkdir -p "$TMPDIR"
+fi
+
 # Sane default
 if [[ -z "${MAKE_JOBS}" ]]; then
     MAKE_JOBS=4
 fi
-
-#############################################################################
 
 # Fixup for sed and "illegal byte sequence"
 IS_DARWIN=$(uname -s 2>/dev/null | grep -i -c darwin)

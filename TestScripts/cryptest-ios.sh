@@ -15,7 +15,7 @@
 
 if [ -z "$(command -v ./setenv-ios.sh)" ]; then
     echo "Failed to locate setenv-ios.sh"
-    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+    exit 1
 fi
 
 # Temp directory
@@ -24,11 +24,16 @@ if [[ -z "$TMPDIR" ]]; then
     mkdir "$TMPDIR"
 fi
 
-MAKE_JOBS=2
+# Sane default
+if [[ -z "${MAKE_JOBS}" ]]; then
+    MAKE_JOBS=4
+fi
 
 # Cleanup old artifacts
 rm -rf "$TMPDIR/build.failed" 2>/dev/null
 rm -rf "$TMPDIR/build.log" 2>/dev/null
+
+#############################################################################
 
 # Hack a Bash data structure...
 PLATFORMS=()
@@ -72,8 +77,8 @@ do
     fi
 
     echo
+    echo "====================================================="
     echo "Building for $platform..."
-    echo
 
     # run in subshell to not keep any envars
     (
@@ -88,13 +93,13 @@ do
     )
 done
 
-echo ""
+echo
 echo "====================================================="
 cat "$TMPDIR/build.log"
 
 # let the script fail if any of the builds failed
 if [ -f "$TMPDIR/build.failed" ]; then
-    [[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 1 || return 1
+    exit 1
 fi
 
-[[ "$0" = "${BASH_SOURCE[0]}" ]] && exit 0 || return 0
+exit 0
