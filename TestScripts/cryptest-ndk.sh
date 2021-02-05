@@ -2,7 +2,7 @@
 
 #############################################################################
 #
-# This script tests the cryptopp-android gear.
+# This script tests the cryptopp-android gear using ndk-build.
 #
 # Written and placed in public domain by Jeffrey Walton.
 #
