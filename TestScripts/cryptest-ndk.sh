@@ -47,7 +47,7 @@ fi
 
 #############################################################################
 
-files=(Android.mk Application.mk make_neon.sh)
+files=(Android.mk Application.mk make_neon.sh test_shared.hxx test_shared.cxx)
 
 for file in "${files[@]}"; do
     echo "Downloading $file"
