@@ -124,18 +124,18 @@ if [[ -d "${ANDROID_NDK_ROOT}" ]];then
 fi
 
 # Remove an old directory
-rm -rf "${NDK_TOP})/${NDK_NAME}"
+rm -rf "${NDK_TOP}/${NDK_NAME}"
 
 # Place the new directory. mv should be faster on the same partition.
-if ! mv "$HOME/${NDK_NAME}" ${NDK_TOP});
+if ! mv "$HOME/${NDK_NAME}" ${NDK_TOP};
 then
-    echo "Failed to move $HOME/${NDK_NAME} to ${NDK_TOP})"
+    echo "Failed to move $HOME/${NDK_NAME} to ${NDK_TOP}"
     exit 1
 fi
 
 # Run in a subshell
 (
-    cd ${NDK_TOP})
+    cd ${NDK_TOP}
     ln -s ${NDK_NAME} android-ndk
 )
 
