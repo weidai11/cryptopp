@@ -29,23 +29,23 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
 fi
 
 # This supports 'source setenv-android.sh 23 arm64' and friends
-if [[ -z "$ANDROID_API" && -n "$1" ]]; then
+if [[ -z "${ANDROID_API}" && -n "$1" ]]; then
     printf "Using positional arg, ANDROID_API=%s\n" "$1"
     ANDROID_API="$1"
 fi
 
 # This supports 'source setenv-android.sh 23 arm64' and friends
-if [[ -z "$ANDROID_CPU" && -n "$2" ]]; then
+if [[ -z "${ANDROID_CPU}" && -n "$2" ]]; then
     printf "Using positional arg, ANDROID_CPU=%s\n" "$2"
     ANDROID_CPU="$2"
 fi
 
-if [ -z "$ANDROID_API" ]; then
+if [ -z "${ANDROID_API}" ]; then
     echo "ANDROID_API is not set. Please set it"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-if [ -z "$ANDROID_CPU" ]; then
+if [ -z "${ANDROID_CPU}" ]; then
     echo "ANDROID_CPU is not set. Please set it"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -106,8 +106,8 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-ANDROID_TOOLCHAIN="${ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/bin"
-ANDROID_SYSROOT="${ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/sysroot"
+ANDROID_TOOLCHAIN="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/$HOST_TAG/bin"
+ANDROID_SYSROOT="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/$HOST_TAG/sysroot"
 
 # Error checking
 if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
@@ -125,13 +125,13 @@ fi
 
 #####################################################################
 
-THE_ARCH=$(tr '[:upper:]' '[:lower:]' <<< "$ANDROID_CPU")
+THE_ARCH=$(tr '[:upper:]' '[:lower:]' <<< "${ANDROID_CPU}")
 
 # https://developer.android.com/ndk/guides/abis.html
 case "$THE_ARCH" in
   armv7*|armeabi*)
-    CC="armv7a-linux-androideabi$ANDROID_API-clang"
-    CXX="armv7a-linux-androideabi$ANDROID_API-clang++"
+    CC="armv7a-linux-androideabi${ANDROID_API}-clang"
+    CXX="armv7a-linux-androideabi${ANDROID_API}-clang++"
     LD="arm-linux-androideabi-ld"
     AS="arm-linux-androideabi-as"
     AR="arm-linux-androideabi-ar"
@@ -141,8 +141,8 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="-march=armv7-a -mthumb -mfloat-abi=softfp -funwind-tables -fexceptions -frtti"
     ;;
   armv8*|aarch64|arm64*)
-    CC="aarch64-linux-android$ANDROID_API-clang"
-    CXX="aarch64-linux-android$ANDROID_API-clang++"
+    CC="aarch64-linux-android${ANDROID_API}-clang"
+    CXX="aarch64-linux-android${ANDROID_API}-clang++"
     LD="aarch64-linux-android-ld"
     AS="aarch64-linux-android-as"
     AR="aarch64-linux-android-ar"
@@ -152,8 +152,8 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="-funwind-tables -fexceptions -frtti"
     ;;
   i686|x86)
-    CC="i686-linux-android$ANDROID_API-clang"
-    CXX="i686-linux-android$ANDROID_API-clang++"
+    CC="i686-linux-android${ANDROID_API}-clang"
+    CXX="i686-linux-android${ANDROID_API}-clang++"
     LD="i686-linux-android-ld"
     AS="i686-linux-android-as"
     AR="i686-linux-android-ar"
@@ -163,8 +163,8 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
     ;;
   x86_64|x64)
-    CC="x86_64-linux-android$ANDROID_API-clang"
-    CXX="x86_64-linux-android$ANDROID_API-clang++"
+    CC="x86_64-linux-android${ANDROID_API}-clang"
+    CXX="x86_64-linux-android${ANDROID_API}-clang++"
     LD="x86_64-linux-android-ld"
     AS="x86_64-linux-android-as"
     AR="x86_64-linux-android-ar"
@@ -174,7 +174,7 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -fexceptions -frtti"
     ;;
   *)
-    echo "ERROR: Unknown architecture $ANDROID_CPU"
+    echo "ERROR: Unknown architecture ${ANDROID_CPU}"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
     ;;
 esac
@@ -244,18 +244,18 @@ fi
 # need to copy cpu-features.h and cpu-features.c from the NDK into our source
 # directory and then build it.
 
-if [[ ! -e "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; then
+if [[ ! -e "${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.h" ]]; then
     echo "ERROR: Unable to locate cpu-features.h"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-if [[ ! -e "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
+if [[ ! -e "${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.c" ]]; then
     echo "ERROR: Unable to locate cpu-features.c"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-cp "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
-cp "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
+cp "${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.h" .
+cp "${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.c" .
 
 # Cleanup the sources for the C++ compiler
 # https://github.com/weidai11/cryptopp/issues/926
@@ -280,8 +280,8 @@ chmod ugo+r,ugo-x cpu-features.h cpu-features.c
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
   echo "ANDROID_TOOLCHAIN: $ANDROID_TOOLCHAIN"
-  echo "ANDROID_API: $ANDROID_API"
-  echo "ANDROID_CPU: $ANDROID_CPU"
+  echo "ANDROID_API: ${ANDROID_API}"
+  echo "ANDROID_CPU: ${ANDROID_CPU}"
   echo "ANDROID_SYSROOT: $ANDROID_SYSROOT"
   echo "ANDROID_CXXFLAGS: $ANDROID_CXXFLAGS"
   if [ -e "cpu-features.h" ] && [ -e "cpu-features.c" ]; then
