@@ -69,15 +69,15 @@ unset ANDROID_SYSROOT
 # ANDROID_NDK_ROOT=/opt/android-ndk-r19c or ANDROID_NDK_ROOT=/usr/local/android-ndk-r20.
 
 if [ -n "${ANDROID_NDK_ROOT}" ]; then
-    echo "ANDROID_NDK_ROOT is ${ANDROID_NDK_ROOT"
+    echo "ANDROID_NDK_ROOT is ${ANDROID_NDK_ROOT}"
 else
     echo "ANDROID_NDK_ROOT is empty. Searching for the NDK"
     ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
 
-    if [ -z "${ANDROID_NDK_ROOT" ]; then
+    if [ -z "${ANDROID_NDK_ROOT}" ]; then
         ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
     fi
-    if [ -z "${ANDROID_NDK_ROOT" ]; then
+    if [ -z "${ANDROID_NDK_ROOT}" ]; then
         ANDROID_NDK_ROOT=$(find "$HOME" -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
     fi
     if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
@@ -86,9 +86,9 @@ else
 fi
 
 # Error checking
-if [ ! -d "${ANDROID_NDK_ROOT" ]; then
+if [ ! -d "${ANDROID_NDK_ROOT}" ]; then
     echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
-    echo "Root is ${ANDROID_NDK_ROOT"
+    echo "Root is ${ANDROID_NDK_ROOT}"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
