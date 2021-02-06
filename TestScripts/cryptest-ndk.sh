@@ -79,20 +79,23 @@ PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 
 for platform in "${PLATFORMS[@]}"
 do
+    echo ""
     echo "===================================================================="
     echo "Building for ${platform}..."
     echo "===================================================================="
 
-    ndk-build NDK_PROJECT_PATH="$PWD" NDK_APPLICATION_MK="$PWD/Application.mk" distclean &>/dev/null
+    ndk-build NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" distclean &>/dev/null
 
     if ! ndk-build -j "${MAKE_JOBS}" APP_ABI="${platform}" NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" V=1;
     then
-        echo "Failed to build for $platform..."
+        echo ""
+        echo "Failed to build for ${platform}..."
         exit 1
     fi
 
 done
 
+echo ""
 echo "===================================================================="
 echo "Builds for ${PLATFORMS[@]} successful"
 echo "===================================================================="
