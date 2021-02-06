@@ -116,7 +116,7 @@ then
 fi
 
 # Unlink as needed
-if [[ -d "${ANDROID_NDK_ROOT}" ]];then
+if [[ -d "${ANDROID_NDK_ROOT}" ]]; then
     ls_output=$(ls -l "${ANDROID_NDK_ROOT}" 2>/dev/null | head -n 1)
     if [[ ${ls_output:0:1} == "l" ]]; then
         unlink "${ANDROID_NDK_ROOT}"
@@ -135,7 +135,7 @@ fi
 
 # Run in a subshell
 (
-    cd ${NDK_TOP}
+    cd ${NDK_TOP} || exit 1
     ln -s ${NDK_NAME} android-ndk
 )
 
@@ -146,6 +146,10 @@ rm -f platform-tools.zip
 # We don't set ANDROID_HOME to ANDROID_SDK_ROOT.
 # https://stackoverflow.com/a/47028911/608639
 touch "${ANDROID_SDK_ROOT}/repositories.cfg"
+
+# And https://stackoverflow.com/q/43433542
+mkdir -p "${HOME}/.android"
+touch "${HOME}/.android/repositories.cfg"
 
 echo "Finished preparing SDK and NDK"
 
