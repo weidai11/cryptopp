@@ -52,13 +52,13 @@ IS_LINUX=$(uname -s 2>/dev/null | grep -i -c linux)
 
 # Keep this in sync with the move at the end.
 if [ "$IS_LINUX" -eq 1 ]; then
-    NDK_DIR=android-ndk-r20b
-    NDK_URL=https://dl.google.com/android/repository/${NDK_DIR}-linux-x86_64.zip
+    NDK_NAME=android-ndk-r20b
+    NDK_URL=https://dl.google.com/android/repository/${NDK_NAME}-linux-x86_64.zip
     SDK_URL=https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
     TOOLS_URL=https://dl.google.com/android/repository/platform-tools-latest-linux.zip
 elif [ "$IS_DARWIN" -eq 1 ]; then
-    NDK_DIR=android-ndk-r20b
-    NDK_URL=https://dl.google.com/android/repository/${NDK_DIR}-darwin-x86_64.zip
+    NDK_NAME=android-ndk-r20b
+    NDK_URL=https://dl.google.com/android/repository/${NDK_NAME}-darwin-x86_64.zip
     SDK_URL=https://dl.google.com/android/repository/commandlinetools-mac-6200805_latest.zip
     TOOLS_URL=https://dl.google.com/android/repository/platform-tools-latest-darwin.zip
 else
@@ -122,19 +122,19 @@ if [[ -d "$ANDROID_NDK_ROOT" ]];then
 fi
 
 # Remove an old directory
-rm -rf "$(dirname "$ANDROID_NDK_ROOT")/${NDK_DIR}"
+rm -rf "$(dirname "$ANDROID_NDK_ROOT")/${NDK_NAME}"
 
 # Place the new directory
-if ! mv "$HOME/${NDK_DIR}" $(dirname "$ANDROID_NDK_ROOT");
+if ! mv "$HOME/${NDK_NAME}" $(dirname "$ANDROID_NDK_ROOT");
 then
-    echo "Failed to move $HOME/${NDK_DIR} to $(dirname "$ANDROID_NDK_ROOT")"
+    echo "Failed to move $HOME/${NDK_NAME} to $(dirname "$ANDROID_NDK_ROOT")"
     exit 1
 fi
 
 # Run in a subshell
 (
     cd $(dirname "$ANDROID_NDK_ROOT")
-    ln -s ${NDK_DIR} android-ndk
+    ln -s ${NDK_NAME} android-ndk
 )
 
 rm -f android-sdk.zip
