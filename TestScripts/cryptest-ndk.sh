@@ -77,14 +77,15 @@ NDK_PROJECT_PATH="$PWD"
 NDK_APPLICATION_MK="$PWD/Application.mk"
 PLATFORMS=(armeabi-v7a arm64-v8a x86 x86_64)
 
+# Clean all past artifacts
+ndk-build APP_ABI=all NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" distclean &>/dev/null
+
 for platform in "${PLATFORMS[@]}"
 do
     echo ""
     echo "===================================================================="
     echo "Building for ${platform}..."
     echo "===================================================================="
-
-    ndk-build NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" distclean &>/dev/null
 
     if ! ndk-build -j "${MAKE_JOBS}" APP_ABI="${platform}" NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" V=1;
     then
