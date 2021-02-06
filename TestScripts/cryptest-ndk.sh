@@ -16,15 +16,13 @@
 
 # Error checking
 if [ ! -d "${ANDROID_NDK_ROOT}" ]; then
-    echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
-    echo "NDK root is ${ANDROID_NDK_ROOT}"
+    echo "ERROR: ANDROID_NDK_ROOT is not set. Please set it."
     exit 1
 fi
 
 # Error checking
 if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
-    echo "ERROR: ANDROID_SDK_ROOT is not a valid path. Please set it."
-    echo "SDK root is ${ANDROID_SDK_ROOT}"
+    echo "ERROR: ANDROID_SDK_ROOT is not set. Please set it."
     exit 1
 fi
 

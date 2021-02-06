@@ -69,15 +69,15 @@ unset ANDROID_SYSROOT
 # ANDROID_NDK_ROOT=/opt/android-ndk-r19c or ANDROID_NDK_ROOT=/usr/local/android-ndk-r20.
 
 if [ -n "${ANDROID_NDK_ROOT}" ]; then
-    echo "ANDROID_NDK_ROOT is $ANDROID_NDK_ROOT"
+    echo "ANDROID_NDK_ROOT is ${ANDROID_NDK_ROOT"
 else
     echo "ANDROID_NDK_ROOT is empty. Searching for the NDK"
     ANDROID_NDK_ROOT=$(find /opt -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
 
-    if [ -z "$ANDROID_NDK_ROOT" ]; then
+    if [ -z "${ANDROID_NDK_ROOT" ]; then
         ANDROID_NDK_ROOT=$(find /usr/local -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
     fi
-    if [ -z "$ANDROID_NDK_ROOT" ]; then
+    if [ -z "${ANDROID_NDK_ROOT" ]; then
         ANDROID_NDK_ROOT=$(find "$HOME" -maxdepth 1 -type d -name "android-ndk*" 2>/dev/null | tail -n -1)
     fi
     if [ -d "$HOME/Library/Android/sdk/ndk-bundle" ]; then
@@ -86,9 +86,9 @@ else
 fi
 
 # Error checking
-if [ ! -d "$ANDROID_NDK_ROOT" ]; then
+if [ ! -d "${ANDROID_NDK_ROOT" ]; then
     echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
-    echo "Root is $ANDROID_NDK_ROOT"
+    echo "Root is ${ANDROID_NDK_ROOT"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -106,8 +106,8 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/bin"
-ANDROID_SYSROOT="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/sysroot"
+ANDROID_TOOLCHAIN="${ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/bin"
+ANDROID_SYSROOT="${ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG/sysroot"
 
 # Error checking
 if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
@@ -244,18 +244,18 @@ fi
 # need to copy cpu-features.h and cpu-features.c from the NDK into our source
 # directory and then build it.
 
-if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; then
+if [[ ! -e "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" ]]; then
     echo "ERROR: Unable to locate cpu-features.h"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-if [[ ! -e "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
+if [[ ! -e "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" ]]; then
     echo "ERROR: Unable to locate cpu-features.c"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
-cp "$ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
+cp "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.h" .
+cp "${ANDROID_NDK_ROOT/sources/android/cpufeatures/cpu-features.c" .
 
 # Cleanup the sources for the C++ compiler
 # https://github.com/weidai11/cryptopp/issues/926
