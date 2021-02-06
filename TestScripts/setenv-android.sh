@@ -29,15 +29,29 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
 fi
 
 # This supports 'source setenv-android.sh 23 arm64' and friends
-if [[ -z "${ANDROID_API}" && -n "$1" ]]; then
-    printf "Using positional arg, ANDROID_API=%s\n" "$1"
-    ANDROID_API="$1"
+if [[ -n "$1" ]]
+then
+    arg1=$(echo "$1" | cut -f 1 -d '=')
+    arg2=$(echo "$1" | cut -f 2 -d '=')
+    if [[ -n "${arg2}" ]]; then
+        ANDROID_API="${arg2}"
+    else
+        ANDROID_API="${arg1}"
+    fi
+    printf "Using positional arg, ANDROID_API=%s\n" "${ANDROID_API}"
 fi
 
 # This supports 'source setenv-android.sh 23 arm64' and friends
-if [[ -z "${ANDROID_CPU}" && -n "$2" ]]; then
-    printf "Using positional arg, ANDROID_CPU=%s\n" "$2"
-    ANDROID_CPU="$2"
+if [[ -n "$2" ]]
+then
+    arg1=$(echo "$2" | cut -f 1 -d '=')
+    arg2=$(echo "$2" | cut -f 2 -d '=')
+    if [[ -n "${arg2}" ]]; then
+        ANDROID_CPU="${arg2}"
+    else
+        ANDROID_CPU="${arg1}"
+    fi
+    printf "Using positional arg, ANDROID_CPU=%s\n" "${ANDROID_CPU}"
 fi
 
 if [ -z "${ANDROID_API}" ]; then

@@ -28,15 +28,29 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
 fi
 
 # This supports 'source setenv-ios.sh iPhone arm64' and friends
-if [[ -z "$IOS_SDK" && -n "$1" ]]; then
-    printf "Using positional arg, IOS_SDK=%s\n" "$1"
-    IOS_SDK="$1"
+if [[ -n "$1" ]]
+then
+    arg1=$(echo "$1" | cut -f 1 -d '=')
+    arg2=$(echo "$1" | cut -f 2 -d '=')
+    if [[ -n "${arg2}" ]]; then
+        IOS_SDK="${arg2}"
+    else
+        IOS_SDK="${arg1}"
+    fi
+    printf "Using positional arg, IOS_SDK=%s\n" "${IOS_SDK}"
 fi
 
 # This supports 'source setenv-ios.sh iPhone arm64' and friends
-if [[ -z "$IOS_CPU" && -n "$2" ]]; then
-    printf "Using positional arg, IOS_CPU=%s\n" "$2"
-    IOS_CPU="$2"
+if [[ -n "$2" ]]
+then
+    arg1=$(echo "$2" | cut -f 1 -d '=')
+    arg2=$(echo "$2" | cut -f 2 -d '=')
+    if [[ -n "${arg2}" ]]; then
+        IOS_CPU="${arg2}"
+    else
+        IOS_CPU="${arg1}"
+    fi
+    printf "Using positional arg, IOS_CPU=%s\n" "${IOS_CPU}"
 fi
 
 if [ -z "$IOS_SDK" ]; then
