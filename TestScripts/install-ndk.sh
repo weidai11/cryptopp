@@ -124,7 +124,7 @@ fi
 # Remove an old directory
 rm -rf "$(dirname "$ANDROID_NDK_ROOT")/${NDK_NAME}"
 
-# Place the new directory
+# Place the new directory. mv should be faster on the same partition.
 if ! mv "$HOME/${NDK_NAME}" $(dirname "$ANDROID_NDK_ROOT");
 then
     echo "Failed to move $HOME/${NDK_NAME} to $(dirname "$ANDROID_NDK_ROOT")"
