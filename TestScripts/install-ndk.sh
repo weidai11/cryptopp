@@ -142,7 +142,7 @@ then
 fi
 
 # Unlink as needed
-if [[ -d "${ANDROID_NDK_ROOT}" ]]; then
+if [[ -e "${ANDROID_NDK_ROOT}" ]]; then
     ls_output=$(ls -l "${ANDROID_NDK_ROOT}" 2>/dev/null | head -n 1)
     # Only remove soft links
     if [[ ${ls_output:0:1} == "l" ]]; then
@@ -154,7 +154,9 @@ fi
 (
     echo "Symlinking NDK to ${NDK_NAME}"
     cd ${NDK_TOP} || exit 1
-    ln -s ${NDK_NAME} android-ndk
+    if ! ln -s "${NDK_NAME}" android-ndk; then
+        echo "Failed to link ${NDK_NAME} to android-ndk"
+    fi
 )
 
 rm -f android-sdk.zip
@@ -168,6 +170,10 @@ touch "${ANDROID_SDK_ROOT}/repositories.cfg"
 # And https://stackoverflow.com/q/43433542
 mkdir -p "${HOME}/.android"
 touch "${HOME}/.android/repositories.cfg"
+
+if [[ -n "${SUDO_USER}" ]]; then
+    chown -R "${SUDO_USER}" "${HOME}/.android"
+fi
 
 echo "Finished preparing SDK and NDK"
 
