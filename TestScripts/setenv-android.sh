@@ -108,6 +108,13 @@ if [ ! -d "${ANDROID_NDK_ROOT}" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+# Error checking
+if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
+    echo "ERROR: ANDROID_SDK_ROOT is not a valid path. Please set it."
+    echo "ANDROID_SDK_ROOT is ${ANDROID_SDK_ROOT}"
+    [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
+
 #####################################################################
 
 # Need to set HOST_TAG to darwin-x86_64, linux-x86_64,
@@ -122,20 +129,20 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-ANDROID_TOOLCHAIN="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/$HOST_TAG/bin"
-ANDROID_SYSROOT="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/$HOST_TAG/sysroot"
+ANDROID_TOOLCHAIN="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${HOST_TAG}/bin"
+ANDROID_SYSROOT="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${HOST_TAG}/sysroot"
 
 # Error checking
-if [ ! -d "$ANDROID_TOOLCHAIN" ]; then
+if [ ! -d "${ANDROID_TOOLCHAIN}" ]; then
     echo "ERROR: ANDROID_TOOLCHAIN is not a valid path. Please set it."
-    echo "Path is $ANDROID_TOOLCHAIN"
+    echo "Path is ${ANDROID_TOOLCHAIN}"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -d "$ANDROID_SYSROOT" ]; then
+if [ ! -d "${ANDROID_SYSROOT}" ]; then
     echo "ERROR: ANDROID_SYSROOT is not a valid path. Please set it."
-    echo "Path is $ANDROID_SYSROOT"
+    echo "Path is ${ANDROID_SYSROOT}"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -210,37 +217,37 @@ export ANDROID_CXXFLAGS ANDROID_API ANDROID_CPU ANDROID_SYSROOT
 #####################################################################
 
 # Error checking
-if [ ! -e "$ANDROID_TOOLCHAIN/$CC" ]; then
+if [ ! -e "${ANDROID_TOOLCHAIN}/$CC" ]; then
     echo "ERROR: Failed to find Android clang. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$ANDROID_TOOLCHAIN/$CXX" ]; then
+if [ ! -e "${ANDROID_TOOLCHAIN}/$CXX" ]; then
     echo "ERROR: Failed to find Android clang++. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$ANDROID_TOOLCHAIN/$RANLIB" ]; then
+if [ ! -e "${ANDROID_TOOLCHAIN}/$RANLIB" ]; then
     echo "ERROR: Failed to find Android ranlib. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$ANDROID_TOOLCHAIN/$AR" ]; then
+if [ ! -e "${ANDROID_TOOLCHAIN}/$AR" ]; then
     echo "ERROR: Failed to find Android ar. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$ANDROID_TOOLCHAIN/$AS" ]; then
+if [ ! -e "${ANDROID_TOOLCHAIN}/$AS" ]; then
     echo "ERROR: Failed to find Android as. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$ANDROID_TOOLCHAIN/$LD" ]; then
+if [ ! -e "${ANDROID_TOOLCHAIN}/$LD" ]; then
     echo "ERROR: Failed to find Android ld. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -250,8 +257,8 @@ fi
 # Add tools to head of path, if not present already
 LENGTH=${#ANDROID_TOOLCHAIN}
 SUBSTR=${PATH:0:$LENGTH}
-if [ "$SUBSTR" != "$ANDROID_TOOLCHAIN" ]; then
-    export PATH="$ANDROID_TOOLCHAIN:$PATH"
+if [ "$SUBSTR" != "${ANDROID_TOOLCHAIN}" ]; then
+    export PATH="${ANDROID_TOOLCHAIN}:$PATH"
 fi
 
 #####################################################################
@@ -295,11 +302,11 @@ chmod ugo+r,ugo-x cpu-features.h cpu-features.c
 
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
-  echo "ANDROID_TOOLCHAIN: $ANDROID_TOOLCHAIN"
+  echo "ANDROID_TOOLCHAIN: ${ANDROID_TOOLCHAIN}"
   echo "ANDROID_API: ${ANDROID_API}"
   echo "ANDROID_CPU: ${ANDROID_CPU}"
-  echo "ANDROID_SYSROOT: $ANDROID_SYSROOT"
-  echo "ANDROID_CXXFLAGS: $ANDROID_CXXFLAGS"
+  echo "ANDROID_SYSROOT: ${ANDROID_SYSROOT}"
+  echo "ANDROID_CXXFLAGS: ${ANDROID_CXXFLAGS}"
   if [ -e "cpu-features.h" ] && [ -e "cpu-features.c" ]; then
     echo "CPU FEATURES: cpu-features.h and cpu-features.c are present"
   fi

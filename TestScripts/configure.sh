@@ -24,7 +24,7 @@
 #
 #   export CXXFLAGS="$IOS_CXXFLAGS --sysroot=$IOS_SYSROOT"
 # or
-#   export CXXFLAGS="$ANDROID_CXXFLAGS --sysroot=$ANDROID_SYSROOT"
+#   export CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot=${ANDROID_SYSROOT}"
 #
 # Do not use this script for a multiarch environment unless the cpu features
 # are the same for each arch. For example, -arch i386 -arch x86_64 could
