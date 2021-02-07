@@ -472,8 +472,8 @@ jobs:
         - BUILD_MODE=android
         - ANDROID_CPU=armv7a
         - ANDROID_API=23
-        - ANDROID_SDK_ROOT="$HOME/android-sdk"
-        - ANDROID_NDK_ROOT="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="/opt/android-sdk"
+        - ANDROID_NDK_ROOT="/opt/android-ndk"
     - name: Android, aarch64, Linux
       os: linux
       arch: amd64
@@ -482,8 +482,8 @@ jobs:
         - BUILD_MODE=android
         - ANDROID_CPU=aarch64
         - ANDROID_API=23
-        - ANDROID_SDK_ROOT="$HOME/android-sdk"
-        - ANDROID_NDK_ROOT="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="/opt/android-sdk"
+        - ANDROID_NDK_ROOT="/opt/android-ndk"
     - name: Android, x86, Linux
       os: linux
       arch: amd64
@@ -492,8 +492,8 @@ jobs:
         - BUILD_MODE=android
         - ANDROID_CPU=x86
         - ANDROID_API=23
-        - ANDROID_SDK_ROOT="$HOME/android-sdk"
-        - ANDROID_NDK_ROOT="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="/opt/android-sdk"
+        - ANDROID_NDK_ROOT="/opt/android-ndk"
     - name: Android, x86_64, Linux
       os: linux
       arch: amd64
@@ -502,8 +502,8 @@ jobs:
         - BUILD_MODE=android
         - ANDROID_CPU=x86_64
         - ANDROID_API=23
-        - ANDROID_SDK_ROOT="$HOME/android-sdk"
-        - ANDROID_NDK_ROOT="$HOME/android-ndk"
+        - ANDROID_SDK_ROOT="/opt/android-sdk"
+        - ANDROID_NDK_ROOT="/opt/android-ndk"
     - name: iPhoneOS, armv7, iOS
       os: osx
       osx_image: xcode10.1
@@ -595,7 +595,7 @@ before_install:
         # https://github.com/travis-ci/travis-ci/issues/9037
         sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A145
         sudo apt-get -qq -y update
-        bash TestScripts/install-ndk.sh
+        sudo -E TestScripts/install-ndk.sh
     fi
     if [[ "$BUILD_OS" == "linux" ]] && [[ "$BUILD_MODE" == "autotools" ]]; then
         # https://github.com/travis-ci/travis-ci/issues/9037
