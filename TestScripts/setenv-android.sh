@@ -115,6 +115,10 @@ if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+# User feedback
+echo "ANDROID_NDK_ROOT is '${ANDROID_NDK_ROOT}'"
+echo "ANDROID_SDK_ROOT is '${ANDROID_SDK_ROOT}'"
+
 #####################################################################
 
 # Need to set HOST_TAG to darwin-x86_64, linux-x86_64,
