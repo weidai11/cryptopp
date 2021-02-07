@@ -108,6 +108,7 @@ then
     exit 1
 fi
 
+# Android SDK does not include a top level directory
 echo "Unpacking SDK to ${ANDROID_SDK_ROOT}"
 if ! unzip -u -qq android-sdk.zip -d "${ANDROID_SDK_ROOT}";
 then
@@ -115,8 +116,9 @@ then
     exit 1
 fi
 
+# Android NDK includes top level NDK_NAME directory
 echo "Unpacking NDK to ${NDK_TOP}/${NDK_NAME}"
-if ! unzip -u -qq android-ndk.zip -d "${NDK_TOP}/${NDK_NAME}";
+if ! unzip -u -qq android-ndk.zip -d "${NDK_TOP}";
 then
     echo "Failed to unpack NDK"
     exit 1
@@ -157,6 +159,20 @@ touch "${HOME}/.android/repositories.cfg"
 
 if [[ -n "${SUDO_USER}" ]]; then
     chown -R "${SUDO_USER}" "${HOME}/.android"
+fi
+
+count=$(ls -1 "${ANDROID_SDK_ROOT}" 2>/dev/null)
+if [[ "${count}" -lt 4 ]]; then
+    echo "ANDROID_SDK_ROOT appears empty. Its contents are listed."
+    echo "$(ls "${ANDROID_SDK_ROOT}")"
+    exit 1
+fi
+
+count=$(ls -1 "${ANDROID_NDK_ROOT}" 2>/dev/null)
+if [[ "${count}" -lt 4 ]]; then
+    echo "ANDROID_NDK_ROOT appears empty. Its contents are listed."
+    echo "$(ls "${ANDROID_NDK_ROOT}")"
+    exit 1
 fi
 
 echo "Finished installing SDK and NDK"
