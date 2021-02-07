@@ -159,6 +159,6 @@ if [[ -n "${SUDO_USER}" ]]; then
     chown -R "${SUDO_USER}" "${HOME}/.android"
 fi
 
-echo "Finished preparing SDK and NDK"
+echo "Finished installing SDK and NDK"
 
 exit 0
