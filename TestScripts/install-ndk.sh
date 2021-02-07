@@ -37,14 +37,28 @@
 
 if [ -z "${ANDROID_SDK_ROOT}" ]; then
     echo "ERROR: ANDROID_SDK_ROOT is not set for ${USER}. Please set it."
-    echo "ANDROID_SDK_ROOT is '${ANDROID_SDK_ROOT}'"
     exit 1
 fi
 
 if [ -z "${ANDROID_NDK_ROOT}" ]; then
     echo "ERROR: ANDROID_NDK_ROOT is not set for ${USER}. Please set it."
-    echo "ANDROID_NDK_ROOT '${ANDROID_NDK_ROOT}'"
     exit 1
+fi
+
+if [[ ! -d "${ANDROID_SDK_ROOT}" ]]; then
+    echo "ANDROID_SDK_ROOT does not exist. The directory will be created."
+    if ! mkdir -p "${ANDROID_SDK_ROOT}"; then
+        echo "Failed to create ANDROID_SDK_ROOT '${ANDROID_SDK_ROOT}'."
+        echo "Is ANDROID_SDK_ROOT writeable? Maybe you need to run this script with 'sudo -E'."
+    fi
+fi
+
+if [[ ! -d "${ANDROID_NDK_ROOT}" ]]; then
+    echo "ANDROID_NDK_ROOT does not exist. The directory will be created."
+    if ! mkdir -p "${ANDROID_NDK_ROOT}"; then
+        echo "Failed to create ANDROID_NDK_ROOT '${ANDROID_NDK_ROOT}'."
+        echo "Is ANDROID_NDK_ROOT writeable? Maybe you need to run this script with 'sudo -E'."
+    fi
 fi
 
 # Temp directory
