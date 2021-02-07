@@ -94,7 +94,7 @@ files=(configure.ac Makefile.am libcryptopp.pc.in)
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
-	if ! curl -L -o "$file" --silent "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
+	if ! curl -L -s -o "$file" "https://raw.githubusercontent.com/noloader/cryptopp-autotools/master/$file"; then
 		echo "$file download failed"
 		exit 1
 	fi
@@ -133,7 +133,7 @@ fi
 
 # Update config.sub config.guess. GNU recommends using the latest for all projects.
 echo "Updating config.sub"
-curl -o config.sub.new --silent 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub'
+curl -L -s -o config.sub.new 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub'
 
 # Solaris removes +w, can't overwrite
 chmod +w build-aux/config.sub
@@ -146,7 +146,7 @@ if [[ "$IS_DARWIN" -ne 0 ]] && [[ -n $(command -v xattr 2>/dev/null) ]]; then
 fi
 
 echo "Updating config.guess"
-curl -o config.guess.new --silent 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess'
+curl -L -s -o config.guess.new 'https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess'
 
 # Solaris removes +w, can't overwrite
 chmod +w build-aux/config.guess
