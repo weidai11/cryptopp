@@ -64,9 +64,9 @@ fi
 fi # false
 
 # Temp directory
-if [[ -z "$TMPDIR" ]]; then
+if [[ -z "${TMPDIR}" ]]; then
     TMPDIR="$HOME/tmp"
-    mkdir -p "$TMPDIR"
+    mkdir -p "${TMPDIR}"
 fi
 
 # User feedback

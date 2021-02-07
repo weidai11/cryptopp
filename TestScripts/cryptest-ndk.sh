@@ -29,9 +29,9 @@ if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
 fi
 
 # Temp directory
-if [[ -z "$TMPDIR" ]]; then
+if [[ -z "${TMPDIR}" ]]; then
     TMPDIR="$HOME/tmp"
-    mkdir -p "$TMPDIR"
+    mkdir -p "${TMPDIR}"
 fi
 
 # Sane default
@@ -46,8 +46,8 @@ if [[ "${IS_DARWIN}" -ne 0 ]] && [[ -z "${LC_ALL}" ]]; then
 fi
 
 # Cleanup old artifacts
-rm -rf "$TMPDIR/build.failed" 2>/dev/null
-rm -rf "$TMPDIR/build.log" 2>/dev/null
+rm -rf "${TMPDIR}/build.failed" 2>/dev/null
+rm -rf "${TMPDIR}/build.log" 2>/dev/null
 
 #############################################################################
 
@@ -94,20 +94,20 @@ do
 
     if ndk-build -j "${MAKE_JOBS}" APP_ABI="${platform}" NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" V=1;
     then
-        echo "${platform} ==> SUCCESS" >> "$TMPDIR/build.log"
+        echo "${platform} ==> SUCCESS" >> "${TMPDIR}/build.log"
     else
-        echo "${platform} ==> FAILURE" >> "$TMPDIR/build.log"
-        touch "$TMPDIR/build.failed"
+        echo "${platform} ==> FAILURE" >> "${TMPDIR}/build.log"
+        touch "${TMPDIR}/build.failed"
     fi
 
 done
 
 echo
 echo "===================================================================="
-cat "$TMPDIR/build.log"
+cat "${TMPDIR}/build.log"
 
 # let the script fail if any of the builds failed
-if [ -f "$TMPDIR/build.failed" ]; then
+if [ -f "${TMPDIR}/build.failed" ]; then
     exit 1
 fi
 

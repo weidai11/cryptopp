@@ -19,9 +19,9 @@ if [ -z "$(command -v ./setenv-ios.sh)" ]; then
 fi
 
 # Temp directory
-if [[ -z "$TMPDIR" ]]; then
+if [[ -z "${TMPDIR}" ]]; then
     TMPDIR="$HOME/tmp"
-    mkdir "$TMPDIR"
+    mkdir "${TMPDIR}"
 fi
 
 # Sane default
@@ -30,8 +30,8 @@ if [[ -z "${MAKE_JOBS}" ]]; then
 fi
 
 # Cleanup old artifacts
-rm -rf "$TMPDIR/build.failed" 2>/dev/null
-rm -rf "$TMPDIR/build.log" 2>/dev/null
+rm -rf "${TMPDIR}/build.failed" 2>/dev/null
+rm -rf "${TMPDIR}/build.log" 2>/dev/null
 
 #############################################################################
 
@@ -64,41 +64,41 @@ do
 
     echo
     echo "====================================================="
-    echo "Testing for iOS support of $platform"
+    echo "Testing for iOS support of ${platform}"
 
     # Test if we can set the environment for the platform
     if ! ./setenv-ios.sh > /dev/null 2>&1;
     then
         echo
         echo "${platform} not supported by Xcode"
-        echo "${platform} ==> SKIPPED" >> "$TMPDIR/build.log"
+        echo "${platform} ==> SKIPPED" >> "${TMPDIR}/build.log"
 
         continue
     fi
 
     echo
     echo "====================================================="
-    echo "Building for $platform..."
+    echo "Building for ${platform}..."
 
     # run in subshell to not keep any envars
     (
         source ./setenv-ios.sh
-        if make -k -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
+        if make -k -j "${MAKE_JOBS}" -f GNUmakefile-cross static dynamic cryptest.exe;
         then
-            echo "${platform} ==> SUCCESS" >> "$TMPDIR/build.log"
+            echo "${platform} ==> SUCCESS" >> "${TMPDIR}/build.log"
         else
-            echo "${platform} ==> FAILURE" >> "$TMPDIR/build.log"
-            touch "$TMPDIR/build.failed"
+            echo "${platform} ==> FAILURE" >> "${TMPDIR}/build.log"
+            touch "${TMPDIR}/build.failed"
         fi
     )
 done
 
 echo
 echo "====================================================="
-cat "$TMPDIR/build.log"
+cat "${TMPDIR}/build.log"
 
 # let the script fail if any of the builds failed
-if [ -f "$TMPDIR/build.failed" ]; then
+if [ -f "${TMPDIR}/build.failed" ]; then
     exit 1
 fi
 
