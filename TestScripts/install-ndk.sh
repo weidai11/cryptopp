@@ -45,6 +45,7 @@ if [ -z "${ANDROID_NDK_ROOT}" ]; then
     exit 1
 fi
 
+if false; then
 if [[ ! -d "${ANDROID_SDK_ROOT}" ]]; then
     echo "ANDROID_SDK_ROOT does not exist. The directory will be created."
     if ! mkdir -p "${ANDROID_SDK_ROOT}"; then
@@ -60,6 +61,7 @@ if [[ ! -d "${ANDROID_NDK_ROOT}" ]]; then
         echo "Is ANDROID_NDK_ROOT writeable? Maybe you need to run this script with 'sudo -E'."
     fi
 fi
+fi # false
 
 # Temp directory
 if [[ -z "$TMPDIR" ]]; then
