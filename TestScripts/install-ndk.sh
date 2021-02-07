@@ -47,6 +47,12 @@ if [ -z "${ANDROID_NDK_ROOT}" ]; then
     exit 1
 fi
 
+# Temp directory
+if [[ -z "$TMPDIR" ]]; then
+    TMPDIR="$HOME/tmp"
+    mkdir -p "$TMPDIR"
+fi
+
 IS_DARWIN=$(uname -s 2>/dev/null | grep -i -c darwin)
 IS_LINUX=$(uname -s 2>/dev/null | grep -i -c linux)
 
@@ -101,8 +107,8 @@ then
     exit 1
 fi
 
-echo "Unpacking NDK to ${ANDROID_NDK_ROOT}"
-if ! unzip -u -qq android-ndk.zip -d "$HOME";
+echo "Unpacking NDK to ${NDK_TOP}/${NDK_NAME}"
+if ! unzip -u -qq android-ndk.zip -d "${NDK_TOP}/${NDK_NAME}";
 then
     echo "Failed to unpack NDK"
     exit 1
@@ -118,22 +124,13 @@ fi
 # Unlink as needed
 if [[ -d "${ANDROID_NDK_ROOT}" ]]; then
     ls_output=$(ls -l "${ANDROID_NDK_ROOT}" 2>/dev/null | head -n 1)
+    # Only remove soft links
     if [[ ${ls_output:0:1} == "l" ]]; then
         unlink "${ANDROID_NDK_ROOT}"
     fi
 fi
 
-# Remove an old directory
-rm -rf "${NDK_TOP}/${NDK_NAME}"
-
-# Place the new directory. mv should be faster on the same partition.
-if ! mv "$HOME/${NDK_NAME}" ${NDK_TOP};
-then
-    echo "Failed to move $HOME/${NDK_NAME} to ${NDK_TOP}"
-    exit 1
-fi
-
-# Run in a subshell
+# Create softlink
 (
     cd ${NDK_TOP} || exit 1
     ln -s ${NDK_NAME} android-ndk
