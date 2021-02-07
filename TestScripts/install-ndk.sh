@@ -79,6 +79,10 @@ if [ -n "$(command -v apt-get)" ]; then
     apt-get -qq install --no-install-recommends openjdk-8-jdk unzip curl 2>/dev/null
 fi
 
+# User feedback
+echo "ANDROID_NDK_ROOT is '${ANDROID_NDK_ROOT}'"
+echo "ANDROID_SDK_ROOT is '${ANDROID_SDK_ROOT}'"
+
 echo "Downloading SDK"
 if ! curl -L -s -o android-sdk.zip "${SDK_URL}";
 then
