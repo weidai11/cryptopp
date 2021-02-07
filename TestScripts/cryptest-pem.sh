@@ -63,10 +63,12 @@ files=(pem_create.sh pem_verify.sh pem_test.cxx pem_eol.cxx
 
 for file in "${files[@]}"; do
 	echo "Downloading $file"
-	if ! curl -o "$file" --silent "https://raw.githubusercontent.com/noloader/cryptopp-pem/master/$file"; then
+	if ! curl -L -o "$file" --silent "https://raw.githubusercontent.com/noloader/cryptopp-pem/master/$file"; then
 		echo "$file download failed"
 		exit 1
 	fi
+    # Throttle
+    sleep 1
 done
 
 # Add execute to scripts

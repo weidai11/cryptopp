@@ -49,10 +49,12 @@ files=(Android.mk Application.mk make_neon.sh test_shared.hxx test_shared.cxx)
 
 for file in "${files[@]}"; do
     echo "Downloading $file"
-    if ! curl -o "${file}" --silent "https://raw.githubusercontent.com/noloader/cryptopp-android/master/${file}"; then
+    if ! curl -L -o "${file}" --silent "https://raw.githubusercontent.com/noloader/cryptopp-android/master/${file}"; then
         echo "${file} download failed"
         exit 1
     fi
+    # Throttle
+    sleep 1
 done
 
 # Fix permissions
