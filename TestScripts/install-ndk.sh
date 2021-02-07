@@ -136,6 +136,7 @@ fi
 
 # Create softlink
 (
+    echo "Symlinking NDK to ${NDK_NAME}"
     cd ${NDK_TOP} || exit 1
     ln -s ${NDK_NAME} android-ndk
 )
