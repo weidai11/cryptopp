@@ -825,7 +825,7 @@ fi
 ############################################
 # System information
 
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 if [[ "$IS_LINUX" -ne 0 ]]; then
     echo "IS_LINUX: $IS_LINUX" | tee -a "$TEST_RESULTS"
 elif [[ "$IS_CYGWIN" -ne 0 ]]; then
@@ -887,35 +887,44 @@ if [[ "$IS_S390" -ne 0 ]]; then
 fi
 
 # C++03, C++11, C++14 and C++17
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX03: $HAVE_CXX03" | tee -a "$TEST_RESULTS"
 echo "HAVE_GNU03: $HAVE_GNU03" | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX11: $HAVE_CXX11" | tee -a "$TEST_RESULTS"
 echo "HAVE_GNU11: $HAVE_GNU11" | tee -a "$TEST_RESULTS"
-if [[ ("$HAVE_CXX14" -ne 0 || "$HAVE_CXX17" -ne 0 || "$HAVE_CXX20" -ne 0 || "$HAVE_GNU14" -ne 0 || "$HAVE_GNU17" -ne 0 || "$HAVE_GNU20" -ne 0) ]]; then
+if [[ ("$HAVE_CXX14" -ne 0 || "$HAVE_GNU14" -ne 0) ]]; then
     echo "HAVE_CXX14: $HAVE_CXX14" | tee -a "$TEST_RESULTS"
     echo "HAVE_GNU14: $HAVE_GNU14" | tee -a "$TEST_RESULTS"
+fi
+if [[ ("$HAVE_CXX17" -ne 0 || "$HAVE_GNU17" -ne 0) ]]; then
     echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
     echo "HAVE_GNU17: $HAVE_GNU17" | tee -a "$TEST_RESULTS"
+fi
+if [[ ("$HAVE_CXX20" -ne 0 || "$HAVE_GNU20" -ne 0) ]]; then
     echo "HAVE_CXX20: $HAVE_CXX20" | tee -a "$TEST_RESULTS"
     echo "HAVE_GNU20: $HAVE_GNU20" | tee -a "$TEST_RESULTS"
 fi
+
 if [[ "$HAVE_LDGOLD" -ne 0 ]]; then
     echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
 fi
 
 # -O2, -O3, -Os and -Ofast
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 echo "OPT_O2: $OPT_O2" | tee -a "$TEST_RESULTS"
 echo "OPT_O3: $OPT_O3" | tee -a "$TEST_RESULTS"
-if [[ (-n "$OPT_OS") || (-n "$OPT_OFAST") ]]; then
+if [[ ("$HAVE_OS" -eq 1) ]]; then
     echo "OPT_OS: $OPT_OS" | tee -a "$TEST_RESULTS"
+fi
+if [[ ("$HAVE_OZ" -eq 1) ]]; then
     echo "OPT_OZ: $OPT_OZ" | tee -a "$TEST_RESULTS"
+fi
+if [[ ("$HAVE_OFAST" -eq 1) ]]; then
     echo "OPT_OFAST: $OPT_OFAST" | tee -a "$TEST_RESULTS"
 fi
 
 # Tools available for testing
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 if [[ ((-n "$HAVE_OMP") && ("$HAVE_OMP" -ne 0)) ]]; then echo "HAVE_OMP: $HAVE_OMP" | tee -a "$TEST_RESULTS"; fi
 echo "HAVE_ASAN: $HAVE_ASAN" | tee -a "$TEST_RESULTS"
 if [[ ("$HAVE_ASAN" -ne 0) && (-n "$ASAN_SYMBOLIZE") ]]; then echo "ASAN_SYMBOLIZE: $ASAN_SYMBOLIZE" | tee -a "$TEST_RESULTS"; fi
@@ -1010,7 +1019,7 @@ if [[ "$IS_LINUX" -ne 0 ]]; then
     fi
 fi
 
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 echo "CPU: $CPU_COUNT logical" | tee -a "$TEST_RESULTS"
 echo "FREQ: $CPU_FREQ GHz" | tee -a "$TEST_RESULTS"
 echo "MEM: $MEM_SIZE MB" | tee -a "$TEST_RESULTS"
@@ -1031,7 +1040,7 @@ if [[ "$GIT_REPO" -ne 0 ]]; then
     GIT_HASH=$(git rev-parse HEAD 2>/dev/null | cut -c 1-16)
 fi
 
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 if [[ -n "$GIT_BRANCH" ]]; then
     echo "Git branch: $GIT_BRANCH (commit $GIT_HASH)" | tee -a "$TEST_RESULTS"
 fi
@@ -1068,7 +1077,7 @@ if [[ ("$GCC_COMPILER" -ne 0 && ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ) ]]; t
     WARNING_CXXFLAGS+=("-Wno-deprecated")
 fi
 
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 echo "DEBUG_CXXFLAGS: $DEBUG_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "RELEASE_CXXFLAGS: $RELEASE_CXXFLAGS" | tee -a "$TEST_RESULTS"
 echo "VALGRIND_CXXFLAGS: $VALGRIND_CXXFLAGS" | tee -a "$TEST_RESULTS"
@@ -1083,7 +1092,7 @@ fi
 #############################################
 
 TEST_BEGIN=$(date)
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 echo "Start time: $TEST_BEGIN" | tee -a "$TEST_RESULTS"
 
 ############################################
@@ -7271,7 +7280,7 @@ rm -f "${TMPDIR}/test.exe" &>/dev/null
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
 echo "************************************************" | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 
 COUNT="${#TEST_LIST[@]}"
 if (( "$COUNT" == "0" )); then
@@ -7283,14 +7292,14 @@ else
       echo "  - $TEST" | tee -a "$TEST_RESULTS"
     done
 fi
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 
 ############################################
 # Report errors
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS"
-echo | tee -a "$TEST_RESULTS"
+echo "" | tee -a "$TEST_RESULTS"
 
 # "FAILED" and "Exception" are from Crypto++
 # "ERROR" is from this script
@@ -7312,7 +7321,7 @@ fi
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
-echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo "" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 WCOUNT=$("$GREP" -E '(warning:)' $WARN_RESULTS | wc -l | "$AWK" '{print $1}')
 if (( "$WCOUNT" == "0" )); then
@@ -7327,7 +7336,7 @@ fi
 
 echo
 echo "************************************************" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
-echo | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
+echo "" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 
 echo "Testing started: $TEST_BEGIN" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
 echo "Testing finished: $TEST_END" | tee -a "$TEST_RESULTS" "$WARN_RESULTS"
