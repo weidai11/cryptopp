@@ -116,8 +116,8 @@ if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
 fi
 
 # User feedback
-echo "ANDROID_NDK_ROOT is '${ANDROID_NDK_ROOT}'"
-echo "ANDROID_SDK_ROOT is '${ANDROID_SDK_ROOT}'"
+#echo "ANDROID_NDK_ROOT is '${ANDROID_NDK_ROOT}'"
+#echo "ANDROID_SDK_ROOT is '${ANDROID_SDK_ROOT}'"
 
 #####################################################################
 
