@@ -152,7 +152,7 @@ fi
 
 # Create softlink
 (
-    echo "Symlinking NDK to ${NDK_NAME}"
+    echo "Symlinking ${NDK_NAME} to android-ndk"
     cd ${NDK_TOP} || exit 1
     if ! ln -s "${NDK_NAME}" android-ndk; then
         echo "Failed to link ${NDK_NAME} to android-ndk"
