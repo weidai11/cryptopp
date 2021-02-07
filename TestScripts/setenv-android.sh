@@ -28,7 +28,8 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     echo "setenv-android.sh is usually sourced, but not this time."
 fi
 
-# This supports 'source setenv-android.sh 23 arm64' and friends
+# This supports 'source setenv-android.sh 23 arm64' and
+# 'source setenv-android.sh ANDROID_API=23 ANDROID_CPU=arm64'
 if [[ -n "$1" ]]
 then
     arg1=$(echo "$1" | cut -f 1 -d '=')
@@ -41,7 +42,8 @@ then
     printf "Using positional arg, ANDROID_API=%s\n" "${ANDROID_API}"
 fi
 
-# This supports 'source setenv-android.sh 23 arm64' and friends
+# This supports 'source setenv-android.sh 23 arm64' and
+# 'source setenv-android.sh ANDROID_API=23 ANDROID_CPU=arm64'
 if [[ -n "$2" ]]
 then
     arg1=$(echo "$2" | cut -f 1 -d '=')

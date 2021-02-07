@@ -27,7 +27,8 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     echo "setenv-ios.sh is usually sourced, but not this time."
 fi
 
-# This supports 'source setenv-ios.sh iPhone arm64' and friends
+# This supports 'source setenv-ios.sh iPhone arm64' and
+# 'source setenv-ios.sh IOS_SDK=iPhone IOS_CPU=arm64'
 if [[ -n "$1" ]]
 then
     arg1=$(echo "$1" | cut -f 1 -d '=')
@@ -40,7 +41,8 @@ then
     printf "Using positional arg, IOS_SDK=%s\n" "${IOS_SDK}"
 fi
 
-# This supports 'source setenv-ios.sh iPhone arm64' and friends
+# This supports 'source setenv-ios.sh iPhone arm64' and
+# 'source setenv-ios.sh IOS_SDK=iPhone IOS_CPU=arm64'
 if [[ -n "$2" ]]
 then
     arg1=$(echo "$2" | cut -f 1 -d '=')
