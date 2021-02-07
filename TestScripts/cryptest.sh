@@ -455,6 +455,18 @@ if [[ (-z "$HAVE_OS") ]]; then
 fi
 
 # Hit or miss, mostly hit
+if [[ (-z "$HAVE_OZ") ]]; then
+    HAVE_OZ=0
+    OPT_OZ=
+    rm -f "${TMPDIR}/test.exe" &>/dev/null
+    "$CXX" -Oz "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
+    if [[ ("$?" -eq 0) ]]; then
+        HAVE_OZ=1
+        OPT_OZ=-Oz
+    fi
+fi
+
+# Hit or miss, mostly hit
 if [[ (-z "$HAVE_OFAST") ]]; then
     HAVE_OFAST=0
     OPT_OFAST=
@@ -898,6 +910,7 @@ echo "OPT_O2: $OPT_O2" | tee -a "$TEST_RESULTS"
 echo "OPT_O3: $OPT_O3" | tee -a "$TEST_RESULTS"
 if [[ (-n "$OPT_OS") || (-n "$OPT_OFAST") ]]; then
     echo "OPT_OS: $OPT_OS" | tee -a "$TEST_RESULTS"
+    echo "OPT_OZ: $OPT_OZ" | tee -a "$TEST_RESULTS"
     echo "OPT_OFAST: $OPT_OFAST" | tee -a "$TEST_RESULTS"
 fi
 
@@ -3768,6 +3781,67 @@ if [[ "$HAVE_OS" -ne 0 ]]; then
     rm -f "${TMPDIR}/test.exe" &>/dev/null
 
     CXXFLAGS="-DNDEBUG $OPT_OS $USER_CXXFLAGS"
+    CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+    if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+        echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+    else
+        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+        fi
+        ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+        fi
+    fi
+fi
+
+############################################
+# Build at -Oz
+if [[ "$HAVE_OZ" -ne 0 ]]; then
+
+    ############################################
+    # Debug build
+    echo
+    echo "************************************" | tee -a "$TEST_RESULTS"
+    echo "Testing: Debug, -Oz optimizations" | tee -a "$TEST_RESULTS"
+    echo
+
+    TEST_LIST+=("Debug, -Oz optimizations")
+
+    "$MAKE" clean &>/dev/null
+    rm -f "${TMPDIR}/test.exe" &>/dev/null
+
+    CXXFLAGS="-DDEBUG $OPT_OZ $USER_CXXFLAGS"
+    CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
+
+    if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+        echo "ERROR: failed to make cryptest.exe" | tee -a "$TEST_RESULTS"
+    else
+        ./cryptest.exe v 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute validation suite" | tee -a "$TEST_RESULTS"
+        fi
+        ./cryptest.exe tv all 2>&1 | tee -a "$TEST_RESULTS"
+        if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
+            echo "ERROR: failed to execute test vectors" | tee -a "$TEST_RESULTS"
+        fi
+    fi
+
+    ############################################
+    # Release build
+    echo
+    echo "************************************" | tee -a "$TEST_RESULTS"
+    echo "Testing: Release, -Oz optimizations" | tee -a "$TEST_RESULTS"
+    echo
+
+    TEST_LIST+=("Release, -Oz optimizations")
+
+    "$MAKE" clean &>/dev/null
+    rm -f "${TMPDIR}/test.exe" &>/dev/null
+
+    CXXFLAGS="-DNDEBUG $OPT_OZ $USER_CXXFLAGS"
     CXX="$CXX" CXXFLAGS="$CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" static dynamic cryptest.exe 2>&1 | tee -a "$TEST_RESULTS"
 
     if [[ ("${PIPESTATUS[0]}" -ne 0) ]]; then
