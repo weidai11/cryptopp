@@ -161,16 +161,16 @@ if [[ -n "${SUDO_USER}" ]]; then
     chown -R "${SUDO_USER}" "${HOME}/.android"
 fi
 
-count=$(ls -1 "${ANDROID_SDK_ROOT}" 2>/dev/null)
-if [[ "${count}" -lt 4 ]]; then
-    echo "ANDROID_SDK_ROOT appears empty. Its contents are listed."
+count=$(ls -1 "${ANDROID_SDK_ROOT}" 2>/dev/null | wc -l)
+if [[ "${count}" -lt 2 ]]; then
+    echo "ANDROID_SDK_ROOT appears empty. The contents are listed."
     echo "$(ls "${ANDROID_SDK_ROOT}")"
     exit 1
 fi
 
-count=$(ls -1 "${ANDROID_NDK_ROOT}" 2>/dev/null)
-if [[ "${count}" -lt 4 ]]; then
-    echo "ANDROID_NDK_ROOT appears empty. Its contents are listed."
+count=$(ls -1 "${ANDROID_NDK_ROOT}" 2>/dev/null | wc -l)
+if [[ "${count}" -lt 2 ]]; then
+    echo "ANDROID_NDK_ROOT appears empty. The contents are listed."
     echo "$(ls "${ANDROID_NDK_ROOT}")"
     exit 1
 fi
