@@ -136,6 +136,7 @@ ANDROID_SYSROOT="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${HOST_TAG}/sysroo
 if [ ! -d "${ANDROID_TOOLCHAIN}" ]; then
     echo "ERROR: ANDROID_TOOLCHAIN is not a valid path. Please set it."
     echo "Path is ${ANDROID_TOOLCHAIN}"
+    echo "ls of ANDROID_TOOLCHAIN is $(ls ${ANDROID_TOOLCHAIN})"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
@@ -143,6 +144,7 @@ fi
 if [ ! -d "${ANDROID_SYSROOT}" ]; then
     echo "ERROR: ANDROID_SYSROOT is not a valid path. Please set it."
     echo "Path is ${ANDROID_SYSROOT}"
+    echo "ls of ANDROID_SYSROOT is $(ls ${ANDROID_SYSROOT})"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
