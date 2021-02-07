@@ -104,7 +104,7 @@ fi
 # Error checking
 if [ ! -d "${ANDROID_NDK_ROOT}" ]; then
     echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
-    echo "Root is ${ANDROID_NDK_ROOT}"
+    echo "ANDROID_NDK_ROOT is ${ANDROID_NDK_ROOT}"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 

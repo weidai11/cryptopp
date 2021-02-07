@@ -70,8 +70,8 @@ do
     if ! ./setenv-ios.sh > /dev/null 2>&1;
     then
         echo
-        echo "$platform not supported by Xcode"
-        echo "$platform ==> SKIPPED" >> "$TMPDIR/build.log"
+        echo "${platform} not supported by Xcode"
+        echo "${platform} ==> SKIPPED" >> "$TMPDIR/build.log"
 
         continue
     fi
@@ -85,9 +85,9 @@ do
         source ./setenv-ios.sh
         if make -k -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
         then
-            echo "$platform ==> SUCCESS" >> "$TMPDIR/build.log"
+            echo "${platform} ==> SUCCESS" >> "$TMPDIR/build.log"
         else
-            echo "$platform ==> FAILURE" >> "$TMPDIR/build.log"
+            echo "${platform} ==> FAILURE" >> "$TMPDIR/build.log"
             touch "$TMPDIR/build.failed"
         fi
     )

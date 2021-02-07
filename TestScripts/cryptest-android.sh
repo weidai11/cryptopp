@@ -14,8 +14,23 @@
 #
 #############################################################################
 
-if [ -z "$(command -v ./setenv-android.sh)" ]; then
-    echo "Failed to locate setenv-android.sh"
+# Error checking
+if [ -z "$(command -v ./setenv-android.sh 2>/dev/null)" ]; then
+    echo "Failed to locate setenv-android.sh."
+    exit 1
+fi
+
+# Error checking
+if [ ! -d "${ANDROID_NDK_ROOT}" ]; then
+    echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
+    echo "ANDROID_NDK_ROOT is ${ANDROID_NDK_ROOT}"
+    exit 1
+fi
+
+# Error checking
+if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
+    echo "ERROR: ANDROID_SDK_ROOT is not a valid path. Please set it."
+    echo "ANDROID_SDK_ROOT is ${ANDROID_SDK_ROOT}"
     exit 1
 fi
 
@@ -55,7 +70,7 @@ do
     then
         echo
         echo "There were problems testing $platform"
-        echo "$platform ==> SKIPPED" >> "$TMPDIR/build.log"
+        echo "${platform} ==> SKIPPED" >> "$TMPDIR/build.log"
 
         continue
     fi
@@ -69,9 +84,9 @@ do
         source ./setenv-android.sh
         if make -k -j "$MAKE_JOBS" -f GNUmakefile-cross static dynamic cryptest.exe;
         then
-            echo "$platform ==> SUCCESS" >> "$TMPDIR/build.log"
+            echo "${platform} ==> SUCCESS" >> "$TMPDIR/build.log"
         else
-            echo "$platform ==> FAILURE" >> "$TMPDIR/build.log"
+            echo "${platform} ==> FAILURE" >> "$TMPDIR/build.log"
             touch "$TMPDIR/build.failed"
         fi
     )

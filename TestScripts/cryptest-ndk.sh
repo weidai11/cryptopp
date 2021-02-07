@@ -16,13 +16,15 @@
 
 # Error checking
 if [ ! -d "${ANDROID_NDK_ROOT}" ]; then
-    echo "ERROR: ANDROID_NDK_ROOT is not set. Please set it."
+    echo "ERROR: ANDROID_NDK_ROOT is not a valid path. Please set it."
+    echo "ANDROID_NDK_ROOT is ${ANDROID_NDK_ROOT}"
     exit 1
 fi
 
 # Error checking
 if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
-    echo "ERROR: ANDROID_SDK_ROOT is not set. Please set it."
+    echo "ERROR: ANDROID_SDK_ROOT is not a valid path. Please set it."
+    echo "ANDROID_SDK_ROOT is ${ANDROID_SDK_ROOT}"
     exit 1
 fi
 
@@ -42,6 +44,10 @@ IS_DARWIN=$(uname -s 2>/dev/null | grep -i -c darwin)
 if [[ "${IS_DARWIN}" -ne 0 ]] && [[ -z "${LC_ALL}" ]]; then
     export LC_ALL=C
 fi
+
+# Cleanup old artifacts
+rm -rf "$TMPDIR/build.failed" 2>/dev/null
+rm -rf "$TMPDIR/build.log" 2>/dev/null
 
 #############################################################################
 
@@ -85,20 +91,24 @@ do
     echo ""
     echo "===================================================================="
     echo "Building for ${platform}..."
-    echo "===================================================================="
 
-    if ! ndk-build -j "${MAKE_JOBS}" APP_ABI="${platform}" NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" V=1;
+    if ndk-build -j "${MAKE_JOBS}" APP_ABI="${platform}" NDK_PROJECT_PATH="${NDK_PROJECT_PATH}" NDK_APPLICATION_MK="${NDK_APPLICATION_MK}" V=1;
     then
-        echo ""
-        echo "Failed to build for ${platform}..."
-        exit 1
+        echo "${platform} ==> SUCCESS" >> "$TMPDIR/build.log"
+    else
+        echo "${platform} ==> FAILURE" >> "$TMPDIR/build.log"
+        touch "$TMPDIR/build.failed"
     fi
 
 done
 
-echo ""
+echo
 echo "===================================================================="
-echo "Builds for ${PLATFORMS[@]} successful"
-echo "===================================================================="
+cat "$TMPDIR/build.log"
+
+# let the script fail if any of the builds failed
+if [ -f "$TMPDIR/build.failed" ]; then
+    exit 1
+fi
 
 exit 0
