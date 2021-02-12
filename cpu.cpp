@@ -208,6 +208,11 @@ public:
 			if (m_version >= 4) { m_arch = ARMV8; }
 			else { m_arch = ARM32; }
 		}
+		else if (machine.find("arm64") != std::string::npos)
+		{
+			m_device = Mac;
+			m_arch = ARMV8;
+		}
 	}
 
 	unsigned int Device() const {
