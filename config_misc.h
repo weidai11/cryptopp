@@ -72,9 +72,12 @@
 // raises a SIGTRAP (Unix) or calls DebugBreak() (Windows). CRYPTOPP_ASSERT
 // is only in effect when CRYPTOPP_DEBUG, DEBUG or _DEBUG is defined. Unlike
 // Posix assert, CRYPTOPP_ASSERT is not affected by NDEBUG (or failure to
-// define it).
-// Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420
-#if (defined(DEBUG) || defined(_DEBUG)) && !defined(CRYPTOPP_DEBUG)
+// define it). According to the ndk-build docs, Android use NDK_DEBUG=1 to
+// signal a DEBUG build (and NDK_DEBUG=0 to signal non-DEBUG build).
+// Also see http://github.com/weidai11/cryptopp/issues/277, CVE-2016-7420 and
+// https://developer.android.com/ndk/guides/ndk-build
+#if (defined(DEBUG) || defined(_DEBUG)) || (defined(NDK_DEBUG) && (NDK_DEBUG > 0))
+# undef CRYPTOPP_DEBUG
 # define CRYPTOPP_DEBUG 1
 #endif
 
