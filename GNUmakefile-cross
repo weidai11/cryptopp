@@ -5,8 +5,6 @@ SHELL = /bin/sh
 
 # If needed
 TMPDIR ?= /tmp
-# Used for ARMv7a and NEON. Android hard codes softfp
-FP_ABI ?= hard
 # Used for feature tests
 TOUT ?= a.out
 TOUT := $(strip $(TOUT))
@@ -387,9 +385,9 @@ ifeq ($(DETECT_FEATURES),1)
 
   # Android needs -c compile flag for NEON. Otherwise there's an odd linker message.
   ifeq ($(IS_ANDROID),1)
-    NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp -mfpu=neon
+    NEON_FLAG = -march=armv7-a -mfpu=vfpv3-d16 -mfpu=neon
   else
-    NEON_FLAG = -march=armv7-a -mfloat-abi=$(FP_ABI) -mfpu=neon
+    NEON_FLAG = -march=armv7-a -mfpu=neon
   endif
 
   # Clang needs an option to include <arm_neon.h>
