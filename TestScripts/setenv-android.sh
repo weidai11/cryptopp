@@ -165,7 +165,8 @@ case "$THE_ARCH" in
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
 
-    ANDROID_CXXFLAGS="-march=armv7-a -mthumb -mfloat-abi=softfp -funwind-tables -fexceptions -frtti"
+    # Android NDK r19 and r20 no longer use -mfloat-abi=softfp. Add it as required.
+    ANDROID_CXXFLAGS="-march=armv7-a -mthumb -funwind-tables -fexceptions -frtti"
     ;;
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
