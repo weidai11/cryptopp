@@ -59,14 +59,15 @@ for file in "${files[@]}"; do
         echo "${file} download failed"
         exit 1
     fi
+    # Permissions
+    chmod u=rw,go=r "${file}"
     # Throttle
     sleep 1
 done
 
-# Fix permissions
-chmod +x make_neon.sh
+# Fix permissions and quarantine
+chmod u=rwx,go=rx make_neon.sh
 
-# Fix Apple quarantine
 if [[ "${IS_DARWIN}" -ne 0 ]] && [[ $(command -v xattr 2>/dev/null) ]]; then
     echo "Removing make_neon.sh quarantine"
     xattr -d "com.apple.quarantine" make_neon.sh &>/dev/null
