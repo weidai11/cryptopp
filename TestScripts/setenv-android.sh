@@ -304,9 +304,9 @@ fi
 
 #####################################################################
 
-# Now that we are using cpu-features from Android rather than CPU probing, we
-# need to copy cpu-features.h and cpu-features.c from the NDK into our source
-# directory and then build it.
+# Now that we are using cpu-features from Android rather than
+# CPU probing, we need to copy cpu-features.h and cpu-features.c
+# from the NDK into our source directory and then build it.
 
 if [[ ! -e "${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.h" ]]; then
     echo "ERROR: Unable to locate cpu-features.h"
@@ -331,7 +331,7 @@ sed -e 's/= memmem/= (const char*)memmem/g' \
 mv cpu-features.c.fixed cpu-features.c
 
 # Fix permissions. For some reason cpu-features.h is +x.
-chmod ugo+r,ugo-x cpu-features.h cpu-features.c
+chmod u=rw,go=r cpu-features.h cpu-features.c
 
 #####################################################################
 
