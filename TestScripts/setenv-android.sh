@@ -171,8 +171,13 @@ case "$THE_ARCH" in
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
 
+    # You may need this on older NDKs
+    # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+
     # Android NDK r19 and r20 no longer use -mfloat-abi=softfp. Add it as required.
-    ANDROID_CXXFLAGS="-march=armv7-a -mthumb -fstack-protector-strong -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-target armv7-none-linux-androideabi${ANDROID_API}"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=armv7-a -mthumb -fstack-protector-strong"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
@@ -183,7 +188,11 @@ case "$THE_ARCH" in
     RANLIB="aarch64-linux-android-ranlib"
     STRIP="aarch64-linux-android-strip"
 
-    ANDROID_CXXFLAGS="-funwind-tables -fstack-protector-strong -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    # You may need this on older NDKs
+    # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+
+    ANDROID_CXXFLAGS="-target aarch64-none-linux-android${ANDROID_API} -fstack-protector-strong"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   i686|x86)
     CC="i686-linux-android${ANDROID_API}-clang"
@@ -194,7 +203,12 @@ case "$THE_ARCH" in
     RANLIB="i686-linux-android-ranlib"
     STRIP="i686-linux-android-strip"
 
-    ANDROID_CXXFLAGS="-mtune=intel -mssse3 -mfpmath=sse -fstack-protector-strong -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    # You may need this on older NDKs
+    # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+
+    ANDROID_CXXFLAGS="-target i686-none-linux-android${ANDROID_API}"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -mtune=intel -mssse3 -mfpmath=sse -fstack-protector-strong"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   x86_64|x64)
     CC="x86_64-linux-android${ANDROID_API}-clang"
@@ -205,7 +219,12 @@ case "$THE_ARCH" in
     RANLIB="x86_64-linux-android-ranlib"
     STRIP="x86_64-linux-android-strip"
 
-    ANDROID_CXXFLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -fstack-protector-strong -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    # You may need this on older NDKs
+    # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
+
+    ANDROID_CXXFLAGS="-target x86_64-none-linux-android${ANDROID_API}"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel -fstack-protector-strong"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   *)
     echo "ERROR: Unknown architecture ${ANDROID_CPU}"
@@ -294,15 +313,9 @@ cp "${ANDROID_NDK_ROOT}/sources/android/cpufeatures/cpu-features.c" .
 # Cleanup the sources for the C++ compiler
 # https://github.com/weidai11/cryptopp/issues/926
 
-sed -e 's/p = memmem/p = (const char*)memmem/g' \
-    -e 's/p  = memmem/p  = (const char*)memmem/g' \
-    -e 's/p = memchr/p = (const char*)memchr/g' \
-    -e 's/p  = memchr/p  = (const char*)memchr/g' \
-    -e 's/q = memmem/q = (const char*)memmem/g' \
-    -e 's/q  = memmem/q  = (const char*)memmem/g' \
-    -e 's/q = memchr/q = (const char*)memchr/g' \
-    -e 's/q  = memchr/q  = (const char*)memchr/g' \
-    -e 's/cpuinfo = malloc/cpuinfo = (char*)malloc/g' \
+sed -e 's/= memmem/= (const char*)memmem/g' \
+    -e 's/= memchr/= (const char*)memchr/g' \
+    -e 's/= malloc/= (char*)malloc/g' \
     cpu-features.c > cpu-features.c.fixed
 mv cpu-features.c.fixed cpu-features.c
 

@@ -111,12 +111,14 @@ endif
 # Android cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
-  CPPFLAGS += -DANDROID -D__ANDROID_API__=$(ANDROID_API)
+  CPPFLAGS += $(ANDROID_CPPFLAGS)
+  CPPFLAGS += -DANDROID
   CXXFLAGS += $(ANDROID_CXXFLAGS)
   CXXFLAGS += --sysroot=$(ANDROID_SYSROOT)
   CXXFLAGS += -Wa,--noexecstack
 
   # Aarch64 ld does not understand --warn-execstack
+  LDFLAGS += $(ANDROID_LDFLAGS)
   LDFLAGS += -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
   LDFLAGS += -Wl,--warn-shared-textrel -Wl,--warn-common
   LDFLAGS += -Wl,--warn-unresolved-symbols
@@ -887,7 +889,7 @@ aes_armv4.o : aes_armv4.S
 # Use C++ compiler on C source after patching.
 # https://github.com/weidai11/cryptopp/issues/926
 cpu-features.o: cpu-features.h cpu-features.c
-	$(CXX) -x c $(strip $(CPPFLAGS) $(CXXFLAGS) -c) cpu-features.c
+	$(CXX) $(strip $(CPPFLAGS) $(CXXFLAGS) -c) cpu-features.c
 
 # SSSE3 or NEON available
 aria_simd.o : aria_simd.cpp
