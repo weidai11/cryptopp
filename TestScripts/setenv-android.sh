@@ -15,6 +15,8 @@
 # Also see:
 #   https://android.googlesource.com/platform/ndk.git/+/HEAD/docs/UnifiedHeaders.md
 #   https://android.googlesource.com/platform/ndk/+/master/docs/PlatformApis.md
+#   https://developer.android.com/ndk/guides/abis.html and
+#   https://developer.android.com/ndk/guides/cpp-support.
 #
 # See http://www.cryptopp.com/wiki/Android_(Command_Line) for more details
 #############################################################################
@@ -28,7 +30,7 @@ if [ "$0" = "${BASH_SOURCE[0]}" ]; then
     echo "setenv-android.sh is usually sourced, but not this time."
 fi
 
-# This supports 'source setenv-android.sh 23 arm64' and
+# This supports both 'source setenv-android.sh 23 arm64' and
 # 'source setenv-android.sh ANDROID_API=23 ANDROID_CPU=arm64'
 if [[ -n "$1" ]]
 then
@@ -42,7 +44,7 @@ then
     printf "Using positional arg, ANDROID_API=%s\n" "${ANDROID_API}"
 fi
 
-# This supports 'source setenv-android.sh 23 arm64' and
+# This supports both 'source setenv-android.sh 23 arm64' and
 # 'source setenv-android.sh ANDROID_API=23 ANDROID_CPU=arm64'
 if [[ -n "$2" ]]
 then
@@ -154,7 +156,11 @@ fi
 
 THE_ARCH=$(tr '[:upper:]' '[:lower:]' <<< "${ANDROID_CPU}")
 
-# https://developer.android.com/ndk/guides/abis.html
+# https://developer.android.com/ndk/guides/abis.html and
+# https://developer.android.com/ndk/guides/cpp-support.
+# Since NDK r18 the only STL available is libc++, so we
+# add -stdlib-libc++ to CXXFLAGS. This is consistent with
+# Android.mk and 'APP_STL := c++_shared'.
 case "$THE_ARCH" in
   armv7*|armeabi*)
     CC="armv7a-linux-androideabi${ANDROID_API}-clang"
@@ -166,7 +172,7 @@ case "$THE_ARCH" in
     STRIP="arm-linux-androideabi-strip"
 
     # Android NDK r19 and r20 no longer use -mfloat-abi=softfp. Add it as required.
-    ANDROID_CXXFLAGS="-march=armv7-a -mthumb -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-march=armv7-a -mthumb -funwind-tables -stdlib=libc++ -fexceptions -frtti"
     ;;
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
@@ -177,7 +183,7 @@ case "$THE_ARCH" in
     RANLIB="aarch64-linux-android-ranlib"
     STRIP="aarch64-linux-android-strip"
 
-    ANDROID_CXXFLAGS="-funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-funwind-tables -stdlib=libc++ -fexceptions -frtti"
     ;;
   i686|x86)
     CC="i686-linux-android${ANDROID_API}-clang"
@@ -188,7 +194,7 @@ case "$THE_ARCH" in
     RANLIB="i686-linux-android-ranlib"
     STRIP="i686-linux-android-strip"
 
-    ANDROID_CXXFLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-mtune=intel -mssse3 -mfpmath=sse -funwind-tables -stdlib=libc++ -fexceptions -frtti"
     ;;
   x86_64|x64)
     CC="x86_64-linux-android${ANDROID_API}-clang"
@@ -199,7 +205,7 @@ case "$THE_ARCH" in
     RANLIB="x86_64-linux-android-ranlib"
     STRIP="x86_64-linux-android-strip"
 
-    ANDROID_CXXFLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-march=x86-64 -msse4.2 -mpopcnt -mtune=intel -funwind-tables -stdlib=libc++ -fexceptions -frtti"
     ;;
   *)
     echo "ERROR: Unknown architecture ${ANDROID_CPU}"
