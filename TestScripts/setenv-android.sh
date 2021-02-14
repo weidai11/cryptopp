@@ -163,6 +163,8 @@ THE_ARCH=$(tr '[:upper:]' '[:lower:]' <<< "${ANDROID_CPU}")
 # consistent with Android.mk and 'APP_STL := c++_shared'.
 case "$THE_ARCH" in
   armv7*|armeabi*)
+    #CC="clang"
+    #CXX="clang++"
     CC="armv7a-linux-androideabi${ANDROID_API}-clang"
     CXX="armv7a-linux-androideabi${ANDROID_API}-clang++"
     LD="arm-linux-androideabi-ld"
@@ -180,6 +182,8 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   armv8*|aarch64|arm64*)
+    #CC="clang"
+    #CXX="clang++"
     CC="aarch64-linux-android${ANDROID_API}-clang"
     CXX="aarch64-linux-android${ANDROID_API}-clang++"
     LD="aarch64-linux-android-ld"
@@ -195,6 +199,8 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   i686|x86)
+    #CC="clang"
+    #CXX="clang++"
     CC="i686-linux-android${ANDROID_API}-clang"
     CXX="i686-linux-android${ANDROID_API}-clang++"
     LD="i686-linux-android-ld"
@@ -211,6 +217,8 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
     ;;
   x86_64|x64)
+    #CC="clang"
+    #CXX="clang++"
     CC="x86_64-linux-android${ANDROID_API}-clang"
     CXX="x86_64-linux-android${ANDROID_API}-clang++"
     LD="x86_64-linux-android-ld"
