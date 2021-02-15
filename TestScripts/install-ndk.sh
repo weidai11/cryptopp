@@ -82,9 +82,15 @@ else
 fi
 
 # install android deps
-if [ -n "$(command -v apt-get)" ]; then
+if [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v apt-get 2>/dev/null)" ]]; then
     apt-get -qq update 2>/dev/null
-    apt-get -qq install --no-install-recommends openjdk-8-jdk unzip curl 2>/dev/null
+    apt-get -qq install --no-install-recommends unzip curl 2>/dev/null
+
+    if [[ -n "$(apt-cache search openjdk-13-jdk 2>/dev/null | head -n 1)" ]]; then
+        apt-get -qq install --no-install-recommends openjdk-13-jdk 2>/dev/null
+    elif [[ -n "$(apt-cache search openjdk-8-jdk 2>/dev/null | head -n 1)" ]]; then
+        apt-get -qq install --no-install-recommends openjdk-8-jdk 2>/dev/null
+    if
 fi
 
 echo "Downloading SDK"
