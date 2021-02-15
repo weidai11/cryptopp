@@ -34,6 +34,13 @@ if [ ! -d "${ANDROID_SDK_ROOT}" ]; then
     exit 1
 fi
 
+# Error checking
+if [ -z "$(command -v ndk-build 2>/dev/null)"  ]; then
+    echo "ERROR: ndk-build is not on-path for ${USER}. Please set it."
+    echo "PATH is '${PATH}'"
+    exit 1
+fi
+
 # Temp directory
 if [[ -z "${TMPDIR}" ]]; then
     TMPDIR="$HOME/tmp"
