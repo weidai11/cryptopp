@@ -57,7 +57,7 @@ if [[ -z "${TMPDIR}" ]]; then
     mkdir -p "${TMPDIR}"
     if [ -n "${SUDO_USER}" ]; then
         chown -R "${SUDO_USER}" "${TMPDIR}"
-	fi
+    fi
 fi
 
 # Install Android deps
