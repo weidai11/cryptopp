@@ -90,7 +90,7 @@ if [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v apt-get 2>/dev/nul
         apt-get -qq install --no-install-recommends openjdk-13-jdk 2>/dev/null
     elif [[ -n "$(apt-cache search openjdk-8-jdk 2>/dev/null | head -n 1)" ]]; then
         apt-get -qq install --no-install-recommends openjdk-8-jdk 2>/dev/null
-    if
+    fi
 fi
 
 echo "Downloading SDK"
