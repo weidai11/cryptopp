@@ -70,6 +70,24 @@ if [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v apt-get 2>/dev/nul
     elif [[ -n "$(apt-cache search openjdk-8-jdk 2>/dev/null | head -n 1)" ]]; then
         apt-get -qq install --no-install-recommends openjdk-8-jdk 2>/dev/null || true
     fi
+elif [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v dnf 2>/dev/null)" ]]; then
+    dnf update 2>/dev/null || true
+    dnf install unzip curl wget 2>/dev/null || true
+
+    if [[ -n "$(dnf search java-latest-openjdk-devel 2>/dev/null | head -n 1)" ]]; then
+        dnf install java-latest-openjdk-devel 2>/dev/null || true
+    elif [[ -n "$(dnf search java-11-openjdk-devel 2>/dev/null | head -n 1)" ]]; then
+        dnf install java-11-openjdk-devel 2>/dev/null || true
+    fi
+elif [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v yum 2>/dev/null)" ]]; then
+    yum update 2>/dev/null || true
+    yum install unzip curl wget 2>/dev/null || true
+
+    if [[ -n "$(yum search java-latest-openjdk-devel 2>/dev/null | head -n 1)" ]]; then
+        yum install java-latest-openjdk-devel 2>/dev/null || true
+    elif [[ -n "$(yum search java-11-openjdk-devel 2>/dev/null | head -n 1)" ]]; then
+        yum install java-11-openjdk-devel 2>/dev/null || true
+    fi
 fi
 
 # User feedback
