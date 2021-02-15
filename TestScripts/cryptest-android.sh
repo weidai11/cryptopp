@@ -45,6 +45,9 @@ fi
 if [[ -z "${TMPDIR}" ]]; then
     TMPDIR="$HOME/tmp"
     mkdir -p "${TMPDIR}"
+    if [ -n "${SUDO_USER}" ]; then
+        chown -R "${SUDO_USER}" "${TMPDIR}"
+	fi
 fi
 
 # Sane default
