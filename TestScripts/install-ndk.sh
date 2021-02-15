@@ -57,6 +57,18 @@ if [[ -z "${TMPDIR}" ]]; then
     mkdir -p "${TMPDIR}"
 fi
 
+# Install Android deps
+if [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v apt-get 2>/dev/null)" ]]; then
+    apt-get -qq update 2>/dev/null || true
+    apt-get -qq install --no-install-recommends unzip curl wget 2>/dev/null || true
+
+    if [[ -n "$(apt-cache search openjdk-13-jdk 2>/dev/null | head -n 1)" ]]; then
+        apt-get -qq install --no-install-recommends openjdk-13-jdk 2>/dev/null || true
+    elif [[ -n "$(apt-cache search openjdk-8-jdk 2>/dev/null | head -n 1)" ]]; then
+        apt-get -qq install --no-install-recommends openjdk-8-jdk 2>/dev/null || true
+    fi
+fi
+
 # User feedback
 #echo "ANDROID_NDK_ROOT is '${ANDROID_NDK_ROOT}'"
 #echo "ANDROID_SDK_ROOT is '${ANDROID_SDK_ROOT}'"
@@ -79,18 +91,6 @@ elif [ "$IS_DARWIN" -eq 1 ]; then
     TOOLS_URL=https://dl.google.com/android/repository/platform-tools-latest-darwin.zip
 else
     echo "Unknown platform: \"$(uname -s 2>/dev/null)\". Please fix this script."
-fi
-
-# install android deps
-if [[ -z "$(command -v java 2>/dev/null)" && -n "$(command -v apt-get 2>/dev/null)" ]]; then
-    apt-get -qq update 2>/dev/null
-    apt-get -qq install --no-install-recommends unzip curl 2>/dev/null
-
-    if [[ -n "$(apt-cache search openjdk-13-jdk 2>/dev/null | head -n 1)" ]]; then
-        apt-get -qq install --no-install-recommends openjdk-13-jdk 2>/dev/null
-    elif [[ -n "$(apt-cache search openjdk-8-jdk 2>/dev/null | head -n 1)" ]]; then
-        apt-get -qq install --no-install-recommends openjdk-8-jdk 2>/dev/null
-    fi
 fi
 
 echo "Downloading SDK"
