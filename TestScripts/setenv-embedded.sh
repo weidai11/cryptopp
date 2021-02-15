@@ -141,8 +141,7 @@ fi
 echo
 echo "*******************************************************************************"
 echo "It looks the the environment is set correctly. Your next step is build"
-echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
-echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
+echo "the library with 'make -f GNUmakefile-cross'."
 echo "*******************************************************************************"
 echo
 

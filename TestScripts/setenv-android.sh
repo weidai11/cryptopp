@@ -177,9 +177,10 @@ case "$THE_ARCH" in
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
     # Android NDK r19 and r20 no longer use -mfloat-abi=softfp. Add it as required.
-    ANDROID_CXXFLAGS="-target armv7-none-linux-androideabi${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=armv7-a -mthumb -fstack-protector-strong"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-target armv7-none-linux-androideabi${ANDROID_API} -std=c++11 -stdlib=libc++"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=armv7-a -mthumb"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
@@ -193,8 +194,10 @@ case "$THE_ARCH" in
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
-    ANDROID_CXXFLAGS="-target aarch64-none-linux-android${ANDROID_API} -fstack-protector-strong"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    ANDROID_CXXFLAGS="-target aarch64-none-linux-android${ANDROID_API}"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
   i686|x86)
     CC="i686-linux-android${ANDROID_API}-clang"
@@ -209,8 +212,10 @@ case "$THE_ARCH" in
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
     ANDROID_CXXFLAGS="-target i686-none-linux-android${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -mtune=intel -mssse3 -mfpmath=sse -fstack-protector-strong"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -mtune=intel -mssse3 -mfpmath=sse"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
   x86_64|x64)
     CC="x86_64-linux-android${ANDROID_API}-clang"
@@ -225,8 +230,10 @@ case "$THE_ARCH" in
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
 
     ANDROID_CXXFLAGS="-target x86_64-none-linux-android${ANDROID_API}"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel -fstack-protector-strong"
-    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -funwind-tables -std=c++11 -stdlib=libc++ -fexceptions -frtti"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -std=c++11 -stdlib=libc++"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -march=x86-64 -msse4.2 -mpopcnt -mtune=intel"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
+    ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
   *)
     echo "ERROR: Unknown architecture ${ANDROID_CPU}"
@@ -333,7 +340,13 @@ if [ "$VERBOSE" -gt 0 ]; then
   echo "ANDROID_API: ${ANDROID_API}"
   echo "ANDROID_CPU: ${ANDROID_CPU}"
   echo "ANDROID_SYSROOT: ${ANDROID_SYSROOT}"
+  if [ -n "${ANDROID_CPPFLAGS}" ]; then
+    echo "ANDROID_CPPFLAGS: ${ANDROID_CPPFLAGS}"
+  fi
   echo "ANDROID_CXXFLAGS: ${ANDROID_CXXFLAGS}"
+  if [ -n "${ANDROID_LDFLAGS}" ]; then
+    echo "ANDROID_LDFLAGS: ${ANDROID_LDFLAGS}"
+  fi
   if [ -e "cpu-features.h" ] && [ -e "cpu-features.c" ]; then
     echo "CPU FEATURES: cpu-features.h and cpu-features.c are present"
   fi
@@ -344,8 +357,7 @@ fi
 echo
 echo "*******************************************************************************"
 echo "It looks the the environment is set correctly. Your next step is build"
-echo "the library with 'make -f GNUmakefile-cross'. You can create a versioned"
-echo "shared object using 'HAS_SOLIB_VERSION=1 make -f GNUmakefile-cross'"
+echo "the library with 'make -f GNUmakefile-cross'."
 echo "*******************************************************************************"
 echo
 
