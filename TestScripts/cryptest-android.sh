@@ -2,7 +2,7 @@
 
 #############################################################################
 #
-# This script tests the cryptopp-android gear.
+# This script tests Android cross-compiles using setenv-android.sh script.
 #
 # Written and placed in public domain by Jeffrey Walton.
 #

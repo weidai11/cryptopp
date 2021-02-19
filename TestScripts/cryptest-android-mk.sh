@@ -2,7 +2,8 @@
 
 #############################################################################
 #
-# This script tests the cryptopp-android gear using ndk-build.
+# This script tests the cryptopp-android-mk gear using ndk-build. The
+# source files include Application.mk and Android.mk.
 #
 # Written and placed in public domain by Jeffrey Walton.
 #
@@ -65,7 +66,7 @@ files=(Android.mk Application.mk make_neon.sh test_shared.hxx test_shared.cxx)
 
 for file in "${files[@]}"; do
     echo "Downloading $file"
-    if ! curl -L -s -o "${file}" "https://raw.githubusercontent.com/noloader/cryptopp-android/master/${file}"; then
+    if ! curl -L -s -o "${file}" "https://raw.githubusercontent.com/noloader/cryptopp-android-mk/master/${file}"; then
         echo "${file} download failed"
         exit 1
     fi

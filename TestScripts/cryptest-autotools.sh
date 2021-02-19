@@ -2,7 +2,7 @@
 
 #############################################################################
 #
-# This script tests the cryptopp-autotools gear.
+# This script tests the Autotools gear.
 #
 # Written and placed in public domain by Jeffrey Walton.
 #
