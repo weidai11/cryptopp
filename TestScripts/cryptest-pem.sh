@@ -2,7 +2,7 @@
 
 #############################################################################
 #
-# This script tests the crpytopp-pem gear.
+# This script tests the cryptopp-pem gear.
 #
 # Written and placed in public domain by Jeffrey Walton.
 #

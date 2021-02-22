@@ -38,7 +38,7 @@ The library does not depend on other build systems, like Autotools or CMake. The
 BUILDING THE LIBRARY
 --------------------
 
-In general, all you should have to do is open a terminal, cd to the crpytopp directory, and then:
+In general, all you should have to do is open a terminal, cd to the cryptopp directory, and then:
 
     make
     make test
