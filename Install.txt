@@ -78,7 +78,16 @@ LLVM's libc++ is also supported, so you can:
     export CXXFLAGS="-std=c++11 -stdlib=libc++"
     make
 
-If you target 32-bit IA-32 machines (i386, i586 or i686), then the makefile forgoes -fPIC due to register pressures. You should add -fPIC yourself in this case:
+If you are using the library on OS X with XCode then you should add LLVM's libc++. You can do so by modifying CXXFLAGS, or you can modify the GNUmakefile. To modify the GNUmakefile, open it and find the line for OS X builds around line 150:
+
+    ifneq ($(IS_DARWIN),0)
+      CXX ?= c++
+      CRYPTOPP_CXXFLAGS += -stdlib=libc++
+      AR = libtool
+      ARFLAGS = -static -o
+    endif
+
+If you target 32-bit IA-32 machines (i386, i586 or i686), then the makefile forgoes -fPIC due to register pressures. You should add -fPIC yourself, if needed:
 
     CXXFLAGS="-DNDEBUG -g2 -O3 -fPIC" make
 
@@ -86,7 +95,7 @@ You can also override a variable so that only your flags are present. That is, t
 
     make CXXFLAGS="-std=c++11"
 
-Crypto++ does not enagage Specter remediations at this time. You can build with Specter resistance with the following flags:
+Crypto++ does not engage Specter remediations at this time. You can build with Specter resistance with the following flags:
 
     CXXFLAGS="-DNDEBUG -g2 -O3 -mfunction-return=thunk -mindirect-branch=thunk" make
 
@@ -227,6 +236,6 @@ The library also offers its test script for those who want to use it. The test s
 REPORTING PROBLEMS
 ------------------
 
-Dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at http://groups.google.com/forum/#!forum/cryptopp-users.
+Build failures, dirty compiles and failures in the validation suite or test vectors should be reported at the Crypto++ User Group. The User Group is located at http://groups.google.com/forum/#!forum/cryptopp-users.
 
 The library uses Wei Dai's GitHub to track issues. The tracker is located at http://github.com/weidai11/cryptopp/issues. Please do not ask questions in the bug tracker; ask questions on the mailing list instead. Also see http://www.cryptopp.com/wiki/Bug_Report.
