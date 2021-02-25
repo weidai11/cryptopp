@@ -2537,7 +2537,7 @@ class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE Certificate : virtual public CryptoMateria
 /// \brief Interface for asymmetric algorithms
 /// \details BERDecode() and DEREncode() were removed under Issue 569
 ///  and Commit 9b174e84de7a. Programs should use <tt>AccessMaterial().Load(bt)</tt>
-///  or <tt>AccessMaterial().Save(bt)</tt> instead.
+///  or <tt>GetMaterial().Save(bt)</tt> instead.
 /// \sa <A HREF="https://github.com/weidai11/cryptopp/issues/569">Issue 569</A>
 class CRYPTOPP_DLL CRYPTOPP_NO_VTABLE AsymmetricAlgorithm : public Algorithm
 {
