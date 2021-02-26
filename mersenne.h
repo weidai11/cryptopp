@@ -39,7 +39,7 @@ public:
 	/// \param seed 32-bit seed
 	/// \details Defaults to template parameter S due to changing algorithm
 	///  parameters over time
-	MersenneTwister(word32 seed = S) : m_seed(seed), m_idx(N)
+	MersenneTwister(word32 seed = S) : m_idx(N)
 	{
 		Reset(seed);
 	}
@@ -53,12 +53,20 @@ public:
 	///  generator. If fewer bytes are provided, then the seed is padded with 0's.
 	void IncorporateEntropy(const byte *input, size_t length)
 	{
-		word32 temp = 0;
-		::memcpy(&temp, input, STDMIN(sizeof(temp), length));
-		Reset(temp);
+		// Handle word32 size blocks
+		SecBlock<word32> temp(1);
+		temp[0] = 0;
 
-		// Wipe temp
-		SecureWipeArray(&temp, 1);
+		if (length > 4)
+			length = 4;
+
+		for (size_t i=0; i<length; ++i)
+		{
+			temp[0] <<= 8;
+			temp[0] = temp[0] | input[i];
+		}
+
+		Reset(temp[0]);
 	}
 
 	/// \brief Generate random array of bytes
@@ -71,34 +79,27 @@ public:
 	void GenerateBlock(byte *output, size_t size)
 	{
 		// Handle word32 size blocks
-		word32 temp;
+		SecBlock<word32> temp(1);
 		for (size_t i=0; i < size/4; i++, output += 4)
 		{
-			temp = NextMersenneWord();
-			memcpy(output, &temp, 4);
+			temp[0] = NextMersenneWord();
+			memcpy(output, temp+0, 4);
 		}
 
 		// No tail bytes
 		if (size%4 == 0)
-		{
-			// Wipe temp
-			SecureWipeArray(&temp, 1);
 			return;
-		}
 
 		// Handle tail bytes
-		temp = NextMersenneWord();
+		temp[0] = NextMersenneWord();
 		switch (size%4)
 		{
-			case 3: output[2] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 1); /* fall through */
-			case 2: output[1] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 2); /* fall through */
-			case 1: output[0] = CRYPTOPP_GET_BYTE_AS_BYTE(temp, 3); break;
+			case 3: output[2] = CRYPTOPP_GET_BYTE_AS_BYTE(temp[0], 1); /* fall through */
+			case 2: output[1] = CRYPTOPP_GET_BYTE_AS_BYTE(temp[0], 2); /* fall through */
+			case 1: output[0] = CRYPTOPP_GET_BYTE_AS_BYTE(temp[0], 3); break;
 
-			default: CRYPTOPP_ASSERT(0); ;
+			default: CRYPTOPP_ASSERT(0);;
 		}
-
-		// Wipe temp
-		SecureWipeArray(&temp, 1);
 	}
 
 	/// \brief Generate a random 32-bit word in the range min to max, inclusive
@@ -137,7 +138,6 @@ protected:
 
 	void Reset(word32 seed)
 	{
-		m_seed = seed;
 		m_idx = N;
 
 		m_state[0] = seed;
@@ -195,8 +195,6 @@ private:
 
 	/// \brief 32-bit word state array of size N
 	FixedSizeSecBlock<word32, N+1> m_state;
-	/// \brief the value used to seed the generator
-	word32 m_seed;
 	/// \brief the current index into the state array
 	word32 m_idx;
 };
