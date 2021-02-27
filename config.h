@@ -72,9 +72,12 @@
 #	define DOCUMENTED_TYPEDEF(x, y) typedef x y;
 #endif
 #define ANONYMOUS_NAMESPACE_BEGIN namespace {
+#define ANONYMOUS_NAMESPACE_END }
 #define USING_NAMESPACE(x) using namespace x;
 #define DOCUMENTED_NAMESPACE_BEGIN(x) namespace x {
 #define DOCUMENTED_NAMESPACE_END }
+
+#define CRYPTOPP_UNUSED(x) ((void)(x))
 
 // What is the type of the third parameter to bind?
 // For Unix, the new standard is ::socklen_t (typically unsigned int), and the old standard is int.
