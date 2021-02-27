@@ -245,7 +245,7 @@ MessageAuthenticationCode * NewIntegrityCheckingMAC()
 
 bool IntegrityCheckModule(const char *moduleFilename, const byte *expectedModuleMac, SecByteBlock *pActualMac, unsigned long *pMacFileLocation)
 {
-	std::auto_ptr<MessageAuthenticationCode> mac(NewIntegrityCheckingMAC());
+	member_ptr<MessageAuthenticationCode> mac(NewIntegrityCheckingMAC());
 	unsigned int macSize = mac->DigestSize();
 
 	SecByteBlock tempMac;

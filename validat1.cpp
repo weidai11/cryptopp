@@ -375,17 +375,14 @@ bool TestOS_RNG()
 	return pass;
 }
 
-// VC50 workaround
-typedef auto_ptr<BlockTransformation> apbt;
-
 class CipherFactory
 {
 public:
 	virtual unsigned int BlockSize() const =0;
 	virtual unsigned int KeyLength() const =0;
 
-	virtual apbt NewEncryption(const byte *key) const =0;
-	virtual apbt NewDecryption(const byte *key) const =0;
+	virtual BlockTransformation* NewEncryption(const byte *key) const =0;
+	virtual BlockTransformation* NewDecryption(const byte *key) const =0;
 };
 
 template <class E, class D> class FixedRoundsCipherFactory : public CipherFactory
@@ -395,10 +392,10 @@ public:
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
-	apbt NewEncryption(const byte *key) const
-		{return apbt(new E(key, m_keylen));}
-	apbt NewDecryption(const byte *key) const
-		{return apbt(new D(key, m_keylen));}
+	BlockTransformation* NewEncryption(const byte *key) const
+		{return new E(key, m_keylen);}
+	BlockTransformation* NewDecryption(const byte *key) const
+		{return new D(key, m_keylen);}
 
 	unsigned int m_keylen;
 };
@@ -411,10 +408,10 @@ public:
 	unsigned int BlockSize() const {return E::BLOCKSIZE;}
 	unsigned int KeyLength() const {return m_keylen;}
 
-	apbt NewEncryption(const byte *key) const
-		{return apbt(new E(key, m_keylen, m_rounds));}
-	apbt NewDecryption(const byte *key) const
-		{return apbt(new D(key, m_keylen, m_rounds));}
+	BlockTransformation* NewEncryption(const byte *key) const
+		{return new E(key, m_keylen, m_rounds);}
+	BlockTransformation* NewDecryption(const byte *key) const
+		{return new D(key, m_keylen, m_rounds);}
 
 	unsigned int m_keylen, m_rounds;
 };
@@ -432,11 +429,11 @@ bool BlockTransformationTest(const CipherFactory &cg, BufferedTransformation &va
 		valdata.Get(plain, cg.BlockSize());
 		valdata.Get(cipher, cg.BlockSize());
 
-		apbt transE = cg.NewEncryption(key);
+		member_ptr<BlockTransformation> transE(cg.NewEncryption(key));
 		transE->ProcessBlock(plain, out);
 		fail = memcmp(out, cipher, cg.BlockSize()) != 0;
 
-		apbt transD = cg.NewDecryption(key);
+		member_ptr<BlockTransformation> transD(cg.NewDecryption(key));
 		transD->ProcessBlock(out, outplain);
 		fail=fail || memcmp(outplain, plain, cg.BlockSize());
 
@@ -896,11 +893,11 @@ bool ValidateRC2()
 		valdata.Get(plain, RC2Encryption::BLOCKSIZE);
 		valdata.Get(cipher, RC2Encryption::BLOCKSIZE);
 
-		apbt transE(new RC2Encryption(key, keyLen, effectiveLen));
+		member_ptr<BlockTransformation> transE(new RC2Encryption(key, keyLen, effectiveLen));
 		transE->ProcessBlock(plain, out);
 		fail = memcmp(out, cipher, RC2Encryption::BLOCKSIZE) != 0;
 
-		apbt transD(new RC2Decryption(key, keyLen, effectiveLen));
+		member_ptr<BlockTransformation> transD(new RC2Decryption(key, keyLen, effectiveLen));
 		transD->ProcessBlock(out, outplain);
 		fail=fail || memcmp(outplain, plain, RC2Encryption::BLOCKSIZE);
 

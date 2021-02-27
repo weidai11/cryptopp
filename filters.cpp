@@ -476,7 +476,7 @@ void ProxyFilter::SetFilter(Filter *filter)
 	if (filter)
 	{
 		OutputProxy *proxy;
-		std::auto_ptr<OutputProxy> temp(proxy = new OutputProxy(*this, false));
+		member_ptr<OutputProxy> temp(proxy = new OutputProxy(*this, false));
 		m_filter->TransferAllTo(*proxy);
 		m_filter->Attach(temp.release());
 	}

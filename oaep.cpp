@@ -28,7 +28,7 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 	}
 	oaepBlockLen /= 8;
 
-	std::auto_ptr<HashTransformation> pHash(NewHash());
+	member_ptr<HashTransformation> pHash(NewHash());
 	const size_t hLen = pHash->DigestSize();
 	const size_t seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 	byte *const maskedSeed = oaepBlock;
@@ -44,7 +44,7 @@ void OAEP_Base::Pad(RandomNumberGenerator &rng, const byte *input, size_t inputL
 	memcpy(maskedDB+dbLen-inputLength, input, inputLength);
 
 	rng.GenerateBlock(maskedSeed, seedLen);
-	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+	member_ptr<MaskGeneratingFunction> pMGF(NewMGF());
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 }
@@ -61,7 +61,7 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	}
 	oaepBlockLen /= 8;
 
-	std::auto_ptr<HashTransformation> pHash(NewHash());
+	member_ptr<HashTransformation> pHash(NewHash());
 	const size_t hLen = pHash->DigestSize();
 	const size_t seedLen = hLen, dbLen = oaepBlockLen-seedLen;
 
@@ -71,7 +71,7 @@ DecodingResult OAEP_Base::Unpad(const byte *oaepBlock, size_t oaepBlockLen, byte
 	byte *const maskedSeed = t;
 	byte *const maskedDB = t+seedLen;
 
-	std::auto_ptr<MaskGeneratingFunction> pMGF(NewMGF());
+	member_ptr<MaskGeneratingFunction> pMGF(NewMGF());
 	pMGF->GenerateAndMask(*pHash, maskedSeed, seedLen, maskedDB, dbLen);
 	pMGF->GenerateAndMask(*pHash, maskedDB, dbLen, maskedSeed, seedLen);
 

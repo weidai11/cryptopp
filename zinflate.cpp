@@ -590,7 +590,7 @@ struct NewFixedLiteralDecoder
 		std::fill(codeLengths + 144, codeLengths + 256, 9);
 		std::fill(codeLengths + 256, codeLengths + 280, 7);
 		std::fill(codeLengths + 280, codeLengths + 288, 8);
-		std::auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
+		member_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
 		pDecoder->Initialize(codeLengths, 288);
 		return pDecoder.release();
 	}
@@ -602,7 +602,7 @@ struct NewFixedDistanceDecoder
 	{
 		unsigned int codeLengths[32];
 		std::fill(codeLengths + 0, codeLengths + 32, 5);
-		std::auto_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
+		member_ptr<HuffmanDecoder> pDecoder(new HuffmanDecoder);
 		pDecoder->Initialize(codeLengths, 32);
 		return pDecoder.release();
 	}

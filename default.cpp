@@ -172,7 +172,7 @@ void DefaultDecryptor::CheckKey(const byte *salt, const byte *keyCheck)
 	GenerateKeyIV(m_passphrase, m_passphrase.size(), salt, SALTLENGTH, key, IV);
 
 	m_cipher.SetKeyWithIV(key, key.size(), IV);
-	std::auto_ptr<StreamTransformationFilter> decryptor(new StreamTransformationFilter(m_cipher));
+	member_ptr<StreamTransformationFilter> decryptor(new StreamTransformationFilter(m_cipher));
 
 	decryptor->Put(keyCheck, BLOCKSIZE);
 	decryptor->ForceNextPut();

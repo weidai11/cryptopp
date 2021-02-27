@@ -429,7 +429,7 @@ template <class EC> void DL_GroupParameters_EC<EC>::Initialize(const OID &oid)
 
 	const EcRecommendedParameters<EllipticCurve> &param = *it;
 	m_oid = oid;
-	std::auto_ptr<EllipticCurve> ec(param.NewEC());
+	member_ptr<EllipticCurve> ec(param.NewEC());
 	this->m_groupPrecomputation.SetCurve(*ec);
 
 	StringSource ssG(param.g, true, new HexDecoder);

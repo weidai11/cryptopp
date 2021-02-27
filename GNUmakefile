@@ -103,8 +103,12 @@ LDLIBS += -lnsl -lsocket
 M32OR64 = -m$(shell isainfo -b)
 endif
 
+ifneq ($(GCC_COMPILER),0)
+CXXFLAGS += -Wno-terminate
+endif
+
 ifneq ($(CLANG_COMPILER),0)
-CXXFLAGS += -Wno-tautological-compare
+CXXFLAGS += -Wno-tautological-compare -Wno-terminate
 endif
 
 ifneq ($(IS_SUN_CC),0)	# override flags for CC Sun C++ compiler
@@ -144,7 +148,7 @@ dynamic: libcryptopp.so
 test: cryptest.exe
 	./cryptest.exe v
 
-clean:
+clean distclean:
 	-$(RM) cryptest.exe libcryptopp.a libcryptopp.so $(LIBOBJS) $(TESTOBJS) cryptopp.dll libcryptopp.dll.a libcryptopp.import.a cryptest.import.exe dlltest.exe $(DLLOBJS) $(LIBIMPORTOBJS) $(TESTI MPORTOBJS) $(DLLTESTOBJS)
 
 install:

@@ -1340,7 +1340,7 @@ class DL_SignerImpl : public DL_ObjectImpl<DL_SignerBase<typename SCHEME_OPTIONS
 public:
 	PK_MessageAccumulator * NewSignatureAccumulator(RandomNumberGenerator &rng) const
 	{
-		std::auto_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>);
+		member_ptr<PK_MessageAccumulatorBase> p(new PK_MessageAccumulatorImpl<CPP_TYPENAME SCHEME_OPTIONS::HashFunction>);
 		this->RestartMessageAccumulator(rng, *p);
 		return p.release();
 	}

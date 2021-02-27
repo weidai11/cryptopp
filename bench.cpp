@@ -192,7 +192,7 @@ void BenchMarkByName2(const char *factoryName, size_t keyLength = 0, const char 
 	else if (keyLength)
 		name += " (" + IntToString(keyLength * 8) + "-bit key)";
 
-	std::auto_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(factoryName));
+	member_ptr<T_FactoryOutput> obj(ObjectFactoryRegistry<T_FactoryOutput>::Registry().CreateObject(factoryName));
 	if (!keyLength)
 		keyLength = obj->DefaultKeyLength();
 	obj->SetKey(key, keyLength, CombinedNameValuePairs(params, MakeParameters(Name::IV(), ConstByteArrayParameter(key, obj->IVSize()), false)));
@@ -214,7 +214,7 @@ void BenchMarkByNameKeyLess(const char *factoryName, const char *displayName=NUL
 	if (displayName)
 		name = displayName;
 
-	std::auto_ptr<T> obj(ObjectFactoryRegistry<T>::Registry().CreateObject(factoryName));
+	member_ptr<T> obj(ObjectFactoryRegistry<T>::Registry().CreateObject(factoryName));
 	BenchMark(name.c_str(), *obj, g_allocatedTime);
 }
 
