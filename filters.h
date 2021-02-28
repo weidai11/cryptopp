@@ -267,23 +267,23 @@ public:
 		{CRYPTOPP_UNUSED(parameters); ResetMeter();}
 
 	/// \brief Number of bytes in the current message
-	/// \return GetCurrentMessageBytes() returns the number of bytes in the current message
+	/// \return the number of bytes in the current message
 	lword GetCurrentMessageBytes() const {return m_currentMessageBytes;}
 
 	/// \brief Number of bytes processed by the filter
-	/// \return GetTotalBytes() returns the number of bytes processed by the filter
+	/// \return the number of bytes processed by the filter
 	lword GetTotalBytes() const {return m_totalBytes;}
 
 	/// \brief Message number in the series
-	/// \return GetCurrentSeriesMessages() returns the message number in the series
+	/// \return the message number in the series
 	unsigned int GetCurrentSeriesMessages() const {return m_currentSeriesMessages;}
 
 	/// \brief Number of messages in the message series
-	/// \return GetTotalMessages() returns the number of messages in the message series
+	/// \return the number of messages in the message series
 	unsigned int GetTotalMessages() const {return m_totalMessages;}
 
 	/// \brief Number of messages processed by the filter
-	/// \return GetTotalMessageSeries() returns the number of messages processed by the filter
+	/// \return the number of messages processed by the filter
 	unsigned int GetTotalMessageSeries() const {return m_totalMessageSeries;}
 
 	// BufferedTransformation in cryptlib.h
