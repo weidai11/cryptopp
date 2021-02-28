@@ -129,16 +129,14 @@ size_t FileStore::TransferTo2(BufferedTransformation &target, lword &transferByt
 	if (m_waiting)
 		goto output;
 
+	size_t spaceSize, blockedBytes;
 	while (size && m_stream->good())
 	{
-		{
-		size_t spaceSize = 1024;
+		spaceSize = 1024;
 		m_space = HelpCreatePutSpace(target, channel, 1, UnsignedMin(size_t(SIZE_MAX), size), spaceSize);
-
-		m_stream->read((char *)m_space, (unsigned int)STDMIN(size, (lword)spaceSize));
-		}
+		m_stream->read((char *)m_space, (std::streamsize)STDMIN(size, (lword)spaceSize));
 		m_len = (size_t)m_stream->gcount();
-		size_t blockedBytes;
+
 output:
 		blockedBytes = target.ChannelPutModifiable2(channel, m_space, m_len, 0, blocking);
 		m_waiting = blockedBytes > 0;
