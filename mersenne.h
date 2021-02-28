@@ -54,7 +54,7 @@ public:
 	void IncorporateEntropy(const byte *input, size_t length)
 	{
 		// Handle word32 size blocks
-		SecBlock<word32> temp(1);
+		FixedSizeSecBlock<word32, 1> temp;
 		temp[0] = 0;
 
 		if (length > 4)
@@ -79,7 +79,7 @@ public:
 	void GenerateBlock(byte *output, size_t size)
 	{
 		// Handle word32 size blocks
-		SecBlock<word32> temp(1);
+		FixedSizeSecBlock<word32, 1> temp;
 		for (size_t i=0; i < size/4; i++, output += 4)
 		{
 			temp[0] = NextMersenneWord();
