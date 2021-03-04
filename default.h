@@ -125,14 +125,14 @@ public:
 	/// \brief Constructs a DataDecryptor
 	/// \param passphrase a C-String password
 	/// \param attachment a BufferedTransformation to attach to this object
-	/// \param throwException a flag specifiying whether an Exception should be thrown on error
+	/// \param throwException a flag specifying whether an Exception should be thrown on error
 	DataDecryptor(const char *passphrase, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
 
 	/// \brief Constructs a DataDecryptor
 	/// \param passphrase a byte string password
 	/// \param passphraseLength the length of the byte string password
 	/// \param attachment a BufferedTransformation to attach to this object
-	/// \param throwException a flag specifiying whether an Exception should be thrown on error
+	/// \param throwException a flag specifying whether an Exception should be thrown on error
 	DataDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
 
 	enum State {WAITING_FOR_KEYCHECK, KEY_GOOD, KEY_BAD};
@@ -227,14 +227,14 @@ public:
 	/// \brief Constructs a DataDecryptor
 	/// \param passphrase a C-String password
 	/// \param attachment a BufferedTransformation to attach to this object
-	/// \param throwException a flag specifiying whether an Exception should be thrown on error
+	/// \param throwException a flag specifying whether an Exception should be thrown on error
 	DataDecryptorWithMAC(const char *passphrase, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
 
 	/// \brief Constructs a DataDecryptor
 	/// \param passphrase a byte string password
 	/// \param passphraseLength the length of the byte string password
 	/// \param attachment a BufferedTransformation to attach to this object
-	/// \param throwException a flag specifiying whether an Exception should be thrown on error
+	/// \param throwException a flag specifying whether an Exception should be thrown on error
 	DataDecryptorWithMAC(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment = NULLPTR, bool throwException=true);
 
 	typename DataDecryptor<BC,H,Info>::State CurrentState() const;

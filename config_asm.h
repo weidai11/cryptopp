@@ -31,7 +31,7 @@
 // compiled using C++ only. The library code will not include SSE2 (and
 // above), NEON, Aarch32, Aarch64, or Altivec (and above). Note the compiler
 // may use higher ISAs depending on compiler options, but the library will not
-// explictly use the ISAs. When disabling ASM, it is best to do it from
+// explicitly use the ISAs. When disabling ASM, it is best to do it from
 // config.h to ensure the library and all programs share the setting.
 // #define CRYPTOPP_DISABLE_ASM 1
 
@@ -108,7 +108,7 @@
 # endif
 #endif
 
-// Intrinsics availible in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
+// Intrinsics available in GCC 4.3 (http://gcc.gnu.org/gcc-4.3/changes.html) and
 // MSVC 2008 (http://msdn.microsoft.com/en-us/library/bb892950%28v=vs.90%29.aspx)
 // SunCC could generate SSE4 at 12.1, but the intrinsics are missing until 12.4.
 #if !defined(CRYPTOPP_DISABLE_SSE4) && defined(CRYPTOPP_SSSE3_AVAILABLE) && \

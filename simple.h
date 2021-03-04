@@ -47,7 +47,7 @@ public:
 	/// \brief The algorithm name
 	/// \return the algorithm name
 	/// \details AlgorithmName returns the algorithm's name as a member function.
-	///  The name is is acquired by calling StaticAlgorithmName.
+	///  The name is acquired by calling StaticAlgorithmName.
 	std::string AlgorithmName() const {return ALGORITHM_INFO::StaticAlgorithmName();}
 };
 
