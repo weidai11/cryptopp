@@ -490,7 +490,7 @@ Integer MihailescuProvablePrime(RandomNumberGenerator &rng, unsigned int pbits)
 		// progression p = p_0 + \lambda * q2 = p_0 + 2 * \lambda * q,
 		// with q the recursively generated prime above. We will be able
 		// to use Lucas tets for proving primality. A trick of Quisquater
-		// allows taking q > cubic_root(p) rather then square_root: this
+		// allows taking q > cubic_root(p) rather than square_root: this
 		// decreases the recursion.
 
 		p.Randomize(rng, minP, maxP, Integer::ANY, 1, q2);

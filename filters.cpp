@@ -701,7 +701,7 @@ void StreamTransformationFilter::LastPut(const byte *inString, size_t length)
 	// This block is new to StreamTransformationFilter. It is somewhat of a hack and was
 	//  added for OCB mode; see GitHub Issue 515. The rub with OCB is, its a block cipher
 	//  and the last block size can be 0. However, "last block = 0" is not the 0 predicated
-	//  in the original code. In the orginal code 0 means "nothing special" so
+	//  in the original code. In the original code 0 means "nothing special" so
 	//  DEFAULT_PADDING is applied. OCB's 0 literally means a final block size can be 0 or
 	//  non-0; and no padding is needed in either case because OCB has its own scheme (see
 	//  handling of P_* and A_*).

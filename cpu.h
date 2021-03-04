@@ -17,7 +17,7 @@
 ///    g_hasAES  = CPU_QueryAES() || CPU_ProbeAES();
 /// </pre>
 /// \details Generally speaking, CPU_Query() is in the source file <tt>cpu.cpp</tt> because it
-///  does not require special architectural flags. CPU_Probe() is in a source file that recieves
+///  does not require special architectural flags. CPU_Probe() is in a source file that receives
 ///  architectural flags, like <tt>sse_simd.cpp</tt>, <tt>neon_simd.cpp</tt> and
 ///  <tt>ppc_simd.cpp</tt>. For example, compiling <tt>neon_simd.cpp</tt> on an ARM64 machine will
 ///  have <tt>-march=armv8-a</tt> applied during a compile to make the instruction set architecture

@@ -1,7 +1,7 @@
 // pssr.h - originally written and placed in the public domain by Wei Dai
 
 /// \file pssr.h
-/// \brief Classes for probablistic signature schemes
+/// \brief Classes for probabilistic signature schemes
 /// \since Crypto++ 2.1
 
 #ifndef CRYPTOPP_PSSR_H

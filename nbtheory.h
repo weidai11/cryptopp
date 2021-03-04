@@ -105,7 +105,7 @@ CRYPTOPP_DLL bool CRYPTOPP_API IsPrime(const Integer &p);
 /// \param level the level of thoroughness of testing
 /// \return true if p is a strong probable prime, false otherwise
 /// \details VerifyPrime() is suitable for testing candidate primes created by others. Internally,
-///   VerifyPrime() utilizes IsPrime() and one-round RabinMillerTest(). If the candiate passes and
+///   VerifyPrime() utilizes IsPrime() and one-round RabinMillerTest(). If the candidate passes and
 ///   level is greater than 1, then 10 round RabinMillerTest() primality testing is performed.
 CRYPTOPP_DLL bool CRYPTOPP_API VerifyPrime(RandomNumberGenerator &rng, const Integer &p, unsigned int level = 1);
 

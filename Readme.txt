@@ -84,7 +84,7 @@ Other features include:
       + ARM-32, Aarch32 and Aarch64 provides NEON, ASIMD and ARMv8 implementations
       + Power8 provides in-core AES using NX Crypto Acceleration
 
-The Crypto++ library was orginally written by Wei Dai. The library is now
+The Crypto++ library was originally written by Wei Dai. The library is now
 maintained by several team members and the community. You are welcome to use it
 for any purpose without paying anyone, but see License.txt for the fine print.
 
@@ -248,7 +248,7 @@ The source code and its planned changes are available at the following locations
 
   * The Crypto++ GitHub repository allows you to view the latest (unreleased)
     Crypto++ source code via the Linux kernel's git beginning around June 2015.
-    Its also serves as an incubator to nuture and grow the library.
+    Its also serves as an incubator to nurture and grow the library.
   * The former Crypto++ SourceForge repository allows you to view the Crypto++
     source code via Apache's subversion until about July 2015. At that time,
     SourceForge had infrastructure problems and a cutover to GutHub was performed.

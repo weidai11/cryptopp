@@ -7,7 +7,7 @@
 //    have a commom pattern. Namely, they have a specialized implementation of
 //    AdvancedProcessBlocks which processes multiple block using hardware
 //    acceleration. After several implementations we noticed a lot of copy and
-//    paste occuring. adv_simd.h provides a template to avoid the copy and paste.
+//    paste occurring. adv_simd.h provides a template to avoid the copy and paste.
 //
 //    There are 6 templates provided in this file. The number following the
 //    function name, 128, is the block size in bits. The name following the

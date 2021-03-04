@@ -1018,7 +1018,7 @@ int LibraryVersion(CRYPTOPP_NOINLINE_DOTDOTDOT)
 class NullNameValuePairs : public NameValuePairs
 {
 public:
-	NullNameValuePairs() {}    //  Clang complains a default ctor must be avilable
+	NullNameValuePairs() {}    //  Clang complains a default ctor must be available
 	bool GetVoidValue(const char *name, const std::type_info &valueType, void *pValue) const
 		{CRYPTOPP_UNUSED(name); CRYPTOPP_UNUSED(valueType); CRYPTOPP_UNUSED(pValue); return false;}
 };
