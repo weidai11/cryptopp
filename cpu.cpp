@@ -140,7 +140,7 @@ class AppleMachineInfo
 {
 public:
 	enum { PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch };
-	enum { PowerPC=1, I386, I686, X86_64, ARM32, ARMV8, ARMV84 };
+	enum { PowerPC=1, I386, I686, X86_64, ARM32, ARMV8, ARMV83, ARMV84 };
 
 	AppleMachineInfo() : m_device(0), m_version(0), m_arch(0)
 	{
@@ -210,8 +210,9 @@ public:
 		}
 		else if (machine.find("arm64") != std::string::npos)
 		{
+			// M1 machine.
 			m_device = Mac;
-			m_arch = ARMV8;
+			m_arch = ARMV83;
 		}
 	}
 
@@ -232,11 +233,15 @@ public:
 	}
 
 	bool IsARMv8() const {
-		return m_arch == ARMV8;
+		return m_arch >= ARMV8;
+	}
+
+	bool IsARMv83() const {
+		return m_arch >= ARMV83;
 	}
 
 	bool IsARMv84() const {
-		return m_arch == ARMV84;
+		return m_arch >= ARMV84;
 	}
 
 private:
@@ -276,7 +281,29 @@ inline bool IsAppleMachineARMv8()
 		unsigned int unused;
 		GetAppleMachineInfo(unused, unused, arch);
 	}
-	return arch == AppleMachineInfo::ARMV8;
+	return arch >= AppleMachineInfo::ARMV8;
+}
+
+inline bool IsAppleMachineARMv83()
+{
+	static unsigned int arch;
+	if (arch == 0)
+	{
+		unsigned int unused;
+		GetAppleMachineInfo(unused, unused, arch);
+	}
+	return arch >= AppleMachineInfo::ARMV83;
+}
+
+inline bool IsAppleMachineARMv84()
+{
+	static unsigned int arch;
+	if (arch == 0)
+	{
+		unsigned int unused;
+		GetAppleMachineInfo(unused, unused, arch);
+	}
+	return arch >= AppleMachineInfo::ARMV84;
 }
 
 #endif  // __APPLE__
@@ -825,6 +852,9 @@ inline bool CPU_QueryCRC32()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_CRC32) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
+	// M1 processor
+	if (IsAppleMachineARMv83())
+		return true;
 	// No compiler support. CRC intrinsics result in a failed compiled.
 	return false;
 #endif
@@ -848,6 +878,9 @@ inline bool CPU_QueryPMULL()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_PMULL) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
+	// M1 processor
+	if (IsAppleMachineARMv83())
+		return true;
 	// No compiler support. PMULL intrinsics result in a failed compiled.
 	return false;
 #endif
@@ -937,7 +970,11 @@ inline bool CPU_QuerySHA512()
 #elif defined(__linux__) && defined(__aarch32__)
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA512) != 0)
 		return true;
-#elif defined(__APPLE__) && defined(__aarch64__) && 0
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// M1 processor
+	if (IsAppleMachineARMv83())
+		return true;
+	// Nope...
 	return false;
 #endif
 	return false;
@@ -960,7 +997,11 @@ inline bool CPU_QuerySHA3()
 #elif defined(__linux__) && defined(__aarch32__)
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SHA3) != 0)
 		return true;
-#elif defined(__APPLE__) && defined(__aarch64__) && 0
+#elif defined(__APPLE__) && defined(__aarch64__)
+	// M1 processor
+	if (IsAppleMachineARMv83())
+		return true;
+	// Nope...
 	return false;
 #endif
 	return false;
@@ -984,6 +1025,10 @@ inline bool CPU_QuerySM3()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM3) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
+	// M1 processor
+	if (IsAppleMachineARMv83())
+		return true;
+	// Nope...
 	return false;
 #endif
 	return false;
@@ -1007,6 +1052,10 @@ inline bool CPU_QuerySM4()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM4) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
+	// M1 processor
+	if (IsAppleMachineARMv83())
+		return true;
+	// Nope...
 	return false;
 #endif
 	return false;
