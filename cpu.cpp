@@ -48,6 +48,7 @@ unsigned long int getauxval(unsigned long int) { return 0; }
 
 #if defined(__APPLE__)
 # include <sys/utsname.h>
+# include <sys/sysctl.h>
 #endif
 
 // The cpu-features header and source file are located in
@@ -140,7 +141,7 @@ class AppleMachineInfo
 {
 public:
 	enum { PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch };
-	enum { PowerPC=1, I386, I686, X86_64, ARM32, ARMV8, ARMV82, ARMV83, ARMV84 };
+	enum { PowerPC=1, I386, I686, X86_64, ARM32, ARMV8, ARMV82, ARMV83 };
 
 	AppleMachineInfo() : m_device(0), m_version(0), m_arch(0)
 	{
@@ -210,9 +211,36 @@ public:
 		}
 		else if (machine.find("arm64") != std::string::npos)
 		{
-			// M1 machine.
-			m_device = Mac;
-			m_arch = ARMV82;
+			// M1 machine?
+			std::string brand;
+			size_t size = 0;
+
+			if (sysctlbyname("machdep.cpu.brand_string", NULL, &size, NULL, 0) == 0 && size > 0)
+			{
+				brand.resize(size);
+				if (sysctlbyname("machdep.cpu.brand_string", &brand[0], &size, NULL, 0) == 0 && size > 0)
+				{
+					if (brand[size-1] == '\0')
+						size--;
+					brand.resize(size);
+				}
+			}
+
+			if (brand == "Apple M1")
+			{
+				m_device = Mac;
+				m_arch = ARMV82;
+			}
+			else
+			{
+				// ???
+				m_device = 0;
+				m_arch = ARMV8;
+			}
+		}
+		else
+		{
+			CRYPTOPP_ASSERT(0);
 		}
 	}
 
@@ -242,10 +270,6 @@ public:
 
 	bool IsARMv83() const {
 		return m_arch >= ARMV83;
-	}
-
-	bool IsARMv84() const {
-		return m_arch >= ARMV84;
 	}
 
 private:
@@ -308,17 +332,6 @@ inline bool IsAppleMachineARMv83()
 		GetAppleMachineInfo(unused, unused, arch);
 	}
 	return arch >= AppleMachineInfo::ARMV83;
-}
-
-inline bool IsAppleMachineARMv84()
-{
-	static unsigned int arch;
-	if (arch == 0)
-	{
-		unsigned int unused;
-		GetAppleMachineInfo(unused, unused, arch);
-	}
-	return arch >= AppleMachineInfo::ARMV84;
 }
 
 #endif  // __APPLE__
@@ -1040,10 +1053,6 @@ inline bool CPU_QuerySM3()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM3) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	// M1 processor
-	if (IsAppleMachineARMv83())
-		return true;
-	// Nope...
 	return false;
 #endif
 	return false;
@@ -1067,10 +1076,6 @@ inline bool CPU_QuerySM4()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM4) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	// M1 processor
-	if (IsAppleMachineARMv83())
-		return true;
-	// Nope...
 	return false;
 #endif
 	return false;
