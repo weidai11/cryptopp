@@ -579,32 +579,12 @@ inline bool HasSHA2()
 #endif
 }
 
-/// \brief Determine if an ARM processor has SHA512 available
-/// \return true if the hardware is capable of SHA512 at runtime, false otherwise.
-/// \details SHA512 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
-///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
-/// \details Runtime support requires compile time support. When compiling with GCC, you
-///  may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
-///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \since Crypto++ 8.0
-/// \note This function is only available on Aarch32 and Aarch64 platforms
-inline bool HasSHA512()
-{
-#if defined(__aarch32__) || defined(__aarch64__)
-	if (!g_ArmDetectionDone)
-		DetectArmFeatures();
-	return g_hasSHA512;
-#else
-	return false;
-#endif
-}
-
 /// \brief Determine if an ARM processor has SHA3 available
 /// \return true if the hardware is capable of SHA3 at runtime, false otherwise.
-/// \details SHA3 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+/// \details SHA3 is part of the ARMv8.2 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
-///  may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///  may need to compile with <tt>-march=armv8.2-a+crypto</tt>; while Apple requires
 ///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 /// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
@@ -614,6 +594,26 @@ inline bool HasSHA3()
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA3;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine if an ARM processor has SHA512 available
+/// \return true if the hardware is capable of SHA512 at runtime, false otherwise.
+/// \details SHA512 is part of the ARMv8.2 Crypto extensions on Aarch32 and Aarch64. They
+///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
+/// \details Runtime support requires compile time support. When compiling with GCC, you
+///  may need to compile with <tt>-march=armv8.2-a+crypto</tt>; while Apple requires
+///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+/// \since Crypto++ 8.0
+/// \note This function is only available on Aarch32 and Aarch64 platforms
+inline bool HasSHA512()
+{
+#if defined(__aarch32__) || defined(__aarch64__)
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasSHA512;
 #else
 	return false;
 #endif
