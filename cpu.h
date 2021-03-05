@@ -621,10 +621,10 @@ inline bool HasSHA512()
 
 /// \brief Determine if an ARM processor has SM3 available
 /// \return true if the hardware is capable of SM3 at runtime, false otherwise.
-/// \details SM3 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+/// \details SM3 is part of the ARMv8.2 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
-///  may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///  may need to compile with <tt>-march=armv8.2-a+crypto</tt>; while Apple requires
 ///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 /// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
@@ -641,10 +641,10 @@ inline bool HasSM3()
 
 /// \brief Determine if an ARM processor has SM4 available
 /// \return true if the hardware is capable of SM4 at runtime, false otherwise.
-/// \details SM4 is part of the ARMv8.4 Crypto extensions on Aarch32 and Aarch64. They
+/// \details SM4 is part of the ARMv8.2 Crypto extensions on Aarch32 and Aarch64. They
 ///  are accessed using ARM C Language Extensions 2.0 (ACLE 2.0).
 /// \details Runtime support requires compile time support. When compiling with GCC, you
-///  may need to compile with <tt>-march=armv8.4-a+crypto</tt>; while Apple requires
+///  may need to compile with <tt>-march=armv8.2-a+crypto</tt>; while Apple requires
 ///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
 /// \since Crypto++ 8.0
 /// \note This function is only available on Aarch32 and Aarch64 platforms
