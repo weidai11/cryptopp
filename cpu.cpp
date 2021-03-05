@@ -140,7 +140,7 @@ class AppleMachineInfo
 {
 public:
 	enum { PowerMac=1, Mac, iPhone, iPod, iPad, AppleTV, AppleWatch };
-	enum { PowerPC=1, I386, I686, X86_64, ARM32, ARMV8, ARMV83, ARMV84 };
+	enum { PowerPC=1, I386, I686, X86_64, ARM32, ARMV8, ARMV82, ARMV83, ARMV84 };
 
 	AppleMachineInfo() : m_device(0), m_version(0), m_arch(0)
 	{
@@ -212,7 +212,7 @@ public:
 		{
 			// M1 machine.
 			m_device = Mac;
-			m_arch = ARMV83;
+			m_arch = ARMV82;
 		}
 	}
 
@@ -234,6 +234,10 @@ public:
 
 	bool IsARMv8() const {
 		return m_arch >= ARMV8;
+	}
+
+	bool IsARMv82() const {
+		return m_arch >= ARMV82;
 	}
 
 	bool IsARMv83() const {
@@ -282,6 +286,17 @@ inline bool IsAppleMachineARMv8()
 		GetAppleMachineInfo(unused, unused, arch);
 	}
 	return arch >= AppleMachineInfo::ARMV8;
+}
+
+inline bool IsAppleMachineARMv82()
+{
+	static unsigned int arch;
+	if (arch == 0)
+	{
+		unsigned int unused;
+		GetAppleMachineInfo(unused, unused, arch);
+	}
+	return arch >= AppleMachineInfo::ARMV82;
 }
 
 inline bool IsAppleMachineARMv83()
@@ -853,7 +868,7 @@ inline bool CPU_QueryCRC32()
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// M1 processor
-	if (IsAppleMachineARMv83())
+	if (IsAppleMachineARMv82())
 		return true;
 	// No compiler support. CRC intrinsics result in a failed compiled.
 	return false;
@@ -879,7 +894,7 @@ inline bool CPU_QueryPMULL()
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// M1 processor
-	if (IsAppleMachineARMv83())
+	if (IsAppleMachineARMv82())
 		return true;
 	// No compiler support. PMULL intrinsics result in a failed compiled.
 	return false;
@@ -972,7 +987,7 @@ inline bool CPU_QuerySHA512()
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// M1 processor
-	if (IsAppleMachineARMv83())
+	if (IsAppleMachineARMv82())
 		return true;
 	// Nope...
 	return false;
@@ -999,7 +1014,7 @@ inline bool CPU_QuerySHA3()
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__)
 	// M1 processor
-	if (IsAppleMachineARMv83())
+	if (IsAppleMachineARMv82())
 		return true;
 	// Nope...
 	return false;
