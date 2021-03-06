@@ -1707,6 +1707,7 @@ ifeq ($(HAS_SOLIB_VERSION),1)
 	$(info WARNING: Only the symlinks to the shared-object library have been updated.)
 	$(info WARNING: If the library is installed in a system directory you will need)
 	$(info WARNING: to run 'ldconfig' to update the shared-object library cache.)
+	$(info )
 endif
 
 .PHONY: osx_warning
@@ -1715,8 +1716,9 @@ ifeq ($(IS_DARWIN),1)
   ifeq ($(findstring -stdlib=libc++,$(CRYPTOPP_CXXFLAGS)$(CXXFLAGS)),)
 	$(info )
 	$(info INFO: Crypto++ was built without LLVM's libc++. If you are using the library)
-	$(info INFO: with Xcode, then you should add -stdlib=libc++. The flag is present in)
-	$(info INFO: the makefile, and you only need to uncomment it.)
+	$(info INFO: with Xcode, then you should add -stdlib=libc++ to CXXFLAGS. It is)
+	$(info INFO: already present in the makefile, and you only need to uncomment it.)
+	$(info )
   endif
 endif
 
