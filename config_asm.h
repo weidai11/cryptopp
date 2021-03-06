@@ -324,7 +324,7 @@
 # endif  // Platforms
 #endif
 
-// ARMv8 and SHA-512, SHA-3. -march=armv8.4-a+crypto or above must be present
+// ARMv8 and SHA-512, SHA-3. -march=armv8.2-a+crypto or above must be present
 // Requires GCC 8.0, Clang ??? or Visual Studio 20??
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_SHA3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SHA)
@@ -336,7 +336,7 @@
 # endif  // Platforms
 #endif
 
-// ARMv8 and SM3, SM4. -march=armv8.4-a+crypto or above must be present
+// ARMv8 and SM3, SM4. -march=armv8.2-a+crypto or above must be present
 // Requires GCC 8.0, Clang ??? or Visual Studio 20??
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_SM3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SM3)
