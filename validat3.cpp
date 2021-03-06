@@ -391,16 +391,16 @@ bool TestSettings()
 	bool hasAES = HasAES();
 	bool hasSHA1 = HasSHA1();
 	bool hasSHA2 = HasSHA2();
-	bool hasSHA512 = HasSHA512();
 	bool hasSHA3 = HasSHA3();
+	bool hasSHA512 = HasSHA512();
 	bool hasSM3 = HasSM3();
 	bool hasSM4 = HasSM4();
 
 	std::cout << "passed:  hasASIMD == 1";
 	std::cout << ", hasCRC32 == " << hasCRC32 << ", hasAES == " << hasAES;
 	std::cout << ", hasPMULL == " << hasPMULL << ", hasSHA1 == " << hasSHA1;
-	std::cout << ", hasSHA2 == " << hasSHA2 << ", hasSHA512 == " << hasSHA512;
-	std::cout << ", hasSHA3 == " << hasSHA3 << ", hasSM3 == " << hasSM3;
+	std::cout << ", hasSHA2 == " << hasSHA2 << ", hasSHA3 == " << hasSHA3;
+	std::cout << ", hasSHA512 == " << hasSHA512 << ", hasSM3 == " << hasSM3;
 	std::cout << ", hasSM4 == " << hasSM4 << "\n";
 # endif
 
@@ -409,8 +409,8 @@ bool TestSettings()
 	const bool hasPower7 = HasPower7();
 	const bool hasPower8 = HasPower8();
 	const bool hasPower9 = HasPower9();
-	const bool hasPMULL = HasPMULL();
 	const bool hasAES = HasAES();
+	const bool hasPMULL = HasPMULL();
 	const bool hasSHA256 = HasSHA256();
 	const bool hasSHA512 = HasSHA512();
 	const bool hasDARN = HasDARN();
@@ -418,7 +418,7 @@ bool TestSettings()
 	std::cout << "passed:  ";
 	std::cout << "hasAltivec == " << hasAltivec << ", hasPower7 == " << hasPower7;
 	std::cout << ", hasPower8 == " << hasPower8 << ", hasPower9 == " << hasPower9;
-	std::cout << ", hasPMULL == " << hasPMULL << ", hasAES == " << hasAES;
+	std::cout << ", hasAES == " << hasAES << ", hasPMULL == " << hasPMULL;
 	std::cout << ", hasSHA256 == " << hasSHA256 << ", hasSHA512 == " << hasSHA512;
 	std::cout << ", hasDARN == " << hasDARN << "\n";
 
