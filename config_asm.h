@@ -360,10 +360,22 @@
 // Limit the <arm_acle.h> include.
 #if !defined(CRYPTOPP_ARM_ACLE_HEADER)
 # if defined(__aarch32__) || defined(__aarch64__) || (__ARM_ARCH >= 8) || defined(__ARM_ACLE)
-#  if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__APPLE__)
-#   define CRYPTOPP_ARM_ACLE_HEADER 1
-#  endif
+#  define CRYPTOPP_ARM_ACLE_HEADER 1
 # endif
+#endif
+
+// Apple M1 hack. Xcode cross-compiles for iOS lack
+// arm_acle.h. Apple M1 needs arm_acle.h. The problem
+// in practice is, we can't get CRYPTOPP_ARM_ACLE_HEADER
+// quite right based on ARM preprocessor macros.
+#if defined(__APPLE__) && !defined(__ARM_FEATURE_CRC32)
+# undef CRYPTOPP_ARM_ACLE_HEADER
+#endif
+
+// Android hack. TODO: look at this in more detail
+// now that Android has switched over to Clang.
+#if defined(__ANDROID__) || defined(ANDROID)
+# undef CRYPTOPP_ARM_ACLE_HEADER
 #endif
 
 // Fixup Apple Clang and PMULL. Apple defines __ARM_FEATURE_CRYPTO for Xcode 6
