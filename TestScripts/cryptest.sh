@@ -380,6 +380,16 @@ if [[ (-z "$HAVE_GNU03") ]]; then
     fi
 fi
 
+# Apple M1's do not do the -stdlib=libstdc++ thing
+rm -f "${TMPDIR}/test.exe" &>/dev/null
+if [[ (-z "$HAVE_LIBSTDCXX") ]]; then
+    HAVE_LIBSTDCXX=0
+    "$CXX" -stdlib=libstdc++ "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
+    if [[ "$?" -eq 0 ]]; then
+        HAVE_LIBSTDCXX=1
+    fi
+fi
+
 # Use a fallback strategy so OPT_O0 can be used with DEBUG_CXXFLAGS
 OPT_O0=
 rm -f "${TMPDIR}/test.exe" &>/dev/null
@@ -5702,7 +5712,7 @@ fi
 
 ############################################
 # Darwin, c++03, libstdc++
-if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX03" -ne 0) ]]; then
+if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX03" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]]; then
     echo
     echo "************************************" | tee -a "$TEST_RESULTS"
     echo "Testing: Darwin, c++03, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
@@ -5762,7 +5772,7 @@ fi
 
 ############################################
 # Darwin, c++11, libstdc++
-if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX11" -ne 0) ]]; then
+if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX11" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]]; then
     echo
     echo "************************************" | tee -a "$TEST_RESULTS"
     echo "Testing: Darwin, c++11, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
@@ -5822,7 +5832,7 @@ fi
 
 ############################################
 # Darwin, c++14, libstdc++
-if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX14" -ne 0) ]]; then
+if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX14" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]]; then
     echo
     echo "************************************" | tee -a "$TEST_RESULTS"
     echo "Testing: Darwin, c++14, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
@@ -5882,7 +5892,7 @@ fi
 
 ############################################
 # Darwin, c++17, libstdc++
-if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX17" -ne 0) ]]; then
+if [[ ("$IS_DARWIN" -ne 0 && "$HAVE_CXX17" -ne 0) && ("$HAVE_LIBSTDCXX" -ne 0) ]]; then
     echo
     echo "************************************" | tee -a "$TEST_RESULTS"
     echo "Testing: Darwin, c++17, libstdc++ (GNU)" | tee -a "$TEST_RESULTS"
