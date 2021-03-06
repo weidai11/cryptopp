@@ -58,6 +58,8 @@
 // Clang intrinsic casts, http://bugs.llvm.org/show_bug.cgi?id=20670
 #define M128_CAST(x) ((__m128i *)(void *)(x))
 #define CONST_M128_CAST(x) ((const __m128i *)(const void *)(x))
+#define UINT64_CAST(x) ((uint64_t *)(void *)(x))
+#define CONST_UINT64_CAST(x) ((const uint64_t *)(const void *)(x))
 
 // Squash MS LNK4221 and libtool warnings
 extern const char GCM_SIMD_FNAME[] = __FILE__;
@@ -268,18 +270,18 @@ void GCM_SetKeyWithoutResync_PMULL(const byte *hashKey, byte *mulTable, unsigned
     for (i=0; i<tableSize-32; i+=32)
     {
         const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
-        vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
-        vst1q_u64((uint64_t *)(mulTable+i+16), h1);
-        vst1q_u64((uint64_t *)(mulTable+i+8), h);
-        vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
+        vst1_u64(UINT64_CAST(mulTable+i), vget_low_u64(h));
+        vst1q_u64(UINT64_CAST(mulTable+i+16), h1);
+        vst1q_u64(UINT64_CAST(mulTable+i+8), h);
+        vst1_u64(UINT64_CAST(mulTable+i+8), vget_low_u64(h1));
         h = GCM_Multiply_PMULL(h1, h0, r);
     }
 
     const uint64x2_t h1 = GCM_Multiply_PMULL(h, h0, r);
-    vst1_u64((uint64_t *)(mulTable+i), vget_low_u64(h));
-    vst1q_u64((uint64_t *)(mulTable+i+16), h1);
-    vst1q_u64((uint64_t *)(mulTable+i+8), h);
-    vst1_u64((uint64_t *)(mulTable+i+8), vget_low_u64(h1));
+    vst1_u64(UINT64_CAST(mulTable+i), vget_low_u64(h));
+    vst1q_u64(UINT64_CAST(mulTable+i+16), h1);
+    vst1q_u64(UINT64_CAST(mulTable+i+8), h);
+    vst1_u64(UINT64_CAST(mulTable+i+8), vget_low_u64(h1));
 }
 
 size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mtable, byte *hbuffer)
@@ -297,8 +299,8 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
 
         while (true)
         {
-            const uint64x2_t h0 = vld1q_u64((const uint64_t*)(mtable+(i+0)*16));
-            const uint64x2_t h1 = vld1q_u64((const uint64_t*)(mtable+(i+1)*16));
+            const uint64x2_t h0 = vld1q_u64(CONST_UINT64_CAST(mtable+(i+0)*16));
+            const uint64x2_t h1 = vld1q_u64(CONST_UINT64_CAST(mtable+(i+1)*16));
             const uint64x2_t h2 = veorq_u64(h0, h1);
 
             if (++i == s)
@@ -345,7 +347,7 @@ size_t GCM_AuthenticateBlocks_PMULL(const byte *data, size_t len, const byte *mt
         x = GCM_Reduce_PMULL(c0, c1, c2, r);
     }
 
-    vst1q_u64(reinterpret_cast<uint64_t *>(hbuffer), x);
+    vst1q_u64(UINT64_CAST(hbuffer), x);
     return len;
 }
 
