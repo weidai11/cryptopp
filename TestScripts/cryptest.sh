@@ -902,18 +902,12 @@ echo "HAVE_CXX03: $HAVE_CXX03" | tee -a "$TEST_RESULTS"
 echo "HAVE_GNU03: $HAVE_GNU03" | tee -a "$TEST_RESULTS"
 echo "HAVE_CXX11: $HAVE_CXX11" | tee -a "$TEST_RESULTS"
 echo "HAVE_GNU11: $HAVE_GNU11" | tee -a "$TEST_RESULTS"
-if [[ ("$HAVE_CXX14" -ne 0 || "$HAVE_GNU14" -ne 0) ]]; then
-    echo "HAVE_CXX14: $HAVE_CXX14" | tee -a "$TEST_RESULTS"
-    echo "HAVE_GNU14: $HAVE_GNU14" | tee -a "$TEST_RESULTS"
-fi
-if [[ ("$HAVE_CXX17" -ne 0 || "$HAVE_GNU17" -ne 0) ]]; then
-    echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
-    echo "HAVE_GNU17: $HAVE_GNU17" | tee -a "$TEST_RESULTS"
-fi
-if [[ ("$HAVE_CXX20" -ne 0 || "$HAVE_GNU20" -ne 0) ]]; then
-    echo "HAVE_CXX20: $HAVE_CXX20" | tee -a "$TEST_RESULTS"
-    echo "HAVE_GNU20: $HAVE_GNU20" | tee -a "$TEST_RESULTS"
-fi
+echo "HAVE_CXX14: $HAVE_CXX14" | tee -a "$TEST_RESULTS"
+echo "HAVE_GNU14: $HAVE_GNU14" | tee -a "$TEST_RESULTS"
+echo "HAVE_CXX17: $HAVE_CXX17" | tee -a "$TEST_RESULTS"
+echo "HAVE_GNU17: $HAVE_GNU17" | tee -a "$TEST_RESULTS"
+echo "HAVE_CXX20: $HAVE_CXX20" | tee -a "$TEST_RESULTS"
+echo "HAVE_GNU20: $HAVE_GNU20" | tee -a "$TEST_RESULTS"
 
 if [[ "$HAVE_LDGOLD" -ne 0 ]]; then
     echo "HAVE_LDGOLD: $HAVE_LDGOLD" | tee -a "$TEST_RESULTS"
