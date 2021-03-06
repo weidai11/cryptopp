@@ -378,12 +378,6 @@
 # undef CRYPTOPP_ARM_ACLE_HEADER
 #endif
 
-// Fixup Apple Clang and PMULL. Apple defines __ARM_FEATURE_CRYPTO for Xcode 6
-// but does not provide PMULL. TODO: determine when PMULL is available.
-#if defined(CRYPTOPP_APPLE_CLANG_VERSION) && (CRYPTOPP_APPLE_CLANG_VERSION < 70000)
-# undef CRYPTOPP_ARM_PMULL_AVAILABLE
-#endif
-
 // Disable for Android. Android only offers the base Aarch64 architecture.
 // Also see https://developer.android.com/ndk/guides/abis
 #if defined(__ANDROID__) || defined(ANDROID)
