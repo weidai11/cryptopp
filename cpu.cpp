@@ -883,8 +883,6 @@ inline bool CPU_QueryCRC32()
 	// M1 processor
 	if (IsAppleMachineARMv82())
 		return true;
-	// No compiler support. CRC intrinsics result in a failed compiled.
-	return false;
 #endif
 	return false;
 }
@@ -909,8 +907,6 @@ inline bool CPU_QueryPMULL()
 	// M1 processor
 	if (IsAppleMachineARMv82())
 		return true;
-	// No compiler support. PMULL intrinsics result in a failed compiled.
-	return false;
 #endif
 	return false;
 }
@@ -1008,8 +1004,6 @@ inline bool CPU_QuerySHA3()
 	// M1 processor
 	if (IsAppleMachineARMv82())
 		return true;
-	// Nope...
-	return false;
 #endif
 	return false;
 }
@@ -1041,8 +1035,6 @@ inline bool CPU_QuerySHA512()
 	// M1 processor
 	if (IsAppleMachineARMv82())
 		return true;
-	// Nope...
-	return false;
 #endif
 	return false;
 }
@@ -1065,7 +1057,7 @@ inline bool CPU_QuerySM3()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM3) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	return false;
+	// No Apple support yet.
 #endif
 	return false;
 }
@@ -1088,7 +1080,7 @@ inline bool CPU_QuerySM4()
 	if ((getauxval(AT_HWCAP2) & HWCAP2_SM4) != 0)
 		return true;
 #elif defined(__APPLE__) && defined(__aarch64__) && 0
-	return false;
+	// No Apple support yet.
 #endif
 	return false;
 }
