@@ -1697,10 +1697,10 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
     if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_AES" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: ARM AES generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: ARM AES code generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("ARM AES generation")
+        TEST_LIST+=("ARM AES code generation")
 
         OBJFILE=rijndael_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
@@ -1750,10 +1750,10 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
     if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA1" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: ARM SHA1 generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: ARM SHA1 code generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("ARM SHA1 generation")
+        TEST_LIST+=("ARM SHA1 code generation")
 
         OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
@@ -1807,10 +1807,10 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
     if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA2" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: ARM SHA2 generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: ARM SHA2 code generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("ARM SHA2 generation")
+        TEST_LIST+=("ARM SHA2 code generation")
 
         OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
@@ -1875,10 +1875,10 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
     if [[ ("$PPC_AES" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: Power8 AES generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: Power8 AES code generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("Power8 AES generation")
+        TEST_LIST+=("Power8 AES code generation")
 
         OBJFILE=rijndael_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_AES_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
@@ -1938,10 +1938,10 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
     if [[ ("$PPC_SHA" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: Power8 SHA generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: Power8 SHA code generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("Power8 SHA generation")
+        TEST_LIST+=("Power8 SHA code generation")
 
         OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_SHA_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
@@ -1989,10 +1989,10 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
     if [[ ("$PPC_VMULL" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: Power8 carryless multiply generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: Power8 carryless multiply code generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("Power8 carryless multiply generation")
+        TEST_LIST+=("Power8 carryless multiply code generation")
 
         OBJFILE=gcm_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_VMULL_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
