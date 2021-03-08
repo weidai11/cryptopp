@@ -178,8 +178,8 @@ elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
         ARM_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
         # Apple M1 workaround
         if [[ -z "$ARM_CPU_FLAGS" ]]; then
-            if [[ $(sysctl -a | grep -i -E 'hw.optional.arm64: 1') ]]; then
-                ARM_CPU_FLAGS="armv8 asimd crc crypto"
+            if [[ $(sysctl hw.optional.arm64 | grep -i -E 'hw.optional.arm64: 1') ]]; then
+                ARM_CPU_FLAGS="asimd aes pmull sha1 sha2 crc32"
             fi
         fi
     else
