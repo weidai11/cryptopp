@@ -62,6 +62,17 @@ rm -rf "${TMPDIR}/build.log" 2>/dev/null
 
 #############################################################################
 
+# Prepare the environment
+unset CXX CPPFLAGS CXXFLAGS LDFLAGS
+unset ANDROID_CPPFLAGS ANDROID_CXXFLAGS ANDROID_LDFLAGS ANDROID_SYSROOT
+
+if [[ -e TestScripts/setenv-android.sh ]]; then
+    cp TestScripts/setenv-android.sh .
+	chmod u+x setenv-android.sh
+fi
+
+#############################################################################
+
 files=(Android.mk Application.mk make_neon.sh test_shared.hxx test_shared.cxx)
 
 for file in "${files[@]}"; do

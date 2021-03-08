@@ -35,6 +35,17 @@ rm -rf "${TMPDIR}/build.log" 2>/dev/null
 
 #############################################################################
 
+# Prepare the environment
+unset CXX CPPFLAGS CXXFLAGS LDFLAGS
+unset IOS_CPPFLAGS IOS_CXXFLAGS IOS_LDFLAGS IOS_SYSROOT
+
+if [[ -e TestScripts/setenv-ios.sh ]]; then
+    cp TestScripts/setenv-ios.sh .
+	chmod u+x setenv-ios.sh
+fi
+
+#############################################################################
+
 # Hack a Bash data structure...
 PLATFORMS=()
 PLATFORMS+=("iPhoneOS:armv7")

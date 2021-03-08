@@ -61,6 +61,17 @@ rm -rf "${TMPDIR}/build.log" 2>/dev/null
 
 #############################################################################
 
+# Prepare the environment
+unset CXX CPPFLAGS CXXFLAGS LDFLAGS
+unset ANDROID_CPPFLAGS ANDROID_CXXFLAGS ANDROID_LDFLAGS ANDROID_SYSROOT
+
+if [[ -e TestScripts/setenv-android.sh ]]; then
+    cp TestScripts/setenv-android.sh .
+	chmod u+x setenv-android.sh
+fi
+
+#############################################################################
+
 PLATFORMS=(armv7a aarch64 x86 x86_64)
 
 for platform in "${PLATFORMS[@]}"
