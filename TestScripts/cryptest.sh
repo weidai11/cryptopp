@@ -176,6 +176,12 @@ if [[ ("$IS_X86" -ne 0 || "$IS_X64" -ne 0) ]]; then
 elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
         ARM_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
+        # Apple M1 workaround
+        if [[ -z "$ARM_CPU_FLAGS" ]]; then
+            if [[ $(sysctl -a | grep -i -E 'hw.optional.arm64: 1') ]]; then
+                ARM_CPU_FLAGS="armv8 asimd crc crypto"
+            fi
+        fi
     else
         ARM_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
     fi
@@ -1547,7 +1553,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vshl')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
-                echo "ERROR: failed to generate NEON store instructions" | tee -a "$TEST_RESULTS"
+                echo "ERROR: failed to generate NEON shift left instructions" | tee -a "$TEST_RESULTS"
             fi
         fi
 
@@ -1556,14 +1562,14 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shr[[:space:]]*v')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
-                echo "ERROR: failed to generate NEON shift left instructions" | tee -a "$TEST_RESULTS"
+                echo "ERROR: failed to generate NEON shift right instructions" | tee -a "$TEST_RESULTS"
             fi
         else
             # ARIA::UncheckedKeySet: 17 vshr
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'vshr')
             if [[ ("$COUNT" -lt 16) ]]; then
                 FAILED=1
-                echo "ERROR: failed to generate NEON store instructions" | tee -a "$TEST_RESULTS"
+                echo "ERROR: failed to generate NEON shift right instructions" | tee -a "$TEST_RESULTS"
             fi
         fi
 
