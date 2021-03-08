@@ -1,5 +1,5 @@
 Crypto++: free C++ Class Library of Cryptographic Schemes
-Version 8.4 - TBD
+Version 8.5 - March 7, 2021
 
 Crypto++ Library is a free C++ class library of cryptographic schemes.
 Currently the library contains the following algorithms:
@@ -93,12 +93,12 @@ http://www.cryptopp.com the most up to date build instructions and porting notes
 
   * Visual Studio 2003 - 2019
   * GCC 3.3 - 10.1
-  * Apple Clang 4.3 - 9.3
-  * LLVM Clang 2.9 - 10.0
+  * Apple Clang 4.3 - 12.0
+  * LLVM Clang 2.9 - 11.0
   * C++ Builder 2015
   * Intel C++ Compiler 9 - 16.0
   * Sun Studio 12u1 - 12.6
-  * IBM XL C/C++ 10.0 - 13.3
+  * IBM XL C/C++ 10.0 - 14.0
 
 *** Important Usage Notes ***
 
@@ -294,6 +294,12 @@ documentation is one of the highest returns on investment.
 
 The items in this section comprise the most recent history. Please see History.txt
 for the record back to Crypto++ 1.0.
+
+8.5.0 - March 7, 2021
+      - minor release, no recompile of programs required
+      - expanded community input and support
+        * 70 unique contributors as of this release
+      - port to Apple M1
 
 8.4.0 - January 2, 2021
       - minor release, recompile of programs required

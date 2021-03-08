@@ -536,3 +536,9 @@ last several releases.
       - fix compile on Solaris with SunCC 12.6
       - revert changes for constant-time elliptic curve algorithms
       - fix makefile clean and distclean recipes
+
+8.5.0 - March 7, 2021
+      - minor release, no recompile of programs required
+      - expanded community input and support
+        * 70 unique contributors as of this release
+      - port to Apple M1
