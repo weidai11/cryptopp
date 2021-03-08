@@ -84,6 +84,15 @@ do
     (
         source ./setenv-ios.sh
 
+        if make -k -j "${MAKE_JOBS}" -f GNUmakefile-cross static dynamic cryptest.exe;
+        then
+            echo "${platform} ==> SUCCESS" >> "${TMPDIR}/build.log"
+        else
+            echo "${platform} ==> FAILURE" >> "${TMPDIR}/build.log"
+            touch "${TMPDIR}/build.failed"
+        fi
+
+        # Test code generation
         if [[ "${cpu}" == "arm64" ]]
         then
 
@@ -96,6 +105,19 @@ do
                     echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
                 else
                     echo "${platform} : AES ==> FAILURE" >> "${TMPDIR}/build.log"
+                    touch "${TMPDIR}/build.failed"
+                fi
+            fi
+
+            # Test PMULL code generation
+            if make -f GNUmakefile-cross gcm_simd.o
+            then
+                count=$(otool -tV gcm_simd.o 2>&1 | grep -i -c -E 'pmull|pmull2')
+                if [[ "${count}" -gt 0 ]]
+                then
+                    echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
+                else
+                    echo "${platform} : PMULL ==> FAILURE" >> "${TMPDIR}/build.log"
                     touch "${TMPDIR}/build.failed"
                 fi
             fi
@@ -121,14 +143,6 @@ do
                     touch "${TMPDIR}/build.failed"
                 fi
             fi
-        fi
-
-        if make -k -j "${MAKE_JOBS}" -f GNUmakefile-cross static dynamic cryptest.exe;
-        then
-            echo "${platform} ==> SUCCESS" >> "${TMPDIR}/build.log"
-        else
-            echo "${platform} ==> FAILURE" >> "${TMPDIR}/build.log"
-            touch "${TMPDIR}/build.failed"
         fi
     )
 done
