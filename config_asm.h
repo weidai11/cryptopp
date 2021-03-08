@@ -287,18 +287,6 @@
 # endif  // Platforms
 #endif
 
-// ARMv8 and ASIMD. -march=armv8-a+crypto or above must be present
-// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
-// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
-#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_PMULL)
-# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
-      (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
-#   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
-#  endif  // Compilers
-# endif  // Platforms
-#endif
-
 // ARMv8 and AES. -march=armv8-a+crypto or above must be present
 // Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
@@ -307,6 +295,18 @@
 #  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
       (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_AES_AVAILABLE 1
+#  endif  // Compilers
+# endif  // Platforms
+#endif
+
+// ARMv8 and PMULL. -march=armv8-a+crypto or above must be present
+// Requires GCC 4.8, Clang 3.3 or Visual Studio 2017
+// Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
+#if !defined(CRYPTOPP_ARM_PMULL_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_PMULL)
+# if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
+#  if defined(__ARM_FEATURE_CRYPTO) || (CRYPTOPP_GCC_VERSION >= 40800) || \
+      (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || (CRYPTOPP_MSC_VERSION >= 1916)
+#   define CRYPTOPP_ARM_PMULL_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
 #endif
@@ -329,7 +329,7 @@
 // Do not use APPLE_CLANG_VERSION; use __ARM_FEATURE_XXX instead.
 #if !defined(CRYPTOPP_ARM_SHA3_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_SHA)
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
-#  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000)
+#  if defined(__ARM_FEATURE_SHA3) || (CRYPTOPP_GCC_VERSION >= 80000) || (CRYPTOPP_APPLE_CLANG_VERSION >= 120000) || (CRYPTOPP_LLVM_CLANG_VERSION >= 110000)
 #   define CRYPTOPP_ARM_SHA512_AVAILABLE 1
 #   define CRYPTOPP_ARM_SHA3_AVAILABLE 1
 #  endif  // Compilers

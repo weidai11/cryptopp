@@ -469,30 +469,12 @@ inline bool HasARMv7()
 inline bool HasNEON()
 {
 	// ASIMD is a core feature on Aarch32 and Aarch64 like SSE2 is a core feature on x86_64
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_ASIMD_AVAILABLE)
 	return true;
-#else
+#elif defined(CRYPTOPP_ARM_NEON_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasNEON;
-#endif
-}
-
-/// \brief Determine if an ARM processor provides Polynomial Multiplication
-/// \return true if the hardware is capable of polynomial multiplications at runtime,
-///  false otherwise.
-/// \details The multiplication instructions are available under Aarch32 and Aarch64.
-/// \details Runtime support requires compile time support. When compiling with GCC,
-///  you may need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
-///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
-/// \since Crypto++ 5.6.4
-/// \note This function is only available on Aarch32 and Aarch64 platforms
-inline bool HasPMULL()
-{
-#if defined(__aarch32__) || defined(__aarch64__)
-	if (!g_ArmDetectionDone)
-		DetectArmFeatures();
-	return g_hasPMULL;
 #else
 	return false;
 #endif
@@ -510,7 +492,7 @@ inline bool HasPMULL()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasCRC32()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_CRC32_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasCRC32;
@@ -530,10 +512,30 @@ inline bool HasCRC32()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasAES()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_AES_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasAES;
+#else
+	return false;
+#endif
+}
+
+/// \brief Determine if an ARM processor provides Polynomial Multiplication
+/// \return true if the hardware is capable of polynomial multiplications at runtime,
+///  false otherwise.
+/// \details The multiplication instructions are available under Aarch32 and Aarch64.
+/// \details Runtime support requires compile time support. When compiling with GCC,
+///  you may need to compile with <tt>-march=armv8-a+crypto</tt>; while Apple requires
+///  <tt>-arch arm64</tt>. Also see ARM's <tt>__ARM_FEATURE_CRYPTO</tt> preprocessor macro.
+/// \since Crypto++ 5.6.4
+/// \note This function is only available on Aarch32 and Aarch64 platforms
+inline bool HasPMULL()
+{
+#if defined(CRYPTOPP_ARM_PMULL_AVAILABLE)
+	if (!g_ArmDetectionDone)
+		DetectArmFeatures();
+	return g_hasPMULL;
 #else
 	return false;
 #endif
@@ -550,7 +552,7 @@ inline bool HasAES()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA1()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_SHA1_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA1;
@@ -570,7 +572,7 @@ inline bool HasSHA1()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA2()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_SHA2_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA2;
@@ -590,7 +592,7 @@ inline bool HasSHA2()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA3()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_SHA3_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA3;
@@ -610,7 +612,7 @@ inline bool HasSHA3()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSHA512()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_SHA512_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSHA512;
@@ -630,7 +632,7 @@ inline bool HasSHA512()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSM3()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_SM3_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSM3;
@@ -650,7 +652,7 @@ inline bool HasSM3()
 /// \note This function is only available on Aarch32 and Aarch64 platforms
 inline bool HasSM4()
 {
-#if defined(__aarch32__) || defined(__aarch64__)
+#if defined(CRYPTOPP_ARM_SM4_AVAILABLE)
 	if (!g_ArmDetectionDone)
 		DetectArmFeatures();
 	return g_hasSM4;
