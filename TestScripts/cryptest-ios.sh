@@ -97,51 +97,43 @@ do
         then
 
             # Test AES code generation
-            if make -f GNUmakefile-cross rijndael_simd.o
+            count=$(otool -tV rijndael_simd.o 2>&1 | grep -i -c -E 'aese|aesd|aesmc|aesimc')
+            if [[ "${count}" -gt 0 ]]
             then
-                count=$(otool -tV rijndael_simd.o 2>&1 | grep -i -c -E 'aese|aesd|aesmc|aesimc')
-                if [[ "${count}" -gt 0 ]]
-                then
-                    echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
-                else
-                    echo "${platform} : AES ==> FAILURE" >> "${TMPDIR}/build.log"
-                    touch "${TMPDIR}/build.failed"
-                fi
+                echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : AES ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
             fi
 
             # Test PMULL code generation
-            if make -f GNUmakefile-cross gcm_simd.o
+            count=$(otool -tV gcm_simd.o 2>&1 | grep -i -c -E 'pmull|pmull2')
+            if [[ "${count}" -gt 0 ]]
             then
-                count=$(otool -tV gcm_simd.o 2>&1 | grep -i -c -E 'pmull|pmull2')
-                if [[ "${count}" -gt 0 ]]
-                then
-                    echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
-                else
-                    echo "${platform} : PMULL ==> FAILURE" >> "${TMPDIR}/build.log"
-                    touch "${TMPDIR}/build.failed"
-                fi
+                echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : PMULL ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
             fi
 
-            # Test SHA1 and SHA2 code generation
-            if make -f GNUmakefile-cross sha_simd.o
+            # Test SHA1 code generation
+            count=$(otool -tV sha_simd.o 2>&1 | grep -i -c -E 'sha1c|sha1m|sha1p|sha1h|sha1su0|sha1su1')
+            if [[ "${count}" -gt 0 ]]
             then
-                count=$(otool -tV sha_simd.o 2>&1 | grep -i -c -E 'sha1c|sha1m|sha1p|sha1h|sha1su0|sha1su1')
-                if [[ "${count}" -gt 0 ]]
-                then
-                    echo "${platform} : SHA1 ==> SUCCESS" >> "${TMPDIR}/build.log"
-                else
-                    echo "${platform} : SHA1 ==> FAILURE" >> "${TMPDIR}/build.log"
-                    touch "${TMPDIR}/build.failed"
-                fi
+                echo "${platform} : SHA1 ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : SHA1 ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
+            fi
 
-                count=$(otool -tV sha_simd.o | grep -i -c -E 'sha256h|sha256su0|sha256su1')
-                if [[ "${count}" -gt 0 ]]
-                then
-                    echo "${platform} : SHA2 ==> SUCCESS" >> "${TMPDIR}/build.log"
-                else
-                    echo "${platform} : SHA2 ==> FAILURE" >> "${TMPDIR}/build.log"
-                    touch "${TMPDIR}/build.failed"
-                fi
+            # Test SHA2 code generation
+            count=$(otool -tV sha_simd.o | grep -i -c -E 'sha256h|sha256su0|sha256su1')
+            if [[ "${count}" -gt 0 ]]
+            then
+                echo "${platform} : SHA2 ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : SHA2 ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
             fi
         fi
     )
