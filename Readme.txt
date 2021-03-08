@@ -299,7 +299,7 @@ for the record back to Crypto++ 1.0.
       - minor release, no recompile of programs required
       - expanded community input and support
         * 70 unique contributors as of this release
-      - port to Apple M1
+      - port to Apple M1 hardware
 
 8.4.0 - January 2, 2021
       - minor release, recompile of programs required

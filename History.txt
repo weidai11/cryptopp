@@ -541,4 +541,4 @@ last several releases.
       - minor release, no recompile of programs required
       - expanded community input and support
         * 70 unique contributors as of this release
-      - port to Apple M1
+      - port to Apple M1 hardware
