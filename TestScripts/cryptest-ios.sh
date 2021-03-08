@@ -41,7 +41,7 @@ unset IOS_CPPFLAGS IOS_CXXFLAGS IOS_LDFLAGS IOS_SYSROOT
 
 if [[ -e TestScripts/setenv-ios.sh ]]; then
     cp TestScripts/setenv-ios.sh .
-	chmod u+x setenv-ios.sh
+    chmod u+x setenv-ios.sh
 fi
 
 #############################################################################

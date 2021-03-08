@@ -67,7 +67,7 @@ unset ANDROID_CPPFLAGS ANDROID_CXXFLAGS ANDROID_LDFLAGS ANDROID_SYSROOT
 
 if [[ -e TestScripts/setenv-android.sh ]]; then
     cp TestScripts/setenv-android.sh .
-	chmod u+x setenv-android.sh
+    chmod u+x setenv-android.sh
 fi
 
 #############################################################################
