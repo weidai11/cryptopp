@@ -178,13 +178,13 @@ elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
         ARM_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
         # Apple M1 hardware
         if [[ $(sysctl hw.optional.arm64 2>&1 | "$GREP" -i -E 'hw.optional.arm64: 1') ]]; then
-            ARM_CPU_FLAGS="asimd aes pmull sha1 sha2 crc32"
+            ARM_CPU_FLAGS="asimd crc32 aes pmull sha1 sha2"
         fi
         if [[ $(sysctl hw.optional.armv8_2_sha3 2>&1 | "$GREP" -i -E 'hw.optional.armv8_2_sha3: 1') ]]; then
-            ARM_CPU_FLAGS+="sha3"
+            ARM_CPU_FLAGS+=" sha3"
         fi
         if [[ $(sysctl hw.optional.armv8_2_sha512 2>&1 | "$GREP" -i -E 'hw.optional.armv8_2_sha512: 1') ]]; then
-            ARM_CPU_FLAGS+="sha512"
+            ARM_CPU_FLAGS+=" sha512"
         fi
     else
         ARM_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
