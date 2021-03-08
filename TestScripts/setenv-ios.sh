@@ -6,6 +6,7 @@
 #
 # Based upon OpenSSL's setenv-android.sh by TH, JW, and SM.
 # Heavily modified by JWW for Crypto++.
+# Modified some more by JW and UB.
 #
 # Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
 # licensed under the Boost Software License 1.0, while the individual files

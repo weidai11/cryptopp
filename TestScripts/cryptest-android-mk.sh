@@ -5,7 +5,7 @@
 # This script tests the cryptopp-android-mk gear using ndk-build. The
 # source files include Application.mk and Android.mk.
 #
-# Written and placed in public domain by Jeffrey Walton.
+# Written and placed in public domain by Jeffrey Walton and Uri Blumenthal.
 #
 # Crypto++ Library is copyrighted as a compilation and (as of version 5.6.2)
 # licensed under the Boost Software License 1.0, while the individual files
