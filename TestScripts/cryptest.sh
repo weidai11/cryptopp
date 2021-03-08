@@ -79,12 +79,12 @@ TEST_LIST=()
 ############################################
 # Setup tools and platforms
 
-GREP=grep
-SED=sed
-AWK=awk
-MAKE=make
+GREP="grep"
+SED="sed"
+AWK="awk"
+MAKE="make"
 
-DISASS=objdump
+DISASS="objdump"
 DISASSARGS=("--disassemble")
 
 # Fixup, Solaris and friends
@@ -165,9 +165,9 @@ if [[ ("$IS_X86" -ne 0 || "$IS_X64" -ne 0) ]]; then
     elif [[ ("$IS_SOLARIS" -ne 0) ]]; then
         X86_CPU_FLAGS=$(isainfo -v 2>/dev/null)
     elif [[ ("$IS_FREEBSD" -ne 0) ]]; then
-        X86_CPU_FLAGS=$(grep Features /var/run/dmesg.boot)
+        X86_CPU_FLAGS=$("$GREP" Features /var/run/dmesg.boot)
     elif [[ ("$IS_DRAGONFLY" -ne 0) ]]; then
-        X86_CPU_FLAGS=$(dmesg | grep Features)
+        X86_CPU_FLAGS=$(dmesg | "$GREP" Features)
     elif [[ ("$IS_HURD" -ne 0) ]]; then
         : # Do nothing... cpuid is not helpful at the moment
     else
@@ -176,14 +176,28 @@ if [[ ("$IS_X86" -ne 0 || "$IS_X64" -ne 0) ]]; then
 elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
         ARM_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
-        # Apple M1 workaround
-        if [[ -z "$ARM_CPU_FLAGS" ]]; then
-            if [[ $(sysctl hw.optional.arm64 | grep -i -E 'hw.optional.arm64: 1') ]]; then
-                ARM_CPU_FLAGS="asimd aes pmull sha1 sha2 crc32"
-            fi
+        # Apple M1 hardware
+        if [[ $(sysctl hw.optional.arm64 2>&1 | "$GREP" -i -E 'hw.optional.arm64: 1') ]]; then
+            ARM_CPU_FLAGS="asimd aes pmull sha1 sha2 crc32"
+        fi
+        if [[ $(sysctl hw.optional.armv8_2_sha3 2>&1 | "$GREP" -i -E 'hw.optional.armv8_2_sha3: 1') ]]; then
+            ARM_CPU_FLAGS+="sha3"
+        fi
+        if [[ $(sysctl hw.optional.armv8_2_sha512 2>&1 | "$GREP" -i -E 'hw.optional.armv8_2_sha512: 1') ]]; then
+            ARM_CPU_FLAGS+="sha512"
         fi
     else
         ARM_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
+    fi
+elif [[ ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
+    if [[ ("$IS_DARWIN" -ne 0) ]]; then
+        PPC_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
+        # PowerMac
+        if [[ $(sysctl hw.optional.altivec 2>&1 | "$GREP" -i -E 'hw.optional.altivec: 1') ]]; then
+            PPC_CPU_FLAGS="altivec"
+        fi
+    else
+        PPC_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
     fi
 fi
 
@@ -744,14 +758,24 @@ if [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
         if [[ ("$HAVE_ARM_NEON" -gt 0) ]]; then HAVE_ARM_NEON=1; fi
     fi
 
+    if [[ (-z "$HAVE_ARM_CRC") ]]; then
+        HAVE_ARM_CRC=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'crc32')
+        if [[ ("$HAVE_ARM_CRC" -gt 0) ]]; then HAVE_ARM_CRC=1; fi
+    fi
+
     if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
         HAVE_ARM_CRYPTO=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(aes|pmull|sha1|sha2)')
         if [[ ("$HAVE_ARM_CRYPTO" -gt 0) ]]; then HAVE_ARM_CRYPTO=1; fi
     fi
 
-    if [[ (-z "$HAVE_ARM_CRC") ]]; then
-        HAVE_ARM_CRC=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'crc32')
-        if [[ ("$HAVE_ARM_CRC" -gt 0) ]]; then HAVE_ARM_CRC=1; fi
+    if [[ (-z "$HAVE_ARM_SHA3") ]]; then
+        HAVE_ARM_SHA3=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'sha3')
+        if [[ ("$HAVE_ARM_SHA3" -gt 0) ]]; then HAVE_ARM_SHA3=1; fi
+    fi
+
+    if [[ (-z "$HAVE_ARM_SHA512") ]]; then
+        HAVE_ARM_SHA512=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'sha512')
+        if [[ ("$HAVE_ARM_SHA512" -gt 0) ]]; then HAVE_ARM_SHA512=1; fi
     fi
 fi
 
@@ -888,6 +912,12 @@ if [[ "$HAVE_ARM_CRC" -ne 0 ]]; then
 fi
 if [[ "$HAVE_ARM_CRYPTO" -ne 0 ]]; then
     echo "HAVE_ARM_CRYPTO: $HAVE_ARM_CRYPTO" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_SHA3" -ne 0 ]]; then
+    echo "HAVE_ARM_SHA3: $HAVE_ARM_SHA3" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_ARM_SHA512" -ne 0 ]]; then
+    echo "HAVE_ARM_SHA512: $HAVE_ARM_SHA512" | tee -a "$TEST_RESULTS"
 fi
 
 if [[ "$IS_X32" -ne 0 ]]; then
@@ -7206,7 +7236,7 @@ if [[ ("$IS_CYGWIN" -eq 0) && ("$IS_MINGW" -eq 0) ]]; then
     else
         OLD_DIR=$(pwd)
         "$MAKE" "${MAKEARGS[@]}" install PREFIX="$INSTALL_DIR" 2>&1 | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
-        cd "$INSTALL_DIR/bin"
+        cd "$INSTALL_DIR/bin" || exit
 
         echo
         echo "************************************" | tee -a "$TEST_RESULTS" "$INSTALL_RESULTS"
@@ -7247,7 +7277,7 @@ if [[ ("$IS_CYGWIN" -eq 0) && ("$IS_MINGW" -eq 0) ]]; then
         fi
 
         # Restore original PWD
-        cd "$OLD_DIR"
+        cd "$OLD_DIR" || exit
     fi
 fi
 
