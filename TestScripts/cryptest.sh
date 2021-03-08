@@ -1743,16 +1743,17 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
 
     "$CXX" -march=armv8-a+crypto "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
     if [[ "$?" -eq 0 ]]; then
-        ARM_SHA=1
+        ARM_SHA1=1
+        ARM_SHA2=1
     fi
 
-    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA" -ne 0) ]]; then
+    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA1" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
-        echo "Testing: ARM SHA generation" | tee -a "$TEST_RESULTS"
+        echo "Testing: ARM SHA1 generation" | tee -a "$TEST_RESULTS"
         echo
 
-        TEST_LIST+=("ARM SHA generation")
+        TEST_LIST+=("ARM SHA1 generation")
 
         OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
         CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
@@ -1797,6 +1798,27 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             echo "ERROR: failed to generate sha1su1 instruction" | tee -a "$TEST_RESULTS"
         fi
 
+        if [[ ("$FAILED" -eq 0) ]]; then
+            echo "Verified sha1c, sha1m, sha1p, sha1su0, sha1su1 machine instructions" | tee -a "$TEST_RESULTS"
+        fi
+    fi
+
+
+    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA2" -ne 0) ]]; then
+        echo
+        echo "************************************" | tee -a "$TEST_RESULTS"
+        echo "Testing: ARM SHA2 generation" | tee -a "$TEST_RESULTS"
+        echo
+
+        TEST_LIST+=("ARM SHA2 generation")
+
+        OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
+        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+
+        COUNT=0
+        FAILED=0
+        DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
+
         COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -v sha256h2 | "$GREP" -i -c sha256h)
         if [[ ("$COUNT" -eq 0) ]]; then
             FAILED=1
@@ -1822,7 +1844,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
         fi
 
         if [[ ("$FAILED" -eq 0) ]]; then
-            echo "Verified sha1c, sha1m, sha1p, sha1su0, sha1su1, sha256h, sha256h2, sha256su0, sha256su1 machine instructions" | tee -a "$TEST_RESULTS"
+            echo "Verified sha256h, sha256h2, sha256su0, sha256su1 machine instructions" | tee -a "$TEST_RESULTS"
         fi
     fi
 fi
