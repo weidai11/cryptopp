@@ -97,7 +97,7 @@ do
         then
 
             # Test AES code generation
-            count=$(otool -tV rijndael_simd.o 2>&1 | grep -i -c -E 'aese|aesd|aesmc|aesimc')
+            count=$(otool -tV rijndael_simd.o 2>&1 | grep -c -E 'aese|aesd|aesmc|aesimc')
             if [[ "${count}" -gt 0 ]]
             then
                 echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
@@ -107,7 +107,7 @@ do
             fi
 
             # Test PMULL code generation
-            count=$(otool -tV gcm_simd.o 2>&1 | grep -i -c -E 'pmull|pmull2')
+            count=$(otool -tV gcm_simd.o 2>&1 | grep -c -E 'pmull|pmull2')
             if [[ "${count}" -gt 0 ]]
             then
                 echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
@@ -117,7 +117,7 @@ do
             fi
 
             # Test SHA1 code generation
-            count=$(otool -tV sha_simd.o 2>&1 | grep -i -c -E 'sha1c|sha1m|sha1p|sha1h|sha1su0|sha1su1')
+            count=$(otool -tV sha_simd.o 2>&1 | grep -c -E 'sha1c|sha1m|sha1p|sha1h|sha1su0|sha1su1')
             if [[ "${count}" -gt 0 ]]
             then
                 echo "${platform} : SHA1 ==> SUCCESS" >> "${TMPDIR}/build.log"
@@ -127,7 +127,7 @@ do
             fi
 
             # Test SHA2 code generation
-            count=$(otool -tV sha_simd.o | grep -i -c -E 'sha256h|sha256su0|sha256su1')
+            count=$(otool -tV sha_simd.o | grep -c -E 'sha256h|sha256su0|sha256su1')
             if [[ "${count}" -gt 0 ]]
             then
                 echo "${platform} : SHA2 ==> SUCCESS" >> "${TMPDIR}/build.log"
