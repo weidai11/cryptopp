@@ -196,31 +196,6 @@
 	#define CRYPTOPP_PADLOCK_PMM_AVAILABLE 1
 #endif
 
-// Fixup Android and SSE, Crypto. It may be enabled based on compiler version.
-// Also see https://developer.android.com/ndk/guides/abis
-#if defined(__ANDROID__) || defined(ANDROID)
-# if (CRYPTOPP_BOOL_X86)
-#  undef CRYPTOPP_SSE41_AVAILABLE
-#  undef CRYPTOPP_SSE42_AVAILABLE
-#  undef CRYPTOPP_CLMUL_AVAILABLE
-#  undef CRYPTOPP_AESNI_AVAILABLE
-#  undef CRYPTOPP_SHANI_AVAILABLE
-#  undef CRYPTOPP_RDRAND_AVAILABLE
-#  undef CRYPTOPP_RDSEED_AVAILABLE
-#  undef CRYPTOPP_AVX_AVAILABLE
-#  undef CRYPTOPP_AVX2_AVAILABLE
-# endif
-# if (CRYPTOPP_BOOL_X64)
-#  undef CRYPTOPP_CLMUL_AVAILABLE
-#  undef CRYPTOPP_AESNI_AVAILABLE
-#  undef CRYPTOPP_SHANI_AVAILABLE
-#  undef CRYPTOPP_RDRAND_AVAILABLE
-#  undef CRYPTOPP_RDSEED_AVAILABLE
-#  undef CRYPTOPP_AVX_AVAILABLE
-#  undef CRYPTOPP_AVX2_AVAILABLE
-# endif
-#endif
-
 // Fixup for SunCC 12.1-12.4. Bad code generation in AES_Encrypt and friends.
 #if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x5130)
 # undef CRYPTOPP_AESNI_AVAILABLE
@@ -370,26 +345,6 @@
 // quite right based on ARM preprocessor macros.
 #if defined(__APPLE__) && !defined(__ARM_FEATURE_CRC32)
 # undef CRYPTOPP_ARM_ACLE_HEADER
-#endif
-
-// Android hack. TODO: look at this in more detail
-// now that Android has switched over to Clang.
-#if defined(__ANDROID__) || defined(ANDROID)
-# undef CRYPTOPP_ARM_ACLE_HEADER
-#endif
-
-// Disable for Android. Android only offers the base Aarch64 architecture.
-// Also see https://developer.android.com/ndk/guides/abis
-#if defined(__ANDROID__) || defined(ANDROID)
-# undef CRYPTOPP_ARM_CRC32_AVAILABLE
-# undef CRYPTOPP_ARM_PMULL_AVAILABLE
-# undef CRYPTOPP_ARM_AES_AVAILABLE
-# undef CRYPTOPP_ARM_SHA1_AVAILABLE
-# undef CRYPTOPP_ARM_SHA2_AVAILABLE
-# undef CRYPTOPP_ARM_SHA3_AVAILABLE
-# undef CRYPTOPP_ARM_SHA512_AVAILABLE
-# undef CRYPTOPP_ARM_SM3_AVAILABLE
-# undef CRYPTOPP_ARM_SM4_AVAILABLE
 #endif
 
 // Cryptogams offers an ARM asm implementations for AES and SHA. Crypto++ does
