@@ -177,13 +177,13 @@ elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
         ARM_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
         # Apple M1 hardware
-        if [[ $(sysctl hw.optional.arm64 2>&1 | "$GREP" -i -E 'hw.optional.arm64: 1') ]]; then
+        if [[ $(sysctl hw.optional.arm64 2>&1 | "$GREP" -i 'hw.optional.arm64: 1') ]]; then
             ARM_CPU_FLAGS="asimd crc32 aes pmull sha1 sha2"
         fi
-        if [[ $(sysctl hw.optional.armv8_2_sha3 2>&1 | "$GREP" -i -E 'hw.optional.armv8_2_sha3: 1') ]]; then
+        if [[ $(sysctl hw.optional.armv8_2_sha3 2>&1 | "$GREP" -i 'hw.optional.armv8_2_sha3: 1') ]]; then
             ARM_CPU_FLAGS+=" sha3"
         fi
-        if [[ $(sysctl hw.optional.armv8_2_sha512 2>&1 | "$GREP" -i -E 'hw.optional.armv8_2_sha512: 1') ]]; then
+        if [[ $(sysctl hw.optional.armv8_2_sha512 2>&1 | "$GREP" -i 'hw.optional.armv8_2_sha512: 1') ]]; then
             ARM_CPU_FLAGS+=" sha512"
         fi
     else
@@ -193,8 +193,8 @@ elif [[ ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
         PPC_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
         # PowerMac
-        if [[ $(sysctl hw.optional.altivec 2>&1 | "$GREP" -i -E 'hw.optional.altivec: 1') ]]; then
-            PPC_CPU_FLAGS="altivec"
+        if [[ $(sysctl hw.optional.altivec 2>&1 | "$GREP" -i 'hw.optional.altivec: 1') ]]; then
+            PPC_CPU_FLAGS+=" altivec"
         fi
     else
         PPC_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
@@ -724,58 +724,77 @@ fi
 if [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
 
     if [[ (-z "$HAVE_ARMV7A" && "$IS_ARM32" -ne 0) ]]; then
-        HAVE_ARMV7A=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'neon')
+        HAVE_ARMV7A=$("$GREP" -i -c 'neon' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARMV7A" -gt 0) ]]; then HAVE_ARMV7A=1; fi
     fi
 
     if [[ (-z "$HAVE_ARMV8A" && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; then
-        HAVE_ARMV8A=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(asimd|crc|crypto)')
+        HAVE_ARMV8A=$("$GREP" -i -c -E '(asimd|crc|crypto)' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARMV8A" -gt 0) ]]; then HAVE_ARMV8A=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
-        HAVE_ARM_VFPV3=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'vfpv3')
+        HAVE_ARM_VFPV3=$("$GREP" -i -c 'vfpv3' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_VFPV3" -gt 0) ]]; then HAVE_ARM_VFPV3=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_VFPV4") ]]; then
-        HAVE_ARM_VFPV4=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'vfpv4')
+        HAVE_ARM_VFPV4=$("$GREP" -i -c 'vfpv4' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_VFPV4" -gt 0) ]]; then HAVE_ARM_VFPV4=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_VFPV5") ]]; then
-        HAVE_ARM_VFPV5=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'fpv5')
+        HAVE_ARM_VFPV5=$("$GREP" -i -c 'fpv5' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_VFPV5" -gt 0) ]]; then HAVE_ARM_VFPV5=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_VFPD32") ]]; then
-        HAVE_ARM_VFPD32=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'vfpd32')
+        HAVE_ARM_VFPD32=$("$GREP" -i -c 'vfpd32' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_VFPD32" -gt 0) ]]; then HAVE_ARM_VFPD32=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_NEON") ]]; then
-        HAVE_ARM_NEON=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'neon')
+        HAVE_ARM_NEON=$("$GREP" -i -c 'neon' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_NEON" -gt 0) ]]; then HAVE_ARM_NEON=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_CRC") ]]; then
-        HAVE_ARM_CRC=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'crc32')
+        HAVE_ARM_CRC=$("$GREP" -i -c 'crc32' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_CRC" -gt 0) ]]; then HAVE_ARM_CRC=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_CRYPTO") ]]; then
-        HAVE_ARM_CRYPTO=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c -E '(aes|pmull|sha1|sha2)')
+        HAVE_ARM_CRYPTO=$("$GREP" -i -c -E '(aes|pmull|sha1|sha2)' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_CRYPTO" -gt 0) ]]; then HAVE_ARM_CRYPTO=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_SHA3") ]]; then
-        HAVE_ARM_SHA3=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'sha3')
+        HAVE_ARM_SHA3=$("$GREP" -i -c 'sha3' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_SHA3" -gt 0) ]]; then HAVE_ARM_SHA3=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_SHA512") ]]; then
-        HAVE_ARM_SHA512=$(echo -n "$ARM_CPU_FLAGS" | "$GREP" -i -c 'sha512')
+        HAVE_ARM_SHA512=$("$GREP" -i -c 'sha512' <<< "$ARM_CPU_FLAGS")
         if [[ ("$HAVE_ARM_SHA512" -gt 0) ]]; then HAVE_ARM_SHA512=1; fi
+    fi
+fi
+
+if [[ ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
+    if [[ (-z "$HAVE_PPC_ALTIVEC") ]]; then
+        HAVE_PPC_ALTIVEC=$("$GREP" -i -c 'altivec' <<< "$PPC_CPU_FLAGS")
+        if [[ ("$HAVE_PPC_ALTIVEC" -gt 0) ]]; then HAVE_PPC_ALTIVEC=1; fi
+    fi
+    if [[ (-z "$HAVE_PPC_POWER7") ]]; then
+        HAVE_PPC_POWER7=$("$GREP" -i -c -E 'pwr7|power7' <<< "$PPC_CPU_FLAGS")
+        if [[ ("$HAVE_PPC_POWER7" -gt 0) ]]; then HAVE_PPC_POWER7=1; fi
+    fi
+    if [[ (-z "$HAVE_PPC_POWER8") ]]; then
+        HAVE_PPC_POWER8=$("$GREP" -i -c -E 'pwr8|power8' <<< "$PPC_CPU_FLAGS")
+        if [[ ("$HAVE_PPC_POWER8" -gt 0) ]]; then HAVE_PPC_POWER8=1; fi
+    fi
+    if [[ (-z "$HAVE_PPC_POWER9") ]]; then
+        HAVE_PPC_POWER9=$("$GREP" -i -c -E 'pwr9|power9' <<< "$PPC_CPU_FLAGS")
+        if [[ ("$HAVE_PPC_POWER9" -gt 0) ]]; then HAVE_PPC_POWER9=1; fi
     fi
 fi
 
@@ -918,6 +937,18 @@ if [[ "$HAVE_ARM_SHA3" -ne 0 ]]; then
 fi
 if [[ "$HAVE_ARM_SHA512" -ne 0 ]]; then
     echo "HAVE_ARM_SHA512: $HAVE_ARM_SHA512" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_PPC_ALTIVEC" -ne 0 ]]; then
+    echo "HAVE_PPC_ALTIVEC: $HAVE_PPC_ALTIVEC" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_PPC_POWER7" -ne 0 ]]; then
+    echo "HAVE_PPC_POWER7: $HAVE_PPC_POWER7" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_PPC_POWER8" -ne 0 ]]; then
+    echo "HAVE_PPC_POWER8: $HAVE_PPC_POWER8" | tee -a "$TEST_RESULTS"
+fi
+if [[ "$HAVE_PPC_POWER9" -ne 0 ]]; then
+    echo "HAVE_PPC_POWER9: $HAVE_PPC_POWER9" | tee -a "$TEST_RESULTS"
 fi
 
 if [[ "$IS_X32" -ne 0 ]]; then
