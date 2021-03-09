@@ -159,7 +159,8 @@ IS_X32 := 0
 IS_PPC32 := 0
 IS_PPC64 := 0
 
-$(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
+# Uncomment for debugging
+# $(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
 
 ###########################################################
 #####                  Test Program                   #####

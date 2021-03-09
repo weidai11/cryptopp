@@ -159,6 +159,9 @@ ifneq ($(IS_DARWIN),0)
   ARFLAGS = -static -o
 endif
 
+# Uncomment for debugging
+# $(info Here's what we found... IS_X86: $(IS_X86), IS_X64: $(IS_X64), IS_ARM32: $(IS_ARM32), IS_ARMV8: $(IS_ARMV8))
+
 ###########################################################
 #####                General Variables                #####
 ###########################################################
