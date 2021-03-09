@@ -1071,6 +1071,10 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
         CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.cpufrequency" | $AWK '{print int($2); exit;}')"
         CPU_FREQ="$(echo "$CPU_FREQ" | $AWK '{print int($0/1024/1024/1024)}')"
     fi
+    if [[ (-z "$CPU_FREQ") || ("$CPU_FREQ" -eq 0) ]]; then
+        CPU_FREQ="$(sysctl -a 2>&1 | $GREP "hw.tbfrequency" | $AWK '{print int($2); exit;}')"
+        CPU_FREQ="$(echo "$CPU_FREQ" | $AWK '{print int($0/10/1024/1024)}')"
+    fi
 fi
 
 # Some ARM devboards cannot use 'make -j N', even with multiple cores and RAM
