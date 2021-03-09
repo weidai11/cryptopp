@@ -191,13 +191,22 @@ elif [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
     fi
 elif [[ ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
-        PPC_CPU_FLAGS="$(sysctl machdep.cpu.features 2>&1 | cut -f 2 -d ':')"
+        PPC_CPU_FLAGS="$(sysctl -a 2>&1 | "$GREP" machdep.cpu.features | cut -f 2 -d ':')"
         # PowerMac
         if [[ $(sysctl hw.optional.altivec 2>&1 | "$GREP" -i 'hw.optional.altivec: 1') ]]; then
             PPC_CPU_FLAGS+=" altivec"
         fi
     else
-        PPC_CPU_FLAGS="$($AWK '{IGNORECASE=1}{if ($1 == "Features"){print;exit}}' < /proc/cpuinfo | cut -f 2 -d ':')"
+        CPUINFO="$(cat /proc/cpuinfo | grep "cpu" | head -n 1 | cut -f 2 -d ':')"
+        if echo -n "$CPUINFO" | "$GREP" -q -i -c "power9"; then
+            PPC_CPU_FLAGS="power9 power8 power7 altivec"
+        elif echo -n "$CPUINFO" | "$GREP" -q -i -c "power8"; then
+            PPC_CPU_FLAGS="power8 power7 altivec"
+        elif echo -n "$CPUINFO" | "$GREP" -q -i -c "power7"; then
+            PPC_CPU_FLAGS="power7 altivec"
+        elif echo -n "$CPUINFO" | "$GREP" -q -i -c "altivec"; then
+            PPC_CPU_FLAGS="altivec"
+        fi
     fi
 fi
 
