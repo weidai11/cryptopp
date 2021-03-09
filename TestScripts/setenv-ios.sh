@@ -66,6 +66,10 @@ if [ -z "$IOS_CPU" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+DEF_CPPFLAGS="-DNDEBUG"
+DEF_CXXFLAGS="-Wall -g2 -O3 -fPIC"
+DEF_LDFLAGS=""
+
 #########################################
 #####       Clear old options       #####
 #########################################
@@ -74,7 +78,9 @@ unset IS_IOS
 unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
+unset IOS_CPPFLAGS
 unset IOS_CXXFLAGS
+unset IOS_LDFLAGS
 unset IOS_SYSROOT
 
 #########################################
@@ -241,7 +247,7 @@ IOS_CXXFLAGS="-arch $IOS_CPU $MIN_VER"
 # The simulators need to disable ASM. They don't receive arch flags.
 # https://github.com/weidai11/cryptopp/issues/635
 if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "AppleTVSimulator" || "$IOS_SDK" == "WatchSimulator" ]]; then
-    IOS_CXXFLAGS="$IOS_CXXFLAGS -DCRYPTOPP_DISABLE_ASM"
+    IOS_CPPFLAGS="$IOS_CPPFLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
 echo "Configuring for $IOS_SDK ($IOS_CPU)"
@@ -252,7 +258,8 @@ IOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
 #####################################################################
 
 CPP=cpp; CC=clang; CXX=clang++; LD=ld
-AS=as; AR=libtool; RANLIB=ranlib; STRIP=strip
+AS=as; AR=libtool; RANLIB=ranlib;
+STRIP=strip; OBJDUMP=objdump
 
 # Error checking
 if [ ! -e "$XCODE_TOOLCHAIN/$CC" ]; then
@@ -302,11 +309,15 @@ fi
 #####################################################################
 
 # GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below.
+# They are also used in the tests below. Note: at Crypto++ 8.6
+# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
 export IS_IOS=1
 
-export CPP CC CXX LD AS AR RANLIB STRIP
-export IOS_CXXFLAGS IOS_SDK IOS_CPU IOS_SYSROOT
+export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
+
+export CPPFLAGS="${DEF_CPPFLAGS}  ${IOS_CPPFLAGS} -isysroot \"${IOS_SYSROOT}\""
+export CXXFLAGS="${DEF_CXXFLAGS}  ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot \"${IOS_SYSROOT}\""
+export LDFLAGS="${IOS_LDFLAGS}"
 
 #####################################################################
 
@@ -316,7 +327,13 @@ if [ "$VERBOSE" -gt 0 ]; then
   echo "IOS_SDK: $IOS_SDK"
   echo "IOS_CPU: $IOS_CPU"
   echo "IOS_SYSROOT: $IOS_SYSROOT"
-  echo "IOS_CXXFLAGS: $IOS_CXXFLAGS"
+  if [ -n "${IOS_CPPFLAGS}" ]; then
+    echo "IOS_CPPFLAGS: ${IOS_CPPFLAGS}"
+  fi
+  echo "IOS_CXXFLAGS: ${IOS_CXXFLAGS}"
+  if [ -n "${IOS_LDFLAGS}" ]; then
+    echo "IOS_LDFLAGS: ${IOS_LDFLAGS}"
+  fi
 fi
 
 #####################################################################

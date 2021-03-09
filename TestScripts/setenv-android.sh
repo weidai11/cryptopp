@@ -69,6 +69,10 @@ if [ -z "${ANDROID_CPU}" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+DEF_CPPFLAGS="-DNDEBUG"
+DEF_CXXFLAGS="-Wall -g2 -O3 -fPIC"
+DEF_LDFLAGS=""
+
 #########################################
 #####       Clear old options       #####
 #########################################
@@ -173,6 +177,7 @@ case "$THE_ARCH" in
     AR="arm-linux-androideabi-ar"
     RANLIB="arm-linux-androideabi-ranlib"
     STRIP="arm-linux-androideabi-strip"
+    OBJDUMP="arm-linux-androideabi-objdump"
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -191,6 +196,7 @@ case "$THE_ARCH" in
     AR="aarch64-linux-android-ar"
     RANLIB="aarch64-linux-android-ranlib"
     STRIP="aarch64-linux-android-strip"
+    OBJDUMP="aarch64-linux-android-objdump"
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -208,6 +214,7 @@ case "$THE_ARCH" in
     AR="i686-linux-android-ar"
     RANLIB="i686-linux-android-ranlib"
     STRIP="i686-linux-android-strip"
+    OBJDUMP="i686-linux-android-objdump"
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -226,6 +233,7 @@ case "$THE_ARCH" in
     AR="x86_64-linux-android-ar"
     RANLIB="x86_64-linux-android-ranlib"
     STRIP="x86_64-linux-android-strip"
+    OBJDUMP="x86_64-linux-android-objdump"
 
     # You may need this on older NDKs
     # ANDROID_CPPFLAGS="-D__ANDROID__=${ANDROID_API}"
@@ -244,13 +252,30 @@ esac
 
 #####################################################################
 
+# Common to all builds
+
+ANDROID_CPPFLAGS="${DEF_CPPFLAGS} ${ANDROID_CPPFLAGS} -DANDROID"
+
+ANDROID_CXXFLAGS="${DEF_CXXFLAGS}  ${ANDROID_CXXFLAGS} -Wa,--noexecstack"
+
+# Aarch64 ld does not understand --warn-execstack
+ANDROID_LDFLAGS="${ANDROID_LDFLAGS} -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now"
+ANDROID_LDFLAGS="${ANDROID_LDFLAGS} -Wl,--warn-shared-textrel -Wl,--warn-common"
+ANDROID_LDFLAGS="${ANDROID_LDFLAGS} -Wl,--warn-unresolved-symbols"
+ANDROID_LDFLAGS="${ANDROID_LDFLAGS} -Wl,--gc-sections -Wl,--fatal-warnings"
+
+#####################################################################
+
 # GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below.
+# They are also used in the tests below. Note: at Crypto++ 8.6
+# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
 export IS_ANDROID=1
 
-export CPP CC CXX LD AS AR RANLIB STRIP
-export ANDROID_CPPFLAGS ANDROID_CXXFLAGS ANDROID_LDFLAGS
-export ANDROID_API ANDROID_CPU ANDROID_SYSROOT
+export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
+
+export CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot \"${ANDROID_SYSROOT}\""
+export CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot \"${ANDROID_SYSROOT}\""
+export LDFLAGS="${ANDROID_LDFLAGS}"
 
 # Do NOT use ANDROID_SYSROOT_INC or ANDROID_SYSROOT_LD
 # https://github.com/android/ndk/issues/894#issuecomment-470837964
