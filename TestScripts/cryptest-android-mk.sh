@@ -73,7 +73,7 @@ fi
 
 #############################################################################
 
-files=(Android.mk Application.mk make_neon.sh test_shared.hxx test_shared.cxx)
+files=(Android.mk Application.mk test_shared.hxx test_shared.cxx)
 
 for file in "${files[@]}"; do
     echo "Downloading $file"
@@ -86,18 +86,6 @@ for file in "${files[@]}"; do
     # Throttle
     sleep 1
 done
-
-# Fix permissions and quarantine
-chmod u=rwx,go=rx make_neon.sh
-
-if [[ "${IS_DARWIN}" -ne 0 ]] && [[ $(command -v xattr 2>/dev/null) ]]; then
-    echo "Removing make_neon.sh quarantine"
-    xattr -d "com.apple.quarantine" make_neon.sh &>/dev/null
-fi
-
-# Fix missing *neon files
-echo "Adding NEON files for armeabi-v7a"
-bash make_neon.sh
 
 #############################################################################
 
