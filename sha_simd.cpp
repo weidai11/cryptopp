@@ -24,7 +24,7 @@
 #endif
 
 // Android makes <arm_acle.h> available with ARMv7-a
-#if (CRYPTOPP_ARMV8) && (CRYPTOPP_ARM_ACLE_HEADER)
+#if (CRYPTOPP_BOOL_ARMV8) && (CRYPTOPP_ARM_ACLE_HEADER)
 # include <stdint.h>
 # include <arm_acle.h>
 #endif
