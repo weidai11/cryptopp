@@ -1984,7 +1984,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         fi
 
         if [[ ("$FAILED" -eq 0) ]]; then
-            echo "Verified vcipher, vcipherlast,vncipher, vncipherlast machine instructions" | tee -a "$TEST_RESULTS"
+            echo "Verified vcipher, vcipherlast, vncipher, vncipherlast machine instructions" | tee -a "$TEST_RESULTS"
         fi
     fi
 
