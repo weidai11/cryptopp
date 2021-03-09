@@ -1935,14 +1935,12 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         "$CXX" -mcpu=power8 "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
         if [[ "$?" -eq 0 ]]; then
             PPC_AES=1
-            PPC_AES_FLAGS="-mcpu=power8"
         fi
     fi
     if [[ ("$PPC_AES" -eq 0) ]]; then
         "$CXX" -qarch=pwr8 -qaltivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
         if [[ "$?" -eq 0 ]]; then
             PPC_AES=1
-            PPC_AES_FLAGS="-qarch=pwr8 -qaltivec"
         fi
     fi
 
@@ -1955,7 +1953,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         TEST_LIST+=("Power8 AES code generation")
 
         OBJFILE=rijndael_simd.o; rm -f "$OBJFILE" 2>/dev/null
-        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_AES_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
         COUNT=0
         FAILED=0
@@ -1998,14 +1996,12 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         "$CXX" -mcpu=power8 "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
         if [[ "$?" -eq 0 ]]; then
             PPC_SHA=1
-            PPC_SHA_FLAGS="-mcpu=power8"
         fi
     fi
     if [[ ("$PPC_SHA" -eq 0) ]]; then
         "$CXX" -qarch=pwr8 -qaltivec "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
         if [[ "$?" -eq 0 ]]; then
             PPC_SHA=1
-            PPC_SHA_FLAGS="-qarch=pwr8 -qaltivec"
         fi
     fi
 
@@ -2018,7 +2014,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         TEST_LIST+=("Power8 SHA code generation")
 
         OBJFILE=sha_simd.o; rm -f "$OBJFILE" 2>/dev/null
-        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_SHA_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
         COUNT=0
         FAILED=0
@@ -2049,14 +2045,12 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         "$CXX" -mcpu=power8 "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
         if [[ "$?" -eq 0 ]]; then
             PPC_VMULL=1
-            PPC_VMULL_FLAGS="-mcpu=power8"
         fi
     fi
     if [[ ("$PPC_VMULL" -eq 0) ]]; then
         "$CXX" -qarch=pwr8 "$test_prog" -o "${TMPDIR}/test.exe" &>/dev/null
         if [[ "$?" -eq 0 ]]; then
             PPC_VMULL=1
-            PPC_VMULL_FLAGS="-qarch=pwr8"
         fi
     fi
 
@@ -2069,7 +2063,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && "$GCC_4_8_OR_ABOVE" -ne 0 && ("$IS_PPC32" -ne 0 |
         TEST_LIST+=("Power8 carryless multiply code generation")
 
         OBJFILE=gcm_simd.o; rm -f "$OBJFILE" 2>/dev/null
-        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS $PPC_VMULL_FLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
+        CXX="$CXX" CXXFLAGS="$RELEASE_CXXFLAGS" "$MAKE" "${MAKEARGS[@]}" $OBJFILE 2>&1 | tee -a "$TEST_RESULTS"
 
         COUNT=0
         FAILED=0
