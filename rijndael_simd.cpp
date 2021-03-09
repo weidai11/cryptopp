@@ -31,12 +31,8 @@
 # include <wmmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_HEADER)
-# include "adv_simd.h"
-# include <arm_neon.h>
-#endif
-
-#if (CRYPTOPP_ARM_ACLE_HEADER)
+// Android makes <arm_acle.h> available with ARMv7-a
+#if (CRYPTOPP_ARMV8) && (CRYPTOPP_ARM_ACLE_HEADER)
 # include "adv_simd.h"
 # include <stdint.h>
 # include <arm_acle.h>

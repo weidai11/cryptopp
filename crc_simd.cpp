@@ -14,10 +14,6 @@
 # include <nmmintrin.h>
 #endif
 
-#if (CRYPTOPP_ARM_NEON_HEADER)
-# include <arm_neon.h>
-#endif
-
 #if (CRYPTOPP_ARM_ACLE_HEADER)
 # include <stdint.h>
 # include <arm_acle.h>
