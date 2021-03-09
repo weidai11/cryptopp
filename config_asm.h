@@ -52,16 +52,12 @@
 # define CRYPTOPP_DISABLE_MIXED_ASM 1
 #endif
 
-// CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS is no longer honored. It
-// was removed at https://github.com/weidai11/cryptopp/issues/682
-// #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS 1
-
 // Define this if you need to disable Android advanced ISAs.
 // The problem is, Android-mk does not allow us to specify an
 // ISA option, like -maes or -march=armv8-a+crypto for AES.
 // Lack of an option results in a compile failure. To avoid
 // the compile failure, set this define. Also see
-// // https://github.com/weidai11/cryptopp/issues/1015
+// https://github.com/weidai11/cryptopp/issues/1015
 // CRYPTOPP_DISABLE_ANDROID_ADVANCED_ISA 1
 
 // ***************** IA32 CPU features ********************
