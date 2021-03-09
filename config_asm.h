@@ -56,6 +56,14 @@
 // was removed at https://github.com/weidai11/cryptopp/issues/682
 // #define CRYPTOPP_ALLOW_UNALIGNED_DATA_ACCESS 1
 
+// Define this if you need to disable Android advanced ISAs.
+// The problem is, Android-mk does not allow us to specify an
+// ISA option, like -maes or -march=armv8-a+crypto for AES.
+// Lack of an option results in a compile failure. To avoid
+// the compile failure, set this define. Also see
+// // https://github.com/weidai11/cryptopp/issues/1015
+// CRYPTOPP_DISABLE_ANDROID_ADVANCED_ISA 1
+
 // ***************** IA32 CPU features ********************
 
 #if (CRYPTOPP_BOOL_X86 || CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
@@ -427,5 +435,38 @@
 #endif  // CRYPTOPP_ALTIVEC_AVAILABLE
 #endif  // CRYPTOPP_DISABLE_ASM
 #endif  // PPC32, PPC64
+
+// https://github.com/weidai11/cryptopp/issues/1015
+#if defined(CRYPTOPP_DISABLE_ANDROID_ADVANCED_ISA)
+# if defined(__ANDROID__) || defined(ANDROID)
+#  if (CRYPTOPP_BOOL_X86)
+#   undef CRYPTOPP_SSE41_AVAILABLE
+#   undef CRYPTOPP_SSE42_AVAILABLE
+#   undef CRYPTOPP_CLMUL_AVAILABLE
+#   undef CRYPTOPP_AESNI_AVAILABLE
+#   undef CRYPTOPP_SHANI_AVAILABLE
+#   undef CRYPTOPP_RDRAND_AVAILABLE
+#   undef CRYPTOPP_RDSEED_AVAILABLE
+#   undef CRYPTOPP_AVX_AVAILABLE
+#   undef CRYPTOPP_AVX2_AVAILABLE
+#  endif
+#  if (CRYPTOPP_BOOL_X64)
+#   undef CRYPTOPP_CLMUL_AVAILABLE
+#   undef CRYPTOPP_AESNI_AVAILABLE
+#   undef CRYPTOPP_SHANI_AVAILABLE
+#   undef CRYPTOPP_RDRAND_AVAILABLE
+#   undef CRYPTOPP_RDSEED_AVAILABLE
+#   undef CRYPTOPP_AVX_AVAILABLE
+#   undef CRYPTOPP_AVX2_AVAILABLE
+#  endif
+#  if (CRYPTOPP_BOOL_ARMV8)
+#   undef CRYPTOPP_ARM_CRC32_AVAILABLE
+#   undef CRYPTOPP_ARM_PMULL_AVAILABLE
+#   undef CRYPTOPP_ARM_AES_AVAILABLE
+#   undef CRYPTOPP_ARM_SHA1_AVAILABLE
+#   undef CRYPTOPP_ARM_SHA2_AVAILABLE
+#  endif
+# endif  // ANDROID
+#endif   // CRYPTOPP_DISABLE_ANDROID_ADVANCED_ISA
 
 #endif  // CRYPTOPP_CONFIG_ASM_H
