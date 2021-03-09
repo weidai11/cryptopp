@@ -165,6 +165,12 @@ if [[ "$IS_DARWIN" -ne 0 ]]; then
     DISASSARGS=("-tV")
 fi
 
+# Fixup
+if [[ "$IS_AIX" -ne 0 ]]; then
+    DISASS=dis
+    DISASSARGS=()
+fi
+
 # CPU features and flags
 if [[ ("$IS_X86" -ne 0 || "$IS_X64" -ne 0) ]]; then
     if [[ ("$IS_DARWIN" -ne 0) ]]; then
@@ -755,9 +761,9 @@ if [[ ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0) ]]; then
         if [[ ("$HAVE_ARMV7A" -gt 0) ]]; then HAVE_ARMV7A=1; fi
     fi
 
-    if [[ (-z "$HAVE_ARMV8A" && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; then
-        HAVE_ARMV8A=$("$GREP" -i -c -E '(asimd|crc|crypto)' <<< "$ARM_CPU_FLAGS")
-        if [[ ("$HAVE_ARMV8A" -gt 0) ]]; then HAVE_ARMV8A=1; fi
+    if [[ (-z "$HAVE_ARMV8" && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; then
+        HAVE_ARMV8=$("$GREP" -i -c -E '(asimd|crc|crypto)' <<< "$ARM_CPU_FLAGS")
+        if [[ ("$HAVE_ARMV8" -gt 0) ]]; then HAVE_ARMV8=1; fi
     fi
 
     if [[ (-z "$HAVE_ARM_VFPV3") ]]; then
@@ -938,8 +944,8 @@ elif [[ "$IS_ARM32" -ne 0 ]]; then
 fi
 if [[ "$HAVE_ARMV7A" -ne 0 ]]; then
     echo "HAVE_ARMV7A: $HAVE_ARMV7A" | tee -a "$TEST_RESULTS"
-elif [[ "$HAVE_ARMV8A" -ne 0 ]]; then
-    echo "HAVE_ARMV8A: $HAVE_ARMV8A" | tee -a "$TEST_RESULTS"
+elif [[ "$HAVE_ARMV8" -ne 0 ]]; then
+    echo "HAVE_ARMV8: $HAVE_ARMV8" | tee -a "$TEST_RESULTS"
 fi
 if [[ "$HAVE_ARM_NEON" -ne 0 ]]; then
     echo "HAVE_ARM_NEON: $HAVE_ARM_NEON" | tee -a "$TEST_RESULTS"
@@ -1601,7 +1607,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
         FAILED=0
         DISASS_TEXT=$("$DISASS" "${DISASSARGS[@]}" "$OBJFILE" 2>/dev/null)
 
-        if [[ ("$HAVE_ARMV8A" -ne 0) ]]; then
+        if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 4 ldr q{N}
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'ldr[[:space:]]*q')
             if [[ ("$COUNT" -lt 4) ]]; then
@@ -1617,7 +1623,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             fi
         fi
 
-        if [[ ("$HAVE_ARMV8A" -ne 0) ]]; then
+        if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 17 str q{N}
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'str[[:space:]]*q')
             if [[ ("$COUNT" -lt 16) ]]; then
@@ -1633,7 +1639,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             fi
         fi
 
-        if [[ ("$HAVE_ARMV8A" -ne 0) ]]; then
+        if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 17 shl v{N}
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shl[[:space:]]*v')
             if [[ ("$COUNT" -lt 16) ]]; then
@@ -1649,7 +1655,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             fi
         fi
 
-        if [[ ("$HAVE_ARMV8A" -ne 0) ]]; then
+        if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 17 shr v{N}
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'shr[[:space:]]*v')
             if [[ ("$COUNT" -lt 16) ]]; then
@@ -1665,7 +1671,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
             fi
         fi
 
-        if [[ ("$HAVE_ARMV8A" -ne 0) ]]; then
+        if [[ ("$HAVE_ARMV8" -ne 0) ]]; then
             # ARIA::UncheckedKeySet: 12 ext v{N}
             COUNT=$(echo -n "$DISASS_TEXT" | "$GREP" -i -c -E 'ext[[:space:]]*v')
             if [[ ("$COUNT" -lt 12) ]]; then
@@ -1694,7 +1700,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
         ARM_CRC32=1
     fi
 
-    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_CRC32" -ne 0) ]]; then
+    if [[ ("$HAVE_ARMV8" -ne 0 && "$ARM_CRC32" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
         echo "Testing: ARM CRC32 code generation" | tee -a "$TEST_RESULTS"
@@ -1746,7 +1752,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
         ARM_PMULL=1
     fi
 
-    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_PMULL" -ne 0) ]]; then
+    if [[ ("$HAVE_ARMV8" -ne 0 && "$ARM_PMULL" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
         echo "Testing: ARM carryless multiply code generation" | tee -a "$TEST_RESULTS"
@@ -1786,7 +1792,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
         ARM_AES=1
     fi
 
-    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_AES" -ne 0) ]]; then
+    if [[ ("$HAVE_ARMV8" -ne 0 && "$ARM_AES" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
         echo "Testing: ARM AES code generation" | tee -a "$TEST_RESULTS"
@@ -1839,7 +1845,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
         ARM_SHA2=1
     fi
 
-    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA1" -ne 0) ]]; then
+    if [[ ("$HAVE_ARMV8" -ne 0 && "$ARM_SHA1" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
         echo "Testing: ARM SHA1 code generation" | tee -a "$TEST_RESULTS"
@@ -1896,7 +1902,7 @@ if [[ ("$HAVE_DISASS" -ne 0 && ("$IS_ARM32" -ne 0 || "$IS_ARM64" -ne 0)) ]]; the
     fi
 
 
-    if [[ ("$HAVE_ARMV8A" -ne 0 && "$ARM_SHA2" -ne 0) ]]; then
+    if [[ ("$HAVE_ARMV8" -ne 0 && "$ARM_SHA2" -ne 0) ]]; then
         echo
         echo "************************************" | tee -a "$TEST_RESULTS"
         echo "Testing: ARM SHA2 code generation" | tee -a "$TEST_RESULTS"
