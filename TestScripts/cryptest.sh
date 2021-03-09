@@ -137,6 +137,13 @@ IS_SPARC=$("$GREP" -i -c "sparc" <<< "$THIS_MACHINE")
 IS_X32=0
 
 # Fixup
+if [[ "$IS_AIX" -ne 0 ]]; then
+    THIS_MACHINE="$(prtconf | "$GREP" -i "Processor Type" | head -n 1 | cut -f 2 -d ':')"
+    IS_PPC32=$("$GREP" -i -c -E "(Power|PPC)" <<< "$THIS_MACHINE")
+    IS_PPC64=$("$GREP" -i -c -E "(Power64|PPC64)" <<< "$THIS_MACHINE")
+fi
+
+# Fixup
 if [[ "$IS_PPC64" -ne 0 ]]; then
     IS_PPC32=0
 fi
@@ -195,6 +202,17 @@ elif [[ ("$IS_PPC32" -ne 0 || "$IS_PPC64" -ne 0) ]]; then
         # PowerMac
         if [[ $(sysctl hw.optional.altivec 2>&1 | "$GREP" -i 'hw.optional.altivec: 1') ]]; then
             PPC_CPU_FLAGS+=" altivec"
+        fi
+    elif [[ ("$IS_AIX" -ne 0) ]]; then
+        CPUINFO="$(prtconf | "$GREP" -i "Processor Type" | head -n 1 | cut -f 2 -d ':')"
+        if echo -n "$CPUINFO" | "$GREP" -q -i -c "power9"; then
+            PPC_CPU_FLAGS="power9 power8 power7 altivec"
+        elif echo -n "$CPUINFO" | "$GREP" -q -i -c "power8"; then
+            PPC_CPU_FLAGS="power8 power7 altivec"
+        elif echo -n "$CPUINFO" | "$GREP" -q -i -c "power7"; then
+            PPC_CPU_FLAGS="power7 altivec"
+        elif echo -n "$CPUINFO" | "$GREP" -q -i -c "altivec"; then
+            PPC_CPU_FLAGS="altivec"
         fi
     else
         CPUINFO="$(cat /proc/cpuinfo | grep "cpu" | head -n 1 | cut -f 2 -d ':')"
