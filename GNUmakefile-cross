@@ -15,8 +15,9 @@ TOUT := $(strip $(TOUT))
 LINK_LIBRARY ?= libcryptopp.a
 LINK_LIBRARY_PATH ?= ./
 
-# Default CXXFLAGS if none were provided
-CXXFLAGS ?= -DNDEBUG -g2 -O3 -fPIC -pipe
+# Default FLAGS if none were provided
+CPPFLAGS ?= -DNDEBUG
+CXXFLAGS ?= -g2 -O3 -fPIC -pipe
 
 AR ?= ar
 ARFLAGS ?= cr
@@ -83,13 +84,6 @@ ifeq ($(ARFLAGS),rv)
   ARFLAGS = r
 endif
 
-# Sadly, we can't actually use GCC_PRAGMA_AWARE because of GCC bug 53431.
-# Its a shame because GCC has so much to offer by the way of analysis.
-# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
-ifneq ($(CLANG_COMPILER),0)
-  CXXFLAGS += -Wall
-endif
-
 ###########################################################
 #####                       iOS                       #####
 ###########################################################
@@ -97,9 +91,7 @@ endif
 # iOS cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/iOS_(Command_Line).
 ifeq ($(IS_IOS),1)
-  CXXFLAGS += $(IOS_CXXFLAGS) -stdlib=libc++
-  CXXFLAGS += --sysroot "$(IOS_SYSROOT)"
-
+  # setenv-ios.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
   AR = libtool
   ARFLAGS = -static -o
 endif
@@ -111,18 +103,7 @@ endif
 # Android cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/Android_(Command_Line).
 ifeq ($(IS_ANDROID),1)
-  CPPFLAGS += $(ANDROID_CPPFLAGS)
-  CPPFLAGS += -DANDROID
-  CXXFLAGS += $(ANDROID_CXXFLAGS)
-  CXXFLAGS += --sysroot=$(ANDROID_SYSROOT)
-  CXXFLAGS += -Wa,--noexecstack
-
-  # Aarch64 ld does not understand --warn-execstack
-  LDFLAGS += $(ANDROID_LDFLAGS)
-  LDFLAGS += -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now
-  LDFLAGS += -Wl,--warn-shared-textrel -Wl,--warn-common
-  LDFLAGS += -Wl,--warn-unresolved-symbols
-  LDFLAGS += -Wl,--gc-sections -Wl,--fatal-warnings
+  # setenv-android.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
 
   # Source files copied into PWD for Android cpu-features
   # setenv-android.sh does the copying. Its a dirty compile.
@@ -137,8 +118,7 @@ endif
 #   See http://www.cryptopp.com/wiki/ARM_Embedded_(Command_Line)
 #   and http://www.cryptopp.com/wiki/ARM_Embedded_(Bare Metal).
 ifeq ($(IS_ARM_EMBEDDED),1)
-  # CPP, CXX, AR, RANLIB, LD, etc are set in 'setenv-embedded.sh'
-  CXXFLAGS += $(ARM_EMBEDDED_FLAGS) --sysroot=$(ARM_EMBEDDED_SYSROOT)
+  # setenv-android.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
 endif
 
 ###########################################################
