@@ -85,6 +85,18 @@ ifeq ($(ARFLAGS),rv)
 endif
 
 ###########################################################
+#####                      MacOS                      #####
+###########################################################
+
+# MacOS cross-compile configuration.
+#   See http://www.cryptopp.com/wiki/MacOS_(Command_Line).
+ifeq ($(IS_MACOS),1)
+  # setenv-ios.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
+  AR = libtool
+  ARFLAGS = -static -o
+endif
+
+###########################################################
 #####                       iOS                       #####
 ###########################################################
 
@@ -136,13 +148,14 @@ ifeq ($(HOSTX),)
 endif
 
 # This dance is because Clang reports the host architecture instead
-# of the target architecture. Running Clang on an x86_64 machine with
-# -arch arm64 yields x86_64 instead of aarch64 or arm64.
+# of the target architecture for -dumpmachine. Running Clang on an
+# x86_64 machine with -arch arm64 yields x86_64 instead of arm64.
 
 ifeq ($(CLANG_COMPILER),1)
+  # The compiler is either GCC or Clang
   IS_X86 := $(shell echo $(CXXFLAGS) | $(GREP) -v 64 | $(GREP) -i -c -E 'i.86')
   IS_X64 := $(shell echo $(CXXFLAGS) | $(GREP) -i -c -E 'x86_64|amd64')
-  IS_ARM32 := $(shell echo $(CXXFLAGS) | $(GREP) -v 64 | $(GREP) -i -c -E 'arm|armhf|arm7l|eabihf')
+  IS_ARM32 := $(shell echo $(CXXFLAGS) | $(GREP) -v 64 | $(GREP) -i -c -E 'arm|armhf|arm7l|armeabihf')
   IS_ARMV8 := $(shell echo $(CXXFLAGS) | $(GREP) -i -c -E 'aarch32|aarch64|arm64|armv8')
 else
   IS_X86 := $(shell echo $(HOSTX) | $(GREP) -v 64 | $(GREP) -i -c -E 'i.86')
