@@ -143,15 +143,22 @@ fi
 #####################################################################
 
 # GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below. Note: at Crypto++ 8.6
-# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
-export IS_ARM_EMBEDDED=1
+# Note: prior to Crypto++ 8.6, CPPFLAGS, CXXFLAGS and LDFLAGS were not
+# exported. At Crypto++ 8.6 CPPFLAGS, CXXFLAGS and LDFLAGS were exported.
 
+export IS_ARM_EMBEDDED=1
 export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 
-export CPPFLAGS="${DEF_CPPFLAGS} ${ARM_EMBEDDED_CPPFLAGS} ${ARM_EMBEDDED_HEADERS} -isysroot \"${ARM_EMBEDDED_SYSROOT}\""
-export CXXFLAGS="${DEF_CXXFLAGS} ${ARM_EMBEDDED_CXXFLAGS} --sysroot \"${ARM_EMBEDDED_SYSROOT}\""
-export LDFLAGS="${DEF_LDFLAGS} ${ARM_EMBEDDED_LDFLAGS}"
+CPPFLAGS="${DEF_CPPFLAGS} ${ARM_EMBEDDED_CPPFLAGS} ${ARM_EMBEDDED_HEADERS} -isysroot \"${ARM_EMBEDDED_SYSROOT}\""
+CXXFLAGS="${DEF_CXXFLAGS} ${ARM_EMBEDDED_CXXFLAGS} --sysroot \"${ARM_EMBEDDED_SYSROOT}\""
+LDFLAGS="${DEF_LDFLAGS} ${ARM_EMBEDDED_LDFLAGS}"
+
+# Trim whitespace as needed
+CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')
+CXXFLAGS=$(echo "${CXXFLAGS}" | awk '{$1=$1;print}')
+LDFLAGS=$(echo "${LDFLAGS}" | awk '{$1=$1;print}')
+
+export CPPFLAGS CXXFLAGS LDFLAGS
 
 #####################################################################
 

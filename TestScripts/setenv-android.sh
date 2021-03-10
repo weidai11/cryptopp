@@ -368,18 +368,25 @@ fi
 #####################################################################
 
 # GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below. Note: at Crypto++ 8.6
-# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
+# Note: prior to Crypto++ 8.6, CPPFLAGS, CXXFLAGS and LDFLAGS were not
+# exported. At Crypto++ 8.6 CPPFLAGS, CXXFLAGS and LDFLAGS were exported.
+
 export IS_ANDROID=1
-
 export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
-
-export CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot \"${ANDROID_SYSROOT}\""
-export CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot \"${ANDROID_SYSROOT}\""
-export LDFLAGS="${ANDROID_LDFLAGS}"
 
 # Do NOT use ANDROID_SYSROOT_INC or ANDROID_SYSROOT_LD
 # https://github.com/android/ndk/issues/894#issuecomment-470837964
+
+CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot \"${ANDROID_SYSROOT}\""
+CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot \"${ANDROID_SYSROOT}\""
+LDFLAGS="${ANDROID_LDFLAGS}"
+
+# Trim whitespace as needed
+CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')
+CXXFLAGS=$(echo "${CXXFLAGS}" | awk '{$1=$1;print}')
+LDFLAGS=$(echo "${LDFLAGS}" | awk '{$1=$1;print}')
+
+export CPPFLAGS CXXFLAGS LDFLAGS
 
 #####################################################################
 
