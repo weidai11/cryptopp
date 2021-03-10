@@ -144,17 +144,17 @@ elif [[ "$IOS_SDK" == "iPhoneSimulator" && "$IOS_CPU" == "x86_64" ]]; then
 
 # Apple TV can be 32-bit Intel (1st gen), 32-bit ARM (2nd, 3rd gen) or 64-bit ARM (4th gen)
 elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "i386" ]]; then
-    MIN_VER=-mappletvos-version-min=4
+    MIN_VER=-mappletvos-version-min=6
 elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "armv7"* ]]; then
-    MIN_VER=-mappletvos-version-min=4
+    MIN_VER=-mappletvos-version-min=6
 elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "arm64" ]]; then
-    MIN_VER=-mappletvos-version-min=4
+    MIN_VER=-mappletvos-version-min=6
 
 # Simulator builds
 elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "i386" ]]; then
-    MIN_VER=-mappletvsimulator-version-min=4
+    MIN_VER=-mappletvsimulator-version-min=6
 elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "x86_64" ]]; then
-    MIN_VER=-mappletvsimulator-version-min=4
+    MIN_VER=-mappletvsimulator-version-min=6
 
 # Watch can be either 32-bit or 64-bit ARM. TODO: figure out which
 # -mwatchos-version-min=n is needed for arm64. 9 is not enough.
