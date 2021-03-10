@@ -265,32 +265,32 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	else _mm_storeu_si128((__m128i *)output+i, t);}
 
 /// \brief Helper macro to implement OperateKeystream
-#define CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(x, y)	\
-	switch (operation)							\
-	{											\
-		case WRITE_KEYSTREAM:					\
-			x(WRITE_KEYSTREAM)					\
-			break;								\
-		case XOR_KEYSTREAM:						\
-			x(XOR_KEYSTREAM)					\
-			input += y;							\
-			break;								\
-		case XOR_KEYSTREAM_INPUT_ALIGNED:		\
-			x(XOR_KEYSTREAM_INPUT_ALIGNED)		\
-			input += y;							\
-			break;								\
-		case XOR_KEYSTREAM_OUTPUT_ALIGNED:		\
-			x(XOR_KEYSTREAM_OUTPUT_ALIGNED)		\
-			input += y;							\
-			break;								\
-		case WRITE_KEYSTREAM_ALIGNED:			\
-			x(WRITE_KEYSTREAM_ALIGNED)			\
-			break;								\
-		case XOR_KEYSTREAM_BOTH_ALIGNED:		\
-			x(XOR_KEYSTREAM_BOTH_ALIGNED)		\
-			input += y;							\
-			break;								\
-	}											\
+#define CRYPTOPP_KEYSTREAM_OUTPUT_SWITCH(x, y)		\
+	switch (operation)								\
+	{												\
+		case WRITE_KEYSTREAM:						\
+			x(static_cast<int>(WRITE_KEYSTREAM))	\
+			break;									\
+		case XOR_KEYSTREAM:							\
+			x(static_cast<int>(XOR_KEYSTREAM))		\
+			input += y;								\
+			break;									\
+		case XOR_KEYSTREAM_INPUT_ALIGNED:			\
+			x(static_cast<int>(XOR_KEYSTREAM_INPUT_ALIGNED))		\
+			input += y;								\
+			break;									\
+		case XOR_KEYSTREAM_OUTPUT_ALIGNED:			\
+			x(static_cast<int>(XOR_KEYSTREAM_OUTPUT_ALIGNED))		\
+			input += y;								\
+			break;									\
+		case WRITE_KEYSTREAM_ALIGNED:				\
+			x(static_cast<int>(WRITE_KEYSTREAM_ALIGNED))			\
+			break;									\
+		case XOR_KEYSTREAM_BOTH_ALIGNED:			\
+			x(static_cast<int>(XOR_KEYSTREAM_BOTH_ALIGNED))		\
+			input += y;								\
+			break;									\
+	}												\
 	output += y;
 
 /// \brief Base class for additive stream ciphers with SymmetricCipher interface

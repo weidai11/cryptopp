@@ -4,7 +4,7 @@
 /// \brief Template for AdvancedProcessBlocks and SIMD processing
 
 //    The SIMD based implementations for ciphers that use SSE, NEON and Power7
-//    have a commom pattern. Namely, they have a specialized implementation of
+//    have a common pattern. Namely, they have a specialized implementation of
 //    AdvancedProcessBlocks which processes multiple block using hardware
 //    acceleration. After several implementations we noticed a lot of copy and
 //    paste occurring. adv_simd.h provides a template to avoid the copy and paste.
@@ -112,13 +112,13 @@ inline size_t AdvancedProcessBlocks128_6x1_NEON(F1 func1, F6 func6,
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {
@@ -266,13 +266,13 @@ inline size_t AdvancedProcessBlocks128_4x1_NEON(F1 func1, F4 func4,
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {
@@ -400,13 +400,13 @@ inline size_t AdvancedProcessBlocks128_6x2_NEON(F2 func2, F6 func6,
     const size_t blockSize = 16;
     // const size_t neonBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {
@@ -644,13 +644,13 @@ inline size_t AdvancedProcessBlocks128_6x2_SSE(F2 func2, F6 func6,
     const size_t blockSize = 16;
     // const size_t xmmBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {
@@ -839,13 +839,13 @@ inline size_t AdvancedProcessBlocks128_4x1_SSE(F1 func1, F4 func4,
     const size_t blockSize = 16;
     // const size_t xmmBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {
@@ -986,13 +986,13 @@ inline size_t AdvancedProcessBlocks128_4x1_ALTIVEC(F1 func1, F4 func4,
     const size_t blockSize = 16;
     // const size_t simdBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {
@@ -1131,13 +1131,13 @@ inline size_t AdvancedProcessBlocks128_6x1_ALTIVEC(F1 func1, F6 func6,
     const size_t blockSize = 16;
     // const size_t simdBlockSize = 16;
 
-    size_t inIncrement = (flags & (BT_InBlockIsCounter|BT_DontIncrementInOutPointers)) ? 0 : blockSize;
+    size_t inIncrement = (flags & (static_cast<int>(BT_InBlockIsCounter)|static_cast<int>(BT_DontIncrementInOutPointers))) ? 0 : blockSize;
     size_t xorIncrement = (xorBlocks != NULLPTR) ? blockSize : 0;
-    size_t outIncrement = (flags & BT_DontIncrementInOutPointers) ? 0 : blockSize;
+    size_t outIncrement = (flags & static_cast<int>(BT_DontIncrementInOutPointers)) ? 0 : blockSize;
 
     // Clang and Coverity are generating findings using xorBlocks as a flag.
-    const bool xorInput = (xorBlocks != NULLPTR) && (flags & BT_XorInput);
-    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & BT_XorInput);
+    const bool xorInput = (xorBlocks != NULLPTR) && (flags & static_cast<int>(BT_XorInput));
+    const bool xorOutput = (xorBlocks != NULLPTR) && !(flags & static_cast<int>(BT_XorInput));
 
     if (flags & BT_ReverseDirection)
     {

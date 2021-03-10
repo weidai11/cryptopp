@@ -245,7 +245,7 @@ void AutoSeededX917RNG<BLOCK_CIPHER>::Reseed(bool blocking, const byte *input, s
 {
 	enum {BlockSize=BLOCK_CIPHER::BLOCKSIZE};
 	enum {KeyLength=BLOCK_CIPHER::DEFAULT_KEYLENGTH};
-	enum {SeedSize=BlockSize + KeyLength};
+	enum {SeedSize=static_cast<int>(BlockSize)+static_cast<int>(KeyLength)};
 
 	SecByteBlock seed(SeedSize), temp(SeedSize);
 	const byte label[] = "X9.17 key generation";
