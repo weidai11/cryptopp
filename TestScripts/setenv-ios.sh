@@ -152,9 +152,9 @@ elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "arm64" ]]; then
 
 # Simulator builds
 elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "i386" ]]; then
-    MIN_VER=-mappletvsimulator-version-min=6
+    MIN_VER=-mappletvsimulator-version-min=4
 elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "x86_64" ]]; then
-    MIN_VER=-mappletvsimulator-version-min=6
+    MIN_VER=-mappletvsimulator-version-min=4
 
 # Watch can be either 32-bit or 64-bit ARM. TODO: figure out which
 # -mwatchos-version-min=n is needed for arm64. 9 is not enough.
@@ -166,9 +166,9 @@ elif [[ "$IOS_SDK" == "WatchOS" && "$IOS_CPU" == "arm64" ]]; then
 # Simulator builds. TODO: figure out which -watchos-version-min=n
 # is needed for arm64. 6 compiles and links, but is it correct?
 elif [[ "$IOS_SDK" == "WatchSimulator" && "$IOS_CPU" == "i386" ]]; then
-    MIN_VER=-mwatchsimulator-version-min=6
+    MIN_VER=-mwatchsimulator-version-min=4
 elif [[ "$IOS_SDK" == "WatchSimulator" && "$IOS_CPU" == "x86_64" ]]; then
-    MIN_VER=-mwatchsimulator-version-min=6
+    MIN_VER=-mwatchsimulator-version-min=4
 
 # And the final catch-all
 else
