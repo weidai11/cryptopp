@@ -607,7 +607,7 @@ public:
 	/// \param inQueue input byte queue
 	/// \details BERSetDecoder uses DefaultTag
 	explicit BERSetDecoder(BERSetDecoder &inQueue)
-		: BERGeneralDecoder(inQueue, static_cast<int>(DefaultTag)) {}
+		: BERGeneralDecoder(inQueue, DefaultTag) {}
 
 	/// \brief Construct an ASN.1 decoder
 	/// \param inQueue input byte queue
