@@ -569,7 +569,8 @@ void DetectX86Features()
     // x86_64 machines don't check some flags because SSE2
     // is part of the core instruction set architecture
     CRYPTOPP_UNUSED(MMX_FLAG); CRYPTOPP_UNUSED(SSE_FLAG);
-    CRYPTOPP_UNUSED(SSE3_FLAG); CRYPTOPP_UNUSED(XSAVE_FLAG);
+    CRYPTOPP_UNUSED(SSE2_FLAG); CRYPTOPP_UNUSED(SSE3_FLAG);
+    CRYPTOPP_UNUSED(XSAVE_FLAG);
 
 #if (CRYPTOPP_BOOL_X32 || CRYPTOPP_BOOL_X64)
 	// 64-bit core instruction set includes SSE2. Just check
