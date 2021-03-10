@@ -102,7 +102,7 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
         {
             while (iterationCount >= 8 && MultiBlockSafe(state[12], 8))
             {
-                const bool xorInput = (operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL);
+                const bool xorInput = (operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL);
                 ChaCha_OperateKeystream_AVX2(state, xorInput ? input : NULLPTR, output, rounds);
 
                 // MultiBlockSafe avoids overflow on the counter words
@@ -120,7 +120,7 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
         {
             while (iterationCount >= 4 && MultiBlockSafe(state[12], 4))
             {
-                const bool xorInput = (operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL);
+                const bool xorInput = (operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL);
                 ChaCha_OperateKeystream_SSE2(state, xorInput ? input : NULLPTR, output, rounds);
 
                 // MultiBlockSafe avoids overflow on the counter words
@@ -138,7 +138,7 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
         {
             while (iterationCount >= 4 && MultiBlockSafe(state[12], 4))
             {
-                const bool xorInput = (operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL);
+                const bool xorInput = (operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL);
                 ChaCha_OperateKeystream_NEON(state, xorInput ? input : NULLPTR, output, rounds);
 
                 // MultiBlockSafe avoids overflow on the counter words
@@ -156,7 +156,7 @@ void ChaCha_OperateKeystream(KeystreamOperation operation,
         {
             while (iterationCount >= 4 && MultiBlockSafe(state[12], 4))
             {
-                const bool xorInput = (operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL);
+                const bool xorInput = (operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL);
                 ChaCha_OperateKeystream_ALTIVEC(state, xorInput ? input : NULLPTR, output, rounds);
 
                 // MultiBlockSafe avoids overflow on the counter words

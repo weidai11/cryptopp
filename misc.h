@@ -473,6 +473,7 @@ const byte* ConstBytePtr(const SecByteBlock& str);
 /// \brief Size of a string
 /// \param str std::string
 /// \return size of a string
+/// \since Crypto++ 8.3
 inline size_t BytePtrSize(const std::string& str)
 {
 	return str.size();
@@ -481,7 +482,17 @@ inline size_t BytePtrSize(const std::string& str)
 /// \brief Size of a string
 /// \param str SecByteBlock
 /// \return size of a string
+/// \since Crypto++ 8.3
 size_t BytePtrSize(const SecByteBlock& str);
+
+/// \brief Integer value
+/// \details EnumToInt is a convenience macro to convert enums
+///  to integers. The cast avoids C++20 enum-enum conversion
+///  warnings.
+/// \details A macro is used due to [lack of] constexpr-ness in
+///  early versions of C++.
+/// \since Crypto++ 8.6
+#define EnumToInt(v) static_cast<int>(v)
 
 #if (!__STDC_WANT_SECURE_LIB__ && !defined(_MEMORY_S_DEFINED)) || defined(CRYPTOPP_WANT_SECURE_LIB)
 

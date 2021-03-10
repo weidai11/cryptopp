@@ -229,7 +229,7 @@ void HC128Policy::OperateKeystream(KeystreamOperation operation, byte *output, c
 		//  writing the result to the output buffer. In all cases the
 		//  keystream is written to the output buffer. The optional part is
 		//  adding the input buffer and keystream.
-		if ((operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL))
+		if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
 		{
 			xorbuf(output, input, BYTES_PER_ITERATION);
 			input += BYTES_PER_ITERATION;

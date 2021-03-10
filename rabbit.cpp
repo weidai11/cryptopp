@@ -150,7 +150,7 @@ void RabbitPolicy::OperateKeystream(KeystreamOperation operation, byte *output, 
 	//  writing the result to the output buffer. In all cases the
 	//  keystream is written to the output buffer. The optional part is
 	//  adding the input buffer and keystream.
-	if ((operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL))
+	if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
 		xorbuf(output, input, GetBytesPerIteration() * iterationCount);
 }
 
@@ -252,7 +252,7 @@ void RabbitWithIVPolicy::OperateKeystream(KeystreamOperation operation, byte *ou
 	//  writing the result to the output buffer. In all cases the
 	//  keystream is written to the output buffer. The optional part is
 	//  adding the input buffer and keystream.
-	if ((operation & static_cast<int>(INPUT_NULL)) != static_cast<int>(INPUT_NULL))
+	if ((operation & EnumToInt(INPUT_NULL)) != EnumToInt(INPUT_NULL))
 		xorbuf(output, input, GetBytesPerIteration() * iterationCount);
 }
 

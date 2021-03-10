@@ -269,25 +269,25 @@ struct CRYPTOPP_NO_VTABLE AdditiveCipherConcretePolicy : public BASE
 	switch (operation)								\
 	{												\
 		case WRITE_KEYSTREAM:						\
-			x(static_cast<int>(WRITE_KEYSTREAM))	\
+			x(EnumToInt(WRITE_KEYSTREAM))	\
 			break;									\
 		case XOR_KEYSTREAM:							\
-			x(static_cast<int>(XOR_KEYSTREAM))		\
+			x(EnumToInt(XOR_KEYSTREAM))		\
 			input += y;								\
 			break;									\
 		case XOR_KEYSTREAM_INPUT_ALIGNED:			\
-			x(static_cast<int>(XOR_KEYSTREAM_INPUT_ALIGNED))		\
+			x(EnumToInt(XOR_KEYSTREAM_INPUT_ALIGNED))		\
 			input += y;								\
 			break;									\
 		case XOR_KEYSTREAM_OUTPUT_ALIGNED:			\
-			x(static_cast<int>(XOR_KEYSTREAM_OUTPUT_ALIGNED))		\
+			x(EnumToInt(XOR_KEYSTREAM_OUTPUT_ALIGNED))		\
 			input += y;								\
 			break;									\
 		case WRITE_KEYSTREAM_ALIGNED:				\
-			x(static_cast<int>(WRITE_KEYSTREAM_ALIGNED))			\
+			x(EnumToInt(WRITE_KEYSTREAM_ALIGNED))			\
 			break;									\
 		case XOR_KEYSTREAM_BOTH_ALIGNED:			\
-			x(static_cast<int>(XOR_KEYSTREAM_BOTH_ALIGNED))		\
+			x(EnumToInt(XOR_KEYSTREAM_BOTH_ALIGNED))		\
 			input += y;								\
 			break;									\
 	}												\

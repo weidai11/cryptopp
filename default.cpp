@@ -73,8 +73,8 @@ static void GenerateKeyIV(const byte *passphrase, size_t passphraseLength, const
 		memcpy(temp+passphraseLength, salt, saltLength);
 
 	// OK. Derived params, cannot be NULL
-	SecByteBlock keyIV(static_cast<int>(Info::KEYLENGTH)+static_cast<int>(+Info::BLOCKSIZE));
-	Mash<H>(temp, passphraseLength + saltLength, keyIV, static_cast<int>(Info::KEYLENGTH)+static_cast<int>(+Info::BLOCKSIZE), iterations);
+	SecByteBlock keyIV(EnumToInt(Info::KEYLENGTH)+EnumToInt(+Info::BLOCKSIZE));
+	Mash<H>(temp, passphraseLength + saltLength, keyIV, EnumToInt(Info::KEYLENGTH)+EnumToInt(+Info::BLOCKSIZE), iterations);
 	memcpy(key, keyIV, Info::KEYLENGTH);
 	memcpy(IV, keyIV+Info::KEYLENGTH, Info::BLOCKSIZE);
 }
@@ -140,7 +140,7 @@ void DataEncryptor<BC,H,Info>::LastPut(const byte *inString, size_t length)
 
 template <class BC, class H, class Info>
 DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *attachment, bool throwException)
-	: ProxyFilter(NULLPTR, static_cast<int>(SALTLENGTH)+static_cast<int>(BLOCKSIZE), 0, attachment)
+	: ProxyFilter(NULLPTR, EnumToInt(SALTLENGTH)+EnumToInt(BLOCKSIZE), 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
 	, m_passphrase((const byte *)p, strlen(p))
 	, m_throwException(throwException)
@@ -151,7 +151,7 @@ DataDecryptor<BC,H,Info>::DataDecryptor(const char *p, BufferedTransformation *a
 
 template <class BC, class H, class Info>
 DataDecryptor<BC,H,Info>::DataDecryptor(const byte *passphrase, size_t passphraseLength, BufferedTransformation *attachment, bool throwException)
-	: ProxyFilter(NULLPTR, static_cast<int>(SALTLENGTH)+static_cast<int>(BLOCKSIZE), 0, attachment)
+	: ProxyFilter(NULLPTR, EnumToInt(SALTLENGTH)+EnumToInt(BLOCKSIZE), 0, attachment)
 	, m_state(WAITING_FOR_KEYCHECK)
 	, m_passphrase(passphrase, passphraseLength)
 	, m_throwException(throwException)
@@ -202,11 +202,11 @@ void DataDecryptor<BC,H,Info>::CheckKey(const byte *salt, const byte *keyCheck)
 
 	decryptor->Put(keyCheck, BLOCKSIZE);
 	decryptor->ForceNextPut();
-	decryptor->Get(check+static_cast<int>(BLOCKSIZE), BLOCKSIZE);
+	decryptor->Get(check+EnumToInt(BLOCKSIZE), BLOCKSIZE);
 
 	SetFilter(decryptor.release());
 
-	if (!VerifyBufsEqual(check, check+static_cast<int>(BLOCKSIZE), BLOCKSIZE))
+	if (!VerifyBufsEqual(check, check+EnumToInt(BLOCKSIZE), BLOCKSIZE))
 	{
 		m_state = KEY_BAD;
 		if (m_throwException)

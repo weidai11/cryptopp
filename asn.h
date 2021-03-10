@@ -380,7 +380,7 @@ class CRYPTOPP_DLL BERGeneralDecoder : public Store
 {
 public:
 	/// \brief Default ASN.1 tag
-	enum {DefaultTag = SEQUENCE | static_cast<int>(CONSTRUCTED)};
+	enum {DefaultTag = SEQUENCE | EnumToInt(CONSTRUCTED)};
 
 	virtual ~BERGeneralDecoder();
 
@@ -491,7 +491,7 @@ class CRYPTOPP_DLL DERGeneralEncoder : public ByteQueue
 {
 public:
 	/// \brief Default ASN.1 tag
-	enum {DefaultTag = SEQUENCE | static_cast<int>(CONSTRUCTED)};
+	enum {DefaultTag = SEQUENCE | EnumToInt(CONSTRUCTED)};
 
 	virtual ~DERGeneralEncoder();
 
@@ -525,7 +525,7 @@ class CRYPTOPP_DLL BERSequenceDecoder : public BERGeneralDecoder
 {
 public:
 	/// \brief Default ASN.1 tag
-	enum {DefaultTag = SEQUENCE | static_cast<int>(CONSTRUCTED)};
+	enum {DefaultTag = SEQUENCE | EnumToInt(CONSTRUCTED)};
 
 	/// \brief Construct an ASN.1 decoder
 	/// \param inQueue input byte queue
@@ -557,7 +557,7 @@ class CRYPTOPP_DLL DERSequenceEncoder : public DERGeneralEncoder
 {
 public:
 	/// \brief Default ASN.1 tag
-	enum {DefaultTag = SEQUENCE | static_cast<int>(CONSTRUCTED)};
+	enum {DefaultTag = SEQUENCE | EnumToInt(CONSTRUCTED)};
 
 	/// \brief Construct an ASN.1 encoder
 	/// \param outQueue output byte queue
@@ -589,7 +589,7 @@ class CRYPTOPP_DLL BERSetDecoder : public BERGeneralDecoder
 {
 public:
 	/// \brief Default ASN.1 tag
-	enum {DefaultTag = SET | static_cast<int>(CONSTRUCTED)};
+	enum {DefaultTag = SET | EnumToInt(CONSTRUCTED)};
 
 	/// \brief Construct an ASN.1 decoder
 	/// \param inQueue input byte queue
@@ -621,7 +621,7 @@ class CRYPTOPP_DLL DERSetEncoder : public DERGeneralEncoder
 {
 public:
 	/// \brief Default ASN.1 tag
-	enum {DefaultTag = SET | static_cast<int>(CONSTRUCTED)};
+	enum {DefaultTag = SET | EnumToInt(CONSTRUCTED)};
 
 	/// \brief Construct an ASN.1 encoder
 	/// \param outQueue output byte queue
