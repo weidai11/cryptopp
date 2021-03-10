@@ -75,6 +75,7 @@ DEF_LDFLAGS=""
 #########################################
 
 unset IS_IOS
+unset IS_MACOS
 unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 

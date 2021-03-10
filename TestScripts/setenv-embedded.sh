@@ -28,6 +28,7 @@ DEF_LDFLAGS=""
 #########################################
 
 unset IS_IOS
+unset IS_MACOS
 unset IS_ANDROID
 unset IS_ARM_EMBEDDED
 
@@ -126,7 +127,7 @@ fi
 
 # Add additional flags below, like -mcpu=cortex-m3.
 if [ -z "$ARM_EMBEDDED_HEADERS" ]; then
-  export ARM_EMBEDDED_HEADERS="-I\"$ARM_EMBEDDED_CXX_HEADERS\" -I\"$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi\""
+  ARM_EMBEDDED_HEADERS="-I\"$ARM_EMBEDDED_CXX_HEADERS\" -I\"$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi\""
 fi
 
 #####################################################################
