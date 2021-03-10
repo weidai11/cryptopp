@@ -6,6 +6,8 @@
 #ifndef CRYPTOPP_MISC_H
 #define CRYPTOPP_MISC_H
 
+#include "config.h"
+
 #include "cryptlib.h"
 #include "secblockfwd.h"
 #include "smartptr.h"
@@ -486,12 +488,10 @@ inline size_t BytePtrSize(const std::string& str)
 size_t BytePtrSize(const SecByteBlock& str);
 
 /// \brief Integer value
-/// \details EnumToInt is a convenience macro to convert enums
-///  to integers. The cast avoids C++20 enum-enum conversion
-///  warnings.
-/// \details C++11 and above use a constexpr function. C++03
-///  and below use a macro due to [lack of] constexpr-ness in
-///  early versions of C++.
+/// \details EnumToInt avoids C++20 enum-enum conversion
+///  warnings under GCC and Clang. C++11 and above use a
+///  constexpr function. C++03 and below use a macro due
+///  to [lack of] constexpr-ness in early versions of C++.
 /// \since Crypto++ 8.6
 #if (CRYPTOPP_CXX11_CONSTEXPR)
 template <typename T>
