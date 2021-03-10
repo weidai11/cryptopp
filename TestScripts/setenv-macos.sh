@@ -145,23 +145,6 @@ fi
 
 #####################################################################
 
-# Xcode 6 and below cannot handle -miphonesimulator-version-min
-# Fix it so the simulator will compile as expected. This trick
-# may work on other platforms, but it was not tested.
-
-if [ -n "$(command -v xcodebuild 2>/dev/null)" ]; then
-    # Output of xcodebuild is similar to "Xcode 6.2". The first cut gets
-    # the dotted decimal value. The second cut gets the major version.
-    XCODE_VERSION=$(xcodebuild -version 2>/dev/null | head -n 1 | cut -f2 -d" " | cut -f1 -d".")
-    if [ -z "$XCODE_VERSION" ]; then XCODE_VERSION=100; fi
-
-    if [ "$XCODE_VERSION" -le 6 ]; then
-        MIN_VER="${MIN_VER//iphonesimulator/iphoneos}"
-    fi
-fi
-
-#####################################################################
-
 # Allow a user override? I think we should be doing this. The use case is:
 # move /Applications/Xcode somewhere else for a side-by-side installation.
 if [ -z "${XCODE_DEVELOPER-}" ]; then
