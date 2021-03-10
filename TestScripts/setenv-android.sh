@@ -257,7 +257,9 @@ esac
 
 ANDROID_CPPFLAGS="${DEF_CPPFLAGS} ${ANDROID_CPPFLAGS} -DANDROID"
 
-ANDROID_CXXFLAGS="${DEF_CXXFLAGS}  ${ANDROID_CXXFLAGS} -Wa,--noexecstack"
+ANDROID_CXXFLAGS="${DEF_CXXFLAGS} ${ANDROID_CXXFLAGS} -Wa,--noexecstack"
+
+ANDROID_LDFLAGS="${DEF_LDFLAGS}"
 
 # Aarch64 ld does not understand --warn-execstack
 ANDROID_LDFLAGS="${ANDROID_LDFLAGS} -Wl,-z,noexecstack -Wl,-z,relro -Wl,-z,now"

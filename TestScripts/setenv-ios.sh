@@ -247,6 +247,7 @@ if [ -z "$XCODE_SDK" ]; then
 fi
 
 IOS_CXXFLAGS="-arch $IOS_CPU $MIN_VER"
+IOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
 
 # The simulators need to disable ASM. They don't receive arch flags.
 # https://github.com/weidai11/cryptopp/issues/635
@@ -255,9 +256,6 @@ if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "AppleTVSimulator" || "$I
 fi
 
 echo "Configuring for $IOS_SDK ($IOS_CPU)"
-
-IS_IOS=1
-IOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
 
 #####################################################################
 
@@ -319,9 +317,9 @@ export IS_IOS=1
 
 export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 
-export CPPFLAGS="${DEF_CPPFLAGS}  ${IOS_CPPFLAGS} -isysroot \"${IOS_SYSROOT}\""
-export CXXFLAGS="${DEF_CXXFLAGS}  ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot \"${IOS_SYSROOT}\""
-export LDFLAGS="${IOS_LDFLAGS}"
+export CPPFLAGS="${DEF_CPPFLAGS} ${IOS_CPPFLAGS} -isysroot \"${IOS_SYSROOT}\""
+export CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot \"${IOS_SYSROOT}\""
+export LDFLAGS="${DEF_LDFLAGS} ${IOS_LDFLAGS}"
 
 #####################################################################
 
