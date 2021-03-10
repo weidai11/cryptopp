@@ -91,7 +91,7 @@ endif
 # MacOS cross-compile configuration.
 #   See http://www.cryptopp.com/wiki/MacOS_(Command_Line).
 ifeq ($(IS_MACOS),1)
-  # setenv-ios.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
+  # setenv-macos.sh sets CPPFLAGS, CXXFLAGS and LDFLAGS
   AR = libtool
   ARFLAGS = -static -o
 endif

@@ -259,9 +259,9 @@ echo "Configuring for $IOS_SDK ($IOS_CPU)"
 
 #####################################################################
 
-CPP=cpp; CC=clang; CXX=clang++; LD=ld
-AS=as; AR=libtool; RANLIB=ranlib;
-STRIP=strip; OBJDUMP=objdump
+CPP="cpp"; CC="clang"; CXX="clang++"; LD="ld"
+AS="as"; AR="libtool"; RANLIB="ranlib"
+STRIP="strip"; OBJDUMP="objdump"
 
 # Error checking
 if [ ! -e "$XCODE_TOOLCHAIN/$CC" ]; then
@@ -310,19 +310,6 @@ fi
 
 #####################################################################
 
-# GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below. Note: at Crypto++ 8.6
-# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
-export IS_IOS=1
-
-export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
-
-export CPPFLAGS="${DEF_CPPFLAGS} ${IOS_CPPFLAGS} -isysroot \"${IOS_SYSROOT}\""
-export CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot \"${IOS_SYSROOT}\""
-export LDFLAGS="${DEF_LDFLAGS} ${IOS_LDFLAGS}"
-
-#####################################################################
-
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
   echo "XCODE_TOOLCHAIN: $XCODE_TOOLCHAIN"
@@ -337,6 +324,19 @@ if [ "$VERBOSE" -gt 0 ]; then
     echo "IOS_LDFLAGS: ${IOS_LDFLAGS}"
   fi
 fi
+
+#####################################################################
+
+# GNUmakefile-cross and Autotools expect these to be set.
+# They are also used in the tests below. Note: at Crypto++ 8.6
+# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
+export IS_IOS=1
+
+export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
+
+export CPPFLAGS="${DEF_CPPFLAGS} ${IOS_CPPFLAGS} -isysroot \"${IOS_SYSROOT}\""
+export CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot \"${IOS_SYSROOT}\""
+export LDFLAGS="${DEF_LDFLAGS} ${IOS_LDFLAGS}"
 
 #####################################################################
 

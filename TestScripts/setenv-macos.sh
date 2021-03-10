@@ -31,7 +31,7 @@ fi
 # This is fixed since we are building for MacOS
 MACOS_SDK=MacOSX
 
-# This supports 'source setenv-macos.sh iPhone arm64' and
+# This supports 'source setenv-macos.sh x86_64' and
 # 'source setenv-macos.sh MACOS_CPU=arm64'
 if [[ -n "$1" ]]
 then
@@ -80,7 +80,7 @@ unset MACOS_SYSROOT
 #####    Small Fixups, if needed    #####
 #########################################
 
-# Old PowerMac
+# Old world Macs
 if [[ "$MACOS_CPU" == "Power Macintosh" ]] ; then
     MACOS_CPU=ppc
 fi
@@ -104,8 +104,8 @@ fi
 # The flags below were tested with Xcode 8 on Travis. If
 # you use downlevel versions of Xcode, then you can push
 # xxx-version-min=n lower. For example, Xcode 7 can use
-# -miphoneos-version-min=5. However, Xcode 7 lacks
-# AppleTVOS and WatchOS support.
+# -mmacosx-version-min=5. However, you cannot link
+# against LLVM's libc++.
 
 # Also see https://github.com/rust-lang/rust/issues/48862
 # and https://developer.apple.com/documentation/bundleresources/information_property_list/minimumosversion
@@ -113,25 +113,34 @@ fi
 # iPhones can be either 32-bit or 64-bit
 if [[ "$MACOS_CPU" == "ppc" ]]; then
     MIN_VER=-mmacosx-version-min=10
-    MACOS_STDLIB=libstdc++
 
-# OS X 10.7 minimum due to -stdlib=libc++
 elif [[ "$MACOS_CPU" == "i386" ]]; then
     MIN_VER=-mmacosx-version-min=10.7
-    MACOS_STDLIB=libc++
 
 elif [[ "$MACOS_CPU" == "x86_64" ]]; then
     MIN_VER=-mmacosx-version-min=10.7
-    MACOS_STDLIB=libc++
 
 elif [[ "$MACOS_CPU" == "arm64" ]]; then
     MIN_VER=-mmacosx-version-min=11.0
-    MACOS_STDLIB=libc++
 
 # And the final catch-all
 else
     echo "MACOS_CPU is not valid. Please fix it"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
+
+# Output of MIN_VER is similar to "-mmacosx-version-min=10.7". The first cut
+# gets the major version. The second cut gets the minor version.
+MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f2 -d"=" | cut -f1 -d".")
+MINOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f2 -d"=" | cut -f2 -d".")
+if [ -z "$MAJOR_VER" ]; then MAJOR_VER=0; fi
+if [ -z "$MINOR_VER" ]; then MINOR_VER=0; fi
+
+# OS X 10.7 minimum required for LLVM and -stdlib=libc++
+if [[ "$MAJOR_VER" -eq 10 && "$MINOR_VER" -ge 7 ]]; then
+	 MACOS_STDLIB="-stdlib=libc++"
+elif [[ "$MAJOR_VER" -gt 10 ]]; then
+	 MACOS_STDLIB="-stdlib=libc++"
 fi
 
 #####################################################################
@@ -203,16 +212,16 @@ if [ -z "$XCODE_SDK" ]; then
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER"
+MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
 MACOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
 
 echo "Configuring for $MACOS_SDK ($MACOS_CPU)"
 
 #####################################################################
 
-CPP=cpp; CC=clang; CXX=clang++; LD=ld
-AS=as; AR=libtool; RANLIB=ranlib;
-STRIP=strip; OBJDUMP=objdump
+CPP="cpp"; CC="clang"; CXX="clang++"; LD="ld"
+AS="as"; AR="libtool"; RANLIB="ranlib"
+STRIP="strip"; OBJDUMP="objdump"
 
 # Error checking
 if [ ! -e "$XCODE_TOOLCHAIN/$CC" ]; then
@@ -261,19 +270,6 @@ fi
 
 #####################################################################
 
-# GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below. Note: at Crypto++ 8.6
-# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
-export IS_MACOS=1
-
-export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
-
-export CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
-export CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS} -stdlib=${MACOS_STDLIB} --sysroot \"${MACOS_SYSROOT}\""
-export LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS}"
-
-#####################################################################
-
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
   echo "XCODE_TOOLCHAIN: $XCODE_TOOLCHAIN"
@@ -288,6 +284,19 @@ if [ "$VERBOSE" -gt 0 ]; then
     echo "MACOS_LDFLAGS: ${MACOS_LDFLAGS}"
   fi
 fi
+
+#####################################################################
+
+# GNUmakefile-cross and Autotools expect these to be set.
+# They are also used in the tests below. Note: at Crypto++ 8.6
+# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
+export IS_MACOS=1
+
+export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
+
+export CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
+export CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS} --sysroot \"${MACOS_SYSROOT}\""
+export LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS}"
 
 #####################################################################
 

@@ -132,6 +132,16 @@ fi
 
 #####################################################################
 
+VERBOSE=${VERBOSE:-1}
+if [ "$VERBOSE" -gt 0 ]; then
+  echo "ARM_EMBEDDED_TOOLCHAIN: $ARM_EMBEDDED_TOOLCHAIN"
+  echo "ARM_EMBEDDED_CXX_HEADERS: $ARM_EMBEDDED_CXX_HEADERS"
+  echo "ARM_EMBEDDED_HEADERS: $ARM_EMBEDDED_HEADERS"
+  echo "ARM_EMBEDDED_SYSROOT: $ARM_EMBEDDED_SYSROOT"
+fi
+
+#####################################################################
+
 # GNUmakefile-cross and Autotools expect these to be set.
 # They are also used in the tests below. Note: at Crypto++ 8.6
 # these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
@@ -142,16 +152,6 @@ export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 export CPPFLAGS="${DEF_CPPFLAGS} ${ARM_EMBEDDED_CPPFLAGS} ${ARM_EMBEDDED_HEADERS} -isysroot \"${ARM_EMBEDDED_SYSROOT}\""
 export CXXFLAGS="${DEF_CXXFLAGS} ${ARM_EMBEDDED_CXXFLAGS} --sysroot \"${ARM_EMBEDDED_SYSROOT}\""
 export LDFLAGS="${DEF_LDFLAGS} ${ARM_EMBEDDED_LDFLAGS}"
-
-#####################################################################
-
-VERBOSE=${VERBOSE:-1}
-if [ "$VERBOSE" -gt 0 ]; then
-  echo "ARM_EMBEDDED_TOOLCHAIN: $ARM_EMBEDDED_TOOLCHAIN"
-  echo "ARM_EMBEDDED_CXX_HEADERS: $ARM_EMBEDDED_CXX_HEADERS"
-  echo "ARM_EMBEDDED_HEADERS: $ARM_EMBEDDED_HEADERS"
-  echo "ARM_EMBEDDED_SYSROOT: $ARM_EMBEDDED_SYSROOT"
-fi
 
 #####################################################################
 

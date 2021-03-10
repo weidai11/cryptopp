@@ -269,22 +269,6 @@ ANDROID_LDFLAGS="${ANDROID_LDFLAGS} -Wl,--gc-sections -Wl,--fatal-warnings"
 
 #####################################################################
 
-# GNUmakefile-cross and Autotools expect these to be set.
-# They are also used in the tests below. Note: at Crypto++ 8.6
-# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
-export IS_ANDROID=1
-
-export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
-
-export CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot \"${ANDROID_SYSROOT}\""
-export CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot \"${ANDROID_SYSROOT}\""
-export LDFLAGS="${ANDROID_LDFLAGS}"
-
-# Do NOT use ANDROID_SYSROOT_INC or ANDROID_SYSROOT_LD
-# https://github.com/android/ndk/issues/894#issuecomment-470837964
-
-#####################################################################
-
 # Error checking
 if [ ! -e "${ANDROID_TOOLCHAIN}/$CC" ]; then
     echo "ERROR: Failed to find Android clang. Please edit this script."
@@ -380,6 +364,22 @@ if [ "$VERBOSE" -gt 0 ]; then
     echo "CPU FEATURES: cpu-features.h and cpu-features.c are present"
   fi
 fi
+
+#####################################################################
+
+# GNUmakefile-cross and Autotools expect these to be set.
+# They are also used in the tests below. Note: at Crypto++ 8.6
+# these scripts exported CPPFLAGS, CXXFLAGS and LDFLAGS.
+export IS_ANDROID=1
+
+export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
+
+export CPPFLAGS="${ANDROID_CPPFLAGS} -isysroot \"${ANDROID_SYSROOT}\""
+export CXXFLAGS="${ANDROID_CXXFLAGS} --sysroot \"${ANDROID_SYSROOT}\""
+export LDFLAGS="${ANDROID_LDFLAGS}"
+
+# Do NOT use ANDROID_SYSROOT_INC or ANDROID_SYSROOT_LD
+# https://github.com/android/ndk/issues/894#issuecomment-470837964
 
 #####################################################################
 
