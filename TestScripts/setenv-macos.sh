@@ -174,8 +174,25 @@ if [[ "${XCODE_DEVELOPER}" == "/Developer"* ]]; then
    DEF_CXXFLAGS=$(echo "$DEF_CXXFLAGS" | sed 's/-Wall //g')
 fi
 
+# Command Line Tools show up here on a Mac-mini M1
+if [[ "${XCODE_DEVELOPER}" == "/Library"* ]]; then
+   LIBRARY_XCODE=1
+fi
+
 # XCODE_DEVELOPER_SDK is the SDK location.
 if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+    if [[ -d "${XCODE_DEVELOPER}/SDKs" ]]; then
+        XCODE_DEVELOPER_SDK="${XCODE_DEVELOPER}/SDKs"
+    fi
+
+    if [ ! -d "${XCODE_DEVELOPER_SDK}" ]; then
+      echo "ERROR: unable to find XCODE_DEVELOPER_SDK directory."
+      echo "       Is the SDK supported by Xcode and installed?"
+      [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+    fi
+
+elif [[ "${LIBRARY_XCODE}" == "1" ]]
 then
     if [[ -d "${XCODE_DEVELOPER}/SDKs" ]]; then
         XCODE_DEVELOPER_SDK="${XCODE_DEVELOPER}/SDKs"
@@ -238,9 +255,16 @@ fi
 # XCODE_TOOLCHAIN is the location of the actual compiler tools.
 if [[ "${ANTIQUE_XCODE}" == "1" ]]
 then
-if [ -d "${XCODE_DEVELOPER}/usr/bin" ]; then
+    if [ -d "${XCODE_DEVELOPER}/usr/bin" ]; then
       XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/usr/bin"
     fi
+
+elif [[ "${LIBRARY_XCODE}" == "1" ]]
+then
+    if [ -d "${XCODE_DEVELOPER}/usr/bin" ]; then
+      XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/usr/bin"
+    fi
+
 else
     if [ -d "${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/" ]; then
       XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
