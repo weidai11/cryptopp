@@ -56,12 +56,12 @@ then
     printf "Using positional arg, IOS_CPU=%s\n" "${IOS_CPU}"
 fi
 
-if [ -z "$IOS_SDK" ]; then
+if [ -z "${IOS_SDK}" ]; then
     echo "IOS_SDK is not set. Please set it"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-if [ -z "$IOS_CPU" ]; then
+if [ -z "${IOS_CPU}" ]; then
     echo "IOS_CPU is not set. Please set it"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -91,43 +91,43 @@ unset IOS_SYSROOT
 IOS_CPU=$(tr '[:upper:]' '[:lower:]' <<< "${IOS_CPU}")
 ALT_SDK=$(tr '[:upper:]' '[:lower:]' <<< "${IOS_SDK}")
 
-if [[ "$IOS_SDK" == "iPhone" ]]; then
+if [[ "${IOS_SDK}" == "iPhone" ]]; then
     IOS_SDK=iPhoneOS
 elif [[ "$ALT_SDK" == "iphone" || "$ALT_SDK" == "iphoneos" ]]; then
     IOS_SDK=iPhoneOS
 fi
 
-if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "iPhoneOSSimulator" ]]; then
+if [[ "${IOS_SDK}" == "iPhoneSimulator" || "${IOS_SDK}" == "iPhoneOSSimulator" ]]; then
     IOS_SDK=iPhoneSimulator
 elif [[ "$ALT_SDK" == "iphonesimulator" || "$ALT_SDK" == "iphoneossimulator" ]]; then
     IOS_SDK=iPhoneSimulator
 fi
 
-if [[ "$IOS_SDK" == "TV" || "$IOS_SDK" == "AppleTV" ]]; then
+if [[ "${IOS_SDK}" == "TV" || "${IOS_SDK}" == "AppleTV" ]]; then
     IOS_SDK=AppleTVOS
 elif [[ "$ALT_SDK" == "tv" || "$ALT_SDK" == "appletv" || "$ALT_SDK" == "appletvos" ]]; then
     IOS_SDK=AppleTVOS
 fi
 
-if [[ "$IOS_SDK" == "Watch" || "$IOS_SDK" == "AppleWatch" ]]; then
+if [[ "${IOS_SDK}" == "Watch" || "${IOS_SDK}" == "AppleWatch" ]]; then
     IOS_SDK=WatchOS
 elif [[ "$ALT_SDK" == "watch" || "$ALT_SDK" == "applewatch" || "$ALT_SDK" == "applewatchos" ]]; then
     IOS_SDK=WatchOS
 fi
 
-if [[ "$IOS_CPU" == "amd64" || "$IOS_CPU" == "x86_64" ]] ; then
+if [[ "${IOS_CPU}" == "amd64" || "${IOS_CPU}" == "x86_64" ]] ; then
     IOS_CPU=x86_64
 fi
 
-if [[ "$IOS_CPU" == "i386" || "$IOS_CPU" == "i586" || "$IOS_CPU" == "i686" ]] ; then
+if [[ "${IOS_CPU}" == "i386" || "${IOS_CPU}" == "i586" || "${IOS_CPU}" == "i686" ]] ; then
     IOS_CPU=i386
 fi
 
-if [[ "$IOS_CPU" == "aarch64" || "$IOS_CPU" == "arm64"* || "$IOS_CPU" == "armv8"* ]] ; then
+if [[ "${IOS_CPU}" == "aarch64" || "${IOS_CPU}" == "arm64"* || "${IOS_CPU}" == "armv8"* ]] ; then
     IOS_CPU=arm64
 fi
 
-echo "Configuring for $IOS_SDK ($IOS_CPU)"
+echo "Configuring for ${IOS_SDK} (${IOS_CPU})"
 
 ########################################
 #####         Environment          #####
@@ -143,54 +143,54 @@ echo "Configuring for $IOS_SDK ($IOS_CPU)"
 # and https://developer.apple.com/documentation/bundleresources/information_property_list/minimumosversion
 
 # iPhones can be either 32-bit or 64-bit
-if [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "armv7"* ]]; then
+if [[ "${IOS_SDK}" == "iPhoneOS" && "${IOS_CPU}" == "armv7"* ]]; then
     MIN_VER=-miphoneos-version-min=6
-elif [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "arm64" ]]; then
+elif [[ "${IOS_SDK}" == "iPhoneOS" && "${IOS_CPU}" == "arm64" ]]; then
     MIN_VER=-miphoneos-version-min=6
 
 # Fixups for convenience
-elif [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "${IOS_SDK}" == "iPhoneOS" && "${IOS_CPU}" == "i386" ]]; then
     IOS_SDK=iPhoneSimulator
     # MIN_VER=-miphoneos-version-min=6
     MIN_VER=-miphonesimulator-version-min=6
-elif [[ "$IOS_SDK" == "iPhoneOS" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "${IOS_SDK}" == "iPhoneOS" && "${IOS_CPU}" == "x86_64" ]]; then
     IOS_SDK=iPhoneSimulator
     # MIN_VER=-miphoneos-version-min=6
     MIN_VER=-miphonesimulator-version-min=6
 
 # Simulator builds
-elif [[ "$IOS_SDK" == "iPhoneSimulator" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "${IOS_SDK}" == "iPhoneSimulator" && "${IOS_CPU}" == "i386" ]]; then
     MIN_VER=-miphonesimulator-version-min=6
-elif [[ "$IOS_SDK" == "iPhoneSimulator" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "${IOS_SDK}" == "iPhoneSimulator" && "${IOS_CPU}" == "x86_64" ]]; then
     MIN_VER=-miphonesimulator-version-min=6
 
 # Apple TV can be 32-bit Intel (1st gen), 32-bit ARM (2nd, 3rd gen) or 64-bit ARM (4th gen)
-elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "${IOS_SDK}" == "AppleTVOS" && "${IOS_CPU}" == "i386" ]]; then
     MIN_VER=-mappletvos-version-min=6
-elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "armv7"* ]]; then
+elif [[ "${IOS_SDK}" == "AppleTVOS" && "${IOS_CPU}" == "armv7"* ]]; then
     MIN_VER=-mappletvos-version-min=6
-elif [[ "$IOS_SDK" == "AppleTVOS" && "$IOS_CPU" == "arm64" ]]; then
+elif [[ "${IOS_SDK}" == "AppleTVOS" && "${IOS_CPU}" == "arm64" ]]; then
     MIN_VER=-mappletvos-version-min=6
 
 # Simulator builds
-elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "i386" ]]; then
+elif [[ "${IOS_SDK}" == "AppleTVSimulator" && "${IOS_CPU}" == "i386" ]]; then
     MIN_VER=-mappletvsimulator-version-min=6
-elif [[ "$IOS_SDK" == "AppleTVSimulator" && "$IOS_CPU" == "x86_64" ]]; then
+elif [[ "${IOS_SDK}" == "AppleTVSimulator" && "${IOS_CPU}" == "x86_64" ]]; then
     MIN_VER=-mappletvsimulator-version-min=6
 
 # Watch can be either 32-bit or 64-bit ARM. TODO: figure out which
 # -mwatchos-version-min=n is needed for arm64. 9 is not enough.
-elif [[ "$IOS_SDK" == "WatchOS" && "$IOS_CPU" == "armv7"* ]]; then
-    MIN_VER=-mwatchos-version-min=4
-elif [[ "$IOS_SDK" == "WatchOS" && "$IOS_CPU" == "arm64" ]]; then
-    MIN_VER=-mwatchos-version-min=4
+elif [[ "${IOS_SDK}" == "WatchOS" && "${IOS_CPU}" == "armv7"* ]]; then
+    MIN_VER=-mwatchos-version-min=6
+elif [[ "${IOS_SDK}" == "WatchOS" && "${IOS_CPU}" == "arm64" ]]; then
+    MIN_VER=-mwatchos-version-min=6
 
 # Simulator builds. TODO: figure out which -watchos-version-min=n
 # is needed for arm64. 6 compiles and links, but is it correct?
-elif [[ "$IOS_SDK" == "WatchSimulator" && "$IOS_CPU" == "i386" ]]; then
-    MIN_VER=-mwatchsimulator-version-min=4
-elif [[ "$IOS_SDK" == "WatchSimulator" && "$IOS_CPU" == "x86_64" ]]; then
-    MIN_VER=-mwatchsimulator-version-min=4
+elif [[ "${IOS_SDK}" == "WatchSimulator" && "${IOS_CPU}" == "i386" ]]; then
+    MIN_VER=-mwatchsimulator-version-min=6
+elif [[ "${IOS_SDK}" == "WatchSimulator" && "${IOS_CPU}" == "x86_64" ]]; then
+    MIN_VER=-mwatchsimulator-version-min=6
 
 # And the final catch-all
 else
@@ -207,10 +207,10 @@ fi
 if [ -n "$(command -v xcodebuild 2>/dev/null)" ]; then
     # Output of xcodebuild is similar to "Xcode 6.2". The first cut gets
     # the dotted decimal value. The second cut gets the major version.
-    XCODE_VERSION=$(xcodebuild -version 2>/dev/null | head -n 1 | cut -f2 -d" " | cut -f1 -d".")
-    if [ -z "$XCODE_VERSION" ]; then XCODE_VERSION=100; fi
+    XCODE_VERSION=$(xcodebuild -version 2>/dev/null | head -n 1 | cut -f 2 -d ' ' | cut -f 1 -d '.')
+    if [ -z "${XCODE_VERSION}" ]; then XCODE_VERSION=100; fi
 
-    if [ "$XCODE_VERSION" -le 6 ]; then
+    if [ "${XCODE_VERSION}" -le 6 ]; then
         MIN_VER="${MIN_VER//iphonesimulator/iphoneos}"
     fi
 fi
@@ -223,28 +223,28 @@ if [ -z "${XCODE_DEVELOPER-}" ]; then
   XCODE_DEVELOPER=$(xcode-select -print-path 2>/dev/null)
 fi
 
-if [ ! -d "$XCODE_DEVELOPER" ]; then
+if [ ! -d "${XCODE_DEVELOPER}" ]; then
   echo "ERROR: unable to find XCODE_DEVELOPER directory."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # XCODE_DEVELOPER_SDK is the SDK location.
-XCODE_DEVELOPER_SDK="$XCODE_DEVELOPER/Platforms/$IOS_SDK.platform"
+XCODE_DEVELOPER_SDK="${XCODE_DEVELOPER}/Platforms/$IOS_SDK.platform/Developer/SDKs"
 
-if [ ! -d "$XCODE_DEVELOPER_SDK" ]; then
+if [ ! -d "${XCODE_DEVELOPER_SDK}" ]; then
   echo "ERROR: unable to find XCODE_DEVELOPER_SDK directory."
   echo "       Is the SDK supported by Xcode and installed?"
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # XCODE_TOOLCHAIN is the location of the actual compiler tools.
-if [ -d "$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/" ]; then
-  XCODE_TOOLCHAIN="$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
-elif [ -d "$XCODE_DEVELOPER_SDK/Developer/usr/bin/" ]; then
-  XCODE_TOOLCHAIN="$XCODE_DEVELOPER_SDK/Developer/usr/bin/"
+if [ -d "${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/" ]; then
+  XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
+elif [ -d "${XCODE_DEVELOPER_SDK}/Developer/usr/bin/" ]; then
+  XCODE_TOOLCHAIN="${XCODE_DEVELOPER_SDK}/Developer/usr/bin/"
 fi
 
-if [ -z "$XCODE_TOOLCHAIN" ] || [ ! -d "$XCODE_TOOLCHAIN" ]; then
+if [ ! -d "${XCODE_TOOLCHAIN}" ]; then
   echo "ERROR: unable to find Xcode cross-compiler tools."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -253,31 +253,35 @@ fi
 # For example, remove 4.3, 6.2, and 6.1 if they are not installed. We go back to
 # the 1.0 SDKs because Apple WatchOS uses low numbers, like 2.0 and 2.1.
 XCODE_SDK=""
-for i in $(seq -f "%.1f" 30.0 -0.1 1.0)
+for i in $(seq 30 -1 5)  # SDK major
 do
-    if [ -d "$XCODE_DEVELOPER_SDK/Developer/SDKs/$IOS_SDK$i.sdk" ]; then
-        XCODE_SDK="$IOS_SDK$i.sdk"
-        break
-    fi
+    for j in $(seq 20 -1 0)  # SDK minor
+    do
+        SDK_VER="$i.$j"
+        if [ -d "${XCODE_DEVELOPER_SDK}/${IOS_SDK}${SDK_VER}.sdk" ]; then
+            XCODE_SDK="${IOS_SDK}${SDK_VER}.sdk"
+            break 2
+        fi
+    done
 done
 
 # Error checking
-if [ -z "$XCODE_SDK" ]; then
+if [ -z "${XCODE_SDK}" ]; then
     echo "ERROR: unable to find a SDK."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-IOS_CXXFLAGS="-arch $IOS_CPU $MIN_VER"
-IOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
+IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
+IOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
-if [ -z "$IOS_SYSROOT" ] || [ ! -d "$IOS_SYSROOT" ]; then
+if [ -z "${IOS_SYSROOT}" ] || [ ! -d "${IOS_SYSROOT}" ]; then
   echo "ERROR: unable to find Xcode sysroot."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # The simulators need to disable ASM. They don't receive arch flags.
 # https://github.com/weidai11/cryptopp/issues/635
-if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "AppleTVSimulator" || "$IOS_SDK" == "WatchSimulator" ]]; then
+if [[ "${IOS_SDK}" == "iPhoneSimulator" || "${IOS_SDK}" == "AppleTVSimulator" || "${IOS_SDK}" == "WatchSimulator" ]]; then
     IOS_CPPFLAGS="$IOS_CPPFLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
@@ -288,37 +292,37 @@ AS="as"; AR="libtool"; RANLIB="ranlib"
 STRIP="strip"; OBJDUMP="objdump"
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$CC" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$CC" ]; then
     echo "ERROR: Failed to find iOS clang. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$CXX" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$CXX" ]; then
     echo "ERROR: Failed to find iOS clang++. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$RANLIB" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$RANLIB" ]; then
     echo "ERROR: Failed to find iOS ranlib. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$AR" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$AR" ]; then
     echo "ERROR: Failed to find iOS ar. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$AS" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$AS" ]; then
     echo "ERROR: Failed to find iOS as. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$LD" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$LD" ]; then
     echo "ERROR: Failed to find iOS ld. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -328,8 +332,8 @@ fi
 # Add tools to head of path, if not present already
 LENGTH=${#XCODE_TOOLCHAIN}
 SUBSTR=${PATH:0:$LENGTH}
-if [ "$SUBSTR" != "$XCODE_TOOLCHAIN" ]; then
-    export PATH="$XCODE_TOOLCHAIN:$PATH"
+if [ "$SUBSTR" != "${XCODE_TOOLCHAIN}" ]; then
+    export PATH="${XCODE_TOOLCHAIN}:$PATH"
 fi
 
 #####################################################################
@@ -338,7 +342,7 @@ VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
   echo "XCODE_TOOLCHAIN: $XCODE_TOOLCHAIN"
   echo "IOS_SDK: $IOS_SDK"
-  echo "IOS_CPU: $IOS_CPU"
+  echo "IOS_CPU: ${IOS_CPU}"
   echo "IOS_SYSROOT: $IOS_SYSROOT"
   if [ -n "${IOS_CPPFLAGS}" ]; then
     echo "IOS_CPPFLAGS: ${IOS_CPPFLAGS}"

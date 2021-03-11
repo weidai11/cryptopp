@@ -282,7 +282,7 @@ else
     fi
 fi
 
-if [ -z "${XCODE_TOOLCHAIN}" ] || [ ! -d "${XCODE_TOOLCHAIN}" ]; then
+if [ ! -d "${XCODE_TOOLCHAIN}" ]; then
   echo "ERROR: unable to find Xcode cross-compiler tools."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
