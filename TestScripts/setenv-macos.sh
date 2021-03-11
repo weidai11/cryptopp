@@ -48,8 +48,8 @@ fi
 # Sane default. Use current machine.
 if [ -z "$MACOS_CPU" ]; then
     MACOS_CPU="$(uname -m 2>/dev/null)"
-    if [[ "$MACOS_CPU" == "Power Macintosh" ]] ; then
-        if [[ $(sysctl -a 2>/dev/null | grep "hw.cpu64bit_capable: 1") ]]; then
+    if [[ "$MACOS_CPU" == "Power"* ]] ; then
+        if sysctl -a 2>/dev/null | grep -q 'hw.cpu64bit_capable: 1'; then
             MACOS_CPU="ppc64"
         else
             MACOS_CPU="ppc"
