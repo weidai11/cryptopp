@@ -290,7 +290,7 @@ fi
 MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
 MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
-if [ -z "${MACOS_SYSROOT}" ] || [ ! -d "${MACOS_SYSROOT}" ]; then
+if [ ! -d "${MACOS_SYSROOT}" ]; then
   echo "ERROR: unable to find Xcode sysroot."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi

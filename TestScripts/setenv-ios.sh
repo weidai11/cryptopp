@@ -274,14 +274,14 @@ fi
 IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
 IOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
-if [ -z "${IOS_SYSROOT}" ] || [ ! -d "${IOS_SYSROOT}" ]; then
+if [ ! -d "${IOS_SYSROOT}" ]; then
   echo "ERROR: unable to find Xcode sysroot."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # The simulators need to disable ASM. They don't receive arch flags.
 # https://github.com/weidai11/cryptopp/issues/635
-if [[ "${IOS_SDK}" == "iPhoneSimulator" || "${IOS_SDK}" == "AppleTVSimulator" || "${IOS_SDK}" == "WatchSimulator" ]]; then
+if [[ "${IOS_SDK}" == *"Simulator" ]]; then
     IOS_CPPFLAGS="$IOS_CPPFLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
 
@@ -332,18 +332,18 @@ fi
 # Add tools to head of path, if not present already
 LENGTH=${#XCODE_TOOLCHAIN}
 SUBSTR=${PATH:0:$LENGTH}
-if [ "$SUBSTR" != "${XCODE_TOOLCHAIN}" ]; then
-    export PATH="${XCODE_TOOLCHAIN}:$PATH"
+if [ "${SUBSTR}" != "${XCODE_TOOLCHAIN}" ]; then
+    export PATH="${XCODE_TOOLCHAIN}:${PATH}"
 fi
 
 #####################################################################
 
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
-  echo "XCODE_TOOLCHAIN: $XCODE_TOOLCHAIN"
-  echo "IOS_SDK: $IOS_SDK"
+  echo "XCODE_TOOLCHAIN: ${XCODE_TOOLCHAIN}"
+  echo "IOS_SDK: ${IOS_SDK}"
   echo "IOS_CPU: ${IOS_CPU}"
-  echo "IOS_SYSROOT: $IOS_SYSROOT"
+  echo "IOS_SYSROOT: ${IOS_SYSROOT}"
   if [ -n "${IOS_CPPFLAGS}" ]; then
     echo "IOS_CPPFLAGS: ${IOS_CPPFLAGS}"
   fi
