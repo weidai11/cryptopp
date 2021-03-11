@@ -363,7 +363,6 @@ if [ "$VERBOSE" -gt 0 ]; then
   echo "XCODE_TOOLCHAIN: ${XCODE_TOOLCHAIN}"
   echo "MACOS_SDK: ${MACOS_SDK}"
   echo "MACOS_CPU: ${MACOS_CPU}"
-  echo "MACOS_SYSROOT: ${MACOS_SYSROOT}"
   if [ -n "${MACOS_CPPFLAGS}" ]; then
     echo "MACOS_CPPFLAGS: ${MACOS_CPPFLAGS}"
   fi
@@ -372,6 +371,7 @@ if [ "$VERBOSE" -gt 0 ]; then
   if [ -n "${MACOS_LDFLAGS}" ]; then
     echo "MACOS_LDFLAGS: ${MACOS_LDFLAGS}"
   fi
+  echo "MACOS_SYSROOT: ${MACOS_SYSROOT}"
 fi
 
 #####################################################################

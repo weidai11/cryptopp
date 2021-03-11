@@ -346,7 +346,6 @@ if [ "$VERBOSE" -gt 0 ]; then
   echo "XCODE_TOOLCHAIN: ${XCODE_TOOLCHAIN}"
   echo "IOS_SDK: ${IOS_SDK}"
   echo "IOS_CPU: ${IOS_CPU}"
-  echo "IOS_SYSROOT: ${IOS_SYSROOT}"
   if [ -n "${IOS_CPPFLAGS}" ]; then
     echo "IOS_CPPFLAGS: ${IOS_CPPFLAGS}"
   fi
@@ -355,6 +354,7 @@ if [ "$VERBOSE" -gt 0 ]; then
   if [ -n "${IOS_LDFLAGS}" ]; then
     echo "IOS_LDFLAGS: ${IOS_LDFLAGS}"
   fi
+  echo "IOS_SYSROOT: ${IOS_SYSROOT}"
 fi
 
 #####################################################################

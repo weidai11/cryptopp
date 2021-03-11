@@ -403,7 +403,6 @@ if [ "$VERBOSE" -gt 0 ]; then
   echo "ANDROID_TOOLCHAIN: ${ANDROID_TOOLCHAIN}"
   echo "ANDROID_API: ${ANDROID_API}"
   echo "ANDROID_CPU: ${ANDROID_CPU}"
-  echo "ANDROID_SYSROOT: ${ANDROID_SYSROOT}"
   if [ -n "${ANDROID_CPPFLAGS}" ]; then
     echo "ANDROID_CPPFLAGS: ${ANDROID_CPPFLAGS}"
   fi
@@ -412,6 +411,7 @@ if [ "$VERBOSE" -gt 0 ]; then
   if [ -n "${ANDROID_LDFLAGS}" ]; then
     echo "ANDROID_LDFLAGS: ${ANDROID_LDFLAGS}"
   fi
+  echo "ANDROID_SYSROOT: ${ANDROID_SYSROOT}"
   if [ -e "cpu-features.h" ] && [ -e "cpu-features.c" ]; then
     echo "CPU FEATURES: cpu-features.h and cpu-features.c are present"
   fi

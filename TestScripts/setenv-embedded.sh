@@ -49,7 +49,7 @@ if [ -z "${ARM_EMBEDDED_TOOLCHAIN-}" ]; then
     ARM_EMBEDDED_TOOLCHAIN="/usr/bin"
 fi
 
-if [ ! -d "$ARM_EMBEDDED_TOOLCHAIN" ]; then
+if [ ! -d "${ARM_EMBEDDED_TOOLCHAIN}" ]; then
     echo "ARM_EMBEDDED_TOOLCHAIN is not valid"
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -60,14 +60,14 @@ fi
 # Ubuntu
 TOOL_PREFIX="arm-linux-gnueabi"
 
-CPP="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-cpp"
-CC="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-gcc"
-CXX="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-g++"
-LD="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-ld"
-AR="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-ar"
-AS="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-as"
-RANLIB="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-ranlib"
-OBJDUMP="$ARM_EMBEDDED_TOOLCHAIN/$TOOL_PREFIX-objdump"
+CPP="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-cpp"
+CC="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-gcc"
+CXX="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-g++"
+LD="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-ld"
+AR="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-ar"
+AS="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-as"
+RANLIB="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-ranlib"
+OBJDUMP="${ARM_EMBEDDED_TOOLCHAIN}/${TOOL_PREFIX}-objdump"
 
 # Test a few of the tools
 if [ ! -e "$CPP" ]; then
@@ -105,11 +105,11 @@ if [ ! -e "$LD" ]; then
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-if [ -z "$ARM_EMBEDDED_SYSROOT" ]; then
+if [ -z "${ARM_EMBEDDED_SYSROOT}" ]; then
   ARM_EMBEDDED_SYSROOT="/usr/arm-linux-gnueabi"
 fi
 
-if [ ! -d "$ARM_EMBEDDED_SYSROOT" ]; then
+if [ ! -d "${ARM_EMBEDDED_SYSROOT}" ]; then
   echo "ERROR: ARM_EMBEDDED_SYSROOT is not valid"
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -117,31 +117,37 @@ fi
 # Fix C++ header paths for Ubuntu
 # ARM_EMBEDDED_TOOLCHAIN_VERSION="4.7.3"
 ARM_EMBEDDED_TOOLCHAIN_VERSION="5.4.0"
-ARM_EMBEDDED_CXX_HEADERS="$ARM_EMBEDDED_SYSROOT/include/c++/$ARM_EMBEDDED_TOOLCHAIN_VERSION"
+ARM_EMBEDDED_CXX_HEADERS="${ARM_EMBEDDED_SYSROOT}/include/c++/${ARM_EMBEDDED_TOOLCHAIN_VERSION}"
 
-if [ ! -d "$ARM_EMBEDDED_CXX_HEADERS" ]; then
+if [ ! -d "${ARM_EMBEDDED_CXX_HEADERS}" ]; then
   echo "ERROR: ARM_EMBEDDED_CXX_HEADERS is not valid"
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-if [ ! -d "$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi" ]; then
+if [ ! -d "${ARM_EMBEDDED_CXX_HEADERS}/arm-linux-gnueabi" ]; then
   echo "ERROR: ARM_EMBEDDED_CXX_HEADERS is not valid"
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Add additional flags below, like -mcpu=cortex-m3.
-if [ -z "$ARM_EMBEDDED_HEADERS" ]; then
-  ARM_EMBEDDED_HEADERS="-I\"$ARM_EMBEDDED_CXX_HEADERS\" -I\"$ARM_EMBEDDED_CXX_HEADERS/arm-linux-gnueabi\""
+if [ -z "${ARM_EMBEDDED_HEADERS}" ]; then
+  ARM_EMBEDDED_HEADERS="-I\"${ARM_EMBEDDED_CXX_HEADERS}\" -I\"${ARM_EMBEDDED_CXX_HEADERS}/arm-linux-gnueabi\""
 fi
 
 #####################################################################
 
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
-  echo "ARM_EMBEDDED_TOOLCHAIN: $ARM_EMBEDDED_TOOLCHAIN"
-  echo "ARM_EMBEDDED_CXX_HEADERS: $ARM_EMBEDDED_CXX_HEADERS"
-  echo "ARM_EMBEDDED_HEADERS: $ARM_EMBEDDED_HEADERS"
-  echo "ARM_EMBEDDED_SYSROOT: $ARM_EMBEDDED_SYSROOT"
+  echo "ARM_EMBEDDED_TOOLCHAIN: ${ARM_EMBEDDED_TOOLCHAIN}"
+  if [[ -n "${ARM_EMBEDDED_CPPFLAGS}" ]]; then
+    echo "ARM_EMBEDDED_CPPFLAGS: ${ARM_EMBEDDED_CPPFLAGS}"
+  fi
+  echo "ARM_EMBEDDED_CFLAGS: ${ARM_EMBEDDED_CFLAGS}"
+  echo "ARM_EMBEDDED_CXXFLAGS: ${ARM_EMBEDDED_CXXFLAGS}"
+  if [[ -n "${ARM_EMBEDDED_LDFLAGS}" ]]; then
+    echo "ARM_EMBEDDED_LDFLAGS: ${ARM_EMBEDDED_LDFLAGS}"
+  fi
+  echo "ARM_EMBEDDED_SYSROOT: ${ARM_EMBEDDED_SYSROOT}"
 fi
 
 #####################################################################
