@@ -1716,7 +1716,7 @@ ifeq ($(IS_DARWIN),1)
   ifeq ($(findstring -stdlib=libc++,$(CRYPTOPP_CXXFLAGS)$(CXXFLAGS)),)
 	$(info )
 	$(info INFO: Crypto++ was built without LLVM's libc++. If you are using the library)
-	$(info INFO: with Xcode, then you should add -stdlib=libc++ to CXXFLAGS. It is)
+	$(info INFO: with modern Xcode, then you should add -stdlib=libc++ to CXXFLAGS. It is)
 	$(info INFO: already present in the makefile, and you only need to uncomment it.)
 	$(info )
   endif
