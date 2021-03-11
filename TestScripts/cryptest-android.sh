@@ -113,12 +113,26 @@ do
         fi
 
         # Test code generation
-        if [[ "${platform}" == "aarch64" ]]
+        # Test code generation
+        if [[ "${platform}" == "armv7a" ]]
+        then
+
+            # Test NEON code generation
+            count=$(${OBJDUMP} --disassemble aria_simd.o 2>&1 | grep -c -E 'vld|vst|vshl|vshr|veor')
+            if [[ "${count}" -gt 64 ]]
+            then
+                echo "${platform} : NEON ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : NEON ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
+            fi
+
+        elif [[ "${platform}" == "aarch64" ]]
         then
 
             # Test AES code generation
             count=$(${OBJDUMP} --disassemble rijndael_simd.o 2>&1 | grep -c -E 'aese|aesd|aesmc|aesimc')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -128,7 +142,7 @@ do
 
             # Test PMULL code generation
             count=$(${OBJDUMP} --disassemble gcm_simd.o 2>&1 | grep -c -E 'pmull|pmull2')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 16 ]]
             then
                 echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -138,7 +152,7 @@ do
 
             # Test SHA1 code generation
             count=$(${OBJDUMP} --disassemble sha_simd.o 2>&1 | grep -c -E 'sha1c|sha1m|sha1p|sha1h|sha1su0|sha1su1')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : SHA1 ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -148,7 +162,7 @@ do
 
             # Test SHA2 code generation
             count=$(${OBJDUMP} --disassemble sha_simd.o | grep -c -E 'sha256h|sha256su0|sha256su1')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : SHA2 ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -160,7 +174,7 @@ do
 
             # Test AES code generation
             count=$(${OBJDUMP} --disassemble rijndael_simd.o 2>&1 | grep -c -E 'aesenc|aesdec|aesenclast|aesdeclast|aesimc')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -170,7 +184,7 @@ do
 
             # Test PMULL code generation
             count=$(${OBJDUMP} --disassemble gcm_simd.o 2>&1 | grep -c -E 'pclmulqdq|pclmullqhq|vpclmulqdq|pclmulqdq|pclmullqlq|vpclmulqdq')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 16 ]]
             then
                 echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -180,7 +194,7 @@ do
 
             # Test SHA1 code generation
             count=$(${OBJDUMP} --disassemble sha_simd.o 2>&1 | grep -c -E 'sha1rnds4|sha1nexte|sha1msg1|sha1msg2')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : SHA1 ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -190,7 +204,7 @@ do
 
             # Test SHA2 code generation
             count=$(${OBJDUMP} --disassemble sha_simd.o | grep -c -E 'sha256rnds2|sha256msg1|sha256msg2')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : SHA2 ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
