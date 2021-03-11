@@ -274,7 +274,7 @@ if [ -z "${XCODE_SDK}" ]; then
 fi
 
 IOS_CFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
-IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER}"
+IOS_CXXFLAGS="-arch ${IOS_CPU} ${MIN_VER} -stdlib=libc++"
 IOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ ! -d "${IOS_SYSROOT}" ]; then
@@ -368,7 +368,7 @@ export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 
 CPPFLAGS="${DEF_CPPFLAGS} ${IOS_CPPFLAGS} -isysroot ${IOS_SYSROOT}"
 CFLAGS="${DEF_CFLAGS} ${IOS_CFLAGS} --sysroot ${IOS_SYSROOT}"
-CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} -stdlib=libc++ --sysroot ${IOS_SYSROOT}"
+CXXFLAGS="${DEF_CXXFLAGS} ${IOS_CXXFLAGS} --sysroot ${IOS_SYSROOT}"
 LDFLAGS="${DEF_LDFLAGS} ${IOS_LDFLAGS}"
 
 # Trim whitespace as needed
