@@ -144,17 +144,20 @@ else
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-# Output of MIN_VER is similar to "-mmacosx-version-min=10.7". The first cut
-# gets the major version. The second cut gets the minor version.
-MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f2 -d"=" | cut -f1 -d".")
-MINOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f2 -d"=" | cut -f2 -d".")
-if [ -z "${MAJOR_VER}" ]; then MAJOR_VER=0; fi
-if [ -z "${MINOR_VER}" ]; then MINOR_VER=0; fi
+# The first cut if MIN_VER gets the full version, like 10.7. The
+# second cut gets the major or minor version
+if echo "${MIN_VER}" | grep -q '.'; then
+    MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f 2 -d '=' | cut -f 1 -d '.')
+    MINOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f 2 -d '=' | cut -f 2 -d '.')
+else
+    MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f 2 -d '=' | cut -f 1 -d '.')
+    MINOR_VER=0
+fi
 
 # OS X 10.7 minimum required for LLVM and -stdlib=libc++
 if [[ "${MAJOR_VER}" -eq 10 && "${MINOR_VER}" -ge 7 ]]; then
      MACOS_STDLIB="-stdlib=libc++"
-elif [[ "${MAJOR_VER}" -gt 10 ]]; then
+elif [[ "${MAJOR_VER}" -ge 11 ]]; then
      MACOS_STDLIB="-stdlib=libc++"
 fi
 
@@ -176,7 +179,7 @@ fi
 
 # Command Line Tools show up here on a Mac-mini M1
 if [[ "${XCODE_DEVELOPER}" == "/Library"* ]]; then
-   LIBRARY_XCODE=1
+   CLT_XCODE=1
 fi
 
 # XCODE_DEVELOPER_SDK is the SDK location.
@@ -192,7 +195,7 @@ then
       [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
     fi
 
-elif [[ "${LIBRARY_XCODE}" == "1" ]]
+elif [[ "${CLT_XCODE}" == "1" ]]
 then
     if [[ -d "${XCODE_DEVELOPER}/SDKs" ]]; then
         XCODE_DEVELOPER_SDK="${XCODE_DEVELOPER}/SDKs"
@@ -224,12 +227,16 @@ then
         fi
     done
 else
-    for i in $(seq -f "%.1f" 30.0 -0.1 1.0)
+    for i in $(seq 30 -1 5)  # SDK major
     do
-        if [ -d "${XCODE_DEVELOPER_SDK}/${MACOS_SDK}$i.sdk" ]; then
-            XCODE_SDK="${MACOS_SDK}$i.sdk"
-            break
-        fi
+        for j in $(seq 20 -1 0)  # SDK minor
+        do
+            SDK_VER="$i.$j"
+            if [ -d "${XCODE_DEVELOPER_SDK}/${MACOS_SDK}${SDK_VER}.sdk" ]; then
+                XCODE_SDK="${MACOS_SDK}${SDK_VER}.sdk"
+                break 2
+            fi
+        done
     done
 fi
 
@@ -259,7 +266,7 @@ then
       XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/usr/bin"
     fi
 
-elif [[ "${LIBRARY_XCODE}" == "1" ]]
+elif [[ "${CLT_XCODE}" == "1" ]]
 then
     if [ -d "${XCODE_DEVELOPER}/usr/bin" ]; then
       XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/usr/bin"
@@ -281,7 +288,7 @@ if [ -z "${XCODE_TOOLCHAIN}" ] || [ ! -d "${XCODE_TOOLCHAIN}" ]; then
 fi
 
 MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
-MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${MACOS_SDK}$i.sdk"
+MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${XCODE_SDK}"
 
 if [ -z "${MACOS_SYSROOT}" ] || [ ! -d "${MACOS_SYSROOT}" ]; then
   echo "ERROR: unable to find Xcode sysroot."
