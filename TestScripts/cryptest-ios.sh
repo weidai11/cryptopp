@@ -54,6 +54,7 @@ PLATFORMS+=("AppleTVOS:armv7")
 PLATFORMS+=("AppleTVOS:arm64")
 PLATFORMS+=("WatchOS:armv7")
 PLATFORMS+=("WatchOS:arm64")
+PLATFORMS+=("WatchOS:arm64_32")
 PLATFORMS+=("iPhoneSimulator:i386")
 PLATFORMS+=("iPhoneSimulator:x86_64")
 PLATFORMS+=("AppleTVSimulator:i386")
@@ -104,12 +105,25 @@ do
         fi
 
         # Test code generation
-        if [[ "${cpu}" == "arm64" ]]
+        if [[ "${cpu}" == "armv7" ]]
+        then
+
+            # Test NEON code generation
+            count=$(otool -tV aria_simd.o 2>&1 | grep -c -E 'vld|vst|vshl|vshr|veor')
+            if [[ "${count}" -gt 64 ]]
+            then
+                echo "${platform} : NEON ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : NEON ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
+            fi
+
+        elif [[ "${cpu}" == "arm64" ]]
         then
 
             # Test AES code generation
             count=$(otool -tV rijndael_simd.o 2>&1 | grep -c -E 'aese|aesd|aesmc|aesimc')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : AES ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -119,7 +133,7 @@ do
 
             # Test PMULL code generation
             count=$(otool -tV gcm_simd.o 2>&1 | grep -c -E 'pmull|pmull2')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 16 ]]
             then
                 echo "${platform} : PMULL ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -129,7 +143,7 @@ do
 
             # Test SHA1 code generation
             count=$(otool -tV sha_simd.o 2>&1 | grep -c -E 'sha1c|sha1m|sha1p|sha1h|sha1su0|sha1su1')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : SHA1 ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
@@ -139,7 +153,7 @@ do
 
             # Test SHA2 code generation
             count=$(otool -tV sha_simd.o | grep -c -E 'sha256h|sha256su0|sha256su1')
-            if [[ "${count}" -gt 0 ]]
+            if [[ "${count}" -gt 32 ]]
             then
                 echo "${platform} : SHA2 ==> SUCCESS" >> "${TMPDIR}/build.log"
             else
