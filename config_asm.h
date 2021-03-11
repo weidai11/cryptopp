@@ -234,7 +234,7 @@
 #if !defined(CRYPTOPP_ARM_NEON_AVAILABLE) && !defined(CRYPTOPP_DISABLE_ARM_NEON)
 # if defined(__arm__) || defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(_M_ARM)
 #  if (CRYPTOPP_GCC_VERSION >= 40300) || (CRYPTOPP_LLVM_CLANG_VERSION >= 20800) || \
-      (CRYPTOPP_MSC_VERSION >= 1700)
+      (CRYPTOPP_APPLE_CLANG_VERSION >= 30200) || (CRYPTOPP_MSC_VERSION >= 1700)
 #   define CRYPTOPP_ARM_NEON_AVAILABLE 1
 #  endif  // Compilers
 # endif  // Platforms
@@ -247,7 +247,7 @@
 # if defined(__aarch32__) || defined(__aarch64__) || defined(_M_ARM64)
 #  if defined(__ARM_NEON) || defined(__ARM_FEATURE_NEON) || defined(__ARM_FEATURE_ASIMD) || \
       (CRYPTOPP_GCC_VERSION >= 40800) || (CRYPTOPP_LLVM_CLANG_VERSION >= 30300) || \
-      (CRYPTOPP_MSC_VERSION >= 1916)
+      (CRYPTOPP_APPLE_CLANG_VERSION >= 40000) || (CRYPTOPP_MSC_VERSION >= 1916)
 #   define CRYPTOPP_ARM_NEON_AVAILABLE 1
 #   define CRYPTOPP_ARM_ASIMD_AVAILABLE 1
 #  endif  // Compilers
