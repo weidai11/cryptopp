@@ -121,6 +121,16 @@ do
         elif [[ "${cpu}" == "arm64" ]]
         then
 
+            # Test ASIMD code generation
+            count=$(otool -tV aria_simd.o 2>&1 | grep -c -E 'vld|vst|vshl|vshr|veor')
+            if [[ "${count}" -gt 64 ]]
+            then
+                echo "${platform} : ASIMD ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : ASIMD ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
+            fi
+
             # Test AES code generation
             count=$(otool -tV rijndael_simd.o 2>&1 | grep -c -E 'aese|aesd|aesmc|aesimc')
             if [[ "${count}" -gt 32 ]]

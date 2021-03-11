@@ -113,7 +113,6 @@ do
         fi
 
         # Test code generation
-        # Test code generation
         if [[ "${platform}" == "armv7a" ]]
         then
 
@@ -129,6 +128,16 @@ do
 
         elif [[ "${platform}" == "aarch64" ]]
         then
+
+            # Test ASIMD code generation
+            count=$(${OBJDUMP} --disassemble aria_simd.o 2>&1 | grep -c -E 'vld|vst|vshl|vshr|veor')
+            if [[ "${count}" -gt 64 ]]
+            then
+                echo "${platform} : ASIMD ==> SUCCESS" >> "${TMPDIR}/build.log"
+            else
+                echo "${platform} : ASIMD ==> FAILURE" >> "${TMPDIR}/build.log"
+                touch "${TMPDIR}/build.failed"
+            fi
 
             # Test AES code generation
             count=$(${OBJDUMP} --disassemble rijndael_simd.o 2>&1 | grep -c -E 'aese|aesd|aesmc|aesimc')
