@@ -39,7 +39,9 @@ unset ARM_EMBEDDED_CXXFLAGS
 unset ARM_EMBEDDED_LDFLAGS
 unset ARM_EMBEDDED_SYSROOT
 
-#####################################################################
+########################################
+#####         Environment          #####
+########################################
 
 if [ -z "${ARM_EMBEDDED_TOOLCHAIN-}" ]; then
     ARM_EMBEDDED_TOOLCHAIN="/usr/bin"

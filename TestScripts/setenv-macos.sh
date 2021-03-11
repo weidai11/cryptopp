@@ -49,7 +49,11 @@ fi
 if [ -z "$MACOS_CPU" ]; then
     MACOS_CPU="$(uname -m 2>/dev/null)"
     if [[ "$MACOS_CPU" == "Power Macintosh" ]] ; then
-        MACOS_CPU="ppc"
+        if [[ $(sysctl -a 2>/dev/null | grep "hw.cpu64bit_capable: 1") ]]; then
+            MACOS_CPU="ppc64"
+        else
+            MACOS_CPU="ppc"
+        fi
     fi
 fi
 
@@ -80,9 +84,15 @@ unset MACOS_SYSROOT
 #####    Small Fixups, if needed    #####
 #########################################
 
+MACOS_CPU=$(tr '[:upper:]' '[:lower:]' <<< "${MACOS_CPU}")
+
 # Old world Macs
-if [[ "$MACOS_CPU" == "Power Macintosh" ]] ; then
+if [[ "$MACOS_CPU" == "power macintosh" || "$MACOS_CPU" == "powerpc" ]] ; then
     MACOS_CPU=ppc
+fi
+
+if [[ "$MACOS_CPU" == "ppc64" || "$MACOS_CPU" == "powerpc64" ]] ; then
+    MACOS_CPU=ppc64
 fi
 
 if [[ "$MACOS_CPU" == "386" || "$MACOS_CPU" == "i686" || "$MACOS_CPU" == "686" ]] ; then
@@ -97,6 +107,8 @@ if [[ "$MACOS_CPU" == "aarch64" || "$MACOS_CPU" == "arm64"* || "$MACOS_CPU" == "
     MACOS_CPU=arm64
 fi
 
+echo "Configuring for $MACOS_SDK ($MACOS_CPU)"
+
 ########################################
 #####         Environment          #####
 ########################################
@@ -110,18 +122,21 @@ fi
 # Also see https://github.com/rust-lang/rust/issues/48862
 # and https://developer.apple.com/documentation/bundleresources/information_property_list/minimumosversion
 
-# iPhones can be either 32-bit or 64-bit
+# PowerMacs and Intels can be either 32-bit or 64-bit
 if [[ "$MACOS_CPU" == "ppc" ]]; then
-    MIN_VER=-mmacosx-version-min=10
+    MIN_VER="-mmacosx-version-min=10.4"
+
+elif [[ "$MACOS_CPU" == "ppc64" ]]; then
+    MIN_VER="-mmacosx-version-min=10.4"
 
 elif [[ "$MACOS_CPU" == "i386" ]]; then
-    MIN_VER=-mmacosx-version-min=10.7
+    MIN_VER="-mmacosx-version-min=10.7"
 
 elif [[ "$MACOS_CPU" == "x86_64" ]]; then
-    MIN_VER=-mmacosx-version-min=10.7
+    MIN_VER="-mmacosx-version-min=10.7"
 
 elif [[ "$MACOS_CPU" == "arm64" ]]; then
-    MIN_VER=-mmacosx-version-min=11.0
+    MIN_VER="-mmacosx-version-min=11.0"
 
 # And the final catch-all
 else
@@ -133,17 +148,15 @@ fi
 # gets the major version. The second cut gets the minor version.
 MAJOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f2 -d"=" | cut -f1 -d".")
 MINOR_VER=$(echo "${MIN_VER}" | head -n 1 | cut -f2 -d"=" | cut -f2 -d".")
-if [ -z "$MAJOR_VER" ]; then MAJOR_VER=0; fi
-if [ -z "$MINOR_VER" ]; then MINOR_VER=0; fi
+if [ -z "${MAJOR_VER}" ]; then MAJOR_VER=0; fi
+if [ -z "${MINOR_VER}" ]; then MINOR_VER=0; fi
 
 # OS X 10.7 minimum required for LLVM and -stdlib=libc++
-if [[ "$MAJOR_VER" -eq 10 && "$MINOR_VER" -ge 7 ]]; then
-	 MACOS_STDLIB="-stdlib=libc++"
-elif [[ "$MAJOR_VER" -gt 10 ]]; then
-	 MACOS_STDLIB="-stdlib=libc++"
+if [[ "${MAJOR_VER}" -eq 10 && "${MINOR_VER}" -ge 7 ]]; then
+     MACOS_STDLIB="-stdlib=libc++"
+elif [[ "${MAJOR_VER}" -gt 10 ]]; then
+     MACOS_STDLIB="-stdlib=libc++"
 fi
-
-#####################################################################
 
 # Allow a user override? I think we should be doing this. The use case is:
 # move /Applications/Xcode somewhere else for a side-by-side installation.
@@ -151,54 +164,105 @@ if [ -z "${XCODE_DEVELOPER-}" ]; then
   XCODE_DEVELOPER=$(xcode-select -print-path 2>/dev/null)
 fi
 
-if [ ! -d "$XCODE_DEVELOPER" ]; then
+if [ ! -d "${XCODE_DEVELOPER}" ]; then
   echo "ERROR: unable to find XCODE_DEVELOPER directory."
   [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
+if [[ "${XCODE_DEVELOPER}" == "/Developer"* ]]; then
+   ANTIQUE_XCODE=1
+   DEF_CXXFLAGS=$(echo "$DEF_CXXFLAGS" | sed 's/-Wall //g')
+fi
+
 # XCODE_DEVELOPER_SDK is the SDK location.
-XCODE_DEVELOPER_SDK="$XCODE_DEVELOPER/Platforms/$MACOS_SDK.platform"
+if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+    if [[ -d "${XCODE_DEVELOPER}/SDKs" ]]; then
+        XCODE_DEVELOPER_SDK="${XCODE_DEVELOPER}/SDKs"
+    fi
 
-if [ ! -d "$XCODE_DEVELOPER_SDK" ]; then
-  echo "ERROR: unable to find XCODE_DEVELOPER_SDK directory."
-  echo "       Is the SDK supported by Xcode and installed?"
-  [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
-fi
+    if [ ! -d "${XCODE_DEVELOPER_SDK}" ]; then
+      echo "ERROR: unable to find XCODE_DEVELOPER_SDK directory."
+      echo "       Is the SDK supported by Xcode and installed?"
+      [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+    fi
 
-# XCODE_TOOLCHAIN is the location of the actual compiler tools.
-if [ -d "$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/" ]; then
-  XCODE_TOOLCHAIN="$XCODE_DEVELOPER/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
-elif [ -d "$XCODE_DEVELOPER_SDK/Developer/usr/bin/" ]; then
-  XCODE_TOOLCHAIN="$XCODE_DEVELOPER_SDK/Developer/usr/bin/"
-fi
-
-if [ -z "$XCODE_TOOLCHAIN" ] || [ ! -d "$XCODE_TOOLCHAIN" ]; then
-  echo "ERROR: unable to find Xcode cross-compiler tools."
-  [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+else
+    if [[ -d "${XCODE_DEVELOPER}/Platforms/${MACOS_SDK}.platform" ]]; then
+        XCODE_DEVELOPER_SDK="${XCODE_DEVELOPER}/Platforms/${MACOS_SDK}.platform/Developer/SDKs"
+    fi
 fi
 
 # XCODE_SDK is the SDK name/version being used - adjust the list as appropriate.
 # For example, remove 4.3, 6.2, and 6.1 if they are not installed. We go back to
 # the 1.0 SDKs because Apple WatchOS uses low numbers, like 2.0 and 2.1.
 XCODE_SDK=""
-for i in $(seq -f "%.1f" 30.0 -0.1 1.0)
-do
-    if [ -d "$XCODE_DEVELOPER_SDK/Developer/SDKs/$MACOS_SDK$i.sdk" ]; then
-        XCODE_SDK="$MACOS_SDK$i.sdk"
-        break
-    fi
-done
+if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+    for i in 10.7 10.6 10.5 10.4 10.3 10.2 10.0
+    do
+        if [ -d "${XCODE_DEVELOPER_SDK}/${MACOS_SDK}$i.sdk" ]; then
+            XCODE_SDK="${MACOS_SDK}$i.sdk"
+            break
+        fi
+    done
+else
+    for i in $(seq -f "%.1f" 30.0 -0.1 1.0)
+    do
+        if [ -d "${XCODE_DEVELOPER_SDK}/${MACOS_SDK}$i.sdk" ]; then
+            XCODE_SDK="${MACOS_SDK}$i.sdk"
+            break
+        fi
+    done
+fi
 
 # Error checking
-if [ -z "$XCODE_SDK" ]; then
+if [ -z "${XCODE_SDK}" ]; then
     echo "ERROR: unable to find a SDK."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
-MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
-MACOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
+# XCODE_DEVELOPER_SDK is the SDK location.
+if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+    # XCODE_DEVELOPER_SDK for old Xcode is above
+    :
+else
+    if [ ! -d "${XCODE_DEVELOPER_SDK}" ]; then
+      echo "ERROR: unable to find XCODE_DEVELOPER_SDK directory."
+      echo "       Is the SDK supported by Xcode and installed?"
+      [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+    fi
+fi
 
-echo "Configuring for $MACOS_SDK ($MACOS_CPU)"
+# XCODE_TOOLCHAIN is the location of the actual compiler tools.
+if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+if [ -d "${XCODE_DEVELOPER}/usr/bin" ]; then
+      XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/usr/bin"
+    fi
+else
+    if [ -d "${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/" ]; then
+      XCODE_TOOLCHAIN="${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/"
+    elif [ -d "${XCODE_DEVELOPER_SDK}/Developer/usr/bin/" ]; then
+      XCODE_TOOLCHAIN="${XCODE_DEVELOPER_SDK}/Developer/usr/bin/"
+    elif [ -d "${XCODE_DEVELOPER_SDK}/usr/bin/" ]; then
+      XCODE_TOOLCHAIN="${XCODE_DEVELOPER_SDK}/usr/bin/"
+    fi
+fi
+
+if [ -z "${XCODE_TOOLCHAIN}" ] || [ ! -d "${XCODE_TOOLCHAIN}" ]; then
+  echo "ERROR: unable to find Xcode cross-compiler tools."
+  [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
+
+MACOS_CXXFLAGS="-arch $MACOS_CPU $MIN_VER ${MACOS_STDLIB}"
+MACOS_SYSROOT="${XCODE_DEVELOPER_SDK}/${MACOS_SDK}$i.sdk"
+
+if [ -z "${MACOS_SYSROOT}" ] || [ ! -d "${MACOS_SYSROOT}" ]; then
+  echo "ERROR: unable to find Xcode sysroot."
+  [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
 
 #####################################################################
 
@@ -206,38 +270,43 @@ CPP="cpp"; CC="clang"; CXX="clang++"; LD="ld"
 AS="as"; AR="libtool"; RANLIB="ranlib"
 STRIP="strip"; OBJDUMP="objdump"
 
+if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+    CC="gcc"; CXX="g++";
+fi
+
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$CC" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$CC" ]; then
     echo "ERROR: Failed to find MacOS clang. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$CXX" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$CXX" ]; then
     echo "ERROR: Failed to find MacOS clang++. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$RANLIB" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$RANLIB" ]; then
     echo "ERROR: Failed to find MacOS ranlib. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$AR" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$AR" ]; then
     echo "ERROR: Failed to find MacOS ar. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$AS" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$AS" ]; then
     echo "ERROR: Failed to find MacOS as. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
 
 # Error checking
-if [ ! -e "$XCODE_TOOLCHAIN/$LD" ]; then
+if [ ! -e "${XCODE_TOOLCHAIN}/$LD" ]; then
     echo "ERROR: Failed to find MacOS ld. Please edit this script."
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
 fi
@@ -247,18 +316,19 @@ fi
 # Add tools to head of path, if not present already
 LENGTH=${#XCODE_TOOLCHAIN}
 SUBSTR=${PATH:0:$LENGTH}
-if [ "$SUBSTR" != "$XCODE_TOOLCHAIN" ]; then
-    export PATH="$XCODE_TOOLCHAIN:$PATH"
+if [ "${SUBSTR}" != "${XCODE_TOOLCHAIN}" ]; then
+    PATH="${XCODE_TOOLCHAIN}:$PATH"
+    export PATH
 fi
 
 #####################################################################
 
 VERBOSE=${VERBOSE:-1}
 if [ "$VERBOSE" -gt 0 ]; then
-  echo "XCODE_TOOLCHAIN: $XCODE_TOOLCHAIN"
-  echo "MACOS_SDK: $MACOS_SDK"
-  echo "MACOS_CPU: $MACOS_CPU"
-  echo "MACOS_SYSROOT: $MACOS_SYSROOT"
+  echo "XCODE_TOOLCHAIN: ${XCODE_TOOLCHAIN}"
+  echo "MACOS_SDK: ${MACOS_SDK}"
+  echo "MACOS_CPU: ${MACOS_CPU}"
+  echo "MACOS_SYSROOT: ${MACOS_SYSROOT}"
   if [ -n "${MACOS_CPPFLAGS}" ]; then
     echo "MACOS_CPPFLAGS: ${MACOS_CPPFLAGS}"
   fi
@@ -277,9 +347,16 @@ fi
 export IS_MACOS=1
 export CPP CC CXX LD AS AR RANLIB STRIP OBJDUMP
 
-CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
-CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS} --sysroot \"${MACOS_SYSROOT}\""
-LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS}"
+if [[ "${ANTIQUE_XCODE}" == "1" ]]
+then
+    CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
+    CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS}"
+    LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS} -sysroot=\"${MACOS_SYSROOT}\""
+else
+    CPPFLAGS="${DEF_CPPFLAGS} ${MACOS_CPPFLAGS} -isysroot \"${MACOS_SYSROOT}\""
+    CXXFLAGS="${DEF_CXXFLAGS} ${MACOS_CXXFLAGS} --sysroot \"${MACOS_SYSROOT}\""
+    LDFLAGS="${DEF_LDFLAGS} ${MACOS_LDFLAGS}"
+fi
 
 # Trim whitespace as needed
 CPPFLAGS=$(echo "${CPPFLAGS}" | awk '{$1=$1;print}')

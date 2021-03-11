@@ -87,7 +87,33 @@ unset ANDROID_CXXFLAGS
 unset ANDROID_LDFLAGS
 unset ANDROID_SYSROOT
 
-#####################################################################
+#########################################
+#####    Small Fixups, if needed    #####
+#########################################
+
+ANDROID_CPU=$(tr '[:upper:]' '[:lower:]' <<< "${ANDROID_CPU}")
+
+if [[ "$ANDROID_CPU" == "amd64" || "$ANDROID_CPU" == "x86_64" ]] ; then
+    ANDROID_CPU=x86_64
+fi
+
+if [[ "$ANDROID_CPU" == "i386" || "$ANDROID_CPU" == "i686" ]] ; then
+    ANDROID_CPU=i686
+fi
+
+if [[ "$ANDROID_CPU" == "armv7"* || "$ANDROID_CPU" == "armeabi"* ]] ; then
+    ANDROID_CPU=armeabi-v7a
+fi
+
+if [[ "$ANDROID_CPU" == "aarch64" || "$ANDROID_CPU" == "arm64"* || "$ANDROID_CPU" == "armv8"* ]] ; then
+    ANDROID_CPU=arm64-v8a
+fi
+
+echo "Configuring for $ANDROID_SDK ($ANDROID_CPU)"
+
+########################################
+#####         Environment          #####
+########################################
 
 # ANDROID_NDK_ROOT should always be set by the user (even when not running this script)
 # http://groups.google.com/group/android-ndk/browse_thread/thread/a998e139aca71d77.
@@ -162,14 +188,13 @@ fi
 
 #####################################################################
 
-THE_ARCH=$(tr '[:upper:]' '[:lower:]' <<< "${ANDROID_CPU}")
-
 # https://developer.android.com/ndk/guides/abis.html and
 # https://developer.android.com/ndk/guides/cpp-support.
 # Since NDK r16 the only STL available is libc++, so we
 # add -std=c++11 -stdlib=libc++ to CXXFLAGS. This is
 # consistent with Android.mk and 'APP_STL := c++_shared'.
-case "$THE_ARCH" in
+
+case "$ANDROID_CPU" in
   armv7*|armeabi*)
     CC="armv7a-linux-androideabi${ANDROID_API}-clang"
     CXX="armv7a-linux-androideabi${ANDROID_API}-clang++"
@@ -189,6 +214,7 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
+
   armv8*|aarch64|arm64*)
     CC="aarch64-linux-android${ANDROID_API}-clang"
     CXX="aarch64-linux-android${ANDROID_API}-clang++"
@@ -207,6 +233,7 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
+
   i686|x86)
     CC="i686-linux-android${ANDROID_API}-clang"
     CXX="i686-linux-android${ANDROID_API}-clang++"
@@ -226,6 +253,7 @@ case "$THE_ARCH" in
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fstack-protector-strong -funwind-tables -fexceptions -frtti"
     ANDROID_CXXFLAGS="${ANDROID_CXXFLAGS} -fno-addrsig -fno-experimental-isel"
     ;;
+
   x86_64|x64)
     CC="x86_64-linux-android${ANDROID_API}-clang"
     CXX="x86_64-linux-android${ANDROID_API}-clang++"
@@ -250,6 +278,8 @@ case "$THE_ARCH" in
     [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
     ;;
 esac
+
+echo "Configuring for Android API ${ANDROID_API} ($ANDROID_CPU)"
 
 #####################################################################
 

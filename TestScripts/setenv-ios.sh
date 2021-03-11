@@ -88,25 +88,46 @@ unset IOS_SYSROOT
 #####    Small Fixups, if needed    #####
 #########################################
 
+IOS_CPU=$(tr '[:upper:]' '[:lower:]' <<< "${IOS_CPU}")
+ALT_SDK=$(tr '[:upper:]' '[:lower:]' <<< "${IOS_SDK}")
+
 if [[ "$IOS_SDK" == "iPhone" ]]; then
+    IOS_SDK=iPhoneOS
+elif [[ "$ALT_SDK" == "iphone" || "$ALT_SDK" == "iphoneos" ]]; then
     IOS_SDK=iPhoneOS
 fi
 
-if [[ "$IOS_SDK" == "iPhoneOSSimulator" ]]; then
+if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "iPhoneOSSimulator" ]]; then
+    IOS_SDK=iPhoneSimulator
+elif [[ "$ALT_SDK" == "iphonesimulator" || "$ALT_SDK" == "iphoneossimulator" ]]; then
     IOS_SDK=iPhoneSimulator
 fi
 
 if [[ "$IOS_SDK" == "TV" || "$IOS_SDK" == "AppleTV" ]]; then
     IOS_SDK=AppleTVOS
+elif [[ "$ALT_SDK" == "tv" || "$ALT_SDK" == "appletv" || "$ALT_SDK" == "appletvos" ]]; then
+    IOS_SDK=AppleTVOS
 fi
 
 if [[ "$IOS_SDK" == "Watch" || "$IOS_SDK" == "AppleWatch" ]]; then
     IOS_SDK=WatchOS
+elif [[ "$ALT_SDK" == "watch" || "$ALT_SDK" == "applewatch" || "$ALT_SDK" == "applewatchos" ]]; then
+    IOS_SDK=WatchOS
+fi
+
+if [[ "$IOS_CPU" == "amd64" || "$IOS_CPU" == "x86_64" ]] ; then
+    IOS_CPU=x86_64
+fi
+
+if [[ "$IOS_CPU" == "i386" || "$IOS_CPU" == "i586" || "$IOS_CPU" == "i686" ]] ; then
+    IOS_CPU=i386
 fi
 
 if [[ "$IOS_CPU" == "aarch64" || "$IOS_CPU" == "arm64"* || "$IOS_CPU" == "armv8"* ]] ; then
     IOS_CPU=arm64
 fi
+
+echo "Configuring for $IOS_SDK ($IOS_CPU)"
 
 ########################################
 #####         Environment          #####
@@ -249,13 +270,16 @@ fi
 IOS_CXXFLAGS="-arch $IOS_CPU $MIN_VER"
 IOS_SYSROOT="$XCODE_DEVELOPER_SDK/Developer/SDKs/$XCODE_SDK"
 
+if [ -z "$IOS_SYSROOT" ] || [ ! -d "$IOS_SYSROOT" ]; then
+  echo "ERROR: unable to find Xcode sysroot."
+  [ "$0" = "${BASH_SOURCE[0]}" ] && exit 1 || return 1
+fi
+
 # The simulators need to disable ASM. They don't receive arch flags.
 # https://github.com/weidai11/cryptopp/issues/635
 if [[ "$IOS_SDK" == "iPhoneSimulator" || "$IOS_SDK" == "AppleTVSimulator" || "$IOS_SDK" == "WatchSimulator" ]]; then
     IOS_CPPFLAGS="$IOS_CPPFLAGS -DCRYPTOPP_DISABLE_ASM"
 fi
-
-echo "Configuring for $IOS_SDK ($IOS_CPU)"
 
 #####################################################################
 
